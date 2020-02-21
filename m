@@ -1,94 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56130 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727926AbgBTKka (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21362 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726100AbgBULFi (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:30 -0500
+        Fri, 21 Feb 2020 06:05:38 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01LB5KN6123556
+        for <linux-s390@vger.kernel.org>; Fri, 21 Feb 2020 06:05:37 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2y8uc0p58j-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 21 Feb 2020 06:05:37 -0500
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Fri, 21 Feb 2020 11:05:35 -0000
+Subject: Re: [PATCH v3.1 02/37] KVM: s390/interrupt: do not pin adapter
+ interrupt pages
+References: <20200220104020.5343-3-borntraeger@de.ibm.com>
+ <20200221080942.10334-1-borntraeger@de.ibm.com>
+ <20200221114158.2eeca512.cohuck@redhat.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 20/37] KVM: s390: protvirt: handle secure guest prefix pages
-Date: Thu, 20 Feb 2020 05:40:03 -0500
-Message-Id: <20200220104020.5343-21-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Date: Fri, 21 Feb 2020 12:05:30 +0100
 MIME-Version: 1.0
+In-Reply-To: <20200221114158.2eeca512.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+Message-Id: <83b4d4e6-3143-a7bb-84b8-bd0feced0d6f@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Ulrich.Weigand@de.ibm.com, david@redhat.com, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com
 
-From: Janosch Frank <frankja@linux.ibm.com>
 
-The SPX instruction is handled by the ultravisor. We do get a
-notification intercept, though. Let us update our internal view.
 
-In addition to that, when the guest prefix page is not secure, an
-intercept 112 (0x70) is indicated. Let us make the prefix pages
-secure again.
+On 21.02.20 11:41, Cornelia Huck wrote:
+> On Fri, 21 Feb 2020 03:09:42 -0500
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> From: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+>>
+>> The adapter interrupt page containing the indicator bits is currently
+>> pinned. That means that a guest with many devices can pin a lot of
+>> memory pages in the host. This also complicates the reference tracking
+>> which is needed for memory management handling of protected virtual
+>> machines. It might also have some strange side effects for madvise
+>> MADV_DONTNEED and other things.
+>>
+>> We can simply try to get the userspace page set the bits and free the
+>> page. By storing the userspace address in the irq routing entry instead
+>> of the guest address we can actually avoid many lookups and list walks
+>> so that this variant is very likely not slower.
+>>
+>> If userspace messes around with the memory slots the worst thing that
+>> can happen is that we write to some other memory within that process.
+>> As we get the the page with FOLL_WRITE this can also not be used to
+>> write to shared read-only pages.
+>>
+>> Signed-off-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
+>> [borntraeger@de.ibm.com: patch simplification]
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>  Documentation/virt/kvm/devices/s390_flic.rst |  11 +-
+>>  arch/s390/include/asm/kvm_host.h             |   3 -
+>>  arch/s390/kvm/interrupt.c                    | 172 ++++++-------------
+>>  3 files changed, 52 insertions(+), 134 deletions(-)
+> 
+> (...)
+> 
+>> @@ -2456,12 +2378,13 @@ static int modify_io_adapter(struct kvm_device *dev,
+>>  		if (ret > 0)
+>>  			ret = 0;
+>>  		break;
+>> +	/*
+>> +	 * We resolve the gpa to hva when setting the IRQ routing. the set_irq
+>> +	 * code uses get_user_pages_remote() to do the actual write.
+>> +	 */
+> 
+> What about:
+> 
+> "The following operations are no longer needed and therefore no-ops.
+> The gpa to hva translation is done when an IRQ route is set up. The
+> set_irq code uses get_user_pages_remote() to do the actual write."
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/intercept.c        | 18 ++++++++++++++++++
- 2 files changed, 19 insertions(+)
+ack, reads better.
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index aa945b101fff..0ea82152d2f7 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -225,6 +225,7 @@ struct kvm_s390_sie_block {
- #define ICPT_INT_ENABLE	0x64
- #define ICPT_PV_INSTR	0x68
- #define ICPT_PV_NOTIFY	0x6c
-+#define ICPT_PV_PREF	0x70
- 	__u8	icptcode;		/* 0x0050 */
- 	__u8	icptstatus;		/* 0x0051 */
- 	__u16	ihcpu;			/* 0x0052 */
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index cf4c0da4e956..f4d533554157 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -451,6 +451,15 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
- }
- 
-+static int handle_pv_spx(struct kvm_vcpu *vcpu)
-+{
-+	u32 pref = *(u32 *)vcpu->arch.sie_block->sidad;
-+
-+	kvm_s390_set_prefix(vcpu, pref);
-+	trace_kvm_s390_handle_prefix(vcpu, 1, pref);
-+	return 0;
-+}
-+
- static int handle_pv_sclp(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
-@@ -477,6 +486,8 @@ static int handle_pv_sclp(struct kvm_vcpu *vcpu)
- 
- static int handle_pv_notification(struct kvm_vcpu *vcpu)
- {
-+	if (vcpu->arch.sie_block->ipa == 0xb210)
-+		return handle_pv_spx(vcpu);
- 	if (vcpu->arch.sie_block->ipa == 0xb220)
- 		return handle_pv_sclp(vcpu);
- 
-@@ -534,6 +545,13 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 	case ICPT_PV_NOTIFY:
- 		rc = handle_pv_notification(vcpu);
- 		break;
-+	case ICPT_PV_PREF:
-+		rc = 0;
-+		gmap_convert_to_secure(vcpu->arch.gmap,
-+				       kvm_s390_get_prefix(vcpu));
-+		gmap_convert_to_secure(vcpu->arch.gmap,
-+				       kvm_s390_get_prefix(vcpu) + PAGE_SIZE);
-+		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
--- 
-2.25.0
+> 
+>>  	case KVM_S390_IO_ADAPTER_MAP:
+>> -		ret = kvm_s390_adapter_map(dev->kvm, req.id, req.addr);
+>> -		break;
+>>  	case KVM_S390_IO_ADAPTER_UNMAP:
+>> -		ret = kvm_s390_adapter_unmap(dev->kvm, req.id, req.addr);
+>> -		break;
+>> +		return 0;
+> 
+> I think
+> 		ret = 0;
+> 		break;
+> would be better, as the other cases do not do a direct return, either.
+
+fine with me. ack
+> 
+>>  	default:
+>>  		ret = -EINVAL;
+>>  	}
+>> @@ -2699,19 +2622,17 @@ static unsigned long get_ind_bit(__u64 addr, unsigned long bit_nr, bool swap)
+>>  	return swap ? (bit ^ (BITS_PER_LONG - 1)) : bit;
+>>  }
+>>  
+>> -static struct s390_map_info *get_map_info(struct s390_io_adapter *adapter,
+>> -					  u64 addr)
+>> +static struct page *get_map_page(struct kvm *kvm,
+>> +				 struct s390_io_adapter *adapter,
+> 
+> adapter seems to be unused in this function now? Should we remove it from the parameter list?
+
+yep, thanks. removed.
