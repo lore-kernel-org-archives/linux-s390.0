@@ -1,169 +1,181 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63642 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726921AbgBTKk3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:29 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 04/37] s390/protvirt: add ultravisor initialization
-Date: Thu, 20 Feb 2020 05:39:47 -0500
-Message-Id: <20200220104020.5343-5-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 07/25] s390/zcrypt: fix card and queue total counter wrap
+Date: Sat, 22 Feb 2020 21:23:21 -0500
+Message-Id: <20200223022339.1885-7-sashal@kernel.org>
+In-Reply-To: <20200223022339.1885-1-sashal@kernel.org>
+References: <20200223022339.1885-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Harald Freudenberger <freude@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-Before being able to host protected virtual machines, donate some of
-the memory to the ultravisor. Besides that the ultravisor might impose
-addressing limitations for memory used to back protected VM storage. Treat
-that limit as protected virtualization host's virtual memory limit.
+[ Upstream commit fcd98d4002539f1e381916fc1b6648938c1eac76 ]
 
+The internal statistic counters for the total number of
+requests processed per card and per queue used integers. So they do
+wrap after a rather huge amount of crypto requests processed. This
+patch introduces uint64 counters which should hold much longer but
+still may wrap. The sysfs attributes request_count for card and queue
+also used only %ld and now display the counter value with %llu.
+
+This is not a security relevant fix. The int overflow which happened
+is not in any way exploitable as a security breach.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/uv.h | 15 ++++++++++++
- arch/s390/kernel/setup.c   |  5 ++++
- arch/s390/kernel/uv.c      | 48 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 68 insertions(+)
+ drivers/s390/crypto/ap_bus.h     |  4 ++--
+ drivers/s390/crypto/ap_card.c    |  8 ++++----
+ drivers/s390/crypto/ap_queue.c   |  6 +++---
+ drivers/s390/crypto/zcrypt_api.c | 16 +++++++++-------
+ 4 files changed, 18 insertions(+), 16 deletions(-)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 422aee15c9cc..cad643b05d19 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -23,12 +23,14 @@
- #define UVC_RC_NO_RESUME	0x0007
- 
- #define UVC_CMD_QUI			0x0001
-+#define UVC_CMD_INIT_UV			0x000f
- #define UVC_CMD_SET_SHARED_ACCESS	0x1000
- #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
- 
- /* Bits in installed uv calls */
- enum uv_cmds_inst {
- 	BIT_UVC_CMD_QUI = 0,
-+	BIT_UVC_CMD_INIT_UV = 1,
- 	BIT_UVC_CMD_SET_SHARED_ACCESS = 8,
- 	BIT_UVC_CMD_REMOVE_SHARED_ACCESS = 9,
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 7e85d238767ba..1c799ddd97092 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -158,7 +158,7 @@ struct ap_card {
+ 	unsigned int functions;		/* AP device function bitfield. */
+ 	int queue_depth;		/* AP queue depth.*/
+ 	int id;				/* AP card number. */
+-	atomic_t total_request_count;	/* # requests ever for this AP device.*/
++	atomic64_t total_request_count;	/* # requests ever for this AP device.*/
  };
-@@ -59,6 +61,14 @@ struct uv_cb_qui {
- 	u8  reserveda0[200 - 160];
- } __packed __aligned(8);
  
-+struct uv_cb_init {
-+	struct uv_cb_header header;
-+	u64 reserved08[2];
-+	u64 stor_origin;
-+	u64 stor_len;
-+	u64 reserved28[4];
-+} __packed __aligned(8);
-+
- struct uv_cb_share {
- 	struct uv_cb_header header;
- 	u64 reserved08[3];
-@@ -160,8 +170,13 @@ static inline int is_prot_virt_host(void)
+ #define to_ap_card(x) container_of((x), struct ap_card, ap_dev.device)
+@@ -175,7 +175,7 @@ struct ap_queue {
+ 	enum ap_state state;		/* State of the AP device. */
+ 	int pendingq_count;		/* # requests on pendingq list. */
+ 	int requestq_count;		/* # requests on requestq list. */
+-	int total_request_count;	/* # requests ever for this AP device.*/
++	u64 total_request_count;	/* # requests ever for this AP device.*/
+ 	int request_timeout;		/* Request timeout in jiffies. */
+ 	struct timer_list timeout;	/* Timer for request timeouts. */
+ 	struct list_head pendingq;	/* List of message sent to AP queue. */
+diff --git a/drivers/s390/crypto/ap_card.c b/drivers/s390/crypto/ap_card.c
+index 63b4cc6cd7e59..e85bfca1ed163 100644
+--- a/drivers/s390/crypto/ap_card.c
++++ b/drivers/s390/crypto/ap_card.c
+@@ -63,13 +63,13 @@ static ssize_t request_count_show(struct device *dev,
+ 				  char *buf)
  {
- 	return prot_virt_host;
- }
-+
-+void setup_uv(void);
-+void adjust_to_uv_max(unsigned long *vmax);
- #else
- #define is_prot_virt_host() 0
-+static inline void setup_uv(void) {}
-+static inline void adjust_to_uv_max(unsigned long *vmax) {}
- #endif
+ 	struct ap_card *ac = to_ap_card(dev);
+-	unsigned int req_cnt;
++	u64 req_cnt;
  
- #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) ||                          \
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index a2496382175e..1423090a2259 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -560,6 +560,9 @@ static void __init setup_memory_end(void)
- 			vmax = _REGION1_SIZE; /* 4-level kernel page table */
+ 	req_cnt = 0;
+ 	spin_lock_bh(&ap_list_lock);
+-	req_cnt = atomic_read(&ac->total_request_count);
++	req_cnt = atomic64_read(&ac->total_request_count);
+ 	spin_unlock_bh(&ap_list_lock);
+-	return snprintf(buf, PAGE_SIZE, "%d\n", req_cnt);
++	return snprintf(buf, PAGE_SIZE, "%llu\n", req_cnt);
+ }
+ 
+ static ssize_t request_count_store(struct device *dev,
+@@ -83,7 +83,7 @@ static ssize_t request_count_store(struct device *dev,
+ 	for_each_ap_queue(aq, ac)
+ 		aq->total_request_count = 0;
+ 	spin_unlock_bh(&ap_list_lock);
+-	atomic_set(&ac->total_request_count, 0);
++	atomic64_set(&ac->total_request_count, 0);
+ 
+ 	return count;
+ }
+diff --git a/drivers/s390/crypto/ap_queue.c b/drivers/s390/crypto/ap_queue.c
+index 576ac08777c50..e1647da122f7f 100644
+--- a/drivers/s390/crypto/ap_queue.c
++++ b/drivers/s390/crypto/ap_queue.c
+@@ -470,12 +470,12 @@ static ssize_t request_count_show(struct device *dev,
+ 				  char *buf)
+ {
+ 	struct ap_queue *aq = to_ap_queue(dev);
+-	unsigned int req_cnt;
++	u64 req_cnt;
+ 
+ 	spin_lock_bh(&aq->lock);
+ 	req_cnt = aq->total_request_count;
+ 	spin_unlock_bh(&aq->lock);
+-	return snprintf(buf, PAGE_SIZE, "%d\n", req_cnt);
++	return snprintf(buf, PAGE_SIZE, "%llu\n", req_cnt);
+ }
+ 
+ static ssize_t request_count_store(struct device *dev,
+@@ -667,7 +667,7 @@ void ap_queue_message(struct ap_queue *aq, struct ap_message *ap_msg)
+ 	list_add_tail(&ap_msg->list, &aq->requestq);
+ 	aq->requestq_count++;
+ 	aq->total_request_count++;
+-	atomic_inc(&aq->card->total_request_count);
++	atomic64_inc(&aq->card->total_request_count);
+ 	/* Send/receive as many request from the queue as possible. */
+ 	ap_wait(ap_sm_event_loop(aq, AP_EVENT_POLL));
+ 	spin_unlock_bh(&aq->lock);
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index b2737bfeb8bb6..23c24a699cefe 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -190,8 +190,8 @@ static inline bool zcrypt_card_compare(struct zcrypt_card *zc,
+ 	weight += atomic_read(&zc->load);
+ 	pref_weight += atomic_read(&pref_zc->load);
+ 	if (weight == pref_weight)
+-		return atomic_read(&zc->card->total_request_count) >
+-			atomic_read(&pref_zc->card->total_request_count);
++		return atomic64_read(&zc->card->total_request_count) >
++			atomic64_read(&pref_zc->card->total_request_count);
+ 	return weight > pref_weight;
+ }
+ 
+@@ -719,11 +719,12 @@ static void zcrypt_qdepth_mask(char qdepth[], size_t max_adapters)
+ 	spin_unlock(&zcrypt_list_lock);
+ }
+ 
+-static void zcrypt_perdev_reqcnt(int reqcnt[], size_t max_adapters)
++static void zcrypt_perdev_reqcnt(u32 reqcnt[], size_t max_adapters)
+ {
+ 	struct zcrypt_card *zc;
+ 	struct zcrypt_queue *zq;
+ 	int card;
++	u64 cnt;
+ 
+ 	memset(reqcnt, 0, sizeof(int) * max_adapters);
+ 	spin_lock(&zcrypt_list_lock);
+@@ -735,8 +736,9 @@ static void zcrypt_perdev_reqcnt(int reqcnt[], size_t max_adapters)
+ 			    || card >= max_adapters)
+ 				continue;
+ 			spin_lock(&zq->queue->lock);
+-			reqcnt[card] = zq->queue->total_request_count;
++			cnt = zq->queue->total_request_count;
+ 			spin_unlock(&zq->queue->lock);
++			reqcnt[card] = (cnt < UINT_MAX) ? (u32) cnt : UINT_MAX;
+ 		}
  	}
+ 	local_bh_enable();
+@@ -907,9 +909,9 @@ static long zcrypt_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 		return 0;
+ 	}
+ 	case ZCRYPT_PERDEV_REQCNT: {
+-		int *reqcnt;
++		u32 *reqcnt;
  
-+	if (is_prot_virt_host())
-+		adjust_to_uv_max(&vmax);
-+
- 	/* module area is at the end of the kernel address space. */
- 	MODULES_END = vmax;
- 	MODULES_VADDR = MODULES_END - MODULES_LEN;
-@@ -1134,6 +1137,8 @@ void __init setup_arch(char **cmdline_p)
- 	 */
- 	memblock_trim_memory(1UL << (MAX_ORDER - 1 + PAGE_SHIFT));
+-		reqcnt = kcalloc(AP_DEVICES, sizeof(int), GFP_KERNEL);
++		reqcnt = kcalloc(AP_DEVICES, sizeof(u32), GFP_KERNEL);
+ 		if (!reqcnt)
+ 			return -ENOMEM;
+ 		zcrypt_perdev_reqcnt(reqcnt, AP_DEVICES);
+@@ -966,7 +968,7 @@ static long zcrypt_unlocked_ioctl(struct file *filp, unsigned int cmd,
+ 	}
+ 	case Z90STAT_PERDEV_REQCNT: {
+ 		/* the old ioctl supports only 64 adapters */
+-		int reqcnt[MAX_ZDEV_CARDIDS];
++		u32 reqcnt[MAX_ZDEV_CARDIDS];
  
-+	if (is_prot_virt_host())
-+		setup_uv();
- 	setup_memory_end();
- 	setup_memory();
- 	dma_contiguous_reserve(memory_end);
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index b1f936710360..1ddc42154ef6 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -49,4 +49,52 @@ static int __init prot_virt_setup(char *val)
- 	return rc;
- }
- early_param("prot_virt", prot_virt_setup);
-+
-+static int __init uv_init(unsigned long stor_base, unsigned long stor_len)
-+{
-+	struct uv_cb_init uvcb = {
-+		.header.cmd = UVC_CMD_INIT_UV,
-+		.header.len = sizeof(uvcb),
-+		.stor_origin = stor_base,
-+		.stor_len = stor_len,
-+	};
-+
-+	if (uv_call(0, (uint64_t)&uvcb)) {
-+		pr_err("Ultravisor init failed with rc: 0x%x rrc: 0%x\n",
-+		       uvcb.header.rc, uvcb.header.rrc);
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+void __init setup_uv(void)
-+{
-+	unsigned long uv_stor_base;
-+
-+	uv_stor_base = (unsigned long)memblock_alloc_try_nid(
-+		uv_info.uv_base_stor_len, SZ_1M, SZ_2G,
-+		MEMBLOCK_ALLOC_ACCESSIBLE, NUMA_NO_NODE);
-+	if (!uv_stor_base) {
-+		pr_warn("Failed to reserve %lu bytes for ultravisor base storage\n",
-+			uv_info.uv_base_stor_len);
-+		goto fail;
-+	}
-+
-+	if (uv_init(uv_stor_base, uv_info.uv_base_stor_len)) {
-+		memblock_free(uv_stor_base, uv_info.uv_base_stor_len);
-+		goto fail;
-+	}
-+
-+	pr_info("Reserving %luMB as ultravisor base storage\n",
-+		uv_info.uv_base_stor_len >> 20);
-+	return;
-+fail:
-+	pr_info("Disabling support for protected virtualization");
-+	prot_virt_host = 0;
-+}
-+
-+void adjust_to_uv_max(unsigned long *vmax)
-+{
-+	*vmax = min_t(unsigned long, *vmax, uv_info.max_sec_stor_addr);
-+}
- #endif
+ 		zcrypt_perdev_reqcnt(reqcnt, MAX_ZDEV_CARDIDS);
+ 		if (copy_to_user((int __user *) arg, reqcnt, sizeof(reqcnt)))
 -- 
-2.25.0
+2.20.1
