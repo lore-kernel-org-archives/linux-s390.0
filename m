@@ -1,15 +1,15 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60638 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21110 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727894AbgBTKk3 (ORCPT
+        by vger.kernel.org with ESMTP id S1727310AbgBXLlP (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:29 -0500
+        Mon, 24 Feb 2020 06:41:15 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 11/37] KVM: s390: protvirt: Secure memory is not mergeable
-Date: Thu, 20 Feb 2020 05:39:54 -0500
-Message-Id: <20200220104020.5343-12-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Subject: [PATCH v4 10/36] KVM: s390: protvirt: Secure memory is not mergeable
+Date: Mon, 24 Feb 2020 06:40:41 -0500
+Message-Id: <20200224114107.4646-11-borntraeger@de.ibm.com>
+In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
+References: <20200224114107.4646-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
@@ -29,13 +29,14 @@ mode.
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Thomas Huth <thuth@redhat.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 [borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
  arch/s390/include/asm/gmap.h |  1 +
- arch/s390/kvm/kvm-s390.c     |  7 +++++++
+ arch/s390/kvm/kvm-s390.c     |  6 ++++++
  arch/s390/mm/gmap.c          | 30 ++++++++++++++++++++----------
- 3 files changed, 28 insertions(+), 10 deletions(-)
+ 3 files changed, 27 insertions(+), 10 deletions(-)
 
 diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
 index 3c4926aa78f4..6f9ff7a69fa2 100644
@@ -48,23 +49,22 @@ index 3c4926aa78f4..6f9ff7a69fa2 100644
 +int gmap_mark_unmergeable(void);
  #endif /* _ASM_S390_GMAP_H */
 diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 8272a821a621..f99e4eb5c27b 100644
+index 04754bc37e99..b06a74ab01e6 100644
 --- a/arch/s390/kvm/kvm-s390.c
 +++ b/arch/s390/kvm/kvm-s390.c
-@@ -2215,6 +2215,13 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+@@ -2236,6 +2236,12 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
  		if (r)
  			break;
  
 +		down_write(&current->mm->mmap_sem);
 +		r = gmap_mark_unmergeable();
 +		up_write(&current->mm->mmap_sem);
-+		if (r) {
-+			kvm_s390_pv_dealloc_vm(kvm);
++		if (r)
 +			break;
-+		}
- 		/* FMT 4 SIE needs esca */
- 		r = sca_switch_to_extended(kvm);
- 		if (r) {
++
+ 		r = kvm_s390_pv_init_vm(kvm, &cmd->rc, &cmd->rrc);
+ 		if (r)
+ 			break;
 diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
 index edcdca97e85e..7291452fe5f0 100644
 --- a/arch/s390/mm/gmap.c
