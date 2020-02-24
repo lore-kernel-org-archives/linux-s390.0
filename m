@@ -1,62 +1,169 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58370 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56472 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729768AbgB0RI3 (ORCPT
+        by vger.kernel.org with ESMTP id S1727183AbgBXLlO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Feb 2020 12:08:29 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01RH71nG063893
-        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 12:08:27 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ydcnhtta7-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 12:08:27 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Thu, 27 Feb 2020 17:08:26 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 4/8] s390/qeth: remove unused cmd definitions
-Date: Thu, 27 Feb 2020 18:08:12 +0100
-In-Reply-To: <20200227170816.101286-1-jwi@linux.ibm.com>
-References: <20200227170816.101286-1-jwi@linux.ibm.com>
-Message-Id: <20200227170816.101286-5-jwi@linux.ibm.com>
+        Mon, 24 Feb 2020 06:41:14 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v4 04/36] s390/protvirt: add ultravisor initialization
+Date: Mon, 24 Feb 2020 06:40:35 -0500
+Message-Id: <20200224114107.4646-5-borntraeger@de.ibm.com>
+In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
+References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-Looks like these were never used, ever since the driver was initially
-added.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Before being able to host protected virtual machines, donate some of
+the memory to the ultravisor. Besides that the ultravisor might impose
+addressing limitations for memory used to back protected VM storage. Treat
+that limit as protected virtualization host's virtual memory limit.
+
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/net/qeth_core_mpc.h | 5 -----
- 1 file changed, 5 deletions(-)
+ arch/s390/include/asm/uv.h | 15 ++++++++++++
+ arch/s390/kernel/setup.c   |  5 ++++
+ arch/s390/kernel/uv.c      | 48 ++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 68 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index 3a3cebdaf948..6f304fdbb073 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -93,10 +93,6 @@ enum qeth_link_types {
- 	QETH_LINK_TYPE_LANE         = 0x88,
+diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
+index 422aee15c9cc..cad643b05d19 100644
+--- a/arch/s390/include/asm/uv.h
++++ b/arch/s390/include/asm/uv.h
+@@ -23,12 +23,14 @@
+ #define UVC_RC_NO_RESUME	0x0007
+ 
+ #define UVC_CMD_QUI			0x0001
++#define UVC_CMD_INIT_UV			0x000f
+ #define UVC_CMD_SET_SHARED_ACCESS	0x1000
+ #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
+ 
+ /* Bits in installed uv calls */
+ enum uv_cmds_inst {
+ 	BIT_UVC_CMD_QUI = 0,
++	BIT_UVC_CMD_INIT_UV = 1,
+ 	BIT_UVC_CMD_SET_SHARED_ACCESS = 8,
+ 	BIT_UVC_CMD_REMOVE_SHARED_ACCESS = 9,
  };
+@@ -59,6 +61,14 @@ struct uv_cb_qui {
+ 	u8  reserveda0[200 - 160];
+ } __packed __aligned(8);
  
--/*
-- * Routing stuff
-- */
--#define RESET_ROUTING_FLAG 0x10 /* indicate that routing type shall be set */
- enum qeth_routing_types {
- 	/* TODO: set to bit flag used in IPA Command */
- 	NO_ROUTER		= 0,
-@@ -427,7 +423,6 @@ struct qeth_ipacmd_setassparms {
- 		struct qeth_arp_cache_entry arp_entry;
- 		struct qeth_arp_query_data query_arp;
- 		struct qeth_tso_start_data tso;
--		__u8 ip[16];
- 	} data;
- } __attribute__ ((packed));
++struct uv_cb_init {
++	struct uv_cb_header header;
++	u64 reserved08[2];
++	u64 stor_origin;
++	u64 stor_len;
++	u64 reserved28[4];
++} __packed __aligned(8);
++
+ struct uv_cb_share {
+ 	struct uv_cb_header header;
+ 	u64 reserved08[3];
+@@ -160,8 +170,13 @@ static inline int is_prot_virt_host(void)
+ {
+ 	return prot_virt_host;
+ }
++
++void setup_uv(void);
++void adjust_to_uv_max(unsigned long *vmax);
+ #else
+ #define is_prot_virt_host() 0
++static inline void setup_uv(void) {}
++static inline void adjust_to_uv_max(unsigned long *vmax) {}
+ #endif
  
+ #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) ||                          \
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index a2496382175e..1423090a2259 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -560,6 +560,9 @@ static void __init setup_memory_end(void)
+ 			vmax = _REGION1_SIZE; /* 4-level kernel page table */
+ 	}
+ 
++	if (is_prot_virt_host())
++		adjust_to_uv_max(&vmax);
++
+ 	/* module area is at the end of the kernel address space. */
+ 	MODULES_END = vmax;
+ 	MODULES_VADDR = MODULES_END - MODULES_LEN;
+@@ -1134,6 +1137,8 @@ void __init setup_arch(char **cmdline_p)
+ 	 */
+ 	memblock_trim_memory(1UL << (MAX_ORDER - 1 + PAGE_SHIFT));
+ 
++	if (is_prot_virt_host())
++		setup_uv();
+ 	setup_memory_end();
+ 	setup_memory();
+ 	dma_contiguous_reserve(memory_end);
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index b1f936710360..1ddc42154ef6 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -49,4 +49,52 @@ static int __init prot_virt_setup(char *val)
+ 	return rc;
+ }
+ early_param("prot_virt", prot_virt_setup);
++
++static int __init uv_init(unsigned long stor_base, unsigned long stor_len)
++{
++	struct uv_cb_init uvcb = {
++		.header.cmd = UVC_CMD_INIT_UV,
++		.header.len = sizeof(uvcb),
++		.stor_origin = stor_base,
++		.stor_len = stor_len,
++	};
++
++	if (uv_call(0, (uint64_t)&uvcb)) {
++		pr_err("Ultravisor init failed with rc: 0x%x rrc: 0%x\n",
++		       uvcb.header.rc, uvcb.header.rrc);
++		return -1;
++	}
++	return 0;
++}
++
++void __init setup_uv(void)
++{
++	unsigned long uv_stor_base;
++
++	uv_stor_base = (unsigned long)memblock_alloc_try_nid(
++		uv_info.uv_base_stor_len, SZ_1M, SZ_2G,
++		MEMBLOCK_ALLOC_ACCESSIBLE, NUMA_NO_NODE);
++	if (!uv_stor_base) {
++		pr_warn("Failed to reserve %lu bytes for ultravisor base storage\n",
++			uv_info.uv_base_stor_len);
++		goto fail;
++	}
++
++	if (uv_init(uv_stor_base, uv_info.uv_base_stor_len)) {
++		memblock_free(uv_stor_base, uv_info.uv_base_stor_len);
++		goto fail;
++	}
++
++	pr_info("Reserving %luMB as ultravisor base storage\n",
++		uv_info.uv_base_stor_len >> 20);
++	return;
++fail:
++	pr_info("Disabling support for protected virtualization");
++	prot_virt_host = 0;
++}
++
++void adjust_to_uv_max(unsigned long *vmax)
++{
++	*vmax = min_t(unsigned long, *vmax, uv_info.max_sec_stor_addr);
++}
+ #endif
 -- 
-2.17.1
+2.25.0
