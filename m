@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36086 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26750 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727503AbgBXLlR (ORCPT
+        by vger.kernel.org with ESMTP id S1727376AbgBXLlP (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:17 -0500
+        Mon, 24 Feb 2020 06:41:15 -0500
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 32/36] KVM: s390: protvirt: Add UV cpu reset calls
-Date: Mon, 24 Feb 2020 06:41:03 -0500
-Message-Id: <20200224114107.4646-33-borntraeger@de.ibm.com>
+Subject: [PATCH v4 13/36] KVM: s390: protvirt: Instruction emulation
+Date: Mon, 24 Feb 2020 06:40:44 -0500
+Message-Id: <20200224114107.4646-14-borntraeger@de.ibm.com>
 In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
 References: <20200224114107.4646-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
@@ -19,95 +19,68 @@ Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbr
 
 From: Janosch Frank <frankja@linux.ibm.com>
 
-For protected VMs, the VCPU resets are done by the Ultravisor, as KVM
-has no access to the VCPU registers.
+We have two new SIE exit codes dealing with instructions.
+104 (0x68) for a secure instruction interception, on which the SIE needs
+hypervisor action to complete the instruction. We can piggy-back on the
+existing instruction handlers.
 
-Note that the ultravisor will only accept a call for the exact reset
-that has been requested.
+108 which is merely a notification and provides data for tracking and
+management. For example this is used to tell the host about a new value
+for the prefix register. As there will be several special case handlers
+in later patches, we handle this in a separate function.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 [borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/uv.h |  6 ++++++
- arch/s390/kvm/kvm-s390.c   | 20 ++++++++++++++++++++
- 2 files changed, 26 insertions(+)
+ arch/s390/include/asm/kvm_host.h |  2 ++
+ arch/s390/kvm/intercept.c        | 11 +++++++++++
+ 2 files changed, 13 insertions(+)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 4945e44e1528..cb95763ffb30 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -36,7 +36,10 @@
- #define UVC_CMD_SET_SEC_CONF_PARAMS	0x0300
- #define UVC_CMD_UNPACK_IMG		0x0301
- #define UVC_CMD_VERIFY_IMG		0x0302
-+#define UVC_CMD_CPU_RESET		0x0310
-+#define UVC_CMD_CPU_RESET_INITIAL	0x0311
- #define UVC_CMD_PREPARE_RESET		0x0320
-+#define UVC_CMD_CPU_RESET_CLEAR		0x0321
- #define UVC_CMD_CPU_SET_STATE		0x0330
- #define UVC_CMD_SET_UNSHARE_ALL		0x0340
- #define UVC_CMD_PIN_PAGE_SHARED		0x0341
-@@ -59,8 +62,11 @@ enum uv_cmds_inst {
- 	BIT_UVC_CMD_SET_SEC_PARMS = 11,
- 	BIT_UVC_CMD_UNPACK_IMG = 13,
- 	BIT_UVC_CMD_VERIFY_IMG = 14,
-+	BIT_UVC_CMD_CPU_RESET = 15,
-+	BIT_UVC_CMD_CPU_RESET_INITIAL = 16,
- 	BIT_UVC_CMD_CPU_SET_STATE = 17,
- 	BIT_UVC_CMD_PREPARE_RESET = 18,
-+	BIT_UVC_CMD_CPU_PERFORM_CLEAR_RESET = 19,
- 	BIT_UVC_CMD_UNSHARE_ALL = 20,
- 	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
- 	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 3a47a62d4c60..192c2e122b19 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4726,6 +4726,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 	void __user *argp = (void __user *)arg;
- 	int idx;
- 	long r;
-+	u16 rc, rrc;
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index fdc6ceff6397..c6694f47b73b 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -217,6 +217,8 @@ struct kvm_s390_sie_block {
+ #define ICPT_KSS	0x5c
+ #define ICPT_MCHKREQ	0x60
+ #define ICPT_INT_ENABLE	0x64
++#define ICPT_PV_INSTR	0x68
++#define ICPT_PV_NOTIFY	0x6c
+ 	__u8	icptcode;		/* 0x0050 */
+ 	__u8	icptstatus;		/* 0x0051 */
+ 	__u16	ihcpu;			/* 0x0052 */
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 9090f29ae822..9966c43c6035 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -444,6 +444,11 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
+ 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
+ }
  
- 	vcpu_load(vcpu);
- 
-@@ -4747,14 +4748,33 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 	case KVM_S390_CLEAR_RESET:
- 		r = 0;
- 		kvm_arch_vcpu_ioctl_clear_reset(vcpu);
-+		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+			r = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
-+					  UVC_CMD_CPU_RESET_CLEAR, &rc, &rrc);
-+			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET CLEAR VCPU: rc %x rrc %x",
-+				   rc, rrc);
-+		}
++static int handle_pv_notification(struct kvm_vcpu *vcpu)
++{
++	return handle_instruction(vcpu);
++}
++
+ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ {
+ 	int rc, per_rc = 0;
+@@ -489,6 +494,12 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ 		 */
+ 		rc = 0;
  		break;
- 	case KVM_S390_INITIAL_RESET:
- 		r = 0;
- 		kvm_arch_vcpu_ioctl_initial_reset(vcpu);
-+		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+			r = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
-+					  UVC_CMD_CPU_RESET_INITIAL,
-+					  &rc, &rrc);
-+			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET INITIAL VCPU: rc %x rrc %x",
-+				   rc, rrc);
-+		}
- 		break;
- 	case KVM_S390_NORMAL_RESET:
- 		r = 0;
- 		kvm_arch_vcpu_ioctl_normal_reset(vcpu);
-+		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
-+			r = uv_cmd_nodata(kvm_s390_pv_cpu_get_handle(vcpu),
-+					  UVC_CMD_CPU_RESET, &rc, &rrc);
-+			VCPU_EVENT(vcpu, 3, "PROTVIRT RESET NORMAL VCPU: rc %x rrc %x",
-+				   rc, rrc);
-+		}
- 		break;
- 	case KVM_SET_ONE_REG:
- 	case KVM_GET_ONE_REG: {
++	case ICPT_PV_INSTR:
++		rc = handle_instruction(vcpu);
++		break;
++	case ICPT_PV_NOTIFY:
++		rc = handle_pv_notification(vcpu);
++		break;
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
 -- 
 2.25.0
