@@ -1,113 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7624 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726677AbgBSPJd (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23254 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727319AbgBXLlP (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 Feb 2020 10:09:33 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01JF90kU038770
-        for <linux-s390@vger.kernel.org>; Wed, 19 Feb 2020 10:09:32 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y8ubngsu9-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 19 Feb 2020 10:09:31 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
-        Wed, 19 Feb 2020 15:09:30 -0000
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH] zfcp: fix wrong data and display format of SFP+ temperature
-Date: Wed, 19 Feb 2020 16:09:25 +0100
+        Mon, 24 Feb 2020 06:41:15 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v4 11/36] KVM: s390/mm: Make pages accessible before destroying the guest
+Date: Mon, 24 Feb 2020 06:40:42 -0500
+Message-Id: <20200224114107.4646-12-borntraeger@de.ibm.com>
+In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
+References: <20200224114107.4646-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <d6e3be5428da5c9490cfff4df7cae868bc9f1a7e.1582039501.git.bblock@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-When implementing support for retrieval of local diagnostic data from
-the FCP channel, the wrong data format was assumed for the temperature
-of the local SFP+ connector. The Fibre Channel Link Services (FC-LS-3)
-specification is not clear on the format of the stored integer, and only
-after consulting the SNIA specification SFF-8472 did we realize it is
-stored as two's complement. Thus, the used data and display format is
-wrong, and highly misleading for users when the temperature should drop
-below 0°C (however unlikely that may be).
+Before we destroy the secure configuration, we better make all
+pages accessible again. This also happens during reboot, where we reboot
+into a non-secure guest that then can go again into secure mode. As
+this "new" secure guest will have a new ID we cannot reuse the old page
+state.
 
-To fix this, change the data format in `struct fsf_qtcb_bottom_port`
-from unsigned to signed, and change the printf format string used to
-generate `zfcp_sysfs_adapter_diag_sfp_temperature_show()` from `%hu` to
-`%hd`.
-
-Fixes: a10a61e807b0 ("scsi: zfcp: support retrieval of SFP Data via Exchange Port Data")
-Fixes: 6028f7c4cd87 ("scsi: zfcp: introduce sysfs interface for diagnostics of local SFP transceiver")
-Cc: <stable@vger.kernel.org> # 5.5+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Fedor Loshakov <loshakov@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
+ arch/s390/include/asm/gmap.h |  1 +
+ arch/s390/kvm/pv.c           |  3 +++
+ arch/s390/mm/gmap.c          | 35 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 39 insertions(+)
 
-Hello James, Martin,
-
-please consider this patch to be included in scsi-fixes, I also tagged
-it for stable. It fixes a bug I found with the exposed hardware
-diagnostics we introduced with 5.5.
-
-Tests have been done by injecting negative temperatures in the used data
-structures, in the same format specified in SNIA's SFF-8472 (Table
-9-2).
-
-    crash vmlinux /proc/kcore
-    p ((struct zfcp_adapter *)((struct ccw_device *)0x00000001be250800)->dev.driver_data)->diagnostics->port_data.data.temperature
-    $8 = 0xffff
-    crash> ^Z
-    [1]+  Stopped                 crash vmlinux /proc/kcore
-    ~ # cat /sys/bus/ccw/drivers/zfcp/0.0.1900/diagnostics/temperature
-    -1
-
-    crash vmlinux /proc/kcore
-    p ((struct zfcp_adapter *)((struct ccw_device *)0x00000001be250800)->dev.driver_data)->diagnostics->port_data.data.temperature
-    $9 = 0xff00
-    crash> ^Z
-    [1]+  Stopped                 crash vmlinux /proc/kcore
-    ~ # cat /sys/bus/ccw/drivers/zfcp/0.0.1900/diagnostics/temperature
-    -256
-
-Reviews and comments are welcome :-).
-
-
- drivers/s390/scsi/zfcp_fsf.h   | 2 +-
- drivers/s390/scsi/zfcp_sysfs.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
-index 2b1e4da1944f..4bfb79f20588 100644
---- a/drivers/s390/scsi/zfcp_fsf.h
-+++ b/drivers/s390/scsi/zfcp_fsf.h
-@@ -410,7 +410,7 @@ struct fsf_qtcb_bottom_port {
- 	u8 cb_util;
- 	u8 a_util;
- 	u8 res2;
--	u16 temperature;
-+	s16 temperature;
- 	u16 vcc;
- 	u16 tx_bias;
- 	u16 tx_power;
-diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
-index 494b9fe9cc94..a711a0d15100 100644
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -800,7 +800,7 @@ static ZFCP_DEV_ATTR(adapter_diag, b2b_credit, 0400,
- 	static ZFCP_DEV_ATTR(adapter_diag_sfp, _name, 0400,		       \
- 			     zfcp_sysfs_adapter_diag_sfp_##_name##_show, NULL)
+diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
+index 6f9ff7a69fa2..a816fb4734b8 100644
+--- a/arch/s390/include/asm/gmap.h
++++ b/arch/s390/include/asm/gmap.h
+@@ -149,4 +149,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
+ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
+ 			     unsigned long gaddr, unsigned long vmaddr);
+ int gmap_mark_unmergeable(void);
++void s390_reset_acc(struct mm_struct *mm);
+ #endif /* _ASM_S390_GMAP_H */
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index 5918922405b5..014e53a41ead 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -140,6 +140,9 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+ {
+ 	int cc;
  
--ZFCP_DEFINE_DIAG_SFP_ATTR(temperature, temperature, 5, "%hu");
-+ZFCP_DEFINE_DIAG_SFP_ATTR(temperature, temperature, 6, "%hd");
- ZFCP_DEFINE_DIAG_SFP_ATTR(vcc, vcc, 5, "%hu");
- ZFCP_DEFINE_DIAG_SFP_ATTR(tx_bias, tx_bias, 5, "%hu");
- ZFCP_DEFINE_DIAG_SFP_ATTR(tx_power, tx_power, 5, "%hu");
++	/* make all pages accessible before destroying the guest */
++	s390_reset_acc(kvm->mm);
++
+ 	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
+ 			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
+ 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 7291452fe5f0..27926a06df32 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -2650,3 +2650,38 @@ void s390_reset_cmma(struct mm_struct *mm)
+ 	up_write(&mm->mmap_sem);
+ }
+ EXPORT_SYMBOL_GPL(s390_reset_cmma);
++
++/*
++ * make inaccessible pages accessible again
++ */
++static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
++			    unsigned long next, struct mm_walk *walk)
++{
++	pte_t pte = READ_ONCE(*ptep);
++
++	if (pte_present(pte))
++		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
++	return 0;
++}
++
++static const struct mm_walk_ops reset_acc_walk_ops = {
++	.pte_entry		= __s390_reset_acc,
++};
++
++#include <linux/sched/mm.h>
++void s390_reset_acc(struct mm_struct *mm)
++{
++	/*
++	 * we might be called during
++	 * reset:                             we walk the pages and clear
++	 * close of all kvm file descriptors: we walk the pages and clear
++	 * exit of process on fd closure:     vma already gone, do nothing
++	 */
++	if (!mmget_not_zero(mm))
++		return;
++	down_read(&mm->mmap_sem);
++	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
++	up_read(&mm->mmap_sem);
++	mmput(mm);
++}
++EXPORT_SYMBOL_GPL(s390_reset_acc);
 -- 
-2.24.1
+2.25.0
