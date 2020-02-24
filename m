@@ -1,75 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15040 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728071AbgBNW1d (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58738 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727242AbgBXKQJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:27:33 -0500
+        Mon, 24 Feb 2020 05:16:09 -0500
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01OAFYBW147484
+        for <linux-s390@vger.kernel.org>; Mon, 24 Feb 2020 05:16:08 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ybu12q268-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 24 Feb 2020 05:16:06 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 24 Feb 2020 10:16:03 -0000
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 28/42] KVM: s390: protvirt: Add program exception injection
-Date: Fri, 14 Feb 2020 17:26:44 -0500
-Message-Id: <20200214222658.12946-29-borntraeger@de.ibm.com>
-In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
-References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+Subject: [PATCH 0/1] Documentation fixup
+Date: Mon, 24 Feb 2020 11:15:58 +0100
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20200224101559.27405-1-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Jonathan Corbet <corbet@lwn.net>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Paolo,
 
-Only two program exceptions can be injected for a protected guest:
-specification and operand.
+this is a small fixup for the overlap of the s390 reset changes and
+Mauros doc update. No pull request for just one patch. Please apply
+to kvm/master.
 
-For both, a code needs to be specified in the interrupt injection
-control of the state description, as the guest prefix page is not
-accessible to KVM for such guests.
+Christian Borntraeger (1):
+  KVM: s390: rstify new ioctls in api.rst
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/interrupt.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ Documentation/virt/kvm/api.rst | 33 ++++++++++++++++++---------------
+ 1 file changed, 18 insertions(+), 15 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 3e160d9a214f..7a10096fa204 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -836,6 +836,21 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
- 	return rc ? -EFAULT : 0;
- }
- 
-+static int __deliver_prog_pv(struct kvm_vcpu *vcpu, u16 code)
-+{
-+	switch (code) {
-+	case PGM_SPECIFICATION:
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_SPECIFICATION;
-+		break;
-+	case PGM_OPERAND:
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_OPERAND;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
- static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-@@ -856,6 +871,9 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
- 					 pgm_info.code, 0);
- 
-+	if (kvm_s390_pv_is_protected(vcpu->kvm))
-+		return __deliver_prog_pv(vcpu, pgm_info.code & ~PGM_PER);
-+
- 	switch (pgm_info.code & ~PGM_PER) {
- 	case PGM_AFX_TRANSLATION:
- 	case PGM_ASX_TRANSLATION:
 -- 
-2.25.0
+2.21.0
