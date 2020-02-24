@@ -1,35 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:60499 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729518AbgBYNXI (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50642 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727513AbgBXLlS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Feb 2020 08:23:08 -0500
-Date: Tue, 25 Feb 2020 14:22:54 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 35/36] KVM: s390: protvirt: introduce and enable
- KVM_CAP_S390_PROTECTED
-Message-ID: <20200225142254.7886a535.cohuck@redhat.com>
-In-Reply-To: <20200224114107.4646-36-borntraeger@de.ibm.com>
+        Mon, 24 Feb 2020 06:41:18 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v4 35/36] KVM: s390: protvirt: introduce and enable KVM_CAP_S390_PROTECTED
+Date: Mon, 24 Feb 2020 06:41:06 -0500
+Message-Id: <20200224114107.4646-36-borntraeger@de.ibm.com>
+In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
 References: <20200224114107.4646-1-borntraeger@de.ibm.com>
-        <20200224114107.4646-36-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-On Mon, 24 Feb 2020 06:41:06 -0500
-Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+Now that everything is in place, we can announce the feature.
 
-> Now that everything is in place, we can announce the feature.
-> 
-> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
-> ---
->  arch/s390/kvm/kvm-s390.c | 3 +++
->  include/uapi/linux/kvm.h | 1 +
->  2 files changed, 4 insertions(+)
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+---
+ arch/s390/kvm/kvm-s390.c | 3 +++
+ include/uapi/linux/kvm.h | 1 +
+ 2 files changed, 4 insertions(+)
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 192c2e122b19..cc96826195c1 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -574,6 +574,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_BPB:
+ 		r = test_facility(82);
+ 		break;
++	case KVM_CAP_S390_PROTECTED:
++		r = is_prot_virt_host();
++		break;
+ 	default:
+ 		r = 0;
+ 	}
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 2c354ba3a610..2ab168d6d2a8 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1015,6 +1015,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_ARM_NISV_TO_USER 177
+ #define KVM_CAP_ARM_INJECT_EXT_DABT 178
+ #define KVM_CAP_S390_VCPU_RESETS 179
++#define KVM_CAP_S390_PROTECTED 180
+ 
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
+-- 
+2.25.0
