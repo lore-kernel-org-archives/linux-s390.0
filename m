@@ -1,96 +1,165 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ozlabs.org ([203.11.71.1]:44553 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727256AbgBXGny (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 01:43:54 -0500
-Date: Mon, 24 Feb 2020 16:44:28 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:52313 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726709AbgBXGGu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Feb 2020 01:06:50 -0500
+Received: by mail-qt1-f199.google.com with SMTP id r30so9478518qtb.10
+        for <linux-s390@vger.kernel.org>; Sun, 23 Feb 2020 22:06:48 -0800 (PST)
+Date: Mon, 24 Feb 2020 01:06:40 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
  VIRTIO_F_IOMMU_PLATFORM
-Message-ID: <20200224054428.GF1751@umbus.fritz.box>
+Message-ID: <20200224010607-mutt-send-email-mst@kernel.org>
 References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <20200220163055-mutt-send-email-mst@kernel.org>
- <20200221164151.GD10054@lst.de>
+ <426e6972-0565-c931-e171-da0f58fbf856@redhat.com>
+ <20200221155602.4de41fa7.pasic@linux.ibm.com>
+ <0181712c-e533-fcfd-2638-8a0649d713dd@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nHwqXXcoX0o6fKCv"
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20200221164151.GD10054@lst.de>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <0181712c-e533-fcfd-2638-8a0649d713dd@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+
+On Mon, Feb 24, 2020 at 12:01:57PM +0800, Jason Wang wrote:
+> 
+> On 2020/2/21 下午10:56, Halil Pasic wrote:
+> > On Fri, 21 Feb 2020 14:22:26 +0800
+> > Jason Wang <jasowang@redhat.com> wrote:
+> > 
+> > > On 2020/2/21 上午12:06, Halil Pasic wrote:
+> > > > Currently if one intends to run a memory protection enabled VM with
+> > > > virtio devices and linux as the guest OS, one needs to specify the
+> > > > VIRTIO_F_IOMMU_PLATFORM flag for each virtio device to make the guest
+> > > > linux use the DMA API, which in turn handles the memory
+> > > > encryption/protection stuff if the guest decides to turn itself into
+> > > > a protected one. This however makes no sense due to multiple reasons:
+> > > > * The device is not changed by the fact that the guest RAM is
+> > > > protected. The so called IOMMU bypass quirk is not affected.
+> > > > * This usage is not congruent with  standardised semantics of
+> > > > VIRTIO_F_IOMMU_PLATFORM. Guest memory protected is an orthogonal reason
+> > > > for using DMA API in virtio (orthogonal with respect to what is
+> > > > expressed by VIRTIO_F_IOMMU_PLATFORM).
+> > > > 
+> > > > This series aims to decouple 'have to use DMA API because my (guest) RAM
+> > > > is protected' and 'have to use DMA API because the device told me
+> > > > VIRTIO_F_IOMMU_PLATFORM'.
+> > > > 
+> > > > Please find more detailed explanations about the conceptual aspects in
+> > > > the individual patches. There is however also a very practical problem
+> > > > that is addressed by this series.
+> > > > 
+> > > > For vhost-net the feature VIRTIO_F_IOMMU_PLATFORM has the following side
+> > > > effect The vhost code assumes it the addresses on the virtio descriptor
+> > > > ring are not guest physical addresses but iova's, and insists on doing a
+> > > > translation of these regardless of what transport is used (e.g. whether
+> > > > we emulate a PCI or a CCW device). (For details see commit 6b1e6cc7855b
+> > > > "vhost: new device IOTLB API".) On s390 this results in severe
+> > > > performance degradation (c.a. factor 10).
+> > > 
+> > > Do you see a consistent degradation on the performance, or it only
+> > > happen when for during the beginning of the test?
+> > > 
+> > AFAIK the degradation is consistent.
+> > 
+> > > > BTW with ccw I/O there is
+> > > > (architecturally) no IOMMU, so the whole address translation makes no
+> > > > sense in the context of virtio-ccw.
+> > > 
+> > > I suspect we can do optimization in qemu side.
+> > > 
+> > > E.g send memtable entry via IOTLB API when vIOMMU is not enabled.
+> > > 
+> > > If this makes sense, I can draft patch to see if there's any difference.
+> > Frankly I would prefer to avoid IOVAs on the descriptor ring (and the
+> > then necessary translation) for virtio-ccw altogether. But Michael
+> > voiced his opinion that we should mandate F_IOMMU_PLATFORM for devices
+> > that could be used with guests running in protected mode. I don't share
+> > his opinion, but that's an ongoing discussion.
+> > 
+> > Should we end up having to do translation from IOVA in vhost, we are
+> > very interested in that translation being fast and efficient.
+> > 
+> > In that sense we would be very happy to test any optimization that aim
+> > into that direction.
+> > 
+> > Thank you very much for your input!
+> 
+> 
+> Using IOTLB API on platform without IOMMU support is not intended. Please
+> try the attached patch to see if it helps.
+> 
+> Thanks
+> 
+> 
+> > 
+> > Regards,
+> > Halil
+> > 
+> > > Thanks
+> > > 
+> > > 
+> > > > Halil Pasic (2):
+> > > >     mm: move force_dma_unencrypted() to mem_encrypt.h
+> > > >     virtio: let virtio use DMA API when guest RAM is protected
+> > > > 
+> > > >    drivers/virtio/virtio_ring.c |  3 +++
+> > > >    include/linux/dma-direct.h   |  9 ---------
+> > > >    include/linux/mem_encrypt.h  | 10 ++++++++++
+> > > >    3 files changed, 13 insertions(+), 9 deletions(-)
+> > > > 
+> > > > 
+> > > > base-commit: ca7e1fd1026c5af6a533b4b5447e1d2f153e28f2
+
+> >From 66fa730460875ac99e81d7db2334cd16bb1d2b27 Mon Sep 17 00:00:00 2001
+> From: Jason Wang <jasowang@redhat.com>
+> Date: Mon, 24 Feb 2020 12:00:10 +0800
+> Subject: [PATCH] virtio: turn on IOMMU_PLATFORM properly
+> 
+> When transport does not support IOMMU, we should clear IOMMU_PLATFORM
+> even if the device and vhost claims to support that. This help to
+> avoid the performance overhead caused by unnecessary IOTLB miss/update
+> transactions on such platform.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  hw/virtio/virtio-bus.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
+> index d6332d45c3..2741b9fdd2 100644
+> --- a/hw/virtio/virtio-bus.c
+> +++ b/hw/virtio/virtio-bus.c
+> @@ -47,7 +47,6 @@ void virtio_bus_device_plugged(VirtIODevice *vdev, Error **errp)
+>      VirtioBusState *bus = VIRTIO_BUS(qbus);
+>      VirtioBusClass *klass = VIRTIO_BUS_GET_CLASS(bus);
+>      VirtioDeviceClass *vdc = VIRTIO_DEVICE_GET_CLASS(vdev);
+> -    bool has_iommu = virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
+>      Error *local_err = NULL;
+>  
+>      DPRINTF("%s: plug device.\n", qbus->name);
+> @@ -77,10 +76,11 @@ void virtio_bus_device_plugged(VirtIODevice *vdev, Error **errp)
+>          return;
+>      }
+>  
+> -    if (klass->get_dma_as != NULL && has_iommu) {
+> -        virtio_add_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLATFORM);
+> +    if (false && klass->get_dma_as != NULL &&
+> +        virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM)) {
+>          vdev->dma_as = klass->get_dma_as(qbus->parent);
+>      } else {
+> +        virtio_clear_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLATFORM);
+>          vdev->dma_as = &address_space_memory;
+>      }
+>  }
 
 
---nHwqXXcoX0o6fKCv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This seems to clear it unconditionally. I guess it's just a debugging
+patch, the real one will come later?
 
-On Fri, Feb 21, 2020 at 05:41:51PM +0100, Christoph Hellwig wrote:
-> On Thu, Feb 20, 2020 at 04:33:35PM -0500, Michael S. Tsirkin wrote:
-> > So it sounds like a host issue: the emulation of s390 unnecessarily com=
-plicated.
-> > Working around it by the guest looks wrong ...
->=20
-> Yes.  If your host (and I don't care if you split hypervisor,
-> ultravisor and megavisor out in your implementation) wants to
-> support a VM architecture where the host can't access all guest
-> memory you need to ensure the DMA API is used.  Extra points for
-> simply always setting the flag and thus future proofing the scheme.
-
-Moving towards F_ACCESS_PLATFORM everywhere is a good idea (for other
-reasons), but that doesn't make the problem as it exists right now go
-away.
-
-But, "you need to ensure the DMA API is used" makes no sense from the
-host point of view.  The existence of the DMA API is an entirely guest
-side, and Linux specific detail, the host can't make decisions based
-on that.
-
-For POWER - possibly s390 as well - the hypervisor has no way of
-knowing at machine construction time whether it will be an old kernel
-(or non Linux OS) which can't support F_ACCESS_PLATFORM, or a guest
-which will enter secure mode and therefore requires F_ACCESS_PLATFORM
-(according to you).  That's the fundamental problem here.
-
-The normal virtio model of features that the guest can optionally
-accept would work nicely here - except that that wouldn't work for the
-case of hardware virtio devices, where the access limitations come
-=66rom "host" (platform) side and therefore can't be disabled by that
-host.
-
-We really do have two cases here: 1) access restrictions originating
-with the host/platform (e.g. hardware virtio) and 2) access
-restrictions originating with the guest (e.g. secure VMs).  What we
-need to do to deal with them is basically the same at the driver
-level, but it has subtle and important differences at the platform
-level.
-
---=20
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
-
---nHwqXXcoX0o6fKCv
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5TYrkACgkQbDjKyiDZ
-s5LgfA//XEY3lmBePwheA7+ZxvP//i1z+aeebGoX04iO9GIleC4oyEM4gwYIBsyE
-wN2BIrmBL7Zv5wxxna4aFmlHWVHtjclnMlbnScF3iSkYjcAqB0WowhE+uMerv86z
-0SQsaZBBEzM2AUCdyWpi1NvPPH6qWbB1BAlZ1gS18mpsYePFvZ5Yx7v8HlXoSdti
-nHf9vONIz4DjMutYICE0h4wRSG8fE0Glav04Rlvy4G024l5rW3o3Hd4Fg6hlL6Bx
-lG9vYtmbznT2FaqV1vvs9LHFQ+luXOqLisBYunWFHDGSBLqQdfWnVApMfHpmkudT
-pVFwEZmU3Vdy0MgEF6mMunZ2vw0PqQaQSIw2KUm4KJXSLjrR2qI+XUY878F+hI5h
-fvAxlo4FDEBDVgeIudJY28B/57nJdaMZCpxZB6YFHGtuQJU5VHFRLA1wi96A3mFr
-W29jfmZcozEl2fpJyr7lg/znfmjbrAx63AeNJkKQ9lWpDGilVd90xHaWcEy+t28L
-U9GggmVjYO4KOGiOTjkrY+wskuPj/qZaoEWFra3bzryLW5muVLoCT12H2X+NtcjF
-2Poa8kmUAlBjnnrf3QLCh2rQQVuHNXMbS7eYpeSBfld+gHjj7FBMS5ymAnEK0X3B
-WySnu4ZlVaDEYjtHlp6tvfiRlkt1PGQswZY8OhtHA6QBkQVs4t0=
-=snSR
------END PGP SIGNATURE-----
-
---nHwqXXcoX0o6fKCv--
+> -- 
+> 2.19.1
+> 
