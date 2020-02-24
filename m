@@ -1,517 +1,118 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7036 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726921AbgBTKkc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:32 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 05/37] s390/mm: provide memory management functions for protected KVM guests
-Date: Thu, 20 Feb 2020 05:39:48 -0500
-Message-Id: <20200220104020.5343-6-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Date: Mon, 24 Feb 2020 00:28:14 -0800
+Message-ID: <000000000000ff4686059f4e26ac@google.com>
+Subject: general protection fault in smc_ib_remove_dev
+From: syzbot <syzbot+84484ccebdd4e5451d91@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org
+To: akpm@linux-foundation.org, arvid.brodin@alten.se, davem@davemloft.net, hch@lst.de, kgraul@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, torvalds@linux-foundation.org, ubraun@linux.ibm.com
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Hello,
 
-This provides the basic ultravisor calls and page table handling to cope
-with secure guests:
-- provide arch_make_page_accessible
-- make pages accessible after unmapping of secure guests
-- provide the ultravisor commands convert to/from secure
-- provide the ultravisor commands pin/unpin shared
-- provide callbacks to make pages secure (inacccessible)
- - we check for the expected pin count to only make pages secure if the
-   host is not accessing them
- - we fence hugetlbfs for secure pages
+syzbot found the following crash on:
 
-Co-developed-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-Signed-off-by: Ulrich Weigand <Ulrich.Weigand@de.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+HEAD commit:    36a44bcd Merge branch 'bnxt_en-shutdown-and-kexec-kdump-re..
+git tree:       net
+console output: https://syzkaller.appspot.com/x/log.txt?x=15b5774ee00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=768cc3d3e277cc16
+dashboard link: https://syzkaller.appspot.com/bug?extid=84484ccebdd4e5451d91
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=100eda7ee00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=11c3fdd9e00000
+
+The bug was bisected to:
+
+commit cbd34da7dc9afd521e0bea5e7d12701f4a9da7c7
+Author: Christoph Hellwig <hch@lst.de>
+Date:   Fri Jul 12 03:57:28 2019 +0000
+
+    mm: move the powerpc hugepd code to mm/gup.c
+
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=15ea4265e00000
+final crash:    https://syzkaller.appspot.com/x/report.txt?x=17ea4265e00000
+console output: https://syzkaller.appspot.com/x/log.txt?x=13ea4265e00000
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+84484ccebdd4e5451d91@syzkaller.appspotmail.com
+Fixes: cbd34da7dc9a ("mm: move the powerpc hugepd code to mm/gup.c")
+
+infiniband syz1: RDMA CMA: cma_listen_on_dev, error -98
+netlink: 'syz-executor837': attribute type 1 has an invalid length.
+netlink: 21 bytes leftover after parsing attributes in process `syz-executor837'.
+general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 0 PID: 9928 Comm: syz-executor837 Not tainted 5.6.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:__list_del_entry_valid+0x22/0xf5 lib/list_debug.c:42
+Code: 0e fe 48 8b 75 e8 eb b2 48 b8 00 00 00 00 00 fc ff df 55 48 89 e5 41 56 49 89 fe 48 83 c7 08 48 89 fa 41 55 48 c1 ea 03 41 54 <80> 3c 02 00 0f 85 a1 00 00 00 4c 89 f2 4d 8b 66 08 48 b8 00 00 00
+RSP: 0018:ffffc900053d7440 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffffffff87b4e490 RCX: ffffffff815c1ba9
+RDX: 0000000000000001 RSI: 0000000000000004 RDI: 0000000000000008
+RBP: ffffc900053d7458 R08: 0000000000000004 R09: fffff52000a7ae7b
+R10: fffff52000a7ae7a R11: 0000000000000003 R12: 0000000000000000
+R13: 0000000000000008 R14: 0000000000000000 R15: ffffffff8a98b880
+FS:  0000000000ea3880(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020003028 CR3: 0000000091874000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ __list_del_entry include/linux/list.h:132 [inline]
+ list_del_init include/linux/list.h:204 [inline]
+ smc_ib_remove_dev+0x52/0x2e0 net/smc/smc_ib.c:578
+ remove_client_context+0xc7/0x120 drivers/infiniband/core/device.c:724
+ disable_device+0x14c/0x230 drivers/infiniband/core/device.c:1268
+ __ib_unregister_device+0x9c/0x190 drivers/infiniband/core/device.c:1435
+ ib_unregister_device_and_put+0x5f/0x80 drivers/infiniband/core/device.c:1498
+ nldev_dellink+0x222/0x340 drivers/infiniband/core/nldev.c:1568
+ rdma_nl_rcv_msg drivers/infiniband/core/netlink.c:195 [inline]
+ rdma_nl_rcv_skb drivers/infiniband/core/netlink.c:239 [inline]
+ rdma_nl_rcv+0x5d9/0x980 drivers/infiniband/core/netlink.c:259
+ netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
+ netlink_unicast+0x59e/0x7e0 net/netlink/af_netlink.c:1329
+ netlink_sendmsg+0x91c/0xea0 net/netlink/af_netlink.c:1918
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:672
+ __sys_sendto+0x262/0x380 net/socket.c:1998
+ __do_sys_sendto net/socket.c:2010 [inline]
+ __se_sys_sendto net/socket.c:2006 [inline]
+ __x64_sys_sendto+0xe1/0x1a0 net/socket.c:2006
+ do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x4404d9
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffdb793fb28 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
+RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 00000000004404d9
+RDX: 0000000000010a73 RSI: 0000000020000000 RDI: 0000000000000004
+RBP: 00000000006ca018 R08: 0000000000000000 R09: 4b6ae4f95a5de35b
+R10: 00000000000008c0 R11: 0000000000000246 R12: 0000000000401d60
+R13: 0000000000401df0 R14: 0000000000000000 R15: 0000000000000000
+Modules linked in:
+---[ end trace 79db9bfdece7383f ]---
+RIP: 0010:__list_del_entry_valid+0x22/0xf5 lib/list_debug.c:42
+Code: 0e fe 48 8b 75 e8 eb b2 48 b8 00 00 00 00 00 fc ff df 55 48 89 e5 41 56 49 89 fe 48 83 c7 08 48 89 fa 41 55 48 c1 ea 03 41 54 <80> 3c 02 00 0f 85 a1 00 00 00 4c 89 f2 4d 8b 66 08 48 b8 00 00 00
+RSP: 0018:ffffc900053d7440 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffffffff87b4e490 RCX: ffffffff815c1ba9
+RDX: 0000000000000001 RSI: 0000000000000004 RDI: 0000000000000008
+RBP: ffffc900053d7458 R08: 0000000000000004 R09: fffff52000a7ae7b
+R10: fffff52000a7ae7a R11: 0000000000000003 R12: 0000000000000000
+R13: 0000000000000008 R14: 0000000000000000 R15: ffffffff8a98b880
+FS:  0000000000ea3880(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020003028 CR3: 0000000091874000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+
 ---
- arch/s390/include/asm/gmap.h        |   4 +
- arch/s390/include/asm/mmu.h         |   2 +
- arch/s390/include/asm/mmu_context.h |   1 +
- arch/s390/include/asm/page.h        |   5 +
- arch/s390/include/asm/pgtable.h     |  35 ++++-
- arch/s390/include/asm/uv.h          |  31 ++++
- arch/s390/kernel/uv.c               | 227 ++++++++++++++++++++++++++++
- 7 files changed, 300 insertions(+), 5 deletions(-)
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 37f96b6f0e61..3c4926aa78f4 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -9,6 +9,7 @@
- #ifndef _ASM_S390_GMAP_H
- #define _ASM_S390_GMAP_H
- 
-+#include <linux/radix-tree.h>
- #include <linux/refcount.h>
- 
- /* Generic bits for GMAP notification on DAT table entry changes. */
-@@ -31,6 +32,7 @@
-  * @table: pointer to the page directory
-  * @asce: address space control element for gmap page table
-  * @pfault_enabled: defines if pfaults are applicable for the guest
-+ * @guest_handle: protected virtual machine handle for the ultravisor
-  * @host_to_rmap: radix tree with gmap_rmap lists
-  * @children: list of shadow gmap structures
-  * @pt_list: list of all page tables used in the shadow guest address space
-@@ -54,6 +56,8 @@ struct gmap {
- 	unsigned long asce_end;
- 	void *private;
- 	bool pfault_enabled;
-+	/* only set for protected virtual machines */
-+	unsigned long guest_handle;
- 	/* Additional data for shadow guest address spaces */
- 	struct radix_tree_root host_to_rmap;
- 	struct list_head children;
-diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
-index bcfb6371086f..e21b618ad432 100644
---- a/arch/s390/include/asm/mmu.h
-+++ b/arch/s390/include/asm/mmu.h
-@@ -16,6 +16,8 @@ typedef struct {
- 	unsigned long asce;
- 	unsigned long asce_limit;
- 	unsigned long vdso_base;
-+	/* The mmu context belongs to a secure guest. */
-+	atomic_t is_protected;
- 	/*
- 	 * The following bitfields need a down_write on the mm
- 	 * semaphore when they are written to. As they are only
-diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
-index 8d04e6f3f796..afa836014076 100644
---- a/arch/s390/include/asm/mmu_context.h
-+++ b/arch/s390/include/asm/mmu_context.h
-@@ -23,6 +23,7 @@ static inline int init_new_context(struct task_struct *tsk,
- 	INIT_LIST_HEAD(&mm->context.gmap_list);
- 	cpumask_clear(&mm->context.cpu_attach_mask);
- 	atomic_set(&mm->context.flush_count, 0);
-+	atomic_set(&mm->context.is_protected, 0);
- 	mm->context.gmap_asce = 0;
- 	mm->context.flush_mm = 0;
- 	mm->context.compat_mm = test_thread_flag(TIF_31BIT);
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index 85e944f04c70..4ebcf891ff3c 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -153,6 +153,11 @@ static inline int devmem_is_allowed(unsigned long pfn)
- #define HAVE_ARCH_FREE_PAGE
- #define HAVE_ARCH_ALLOC_PAGE
- 
-+#if IS_ENABLED(CONFIG_PGSTE)
-+int arch_make_page_accessible(struct page *page);
-+#define HAVE_ARCH_MAKE_PAGE_ACCESSIBLE
-+#endif
-+
- #endif /* !__ASSEMBLY__ */
- 
- #define __PAGE_OFFSET		0x0UL
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 137a3920ca36..cc7a1adacb94 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -19,6 +19,7 @@
- #include <linux/atomic.h>
- #include <asm/bug.h>
- #include <asm/page.h>
-+#include <asm/uv.h>
- 
- extern pgd_t swapper_pg_dir[];
- extern void paging_init(void);
-@@ -520,6 +521,15 @@ static inline int mm_has_pgste(struct mm_struct *mm)
- 	return 0;
- }
- 
-+static inline int mm_is_protected(struct mm_struct *mm)
-+{
-+#ifdef CONFIG_PGSTE
-+	if (unlikely(atomic_read(&mm->context.is_protected)))
-+		return 1;
-+#endif
-+	return 0;
-+}
-+
- static inline int mm_alloc_pgste(struct mm_struct *mm)
- {
- #ifdef CONFIG_PGSTE
-@@ -1061,7 +1071,12 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
- static inline pte_t ptep_get_and_clear(struct mm_struct *mm,
- 				       unsigned long addr, pte_t *ptep)
- {
--	return ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
-+	pte_t res;
-+
-+	res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
-+	if (mm_is_protected(mm) && pte_present(res))
-+		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
-+	return res;
- }
- 
- #define __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
-@@ -1073,7 +1088,12 @@ void ptep_modify_prot_commit(struct vm_area_struct *, unsigned long,
- static inline pte_t ptep_clear_flush(struct vm_area_struct *vma,
- 				     unsigned long addr, pte_t *ptep)
- {
--	return ptep_xchg_direct(vma->vm_mm, addr, ptep, __pte(_PAGE_INVALID));
-+	pte_t res;
-+
-+	res = ptep_xchg_direct(vma->vm_mm, addr, ptep, __pte(_PAGE_INVALID));
-+	if (mm_is_protected(vma->vm_mm) && pte_present(res))
-+		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
-+	return res;
- }
- 
- /*
-@@ -1088,12 +1108,17 @@ static inline pte_t ptep_get_and_clear_full(struct mm_struct *mm,
- 					    unsigned long addr,
- 					    pte_t *ptep, int full)
- {
-+	pte_t res;
-+
- 	if (full) {
--		pte_t pte = *ptep;
-+		res = *ptep;
- 		*ptep = __pte(_PAGE_INVALID);
--		return pte;
-+	} else {
-+		res = ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
- 	}
--	return ptep_xchg_lazy(mm, addr, ptep, __pte(_PAGE_INVALID));
-+	if (mm_is_protected(mm) && pte_present(res))
-+		uv_convert_from_secure(pte_val(res) & PAGE_MASK);
-+	return res;
- }
- 
- #define __HAVE_ARCH_PTEP_SET_WRPROTECT
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index cad643b05d19..7956868340c1 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -15,6 +15,7 @@
- #include <linux/errno.h>
- #include <linux/bug.h>
- #include <asm/page.h>
-+#include <asm/gmap.h>
- 
- #define UVC_RC_EXECUTED		0x0001
- #define UVC_RC_INV_CMD		0x0002
-@@ -24,6 +25,10 @@
- 
- #define UVC_CMD_QUI			0x0001
- #define UVC_CMD_INIT_UV			0x000f
-+#define UVC_CMD_CONV_TO_SEC_STOR	0x0200
-+#define UVC_CMD_CONV_FROM_SEC_STOR	0x0201
-+#define UVC_CMD_PIN_PAGE_SHARED		0x0341
-+#define UVC_CMD_UNPIN_PAGE_SHARED	0x0342
- #define UVC_CMD_SET_SHARED_ACCESS	0x1000
- #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
- 
-@@ -31,8 +36,12 @@
- enum uv_cmds_inst {
- 	BIT_UVC_CMD_QUI = 0,
- 	BIT_UVC_CMD_INIT_UV = 1,
-+	BIT_UVC_CMD_CONV_TO_SEC_STOR = 6,
-+	BIT_UVC_CMD_CONV_FROM_SEC_STOR = 7,
- 	BIT_UVC_CMD_SET_SHARED_ACCESS = 8,
- 	BIT_UVC_CMD_REMOVE_SHARED_ACCESS = 9,
-+	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
-+	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
- };
- 
- struct uv_cb_header {
-@@ -69,6 +78,19 @@ struct uv_cb_init {
- 	u64 reserved28[4];
- } __packed __aligned(8);
- 
-+struct uv_cb_cts {
-+	struct uv_cb_header header;
-+	u64 reserved08[2];
-+	u64 guest_handle;
-+	u64 gaddr;
-+} __packed __aligned(8);
-+
-+struct uv_cb_cfs {
-+	struct uv_cb_header header;
-+	u64 reserved08[2];
-+	u64 paddr;
-+} __packed __aligned(8);
-+
- struct uv_cb_share {
- 	struct uv_cb_header header;
- 	u64 reserved08[3];
-@@ -171,12 +193,21 @@ static inline int is_prot_virt_host(void)
- 	return prot_virt_host;
- }
- 
-+int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb);
-+int uv_convert_from_secure(unsigned long paddr);
-+int gmap_convert_to_secure(struct gmap *gmap, unsigned long gaddr);
-+
- void setup_uv(void);
- void adjust_to_uv_max(unsigned long *vmax);
- #else
- #define is_prot_virt_host() 0
- static inline void setup_uv(void) {}
- static inline void adjust_to_uv_max(unsigned long *vmax) {}
-+
-+static inline int uv_convert_from_secure(unsigned long paddr)
-+{
-+	return 0;
-+}
- #endif
- 
- #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) ||                          \
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 1ddc42154ef6..4539003dac9d 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -12,6 +12,8 @@
- #include <linux/sizes.h>
- #include <linux/bitmap.h>
- #include <linux/memblock.h>
-+#include <linux/pagemap.h>
-+#include <linux/swap.h>
- #include <asm/facility.h>
- #include <asm/sections.h>
- #include <asm/uv.h>
-@@ -97,4 +99,229 @@ void adjust_to_uv_max(unsigned long *vmax)
- {
- 	*vmax = min_t(unsigned long, *vmax, uv_info.max_sec_stor_addr);
- }
-+
-+/*
-+ * Requests the Ultravisor to pin the page in the shared state. This will
-+ * cause an intercept when the guest attempts to unshare the pinned page.
-+ */
-+static int uv_pin_shared(unsigned long paddr)
-+{
-+	struct uv_cb_cfs uvcb = {
-+		.header.cmd = UVC_CMD_PIN_PAGE_SHARED,
-+		.header.len = sizeof(uvcb),
-+		.paddr = paddr,
-+	};
-+
-+	if (uv_call(0, (u64)&uvcb))
-+		return -EINVAL;
-+	return 0;
-+}
-+
-+/*
-+ * Requests the Ultravisor to encrypt a guest page and make it
-+ * accessible to the host for paging (export).
-+ *
-+ * @paddr: Absolute host address of page to be exported
-+ */
-+int uv_convert_from_secure(unsigned long paddr)
-+{
-+	struct uv_cb_cfs uvcb = {
-+		.header.cmd = UVC_CMD_CONV_FROM_SEC_STOR,
-+		.header.len = sizeof(uvcb),
-+		.paddr = paddr
-+	};
-+
-+	if (uv_call(0, (u64)&uvcb))
-+		return -EINVAL;
-+	return 0;
-+}
-+
-+/*
-+ * Calculate the expected ref_count for a page that would otherwise have no
-+ * further pins. This was cribbed from similar functions in other places in
-+ * the kernel, but with some slight modifications. We know that a secure
-+ * page can not be a huge page for example.
-+ */
-+static int expected_page_refs(struct page *page)
-+{
-+	int res;
-+
-+	res = page_mapcount(page);
-+	if (PageSwapCache(page)) {
-+		res++;
-+	} else if (page_mapping(page)) {
-+		res++;
-+		if (page_has_private(page))
-+			res++;
-+	}
-+	return res;
-+}
-+
-+static int make_secure_pte(pte_t *ptep, unsigned long addr,
-+			   struct page *exp_page, struct uv_cb_header *uvcb)
-+{
-+	pte_t entry = READ_ONCE(*ptep);
-+	struct page *page;
-+	int expected, rc = 0;
-+
-+	if (!pte_present(entry))
-+		return -ENXIO;
-+	if (pte_val(entry) & _PAGE_INVALID)
-+		return -ENXIO;
-+
-+	page = pte_page(entry);
-+	if (page != exp_page)
-+		return -ENXIO;
-+	if (PageWriteback(page))
-+		return -EAGAIN;
-+	expected = expected_page_refs(page);
-+	if (!page_ref_freeze(page, expected))
-+		return -EBUSY;
-+	set_bit(PG_arch_1, &page->flags);
-+	rc = uv_call(0, (u64)uvcb);
-+	page_ref_unfreeze(page, expected);
-+	/* Return -ENXIO if the page was not mapped, -EINVAL otherwise */
-+	if (rc)
-+		rc = uvcb->rc == 0x10a ? -ENXIO : -EINVAL;
-+	return rc;
-+}
-+
-+/*
-+ * Requests the Ultravisor to make a page accessible to a guest.
-+ * If it's brought in the first time, it will be cleared. If
-+ * it has been exported before, it will be decrypted and integrity
-+ * checked.
-+ */
-+int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb)
-+{
-+	struct vm_area_struct *vma;
-+	bool local_drain = false;
-+	spinlock_t *ptelock;
-+	unsigned long uaddr;
-+	struct page *page;
-+	pte_t *ptep;
-+	int rc;
-+
-+again:
-+	rc = -EFAULT;
-+	down_read(&gmap->mm->mmap_sem);
-+
-+	uaddr = __gmap_translate(gmap, gaddr);
-+	if (IS_ERR_VALUE(uaddr))
-+		goto out;
-+	vma = find_vma(gmap->mm, uaddr);
-+	if (!vma)
-+		goto out;
-+	/*
-+	 * Secure pages cannot be huge and userspace should not combine both.
-+	 * In case userspace does it anyway this will result in an -EFAULT for
-+	 * the unpack. The guest is thus never reaching secure mode. If
-+	 * userspace is playing dirty tricky with mapping huge pages later
-+	 * on this will result in a segmentation fault.
-+	 */
-+	if (is_vm_hugetlb_page(vma))
-+		goto out;
-+
-+	rc = -ENXIO;
-+	page = follow_page(vma, uaddr, FOLL_WRITE);
-+	if (IS_ERR_OR_NULL(page))
-+		goto out;
-+
-+	lock_page(page);
-+	ptep = get_locked_pte(gmap->mm, uaddr, &ptelock);
-+	rc = make_secure_pte(ptep, uaddr, page, uvcb);
-+	pte_unmap_unlock(ptep, ptelock);
-+	unlock_page(page);
-+out:
-+	up_read(&gmap->mm->mmap_sem);
-+
-+	if (rc == -EAGAIN) {
-+		wait_on_page_writeback(page);
-+	} else if (rc == -EBUSY) {
-+		/*
-+		 * If we have tried a local drain and the page refcount
-+		 * still does not match our expected safe value, try with a
-+		 * system wide drain. This is needed if the pagevecs holding
-+		 * the page are on a different CPU.
-+		 */
-+		if (local_drain) {
-+			lru_add_drain_all();
-+			/* We give up here, and let the caller try again */
-+			return -EAGAIN;
-+		}
-+		/*
-+		 * We are here if the page refcount does not match the
-+		 * expected safe value. The main culprits are usually
-+		 * pagevecs. With lru_add_drain() we drain the pagevecs
-+		 * on the local CPU so that hopefully the refcount will
-+		 * reach the expected safe value.
-+		 */
-+		lru_add_drain();
-+		local_drain = true;
-+		/* And now we try again immediately after draining */
-+		goto again;
-+	} else if (rc == -ENXIO) {
-+		if (gmap_fault(gmap, gaddr, FAULT_FLAG_WRITE))
-+			return -EFAULT;
-+		return -EAGAIN;
-+	}
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(gmap_make_secure);
-+
-+int gmap_convert_to_secure(struct gmap *gmap, unsigned long gaddr)
-+{
-+	struct uv_cb_cts uvcb = {
-+		.header.cmd = UVC_CMD_CONV_TO_SEC_STOR,
-+		.header.len = sizeof(uvcb),
-+		.guest_handle = gmap->guest_handle,
-+		.gaddr = gaddr,
-+	};
-+
-+	return gmap_make_secure(gmap, gaddr, &uvcb);
-+}
-+EXPORT_SYMBOL_GPL(gmap_convert_to_secure);
-+
-+/*
-+ * To be called with the page locked or with an extra reference! This will
-+ * prevent gmap_make_secure from touching the page concurrently. Having 2
-+ * parallel make_page_accessible is fine, as the UV calls will become a
-+ * no-op if the page is already exported.
-+ */
-+int arch_make_page_accessible(struct page *page)
-+{
-+	int rc = 0;
-+
-+	/* Hugepage cannot be protected, so nothing to do */
-+	if (PageHuge(page))
-+		return 0;
-+
-+	/*
-+	 * PG_arch_1 is used in 3 places:
-+	 * 1. for kernel page tables during early boot
-+	 * 2. for storage keys of huge pages and KVM
-+	 * 3. As an indication that this page might be secure. This can
-+	 *    overindicate, e.g. we set the bit before calling
-+	 *    convert_to_secure.
-+	 * As secure pages are never huge, all 3 variants can co-exists.
-+	 */
-+	if (!test_bit(PG_arch_1, &page->flags))
-+		return 0;
-+
-+	rc = uv_pin_shared(page_to_phys(page));
-+	if (!rc) {
-+		clear_bit(PG_arch_1, &page->flags);
-+		return 0;
-+	}
-+
-+	rc = uv_convert_from_secure(page_to_phys(page));
-+	if (!rc) {
-+		clear_bit(PG_arch_1, &page->flags);
-+		return 0;
-+	}
-+
-+	return rc;
-+}
-+EXPORT_SYMBOL_GPL(arch_make_page_accessible);
-+
- #endif
--- 
-2.25.0
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches
