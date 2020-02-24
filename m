@@ -1,53 +1,219 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19704 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727018AbgBGLkG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:06 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 17/35] KVM: s390: protvirt: Handle spec exception loops
-Date: Fri,  7 Feb 2020 06:39:40 -0500
-Message-Id: <20200207113958.7320-18-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
-References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:46861 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727151AbgBXArQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Feb 2020 19:47:16 -0500
+Date: Mon, 24 Feb 2020 06:17:11 +0530
+From: afzal mohammed <afzal.mohd.ma@gmail.com>
+Subject: [PATCH v2 00/18] genirq: Remove setup_irq()
+Message-ID: <cover.1582471508.git.afzal.mohd.ma@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, x86@kernel.org, linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-omap@vger.kernel.org, linux-alpha@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+While trying to understand internals of irq handling, came across a
+thread [1] in which tglx was referring to avoid usage of setup_irq().
+The early boot setup_irq() invocations happen either via 'init_IRQ()'
+or 'time_init()', while memory allocators are ready by 'mm_init()'.
 
-SIE intercept code 8 is used only on exception loops for protected
-guests. That means we need to stop the guest when we see it. This is
-done by userspace.
+Hence instances of setup_irq() are replaced by request_irq() &
+setup_irq() [along with remove_irq()] definition deleted in the last
+patch.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/intercept.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Seldom remove_irq() usage has been observed coupled with setup_irq(),
+wherever that has been found, it too has been replaced by free_irq().
 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index d50a0214eba1..db3dd5ee0b7a 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -231,6 +231,13 @@ static int handle_prog(struct kvm_vcpu *vcpu)
- 
- 	vcpu->stat.exit_program_interruption++;
- 
-+	/*
-+	 * Intercept 8 indicates a loop of specification exceptions
-+	 * for protected guests.
-+	 */
-+	if (kvm_s390_pv_is_protected(vcpu->kvm))
-+		return -EOPNOTSUPP;
-+
- 	if (guestdbg_enabled(vcpu) && per_event(vcpu)) {
- 		rc = kvm_s390_handle_per_event(vcpu);
- 		if (rc)
+Build & boot tested on ARM & x86_64 platforms (ensured that on the
+machines used for testing, modifications made in this series is being
+exercised at runtime)
+
+Much of the changes were created using Coccinelle with an intention
+to learn it. But not everything could be automated.
+
+Searching with 'git grep -n '\Wsetup_irq('' & avoiding the irrelevant
+ones, 153 invocation's of setup_irq() were found. 112 could be replaced
+w/ cocci, of which in a few files some desired hunks were missing or
+not as expected, these were fixed up manually. Also the remaining 41
+had to be done manually.
+
+Although cocci could replace 112, because of line continue not
+happening at paranthesis for request_irq(), around 80 had to be
+manually aligned in the request_irq() statement.
+
+So though many changes could be automated, there are a considerable
+amount of manual changes, please review carefully especially mips &
+alpha.
+
+Usage of setup_percpu_irq() is untouched w/ this series.
+
+There are 2 checkpatch warning about usage of BUG(), they were already
+present w/ setup_irq(), status quo maintained.
+
+[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
+
+Since changes from v1 are trivial as below, tags received has been
+applied to the relevant patches, if any objections, please shout.
+
+v2:
+ * Replace pr_err("request_irq() on %s failed" by
+           pr_err("%s: request_irq() failed"
+ * m68k: remove now irrelevant comment separation comment lines
+ * Commit message massage
+
+
+afzal mohammed (18):
+  alpha: replace setup_irq() by request_irq()
+  ARM: replace setup_irq() by request_irq()
+  c6x: replace setup_irq() by request_irq()
+  hexagon: replace setup_irq() by request_irq()
+  ia64: replace setup_irq() by request_irq()
+  m68k: Replace setup_irq() by request_irq()
+  microblaze: Replace setup_irq() by request_irq()
+  MIPS: Replace setup_irq() by request_irq()
+  parisc: Replace setup_irq() by request_irq()
+  powerpc: Replace setup_irq() by request_irq()
+  s390: replace setup_irq() by request_irq()
+  sh: replace setup_irq() by request_irq()
+  unicore32: replace setup_irq() by request_irq()
+  x86: Replace setup_irq() by request_irq()
+  xtensa: replace setup_irq() by request_irq()
+  clocksource: Replace setup_irq() by request_irq()
+  irqchip: Replace setup_irq() by request_irq()
+  genirq: Remove setup_irq() and remove_irq()
+
+ arch/alpha/kernel/irq_alpha.c                 | 29 ++-------
+ arch/alpha/kernel/irq_i8259.c                 |  8 +--
+ arch/alpha/kernel/irq_impl.h                  |  7 +--
+ arch/alpha/kernel/irq_pyxis.c                 |  3 +-
+ arch/alpha/kernel/sys_alcor.c                 |  3 +-
+ arch/alpha/kernel/sys_cabriolet.c             |  3 +-
+ arch/alpha/kernel/sys_eb64p.c                 |  3 +-
+ arch/alpha/kernel/sys_marvel.c                |  2 +-
+ arch/alpha/kernel/sys_miata.c                 |  6 +-
+ arch/alpha/kernel/sys_ruffian.c               |  3 +-
+ arch/alpha/kernel/sys_rx164.c                 |  3 +-
+ arch/alpha/kernel/sys_sx164.c                 |  3 +-
+ arch/alpha/kernel/sys_wildfire.c              |  7 +--
+ arch/alpha/kernel/time.c                      |  6 +-
+ arch/arm/mach-cns3xxx/core.c                  | 10 +---
+ arch/arm/mach-ebsa110/core.c                  | 10 +---
+ arch/arm/mach-ep93xx/timer-ep93xx.c           | 12 ++--
+ arch/arm/mach-footbridge/dc21285-timer.c      | 11 +---
+ arch/arm/mach-footbridge/isa-irq.c            |  8 +--
+ arch/arm/mach-footbridge/isa-timer.c          | 11 +---
+ arch/arm/mach-iop32x/time.c                   | 12 ++--
+ arch/arm/mach-mmp/time.c                      | 11 +---
+ arch/arm/mach-omap1/pm.c                      | 22 ++++---
+ arch/arm/mach-omap1/time.c                    | 10 +---
+ arch/arm/mach-omap1/timer32k.c                | 10 +---
+ arch/arm/mach-omap2/timer.c                   | 11 +---
+ arch/arm/mach-rpc/time.c                      |  8 +--
+ arch/arm/mach-spear/time.c                    |  9 +--
+ arch/arm/plat-orion/time.c                    | 10 +---
+ arch/c6x/platforms/timer64.c                  | 11 +---
+ arch/hexagon/kernel/smp.c                     | 17 +++---
+ arch/hexagon/kernel/time.c                    | 11 +---
+ arch/ia64/kernel/irq_ia64.c                   | 42 +++++--------
+ arch/ia64/kernel/mca.c                        | 51 +++++-----------
+ arch/m68k/68000/timers.c                      | 11 +---
+ arch/m68k/coldfire/pit.c                      | 11 +---
+ arch/m68k/coldfire/sltimers.c                 | 19 ++----
+ arch/m68k/coldfire/timers.c                   | 21 ++-----
+ arch/microblaze/kernel/timer.c                | 10 +---
+ arch/mips/alchemy/common/time.c               | 11 +---
+ arch/mips/ar7/irq.c                           | 18 +++---
+ arch/mips/ath25/ar2315.c                      |  9 +--
+ arch/mips/ath25/ar5312.c                      |  9 +--
+ arch/mips/bcm63xx/irq.c                       | 38 +++++-------
+ arch/mips/cobalt/irq.c                        | 14 ++---
+ arch/mips/dec/setup.c                         | 59 ++++++++-----------
+ arch/mips/emma/markeins/irq.c                 | 20 +++----
+ arch/mips/include/asm/sni.h                   |  2 +-
+ arch/mips/jazz/irq.c                          | 12 +---
+ arch/mips/kernel/cevt-bcm1480.c               | 11 +---
+ arch/mips/kernel/cevt-ds1287.c                |  9 +--
+ arch/mips/kernel/cevt-gt641xx.c               |  9 +--
+ arch/mips/kernel/cevt-r4k.c                   |  4 +-
+ arch/mips/kernel/cevt-sb1250.c                | 11 +---
+ arch/mips/kernel/cevt-txx9.c                  | 11 +---
+ arch/mips/kernel/i8253.c                      | 10 +---
+ arch/mips/kernel/rtlx-mt.c                    |  8 +--
+ arch/mips/kernel/smp.c                        | 33 ++++-------
+ arch/mips/lasat/interrupt.c                   | 10 +---
+ arch/mips/loongson2ef/common/bonito-irq.c     |  9 +--
+ .../loongson2ef/common/cs5536/cs5536_mfgpt.c  | 10 +---
+ arch/mips/loongson2ef/fuloong-2e/irq.c        | 14 ++---
+ arch/mips/loongson2ef/lemote-2f/irq.c         | 20 ++-----
+ arch/mips/loongson32/common/irq.c             | 21 ++++---
+ arch/mips/loongson32/common/time.c            | 12 ++--
+ arch/mips/loongson64/hpet.c                   | 10 +---
+ arch/mips/mti-malta/malta-int.c               | 10 +---
+ arch/mips/netlogic/xlr/fmn.c                  |  9 +--
+ arch/mips/pmcs-msp71xx/msp_irq.c              | 28 ++++-----
+ arch/mips/pmcs-msp71xx/msp_smp.c              | 22 ++-----
+ arch/mips/pmcs-msp71xx/msp_time.c             |  7 ++-
+ arch/mips/ralink/cevt-rt3352.c                | 17 +++---
+ arch/mips/sgi-ip22/ip22-eisa.c                |  8 +--
+ arch/mips/sgi-ip22/ip22-int.c                 | 49 +++++----------
+ arch/mips/sgi-ip32/ip32-irq.c                 | 18 ++----
+ arch/mips/sni/a20r.c                          |  4 +-
+ arch/mips/sni/irq.c                           |  8 +--
+ arch/mips/sni/pcit.c                          |  8 ++-
+ arch/mips/sni/rm200.c                         | 23 +++-----
+ arch/mips/sni/time.c                          | 10 +---
+ arch/mips/vr41xx/common/irq.c                 |  9 +--
+ arch/parisc/kernel/irq.c                      | 21 ++-----
+ arch/powerpc/platforms/85xx/mpc85xx_cds.c     | 10 +---
+ arch/powerpc/platforms/8xx/cpm1.c             |  9 +--
+ arch/powerpc/platforms/8xx/m8xx_setup.c       |  9 +--
+ arch/powerpc/platforms/chrp/setup.c           | 14 ++---
+ arch/powerpc/platforms/powermac/pic.c         | 31 ++++------
+ arch/powerpc/platforms/powermac/smp.c         |  9 +--
+ arch/s390/kernel/irq.c                        |  8 +--
+ arch/sh/boards/mach-cayman/irq.c              | 18 ++----
+ arch/sh/drivers/dma/dma-pvr2.c                |  9 +--
+ arch/unicore32/kernel/time.c                  | 11 +---
+ arch/x86/kernel/irqinit.c                     | 18 +++---
+ arch/x86/kernel/time.c                        | 10 +---
+ arch/xtensa/kernel/smp.c                      |  8 +--
+ arch/xtensa/kernel/time.c                     | 10 +---
+ drivers/clocksource/bcm2835_timer.c           |  8 +--
+ drivers/clocksource/bcm_kona_timer.c          | 10 +---
+ drivers/clocksource/dw_apb_timer.c            | 11 +---
+ drivers/clocksource/exynos_mct.c              | 12 ++--
+ drivers/clocksource/mxs_timer.c               | 10 +---
+ drivers/clocksource/nomadik-mtu.c             | 11 +---
+ drivers/clocksource/samsung_pwm_timer.c       | 12 ++--
+ drivers/clocksource/timer-atlas7.c            | 50 ++++++++--------
+ drivers/clocksource/timer-cs5535.c            | 10 +---
+ drivers/clocksource/timer-efm32.c             | 10 +---
+ drivers/clocksource/timer-fsl-ftm.c           | 10 +---
+ drivers/clocksource/timer-imx-gpt.c           | 10 +---
+ drivers/clocksource/timer-integrator-ap.c     | 11 +---
+ drivers/clocksource/timer-meson6.c            | 11 +---
+ drivers/clocksource/timer-orion.c             |  9 +--
+ drivers/clocksource/timer-prima2.c            | 11 +---
+ drivers/clocksource/timer-pxa.c               | 10 +---
+ drivers/clocksource/timer-sp804.c             | 11 +---
+ drivers/clocksource/timer-u300.c              |  9 +--
+ drivers/clocksource/timer-vf-pit.c            | 10 +---
+ drivers/clocksource/timer-vt8500.c            | 11 +---
+ drivers/clocksource/timer-zevio.c             | 13 ++--
+ drivers/irqchip/irq-i8259.c                   |  9 +--
+ drivers/irqchip/irq-ingenic.c                 | 11 ++--
+ drivers/parisc/eisa.c                         |  8 +--
+ drivers/s390/cio/airq.c                       |  8 +--
+ drivers/s390/cio/cio.c                        |  8 +--
+ include/linux/dw_apb_timer.h                  |  1 -
+ include/linux/irq.h                           |  2 -
+ kernel/irq/manage.c                           | 44 --------------
+ 126 files changed, 528 insertions(+), 1117 deletions(-)
+
+
+base-commit: v5.6-rc1
 -- 
-2.24.0
+2.25.1
