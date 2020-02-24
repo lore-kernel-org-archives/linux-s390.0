@@ -1,115 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51516 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728049AbgBTMB5 (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35430 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727500AbgBXLlR (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 07:01:57 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KC1Pjx061336
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:01:55 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2y8xdpqaqh-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:01:44 -0500
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Thu, 20 Feb 2020 12:00:52 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v5 10/10] s390x: css: ping pong
-Date: Thu, 20 Feb 2020 13:00:43 +0100
-In-Reply-To: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1582200043-21760-11-git-send-email-pmorel@linux.ibm.com>
+        Mon, 24 Feb 2020 06:41:17 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH v4 30/36] KVM: s390: protvirt: Mask PSW interrupt bits for interception 104 and 112
+Date: Mon, 24 Feb 2020 06:41:01 -0500
+Message-Id: <20200224114107.4646-31-borntraeger@de.ibm.com>
+In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
+References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-To test a write command with the SSCH instruction we need a QEMU device,
-with control unit type 0xC0CA. The PONG device is such a device.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-This type of device responds to PONG_WRITE requests by incrementing an
-integer, stored as a string at offset 0 of the CCW data.
+We're not allowed to inject interrupts on intercepts that leave the
+guest state in an "in-between" state where the next SIE entry will do a
+continuation, namely secure instruction interception (104) and secure
+prefix interception (112).
+As our PSW is just a copy of the real one that will be replaced on the
+next exit, we can mask out the interrupt bits in the PSW to make sure
+that we do not inject anything.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- s390x/css.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 49 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/s390x/css.c b/s390x/css.c
-index b9805a9..c1616d4 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -25,6 +25,12 @@
- #define PSW_PRG_MASK (PSW_MASK_IO | PSW_MASK_EA | PSW_MASK_BA)
- 
- #define PONG_CU_TYPE		0xc0ca
-+/* Channel Commands for PONG device */
-+#define PONG_WRITE	0x21 /* Write */
-+#define PONG_READ	0x22 /* Read buffer */
-+
-+#define BUFSZ	9
-+static char buffer[BUFSZ];
- 
- struct lowcore *lowcore = (void *)0x0;
- 
-@@ -266,6 +272,48 @@ unreg_cb:
- 	unregister_io_int_func(irq_io);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 9c0ab66128fd..c9045de90081 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4085,6 +4085,7 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+ 	return vcpu_post_run_fault_in_sie(vcpu);
  }
  
-+static void test_ping(void)
-+{
-+	int success, result;
-+	int cnt = 0, max = 4;
-+
-+	if (senseid.cu_type != PONG_CU) {
-+		report_skip("No PONG, no ping-pong");
-+		return;
-+	}
-+
-+	result = register_io_int_func(irq_io);
-+	if (result) {
-+		report(0, "Could not register IRQ handler");
-+		return;
-+	}
-+
-+	while (cnt++ < max) {
-+		snprintf(buffer, BUFSZ, "%08x\n", cnt);
-+		success = start_subchannel(PONG_WRITE, buffer, BUFSZ);
-+		if (!success) {
-+			report(0, "start_subchannel failed");
-+			goto unreg_cb;
-+		}
-+		delay(100);
-+		success = start_subchannel(PONG_READ, buffer, BUFSZ);
-+		if (!success) {
-+			report(0, "start_subchannel failed");
-+			goto unreg_cb;
-+		}
-+		result = atol(buffer);
-+		if (result != (cnt + 1)) {
-+			report(0, "Bad answer from pong: %08x - %08x",
-+			       cnt, result);
-+			goto unreg_cb;
-+		}
-+	}
-+	report(1, "ping-pong count 0x%08x", cnt);
-+
-+unreg_cb:
-+	unregister_io_int_func(irq_io);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
-@@ -273,6 +321,7 @@ static struct {
- 	{ "enumerate (stsch)", test_enumerate },
- 	{ "enable (msch)", test_enable },
- 	{ "sense (ssch/tsch)", test_sense },
-+	{ "ping-pong (ssch/tsch)", test_ping },
- 	{ NULL, NULL }
- };
- 
++#define PSW_INT_MASK (PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_MCHECK)
+ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ {
+ 	int rc, exit_reason;
+@@ -4121,6 +4122,16 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 			memcpy(vcpu->run->s.regs.gprs,
+ 			       sie_page->pv_grregs,
+ 			       sizeof(sie_page->pv_grregs));
++			/*
++			 * We're not allowed to inject interrupts on intercepts
++			 * that leave the guest state in an "in-between" state
++			 * where the next SIE entry will do a continuation.
++			 * Fence interrupts in our "internal" PSW.
++			 */
++			if (vcpu->arch.sie_block->icptcode == ICPT_PV_INSTR ||
++			    vcpu->arch.sie_block->icptcode == ICPT_PV_PREF) {
++				vcpu->arch.sie_block->gpsw.mask &= ~PSW_INT_MASK;
++			}
+ 		}
+ 		local_irq_disable();
+ 		__enable_cpu_timer_accounting(vcpu);
 -- 
-2.17.0
+2.25.0
