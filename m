@@ -1,50 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60288 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728130AbgBNW1j (ORCPT
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:60181 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729207AbgBYMgp (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:27:39 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 34/42] KVM: s390: protvirt: do not inject interrupts after start
-Date: Fri, 14 Feb 2020 17:26:50 -0500
-Message-Id: <20200214222658.12946-35-borntraeger@de.ibm.com>
-In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
-References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+        Tue, 25 Feb 2020 07:36:45 -0500
+Date: Tue, 25 Feb 2020 13:36:32 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 25/36] KVM: s390: protvirt: Only sync fmt4 registers
+Message-ID: <20200225133632.7ae5593e.cohuck@redhat.com>
+In-Reply-To: <20200224114107.4646-26-borntraeger@de.ibm.com>
+References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+        <20200224114107.4646-26-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-As PSW restart is handled by the ultravisor (and we only get a start
-notification) we must re-check the PSW after a start before injecting
-interrupts.
+On Mon, 24 Feb 2020 06:40:56 -0500
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> From: Janosch Frank <frankja@linux.ibm.com>
+> 
+> A lot of the registers are controlled by the Ultravisor and never
+> visible to KVM. Also some registers are overlayed, like gbea is with
+> sidad, which might leak data to userspace.
+> 
+> Hence we sync a minimal set of registers for both SIE formats and then
+> check and sync format 2 registers if necessary.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/kvm/kvm-s390.c | 110 +++++++++++++++++++++++++--------------
+>  1 file changed, 70 insertions(+), 40 deletions(-)
+> 
+
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
----
- arch/s390/kvm/kvm-s390.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 1b6963bbc96f..16af4d1a2c29 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4436,6 +4436,13 @@ void kvm_s390_vcpu_start(struct kvm_vcpu *vcpu)
- 	/* Let's tell the UV that we want to start again */
- 	kvm_s390_pv_set_cpu_state(vcpu, PV_CPU_STATE_OPR, &rc, &rrc);
- 	kvm_s390_clear_cpuflags(vcpu, CPUSTAT_STOPPED);
-+	/*
-+	 * The real PSW might have changed due to a RESTART interpreted by the
-+	 * ultravisor. We block all interrupts and let the next sie exit
-+	 * refresh our view.
-+	 */
-+	if (kvm_s390_pv_is_protected(vcpu->kvm))
-+		vcpu->arch.sie_block->gpsw.mask &= ~PSW_INT_MASK;
- 	/*
- 	 * Another VCPU might have used IBS while we were offline.
- 	 * Let's play safe and flush the VCPU at startup.
--- 
-2.25.0
