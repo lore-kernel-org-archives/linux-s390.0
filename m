@@ -1,103 +1,132 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:36181 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726827AbgBYWhL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Feb 2020 17:37:11 -0500
-Subject: Re: [PATCH v4.5 09/36] KVM: s390: protvirt: Add initial vm and cpu
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:56882 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726827AbgBYW3L (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Feb 2020 17:29:11 -0500
+Subject: Re: [PATCH v4 09/36] KVM: s390: protvirt: Add initial vm and cpu
  lifecycle handling
-References: <f80a0b58-5ed2-33b7-5292-2c4899d765b7@redhat.com>
- <20200225214822.3611-1-borntraeger@de.ibm.com>
+References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+ <20200224114107.4646-10-borntraeger@de.ibm.com>
+ <f80a0b58-5ed2-33b7-5292-2c4899d765b7@redhat.com>
+ <24689dd9-139d-3a0b-a57c-9f13ebda142b@de.ibm.com>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <a8bf1afc-8afe-a704-32f6-b20ed2f3a54c@redhat.com>
-Date: Tue, 25 Feb 2020 23:37:01 +0100
+Message-ID: <cff6dcbe-7028-c518-e218-426c2d26acb0@redhat.com>
+Date: Tue, 25 Feb 2020 23:29:01 +0100
 MIME-Version: 1.0
-In-Reply-To: <20200225214822.3611-1-borntraeger@de.ibm.com>
+In-Reply-To: <24689dd9-139d-3a0b-a57c-9f13ebda142b@de.ibm.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Ulrich.Weigand@de.ibm.com, cohuck@redhat.com, frankja@linux.ibm.com, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
+>>
+>> The question will repeat a couple of times in the patch: Do we want to
+>> convert that to a proper error (e.g., EBUSY, EINVAL, EWHATSOEVER)
+>> instead of returning "1" to user space (whoch looks weird).
+>=20
+> Not sure about the right error code.=20
+> -EIO for cc =3D=3D 1?
 
-> +static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
-> +{
-> +	unsigned long base =3D uv_info.guest_base_stor_len;
-> +	unsigned long virt =3D uv_info.guest_virt_var_stor_len;
-> +	unsigned long npages =3D 0, vlen =3D 0;
-> +	struct kvm_memory_slot *memslot;
-> +
-> +	kvm->arch.pv.stor_var =3D NULL;
-> +	kvm->arch.pv.stor_base =3D __get_free_pages(GFP_KERNEL, get_order(bas=
-e));
-> +	if (!kvm->arch.pv.stor_base)
-> +		return -ENOMEM;
-> +
-> +	/*
-> +	 * Calculate current guest storage for allocation of the
-> +	 * variable storage, which is based on the length in MB.
-> +	 *
-> +	 * Slots are sorted by GFN
-> +	 */
-> +	mutex_lock(&kvm->slots_lock);
-> +	memslot =3D kvm_memslots(kvm)->memslots;
-> +	npages =3D memslot->base_gfn + memslot->npages;
-> +	mutex_unlock(&kvm->slots_lock);
-
-As discussed, I think we should just use mem_limit and check against
-some hardcoded upper limit. But yeah, we can do that as an addon (in
-which case memory hotplug will require special tweaks to detect this
-from user space ... e.g., a new capability)
-
+Makes sense.
 
 [...]
 
-> +int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
-> +{
-> +		struct uv_cb_cgc uvcb =3D {
-> +		.header.cmd =3D UVC_CMD_CREATE_SEC_CONF,
-> +		.header.len =3D sizeof(uvcb)
-> +	};
-> +	int cc, ret;
-> +	u16 dummy;
-> +
-> +	ret =3D kvm_s390_pv_alloc_vm(kvm);
-> +	if (ret)
-> +		return ret;
-> +
-> +	/* Inputs */
-> +	uvcb.guest_stor_origin =3D 0; /* MSO is 0 for KVM */
-> +	uvcb.guest_stor_len =3D kvm->arch.pv.guest_len;
-> +	uvcb.guest_asce =3D kvm->arch.gmap->asce;
-> +	uvcb.guest_sca =3D (unsigned long)kvm->arch.sca;
-> +	uvcb.conf_base_stor_origin =3D (u64)kvm->arch.pv.stor_base;
-> +	uvcb.conf_virt_stor_origin =3D (u64)kvm->arch.pv.stor_var;
-> +
-> +	cc =3D uv_call(0, (u64)&uvcb);
-> +	*rc =3D uvcb.header.rc;
-> +	*rrc =3D uvcb.header.rrc;
-> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x =
-rrc %x",
-> +		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc);
-> +
-> +	/* Outputs */
-> +	kvm->arch.pv.handle =3D uvcb.guest_handle;
-> +
-> +	if (cc) {
-> +		if (uvcb.header.rc & UVC_RC_NEED_DESTROY)
-> +			kvm_s390_pv_deinit_vm(kvm, &dummy, &dummy);
-> +		else
-> +			kvm_s390_pv_dealloc_vm(kvm);
-> +		return -EIO;
+>>> +	if (!cc)
+>>> +		free_pages(vcpu->arch.pv.stor_base,
+>>> +			   get_order(uv_info.guest_cpu_stor_len));
+>>
+>> Should we clear arch.pv.handle?
+>=20
+> this is done in the memset below
 
-A lot easier to read :)
+missed that, grepping betrayed me.
+
+>>
+>> Also, I do wonder if it makes sense to
+>>
+>> vcpu->arch.pv.stor_base =3D NULL;
+>=20
+> same. We could do 4 single assignments instead, but the memset is proba=
+bly ok?
+
+yes, it's only harder to review ;)
+
+[...]
+
+>>> +	mutex_lock(&kvm->slots_lock);
+>>> +	memslot =3D kvm_memslots(kvm)->memslots;
+>>> +	npages =3D memslot->base_gfn + memslot->npages;
+>>
+>> I remember I asked this question already, maybe I missed the reply :(
+>>
+>> 1. What if we have multiple slots?
+>=20
+> memslot 0 is the last one, so this should actually have the last memory=
+ address
+> so this should be ok.
+
+I think I got it wrong (thought there would be some start and length -
+but it's only a length, which makes sense).
+
+>=20
+>> 2. What is expected to happen if new slots are added (e.g., memory
+>> hotplug in the future?)
+>>
+>> Shouldn't you bail out if there is more than one slot and make sure th=
+at
+>> no new ones can be added as long as pv is active (I remember the latte=
+r
+>> should be very easy from an arch callback)?
+>=20
+> Yes, that should be easy, something like the following I guess
+>=20
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -4744,6 +4744,9 @@ int kvm_arch_prepare_memory_region(struct kvm *kv=
+m,
+>         if (mem->guest_phys_addr + mem->memory_size > kvm->arch.mem_lim=
+it)
+>                 return -EINVAL;
+> =20
+> +       /* When we are protected we should not change the memory slots =
+*/
+> +       if (kvm_s390_pv_is_protected(kvm))
+> +               return -EINVAL;
+>         return 0;
+>  }
+> =20
+>=20
+>=20
+>=20
+> I think we can extend that later to actually use
+> the memorysize from kvm->arch.mem_limit as long as this is reasonably s=
+mall.
+> This should then be done when we implement memory hotplug.
+
+IMHO mem_limit would make a lot of sense and even make hotplug work out
+of the box. I assume you can assume that user space properly sets this
+up for all PV guests (KVM_S390_VM_MEM_LIMIT_SIZE).
+
+So maybe use that directly and bail out if it's too big? (esp. if it's
+KVM_S390_NO_MEM_LIMIT).
+
+[...]
+
+>> Similar to the VCPU path, should be set all pointers to NULL but skip
+>> the freeing? With a similar comment /* Inteded memory leak ... */
+>=20
+> This is done in kvm_s390_pv_dealloc_vm. And I think it makes sense to k=
+eep
+> the VM thing linked to the KVM struct. This will prevent the user from =
+doing
+> another PV_ENABLE on this guest.
 
 
-Fell free add my rb with or without the mem_limit change.
+Makes sense.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
 
 --=20
 Thanks,
