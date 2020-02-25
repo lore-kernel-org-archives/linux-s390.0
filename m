@@ -1,14 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:37122 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726019AbgBYNiM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 25 Feb 2020 08:38:12 -0500
-Date: Tue, 25 Feb 2020 14:37:58 +0100
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:45909 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728981AbgBYNaX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Feb 2020 08:30:23 -0500
+Date: Tue, 25 Feb 2020 14:30:04 +0100
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v4 34/36] s390: protvirt: Add sysfs firmware interface
  for Ultravisor information
-Message-ID: <20200225143758.293fd5fb.cohuck@redhat.com>
+Message-ID: <20200225143004.4c47f1b8.cohuck@redhat.com>
 In-Reply-To: <20200224114107.4646-35-borntraeger@de.ibm.com>
 References: <20200224114107.4646-1-borntraeger@de.ibm.com>
         <20200224114107.4646-35-borntraeger@de.ibm.com>
@@ -38,7 +37,4 @@ Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 >  arch/s390/kernel/uv.c | 86 +++++++++++++++++++++++++++++++++++++++++++
 >  1 file changed, 86 insertions(+)
 
-...oh, and maybe document the new interfaces under Documentation/ABI/
-as well?
-
-(No objection if you do that in a follow-up patch.)
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
