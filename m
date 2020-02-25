@@ -1,115 +1,93 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:41868 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388511AbgBNP6M (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:58:12 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 434/542] s390/ftrace: generate traced function stack frame
-Date: Fri, 14 Feb 2020 10:47:06 -0500
-Message-Id: <20200214154854.6746-434-sashal@kernel.org>
-In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
-References: <20200214154854.6746-1-sashal@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56615 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729206AbgBYNQm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Feb 2020 08:16:42 -0500
+Date: Tue, 25 Feb 2020 14:16:27 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 24/36] KVM: s390: protvirt: Do only reset registers
+ that are accessible
+Message-ID: <20200225141627.79c7a03b.cohuck@redhat.com>
+In-Reply-To: <5f9c3b36-3fb9-4d38-ec2d-21888a774f16@de.ibm.com>
+References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+        <20200224114107.4646-25-borntraeger@de.ibm.com>
+        <20200225133252.479644ea.cohuck@redhat.com>
+        <4726aa70-7c53-1985-8ada-3bfbea57e72f@linux.ibm.com>
+        <20200225140629.7e018f72.cohuck@redhat.com>
+        <5f9c3b36-3fb9-4d38-ec2d-21888a774f16@de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <sven.schnelle@ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+On Tue, 25 Feb 2020 14:08:16 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-[ Upstream commit 45f7a0da600d3c409b5ad8d5ddddacd98ddc8840 ]
+> On 25.02.20 14:06, Cornelia Huck wrote:
+> > On Tue, 25 Feb 2020 13:51:12 +0100
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >   
+> >> On 2/25/20 1:32 PM, Cornelia Huck wrote:  
+> >>> On Mon, 24 Feb 2020 06:40:55 -0500
+> >>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> >>>     
+> >>>> From: Janosch Frank <frankja@linux.ibm.com>
+> >>>>
+> >>>> For protected VMs the hypervisor can not access guest breaking event
+> >>>> address, program parameter, bpbc and todpr. Do not reset those fields
+> >>>> as the control block does not provide access to these fields.
+> >>>>
+> >>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> >>>> Reviewed-by: David Hildenbrand <david@redhat.com>
+> >>>> [borntraeger@de.ibm.com: patch merging, splitting, fixing]
+> >>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> >>>> ---
+> >>>>  arch/s390/kvm/kvm-s390.c | 10 ++++++----
+> >>>>  1 file changed, 6 insertions(+), 4 deletions(-)
+> >>>>
+> >>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> >>>> index 6ab4c88f2e1d..c734e89235f9 100644
+> >>>> --- a/arch/s390/kvm/kvm-s390.c
+> >>>> +++ b/arch/s390/kvm/kvm-s390.c
+> >>>> @@ -3499,14 +3499,16 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+> >>>>  	kvm_s390_set_prefix(vcpu, 0);
+> >>>>  	kvm_s390_set_cpu_timer(vcpu, 0);
+> >>>>  	vcpu->arch.sie_block->ckc = 0;
+> >>>> -	vcpu->arch.sie_block->todpr = 0;
+> >>>>  	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
+> >>>>  	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
+> >>>>  	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
+> >>>>  	vcpu->run->s.regs.fpc = 0;
+> >>>> -	vcpu->arch.sie_block->gbea = 1;
+> >>>> -	vcpu->arch.sie_block->pp = 0;
+> >>>> -	vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+> >>>> +	if (!kvm_s390_pv_cpu_is_protected(vcpu)) {
+> >>>> +		vcpu->arch.sie_block->gbea = 1;
+> >>>> +		vcpu->arch.sie_block->pp = 0;
+> >>>> +		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+> >>>> +		vcpu->arch.sie_block->todpr = 0;    
+> >>>
+> >>> What happens if we do change those values? Is it just ignored or will
+> >>> we get an exception on the next SIE entry?    
+> >>
+> >> Well, changing gbea is a bad idea because of the sida overlay.
+> >> I don't think that any other is checked, but I'd need to look up the
+> >> todpr changes to be completely sure.  
+> > 
+> > Maybe add a comment
+> > 
+> > /*
+> >  * Do not reset these registers in the protected case, as some of
+> >  * them are overlayed and they are not accessible in this case
+> >  * anyway.
+> >  */  
+> 
+> Makes sense, will add.
+> 
 
-Currently backtrace from ftraced function does not contain ftraced
-function itself. e.g. for "path_openat":
+With that:
 
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Ftraced function is expected in the backtrace by ftrace kselftests, which
-are now failing. It would also be nice to have it for clarity reasons.
-
-"ftrace_caller" itself is called without stack frame allocated for it
-and does not store its caller (ftraced function). Instead it simply
-allocates a stack frame for "ftrace_trace_function" and sets backchain
-to point to ftraced function stack frame (which contains ftraced function
-caller in saved r14).
-
-To fix this issue make "ftrace_caller" allocate a stack frame
-for itself just to store ftraced function for the stack unwinder.
-As a result backtrace looks like the following:
-
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-path_openat+0x6/0xd60  <-- ftraced function
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Reported-by: Sven Schnelle <sven.schnelle@ibm.com>
-Tested-by: Sven Schnelle <sven.schnelle@ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/mcount.S | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index c3597d2e2ae0e..f942341429b1c 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -26,6 +26,12 @@ ENDPROC(ftrace_stub)
- #define STACK_PTREGS	  (STACK_FRAME_OVERHEAD)
- #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
- #define STACK_PTREGS_PSW  (STACK_PTREGS + __PT_PSW)
-+#ifdef __PACK_STACK
-+/* allocate just enough for r14, r15 and backchain */
-+#define TRACED_FUNC_FRAME_SIZE	24
-+#else
-+#define TRACED_FUNC_FRAME_SIZE	STACK_FRAME_OVERHEAD
-+#endif
- 
- ENTRY(_mcount)
- 	BR_EX	%r14
-@@ -40,9 +46,16 @@ ENTRY(ftrace_caller)
- #if !(defined(CC_USING_HOTPATCH) || defined(CC_USING_NOP_MCOUNT))
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
- #endif
--	aghi	%r15,-STACK_FRAME_SIZE
-+	# allocate stack frame for ftrace_caller to contain traced function
-+	aghi	%r15,-TRACED_FUNC_FRAME_SIZE
- 	stg	%r1,__SF_BACKCHAIN(%r15)
-+	stg	%r0,(__SF_GPRS+8*8)(%r15)
-+	stg	%r15,(__SF_GPRS+9*8)(%r15)
-+	# allocate pt_regs and stack frame for ftrace_trace_function
-+	aghi	%r15,-STACK_FRAME_SIZE
- 	stg	%r1,(STACK_PTREGS_GPRS+15*8)(%r15)
-+	aghi	%r1,-TRACED_FUNC_FRAME_SIZE
-+	stg	%r1,__SF_BACKCHAIN(%r15)
- 	stg	%r0,(STACK_PTREGS_PSW+8)(%r15)
- 	stmg	%r2,%r14,(STACK_PTREGS_GPRS+2*8)(%r15)
- #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
--- 
-2.20.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
