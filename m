@@ -1,115 +1,274 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34630 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391344AbgBNQJq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:46 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 373/459] s390/ftrace: generate traced function stack frame
-Date: Fri, 14 Feb 2020 11:00:23 -0500
-Message-Id: <20200214160149.11681-373-sashal@kernel.org>
-In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
-References: <20200214160149.11681-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22984 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727520AbgBZJgE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 26 Feb 2020 04:36:04 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01Q9ZU7l173640
+        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 04:36:01 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2yden0vu6a-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 04:36:01 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Wed, 26 Feb 2020 09:35:59 -0000
+Subject: Re: [PATCH v4 00/36] KVM: s390: Add support for protected VMs
+References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Wed, 26 Feb 2020 10:35:54 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <68e6ba26-6f96-fb6a-db64-2c591526f588@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <sven.schnelle@ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+The KVM part is almost done with review and I have now pushed this to
+kvms390/next to give some exposure:
+https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=next
 
-[ Upstream commit 45f7a0da600d3c409b5ad8d5ddddacd98ddc8840 ]
+We still need a solution for Patch 1,"mm:gup/writeback: add callbacks for
+inaccessible pages".
+Andrew, I need your guidance here. Take this via s390kvm with an ACK or
+take it via your tree?
 
-Currently backtrace from ftraced function does not contain ftraced
-function itself. e.g. for "path_openat":
+Christian
 
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
 
-Ftraced function is expected in the backtrace by ftrace kselftests, which
-are now failing. It would also be nice to have it for clarity reasons.
 
-"ftrace_caller" itself is called without stack frame allocated for it
-and does not store its caller (ftraced function). Instead it simply
-allocates a stack frame for "ftrace_trace_function" and sets backchain
-to point to ftraced function stack frame (which contains ftraced function
-caller in saved r14).
 
-To fix this issue make "ftrace_caller" allocate a stack frame
-for itself just to store ftraced function for the stack unwinder.
-As a result backtrace looks like the following:
-
-arch_stack_walk+0x15c/0x2d8
-stack_trace_save+0x50/0x68
-stack_trace_call+0x15e/0x3d8
-ftrace_graph_caller+0x0/0x1c <-- ftrace code
-path_openat+0x6/0xd60  <-- ftraced function
-do_filp_open+0x7c/0xe8 <-- ftraced function caller
-do_open_execat+0x76/0x1b8
-open_exec+0x52/0x78
-load_elf_binary+0x180/0x1160
-search_binary_handler+0x8e/0x288
-load_script+0x2a8/0x2b8
-search_binary_handler+0x8e/0x288
-__do_execve_file.isra.39+0x6fa/0xb40
-__s390x_sys_execve+0x56/0x68
-system_call+0xdc/0x2d8
-
-Reported-by: Sven Schnelle <sven.schnelle@ibm.com>
-Tested-by: Sven Schnelle <sven.schnelle@ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/mcount.S | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/mcount.S b/arch/s390/kernel/mcount.S
-index 9e1660a6b9db6..3431b2d5e3346 100644
---- a/arch/s390/kernel/mcount.S
-+++ b/arch/s390/kernel/mcount.S
-@@ -26,6 +26,12 @@ ENDPROC(ftrace_stub)
- #define STACK_PTREGS	  (STACK_FRAME_OVERHEAD)
- #define STACK_PTREGS_GPRS (STACK_PTREGS + __PT_GPRS)
- #define STACK_PTREGS_PSW  (STACK_PTREGS + __PT_PSW)
-+#ifdef __PACK_STACK
-+/* allocate just enough for r14, r15 and backchain */
-+#define TRACED_FUNC_FRAME_SIZE	24
-+#else
-+#define TRACED_FUNC_FRAME_SIZE	STACK_FRAME_OVERHEAD
-+#endif
- 
- ENTRY(_mcount)
- 	BR_EX	%r14
-@@ -39,9 +45,16 @@ ENTRY(ftrace_caller)
- #if !(defined(CC_USING_HOTPATCH) || defined(CC_USING_NOP_MCOUNT))
- 	aghi	%r0,MCOUNT_RETURN_FIXUP
- #endif
--	aghi	%r15,-STACK_FRAME_SIZE
-+	# allocate stack frame for ftrace_caller to contain traced function
-+	aghi	%r15,-TRACED_FUNC_FRAME_SIZE
- 	stg	%r1,__SF_BACKCHAIN(%r15)
-+	stg	%r0,(__SF_GPRS+8*8)(%r15)
-+	stg	%r15,(__SF_GPRS+9*8)(%r15)
-+	# allocate pt_regs and stack frame for ftrace_trace_function
-+	aghi	%r15,-STACK_FRAME_SIZE
- 	stg	%r1,(STACK_PTREGS_GPRS+15*8)(%r15)
-+	aghi	%r1,-TRACED_FUNC_FRAME_SIZE
-+	stg	%r1,__SF_BACKCHAIN(%r15)
- 	stg	%r0,(STACK_PTREGS_PSW+8)(%r15)
- 	stmg	%r2,%r14,(STACK_PTREGS_GPRS+2*8)(%r15)
- #ifdef CONFIG_HAVE_MARCH_Z196_FEATURES
--- 
-2.20.1
+On 24.02.20 12:40, Christian Borntraeger wrote:
+> mm-related patches CCed on linux-mm, the complete list can be found on
+> the KVM and linux-s390 list. 
+> 
+> Andrew, any chance to take " mm:gup/writeback: add callbacks for
+> inaccessible pages" for 5.7? I can then carry the s390/kvm part. There
+> is no build dependency on this patch (just a logical one).  As an
+> alternative I can take an ack and carry that patch myself. 
+> 
+> This series contains a "pretty small" common code memory management
+> change that will allow paging, guest backing with files etc almost
+> just like normal VMs. It should be a no-op for all architectures not
+> opting in. And it should be usable for others that also try to get
+> notified on "the pages are in the process of being used for things
+> like I/O". This time I included error handling and an ACK from Will
+> Deacon as well as a Reviewed-by: from David Hildenbrand.
+> This patch will be used by
+> "[PATCH v4 05/36] s390/mm: provide memory management functions for
+> protected KVM guests".
+> We need to call into the "make accessible" architecture function when
+> the refcount is already increased the writeback bit is set. This will
+> make sure that we do not call the reverse function (convert to secure)
+> until the host operation has finished.
+> 
+> 
+> Overview
+> --------
+> Protected VMs (PVM) are KVM VMs, where KVM can't access the VM's state
+> like guest memory and guest registers anymore. Instead the PVMs are
+> mostly managed by a new entity called Ultravisor (UV), which provides
+> an API, so KVM and the PV can request management actions.
+> 
+> PVMs are encrypted at rest and protected from hypervisor access while
+> running. They switch from a normal operation into protected mode, so
+> we can still use the standard boot process to load a encrypted blob
+> and then move it into protected mode.
+> 
+> Rebooting is only possible by passing through the unprotected/normal
+> mode and switching to protected again.
+> 
+> All patches are in the protvirtv4 branch of the korg s390 kvm git
+> https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=protvirtv6
+> 
+> Claudio presented the technology at his presentation at KVM Forum
+> 2019.
+> 
+> https://static.sched.com/hosted_files/kvmforum2019/3b/ibm_protected_vms_s390x.pdf
+> 
+> 
+> v3 -> v4:
+> general
+> -------
+> - copyright updates
+> - Reviewedby + acked by tags
+> 
+> KVM: s390/interrupt: do not pin adapter interrupt pages
+> -------------------------------------------------------
+> - more comments
+> - get rid of now obsolete adapter parameter
+> 
+> s390/mm: provide memory management functions for protected KVM guests
+> ---------------------------------------------------------------------
+> - improved patch description
+> 
+> KVM: s390: protvirt: Add initial vm and cpu lifecycle handling
+> --------------------------------------------------------------
+> - rework tweak logic to not use an array
+> - remove _VM_ part of the subfunction names of PV_COMMAND
+> - merge alloc/create/destroy/dealloc into init/deinit
+> - handle cmma deallocation on failures
+> - rework error handling to pass along the first rc/rrc if VCPU or VM CREATE/DESTROY fails
+> This was tested successfully with error injection and tracing. We do not deallocate on
+> destroy failure and we pass along the first rc/rrc when vcpu destroy fails.
+> 
+>  KVM: s390: protvirt: Add KVM api documentation
+> -----------------------------------------------
+> - mention new MP_STATE
+> - remove "old" interfaces that are no longer in the previous patch
+> - move to the end
+> 
+> KVM: s390: protvirt: Secure memory is not mergeable
+> ---------------------------------------------------
+> - rebase on new lifecycle patch
+> 
+> KVM: s390: protvirt: UV calls in support of diag308 0,1
+> -------------------------------------------------------
+> - remove _VM_ part of the subfunction names of PV_COMMAND
+> 
+> KVM: s390: rstify new ioctls in api.rst
+> ---------------------------------------
+> - removed from this patch queue
+> 
+> 
+> 
+> v2 -> v3
+> - rebase against v5.6-rc2
+> - move some checks into the callers
+> - typo fixes
+> - extend UV query size
+> - do a tlb flush when entering/exiting protected mode
+> - more comments
+> - change interface to PV_ENABLE/DISABLE instead of vcpu/vm
+>   create/destroy
+> - lockdep checks for *is_protected calls
+> - locking improments
+> - move facility 161 to qemu
+> - checkpatch fixes
+> - merged error handling in mm patch
+> - removed vcpu pv commands
+> - use mp_state for setting the IPL PSW
+> 
+> 
+> v1 -> v2
+> - rebase on top of kvm/master
+> - pipe through rc and rrc. This might have created some churn here and
+>   there
+> - turn off sclp masking when rebooting into "unsecure"
+> - memory management simplification
+> - prefix page handling now via intercept 112
+> - io interrupt intervention request fix (do not use GISA)
+> - api.txt conversion to rst
+> - sample patches on top of mm/gup/writeback
+> - tons of review feedback
+> - kvm_uv debug feature fixes and unifications
+> - ultravisor information for /sys/firmware
+> - 
+> 
+> RFCv2 -> v1 (you can diff the protvirtv2 and the protvirtv3 branch)
+> - tons of review feedback integrated (see mail thread)
+> - memory management now complete and working
+> - Documentation patches merged
+> - interrupt patches merged
+> - CONFIG_KVM_S390_PROTECTED_VIRTUALIZATION_HOST removed
+> - SIDA interface integrated into memop
+> - for merged patches I removed reviews that were not in all patches
+> 
+> 
+> 
+> Christian Borntraeger (4):
+>   KVM: s390/mm: Make pages accessible before destroying the guest
+>   KVM: s390: protvirt: Add SCLP interrupt handling
+>   KVM: s390: protvirt: do not inject interrupts after start
+>   KVM: s390: protvirt: introduce and enable KVM_CAP_S390_PROTECTED
+> 
+> Claudio Imbrenda (3):
+>   mm/gup/writeback: add callbacks for inaccessible pages
+>   s390/mm: provide memory management functions for protected KVM guests
+>   KVM: s390/mm: handle guest unpin events
+> 
+> Janosch Frank (24):
+>   KVM: s390: protvirt: Add UV debug trace
+>   KVM: s390: add new variants of UV CALL
+>   KVM: s390: protvirt: Add initial vm and cpu lifecycle handling
+>   KVM: s390: protvirt: Secure memory is not mergeable
+>   KVM: s390: protvirt: Handle SE notification interceptions
+>   KVM: s390: protvirt: Instruction emulation
+>   KVM: s390: protvirt: Handle spec exception loops
+>   KVM: s390: protvirt: Add new gprs location handling
+>   KVM: S390: protvirt: Introduce instruction data area bounce buffer
+>   KVM: s390: protvirt: handle secure guest prefix pages
+>   KVM: s390: protvirt: Write sthyi data to instruction data area
+>   KVM: s390: protvirt: STSI handling
+>   KVM: s390: protvirt: disallow one_reg
+>   KVM: s390: protvirt: Do only reset registers that are accessible
+>   KVM: s390: protvirt: Only sync fmt4 registers
+>   KVM: s390: protvirt: Add program exception injection
+>   KVM: s390: protvirt: UV calls in support of diag308 0, 1
+>   KVM: s390: protvirt: Report CPU state to Ultravisor
+>   KVM: s390: protvirt: Support cmd 5 operation state
+>   KVM: s390: protvirt: Mask PSW interrupt bits for interception 104 and
+>     112
+>   KVM: s390: protvirt: Add UV cpu reset calls
+>   DOCUMENTATION: Protected virtual machine introduction and IPL
+>   s390: protvirt: Add sysfs firmware interface for Ultravisor
+>     information
+>   KVM: s390: protvirt: Add KVM api documentation
+> 
+> Michael Mueller (1):
+>   KVM: s390: protvirt: Implement interrupt injection
+> 
+> Ulrich Weigand (1):
+>   KVM: s390/interrupt: do not pin adapter interrupt pages
+> 
+> Vasily Gorbik (3):
+>   s390/protvirt: introduce host side setup
+>   s390/protvirt: add ultravisor initialization
+>   s390/mm: add (non)secure page access exceptions handlers
+> 
+>  .../admin-guide/kernel-parameters.txt         |   5 +
+>  Documentation/virt/kvm/api.rst                |  61 +-
+>  Documentation/virt/kvm/devices/s390_flic.rst  |  11 +-
+>  Documentation/virt/kvm/index.rst              |   2 +
+>  Documentation/virt/kvm/s390-pv-boot.rst       |  83 +++
+>  Documentation/virt/kvm/s390-pv.rst            | 116 ++++
+>  MAINTAINERS                                   |   1 +
+>  arch/s390/boot/Makefile                       |   2 +-
+>  arch/s390/boot/uv.c                           |  21 +-
+>  arch/s390/include/asm/gmap.h                  |   6 +
+>  arch/s390/include/asm/kvm_host.h              | 113 +++-
+>  arch/s390/include/asm/mmu.h                   |   2 +
+>  arch/s390/include/asm/mmu_context.h           |   1 +
+>  arch/s390/include/asm/page.h                  |   5 +
+>  arch/s390/include/asm/pgtable.h               |  35 +-
+>  arch/s390/include/asm/uv.h                    | 252 ++++++++-
+>  arch/s390/kernel/Makefile                     |   1 +
+>  arch/s390/kernel/pgm_check.S                  |   4 +-
+>  arch/s390/kernel/setup.c                      |   9 +-
+>  arch/s390/kernel/uv.c                         | 413 ++++++++++++++
+>  arch/s390/kvm/Makefile                        |   2 +-
+>  arch/s390/kvm/diag.c                          |   6 +-
+>  arch/s390/kvm/intercept.c                     | 117 +++-
+>  arch/s390/kvm/interrupt.c                     | 399 +++++++------
+>  arch/s390/kvm/kvm-s390.c                      | 532 +++++++++++++++---
+>  arch/s390/kvm/kvm-s390.h                      |  51 +-
+>  arch/s390/kvm/priv.c                          |  13 +-
+>  arch/s390/kvm/pv.c                            | 298 ++++++++++
+>  arch/s390/mm/fault.c                          |  78 +++
+>  arch/s390/mm/gmap.c                           |  65 ++-
+>  include/linux/gfp.h                           |   6 +
+>  include/uapi/linux/kvm.h                      |  43 +-
+>  mm/gup.c                                      |  15 +-
+>  mm/page-writeback.c                           |   5 +
+>  34 files changed, 2461 insertions(+), 312 deletions(-)
+>  create mode 100644 Documentation/virt/kvm/s390-pv-boot.rst
+>  create mode 100644 Documentation/virt/kvm/s390-pv.rst
+>  create mode 100644 arch/s390/kernel/uv.c
+>  create mode 100644 arch/s390/kvm/pv.c
+> 
