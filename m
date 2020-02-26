@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:57064 "EHLO
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:26170 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726936AbgBZKix (ORCPT
+        by vger.kernel.org with ESMTP id S1726329AbgBZKB7 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 26 Feb 2020 05:38:53 -0500
-Date: Wed, 26 Feb 2020 11:38:40 +0100
+        Wed, 26 Feb 2020 05:01:59 -0500
+Date: Wed, 26 Feb 2020 11:01:44 +0100
 From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v4.5 09/36] KVM: s390: protvirt: Add initial vm and cpu
  lifecycle handling
-Message-ID: <20200226113840.46880055.cohuck@redhat.com>
+Message-ID: <20200226110144.4677ac60.cohuck@redhat.com>
 In-Reply-To: <20200225214822.3611-1-borntraeger@de.ibm.com>
 References: <f80a0b58-5ed2-33b7-5292-2c4899d765b7@redhat.com>
         <20200225214822.3611-1-borntraeger@de.ibm.com>
@@ -45,84 +45,81 @@ Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 >  7 files changed, 633 insertions(+), 4 deletions(-)
 >  create mode 100644 arch/s390/kvm/pv.c
 
-> +int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+(...)
+
+> @@ -2165,6 +2168,160 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+>  	return r;
+>  }
+>  
+> +static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
 > +{
-> +		struct uv_cb_cgc uvcb = {
+> +	struct kvm_vcpu *vcpu;
+> +	u16 rc, rrc;
+> +	int ret = 0;
+> +	int i;
+> +
+> +	/*
+> +	 * We ignore failures and try to destroy as many CPUs as possible.
 
-Broken indentation.
+What is this 'destroying'? Is that really the right terminology? From a
+quick glance, I would expect something more in the vein of cpu
+unplugging, and I don't think that's what is happening here.
 
-> +		.header.cmd = UVC_CMD_CREATE_SEC_CONF,
-> +		.header.len = sizeof(uvcb)
-> +	};
-> +	int cc, ret;
+(I have obviously not yet read the whole thing, please give people some
+more time to review this huge patch.)
+
+> +	 * At the same time we must not free the assigned resources when
+> +	 * this fails, as the ultravisor has still access to that memory.
+> +	 * So kvm_s390_pv_destroy_cpu can leave a "wanted" memory leak
+> +	 * behind.
+> +	 * We want to return the first failure rc and rrc, though.
+> +	 */
+> +	kvm_for_each_vcpu(i, vcpu, kvm) {
+> +		mutex_lock(&vcpu->mutex);
+> +		if (kvm_s390_pv_destroy_cpu(vcpu, &rc, &rrc) && !ret) {
+> +			*rcp = rc;
+> +			*rrcp = rrc;
+> +			ret = -EIO;
+> +		}
+> +		mutex_unlock(&vcpu->mutex);
+> +	}
+> +	return ret;
+> +}
+> +
+> +static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
+> +{
+> +	int i, r = 0;
 > +	u16 dummy;
 > +
-> +	ret = kvm_s390_pv_alloc_vm(kvm);
-> +	if (ret)
-> +		return ret;
+> +	struct kvm_vcpu *vcpu;
 > +
-> +	/* Inputs */
-> +	uvcb.guest_stor_origin = 0; /* MSO is 0 for KVM */
-
-What is 'MSO'? (i.e., where is that 'M' coming from?)
-
-> +	uvcb.guest_stor_len = kvm->arch.pv.guest_len;
-> +	uvcb.guest_asce = kvm->arch.gmap->asce;
-> +	uvcb.guest_sca = (unsigned long)kvm->arch.sca;
-> +	uvcb.conf_base_stor_origin = (u64)kvm->arch.pv.stor_base;
-> +	uvcb.conf_virt_stor_origin = (u64)kvm->arch.pv.stor_var;
-> +
-> +	cc = uv_call(0, (u64)&uvcb);
-> +	*rc = uvcb.header.rc;
-> +	*rrc = uvcb.header.rrc;
-> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
-> +		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc);
-> +
-> +	/* Outputs */
-> +	kvm->arch.pv.handle = uvcb.guest_handle;
-
-Is this valid if the call failed?
-
-> +
-> +	if (cc) {
-> +		if (uvcb.header.rc & UVC_RC_NEED_DESTROY)
-> +			kvm_s390_pv_deinit_vm(kvm, &dummy, &dummy);
-> +		else
-> +			kvm_s390_pv_dealloc_vm(kvm);
-> +		return -EIO;
+> +	kvm_for_each_vcpu(i, vcpu, kvm) {
+> +		mutex_lock(&vcpu->mutex);
+> +		r = kvm_s390_pv_create_cpu(vcpu, rc, rrc);
+> +		mutex_unlock(&vcpu->mutex);
+> +		if (r)
+> +			break;
 > +	}
-> +	kvm->arch.gmap->guest_handle = uvcb.guest_handle;
+> +	if (r)
+> +		kvm_s390_cpus_from_pv(kvm, &dummy, &dummy);
 
-...especially as you assign that handle only down here.
+This is a rather unlikely case, so we don't need to optimize this,
+right?
 
-> +	atomic_set(&kvm->mm->context.is_protected, 1);
-> +	return 0;
+Would rc/rrc from the rollback contain anything of interest if the
+create fails (that is, anything more interesting than what that
+function returns?
+
+Similar comment for the 'create' as for the 'destroy' above. (Not
+trying to nitpick, just a bit confused.)
+
+Or is that not the cpu that is created/destroyed, but something else?
+Sorry, just trying to understand where this is coming from.
+
+> +	return r;
 > +}
-> +
-> +int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
-> +			      u16 *rrc)
-> +{
-> +	struct uv_cb_ssc uvcb = {
-> +		.header.cmd = UVC_CMD_SET_SEC_CONF_PARAMS,
-> +		.header.len = sizeof(uvcb),
-> +		.sec_header_origin = (u64)hdr,
-> +		.sec_header_len = length,
-> +		.guest_handle = kvm_s390_pv_get_handle(kvm),
-> +	};
-> +	int cc = uv_call(0, (u64)&uvcb);
-> +
-> +	*rc = uvcb.header.rc;
-> +	*rrc = uvcb.header.rrc;
-> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
-> +		     *rc, *rrc);
-> +	if (cc)
-> +		return -EINVAL;
-> +	return 0;
 
-Maybe
-	return cc ? -EINVAL : 0;
+(...)
 
-(I assume none of the possible rcs in this case could indicate
-something that does not map to -EINVAL?)
-
-> +}
+Will look at the remainder of the patch later, maybe I understand the
+stuff above better after that.
