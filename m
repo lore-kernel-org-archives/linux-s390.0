@@ -1,33 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30148 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27852 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727686AbgBZLDm (ORCPT
+        by vger.kernel.org with ESMTP id S1727191AbgBZKww (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 26 Feb 2020 06:03:42 -0500
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01QAu3qY189015
-        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 06:03:40 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2yden0yqnv-1
+        Wed, 26 Feb 2020 05:52:52 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01QAo2SQ028566
+        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 05:52:50 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2yde1v0k4m-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 06:03:36 -0500
+        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 05:52:48 -0500
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Wed, 26 Feb 2020 11:03:22 -0000
+        Wed, 26 Feb 2020 10:52:32 -0000
 Subject: Re: [PATCH v4.5 09/36] KVM: s390: protvirt: Add initial vm and cpu
  lifecycle handling
 References: <f80a0b58-5ed2-33b7-5292-2c4899d765b7@redhat.com>
  <20200225214822.3611-1-borntraeger@de.ibm.com>
- <20200226113840.46880055.cohuck@redhat.com>
+ <20200226110144.4677ac60.cohuck@redhat.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 26 Feb 2020 12:03:16 +0100
+Date: Wed, 26 Feb 2020 11:52:25 +0100
 MIME-Version: 1.0
-In-Reply-To: <20200226113840.46880055.cohuck@redhat.com>
+In-Reply-To: <20200226110144.4677ac60.cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <ce81be7c-c62e-735d-7989-920daa9abadd@de.ibm.com>
+Content-Transfer-Encoding: 8bit
+Message-Id: <9a098ba3-d52a-6b1a-8708-8e0707b6e6cc@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Cornelia Huck <cohuck@redhat.com>
@@ -35,7 +35,7 @@ Cc: david@redhat.com, Ulrich.Weigand@de.ibm.com, frankja@linux.ibm.com, frankja@
 
 
 
-On 26.02.20 11:38, Cornelia Huck wrote:
+On 26.02.20 11:01, Cornelia Huck wrote:
 > On Tue, 25 Feb 2020 16:48:22 -0500
 > Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 > 
@@ -61,97 +61,96 @@ On 26.02.20 11:38, Cornelia Huck wrote:
 >>  7 files changed, 633 insertions(+), 4 deletions(-)
 >>  create mode 100644 arch/s390/kvm/pv.c
 > 
->> +int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+> (...)
+> 
+>> @@ -2165,6 +2168,160 @@ static int kvm_s390_set_cmma_bits(struct kvm *kvm,
+>>  	return r;
+>>  }
+>>  
+>> +static int kvm_s390_cpus_from_pv(struct kvm *kvm, u16 *rcp, u16 *rrcp)
 >> +{
->> +		struct uv_cb_cgc uvcb = {
-> 
-> Broken indentation.
-
-Fixes.
-
-> 
->> +		.header.cmd = UVC_CMD_CREATE_SEC_CONF,
->> +		.header.len = sizeof(uvcb)
->> +	};
->> +	int cc, ret;
->> +	u16 dummy;
+>> +	struct kvm_vcpu *vcpu;
+>> +	u16 rc, rrc;
+>> +	int ret = 0;
+>> +	int i;
 >> +
->> +	ret = kvm_s390_pv_alloc_vm(kvm);
->> +	if (ret)
->> +		return ret;
->> +
->> +	/* Inputs */
->> +	uvcb.guest_stor_origin = 0; /* MSO is 0 for KVM */
+>> +	/*
+>> +	 * We ignore failures and try to destroy as many CPUs as possible.
 > 
-> What is 'MSO'? (i.e., where is that 'M' coming from?)
+> What is this 'destroying'? Is that really the right terminology? From a
+> quick glance, I would expect something more in the vein of cpu
+> unplugging, and I don't think that's what is happening here.
 
-Origin. (the one for the sie block).
+It is destroying the secure CPU at the ultravisor (its even the name of
+the ultravisor call) so I think destroy fits nicely.
 
 > 
->> +	uvcb.guest_stor_len = kvm->arch.pv.guest_len;
->> +	uvcb.guest_asce = kvm->arch.gmap->asce;
->> +	uvcb.guest_sca = (unsigned long)kvm->arch.sca;
->> +	uvcb.conf_base_stor_origin = (u64)kvm->arch.pv.stor_base;
->> +	uvcb.conf_virt_stor_origin = (u64)kvm->arch.pv.stor_var;
->> +
->> +	cc = uv_call(0, (u64)&uvcb);
->> +	*rc = uvcb.header.rc;
->> +	*rrc = uvcb.header.rrc;
->> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
->> +		     uvcb.guest_handle, uvcb.guest_stor_len, *rc, *rrc);
->> +
->> +	/* Outputs */
->> +	kvm->arch.pv.handle = uvcb.guest_handle;
+> (I have obviously not yet read the whole thing, please give people some
+> more time to review this huge patch.)
 > 
-> Is this valid if the call failed?
-
-if not we would clear it below
-> 
->> +
->> +	if (cc) {
->> +		if (uvcb.header.rc & UVC_RC_NEED_DESTROY)
->> +			kvm_s390_pv_deinit_vm(kvm, &dummy, &dummy);
-
-		here
-
->> +		else
->> +			kvm_s390_pv_dealloc_vm(kvm);
-
-		or here
-
->> +		return -EIO;
+>> +	 * At the same time we must not free the assigned resources when
+>> +	 * this fails, as the ultravisor has still access to that memory.
+>> +	 * So kvm_s390_pv_destroy_cpu can leave a "wanted" memory leak
+>> +	 * behind.
+>> +	 * We want to return the first failure rc and rrc, though.
+>> +	 */
+>> +	kvm_for_each_vcpu(i, vcpu, kvm) {
+>> +		mutex_lock(&vcpu->mutex);
+>> +		if (kvm_s390_pv_destroy_cpu(vcpu, &rc, &rrc) && !ret) {
+>> +			*rcp = rc;
+>> +			*rrcp = rrc;
+>> +			ret = -EIO;
+>> +		}
+>> +		mutex_unlock(&vcpu->mutex);
 >> +	}
->> +	kvm->arch.gmap->guest_handle = uvcb.guest_handle;
-> 
-> ...especially as you assign that handle only down here.
-
-
-> 
->> +	atomic_set(&kvm->mm->context.is_protected, 1);
->> +	return 0;
+>> +	return ret;
 >> +}
 >> +
->> +int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
->> +			      u16 *rrc)
+>> +static int kvm_s390_cpus_to_pv(struct kvm *kvm, u16 *rc, u16 *rrc)
 >> +{
->> +	struct uv_cb_ssc uvcb = {
->> +		.header.cmd = UVC_CMD_SET_SEC_CONF_PARAMS,
->> +		.header.len = sizeof(uvcb),
->> +		.sec_header_origin = (u64)hdr,
->> +		.sec_header_len = length,
->> +		.guest_handle = kvm_s390_pv_get_handle(kvm),
->> +	};
->> +	int cc = uv_call(0, (u64)&uvcb);
+>> +	int i, r = 0;
+>> +	u16 dummy;
 >> +
->> +	*rc = uvcb.header.rc;
->> +	*rrc = uvcb.header.rrc;
->> +	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
->> +		     *rc, *rrc);
->> +	if (cc)
->> +		return -EINVAL;
->> +	return 0;
+>> +	struct kvm_vcpu *vcpu;
+>> +
+>> +	kvm_for_each_vcpu(i, vcpu, kvm) {
+>> +		mutex_lock(&vcpu->mutex);
+>> +		r = kvm_s390_pv_create_cpu(vcpu, rc, rrc);
+>> +		mutex_unlock(&vcpu->mutex);
+>> +		if (r)
+>> +			break;
+>> +	}
+>> +	if (r)
+>> +		kvm_s390_cpus_from_pv(kvm, &dummy, &dummy);
 > 
-> Maybe
-> 	return cc ? -EINVAL : 0;
+> This is a rather unlikely case, so we don't need to optimize this,
+> right?
 
-Yes.
+Right. All the error cases here are "should not happen"
+
+> 
+> Would rc/rrc from the rollback contain anything of interest if the
+> create fails (that is, anything more interesting than what that
+> function returns?
+
+I think all rc/rrc from rollback would depend on the first error,
+so this is what we return to userspace. 
+Good thing is that we log all those in the debug feature so if anyone
+wants to see the full things its there in /sys/kernel/debug/s390dbf/kvm-uv/sprintf
+> 
+> Similar comment for the 'create' as for the 'destroy' above. (Not
+> trying to nitpick, just a bit confused.)
+> 
+> Or is that not the cpu that is created/destroyed, but something else?
+> Sorry, just trying to understand where this is coming from.
+
+Its the CPU instance in the ultravisor.
+> 
+>> +	return r;
+>> +}
+> 
+> (...)
+> 
+> Will look at the remainder of the patch later, maybe I understand the
+> stuff above better after that.
+> 
