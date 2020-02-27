@@ -1,104 +1,30 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23254 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727319AbgBXLlP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:15 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 11/36] KVM: s390/mm: Make pages accessible before destroying the guest
-Date: Mon, 24 Feb 2020 06:40:42 -0500
-Message-Id: <20200224114107.4646-12-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from shards.monkeyblade.net ([23.128.96.9]:37178 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728273AbgB0E5H (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 26 Feb 2020 23:57:07 -0500
+Date: Wed, 26 Feb 2020 20:57:06 -0800 (PST)
+Message-Id: <20200226.205706.235234689411895706.davem@davemloft.net>
+Subject: Re: [PATCH net] net/smc: check for valid ib_client_data
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200226165246.3426-1-kgraul@linux.ibm.com>
+References: <20200226165246.3426-1-kgraul@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Before we destroy the secure configuration, we better make all
-pages accessible again. This also happens during reboot, where we reboot
-into a non-secure guest that then can go again into secure mode. As
-this "new" secure guest will have a new ID we cannot reuse the old page
-state.
+From: Karsten Graul <kgraul@linux.ibm.com>
+Date: Wed, 26 Feb 2020 17:52:46 +0100
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/include/asm/gmap.h |  1 +
- arch/s390/kvm/pv.c           |  3 +++
- arch/s390/mm/gmap.c          | 35 +++++++++++++++++++++++++++++++++++
- 3 files changed, 39 insertions(+)
+> In smc_ib_remove_dev() check if the provided ib device was actually
+> initialized for SMC before.
+> 
+> Reported-by: syzbot+84484ccebdd4e5451d91@syzkaller.appspotmail.com
+> Fixes: a4cf0443c414 ("smc: introduce SMC as an IB-client")
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 6f9ff7a69fa2..a816fb4734b8 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -149,4 +149,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
- void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
- 			     unsigned long gaddr, unsigned long vmaddr);
- int gmap_mark_unmergeable(void);
-+void s390_reset_acc(struct mm_struct *mm);
- #endif /* _ASM_S390_GMAP_H */
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 5918922405b5..014e53a41ead 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -140,6 +140,9 @@ int kvm_s390_pv_deinit_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- {
- 	int cc;
- 
-+	/* make all pages accessible before destroying the guest */
-+	s390_reset_acc(kvm->mm);
-+
- 	cc = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
- 			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
- 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 7291452fe5f0..27926a06df32 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2650,3 +2650,38 @@ void s390_reset_cmma(struct mm_struct *mm)
- 	up_write(&mm->mmap_sem);
- }
- EXPORT_SYMBOL_GPL(s390_reset_cmma);
-+
-+/*
-+ * make inaccessible pages accessible again
-+ */
-+static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
-+			    unsigned long next, struct mm_walk *walk)
-+{
-+	pte_t pte = READ_ONCE(*ptep);
-+
-+	if (pte_present(pte))
-+		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
-+	return 0;
-+}
-+
-+static const struct mm_walk_ops reset_acc_walk_ops = {
-+	.pte_entry		= __s390_reset_acc,
-+};
-+
-+#include <linux/sched/mm.h>
-+void s390_reset_acc(struct mm_struct *mm)
-+{
-+	/*
-+	 * we might be called during
-+	 * reset:                             we walk the pages and clear
-+	 * close of all kvm file descriptors: we walk the pages and clear
-+	 * exit of process on fd closure:     vma already gone, do nothing
-+	 */
-+	if (!mmget_not_zero(mm))
-+		return;
-+	down_read(&mm->mmap_sem);
-+	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
-+	up_read(&mm->mmap_sem);
-+	mmput(mm);
-+}
-+EXPORT_SYMBOL_GPL(s390_reset_acc);
--- 
-2.25.0
+Applied and queued up for -stable, thanks.
