@@ -1,331 +1,181 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60768 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726950AbgBJLpd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 Feb 2020 06:45:33 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH/RFC] KVM: s390: protvirt: pass-through rc and rrc
-Date: Mon, 10 Feb 2020 06:45:26 -0500
-Message-Id: <20200210114526.134769-1-borntraeger@de.ibm.com>
-In-Reply-To: <62d5cd46-93d7-e272-f9bb-d4ec3c7a1f71@de.ibm.com>
-References: <62d5cd46-93d7-e272-f9bb-d4ec3c7a1f71@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 8/8] s390/qeth: support configurable RX copybreak
+Date: Thu, 27 Feb 2020 18:08:16 +0100
+In-Reply-To: <20200227170816.101286-1-jwi@linux.ibm.com>
+References: <20200227170816.101286-1-jwi@linux.ibm.com>
+Message-Id: <20200227170816.101286-9-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: borntraeger@de.ibm.com
-Cc: Ulrich.Weigand@de.ibm.com, aarcange@redhat.com, cohuck@redhat.com, david@redhat.com, frankja@linux.ibm.com, frankja@linux.vnet.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, mimu@linux.ibm.com, thuth@redhat.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-This would be one variant to get the RC/RRC to userspace.
+Implement the ethtool hooks for the ETHTOOL_RX_COPYBREAK tunable.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+The copybreak is stored into netdev_priv, so that we automatically go
+back to the default value if the netdev is re-allocated.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/kvm/kvm-s390.c | 34 +++++++++++++++++++++++++---------
- arch/s390/kvm/kvm-s390.h | 15 ++++++++-------
- arch/s390/kvm/pv.c       | 30 ++++++++++++++++++++++--------
- include/uapi/linux/kvm.h |  4 ++--
- 4 files changed, 57 insertions(+), 26 deletions(-)
+ drivers/s390/net/qeth_core.h      | 10 ++++++----
+ drivers/s390/net/qeth_core_main.c | 17 +++++++++++------
+ drivers/s390/net/qeth_ethtool.c   | 31 +++++++++++++++++++++++++++++++
+ 3 files changed, 48 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e1bccbb41fdd..8dae9629b47f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2172,6 +2172,8 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 	int r = 0;
- 	void __user *argp = (void __user *)cmd->data;
- 
-+	cmd->rc = 0;
-+	cmd->rrc = 0;
- 	switch (cmd->cmd) {
- 	case KVM_PV_VM_CREATE: {
- 		r = -EINVAL;
-@@ -2192,7 +2194,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 			mutex_unlock(&kvm->lock);
- 			break;
- 		}
--		r = kvm_s390_pv_create_vm(kvm);
-+		r = kvm_s390_pv_create_vm(kvm, cmd);
- 		kvm_s390_vcpu_unblock_all(kvm);
- 		mutex_unlock(&kvm->lock);
- 		break;
-@@ -2205,7 +2207,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		/* All VCPUs have to be destroyed before this call. */
- 		mutex_lock(&kvm->lock);
- 		kvm_s390_vcpu_block_all(kvm);
--		r = kvm_s390_pv_destroy_vm(kvm);
-+		r = kvm_s390_pv_destroy_vm(kvm, cmd);
- 		if (!r)
- 			kvm_s390_pv_dealloc_vm(kvm);
- 		kvm_s390_vcpu_unblock_all(kvm);
-@@ -2237,7 +2239,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		r = -EFAULT;
- 		if (!copy_from_user(hdr, (void __user *)parms.origin,
- 				   parms.length))
--			r = kvm_s390_pv_set_sec_parms(kvm, hdr, parms.length);
-+			r = kvm_s390_pv_set_sec_parms(kvm, hdr, parms.length, cmd);
- 
- 		vfree(hdr);
- 		break;
-@@ -2253,7 +2255,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		if (copy_from_user(&unp, argp, sizeof(unp)))
- 			break;
- 
--		r = kvm_s390_pv_unpack(kvm, unp.addr, unp.size, unp.tweak);
-+		r = kvm_s390_pv_unpack(kvm, unp.addr, unp.size, unp.tweak, cmd);
- 		break;
- 	}
- 	case KVM_PV_VM_VERIFY: {
-@@ -2268,6 +2270,8 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 				  &ret);
- 		VM_EVENT(kvm, 3, "PROTVIRT VERIFY: rc %x rrc %x",
- 			 ret >> 16, ret & 0x0000ffff);
-+		cmd->rc = ret >> 16;
-+		cmd->rrc = ret & 0xffff;
- 		break;
- 	}
- 	default:
-@@ -2385,6 +2389,10 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 			break;
- 
- 		r = kvm_s390_handle_pv(kvm, &args);
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 9575a627a1e1..b7d64690ea38 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -189,6 +189,8 @@ struct qeth_vnicc_info {
+ #define QETH_IQD_MIN_TXQ	2	/* One for ucast, one for mcast. */
+ #define QETH_IQD_MCAST_TXQ	0
+ #define QETH_IQD_MIN_UCAST_TXQ	1
 +
-+		if (copy_to_user(argp, &args, sizeof(args)))
-+			r = -EFAULT;
-+
- 		break;
- 	}
- 	default:
-@@ -2650,6 +2658,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
++#define QETH_RX_COPYBREAK      (PAGE_SIZE >> 1)
+ #define QETH_IN_BUF_SIZE_DEFAULT 65536
+ #define QETH_IN_BUF_COUNT_DEFAULT 64
+ #define QETH_IN_BUF_COUNT_HSDEFAULT 128
+@@ -219,9 +221,6 @@ struct qeth_vnicc_info {
+ #define QETH_HIGH_WATERMARK_PACK 5
+ #define QETH_WATERMARK_PACK_FUZZ 1
  
- void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_pv_cmd dummy;
-+
- 	VCPU_EVENT(vcpu, 3, "%s", "free cpu");
- 	trace_kvm_s390_destroy_vcpu(vcpu->vcpu_id);
- 	kvm_s390_clear_local_irqs(vcpu);
-@@ -2663,7 +2673,7 @@ void kvm_arch_vcpu_destroy(struct kvm_vcpu *vcpu)
- 	if (vcpu->kvm->arch.use_cmma)
- 		kvm_s390_vcpu_unsetup_cmma(vcpu);
- 	if (kvm_s390_pv_handle_cpu(vcpu))
--		kvm_s390_pv_destroy_cpu(vcpu);
-+		kvm_s390_pv_destroy_cpu(vcpu, &dummy);
- 	free_page((unsigned long)(vcpu->arch.sie_block));
- 
- 	kvm_vcpu_uninit(vcpu);
-@@ -2688,11 +2698,13 @@ static void kvm_free_vcpus(struct kvm *kvm)
- 
- void kvm_arch_destroy_vm(struct kvm *kvm)
- {
-+	struct kvm_pv_cmd dummy;
-+
- 	kvm_free_vcpus(kvm);
- 	sca_dispose(kvm);
- 	kvm_s390_gisa_destroy(kvm);
- 	if (kvm_s390_pv_is_protected(kvm)) {
--		kvm_s390_pv_destroy_vm(kvm);
-+		kvm_s390_pv_destroy_vm(kvm, &dummy);
- 		kvm_s390_pv_dealloc_vm(kvm);
- 	}
- 	debug_unregister(kvm->arch.dbf);
-@@ -3153,6 +3165,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- {
- 	struct kvm_vcpu *vcpu;
- 	struct sie_page *sie_page;
-+	struct kvm_pv_cmd dummy;
- 	int rc = -EINVAL;
- 
- 	if (!kvm_is_ucontrol(kvm) && !sca_can_add_vcpu(kvm, id))
-@@ -3188,7 +3201,7 @@ struct kvm_vcpu *kvm_arch_vcpu_create(struct kvm *kvm,
- 		goto out_free_sie_block;
- 
- 	if (kvm_s390_pv_is_protected(kvm)) {
--		rc = kvm_s390_pv_create_cpu(vcpu);
-+		rc = kvm_s390_pv_create_cpu(vcpu, &dummy);
- 		if (rc) {
- 			kvm_vcpu_uninit(vcpu);
- 			goto out_free_sie_block;
-@@ -4511,19 +4524,22 @@ static int kvm_s390_handle_pv_vcpu(struct kvm_vcpu *vcpu,
- 	if (!kvm_s390_pv_is_protected(vcpu->kvm))
- 		return -EINVAL;
- 
-+	cmd->rc = 0;
-+	cmd->rrc = 0;
-+
- 	switch (cmd->cmd) {
- 	case KVM_PV_VCPU_CREATE: {
- 		if (kvm_s390_pv_handle_cpu(vcpu))
- 			return -EINVAL;
- 
--		r = kvm_s390_pv_create_cpu(vcpu);
-+		r = kvm_s390_pv_create_cpu(vcpu, cmd);
- 		break;
- 	}
- 	case KVM_PV_VCPU_DESTROY: {
- 		if (!kvm_s390_pv_handle_cpu(vcpu))
- 			return -EINVAL;
- 
--		r = kvm_s390_pv_destroy_cpu(vcpu);
-+		r = kvm_s390_pv_destroy_cpu(vcpu, cmd);
- 		break;
- 	}
- 	default:
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 32c0c01d5df0..b77d5f565b5c 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -199,14 +199,15 @@ static inline int kvm_s390_user_cpu_state_ctrl(struct kvm *kvm)
- /* implemented in pv.c */
- void kvm_s390_pv_dealloc_vm(struct kvm *kvm);
- int kvm_s390_pv_alloc_vm(struct kvm *kvm);
--int kvm_s390_pv_create_vm(struct kvm *kvm);
--int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu);
--int kvm_s390_pv_destroy_vm(struct kvm *kvm);
--int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu);
--int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length);
-+int kvm_s390_pv_create_vm(struct kvm *kvm, struct kvm_pv_cmd *cmd);
-+int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, struct kvm_pv_cmd *cmd);
-+int kvm_s390_pv_destroy_vm(struct kvm *kvm, struct kvm_pv_cmd *cmd);
-+int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, struct kvm_pv_cmd *cmd);
-+int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length,
-+			      struct kvm_pv_cmd *cmd);
- int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
--		       unsigned long tweak);
--int kvm_s390_pv_verify(struct kvm *kvm);
-+		       unsigned long tweak, struct kvm_pv_cmd *cmd);
-+int kvm_s390_pv_verify(struct kvm *kvm, struct kvm_pv_cmd *cmd);
- 
- static inline bool kvm_s390_pv_is_protected(struct kvm *kvm)
- {
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index c1778cb3f8ac..381dc3fefac4 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -61,7 +61,7 @@ int kvm_s390_pv_alloc_vm(struct kvm *kvm)
- 	return -ENOMEM;
- }
- 
--int kvm_s390_pv_destroy_vm(struct kvm *kvm)
-+int kvm_s390_pv_destroy_vm(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- {
- 	int rc;
- 	u32 ret;
-@@ -72,10 +72,12 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm)
- 	atomic_set(&kvm->mm->context.is_protected, 0);
- 	VM_EVENT(kvm, 3, "PROTVIRT DESTROY VM: rc %x rrc %x",
- 		 ret >> 16, ret & 0x0000ffff);
-+	cmd->rc = ret >> 16;
-+	cmd->rrc = ret & 0xffff;
- 	return rc;
- }
- 
--int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu)
-+int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, struct kvm_pv_cmd *cmd)
- {
- 	int rc = 0;
- 	u32 ret;
-@@ -87,6 +89,8 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu)
- 
- 		VCPU_EVENT(vcpu, 3, "PROTVIRT DESTROY VCPU: cpu %d rc %x rrc %x",
- 			   vcpu->vcpu_id, ret >> 16, ret & 0x0000ffff);
-+		cmd->rc = ret >> 16;
-+		cmd->rrc = ret & 0xffff;
- 	}
- 
- 	free_pages(vcpu->arch.pv.stor_base,
-@@ -98,7 +102,7 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu)
- 	return rc;
- }
- 
--int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu)
-+int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, struct kvm_pv_cmd *cmd)
- {
- 	int rc;
- 	struct uv_cb_csc uvcb = {
-@@ -124,9 +128,13 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu)
- 	VCPU_EVENT(vcpu, 3, "PROTVIRT CREATE VCPU: cpu %d handle %llx rc %x rrc %x",
- 		   vcpu->vcpu_id, uvcb.cpu_handle, uvcb.header.rc,
- 		   uvcb.header.rrc);
-+	cmd->rc = uvcb.header.rc;
-+	cmd->rrc = uvcb.header.rrc;
- 
- 	if (rc) {
--		kvm_s390_pv_destroy_cpu(vcpu);
-+		struct kvm_pv_cmd dummy;
-+
-+		kvm_s390_pv_destroy_cpu(vcpu, &dummy);
- 		return -EINVAL;
- 	}
- 
-@@ -138,7 +146,7 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
--int kvm_s390_pv_create_vm(struct kvm *kvm)
-+int kvm_s390_pv_create_vm(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- {
- 	int rc;
- 
-@@ -162,12 +170,15 @@ int kvm_s390_pv_create_vm(struct kvm *kvm)
- 	VM_EVENT(kvm, 3, "PROTVIRT CREATE VM: handle %llx len %llx rc %x rrc %x",
- 		 uvcb.guest_handle, uvcb.guest_stor_len, uvcb.header.rc,
- 		 uvcb.header.rrc);
-+	cmd->rc = uvcb.header.rc;
-+	cmd->rrc = uvcb.header.rrc;
- 
- 	/* Outputs */
- 	kvm->arch.pv.handle = uvcb.guest_handle;
- 
- 	if (rc && (uvcb.header.rc & UVC_RC_NEED_DESTROY)) {
--		kvm_s390_pv_destroy_vm(kvm);
-+		struct kvm_pv_cmd dummy;
-+		kvm_s390_pv_destroy_vm(kvm, &dummy);
- 		return -EINVAL;
- 	}
- 	kvm->arch.gmap->guest_handle = uvcb.guest_handle;
-@@ -176,7 +187,7 @@ int kvm_s390_pv_create_vm(struct kvm *kvm)
- }
- 
- int kvm_s390_pv_set_sec_parms(struct kvm *kvm,
--			      void *hdr, u64 length)
-+			      void *hdr, u64 length, struct kvm_pv_cmd *cmd)
- {
- 	int rc;
- 	struct uv_cb_ssc uvcb = {
-@@ -193,6 +204,9 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm,
- 	rc = uv_call(0, (u64)&uvcb);
- 	VM_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
- 		 uvcb.header.rc, uvcb.header.rrc);
-+	cmd->rc = uvcb.header.rc;
-+	cmd->rrc = uvcb.header.rrc;
-+
- 	if (rc)
- 		return -EINVAL;
- 	return 0;
-@@ -219,7 +233,7 @@ static int unpack_one(struct kvm *kvm, unsigned long addr, u64 tweak[2])
- }
- 
- int kvm_s390_pv_unpack(struct kvm *kvm, unsigned long addr, unsigned long size,
--		       unsigned long tweak)
-+		       unsigned long tweak, struct kvm_pv_cmd *cmd)
- {
- 	int rc = 0;
- 	u64 tw[2] = {tweak, 0};
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index eab741bc12c3..17c1a9556eac 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1508,8 +1508,8 @@ struct kvm_pv_cmd {
+-/* large receive scatter gather copy break */
+-#define QETH_RX_SG_CB (PAGE_SIZE >> 1)
+-
+ struct qeth_hdr_layer3 {
+ 	__u8  id;
+ 	__u8  flags;
+@@ -711,7 +710,6 @@ struct qeth_card_options {
+ 	struct qeth_vnicc_info vnicc; /* VNICC options */
+ 	int fake_broadcast;
+ 	enum qeth_discipline_id layer;
+-	int rx_sg_cb;
+ 	enum qeth_ipa_isolation_modes isolation;
+ 	enum qeth_ipa_isolation_modes prev_isolation;
+ 	int sniffer;
+@@ -770,6 +768,10 @@ struct qeth_switch_info {
+ 	__u32 settings;
  };
  
- /* Available with KVM_CAP_S390_PROTECTED */
--#define KVM_S390_PV_COMMAND		_IOW(KVMIO, 0xc5, struct kvm_pv_cmd)
--#define KVM_S390_PV_COMMAND_VCPU	_IOW(KVMIO, 0xc6, struct kvm_pv_cmd)
-+#define KVM_S390_PV_COMMAND		_IOWR(KVMIO, 0xc5, struct kvm_pv_cmd)
-+#define KVM_S390_PV_COMMAND_VCPU	_IOWR(KVMIO, 0xc6, struct kvm_pv_cmd)
++struct qeth_priv {
++	unsigned int rx_copybreak;
++};
++
+ #define QETH_NAPI_WEIGHT NAPI_POLL_WEIGHT
  
- /* Secure Encrypted Virtualization command */
- enum sev_cmd_id {
+ struct qeth_card {
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index cbd2b4c46ea4..1bcac50bb395 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1257,7 +1257,6 @@ static void qeth_set_initial_options(struct qeth_card *card)
+ {
+ 	card->options.route4.type = NO_ROUTER;
+ 	card->options.route6.type = NO_ROUTER;
+-	card->options.rx_sg_cb = QETH_RX_SG_CB;
+ 	card->options.isolation = ISOLATION_MODE_NONE;
+ 	card->options.cq = QETH_CQ_DISABLED;
+ 	card->options.layer = QETH_DISCIPLINE_UNDETERMINED;
+@@ -5268,6 +5267,7 @@ static int qeth_extract_skb(struct qeth_card *card,
+ 			    int *__offset)
+ {
+ 	struct qdio_buffer_element *element = *__element;
++	struct qeth_priv *priv = netdev_priv(card->dev);
+ 	struct qdio_buffer *buffer = qethbuffer->buffer;
+ 	struct napi_struct *napi = &card->napi;
+ 	unsigned int linear_len = 0;
+@@ -5343,7 +5343,7 @@ static int qeth_extract_skb(struct qeth_card *card,
+ 	}
+ 
+ 	use_rx_sg = (card->options.cq == QETH_CQ_ENABLED) ||
+-		    (skb_len > card->options.rx_sg_cb &&
++		    (skb_len > READ_ONCE(priv->rx_copybreak) &&
+ 		     !atomic_read(&card->force_alloc_skb) &&
+ 		     !IS_OSN(card));
+ 
+@@ -5892,25 +5892,30 @@ static void qeth_clear_dbf_list(void)
+ static struct net_device *qeth_alloc_netdev(struct qeth_card *card)
+ {
+ 	struct net_device *dev;
++	struct qeth_priv *priv;
+ 
+ 	switch (card->info.type) {
+ 	case QETH_CARD_TYPE_IQD:
+-		dev = alloc_netdev_mqs(0, "hsi%d", NET_NAME_UNKNOWN,
++		dev = alloc_netdev_mqs(sizeof(*priv), "hsi%d", NET_NAME_UNKNOWN,
+ 				       ether_setup, QETH_MAX_QUEUES, 1);
+ 		break;
+ 	case QETH_CARD_TYPE_OSM:
+-		dev = alloc_etherdev(0);
++		dev = alloc_etherdev(sizeof(*priv));
+ 		break;
+ 	case QETH_CARD_TYPE_OSN:
+-		dev = alloc_netdev(0, "osn%d", NET_NAME_UNKNOWN, ether_setup);
++		dev = alloc_netdev(sizeof(*priv), "osn%d", NET_NAME_UNKNOWN,
++				   ether_setup);
+ 		break;
+ 	default:
+-		dev = alloc_etherdev_mqs(0, QETH_MAX_QUEUES, 1);
++		dev = alloc_etherdev_mqs(sizeof(*priv), QETH_MAX_QUEUES, 1);
+ 	}
+ 
+ 	if (!dev)
+ 		return NULL;
+ 
++	priv = netdev_priv(dev);
++	priv->rx_copybreak = QETH_RX_COPYBREAK;
++
+ 	dev->ml_priv = card;
+ 	dev->watchdog_timeo = QETH_TX_TIMEOUT;
+ 	dev->min_mtu = IS_OSN(card) ? 64 : 576;
+diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
+index ab59bc975719..9052c72d5b8f 100644
+--- a/drivers/s390/net/qeth_ethtool.c
++++ b/drivers/s390/net/qeth_ethtool.c
+@@ -175,6 +175,35 @@ static void qeth_get_channels(struct net_device *dev,
+ 	channels->combined_count = 0;
+ }
+ 
++static int qeth_get_tunable(struct net_device *dev,
++			    const struct ethtool_tunable *tuna, void *data)
++{
++	struct qeth_priv *priv = netdev_priv(dev);
++
++	switch (tuna->id) {
++	case ETHTOOL_RX_COPYBREAK:
++		*(u32 *)data = priv->rx_copybreak;
++		return 0;
++	default:
++		return -EOPNOTSUPP;
++	}
++}
++
++static int qeth_set_tunable(struct net_device *dev,
++			    const struct ethtool_tunable *tuna,
++			    const void *data)
++{
++	struct qeth_priv *priv = netdev_priv(dev);
++
++	switch (tuna->id) {
++	case ETHTOOL_RX_COPYBREAK:
++		WRITE_ONCE(priv->rx_copybreak, *(u32 *)data);
++		return 0;
++	default:
++		return -EOPNOTSUPP;
++	}
++}
++
+ /* Helper function to fill 'advertising' and 'supported' which are the same. */
+ /* Autoneg and full-duplex are supported and advertised unconditionally.     */
+ /* Always advertise and support all speeds up to specified, and only one     */
+@@ -381,6 +410,8 @@ const struct ethtool_ops qeth_ethtool_ops = {
+ 	.get_sset_count = qeth_get_sset_count,
+ 	.get_drvinfo = qeth_get_drvinfo,
+ 	.get_channels = qeth_get_channels,
++	.get_tunable = qeth_get_tunable,
++	.set_tunable = qeth_set_tunable,
+ 	.get_link_ksettings = qeth_get_link_ksettings,
+ };
+ 
 -- 
-2.24.0
+2.17.1
