@@ -1,77 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10748 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727483AbgBXLlR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:17 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 26/36] KVM: s390: protvirt: Add program exception injection
-Date: Mon, 24 Feb 2020 06:40:57 -0500
-Message-Id: <20200224114107.4646-27-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from shards.monkeyblade.net ([23.128.96.9]:43876 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729577AbgB0TPe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 27 Feb 2020 14:15:34 -0500
+Date: Thu, 27 Feb 2020 11:15:33 -0800 (PST)
+Message-Id: <20200227.111533.1664441216015449433.davem@davemloft.net>
+Subject: Re: [PATCH net-next 0/8] s390/qeth: updates 2020-02-27
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200227170816.101286-1-jwi@linux.ibm.com>
+References: <20200227170816.101286-1-jwi@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: jwi@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, ubraun@linux.ibm.com
 
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Thu, 27 Feb 2020 18:08:08 +0100
 
-Only two program exceptions can be injected for a protected guest:
-specification and operand.
+> please apply the following patch series for qeth to netdev's net-next
+> tree.
+> 
+> This adds support for ETHTOOL_RX_COPYBREAK, along with small cleanups
+> and fine-tuning.
 
-For both, a code needs to be specified in the interrupt injection
-control of the state description, as the guest prefix page is not
-accessible to KVM for such guests.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/interrupt.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
-
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 145cccd498d7..028167d6eacd 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -836,6 +836,21 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
- 	return rc ? -EFAULT : 0;
- }
- 
-+static int __deliver_prog_pv(struct kvm_vcpu *vcpu, u16 code)
-+{
-+	switch (code) {
-+	case PGM_SPECIFICATION:
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_SPECIFICATION;
-+		break;
-+	case PGM_OPERAND:
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_OPERAND;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
- static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-@@ -856,6 +871,10 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
- 					 pgm_info.code, 0);
- 
-+	/* PER is handled by the ultravisor */
-+	if (kvm_s390_pv_cpu_is_protected(vcpu))
-+		return __deliver_prog_pv(vcpu, pgm_info.code & ~PGM_PER);
-+
- 	switch (pgm_info.code & ~PGM_PER) {
- 	case PGM_AFX_TRANSLATION:
- 	case PGM_ASX_TRANSLATION:
--- 
-2.25.0
+Series applied, thanks Julian.
