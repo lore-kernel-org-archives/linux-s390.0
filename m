@@ -1,131 +1,129 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29606 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729067AbgB0M4P (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3666 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728999AbgB0Mzk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Feb 2020 07:56:15 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01RCnkup084106
-        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 07:56:14 -0500
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2yedd89y3t-1
+        Thu, 27 Feb 2020 07:55:40 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01RCoN7U117124
+        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 07:55:39 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ydqbtv071-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 07:56:13 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 07:55:38 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <mimu@linux.ibm.com>;
-        Thu, 27 Feb 2020 12:56:09 -0000
+        Thu, 27 Feb 2020 12:55:35 -0000
 Reply-To: mimu@linux.ibm.com
 Subject: Re: [PATCH] KVM: s390: introduce module parameter kvm.use_gisa
 References: <20200227091031.102993-1-mimu@linux.ibm.com>
- <2ff28c9a-d6ae-4fe8-1660-5765fd3f3c41@redhat.com>
- <175aad02-9a30-6be0-a203-c696158168e1@linux.ibm.com>
- <3242745f-62b1-2020-d9b4-a998602b8c6d@redhat.com>
+ <c16f65a7-5711-96e2-1527-fa13eab9f5ca@de.ibm.com>
+ <20200227134810.268fc3b5.cohuck@redhat.com>
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Thu, 27 Feb 2020 13:57:10 +0100
+Date: Thu, 27 Feb 2020 13:56:35 +0100
 MIME-Version: 1.0
-In-Reply-To: <3242745f-62b1-2020-d9b4-a998602b8c6d@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <20200227134810.268fc3b5.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <788531e3-830a-2916-1c84-d4c3c558ae1c@linux.ibm.com>
+Message-Id: <0ecc5167-2a33-0f99-a8c3-6e74cf3689a5@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, borntraeger@de.ibm.com, frankja@linux.vnet.ibm.com
-Cc: kvm@vger.kernel.org, cohuck@redhat.com, thuth@redhat.com, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: frankja@linux.vnet.ibm.com, kvm@vger.kernel.org, david@redhat.com, thuth@redhat.com, linux-s390@vger.kernel.org
 
 
 
-On 27.02.20 13:31, David Hildenbrand wrote:
-> On 27.02.20 13:04, Michael Mueller wrote:
->>
->>
->> On 27.02.20 10:26, David Hildenbrand wrote:
->>> On 27.02.20 10:10, Michael Mueller wrote:
->>>> The boolean module parameter "kvm.use_gisa" controls if newly
->>>> created guests will use the GISA facility if provided by the
->>>> host system. The default is yes.
->>>>
->>>>     # cat /sys/module/kvm/parameters/use_gisa
->>>>     Y
->>>>
->>>> The parameter can be changed on the fly.
->>>>
->>>>     # echo N > /sys/module/kvm/parameters/use_gisa
->>>>
->>>> Already running guests are not affected by this change.
->>>>
->>>> The kvm s390 debug feature shows if a guest is running with GISA.
->>>>
->>>>     # grep gisa /sys/kernel/debug/s390dbf/kvm-$pid/sprintf
->>>>     00 01582725059:843303 3 - 08 00000000e119bc01  gisa 0x00000000c9ac2642 initialized
->>>>     00 01582725059:903840 3 - 11 000000004391ee22  00[0000000000000000-0000000000000000]: AIV gisa format-1 enabled for cpu 000
->>>>     ...
->>>>     00 01582725059:916847 3 - 08 0000000094fff572  gisa 0x00000000c9ac2642 cleared
->>>>
->>>> In general, that value should not be changed as the GISA facility
->>>> enhances interruption delivery performance.
->>>>
->>>> A reason to switch the GISA facility off might be a performance
->>>> comparison run or debugging.
->>>>
->>>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
->>>> ---
->>>>    arch/s390/kvm/kvm-s390.c | 8 +++++++-
->>>>    1 file changed, 7 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
->>>> index d7ff30e45589..5c2081488024 100644
->>>> --- a/arch/s390/kvm/kvm-s390.c
->>>> +++ b/arch/s390/kvm/kvm-s390.c
->>>> @@ -184,6 +184,11 @@ static u8 halt_poll_max_steal = 10;
->>>>    module_param(halt_poll_max_steal, byte, 0644);
->>>>    MODULE_PARM_DESC(halt_poll_max_steal, "Maximum percentage of steal time to allow polling");
->>>>    
->>>> +/* if set to true, the GISA will be initialized and used if available */
->>>> +static bool use_gisa  = true;
->>>> +module_param(use_gisa, bool, 0644);
->>>> +MODULE_PARM_DESC(use_gisa, "Use the GISA if the host supports it.");
->>>> +
->>>>    /*
->>>>     * For now we handle at most 16 double words as this is what the s390 base
->>>>     * kernel handles and stores in the prefix page. If we ever need to go beyond
->>>> @@ -2504,7 +2509,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
->>>>    	kvm->arch.use_skf = sclp.has_skey;
->>>>    	spin_lock_init(&kvm->arch.start_stop_lock);
->>>>    	kvm_s390_vsie_init(kvm);
->>>> -	kvm_s390_gisa_init(kvm);
->>>> +	if (use_gisa)
->>>> +		kvm_s390_gisa_init(kvm);
+On 27.02.20 13:48, Cornelia Huck wrote:
+> On Thu, 27 Feb 2020 13:27:10 +0100
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> On 27.02.20 10:10, Michael Mueller wrote:
+>>> The boolean module parameter "kvm.use_gisa" controls if newly
+>>> created guests will use the GISA facility if provided by the
+>>> host system. The default is yes.
 >>>
->>> Looks sane to me. gi->origin will remain NULL and act like
->>> css_general_characteristics.aiv wouldn't be around.
->>
->> right
->>
+>>>    # cat /sys/module/kvm/parameters/use_gisa
+>>>    Y
 >>>
->>> I assume initializing the gib is fine, and having some guests use it and
->>> others not?
->>
->> Is fine as well.
->>
+>>> The parameter can be changed on the fly.
 >>>
->>> I do wonder if it would be even clearer/cleaner to not allow to change
->>> this property on the fly, and to also not init the gib if disabled.
+>>>    # echo N > /sys/module/kvm/parameters/use_gisa
 >>>
->>> If you want to perform performance tests, simply unload+reload KVM.
+>>> Already running guests are not affected by this change.
+>>>
+>>> The kvm s390 debug feature shows if a guest is running with GISA.
+>>>
+>>>    # grep gisa /sys/kernel/debug/s390dbf/kvm-$pid/sprintf
+>>>    00 01582725059:843303 3 - 08 00000000e119bc01  gisa 0x00000000c9ac2642 initialized
+>>>    00 01582725059:903840 3 - 11 000000004391ee22  00[0000000000000000-0000000000000000]: AIV gisa format-1 enabled for cpu 000
+>>>    ...
+>>>    00 01582725059:916847 3 - 08 0000000094fff572  gisa 0x00000000c9ac2642 cleared
+>>>
+>>> In general, that value should not be changed as the GISA facility
+>>> enhances interruption delivery performance.
+>>>
+>>> A reason to switch the GISA facility off might be a performance
+>>> comparison run or debugging.
+>>>
+>>> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 >>
->> That would work if kvm is build as module but not in-kernel, then
+>> Looks good to me. Regarding the other comments, I think allowing for dynamic changes
+>> and keeping use_gisa vs disable_gisa makes sense. So I would think that the patch
+>> as is makes sense.
 > 
-> Right, but AFAIK that's not an usual setup (at least in distros) - and
-> for testing purposes not an issue as well.
+> use_gisa vs disable_gisa is more a personal preference; I don't mind
+> keeping it as use_gisa.
 > 
-> Anyhow, I'm fine with this
+>>
+>> The only question is: shall we set use_gisa to 0 when the machine does not support
+>> it (e.g. VSIE?) and then also forbid setting it to 1? Could be overkill.
 > 
-> Reviewed-by: David Hildenbrand <david@redhat.com>
+> I don't think you should try to overload a debug knob like that; it's
+> now simple enough, adding more code also adds to the potential for
+> errors.
+> 
+>>
+>>
+>>> ---
+>>>   arch/s390/kvm/kvm-s390.c | 8 +++++++-
+>>>   1 file changed, 7 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>>> index d7ff30e45589..5c2081488024 100644
+>>> --- a/arch/s390/kvm/kvm-s390.c
+>>> +++ b/arch/s390/kvm/kvm-s390.c
+>>> @@ -184,6 +184,11 @@ static u8 halt_poll_max_steal = 10;
+>>>   module_param(halt_poll_max_steal, byte, 0644);
+>>>   MODULE_PARM_DESC(halt_poll_max_steal, "Maximum percentage of steal time to allow polling");
+>>>   
+>>> +/* if set to true, the GISA will be initialized and used if available */
+>>> +static bool use_gisa  = true;
+>>> +module_param(use_gisa, bool, 0644);
+>>> +MODULE_PARM_DESC(use_gisa, "Use the GISA if the host supports it.");
+> 
+> Especially as the description explicitly says "if the host supports it"
+> -- that's good enough for a new knob.
+> 
+>>> +
+>>>   /*
+>>>    * For now we handle at most 16 double words as this is what the s390 base
+>>>    * kernel handles and stores in the prefix page. If we ever need to go beyond
+>>> @@ -2504,7 +2509,8 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>>>   	kvm->arch.use_skf = sclp.has_skey;
+>>>   	spin_lock_init(&kvm->arch.start_stop_lock);
+>>>   	kvm_s390_vsie_init(kvm);
+>>> -	kvm_s390_gisa_init(kvm);
+>>> +	if (use_gisa)
+>>> +		kvm_s390_gisa_init(kvm);
+>>>   	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
+>>>   
+>>>   	return 0;
+>>>    
+>>
+> 
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > 
 
-Thank you!
-
-> Thanks!
-> 
+Thanks!
