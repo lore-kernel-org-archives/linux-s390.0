@@ -1,70 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35430 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13984 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727500AbgBXLlR (ORCPT
+        by vger.kernel.org with ESMTP id S1729699AbgB0QXZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:17 -0500
+        Thu, 27 Feb 2020 11:23:25 -0500
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01RGKEXa136896
+        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 11:23:24 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ydkfapxad-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 11:23:24 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 27 Feb 2020 16:23:22 -0000
+Subject: Re: [PATCH] KVM: s390: introduce module parameter kvm.use_gisa
+References: <20200227091031.102993-1-mimu@linux.ibm.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 30/36] KVM: s390: protvirt: Mask PSW interrupt bits for interception 104 and 112
-Date: Mon, 24 Feb 2020 06:41:01 -0500
-Message-Id: <20200224114107.4646-31-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
+Date: Thu, 27 Feb 2020 17:23:18 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200227091031.102993-1-mimu@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <2ec3f6d2-105d-62bc-774a-bb4d71ed5c93@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Michael Mueller <mimu@linux.ibm.com>, frankja@linux.vnet.ibm.com
+Cc: kvm@vger.kernel.org, cohuck@redhat.com, david@redhat.com, thuth@redhat.com, linux-s390@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On 27.02.20 10:10, Michael Mueller wrote:
+> The boolean module parameter "kvm.use_gisa" controls if newly
+> created guests will use the GISA facility if provided by the
+> host system. The default is yes.
+> 
+>   # cat /sys/module/kvm/parameters/use_gisa
+>   Y
+> 
+> The parameter can be changed on the fly.
+> 
+>   # echo N > /sys/module/kvm/parameters/use_gisa
+> 
+> Already running guests are not affected by this change.
+> 
+> The kvm s390 debug feature shows if a guest is running with GISA.
+> 
+>   # grep gisa /sys/kernel/debug/s390dbf/kvm-$pid/sprintf
+>   00 01582725059:843303 3 - 08 00000000e119bc01  gisa 0x00000000c9ac2642 initialized
+>   00 01582725059:903840 3 - 11 000000004391ee22  00[0000000000000000-0000000000000000]: AIV gisa format-1 enabled for cpu 000
+>   ...
+>   00 01582725059:916847 3 - 08 0000000094fff572  gisa 0x00000000c9ac2642 cleared
+> 
+> In general, that value should not be changed as the GISA facility
+> enhances interruption delivery performance.
+> 
+> A reason to switch the GISA facility off might be a performance
+> comparison run or debugging.
+> 
+> Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
 
-We're not allowed to inject interrupts on intercepts that leave the
-guest state in an "in-between" state where the next SIE entry will do a
-continuation, namely secure instruction interception (104) and secure
-prefix interception (112).
-As our PSW is just a copy of the real one that will be replaced on the
-next exit, we can mask out the interrupt bits in the PSW to make sure
-that we do not inject anything.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 9c0ab66128fd..c9045de90081 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4085,6 +4085,7 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
- 	return vcpu_post_run_fault_in_sie(vcpu);
- }
- 
-+#define PSW_INT_MASK (PSW_MASK_EXT | PSW_MASK_IO | PSW_MASK_MCHECK)
- static int __vcpu_run(struct kvm_vcpu *vcpu)
- {
- 	int rc, exit_reason;
-@@ -4121,6 +4122,16 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 			memcpy(vcpu->run->s.regs.gprs,
- 			       sie_page->pv_grregs,
- 			       sizeof(sie_page->pv_grregs));
-+			/*
-+			 * We're not allowed to inject interrupts on intercepts
-+			 * that leave the guest state in an "in-between" state
-+			 * where the next SIE entry will do a continuation.
-+			 * Fence interrupts in our "internal" PSW.
-+			 */
-+			if (vcpu->arch.sie_block->icptcode == ICPT_PV_INSTR ||
-+			    vcpu->arch.sie_block->icptcode == ICPT_PV_PREF) {
-+				vcpu->arch.sie_block->gpsw.mask &= ~PSW_INT_MASK;
-+			}
- 		}
- 		local_irq_disable();
- 		__enable_cpu_timer_accounting(vcpu);
--- 
-2.25.0
+Thanks applied.
