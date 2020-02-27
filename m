@@ -1,43 +1,41 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60152 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26362 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728946AbgB0MSJ (ORCPT
+        by vger.kernel.org with ESMTP id S1729223AbgB0MDx (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Feb 2020 07:18:09 -0500
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01RCEgKm082409
-        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 07:18:08 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ydcnhhpcx-1
+        Thu, 27 Feb 2020 07:03:53 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01RC0GxU097357
+        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 07:03:51 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ydxrdub04-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 07:18:08 -0500
+        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 07:03:51 -0500
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <mimu@linux.ibm.com>;
-        Thu, 27 Feb 2020 12:18:06 -0000
+        Thu, 27 Feb 2020 12:03:50 -0000
 Reply-To: mimu@linux.ibm.com
 Subject: Re: [PATCH] KVM: s390: introduce module parameter kvm.use_gisa
 References: <20200227091031.102993-1-mimu@linux.ibm.com>
- <20200227104731.17166768.cohuck@redhat.com>
+ <2ff28c9a-d6ae-4fe8-1660-5765fd3f3c41@redhat.com>
 From: Michael Mueller <mimu@linux.ibm.com>
-Date: Thu, 27 Feb 2020 13:19:06 +0100
+Date: Thu, 27 Feb 2020 13:04:50 +0100
 MIME-Version: 1.0
-In-Reply-To: <20200227104731.17166768.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <2ff28c9a-d6ae-4fe8-1660-5765fd3f3c41@redhat.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <513bde27-2596-bbe5-a9e3-1a788bf04b19@linux.ibm.com>
+Message-Id: <175aad02-9a30-6be0-a203-c696158168e1@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: borntraeger@de.ibm.com, frankja@linux.vnet.ibm.com, kvm@vger.kernel.org, david@redhat.com, thuth@redhat.com, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, borntraeger@de.ibm.com, frankja@linux.vnet.ibm.com
+Cc: kvm@vger.kernel.org, cohuck@redhat.com, thuth@redhat.com, linux-s390@vger.kernel.org
 
 
 
-On 27.02.20 10:47, Cornelia Huck wrote:
-> On Thu, 27 Feb 2020 10:10:31 +0100
-> Michael Mueller <mimu@linux.ibm.com> wrote:
-> 
+On 27.02.20 10:26, David Hildenbrand wrote:
+> On 27.02.20 10:10, Michael Mueller wrote:
 >> The boolean module parameter "kvm.use_gisa" controls if newly
 >> created guests will use the GISA facility if provided by the
 >> host system. The default is yes.
@@ -58,12 +56,6 @@ On 27.02.20 10:47, Cornelia Huck wrote:
 >>    00 01582725059:903840 3 - 11 000000004391ee22  00[0000000000000000-0000000000000000]: AIV gisa format-1 enabled for cpu 000
 >>    ...
 >>    00 01582725059:916847 3 - 08 0000000094fff572  gisa 0x00000000c9ac2642 cleared
-> 
-> Maybe log something as well if it is off due to this kernel parameter?
-
-There is also no message when the host does not support it.
-
-> 
 >>
 >> In general, that value should not be changed as the GISA facility
 >> enhances interruption delivery performance.
@@ -88,15 +80,6 @@ There is also no message when the host does not support it.
 >> +static bool use_gisa  = true;
 >> +module_param(use_gisa, bool, 0644);
 >> +MODULE_PARM_DESC(use_gisa, "Use the GISA if the host supports it.");
-> 
-> I probably would have inverted the logic (i.e. introduce a disable_gisa
-> parameter that is off by default), as you want KVM to use the gisa,
-> except in special circumstances.
-
-Hm, in my opinion "use it := no" is more explicit and natural
-than "don't use it := yes"
-
-> 
 >> +
 >>   /*
 >>    * For now we handle at most 16 double words as this is what the s390 base
@@ -109,16 +92,29 @@ than "don't use it := yes"
 >> +	if (use_gisa)
 >> +		kvm_s390_gisa_init(kvm);
 > 
-> I assume we're fine with no gisa but a gib (i.e. doesn't hurt?)
+> Looks sane to me. gi->origin will remain NULL and act like
+> css_general_characteristics.aiv wouldn't be around.
 
-The GIB is a host entity and is required for guests with GISA that want 
-to use AP with interruptions in guest.
+right
 
 > 
->>   	KVM_EVENT(3, "vm 0x%pK created by pid %u", kvm, current->pid);
->>   
->>   	return 0;
-> 
+> I assume initializing the gib is fine, and having some guests use it and
+> others not?
 
-Thanks a lot!
+Is fine as well.
+
+> 
+> I do wonder if it would be even clearer/cleaner to not allow to change
+> this property on the fly, and to also not init the gib if disabled.
+> 
+> If you want to perform performance tests, simply unload+reload KVM.
+
+That would work if kvm is build as module but not in-kernel, then
+a reboot would be required with kvm.use_gisa=Y/N
+
+I tend to leave it as it is.
+
+Thanks,
 Michael
+
+> 
