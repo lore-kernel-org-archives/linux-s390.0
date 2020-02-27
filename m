@@ -1,104 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30576 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727936AbgBTMAw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 07:00:52 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01KBrrwc097292
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:00:51 -0500
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2y99pfr5kw-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 20 Feb 2020 07:00:51 -0500
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Thu, 20 Feb 2020 12:00:49 -0000
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v5 05/10] s390x: export the clock get_clock_ms() utility
-Date: Thu, 20 Feb 2020 13:00:38 +0100
-In-Reply-To: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1582200043-21760-6-git-send-email-pmorel@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:45362 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728221AbgB0EHW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 26 Feb 2020 23:07:22 -0500
+Subject: Re: [PATCH V14] mm/debug: Add tests validating architecture page
+ table helpers
+References: <1581909460-19148-1-git-send-email-anshuman.khandual@arm.com>
+ <1582726182.7365.123.camel@lca.pw> <1582726340.7365.124.camel@lca.pw>
+ <eb154054-68ab-a659-065b-f4f7dcbb8671@c-s.fr>
+ <52db1e9b-83b3-c41f-ef03-0f43e2159a83@arm.com>
+ <20200226200353.ea5c8ec2efacfb1192f3f3f4@linux-foundation.org>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <6a4518d5-9306-8f84-b676-26a40c594bd9@arm.com>
+Date: Thu, 27 Feb 2020 09:37:07 +0530
+MIME-Version: 1.0
+In-Reply-To: <20200226200353.ea5c8ec2efacfb1192f3f3f4@linux-foundation.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>, Qian Cai <cai@lca.pw>, linux-mm@kvack.org, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, James Morse <james.morse@arm.com>
 
-Let's move get_clock_ms() to lib/s390/asm/time.h, so it can be used in
-multiple places.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/asm/time.h | 26 ++++++++++++++++++++++++++
- s390x/intercept.c    | 11 +----------
- 2 files changed, 27 insertions(+), 10 deletions(-)
- create mode 100644 lib/s390x/asm/time.h
 
-diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
-new file mode 100644
-index 0000000..25c7a3c
---- /dev/null
-+++ b/lib/s390x/asm/time.h
-@@ -0,0 +1,26 @@
-+/*
-+ * Clock utilities for s390
-+ *
-+ * Authors:
-+ *  Thomas Huth <thuth@redhat.com>
-+ *
-+ * Copied from the s390/intercept test by:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+#ifndef _ASM_S390X_TIME_H_
-+#define _ASM_S390X_TIME_H_
-+
-+static inline uint64_t get_clock_ms(void)
-+{
-+	uint64_t clk;
-+
-+	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
-+
-+	/* Bit 51 is incrememented each microsecond */
-+	return (clk >> (63 - 51)) / 1000;
-+}
-+
-+#endif
-diff --git a/s390x/intercept.c b/s390x/intercept.c
-index 5f46b82..2e38257 100644
---- a/s390x/intercept.c
-+++ b/s390x/intercept.c
-@@ -14,6 +14,7 @@
- #include <asm/interrupt.h>
- #include <asm/page.h>
- #include <asm/facility.h>
-+#include <asm/time.h>
- 
- static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
- 
-@@ -153,16 +154,6 @@ static void test_testblock(void)
- 	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
- }
- 
--static uint64_t get_clock_ms(void)
--{
--	uint64_t clk;
--
--	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
--
--	/* Bit 51 is incrememented each microsecond */
--	return (clk >> (63 - 51)) / 1000;
--}
--
- struct {
- 	const char *name;
- 	void (*func)(void);
--- 
-2.17.0
+On 02/27/2020 09:33 AM, Andrew Morton wrote:
+> On Thu, 27 Feb 2020 08:04:05 +0530 Anshuman Khandual <anshuman.khandual@arm.com> wrote:
+> 
+>>> Must be something wrong with the following in debug_vm_pgtable()
+>>>
+>>>     paddr = __pa(&start_kernel);
+>>>
+>>> Is there any explaination why start_kernel() is not in linear memory on ARM64 ?
+>>
+>>
+>> Cc: + James Morse <james.morse@arm.com>
+>>
+>> This warning gets exposed with DEBUG_VIRTUAL due to __pa() on a kernel symbol
+>> i.e 'start_kernel' which might be outside the linear map. This happens due to
+>> kernel mapping position randomization with KASLR. Adding James here in case he
+>> might like to add more.
+>>
+>> __pa_symbol() should have been used instead, for accessing the physical address
+>> here. On arm64 __pa() does check for linear address with __is_lm_address() and
+>> switch accordingly if it is a kernel text symbol. Nevertheless, its much better
+>> to use __pa_symbol() here rather than __pa().
+>>
+>> Rather than respining the patch once more, will just send a fix replacing this
+>> helper __pa() with __pa_symbol() for Andrew to pick up as this patch is already
+>> part of linux-next (next-20200226). But can definitely respin if that will be
+>> preferred.
+> 
+> I didn't see this fix?  I assume it's this?  If so, are we sure it's OK to be
+> added to -next without testing??
+
+My patch just missed your response here within a minute :) Please consider this.
+It has been tested on x86 and arm64.
+
+https://patchwork.kernel.org/patch/11407715/
+
+> 
+> 
+> 
+> From: Andrew Morton <akpm@linux-foundation.org>
+> Subject: mm-debug-add-tests-validating-architecture-page-table-helpers-fix
+> 
+> A warning gets exposed with DEBUG_VIRTUAL due to __pa() on a kernel symbol
+> i.e 'start_kernel' which might be outside the linear map.  This happens
+> due to kernel mapping position randomization with KASLR.
+> 
+> __pa_symbol() should have been used instead, for accessing the physical
+> address here.  On arm64 __pa() does check for linear address with
+> __is_lm_address() and switch accordingly if it is a kernel text symbol. 
+> Nevertheless, its much better to use __pa_symbol() here rather than
+> __pa().
+> 
+> Reported-by: Qian Cai <cai@lca.pw>
+> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+> Cc: James Morse <james.morse@arm.com>
+> Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> ---
+> 
+>  mm/debug_vm_pgtable.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- a/mm/debug_vm_pgtable.c~mm-debug-add-tests-validating-architecture-page-table-helpers-fix
+> +++ a/mm/debug_vm_pgtable.c
+> @@ -331,7 +331,7 @@ void __init debug_vm_pgtable(void)
+>  	 * helps avoid large memory block allocations to be used for mapping
+>  	 * at higher page table levels.
+>  	 */
+> -	paddr = __pa(&start_kernel);
+> +	paddr = __pa_symbol(&start_kernel);
+>  
+>  	pte_aligned = (paddr & PAGE_MASK) >> PAGE_SHIFT;
+>  	pmd_aligned = (paddr & PMD_MASK) >> PAGE_SHIFT;
+> _
+> 
+> 
