@@ -1,79 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58068 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58370 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727285AbgBTKk3 (ORCPT
+        by vger.kernel.org with ESMTP id S1729768AbgB0RI3 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:29 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 13/37] KVM: s390: protvirt: Handle SE notification interceptions
-Date: Thu, 20 Feb 2020 05:39:56 -0500
-Message-Id: <20200220104020.5343-14-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Thu, 27 Feb 2020 12:08:29 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01RH71nG063893
+        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 12:08:27 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2ydcnhtta7-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 27 Feb 2020 12:08:27 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Thu, 27 Feb 2020 17:08:26 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 4/8] s390/qeth: remove unused cmd definitions
+Date: Thu, 27 Feb 2020 18:08:12 +0100
+In-Reply-To: <20200227170816.101286-1-jwi@linux.ibm.com>
+References: <20200227170816.101286-1-jwi@linux.ibm.com>
+Message-Id: <20200227170816.101286-5-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Looks like these were never used, ever since the driver was initially
+added.
 
-Since there is no interception for load control and load psw
-instruction in the protected mode, we need a new way to get notified
-whenever we can inject an IRQ right after the guest has just enabled
-the possibility for receiving them.
-
-The new interception codes solve that problem by providing a
-notification for changes to IRQ enablement relevant bits in CRs 0, 6
-and 14, as well a the machine check mask bit in the PSW.
-
-No special handling is needed for these interception codes, the KVM
-pre-run code will consult all necessary CRs and PSW bits and inject
-IRQs the guest is enabled for.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h | 2 ++
- arch/s390/kvm/intercept.c        | 9 +++++++++
- 2 files changed, 11 insertions(+)
+ drivers/s390/net/qeth_core_mpc.h | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 1aa2382fe363..fdc6ceff6397 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -215,6 +215,8 @@ struct kvm_s390_sie_block {
- #define ICPT_PARTEXEC	0x38
- #define ICPT_IOINST	0x40
- #define ICPT_KSS	0x5c
-+#define ICPT_MCHKREQ	0x60
-+#define ICPT_INT_ENABLE	0x64
- 	__u8	icptcode;		/* 0x0050 */
- 	__u8	icptstatus;		/* 0x0051 */
- 	__u16	ihcpu;			/* 0x0052 */
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index a389fa85cca2..6aeb4b36042c 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -480,6 +480,15 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 	case ICPT_KSS:
- 		rc = kvm_s390_skey_check_enable(vcpu);
- 		break;
-+	case ICPT_MCHKREQ:
-+	case ICPT_INT_ENABLE:
-+		/*
-+		 * PSW bit 13 or a CR (0, 6, 14) changed and we might
-+		 * now be able to deliver interrupts. The pre-run code
-+		 * will take care of this.
-+		 */
-+		rc = 0;
-+		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index 3a3cebdaf948..6f304fdbb073 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -93,10 +93,6 @@ enum qeth_link_types {
+ 	QETH_LINK_TYPE_LANE         = 0x88,
+ };
+ 
+-/*
+- * Routing stuff
+- */
+-#define RESET_ROUTING_FLAG 0x10 /* indicate that routing type shall be set */
+ enum qeth_routing_types {
+ 	/* TODO: set to bit flag used in IPA Command */
+ 	NO_ROUTER		= 0,
+@@ -427,7 +423,6 @@ struct qeth_ipacmd_setassparms {
+ 		struct qeth_arp_cache_entry arp_entry;
+ 		struct qeth_arp_query_data query_arp;
+ 		struct qeth_tso_start_data tso;
+-		__u8 ip[16];
+ 	} data;
+ } __attribute__ ((packed));
+ 
 -- 
-2.25.0
+2.17.1
