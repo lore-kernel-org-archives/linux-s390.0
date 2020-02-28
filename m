@@ -1,77 +1,144 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14118 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727910AbgBTKka (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 20 Feb 2020 05:40:30 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v3 27/37] KVM: s390: protvirt: Add program exception injection
-Date: Thu, 20 Feb 2020 05:40:10 -0500
-Message-Id: <20200220104020.5343-28-borntraeger@de.ibm.com>
-In-Reply-To: <20200220104020.5343-1-borntraeger@de.ibm.com>
-References: <20200220104020.5343-1-borntraeger@de.ibm.com>
+Received: from ozlabs.org ([203.11.71.1]:54715 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729984AbgB1BEy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 27 Feb 2020 20:04:54 -0500
+Date: Fri, 28 Feb 2020 11:23:53 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+Subject: Re: [PATCH 1/2] mm: move force_dma_unencrypted() to mem_encrypt.h
+Message-ID: <20200228002353.GA1842@umbus.fritz.box>
+References: <20200220161146.GA12709@lst.de>
+ <4369f099-e4e4-4a58-b38b-642cf53ccca6@de.ibm.com>
+ <20200220163135.GA13192@lst.de>
+ <20200221032727.GC2298@umbus.fritz.box>
+ <20200221140639.54928efe.pasic@linux.ibm.com>
+ <20200221104724-mutt-send-email-mst@kernel.org>
+ <20200221190702.68fd57fc.pasic@linux.ibm.com>
+ <20200224033314.GC1751@umbus.fritz.box>
+ <20200224194953.37c0d6b8.pasic@linux.ibm.com>
+ <20200225190802.753cffef.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+Content-Disposition: inline
+In-Reply-To: <20200225190802.753cffef.cohuck@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
 
-Only two program exceptions can be injected for a protected guest:
-specification and operand.
+--HcAYCG3uE/tztfnV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For both, a code needs to be specified in the interrupt injection
-control of the state description, as the guest prefix page is not
-accessible to KVM for such guests.
+On Tue, Feb 25, 2020 at 07:08:02PM +0100, Cornelia Huck wrote:
+> On Mon, 24 Feb 2020 19:49:53 +0100
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+>=20
+> > On Mon, 24 Feb 2020 14:33:14 +1100
+> > David Gibson <david@gibson.dropbear.id.au> wrote:
+> >=20
+> > > On Fri, Feb 21, 2020 at 07:07:02PM +0100, Halil Pasic wrote: =20
+> > > > On Fri, 21 Feb 2020 10:48:15 -0500
+> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> > > >  =20
+> > > > > On Fri, Feb 21, 2020 at 02:06:39PM +0100, Halil Pasic wrote: =20
+> > > > > > On Fri, 21 Feb 2020 14:27:27 +1100
+> > > > > > David Gibson <david@gibson.dropbear.id.au> wrote:
+> > > > > >  =20
+> > > > > > > On Thu, Feb 20, 2020 at 05:31:35PM +0100, Christoph Hellwig w=
+rote: =20
+> > > > > > > > On Thu, Feb 20, 2020 at 05:23:20PM +0100, Christian Borntra=
+eger wrote: =20
+> > > > > > > > > >From a users perspective it makes absolutely perfect sen=
+se to use the =20
+> > > > > > > > > bounce buffers when they are NEEDED.=20
+> > > > > > > > > Forcing the user to specify iommu_platform just because y=
+ou need bounce buffers
+> > > > > > > > > really feels wrong. And obviously we have a severe perfor=
+mance issue
+> > > > > > > > > because of the indirections. =20
+> > > > > > > >=20
+> > > > > > > > The point is that the user should not have to specify iommu=
+_platform.
+> > > > > > > > We need to make sure any new hypervisor (especially one tha=
+t might require
+> > > > > > > > bounce buffering) always sets it, =20
+> > > > > > >=20
+> > > > > > > So, I have draft qemu patches which enable iommu_platform by =
+default.
+> > > > > > > But that's really because of other problems with !iommu_platf=
+orm, not
+> > > > > > > anything to do with bounce buffering or secure VMs.
+> > > > > > >=20
+> > > > > > > The thing is that the hypervisor *doesn't* require bounce buf=
+fering.
+> > > > > > > In the POWER (and maybe s390 as well) models for Secure VMs, =
+it's the
+> > > > > > > *guest*'s choice to enter secure mode, so the hypervisor has =
+no reason
+> > > > > > > to know whether the guest needs bounce buffering.  As far as =
+the
+> > > > > > > hypervisor and qemu are concerned that's a guest internal det=
+ail, it
+> > > > > > > just expects to get addresses it can access whether those are=
+ GPAs
+> > > > > > > (iommu_platform=3Doff) or IOVAs (iommu_platform=3Don). =20
+> > > > > >=20
+> > > > > > I very much agree!
+> > > > > >  =20
+> > > > > > >  =20
+> > > > > > > > as was a rather bogus legacy hack =20
+> > > > > > >=20
+> > > > > > > It was certainly a bad idea, but it was a bad idea that went =
+into a
+> > > > > > > public spec and has been widely deployed for many years.  We =
+can't
+> > > > > > > just pretend it didn't happen and move on.
+> > > > > > >=20
+> > > > > > > Turning iommu_platform=3Don by default breaks old guests, som=
+e of which
+> > > > > > > we still care about.  We can't (automatically) do it only for=
+ guests
+> > > > > > > that need bounce buffering, because the hypervisor doesn't kn=
+ow that
+> > > > > > > ahead of time. =20
+>=20
+> We could default to iommu_platform=3Don on s390 when the host has active
+> support for protected virtualization... but that's just another kind of
+> horrible, so let's just pretend I didn't suggest it.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/interrupt.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+Yeah, that would break migration between hosts with the feature and
+hosts without - for everything, not just protected guests.  In general
+any kind of guest visible configuration change based on host
+properties is incompatible with the qemu/KVM migration model.
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index aaff3dbd669e..41b7faa8e5de 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -836,6 +836,21 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
- 	return rc ? -EFAULT : 0;
- }
- 
-+static int __deliver_prog_pv(struct kvm_vcpu *vcpu, u16 code)
-+{
-+	switch (code) {
-+	case PGM_SPECIFICATION:
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_SPECIFICATION;
-+		break;
-+	case PGM_OPERAND:
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_OPERAND;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
- static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-@@ -856,6 +871,10 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
- 					 pgm_info.code, 0);
- 
-+	/* PER is handled by the ultravisor */
-+	if (kvm_s390_pv_cpu_is_protected(vcpu))
-+		return __deliver_prog_pv(vcpu, pgm_info.code & ~PGM_PER);
-+
- 	switch (pgm_info.code & ~PGM_PER) {
- 	case PGM_AFX_TRANSLATION:
- 	case PGM_ASX_TRANSLATION:
--- 
-2.25.0
+--=20
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson
+
+--HcAYCG3uE/tztfnV
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5YXZcACgkQbDjKyiDZ
+s5LdKA//U9QbJilQoiEQCinA1xGVHP1Hm7w/1rqgbm4B30D4A7I3ioERM/uwdqkQ
+ks4shzQNPfx3O2Bkiit5DGE/A4C9CODYVqjvPw0pDpMaYJI6tDVcjd3bgYhyE2QI
+Gp5oQ4l40a4C5oUH9YYoOS7eyx0rg6q1HstQDyTtTUP8MURr5XsqMIU4086N8bDI
+JrYkBRXTU/W5FCuHnKR8wUwuKGUqTu64yEtzlT40YuWCrUw2PRtaG6jjP9CMisqL
+BS2ISdY2UeTZXNnavX0LycUAwUDo4gy/ux4TcSuzSii7A0ztiqqrbs/UFNs/GCUg
+pfcr9JbU7dsT4po/YKERdQ/6PiYuVufHASLOhDdDw6pNVLyuTnzHgmRkWSrRV4NP
+haSVx1u2JbRmJmO66RgJdt774tVxyDVIRhZprWlvg5yX0ad0TAHvx2MqitDgjCiV
+XZdu7rCfKQVCXU35ODteapV9n+CguP8f2KYIVWXJIHCbjLg65nVr4moJNupn/5nd
+kvhC+2MOoszj0PXtMEPTWe7N/H9KDfp4Vv861JhZL5pe3GluF9qsHDk/vHWuovCK
+Vab8lroMXU5o345o4w70Cu/X+PO1lkVeml+MTI3c+hfZHcaGlvnsVehQGDYhwX4I
+XvNb0jeVjkJJRHVxOIIgzD4PxiBaYtpfFV+cBvysaDf5aaCX2Zk=
+=MCKa
+-----END PGP SIGNATURE-----
+
+--HcAYCG3uE/tztfnV--
