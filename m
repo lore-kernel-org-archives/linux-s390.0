@@ -1,103 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43310 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727860AbgBNW1T (ORCPT
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:53813 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725769AbgB1QfT (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:27:19 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2 12/42] KVM: s390/mm: Make pages accessible before destroying the guest
-Date: Fri, 14 Feb 2020 17:26:28 -0500
-Message-Id: <20200214222658.12946-13-borntraeger@de.ibm.com>
-In-Reply-To: <20200214222658.12946-1-borntraeger@de.ibm.com>
-References: <20200214222658.12946-1-borntraeger@de.ibm.com>
+        Fri, 28 Feb 2020 11:35:19 -0500
+From: Vivek Goyal <vgoyal@redhat.com>
+Subject: [PATCH v6 3/6] s390,dcssblk,dax: Add dax zero_page_range operation to dcssblk driver
+Date: Fri, 28 Feb 2020 11:34:53 -0500
+Message-Id: <20200228163456.1587-4-vgoyal@redhat.com>
+In-Reply-To: <20200228163456.1587-1-vgoyal@redhat.com>
+References: <20200228163456.1587-1-vgoyal@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: linux-fsdevel@vger.kernel.org, linux-nvdimm@lists.01.org, hch@infradead.org, dan.j.williams@intel.com
+Cc: vgoyal@redhat.com, david@fromorbit.com, jmoyer@redhat.com, dm-devel@redhat.com, linux-s390@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-Before we destroy the secure configuration, we better make all
-pages accessible again. This also happens during reboot, where we reboot
-into a non-secure guest that then can go again into secure mode. As
-this "new" secure guest will have a new ID we cannot reuse the old page
-state.
+Add dax operation zero_page_range for dcssblk driver.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+CC: linux-s390@vger.kernel.org
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
 ---
- arch/s390/include/asm/gmap.h |  1 +
- arch/s390/kvm/pv.c           |  2 ++
- arch/s390/mm/gmap.c          | 35 +++++++++++++++++++++++++++++++++++
- 3 files changed, 38 insertions(+)
+ drivers/s390/block/dcssblk.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/arch/s390/include/asm/gmap.h b/arch/s390/include/asm/gmap.h
-index 6f9ff7a69fa2..a816fb4734b8 100644
---- a/arch/s390/include/asm/gmap.h
-+++ b/arch/s390/include/asm/gmap.h
-@@ -149,4 +149,5 @@ int gmap_mprotect_notify(struct gmap *, unsigned long start,
- void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long dirty_bitmap[4],
- 			     unsigned long gaddr, unsigned long vmaddr);
- int gmap_mark_unmergeable(void);
-+void s390_reset_acc(struct mm_struct *mm);
- #endif /* _ASM_S390_GMAP_H */
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index bf00cde1ead8..09573e36c329 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -66,6 +66,8 @@ int kvm_s390_pv_destroy_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- {
- 	int cc;
- 
-+	/* make all pages accessible before destroying the guest */
-+	s390_reset_acc(kvm->mm);
- 	cc = uv_cmd_nodata(kvm_s390_pv_handle(kvm),
- 			   UVC_CMD_DESTROY_SEC_CONF, rc, rrc);
- 	WRITE_ONCE(kvm->arch.gmap->guest_handle, 0);
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 7291452fe5f0..27926a06df32 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2650,3 +2650,38 @@ void s390_reset_cmma(struct mm_struct *mm)
- 	up_write(&mm->mmap_sem);
+diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
+index 63502ca537eb..ab3e2898816c 100644
+--- a/drivers/s390/block/dcssblk.c
++++ b/drivers/s390/block/dcssblk.c
+@@ -57,11 +57,26 @@ static size_t dcssblk_dax_copy_to_iter(struct dax_dev=
+ice *dax_dev,
+ 	return copy_to_iter(addr, bytes, i);
  }
- EXPORT_SYMBOL_GPL(s390_reset_cmma);
-+
-+/*
-+ * make inaccessible pages accessible again
-+ */
-+static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
-+			    unsigned long next, struct mm_walk *walk)
+=20
++static int dcssblk_dax_zero_page_range(struct dax_device *dax_dev,
++				       pgoff_t pgoff, size_t nr_pages)
 +{
-+	pte_t pte = READ_ONCE(*ptep);
++	long rc;
++	void *kaddr;
 +
-+	if (pte_present(pte))
-+		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
++	rc =3D dax_direct_access(dax_dev, pgoff, nr_pages, &kaddr, NULL);
++	if (rc < 0)
++		return rc;
++	memset(kaddr, 0, nr_pages << PAGE_SHIFT);
++	dax_flush(dax_dev, kaddr, nr_pages << PAGE_SHIFT);
 +	return 0;
 +}
 +
-+static const struct mm_walk_ops reset_acc_walk_ops = {
-+	.pte_entry		= __s390_reset_acc,
-+};
-+
-+#include <linux/sched/mm.h>
-+void s390_reset_acc(struct mm_struct *mm)
-+{
-+	/*
-+	 * we might be called during
-+	 * reset:                             we walk the pages and clear
-+	 * close of all kvm file descriptors: we walk the pages and clear
-+	 * exit of process on fd closure:     vma already gone, do nothing
-+	 */
-+	if (!mmget_not_zero(mm))
-+		return;
-+	down_read(&mm->mmap_sem);
-+	walk_page_range(mm, 0, TASK_SIZE, &reset_acc_walk_ops, NULL);
-+	up_read(&mm->mmap_sem);
-+	mmput(mm);
-+}
-+EXPORT_SYMBOL_GPL(s390_reset_acc);
--- 
-2.25.0
+ static const struct dax_operations dcssblk_dax_ops =3D {
+ 	.direct_access =3D dcssblk_dax_direct_access,
+ 	.dax_supported =3D generic_fsdax_supported,
+ 	.copy_from_iter =3D dcssblk_dax_copy_from_iter,
+ 	.copy_to_iter =3D dcssblk_dax_copy_to_iter,
++	.zero_page_range =3D dcssblk_dax_zero_page_range,
+ };
+=20
+ struct dcssblk_dev_info {
+--=20
+2.20.1
