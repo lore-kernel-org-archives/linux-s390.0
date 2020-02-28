@@ -1,63 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39908 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34586 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727071AbgBGLkI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:08 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 27/35] KVM: s390: protvirt: Add diag 308 subcode 8 - 10 handling
-Date: Fri,  7 Feb 2020 06:39:50 -0500
-Message-Id: <20200207113958.7320-28-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
-References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+        by vger.kernel.org with ESMTP id S1727159AbgB1Pnd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 28 Feb 2020 10:43:33 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01SFYdtD013478
+        for <linux-s390@vger.kernel.org>; Fri, 28 Feb 2020 10:43:31 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2yepxk3f6a-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 28 Feb 2020 10:43:31 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Fri, 28 Feb 2020 15:43:29 -0000
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [RFC v1 0/2] add callbacks for inaccessible pages
+Date: Fri, 28 Feb 2020 16:43:19 +0100
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20200228154322.329228-1-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: linux-next@vger.kernel.org, akpm@linux-foundation.org
+Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+This patchset has a fixup for gup/mm, and provides the necessary arch
+hooks to enable protected virtualization.
 
-If the host initialized the Ultravisor, we can set stfle bit 161
-(protected virtual IPL enhancements facility), which indicates that
-the IPL subcodes 8, 9, and 10 are valid. These subcodes are used by a
-normal guest to set/retrieve an IPL information block of type 5 (for
-protected virtual machines) and transition into protected mode.
+Claudio Imbrenda (2):
+  mm/gup: fixup for 9947ea2c1e608e32 "mm/gup: track FOLL_PIN pages"
+  mm/gup/writeback: add callbacks for inaccessible pages
 
-Once in protected mode, the Ultravisor will conceal the facility bit.
-Therefore each boot into protected mode has to go through
-non-protected mode. There is no secure re-ipl with subcode 10 without
-a previous subcode 3.
+ include/linux/gfp.h |  6 ++++++
+ mm/gup.c            | 24 ++++++++++++++++++++----
+ mm/page-writeback.c |  5 +++++
+ 3 files changed, 31 insertions(+), 4 deletions(-)
 
-In protected mode, there is no subcode 4 available, as the VM has no
-more access to its memory from non-protected mode. I.e., only a IPL
-clear is possible.
-
-The error cases will all be handled in userspace.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 7df48cc942fd..4afa44e3d1ed 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2611,6 +2611,11 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	if (css_general_characteristics.aiv && test_facility(65))
- 		set_kvm_facility(kvm->arch.model.fac_mask, 65);
- 
-+	if (is_prot_virt_host()) {
-+		set_kvm_facility(kvm->arch.model.fac_mask, 161);
-+		set_kvm_facility(kvm->arch.model.fac_list, 161);
-+	}
-+
- 	kvm->arch.model.cpuid = kvm_s390_get_initial_cpuid();
- 	kvm->arch.model.ibc = sclp.ibc & 0x0fff;
- 
 -- 
-2.24.0
+2.24.1
