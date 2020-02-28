@@ -1,71 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29604 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726677AbgBAP3E (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 1 Feb 2020 10:29:04 -0500
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 011FF3Fk099827
-        for <linux-s390@vger.kernel.org>; Sat, 1 Feb 2020 10:29:04 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xw5h9rknq-1
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60414 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727083AbgB1Pp5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 28 Feb 2020 10:45:57 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01SFZV35118063
+        for <linux-s390@vger.kernel.org>; Fri, 28 Feb 2020 10:45:55 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2yepy2kkbf-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Sat, 01 Feb 2020 10:29:03 -0500
+        for <linux-s390@vger.kernel.org>; Fri, 28 Feb 2020 10:45:55 -0500
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Sat, 1 Feb 2020 15:29:01 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v5 0/7] s390x: smp: Improve smp code and reset checks
-Date: Sat,  1 Feb 2020 10:28:44 -0500
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Fri, 28 Feb 2020 15:45:53 -0000
+Date: Fri, 28 Feb 2020 16:45:44 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [RFC v1 1/2] fixup for 9947ea2c1e608e32669d5caeb67b3e3fba3309e8
+ "mm/gup: track FOLL_PIN pages"
+In-Reply-To: <20200228154322.329228-2-imbrenda@linux.ibm.com>
+References: <20200228154322.329228-1-imbrenda@linux.ibm.com>
+        <20200228154322.329228-2-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200201152851.82867-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200228164544.6360f17e@p-imbrenda>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, david@redhat.com, cohuck@redhat.com
+To: linux-next@vger.kernel.org, akpm@linux-foundation.org
+Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-Let's cleanup the smp library and smp tests.
+sorry, this one was a mistake, please ignore
 
-GIT: https://github.com/frankjaa/kvm-unit-tests/tree/smp_cleanup
 
-v5:
-	* Split up series into three parts to make review easier
-	* Greetings from FOSDEM :-)
+On Fri, 28 Feb 2020 16:43:20 +0100
+Claudio Imbrenda <imbrenda@linux.ibm.com> wrote:
 
-V4:
-	* Introduce set_flag() for manipulating testflag
-	* Cleanup of stray braces and mb()s
-
-v3:
-	* Added patch to introduce cpu loop in cpu setup
-	* Added patch that removes cpu loops in favor of the previously introduced one
-	* Fixed inline assembly for fpc dirtying
-	* Moved cpu stop hunk from first into the second patch
-	* Reworked patch #4 commit message and added a comment when waiting for PU
-
-v2:
-	* Added cpu stop to test_store_status()
-	* Added smp_cpu_destroy() to the end of smp.c main()
-	* New patch that prints cpu id on interrupt errors
-	* New patch that reworks cpu start in the smp library (needed for lpar)
-	* nullp is now an array
-
-Janosch Frank (7):
-  s390x: smp: Cleanup smp.c
-  s390x: smp: Fix ecall and emcall report strings
-  s390x: Stop the cpu that is executing exit()
-  s390x: Add cpu id to interrupt error prints
-  s390x: smp: Only use smp_cpu_setup once
-  s390x: smp: Rework cpu start and active tracking
-  s390x: smp: Wait for cpu setup to finish
-
- lib/s390x/interrupt.c | 20 +++++------
- lib/s390x/io.c        |  2 +-
- lib/s390x/smp.c       | 59 +++++++++++++++++++------------
- s390x/cstart64.S      |  2 ++
- s390x/smp.c           | 80 ++++++++++++++++++++++++++-----------------
- 5 files changed, 100 insertions(+), 63 deletions(-)
-
--- 
-2.20.1
+> in case pin fails, we need to unpin, just a put_page will not be
+> enough
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  mm/gup.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/mm/gup.c b/mm/gup.c
+> index f589299b0d4a..0b9a806898f3 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -2134,7 +2134,10 @@ static int gup_pte_range(pmd_t pmd, unsigned
+> long addr, unsigned long end, goto pte_unmap;
+>  
+>  		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+> -			put_page(head);
+> +			if (flags & FOLL_GET)
+> +				put_page(head);
+> +			else if (flags & FOLL_PIN)
+> +				unpin_user_page(head);
+>  			goto pte_unmap;
+>  		}
+>  
