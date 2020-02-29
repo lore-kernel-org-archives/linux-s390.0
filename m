@@ -1,65 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50792 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727982AbgBRVtD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Feb 2020 16:49:03 -0500
-From: Vivek Goyal <vgoyal@redhat.com>
-Subject: [PATCH v5 5/8] s390,dcssblk,dax: Add dax zero_page_range operation to dcssblk driver
-Date: Tue, 18 Feb 2020 16:48:38 -0500
-Message-Id: <20200218214841.10076-6-vgoyal@redhat.com>
-In-Reply-To: <20200218214841.10076-1-vgoyal@redhat.com>
-References: <20200218214841.10076-1-vgoyal@redhat.com>
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:35971 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727170AbgB2Uoo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Feb 2020 15:44:44 -0500
+Received: by mail-ot1-f68.google.com with SMTP id j14so1704439otq.3
+        for <linux-s390@vger.kernel.org>; Sat, 29 Feb 2020 12:44:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+References: <20200221182503.28317-1-logang@deltatee.com> <20200221182503.28317-3-logang@deltatee.com>
+In-Reply-To: <20200221182503.28317-3-logang@deltatee.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Sat, 29 Feb 2020 12:44:29 -0800
+Message-ID: <CAPcyv4hLvciwxSnsQRye9SuB-sy9fm+_6CwZSuHifkmbWQs-+g@mail.gmail.com>
+Subject: Re: [PATCH v3 2/7] mm/memory_hotplug: Rename mhp_restrictions to mhp_params
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-fsdevel@vger.kernel.org, linux-nvdimm@lists.01.org, hch@infradead.org, dan.j.williams@intel.com
-Cc: dm-devel@redhat.com, vishal.l.verma@intel.com, vgoyal@redhat.com, linux-s390@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-ia64@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh <linux-sh@vger.kernel.org>, platform-driver-x86@vger.kernel.org, Linux MM <linux-mm@kvack.org>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>
 
-Add dax operation zero_page_range for dcssblk driver.
+On Fri, Feb 21, 2020 at 10:25 AM Logan Gunthorpe <logang@deltatee.com> wrote:
+>
+> The mhp_restrictions struct really doesn't specify anything resembling
+> a restriction anymore so rename it to be mhp_params as it is a list
+> of extended parameters.
+>
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 
-CC: linux-s390@vger.kernel.org
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
----
- drivers/s390/block/dcssblk.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+Tests ok, and looks good to me:
 
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 63502ca537eb..331abab5d066 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -57,11 +57,28 @@ static size_t dcssblk_dax_copy_to_iter(struct dax_dev=
-ice *dax_dev,
- 	return copy_to_iter(addr, bytes, i);
- }
-=20
-+static int dcssblk_dax_zero_page_range(struct dax_device *dax_dev, u64 o=
-ffset,
-+				       size_t len)
-+{
-+	long rc;
-+	void *kaddr;
-+	pgoff_t pgoff =3D offset >> PAGE_SHIFT;
-+	unsigned page_offset =3D offset_in_page(offset);
-+
-+	rc =3D dax_direct_access(dax_dev, pgoff, 1, &kaddr, NULL);
-+	if (rc < 0)
-+		return rc;
-+	memset(kaddr + page_offset, 0, len);
-+	dax_flush(dax_dev, kaddr + page_offset, len);
-+	return 0;
-+}
-+
- static const struct dax_operations dcssblk_dax_ops =3D {
- 	.direct_access =3D dcssblk_dax_direct_access,
- 	.dax_supported =3D generic_fsdax_supported,
- 	.copy_from_iter =3D dcssblk_dax_copy_from_iter,
- 	.copy_to_iter =3D dcssblk_dax_copy_to_iter,
-+	.zero_page_range =3D dcssblk_dax_zero_page_range,
- };
-=20
- struct dcssblk_dev_info {
---=20
-2.20.1
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
