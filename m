@@ -1,78 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11156 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727362AbgBZLMf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 26 Feb 2020 06:12:35 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01QB9lYN129873
-        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 06:12:34 -0500
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ydkf90qqu-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 26 Feb 2020 06:12:34 -0500
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Wed, 26 Feb 2020 11:12:31 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: mm/gup/writeback: add callbacks for inaccessible pages: fixup for
- linux-next
-Date: Wed, 26 Feb 2020 12:12:27 +0100
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:42976 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727254AbgB2WdU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Feb 2020 17:33:20 -0500
+Received: by mail-oi1-f194.google.com with SMTP id l12so6618083oil.9
+        for <linux-s390@vger.kernel.org>; Sat, 29 Feb 2020 14:33:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <1da2ebcf-59bd-65a1-222a-26af953ac7c5@de.ibm.com>
+References: <20200221182503.28317-1-logang@deltatee.com> <20200221182503.28317-5-logang@deltatee.com>
+In-Reply-To: <20200221182503.28317-5-logang@deltatee.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Sat, 29 Feb 2020 14:33:08 -0800
+Message-ID: <CAPcyv4j=bZ5KBPp6PbViERdDe+HZpV_W6qbSJupTNAzyfiK6xg@mail.gmail.com>
+Subject: Re: [PATCH v3 4/7] x86/mm: Introduce _set_memory_prot()
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Claudio Imbrenda <imbrenda@linux.ibm.com>
-Cc: linux-mm@kvack.org, kvm list <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-ia64@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh <linux-sh@vger.kernel.org>, platform-driver-x86@vger.kernel.org, Linux MM <linux-mm@kvack.org>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, "H. Peter Anvin" <hpa@zytor.com>, X86 ML <x86@kernel.org>
 
-Claudio,
+On Fri, Feb 21, 2020 at 10:25 AM Logan Gunthorpe <logang@deltatee.com> wrote:
+>
+> For use in the 32bit arch_add_memory() to set the pgprot type of the
+> memory to add.
+>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: x86@kernel.org
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: Andy Lutomirski <luto@kernel.org>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> ---
+>  arch/x86/include/asm/set_memory.h | 1 +
+>  arch/x86/mm/pat/set_memory.c      | 7 +++++++
+>  2 files changed, 8 insertions(+)
+>
+> diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
+> index 64c3dce374e5..0aca959cf9a4 100644
+> --- a/arch/x86/include/asm/set_memory.h
+> +++ b/arch/x86/include/asm/set_memory.h
+> @@ -34,6 +34,7 @@
+>   * The caller is required to take care of these.
+>   */
+>
+> +int _set_memory_prot(unsigned long addr, int numpages, pgprot_t prot);
 
-the patch with the arch callbacks has a (simple) merge conflict with
-the longterm pinning changes in next. Can you maybe re-do this patch
-on top of linux-next and send this patch to Andrew. This actually 
-also means that this patch should ideally go via Andrew and not via
-my tree.
+I wonder if this should be separated from the naming convention of the
+other routines because this is only an internal helper for code paths
+where the prot was established by an upper layer. For example, I
+expect that the kernel does not want new usages to make the mistake of
+calling:
 
-Patch is here.
+   _set_memory_prot(..., pgprot_writecombine(pgprot))
 
-https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/commit/?h=next&id=732b80e677b80813e2f862ce92448436540222a3
+...instead of
 
-this is my quick attempt to fix this up
+    _set_memory_wc()
 
-diff --cc mm/gup.c
-index f589299b0d4a,354bcfbd844b..a025d28ffbfd
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@@ -470,11 -269,18 +468,17 @@@ retry
-                goto retry;
-        }
-  
- -      if (flags & FOLL_GET) {
- -              if (unlikely(!try_get_page(page))) {
- -                      page = ERR_PTR(-ENOMEM);
- -                      goto out;
- -              }
- -              ret = arch_make_page_accessible(page);
- -              if (ret) {
- -                      put_page(page);
- -                      page = ERR_PTR(ret);
- -                      goto out;
- -              }
- +      /* try_grab_page() does nothing unless FOLL_GET or FOLL_PIN is set. */
- +      if (unlikely(!try_grab_page(page, flags))) {
- +              page = ERR_PTR(-ENOMEM);
- +              goto out;
- +      }
-++      ret = arch_make_page_accessible(page);
-++      if (ret) {
-++              put_page(page);
-++              page = ERR_PTR(ret);
-++              goto out;
-+       }
-        if (flags & FOLL_TOUCH) {
-                if ((flags & FOLL_WRITE) &&
-                    !pte_dirty(pte) && !PageDirty(page))
+I'm thinking just a double underscore rename (__set_memory_prot) and a
+kerneldoc comment for that  pointing people to use the direct
+_set_memory_<cachemode> helpers.
+
+With that you can add:
+
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
