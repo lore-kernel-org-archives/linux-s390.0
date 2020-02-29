@@ -1,30 +1,38 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41866 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727003AbgBJQyo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 Feb 2020 11:54:44 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 0/1] s390/uv: fix for ultravisor query function
-Date: Mon, 10 Feb 2020 11:54:38 -0500
-Message-Id: <20200210165439.3767-1-borntraeger@de.ibm.com>
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:1756 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727102AbgB2UJR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Feb 2020 15:09:17 -0500
+Subject: Re: [RFC v1 1/2] mm/gup: fixup for 9947ea2c1e608e32 "mm/gup: track
+ FOLL_PIN pages"
+References: <20200228154322.329228-1-imbrenda@linux.ibm.com>
+ <20200228154322.329228-3-imbrenda@linux.ibm.com>
+ <c98038da-cf52-27f5-1aed-b69287a5dec0@nvidia.com>
+ <20200229115119.3562c73e@p-imbrenda>
+From: John Hubbard <jhubbard@nvidia.com>
+Message-ID: <a48a6fee-babe-45fd-5ff5-881fbdabf79b@nvidia.com>
+Date: Sat, 29 Feb 2020 12:09:15 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200229115119.3562c73e@p-imbrenda>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-next@vger.kernel.org, akpm@linux-foundation.org, borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Jan Kara <jack@suse.cz>, "Kirill A. Shutemov" <kirill@shutemov.name>
 
-As outlined by the architects the query command could actually return more
-than the minimal 168 bytes.
+On 2/29/20 2:51 AM, Claudio Imbrenda wrote:
 
-I will carry this with the KVM host support for protected virtualization
+> my idea was that my patch should be used as fix-up, so the actual
+> content of the commit message is not relevant
+> 
 
-Christian Borntraeger (1):
-  s390/uv: Fix handling of length extensions
 
- arch/s390/boot/uv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+aha, OK. Yes, a fixup would be nice.
 
+
+thanks,
 -- 
-2.24.0
+John Hubbard
+NVIDIA
