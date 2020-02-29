@@ -1,78 +1,153 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56434 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727085AbgBETzc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Feb 2020 14:55:32 -0500
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 015JrtJZ017577
-        for <linux-s390@vger.kernel.org>; Wed, 5 Feb 2020 14:55:31 -0500
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2xym4n1qy5-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 05 Feb 2020 14:55:30 -0500
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Wed, 5 Feb 2020 19:55:29 -0000
-Subject: Re: [PATCH 0/1] s390: seq_file .next functions should increase
- position index
-References: <8b5e38e4-ca07-b3c7-bdb7-4f4c3ad94233@virtuozzo.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Wed, 5 Feb 2020 20:55:25 +0100
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:33818 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727240AbgB2Wob (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 29 Feb 2020 17:44:31 -0500
+Received: by mail-oi1-f195.google.com with SMTP id g6so4942167oiy.1
+        for <linux-s390@vger.kernel.org>; Sat, 29 Feb 2020 14:44:30 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <8b5e38e4-ca07-b3c7-bdb7-4f4c3ad94233@virtuozzo.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Message-Id: <1b957299-9c5d-9423-3982-10da697b3fb1@de.ibm.com>
+References: <20200221182503.28317-1-logang@deltatee.com> <20200221182503.28317-7-logang@deltatee.com>
+In-Reply-To: <20200221182503.28317-7-logang@deltatee.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Sat, 29 Feb 2020 14:44:19 -0800
+Message-ID: <CAPcyv4gR1+NaWzteqNKip=cYk89oEVW18HNao7Xv=JipzzDagw@mail.gmail.com>
+Subject: Re: [PATCH v3 6/7] mm/memory_hotplug: Add pgprot_t to mhp_params
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Vasily Averin <vvs@virtuozzo.com>, linux-s390@vger.kernel.org
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: Logan Gunthorpe <logang@deltatee.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-ia64@vger.kernel.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh <linux-sh@vger.kernel.org>, platform-driver-x86@vger.kernel.org, Linux MM <linux-mm@kvack.org>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Michal Hocko <mhocko@suse.com>
 
-I only got your cover letter, but not the patch itself. Can you resend?
+On Fri, Feb 21, 2020 at 10:25 AM Logan Gunthorpe <logang@deltatee.com> wrote:
+>
+> devm_memremap_pages() is currently used by the PCI P2PDMA code to create
+> struct page mappings for IO memory. At present, these mappings are created
+> with PAGE_KERNEL which implies setting the PAT bits to be WB. However, on
+> x86, an mtrr register will typically override this and force the cache
+> type to be UC-. In the case firmware doesn't set this register it is
+> effectively WB and will typically result in a machine check exception
+> when it's accessed.
+>
+> Other arches are not currently likely to function correctly seeing they
+> don't have any MTRR registers to fall back on.
+>
+> To solve this, provide a way to specify the pgprot value explicitly to
+> arch_add_memory().
+>
+> Of the arches that support MEMORY_HOTPLUG: x86_64, and arm64 need a simple
+> change to pass the pgprot_t down to their respective functions which set
+> up the page tables. For x86_32, set the page tables explicitly using
+> _set_memory_prot() (seeing they are already mapped). For ia64, s390 and
+> sh, reject anything but PAGE_KERNEL settings -- this should be fine,
+> for now, seeing these architectures don't support ZONE_DEVICE.
+>
+> A check in __add_pages() is also added to ensure the pgprot parameter was
+> set for all arches.
+>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+> Acked-by: David Hildenbrand <david@redhat.com>
+> Acked-by: Michal Hocko <mhocko@suse.com>
+> ---
+>  arch/arm64/mm/mmu.c            | 3 ++-
+>  arch/ia64/mm/init.c            | 3 +++
+>  arch/powerpc/mm/mem.c          | 3 ++-
+>  arch/s390/mm/init.c            | 3 +++
+>  arch/sh/mm/init.c              | 3 +++
+>  arch/x86/mm/init_32.c          | 5 +++++
+>  arch/x86/mm/init_64.c          | 2 +-
+>  include/linux/memory_hotplug.h | 2 ++
+>  mm/memory_hotplug.c            | 5 ++++-
+>  mm/memremap.c                  | 6 +++---
+>  10 files changed, 28 insertions(+), 7 deletions(-)
+>
+> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+> index ee37bca8aba8..ea3fa844a8a2 100644
+> --- a/arch/arm64/mm/mmu.c
+> +++ b/arch/arm64/mm/mmu.c
+> @@ -1058,7 +1058,8 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>                 flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
+>
+>         __create_pgd_mapping(swapper_pg_dir, start, __phys_to_virt(start),
+> -                            size, PAGE_KERNEL, __pgd_pgtable_alloc, flags);
+> +                            size, params->pgprot, __pgd_pgtable_alloc,
+> +                            flags);
+>
+>         memblock_clear_nomap(start, size);
+>
+> diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+> index 97bbc23ea1e3..d637b4ea3147 100644
+> --- a/arch/ia64/mm/init.c
+> +++ b/arch/ia64/mm/init.c
+> @@ -676,6 +676,9 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>         unsigned long nr_pages = size >> PAGE_SHIFT;
+>         int ret;
+>
+> +       if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
+> +               return -EINVAL;
+> +
+>         ret = __add_pages(nid, start_pfn, nr_pages, params);
+>         if (ret)
+>                 printk("%s: Problem encountered in __add_pages() as ret=%d\n",
+> diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+> index 19b1da5d7eca..832412bc7fad 100644
+> --- a/arch/powerpc/mm/mem.c
+> +++ b/arch/powerpc/mm/mem.c
+> @@ -138,7 +138,8 @@ int __ref arch_add_memory(int nid, u64 start, u64 size,
+>         resize_hpt_for_hotplug(memblock_phys_mem_size());
+>
+>         start = (unsigned long)__va(start);
+> -       rc = create_section_mapping(start, start + size, nid, PAGE_KERNEL);
+> +       rc = create_section_mapping(start, start + size, nid,
+> +                                   params->pgprot);
+>         if (rc) {
+>                 pr_warn("Unable to create mapping for hot added memory 0x%llx..0x%llx: %d\n",
+>                         start, start + size, rc);
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index e9e4a7abd0cc..87b2d024e75a 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -277,6 +277,9 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>         if (WARN_ON_ONCE(params->altmap))
+>                 return -EINVAL;
+>
+> +       if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
+> +               return -EINVAL;
+> +
+>         rc = vmem_add_mapping(start, size);
+>         if (rc)
+>                 return rc;
+> diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+> index e5114c053364..b9de2d4fa57e 100644
+> --- a/arch/sh/mm/init.c
+> +++ b/arch/sh/mm/init.c
+> @@ -412,6 +412,9 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>         unsigned long nr_pages = size >> PAGE_SHIFT;
+>         int ret;
+>
+> +       if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot)
+> +               return -EINVAL;
+> +
+>         /* We only have ZONE_NORMAL, so this is easy.. */
+>         ret = __add_pages(nid, start_pfn, nr_pages, params);
+>         if (unlikely(ret))
+> diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
+> index e25a4218e6ff..96d8e4fb1cc8 100644
+> --- a/arch/x86/mm/init_32.c
+> +++ b/arch/x86/mm/init_32.c
+> @@ -858,6 +858,11 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>  {
+>         unsigned long start_pfn = start >> PAGE_SHIFT;
+>         unsigned long nr_pages = size >> PAGE_SHIFT;
+> +       int ret;
+> +
+> +       ret = _set_memory_prot(start, nr_pages, params->pgprot);
 
+Perhaps a comment since it's not immediately obvious where the
+PAGE_KERNEL prot was established, and perhaps add a conditional to
+skip this call in the param->pgprot == PAGE_KERNEL case?
 
-On 24.01.20 06:48, Vasily Averin wrote:
-> In Aug 2018 NeilBrown noticed 
-> commit 1f4aace60b0e ("fs/seq_file.c: simplify seq_file iteration code and interface")
-> "Some ->next functions do not increment *pos when they return NULL...
-> Note that such ->next functions are buggy and should be fixed. 
-> A simple demonstration is
->    
-> dd if=/proc/swaps bs=1000 skip=1
->     
-> Choose any block size larger than the size of /proc/swaps.  This will
-> always show the whole last line of /proc/swaps"
-> 
-> Described problem is still actual. If you make lseek into middle of last output line 
-> following read will output end of last line and whole last line once again.
-> 
-> $ dd if=/proc/swaps bs=1  # usual output
-> Filename				Type		Size	Used	Priority
-> /dev/dm-0                               partition	4194812	97536	-2
-> 104+0 records in
-> 104+0 records out
-> 104 bytes copied
-> 
-> $ dd if=/proc/swaps bs=40 skip=1    # last line was generated twice
-> dd: /proc/swaps: cannot skip to specified offset
-> v/dm-0                               partition	4194812	97536	-2
-> /dev/dm-0                               partition	4194812	97536	-2 
-> 3+1 records in
-> 3+1 records out
-> 131 bytes copied
-> 
-> There are lot of other affected files, I've found 30+ including
-> /proc/net/ip_tables_matches and /proc/sysvipc/*
-> 
-> Following patch fixes s390-related file
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=206283
-> 
-> Vasily Averin (1):
->   cio_ignore_proc_seq_next should increase position index
-> 
->  drivers/s390/cio/blacklist.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
+Other than that looks good to me, but only an ack since I'm only
+testing the x86 changes.
+
+Acked-by: Dan Williams <dan.j.williams@intel.com>
