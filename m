@@ -1,79 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3896 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727401AbgBXLlQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Feb 2020 06:41:16 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v4 23/36] KVM: s390: protvirt: disallow one_reg
-Date: Mon, 24 Feb 2020 06:40:54 -0500
-Message-Id: <20200224114107.4646-24-borntraeger@de.ibm.com>
-In-Reply-To: <20200224114107.4646-1-borntraeger@de.ibm.com>
-References: <20200224114107.4646-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from mail.kernel.org ([198.145.29.99]:46046 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727242AbgCADrf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 29 Feb 2020 22:47:35 -0500
+Date: Sat, 29 Feb 2020 19:47:32 -0800
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [RFC v1 2/2] mm/gup/writeback: add callbacks for inaccessible
+ pages
+Message-Id: <20200229194732.e8bf21bbdb4f9878fecfb3ed@linux-foundation.org>
+In-Reply-To: <2e3bf1a2-b672-68e0-97b6-42f08133e077@de.ibm.com>
+References: <20200228154322.329228-1-imbrenda@linux.ibm.com>
+        <20200228154322.329228-4-imbrenda@linux.ibm.com>
+        <2e3bf1a2-b672-68e0-97b6-42f08133e077@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-next@vger.kernel.org, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Will Deacon <will@kernel.org>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On Fri, 28 Feb 2020 17:08:19 +0100 Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-A lot of the registers are controlled by the Ultravisor and never
-visible to KVM. Some fields in the sie control block are overlayed, like
-gbea. As no known userspace uses the ONE_REG interface on s390 if sync
-regs are available, no functionality is lost if it is disabled for
-protected guests.
+> while patch 1 is a fixup for the FOLL_PIN work in your patch queue,
+> I would really love to see this patch in 5.7. The exploitation code
+> of kvm/s390 is in Linux next also scheduled for 5.7.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- Documentation/virt/kvm/api.rst | 6 ++++--
- arch/s390/kvm/kvm-s390.c       | 3 +++
- 2 files changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 97a72a53fa4b..7505d7a6c0d8 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -2117,7 +2117,8 @@ Errors:
- 
-   ======   ============================================================
-   ENOENT   no such register
--  EINVAL   invalid register ID, or no such register
-+  EINVAL   invalid register ID, or no such register or used with VMs in
-+           protected virtualization mode on s390
-   EPERM    (arm64) register access not allowed before vcpu finalization
-   ======   ============================================================
- 
-@@ -2552,7 +2553,8 @@ Errors include:
- 
-   ======== ============================================================
-   ENOENT   no such register
--  EINVAL   invalid register ID, or no such register
-+  EINVAL   invalid register ID, or no such register or used with VMs in
-+           protected virtualization mode on s390
-   EPERM    (arm64) register access not allowed before vcpu finalization
-   ======== ============================================================
- 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 67a746b0f8b9..6ab4c88f2e1d 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4670,6 +4670,9 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 	case KVM_SET_ONE_REG:
- 	case KVM_GET_ONE_REG: {
- 		struct kvm_one_reg reg;
-+		r = -EINVAL;
-+		if (kvm_s390_pv_cpu_is_protected(vcpu))
-+			break;
- 		r = -EFAULT;
- 		if (copy_from_user(&reg, argp, sizeof(reg)))
- 			break;
--- 
-2.25.0
+Sounds good.  My inbox eagerly awaits v2 ;)
