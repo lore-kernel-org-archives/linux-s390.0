@@ -1,79 +1,61 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41784 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727919AbgCXSZF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Mar 2020 14:25:05 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02OI4Ixs074154
-        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 14:25:05 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywfe8u3sr-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 14:25:04 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Tue, 24 Mar 2020 18:25:01 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 09/11] s390/qeth: fine-tune MAC Address-related errnos
-Date: Tue, 24 Mar 2020 19:24:46 +0100
-In-Reply-To: <20200324182448.95362-1-jwi@linux.ibm.com>
-References: <20200324182448.95362-1-jwi@linux.ibm.com>
-Message-Id: <20200324182448.95362-10-jwi@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 23/32] s390: make 'install' not depend on vmlinux
+Date: Mon,  2 Mar 2020 21:48:42 -0500
+Message-Id: <20200303024851.10054-23-sashal@kernel.org>
+In-Reply-To: <20200303024851.10054-1-sashal@kernel.org>
+References: <20200303024851.10054-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Masahiro Yamada <masahiroy@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Return the correct errnos when .ndo_set_mac_address fails to set a new
-MAC address.
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+[ Upstream commit 94e90f727f7424d827256023cace829cad6896f4 ]
+
+For the same reason as commit 19514fc665ff ("arm, kbuild: make "make
+install" not depend on vmlinux"), the install targets should never
+trigger the rebuild of the kernel.
+
+The variable, CONFIGURE, is not set by anyone. Remove it as well.
+
+Link: https://lkml.kernel.org/r/20200216144829.27023-1-masahiroy@kernel.org
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_l2_main.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/s390/Makefile      | 2 +-
+ arch/s390/boot/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 249b00d91d46..766ea0d07a24 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -52,11 +52,11 @@ static int qeth_l2_setdelmac_makerc(struct qeth_card *card, u16 retcode)
- 		break;
- 	case IPA_RC_L2_DUP_MAC:
- 	case IPA_RC_L2_DUP_LAYER3_MAC:
--		rc = -EEXIST;
-+		rc = -EADDRINUSE;
- 		break;
- 	case IPA_RC_L2_MAC_NOT_AUTH_BY_HYP:
- 	case IPA_RC_L2_MAC_NOT_AUTH_BY_ADP:
--		rc = -EPERM;
-+		rc = -EADDRNOTAVAIL;
- 		break;
- 	case IPA_RC_L2_MAC_NOT_FOUND:
- 		rc = -ENOENT;
-@@ -105,11 +105,11 @@ static int qeth_l2_send_setmac(struct qeth_card *card, __u8 *mac)
- 			 "MAC address %pM successfully registered\n", mac);
- 	} else {
- 		switch (rc) {
--		case -EEXIST:
-+		case -EADDRINUSE:
- 			dev_warn(&card->gdev->dev,
- 				"MAC address %pM already exists\n", mac);
- 			break;
--		case -EPERM:
-+		case -EADDRNOTAVAIL:
- 			dev_warn(&card->gdev->dev,
- 				"MAC address %pM is not authorized\n", mac);
- 			break;
-@@ -126,7 +126,7 @@ static int qeth_l2_write_mac(struct qeth_card *card, u8 *mac)
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index 4bccde36cb161..9a3a698c8fca5 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -140,7 +140,7 @@ all: bzImage
+ #KBUILD_IMAGE is necessary for packaging targets like rpm-pkg, deb-pkg...
+ KBUILD_IMAGE	:= $(boot)/bzImage
  
- 	QETH_CARD_TEXT(card, 2, "L2Wmac");
- 	rc = qeth_l2_send_setdelmac(card, mac, cmd);
--	if (rc == -EEXIST)
-+	if (rc == -EADDRINUSE)
- 		QETH_DBF_MESSAGE(2, "MAC already registered on device %x\n",
- 				 CARD_DEVID(card));
- 	else if (rc)
+-install: vmlinux
++install:
+ 	$(Q)$(MAKE) $(build)=$(boot) $@
+ 
+ bzImage: vmlinux
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index f6a9b0c203553..45c72d1f9e7d2 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -46,7 +46,7 @@ quiet_cmd_ar = AR      $@
+ $(obj)/startup.a: $(OBJECTS) FORCE
+ 	$(call if_changed,ar)
+ 
+-install: $(CONFIGURE) $(obj)/bzImage
++install:
+ 	sh -x  $(srctree)/$(obj)/install.sh $(KERNELRELEASE) $(obj)/bzImage \
+ 	      System.map "$(INSTALL_PATH)"
+ 
 -- 
-2.17.1
+2.20.1
