@@ -1,73 +1,120 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:56282 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728447AbgCRUzq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Mar 2020 16:55:46 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 30/37] s390/qeth: handle error when backing RX buffer
-Date: Wed, 18 Mar 2020 16:55:02 -0400
-Message-Id: <20200318205509.17053-30-sashal@kernel.org>
-In-Reply-To: <20200318205509.17053-1-sashal@kernel.org>
-References: <20200318205509.17053-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 43/58] s390/qdio: fill SL with absolute addresses
+Date: Mon,  2 Mar 2020 21:47:25 -0500
+Message-Id: <20200303024740.9511-43-sashal@kernel.org>
+In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
+References: <20200303024740.9511-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
 From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 17413852804d7e86e6f0576cca32c1541817800e ]
+[ Upstream commit e9091ffd6a0aaced111b5d6ead5eaab5cd7101bc ]
 
-qeth_init_qdio_queues() fills the RX ring with an initial set of
-RX buffers. If qeth_init_input_buffer() fails to back one of the RX
-buffers with memory, we need to bail out and report the error.
+As the comment says, sl->sbal holds an absolute address. qeth currently
+solves this through wild casting, while zfcp doesn't care.
 
-Fixes: 4a71df50047f ("qeth: new qeth device driver")
+Handle this properly in the code that actually builds the SL.
+
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com> [for qdio]
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ arch/s390/include/asm/qdio.h      |  2 +-
+ drivers/s390/cio/qdio_setup.c     |  3 ++-
+ drivers/s390/net/qeth_core_main.c | 23 +++++++++++------------
+ 3 files changed, 14 insertions(+), 14 deletions(-)
 
+diff --git a/arch/s390/include/asm/qdio.h b/arch/s390/include/asm/qdio.h
+index e3f238e8c6116..4f35b1055f30a 100644
+--- a/arch/s390/include/asm/qdio.h
++++ b/arch/s390/include/asm/qdio.h
+@@ -227,7 +227,7 @@ struct qdio_buffer {
+  * @sbal: absolute SBAL address
+  */
+ struct sl_element {
+-	unsigned long sbal;
++	u64 sbal;
+ } __attribute__ ((packed));
+ 
+ /**
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index cd164886132fd..ee0b3c5862110 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -8,6 +8,7 @@
+ #include <linux/kernel.h>
+ #include <linux/slab.h>
+ #include <linux/export.h>
++#include <linux/io.h>
+ #include <asm/qdio.h>
+ 
+ #include "cio.h"
+@@ -207,7 +208,7 @@ static void setup_storage_lists(struct qdio_q *q, struct qdio_irq *irq_ptr,
+ 
+ 	/* fill in sl */
+ 	for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; j++)
+-		q->sl->element[j].sbal = (unsigned long)q->sbal[j];
++		q->sl->element[j].sbal = virt_to_phys(q->sbal[j]);
+ }
+ 
+ static void setup_queues(struct qdio_irq *irq_ptr,
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index d99bfbfcafb76..5f59e2dfc7db9 100644
+index 23852888eb2ca..b727d1e34523e 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -2811,12 +2811,12 @@ static int qeth_init_input_buffer(struct qeth_card *card,
- 		buf->rx_skb = netdev_alloc_skb(card->dev,
- 					       QETH_RX_PULL_LEN + ETH_HLEN);
- 		if (!buf->rx_skb)
--			return 1;
-+			return -ENOMEM;
+@@ -4716,10 +4716,10 @@ static void qeth_qdio_establish_cq(struct qeth_card *card,
+ 	if (card->options.cq == QETH_CQ_ENABLED) {
+ 		int offset = QDIO_MAX_BUFFERS_PER_Q *
+ 			     (card->qdio.no_in_queues - 1);
+-		for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; ++i) {
+-			in_sbal_ptrs[offset + i] = (struct qdio_buffer *)
+-				virt_to_phys(card->qdio.c_q->bufs[i].buffer);
+-		}
++
++		for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; i++)
++			in_sbal_ptrs[offset + i] =
++				card->qdio.c_q->bufs[i].buffer;
+ 
+ 		queue_start_poll[card->qdio.no_in_queues - 1] = NULL;
  	}
- 
- 	pool_entry = qeth_find_free_buffer_pool_entry(card);
- 	if (!pool_entry)
--		return 1;
-+		return -ENOBUFS;
- 
- 	/*
- 	 * since the buffer is accessed only from the input_tasklet
-@@ -2848,10 +2848,15 @@ int qeth_init_qdio_queues(struct qeth_card *card)
- 	/* inbound queue */
- 	qdio_reset_buffers(card->qdio.in_q->qdio_bufs, QDIO_MAX_BUFFERS_PER_Q);
- 	memset(&card->rx, 0, sizeof(struct qeth_rx));
+@@ -4753,10 +4753,9 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ 		rc = -ENOMEM;
+ 		goto out_free_qib_param;
+ 	}
+-	for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; ++i) {
+-		in_sbal_ptrs[i] = (struct qdio_buffer *)
+-			virt_to_phys(card->qdio.in_q->bufs[i].buffer);
+-	}
 +
- 	qeth_initialize_working_pool_list(card);
- 	/*give only as many buffers to hardware as we have buffer pool entries*/
--	for (i = 0; i < card->qdio.in_buf_pool.buf_count - 1; ++i)
--		qeth_init_input_buffer(card, &card->qdio.in_q->bufs[i]);
-+	for (i = 0; i < card->qdio.in_buf_pool.buf_count - 1; i++) {
-+		rc = qeth_init_input_buffer(card, &card->qdio.in_q->bufs[i]);
-+		if (rc)
-+			return rc;
-+	}
++	for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; i++)
++		in_sbal_ptrs[i] = card->qdio.in_q->bufs[i].buffer;
+ 
+ 	queue_start_poll = kcalloc(card->qdio.no_in_queues, sizeof(void *),
+ 				   GFP_KERNEL);
+@@ -4777,11 +4776,11 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ 		rc = -ENOMEM;
+ 		goto out_free_queue_start_poll;
+ 	}
 +
- 	card->qdio.in_q->next_buf_to_init =
- 		card->qdio.in_buf_pool.buf_count - 1;
- 	rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT, 0, 0,
+ 	for (i = 0, k = 0; i < card->qdio.no_out_queues; ++i)
+-		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j, ++k) {
+-			out_sbal_ptrs[k] = (struct qdio_buffer *)virt_to_phys(
+-				card->qdio.out_qs[i]->bufs[j]->buffer);
+-		}
++		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; j++, k++)
++			out_sbal_ptrs[k] =
++				card->qdio.out_qs[i]->bufs[j]->buffer;
+ 
+ 	memset(&init_data, 0, sizeof(struct qdio_initialize));
+ 	init_data.cdev                   = CARD_DDEV(card);
 -- 
 2.20.1
