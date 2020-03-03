@@ -1,54 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44036 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726360AbgC0KTr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Mar 2020 06:19:47 -0400
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02RA2nnv009365
-        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 06:19:46 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ywf2mbrf8-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 06:19:46 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Fri, 27 Mar 2020 10:19:44 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 0/3] s390/qeth: updates 2020-03-27
-Date: Fri, 27 Mar 2020 11:19:31 +0100
-Message-Id: <20200327101934.31040-1-jwi@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:41842 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727860AbgCCCrE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:47:04 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 38/66] s390/cio: cio_ignore_proc_seq_next should increase position index
+Date: Mon,  2 Mar 2020 21:45:47 -0500
+Message-Id: <20200303024615.8889-38-sashal@kernel.org>
+In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
+References: <20200303024615.8889-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Averin <vvs@virtuozzo.com>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Hi Dave,
+From: Vasily Averin <vvs@virtuozzo.com>
 
-please apply the following patch series for qeth to netdev's net-next
-tree.
+[ Upstream commit 8b101a5e14f2161869636ff9cb4907b7749dc0c2 ]
 
-Spring clean edition:
-- remove one sysfs attribute that was never put in use,
-- make support for OSN and OSX devices optional, and
-- probe for removal of the obsolete OSN support.
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
 
-Thanks,
-Julian
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Link: https://lore.kernel.org/r/d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/cio/blacklist.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-Julian Wiedmann (3):
-  s390/qeth: remove fake_broadcast attribute
-  s390/qeth: make OSN / OSX support configurable
-  s390/qeth: phase out OSN support
-
- drivers/s390/net/Kconfig          | 17 +++++++++++++++
- drivers/s390/net/qeth_core.h      |  1 -
- drivers/s390/net/qeth_core_main.c |  4 ++++
- drivers/s390/net/qeth_core_mpc.h  | 11 ++++++++++
- drivers/s390/net/qeth_l2_main.c   |  5 +++++
- drivers/s390/net/qeth_l3_sys.c    | 35 -------------------------------
- 6 files changed, 37 insertions(+), 36 deletions(-)
-
+diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
+index 2a3f874a21d54..9cebff8e8d740 100644
+--- a/drivers/s390/cio/blacklist.c
++++ b/drivers/s390/cio/blacklist.c
+@@ -303,8 +303,10 @@ static void *
+ cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
+ {
+ 	struct ccwdev_iter *iter;
++	loff_t p = *offset;
+ 
+-	if (*offset >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
++	(*offset)++;
++	if (p >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
+ 		return NULL;
+ 	iter = it;
+ 	if (iter->devno == __MAX_SUBCHANNEL) {
+@@ -314,7 +316,6 @@ cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
+ 			return NULL;
+ 	} else
+ 		iter->devno++;
+-	(*offset)++;
+ 	return iter;
+ }
+ 
 -- 
-2.17.1
+2.20.1
