@@ -1,28 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15382 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728759AbgC3ItV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 30 Mar 2020 04:49:21 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [kvm-unit-tests 0/2] s390x/smp fix and enhancement
-Date: Mon, 30 Mar 2020 04:49:09 -0400
-Message-Id: <20200330084911.34248-1-borntraeger@de.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:47118 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729136AbgCCCuU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:50:20 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 12/13] s390/cio: cio_ignore_proc_seq_next should increase position index
+Date: Mon,  2 Mar 2020 21:50:01 -0500
+Message-Id: <20200303025002.10600-12-sashal@kernel.org>
+In-Reply-To: <20200303025002.10600-1-sashal@kernel.org>
+References: <20200303025002.10600-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Averin <vvs@virtuozzo.com>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Christian Borntraeger (2):
-  s390x/smp: fix detection of "running"
-  s390x/smp: add minimal test for sigp sense running status
+From: Vasily Averin <vvs@virtuozzo.com>
 
- lib/s390x/smp.c |  4 ++--
- lib/s390x/smp.h |  2 +-
- s390x/smp.c     | 11 +++++++++++
- 3 files changed, 14 insertions(+), 3 deletions(-)
+[ Upstream commit 8b101a5e14f2161869636ff9cb4907b7749dc0c2 ]
 
+if seq_file .next fuction does not change position index,
+read after some lseek can generate unexpected output.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
+Link: https://lore.kernel.org/r/d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/cio/blacklist.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
+index 9082476b51db9..4e9f794176d35 100644
+--- a/drivers/s390/cio/blacklist.c
++++ b/drivers/s390/cio/blacklist.c
+@@ -302,8 +302,10 @@ static void *
+ cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
+ {
+ 	struct ccwdev_iter *iter;
++	loff_t p = *offset;
+ 
+-	if (*offset >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
++	(*offset)++;
++	if (p >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
+ 		return NULL;
+ 	iter = it;
+ 	if (iter->devno == __MAX_SUBCHANNEL) {
+@@ -313,7 +315,6 @@ cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
+ 			return NULL;
+ 	} else
+ 		iter->devno++;
+-	(*offset)++;
+ 	return iter;
+ }
+ 
 -- 
-2.25.1
+2.20.1
