@@ -1,51 +1,113 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 53/73] s390/qeth: don't reset default_out_queue
-Date: Wed, 18 Mar 2020 16:53:17 -0400
-Message-Id: <20200318205337.16279-53-sashal@kernel.org>
-In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
-References: <20200318205337.16279-1-sashal@kernel.org>
+Subject: Re: [PATCH v2 1/2] mm/gup: fixup for 9947ea2c1e608e32 "mm/gup: track
+ FOLL_PIN pages"
+References: <20200303002506.173957-1-imbrenda@linux.ibm.com>
+ <20200303002506.173957-2-imbrenda@linux.ibm.com>
+From: John Hubbard <jhubbard@nvidia.com>
+Message-ID: <dbda1638-4de6-a90f-6000-30651a8d56f0@nvidia.com>
+Date: Mon, 2 Mar 2020 21:38:06 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200303002506.173957-2-imbrenda@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-next@vger.kernel.org, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name
+Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On 3/2/20 4:25 PM, Claudio Imbrenda wrote:
+> In case pin fails, we need to unpin, a simple put_page will not be enough
+> 
+> fixup for commit 9947ea2c1e608e32 ("mm/gup: track FOLL_PIN pages")
+> 
+> it can be simply squashed in
+> 
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>   mm/gup.c | 46 +++++++++++++++++++++++-----------------------
+>   1 file changed, 23 insertions(+), 23 deletions(-)
+> 
 
-[ Upstream commit 240c1948491b81cfe40f84ea040a8f2a4966f101 ]
 
-When an OSA device in prio-queue setup is reduced to 1 TX queue due to
-HW restrictions, we reset its the default_out_queue to 0.
+Looks good, thanks for fixing this.
 
-In the old code this was needed so that qeth_get_priority_queue() gets
-the queue selection right. But with proper multiqueue support we already
-reduced dev->real_num_tx_queues to 1, and so the stack puts all traffic
-on txq 0 without even calling .ndo_select_queue.
 
-Thus we can preserve the user's configuration, and apply it if the OSA
-device later re-gains support for multiple TX queues.
-
-Fixes: 73dc2daf110f ("s390/qeth: add TX multiqueue support for OSA devices")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_core_main.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index b727d1e34523e..ac8ad951a4203 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1244,7 +1244,6 @@ static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
- 	if (count == 1)
- 		dev_info(&card->gdev->dev, "Priority Queueing not supported\n");
- 
--	card->qdio.default_out_queue = single ? 0 : QETH_DEFAULT_QUEUE;
- 	card->qdio.no_out_queues = count;
- 	return 0;
- }
+thanks,
 -- 
-2.20.1
+John Hubbard
+NVIDIA
+
+
+> diff --git a/mm/gup.c b/mm/gup.c
+> index f589299b0d4a..81a95fbe9901 100644
+> --- a/mm/gup.c
+> +++ b/mm/gup.c
+> @@ -116,6 +116,28 @@ static __maybe_unused struct page *try_grab_compound_head(struct page *page,
+>   	return NULL;
+>   }
+>   
+> +static void put_compound_head(struct page *page, int refs, unsigned int flags)
+> +{
+> +	if (flags & FOLL_PIN) {
+> +		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED,
+> +				    refs);
+> +
+> +		if (hpage_pincount_available(page))
+> +			hpage_pincount_sub(page, refs);
+> +		else
+> +			refs *= GUP_PIN_COUNTING_BIAS;
+> +	}
+> +
+> +	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
+> +	/*
+> +	 * Calling put_page() for each ref is unnecessarily slow. Only the last
+> +	 * ref needs a put_page().
+> +	 */
+> +	if (refs > 1)
+> +		page_ref_sub(page, refs - 1);
+> +	put_page(page);
+> +}
+> +
+>   /**
+>    * try_grab_page() - elevate a page's refcount by a flag-dependent amount
+>    *
+> @@ -2134,7 +2156,7 @@ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+>   			goto pte_unmap;
+>   
+>   		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+> -			put_page(head);
+> +			put_compound_head(head, 1, flags);
+>   			goto pte_unmap;
+>   		}
+>   
+> @@ -2267,28 +2289,6 @@ static int record_subpages(struct page *page, unsigned long addr,
+>   	return nr;
+>   }
+>   
+> -static void put_compound_head(struct page *page, int refs, unsigned int flags)
+> -{
+> -	if (flags & FOLL_PIN) {
+> -		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED,
+> -				    refs);
+> -
+> -		if (hpage_pincount_available(page))
+> -			hpage_pincount_sub(page, refs);
+> -		else
+> -			refs *= GUP_PIN_COUNTING_BIAS;
+> -	}
+> -
+> -	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
+> -	/*
+> -	 * Calling put_page() for each ref is unnecessarily slow. Only the last
+> -	 * ref needs a put_page().
+> -	 */
+> -	if (refs > 1)
+> -		page_ref_sub(page, refs - 1);
+> -	put_page(page);
+> -}
+> -
+>   #ifdef CONFIG_ARCH_HAS_HUGEPD
+>   static unsigned long hugepte_addr_end(unsigned long addr, unsigned long end,
+>   				      unsigned long sz)
+> 
