@@ -5,22 +5,22 @@ References: <1581909460-19148-1-git-send-email-anshuman.khandual@arm.com>
  <1582726182.7365.123.camel@lca.pw>
  <7c707b7f-ce3d-993b-8042-44fdc1ed28bf@c-s.fr>
  <1582732318.7365.129.camel@lca.pw> <1583178042.7365.146.camel@lca.pw>
-From: Christophe Leroy <christophe.leroy@c-s.fr>
-Message-ID: <6757aa1d-7951-69ef-de93-50a7b7b172e0@c-s.fr>
-Date: Tue, 3 Mar 2020 06:59:39 +0100
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <e8516497-f1b9-b222-e219-73b68880ac75@arm.com>
+Date: Tue, 3 Mar 2020 11:25:37 +0530
 MIME-Version: 1.0
 In-Reply-To: <1583178042.7365.146.camel@lca.pw>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: fr
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Qian Cai <cai@lca.pw>, Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org
+To: Qian Cai <cai@lca.pw>, Christophe Leroy <christophe.leroy@c-s.fr>, linux-mm@kvack.org
 Cc: Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
 
-Le 02/03/2020 à 20:40, Qian Cai a écrit :
+On 03/03/2020 01:10 AM, Qian Cai wrote:
 > On Wed, 2020-02-26 at 10:51 -0500, Qian Cai wrote:
 >> On Wed, 2020-02-26 at 15:45 +0100, Christophe Leroy wrote:
 >>>
@@ -70,7 +70,7 @@ Le 02/03/2020 à 20:40, Qian Cai a écrit :
 >> and if it is actually worth "fixing" in the arch code, but that BUG_ON() was
 >> there since 2009 and had not been exposed until this patch comes alone?
 > 
-> This patch below makes it works on powerpc64 in order to dodge the BUG_ON()s in
+> This patch below makes it works on powerpc64 in order to dodge the BUG_ON()s in 
 > assert_pte_locked() triggered by pte_clear_tests().
 > 
 > 
@@ -79,60 +79,116 @@ Le 02/03/2020 à 20:40, Qian Cai a écrit :
 > --- a/mm/debug_vm_pgtable.c
 > +++ b/mm/debug_vm_pgtable.c
 > @@ -55,6 +55,8 @@
->   #define RANDOM_ORVALUE	GENMASK(BITS_PER_LONG - 1, S390_MASK_BITS)
->   #define RANDOM_NZVALUE	GENMASK(7, 0)
->   
+>  #define RANDOM_ORVALUE	GENMASK(BITS_PER_LONG - 1, S390_MASK_BITS)
+>  #define RANDOM_NZVALUE	GENMASK(7, 0)
+>  
 > +unsigned long vaddr;
 > +
-
-Can we avoid global var ?
-
->   static void __init pte_basic_tests(unsigned long pfn, pgprot_t prot)
->   {
->   	pte_t pte = pfn_pte(pfn, prot);
+>  static void __init pte_basic_tests(unsigned long pfn, pgprot_t prot)
+>  {
+>  	pte_t pte = pfn_pte(pfn, prot);
 > @@ -256,7 +258,7 @@ static void __init pte_clear_tests(struct mm_struct *mm,
 > pte_t *ptep)
->   
->   	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
->   	WRITE_ONCE(*ptep, pte);
+>  
+>  	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
+>  	WRITE_ONCE(*ptep, pte);
 > -	pte_clear(mm, 0, ptep);
 > +	pte_clear(mm, vaddr, ptep);
->   	pte = READ_ONCE(*ptep);
->   	WARN_ON(!pte_none(pte));
->   }
+>  	pte = READ_ONCE(*ptep);
+>  	WARN_ON(!pte_none(pte));
+>  }
 > @@ -310,8 +312,9 @@ void __init debug_vm_pgtable(void)
->   	pgtable_t saved_ptep;
->   	pgprot_t prot;
->   	phys_addr_t paddr;
+>  	pgtable_t saved_ptep;
+>  	pgprot_t prot;
+>  	phys_addr_t paddr;
 > -	unsigned long vaddr, pte_aligned, pmd_aligned;
-
-Can we pass local vaddr to pte_clear_tests() instead of making it a 
-global var ?
-
 > +	unsigned long pte_aligned, pmd_aligned;
->   	unsigned long pud_aligned, p4d_aligned, pgd_aligned;
+>  	unsigned long pud_aligned, p4d_aligned, pgd_aligned;
 > +	spinlock_t *ptl;
->   
->   	pr_info("Validating architecture page table helpers\n");
->   	prot = vm_get_page_prot(VMFLAGS);
+>  
+>  	pr_info("Validating architecture page table helpers\n");
+>  	prot = vm_get_page_prot(VMFLAGS);
 > @@ -344,7 +347,7 @@ void __init debug_vm_pgtable(void)
->   	p4dp = p4d_alloc(mm, pgdp, vaddr);
->   	pudp = pud_alloc(mm, p4dp, vaddr);
->   	pmdp = pmd_alloc(mm, pudp, vaddr);
+>  	p4dp = p4d_alloc(mm, pgdp, vaddr);
+>  	pudp = pud_alloc(mm, p4dp, vaddr);
+>  	pmdp = pmd_alloc(mm, pudp, vaddr);
 > -	ptep = pte_alloc_map(mm, pmdp, vaddr);
 > +	ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
->   
->   	/*
->   	 * Save all the page table page addresses as the page table
+>  
+>  	/*
+>  	 * Save all the page table page addresses as the page table
 > @@ -370,7 +373,7 @@ void __init debug_vm_pgtable(void)
->   	p4d_clear_tests(mm, p4dp);
->   	pgd_clear_tests(mm, pgdp);
->   
+>  	p4d_clear_tests(mm, p4dp);
+>  	pgd_clear_tests(mm, pgdp);
+>  
 > -	pte_unmap(ptep);
 > +	pte_unmap_unlock(ptep, ptl);
->   
->   	pmd_populate_tests(mm, pmdp, saved_ptep);
->   	pud_populate_tests(mm, pudp, saved_pmdp);
+>  
+>  	pmd_populate_tests(mm, pmdp, saved_ptep);
+>  	pud_populate_tests(mm, pudp, saved_pmdp);
 > 
 
-Christophe
+Below is slightly modified version of your change above and should still
+prevent the bug on powerpc. Will it be possible for you to re-test this
+? Once confirmed, will send a patch enabling this test on powerpc64
+keeping your authorship. Thank you.
+
+ mm/debug_vm_pgtable.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+index 96dd7d574cef..c310f52c2b80 100644
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -250,13 +250,14 @@ static void __init pgd_populate_tests(struct mm_struct *mm, pgd_t *pgdp,
+ }
+ #endif
+
+-static void __init pte_clear_tests(struct mm_struct *mm, pte_t *ptep)
++static void __init pte_clear_tests(struct mm_struct *mm, pte_t *ptep,
++                                  unsigned long vaddr)
+ {
+        pte_t pte = READ_ONCE(*ptep);
+
+        pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
+        WRITE_ONCE(*ptep, pte);
+-       pte_clear(mm, 0, ptep);
++       pte_clear(mm, vaddr, ptep);
+        pte = READ_ONCE(*ptep);
+        WARN_ON(!pte_none(pte));
+ }
+@@ -302,6 +303,7 @@ static unsigned long __init get_random_vaddr(void)
+ void __init debug_vm_pgtable(void)
+ {
+        struct mm_struct *mm;
++       spinlock_t *uninitialized_var(ptl);
+        pgd_t *pgdp;
+        p4d_t *p4dp, *saved_p4dp;
+        pud_t *pudp, *saved_pudp;
+@@ -344,7 +346,7 @@ void __init debug_vm_pgtable(void)
+        p4dp = p4d_alloc(mm, pgdp, vaddr);
+        pudp = pud_alloc(mm, p4dp, vaddr);
+        pmdp = pmd_alloc(mm, pudp, vaddr);
+-       ptep = pte_alloc_map(mm, pmdp, vaddr);
++       ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
+
+        /*
+         * Save all the page table page addresses as the page table
+@@ -364,13 +366,13 @@ void __init debug_vm_pgtable(void)
+        p4d_basic_tests(p4d_aligned, prot);
+        pgd_basic_tests(pgd_aligned, prot);
+
+-       pte_clear_tests(mm, ptep);
++       pte_clear_tests(mm, ptep, vaddr);
+        pmd_clear_tests(mm, pmdp);
+        pud_clear_tests(mm, pudp);
+        p4d_clear_tests(mm, p4dp);
+        pgd_clear_tests(mm, pgdp);
+
+-       pte_unmap(ptep);
++       pte_unmap_unlock(ptep, ptl);
+
+        pmd_populate_tests(mm, pmdp, saved_ptep);
+        pud_populate_tests(mm, pudp, saved_pmdp);
+-- 
+2.20.1
