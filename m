@@ -1,65 +1,48 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37270 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728848AbgCCONB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Mar 2020 09:13:01 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 023DtUkh018359
-        for <linux-s390@vger.kernel.org>; Tue, 3 Mar 2020 09:13:01 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yfmwwbuma-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 03 Mar 2020 09:13:00 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Tue, 3 Mar 2020 14:12:58 -0000
-Date: Tue, 3 Mar 2020 15:12:52 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 0/2] virtio-blk: improve handling of DMA mapping
- failures
-In-Reply-To: <20200213123728.61216-1-pasic@linux.ibm.com>
-References: <20200213123728.61216-1-pasic@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:42376 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728000AbgCCCrX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:47:23 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 54/66] s390/qeth: fix off-by-one in RX copybreak check
+Date: Mon,  2 Mar 2020 21:46:03 -0500
+Message-Id: <20200303024615.8889-54-sashal@kernel.org>
+In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
+References: <20200303024615.8889-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200303151252.59d45e86.pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-On Thu, 13 Feb 2020 13:37:26 +0100
-Halil Pasic <pasic@linux.ibm.com> wrote:
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-> Two patches are handling new edge cases introduced by doing DMA mappings
-> (which can fail) in virtio core.
-> 
-> I stumbled upon this while stress testing I/O for Protected Virtual
-> Machines. I deliberately chose a tiny swiotlb size and have generated
-> load with fio. With more than one virtio-blk disk in use I experienced
-> hangs.
-> 
-> The goal of this series is to fix those hangs.
-> 
-> Halil Pasic (2):
->   virtio-blk: fix hw_queue stopped on arbitrary error
->   virtio-blk: improve virtqueue error to BLK_STS
-> 
->  drivers/block/virtio_blk.c | 17 ++++++++++++-----
->  1 file changed, 12 insertions(+), 5 deletions(-)
-> 
-> 
-> base-commit: 39bed42de2e7d74686a2d5a45638d6a5d7e7d473
+[ Upstream commit 54a61fbc020fd2e305680871c453abcf7fc0339b ]
 
-ping
+The RX copybreak is intended as the _max_ value where the frame's data
+should be copied. So for frame_len == copybreak, don't build an SG skb.
 
-Hi Michael, hi Jason,
+Fixes: 4a71df50047f ("qeth: new qeth device driver")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/net/qeth_core_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I got some favorable reviews for this, but AFAIK I got nothing form the
-maintainers yet.
-
-Is some of you going to pick these?
-
-Regards,
-Halil
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 623475717183e..4fd7b0ceb4ffd 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5141,7 +5141,7 @@ struct sk_buff *qeth_core_get_next_skb(struct qeth_card *card,
+ 	}
+ 
+ 	use_rx_sg = (card->options.cq == QETH_CQ_ENABLED) ||
+-		    ((skb_len >= card->options.rx_sg_cb) &&
++		    (skb_len > card->options.rx_sg_cb &&
+ 		     !atomic_read(&card->force_alloc_skb) &&
+ 		     !IS_OSN(card));
+ 
+-- 
+2.20.1
