@@ -1,142 +1,232 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63900 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51230 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726523AbgCIIvg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:36 -0400
+        by vger.kernel.org with ESMTP id S1728480AbgCCKmC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Mar 2020 05:42:02 -0500
 Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298oRM4056834
-        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:36 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym8k7cx52-1
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 023AadQT031049
+        for <linux-s390@vger.kernel.org>; Tue, 3 Mar 2020 05:42:01 -0500
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yfmww5a1q-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:36 -0400
+        for <linux-s390@vger.kernel.org>; Tue, 03 Mar 2020 05:42:00 -0500
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 9 Mar 2020 08:51:33 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 05/36] s390/protvirt: Add sysfs firmware interface for Ultravisor information
-Date: Mon,  9 Mar 2020 09:50:55 +0100
-In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
-References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Tue, 3 Mar 2020 10:41:58 -0000
+Date: Tue, 3 Mar 2020 11:41:49 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v2 2/2] mm/gup/writeback: add callbacks for inaccessible
+ pages
+In-Reply-To: <99903e77-7720-678e-35c5-6eb9e35e7fcb@nvidia.com>
+References: <20200303002506.173957-1-imbrenda@linux.ibm.com>
+        <20200303002506.173957-3-imbrenda@linux.ibm.com>
+        <99903e77-7720-678e-35c5-6eb9e35e7fcb@nvidia.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200309085126.3334302-6-borntraeger@de.ibm.com>
+Message-Id: <20200303114149.54c072d1@p-imbrenda>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: John Hubbard <jhubbard@nvidia.com>
+Cc: linux-next@vger.kernel.org, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name, borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Will Deacon <will@kernel.org>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On Mon, 2 Mar 2020 23:59:32 -0800
+John Hubbard <jhubbard@nvidia.com> wrote:
 
-That information, e.g. the maximum number of guests or installed
-Ultravisor facilities, is interesting for QEMU, Libvirt and
-administrators.
+> On 3/2/20 4:25 PM, Claudio Imbrenda wrote:
+> > With the introduction of protected KVM guests on s390 there is now a
+> > concept of inaccessible pages. These pages need to be made
+> > accessible before the host can access them.
+> > 
+> > While cpu accesses will trigger a fault that can be resolved, I/O
+> > accesses will just fail.  We need to add a callback into
+> > architecture code for places that will do I/O, namely when
+> > writeback is started or when a page reference is taken.
+> > 
+> > This is not only to enable paging, file backing etc, it is also
+> > necessary to protect the host against a malicious user space.  For
+> > example a bad QEMU could simply start direct I/O on such protected
+> > memory.  We do not want userspace to be able to trigger I/O errors
+> > and thus the logic is "whenever somebody accesses that page (gup)
+> > or does I/O, make sure that this page can be accessed".  When the
+> > guest tries to access that page we will wait in the page fault
+> > handler for writeback to have finished and for the page_ref to be
+> > the expected value.
+> > 
+> > On s390x the function is not supposed to fail, so it is ok to use a
+> > WARN_ON on failure. If we ever need some more finegrained handling
+> > we can tackle this when we know the details.
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Acked-by: Will Deacon <will@kernel.org>
+> > Reviewed-by: David Hildenbrand <david@redhat.com>
+> > Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > ---
+> >   include/linux/gfp.h |  6 ++++++
+> >   mm/gup.c            | 27 ++++++++++++++++++++++++---
+> >   mm/page-writeback.c |  5 +++++
+> >   3 files changed, 35 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+> > index e5b817cb86e7..be2754841369 100644
+> > --- a/include/linux/gfp.h
+> > +++ b/include/linux/gfp.h
+> > @@ -485,6 +485,12 @@ static inline void arch_free_page(struct page
+> > *page, int order) { } #ifndef HAVE_ARCH_ALLOC_PAGE
+> >   static inline void arch_alloc_page(struct page *page, int order)
+> > { } #endif
+> > +#ifndef HAVE_ARCH_MAKE_PAGE_ACCESSIBLE
+> > +static inline int arch_make_page_accessible(struct page *page)
+> > +{
+> > +	return 0;
+> > +}
+> > +#endif
+> >   
+> >   struct page *
+> >   __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order, int
+> > preferred_nid, diff --git a/mm/gup.c b/mm/gup.c
+> > index 81a95fbe9901..15c47e0e86f8 100644
+> > --- a/mm/gup.c
+> > +++ b/mm/gup.c
+> > @@ -413,6 +413,7 @@ static struct page *follow_page_pte(struct
+> > vm_area_struct *vma, struct page *page;
+> >   	spinlock_t *ptl;
+> >   	pte_t *ptep, pte;
+> > +	int ret;
+> >   
+> >   	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
+> >   	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
+> > @@ -471,8 +472,6 @@ static struct page *follow_page_pte(struct
+> > vm_area_struct *vma, if (is_zero_pfn(pte_pfn(pte))) {
+> >   			page = pte_page(pte);
+> >   		} else {
+> > -			int ret;
+> > -
+> >   			ret = follow_pfn_pte(vma, address, ptep,
+> > flags); page = ERR_PTR(ret);
+> >   			goto out;
+> > @@ -480,7 +479,6 @@ static struct page *follow_page_pte(struct
+> > vm_area_struct *vma, }
+> >   
+> >   	if (flags & FOLL_SPLIT && PageTransCompound(page)) {
+> > -		int ret;
+> >   		get_page(page);
+> >   		pte_unmap_unlock(ptep, ptl);
+> >   		lock_page(page);
+> > @@ -497,6 +495,19 @@ static struct page *follow_page_pte(struct
+> > vm_area_struct *vma, page = ERR_PTR(-ENOMEM);
+> >   		goto out;
+> >   	}
+> > +	/*
+> > +	 * We need to make the page accessible if we are actually
+> > going to
+> > +	 * poke at its content (pin), otherwise we can leave it
+> > inaccessible.
+> > +	 * If we cannot make the page accessible, fail.
+> > +	 */
+> > +	if (flags & FOLL_PIN) {
+> > +		ret = arch_make_page_accessible(page);
+> > +		if (ret) {
+> > +			unpin_user_page(page);
+> > +			page = ERR_PTR(ret);
+> > +			goto out;
+> > +		}
+> > +	}  
+> 
+> 
+> That looks good.
+> 
+> 
+> >   	if (flags & FOLL_TOUCH) {
+> >   		if ((flags & FOLL_WRITE) &&
+> >   		    !pte_dirty(pte) && !PageDirty(page))
+> > @@ -2162,6 +2173,16 @@ static int gup_pte_range(pmd_t pmd, unsigned
+> > long addr, unsigned long end, 
+> >   		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+> >   
+> > +		/*
+> > +		 * We need to make the page accessible if we are
+> > actually
+> > +		 * going to poke at its content (pin), otherwise
+> > we can
+> > +		 * leave it inaccessible. If the page cannot be
+> > made
+> > +		 * accessible, fail.
+> > +		 */  
+> 
+> 
+> This part looks good, so these two points are just nits:
+> 
+> That's a little bit of repeating what the code does, in the comments.
+> How about:
+> 
+> 		/*
+> 		 * We need to make the page accessible if and only if
+> we are
+> 		 * going to access its content (the FOLL_PIN case).
+> Please see
+> 		 * Documentation/core-api/pin_user_pages.rst for
+> details. */
+> 
+> 
+> > +		if ((flags & FOLL_PIN) &&
+> > arch_make_page_accessible(page)) {
+> > +			unpin_user_page(page);
+> > +			goto pte_unmap;
+> > +		}  
+> 
+> 
+> Your style earlier in the patch was easier on the reader, why not
+> stay consistent with that (and with this file, which tends also to do
+> this), so:
+> 
+> 		if (flags & FOLL_PIN) {
+> 			ret = arch_make_page_accessible(page);
+> 			if (ret) {
+> 				unpin_user_page(page);
+> 				goto pte_unmap;
+> 			}
+> 		}
+> 
+> 
+> 
+> 
+> >   		SetPageReferenced(page);
+> >   		pages[*nr] = page;
+> >   		(*nr)++;
+> > diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+> > index ab5a3cee8ad3..8384be5a2758 100644
+> > --- a/mm/page-writeback.c
+> > +++ b/mm/page-writeback.c
+> > @@ -2807,6 +2807,11 @@ int __test_set_page_writeback(struct page
+> > *page, bool keep_write) inc_zone_page_state(page,
+> > NR_ZONE_WRITE_PENDING); }
+> >   	unlock_page_memcg(page);
+> > +	/*
+> > +	 * If writeback has been triggered on a page that cannot
+> > be made
+> > +	 * accessible, it is too late.
+> > +	 */
+> > +	WARN_ON(arch_make_page_accessible(page));  
+> 
+> 
+> I'm not deep enough into this area to know if a) this is correct, and
+> b) if there are any other places that need
+> arch_make_page_accessible() calls. So I'll rely on other reviewers to
+> help check on that.
+> 
+> 
+> >   	return ret;
+> >   
+> >   }
+> >   
+> 
+> Anyway, I don't see any problems, and as I said, those documentation
+> and style points are just nitpicks, not bugs.
 
-Let's provide an easily parsable API to get that information.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kernel/uv.c | 87 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 87 insertions(+)
+these are minor fixes, and I mostly agree with you. I'll fix them and
+send a v3 soon™
 
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index 4539003dac9d..c86d654351d1 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -325,3 +325,90 @@ int arch_make_page_accessible(struct page *page)
- EXPORT_SYMBOL_GPL(arch_make_page_accessible);
- 
- #endif
-+
-+#if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) || IS_ENABLED(CONFIG_KVM)
-+static ssize_t uv_query_facilities(struct kobject *kobj,
-+				   struct kobj_attribute *attr, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%lx\n%lx\n%lx\n%lx\n",
-+			uv_info.inst_calls_list[0],
-+			uv_info.inst_calls_list[1],
-+			uv_info.inst_calls_list[2],
-+			uv_info.inst_calls_list[3]);
-+}
-+
-+static struct kobj_attribute uv_query_facilities_attr =
-+	__ATTR(facilities, 0444, uv_query_facilities, NULL);
-+
-+static ssize_t uv_query_max_guest_cpus(struct kobject *kobj,
-+				       struct kobj_attribute *attr, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%d\n",
-+			uv_info.max_guest_cpus);
-+}
-+
-+static struct kobj_attribute uv_query_max_guest_cpus_attr =
-+	__ATTR(max_cpus, 0444, uv_query_max_guest_cpus, NULL);
-+
-+static ssize_t uv_query_max_guest_vms(struct kobject *kobj,
-+				      struct kobj_attribute *attr, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%d\n",
-+			uv_info.max_num_sec_conf);
-+}
-+
-+static struct kobj_attribute uv_query_max_guest_vms_attr =
-+	__ATTR(max_guests, 0444, uv_query_max_guest_vms, NULL);
-+
-+static ssize_t uv_query_max_guest_addr(struct kobject *kobj,
-+				       struct kobj_attribute *attr, char *page)
-+{
-+	return snprintf(page, PAGE_SIZE, "%lx\n",
-+			uv_info.max_sec_stor_addr);
-+}
-+
-+static struct kobj_attribute uv_query_max_guest_addr_attr =
-+	__ATTR(max_address, 0444, uv_query_max_guest_addr, NULL);
-+
-+static struct attribute *uv_query_attrs[] = {
-+	&uv_query_facilities_attr.attr,
-+	&uv_query_max_guest_cpus_attr.attr,
-+	&uv_query_max_guest_vms_attr.attr,
-+	&uv_query_max_guest_addr_attr.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group uv_query_attr_group = {
-+	.attrs = uv_query_attrs,
-+};
-+
-+static struct kset *uv_query_kset;
-+static struct kobject *uv_kobj;
-+
-+static int __init uv_info_init(void)
-+{
-+	int rc = -ENOMEM;
-+
-+	if (!test_facility(158))
-+		return 0;
-+
-+	uv_kobj = kobject_create_and_add("uv", firmware_kobj);
-+	if (!uv_kobj)
-+		return -ENOMEM;
-+
-+	uv_query_kset = kset_create_and_add("query", NULL, uv_kobj);
-+	if (!uv_query_kset)
-+		goto out_kobj;
-+
-+	rc = sysfs_create_group(&uv_query_kset->kobj, &uv_query_attr_group);
-+	if (!rc)
-+		return 0;
-+
-+	kset_unregister(uv_query_kset);
-+out_kobj:
-+	kobject_del(uv_kobj);
-+	kobject_put(uv_kobj);
-+	return rc;
-+}
-+device_initcall(uv_info_init);
-+#endif
--- 
-2.24.1
+thanks for the comments!
