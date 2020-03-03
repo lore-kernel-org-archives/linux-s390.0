@@ -1,138 +1,65 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 01/11] s390/qeth: simplify RX buffer tracking
-Date: Tue, 24 Mar 2020 19:24:38 +0100
-In-Reply-To: <20200324182448.95362-1-jwi@linux.ibm.com>
-References: <20200324182448.95362-1-jwi@linux.ibm.com>
-Message-Id: <20200324182448.95362-2-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:44086 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728394AbgCCCsW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 2 Mar 2020 21:48:22 -0500
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 34/58] s390: make 'install' not depend on vmlinux
+Date: Mon,  2 Mar 2020 21:47:16 -0500
+Message-Id: <20200303024740.9511-34-sashal@kernel.org>
+In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
+References: <20200303024740.9511-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Masahiro Yamada <masahiroy@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Since RX buffers may contain multiple packets, qeth's NAPI poll code can
-exhaust its budget in the middle of an RX buffer. Thus we keep track of
-our current position within the active RX buffer, so we can resume
-processing here in the next NAPI poll period.
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-Clean up that code by tracking the index of the active buffer element,
-instead of a pointer to it.
-Also simplify the code that advances to the next RX buffer when the
-current buffer has been fully processed.
+[ Upstream commit 94e90f727f7424d827256023cace829cad6896f4 ]
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+For the same reason as commit 19514fc665ff ("arm, kbuild: make "make
+install" not depend on vmlinux"), the install targets should never
+trigger the rebuild of the kernel.
+
+The variable, CONFIGURE, is not set by anyone. Remove it as well.
+
+Link: https://lkml.kernel.org/r/20200216144829.27023-1-masahiroy@kernel.org
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/qdio.h      |  2 ++
- drivers/s390/net/qeth_core.h      |  2 +-
- drivers/s390/net/qeth_core_main.c | 30 ++++++++++++------------------
- 3 files changed, 15 insertions(+), 19 deletions(-)
+ arch/s390/Makefile      | 2 +-
+ arch/s390/boot/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/qdio.h b/arch/s390/include/asm/qdio.h
-index 1e3517b0518b..6ea3a1d5fe7f 100644
---- a/arch/s390/include/asm/qdio.h
-+++ b/arch/s390/include/asm/qdio.h
-@@ -222,6 +222,8 @@ struct qdio_buffer {
- 	struct qdio_buffer_element element[QDIO_MAX_ELEMENTS_PER_BUFFER];
- } __attribute__ ((packed, aligned(256)));
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index 9ce1baeac2b25..2faaf456956a6 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -146,7 +146,7 @@ all: bzImage
+ #KBUILD_IMAGE is necessary for packaging targets like rpm-pkg, deb-pkg...
+ KBUILD_IMAGE	:= $(boot)/bzImage
  
-+#define QDIO_ELEMENT_NO(buf, element)	(element - &buf->element[0])
-+
- /**
-  * struct sl_element - storage list entry
-  * @sbal: absolute SBAL address
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 6eb431c194bd..9840d4fab010 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -752,7 +752,7 @@ enum qeth_addr_disposition {
- struct qeth_rx {
- 	int b_count;
- 	int b_index;
--	struct qdio_buffer_element *b_element;
-+	u8 buf_element;
- 	int e_offset;
- 	int qdio_err;
- };
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index bd3adbb6ad50..b25d44c83997 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5332,14 +5332,13 @@ static inline int qeth_is_last_sbale(struct qdio_buffer_element *sbale)
- }
+-install: vmlinux
++install:
+ 	$(Q)$(MAKE) $(build)=$(boot) $@
  
- static int qeth_extract_skb(struct qeth_card *card,
--			    struct qeth_qdio_buffer *qethbuffer,
--			    struct qdio_buffer_element **__element,
-+			    struct qeth_qdio_buffer *qethbuffer, u8 *element_no,
- 			    int *__offset)
- {
--	struct qdio_buffer_element *element = *__element;
- 	struct qeth_priv *priv = netdev_priv(card->dev);
- 	struct qdio_buffer *buffer = qethbuffer->buffer;
- 	struct napi_struct *napi = &card->napi;
-+	struct qdio_buffer_element *element;
- 	unsigned int linear_len = 0;
- 	bool uses_frags = false;
- 	int offset = *__offset;
-@@ -5349,6 +5348,8 @@ static int qeth_extract_skb(struct qeth_card *card,
- 	struct sk_buff *skb;
- 	int skb_len = 0;
+ bzImage: vmlinux
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index e2c47d3a1c891..0ff9261c915e3 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -70,7 +70,7 @@ $(obj)/compressed/vmlinux: $(obj)/startup.a FORCE
+ $(obj)/startup.a: $(OBJECTS) FORCE
+ 	$(call if_changed,ar)
  
-+	element = &buffer->element[*element_no];
-+
- next_packet:
- 	/* qeth_hdr must not cross element boundaries */
- 	while (element->length < offset + sizeof(struct qeth_hdr)) {
-@@ -5504,7 +5505,7 @@ static int qeth_extract_skb(struct qeth_card *card,
- 	if (!skb)
- 		goto next_packet;
+-install: $(CONFIGURE) $(obj)/bzImage
++install:
+ 	sh -x  $(srctree)/$(obj)/install.sh $(KERNELRELEASE) $(obj)/bzImage \
+ 	      System.map "$(INSTALL_PATH)"
  
--	*__element = element;
-+	*element_no = QDIO_ELEMENT_NO(buffer, element);
- 	*__offset = offset;
- 
- 	qeth_receive_skb(card, skb, hdr, uses_frags);
-@@ -5519,7 +5520,7 @@ static int qeth_extract_skbs(struct qeth_card *card, int budget,
- 	*done = false;
- 
- 	while (budget) {
--		if (qeth_extract_skb(card, buf, &card->rx.b_element,
-+		if (qeth_extract_skb(card, buf, &card->rx.buf_element,
- 				     &card->rx.e_offset)) {
- 			*done = true;
- 			break;
-@@ -5550,10 +5551,6 @@ int qeth_poll(struct napi_struct *napi, int budget)
- 				card->rx.b_count = 0;
- 				break;
- 			}
--			card->rx.b_element =
--				&card->qdio.in_q->bufs[card->rx.b_index]
--				.buffer->element[0];
--			card->rx.e_offset = 0;
- 		}
- 
- 		while (card->rx.b_count) {
-@@ -5572,15 +5569,12 @@ int qeth_poll(struct napi_struct *napi, int budget)
- 					buffer->pool_entry);
- 				qeth_queue_input_buffer(card, card->rx.b_index);
- 				card->rx.b_count--;
--				if (card->rx.b_count) {
--					card->rx.b_index =
--						QDIO_BUFNR(card->rx.b_index + 1);
--					card->rx.b_element =
--						&card->qdio.in_q
--						->bufs[card->rx.b_index]
--						.buffer->element[0];
--					card->rx.e_offset = 0;
--				}
-+
-+				/* Step forward to next buffer: */
-+				card->rx.b_index =
-+					QDIO_BUFNR(card->rx.b_index + 1);
-+				card->rx.buf_element = 0;
-+				card->rx.e_offset = 0;
- 			}
- 
- 			if (work_done >= budget)
 -- 
-2.17.1
+2.20.1
