@@ -1,51 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64834 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726389AbgCJIdy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Mar 2020 04:33:54 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02A8PFQW046950
-        for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2020 04:33:54 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ynraxcmca-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2020 04:33:54 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <kgraul@linux.ibm.com>;
-        Tue, 10 Mar 2020 08:33:52 -0000
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH v2 net] net/smc: cancel event worker during device removal
-Date: Tue, 10 Mar 2020 09:33:30 +0100
-Message-Id: <20200310083330.90427-1-kgraul@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:43564 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725839AbgCEGXX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 5 Mar 2020 01:23:23 -0500
+Subject: Re: [PATCH V14] mm/debug: Add tests validating architecture page
+ table helpers
+References: <c022e863-0807-fab1-cd41-3c320381f448@c-s.fr>
+ <11F41980-97CF-411F-8120-41287DC1A382@lca.pw>
+ <57a3bc61-bbd5-e251-9621-7bc28f7901a1@arm.com>
+ <bcba7b7f-f351-4ee7-d74e-004a0bfbee47@c-s.fr>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <d198fc5a-5337-c346-a21c-1ff133202e68@arm.com>
+Date: Thu, 5 Mar 2020 11:53:12 +0530
+MIME-Version: 1.0
+In-Reply-To: <bcba7b7f-f351-4ee7-d74e-004a0bfbee47@c-s.fr>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: leon@kernel.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Christophe Leroy <christophe.leroy@c-s.fr>, Qian Cai <cai@lca.pw>
+Cc: Linux Memory Management List <linux-mm@kvack.org>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, the arch/x86 maintainers <x86@kernel.org>, linux-arch@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 
-During IB device removal, cancel the event worker before the device
-structure is freed.
 
-Fixes: a4cf0443c414 ("smc: introduce SMC as an IB-client")
-Reported-by: syzbot+b297c6825752e7a07272@syzkaller.appspotmail.com
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_ib.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index d6ba186f67e2..05b825b3cfa4 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -582,6 +582,7 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
- 	smc_smcr_terminate_all(smcibdev);
- 	smc_ib_cleanup_per_ibdev(smcibdev);
- 	ib_unregister_event_handler(&smcibdev->event_handler);
-+	cancel_work_sync(&smcibdev->port_event_work);
- 	kfree(smcibdev);
- }
- 
--- 
-2.17.1
+On 03/05/2020 11:13 AM, Christophe Leroy wrote:
+> 
+> 
+> Le 05/03/2020 à 01:54, Anshuman Khandual a écrit :
+>>
+>>
+>> On 03/04/2020 04:59 PM, Qian Cai wrote:
+>>>
+>>>
+>>>> On Mar 4, 2020, at 1:49 AM, Christophe Leroy <christophe.leroy@c-s.fr> wrote:
+>>>>
+>>>> AFAIU, you are not taking an interrupt here. You are stuck in the pte_update(), most likely due to nested locks. Try with LOCKDEP ?
+>>>
+>>> Not exactly sure what did you mean here, but the kernel has all lockdep enabled and did not flag anything here.
+>>
+>> As the patch has been dropped from Linux next (next-20200304) perhaps in
+>> order to fold back the __pa_symbol() fix [1], so I am planning to respin
+>> the original patch once more as V15 while adding Qian's signed off by for
+>> the powerpc part. For now lets enable radix MMU ppc64 along with existing
+>> ppc32. As PPC_RADIX_MMU depends on PPC_BOOK3S_64, the following change
+>> should be good enough ?
+> 
+> I don't think so, even if you have the Radix MMU compiled in, hash MMU is used when Radix is not available or disabled. So until the Hash MMU problem is fixed, you cannot enable it by default.
+
+So this implies, that with DEBUG_VM given kernel compiled with Radix MMU will
+get stuck in soft lock up when forced to use hash MMU in cases where Radix MMU
+is either not available or is disabled. Hence, we cannot enable that.
+
+I will still fold the changes from Qian without enabling ppc64 Radix MMU and
+respin V15. These new changes dont hurt, build every where and works good
+on arm64 and x86 platforms. More over we know that they also fix a problem
+for ppc64 Radix MMU platforms. Hence unless there are some other concerns we
+should fold them in.
+
+> 
+> Christophe
+> 
