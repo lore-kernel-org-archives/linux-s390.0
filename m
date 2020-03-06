@@ -1,77 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22804 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10118 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726659AbgCIIvp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:45 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298ohcn006635
-        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:44 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ynj6egxar-1
+        by vger.kernel.org with ESMTP id S1726091AbgCFINg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Mar 2020 03:13:36 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0268A58f087960
+        for <linux-s390@vger.kernel.org>; Fri, 6 Mar 2020 03:13:34 -0500
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yj6nmgaj5-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:44 -0400
+        for <linux-s390@vger.kernel.org>; Fri, 06 Mar 2020 03:13:29 -0500
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 9 Mar 2020 08:51:42 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 29/36] KVM: s390: protvirt: Support cmd 5 operation state
-Date: Mon,  9 Mar 2020 09:51:19 +0100
-In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
-References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200309085126.3334302-30-borntraeger@de.ibm.com>
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Fri, 6 Mar 2020 08:13:21 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 1/2] s390/qdio: add tighter controls for IRQ polling
+Date: Fri,  6 Mar 2020 09:13:10 +0100
+In-Reply-To: <20200306081311.50635-1-jwi@linux.ibm.com>
+References: <20200306081311.50635-1-jwi@linux.ibm.com>
+Message-Id: <20200306081311.50635-2-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Qian Cai <cai@lca.pw>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Once the call to qdio_establish() has completed, qdio is free to deliver
+data IRQs to the device driver's IRQ poll handler.
 
-Code 5 for the set cpu state UV call tells the UV to load a PSW from
-the SE header (first IPL) or from guest location 0x0 (diag 308 subcode
-0/1). Also it sets the cpu into operating state afterwards, so we can
-start it.
+For qeth (the only qdio driver that currently uses IRQ polling) this is
+problematic, since the IRQs can arrive before its NAPI instance is
+even registered. Calling napi_schedule() from qeth_qdio_start_poll()
+then crashes in various nasty ways.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Until recently qeth checked for IFF_UP to drop such early interrupts,
+but that's fragile as well since it doesn't enforce any ordering.
+
+Fix this properly by bringing up the qdio device in IRQS_DISABLED mode,
+and have the driver explicitly opt-in to receive data IRQs.
+qeth does so from qeth_open(), which kick-starts a NAPI poll and then
+calls qdio_start_irq() from qeth_poll().
+
+Also add a matching qdio_stop_irq() in qeth_stop() to switch the qdio
+dataplane back into a disabled state.
+
+Fixes: 3d35dbe6224e ("s390/qeth: don't check for IFF_UP when scheduling napi")
+CC: Qian Cai <cai@lca.pw>
+Reported-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
 ---
- arch/s390/include/asm/uv.h | 1 +
- arch/s390/kvm/kvm-s390.c   | 6 ++++++
- 2 files changed, 7 insertions(+)
+ drivers/s390/cio/qdio_setup.c     | 11 +++++++++--
+ drivers/s390/net/qeth_core_main.c |  5 ++---
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index fc221d91a965..e55727b63a68 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -169,6 +169,7 @@ struct uv_cb_unp {
- #define PV_CPU_STATE_OPR	1
- #define PV_CPU_STATE_STP	2
- #define PV_CPU_STATE_CHKSTP	3
-+#define PV_CPU_STATE_OPR_LOAD	5
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index e115623b86b2..66e4bdca9d89 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -224,8 +224,15 @@ static void setup_queues(struct qdio_irq *irq_ptr,
+ 		setup_queues_misc(q, irq_ptr, qdio_init->input_handler, i);
  
- struct uv_cb_cpu_set_state {
- 	struct uv_cb_header header;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 80e16bd72d48..028ce4e74393 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3736,6 +3736,12 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
- 		rc = kvm_s390_vcpu_start(vcpu);
- 		break;
- 	case KVM_MP_STATE_LOAD:
-+		if (!kvm_s390_pv_cpu_is_protected(vcpu)) {
-+			rc = -ENXIO;
-+			break;
+ 		q->is_input_q = 1;
+-		q->u.in.queue_start_poll = qdio_init->queue_start_poll_array ?
+-				qdio_init->queue_start_poll_array[i] : NULL;
++		if (qdio_init->queue_start_poll_array &&
++		    qdio_init->queue_start_poll_array[i]) {
++			q->u.in.queue_start_poll =
++				qdio_init->queue_start_poll_array[i];
++			set_bit(QDIO_QUEUE_IRQS_DISABLED,
++				&q->u.in.queue_irq_state);
++		} else {
++			q->u.in.queue_start_poll = NULL;
 +		}
-+		rc = kvm_s390_pv_set_cpu_state(vcpu, PV_CPU_STATE_OPR_LOAD);
-+		break;
- 	case KVM_MP_STATE_CHECK_STOP:
- 		/* fall through - CHECK_STOP and LOAD are not supported yet */
- 	default:
+ 
+ 		setup_storage_lists(q, irq_ptr, input_sbal_array, i);
+ 		input_sbal_array += QDIO_MAX_BUFFERS_PER_Q;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index fdc50543ce9a..37c17ad8ee25 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -6582,9 +6582,6 @@ int qeth_open(struct net_device *dev)
+ 
+ 	QETH_CARD_TEXT(card, 4, "qethopen");
+ 
+-	if (qdio_stop_irq(CARD_DDEV(card), 0) < 0)
+-		return -EIO;
+-
+ 	card->data.state = CH_STATE_UP;
+ 	netif_tx_start_all_queues(dev);
+ 
+@@ -6634,6 +6631,8 @@ int qeth_stop(struct net_device *dev)
+ 	}
+ 
+ 	napi_disable(&card->napi);
++	qdio_stop_irq(CARD_DDEV(card), 0);
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(qeth_stop);
 -- 
-2.24.1
+2.17.1
