@@ -1,118 +1,99 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36532 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726733AbgCIIvo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:44 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298pIRx001927
-        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:43 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym5cnrkea-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:43 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 9 Mar 2020 08:51:41 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 27/36] KVM: s390: protvirt: UV calls in support of diag308 0, 1
-Date: Mon,  9 Mar 2020 09:51:17 +0100
-In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
-References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH v4 1/2] mm/gup: fixup for 9947ea2c1e608e32 "mm/gup: track FOLL_PIN pages"
+Date: Fri,  6 Mar 2020 14:25:36 +0100
+In-Reply-To: <20200306132537.783769-1-imbrenda@linux.ibm.com>
+References: <20200306132537.783769-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200309085126.3334302-28-borntraeger@de.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Message-Id: <20200306132537.783769-2-imbrenda@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: linux-next@vger.kernel.org, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name
+Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+In case pin fails, we need to unpin, a simple put_page will not be enough
 
-diag 308 subcode 0 and 1 require several KVM and Ultravisor interactions.
-Specific to these "soft" reboots are
+fixup for commit 9947ea2c1e608e32 ("mm/gup: track FOLL_PIN pages")
 
-* The "unshare all" UVC
-* The "prepare for reset" UVC
+it can be simply squashed in
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 ---
- arch/s390/include/asm/uv.h |  4 ++++
- arch/s390/kvm/kvm-s390.c   | 22 ++++++++++++++++++++++
- include/uapi/linux/kvm.h   |  2 ++
- 3 files changed, 28 insertions(+)
+ mm/gup.c | 46 +++++++++++++++++++++++-----------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index 91ef26983bfd..f149c29ddb84 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -36,6 +36,8 @@
- #define UVC_CMD_SET_SEC_CONF_PARAMS	0x0300
- #define UVC_CMD_UNPACK_IMG		0x0301
- #define UVC_CMD_VERIFY_IMG		0x0302
-+#define UVC_CMD_PREPARE_RESET		0x0320
-+#define UVC_CMD_SET_UNSHARE_ALL		0x0340
- #define UVC_CMD_PIN_PAGE_SHARED		0x0341
- #define UVC_CMD_UNPIN_PAGE_SHARED	0x0342
- #define UVC_CMD_SET_SHARED_ACCESS	0x1000
-@@ -56,6 +58,8 @@ enum uv_cmds_inst {
- 	BIT_UVC_CMD_SET_SEC_PARMS = 11,
- 	BIT_UVC_CMD_UNPACK_IMG = 13,
- 	BIT_UVC_CMD_VERIFY_IMG = 14,
-+	BIT_UVC_CMD_PREPARE_RESET = 18,
-+	BIT_UVC_CMD_UNSHARE_ALL = 20,
- 	BIT_UVC_CMD_PIN_PAGE_SHARED = 21,
- 	BIT_UVC_CMD_UNPIN_PAGE_SHARED = 22,
- };
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index abe295077d00..16531b251eab 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2328,6 +2328,28 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 			     cmd->rrc);
- 		break;
- 	}
-+	case KVM_PV_PREP_RESET: {
-+		r = -EINVAL;
-+		if (!kvm_s390_pv_is_protected(kvm))
-+			break;
-+
-+		r = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
-+				  UVC_CMD_PREPARE_RESET, &cmd->rc, &cmd->rrc);
-+		KVM_UV_EVENT(kvm, 3, "PROTVIRT PREP RESET: rc %x rrc %x",
-+			     cmd->rc, cmd->rrc);
-+		break;
-+	}
-+	case KVM_PV_UNSHARE_ALL: {
-+		r = -EINVAL;
-+		if (!kvm_s390_pv_is_protected(kvm))
-+			break;
-+
-+		r = uv_cmd_nodata(kvm_s390_pv_get_handle(kvm),
-+				  UVC_CMD_SET_UNSHARE_ALL, &cmd->rc, &cmd->rrc);
-+		KVM_UV_EVENT(kvm, 3, "PROTVIRT UNSHARE: rc %x rrc %x",
-+			     cmd->rc, cmd->rrc);
-+		break;
-+	}
- 	default:
- 		r = -ENOTTY;
- 	}
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index f4cac1c09e97..2c354ba3a610 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1500,6 +1500,8 @@ enum pv_cmd_id {
- 	KVM_PV_SET_SEC_PARMS,
- 	KVM_PV_UNPACK,
- 	KVM_PV_VERIFY,
-+	KVM_PV_PREP_RESET,
-+	KVM_PV_UNSHARE_ALL,
- };
+diff --git a/mm/gup.c b/mm/gup.c
+index f589299b0d4a..81a95fbe9901 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -116,6 +116,28 @@ static __maybe_unused struct page *try_grab_compound_head(struct page *page,
+ 	return NULL;
+ }
  
- struct kvm_pv_cmd {
++static void put_compound_head(struct page *page, int refs, unsigned int flags)
++{
++	if (flags & FOLL_PIN) {
++		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED,
++				    refs);
++
++		if (hpage_pincount_available(page))
++			hpage_pincount_sub(page, refs);
++		else
++			refs *= GUP_PIN_COUNTING_BIAS;
++	}
++
++	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
++	/*
++	 * Calling put_page() for each ref is unnecessarily slow. Only the last
++	 * ref needs a put_page().
++	 */
++	if (refs > 1)
++		page_ref_sub(page, refs - 1);
++	put_page(page);
++}
++
+ /**
+  * try_grab_page() - elevate a page's refcount by a flag-dependent amount
+  *
+@@ -2134,7 +2156,7 @@ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+ 			goto pte_unmap;
+ 
+ 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+-			put_page(head);
++			put_compound_head(head, 1, flags);
+ 			goto pte_unmap;
+ 		}
+ 
+@@ -2267,28 +2289,6 @@ static int record_subpages(struct page *page, unsigned long addr,
+ 	return nr;
+ }
+ 
+-static void put_compound_head(struct page *page, int refs, unsigned int flags)
+-{
+-	if (flags & FOLL_PIN) {
+-		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_RELEASED,
+-				    refs);
+-
+-		if (hpage_pincount_available(page))
+-			hpage_pincount_sub(page, refs);
+-		else
+-			refs *= GUP_PIN_COUNTING_BIAS;
+-	}
+-
+-	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
+-	/*
+-	 * Calling put_page() for each ref is unnecessarily slow. Only the last
+-	 * ref needs a put_page().
+-	 */
+-	if (refs > 1)
+-		page_ref_sub(page, refs - 1);
+-	put_page(page);
+-}
+-
+ #ifdef CONFIG_ARCH_HAS_HUGEPD
+ static unsigned long hugepte_addr_end(unsigned long addr, unsigned long end,
+ 				      unsigned long sz)
 -- 
 2.24.1
