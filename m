@@ -1,117 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62820 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727498AbgCYJfQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 25 Mar 2020 05:35:16 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02P9X6jn190866
-        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:16 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywejxcrj2-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:16 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 25 Mar 2020 09:35:10 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net-next 06/11] s390/qeth: clean up the mac_bits
-Date: Wed, 25 Mar 2020 10:35:02 +0100
-In-Reply-To: <20200325093507.20831-1-jwi@linux.ibm.com>
-References: <20200325093507.20831-1-jwi@linux.ibm.com>
-Message-Id: <20200325093507.20831-7-jwi@linux.ibm.com>
+Received: from ale.deltatee.com ([207.54.116.67]:38414 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726892AbgCFRJE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 6 Mar 2020 12:09:04 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Fri,  6 Mar 2020 10:08:39 -0700
+Message-Id: <20200306170846.9333-1-logang@deltatee.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: [PATCH v4 0/7] Allow setting caching mode in arch_add_memory() for P2PDMA
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>
 
-We're down to a single bit flag for MAC-address related status, reflect
-that in the info struct.
-Also set up the flag during initialization instead of clearing it during
-shutdown - one more little step towards unifying the shutdown code.
+Hi,
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h    |  3 +--
- drivers/s390/net/qeth_l2_main.c | 13 +++++++------
- 2 files changed, 8 insertions(+), 8 deletions(-)
+This is v4 of the patchset which cleans up a number of minor issues
+from the feedback of v3 and rebases onto v5.6-rc4. Additional feedback
+is welcome.
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 257b7f3c5558..911dcef6adc6 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -668,18 +668,17 @@ struct qeth_card_blkt {
- 
- #define QETH_BROADCAST_WITH_ECHO    0x01
- #define QETH_BROADCAST_WITHOUT_ECHO 0x02
--#define QETH_LAYER2_MAC_REGISTERED  0x02
- struct qeth_card_info {
- 	unsigned short unit_addr2;
- 	unsigned short cula;
- 	u8 chpid;
- 	__u16 func_level;
- 	char mcl_level[QETH_MCL_LENGTH + 1];
-+	u8 dev_addr_is_registered:1;
- 	u8 open_when_online:1;
- 	u8 promisc_mode:1;
- 	u8 use_v1_blkt:1;
- 	u8 is_vm_nic:1;
--	int mac_bits;
- 	enum qeth_card_types type;
- 	enum qeth_link_types link_type;
- 	int broadcast_capable;
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 73cb363b1fab..249b00d91d46 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -291,7 +291,6 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 	qeth_qdio_clear_card(card, 0);
- 	qeth_clear_working_pool_list(card);
- 	flush_workqueue(card->event_wq);
--	card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
- 	card->info.promisc_mode = 0;
- }
- 
-@@ -337,14 +336,16 @@ static void qeth_l2_register_dev_addr(struct qeth_card *card)
- 		qeth_l2_request_initial_mac(card);
- 
- 	if (!IS_OSN(card) && !qeth_l2_send_setmac(card, card->dev->dev_addr))
--		card->info.mac_bits |= QETH_LAYER2_MAC_REGISTERED;
-+		card->info.dev_addr_is_registered = 1;
-+	else
-+		card->info.dev_addr_is_registered = 0;
- }
- 
- static int qeth_l2_validate_addr(struct net_device *dev)
- {
- 	struct qeth_card *card = dev->ml_priv;
- 
--	if (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED)
-+	if (card->info.dev_addr_is_registered)
- 		return eth_validate_addr(dev);
- 
- 	QETH_CARD_TEXT(card, 4, "nomacadr");
-@@ -370,7 +371,7 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
- 
- 	/* don't register the same address twice */
- 	if (ether_addr_equal_64bits(dev->dev_addr, addr->sa_data) &&
--	    (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED))
-+	    card->info.dev_addr_is_registered)
- 		return 0;
- 
- 	/* add the new address, switch over, drop the old */
-@@ -380,9 +381,9 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
- 	ether_addr_copy(old_addr, dev->dev_addr);
- 	ether_addr_copy(dev->dev_addr, addr->sa_data);
- 
--	if (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED)
-+	if (card->info.dev_addr_is_registered)
- 		qeth_l2_remove_mac(card, old_addr);
--	card->info.mac_bits |= QETH_LAYER2_MAC_REGISTERED;
-+	card->info.dev_addr_is_registered = 1;
- 	return 0;
- }
- 
--- 
-2.17.1
+Also worth noting, is that the kernel test robot reports[1] that Patch 3
+in this series improves will-it-scale.per_process_ops by 36%. Though,
+for the life of me, I can't understand why that would be. But it's
+reported the same thing twice now for different versions of the series.
+
+Thanks,
+
+Logan
+
+[1] https://lists.01.org/hyperkitty/list/lkp@lists.01.org/thread/5APDKNBEJGVJTJRTI2IIA3P4OC2OEYPS/
+
+--
+
+Changes in v4:
+ * Rebased onto v5.6-rc4
+ * Collected tags form David, Dan and Michal
+ * Minor changes to the new _set_memory_prot() function and added some
+   comments as requested by Dan.
+ * Changed the default caching type for P2PDMA memory to UC instead of
+   WC per Jason's concerns that WC might be more generally unsafe.
+
+Changes in v3:
+ * Rebased onto v5.6-rc2
+ * Rename mhp_modifiers to mhp_params per David with an updated kernel
+   doc per Dan
+ * Drop support for s390 per David seeing it does not support
+   ZONE_DEVICE yet and there was a potential problem with huge pages.
+ * Added WARN_ON_ONCE in cases where arches recieve non PAGE_KERNEL
+   parameters
+ * Collected David and Micheal's Reviewed-By and Acked-by Tags
+
+Changes in v2:
+ * Rebased onto v5.5-rc5
+ * Renamed mhp_restrictions to mhp_modifiers and added the pgprot field
+   to that structure instead of using an argument for
+   arch_add_memory().
+ * Add patch to drop the unused flags field in mhp_restrictions
+
+A git branch is available here:
+
+https://github.com/sbates130272/linux-p2pmem remap_pages_cache_v4
+
+--
+
+Currently, the page tables created using memremap_pages() are always
+created with the PAGE_KERNEL cacheing mode. However, the P2PDMA code
+is creating pages for PCI BAR memory which should never be accessed
+through the cache and instead use either WC or UC. This still works in
+most cases, on x86, because the MTRR registers typically override the
+caching settings in the page tables for all of the IO memory to be
+UC-. However, this tends not to work so well on other arches or
+some rare x86 machines that have firmware which does not setup the
+MTRR registers in this way.
+
+Instead of this, this series proposes a change to arch_add_memory()
+to take the pgprot required by the mapping which allows us to
+explicitly set pagetable entries for P2PDMA memory to UC.
+
+This changes is pretty routine for most of the arches: x86_64, arm64
+and powerpc simply need to thread the pgprot through to where the page
+tables are setup. x86_32 unfortunately sets up the page tables at boot so
+must use _set_memory_prot() to change their caching mode. ia64, s390 and sh
+don't appear to have an easy way to change the page tables so, for now
+at least, we just return -EINVAL on such mappings and thus they will
+not support P2PDMA memory until the work for this is done. This should
+be fine as they don't yet support ZONE_DEVICE.
+
+--
+
+Logan Gunthorpe (7):
+  mm/memory_hotplug: Drop the flags field from struct mhp_restrictions
+  mm/memory_hotplug: Rename mhp_restrictions to mhp_params
+  x86/mm: Thread pgprot_t through init_memory_mapping()
+  x86/mm: Introduce __set_memory_prot()
+  powerpc/mm: Thread pgprot_t through create_section_mapping()
+  mm/memory_hotplug: Add pgprot_t to mhp_params
+  mm/memremap: Set caching mode for PCI P2PDMA memory to WC
+
+ arch/arm64/mm/mmu.c                        |  7 ++--
+ arch/ia64/mm/init.c                        |  7 ++--
+ arch/powerpc/include/asm/book3s/64/hash.h  |  3 +-
+ arch/powerpc/include/asm/book3s/64/radix.h |  3 +-
+ arch/powerpc/include/asm/sparsemem.h       |  3 +-
+ arch/powerpc/mm/book3s64/hash_utils.c      |  5 +--
+ arch/powerpc/mm/book3s64/pgtable.c         |  7 ++--
+ arch/powerpc/mm/book3s64/radix_pgtable.c   | 18 ++++++----
+ arch/powerpc/mm/mem.c                      | 10 +++---
+ arch/s390/mm/init.c                        |  9 +++--
+ arch/sh/mm/init.c                          |  7 ++--
+ arch/x86/include/asm/page_types.h          |  3 --
+ arch/x86/include/asm/pgtable.h             |  3 ++
+ arch/x86/include/asm/set_memory.h          |  1 +
+ arch/x86/kernel/amd_gart_64.c              |  3 +-
+ arch/x86/mm/init.c                         |  9 ++---
+ arch/x86/mm/init_32.c                      | 19 ++++++++--
+ arch/x86/mm/init_64.c                      | 40 ++++++++++++----------
+ arch/x86/mm/mm_internal.h                  |  3 +-
+ arch/x86/mm/pat/set_memory.c               | 13 +++++++
+ arch/x86/platform/uv/bios_uv.c             |  3 +-
+ include/linux/memory_hotplug.h             | 21 ++++++------
+ mm/memory_hotplug.c                        | 11 +++---
+ mm/memremap.c                              | 17 +++++----
+ 24 files changed, 144 insertions(+), 81 deletions(-)
+
+
+base-commit: 98d54f81e36ba3bf92172791eba5ca5bd813989b
+--
+2.20.1
