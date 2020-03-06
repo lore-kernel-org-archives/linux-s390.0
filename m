@@ -1,425 +1,227 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V2 2/3] mm/debug: Add tests validating arch advanced page table helpers
-Date: Tue, 24 Mar 2020 10:52:54 +0530
-Message-Id: <1585027375-9997-3-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1585027375-9997-1-git-send-email-anshuman.khandual@arm.com>
-References: <1585027375-9997-1-git-send-email-anshuman.khandual@arm.com>
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22916 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726190AbgCFLSk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Mar 2020 06:18:40 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 026BFF6U027882
+        for <linux-s390@vger.kernel.org>; Fri, 6 Mar 2020 06:18:39 -0500
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yk8hmqsfr-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 06 Mar 2020 06:18:39 -0500
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Fri, 6 Mar 2020 11:18:36 -0000
+Date: Fri, 6 Mar 2020 12:18:23 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v3 2/2] mm/gup/writeback: add callbacks for inaccessible
+ pages
+In-Reply-To: <f58b6839-5233-5ccf-1f1d-60b3b8aaf417@nvidia.com>
+References: <20200304130655.462517-1-imbrenda@linux.ibm.com>
+        <20200304130655.462517-3-imbrenda@linux.ibm.com>
+        <f58b6839-5233-5ccf-1f1d-60b3b8aaf417@nvidia.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200306121823.50d253ac@p-imbrenda>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: christophe.leroy@c-s.fr, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: John Hubbard <jhubbard@nvidia.com>
+Cc: linux-next@vger.kernel.org, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name, borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Will Deacon <will@kernel.org>
 
-This adds new tests validating for these following arch advanced page table
-helpers. These tests create and test specific mapping types at various page
-table levels.
+On Thu, 5 Mar 2020 14:30:03 -0800
+John Hubbard <jhubbard@nvidia.com> wrote:
 
-1. pxxp_set_wrprotect()
-2. pxxp_get_and_clear()
-3. pxxp_set_access_flags()
-4. pxxp_get_and_clear_full()
-5. pxxp_test_and_clear_young()
-6. pxx_leaf()
-7. pxx_set_huge()
-8. pxx_(clear|mk)_savedwrite()
-9. huge_pxxp_xxx()
+> On 3/4/20 5:06 AM, Claudio Imbrenda wrote:
+> > With the introduction of protected KVM guests on s390 there is now a
+> > concept of inaccessible pages. These pages need to be made
+> > accessible before the host can access them.
+> > 
+> > While cpu accesses will trigger a fault that can be resolved, I/O
+> > accesses will just fail.  We need to add a callback into
+> > architecture code for places that will do I/O, namely when
+> > writeback is started or when a page reference is taken.
+> > 
+> > This is not only to enable paging, file backing etc, it is also
+> > necessary to protect the host against a malicious user space.  For
+> > example a bad QEMU could simply start direct I/O on such protected
+> > memory.  We do not want userspace to be able to trigger I/O errors
+> > and thus the logic is "whenever somebody accesses that page (gup)
+> > or does I/O, make sure that this page can be accessed".  When the
+> > guest tries to access that page we will wait in the page fault
+> > handler for writeback to have finished and for the page_ref to be
+> > the expected value.
+> > 
+> > On s390x the function is not supposed to fail, so it is ok to use a
+> > WARN_ON on failure. If we ever need some more finegrained handling
+> > we can tackle this when we know the details.
+> > 
+> > Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> > Acked-by: Will Deacon <will@kernel.org>
+> > Reviewed-by: David Hildenbrand <david@redhat.com>
+> > Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > ---
+> >  include/linux/gfp.h |  6 ++++++
+> >  mm/gup.c            | 30 +++++++++++++++++++++++++++---
+> >  mm/page-writeback.c |  5 +++++
+> >  3 files changed, 38 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+> > index e5b817cb86e7..be2754841369 100644
+> > --- a/include/linux/gfp.h
+> > +++ b/include/linux/gfp.h
+> > @@ -485,6 +485,12 @@ static inline void arch_free_page(struct page
+> > *page, int order) { } #ifndef HAVE_ARCH_ALLOC_PAGE
+> >  static inline void arch_alloc_page(struct page *page, int order) {
+> > } #endif
+> > +#ifndef HAVE_ARCH_MAKE_PAGE_ACCESSIBLE
+> > +static inline int arch_make_page_accessible(struct page *page)
+> > +{
+> > +	return 0;
+> > +}
+> > +#endif
+> >  
+> >  struct page *
+> >  __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order, int
+> > preferred_nid, diff --git a/mm/gup.c b/mm/gup.c
+> > index 81a95fbe9901..d0c4c6f336bb 100644
+> > --- a/mm/gup.c
+> > +++ b/mm/gup.c
+> > @@ -413,6 +413,7 @@ static struct page *follow_page_pte(struct
+> > vm_area_struct *vma, struct page *page;
+> >  	spinlock_t *ptl;
+> >  	pte_t *ptep, pte;
+> > +	int ret;
+> >  
+> >  	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
+> >  	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
+> > @@ -471,8 +472,6 @@ static struct page *follow_page_pte(struct
+> > vm_area_struct *vma, if (is_zero_pfn(pte_pfn(pte))) {
+> >  			page = pte_page(pte);
+> >  		} else {
+> > -			int ret;
+> > -
+> >  			ret = follow_pfn_pte(vma, address, ptep,
+> > flags); page = ERR_PTR(ret);
+> >  			goto out;
+> > @@ -480,7 +479,6 @@ static struct page *follow_page_pte(struct
+> > vm_area_struct *vma, }
+> >  
+> >  	if (flags & FOLL_SPLIT && PageTransCompound(page)) {
+> > -		int ret;
+> >  		get_page(page);
+> >  		pte_unmap_unlock(ptep, ptl);
+> >  		lock_page(page);
+> > @@ -497,6 +495,19 @@ static struct page *follow_page_pte(struct
+> > vm_area_struct *vma, page = ERR_PTR(-ENOMEM);
+> >  		goto out;
+> >  	}
+> > +	/*
+> > +	 * We need to make the page accessible if and only if we
+> > are going
+> > +	 * to access its content (the FOLL_PIN case).  Please see
+> > +	 * Documentation/core-api/pin_user_pages.rst for details.
+> > +	 */
+> > +	if (flags & FOLL_PIN) {
+> > +		ret = arch_make_page_accessible(page);
+> > +		if (ret) {
+> > +			unpin_user_page(page);
+> > +			page = ERR_PTR(ret);
+> > +			goto out;
+> > +		}
+> > +	}
+> >  	if (flags & FOLL_TOUCH) {
+> >  		if ((flags & FOLL_WRITE) &&
+> >  		    !pte_dirty(pte) && !PageDirty(page))
+> > @@ -2162,6 +2173,19 @@ static int gup_pte_range(pmd_t pmd, unsigned
+> > long addr, unsigned long end, 
+> >  		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+> >  
+> > +		/*
+> > +		 * We need to make the page accessible if and only
+> > if we are
+> > +		 * going to access its content (the FOLL_PIN
+> > case).  Please
+> > +		 * see Documentation/core-api/pin_user_pages.rst
+> > for
+> > +		 * details.
+> > +		 */
+> > +		if (flags & FOLL_PIN) {
+> > +			ret = arch_make_page_accessible(page);
+> > +			if (ret) {
+> > +				unpin_user_page(page);
+> > +				goto pte_unmap;
+> > +			}
+> > +		}
+> >  		SetPageReferenced(page);
+> >  		pages[*nr] = page;
+> >  		(*nr)++;
+> > diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+> > index ab5a3cee8ad3..8384be5a2758 100644
+> > --- a/mm/page-writeback.c
+> > +++ b/mm/page-writeback.c
+> > @@ -2807,6 +2807,11 @@ int __test_set_page_writeback(struct page
+> > *page, bool keep_write) inc_zone_page_state(page,
+> > NR_ZONE_WRITE_PENDING); }
+> >  	unlock_page_memcg(page);
+> > +	/*
+> > +	 * If writeback has been triggered on a page that cannot
+> > be made
+> > +	 * accessible, it is too late.
+> > +	 */
+> > +	WARN_ON(arch_make_page_accessible(page));  
+> 
+> Hi,
+> 
+> Sorry for not commenting on this earlier. After looking at this a
+> bit, I think a tiny tweak would be helpful, because:
+> 
+> a) WARN_ON() is a big problem for per-page issues, because, like
+> ants, pages are prone to show up in large groups. And a warning and
+> backtrace for each such page can easily bring a system to a crawl.
+> 
+> b) Based on your explanation of how this works, what your situation
+> really seems to call for is the standard "crash hard in DEBUG builds,
+> in order to keep developers out of trouble, but continue on in
+> non-DEBUG builds".
+> 
+> So maybe you'd be better protected with this instead:
+> 
+> diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+> index ab5a3cee8ad3..b7f3d0766a5f 100644
+> --- a/mm/page-writeback.c
+> +++ b/mm/page-writeback.c
+> @@ -2764,7 +2764,7 @@ int test_clear_page_writeback(struct page *page)
+>  int __test_set_page_writeback(struct page *page, bool keep_write)
+>  {
+>         struct address_space *mapping = page_mapping(page);
+> -       int ret;
+> +       int ret, access_ret;
+>  
+>         lock_page_memcg(page);
+>         if (mapping && mapping_use_writeback_tags(mapping)) {
+> @@ -2807,6 +2807,13 @@ int __test_set_page_writeback(struct page
+> *page, bool keep_write) inc_zone_page_state(page,
+> NR_ZONE_WRITE_PENDING); }
+>         unlock_page_memcg(page);
+> +       access_ret = arch_make_page_accessible(page);
+> +       /*
+> +        * If writeback has been triggered on a page that cannot be
+> made
+> +        * accessible, it is too late to recover here.
+> +        */
+> +       VM_BUG_ON_PAGE(access_ret != 0, page);
+> +
+>         return ret;
+>  
+>  }
+> 
+> Assuming that's acceptable, you can add:
+> 
+>       Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+> 
+> to the updated patch.  
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-riscv@lists.infradead.org
-Cc: x86@kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- mm/debug_vm_pgtable.c | 290 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 290 insertions(+)
-
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 15055a8f6478..87b4b495333b 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -29,6 +29,7 @@
- #include <linux/sched/mm.h>
- #include <asm/pgalloc.h>
- #include <asm/pgtable.h>
-+#include <asm/tlbflush.h>
- 
- /*
-  * Basic operations
-@@ -68,6 +69,54 @@ static void __init pte_basic_tests(unsigned long pfn, pgprot_t prot)
- 	WARN_ON(pte_write(pte_wrprotect(pte_mkwrite(pte))));
- }
- 
-+static void __init pte_advanced_tests(struct mm_struct *mm,
-+			struct vm_area_struct *vma, pte_t *ptep,
-+			unsigned long pfn, unsigned long vaddr, pgprot_t prot)
-+{
-+	pte_t pte = pfn_pte(pfn, prot);
-+
-+	pte = pfn_pte(pfn, prot);
-+	set_pte_at(mm, vaddr, ptep, pte);
-+	ptep_set_wrprotect(mm, vaddr, ptep);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(pte_write(pte));
-+
-+	pte = pfn_pte(pfn, prot);
-+	set_pte_at(mm, vaddr, ptep, pte);
-+	ptep_get_and_clear(mm, vaddr, ptep);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(!pte_none(pte));
-+
-+	pte = pfn_pte(pfn, prot);
-+	pte = pte_wrprotect(pte);
-+	pte = pte_mkclean(pte);
-+	set_pte_at(mm, vaddr, ptep, pte);
-+	pte = pte_mkwrite(pte);
-+	pte = pte_mkdirty(pte);
-+	ptep_set_access_flags(vma, vaddr, ptep, pte, 1);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(!(pte_write(pte) && pte_dirty(pte)));
-+
-+	pte = pfn_pte(pfn, prot);
-+	set_pte_at(mm, vaddr, ptep, pte);
-+	ptep_get_and_clear_full(mm, vaddr, ptep, 1);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(!pte_none(pte));
-+
-+	pte = pte_mkyoung(pte);
-+	set_pte_at(mm, vaddr, ptep, pte);
-+	ptep_test_and_clear_young(vma, vaddr, ptep);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(pte_young(pte));
-+}
-+
-+static void __init pte_savedwrite_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pte_t pte = pfn_pte(pfn, prot);
-+
-+	WARN_ON(!pte_savedwrite(pte_mk_savedwrite(pte_clear_savedwrite(pte))));
-+	WARN_ON(pte_savedwrite(pte_clear_savedwrite(pte_mk_savedwrite(pte))));
-+}
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void __init pmd_basic_tests(unsigned long pfn, pgprot_t prot)
- {
-@@ -87,6 +136,83 @@ static void __init pmd_basic_tests(unsigned long pfn, pgprot_t prot)
- 	WARN_ON(!pmd_bad(pmd_mkhuge(pmd)));
- }
- 
-+static void __init pmd_advanced_tests(struct mm_struct *mm,
-+		struct vm_area_struct *vma, pmd_t *pmdp,
-+		unsigned long pfn, unsigned long vaddr, pgprot_t prot)
-+{
-+	pmd_t pmd = pfn_pmd(pfn, prot);
-+
-+	/* Align the address wrt HPAGE_PMD_SIZE */
-+	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
-+
-+	pmd = pfn_pmd(pfn, prot);
-+	set_pmd_at(mm, vaddr, pmdp, pmd);
-+	pmdp_set_wrprotect(mm, vaddr, pmdp);
-+	pmd = READ_ONCE(*pmdp);
-+	WARN_ON(pmd_write(pmd));
-+
-+	pmd = pfn_pmd(pfn, prot);
-+	set_pmd_at(mm, vaddr, pmdp, pmd);
-+	pmdp_huge_get_and_clear(mm, vaddr, pmdp);
-+	pmd = READ_ONCE(*pmdp);
-+	WARN_ON(!pmd_none(pmd));
-+
-+	pmd = pfn_pmd(pfn, prot);
-+	pmd = pmd_wrprotect(pmd);
-+	pmd = pmd_mkclean(pmd);
-+	set_pmd_at(mm, vaddr, pmdp, pmd);
-+	pmd = pmd_mkwrite(pmd);
-+	pmd = pmd_mkdirty(pmd);
-+	pmdp_set_access_flags(vma, vaddr, pmdp, pmd, 1);
-+	pmd = READ_ONCE(*pmdp);
-+	WARN_ON(!(pmd_write(pmd) && pmd_dirty(pmd)));
-+
-+	pmd = pmd_mkhuge(pfn_pmd(pfn, prot));
-+	set_pmd_at(mm, vaddr, pmdp, pmd);
-+	pmdp_huge_get_and_clear_full(mm, vaddr, pmdp, 1);
-+	pmd = READ_ONCE(*pmdp);
-+	WARN_ON(!pmd_none(pmd));
-+
-+	pmd = pmd_mkyoung(pmd);
-+	set_pmd_at(mm, vaddr, pmdp, pmd);
-+	pmdp_test_and_clear_young(vma, vaddr, pmdp);
-+	pmd = READ_ONCE(*pmdp);
-+	WARN_ON(pmd_young(pmd));
-+}
-+
-+static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pmd_t pmd = pfn_pmd(pfn, prot);
-+
-+	/*
-+	 * PMD based THP is a leaf entry.
-+	 */
-+	pmd = pmd_mkhuge(pmd);
-+	WARN_ON(!pmd_leaf(pmd));
-+}
-+
-+static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
-+{
-+	pmd_t pmd;
-+
-+	/*
-+	 * X86 defined pmd_set_huge() verifies that the given
-+	 * PMD is not a populated non-leaf entry.
-+	 */
-+	WRITE_ONCE(*pmdp, __pmd(0));
-+	WARN_ON(!pmd_set_huge(pmdp, __pfn_to_phys(pfn), prot));
-+	WARN_ON(!pmd_clear_huge(pmdp));
-+	pmd = READ_ONCE(*pmdp);
-+	WARN_ON(!pmd_none(pmd));
-+}
-+
-+static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pmd_t pmd = pfn_pmd(pfn, prot);
-+
-+	WARN_ON(!pmd_savedwrite(pmd_mk_savedwrite(pmd_clear_savedwrite(pmd))));
-+	WARN_ON(pmd_savedwrite(pmd_clear_savedwrite(pmd_mk_savedwrite(pmd))));
-+}
- #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
- static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot)
- {
-@@ -107,12 +233,110 @@ static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot)
- 	 */
- 	WARN_ON(!pud_bad(pud_mkhuge(pud)));
- }
-+
-+static void pud_advanced_tests(struct mm_struct *mm,
-+		struct vm_area_struct *vma, pud_t *pudp,
-+		unsigned long pfn, unsigned long vaddr, pgprot_t prot)
-+{
-+	pud_t pud = pfn_pud(pfn, prot);
-+
-+	/* Align the address wrt HPAGE_PUD_SIZE */
-+	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
-+
-+	set_pud_at(mm, vaddr, pudp, pud);
-+	pudp_set_wrprotect(mm, vaddr, pudp);
-+	pud = READ_ONCE(*pudp);
-+	WARN_ON(pud_write(pud));
-+
-+#ifndef __PAGETABLE_PMD_FOLDED
-+	pud = pfn_pud(pfn, prot);
-+	set_pud_at(mm, vaddr, pudp, pud);
-+	pudp_huge_get_and_clear(mm, vaddr, pudp);
-+	pud = READ_ONCE(*pudp);
-+	WARN_ON(!pud_none(pud));
-+
-+	pud = pfn_pud(pfn, prot);
-+	set_pud_at(mm, vaddr, pudp, pud);
-+	pudp_huge_get_and_clear_full(mm, vaddr, pudp, 1);
-+	pud = READ_ONCE(*pudp);
-+	WARN_ON(!pud_none(pud));
-+#endif
-+	pud = pfn_pud(pfn, prot);
-+	pud = pud_wrprotect(pud);
-+	pud = pud_mkclean(pud);
-+	set_pud_at(mm, vaddr, pudp, pud);
-+	pud = pud_mkwrite(pud);
-+	pud = pud_mkdirty(pud);
-+	pudp_set_access_flags(vma, vaddr, pudp, pud, 1);
-+	pud = READ_ONCE(*pudp);
-+	WARN_ON(!(pud_write(pud) && pud_dirty(pud)));
-+
-+	pud = pud_mkyoung(pud);
-+	set_pud_at(mm, vaddr, pudp, pud);
-+	pudp_test_and_clear_young(vma, vaddr, pudp);
-+	pud = READ_ONCE(*pudp);
-+	WARN_ON(pud_young(pud));
-+}
-+
-+static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pud_t pud = pfn_pud(pfn, prot);
-+
-+	/*
-+	 * PUD based THP is a leaf entry.
-+	 */
-+	pud = pud_mkhuge(pud);
-+	WARN_ON(!pud_leaf(pud));
-+}
-+
-+static void __init pud_huge_tests(pud_t *pudp, unsigned long pfn, pgprot_t prot)
-+{
-+	pud_t pud;
-+
-+	/*
-+	 * X86 defined pud_set_huge() verifies that the given
-+	 * PUD is not a populated non-leaf entry.
-+	 */
-+	WRITE_ONCE(*pudp, __pud(0));
-+	WARN_ON(!pud_set_huge(pudp, __pfn_to_phys(pfn), prot));
-+	WARN_ON(!pud_clear_huge(pudp));
-+	pud = READ_ONCE(*pudp);
-+	WARN_ON(!pud_none(pud));
-+}
- #else
- static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot) { }
-+static void pud_advanced_tests(struct mm_struct *mm,
-+		struct vm_area_struct *vma, pud_t *pudp,
-+		unsigned long pfn, unsigned long vaddr, pgprot_t prot)
-+{
-+}
-+static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pud_huge_tests(pud_t *pudp, unsigned long pfn, pgprot_t prot)
-+{
-+}
- #endif
- #else
- static void __init pmd_basic_tests(unsigned long pfn, pgprot_t prot) { }
- static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pmd_advanced_tests(struct mm_struct *mm,
-+		struct vm_area_struct *vma, pmd_t *pmdp,
-+		unsigned long pfn, unsigned long vaddr, pgprot_t prot)
-+{
-+}
-+static void __init pud_advanced_tests(struct mm_struct *mm,
-+		struct vm_area_struct *vma, pud_t *pudp,
-+		unsigned long pfn, unsigned long vaddr, pgprot_t prot)
-+{
-+}
-+static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
-+{
-+}
-+static void __init pud_huge_tests(pud_t *pudp, unsigned long pfn, pgprot_t prot)
-+{
-+}
-+static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot) { }
- #endif
- 
- static void __init p4d_basic_tests(unsigned long pfn, pgprot_t prot)
-@@ -500,8 +724,52 @@ static void __init hugetlb_basic_tests(unsigned long pfn, pgprot_t prot)
- 	WARN_ON(!pte_huge(pte_mkhuge(pte)));
- #endif
- }
-+
-+static void __init hugetlb_advanced_tests(struct mm_struct *mm,
-+					  struct vm_area_struct *vma,
-+					  pte_t *ptep, unsigned long pfn,
-+					  unsigned long vaddr, pgprot_t prot)
-+{
-+	struct page *page = pfn_to_page(pfn);
-+	pte_t pte = READ_ONCE(*ptep);
-+
-+	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
-+	set_huge_pte_at(mm, vaddr, ptep, pte);
-+	barrier();
-+	WARN_ON(!pte_same(pte, huge_ptep_get(ptep)));
-+	huge_pte_clear(mm, vaddr, ptep, PMD_SIZE);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(!huge_pte_none(pte));
-+
-+	pte = mk_huge_pte(page, prot);
-+	set_huge_pte_at(mm, vaddr, ptep, pte);
-+	huge_ptep_set_wrprotect(mm, vaddr, ptep);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(huge_pte_write(pte));
-+
-+	pte = mk_huge_pte(page, prot);
-+	set_huge_pte_at(mm, vaddr, ptep, pte);
-+	huge_ptep_get_and_clear(mm, vaddr, ptep);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(!huge_pte_none(pte));
-+
-+	pte = mk_huge_pte(page, prot);
-+	pte = huge_pte_wrprotect(pte);
-+	set_huge_pte_at(mm, vaddr, ptep, pte);
-+	pte = huge_pte_mkwrite(pte);
-+	pte = huge_pte_mkdirty(pte);
-+	huge_ptep_set_access_flags(vma, vaddr, ptep, pte, 1);
-+	pte = READ_ONCE(*ptep);
-+	WARN_ON(!(huge_pte_write(pte) && huge_pte_dirty(pte)));
-+}
- #else
- static void __init hugetlb_basic_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init hugetlb_advanced_tests(struct mm_struct *mm,
-+					  struct vm_area_struct *vma,
-+					  pte_t *ptep, unsigned long pfn,
-+					  unsigned long vaddr, pgprot_t prot)
-+{
-+}
- #endif
- 
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
-@@ -564,6 +832,7 @@ static unsigned long __init get_random_vaddr(void)
- 
- void __init debug_vm_pgtable(void)
- {
-+	struct vm_area_struct *vma;
- 	struct mm_struct *mm;
- 	pgd_t *pgdp;
- 	p4d_t *p4dp, *saved_p4dp;
-@@ -592,6 +861,12 @@ void __init debug_vm_pgtable(void)
- 	 */
- 	protnone = __P000;
- 
-+	vma = vm_area_alloc(mm);
-+	if (!vma) {
-+		pr_err("vma allocation failed\n");
-+		return;
-+	}
-+
- 	/*
- 	 * PFN for mapping at PTE level is determined from a standard kernel
- 	 * text symbol. But pfns for higher page table levels are derived by
-@@ -640,6 +915,20 @@ void __init debug_vm_pgtable(void)
- 	p4d_clear_tests(mm, p4dp);
- 	pgd_clear_tests(mm, pgdp);
- 
-+	pte_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
-+	pmd_advanced_tests(mm, vma, pmdp, pmd_aligned, vaddr, prot);
-+	pud_advanced_tests(mm, vma, pudp, pud_aligned, vaddr, prot);
-+	hugetlb_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
-+
-+	pmd_leaf_tests(pmd_aligned, prot);
-+	pud_leaf_tests(pud_aligned, prot);
-+
-+	pmd_huge_tests(pmdp, pmd_aligned, prot);
-+	pud_huge_tests(pudp, pud_aligned, prot);
-+
-+	pte_savedwrite_tests(pte_aligned, prot);
-+	pmd_savedwrite_tests(pmd_aligned, prot);
-+
- 	pte_unmap_unlock(ptep, ptl);
- 
- 	pmd_populate_tests(mm, pmdp, saved_ptep);
-@@ -674,6 +963,7 @@ void __init debug_vm_pgtable(void)
- 	pmd_free(mm, saved_pmdp);
- 	pte_free(mm, saved_ptep);
- 
-+	vm_area_free(vma);
- 	mm_dec_nr_puds(mm);
- 	mm_dec_nr_pmds(mm);
- 	mm_dec_nr_ptes(mm);
--- 
-2.20.1
+I will send an updated patch, thanks a lot for the feedback!
