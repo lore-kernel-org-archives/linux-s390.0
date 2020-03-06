@@ -1,72 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61526 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726328AbgCLSUO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Mar 2020 14:20:14 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CIJJNP051078
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 14:20:14 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqt8s81sc-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 14:20:12 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Thu, 12 Mar 2020 17:45:17 -0000
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 00/10] zfcp features for v5.7
-Date: Thu, 12 Mar 2020 18:44:55 +0100
+Received: from ale.deltatee.com ([207.54.116.67]:38410 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725873AbgCFRJD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 6 Mar 2020 12:09:03 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Fri,  6 Mar 2020 10:08:43 -0700
+Message-Id: <20200306170846.9333-5-logang@deltatee.com>
+In-Reply-To: <20200306170846.9333-1-logang@deltatee.com>
+References: <20200306170846.9333-1-logang@deltatee.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200312174505.51294-1-maier@linux.ibm.com>
+Subject: [PATCH v4 4/7] x86/mm: Introduce __set_memory_prot()
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org
 
-Martin, James,
+For use in the 32bit arch_add_memory() to set the pgprot type of the
+memory to add.
 
-one small zfcp fix and 2 features for v5.7.
-Patches apply to Martin's 5.7/scsi-queue or James' misc branch.
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+---
+ arch/x86/include/asm/set_memory.h |  1 +
+ arch/x86/mm/pat/set_memory.c      | 13 +++++++++++++
+ 2 files changed, 14 insertions(+)
 
-Patch 1 is a small preventive fix with locking for point-to-point.
-
-Patches 2..4 is a feature to expose fabric_name in fc_host sysfs.
-
-Patches 5..8 is a feature to provide user information on the state of
-the otherwise transparent IBM Fibre Channel Endpoint Security.
-Patches 9..10 is a feature to add new recovery and corresponding
-kernel messages related to IBM Fibre Channel Endpoint Security.
-[http://www.redbooks.ibm.com/redpieces/abstracts/sg248455.html?Open]
-
-
-Jens Remus (6):
-  zfcp: auto variables for dereferenced structs in open port handler
-  zfcp: report FC Endpoint Security in sysfs
-  zfcp: log FC Endpoint Security of connections
-  zfcp: trace FC Endpoint Security of FCP devices and connections
-  zfcp: enhance handling of FC Endpoint Security errors
-  zfcp: log FC Endpoint Security errors
-
-Steffen Maier (4):
-  zfcp: fix missing erp_lock in port recovery trigger for point-to-point
-  zfcp: expose fabric name as common fc_host sysfs attribute
-  zfcp: wire previously driver-specific sysfs attributes also to fc_host
-  zfcp: fix fc_host attributes that should be unknown on local link down
-
- drivers/s390/scsi/zfcp_dbf.c   |  44 ++++-
- drivers/s390/scsi/zfcp_dbf.h   |  32 +++-
- drivers/s390/scsi/zfcp_def.h   |   6 +-
- drivers/s390/scsi/zfcp_erp.c   |   2 +-
- drivers/s390/scsi/zfcp_ext.h   |  12 +-
- drivers/s390/scsi/zfcp_fsf.c   | 290 ++++++++++++++++++++++++++++++---
- drivers/s390/scsi/zfcp_fsf.h   |  23 ++-
- drivers/s390/scsi/zfcp_scsi.c  |   5 +
- drivers/s390/scsi/zfcp_sysfs.c |  70 +++++++-
- 9 files changed, 449 insertions(+), 35 deletions(-)
-
+diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
+index 64c3dce374e5..034358da4837 100644
+--- a/arch/x86/include/asm/set_memory.h
++++ b/arch/x86/include/asm/set_memory.h
+@@ -34,6 +34,7 @@
+  * The caller is required to take care of these.
+  */
+ 
++int __set_memory_prot(unsigned long addr, int numpages, pgprot_t prot);
+ int _set_memory_uc(unsigned long addr, int numpages);
+ int _set_memory_wc(unsigned long addr, int numpages);
+ int _set_memory_wt(unsigned long addr, int numpages);
+diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+index c4aedd00c1ba..a7b14dffeb0b 100644
+--- a/arch/x86/mm/pat/set_memory.c
++++ b/arch/x86/mm/pat/set_memory.c
+@@ -1792,6 +1792,19 @@ static inline int cpa_clear_pages_array(struct page **pages, int numpages,
+ 		CPA_PAGES_ARRAY, pages);
+ }
+ 
++/*
++ * _set_memory_prot is an internal helper for callers that have been passed
++ * a pgprot_t value from upper layers and a reservation has already been taken.
++ * If you want to set the pgprot to a specific page protocol, use the
++ * set_memory_xx() functions.
++ */
++int __set_memory_prot(unsigned long addr, int numpages, pgprot_t prot)
++{
++	return change_page_attr_set_clr(&addr, numpages, prot,
++					__pgprot(~pgprot_val(prot)), 0, 0,
++					NULL);
++}
++
+ int _set_memory_uc(unsigned long addr, int numpages)
+ {
+ 	/*
 -- 
-2.17.1
+2.20.1
