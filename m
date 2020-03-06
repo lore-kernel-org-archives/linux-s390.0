@@ -1,179 +1,232 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57356 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726442AbgCIIvf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:35 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298oRuT056814
-        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:34 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym8k7cx49-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:34 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 9 Mar 2020 08:51:32 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 02/36] s390/protvirt: add ultravisor initialization
-Date: Mon,  9 Mar 2020 09:50:52 +0100
-In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
-References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+Received: from ale.deltatee.com ([207.54.116.67]:38420 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727053AbgCFRJE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 6 Mar 2020 12:09:04 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Fri,  6 Mar 2020 10:08:45 -0700
+Message-Id: <20200306170846.9333-7-logang@deltatee.com>
+In-Reply-To: <20200306170846.9333-1-logang@deltatee.com>
+References: <20200306170846.9333-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200309085126.3334302-3-borntraeger@de.ibm.com>
+Subject: [PATCH v4 6/7] mm/memory_hotplug: Add pgprot_t to mhp_params
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Michal Hocko <mhocko@suse.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+devm_memremap_pages() is currently used by the PCI P2PDMA code to create
+struct page mappings for IO memory. At present, these mappings are created
+with PAGE_KERNEL which implies setting the PAT bits to be WB. However, on
+x86, an mtrr register will typically override this and force the cache
+type to be UC-. In the case firmware doesn't set this register it is
+effectively WB and will typically result in a machine check exception
+when it's accessed.
 
-Before being able to host protected virtual machines, donate some of
-the memory to the ultravisor. Besides that the ultravisor might impose
-addressing limitations for memory used to back protected VM storage. Treat
-that limit as protected virtualization host's virtual memory limit.
+Other arches are not currently likely to function correctly seeing they
+don't have any MTRR registers to fall back on.
 
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+To solve this, provide a way to specify the pgprot value explicitly to
+arch_add_memory().
+
+Of the arches that support MEMORY_HOTPLUG: x86_64, and arm64 need a simple
+change to pass the pgprot_t down to their respective functions which set
+up the page tables. For x86_32, set the page tables explicitly using
+_set_memory_prot() (seeing they are already mapped). For ia64, s390 and
+sh, reject anything but PAGE_KERNEL settings -- this should be fine,
+for now, seeing these architectures don't support ZONE_DEVICE.
+
+A check in __add_pages() is also added to ensure the pgprot parameter was
+set for all arches.
+
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Dan Williams <dan.j.williams@intel.com>
 ---
- arch/s390/include/asm/uv.h | 15 ++++++++++++
- arch/s390/kernel/setup.c   |  5 ++++
- arch/s390/kernel/uv.c      | 48 ++++++++++++++++++++++++++++++++++++++
- 3 files changed, 68 insertions(+)
+ arch/arm64/mm/mmu.c            |  3 ++-
+ arch/ia64/mm/init.c            |  3 +++
+ arch/powerpc/mm/mem.c          |  3 ++-
+ arch/s390/mm/init.c            |  3 +++
+ arch/sh/mm/init.c              |  3 +++
+ arch/x86/mm/init_32.c          | 12 ++++++++++++
+ arch/x86/mm/init_64.c          |  2 +-
+ include/linux/memory_hotplug.h |  3 +++
+ mm/memory_hotplug.c            |  5 ++++-
+ mm/memremap.c                  |  6 +++---
+ 10 files changed, 36 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index c6a330740e5d..1af6ce8023cc 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -23,12 +23,14 @@
- #define UVC_RC_NO_RESUME	0x0007
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index ee37bca8aba8..ea3fa844a8a2 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1058,7 +1058,8 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
  
- #define UVC_CMD_QUI			0x0001
-+#define UVC_CMD_INIT_UV			0x000f
- #define UVC_CMD_SET_SHARED_ACCESS	0x1000
- #define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
+ 	__create_pgd_mapping(swapper_pg_dir, start, __phys_to_virt(start),
+-			     size, PAGE_KERNEL, __pgd_pgtable_alloc, flags);
++			     size, params->pgprot, __pgd_pgtable_alloc,
++			     flags);
  
- /* Bits in installed uv calls */
- enum uv_cmds_inst {
- 	BIT_UVC_CMD_QUI = 0,
-+	BIT_UVC_CMD_INIT_UV = 1,
- 	BIT_UVC_CMD_SET_SHARED_ACCESS = 8,
- 	BIT_UVC_CMD_REMOVE_SHARED_ACCESS = 9,
- };
-@@ -59,6 +61,14 @@ struct uv_cb_qui {
- 	u8  reserveda0[200 - 160];
- } __packed __aligned(8);
+ 	memblock_clear_nomap(start, size);
  
-+struct uv_cb_init {
-+	struct uv_cb_header header;
-+	u64 reserved08[2];
-+	u64 stor_origin;
-+	u64 stor_len;
-+	u64 reserved28[4];
-+} __packed __aligned(8);
+diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+index 97bbc23ea1e3..d637b4ea3147 100644
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -676,6 +676,9 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+ 	int ret;
+ 
++	if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
++		return -EINVAL;
 +
- struct uv_cb_share {
- 	struct uv_cb_header header;
- 	u64 reserved08[3];
-@@ -160,8 +170,13 @@ static inline int is_prot_virt_host(void)
+ 	ret = __add_pages(nid, start_pfn, nr_pages, params);
+ 	if (ret)
+ 		printk("%s: Problem encountered in __add_pages() as ret=%d\n",
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index 19b1da5d7eca..832412bc7fad 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -138,7 +138,8 @@ int __ref arch_add_memory(int nid, u64 start, u64 size,
+ 	resize_hpt_for_hotplug(memblock_phys_mem_size());
+ 
+ 	start = (unsigned long)__va(start);
+-	rc = create_section_mapping(start, start + size, nid, PAGE_KERNEL);
++	rc = create_section_mapping(start, start + size, nid,
++				    params->pgprot);
+ 	if (rc) {
+ 		pr_warn("Unable to create mapping for hot added memory 0x%llx..0x%llx: %d\n",
+ 			start, start + size, rc);
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index e9e4a7abd0cc..87b2d024e75a 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -277,6 +277,9 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 	if (WARN_ON_ONCE(params->altmap))
+ 		return -EINVAL;
+ 
++	if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
++		return -EINVAL;
++
+ 	rc = vmem_add_mapping(start, size);
+ 	if (rc)
+ 		return rc;
+diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
+index e5114c053364..b9de2d4fa57e 100644
+--- a/arch/sh/mm/init.c
++++ b/arch/sh/mm/init.c
+@@ -412,6 +412,9 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
+ 	int ret;
+ 
++	if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot)
++		return -EINVAL;
++
+ 	/* We only have ZONE_NORMAL, so this is easy.. */
+ 	ret = __add_pages(nid, start_pfn, nr_pages, params);
+ 	if (unlikely(ret))
+diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
+index e25a4218e6ff..69128f1a22ac 100644
+--- a/arch/x86/mm/init_32.c
++++ b/arch/x86/mm/init_32.c
+@@ -858,6 +858,18 @@ int arch_add_memory(int nid, u64 start, u64 size,
  {
- 	return prot_virt_host;
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
++	int ret;
++
++	/*
++	 * The page tables were already mapped at boot so if the caller
++	 * requests a different mapping type then we must change all the
++	 * pages with __set_memory_prot().
++	 */
++	if (params->pgprot.pgprot != PAGE_KERNEL.pgprot) {
++		ret = __set_memory_prot(start, nr_pages, params->pgprot);
++		if (ret)
++			return ret;
++	}
+ 
+ 	return __add_pages(nid, start_pfn, nr_pages, params);
  }
-+
-+void setup_uv(void);
-+void adjust_to_uv_max(unsigned long *vmax);
- #else
- #define is_prot_virt_host() 0
-+static inline void setup_uv(void) {}
-+static inline void adjust_to_uv_max(unsigned long *vmax) {}
- #endif
+diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
+index 9e7692080dda..230240af38b4 100644
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -868,7 +868,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 	unsigned long start_pfn = start >> PAGE_SHIFT;
+ 	unsigned long nr_pages = size >> PAGE_SHIFT;
  
- #if defined(CONFIG_PROTECTED_VIRTUALIZATION_GUEST) || IS_ENABLED(CONFIG_KVM)
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index a2496382175e..1423090a2259 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -560,6 +560,9 @@ static void __init setup_memory_end(void)
- 			vmax = _REGION1_SIZE; /* 4-level kernel page table */
- 	}
+-	init_memory_mapping(start, start + size, PAGE_KERNEL);
++	init_memory_mapping(start, start + size, params->pgprot);
  
-+	if (is_prot_virt_host())
-+		adjust_to_uv_max(&vmax);
-+
- 	/* module area is at the end of the kernel address space. */
- 	MODULES_END = vmax;
- 	MODULES_VADDR = MODULES_END - MODULES_LEN;
-@@ -1134,6 +1137,8 @@ void __init setup_arch(char **cmdline_p)
- 	 */
- 	memblock_trim_memory(1UL << (MAX_ORDER - 1 + PAGE_SHIFT));
- 
-+	if (is_prot_virt_host())
-+		setup_uv();
- 	setup_memory_end();
- 	setup_memory();
- 	dma_contiguous_reserve(memory_end);
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index b1f936710360..1ddc42154ef6 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -49,4 +49,52 @@ static int __init prot_virt_setup(char *val)
- 	return rc;
+ 	return add_pages(nid, start_pfn, nr_pages, params);
  }
- early_param("prot_virt", prot_virt_setup);
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index c5df1b3dada0..3195d11876ea 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -56,9 +56,12 @@ enum {
+ /*
+  * Extended parameters for memory hotplug:
+  * altmap: alternative allocator for memmap array (optional)
++ * pgprot: page protection flags to apply to newly created page tables
++ *	(required)
+  */
+ struct mhp_params {
+ 	struct vmem_altmap *altmap;
++	pgprot_t pgprot;
+ };
+ 
+ /*
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index c69469e1b40e..d7d4806ad81b 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -305,6 +305,9 @@ int __ref __add_pages(int nid, unsigned long pfn, unsigned long nr_pages,
+ 	unsigned long nr, start_sec, end_sec;
+ 	struct vmem_altmap *altmap = params->altmap;
+ 
++	if (WARN_ON_ONCE(!params->pgprot.pgprot))
++		return -EINVAL;
 +
-+static int __init uv_init(unsigned long stor_base, unsigned long stor_len)
-+{
-+	struct uv_cb_init uvcb = {
-+		.header.cmd = UVC_CMD_INIT_UV,
-+		.header.len = sizeof(uvcb),
-+		.stor_origin = stor_base,
-+		.stor_len = stor_len,
-+	};
-+
-+	if (uv_call(0, (uint64_t)&uvcb)) {
-+		pr_err("Ultravisor init failed with rc: 0x%x rrc: 0%x\n",
-+		       uvcb.header.rc, uvcb.header.rrc);
-+		return -1;
-+	}
-+	return 0;
-+}
-+
-+void __init setup_uv(void)
-+{
-+	unsigned long uv_stor_base;
-+
-+	uv_stor_base = (unsigned long)memblock_alloc_try_nid(
-+		uv_info.uv_base_stor_len, SZ_1M, SZ_2G,
-+		MEMBLOCK_ALLOC_ACCESSIBLE, NUMA_NO_NODE);
-+	if (!uv_stor_base) {
-+		pr_warn("Failed to reserve %lu bytes for ultravisor base storage\n",
-+			uv_info.uv_base_stor_len);
-+		goto fail;
-+	}
-+
-+	if (uv_init(uv_stor_base, uv_info.uv_base_stor_len)) {
-+		memblock_free(uv_stor_base, uv_info.uv_base_stor_len);
-+		goto fail;
-+	}
-+
-+	pr_info("Reserving %luMB as ultravisor base storage\n",
-+		uv_info.uv_base_stor_len >> 20);
-+	return;
-+fail:
-+	pr_info("Disabling support for protected virtualization");
-+	prot_virt_host = 0;
-+}
-+
-+void adjust_to_uv_max(unsigned long *vmax)
-+{
-+	*vmax = min_t(unsigned long, *vmax, uv_info.max_sec_stor_addr);
-+}
- #endif
+ 	err = check_hotplug_memory_addressable(pfn, nr_pages);
+ 	if (err)
+ 		return err;
+@@ -993,7 +996,7 @@ static int online_memory_block(struct memory_block *mem, void *arg)
+  */
+ int __ref add_memory_resource(int nid, struct resource *res)
+ {
+-	struct mhp_params params = {};
++	struct mhp_params params = { .pgprot = PAGE_KERNEL };
+ 	u64 start, size;
+ 	bool new_node = false;
+ 	int ret;
+diff --git a/mm/memremap.c b/mm/memremap.c
+index 6891a503a078..06742372a203 100644
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -166,8 +166,8 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
+ 		 * We do not want any optional features only our own memmap
+ 		 */
+ 		.altmap = pgmap_altmap(pgmap),
++		.pgprot = PAGE_KERNEL,
+ 	};
+-	pgprot_t pgprot = PAGE_KERNEL;
+ 	int error, is_ram;
+ 	bool need_devmap_managed = true;
+ 
+@@ -255,8 +255,8 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
+ 	if (nid < 0)
+ 		nid = numa_mem_id();
+ 
+-	error = track_pfn_remap(NULL, &pgprot, PHYS_PFN(res->start), 0,
+-			resource_size(res));
++	error = track_pfn_remap(NULL, &params.pgprot, PHYS_PFN(res->start),
++				0, resource_size(res));
+ 	if (error)
+ 		goto err_pfn_remap;
+ 
 -- 
-2.24.1
+2.20.1
