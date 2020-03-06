@@ -1,333 +1,153 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ale.deltatee.com ([207.54.116.67]:38438 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727097AbgCFRJG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 6 Mar 2020 12:09:06 -0500
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Fri,  6 Mar 2020 10:08:41 -0700
-Message-Id: <20200306170846.9333-3-logang@deltatee.com>
-In-Reply-To: <20200306170846.9333-1-logang@deltatee.com>
-References: <20200306170846.9333-1-logang@deltatee.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39406 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725873AbgCFR7e (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Mar 2020 12:59:34 -0500
+Subject: Re: [PATCH v3] ima: add a new CONFIG for loading arch-specific
+ policies
+References: <1583516360-22016-1-git-send-email-nayna@linux.ibm.com>
+From: Nayna <nayna@linux.vnet.ibm.com>
+Message-ID: <193c432d-f901-82e3-755c-e9fb723a36b7@linux.vnet.ibm.com>
+Date: Fri, 6 Mar 2020 12:59:15 -0500
 MIME-Version: 1.0
+In-Reply-To: <1583516360-22016-1-git-send-email-nayna@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
-Subject: [PATCH v4 2/7] mm/memory_hotplug: Rename mhp_restrictions to mhp_params
+Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Michal Hocko <mhocko@suse.com>
+To: Nayna Jain <nayna@linux.ibm.com>, linux-integrity@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-efi@vger.kernel.org, linux-s390@vger.kernel.org, zohar@linux.ibm.com, Philipp Rudo <prudo@linux.ibm.com>, Ard Biesheuvel <ardb@kernel.org>
+Cc: linux-kernel@vger.kernel.org
 
-The mhp_restrictions struct really doesn't specify anything resembling
-a restriction anymore so rename it to be mhp_params as it is a list
-of extended parameters.
+Oops,  Please ignore this patch.
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
----
- arch/arm64/mm/mmu.c            |  4 ++--
- arch/ia64/mm/init.c            |  4 ++--
- arch/powerpc/mm/mem.c          |  4 ++--
- arch/s390/mm/init.c            |  6 +++---
- arch/sh/mm/init.c              |  4 ++--
- arch/x86/mm/init_32.c          |  4 ++--
- arch/x86/mm/init_64.c          |  8 ++++----
- include/linux/memory_hotplug.h | 16 ++++++++--------
- mm/memory_hotplug.c            |  8 ++++----
- mm/memremap.c                  |  8 ++++----
- 10 files changed, 33 insertions(+), 33 deletions(-)
+By mistake I posted the wrong version. I am sorry for the confusion,  I 
+will resend the right version.
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index 128f70852bf3..ee37bca8aba8 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1050,7 +1050,7 @@ int p4d_free_pud_page(p4d_t *p4d, unsigned long addr)
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_params *params)
- {
- 	int flags = 0;
- 
-@@ -1063,7 +1063,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- 	memblock_clear_nomap(start, size);
- 
- 	return __add_pages(nid, start >> PAGE_SHIFT, size >> PAGE_SHIFT,
--			   restrictions);
-+			   params);
- }
- void arch_remove_memory(int nid, u64 start, u64 size,
- 			struct vmem_altmap *altmap)
-diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
-index b01d68a2d5d9..97bbc23ea1e3 100644
---- a/arch/ia64/mm/init.c
-+++ b/arch/ia64/mm/init.c
-@@ -670,13 +670,13 @@ mem_init (void)
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_params *params)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	int ret;
- 
--	ret = __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	ret = __add_pages(nid, start_pfn, nr_pages, params);
- 	if (ret)
- 		printk("%s: Problem encountered in __add_pages() as ret=%d\n",
- 		       __func__,  ret);
-diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
-index ef7b1119b2e2..b4bece53bec0 100644
---- a/arch/powerpc/mm/mem.c
-+++ b/arch/powerpc/mm/mem.c
-@@ -128,7 +128,7 @@ static void flush_dcache_range_chunked(unsigned long start, unsigned long stop,
- }
- 
- int __ref arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+			  struct mhp_params *params)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
-@@ -144,7 +144,7 @@ int __ref arch_add_memory(int nid, u64 start, u64 size,
- 		return -EFAULT;
- 	}
- 
--	return __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	return __add_pages(nid, start_pfn, nr_pages, params);
- }
- 
- void __ref arch_remove_memory(int nid, u64 start, u64 size,
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index ac44bd76db4b..e9e4a7abd0cc 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -268,20 +268,20 @@ device_initcall(s390_cma_mem_init);
- #endif /* CONFIG_CMA */
- 
- int arch_add_memory(int nid, u64 start, u64 size,
--		struct mhp_restrictions *restrictions)
-+		    struct mhp_params *params)
- {
- 	unsigned long start_pfn = PFN_DOWN(start);
- 	unsigned long size_pages = PFN_DOWN(size);
- 	int rc;
- 
--	if (WARN_ON_ONCE(restrictions->altmap))
-+	if (WARN_ON_ONCE(params->altmap))
- 		return -EINVAL;
- 
- 	rc = vmem_add_mapping(start, size);
- 	if (rc)
- 		return rc;
- 
--	rc = __add_pages(nid, start_pfn, size_pages, restrictions);
-+	rc = __add_pages(nid, start_pfn, size_pages, params);
- 	if (rc)
- 		vmem_remove_mapping(start, size);
- 	return rc;
-diff --git a/arch/sh/mm/init.c b/arch/sh/mm/init.c
-index d1b1ff2be17a..e5114c053364 100644
---- a/arch/sh/mm/init.c
-+++ b/arch/sh/mm/init.c
-@@ -406,14 +406,14 @@ void __init mem_init(void)
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_params *params)
- {
- 	unsigned long start_pfn = PFN_DOWN(start);
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	int ret;
- 
- 	/* We only have ZONE_NORMAL, so this is easy.. */
--	ret = __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	ret = __add_pages(nid, start_pfn, nr_pages, params);
- 	if (unlikely(ret))
- 		printk("%s: Failed, __add_pages() == %d\n", __func__, ret);
- 
-diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-index 23df4885bbed..3ec3dac7c268 100644
---- a/arch/x86/mm/init_32.c
-+++ b/arch/x86/mm/init_32.c
-@@ -853,12 +853,12 @@ void __init mem_init(void)
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_params *params)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
--	return __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	return __add_pages(nid, start_pfn, nr_pages, params);
- }
- 
- void arch_remove_memory(int nid, u64 start, u64 size,
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index abbdecb75fad..87977a8bfbbf 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -844,11 +844,11 @@ static void update_end_of_memory_vars(u64 start, u64 size)
- }
- 
- int add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
--				struct mhp_restrictions *restrictions)
-+	      struct mhp_params *params)
- {
- 	int ret;
- 
--	ret = __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	ret = __add_pages(nid, start_pfn, nr_pages, params);
- 	WARN_ON_ONCE(ret);
- 
- 	/* update max_pfn, max_low_pfn and high_memory */
-@@ -859,14 +859,14 @@ int add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
- }
- 
- int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions)
-+		    struct mhp_params *params)
- {
- 	unsigned long start_pfn = start >> PAGE_SHIFT;
- 	unsigned long nr_pages = size >> PAGE_SHIFT;
- 
- 	init_memory_mapping(start, start + size);
- 
--	return add_pages(nid, start_pfn, nr_pages, restrictions);
-+	return add_pages(nid, start_pfn, nr_pages, params);
- }
- 
- #define PAGE_INUSE 0xFD
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 69ff3037528d..c5df1b3dada0 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -54,10 +54,10 @@ enum {
- };
- 
- /*
-- * Restrictions for the memory hotplug:
-- * altmap: alternative allocator for memmap array
-+ * Extended parameters for memory hotplug:
-+ * altmap: alternative allocator for memmap array (optional)
-  */
--struct mhp_restrictions {
-+struct mhp_params {
- 	struct vmem_altmap *altmap;
- };
- 
-@@ -108,7 +108,7 @@ extern int restore_online_page_callback(online_page_callback_t callback);
- extern int try_online_node(int nid);
- 
- extern int arch_add_memory(int nid, u64 start, u64 size,
--			struct mhp_restrictions *restrictions);
-+			   struct mhp_params *params);
- extern u64 max_mem_size;
- 
- extern bool memhp_auto_online;
-@@ -126,17 +126,17 @@ extern void __remove_pages(unsigned long start_pfn, unsigned long nr_pages,
- 
- /* reasonably generic interface to expand the physical pages */
- extern int __add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
--		       struct mhp_restrictions *restrictions);
-+		       struct mhp_params *params);
- 
- #ifndef CONFIG_ARCH_HAS_ADD_PAGES
- static inline int add_pages(int nid, unsigned long start_pfn,
--		unsigned long nr_pages, struct mhp_restrictions *restrictions)
-+		unsigned long nr_pages, struct mhp_params *params)
- {
--	return __add_pages(nid, start_pfn, nr_pages, restrictions);
-+	return __add_pages(nid, start_pfn, nr_pages, params);
- }
- #else /* ARCH_HAS_ADD_PAGES */
- int add_pages(int nid, unsigned long start_pfn, unsigned long nr_pages,
--	      struct mhp_restrictions *restrictions);
-+	      struct mhp_params *params);
- #endif /* ARCH_HAS_ADD_PAGES */
- 
- #ifdef CONFIG_NUMA
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 0a54ffac8c68..c69469e1b40e 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -299,11 +299,11 @@ static int check_hotplug_memory_addressable(unsigned long pfn,
-  * add the new pages.
-  */
- int __ref __add_pages(int nid, unsigned long pfn, unsigned long nr_pages,
--		struct mhp_restrictions *restrictions)
-+		      struct mhp_params *params)
- {
- 	int err;
- 	unsigned long nr, start_sec, end_sec;
--	struct vmem_altmap *altmap = restrictions->altmap;
-+	struct vmem_altmap *altmap = params->altmap;
- 
- 	err = check_hotplug_memory_addressable(pfn, nr_pages);
- 	if (err)
-@@ -993,7 +993,7 @@ static int online_memory_block(struct memory_block *mem, void *arg)
-  */
- int __ref add_memory_resource(int nid, struct resource *res)
- {
--	struct mhp_restrictions restrictions = {};
-+	struct mhp_params params = {};
- 	u64 start, size;
- 	bool new_node = false;
- 	int ret;
-@@ -1021,7 +1021,7 @@ int __ref add_memory_resource(int nid, struct resource *res)
- 	new_node = ret;
- 
- 	/* call arch's memory hotadd */
--	ret = arch_add_memory(nid, start, size, &restrictions);
-+	ret = arch_add_memory(nid, start, size, &params);
- 	if (ret < 0)
- 		goto error;
- 
-diff --git a/mm/memremap.c b/mm/memremap.c
-index 09b5b7adc773..6891a503a078 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -161,7 +161,7 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- {
- 	struct resource *res = &pgmap->res;
- 	struct dev_pagemap *conflict_pgmap;
--	struct mhp_restrictions restrictions = {
-+	struct mhp_params params = {
- 		/*
- 		 * We do not want any optional features only our own memmap
- 		 */
-@@ -275,7 +275,7 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 	 */
- 	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
- 		error = add_pages(nid, PHYS_PFN(res->start),
--				PHYS_PFN(resource_size(res)), &restrictions);
-+				PHYS_PFN(resource_size(res)), &params);
- 	} else {
- 		error = kasan_add_zero_shadow(__va(res->start), resource_size(res));
- 		if (error) {
-@@ -284,7 +284,7 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 		}
- 
- 		error = arch_add_memory(nid, res->start, resource_size(res),
--					&restrictions);
-+					&params);
- 	}
- 
- 	if (!error) {
-@@ -292,7 +292,7 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
- 
- 		zone = &NODE_DATA(nid)->node_zones[ZONE_DEVICE];
- 		move_pfn_range_to_zone(zone, PHYS_PFN(res->start),
--				PHYS_PFN(resource_size(res)), restrictions.altmap);
-+				PHYS_PFN(resource_size(res)), params.altmap);
- 	}
- 
- 	mem_hotplug_done();
--- 
-2.20.1
+Thanks & Regards,
+
+      - Nayna
+
+On 3/6/20 12:39 PM, Nayna Jain wrote:
+> Every time a new architecture defines the IMA architecture specific
+> functions - arch_ima_get_secureboot() and arch_ima_get_policy(), the IMA
+> include file needs to be updated. To avoid this "noise", this patch
+> defines a new IMA Kconfig IMA_SECURE_AND_OR_TRUSTED_BOOT option, allowing
+> the different architectures to select it.
+>
+> Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> Signed-off-by: Nayna Jain <nayna@linux.ibm.com>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: Philipp Rudo <prudo@linux.ibm.com>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> ---
+> v3:
+> * Updated and tested the patch with improvements suggested by Michael.
+> It now uses "imply" instead of "select". Thanks Michael.
+> * Have missed replacing the CONFIG_IMA in x86 and s390 with new config,
+> that was resulting in redefinition when the IMA_SECURE_AND_OR_TRUSTED_BOOT
+> is not enabled. Thanks to Mimi for recognizing the problem.
+>
+> v2:
+> * Fixed the issue identified by Mimi. Thanks Mimi, Ard, Heiko and Michael for
+> discussing the fix.
+>
+>   arch/powerpc/Kconfig           | 1 +
+>   arch/s390/Kconfig              | 1 +
+>   arch/s390/kernel/Makefile      | 2 +-
+>   arch/x86/Kconfig               | 1 +
+>   arch/x86/kernel/Makefile       | 2 +-
+>   include/linux/ima.h            | 3 +--
+>   security/integrity/ima/Kconfig | 8 ++++++++
+>   7 files changed, 14 insertions(+), 4 deletions(-)
+>
+> diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+> index 497b7d0b2d7e..a5cfde432983 100644
+> --- a/arch/powerpc/Kconfig
+> +++ b/arch/powerpc/Kconfig
+> @@ -979,6 +979,7 @@ config PPC_SECURE_BOOT
+>   	bool
+>   	depends on PPC_POWERNV
+>   	depends on IMA_ARCH_POLICY
+> +	select IMA_SECURE_AND_OR_TRUSTED_BOOT
+>   	help
+>   	  Systems with firmware secure boot enabled need to define security
+>   	  policies to extend secure boot to the OS. This config allows a user
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index 8abe77536d9d..4a502fbcb800 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -195,6 +195,7 @@ config S390
+>   	select ARCH_HAS_FORCE_DMA_UNENCRYPTED
+>   	select SWIOTLB
+>   	select GENERIC_ALLOCATOR
+> +	select IMA_SECURE_AND_OR_TRUSTED_BOOT if IMA_ARCH_POLICY
+>   
+>   
+>   config SCHED_OMIT_FRAME_POINTER
+> diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+> index 2b1203cf7be6..578a6fa82ea4 100644
+> --- a/arch/s390/kernel/Makefile
+> +++ b/arch/s390/kernel/Makefile
+> @@ -70,7 +70,7 @@ obj-$(CONFIG_JUMP_LABEL)	+= jump_label.o
+>   obj-$(CONFIG_KEXEC_FILE)	+= machine_kexec_file.o kexec_image.o
+>   obj-$(CONFIG_KEXEC_FILE)	+= kexec_elf.o
+>   
+> -obj-$(CONFIG_IMA)		+= ima_arch.o
+> +obj-$(CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT)	+= ima_arch.o
+>   
+>   obj-$(CONFIG_PERF_EVENTS)	+= perf_event.o perf_cpum_cf_common.o
+>   obj-$(CONFIG_PERF_EVENTS)	+= perf_cpum_cf.o perf_cpum_sf.o
+> diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+> index beea77046f9b..7f5bfaf0cbd2 100644
+> --- a/arch/x86/Kconfig
+> +++ b/arch/x86/Kconfig
+> @@ -230,6 +230,7 @@ config X86
+>   	select VIRT_TO_BUS
+>   	select X86_FEATURE_NAMES		if PROC_FS
+>   	select PROC_PID_ARCH_STATUS		if PROC_FS
+> +	select IMA_SECURE_AND_OR_TRUSTED_BOOT	if EFI && IMA_ARCH_POLICY
+>   
+>   config INSTRUCTION_DECODER
+>   	def_bool y
+> diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+> index 9b294c13809a..7f131ceba136 100644
+> --- a/arch/x86/kernel/Makefile
+> +++ b/arch/x86/kernel/Makefile
+> @@ -155,5 +155,5 @@ ifeq ($(CONFIG_X86_64),y)
+>   endif
+>   
+>   ifdef CONFIG_EFI
+> -obj-$(CONFIG_IMA)			+= ima_arch.o
+> +obj-$(CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT)	+= ima_arch.o
+>   endif
+> diff --git a/include/linux/ima.h b/include/linux/ima.h
+> index 1659217e9b60..aefe758f4466 100644
+> --- a/include/linux/ima.h
+> +++ b/include/linux/ima.h
+> @@ -30,8 +30,7 @@ extern void ima_kexec_cmdline(const void *buf, int size);
+>   extern void ima_add_kexec_buffer(struct kimage *image);
+>   #endif
+>   
+> -#if (defined(CONFIG_X86) && defined(CONFIG_EFI)) || defined(CONFIG_S390) \
+> -	|| defined(CONFIG_PPC_SECURE_BOOT)
+> +#ifdef CONFIG_IMA_SECURE_AND_OR_TRUSTED_BOOT
+>   extern bool arch_ima_get_secureboot(void);
+>   extern const char * const *arch_get_ima_policy(void);
+>   #else
+> diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
+> index 3f3ee4e2eb0d..2baaf196c6d8 100644
+> --- a/security/integrity/ima/Kconfig
+> +++ b/security/integrity/ima/Kconfig
+> @@ -327,3 +327,11 @@ config IMA_QUEUE_EARLY_BOOT_KEYS
+>   	depends on IMA_MEASURE_ASYMMETRIC_KEYS
+>   	depends on SYSTEM_TRUSTED_KEYRING
+>   	default y
+> +
+> +config IMA_SECURE_AND_OR_TRUSTED_BOOT
+> +	bool
+> +	depends on IMA_ARCH_POLICY
+> +	default n
+> +	help
+> +	   This option is selected by architectures to enable secure and/or
+> +	   trusted boot based on IMA runtime policies.
