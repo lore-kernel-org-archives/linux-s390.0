@@ -1,273 +1,208 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8332 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727566AbgCYJfT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 25 Mar 2020 05:35:19 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02P9WmS5133757
-        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:18 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywf0q08ku-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:18 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 25 Mar 2020 09:35:13 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net-next 08/11] s390/qeth: add TX IRQ coalescing support for IQD devices
-Date: Wed, 25 Mar 2020 10:35:04 +0100
-In-Reply-To: <20200325093507.20831-1-jwi@linux.ibm.com>
-References: <20200325093507.20831-1-jwi@linux.ibm.com>
-Message-Id: <20200325093507.20831-9-jwi@linux.ibm.com>
+Received: from ale.deltatee.com ([207.54.116.67]:38416 "EHLO ale.deltatee.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727050AbgCFRJE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 6 Mar 2020 12:09:04 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Fri,  6 Mar 2020 10:08:44 -0700
+Message-Id: <20200306170846.9333-6-logang@deltatee.com>
+In-Reply-To: <20200306170846.9333-1-logang@deltatee.com>
+References: <20200306170846.9333-1-logang@deltatee.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: [PATCH v4 5/7] powerpc/mm: Thread pgprot_t through create_section_mapping()
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>
 
-Since IQD devices complete (most of) their transmissions synchronously,
-they don't offer TX completion IRQs and have no HW coalescing controls.
-But we can fake the easy parts in SW, and give the user some control wrt
-to how often the TX NAPI code should be triggered to process the TX
-completions.
+In prepartion to support a pgprot_t argument for arch_add_memory().
 
-Having per-queue controls can in particular help the dedicated mcast
-queue, as it likely benefits from different fine-tuning than what the
-ucast queues need.
-
-CC: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
 ---
- drivers/s390/net/qeth_core.h      | 15 ++++---
- drivers/s390/net/qeth_core_main.c | 20 +++++++--
- drivers/s390/net/qeth_ethtool.c   | 75 +++++++++++++++++++++++++++++++
- 3 files changed, 102 insertions(+), 8 deletions(-)
+ arch/powerpc/include/asm/book3s/64/hash.h  |  3 ++-
+ arch/powerpc/include/asm/book3s/64/radix.h |  3 ++-
+ arch/powerpc/include/asm/sparsemem.h       |  3 ++-
+ arch/powerpc/mm/book3s64/hash_utils.c      |  5 +++--
+ arch/powerpc/mm/book3s64/pgtable.c         |  7 ++++---
+ arch/powerpc/mm/book3s64/radix_pgtable.c   | 18 +++++++++++-------
+ arch/powerpc/mm/mem.c                      |  5 +++--
+ 7 files changed, 27 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index f56670bfcd0a..a6553e78af08 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -459,6 +459,7 @@ struct qeth_out_q_stats {
- 	u64 packing_mode_switch;
- 	u64 stopped;
- 	u64 doorbell;
-+	u64 coal_frames;
- 	u64 completion_yield;
- 	u64 completion_timer;
+diff --git a/arch/powerpc/include/asm/book3s/64/hash.h b/arch/powerpc/include/asm/book3s/64/hash.h
+index 2781ebf6add4..6fc4520092c7 100644
+--- a/arch/powerpc/include/asm/book3s/64/hash.h
++++ b/arch/powerpc/include/asm/book3s/64/hash.h
+@@ -251,7 +251,8 @@ extern int __meminit hash__vmemmap_create_mapping(unsigned long start,
+ extern void hash__vmemmap_remove_mapping(unsigned long start,
+ 				     unsigned long page_size);
  
-@@ -469,6 +470,8 @@ struct qeth_out_q_stats {
- 	u64 tx_dropped;
- };
+-int hash__create_section_mapping(unsigned long start, unsigned long end, int nid);
++int hash__create_section_mapping(unsigned long start, unsigned long end,
++				 int nid, pgprot_t prot);
+ int hash__remove_section_mapping(unsigned long start, unsigned long end);
  
-+#define QETH_TX_MAX_COALESCED_FRAMES	1
-+#define QETH_TX_COALESCE_USECS		25
- #define QETH_TX_TIMER_USECS		500
- 
- struct qeth_qdio_out_q {
-@@ -492,9 +495,13 @@ struct qeth_qdio_out_q {
- 	struct napi_struct napi;
- 	struct timer_list timer;
- 	struct qeth_hdr *prev_hdr;
-+	unsigned int coalesced_frames;
- 	u8 bulk_start;
- 	u8 bulk_count;
- 	u8 bulk_max;
-+
-+	unsigned int coalesce_usecs;
-+	unsigned int max_coalesced_frames;
- };
- 
- #define qeth_for_each_output_queue(card, q, i)		\
-@@ -503,12 +510,10 @@ struct qeth_qdio_out_q {
- 
- #define	qeth_napi_to_out_queue(n) container_of(n, struct qeth_qdio_out_q, napi)
- 
--static inline void qeth_tx_arm_timer(struct qeth_qdio_out_q *queue)
-+static inline void qeth_tx_arm_timer(struct qeth_qdio_out_q *queue,
-+				     unsigned long usecs)
- {
--	if (timer_pending(&queue->timer))
--		return;
--	mod_timer(&queue->timer, usecs_to_jiffies(QETH_TX_TIMER_USECS) +
--				 jiffies);
-+	timer_reduce(&queue->timer, usecs_to_jiffies(usecs) + jiffies);
+ #endif /* !__ASSEMBLY__ */
+diff --git a/arch/powerpc/include/asm/book3s/64/radix.h b/arch/powerpc/include/asm/book3s/64/radix.h
+index d97db3ad9aae..46799f3c3d1d 100644
+--- a/arch/powerpc/include/asm/book3s/64/radix.h
++++ b/arch/powerpc/include/asm/book3s/64/radix.h
+@@ -289,7 +289,8 @@ static inline unsigned long radix__get_tree_size(void)
  }
  
- static inline bool qeth_out_queue_is_full(struct qeth_qdio_out_q *queue)
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 108dd9a34f30..0c9f1464a778 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -2404,6 +2404,8 @@ static int qeth_alloc_qdio_queues(struct qeth_card *card)
- 		queue->card = card;
- 		queue->queue_no = i;
- 		timer_setup(&queue->timer, qeth_tx_completion_timer, 0);
-+		queue->coalesce_usecs = QETH_TX_COALESCE_USECS;
-+		queue->max_coalesced_frames = QETH_TX_MAX_COALESCED_FRAMES;
+ #ifdef CONFIG_MEMORY_HOTPLUG
+-int radix__create_section_mapping(unsigned long start, unsigned long end, int nid);
++int radix__create_section_mapping(unsigned long start, unsigned long end,
++				  int nid, pgprot_t prot);
+ int radix__remove_section_mapping(unsigned long start, unsigned long end);
+ #endif /* CONFIG_MEMORY_HOTPLUG */
+ #endif /* __ASSEMBLY__ */
+diff --git a/arch/powerpc/include/asm/sparsemem.h b/arch/powerpc/include/asm/sparsemem.h
+index 3192d454a733..c89b32443cff 100644
+--- a/arch/powerpc/include/asm/sparsemem.h
++++ b/arch/powerpc/include/asm/sparsemem.h
+@@ -13,7 +13,8 @@
+ #endif /* CONFIG_SPARSEMEM */
  
- 		/* give outbound qeth_qdio_buffers their qdio_buffers */
- 		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j) {
-@@ -2762,6 +2764,7 @@ static int qeth_init_qdio_queues(struct qeth_card *card)
- 		queue->next_buf_to_fill = 0;
- 		queue->do_pack = 0;
- 		queue->prev_hdr = NULL;
-+		queue->coalesced_frames = 0;
- 		queue->bulk_start = 0;
- 		queue->bulk_count = 0;
- 		queue->bulk_max = qeth_tx_select_bulk_max(card, queue);
-@@ -3357,6 +3360,7 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 		buf = queue->bufs[bidx];
- 		buf->buffer->element[buf->next_element_to_fill - 1].eflags |=
- 				SBAL_EFLAGS_LAST_ENTRY;
-+		queue->coalesced_frames += buf->frames;
+ #ifdef CONFIG_MEMORY_HOTPLUG
+-extern int create_section_mapping(unsigned long start, unsigned long end, int nid);
++extern int create_section_mapping(unsigned long start, unsigned long end,
++				  int nid, pgprot_t prot);
+ extern int remove_section_mapping(unsigned long start, unsigned long end);
  
- 		if (queue->bufstates)
- 			queue->bufstates[bidx].user = buf;
-@@ -3401,8 +3405,18 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 		     queue->queue_no, index, count);
+ #ifdef CONFIG_PPC_BOOK3S_64
+diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
+index 523d4d39d11e..201738e07a1d 100644
+--- a/arch/powerpc/mm/book3s64/hash_utils.c
++++ b/arch/powerpc/mm/book3s64/hash_utils.c
+@@ -809,7 +809,8 @@ int resize_hpt_for_hotplug(unsigned long new_mem_size)
+ 	return 0;
+ }
  
- 	/* Fake the TX completion interrupt: */
--	if (IS_IQD(card))
--		napi_schedule(&queue->napi);
-+	if (IS_IQD(card)) {
-+		unsigned int frames = READ_ONCE(queue->max_coalesced_frames);
-+		unsigned int usecs = READ_ONCE(queue->coalesce_usecs);
-+
-+		if (frames && queue->coalesced_frames >= frames) {
-+			napi_schedule(&queue->napi);
-+			queue->coalesced_frames = 0;
-+			QETH_TXQ_STAT_INC(queue, coal_frames);
-+		} else if (usecs) {
-+			qeth_tx_arm_timer(queue, usecs);
-+		}
-+	}
+-int hash__create_section_mapping(unsigned long start, unsigned long end, int nid)
++int hash__create_section_mapping(unsigned long start, unsigned long end,
++				 int nid, pgprot_t prot)
+ {
+ 	int rc;
  
- 	if (rc) {
- 		/* ignore temporary SIGA errors without busy condition */
-@@ -5667,7 +5681,7 @@ static int qeth_tx_poll(struct napi_struct *napi, int budget)
- 		if (completed <= 0) {
- 			/* Ensure we see TX completion for pending work: */
- 			if (napi_complete_done(napi, 0))
--				qeth_tx_arm_timer(queue);
-+				qeth_tx_arm_timer(queue, QETH_TX_TIMER_USECS);
- 			return 0;
+@@ -819,7 +820,7 @@ int hash__create_section_mapping(unsigned long start, unsigned long end, int nid
+ 	}
+ 
+ 	rc = htab_bolt_mapping(start, end, __pa(start),
+-			       pgprot_val(PAGE_KERNEL), mmu_linear_psize,
++			       pgprot_val(prot), mmu_linear_psize,
+ 			       mmu_kernel_ssize);
+ 
+ 	if (rc < 0) {
+diff --git a/arch/powerpc/mm/book3s64/pgtable.c b/arch/powerpc/mm/book3s64/pgtable.c
+index 2bf7e1b4fd82..e0bb69c616e4 100644
+--- a/arch/powerpc/mm/book3s64/pgtable.c
++++ b/arch/powerpc/mm/book3s64/pgtable.c
+@@ -171,12 +171,13 @@ void mmu_cleanup_all(void)
+ }
+ 
+ #ifdef CONFIG_MEMORY_HOTPLUG
+-int __meminit create_section_mapping(unsigned long start, unsigned long end, int nid)
++int __meminit create_section_mapping(unsigned long start, unsigned long end,
++				     int nid, pgprot_t prot)
+ {
+ 	if (radix_enabled())
+-		return radix__create_section_mapping(start, end, nid);
++		return radix__create_section_mapping(start, end, nid, prot);
+ 
+-	return hash__create_section_mapping(start, end, nid);
++	return hash__create_section_mapping(start, end, nid, prot);
+ }
+ 
+ int __meminit remove_section_mapping(unsigned long start, unsigned long end)
+diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
+index dd1bea45325c..0ef10b5c26ba 100644
+--- a/arch/powerpc/mm/book3s64/radix_pgtable.c
++++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
+@@ -253,7 +253,7 @@ static unsigned long next_boundary(unsigned long addr, unsigned long end)
+ 
+ static int __meminit create_physical_mapping(unsigned long start,
+ 					     unsigned long end,
+-					     int nid)
++					     int nid, pgprot_t _prot)
+ {
+ 	unsigned long vaddr, addr, mapping_size = 0;
+ 	bool prev_exec, exec = false;
+@@ -289,7 +289,7 @@ static int __meminit create_physical_mapping(unsigned long start,
+ 			prot = PAGE_KERNEL_X;
+ 			exec = true;
+ 		} else {
+-			prot = PAGE_KERNEL;
++			prot = _prot;
+ 			exec = false;
  		}
  
-diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
-index 6f0cc6fcc759..ebdc03210608 100644
---- a/drivers/s390/net/qeth_ethtool.c
-+++ b/drivers/s390/net/qeth_ethtool.c
-@@ -40,6 +40,7 @@ static const struct qeth_stats txq_stats[] = {
- 	QETH_TXQ_STAT("Packing mode switches", packing_mode_switch),
- 	QETH_TXQ_STAT("Queue stopped", stopped),
- 	QETH_TXQ_STAT("Doorbell", doorbell),
-+	QETH_TXQ_STAT("IRQ for frames", coal_frames),
- 	QETH_TXQ_STAT("Completion yield", completion_yield),
- 	QETH_TXQ_STAT("Completion timer", completion_timer),
- };
-@@ -109,6 +110,38 @@ static void qeth_get_ethtool_stats(struct net_device *dev,
- 				   txq_stats, TXQ_STATS_LEN);
- }
+@@ -333,7 +333,7 @@ static void __init radix_init_pgtable(void)
  
-+static void __qeth_set_coalesce(struct net_device *dev,
-+				struct qeth_qdio_out_q *queue,
-+				struct ethtool_coalesce *coal)
-+{
-+	WRITE_ONCE(queue->coalesce_usecs, coal->tx_coalesce_usecs);
-+	WRITE_ONCE(queue->max_coalesced_frames, coal->tx_max_coalesced_frames);
-+
-+	if (coal->tx_coalesce_usecs &&
-+	    netif_running(dev) &&
-+	    !qeth_out_queue_is_empty(queue))
-+		qeth_tx_arm_timer(queue, coal->tx_coalesce_usecs);
-+}
-+
-+static int qeth_set_coalesce(struct net_device *dev,
-+			     struct ethtool_coalesce *coal)
-+{
-+	struct qeth_card *card = dev->ml_priv;
-+	struct qeth_qdio_out_q *queue;
-+	unsigned int i;
-+
-+	if (!IS_IQD(card))
-+		return -EOPNOTSUPP;
-+
-+	if (!coal->tx_coalesce_usecs && !coal->tx_max_coalesced_frames)
-+		return -EINVAL;
-+
-+	qeth_for_each_output_queue(card, queue, i)
-+		__qeth_set_coalesce(dev, queue, coal);
-+
-+	return 0;
-+}
-+
- static void qeth_get_ringparam(struct net_device *dev,
- 			       struct ethtool_ringparam *param)
- {
-@@ -244,6 +277,43 @@ static int qeth_set_tunable(struct net_device *dev,
+ 		WARN_ON(create_physical_mapping(reg->base,
+ 						reg->base + reg->size,
+-						-1));
++						-1, PAGE_KERNEL));
  	}
+ 
+ 	/* Find out how many PID bits are supported */
+@@ -712,8 +712,10 @@ static int __meminit stop_machine_change_mapping(void *data)
+ 
+ 	spin_unlock(&init_mm.page_table_lock);
+ 	pte_clear(&init_mm, params->aligned_start, params->pte);
+-	create_physical_mapping(__pa(params->aligned_start), __pa(params->start), -1);
+-	create_physical_mapping(__pa(params->end), __pa(params->aligned_end), -1);
++	create_physical_mapping(__pa(params->aligned_start),
++				__pa(params->start), -1, PAGE_KERNEL);
++	create_physical_mapping(__pa(params->end), __pa(params->aligned_end),
++				-1, PAGE_KERNEL);
+ 	spin_lock(&init_mm.page_table_lock);
+ 	return 0;
+ }
+@@ -870,14 +872,16 @@ static void __meminit remove_pagetable(unsigned long start, unsigned long end)
+ 	radix__flush_tlb_kernel_range(start, end);
  }
  
-+static int qeth_get_per_queue_coalesce(struct net_device *dev, u32 __queue,
-+				       struct ethtool_coalesce *coal)
-+{
-+	struct qeth_card *card = dev->ml_priv;
-+	struct qeth_qdio_out_q *queue;
-+
-+	if (!IS_IQD(card))
-+		return -EOPNOTSUPP;
-+
-+	if (__queue >= card->qdio.no_out_queues)
-+		return -EINVAL;
-+
-+	queue = card->qdio.out_qs[__queue];
-+
-+	coal->tx_coalesce_usecs = queue->coalesce_usecs;
-+	coal->tx_max_coalesced_frames = queue->max_coalesced_frames;
-+	return 0;
-+}
-+
-+static int qeth_set_per_queue_coalesce(struct net_device *dev, u32 queue,
-+				       struct ethtool_coalesce *coal)
-+{
-+	struct qeth_card *card = dev->ml_priv;
-+
-+	if (!IS_IQD(card))
-+		return -EOPNOTSUPP;
-+
-+	if (queue >= card->qdio.no_out_queues)
-+		return -EINVAL;
-+
-+	if (!coal->tx_coalesce_usecs && !coal->tx_max_coalesced_frames)
-+		return -EINVAL;
-+
-+	__qeth_set_coalesce(dev, card->qdio.out_qs[queue], coal);
-+	return 0;
-+}
-+
- /* Helper function to fill 'advertising' and 'supported' which are the same. */
- /* Autoneg and full-duplex are supported and advertised unconditionally.     */
- /* Always advertise and support all speeds up to specified, and only one     */
-@@ -443,7 +513,10 @@ static int qeth_get_link_ksettings(struct net_device *netdev,
+-int __meminit radix__create_section_mapping(unsigned long start, unsigned long end, int nid)
++int __meminit radix__create_section_mapping(unsigned long start,
++					    unsigned long end, int nid,
++					    pgprot_t prot)
+ {
+ 	if (end >= RADIX_VMALLOC_START) {
+ 		pr_warn("Outside the supported range\n");
+ 		return -1;
+ 	}
+ 
+-	return create_physical_mapping(__pa(start), __pa(end), nid);
++	return create_physical_mapping(__pa(start), __pa(end), nid, prot);
  }
  
- const struct ethtool_ops qeth_ethtool_ops = {
-+	.supported_coalesce_params = ETHTOOL_COALESCE_TX_USECS |
-+				     ETHTOOL_COALESCE_TX_MAX_FRAMES,
- 	.get_link = ethtool_op_get_link,
-+	.set_coalesce = qeth_set_coalesce,
- 	.get_ringparam = qeth_get_ringparam,
- 	.get_strings = qeth_get_strings,
- 	.get_ethtool_stats = qeth_get_ethtool_stats,
-@@ -454,6 +527,8 @@ const struct ethtool_ops qeth_ethtool_ops = {
- 	.get_ts_info = qeth_get_ts_info,
- 	.get_tunable = qeth_get_tunable,
- 	.set_tunable = qeth_set_tunable,
-+	.get_per_queue_coalesce = qeth_get_per_queue_coalesce,
-+	.set_per_queue_coalesce = qeth_set_per_queue_coalesce,
- 	.get_link_ksettings = qeth_get_link_ksettings,
- };
+ int __meminit radix__remove_section_mapping(unsigned long start, unsigned long end)
+diff --git a/arch/powerpc/mm/mem.c b/arch/powerpc/mm/mem.c
+index b4bece53bec0..19b1da5d7eca 100644
+--- a/arch/powerpc/mm/mem.c
++++ b/arch/powerpc/mm/mem.c
+@@ -96,7 +96,8 @@ int memory_add_physaddr_to_nid(u64 start)
+ }
+ #endif
  
+-int __weak create_section_mapping(unsigned long start, unsigned long end, int nid)
++int __weak create_section_mapping(unsigned long start, unsigned long end,
++				  int nid, pgprot_t prot)
+ {
+ 	return -ENODEV;
+ }
+@@ -137,7 +138,7 @@ int __ref arch_add_memory(int nid, u64 start, u64 size,
+ 	resize_hpt_for_hotplug(memblock_phys_mem_size());
+ 
+ 	start = (unsigned long)__va(start);
+-	rc = create_section_mapping(start, start + size, nid);
++	rc = create_section_mapping(start, start + size, nid, PAGE_KERNEL);
+ 	if (rc) {
+ 		pr_warn("Unable to create mapping for hot added memory 0x%llx..0x%llx: %d\n",
+ 			start, start + size, rc);
 -- 
-2.17.1
+2.20.1
