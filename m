@@ -1,123 +1,178 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:33316 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727066AbgCXMKl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Mar 2020 08:10:41 -0400
-From: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Subject: [PATCH v6] s390: Fix vDSO clock_getres()
-Date: Tue, 24 Mar 2020 12:10:27 +0000
-Message-Id: <20200324121027.21665-1-vincenzo.frascino@arm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19318 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727198AbgCFNZu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Mar 2020 08:25:50 -0500
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 026DLRde067225
+        for <linux-s390@vger.kernel.org>; Fri, 6 Mar 2020 08:25:49 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2ykd49vdev-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 06 Mar 2020 08:25:49 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Fri, 6 Mar 2020 13:25:47 -0000
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: [PATCH v4 2/2] mm/gup/writeback: add callbacks for inaccessible pages
+Date: Fri,  6 Mar 2020 14:25:37 +0100
+In-Reply-To: <20200306132537.783769-1-imbrenda@linux.ibm.com>
+References: <20200306132537.783769-1-imbrenda@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20200306132537.783769-3-imbrenda@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: tglx@linutronix.de, Vincenzo Frascino <vincenzo.frascino@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-next@vger.kernel.org, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name
+Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Will Deacon <will@kernel.org>
 
-clock_getres in the vDSO library has to preserve the same behaviour
-of posix_get_hrtimer_res().
+With the introduction of protected KVM guests on s390 there is now a
+concept of inaccessible pages. These pages need to be made accessible
+before the host can access them.
 
-In particular, posix_get_hrtimer_res() does:
-    sec = 0;
-    ns = hrtimer_resolution;
-and hrtimer_resolution depends on the enablement of the high
-resolution timers that can happen either at compile or at run time.
+While cpu accesses will trigger a fault that can be resolved, I/O
+accesses will just fail.  We need to add a callback into architecture
+code for places that will do I/O, namely when writeback is started or
+when a page reference is taken.
 
-Fix the s390 vdso implementation of clock_getres keeping a copy of
-hrtimer_resolution in vdso data and using that directly.
+This is not only to enable paging, file backing etc, it is also
+necessary to protect the host against a malicious user space.  For
+example a bad QEMU could simply start direct I/O on such protected
+memory.  We do not want userspace to be able to trigger I/O errors and
+thus the logic is "whenever somebody accesses that page (gup) or does
+I/O, make sure that this page can be accessed".  When the guest tries
+to access that page we will wait in the page fault handler for
+writeback to have finished and for the page_ref to be the expected
+value.
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+On s390x the function is not supposed to fail, so it is ok to use a
+WARN_ON on failure. If we ever need some more finegrained handling
+we can tackle this when we know the details.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 ---
- arch/s390/include/asm/vdso.h           |  1 +
- arch/s390/kernel/asm-offsets.c         |  2 +-
- arch/s390/kernel/time.c                |  1 +
- arch/s390/kernel/vdso64/clock_getres.S | 10 +++++-----
- 4 files changed, 8 insertions(+), 6 deletions(-)
+ include/linux/gfp.h |  6 ++++++
+ mm/gup.c            | 30 +++++++++++++++++++++++++++---
+ mm/page-writeback.c |  9 ++++++++-
+ 3 files changed, 41 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/vdso.h b/arch/s390/include/asm/vdso.h
-index 3bcfdeb01395..0cd085cdeb4f 100644
---- a/arch/s390/include/asm/vdso.h
-+++ b/arch/s390/include/asm/vdso.h
-@@ -36,6 +36,7 @@ struct vdso_data {
- 	__u32 tk_shift;			/* Shift used for xtime_nsec	0x60 */
- 	__u32 ts_dir;			/* TOD steering direction	0x64 */
- 	__u64 ts_end;			/* TOD steering end		0x68 */
-+	__u32 hrtimer_res;		/* hrtimer resolution		0x70 */
- };
+diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+index e5b817cb86e7..be2754841369 100644
+--- a/include/linux/gfp.h
++++ b/include/linux/gfp.h
+@@ -485,6 +485,12 @@ static inline void arch_free_page(struct page *page, int order) { }
+ #ifndef HAVE_ARCH_ALLOC_PAGE
+ static inline void arch_alloc_page(struct page *page, int order) { }
+ #endif
++#ifndef HAVE_ARCH_MAKE_PAGE_ACCESSIBLE
++static inline int arch_make_page_accessible(struct page *page)
++{
++	return 0;
++}
++#endif
  
- struct vdso_per_cpu_data {
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index ce33406cfe83..19b825d0b93d 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -76,6 +76,7 @@ int main(void)
- 	OFFSET(__VDSO_TK_SHIFT, vdso_data, tk_shift);
- 	OFFSET(__VDSO_TS_DIR, vdso_data, ts_dir);
- 	OFFSET(__VDSO_TS_END, vdso_data, ts_end);
-+	OFFSET(__VDSO_CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
- 	OFFSET(__VDSO_ECTG_BASE, vdso_per_cpu_data, ectg_timer_base);
- 	OFFSET(__VDSO_ECTG_USER, vdso_per_cpu_data, ectg_user_time);
- 	OFFSET(__VDSO_GETCPU_VAL, vdso_per_cpu_data, getcpu_val);
-@@ -86,7 +87,6 @@ int main(void)
- 	DEFINE(__CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
- 	DEFINE(__CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
- 	DEFINE(__CLOCK_THREAD_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID);
--	DEFINE(__CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
- 	DEFINE(__CLOCK_COARSE_RES, LOW_RES_NSEC);
- 	BLANK();
- 	/* idle data offsets */
-diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
-index f9d070d016e3..b1113b519432 100644
---- a/arch/s390/kernel/time.c
-+++ b/arch/s390/kernel/time.c
-@@ -301,6 +301,7 @@ void update_vsyscall(struct timekeeper *tk)
+ struct page *
+ __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order, int preferred_nid,
+diff --git a/mm/gup.c b/mm/gup.c
+index 81a95fbe9901..d0c4c6f336bb 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -413,6 +413,7 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+ 	struct page *page;
+ 	spinlock_t *ptl;
+ 	pte_t *ptep, pte;
++	int ret;
  
- 	vdso_data->tk_mult = tk->tkr_mono.mult;
- 	vdso_data->tk_shift = tk->tkr_mono.shift;
-+	vdso_data->hrtimer_res = hrtimer_resolution;
- 	smp_wmb();
- 	++vdso_data->tb_update_count;
+ 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
+ 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
+@@ -471,8 +472,6 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+ 		if (is_zero_pfn(pte_pfn(pte))) {
+ 			page = pte_page(pte);
+ 		} else {
+-			int ret;
+-
+ 			ret = follow_pfn_pte(vma, address, ptep, flags);
+ 			page = ERR_PTR(ret);
+ 			goto out;
+@@ -480,7 +479,6 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+ 	}
+ 
+ 	if (flags & FOLL_SPLIT && PageTransCompound(page)) {
+-		int ret;
+ 		get_page(page);
+ 		pte_unmap_unlock(ptep, ptl);
+ 		lock_page(page);
+@@ -497,6 +495,19 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
+ 		page = ERR_PTR(-ENOMEM);
+ 		goto out;
+ 	}
++	/*
++	 * We need to make the page accessible if and only if we are going
++	 * to access its content (the FOLL_PIN case).  Please see
++	 * Documentation/core-api/pin_user_pages.rst for details.
++	 */
++	if (flags & FOLL_PIN) {
++		ret = arch_make_page_accessible(page);
++		if (ret) {
++			unpin_user_page(page);
++			page = ERR_PTR(ret);
++			goto out;
++		}
++	}
+ 	if (flags & FOLL_TOUCH) {
+ 		if ((flags & FOLL_WRITE) &&
+ 		    !pte_dirty(pte) && !PageDirty(page))
+@@ -2162,6 +2173,19 @@ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+ 
+ 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+ 
++		/*
++		 * We need to make the page accessible if and only if we are
++		 * going to access its content (the FOLL_PIN case).  Please
++		 * see Documentation/core-api/pin_user_pages.rst for
++		 * details.
++		 */
++		if (flags & FOLL_PIN) {
++			ret = arch_make_page_accessible(page);
++			if (ret) {
++				unpin_user_page(page);
++				goto pte_unmap;
++			}
++		}
+ 		SetPageReferenced(page);
+ 		pages[*nr] = page;
+ 		(*nr)++;
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index ab5a3cee8ad3..b7f3d0766a5f 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -2764,7 +2764,7 @@ int test_clear_page_writeback(struct page *page)
+ int __test_set_page_writeback(struct page *page, bool keep_write)
+ {
+ 	struct address_space *mapping = page_mapping(page);
+-	int ret;
++	int ret, access_ret;
+ 
+ 	lock_page_memcg(page);
+ 	if (mapping && mapping_use_writeback_tags(mapping)) {
+@@ -2807,6 +2807,13 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
+ 		inc_zone_page_state(page, NR_ZONE_WRITE_PENDING);
+ 	}
+ 	unlock_page_memcg(page);
++	access_ret = arch_make_page_accessible(page);
++	/*
++	 * If writeback has been triggered on a page that cannot be made
++	 * accessible, it is too late to recover here.
++	 */
++	VM_BUG_ON_PAGE(access_ret != 0, page);
++
+ 	return ret;
+ 
  }
-diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
-index 081435398e0a..022b58c980db 100644
---- a/arch/s390/kernel/vdso64/clock_getres.S
-+++ b/arch/s390/kernel/vdso64/clock_getres.S
-@@ -17,12 +17,14 @@
- 	.type  __kernel_clock_getres,@function
- __kernel_clock_getres:
- 	CFI_STARTPROC
--	larl	%r1,4f
-+	larl	%r1,3f
-+	lg	%r0,0(%r1)
- 	cghi	%r2,__CLOCK_REALTIME_COARSE
- 	je	0f
- 	cghi	%r2,__CLOCK_MONOTONIC_COARSE
- 	je	0f
--	larl	%r1,3f
-+	larl	%r1,_vdso_data
-+	l	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
- 	cghi	%r2,__CLOCK_REALTIME
- 	je	0f
- 	cghi	%r2,__CLOCK_MONOTONIC
-@@ -36,7 +38,6 @@ __kernel_clock_getres:
- 	jz	2f
- 0:	ltgr	%r3,%r3
- 	jz	1f				/* res == NULL */
--	lg	%r0,0(%r1)
- 	xc	0(8,%r3),0(%r3)			/* set tp->tv_sec to zero */
- 	stg	%r0,8(%r3)			/* store tp->tv_usec */
- 1:	lghi	%r2,0
-@@ -45,6 +46,5 @@ __kernel_clock_getres:
- 	svc	0
- 	br	%r14
- 	CFI_ENDPROC
--3:	.quad	__CLOCK_REALTIME_RES
--4:	.quad	__CLOCK_COARSE_RES
-+3:	.quad	__CLOCK_COARSE_RES
- 	.size	__kernel_clock_getres,.-__kernel_clock_getres
 -- 
-2.25.2
+2.24.1
