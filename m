@@ -1,62 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:47118 "EHLO mail.kernel.org"
+Received: from ale.deltatee.com ([207.54.116.67]:38408 "EHLO ale.deltatee.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729136AbgCCCuU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:50:20 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 12/13] s390/cio: cio_ignore_proc_seq_next should increase position index
-Date: Mon,  2 Mar 2020 21:50:01 -0500
-Message-Id: <20200303025002.10600-12-sashal@kernel.org>
-In-Reply-To: <20200303025002.10600-1-sashal@kernel.org>
-References: <20200303025002.10600-1-sashal@kernel.org>
+        id S1726974AbgCFRJD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 6 Mar 2020 12:09:03 -0500
+From: Logan Gunthorpe <logang@deltatee.com>
+Date: Fri,  6 Mar 2020 10:08:46 -0700
+Message-Id: <20200306170846.9333-8-logang@deltatee.com>
+In-Reply-To: <20200306170846.9333-1-logang@deltatee.com>
+References: <20200306170846.9333-1-logang@deltatee.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Subject: [PATCH v4 7/7] mm/memremap: Set caching mode for PCI P2PDMA memory to WC
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Averin <vvs@virtuozzo.com>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Jason Gunthorpe <jgg@ziepe.ca>
 
-From: Vasily Averin <vvs@virtuozzo.com>
+PCI BAR IO memory should never be mapped as WB, however prior to this
+the PAT bits were set WB and it was typically overridden by MTRR
+registers set by the firmware.
 
-[ Upstream commit 8b101a5e14f2161869636ff9cb4907b7749dc0c2 ]
+Set PCI P2PDMA memory to be UC as this is what it currently, typically,
+ends up being mapped as on x86 after the MTRR registers override the
+cache setting.
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
+Future use-cases may need to generalize this by adding flags to
+select the caching type, as some P2PDMA cases may not want UC.
+However, those use-cases are not upstream yet and this can be changed
+when they arrive.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Link: https://lore.kernel.org/r/d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
 ---
- drivers/s390/cio/blacklist.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ mm/memremap.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
-index 9082476b51db9..4e9f794176d35 100644
---- a/drivers/s390/cio/blacklist.c
-+++ b/drivers/s390/cio/blacklist.c
-@@ -302,8 +302,10 @@ static void *
- cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
- {
- 	struct ccwdev_iter *iter;
-+	loff_t p = *offset;
- 
--	if (*offset >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
-+	(*offset)++;
-+	if (p >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
- 		return NULL;
- 	iter = it;
- 	if (iter->devno == __MAX_SUBCHANNEL) {
-@@ -313,7 +315,6 @@ cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
- 			return NULL;
- 	} else
- 		iter->devno++;
--	(*offset)++;
- 	return iter;
- }
- 
+diff --git a/mm/memremap.c b/mm/memremap.c
+index 06742372a203..9033ae401448 100644
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -190,7 +190,10 @@ void *memremap_pages(struct dev_pagemap *pgmap, int nid)
+ 		}
+ 		break;
+ 	case MEMORY_DEVICE_DEVDAX:
++		need_devmap_managed = false;
++		break;
+ 	case MEMORY_DEVICE_PCI_P2PDMA:
++		params.pgprot = pgprot_noncached(params.pgprot);
+ 		need_devmap_managed = false;
+ 		break;
+ 	default:
 -- 
 2.20.1
