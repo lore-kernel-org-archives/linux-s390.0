@@ -1,262 +1,110 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33504 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726666AbgCIIvl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:41 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298oPwe056671
-        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:40 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym8k7cx7k-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:40 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 9 Mar 2020 08:51:38 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 18/36] KVM: S390: protvirt: Introduce instruction data area bounce buffer
-Date: Mon,  9 Mar 2020 09:51:08 +0100
-In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
-References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:38378 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726403AbgCINUC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Mar 2020 09:20:02 -0400
+Date: Mon, 9 Mar 2020 15:19:56 +0200
+From: Leon Romanovsky <leon@kernel.org>
+Subject: Re: [PATCH net] net/smc: cancel event worker during device removal
+Message-ID: <20200309131956.GB172334@unreal>
+References: <20200306134518.84416-1-kgraul@linux.ibm.com>
+ <20200308150107.GC11496@unreal>
+ <0b5d992d-2447-1606-f8ce-73801643160a@linux.ibm.com>
+ <20200309080439.GJ11496@unreal>
+ <49a3e4fc-66c3-e658-c95f-6651c4336510@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200309085126.3334302-19-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <49a3e4fc-66c3-e658-c95f-6651c4336510@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Karsten Graul <kgraul@linux.ibm.com>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On Mon, Mar 09, 2020 at 10:40:16AM +0100, Karsten Graul wrote:
+> On 09/03/2020 09:04, Leon Romanovsky wrote:
+> > On Sun, Mar 08, 2020 at 08:59:33PM +0100, Karsten Graul wrote:
+> >> On 08/03/2020 16:01, Leon Romanovsky wrote:
+> >>> On Fri, Mar 06, 2020 at 02:45:18PM +0100, Karsten Graul wrote:
+> >>>> During IB device removal, cancel the event worker before the device
+> >>>> structure is freed. In the worker, check if the device is being
+> >>>> terminated and do not proceed with the event work in that case.
+> >>>>
+> >>>> Fixes: a4cf0443c414 ("smc: introduce SMC as an IB-client")
+> >>>> Reported-by: syzbot+b297c6825752e7a07272@syzkaller.appspotmail.com
+> >>>> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+> >>>> Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+> >>>> ---
+> >>>>  net/smc/smc_ib.c | 4 ++++
+> >>>>  1 file changed, 4 insertions(+)
+> >>>>
+> >>>> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+> >>>> index d6ba186f67e2..5e4e64a9aa4b 100644
+> >>>> --- a/net/smc/smc_ib.c
+> >>>> +++ b/net/smc/smc_ib.c
+> >>>> @@ -240,6 +240,9 @@ static void smc_ib_port_event_work(struct work_struct *work)
+> >>>>  		work, struct smc_ib_device, port_event_work);
+> >>>>  	u8 port_idx;
+> >>>>
+> >>>> +	if (list_empty(&smcibdev->list))
+> >>>> +		return;
+> >>>> +
+> >>>
+> >>> How can it be true if you are not holding "smc_ib_devices.lock" during
+> >>> execution of smc_ib_port_event_work()?
+> >>>
+> >>
+> >> It is true when smc_ib_remove_dev() runs before the work actually started.
+> >> Other than that its only a shortcut to return earlier, when the item is
+> >> removed from the list after the check then the processing just takes a
+> >> little bit longer...its still save.
+> >
+> > The check itself maybe safe, but it can't fix syzkaller bug reported above.
+> > As you said, the smc_ib_remove_dev() can be called immediately after
+> > your list_empty() check and we return to original behavior.
+> >
+> > The correct design will be to ensure that smc_ib_port_event_work() is
+> > executed only smcibdev->list is not empty.
+> >
+> > Thanks
+> >
+>
+> The fix I had in mind was the
+>
+> 	cancel_work_sync(&smcibdev->port_event_work);
+>
+> to wait for a running port_event_work to finish before smcibdev is freed.
+> I can remove the list_empty() check if that is too confusing.
 
-Now that we can't access guest memory anymore, we have a dedicated
-satellite block that's a bounce buffer for instruction data.
+Yes, please.
 
-We re-use the memop interface to copy the instruction data to / from
-userspace. This lets us re-use a lot of QEMU code which used that
-interface to make logical guest memory accesses which are not possible
-anymore in protected mode anyway.
+Thanks
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h | 11 +++++-
- arch/s390/kvm/kvm-s390.c         | 66 ++++++++++++++++++++++++++++----
- arch/s390/kvm/pv.c               | 16 ++++++++
- include/uapi/linux/kvm.h         |  9 ++++-
- 4 files changed, 91 insertions(+), 11 deletions(-)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 4fcbb055a565..aa945b101fff 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -127,6 +127,12 @@ struct mcck_volatile_info {
- #define CR14_INITIAL_MASK (CR14_UNUSED_32 | CR14_UNUSED_33 | \
- 			   CR14_EXTERNAL_DAMAGE_SUBMASK)
- 
-+#define SIDAD_SIZE_MASK		0xff
-+#define sida_origin(sie_block) \
-+	((sie_block)->sidad & PAGE_MASK)
-+#define sida_size(sie_block) \
-+	((((sie_block)->sidad & SIDAD_SIZE_MASK) + 1) * PAGE_SIZE)
-+
- #define CPUSTAT_STOPPED    0x80000000
- #define CPUSTAT_WAIT       0x10000000
- #define CPUSTAT_ECALL_PEND 0x08000000
-@@ -315,7 +321,10 @@ struct kvm_s390_sie_block {
- #define CRYCB_FORMAT2 0x00000003
- 	__u32	crycbd;			/* 0x00fc */
- 	__u64	gcr[16];		/* 0x0100 */
--	__u64	gbea;			/* 0x0180 */
-+	union {
-+		__u64	gbea;		/* 0x0180 */
-+		__u64	sidad;
-+	};
- 	__u8    reserved188[8];		/* 0x0188 */
- 	__u64   sdnxo;			/* 0x0190 */
- 	__u8    reserved198[8];		/* 0x0198 */
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index bd62312fdc0e..efbbcd2948a3 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4495,12 +4495,40 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
- 	return r;
- }
- 
-+static long kvm_s390_guest_sida_op(struct kvm_vcpu *vcpu,
-+				   struct kvm_s390_mem_op *mop)
-+{
-+	void __user *uaddr = (void __user *)mop->buf;
-+	int r = 0;
-+
-+	if (mop->flags || !mop->size)
-+		return -EINVAL;
-+	if (mop->size + mop->sida_offset < mop->size)
-+		return -EINVAL;
-+	if (mop->size + mop->sida_offset > sida_size(vcpu->arch.sie_block))
-+		return -E2BIG;
-+
-+	switch (mop->op) {
-+	case KVM_S390_MEMOP_SIDA_READ:
-+		if (copy_to_user(uaddr, (void *)(sida_origin(vcpu->arch.sie_block) +
-+				 mop->sida_offset), mop->size))
-+			r = -EFAULT;
-+
-+		break;
-+	case KVM_S390_MEMOP_SIDA_WRITE:
-+		if (copy_from_user((void *)(sida_origin(vcpu->arch.sie_block) +
-+				   mop->sida_offset), uaddr, mop->size))
-+			r = -EFAULT;
-+		break;
-+	}
-+	return r;
-+}
- static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 				  struct kvm_s390_mem_op *mop)
- {
- 	void __user *uaddr = (void __user *)mop->buf;
- 	void *tmpbuf = NULL;
--	int r, srcu_idx;
-+	int r = 0;
- 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
- 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
- 
-@@ -4510,14 +4538,15 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 	if (mop->size > MEM_OP_MAX_SIZE)
- 		return -E2BIG;
- 
-+	if (kvm_s390_pv_cpu_is_protected(vcpu))
-+		return -EINVAL;
-+
- 	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
- 		tmpbuf = vmalloc(mop->size);
- 		if (!tmpbuf)
- 			return -ENOMEM;
- 	}
- 
--	srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
--
- 	switch (mop->op) {
- 	case KVM_S390_MEMOP_LOGICAL_READ:
- 		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
-@@ -4543,12 +4572,8 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 		}
- 		r = write_guest(vcpu, mop->gaddr, mop->ar, tmpbuf, mop->size);
- 		break;
--	default:
--		r = -EINVAL;
- 	}
- 
--	srcu_read_unlock(&vcpu->kvm->srcu, srcu_idx);
--
- 	if (r > 0 && (mop->flags & KVM_S390_MEMOP_F_INJECT_EXCEPTION) != 0)
- 		kvm_s390_inject_prog_irq(vcpu, &vcpu->arch.pgm);
- 
-@@ -4556,6 +4581,31 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
- 	return r;
- }
- 
-+static long kvm_s390_guest_memsida_op(struct kvm_vcpu *vcpu,
-+				      struct kvm_s390_mem_op *mop)
-+{
-+	int r, srcu_idx;
-+
-+	srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
-+
-+	switch (mop->op) {
-+	case KVM_S390_MEMOP_LOGICAL_READ:
-+	case KVM_S390_MEMOP_LOGICAL_WRITE:
-+		r = kvm_s390_guest_mem_op(vcpu, mop);
-+		break;
-+	case KVM_S390_MEMOP_SIDA_READ:
-+	case KVM_S390_MEMOP_SIDA_WRITE:
-+		/* we are locked against sida going away by the vcpu->mutex */
-+		r = kvm_s390_guest_sida_op(vcpu, mop);
-+		break;
-+	default:
-+		r = -EINVAL;
-+	}
-+
-+	srcu_read_unlock(&vcpu->kvm->srcu, srcu_idx);
-+	return r;
-+}
-+
- long kvm_arch_vcpu_async_ioctl(struct file *filp,
- 			       unsigned int ioctl, unsigned long arg)
- {
-@@ -4686,7 +4736,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
- 		struct kvm_s390_mem_op mem_op;
- 
- 		if (copy_from_user(&mem_op, argp, sizeof(mem_op)) == 0)
--			r = kvm_s390_guest_mem_op(vcpu, &mem_op);
-+			r = kvm_s390_guest_memsida_op(vcpu, &mem_op);
- 		else
- 			r = -EFAULT;
- 		break;
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index 9840ee49e572..13a41533eacf 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -33,10 +33,18 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
- 	if (!cc)
- 		free_pages(vcpu->arch.pv.stor_base,
- 			   get_order(uv_info.guest_cpu_stor_len));
-+
-+	free_page(sida_origin(vcpu->arch.sie_block));
- 	vcpu->arch.sie_block->pv_handle_cpu = 0;
- 	vcpu->arch.sie_block->pv_handle_config = 0;
- 	memset(&vcpu->arch.pv, 0, sizeof(vcpu->arch.pv));
- 	vcpu->arch.sie_block->sdf = 0;
-+	/*
-+	 * The sidad field (for sdf == 2) is now the gbea field (for sdf == 0).
-+	 * Use the reset value of gbea to avoid leaking the kernel pointer of
-+	 * the just freed sida.
-+	 */
-+	vcpu->arch.sie_block->gbea = 1;
- 	kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
- 
- 	return cc ? EIO : 0;
-@@ -64,6 +72,14 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
- 	uvcb.state_origin = (u64)vcpu->arch.sie_block;
- 	uvcb.stor_origin = (u64)vcpu->arch.pv.stor_base;
- 
-+	/* Alloc Secure Instruction Data Area Designation */
-+	vcpu->arch.sie_block->sidad = __get_free_page(GFP_KERNEL | __GFP_ZERO);
-+	if (!vcpu->arch.sie_block->sidad) {
-+		free_pages(vcpu->arch.pv.stor_base,
-+			   get_order(uv_info.guest_cpu_stor_len));
-+		return -ENOMEM;
-+	}
-+
- 	cc = uv_call(0, (u64)&uvcb);
- 	*rc = uvcb.header.rc;
- 	*rrc = uvcb.header.rrc;
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index ad69817f7792..f4cac1c09e97 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -474,12 +474,17 @@ struct kvm_s390_mem_op {
- 	__u32 size;		/* amount of bytes */
- 	__u32 op;		/* type of operation */
- 	__u64 buf;		/* buffer in userspace */
--	__u8 ar;		/* the access register number */
--	__u8 reserved[31];	/* should be set to 0 */
-+	union {
-+		__u8 ar;	/* the access register number */
-+		__u32 sida_offset; /* offset into the sida */
-+		__u8 reserved[32]; /* should be set to 0 */
-+	};
- };
- /* types for kvm_s390_mem_op->op */
- #define KVM_S390_MEMOP_LOGICAL_READ	0
- #define KVM_S390_MEMOP_LOGICAL_WRITE	1
-+#define KVM_S390_MEMOP_SIDA_READ	2
-+#define KVM_S390_MEMOP_SIDA_WRITE	3
- /* flags for kvm_s390_mem_op->flags */
- #define KVM_S390_MEMOP_F_CHECK_ONLY		(1ULL << 0)
- #define KVM_S390_MEMOP_F_INJECT_EXCEPTION	(1ULL << 1)
--- 
-2.24.1
+>
+> >>
+> >>>>  	for_each_set_bit(port_idx, &smcibdev->port_event_mask, SMC_MAX_PORTS) {
+> >>>>  		smc_ib_remember_port_attr(smcibdev, port_idx + 1);
+> >>>>  		clear_bit(port_idx, &smcibdev->port_event_mask);
+> >>>> @@ -582,6 +585,7 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
+> >>>>  	smc_smcr_terminate_all(smcibdev);
+> >>>>  	smc_ib_cleanup_per_ibdev(smcibdev);
+> >>>>  	ib_unregister_event_handler(&smcibdev->event_handler);
+> >>>> +	cancel_work_sync(&smcibdev->port_event_work);
+> >>>>  	kfree(smcibdev);
+> >>>>  }
+> >>>>
+> >>>> --
+> >>>> 2.17.1
+> >>>>
+> >>
+> >> --
+> >> Karsten
+> >>
+> >> (I'm a dude)
+> >>
+>
+> --
+> Karsten
+>
+> (I'm a dude)
+>
