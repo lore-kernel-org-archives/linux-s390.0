@@ -1,71 +1,134 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51766 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39292 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727110AbgCXINK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Mar 2020 04:13:10 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02O84CG8012455
-        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 04:13:08 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywf3eqqka-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 04:13:08 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 24 Mar 2020 08:13:04 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 03/10] s390x: smp: Test stop and store status on a running and stopped cpu
-Date: Tue, 24 Mar 2020 04:12:44 -0400
-In-Reply-To: <20200324081251.28810-1-frankja@linux.ibm.com>
-References: <20200324081251.28810-1-frankja@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1726772AbgCIPBX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 11:01:23 -0400
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 2/4] selftests: KVM: s390: test more register variants for the reset ioctl
+Date: Mon,  9 Mar 2020 11:00:24 -0400
+Message-Id: <20200309150026.4329-3-borntraeger@de.ibm.com>
+In-Reply-To: <20200309150026.4329-1-borntraeger@de.ibm.com>
+References: <20200309150026.4329-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200324081251.28810-4-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
 
-Let's also test the stop portion of the "stop and store status" sigp
-order.
+We should not only test the oneregs or the get_(x)regs interfaces but
+also the sync_regs. Those are usually the canonical place for register
+content.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- s390x/smp.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ tools/testing/selftests/kvm/s390x/resets.c | 50 ++++++++++++++++++----
+ 1 file changed, 41 insertions(+), 9 deletions(-)
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 95df8c49d2495391..8a6cd1d8b17d76c6 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -76,12 +76,26 @@ static void test_stop_store_status(void)
- 	struct lowcore *lc = (void *)0x0;
+diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
+index cbb343ad5d42..c385842792b7 100644
+--- a/tools/testing/selftests/kvm/s390x/resets.c
++++ b/tools/testing/selftests/kvm/s390x/resets.c
+@@ -20,8 +20,8 @@ struct kvm_s390_irq buf[VCPU_ID + LOCAL_IRQS];
  
- 	report_prefix_push("stop store status");
-+	report_prefix_push("running");
-+	smp_cpu_restart(1);
- 	lc->prefix_sa = 0;
- 	lc->grs_sa[15] = 0;
- 	smp_cpu_stop_store_status(1);
- 	mb();
- 	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
- 	report(lc->grs_sa[15], "stack");
-+	report(smp_cpu_stopped(1), "cpu stopped");
-+	report_prefix_pop();
+ struct kvm_vm *vm;
+ struct kvm_run *run;
+-struct kvm_sync_regs *regs;
+-static uint64_t regs_null[16];
++struct kvm_sync_regs *sync_regs;
++static uint8_t regs_null[512];
+ 
+ static void guest_code_initial(void)
+ {
+@@ -86,6 +86,16 @@ static void assert_clear(void)
+ 
+ 	vcpu_fpu_get(vm, VCPU_ID, &fpu);
+ 	TEST_ASSERT(!memcmp(&fpu.fprs, regs_null, sizeof(fpu.fprs)), "fprs == 0");
 +
-+	report_prefix_push("stopped");
-+	lc->prefix_sa = 0;
-+	lc->grs_sa[15] = 0;
-+	smp_cpu_stop_store_status(1);
-+	mb();
-+	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
-+	report(lc->grs_sa[15], "stack");
-+	report_prefix_pop();
++	/* sync regs */
++	TEST_ASSERT(!memcmp(sync_regs->gprs, regs_null, sizeof(sync_regs->gprs)),
++		    "gprs0-15 == 0 (sync_regs)");
 +
- 	report_prefix_pop();
++	TEST_ASSERT(!memcmp(sync_regs->acrs, regs_null, sizeof(sync_regs->acrs)),
++		    "acrs0-15 == 0 (sync_regs)");
++
++	TEST_ASSERT(!memcmp(sync_regs->vrs, regs_null, sizeof(sync_regs->vrs)),
++		    "vrs0-15 == 0 (sync_regs)");
  }
  
+ static void assert_initial(void)
+@@ -93,12 +103,32 @@ static void assert_initial(void)
+ 	struct kvm_sregs sregs;
+ 	struct kvm_fpu fpu;
+ 
++	/* KVM_GET_SREGS */
+ 	vcpu_sregs_get(vm, VCPU_ID, &sregs);
+-	TEST_ASSERT(sregs.crs[0] == 0xE0UL, "cr0 == 0xE0");
+-	TEST_ASSERT(sregs.crs[14] == 0xC2000000UL, "cr14 == 0xC2000000");
++	TEST_ASSERT(sregs.crs[0] == 0xE0UL, "cr0 == 0xE0 (KVM_GET_SREGS)");
++	TEST_ASSERT(sregs.crs[14] == 0xC2000000UL,
++		    "cr14 == 0xC2000000 (KVM_GET_SREGS)");
+ 	TEST_ASSERT(!memcmp(&sregs.crs[1], regs_null, sizeof(sregs.crs[1]) * 12),
+-		    "cr1-13 == 0");
+-	TEST_ASSERT(sregs.crs[15] == 0, "cr15 == 0");
++		    "cr1-13 == 0 (KVM_GET_SREGS)");
++	TEST_ASSERT(sregs.crs[15] == 0, "cr15 == 0 (KVM_GET_SREGS)");
++
++	/* sync regs */
++	TEST_ASSERT(sync_regs->crs[0] == 0xE0UL, "cr0 == 0xE0 (sync_regs)");
++	TEST_ASSERT(sync_regs->crs[14] == 0xC2000000UL,
++		    "cr14 == 0xC2000000 (sync_regs)");
++	TEST_ASSERT(!memcmp(&sync_regs->crs[1], regs_null, 8 * 12),
++		    "cr1-13 == 0 (sync_regs)");
++	TEST_ASSERT(sync_regs->crs[15] == 0, "cr15 == 0 (sync_regs)");
++	TEST_ASSERT(sync_regs->fpc == 0, "fpc == 0 (sync_regs)");
++	TEST_ASSERT(sync_regs->todpr == 0, "todpr == 0 (sync_regs)");
++	TEST_ASSERT(sync_regs->cputm == 0, "cputm == 0 (sync_regs)");
++	TEST_ASSERT(sync_regs->ckc == 0, "ckc == 0 (sync_regs)");
++	TEST_ASSERT(sync_regs->pp == 0, "pp == 0 (sync_regs)");
++	TEST_ASSERT(sync_regs->gbea == 1, "gbea == 1 (sync_regs)");
++
++	/* kvm_run */
++	TEST_ASSERT(run->psw_addr == 0, "psw_addr == 0 (kvm_run)");
++	TEST_ASSERT(run->psw_mask == 0, "psw_mask == 0 (kvm_run)");
+ 
+ 	vcpu_fpu_get(vm, VCPU_ID, &fpu);
+ 	TEST_ASSERT(!fpu.fpc, "fpc == 0");
+@@ -113,6 +143,8 @@ static void assert_initial(void)
+ static void assert_normal(void)
+ {
+ 	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
++	TEST_ASSERT(sync_regs->pft == KVM_S390_PFAULT_TOKEN_INVALID,
++			"pft == 0xff.....  (sync_regs)");
+ 	assert_noirq();
+ }
+ 
+@@ -137,7 +169,7 @@ static void test_normal(void)
+ 	/* Create VM */
+ 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
+ 	run = vcpu_state(vm, VCPU_ID);
+-	regs = &run->s.regs;
++	sync_regs = &run->s.regs;
+ 
+ 	vcpu_run(vm, VCPU_ID);
+ 
+@@ -153,7 +185,7 @@ static void test_initial(void)
+ 	printf("Testing initial reset\n");
+ 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
+ 	run = vcpu_state(vm, VCPU_ID);
+-	regs = &run->s.regs;
++	sync_regs = &run->s.regs;
+ 
+ 	vcpu_run(vm, VCPU_ID);
+ 
+@@ -170,7 +202,7 @@ static void test_clear(void)
+ 	printf("Testing clear reset\n");
+ 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
+ 	run = vcpu_state(vm, VCPU_ID);
+-	regs = &run->s.regs;
++	sync_regs = &run->s.regs;
+ 
+ 	vcpu_run(vm, VCPU_ID);
+ 
 -- 
-2.25.1
+2.25.0
