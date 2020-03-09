@@ -1,163 +1,262 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62506 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726752AbgCCAZS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Mar 2020 19:25:18 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0230L7Bv050739
-        for <linux-s390@vger.kernel.org>; Mon, 2 Mar 2020 19:25:18 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2yfn16n2as-1
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33504 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726666AbgCIIvl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:41 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298oPwe056671
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:40 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym8k7cx7k-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 02 Mar 2020 19:25:17 -0500
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:40 -0400
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Tue, 3 Mar 2020 00:25:15 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH v2 2/2] mm/gup/writeback: add callbacks for inaccessible pages
-Date: Tue,  3 Mar 2020 01:25:06 +0100
-In-Reply-To: <20200303002506.173957-1-imbrenda@linux.ibm.com>
-References: <20200303002506.173957-1-imbrenda@linux.ibm.com>
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 9 Mar 2020 08:51:38 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 18/36] KVM: S390: protvirt: Introduce instruction data area bounce buffer
+Date: Mon,  9 Mar 2020 09:51:08 +0100
+In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200303002506.173957-3-imbrenda@linux.ibm.com>
+Message-Id: <20200309085126.3334302-19-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-next@vger.kernel.org, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name
-Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Will Deacon <will@kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-With the introduction of protected KVM guests on s390 there is now a
-concept of inaccessible pages. These pages need to be made accessible
-before the host can access them.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-While cpu accesses will trigger a fault that can be resolved, I/O
-accesses will just fail.  We need to add a callback into architecture
-code for places that will do I/O, namely when writeback is started or
-when a page reference is taken.
+Now that we can't access guest memory anymore, we have a dedicated
+satellite block that's a bounce buffer for instruction data.
 
-This is not only to enable paging, file backing etc, it is also
-necessary to protect the host against a malicious user space.  For
-example a bad QEMU could simply start direct I/O on such protected
-memory.  We do not want userspace to be able to trigger I/O errors and
-thus the logic is "whenever somebody accesses that page (gup) or does
-I/O, make sure that this page can be accessed".  When the guest tries
-to access that page we will wait in the page fault handler for
-writeback to have finished and for the page_ref to be the expected
-value.
+We re-use the memop interface to copy the instruction data to / from
+userspace. This lets us re-use a lot of QEMU code which used that
+interface to make logical guest memory accesses which are not possible
+anymore in protected mode anyway.
 
-On s390x the function is not supposed to fail, so it is ok to use a
-WARN_ON on failure. If we ever need some more finegrained handling
-we can tackle this when we know the details.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- include/linux/gfp.h |  6 ++++++
- mm/gup.c            | 27 ++++++++++++++++++++++++---
- mm/page-writeback.c |  5 +++++
- 3 files changed, 35 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 11 +++++-
+ arch/s390/kvm/kvm-s390.c         | 66 ++++++++++++++++++++++++++++----
+ arch/s390/kvm/pv.c               | 16 ++++++++
+ include/uapi/linux/kvm.h         |  9 ++++-
+ 4 files changed, 91 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/gfp.h b/include/linux/gfp.h
-index e5b817cb86e7..be2754841369 100644
---- a/include/linux/gfp.h
-+++ b/include/linux/gfp.h
-@@ -485,6 +485,12 @@ static inline void arch_free_page(struct page *page, int order) { }
- #ifndef HAVE_ARCH_ALLOC_PAGE
- static inline void arch_alloc_page(struct page *page, int order) { }
- #endif
-+#ifndef HAVE_ARCH_MAKE_PAGE_ACCESSIBLE
-+static inline int arch_make_page_accessible(struct page *page)
-+{
-+	return 0;
-+}
-+#endif
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index 4fcbb055a565..aa945b101fff 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -127,6 +127,12 @@ struct mcck_volatile_info {
+ #define CR14_INITIAL_MASK (CR14_UNUSED_32 | CR14_UNUSED_33 | \
+ 			   CR14_EXTERNAL_DAMAGE_SUBMASK)
  
- struct page *
- __alloc_pages_nodemask(gfp_t gfp_mask, unsigned int order, int preferred_nid,
-diff --git a/mm/gup.c b/mm/gup.c
-index 81a95fbe9901..15c47e0e86f8 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -413,6 +413,7 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	struct page *page;
- 	spinlock_t *ptl;
- 	pte_t *ptep, pte;
-+	int ret;
- 
- 	/* FOLL_GET and FOLL_PIN are mutually exclusive. */
- 	if (WARN_ON_ONCE((flags & (FOLL_PIN | FOLL_GET)) ==
-@@ -471,8 +472,6 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 		if (is_zero_pfn(pte_pfn(pte))) {
- 			page = pte_page(pte);
- 		} else {
--			int ret;
--
- 			ret = follow_pfn_pte(vma, address, ptep, flags);
- 			page = ERR_PTR(ret);
- 			goto out;
-@@ -480,7 +479,6 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 	}
- 
- 	if (flags & FOLL_SPLIT && PageTransCompound(page)) {
--		int ret;
- 		get_page(page);
- 		pte_unmap_unlock(ptep, ptl);
- 		lock_page(page);
-@@ -497,6 +495,19 @@ static struct page *follow_page_pte(struct vm_area_struct *vma,
- 		page = ERR_PTR(-ENOMEM);
- 		goto out;
- 	}
-+	/*
-+	 * We need to make the page accessible if we are actually going to
-+	 * poke at its content (pin), otherwise we can leave it inaccessible.
-+	 * If we cannot make the page accessible, fail.
-+	 */
-+	if (flags & FOLL_PIN) {
-+		ret = arch_make_page_accessible(page);
-+		if (ret) {
-+			unpin_user_page(page);
-+			page = ERR_PTR(ret);
-+			goto out;
-+		}
-+	}
- 	if (flags & FOLL_TOUCH) {
- 		if ((flags & FOLL_WRITE) &&
- 		    !pte_dirty(pte) && !PageDirty(page))
-@@ -2162,6 +2173,16 @@ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
- 
- 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
- 
-+		/*
-+		 * We need to make the page accessible if we are actually
-+		 * going to poke at its content (pin), otherwise we can
-+		 * leave it inaccessible. If the page cannot be made
-+		 * accessible, fail.
-+		 */
-+		if ((flags & FOLL_PIN) && arch_make_page_accessible(page)) {
-+			unpin_user_page(page);
-+			goto pte_unmap;
-+		}
- 		SetPageReferenced(page);
- 		pages[*nr] = page;
- 		(*nr)++;
-diff --git a/mm/page-writeback.c b/mm/page-writeback.c
-index ab5a3cee8ad3..8384be5a2758 100644
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -2807,6 +2807,11 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
- 		inc_zone_page_state(page, NR_ZONE_WRITE_PENDING);
- 	}
- 	unlock_page_memcg(page);
-+	/*
-+	 * If writeback has been triggered on a page that cannot be made
-+	 * accessible, it is too late.
-+	 */
-+	WARN_ON(arch_make_page_accessible(page));
- 	return ret;
- 
++#define SIDAD_SIZE_MASK		0xff
++#define sida_origin(sie_block) \
++	((sie_block)->sidad & PAGE_MASK)
++#define sida_size(sie_block) \
++	((((sie_block)->sidad & SIDAD_SIZE_MASK) + 1) * PAGE_SIZE)
++
+ #define CPUSTAT_STOPPED    0x80000000
+ #define CPUSTAT_WAIT       0x10000000
+ #define CPUSTAT_ECALL_PEND 0x08000000
+@@ -315,7 +321,10 @@ struct kvm_s390_sie_block {
+ #define CRYCB_FORMAT2 0x00000003
+ 	__u32	crycbd;			/* 0x00fc */
+ 	__u64	gcr[16];		/* 0x0100 */
+-	__u64	gbea;			/* 0x0180 */
++	union {
++		__u64	gbea;		/* 0x0180 */
++		__u64	sidad;
++	};
+ 	__u8    reserved188[8];		/* 0x0188 */
+ 	__u64   sdnxo;			/* 0x0190 */
+ 	__u8    reserved198[8];		/* 0x0198 */
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index bd62312fdc0e..efbbcd2948a3 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4495,12 +4495,40 @@ static int kvm_vcpu_ioctl_enable_cap(struct kvm_vcpu *vcpu,
+ 	return r;
  }
+ 
++static long kvm_s390_guest_sida_op(struct kvm_vcpu *vcpu,
++				   struct kvm_s390_mem_op *mop)
++{
++	void __user *uaddr = (void __user *)mop->buf;
++	int r = 0;
++
++	if (mop->flags || !mop->size)
++		return -EINVAL;
++	if (mop->size + mop->sida_offset < mop->size)
++		return -EINVAL;
++	if (mop->size + mop->sida_offset > sida_size(vcpu->arch.sie_block))
++		return -E2BIG;
++
++	switch (mop->op) {
++	case KVM_S390_MEMOP_SIDA_READ:
++		if (copy_to_user(uaddr, (void *)(sida_origin(vcpu->arch.sie_block) +
++				 mop->sida_offset), mop->size))
++			r = -EFAULT;
++
++		break;
++	case KVM_S390_MEMOP_SIDA_WRITE:
++		if (copy_from_user((void *)(sida_origin(vcpu->arch.sie_block) +
++				   mop->sida_offset), uaddr, mop->size))
++			r = -EFAULT;
++		break;
++	}
++	return r;
++}
+ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 				  struct kvm_s390_mem_op *mop)
+ {
+ 	void __user *uaddr = (void __user *)mop->buf;
+ 	void *tmpbuf = NULL;
+-	int r, srcu_idx;
++	int r = 0;
+ 	const u64 supported_flags = KVM_S390_MEMOP_F_INJECT_EXCEPTION
+ 				    | KVM_S390_MEMOP_F_CHECK_ONLY;
+ 
+@@ -4510,14 +4538,15 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 	if (mop->size > MEM_OP_MAX_SIZE)
+ 		return -E2BIG;
+ 
++	if (kvm_s390_pv_cpu_is_protected(vcpu))
++		return -EINVAL;
++
+ 	if (!(mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY)) {
+ 		tmpbuf = vmalloc(mop->size);
+ 		if (!tmpbuf)
+ 			return -ENOMEM;
+ 	}
+ 
+-	srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
+-
+ 	switch (mop->op) {
+ 	case KVM_S390_MEMOP_LOGICAL_READ:
+ 		if (mop->flags & KVM_S390_MEMOP_F_CHECK_ONLY) {
+@@ -4543,12 +4572,8 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 		}
+ 		r = write_guest(vcpu, mop->gaddr, mop->ar, tmpbuf, mop->size);
+ 		break;
+-	default:
+-		r = -EINVAL;
+ 	}
+ 
+-	srcu_read_unlock(&vcpu->kvm->srcu, srcu_idx);
+-
+ 	if (r > 0 && (mop->flags & KVM_S390_MEMOP_F_INJECT_EXCEPTION) != 0)
+ 		kvm_s390_inject_prog_irq(vcpu, &vcpu->arch.pgm);
+ 
+@@ -4556,6 +4581,31 @@ static long kvm_s390_guest_mem_op(struct kvm_vcpu *vcpu,
+ 	return r;
+ }
+ 
++static long kvm_s390_guest_memsida_op(struct kvm_vcpu *vcpu,
++				      struct kvm_s390_mem_op *mop)
++{
++	int r, srcu_idx;
++
++	srcu_idx = srcu_read_lock(&vcpu->kvm->srcu);
++
++	switch (mop->op) {
++	case KVM_S390_MEMOP_LOGICAL_READ:
++	case KVM_S390_MEMOP_LOGICAL_WRITE:
++		r = kvm_s390_guest_mem_op(vcpu, mop);
++		break;
++	case KVM_S390_MEMOP_SIDA_READ:
++	case KVM_S390_MEMOP_SIDA_WRITE:
++		/* we are locked against sida going away by the vcpu->mutex */
++		r = kvm_s390_guest_sida_op(vcpu, mop);
++		break;
++	default:
++		r = -EINVAL;
++	}
++
++	srcu_read_unlock(&vcpu->kvm->srcu, srcu_idx);
++	return r;
++}
++
+ long kvm_arch_vcpu_async_ioctl(struct file *filp,
+ 			       unsigned int ioctl, unsigned long arg)
+ {
+@@ -4686,7 +4736,7 @@ long kvm_arch_vcpu_ioctl(struct file *filp,
+ 		struct kvm_s390_mem_op mem_op;
+ 
+ 		if (copy_from_user(&mem_op, argp, sizeof(mem_op)) == 0)
+-			r = kvm_s390_guest_mem_op(vcpu, &mem_op);
++			r = kvm_s390_guest_memsida_op(vcpu, &mem_op);
+ 		else
+ 			r = -EFAULT;
+ 		break;
+diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+index 9840ee49e572..13a41533eacf 100644
+--- a/arch/s390/kvm/pv.c
++++ b/arch/s390/kvm/pv.c
+@@ -33,10 +33,18 @@ int kvm_s390_pv_destroy_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+ 	if (!cc)
+ 		free_pages(vcpu->arch.pv.stor_base,
+ 			   get_order(uv_info.guest_cpu_stor_len));
++
++	free_page(sida_origin(vcpu->arch.sie_block));
+ 	vcpu->arch.sie_block->pv_handle_cpu = 0;
+ 	vcpu->arch.sie_block->pv_handle_config = 0;
+ 	memset(&vcpu->arch.pv, 0, sizeof(vcpu->arch.pv));
+ 	vcpu->arch.sie_block->sdf = 0;
++	/*
++	 * The sidad field (for sdf == 2) is now the gbea field (for sdf == 0).
++	 * Use the reset value of gbea to avoid leaking the kernel pointer of
++	 * the just freed sida.
++	 */
++	vcpu->arch.sie_block->gbea = 1;
+ 	kvm_make_request(KVM_REQ_TLB_FLUSH, vcpu);
+ 
+ 	return cc ? EIO : 0;
+@@ -64,6 +72,14 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
+ 	uvcb.state_origin = (u64)vcpu->arch.sie_block;
+ 	uvcb.stor_origin = (u64)vcpu->arch.pv.stor_base;
+ 
++	/* Alloc Secure Instruction Data Area Designation */
++	vcpu->arch.sie_block->sidad = __get_free_page(GFP_KERNEL | __GFP_ZERO);
++	if (!vcpu->arch.sie_block->sidad) {
++		free_pages(vcpu->arch.pv.stor_base,
++			   get_order(uv_info.guest_cpu_stor_len));
++		return -ENOMEM;
++	}
++
+ 	cc = uv_call(0, (u64)&uvcb);
+ 	*rc = uvcb.header.rc;
+ 	*rrc = uvcb.header.rrc;
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index ad69817f7792..f4cac1c09e97 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -474,12 +474,17 @@ struct kvm_s390_mem_op {
+ 	__u32 size;		/* amount of bytes */
+ 	__u32 op;		/* type of operation */
+ 	__u64 buf;		/* buffer in userspace */
+-	__u8 ar;		/* the access register number */
+-	__u8 reserved[31];	/* should be set to 0 */
++	union {
++		__u8 ar;	/* the access register number */
++		__u32 sida_offset; /* offset into the sida */
++		__u8 reserved[32]; /* should be set to 0 */
++	};
+ };
+ /* types for kvm_s390_mem_op->op */
+ #define KVM_S390_MEMOP_LOGICAL_READ	0
+ #define KVM_S390_MEMOP_LOGICAL_WRITE	1
++#define KVM_S390_MEMOP_SIDA_READ	2
++#define KVM_S390_MEMOP_SIDA_WRITE	3
+ /* flags for kvm_s390_mem_op->flags */
+ #define KVM_S390_MEMOP_F_CHECK_ONLY		(1ULL << 0)
+ #define KVM_S390_MEMOP_F_INJECT_EXCEPTION	(1ULL << 1)
 -- 
 2.24.1
