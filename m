@@ -1,105 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:41530 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728339AbgCKJJS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Mar 2020 05:09:18 -0400
-From: Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH] s390/zcrypt: Use scnprintf() for avoiding potential buffer overflow
-Date: Wed, 11 Mar 2020 10:09:15 +0100
-Message-Id: <20200311090915.21059-1-tiwai@suse.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29694 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727334AbgCIS33 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 14:29:29 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 029ILJNH070241
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 14:29:28 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym7ab0str-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 14:29:27 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 9 Mar 2020 18:29:24 -0000
+Subject: Re: [PATCH 3/4] KVM: s390: Also reset registers in sync regs for
+ initial cpu reset
+References: <20200309150026.4329-1-borntraeger@de.ibm.com>
+ <20200309150026.4329-4-borntraeger@de.ibm.com>
+ <0c644633-b3db-d095-d309-6fb90183f2dc@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 9 Mar 2020 19:29:19 +0100
+MIME-Version: 1.0
+In-Reply-To: <0c644633-b3db-d095-d309-6fb90183f2dc@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <6f38707d-f5e6-9113-12aa-0b7c5bded715@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, stable@vger.kernel.org
 
-Since snprintf() returns the would-be-output size instead of the
-actual output size, the succeeding calls may go beyond the given
-buffer limit.  Fix it by replacing with scnprintf().
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
----
- drivers/s390/crypto/zcrypt_cex4.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_cex4.c b/drivers/s390/crypto/zcrypt_cex4.c
-index 9a9d02e19774..dea96d5b65fb 100644
---- a/drivers/s390/crypto/zcrypt_cex4.c
-+++ b/drivers/s390/crypto/zcrypt_cex4.c
-@@ -128,16 +128,16 @@ static ssize_t cca_mkvps_show(struct device *dev,
- 		n = snprintf(buf, PAGE_SIZE, "AES NEW: - -\n");
- 
- 	if (ci.cur_mk_state >= '1' && ci.cur_mk_state <= '2')
--		n += snprintf(buf + n, PAGE_SIZE - n, "AES CUR: %s 0x%016llx\n",
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "AES CUR: %s 0x%016llx\n",
- 			      cao_state[ci.cur_mk_state - '1'], ci.cur_mkvp);
- 	else
--		n += snprintf(buf + n, PAGE_SIZE - n, "AES CUR: - -\n");
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "AES CUR: - -\n");
- 
- 	if (ci.old_mk_state >= '1' && ci.old_mk_state <= '2')
--		n += snprintf(buf + n, PAGE_SIZE - n, "AES OLD: %s 0x%016llx\n",
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "AES OLD: %s 0x%016llx\n",
- 			      cao_state[ci.old_mk_state - '1'], ci.old_mkvp);
- 	else
--		n += snprintf(buf + n, PAGE_SIZE - n, "AES OLD: - -\n");
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "AES OLD: - -\n");
- 
- 	return n;
- }
-@@ -251,11 +251,11 @@ static ssize_t ep11_card_op_modes_show(struct device *dev,
- 		if (ci.op_mode & (1 << ep11_op_modes[i].mode_bit)) {
- 			if (n > 0)
- 				buf[n++] = ' ';
--			n += snprintf(buf + n, PAGE_SIZE - n,
-+			n += scnprintf(buf + n, PAGE_SIZE - n,
- 				      "%s", ep11_op_modes[i].mode_txt);
- 		}
- 	}
--	n += snprintf(buf + n, PAGE_SIZE - n, "\n");
-+	n += scnprintf(buf + n, PAGE_SIZE - n, "\n");
- 
- 	return n;
- }
-@@ -305,21 +305,21 @@ static ssize_t ep11_mkvps_show(struct device *dev,
- 			     cwk_state[di.cur_wk_state - '0']);
- 		bin2hex(buf + n, di.cur_wkvp, sizeof(di.cur_wkvp));
- 		n += 2 * sizeof(di.cur_wkvp);
--		n += snprintf(buf + n, PAGE_SIZE - n, "\n");
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "\n");
- 	} else
- 		n = snprintf(buf, PAGE_SIZE, "WK CUR: - -\n");
- 
- 	if (di.new_wk_state == '0') {
--		n += snprintf(buf + n, PAGE_SIZE - n, "WK NEW: %s -\n",
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "WK NEW: %s -\n",
- 			      nwk_state[di.new_wk_state - '0']);
- 	} else if (di.new_wk_state >= '1' && di.new_wk_state <= '2') {
--		n += snprintf(buf + n, PAGE_SIZE - n, "WK NEW: %s 0x",
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "WK NEW: %s 0x",
- 			      nwk_state[di.new_wk_state - '0']);
- 		bin2hex(buf + n, di.new_wkvp, sizeof(di.new_wkvp));
- 		n += 2 * sizeof(di.new_wkvp);
--		n += snprintf(buf + n, PAGE_SIZE - n, "\n");
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "\n");
- 	} else
--		n += snprintf(buf + n, PAGE_SIZE - n, "WK NEW: - -\n");
-+		n += scnprintf(buf + n, PAGE_SIZE - n, "WK NEW: - -\n");
- 
- 	return n;
- }
-@@ -346,11 +346,11 @@ static ssize_t ep11_queue_op_modes_show(struct device *dev,
- 		if (di.op_mode & (1 << ep11_op_modes[i].mode_bit)) {
- 			if (n > 0)
- 				buf[n++] = ' ';
--			n += snprintf(buf + n, PAGE_SIZE - n,
-+			n += scnprintf(buf + n, PAGE_SIZE - n,
- 				      "%s", ep11_op_modes[i].mode_txt);
- 		}
- 	}
--	n += snprintf(buf + n, PAGE_SIZE - n, "\n");
-+	n += scnprintf(buf + n, PAGE_SIZE - n, "\n");
- 
- 	return n;
- }
--- 
-2.16.4
+On 09.03.20 16:39, David Hildenbrand wrote:
+> On 09.03.20 16:00, Christian Borntraeger wrote:
+>> When we do the initial CPU reset we must not only clear the registers
+>> in the internal data structures but also in kvm_run sync_regs. For
+>> modern userspace sync_regs is the only place that it looks at.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 7de3f1423ff943 ("KVM: s390: Add new reset vcpu API")
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>  arch/s390/kvm/kvm-s390.c | 18 +++++++++++++++++-
+>>  1 file changed, 17 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 6b1842a9feed..81f54ddedb3d 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -3529,7 +3529,10 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+>>  	/* Initial reset is a superset of the normal reset */
+>>  	kvm_arch_vcpu_ioctl_normal_reset(vcpu);
+>>  
+>> -	/* this equals initial cpu reset in pop, but we don't switch to ESA */
+>> +	/*
+>> +	 * This equals initial cpu reset in pop, but we don't switch to ESA.
+>> +	 * We do not even reset the internal data, but also ...
+> 
+> s/even/only ?
+
+ack and fixed. I will give this series some time but it might be worthwile still for 5.6 (even
+with the tests). 
