@@ -1,124 +1,286 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:42176 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727534AbgCCCrR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:47:17 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 48/66] s390/qdio: fill SL with absolute addresses
-Date: Mon,  2 Mar 2020 21:45:57 -0500
-Message-Id: <20200303024615.8889-48-sashal@kernel.org>
-In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
-References: <20200303024615.8889-1-sashal@kernel.org>
-MIME-Version: 1.0
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48734 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726795AbgCIIvr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:47 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298ohZe006595
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:45 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2ynj6egxbb-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:45 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 9 Mar 2020 08:51:43 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 33/36] DOCUMENTATION: Protected virtual machine introduction and IPL
+Date: Mon,  9 Mar 2020 09:51:23 +0100
+In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+Message-Id: <20200309085126.3334302-34-borntraeger@de.ibm.com>
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-[ Upstream commit e9091ffd6a0aaced111b5d6ead5eaab5cd7101bc ]
+Add documentation about protected KVM guests and description of changes
+that are necessary to move a KVM VM into Protected Virtualization mode.
 
-As the comment says, sl->sbal holds an absolute address. qeth currently
-solves this through wild casting, while zfcp doesn't care.
-
-Handle this properly in the code that actually builds the SL.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com> [for qdio]
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[borntraeger@de.ibm.com: fixing and conversion to rst]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/qdio.h      |  2 +-
- drivers/s390/cio/qdio_setup.c     |  3 ++-
- drivers/s390/net/qeth_core_main.c | 23 +++++++++++------------
- 3 files changed, 14 insertions(+), 14 deletions(-)
+ Documentation/virt/kvm/index.rst        |   2 +
+ Documentation/virt/kvm/s390-pv-boot.rst |  84 +++++++++++++++++
+ Documentation/virt/kvm/s390-pv.rst      | 116 ++++++++++++++++++++++++
+ MAINTAINERS                             |   1 +
+ 4 files changed, 203 insertions(+)
+ create mode 100644 Documentation/virt/kvm/s390-pv-boot.rst
+ create mode 100644 Documentation/virt/kvm/s390-pv.rst
 
-diff --git a/arch/s390/include/asm/qdio.h b/arch/s390/include/asm/qdio.h
-index 71e3f0146cda0..7870cf8345334 100644
---- a/arch/s390/include/asm/qdio.h
-+++ b/arch/s390/include/asm/qdio.h
-@@ -227,7 +227,7 @@ struct qdio_buffer {
-  * @sbal: absolute SBAL address
-  */
- struct sl_element {
--	unsigned long sbal;
-+	u64 sbal;
- } __attribute__ ((packed));
+diff --git a/Documentation/virt/kvm/index.rst b/Documentation/virt/kvm/index.rst
+index 774deaebf7fa..dcc252634cf9 100644
+--- a/Documentation/virt/kvm/index.rst
++++ b/Documentation/virt/kvm/index.rst
+@@ -18,6 +18,8 @@ KVM
+    nested-vmx
+    ppc-pv
+    s390-diag
++   s390-pv
++   s390-pv-boot
+    timekeeping
+    vcpu-requests
  
- /**
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index dc430bd86ade9..58eaac70dba7f 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -8,6 +8,7 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/export.h>
-+#include <linux/io.h>
- #include <asm/qdio.h>
- 
- #include "cio.h"
-@@ -205,7 +206,7 @@ static void setup_storage_lists(struct qdio_q *q, struct qdio_irq *irq_ptr,
- 
- 	/* fill in sl */
- 	for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; j++)
--		q->sl->element[j].sbal = (unsigned long)q->sbal[j];
-+		q->sl->element[j].sbal = virt_to_phys(q->sbal[j]);
- }
- 
- static void setup_queues(struct qdio_irq *irq_ptr,
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 29facb9136715..623475717183e 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4749,10 +4749,10 @@ static void qeth_qdio_establish_cq(struct qeth_card *card,
- 	if (card->options.cq == QETH_CQ_ENABLED) {
- 		int offset = QDIO_MAX_BUFFERS_PER_Q *
- 			     (card->qdio.no_in_queues - 1);
--		for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; ++i) {
--			in_sbal_ptrs[offset + i] = (struct qdio_buffer *)
--				virt_to_phys(card->qdio.c_q->bufs[i].buffer);
--		}
+diff --git a/Documentation/virt/kvm/s390-pv-boot.rst b/Documentation/virt/kvm/s390-pv-boot.rst
+new file mode 100644
+index 000000000000..8b8fa0390409
+--- /dev/null
++++ b/Documentation/virt/kvm/s390-pv-boot.rst
+@@ -0,0 +1,84 @@
++.. SPDX-License-Identifier: GPL-2.0
 +
-+		for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; i++)
-+			in_sbal_ptrs[offset + i] =
-+				card->qdio.c_q->bufs[i].buffer;
- 
- 		queue_start_poll[card->qdio.no_in_queues - 1] = NULL;
- 	}
-@@ -4786,10 +4786,9 @@ static int qeth_qdio_establish(struct qeth_card *card)
- 		rc = -ENOMEM;
- 		goto out_free_qib_param;
- 	}
--	for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; ++i) {
--		in_sbal_ptrs[i] = (struct qdio_buffer *)
--			virt_to_phys(card->qdio.in_q->bufs[i].buffer);
--	}
++======================================
++s390 (IBM Z) Boot/IPL of Protected VMs
++======================================
 +
-+	for (i = 0; i < QDIO_MAX_BUFFERS_PER_Q; i++)
-+		in_sbal_ptrs[i] = card->qdio.in_q->bufs[i].buffer;
- 
- 	queue_start_poll = kcalloc(card->qdio.no_in_queues, sizeof(void *),
- 				   GFP_KERNEL);
-@@ -4810,11 +4809,11 @@ static int qeth_qdio_establish(struct qeth_card *card)
- 		rc = -ENOMEM;
- 		goto out_free_queue_start_poll;
- 	}
++Summary
++-------
++The memory of Protected Virtual Machines (PVMs) is not accessible to
++I/O or the hypervisor. In those cases where the hypervisor needs to
++access the memory of a PVM, that memory must be made accessible.
++Memory made accessible to the hypervisor will be encrypted. See
++:doc:`s390-pv` for details."
 +
- 	for (i = 0, k = 0; i < card->qdio.no_out_queues; ++i)
--		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; ++j, ++k) {
--			out_sbal_ptrs[k] = (struct qdio_buffer *)virt_to_phys(
--				card->qdio.out_qs[i]->bufs[j]->buffer);
--		}
-+		for (j = 0; j < QDIO_MAX_BUFFERS_PER_Q; j++, k++)
-+			out_sbal_ptrs[k] =
-+				card->qdio.out_qs[i]->bufs[j]->buffer;
- 
- 	memset(&init_data, 0, sizeof(struct qdio_initialize));
- 	init_data.cdev                   = CARD_DDEV(card);
++On IPL (boot) a small plaintext bootloader is started, which provides
++information about the encrypted components and necessary metadata to
++KVM to decrypt the protected virtual machine.
++
++Based on this data, KVM will make the protected virtual machine known
++to the Ultravisor (UV) and instruct it to secure the memory of the
++PVM, decrypt the components and verify the data and address list
++hashes, to ensure integrity. Afterwards KVM can run the PVM via the
++SIE instruction which the UV will intercept and execute on KVM's
++behalf.
++
++As the guest image is just like an opaque kernel image that does the
++switch into PV mode itself, the user can load encrypted guest
++executables and data via every available method (network, dasd, scsi,
++direct kernel, ...) without the need to change the boot process.
++
++
++Diag308
++-------
++This diagnose instruction is the basic mechanism to handle IPL and
++related operations for virtual machines. The VM can set and retrieve
++IPL information blocks, that specify the IPL method/devices and
++request VM memory and subsystem resets, as well as IPLs.
++
++For PVMs this concept has been extended with new subcodes:
++
++Subcode 8: Set an IPL Information Block of type 5 (information block
++for PVMs)
++Subcode 9: Store the saved block in guest memory
++Subcode 10: Move into Protected Virtualization mode
++
++The new PV load-device-specific-parameters field specifies all data
++that is necessary to move into PV mode.
++
++* PV Header origin
++* PV Header length
++* List of Components composed of
++   * AES-XTS Tweak prefix
++   * Origin
++   * Size
++
++The PV header contains the keys and hashes, which the UV will use to
++decrypt and verify the PV, as well as control flags and a start PSW.
++
++The components are for instance an encrypted kernel, kernel parameters
++and initrd. The components are decrypted by the UV.
++
++After the initial import of the encrypted data, all defined pages will
++contain the guest content. All non-specified pages will start out as
++zero pages on first access.
++
++
++When running in protected virtualization mode, some subcodes will result in
++exceptions or return error codes.
++
++Subcodes 4 and 7, which specify operations that do not clear the guest
++memory, will result in specification exceptions. This is because the
++UV will clear all memory when a secure VM is removed, and therefore
++non-clearing IPL subcodes are not allowed.
++
++Subcodes 8, 9, 10 will result in specification exceptions.
++Re-IPL into a protected mode is only possible via a detour into non
++protected mode.
++
++Keys
++----
++Every CEC will have a unique public key to enable tooling to build
++encrypted images.
++See  `s390-tools <https://github.com/ibm-s390-tools/s390-tools/>`_
++for the tooling.
+diff --git a/Documentation/virt/kvm/s390-pv.rst b/Documentation/virt/kvm/s390-pv.rst
+new file mode 100644
+index 000000000000..774a8c606091
+--- /dev/null
++++ b/Documentation/virt/kvm/s390-pv.rst
+@@ -0,0 +1,116 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++=========================================
++s390 (IBM Z) Ultravisor and Protected VMs
++=========================================
++
++Summary
++-------
++Protected virtual machines (PVM) are KVM VMs that do not allow KVM to
++access VM state like guest memory or guest registers. Instead, the
++PVMs are mostly managed by a new entity called Ultravisor (UV). The UV
++provides an API that can be used by PVMs and KVM to request management
++actions.
++
++Each guest starts in non-protected mode and then may make a request to
++transition into protected mode. On transition, KVM registers the guest
++and its VCPUs with the Ultravisor and prepares everything for running
++it.
++
++The Ultravisor will secure and decrypt the guest's boot memory
++(i.e. kernel/initrd). It will safeguard state changes like VCPU
++starts/stops and injected interrupts while the guest is running.
++
++As access to the guest's state, such as the SIE state description, is
++normally needed to be able to run a VM, some changes have been made in
++the behavior of the SIE instruction. A new format 4 state description
++has been introduced, where some fields have different meanings for a
++PVM. SIE exits are minimized as much as possible to improve speed and
++reduce exposed guest state.
++
++
++Interrupt injection
++-------------------
++Interrupt injection is safeguarded by the Ultravisor. As KVM doesn't
++have access to the VCPUs' lowcores, injection is handled via the
++format 4 state description.
++
++Machine check, external, IO and restart interruptions each can be
++injected on SIE entry via a bit in the interrupt injection control
++field (offset 0x54). If the guest cpu is not enabled for the interrupt
++at the time of injection, a validity interception is recognized. The
++format 4 state description contains fields in the interception data
++block where data associated with the interrupt can be transported.
++
++Program and Service Call exceptions have another layer of
++safeguarding; they can only be injected for instructions that have
++been intercepted into KVM. The exceptions need to be a valid outcome
++of an instruction emulation by KVM, e.g. we can never inject a
++addressing exception as they are reported by SIE since KVM has no
++access to the guest memory.
++
++
++Mask notification interceptions
++-------------------------------
++KVM cannot intercept lctl(g) and lpsw(e) anymore in order to be
++notified when a PVM enables a certain class of interrupt.  As a
++replacement, two new interception codes have been introduced: One
++indicating that the contents of CRs 0, 6, or 14 have been changed,
++indicating different interruption subclasses; and one indicating that
++PSW bit 13 has been changed, indicating that a machine check
++intervention was requested and those are now enabled.
++
++Instruction emulation
++---------------------
++With the format 4 state description for PVMs, the SIE instruction already
++interprets more instructions than it does with format 2. It is not able
++to interpret every instruction, but needs to hand some tasks to KVM;
++therefore, the SIE and the ultravisor safeguard emulation inputs and outputs.
++
++The control structures associated with SIE provide the Secure
++Instruction Data Area (SIDA), the Interception Parameters (IP) and the
++Secure Interception General Register Save Area.  Guest GRs and most of
++the instruction data, such as I/O data structures, are filtered.
++Instruction data is copied to and from the SIDA when needed.  Guest
++GRs are put into / retrieved from the Secure Interception General
++Register Save Area.
++
++Only GR values needed to emulate an instruction will be copied into this
++save area and the real register numbers will be hidden.
++
++The Interception Parameters state description field still contains the
++the bytes of the instruction text, but with pre-set register values
++instead of the actual ones. I.e. each instruction always uses the same
++instruction text, in order not to leak guest instruction text.
++This also implies that the register content that a guest had in r<n>
++may be in r<m> from the hypervisor's point of view.
++
++The Secure Instruction Data Area contains instruction storage
++data. Instruction data, i.e. data being referenced by an instruction
++like the SCCB for sclp, is moved via the SIDA. When an instruction is
++intercepted, the SIE will only allow data and program interrupts for
++this instruction to be moved to the guest via the two data areas
++discussed before. Other data is either ignored or results in validity
++interceptions.
++
++
++Instruction emulation interceptions
++-----------------------------------
++There are two types of SIE secure instruction intercepts: the normal
++and the notification type. Normal secure instruction intercepts will
++make the guest pending for instruction completion of the intercepted
++instruction type, i.e. on SIE entry it is attempted to complete
++emulation of the instruction with the data provided by KVM. That might
++be a program exception or instruction completion.
++
++The notification type intercepts inform KVM about guest environment
++changes due to guest instruction interpretation. Such an interception
++is recognized, for example, for the store prefix instruction to provide
++the new lowcore location. On SIE reentry, any KVM data in the data areas
++is ignored and execution continues as if the guest instruction had
++completed. For that reason KVM is not allowed to inject a program
++interrupt.
++
++Links
++-----
++`KVM Forum 2019 presentation <https://static.sched.com/hosted_files/kvmforum2019/3b/ibm_protected_vms_s390x.pdf>`_
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a0d86490c2c6..97a70647c93a 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9209,6 +9209,7 @@ L:	kvm@vger.kernel.org
+ W:	http://www.ibm.com/developerworks/linux/linux390/
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git
+ S:	Supported
++F:	Documentation/virt/kvm/s390*
+ F:	arch/s390/include/uapi/asm/kvm*
+ F:	arch/s390/include/asm/gmap.h
+ F:	arch/s390/include/asm/kvm*
 -- 
-2.20.1
+2.24.1
