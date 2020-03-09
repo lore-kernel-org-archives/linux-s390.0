@@ -1,82 +1,94 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 07/11] s390/qeth: add SW timestamping support for IQD devices
-Date: Wed, 18 Mar 2020 13:54:51 +0100
-In-Reply-To: <20200318125455.5838-1-jwi@linux.ibm.com>
-References: <20200318125455.5838-1-jwi@linux.ibm.com>
-Message-Id: <20200318125455.5838-8-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22180 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726647AbgCIIvl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:41 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298pGr3004975
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:40 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym7t6dsbh-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:40 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 9 Mar 2020 08:51:38 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 17/36] KVM: s390: protvirt: Add new gprs location handling
+Date: Mon,  9 Mar 2020 09:51:07 +0100
+In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20200309085126.3334302-18-borntraeger@de.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-This adds support for SOF_TIMESTAMPING_TX_SOFTWARE.
-No support for non-IQD devices, since they orphan the skb in their xmit
-path.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-To play nice with TX bulking, set the timestamp when the buffer that
-contains the skb(s) is actually flushed out to HW.
+Guest registers for protected guests are stored at offset 0x380.  We
+will copy those to the usual places.  Long term we could refactor this
+or use register access functions.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c |  6 +++++-
- drivers/s390/net/qeth_ethtool.c   | 12 ++++++++++++
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/kvm_host.h |  4 +++-
+ arch/s390/kvm/kvm-s390.c         | 11 +++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index e1d984c29e1f..33796fe80a63 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3355,6 +3355,7 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 
- 	for (i = index; i < index + count; ++i) {
- 		unsigned int bidx = QDIO_BUFNR(i);
-+		struct sk_buff *skb;
- 
- 		buf = queue->bufs[bidx];
- 		buf->buffer->element[buf->next_element_to_fill - 1].eflags |=
-@@ -3363,8 +3364,11 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 		if (queue->bufstates)
- 			queue->bufstates[bidx].user = buf;
- 
--		if (IS_IQD(queue->card))
-+		if (IS_IQD(card)) {
-+			skb_queue_walk(&buf->skb_list, skb)
-+				skb_tx_timestamp(skb);
- 			continue;
-+		}
- 
- 		if (!queue->do_pack) {
- 			if ((atomic_read(&queue->used_buffers) >=
-diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
-index 079b695032ef..5cfa371b7426 100644
---- a/drivers/s390/net/qeth_ethtool.c
-+++ b/drivers/s390/net/qeth_ethtool.c
-@@ -204,6 +204,17 @@ static int qeth_set_channels(struct net_device *dev,
- 	return qeth_set_real_num_tx_queues(card, channels->tx_count);
- }
- 
-+static int qeth_get_ts_info(struct net_device *dev,
-+			    struct ethtool_ts_info *info)
-+{
-+	struct qeth_card *card = dev->ml_priv;
-+
-+	if (!IS_IQD(card))
-+		return -EOPNOTSUPP;
-+
-+	return ethtool_op_get_ts_info(dev, info);
-+}
-+
- static int qeth_get_tunable(struct net_device *dev,
- 			    const struct ethtool_tunable *tuna, void *data)
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index ba3364b37159..4fcbb055a565 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -343,7 +343,9 @@ struct kvm_s390_itdb {
+ struct sie_page {
+ 	struct kvm_s390_sie_block sie_block;
+ 	struct mcck_volatile_info mcck_info;	/* 0x0200 */
+-	__u8 reserved218[1000];		/* 0x0218 */
++	__u8 reserved218[360];		/* 0x0218 */
++	__u64 pv_grregs[16];		/* 0x0380 */
++	__u8 reserved400[512];		/* 0x0400 */
+ 	struct kvm_s390_itdb itdb;	/* 0x0600 */
+ 	__u8 reserved700[2304];		/* 0x0700 */
+ };
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 2881151fd773..bd62312fdc0e 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4059,6 +4059,7 @@ static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+ static int __vcpu_run(struct kvm_vcpu *vcpu)
  {
-@@ -440,6 +451,7 @@ const struct ethtool_ops qeth_ethtool_ops = {
- 	.get_drvinfo = qeth_get_drvinfo,
- 	.get_channels = qeth_get_channels,
- 	.set_channels = qeth_set_channels,
-+	.get_ts_info = qeth_get_ts_info,
- 	.get_tunable = qeth_get_tunable,
- 	.set_tunable = qeth_set_tunable,
- 	.get_link_ksettings = qeth_get_link_ksettings,
+ 	int rc, exit_reason;
++	struct sie_page *sie_page = (struct sie_page *)vcpu->arch.sie_block;
+ 
+ 	/*
+ 	 * We try to hold kvm->srcu during most of vcpu_run (except when run-
+@@ -4080,8 +4081,18 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 		guest_enter_irqoff();
+ 		__disable_cpu_timer_accounting(vcpu);
+ 		local_irq_enable();
++		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
++			memcpy(sie_page->pv_grregs,
++			       vcpu->run->s.regs.gprs,
++			       sizeof(sie_page->pv_grregs));
++		}
+ 		exit_reason = sie64a(vcpu->arch.sie_block,
+ 				     vcpu->run->s.regs.gprs);
++		if (kvm_s390_pv_cpu_is_protected(vcpu)) {
++			memcpy(vcpu->run->s.regs.gprs,
++			       sie_page->pv_grregs,
++			       sizeof(sie_page->pv_grregs));
++		}
+ 		local_irq_disable();
+ 		__enable_cpu_timer_accounting(vcpu);
+ 		guest_exit_irqoff();
 -- 
-2.17.1
+2.24.1
