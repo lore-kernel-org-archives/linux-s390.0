@@ -1,62 +1,118 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:44034 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728388AbgCCCsV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:48:21 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 33/58] s390/cio: cio_ignore_proc_seq_next should increase position index
-Date: Mon,  2 Mar 2020 21:47:15 -0500
-Message-Id: <20200303024740.9511-33-sashal@kernel.org>
-In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
-References: <20200303024740.9511-1-sashal@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35026 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726814AbgCIIvr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:47 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298oEiQ038715
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:46 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym6tmf1gd-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:46 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 9 Mar 2020 08:51:44 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 35/36] KVM: s390: protvirt: Add KVM api documentation
+Date: Mon,  9 Mar 2020 09:51:25 +0100
+In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Message-Id: <20200309085126.3334302-36-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Averin <vvs@virtuozzo.com>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-[ Upstream commit 8b101a5e14f2161869636ff9cb4907b7749dc0c2 ]
+Add documentation for KVM_CAP_S390_PROTECTED capability and the
+KVM_S390_PV_COMMAND ioctl.
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Link: https://lore.kernel.org/r/d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/blacklist.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ Documentation/virt/kvm/api.rst | 59 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
 
-diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
-index 2a3f874a21d54..9cebff8e8d740 100644
---- a/drivers/s390/cio/blacklist.c
-+++ b/drivers/s390/cio/blacklist.c
-@@ -303,8 +303,10 @@ static void *
- cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
- {
- 	struct ccwdev_iter *iter;
-+	loff_t p = *offset;
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index 7505d7a6c0d8..bae90f3cd11d 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -4648,6 +4648,54 @@ the clear cpu reset definition in the POP. However, the cpu is not put
+ into ESA mode. This reset is a superset of the initial reset.
  
--	if (*offset >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
-+	(*offset)++;
-+	if (p >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
- 		return NULL;
- 	iter = it;
- 	if (iter->devno == __MAX_SUBCHANNEL) {
-@@ -314,7 +316,6 @@ cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
- 			return NULL;
- 	} else
- 		iter->devno++;
--	(*offset)++;
- 	return iter;
- }
  
++4.125 KVM_S390_PV_COMMAND
++-------------------------
++
++:Capability: KVM_CAP_S390_PROTECTED
++:Architectures: s390
++:Type: vm ioctl
++:Parameters: struct kvm_pv_cmd
++:Returns: 0 on success, < 0 on error
++
++::
++
++  struct kvm_pv_cmd {
++	__u32 cmd;	/* Command to be executed */
++	__u16 rc;	/* Ultravisor return code */
++	__u16 rrc;	/* Ultravisor return reason code */
++	__u64 data;	/* Data or address */
++	__u32 flags;    /* flags for future extensions. Must be 0 for now */
++	__u32 reserved[3];
++  };
++
++cmd values:
++
++KVM_PV_ENABLE
++  Allocate memory and register the VM with the Ultravisor, thereby
++  donating memory to the Ultravisor that will become inaccessible to
++  KVM. All existing CPUs are converted to protected ones. After this
++  command has succeeded, any CPU added via hotplug will become
++  protected during its creation as well.
++
++KVM_PV_DISABLE
++
++  Deregister the VM from the Ultravisor and reclaim the memory that
++  had been donated to the Ultravisor, making it usable by the kernel
++  again.  All registered VCPUs are converted back to non-protected
++  ones.
++
++KVM_PV_VM_SET_SEC_PARMS
++  Pass the image header from VM memory to the Ultravisor in
++  preparation of image unpacking and verification.
++
++KVM_PV_VM_UNPACK
++  Unpack (protect and decrypt) a page of the encrypted boot image.
++
++KVM_PV_VM_VERIFY
++  Verify the integrity of the unpacked image. Only if this succeeds,
++  KVM is allowed to start protected VCPUs.
++
++
+ 5. The kvm_run structure
+ ========================
+ 
+@@ -6026,3 +6074,14 @@ Architectures: s390
+ 
+ This capability indicates that the KVM_S390_NORMAL_RESET and
+ KVM_S390_CLEAR_RESET ioctls are available.
++
++8.23 KVM_CAP_S390_PROTECTED
++
++Architecture: s390
++
++
++This capability indicates that the Ultravisor has been initialized and
++KVM can therefore start protected VMs.
++This capability governs the KVM_S390_PV_COMMAND ioctl and the
++KVM_MP_STATE_LOAD MP_STATE. KVM_SET_MP_STATE can fail for protected
++guests when the state change is invalid.
 -- 
-2.20.1
+2.24.1
