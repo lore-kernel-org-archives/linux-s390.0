@@ -1,328 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61866 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22668 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726633AbgCIIvk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:40 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298pHJO005163
-        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:39 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym7t6dsae-1
+        by vger.kernel.org with ESMTP id S1726656AbgCIIvl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:41 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298pAlj071404
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:40 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym91dmfd8-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:38 -0400
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:40 -0400
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 9 Mar 2020 08:51:36 -0000
+        Mon, 9 Mar 2020 08:51:38 -0000
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 15/36] KVM: s390: protvirt: Add SCLP interrupt handling
-Date: Mon,  9 Mar 2020 09:51:05 +0100
+Subject: [GIT PULL 16/36] KVM: s390: protvirt: Handle spec exception loops
+Date: Mon,  9 Mar 2020 09:51:06 +0100
 In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
 References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200309085126.3334302-16-borntraeger@de.ibm.com>
+Message-Id: <20200309085126.3334302-17-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-The sclp interrupt is kind of special. The ultravisor polices that we
-do not inject an sclp interrupt with payload if no sccb is outstanding.
-On the other hand we have "asynchronous" event interrupts, e.g. for
-console input.
-We separate both variants into sclp interrupt and sclp event interrupt.
-The sclp interrupt is masked until a previous servc instruction has
-finished (sie exit 108).
+From: Janosch Frank <frankja@linux.ibm.com>
 
-[frankja@linux.ibm.com: factoring out write_sclp]
+SIE intercept code 8 is used only on exception loops for protected
+guests. That means we need to stop the guest when we see it. This is
+done by userspace.
+
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- arch/s390/include/asm/kvm_host.h |  6 +-
- arch/s390/kvm/intercept.c        | 27 +++++++++
- arch/s390/kvm/interrupt.c        | 95 ++++++++++++++++++++++++++------
- arch/s390/kvm/kvm-s390.c         |  6 ++
- 4 files changed, 115 insertions(+), 19 deletions(-)
+ arch/s390/kvm/intercept.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index a13dc77f8b07..ba3364b37159 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -518,6 +518,7 @@ enum irq_types {
- 	IRQ_PEND_PFAULT_INIT,
- 	IRQ_PEND_EXT_HOST,
- 	IRQ_PEND_EXT_SERVICE,
-+	IRQ_PEND_EXT_SERVICE_EV,
- 	IRQ_PEND_EXT_TIMING,
- 	IRQ_PEND_EXT_CPU_TIMER,
- 	IRQ_PEND_EXT_CLOCK_COMP,
-@@ -562,6 +563,7 @@ enum irq_types {
- 			   (1UL << IRQ_PEND_EXT_TIMING)     | \
- 			   (1UL << IRQ_PEND_EXT_HOST)       | \
- 			   (1UL << IRQ_PEND_EXT_SERVICE)    | \
-+			   (1UL << IRQ_PEND_EXT_SERVICE_EV) | \
- 			   (1UL << IRQ_PEND_VIRTIO)         | \
- 			   (1UL << IRQ_PEND_PFAULT_INIT)    | \
- 			   (1UL << IRQ_PEND_PFAULT_DONE))
-@@ -582,7 +584,8 @@ enum irq_types {
- 			      (1UL << IRQ_PEND_EXT_CLOCK_COMP) | \
- 			      (1UL << IRQ_PEND_EXT_EMERGENCY)  | \
- 			      (1UL << IRQ_PEND_EXT_EXTERNAL)   | \
--			      (1UL << IRQ_PEND_EXT_SERVICE))
-+			      (1UL << IRQ_PEND_EXT_SERVICE)    | \
-+			      (1UL << IRQ_PEND_EXT_SERVICE_EV))
- 
- struct kvm_s390_interrupt_info {
- 	struct list_head list;
-@@ -642,6 +645,7 @@ struct kvm_s390_local_interrupt {
- 
- struct kvm_s390_float_interrupt {
- 	unsigned long pending_irqs;
-+	unsigned long masked_irqs;
- 	spinlock_t lock;
- 	struct list_head lists[FIRQ_LIST_COUNT];
- 	int counters[FIRQ_MAX_COUNT];
 diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 9966c43c6035..00a79442a428 100644
+index 00a79442a428..331e620dcfdf 100644
 --- a/arch/s390/kvm/intercept.c
 +++ b/arch/s390/kvm/intercept.c
-@@ -444,8 +444,35 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
- }
+@@ -231,6 +231,13 @@ static int handle_prog(struct kvm_vcpu *vcpu)
  
-+static int handle_pv_sclp(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
-+
-+	spin_lock(&fi->lock);
+ 	vcpu->stat.exit_program_interruption++;
+ 
 +	/*
-+	 * 2 cases:
-+	 * a: an sccb answering interrupt was already pending or in flight.
-+	 *    As the sccb value is not known we can simply set some value to
-+	 *    trigger delivery of a saved SCCB. UV will then use its saved
-+	 *    copy of the SCCB value.
-+	 * b: an error SCCB interrupt needs to be injected so we also inject
-+	 *    a fake SCCB address. Firmware will use the proper one.
-+	 * This makes sure, that both errors and real sccb returns will only
-+	 * be delivered after a notification intercept (instruction has
-+	 * finished) but not after others.
++	 * Intercept 8 indicates a loop of specification exceptions
++	 * for protected guests.
 +	 */
-+	fi->srv_signal.ext_params |= 0x43000;
-+	set_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs);
-+	clear_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs);
-+	spin_unlock(&fi->lock);
-+	return 0;
-+}
-+
- static int handle_pv_notification(struct kvm_vcpu *vcpu)
- {
-+	if (vcpu->arch.sie_block->ipa == 0xb220)
-+		return handle_pv_sclp(vcpu);
-+
- 	return handle_instruction(vcpu);
- }
- 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index fc55f09938eb..145cccd498d7 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -324,8 +324,11 @@ static inline int gisa_tac_ipm_gisc(struct kvm_s390_gisa *gisa, u32 gisc)
- 
- static inline unsigned long pending_irqs_no_gisa(struct kvm_vcpu *vcpu)
- {
--	return vcpu->kvm->arch.float_int.pending_irqs |
--		vcpu->arch.local_int.pending_irqs;
-+	unsigned long pending = vcpu->kvm->arch.float_int.pending_irqs |
-+				vcpu->arch.local_int.pending_irqs;
-+
-+	pending &= ~vcpu->kvm->arch.float_int.masked_irqs;
-+	return pending;
- }
- 
- static inline unsigned long pending_irqs(struct kvm_vcpu *vcpu)
-@@ -383,8 +386,10 @@ static unsigned long deliverable_irqs(struct kvm_vcpu *vcpu)
- 		__clear_bit(IRQ_PEND_EXT_CLOCK_COMP, &active_mask);
- 	if (!(vcpu->arch.sie_block->gcr[0] & CR0_CPU_TIMER_SUBMASK))
- 		__clear_bit(IRQ_PEND_EXT_CPU_TIMER, &active_mask);
--	if (!(vcpu->arch.sie_block->gcr[0] & CR0_SERVICE_SIGNAL_SUBMASK))
-+	if (!(vcpu->arch.sie_block->gcr[0] & CR0_SERVICE_SIGNAL_SUBMASK)) {
- 		__clear_bit(IRQ_PEND_EXT_SERVICE, &active_mask);
-+		__clear_bit(IRQ_PEND_EXT_SERVICE_EV, &active_mask);
-+	}
- 	if (psw_mchk_disabled(vcpu))
- 		active_mask &= ~IRQ_PEND_MCHK_MASK;
- 	/* PV guest cpus can have a single interruption injected at a time. */
-@@ -946,20 +951,49 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
- 	return rc ? -EFAULT : 0;
- }
- 
-+#define SCCB_MASK 0xFFFFFFF8
-+#define SCCB_EVENT_PENDING 0x3
-+
-+static int write_sclp(struct kvm_vcpu *vcpu, u32 parm)
-+{
-+	int rc;
-+
-+	if (kvm_s390_pv_cpu_get_handle(vcpu)) {
-+		vcpu->arch.sie_block->iictl = IICTL_CODE_EXT;
-+		vcpu->arch.sie_block->eic = EXT_IRQ_SERVICE_SIG;
-+		vcpu->arch.sie_block->eiparams = parm;
-+		return 0;
-+	}
-+
-+	rc  = put_guest_lc(vcpu, EXT_IRQ_SERVICE_SIG, (u16 *)__LC_EXT_INT_CODE);
-+	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
-+	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
-+			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
-+			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
-+	rc |= put_guest_lc(vcpu, parm,
-+			   (u32 *)__LC_EXT_PARAMS);
-+
-+	return rc ? -EFAULT : 0;
-+}
-+
- static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
- 	struct kvm_s390_ext_info ext;
--	int rc = 0;
- 
- 	spin_lock(&fi->lock);
--	if (!(test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs))) {
-+	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs) ||
-+	    !(test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs))) {
- 		spin_unlock(&fi->lock);
- 		return 0;
- 	}
- 	ext = fi->srv_signal;
- 	memset(&fi->srv_signal, 0, sizeof(ext));
- 	clear_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs);
-+	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
 +	if (kvm_s390_pv_cpu_is_protected(vcpu))
-+		set_bit(IRQ_PEND_EXT_SERVICE, &fi->masked_irqs);
- 	spin_unlock(&fi->lock);
- 
- 	VCPU_EVENT(vcpu, 4, "deliver: sclp parameter 0x%x",
-@@ -968,16 +1002,31 @@ static int __must_check __deliver_service(struct kvm_vcpu *vcpu)
- 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
- 					 ext.ext_params, 0);
- 
--	rc  = put_guest_lc(vcpu, EXT_IRQ_SERVICE_SIG, (u16 *)__LC_EXT_INT_CODE);
--	rc |= put_guest_lc(vcpu, 0, (u16 *)__LC_EXT_CPU_ADDR);
--	rc |= write_guest_lc(vcpu, __LC_EXT_OLD_PSW,
--			     &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
--	rc |= read_guest_lc(vcpu, __LC_EXT_NEW_PSW,
--			    &vcpu->arch.sie_block->gpsw, sizeof(psw_t));
--	rc |= put_guest_lc(vcpu, ext.ext_params,
--			   (u32 *)__LC_EXT_PARAMS);
-+	return write_sclp(vcpu, ext.ext_params);
-+}
- 
--	return rc ? -EFAULT : 0;
-+static int __must_check __deliver_service_ev(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
-+	struct kvm_s390_ext_info ext;
++		return -EOPNOTSUPP;
 +
-+	spin_lock(&fi->lock);
-+	if (!(test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs))) {
-+		spin_unlock(&fi->lock);
-+		return 0;
-+	}
-+	ext = fi->srv_signal;
-+	/* only clear the event bit */
-+	fi->srv_signal.ext_params &= ~SCCB_EVENT_PENDING;
-+	clear_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
-+	spin_unlock(&fi->lock);
-+
-+	VCPU_EVENT(vcpu, 4, "%s", "deliver: sclp parameter event");
-+	vcpu->stat.deliver_service_signal++;
-+	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_INT_SERVICE,
-+					 ext.ext_params, 0);
-+
-+	return write_sclp(vcpu, SCCB_EVENT_PENDING);
- }
- 
- static int __must_check __deliver_pfault_done(struct kvm_vcpu *vcpu)
-@@ -1382,6 +1431,9 @@ int __must_check kvm_s390_deliver_pending_interrupts(struct kvm_vcpu *vcpu)
- 		case IRQ_PEND_EXT_SERVICE:
- 			rc = __deliver_service(vcpu);
- 			break;
-+		case IRQ_PEND_EXT_SERVICE_EV:
-+			rc = __deliver_service_ev(vcpu);
-+			break;
- 		case IRQ_PEND_PFAULT_DONE:
- 			rc = __deliver_pfault_done(vcpu);
- 			break;
-@@ -1734,9 +1786,6 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
- 	return inti;
- }
- 
--#define SCCB_MASK 0xFFFFFFF8
--#define SCCB_EVENT_PENDING 0x3
--
- static int __inject_service(struct kvm *kvm,
- 			     struct kvm_s390_interrupt_info *inti)
- {
-@@ -1745,6 +1794,11 @@ static int __inject_service(struct kvm *kvm,
- 	kvm->stat.inject_service_signal++;
- 	spin_lock(&fi->lock);
- 	fi->srv_signal.ext_params |= inti->ext.ext_params & SCCB_EVENT_PENDING;
-+
-+	/* We always allow events, track them separately from the sccb ints */
-+	if (fi->srv_signal.ext_params & SCCB_EVENT_PENDING)
-+		set_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs);
-+
- 	/*
- 	 * Early versions of the QEMU s390 bios will inject several
- 	 * service interrupts after another without handling a
-@@ -2141,6 +2195,10 @@ void kvm_s390_clear_float_irqs(struct kvm *kvm)
- 	struct kvm_s390_float_interrupt *fi = &kvm->arch.float_int;
- 	int i;
- 
-+	mutex_lock(&kvm->lock);
-+	if (!kvm_s390_pv_is_protected(kvm))
-+		fi->masked_irqs = 0;
-+	mutex_unlock(&kvm->lock);
- 	spin_lock(&fi->lock);
- 	fi->pending_irqs = 0;
- 	memset(&fi->srv_signal, 0, sizeof(fi->srv_signal));
-@@ -2207,7 +2265,8 @@ static int get_all_floating_irqs(struct kvm *kvm, u8 __user *usrbuf, u64 len)
- 			n++;
- 		}
- 	}
--	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs)) {
-+	if (test_bit(IRQ_PEND_EXT_SERVICE, &fi->pending_irqs) ||
-+	    test_bit(IRQ_PEND_EXT_SERVICE_EV, &fi->pending_irqs)) {
- 		if (n == max_irqs) {
- 			/* signal userspace to try again */
- 			ret = -ENOMEM;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index bf61f48e9a3d..2881151fd773 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2247,6 +2247,9 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		r = kvm_s390_cpus_to_pv(kvm, &cmd->rc, &cmd->rrc);
- 		if (r)
- 			kvm_s390_pv_deinit_vm(kvm, &dummy, &dummy);
-+
-+		/* we need to block service interrupts from now on */
-+		set_bit(IRQ_PEND_EXT_SERVICE, &kvm->arch.float_int.masked_irqs);
- 		break;
- 	}
- 	case KVM_PV_DISABLE: {
-@@ -2263,6 +2266,9 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		if (r)
- 			break;
- 		r = kvm_s390_pv_deinit_vm(kvm, &cmd->rc, &cmd->rrc);
-+
-+		/* no need to block service interrupts any more */
-+		clear_bit(IRQ_PEND_EXT_SERVICE, &kvm->arch.float_int.masked_irqs);
- 		break;
- 	}
- 	case KVM_PV_SET_SEC_PARMS: {
+ 	if (guestdbg_enabled(vcpu) && per_event(vcpu)) {
+ 		rc = kvm_s390_handle_per_event(vcpu);
+ 		if (rc)
 -- 
 2.24.1
