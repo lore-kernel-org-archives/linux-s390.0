@@ -1,76 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4180 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729232AbgCKNLG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 11 Mar 2020 09:11:06 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02BD9W4k001224
-        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2020 09:11:05 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yq05uswxm-1
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18196 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726739AbgCIIvo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:44 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298oiTi006709
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:43 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2ynj6egxa8-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2020 09:11:04 -0400
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:43 -0400
 Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Wed, 11 Mar 2020 13:11:02 -0000
+        Mon, 9 Mar 2020 08:51:40 -0000
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/2] selftests: KVM: s390: fix format strings for access reg test
-Date: Wed, 11 Mar 2020 14:10:56 +0100
-In-Reply-To: <20200311131056.140016-1-borntraeger@de.ibm.com>
-References: <20200311131056.140016-1-borntraeger@de.ibm.com>
+Subject: [GIT PULL 26/36] KVM: s390: protvirt: Add program exception injection
+Date: Mon,  9 Mar 2020 09:51:16 +0100
+In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200311131056.140016-3-borntraeger@de.ibm.com>
+Message-Id: <20200309085126.3334302-27-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>, Andrew Jones <drjones@redhat.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-acrs are 32 bit and not 64 bit.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Reported-by: Andrew Jones <drjones@redhat.com>
+Only two program exceptions can be injected for a protected guest:
+specification and operand.
+
+For both, a code needs to be specified in the interrupt injection
+control of the state description, as the guest prefix page is not
+accessible to KVM for such guests.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- tools/testing/selftests/kvm/s390x/sync_regs_test.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/s390/kvm/interrupt.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-index b705637ca14b..70a56580042b 100644
---- a/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-+++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-@@ -42,6 +42,13 @@ static void guest_code(void)
- 		    " values did not match: 0x%llx, 0x%llx\n", \
- 		    left->reg, right->reg)
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 145cccd498d7..028167d6eacd 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -836,6 +836,21 @@ static int __must_check __deliver_external_call(struct kvm_vcpu *vcpu)
+ 	return rc ? -EFAULT : 0;
+ }
  
-+#define REG_COMPARE32(reg) \
-+	TEST_ASSERT(left->reg == right->reg, \
-+		    "Register " #reg \
-+		    " values did not match: 0x%x, 0x%x\n", \
-+		    left->reg, right->reg)
++static int __deliver_prog_pv(struct kvm_vcpu *vcpu, u16 code)
++{
++	switch (code) {
++	case PGM_SPECIFICATION:
++		vcpu->arch.sie_block->iictl = IICTL_CODE_SPECIFICATION;
++		break;
++	case PGM_OPERAND:
++		vcpu->arch.sie_block->iictl = IICTL_CODE_OPERAND;
++		break;
++	default:
++		return -EINVAL;
++	}
++	return 0;
++}
 +
-+
- static void compare_regs(struct kvm_regs *left, struct kvm_sync_regs *right)
+ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
  {
- 	int i;
-@@ -55,7 +62,7 @@ static void compare_sregs(struct kvm_sregs *left, struct kvm_sync_regs *right)
- 	int i;
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+@@ -856,6 +871,10 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ 	trace_kvm_s390_deliver_interrupt(vcpu->vcpu_id, KVM_S390_PROGRAM_INT,
+ 					 pgm_info.code, 0);
  
- 	for (i = 0; i < 16; i++)
--		REG_COMPARE(acrs[i]);
-+		REG_COMPARE32(acrs[i]);
- 
- 	for (i = 0; i < 16; i++)
- 		REG_COMPARE(crs[i]);
-@@ -155,7 +162,7 @@ int main(int argc, char *argv[])
- 		    "r11 sync regs value incorrect 0x%llx.",
- 		    run->s.regs.gprs[11]);
- 	TEST_ASSERT(run->s.regs.acrs[0]  == 1 << 11,
--		    "acr0 sync regs value incorrect 0x%llx.",
-+		    "acr0 sync regs value incorrect 0x%x.",
- 		    run->s.regs.acrs[0]);
- 
- 	vcpu_regs_get(vm, VCPU_ID, &regs);
++	/* PER is handled by the ultravisor */
++	if (kvm_s390_pv_cpu_is_protected(vcpu))
++		return __deliver_prog_pv(vcpu, pgm_info.code & ~PGM_PER);
++
+ 	switch (pgm_info.code & ~PGM_PER) {
+ 	case PGM_AFX_TRANSLATION:
+ 	case PGM_ASX_TRANSLATION:
 -- 
 2.24.1
