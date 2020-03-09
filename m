@@ -1,107 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29800 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25666 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726362AbgCLRp0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Mar 2020 13:45:26 -0400
+        by vger.kernel.org with ESMTP id S1726638AbgCIIvk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:40 -0400
 Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CHiLD2143372
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:45:24 -0400
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298pVTX084567
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:40 -0400
 Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2yqsrbr122-1
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2ym5e1rh0e-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:45:24 -0400
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:39 -0400
 Received: from localhost
         by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Thu, 12 Mar 2020 17:45:22 -0000
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 03/10] zfcp: wire previously driver-specific sysfs attributes also to fc_host
-Date: Thu, 12 Mar 2020 18:44:58 +0100
-In-Reply-To: <20200312174505.51294-1-maier@linux.ibm.com>
-References: <20200312174505.51294-1-maier@linux.ibm.com>
-Message-Id: <20200312174505.51294-4-maier@linux.ibm.com>
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 9 Mar 2020 08:51:38 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 19/36] KVM: s390: protvirt: handle secure guest prefix pages
+Date: Mon,  9 Mar 2020 09:51:09 +0100
+In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20200309085126.3334302-20-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-Manufacturer, HBA model, firmware version, and hardware version.
-Use the same value format as for the driver-specific attributes.
-Keep the driver-specific attributes for stable user space sysfs API.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+The SPX instruction is handled by the ultravisor. We do get a
+notification intercept, though. Let us update our internal view.
+
+In addition to that, when the guest prefix page is not secure, an
+intercept 112 (0x70) is indicated. Let us make the prefix pages
+secure again.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[borntraeger@de.ibm.com: patch merging, splitting, fixing]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c  | 11 +++++++++++
- drivers/s390/scsi/zfcp_scsi.c |  4 ++++
- 2 files changed, 15 insertions(+)
+ arch/s390/include/asm/kvm_host.h |  1 +
+ arch/s390/kvm/intercept.c        | 18 ++++++++++++++++++
+ 2 files changed, 19 insertions(+)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 0289b09120f3..31ecbc160482 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -502,6 +502,8 @@ static int zfcp_fsf_exchange_config_evaluate(struct zfcp_fsf_req *req)
- 	if (req->data)
- 		memcpy(req->data, bottom, sizeof(*bottom));
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index aa945b101fff..0ea82152d2f7 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -225,6 +225,7 @@ struct kvm_s390_sie_block {
+ #define ICPT_INT_ENABLE	0x64
+ #define ICPT_PV_INSTR	0x68
+ #define ICPT_PV_NOTIFY	0x6c
++#define ICPT_PV_PREF	0x70
+ 	__u8	icptcode;		/* 0x0050 */
+ 	__u8	icptstatus;		/* 0x0051 */
+ 	__u16	ihcpu;			/* 0x0052 */
+diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+index 331e620dcfdf..b6b7d4b0e26c 100644
+--- a/arch/s390/kvm/intercept.c
++++ b/arch/s390/kvm/intercept.c
+@@ -451,6 +451,15 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
+ 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
+ }
  
-+	snprintf(fc_host_manufacturer(shost), FC_SERIAL_NUMBER_SIZE, "%s",
-+		 "IBM");
- 	fc_host_port_name(shost) = be64_to_cpu(nsp->fl_wwpn);
- 	fc_host_node_name(shost) = be64_to_cpu(nsp->fl_wwnn);
- 	fc_host_supported_classes(shost) = FC_COS_CLASS2 | FC_COS_CLASS3;
-@@ -525,6 +527,8 @@ static int zfcp_fsf_exchange_config_evaluate(struct zfcp_fsf_req *req)
- 		zfcp_fsf_convert_portspeed(bottom->fc_link_speed);
++static int handle_pv_spx(struct kvm_vcpu *vcpu)
++{
++	u32 pref = *(u32 *)vcpu->arch.sie_block->sidad;
++
++	kvm_s390_set_prefix(vcpu, pref);
++	trace_kvm_s390_handle_prefix(vcpu, 1, pref);
++	return 0;
++}
++
+ static int handle_pv_sclp(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
+@@ -477,6 +486,8 @@ static int handle_pv_sclp(struct kvm_vcpu *vcpu)
  
- 	adapter->hydra_version = bottom->adapter_type;
-+	snprintf(fc_host_model(shost), FC_SYMBOLIC_NAME_SIZE, "0x%04x",
-+		 bottom->adapter_type);
+ static int handle_pv_notification(struct kvm_vcpu *vcpu)
+ {
++	if (vcpu->arch.sie_block->ipa == 0xb210)
++		return handle_pv_spx(vcpu);
+ 	if (vcpu->arch.sie_block->ipa == 0xb220)
+ 		return handle_pv_sclp(vcpu);
  
- 	switch (bottom->fc_topology) {
- 	case FSF_TOPO_P2P:
-@@ -569,6 +573,8 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
- 	if (req->status & ZFCP_STATUS_FSFREQ_ERROR)
- 		return;
- 
-+	snprintf(fc_host_firmware_version(shost), FC_VERSION_STRING_SIZE,
-+		 "0x%08x", bottom->lic_version);
- 	adapter->fsf_lic_version = bottom->lic_version;
- 	adapter->adapter_features = bottom->adapter_features;
- 	adapter->connection_features = bottom->connection_features;
-@@ -609,6 +615,8 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
- 		fc_host_speed(shost) = FC_PORTSPEED_UNKNOWN;
- 		fc_host_port_type(shost) = FC_PORTTYPE_UNKNOWN;
- 		adapter->hydra_version = 0;
-+		snprintf(fc_host_model(shost), FC_SYMBOLIC_NAME_SIZE, "0x%04x",
-+			 0);
- 
- 		/* avoids adapter shutdown to be able to recognize
- 		 * events such as LINK UP */
-@@ -626,6 +634,9 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
- 
- 	if (adapter->adapter_features & FSF_FEATURE_HBAAPI_MANAGEMENT) {
- 		adapter->hardware_version = bottom->hardware_version;
-+		snprintf(fc_host_hardware_version(shost),
-+			 FC_VERSION_STRING_SIZE,
-+			 "0x%08x", bottom->hardware_version);
- 		memcpy(fc_host_serial_number(shost), bottom->serial_number,
- 		       min(FC_SERIAL_NUMBER_SIZE, 17));
- 		EBCASC(fc_host_serial_number(shost),
-diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
-index cb7efe8b2753..13d873f806e4 100644
---- a/drivers/s390/scsi/zfcp_scsi.c
-+++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -856,6 +856,10 @@ struct fc_function_template zfcp_transport_functions = {
- 	.show_host_supported_speeds = 1,
- 	.show_host_maxframe_size = 1,
- 	.show_host_serial_number = 1,
-+	.show_host_manufacturer = 1,
-+	.show_host_model = 1,
-+	.show_host_hardware_version = 1,
-+	.show_host_firmware_version = 1,
- 	.get_fc_host_stats = zfcp_scsi_get_fc_host_stats,
- 	.reset_fc_host_stats = zfcp_scsi_reset_fc_host_stats,
- 	.set_rport_dev_loss_tmo = zfcp_scsi_set_rport_dev_loss_tmo,
+@@ -534,6 +545,13 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+ 	case ICPT_PV_NOTIFY:
+ 		rc = handle_pv_notification(vcpu);
+ 		break;
++	case ICPT_PV_PREF:
++		rc = 0;
++		gmap_convert_to_secure(vcpu->arch.gmap,
++				       kvm_s390_get_prefix(vcpu));
++		gmap_convert_to_secure(vcpu->arch.gmap,
++				       kvm_s390_get_prefix(vcpu) + PAGE_SIZE);
++		break;
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
 -- 
-2.17.1
+2.24.1
