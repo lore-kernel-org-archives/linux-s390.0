@@ -1,118 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35026 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726814AbgCIIvr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:47 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298oEiQ038715
-        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:46 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym6tmf1gd-1
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20176 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726788AbgCIIvq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:46 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298pHTF085570
+        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:45 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2ym6487rac-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:46 -0400
+        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:45 -0400
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 9 Mar 2020 08:51:44 -0000
+        Mon, 9 Mar 2020 08:51:43 -0000
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 35/36] KVM: s390: protvirt: Add KVM api documentation
-Date: Mon,  9 Mar 2020 09:51:25 +0100
+Subject: [GIT PULL 34/36] KVM: s390: protvirt: introduce and enable KVM_CAP_S390_PROTECTED
+Date: Mon,  9 Mar 2020 09:51:24 +0100
 In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
 References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200309085126.3334302-36-borntraeger@de.ibm.com>
+Message-Id: <20200309085126.3334302-35-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Paolo Bonzini <pbonzini@redhat.com>
 Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Now that everything is in place, we can announce the feature.
 
-Add documentation for KVM_CAP_S390_PROTECTED capability and the
-KVM_S390_PV_COMMAND ioctl.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- Documentation/virt/kvm/api.rst | 59 ++++++++++++++++++++++++++++++++++
- 1 file changed, 59 insertions(+)
+ arch/s390/kvm/kvm-s390.c | 3 +++
+ include/uapi/linux/kvm.h | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 7505d7a6c0d8..bae90f3cd11d 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -4648,6 +4648,54 @@ the clear cpu reset definition in the POP. However, the cpu is not put
- into ESA mode. This reset is a superset of the initial reset.
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index bb060064cce0..f4cd436ba979 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -574,6 +574,9 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_BPB:
+ 		r = test_facility(82);
+ 		break;
++	case KVM_CAP_S390_PROTECTED:
++		r = is_prot_virt_host();
++		break;
+ 	default:
+ 		r = 0;
+ 	}
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 2c354ba3a610..2ab168d6d2a8 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1015,6 +1015,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_ARM_NISV_TO_USER 177
+ #define KVM_CAP_ARM_INJECT_EXT_DABT 178
+ #define KVM_CAP_S390_VCPU_RESETS 179
++#define KVM_CAP_S390_PROTECTED 180
  
+ #ifdef KVM_CAP_IRQ_ROUTING
  
-+4.125 KVM_S390_PV_COMMAND
-+-------------------------
-+
-+:Capability: KVM_CAP_S390_PROTECTED
-+:Architectures: s390
-+:Type: vm ioctl
-+:Parameters: struct kvm_pv_cmd
-+:Returns: 0 on success, < 0 on error
-+
-+::
-+
-+  struct kvm_pv_cmd {
-+	__u32 cmd;	/* Command to be executed */
-+	__u16 rc;	/* Ultravisor return code */
-+	__u16 rrc;	/* Ultravisor return reason code */
-+	__u64 data;	/* Data or address */
-+	__u32 flags;    /* flags for future extensions. Must be 0 for now */
-+	__u32 reserved[3];
-+  };
-+
-+cmd values:
-+
-+KVM_PV_ENABLE
-+  Allocate memory and register the VM with the Ultravisor, thereby
-+  donating memory to the Ultravisor that will become inaccessible to
-+  KVM. All existing CPUs are converted to protected ones. After this
-+  command has succeeded, any CPU added via hotplug will become
-+  protected during its creation as well.
-+
-+KVM_PV_DISABLE
-+
-+  Deregister the VM from the Ultravisor and reclaim the memory that
-+  had been donated to the Ultravisor, making it usable by the kernel
-+  again.  All registered VCPUs are converted back to non-protected
-+  ones.
-+
-+KVM_PV_VM_SET_SEC_PARMS
-+  Pass the image header from VM memory to the Ultravisor in
-+  preparation of image unpacking and verification.
-+
-+KVM_PV_VM_UNPACK
-+  Unpack (protect and decrypt) a page of the encrypted boot image.
-+
-+KVM_PV_VM_VERIFY
-+  Verify the integrity of the unpacked image. Only if this succeeds,
-+  KVM is allowed to start protected VCPUs.
-+
-+
- 5. The kvm_run structure
- ========================
- 
-@@ -6026,3 +6074,14 @@ Architectures: s390
- 
- This capability indicates that the KVM_S390_NORMAL_RESET and
- KVM_S390_CLEAR_RESET ioctls are available.
-+
-+8.23 KVM_CAP_S390_PROTECTED
-+
-+Architecture: s390
-+
-+
-+This capability indicates that the Ultravisor has been initialized and
-+KVM can therefore start protected VMs.
-+This capability governs the KVM_S390_PV_COMMAND ioctl and the
-+KVM_MP_STATE_LOAD MP_STATE. KVM_SET_MP_STATE can fail for protected
-+guests when the state change is invalid.
 -- 
 2.24.1
