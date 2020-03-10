@@ -1,65 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:41866 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727866AbgCCCrF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:47:05 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 39/66] s390: make 'install' not depend on vmlinux
-Date: Mon,  2 Mar 2020 21:45:48 -0500
-Message-Id: <20200303024615.8889-39-sashal@kernel.org>
-In-Reply-To: <20200303024615.8889-1-sashal@kernel.org>
-References: <20200303024615.8889-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11714 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726426AbgCJRiL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 10 Mar 2020 13:38:11 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02AHY8Cg084223
+        for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2020 13:38:10 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ym8k92d8f-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 10 Mar 2020 13:38:10 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 10 Mar 2020 17:38:07 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 2/3] s390/qeth: handle error when backing RX buffer
+Date: Tue, 10 Mar 2020 18:38:02 +0100
+In-Reply-To: <20200310173803.91602-1-jwi@linux.ibm.com>
+References: <20200310173803.91602-1-jwi@linux.ibm.com>
+Message-Id: <20200310173803.91602-3-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Masahiro Yamada <masahiroy@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+qeth_init_qdio_queues() fills the RX ring with an initial set of
+RX buffers. If qeth_init_input_buffer() fails to back one of the RX
+buffers with memory, we need to bail out and report the error.
 
-[ Upstream commit 94e90f727f7424d827256023cace829cad6896f4 ]
-
-For the same reason as commit 19514fc665ff ("arm, kbuild: make "make
-install" not depend on vmlinux"), the install targets should never
-trigger the rebuild of the kernel.
-
-The variable, CONFIGURE, is not set by anyone. Remove it as well.
-
-Link: https://lkml.kernel.org/r/20200216144829.27023-1-masahiroy@kernel.org
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 4a71df50047f ("qeth: new qeth device driver")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/Makefile      | 2 +-
- arch/s390/boot/Makefile | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index e0e3a465bbfd6..8dfa2cf1f05c7 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -146,7 +146,7 @@ all: bzImage
- #KBUILD_IMAGE is necessary for packaging targets like rpm-pkg, deb-pkg...
- KBUILD_IMAGE	:= $(boot)/bzImage
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 2a05d13a0e79..d8f0c610396e 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2624,12 +2624,12 @@ static int qeth_init_input_buffer(struct qeth_card *card,
+ 					       ETH_HLEN +
+ 					       sizeof(struct ipv6hdr));
+ 		if (!buf->rx_skb)
+-			return 1;
++			return -ENOMEM;
+ 	}
  
--install: vmlinux
-+install:
- 	$(Q)$(MAKE) $(build)=$(boot) $@
+ 	pool_entry = qeth_find_free_buffer_pool_entry(card);
+ 	if (!pool_entry)
+-		return 1;
++		return -ENOBUFS;
  
- bzImage: vmlinux
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index e2c47d3a1c891..0ff9261c915e3 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -70,7 +70,7 @@ $(obj)/compressed/vmlinux: $(obj)/startup.a FORCE
- $(obj)/startup.a: $(OBJECTS) FORCE
- 	$(call if_changed,ar)
- 
--install: $(CONFIGURE) $(obj)/bzImage
-+install:
- 	sh -x  $(srctree)/$(obj)/install.sh $(KERNELRELEASE) $(obj)/bzImage \
- 	      System.map "$(INSTALL_PATH)"
- 
+ 	/*
+ 	 * since the buffer is accessed only from the input_tasklet
+@@ -2674,10 +2674,15 @@ static int qeth_init_qdio_queues(struct qeth_card *card)
+ 	/* inbound queue */
+ 	qdio_reset_buffers(card->qdio.in_q->qdio_bufs, QDIO_MAX_BUFFERS_PER_Q);
+ 	memset(&card->rx, 0, sizeof(struct qeth_rx));
++
+ 	qeth_initialize_working_pool_list(card);
+ 	/*give only as many buffers to hardware as we have buffer pool entries*/
+-	for (i = 0; i < card->qdio.in_buf_pool.buf_count - 1; ++i)
+-		qeth_init_input_buffer(card, &card->qdio.in_q->bufs[i]);
++	for (i = 0; i < card->qdio.in_buf_pool.buf_count - 1; i++) {
++		rc = qeth_init_input_buffer(card, &card->qdio.in_q->bufs[i]);
++		if (rc)
++			return rc;
++	}
++
+ 	card->qdio.in_q->next_buf_to_init =
+ 		card->qdio.in_buf_pool.buf_count - 1;
+ 	rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT, 0, 0,
 -- 
-2.20.1
+2.17.1
