@@ -1,38 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:54584 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726968AbgCXMRh (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45596 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730311AbgCJNBt (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Mar 2020 08:17:37 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 1/2] s390x: add myself as reviewer
-Date: Tue, 24 Mar 2020 13:17:21 +0100
-Message-Id: <20200324121722.9776-2-cohuck@redhat.com>
-In-Reply-To: <20200324121722.9776-1-cohuck@redhat.com>
-References: <20200324121722.9776-1-cohuck@redhat.com>
+        Tue, 10 Mar 2020 09:01:49 -0400
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 1/5] selftests: KVM: s390: fix early guest crash
+Date: Tue, 10 Mar 2020 09:01:40 -0400
+Message-Id: <20200310130144.9921-2-borntraeger@de.ibm.com>
+In-Reply-To: <20200310130144.9921-1-borntraeger@de.ibm.com>
+References: <20200310130144.9921-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Andrew Jones <drjones@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+The guest crashes very early due to changes in the control registers
+used by dynamic address translation. Let us use different registers
+that will not crash the guest.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/kvm/s390x/resets.c | 27 +++++++++++-----------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 48da1dbdd1ac..471767a355c6 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -81,6 +81,7 @@ S390X
- M: Thomas Huth <thuth@redhat.com>
- M: David Hildenbrand <david@redhat.com>
- R: Janosch Frank <frankja@linux.ibm.com>
-+R: Cornelia Huck <cohuck@redhat.com>
- L: kvm@vger.kernel.org
- F: s390x/*
- F: lib/s390x/*
---=20
-2.21.1
+diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
+index 1485bc6c8999..cbb343ad5d42 100644
+--- a/tools/testing/selftests/kvm/s390x/resets.c
++++ b/tools/testing/selftests/kvm/s390x/resets.c
+@@ -23,25 +23,24 @@ struct kvm_run *run;
+ struct kvm_sync_regs *regs;
+ static uint64_t regs_null[16];
+ 
+-static uint64_t crs[16] = { 0x40000ULL,
+-			    0x42000ULL,
+-			    0, 0, 0, 0, 0,
+-			    0x43000ULL,
+-			    0, 0, 0, 0, 0,
+-			    0x44000ULL,
+-			    0, 0
+-};
+-
+ static void guest_code_initial(void)
+ {
+-	/* Round toward 0 */
+-	uint32_t fpc = 0x11;
++	/* set several CRs to "safe" value */
++	unsigned long cr2_59 = 0x10;	/* enable guarded storage */
++	unsigned long cr8_63 = 0x1;	/* monitor mask = 1 */
++	unsigned long cr10 = 1;		/* PER START */
++	unsigned long cr11 = -1;	/* PER END */
++
+ 
+ 	/* Dirty registers */
+ 	asm volatile (
+-		"	lctlg	0,15,%0\n"
+-		"	sfpc	%1\n"
+-		: : "Q" (crs), "d" (fpc));
++		"	lghi	2,0x11\n"	/* Round toward 0 */
++		"	sfpc	2\n"		/* set fpc to !=0 */
++		"	lctlg	2,2,%0\n"
++		"	lctlg	8,8,%1\n"
++		"	lctlg	10,10,%2\n"
++		"	lctlg	11,11,%3\n"
++		: : "m" (cr2_59), "m" (cr8_63), "m" (cr10), "m" (cr11) : "2");
+ 	GUEST_SYNC(0);
+ }
+ 
+-- 
+2.25.0
