@@ -1,102 +1,136 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44090 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726857AbgCRMzY (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35544 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730313AbgCJNBt (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Mar 2020 08:55:24 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02ICaDEO065265
-        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:24 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yua2avcf4-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:24 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 18 Mar 2020 12:55:22 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 05/11] s390/qeth: allow configuration of TX queues for IQD devices
-Date: Wed, 18 Mar 2020 13:54:49 +0100
-In-Reply-To: <20200318125455.5838-1-jwi@linux.ibm.com>
-References: <20200318125455.5838-1-jwi@linux.ibm.com>
-Message-Id: <20200318125455.5838-6-jwi@linux.ibm.com>
+        Tue, 10 Mar 2020 09:01:49 -0400
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 3/5] selftests: KVM: s390: check for registers to NOT change on reset
+Date: Tue, 10 Mar 2020 09:01:42 -0400
+Message-Id: <20200310130144.9921-4-borntraeger@de.ibm.com>
+In-Reply-To: <20200310130144.9921-1-borntraeger@de.ibm.com>
+References: <20200310130144.9921-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Andrew Jones <drjones@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 
-Similar to the support for z/VM NICs, but we need to take extra care
-about the dedicated mcast queue:
+Normal reset and initial CPU reset do not clear all registers. Add a
+test that those registers are NOT changed.
 
-1. netdev_pick_tx() is unaware of this limitation and might select the
-   mcast txq. Catch this.
-2. require at least _two_ TX queues - one for ucast, one for mcast.
-3. when reducing the number of TX queues, there's a potential race
-   where netdev_cap_txqueue() over-rules the selected txq index and
-   falls back to index 0. This would place ucast traffic on the mcast
-   queue, and result in TX errors.
-   So for IQD, reject a reduction while the interface is running.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c |  6 +++++-
- drivers/s390/net/qeth_ethtool.c   | 19 ++++++++++++++++---
- 2 files changed, 21 insertions(+), 4 deletions(-)
+ tools/testing/selftests/kvm/s390x/resets.c | 55 +++++++++++++++++++++-
+ 1 file changed, 53 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index f13495d9209b..aa493edc0082 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6644,9 +6644,13 @@ EXPORT_SYMBOL_GPL(qeth_get_stats64);
- u16 qeth_iqd_select_queue(struct net_device *dev, struct sk_buff *skb,
- 			  u8 cast_type, struct net_device *sb_dev)
- {
-+	u16 txq;
-+
- 	if (cast_type != RTN_UNICAST)
- 		return QETH_IQD_MCAST_TXQ;
--	return QETH_IQD_MIN_UCAST_TXQ;
-+
-+	txq = netdev_pick_tx(dev, skb, sb_dev);
-+	return (txq == QETH_IQD_MCAST_TXQ) ? QETH_IQD_MIN_UCAST_TXQ : txq;
+diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
+index c385842792b7..b567705f0d41 100644
+--- a/tools/testing/selftests/kvm/s390x/resets.c
++++ b/tools/testing/selftests/kvm/s390x/resets.c
+@@ -40,8 +40,22 @@ static void guest_code_initial(void)
+ 		"	lctlg	8,8,%1\n"
+ 		"	lctlg	10,10,%2\n"
+ 		"	lctlg	11,11,%3\n"
+-		: : "m" (cr2_59), "m" (cr8_63), "m" (cr10), "m" (cr11) : "2");
+-	GUEST_SYNC(0);
++		/* now clobber some general purpose regs */
++		"	llihh	0,0xffff\n"
++		"	llihl	1,0x5555\n"
++		"	llilh	2,0xaaaa\n"
++		"	llill	3,0x0000\n"
++		/* now clobber a floating point reg */
++		"	lghi	4,0x1\n"
++		"	cdgbr	0,4\n"
++		/* now clobber an access reg */
++		"	sar	9,4\n"
++		/* We embed diag 501 here to control register content */
++		"	diag 0,0,0x501\n"
++		:
++		: "m" (cr2_59), "m" (cr8_63), "m" (cr10), "m" (cr11)
++		/* no clobber list as this should not return */
++		);
  }
- EXPORT_SYMBOL_GPL(qeth_iqd_select_queue);
  
-diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
-index 19b9c8302d36..715ee0015847 100644
---- a/drivers/s390/net/qeth_ethtool.c
-+++ b/drivers/s390/net/qeth_ethtool.c
-@@ -180,14 +180,27 @@ static int qeth_set_channels(struct net_device *dev,
+ static void test_one_reg(uint64_t id, uint64_t value)
+@@ -98,6 +112,21 @@ static void assert_clear(void)
+ 		    "vrs0-15 == 0 (sync_regs)");
+ }
+ 
++static void assert_initial_noclear(void)
++{
++	TEST_ASSERT(sync_regs->gprs[0] == 0xffff000000000000UL,
++		    "gpr0 == 0xffff000000000000 (sync_regs)");
++	TEST_ASSERT(sync_regs->gprs[1] == 0x0000555500000000UL,
++		    "gpr1 == 0x0000555500000000 (sync_regs)");
++	TEST_ASSERT(sync_regs->gprs[2] == 0x00000000aaaa0000UL,
++		    "gpr2 == 0x00000000aaaa0000 (sync_regs)");
++	TEST_ASSERT(sync_regs->gprs[3] == 0x0000000000000000UL,
++		    "gpr3 == 0x0000000000000000 (sync_regs)");
++	TEST_ASSERT(sync_regs->fprs[0] == 0x3ff0000000000000UL,
++		    "fpr0 == 0f1 (sync_regs)");
++	TEST_ASSERT(sync_regs->acrs[9] == 1, "ar9 == 1 (sync_regs)");
++}
++
+ static void assert_initial(void)
  {
- 	struct qeth_card *card = dev->ml_priv;
+ 	struct kvm_sregs sregs;
+@@ -140,6 +169,14 @@ static void assert_initial(void)
+ 	test_one_reg(KVM_REG_S390_CLOCK_COMP, 0);
+ }
  
--	if (IS_IQD(card) || !IS_VM_NIC(card))
--		return -EOPNOTSUPP;
--
- 	if (channels->rx_count == 0 || channels->tx_count == 0)
- 		return -EINVAL;
- 	if (channels->tx_count > card->qdio.no_out_queues)
- 		return -EINVAL;
++static void assert_normal_noclear(void)
++{
++	TEST_ASSERT(sync_regs->crs[2] == 0x10, "cr2 == 10 (sync_regs)");
++	TEST_ASSERT(sync_regs->crs[8] == 1, "cr10 == 1 (sync_regs)");
++	TEST_ASSERT(sync_regs->crs[10] == 1, "cr10 == 1 (sync_regs)");
++	TEST_ASSERT(sync_regs->crs[11] == -1, "cr11 == -1 (sync_regs)");
++}
++
+ static void assert_normal(void)
+ {
+ 	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
+@@ -176,7 +213,13 @@ static void test_normal(void)
+ 	inject_irq(VCPU_ID);
  
-+	if (IS_IQD(card)) {
-+		if (channels->tx_count < QETH_IQD_MIN_TXQ)
-+			return -EINVAL;
+ 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_NORMAL_RESET, 0);
 +
-+		/* Reject downgrade while running. It could push displaced
-+		 * ucast flows onto txq0, which is reserved for mcast.
-+		 */
-+		if (netif_running(dev) &&
-+		    channels->tx_count < dev->real_num_tx_queues)
-+			return -EPERM;
-+	} else {
-+		/* OSA still uses the legacy prio-queue mechanism: */
-+		if (!IS_VM_NIC(card))
-+			return -EOPNOTSUPP;
-+	}
++	/* must clears */
+ 	assert_normal();
++	/* must not clears */
++	assert_normal_noclear();
++	assert_initial_noclear();
 +
- 	return netif_set_real_num_tx_queues(dev, channels->tx_count);
+ 	kvm_vm_free(vm);
+ }
+ 
+@@ -192,8 +235,13 @@ static void test_initial(void)
+ 	inject_irq(VCPU_ID);
+ 
+ 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_INITIAL_RESET, 0);
++
++	/* must clears */
+ 	assert_normal();
+ 	assert_initial();
++	/* must not clears */
++	assert_initial_noclear();
++
+ 	kvm_vm_free(vm);
+ }
+ 
+@@ -209,9 +257,12 @@ static void test_clear(void)
+ 	inject_irq(VCPU_ID);
+ 
+ 	vcpu_ioctl(vm, VCPU_ID, KVM_S390_CLEAR_RESET, 0);
++
++	/* must clears */
+ 	assert_normal();
+ 	assert_initial();
+ 	assert_clear();
++
+ 	kvm_vm_free(vm);
  }
  
 -- 
-2.17.1
+2.25.0
