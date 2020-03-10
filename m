@@ -1,85 +1,55 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:35362 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731534AbgCPOlt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Mar 2020 10:41:49 -0400
-Received: by mail-pg1-f194.google.com with SMTP id 7so9885297pgr.2
-        for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2020 07:41:48 -0700 (PDT)
-From: Dmitry Safonov <dima@arista.com>
-Subject: [PATCHv2 28/50] s390: Add show_stack_loglvl()
-Date: Mon, 16 Mar 2020 14:38:54 +0000
-Message-Id: <20200316143916.195608-29-dima@arista.com>
-In-Reply-To: <20200316143916.195608-1-dima@arista.com>
-References: <20200316143916.195608-1-dima@arista.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 11 Mar 2020 09:01:15 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: linux-next: Fixes tag needs some work in the kvms390-fixes tree
+Message-ID: <20200311090115.3967bbc6@canb.auug.org.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: multipart/signed; boundary="Sig_/kv.9uJJpUfaryogAyL3K1zT";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>, Dmitry Safonov <dima@arista.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jslaby@suse.com>, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, KVM <kvm@vger.kernel.org>, S390 <linux-s390@vger.kernel.org>
+Cc: Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Currently, the log-level of show_stack() depends on a platform
-realization. It creates situations where the headers are printed with
-lower log level or higher than the stacktrace (depending on
-a platform or user).
+--Sig_/kv.9uJJpUfaryogAyL3K1zT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Furthermore, it forces the logic decision from user to an architecture
-side. In result, some users as sysrq/kdb/etc are doing tricks with
-temporary rising console_loglevel while printing their messages.
-And in result it not only may print unwanted messages from other CPUs,
-but also omit printing at all in the unlucky case where the printk()
-was deferred.
+Hi all,
 
-Introducing log-level parameter and KERN_UNSUPPRESSED [1] seems
-an easier approach than introducing more printk buffers.
-Also, it will consolidate printings with headers.
+In commit
 
-Introduce show_stack_loglvl(), that eventually will substitute
-show_stack().
+  b5de9eede579 ("KVM: s390: Also reset registers in sync regs for initial c=
+pu reset")
 
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-[1]: https://lore.kernel.org/lkml/20190528002412.1625-1-dima@arista.com/T/#u
-Signed-off-by: Dmitry Safonov <dima@arista.com>
----
- arch/s390/kernel/dumpstack.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+Fixes tag
 
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index 2c122d8bab93..887a054919fc 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -126,18 +126,24 @@ int get_stack_info(unsigned long sp, struct task_struct *task,
- 	return -EINVAL;
- }
- 
--void show_stack(struct task_struct *task, unsigned long *stack)
-+void show_stack_loglvl(struct task_struct *task, unsigned long *stack,
-+		       const char *loglvl)
- {
- 	struct unwind_state state;
- 
--	printk("Call Trace:\n");
-+	printk("%sCall Trace:\n", loglvl);
- 	unwind_for_each_frame(&state, task, NULL, (unsigned long) stack)
--		printk(state.reliable ? " [<%016lx>] %pSR \n" :
--					"([<%016lx>] %pSR)\n",
--		       state.ip, (void *) state.ip);
-+		printk(state.reliable ? "%s [<%016lx>] %pSR \n" :
-+					"%s([<%016lx>] %pSR)\n",
-+		       loglvl, state.ip, (void *) state.ip);
- 	debug_show_held_locks(task ? : current);
- }
- 
-+void show_stack(struct task_struct *task, unsigned long *stack)
-+{
-+	show_stack_loglvl(task, stack, KERN_DEFAULT);
-+}
-+
- static void show_last_breaking_event(struct pt_regs *regs)
- {
- 	printk("Last Breaking-Event-Address:\n");
--- 
-2.25.1
+  Fixes: 7de3f1423ff ("KVM: s390: Add new reset vcpu API")
+
+has these problem(s):
+
+  - SHA1 should be at least 12 digits long
+    Can be fixed by setting core.abbrev to 12 (or more) or (for git v2.11
+    or later) just making sure it is not set (or set to "auto").
+
+--=20
+Cheers,
+Stephen Rothwell
+
+--Sig_/kv.9uJJpUfaryogAyL3K1zT
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl5oDisACgkQAVBC80lX
+0GzYaAf9FXBdN/sPL0m1wS/M8NvQrp0wWqykM2mze0kNV+wY77eqasWuk3dSkCZQ
+YOWpjCN/T6FTBwJpiNLZMtgoKYOKFwkPToNXjCNkl+3sXrp/8xhKREmnobTSpqyP
+XWhIzMfqyXRn5/5gWg44M/pVIE5KIDeDxZzeU4tbcDCCsoHOeqkdne1n7KOkRk+L
+yTw1hgzfqPeT6uegHLvSwgO1K1XwLDZagZJrPzdMgr5wGvMMEe6J4gk7msoXBpia
+3n+gZjDjDeYb8erVrRxqR7niqGb7vIPeeKkP4PNVKxnVoIg2N0/kLrQHHvnZGEaU
+prhFRX7EBNh0WELfnGmQDRa/L3c75Q==
+=IiMa
+-----END PGP SIGNATURE-----
+
+--Sig_/kv.9uJJpUfaryogAyL3K1zT--
