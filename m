@@ -1,62 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729003AbgCCCtz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Mar 2020 21:49:55 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 16/22] s390/cio: cio_ignore_proc_seq_next should increase position index
-Date: Mon,  2 Mar 2020 21:49:27 -0500
-Message-Id: <20200303024933.10371-16-sashal@kernel.org>
-In-Reply-To: <20200303024933.10371-1-sashal@kernel.org>
-References: <20200303024933.10371-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from shards.monkeyblade.net ([23.128.96.9]:43890 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726325AbgCJXIn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 10 Mar 2020 19:08:43 -0400
+Date: Tue, 10 Mar 2020 16:08:42 -0700 (PDT)
+Message-Id: <20200310.160842.1259774022339854727.davem@davemloft.net>
+Subject: Re: [PATCH net 0/3] s390/qeth: fixes 2020-03-10
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200310173803.91602-1-jwi@linux.ibm.com>
+References: <20200310173803.91602-1-jwi@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Averin <vvs@virtuozzo.com>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: jwi@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, ubraun@linux.ibm.com
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Tue, 10 Mar 2020 18:38:00 +0100
 
-[ Upstream commit 8b101a5e14f2161869636ff9cb4907b7749dc0c2 ]
+> please apply the following patch series for qeth to netdev's net tree.
+> 
+> This fixes three minor issues:
+> 1) a setup parameter gets cleared unnecessarily when the HW config
+>    changes,
+> 2) insufficient error handling when initially filling the RX ring, and
+> 3) a rarely used worker that needs to be cancelled during tear down.
 
-if seq_file .next fuction does not change position index,
-read after some lseek can generate unexpected output.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=206283
-Link: https://lore.kernel.org/r/d44c53a7-9bc1-15c7-6d4a-0c10cb9dffce@virtuozzo.com
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/blacklist.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/cio/blacklist.c b/drivers/s390/cio/blacklist.c
-index 2a3f874a21d54..9cebff8e8d740 100644
---- a/drivers/s390/cio/blacklist.c
-+++ b/drivers/s390/cio/blacklist.c
-@@ -303,8 +303,10 @@ static void *
- cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
- {
- 	struct ccwdev_iter *iter;
-+	loff_t p = *offset;
- 
--	if (*offset >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
-+	(*offset)++;
-+	if (p >= (__MAX_SUBCHANNEL + 1) * (__MAX_SSID + 1))
- 		return NULL;
- 	iter = it;
- 	if (iter->devno == __MAX_SUBCHANNEL) {
-@@ -314,7 +316,6 @@ cio_ignore_proc_seq_next(struct seq_file *s, void *it, loff_t *offset)
- 			return NULL;
- 	} else
- 		iter->devno++;
--	(*offset)++;
- 	return iter;
- }
- 
--- 
-2.20.1
+Series applied and queued up for -stable, thank you.
