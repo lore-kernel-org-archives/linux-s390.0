@@ -1,386 +1,194 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:57498 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725923AbgCXFX2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Mar 2020 01:23:28 -0400
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V2 1/3] mm/debug: Add tests validating arch page table helpers for core features
-Date: Tue, 24 Mar 2020 10:52:53 +0530
-Message-Id: <1585027375-9997-2-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1585027375-9997-1-git-send-email-anshuman.khandual@arm.com>
-References: <1585027375-9997-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7860 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730351AbgCKRH0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 11 Mar 2020 13:07:26 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02BGxpAw010751
+        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2020 13:07:25 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2yq03vkceg-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 11 Mar 2020 13:07:24 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 11 Mar 2020 17:07:22 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 3/3] s390/qeth: implement smarter resizing of the RX buffer pool
+Date: Wed, 11 Mar 2020 18:07:11 +0100
+In-Reply-To: <20200311170711.50376-1-jwi@linux.ibm.com>
+References: <20200311170711.50376-1-jwi@linux.ibm.com>
+Message-Id: <20200311170711.50376-4-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: christophe.leroy@c-s.fr, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-This adds new tests validating arch page table helpers for these following
-core memory features. These tests create and test specific mapping types at
-various page table levels.
+The RX buffer pool is allocated in qeth_alloc_qdio_queues().
+A subsequent pool resizing is then handled in a very simple way:
+first free the current pool, then allocate a new pool of the requested
+size.
 
-1. SPECIAL mapping
-2. PROTNONE mapping
-3. DEVMAP mapping
-4. SOFTDIRTY mapping
-5. SWAP mapping
-6. MIGRATION mapping
-7. HUGETLB mapping
-8. THP mapping
+There's two ways where this can go wrong:
+1. if the resize action happens _before_ the initial pool was allocated,
+   then a subsequent initialization will call qeth_alloc_qdio_queues()
+   and fill the pool with a second(!) set of pages. We consume twice the
+   planned amount of memory.
+   This is easy to fix - just skip the resizing if the queues haven't
+   been allocated yet.
+2. if the initial pool was created by qeth_alloc_qdio_queues() but a
+   subsequent resizing fails, then the device has no(!) RX buffer pool.
+   The next initialization will _not_ call qeth_alloc_qdio_queues(), and
+   attempting to back the RX buffers with pages in
+   qeth_init_qdio_queues() will fail.
+   Not very difficult to fix either - instead of re-allocating the whole
+   pool, just allocate/free as many entries to match the desired size.
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-riscv@lists.infradead.org
-Cc: x86@kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Fixes: 4a71df50047f ("qeth: new qeth device driver")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- mm/debug_vm_pgtable.c | 291 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 290 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_core.h      |  2 +-
+ drivers/s390/net/qeth_core_main.c | 55 ++++++++++++++++++++++++++-----
+ drivers/s390/net/qeth_core_sys.c  |  9 +++--
+ drivers/s390/net/qeth_l3_sys.c    |  9 +++--
+ 4 files changed, 56 insertions(+), 19 deletions(-)
 
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 98990a515268..15055a8f6478 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -289,6 +289,267 @@ static void __init pmd_populate_tests(struct mm_struct *mm, pmd_t *pmdp,
- 	WARN_ON(pmd_bad(pmd));
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 242b05f644eb..468cada49e72 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -983,7 +983,7 @@ extern const struct attribute_group qeth_device_blkt_group;
+ extern const struct device_type qeth_generic_devtype;
+ 
+ const char *qeth_get_cardname_short(struct qeth_card *);
+-int qeth_realloc_buffer_pool(struct qeth_card *, int);
++int qeth_resize_buffer_pool(struct qeth_card *card, unsigned int count);
+ int qeth_core_load_discipline(struct qeth_card *, enum qeth_discipline_id);
+ void qeth_core_free_discipline(struct qeth_card *);
+ 
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index ceab3d0c4dfa..6d3f2f14b414 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -275,18 +275,57 @@ static int qeth_alloc_buffer_pool(struct qeth_card *card)
+ 	return 0;
  }
  
-+static void __init pte_special_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pte_t pte = pfn_pte(pfn, prot);
+-int qeth_realloc_buffer_pool(struct qeth_card *card, int bufcnt)
++int qeth_resize_buffer_pool(struct qeth_card *card, unsigned int count)
+ {
++	unsigned int buf_elements = QETH_MAX_BUFFER_ELEMENTS(card);
++	struct qeth_qdio_buffer_pool *pool = &card->qdio.init_pool;
++	struct qeth_buffer_pool_entry *entry, *tmp;
++	int delta = count - pool->buf_count;
++	LIST_HEAD(entries);
 +
-+	if (!IS_ENABLED(CONFIG_ARCH_HAS_PTE_SPECIAL))
-+		return;
+ 	QETH_CARD_TEXT(card, 2, "realcbp");
+ 
+-	/* TODO: steel/add buffers from/to a running card's buffer pool (?) */
+-	qeth_clear_working_pool_list(card);
+-	qeth_free_buffer_pool(card);
+-	card->qdio.in_buf_pool.buf_count = bufcnt;
+-	card->qdio.init_pool.buf_count = bufcnt;
+-	return qeth_alloc_buffer_pool(card);
++	/* Defer until queue is allocated: */
++	if (!card->qdio.in_q)
++		goto out;
 +
-+	WARN_ON(!pte_special(pte_mkspecial(pte)));
-+}
++	/* Remove entries from the pool: */
++	while (delta < 0) {
++		entry = list_first_entry(&pool->entry_list,
++					 struct qeth_buffer_pool_entry,
++					 init_list);
++		list_del(&entry->init_list);
++		qeth_free_pool_entry(entry);
 +
-+static void __init pte_protnone_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pte_t pte = pfn_pte(pfn, prot);
-+
-+	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
-+		return;
-+
-+	WARN_ON(!pte_protnone(pte));
-+	WARN_ON(!pte_present(pte));
-+}
-+
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+static void __init pmd_protnone_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pmd_t pmd = pfn_pmd(pfn, prot);
-+
-+	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
-+		return;
-+
-+	WARN_ON(!pmd_protnone(pmd));
-+	WARN_ON(!pmd_present(pmd));
-+}
-+#else
-+static void __init pmd_protnone_tests(unsigned long pfn, pgprot_t prot) { }
-+#endif
-+
-+#ifdef CONFIG_ARCH_HAS_PTE_DEVMAP
-+static void __init pte_devmap_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pte_t pte = pfn_pte(pfn, prot);
-+
-+	WARN_ON(!pte_devmap(pte_mkdevmap(pte)));
-+}
-+
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+static void __init pmd_devmap_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pmd_t pmd = pfn_pmd(pfn, prot);
-+
-+	WARN_ON(!pmd_devmap(pmd_mkdevmap(pmd)));
-+}
-+
-+#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
-+static void __init pud_devmap_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pud_t pud = pfn_pud(pfn, prot);
-+
-+	WARN_ON(!pud_devmap(pud_mkdevmap(pud)));
-+}
-+#else
-+static void __init pud_devmap_tests(unsigned long pfn, pgprot_t prot) { }
-+#endif
-+#else
-+static void __init pmd_devmap_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pud_devmap_tests(unsigned long pfn, pgprot_t prot) { }
-+#endif
-+#else
-+static void __init pte_devmap_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pmd_devmap_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pud_devmap_tests(unsigned long pfn, pgprot_t prot) { }
-+#endif
-+
-+static void __init pte_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pte_t pte = pfn_pte(pfn, prot);
-+
-+	if (!IS_ENABLED(CONFIG_HAVE_ARCH_SOFT_DIRTY))
-+		return;
-+
-+	WARN_ON(!pte_soft_dirty(pte_mksoft_dirty(pte)));
-+	WARN_ON(pte_soft_dirty(pte_clear_soft_dirty(pte)));
-+}
-+
-+static void __init pte_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pte_t pte = pfn_pte(pfn, prot);
-+
-+	if (!IS_ENABLED(CONFIG_HAVE_ARCH_SOFT_DIRTY))
-+		return;
-+
-+	WARN_ON(!pte_swp_soft_dirty(pte_swp_mksoft_dirty(pte)));
-+	WARN_ON(pte_swp_soft_dirty(pte_swp_clear_soft_dirty(pte)));
-+}
-+
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+static void __init pmd_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pmd_t pmd = pfn_pmd(pfn, prot);
-+
-+	if (!IS_ENABLED(CONFIG_HAVE_ARCH_SOFT_DIRTY))
-+		return;
-+
-+	WARN_ON(!pmd_soft_dirty(pmd_mksoft_dirty(pmd)));
-+	WARN_ON(pmd_soft_dirty(pmd_clear_soft_dirty(pmd)));
-+}
-+
-+static void __init pmd_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pmd_t pmd = pfn_pmd(pfn, prot);
-+
-+	if (!IS_ENABLED(CONFIG_HAVE_ARCH_SOFT_DIRTY) ||
-+		!IS_ENABLED(CONFIG_ARCH_ENABLE_THP_MIGRATION))
-+		return;
-+
-+	WARN_ON(!pmd_swp_soft_dirty(pmd_swp_mksoft_dirty(pmd)));
-+	WARN_ON(pmd_swp_soft_dirty(pmd_swp_clear_soft_dirty(pmd)));
-+}
-+#else
-+static void __init pmd_soft_dirty_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pmd_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
-+{
-+}
-+#endif
-+
-+static void __init pte_swap_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	swp_entry_t swp;
-+	pte_t pte;
-+
-+	pte = pfn_pte(pfn, prot);
-+	swp = __pte_to_swp_entry(pte);
-+	WARN_ON(!pte_same(pte, __swp_entry_to_pte(swp)));
-+}
-+
-+#ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
-+static void __init pmd_swap_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	swp_entry_t swp;
-+	pmd_t pmd;
-+
-+	pmd = pfn_pmd(pfn, prot);
-+	swp = __pmd_to_swp_entry(pmd);
-+	WARN_ON(!pmd_same(pmd, __swp_entry_to_pmd(swp)));
-+}
-+#else
-+static void __init pmd_swap_tests(unsigned long pfn, pgprot_t prot) { }
-+#endif
-+
-+static void __init swap_migration_tests(void)
-+{
-+	struct page *page;
-+	swp_entry_t swp;
-+
-+	if (!IS_ENABLED(CONFIG_MIGRATION))
-+		return;
-+	/*
-+	 * swap_migration_tests() requires a dedicated page as it needs to
-+	 * be locked before creating a migration entry from it. Locking the
-+	 * page that actually maps kernel text ('start_kernel') can be real
-+	 * problematic. Lets allocate a dedicated page explicitly for this
-+	 * purpose that will be freed subsequently.
-+	 */
-+	page = alloc_page(GFP_KERNEL);
-+	if (!page) {
-+		pr_err("page allocation failed\n");
-+		return;
++		delta++;
 +	}
 +
-+	/*
-+	 * make_migration_entry() expects given page to be
-+	 * locked, otherwise it stumbles upon a BUG_ON().
-+	 */
-+	__SetPageLocked(page);
-+	swp = make_migration_entry(page, 1);
-+	WARN_ON(!is_migration_entry(swp));
-+	WARN_ON(!is_write_migration_entry(swp));
++	/* Allocate additional entries: */
++	while (delta > 0) {
++		entry = qeth_alloc_pool_entry(buf_elements);
++		if (!entry) {
++			list_for_each_entry_safe(entry, tmp, &entries,
++						 init_list) {
++				list_del(&entry->init_list);
++				qeth_free_pool_entry(entry);
++			}
 +
-+	make_migration_entry_read(&swp);
-+	WARN_ON(!is_migration_entry(swp));
-+	WARN_ON(is_write_migration_entry(swp));
++			return -ENOMEM;
++		}
 +
-+	swp = make_migration_entry(page, 0);
-+	WARN_ON(!is_migration_entry(swp));
-+	WARN_ON(is_write_migration_entry(swp));
-+	__ClearPageLocked(page);
-+	__free_page(page);
-+}
++		list_add(&entry->init_list, &entries);
 +
-+#ifdef CONFIG_HUGETLB_PAGE
-+static void __init hugetlb_basic_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	struct page *page;
-+	pte_t pte;
++		delta--;
++	}
 +
-+	/*
-+	 * Accessing the page associated with the pfn is safe here,
-+	 * as it was previously derived from a real kernel symbol.
-+	 */
-+	page = pfn_to_page(pfn);
-+	pte = mk_huge_pte(page, prot);
++	list_splice(&entries, &pool->entry_list);
 +
-+	WARN_ON(!huge_pte_dirty(huge_pte_mkdirty(pte)));
-+	WARN_ON(!huge_pte_write(huge_pte_mkwrite(huge_pte_wrprotect(pte))));
-+	WARN_ON(huge_pte_write(huge_pte_wrprotect(huge_pte_mkwrite(pte))));
-+
-+#ifdef CONFIG_ARCH_WANT_GENERAL_HUGETLB
-+	pte = pfn_pte(pfn, prot);
-+
-+	WARN_ON(!pte_huge(pte_mkhuge(pte)));
-+#endif
-+}
-+#else
-+static void __init hugetlb_basic_tests(unsigned long pfn, pgprot_t prot) { }
-+#endif
-+
-+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
-+static void __init pmd_thp_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pmd_t pmd;
-+
-+	/*
-+	 * pmd_trans_huge() and pmd_present() must return positive
-+	 * after MMU invalidation with pmd_mknotpresent().
-+	 */
-+	pmd = pfn_pmd(pfn, prot);
-+	WARN_ON(!pmd_trans_huge(pmd_mkhuge(pmd)));
-+
-+#ifndef __HAVE_ARCH_PMDP_INVALIDATE
-+	WARN_ON(!pmd_trans_huge(pmd_mknotpresent(pmd_mkhuge(pmd))));
-+	WARN_ON(!pmd_present(pmd_mknotpresent(pmd_mkhuge(pmd))));
-+#endif
-+}
-+
-+#ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
-+static void __init pud_thp_tests(unsigned long pfn, pgprot_t prot)
-+{
-+	pud_t pud;
-+
-+	/*
-+	 * pud_trans_huge() and pud_present() must return positive
-+	 * after MMU invalidation with pud_mknotpresent().
-+	 */
-+	pud = pfn_pud(pfn, prot);
-+	WARN_ON(!pud_trans_huge(pud_mkhuge(pud)));
-+
-+	/*
-+	 * pud_mknotpresent() has been dropped for now. Enable back
-+	 * these tests when it comes back with a modified pud_present().
-+	 *
-+	 * WARN_ON(!pud_trans_huge(pud_mknotpresent(pud_mkhuge(pud))));
-+	 * WARN_ON(!pud_present(pud_mknotpresent(pud_mkhuge(pud))));
-+	 */
-+}
-+#else
-+static void __init pud_thp_tests(unsigned long pfn, pgprot_t prot) { }
-+#endif
-+#else
-+static void __init pmd_thp_tests(unsigned long pfn, pgprot_t prot) { }
-+static void __init pud_thp_tests(unsigned long pfn, pgprot_t prot) { }
-+#endif
-+
- static unsigned long __init get_random_vaddr(void)
++out:
++	card->qdio.in_buf_pool.buf_count = count;
++	pool->buf_count = count;
++	return 0;
+ }
+-EXPORT_SYMBOL_GPL(qeth_realloc_buffer_pool);
++EXPORT_SYMBOL_GPL(qeth_resize_buffer_pool);
+ 
+ static void qeth_free_qdio_queue(struct qeth_qdio_q *q)
  {
- 	unsigned long random_vaddr, random_pages, total_user_pages;
-@@ -310,7 +571,7 @@ void __init debug_vm_pgtable(void)
- 	pmd_t *pmdp, *saved_pmdp, pmd;
- 	pte_t *ptep;
- 	pgtable_t saved_ptep;
--	pgprot_t prot;
-+	pgprot_t prot, protnone;
- 	phys_addr_t paddr;
- 	unsigned long vaddr, pte_aligned, pmd_aligned;
- 	unsigned long pud_aligned, p4d_aligned, pgd_aligned;
-@@ -325,6 +586,12 @@ void __init debug_vm_pgtable(void)
- 		return;
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 2bd9993aa60b..78cae61bc924 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -247,8 +247,8 @@ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
+ 		struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
++	unsigned int cnt;
+ 	char *tmp;
+-	int cnt, old_cnt;
+ 	int rc = 0;
+ 
+ 	mutex_lock(&card->conf_mutex);
+@@ -257,13 +257,12 @@ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
+ 		goto out;
  	}
  
-+	/*
-+	 * __P000 (or even __S000) will help create page table entries with
-+	 * PROT_NONE permission as required for pxx_protnone_tests().
-+	 */
-+	protnone = __P000;
+-	old_cnt = card->qdio.in_buf_pool.buf_count;
+ 	cnt = simple_strtoul(buf, &tmp, 10);
+ 	cnt = (cnt < QETH_IN_BUF_COUNT_MIN) ? QETH_IN_BUF_COUNT_MIN :
+ 		((cnt > QETH_IN_BUF_COUNT_MAX) ? QETH_IN_BUF_COUNT_MAX : cnt);
+-	if (old_cnt != cnt) {
+-		rc = qeth_realloc_buffer_pool(card, cnt);
+-	}
 +
- 	/*
- 	 * PFN for mapping at PTE level is determined from a standard kernel
- 	 * text symbol. But pfns for higher page table levels are derived by
-@@ -380,6 +647,28 @@ void __init debug_vm_pgtable(void)
- 	p4d_populate_tests(mm, p4dp, saved_pudp);
- 	pgd_populate_tests(mm, pgdp, saved_p4dp);
- 
-+	pte_special_tests(pte_aligned, prot);
-+	pte_protnone_tests(pte_aligned, protnone);
-+	pmd_protnone_tests(pmd_aligned, protnone);
++	rc = qeth_resize_buffer_pool(card, cnt);
 +
-+	pte_devmap_tests(pte_aligned, prot);
-+	pmd_devmap_tests(pmd_aligned, prot);
-+	pud_devmap_tests(pud_aligned, prot);
+ out:
+ 	mutex_unlock(&card->conf_mutex);
+ 	return rc ? rc : count;
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index 29f2517d2a31..a3d1c3bdfadb 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -206,12 +206,11 @@ static ssize_t qeth_l3_dev_sniffer_store(struct device *dev,
+ 		qdio_get_ssqd_desc(CARD_DDEV(card), &card->ssqd);
+ 		if (card->ssqd.qdioac2 & CHSC_AC2_SNIFFER_AVAILABLE) {
+ 			card->options.sniffer = i;
+-			if (card->qdio.init_pool.buf_count !=
+-					QETH_IN_BUF_COUNT_MAX)
+-				qeth_realloc_buffer_pool(card,
+-					QETH_IN_BUF_COUNT_MAX);
+-		} else
++			qeth_resize_buffer_pool(card, QETH_IN_BUF_COUNT_MAX);
++		} else {
+ 			rc = -EPERM;
++		}
 +
-+	pte_soft_dirty_tests(pte_aligned, prot);
-+	pmd_soft_dirty_tests(pmd_aligned, prot);
-+	pte_swap_soft_dirty_tests(pte_aligned, prot);
-+	pmd_swap_soft_dirty_tests(pmd_aligned, prot);
-+
-+	pte_swap_tests(pte_aligned, prot);
-+	pmd_swap_tests(pmd_aligned, prot);
-+
-+	swap_migration_tests();
-+	hugetlb_basic_tests(pte_aligned, prot);
-+
-+	pmd_thp_tests(pmd_aligned, prot);
-+	pud_thp_tests(pud_aligned, prot);
-+
- 	p4d_free(mm, saved_p4dp);
- 	pud_free(mm, saved_pudp);
- 	pmd_free(mm, saved_pmdp);
+ 		break;
+ 	default:
+ 		rc = -EINVAL;
 -- 
-2.20.1
+2.17.1
