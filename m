@@ -1,130 +1,394 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:36439 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725883AbgCBTks (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Mar 2020 14:40:48 -0500
-Received: by mail-qk1-f194.google.com with SMTP id f3so923187qkh.3
-        for <linux-s390@vger.kernel.org>; Mon, 02 Mar 2020 11:40:48 -0800 (PST)
-Message-ID: <1583178042.7365.146.camel@lca.pw>
-Subject: Re: [PATCH V14] mm/debug: Add tests validating architecture page
- table helpers
-From: Qian Cai <cai@lca.pw>
-Date: Mon, 02 Mar 2020 14:40:42 -0500
-In-Reply-To: <1582732318.7365.129.camel@lca.pw>
-References: <1581909460-19148-1-git-send-email-anshuman.khandual@arm.com>
-         <1582726182.7365.123.camel@lca.pw>
-         <7c707b7f-ce3d-993b-8042-44fdc1ed28bf@c-s.fr>
-         <1582732318.7365.129.camel@lca.pw>
-Content-Type: text/plain; charset="utf-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36494 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726127AbgCLR4E (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 12 Mar 2020 13:56:04 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CHtajL084067
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:56:03 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqskk8sgt-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:55:48 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
+        Thu, 12 Mar 2020 17:45:27 -0000
+From: Steffen Maier <maier@linux.ibm.com>
+Subject: [PATCH 06/10] zfcp: report FC Endpoint Security in sysfs
+Date: Thu, 12 Mar 2020 18:45:01 +0100
+In-Reply-To: <20200312174505.51294-1-maier@linux.ibm.com>
+References: <20200312174505.51294-1-maier@linux.ibm.com>
+Message-Id: <20200312174505.51294-7-maier@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christophe Leroy <christophe.leroy@c-s.fr>, Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org
-Cc: Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>
 
-On Wed, 2020-02-26 at 10:51 -0500, Qian Cai wrote:
-> On Wed, 2020-02-26 at 15:45 +0100, Christophe Leroy wrote:
-> > 
-> > Le 26/02/2020 à 15:09, Qian Cai a écrit :
-> > > On Mon, 2020-02-17 at 08:47 +0530, Anshuman Khandual wrote:
-> > > > This adds tests which will validate architecture page table helpers and
-> > > > other accessors in their compliance with expected generic MM semantics.
-> > > > This will help various architectures in validating changes to existing
-> > > > page table helpers or addition of new ones.
-> > > > 
-> > > > This test covers basic page table entry transformations including but not
-> > > > limited to old, young, dirty, clean, write, write protect etc at various
-> > > > level along with populating intermediate entries with next page table page
-> > > > and validating them.
-> > > > 
-> > > > Test page table pages are allocated from system memory with required size
-> > > > and alignments. The mapped pfns at page table levels are derived from a
-> > > > real pfn representing a valid kernel text symbol. This test gets called
-> > > > inside kernel_init() right after async_synchronize_full().
-> > > > 
-> > > > This test gets built and run when CONFIG_DEBUG_VM_PGTABLE is selected. Any
-> > > > architecture, which is willing to subscribe this test will need to select
-> > > > ARCH_HAS_DEBUG_VM_PGTABLE. For now this is limited to arc, arm64, x86, s390
-> > > > and ppc32 platforms where the test is known to build and run successfully.
-> > > > Going forward, other architectures too can subscribe the test after fixing
-> > > > any build or runtime problems with their page table helpers. Meanwhile for
-> > > > better platform coverage, the test can also be enabled with CONFIG_EXPERT
-> > > > even without ARCH_HAS_DEBUG_VM_PGTABLE.
-> > > > 
-> > > > Folks interested in making sure that a given platform's page table helpers
-> > > > conform to expected generic MM semantics should enable the above config
-> > > > which will just trigger this test during boot. Any non conformity here will
-> > > > be reported as an warning which would need to be fixed. This test will help
-> > > > catch any changes to the agreed upon semantics expected from generic MM and
-> > > > enable platforms to accommodate it thereafter.
-> > > 
-> > > How useful is this that straightly crash the powerpc?
-> > > 
-> > > [   23.263425][    T1] debug_vm_pgtable: debug_vm_pgtable: Validating
-> > > architecture page table helpers
-> > > [   23.263625][    T1] ------------[ cut here ]------------
-> > > [   23.263649][    T1] kernel BUG at arch/powerpc/mm/pgtable.c:274!
-> > 
-> > The problem on PPC64 is known and has to be investigated and fixed.
-> 
-> It might be interesting to hear what powerpc64 maintainers would say about it
-> and if it is actually worth "fixing" in the arch code, but that BUG_ON() was
-> there since 2009 and had not been exposed until this patch comes alone?
+From: Jens Remus <jremus@linux.ibm.com>
 
-This patch below makes it works on powerpc64 in order to dodge the BUG_ON()s in 
-assert_pte_locked() triggered by pte_clear_tests().
+Add an interface to read Fibre Channel Endpoint Security information of
+FCP channels and their connections to FC remote ports. It comes in the
+form of new sysfs attributes that are attached to the CCW device
+representing the FCP device and its zfcp port objects.
 
+The read-only sysfs attribute "fc_security" of a CCW device representing
+a FCP device shows the FC Endpoint Security capabilities of the device.
+Possible values are: "unknown", "unsupported", "none", or a comma-
+separated list of one or more mnemonics and/or one hexadecimal value
+representing the supported FC Endpoint Security:
 
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 96dd7d574cef..50b385233971 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -55,6 +55,8 @@
- #define RANDOM_ORVALUE	GENMASK(BITS_PER_LONG - 1, S390_MASK_BITS)
- #define RANDOM_NZVALUE	GENMASK(7, 0)
- 
-+unsigned long vaddr;
+  Authentication: Authentication supported
+  Encryption    : Encryption supported
+
+The read-only sysfs attribute "fc_security" of a zfcp port object shows
+the FC Endpoint Security used on the connection between its parent FCP
+device and the FC remote port. Possible values are: "unknown",
+"unsupported", "none", or a mnemonic or hexadecimal value representing
+the FC Endpoint Security used:
+
+  Authentication: Connection has been authenticated
+  Encryption    : Connection is encrypted
+
+Both sysfs attributes may return hexadecimal values instead of
+mnemonics, if the mnemonic lookup table does not contain an entry for
+the FC Endpoint Security reported by the FCP device.
+
+Signed-off-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Fedor Loshakov <loshakov@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+---
+ drivers/s390/scsi/zfcp_def.h   |  4 +-
+ drivers/s390/scsi/zfcp_ext.h   |  9 +++-
+ drivers/s390/scsi/zfcp_fsf.c   | 79 ++++++++++++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_fsf.h   | 14 ++++--
+ drivers/s390/scsi/zfcp_sysfs.c | 70 +++++++++++++++++++++++++++++-
+ 5 files changed, 170 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+index 8cc0eefe4ccc..861ddc1ef2a9 100644
+--- a/drivers/s390/scsi/zfcp_def.h
++++ b/drivers/s390/scsi/zfcp_def.h
+@@ -4,7 +4,7 @@
+  *
+  * Global definitions for the zfcp device driver.
+  *
+- * Copyright IBM Corp. 2002, 2018
++ * Copyright IBM Corp. 2002, 2020
+  */
+ 
+ #ifndef ZFCP_DEF_H
+@@ -158,6 +158,7 @@ struct zfcp_adapter {
+ 	u32			adapter_features;  /* FCP channel features */
+ 	u32			connection_features; /* host connection features */
+         u32			hardware_version;  /* of FCP channel */
++	u32			fc_security_algorithms; /* of FCP channel */
+ 	u16			timer_ticks;       /* time int for a tick */
+ 	struct Scsi_Host	*scsi_host;	   /* Pointer to mid-layer */
+ 	struct list_head	port_list;	   /* remote port list */
+@@ -218,6 +219,7 @@ struct zfcp_port {
+         atomic_t               erp_counter;
+ 	u32                    maxframe_size;
+ 	u32                    supported_classes;
++	u32                    connection_info;
+ 	struct work_struct     gid_pn_work;
+ 	struct work_struct     test_link_work;
+ 	struct work_struct     rport_work;
+diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
+index c8556787cfdc..ee82fb540db3 100644
+--- a/drivers/s390/scsi/zfcp_ext.h
++++ b/drivers/s390/scsi/zfcp_ext.h
+@@ -4,7 +4,7 @@
+  *
+  * External function declarations.
+  *
+- * Copyright IBM Corp. 2002, 2018
++ * Copyright IBM Corp. 2002, 2020
+  */
+ 
+ #ifndef ZFCP_EXT_H
+@@ -135,6 +135,13 @@ extern struct zfcp_fsf_req *zfcp_fsf_fcp_task_mgmt(struct scsi_device *sdev,
+ 						   u8 tm_flags);
+ extern struct zfcp_fsf_req *zfcp_fsf_abort_fcp_cmnd(struct scsi_cmnd *);
+ extern void zfcp_fsf_reqid_check(struct zfcp_qdio *, int);
++enum zfcp_fsf_print_fmt {
++	ZFCP_FSF_PRINT_FMT_LIST,
++	ZFCP_FSF_PRINT_FMT_SINGLEITEM,
++};
++extern ssize_t zfcp_fsf_scnprint_fc_security(char *buf, size_t size,
++					     u32 fc_security,
++					     enum zfcp_fsf_print_fmt fmt);
+ 
+ /* zfcp_qdio.c */
+ extern int zfcp_qdio_setup(struct zfcp_adapter *);
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index c3aa0546364a..068cb94beb58 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -664,6 +664,76 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
+ 	}
+ }
+ 
++/*
++ * Mapping of FC Endpoint Security flag masks to mnemonics
++ */
++static const struct {
++	u32	mask;
++	char	*name;
++} zfcp_fsf_fc_security_mnemonics[] = {
++	{ FSF_FC_SECURITY_AUTH,		"Authentication" },
++	{ FSF_FC_SECURITY_ENC_FCSP2 |
++	  FSF_FC_SECURITY_ENC_ERAS,	"Encryption" },
++};
 +
- static void __init pte_basic_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pte_t pte = pfn_pte(pfn, prot);
-@@ -256,7 +258,7 @@ static void __init pte_clear_tests(struct mm_struct *mm,
-pte_t *ptep)
- 
- 	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
- 	WRITE_ONCE(*ptep, pte);
--	pte_clear(mm, 0, ptep);
-+	pte_clear(mm, vaddr, ptep);
- 	pte = READ_ONCE(*ptep);
- 	WARN_ON(!pte_none(pte));
- }
-@@ -310,8 +312,9 @@ void __init debug_vm_pgtable(void)
- 	pgtable_t saved_ptep;
- 	pgprot_t prot;
- 	phys_addr_t paddr;
--	unsigned long vaddr, pte_aligned, pmd_aligned;
-+	unsigned long pte_aligned, pmd_aligned;
- 	unsigned long pud_aligned, p4d_aligned, pgd_aligned;
-+	spinlock_t *ptl;
- 
- 	pr_info("Validating architecture page table helpers\n");
- 	prot = vm_get_page_prot(VMFLAGS);
-@@ -344,7 +347,7 @@ void __init debug_vm_pgtable(void)
- 	p4dp = p4d_alloc(mm, pgdp, vaddr);
- 	pudp = pud_alloc(mm, p4dp, vaddr);
- 	pmdp = pmd_alloc(mm, pudp, vaddr);
--	ptep = pte_alloc_map(mm, pmdp, vaddr);
-+	ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
- 
- 	/*
- 	 * Save all the page table page addresses as the page table
-@@ -370,7 +373,7 @@ void __init debug_vm_pgtable(void)
- 	p4d_clear_tests(mm, p4dp);
- 	pgd_clear_tests(mm, pgdp);
- 
--	pte_unmap(ptep);
-+	pte_unmap_unlock(ptep, ptl);
- 
- 	pmd_populate_tests(mm, pmdp, saved_ptep);
- 	pud_populate_tests(mm, pudp, saved_pmdp);
++/**
++ * zfcp_fsf_scnprint_fc_security() - translate FC Endpoint Security flags into
++ *                                   mnemonics and place in a buffer
++ * @buf        : the buffer to place the translated FC Endpoint Security flag(s)
++ *               into
++ * @size       : the size of the buffer, including the trailing null space
++ * @fc_security: one or more FC Endpoint Security flags, or zero
++ * @fmt        : specifies whether a list or a single item is to be put into the
++ *               buffer
++ *
++ * The Fibre Channel (FC) Endpoint Security flags are translated into mnemonics.
++ * If the FC Endpoint Security flags are zero "none" is placed into the buffer.
++ *
++ * With ZFCP_FSF_PRINT_FMT_LIST the mnemonics are placed as a list separated by
++ * a comma followed by a space into the buffer. If one or more FC Endpoint
++ * Security flags cannot be translated into a mnemonic, as they are undefined
++ * in zfcp_fsf_fc_security_mnemonics, their bitwise ORed value in hexadecimal
++ * representation is placed into the buffer.
++ *
++ * With ZFCP_FSF_PRINT_FMT_SINGLEITEM only one single mnemonic is placed into
++ * the buffer. If the FC Endpoint Security flag cannot be translated, as it is
++ * undefined in zfcp_fsf_fc_security_mnemonics, its value in hexadecimal
++ * representation is placed into the buffer. If more than one FC Endpoint
++ * Security flag was specified, their value in hexadecimal representation is
++ * placed into the buffer.
++ *
++ * Return: The number of characters written into buf not including the trailing
++ *         '\0'. If size is == 0 the function returns 0.
++ */
++ssize_t zfcp_fsf_scnprint_fc_security(char *buf, size_t size, u32 fc_security,
++				      enum zfcp_fsf_print_fmt fmt)
++{
++	const char *prefix = "";
++	ssize_t len = 0;
++	int i;
++
++	if (fc_security == 0)
++		return scnprintf(buf, size, "none");
++	if (fmt == ZFCP_FSF_PRINT_FMT_SINGLEITEM && hweight32(fc_security) != 1)
++		return scnprintf(buf, size, "0x%08x", fc_security);
++
++	for (i = 0; i < ARRAY_SIZE(zfcp_fsf_fc_security_mnemonics); i++) {
++		if (!(fc_security & zfcp_fsf_fc_security_mnemonics[i].mask))
++			continue;
++
++		len += scnprintf(buf + len, size - len, "%s%s", prefix,
++				 zfcp_fsf_fc_security_mnemonics[i].name);
++		prefix = ", ";
++		fc_security &= ~zfcp_fsf_fc_security_mnemonics[i].mask;
++	}
++
++	if (fc_security != 0)
++		len += scnprintf(buf + len, size - len, "%s0x%08x",
++				 prefix, fc_security);
++
++	return len;
++}
++
+ static void zfcp_fsf_exchange_port_evaluate(struct zfcp_fsf_req *req)
+ {
+ 	struct zfcp_adapter *adapter = req->adapter;
+@@ -681,6 +751,11 @@ static void zfcp_fsf_exchange_port_evaluate(struct zfcp_fsf_req *req)
+ 	       FC_FC4_LIST_SIZE);
+ 	memcpy(fc_host_active_fc4s(shost), bottom->active_fc4_types,
+ 	       FC_FC4_LIST_SIZE);
++	if (adapter->adapter_features & FSF_FEATURE_FC_SECURITY)
++		adapter->fc_security_algorithms =
++			bottom->fc_security_algorithms;
++	else
++		adapter->fc_security_algorithms = 0;
+ }
+ 
+ static void zfcp_fsf_exchange_port_data_handler(struct zfcp_fsf_req *req)
+@@ -1533,6 +1608,10 @@ static void zfcp_fsf_open_port_handler(struct zfcp_fsf_req *req)
+ 		break;
+ 	case FSF_GOOD:
+ 		port->handle = header->port_handle;
++		if (adapter->adapter_features & FSF_FEATURE_FC_SECURITY)
++			port->connection_info = bottom->connection_info;
++		else
++			port->connection_info = 0;
+ 		atomic_or(ZFCP_STATUS_COMMON_OPEN |
+ 				ZFCP_STATUS_PORT_PHYS_OPEN, &port->status);
+ 		atomic_andnot(ZFCP_STATUS_COMMON_ACCESS_BOXED,
+diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
+index 2b1e4da1944f..66de1708973d 100644
+--- a/drivers/s390/scsi/zfcp_fsf.h
++++ b/drivers/s390/scsi/zfcp_fsf.h
+@@ -4,7 +4,7 @@
+  *
+  * Interface to the FSF support functions.
+  *
+- * Copyright IBM Corp. 2002, 2018
++ * Copyright IBM Corp. 2002, 2020
+  */
+ 
+ #ifndef FSF_H
+@@ -165,6 +165,7 @@
+ #define FSF_FEATURE_MEASUREMENT_DATA		0x00000200
+ #define FSF_FEATURE_REQUEST_SFP_DATA		0x00000200
+ #define FSF_FEATURE_REPORT_SFP_DATA		0x00000800
++#define FSF_FEATURE_FC_SECURITY			0x00001000
+ #define FSF_FEATURE_DIF_PROT_TYPE1		0x00010000
+ #define FSF_FEATURE_DIX_PROT_TCPIP		0x00020000
+ 
+@@ -174,6 +175,11 @@
+ /* option */
+ #define FSF_OPEN_LUN_SUPPRESS_BOXING		0x00000001
+ 
++/* FC security algorithms */
++#define FSF_FC_SECURITY_AUTH			0x00000001
++#define FSF_FC_SECURITY_ENC_FCSP2		0x00000002
++#define FSF_FC_SECURITY_ENC_ERAS		0x00000004
++
+ struct fsf_queue_designator {
+ 	u8  cssid;
+ 	u8  chpid;
+@@ -338,7 +344,8 @@ struct fsf_qtcb_bottom_support {
+ 	u8  res3[3];
+ 	u8  timeout;
+         u32 lun_access_info;
+-        u8  res4[180];
++	u32 connection_info;
++	u8  res4[176];
+ 	u32 els1_length;
+ 	u32 els2_length;
+ 	u32 req_buf_length;
+@@ -426,7 +433,8 @@ struct fsf_qtcb_bottom_port {
+ 			u16 port_tx_type	:4;
+ 		};
+ 	} sfp_flags;
+-	u8 res3[240];
++	u32 fc_security_algorithms;
++	u8 res3[236];
+ } __attribute__ ((packed));
+ 
+ union fsf_qtcb_bottom {
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index 494b9fe9cc94..45d53166d0d1 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -4,7 +4,7 @@
+  *
+  * sysfs attributes.
+  *
+- * Copyright IBM Corp. 2008, 2010
++ * Copyright IBM Corp. 2008, 2020
+  */
+ 
+ #define KMSG_COMPONENT "zfcp"
+@@ -370,6 +370,42 @@ static ZFCP_DEV_ATTR(adapter, diag_max_age, 0644,
+ 		     zfcp_sysfs_adapter_diag_max_age_show,
+ 		     zfcp_sysfs_adapter_diag_max_age_store);
+ 
++static ssize_t zfcp_sysfs_adapter_fc_security_show(
++	struct device *dev, struct device_attribute *attr, char *buf)
++{
++	struct ccw_device *cdev = to_ccwdev(dev);
++	struct zfcp_adapter *adapter = zfcp_ccw_adapter_by_cdev(cdev);
++	unsigned int status;
++	int i;
++
++	if (!adapter)
++		return -ENODEV;
++
++	/*
++	 * Adapter status COMMON_OPEN implies xconf data and xport data
++	 * was done. Adapter FC Endpoint Security capability remains
++	 * unchanged in case of COMMON_ERP_FAILED (e.g. due to local link
++	 * down).
++	 */
++	status = atomic_read(&adapter->status);
++	if (0 == (status & ZFCP_STATUS_COMMON_OPEN))
++		i = sprintf(buf, "unknown\n");
++	else if (!(adapter->adapter_features & FSF_FEATURE_FC_SECURITY))
++		i = sprintf(buf, "unsupported\n");
++	else {
++		i = zfcp_fsf_scnprint_fc_security(
++			buf, PAGE_SIZE - 1, adapter->fc_security_algorithms,
++			ZFCP_FSF_PRINT_FMT_LIST);
++		i += scnprintf(buf + i, PAGE_SIZE - i, "\n");
++	}
++
++	zfcp_ccw_adapter_put(adapter);
++	return i;
++}
++static ZFCP_DEV_ATTR(adapter, fc_security, S_IRUGO,
++		     zfcp_sysfs_adapter_fc_security_show,
++		     NULL);
++
+ static struct attribute *zfcp_adapter_attrs[] = {
+ 	&dev_attr_adapter_failed.attr,
+ 	&dev_attr_adapter_in_recovery.attr,
+@@ -383,6 +419,7 @@ static struct attribute *zfcp_adapter_attrs[] = {
+ 	&dev_attr_adapter_status.attr,
+ 	&dev_attr_adapter_hardware_version.attr,
+ 	&dev_attr_adapter_diag_max_age.attr,
++	&dev_attr_adapter_fc_security.attr,
+ 	NULL
+ };
+ 
+@@ -426,6 +463,36 @@ static ssize_t zfcp_sysfs_unit_remove_store(struct device *dev,
+ }
+ static DEVICE_ATTR(unit_remove, S_IWUSR, NULL, zfcp_sysfs_unit_remove_store);
+ 
++static ssize_t zfcp_sysfs_port_fc_security_show(struct device *dev,
++						struct device_attribute *attr,
++						char *buf)
++{
++	struct zfcp_port *port = container_of(dev, struct zfcp_port, dev);
++	struct zfcp_adapter *adapter = port->adapter;
++	unsigned int status = atomic_read(&port->status);
++	int i;
++
++	if (0 == (status & ZFCP_STATUS_COMMON_OPEN) ||
++	    0 == (status & ZFCP_STATUS_COMMON_UNBLOCKED) ||
++	    0 == (status & ZFCP_STATUS_PORT_PHYS_OPEN) ||
++	    0 != (status & ZFCP_STATUS_COMMON_ERP_FAILED) ||
++	    0 != (status & ZFCP_STATUS_COMMON_ACCESS_BOXED))
++		i = sprintf(buf, "unknown\n");
++	else if (!(adapter->adapter_features & FSF_FEATURE_FC_SECURITY))
++		i = sprintf(buf, "unsupported\n");
++	else {
++		i = zfcp_fsf_scnprint_fc_security(
++			buf, PAGE_SIZE - 1, port->connection_info,
++			ZFCP_FSF_PRINT_FMT_SINGLEITEM);
++		i += scnprintf(buf + i, PAGE_SIZE - i, "\n");
++	}
++
++	return i;
++}
++static ZFCP_DEV_ATTR(port, fc_security, S_IRUGO,
++		     zfcp_sysfs_port_fc_security_show,
++		     NULL);
++
+ static struct attribute *zfcp_port_attrs[] = {
+ 	&dev_attr_unit_add.attr,
+ 	&dev_attr_unit_remove.attr,
+@@ -433,6 +500,7 @@ static struct attribute *zfcp_port_attrs[] = {
+ 	&dev_attr_port_in_recovery.attr,
+ 	&dev_attr_port_status.attr,
+ 	&dev_attr_port_access_denied.attr,
++	&dev_attr_port_fc_security.attr,
+ 	NULL
+ };
+ static struct attribute_group zfcp_port_attr_group = {
+-- 
+2.17.1
