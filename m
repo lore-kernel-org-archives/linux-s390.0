@@ -1,118 +1,149 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 48/58] s390/qeth: vnicc Fix EOPNOTSUPP precedence
-Date: Mon,  2 Mar 2020 21:47:30 -0500
-Message-Id: <20200303024740.9511-48-sashal@kernel.org>
-In-Reply-To: <20200303024740.9511-1-sashal@kernel.org>
-References: <20200303024740.9511-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17772 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726387AbgCLR6W (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 12 Mar 2020 13:58:22 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CHtgx5088577
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:58:21 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqskk8ts1-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:58:17 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
+        Thu, 12 Mar 2020 17:45:43 -0000
+From: Steffen Maier <maier@linux.ibm.com>
+Subject: [PATCH 10/10] zfcp: log FC Endpoint Security errors
+Date: Thu, 12 Mar 2020 18:45:05 +0100
+In-Reply-To: <20200312174505.51294-1-maier@linux.ibm.com>
+References: <20200312174505.51294-1-maier@linux.ibm.com>
+Message-Id: <20200312174505.51294-11-maier@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+From: Jens Remus <jremus@linux.ibm.com>
 
-[ Upstream commit 6f3846f0955308b6d1b219419da42b8de2c08845 ]
+Log any FC Endpoint Security errors to the kernel ring buffer with rate-
+limiting.
 
-When getting or setting VNICC parameters, the error code EOPNOTSUPP
-should have precedence over EBUSY.
-
-EBUSY is used because vnicc feature and bridgeport feature are mutually
-exclusive, which is a temporary condition.
-Whereas EOPNOTSUPP indicates that the HW does not support all or parts of
-the vnicc feature.
-This issue causes the vnicc sysfs params to show 'blocked by bridgeport'
-for HW that does not support VNICC at all.
-
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 ---
- drivers/s390/net/qeth_l2_main.c | 29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ drivers/s390/scsi/zfcp_fsf.c | 62 ++++++++++++++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_fsf.h |  8 +++++
+ 2 files changed, 70 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 59e220749ad1f..92bace3b28fd2 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -1846,15 +1846,14 @@ int qeth_l2_vnicc_set_state(struct qeth_card *card, u32 vnicc, bool state)
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index e8d0bf0ec10f..662ddbc74263 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -1647,6 +1647,62 @@ static void zfcp_fsf_log_port_fc_security(struct zfcp_port *port,
+ 	port->connection_info_old = port->connection_info;
+ }
  
- 	QETH_CARD_TEXT(card, 2, "vniccsch");
- 
--	/* do not change anything if BridgePort is enabled */
--	if (qeth_bridgeport_is_in_use(card))
--		return -EBUSY;
--
- 	/* check if characteristic and enable/disable are supported */
- 	if (!(card->options.vnicc.sup_chars & vnicc) ||
- 	    !(card->options.vnicc.set_char_sup & vnicc))
- 		return -EOPNOTSUPP;
- 
-+	if (qeth_bridgeport_is_in_use(card))
-+		return -EBUSY;
++static void zfcp_fsf_log_security_error(const struct device *dev, u32 fsf_sqw0,
++					u64 wwpn)
++{
++	switch (fsf_sqw0) {
 +
- 	/* set enable/disable command and store wanted characteristic */
- 	if (state) {
- 		cmd = IPA_VNICC_ENABLE;
-@@ -1900,14 +1899,13 @@ int qeth_l2_vnicc_get_state(struct qeth_card *card, u32 vnicc, bool *state)
- 
- 	QETH_CARD_TEXT(card, 2, "vniccgch");
- 
--	/* do not get anything if BridgePort is enabled */
--	if (qeth_bridgeport_is_in_use(card))
--		return -EBUSY;
--
- 	/* check if characteristic is supported */
- 	if (!(card->options.vnicc.sup_chars & vnicc))
- 		return -EOPNOTSUPP;
- 
-+	if (qeth_bridgeport_is_in_use(card))
-+		return -EBUSY;
++	/*
++	 * Open Port command error codes
++	 */
 +
- 	/* if card is ready, query current VNICC state */
- 	if (qeth_card_hw_is_reachable(card))
- 		rc = qeth_l2_vnicc_query_chars(card);
-@@ -1925,15 +1923,14 @@ int qeth_l2_vnicc_set_timeout(struct qeth_card *card, u32 timeout)
- 
- 	QETH_CARD_TEXT(card, 2, "vniccsto");
- 
--	/* do not change anything if BridgePort is enabled */
--	if (qeth_bridgeport_is_in_use(card))
--		return -EBUSY;
--
- 	/* check if characteristic and set_timeout are supported */
- 	if (!(card->options.vnicc.sup_chars & QETH_VNICC_LEARNING) ||
- 	    !(card->options.vnicc.getset_timeout_sup & QETH_VNICC_LEARNING))
- 		return -EOPNOTSUPP;
- 
-+	if (qeth_bridgeport_is_in_use(card))
-+		return -EBUSY;
++	case FSF_SQ_SECURITY_REQUIRED:
++		dev_warn_ratelimited(dev,
++				     "FC Endpoint Security error: FC security is required but not supported or configured on remote port 0x%016llx\n",
++				     wwpn);
++		break;
++	case FSF_SQ_SECURITY_TIMEOUT:
++		dev_warn_ratelimited(dev,
++				     "FC Endpoint Security error: a timeout prevented opening remote port 0x%016llx\n",
++				     wwpn);
++		break;
++	case FSF_SQ_SECURITY_KM_UNAVAILABLE:
++		dev_warn_ratelimited(dev,
++				     "FC Endpoint Security error: opening remote port 0x%016llx failed because local and external key manager cannot communicate\n",
++				     wwpn);
++		break;
++	case FSF_SQ_SECURITY_RKM_UNAVAILABLE:
++		dev_warn_ratelimited(dev,
++				     "FC Endpoint Security error: opening remote port 0x%016llx failed because it cannot communicate with the external key manager\n",
++				     wwpn);
++		break;
++	case FSF_SQ_SECURITY_AUTH_FAILURE:
++		dev_warn_ratelimited(dev,
++				     "FC Endpoint Security error: the device could not verify the identity of remote port 0x%016llx\n",
++				     wwpn);
++		break;
 +
- 	/* do we need to do anything? */
- 	if (card->options.vnicc.learning_timeout == timeout)
- 		return rc;
-@@ -1962,14 +1959,14 @@ int qeth_l2_vnicc_get_timeout(struct qeth_card *card, u32 *timeout)
- 
- 	QETH_CARD_TEXT(card, 2, "vniccgto");
- 
--	/* do not get anything if BridgePort is enabled */
--	if (qeth_bridgeport_is_in_use(card))
--		return -EBUSY;
--
- 	/* check if characteristic and get_timeout are supported */
- 	if (!(card->options.vnicc.sup_chars & QETH_VNICC_LEARNING) ||
- 	    !(card->options.vnicc.getset_timeout_sup & QETH_VNICC_LEARNING))
- 		return -EOPNOTSUPP;
++	/*
++	 * Send FCP command error codes
++	 */
 +
-+	if (qeth_bridgeport_is_in_use(card))
-+		return -EBUSY;
++	case FSF_SQ_SECURITY_ENC_FAILURE:
++		dev_warn_ratelimited(dev,
++				     "FC Endpoint Security error: FC connection to remote port 0x%016llx closed because encryption broke down\n",
++				     wwpn);
++		break;
 +
- 	/* if card is ready, get timeout. Otherwise, just return stored value */
- 	*timeout = card->options.vnicc.learning_timeout;
- 	if (qeth_card_hw_is_reachable(card))
++	/*
++	 * Unknown error codes
++	 */
++
++	default:
++		dev_warn_ratelimited(dev,
++				     "FC Endpoint Security error: the device issued an unknown error code 0x%08x related to the FC connection to remote port 0x%016llx\n",
++				     fsf_sqw0, wwpn);
++	}
++}
++
+ static void zfcp_fsf_open_port_handler(struct zfcp_fsf_req *req)
+ {
+ 	struct zfcp_adapter *adapter = req->adapter;
+@@ -1671,6 +1727,9 @@ static void zfcp_fsf_open_port_handler(struct zfcp_fsf_req *req)
+ 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+ 	case FSF_SECURITY_ERROR:
++		zfcp_fsf_log_security_error(&req->adapter->ccw_device->dev,
++					    header->fsf_status_qual.word[0],
++					    port->wwpn);
+ 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+ 	case FSF_ADAPTER_STATUS_AVAILABLE:
+@@ -2404,6 +2463,9 @@ static void zfcp_fsf_fcp_handler_common(struct zfcp_fsf_req *req,
+ 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+ 	case FSF_SECURITY_ERROR:
++		zfcp_fsf_log_security_error(&req->adapter->ccw_device->dev,
++					    header->fsf_status_qual.word[0],
++					    zfcp_sdev->port->wwpn);
+ 		zfcp_erp_port_forced_reopen(zfcp_sdev->port, 0, "fssfch7");
+ 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
+index c6a56f96c363..ba1fd144b890 100644
+--- a/drivers/s390/scsi/zfcp_fsf.h
++++ b/drivers/s390/scsi/zfcp_fsf.h
+@@ -111,6 +111,14 @@
+ #define FSF_PSQ_LINK_MODE_TABLE_CURRUPTED	0x00004000
+ #define FSF_PSQ_LINK_NO_WWPN_ASSIGNMENT		0x00008000
+ 
++/* FSF status qualifier, security error */
++#define FSF_SQ_SECURITY_REQUIRED		0x00000001
++#define FSF_SQ_SECURITY_TIMEOUT			0x00000002
++#define FSF_SQ_SECURITY_KM_UNAVAILABLE		0x00000003
++#define FSF_SQ_SECURITY_RKM_UNAVAILABLE		0x00000004
++#define FSF_SQ_SECURITY_AUTH_FAILURE		0x00000005
++#define FSF_SQ_SECURITY_ENC_FAILURE		0x00000010
++
+ /* payload size in status read buffer */
+ #define FSF_STATUS_READ_PAYLOAD_SIZE		4032
+ 
 -- 
-2.20.1
+2.17.1
