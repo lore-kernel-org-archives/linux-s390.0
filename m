@@ -1,59 +1,155 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19882 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727253AbgCXINR (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25686 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726127AbgCLRzt (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Mar 2020 04:13:17 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02O83W78019574
-        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 04:13:16 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywdr5utfw-1
+        Thu, 12 Mar 2020 13:55:49 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CHtbJq084721
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:55:47 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqskk8sgq-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 04:13:11 -0400
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:55:45 -0400
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Tue, 24 Mar 2020 08:13:09 -0000
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 05/10] s390x: smp: Loop if secondary cpu returns into cpu setup again
-Date: Tue, 24 Mar 2020 04:12:46 -0400
-In-Reply-To: <20200324081251.28810-1-frankja@linux.ibm.com>
-References: <20200324081251.28810-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200324081251.28810-6-frankja@linux.ibm.com>
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
+        Thu, 12 Mar 2020 17:45:30 -0000
+From: Steffen Maier <maier@linux.ibm.com>
+Subject: [PATCH 07/10] zfcp: log FC Endpoint Security of connections
+Date: Thu, 12 Mar 2020 18:45:02 +0100
+In-Reply-To: <20200312174505.51294-1-maier@linux.ibm.com>
+References: <20200312174505.51294-1-maier@linux.ibm.com>
+Message-Id: <20200312174505.51294-8-maier@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com
+To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>
 
-Up to now a secondary cpu could have returned from the function it was
-executing and ending up somewhere in cstart64.S. This was mostly
-circumvented by an endless loop in the function that it executed.
+From: Jens Remus <jremus@linux.ibm.com>
 
-Let's add a loop to the end of the cpu setup, so we don't have to rely
-on added loops in the tests.
+Log the usage of and subsequent changes in FC Endpoint Security of
+connections between FCP devices and FC remote ports to the kernel ring
+buffer. Activation of FC Endpoint Security is logged as informational.
+Change and deactivation are logged as warning.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+No logging takes place, if FC Endpoint Security is not used (i.e. never
+activated) on a connection or if it does not change during reopen of
+a port (e.g. due to adapter or port recovery).
+
+Signed-off-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Reviewed-by: Fedor Loshakov <loshakov@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
 ---
- s390x/cstart64.S | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_def.h |  1 +
+ drivers/s390/scsi/zfcp_fsf.c | 54 +++++++++++++++++++++++++++++++++++-
+ 2 files changed, 54 insertions(+), 1 deletion(-)
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 9af6bb3f28399fbc..ecffbe05c707fd7c 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -161,7 +161,9 @@ smp_cpu_setup_state:
- 	lctlg   %c0, %c0, GEN_LC_SW_INT_CRS
- 	/* We should only go once through cpu setup and not for every restart */
- 	stg	%r14, GEN_LC_RESTART_NEW_PSW + 8
--	br	%r14
-+	brasl	%r14, %r14
-+	/* If the function returns, just loop here */
-+0:	j	0
+diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+index 861ddc1ef2a9..b6af4a93681c 100644
+--- a/drivers/s390/scsi/zfcp_def.h
++++ b/drivers/s390/scsi/zfcp_def.h
+@@ -220,6 +220,7 @@ struct zfcp_port {
+ 	u32                    maxframe_size;
+ 	u32                    supported_classes;
+ 	u32                    connection_info;
++	u32                    connection_info_old;
+ 	struct work_struct     gid_pn_work;
+ 	struct work_struct     test_link_work;
+ 	struct work_struct     rport_work;
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index 068cb94beb58..08ce0fa04665 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -666,6 +666,9 @@ static void zfcp_fsf_exchange_config_data_handler(struct zfcp_fsf_req *req)
  
- pgm_int:
- 	SAVE_REGS
+ /*
+  * Mapping of FC Endpoint Security flag masks to mnemonics
++ *
++ * NOTE: Update macro ZFCP_FSF_MAX_FC_SECURITY_MNEMONIC_LENGTH when making any
++ *       changes.
+  */
+ static const struct {
+ 	u32	mask;
+@@ -676,6 +679,9 @@ static const struct {
+ 	  FSF_FC_SECURITY_ENC_ERAS,	"Encryption" },
+ };
+ 
++/* maximum strlen(zfcp_fsf_fc_security_mnemonics[...].name) + 1 */
++#define ZFCP_FSF_MAX_FC_SECURITY_MNEMONIC_LENGTH 15
++
+ /**
+  * zfcp_fsf_scnprint_fc_security() - translate FC Endpoint Security flags into
+  *                                   mnemonics and place in a buffer
+@@ -700,7 +706,8 @@ static const struct {
+  * undefined in zfcp_fsf_fc_security_mnemonics, its value in hexadecimal
+  * representation is placed into the buffer. If more than one FC Endpoint
+  * Security flag was specified, their value in hexadecimal representation is
+- * placed into the buffer.
++ * placed into the buffer. The macro ZFCP_FSF_MAX_FC_SECURITY_MNEMONIC_LENGTH
++ * can be used to define a buffer that is large enough to hold one mnemonic.
+  *
+  * Return: The number of characters written into buf not including the trailing
+  *         '\0'. If size is == 0 the function returns 0.
+@@ -1572,6 +1579,50 @@ int zfcp_fsf_exchange_port_data_sync(struct zfcp_qdio *qdio,
+ 	return retval;
+ }
+ 
++static void zfcp_fsf_log_port_fc_security(struct zfcp_port *port)
++{
++	char mnemonic_old[ZFCP_FSF_MAX_FC_SECURITY_MNEMONIC_LENGTH];
++	char mnemonic_new[ZFCP_FSF_MAX_FC_SECURITY_MNEMONIC_LENGTH];
++
++	if (port->connection_info == port->connection_info_old) {
++		/* no change, no log */
++		return;
++	}
++
++	zfcp_fsf_scnprint_fc_security(mnemonic_old, sizeof(mnemonic_old),
++				      port->connection_info_old,
++				      ZFCP_FSF_PRINT_FMT_SINGLEITEM);
++	zfcp_fsf_scnprint_fc_security(mnemonic_new, sizeof(mnemonic_new),
++				      port->connection_info,
++				      ZFCP_FSF_PRINT_FMT_SINGLEITEM);
++
++	if (strncmp(mnemonic_old, mnemonic_new,
++		    ZFCP_FSF_MAX_FC_SECURITY_MNEMONIC_LENGTH) == 0) {
++		/* no change in string representation, no log */
++		goto out;
++	}
++
++	if (port->connection_info_old == 0) {
++		/* activation */
++		dev_info(&port->adapter->ccw_device->dev,
++			 "FC Endpoint Security of connection to remote port 0x%16llx enabled: %s\n",
++			 port->wwpn, mnemonic_new);
++	} else if (port->connection_info == 0) {
++		/* deactivation */
++		dev_warn(&port->adapter->ccw_device->dev,
++			 "FC Endpoint Security of connection to remote port 0x%16llx disabled: was %s\n",
++			 port->wwpn, mnemonic_old);
++	} else {
++		/* change */
++		dev_warn(&port->adapter->ccw_device->dev,
++			 "FC Endpoint Security of connection to remote port 0x%16llx changed: from %s to %s\n",
++			 port->wwpn, mnemonic_old, mnemonic_new);
++	}
++
++out:
++	port->connection_info_old = port->connection_info;
++}
++
+ static void zfcp_fsf_open_port_handler(struct zfcp_fsf_req *req)
+ {
+ 	struct zfcp_adapter *adapter = req->adapter;
+@@ -1612,6 +1663,7 @@ static void zfcp_fsf_open_port_handler(struct zfcp_fsf_req *req)
+ 			port->connection_info = bottom->connection_info;
+ 		else
+ 			port->connection_info = 0;
++		zfcp_fsf_log_port_fc_security(port);
+ 		atomic_or(ZFCP_STATUS_COMMON_OPEN |
+ 				ZFCP_STATUS_PORT_PHYS_OPEN, &port->status);
+ 		atomic_andnot(ZFCP_STATUS_COMMON_ACCESS_BOXED,
 -- 
-2.25.1
+2.17.1
