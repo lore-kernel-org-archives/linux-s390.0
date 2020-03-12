@@ -1,142 +1,99 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49716 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55322 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727753AbgCXSZC (ORCPT
+        by vger.kernel.org with ESMTP id S1726328AbgCLSPi (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Mar 2020 14:25:02 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02OI4GxH051516
-        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 14:25:02 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywf3fd962-1
+        Thu, 12 Mar 2020 14:15:38 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CIEWDa136479
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 14:15:37 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqt6dg1k6-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 14:25:01 -0400
+        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 14:15:37 -0400
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Tue, 24 Mar 2020 18:24:57 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 02/11] s390/qeth: split out RX poll code
-Date: Tue, 24 Mar 2020 19:24:39 +0100
-In-Reply-To: <20200324182448.95362-1-jwi@linux.ibm.com>
-References: <20200324182448.95362-1-jwi@linux.ibm.com>
-Message-Id: <20200324182448.95362-3-jwi@linux.ibm.com>
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
+        Thu, 12 Mar 2020 17:45:19 -0000
+From: Steffen Maier <maier@linux.ibm.com>
+Subject: [PATCH 01/10] zfcp: fix missing erp_lock in port recovery trigger for point-to-point
+Date: Thu, 12 Mar 2020 18:44:56 +0100
+In-Reply-To: <20200312174505.51294-1-maier@linux.ibm.com>
+References: <20200312174505.51294-1-maier@linux.ibm.com>
+Message-Id: <20200312174505.51294-2-maier@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
+Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
 
-The main NAPI poll routine should eventually handle more types of work,
-beyond just the RX ring.
-Split off the RX poll logic into a separate function, and simplify the
-nested while-loop.
+v2.6.27 commit cc8c282963bd ("[SCSI] zfcp: Automatically attach remote
+ports") introduced zfcp automatic port scan.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Before that, the user had to use the sysfs attribute "port_add" of an
+FCP device (adapter) to add and open remote (target) ports, even for
+the remote peer port in point-to-point topology. That code path did a
+proper port open recovery trigger taking the erp_lock.
+
+Since above commit, a new helper function zfcp_erp_open_ptp_port()
+performed an UNlocked port open recovery trigger. This can race with
+other parallel recovery triggers. In zfcp_erp_action_enqueue() this could
+corrupt e.g. adapter->erp_total_count or adapter->erp_ready_head.
+
+As already found for fabric topology in v4.17 commit fa89adba1941
+("scsi: zfcp: fix infinite iteration on ERP ready list"), there was
+an endless loop during tracing of rport (un)block.
+A subsequent v4.18 commit 9e156c54ace3 ("scsi: zfcp: assert that the
+ERP lock is held when tracing a recovery trigger") introduced a lockdep
+assertion for that case.
+
+As a side effect, that lockdep assertion now uncovered the unlocked
+code path for PtP. It is from within an adapter ERP action:
+
+zfcp_erp_strategy[1479]  intentionally DROPs erp lock around
+                         zfcp_erp_strategy_do_action()
+zfcp_erp_strategy_do_action[1441]      NO erp lock
+zfcp_erp_adapter_strategy[876]         NO erp lock
+zfcp_erp_adapter_strategy_open[855]    NO erp lock
+zfcp_erp_adapter_strategy_open_fsf[806]NO erp lock
+zfcp_erp_adapter_strat_fsf_xconf[772]  erp lock only around
+                                       zfcp_erp_action_to_running(),
+                                       BUT *_not_* around
+                                       zfcp_erp_enqueue_ptp_port()
+zfcp_erp_enqueue_ptp_port[728]         BUG: *_not_* taking erp lock
+_zfcp_erp_port_reopen[432]             assumes to be called with erp lock
+zfcp_erp_action_enqueue[314]           assumes to be called with erp lock
+zfcp_dbf_rec_trig[288]                 _checks_ to be called with erp lock:
+	lockdep_assert_held(&adapter->erp_lock);
+
+It causes the following lockdep warning:
+
+WARNING: CPU: 2 PID: 775 at drivers/s390/scsi/zfcp_dbf.c:288
+                            zfcp_dbf_rec_trig+0x16a/0x188
+no locks held by zfcperp0.0.17c0/775.
+
+Fix this by using the proper locked recovery trigger helper function.
+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: cc8c282963bd ("[SCSI] zfcp: Automatically attach remote ports")
+Cc: <stable@vger.kernel.org> #v2.6.27+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 54 +++++++++++++++++++------------
- 1 file changed, 33 insertions(+), 21 deletions(-)
+ drivers/s390/scsi/zfcp_erp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index b25d44c83997..f818d9db32ac 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -5512,12 +5512,10 @@ static int qeth_extract_skb(struct qeth_card *card,
- 	return 0;
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index 93655b85b73f..18a6751299f9 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -725,7 +725,7 @@ static void zfcp_erp_enqueue_ptp_port(struct zfcp_adapter *adapter)
+ 				 adapter->peer_d_id);
+ 	if (IS_ERR(port)) /* error or port already attached */
+ 		return;
+-	_zfcp_erp_port_reopen(port, 0, "ereptp1");
++	zfcp_erp_port_reopen(port, 0, "ereptp1");
  }
  
--static int qeth_extract_skbs(struct qeth_card *card, int budget,
--			     struct qeth_qdio_buffer *buf, bool *done)
-+static unsigned int qeth_extract_skbs(struct qeth_card *card, int budget,
-+				      struct qeth_qdio_buffer *buf, bool *done)
- {
--	int work_done = 0;
--
--	*done = false;
-+	unsigned int work_done = 0;
- 
- 	while (budget) {
- 		if (qeth_extract_skb(card, buf, &card->rx.buf_element,
-@@ -5533,15 +5531,12 @@ static int qeth_extract_skbs(struct qeth_card *card, int budget,
- 	return work_done;
- }
- 
--int qeth_poll(struct napi_struct *napi, int budget)
-+static unsigned int qeth_rx_poll(struct qeth_card *card, int budget)
- {
--	struct qeth_card *card = container_of(napi, struct qeth_card, napi);
--	int work_done = 0;
--	struct qeth_qdio_buffer *buffer;
--	int new_budget = budget;
--	bool done;
-+	unsigned int work_done = 0;
- 
--	while (1) {
-+	while (budget > 0) {
-+		/* Fetch completed RX buffers: */
- 		if (!card->rx.b_count) {
- 			card->rx.qdio_err = 0;
- 			card->rx.b_count = qdio_get_next_buffers(
-@@ -5553,16 +5548,24 @@ int qeth_poll(struct napi_struct *napi, int budget)
- 			}
- 		}
- 
--		while (card->rx.b_count) {
-+		/* Process one completed RX buffer: */
-+		if (card->rx.b_count) {
-+			struct qeth_qdio_buffer *buffer;
-+			unsigned int skbs_done = 0;
-+			bool done = false;
-+
- 			buffer = &card->qdio.in_q->bufs[card->rx.b_index];
- 			if (!(card->rx.qdio_err &&
- 			    qeth_check_qdio_errors(card, buffer->buffer,
- 			    card->rx.qdio_err, "qinerr")))
--				work_done += qeth_extract_skbs(card, new_budget,
--							       buffer, &done);
-+				skbs_done = qeth_extract_skbs(card, budget,
-+							      buffer, &done);
- 			else
- 				done = true;
- 
-+			work_done += skbs_done;
-+			budget -= skbs_done;
-+
- 			if (done) {
- 				QETH_CARD_STAT_INC(card, rx_bufs);
- 				qeth_put_buffer_pool_entry(card,
-@@ -5576,18 +5579,27 @@ int qeth_poll(struct napi_struct *napi, int budget)
- 				card->rx.buf_element = 0;
- 				card->rx.e_offset = 0;
- 			}
--
--			if (work_done >= budget)
--				goto out;
--			else
--				new_budget = budget - work_done;
- 		}
- 	}
- 
-+	return work_done;
-+}
-+
-+int qeth_poll(struct napi_struct *napi, int budget)
-+{
-+	struct qeth_card *card = container_of(napi, struct qeth_card, napi);
-+	unsigned int work_done;
-+
-+	work_done = qeth_rx_poll(card, budget);
-+
-+	/* Exhausted the RX budget. Keep IRQ disabled, we get called again. */
-+	if (budget && work_done >= budget)
-+		return work_done;
-+
- 	if (napi_complete_done(napi, work_done) &&
- 	    qdio_start_irq(CARD_DDEV(card), 0))
- 		napi_schedule(napi);
--out:
-+
- 	return work_done;
- }
- EXPORT_SYMBOL_GPL(qeth_poll);
+ static enum zfcp_erp_act_result zfcp_erp_adapter_strat_fsf_xconf(
 -- 
 2.17.1
