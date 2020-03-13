@@ -1,36 +1,22 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32586 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726216AbgCMMw4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 13 Mar 2020 08:52:56 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02DCpnYK031225
-        for <linux-s390@vger.kernel.org>; Fri, 13 Mar 2020 08:52:55 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqyhcwk4x-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 13 Mar 2020 08:52:54 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Fri, 13 Mar 2020 12:52:53 -0000
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:44715 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726591AbgCMMso (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 13 Mar 2020 08:48:44 -0400
 Subject: Re: [PATCH] KVM: s390: pending interrupts are unlikely
 References: <20200313124030.99834-1-mimu@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Fri, 13 Mar 2020 13:52:48 +0100
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <b31aef6d-7cf7-c870-5250-02cfd4e29542@redhat.com>
+Date: Fri, 13 Mar 2020 13:48:37 +0100
 MIME-Version: 1.0
 In-Reply-To: <20200313124030.99834-1-mimu@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <ffd7ae4c-0507-c9d5-0035-dd13b485311b@de.ibm.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Michael Mueller <mimu@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
-
-
+Cc: borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 
 On 13.03.20 13:40, Michael Mueller wrote:
 > A statistical analysis shows that in most cases when deliverable_irqs()
@@ -71,15 +57,16 @@ On 13.03.20 13:40, Michael Mueller wrote:
 >  	active_mask = pending_irqs(vcpu);
 > -	if (!active_mask)
 > +	if (likely(!active_mask))
+>  		return 0;
+>  
+>  	if (psw_extint_disabled(vcpu))
+> 
 
-I have never been a fan of the likely/unlikely name. Instead this should have been
-fastpath/slowpath. And with likely actually meaning fastpath this patch makes sense.
+Is this change even observable in practice? Usually, we do have some
+performance numbers backing such micro optimizations. But I guess it
+will be fairly hard to get some meaning full numbers backing this ...
 
-I guess it does not change the performance as the branch predictor is doing its job
-most of the time. So I assume it would only be visible when there is contention in
-the host.
+-- 
+Thanks,
 
-Tentatively
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-
-will have a look at the code.
+David / dhildenb
