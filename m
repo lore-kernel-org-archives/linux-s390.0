@@ -1,60 +1,85 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2120.oracle.com ([156.151.31.85]:59426 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726663AbgCRWHs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Mar 2020 18:07:48 -0400
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: [PATCH 0/4] Clean up hugetlb boot command line processing
-Date: Wed, 18 Mar 2020 15:06:30 -0700
-Message-Id: <20200318220634.32100-1-mike.kravetz@oracle.com>
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:35362 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731534AbgCPOlt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Mar 2020 10:41:49 -0400
+Received: by mail-pg1-f194.google.com with SMTP id 7so9885297pgr.2
+        for <linux-s390@vger.kernel.org>; Mon, 16 Mar 2020 07:41:48 -0700 (PDT)
+From: Dmitry Safonov <dima@arista.com>
+Subject: [PATCHv2 28/50] s390: Add show_stack_loglvl()
+Date: Mon, 16 Mar 2020 14:38:54 +0000
+Message-Id: <20200316143916.195608-29-dima@arista.com>
+In-Reply-To: <20200316143916.195608-1-dima@arista.com>
+References: <20200316143916.195608-1-dima@arista.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Kravetz <mike.kravetz@oracle.com>
+To: linux-kernel@vger.kernel.org
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>, Dmitry Safonov <dima@arista.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jslaby@suse.com>, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
 
-Longpeng(Mike) reported a weird message from hugetlb command line processing
-and proposed a solution [1].  While the proposed patch does address the
-specific issue, there are other related issues in command line processing.
-As hugetlbfs evolved, updates to command line processing have been made to
-meet immediate needs and not necessarily in a coordinated manner.  The result
-is that some processing is done in arch specific code, some is done in arch
-independent code and coordination is problematic.  Semantics can vary between
-architectures.
+Currently, the log-level of show_stack() depends on a platform
+realization. It creates situations where the headers are printed with
+lower log level or higher than the stacktrace (depending on
+a platform or user).
 
-The following patch series does the following:
-- Define arch specific arch_hugetlb_valid_size routine used to validate
-  passed huge page sizes.
-- Move hugepagesz= command line parsing out of arch specific code and into
-  an arch independent routine.
-- Clean up command line processing to follow desired semantics and
-  document those semantics.
+Furthermore, it forces the logic decision from user to an architecture
+side. In result, some users as sysrq/kdb/etc are doing tricks with
+temporary rising console_loglevel while printing their messages.
+And in result it not only may print unwanted messages from other CPUs,
+but also omit printing at all in the unlucky case where the printk()
+was deferred.
 
-[1] https://lore.kernel.org/linux-mm/20200305033014.1152-1-longpeng2@huawei.com
+Introducing log-level parameter and KERN_UNSUPPRESSED [1] seems
+an easier approach than introducing more printk buffers.
+Also, it will consolidate printings with headers.
 
-Mike Kravetz (4):
-  hugetlbfs: add arch_hugetlb_valid_size
-  hugetlbfs: move hugepagesz= parsing to arch independent code
-  hugetlbfs: remove hugetlb_add_hstate() warning for existing hstate
-  hugetlbfs: clean up command line processing
+Introduce show_stack_loglvl(), that eventually will substitute
+show_stack().
 
- Documentation/admin-guide/mm/hugetlbpage.rst |  26 ++++
- arch/arm64/include/asm/hugetlb.h             |   2 +
- arch/arm64/mm/hugetlbpage.c                  |  30 ++---
- arch/powerpc/include/asm/hugetlb.h           |   3 +
- arch/powerpc/mm/hugetlbpage.c                |  30 ++---
- arch/riscv/include/asm/hugetlb.h             |   3 +
- arch/riscv/mm/hugetlbpage.c                  |  24 ++--
- arch/s390/include/asm/hugetlb.h              |   3 +
- arch/s390/mm/hugetlbpage.c                   |  24 ++--
- arch/sparc/include/asm/hugetlb.h             |   3 +
- arch/sparc/mm/init_64.c                      |  42 ++-----
- arch/x86/include/asm/hugetlb.h               |   3 +
- arch/x86/mm/hugetlbpage.c                    |  23 ++--
- include/linux/hugetlb.h                      |   8 +-
- mm/hugetlb.c                                 | 126 ++++++++++++++-----
- 15 files changed, 198 insertions(+), 152 deletions(-)
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+[1]: https://lore.kernel.org/lkml/20190528002412.1625-1-dima@arista.com/T/#u
+Signed-off-by: Dmitry Safonov <dima@arista.com>
+---
+ arch/s390/kernel/dumpstack.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
+diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
+index 2c122d8bab93..887a054919fc 100644
+--- a/arch/s390/kernel/dumpstack.c
++++ b/arch/s390/kernel/dumpstack.c
+@@ -126,18 +126,24 @@ int get_stack_info(unsigned long sp, struct task_struct *task,
+ 	return -EINVAL;
+ }
+ 
+-void show_stack(struct task_struct *task, unsigned long *stack)
++void show_stack_loglvl(struct task_struct *task, unsigned long *stack,
++		       const char *loglvl)
+ {
+ 	struct unwind_state state;
+ 
+-	printk("Call Trace:\n");
++	printk("%sCall Trace:\n", loglvl);
+ 	unwind_for_each_frame(&state, task, NULL, (unsigned long) stack)
+-		printk(state.reliable ? " [<%016lx>] %pSR \n" :
+-					"([<%016lx>] %pSR)\n",
+-		       state.ip, (void *) state.ip);
++		printk(state.reliable ? "%s [<%016lx>] %pSR \n" :
++					"%s([<%016lx>] %pSR)\n",
++		       loglvl, state.ip, (void *) state.ip);
+ 	debug_show_held_locks(task ? : current);
+ }
+ 
++void show_stack(struct task_struct *task, unsigned long *stack)
++{
++	show_stack_loglvl(task, stack, KERN_DEFAULT);
++}
++
+ static void show_last_breaking_event(struct pt_regs *regs)
+ {
+ 	printk("Last Breaking-Event-Address:\n");
 -- 
-2.24.1
+2.25.1
