@@ -1,52 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from smtprelay0229.hostedemail.com ([216.40.44.229]:48396 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726789AbgCQVgX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 17 Mar 2020 17:36:23 -0400
-Message-ID: <1e52a8441a319e55b913376ad47c6b18843742cd.camel@perches.com>
+Received: from mail.skyhub.de ([5.9.137.197]:40906 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726494AbgCQVbJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Mar 2020 17:31:09 -0400
+Date: Tue, 17 Mar 2020 22:31:14 +0100
+From: Borislav Petkov <bp@alien8.de>
 Subject: Re: [PATCH] treewide: Rename "unencrypted" to "decrypted"
-From: Joe Perches <joe@perches.com>
-Date: Tue, 17 Mar 2020 14:34:30 -0700
-In-Reply-To: <f3e520c6-f455-9c82-abfc-d014ca63eeb5@intel.com>
+Message-ID: <20200317213100.GH15609@zn.tnic>
 References: <20200317111822.GA15609@zn.tnic>
-         <2cb4a8ae-3b13-67bd-c021-aee47fdf58c5@intel.com>
-         <20200317210602.GG15609@zn.tnic>
-         <f3e520c6-f455-9c82-abfc-d014ca63eeb5@intel.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+ <2cb4a8ae-3b13-67bd-c021-aee47fdf58c5@intel.com>
+ <20200317210602.GG15609@zn.tnic>
+ <f3e520c6-f455-9c82-abfc-d014ca63eeb5@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <f3e520c6-f455-9c82-abfc-d014ca63eeb5@intel.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Dave Hansen <dave.hansen@intel.com>, Borislav Petkov <bp@alien8.de>
-Cc: Borislav Petkov <bp@suse.de>, lkml <linux-kernel@vger.kernel.org>, "Schofield, Alison" <alison.schofield@intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, Tom Lendacky <thomas.lendacky@amd.com>, "Shutemov, Kirill" <kirill.shutemov@intel.com>
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, "Schofield, Alison" <alison.schofield@intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, iommu@lists.linux-foundation.org, Tom Lendacky <thomas.lendacky@amd.com>, "Shutemov, Kirill" <kirill.shutemov@intel.com>
 
-On Tue, 2020-03-17 at 14:24 -0700, Dave Hansen wrote:
-> On 3/17/20 2:06 PM, Borislav Petkov wrote:
-> > On Tue, Mar 17, 2020 at 01:35:12PM -0700, Dave Hansen wrote:
-> > > On 3/17/20 4:18 AM, Borislav Petkov wrote:
-> > > > Back then when the whole SME machinery started getting mainlined, it
-> > > > was agreed that for simplicity, clarity and sanity's sake, the terms
-> > > > denoting encrypted and not-encrypted memory should be "encrypted" and
-> > > > "decrypted". And the majority of the code sticks to that convention
-> > > > except those two. So rename them.
-> > > Don't "unencrypted" and "decrypted" mean different things?
-> > > 
-> > > Unencrypted to me means "encryption was never used for this data".
-> > > 
-> > > Decrypted means "this was/is encrypted but here is a plaintext copy".
-> > Maybe but linguistical semantics is not the point here.
-> > 
-> > The idea is to represent a "binary" concept of memory being encrypted
-> > or memory being not encrypted. And at the time we decided to use
-> > "encrypted" and "decrypted" for those two things.
-> 
-> Yeah, agreed.  We're basically trying to name "!encrypted".
-> 
-> > Do you see the need to differentiate a third "state", so to speak, of
-> > memory which was never encrypted?
-> 
+On Tue, Mar 17, 2020 at 02:24:59PM -0700, Dave Hansen wrote:
 > No, there are just two states.  I just think the "!encrypted" case
 > should not be called "decrypted".
 
-Nor do I, it's completely misleading.
+Yeah, we suck at naming - news at 11! :-)
+
+I believe we even considered things like "encrypted" vs "clear" but
+that sucked too. ;-\
+
+In any case, that ship has sailed now and having two as differently as
+possible looking words to denote the two "states" should be good enough
+for our purposes...
+
+Oh well.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
