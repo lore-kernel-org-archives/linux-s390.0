@@ -1,105 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25666 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726638AbgCIIvk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 04:51:40 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0298pVTX084567
-        for <linux-s390@vger.kernel.org>; Mon, 9 Mar 2020 04:51:40 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ym5e1rh0e-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 09 Mar 2020 04:51:39 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 9 Mar 2020 08:51:38 -0000
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 19/36] KVM: s390: protvirt: handle secure guest prefix pages
-Date: Mon,  9 Mar 2020 09:51:09 +0100
-In-Reply-To: <20200309085126.3334302-1-borntraeger@de.ibm.com>
-References: <20200309085126.3334302-1-borntraeger@de.ibm.com>
+Received: from userp2120.oracle.com ([156.151.31.85]:59426 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726663AbgCRWHs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Mar 2020 18:07:48 -0400
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: [PATCH 0/4] Clean up hugetlb boot command line processing
+Date: Wed, 18 Mar 2020 15:06:30 -0700
+Message-Id: <20200318220634.32100-1-mike.kravetz@oracle.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200309085126.3334302-20-borntraeger@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Ulrich Weigand <uweigand@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Kravetz <mike.kravetz@oracle.com>
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Longpeng(Mike) reported a weird message from hugetlb command line processing
+and proposed a solution [1].  While the proposed patch does address the
+specific issue, there are other related issues in command line processing.
+As hugetlbfs evolved, updates to command line processing have been made to
+meet immediate needs and not necessarily in a coordinated manner.  The result
+is that some processing is done in arch specific code, some is done in arch
+independent code and coordination is problematic.  Semantics can vary between
+architectures.
 
-The SPX instruction is handled by the ultravisor. We do get a
-notification intercept, though. Let us update our internal view.
+The following patch series does the following:
+- Define arch specific arch_hugetlb_valid_size routine used to validate
+  passed huge page sizes.
+- Move hugepagesz= command line parsing out of arch specific code and into
+  an arch independent routine.
+- Clean up command line processing to follow desired semantics and
+  document those semantics.
 
-In addition to that, when the guest prefix page is not secure, an
-intercept 112 (0x70) is indicated. Let us make the prefix pages
-secure again.
+[1] https://lore.kernel.org/linux-mm/20200305033014.1152-1-longpeng2@huawei.com
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  1 +
- arch/s390/kvm/intercept.c        | 18 ++++++++++++++++++
- 2 files changed, 19 insertions(+)
+Mike Kravetz (4):
+  hugetlbfs: add arch_hugetlb_valid_size
+  hugetlbfs: move hugepagesz= parsing to arch independent code
+  hugetlbfs: remove hugetlb_add_hstate() warning for existing hstate
+  hugetlbfs: clean up command line processing
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index aa945b101fff..0ea82152d2f7 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -225,6 +225,7 @@ struct kvm_s390_sie_block {
- #define ICPT_INT_ENABLE	0x64
- #define ICPT_PV_INSTR	0x68
- #define ICPT_PV_NOTIFY	0x6c
-+#define ICPT_PV_PREF	0x70
- 	__u8	icptcode;		/* 0x0050 */
- 	__u8	icptstatus;		/* 0x0051 */
- 	__u16	ihcpu;			/* 0x0052 */
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 331e620dcfdf..b6b7d4b0e26c 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -451,6 +451,15 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
- }
- 
-+static int handle_pv_spx(struct kvm_vcpu *vcpu)
-+{
-+	u32 pref = *(u32 *)vcpu->arch.sie_block->sidad;
-+
-+	kvm_s390_set_prefix(vcpu, pref);
-+	trace_kvm_s390_handle_prefix(vcpu, 1, pref);
-+	return 0;
-+}
-+
- static int handle_pv_sclp(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_float_interrupt *fi = &vcpu->kvm->arch.float_int;
-@@ -477,6 +486,8 @@ static int handle_pv_sclp(struct kvm_vcpu *vcpu)
- 
- static int handle_pv_notification(struct kvm_vcpu *vcpu)
- {
-+	if (vcpu->arch.sie_block->ipa == 0xb210)
-+		return handle_pv_spx(vcpu);
- 	if (vcpu->arch.sie_block->ipa == 0xb220)
- 		return handle_pv_sclp(vcpu);
- 
-@@ -534,6 +545,13 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 	case ICPT_PV_NOTIFY:
- 		rc = handle_pv_notification(vcpu);
- 		break;
-+	case ICPT_PV_PREF:
-+		rc = 0;
-+		gmap_convert_to_secure(vcpu->arch.gmap,
-+				       kvm_s390_get_prefix(vcpu));
-+		gmap_convert_to_secure(vcpu->arch.gmap,
-+				       kvm_s390_get_prefix(vcpu) + PAGE_SIZE);
-+		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
+ Documentation/admin-guide/mm/hugetlbpage.rst |  26 ++++
+ arch/arm64/include/asm/hugetlb.h             |   2 +
+ arch/arm64/mm/hugetlbpage.c                  |  30 ++---
+ arch/powerpc/include/asm/hugetlb.h           |   3 +
+ arch/powerpc/mm/hugetlbpage.c                |  30 ++---
+ arch/riscv/include/asm/hugetlb.h             |   3 +
+ arch/riscv/mm/hugetlbpage.c                  |  24 ++--
+ arch/s390/include/asm/hugetlb.h              |   3 +
+ arch/s390/mm/hugetlbpage.c                   |  24 ++--
+ arch/sparc/include/asm/hugetlb.h             |   3 +
+ arch/sparc/mm/init_64.c                      |  42 ++-----
+ arch/x86/include/asm/hugetlb.h               |   3 +
+ arch/x86/mm/hugetlbpage.c                    |  23 ++--
+ include/linux/hugetlb.h                      |   8 +-
+ mm/hugetlb.c                                 | 126 ++++++++++++++-----
+ 15 files changed, 198 insertions(+), 152 deletions(-)
+
 -- 
 2.24.1
