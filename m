@@ -1,134 +1,88 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39292 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45060 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726772AbgCIPBX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Mar 2020 11:01:23 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/4] selftests: KVM: s390: test more register variants for the reset ioctl
-Date: Mon,  9 Mar 2020 11:00:24 -0400
-Message-Id: <20200309150026.4329-3-borntraeger@de.ibm.com>
-In-Reply-To: <20200309150026.4329-1-borntraeger@de.ibm.com>
-References: <20200309150026.4329-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        by vger.kernel.org with ESMTP id S1726855AbgCRMzX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Mar 2020 08:55:23 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02ICXrqn004208
+        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:22 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yu7wcrwp3-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:22 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 18 Mar 2020 12:55:20 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 02/11] s390/qeth: use memory reserves in TX slow path
+Date: Wed, 18 Mar 2020 13:54:46 +0100
+In-Reply-To: <20200318125455.5838-1-jwi@linux.ibm.com>
+References: <20200318125455.5838-1-jwi@linux.ibm.com>
+Message-Id: <20200318125455.5838-3-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-We should not only test the oneregs or the get_(x)regs interfaces but
-also the sync_regs. Those are usually the canonical place for register
-content.
+When falling back to an allocation from the HW header cache, check if
+the skb is eligible for using memory reserves.
+This only makes a difference if the cache is empty and needs to be
+refilled.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- tools/testing/selftests/kvm/s390x/resets.c | 50 ++++++++++++++++++----
- 1 file changed, 41 insertions(+), 9 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 6 ++++--
+ drivers/s390/net/qeth_l2_main.c   | 3 ++-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-index cbb343ad5d42..c385842792b7 100644
---- a/tools/testing/selftests/kvm/s390x/resets.c
-+++ b/tools/testing/selftests/kvm/s390x/resets.c
-@@ -20,8 +20,8 @@ struct kvm_s390_irq buf[VCPU_ID + LOCAL_IRQS];
- 
- struct kvm_vm *vm;
- struct kvm_run *run;
--struct kvm_sync_regs *regs;
--static uint64_t regs_null[16];
-+struct kvm_sync_regs *sync_regs;
-+static uint8_t regs_null[512];
- 
- static void guest_code_initial(void)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index be3f6295309b..767cef04c9d8 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3705,6 +3705,7 @@ static int qeth_add_hw_header(struct qeth_qdio_out_q *queue,
+ 			      unsigned int hdr_len, unsigned int proto_len,
+ 			      unsigned int *elements)
  {
-@@ -86,6 +86,16 @@ static void assert_clear(void)
- 
- 	vcpu_fpu_get(vm, VCPU_ID, &fpu);
- 	TEST_ASSERT(!memcmp(&fpu.fprs, regs_null, sizeof(fpu.fprs)), "fprs == 0");
++	gfp_t gfp = GFP_ATOMIC | (skb_pfmemalloc(skb) ? __GFP_MEMALLOC : 0);
+ 	const unsigned int contiguous = proto_len ? proto_len : 1;
+ 	const unsigned int max_elements = queue->max_elements;
+ 	unsigned int __elements;
+@@ -3760,10 +3761,11 @@ static int qeth_add_hw_header(struct qeth_qdio_out_q *queue,
+ 		*hdr = skb_push(skb, hdr_len);
+ 		return hdr_len;
+ 	}
+-	/* fall back */
 +
-+	/* sync regs */
-+	TEST_ASSERT(!memcmp(sync_regs->gprs, regs_null, sizeof(sync_regs->gprs)),
-+		    "gprs0-15 == 0 (sync_regs)");
-+
-+	TEST_ASSERT(!memcmp(sync_regs->acrs, regs_null, sizeof(sync_regs->acrs)),
-+		    "acrs0-15 == 0 (sync_regs)");
-+
-+	TEST_ASSERT(!memcmp(sync_regs->vrs, regs_null, sizeof(sync_regs->vrs)),
-+		    "vrs0-15 == 0 (sync_regs)");
- }
- 
- static void assert_initial(void)
-@@ -93,12 +103,32 @@ static void assert_initial(void)
- 	struct kvm_sregs sregs;
- 	struct kvm_fpu fpu;
- 
-+	/* KVM_GET_SREGS */
- 	vcpu_sregs_get(vm, VCPU_ID, &sregs);
--	TEST_ASSERT(sregs.crs[0] == 0xE0UL, "cr0 == 0xE0");
--	TEST_ASSERT(sregs.crs[14] == 0xC2000000UL, "cr14 == 0xC2000000");
-+	TEST_ASSERT(sregs.crs[0] == 0xE0UL, "cr0 == 0xE0 (KVM_GET_SREGS)");
-+	TEST_ASSERT(sregs.crs[14] == 0xC2000000UL,
-+		    "cr14 == 0xC2000000 (KVM_GET_SREGS)");
- 	TEST_ASSERT(!memcmp(&sregs.crs[1], regs_null, sizeof(sregs.crs[1]) * 12),
--		    "cr1-13 == 0");
--	TEST_ASSERT(sregs.crs[15] == 0, "cr15 == 0");
-+		    "cr1-13 == 0 (KVM_GET_SREGS)");
-+	TEST_ASSERT(sregs.crs[15] == 0, "cr15 == 0 (KVM_GET_SREGS)");
-+
-+	/* sync regs */
-+	TEST_ASSERT(sync_regs->crs[0] == 0xE0UL, "cr0 == 0xE0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->crs[14] == 0xC2000000UL,
-+		    "cr14 == 0xC2000000 (sync_regs)");
-+	TEST_ASSERT(!memcmp(&sync_regs->crs[1], regs_null, 8 * 12),
-+		    "cr1-13 == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->crs[15] == 0, "cr15 == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->fpc == 0, "fpc == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->todpr == 0, "todpr == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->cputm == 0, "cputm == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->ckc == 0, "ckc == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->pp == 0, "pp == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->gbea == 1, "gbea == 1 (sync_regs)");
-+
-+	/* kvm_run */
-+	TEST_ASSERT(run->psw_addr == 0, "psw_addr == 0 (kvm_run)");
-+	TEST_ASSERT(run->psw_mask == 0, "psw_mask == 0 (kvm_run)");
- 
- 	vcpu_fpu_get(vm, VCPU_ID, &fpu);
- 	TEST_ASSERT(!fpu.fpc, "fpc == 0");
-@@ -113,6 +143,8 @@ static void assert_initial(void)
- static void assert_normal(void)
++	/* Fall back to cache element with known-good alignment: */
+ 	if (hdr_len + proto_len > QETH_HDR_CACHE_OBJ_SIZE)
+ 		return -E2BIG;
+-	*hdr = kmem_cache_alloc(qeth_core_header_cache, GFP_ATOMIC);
++	*hdr = kmem_cache_alloc(qeth_core_header_cache, gfp);
+ 	if (!*hdr)
+ 		return -ENOMEM;
+ 	/* Copy protocol headers behind HW header: */
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 4c8e93132e08..8ba4ac2a5b47 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -499,6 +499,7 @@ static void qeth_l2_rx_mode_work(struct work_struct *work)
+ static int qeth_l2_xmit_osn(struct qeth_card *card, struct sk_buff *skb,
+ 			    struct qeth_qdio_out_q *queue)
  {
- 	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
-+	TEST_ASSERT(sync_regs->pft == KVM_S390_PFAULT_TOKEN_INVALID,
-+			"pft == 0xff.....  (sync_regs)");
- 	assert_noirq();
- }
++	gfp_t gfp = GFP_ATOMIC | (skb_pfmemalloc(skb) ? __GFP_MEMALLOC : 0);
+ 	struct qeth_hdr *hdr = (struct qeth_hdr *)skb->data;
+ 	addr_t end = (addr_t)(skb->data + sizeof(*hdr));
+ 	addr_t start = (addr_t)skb->data;
+@@ -511,7 +512,7 @@ static int qeth_l2_xmit_osn(struct qeth_card *card, struct sk_buff *skb,
  
-@@ -137,7 +169,7 @@ static void test_normal(void)
- 	/* Create VM */
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
--	regs = &run->s.regs;
-+	sync_regs = &run->s.regs;
- 
- 	vcpu_run(vm, VCPU_ID);
- 
-@@ -153,7 +185,7 @@ static void test_initial(void)
- 	printf("Testing initial reset\n");
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
--	regs = &run->s.regs;
-+	sync_regs = &run->s.regs;
- 
- 	vcpu_run(vm, VCPU_ID);
- 
-@@ -170,7 +202,7 @@ static void test_clear(void)
- 	printf("Testing clear reset\n");
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
--	regs = &run->s.regs;
-+	sync_regs = &run->s.regs;
- 
- 	vcpu_run(vm, VCPU_ID);
- 
+ 	if (qeth_get_elements_for_range(start, end) > 1) {
+ 		/* Misaligned HW header, move it to its own buffer element. */
+-		hdr = kmem_cache_alloc(qeth_core_header_cache, GFP_ATOMIC);
++		hdr = kmem_cache_alloc(qeth_core_header_cache, gfp);
+ 		if (!hdr)
+ 			return -ENOMEM;
+ 		hd_len = sizeof(*hdr);
 -- 
-2.25.0
+2.17.1
