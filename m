@@ -1,114 +1,172 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:54841 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728513AbgCXP7E (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36626 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726968AbgCRMzZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Mar 2020 11:59:04 -0400
-Date: Tue, 24 Mar 2020 16:58:54 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH v2 2/9] vfio-ccw: Register a chp_event callback for
- vfio-ccw
-Message-ID: <20200324165854.3d862d5b.cohuck@redhat.com>
-In-Reply-To: <459a60d1-699d-2f16-bb59-23f11b817b81@linux.ibm.com>
-References: <20200206213825.11444-1-farman@linux.ibm.com>
-        <20200206213825.11444-3-farman@linux.ibm.com>
-        <20200214131147.0a98dd7d.cohuck@redhat.com>
-        <459a60d1-699d-2f16-bb59-23f11b817b81@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        Wed, 18 Mar 2020 08:55:25 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02ICYBsw137602
+        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:25 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yu8brg7cr-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:24 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 18 Mar 2020 12:55:22 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 11/11] s390/qeth: use dev->reg_state
+Date: Wed, 18 Mar 2020 13:54:55 +0100
+In-Reply-To: <20200318125455.5838-1-jwi@linux.ibm.com>
+References: <20200318125455.5838-1-jwi@linux.ibm.com>
+Message-Id: <20200318125455.5838-12-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-On Fri, 14 Feb 2020 11:35:21 -0500
-Eric Farman <farman@linux.ibm.com> wrote:
+To check whether a netdevice has already been registered, look at
+NETREG_REGISTERED to replace some hacks I added a while ago.
 
-> On 2/14/20 7:11 AM, Cornelia Huck wrote:
-> > On Thu,  6 Feb 2020 22:38:18 +0100
-> > Eric Farman <farman@linux.ibm.com> wrote:
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core.h    |  5 -----
+ drivers/s390/net/qeth_l2_main.c | 19 ++++++++-----------
+ drivers/s390/net/qeth_l3_main.c | 22 +++++++++-------------
+ 3 files changed, 17 insertions(+), 29 deletions(-)
 
-> > (...)  
-> >> @@ -257,6 +258,48 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
-> >>  	return rc;
-> >>  }
-> >>  
-> >> +static int vfio_ccw_chp_event(struct subchannel *sch,
-> >> +			      struct chp_link *link, int event)
-> >> +{
-> >> +	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-> >> +	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
-> >> +	int retry = 255;
-> >> +
-> >> +	if (!private || !mask)
-> >> +		return 0;
-> >> +
-> >> +	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
-> >> +			   mdev_uuid(private->mdev), sch->schid.cssid,
-> >> +			   sch->schid.ssid, sch->schid.sch_no,
-> >> +			   mask, event);
-> >> +
-> >> +	if (cio_update_schib(sch))
-> >> +		return -ENODEV;
-> >> +
-> >> +	switch (event) {
-> >> +	case CHP_VARY_OFF:
-> >> +		/* Path logically turned off */
-> >> +		sch->opm &= ~mask;
-> >> +		sch->lpm &= ~mask;
-> >> +		break;
-> >> +	case CHP_OFFLINE:
-> >> +		/* Path is gone */
-> >> +		cio_cancel_halt_clear(sch, &retry);  
-> > 
-> > Any reason you do this only for CHP_OFFLINE and not for CHP_VARY_OFF?  
-> 
-> Hrm...  No reason that I can think of.  I can fix this.
-> 
-> >   
-> >> +		break;
-> >> +	case CHP_VARY_ON:
-> >> +		/* Path logically turned on */
-> >> +		sch->opm |= mask;
-> >> +		sch->lpm |= mask;
-> >> +		break;
-> >> +	case CHP_ONLINE:
-> >> +		/* Path became available */
-> >> +		sch->lpm |= mask & sch->opm;  
-> > 
-> > If I'm not mistaken, this patch introduces the first usage of sch->opm
-> > in the vfio-ccw code.   
-> 
-> Correct.
-> 
-> > Are we missing something?  
-> 
-> Maybe?  :)
-> 
-> >Or am I missing
-> > something? :)
-> >   
-> 
-> Since it's only used in this code, for acting as a step between
-> vary/config off/on, maybe this only needs to be dealing with the lpm
-> field itself?
-
-Ok, I went over this again and also looked at what the standard I/O
-subchannel driver does, and I think this is fine, as the lpm basically
-factors in the opm already. (Will need to keep this in mind for the
-following patches.)
-
-> 
-> >> +		break;
-> >> +	}
-> >> +
-> >> +	return 0;
-> >> +}
-> >> +
-> >>  static struct css_device_id vfio_ccw_sch_ids[] = {
-> >>  	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
-> >>  	{ /* end of list */ },  
-> > (...)
-> >   
-> 
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index b8b356aca674..6eb431c194bd 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -847,11 +847,6 @@ struct qeth_trap_id {
+ /*some helper functions*/
+ #define QETH_CARD_IFNAME(card) (((card)->dev)? (card)->dev->name : "")
+ 
+-static inline bool qeth_netdev_is_registered(struct net_device *dev)
+-{
+-	return dev->netdev_ops != NULL;
+-}
+-
+ static inline u16 qeth_iqd_translate_txq(struct net_device *dev, u16 txq)
+ {
+ 	if (txq == QETH_IQD_MCAST_TXQ)
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 2aaf5e3779ce..73cb363b1fab 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -613,7 +613,7 @@ static void qeth_l2_remove_device(struct ccwgroup_device *cgdev)
+ 		qeth_set_offline(card, false);
+ 
+ 	cancel_work_sync(&card->close_dev_work);
+-	if (qeth_netdev_is_registered(card->dev))
++	if (card->dev->reg_state == NETREG_REGISTERED)
+ 		unregister_netdev(card->dev);
+ }
+ 
+@@ -651,7 +651,7 @@ static const struct net_device_ops qeth_osn_netdev_ops = {
+ 	.ndo_tx_timeout		= qeth_tx_timeout,
+ };
+ 
+-static int qeth_l2_setup_netdev(struct qeth_card *card, bool carrier_ok)
++static int qeth_l2_setup_netdev(struct qeth_card *card)
+ {
+ 	int rc;
+ 
+@@ -711,13 +711,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card, bool carrier_ok)
+ 
+ add_napi:
+ 	netif_napi_add(card->dev, &card->napi, qeth_poll, QETH_NAPI_WEIGHT);
+-	rc = register_netdev(card->dev);
+-	if (!rc && carrier_ok)
+-		netif_carrier_on(card->dev);
+-
+-	if (rc)
+-		card->dev->netdev_ops = NULL;
+-	return rc;
++	return register_netdev(card->dev);
+ }
+ 
+ static void qeth_l2_trace_features(struct qeth_card *card)
+@@ -790,10 +784,13 @@ static int qeth_l2_set_online(struct qeth_card *card)
+ 
+ 	qeth_set_allowed_threads(card, 0xffffffff, 0);
+ 
+-	if (!qeth_netdev_is_registered(dev)) {
+-		rc = qeth_l2_setup_netdev(card, carrier_ok);
++	if (dev->reg_state != NETREG_REGISTERED) {
++		rc = qeth_l2_setup_netdev(card);
+ 		if (rc)
+ 			goto out_remove;
++
++		if (carrier_ok)
++			netif_carrier_on(dev);
+ 	} else {
+ 		rtnl_lock();
+ 		if (carrier_ok)
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 81ec0d2b7ea5..83ae75cf1389 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1918,7 +1918,7 @@ static const struct net_device_ops qeth_l3_osa_netdev_ops = {
+ 	.ndo_neigh_setup	= qeth_l3_neigh_setup,
+ };
+ 
+-static int qeth_l3_setup_netdev(struct qeth_card *card, bool carrier_ok)
++static int qeth_l3_setup_netdev(struct qeth_card *card)
+ {
+ 	unsigned int headroom;
+ 	int rc;
+@@ -1972,7 +1972,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card, bool carrier_ok)
+ 
+ 		rc = qeth_l3_iqd_read_initial_mac(card);
+ 		if (rc)
+-			goto out;
++			return rc;
+ 	} else
+ 		return -ENODEV;
+ 
+@@ -1987,14 +1987,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card, bool carrier_ok)
+ 				       PAGE_SIZE * (QETH_MAX_BUFFER_ELEMENTS(card) - 1));
+ 
+ 	netif_napi_add(card->dev, &card->napi, qeth_poll, QETH_NAPI_WEIGHT);
+-	rc = register_netdev(card->dev);
+-	if (!rc && carrier_ok)
+-		netif_carrier_on(card->dev);
+-
+-out:
+-	if (rc)
+-		card->dev->netdev_ops = NULL;
+-	return rc;
++	return register_netdev(card->dev);
+ }
+ 
+ static const struct device_type qeth_l3_devtype = {
+@@ -2041,7 +2034,7 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
+ 		qeth_set_offline(card, false);
+ 
+ 	cancel_work_sync(&card->close_dev_work);
+-	if (qeth_netdev_is_registered(card->dev))
++	if (card->dev->reg_state == NETREG_REGISTERED)
+ 		unregister_netdev(card->dev);
+ 
+ 	flush_workqueue(card->cmd_wq);
+@@ -2088,10 +2081,13 @@ static int qeth_l3_set_online(struct qeth_card *card)
+ 	qeth_set_allowed_threads(card, 0xffffffff, 0);
+ 	qeth_l3_recover_ip(card);
+ 
+-	if (!qeth_netdev_is_registered(dev)) {
+-		rc = qeth_l3_setup_netdev(card, carrier_ok);
++	if (dev->reg_state != NETREG_REGISTERED) {
++		rc = qeth_l3_setup_netdev(card);
+ 		if (rc)
+ 			goto out_remove;
++
++		if (carrier_ok)
++			netif_carrier_on(dev);
+ 	} else {
+ 		rtnl_lock();
+ 		if (carrier_ok)
+-- 
+2.17.1
