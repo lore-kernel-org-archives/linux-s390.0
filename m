@@ -1,125 +1,230 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
-Subject: [PATCH v3] s390: replace setup_irq() by request_irq()
-Date: Wed,  4 Mar 2020 06:20:48 +0530
-Message-Id: <20200304005049.5291-1-afzal.mohd.ma@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23946 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726855AbgCRMzY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Mar 2020 08:55:24 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02ICds98070860
+        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:23 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2yuk25a1r8-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:23 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 18 Mar 2020 12:55:21 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 03/11] s390/qeth: remove prio-queueing support for z/VM NICs
+Date: Wed, 18 Mar 2020 13:54:47 +0100
+In-Reply-To: <20200318125455.5838-1-jwi@linux.ibm.com>
+References: <20200318125455.5838-1-jwi@linux.ibm.com>
+Message-Id: <20200318125455.5838-4-jwi@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: afzal mohammed <afzal.mohd.ma@gmail.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sebastian Ott <sebott@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-request_irq() is preferred over setup_irq(). Invocations of setup_irq()
-occur after memory allocators are ready.
+z/VM NICs don't offer HW QoS for TX rings. So just use netdev_pick_tx()
+to distribute the connections equally over all enabled TX queues.
 
-Per tglx[1], setup_irq() existed in olden days when allocators were not
-ready by the time early interrupts were initialized.
+We start with just 1 enabled TX queue (this matches the typical
+configuration without prio-queueing). A follow-on patch will allow users
+to enable additional TX queues.
 
-Hence replace setup_irq() by request_irq().
-
-[1] https://lkml.kernel.org/r/alpine.DEB.2.20.1710191609480.1971@nanos
-
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
-Hi s390 maintainers,
+ drivers/s390/net/qeth_core.h      |  1 +
+ drivers/s390/net/qeth_core_main.c | 56 +++++++++++++++++++------------
+ drivers/s390/net/qeth_core_sys.c  |  2 +-
+ drivers/s390/net/qeth_l2_main.c   |  8 ++++-
+ drivers/s390/net/qeth_l3_main.c   |  7 +++-
+ 5 files changed, 49 insertions(+), 25 deletions(-)
 
-if okay w/ this change, please consider taking it thr' your tree, else please
-let me know.
-
-Regards
-afzal
-
-Link to v2 & v1,
-[v2] https://lkml.kernel.org/r/cover.1582471508.git.afzal.mohd.ma@gmail.com
-[v1] https://lkml.kernel.org/r/cover.1581478323.git.afzal.mohd.ma@gmail.com
-
-v3:
- * Split out from tree wide series, as Thomas suggested to get it thr'
-	respective maintainers
- * Modify pr_err displayed in case of error
- * Re-arrange code & choose pr_err args as required to improve readability
- * Remove irrelevant parts from commit message & improve
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 962be94ed3ca..94cd39631eee 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -1053,6 +1053,7 @@ int qeth_configure_cq(struct qeth_card *, enum qeth_cq);
+ int qeth_hw_trap(struct qeth_card *, enum qeth_diags_trap_action);
+ void qeth_trace_features(struct qeth_card *);
+ int qeth_setassparms_cb(struct qeth_card *, struct qeth_reply *, unsigned long);
++int qeth_setup_netdev(struct qeth_card *card);
+ int qeth_set_features(struct net_device *, netdev_features_t);
+ void qeth_enable_hw_features(struct net_device *dev);
+ netdev_features_t qeth_fix_features(struct net_device *, netdev_features_t);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 767cef04c9d8..f13495d9209b 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1244,9 +1244,12 @@ EXPORT_SYMBOL_GPL(qeth_drain_output_queues);
  
-v2:
- * Replace pr_err("request_irq() on %s failed" by
-           pr_err("%s: request_irq() failed"
- * Commit message massage
-
- arch/s390/kernel/irq.c  | 8 ++------
- drivers/s390/cio/airq.c | 8 ++------
- drivers/s390/cio/cio.c  | 8 ++------
- 3 files changed, 6 insertions(+), 18 deletions(-)
-
-diff --git a/arch/s390/kernel/irq.c b/arch/s390/kernel/irq.c
-index 8371855042dc..015c9dc45f7d 100644
---- a/arch/s390/kernel/irq.c
-+++ b/arch/s390/kernel/irq.c
-@@ -294,11 +294,6 @@ static irqreturn_t do_ext_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
- }
- 
--static struct irqaction external_interrupt = {
--	.name	 = "EXT",
--	.handler = do_ext_interrupt,
--};
--
- void __init init_ext_interrupts(void)
+ static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
  {
- 	int idx;
-@@ -308,7 +303,8 @@ void __init init_ext_interrupts(void)
+-	unsigned int count = single ? 1 : card->dev->num_tx_queues;
++	unsigned int max = single ? 1 : card->dev->num_tx_queues;
++	unsigned int count;
+ 	int rc;
  
- 	irq_set_chip_and_handler(EXT_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(EXT_INTERRUPT, &external_interrupt);
-+	if (request_irq(EXT_INTERRUPT, do_ext_interrupt, 0, "EXT", NULL))
-+		pr_err("Failed to register EXT interrupt\n");
++	count = IS_VM_NIC(card) ? min(max, card->dev->real_num_tx_queues) : max;
++
+ 	rtnl_lock();
+ 	rc = netif_set_real_num_tx_queues(card->dev, count);
+ 	rtnl_unlock();
+@@ -1254,16 +1257,16 @@ static int qeth_osa_set_output_queues(struct qeth_card *card, bool single)
+ 	if (rc)
+ 		return rc;
+ 
+-	if (card->qdio.no_out_queues == count)
++	if (card->qdio.no_out_queues == max)
+ 		return 0;
+ 
+ 	if (atomic_read(&card->qdio.state) != QETH_QDIO_UNINITIALIZED)
+ 		qeth_free_qdio_queues(card);
+ 
+-	if (count == 1)
++	if (max == 1 && card->qdio.do_prio_queueing != QETH_PRIOQ_DEFAULT)
+ 		dev_info(&card->gdev->dev, "Priority Queueing not supported\n");
+ 
+-	card->qdio.no_out_queues = count;
++	card->qdio.no_out_queues = max;
+ 	return 0;
  }
  
- static DEFINE_SPINLOCK(irq_subclass_lock);
-diff --git a/drivers/s390/cio/airq.c b/drivers/s390/cio/airq.c
-index 427b2e24a8ce..a860da77b0d1 100644
---- a/drivers/s390/cio/airq.c
-+++ b/drivers/s390/cio/airq.c
-@@ -105,16 +105,12 @@ static irqreturn_t do_airq_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
+@@ -5987,22 +5990,8 @@ static struct net_device *qeth_alloc_netdev(struct qeth_card *card)
+ 	SET_NETDEV_DEV(dev, &card->gdev->dev);
+ 	netif_carrier_off(dev);
+ 
+-	if (IS_OSN(card)) {
+-		dev->ethtool_ops = &qeth_osn_ethtool_ops;
+-	} else {
+-		dev->ethtool_ops = &qeth_ethtool_ops;
+-		dev->priv_flags &= ~IFF_TX_SKB_SHARING;
+-		dev->hw_features |= NETIF_F_SG;
+-		dev->vlan_features |= NETIF_F_SG;
+-		if (IS_IQD(card)) {
+-			dev->features |= NETIF_F_SG;
+-			if (netif_set_real_num_tx_queues(dev,
+-							 QETH_IQD_MIN_TXQ)) {
+-				free_netdev(dev);
+-				return NULL;
+-			}
+-		}
+-	}
++	dev->ethtool_ops = IS_OSN(card) ? &qeth_osn_ethtool_ops :
++					  &qeth_ethtool_ops;
+ 
+ 	return dev;
+ }
+@@ -6018,6 +6007,28 @@ struct net_device *qeth_clone_netdev(struct net_device *orig)
+ 	return clone;
  }
  
--static struct irqaction airq_interrupt = {
--	.name	 = "AIO",
--	.handler = do_airq_interrupt,
--};
--
- void __init init_airq_interrupts(void)
++int qeth_setup_netdev(struct qeth_card *card)
++{
++	struct net_device *dev = card->dev;
++	unsigned int num_tx_queues;
++
++	dev->priv_flags &= ~IFF_TX_SKB_SHARING;
++	dev->hw_features |= NETIF_F_SG;
++	dev->vlan_features |= NETIF_F_SG;
++
++	if (IS_IQD(card)) {
++		dev->features |= NETIF_F_SG;
++		num_tx_queues = QETH_IQD_MIN_TXQ;
++	} else if (IS_VM_NIC(card)) {
++		num_tx_queues = 1;
++	} else {
++		num_tx_queues = dev->real_num_tx_queues;
++	}
++
++	return netif_set_real_num_tx_queues(dev, num_tx_queues);
++}
++EXPORT_SYMBOL_GPL(qeth_setup_netdev);
++
+ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
  {
- 	irq_set_chip_and_handler(THIN_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(THIN_INTERRUPT, &airq_interrupt);
-+	if (request_irq(THIN_INTERRUPT, do_airq_interrupt, 0, "AIO", NULL))
-+		pr_err("Failed to register AIO interrupt\n");
+ 	struct qeth_card *card;
+@@ -6057,12 +6068,13 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 		goto err_card;
+ 	}
+ 
++	qeth_determine_capabilities(card);
++	qeth_set_blkt_defaults(card);
++
+ 	card->qdio.no_out_queues = card->dev->num_tx_queues;
+ 	rc = qeth_update_from_chp_desc(card);
+ 	if (rc)
+ 		goto err_chp_desc;
+-	qeth_determine_capabilities(card);
+-	qeth_set_blkt_defaults(card);
+ 
+ 	enforced_disc = qeth_enforce_discipline(card);
+ 	switch (enforced_disc) {
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 78cae61bc924..533a7f26dbe1 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -176,7 +176,7 @@ static ssize_t qeth_dev_prioqing_store(struct device *dev,
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 	int rc = 0;
+ 
+-	if (IS_IQD(card))
++	if (IS_IQD(card) || IS_VM_NIC(card))
+ 		return -EOPNOTSUPP;
+ 
+ 	mutex_lock(&card->conf_mutex);
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 8ba4ac2a5b47..71eb2d9bfbb7 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -571,7 +571,9 @@ static u16 qeth_l2_select_queue(struct net_device *dev, struct sk_buff *skb,
+ 		return qeth_iqd_select_queue(dev, skb,
+ 					     qeth_get_ether_cast_type(skb),
+ 					     sb_dev);
+-	return qeth_get_priority_queue(card, skb);
++
++	return IS_VM_NIC(card) ? netdev_pick_tx(dev, skb, sb_dev) :
++				 qeth_get_priority_queue(card, skb);
  }
  
- static inline unsigned long iv_size(unsigned long bits)
-diff --git a/drivers/s390/cio/cio.c b/drivers/s390/cio/cio.c
-index 18f5458f90e8..94a66d6d32a3 100644
---- a/drivers/s390/cio/cio.c
-+++ b/drivers/s390/cio/cio.c
-@@ -563,16 +563,12 @@ static irqreturn_t do_cio_interrupt(int irq, void *dummy)
- 	return IRQ_HANDLED;
- }
+ static const struct device_type qeth_l2_devtype = {
+@@ -659,6 +661,10 @@ static int qeth_l2_setup_netdev(struct qeth_card *card, bool carrier_ok)
+ 		goto add_napi;
+ 	}
  
--static struct irqaction io_interrupt = {
--	.name	 = "I/O",
--	.handler = do_cio_interrupt,
--};
--
- void __init init_cio_interrupts(void)
++	rc = qeth_setup_netdev(card);
++	if (rc)
++		return rc;
++
+ 	card->dev->needed_headroom = sizeof(struct qeth_hdr);
+ 	card->dev->netdev_ops = &qeth_l2_netdev_ops;
+ 	card->dev->priv_flags |= IFF_UNICAST_FLT;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 8a803d6c9357..81ec0d2b7ea5 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1880,7 +1880,8 @@ static u16 qeth_l3_osa_select_queue(struct net_device *dev, struct sk_buff *skb,
  {
- 	irq_set_chip_and_handler(IO_INTERRUPT,
- 				 &dummy_irq_chip, handle_percpu_irq);
--	setup_irq(IO_INTERRUPT, &io_interrupt);
-+	if (request_irq(IO_INTERRUPT, do_cio_interrupt, 0, "I/O", NULL))
-+		pr_err("Failed to register I/O interrupt\n");
+ 	struct qeth_card *card = dev->ml_priv;
+ 
+-	return qeth_get_priority_queue(card, skb);
++	return IS_VM_NIC(card) ? netdev_pick_tx(dev, skb, sb_dev) :
++				 qeth_get_priority_queue(card, skb);
  }
  
- #ifdef CONFIG_CCW_CONSOLE
+ static const struct net_device_ops qeth_l3_netdev_ops = {
+@@ -1922,6 +1923,10 @@ static int qeth_l3_setup_netdev(struct qeth_card *card, bool carrier_ok)
+ 	unsigned int headroom;
+ 	int rc;
+ 
++	rc = qeth_setup_netdev(card);
++	if (rc)
++		return rc;
++
+ 	if (IS_OSD(card) || IS_OSX(card)) {
+ 		if ((card->info.link_type == QETH_LINK_TYPE_LANE_TR) ||
+ 		    (card->info.link_type == QETH_LINK_TYPE_HSTR)) {
 -- 
-2.25.1
+2.17.1
