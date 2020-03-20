@@ -1,85 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37692 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727032AbgBGLkH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Feb 2020 06:40:07 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 13/35] KVM: s390: protvirt: Instruction emulation
-Date: Fri,  7 Feb 2020 06:39:36 -0500
-Message-Id: <20200207113958.7320-14-borntraeger@de.ibm.com>
-In-Reply-To: <20200207113958.7320-1-borntraeger@de.ibm.com>
-References: <20200207113958.7320-1-borntraeger@de.ibm.com>
+Received: from mail-il1-f194.google.com ([209.85.166.194]:36099 "EHLO
+        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725446AbgCTG2X (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Mar 2020 02:28:23 -0400
+Received: by mail-il1-f194.google.com with SMTP id h3so4611257ils.3
+        for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2020 23:28:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191221150402.13868-1-murphyt7@tcd.ie> <87blrzwcn8.fsf@intel.com>
+ <432d306c-fe9f-75b2-f0f7-27698f1467ad@arm.com> <87o8vzuv4i.fsf@intel.com>
+In-Reply-To: <87o8vzuv4i.fsf@intel.com>
+From: Tom Murphy <murphyt7@tcd.ie>
+Date: Thu, 19 Mar 2020 23:28:09 -0700
+Message-ID: <CALQxJuujCe7TsqkbfusPnzef2SApDBNPa7wj=U4ozDJWCoBHOg@mail.gmail.com>
+Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the dma-iommu api
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Thomas Huth <thuth@redhat.com>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Andrea Arcangeli <aarcange@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Michael Mueller <mimu@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Robin Murphy <robin.murphy@arm.com>, iommu@lists.linux-foundation.org, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Julien Grall <julien.grall@arm.com>, Marc Zyngier <maz@kernel.org>, Eric Auger <eric.auger@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+Any news on this? Is there anyone who wants to try and fix this possible bu=
+g?
 
-We have two new SIE exit codes dealing with instructions.
-104 (0x68) for a secure instruction interception, on which the SIE needs
-hypervisor action to complete the instruction. We can piggy-back on the
-existing instruction handlers.
-
-108 which is merely a notification and provides data for tracking and
-management. For example this is used to tell the host about a new value
-for the prefix register. As there will be several special case handlers
-in later patches, we handle this in a separate function.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-[borntraeger@de.ibm.com: patch merging, splitting, fixing]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/kvm_host.h |  2 ++
- arch/s390/kvm/intercept.c        | 11 +++++++++++
- 2 files changed, 13 insertions(+)
-
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index 08acf280c4b0..ae7c611ee9dd 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -217,6 +217,8 @@ struct kvm_s390_sie_block {
- #define ICPT_KSS	0x5c
- #define ICPT_MCHKREQ	0x60
- #define ICPT_INT_ENABLE	0x64
-+#define ICPT_PV_INSTR	0x68
-+#define ICPT_PV_NOTIFY	0x6c
- 	__u8	icptcode;		/* 0x0050 */
- 	__u8	icptstatus;		/* 0x0051 */
- 	__u16	ihcpu;			/* 0x0052 */
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index 6aeb4b36042c..6fdbac696f65 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -444,6 +444,11 @@ static int handle_operexc(struct kvm_vcpu *vcpu)
- 	return kvm_s390_inject_program_int(vcpu, PGM_OPERATION);
- }
- 
-+static int handle_pv_notification(struct kvm_vcpu *vcpu)
-+{
-+	return handle_instruction(vcpu);
-+}
-+
- int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- {
- 	int rc, per_rc = 0;
-@@ -489,6 +494,12 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 		 */
- 		rc = 0;
- 		break;
-+	case ICPT_PV_INSTR:
-+		rc = handle_instruction(vcpu);
-+		break;
-+	case ICPT_PV_NOTIFY:
-+		rc = handle_pv_notification(vcpu);
-+		break;
- 	default:
- 		return -EOPNOTSUPP;
- 	}
--- 
-2.24.0
+On Mon, 23 Dec 2019 at 03:41, Jani Nikula <jani.nikula@linux.intel.com> wro=
+te:
+>
+> On Mon, 23 Dec 2019, Robin Murphy <robin.murphy@arm.com> wrote:
+> > On 2019-12-23 10:37 am, Jani Nikula wrote:
+> >> On Sat, 21 Dec 2019, Tom Murphy <murphyt7@tcd.ie> wrote:
+> >>> This patchset converts the intel iommu driver to the dma-iommu api.
+> >>>
+> >>> While converting the driver I exposed a bug in the intel i915 driver
+> >>> which causes a huge amount of artifacts on the screen of my
+> >>> laptop. You can see a picture of it here:
+> >>> https://github.com/pippy360/kernelPatches/blob/master/IMG_20191219_22=
+5922.jpg
+> >>>
+> >>> This issue is most likely in the i915 driver and is most likely cause=
+d
+> >>> by the driver not respecting the return value of the
+> >>> dma_map_ops::map_sg function. You can see the driver ignoring the
+> >>> return value here:
+> >>> https://github.com/torvalds/linux/blob/7e0165b2f1a912a06e381e91f0f4e4=
+95f4ac3736/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c#L51
+> >>>
+> >>> Previously this didn=E2=80=99t cause issues because the intel map_sg =
+always
+> >>> returned the same number of elements as the input scatter gather list
+> >>> but with the change to this dma-iommu api this is no longer the
+> >>> case. I wasn=E2=80=99t able to track the bug down to a specific line =
+of code
+> >>> unfortunately.
+> >>>
+> >>> Could someone from the intel team look at this?
+> >>
+> >> Let me get this straight. There is current API that on success always
+> >> returns the same number of elements as the input scatter gather
+> >> list. You propose to change the API so that this is no longer the case=
+?
+> >
+> > No, the API for dma_map_sg() has always been that it may return fewer
+> > DMA segments than nents - see Documentation/DMA-API.txt (and otherwise,
+> > the return value would surely be a simple success/fail condition).
+> > Relying on a particular implementation behaviour has never been strictl=
+y
+> > correct, even if it does happen to be a very common behaviour.
+> >
+> >> A quick check of various dma_map_sg() calls in the kernel seems to
+> >> indicate checking for 0 for errors and then ignoring the non-zero retu=
+rn
+> >> is a common pattern. Are you sure it's okay to make the change you're
+> >> proposing?
+> >
+> > Various code uses tricks like just iterating the mapped list until the
+> > first segment with zero sg_dma_len(). Others may well simply have bugs.
+>
+> Thanks for the clarification.
+>
+> BR,
+> Jani.
+>
+> >
+> > Robin.
+> >
+> >> Anyway, due to the time of year and all, I'd like to ask you to file a
+> >> bug against i915 at [1] so this is not forgotten, and please let's not
+> >> merge the changes before this is resolved.
+> >>
+> >>
+> >> Thanks,
+> >> Jani.
+> >>
+> >>
+> >> [1] https://gitlab.freedesktop.org/drm/intel/issues/new
+> >>
+> >>
+>
+> --
+> Jani Nikula, Intel Open Source Graphics Center
