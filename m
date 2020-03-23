@@ -1,56 +1,92 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:65028 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727186AbgCFNZs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Mar 2020 08:25:48 -0500
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 026DOLfL173268
-        for <linux-s390@vger.kernel.org>; Fri, 6 Mar 2020 08:25:47 -0500
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yfmg4vm4f-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 06 Mar 2020 08:25:46 -0500
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Fri, 6 Mar 2020 13:25:43 -0000
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH v4 0/2] add callbacks for inaccessible pages
-Date: Fri,  6 Mar 2020 14:25:35 +0100
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:38179 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727341AbgCWX4z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Mar 2020 19:56:55 -0400
+Received: by mail-ot1-f67.google.com with SMTP id t28so15409151ott.5
+        for <linux-s390@vger.kernel.org>; Mon, 23 Mar 2020 16:56:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200306132537.783769-1-imbrenda@linux.ibm.com>
+References: <20200318220634.32100-1-mike.kravetz@oracle.com>
+ <20200318220634.32100-3-mike.kravetz@oracle.com> <2ca058dc-47e6-1d08-154b-77d2cbe98e34@c-s.fr>
+In-Reply-To: <2ca058dc-47e6-1d08-154b-77d2cbe98e34@c-s.fr>
+From: Mina Almasry <almasrymina@google.com>
+Date: Mon, 23 Mar 2020 16:56:43 -0700
+Message-ID: <CAHS8izOeYeVi-W7z-DKw3Uv0rAqwuD1__uTr-oF6Lx=V9ekm3g@mail.gmail.com>
+Subject: Re: [PATCH 2/4] hugetlbfs: move hugepagesz= parsing to arch
+ independent code
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-next@vger.kernel.org, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name
-Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>, Linux-MM <linux-mm@kvack.org>, open list <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>, Andrew Morton <akpm@linux-foundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Jonathan Corbet <corbet@lwn.net>, Catalin Marinas <catalin.marinas@arm.com>, Dave Hansen <dave.hansen@linux.intel.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <paul.walmsley@sifive.com>, Paul Mackerras <paulus@samba.org>, Thomas Gleixner <tglx@linutronix.de>, Longpeng <longpeng2@huawei.com>, Will Deacon <will@kernel.org>, "David S . Miller" <davem@davemloft.net>
 
-This patchset has a fixup for gup/mm, and provides the necessary arch
-hooks to enable protected virtualization.
+On Thu, Mar 19, 2020 at 12:04 AM Christophe Leroy
+<christophe.leroy@c-s.fr> wrote:
+>
+>
+>
+> Le 18/03/2020 =C3=A0 23:06, Mike Kravetz a =C3=A9crit :
+> > Now that architectures provide arch_hugetlb_valid_size(), parsing
+> > of "hugepagesz=3D" can be done in architecture independent code.
+> > Create a single routine to handle hugepagesz=3D parsing and remove
+> > all arch specific routines.  We can also remove the interface
+> > hugetlb_bad_size() as this is no longer used outside arch independent
+> > code.
+> >
+> > This also provides consistent behavior of hugetlbfs command line
+> > options.  The hugepagesz=3D option should only be specified once for
+> > a specific size, but some architectures allow multiple instances.
+> > This appears to be more of an oversight when code was added by some
+> > architectures to set up ALL huge pages sizes.
+> >
+> > Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+> > ---
+> >   arch/arm64/mm/hugetlbpage.c   | 15 ---------------
+> >   arch/powerpc/mm/hugetlbpage.c | 15 ---------------
+> >   arch/riscv/mm/hugetlbpage.c   | 16 ----------------
+> >   arch/s390/mm/hugetlbpage.c    | 18 ------------------
+> >   arch/sparc/mm/init_64.c       | 22 ----------------------
+> >   arch/x86/mm/hugetlbpage.c     | 16 ----------------
+> >   include/linux/hugetlb.h       |  1 -
+> >   mm/hugetlb.c                  | 24 ++++++++++++++++++------
+> >   8 files changed, 18 insertions(+), 109 deletions(-)
+> >
+>
+> [snip]
+>
+> > diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> > index 2f99359b93af..cd4ec07080fb 100644
+> > --- a/mm/hugetlb.c
+> > +++ b/mm/hugetlb.c
+> > @@ -3149,12 +3149,6 @@ static int __init hugetlb_init(void)
+> >   }
+> >   subsys_initcall(hugetlb_init);
+> >
+> > -/* Should be called on processing a hugepagesz=3D... option */
+> > -void __init hugetlb_bad_size(void)
+> > -{
+> > -     parsed_valid_hugepagesz =3D false;
+> > -}
+> > -
+> >   void __init hugetlb_add_hstate(unsigned int order)
+> >   {
+> >       struct hstate *h;
+> > @@ -3224,6 +3218,24 @@ static int __init hugetlb_nrpages_setup(char *s)
+> >   }
+> >   __setup("hugepages=3D", hugetlb_nrpages_setup);
+> >
+> > +static int __init hugepagesz_setup(char *s)
+> > +{
+> > +     unsigned long long size;
+> > +     char *saved_s =3D s;
+> > +
+> > +     size =3D memparse(s, &s);
+>
+> You don't use s after that, so you can pass NULL instead of &s and avoid
+> the saved_s
+>
 
-Andrew: please simply squash/fixup the first patch into the appropriate
-one that is already in your tree.
++1
 
-v3-> v4:
-* changed WARN_ON into VM_BUG_ON_PAGE as per review,
-* and small improvement of the associated comment
-v2 -> v3:
-* revert some cosmetic changes to improve readability
-* improve some comments
-v1 -> v2:
-* use put_compound_head in the first patch
-* fix commit message of the second patch
-* minor code cleanups
-* some comments to explain why sometimes we are not doing things
-
-Claudio Imbrenda (2):
-  mm/gup: fixup for 9947ea2c1e608e32 "mm/gup: track FOLL_PIN pages"
-  mm/gup/writeback: add callbacks for inaccessible pages
-
- include/linux/gfp.h |  6 ++++
- mm/gup.c            | 76 +++++++++++++++++++++++++++++----------------
- mm/page-writeback.c |  9 +++++-
- 3 files changed, 64 insertions(+), 27 deletions(-)
-
--- 
-2.24.1
+Acked-by: Mina Almasry <almasrymina@google.com>
