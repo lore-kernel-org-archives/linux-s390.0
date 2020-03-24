@@ -1,101 +1,123 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-il1-f194.google.com ([209.85.166.194]:36099 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725446AbgCTG2X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Mar 2020 02:28:23 -0400
-Received: by mail-il1-f194.google.com with SMTP id h3so4611257ils.3
-        for <linux-s390@vger.kernel.org>; Thu, 19 Mar 2020 23:28:21 -0700 (PDT)
+Received: from foss.arm.com ([217.140.110.172]:33316 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727066AbgCXMKl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Mar 2020 08:10:41 -0400
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Subject: [PATCH v6] s390: Fix vDSO clock_getres()
+Date: Tue, 24 Mar 2020 12:10:27 +0000
+Message-Id: <20200324121027.21665-1-vincenzo.frascino@arm.com>
 MIME-Version: 1.0
-References: <20191221150402.13868-1-murphyt7@tcd.ie> <87blrzwcn8.fsf@intel.com>
- <432d306c-fe9f-75b2-f0f7-27698f1467ad@arm.com> <87o8vzuv4i.fsf@intel.com>
-In-Reply-To: <87o8vzuv4i.fsf@intel.com>
-From: Tom Murphy <murphyt7@tcd.ie>
-Date: Thu, 19 Mar 2020 23:28:09 -0700
-Message-ID: <CALQxJuujCe7TsqkbfusPnzef2SApDBNPa7wj=U4ozDJWCoBHOg@mail.gmail.com>
-Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the dma-iommu api
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Robin Murphy <robin.murphy@arm.com>, iommu@lists.linux-foundation.org, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Julien Grall <julien.grall@arm.com>, Marc Zyngier <maz@kernel.org>, Eric Auger <eric.auger@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: tglx@linutronix.de, Vincenzo Frascino <vincenzo.frascino@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-Any news on this? Is there anyone who wants to try and fix this possible bu=
-g?
+clock_getres in the vDSO library has to preserve the same behaviour
+of posix_get_hrtimer_res().
 
-On Mon, 23 Dec 2019 at 03:41, Jani Nikula <jani.nikula@linux.intel.com> wro=
-te:
->
-> On Mon, 23 Dec 2019, Robin Murphy <robin.murphy@arm.com> wrote:
-> > On 2019-12-23 10:37 am, Jani Nikula wrote:
-> >> On Sat, 21 Dec 2019, Tom Murphy <murphyt7@tcd.ie> wrote:
-> >>> This patchset converts the intel iommu driver to the dma-iommu api.
-> >>>
-> >>> While converting the driver I exposed a bug in the intel i915 driver
-> >>> which causes a huge amount of artifacts on the screen of my
-> >>> laptop. You can see a picture of it here:
-> >>> https://github.com/pippy360/kernelPatches/blob/master/IMG_20191219_22=
-5922.jpg
-> >>>
-> >>> This issue is most likely in the i915 driver and is most likely cause=
-d
-> >>> by the driver not respecting the return value of the
-> >>> dma_map_ops::map_sg function. You can see the driver ignoring the
-> >>> return value here:
-> >>> https://github.com/torvalds/linux/blob/7e0165b2f1a912a06e381e91f0f4e4=
-95f4ac3736/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c#L51
-> >>>
-> >>> Previously this didn=E2=80=99t cause issues because the intel map_sg =
-always
-> >>> returned the same number of elements as the input scatter gather list
-> >>> but with the change to this dma-iommu api this is no longer the
-> >>> case. I wasn=E2=80=99t able to track the bug down to a specific line =
-of code
-> >>> unfortunately.
-> >>>
-> >>> Could someone from the intel team look at this?
-> >>
-> >> Let me get this straight. There is current API that on success always
-> >> returns the same number of elements as the input scatter gather
-> >> list. You propose to change the API so that this is no longer the case=
-?
-> >
-> > No, the API for dma_map_sg() has always been that it may return fewer
-> > DMA segments than nents - see Documentation/DMA-API.txt (and otherwise,
-> > the return value would surely be a simple success/fail condition).
-> > Relying on a particular implementation behaviour has never been strictl=
-y
-> > correct, even if it does happen to be a very common behaviour.
-> >
-> >> A quick check of various dma_map_sg() calls in the kernel seems to
-> >> indicate checking for 0 for errors and then ignoring the non-zero retu=
-rn
-> >> is a common pattern. Are you sure it's okay to make the change you're
-> >> proposing?
-> >
-> > Various code uses tricks like just iterating the mapped list until the
-> > first segment with zero sg_dma_len(). Others may well simply have bugs.
->
-> Thanks for the clarification.
->
-> BR,
-> Jani.
->
-> >
-> > Robin.
-> >
-> >> Anyway, due to the time of year and all, I'd like to ask you to file a
-> >> bug against i915 at [1] so this is not forgotten, and please let's not
-> >> merge the changes before this is resolved.
-> >>
-> >>
-> >> Thanks,
-> >> Jani.
-> >>
-> >>
-> >> [1] https://gitlab.freedesktop.org/drm/intel/issues/new
-> >>
-> >>
->
-> --
-> Jani Nikula, Intel Open Source Graphics Center
+In particular, posix_get_hrtimer_res() does:
+    sec = 0;
+    ns = hrtimer_resolution;
+and hrtimer_resolution depends on the enablement of the high
+resolution timers that can happen either at compile or at run time.
+
+Fix the s390 vdso implementation of clock_getres keeping a copy of
+hrtimer_resolution in vdso data and using that directly.
+
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+ arch/s390/include/asm/vdso.h           |  1 +
+ arch/s390/kernel/asm-offsets.c         |  2 +-
+ arch/s390/kernel/time.c                |  1 +
+ arch/s390/kernel/vdso64/clock_getres.S | 10 +++++-----
+ 4 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/include/asm/vdso.h b/arch/s390/include/asm/vdso.h
+index 3bcfdeb01395..0cd085cdeb4f 100644
+--- a/arch/s390/include/asm/vdso.h
++++ b/arch/s390/include/asm/vdso.h
+@@ -36,6 +36,7 @@ struct vdso_data {
+ 	__u32 tk_shift;			/* Shift used for xtime_nsec	0x60 */
+ 	__u32 ts_dir;			/* TOD steering direction	0x64 */
+ 	__u64 ts_end;			/* TOD steering end		0x68 */
++	__u32 hrtimer_res;		/* hrtimer resolution		0x70 */
+ };
+ 
+ struct vdso_per_cpu_data {
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index ce33406cfe83..19b825d0b93d 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -76,6 +76,7 @@ int main(void)
+ 	OFFSET(__VDSO_TK_SHIFT, vdso_data, tk_shift);
+ 	OFFSET(__VDSO_TS_DIR, vdso_data, ts_dir);
+ 	OFFSET(__VDSO_TS_END, vdso_data, ts_end);
++	OFFSET(__VDSO_CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
+ 	OFFSET(__VDSO_ECTG_BASE, vdso_per_cpu_data, ectg_timer_base);
+ 	OFFSET(__VDSO_ECTG_USER, vdso_per_cpu_data, ectg_user_time);
+ 	OFFSET(__VDSO_GETCPU_VAL, vdso_per_cpu_data, getcpu_val);
+@@ -86,7 +87,6 @@ int main(void)
+ 	DEFINE(__CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
+ 	DEFINE(__CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
+ 	DEFINE(__CLOCK_THREAD_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID);
+-	DEFINE(__CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
+ 	DEFINE(__CLOCK_COARSE_RES, LOW_RES_NSEC);
+ 	BLANK();
+ 	/* idle data offsets */
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index f9d070d016e3..b1113b519432 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -301,6 +301,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 
+ 	vdso_data->tk_mult = tk->tkr_mono.mult;
+ 	vdso_data->tk_shift = tk->tkr_mono.shift;
++	vdso_data->hrtimer_res = hrtimer_resolution;
+ 	smp_wmb();
+ 	++vdso_data->tb_update_count;
+ }
+diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
+index 081435398e0a..022b58c980db 100644
+--- a/arch/s390/kernel/vdso64/clock_getres.S
++++ b/arch/s390/kernel/vdso64/clock_getres.S
+@@ -17,12 +17,14 @@
+ 	.type  __kernel_clock_getres,@function
+ __kernel_clock_getres:
+ 	CFI_STARTPROC
+-	larl	%r1,4f
++	larl	%r1,3f
++	lg	%r0,0(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME_COARSE
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC_COARSE
+ 	je	0f
+-	larl	%r1,3f
++	larl	%r1,_vdso_data
++	l	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC
+@@ -36,7 +38,6 @@ __kernel_clock_getres:
+ 	jz	2f
+ 0:	ltgr	%r3,%r3
+ 	jz	1f				/* res == NULL */
+-	lg	%r0,0(%r1)
+ 	xc	0(8,%r3),0(%r3)			/* set tp->tv_sec to zero */
+ 	stg	%r0,8(%r3)			/* store tp->tv_usec */
+ 1:	lghi	%r2,0
+@@ -45,6 +46,5 @@ __kernel_clock_getres:
+ 	svc	0
+ 	br	%r14
+ 	CFI_ENDPROC
+-3:	.quad	__CLOCK_REALTIME_RES
+-4:	.quad	__CLOCK_COARSE_RES
++3:	.quad	__CLOCK_COARSE_RES
+ 	.size	__kernel_clock_getres,.-__kernel_clock_getres
+-- 
+2.25.2
