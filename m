@@ -1,118 +1,69 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 31/32] s390/qeth: vnicc Fix EOPNOTSUPP precedence
-Date: Mon,  2 Mar 2020 21:48:50 -0500
-Message-Id: <20200303024851.10054-31-sashal@kernel.org>
-In-Reply-To: <20200303024851.10054-1-sashal@kernel.org>
-References: <20200303024851.10054-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39508 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728094AbgCXSZa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Mar 2020 14:25:30 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02OI5nVB168017
+        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 14:25:29 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2yynky4mhc-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 14:25:24 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 24 Mar 2020 18:24:59 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 00/11] s390/qeth: updates 2020-03-24
+Date: Tue, 24 Mar 2020 19:24:37 +0100
+Message-Id: <20200324182448.95362-1-jwi@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexandra Winter <wintera@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+Hi Dave,
 
-[ Upstream commit 6f3846f0955308b6d1b219419da42b8de2c08845 ]
+please apply the following patch series for qeth to netdev's net-next
+tree.
 
-When getting or setting VNICC parameters, the error code EOPNOTSUPP
-should have precedence over EBUSY.
+This adds
+1) NAPI poll support for the async-Completion Queue (with one qdio layer
+   patch acked by Heiko),
+2) ethtool support for per-queue TX IRQ coalescing,
+3) various cleanups.
 
-EBUSY is used because vnicc feature and bridgeport feature are mutually
-exclusive, which is a temporary condition.
-Whereas EOPNOTSUPP indicates that the HW does not support all or parts of
-the vnicc feature.
-This issue causes the vnicc sysfs params to show 'blocked by bridgeport'
-for HW that does not support VNICC at all.
+Thanks,
+Julian
 
-Fixes: caa1f0b10d18 ("s390/qeth: add VNICC enable/disable support")
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_l2_main.c | 29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+Julian Wiedmann (11):
+  s390/qeth: simplify RX buffer tracking
+  s390/qeth: split out RX poll code
+  s390/qeth: remove redundant if-clause in RX poll code
+  s390/qdio: extend polling support to multiple queues
+  s390/qeth: simplify L3 dev_id logic
+  s390/qeth: clean up the mac_bits
+  s390/qeth: collect more TX statistics
+  s390/qeth: add TX IRQ coalescing support for IQD devices
+  s390/qeth: fine-tune MAC Address-related errnos
+  s390/qeth: keep track of fixed prio-queue configuration
+  s390/qeth: modernize two list helpers
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index aa90004f49e28..eb917e93fa72f 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2148,15 +2148,14 @@ int qeth_l2_vnicc_set_state(struct qeth_card *card, u32 vnicc, bool state)
- 
- 	QETH_CARD_TEXT(card, 2, "vniccsch");
- 
--	/* do not change anything if BridgePort is enabled */
--	if (qeth_bridgeport_is_in_use(card))
--		return -EBUSY;
--
- 	/* check if characteristic and enable/disable are supported */
- 	if (!(card->options.vnicc.sup_chars & vnicc) ||
- 	    !(card->options.vnicc.set_char_sup & vnicc))
- 		return -EOPNOTSUPP;
- 
-+	if (qeth_bridgeport_is_in_use(card))
-+		return -EBUSY;
-+
- 	/* set enable/disable command and store wanted characteristic */
- 	if (state) {
- 		cmd = IPA_VNICC_ENABLE;
-@@ -2202,14 +2201,13 @@ int qeth_l2_vnicc_get_state(struct qeth_card *card, u32 vnicc, bool *state)
- 
- 	QETH_CARD_TEXT(card, 2, "vniccgch");
- 
--	/* do not get anything if BridgePort is enabled */
--	if (qeth_bridgeport_is_in_use(card))
--		return -EBUSY;
--
- 	/* check if characteristic is supported */
- 	if (!(card->options.vnicc.sup_chars & vnicc))
- 		return -EOPNOTSUPP;
- 
-+	if (qeth_bridgeport_is_in_use(card))
-+		return -EBUSY;
-+
- 	/* if card is ready, query current VNICC state */
- 	if (qeth_card_hw_is_reachable(card))
- 		rc = qeth_l2_vnicc_query_chars(card);
-@@ -2227,15 +2225,14 @@ int qeth_l2_vnicc_set_timeout(struct qeth_card *card, u32 timeout)
- 
- 	QETH_CARD_TEXT(card, 2, "vniccsto");
- 
--	/* do not change anything if BridgePort is enabled */
--	if (qeth_bridgeport_is_in_use(card))
--		return -EBUSY;
--
- 	/* check if characteristic and set_timeout are supported */
- 	if (!(card->options.vnicc.sup_chars & QETH_VNICC_LEARNING) ||
- 	    !(card->options.vnicc.getset_timeout_sup & QETH_VNICC_LEARNING))
- 		return -EOPNOTSUPP;
- 
-+	if (qeth_bridgeport_is_in_use(card))
-+		return -EBUSY;
-+
- 	/* do we need to do anything? */
- 	if (card->options.vnicc.learning_timeout == timeout)
- 		return rc;
-@@ -2264,14 +2261,14 @@ int qeth_l2_vnicc_get_timeout(struct qeth_card *card, u32 *timeout)
- 
- 	QETH_CARD_TEXT(card, 2, "vniccgto");
- 
--	/* do not get anything if BridgePort is enabled */
--	if (qeth_bridgeport_is_in_use(card))
--		return -EBUSY;
--
- 	/* check if characteristic and get_timeout are supported */
- 	if (!(card->options.vnicc.sup_chars & QETH_VNICC_LEARNING) ||
- 	    !(card->options.vnicc.getset_timeout_sup & QETH_VNICC_LEARNING))
- 		return -EOPNOTSUPP;
-+
-+	if (qeth_bridgeport_is_in_use(card))
-+		return -EBUSY;
-+
- 	/* if card is ready, get timeout. Otherwise, just return stored value */
- 	*timeout = card->options.vnicc.learning_timeout;
- 	if (qeth_card_hw_is_reachable(card))
+ arch/s390/include/asm/qdio.h      |  11 +-
+ drivers/s390/cio/qdio.h           |  11 +-
+ drivers/s390/cio/qdio_debug.c     |   4 +-
+ drivers/s390/cio/qdio_main.c      |  50 +++----
+ drivers/s390/cio/qdio_setup.c     |  16 +--
+ drivers/s390/cio/qdio_thinint.c   |  38 +++--
+ drivers/s390/net/qeth_core.h      |  28 ++--
+ drivers/s390/net/qeth_core_main.c | 224 ++++++++++++++++--------------
+ drivers/s390/net/qeth_core_sys.c  |   8 +-
+ drivers/s390/net/qeth_ethtool.c   |  76 ++++++++++
+ drivers/s390/net/qeth_l2_main.c   |  23 +--
+ drivers/s390/net/qeth_l3_main.c   |  30 ++--
+ 12 files changed, 299 insertions(+), 220 deletions(-)
+
 -- 
-2.20.1
+2.17.1
