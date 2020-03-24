@@ -1,42 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:44568 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730673AbgCaJK1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Mar 2020 05:10:27 -0400
-Subject: Re: [kvm-unit-tests PATCH 08/10] s390x: smp: Wait for sigp completion
-References: <20200324081251.28810-1-frankja@linux.ibm.com>
- <20200324081251.28810-9-frankja@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <91f0c373-f316-2898-4928-fea2e7283df7@redhat.com>
-Date: Tue, 31 Mar 2020 11:10:21 +0200
-MIME-Version: 1.0
+Received: from us-smtp-delivery-74.mimecast.com ([216.205.24.74]:34897 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727318AbgCXMiw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Mar 2020 08:38:52 -0400
+Date: Tue, 24 Mar 2020 13:38:39 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH 08/10] s390x: smp: Wait for sigp
+ completion
+Message-ID: <20200324133839.10efabf1.cohuck@redhat.com>
 In-Reply-To: <20200324081251.28810-9-frankja@linux.ibm.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
+References: <20200324081251.28810-1-frankja@linux.ibm.com>
+        <20200324081251.28810-9-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com
 
-On 24.03.20 09:12, Janosch Frank wrote:
+On Tue, 24 Mar 2020 04:12:49 -0400
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
 > Sigp orders are not necessarily finished when the processor finished
 > the sigp instruction. We need to poll if the order has been finished
 > before we continue.
 > 
 > For (re)start and stop we already use sigp sense running and sigp
-
-Nope, hopefully no longer "sense running".
-
 > sense loops. But we still lack completion checks for stop and store
 > status, as well as the cpu resets.
 > 
 > Let's add them.
 > 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/smp.c | 8 ++++++++
+>  lib/s390x/smp.h | 1 +
+>  s390x/smp.c     | 4 ++++
+>  3 files changed, 13 insertions(+)
+> 
+> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+> index 6ef0335954fd4832..2555bf4f5e73d762 100644
+> --- a/lib/s390x/smp.c
+> +++ b/lib/s390x/smp.c
+> @@ -154,6 +154,14 @@ int smp_cpu_start(uint16_t addr, struct psw psw)
+>  	return rc;
+>  }
+>  
+> +void smp_cpu_wait_for_completion(uint16_t addr)
 
+Hm, that is more wait-for-idle than wait-for-completion, I guess? But
+only semantics, no need to change that.
 
-[...]
-
+> +{
+> +	uint32_t status;
+> +
+> +	/* Loops when cc == 2, i.e. when the cpu is busy with a sigp order */
+> +	sigp_retry(1, SIGP_SENSE, 0, &status);
+> +}
+> +
+>  int smp_cpu_destroy(uint16_t addr)
+>  {
+>  	struct cpu *cpu;
+> diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+> index ce63a89880c045f3..a8b98c0fcf2b451c 100644
+> --- a/lib/s390x/smp.h
+> +++ b/lib/s390x/smp.h
+> @@ -45,6 +45,7 @@ int smp_cpu_restart(uint16_t addr);
+>  int smp_cpu_start(uint16_t addr, struct psw psw);
+>  int smp_cpu_stop(uint16_t addr);
+>  int smp_cpu_stop_store_status(uint16_t addr);
+> +void smp_cpu_wait_for_completion(uint16_t addr);
+>  int smp_cpu_destroy(uint16_t addr);
+>  int smp_cpu_setup(uint16_t addr, struct psw psw);
+>  void smp_teardown(void);
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index 74622113a2c4ad92..48321f4e346dc71d 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
 > @@ -75,6 +75,7 @@ static void test_stop_store_status(void)
 >  	lc->prefix_sa = 0;
 >  	lc->grs_sa[15] = 0;
@@ -69,11 +111,8 @@ Nope, hopefully no longer "sense running".
 >  	report(smp_cpu_stopped(1), "cpu stopped");
 >  
 >  	set_flag(0);
-> 
 
-Looks sane to me.
+I'm wondering whether there's a place for a
+sigp-and-wait-for-completion function. But that's probably overkill.
 
--- 
-Thanks,
-
-David / dhildenb
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
