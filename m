@@ -1,118 +1,129 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 2/3] s390/qeth: make OSN / OSX support configurable
-Date: Fri, 27 Mar 2020 11:19:33 +0100
-In-Reply-To: <20200327101934.31040-1-jwi@linux.ibm.com>
-References: <20200327101934.31040-1-jwi@linux.ibm.com>
-Message-Id: <20200327101934.31040-3-jwi@linux.ibm.com>
+Subject: [PATCH net-next 05/11] s390/qeth: simplify L3 dev_id logic
+Date: Tue, 24 Mar 2020 19:24:42 +0100
+In-Reply-To: <20200324182448.95362-1-jwi@linux.ibm.com>
+References: <20200324182448.95362-1-jwi@linux.ibm.com>
+Message-Id: <20200324182448.95362-6-jwi@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>
 Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-The last machine generation that supports OSN is z13, and OSX is only
-supported up to z14. Allow users and distros to decide whether they
-still need support for these device types.
+The logic that deals with errors from qeth_l3_get_unique_id() is quite
+complex: it sets card->unique_id to 0xfffe, additionally flags it as
+UNIQUE_ID_NOT_BY_CARD and later takes this flag as cue to not propagate
+card->unique_id to dev->dev_id. With dev->dev_id thus holding 0,
+addrconf_ifid_eui48() applies its default behaviour.
+
+Get rid of all the special bit masks, and just return the old uid in
+case of an error. For the vast majority of cases this will be 0 (and so
+we still get the desired default behaviour) - with the rare exception
+where qeth_l3_get_unique_id() might have been called earlier but the
+initialization then failed at a later point.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/Kconfig          | 16 ++++++++++++++++
- drivers/s390/net/qeth_core_main.c |  4 ++++
- drivers/s390/net/qeth_core_mpc.h  | 11 +++++++++++
- drivers/s390/net/qeth_l2_main.c   |  2 ++
- 4 files changed, 33 insertions(+)
+ drivers/s390/net/qeth_core.h    |  5 -----
+ drivers/s390/net/qeth_l3_main.c | 30 +++++++++++++-----------------
+ 2 files changed, 13 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
-index ced896d1534a..36633387b952 100644
---- a/drivers/s390/net/Kconfig
-+++ b/drivers/s390/net/Kconfig
-@@ -91,6 +91,22 @@ config QETH_L3
- 	  To compile as a module choose M. The module name is qeth_l3.
- 	  If unsure, choose Y.
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 9840d4fab010..257b7f3c5558 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -178,10 +178,6 @@ struct qeth_vnicc_info {
+ #define QETH_RECLAIM_WORK_TIME	HZ
+ #define QETH_MAX_PORTNO		15
  
-+config QETH_OSN
-+	def_bool !HAVE_MARCH_Z14_FEATURES
-+	prompt "qeth OSN device support"
-+	depends on QETH
-+	help
-+	  This enables the qeth driver to support devices in OSN mode.
-+	  If unsure, choose N.
-+
-+config QETH_OSX
-+	def_bool !HAVE_MARCH_Z15_FEATURES
-+	prompt "qeth OSX device support"
-+	depends on QETH
-+	help
-+	  This enables the qeth driver to support devices in OSX mode.
-+	  If unsure, choose N.
-+
- config CCWGROUP
- 	tristate
- 	default (LCS || CTCM || QETH)
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index d06d9f847388..24fd17b347fe 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4951,12 +4951,16 @@ static struct ccw_device_id qeth_ids[] = {
- 					.driver_info = QETH_CARD_TYPE_OSD},
- 	{CCW_DEVICE_DEVTYPE(0x1731, 0x05, 0x1732, 0x05),
- 					.driver_info = QETH_CARD_TYPE_IQD},
-+#ifdef CONFIG_QETH_OSN
- 	{CCW_DEVICE_DEVTYPE(0x1731, 0x06, 0x1732, 0x06),
- 					.driver_info = QETH_CARD_TYPE_OSN},
-+#endif
- 	{CCW_DEVICE_DEVTYPE(0x1731, 0x02, 0x1732, 0x03),
- 					.driver_info = QETH_CARD_TYPE_OSM},
-+#ifdef CONFIG_QETH_OSX
- 	{CCW_DEVICE_DEVTYPE(0x1731, 0x02, 0x1732, 0x02),
- 					.driver_info = QETH_CARD_TYPE_OSX},
-+#endif
- 	{},
- };
- MODULE_DEVICE_TABLE(ccw, qeth_ids);
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index 6f304fdbb073..d89a04bfd8b0 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -74,8 +74,19 @@ enum qeth_card_types {
- #define IS_IQD(card)	((card)->info.type == QETH_CARD_TYPE_IQD)
- #define IS_OSD(card)	((card)->info.type == QETH_CARD_TYPE_OSD)
- #define IS_OSM(card)	((card)->info.type == QETH_CARD_TYPE_OSM)
-+
-+#ifdef CONFIG_QETH_OSN
- #define IS_OSN(card)	((card)->info.type == QETH_CARD_TYPE_OSN)
-+#else
-+#define IS_OSN(card)	false
-+#endif
-+
-+#ifdef CONFIG_QETH_OSX
- #define IS_OSX(card)	((card)->info.type == QETH_CARD_TYPE_OSX)
-+#else
-+#define IS_OSX(card)	false
-+#endif
-+
- #define IS_VM_NIC(card)	((card)->info.is_vm_nic)
+-/*IPv6 address autoconfiguration stuff*/
+-#define UNIQUE_ID_IF_CREATE_ADDR_FAILED 0xfffe
+-#define UNIQUE_ID_NOT_BY_CARD		0x10000
+-
+ /*****************************************************************************/
+ /* QDIO queue and buffer handling                                            */
+ /*****************************************************************************/
+@@ -687,7 +683,6 @@ struct qeth_card_info {
+ 	enum qeth_card_types type;
+ 	enum qeth_link_types link_type;
+ 	int broadcast_capable;
+-	int unique_id;
+ 	bool layer_enforced;
+ 	struct qeth_card_blkt blkt;
+ 	__u32 diagass_support;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 83ae75cf1389..b48cd0df3e31 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -949,39 +949,36 @@ static int qeth_l3_get_unique_id_cb(struct qeth_card *card,
+ 		struct qeth_reply *reply, unsigned long data)
+ {
+ 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
++	u16 *uid = reply->param;
  
- #define QETH_MPC_DIFINFO_LEN_INDICATES_LINK_TYPE 0x18
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 766ea0d07a24..974b4596b78d 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -869,6 +869,7 @@ struct qeth_discipline qeth_l2_discipline = {
- };
- EXPORT_SYMBOL_GPL(qeth_l2_discipline);
+ 	if (cmd->hdr.return_code == 0) {
+-		card->info.unique_id = cmd->data.create_destroy_addr.uid;
++		*uid = cmd->data.create_destroy_addr.uid;
+ 		return 0;
+ 	}
  
-+#ifdef CONFIG_QETH_OSN
- static void qeth_osn_assist_cb(struct qeth_card *card,
- 			       struct qeth_cmd_buffer *iob,
- 			       unsigned int data_length)
-@@ -945,6 +946,7 @@ void qeth_osn_deregister(struct net_device *dev)
- 	return;
+-	card->info.unique_id = UNIQUE_ID_IF_CREATE_ADDR_FAILED |
+-			       UNIQUE_ID_NOT_BY_CARD;
+ 	dev_warn(&card->gdev->dev, "The network adapter failed to generate a unique ID\n");
+ 	return -EIO;
  }
- EXPORT_SYMBOL(qeth_osn_deregister);
-+#endif
  
- /* SETBRIDGEPORT support, async notifications */
+-static int qeth_l3_get_unique_id(struct qeth_card *card)
++static u16 qeth_l3_get_unique_id(struct qeth_card *card, u16 uid)
+ {
+-	int rc = 0;
+ 	struct qeth_cmd_buffer *iob;
  
+ 	QETH_CARD_TEXT(card, 2, "guniqeid");
+ 
+-	if (!qeth_is_supported(card, IPA_IPV6)) {
+-		card->info.unique_id =  UNIQUE_ID_IF_CREATE_ADDR_FAILED |
+-					UNIQUE_ID_NOT_BY_CARD;
+-		return 0;
+-	}
++	if (!qeth_is_supported(card, IPA_IPV6))
++		goto out;
+ 
+ 	iob = qeth_ipa_alloc_cmd(card, IPA_CMD_CREATE_ADDR, QETH_PROT_IPV6,
+ 				 IPA_DATA_SIZEOF(create_destroy_addr));
+ 	if (!iob)
+-		return -ENOMEM;
++		goto out;
+ 
+-	__ipa_cmd(iob)->data.create_destroy_addr.uid = card->info.unique_id;
+-	rc = qeth_send_ipa_cmd(card, iob, qeth_l3_get_unique_id_cb, NULL);
+-	return rc;
++	__ipa_cmd(iob)->data.create_destroy_addr.uid = uid;
++	qeth_send_ipa_cmd(card, iob, qeth_l3_get_unique_id_cb, &uid);
++
++out:
++	return uid;
+ }
+ 
+ static int
+@@ -1920,6 +1917,7 @@ static const struct net_device_ops qeth_l3_osa_netdev_ops = {
+ 
+ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ {
++	struct net_device *dev = card->dev;
+ 	unsigned int headroom;
+ 	int rc;
+ 
+@@ -1937,9 +1935,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 		card->dev->netdev_ops = &qeth_l3_osa_netdev_ops;
+ 
+ 		/*IPv6 address autoconfiguration stuff*/
+-		qeth_l3_get_unique_id(card);
+-		if (!(card->info.unique_id & UNIQUE_ID_NOT_BY_CARD))
+-			card->dev->dev_id = card->info.unique_id & 0xffff;
++		dev->dev_id = qeth_l3_get_unique_id(card, dev->dev_id);
+ 
+ 		if (!IS_VM_NIC(card)) {
+ 			card->dev->features |= NETIF_F_SG;
 -- 
 2.17.1
