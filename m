@@ -1,223 +1,117 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:43888 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725818AbgCEGu7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 5 Mar 2020 01:50:59 -0500
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH 2/2] mm/vma: Introduce VM_ACCESS_FLAGS
-Date: Thu,  5 Mar 2020 12:20:14 +0530
-Message-Id: <1583391014-8170-3-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1583391014-8170-1-git-send-email-anshuman.khandual@arm.com>
-References: <1583391014-8170-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59344 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727729AbgCXSZD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Mar 2020 14:25:03 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02OI43OE114850
+        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 14:25:01 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywewudvcb-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 14:25:01 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Tue, 24 Mar 2020 18:24:57 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 06/11] s390/qeth: clean up the mac_bits
+Date: Tue, 24 Mar 2020 19:24:43 +0100
+In-Reply-To: <20200324182448.95362-1-jwi@linux.ibm.com>
+References: <20200324182448.95362-1-jwi@linux.ibm.com>
+Message-Id: <20200324182448.95362-7-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: hughd@google.com, vbabka@suse.cz, Anshuman Khandual <anshuman.khandual@arm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Mark Salter <msalter@redhat.com>, Nick Hu <nickhu@andestech.com>, Ley Foon Tan <ley.foon.tan@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Guan Xuetao <gxt@pku.edu.cn>, Dave Hansen <dave.hansen@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, Rob Springer <rspringer@google.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-There are many places where all basic VMA access flags (read, write, exec)
-are initialized or checked against as a group. One such example is during
-page fault. Existing vma_is_accessible() wrapper already creates the notion
-of VMA accessibility as a group access permissions. Hence lets just create
-VM_ACCESS_FLAGS (VM_READ|VM_WRITE|VM_EXEC) which will not only reduce code
-duplication but also extend the VMA accessibility concept in general.
+We're down to a single bit flag for MAC-address related status, reflect
+that in the info struct.
+Also set up the flag during initialization instead of clearing it during
+shutdown - one more little step towards unifying the shutdown code.
 
-Cc: Russell King <linux@armlinux.org.uk>
-CC: Catalin Marinas <catalin.marinas@arm.com>
-CC: Mark Salter <msalter@redhat.com>
-Cc: Nick Hu <nickhu@andestech.com>
-CC: Ley Foon Tan <ley.foon.tan@intel.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Guan Xuetao <gxt@pku.edu.cn>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Rob Springer <rspringer@google.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: devel@driverdev.osuosl.org
-Cc: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/arm/mm/fault.c                  | 2 +-
- arch/arm64/mm/fault.c                | 2 +-
- arch/nds32/mm/fault.c                | 2 +-
- arch/powerpc/mm/book3s64/pkeys.c     | 2 +-
- arch/s390/mm/fault.c                 | 2 +-
- arch/unicore32/mm/fault.c            | 2 +-
- arch/x86/mm/pkeys.c                  | 2 +-
- drivers/staging/gasket/gasket_core.c | 2 +-
- include/linux/mm.h                   | 6 +++++-
- mm/mmap.c                            | 2 +-
- mm/mprotect.c                        | 4 ++--
- 11 files changed, 16 insertions(+), 12 deletions(-)
+ drivers/s390/net/qeth_core.h    |  3 +--
+ drivers/s390/net/qeth_l2_main.c | 13 +++++++------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index bd0f4821f7e1..2c71028d9d6b 100644
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -189,7 +189,7 @@ void do_bad_area(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
-  */
- static inline bool access_error(unsigned int fsr, struct vm_area_struct *vma)
- {
--	unsigned int mask = VM_READ | VM_WRITE | VM_EXEC;
-+	unsigned int mask = VM_ACCESS_FLAGS;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 257b7f3c5558..911dcef6adc6 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -668,18 +668,17 @@ struct qeth_card_blkt {
  
- 	if ((fsr & FSR_WRITE) && !(fsr & FSR_CM))
- 		mask = VM_WRITE;
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index 85566d32958f..63f31206a12e 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -445,7 +445,7 @@ static int __kprobes do_page_fault(unsigned long addr, unsigned int esr,
- 	const struct fault_info *inf;
- 	struct mm_struct *mm = current->mm;
- 	vm_fault_t fault, major = 0;
--	unsigned long vm_flags = VM_READ | VM_WRITE | VM_EXEC;
-+	unsigned long vm_flags = VM_ACCESS_FLAGS;
- 	unsigned int mm_flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
- 
- 	if (kprobe_page_fault(regs, esr))
-diff --git a/arch/nds32/mm/fault.c b/arch/nds32/mm/fault.c
-index 906dfb25353c..55387a31bf42 100644
---- a/arch/nds32/mm/fault.c
-+++ b/arch/nds32/mm/fault.c
-@@ -79,7 +79,7 @@ void do_page_fault(unsigned long entry, unsigned long addr,
- 	struct vm_area_struct *vma;
- 	int si_code;
- 	vm_fault_t fault;
--	unsigned int mask = VM_READ | VM_WRITE | VM_EXEC;
-+	unsigned int mask = VM_ACCESS_FLAGS;
- 	unsigned int flags = FAULT_FLAG_ALLOW_RETRY | FAULT_FLAG_KILLABLE;
- 
- 	error_code = error_code & (ITYPE_mskINST | ITYPE_mskETYPE);
-diff --git a/arch/powerpc/mm/book3s64/pkeys.c b/arch/powerpc/mm/book3s64/pkeys.c
-index 59e0ebbd8036..11fd52b24f68 100644
---- a/arch/powerpc/mm/book3s64/pkeys.c
-+++ b/arch/powerpc/mm/book3s64/pkeys.c
-@@ -315,7 +315,7 @@ int __execute_only_pkey(struct mm_struct *mm)
- static inline bool vma_is_pkey_exec_only(struct vm_area_struct *vma)
- {
- 	/* Do this check first since the vm_flags should be hot */
--	if ((vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC)) != VM_EXEC)
-+	if ((vma->vm_flags & VM_ACCESS_FLAGS) != VM_EXEC)
- 		return false;
- 
- 	return (vma_pkey(vma) == vma->vm_mm->context.execute_only_pkey);
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 7b0bb475c166..b2cb3c0d0e1a 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -584,7 +584,7 @@ void do_dat_exception(struct pt_regs *regs)
- 	int access;
- 	vm_fault_t fault;
- 
--	access = VM_READ | VM_EXEC | VM_WRITE;
-+	access = VM_ACCESS_FLAGS;
- 	fault = do_exception(regs, access);
- 	if (unlikely(fault))
- 		do_fault_error(regs, access, fault);
-diff --git a/arch/unicore32/mm/fault.c b/arch/unicore32/mm/fault.c
-index 76342de9cf8c..fc27c274d358 100644
---- a/arch/unicore32/mm/fault.c
-+++ b/arch/unicore32/mm/fault.c
-@@ -149,7 +149,7 @@ void do_bad_area(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
-  */
- static inline bool access_error(unsigned int fsr, struct vm_area_struct *vma)
- {
--	unsigned int mask = VM_READ | VM_WRITE | VM_EXEC;
-+	unsigned int mask = VM_ACCESS_FLAGS;
- 
- 	if (!(fsr ^ 0x12))	/* write? */
- 		mask = VM_WRITE;
-diff --git a/arch/x86/mm/pkeys.c b/arch/x86/mm/pkeys.c
-index c6f84c0b5d7a..8873ed1438a9 100644
---- a/arch/x86/mm/pkeys.c
-+++ b/arch/x86/mm/pkeys.c
-@@ -63,7 +63,7 @@ int __execute_only_pkey(struct mm_struct *mm)
- static inline bool vma_is_pkey_exec_only(struct vm_area_struct *vma)
- {
- 	/* Do this check first since the vm_flags should be hot */
--	if ((vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC)) != VM_EXEC)
-+	if ((vma->vm_flags & VM_ACCESS_FLAGS) != VM_EXEC)
- 		return false;
- 	if (vma_pkey(vma) != vma->vm_mm->context.execute_only_pkey)
- 		return false;
-diff --git a/drivers/staging/gasket/gasket_core.c b/drivers/staging/gasket/gasket_core.c
-index be6b50f454b4..81bb7d58dc49 100644
---- a/drivers/staging/gasket/gasket_core.c
-+++ b/drivers/staging/gasket/gasket_core.c
-@@ -689,7 +689,7 @@ static bool gasket_mmap_has_permissions(struct gasket_dev *gasket_dev,
- 
- 	/* Make sure that no wrong flags are set. */
- 	requested_permissions =
--		(vma->vm_flags & (VM_WRITE | VM_READ | VM_EXEC));
-+		(vma->vm_flags & VM_ACCESS_FLAGS);
- 	if (requested_permissions & ~(bar_permissions)) {
- 		dev_dbg(gasket_dev->dev,
- 			"Attempting to map a region with requested permissions "
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 3861524368a4..e89512f1c170 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -368,6 +368,10 @@ extern unsigned int kobjsize(const void *objp);
- 
- #define VM_STACK_FLAGS	(VM_STACK | VM_STACK_DEFAULT_FLAGS | VM_ACCOUNT)
- 
-+/* VMA basic access permission flags */
-+#define VM_ACCESS_FLAGS (VM_READ | VM_WRITE | VM_EXEC)
-+
-+
- /*
-  * Special vmas that are non-mergable, non-mlock()able.
-  * Note: mm/huge_memory.c VM_NO_THP depends on this definition.
-@@ -557,7 +561,7 @@ static inline bool vma_is_anonymous(struct vm_area_struct *vma)
- 
- static inline bool vma_is_accessible(struct vm_area_struct *vma)
- {
--	return vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC);
-+	return vma->vm_flags & VM_ACCESS_FLAGS;
+ #define QETH_BROADCAST_WITH_ECHO    0x01
+ #define QETH_BROADCAST_WITHOUT_ECHO 0x02
+-#define QETH_LAYER2_MAC_REGISTERED  0x02
+ struct qeth_card_info {
+ 	unsigned short unit_addr2;
+ 	unsigned short cula;
+ 	u8 chpid;
+ 	__u16 func_level;
+ 	char mcl_level[QETH_MCL_LENGTH + 1];
++	u8 dev_addr_is_registered:1;
+ 	u8 open_when_online:1;
+ 	u8 promisc_mode:1;
+ 	u8 use_v1_blkt:1;
+ 	u8 is_vm_nic:1;
+-	int mac_bits;
+ 	enum qeth_card_types type;
+ 	enum qeth_link_types link_type;
+ 	int broadcast_capable;
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 73cb363b1fab..249b00d91d46 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -291,7 +291,6 @@ static void qeth_l2_stop_card(struct qeth_card *card)
+ 	qeth_qdio_clear_card(card, 0);
+ 	qeth_clear_working_pool_list(card);
+ 	flush_workqueue(card->event_wq);
+-	card->info.mac_bits &= ~QETH_LAYER2_MAC_REGISTERED;
+ 	card->info.promisc_mode = 0;
  }
  
- #ifdef CONFIG_SHMEM
-diff --git a/mm/mmap.c b/mm/mmap.c
-index 0d295f49b24d..57f74ade19a0 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -1221,7 +1221,7 @@ static int anon_vma_compatible(struct vm_area_struct *a, struct vm_area_struct *
- 	return a->vm_end == b->vm_start &&
- 		mpol_equal(vma_policy(a), vma_policy(b)) &&
- 		a->vm_file == b->vm_file &&
--		!((a->vm_flags ^ b->vm_flags) & ~(VM_READ|VM_WRITE|VM_EXEC|VM_SOFTDIRTY)) &&
-+		!((a->vm_flags ^ b->vm_flags) & ~(VM_ACCESS_FLAGS | VM_SOFTDIRTY)) &&
- 		b->vm_pgoff == a->vm_pgoff + ((b->vm_start - a->vm_start) >> PAGE_SHIFT);
+@@ -337,14 +336,16 @@ static void qeth_l2_register_dev_addr(struct qeth_card *card)
+ 		qeth_l2_request_initial_mac(card);
+ 
+ 	if (!IS_OSN(card) && !qeth_l2_send_setmac(card, card->dev->dev_addr))
+-		card->info.mac_bits |= QETH_LAYER2_MAC_REGISTERED;
++		card->info.dev_addr_is_registered = 1;
++	else
++		card->info.dev_addr_is_registered = 0;
  }
  
-diff --git a/mm/mprotect.c b/mm/mprotect.c
-index 7a8e84f86831..8fbb7e7c08a5 100644
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -359,7 +359,7 @@ mprotect_fixup(struct vm_area_struct *vma, struct vm_area_struct **pprev,
- 	 */
- 	if (arch_has_pfn_modify_check() &&
- 	    (vma->vm_flags & (VM_PFNMAP|VM_MIXEDMAP)) &&
--	    (newflags & (VM_READ|VM_WRITE|VM_EXEC)) == 0) {
-+	    (newflags & VM_ACCESS_FLAGS) == 0) {
- 		pgprot_t new_pgprot = vm_get_page_prot(newflags);
+ static int qeth_l2_validate_addr(struct net_device *dev)
+ {
+ 	struct qeth_card *card = dev->ml_priv;
  
- 		error = walk_page_range(current->mm, start, end,
-@@ -538,7 +538,7 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
- 		newflags |= (vma->vm_flags & ~mask_off_old_flags);
+-	if (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED)
++	if (card->info.dev_addr_is_registered)
+ 		return eth_validate_addr(dev);
  
- 		/* newflags >> 4 shift VM_MAY% in place of VM_% */
--		if ((newflags & ~(newflags >> 4)) & (VM_READ | VM_WRITE | VM_EXEC)) {
-+		if ((newflags & ~(newflags >> 4)) & VM_ACCESS_FLAGS) {
- 			error = -EACCES;
- 			goto out;
- 		}
+ 	QETH_CARD_TEXT(card, 4, "nomacadr");
+@@ -370,7 +371,7 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
+ 
+ 	/* don't register the same address twice */
+ 	if (ether_addr_equal_64bits(dev->dev_addr, addr->sa_data) &&
+-	    (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED))
++	    card->info.dev_addr_is_registered)
+ 		return 0;
+ 
+ 	/* add the new address, switch over, drop the old */
+@@ -380,9 +381,9 @@ static int qeth_l2_set_mac_address(struct net_device *dev, void *p)
+ 	ether_addr_copy(old_addr, dev->dev_addr);
+ 	ether_addr_copy(dev->dev_addr, addr->sa_data);
+ 
+-	if (card->info.mac_bits & QETH_LAYER2_MAC_REGISTERED)
++	if (card->info.dev_addr_is_registered)
+ 		qeth_l2_remove_mac(card, old_addr);
+-	card->info.mac_bits |= QETH_LAYER2_MAC_REGISTERED;
++	card->info.dev_addr_is_registered = 1;
+ 	return 0;
+ }
+ 
 -- 
-2.20.1
+2.17.1
