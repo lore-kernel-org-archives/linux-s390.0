@@ -1,99 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55322 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726328AbgCLSPi (ORCPT
+Received: from us-smtp-delivery-74.mimecast.com ([216.205.24.74]:58702 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727272AbgCXMYu (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Mar 2020 14:15:38 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CIEWDa136479
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 14:15:37 -0400
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqt6dg1k6-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 14:15:37 -0400
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Thu, 12 Mar 2020 17:45:19 -0000
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 01/10] zfcp: fix missing erp_lock in port recovery trigger for point-to-point
-Date: Thu, 12 Mar 2020 18:44:56 +0100
-In-Reply-To: <20200312174505.51294-1-maier@linux.ibm.com>
-References: <20200312174505.51294-1-maier@linux.ibm.com>
-Message-Id: <20200312174505.51294-2-maier@linux.ibm.com>
+        Tue, 24 Mar 2020 08:24:50 -0400
+Date: Tue, 24 Mar 2020 13:24:40 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH 10/10] s390x: Fix library constant
+ definitions
+Message-ID: <20200324132440.0cc4173c.cohuck@redhat.com>
+In-Reply-To: <20200324081251.28810-11-frankja@linux.ibm.com>
+References: <20200324081251.28810-1-frankja@linux.ibm.com>
+        <20200324081251.28810-11-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, stable@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com
 
-v2.6.27 commit cc8c282963bd ("[SCSI] zfcp: Automatically attach remote
-ports") introduced zfcp automatic port scan.
+On Tue, 24 Mar 2020 04:12:51 -0400
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Before that, the user had to use the sysfs attribute "port_add" of an
-FCP device (adapter) to add and open remote (target) ports, even for
-the remote peer port in point-to-point topology. That code path did a
-proper port open recovery trigger taking the erp_lock.
+> Seems like I uppercased the whole region instead of only the ULs when
+> I added those definitions. Lets make the x lowercase again.
 
-Since above commit, a new helper function zfcp_erp_open_ptp_port()
-performed an UNlocked port open recovery trigger. This can race with
-other parallel recovery triggers. In zfcp_erp_action_enqueue() this could
-corrupt e.g. adapter->erp_total_count or adapter->erp_ready_head.
+s/Lets/Let's/ :)
 
-As already found for fabric topology in v4.17 commit fa89adba1941
-("scsi: zfcp: fix infinite iteration on ERP ready list"), there was
-an endless loop during tracing of rport (un)block.
-A subsequent v4.18 commit 9e156c54ace3 ("scsi: zfcp: assert that the
-ERP lock is held when tracing a recovery trigger") introduced a lockdep
-assertion for that case.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/asm/arch_def.h | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 
-As a side effect, that lockdep assertion now uncovered the unlocked
-code path for PtP. It is from within an adapter ERP action:
-
-zfcp_erp_strategy[1479]  intentionally DROPs erp lock around
-                         zfcp_erp_strategy_do_action()
-zfcp_erp_strategy_do_action[1441]      NO erp lock
-zfcp_erp_adapter_strategy[876]         NO erp lock
-zfcp_erp_adapter_strategy_open[855]    NO erp lock
-zfcp_erp_adapter_strategy_open_fsf[806]NO erp lock
-zfcp_erp_adapter_strat_fsf_xconf[772]  erp lock only around
-                                       zfcp_erp_action_to_running(),
-                                       BUT *_not_* around
-                                       zfcp_erp_enqueue_ptp_port()
-zfcp_erp_enqueue_ptp_port[728]         BUG: *_not_* taking erp lock
-_zfcp_erp_port_reopen[432]             assumes to be called with erp lock
-zfcp_erp_action_enqueue[314]           assumes to be called with erp lock
-zfcp_dbf_rec_trig[288]                 _checks_ to be called with erp lock:
-	lockdep_assert_held(&adapter->erp_lock);
-
-It causes the following lockdep warning:
-
-WARNING: CPU: 2 PID: 775 at drivers/s390/scsi/zfcp_dbf.c:288
-                            zfcp_dbf_rec_trig+0x16a/0x188
-no locks held by zfcperp0.0.17c0/775.
-
-Fix this by using the proper locked recovery trigger helper function.
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: cc8c282963bd ("[SCSI] zfcp: Automatically attach remote ports")
-Cc: <stable@vger.kernel.org> #v2.6.27+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
----
- drivers/s390/scsi/zfcp_erp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index 93655b85b73f..18a6751299f9 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -725,7 +725,7 @@ static void zfcp_erp_enqueue_ptp_port(struct zfcp_adapter *adapter)
- 				 adapter->peer_d_id);
- 	if (IS_ERR(port)) /* error or port already attached */
- 		return;
--	_zfcp_erp_port_reopen(port, 0, "ereptp1");
-+	zfcp_erp_port_reopen(port, 0, "ereptp1");
- }
- 
- static enum zfcp_erp_act_result zfcp_erp_adapter_strat_fsf_xconf(
--- 
-2.17.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
