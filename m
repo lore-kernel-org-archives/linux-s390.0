@@ -1,305 +1,210 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 3 Mar 2020 10:52:10 +0100
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH v3 3/7] x86/mm: Thread pgprot_t through
- init_memory_mapping()
-Message-ID: <20200303095210.GG4380@dhcp22.suse.cz>
-References: <20200221182503.28317-1-logang@deltatee.com>
- <20200221182503.28317-4-logang@deltatee.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12162 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727464AbgCXMuj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Mar 2020 08:50:39 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02OCmUAA102131
+        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 08:50:38 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2ywbuvcg2s-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 24 Mar 2020 08:50:38 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Tue, 24 Mar 2020 12:50:34 -0000
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/2] KVM: s390: Use fallthrough;
+Date: Tue, 24 Mar 2020 13:50:29 +0100
+In-Reply-To: <20200324125030.323689-1-borntraeger@de.ibm.com>
+References: <20200324125030.323689-1-borntraeger@de.ibm.com>
+Message-Id: <20200324125030.323689-2-borntraeger@de.ibm.com>
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200221182503.28317-4-logang@deltatee.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Joe Perches <joe@perches.com>
 
-On Fri 21-02-20 11:24:59, Logan Gunthorpe wrote:
-> In prepartion to support a pgprot_t argument for arch_add_memory().
-> 
-> It's required to move the prototype of init_memory_mapping() seeing
-> the original location came before the definition of pgprot_t.
-> 
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Borislav Petkov <bp@alien8.de>
-> Cc: "H. Peter Anvin" <hpa@zytor.com>
-> Cc: x86@kernel.org
-> Cc: Dave Hansen <dave.hansen@linux.intel.com>
-> Cc: Andy Lutomirski <luto@kernel.org>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+From: Joe Perches <joe@perches.com>
 
-Acked-by: Michal Hocko <mhocko@suse.com>
+Convert the various uses of fallthrough comments to fallthrough;
 
-> ---
->  arch/x86/include/asm/page_types.h |  3 ---
->  arch/x86/include/asm/pgtable.h    |  3 +++
->  arch/x86/kernel/amd_gart_64.c     |  3 ++-
->  arch/x86/mm/init.c                |  9 +++++----
->  arch/x86/mm/init_32.c             |  3 ++-
->  arch/x86/mm/init_64.c             | 32 +++++++++++++++++--------------
->  arch/x86/mm/mm_internal.h         |  3 ++-
->  arch/x86/platform/uv/bios_uv.c    |  3 ++-
->  8 files changed, 34 insertions(+), 25 deletions(-)
-> 
-> diff --git a/arch/x86/include/asm/page_types.h b/arch/x86/include/asm/page_types.h
-> index c85e15010f48..bf7aa2e290ef 100644
-> --- a/arch/x86/include/asm/page_types.h
-> +++ b/arch/x86/include/asm/page_types.h
-> @@ -73,9 +73,6 @@ static inline phys_addr_t get_max_mapped(void)
->  
->  bool pfn_range_is_mapped(unsigned long start_pfn, unsigned long end_pfn);
->  
-> -extern unsigned long init_memory_mapping(unsigned long start,
-> -					 unsigned long end);
-> -
->  extern void initmem_init(void);
->  
->  #endif	/* !__ASSEMBLY__ */
-> diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-> index 7e118660bbd9..48d6a5960f28 100644
-> --- a/arch/x86/include/asm/pgtable.h
-> +++ b/arch/x86/include/asm/pgtable.h
-> @@ -1046,6 +1046,9 @@ static inline void __meminit init_trampoline_default(void)
->  
->  void __init poking_init(void);
->  
-> +unsigned long init_memory_mapping(unsigned long start,
-> +				  unsigned long end, pgprot_t prot);
-> +
->  # ifdef CONFIG_RANDOMIZE_MEMORY
->  void __meminit init_trampoline(void);
->  # else
-> diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
-> index 4e5f50236048..16133819415c 100644
-> --- a/arch/x86/kernel/amd_gart_64.c
-> +++ b/arch/x86/kernel/amd_gart_64.c
-> @@ -744,7 +744,8 @@ int __init gart_iommu_init(void)
->  
->  	start_pfn = PFN_DOWN(aper_base);
->  	if (!pfn_range_is_mapped(start_pfn, end_pfn))
-> -		init_memory_mapping(start_pfn<<PAGE_SHIFT, end_pfn<<PAGE_SHIFT);
-> +		init_memory_mapping(start_pfn<<PAGE_SHIFT, end_pfn<<PAGE_SHIFT,
-> +				    PAGE_KERNEL);
->  
->  	pr_info("PCI-DMA: using GART IOMMU.\n");
->  	iommu_size = check_iommu_size(info.aper_base, aper_size);
-> diff --git a/arch/x86/mm/init.c b/arch/x86/mm/init.c
-> index e7bb483557c9..1bba16c5742b 100644
-> --- a/arch/x86/mm/init.c
-> +++ b/arch/x86/mm/init.c
-> @@ -467,7 +467,7 @@ bool pfn_range_is_mapped(unsigned long start_pfn, unsigned long end_pfn)
->   * the physical memory. To access them they are temporarily mapped.
->   */
->  unsigned long __ref init_memory_mapping(unsigned long start,
-> -					       unsigned long end)
-> +					unsigned long end, pgprot_t prot)
->  {
->  	struct map_range mr[NR_RANGE_MR];
->  	unsigned long ret = 0;
-> @@ -481,7 +481,8 @@ unsigned long __ref init_memory_mapping(unsigned long start,
->  
->  	for (i = 0; i < nr_range; i++)
->  		ret = kernel_physical_mapping_init(mr[i].start, mr[i].end,
-> -						   mr[i].page_size_mask);
-> +						   mr[i].page_size_mask,
-> +						   prot);
->  
->  	add_pfn_range_mapped(start >> PAGE_SHIFT, ret >> PAGE_SHIFT);
->  
-> @@ -521,7 +522,7 @@ static unsigned long __init init_range_memory_mapping(
->  		 */
->  		can_use_brk_pgt = max(start, (u64)pgt_buf_end<<PAGE_SHIFT) >=
->  				    min(end, (u64)pgt_buf_top<<PAGE_SHIFT);
-> -		init_memory_mapping(start, end);
-> +		init_memory_mapping(start, end, PAGE_KERNEL);
->  		mapped_ram_size += end - start;
->  		can_use_brk_pgt = true;
->  	}
-> @@ -661,7 +662,7 @@ void __init init_mem_mapping(void)
->  #endif
->  
->  	/* the ISA range is always mapped regardless of memory holes */
-> -	init_memory_mapping(0, ISA_END_ADDRESS);
-> +	init_memory_mapping(0, ISA_END_ADDRESS, PAGE_KERNEL);
->  
->  	/* Init the trampoline, possibly with KASLR memory offset */
->  	init_trampoline();
-> diff --git a/arch/x86/mm/init_32.c b/arch/x86/mm/init_32.c
-> index 3ec3dac7c268..e25a4218e6ff 100644
-> --- a/arch/x86/mm/init_32.c
-> +++ b/arch/x86/mm/init_32.c
-> @@ -253,7 +253,8 @@ static inline int is_kernel_text(unsigned long addr)
->  unsigned long __init
->  kernel_physical_mapping_init(unsigned long start,
->  			     unsigned long end,
-> -			     unsigned long page_size_mask)
-> +			     unsigned long page_size_mask,
-> +			     pgprot_t prot)
->  {
->  	int use_pse = page_size_mask == (1<<PG_LEVEL_2M);
->  	unsigned long last_map_addr = end;
-> diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-> index 87977a8bfbbf..9e7692080dda 100644
-> --- a/arch/x86/mm/init_64.c
-> +++ b/arch/x86/mm/init_64.c
-> @@ -585,7 +585,7 @@ phys_pmd_init(pmd_t *pmd_page, unsigned long paddr, unsigned long paddr_end,
->   */
->  static unsigned long __meminit
->  phys_pud_init(pud_t *pud_page, unsigned long paddr, unsigned long paddr_end,
-> -	      unsigned long page_size_mask, bool init)
-> +	      unsigned long page_size_mask, pgprot_t _prot, bool init)
->  {
->  	unsigned long pages = 0, paddr_next;
->  	unsigned long paddr_last = paddr_end;
-> @@ -595,7 +595,7 @@ phys_pud_init(pud_t *pud_page, unsigned long paddr, unsigned long paddr_end,
->  	for (; i < PTRS_PER_PUD; i++, paddr = paddr_next) {
->  		pud_t *pud;
->  		pmd_t *pmd;
-> -		pgprot_t prot = PAGE_KERNEL;
-> +		pgprot_t prot = _prot;
->  
->  		vaddr = (unsigned long)__va(paddr);
->  		pud = pud_page + pud_index(vaddr);
-> @@ -644,9 +644,12 @@ phys_pud_init(pud_t *pud_page, unsigned long paddr, unsigned long paddr_end,
->  		if (page_size_mask & (1<<PG_LEVEL_1G)) {
->  			pages++;
->  			spin_lock(&init_mm.page_table_lock);
-> +
-> +			prot = __pgprot(pgprot_val(prot) | __PAGE_KERNEL_LARGE);
-> +
->  			set_pte_init((pte_t *)pud,
->  				     pfn_pte((paddr & PUD_MASK) >> PAGE_SHIFT,
-> -					     PAGE_KERNEL_LARGE),
-> +					     prot),
->  				     init);
->  			spin_unlock(&init_mm.page_table_lock);
->  			paddr_last = paddr_next;
-> @@ -669,7 +672,7 @@ phys_pud_init(pud_t *pud_page, unsigned long paddr, unsigned long paddr_end,
->  
->  static unsigned long __meminit
->  phys_p4d_init(p4d_t *p4d_page, unsigned long paddr, unsigned long paddr_end,
-> -	      unsigned long page_size_mask, bool init)
-> +	      unsigned long page_size_mask, pgprot_t prot, bool init)
->  {
->  	unsigned long vaddr, vaddr_end, vaddr_next, paddr_next, paddr_last;
->  
-> @@ -679,7 +682,7 @@ phys_p4d_init(p4d_t *p4d_page, unsigned long paddr, unsigned long paddr_end,
->  
->  	if (!pgtable_l5_enabled())
->  		return phys_pud_init((pud_t *) p4d_page, paddr, paddr_end,
-> -				     page_size_mask, init);
-> +				     page_size_mask, prot, init);
->  
->  	for (; vaddr < vaddr_end; vaddr = vaddr_next) {
->  		p4d_t *p4d = p4d_page + p4d_index(vaddr);
-> @@ -702,13 +705,13 @@ phys_p4d_init(p4d_t *p4d_page, unsigned long paddr, unsigned long paddr_end,
->  		if (!p4d_none(*p4d)) {
->  			pud = pud_offset(p4d, 0);
->  			paddr_last = phys_pud_init(pud, paddr, __pa(vaddr_end),
-> -					page_size_mask, init);
-> +					page_size_mask, prot, init);
->  			continue;
->  		}
->  
->  		pud = alloc_low_page();
->  		paddr_last = phys_pud_init(pud, paddr, __pa(vaddr_end),
-> -					   page_size_mask, init);
-> +					   page_size_mask, prot, init);
->  
->  		spin_lock(&init_mm.page_table_lock);
->  		p4d_populate_init(&init_mm, p4d, pud, init);
-> @@ -722,7 +725,7 @@ static unsigned long __meminit
->  __kernel_physical_mapping_init(unsigned long paddr_start,
->  			       unsigned long paddr_end,
->  			       unsigned long page_size_mask,
-> -			       bool init)
-> +			       pgprot_t prot, bool init)
->  {
->  	bool pgd_changed = false;
->  	unsigned long vaddr, vaddr_start, vaddr_end, vaddr_next, paddr_last;
-> @@ -743,13 +746,13 @@ __kernel_physical_mapping_init(unsigned long paddr_start,
->  			paddr_last = phys_p4d_init(p4d, __pa(vaddr),
->  						   __pa(vaddr_end),
->  						   page_size_mask,
-> -						   init);
-> +						   prot, init);
->  			continue;
->  		}
->  
->  		p4d = alloc_low_page();
->  		paddr_last = phys_p4d_init(p4d, __pa(vaddr), __pa(vaddr_end),
-> -					   page_size_mask, init);
-> +					   page_size_mask, prot, init);
->  
->  		spin_lock(&init_mm.page_table_lock);
->  		if (pgtable_l5_enabled())
-> @@ -778,10 +781,10 @@ __kernel_physical_mapping_init(unsigned long paddr_start,
->  unsigned long __meminit
->  kernel_physical_mapping_init(unsigned long paddr_start,
->  			     unsigned long paddr_end,
-> -			     unsigned long page_size_mask)
-> +			     unsigned long page_size_mask, pgprot_t prot)
->  {
->  	return __kernel_physical_mapping_init(paddr_start, paddr_end,
-> -					      page_size_mask, true);
-> +					      page_size_mask, prot, true);
->  }
->  
->  /*
-> @@ -796,7 +799,8 @@ kernel_physical_mapping_change(unsigned long paddr_start,
->  			       unsigned long page_size_mask)
->  {
->  	return __kernel_physical_mapping_init(paddr_start, paddr_end,
-> -					      page_size_mask, false);
-> +					      page_size_mask, PAGE_KERNEL,
-> +					      false);
->  }
->  
->  #ifndef CONFIG_NUMA
-> @@ -864,7 +868,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
->  	unsigned long start_pfn = start >> PAGE_SHIFT;
->  	unsigned long nr_pages = size >> PAGE_SHIFT;
->  
-> -	init_memory_mapping(start, start + size);
-> +	init_memory_mapping(start, start + size, PAGE_KERNEL);
->  
->  	return add_pages(nid, start_pfn, nr_pages, params);
->  }
-> diff --git a/arch/x86/mm/mm_internal.h b/arch/x86/mm/mm_internal.h
-> index eeae142062ed..3f37b5c80bb3 100644
-> --- a/arch/x86/mm/mm_internal.h
-> +++ b/arch/x86/mm/mm_internal.h
-> @@ -12,7 +12,8 @@ void early_ioremap_page_table_range_init(void);
->  
->  unsigned long kernel_physical_mapping_init(unsigned long start,
->  					     unsigned long end,
-> -					     unsigned long page_size_mask);
-> +					     unsigned long page_size_mask,
-> +					     pgprot_t prot);
->  unsigned long kernel_physical_mapping_change(unsigned long start,
->  					     unsigned long end,
->  					     unsigned long page_size_mask);
-> diff --git a/arch/x86/platform/uv/bios_uv.c b/arch/x86/platform/uv/bios_uv.c
-> index 607f58147311..c60255da5a6c 100644
-> --- a/arch/x86/platform/uv/bios_uv.c
-> +++ b/arch/x86/platform/uv/bios_uv.c
-> @@ -352,7 +352,8 @@ void __iomem *__init efi_ioremap(unsigned long phys_addr, unsigned long size,
->  	if (type == EFI_MEMORY_MAPPED_IO)
->  		return ioremap(phys_addr, size);
->  
-> -	last_map_pfn = init_memory_mapping(phys_addr, phys_addr + size);
-> +	last_map_pfn = init_memory_mapping(phys_addr, phys_addr + size,
-> +					   PAGE_KERNEL);
->  	if ((last_map_pfn << PAGE_SHIFT) < phys_addr + size) {
->  		unsigned long top = last_map_pfn << PAGE_SHIFT;
->  		efi_ioremap(top, size - (top - phys_addr), type, attribute);
-> -- 
-> 2.20.1
-> 
+Done via script
+Link: https://lore.kernel.org/lkml/b56602fcf79f849e733e7b521bb0e17895d390fa.1582230379.git.joe@perches.com
 
+Signed-off-by: Joe Perches <joe@perches.com>
+Link: https://lore.kernel.org/r/d63c86429f3e5aa806aa3e185c97d213904924a5.1583896348.git.joe@perches.com
+[borntrager@de.ibm.com: Fix link to tool and subject]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/kvm/gaccess.c   | 23 +++++++++++++----------
+ arch/s390/kvm/interrupt.c |  2 +-
+ arch/s390/kvm/kvm-s390.c  |  4 ++--
+ arch/s390/mm/gmap.c       |  6 +++---
+ 4 files changed, 19 insertions(+), 16 deletions(-)
+
+diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
+index 07d30ffcfa41..47a67a958107 100644
+--- a/arch/s390/kvm/gaccess.c
++++ b/arch/s390/kvm/gaccess.c
+@@ -505,7 +505,7 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
+ 		switch (prot) {
+ 		case PROT_TYPE_IEP:
+ 			tec->b61 = 1;
+-			/* FALL THROUGH */
++			fallthrough;
+ 		case PROT_TYPE_LA:
+ 			tec->b56 = 1;
+ 			break;
+@@ -514,12 +514,12 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
+ 			break;
+ 		case PROT_TYPE_ALC:
+ 			tec->b60 = 1;
+-			/* FALL THROUGH */
++			fallthrough;
+ 		case PROT_TYPE_DAT:
+ 			tec->b61 = 1;
+ 			break;
+ 		}
+-		/* FALL THROUGH */
++		fallthrough;
+ 	case PGM_ASCE_TYPE:
+ 	case PGM_PAGE_TRANSLATION:
+ 	case PGM_REGION_FIRST_TRANS:
+@@ -534,7 +534,7 @@ static int trans_exc(struct kvm_vcpu *vcpu, int code, unsigned long gva,
+ 		tec->addr = gva >> PAGE_SHIFT;
+ 		tec->fsi = mode == GACC_STORE ? FSI_STORE : FSI_FETCH;
+ 		tec->as = psw_bits(vcpu->arch.sie_block->gpsw).as;
+-		/* FALL THROUGH */
++		fallthrough;
+ 	case PGM_ALEN_TRANSLATION:
+ 	case PGM_ALE_SEQUENCE:
+ 	case PGM_ASTE_VALIDITY:
+@@ -677,7 +677,7 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
+ 			dat_protection |= rfte.p;
+ 		ptr = rfte.rto * PAGE_SIZE + vaddr.rsx * 8;
+ 	}
+-		/* fallthrough */
++		fallthrough;
+ 	case ASCE_TYPE_REGION2: {
+ 		union region2_table_entry rste;
+ 
+@@ -695,7 +695,7 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
+ 			dat_protection |= rste.p;
+ 		ptr = rste.rto * PAGE_SIZE + vaddr.rtx * 8;
+ 	}
+-		/* fallthrough */
++		fallthrough;
+ 	case ASCE_TYPE_REGION3: {
+ 		union region3_table_entry rtte;
+ 
+@@ -723,7 +723,7 @@ static unsigned long guest_translate(struct kvm_vcpu *vcpu, unsigned long gva,
+ 			dat_protection |= rtte.fc0.p;
+ 		ptr = rtte.fc0.sto * PAGE_SIZE + vaddr.sx * 8;
+ 	}
+-		/* fallthrough */
++		fallthrough;
+ 	case ASCE_TYPE_SEGMENT: {
+ 		union segment_table_entry ste;
+ 
+@@ -1050,7 +1050,8 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 		rc = gmap_shadow_r2t(sg, saddr, rfte.val, *fake);
+ 		if (rc)
+ 			return rc;
+-	} /* fallthrough */
++	}
++		fallthrough;
+ 	case ASCE_TYPE_REGION2: {
+ 		union region2_table_entry rste;
+ 
+@@ -1076,7 +1077,8 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 		rc = gmap_shadow_r3t(sg, saddr, rste.val, *fake);
+ 		if (rc)
+ 			return rc;
+-	} /* fallthrough */
++	}
++		fallthrough;
+ 	case ASCE_TYPE_REGION3: {
+ 		union region3_table_entry rtte;
+ 
+@@ -1111,7 +1113,8 @@ static int kvm_s390_shadow_tables(struct gmap *sg, unsigned long saddr,
+ 		rc = gmap_shadow_sgt(sg, saddr, rtte.val, *fake);
+ 		if (rc)
+ 			return rc;
+-	} /* fallthrough */
++	}
++		fallthrough;
+ 	case ASCE_TYPE_SEGMENT: {
+ 		union segment_table_entry ste;
+ 
+diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
+index 028167d6eacd..8191106bf7b9 100644
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -886,7 +886,7 @@ static int __must_check __deliver_prog(struct kvm_vcpu *vcpu)
+ 	case PGM_PRIMARY_AUTHORITY:
+ 	case PGM_SECONDARY_AUTHORITY:
+ 		nullifying = true;
+-		/* fall through */
++		fallthrough;
+ 	case PGM_SPACE_SWITCH:
+ 		rc = put_guest_lc(vcpu, pgm_info.trans_exc_code,
+ 				  (u64 *)__LC_TRANS_EXC_CODE);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 6b1842a9feed..d590f32f13d3 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3752,7 +3752,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+ 		rc = kvm_s390_pv_set_cpu_state(vcpu, PV_CPU_STATE_OPR_LOAD);
+ 		break;
+ 	case KVM_MP_STATE_CHECK_STOP:
+-		/* fall through - CHECK_STOP and LOAD are not supported yet */
++		fallthrough;	/* CHECK_STOP and LOAD are not supported yet */
+ 	default:
+ 		rc = -ENXIO;
+ 	}
+@@ -4985,7 +4985,7 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
+ 					old->npages * PAGE_SIZE);
+ 		if (rc)
+ 			break;
+-		/* FALLTHROUGH */
++		fallthrough;
+ 	case KVM_MR_CREATE:
+ 		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
+ 				      mem->guest_phys_addr, mem->memory_size);
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 27926a06df32..03c899849c38 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -804,7 +804,7 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
+ 		if (*table & _REGION_ENTRY_INVALID)
+ 			return NULL;
+ 		table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
+-		/* Fallthrough */
++		fallthrough;
+ 	case _ASCE_TYPE_REGION2:
+ 		table += (gaddr & _REGION2_INDEX) >> _REGION2_SHIFT;
+ 		if (level == 3)
+@@ -812,7 +812,7 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
+ 		if (*table & _REGION_ENTRY_INVALID)
+ 			return NULL;
+ 		table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
+-		/* Fallthrough */
++		fallthrough;
+ 	case _ASCE_TYPE_REGION3:
+ 		table += (gaddr & _REGION3_INDEX) >> _REGION3_SHIFT;
+ 		if (level == 2)
+@@ -820,7 +820,7 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
+ 		if (*table & _REGION_ENTRY_INVALID)
+ 			return NULL;
+ 		table = (unsigned long *)(*table & _REGION_ENTRY_ORIGIN);
+-		/* Fallthrough */
++		fallthrough;
+ 	case _ASCE_TYPE_SEGMENT:
+ 		table += (gaddr & _SEGMENT_INDEX) >> _SEGMENT_SHIFT;
+ 		if (level == 1)
 -- 
-Michal Hocko
-SUSE Labs
+2.24.1
