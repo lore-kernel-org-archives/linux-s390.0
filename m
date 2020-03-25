@@ -1,110 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:43770 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725818AbgCEGuh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 5 Mar 2020 01:50:37 -0500
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH 0/2]  mm/vma: some new flags
-Date: Thu,  5 Mar 2020 12:20:12 +0530
-Message-Id: <1583391014-8170-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53158 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727558AbgCYJfT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 25 Mar 2020 05:35:19 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02P9XX12130844
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:17 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywet4p96t-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:17 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 25 Mar 2020 09:35:12 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 10/11] s390/qeth: keep track of fixed prio-queue configuration
+Date: Wed, 25 Mar 2020 10:35:06 +0100
+In-Reply-To: <20200325093507.20831-1-jwi@linux.ibm.com>
+References: <20200325093507.20831-1-jwi@linux.ibm.com>
+Message-Id: <20200325093507.20831-11-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: hughd@google.com, vbabka@suse.cz, Anshuman Khandual <anshuman.khandual@arm.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, uclinux-h8-devel@lists.sourceforge.jp, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, nios2-dev@lists.rocketboards.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-The motivation here is to consolidate VMA flag combinations commonly used
-across platforms and reduce code duplication while making it uncluttered
-in general.
+When a device is configured in prio-queue mode to pin all traffic onto
+a specific HW queue, treat this as a distinct variant of prio-queueing
+instead of QETH_NO_PRIO_QUEUEING.
 
-This first introduces a default VM_DATA_DEFAULT_FLAGS which platforms can
-easily fall back on without requiring to define any similar data flag
-combinations as they currently do. This also adds some more common data
-flag combinations which are generally used when the platforms decide to
-override the default.
+This corrects an error message from qeth_osa_set_output_queues() for
+devices configured in such a mode.
 
-The second patch consolidates VM_READ, VM_WRITE, VM_EXEC as VM_ACCESS_FLAGS
-extending the existing VMA accessibility concept via vma_is_accessibility().
-VM_ACCESS_FLAGS replaces many other instances which used check all three
-VMA access flags simultaneously.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core.h      | 1 +
+ drivers/s390/net/qeth_core_main.c | 2 ++
+ drivers/s390/net/qeth_core_sys.c  | 8 ++++----
+ 3 files changed, 7 insertions(+), 4 deletions(-)
 
-This series is based on v5.6-rc4 after applying these.
-
-1. https://patchwork.kernel.org/cover/11399319/
-2. https://patchwork.kernel.org/patch/11399379/
-
-Changes in V1:
-
-- Dropped the [PATCH 3/3] which was adding more vma_is_* wrappers
-- Used VM_DATA_FLAGS_EXEC for VM_DATA_DEFAULT_FLAGS instead per Vlastimil
-- Dropped init use cases for VM_ACCESS_FLAGS as suggested by Vlastimil
-
-Changes in RFC: (https://patchwork.kernel.org/project/linux-mm/list/?series=249733)
-
-Cc: linux-alpha@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-c6x-dev@linux-c6x.org
-Cc: uclinux-h8-devel@lists.sourceforge.jp
-Cc: linux-hexagon@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linux-m68k@lists.linux-m68k.org
-Cc: linux-mips@vger.kernel.org
-Cc: nios2-dev@lists.rocketboards.org
-Cc: openrisc@lists.librecores.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-riscv@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-um@lists.infradead.org
-Cc: linux-xtensa@linux-xtensa.org
-Cc: linux-mm@kvack.org
-
-Anshuman Khandual (2):
-  mm/vma: Define a default value for VM_DATA_DEFAULT_FLAGS
-  mm/vma: Introduce VM_ACCESS_FLAGS
-
- arch/alpha/include/asm/page.h        |  3 ---
- arch/arc/include/asm/page.h          |  2 +-
- arch/arm/include/asm/page.h          |  4 +---
- arch/arm/mm/fault.c                  |  2 +-
- arch/arm64/include/asm/page.h        |  4 +---
- arch/arm64/mm/fault.c                |  2 +-
- arch/c6x/include/asm/page.h          |  5 +----
- arch/csky/include/asm/page.h         |  3 ---
- arch/h8300/include/asm/page.h        |  2 --
- arch/hexagon/include/asm/page.h      |  3 +--
- arch/ia64/include/asm/page.h         |  5 +----
- arch/m68k/include/asm/page.h         |  3 ---
- arch/microblaze/include/asm/page.h   |  2 --
- arch/mips/include/asm/page.h         |  5 +----
- arch/nds32/include/asm/page.h        |  3 ---
- arch/nds32/mm/fault.c                |  2 +-
- arch/nios2/include/asm/page.h        |  3 +--
- arch/openrisc/include/asm/page.h     |  5 -----
- arch/parisc/include/asm/page.h       |  3 ---
- arch/powerpc/include/asm/page.h      |  9 ++-------
- arch/powerpc/include/asm/page_64.h   |  7 ++-----
- arch/powerpc/mm/book3s64/pkeys.c     |  2 +-
- arch/riscv/include/asm/page.h        |  3 +--
- arch/s390/include/asm/page.h         |  3 +--
- arch/s390/mm/fault.c                 |  2 +-
- arch/sh/include/asm/page.h           |  3 ---
- arch/sparc/include/asm/page_32.h     |  3 ---
- arch/sparc/include/asm/page_64.h     |  3 ---
- arch/unicore32/include/asm/page.h    |  3 ---
- arch/unicore32/mm/fault.c            |  2 +-
- arch/x86/include/asm/page_types.h    |  4 +---
- arch/x86/mm/pkeys.c                  |  2 +-
- arch/x86/um/asm/vm-flags.h           | 10 ++--------
- arch/xtensa/include/asm/page.h       |  3 ---
- drivers/staging/gasket/gasket_core.c |  2 +-
- include/linux/mm.h                   | 20 +++++++++++++++++++-
- mm/mmap.c                            |  2 +-
- mm/mprotect.c                        |  4 ++--
- 38 files changed, 47 insertions(+), 101 deletions(-)
-
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index a6553e78af08..5f85617bdce3 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -211,6 +211,7 @@ struct qeth_vnicc_info {
+ #define QETH_PRIO_Q_ING_TOS   2
+ #define QETH_PRIO_Q_ING_SKB   3
+ #define QETH_PRIO_Q_ING_VLAN  4
++#define QETH_PRIO_Q_ING_FIXED 5
+ 
+ /* Packing */
+ #define QETH_LOW_WATERMARK_PACK  2
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 0c9f1464a778..8713f1b821c1 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3646,6 +3646,8 @@ int qeth_get_priority_queue(struct qeth_card *card, struct sk_buff *skb)
+ 			return ~ntohs(veth->h_vlan_TCI) >>
+ 			       (VLAN_PRIO_SHIFT + 1) & 3;
+ 		break;
++	case QETH_PRIO_Q_ING_FIXED:
++		return card->qdio.default_out_queue;
+ 	default:
+ 		break;
+ 	}
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 533a7f26dbe1..d7e429f6631e 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -211,16 +211,16 @@ static ssize_t qeth_dev_prioqing_store(struct device *dev,
+ 		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_VLAN;
+ 		card->qdio.default_out_queue = QETH_DEFAULT_QUEUE;
+ 	} else if (sysfs_streq(buf, "no_prio_queueing:0")) {
+-		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
++		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_FIXED;
+ 		card->qdio.default_out_queue = 0;
+ 	} else if (sysfs_streq(buf, "no_prio_queueing:1")) {
+-		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
++		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_FIXED;
+ 		card->qdio.default_out_queue = 1;
+ 	} else if (sysfs_streq(buf, "no_prio_queueing:2")) {
+-		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
++		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_FIXED;
+ 		card->qdio.default_out_queue = 2;
+ 	} else if (sysfs_streq(buf, "no_prio_queueing:3")) {
+-		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
++		card->qdio.do_prio_queueing = QETH_PRIO_Q_ING_FIXED;
+ 		card->qdio.default_out_queue = 3;
+ 	} else if (sysfs_streq(buf, "no_prio_queueing")) {
+ 		card->qdio.do_prio_queueing = QETH_NO_PRIO_QUEUEING;
 -- 
-2.20.1
+2.17.1
