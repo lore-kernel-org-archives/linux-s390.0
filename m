@@ -1,149 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17772 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59046 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726387AbgCLR6W (ORCPT
+        by vger.kernel.org with ESMTP id S1725873AbgCYJVC (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 12 Mar 2020 13:58:22 -0400
+        Wed, 25 Mar 2020 05:21:02 -0400
 Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02CHtgx5088577
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:58:21 -0400
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02P93gPW001269
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:21:00 -0400
 Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yqskk8ts1-1
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywet4nstc-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 12 Mar 2020 13:58:17 -0400
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:21:00 -0400
 Received: from localhost
         by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <maier@linux.ibm.com>;
-        Thu, 12 Mar 2020 17:45:43 -0000
-From: Steffen Maier <maier@linux.ibm.com>
-Subject: [PATCH 10/10] zfcp: log FC Endpoint Security errors
-Date: Thu, 12 Mar 2020 18:45:05 +0100
-In-Reply-To: <20200312174505.51294-1-maier@linux.ibm.com>
-References: <20200312174505.51294-1-maier@linux.ibm.com>
-Message-Id: <20200312174505.51294-11-maier@linux.ibm.com>
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 25 Mar 2020 09:20:55 -0000
+Subject: Re: [PATCH net-next 01/11] s390/qeth: simplify RX buffer tracking
+References: <20200324182448.95362-1-jwi@linux.ibm.com>
+ <20200324182448.95362-2-jwi@linux.ibm.com>
+ <20200324.164326.639594724461733845.davem@davemloft.net>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Wed, 25 Mar 2020 10:20:54 +0100
+MIME-Version: 1.0
+In-Reply-To: <20200324.164326.639594724461733845.davem@davemloft.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <30d06ab8-ee58-0c58-aab2-f68254d9a232@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E . J . Bottomley" <jejb@linux.ibm.com>, "Martin K . Petersen" <martin.petersen@oracle.com>
-Cc: linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Jens Remus <jremus@linux.ibm.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, ubraun@linux.ibm.com
 
-From: Jens Remus <jremus@linux.ibm.com>
+On 25.03.20 00:43, David Miller wrote:
+> From: Julian Wiedmann <jwi@linux.ibm.com>
+> Date: Tue, 24 Mar 2020 19:24:38 +0100
+> 
+>> +#define QDIO_ELEMENT_NO(buf, element)	(element - &buf->element[0])
+> 
+> Maybe this works, but I would strongly suggest against using a CPP
+> macro argument that is the same name for the singleton element on
+> the left branch of the expression as the struct member name on
+> the right side of the element.
 
-Log any FC Endpoint Security errors to the kernel ring buffer with rate-
-limiting.
+Right you are, this would look a lot less fragile with some underscores.
 
-Signed-off-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
----
- drivers/s390/scsi/zfcp_fsf.c | 62 ++++++++++++++++++++++++++++++++++++
- drivers/s390/scsi/zfcp_fsf.h |  8 +++++
- 2 files changed, 70 insertions(+)
+> 
+> Furthermore, as far as I can tell this is only used in one location
+> in the code, and for such a simple expression that is excessive.
+> 
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index e8d0bf0ec10f..662ddbc74263 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -1647,6 +1647,62 @@ static void zfcp_fsf_log_port_fc_security(struct zfcp_port *port,
- 	port->connection_info_old = port->connection_info;
- }
- 
-+static void zfcp_fsf_log_security_error(const struct device *dev, u32 fsf_sqw0,
-+					u64 wwpn)
-+{
-+	switch (fsf_sqw0) {
-+
-+	/*
-+	 * Open Port command error codes
-+	 */
-+
-+	case FSF_SQ_SECURITY_REQUIRED:
-+		dev_warn_ratelimited(dev,
-+				     "FC Endpoint Security error: FC security is required but not supported or configured on remote port 0x%016llx\n",
-+				     wwpn);
-+		break;
-+	case FSF_SQ_SECURITY_TIMEOUT:
-+		dev_warn_ratelimited(dev,
-+				     "FC Endpoint Security error: a timeout prevented opening remote port 0x%016llx\n",
-+				     wwpn);
-+		break;
-+	case FSF_SQ_SECURITY_KM_UNAVAILABLE:
-+		dev_warn_ratelimited(dev,
-+				     "FC Endpoint Security error: opening remote port 0x%016llx failed because local and external key manager cannot communicate\n",
-+				     wwpn);
-+		break;
-+	case FSF_SQ_SECURITY_RKM_UNAVAILABLE:
-+		dev_warn_ratelimited(dev,
-+				     "FC Endpoint Security error: opening remote port 0x%016llx failed because it cannot communicate with the external key manager\n",
-+				     wwpn);
-+		break;
-+	case FSF_SQ_SECURITY_AUTH_FAILURE:
-+		dev_warn_ratelimited(dev,
-+				     "FC Endpoint Security error: the device could not verify the identity of remote port 0x%016llx\n",
-+				     wwpn);
-+		break;
-+
-+	/*
-+	 * Send FCP command error codes
-+	 */
-+
-+	case FSF_SQ_SECURITY_ENC_FAILURE:
-+		dev_warn_ratelimited(dev,
-+				     "FC Endpoint Security error: FC connection to remote port 0x%016llx closed because encryption broke down\n",
-+				     wwpn);
-+		break;
-+
-+	/*
-+	 * Unknown error codes
-+	 */
-+
-+	default:
-+		dev_warn_ratelimited(dev,
-+				     "FC Endpoint Security error: the device issued an unknown error code 0x%08x related to the FC connection to remote port 0x%016llx\n",
-+				     fsf_sqw0, wwpn);
-+	}
-+}
-+
- static void zfcp_fsf_open_port_handler(struct zfcp_fsf_req *req)
- {
- 	struct zfcp_adapter *adapter = req->adapter;
-@@ -1671,6 +1727,9 @@ static void zfcp_fsf_open_port_handler(struct zfcp_fsf_req *req)
- 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
- 		break;
- 	case FSF_SECURITY_ERROR:
-+		zfcp_fsf_log_security_error(&req->adapter->ccw_device->dev,
-+					    header->fsf_status_qual.word[0],
-+					    port->wwpn);
- 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
- 		break;
- 	case FSF_ADAPTER_STATUS_AVAILABLE:
-@@ -2404,6 +2463,9 @@ static void zfcp_fsf_fcp_handler_common(struct zfcp_fsf_req *req,
- 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
- 		break;
- 	case FSF_SECURITY_ERROR:
-+		zfcp_fsf_log_security_error(&req->adapter->ccw_device->dev,
-+					    header->fsf_status_qual.word[0],
-+					    zfcp_sdev->port->wwpn);
- 		zfcp_erp_port_forced_reopen(zfcp_sdev->port, 0, "fssfch7");
- 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
- 		break;
-diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
-index c6a56f96c363..ba1fd144b890 100644
---- a/drivers/s390/scsi/zfcp_fsf.h
-+++ b/drivers/s390/scsi/zfcp_fsf.h
-@@ -111,6 +111,14 @@
- #define FSF_PSQ_LINK_MODE_TABLE_CURRUPTED	0x00004000
- #define FSF_PSQ_LINK_NO_WWPN_ASSIGNMENT		0x00008000
- 
-+/* FSF status qualifier, security error */
-+#define FSF_SQ_SECURITY_REQUIRED		0x00000001
-+#define FSF_SQ_SECURITY_TIMEOUT			0x00000002
-+#define FSF_SQ_SECURITY_KM_UNAVAILABLE		0x00000003
-+#define FSF_SQ_SECURITY_RKM_UNAVAILABLE		0x00000004
-+#define FSF_SQ_SECURITY_AUTH_FAILURE		0x00000005
-+#define FSF_SQ_SECURITY_ENC_FAILURE		0x00000010
-+
- /* payload size in status read buffer */
- #define FSF_STATUS_READ_PAYLOAD_SIZE		4032
- 
--- 
-2.17.1
+This I flat out disagree with, but it's hardly worth arguing about.
+So let me fold that macro back in, and send you a v2.
