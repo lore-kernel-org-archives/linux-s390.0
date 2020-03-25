@@ -1,47 +1,147 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ale.deltatee.com ([207.54.116.67]:38412 "EHLO ale.deltatee.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726271AbgCFRJD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 6 Mar 2020 12:09:03 -0500
-From: Logan Gunthorpe <logang@deltatee.com>
-Date: Fri,  6 Mar 2020 10:08:40 -0700
-Message-Id: <20200306170846.9333-2-logang@deltatee.com>
-In-Reply-To: <20200306170846.9333-1-logang@deltatee.com>
-References: <20200306170846.9333-1-logang@deltatee.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: [PATCH v4 1/7] mm/memory_hotplug: Drop the flags field from struct mhp_restrictions
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33164 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727469AbgCYJfX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 25 Mar 2020 05:35:23 -0400
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02P9X2pu190746
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:23 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywejxcrjv-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:22 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Wed, 25 Mar 2020 09:35:13 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 07/11] s390/qeth: collect more TX statistics
+Date: Wed, 25 Mar 2020 10:35:03 +0100
+In-Reply-To: <20200325093507.20831-1-jwi@linux.ibm.com>
+References: <20200325093507.20831-1-jwi@linux.ibm.com>
+Message-Id: <20200325093507.20831-8-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-mm@kvack.org, Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Christoph Hellwig <hch@lst.de>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Eric Badger <ebadger@gigaio.com>, Logan Gunthorpe <logang@deltatee.com>, Michal Hocko <mhocko@suse.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-This variable is not used anywhere and should therefore be removed
-from the structure.
+Count the number of TX doorbells we issue to the qdio layer.
 
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
+Also count the number of actual frames in a TX buffer, and then
+use this data along with the byte count during TX completion.
+We'll make additional use of the frame count in a subsequent patch.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- include/linux/memory_hotplug.h | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/s390/net/qeth_core.h      |  2 ++
+ drivers/s390/net/qeth_core_main.c | 20 ++++++++++++++------
+ drivers/s390/net/qeth_ethtool.c   |  1 +
+ 3 files changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index f4d59155f3d4..69ff3037528d 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -55,11 +55,9 @@ enum {
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 911dcef6adc6..f56670bfcd0a 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -402,6 +402,7 @@ struct qeth_qdio_out_buffer {
+ 	struct qdio_buffer *buffer;
+ 	atomic_t state;
+ 	int next_element_to_fill;
++	unsigned int frames;
+ 	unsigned int bytes;
+ 	struct sk_buff_head skb_list;
+ 	int is_header[QDIO_MAX_ELEMENTS_PER_BUFFER];
+@@ -457,6 +458,7 @@ struct qeth_out_q_stats {
+ 	u64 tso_bytes;
+ 	u64 packing_mode_switch;
+ 	u64 stopped;
++	u64 doorbell;
+ 	u64 completion_yield;
+ 	u64 completion_timer;
  
- /*
-  * Restrictions for the memory hotplug:
-- * flags:  MHP_ flags
-  * altmap: alternative allocator for memmap array
-  */
- struct mhp_restrictions {
--	unsigned long flags;
- 	struct vmem_altmap *altmap;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 68bba8d057d1..108dd9a34f30 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1155,17 +1155,20 @@ static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error,
+ 
+ 	QETH_TXQ_STAT_INC(queue, bufs);
+ 	QETH_TXQ_STAT_ADD(queue, buf_elements, buf->next_element_to_fill);
++	if (error) {
++		QETH_TXQ_STAT_ADD(queue, tx_errors, buf->frames);
++	} else {
++		QETH_TXQ_STAT_ADD(queue, tx_packets, buf->frames);
++		QETH_TXQ_STAT_ADD(queue, tx_bytes, buf->bytes);
++	}
++
+ 	while ((skb = __skb_dequeue(&buf->skb_list)) != NULL) {
+ 		unsigned int bytes = qdisc_pkt_len(skb);
+ 		bool is_tso = skb_is_gso(skb);
+ 		unsigned int packets;
+ 
+ 		packets = is_tso ? skb_shinfo(skb)->gso_segs : 1;
+-		if (error) {
+-			QETH_TXQ_STAT_ADD(queue, tx_errors, packets);
+-		} else {
+-			QETH_TXQ_STAT_ADD(queue, tx_packets, packets);
+-			QETH_TXQ_STAT_ADD(queue, tx_bytes, bytes);
++		if (!error) {
+ 			if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 				QETH_TXQ_STAT_ADD(queue, skbs_csum, packets);
+ 			if (skb_is_nonlinear(skb))
+@@ -1202,6 +1205,7 @@ static void qeth_clear_output_buffer(struct qeth_qdio_out_q *queue,
+ 
+ 	qeth_scrub_qdio_buffer(buf->buffer, queue->max_elements);
+ 	buf->next_element_to_fill = 0;
++	buf->frames = 0;
+ 	buf->bytes = 0;
+ 	atomic_set(&buf->state, QETH_QDIO_BUF_EMPTY);
+ }
+@@ -3389,6 +3393,7 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 		}
+ 	}
+ 
++	QETH_TXQ_STAT_INC(queue, doorbell);
+ 	qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
+ 	if (atomic_read(&queue->set_pci_flags_count))
+ 		qdio_flags |= QDIO_FLAG_PCI_OUT;
+@@ -3942,6 +3947,7 @@ static int __qeth_xmit(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+ 
+ 	next_element = qeth_fill_buffer(buffer, skb, hdr, offset, hd_len);
+ 	buffer->bytes += bytes;
++	buffer->frames += skb_is_gso(skb) ? skb_shinfo(skb)->gso_segs : 1;
+ 	queue->prev_hdr = hdr;
+ 
+ 	flush = __netdev_tx_sent_queue(txq, bytes,
+@@ -4032,6 +4038,8 @@ int qeth_do_send_packet(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+ 	}
+ 
+ 	next_element = qeth_fill_buffer(buffer, skb, hdr, offset, hd_len);
++	buffer->bytes += qdisc_pkt_len(skb);
++	buffer->frames += skb_is_gso(skb) ? skb_shinfo(skb)->gso_segs : 1;
+ 
+ 	if (queue->do_pack)
+ 		QETH_TXQ_STAT_INC(queue, skbs_pack);
+@@ -5668,7 +5676,7 @@ static int qeth_tx_poll(struct napi_struct *napi, int budget)
+ 			unsigned int bidx = QDIO_BUFNR(i);
+ 
+ 			buffer = queue->bufs[bidx];
+-			packets += skb_queue_len(&buffer->skb_list);
++			packets += buffer->frames;
+ 			bytes += buffer->bytes;
+ 
+ 			qeth_handle_send_error(card, buffer, error);
+diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
+index 31e019085fc3..6f0cc6fcc759 100644
+--- a/drivers/s390/net/qeth_ethtool.c
++++ b/drivers/s390/net/qeth_ethtool.c
+@@ -39,6 +39,7 @@ static const struct qeth_stats txq_stats[] = {
+ 	QETH_TXQ_STAT("TSO bytes", tso_bytes),
+ 	QETH_TXQ_STAT("Packing mode switches", packing_mode_switch),
+ 	QETH_TXQ_STAT("Queue stopped", stopped),
++	QETH_TXQ_STAT("Doorbell", doorbell),
+ 	QETH_TXQ_STAT("Completion yield", completion_yield),
+ 	QETH_TXQ_STAT("Completion timer", completion_timer),
  };
- 
 -- 
-2.20.1
+2.17.1
