@@ -1,80 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35666 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726418AbgC0KTu (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3628 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727545AbgCYJfS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Mar 2020 06:19:50 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02RA1xA2087960
-        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 06:19:49 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2ywbv04and-1
+        Wed, 25 Mar 2020 05:35:18 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02P9YrVd073933
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:17 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywf3g48ge-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 06:19:49 -0400
+        for <linux-s390@vger.kernel.org>; Wed, 25 Mar 2020 05:35:17 -0400
 Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Fri, 27 Mar 2020 10:19:41 -0000
+        Wed, 25 Mar 2020 09:35:11 -0000
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/3] s390/qeth: phase out OSN support
-Date: Fri, 27 Mar 2020 11:19:34 +0100
-In-Reply-To: <20200327101934.31040-1-jwi@linux.ibm.com>
-References: <20200327101934.31040-1-jwi@linux.ibm.com>
-Message-Id: <20200327101934.31040-4-jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 11/11] s390/qeth: modernize two list helpers
+Date: Wed, 25 Mar 2020 10:35:07 +0100
+In-Reply-To: <20200325093507.20831-1-jwi@linux.ibm.com>
+References: <20200325093507.20831-1-jwi@linux.ibm.com>
+Message-Id: <20200325093507.20831-12-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>
 Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-OSN devices currently spend an awful long time in qeth_l2_set_online()
-until various unsupported HW cmds time out. This has been broken for
-over two years, ever since
-commit d22ffb5a712f ("s390/qeth: fix IPA command submission race")
-triggered a FW bug in cmd processing.
-Prior to commit 782e4a792147 ("s390/qeth: don't poll for cmd IO completion"),
-this wait for timeout would have even been spent busy-polling.
-
-The offending patch was picked up by stable and all relevant distros,
-and yet noone noticed.
-OSN setups only ever worked in combination with an out-of-tree blob, and
-the last machine that even offered HW with OSN support was released back
-in 2015.
-
-Rather than attempting to work-around this FW issue for no actual gain,
-add a deprecation warning so anyone who still wants to maintain this
-part of the code can speak up. Else rip it all out in 2021.
+Replace list_for_each() with list_for_each_entry(), and
+list_entry(head.next) with list_first_entry().
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/Kconfig        | 1 +
- drivers/s390/net/qeth_l2_main.c | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/s390/net/qeth_core_main.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
-index 36633387b952..3850a0f5f0bc 100644
---- a/drivers/s390/net/Kconfig
-+++ b/drivers/s390/net/Kconfig
-@@ -97,6 +97,7 @@ config QETH_OSN
- 	depends on QETH
- 	help
- 	  This enables the qeth driver to support devices in OSN mode.
-+	  This feature will be removed in 2021.
- 	  If unsure, choose N.
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 8713f1b821c1..d06d9f847388 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2629,15 +2629,13 @@ static void qeth_initialize_working_pool_list(struct qeth_card *card)
+ static struct qeth_buffer_pool_entry *qeth_find_free_buffer_pool_entry(
+ 					struct qeth_card *card)
+ {
+-	struct list_head *plh;
+ 	struct qeth_buffer_pool_entry *entry;
+ 	int i, free;
  
- config QETH_OSX
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 974b4596b78d..0bd5b09e7a22 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -587,6 +587,9 @@ static int qeth_l2_probe_device(struct ccwgroup_device *gdev)
- 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
- 	int rc;
+ 	if (list_empty(&card->qdio.in_buf_pool.entry_list))
+ 		return NULL;
  
-+	if (IS_OSN(card))
-+		dev_notice(&gdev->dev, "OSN support will be dropped in 2021\n");
-+
- 	qeth_l2_vnicc_set_defaults(card);
- 	mutex_init(&card->sbp_lock);
+-	list_for_each(plh, &card->qdio.in_buf_pool.entry_list) {
+-		entry = list_entry(plh, struct qeth_buffer_pool_entry, list);
++	list_for_each_entry(entry, &card->qdio.in_buf_pool.entry_list, list) {
+ 		free = 1;
+ 		for (i = 0; i < QETH_MAX_BUFFER_ELEMENTS(card); ++i) {
+ 			if (page_count(entry->elements[i]) > 1) {
+@@ -2652,8 +2650,8 @@ static struct qeth_buffer_pool_entry *qeth_find_free_buffer_pool_entry(
+ 	}
  
+ 	/* no free buffer in pool so take first one and swap pages */
+-	entry = list_entry(card->qdio.in_buf_pool.entry_list.next,
+-			struct qeth_buffer_pool_entry, list);
++	entry = list_first_entry(&card->qdio.in_buf_pool.entry_list,
++				 struct qeth_buffer_pool_entry, list);
+ 	for (i = 0; i < QETH_MAX_BUFFER_ELEMENTS(card); ++i) {
+ 		if (page_count(entry->elements[i]) > 1) {
+ 			struct page *page = dev_alloc_page();
 -- 
 2.17.1
