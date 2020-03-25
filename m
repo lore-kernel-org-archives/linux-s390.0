@@ -1,135 +1,129 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57332 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730319AbgCJNBu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:01:50 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/5] selftests: KVM: s390: test more register variants for the reset ioctl
-Date: Tue, 10 Mar 2020 09:01:41 -0400
-Message-Id: <20200310130144.9921-3-borntraeger@de.ibm.com>
-In-Reply-To: <20200310130144.9921-1-borntraeger@de.ibm.com>
-References: <20200310130144.9921-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 05/11] s390/qeth: simplify L3 dev_id logic
+Date: Wed, 25 Mar 2020 10:35:01 +0100
+In-Reply-To: <20200325093507.20831-1-jwi@linux.ibm.com>
+References: <20200325093507.20831-1-jwi@linux.ibm.com>
+Message-Id: <20200325093507.20831-6-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Andrew Jones <drjones@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-We should not only test the oneregs or the get_(x)regs interfaces but
-also the sync_regs. Those are usually the canonical place for register
-content.
+The logic that deals with errors from qeth_l3_get_unique_id() is quite
+complex: it sets card->unique_id to 0xfffe, additionally flags it as
+UNIQUE_ID_NOT_BY_CARD and later takes this flag as cue to not propagate
+card->unique_id to dev->dev_id. With dev->dev_id thus holding 0,
+addrconf_ifid_eui48() applies its default behaviour.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Get rid of all the special bit masks, and just return the old uid in
+case of an error. For the vast majority of cases this will be 0 (and so
+we still get the desired default behaviour) - with the rare exception
+where qeth_l3_get_unique_id() might have been called earlier but the
+initialization then failed at a later point.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- tools/testing/selftests/kvm/s390x/resets.c | 50 ++++++++++++++++++----
- 1 file changed, 41 insertions(+), 9 deletions(-)
+ drivers/s390/net/qeth_core.h    |  5 -----
+ drivers/s390/net/qeth_l3_main.c | 30 +++++++++++++-----------------
+ 2 files changed, 13 insertions(+), 22 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-index cbb343ad5d42..c385842792b7 100644
---- a/tools/testing/selftests/kvm/s390x/resets.c
-+++ b/tools/testing/selftests/kvm/s390x/resets.c
-@@ -20,8 +20,8 @@ struct kvm_s390_irq buf[VCPU_ID + LOCAL_IRQS];
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 9840d4fab010..257b7f3c5558 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -178,10 +178,6 @@ struct qeth_vnicc_info {
+ #define QETH_RECLAIM_WORK_TIME	HZ
+ #define QETH_MAX_PORTNO		15
  
- struct kvm_vm *vm;
- struct kvm_run *run;
--struct kvm_sync_regs *regs;
--static uint64_t regs_null[16];
-+struct kvm_sync_regs *sync_regs;
-+static uint8_t regs_null[512];
- 
- static void guest_code_initial(void)
+-/*IPv6 address autoconfiguration stuff*/
+-#define UNIQUE_ID_IF_CREATE_ADDR_FAILED 0xfffe
+-#define UNIQUE_ID_NOT_BY_CARD		0x10000
+-
+ /*****************************************************************************/
+ /* QDIO queue and buffer handling                                            */
+ /*****************************************************************************/
+@@ -687,7 +683,6 @@ struct qeth_card_info {
+ 	enum qeth_card_types type;
+ 	enum qeth_link_types link_type;
+ 	int broadcast_capable;
+-	int unique_id;
+ 	bool layer_enforced;
+ 	struct qeth_card_blkt blkt;
+ 	__u32 diagass_support;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 83ae75cf1389..b48cd0df3e31 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -949,39 +949,36 @@ static int qeth_l3_get_unique_id_cb(struct qeth_card *card,
+ 		struct qeth_reply *reply, unsigned long data)
  {
-@@ -86,6 +86,16 @@ static void assert_clear(void)
+ 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
++	u16 *uid = reply->param;
  
- 	vcpu_fpu_get(vm, VCPU_ID, &fpu);
- 	TEST_ASSERT(!memcmp(&fpu.fprs, regs_null, sizeof(fpu.fprs)), "fprs == 0");
-+
-+	/* sync regs */
-+	TEST_ASSERT(!memcmp(sync_regs->gprs, regs_null, sizeof(sync_regs->gprs)),
-+		    "gprs0-15 == 0 (sync_regs)");
-+
-+	TEST_ASSERT(!memcmp(sync_regs->acrs, regs_null, sizeof(sync_regs->acrs)),
-+		    "acrs0-15 == 0 (sync_regs)");
-+
-+	TEST_ASSERT(!memcmp(sync_regs->vrs, regs_null, sizeof(sync_regs->vrs)),
-+		    "vrs0-15 == 0 (sync_regs)");
+ 	if (cmd->hdr.return_code == 0) {
+-		card->info.unique_id = cmd->data.create_destroy_addr.uid;
++		*uid = cmd->data.create_destroy_addr.uid;
+ 		return 0;
+ 	}
+ 
+-	card->info.unique_id = UNIQUE_ID_IF_CREATE_ADDR_FAILED |
+-			       UNIQUE_ID_NOT_BY_CARD;
+ 	dev_warn(&card->gdev->dev, "The network adapter failed to generate a unique ID\n");
+ 	return -EIO;
  }
  
- static void assert_initial(void)
-@@ -93,12 +103,32 @@ static void assert_initial(void)
- 	struct kvm_sregs sregs;
- 	struct kvm_fpu fpu;
- 
-+	/* KVM_GET_SREGS */
- 	vcpu_sregs_get(vm, VCPU_ID, &sregs);
--	TEST_ASSERT(sregs.crs[0] == 0xE0UL, "cr0 == 0xE0");
--	TEST_ASSERT(sregs.crs[14] == 0xC2000000UL, "cr14 == 0xC2000000");
-+	TEST_ASSERT(sregs.crs[0] == 0xE0UL, "cr0 == 0xE0 (KVM_GET_SREGS)");
-+	TEST_ASSERT(sregs.crs[14] == 0xC2000000UL,
-+		    "cr14 == 0xC2000000 (KVM_GET_SREGS)");
- 	TEST_ASSERT(!memcmp(&sregs.crs[1], regs_null, sizeof(sregs.crs[1]) * 12),
--		    "cr1-13 == 0");
--	TEST_ASSERT(sregs.crs[15] == 0, "cr15 == 0");
-+		    "cr1-13 == 0 (KVM_GET_SREGS)");
-+	TEST_ASSERT(sregs.crs[15] == 0, "cr15 == 0 (KVM_GET_SREGS)");
-+
-+	/* sync regs */
-+	TEST_ASSERT(sync_regs->crs[0] == 0xE0UL, "cr0 == 0xE0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->crs[14] == 0xC2000000UL,
-+		    "cr14 == 0xC2000000 (sync_regs)");
-+	TEST_ASSERT(!memcmp(&sync_regs->crs[1], regs_null, 8 * 12),
-+		    "cr1-13 == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->crs[15] == 0, "cr15 == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->fpc == 0, "fpc == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->todpr == 0, "todpr == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->cputm == 0, "cputm == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->ckc == 0, "ckc == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->pp == 0, "pp == 0 (sync_regs)");
-+	TEST_ASSERT(sync_regs->gbea == 1, "gbea == 1 (sync_regs)");
-+
-+	/* kvm_run */
-+	TEST_ASSERT(run->psw_addr == 0, "psw_addr == 0 (kvm_run)");
-+	TEST_ASSERT(run->psw_mask == 0, "psw_mask == 0 (kvm_run)");
- 
- 	vcpu_fpu_get(vm, VCPU_ID, &fpu);
- 	TEST_ASSERT(!fpu.fpc, "fpc == 0");
-@@ -113,6 +143,8 @@ static void assert_initial(void)
- static void assert_normal(void)
+-static int qeth_l3_get_unique_id(struct qeth_card *card)
++static u16 qeth_l3_get_unique_id(struct qeth_card *card, u16 uid)
  {
- 	test_one_reg(KVM_REG_S390_PFTOKEN, KVM_S390_PFAULT_TOKEN_INVALID);
-+	TEST_ASSERT(sync_regs->pft == KVM_S390_PFAULT_TOKEN_INVALID,
-+			"pft == 0xff.....  (sync_regs)");
- 	assert_noirq();
+-	int rc = 0;
+ 	struct qeth_cmd_buffer *iob;
+ 
+ 	QETH_CARD_TEXT(card, 2, "guniqeid");
+ 
+-	if (!qeth_is_supported(card, IPA_IPV6)) {
+-		card->info.unique_id =  UNIQUE_ID_IF_CREATE_ADDR_FAILED |
+-					UNIQUE_ID_NOT_BY_CARD;
+-		return 0;
+-	}
++	if (!qeth_is_supported(card, IPA_IPV6))
++		goto out;
+ 
+ 	iob = qeth_ipa_alloc_cmd(card, IPA_CMD_CREATE_ADDR, QETH_PROT_IPV6,
+ 				 IPA_DATA_SIZEOF(create_destroy_addr));
+ 	if (!iob)
+-		return -ENOMEM;
++		goto out;
+ 
+-	__ipa_cmd(iob)->data.create_destroy_addr.uid = card->info.unique_id;
+-	rc = qeth_send_ipa_cmd(card, iob, qeth_l3_get_unique_id_cb, NULL);
+-	return rc;
++	__ipa_cmd(iob)->data.create_destroy_addr.uid = uid;
++	qeth_send_ipa_cmd(card, iob, qeth_l3_get_unique_id_cb, &uid);
++
++out:
++	return uid;
  }
  
-@@ -137,7 +169,7 @@ static void test_normal(void)
- 	/* Create VM */
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
--	regs = &run->s.regs;
-+	sync_regs = &run->s.regs;
+ static int
+@@ -1920,6 +1917,7 @@ static const struct net_device_ops qeth_l3_osa_netdev_ops = {
  
- 	vcpu_run(vm, VCPU_ID);
+ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ {
++	struct net_device *dev = card->dev;
+ 	unsigned int headroom;
+ 	int rc;
  
-@@ -153,7 +185,7 @@ static void test_initial(void)
- 	printf("Testing initial reset\n");
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
--	regs = &run->s.regs;
-+	sync_regs = &run->s.regs;
+@@ -1937,9 +1935,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
+ 		card->dev->netdev_ops = &qeth_l3_osa_netdev_ops;
  
- 	vcpu_run(vm, VCPU_ID);
+ 		/*IPv6 address autoconfiguration stuff*/
+-		qeth_l3_get_unique_id(card);
+-		if (!(card->info.unique_id & UNIQUE_ID_NOT_BY_CARD))
+-			card->dev->dev_id = card->info.unique_id & 0xffff;
++		dev->dev_id = qeth_l3_get_unique_id(card, dev->dev_id);
  
-@@ -170,7 +202,7 @@ static void test_clear(void)
- 	printf("Testing clear reset\n");
- 	vm = vm_create_default(VCPU_ID, 0, guest_code_initial);
- 	run = vcpu_state(vm, VCPU_ID);
--	regs = &run->s.regs;
-+	sync_regs = &run->s.regs;
- 
- 	vcpu_run(vm, VCPU_ID);
- 
+ 		if (!IS_VM_NIC(card)) {
+ 			card->dev->features |= NETIF_F_SG;
 -- 
-2.25.0
+2.17.1
