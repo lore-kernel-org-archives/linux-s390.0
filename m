@@ -1,44 +1,77 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Hoan Tran <Hoan@os.amperecomputing.com>
-Subject: [PATCH v3 2/5] powerpc: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-Date: Sat, 28 Mar 2020 11:31:19 -0700
-Message-Id: <1585420282-25630-3-git-send-email-Hoan@os.amperecomputing.com>
-In-Reply-To: <1585420282-25630-1-git-send-email-Hoan@os.amperecomputing.com>
-References: <1585420282-25630-1-git-send-email-Hoan@os.amperecomputing.com>
-Content-Type: text/plain
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48078 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727770AbgCZSvs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 26 Mar 2020 14:51:48 -0400
+Subject: Re: [RFC PATCH v2 7/9] vfio-ccw: Wire up the CRW irq and CRW region
+References: <20200206213825.11444-1-farman@linux.ibm.com>
+ <20200206213825.11444-8-farman@linux.ibm.com>
+ <20200214143400.175c9e5e.cohuck@redhat.com>
+ <75bb9119-8692-c18e-1e7b-c7598d8ef25a@linux.ibm.com>
+ <20200324173431.6ad09436.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <49d9d798-a90b-3384-ea83-9c8e7e201203@linux.ibm.com>
+Date: Thu, 26 Mar 2020 14:51:43 -0400
 MIME-Version: 1.0
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200324173431.6ad09436.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Mike Rapoport <rppt@linux.ibm.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, lho@amperecomputing.com, mmorana@amperecomputing.com, Hoan Tran <Hoan@os.amperecomputing.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Remove CONFIG_NODES_SPAN_OTHER_NODES as it's enabled by
-default with NUMA.
 
-Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
----
- arch/powerpc/Kconfig | 9 ---------
- 1 file changed, 9 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
-index e2a4121..4af2699 100644
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -686,15 +686,6 @@ config ARCH_MEMORY_PROBE
- 	def_bool y
- 	depends on MEMORY_HOTPLUG
- 
--# Some NUMA nodes have memory ranges that span
--# other nodes.  Even though a pfn is valid and
--# between a node's start and end pfns, it may not
--# reside on that node.  See memmap_init_zone()
--# for details.
--config NODES_SPAN_OTHER_NODES
--	def_bool y
--	depends on NEED_MULTIPLE_NODES
--
- config STDBINUTILS
- 	bool "Using standard binutils settings"
- 	depends on 44x
--- 
-1.8.3.1
+On 3/24/20 12:34 PM, Cornelia Huck wrote:
+> On Fri, 14 Feb 2020 11:24:39 -0500
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> On 2/14/20 8:34 AM, Cornelia Huck wrote:
+>>> On Thu,  6 Feb 2020 22:38:23 +0100
+>>> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>>> (...)  
+>>>> +static void vfio_ccw_alloc_crw(struct vfio_ccw_private *private,
+>>>> +			       struct chp_link *link,
+>>>> +			       unsigned int erc)
+>>>> +{
+>>>> +	struct vfio_ccw_crw *vc_crw;
+>>>> +	struct crw *crw;
+>>>> +
+>>>> +	/*
+>>>> +	 * If unable to allocate a CRW, just drop the event and
+>>>> +	 * carry on.  The guest will either see a later one or
+>>>> +	 * learn when it issues its own store subchannel.
+>>>> +	 */
+>>>> +	vc_crw = kzalloc(sizeof(*vc_crw), GFP_ATOMIC);
+>>>> +	if (!vc_crw)
+>>>> +		return;
+>>>> +
+>>>> +	/*
+>>>> +	 * Build in the first CRW space, but don't chain anything
+>>>> +	 * into the second one even though the space exists.
+>>>> +	 */
+>>>> +	crw = &vc_crw->crw[0];
+>>>> +
+>>>> +	/*
+>>>> +	 * Presume every CRW we handle is reported by a channel-path.
+>>>> +	 * Maybe not future-proof, but good for what we're doing now.  
+>>>
+>>> You could pass in a source indication, maybe? Presumably, at least one
+>>> of the callers further up the chain knows...  
+>>
+>> The "chain" is the vfio_ccw_chp_event() function called off the
+>> .chp_event callback, and then to this point.  So I don't think there's
+>> much we can get back from our callchain, other than the CHP_xxxLINE
+>> event that got us here.
+> 
+> We might want to pass in CRW_RSC_CPATH, that would make it a bit more
+> flexible. We can easily rearrange code internally later, though.
+> 
+
+This is true...  I'll rearrange it so the routine takes the rsid as
+input instead of the link, as well as the rsc, so we don't have to do
+that fiddling down the road.
