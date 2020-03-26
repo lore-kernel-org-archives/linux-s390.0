@@ -1,14 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:37480 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726340AbgCZTI0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Mar 2020 15:08:26 -0400
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:46273 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727345AbgCZTGb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Mar 2020 15:06:31 -0400
 From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH -next v2] s390/ism: Remove PM support
-Date: Thu, 26 Mar 2020 12:07:44 -0700
-Message-Id: <20200326190741.24687-1-natechancellor@gmail.com>
-In-Reply-To: <20200326190549.24565-1-natechancellor@gmail.com>
-References: <20200326190549.24565-1-natechancellor@gmail.com>
+Subject: [PATCH -next] s390/ism: Remove PM support
+Date: Thu, 26 Mar 2020 12:05:49 -0700
+Message-Id: <20200326190549.24565-1-natechancellor@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
@@ -34,15 +32,10 @@ CONFIG_PM will never be set and these functions will always be unused.
 
 Remove them so that there is no more warning.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/950
+Link: https://github.com/ClangBuiltLinux/linux/950
 Fixes: 394216275c7d ("s390: remove broken hibernate / power management support")
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
-
-v1 -> v2:
-
-* Fix issue link in commit message...
-
  drivers/s390/net/ism_drv.c | 20 --------------------
  1 file changed, 20 deletions(-)
 
