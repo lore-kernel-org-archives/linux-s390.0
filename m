@@ -1,59 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21032 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727143AbgC0M6u (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Mar 2020 08:58:50 -0400
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02RCY1D3127101
-        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 08:58:49 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywd8gwcwf-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 08:58:48 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <heiko.carstens@de.ibm.com>;
-        Fri, 27 Mar 2020 12:58:45 -0000
-Date: Fri, 27 Mar 2020 13:58:40 +0100
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: Re: [PATCH -next v2] s390/ism: Remove PM support
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:37480 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726340AbgCZTI0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 26 Mar 2020 15:08:26 -0400
+From: Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH -next v2] s390/ism: Remove PM support
+Date: Thu, 26 Mar 2020 12:07:44 -0700
+Message-Id: <20200326190741.24687-1-natechancellor@gmail.com>
+In-Reply-To: <20200326190549.24565-1-natechancellor@gmail.com>
 References: <20200326190549.24565-1-natechancellor@gmail.com>
- <20200326190741.24687-1-natechancellor@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200326190741.24687-1-natechancellor@gmail.com>
-Message-Id: <20200327125840.GA4109@osiris>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Nathan Chancellor <natechancellor@gmail.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, Nathan Chancellor <natechancellor@gmail.com>
 
-On Thu, Mar 26, 2020 at 12:07:44PM -0700, Nathan Chancellor wrote:
-> Clang warns:
-> 
-> drivers/s390/net/ism_drv.c:570:12: warning: unused function
-> 'ism_suspend' [-Wunused-function]
-> static int ism_suspend(struct device *dev)
->            ^
-> drivers/s390/net/ism_drv.c:578:12: warning: unused function 'ism_resume'
-> [-Wunused-function]
-> static int ism_resume(struct device *dev)
->            ^
-> 2 warnings generated.
-> 
-> When CONFIG_PM is unset, SIMPLE_DEV_PM_OPS does not use the suspend or
-> resume functions. Power management was recently ripped out of s390 so
-> CONFIG_PM will never be set and these functions will always be unused.
-> 
-> Remove them so that there is no more warning.
-> 
-> Link: https://github.com/ClangBuiltLinux/linux/issues/950
-> Fixes: 394216275c7d ("s390: remove broken hibernate / power management support")
-> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Clang warns:
 
-Thank you, however there was already an identical patch from Ursula
-which was missing on our branch. It's now there:
+drivers/s390/net/ism_drv.c:570:12: warning: unused function
+'ism_suspend' [-Wunused-function]
+static int ism_suspend(struct device *dev)
+           ^
+drivers/s390/net/ism_drv.c:578:12: warning: unused function 'ism_resume'
+[-Wunused-function]
+static int ism_resume(struct device *dev)
+           ^
+2 warnings generated.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=features&id=194f75706b86847d1b4237958f7d6bd7ea7baf42
+When CONFIG_PM is unset, SIMPLE_DEV_PM_OPS does not use the suspend or
+resume functions. Power management was recently ripped out of s390 so
+CONFIG_PM will never be set and these functions will always be unused.
+
+Remove them so that there is no more warning.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/950
+Fixes: 394216275c7d ("s390: remove broken hibernate / power management support")
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+
+v1 -> v2:
+
+* Fix issue link in commit message...
+
+ drivers/s390/net/ism_drv.c | 20 --------------------
+ 1 file changed, 20 deletions(-)
+
+diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
+index 4fc2056bd227..c75112ee7b97 100644
+--- a/drivers/s390/net/ism_drv.c
++++ b/drivers/s390/net/ism_drv.c
+@@ -567,31 +567,11 @@ static void ism_remove(struct pci_dev *pdev)
+ 	kfree(ism);
+ }
+ 
+-static int ism_suspend(struct device *dev)
+-{
+-	struct ism_dev *ism = dev_get_drvdata(dev);
+-
+-	ism_dev_exit(ism);
+-	return 0;
+-}
+-
+-static int ism_resume(struct device *dev)
+-{
+-	struct ism_dev *ism = dev_get_drvdata(dev);
+-
+-	return ism_dev_init(ism);
+-}
+-
+-static SIMPLE_DEV_PM_OPS(ism_pm_ops, ism_suspend, ism_resume);
+-
+ static struct pci_driver ism_driver = {
+ 	.name	  = DRV_NAME,
+ 	.id_table = ism_device_table,
+ 	.probe	  = ism_probe,
+ 	.remove	  = ism_remove,
+-	.driver	  = {
+-		.pm = &ism_pm_ops,
+-	},
+ };
+ 
+ static int __init ism_init(void)
+-- 
+2.26.0
