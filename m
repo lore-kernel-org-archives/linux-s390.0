@@ -1,90 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:41063 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727354AbgC0QIY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 27 Mar 2020 12:08:24 -0400
-Date: Fri, 27 Mar 2020 21:38:18 +0530
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
-Subject: [PATCH 0/6] Kill setup_irq()
-Message-ID: <cover.1585320721.git.afzal.mohd.ma@gmail.com>
-References: <20200321174303.GA7930@afzalpc>
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:57797 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727699AbgCZJ6w (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 26 Mar 2020 05:58:52 -0400
+Received: by mail-wr1-f69.google.com with SMTP id o18so2780302wrx.9
+        for <linux-s390@vger.kernel.org>; Thu, 26 Mar 2020 02:58:48 -0700 (PDT)
+Subject: Re: [GIT PULL 0/2] KVM: s390: changes for 5.7 part 2
+References: <20200324125030.323689-1-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <e6977ffb-e4e5-1f3d-3db2-55742bacaa1d@redhat.com>
+Date: Thu, 26 Mar 2020 10:58:46 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200321174303.GA7930@afzalpc>
+In-Reply-To: <20200324125030.323689-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, x86@kernel.org, linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-omap@vger.kernel.org, linux-alpha@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>
 
-Hi Thomas,
+On 24/03/20 13:50, Christian Borntraeger wrote:
+> Paolo,
+> 
+> two more patches for 5.7.
+> 
+> The following changes since commit cc674ef252f4750bdcea1560ff491081bb960954:
+> 
+>   KVM: s390: introduce module parameter kvm.use_gisa (2020-02-27 19:47:13 +0100)
+> 
+> are available in the Git repository at:
+> 
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.7-2
+> 
+> for you to fetch changes up to f3dd18d444c757840920434e62809b6104081b06:
+> 
+>   KVM: s390: mark sie block as 512 byte aligned (2020-03-23 18:30:33 +0100)
+> 
+> ----------------------------------------------------------------
+> KVM: s390: cleanups for 5.7
+> 
+> - mark sie control block as 512 byte aligned
+> - use fallthrough;
+> 
+> ----------------------------------------------------------------
+> Christian Borntraeger (1):
+>       KVM: s390: mark sie block as 512 byte aligned
+> 
+> Joe Perches (1):
+>       KVM: s390: Use fallthrough;
+> 
+>  arch/s390/include/asm/kvm_host.h |  2 +-
+>  arch/s390/kvm/gaccess.c          | 23 +++++++++++++----------
+>  arch/s390/kvm/interrupt.c        |  2 +-
+>  arch/s390/kvm/kvm-s390.c         |  4 ++--
+>  arch/s390/mm/gmap.c              |  6 +++---
+>  5 files changed, 20 insertions(+), 17 deletions(-)
+> 
 
-As compared to the situation mentioned earlier[1], now powerpc patch is
-also in -next, and the pending ARM patches has been picked up by ARM SoC
-maintainers today and is expected to show up in next -next. All other
-subsytem patches has been picked by relevant maintainers & are already
-in -next except alpha, c6x, hexagon, unicore32 & sh.
+Pulled, thanks.
 
-As it is the case, i am sending you patches for the above 5
-architecture's plus the core removal patch.
-
-Status of 5 arch's:
--------------------
-alpha:		received ack from Matt Turner, build test success
-c6x:		did receive ack from Mark Salter in v1, the final
-		 version (v3) was with minor changes, hence removed his
-		 ack & cc'ed him, build test success
-hexagon:	build test success
-unicore32:	couldn't get toolchain from kernel.org, 0day test robot
-		 or Segher's buildall
-sh:		To compile the relevant changes sh64 compiler is
-		 required, couldn't get it from above mentioned 3
-		 sources.
-
-Note 1: sh toolchain is available, but that will not make the
- relevant changes compile as it has dependency of 64bit arch toolchain,
- did try a Kconfig hack to make it compile w/ 32bit sh toolchain, but it
- failed due to other reasons (unknown operands), so gave up on that.
-Note 2: hexagon final image creation fails even w/o my patch, but it
- has been ensured that w/ my changes relevant object files are getting
- built  w/o warnings.
-
-Regards
-afzal
-
-[1] https://lkml.kernel.org/r/20200321172626.GA6323@afzalpc
-
-afzal mohammed (6):
-  alpha: Replace setup_irq() by request_irq()
-  c6x: replace setup_irq() by request_irq()
-  hexagon: replace setup_irq() by request_irq()
-  sh: replace setup_irq() by request_irq()
-  unicore32: replace setup_irq() by request_irq()
-  genirq: Remove setup_irq() and remove_irq()
-
- arch/alpha/kernel/irq_alpha.c     | 29 ++++----------------
- arch/alpha/kernel/irq_i8259.c     |  8 ++----
- arch/alpha/kernel/irq_impl.h      |  7 +----
- arch/alpha/kernel/irq_pyxis.c     |  3 ++-
- arch/alpha/kernel/sys_alcor.c     |  3 ++-
- arch/alpha/kernel/sys_cabriolet.c |  3 ++-
- arch/alpha/kernel/sys_eb64p.c     |  3 ++-
- arch/alpha/kernel/sys_marvel.c    |  2 +-
- arch/alpha/kernel/sys_miata.c     |  6 +++--
- arch/alpha/kernel/sys_ruffian.c   |  3 ++-
- arch/alpha/kernel/sys_rx164.c     |  3 ++-
- arch/alpha/kernel/sys_sx164.c     |  3 ++-
- arch/alpha/kernel/sys_wildfire.c  |  7 ++---
- arch/alpha/kernel/time.c          |  6 ++---
- arch/c6x/platforms/timer64.c      | 11 +++-----
- arch/hexagon/kernel/smp.c         | 22 ++++++++--------
- arch/hexagon/kernel/time.c        | 11 +++-----
- arch/sh/boards/mach-cayman/irq.c  | 18 +++++--------
- arch/sh/drivers/dma/dma-pvr2.c    |  9 +++----
- arch/unicore32/kernel/time.c      | 11 +++-----
- include/linux/irq.h               |  2 --
- kernel/irq/manage.c               | 44 -------------------------------
- 22 files changed, 60 insertions(+), 154 deletions(-)
-
--- 
-2.25.1
+Paolo
