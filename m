@@ -1,82 +1,118 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-il1-f199.google.com ([209.85.166.199]:36946 "EHLO
-        mail-il1-f199.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726545AbgCBFLO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Mar 2020 00:11:14 -0500
-Received: by mail-il1-f199.google.com with SMTP id e70so2378156ill.4
-        for <linux-s390@vger.kernel.org>; Sun, 01 Mar 2020 21:11:12 -0800 (PST)
-MIME-Version: 1.0
-Date: Sun, 01 Mar 2020 21:11:12 -0800
-Message-ID: <0000000000004251e4059fd83720@google.com>
-Subject: WARNING: ODEBUG bug in smc_ib_remove_dev
-From: syzbot <syzbot+b297c6825752e7a07272@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 2/3] s390/qeth: make OSN / OSX support configurable
+Date: Fri, 27 Mar 2020 11:19:33 +0100
+In-Reply-To: <20200327101934.31040-1-jwi@linux.ibm.com>
+References: <20200327101934.31040-1-jwi@linux.ibm.com>
+Message-Id: <20200327101934.31040-3-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net, kgraul@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, ubraun@linux.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Hello,
+The last machine generation that supports OSN is z13, and OSX is only
+supported up to z14. Allow users and distros to decide whether they
+still need support for these device types.
 
-syzbot found the following crash on:
-
-HEAD commit:    63623fd4 Merge tag 'for-linus' of git://git.kernel.org/pub..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=12873645e00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=9833e26bab355358
-dashboard link: https://syzkaller.appspot.com/bug?extid=b297c6825752e7a07272
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-
-Unfortunately, I don't have any reproducer for this crash yet.
-
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+b297c6825752e7a07272@syzkaller.appspotmail.com
-
-------------[ cut here ]------------
-ODEBUG: free active (active state 0) object type: work_struct hint: smc_ib_port_event_work+0x0/0x350 net/smc/smc_ib.c:312
-WARNING: CPU: 0 PID: 14236 at lib/debugobjects.c:485 debug_print_object+0x168/0x250 lib/debugobjects.c:485
-Kernel panic - not syncing: panic_on_warn set ...
-CPU: 0 PID: 14236 Comm: kworker/u4:10 Not tainted 5.6.0-rc3-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events_unbound ib_unregister_work
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x197/0x210 lib/dump_stack.c:118
- panic+0x2e3/0x75c kernel/panic.c:221
- __warn.cold+0x2f/0x3e kernel/panic.c:582
- report_bug+0x289/0x300 lib/bug.c:195
- fixup_bug arch/x86/kernel/traps.c:174 [inline]
- fixup_bug arch/x86/kernel/traps.c:169 [inline]
- do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:267
- do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:286
- invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1027
-RIP: 0010:debug_print_object+0x168/0x250 lib/debugobjects.c:485
-Code: dd 00 e7 91 88 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 b5 00 00 00 48 8b 14 dd 00 e7 91 88 48 c7 c7 60 dc 91 88 e8 07 6e 9f fd <0f> 0b 83 05 03 6c ff 06 01 48 83 c4 20 5b 41 5c 41 5d 41 5e 5d c3
-RSP: 0018:ffffc90001807ae0 EFLAGS: 00010086
-RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: ffffffff815ebe46 RDI: fffff52000300f4e
-RBP: ffffc90001807b20 R08: ffff8880485a61c0 R09: ffffed1015d045c9
-R10: ffffed1015d045c8 R11: ffff8880ae822e43 R12: 0000000000000001
-R13: ffffffff89b7a220 R14: ffffffff814c8610 R15: ffff88806058e348
- __debug_check_no_obj_freed lib/debugobjects.c:967 [inline]
- debug_check_no_obj_freed+0x2d6/0x441 lib/debugobjects.c:998
- kfree+0xf8/0x2c0 mm/slab.c:3756
- smc_ib_remove_dev+0x1a9/0x2e0 net/smc/smc_ib.c:583
- remove_client_context+0xc7/0x120 drivers/infiniband/core/device.c:724
- disable_device+0x14c/0x230 drivers/infiniband/core/device.c:1268
- __ib_unregister_device+0x9c/0x190 drivers/infiniband/core/device.c:1435
- ib_unregister_work+0x19/0x30 drivers/infiniband/core/device.c:1545
- process_one_work+0xa05/0x17a0 kernel/workqueue.c:2264
- worker_thread+0x98/0xe40 kernel/workqueue.c:2410
- kthread+0x361/0x430 kernel/kthread.c:255
- ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
-
-
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ drivers/s390/net/Kconfig          | 16 ++++++++++++++++
+ drivers/s390/net/qeth_core_main.c |  4 ++++
+ drivers/s390/net/qeth_core_mpc.h  | 11 +++++++++++
+ drivers/s390/net/qeth_l2_main.c   |  2 ++
+ 4 files changed, 33 insertions(+)
 
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+index ced896d1534a..36633387b952 100644
+--- a/drivers/s390/net/Kconfig
++++ b/drivers/s390/net/Kconfig
+@@ -91,6 +91,22 @@ config QETH_L3
+ 	  To compile as a module choose M. The module name is qeth_l3.
+ 	  If unsure, choose Y.
+ 
++config QETH_OSN
++	def_bool !HAVE_MARCH_Z14_FEATURES
++	prompt "qeth OSN device support"
++	depends on QETH
++	help
++	  This enables the qeth driver to support devices in OSN mode.
++	  If unsure, choose N.
++
++config QETH_OSX
++	def_bool !HAVE_MARCH_Z15_FEATURES
++	prompt "qeth OSX device support"
++	depends on QETH
++	help
++	  This enables the qeth driver to support devices in OSX mode.
++	  If unsure, choose N.
++
+ config CCWGROUP
+ 	tristate
+ 	default (LCS || CTCM || QETH)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index d06d9f847388..24fd17b347fe 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -4951,12 +4951,16 @@ static struct ccw_device_id qeth_ids[] = {
+ 					.driver_info = QETH_CARD_TYPE_OSD},
+ 	{CCW_DEVICE_DEVTYPE(0x1731, 0x05, 0x1732, 0x05),
+ 					.driver_info = QETH_CARD_TYPE_IQD},
++#ifdef CONFIG_QETH_OSN
+ 	{CCW_DEVICE_DEVTYPE(0x1731, 0x06, 0x1732, 0x06),
+ 					.driver_info = QETH_CARD_TYPE_OSN},
++#endif
+ 	{CCW_DEVICE_DEVTYPE(0x1731, 0x02, 0x1732, 0x03),
+ 					.driver_info = QETH_CARD_TYPE_OSM},
++#ifdef CONFIG_QETH_OSX
+ 	{CCW_DEVICE_DEVTYPE(0x1731, 0x02, 0x1732, 0x02),
+ 					.driver_info = QETH_CARD_TYPE_OSX},
++#endif
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(ccw, qeth_ids);
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index 6f304fdbb073..d89a04bfd8b0 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -74,8 +74,19 @@ enum qeth_card_types {
+ #define IS_IQD(card)	((card)->info.type == QETH_CARD_TYPE_IQD)
+ #define IS_OSD(card)	((card)->info.type == QETH_CARD_TYPE_OSD)
+ #define IS_OSM(card)	((card)->info.type == QETH_CARD_TYPE_OSM)
++
++#ifdef CONFIG_QETH_OSN
+ #define IS_OSN(card)	((card)->info.type == QETH_CARD_TYPE_OSN)
++#else
++#define IS_OSN(card)	false
++#endif
++
++#ifdef CONFIG_QETH_OSX
+ #define IS_OSX(card)	((card)->info.type == QETH_CARD_TYPE_OSX)
++#else
++#define IS_OSX(card)	false
++#endif
++
+ #define IS_VM_NIC(card)	((card)->info.is_vm_nic)
+ 
+ #define QETH_MPC_DIFINFO_LEN_INDICATES_LINK_TYPE 0x18
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 766ea0d07a24..974b4596b78d 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -869,6 +869,7 @@ struct qeth_discipline qeth_l2_discipline = {
+ };
+ EXPORT_SYMBOL_GPL(qeth_l2_discipline);
+ 
++#ifdef CONFIG_QETH_OSN
+ static void qeth_osn_assist_cb(struct qeth_card *card,
+ 			       struct qeth_cmd_buffer *iob,
+ 			       unsigned int data_length)
+@@ -945,6 +946,7 @@ void qeth_osn_deregister(struct net_device *dev)
+ 	return;
+ }
+ EXPORT_SYMBOL(qeth_osn_deregister);
++#endif
+ 
+ /* SETBRIDGEPORT support, async notifications */
+ 
+-- 
+2.17.1
