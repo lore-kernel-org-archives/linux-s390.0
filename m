@@ -1,172 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36626 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726968AbgCRMzZ (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35666 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726418AbgC0KTu (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Mar 2020 08:55:25 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02ICYBsw137602
-        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:25 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2yu8brg7cr-1
+        Fri, 27 Mar 2020 06:19:50 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02RA1xA2087960
+        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 06:19:49 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2ywbv04and-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:24 -0400
+        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 06:19:49 -0400
 Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 18 Mar 2020 12:55:22 -0000
+        Fri, 27 Mar 2020 10:19:41 -0000
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 11/11] s390/qeth: use dev->reg_state
-Date: Wed, 18 Mar 2020 13:54:55 +0100
-In-Reply-To: <20200318125455.5838-1-jwi@linux.ibm.com>
-References: <20200318125455.5838-1-jwi@linux.ibm.com>
-Message-Id: <20200318125455.5838-12-jwi@linux.ibm.com>
+Subject: [PATCH net-next 3/3] s390/qeth: phase out OSN support
+Date: Fri, 27 Mar 2020 11:19:34 +0100
+In-Reply-To: <20200327101934.31040-1-jwi@linux.ibm.com>
+References: <20200327101934.31040-1-jwi@linux.ibm.com>
+Message-Id: <20200327101934.31040-4-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>
 Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-To check whether a netdevice has already been registered, look at
-NETREG_REGISTERED to replace some hacks I added a while ago.
+OSN devices currently spend an awful long time in qeth_l2_set_online()
+until various unsupported HW cmds time out. This has been broken for
+over two years, ever since
+commit d22ffb5a712f ("s390/qeth: fix IPA command submission race")
+triggered a FW bug in cmd processing.
+Prior to commit 782e4a792147 ("s390/qeth: don't poll for cmd IO completion"),
+this wait for timeout would have even been spent busy-polling.
+
+The offending patch was picked up by stable and all relevant distros,
+and yet noone noticed.
+OSN setups only ever worked in combination with an out-of-tree blob, and
+the last machine that even offered HW with OSN support was released back
+in 2015.
+
+Rather than attempting to work-around this FW issue for no actual gain,
+add a deprecation warning so anyone who still wants to maintain this
+part of the code can speak up. Else rip it all out in 2021.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h    |  5 -----
- drivers/s390/net/qeth_l2_main.c | 19 ++++++++-----------
- drivers/s390/net/qeth_l3_main.c | 22 +++++++++-------------
- 3 files changed, 17 insertions(+), 29 deletions(-)
+ drivers/s390/net/Kconfig        | 1 +
+ drivers/s390/net/qeth_l2_main.c | 3 +++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index b8b356aca674..6eb431c194bd 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -847,11 +847,6 @@ struct qeth_trap_id {
- /*some helper functions*/
- #define QETH_CARD_IFNAME(card) (((card)->dev)? (card)->dev->name : "")
+diff --git a/drivers/s390/net/Kconfig b/drivers/s390/net/Kconfig
+index 36633387b952..3850a0f5f0bc 100644
+--- a/drivers/s390/net/Kconfig
++++ b/drivers/s390/net/Kconfig
+@@ -97,6 +97,7 @@ config QETH_OSN
+ 	depends on QETH
+ 	help
+ 	  This enables the qeth driver to support devices in OSN mode.
++	  This feature will be removed in 2021.
+ 	  If unsure, choose N.
  
--static inline bool qeth_netdev_is_registered(struct net_device *dev)
--{
--	return dev->netdev_ops != NULL;
--}
--
- static inline u16 qeth_iqd_translate_txq(struct net_device *dev, u16 txq)
- {
- 	if (txq == QETH_IQD_MCAST_TXQ)
+ config QETH_OSX
 diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 2aaf5e3779ce..73cb363b1fab 100644
+index 974b4596b78d..0bd5b09e7a22 100644
 --- a/drivers/s390/net/qeth_l2_main.c
 +++ b/drivers/s390/net/qeth_l2_main.c
-@@ -613,7 +613,7 @@ static void qeth_l2_remove_device(struct ccwgroup_device *cgdev)
- 		qeth_set_offline(card, false);
- 
- 	cancel_work_sync(&card->close_dev_work);
--	if (qeth_netdev_is_registered(card->dev))
-+	if (card->dev->reg_state == NETREG_REGISTERED)
- 		unregister_netdev(card->dev);
- }
- 
-@@ -651,7 +651,7 @@ static const struct net_device_ops qeth_osn_netdev_ops = {
- 	.ndo_tx_timeout		= qeth_tx_timeout,
- };
- 
--static int qeth_l2_setup_netdev(struct qeth_card *card, bool carrier_ok)
-+static int qeth_l2_setup_netdev(struct qeth_card *card)
- {
+@@ -587,6 +587,9 @@ static int qeth_l2_probe_device(struct ccwgroup_device *gdev)
+ 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
  	int rc;
  
-@@ -711,13 +711,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card, bool carrier_ok)
- 
- add_napi:
- 	netif_napi_add(card->dev, &card->napi, qeth_poll, QETH_NAPI_WEIGHT);
--	rc = register_netdev(card->dev);
--	if (!rc && carrier_ok)
--		netif_carrier_on(card->dev);
--
--	if (rc)
--		card->dev->netdev_ops = NULL;
--	return rc;
-+	return register_netdev(card->dev);
- }
- 
- static void qeth_l2_trace_features(struct qeth_card *card)
-@@ -790,10 +784,13 @@ static int qeth_l2_set_online(struct qeth_card *card)
- 
- 	qeth_set_allowed_threads(card, 0xffffffff, 0);
- 
--	if (!qeth_netdev_is_registered(dev)) {
--		rc = qeth_l2_setup_netdev(card, carrier_ok);
-+	if (dev->reg_state != NETREG_REGISTERED) {
-+		rc = qeth_l2_setup_netdev(card);
- 		if (rc)
- 			goto out_remove;
++	if (IS_OSN(card))
++		dev_notice(&gdev->dev, "OSN support will be dropped in 2021\n");
 +
-+		if (carrier_ok)
-+			netif_carrier_on(dev);
- 	} else {
- 		rtnl_lock();
- 		if (carrier_ok)
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 81ec0d2b7ea5..83ae75cf1389 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1918,7 +1918,7 @@ static const struct net_device_ops qeth_l3_osa_netdev_ops = {
- 	.ndo_neigh_setup	= qeth_l3_neigh_setup,
- };
+ 	qeth_l2_vnicc_set_defaults(card);
+ 	mutex_init(&card->sbp_lock);
  
--static int qeth_l3_setup_netdev(struct qeth_card *card, bool carrier_ok)
-+static int qeth_l3_setup_netdev(struct qeth_card *card)
- {
- 	unsigned int headroom;
- 	int rc;
-@@ -1972,7 +1972,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card, bool carrier_ok)
- 
- 		rc = qeth_l3_iqd_read_initial_mac(card);
- 		if (rc)
--			goto out;
-+			return rc;
- 	} else
- 		return -ENODEV;
- 
-@@ -1987,14 +1987,7 @@ static int qeth_l3_setup_netdev(struct qeth_card *card, bool carrier_ok)
- 				       PAGE_SIZE * (QETH_MAX_BUFFER_ELEMENTS(card) - 1));
- 
- 	netif_napi_add(card->dev, &card->napi, qeth_poll, QETH_NAPI_WEIGHT);
--	rc = register_netdev(card->dev);
--	if (!rc && carrier_ok)
--		netif_carrier_on(card->dev);
--
--out:
--	if (rc)
--		card->dev->netdev_ops = NULL;
--	return rc;
-+	return register_netdev(card->dev);
- }
- 
- static const struct device_type qeth_l3_devtype = {
-@@ -2041,7 +2034,7 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
- 		qeth_set_offline(card, false);
- 
- 	cancel_work_sync(&card->close_dev_work);
--	if (qeth_netdev_is_registered(card->dev))
-+	if (card->dev->reg_state == NETREG_REGISTERED)
- 		unregister_netdev(card->dev);
- 
- 	flush_workqueue(card->cmd_wq);
-@@ -2088,10 +2081,13 @@ static int qeth_l3_set_online(struct qeth_card *card)
- 	qeth_set_allowed_threads(card, 0xffffffff, 0);
- 	qeth_l3_recover_ip(card);
- 
--	if (!qeth_netdev_is_registered(dev)) {
--		rc = qeth_l3_setup_netdev(card, carrier_ok);
-+	if (dev->reg_state != NETREG_REGISTERED) {
-+		rc = qeth_l3_setup_netdev(card);
- 		if (rc)
- 			goto out_remove;
-+
-+		if (carrier_ok)
-+			netif_carrier_on(dev);
- 	} else {
- 		rtnl_lock();
- 		if (carrier_ok)
 -- 
 2.17.1
