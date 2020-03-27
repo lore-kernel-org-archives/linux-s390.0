@@ -1,71 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:26511 "EHLO
-        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726959AbgC0MpY (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3998 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726002AbgC0KTr (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Mar 2020 08:45:24 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 1/2] s390/cio: avoid duplicated 'ADD' uevents
-Date: Fri, 27 Mar 2020 13:45:02 +0100
-Message-Id: <20200327124503.9794-2-cohuck@redhat.com>
-In-Reply-To: <20200327124503.9794-1-cohuck@redhat.com>
-References: <20200327124503.9794-1-cohuck@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+        Fri, 27 Mar 2020 06:19:47 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02RA1WTk042124
+        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 06:19:46 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2ywd8gs4r3-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 27 Mar 2020 06:19:46 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Fri, 27 Mar 2020 10:19:39 -0000
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 1/3] s390/qeth: remove fake_broadcast attribute
+Date: Fri, 27 Mar 2020 11:19:32 +0100
+In-Reply-To: <20200327101934.31040-1-jwi@linux.ibm.com>
+References: <20200327101934.31040-1-jwi@linux.ibm.com>
+Message-Id: <20200327101934.31040-2-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-The common I/O layer delays the ADD uevent for subchannels and
-delegates generating this uevent to the individual subchannel
-drivers. The io_subchannel driver will do so when the associated
-ccw_device has been registered -- but unconditionally, so more
-ADD uevents will be generated if a subchannel has been unbound
-from the io_subchannel driver and later rebound.
+Ever since commit 4a71df50047f ("qeth: new qeth device driver") introduced
+this attribute, it can be read & written but has no actual effect.
 
-To fix this, only generate the ADD event if uevents were still
-suppressed for the device.
-
-Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/cio/device.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/s390/net/qeth_core.h   |  1 -
+ drivers/s390/net/qeth_l3_sys.c | 35 ----------------------------------
+ 2 files changed, 36 deletions(-)
 
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 0c6245fc7706..983f9c9e08de 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -849,8 +849,10 @@ static void io_subchannel_register(struct ccw_device=
- *cdev)
- 	 * Now we know this subchannel will stay, we can throw
- 	 * our delayed uevent.
- 	 */
--	dev_set_uevent_suppress(&sch->dev, 0);
--	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	if (dev_get_uevent_suppress(&sch->dev)) {
-+		dev_set_uevent_suppress(&sch->dev, 0);
-+		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	}
- 	/* make it known to the system */
- 	ret =3D ccw_device_add(cdev);
- 	if (ret) {
-@@ -1058,8 +1060,11 @@ static int io_subchannel_probe(struct subchannel *=
-sch)
- 		 * Throw the delayed uevent for the subchannel, register
- 		 * the ccw_device and exit.
- 		 */
--		dev_set_uevent_suppress(&sch->dev, 0);
--		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		if (dev_get_uevent_suppress(&sch->dev)) {
-+			/* should always be the case for the console */
-+			dev_set_uevent_suppress(&sch->dev, 0);
-+			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		}
- 		cdev =3D sch_get_cdev(sch);
- 		rc =3D ccw_device_add(cdev);
- 		if (rc) {
---=20
-2.21.1
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 5f85617bdce3..acda230323d5 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -710,7 +710,6 @@ struct qeth_card_options {
+ 	struct qeth_ipa_caps adp; /* Adapter parameters */
+ 	struct qeth_sbp_info sbp; /* SETBRIDGEPORT options */
+ 	struct qeth_vnicc_info vnicc; /* VNICC options */
+-	int fake_broadcast;
+ 	enum qeth_discipline_id layer;
+ 	enum qeth_ipa_isolation_modes isolation;
+ 	enum qeth_ipa_isolation_modes prev_isolation;
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index a3d1c3bdfadb..dd0b39082534 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -133,40 +133,6 @@ static ssize_t qeth_l3_dev_route6_store(struct device *dev,
+ static DEVICE_ATTR(route6, 0644, qeth_l3_dev_route6_show,
+ 			qeth_l3_dev_route6_store);
+ 
+-static ssize_t qeth_l3_dev_fake_broadcast_show(struct device *dev,
+-			struct device_attribute *attr, char *buf)
+-{
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-
+-	return sprintf(buf, "%i\n", card->options.fake_broadcast? 1:0);
+-}
+-
+-static ssize_t qeth_l3_dev_fake_broadcast_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t count)
+-{
+-	struct qeth_card *card = dev_get_drvdata(dev);
+-	char *tmp;
+-	int i, rc = 0;
+-
+-	mutex_lock(&card->conf_mutex);
+-	if (card->state != CARD_STATE_DOWN) {
+-		rc = -EPERM;
+-		goto out;
+-	}
+-
+-	i = simple_strtoul(buf, &tmp, 16);
+-	if ((i == 0) || (i == 1))
+-		card->options.fake_broadcast = i;
+-	else
+-		rc = -EINVAL;
+-out:
+-	mutex_unlock(&card->conf_mutex);
+-	return rc ? rc : count;
+-}
+-
+-static DEVICE_ATTR(fake_broadcast, 0644, qeth_l3_dev_fake_broadcast_show,
+-		   qeth_l3_dev_fake_broadcast_store);
+-
+ static ssize_t qeth_l3_dev_sniffer_show(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
+ {
+@@ -305,7 +271,6 @@ static DEVICE_ATTR(hsuid, 0644, qeth_l3_dev_hsuid_show,
+ static struct attribute *qeth_l3_device_attrs[] = {
+ 	&dev_attr_route4.attr,
+ 	&dev_attr_route6.attr,
+-	&dev_attr_fake_broadcast.attr,
+ 	&dev_attr_sniffer.attr,
+ 	&dev_attr_hsuid.attr,
+ 	NULL,
+-- 
+2.17.1
