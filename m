@@ -1,39 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:44271 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725372AbgC1Hc5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 28 Mar 2020 03:32:57 -0400
-Date: Sat, 28 Mar 2020 13:02:53 +0530
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
-Subject: Re: [PATCH 0/6] Kill setup_irq()
-Message-ID: <20200328073253.GA5250@afzalpc>
-References: <20200321174303.GA7930@afzalpc>
- <cover.1585320721.git.afzal.mohd.ma@gmail.com>
- <059b01d604ab$637355b0$2a5a0110$@codeaurora.org>
+Received: from mail27.static.mailgun.info ([104.130.122.27]:25426 "EHLO
+        mail27.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726661AbgC1Cs5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 27 Mar 2020 22:48:57 -0400
+Reply-To: <bcain@codeaurora.org>
+From: "Brian Cain" <bcain@codeaurora.org>
+References: <20200321174303.GA7930@afzalpc> <cover.1585320721.git.afzal.mohd.ma@gmail.com>
+In-Reply-To: <cover.1585320721.git.afzal.mohd.ma@gmail.com>
+Subject: RE: [PATCH 0/6] Kill setup_irq()
+Date: Fri, 27 Mar 2020 21:48:38 -0500
+Message-ID: <059b01d604ab$637355b0$2a5a0110$@codeaurora.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <059b01d604ab$637355b0$2a5a0110$@codeaurora.org>
+Content-Type: text/plain;
+        charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Content-Language: en-us
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Brian Cain <bcain@codeaurora.org>
-Cc: 'Thomas Gleixner' <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, x86@kernel.org, linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-omap@vger.kernel.org, linux-alpha@vger.kernel.org
+To: 'afzal mohammed' <afzal.mohd.ma@gmail.com>, 'Thomas Gleixner' <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, x86@kernel.org, linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-omap@vger.kernel.org, linux-alpha@vger.kernel.org
 
-Hi Brian,
+> -----Original Message-----
+> From: linux-hexagon-owner@vger.kernel.org <linux-hexagon-
+> owner@vger.kernel.org> On Behalf Of afzal mohammed
+> Sent: Friday, March 27, 2020 11:08 AM
+> To: Thomas Gleixner <tglx@linutronix.de>
+> Cc: linux-kernel@vger.kernel.org; linux-arm-kernel@lists.infradead.org;
+> linux-samsung-soc@vger.kernel.org; x86@kernel.org; linux-
+> sh@vger.kernel.org; linux-s390@vger.kernel.org; linuxppc-
+> dev@lists.ozlabs.org; linux-parisc@vger.kernel.org; linux-
+> mips@vger.kernel.org; linux-m68k@lists.linux-m68k.org; linux-
+> ia64@vger.kernel.org; linux-hexagon@vger.kernel.org; linux-c6x-dev@linux-
+> c6x.org; linux-omap@vger.kernel.org; linux-alpha@vger.kernel.org
+> Subject: [PATCH 0/6] Kill setup_irq()
+...
+> Note 1: sh toolchain is available, but that will not make the  relevant
+changes
+> compile as it has dependency of 64bit arch toolchain,  did try a Kconfig
+hack
+> to make it compile w/ 32bit sh toolchain, but it  failed due to other
+reasons
+> (unknown operands), so gave up on that.
+> Note 2: hexagon final image creation fails even w/o my patch, but it  has
+> been ensured that w/ my changes relevant object files are getting  built
+w/o
+> warnings.
 
-On Fri, Mar 27, 2020 at 09:48:38PM -0500, Brian Cain wrote:
+Afzal,
 
-> > Note 2: hexagon final image creation fails even w/o my patch
+	What's the nature of the failure in "Note 2"?
 
-> 	What's the nature of the failure in "Note 2"?
-
-drivers/base/firmware_loader/main.o: In function `fw_is_builtin_firmware':
-/devel/src/kernel6/drivers/base/firmware_loader/main.c:132:(.text+0xc8): relocation truncated to fit: R_HEX_16_X against symbol `__start_builtin_fw' defined in .modinfo section in .tmp_vmlinux1
-Makefile:1077: recipe for target 'vmlinux' failed
-make: *** [vmlinux] Error 1
-
-[ i had deleted the toolchain earlier, since you asked, download again &
-checked ]
-
-Regards
-afzal
+-Brian
