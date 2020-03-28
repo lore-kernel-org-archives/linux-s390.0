@@ -1,13 +1,15 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-co1nam11on2090.outbound.protection.outlook.com ([40.107.220.90]:41121
+Received: from mail-co1nam11on2105.outbound.protection.outlook.com ([40.107.220.105]:37857
         "EHLO NAM11-CO1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726937AbgC1ScK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 28 Mar 2020 14:32:10 -0400
+        id S1727286AbgC1Sbv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 28 Mar 2020 14:31:51 -0400
 From: Hoan Tran <Hoan@os.amperecomputing.com>
-Subject: [PATCH v3 0/5] mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA
-Date: Sat, 28 Mar 2020 11:31:17 -0700
-Message-Id: <1585420282-25630-1-git-send-email-Hoan@os.amperecomputing.com>
+Subject: [PATCH v3 1/5] mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA
+Date: Sat, 28 Mar 2020 11:31:18 -0700
+Message-Id: <1585420282-25630-2-git-send-email-Hoan@os.amperecomputing.com>
+In-Reply-To: <1585420282-25630-1-git-send-email-Hoan@os.amperecomputing.com>
+References: <1585420282-25630-1-git-send-email-Hoan@os.amperecomputing.com>
 Content-Type: text/plain
 MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
@@ -39,25 +41,23 @@ This layout could occur on any architecture. Most of them enables
 this config by default with CONFIG_NUMA. This patch, by default, enables
 CONFIG_NODES_SPAN_OTHER_NODES or uses early_pfn_in_nid() for NUMA.
 
-v3:
- * Revise the patch description
+Signed-off-by: Hoan Tran <Hoan@os.amperecomputing.com>
+---
+ mm/page_alloc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-V2:
- * Revise the patch description
-
-Hoan Tran (5):
-  mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA
-  powerpc: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-  x86: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-  sparc: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-  s390: Kconfig: Remove CONFIG_NODES_SPAN_OTHER_NODES
-
- arch/powerpc/Kconfig | 9 ---------
- arch/s390/Kconfig    | 8 --------
- arch/sparc/Kconfig   | 9 ---------
- arch/x86/Kconfig     | 9 ---------
- mm/page_alloc.c      | 2 +-
- 5 files changed, 1 insertion(+), 36 deletions(-)
-
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index d047bf7..948c1c9 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1467,7 +1467,7 @@ int __meminit early_pfn_to_nid(unsigned long pfn)
+ }
+ #endif
+ 
+-#ifdef CONFIG_NODES_SPAN_OTHER_NODES
++#ifdef CONFIG_NUMA
+ /* Only safe to use early in boot when initialisation is single-threaded */
+ static inline bool __meminit early_pfn_in_nid(unsigned long pfn, int node)
+ {
 -- 
 1.8.3.1
