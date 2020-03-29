@@ -1,164 +1,141 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31614 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730562AbgCaMbO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 31 Mar 2020 08:31:14 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02VCUU2T059271
-        for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2020 08:31:12 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3022juuvtv-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2020 08:31:12 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <gerald.schaefer@de.ibm.com>;
-        Tue, 31 Mar 2020 13:30:55 +0100
-Date: Tue, 31 Mar 2020 14:30:59 +0200
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 Subject: Re: [PATCH V2 0/3] mm/debug: Add more arch page table helper tests
-In-Reply-To: <1585027375-9997-1-git-send-email-anshuman.khandual@arm.com>
 References: <1585027375-9997-1-git-send-email-anshuman.khandual@arm.com>
+ <2bb4badc-2b7a-e15d-a99b-b1bd38c9d9bf@arm.com>
+ <a46d18ed-8911-1ec3-c32f-58b6e0d959d7@c-s.fr>
+ <9675882f-0ec5-5e46-551f-dd3aa38bf8d8@arm.com>
+ <ef28cb75-40b8-5ab5-83ba-84fd4384c7c5@c-s.fr>
+Message-ID: <bf4558b2-1fe9-f0cc-3e6f-34bdf3734056@arm.com>
+Date: Sun, 29 Mar 2020 19:51:54 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20200331143059.29fca8fa@thinkpad>
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <ef28cb75-40b8-5ab5-83ba-84fd4384c7c5@c-s.fr>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: linux-mm@kvack.org, christophe.leroy@c-s.fr, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christophe Leroy <christophe.leroy@c-s.fr>, linux-mm@kvack.org
+Cc: Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 24 Mar 2020 10:52:52 +0530
-Anshuman Khandual <anshuman.khandual@arm.com> wrote:
 
-> This series adds more arch page table helper tests. The new tests here are
-> either related to core memory functions and advanced arch pgtable helpers.
-> This also creates a documentation file enlisting all expected semantics as
-> suggested by Mike Rapoport (https://lkml.org/lkml/2020/1/30/40).
+On 03/27/2020 12:30 PM, Christophe Leroy wrote:
 > 
-> This series has been tested on arm64 and x86 platforms. There is just one
-> expected failure on arm64 that will be fixed when we enable THP migration.
 > 
-> [   21.741634] WARNING: CPU: 0 PID: 1 at mm/debug_vm_pgtable.c:782
+> On 03/27/2020 06:46 AM, Anshuman Khandual wrote:
+>>
+>> On 03/26/2020 08:53 PM, Christophe Leroy wrote:
+>>>
+>>>
+>>> Le 26/03/2020 à 03:23, Anshuman Khandual a écrit :
+>>>>
+>>>>
+>>>> On 03/24/2020 10:52 AM, Anshuman Khandual wrote:
+>>>>> This series adds more arch page table helper tests. The new tests here are
+>>>>> either related to core memory functions and advanced arch pgtable helpers.
+>>>>> This also creates a documentation file enlisting all expected semantics as
+>>>>> suggested by Mike Rapoport (https://lkml.org/lkml/2020/1/30/40).
+>>>>>
+>>>>> This series has been tested on arm64 and x86 platforms.
+>>>>
+>>>> If folks can test these patches out on remaining ARCH_HAS_DEBUG_VM_PGTABLE
+>>>> enabled platforms i.e s390, arc, powerpc (32 and 64), that will be really
+>>>> appreciated. Thank you.
+>>>>
+>>>
+>>> On powerpc 8xx (PPC32), I get:
+>>>
+>>> [   53.338368] debug_vm_pgtable: debug_vm_pgtable: Validating architecture page table helpers
+>>> [   53.347403] ------------[ cut here ]------------
+>>> [   53.351832] WARNING: CPU: 0 PID: 1 at mm/debug_vm_pgtable.c:647 debug_vm_pgtable+0x280/0x3f4
+>>
+>> mm/debug_vm_pgtable.c:647 ?
+>>
+>> With the following commits in place
+>>
+>> 53a8338ce (HEAD) Documentation/mm: Add descriptions for arch page table helper
+>> 5d4913fc1 mm/debug: Add tests validating arch advanced page table helpers
+>> bcaf120a7 mm/debug: Add tests validating arch page table helpers for core features
+>> d6ed5a4a5 x86/memory: Drop pud_mknotpresent()
+>> 0739d1f8d mm/debug: Add tests validating architecture page table helpers
+>> 16fbf79b0 (tag: v5.6-rc7) Linux 5.6-rc7
 > 
-> which corresponds to
+> I have:
 > 
-> WARN_ON(!pmd_present(pmd_mknotpresent(pmd_mkhuge(pmd))))
+> facaa5eb5909 (HEAD -> helpers0) mm/debug: Add tests validating arch advanced page table helpers
+> 6389fed515fc mm/debug: Add tests validating arch page table helpers for core features
+> dc14ecc8b94e mm/debug: add tests validating architecture page table helpers
+> c6624071c338 (origin/merge, merge) Automatic merge of branches 'master', 'next' and 'fixes' into merge
+> 58e05c5508e6 Automatic merge of branches 'master', 'next' and 'fixes' into merge
+> 1b649e0bcae7 (origin/master, origin/HEAD) Merge git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net
 > 
-> There are many TRANSPARENT_HUGEPAGE and ARCH_HAS_TRANSPARENT_HUGEPAGE_PUD
-> ifdefs scattered across the test. But consolidating all the fallback stubs
-> is not very straight forward because ARCH_HAS_TRANSPARENT_HUGEPAGE_PUD is
-> not explicitly dependent on ARCH_HAS_TRANSPARENT_HUGEPAGE.
+> origin is https://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux.git
 > 
-> This series has been build tested on many platforms including the ones that
-> subscribe the test through ARCH_HAS_DEBUG_VM_PGTABLE.
+> I can't see your last patch in powerpc mailing list (https://patchwork.ozlabs.org/project/linuxppc-dev/list/?series=166237)
+
+My bad, did not update the last patch with required lists (will fix).
+
 > 
+>>
+>> mm/debug_vm_pgtable.c:647 is here.
+> 
+> Line 647 is:
+> 
+>     WARN_ON(!pte_same(pte, __swp_entry_to_pte(swp)));
 
-Hi Anshuman,
+Both set of definitions suggest that the last three bits (if present)
+on the PTE will be discarded during PTE->SWP->PTE conversion which
+might be leading to this mismatch and subsequent failure.
 
-thanks for the update. There are a couple of issues on s390, some might
-also affect other archs.
+arch/powerpc/include/asm/nohash/32/pgtable.h
+arch/powerpc/include/asm/book3s/32/pgtable.h
 
-1) The pxd_huge_tests are using pxd_set/clear_huge, which defaults to
-returning 0 if !CONFIG_HAVE_ARCH_HUGE_VMAP. As result, the checks for
-!pxd_test/clear_huge in the pxd_huge_tests will always trigger the
-warning. This should affect all archs w/o CONFIG_HAVE_ARCH_HUGE_VMAP.
-Could be fixed like this:
+#define __pte_to_swp_entry(pte)         ((swp_entry_t) { pte_val(pte) >> 3 })
+#define __swp_entry_to_pte(x)           ((pte_t) { (x).val << 3 })
 
-@@ -923,8 +923,10 @@ void __init debug_vm_pgtable(void)
-        pmd_leaf_tests(pmd_aligned, prot);
-        pud_leaf_tests(pud_aligned, prot);
- 
--       pmd_huge_tests(pmdp, pmd_aligned, prot);
--       pud_huge_tests(pudp, pud_aligned, prot);
-+       if (IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP)) {
-+               pmd_huge_tests(pmdp, pmd_aligned, prot);
-+               pud_huge_tests(pudp, pud_aligned, prot);
-+       }
- 
-        pte_savedwrite_tests(pte_aligned, prot);
-        pmd_savedwrite_tests(pmd_aligned, prot);
+Also there are some more architectures (microblaze, sh, etc) where these
+conversions are not always preserving. On powerpc64, it sets back _PAGE_PTE
+irrespective of whether the bit was originally set or not.
 
-BTW, please add some comments to the various #ifdef/#else stuff, especially
-when the different parts are far away and/or nested.
+Probably it is wrong to expect that PTE->SWP->PTE conversion will be always
+preserving. So wondering if it is worth changing this test to accommodate
+all such architectures or just drop it instead.
 
-2) The hugetlb_advanced_test will fail because it directly de-references
-huge *ptep pointers instead of using huge_ptep_get() for this. We have
-very different pagetable entry layout for pte and (large) pmd on s390,
-and unfortunately the whole hugetlbfs code is using pte_t instead of pmd_t
-like THP. For this reason, huge_ptep_get() was introduced, which will
-return a "converted" pte, because directly reading from a *ptep (pointing
-to a large pmd) will not return a proper pte. Only ARM has also an
-implementation of huge_ptep_get(), so they could be affected, depending
-on what exactly they need it for.
+> 
+> 
+>>
+>> #ifdef CONFIG_ARCH_ENABLE_THP_MIGRATION
+>> static void __init pmd_swap_tests(unsigned long pfn, pgprot_t prot)
+>> {
+>>          swp_entry_t swp;
+>>          pmd_t pmd;  -----------------------------> Line #647
+>>
+>>          pmd = pfn_pmd(pfn, prot);
+>>          swp = __pmd_to_swp_entry(pmd);
+>>          WARN_ON(!pmd_same(pmd, __swp_entry_to_pmd(swp)));
+>> }
+>> #else
+>> static void __init pmd_swap_tests(unsigned long pfn, pgprot_t prot) { }
+>> #end
+>>
+>> Did I miss something ?
+>>
+> 
+> [...]
+> 
+>> Could you please point me to the exact test which is failing ?
+>>
+>>> [   53.519778] Freeing unused kernel memory: 608K
+>>>
+>>>
+>> So I assume that the system should have come till runtime just fine apart from
+>> the above warning message because.
+>>
+> 
+> Yes it boots fine otherwise.
 
-Could be fixed like this (the first de-reference is a bit special,
-because at that point *ptep does not really point to a large (pmd) entry
-yet, it is initially an invalid pte entry, which breaks our huge_ptep_get()
-conversion logic. I also added PMD_MASK alignment for RANDOM_ORVALUE,
-because we do have some special bits there in our large pmds. It seems
-to also work w/o that alignment, but it feels a bit wrong):
+Cool, that is good to know.
 
-@@ -731,26 +731,26 @@ static void __init hugetlb_advanced_test
-                                          unsigned long vaddr, pgprot_t prot)
- {
-        struct page *page = pfn_to_page(pfn);
--       pte_t pte = READ_ONCE(*ptep);
-+       pte_t pte;
-
--       pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
-+       pte = pte_mkhuge(mk_pte_phys(RANDOM_ORVALUE & PMD_MASK, prot));
-        set_huge_pte_at(mm, vaddr, ptep, pte);
-        barrier();
-        WARN_ON(!pte_same(pte, huge_ptep_get(ptep)));
-        huge_pte_clear(mm, vaddr, ptep, PMD_SIZE);
--       pte = READ_ONCE(*ptep);
-+       pte = huge_ptep_get(ptep);
-        WARN_ON(!huge_pte_none(pte));
- 
-        pte = mk_huge_pte(page, prot);
-        set_huge_pte_at(mm, vaddr, ptep, pte);
-        huge_ptep_set_wrprotect(mm, vaddr, ptep);
--       pte = READ_ONCE(*ptep);
-+       pte = huge_ptep_get(ptep);
-        WARN_ON(huge_pte_write(pte));
- 
-        pte = mk_huge_pte(page, prot);
-        set_huge_pte_at(mm, vaddr, ptep, pte);
-        huge_ptep_get_and_clear(mm, vaddr, ptep);
--       pte = READ_ONCE(*ptep);
-+       pte = huge_ptep_get(ptep);
-        WARN_ON(!huge_pte_none(pte));
- 
-        pte = mk_huge_pte(page, prot);
-@@ -759,7 +759,7 @@ static void __init hugetlb_advanced_test
-        pte = huge_pte_mkwrite(pte);
-        pte = huge_pte_mkdirty(pte);
-        huge_ptep_set_access_flags(vma, vaddr, ptep, pte, 1);
--       pte = READ_ONCE(*ptep);
-+       pte = huge_ptep_get(ptep);
-        WARN_ON(!(huge_pte_write(pte) && huge_pte_dirty(pte)));
- }
- #else
-
-3) The pmd_protnone_tests() has an issue, because it passes a pmd to
-pmd_protnone() which has not been marked as large. We check for large
-pmd in the s390 implementation of pmd_protnone(), and will fail if a
-pmd is not large. We had similar issues before, in other helpers, where
-I changed the logic on s390 to not require the pmd large check, but I'm
-not so sure in this case. Is there a valid use case for doing
-pmd_protnone() on "normal" pmds? Or could this be changed like this:
-
-@@ -537,7 +537,7 @@ static void __init pte_protnone_tests(un
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void __init pmd_protnone_tests(unsigned long pfn, pgprot_t prot)
- {
--       pmd_t pmd = pfn_pmd(pfn, prot);
-+       pmd_t pmd = mk_huge_pmd(pfn_to_page(pfn), prot);
-
-        if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
-                return;
-
-Regards,
-Gerald
+> 
+> Christophe
+> 
