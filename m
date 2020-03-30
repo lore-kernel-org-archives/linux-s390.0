@@ -1,20 +1,9 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21582 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725268AbgC3OOH (ORCPT
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:55760 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726937AbgC3OAw (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 30 Mar 2020 10:14:07 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02UE4OJD045620
-        for <linux-s390@vger.kernel.org>; Mon, 30 Mar 2020 10:14:07 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 301yfepv4b-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 30 Mar 2020 10:14:07 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Mon, 30 Mar 2020 15:13:54 +0100
+        Mon, 30 Mar 2020 10:00:52 -0400
 Subject: Re: [kvm-unit-tests PATCH] s390x: Add stsi 3.2.2 tests
 References: <20200330122035.19607-1-frankja@linux.ibm.com>
  <df745d0c-5d24-ee03-8600-ec495f1a5af6@redhat.com>
@@ -22,20 +11,18 @@ References: <20200330122035.19607-1-frankja@linux.ibm.com>
  <727e1ed5-99ea-e559-ca9c-0f067cbcc153@linux.ibm.com>
  <ab811a78-fe3c-1c6b-bb6d-85466e040ac6@redhat.com>
  <2104b9a7-2ae0-6964-0eef-25ba7cca3119@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Date: Mon, 30 Mar 2020 16:13:59 +0200
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <a7e1932e-c33e-6450-fb83-328613e77c98@redhat.com>
+Date: Mon, 30 Mar 2020 16:00:42 +0200
 MIME-Version: 1.0
 In-Reply-To: <2104b9a7-2ae0-6964-0eef-25ba7cca3119@linux.ibm.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <2dcbdfed-d51d-1b21-87fc-78ab7f10c945@de.ibm.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, cohuck@redhat.com
-
-
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com
 
 On 30.03.20 15:30, Janosch Frank wrote:
 > On 3/30/20 3:15 PM, David Hildenbrand wrote:
@@ -66,11 +53,16 @@ On 30.03.20 15:30, Janosch Frank wrote:
 > 
 > To fix this we could also fix-up the cpu reporting in QEMU after KVM
 > wrote its results.
+
+I think that would be preferred, and handling it similar to the TCG
+implementation
+
 > 
 > @Christian: Guidance?
+> 
 
-The standby only make sense if we implement the sclp cpu configure things,
-which we do not. So this can be considered reserved, while standby
-must be 0.
 
-I think we could implement this in QEMUs insert_stsi_3_2_2 function in kvm.c
+-- 
+Thanks,
+
+David / dhildenb
