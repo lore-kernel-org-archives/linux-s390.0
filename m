@@ -1,60 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2617 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726546AbgCRMzX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Mar 2020 08:55:23 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02ICWlhx093609
-        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:22 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2yu98t60jn-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 18 Mar 2020 08:55:22 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <jwi@linux.ibm.com>;
-        Wed, 18 Mar 2020 12:55:20 -0000
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 01/11] s390/qeth: use memory reserves to back RX buffers
-Date: Wed, 18 Mar 2020 13:54:45 +0100
-In-Reply-To: <20200318125455.5838-1-jwi@linux.ibm.com>
-References: <20200318125455.5838-1-jwi@linux.ibm.com>
-Message-Id: <20200318125455.5838-2-jwi@linux.ibm.com>
+Received: from shards.monkeyblade.net ([23.128.96.9]:33220 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726085AbgC3FCe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Mar 2020 01:02:34 -0400
+Date: Sun, 29 Mar 2020 22:02:32 -0700 (PDT)
+Message-Id: <20200329.220232.362049697685982643.davem@davemloft.net>
+Subject: Re: [PATCH net] s390/qeth: support net namespaces for L3 devices
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200327110042.50797-1-jwi@linux.ibm.com>
+References: <20200327110042.50797-1-jwi@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: jwi@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, ubraun@linux.ibm.com
 
-Use dev_alloc_page() for backing the RX buffers with pages. This way we
-pick up __GFP_MEMALLOC.
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Fri, 27 Mar 2020 12:00:42 +0100
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> Enable the L3 driver's IPv4 address notifier to watch for events on qeth
+> devices that have been moved into a net namespace. We need to program
+> those IPs into the HW just as usual, otherwise inbound traffic won't
+> flow.
+> 
+> Fixes: 6133fb1aa137 ("[NETNS]: Disable inetaddr notifiers in namespaces other than initial.")
+> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 6caa78d51bd1..be3f6295309b 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -244,7 +244,7 @@ static struct qeth_buffer_pool_entry *qeth_alloc_pool_entry(unsigned int pages)
- 		return NULL;
- 
- 	for (i = 0; i < pages; i++) {
--		entry->elements[i] = alloc_page(GFP_KERNEL);
-+		entry->elements[i] = __dev_alloc_page(GFP_KERNEL);
- 
- 		if (!entry->elements[i]) {
- 			qeth_free_pool_entry(entry);
-@@ -2654,7 +2654,7 @@ static struct qeth_buffer_pool_entry *qeth_find_free_buffer_pool_entry(
- 			struct qeth_buffer_pool_entry, list);
- 	for (i = 0; i < QETH_MAX_BUFFER_ELEMENTS(card); ++i) {
- 		if (page_count(entry->elements[i]) > 1) {
--			struct page *page = alloc_page(GFP_ATOMIC);
-+			struct page *page = dev_alloc_page();
- 
- 			if (!page)
- 				return NULL;
--- 
-2.17.1
+Applied to net-next.
