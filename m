@@ -1,107 +1,131 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59402 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726085AbgC3NaP (ORCPT
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:28975 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730100AbgC3NOZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 30 Mar 2020 09:30:15 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02UD3XRY173654
-        for <linux-s390@vger.kernel.org>; Mon, 30 Mar 2020 09:30:13 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 30206x5b6u-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 30 Mar 2020 09:30:13 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Mon, 30 Mar 2020 14:30:00 +0100
+        Mon, 30 Mar 2020 09:14:25 -0400
 Subject: Re: [kvm-unit-tests PATCH] s390x: Add stsi 3.2.2 tests
 References: <20200330122035.19607-1-frankja@linux.ibm.com>
- <df745d0c-5d24-ee03-8600-ec495f1a5af6@redhat.com>
- <d42ac187-9f8f-81eb-c9b4-4d585fdef236@linux.ibm.com>
- <727e1ed5-99ea-e559-ca9c-0f067cbcc153@linux.ibm.com>
- <ab811a78-fe3c-1c6b-bb6d-85466e040ac6@redhat.com>
-From: Janosch Frank <frankja@linux.ibm.com>
-Date: Mon, 30 Mar 2020 15:30:08 +0200
+ <860a5575-226a-9b6e-4db0-b1b9dc72b3ed@redhat.com>
+ <e1bcfeda-c05d-712b-3c38-4c27188c33bf@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <8ce6361f-bd16-9852-f53e-1048670f9b5e@redhat.com>
+Date: Mon, 30 Mar 2020 15:14:17 +0200
 MIME-Version: 1.0
-In-Reply-To: <ab811a78-fe3c-1c6b-bb6d-85466e040ac6@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="kH8bu86yVBFnOlrxnyJudRcInGHUbdEWI"
-Message-Id: <2104b9a7-2ae0-6964-0eef-25ba7cca3119@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
-List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---kH8bu86yVBFnOlrxnyJudRcInGHUbdEWI
-Content-Type: multipart/mixed; boundary="bXdmGyT9SUxowwpXP4EzbkroHDrf9J5J1"
-
---bXdmGyT9SUxowwpXP4EzbkroHDrf9J5J1
+In-Reply-To: <e1bcfeda-c05d-712b-3c38-4c27188c33bf@linux.ibm.com>
 Content-Type: text/plain; charset=windows-1252
 Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
+List-ID: <linux-s390.vger.kernel.org>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com
 
-On 3/30/20 3:15 PM, David Hildenbrand wrote:
-> On 30.03.20 15:09, Janosch Frank wrote:
->> On 3/30/20 3:03 PM, Janosch Frank wrote:
->>> On 3/30/20 2:50 PM, David Hildenbrand wrote:
->>>> On 30.03.20 14:20, Janosch Frank wrote:
->>>>> +	report(data->vm[0].total_cpus =3D=3D smp_query_num_cpus(), "cpu #=
- total");
->>>>> +	report(data->vm[0].conf_cpus =3D=3D smp_query_num_cpus(), "cpu # =
-configured");
->>>>> +	report(data->vm[0].standby_cpus =3D=3D 0, "cpu # standby");
->>>>> +	report(data->vm[0].reserved_cpus =3D=3D 0, "cpu # reserved");
->>>>
->>>> IIRC, using -smp 1,maxcpus=3DX, you could also test the reported res=
-erved
->>>> CPUs.
+On 30.03.20 15:00, Janosch Frank wrote:
+> On 3/30/20 2:51 PM, David Hildenbrand wrote:
+>> On 30.03.20 14:20, Janosch Frank wrote:
+>>> Subcode 3.2.2 is handled by KVM/QEMU and should therefore be tested
+>>> a bit more thorough.
 >>>
->>> Will try that
+>>> In this test we set a custom name and uuid through the QEMU command
+>>> line. Both parameters will be passed to the guest on a stsi subcode
+>>> 3.2.2 call and will then be checked.
+>>>
+>>> We also compare the total and configured cpu numbers against the smp
+>>> reported numbers.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> ---
+>>>  s390x/stsi.c        | 62 +++++++++++++++++++++++++++++++++++++++++++++
+>>>  s390x/unittests.cfg |  1 +
+>>>  2 files changed, 63 insertions(+)
+>>>
+>>> diff --git a/s390x/stsi.c b/s390x/stsi.c
+>>> index e9206bca137d2edb..10e588a78cc05186 100644
+>>> --- a/s390x/stsi.c
+>>> +++ b/s390x/stsi.c
+>>> @@ -14,7 +14,28 @@
+>>>  #include <asm/page.h>
+>>>  #include <asm/asm-offsets.h>
+>>>  #include <asm/interrupt.h>
+>>> +#include <smp.h>
+>>>  
+>>> +struct stsi_322 {
+>>> +    uint8_t  reserved[31];
+>>> +    uint8_t  count;
+>>> +    struct {
+>>> +        uint8_t  reserved2[4];
+>>> +        uint16_t total_cpus;
+>>> +        uint16_t conf_cpus;
+>>> +        uint16_t standby_cpus;
+>>> +        uint16_t reserved_cpus;
+>>> +        uint8_t  name[8];
+>>> +        uint32_t caf;
+>>> +        uint8_t  cpi[16];
+>>> +        uint8_t reserved5[3];
+>>> +        uint8_t ext_name_encoding;
+>>> +        uint32_t reserved3;
+>>> +        uint8_t uuid[16];
+>>> +    } vm[8];
+>>> +    uint8_t reserved4[1504];
+>>> +    uint8_t ext_names[8][256];
+>>> +};
+>>>  static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
+>>>  
+>>>  static void test_specs(void)
+>>> @@ -76,11 +97,52 @@ static void test_fc(void)
+>>>  	report(stsi_get_fc(pagebuf) >= 2, "query fc >= 2");
+>>>  }
+>>>  
+>>> +static void test_3_2_2(void)
+>>> +{
+>>> +	int rc;
+>>> +	/* EBCDIC for "kvm-unit" */
+>>> +	uint8_t vm_name[] = { 0x92, 0xa5, 0x94, 0x60, 0xa4, 0x95, 0x89, 0xa3 };
+>>> +	uint8_t uuid[] = { 0x0f, 0xb8, 0x4a, 0x86, 0x72, 0x7c,
+>>> +			   0x11, 0xea, 0xbc, 0x55, 0x02, 0x42, 0xac, 0x13,
+>>> +			   0x00, 0x03 };
+>>> +	/* EBCDIC for "KVM/" */
+>>> +	uint8_t cpi_kvm[] = { 0xd2, 0xe5, 0xd4, 0x61 };
+>>> +	const char *vm_name_ext = "kvm-unit-test";
+>>> +	struct stsi_322 *data = (void *)pagebuf;
+>>> +
+>>> +	/* Is the function code available at all? */
+>>> +	if (stsi_get_fc(pagebuf) < 3)
+>>> +		return;
+>>> +
+>>> +	report_prefix_push("3.2.2");
+>>> +	rc = stsi(pagebuf, 3, 2, 2);
+>>> +	report(!rc, "call");
+>>> +
+>>> +	/* For now we concentrate on KVM/QEMU */
+>>> +	if (memcmp(&data->vm[0].cpi, cpi_kvm, sizeof(cpi_kvm)))
+>>> +		goto out;
+>>> +
+>>> +	report(data->vm[0].total_cpus == smp_query_num_cpus(), "cpu # total");
+>>> +	report(data->vm[0].conf_cpus == smp_query_num_cpus(), "cpu # configured");
+>>> +	report(data->vm[0].standby_cpus == 0, "cpu # standby");
+>>> +	report(data->vm[0].reserved_cpus == 0, "cpu # reserved");
+>>> +	report(!memcmp(data->vm[0].name, vm_name, sizeof(data->vm[0].name)),
+>>> +	       "VM name == kvm-unit-test");
+>>> +	report(data->vm[0].ext_name_encoding == 2, "ext name encoding UTF-8");
 >>
->> Just like I thought, QEMU does not manipulate cpu counts and KVM
->> pre-sets standby and reserved to 0. So we have absolutely no change wh=
-en
->> adding the smp parameter.
->=20
-> Well, for TCG it is properly implemented. Is this a BUG in KVM's STSI c=
-ode?
->=20
+>> should you rather do
+>>
+>> if (data->vm[0].ext_name_encoding == 2) {
+>> 	...
+>> } else {
+>> 	report_skip(...);
+>> }
+>>
+>> to make this future-proof?
+>>
+> Do you expect UTF-16 or EBCDIC in the future? :)
 
-KVM tracks online cpus and created cpus, but only reports the online
-ones in stsi.
-Will QEMU register/create a reserved CPU with KVM?
-
-To fix this we could also fix-up the cpu reporting in QEMU after KVM
-wrote its results.
-
-@Christian: Guidance?
+Well, you never know :) If there is an option for other encodings ...
 
 
---bXdmGyT9SUxowwpXP4EzbkroHDrf9J5J1--
+-- 
+Thanks,
 
---kH8bu86yVBFnOlrxnyJudRcInGHUbdEWI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl6B9GAACgkQ41TmuOI4
-ufjtlw//Q0eDOo3bni0wOgfGCirXsYj/cnafz4rQPSoFiSeRI1rHy8iRT4Ni8yOP
-92a4a5Kl003p1dWVDjCQPsebnDWWnSUTroK/WwcSFn6IlzPtkSShGWgkVUSjyMJG
-8A5OOlv5LE3cmaPBzx9PABvvlkrQJBTGzhMNHOyCY1JFOpUexNIbkJ+Qh1sPWvTj
-mHERXaVNbwDUO35zCag+9A66+LrbUNF9WvIQJ/OvypJLeHGb8zNzVr5uQNgYCriU
-M1IRzYb7W4f8L/Vm/Jy1WUlKvVa2koaGaml//eY3llH5j8qNpMhL9D/asG67MMdS
-zLgm9nrNq9HEEIDvJLv57fE2ONnHrK9VkknmrOCgtwSkU3fECTd97YtjR+xJ4YZ8
-JAL0TEP9rSB+WFecvKh14BB+NIxQ8lTj3QvdW4EIHNAa5pHdp2zrsyk3j/15N4LR
-orXkuGo+mtWaBt3FpuAx/lSZZcLg/v6kJqHZLPfiTd5+5R21doAutSwLg8a5Za8S
-Byx53sTFY88/JNi+DZYxhm3YSyY5UuxloY8MVh5M3UQ+QpL1K5yUpuiyeJLvjxYG
-1Bbmqt+H50LDD4kQLeYEIHOh2TDnBrte62/Gpv7r/xPLvya7bsFdtnV03FWNjjBY
-7q9zL3jLsPv32CTDeu2JLqKDb293uWbqNKMqliFwXerqEaNb93U=
-=cxFM
------END PGP SIGNATURE-----
-
---kH8bu86yVBFnOlrxnyJudRcInGHUbdEWI--
+David / dhildenb
