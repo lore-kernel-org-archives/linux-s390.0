@@ -1,35 +1,76 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 08/11] s390/qeth: don't report hard-coded driver version
-Date: Wed, 18 Mar 2020 13:54:52 +0100
-In-Reply-To: <20200318125455.5838-1-jwi@linux.ibm.com>
-References: <20200318125455.5838-1-jwi@linux.ibm.com>
-Message-Id: <20200318125455.5838-9-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-74.mimecast.com ([216.205.24.74]:59767 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727437AbgC3QT7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Mar 2020 12:19:59 -0400
+Subject: Re: [kvm-unit-tests PATCH v2] s390x: Add stsi 3.2.2 tests
+References: <20200330153359.2386-1-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <2ebc49ff-479a-351d-36f9-cb79fe4b9804@redhat.com>
+Date: Mon, 30 Mar 2020 18:19:52 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200330153359.2386-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Leon Romanovsky <leonro@mellanox.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, cohuck@redhat.com, borntraeger@de.ibm.com
 
-Versions are meaningless for an in-kernel driver.
-Instead use the UTS_RELEASE that is set by ethtool_get_drvinfo().
+On 30.03.20 17:33, Janosch Frank wrote:
+> Subcode 3.2.2 is handled by KVM/QEMU and should therefore be tested
+> a bit more thorough.
+> 
+> In this test we set a custom name and uuid through the QEMU command
+> line. Both parameters will be passed to the guest on a stsi subcode
+> 3.2.2 call and will then be checked.
+> 
+> We also compare the configured cpu numbers against the smp reported
+> numbers and if the reserved + configured add up to the total number
+> reported.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  s390x/stsi.c        | 72 +++++++++++++++++++++++++++++++++++++++++++++
+>  s390x/unittests.cfg |  1 +
+>  2 files changed, 73 insertions(+)
+> 
+> diff --git a/s390x/stsi.c b/s390x/stsi.c
+> index e9206bca137d2edb..a291fd828347018a 100644
+> --- a/s390x/stsi.c
+> +++ b/s390x/stsi.c
+> @@ -14,7 +14,28 @@
+>  #include <asm/page.h>
+>  #include <asm/asm-offsets.h>
+>  #include <asm/interrupt.h>
+> +#include <smp.h>
+>  
+> +struct stsi_322 {
+> +    uint8_t reserved[31];
+> +    uint8_t count;
+> +    struct {
+> +        uint8_t reserved2[4];
+> +        uint16_t total_cpus;
+> +        uint16_t conf_cpus;
+> +        uint16_t standby_cpus;
+> +        uint16_t reserved_cpus;
+> +        uint8_t name[8];
+> +        uint32_t caf;
+> +        uint8_t cpi[16];
+> +        uint8_t reserved5[3];
+> +        uint8_t ext_name_encoding;
+> +        uint32_t reserved3;
+> +        uint8_t uuid[16];
+> +    } vm[8];
+> +    uint8_t reserved4[1504];
+> +    uint8_t ext_names[8][256];
 
-Cc: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_ethtool.c | 1 -
- 1 file changed, 1 deletion(-)
+Just notices that all these spaces should be converted to tabs.
 
-diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
-index 5cfa371b7426..31e019085fc3 100644
---- a/drivers/s390/net/qeth_ethtool.c
-+++ b/drivers/s390/net/qeth_ethtool.c
-@@ -153,7 +153,6 @@ static void qeth_get_drvinfo(struct net_device *dev,
- 
- 	strlcpy(info->driver, IS_LAYER2(card) ? "qeth_l2" : "qeth_l3",
- 		sizeof(info->driver));
--	strlcpy(info->version, "1.0", sizeof(info->version));
- 	strlcpy(info->fw_version, card->info.mcl_level,
- 		sizeof(info->fw_version));
- 	snprintf(info->bus_info, sizeof(info->bus_info), "%s/%s/%s",
+
 -- 
-2.17.1
+Thanks,
+
+David / dhildenb
