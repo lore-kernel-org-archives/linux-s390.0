@@ -1,65 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30834 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731558AbgCJNMa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:12:30 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH v2] KVM: s390: Also reset registers in sync regs for initial cpu reset
-Date: Tue, 10 Mar 2020 09:12:23 -0400
-Message-Id: <20200310131223.10287-1-borntraeger@de.ibm.com>
+Received: from mx.sdf.org ([205.166.94.20]:55263 "EHLO mx.sdf.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726315AbgCaTHm (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 31 Mar 2020 15:07:42 -0400
+Date: Tue, 31 Mar 2020 19:04:48 +0000
+From: George Spelvin <lkml@SDF.ORG>
+Subject: Re: [RFC PATCH v1 27/50] drivers/s390/scsi/zcsp_fc.c: Use
+ prandom_u32_max() for backoff
+Message-ID: <20200331190448.GB9912@SDF.ORG>
+References: <202003281643.02SGhHN7015213@sdf.org>
+ <20200331161321.GB17507@t480-pf1aa2c2>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200331161321.GB17507@t480-pf1aa2c2>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, stable@vger.kernel.org
+To: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, lkml@sdf.org
 
-When we do the initial CPU reset we must not only clear the registers
-in the internal data structures but also in kvm_run sync_regs. For
-modern userspace sync_regs is the only place that it looks at.
+On Tue, Mar 31, 2020 at 06:13:21PM +0200, Benjamin Block wrote:
+> it would be nice, if you could address the mails to the
+> driver-maintainers (`scripts/get_maintainer.pl drivers/s390/scsi/zfcp_fc.c`
+> will tell you that this is me and Steffen); I'd certainly have noticed
+> it earlier then :-).
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+How the $%$# did I mess that up?  I know choosing recipients for
+this series was mostly manual, becase it didn't fit the usual
+pattern of the entire series going to everyone affectrd by any part
+of it.
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d7ff30e45589..c2e6d4ba4e23 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3268,7 +3268,10 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
- 	/* Initial reset is a superset of the normal reset */
- 	kvm_arch_vcpu_ioctl_normal_reset(vcpu);
- 
--	/* this equals initial cpu reset in pop, but we don't switch to ESA */
-+	/*
-+	 * This equals initial cpu reset in pop, but we don't switch to ESA.
-+	 * We do not only reset the internal data, but also ...
-+	 */
- 	vcpu->arch.sie_block->gpsw.mask = 0;
- 	vcpu->arch.sie_block->gpsw.addr = 0;
- 	kvm_s390_set_prefix(vcpu, 0);
-@@ -3278,6 +3281,19 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
- 	memset(vcpu->arch.sie_block->gcr, 0, sizeof(vcpu->arch.sie_block->gcr));
- 	vcpu->arch.sie_block->gcr[0] = CR0_INITIAL_MASK;
- 	vcpu->arch.sie_block->gcr[14] = CR14_INITIAL_MASK;
-+
-+	/* ... the data in sync regs */
-+	memset(vcpu->run->s.regs.crs, 0, sizeof(vcpu->run->s.regs.crs));
-+	vcpu->run->s.regs.ckc = 0;
-+	vcpu->run->s.regs.crs[0] = CR0_INITIAL_MASK;
-+	vcpu->run->s.regs.crs[14] = CR14_INITIAL_MASK;
-+	vcpu->run->psw_addr = 0;
-+	vcpu->run->psw_mask = 0;
-+	vcpu->run->s.regs.todpr = 0;
-+	vcpu->run->s.regs.cputm = 0;
-+	vcpu->run->s.regs.ckc = 0;
-+	vcpu->run->s.regs.pp = 0;
-+	vcpu->run->s.regs.gbea = 1;
- 	vcpu->run->s.regs.fpc = 0;
- 	vcpu->arch.sie_block->gbea = 1;
- 	vcpu->arch.sie_block->pp = 0;
--- 
-2.25.0
+And then there waqs a whole lot of shuffling things into a logical
+order and grouping.
+
+But I checked MAINTAINERS originally, I really did.  :-(
+
+> On Fri, Nov 29, 2019 at 03:39:41PM -0500, George Spelvin wrote:
+>> diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
+>> index b018b61bd168e..d24cafe02708f 100644
+>> --- a/drivers/s390/scsi/zfcp_fc.c
+>> +++ b/drivers/s390/scsi/zfcp_fc.c
+>> @@ -48,7 +48,7 @@ unsigned int zfcp_fc_port_scan_backoff(void)
+>>  {
+>>  	if (!port_scan_backoff)
+>>  		return 0;
+>> -	return get_random_int() % port_scan_backoff;
+>> +	return prandom_u32_max(port_scan_backoff);
+> 
+> I think the change is fine. You are right, we don't need a crypto nonce
+> here.
+> 
+> I think I'd let the zero-check stand as is, because the internal
+> behaviour of prandom_u32_max() is, as you say, undocumented. This is not
+> a performance critical code-path for us anyway.
+
+I agree.  Sorry, that comment in the commit message was a bit of
+a "not to self" that I didn't clean up.  Feel free to rm it when
+queueing if you like.
+
+> Steffen, do you have any objections? Otherwise I can queue this up -
+> minus the somewhat mangled subject - for when we send something next time.
+
+Thank you, I'll put it in my "accepted" pile.
