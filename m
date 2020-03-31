@@ -1,33 +1,225 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2120.oracle.com ([156.151.31.85]:41218 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731616AbgDACYr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Mar 2020 22:24:47 -0400
-Subject: Re: [PATCH] zfcp: use fallthrough;
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-References: <d14669a67a17392490d3184117941123765db1a4.1585663010.git.bblock@linux.ibm.com>
-Date: Tue, 31 Mar 2020 22:24:38 -0400
-In-Reply-To: <d14669a67a17392490d3184117941123765db1a4.1585663010.git.bblock@linux.ibm.com>
-        (Benjamin Block's message of "Tue, 31 Mar 2020 16:21:48 +0200")
-Message-ID: <yq1r1x854ex.fsf@oracle.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2260 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730464AbgCaOWY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 31 Mar 2020 10:22:24 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 02VE3dIe034664
+        for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2020 10:22:23 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3043g77yba-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 31 Mar 2020 10:22:23 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <bblock@linux.ibm.com>;
+        Tue, 31 Mar 2020 15:22:19 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH] zfcp: use fallthrough;
+Date: Tue, 31 Mar 2020 16:21:48 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+Message-Id: <d14669a67a17392490d3184117941123765db1a4.1585663010.git.bblock@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Benjamin Block <bblock@linux.ibm.com>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Joe Perches <joe@perches.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Joe Perches <joe@perches.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>
+
+From: Joe Perches <joe@perches.com>
+
+Convert the various uses of fallthrough comments to fallthrough;
+
+Done via script
+Link: https://lore.kernel.org/lkml/b56602fcf79f849e733e7b521bb0e17895d390fa.1582230379.git.joe.com/
+
+Signed-off-by: Joe Perches <joe@perches.com>
+Reviewed-by: Fedor Loshakov <loshakov@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+[bblock@linux.ibm.com: resolved merge conflict with recently upstream-sent patch "zfcp: expose fabric name as common fc_host sysfs attribute"]
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+---
+ drivers/s390/scsi/zfcp_erp.c | 10 +++++-----
+ drivers/s390/scsi/zfcp_fsf.c | 23 +++++++++++------------
+ 2 files changed, 16 insertions(+), 17 deletions(-)
+
+Hello James, Martin, Joe,
+
+please consider this patch for the next release that is convenient for
+you. It applies on James' "for-next" and "misc" branch; and Martin's
+"for-next" and "queue" branch - it goes on top of the series Steffen
+sent for 5.7.
+
+Heiko C. applied the other changes from this series to the other parts
+of the s390x architecture, so we would like to have them for zfcp as
+well.
+
+I ran them through our regression suite with error-recovery and I/O, all
+looks well for us.
+
+Also thanks for the work Joe.
 
 
-Benjamin,
+Comments are welcome :-).
 
-> Heiko C. applied the other changes from this series to the other parts
-> of the s390x architecture, so we would like to have them for zfcp as
-> well.
->
-> I ran them through our regression suite with error-recovery and I/O,
-> all looks well for us.
+Best regards,
+ - Benjamin
 
-Applied to 5.7/scsi-queue, thanks!
-
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index 18a6751299f9..3d0bc000f500 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -178,12 +178,12 @@ static enum zfcp_erp_act_type zfcp_erp_required_act(enum zfcp_erp_act_type want,
+ 			return 0;
+ 		if (!(p_status & ZFCP_STATUS_COMMON_UNBLOCKED))
+ 			need = ZFCP_ERP_ACTION_REOPEN_PORT;
+-		/* fall through */
++		fallthrough;
+ 	case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
+ 		p_status = atomic_read(&port->status);
+ 		if (!(p_status & ZFCP_STATUS_COMMON_OPEN))
+ 			need = ZFCP_ERP_ACTION_REOPEN_PORT;
+-		/* fall through */
++		fallthrough;
+ 	case ZFCP_ERP_ACTION_REOPEN_PORT:
+ 		p_status = atomic_read(&port->status);
+ 		if (p_status & ZFCP_STATUS_COMMON_ERP_INUSE)
+@@ -196,7 +196,7 @@ static enum zfcp_erp_act_type zfcp_erp_required_act(enum zfcp_erp_act_type want,
+ 			return need;
+ 		if (!(a_status & ZFCP_STATUS_COMMON_UNBLOCKED))
+ 			need = ZFCP_ERP_ACTION_REOPEN_ADAPTER;
+-		/* fall through */
++		fallthrough;
+ 	case ZFCP_ERP_ACTION_REOPEN_ADAPTER:
+ 		a_status = atomic_read(&adapter->status);
+ 		if (a_status & ZFCP_STATUS_COMMON_ERP_INUSE)
+@@ -1086,7 +1086,7 @@ static enum zfcp_erp_act_result zfcp_erp_lun_strategy(
+ 		if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_OPEN)
+ 			return zfcp_erp_lun_strategy_close(erp_action);
+ 		/* already closed */
+-		/* fall through */
++		fallthrough;
+ 	case ZFCP_ERP_STEP_LUN_CLOSING:
+ 		if (atomic_read(&zfcp_sdev->status) & ZFCP_STATUS_COMMON_OPEN)
+ 			return ZFCP_ERP_FAILED;
+@@ -1415,7 +1415,7 @@ static void zfcp_erp_action_cleanup(struct zfcp_erp_action *act,
+ 		if (act->step != ZFCP_ERP_STEP_UNINITIALIZED)
+ 			if (result == ZFCP_ERP_SUCCEEDED)
+ 				zfcp_erp_try_rport_unblock(port);
+-		/* fall through */
++		fallthrough;
+ 	case ZFCP_ERP_ACTION_REOPEN_PORT_FORCED:
+ 		put_device(&port->dev);
+ 		break;
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index 7c603e5b5b19..111fe3fc32d7 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -564,7 +564,7 @@ static int zfcp_fsf_exchange_config_evaluate(struct zfcp_fsf_req *req)
+ 	case FSF_TOPO_AL:
+ 		fc_host_port_type(shost) = FC_PORTTYPE_NLPORT;
+ 		fc_host_fabric_name(shost) = 0;
+-		/* fall through */
++		fallthrough;
+ 	default:
+ 		fc_host_fabric_name(shost) = 0;
+ 		dev_err(&adapter->ccw_device->dev,
+@@ -1032,7 +1032,7 @@ static void zfcp_fsf_abort_fcp_command_handler(struct zfcp_fsf_req *req)
+ 		switch (fsq->word[0]) {
+ 		case FSF_SQ_INVOKE_LINK_TEST_PROCEDURE:
+ 			zfcp_fc_test_link(zfcp_sdev->port);
+-			/* fall through */
++			fallthrough;
+ 		case FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED:
+ 			req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 			break;
+@@ -1127,7 +1127,7 @@ static void zfcp_fsf_send_ct_handler(struct zfcp_fsf_req *req)
+ 		break;
+ 	case FSF_PORT_HANDLE_NOT_VALID:
+ 		zfcp_erp_adapter_reopen(adapter, 0, "fsscth1");
+-		/* fall through */
++		fallthrough;
+ 	case FSF_GENERIC_COMMAND_REJECTED:
+ 	case FSF_PAYLOAD_SIZE_MISMATCH:
+ 	case FSF_REQUEST_SIZE_TOO_LARGE:
+@@ -1313,7 +1313,7 @@ static void zfcp_fsf_send_els_handler(struct zfcp_fsf_req *req)
+ 		break;
+ 	case FSF_SBAL_MISMATCH:
+ 		/* should never occur, avoided in zfcp_fsf_send_els */
+-		/* fall through */
++		fallthrough;
+ 	default:
+ 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -1736,7 +1736,7 @@ static void zfcp_fsf_open_port_handler(struct zfcp_fsf_req *req)
+ 		switch (header->fsf_status_qual.word[0]) {
+ 		case FSF_SQ_INVOKE_LINK_TEST_PROCEDURE:
+ 			/* no zfcp_fc_test_link() with failed open port */
+-			/* fall through */
++			fallthrough;
+ 		case FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED:
+ 		case FSF_SQ_NO_RETRY_POSSIBLE:
+ 			req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+@@ -1909,14 +1909,14 @@ static void zfcp_fsf_open_wka_port_handler(struct zfcp_fsf_req *req)
+ 	case FSF_MAXIMUM_NUMBER_OF_PORTS_EXCEEDED:
+ 		dev_warn(&req->adapter->ccw_device->dev,
+ 			 "Opening WKA port 0x%x failed\n", wka_port->d_id);
+-		/* fall through */
++		fallthrough;
+ 	case FSF_ADAPTER_STATUS_AVAILABLE:
+ 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		wka_port->status = ZFCP_FC_WKA_PORT_OFFLINE;
+ 		break;
+ 	case FSF_GOOD:
+ 		wka_port->handle = header->port_handle;
+-		/* fall through */
++		fallthrough;
+ 	case FSF_PORT_ALREADY_OPEN:
+ 		wka_port->status = ZFCP_FC_WKA_PORT_ONLINE;
+ 	}
+@@ -2059,7 +2059,6 @@ static void zfcp_fsf_close_physical_port_handler(struct zfcp_fsf_req *req)
+ 	case FSF_ADAPTER_STATUS_AVAILABLE:
+ 		switch (header->fsf_status_qual.word[0]) {
+ 		case FSF_SQ_INVOKE_LINK_TEST_PROCEDURE:
+-			/* fall through */
+ 		case FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED:
+ 			req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 			break;
+@@ -2144,7 +2143,7 @@ static void zfcp_fsf_open_lun_handler(struct zfcp_fsf_req *req)
+ 
+ 	case FSF_PORT_HANDLE_NOT_VALID:
+ 		zfcp_erp_adapter_reopen(adapter, 0, "fsouh_1");
+-		/* fall through */
++		fallthrough;
+ 	case FSF_LUN_ALREADY_OPEN:
+ 		break;
+ 	case FSF_PORT_BOXED:
+@@ -2175,7 +2174,7 @@ static void zfcp_fsf_open_lun_handler(struct zfcp_fsf_req *req)
+ 			 (unsigned long long)zfcp_scsi_dev_lun(sdev),
+ 			 (unsigned long long)zfcp_sdev->port->wwpn);
+ 		zfcp_erp_set_lun_status(sdev, ZFCP_STATUS_COMMON_ERP_FAILED);
+-		/* fall through */
++		fallthrough;
+ 	case FSF_INVALID_COMMAND_OPTION:
+ 		req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 		break;
+@@ -2183,7 +2182,7 @@ static void zfcp_fsf_open_lun_handler(struct zfcp_fsf_req *req)
+ 		switch (header->fsf_status_qual.word[0]) {
+ 		case FSF_SQ_INVOKE_LINK_TEST_PROCEDURE:
+ 			zfcp_fc_test_link(zfcp_sdev->port);
+-			/* fall through */
++			fallthrough;
+ 		case FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED:
+ 			req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 			break;
+@@ -2277,7 +2276,7 @@ static void zfcp_fsf_close_lun_handler(struct zfcp_fsf_req *req)
+ 		switch (req->qtcb->header.fsf_status_qual.word[0]) {
+ 		case FSF_SQ_INVOKE_LINK_TEST_PROCEDURE:
+ 			zfcp_fc_test_link(zfcp_sdev->port);
+-			/* fall through */
++			fallthrough;
+ 		case FSF_SQ_ULP_DEPENDENT_ERP_REQUIRED:
+ 			req->status |= ZFCP_STATUS_FSFREQ_ERROR;
+ 			break;
 -- 
-Martin K. Petersen	Oracle Linux Engineering
+2.25.1
