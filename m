@@ -1,94 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:30490 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731051AbgCaOEe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 31 Mar 2020 10:04:34 -0400
-Date: Tue, 31 Mar 2020 22:03:32 +0800
-From: Baoquan He <bhe@redhat.com>
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:39695 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726299AbgCaIzS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Mar 2020 04:55:18 -0400
+Date: Tue, 31 Mar 2020 10:55:13 +0200
+From: Michal Hocko <mhocko@kernel.org>
 Subject: Re: [PATCH v3 0/5] mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by
  default for NUMA
-Message-ID: <20200331140332.GA2129@MiWiFi-R3L-srv>
+Message-ID: <20200331085513.GE30449@dhcp22.suse.cz>
 References: <1585420282-25630-1-git-send-email-Hoan@os.amperecomputing.com>
  <20200330074246.GA14243@dhcp22.suse.cz>
  <20200330175100.GD30942@linux.ibm.com>
  <20200330182301.GM14243@dhcp22.suse.cz>
  <20200331081423.GE30942@linux.ibm.com>
- <20200331085513.GE30449@dhcp22.suse.cz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200331085513.GE30449@dhcp22.suse.cz>
+In-Reply-To: <20200331081423.GE30942@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>, Hoan Tran <Hoan@os.amperecomputing.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, lho@amperecomputing.com, mmorana@amperecomputing.com
+To: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Hoan Tran <Hoan@os.amperecomputing.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, lho@amperecomputing.com, mmorana@amperecomputing.com
 
-Hi Michal,
-
-On 03/31/20 at 10:55am, Michal Hocko wrote:
-> On Tue 31-03-20 11:14:23, Mike Rapoport wrote:
-> > Maybe I mis-read the code, but I don't see how this could happen. In the
-> > HAVE_MEMBLOCK_NODE_MAP=y case, free_area_init_node() calls
-> > calculate_node_totalpages() that ensures that node->node_zones are entirely
-> > within the node because this is checked in zone_spanned_pages_in_node().
+On Tue 31-03-20 11:14:23, Mike Rapoport wrote:
+> On Mon, Mar 30, 2020 at 08:23:01PM +0200, Michal Hocko wrote:
+> > On Mon 30-03-20 20:51:00, Mike Rapoport wrote:
+> > > On Mon, Mar 30, 2020 at 09:42:46AM +0200, Michal Hocko wrote:
+> > > > On Sat 28-03-20 11:31:17, Hoan Tran wrote:
+> > > > > In NUMA layout which nodes have memory ranges that span across other nodes,
+> > > > > the mm driver can detect the memory node id incorrectly.
+> > > > > 
+> > > > > For example, with layout below
+> > > > > Node 0 address: 0000 xxxx 0000 xxxx
+> > > > > Node 1 address: xxxx 1111 xxxx 1111
+> > > > > 
+> > > > > Note:
+> > > > >  - Memory from low to high
+> > > > >  - 0/1: Node id
+> > > > >  - x: Invalid memory of a node
+> > > > > 
+> > > > > When mm probes the memory map, without CONFIG_NODES_SPAN_OTHER_NODES
+> > > > > config, mm only checks the memory validity but not the node id.
+> > > > > Because of that, Node 1 also detects the memory from node 0 as below
+> > > > > when it scans from the start address to the end address of node 1.
+> > > > > 
+> > > > > Node 0 address: 0000 xxxx xxxx xxxx
+> > > > > Node 1 address: xxxx 1111 1111 1111
+> > > > > 
+> > > > > This layout could occur on any architecture. Most of them enables
+> > > > > this config by default with CONFIG_NUMA. This patch, by default, enables
+> > > > > CONFIG_NODES_SPAN_OTHER_NODES or uses early_pfn_in_nid() for NUMA.
+> > > > 
+> > > > I am not opposed to this at all. It reduces the config space and that is
+> > > > a good thing on its own. The history has shown that meory layout might
+> > > > be really wild wrt NUMA. The config is only used for early_pfn_in_nid
+> > > > which is clearly an overkill.
+> > > > 
+> > > > Your description doesn't really explain why this is safe though. The
+> > > > history of this config is somehow messy, though. Mike has tried
+> > > > to remove it a94b3ab7eab4 ("[PATCH] mm: remove arch independent
+> > > > NODES_SPAN_OTHER_NODES") just to be reintroduced by 7516795739bd
+> > > > ("[PATCH] Reintroduce NODES_SPAN_OTHER_NODES for powerpc") without any
+> > > > reasoning what so ever. This doesn't make it really easy see whether
+> > > > reasons for reintroduction are still there. Maybe there are some subtle
+> > > > dependencies. I do not see any TBH but that might be burried deep in an
+> > > > arch specific code.
+> > > 
+> > > I've looked at this a bit more and it seems that the check for
+> > > early_pfn_in_nid() in memmap_init_zone() can be simply removed.
+> > > 
+> > > The commits you've mentioned were way before the addition of
+> > > HAVE_MEMBLOCK_NODE_MAP and the whole infrastructure that calculates zone
+> > > sizes and boundaries based on the memblock node map.
+> > > So, the memmap_init_zone() is called when zone boundaries are already
+> > > within a node.
+> > 
+> > But zones from different nodes might overlap in the pfn range. And this
+> > check is there to skip over those overlapping areas.
 > 
-> zone_spanned_pages_in_node does chech the zone boundaries are within the
-> node boundaries. But that doesn't really tell anything about other
-> potential zones interleaving with the physical memory range.
-> zone->spanned_pages simply gives the physical range for the zone
-> including holes. Interleaving nodes are essentially a hole
-> (__absent_pages_in_range is going to skip those).
-> 
-> That means that when free_area_init_core simply goes over the whole
-> physical zone range including holes and that is why we need to check
-> both for physical and logical holes (aka other nodes).
-> 
-> The life would be so much easier if the whole thing would simply iterate
-> over memblocks...
+> Maybe I mis-read the code, but I don't see how this could happen. In the
+> HAVE_MEMBLOCK_NODE_MAP=y case, free_area_init_node() calls
+> calculate_node_totalpages() that ensures that node->node_zones are entirely
+> within the node because this is checked in zone_spanned_pages_in_node().
 
-The memblock iterating sounds a great idea. I tried with putting the
-memblock iterating in the upper layer, memmap_init(), which is used for
-boot mem only anyway. Do you think it's doable and OK? It yes, I can
-work out a formal patch to make this simpler as you said. The draft code
-is as below. Like this it uses the existing code and involves little change.
+zone_spanned_pages_in_node does chech the zone boundaries are within the
+node boundaries. But that doesn't really tell anything about other
+potential zones interleaving with the physical memory range.
+zone->spanned_pages simply gives the physical range for the zone
+including holes. Interleaving nodes are essentially a hole
+(__absent_pages_in_range is going to skip those).
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 138a56c0f48f..558d421f294b 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6007,14 +6007,6 @@ void __meminit memmap_init_zone(unsigned long size, int nid, unsigned long zone,
- 		 * function.  They do not exist on hotplugged memory.
- 		 */
- 		if (context == MEMMAP_EARLY) {
--			if (!early_pfn_valid(pfn)) {
--				pfn = next_pfn(pfn);
--				continue;
--			}
--			if (!early_pfn_in_nid(pfn, nid)) {
--				pfn++;
--				continue;
--			}
- 			if (overlap_memmap_init(zone, &pfn))
- 				continue;
- 			if (defer_init(nid, pfn, end_pfn))
-@@ -6130,9 +6122,17 @@ static void __meminit zone_init_free_lists(struct zone *zone)
- }
- 
- void __meminit __weak memmap_init(unsigned long size, int nid,
--				  unsigned long zone, unsigned long start_pfn)
-+				  unsigned long zone, unsigned long range_start_pfn)
- {
--	memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY, NULL);
-+	unsigned long start_pfn, end_pfn;
-+	unsigned long range_end_pfn = range_start_pfn + size;
-+	int i;
-+	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
-+		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
-+		end_pfn = clamp(end_pfn, range_start_pfn, range_end_pfn);
-+		if (end_pfn > start_pfn)
-+			memmap_init_zone(size, nid, zone, start_pfn, MEMMAP_EARLY, NULL);
-+	}
- }
- 
- static int zone_batchsize(struct zone *zone)
+That means that when free_area_init_core simply goes over the whole
+physical zone range including holes and that is why we need to check
+both for physical and logical holes (aka other nodes).
+
+The life would be so much easier if the whole thing would simply iterate
+over memblocks...
+
+-- 
+Michal Hocko
+SUSE Labs
