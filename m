@@ -1,69 +1,81 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 54/73] s390/qeth: handle error when backing RX buffer
-Date: Wed, 18 Mar 2020 16:53:18 -0400
-Message-Id: <20200318205337.16279-54-sashal@kernel.org>
-In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
-References: <20200318205337.16279-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:52677 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730306AbgCaJM2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Mar 2020 05:12:28 -0400
+Subject: Re: [kvm-unit-tests PATCH 09/10] s390x: smp: Add restart when running
+ test
+References: <20200324081251.28810-1-frankja@linux.ibm.com>
+ <20200324081251.28810-10-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <363e6571-7cc5-70aa-a70b-98628a5661f4@redhat.com>
+Date: Tue, 31 Mar 2020 11:12:22 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200324081251.28810-10-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On 24.03.20 09:12, Janosch Frank wrote:
+> Let's make sure we can restart a cpu that is already running.
+> Restarting it if it is stopped is implicitely tested by the the other
+> restart calls in the smp test.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  s390x/smp.c | 19 +++++++++++++++++++
+>  1 file changed, 19 insertions(+)
+> 
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index 48321f4e346dc71d..79cdc1f6a4b0b491 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
+> @@ -52,6 +52,24 @@ static void test_start(void)
+>  	report(1, "start");
+>  }
+>  
+> +/*
+> + * Does only test restart when the target is running.
+> + * The other tests do restarts when stopped multiple times already.
+> + */
+> +static void test_restart(void)
+> +{
+> +	struct cpu *cpu = smp_cpu_from_addr(1);
+> +	struct lowcore *lc = cpu->lowcore;
+> +
 
-[ Upstream commit 17413852804d7e86e6f0576cca32c1541817800e ]
+Maybe explicitly trigger a stop+start with a dummy here and wait until
+it was processed. This make the test independent of the other (previous)
+tests.
 
-qeth_init_qdio_queues() fills the RX ring with an initial set of
-RX buffers. If qeth_init_input_buffer() fails to back one of the RX
-buffers with memory, we need to bail out and report the error.
+> +	lc->restart_new_psw.mask = extract_psw_mask();
+> +	lc->restart_new_psw.addr = (unsigned long)test_func;
+> +
+> +	set_flag(0);
+> +	smp_cpu_restart(1);
+> +	wait_for_flag();
+> +	report(1, "restart while running");
+> +}
+> +
+>  static void test_stop(void)
+>  {
+>  	smp_cpu_stop(1);
+> @@ -295,6 +313,7 @@ int main(void)
+>  	smp_cpu_stop(1);
+>  
+>  	test_start();
+> +	test_restart();
+>  	test_stop();
+>  	test_stop_store_status();
+>  	test_store_status();
+> 
 
-Fixes: 4a71df50047f ("qeth: new qeth device driver")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_core_main.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index ac8ad951a4203..fe70e9875bde0 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -2633,12 +2633,12 @@ static int qeth_init_input_buffer(struct qeth_card *card,
- 		buf->rx_skb = netdev_alloc_skb(card->dev,
- 					       QETH_RX_PULL_LEN + ETH_HLEN);
- 		if (!buf->rx_skb)
--			return 1;
-+			return -ENOMEM;
- 	}
- 
- 	pool_entry = qeth_find_free_buffer_pool_entry(card);
- 	if (!pool_entry)
--		return 1;
-+		return -ENOBUFS;
- 
- 	/*
- 	 * since the buffer is accessed only from the input_tasklet
-@@ -2670,10 +2670,15 @@ int qeth_init_qdio_queues(struct qeth_card *card)
- 	/* inbound queue */
- 	qdio_reset_buffers(card->qdio.in_q->qdio_bufs, QDIO_MAX_BUFFERS_PER_Q);
- 	memset(&card->rx, 0, sizeof(struct qeth_rx));
-+
- 	qeth_initialize_working_pool_list(card);
- 	/*give only as many buffers to hardware as we have buffer pool entries*/
--	for (i = 0; i < card->qdio.in_buf_pool.buf_count - 1; ++i)
--		qeth_init_input_buffer(card, &card->qdio.in_q->bufs[i]);
-+	for (i = 0; i < card->qdio.in_buf_pool.buf_count - 1; i++) {
-+		rc = qeth_init_input_buffer(card, &card->qdio.in_q->bufs[i]);
-+		if (rc)
-+			return rc;
-+	}
-+
- 	card->qdio.in_q->next_buf_to_init =
- 		card->qdio.in_buf_pool.buf_count - 1;
- 	rc = do_QDIO(CARD_DDEV(card), QDIO_FLAG_SYNC_INPUT, 0, 0,
 -- 
-2.20.1
+Thanks,
+
+David / dhildenb
