@@ -1,52 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36473 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2404295AbgDCPbK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Apr 2020 11:31:10 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 4/5] KVM: s390: vsie: Move conditional reschedule
-Date: Fri,  3 Apr 2020 17:30:49 +0200
-Message-Id: <20200403153050.20569-5-david@redhat.com>
-In-Reply-To: <20200403153050.20569-1-david@redhat.com>
-References: <20200403153050.20569-1-david@redhat.com>
+Received: from aserp2120.oracle.com ([141.146.126.78]:46622 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727386AbgDASl0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Apr 2020 14:41:26 -0400
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: [PATCH v2 0/4] Clean up hugetlb boot command line processing
+Date: Wed,  1 Apr 2020 11:38:15 -0700
+Message-Id: <20200401183819.20647-1-mike.kravetz@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Mina Almasry <almasrymina@google.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Kravetz <mike.kravetz@oracle.com>
 
-Let's move it to the outer loop, in case we ever run again into long
-loops, trying to map the prefix. While at it, convert it to cond_resched(=
-).
+v2 -
+   Fix build errors with patch 1 (Will)
+   Change arch_hugetlb_valid_size arg to unsigned long and remove
+     irrelevant 'extern' keyword (Christophe)
+   Documentation and other misc changes (Randy, Christophe, Mina)
+   Do not process command line options if !hugepages_supported()
+     (Dave, but it sounds like we may want to additional changes to
+      hugepages_supported() for x86?  If that is needed I would prefer
+      a separate patch.)
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/kvm/vsie.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Longpeng(Mike) reported a weird message from hugetlb command line processing
+and proposed a solution [1].  While the proposed patch does address the
+specific issue, there are other related issues in command line processing.
+As hugetlbfs evolved, updates to command line processing have been made to
+meet immediate needs and not necessarily in a coordinated manner.  The result
+is that some processing is done in arch specific code, some is done in arch
+independent code and coordination is problematic.  Semantics can vary between
+architectures.
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 4f6c22d72072..ef05b4e167fb 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1000,8 +1000,6 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struc=
-t vsie_page *vsie_page)
-=20
- 	handle_last_fault(vcpu, vsie_page);
-=20
--	if (need_resched())
--		schedule();
- 	if (test_cpu_flag(CIF_MCCK_PENDING))
- 		s390_handle_mcck();
-=20
-@@ -1185,6 +1183,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct v=
-sie_page *vsie_page)
- 		    kvm_s390_vcpu_has_irq(vcpu, 0) ||
- 		    kvm_s390_vcpu_sie_inhibited(vcpu))
- 			break;
-+		cond_resched();
- 	}
-=20
- 	if (rc =3D=3D -EFAULT) {
---=20
+The patch series does the following:
+- Define arch specific arch_hugetlb_valid_size routine used to validate
+  passed huge page sizes.
+- Move hugepagesz= command line parsing out of arch specific code and into
+  an arch independent routine.
+- Clean up command line processing to follow desired semantics and
+  document those semantics.
+
+[1] https://lore.kernel.org/linux-mm/20200305033014.1152-1-longpeng2@huawei.com
+
+Mike Kravetz (4):
+  hugetlbfs: add arch_hugetlb_valid_size
+  hugetlbfs: move hugepagesz= parsing to arch independent code
+  hugetlbfs: remove hugetlb_add_hstate() warning for existing hstate
+  hugetlbfs: clean up command line processing
+
+ .../admin-guide/kernel-parameters.txt         |  35 +++--
+ Documentation/admin-guide/mm/hugetlbpage.rst  |  44 ++++++
+ arch/arm64/include/asm/hugetlb.h              |   2 +
+ arch/arm64/mm/hugetlbpage.c                   |  30 +---
+ arch/powerpc/include/asm/hugetlb.h            |   3 +
+ arch/powerpc/mm/hugetlbpage.c                 |  30 ++--
+ arch/riscv/include/asm/hugetlb.h              |   3 +
+ arch/riscv/mm/hugetlbpage.c                   |  24 +--
+ arch/s390/include/asm/hugetlb.h               |   3 +
+ arch/s390/mm/hugetlbpage.c                    |  24 +--
+ arch/sparc/include/asm/hugetlb.h              |   3 +
+ arch/sparc/mm/init_64.c                       |  43 ++----
+ arch/x86/include/asm/hugetlb.h                |   5 +
+ arch/x86/mm/hugetlbpage.c                     |  23 +--
+ include/linux/hugetlb.h                       |   8 +-
+ mm/hugetlb.c                                  | 141 ++++++++++++++----
+ 16 files changed, 252 insertions(+), 169 deletions(-)
+
+-- 
 2.25.1
