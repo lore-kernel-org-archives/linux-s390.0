@@ -1,73 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45596 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730311AbgCJNBt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Mar 2020 09:01:49 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 1/5] selftests: KVM: s390: fix early guest crash
-Date: Tue, 10 Mar 2020 09:01:40 -0400
-Message-Id: <20200310130144.9921-2-borntraeger@de.ibm.com>
-In-Reply-To: <20200310130144.9921-1-borntraeger@de.ibm.com>
-References: <20200310130144.9921-1-borntraeger@de.ibm.com>
+Received: from userp2120.oracle.com ([156.151.31.85]:41218 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731616AbgDACYr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 31 Mar 2020 22:24:47 -0400
+Subject: Re: [PATCH] zfcp: use fallthrough;
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+References: <d14669a67a17392490d3184117941123765db1a4.1585663010.git.bblock@linux.ibm.com>
+Date: Tue, 31 Mar 2020 22:24:38 -0400
+In-Reply-To: <d14669a67a17392490d3184117941123765db1a4.1585663010.git.bblock@linux.ibm.com>
+        (Benjamin Block's message of "Tue, 31 Mar 2020 16:21:48 +0200")
+Message-ID: <yq1r1x854ex.fsf@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Andrew Jones <drjones@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+To: Benjamin Block <bblock@linux.ibm.com>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Joe Perches <joe@perches.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>
 
-The guest crashes very early due to changes in the control registers
-used by dynamic address translation. Let us use different registers
-that will not crash the guest.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- tools/testing/selftests/kvm/s390x/resets.c | 27 +++++++++++-----------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+Benjamin,
 
-diff --git a/tools/testing/selftests/kvm/s390x/resets.c b/tools/testing/selftests/kvm/s390x/resets.c
-index 1485bc6c8999..cbb343ad5d42 100644
---- a/tools/testing/selftests/kvm/s390x/resets.c
-+++ b/tools/testing/selftests/kvm/s390x/resets.c
-@@ -23,25 +23,24 @@ struct kvm_run *run;
- struct kvm_sync_regs *regs;
- static uint64_t regs_null[16];
- 
--static uint64_t crs[16] = { 0x40000ULL,
--			    0x42000ULL,
--			    0, 0, 0, 0, 0,
--			    0x43000ULL,
--			    0, 0, 0, 0, 0,
--			    0x44000ULL,
--			    0, 0
--};
--
- static void guest_code_initial(void)
- {
--	/* Round toward 0 */
--	uint32_t fpc = 0x11;
-+	/* set several CRs to "safe" value */
-+	unsigned long cr2_59 = 0x10;	/* enable guarded storage */
-+	unsigned long cr8_63 = 0x1;	/* monitor mask = 1 */
-+	unsigned long cr10 = 1;		/* PER START */
-+	unsigned long cr11 = -1;	/* PER END */
-+
- 
- 	/* Dirty registers */
- 	asm volatile (
--		"	lctlg	0,15,%0\n"
--		"	sfpc	%1\n"
--		: : "Q" (crs), "d" (fpc));
-+		"	lghi	2,0x11\n"	/* Round toward 0 */
-+		"	sfpc	2\n"		/* set fpc to !=0 */
-+		"	lctlg	2,2,%0\n"
-+		"	lctlg	8,8,%1\n"
-+		"	lctlg	10,10,%2\n"
-+		"	lctlg	11,11,%3\n"
-+		: : "m" (cr2_59), "m" (cr8_63), "m" (cr10), "m" (cr11) : "2");
- 	GUEST_SYNC(0);
- }
- 
+> Heiko C. applied the other changes from this series to the other parts
+> of the s390x architecture, so we would like to have them for zfcp as
+> well.
+>
+> I ran them through our regression suite with error-recovery and I/O,
+> all looks well for us.
+
+Applied to 5.7/scsi-queue, thanks!
+
 -- 
-2.25.0
+Martin K. Petersen	Oracle Linux Engineering
