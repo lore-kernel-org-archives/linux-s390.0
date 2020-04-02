@@ -1,73 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57778 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726901AbgDGSiA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:38:00 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 19/34] iommu/pamu: Convert to probe/release_device() call-backs
-Date: Tue,  7 Apr 2020 20:37:27 +0200
-Message-Id: <20200407183742.4344-20-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
+Received: from mail26.static.mailgun.info ([104.130.122.26]:42917 "EHLO
+        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388942AbgDBPDf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Apr 2020 11:03:35 -0400
+Reply-To: <bcain@codeaurora.org>
+From: "Brian Cain" <bcain@codeaurora.org>
+References: <20200321174303.GA7930@afzalpc> <cover.1585320721.git.afzal.mohd.ma@gmail.com> <059b01d604ab$637355b0$2a5a0110$@codeaurora.org> <20200328073253.GA5250@afzalpc>
+In-Reply-To: <20200328073253.GA5250@afzalpc>
+Subject: RE: [PATCH 0/6] Kill setup_irq()
+Date: Thu, 2 Apr 2020 10:03:28 -0500
+Message-ID: <0fc601d608ff$df0ea550$9d2beff0$@codeaurora.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+        charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+Content-Language: en-us
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: 'afzal mohammed' <afzal.mohd.ma@gmail.com>
+Cc: 'Thomas Gleixner' <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, x86@kernel.org, linux-sh@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org, linux-mips@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-ia64@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-omap@vger.kernel.org, linux-alpha@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+> -----Original Message-----
+> From: linux-hexagon-owner@vger.kernel.org <linux-hexagon-
+> owner@vger.kernel.org> On Behalf Of afzal mohammed
+...
+> On Fri, Mar 27, 2020 at 09:48:38PM -0500, Brian Cain wrote:
+> 
+> > > Note 2: hexagon final image creation fails even w/o my patch
+> 
+> > 	What's the nature of the failure in "Note 2"?
+> 
+> drivers/base/firmware_loader/main.o: In function `fw_is_builtin_firmware':
+> /devel/src/kernel6/drivers/base/firmware_loader/main.c:132:(.text+0xc8):
+> relocation truncated to fit: R_HEX_16_X against symbol
+`__start_builtin_fw'
+> defined in .modinfo section in .tmp_vmlinux1
+> Makefile:1077: recipe for target 'vmlinux' failed
+> make: *** [vmlinux] Error 1
 
-Convert the PAMU IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+Thanks for reporting it -- I will make a patch to fix it.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/fsl_pamu_domain.c | 22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
-index 06828e2698d5..928d37771ece 100644
---- a/drivers/iommu/fsl_pamu_domain.c
-+++ b/drivers/iommu/fsl_pamu_domain.c
-@@ -1016,25 +1016,13 @@ static struct iommu_group *fsl_pamu_device_group(struct device *dev)
- 	return group;
- }
- 
--static int fsl_pamu_add_device(struct device *dev)
-+static struct iommu_device *fsl_pamu_probe_device(struct device *dev)
- {
--	struct iommu_group *group;
--
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
--
--	iommu_device_link(&pamu_iommu, dev);
--
--	return 0;
-+	return &pamu_iommu;
- }
- 
--static void fsl_pamu_remove_device(struct device *dev)
-+static void fsl_pamu_release_device(struct device *dev)
- {
--	iommu_device_unlink(&pamu_iommu, dev);
--	iommu_group_remove_device(dev);
- }
- 
- static const struct iommu_ops fsl_pamu_ops = {
-@@ -1048,8 +1036,8 @@ static const struct iommu_ops fsl_pamu_ops = {
- 	.iova_to_phys	= fsl_pamu_iova_to_phys,
- 	.domain_set_attr = fsl_pamu_set_domain_attr,
- 	.domain_get_attr = fsl_pamu_get_domain_attr,
--	.add_device	= fsl_pamu_add_device,
--	.remove_device	= fsl_pamu_remove_device,
-+	.probe_device	= fsl_pamu_probe_device,
-+	.release_device	= fsl_pamu_release_device,
- 	.device_group   = fsl_pamu_device_group,
- };
- 
--- 
-2.17.1
+-Brian
