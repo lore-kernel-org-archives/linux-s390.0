@@ -1,108 +1,116 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:21007 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728476AbgDFNlG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Apr 2020 09:41:06 -0400
-Date: Mon, 6 Apr 2020 15:40:57 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH v2 5/9] vfio-ccw: Introduce a new CRW region
-Message-ID: <20200406154057.6016c4a7.cohuck@redhat.com>
-In-Reply-To: <20200206213825.11444-6-farman@linux.ibm.com>
-References: <20200206213825.11444-1-farman@linux.ibm.com>
-        <20200206213825.11444-6-farman@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55360 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388001AbgDBKoK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Apr 2020 06:44:10 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 032AYfPK102521
+        for <linux-s390@vger.kernel.org>; Thu, 2 Apr 2020 06:44:09 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3043g98evv-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 02 Apr 2020 06:44:09 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Thu, 2 Apr 2020 11:44:05 +0100
+Subject: Re: [kvm-unit-tests 2/2] s390x/smp: add minimal test for sigp sense
+ running status
+References: <20200330084911.34248-1-borntraeger@de.ibm.com>
+ <20200330084911.34248-3-borntraeger@de.ibm.com>
+ <2e511a31-b976-ec07-f0c4-a01c32ceba7f@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Thu, 2 Apr 2020 12:44:03 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <2e511a31-b976-ec07-f0c4-a01c32ceba7f@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Message-Id: <6222d239-2540-455a-4e25-226111e7d80e@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Thomas Huth <thuth@redhat.com>
 
-On Thu,  6 Feb 2020 22:38:21 +0100
-Eric Farman <farman@linux.ibm.com> wrote:
 
-> From: Farhan Ali <alifm@linux.ibm.com>
+
+On 30.03.20 12:58, David Hildenbrand wrote:
+> On 30.03.20 10:49, Christian Borntraeger wrote:
+>> make sure that sigp sense running status returns a sane value for
+>> stopped CPUs.
+>>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>  lib/s390x/smp.c |  2 +-
+>>  lib/s390x/smp.h |  2 +-
+>>  s390x/smp.c     | 11 +++++++++++
+>>  3 files changed, 13 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+>> index 5ed8b7b..492cb05 100644
+>> --- a/lib/s390x/smp.c
+>> +++ b/lib/s390x/smp.c
+>> @@ -58,7 +58,7 @@ bool smp_cpu_stopped(uint16_t addr)
+>>  	return !!(status & (SIGP_STATUS_CHECK_STOP|SIGP_STATUS_STOPPED));
+>>  }
+>>  
+>> -bool smp_cpu_running(uint16_t addr)
+>> +bool smp_sense_running_status(uint16_t addr)
+>>  {
+>>  	if (sigp(addr, SIGP_SENSE_RUNNING, 0, NULL) != SIGP_CC_STATUS_STORED)
+>>  		return true;
+>> diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+>> index a8b98c0..639ec92 100644
+>> --- a/lib/s390x/smp.h
+>> +++ b/lib/s390x/smp.h
+>> @@ -40,7 +40,7 @@ struct cpu_status {
+>>  int smp_query_num_cpus(void);
+>>  struct cpu *smp_cpu_from_addr(uint16_t addr);
+>>  bool smp_cpu_stopped(uint16_t addr);
+>> -bool smp_cpu_running(uint16_t addr);
+>> +bool smp_sense_running_status(uint16_t addr);
+>>  int smp_cpu_restart(uint16_t addr);
+>>  int smp_cpu_start(uint16_t addr, struct psw psw);
+>>  int smp_cpu_stop(uint16_t addr);
+>> diff --git a/s390x/smp.c b/s390x/smp.c
+>> index 79cdc1f..f9f143d 100644
+>> --- a/s390x/smp.c
+>> +++ b/s390x/smp.c
+>> @@ -210,6 +210,16 @@ static void test_emcall(void)
+>>  	report_prefix_pop();
+>>  }
+>>  
+>> +static void test_sense_running(void)
+>> +{
+>> +	report_prefix_push("sense_running");
+>> +	/* make sure CPU is stopped */
+>> +	smp_cpu_stop(1);
+>> +	report(!smp_sense_running_status(1), "CPU1 sense claims not running");
+>> +	report_prefix_pop();
+>> +}
+>> +
+>> +
+>>  /* Used to dirty registers of cpu #1 before it is reset */
+>>  static void test_func_initial(void)
+>>  {
+>> @@ -319,6 +329,7 @@ int main(void)
+>>  	test_store_status();
+>>  	test_ecall();
+>>  	test_emcall();
+>> +	test_sense_running();
+>>  	test_reset();
+>>  	test_reset_initial();
+>>  	smp_cpu_destroy(1);
+>>
 > 
-> This region provides a mechanism to pass Channel Report Word(s)
-> that affect vfio-ccw devices, and need to be passed to the guest
-> for its awareness and/or processing.
+> In kvm, we set/clear via kvm_arch_vcpu_load/kvm_arch_vcpu_put. This
+> means, that a VCPU will also be indicated as running, in case we perform
+> certain VCPU IOCTLs, while the VCPU is already stopped.
 > 
-> The base driver (see crw_collect_info()) provides space for two
-> CRWs, as a subchannel event may have two CRWs chained together
-> (one for the ssid, one for the subcahnnel).  All other CRWs will
-> only occupy the first one.  Even though this support will also
-> only utilize the first one, we'll provide space for two also.
-> 
-> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-> Signed-off-by: Eric Farman <farman@linux.ibm.com>
-> ---
-> 
-> Notes:
->     v1-v2:
->      - Add new region info to Documentation/s390/vfio-ccw.rst [CH]
->      - Add a block comment to struct ccw_crw_region [CH]
->     
->     v0->v1: [EF]
->      - Clean up checkpatch (whitespace) errors
->      - Add ret=-ENOMEM in error path for new region
->      - Add io_mutex for region read (originally in last patch)
->      - Change crw1/crw2 to crw0/crw1
->      - Reorder cleanup of regions
-> 
->  Documentation/s390/vfio-ccw.rst     | 15 ++++++++
->  drivers/s390/cio/vfio_ccw_chp.c     | 56 +++++++++++++++++++++++++++++
->  drivers/s390/cio/vfio_ccw_drv.c     | 20 +++++++++++
->  drivers/s390/cio/vfio_ccw_ops.c     |  4 +++
->  drivers/s390/cio/vfio_ccw_private.h |  3 ++
->  include/uapi/linux/vfio.h           |  1 +
->  include/uapi/linux/vfio_ccw.h       |  9 +++++
->  7 files changed, 108 insertions(+)
-> 
+> Especially, there is a theoretical race between stopping a VCPU, and it
+> still being in the kernel, and the other thread sensing the running
+> status. This is the case with !kvm_s390_user_cpu_state_ctrl(), when
+> leaving handle_stop() but also with kvm_s390_user_cpu_state_ctrl(), when
+> setting the MP state via kvm_arch_vcpu_ioctl_set_mpstate().
 
-(...)
-
-> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-> index 826d08379fe3..8fde94552149 100644
-> --- a/drivers/s390/cio/vfio_ccw_chp.c
-> +++ b/drivers/s390/cio/vfio_ccw_chp.c
-> @@ -73,3 +73,59 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private)
->  					    VFIO_REGION_INFO_FLAG_READ,
->  					    private->schib_region);
->  }
-> +
-> +static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
-> +					char __user *buf, size_t count,
-> +					loff_t *ppos)
-> +{
-> +	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
-> +	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
-> +	struct ccw_crw_region *region;
-> +	int ret;
-> +
-> +	if (pos + count > sizeof(*region))
-> +		return -EINVAL;
-> +
-> +	if (list_empty(&private->crw))
-> +		return 0;
-> +
-> +	mutex_lock(&private->io_mutex);
-> +	region = private->region[i].data;
-> +
-> +	if (copy_to_user(buf, (void *)region + pos, count))
-> +		ret = -EFAULT;
-> +	else
-> +		ret = count;
-> +
-> +	mutex_unlock(&private->io_mutex);
-> +	return ret;
-> +}
-
-Would it make sense to clear out the crw after it has been read by
-userspace?
-
-In patch 7, you add a notification for a new crw via eventfd, but
-nothing is preventing userspace from reading this even if not
-triggered. I also don't see the region being updated there until a new
-crw is posted.
-
-Or am I missing something?
+I think I will just busy wait until the target is not running. This must happen and a timeout indicates a failure.
