@@ -1,248 +1,127 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:17424 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726020AbgDSHvd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 19 Apr 2020 03:51:33 -0400
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH 5/7] KVM: PPC: clean up redundant kvm_run parameters in assembly
-Date: Sun, 19 Apr 2020 15:51:04 +0800
-Message-Id: <20200419075106.16248-6-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
-References: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4574 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2390908AbgDCNmA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Apr 2020 09:42:00 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 033DXY4s053997
+        for <linux-s390@vger.kernel.org>; Fri, 3 Apr 2020 09:41:59 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 302072kuau-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 03 Apr 2020 09:41:59 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Fri, 3 Apr 2020 14:41:55 +0100
+Subject: Re: [PATCH v1 1/5] KVM: s390: vsie: Fix region 1 ASCE sanity shadow
+ address checks
+References: <20200402184819.34215-1-david@redhat.com>
+ <20200402184819.34215-2-david@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Fri, 3 Apr 2020 15:41:50 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200402184819.34215-2-david@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="VuYuhIihgc8kXyA392z7lxVZk0JYHRnZj"
+Message-Id: <58888143-f27c-58e6-715e-41ff89ab6160@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, stable@vger.kernel.org
 
-In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
-structure. Earlier than historical reasons, many kvm-related function
-parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
-This patch does a unified cleanup of these remaining redundant parameters.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--VuYuhIihgc8kXyA392z7lxVZk0JYHRnZj
+Content-Type: multipart/mixed; boundary="Vk5zZruvRNvPPgLPZS6eZqzObLnkFIpxv"
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
----
- arch/powerpc/include/asm/kvm_ppc.h    |  2 +-
- arch/powerpc/kvm/book3s_interrupts.S  | 17 ++++++++---------
- arch/powerpc/kvm/book3s_pr.c          |  9 ++++-----
- arch/powerpc/kvm/booke.c              |  9 ++++-----
- arch/powerpc/kvm/booke_interrupts.S   |  9 ++++-----
- arch/powerpc/kvm/bookehv_interrupts.S | 10 +++++-----
- 6 files changed, 26 insertions(+), 30 deletions(-)
+--Vk5zZruvRNvPPgLPZS6eZqzObLnkFIpxv
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/powerpc/include/asm/kvm_ppc.h b/arch/powerpc/include/asm/kvm_ppc.h
-index ccf66b3a4c1d..0a056c64c317 100644
---- a/arch/powerpc/include/asm/kvm_ppc.h
-+++ b/arch/powerpc/include/asm/kvm_ppc.h
-@@ -59,7 +59,7 @@ enum xlate_readwrite {
- };
- 
- extern int kvmppc_vcpu_run(struct kvm_vcpu *vcpu);
--extern int __kvmppc_vcpu_run(struct kvm_run *run, struct kvm_vcpu *vcpu);
-+extern int __kvmppc_vcpu_run(struct kvm_vcpu *vcpu);
- extern void kvmppc_handler_highmem(void);
- 
- extern void kvmppc_dump_vcpu(struct kvm_vcpu *vcpu);
-diff --git a/arch/powerpc/kvm/book3s_interrupts.S b/arch/powerpc/kvm/book3s_interrupts.S
-index f7ad99d972ce..0eff749d8027 100644
---- a/arch/powerpc/kvm/book3s_interrupts.S
-+++ b/arch/powerpc/kvm/book3s_interrupts.S
-@@ -55,8 +55,7 @@
-  ****************************************************************************/
- 
- /* Registers:
-- *  r3: kvm_run pointer
-- *  r4: vcpu pointer
-+ *  r3: vcpu pointer
-  */
- _GLOBAL(__kvmppc_vcpu_run)
- 
-@@ -68,8 +67,8 @@ kvm_start_entry:
- 	/* Save host state to the stack */
- 	PPC_STLU r1, -SWITCH_FRAME_SIZE(r1)
- 
--	/* Save r3 (kvm_run) and r4 (vcpu) */
--	SAVE_2GPRS(3, r1)
-+	/* Save r3 (vcpu) */
-+	SAVE_GPR(3, r1)
- 
- 	/* Save non-volatile registers (r14 - r31) */
- 	SAVE_NVGPRS(r1)
-@@ -82,11 +81,11 @@ kvm_start_entry:
- 	PPC_STL	r0, _LINK(r1)
- 
- 	/* Load non-volatile guest state from the vcpu */
--	VCPU_LOAD_NVGPRS(r4)
-+	VCPU_LOAD_NVGPRS(r3)
- 
- kvm_start_lightweight:
- 	/* Copy registers into shadow vcpu so we can access them in real mode */
--	mr	r3, r4
-+	mr	r4, r3
- 	bl	FUNC(kvmppc_copy_to_svcpu)
- 	nop
- 	REST_GPR(4, r1)
-@@ -191,10 +190,10 @@ after_sprg3_load:
- 	PPC_STL	r31, VCPU_GPR(R31)(r7)
- 
- 	/* Pass the exit number as 3rd argument to kvmppc_handle_exit */
--	lwz	r5, VCPU_TRAP(r7)
-+	lwz	r4, VCPU_TRAP(r7)
- 
--	/* Restore r3 (kvm_run) and r4 (vcpu) */
--	REST_2GPRS(3, r1)
-+	/* Restore r3 (vcpu) */
-+	REST_GPR(3, r1)
- 	bl	FUNC(kvmppc_handle_exit_pr)
- 
- 	/* If RESUME_GUEST, get back in the loop */
-diff --git a/arch/powerpc/kvm/book3s_pr.c b/arch/powerpc/kvm/book3s_pr.c
-index ef54f917bdaf..01c8fe5abe0d 100644
---- a/arch/powerpc/kvm/book3s_pr.c
-+++ b/arch/powerpc/kvm/book3s_pr.c
-@@ -1151,9 +1151,9 @@ static int kvmppc_exit_pr_progint(struct kvm_vcpu *vcpu, unsigned int exit_nr)
- 	return r;
- }
- 
--int kvmppc_handle_exit_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
--			  unsigned int exit_nr)
-+int kvmppc_handle_exit_pr(struct kvm_vcpu *vcpu, unsigned int exit_nr)
- {
-+	struct kvm_run *run = vcpu->run;
- 	int r = RESUME_HOST;
- 	int s;
- 
-@@ -1826,7 +1826,6 @@ static void kvmppc_core_vcpu_free_pr(struct kvm_vcpu *vcpu)
- 
- static int kvmppc_vcpu_run_pr(struct kvm_vcpu *vcpu)
- {
--	struct kvm_run *run = vcpu->run;
- 	int ret;
- #ifdef CONFIG_ALTIVEC
- 	unsigned long uninitialized_var(vrsave);
-@@ -1834,7 +1833,7 @@ static int kvmppc_vcpu_run_pr(struct kvm_vcpu *vcpu)
- 
- 	/* Check if we can run the vcpu at all */
- 	if (!vcpu->arch.sane) {
--		run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
-+		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
- 		ret = -EINVAL;
- 		goto out;
- 	}
-@@ -1861,7 +1860,7 @@ static int kvmppc_vcpu_run_pr(struct kvm_vcpu *vcpu)
- 
- 	kvmppc_fix_ee_before_entry();
- 
--	ret = __kvmppc_vcpu_run(run, vcpu);
-+	ret = __kvmppc_vcpu_run(vcpu);
- 
- 	kvmppc_clear_debug(vcpu);
- 
-diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
-index 26b3f5900b72..942039aae598 100644
---- a/arch/powerpc/kvm/booke.c
-+++ b/arch/powerpc/kvm/booke.c
-@@ -732,12 +732,11 @@ int kvmppc_core_check_requests(struct kvm_vcpu *vcpu)
- 
- int kvmppc_vcpu_run(struct kvm_vcpu *vcpu)
- {
--	struct kvm_run *run = vcpu->run;
- 	int ret, s;
- 	struct debug_reg debug;
- 
- 	if (!vcpu->arch.sane) {
--		run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
-+		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
- 		return -EINVAL;
- 	}
- 
-@@ -779,7 +778,7 @@ int kvmppc_vcpu_run(struct kvm_vcpu *vcpu)
- 	vcpu->arch.pgdir = vcpu->kvm->mm->pgd;
- 	kvmppc_fix_ee_before_entry();
- 
--	ret = __kvmppc_vcpu_run(run, vcpu);
-+	ret = __kvmppc_vcpu_run(vcpu);
- 
- 	/* No need for guest_exit. It's done in handle_exit.
- 	   We also get here with interrupts enabled. */
-@@ -983,9 +982,9 @@ static int kvmppc_resume_inst_load(struct kvm_vcpu *vcpu,
-  *
-  * Return value is in the form (errcode<<2 | RESUME_FLAG_HOST | RESUME_FLAG_NV)
-  */
--int kvmppc_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu,
--                       unsigned int exit_nr)
-+int kvmppc_handle_exit(struct kvm_vcpu *vcpu, unsigned int exit_nr)
- {
-+	struct kvm_run *run = vcpu->run;
- 	int r = RESUME_HOST;
- 	int s;
- 	int idx;
-diff --git a/arch/powerpc/kvm/booke_interrupts.S b/arch/powerpc/kvm/booke_interrupts.S
-index 2e56ab5a5f55..6fa82efe833b 100644
---- a/arch/powerpc/kvm/booke_interrupts.S
-+++ b/arch/powerpc/kvm/booke_interrupts.S
-@@ -237,7 +237,7 @@ _GLOBAL(kvmppc_resume_host)
- 	/* Switch to kernel stack and jump to handler. */
- 	LOAD_REG_ADDR(r3, kvmppc_handle_exit)
- 	mtctr	r3
--	lwz	r3, HOST_RUN(r1)
-+	mr	r3, r4
- 	lwz	r2, HOST_R2(r1)
- 	mr	r14, r4 /* Save vcpu pointer. */
- 
-@@ -337,15 +337,14 @@ heavyweight_exit:
- 
- 
- /* Registers:
-- *  r3: kvm_run pointer
-- *  r4: vcpu pointer
-+ *  r3: vcpu pointer
-  */
- _GLOBAL(__kvmppc_vcpu_run)
- 	stwu	r1, -HOST_STACK_SIZE(r1)
--	stw	r1, VCPU_HOST_STACK(r4)	/* Save stack pointer to vcpu. */
-+	stw	r1, VCPU_HOST_STACK(r3)	/* Save stack pointer to vcpu. */
- 
- 	/* Save host state to stack. */
--	stw	r3, HOST_RUN(r1)
-+	mr	r4, r3
- 	mflr	r3
- 	stw	r3, HOST_STACK_LR(r1)
- 	mfcr	r5
-diff --git a/arch/powerpc/kvm/bookehv_interrupts.S b/arch/powerpc/kvm/bookehv_interrupts.S
-index c577ba4b3169..8262c14fc9e6 100644
---- a/arch/powerpc/kvm/bookehv_interrupts.S
-+++ b/arch/powerpc/kvm/bookehv_interrupts.S
-@@ -434,9 +434,10 @@ _GLOBAL(kvmppc_resume_host)
- #endif
- 
- 	/* Switch to kernel stack and jump to handler. */
--	PPC_LL	r3, HOST_RUN(r1)
-+	mr	r3, r4
- 	mr	r5, r14 /* intno */
- 	mr	r14, r4 /* Save vcpu pointer. */
-+	mr	r4, r5
- 	bl	kvmppc_handle_exit
- 
- 	/* Restore vcpu pointer and the nonvolatiles we used. */
-@@ -525,15 +526,14 @@ heavyweight_exit:
- 	blr
- 
- /* Registers:
-- *  r3: kvm_run pointer
-- *  r4: vcpu pointer
-+ *  r3: vcpu pointer
-  */
- _GLOBAL(__kvmppc_vcpu_run)
- 	stwu	r1, -HOST_STACK_SIZE(r1)
--	PPC_STL	r1, VCPU_HOST_STACK(r4)	/* Save stack pointer to vcpu. */
-+	PPC_STL	r1, VCPU_HOST_STACK(r3)	/* Save stack pointer to vcpu. */
- 
- 	/* Save host state to stack. */
--	PPC_STL	r3, HOST_RUN(r1)
-+	mr	r4, r3
- 	mflr	r3
- 	mfcr	r5
- 	PPC_STL	r3, HOST_STACK_LR(r1)
--- 
-2.17.1
+On 4/2/20 8:48 PM, David Hildenbrand wrote:
+> In case we have a region 1 ASCE, our shadow/g3 address can have any val=
+ue.
+> Unfortunately, (-1UL << 64) is undefined and triggers sometimes,
+> rejecting valid shadow addresses when trying to walk our shadow table
+> hierarchy.
+>=20
+> The result is that the prefix cannot get mapped and will loop basically=
+
+> forever trying to map it (-EAGAIN loop).
+>=20
+> After all, the broken check is only a sanity check, our table shadowing=
+
+> code in kvm_s390_shadow_tables() already checks these conditions, injec=
+ting
+> proper translation exceptions. Turn it into a WARN_ON_ONCE().
+>=20
+> Fixes: 4be130a08420 ("s390/mm: add shadow gmap support")
+> Cc: <stable@vger.kernel.org> # v4.8+
+> Reported-by: Janosch Frank <frankja@linux.ibm.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+
+With the WARN_ON_ONCE fix applied I don't run into stalls or warnings
+anymore, so:
+Tested-by: Janosch Frank <frankja@linux.ibm.com>
+
+> ---
+>  arch/s390/mm/gmap.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index 2fbece47ef6f..f3dbc5bdde50 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -787,14 +787,18 @@ static void gmap_call_notifier(struct gmap *gmap,=
+ unsigned long start,
+>  static inline unsigned long *gmap_table_walk(struct gmap *gmap,
+>  					     unsigned long gaddr, int level)
+>  {
+> +	const int asce_type =3D gmap->asce & _ASCE_TYPE_MASK;
+>  	unsigned long *table;
+> =20
+>  	if ((gmap->asce & _ASCE_TYPE_MASK) + 4 < (level * 4))
+>  		return NULL;
+>  	if (gmap_is_shadow(gmap) && gmap->removed)
+>  		return NULL;
+> -	if (gaddr & (-1UL << (31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11))=
+)
+> +
+> +	if (WARN_ON_ONCE(asce_type !=3D _ASCE_TYPE_REGION1) &&
+> +			 gaddr & (-1UL << (31 + (asce_type >> 2) * 11)))
+>  		return NULL;
+> +
+>  	table =3D gmap->table;
+>  	switch (gmap->asce & _ASCE_TYPE_MASK) {
+>  	case _ASCE_TYPE_REGION1:
+>=20
+
+
+
+--Vk5zZruvRNvPPgLPZS6eZqzObLnkFIpxv--
+
+--VuYuhIihgc8kXyA392z7lxVZk0JYHRnZj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl6HPR8ACgkQ41TmuOI4
+ufgb+RAAsxZfc7kuWec9oOuipxBnN6zTyl3YsseJhgREuvN4gfSxNKUBszxkzDe+
+AkHIrRmYTssGVaixZUec+N/x/rxOh7jIdWwTpHnQGWZNZoCHKTcFtbWGqgBQbnRY
+QSUhg8i+Xw+OYtvnt+54Qo2AUThNlUxF8xUVfz//Rj3Vc55DZ/T/4StxLg8aAVg3
+10YXv9/uuH2wBhQ2xZUwR6OTCcArA7ewTJx+ntjjawxY0BovxpWPdSc3AkErgXed
+lYB22XVCpe4SsbTLLvJLb0Tvr9lhuuPQZ6qU5iN+4Huh3ioZsMYEsC7Td/U+yCUG
+FGVKKdToeglKVV7A5vA8iHBzQRQ7Tx10jeSR8hBWSQcYNNG3MWEFy5YxAvwAAOTZ
+6SdXqz7lAcYhok44oexhpGV3Ccdq/orALKfeAZlqY1NLNyDqg+/9vVzSufF9ghfo
+PbRtHyjgw2hJUXGPLvP/cz22pIZ4wM2g7/0SP2QskUBqy4EZALeVXHeXEW0CEgK0
+V6rVojM/leoYaRqoxCD7VIv73xda3Zp6PMVAj3UNUfj8wQXh24VYEDnEe7ePJ6HX
+NW6nLxJnGYCRbAqpHP68VIYIy/BbS3YcgewMhcCH4Kpt19z1W5bAFFDGjXovBP1E
+m5AOfXT4s/E0nh6wtpGud43sjagTxQIoiUL77KS0V7+LkaqnLT4=
+=wb7M
+-----END PGP SIGNATURE-----
+
+--VuYuhIihgc8kXyA392z7lxVZk0JYHRnZj--
