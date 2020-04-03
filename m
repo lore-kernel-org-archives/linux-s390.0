@@ -1,20 +1,39 @@
-Return-Path: <linux-kbuild-owner@vger.kernel.org>
-Date: Mon, 6 Apr 2020 14:05:58 -0400
-From: Jeremy Cline <jcline@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9712 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727912AbgDCJq6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Apr 2020 05:46:58 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0339V5kQ111557
+        for <linux-s390@vger.kernel.org>; Fri, 3 Apr 2020 05:46:57 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 305emfstkh-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 03 Apr 2020 05:46:56 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <prudo@linux.ibm.com>;
+        Fri, 3 Apr 2020 10:46:35 +0100
+Date: Fri, 3 Apr 2020 11:46:49 +0200
+From: Philipp Rudo <prudo@linux.ibm.com>
 Subject: Re: [PATCH] kbuild: add dummy toolchains to enable all cc-option
  etc. in Kconfig
-Message-ID: <20200406180558.GA22412@dev.jcline.org>
+In-Reply-To: <20200403090224.24045-1-masahiroy@kernel.org>
 References: <20200403090224.24045-1-masahiroy@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200403090224.24045-1-masahiroy@kernel.org>
-Sender: linux-kbuild-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200403114649.1c1a149f@laptop2-ibm.local>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Masahiro Yamada <masahiroy@kernel.org>
-Cc: linux-kbuild@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>, Philipp Rudo <prudo@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: linux-kbuild@vger.kernel.org, Jeremy Cline <jcline@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>, linux-kernel@vger.kernel.org
 
-On Fri, Apr 03, 2020 at 06:02:24PM +0900, Masahiro Yamada wrote:
+Hi Masahiro,
+
+On Fri,  3 Apr 2020 18:02:24 +0900
+Masahiro Yamada <masahiroy@kernel.org> wrote:
+
 > Staring v4.18, Kconfig evaluates compiler capabilities, and hides CONFIG
 > options your compiler does not support. This works well if you configure
 > and build the kernel on the same host machine.
@@ -62,35 +81,10 @@ On Fri, Apr 03, 2020 at 06:02:24PM +0900, Masahiro Yamada wrote:
 >    $ make CROSS_COMPILE=scripts/dummy-tools/ oldconfig
 > 
 > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-> ---
-> 
->  scripts/dummy-tools/gcc     | 91 +++++++++++++++++++++++++++++++++++++
->  scripts/dummy-tools/ld      |  4 ++
->  scripts/dummy-tools/nm      |  4 ++
->  scripts/dummy-tools/objcopy |  4 ++
->  4 files changed, 103 insertions(+)
->  create mode 100755 scripts/dummy-tools/gcc
->  create mode 100755 scripts/dummy-tools/ld
->  create mode 100755 scripts/dummy-tools/nm
->  create mode 100755 scripts/dummy-tools/objcopy
-> 
 
-<snip>
+look good to me
 
-> diff --git a/scripts/dummy-tools/ld b/scripts/dummy-tools/ld
-> new file mode 100755
-> index 000000000000..3bc56ae4cc15
-> --- /dev/null
-> +++ b/scripts/dummy-tools/ld
-> @@ -0,0 +1,4 @@
-> +#!/bin/sh
-> +# SPDX-License-Identifier: GPL-2.0-only
-> +
-> +# Dummy script that always succeeds
+Reviewed-by: Philipp Rudo <prudo@linux.ibm.com>
 
-It looks like scripts/Kbuild.include expects "$(LD) --version" to return
-something. If it doesn't "ld-ifversion" stops working.
-
-Other than that it seems to work as advertised. Thanks!
-
-- Jeremy
+Thanks a lot
+Philipp
