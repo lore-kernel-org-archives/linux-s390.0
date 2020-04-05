@@ -1,101 +1,96 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:59838 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390797AbgDNH3g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 03:29:36 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/10] block: fold bdev_unhash_inode into invalidate_partition
-Date: Tue, 14 Apr 2020 09:29:02 +0200
-Message-Id: <20200414072902.324936-11-hch@lst.de>
-In-Reply-To: <20200414072902.324936-1-hch@lst.de>
-References: <20200414072902.324936-1-hch@lst.de>
+Received: from foss.arm.com ([217.140.110.172]:39588 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726598AbgDEOtb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 5 Apr 2020 10:49:31 -0400
+Subject: Re: [mm/debug] f675f2f91d:
+ WARNING:at_mm/debug_vm_pgtable.c:#debug_vm_pgtable
+References: <20200330085636.GG11705@shao2-debian>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <282deb38-8ce1-3980-2549-4413c33b6062@arm.com>
+Date: Sun, 5 Apr 2020 20:19:12 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200330085636.GG11705@shao2-debian>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org, Johannes Thumshirn <johannes.thumshirn@wdc.com>
+To: kernel test robot <rong.a.chen@intel.com>
+Cc: linux-mm@kvack.org, christophe.leroy@c-s.fr, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, lkp@lists.01.org
 
-invalidate_partition and bdev_unhash_inode are always paired, and
-invalidate_partition already does an icache lookup for the block device
-inode.  Piggy back on that to remove the inode from the hash.
+On 03/30/2020 02:26 PM, kernel test robot wrote:
+> [  283.486118] WARNING: CPU: 1 PID: 1 at mm/debug_vm_pgtable.c:371 debug_vm_pgtable+0x4dc/0x7e3
+> [  283.487342] Modules linked in:
+> [  283.487752] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.6.0-rc7-next-20200323-00001-gf675f2f91d045 #1
+> [  283.488817] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+> [  283.489794] RIP: 0010:debug_vm_pgtable+0x4dc/0x7e3
+> [  283.490361] Code: b5 fd 48 8b 7d d0 be 20 01 00 00 e8 3d 9f b5 fd 48 8b 75 c8 48 8b 7d d0 e8 30 9f b5 fd 48 8b 75 c8 48 8b 7d d0 e8 23 9f b5 fd <0f> 0b 48 8b 75 c8 48 8b 7d d0 e8 14 9f b5 fd 0f 0b 48 8b 75 c8 48
+> [  283.492577] RSP: 0000:ffff888236493ed8 EFLAGS: 00010202
+> [  283.493235] RAX: 00000001e1d31025 RBX: ffff88823e7f6cd8 RCX: ffffffffffffffff
+> [  283.494135] RDX: 0000000000000000 RSI: 0000000000000025 RDI: 00000001e1d31000
+> [  283.495002] RBP: ffff888236493f38 R08: 0000000000000001 R09: 0000000000000001
+> [  283.495858] R10: 0000000000000001 R11: 0000000000000000 R12: ffff88821d907000
+> [  283.496748] R13: ffff88821d8fc498 R14: ffff88821d8fda90 R15: ffff88821d8fc000
+> [  283.497614] FS:  0000000000000000(0000) GS:ffff888237800000(0000) knlGS:0000000000000000
+> [  283.498585] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [  283.499290] CR2: 00000000ffffffff CR3: 00000001e1222000 CR4: 00000000000406e0
+> [  283.500165] Call Trace:
+> [  283.500499]  ? rest_init+0x240/0x240
+> [  283.500985]  kernel_init+0x13/0x110
+> [  283.501433]  ret_from_fork+0x24/0x30
+> [  283.501907] irq event stamp: 4760776
+> [  283.502366] hardirqs last  enabled at (4760775): [<ffffffffb481e34d>] _raw_spin_unlock_irqrestore+0x4d/0x60
+> [  283.511686] hardirqs last disabled at (4760776): [<ffffffffb3c038d4>] trace_hardirqs_off_thunk+0x1a/0x1c
+> [  283.512914] softirqs last  enabled at (4760748): [<ffffffffb4c002cf>] __do_softirq+0x2cf/0x4ad
+> [  283.514086] softirqs last disabled at (4760741): [<ffffffffb3cf4f4d>] irq_exit+0xcd/0xe0
+> [  283.515114] ---[ end trace 7e3383c4261f8faa ]---
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
----
- block/genhd.c      |  8 ++++++--
- fs/block_dev.c     | 15 ---------------
- include/linux/fs.h |  1 -
- 3 files changed, 6 insertions(+), 18 deletions(-)
+The above failure here and the one on the other thread can be solved with
+the following change. The failure is caused by the fact that even though
+the soft dirty helpers are defined within CONFIG_HAVE_ARCH_SOFT_DIRTY, the
+required PTE bits (_PAGE_SOFT_DIRTY and _PAGE_SWP_SOFT_DIRTY) are available
+only when CONFIG_MEM_SOFT_DIRTY is enabled. Hence these tests should not
+proceed unless CONFIG_MEM_SOFT_DIRTY is enabled. Similar situation exists
+in s390 (_PAGE_SOFT_DIRTY and _SEGMENT_ENTRY_SOFT_DIRTY) and powerpc (at
+least with _PAGE_SWP_SOFT_DIRTY).
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 980a4609d4a5..c05d509877fa 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -888,6 +888,12 @@ static void invalidate_partition(struct gendisk *disk, int partno)
- 
- 	fsync_bdev(bdev);
- 	__invalidate_device(bdev, true);
-+
-+	/*
-+	 * Unhash the bdev inode for this device so that it gets evicted as soon
-+	 * as last inode reference is dropped.
-+	 */
-+	remove_inode_hash(bdev->bd_inode);
- 	bdput(bdev);
- }
- 
-@@ -909,13 +915,11 @@ void del_gendisk(struct gendisk *disk)
- 			     DISK_PITER_INCL_EMPTY | DISK_PITER_REVERSE);
- 	while ((part = disk_part_iter_next(&piter))) {
- 		invalidate_partition(disk, part->partno);
--		bdev_unhash_inode(part_devt(part));
- 		delete_partition(disk, part);
- 	}
- 	disk_part_iter_exit(&piter);
- 
- 	invalidate_partition(disk, 0);
--	bdev_unhash_inode(disk_devt(disk));
- 	set_capacity(disk, 0);
- 	disk->flags &= ~GENHD_FL_UP;
- 	up_write(&disk->lookup_sem);
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 9c8de54fa0c9..998820174d3e 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -883,21 +883,6 @@ static int bdev_set(struct inode *inode, void *data)
- 
- static LIST_HEAD(all_bdevs);
- 
--/*
-- * If there is a bdev inode for this device, unhash it so that it gets evicted
-- * as soon as last inode reference is dropped.
-- */
--void bdev_unhash_inode(dev_t dev)
--{
--	struct inode *inode;
--
--	inode = ilookup5(blockdev_superblock, hash(dev), bdev_test, &dev);
--	if (inode) {
--		remove_inode_hash(inode);
--		iput(inode);
--	}
--}
--
- struct block_device *bdget(dev_t dev)
+diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+index 87b4b495333b..2a75a51fed06 100644
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -589,7 +589,7 @@ static void __init pte_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
  {
- 	struct block_device *bdev;
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 2b4e9f86b151..1a95e5158811 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2581,7 +2581,6 @@ extern struct kmem_cache *names_cachep;
- #ifdef CONFIG_BLOCK
- extern int register_blkdev(unsigned int, const char *);
- extern void unregister_blkdev(unsigned int, const char *);
--extern void bdev_unhash_inode(dev_t dev);
- extern struct block_device *bdget(dev_t);
- extern struct block_device *bdgrab(struct block_device *bdev);
- extern void bd_set_size(struct block_device *, loff_t size);
--- 
-2.25.1
+        pte_t pte = pfn_pte(pfn, prot);
+ 
+-       if (!IS_ENABLED(CONFIG_HAVE_ARCH_SOFT_DIRTY))
++       if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
+                return;
+ 
+        WARN_ON(!pte_soft_dirty(pte_mksoft_dirty(pte)));
+@@ -600,7 +600,7 @@ static void __init pte_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
+ {
+        pte_t pte = pfn_pte(pfn, prot);
+ 
+-       if (!IS_ENABLED(CONFIG_HAVE_ARCH_SOFT_DIRTY))
++       if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
+                return;
+ 
+        WARN_ON(!pte_swp_soft_dirty(pte_swp_mksoft_dirty(pte)));
+@@ -612,7 +612,7 @@ static void __init pmd_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
+ {
+        pmd_t pmd = pfn_pmd(pfn, prot);
+ 
+-       if (!IS_ENABLED(CONFIG_HAVE_ARCH_SOFT_DIRTY))
++       if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
+                return;
+ 
+        WARN_ON(!pmd_soft_dirty(pmd_mksoft_dirty(pmd)));
+@@ -623,7 +623,7 @@ static void __init pmd_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
+ {
+        pmd_t pmd = pfn_pmd(pfn, prot);
+ 
+-       if (!IS_ENABLED(CONFIG_HAVE_ARCH_SOFT_DIRTY) ||
++       if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) ||
+                !IS_ENABLED(CONFIG_ARCH_ENABLE_THP_MIGRATION))
+                return;
