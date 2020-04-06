@@ -1,49 +1,40 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502667AbgDNNOY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:14:24 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/29] staging: android: ion: use vmap instead of vm_map_ram
-Date: Tue, 14 Apr 2020 15:13:22 +0200
-Message-Id: <20200414131348.444715-4-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37288 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726594AbgDFHlZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Apr 2020 03:41:25 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0367YAhK134655
+        for <linux-s390@vger.kernel.org>; Mon, 6 Apr 2020 03:41:24 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 306paksurb-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 06 Apr 2020 03:41:24 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <sth@linux.ibm.com>;
+        Mon, 6 Apr 2020 08:41:19 +0100
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 0/1] s390/dasd: Kconfig patch
+Date: Mon,  6 Apr 2020 09:41:17 +0200
+Message-Id: <20200406074118.86849-1-sth@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: axboe@kernel.dk
+Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-vm_map_ram can keep mappings around after the vm_unmap_ram.  Using that
-with non-PAGE_KERNEL mappings can lead to all kinds of aliasing issues.
+Hi Jens,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- drivers/staging/android/ion/ion_heap.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+please see the following patch that fixes the DASD iosched Kconfig.
 
-diff --git a/drivers/staging/android/ion/ion_heap.c b/drivers/staging/android/ion/ion_heap.c
-index 473b465724f1..0755b11348ed 100644
---- a/drivers/staging/android/ion/ion_heap.c
-+++ b/drivers/staging/android/ion/ion_heap.c
-@@ -99,12 +99,12 @@ int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
- 
- static int ion_heap_clear_pages(struct page **pages, int num, pgprot_t pgprot)
- {
--	void *addr = vm_map_ram(pages, num, -1, pgprot);
-+	void *addr = vmap(pages, num, VM_MAP, pgprot);
- 
- 	if (!addr)
- 		return -ENOMEM;
- 	memset(addr, 0, PAGE_SIZE * num);
--	vm_unmap_ram(addr, num);
-+	vunmap(addr);
- 
- 	return 0;
- }
+Regards,
+Stefan
+
+Krzysztof Kozlowski (1):
+  s390: Cleanup removed IOSCHED_DEADLINE
+
+ drivers/s390/block/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 -- 
-2.25.1
+2.17.1
