@@ -1,83 +1,93 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 23/34] iommu/mediatek: Convert to probe/release_device() call-backs
-Date: Tue,  7 Apr 2020 20:37:31 +0200
-Message-Id: <20200407183742.4344-24-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42664 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728494AbgDFNYx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Apr 2020 09:24:53 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 036DHiBR193803
+        for <linux-s390@vger.kernel.org>; Mon, 6 Apr 2020 09:24:52 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3082cgwetv-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 06 Apr 2020 09:24:51 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Mon, 6 Apr 2020 14:24:47 +0100
+Subject: Re: [PATCH v1 2/5] KVM: s390: vsie: Fix delivery of addressing
+ exceptions
+References: <20200402184819.34215-1-david@redhat.com>
+ <20200402184819.34215-3-david@redhat.com>
+ <0cd2822e-8486-d386-6c00-faadaa573e5e@de.ibm.com>
+ <527f7bdf-d8f9-59b4-e70a-54e358ee9e26@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Mon, 6 Apr 2020 15:24:44 +0200
+MIME-Version: 1.0
+In-Reply-To: <527f7bdf-d8f9-59b4-e70a-54e358ee9e26@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <123476b6-acbd-a5ed-7416-1092c064bc86@de.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
 
-Convert the Mediatek IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/mtk_iommu.c | 24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+On 06.04.20 15:22, David Hildenbrand wrote:
+> On 06.04.20 15:17, Christian Borntraeger wrote:
+>>
+>>
+>> On 02.04.20 20:48, David Hildenbrand wrote:
+>>> Whenever we get an -EFAULT, we failed to read in guest 2 physical
+>>> address space. Such addressing exceptions are reported via a program
+>>> intercept to the nested hypervisor.
+>>>
+>>> We faked the intercept, we have to return to guest 2. Instead, right
+>>> now we would be returning -EFAULT from the intercept handler, eventually
+>>> crashing the VM.
+>>>
+>>> Addressing exceptions can only happen if the g2->g3 page tables
+>>> reference invalid g2 addresses (say, either a table or the final page is
+>>> not accessible - so something that basically never happens in sane
+>>> environments.
+>>>
+>>> Identified by manual code inspection.
+>>>
+>>> Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+>>> Cc: <stable@vger.kernel.org> # v4.8+
+>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>> ---
+>>>  arch/s390/kvm/vsie.c | 1 +
+>>>  1 file changed, 1 insertion(+)
+>>>
+>>> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+>>> index 076090f9e666..4f6c22d72072 100644
+>>> --- a/arch/s390/kvm/vsie.c
+>>> +++ b/arch/s390/kvm/vsie.c
+>>> @@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+>>>  		scb_s->iprcc = PGM_ADDRESSING;
+>>>  		scb_s->pgmilc = 4;
+>>>  		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
+>>> +		rc = 1;
+>>
+>>
+>> kvm_s390_handle_vsie has 
+>>
+>>  return rc < 0 ? rc : 0;
+>>
+>>
+>> so rc = 0 would result in the same behaviour, correct?
+> 
+> yes
+> 
+>> Since we DO handle everything as we should, why rc = 1 ?
+> 
+> rc == 1 is the internal representation of "we have to go back into g2".
+> rc == 0, in contrast, means "we can go back into g2 (via a NULL
+> intercept) or continue executing g3". Returning rc == 1 instead of rc ==
+> 0 at this point is just consistency.
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 5f4d6df59cf6..2be96f1cdbd2 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -441,38 +441,26 @@ static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
- 	return pa;
- }
- 
--static int mtk_iommu_add_device(struct device *dev)
-+static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct mtk_iommu_data *data;
--	struct iommu_group *group;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
--		return -ENODEV; /* Not a iommu client device */
-+		return ERR_PTR(-ENODEV); /* Not a iommu client device */
- 
- 	data = dev_iommu_priv_get(dev);
--	iommu_device_link(&data->iommu, dev);
- 
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
--	return 0;
-+	return &data->iommu;
- }
- 
--static void mtk_iommu_remove_device(struct device *dev)
-+static void mtk_iommu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct mtk_iommu_data *data;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return;
- 
--	data = dev_iommu_priv_get(dev);
--	iommu_device_unlink(&data->iommu, dev);
--
--	iommu_group_remove_device(dev);
- 	iommu_fwspec_free(dev);
- }
- 
-@@ -526,8 +514,8 @@ static const struct iommu_ops mtk_iommu_ops = {
- 	.flush_iotlb_all = mtk_iommu_flush_iotlb_all,
- 	.iotlb_sync	= mtk_iommu_iotlb_sync,
- 	.iova_to_phys	= mtk_iommu_iova_to_phys,
--	.add_device	= mtk_iommu_add_device,
--	.remove_device	= mtk_iommu_remove_device,
-+	.probe_device	= mtk_iommu_probe_device,
-+	.release_device	= mtk_iommu_release_device,
- 	.device_group	= mtk_iommu_device_group,
- 	.of_xlate	= mtk_iommu_of_xlate,
- 	.pgsize_bitmap	= SZ_4K | SZ_64K | SZ_1M | SZ_16M,
--- 
-2.17.1
+Ok, I will add something to the patch description.
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
