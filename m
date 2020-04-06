@@ -1,62 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3306 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34924 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726573AbgDUGfI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Apr 2020 02:35:08 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03L6WHw3141278
-        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2020 02:35:07 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30ggr2570b-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2020 02:35:07 -0400
-Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Tue, 21 Apr 2020 07:34:14 +0100
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/2] KVM: s390: Fix for 5.7 and maintainer update
-Date: Tue, 21 Apr 2020 08:34:45 +0200
+        by vger.kernel.org with ESMTP id S1726084AbgDFWLi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Apr 2020 18:11:38 -0400
+Subject: Re: [RFC PATCH v2 7/9] vfio-ccw: Wire up the CRW irq and CRW region
+References: <20200206213825.11444-1-farman@linux.ibm.com>
+ <20200206213825.11444-8-farman@linux.ibm.com>
+ <20200406155255.3c8f06e5.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <66655d37-b9d1-593f-fd81-339b422bb372@linux.ibm.com>
+Date: Mon, 6 Apr 2020 18:11:34 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200421063447.6814-1-borntraeger@de.ibm.com>
+In-Reply-To: <20200406155255.3c8f06e5.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-Paolo,
 
-two things for kvm/master. One fix for the protected virtualization
-feature where we have a too strong assert and Adding Claudio as a
-reviewer.
 
-The following changes since commit ae83d0b416db002fe95601e7f97f64b59514d936:
+On 4/6/20 9:52 AM, Cornelia Huck wrote:
+> On Thu,  6 Feb 2020 22:38:23 +0100
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> From: Farhan Ali <alifm@linux.ibm.com>
+>>
+>> Use an IRQ to notify userspace that there is a CRW
+>> pending in the region, related to path-availability
+>> changes on the passthrough subchannel.
+>>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>
+>> Notes:
+>>     v1->v2:
+>>      - Remove extraneous 0x0 in crw.rsid assignment [CH]
+>>      - Refactor the building/queueing of a crw into its own routine [EF]
+>>     
+>>     v0->v1: [EF]
+>>      - Place the non-refactoring changes from the previous patch here
+>>      - Clean up checkpatch (whitespace) errors
+>>      - s/chp_crw/crw/
+>>      - Move acquire/release of io_mutex in vfio_ccw_crw_region_read()
+>>        into patch that introduces that region
+>>      - Remove duplicate include from vfio_ccw_drv.c
+>>      - Reorder include in vfio_ccw_private.h
+>>
+>>  drivers/s390/cio/vfio_ccw_chp.c     |  5 ++
+>>  drivers/s390/cio/vfio_ccw_drv.c     | 73 +++++++++++++++++++++++++++++
+>>  drivers/s390/cio/vfio_ccw_ops.c     |  4 ++
+>>  drivers/s390/cio/vfio_ccw_private.h |  9 ++++
+>>  include/uapi/linux/vfio.h           |  1 +
+>>  5 files changed, 92 insertions(+)
+> 
+> [I may have gotten all muddled up from staring at this, but please bear
+> with me...]
+> 
+...snip...
+> 
+> Aren't we missing copying in a new queued crw after userspace had done
+> a read?
+> 
 
-  Linux 5.7-rc2 (2020-04-19 14:35:30 -0700)
+Um, huh.  I'll doublecheck that after dinner, but it sure looks like
+you're right.
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-5.7-2
-
-for you to fetch changes up to 2a173ec993baa6a97e7b0fb89240200a88d90746:
-
-  MAINTAINERS: add a reviewer for KVM/s390 (2020-04-20 11:24:00 +0200)
-
-----------------------------------------------------------------
-KVM: s390: Fix for 5.7 and maintainer update
-
-- Silence false positive lockdep warning
-- add Claudio as reviewer
-
-----------------------------------------------------------------
-Claudio Imbrenda (1):
-      MAINTAINERS: add a reviewer for KVM/s390
-
-Eric Farman (1):
-      KVM: s390: Fix PV check in deliverable_irqs()
-
- MAINTAINERS               | 1 +
- arch/s390/kvm/interrupt.c | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+(Might not get back to you tomorrow, because I don't have much time
+until Wednesday.)
