@@ -1,87 +1,92 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10916 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725912AbgDJKkp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Apr 2020 06:40:45 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03AAcIei095030
-        for <linux-s390@vger.kernel.org>; Fri, 10 Apr 2020 06:40:44 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30920awn8a-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 10 Apr 2020 06:40:44 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <gor@linux.ibm.com>;
-        Fri, 10 Apr 2020 11:40:21 +0100
-Date: Fri, 10 Apr 2020 12:40:36 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL] s390 patches for the 5.7 merge window #2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Message-Id: <your-ad-here.call-01586515236-ext-7662@work.hours>
+Received: from 8bytes.org ([81.169.241.247]:57560 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727185AbgDGSiD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:38:03 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 32/34] iommu/exynos: Convert to probe/release_device() call-backs
+Date: Tue,  7 Apr 2020 20:37:40 +0200
+Message-Id: <20200407183742.4344-33-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Hello Linus,
+From: Joerg Roedel <jroedel@suse.de>
 
-please pull the second round of s390 fixes and features for 5.7.
+Convert the Exynos IOMMU drivers to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
-Thank you,
-Vasily
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ drivers/iommu/exynos-iommu.c | 23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
-The following changes since commit ad0bf4eb91c2f9b93479b679e5472094ddb76da8:
-
-  Merge tag 's390-5.7-1' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux (2020-04-04 09:45:50 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux tags/s390-5.7-2
-
-for you to fetch changes up to 2bc55eaeb88d30accfc1b6ac2708d4e4b81ca260:
-
-  s390/cio: generate delayed uevent for vfio-ccw subchannels (2020-04-06 14:02:28 +0200)
-
-----------------------------------------------------------------
-s390 updates for the 5.7 merge window #2
-
-- The rest of fallthrough; annotations conversion.
-
-- Couple of fixes for ADD uevents in the common I/O layer.
-
-- Minor refactoring of the queued direct I/O code.
-
-----------------------------------------------------------------
-Cornelia Huck (2):
-      s390/cio: avoid duplicated 'ADD' uevents
-      s390/cio: generate delayed uevent for vfio-ccw subchannels
-
-Joe Perches (1):
-      s390/mm: use fallthrough;
-
-Julian Wiedmann (6):
-      s390/qdio: cleanly split alloc and establish
-      zfcp: inline zfcp_qdio_setup_init_data()
-      s390/qdio: allow for non-contiguous SBAL array in init_data
-      s390/qdio: remove cdev from init_data
-      s390/qdio: inline shared_ind()
-      s390/qdio: clear DSCI early for polling drivers
-
- arch/s390/include/asm/qdio.h      | 16 +++++-----
- arch/s390/mm/fault.c              |  2 --
- drivers/s390/cio/device.c         | 13 +++++---
- drivers/s390/cio/qdio.h           |  1 -
- drivers/s390/cio/qdio_debug.c     | 16 +---------
- drivers/s390/cio/qdio_debug.h     |  3 +-
- drivers/s390/cio/qdio_main.c      | 63 +++++++++++++++++++++++++------------
- drivers/s390/cio/qdio_setup.c     | 10 +++---
- drivers/s390/cio/qdio_thinint.c   | 28 ++---------------
- drivers/s390/cio/vfio_ccw_drv.c   |  5 +++
- drivers/s390/net/qeth_core.h      |  5 +--
- drivers/s390/net/qeth_core_main.c | 65 ++++++++-------------------------------
- drivers/s390/scsi/zfcp_qdio.c     | 51 +++++++++++++-----------------
- 13 files changed, 110 insertions(+), 168 deletions(-)
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index 86ecccbf0438..f865c9093722 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -1223,19 +1223,13 @@ static phys_addr_t exynos_iommu_iova_to_phys(struct iommu_domain *iommu_domain,
+ 	return phys;
+ }
+ 
+-static int exynos_iommu_add_device(struct device *dev)
++static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
+ {
+ 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+ 	struct sysmmu_drvdata *data;
+-	struct iommu_group *group;
+ 
+ 	if (!has_sysmmu(dev))
+-		return -ENODEV;
+-
+-	group = iommu_group_get_for_dev(dev);
+-
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
++		return ERR_PTR(-ENODEV);
+ 
+ 	list_for_each_entry(data, &owner->controllers, owner_node) {
+ 		/*
+@@ -1247,14 +1241,11 @@ static int exynos_iommu_add_device(struct device *dev)
+ 					     DL_FLAG_STATELESS |
+ 					     DL_FLAG_PM_RUNTIME);
+ 	}
+-	iommu_group_put(group);
+ 
+-	iommu_device_link(&owner->iommu, dev);
+-
+-	return 0;
++	return &owner->iommu;
+ }
+ 
+-static void exynos_iommu_remove_device(struct device *dev)
++static void exynos_iommu_release_device(struct device *dev)
+ {
+ 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+ 	struct sysmmu_drvdata *data;
+@@ -1272,8 +1263,6 @@ static void exynos_iommu_remove_device(struct device *dev)
+ 			iommu_group_put(group);
+ 		}
+ 	}
+-	iommu_device_unlink(&owner->iommu, dev);
+-	iommu_group_remove_device(dev);
+ 
+ 	list_for_each_entry(data, &owner->controllers, owner_node)
+ 		device_link_del(data->link);
+@@ -1381,8 +1370,8 @@ static const struct iommu_ops exynos_iommu_ops = {
+ 	.unmap = exynos_iommu_unmap,
+ 	.iova_to_phys = exynos_iommu_iova_to_phys,
+ 	.device_group = generic_device_group,
+-	.add_device = exynos_iommu_add_device,
+-	.remove_device = exynos_iommu_remove_device,
++	.probe_device = exynos_iommu_probe_device,
++	.release_device = exynos_iommu_release_device,
+ 	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
+ 	.of_xlate = exynos_iommu_of_xlate,
+ };
+-- 
+2.17.1
