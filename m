@@ -1,126 +1,88 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/28] staging: media: ipu3: use vmap insted of reimplementing it
-Date: Wed,  8 Apr 2020 13:59:01 +0200
-Message-Id: <20200408115926.1467567-4-hch@lst.de>
-In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
-References: <20200408115926.1467567-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from 8bytes.org ([81.169.241.247]:57616 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726949AbgDGSiB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:38:01 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 20/34] iommu/s390: Convert to probe/release_device() call-backs
+Date: Tue,  7 Apr 2020 20:37:28 +0200
+Message-Id: <20200407183742.4344-21-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Just use vmap instead of messing with vmalloc internals.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Convert the S390 IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/staging/media/ipu3/ipu3-css-pool.h |  4 +--
- drivers/staging/media/ipu3/ipu3-dmamap.c   | 30 ++++++----------------
- 2 files changed, 9 insertions(+), 25 deletions(-)
+ drivers/iommu/s390-iommu.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/staging/media/ipu3/ipu3-css-pool.h b/drivers/staging/media/ipu3/ipu3-css-pool.h
-index f4a60b41401b..a8ccd4f70320 100644
---- a/drivers/staging/media/ipu3/ipu3-css-pool.h
-+++ b/drivers/staging/media/ipu3/ipu3-css-pool.h
-@@ -15,14 +15,12 @@ struct imgu_device;
-  * @size:		size of the buffer in bytes.
-  * @vaddr:		kernel virtual address.
-  * @daddr:		iova dma address to access IPU3.
-- * @vma:		private, a pointer to &struct vm_struct,
-- *			used for imgu_dmamap_free.
-  */
- struct imgu_css_map {
- 	size_t size;
- 	void *vaddr;
- 	dma_addr_t daddr;
--	struct vm_struct *vma;
-+	struct page **pages;
- };
- 
- /**
-diff --git a/drivers/staging/media/ipu3/ipu3-dmamap.c b/drivers/staging/media/ipu3/ipu3-dmamap.c
-index 7431322379f6..8a19b0024152 100644
---- a/drivers/staging/media/ipu3/ipu3-dmamap.c
-+++ b/drivers/staging/media/ipu3/ipu3-dmamap.c
-@@ -96,6 +96,7 @@ void *imgu_dmamap_alloc(struct imgu_device *imgu, struct imgu_css_map *map,
- 	unsigned long shift = iova_shift(&imgu->iova_domain);
- 	struct device *dev = &imgu->pci_dev->dev;
- 	size_t size = PAGE_ALIGN(len);
-+	int count = size >> PAGE_SHIFT;
- 	struct page **pages;
- 	dma_addr_t iovaddr;
- 	struct iova *iova;
-@@ -114,7 +115,7 @@ void *imgu_dmamap_alloc(struct imgu_device *imgu, struct imgu_css_map *map,
- 
- 	/* Call IOMMU driver to setup pgt */
- 	iovaddr = iova_dma_addr(&imgu->iova_domain, iova);
--	for (i = 0; i < size / PAGE_SIZE; ++i) {
-+	for (i = 0; i < count; ++i) {
- 		rval = imgu_mmu_map(imgu->mmu, iovaddr,
- 				    page_to_phys(pages[i]), PAGE_SIZE);
- 		if (rval)
-@@ -123,33 +124,23 @@ void *imgu_dmamap_alloc(struct imgu_device *imgu, struct imgu_css_map *map,
- 		iovaddr += PAGE_SIZE;
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index 1137f3ddcb85..610f0828f22d 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -166,21 +166,14 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
  	}
- 
--	/* Now grab a virtual region */
--	map->vma = __get_vm_area(size, VM_USERMAP, VMALLOC_START, VMALLOC_END);
--	if (!map->vma)
-+	map->vaddr = vmap(pages, count, VM_USERMAP, PAGE_KERNEL);
-+	if (!map->vaddr)
- 		goto out_unmap;
- 
--	map->vma->pages = pages;
--	/* And map it in KVA */
--	if (map_vm_area(map->vma, PAGE_KERNEL, pages))
--		goto out_vunmap;
--
-+	map->pages = pages;
- 	map->size = size;
- 	map->daddr = iova_dma_addr(&imgu->iova_domain, iova);
--	map->vaddr = map->vma->addr;
- 
- 	dev_dbg(dev, "%s: allocated %zu @ IOVA %pad @ VA %p\n", __func__,
--		size, &map->daddr, map->vma->addr);
--
--	return map->vma->addr;
-+		size, &map->daddr, map->vaddr);
- 
--out_vunmap:
--	vunmap(map->vma->addr);
-+	return map->vaddr;
- 
- out_unmap:
- 	imgu_dmamap_free_buffer(pages, size);
- 	imgu_mmu_unmap(imgu->mmu, iova_dma_addr(&imgu->iova_domain, iova),
- 		       i * PAGE_SIZE);
--	map->vma = NULL;
- 
- out_free_iova:
- 	__free_iova(&imgu->iova_domain, iova);
-@@ -177,8 +168,6 @@ void imgu_dmamap_unmap(struct imgu_device *imgu, struct imgu_css_map *map)
-  */
- void imgu_dmamap_free(struct imgu_device *imgu, struct imgu_css_map *map)
- {
--	struct vm_struct *area = map->vma;
--
- 	dev_dbg(&imgu->pci_dev->dev, "%s: freeing %zu @ IOVA %pad @ VA %p\n",
- 		__func__, map->size, &map->daddr, map->vaddr);
- 
-@@ -187,11 +176,8 @@ void imgu_dmamap_free(struct imgu_device *imgu, struct imgu_css_map *map)
- 
- 	imgu_dmamap_unmap(imgu, map);
- 
--	if (WARN_ON(!area) || WARN_ON(!area->pages))
--		return;
--
--	imgu_dmamap_free_buffer(area->pages, map->size);
- 	vunmap(map->vaddr);
-+	imgu_dmamap_free_buffer(map->pages, map->size);
- 	map->vaddr = NULL;
  }
  
+-static int s390_iommu_add_device(struct device *dev)
++static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+ {
+-	struct iommu_group *group = iommu_group_get_for_dev(dev);
+ 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
+ 
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
+-	iommu_device_link(&zdev->iommu_dev, dev);
+-
+-	return 0;
++	return &zdev->iommu_dev;
+ }
+ 
+-static void s390_iommu_remove_device(struct device *dev)
++static void s390_iommu_release_device(struct device *dev)
+ {
+ 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
+ 	struct iommu_domain *domain;
+@@ -191,7 +184,7 @@ static void s390_iommu_remove_device(struct device *dev)
+ 	 * to vfio-pci and completing the VFIO_SET_IOMMU ioctl (which triggers
+ 	 * the attach_dev), removing the device via
+ 	 * "echo 1 > /sys/bus/pci/devices/.../remove" won't trigger detach_dev,
+-	 * only remove_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
++	 * only release_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
+ 	 * notifier.
+ 	 *
+ 	 * So let's call detach_dev from here if it hasn't been called before.
+@@ -201,9 +194,6 @@ static void s390_iommu_remove_device(struct device *dev)
+ 		if (domain)
+ 			s390_iommu_detach_device(domain, dev);
+ 	}
+-
+-	iommu_device_unlink(&zdev->iommu_dev, dev);
+-	iommu_group_remove_device(dev);
+ }
+ 
+ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
+@@ -373,8 +363,8 @@ static const struct iommu_ops s390_iommu_ops = {
+ 	.map = s390_iommu_map,
+ 	.unmap = s390_iommu_unmap,
+ 	.iova_to_phys = s390_iommu_iova_to_phys,
+-	.add_device = s390_iommu_add_device,
+-	.remove_device = s390_iommu_remove_device,
++	.probe_device = s390_iommu_probe_device,
++	.release_device = s390_iommu_release_device,
+ 	.device_group = generic_device_group,
+ 	.pgsize_bitmap = S390_IOMMU_PGSIZES,
+ };
 -- 
-2.25.1
+2.17.1
