@@ -1,97 +1,76 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49346 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731849AbgDAHar (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Apr 2020 03:30:47 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03175pka170487
-        for <linux-s390@vger.kernel.org>; Wed, 1 Apr 2020 03:30:46 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 304mcb3ju6-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 01 Apr 2020 03:30:46 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <fiuczy@linux.ibm.com>;
-        Wed, 1 Apr 2020 08:30:35 +0100
-Subject: Re: [PATCH 1/2] s390/cio: avoid duplicated 'ADD' uevents
-References: <20200327124503.9794-1-cohuck@redhat.com>
- <20200327124503.9794-2-cohuck@redhat.com>
-From: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Date: Wed, 1 Apr 2020 09:30:39 +0200
-MIME-Version: 1.0
-In-Reply-To: <20200327124503.9794-2-cohuck@redhat.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Message-Id: <ce487cdf-fd2a-e466-8234-b2591967eb50@linux.ibm.com>
+Received: from 8bytes.org ([81.169.241.247]:57536 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726873AbgDGSh5 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:37:57 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 09/34] iommu: Keep a list of allocated groups in __iommu_probe_device()
+Date: Tue,  7 Apr 2020 20:37:17 +0200
+Message-Id: <20200407183742.4344-10-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-The code changes look good and I was able to test this fix successfully.
-Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+From: Joerg Roedel <jroedel@suse.de>
 
+This is needed to defer default_domain allocation for new IOMMU groups
+until all devices have been added to the group.
 
-On 3/27/20 1:45 PM, Cornelia Huck wrote:
-> The common I/O layer delays the ADD uevent for subchannels and
-> delegates generating this uevent to the individual subchannel
-> drivers. The io_subchannel driver will do so when the associated
-> ccw_device has been registered -- but unconditionally, so more
-> ADD uevents will be generated if a subchannel has been unbound
-> from the io_subchannel driver and later rebound.
-> 
-> To fix this, only generate the ADD event if uevents were still
-> suppressed for the device.
-> 
-> Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-> Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->   drivers/s390/cio/device.c | 13 +++++++++----
->   1 file changed, 9 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-> index 0c6245fc7706..983f9c9e08de 100644
-> --- a/drivers/s390/cio/device.c
-> +++ b/drivers/s390/cio/device.c
-> @@ -849,8 +849,10 @@ static void io_subchannel_register(struct ccw_device *cdev)
->   	 * Now we know this subchannel will stay, we can throw
->   	 * our delayed uevent.
->   	 */
-> -	dev_set_uevent_suppress(&sch->dev, 0);
-> -	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-> +	if (dev_get_uevent_suppress(&sch->dev)) {
-> +		dev_set_uevent_suppress(&sch->dev, 0);
-> +		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-> +	}
->   	/* make it known to the system */
->   	ret = ccw_device_add(cdev);
->   	if (ret) {
-> @@ -1058,8 +1060,11 @@ static int io_subchannel_probe(struct subchannel *sch)
->   		 * Throw the delayed uevent for the subchannel, register
->   		 * the ccw_device and exit.
->   		 */
-> -		dev_set_uevent_suppress(&sch->dev, 0);
-> -		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-> +		if (dev_get_uevent_suppress(&sch->dev)) {
-> +			/* should always be the case for the console */
-> +			dev_set_uevent_suppress(&sch->dev, 0);
-> +			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-> +		}
->   		cdev = sch_get_cdev(sch);
->   		rc = ccw_device_add(cdev);
->   		if (rc) {
-> 
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ drivers/iommu/iommu.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 7a385c18e1a5..18eb3623bd00 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -44,6 +44,7 @@ struct iommu_group {
+ 	int id;
+ 	struct iommu_domain *default_domain;
+ 	struct iommu_domain *domain;
++	struct list_head entry;
+ };
+ 
+ struct group_device {
+@@ -184,7 +185,7 @@ static void dev_iommu_free(struct device *dev)
+ 	dev->iommu = NULL;
+ }
+ 
+-static int __iommu_probe_device(struct device *dev)
++static int __iommu_probe_device(struct device *dev, struct list_head *group_list)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+ 	struct iommu_device *iommu_dev;
+@@ -204,6 +205,9 @@ static int __iommu_probe_device(struct device *dev)
+ 	}
+ 	iommu_group_put(group);
+ 
++	if (group_list && !group->default_domain && list_empty(&group->entry))
++		list_add_tail(&group->entry, group_list);
++
+ 	iommu_device_link(iommu_dev, dev);
+ 
+ 	return 0;
+@@ -234,7 +238,7 @@ int iommu_probe_device(struct device *dev)
+ 	if (ops->probe_device) {
+ 		struct iommu_group *group;
+ 
+-		ret = __iommu_probe_device(dev);
++		ret = __iommu_probe_device(dev, NULL);
+ 
+ 		/*
+ 		 * Try to allocate a default domain - needs support from the
+@@ -567,6 +571,7 @@ struct iommu_group *iommu_group_alloc(void)
+ 	group->kobj.kset = iommu_group_kset;
+ 	mutex_init(&group->mutex);
+ 	INIT_LIST_HEAD(&group->devices);
++	INIT_LIST_HEAD(&group->entry);
+ 	BLOCKING_INIT_NOTIFIER_HEAD(&group->notifier);
+ 
+ 	ret = ida_simple_get(&iommu_group_ida, 0, 0, GFP_KERNEL);
 -- 
-Mit freundlichen Grüßen/Kind regards
-    Boris Fiuczynski
-
-IBM Deutschland Research & Development GmbH
-Vorsitzender des Aufsichtsrats: Gregor Pillen
-Geschäftsführung: Dirk Wittkopp
-Sitz der Gesellschaft: Böblingen
-Registergericht: Amtsgericht Stuttgart, HRB 243294
+2.17.1
