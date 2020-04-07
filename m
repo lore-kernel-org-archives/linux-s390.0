@@ -1,111 +1,145 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:46778 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728187AbgDHMAE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 08:00:04 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/28] dma-mapping: use vmap insted of reimplementing it
-Date: Wed,  8 Apr 2020 13:59:02 +0200
-Message-Id: <20200408115926.1467567-5-hch@lst.de>
-In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
-References: <20200408115926.1467567-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from 8bytes.org ([81.169.241.247]:57590 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726878AbgDGSh6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:37:58 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 12/34] iommu: Move iommu_group_create_direct_mappings() out of iommu_group_add_device()
+Date: Tue,  7 Apr 2020 20:37:20 +0200
+Message-Id: <20200407183742.4344-13-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Replace the open coded instance of vmap with the actual function.  In
-the non-contiguous (IOMMU) case this requires an extra find_vm_area,
-but given that this isn't a fast path function that is a small price
-to pay.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+After the previous changes the iommu group may not have a default
+domain when iommu_group_add_device() is called. With no default domain
+iommu_group_create_direct_mappings() will do nothing and no direct
+mappings will be created.
+
+Rename iommu_group_create_direct_mappings() to
+iommu_create_device_direct_mappings() to better reflect that the
+function creates direct mappings only for one device and not for all
+devices in the group. Then move the call to the places where a default
+domain actually exists.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- kernel/dma/remap.c | 48 ++++++++++++----------------------------------
- 1 file changed, 12 insertions(+), 36 deletions(-)
+ drivers/iommu/iommu.c | 35 ++++++++++++++++++++++++++++++-----
+ 1 file changed, 30 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/dma/remap.c b/kernel/dma/remap.c
-index d14cbc83986a..7a8ba60951e8 100644
---- a/kernel/dma/remap.c
-+++ b/kernel/dma/remap.c
-@@ -20,23 +20,6 @@ struct page **dma_common_find_pages(void *cpu_addr)
- 	return area->pages;
- }
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 44514e3e8ca2..844613850595 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -89,6 +89,8 @@ static int __iommu_attach_group(struct iommu_domain *domain,
+ 				struct iommu_group *group);
+ static void __iommu_detach_group(struct iommu_domain *domain,
+ 				 struct iommu_group *group);
++static int iommu_create_device_direct_mappings(struct iommu_group *group,
++					       struct device *dev);
  
--static struct vm_struct *__dma_common_pages_remap(struct page **pages,
--			size_t size, pgprot_t prot, const void *caller)
--{
--	struct vm_struct *area;
--
--	area = get_vm_area_caller(size, VM_DMA_COHERENT, caller);
--	if (!area)
--		return NULL;
--
--	if (map_vm_area(area, prot, pages)) {
--		vunmap(area->addr);
--		return NULL;
--	}
--
--	return area;
--}
--
- /*
-  * Remaps an array of PAGE_SIZE pages into another vm_area.
-  * Cannot be used in non-sleeping contexts
-@@ -44,15 +27,12 @@ static struct vm_struct *__dma_common_pages_remap(struct page **pages,
- void *dma_common_pages_remap(struct page **pages, size_t size,
- 			 pgprot_t prot, const void *caller)
+ #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
+ struct iommu_group_attribute iommu_group_attr_##_name =		\
+@@ -243,6 +245,8 @@ static int __iommu_probe_device_helper(struct device *dev)
+ 	if (group->default_domain)
+ 		ret = __iommu_attach_device(group->default_domain, dev);
+ 
++	iommu_create_device_direct_mappings(group, dev);
++
+ 	iommu_group_put(group);
+ 
+ 	if (ret)
+@@ -263,6 +267,7 @@ static int __iommu_probe_device_helper(struct device *dev)
+ int iommu_probe_device(struct device *dev)
  {
--	struct vm_struct *area;
-+	void *vaddr;
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	struct iommu_group *group;
+ 	int ret;
  
--	area = __dma_common_pages_remap(pages, size, prot, caller);
--	if (!area)
--		return NULL;
--
--	area->pages = pages;
--
--	return area->addr;
-+	vaddr = vmap(pages, count, VM_DMA_COHERENT, prot);
-+	if (vaddr)
-+		find_vm_area(vaddr)->pages = pages;
-+	return vaddr;
+ 	WARN_ON(dev->iommu_group);
+@@ -285,6 +290,10 @@ int iommu_probe_device(struct device *dev)
+ 	if (ret)
+ 		goto err_module_put;
+ 
++	group = iommu_group_get(dev);
++	iommu_create_device_direct_mappings(group, dev);
++	iommu_group_put(group);
++
+ 	if (ops->probe_finalize)
+ 		ops->probe_finalize(dev);
+ 
+@@ -736,8 +745,8 @@ int iommu_group_set_name(struct iommu_group *group, const char *name)
  }
+ EXPORT_SYMBOL_GPL(iommu_group_set_name);
  
- /*
-@@ -62,24 +42,20 @@ void *dma_common_pages_remap(struct page **pages, size_t size,
- void *dma_common_contiguous_remap(struct page *page, size_t size,
- 			pgprot_t prot, const void *caller)
+-static int iommu_group_create_direct_mappings(struct iommu_group *group,
+-					      struct device *dev)
++static int iommu_create_device_direct_mappings(struct iommu_group *group,
++					       struct device *dev)
  {
--	int i;
-+	int count = size >> PAGE_SHIFT;
- 	struct page **pages;
--	struct vm_struct *area;
-+	void *vaddr;
-+	int i;
+ 	struct iommu_domain *domain = group->default_domain;
+ 	struct iommu_resv_region *entry;
+@@ -841,8 +850,6 @@ int iommu_group_add_device(struct iommu_group *group, struct device *dev)
  
--	pages = kmalloc(sizeof(struct page *) << get_order(size), GFP_KERNEL);
-+	pages = kmalloc_array(count, sizeof(struct page *), GFP_KERNEL);
- 	if (!pages)
- 		return NULL;
--
--	for (i = 0; i < (size >> PAGE_SHIFT); i++)
-+	for (i = 0; i < count; i++)
- 		pages[i] = nth_page(page, i);
--
--	area = __dma_common_pages_remap(pages, size, prot, caller);
--
-+	vaddr = vmap(pages, count, VM_DMA_COHERENT, prot);
- 	kfree(pages);
+ 	dev->iommu_group = group;
  
--	if (!area)
--		return NULL;
--	return area->addr;
-+	return vaddr;
+-	iommu_group_create_direct_mappings(group, dev);
+-
+ 	mutex_lock(&group->mutex);
+ 	list_add_tail(&device->list, &group->devices);
+ 	if (group->domain)
+@@ -1736,6 +1743,7 @@ static void probe_alloc_default_domain(struct bus_type *bus,
+ 		gtype.type = iommu_def_domain_type;
+ 
+ 	iommu_group_alloc_default_domain(bus, group, gtype.type);
++
  }
  
- /*
+ static int iommu_group_do_dma_attach(struct device *dev, void *data)
+@@ -1760,6 +1768,21 @@ static int __iommu_group_dma_attach(struct iommu_group *group)
+ 					  iommu_group_do_dma_attach);
+ }
+ 
++static int iommu_do_create_direct_mappings(struct device *dev, void *data)
++{
++	struct iommu_group *group = data;
++
++	iommu_create_device_direct_mappings(group, dev);
++
++	return 0;
++}
++
++static int iommu_group_create_direct_mappings(struct iommu_group *group)
++{
++	return __iommu_group_for_each_dev(group, group,
++					  iommu_do_create_direct_mappings);
++}
++
+ static int bus_iommu_probe(struct bus_type *bus)
+ {
+ 	const struct iommu_ops *ops = bus->iommu_ops;
+@@ -1790,6 +1813,8 @@ static int bus_iommu_probe(struct bus_type *bus)
+ 			if (!group->default_domain)
+ 				continue;
+ 
++			iommu_group_create_direct_mappings(group);
++
+ 			ret = __iommu_group_dma_attach(group);
+ 
+ 			mutex_unlock(&group->mutex);
+@@ -2630,7 +2655,7 @@ request_default_domain_for_dev(struct device *dev, unsigned long type)
+ 		iommu_domain_free(group->default_domain);
+ 	group->default_domain = domain;
+ 
+-	iommu_group_create_direct_mappings(group, dev);
++	iommu_create_device_direct_mappings(group, dev);
+ 
+ 	dev_info(dev, "Using iommu %s mapping\n",
+ 		 type == IOMMU_DOMAIN_DMA ? "dma" : "direct");
 -- 
-2.25.1
+2.17.1
