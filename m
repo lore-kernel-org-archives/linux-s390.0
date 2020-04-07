@@ -1,56 +1,152 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 35/73] s390/cio: generate delayed uevent for vfio-ccw subchannels
-Date: Sat, 18 Apr 2020 09:47:37 -0400
-Message-Id: <20200418134815.6519-35-sashal@kernel.org>
-In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
-References: <20200418134815.6519-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12518 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727611AbgDGTUr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 15:20:47 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v7 15/15] s390/vfio-ap: handle probe/remove not due to host AP config changes
+Date: Tue,  7 Apr 2020 15:20:15 -0400
+Message-Id: <20200407192015.19887-16-akrowiak@linux.ibm.com>
+In-Reply-To: <20200407192015.19887-1-akrowiak@linux.ibm.com>
+References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-From: Cornelia Huck <cohuck@redhat.com>
+AP queue devices are probed or removed for reasons other than changes
+to the host AP configuration:
 
-[ Upstream commit 2bc55eaeb88d30accfc1b6ac2708d4e4b81ca260 ]
+* Each queue device associated with a card device will get created and
+  probed when the state of the AP adapter represented by the card device
+  dynamically changes from standby to online.
 
-The common I/O layer delays the ADD uevent for subchannels and
-delegates generating this uevent to the individual subchannel
-drivers. The vfio-ccw I/O subchannel driver, however, did not
-do that, and will not generate an ADD uevent for subchannels
-that had not been bound to a different driver (or none at all,
-which also triggers the uevent).
+* Each queue device associated with a card device will get removed
+  when the state of the AP adapter to which the queue represented by the
+  queue device dynamically changes from online to standby.
 
-Generate the ADD uevent at the end of the probe function if
-uevents were still suppressed for the device.
+* Each queue device associated with a card device will get removed
+  when the type of the AP adapter to which the queue represented by the
+  queue device dynamically changes.
 
-Message-Id: <20200327124503.9794-3-cohuck@redhat.com>
-Fixes: 63f1934d562d ("vfio: ccw: basic implementation for vfio_ccw driver")
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+* Each queue device associated with a card device will get removed
+  when the status of the queue represented by the queue device changes
+  from operating to check stop.
+
+* AP queue devices can be manually bound to or unbound from the vfio_ap
+  device driver by a root user via the sysfs bind/unbind attributes of the
+  driver.
+
+In response to a queue device probe or remove that is not the result of a
+change to the host's AP configuration, if a KVM guest is using the matrix
+mdev to which the APQN of the queue device is assigned, the vfio_ap device
+driver must respond accordingly. In an ideal world, the queue corresponding
+to the queue device being probed would be hot plugged into the guest.
+Likewise, the queue corresponding to the queue device being removed would
+be hot unplugged from the guest. Unfortunately, the AP architecture
+precludes plugging or unplugging individual queues, so let's handle
+the probe or remove of an AP queue device as follows:
+
+Handling Probe
+--------------
+There are two requirements that must be met in order to give a
+guest access to the queue corresponding to the queue device being probed:
+
+* Each APQN derived from the APID of the queue device and the APQIs of the
+  domains already assigned to the guest's AP configuration must reference
+  a queue device bound to the vfio_ap device driver.
+
+* Each APQN derived from the APQI of the queue device and the APIDs of the
+  adapters assigned to the guest's AP configuration must reference a queue
+  device bound to the vfio_ap device driver.
+
+If the above conditions are met, the APQN will be assigned to the guest's
+AP configuration and the guest will be given access to the queue.
+
+Handling Remove
+---------------
+Since the AP architecture precludes us from taking access to an individual
+queue from a guest, we are left with the choice of taking access away from
+either the adapter or the domain to which the queue is connected. Access to
+the adapter will be taken away because it is likely that most of the time,
+the remove callback will be invoked because the adapter state has
+transitioned from online to standby. In such a case, no queue connected
+to the adapter will be available to access.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/s390/crypto/vfio_ap_ops.c | 38 +++++++++++++++++++++++++++++++
+ 1 file changed, 38 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index e401a3d0aa570..339a6bc0339b0 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -167,6 +167,11 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_disable;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index ccc58daf82f6..918b735d5d56 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1601,6 +1601,15 @@ static void vfio_ap_mdev_for_queue(struct vfio_ap_queue *q)
+ 	}
+ }
  
-+	if (dev_get_uevent_suppress(&sch->dev)) {
-+		dev_set_uevent_suppress(&sch->dev, 0);
-+		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	}
++void vfio_ap_mdev_hot_plug_queue(struct vfio_ap_queue *q)
++{
++	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
++		return;
 +
- 	VFIO_CCW_MSG_EVENT(4, "bound to subchannel %x.%x.%04x\n",
- 			   sch->schid.cssid, sch->schid.ssid,
- 			   sch->schid.sch_no);
++	if (vfio_ap_mdev_configure_crycb(q->matrix_mdev))
++		vfio_ap_mdev_commit_crycb(q->matrix_mdev);
++}
++
+ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
+ {
+ 	struct vfio_ap_queue *q;
+@@ -1615,11 +1624,35 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
+ 	q->saved_isc = VFIO_AP_ISC_INVALID;
+ 	vfio_ap_mdev_for_queue(q);
+ 	hash_add(matrix_dev->qtable, &q->qnode, q->apqn);
++	/* Make sure we're not in the middle of an AP configuration change. */
++	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
++		vfio_ap_mdev_hot_plug_queue(q);
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+ 	return 0;
+ }
+ 
++void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
++{
++	unsigned long apid = AP_QID_CARD(q->apqn);
++	unsigned long apqi = AP_QID_QUEUE(q->apqn);
++
++	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
++		return;
++
++	/*
++	 * If the APQN is assigned to the guest, then let's
++	 * go ahead and unplug the adapter since the
++	 * architecture does not provide a means to unplug
++	 * an individual queue.
++	 */
++	if (test_bit_inv(apid, q->matrix_mdev->shadow_crycb.apm) &&
++	    test_bit_inv(apqi, q->matrix_mdev->shadow_crycb.aqm)) {
++		if (vfio_ap_mdev_unassign_guest_apid(q->matrix_mdev, apid))
++			vfio_ap_mdev_commit_crycb(q->matrix_mdev);
++	}
++}
++
+ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
+ {
+ 	struct vfio_ap_queue *q;
+@@ -1627,6 +1660,11 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
+ 
+ 	mutex_lock(&matrix_dev->lock);
+ 	q = dev_get_drvdata(&queue->ap_dev.device);
++
++	/* Make sure we're not in the middle of an AP configuration change. */
++	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
++		vfio_ap_mdev_hot_unplug_queue(q);
++
+ 	dev_set_drvdata(&queue->ap_dev.device, NULL);
+ 	apid = AP_QID_CARD(q->apqn);
+ 	apqi = AP_QID_QUEUE(q->apqn);
 -- 
-2.20.1
+2.21.1
