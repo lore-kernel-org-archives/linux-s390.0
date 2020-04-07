@@ -1,117 +1,73 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 23/29] mm: remove both instances of __vmalloc_node_flags
-Date: Tue, 14 Apr 2020 15:13:42 +0200
-Message-Id: <20200414131348.444715-24-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from 8bytes.org ([81.169.241.247]:57778 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726901AbgDGSiA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:38:00 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 19/34] iommu/pamu: Convert to probe/release_device() call-backs
+Date: Tue,  7 Apr 2020 20:37:27 +0200
+Message-Id: <20200407183742.4344-20-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-The real version just had a few callers that can open code it and
-remove one layer of indirection.  The nommu stub was public but only
-had a single caller, so remove it and avoid a CONFIG_MMU ifdef in
-vmalloc.h.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Convert the PAMU IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- include/linux/vmalloc.h |  9 ---------
- mm/nommu.c              |  3 ++-
- mm/vmalloc.c            | 20 ++++++--------------
- 3 files changed, 8 insertions(+), 24 deletions(-)
+ drivers/iommu/fsl_pamu_domain.c | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-index c1b9d6eca05f..4a46d296e70d 100644
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -115,17 +115,8 @@ extern void *__vmalloc_node_range(unsigned long size, unsigned long align,
- 			unsigned long start, unsigned long end, gfp_t gfp_mask,
- 			pgprot_t prot, unsigned long vm_flags, int node,
- 			const void *caller);
--#ifndef CONFIG_MMU
--extern void *__vmalloc_node_flags(unsigned long size, int node, gfp_t flags);
--static inline void *__vmalloc_node_flags_caller(unsigned long size, int node,
--						gfp_t flags, void *caller)
--{
--	return __vmalloc_node_flags(size, node, flags);
--}
--#else
- extern void *__vmalloc_node_flags_caller(unsigned long size,
- 					 int node, gfp_t flags, void *caller);
--#endif
- 
- extern void vfree(const void *addr);
- extern void vfree_atomic(const void *addr);
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 2df549adb22b..9553efa59787 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -150,7 +150,8 @@ void *__vmalloc(unsigned long size, gfp_t gfp_mask)
+diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
+index 06828e2698d5..928d37771ece 100644
+--- a/drivers/iommu/fsl_pamu_domain.c
++++ b/drivers/iommu/fsl_pamu_domain.c
+@@ -1016,25 +1016,13 @@ static struct iommu_group *fsl_pamu_device_group(struct device *dev)
+ 	return group;
  }
- EXPORT_SYMBOL(__vmalloc);
  
--void *__vmalloc_node_flags(unsigned long size, int node, gfp_t flags)
-+void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
-+		void *caller)
+-static int fsl_pamu_add_device(struct device *dev)
++static struct iommu_device *fsl_pamu_probe_device(struct device *dev)
  {
- 	return __vmalloc(size, flags);
- }
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index de7952959e82..3d59d848ad48 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -2566,14 +2566,6 @@ void *__vmalloc(unsigned long size, gfp_t gfp_mask)
- }
- EXPORT_SYMBOL(__vmalloc);
- 
--static inline void *__vmalloc_node_flags(unsigned long size,
--					int node, gfp_t flags)
--{
--	return __vmalloc_node(size, 1, flags, node,
--				__builtin_return_address(0));
--}
+-	struct iommu_group *group;
 -
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
 -
- void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
- 				  void *caller)
- {
-@@ -2594,8 +2586,8 @@ void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
-  */
- void *vmalloc(unsigned long size)
- {
--	return __vmalloc_node_flags(size, NUMA_NO_NODE,
--				    GFP_KERNEL);
-+	return __vmalloc_node(size, 1, GFP_KERNEL, NUMA_NO_NODE,
-+				__builtin_return_address(0));
+-	iommu_group_put(group);
+-
+-	iommu_device_link(&pamu_iommu, dev);
+-
+-	return 0;
++	return &pamu_iommu;
  }
- EXPORT_SYMBOL(vmalloc);
  
-@@ -2614,8 +2606,8 @@ EXPORT_SYMBOL(vmalloc);
-  */
- void *vzalloc(unsigned long size)
+-static void fsl_pamu_remove_device(struct device *dev)
++static void fsl_pamu_release_device(struct device *dev)
  {
--	return __vmalloc_node_flags(size, NUMA_NO_NODE,
--				GFP_KERNEL | __GFP_ZERO);
-+	return __vmalloc_node(size, 1, GFP_KERNEL | __GFP_ZERO, NUMA_NO_NODE,
-+				__builtin_return_address(0));
+-	iommu_device_unlink(&pamu_iommu, dev);
+-	iommu_group_remove_device(dev);
  }
- EXPORT_SYMBOL(vzalloc);
  
-@@ -2670,8 +2662,8 @@ EXPORT_SYMBOL(vmalloc_node);
-  */
- void *vzalloc_node(unsigned long size, int node)
- {
--	return __vmalloc_node_flags(size, node,
--			 GFP_KERNEL | __GFP_ZERO);
-+	return __vmalloc_node(size, 1, GFP_KERNEL | __GFP_ZERO, node,
-+				__builtin_return_address(0));
- }
- EXPORT_SYMBOL(vzalloc_node);
+ static const struct iommu_ops fsl_pamu_ops = {
+@@ -1048,8 +1036,8 @@ static const struct iommu_ops fsl_pamu_ops = {
+ 	.iova_to_phys	= fsl_pamu_iova_to_phys,
+ 	.domain_set_attr = fsl_pamu_set_domain_attr,
+ 	.domain_get_attr = fsl_pamu_get_domain_attr,
+-	.add_device	= fsl_pamu_add_device,
+-	.remove_device	= fsl_pamu_remove_device,
++	.probe_device	= fsl_pamu_probe_device,
++	.release_device	= fsl_pamu_release_device,
+ 	.device_group   = fsl_pamu_device_group,
+ };
  
 -- 
-2.25.1
+2.17.1
