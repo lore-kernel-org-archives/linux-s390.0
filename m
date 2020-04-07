@@ -1,67 +1,78 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:38774 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2389415AbgDBSsc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Apr 2020 14:48:32 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 1/5] KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
-Date: Thu,  2 Apr 2020 20:48:15 +0200
-Message-Id: <20200402184819.34215-2-david@redhat.com>
-In-Reply-To: <20200402184819.34215-1-david@redhat.com>
-References: <20200402184819.34215-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Received: from 8bytes.org ([81.169.241.247]:57434 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726883AbgDGSh6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:37:58 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 14/34] iommu/amd: Remove dev_data->passthrough
+Date: Tue,  7 Apr 2020 20:37:22 +0200
+Message-Id: <20200407183742.4344-15-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, stable@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-In case we have a region 1 ASCE, our shadow/g3 address can have any value=
-.
-Unfortunately, (-1UL << 64) is undefined and triggers sometimes,
-rejecting valid shadow addresses when trying to walk our shadow table
-hierarchy.
+From: Joerg Roedel <jroedel@suse.de>
 
-The result is that the prefix cannot get mapped and will loop basically
-forever trying to map it (-EAGAIN loop).
+Make use of generic IOMMU infrastructure to gather the same information
+carried in dev_data->passthrough and remove the struct member.
 
-After all, the broken check is only a sanity check, our table shadowing
-code in kvm_s390_shadow_tables() already checks these conditions, injecti=
-ng
-proper translation exceptions. Turn it into a WARN_ON_ONCE().
-
-Fixes: 4be130a08420 ("s390/mm: add shadow gmap support")
-Cc: <stable@vger.kernel.org> # v4.8+
-Reported-by: Janosch Frank <frankja@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/s390/mm/gmap.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/iommu/amd_iommu.c       | 10 +++++-----
+ drivers/iommu/amd_iommu_types.h |  1 -
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 2fbece47ef6f..f3dbc5bdde50 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -787,14 +787,18 @@ static void gmap_call_notifier(struct gmap *gmap, u=
-nsigned long start,
- static inline unsigned long *gmap_table_walk(struct gmap *gmap,
- 					     unsigned long gaddr, int level)
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 3e0d27f7622e..0b4b4faa876d 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2047,8 +2047,8 @@ static int pdev_iommuv2_enable(struct pci_dev *pdev)
+ static int attach_device(struct device *dev,
+ 			 struct protection_domain *domain)
  {
-+	const int asce_type =3D gmap->asce & _ASCE_TYPE_MASK;
- 	unsigned long *table;
-=20
- 	if ((gmap->asce & _ASCE_TYPE_MASK) + 4 < (level * 4))
- 		return NULL;
- 	if (gmap_is_shadow(gmap) && gmap->removed)
- 		return NULL;
--	if (gaddr & (-1UL << (31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)))
+-	struct pci_dev *pdev;
+ 	struct iommu_dev_data *dev_data;
++	struct pci_dev *pdev;
+ 	unsigned long flags;
+ 	int ret;
+ 
+@@ -2067,8 +2067,10 @@ static int attach_device(struct device *dev,
+ 
+ 	pdev = to_pci_dev(dev);
+ 	if (domain->flags & PD_IOMMUV2_MASK) {
++		struct iommu_domain *def_domain = iommu_get_dma_domain(dev);
 +
-+	if (WARN_ON_ONCE(asce_type !=3D _ASCE_TYPE_REGION1) &&
-+			 gaddr & (-1UL << (31 + (asce_type >> 2) * 11)))
- 		return NULL;
-+
- 	table =3D gmap->table;
- 	switch (gmap->asce & _ASCE_TYPE_MASK) {
- 	case _ASCE_TYPE_REGION1:
---=20
-2.25.1
+ 		ret = -EINVAL;
+-		if (!dev_data->passthrough)
++		if (def_domain->type != IOMMU_DOMAIN_IDENTITY)
+ 			goto out;
+ 
+ 		if (dev_data->iommu_v2) {
+@@ -2189,9 +2191,7 @@ static int amd_iommu_add_device(struct device *dev)
+ 
+ 	/* Domains are initialized for this device - have a look what we ended up with */
+ 	domain = iommu_get_domain_for_dev(dev);
+-	if (domain->type == IOMMU_DOMAIN_IDENTITY)
+-		dev_data->passthrough = true;
+-	else if (domain->type == IOMMU_DOMAIN_DMA)
++	if (domain->type == IOMMU_DOMAIN_DMA)
+ 		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
+ 
+ out:
+diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
+index ca8c4522045b..d0d7b6a0c3d8 100644
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -640,7 +640,6 @@ struct iommu_dev_data {
+ 	struct pci_dev *pdev;
+ 	u16 devid;			  /* PCI Device ID */
+ 	bool iommu_v2;			  /* Device can make use of IOMMUv2 */
+-	bool passthrough;		  /* Device is identity mapped */
+ 	struct {
+ 		bool enabled;
+ 		int qdep;
+-- 
+2.17.1
