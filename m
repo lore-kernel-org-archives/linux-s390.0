@@ -1,36 +1,74 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 02/29] x86: fix vmap arguments in map_irq_stack
-Date: Tue, 14 Apr 2020 15:13:21 +0200
-Message-Id: <20200414131348.444715-3-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19654 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728371AbgDGLKw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 07:10:52 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 037B2pus094512
+        for <linux-s390@vger.kernel.org>; Tue, 7 Apr 2020 07:10:51 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3082hgm9wt-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 07 Apr 2020 07:10:51 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Tue, 7 Apr 2020 12:10:22 +0100
+Date: Tue, 7 Apr 2020 13:05:22 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v2 3/5] KVM: s390: vsie: Fix possible race when
+ shadowing region 3 tables
+In-Reply-To: <20200403153050.20569-4-david@redhat.com>
+References: <20200403153050.20569-1-david@redhat.com>
+        <20200403153050.20569-4-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200407130522.189a9a3f@p-imbrenda>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-vmap does not take a gfp_t, the flags argument is for VM_* flags.
+On Fri,  3 Apr 2020 17:30:48 +0200
+David Hildenbrand <david@redhat.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/x86/kernel/irq_64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> We have to properly retry again by returning -EINVAL immediately in
+> case somebody else instantiated the table concurrently. We missed to
+> add the goto in this function only. The code now matches the other,
+> similar shadowing functions.
+> 
+> We are overwriting an existing region 2 table entry. All allocated
+> pages are added to the crst_list to be freed later, so they are not
+> lost forever. However, when unshadowing the region 2 table, we
+> wouldn't trigger unshadowing of the original shadowed region 3 table
+> that we replaced. It would get unshadowed when the original region 3
+> table is modified. As it's not connected to the page table hierarchy
+> anymore, it's not going to get used anymore. However, for a limited
+> time, this page table will stick around, so it's in some sense a
+> temporary memory leak.
+> 
+> Identified by manual code inspection. I don't think this classifies as
+> stable material.
+> 
+> Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page
+> table shadowing") Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/mm/gmap.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+> index b93dd54b234a..24ef30fb0833 100644
+> --- a/arch/s390/mm/gmap.c
+> +++ b/arch/s390/mm/gmap.c
+> @@ -1844,6 +1844,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned
+> long saddr, unsigned long r3t, goto out_free;
+>  	} else if (*table & _REGION_ENTRY_ORIGIN) {
+>  		rc = -EAGAIN;		/* Race with shadow */
+> +		goto out_free;
+>  	}
+>  	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
+>  	/* mark as invalid as long as the parent table is not
+> protected */
 
-diff --git a/arch/x86/kernel/irq_64.c b/arch/x86/kernel/irq_64.c
-index 12df3a4abfdd..6b32ab009c19 100644
---- a/arch/x86/kernel/irq_64.c
-+++ b/arch/x86/kernel/irq_64.c
-@@ -43,7 +43,7 @@ static int map_irq_stack(unsigned int cpu)
- 		pages[i] = pfn_to_page(pa >> PAGE_SHIFT);
- 	}
- 
--	va = vmap(pages, IRQ_STACK_SIZE / PAGE_SIZE, GFP_KERNEL, PAGE_KERNEL);
-+	va = vmap(pages, IRQ_STACK_SIZE / PAGE_SIZE, VM_MAP, PAGE_KERNEL);
- 	if (!va)
- 		return -ENOMEM;
- 
--- 
-2.25.1
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
