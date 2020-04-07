@@ -1,82 +1,36 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54940 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502731AbgDNNOx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:14:53 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 12/29] mm: pass addr as unsigned long to vb_free
-Date: Tue, 14 Apr 2020 15:13:31 +0200
-Message-Id: <20200414131348.444715-13-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 04/34] iommu/vt-d: Wire up iommu_ops->def_domain_type
+Date: Tue,  7 Apr 2020 20:37:12 +0200
+Message-Id: <20200407183742.4344-5-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Ever use of addr in vb_free casts to unsigned long first, and the caller
-has an unsigned long version of the address available anyway.  Just pass
-that and avoid all the casts.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+The Intel VT-d driver already has a matching function to determine the
+default domain type for a device. Wire it up in intel_iommu_ops.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- mm/vmalloc.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/iommu/intel-iommu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 9183fc0d365a..aada9e9144bd 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1664,7 +1664,7 @@ static void *vb_alloc(unsigned long size, gfp_t gfp_mask)
- 	return vaddr;
- }
- 
--static void vb_free(const void *addr, unsigned long size)
-+static void vb_free(unsigned long addr, unsigned long size)
- {
- 	unsigned long offset;
- 	unsigned long vb_idx;
-@@ -1674,24 +1674,22 @@ static void vb_free(const void *addr, unsigned long size)
- 	BUG_ON(offset_in_page(size));
- 	BUG_ON(size > PAGE_SIZE*VMAP_MAX_ALLOC);
- 
--	flush_cache_vunmap((unsigned long)addr, (unsigned long)addr + size);
-+	flush_cache_vunmap(addr, addr + size);
- 
- 	order = get_order(size);
- 
--	offset = (unsigned long)addr & (VMAP_BLOCK_SIZE - 1);
--	offset >>= PAGE_SHIFT;
-+	offset = (addr & (VMAP_BLOCK_SIZE - 1)) >> PAGE_SHIFT;
- 
--	vb_idx = addr_to_vb_idx((unsigned long)addr);
-+	vb_idx = addr_to_vb_idx(addr);
- 	rcu_read_lock();
- 	vb = radix_tree_lookup(&vmap_block_tree, vb_idx);
- 	rcu_read_unlock();
- 	BUG_ON(!vb);
- 
--	vunmap_page_range((unsigned long)addr, (unsigned long)addr + size);
-+	vunmap_page_range(addr, addr + size);
- 
- 	if (debug_pagealloc_enabled_static())
--		flush_tlb_kernel_range((unsigned long)addr,
--					(unsigned long)addr + size);
-+		flush_tlb_kernel_range(addr, addr + size);
- 
- 	spin_lock(&vb->lock);
- 
-@@ -1791,7 +1789,7 @@ void vm_unmap_ram(const void *mem, unsigned int count)
- 
- 	if (likely(count <= VMAP_MAX_ALLOC)) {
- 		debug_check_no_locks_freed(mem, size);
--		vb_free(mem, size);
-+		vb_free(addr, size);
- 		return;
- 	}
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index ef0a5246700e..b9f905a55dda 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -6209,6 +6209,7 @@ const struct iommu_ops intel_iommu_ops = {
+ 	.dev_enable_feat	= intel_iommu_dev_enable_feat,
+ 	.dev_disable_feat	= intel_iommu_dev_disable_feat,
+ 	.is_attach_deferred	= intel_iommu_is_attach_deferred,
++	.def_domain_type	= device_def_domain_type,
+ 	.pgsize_bitmap		= INTEL_IOMMU_PGSIZES,
+ };
  
 -- 
-2.25.1
+2.17.1
