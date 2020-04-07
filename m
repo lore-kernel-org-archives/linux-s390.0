@@ -1,182 +1,143 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:57003 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404192AbgDNCo6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 13 Apr 2020 22:44:58 -0400
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH] vhost: do not enable VHOST_MENU by default
-Date: Tue, 14 Apr 2020 10:44:38 +0800
-Message-Id: <20200414024438.19103-1-jasowang@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Received: from 8bytes.org ([81.169.241.247]:57778 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727109AbgDGSiD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:38:03 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 29/34] iommu/omap: Remove orphan_dev tracking
+Date: Tue,  7 Apr 2020 20:37:37 +0200
+Message-Id: <20200407183742.4344-30-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: mst@redhat.com, jasowang@redhat.com
-Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-We try to keep the defconfig untouched after decoupling CONFIG_VHOST
-out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
-("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
-default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
-without the caring of CONFIG_VHOST.
+From: Joerg Roedel <jroedel@suse.de>
 
-But this will leave a "CONFIG_VHOST_MENU=3Dy" in all defconfigs and even
-for the ones that doesn't want vhost. So it actually shifts the
-burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
-not set". So this patch tries to enable CONFIG_VHOST explicitly in
-defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
+Remove the tracking of device which could not be probed because
+their IOMMU is not probed yet. Replace it with a call to
+bus_iommu_probe() when a new IOMMU is probed.
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/mips/configs/malta_kvm_defconfig  |  1 +
- arch/powerpc/configs/powernv_defconfig |  1 +
- arch/powerpc/configs/ppc64_defconfig   |  1 +
- arch/powerpc/configs/pseries_defconfig |  1 +
- arch/s390/configs/debug_defconfig      |  1 +
- arch/s390/configs/defconfig            |  1 +
- drivers/vhost/Kconfig                  | 18 +++++-------------
- 7 files changed, 11 insertions(+), 13 deletions(-)
+ drivers/iommu/omap-iommu.c | 54 +++-----------------------------------
+ 1 file changed, 4 insertions(+), 50 deletions(-)
 
-diff --git a/arch/mips/configs/malta_kvm_defconfig b/arch/mips/configs/ma=
-lta_kvm_defconfig
-index 8ef612552a19..06f0c7a0ca87 100644
---- a/arch/mips/configs/malta_kvm_defconfig
-+++ b/arch/mips/configs/malta_kvm_defconfig
-@@ -18,6 +18,7 @@ CONFIG_PCI=3Dy
- CONFIG_VIRTUALIZATION=3Dy
- CONFIG_KVM=3Dm
- CONFIG_KVM_MIPS_DEBUG_COP0_COUNTERS=3Dy
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_MODULES=3Dy
- CONFIG_MODULE_UNLOAD=3Dy
-diff --git a/arch/powerpc/configs/powernv_defconfig b/arch/powerpc/config=
-s/powernv_defconfig
-index 71749377d164..404245b4594d 100644
---- a/arch/powerpc/configs/powernv_defconfig
-+++ b/arch/powerpc/configs/powernv_defconfig
-@@ -346,5 +346,6 @@ CONFIG_CRYPTO_DEV_VMX=3Dy
- CONFIG_VIRTUALIZATION=3Dy
- CONFIG_KVM_BOOK3S_64=3Dm
- CONFIG_KVM_BOOK3S_64_HV=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_PRINTK_TIME=3Dy
-diff --git a/arch/powerpc/configs/ppc64_defconfig b/arch/powerpc/configs/=
-ppc64_defconfig
-index 7e68cb222c7b..4599fc7be285 100644
---- a/arch/powerpc/configs/ppc64_defconfig
-+++ b/arch/powerpc/configs/ppc64_defconfig
-@@ -61,6 +61,7 @@ CONFIG_ELECTRA_CF=3Dy
- CONFIG_VIRTUALIZATION=3Dy
- CONFIG_KVM_BOOK3S_64=3Dm
- CONFIG_KVM_BOOK3S_64_HV=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_OPROFILE=3Dm
- CONFIG_KPROBES=3Dy
-diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/config=
-s/pseries_defconfig
-index 6b68109e248f..4cad3901b5de 100644
---- a/arch/powerpc/configs/pseries_defconfig
-+++ b/arch/powerpc/configs/pseries_defconfig
-@@ -321,5 +321,6 @@ CONFIG_CRYPTO_DEV_VMX=3Dy
- CONFIG_VIRTUALIZATION=3Dy
- CONFIG_KVM_BOOK3S_64=3Dm
- CONFIG_KVM_BOOK3S_64_HV=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_PRINTK_TIME=3Dy
-diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_=
-defconfig
-index 0c86ba19fa2b..6ec6e69630d1 100644
---- a/arch/s390/configs/debug_defconfig
-+++ b/arch/s390/configs/debug_defconfig
-@@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=3Dy
- CONFIG_CMM=3Dm
- CONFIG_APPLDATA_BASE=3Dy
- CONFIG_KVM=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_VHOST_VSOCK=3Dm
- CONFIG_OPROFILE=3Dm
-diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
-index 6b27d861a9a3..d1b3bf83d687 100644
---- a/arch/s390/configs/defconfig
-+++ b/arch/s390/configs/defconfig
-@@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=3Dy
- CONFIG_CMM=3Dm
- CONFIG_APPLDATA_BASE=3Dy
- CONFIG_KVM=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_VHOST_VSOCK=3Dm
- CONFIG_OPROFILE=3Dm
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index e79cbbdfea45..14d296dc18cd 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -12,23 +12,18 @@ config VHOST_RING
- 	  This option is selected by any driver which needs to access
- 	  the host side of a virtio ring.
-=20
--config VHOST
--	tristate
-+menuconfig VHOST
-+	tristate "Vhost Devices"
- 	select VHOST_IOTLB
- 	help
--	  This option is selected by any driver which needs to access
--	  the core of vhost.
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index 887fefcb03b4..ecc9d0829a91 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -35,15 +35,6 @@
+ 
+ static const struct iommu_ops omap_iommu_ops;
+ 
+-struct orphan_dev {
+-	struct device *dev;
+-	struct list_head node;
+-};
 -
--menuconfig VHOST_MENU
--	bool "VHOST drivers"
--	default y
-+	  Enable option to support host kernel or hardware accelerator
-+	  for virtio device.
-=20
--if VHOST_MENU
-+if VHOST
-=20
- config VHOST_NET
- 	tristate "Host kernel accelerator for virtio net"
- 	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
--	select VHOST
- 	---help---
- 	  This kernel module can be loaded in host kernel to accelerate
- 	  guest networking with virtio_net. Not to be confused with virtio_net
-@@ -40,7 +35,6 @@ config VHOST_NET
- config VHOST_SCSI
- 	tristate "VHOST_SCSI TCM fabric driver"
- 	depends on TARGET_CORE && EVENTFD
--	select VHOST
- 	default n
- 	---help---
- 	Say M here to enable the vhost_scsi TCM fabric module
-@@ -49,7 +43,6 @@ config VHOST_SCSI
- config VHOST_VSOCK
- 	tristate "vhost virtio-vsock driver"
- 	depends on VSOCKETS && EVENTFD
--	select VHOST
- 	select VIRTIO_VSOCKETS_COMMON
- 	default n
- 	---help---
-@@ -63,7 +56,6 @@ config VHOST_VSOCK
- config VHOST_VDPA
- 	tristate "Vhost driver for vDPA-based backend"
- 	depends on EVENTFD
--	select VHOST
- 	depends on VDPA
- 	help
- 	  This kernel module can be loaded in host kernel to accelerate
---=20
-2.20.1
+-static LIST_HEAD(orphan_dev_list);
+-
+-static DEFINE_SPINLOCK(orphan_lock);
+-
+ #define to_iommu(dev)	((struct omap_iommu *)dev_get_drvdata(dev))
+ 
+ /* bitmap of the page sizes currently supported */
+@@ -62,8 +53,6 @@ static DEFINE_SPINLOCK(orphan_lock);
+ static struct platform_driver omap_iommu_driver;
+ static struct kmem_cache *iopte_cachep;
+ 
+-static int _omap_iommu_add_device(struct device *dev);
+-
+ /**
+  * to_omap_domain - Get struct omap_iommu_domain from generic iommu_domain
+  * @dom:	generic iommu domain handle
+@@ -1177,7 +1166,6 @@ static int omap_iommu_probe(struct platform_device *pdev)
+ 	struct omap_iommu *obj;
+ 	struct resource *res;
+ 	struct device_node *of = pdev->dev.of_node;
+-	struct orphan_dev *orphan_dev, *tmp;
+ 
+ 	if (!of) {
+ 		pr_err("%s: only DT-based devices are supported\n", __func__);
+@@ -1260,13 +1248,8 @@ static int omap_iommu_probe(struct platform_device *pdev)
+ 
+ 	dev_info(&pdev->dev, "%s registered\n", obj->name);
+ 
+-	list_for_each_entry_safe(orphan_dev, tmp, &orphan_dev_list, node) {
+-		err = _omap_iommu_add_device(orphan_dev->dev);
+-		if (!err) {
+-			list_del(&orphan_dev->node);
+-			kfree(orphan_dev);
+-		}
+-	}
++	/* Re-probe bus to probe device attached to this IOMMU */
++	bus_iommu_probe(&platform_bus_type);
+ 
+ 	return 0;
+ 
+@@ -1657,7 +1640,7 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	return ret;
+ }
+ 
+-static int _omap_iommu_add_device(struct device *dev)
++static int omap_iommu_add_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data, *tmp;
+ 	struct omap_iommu *oiommu;
+@@ -1666,8 +1649,6 @@ static int _omap_iommu_add_device(struct device *dev)
+ 	struct platform_device *pdev;
+ 	int num_iommus, i;
+ 	int ret;
+-	struct orphan_dev *orphan_dev;
+-	unsigned long flags;
+ 
+ 	/*
+ 	 * Allocate the archdata iommu structure for DT-based devices.
+@@ -1702,23 +1683,7 @@ static int _omap_iommu_add_device(struct device *dev)
+ 		if (!pdev) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			spin_lock_irqsave(&orphan_lock, flags);
+-			list_for_each_entry(orphan_dev, &orphan_dev_list,
+-					    node) {
+-				if (orphan_dev->dev == dev)
+-					break;
+-			}
+-			spin_unlock_irqrestore(&orphan_lock, flags);
+-
+-			if (orphan_dev && orphan_dev->dev == dev)
+-				return -EPROBE_DEFER;
+-
+-			orphan_dev = kzalloc(sizeof(*orphan_dev), GFP_KERNEL);
+-			orphan_dev->dev = dev;
+-			spin_lock_irqsave(&orphan_lock, flags);
+-			list_add(&orphan_dev->node, &orphan_dev_list);
+-			spin_unlock_irqrestore(&orphan_lock, flags);
+-			return -EPROBE_DEFER;
++			return -ENODEV;
+ 		}
+ 
+ 		oiommu = platform_get_drvdata(pdev);
+@@ -1764,17 +1729,6 @@ static int _omap_iommu_add_device(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int omap_iommu_add_device(struct device *dev)
+-{
+-	int ret;
+-
+-	ret = _omap_iommu_add_device(dev);
+-	if (ret == -EPROBE_DEFER)
+-		return 0;
+-
+-	return ret;
+-}
+-
+ static void omap_iommu_remove_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
+-- 
+2.17.1
