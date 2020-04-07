@@ -1,366 +1,239 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 11/13] net/smc: process llc responses in tasklet context
-Date: Wed, 29 Apr 2020 17:10:47 +0200
-Message-Id: <20200429151049.49979-12-kgraul@linux.ibm.com>
-In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
-References: <20200429151049.49979-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-kbuild-owner@vger.kernel.org>
+Date: Tue, 7 Apr 2020 13:11:52 -0400
+From: Jeremy Cline <jcline@redhat.com>
+Subject: Re: [PATCH v2] kbuild: add dummy toolchains to enable all cc-option
+ etc. in Kconfig
+Message-ID: <20200407171152.GC196945@dev.jcline.org>
+References: <20200407155352.16617-1-masahiroy@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200407155352.16617-1-masahiroy@kernel.org>
+Sender: linux-kbuild-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Masahiro Yamada <masahiroy@kernel.org>
+Cc: linux-kbuild@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, linux-kernel@vger.kernel.org
 
-When llc responses are received then possible waiters for this response
-are to be notified. This can be done in tasklet context, without to
-use a work in the llc work queue. Move all code that handles llc
-responses into smc_llc_rx_response().
+On Wed, Apr 08, 2020 at 12:53:52AM +0900, Masahiro Yamada wrote:
+> Staring v4.18, Kconfig evaluates compiler capabilities, and hides CONFIG
+> options your compiler does not support. This works well if you configure
+> and build the kernel on the same host machine.
+> 
+> It is inconvenient if you prepare the .config that is carried to a
+> different build environment (typically this happens when you package
+> the kernel for distros) because using a different compiler potentially
+> produces different CONFIG options than the real build environment.
+> So, you probably want to make as many options visible as possible.
+> In other words, you need to create a super-set of CONFIG options that
+> cover any build environment. If some of the CONFIG options turned out
+> to be unsupported on the build machine, they are automatically disabled
+> by the nature of Kconfig.
+> 
+> However, it is not feasible to get a full-featured compiler for every
+> arch.
+> 
+> This issue was discussed here:
+> 
+>   https://lkml.org/lkml/2019/12/9/620
+> 
+> Other than distros, savedefconfig is also a problem. Some arch sub-systems
+> periodically resync defconfig files. If you use a less-capable compiler
+> for savedefconfig, options that do not meet 'depends on $(cc-option,...)'
+> will be forcibly disabled. So, 'make defconfig && make savedefconfig'
+> may silently change the behavior.
+> 
+> This commit adds a set of dummy toolchains that pretend to support any
+> feature.
+> 
+> Most of compiler features are tested by cc-option, which simply checks
+> the exit code of $(CC). The dummy tools are shell scripts that always
+> exit with 0. So, $(cc-option, ...) is evaluated as 'y'.
+> 
+> There are more complicated checks such as:
+> 
+>   scripts/gcc-x86_{32,64}-has-stack-protector.sh
+>   scripts/gcc-plugin.sh
+>   scripts/tools-support-relr.sh
+> 
+> scripts/dummy-tools/gcc passes all checks.
+> 
+> From the top directory of the source tree, you can do:
+> 
+>    $ make CROSS_COMPILE=scripts/dummy-tools/ oldconfig
+> 
+> Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> Reviewed-by: Philipp Rudo <prudo@linux.ibm.com>
+> ---
+> 
+> Changes in v2:
+>   - support --version and -v for ld, objdump, nm
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_core.h |   8 +-
- net/smc/smc_llc.c  | 216 +++++++++++++++++++++++----------------------
- 2 files changed, 116 insertions(+), 108 deletions(-)
+Great, "make ARCH=powerpc CROSS_COMPILE=scripts/dummy-tools/ help" no
+longer spits out "/bin/sh: line 0: [: -ge: unary operator expected" and
+everything looks to work as expected.
 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 6548e9a06f73..d785656b3489 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -129,10 +129,10 @@ struct smc_link {
- 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
- 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
- 	int			llc_testlink_time; /* testlink interval */
--	struct completion	llc_confirm_rkey; /* wait 4 rx of cnf rkey */
--	int			llc_confirm_rkey_rc; /* rc from cnf rkey msg */
--	struct completion	llc_delete_rkey; /* wait 4 rx of del rkey */
--	int			llc_delete_rkey_rc; /* rc from del rkey msg */
-+	struct completion	llc_confirm_rkey_resp; /* w4 rx of cnf rkey */
-+	int			llc_confirm_rkey_resp_rc; /* rc from cnf rkey */
-+	struct completion	llc_delete_rkey_resp; /* w4 rx of del rkey */
-+	int			llc_delete_rkey_resp_rc; /* rc from del rkey */
- 	struct mutex		llc_delete_rkey_mutex; /* serialize usage */
- };
- 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index be74876a36ae..265889c8b03b 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -384,27 +384,17 @@ static void smc_llc_rx_confirm_link(struct smc_link *link,
- 				    struct smc_llc_msg_confirm_link *llc)
- {
- 	struct smc_link_group *lgr = smc_get_lgr(link);
--	int conf_rc;
-+	int conf_rc = 0;
- 
- 	/* RMBE eyecatchers are not supported */
--	if (llc->hd.flags & SMC_LLC_FLAG_NO_RMBE_EYEC)
--		conf_rc = 0;
--	else
-+	if (!(llc->hd.flags & SMC_LLC_FLAG_NO_RMBE_EYEC))
- 		conf_rc = ENOTSUPP;
- 
--	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		if (lgr->role == SMC_SERV &&
--		    link->state == SMC_LNK_ACTIVATING) {
--			link->llc_confirm_resp_rc = conf_rc;
--			complete(&link->llc_confirm_resp);
--		}
--	} else {
--		if (lgr->role == SMC_CLNT &&
--		    link->state == SMC_LNK_ACTIVATING) {
--			link->llc_confirm_rc = conf_rc;
--			link->link_id = llc->link_num;
--			complete(&link->llc_confirm);
--		}
-+	if (lgr->role == SMC_CLNT &&
-+	    link->state == SMC_LNK_ACTIVATING) {
-+		link->llc_confirm_rc = conf_rc;
-+		link->link_id = llc->link_num;
-+		complete(&link->llc_confirm);
- 	}
- }
- 
-@@ -413,27 +403,22 @@ static void smc_llc_rx_add_link(struct smc_link *link,
- {
- 	struct smc_link_group *lgr = smc_get_lgr(link);
- 
--	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		if (link->state == SMC_LNK_ACTIVATING)
--			complete(&link->llc_add_resp);
--	} else {
--		if (link->state == SMC_LNK_ACTIVATING) {
--			complete(&link->llc_add);
--			return;
--		}
-+	if (link->state == SMC_LNK_ACTIVATING) {
-+		complete(&link->llc_add);
-+		return;
-+	}
- 
--		if (lgr->role == SMC_SERV) {
--			smc_llc_prep_add_link(llc, link,
--					link->smcibdev->mac[link->ibport - 1],
--					link->gid, SMC_LLC_REQ);
-+	if (lgr->role == SMC_SERV) {
-+		smc_llc_prep_add_link(llc, link,
-+				link->smcibdev->mac[link->ibport - 1],
-+				link->gid, SMC_LLC_REQ);
- 
--		} else {
--			smc_llc_prep_add_link(llc, link,
--					link->smcibdev->mac[link->ibport - 1],
--					link->gid, SMC_LLC_RESP);
--		}
--		smc_llc_send_message(link, llc);
-+	} else {
-+		smc_llc_prep_add_link(llc, link,
-+				link->smcibdev->mac[link->ibport - 1],
-+				link->gid, SMC_LLC_RESP);
- 	}
-+	smc_llc_send_message(link, llc);
- }
- 
- static void smc_llc_rx_delete_link(struct smc_link *link,
-@@ -441,34 +426,24 @@ static void smc_llc_rx_delete_link(struct smc_link *link,
- {
- 	struct smc_link_group *lgr = smc_get_lgr(link);
- 
--	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		if (lgr->role == SMC_SERV)
--			smc_lgr_schedule_free_work_fast(lgr);
-+	smc_lgr_forget(lgr);
-+	smc_llc_link_deleting(link);
-+	if (lgr->role == SMC_SERV) {
-+		/* client asks to delete this link, send request */
-+		smc_llc_prep_delete_link(llc, link, SMC_LLC_REQ, true);
- 	} else {
--		smc_lgr_forget(lgr);
--		smc_llc_link_deleting(link);
--		if (lgr->role == SMC_SERV) {
--			/* client asks to delete this link, send request */
--			smc_llc_prep_delete_link(llc, link, SMC_LLC_REQ, true);
--		} else {
--			/* server requests to delete this link, send response */
--			smc_llc_prep_delete_link(llc, link, SMC_LLC_RESP, true);
--		}
--		smc_llc_send_message(link, llc);
--		smc_lgr_terminate_sched(lgr);
-+		/* server requests to delete this link, send response */
-+		smc_llc_prep_delete_link(llc, link, SMC_LLC_RESP, true);
- 	}
-+	smc_llc_send_message(link, llc);
-+	smc_lgr_terminate_sched(lgr);
- }
- 
- static void smc_llc_rx_test_link(struct smc_link *link,
- 				 struct smc_llc_msg_test_link *llc)
- {
--	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		if (link->state == SMC_LNK_ACTIVE)
--			complete(&link->llc_testlink_resp);
--	} else {
--		llc->hd.flags |= SMC_LLC_FLAG_RESP;
--		smc_llc_send_message(link, llc);
--	}
-+	llc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	smc_llc_send_message(link, llc);
- }
- 
- static void smc_llc_rx_confirm_rkey(struct smc_link *link,
-@@ -476,34 +451,24 @@ static void smc_llc_rx_confirm_rkey(struct smc_link *link,
- {
- 	int rc;
- 
--	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		link->llc_confirm_rkey_rc = llc->hd.flags &
--					    SMC_LLC_FLAG_RKEY_NEG;
--		complete(&link->llc_confirm_rkey);
--	} else {
--		rc = smc_rtoken_add(link,
--				    llc->rtoken[0].rmb_vaddr,
--				    llc->rtoken[0].rmb_key);
-+	rc = smc_rtoken_add(link,
-+			    llc->rtoken[0].rmb_vaddr,
-+			    llc->rtoken[0].rmb_key);
- 
--		/* ignore rtokens for other links, we have only one link */
-+	/* ignore rtokens for other links, we have only one link */
- 
--		llc->hd.flags |= SMC_LLC_FLAG_RESP;
--		if (rc < 0)
--			llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
--		smc_llc_send_message(link, llc);
--	}
-+	llc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	if (rc < 0)
-+		llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
-+	smc_llc_send_message(link, llc);
- }
- 
- static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
- 				      struct smc_llc_msg_confirm_rkey_cont *llc)
- {
--	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		/* unused as long as we don't send this type of msg */
--	} else {
--		/* ignore rtokens for other links, we have only one link */
--		llc->hd.flags |= SMC_LLC_FLAG_RESP;
--		smc_llc_send_message(link, llc);
--	}
-+	/* ignore rtokens for other links, we have only one link */
-+	llc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	smc_llc_send_message(link, llc);
- }
- 
- static void smc_llc_rx_delete_rkey(struct smc_link *link,
-@@ -512,25 +477,19 @@ static void smc_llc_rx_delete_rkey(struct smc_link *link,
- 	u8 err_mask = 0;
- 	int i, max;
- 
--	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
--		link->llc_delete_rkey_rc = llc->hd.flags &
--					    SMC_LLC_FLAG_RKEY_NEG;
--		complete(&link->llc_delete_rkey);
--	} else {
--		max = min_t(u8, llc->num_rkeys, SMC_LLC_DEL_RKEY_MAX);
--		for (i = 0; i < max; i++) {
--			if (smc_rtoken_delete(link, llc->rkey[i]))
--				err_mask |= 1 << (SMC_LLC_DEL_RKEY_MAX - 1 - i);
--		}
--
--		if (err_mask) {
--			llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
--			llc->err_mask = err_mask;
--		}
-+	max = min_t(u8, llc->num_rkeys, SMC_LLC_DEL_RKEY_MAX);
-+	for (i = 0; i < max; i++) {
-+		if (smc_rtoken_delete(link, llc->rkey[i]))
-+			err_mask |= 1 << (SMC_LLC_DEL_RKEY_MAX - 1 - i);
-+	}
- 
--		llc->hd.flags |= SMC_LLC_FLAG_RESP;
--		smc_llc_send_message(link, llc);
-+	if (err_mask) {
-+		llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
-+		llc->err_mask = err_mask;
- 	}
-+
-+	llc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	smc_llc_send_message(link, llc);
- }
- 
- /* flush the llc event queue */
-@@ -601,6 +560,49 @@ static void smc_llc_event_work(struct work_struct *work)
- 	spin_unlock_bh(&lgr->llc_event_q_lock);
- }
- 
-+/* process llc responses in tasklet context */
-+static void smc_llc_rx_response(struct smc_link *link, union smc_llc_msg *llc)
-+{
-+	int rc = 0;
-+
-+	switch (llc->raw.hdr.common.type) {
-+	case SMC_LLC_TEST_LINK:
-+		if (link->state == SMC_LNK_ACTIVE)
-+			complete(&link->llc_testlink_resp);
-+		break;
-+	case SMC_LLC_CONFIRM_LINK:
-+		if (!(llc->raw.hdr.flags & SMC_LLC_FLAG_NO_RMBE_EYEC))
-+			rc = ENOTSUPP;
-+		if (link->lgr->role == SMC_SERV &&
-+		    link->state == SMC_LNK_ACTIVATING) {
-+			link->llc_confirm_resp_rc = rc;
-+			complete(&link->llc_confirm_resp);
-+		}
-+		break;
-+	case SMC_LLC_ADD_LINK:
-+		if (link->state == SMC_LNK_ACTIVATING)
-+			complete(&link->llc_add_resp);
-+		break;
-+	case SMC_LLC_DELETE_LINK:
-+		if (link->lgr->role == SMC_SERV)
-+			smc_lgr_schedule_free_work_fast(link->lgr);
-+		break;
-+	case SMC_LLC_CONFIRM_RKEY:
-+		link->llc_confirm_rkey_resp_rc = llc->raw.hdr.flags &
-+						 SMC_LLC_FLAG_RKEY_NEG;
-+		complete(&link->llc_confirm_rkey_resp);
-+		break;
-+	case SMC_LLC_CONFIRM_RKEY_CONT:
-+		/* unused as long as we don't send this type of msg */
-+		break;
-+	case SMC_LLC_DELETE_RKEY:
-+		link->llc_delete_rkey_resp_rc = llc->raw.hdr.flags &
-+						SMC_LLC_FLAG_RKEY_NEG;
-+		complete(&link->llc_delete_rkey_resp);
-+		break;
-+	}
-+}
-+
- /* copy received msg and add it to the event queue */
- static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
- {
-@@ -615,6 +617,12 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
- 	if (llc->raw.hdr.length != sizeof(*llc))
- 		return; /* invalid message */
- 
-+	/* process responses immediately */
-+	if (llc->raw.hdr.flags & SMC_LLC_FLAG_RESP) {
-+		smc_llc_rx_response(link, llc);
-+		return;
-+	}
-+
- 	qentry = kmalloc(sizeof(*qentry), GFP_ATOMIC);
- 	if (!qentry)
- 		return;
-@@ -667,8 +675,8 @@ int smc_llc_link_init(struct smc_link *link)
- 	init_completion(&link->llc_confirm_resp);
- 	init_completion(&link->llc_add);
- 	init_completion(&link->llc_add_resp);
--	init_completion(&link->llc_confirm_rkey);
--	init_completion(&link->llc_delete_rkey);
-+	init_completion(&link->llc_confirm_rkey_resp);
-+	init_completion(&link->llc_delete_rkey_resp);
- 	mutex_init(&link->llc_delete_rkey_mutex);
- 	init_completion(&link->llc_testlink_resp);
- 	INIT_WORK(&link->lgr->llc_event_work, smc_llc_event_work);
-@@ -708,14 +716,14 @@ int smc_llc_do_confirm_rkey(struct smc_link *link,
- 	int rc;
- 
- 	/* protected by mutex smc_create_lgr_pending */
--	reinit_completion(&link->llc_confirm_rkey);
-+	reinit_completion(&link->llc_confirm_rkey_resp);
- 	rc = smc_llc_send_confirm_rkey(link, rmb_desc);
- 	if (rc)
- 		return rc;
- 	/* receive CONFIRM RKEY response from server over RoCE fabric */
--	rc = wait_for_completion_interruptible_timeout(&link->llc_confirm_rkey,
--						       SMC_LLC_WAIT_TIME);
--	if (rc <= 0 || link->llc_confirm_rkey_rc)
-+	rc = wait_for_completion_interruptible_timeout(
-+			&link->llc_confirm_rkey_resp, SMC_LLC_WAIT_TIME);
-+	if (rc <= 0 || link->llc_confirm_rkey_resp_rc)
- 		return -EFAULT;
- 	return 0;
- }
-@@ -729,14 +737,14 @@ int smc_llc_do_delete_rkey(struct smc_link *link,
- 	mutex_lock(&link->llc_delete_rkey_mutex);
- 	if (link->state != SMC_LNK_ACTIVE)
- 		goto out;
--	reinit_completion(&link->llc_delete_rkey);
-+	reinit_completion(&link->llc_delete_rkey_resp);
- 	rc = smc_llc_send_delete_rkey(link, rmb_desc);
- 	if (rc)
- 		goto out;
- 	/* receive DELETE RKEY response from server over RoCE fabric */
--	rc = wait_for_completion_interruptible_timeout(&link->llc_delete_rkey,
--						       SMC_LLC_WAIT_TIME);
--	if (rc <= 0 || link->llc_delete_rkey_rc)
-+	rc = wait_for_completion_interruptible_timeout(
-+			&link->llc_delete_rkey_resp, SMC_LLC_WAIT_TIME);
-+	if (rc <= 0 || link->llc_delete_rkey_resp_rc)
- 		rc = -EFAULT;
- 	else
- 		rc = 0;
--- 
-2.17.1
+Tested-by: Jeremy Cline <jcline@redhat.com>
+
+> 
+>  scripts/dummy-tools/gcc     | 91 +++++++++++++++++++++++++++++++++++++
+>  scripts/dummy-tools/ld      | 30 ++++++++++++
+>  scripts/dummy-tools/nm      |  1 +
+>  scripts/dummy-tools/objcopy |  1 +
+>  4 files changed, 123 insertions(+)
+>  create mode 100755 scripts/dummy-tools/gcc
+>  create mode 100755 scripts/dummy-tools/ld
+>  create mode 120000 scripts/dummy-tools/nm
+>  create mode 120000 scripts/dummy-tools/objcopy
+> 
+> diff --git a/scripts/dummy-tools/gcc b/scripts/dummy-tools/gcc
+> new file mode 100755
+> index 000000000000..33487e99d83e
+> --- /dev/null
+> +++ b/scripts/dummy-tools/gcc
+> @@ -0,0 +1,91 @@
+> +#!/bin/sh
+> +# SPDX-License-Identifier: GPL-2.0-only
+> +#
+> +# Staring v4.18, Kconfig evaluates compiler capabilities, and hides CONFIG
+> +# options your compiler does not support. This works well if you configure and
+> +# build the kernel on the same host machine.
+> +#
+> +# It is inconvenient if you prepare the .config that is carried to a different
+> +# build environment (typically this happens when you package the kernel for
+> +# distros) because using a different compiler potentially produces different
+> +# CONFIG options than the real build environment. So, you probably want to make
+> +# as many options visible as possible. In other words, you need to create a
+> +# super-set of CONFIG options that cover any build environment. If some of the
+> +# CONFIG options turned out to be unsupported on the build machine, they are
+> +# automatically disabled by the nature of Kconfig.
+> +#
+> +# However, it is not feasible to get a full-featured compiler for every arch.
+> +# Hence these dummy toolchains to make all compiler tests pass.
+> +#
+> +# Usage:
+> +#
+> +# From the top directory of the source tree, run
+> +#
+> +#   $ make CROSS_COMPILE=scripts/dummy-tools/ oldconfig
+> +#
+> +# Most of compiler features are tested by cc-option, which simply checks the
+> +# exit code of $(CC). This script does nothing and just exits with 0 in most
+> +# cases. So, $(cc-option, ...) is evaluated as 'y'.
+> +#
+> +# This scripts caters to more checks; handle --version and pre-process __GNUC__
+> +# etc. to pretend to be GCC, and also do right things to satisfy some scripts.
+> +
+> +# Check if the first parameter appears in the rest. Succeeds if found.
+> +# This helper is useful if a particular option was passed to this script.
+> +# Typically used like this:
+> +#   arg_contain <word-you-are-searching-for> "$@"
+> +arg_contain ()
+> +{
+> +	search="$1"
+> +	shift
+> +
+> +	while [ $# -gt 0 ]
+> +	do
+> +		if [ "$search" = "$1" ]; then
+> +			return 0
+> +		fi
+> +		shift
+> +	done
+> +
+> +	return 1
+> +}
+> +
+> +# To set CONFIG_CC_IS_GCC=y
+> +if arg_contain --version "$@"; then
+> +	echo "gcc (scripts/dummy-tools/gcc)"
+> +	exit 0
+> +fi
+> +
+> +if arg_contain -E "$@"; then
+> +	# For scripts/gcc-version.sh; This emulates GCC 20.0.0
+> +	if arg_contain - "$@"; then
+> +		sed 's/^__GNUC__$/20/; s/^__GNUC_MINOR__$/0/; s/^__GNUC_PATCHLEVEL__$/0/'
+> +		exit 0
+> +	else
+> +		echo "no input files" >&2
+> +		exit 1
+> +	fi
+> +fi
+> +
+> +if arg_contain -S "$@"; then
+> +	# For scripts/gcc-x86-*-has-stack-protector.sh
+> +	if arg_contain -fstack-protector "$@"; then
+> +		echo "%gs"
+> +		exit 0
+> +	fi
+> +fi
+> +
+> +# For scripts/gcc-plugin.sh
+> +if arg_contain -print-file-name=plugin "$@"; then
+> +	plugin_dir=$(mktemp -d)
+> +
+> +	sed -n 's/.*#include "\(.*\)"/\1/p' $(dirname $0)/../gcc-plugins/gcc-common.h |
+> +	while read header
+> +	do
+> +		mkdir -p $plugin_dir/include/$(dirname $header)
+> +		touch $plugin_dir/include/$header
+> +	done
+> +
+> +	echo $plugin_dir
+> +	exit 0
+> +fi
+> diff --git a/scripts/dummy-tools/ld b/scripts/dummy-tools/ld
+> new file mode 100755
+> index 000000000000..f68233050405
+> --- /dev/null
+> +++ b/scripts/dummy-tools/ld
+> @@ -0,0 +1,30 @@
+> +#!/bin/sh
+> +# SPDX-License-Identifier: GPL-2.0-only
+> +
+> +# Dummy script that always succeeds.
+> +
+> +# Check if the first parameter appears in the rest. Succeeds if found.
+> +# This helper is useful if a particular option was passed to this script.
+> +# Typically used like this:
+> +#   arg_contain <word-you-are-searching-for> "$@"
+> +arg_contain ()
+> +{
+> +	search="$1"
+> +	shift
+> +
+> +	while [ $# -gt 0 ]
+> +	do
+> +		if [ "$search" = "$1" ]; then
+> +			return 0
+> +		fi
+> +		shift
+> +	done
+> +
+> +	return 1
+> +}
+> +
+> +if arg_contain --version "$@" || arg_contain -v "$@"; then
+> +	progname=$(basename $0)
+> +	echo "GNU $progname (scripts/dummy-tools/$progname) 2.50"
+> +	exit 0
+> +fi
+> diff --git a/scripts/dummy-tools/nm b/scripts/dummy-tools/nm
+> new file mode 120000
+> index 000000000000..c0648b38dd42
+> --- /dev/null
+> +++ b/scripts/dummy-tools/nm
+> @@ -0,0 +1 @@
+> +ld
+> \ No newline at end of file
+> diff --git a/scripts/dummy-tools/objcopy b/scripts/dummy-tools/objcopy
+> new file mode 120000
+> index 000000000000..c0648b38dd42
+> --- /dev/null
+> +++ b/scripts/dummy-tools/objcopy
+> @@ -0,0 +1 @@
+> +ld
+> \ No newline at end of file
+> -- 
+> 2.17.1
+> 
