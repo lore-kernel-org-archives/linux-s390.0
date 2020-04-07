@@ -1,327 +1,138 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60168 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56160 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727447AbgDGTUn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 15:20:43 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v7 09/15] s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
-Date: Tue,  7 Apr 2020 15:20:09 -0400
-Message-Id: <20200407192015.19887-10-akrowiak@linux.ibm.com>
-In-Reply-To: <20200407192015.19887-1-akrowiak@linux.ibm.com>
-References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1728436AbgDGLKy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 07:10:54 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 037B4ZZg060458
+        for <linux-s390@vger.kernel.org>; Tue, 7 Apr 2020 07:10:52 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 308eu86adw-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 07 Apr 2020 07:10:52 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Tue, 7 Apr 2020 12:10:23 +0100
+Date: Tue, 7 Apr 2020 12:48:15 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v2 1/5] KVM: s390: vsie: Fix region 1 ASCE sanity shadow
+ address checks
+In-Reply-To: <3431ccbb-25b2-66fc-5e07-3f449c03b087@de.ibm.com>
+References: <20200403153050.20569-1-david@redhat.com>
+        <20200403153050.20569-2-david@redhat.com>
+        <ee3f6c69-4401-066d-6f87-806667facf35@de.ibm.com>
+        <c5c9fdcd-37ce-029d-a412-8987a901a116@redhat.com>
+        <3431ccbb-25b2-66fc-5e07-3f449c03b087@de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200407124815.4577e98c@p-imbrenda>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, stable@vger.kernel.org
 
-The current implementation does not allow assignment of an AP adapter or
-domain to an mdev device if the APQNs resulting from the assignment
-do not reference AP queue devices that are bound to the vfio_ap device
-driver. This patch allows assignment of AP resources to the matrix mdev as
-long as the APQNs resulting from the assignment:
-   1. Are not reserved by the AP BUS for use by the zcrypt device drivers.
-   2. Are not assigned to another matrix mdev.
+On Tue, 7 Apr 2020 09:52:53 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-The rationale behind this is twofold:
-   1. The AP architecture does not preclude assignment of APQNs to an AP
-      configuration that are not available to the system.
-   2. APQNs that do not reference a queue device bound to the vfio_ap
-      device driver will not be assigned to the guest's CRYCB, so the
-      guest will not get access to queues not bound to the vfio_ap driver.
+> On 07.04.20 09:49, David Hildenbrand wrote:
+> > On 07.04.20 09:33, Christian Borntraeger wrote:  
+> >>
+> >> On 03.04.20 17:30, David Hildenbrand wrote:  
+> >>> In case we have a region 1 ASCE, our shadow/g3 address can have
+> >>> any value. Unfortunately, (-1UL << 64) is undefined and triggers
+> >>> sometimes, rejecting valid shadow addresses when trying to walk
+> >>> our shadow table hierarchy.
+> >>>
+> >>> The result is that the prefix cannot get mapped and will loop
+> >>> basically forever trying to map it (-EAGAIN loop).
+> >>>
+> >>> After all, the broken check is only a sanity check, our table
+> >>> shadowing code in kvm_s390_shadow_tables() already checks these
+> >>> conditions, injecting proper translation exceptions. Turn it into
+> >>> a WARN_ON_ONCE().  
+> >>
+> >> After some testing I now triggered this warning:
+> >>
+> >> [  541.633114] ------------[ cut here ]------------
+> >> [  541.633128] WARNING: CPU: 38 PID: 2812 at
+> >> arch/s390/mm/gmap.c:799 gmap_shadow_pgt_lookup+0x98/0x1a0 [
+> >> 541.633129] Modules linked in: vhost_net vhost macvtap macvlan tap
+> >> kvm xt_CHECKSUM xt_MASQUERADE nf_nat_tftp nf_conntrack_tftp xt_CT
+> >> tun bridge stp llc xt_tcpudp ip6t_REJECT nf_reject_ipv6
+> >> ip6t_rpfilter ipt_REJECT nf_reject_ipv4 xt_conntrack ip6table_nat
+> >> ip6table_mangle ip6table_raw ip6table_security iptable_nat nf_nat
+> >> iptable_mangle iptable_raw iptable_security nf_conntrack
+> >> nf_defrag_ipv6 nf_defrag_ipv4 ip_set nfnetlink ip6table_filter
+> >> ip6_tables iptable_filter rpcrdma sunrpc rdma_ucm rdma_cm iw_cm
+> >> ib_cm configfs mlx5_ib s390_trng ghash_s390 prng aes_s390
+> >> ib_uverbs des_s390 ib_core libdes sha3_512_s390 genwqe_card
+> >> sha3_256_s390 vfio_ccw crc_itu_t vfio_mdev sha512_s390 mdev
+> >> vfio_iommu_type1 sha1_s390 vfio eadm_sch zcrypt_cex4 sch_fq_codel
+> >> ip_tables x_tables mlx5_core sha256_s390 sha_common pkey zcrypt
+> >> rng_core autofs4 [  541.633164] CPU: 38 PID: 2812 Comm: CPU 0/KVM
+> >> Not tainted 5.6.0+ #354 [  541.633166] Hardware name: IBM 3906 M04
+> >> 704 (LPAR) [  541.633167] Krnl PSW : 0704d00180000000
+> >> 00000014e05dc454 (gmap_shadow_pgt_lookup+0x9c/0x1a0) [
+> >> 541.633169]            R:0 T:1 IO:1 EX:1 Key:0 M:1 W:0 P:0 AS:3
+> >> CC:1 PM:0 RI:0 EA:3 [  541.633171] Krnl GPRS: 0000000000000000
+> >> 0000001f00000000 0000001f487b8000 ffffffff80000000 [  541.633172]
+> >>           ffffffffffffffff 000003e003defa18 000003e003defa1c
+> >> 000003e003defa18 [  541.633173]            fffffffffffff000
+> >> 000003e003defa18 000003e003defa28 0000001f70e06300 [  541.633174]
+> >>           0000001f43484000 00000000043ed200 000003e003def978
+> >> 000003e003def920 [  541.633203] Krnl Code: 00000014e05dc448:
+> >> b9800038		ngr	%r3,%r8 00000014e05dc44c:
+> >> a7840014		brc	8,00000014e05dc474
+> >> #00000014e05dc450: af000000		mc	0,0  
+> >>                          >00000014e05dc454: a728fff5
+> >>                          >	lhi	%r2,-11  
+> >>                           00000014e05dc458: a7180000
+> >> 	lhi	%r1,0 00000014e05dc45c: b2fa0070
+> >> niai	7,0 00000014e05dc460: 4010b04a
+> >> sth	%r1,74(%r11) 00000014e05dc464: b9140022
+> >> lgfr	%r2,%r2 [  541.633215] Call Trace:
+> >> [  541.633218]  [<00000014e05dc454>]
+> >> gmap_shadow_pgt_lookup+0x9c/0x1a0 [  541.633257]
+> >> [<000003ff804c57d6>] kvm_s390_shadow_fault+0x66/0x1e8 [kvm] [
+> >> 541.633265]  [<000003ff804c72dc>] vsie_run+0x43c/0x710 [kvm] [
+> >> 541.633273]  [<000003ff804c85ca>] kvm_s390_handle_vsie+0x632/0x750
+> >> [kvm] [  541.633281]  [<000003ff804c123c>]
+> >> kvm_s390_handle_b2+0x84/0x4e0 [kvm] [  541.633289]
+> >> [<000003ff804b46b2>] kvm_handle_sie_intercept+0x172/0xcb8 [kvm] [
+> >> 541.633297]  [<000003ff804b18a8>] __vcpu_run+0x658/0xc90 [kvm] [
+> >> 541.633305]  [<000003ff804b2920>]
+> >> kvm_arch_vcpu_ioctl_run+0x248/0x858 [kvm] [  541.633313]
+> >> [<000003ff8049d454>] kvm_vcpu_ioctl+0x284/0x7b0 [kvm] [
+> >> 541.633316]  [<00000014e087d5ae>] ksys_ioctl+0xae/0xe8 [
+> >> 541.633318]  [<00000014e087d652>] __s390x_sys_ioctl+0x2a/0x38 [
+> >> 541.633323]  [<00000014e0ff02a2>] system_call+0x2a6/0x2c8 [
+> >> 541.633323] Last Breaking-Event-Address: [  541.633334]
+> >> [<000003ff804983e0>] kvm_running_vcpu+0x3ea9ee997d8/0x3ea9ee99950
+> >> [kvm] [  541.633335] ---[ end trace f69b6021855ea189 ]---
+> >>
+> >>
+> >> Unfortunately no dump at that point in time.
+> >> I have other tests which are clearly fixed by this patch, so we
+> >> should propbably go forward anyway. Question is, is this just
+> >> another bug we need to fix or is the assumption that somebody else
+> >> checked all conditions so we can warn false?  
+> > 
+> > Yeah, I think it is via
+> > 
+> > kvm_s390_shadow_fault()->gmap_shadow_pgt_lookup()->gmap_table_walk()
+> > 
+> > where we just peek if there is already something shadowed. If not,
+> > we go via the full kvm_s390_shadow_tables() path.
+> > 
+> > So we could either do sanity checks in gmap_shadow_pgt_lookup(), or
+> > rather drop the WARN_ON_ONCE. I think the latter makes sense, now
+> > that we understood the problem.  
+> 
+> Ok, so I will drop the WARN_ON_ONCE and fixup the commit message.
+> 
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 213 ++++++------------------------
- 1 file changed, 37 insertions(+), 176 deletions(-)
+with those fixes, you can also add:
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 6ee1ebe3f207..b5cfa3a967c0 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -409,122 +409,6 @@ static struct attribute_group *vfio_ap_mdev_type_groups[] = {
- 	NULL,
- };
- 
--struct vfio_ap_queue_reserved {
--	unsigned long *apid;
--	unsigned long *apqi;
--	bool reserved;
--};
--
--/**
-- * vfio_ap_has_queue
-- *
-- * @dev: an AP queue device
-- * @data: a struct vfio_ap_queue_reserved reference
-- *
-- * Flags whether the AP queue device (@dev) has a queue ID containing the APQN,
-- * apid or apqi specified in @data:
-- *
-- * - If @data contains both an apid and apqi value, then @data will be flagged
-- *   as reserved if the APID and APQI fields for the AP queue device matches
-- *
-- * - If @data contains only an apid value, @data will be flagged as
-- *   reserved if the APID field in the AP queue device matches
-- *
-- * - If @data contains only an apqi value, @data will be flagged as
-- *   reserved if the APQI field in the AP queue device matches
-- *
-- * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
-- * @data does not contain either an apid or apqi.
-- */
--static int vfio_ap_has_queue(struct device *dev, void *data)
--{
--	struct vfio_ap_queue_reserved *qres = data;
--	struct ap_queue *ap_queue = to_ap_queue(dev);
--	ap_qid_t qid;
--	unsigned long id;
--
--	if (qres->apid && qres->apqi) {
--		qid = AP_MKQID(*qres->apid, *qres->apqi);
--		if (qid == ap_queue->qid)
--			qres->reserved = true;
--	} else if (qres->apid && !qres->apqi) {
--		id = AP_QID_CARD(ap_queue->qid);
--		if (id == *qres->apid)
--			qres->reserved = true;
--	} else if (!qres->apid && qres->apqi) {
--		id = AP_QID_QUEUE(ap_queue->qid);
--		if (id == *qres->apqi)
--			qres->reserved = true;
--	} else {
--		return -EINVAL;
--	}
--
--	return 0;
--}
--
--/**
-- * vfio_ap_verify_queue_reserved
-- *
-- * @matrix_dev: a mediated matrix device
-- * @apid: an AP adapter ID
-- * @apqi: an AP queue index
-- *
-- * Verifies that the AP queue with @apid/@apqi is reserved by the VFIO AP device
-- * driver according to the following rules:
-- *
-- * - If both @apid and @apqi are not NULL, then there must be an AP queue
-- *   device bound to the vfio_ap driver with the APQN identified by @apid and
-- *   @apqi
-- *
-- * - If only @apid is not NULL, then there must be an AP queue device bound
-- *   to the vfio_ap driver with an APQN containing @apid
-- *
-- * - If only @apqi is not NULL, then there must be an AP queue device bound
-- *   to the vfio_ap driver with an APQN containing @apqi
-- *
-- * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
-- */
--static int vfio_ap_verify_queue_reserved(unsigned long *apid,
--					 unsigned long *apqi)
--{
--	int ret;
--	struct vfio_ap_queue_reserved qres;
--
--	qres.apid = apid;
--	qres.apqi = apqi;
--	qres.reserved = false;
--
--	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				     &qres, vfio_ap_has_queue);
--	if (ret)
--		return ret;
--
--	if (qres.reserved)
--		return 0;
--
--	return -EADDRNOTAVAIL;
--}
--
--static int
--vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
--					     unsigned long apid)
--{
--	int ret;
--	unsigned long apqi;
--	unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
--
--	if (find_first_bit_inv(matrix_mdev->matrix.aqm, nbits) >= nbits)
--		return vfio_ap_verify_queue_reserved(&apid, NULL);
--
--	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
--		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
--		if (ret)
--			return ret;
--	}
--
--	return 0;
--}
--
- /**
-  * vfio_ap_mdev_verify_no_sharing
-  *
-@@ -533,6 +417,8 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
-  * mediated device. AP queue sharing is not allowed.
-  *
-  * @matrix_mdev: the mediated matrix device
-+ * @mdev_apm: the mask identifying the adapters assigned to mdev
-+ * @mdev_aqm: the mask identifying the domains (queues) assigned to mdev
-  *
-  * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
-  */
-@@ -545,6 +431,11 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
- 	DECLARE_BITMAP(aqm, AP_DOMAINS);
- 
- 	list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
-+		/*
-+		 * If either of the input masks belongs to the mdev to which an
-+		 * AP resource is being assigned, then we don't need to verify
-+		 * that mdev's masks.
-+		 */
- 		if (matrix_mdev == lstdev)
- 			continue;
- 
-@@ -567,6 +458,20 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
- 	return 0;
- }
- 
-+static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev,
-+				       unsigned long *mdev_apm,
-+				       unsigned long *mdev_aqm)
-+{
-+	DECLARE_BITMAP(apm, AP_DEVICES);
-+	DECLARE_BITMAP(aqm, AP_DOMAINS);
-+
-+	if (bitmap_and(apm, mdev_apm, ap_perms.apm, AP_DEVICES) &&
-+	    bitmap_and(aqm, mdev_aqm, ap_perms.aqm, AP_DOMAINS))
-+		return -EADDRNOTAVAIL;
-+
-+	return vfio_ap_mdev_verify_no_sharing(matrix_mdev, mdev_apm, mdev_aqm);
-+}
-+
- static int vfio_ap_mdev_filter_matrix(struct ap_matrix_mdev *matrix_mdev,
- 				      struct ap_matrix *shadow_crycb,
- 				      bool filter_apids)
-@@ -771,33 +676,21 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (apid > matrix_mdev->matrix.apm_max)
- 		return -ENODEV;
- 
--	/*
--	 * Set the bit in the AP mask (APM) corresponding to the AP adapter
--	 * number (APID). The bits in the mask, from most significant to least
--	 * significant bit, correspond to APIDs 0-255.
--	 */
--	mutex_lock(&matrix_dev->lock);
--
--	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
--	if (ret)
--		goto done;
--
- 	memset(apm, 0, sizeof(apm));
- 	set_bit_inv(apid, apm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
--					     matrix_mdev->matrix.aqm);
--	if (ret)
--		goto done;
--
-+	mutex_lock(&matrix_dev->lock);
-+	ret = vfio_ap_mdev_validate_masks(matrix_mdev, apm,
-+					  matrix_mdev->matrix.aqm);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->lock);
-+		return ret;
-+	}
- 	set_bit_inv(apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_qlinks_for_apid(matrix_mdev, apid);
--	ret = count;
--
--done:
- 	mutex_unlock(&matrix_dev->lock);
- 
--	return ret;
-+	return count;
- }
- static DEVICE_ATTR_WO(assign_adapter);
- 
-@@ -847,26 +740,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
- }
- static DEVICE_ATTR_WO(unassign_adapter);
- 
--static int
--vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
--					     unsigned long apqi)
--{
--	int ret;
--	unsigned long apid;
--	unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
--
--	if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
--		return vfio_ap_verify_queue_reserved(NULL, &apqi);
--
--	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
--		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
--		if (ret)
--			return ret;
--	}
--
--	return 0;
--}
--
- /**
-  * vfio_ap_mdev_qlinks_for_apqi
-  *
-@@ -947,28 +820,21 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (apqi > max_apqi)
- 		return -ENODEV;
- 
--	mutex_lock(&matrix_dev->lock);
--
--	ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
--	if (ret)
--		goto done;
--
- 	memset(aqm, 0, sizeof(aqm));
- 	set_bit_inv(apqi, aqm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
--					     matrix_mdev->matrix.apm, aqm);
--	if (ret)
--		goto done;
--
-+	mutex_lock(&matrix_dev->lock);
-+	ret = vfio_ap_mdev_validate_masks(matrix_mdev, matrix_mdev->matrix.apm,
-+					  aqm);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->lock);
-+		return ret;
-+	}
- 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_qlinks_for_apqi(matrix_mdev, apqi);
--	ret = count;
--
--done:
- 	mutex_unlock(&matrix_dev->lock);
- 
--	return ret;
-+	return count;
- }
- static DEVICE_ATTR_WO(assign_domain);
- 
-@@ -1055,11 +921,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 	if (id > matrix_mdev->matrix.adm_max)
- 		return -ENODEV;
- 
--	/* Set the bit in the ADM (bitmask) corresponding to the AP control
--	 * domain number (id). The bits in the mask, from most significant to
--	 * least significant, correspond to IDs 0 up to the one less than the
--	 * number of control domains that can be assigned.
--	 */
- 	mutex_lock(&matrix_dev->lock);
- 	set_bit_inv(id, matrix_mdev->matrix.adm);
- 	mutex_unlock(&matrix_dev->lock);
--- 
-2.21.1
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
