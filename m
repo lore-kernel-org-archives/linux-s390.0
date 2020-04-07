@@ -1,60 +1,41 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24700 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726348AbgD2OgO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 10:36:14 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v3 06/10] s390x: smp: Remove unneeded cpu loops
-Date: Wed, 29 Apr 2020 10:35:14 -0400
-Message-Id: <20200429143518.1360468-7-frankja@linux.ibm.com>
-In-Reply-To: <20200429143518.1360468-1-frankja@linux.ibm.com>
-References: <20200429143518.1360468-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from 8bytes.org ([81.169.241.247]:57454 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726801AbgDGShz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:37:55 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 05/34] iommu/amd: Remove dma_mask check from check_device()
+Date: Tue,  7 Apr 2020 20:37:13 +0200
+Message-Id: <20200407183742.4344-6-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Now that we have a loop which is executed after we return from the
-main function of a secondary cpu, we can remove the surplus loops.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
+The check was only needed for the DMA-API implementation in the AMD
+IOMMU driver, which no longer exists.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- s390x/smp.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/iommu/amd_iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 5e2e517..c7ff0ee 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -35,15 +35,9 @@ static void set_flag(int val)
- 	mb();
- }
- 
--static void cpu_loop(void)
--{
--	for (;;) {}
--}
--
- static void test_func(void)
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 73b4f84cf449..504f2db75eda 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -326,7 +326,7 @@ static bool check_device(struct device *dev)
  {
- 	set_flag(1);
--	cpu_loop();
- }
+ 	int devid;
  
- static void test_start(void)
-@@ -293,7 +287,7 @@ int main(void)
+-	if (!dev || !dev->dma_mask)
++	if (!dev)
+ 		return false;
  
- 	/* Setting up the cpu to give it a stack and lowcore */
- 	psw.mask = extract_psw_mask();
--	psw.addr = (unsigned long)cpu_loop;
-+	psw.addr = (unsigned long)test_func;
- 	smp_cpu_setup(1, psw);
- 	smp_cpu_stop(1);
- 
+ 	devid = get_device_id(dev);
 -- 
-2.25.1
+2.17.1
