@@ -1,48 +1,163 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 4/5] KVM: s390: vsie: Move conditional reschedule
-Date: Thu,  2 Apr 2020 20:48:18 +0200
-Message-Id: <20200402184819.34215-5-david@redhat.com>
-In-Reply-To: <20200402184819.34215-1-david@redhat.com>
-References: <20200402184819.34215-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from 8bytes.org ([81.169.241.247]:57536 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726873AbgDGSiC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 7 Apr 2020 14:38:02 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 27/34] iommu/tegra: Convert to probe/release_device() call-backs
+Date: Tue,  7 Apr 2020 20:37:35 +0200
+Message-Id: <20200407183742.4344-28-joro@8bytes.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Let's move it to the outer loop, in case we ever run again into long
-loops, trying to map the prefix. While at it, convert it to cond_resched(=
-).
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Convert the Tegra IOMMU drivers to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/s390/kvm/vsie.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/iommu/tegra-gart.c | 24 ++++++------------------
+ drivers/iommu/tegra-smmu.c | 31 ++++++++-----------------------
+ 2 files changed, 14 insertions(+), 41 deletions(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 4f6c22d72072..ef05b4e167fb 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1000,8 +1000,6 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struc=
-t vsie_page *vsie_page)
-=20
- 	handle_last_fault(vcpu, vsie_page);
-=20
--	if (need_resched())
--		schedule();
- 	if (test_cpu_flag(CIF_MCCK_PENDING))
- 		s390_handle_mcck();
-=20
-@@ -1185,6 +1183,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct v=
-sie_page *vsie_page)
- 		    kvm_s390_vcpu_has_irq(vcpu, 0) ||
- 		    kvm_s390_vcpu_sie_inhibited(vcpu))
+diff --git a/drivers/iommu/tegra-gart.c b/drivers/iommu/tegra-gart.c
+index db6559e8336f..5fbdff6ff41a 100644
+--- a/drivers/iommu/tegra-gart.c
++++ b/drivers/iommu/tegra-gart.c
+@@ -243,28 +243,16 @@ static bool gart_iommu_capable(enum iommu_cap cap)
+ 	return false;
+ }
+ 
+-static int gart_iommu_add_device(struct device *dev)
++static struct iommu_device *gart_iommu_probe_device(struct device *dev)
+ {
+-	struct iommu_group *group;
+-
+ 	if (!dev_iommu_fwspec_get(dev))
+-		return -ENODEV;
+-
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
++		return ERR_PTR(-ENODEV);
+ 
+-	iommu_device_link(&gart_handle->iommu, dev);
+-
+-	return 0;
++	return &gart_handle->iommu;
+ }
+ 
+-static void gart_iommu_remove_device(struct device *dev)
++static void gart_iommu_release_device(struct device *dev)
+ {
+-	iommu_group_remove_device(dev);
+-	iommu_device_unlink(&gart_handle->iommu, dev);
+ }
+ 
+ static int gart_iommu_of_xlate(struct device *dev,
+@@ -290,8 +278,8 @@ static const struct iommu_ops gart_iommu_ops = {
+ 	.domain_free	= gart_iommu_domain_free,
+ 	.attach_dev	= gart_iommu_attach_dev,
+ 	.detach_dev	= gart_iommu_detach_dev,
+-	.add_device	= gart_iommu_add_device,
+-	.remove_device	= gart_iommu_remove_device,
++	.probe_device	= gart_iommu_probe_device,
++	.release_device	= gart_iommu_release_device,
+ 	.device_group	= generic_device_group,
+ 	.map		= gart_iommu_map,
+ 	.unmap		= gart_iommu_unmap,
+diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+index 63a147b623e6..7426b7666e2b 100644
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -757,11 +757,10 @@ static int tegra_smmu_configure(struct tegra_smmu *smmu, struct device *dev,
+ 	return 0;
+ }
+ 
+-static int tegra_smmu_add_device(struct device *dev)
++static struct iommu_device *tegra_smmu_probe_device(struct device *dev)
+ {
+ 	struct device_node *np = dev->of_node;
+ 	struct tegra_smmu *smmu = NULL;
+-	struct iommu_group *group;
+ 	struct of_phandle_args args;
+ 	unsigned int index = 0;
+ 	int err;
+@@ -774,7 +773,7 @@ static int tegra_smmu_add_device(struct device *dev)
+ 			of_node_put(args.np);
+ 
+ 			if (err < 0)
+-				return err;
++				return ERR_PTR(err);
+ 
+ 			/*
+ 			 * Only a single IOMMU master interface is currently
+@@ -783,8 +782,6 @@ static int tegra_smmu_add_device(struct device *dev)
+ 			 */
+ 			dev->archdata.iommu = smmu;
+ 
+-			iommu_device_link(&smmu->iommu, dev);
+-
  			break;
-+		cond_resched();
+ 		}
+ 
+@@ -793,26 +790,14 @@ static int tegra_smmu_add_device(struct device *dev)
  	}
-=20
- 	if (rc =3D=3D -EFAULT) {
---=20
-2.25.1
+ 
+ 	if (!smmu)
+-		return -ENODEV;
+-
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
++		return ERR_PTR(-ENODEV);
+ 
+-	return 0;
++	return &smmu->iommu;
+ }
+ 
+-static void tegra_smmu_remove_device(struct device *dev)
++static void tegra_smmu_release_device(struct device *dev)
+ {
+-	struct tegra_smmu *smmu = dev->archdata.iommu;
+-
+-	if (smmu)
+-		iommu_device_unlink(&smmu->iommu, dev);
+-
+ 	dev->archdata.iommu = NULL;
+-	iommu_group_remove_device(dev);
+ }
+ 
+ static const struct tegra_smmu_group_soc *
+@@ -895,8 +880,8 @@ static const struct iommu_ops tegra_smmu_ops = {
+ 	.domain_free = tegra_smmu_domain_free,
+ 	.attach_dev = tegra_smmu_attach_dev,
+ 	.detach_dev = tegra_smmu_detach_dev,
+-	.add_device = tegra_smmu_add_device,
+-	.remove_device = tegra_smmu_remove_device,
++	.probe_device = tegra_smmu_probe_device,
++	.release_device = tegra_smmu_release_device,
+ 	.device_group = tegra_smmu_device_group,
+ 	.map = tegra_smmu_map,
+ 	.unmap = tegra_smmu_unmap,
+@@ -1015,7 +1000,7 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
+ 	 * value. However the IOMMU registration process will attempt to add
+ 	 * all devices to the IOMMU when bus_set_iommu() is called. In order
+ 	 * not to rely on global variables to track the IOMMU instance, we
+-	 * set it here so that it can be looked up from the .add_device()
++	 * set it here so that it can be looked up from the .probe_device()
+ 	 * callback via the IOMMU device's .drvdata field.
+ 	 */
+ 	mc->smmu = smmu;
+-- 
+2.17.1
