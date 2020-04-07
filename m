@@ -1,249 +1,66 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v7 01/15] s390/vfio-ap: store queue struct in hash table for quick access
-Date: Tue,  7 Apr 2020 15:20:01 -0400
-Message-Id: <20200407192015.19887-2-akrowiak@linux.ibm.com>
-In-Reply-To: <20200407192015.19887-1-akrowiak@linux.ibm.com>
-References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36292 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728091AbgDGLKt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 07:10:49 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 037B4ge9108288
+        for <linux-s390@vger.kernel.org>; Tue, 7 Apr 2020 07:10:48 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3082j8muyn-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 07 Apr 2020 07:10:48 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
+        Tue, 7 Apr 2020 12:10:43 +0100
+Date: Tue, 7 Apr 2020 12:52:14 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v2 4/5] KVM: s390: vsie: Move conditional reschedule
+In-Reply-To: <20200403153050.20569-5-david@redhat.com>
+References: <20200403153050.20569-1-david@redhat.com>
+        <20200403153050.20569-5-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200407125214.35c70f2a@p-imbrenda>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-Rather than looping over potentially 65535 objects, let's store the
-structures for caching information about queue devices bound to the
-vfio_ap device driver in a hash table keyed by APQN.
+On Fri,  3 Apr 2020 17:30:49 +0200
+David Hildenbrand <david@redhat.com> wrote:
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_drv.c     | 28 +++------
- drivers/s390/crypto/vfio_ap_ops.c     | 90 ++++++++++++++-------------
- drivers/s390/crypto/vfio_ap_private.h | 10 ++-
- 3 files changed, 60 insertions(+), 68 deletions(-)
+> Let's move it to the outer loop, in case we ever run again into long
+> loops, trying to map the prefix. While at it, convert it to
+> cond_resched().
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/kvm/vsie.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+> index 4f6c22d72072..ef05b4e167fb 100644
+> --- a/arch/s390/kvm/vsie.c
+> +++ b/arch/s390/kvm/vsie.c
+> @@ -1000,8 +1000,6 @@ static int do_vsie_run(struct kvm_vcpu *vcpu,
+> struct vsie_page *vsie_page) 
+>  	handle_last_fault(vcpu, vsie_page);
+>  
+> -	if (need_resched())
+> -		schedule();
+>  	if (test_cpu_flag(CIF_MCCK_PENDING))
+>  		s390_handle_mcck();
+>  
+> @@ -1185,6 +1183,7 @@ static int vsie_run(struct kvm_vcpu *vcpu,
+> struct vsie_page *vsie_page) kvm_s390_vcpu_has_irq(vcpu, 0) ||
+>  		    kvm_s390_vcpu_sie_inhibited(vcpu))
+>  			break;
+> +		cond_resched();
+>  	}
+>  
+>  	if (rc == -EFAULT) {
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index be2520cc010b..e9c226c0730e 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -51,15 +51,9 @@ MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
-  */
- static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
- {
--	struct vfio_ap_queue *q;
--
--	q = kzalloc(sizeof(*q), GFP_KERNEL);
--	if (!q)
--		return -ENOMEM;
--	dev_set_drvdata(&apdev->device, q);
--	q->apqn = to_ap_queue(&apdev->device)->qid;
--	q->saved_isc = VFIO_AP_ISC_INVALID;
--	return 0;
-+	struct ap_queue *queue = to_ap_queue(&apdev->device);
-+
-+	return vfio_ap_mdev_probe_queue(queue);
- }
- 
- /**
-@@ -70,18 +64,9 @@ static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
-  */
- static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
- {
--	struct vfio_ap_queue *q;
--	int apid, apqi;
--
--	mutex_lock(&matrix_dev->lock);
--	q = dev_get_drvdata(&apdev->device);
--	dev_set_drvdata(&apdev->device, NULL);
--	apid = AP_QID_CARD(q->apqn);
--	apqi = AP_QID_QUEUE(q->apqn);
--	vfio_ap_mdev_reset_queue(apid, apqi, 1);
--	vfio_ap_irq_disable(q);
--	kfree(q);
--	mutex_unlock(&matrix_dev->lock);
-+	struct ap_queue *queue = to_ap_queue(&apdev->device);
-+
-+	vfio_ap_mdev_remove_queue(queue);
- }
- 
- static void vfio_ap_matrix_dev_release(struct device *dev)
-@@ -135,6 +120,7 @@ static int vfio_ap_matrix_dev_create(void)
- 
- 	mutex_init(&matrix_dev->lock);
- 	INIT_LIST_HEAD(&matrix_dev->mdev_list);
-+	hash_init(matrix_dev->qtable);
- 
- 	dev_set_name(&matrix_dev->device, "%s", VFIO_AP_DEV_NAME);
- 	matrix_dev->device.parent = root_device;
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 5c0f53c6dde7..134860934fe7 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -26,45 +26,16 @@
- 
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
- 
--static int match_apqn(struct device *dev, const void *data)
--{
--	struct vfio_ap_queue *q = dev_get_drvdata(dev);
--
--	return (q->apqn == *(int *)(data)) ? 1 : 0;
--}
--
--/**
-- * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
-- * @matrix_mdev: the associated mediated matrix
-- * @apqn: The queue APQN
-- *
-- * Retrieve a queue with a specific APQN from the list of the
-- * devices of the vfio_ap_drv.
-- * Verify that the APID and the APQI are set in the matrix.
-- *
-- * Returns the pointer to the associated vfio_ap_queue
-- */
--static struct vfio_ap_queue *vfio_ap_get_queue(
--					struct ap_matrix_mdev *matrix_mdev,
--					int apqn)
-+struct vfio_ap_queue *vfio_ap_get_queue(unsigned long apqn)
- {
- 	struct vfio_ap_queue *q;
--	struct device *dev;
--
--	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
--		return NULL;
--	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
--		return NULL;
--
--	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				 &apqn, match_apqn);
--	if (!dev)
--		return NULL;
--	q = dev_get_drvdata(dev);
--	q->matrix_mdev = matrix_mdev;
--	put_device(dev);
- 
--	return q;
-+	hash_for_each_possible(matrix_dev->qtable, q, qnode, apqn) {
-+		if (q && (apqn == q->apqn))
-+			return q;
-+	}
-+
-+	return NULL;
- }
- 
- /**
-@@ -293,10 +264,11 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
- 	matrix_mdev = container_of(vcpu->kvm->arch.crypto.pqap_hook,
- 				   struct ap_matrix_mdev, pqap_hook);
- 
--	q = vfio_ap_get_queue(matrix_mdev, apqn);
-+	q = vfio_ap_get_queue(apqn);
- 	if (!q)
- 		goto out_unlock;
- 
-+	q->matrix_mdev = matrix_mdev;
- 	status = vcpu->run->s.regs.gprs[1];
- 
- 	/* If IR bit(16) is set we enable the interrupt */
-@@ -1116,16 +1088,11 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 
- static void vfio_ap_irq_disable_apqn(int apqn)
- {
--	struct device *dev;
- 	struct vfio_ap_queue *q;
- 
--	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				 &apqn, match_apqn);
--	if (dev) {
--		q = dev_get_drvdata(dev);
-+	q = vfio_ap_get_queue(apqn);
-+	if (q)
- 		vfio_ap_irq_disable(q);
--		put_device(dev);
--	}
- }
- 
- int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
-@@ -1302,3 +1269,38 @@ void vfio_ap_mdev_unregister(void)
- {
- 	mdev_unregister_device(&matrix_dev->device);
- }
-+
-+int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
-+{
-+	struct vfio_ap_queue *q;
-+
-+	q = kzalloc(sizeof(*q), GFP_KERNEL);
-+	if (!q)
-+		return -ENOMEM;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	dev_set_drvdata(&queue->ap_dev.device, q);
-+	q->apqn = queue->qid;
-+	q->saved_isc = VFIO_AP_ISC_INVALID;
-+	hash_add(matrix_dev->qtable, &q->qnode, q->apqn);
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return 0;
-+}
-+
-+void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
-+{
-+	struct vfio_ap_queue *q;
-+	int apid, apqi;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	q = dev_get_drvdata(&queue->ap_dev.device);
-+	dev_set_drvdata(&queue->ap_dev.device, NULL);
-+	apid = AP_QID_CARD(q->apqn);
-+	apqi = AP_QID_QUEUE(q->apqn);
-+	vfio_ap_mdev_reset_queue(apid, apqi, 1);
-+	vfio_ap_irq_disable(q);
-+	hash_del(&q->qnode);
-+	kfree(q);
-+	mutex_unlock(&matrix_dev->lock);
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index f46dde56b464..e1f8c82cc55d 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/mutex.h>
- #include <linux/kvm_host.h>
-+#include <linux/hashtable.h>
- 
- #include "ap_bus.h"
- 
-@@ -43,6 +44,7 @@ struct ap_matrix_dev {
- 	struct list_head mdev_list;
- 	struct mutex lock;
- 	struct ap_driver  *vfio_ap_drv;
-+	DECLARE_HASHTABLE(qtable, 8);
- };
- 
- extern struct ap_matrix_dev *matrix_dev;
-@@ -90,8 +92,6 @@ struct ap_matrix_mdev {
- 
- extern int vfio_ap_mdev_register(void);
- extern void vfio_ap_mdev_unregister(void);
--int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
--			     unsigned int retry);
- 
- struct vfio_ap_queue {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -99,6 +99,10 @@ struct vfio_ap_queue {
- 	int	apqn;
- #define VFIO_AP_ISC_INVALID 0xff
- 	unsigned char saved_isc;
-+	struct hlist_node qnode;
- };
--struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
-+
-+int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
-+void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
--- 
-2.21.1
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
