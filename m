@@ -1,41 +1,182 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57454 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726801AbgDGShz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:37:55 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 05/34] iommu/amd: Remove dma_mask check from check_device()
-Date: Tue,  7 Apr 2020 20:37:13 +0200
-Message-Id: <20200407183742.4344-6-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 12/28] mm: remove vmap_page_range_noflush and vunmap_page_range
+Date: Wed,  8 Apr 2020 13:59:10 +0200
+Message-Id: <20200408115926.1467567-13-hch@lst.de>
+In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
+References: <20200408115926.1467567-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+These have non-static aliases claled map_kernel_range_noflush and
+unmap_kernel_range_noflush that just differ slightly in the calling
+conventions that pass addr + size instead of an end.
 
-The check was only needed for the DMA-API implementation in the AMD
-IOMMU driver, which no longer exists.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/iommu/amd_iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/vmalloc.c | 98 +++++++++++++++++++++-------------------------------
+ 1 file changed, 40 insertions(+), 58 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 73b4f84cf449..504f2db75eda 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -326,7 +326,7 @@ static bool check_device(struct device *dev)
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index aada9e9144bd..55df5dc6a9fc 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -127,10 +127,24 @@ static void vunmap_p4d_range(pgd_t *pgd, unsigned long addr, unsigned long end)
+ 	} while (p4d++, addr = next, addr != end);
+ }
+ 
+-static void vunmap_page_range(unsigned long addr, unsigned long end)
++/**
++ * unmap_kernel_range_noflush - unmap kernel VM area
++ * @addr: start of the VM area to unmap
++ * @size: size of the VM area to unmap
++ *
++ * Unmap PFN_UP(@size) pages at @addr.  The VM area @addr and @size specify
++ * should have been allocated using get_vm_area() and its friends.
++ *
++ * NOTE:
++ * This function does NOT do any cache flushing.  The caller is responsible
++ * for calling flush_cache_vunmap() on to-be-mapped areas before calling this
++ * function and flush_tlb_kernel_range() after.
++ */
++void unmap_kernel_range_noflush(unsigned long addr, unsigned long size)
  {
- 	int devid;
+-	pgd_t *pgd;
++	unsigned long end = addr + size;
+ 	unsigned long next;
++	pgd_t *pgd;
  
--	if (!dev || !dev->dma_mask)
-+	if (!dev)
- 		return false;
+ 	BUG_ON(addr >= end);
+ 	pgd = pgd_offset_k(addr);
+@@ -219,18 +233,30 @@ static int vmap_p4d_range(pgd_t *pgd, unsigned long addr,
+ 	return 0;
+ }
  
- 	devid = get_device_id(dev);
+-/*
+- * Set up page tables in kva (addr, end). The ptes shall have prot "prot", and
+- * will have pfns corresponding to the "pages" array.
++/**
++ * map_kernel_range_noflush - map kernel VM area with the specified pages
++ * @addr: start of the VM area to map
++ * @size: size of the VM area to map
++ * @prot: page protection flags to use
++ * @pages: pages to map
+  *
+- * Ie. pte at addr+N*PAGE_SIZE shall point to pfn corresponding to pages[N]
++ * Map PFN_UP(@size) pages at @addr.  The VM area @addr and @size specify should
++ * have been allocated using get_vm_area() and its friends.
++ *
++ * NOTE:
++ * This function does NOT do any cache flushing.  The caller is responsible for
++ * calling flush_cache_vmap() on to-be-mapped areas before calling this
++ * function.
++ *
++ * RETURNS:
++ * The number of pages mapped on success, -errno on failure.
+  */
+-static int vmap_page_range_noflush(unsigned long start, unsigned long end,
+-				   pgprot_t prot, struct page **pages)
++int map_kernel_range_noflush(unsigned long addr, unsigned long size,
++			     pgprot_t prot, struct page **pages)
+ {
+-	pgd_t *pgd;
++	unsigned long end = addr + size;
+ 	unsigned long next;
+-	unsigned long addr = start;
++	pgd_t *pgd;
+ 	int err = 0;
+ 	int nr = 0;
+ 
+@@ -251,7 +277,7 @@ static int vmap_page_range(unsigned long start, unsigned long end,
+ {
+ 	int ret;
+ 
+-	ret = vmap_page_range_noflush(start, end, prot, pages);
++	ret = map_kernel_range_noflush(start, end - start, prot, pages);
+ 	flush_cache_vmap(start, end);
+ 	return ret;
+ }
+@@ -1226,7 +1252,7 @@ EXPORT_SYMBOL_GPL(unregister_vmap_purge_notifier);
+  */
+ static void unmap_vmap_area(struct vmap_area *va)
+ {
+-	vunmap_page_range(va->va_start, va->va_end);
++	unmap_kernel_range_noflush(va->va_start, va->va_end - va->va_start);
+ }
+ 
+ /*
+@@ -1686,7 +1712,7 @@ static void vb_free(unsigned long addr, unsigned long size)
+ 	rcu_read_unlock();
+ 	BUG_ON(!vb);
+ 
+-	vunmap_page_range(addr, addr + size);
++	unmap_kernel_range_noflush(addr, size);
+ 
+ 	if (debug_pagealloc_enabled_static())
+ 		flush_tlb_kernel_range(addr, addr + size);
+@@ -1984,50 +2010,6 @@ void __init vmalloc_init(void)
+ 	vmap_initialized = true;
+ }
+ 
+-/**
+- * map_kernel_range_noflush - map kernel VM area with the specified pages
+- * @addr: start of the VM area to map
+- * @size: size of the VM area to map
+- * @prot: page protection flags to use
+- * @pages: pages to map
+- *
+- * Map PFN_UP(@size) pages at @addr.  The VM area @addr and @size
+- * specify should have been allocated using get_vm_area() and its
+- * friends.
+- *
+- * NOTE:
+- * This function does NOT do any cache flushing.  The caller is
+- * responsible for calling flush_cache_vmap() on to-be-mapped areas
+- * before calling this function.
+- *
+- * RETURNS:
+- * The number of pages mapped on success, -errno on failure.
+- */
+-int map_kernel_range_noflush(unsigned long addr, unsigned long size,
+-			     pgprot_t prot, struct page **pages)
+-{
+-	return vmap_page_range_noflush(addr, addr + size, prot, pages);
+-}
+-
+-/**
+- * unmap_kernel_range_noflush - unmap kernel VM area
+- * @addr: start of the VM area to unmap
+- * @size: size of the VM area to unmap
+- *
+- * Unmap PFN_UP(@size) pages at @addr.  The VM area @addr and @size
+- * specify should have been allocated using get_vm_area() and its
+- * friends.
+- *
+- * NOTE:
+- * This function does NOT do any cache flushing.  The caller is
+- * responsible for calling flush_cache_vunmap() on to-be-mapped areas
+- * before calling this function and flush_tlb_kernel_range() after.
+- */
+-void unmap_kernel_range_noflush(unsigned long addr, unsigned long size)
+-{
+-	vunmap_page_range(addr, addr + size);
+-}
+-
+ /**
+  * unmap_kernel_range - unmap kernel VM area and flush cache and TLB
+  * @addr: start of the VM area to unmap
+@@ -2041,7 +2023,7 @@ void unmap_kernel_range(unsigned long addr, unsigned long size)
+ 	unsigned long end = addr + size;
+ 
+ 	flush_cache_vunmap(addr, end);
+-	vunmap_page_range(addr, end);
++	unmap_kernel_range_noflush(addr, size);
+ 	flush_tlb_kernel_range(addr, end);
+ }
+ 
 -- 
-2.17.1
+2.25.1
