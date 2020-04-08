@@ -1,102 +1,25 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63168 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727307AbgDGTUk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 15:20:40 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v7 10/15] s390/vfio-ap: allow configuration of matrix mdev in use by a KVM guest
-Date: Tue,  7 Apr 2020 15:20:10 -0400
-Message-Id: <20200407192015.19887-11-akrowiak@linux.ibm.com>
-In-Reply-To: <20200407192015.19887-1-akrowiak@linux.ibm.com>
-References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Wed, 8 Apr 2020 18:07:43 +0200
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: decruft the vmalloc API
+Message-ID: <20200408160743.GA30662@lst.de>
+References: <20200408115926.1467567-1-hch@lst.de> <20200408160324.GS25745@shell.armlinux.org.uk>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200408160324.GS25745@shell.armlinux.org.uk>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>, Christophe Leroy <christophe.leroy@c-s.fr>, linux-arch@vger.kernel.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, bpf@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>, linux-arm-kernel@lists.infradead.org
 
-The current support for pass-through crypto adapters does not allow
-configuration of a matrix mdev when it is in use by a KVM guest. Let's
-allow AP resources - i.e., adapters, domains and control domains - to be
-assigned to or unassigned from a matrix mdev while it is in use by a guest.
-This is in preparation for the introduction of support for dynamic
-configuration of the AP matrix for a running KVM guest.
+On Wed, Apr 08, 2020 at 05:03:24PM +0100, Russell King - ARM Linux admin wrote:
+> I haven't read all your patches yet.
+> 
+> Have you tested it on 32-bit ARM, where the module area is located
+> _below_ PAGE_OFFSET and outside of the vmalloc area?
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 24 ------------------------
- 1 file changed, 24 deletions(-)
-
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index b5cfa3a967c0..4b16d45b702b 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -665,10 +665,6 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow assignment of adapter */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apid);
- 	if (ret)
- 		return ret;
-@@ -720,10 +716,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow un-assignment of adapter */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apid);
- 	if (ret)
- 		return ret;
-@@ -810,10 +802,6 @@ static ssize_t assign_domain_store(struct device *dev,
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
- 
--	/* If the guest is running, disallow assignment of domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apqi);
- 	if (ret)
- 		return ret;
-@@ -865,10 +853,6 @@ static ssize_t unassign_domain_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow un-assignment of domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apqi);
- 	if (ret)
- 		return ret;
-@@ -910,10 +894,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow assignment of control domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &id);
- 	if (ret)
- 		return ret;
-@@ -955,10 +935,6 @@ static ssize_t unassign_control_domain_store(struct device *dev,
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
- 
--	/* If the guest is running, disallow un-assignment of control domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &domid);
- 	if (ret)
- 		return ret;
--- 
-2.21.1
+I have not tested it.  However existing in-kernel users that use
+different areas (and we have quite a few of those) have not been
+changed at all.  I think the arm32 module loader (like various other
+module loaders) falls into that category.
