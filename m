@@ -1,49 +1,123 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:32403 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387726AbgDBSs3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Apr 2020 14:48:29 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 0/5] KVM: s390: vsie: fixes and cleanups.
-Date: Thu,  2 Apr 2020 20:48:14 +0200
-Message-Id: <20200402184819.34215-1-david@redhat.com>
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 23/28] mm: remove __vmalloc_node_flags_caller
+Date: Wed,  8 Apr 2020 13:59:21 +0200
+Message-Id: <20200408115926.1467567-24-hch@lst.de>
+In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
+References: <20200408115926.1467567-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Some vsie/gmap fixes and two cleanups/improvements.
+Just use __vmalloc_node instead which gets and extra argument.  To be
+able to to use __vmalloc_node in all caller make it available outside
+of vmalloc and implement it in nommu.c.
 
-Patch #1 fixes an issue reported by Janosch. It was never observed so far=
-,
-because KVM usually doesn't use a region 1 table for it's guest (unless
-memory would be exceeding something like 16 EB, which isn't even supporte=
-d
-by the HW). Older QEMU+KVM or other hypervisors can trigger this.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/linux/vmalloc.h |  4 ++--
+ kernel/bpf/syscall.c    |  5 ++---
+ mm/nommu.c              |  4 ++--
+ mm/util.c               |  2 +-
+ mm/vmalloc.c            | 10 +---------
+ 5 files changed, 8 insertions(+), 17 deletions(-)
 
-Patch #2 fixes a code path that probably was never taken and will most
-probably not be taken very often in the future - unless somebody really
-messes up the page tables for a guest (or writes a test for it). At some
-point, a test case for this would be nice.
-
-Patch #3 fixes a rare possible race. Don't think this is stable material.
-
-Gave it some testing with my limited access to somewhat-fast s390x
-machines. Booted a Linux kernel, supplying all possible number of
-page table hiearchies.
-
-David Hildenbrand (5):
-  KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
-  KVM: s390: vsie: Fix delivery of addressing exceptions
-  KVM: s390: vsie: Fix possible race when shadowing region 3 tables
-  KVM: s390: vsie: Move conditional reschedule
-  KVM: s390: vsie: gmap_table_walk() simplifications
-
- arch/s390/kvm/vsie.c |  4 ++--
- arch/s390/mm/gmap.c  | 14 ++++++++++----
- 2 files changed, 12 insertions(+), 6 deletions(-)
-
---=20
+diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+index 4a46d296e70d..108f49b47756 100644
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -115,8 +115,8 @@ extern void *__vmalloc_node_range(unsigned long size, unsigned long align,
+ 			unsigned long start, unsigned long end, gfp_t gfp_mask,
+ 			pgprot_t prot, unsigned long vm_flags, int node,
+ 			const void *caller);
+-extern void *__vmalloc_node_flags_caller(unsigned long size,
+-					 int node, gfp_t flags, void *caller);
++void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
++		int node, const void *caller);
+ 
+ extern void vfree(const void *addr);
+ extern void vfree_atomic(const void *addr);
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 64783da34202..48d98ea8fad6 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -299,9 +299,8 @@ static void *__bpf_map_area_alloc(u64 size, int numa_node, bool mmapable)
+ 		return vmalloc_user_node_flags(size, numa_node, GFP_KERNEL |
+ 					       __GFP_RETRY_MAYFAIL | flags);
+ 	}
+-	return __vmalloc_node_flags_caller(size, numa_node,
+-					   GFP_KERNEL | __GFP_RETRY_MAYFAIL |
+-					   flags, __builtin_return_address(0));
++	return __vmalloc_node(size, 1, GFP_KERNEL | __GFP_RETRY_MAYFAIL | flags,
++			      numa_node, __builtin_return_address(0));
+ }
+ 
+ void *bpf_map_area_alloc(u64 size, int numa_node)
+diff --git a/mm/nommu.c b/mm/nommu.c
+index 9553efa59787..81a86cd85893 100644
+--- a/mm/nommu.c
++++ b/mm/nommu.c
+@@ -150,8 +150,8 @@ void *__vmalloc(unsigned long size, gfp_t gfp_mask)
+ }
+ EXPORT_SYMBOL(__vmalloc);
+ 
+-void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
+-		void *caller)
++void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
++		int node, const void *caller)
+ {
+ 	return __vmalloc(size, flags);
+ }
+diff --git a/mm/util.c b/mm/util.c
+index 988d11e6c17c..6d5868adbe18 100644
+--- a/mm/util.c
++++ b/mm/util.c
+@@ -580,7 +580,7 @@ void *kvmalloc_node(size_t size, gfp_t flags, int node)
+ 	if (ret || size <= PAGE_SIZE)
+ 		return ret;
+ 
+-	return __vmalloc_node_flags_caller(size, node, flags,
++	return __vmalloc_node(size, 1, flags, node,
+ 			__builtin_return_address(0));
+ }
+ EXPORT_SYMBOL(kvmalloc_node);
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 3d59d848ad48..ae8249ef5821 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -2400,8 +2400,6 @@ void *vmap(struct page **pages, unsigned int count,
+ }
+ EXPORT_SYMBOL(vmap);
+ 
+-static void *__vmalloc_node(unsigned long size, unsigned long align,
+-			    gfp_t gfp_mask, int node, const void *caller);
+ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
+ 				 pgprot_t prot, int node)
+ {
+@@ -2552,7 +2550,7 @@ EXPORT_SYMBOL_GPL(__vmalloc_node_range);
+  *
+  * Return: pointer to the allocated memory or %NULL on error
+  */
+-static void *__vmalloc_node(unsigned long size, unsigned long align,
++void *__vmalloc_node(unsigned long size, unsigned long align,
+ 			    gfp_t gfp_mask, int node, const void *caller)
+ {
+ 	return __vmalloc_node_range(size, align, VMALLOC_START, VMALLOC_END,
+@@ -2566,12 +2564,6 @@ void *__vmalloc(unsigned long size, gfp_t gfp_mask)
+ }
+ EXPORT_SYMBOL(__vmalloc);
+ 
+-void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
+-				  void *caller)
+-{
+-	return __vmalloc_node(size, 1, flags, node, caller);
+-}
+-
+ /**
+  * vmalloc - allocate virtually contiguous memory
+  * @size:    allocation size
+-- 
 2.25.1
