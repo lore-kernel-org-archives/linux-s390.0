@@ -1,40 +1,84 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:40776 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727968AbgDHTo5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 15:44:57 -0400
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 26/28] arm64: use __vmalloc_node in arch_alloc_vmap_stack
-Date: Wed,  8 Apr 2020 13:59:24 +0200
-Message-Id: <20200408115926.1467567-27-hch@lst.de>
-In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
-References: <20200408115926.1467567-1-hch@lst.de>
+Subject: [PATCH 06/10] dasd: use blk_drop_partitions instead of badly reimplementing it
+Date: Wed,  8 Apr 2020 21:44:35 +0200
+Message-Id: <20200408194439.1580699-7-hch@lst.de>
+In-Reply-To: <20200408194439.1580699-1-hch@lst.de>
+References: <20200408194439.1580699-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-arch_alloc_vmap_stack can use a slightly higher level vmalloc function.
+Use the blk_drop_partitions function instead of messing around with
+ioctls that get kernel pointers.  For this blk_drop_partitions needs
+to be exported, which it normally shouldn't - make an exception for
+s390 only.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arm64/include/asm/vmap_stack.h | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ block/partitions/core.c         |  4 ++++
+ drivers/s390/block/dasd_genhd.c | 20 ++++----------------
+ 2 files changed, 8 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm64/include/asm/vmap_stack.h b/arch/arm64/include/asm/vmap_stack.h
-index 0a12115d9638..0cc6636e3f15 100644
---- a/arch/arm64/include/asm/vmap_stack.h
-+++ b/arch/arm64/include/asm/vmap_stack.h
-@@ -19,10 +19,8 @@ static inline unsigned long *arch_alloc_vmap_stack(size_t stack_size, int node)
- {
- 	BUILD_BUG_ON(!IS_ENABLED(CONFIG_VMAP_STACK));
+diff --git a/block/partitions/core.c b/block/partitions/core.c
+index e0ff8a49279f..8a41c25022ab 100644
+--- a/block/partitions/core.c
++++ b/block/partitions/core.c
+@@ -624,6 +624,10 @@ int blk_drop_partitions(struct block_device *bdev)
  
--	return __vmalloc_node_range(stack_size, THREAD_ALIGN,
--				    VMALLOC_START, VMALLOC_END,
--				    THREADINFO_GFP, PAGE_KERNEL, 0, node,
--				    __builtin_return_address(0));
-+	return __vmalloc_node(stack_size, THREAD_ALIGN, THREADINFO_GFP, node,
-+			__builtin_return_address(0));
+ 	return 0;
  }
++#ifdef CONFIG_S390
++/* for historic reasons in the DASD driver */
++EXPORT_SYMBOL_GPL(blk_drop_partitions);
++#endif
  
- #endif /* __ASM_VMAP_STACK_H */
+ static bool blk_add_partition(struct gendisk *disk, struct block_device *bdev,
+ 		struct parsed_partitions *state, int p)
+diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
+index 7d079154f849..af5b0ecb8f89 100644
+--- a/drivers/s390/block/dasd_genhd.c
++++ b/drivers/s390/block/dasd_genhd.c
+@@ -143,9 +143,6 @@ int dasd_scan_partitions(struct dasd_block *block)
+  */
+ void dasd_destroy_partitions(struct dasd_block *block)
+ {
+-	/* The two structs have 168/176 byte on 31/64 bit. */
+-	struct blkpg_partition bpart;
+-	struct blkpg_ioctl_arg barg;
+ 	struct block_device *bdev;
+ 
+ 	/*
+@@ -155,19 +152,10 @@ void dasd_destroy_partitions(struct dasd_block *block)
+ 	bdev = block->bdev;
+ 	block->bdev = NULL;
+ 
+-	/*
+-	 * See fs/partition/check.c:delete_partition
+-	 * Can't call delete_partitions directly. Use ioctl.
+-	 * The ioctl also does locking and invalidation.
+-	 */
+-	memset(&bpart, 0, sizeof(struct blkpg_partition));
+-	memset(&barg, 0, sizeof(struct blkpg_ioctl_arg));
+-	barg.data = (void __force __user *) &bpart;
+-	barg.op = BLKPG_DEL_PARTITION;
+-	for (bpart.pno = block->gdp->minors - 1; bpart.pno > 0; bpart.pno--)
+-		ioctl_by_bdev(bdev, BLKPG, (unsigned long) &barg);
+-
+-	invalidate_partition(block->gdp, 0);
++	mutex_lock(&bdev->bd_mutex);
++	blk_drop_partitions(bdev);
++	mutex_unlock(&bdev->bd_mutex);
++
+ 	/* Matching blkdev_put to the blkdev_get in dasd_scan_partitions. */
+ 	blkdev_put(bdev, FMODE_READ);
+ 	set_capacity(block->gdp, 0);
 -- 
 2.25.1
