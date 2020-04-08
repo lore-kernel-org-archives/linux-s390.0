@@ -1,53 +1,126 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:58590 "EHLO theia.8bytes.org"
+Received: from foss.arm.com ([217.140.110.172]:37864 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726605AbgDHOhL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 8 Apr 2020 10:37:11 -0400
-Date: Wed, 8 Apr 2020 16:37:07 +0200
-From: Joerg Roedel <joro@8bytes.org>
+        id S1727896AbgDHMJs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 8 Apr 2020 08:09:48 -0400
 Subject: Re: [RFC PATCH 17/34] iommu/arm-smmu: Store device instead of group
  in arm_smmu_s2cr
-Message-ID: <20200408143707.GK3103@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
  <20200407183742.4344-18-joro@8bytes.org>
- <98c10a41-d223-e375-9742-b6471c3dc33c@arm.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Message-ID: <98c10a41-d223-e375-9742-b6471c3dc33c@arm.com>
+Date: Wed, 8 Apr 2020 13:09:40 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <98c10a41-d223-e375-9742-b6471c3dc33c@arm.com>
+In-Reply-To: <20200407183742.4344-18-joro@8bytes.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Hi Robin,
-
-thanks for looking into this.
-
-On Wed, Apr 08, 2020 at 01:09:40PM +0100, Robin Murphy wrote:
-> For a hot-pluggable bus where logical devices may share Stream IDs (like
-> fsl-mc), this could happen:
+On 2020-04-07 7:37 pm, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
 > 
->   create device A
->   iommu_probe_device(A)
->     iommu_device_group(A) -> alloc group X
->   create device B
->   iommu_probe_device(B)
->     iommu_device_group(A) -> lookup returns group X
->   ...
->   iommu_remove_device(A)
->   delete device A
->   create device C
->   iommu_probe_device(C)
->     iommu_device_group(C) -> use-after-free of A
+> This is required to convert the arm-smmu driver to the
+> probe/release_device() interface.
 > 
-> Preserving the logical behaviour here would probably look *something* like
-> the mangled diff below, but I haven't thought it through 100%.
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> ---
+>   drivers/iommu/arm-smmu.c | 14 +++++++++-----
+>   1 file changed, 9 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+> index a6a5796e9c41..3493501d8b2c 100644
+> --- a/drivers/iommu/arm-smmu.c
+> +++ b/drivers/iommu/arm-smmu.c
+> @@ -69,7 +69,7 @@ MODULE_PARM_DESC(disable_bypass,
+>   	"Disable bypass streams such that incoming transactions from devices that are not attached to an iommu domain will report an abort back to the device and will not be allowed to pass through the SMMU.");
+>   
+>   struct arm_smmu_s2cr {
+> -	struct iommu_group		*group;
+> +	struct device			*dev;
+>   	int				count;
+>   	enum arm_smmu_s2cr_type		type;
+>   	enum arm_smmu_s2cr_privcfg	privcfg;
+> @@ -1100,7 +1100,7 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
+>   	/* It worked! Now, poke the actual hardware */
+>   	for_each_cfg_sme(cfg, fwspec, i, idx) {
+>   		arm_smmu_write_sme(smmu, idx);
+> -		smmu->s2crs[idx].group = group;
+> +		smmu->s2crs[idx].dev = dev;
+>   	}
+>   
+>   	mutex_unlock(&smmu->stream_map_mutex);
+> @@ -1495,11 +1495,15 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
+>   	int i, idx;
+>   
+>   	for_each_cfg_sme(cfg, fwspec, i, idx) {
+> -		if (group && smmu->s2crs[idx].group &&
+> -		    group != smmu->s2crs[idx].group)
+> +		struct iommu_group *idx_grp = NULL;
+> +
+> +		if (smmu->s2crs[idx].dev)
+> +			idx_grp = smmu->s2crs[idx].dev->iommu_group;
 
-Yeah, I think you are right. How about just moving the loop which sets
-s2crs[idx].group to arm_smmu_device_group()? In that case I can drop
-this patch and leave the group pointer in place.
+For a hot-pluggable bus where logical devices may share Stream IDs (like 
+fsl-mc), this could happen:
 
-Regards,
+   create device A
+   iommu_probe_device(A)
+     iommu_device_group(A) -> alloc group X
+   create device B
+   iommu_probe_device(B)
+     iommu_device_group(A) -> lookup returns group X
+   ...
+   iommu_remove_device(A)
+   delete device A
+   create device C
+   iommu_probe_device(C)
+     iommu_device_group(C) -> use-after-free of A
 
-	Joerg
+Preserving the logical behaviour here would probably look *something* 
+like the mangled diff below, but I haven't thought it through 100%.
+
+Robin.
+
+----->8-----
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index 16c4b87af42b..e88612ee47fe 100644
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -1100,10 +1100,8 @@ static int arm_smmu_master_alloc_smes(struct 
+device *dev)
+         iommu_group_put(group);
+
+         /* It worked! Now, poke the actual hardware */
+-       for_each_cfg_sme(fwspec, i, idx) {
++       for_each_cfg_sme(fwspec, i, idx)
+                 arm_smmu_write_sme(smmu, idx);
+-               smmu->s2crs[idx].group = group;
+-       }
+
+         mutex_unlock(&smmu->stream_map_mutex);
+         return 0;
+@@ -1500,15 +1498,17 @@ static struct iommu_group 
+*arm_smmu_device_group(struct device *dev)
+         }
+
+         if (group)
+-               return iommu_group_ref_get(group);
+-
+-       if (dev_is_pci(dev))
++               iommu_group_ref_get(group);
++       else if (dev_is_pci(dev))
+                 group = pci_device_group(dev);
+         else if (dev_is_fsl_mc(dev))
+                 group = fsl_mc_device_group(dev);
+         else
+                 group = generic_device_group(dev);
+
++       for_each_cfg_sme(fwspec, i, idx)
++               smmu->s2crs[idx].group = group;
++
+         return group;
+  }
