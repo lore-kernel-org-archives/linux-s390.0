@@ -1,56 +1,90 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:49618 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2389888AbgDBSse (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Apr 2020 14:48:34 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 2/5] KVM: s390: vsie: Fix delivery of addressing exceptions
-Date: Thu,  2 Apr 2020 20:48:16 +0200
-Message-Id: <20200402184819.34215-3-david@redhat.com>
-In-Reply-To: <20200402184819.34215-1-david@redhat.com>
-References: <20200402184819.34215-1-david@redhat.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:47720 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728845AbgDHMAX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 08:00:23 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 07/28] mm: remove __get_vm_area
+Date: Wed,  8 Apr 2020 13:59:05 +0200
+Message-Id: <20200408115926.1467567-8-hch@lst.de>
+In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
+References: <20200408115926.1467567-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, stable@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Whenever we get an -EFAULT, we failed to read in guest 2 physical
-address space. Such addressing exceptions are reported via a program
-intercept to the nested hypervisor.
+Switch the two remaining callers to use __get_vm_area_caller instead.
 
-We faked the intercept, we have to return to guest 2. Instead, right
-now we would be returning -EFAULT from the intercept handler, eventually
-crashing the VM.
-
-Addressing exceptions can only happen if the g2->g3 page tables
-reference invalid g2 addresses (say, either a table or the final page is
-not accessible - so something that basically never happens in sane
-environments.
-
-Identified by manual code inspection.
-
-Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtual=
-ization")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/kvm/vsie.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/kernel/pci_64.c | 3 ++-
+ arch/sh/kernel/cpu/sh4/sq.c  | 3 ++-
+ include/linux/vmalloc.h      | 2 --
+ mm/vmalloc.c                 | 8 --------
+ 4 files changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 076090f9e666..4f6c22d72072 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct v=
-sie_page *vsie_page)
- 		scb_s->iprcc =3D PGM_ADDRESSING;
- 		scb_s->pgmilc =3D 4;
- 		scb_s->gpsw.addr =3D __rewind_psw(scb_s->gpsw, 4);
-+		rc =3D 1;
- 	}
- 	return rc;
+diff --git a/arch/powerpc/kernel/pci_64.c b/arch/powerpc/kernel/pci_64.c
+index 8e86bd9c1eca..155e2ef60053 100644
+--- a/arch/powerpc/kernel/pci_64.c
++++ b/arch/powerpc/kernel/pci_64.c
+@@ -132,7 +132,8 @@ void __iomem *ioremap_pbh(phys_addr_t paddr, unsigned long size)
+ 	 * address decoding but I'd rather not deal with those outside of the
+ 	 * reserved 64K legacy region.
+ 	 */
+-	area = __get_vm_area(size, 0, PHB_IO_BASE, PHB_IO_END);
++	area = __get_vm_area_caller(size, 0, PHB_IO_BASE, PHB_IO_END,
++				    __builtin_return_address(0));
+ 	if (!area)
+ 		return NULL;
+ 
+diff --git a/arch/sh/kernel/cpu/sh4/sq.c b/arch/sh/kernel/cpu/sh4/sq.c
+index 934ff84844fa..d432164b23b7 100644
+--- a/arch/sh/kernel/cpu/sh4/sq.c
++++ b/arch/sh/kernel/cpu/sh4/sq.c
+@@ -103,7 +103,8 @@ static int __sq_remap(struct sq_mapping *map, pgprot_t prot)
+ #if defined(CONFIG_MMU)
+ 	struct vm_struct *vma;
+ 
+-	vma = __get_vm_area(map->size, VM_ALLOC, map->sq_addr, SQ_ADDRMAX);
++	vma = __get_vm_area_caller(map->size, VM_ALLOC, map->sq_addr,
++			SQ_ADDRMAX, __builtin_return_address(0));
+ 	if (!vma)
+ 		return -ENOMEM;
+ 
+diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+index 0507a162ccd0..3070b4dbc2d9 100644
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -161,8 +161,6 @@ static inline size_t get_vm_area_size(const struct vm_struct *area)
+ extern struct vm_struct *get_vm_area(unsigned long size, unsigned long flags);
+ extern struct vm_struct *get_vm_area_caller(unsigned long size,
+ 					unsigned long flags, const void *caller);
+-extern struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
+-					unsigned long start, unsigned long end);
+ extern struct vm_struct *__get_vm_area_caller(unsigned long size,
+ 					unsigned long flags,
+ 					unsigned long start, unsigned long end,
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 399f219544f7..d1534d610b48 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -2127,14 +2127,6 @@ static struct vm_struct *__get_vm_area_node(unsigned long size,
+ 	return area;
  }
---=20
+ 
+-struct vm_struct *__get_vm_area(unsigned long size, unsigned long flags,
+-				unsigned long start, unsigned long end)
+-{
+-	return __get_vm_area_node(size, 1, flags, start, end, NUMA_NO_NODE,
+-				  GFP_KERNEL, __builtin_return_address(0));
+-}
+-EXPORT_SYMBOL_GPL(__get_vm_area);
+-
+ struct vm_struct *__get_vm_area_caller(unsigned long size, unsigned long flags,
+ 				       unsigned long start, unsigned long end,
+ 				       const void *caller)
+-- 
 2.25.1
