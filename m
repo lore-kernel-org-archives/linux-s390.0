@@ -1,58 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24150 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726399AbgDGLmq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 07:42:46 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 037BZOqp003606
-        for <linux-s390@vger.kernel.org>; Tue, 7 Apr 2020 07:42:45 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 306kuwecjd-1
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32488 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728620AbgDHNdh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 09:33:37 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 038DX3Fk040624
+        for <linux-s390@vger.kernel.org>; Wed, 8 Apr 2020 09:33:36 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3092044h7q-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 07 Apr 2020 07:42:45 -0400
+        for <linux-s390@vger.kernel.org>; Wed, 08 Apr 2020 09:33:35 -0400
 Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Tue, 7 Apr 2020 12:42:31 +0100
+        Wed, 8 Apr 2020 14:33:07 +0100
+Subject: Re: [PATCH 27/28] s390: use __vmalloc_node in alloc_vm_stack
+References: <20200408115926.1467567-1-hch@lst.de>
+ <20200408115926.1467567-28-hch@lst.de>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/3] KVM: s390: Fixes for vsie (nested hypervisors)
-Date: Tue,  7 Apr 2020 13:42:37 +0200
+Date: Wed, 8 Apr 2020 15:33:23 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200407114240.156419-1-borntraeger@de.ibm.com>
+In-Reply-To: <20200408115926.1467567-28-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <de7703c7-5d0c-51f1-87fa-6ce43ad69f60@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Paolo,
+On 08.04.20 13:59, Christoph Hellwig wrote:
+> alloc_vm_stack can use a slightly higher level vmalloc function.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/powerpc/kernel/irq.c | 5 ++---
 
-some fixes for 5.7. The commits are new due to late additions of
-Reviewed-by tags, but I have been testing these for a while now.
-The following changes since commit 8c1b724ddb218f221612d4c649bc9c7819d8d7a6:
+wrong subject (power vs s390)
 
-  Merge tag 'for-linus' of git://git.kernel.org/pub/scm/virt/kvm/kvm (2020-04-02 15:13:15 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-5.7-1
-
-for you to fetch changes up to 1493e0f944f3c319d11e067c185c904d01c17ae5:
-
-  KVM: s390: vsie: Fix possible race when shadowing region 3 tables (2020-04-07 13:12:38 +0200)
-
-----------------------------------------------------------------
-KVM: s390: Fixes for vsie (nested hypervisors)
-
-- Several fixes for corner cases of nesting. Still relevant as it might
-  crash host or first level guest or temporarily leak memory.
-
-----------------------------------------------------------------
-David Hildenbrand (3):
-      KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
-      KVM: s390: vsie: Fix delivery of addressing exceptions
-      KVM: s390: vsie: Fix possible race when shadowing region 3 tables
-
- arch/s390/kvm/vsie.c | 1 +
- arch/s390/mm/gmap.c  | 7 ++++++-
- 2 files changed, 7 insertions(+), 1 deletion(-)
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
+> index a25ed47087ee..4518fb1d6bf4 100644
+> --- a/arch/powerpc/kernel/irq.c
+> +++ b/arch/powerpc/kernel/irq.c
+> @@ -735,9 +735,8 @@ void do_IRQ(struct pt_regs *regs)
+>  
+>  static void *__init alloc_vm_stack(void)
+>  {
+> -	return __vmalloc_node_range(THREAD_SIZE, THREAD_ALIGN, VMALLOC_START,
+> -				    VMALLOC_END, THREADINFO_GFP, PAGE_KERNEL,
+> -				     0, NUMA_NO_NODE, (void*)_RET_IP_);
+> +	return __vmalloc_node(THREAD_SIZE, THREAD_ALIGN, THREADINFO_GFP,
+> +			      NUMA_NO_NODE, (void *)_RET_IP_);
+>  }
+>  
+>  static void __init vmap_irqstack_init(void)
+> 
