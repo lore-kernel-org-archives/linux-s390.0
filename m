@@ -1,138 +1,115 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 2/3] mm/memory_hotplug: Introduce MHP_DRIVER_MANAGED
-Date: Wed, 29 Apr 2020 18:08:02 +0200
-Message-Id: <20200429160803.109056-3-david@redhat.com>
-In-Reply-To: <20200429160803.109056-1-david@redhat.com>
-References: <20200429160803.109056-1-david@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([198.137.202.133]:51554 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729009AbgDHMBL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 08:01:11 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 24/28] mm: switch the test_vmalloc module to use __vmalloc_node
+Date: Wed,  8 Apr 2020 13:59:22 +0200
+Message-Id: <20200408115926.1467567-25-hch@lst.de>
+In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
+References: <20200408115926.1467567-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Wei Yang <richard.weiyang@gmail.com>, Baoquan He <bhe@redhat.com>, Eric Biederman <ebiederm@xmission.com>
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Some paravirtualized devices that add memory via add_memory() and
-friends (esp. virtio-mem) don't want to create entries in
-/sys/firmware/memmap/ - primarily to hinder kexec from adding this
-memory to the boot memmap of the kexec kernel.
+No need to export the very low-level __vmalloc_node_range when the
+test module can use a slightly higher level variant.
 
-In fact, such memory is never exposed via the firmware (e.g., e820), but
-only via the device, so exposing this memory via /sys/firmware/memmap/ is
-wrong:
- "kexec needs the raw firmware-provided memory map to setup the
-  parameter segment of the kernel that should be booted with
-  kexec. Also, the raw memory map is useful for debugging. For
-  that reason, /sys/firmware/memmap is an interface that provides
-  the raw memory map to userspace." [1]
-
-We want to let user space know that memory which is always detected,
-added, and managed via a (device) driver - like memory managed by
-virtio-mem - is special. It cannot be used for placing kexec segments
-and the (device) driver is responsible for re-adding memory that
-(eventually shrunk/grown/defragmented) memory after a reboot/kexec. It
-should e.g., not be added to a fixed up firmware memmap. However, it shou=
-ld
-be dumped by kdump.
-
-Also, such memory could behave differently than an ordinary DIMM - e.g.,
-memory managed by virtio-mem can have holes inside added memory resource,
-which should not be touched, especially for writing.
-
-Let's expose that memory as "System RAM (driver managed)" e.g., via
-/pro/iomem.
-
-We don't have to worry about firmware_map_remove() on the removal path.
-If there is no entry, it will simply return with -EINVAL.
-
-[1] https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-firmware-m=
-emmap
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/memory_hotplug.h |  8 ++++++++
- mm/memory_hotplug.c            | 20 ++++++++++++++++----
- 2 files changed, 24 insertions(+), 4 deletions(-)
+ lib/test_vmalloc.c | 26 +++++++-------------------
+ mm/vmalloc.c       | 17 ++++++++---------
+ 2 files changed, 15 insertions(+), 28 deletions(-)
 
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplu=
-g.h
-index bf0e3edb8688..cc538584b39e 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -68,6 +68,14 @@ struct mhp_params {
- 	pgprot_t pgprot;
- };
-=20
-+/* Flags used for add_memory() and friends. */
-+
+diff --git a/lib/test_vmalloc.c b/lib/test_vmalloc.c
+index 8bbefcaddfe8..cd6aef05dfb4 100644
+--- a/lib/test_vmalloc.c
++++ b/lib/test_vmalloc.c
+@@ -91,12 +91,8 @@ static int random_size_align_alloc_test(void)
+ 		 */
+ 		size = ((rnd % 10) + 1) * PAGE_SIZE;
+ 
+-		ptr = __vmalloc_node_range(size, align,
+-		   VMALLOC_START, VMALLOC_END,
+-		   GFP_KERNEL | __GFP_ZERO,
+-		   PAGE_KERNEL,
+-		   0, 0, __builtin_return_address(0));
+-
++		ptr = __vmalloc_node(size, align, GFP_KERNEL | __GFP_ZERO,
++				__builtin_return_address(0));
+ 		if (!ptr)
+ 			return -1;
+ 
+@@ -118,12 +114,8 @@ static int align_shift_alloc_test(void)
+ 	for (i = 0; i < BITS_PER_LONG; i++) {
+ 		align = ((unsigned long) 1) << i;
+ 
+-		ptr = __vmalloc_node_range(PAGE_SIZE, align,
+-			VMALLOC_START, VMALLOC_END,
+-			GFP_KERNEL | __GFP_ZERO,
+-			PAGE_KERNEL,
+-			0, 0, __builtin_return_address(0));
+-
++		ptr = __vmalloc_node(PAGE_SIZE, align, GFP_KERNEL | __GFP_ZERO,
++				__builtin_return_address(0));
+ 		if (!ptr)
+ 			return -1;
+ 
+@@ -139,13 +131,9 @@ static int fix_align_alloc_test(void)
+ 	int i;
+ 
+ 	for (i = 0; i < test_loop_count; i++) {
+-		ptr = __vmalloc_node_range(5 * PAGE_SIZE,
+-			THREAD_ALIGN << 1,
+-			VMALLOC_START, VMALLOC_END,
+-			GFP_KERNEL | __GFP_ZERO,
+-			PAGE_KERNEL,
+-			0, 0, __builtin_return_address(0));
+-
++		ptr = __vmalloc_node(5 * PAGE_SIZE, THREAD_ALIGN << 1,
++				GFP_KERNEL | __GFP_ZERO,
++				__builtin_return_address(0));
+ 		if (!ptr)
+ 			return -1;
+ 
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index ae8249ef5821..333fbe77255a 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -2522,15 +2522,6 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
+ 	return NULL;
+ }
+ 
+-/*
+- * This is only for performance analysis of vmalloc and stress purpose.
+- * It is required by vmalloc test module, therefore do not use it other
+- * than that.
+- */
+-#ifdef CONFIG_TEST_VMALLOC_MODULE
+-EXPORT_SYMBOL_GPL(__vmalloc_node_range);
+-#endif
+-
+ /**
+  * __vmalloc_node - allocate virtually contiguous memory
+  * @size:	    allocation size
+@@ -2556,6 +2547,14 @@ void *__vmalloc_node(unsigned long size, unsigned long align,
+ 	return __vmalloc_node_range(size, align, VMALLOC_START, VMALLOC_END,
+ 				gfp_mask, PAGE_KERNEL, 0, node, caller);
+ }
 +/*
-+ * Don't create entries in /sys/firmware/memmap/ and expose memory as
-+ * "System RAM (driver managed)" in e.g., /proc/iomem
++ * This is only for performance analysis of vmalloc and stress purpose.
++ * It is required by vmalloc test module, therefore do not use it other
++ * than that.
 + */
-+#define MHP_DRIVER_MANAGED		1
-+
- /*
-  * Zone resizing functions
-  *
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index ebdf6541d074..cfa0721280aa 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -98,11 +98,11 @@ void mem_hotplug_done(void)
- u64 max_mem_size =3D U64_MAX;
-=20
- /* add this memory to iomem resource */
--static struct resource *register_memory_resource(u64 start, u64 size)
-+static struct resource *register_memory_resource(u64 start, u64 size,
-+						 const char *resource_name)
++#ifdef CONFIG_TEST_VMALLOC_MODULE
++EXPORT_SYMBOL_GPL(__vmalloc_node);
++#endif
+ 
+ void *__vmalloc(unsigned long size, gfp_t gfp_mask)
  {
- 	struct resource *res;
- 	unsigned long flags =3D  IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
--	char *resource_name =3D "System RAM";
-=20
- 	/*
- 	 * Make sure value parsed from 'mem=3D' only restricts memory adding
-@@ -1058,7 +1058,8 @@ int __ref add_memory_resource(int nid, struct resou=
-rce *res,
- 	BUG_ON(ret);
-=20
- 	/* create new memmap entry */
--	firmware_map_add_hotplug(start, start + size, "System RAM");
-+	if (!(flags & MHP_DRIVER_MANAGED))
-+		firmware_map_add_hotplug(start, start + size, "System RAM");
-=20
- 	/* device_online() will take the lock when calling online_pages() */
- 	mem_hotplug_done();
-@@ -1081,10 +1082,21 @@ int __ref add_memory_resource(int nid, struct res=
-ource *res,
- /* requires device_hotplug_lock, see add_memory_resource() */
- int __ref __add_memory(int nid, u64 start, u64 size, unsigned long flags=
-)
- {
-+	const char *resource_name =3D "System RAM";
- 	struct resource *res;
- 	int ret;
-=20
--	res =3D register_memory_resource(start, size);
-+	/*
-+	 * Indicate that memory managed by a driver is special. It's always
-+	 * detected and added via a driver, should not be given to the kexec
-+	 * kernel for booting when manually crafting the firmware memmap, and
-+	 * no kexec segments should be placed on it. However, kdump should
-+	 * dump this memory.
-+	 */
-+	if (flags & MHP_DRIVER_MANAGED)
-+		resource_name =3D "System RAM (driver managed)";
-+
-+	res =3D register_memory_resource(start, size, resource_name);
- 	if (IS_ERR(res))
- 		return PTR_ERR(res);
-=20
---=20
-2.25.3
+-- 
+2.25.1
