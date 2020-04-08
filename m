@@ -1,102 +1,66 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56508 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726801AbgDUGMe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Apr 2020 02:12:34 -0400
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 2/3] block: add a s390-only biodasdinfo method
-Date: Tue, 21 Apr 2020 08:12:25 +0200
-Message-Id: <20200421061226.33731-3-hch@lst.de>
-In-Reply-To: <20200421061226.33731-1-hch@lst.de>
-References: <20200421061226.33731-1-hch@lst.de>
+Subject: [PATCH 13/28] mm: rename vmap_page_range to map_kernel_range
+Date: Wed,  8 Apr 2020 13:59:11 +0200
+Message-Id: <20200408115926.1467567-14-hch@lst.de>
+In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
+References: <20200408115926.1467567-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The IBM partition parser needs to query the DASD driver for details that
-are very s390 specific.  Instead of using ioctl_by_bdev with a fake user
-space pointer just add a s390-specific method to get the information
-directly.
+This matches the map_kernel_range_noflush API.  Also change to pass
+a size instead of the end, similar to the noflush version.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/block/dasd.c       |  1 +
- drivers/s390/block/dasd_int.h   |  1 +
- drivers/s390/block/dasd_ioctl.c | 13 +++++++++++++
- include/linux/blkdev.h          |  5 +++++
- 4 files changed, 20 insertions(+)
+ mm/vmalloc.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index cf87eb27879f..26edd93167e7 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -3394,6 +3394,7 @@ dasd_device_operations = {
- 	.ioctl		= dasd_ioctl,
- 	.compat_ioctl	= dasd_ioctl,
- 	.getgeo		= dasd_getgeo,
-+	.biodasdinfo	= dasd_biodasdinfo,
- };
- 
- /*******************************************************************************
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index fa552f9f1666..6eac7b11c75b 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -845,6 +845,7 @@ void dasd_destroy_partitions(struct dasd_block *);
- 
- /* externals in dasd_ioctl.c */
- int  dasd_ioctl(struct block_device *, fmode_t, unsigned int, unsigned long);
-+int dasd_biodasdinfo(struct gendisk *disk, struct dasd_information2_t *info);
- 
- /* externals in dasd_proc.c */
- int dasd_proc_init(void);
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index dabcb4ce92da..332836d46ba0 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -666,3 +666,16 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
- 	dasd_put_device(base);
- 	return rc;
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 55df5dc6a9fc..a3d810def567 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -272,13 +272,13 @@ int map_kernel_range_noflush(unsigned long addr, unsigned long size,
+ 	return nr;
  }
-+
-+int dasd_biodasdinfo(struct gendisk *disk, struct dasd_information2_t *info)
-+{
-+	struct dasd_device *base;
-+	int error;
-+
-+	base = dasd_device_from_gendisk(disk);
-+	if (!base)
-+		return -ENODEV;
-+	error = __dasd_ioctl_information(base->block, info);
-+	dasd_put_device(base);
-+	return error;
-+}
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 32868fbedc9e..3b92cc970083 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -43,6 +43,7 @@ struct pr_ops;
- struct rq_qos;
- struct blk_queue_stats;
- struct blk_stat_callback;
-+struct dasd_information2_t;
  
- #define BLKDEV_MIN_RQ	4
- #define BLKDEV_MAX_RQ	128	/* Default maximum */
-@@ -1700,6 +1701,10 @@ struct block_device_operations {
- 	int (*report_zones)(struct gendisk *, sector_t sector,
- 			unsigned int nr_zones, report_zones_cb cb, void *data);
- 	char *(*devnode)(struct gendisk *disk, umode_t *mode);
-+#ifdef CONFIG_S390
-+	int (*biodasdinfo)(struct gendisk *disk,
-+			struct dasd_information2_t *info);
-+#endif
- 	struct module *owner;
- 	const struct pr_ops *pr_ops;
- };
+-static int vmap_page_range(unsigned long start, unsigned long end,
++static int map_kernel_range(unsigned long start, unsigned long size,
+ 			   pgprot_t prot, struct page **pages)
+ {
+ 	int ret;
+ 
+-	ret = map_kernel_range_noflush(start, end - start, prot, pages);
+-	flush_cache_vmap(start, end);
++	ret = map_kernel_range_noflush(start, size, prot, pages);
++	flush_cache_vmap(start, start + size);
+ 	return ret;
+ }
+ 
+@@ -1866,7 +1866,7 @@ void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t pro
+ 
+ 	kasan_unpoison_vmalloc(mem, size);
+ 
+-	if (vmap_page_range(addr, addr + size, prot, pages) < 0) {
++	if (map_kernel_range(addr, size, prot, pages) < 0) {
+ 		vm_unmap_ram(mem, count);
+ 		return NULL;
+ 	}
+@@ -2030,10 +2030,9 @@ void unmap_kernel_range(unsigned long addr, unsigned long size)
+ int map_vm_area(struct vm_struct *area, pgprot_t prot, struct page **pages)
+ {
+ 	unsigned long addr = (unsigned long)area->addr;
+-	unsigned long end = addr + get_vm_area_size(area);
+ 	int err;
+ 
+-	err = vmap_page_range(addr, end, prot, pages);
++	err = map_kernel_range(addr, get_vm_area_size(area), prot, pages);
+ 
+ 	return err > 0 ? 0 : err;
+ }
 -- 
-2.26.1
+2.25.1
