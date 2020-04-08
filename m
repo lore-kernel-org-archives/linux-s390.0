@@ -1,59 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:24473 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404310AbgDCPbQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Apr 2020 11:31:16 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 5/5] KVM: s390: vsie: gmap_table_walk() simplifications
-Date: Fri,  3 Apr 2020 17:30:50 +0200
-Message-Id: <20200403153050.20569-6-david@redhat.com>
-In-Reply-To: <20200403153050.20569-1-david@redhat.com>
-References: <20200403153050.20569-1-david@redhat.com>
+Received: from bombadil.infradead.org ([198.137.202.133]:49226 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728331AbgDHMAl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 08:00:41 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 14/28] mm: don't return the number of pages from map_kernel_range{,_noflush}
+Date: Wed,  8 Apr 2020 13:59:12 +0200
+Message-Id: <20200408115926.1467567-15-hch@lst.de>
+In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
+References: <20200408115926.1467567-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Let's use asce_type where applicable. Also, simplify our sanity check for
-valid table levels and convert it into a WARN_ON_ONCE(). Check if we even
-have a valid gmap shadow as the very first step.
+None of the callers needs the number of pages, and a 0 / -errno return
+value is a lot more intuitive.
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/mm/gmap.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ mm/vmalloc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 24ef30fb0833..a2bd8d7792e9 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -788,19 +788,19 @@ static inline unsigned long *gmap_table_walk(struct=
- gmap *gmap,
- 					     unsigned long gaddr, int level)
- {
- 	const int asce_type =3D gmap->asce & _ASCE_TYPE_MASK;
--	unsigned long *table;
-+	unsigned long *table =3D gmap->table;
-=20
--	if ((gmap->asce & _ASCE_TYPE_MASK) + 4 < (level * 4))
--		return NULL;
- 	if (gmap_is_shadow(gmap) && gmap->removed)
- 		return NULL;
-=20
-+	if (WARN_ON_ONCE(level > (asce_type >> 2) + 1))
-+		return NULL;
-+
- 	if (WARN_ON_ONCE(asce_type !=3D _ASCE_TYPE_REGION1 &&
- 			 gaddr & (-1UL << (31 + (asce_type >> 2) * 11))))
- 		return NULL;
-=20
--	table =3D gmap->table;
--	switch (gmap->asce & _ASCE_TYPE_MASK) {
-+	switch (asce_type) {
- 	case _ASCE_TYPE_REGION1:
- 		table +=3D (gaddr & _REGION1_INDEX) >> _REGION1_SHIFT;
- 		if (level =3D=3D 4)
---=20
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index a3d810def567..ca8dc5d42580 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -249,7 +249,7 @@ static int vmap_p4d_range(pgd_t *pgd, unsigned long addr,
+  * function.
+  *
+  * RETURNS:
+- * The number of pages mapped on success, -errno on failure.
++ * 0 on success, -errno on failure.
+  */
+ int map_kernel_range_noflush(unsigned long addr, unsigned long size,
+ 			     pgprot_t prot, struct page **pages)
+@@ -269,7 +269,7 @@ int map_kernel_range_noflush(unsigned long addr, unsigned long size,
+ 			return err;
+ 	} while (pgd++, addr = next, addr != end);
+ 
+-	return nr;
++	return 0;
+ }
+ 
+ static int map_kernel_range(unsigned long start, unsigned long size,
+-- 
 2.25.1
