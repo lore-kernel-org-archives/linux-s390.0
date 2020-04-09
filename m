@@ -1,42 +1,25 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:30402 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726810AbgD3PYn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:24:43 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [kvm-unit-tests PULL 02/17] MAINTAINERS: s390x: add myself as reviewer
-Date: Thu, 30 Apr 2020 17:24:15 +0200
-Message-Id: <20200430152430.40349-3-david@redhat.com>
-In-Reply-To: <20200430152430.40349-1-david@redhat.com>
-References: <20200430152430.40349-1-david@redhat.com>
-MIME-Version: 1.0
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:29495 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725972AbgDILVP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Apr 2020 07:21:15 -0400
+From: Johannes Thumshirn <Johannes.Thumshirn@wdc.com>
+Subject: Re: [PATCH 01/10] block: refactor blkpg_ioctl
+Date: Thu, 9 Apr 2020 11:21:13 +0000
+Message-ID: <SN4PR0401MB35984BB0C3BC58C396E7E8739BC10@SN4PR0401MB3598.namprd04.prod.outlook.com>
+References: <20200408194439.1580699-1-hch@lst.de>
+ <20200408194439.1580699-2-hch@lst.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
 
-From: Cornelia Huck <cohuck@redhat.com>
-
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Message-Id: <20200324121722.9776-2-cohuck@redhat.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 082be95..4642909 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -81,6 +81,7 @@ S390X
- M: Thomas Huth <thuth@redhat.com>
- M: David Hildenbrand <david@redhat.com>
- M: Janosch Frank <frankja@linux.ibm.com>
-+R: Cornelia Huck <cohuck@redhat.com>
- L: kvm@vger.kernel.org
- F: s390x/*
- F: lib/s390x/*
---=20
-2.25.3
+On 08/04/2020 21:45, Christoph Hellwig wrote:=0A=
+> +	case BLKPG_DEL_PARTITION:=0A=
+> +		return bdev_resize_partition(bdev, p.pno, start, length);=0A=
+=0A=
+This needs to be BLKPG_RESIZE_PARTITION.=0A=
