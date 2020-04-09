@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55888 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731120AbgDNNUd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:20:33 -0400
-Date: Tue, 14 Apr 2020 15:20:29 +0200
+Received: from 8bytes.org ([81.169.241.247]:58886 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726977AbgDIObC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Apr 2020 10:31:02 -0400
+Date: Thu, 9 Apr 2020 16:30:59 +0200
 From: Joerg Roedel <joro@8bytes.org>
 Subject: Re: [PATCH] iommu/exynos: Get rid of 'struct exynos_iommu_owner'
  exynos_iommu_owner
-Message-ID: <20200414132029.GB14731@8bytes.org>
+Message-ID: <20200409143059.GP3103@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
  <CGME20200407184501eucas1p25407bc96e4345df406cf6ba061ae6a82@eucas1p2.samsung.com>
  <20200407183742.4344-32-joro@8bytes.org>
@@ -24,19 +24,22 @@ List-ID: <linux-s390.vger.kernel.org>
 To: Marek Szyprowski <m.szyprowski@samsung.com>
 Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-On Thu, Apr 09, 2020 at 03:58:00PM +0200, Marek Szyprowski wrote:
-> I've checked and it works fine on top of 
-> ff68eb23308e6538ec7864c83d39540f423bbe90. However I'm not a fan of 
-> removing this 'owner' structure. It gave a nice abstraction for the all 
-> SYSMMU controllers for the given device (although most devices in the 
-> system have only one SYSMMU). Why this structure is a problem for your 
-> rework?
+Hi Marek,
 
-Okay, the structure itself is not a problem, I just thought it is not
-really necessary. But to keep things simple I've taken another approach
-for v2 of this series: Just use the first SYSMMU of the controllers list
-to link the device and the IOMMU. When the owner structure exists there
-is always one entry in this list, so that should work fine.
+On Thu, Apr 09, 2020 at 03:58:00PM +0200, Marek Szyprowski wrote:
+> The main problem after your conversion is the fact that ->probe_device() 
+> is called very early, before any other platform device (thus IOMMU 
+> controller) is is probed. It doesn't handle EPROBE_DEFER too.
+
+I don't quite understand why probe_device() is called too early, as it
+is called at the same time add_device() was called before. But anyway,
+I have seen a similar problem on OMAP. If the SYSMMU for a master is not
+probed yet when probe_device() is called, it can just return -ENODEV and
+in your driver you just call but_iommu_probe() when a new SYSMMU got
+initialized to re-probe uninitialized masters on the bus. This patch-set
+contains a change to export bus_iommu_probe() for exactly that reason.
+
+What do you think?
 
 Regards,
 
