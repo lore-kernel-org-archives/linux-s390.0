@@ -1,147 +1,155 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH 7/7] KVM: MIPS: clean up redundant kvm_run parameters in assembly
-Date: Sun, 19 Apr 2020 15:51:06 +0800
-Message-Id: <20200419075106.16248-8-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
-References: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.110.172]:44632 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726527AbgDIBGn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 8 Apr 2020 21:06:43 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH V2 0/3] mm/debug: Add more arch page table helper tests
+References: <1585027375-9997-1-git-send-email-anshuman.khandual@arm.com>
+ <20200331143059.29fca8fa@thinkpad>
+ <e3e35885-6852-16aa-3889-e22750a0cc87@arm.com>
+ <20200407175440.41cc00a5@thinkpad>
+ <253cf5c8-e43e-5737-24e8-3eda3b6ba7b3@arm.com>
+ <20200408141500.75b2e1a7@thinkpad>
+Message-ID: <b35210ec-7084-9c77-bdf5-820cfc7f96bc@arm.com>
+Date: Thu, 9 Apr 2020 06:36:23 +0530
+MIME-Version: 1.0
+In-Reply-To: <20200408141500.75b2e1a7@thinkpad>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Cc: linux-mm@kvack.org, christophe.leroy@c-s.fr, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
-structure. Earlier than historical reasons, many kvm-related function
-parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
-This patch does a unified cleanup of these remaining redundant parameters.
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
----
- arch/mips/include/asm/kvm_host.h |  4 ++--
- arch/mips/kvm/entry.c            | 15 +++++----------
- arch/mips/kvm/mips.c             |  3 ++-
- arch/mips/kvm/trap_emul.c        |  2 +-
- arch/mips/kvm/vz.c               |  2 +-
- 5 files changed, 11 insertions(+), 15 deletions(-)
+On 04/08/2020 05:45 PM, Gerald Schaefer wrote:
+> On Wed, 8 Apr 2020 12:41:51 +0530
+> Anshuman Khandual <anshuman.khandual@arm.com> wrote:
+> 
+> [...]
+>>>   
+>>>>
+>>>> Some thing like this instead.
+>>>>
+>>>> pte_t pte = READ_ONCE(*ptep);
+>>>> pte = pte_mkhuge(__pte((pte_val(pte) | RANDOM_ORVALUE) & PMD_MASK));
+>>>>
+>>>> We cannot use mk_pte_phys() as it is defined only on some platforms
+>>>> without any generic fallback for others.  
+>>>
+>>> Oh, didn't know that, sorry. What about using mk_pte() instead, at least
+>>> it would result in a present pte:
+>>>
+>>> pte = pte_mkhuge(mk_pte(phys_to_page(RANDOM_ORVALUE & PMD_MASK), prot));  
+>>
+>> Lets use mk_pte() here but can we do this instead
+>>
+>> paddr = (__pfn_to_phys(pfn) | RANDOM_ORVALUE) & PMD_MASK;
+>> pte = pte_mkhuge(mk_pte(phys_to_page(paddr), prot));
+>>
+> 
+> Sure, that will also work.
+> 
+> BTW, this RANDOM_ORVALUE is not really very random, the way it is
+> defined. For s390 we already changed it to mask out some arch bits,
+> but I guess there are other archs and bits that would always be
+> set with this "not so random" value, and I wonder if/how that would
+> affect all the tests using this value, see also below.
 
-diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
-index 971439297cea..db915c55166d 100644
---- a/arch/mips/include/asm/kvm_host.h
-+++ b/arch/mips/include/asm/kvm_host.h
-@@ -310,7 +310,7 @@ struct kvm_mmu_memory_cache {
- #define KVM_MIPS_GUEST_TLB_SIZE	64
- struct kvm_vcpu_arch {
- 	void *guest_ebase;
--	int (*vcpu_run)(struct kvm_run *run, struct kvm_vcpu *vcpu);
-+	int (*vcpu_run)(struct kvm_vcpu *vcpu);
- 
- 	/* Host registers preserved across guest mode execution */
- 	unsigned long host_stack;
-@@ -821,7 +821,7 @@ int kvm_mips_emulation_init(struct kvm_mips_callbacks **install_callbacks);
- /* Debug: dump vcpu state */
- int kvm_arch_vcpu_dump_regs(struct kvm_vcpu *vcpu);
- 
--extern int kvm_mips_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu);
-+extern int kvm_mips_handle_exit(struct kvm_vcpu *vcpu);
- 
- /* Building of entry/exception code */
- int kvm_mips_entry_setup(void);
-diff --git a/arch/mips/kvm/entry.c b/arch/mips/kvm/entry.c
-index 16e1c93b484f..e3f29af3b6cd 100644
---- a/arch/mips/kvm/entry.c
-+++ b/arch/mips/kvm/entry.c
-@@ -204,7 +204,7 @@ static inline void build_set_exc_base(u32 **p, unsigned int reg)
-  * Assemble the start of the vcpu_run function to run a guest VCPU. The function
-  * conforms to the following prototype:
-  *
-- * int vcpu_run(struct kvm_run *run, struct kvm_vcpu *vcpu);
-+ * int vcpu_run(struct kvm_vcpu *vcpu);
-  *
-  * The exit from the guest and return to the caller is handled by the code
-  * generated by kvm_mips_build_ret_to_host().
-@@ -217,8 +217,7 @@ void *kvm_mips_build_vcpu_run(void *addr)
- 	unsigned int i;
- 
- 	/*
--	 * A0: run
--	 * A1: vcpu
-+	 * A0: vcpu
- 	 */
- 
- 	/* k0/k1 not being used in host kernel context */
-@@ -237,10 +236,10 @@ void *kvm_mips_build_vcpu_run(void *addr)
- 	kvm_mips_build_save_scratch(&p, V1, K1);
- 
- 	/* VCPU scratch register has pointer to vcpu */
--	UASM_i_MTC0(&p, A1, scratch_vcpu[0], scratch_vcpu[1]);
-+	UASM_i_MTC0(&p, A0, scratch_vcpu[0], scratch_vcpu[1]);
- 
- 	/* Offset into vcpu->arch */
--	UASM_i_ADDIU(&p, K1, A1, offsetof(struct kvm_vcpu, arch));
-+	UASM_i_ADDIU(&p, K1, A0, offsetof(struct kvm_vcpu, arch));
- 
- 	/*
- 	 * Save the host stack to VCPU, used for exception processing
-@@ -628,10 +627,7 @@ void *kvm_mips_build_exit(void *addr)
- 	/* Now that context has been saved, we can use other registers */
- 
- 	/* Restore vcpu */
--	UASM_i_MFC0(&p, S1, scratch_vcpu[0], scratch_vcpu[1]);
--
--	/* Restore run (vcpu->run) */
--	UASM_i_LW(&p, S0, offsetof(struct kvm_vcpu, run), S1);
-+	UASM_i_MFC0(&p, S0, scratch_vcpu[0], scratch_vcpu[1]);
- 
- 	/*
- 	 * Save Host level EPC, BadVaddr and Cause to VCPU, useful to process
-@@ -793,7 +789,6 @@ void *kvm_mips_build_exit(void *addr)
- 	 * with this in the kernel
- 	 */
- 	uasm_i_move(&p, A0, S0);
--	uasm_i_move(&p, A1, S1);
- 	UASM_i_LA(&p, T9, (unsigned long)kvm_mips_handle_exit);
- 	uasm_i_jalr(&p, RA, T9);
- 	 UASM_i_ADDIU(&p, SP, SP, -CALLFRAME_SIZ);
-diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index 9710477a9827..32850470c037 100644
---- a/arch/mips/kvm/mips.c
-+++ b/arch/mips/kvm/mips.c
-@@ -1186,8 +1186,9 @@ static void kvm_mips_set_c0_status(void)
- /*
-  * Return value is in the form (errcode<<2 | RESUME_FLAG_HOST | RESUME_FLAG_NV)
-  */
--int kvm_mips_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu)
-+int kvm_mips_handle_exit(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_run *run = vcpu->run;
- 	u32 cause = vcpu->arch.host_cp0_cause;
- 	u32 exccode = (cause >> CAUSEB_EXCCODE) & 0x1f;
- 	u32 __user *opc = (u32 __user *) vcpu->arch.pc;
-diff --git a/arch/mips/kvm/trap_emul.c b/arch/mips/kvm/trap_emul.c
-index d822f3aee3dc..04c864cc356a 100644
---- a/arch/mips/kvm/trap_emul.c
-+++ b/arch/mips/kvm/trap_emul.c
-@@ -1238,7 +1238,7 @@ static int kvm_trap_emul_vcpu_run(struct kvm_vcpu *vcpu)
- 	 */
- 	kvm_mips_suspend_mm(cpu);
- 
--	r = vcpu->arch.vcpu_run(vcpu->run, vcpu);
-+	r = vcpu->arch.vcpu_run(vcpu);
- 
- 	/* We may have migrated while handling guest exits */
- 	cpu = smp_processor_id();
-diff --git a/arch/mips/kvm/vz.c b/arch/mips/kvm/vz.c
-index 94f1d23828e3..c5878fa0636d 100644
---- a/arch/mips/kvm/vz.c
-+++ b/arch/mips/kvm/vz.c
-@@ -3152,7 +3152,7 @@ static int kvm_vz_vcpu_run(struct kvm_vcpu *vcpu)
- 	kvm_vz_vcpu_load_tlb(vcpu, cpu);
- 	kvm_vz_vcpu_load_wired(vcpu);
- 
--	r = vcpu->arch.vcpu_run(vcpu->run, vcpu);
-+	r = vcpu->arch.vcpu_run(vcpu);
- 
- 	kvm_vz_vcpu_save_wired(vcpu);
- 
--- 
-2.17.1
+RANDOM_ORVALUE is a constant which was added in order to make sure
+that the page table entries should have some non-zero value before
+getting called with pxx_clear() and followed by a pxx_none() check.
+This is currently used only in pxx_clear_tests() tests. Hence there
+is no impact for the existing tests.
+
+> 
+>>>
+>>> And if you also want to do some with the existing value, which seems
+>>> to be an empty pte, then maybe just check if writing and reading that
+>>> value with set_huge_pte_at() / huge_ptep_get() returns the same,
+>>> i.e. initially w/o RANDOM_ORVALUE.
+>>>
+>>> So, in combination, like this (BTW, why is the barrier() needed, it
+>>> is not used for the other set_huge_pte_at() calls later?):  
+>>
+>> Ahh missed, will add them. Earlier we faced problem without it after
+>> set_pte_at() for a test on powerpc (64) platform. Hence just added it
+>> here to be extra careful.
+>>
+>>>
+>>> @@ -733,24 +733,28 @@ static void __init hugetlb_advanced_test
+>>>         struct page *page = pfn_to_page(pfn);
+>>>         pte_t pte = READ_ONCE(*ptep);
+>>>  
+>>> -       pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
+>>> +       set_huge_pte_at(mm, vaddr, ptep, pte);
+>>> +       WARN_ON(!pte_same(pte, huge_ptep_get(ptep)));
+>>> +
+>>> +       pte = pte_mkhuge(mk_pte(phys_to_page(RANDOM_ORVALUE & PMD_MASK), prot));
+>>>         set_huge_pte_at(mm, vaddr, ptep, pte);
+>>>         barrier();
+>>>         WARN_ON(!pte_same(pte, huge_ptep_get(ptep)));
+>>>
+>>> This would actually add a new test "write empty pte with
+>>> set_huge_pte_at(), then verify with huge_ptep_get()", which happens
+>>> to trigger a warning on s390 :-)  
+>>
+>> On arm64 as well which checks for pte_present() in set_huge_pte_at().
+>> But PTE present check is not really present in each set_huge_pte_at()
+>> implementation especially without __HAVE_ARCH_HUGE_SET_HUGE_PTE_AT.
+>> Hence wondering if we should add this new test here which will keep
+>> giving warnings on s390 and arm64 (at the least).
+> 
+> Hmm, interesting. I forgot about huge swap / migration, which is not
+> (and probably cannot be) supported on s390. The pte_present() check
+> on arm64 seems to check for such huge swap / migration entries,
+> according to the comment.
+> 
+> The new test "write empty pte with set_huge_pte_at(), then verify
+> with huge_ptep_get()" would then probably trigger the
+> WARN_ON(!pte_present(pte)) in arm64 code. So I guess "writing empty
+> ptes with set_huge_pte_at()" is not really a valid use case in practice,
+> or else you would have seen this warning before. In that case, it
+> might not be a good idea to add this test.
+
+Got it.
+
+> 
+> I also do wonder now, why the original test with
+> "pte = __pte(pte_val(pte) | RANDOM_ORVALUE);"
+> did not also trigger that warning on arm64. On s390 this test failed
+> exactly because the constructed pte was not present (initially empty,
+> or'ing RANDOM_ORVALUE does not make it present for s390). I guess this
+> just worked by chance on arm64, because the bits from RANDOM_ORVALUE
+> also happened to mark the pte present for arm64.
+
+That is correct. RANDOM_ORVALUE has got PTE_PROT_NONE bit set that makes
+the PTE test for pte_present().
+
+On arm64 platform,
+
+#define pte_present(pte)  (!!(pte_val(pte) & (PTE_VALID | PTE_PROT_NONE)))
+
+> 
+> This brings us back to the question above, regarding the "randomness"
+> of RANDOM_ORVALUE. Not really sure what the intention behind that was,
+> but maybe it would make sense to restrict this RANDOM_ORVALUE to
+> non-arch-specific bits, i.e. only bits that would be part of the
+> address value within a page table entry? Or was it intentionally
+> chosen to also mess with other bits?
+
+As mentioned before, RANDOM_ORVALUE just helped make a given page table
+entry contain non-zero values before getting cleared. AFAICS we should
+not need RANDOM_ORVALUE for HugeTLB test here. I believe the following
+'paddr' construct will just be fine instead.
+
+paddr = __pfn_to_phys(pfn) & PMD_MASK;
+pte = pte_mkhuge(mk_pte(phys_to_page(paddr), prot));
+
+> 
+> Regards,
+> Gerald
+> 
+> 
