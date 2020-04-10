@@ -1,84 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40776 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727968AbgDHTo5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 15:44:57 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/10] dasd: use blk_drop_partitions instead of badly reimplementing it
-Date: Wed,  8 Apr 2020 21:44:35 +0200
-Message-Id: <20200408194439.1580699-7-hch@lst.de>
-In-Reply-To: <20200408194439.1580699-1-hch@lst.de>
-References: <20200408194439.1580699-1-hch@lst.de>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:22022 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726177AbgDJTeZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Apr 2020 15:34:25 -0400
+Received: by mail-qt1-f197.google.com with SMTP id j7so2672238qtd.22
+        for <linux-s390@vger.kernel.org>; Fri, 10 Apr 2020 12:34:23 -0700 (PDT)
+Date: Fri, 10 Apr 2020 15:34:19 -0400
+From: Peter Xu <peterx@redhat.com>
+Subject: Re: [PATCH v2 3/4] hugetlbfs: remove hugetlb_add_hstate() warning
+ for existing hstate
+Message-ID: <20200410193419.GF3172@xz-x1>
+References: <20200401183819.20647-1-mike.kravetz@oracle.com>
+ <20200401183819.20647-4-mike.kravetz@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200401183819.20647-4-mike.kravetz@oracle.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Mina Almasry <almasrymina@google.com>, Andrew Morton <akpm@linux-foundation.org>
 
-Use the blk_drop_partitions function instead of messing around with
-ioctls that get kernel pointers.  For this blk_drop_partitions needs
-to be exported, which it normally shouldn't - make an exception for
-s390 only.
+On Wed, Apr 01, 2020 at 11:38:18AM -0700, Mike Kravetz wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/partitions/core.c         |  4 ++++
- drivers/s390/block/dasd_genhd.c | 20 ++++----------------
- 2 files changed, 8 insertions(+), 16 deletions(-)
+[...]
 
-diff --git a/block/partitions/core.c b/block/partitions/core.c
-index e0ff8a49279f..8a41c25022ab 100644
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -624,6 +624,10 @@ int blk_drop_partitions(struct block_device *bdev)
- 
- 	return 0;
- }
-+#ifdef CONFIG_S390
-+/* for historic reasons in the DASD driver */
-+EXPORT_SYMBOL_GPL(blk_drop_partitions);
-+#endif
- 
- static bool blk_add_partition(struct gendisk *disk, struct block_device *bdev,
- 		struct parsed_partitions *state, int p)
-diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
-index 7d079154f849..af5b0ecb8f89 100644
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -143,9 +143,6 @@ int dasd_scan_partitions(struct dasd_block *block)
-  */
- void dasd_destroy_partitions(struct dasd_block *block)
- {
--	/* The two structs have 168/176 byte on 31/64 bit. */
--	struct blkpg_partition bpart;
--	struct blkpg_ioctl_arg barg;
- 	struct block_device *bdev;
- 
- 	/*
-@@ -155,19 +152,10 @@ void dasd_destroy_partitions(struct dasd_block *block)
- 	bdev = block->bdev;
- 	block->bdev = NULL;
- 
--	/*
--	 * See fs/partition/check.c:delete_partition
--	 * Can't call delete_partitions directly. Use ioctl.
--	 * The ioctl also does locking and invalidation.
--	 */
--	memset(&bpart, 0, sizeof(struct blkpg_partition));
--	memset(&barg, 0, sizeof(struct blkpg_ioctl_arg));
--	barg.data = (void __force __user *) &bpart;
--	barg.op = BLKPG_DEL_PARTITION;
--	for (bpart.pno = block->gdp->minors - 1; bpart.pno > 0; bpart.pno--)
--		ioctl_by_bdev(bdev, BLKPG, (unsigned long) &barg);
--
--	invalidate_partition(block->gdp, 0);
-+	mutex_lock(&bdev->bd_mutex);
-+	blk_drop_partitions(bdev);
-+	mutex_unlock(&bdev->bd_mutex);
-+
- 	/* Matching blkdev_put to the blkdev_get in dasd_scan_partitions. */
- 	blkdev_put(bdev, FMODE_READ);
- 	set_capacity(block->gdp, 0);
+> @@ -3255,7 +3254,6 @@ void __init hugetlb_add_hstate(unsigned int order)
+>  	unsigned long i;
+>  
+>  	if (size_to_hstate(PAGE_SIZE << order)) {
+> -		pr_warn("hugepagesz= specified twice, ignoring\n");
+>  		return;
+>  	}
+
+Nitpick: I think the brackets need to be removed to follow linux
+coding style.  With that:
+
+Reviewed-by: Peter Xu <peterx@redhat.com>
+
 -- 
-2.25.1
+Peter Xu
