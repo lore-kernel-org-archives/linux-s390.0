@@ -1,143 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57778 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727109AbgDGSiD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:38:03 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 29/34] iommu/omap: Remove orphan_dev tracking
-Date: Tue,  7 Apr 2020 20:37:37 +0200
-Message-Id: <20200407183742.4344-30-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:35817 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725975AbgDJILN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Apr 2020 04:11:13 -0400
+Received: by mail-ot1-f66.google.com with SMTP id v2so1213525oto.2
+        for <linux-s390@vger.kernel.org>; Fri, 10 Apr 2020 01:11:13 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200408115926.1467567-1-hch@lst.de> <20200408115926.1467567-20-hch@lst.de>
+ <20200408122504.GO3456981@phenom.ffwll.local> <eb48f7b6327e482ea9911b129210c0417ab48345.camel@kernel.crashing.org>
+ <CAKMK7uHtkLvdsWFGiAtkzVa5mpnDvXkn3CHZQ6bgJ_enbyAc8A@mail.gmail.com> <0f360b9cb72b80bae0d0db8150f65598c2776268.camel@kernel.crashing.org>
+In-Reply-To: <0f360b9cb72b80bae0d0db8150f65598c2776268.camel@kernel.crashing.org>
+From: Daniel Vetter <daniel@ffwll.ch>
+Date: Fri, 10 Apr 2020 10:11:02 +0200
+Message-ID: <CAKMK7uHKyN+c5oTEYVursx4at9br7LSXRb8PMoNEAEBh0hfBLQ@mail.gmail.com>
+Subject: Re: [PATCH 19/28] gpu/drm: remove the powerpc hack in drm_legacy_sg_alloc
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, X86 ML <x86@kernel.org>, David Airlie <airlied@linux.ie>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>, Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-hyperv@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, "open list:GENERIC INCLUDE/A..." <linux-arch@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, "list@263.net:IOMMU DRIVERS <iommu@lists.linux-foundation.org>, Joerg
+        Roedel <joro@8bytes.org>," <iommu@lists.linux-foundation.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-s390@vger.kernel.org, bpf <bpf@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+On Fri, Apr 10, 2020 at 12:57 AM Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
+>
+> On Thu, 2020-04-09 at 11:41 +0200, Daniel Vetter wrote:
+> > Now if these boxes didn't ever have agp then I think we can get away
+> > with deleting this, since we've already deleted the legacy radeon
+> > driver. And that one used vmalloc for everything. The new kms one does
+> > use the dma-api if the gpu isn't connected through agp
+>
+> Definitely no AGP there.
 
-Remove the tracking of device which could not be probed because
-their IOMMU is not probed yet. Replace it with a call to
-bus_iommu_probe() when a new IOMMU is probed.
+Ah in that case I think we can be sure that this code is dead.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/omap-iommu.c | 54 +++-----------------------------------
- 1 file changed, 4 insertions(+), 50 deletions(-)
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
-index 887fefcb03b4..ecc9d0829a91 100644
---- a/drivers/iommu/omap-iommu.c
-+++ b/drivers/iommu/omap-iommu.c
-@@ -35,15 +35,6 @@
- 
- static const struct iommu_ops omap_iommu_ops;
- 
--struct orphan_dev {
--	struct device *dev;
--	struct list_head node;
--};
--
--static LIST_HEAD(orphan_dev_list);
--
--static DEFINE_SPINLOCK(orphan_lock);
--
- #define to_iommu(dev)	((struct omap_iommu *)dev_get_drvdata(dev))
- 
- /* bitmap of the page sizes currently supported */
-@@ -62,8 +53,6 @@ static DEFINE_SPINLOCK(orphan_lock);
- static struct platform_driver omap_iommu_driver;
- static struct kmem_cache *iopte_cachep;
- 
--static int _omap_iommu_add_device(struct device *dev);
--
- /**
-  * to_omap_domain - Get struct omap_iommu_domain from generic iommu_domain
-  * @dom:	generic iommu domain handle
-@@ -1177,7 +1166,6 @@ static int omap_iommu_probe(struct platform_device *pdev)
- 	struct omap_iommu *obj;
- 	struct resource *res;
- 	struct device_node *of = pdev->dev.of_node;
--	struct orphan_dev *orphan_dev, *tmp;
- 
- 	if (!of) {
- 		pr_err("%s: only DT-based devices are supported\n", __func__);
-@@ -1260,13 +1248,8 @@ static int omap_iommu_probe(struct platform_device *pdev)
- 
- 	dev_info(&pdev->dev, "%s registered\n", obj->name);
- 
--	list_for_each_entry_safe(orphan_dev, tmp, &orphan_dev_list, node) {
--		err = _omap_iommu_add_device(orphan_dev->dev);
--		if (!err) {
--			list_del(&orphan_dev->node);
--			kfree(orphan_dev);
--		}
--	}
-+	/* Re-probe bus to probe device attached to this IOMMU */
-+	bus_iommu_probe(&platform_bus_type);
- 
- 	return 0;
- 
-@@ -1657,7 +1640,7 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
- 	return ret;
- }
- 
--static int _omap_iommu_add_device(struct device *dev)
-+static int omap_iommu_add_device(struct device *dev)
- {
- 	struct omap_iommu_arch_data *arch_data, *tmp;
- 	struct omap_iommu *oiommu;
-@@ -1666,8 +1649,6 @@ static int _omap_iommu_add_device(struct device *dev)
- 	struct platform_device *pdev;
- 	int num_iommus, i;
- 	int ret;
--	struct orphan_dev *orphan_dev;
--	unsigned long flags;
- 
- 	/*
- 	 * Allocate the archdata iommu structure for DT-based devices.
-@@ -1702,23 +1683,7 @@ static int _omap_iommu_add_device(struct device *dev)
- 		if (!pdev) {
- 			of_node_put(np);
- 			kfree(arch_data);
--			spin_lock_irqsave(&orphan_lock, flags);
--			list_for_each_entry(orphan_dev, &orphan_dev_list,
--					    node) {
--				if (orphan_dev->dev == dev)
--					break;
--			}
--			spin_unlock_irqrestore(&orphan_lock, flags);
--
--			if (orphan_dev && orphan_dev->dev == dev)
--				return -EPROBE_DEFER;
--
--			orphan_dev = kzalloc(sizeof(*orphan_dev), GFP_KERNEL);
--			orphan_dev->dev = dev;
--			spin_lock_irqsave(&orphan_lock, flags);
--			list_add(&orphan_dev->node, &orphan_dev_list);
--			spin_unlock_irqrestore(&orphan_lock, flags);
--			return -EPROBE_DEFER;
-+			return -ENODEV;
- 		}
- 
- 		oiommu = platform_get_drvdata(pdev);
-@@ -1764,17 +1729,6 @@ static int _omap_iommu_add_device(struct device *dev)
- 	return 0;
- }
- 
--static int omap_iommu_add_device(struct device *dev)
--{
--	int ret;
--
--	ret = _omap_iommu_add_device(dev);
--	if (ret == -EPROBE_DEFER)
--		return 0;
--
--	return ret;
--}
--
- static void omap_iommu_remove_device(struct device *dev)
- {
- 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
+Cheers, Daniel
 -- 
-2.17.1
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
