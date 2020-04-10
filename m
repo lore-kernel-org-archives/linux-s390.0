@@ -1,66 +1,59 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:54068 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726310AbgDROnM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:43:12 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 35/47] KVM: s390: vsie: Fix delivery of addressing exceptions
-Date: Sat, 18 Apr 2020 10:42:15 -0400
-Message-Id: <20200418144227.9802-35-sashal@kernel.org>
-In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
-References: <20200418144227.9802-1-sashal@kernel.org>
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Michael Kelley <mikelley@microsoft.com>
+Subject: RE: [PATCH 20/28] mm: remove the pgprot argument to __vmalloc
+Date: Fri, 10 Apr 2020 20:39:22 +0000
+Message-ID: <DM5PR2101MB10472EA3373D4D1A73AC0F7ED7DE0@DM5PR2101MB1047.namprd21.prod.outlook.com>
+References: <20200408115926.1467567-1-hch@lst.de>
+ <20200408115926.1467567-21-hch@lst.de>
+In-Reply-To: <20200408115926.1467567-21-hch@lst.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, "x86@kernel.org" <x86@kernel.org>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, "linaro-mm-sig@lists.linaro.org" <linaro-mm-sig@lists.linaro.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-From: David Hildenbrand <david@redhat.com>
+From: Christoph Hellwig <hch@lst.de> Sent: Wednesday, April 8, 2020 4:59 AM
+>=20
+> The pgprot argument to __vmalloc is always PROT_KERNEL now, so remove
+> it.
+>=20
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  arch/x86/hyperv/hv_init.c              |  3 +--
+>  arch/x86/include/asm/kvm_host.h        |  3 +--
+>  arch/x86/kvm/svm.c                     |  3 +--
+>  drivers/block/drbd/drbd_bitmap.c       |  4 +---
+>  drivers/gpu/drm/etnaviv/etnaviv_dump.c |  4 ++--
+>  drivers/lightnvm/pblk-init.c           |  5 ++---
+>  drivers/md/dm-bufio.c                  |  4 ++--
+>  drivers/mtd/ubi/io.c                   |  4 ++--
+>  drivers/scsi/sd_zbc.c                  |  3 +--
+>  fs/gfs2/dir.c                          |  9 ++++-----
+>  fs/gfs2/quota.c                        |  2 +-
+>  fs/nfs/blocklayout/extent_tree.c       |  2 +-
+>  fs/ntfs/malloc.h                       |  2 +-
+>  fs/ubifs/debug.c                       |  2 +-
+>  fs/ubifs/lprops.c                      |  2 +-
+>  fs/ubifs/lpt_commit.c                  |  4 ++--
+>  fs/ubifs/orphan.c                      |  2 +-
+>  fs/xfs/kmem.c                          |  2 +-
+>  include/linux/vmalloc.h                |  2 +-
+>  kernel/bpf/core.c                      |  6 +++---
+>  kernel/groups.c                        |  2 +-
+>  kernel/module.c                        |  3 +--
+>  mm/nommu.c                             | 15 +++++++--------
+>  mm/page_alloc.c                        |  2 +-
+>  mm/percpu.c                            |  2 +-
+>  mm/vmalloc.c                           |  4 ++--
+>  net/bridge/netfilter/ebtables.c        |  6 ++----
+>  sound/core/memalloc.c                  |  2 +-
+>  sound/core/pcm_memory.c                |  2 +-
+>  29 files changed, 47 insertions(+), 59 deletions(-)
+>=20
 
-[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
+For Hyper-V changes,
 
-Whenever we get an -EFAULT, we failed to read in guest 2 physical
-address space. Such addressing exceptions are reported via a program
-intercept to the nested hypervisor.
-
-We faked the intercept, we have to return to guest 2. Instead, right
-now we would be returning -EFAULT from the intercept handler, eventually
-crashing the VM.
-the correct thing to do is to return 1 as rc == 1 is the internal
-representation of "we have to go back into g2".
-
-Addressing exceptions can only happen if the g2->g3 page tables
-reference invalid g2 addresses (say, either a table or the final page is
-not accessible - so something that basically never happens in sane
-environments.
-
-Identified by manual code inspection.
-
-Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: fix patch description]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kvm/vsie.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index a2b28cd1e3fed..17d73b71df1d8 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1024,6 +1024,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_s->iprcc = PGM_ADDRESSING;
- 		scb_s->pgmilc = 4;
- 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
-+		rc = 1;
- 	}
- 	return rc;
- }
--- 
-2.20.1
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
