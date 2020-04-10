@@ -1,196 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:34854 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502871AbgDNNQB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:01 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 08/33] iommu: Move default domain allocation to iommu_probe_device()
-Date: Tue, 14 Apr 2020 15:15:17 +0200
-Message-Id: <20200414131542.25608-9-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:55894 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725858AbgDJGqz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 10 Apr 2020 02:46:55 -0400
+Date: Fri, 10 Apr 2020 14:46:26 +0800
+From: Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH RFC] mm: remove CONFIG_HAVE_MEMBLOCK_NODE_MAP (was: Re:
+ [PATCH v3 0/5] mm: Enable CONFIG_NODES_SPAN_OTHER_NODES by default for NUMA)
+Message-ID: <20200410064626.GF2129@MiWiFi-R3L-srv>
+References: <1585420282-25630-1-git-send-email-Hoan@os.amperecomputing.com>
+ <20200330074246.GA14243@dhcp22.suse.cz>
+ <20200330092127.GB30942@linux.ibm.com>
+ <20200330095843.GF14243@dhcp22.suse.cz>
+ <20200331215618.GG30942@linux.ibm.com>
+ <20200401054227.GC2129@MiWiFi-R3L-srv>
+ <20200401075155.GH30942@linux.ibm.com>
+ <20200402080144.GK22681@dhcp22.suse.cz>
+ <20200409144119.GE2129@MiWiFi-R3L-srv>
+ <20200409153321.GQ18386@dhcp22.suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200409153321.GQ18386@dhcp22.suse.cz>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Michal Hocko <mhocko@kernel.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>, Hoan Tran <Hoan@os.amperecomputing.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "David S. Miller" <davem@davemloft.net>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, lho@amperecomputing.com, mmorana@amperecomputing.com
 
-From: Joerg Roedel <jroedel@suse.de>
+On 04/09/20 at 05:33pm, Michal Hocko wrote:
+> On Thu 09-04-20 22:41:19, Baoquan He wrote:
+> > On 04/02/20 at 10:01am, Michal Hocko wrote:
+> > > On Wed 01-04-20 10:51:55, Mike Rapoport wrote:
+> > > > Hi,
+> > > > 
+> > > > On Wed, Apr 01, 2020 at 01:42:27PM +0800, Baoquan He wrote:
+> > > [...]
+> > > > > From above information, we can remove HAVE_MEMBLOCK_NODE_MAP, and
+> > > > > replace it with CONFIG_NUMA. That sounds more sensible to store nid into
+> > > > > memblock when NUMA support is enabled.
+> > > >  
+> > > > Replacing CONFIG_HAVE_MEMBLOCK_NODE_MAP with CONFIG_NUMA will work, but
+> > > > this will not help cleaning up the whole node/zone initialization mess and
+> > > > we'll be stuck with two implementations.
+> > > 
+> > > Yeah, this is far from optimal.
+> > > 
+> > > > The overhead of enabling HAVE_MEMBLOCK_NODE_MAP is only for init time as
+> > > > most architectures will anyway discard the entire memblock, so having it in
+> > > > a UMA arch won't be a problem. The only exception is arm that uses
+> > > > memblock for pfn_valid(), here we may also think about a solution to
+> > > > compensate the addition of nid to the memblock structures. 
+> > > 
+> > > Well, we can make memblock_region->nid defined only for CONFIG_NUMA.
+> > > memblock_get_region_node would then unconditionally return 0 on UMA.
+> > > Essentially the same way we do NUMA for other MM code. I only see few
+> > > direct usage of region->nid.
+> > 
+> > Checked code again, seems HAVE_MEMBLOCK_NODE_MAP is selected directly in
+> > all ARCHes which support it. Means HAVE_MEMBLOCK_NODE_MAP is enabled by
+> > default on those ARCHes, and has no dependency on CONFIG_NUMA at all.
+> > E.g on x86, it just calls free_area_init_nodes() in generic code path,
+> > while free_area_init_nodes() is defined in CONFIG_HAVE_MEMBLOCK_NODE_MAP
+> > ifdeffery scope. So I tend to agree with Mike to remove
+> > HAVE_MEMBLOCK_NODE_MAP firstly on all ARCHes. We can check if it's worth
+> > only defining memblock_region->nid for CONFIG_NUMA case after
+> > HAVE_MEMBLOCK_NODE_MAP is removed.
+> 
+> This can surely go in separate patches. What I meant to say is the
+> region->nid is by definition 0 on !CONFIG_NUMA.
 
-Well, not really. The call to iommu_alloc_default_domain() in
-iommu_group_get_for_dev() has to stay around as long as there are
-IOMMU drivers using the add/remove_device() call-backs instead of
-probe/release_device().
-
-Those drivers expect that iommu_group_get_for_dev() returns the device
-attached to a group and the group set up with a default domain (and
-the device attached to the groups current domain).
-
-But when all drivers are converted this compatability mess can be
-removed.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/iommu.c | 102 +++++++++++++++++++++++++++++-------------
- 1 file changed, 71 insertions(+), 31 deletions(-)
-
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 6cfe7799dc8c..7a385c18e1a5 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -79,6 +79,16 @@ static bool iommu_cmd_line_dma_api(void)
- 	return !!(iommu_cmd_line & IOMMU_CMD_LINE_DMA_API);
- }
- 
-+static int iommu_alloc_default_domain(struct device *dev);
-+static struct iommu_domain *__iommu_domain_alloc(struct bus_type *bus,
-+						 unsigned type);
-+static int __iommu_attach_device(struct iommu_domain *domain,
-+				 struct device *dev);
-+static int __iommu_attach_group(struct iommu_domain *domain,
-+				struct iommu_group *group);
-+static void __iommu_detach_group(struct iommu_domain *domain,
-+				 struct iommu_group *group);
-+
- #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
- struct iommu_group_attribute iommu_group_attr_##_name =		\
- 	__ATTR(_name, _mode, _show, _store)
-@@ -221,10 +231,29 @@ int iommu_probe_device(struct device *dev)
- 		goto err_free_dev_param;
- 	}
- 
--	if (ops->probe_device)
-+	if (ops->probe_device) {
-+		struct iommu_group *group;
-+
- 		ret = __iommu_probe_device(dev);
--	else
-+
-+		/*
-+		 * Try to allocate a default domain - needs support from the
-+		 * IOMMU driver. There are still some drivers which don't
-+		 * support default domains, so the return value is not yet
-+		 * checked.
-+		 */
-+		if (!ret)
-+			iommu_alloc_default_domain(dev);
-+
-+		group = iommu_group_get(dev);
-+		if (group && group->default_domain) {
-+			ret = __iommu_attach_device(group->default_domain, dev);
-+			iommu_group_put(group);
-+		}
-+
-+	} else {
- 		ret = ops->add_device(dev);
-+	}
- 
- 	if (ret)
- 		goto err_module_put;
-@@ -268,15 +297,6 @@ void iommu_release_device(struct device *dev)
- 	dev_iommu_free(dev);
- }
- 
--static struct iommu_domain *__iommu_domain_alloc(struct bus_type *bus,
--						 unsigned type);
--static int __iommu_attach_device(struct iommu_domain *domain,
--				 struct device *dev);
--static int __iommu_attach_group(struct iommu_domain *domain,
--				struct iommu_group *group);
--static void __iommu_detach_group(struct iommu_domain *domain,
--				 struct iommu_group *group);
--
- static int __init iommu_set_def_domain_type(char *str)
- {
- 	bool pt;
-@@ -1423,25 +1443,18 @@ static int iommu_get_def_domain_type(struct device *dev)
- 	return (type == 0) ? iommu_def_domain_type : type;
- }
- 
--static int iommu_alloc_default_domain(struct device *dev,
--				      struct iommu_group *group)
-+static int iommu_group_alloc_default_domain(struct bus_type *bus,
-+					    struct iommu_group *group,
-+					    unsigned int type)
- {
- 	struct iommu_domain *dom;
--	unsigned int type;
--
--	if (group->default_domain)
--		return 0;
- 
--	type = iommu_get_def_domain_type(dev);
--
--	dom = __iommu_domain_alloc(dev->bus, type);
-+	dom = __iommu_domain_alloc(bus, type);
- 	if (!dom && type != IOMMU_DOMAIN_DMA) {
--		dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
--		if (dom) {
--			dev_warn(dev,
--				 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
--				 type);
--		}
-+		dom = __iommu_domain_alloc(bus, IOMMU_DOMAIN_DMA);
-+		if (dom)
-+			pr_warn("Failed to allocate default IOMMU domain of type %u for group %s - Falling back to IOMMU_DOMAIN_DMA",
-+				type, group->name);
- 	}
- 
- 	if (!dom)
-@@ -1461,6 +1474,23 @@ static int iommu_alloc_default_domain(struct device *dev,
- 	return 0;
- }
- 
-+static int iommu_alloc_default_domain(struct device *dev)
-+{
-+	struct iommu_group *group;
-+	unsigned int type;
-+
-+	group = iommu_group_get(dev);
-+	if (!group)
-+		return -ENODEV;
-+
-+	if (group->default_domain)
-+		return 0;
-+
-+	type = iommu_get_def_domain_type(dev);
-+
-+	return iommu_group_alloc_default_domain(dev->bus, group, type);
-+}
-+
- /**
-  * iommu_group_get_for_dev - Find or create the IOMMU group for a device
-  * @dev: target device
-@@ -1491,16 +1521,26 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
- 	if (IS_ERR(group))
- 		return group;
- 
-+	ret = iommu_group_add_device(group, dev);
-+	if (ret)
-+		goto out_put_group;
-+
- 	/*
- 	 * Try to allocate a default domain - needs support from the
- 	 * IOMMU driver. There are still some drivers which don't support
--	 * default domains, so the return value is not yet checked.
-+	 * default domains, so the return value is not yet checked. Only
-+	 * allocate the domain here when the driver still has the
-+	 * add_device/remove_device call-backs implemented.
- 	 */
--	iommu_alloc_default_domain(dev, group);
-+	if (!ops->probe_device) {
-+		iommu_alloc_default_domain(dev);
- 
--	ret = iommu_group_add_device(group, dev);
--	if (ret)
--		goto out_put_group;
-+		if (group->default_domain)
-+			ret = __iommu_attach_device(group->default_domain, dev);
-+
-+		if (ret)
-+			goto out_put_group;
-+	}
- 
- 	return group;
- 
--- 
-2.17.1
+I see, thanks.
