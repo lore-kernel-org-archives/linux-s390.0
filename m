@@ -1,95 +1,163 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18164 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726770AbgDXKqB (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44068 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726080AbgDJPla (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Apr 2020 06:46:01 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v6 04/10] s390x: interrupt registration
-Date: Fri, 24 Apr 2020 12:45:46 +0200
-Message-Id: <1587725152-25569-5-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
-References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+        Fri, 10 Apr 2020 11:41:30 -0400
+Subject: Re: [PATCH v7 02/15] s390/vfio-ap: manage link between queue struct
+ and matrix mdev
+References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
+ <20200407192015.19887-3-akrowiak@linux.ibm.com>
+ <20200409170602.4440be0f.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <20ddfc7a-873d-2de6-2a69-70d94f2ff930@linux.ibm.com>
+Date: Fri, 10 Apr 2020 11:41:22 -0400
+MIME-Version: 1.0
+In-Reply-To: <20200409170602.4440be0f.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, fiuczy@linux.ibm.com
 
-Let's make it possible to add and remove a custom io interrupt handler,
-that can be used instead of the normal one.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/interrupt.c | 23 ++++++++++++++++++++++-
- lib/s390x/interrupt.h |  8 ++++++++
- 2 files changed, 30 insertions(+), 1 deletion(-)
- create mode 100644 lib/s390x/interrupt.h
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 3a40cac..243b9c2 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -10,9 +10,9 @@
-  * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
--#include <asm/interrupt.h>
- #include <asm/barrier.h>
- #include <sclp.h>
-+#include <interrupt.h>
- 
- static bool pgm_int_expected;
- static bool ext_int_expected;
-@@ -144,12 +144,33 @@ void handle_mcck_int(void)
- 		     stap(), lc->mcck_old_psw.addr);
- }
- 
-+static void (*io_int_func)(void);
-+
- void handle_io_int(void)
- {
-+	if (io_int_func)
-+		return io_int_func();
-+
- 	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
- 		     stap(), lc->io_old_psw.addr);
- }
- 
-+int register_io_int_func(void (*f)(void))
-+{
-+	if (io_int_func)
-+		return -1;
-+	io_int_func = f;
-+	return 0;
-+}
-+
-+int unregister_io_int_func(void (*f)(void))
-+{
-+	if (io_int_func != f)
-+		return -1;
-+	io_int_func = NULL;
-+	return 0;
-+}
-+
- void handle_svc_int(void)
- {
- 	report_abort("Unexpected supervisor call interrupt: on cpu %d at %#lx",
-diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
-new file mode 100644
-index 0000000..323258d
---- /dev/null
-+++ b/lib/s390x/interrupt.h
-@@ -0,0 +1,8 @@
-+#ifndef __INTERRUPT_H
-+#define __INTERRUPT_H
-+#include <asm/interrupt.h>
-+
-+int register_io_int_func(void (*f)(void));
-+int unregister_io_int_func(void (*f)(void));
-+
-+#endif /* __INTERRUPT_H */
--- 
-2.25.1
+On 4/9/20 11:06 AM, Cornelia Huck wrote:
+> On Tue,  7 Apr 2020 15:20:02 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> A vfio_ap_queue structure is created for each queue device probed. To
+>> ensure that the matrix mdev to which a queue's APQN is assigned is linked
+>> to the queue structure as long as the queue device is bound to the vfio_ap
+>> device driver, let's go ahead and manage these links when the queue device
+>> is probed and removed as well as whenever an adapter or domain is assigned
+>> to or unassigned from the matrix mdev.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 75 ++++++++++++++++++++++++++++---
+>>   1 file changed, 70 insertions(+), 5 deletions(-)
+> (...)
+>
+>> @@ -536,6 +531,31 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+>>   	return 0;
+>>   }
+>>   
+>> +/**
+>> + * vfio_ap_mdev_qlinks_for_apid
+> Hm... maybe the function name should express that there's some actual
+> (un)linking going on?
+>
+> vfio_ap_mdev_link_by_apid?
+>
+> Or make this vfio_ap_mdev_link_queues() and pass in an indicator whether
+> the passed value is an apid or an aqid? Both function names look so
+> very similar to be easily confused (at least to me).
+
+Forget my last response, I like your function names better.
+
+>
+>> + *
+>> + * @matrix_mdev: a matrix mediated device
+>> + * @apqi:	 the APID of one or more APQNs assigned to @matrix_mdev
+>> + *
+>> + * Set the link to @matrix_mdev for each queue device bound to the vfio_ap
+>> + * device driver with an APQN assigned to @matrix_mdev with the specified @apid.
+>> + *
+>> + * Note: If @matrix_mdev is NULL, the link to @matrix_mdev will be severed.
+>> + */
+>> +static void vfio_ap_mdev_qlinks_for_apid(struct ap_matrix_mdev *matrix_mdev,
+>> +					 unsigned long apid)
+>> +{
+>> +	unsigned long apqi;
+>> +	struct vfio_ap_queue *q;
+>> +
+>> +	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+>> +			     matrix_mdev->matrix.aqm_max + 1) {
+>> +		q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
+>> +		if (q)
+>> +			q->matrix_mdev = matrix_mdev;
+>> +	}
+>> +}
+>> +
+>>   /**
+>>    * assign_adapter_store
+>>    *
+> (...)
+>
+>> @@ -682,6 +704,31 @@ vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
+>>   	return 0;
+>>   }
+>>   
+>> +/**
+>> + * vfio_ap_mdev_qlinks_for_apqi
+> See my comment above.
+>
+>> + *
+>> + * @matrix_mdev: a matrix mediated device
+>> + * @apqi:	 the APQI of one or more APQNs assigned to @matrix_mdev
+>> + *
+>> + * Set the link to @matrix_mdev for each queue device bound to the vfio_ap
+>> + * device driver with an APQN assigned to @matrix_mdev with the specified @apqi.
+>> + *
+>> + * Note: If @matrix_mdev is NULL, the link to @matrix_mdev will be severed.
+>> + */
+>> +static void vfio_ap_mdev_qlinks_for_apqi(struct ap_matrix_mdev *matrix_mdev,
+>> +					 unsigned long apqi)
+>> +{
+>> +	unsigned long apid;
+>> +	struct vfio_ap_queue *q;
+>> +
+>> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm,
+>> +			     matrix_mdev->matrix.apm_max + 1) {
+>> +		q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
+>> +		if (q)
+>> +			q->matrix_mdev = matrix_mdev;
+>> +	}
+>> +}
+>> +
+>>   /**
+>>    * assign_domain_store
+>>    *
+> (...)
+>
+>> @@ -1270,6 +1319,21 @@ void vfio_ap_mdev_unregister(void)
+>>   	mdev_unregister_device(&matrix_dev->device);
+>>   }
+>>   
+>> +static void vfio_ap_mdev_for_queue(struct vfio_ap_queue *q)
+> vfio_ap_queue_link_mdev()? It is the other direction from the linking
+> above.
+
+See my comment above.
+
+>
+>> +{
+>> +	unsigned long apid = AP_QID_CARD(q->apqn);
+>> +	unsigned long apqi = AP_QID_QUEUE(q->apqn);
+>> +	struct ap_matrix_mdev *matrix_mdev;
+>> +
+>> +	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+>> +		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
+>> +		    test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+>> +			q->matrix_mdev = matrix_mdev;
+>> +			break;
+>> +		}
+>> +	}
+>> +}
+>> +
+>>   int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
+>>   {
+>>   	struct vfio_ap_queue *q;
+>> @@ -1282,6 +1346,7 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
+>>   	dev_set_drvdata(&queue->ap_dev.device, q);
+>>   	q->apqn = queue->qid;
+>>   	q->saved_isc = VFIO_AP_ISC_INVALID;
+>> +	vfio_ap_mdev_for_queue(q);
+>>   	hash_add(matrix_dev->qtable, &q->qnode, q->apqn);
+>>   	mutex_unlock(&matrix_dev->lock);
+>>   
+> In general, looks sane.
+>
