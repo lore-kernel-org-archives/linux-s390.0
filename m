@@ -1,17 +1,17 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44068 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726080AbgDJPla (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45718 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726049AbgDJPc0 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Apr 2020 11:41:30 -0400
+        Fri, 10 Apr 2020 11:32:26 -0400
 Subject: Re: [PATCH v7 02/15] s390/vfio-ap: manage link between queue struct
  and matrix mdev
 References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
  <20200407192015.19887-3-akrowiak@linux.ibm.com>
  <20200409170602.4440be0f.cohuck@redhat.com>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <20ddfc7a-873d-2de6-2a69-70d94f2ff930@linux.ibm.com>
-Date: Fri, 10 Apr 2020 11:41:22 -0400
+Message-ID: <4bebfddc-9897-b56a-59cf-84f391df57d5@linux.ibm.com>
+Date: Fri, 10 Apr 2020 11:32:20 -0400
 MIME-Version: 1.0
 In-Reply-To: <20200409170602.4440be0f.cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -56,7 +56,8 @@ On 4/9/20 11:06 AM, Cornelia Huck wrote:
 > the passed value is an apid or an aqid? Both function names look so
 > very similar to be easily confused (at least to me).
 
-Forget my last response, I like your function names better.
+I like this idea, how about vfio_ap_link_mdev_to_queues()?
+
 
 >
 >> + *
@@ -131,7 +132,7 @@ Forget my last response, I like your function names better.
 > vfio_ap_queue_link_mdev()? It is the other direction from the linking
 > above.
 
-See my comment above.
+How about vfio_ap_link_queue_to_mdevs()?
 
 >
 >> +{
