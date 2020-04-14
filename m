@@ -1,23 +1,38 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from elvis.franken.de ([193.175.24.41]:38462 "EHLO elvis.franken.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728476AbgDNLwz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 07:52:55 -0400
-Date: Tue, 14 Apr 2020 13:52:35 +0200
-From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52376 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2406600AbgDNH02 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 03:26:28 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03E74Khs055512
+        for <linux-s390@vger.kernel.org>; Tue, 14 Apr 2020 03:26:25 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 30b7gw9ens-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 14 Apr 2020 03:26:25 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
+        Tue, 14 Apr 2020 08:25:44 +0100
 Subject: Re: [PATCH] vhost: do not enable VHOST_MENU by default
-Message-ID: <20200414115235.GA13675@alpha.franken.de>
 References: <20200414024438.19103-1-jasowang@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Date: Tue, 14 Apr 2020 09:26:16 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20200414024438.19103-1-jasowang@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <375181ee-08ec-77a6-2dfc-f3c9c26705a1@de.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com
+Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-On Tue, Apr 14, 2020 at 10:44:38AM +0800, Jason Wang wrote:
+
+
+On 14.04.20 04:44, Jason Wang wrote:
 > We try to keep the defconfig untouched after decoupling CONFIG_VHOST
 > out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
 > ("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
@@ -37,15 +52,152 @@ On Tue, Apr 14, 2020 at 10:44:38AM +0800, Jason Wang wrote:
 > Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
 > Cc: Vasily Gorbik <gor@linux.ibm.com>
 > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+
+Fine with me.
+s390 part
+
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+ That was my first approach to get things fixed before I reported
+this to you.
+
 > Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
 > Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
 >  arch/mips/configs/malta_kvm_defconfig  |  1 +
-
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-
-Thomas.
-
--- 
-Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
-good idea.                                                [ RFC1925, 2.3 ]
+>  arch/powerpc/configs/powernv_defconfig |  1 +
+>  arch/powerpc/configs/ppc64_defconfig   |  1 +
+>  arch/powerpc/configs/pseries_defconfig |  1 +
+>  arch/s390/configs/debug_defconfig      |  1 +
+>  arch/s390/configs/defconfig            |  1 +
+>  drivers/vhost/Kconfig                  | 18 +++++-------------
+>  7 files changed, 11 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/mips/configs/malta_kvm_defconfig b/arch/mips/configs/malta_kvm_defconfig
+> index 8ef612552a19..06f0c7a0ca87 100644
+> --- a/arch/mips/configs/malta_kvm_defconfig
+> +++ b/arch/mips/configs/malta_kvm_defconfig
+> @@ -18,6 +18,7 @@ CONFIG_PCI=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM=m
+>  CONFIG_KVM_MIPS_DEBUG_COP0_COUNTERS=y
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_MODULES=y
+>  CONFIG_MODULE_UNLOAD=y
+> diff --git a/arch/powerpc/configs/powernv_defconfig b/arch/powerpc/configs/powernv_defconfig
+> index 71749377d164..404245b4594d 100644
+> --- a/arch/powerpc/configs/powernv_defconfig
+> +++ b/arch/powerpc/configs/powernv_defconfig
+> @@ -346,5 +346,6 @@ CONFIG_CRYPTO_DEV_VMX=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_PRINTK_TIME=y
+> diff --git a/arch/powerpc/configs/ppc64_defconfig b/arch/powerpc/configs/ppc64_defconfig
+> index 7e68cb222c7b..4599fc7be285 100644
+> --- a/arch/powerpc/configs/ppc64_defconfig
+> +++ b/arch/powerpc/configs/ppc64_defconfig
+> @@ -61,6 +61,7 @@ CONFIG_ELECTRA_CF=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_OPROFILE=m
+>  CONFIG_KPROBES=y
+> diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/configs/pseries_defconfig
+> index 6b68109e248f..4cad3901b5de 100644
+> --- a/arch/powerpc/configs/pseries_defconfig
+> +++ b/arch/powerpc/configs/pseries_defconfig
+> @@ -321,5 +321,6 @@ CONFIG_CRYPTO_DEV_VMX=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_PRINTK_TIME=y
+> diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
+> index 0c86ba19fa2b..6ec6e69630d1 100644
+> --- a/arch/s390/configs/debug_defconfig
+> +++ b/arch/s390/configs/debug_defconfig
+> @@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
+>  CONFIG_CMM=m
+>  CONFIG_APPLDATA_BASE=y
+>  CONFIG_KVM=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_VHOST_VSOCK=m
+>  CONFIG_OPROFILE=m
+> diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+> index 6b27d861a9a3..d1b3bf83d687 100644
+> --- a/arch/s390/configs/defconfig
+> +++ b/arch/s390/configs/defconfig
+> @@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
+>  CONFIG_CMM=m
+>  CONFIG_APPLDATA_BASE=y
+>  CONFIG_KVM=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_VHOST_VSOCK=m
+>  CONFIG_OPROFILE=m
+> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> index e79cbbdfea45..14d296dc18cd 100644
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -12,23 +12,18 @@ config VHOST_RING
+>  	  This option is selected by any driver which needs to access
+>  	  the host side of a virtio ring.
+>  
+> -config VHOST
+> -	tristate
+> +menuconfig VHOST
+> +	tristate "Vhost Devices"
+>  	select VHOST_IOTLB
+>  	help
+> -	  This option is selected by any driver which needs to access
+> -	  the core of vhost.
+> -
+> -menuconfig VHOST_MENU
+> -	bool "VHOST drivers"
+> -	default y
+> +	  Enable option to support host kernel or hardware accelerator
+> +	  for virtio device.
+>  
+> -if VHOST_MENU
+> +if VHOST
+>  
+>  config VHOST_NET
+>  	tristate "Host kernel accelerator for virtio net"
+>  	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
+> -	select VHOST
+>  	---help---
+>  	  This kernel module can be loaded in host kernel to accelerate
+>  	  guest networking with virtio_net. Not to be confused with virtio_net
+> @@ -40,7 +35,6 @@ config VHOST_NET
+>  config VHOST_SCSI
+>  	tristate "VHOST_SCSI TCM fabric driver"
+>  	depends on TARGET_CORE && EVENTFD
+> -	select VHOST
+>  	default n
+>  	---help---
+>  	Say M here to enable the vhost_scsi TCM fabric module
+> @@ -49,7 +43,6 @@ config VHOST_SCSI
+>  config VHOST_VSOCK
+>  	tristate "vhost virtio-vsock driver"
+>  	depends on VSOCKETS && EVENTFD
+> -	select VHOST
+>  	select VIRTIO_VSOCKETS_COMMON
+>  	default n
+>  	---help---
+> @@ -63,7 +56,6 @@ config VHOST_VSOCK
+>  config VHOST_VDPA
+>  	tristate "Vhost driver for vDPA-based backend"
+>  	depends on EVENTFD
+> -	select VHOST
+>  	depends on VDPA
+>  	help
+>  	  This kernel module can be loaded in host kernel to accelerate
+> 
