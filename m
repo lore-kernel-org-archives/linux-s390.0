@@ -1,82 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:55420 "EHLO mail.kernel.org"
+Received: from 8bytes.org ([81.169.241.247]:35566 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2408892AbgDOLft (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:35:49 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 055/129] s390/cpum_sf: Fix wrong page count in error message
-Date: Wed, 15 Apr 2020 07:33:30 -0400
-Message-Id: <20200415113445.11881-55-sashal@kernel.org>
-In-Reply-To: <20200415113445.11881-1-sashal@kernel.org>
-References: <20200415113445.11881-1-sashal@kernel.org>
+        id S2502999AbgDNNRa (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:17:30 -0400
+Date: Tue, 14 Apr 2020 15:17:24 +0200
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [RFC PATCH 33/34] iommu: Remove add_device()/remove_device()
+ code-paths
+Message-ID: <20200414131724.GA14731@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+ <CGME20200407183806eucas1p2cf45fbce5a43a6b4fe3a623b28da0606@eucas1p2.samsung.com>
+ <20200407183742.4344-34-joro@8bytes.org>
+ <1a88547f-ac90-825e-e529-a56c2c4e0391@samsung.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1a88547f-ac90-825e-e529-a56c2c4e0391@samsung.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+Hi Marek,
 
-[ Upstream commit 4141b6a5e9f171325effc36a22eb92bf961e7a5c ]
+On Fri, Apr 10, 2020 at 12:39:38PM +0200, Marek Szyprowski wrote:
+> > +		if (!group->default_domain)
+> > +			continue;
+> 
+> It doesn't look straight from the above diff, but this continue leaks 
+> group->lock taken.
 
-When perf record -e SF_CYCLES_BASIC_DIAG runs with very high
-frequency, the samples arrive faster than the perf process can
-save them to file. Eventually, for longer running processes, this
-leads to the siutation where the trace buffers allocated by perf
-slowly fills up. At one point the auxiliary trace buffer is full
-and  the CPU Measurement sampling facility is turned off. Furthermore
-a warning is printed to the kernel log buffer:
+You are right, thanks for the review! I fixed it in v2.
 
-cpum_sf: The AUX buffer with 0 pages for the diagnostic-sampling
-	mode is full
+Regards,
 
-The number of allocated pages for the auxiliary trace buffer is shown
-as zero pages. That is wrong.
-
-Fix this by saving the number of allocated pages before entering the
-work loop in the interrupt handler. When the interrupt handler processes
-the samples, it may detect the buffer full condition and stop sampling,
-reducing the buffer size to zero.
-Print the correct value in the error message:
-
-cpum_sf: The AUX buffer with 256 pages for the diagnostic-sampling
-	mode is full
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index b095b1c78987d..05b908b3a6b38 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1576,6 +1576,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 	unsigned long range = 0, size;
- 	unsigned long long overflow = 0;
- 	struct perf_output_handle *handle = &cpuhw->handle;
-+	unsigned long num_sdb;
- 
- 	aux = perf_get_aux(handle);
- 	if (WARN_ON_ONCE(!aux))
-@@ -1587,13 +1588,14 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 			    size >> PAGE_SHIFT);
- 	perf_aux_output_end(handle, size);
- 
-+	num_sdb = aux->sfb.num_sdb;
- 	while (!done) {
- 		/* Get an output handle */
- 		aux = perf_aux_output_begin(handle, cpuhw->event);
- 		if (handle->size == 0) {
- 			pr_err("The AUX buffer with %lu pages for the "
- 			       "diagnostic-sampling mode is full\n",
--				aux->sfb.num_sdb);
-+				num_sdb);
- 			debug_sprintf_event(sfdbg, 1,
- 					    "%s: AUX buffer used up\n",
- 					    __func__);
--- 
-2.20.1
+	Joerg
