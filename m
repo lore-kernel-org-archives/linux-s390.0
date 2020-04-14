@@ -1,60 +1,164 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:21847 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388320AbgDMUW1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 13 Apr 2020 16:22:27 -0400
-Subject: Re: [PATCH v4 2/2] mm/gup/writeback: add callbacks for inaccessible
- pages
-References: <20200306132537.783769-1-imbrenda@linux.ibm.com>
- <20200306132537.783769-3-imbrenda@linux.ibm.com>
-From: Dave Hansen <dave.hansen@intel.com>
-Message-ID: <11dc928d-60b4-f04f-1ebf-f4cffb337a6c@intel.com>
-Date: Mon, 13 Apr 2020 13:22:24 -0700
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54984 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502699AbgDNNPG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:15:06 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 16/29] mm: remove map_vm_range
+Date: Tue, 14 Apr 2020 15:13:35 +0200
+Message-Id: <20200414131348.444715-17-hch@lst.de>
+In-Reply-To: <20200414131348.444715-1-hch@lst.de>
+References: <20200414131348.444715-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <20200306132537.783769-3-imbrenda@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Claudio Imbrenda <imbrenda@linux.ibm.com>, linux-next@vger.kernel.org, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name
-Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Will Deacon <will@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 3/6/20 5:25 AM, Claudio Imbrenda wrote:
-> On s390x the function is not supposed to fail, so it is ok to use a
-> WARN_ON on failure. If we ever need some more finegrained handling
-> we can tackle this when we know the details.
+Switch all callers to map_kernel_range, which symmetric to the unmap
+side (as well as the _noflush versions).
 
-Could you explain a bit why the function can't fail?
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ Documentation/core-api/cachetlb.rst |  2 +-
+ include/linux/vmalloc.h             | 10 ++++------
+ mm/vmalloc.c                        | 21 +++++++--------------
+ mm/zsmalloc.c                       |  4 +++-
+ net/ceph/ceph_common.c              |  3 +--
+ 5 files changed, 16 insertions(+), 24 deletions(-)
 
-If the guest has secret data in the page, then it *can* and does fail.
-It won't fail, though, if the host and guest agree on whether the page
-is protected.
-
-Right?
-
-> @@ -2807,6 +2807,13 @@ int __test_set_page_writeback(struct page *page, bool keep_write)
->  		inc_zone_page_state(page, NR_ZONE_WRITE_PENDING);
->  	}
->  	unlock_page_memcg(page);
-> +	access_ret = arch_make_page_accessible(page);
-> +	/*
-> +	 * If writeback has been triggered on a page that cannot be made
-> +	 * accessible, it is too late to recover here.
-> +	 */
-> +	VM_BUG_ON_PAGE(access_ret != 0, page);
-> +
->  	return ret;
->  
->  }
-
-This seems like a really odd place to do this.  Writeback is specific to
-block I/O.  I would have thought there were other kinds of devices that
-matter, not just block devices.
-
-Also, this patch seems odd that it only does the
-arch_make_page_accessible() half.  Where's the other half where the page
-is made inaccessible?
-
-I assume it's OK to "leak" things like this, it's just not clear to me
-_why_ it's OK.
+diff --git a/Documentation/core-api/cachetlb.rst b/Documentation/core-api/cachetlb.rst
+index 93cb65d52720..a1582cc79f0f 100644
+--- a/Documentation/core-api/cachetlb.rst
++++ b/Documentation/core-api/cachetlb.rst
+@@ -213,7 +213,7 @@ Here are the routines, one by one:
+ 	there will be no entries in the cache for the kernel address
+ 	space for virtual addresses in the range 'start' to 'end-1'.
+ 
+-	The first of these two routines is invoked after map_vm_area()
++	The first of these two routines is invoked after map_kernel_range()
+ 	has installed the page table entries.  The second is invoked
+ 	before unmap_kernel_range() deletes the page table entries.
+ 
+diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+index 3070b4dbc2d9..15ffbd8e8e65 100644
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -168,11 +168,11 @@ extern struct vm_struct *__get_vm_area_caller(unsigned long size,
+ extern struct vm_struct *remove_vm_area(const void *addr);
+ extern struct vm_struct *find_vm_area(const void *addr);
+ 
+-extern int map_vm_area(struct vm_struct *area, pgprot_t prot,
+-			struct page **pages);
+ #ifdef CONFIG_MMU
+ extern int map_kernel_range_noflush(unsigned long start, unsigned long size,
+ 				    pgprot_t prot, struct page **pages);
++int map_kernel_range(unsigned long start, unsigned long size, pgprot_t prot,
++		struct page **pages);
+ extern void unmap_kernel_range_noflush(unsigned long addr, unsigned long size);
+ extern void unmap_kernel_range(unsigned long addr, unsigned long size);
+ static inline void set_vm_flush_reset_perms(void *addr)
+@@ -189,14 +189,12 @@ map_kernel_range_noflush(unsigned long start, unsigned long size,
+ {
+ 	return size >> PAGE_SHIFT;
+ }
++#define map_kernel_range map_kernel_range_noflush
+ static inline void
+ unmap_kernel_range_noflush(unsigned long addr, unsigned long size)
+ {
+ }
+-static inline void
+-unmap_kernel_range(unsigned long addr, unsigned long size)
+-{
+-}
++#define unmap_kernel_range unmap_kernel_range_noflush
+ static inline void set_vm_flush_reset_perms(void *addr)
+ {
+ }
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index ca8dc5d42580..b0c7cdc8701a 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -272,8 +272,8 @@ int map_kernel_range_noflush(unsigned long addr, unsigned long size,
+ 	return 0;
+ }
+ 
+-static int map_kernel_range(unsigned long start, unsigned long size,
+-			   pgprot_t prot, struct page **pages)
++int map_kernel_range(unsigned long start, unsigned long size, pgprot_t prot,
++		struct page **pages)
+ {
+ 	int ret;
+ 
+@@ -2027,16 +2027,6 @@ void unmap_kernel_range(unsigned long addr, unsigned long size)
+ 	flush_tlb_kernel_range(addr, end);
+ }
+ 
+-int map_vm_area(struct vm_struct *area, pgprot_t prot, struct page **pages)
+-{
+-	unsigned long addr = (unsigned long)area->addr;
+-	int err;
+-
+-	err = map_kernel_range(addr, get_vm_area_size(area), prot, pages);
+-
+-	return err > 0 ? 0 : err;
+-}
+-
+ static inline void setup_vmalloc_vm_locked(struct vm_struct *vm,
+ 	struct vmap_area *va, unsigned long flags, const void *caller)
+ {
+@@ -2408,7 +2398,8 @@ void *vmap(struct page **pages, unsigned int count,
+ 	if (!area)
+ 		return NULL;
+ 
+-	if (map_vm_area(area, prot, pages)) {
++	if (map_kernel_range((unsigned long)area->addr, size, prot,
++			pages) < 0) {
+ 		vunmap(area->addr);
+ 		return NULL;
+ 	}
+@@ -2471,8 +2462,10 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
+ 	}
+ 	atomic_long_add(area->nr_pages, &nr_vmalloc_pages);
+ 
+-	if (map_vm_area(area, prot, pages))
++	if (map_kernel_range((unsigned long)area->addr, get_vm_area_size(area),
++			prot, pages) < 0)
+ 		goto fail;
++
+ 	return area->addr;
+ 
+ fail:
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index ac0524330b9b..f6dc0673e62c 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1138,7 +1138,9 @@ static inline void __zs_cpu_down(struct mapping_area *area)
+ static inline void *__zs_map_object(struct mapping_area *area,
+ 				struct page *pages[2], int off, int size)
+ {
+-	BUG_ON(map_vm_area(area->vm, PAGE_KERNEL, pages));
++	unsigned long addr = (unsigned long)area->vm->addr;
++
++	BUG_ON(map_kernel_range(addr, PAGE_SIZE * 2, PAGE_KERNEL, pages) < 0);
+ 	area->vm_addr = area->vm->addr;
+ 	return area->vm_addr + off;
+ }
+diff --git a/net/ceph/ceph_common.c b/net/ceph/ceph_common.c
+index a0e97f6c1072..66f22e8aa529 100644
+--- a/net/ceph/ceph_common.c
++++ b/net/ceph/ceph_common.c
+@@ -190,8 +190,7 @@ EXPORT_SYMBOL(ceph_compare_options);
+  * kvmalloc() doesn't fall back to the vmalloc allocator unless flags are
+  * compatible with (a superset of) GFP_KERNEL.  This is because while the
+  * actual pages are allocated with the specified flags, the page table pages
+- * are always allocated with GFP_KERNEL.  map_vm_area() doesn't even take
+- * flags because GFP_KERNEL is hard-coded in {p4d,pud,pmd,pte}_alloc().
++ * are always allocated with GFP_KERNEL.
+  *
+  * ceph_kvmalloc() may be called with GFP_KERNEL, GFP_NOFS or GFP_NOIO.
+  */
+-- 
+2.25.1
