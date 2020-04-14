@@ -1,104 +1,38 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:39838 "EHLO theia.8bytes.org"
+Received: from mx2.suse.de ([195.135.220.15]:58492 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728045AbgD2Nhz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 09:37:55 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 31/34] iommu/exynos: Convert to probe/release_device() call-backs
-Date: Wed, 29 Apr 2020 15:37:09 +0200
-Message-Id: <20200429133712.31431-32-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
+        id S2502177AbgDNMtm (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 08:49:42 -0400
+Date: Tue, 14 Apr 2020 14:48:54 +0200
+From: David Sterba <dsterba@suse.cz>
+Subject: Re: [PATCH 1/2] mm, treewide: Rename kzfree() to kfree_sensitive()
+Message-ID: <20200414124854.GQ5920@twin.jikos.cz>
+Reply-To: dsterba@suse.cz
+References: <20200413211550.8307-1-longman@redhat.com>
+ <20200413211550.8307-2-longman@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200413211550.8307-2-longman@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Waiman Long <longman@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Joe Perches <joe@perches.com>, Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org, linux-mediatek@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com, linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org, samba-technical@lists.samba.org, linux-fscrypt@vger.kernel.org, ecryptfs@vger.kernel.org, kasan-dev@googlegroups.com, linux-bluetooth@vger.kernel.org, linux-wpan@vger.kernel.org, linux-sctp@vger.kernel.org, linux-nfs@vger.kernel.org, tipc-discussion@lists.sourceforge.net, cocci@systeme.lip6.fr, linux-security-module@vger.kernel.org, linux-integrity@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+On Mon, Apr 13, 2020 at 05:15:49PM -0400, Waiman Long wrote:
+>  fs/btrfs/ioctl.c                              |  2 +-
 
-Convert the Exynos IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
 
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/exynos-iommu.c | 26 ++++++--------------------
- 1 file changed, 6 insertions(+), 20 deletions(-)
+> diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+> index 40b729dce91c..eab3f8510426 100644
+> --- a/fs/btrfs/ioctl.c
+> +++ b/fs/btrfs/ioctl.c
+> @@ -2691,7 +2691,7 @@ static int btrfs_ioctl_get_subvol_info(struct file *file, void __user *argp)
+>  	btrfs_put_root(root);
+>  out_free:
+>  	btrfs_free_path(path);
+> -	kzfree(subvol_info);
+> +	kfree_sensitive(subvol_info);
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 09cdd163560a..60c8a56e4a3f 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -1235,19 +1235,13 @@ static phys_addr_t exynos_iommu_iova_to_phys(struct iommu_domain *iommu_domain,
- 	return phys;
- }
- 
--static int exynos_iommu_add_device(struct device *dev)
-+static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
- {
- 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct sysmmu_drvdata *data;
--	struct iommu_group *group;
- 
- 	if (!has_sysmmu(dev))
--		return -ENODEV;
--
--	group = iommu_group_get_for_dev(dev);
--
--	if (IS_ERR(group))
--		return PTR_ERR(group);
-+		return ERR_PTR(-ENODEV);
- 
- 	list_for_each_entry(data, &owner->controllers, owner_node) {
- 		/*
-@@ -1259,17 +1253,15 @@ static int exynos_iommu_add_device(struct device *dev)
- 					     DL_FLAG_STATELESS |
- 					     DL_FLAG_PM_RUNTIME);
- 	}
--	iommu_group_put(group);
- 
- 	/* There is always at least one entry, see exynos_iommu_of_xlate() */
- 	data = list_first_entry(&owner->controllers,
- 				struct sysmmu_drvdata, owner_node);
--	iommu_device_link(&data->iommu, dev);
- 
--	return 0;
-+	return &data->iommu;
- }
- 
--static void exynos_iommu_remove_device(struct device *dev)
-+static void exynos_iommu_release_device(struct device *dev)
- {
- 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct sysmmu_drvdata *data;
-@@ -1287,15 +1279,9 @@ static void exynos_iommu_remove_device(struct device *dev)
- 			iommu_group_put(group);
- 		}
- 	}
--	iommu_group_remove_device(dev);
- 
- 	list_for_each_entry(data, &owner->controllers, owner_node)
- 		device_link_del(data->link);
--
--	/* There is always at least one entry, see exynos_iommu_of_xlate() */
--	data = list_first_entry(&owner->controllers,
--				struct sysmmu_drvdata, owner_node);
--	iommu_device_unlink(&data->iommu, dev);
- }
- 
- static int exynos_iommu_of_xlate(struct device *dev,
-@@ -1341,8 +1327,8 @@ static const struct iommu_ops exynos_iommu_ops = {
- 	.unmap = exynos_iommu_unmap,
- 	.iova_to_phys = exynos_iommu_iova_to_phys,
- 	.device_group = generic_device_group,
--	.add_device = exynos_iommu_add_device,
--	.remove_device = exynos_iommu_remove_device,
-+	.probe_device = exynos_iommu_probe_device,
-+	.release_device = exynos_iommu_release_device,
- 	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
- 	.of_xlate = exynos_iommu_of_xlate,
- };
--- 
-2.17.1
+This is not in a sensitive context so please switch it to plain kfree.
+With that you have my acked-by. Thanks.
