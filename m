@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 14/28] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
-Date: Sat, 18 Apr 2020 10:43:14 -0400
-Message-Id: <20200418144328.10265-14-sashal@kernel.org>
-In-Reply-To: <20200418144328.10265-1-sashal@kernel.org>
-References: <20200418144328.10265-1-sashal@kernel.org>
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: decruft the vmalloc API v2
+Date: Tue, 14 Apr 2020 15:13:19 +0200
+Message-Id: <20200414131348.444715-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+Hi all,
 
-[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
+Peter noticed that with some dumb luck you can toast the kernel address
+space with exported vmalloc symbols.
 
-We have to properly retry again by returning -EINVAL immediately in case
-somebody else instantiated the table concurrently. We missed to add the
-goto in this function only. The code now matches the other, similar
-shadowing functions.
+I used this as an opportunity to decruft the vmalloc.c API and make it
+much more systematic.  This also removes any chance to create vmalloc
+mappings outside the designated areas or using executable permissions
+from modules.  Besides that it removes more than 300 lines of code.
 
-We are overwriting an existing region 2 table entry. All allocated pages
-are added to the crst_list to be freed later, so they are not lost
-forever. However, when unshadowing the region 2 table, we wouldn't trigger
-unshadowing of the original shadowed region 3 table that we replaced. It
-would get unshadowed when the original region 3 table is modified. As it's
-not connected to the page table hierarchy anymore, it's not going to get
-used anymore. However, for a limited time, this page table will stick
-around, so it's in some sense a temporary memory leak.
+A git tree is also available here:
 
-Identified by manual code inspection. I don't think this classifies as
-stable material.
+    git://git.infradead.org/users/hch/misc.git sanitize-vmalloc-api.2
 
-Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/mm/gmap.c | 1 +
- 1 file changed, 1 insertion(+)
+Gitweb:
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index ec9292917d3f2..3efe99f760063 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1683,6 +1683,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
- 		goto out_free;
- 	} else if (*table & _REGION_ENTRY_ORIGIN) {
- 		rc = -EAGAIN;		/* Race with shadow */
-+		goto out_free;
- 	}
- 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
- 	/* mark as invalid as long as the parent table is not protected */
--- 
-2.20.1
+    http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/sanitize-vmalloc-api.2
+
+Changes since v1:
+ - implement pgprot_nx for arm64 (Mark Rutland)
+ - fix a patch description
+ - properly pass pgprot to vmap in ion
+ - add a new patch to fix vmap() API misuse
+ - fix a vmap argument in x86
+ - two more vmalloc cleanups
+ - cleanup use of the unmap_kernel_range API
+ - rename ioremap_pbh to ioremap_phb
