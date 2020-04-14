@@ -1,53 +1,23 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:59798 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390790AbgDNH3d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 03:29:33 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 07/10] block: don't call invalidate_partition from blk_drop_partitions
-Date: Tue, 14 Apr 2020 09:28:59 +0200
-Message-Id: <20200414072902.324936-8-hch@lst.de>
-In-Reply-To: <20200414072902.324936-1-hch@lst.de>
+Received: from esa4.hgst.iphmx.com ([216.71.154.42]:64444 "EHLO
+        esa4.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2407026AbgDNIMQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 04:12:16 -0400
+From: Johannes Thumshirn <Johannes.Thumshirn@wdc.com>
+Subject: Re: [PATCH 07/10] block: don't call invalidate_partition from
+ blk_drop_partitions
+Date: Tue, 14 Apr 2020 08:12:12 +0000
+Message-ID: <SN4PR0401MB3598938F35E3F588626B25D79BDA0@SN4PR0401MB3598.namprd04.prod.outlook.com>
 References: <20200414072902.324936-1-hch@lst.de>
+ <20200414072902.324936-8-hch@lst.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>
 
-Given that the device must not be busy, most of the calls from
-invalidate_partition that are related to file system metadata are
-guranteed to not happen.  Just open code the calls to sync_blockdev
-and invalidate_bdev instead.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/partitions/core.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/block/partitions/core.c b/block/partitions/core.c
-index 8c5295ca8ea6..a94d296d7aed 100644
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -607,15 +607,14 @@ int blk_drop_partitions(struct block_device *bdev)
- {
- 	struct disk_part_iter piter;
- 	struct hd_struct *part;
--	int res;
- 
- 	if (!disk_part_scan_enabled(bdev->bd_disk))
- 		return 0;
- 	if (bdev->bd_part_count || bdev->bd_openers > 1)
- 		return -EBUSY;
--	res = invalidate_partition(bdev->bd_disk, 0);
--	if (res)
--		return res;
-+
-+	sync_blockdev(bdev);
-+	invalidate_bdev(bdev);
- 
- 	disk_part_iter_init(&piter, bdev->bd_disk, DISK_PITER_INCL_EMPTY);
- 	while ((part = disk_part_iter_next(&piter)))
--- 
-2.25.1
+Looks good,=0A=
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>=0A=
