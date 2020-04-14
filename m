@@ -1,83 +1,82 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from aserp2120.oracle.com ([141.146.126.78]:50778 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726344AbgD1U6i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Apr 2020 16:58:38 -0400
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: [PATCH v4 0/4] Clean up hugetlb boot command line processing
-Date: Tue, 28 Apr 2020 13:56:10 -0700
-Message-Id: <20200428205614.246260-1-mike.kravetz@oracle.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54940 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502731AbgDNNOx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:14:53 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 12/29] mm: pass addr as unsigned long to vb_free
+Date: Tue, 14 Apr 2020 15:13:31 +0200
+Message-Id: <20200414131348.444715-13-hch@lst.de>
+In-Reply-To: <20200414131348.444715-1-hch@lst.de>
+References: <20200414131348.444715-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Randy Dunlap <rdunlap@infradead.org>, Mina Almasry <almasrymina@google.com>, Peter Xu <peterx@redhat.com>, Nitesh Narayan Lal <nitesh@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Kravetz <mike.kravetz@oracle.com>
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-v4 -
-   Fixed huge page order definitions for arm64 (Qian Cai)
-   Removed hugepages_supported() checks in command line processing as
-     powerpc does not set hugepages_supported until later in boot (Sandipan)
-   Added Acks, Reviews and Tested (Will, Gerald, Anders, Sandipan)
+Ever use of addr in vb_free casts to unsigned long first, and the caller
+has an unsigned long version of the address available anyway.  Just pass
+that and avoid all the casts.
 
-v3 -
-   Used weak attribute method of defining arch_hugetlb_valid_size.
-     This eliminates changes to arch specific hugetlb.h files (Peter)
-   Updated documentation (Peter, Randy)
-   Fixed handling of implicitly specified gigantic page preallocation
-     in existing code and removed documentation of such.  There is now
-     no difference between handling of gigantic and non-gigantic pages.
-     (Peter, Nitesh).
-     This requires the most review as there is a small change to
-     undocumented behavior.  See patch 4 commit message for details.
-   Added Acks and Reviews (Mina, Peter)
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ mm/vmalloc.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-v2 -
-   Fix build errors with patch 1 (Will)
-   Change arch_hugetlb_valid_size arg to unsigned long and remove
-     irrelevant 'extern' keyword (Christophe)
-   Documentation and other misc changes (Randy, Christophe, Mina)
-   Do not process command line options if !hugepages_supported()
-     (Dave, but it sounds like we may want to additional changes to
-      hugepages_supported() for x86?  If that is needed I would prefer
-      a separate patch.)
-
-Longpeng(Mike) reported a weird message from hugetlb command line processing
-and proposed a solution [1].  While the proposed patch does address the
-specific issue, there are other related issues in command line processing.
-As hugetlbfs evolved, updates to command line processing have been made to
-meet immediate needs and not necessarily in a coordinated manner.  The result
-is that some processing is done in arch specific code, some is done in arch
-independent code and coordination is problematic.  Semantics can vary between
-architectures.
-
-The patch series does the following:
-- Define arch specific arch_hugetlb_valid_size routine used to validate
-  passed huge page sizes.
-- Move hugepagesz= command line parsing out of arch specific code and into
-  an arch independent routine.
-- Clean up command line processing to follow desired semantics and
-  document those semantics.
-
-[1] https://lore.kernel.org/linux-mm/20200305033014.1152-1-longpeng2@huawei.com
-
-Mike Kravetz (4):
-  hugetlbfs: add arch_hugetlb_valid_size
-  hugetlbfs: move hugepagesz= parsing to arch independent code
-  hugetlbfs: remove hugetlb_add_hstate() warning for existing hstate
-  hugetlbfs: clean up command line processing
-
- .../admin-guide/kernel-parameters.txt         |  40 ++--
- Documentation/admin-guide/mm/hugetlbpage.rst  |  35 ++++
- arch/arm64/mm/hugetlbpage.c                   |  30 +--
- arch/powerpc/mm/hugetlbpage.c                 |  30 +--
- arch/riscv/mm/hugetlbpage.c                   |  24 +--
- arch/s390/mm/hugetlbpage.c                    |  24 +--
- arch/sparc/mm/init_64.c                       |  43 +----
- arch/x86/mm/hugetlbpage.c                     |  23 +--
- include/linux/hugetlb.h                       |   2 +-
- mm/hugetlb.c                                  | 180 ++++++++++++++----
- 10 files changed, 260 insertions(+), 171 deletions(-)
-
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 9183fc0d365a..aada9e9144bd 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -1664,7 +1664,7 @@ static void *vb_alloc(unsigned long size, gfp_t gfp_mask)
+ 	return vaddr;
+ }
+ 
+-static void vb_free(const void *addr, unsigned long size)
++static void vb_free(unsigned long addr, unsigned long size)
+ {
+ 	unsigned long offset;
+ 	unsigned long vb_idx;
+@@ -1674,24 +1674,22 @@ static void vb_free(const void *addr, unsigned long size)
+ 	BUG_ON(offset_in_page(size));
+ 	BUG_ON(size > PAGE_SIZE*VMAP_MAX_ALLOC);
+ 
+-	flush_cache_vunmap((unsigned long)addr, (unsigned long)addr + size);
++	flush_cache_vunmap(addr, addr + size);
+ 
+ 	order = get_order(size);
+ 
+-	offset = (unsigned long)addr & (VMAP_BLOCK_SIZE - 1);
+-	offset >>= PAGE_SHIFT;
++	offset = (addr & (VMAP_BLOCK_SIZE - 1)) >> PAGE_SHIFT;
+ 
+-	vb_idx = addr_to_vb_idx((unsigned long)addr);
++	vb_idx = addr_to_vb_idx(addr);
+ 	rcu_read_lock();
+ 	vb = radix_tree_lookup(&vmap_block_tree, vb_idx);
+ 	rcu_read_unlock();
+ 	BUG_ON(!vb);
+ 
+-	vunmap_page_range((unsigned long)addr, (unsigned long)addr + size);
++	vunmap_page_range(addr, addr + size);
+ 
+ 	if (debug_pagealloc_enabled_static())
+-		flush_tlb_kernel_range((unsigned long)addr,
+-					(unsigned long)addr + size);
++		flush_tlb_kernel_range(addr, addr + size);
+ 
+ 	spin_lock(&vb->lock);
+ 
+@@ -1791,7 +1789,7 @@ void vm_unmap_ram(const void *mem, unsigned int count)
+ 
+ 	if (likely(count <= VMAP_MAX_ALLOC)) {
+ 		debug_check_no_locks_freed(mem, size);
+-		vb_free(mem, size);
++		vb_free(addr, size);
+ 		return;
+ 	}
+ 
 -- 
-2.25.4
+2.25.1
