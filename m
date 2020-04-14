@@ -1,46 +1,112 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46842 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725934AbgD1WvH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Apr 2020 18:51:07 -0400
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH v1 1/1] fs/splice: add missing callback for inaccessible pages
-Date: Wed, 29 Apr 2020 00:50:43 +0200
-Message-Id: <20200428225043.3091359-1-imbrenda@linux.ibm.com>
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 25/29] mm: switch the test_vmalloc module to use __vmalloc_node
+Date: Tue, 14 Apr 2020 15:13:44 +0200
+Message-Id: <20200414131348.444715-26-hch@lst.de>
+In-Reply-To: <20200414131348.444715-1-hch@lst.de>
+References: <20200414131348.444715-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name
-Cc: borntraeger@de.ibm.com, david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, dave.hansen@intel.com, peterz@infradead.org, sean.j.christopherson@intel.com
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-If a page is inaccesible and it is used for things like sendfile, then
-the content of the page is not always touched, and can be passed
-directly to a driver, causing issues.
+No need to export the very low-level __vmalloc_node_range when the
+test module can use a slightly higher level variant.
 
-This patch fixes the issue by adding a call to arch_make_page_accessible
-in page_cache_pipe_buf_confirm; this fixes the issue.
-
-Fixes: f28d43636d6f ("mm/gup/writeback: add callbacks for inaccessible pages")
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- fs/splice.c | 3 +++
- 1 file changed, 3 insertions(+)
+ lib/test_vmalloc.c | 26 +++++++-------------------
+ mm/vmalloc.c       | 17 ++++++++---------
+ 2 files changed, 15 insertions(+), 28 deletions(-)
 
-diff --git a/fs/splice.c b/fs/splice.c
-index 4735defc46ee..f026e0ce9acd 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -106,6 +106,9 @@ static int page_cache_pipe_buf_confirm(struct pipe_inode_info *pipe,
- 	struct page *page = buf->page;
- 	int err;
+diff --git a/lib/test_vmalloc.c b/lib/test_vmalloc.c
+index 8bbefcaddfe8..cd6aef05dfb4 100644
+--- a/lib/test_vmalloc.c
++++ b/lib/test_vmalloc.c
+@@ -91,12 +91,8 @@ static int random_size_align_alloc_test(void)
+ 		 */
+ 		size = ((rnd % 10) + 1) * PAGE_SIZE;
  
-+	if (arch_make_page_accessible(page))
-+		return -EIO;
-+
- 	if (!PageUptodate(page)) {
- 		lock_page(page);
+-		ptr = __vmalloc_node_range(size, align,
+-		   VMALLOC_START, VMALLOC_END,
+-		   GFP_KERNEL | __GFP_ZERO,
+-		   PAGE_KERNEL,
+-		   0, 0, __builtin_return_address(0));
+-
++		ptr = __vmalloc_node(size, align, GFP_KERNEL | __GFP_ZERO,
++				__builtin_return_address(0));
+ 		if (!ptr)
+ 			return -1;
  
+@@ -118,12 +114,8 @@ static int align_shift_alloc_test(void)
+ 	for (i = 0; i < BITS_PER_LONG; i++) {
+ 		align = ((unsigned long) 1) << i;
+ 
+-		ptr = __vmalloc_node_range(PAGE_SIZE, align,
+-			VMALLOC_START, VMALLOC_END,
+-			GFP_KERNEL | __GFP_ZERO,
+-			PAGE_KERNEL,
+-			0, 0, __builtin_return_address(0));
+-
++		ptr = __vmalloc_node(PAGE_SIZE, align, GFP_KERNEL | __GFP_ZERO,
++				__builtin_return_address(0));
+ 		if (!ptr)
+ 			return -1;
+ 
+@@ -139,13 +131,9 @@ static int fix_align_alloc_test(void)
+ 	int i;
+ 
+ 	for (i = 0; i < test_loop_count; i++) {
+-		ptr = __vmalloc_node_range(5 * PAGE_SIZE,
+-			THREAD_ALIGN << 1,
+-			VMALLOC_START, VMALLOC_END,
+-			GFP_KERNEL | __GFP_ZERO,
+-			PAGE_KERNEL,
+-			0, 0, __builtin_return_address(0));
+-
++		ptr = __vmalloc_node(5 * PAGE_SIZE, THREAD_ALIGN << 1,
++				GFP_KERNEL | __GFP_ZERO,
++				__builtin_return_address(0));
+ 		if (!ptr)
+ 			return -1;
+ 
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index ae8249ef5821..333fbe77255a 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -2522,15 +2522,6 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
+ 	return NULL;
+ }
+ 
+-/*
+- * This is only for performance analysis of vmalloc and stress purpose.
+- * It is required by vmalloc test module, therefore do not use it other
+- * than that.
+- */
+-#ifdef CONFIG_TEST_VMALLOC_MODULE
+-EXPORT_SYMBOL_GPL(__vmalloc_node_range);
+-#endif
+-
+ /**
+  * __vmalloc_node - allocate virtually contiguous memory
+  * @size:	    allocation size
+@@ -2556,6 +2547,14 @@ void *__vmalloc_node(unsigned long size, unsigned long align,
+ 	return __vmalloc_node_range(size, align, VMALLOC_START, VMALLOC_END,
+ 				gfp_mask, PAGE_KERNEL, 0, node, caller);
+ }
++/*
++ * This is only for performance analysis of vmalloc and stress purpose.
++ * It is required by vmalloc test module, therefore do not use it other
++ * than that.
++ */
++#ifdef CONFIG_TEST_VMALLOC_MODULE
++EXPORT_SYMBOL_GPL(__vmalloc_node);
++#endif
+ 
+ void *__vmalloc(unsigned long size, gfp_t gfp_mask)
+ {
 -- 
-2.25.4
+2.25.1
