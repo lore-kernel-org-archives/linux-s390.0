@@ -1,64 +1,88 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:56008 "EHLO mail.kernel.org"
+Received: from 8bytes.org ([81.169.241.247]:35332 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728785AbgDROoW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:44:22 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 12/23] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
-Date: Sat, 18 Apr 2020 10:43:54 -0400
-Message-Id: <20200418144405.10565-12-sashal@kernel.org>
-In-Reply-To: <20200418144405.10565-1-sashal@kernel.org>
-References: <20200418144405.10565-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S2502897AbgDNNQG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:16:06 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v2 19/33] iommu/s390: Convert to probe/release_device() call-backs
+Date: Tue, 14 Apr 2020 15:15:28 +0200
+Message-Id: <20200414131542.25608-20-joro@8bytes.org>
+In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
+References: <20200414131542.25608-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-From: David Hildenbrand <david@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
+Convert the S390 IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
-We have to properly retry again by returning -EINVAL immediately in case
-somebody else instantiated the table concurrently. We missed to add the
-goto in this function only. The code now matches the other, similar
-shadowing functions.
-
-We are overwriting an existing region 2 table entry. All allocated pages
-are added to the crst_list to be freed later, so they are not lost
-forever. However, when unshadowing the region 2 table, we wouldn't trigger
-unshadowing of the original shadowed region 3 table that we replaced. It
-would get unshadowed when the original region 3 table is modified. As it's
-not connected to the page table hierarchy anymore, it's not going to get
-used anymore. However, for a limited time, this page table will stick
-around, so it's in some sense a temporary memory leak.
-
-Identified by manual code inspection. I don't think this classifies as
-stable material.
-
-Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/s390/mm/gmap.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/s390-iommu.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index b6c85b760305d..099db32ed104a 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1680,6 +1680,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
- 		goto out_free;
- 	} else if (*table & _REGION_ENTRY_ORIGIN) {
- 		rc = -EAGAIN;		/* Race with shadow */
-+		goto out_free;
+diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
+index 1137f3ddcb85..610f0828f22d 100644
+--- a/drivers/iommu/s390-iommu.c
++++ b/drivers/iommu/s390-iommu.c
+@@ -166,21 +166,14 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
  	}
- 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
- 	/* mark as invalid as long as the parent table is not protected */
+ }
+ 
+-static int s390_iommu_add_device(struct device *dev)
++static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+ {
+-	struct iommu_group *group = iommu_group_get_for_dev(dev);
+ 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
+ 
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
+-	iommu_device_link(&zdev->iommu_dev, dev);
+-
+-	return 0;
++	return &zdev->iommu_dev;
+ }
+ 
+-static void s390_iommu_remove_device(struct device *dev)
++static void s390_iommu_release_device(struct device *dev)
+ {
+ 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
+ 	struct iommu_domain *domain;
+@@ -191,7 +184,7 @@ static void s390_iommu_remove_device(struct device *dev)
+ 	 * to vfio-pci and completing the VFIO_SET_IOMMU ioctl (which triggers
+ 	 * the attach_dev), removing the device via
+ 	 * "echo 1 > /sys/bus/pci/devices/.../remove" won't trigger detach_dev,
+-	 * only remove_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
++	 * only release_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
+ 	 * notifier.
+ 	 *
+ 	 * So let's call detach_dev from here if it hasn't been called before.
+@@ -201,9 +194,6 @@ static void s390_iommu_remove_device(struct device *dev)
+ 		if (domain)
+ 			s390_iommu_detach_device(domain, dev);
+ 	}
+-
+-	iommu_device_unlink(&zdev->iommu_dev, dev);
+-	iommu_group_remove_device(dev);
+ }
+ 
+ static int s390_iommu_update_trans(struct s390_domain *s390_domain,
+@@ -373,8 +363,8 @@ static const struct iommu_ops s390_iommu_ops = {
+ 	.map = s390_iommu_map,
+ 	.unmap = s390_iommu_unmap,
+ 	.iova_to_phys = s390_iommu_iova_to_phys,
+-	.add_device = s390_iommu_add_device,
+-	.remove_device = s390_iommu_remove_device,
++	.probe_device = s390_iommu_probe_device,
++	.release_device = s390_iommu_release_device,
+ 	.device_group = generic_device_group,
+ 	.pgsize_bitmap = S390_IOMMU_PGSIZES,
+ };
 -- 
-2.20.1
+2.17.1
