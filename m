@@ -1,61 +1,41 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37406 "EHLO mail.kernel.org"
+Received: from 8bytes.org ([81.169.241.247]:34942 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409147AbgDOLpN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:45:13 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 27/84] s390/cpuinfo: fix wrong output when CPU0 is offline
-Date: Wed, 15 Apr 2020 07:43:44 -0400
-Message-Id: <20200415114442.14166-27-sashal@kernel.org>
-In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
-References: <20200415114442.14166-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S2502877AbgDNNQB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:16:01 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v2 05/33] iommu/amd: Remove dma_mask check from check_device()
+Date: Tue, 14 Apr 2020 15:15:14 +0200
+Message-Id: <20200414131542.25608-6-joro@8bytes.org>
+In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
+References: <20200414131542.25608-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 872f27103874a73783aeff2aac2b41a489f67d7c ]
+The check was only needed for the DMA-API implementation in the AMD
+IOMMU driver, which no longer exists.
 
-/proc/cpuinfo should not print information about CPU 0 when it is offline.
-
-Fixes: 281eaa8cb67c ("s390/cpuinfo: simplify locking and skip offline cpus early")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-[heiko.carstens@de.ibm.com: shortened commit message]
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/s390/kernel/processor.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iommu/amd_iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-index 6ebc2117c66c7..91b9b3f73de6e 100644
---- a/arch/s390/kernel/processor.c
-+++ b/arch/s390/kernel/processor.c
-@@ -165,8 +165,9 @@ static void show_cpu_mhz(struct seq_file *m, unsigned long n)
- static int show_cpuinfo(struct seq_file *m, void *v)
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 73b4f84cf449..504f2db75eda 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -326,7 +326,7 @@ static bool check_device(struct device *dev)
  {
- 	unsigned long n = (unsigned long) v - 1;
-+	unsigned long first = cpumask_first(cpu_online_mask);
+ 	int devid;
  
--	if (!n)
-+	if (n == first)
- 		show_cpu_summary(m, v);
- 	if (!machine_has_cpu_mhz)
- 		return 0;
-@@ -179,6 +180,8 @@ static inline void *c_update(loff_t *pos)
- {
- 	if (*pos)
- 		*pos = cpumask_next(*pos - 1, cpu_online_mask);
-+	else
-+		*pos = cpumask_first(cpu_online_mask);
- 	return *pos < nr_cpu_ids ? (void *)*pos + 1 : NULL;
- }
+-	if (!dev || !dev->dma_mask)
++	if (!dev)
+ 		return false;
  
+ 	devid = get_device_id(dev);
 -- 
-2.20.1
+2.17.1
