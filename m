@@ -1,58 +1,230 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/28] mm: only allow page table mappings for built-in zsmalloc
-Date: Wed,  8 Apr 2020 13:59:08 +0200
-Message-Id: <20200408115926.1467567-11-hch@lst.de>
-In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
-References: <20200408115926.1467567-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from 8bytes.org ([81.169.241.247]:34802 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2502888AbgDNNQE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:16:04 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v2 11/33] iommu: Split off default domain allocation from group assignment
+Date: Tue, 14 Apr 2020 15:15:20 +0200
+Message-Id: <20200414131542.25608-12-joro@8bytes.org>
+In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
+References: <20200414131542.25608-1-joro@8bytes.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-This allows to unexport map_vm_area and unmap_kernel_range, which are
-rather deep internal and should not be available to modules.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+When a bus is initialized with iommu-ops, all devices on the bus are
+scanned and iommu-groups are allocated for them, and each groups will
+also get a default domain allocated.
+
+Until now this happened as soon as the group was created and the first
+device added to it. When other devices with different default domain
+requirements were added to the group later on, the default domain was
+re-allocated, if possible.
+
+This resulted in some back and forth and unnecessary allocations, so
+change the flow to defer default domain allocation until all devices
+have been added to their respective IOMMU groups.
+
+The default domains are allocated for newly allocated groups after
+each device on the bus is handled and was probed by the IOMMU driver.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- mm/Kconfig   | 2 +-
- mm/vmalloc.c | 2 --
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/iommu/iommu.c | 154 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 151 insertions(+), 3 deletions(-)
 
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 36949a9425b8..614cc786b519 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -702,7 +702,7 @@ config ZSMALLOC
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 8be047a4808f..7de0e29db333 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -199,7 +199,7 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+ 	dev->iommu->iommu_dev = iommu_dev;
  
- config ZSMALLOC_PGTABLE_MAPPING
- 	bool "Use page table mapping to access object in zsmalloc"
--	depends on ZSMALLOC
-+	depends on ZSMALLOC=y
- 	help
- 	  By default, zsmalloc uses a copy-based object mapping method to
- 	  access allocations that span two pages. However, if a particular
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 3375f9508ef6..9183fc0d365a 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -2046,7 +2046,6 @@ void unmap_kernel_range(unsigned long addr, unsigned long size)
- 	vunmap_page_range(addr, end);
- 	flush_tlb_kernel_range(addr, end);
+ 	group = iommu_group_get_for_dev(dev);
+-	if (!IS_ERR(group)) {
++	if (IS_ERR(group)) {
+ 		ret = PTR_ERR(group);
+ 		goto out_release;
+ 	}
+@@ -1599,6 +1599,37 @@ static int add_iommu_group(struct device *dev, void *data)
+ 	return ret;
  }
--EXPORT_SYMBOL_GPL(unmap_kernel_range);
  
- int map_vm_area(struct vm_struct *area, pgprot_t prot, struct page **pages)
++static int probe_iommu_group(struct device *dev, void *data)
++{
++	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	struct list_head *group_list = data;
++	int ret;
++
++	if (!dev_iommu_get(dev))
++		return -ENOMEM;
++
++	if (!try_module_get(ops->owner)) {
++		ret = -EINVAL;
++		goto err_free_dev_iommu;
++	}
++
++	ret = __iommu_probe_device(dev, group_list);
++	if (ret)
++		goto err_module_put;
++
++	return 0;
++
++err_module_put:
++	module_put(ops->owner);
++err_free_dev_iommu:
++	dev_iommu_free(dev);
++
++	if (ret == -ENODEV)
++		ret = 0;
++
++	return ret;
++}
++
+ static int remove_iommu_group(struct device *dev, void *data)
  {
-@@ -2058,7 +2057,6 @@ int map_vm_area(struct vm_struct *area, pgprot_t prot, struct page **pages)
- 
- 	return err > 0 ? 0 : err;
+ 	iommu_release_device(dev);
+@@ -1658,10 +1689,127 @@ static int iommu_bus_notifier(struct notifier_block *nb,
+ 	return 0;
  }
--EXPORT_SYMBOL_GPL(map_vm_area);
  
- static inline void setup_vmalloc_vm_locked(struct vm_struct *vm,
- 	struct vmap_area *va, unsigned long flags, const void *caller)
++struct __group_domain_type {
++	struct device *dev;
++	unsigned int type;
++};
++
++static int probe_get_default_domain_type(struct device *dev, void *data)
++{
++	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	struct __group_domain_type *gtype = data;
++	unsigned int type = 0;
++
++	if (ops->def_domain_type)
++		type = ops->def_domain_type(dev);
++
++	if (type) {
++		if (gtype->type && gtype->type != type) {
++			dev_warn(dev, "Device needs domain type %s, but device %s in the same iommu group requires type %s - using default\n",
++				 iommu_domain_type_str(type),
++				 dev_name(gtype->dev),
++				 iommu_domain_type_str(gtype->type));
++			gtype->type = 0;
++		}
++
++		if (!gtype->dev) {
++			gtype->dev  = dev;
++			gtype->type = type;
++		}
++	}
++
++	return 0;
++}
++
++static void probe_alloc_default_domain(struct bus_type *bus,
++				       struct iommu_group *group)
++{
++	struct __group_domain_type gtype;
++
++	memset(&gtype, 0, sizeof(gtype));
++
++	/* Ask for default domain requirements of all devices in the group */
++	__iommu_group_for_each_dev(group, &gtype,
++				   probe_get_default_domain_type);
++
++	if (!gtype.type)
++		gtype.type = iommu_def_domain_type;
++
++	iommu_group_alloc_default_domain(bus, group, gtype.type);
++}
++
++static int iommu_group_do_dma_attach(struct device *dev, void *data)
++{
++	struct iommu_domain *domain = data;
++	const struct iommu_ops *ops;
++	int ret;
++
++	ret = __iommu_attach_device(domain, dev);
++
++	ops = domain->ops;
++
++	if (ret == 0 && ops->probe_finalize)
++		ops->probe_finalize(dev);
++
++	return ret;
++}
++
++static int __iommu_group_dma_attach(struct iommu_group *group)
++{
++	return __iommu_group_for_each_dev(group, group->default_domain,
++					  iommu_group_do_dma_attach);
++}
++
++static int bus_iommu_probe(struct bus_type *bus)
++{
++	const struct iommu_ops *ops = bus->iommu_ops;
++	int ret;
++
++	if (ops->probe_device) {
++		struct iommu_group *group, *next;
++		LIST_HEAD(group_list);
++
++		/*
++		 * This code-path does not allocate the default domain when
++		 * creating the iommu group, so do it after the groups are
++		 * created.
++		 */
++		ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
++		if (ret)
++			return ret;
++
++		list_for_each_entry_safe(group, next, &group_list, entry) {
++			/* Remove item from the list */
++			list_del_init(&group->entry);
++
++			mutex_lock(&group->mutex);
++
++			/* Try to allocate default domain */
++			probe_alloc_default_domain(bus, group);
++
++			if (!group->default_domain) {
++				mutex_unlock(&group->mutex);
++				continue;
++			}
++
++			ret = __iommu_group_dma_attach(group);
++
++			mutex_unlock(&group->mutex);
++
++			if (ret)
++				break;
++		}
++	} else {
++		ret = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
++	}
++
++	return ret;
++}
++
+ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
+ {
+-	int err;
+ 	struct notifier_block *nb;
++	int err;
+ 
+ 	nb = kzalloc(sizeof(struct notifier_block), GFP_KERNEL);
+ 	if (!nb)
+@@ -1673,7 +1821,7 @@ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
+ 	if (err)
+ 		goto out_free;
+ 
+-	err = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
++	err = bus_iommu_probe(bus);
+ 	if (err)
+ 		goto out_err;
+ 
 -- 
-2.25.1
+2.17.1
