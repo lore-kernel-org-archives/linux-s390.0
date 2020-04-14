@@ -1,40 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37288 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726594AbgDFHlZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Apr 2020 03:41:25 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0367YAhK134655
-        for <linux-s390@vger.kernel.org>; Mon, 6 Apr 2020 03:41:24 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 306paksurb-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Mon, 06 Apr 2020 03:41:24 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <sth@linux.ibm.com>;
-        Mon, 6 Apr 2020 08:41:19 +0100
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 0/1] s390/dasd: Kconfig patch
-Date: Mon,  6 Apr 2020 09:41:17 +0200
-Message-Id: <20200406074118.86849-1-sth@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54958 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502748AbgDNNO7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:14:59 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 14/29] mm: rename vmap_page_range to map_kernel_range
+Date: Tue, 14 Apr 2020 15:13:33 +0200
+Message-Id: <20200414131348.444715-15-hch@lst.de>
+In-Reply-To: <20200414131348.444715-1-hch@lst.de>
+References: <20200414131348.444715-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: axboe@kernel.dk
-Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jens,
+This matches the map_kernel_range_noflush API.  Also change to pass
+a size instead of the end, similar to the noflush version.
 
-please see the following patch that fixes the DASD iosched Kconfig.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ mm/vmalloc.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-Regards,
-Stefan
-
-Krzysztof Kozlowski (1):
-  s390: Cleanup removed IOSCHED_DEADLINE
-
- drivers/s390/block/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 55df5dc6a9fc..a3d810def567 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -272,13 +272,13 @@ int map_kernel_range_noflush(unsigned long addr, unsigned long size,
+ 	return nr;
+ }
+ 
+-static int vmap_page_range(unsigned long start, unsigned long end,
++static int map_kernel_range(unsigned long start, unsigned long size,
+ 			   pgprot_t prot, struct page **pages)
+ {
+ 	int ret;
+ 
+-	ret = map_kernel_range_noflush(start, end - start, prot, pages);
+-	flush_cache_vmap(start, end);
++	ret = map_kernel_range_noflush(start, size, prot, pages);
++	flush_cache_vmap(start, start + size);
+ 	return ret;
+ }
+ 
+@@ -1866,7 +1866,7 @@ void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t pro
+ 
+ 	kasan_unpoison_vmalloc(mem, size);
+ 
+-	if (vmap_page_range(addr, addr + size, prot, pages) < 0) {
++	if (map_kernel_range(addr, size, prot, pages) < 0) {
+ 		vm_unmap_ram(mem, count);
+ 		return NULL;
+ 	}
+@@ -2030,10 +2030,9 @@ void unmap_kernel_range(unsigned long addr, unsigned long size)
+ int map_vm_area(struct vm_struct *area, pgprot_t prot, struct page **pages)
+ {
+ 	unsigned long addr = (unsigned long)area->addr;
+-	unsigned long end = addr + get_vm_area_size(area);
+ 	int err;
+ 
+-	err = vmap_page_range(addr, end, prot, pages);
++	err = map_kernel_range(addr, get_vm_area_size(area), prot, pages);
+ 
+ 	return err > 0 ? 0 : err;
+ }
 -- 
-2.17.1
+2.25.1
