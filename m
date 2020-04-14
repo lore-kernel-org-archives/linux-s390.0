@@ -1,152 +1,40 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12518 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727611AbgDGTUr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 15:20:47 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v7 15/15] s390/vfio-ap: handle probe/remove not due to host AP config changes
-Date: Tue,  7 Apr 2020 15:20:15 -0400
-Message-Id: <20200407192015.19887-16-akrowiak@linux.ibm.com>
-In-Reply-To: <20200407192015.19887-1-akrowiak@linux.ibm.com>
-References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from 8bytes.org ([81.169.241.247]:34908 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2502874AbgDNNQB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:16:01 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v2 04/33] iommu/vt-d: Wire up iommu_ops->def_domain_type
+Date: Tue, 14 Apr 2020 15:15:13 +0200
+Message-Id: <20200414131542.25608-5-joro@8bytes.org>
+In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
+References: <20200414131542.25608-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-AP queue devices are probed or removed for reasons other than changes
-to the host AP configuration:
+From: Joerg Roedel <jroedel@suse.de>
 
-* Each queue device associated with a card device will get created and
-  probed when the state of the AP adapter represented by the card device
-  dynamically changes from standby to online.
+The Intel VT-d driver already has a matching function to determine the
+default domain type for a device. Wire it up in intel_iommu_ops.
 
-* Each queue device associated with a card device will get removed
-  when the state of the AP adapter to which the queue represented by the
-  queue device dynamically changes from online to standby.
-
-* Each queue device associated with a card device will get removed
-  when the type of the AP adapter to which the queue represented by the
-  queue device dynamically changes.
-
-* Each queue device associated with a card device will get removed
-  when the status of the queue represented by the queue device changes
-  from operating to check stop.
-
-* AP queue devices can be manually bound to or unbound from the vfio_ap
-  device driver by a root user via the sysfs bind/unbind attributes of the
-  driver.
-
-In response to a queue device probe or remove that is not the result of a
-change to the host's AP configuration, if a KVM guest is using the matrix
-mdev to which the APQN of the queue device is assigned, the vfio_ap device
-driver must respond accordingly. In an ideal world, the queue corresponding
-to the queue device being probed would be hot plugged into the guest.
-Likewise, the queue corresponding to the queue device being removed would
-be hot unplugged from the guest. Unfortunately, the AP architecture
-precludes plugging or unplugging individual queues, so let's handle
-the probe or remove of an AP queue device as follows:
-
-Handling Probe
---------------
-There are two requirements that must be met in order to give a
-guest access to the queue corresponding to the queue device being probed:
-
-* Each APQN derived from the APID of the queue device and the APQIs of the
-  domains already assigned to the guest's AP configuration must reference
-  a queue device bound to the vfio_ap device driver.
-
-* Each APQN derived from the APQI of the queue device and the APIDs of the
-  adapters assigned to the guest's AP configuration must reference a queue
-  device bound to the vfio_ap device driver.
-
-If the above conditions are met, the APQN will be assigned to the guest's
-AP configuration and the guest will be given access to the queue.
-
-Handling Remove
----------------
-Since the AP architecture precludes us from taking access to an individual
-queue from a guest, we are left with the choice of taking access away from
-either the adapter or the domain to which the queue is connected. Access to
-the adapter will be taken away because it is likely that most of the time,
-the remove callback will be invoked because the adapter state has
-transitioned from online to standby. In such a case, no queue connected
-to the adapter will be available to access.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 38 +++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ drivers/iommu/intel-iommu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index ccc58daf82f6..918b735d5d56 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1601,6 +1601,15 @@ static void vfio_ap_mdev_for_queue(struct vfio_ap_queue *q)
- 	}
- }
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index ef0a5246700e..b9f905a55dda 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -6209,6 +6209,7 @@ const struct iommu_ops intel_iommu_ops = {
+ 	.dev_enable_feat	= intel_iommu_dev_enable_feat,
+ 	.dev_disable_feat	= intel_iommu_dev_disable_feat,
+ 	.is_attach_deferred	= intel_iommu_is_attach_deferred,
++	.def_domain_type	= device_def_domain_type,
+ 	.pgsize_bitmap		= INTEL_IOMMU_PGSIZES,
+ };
  
-+void vfio_ap_mdev_hot_plug_queue(struct vfio_ap_queue *q)
-+{
-+	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
-+		return;
-+
-+	if (vfio_ap_mdev_configure_crycb(q->matrix_mdev))
-+		vfio_ap_mdev_commit_crycb(q->matrix_mdev);
-+}
-+
- int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
- {
- 	struct vfio_ap_queue *q;
-@@ -1615,11 +1624,35 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
- 	q->saved_isc = VFIO_AP_ISC_INVALID;
- 	vfio_ap_mdev_for_queue(q);
- 	hash_add(matrix_dev->qtable, &q->qnode, q->apqn);
-+	/* Make sure we're not in the middle of an AP configuration change. */
-+	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
-+		vfio_ap_mdev_hot_plug_queue(q);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return 0;
- }
- 
-+void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
-+{
-+	unsigned long apid = AP_QID_CARD(q->apqn);
-+	unsigned long apqi = AP_QID_QUEUE(q->apqn);
-+
-+	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
-+		return;
-+
-+	/*
-+	 * If the APQN is assigned to the guest, then let's
-+	 * go ahead and unplug the adapter since the
-+	 * architecture does not provide a means to unplug
-+	 * an individual queue.
-+	 */
-+	if (test_bit_inv(apid, q->matrix_mdev->shadow_crycb.apm) &&
-+	    test_bit_inv(apqi, q->matrix_mdev->shadow_crycb.aqm)) {
-+		if (vfio_ap_mdev_unassign_guest_apid(q->matrix_mdev, apid))
-+			vfio_ap_mdev_commit_crycb(q->matrix_mdev);
-+	}
-+}
-+
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- {
- 	struct vfio_ap_queue *q;
-@@ -1627,6 +1660,11 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 
- 	mutex_lock(&matrix_dev->lock);
- 	q = dev_get_drvdata(&queue->ap_dev.device);
-+
-+	/* Make sure we're not in the middle of an AP configuration change. */
-+	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
-+		vfio_ap_mdev_hot_unplug_queue(q);
-+
- 	dev_set_drvdata(&queue->ap_dev.device, NULL);
- 	apid = AP_QID_CARD(q->apqn);
- 	apqi = AP_QID_QUEUE(q->apqn);
 -- 
-2.21.1
+2.17.1
