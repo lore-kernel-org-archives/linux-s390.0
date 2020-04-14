@@ -1,55 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:49672 "EHLO
+Received: from bombadil.infradead.org ([198.137.202.133]:59838 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728959AbgDHMAr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 08:00:47 -0400
+        with ESMTP id S2390797AbgDNH3g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 03:29:36 -0400
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 16/28] mm: remove unmap_vmap_area
-Date: Wed,  8 Apr 2020 13:59:14 +0200
-Message-Id: <20200408115926.1467567-17-hch@lst.de>
-In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
-References: <20200408115926.1467567-1-hch@lst.de>
+Subject: [PATCH 10/10] block: fold bdev_unhash_inode into invalidate_partition
+Date: Tue, 14 Apr 2020 09:29:02 +0200
+Message-Id: <20200414072902.324936-11-hch@lst.de>
+In-Reply-To: <20200414072902.324936-1-hch@lst.de>
+References: <20200414072902.324936-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org, Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-This function just has a single caller, open code it there.
+invalidate_partition and bdev_unhash_inode are always paired, and
+invalidate_partition already does an icache lookup for the block device
+inode.  Piggy back on that to remove the inode from the hash.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 ---
- mm/vmalloc.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ block/genhd.c      |  8 ++++++--
+ fs/block_dev.c     | 15 ---------------
+ include/linux/fs.h |  1 -
+ 3 files changed, 6 insertions(+), 18 deletions(-)
 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index b0c7cdc8701a..258220b203f1 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1247,14 +1247,6 @@ int unregister_vmap_purge_notifier(struct notifier_block *nb)
+diff --git a/block/genhd.c b/block/genhd.c
+index 980a4609d4a5..c05d509877fa 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -888,6 +888,12 @@ static void invalidate_partition(struct gendisk *disk, int partno)
+ 
+ 	fsync_bdev(bdev);
+ 	__invalidate_device(bdev, true);
++
++	/*
++	 * Unhash the bdev inode for this device so that it gets evicted as soon
++	 * as last inode reference is dropped.
++	 */
++	remove_inode_hash(bdev->bd_inode);
+ 	bdput(bdev);
  }
- EXPORT_SYMBOL_GPL(unregister_vmap_purge_notifier);
+ 
+@@ -909,13 +915,11 @@ void del_gendisk(struct gendisk *disk)
+ 			     DISK_PITER_INCL_EMPTY | DISK_PITER_REVERSE);
+ 	while ((part = disk_part_iter_next(&piter))) {
+ 		invalidate_partition(disk, part->partno);
+-		bdev_unhash_inode(part_devt(part));
+ 		delete_partition(disk, part);
+ 	}
+ 	disk_part_iter_exit(&piter);
+ 
+ 	invalidate_partition(disk, 0);
+-	bdev_unhash_inode(disk_devt(disk));
+ 	set_capacity(disk, 0);
+ 	disk->flags &= ~GENHD_FL_UP;
+ 	up_write(&disk->lookup_sem);
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 9c8de54fa0c9..998820174d3e 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -883,21 +883,6 @@ static int bdev_set(struct inode *inode, void *data)
+ 
+ static LIST_HEAD(all_bdevs);
  
 -/*
-- * Clear the pagetable entries of a given vmap_area
+- * If there is a bdev inode for this device, unhash it so that it gets evicted
+- * as soon as last inode reference is dropped.
 - */
--static void unmap_vmap_area(struct vmap_area *va)
+-void bdev_unhash_inode(dev_t dev)
 -{
--	unmap_kernel_range_noflush(va->va_start, va->va_end - va->va_start);
+-	struct inode *inode;
+-
+-	inode = ilookup5(blockdev_superblock, hash(dev), bdev_test, &dev);
+-	if (inode) {
+-		remove_inode_hash(inode);
+-		iput(inode);
+-	}
 -}
 -
- /*
-  * lazy_max_pages is the maximum amount of virtual address space we gather up
-  * before attempting to purge with a TLB flush.
-@@ -1416,7 +1408,7 @@ static void free_vmap_area_noflush(struct vmap_area *va)
- static void free_unmap_vmap_area(struct vmap_area *va)
+ struct block_device *bdget(dev_t dev)
  {
- 	flush_cache_vunmap(va->va_start, va->va_end);
--	unmap_vmap_area(va);
-+	unmap_kernel_range_noflush(va->va_start, va->va_end - va->va_start);
- 	if (debug_pagealloc_enabled_static())
- 		flush_tlb_kernel_range(va->va_start, va->va_end);
- 
+ 	struct block_device *bdev;
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 2b4e9f86b151..1a95e5158811 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2581,7 +2581,6 @@ extern struct kmem_cache *names_cachep;
+ #ifdef CONFIG_BLOCK
+ extern int register_blkdev(unsigned int, const char *);
+ extern void unregister_blkdev(unsigned int, const char *);
+-extern void bdev_unhash_inode(dev_t dev);
+ extern struct block_device *bdget(dev_t);
+ extern struct block_device *bdgrab(struct block_device *bdev);
+ extern void bd_set_size(struct block_device *, loff_t size);
 -- 
 2.25.1
