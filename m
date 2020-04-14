@@ -1,85 +1,251 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:48030 "EHLO
-        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726135AbgDZMjO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 26 Apr 2020 08:39:14 -0400
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH v3 0/7] clean up redundant 'kvm_run' parameters
-Date: Sun, 26 Apr 2020 20:38:58 +0800
-Message-Id: <20200426123905.8336-1-tianjia.zhang@linux.alibaba.com>
+Received: from 8bytes.org ([81.169.241.247]:35296 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2502894AbgDNNQF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:16:05 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v2 17/33] iommu/arm-smmu: Convert to probe/release_device() call-backs
+Date: Tue, 14 Apr 2020 15:15:26 +0200
+Message-Id: <20200414131542.25608-18-joro@8bytes.org>
+In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
+References: <20200414131542.25608-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
-structure. Earlier than historical reasons, many kvm-related function
-parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
-This patch does a unified cleanup of these remaining redundant parameters.
+From: Joerg Roedel <jroedel@suse.de>
 
-This series of patches has completely cleaned the architecture of
-arm64, mips, ppc, and s390 (no such redundant code on x86). Due to
-the large number of modified codes, a separate patch is made for each
-platform. On the ppc platform, there is also a redundant structure
-pointer of 'kvm_run' in 'vcpu_arch', which has also been cleaned
-separately.
+Convert the arm-smmu and arm-smmu-v3 drivers to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code does the
+group and sysfs setup.
 
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
-v3 change:
-  Keep the existing `vcpu->run` in the function body unchanged.
+ drivers/iommu/arm-smmu-v3.c | 38 ++++++++++--------------------------
+ drivers/iommu/arm-smmu.c    | 39 ++++++++++++++-----------------------
+ 2 files changed, 25 insertions(+), 52 deletions(-)
 
-v2 change:
-  s390 retains the original variable name and minimizes modification.
-
-Tianjia Zhang (7):
-  KVM: s390: clean up redundant 'kvm_run' parameters
-  KVM: arm64: clean up redundant 'kvm_run' parameters
-  KVM: PPC: Remove redundant kvm_run from vcpu_arch
-  KVM: PPC: clean up redundant 'kvm_run' parameters
-  KVM: PPC: clean up redundant kvm_run parameters in assembly
-  KVM: MIPS: clean up redundant 'kvm_run' parameters
-  KVM: MIPS: clean up redundant kvm_run parameters in assembly
-
- arch/arm64/include/asm/kvm_coproc.h      |  12 +--
- arch/arm64/include/asm/kvm_host.h        |  11 +--
- arch/arm64/include/asm/kvm_mmu.h         |   2 +-
- arch/arm64/kvm/handle_exit.c             |  36 +++----
- arch/arm64/kvm/sys_regs.c                |  13 ++-
- arch/mips/include/asm/kvm_host.h         |  32 +------
- arch/mips/kvm/emulate.c                  |  59 ++++--------
- arch/mips/kvm/entry.c                    |  15 +--
- arch/mips/kvm/mips.c                     |  14 +--
- arch/mips/kvm/trap_emul.c                | 114 ++++++++++-------------
- arch/mips/kvm/vz.c                       |  26 ++----
- arch/powerpc/include/asm/kvm_book3s.h    |  16 ++--
- arch/powerpc/include/asm/kvm_host.h      |   1 -
- arch/powerpc/include/asm/kvm_ppc.h       |  27 +++---
- arch/powerpc/kvm/book3s.c                |   4 +-
- arch/powerpc/kvm/book3s.h                |   2 +-
- arch/powerpc/kvm/book3s_64_mmu_hv.c      |  12 +--
- arch/powerpc/kvm/book3s_64_mmu_radix.c   |   4 +-
- arch/powerpc/kvm/book3s_emulate.c        |  10 +-
- arch/powerpc/kvm/book3s_hv.c             |  64 ++++++-------
- arch/powerpc/kvm/book3s_hv_nested.c      |  12 +--
- arch/powerpc/kvm/book3s_interrupts.S     |  17 ++--
- arch/powerpc/kvm/book3s_paired_singles.c |  72 +++++++-------
- arch/powerpc/kvm/book3s_pr.c             |  33 ++++---
- arch/powerpc/kvm/booke.c                 |  39 ++++----
- arch/powerpc/kvm/booke.h                 |   8 +-
- arch/powerpc/kvm/booke_emulate.c         |   2 +-
- arch/powerpc/kvm/booke_interrupts.S      |   9 +-
- arch/powerpc/kvm/bookehv_interrupts.S    |  10 +-
- arch/powerpc/kvm/e500_emulate.c          |  15 ++-
- arch/powerpc/kvm/emulate.c               |  10 +-
- arch/powerpc/kvm/emulate_loadstore.c     |  32 +++----
- arch/powerpc/kvm/powerpc.c               |  72 +++++++-------
- arch/powerpc/kvm/trace_hv.h              |   6 +-
- arch/s390/kvm/kvm-s390.c                 |  23 +++--
- virt/kvm/arm/arm.c                       |   6 +-
- virt/kvm/arm/mmio.c                      |  11 ++-
- virt/kvm/arm/mmu.c                       |   5 +-
- 38 files changed, 389 insertions(+), 467 deletions(-)
-
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index 82508730feb7..42e1ee7e5197 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -2914,27 +2914,26 @@ static bool arm_smmu_sid_in_range(struct arm_smmu_device *smmu, u32 sid)
+ 
+ static struct iommu_ops arm_smmu_ops;
+ 
+-static int arm_smmu_add_device(struct device *dev)
++static struct iommu_device *arm_smmu_probe_device(struct device *dev)
+ {
+ 	int i, ret;
+ 	struct arm_smmu_device *smmu;
+ 	struct arm_smmu_master *master;
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+-	struct iommu_group *group;
+ 
+ 	if (!fwspec || fwspec->ops != &arm_smmu_ops)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+ 	if (WARN_ON_ONCE(dev_iommu_priv_get(dev)))
+-		return -EBUSY;
++		return ERR_PTR(-EBUSY);
+ 
+ 	smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
+ 	if (!smmu)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+ 	master = kzalloc(sizeof(*master), GFP_KERNEL);
+ 	if (!master)
+-		return -ENOMEM;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	master->dev = dev;
+ 	master->smmu = smmu;
+@@ -2975,30 +2974,15 @@ static int arm_smmu_add_device(struct device *dev)
+ 		master->ssid_bits = min_t(u8, master->ssid_bits,
+ 					  CTXDESC_LINEAR_CDMAX);
+ 
+-	ret = iommu_device_link(&smmu->iommu, dev);
+-	if (ret)
+-		goto err_disable_pasid;
++	return &smmu->iommu;
+ 
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group)) {
+-		ret = PTR_ERR(group);
+-		goto err_unlink;
+-	}
+-
+-	iommu_group_put(group);
+-	return 0;
+-
+-err_unlink:
+-	iommu_device_unlink(&smmu->iommu, dev);
+-err_disable_pasid:
+-	arm_smmu_disable_pasid(master);
+ err_free_master:
+ 	kfree(master);
+ 	dev_iommu_priv_set(dev, NULL);
+-	return ret;
++	return ERR_PTR(ret);
+ }
+ 
+-static void arm_smmu_remove_device(struct device *dev)
++static void arm_smmu_release_device(struct device *dev)
+ {
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct arm_smmu_master *master;
+@@ -3010,8 +2994,6 @@ static void arm_smmu_remove_device(struct device *dev)
+ 	master = dev_iommu_priv_get(dev);
+ 	smmu = master->smmu;
+ 	arm_smmu_detach_dev(master);
+-	iommu_group_remove_device(dev);
+-	iommu_device_unlink(&smmu->iommu, dev);
+ 	arm_smmu_disable_pasid(master);
+ 	kfree(master);
+ 	iommu_fwspec_free(dev);
+@@ -3138,8 +3120,8 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
+ 	.iotlb_sync		= arm_smmu_iotlb_sync,
+ 	.iova_to_phys		= arm_smmu_iova_to_phys,
+-	.add_device		= arm_smmu_add_device,
+-	.remove_device		= arm_smmu_remove_device,
++	.probe_device		= arm_smmu_probe_device,
++	.release_device		= arm_smmu_release_device,
+ 	.device_group		= arm_smmu_device_group,
+ 	.domain_get_attr	= arm_smmu_domain_get_attr,
+ 	.domain_set_attr	= arm_smmu_domain_set_attr,
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index a6a5796e9c41..e622f4e33379 100644
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -220,7 +220,7 @@ static int arm_smmu_register_legacy_master(struct device *dev,
+  * With the legacy DT binding in play, we have no guarantees about
+  * probe order, but then we're also not doing default domains, so we can
+  * delay setting bus ops until we're sure every possible SMMU is ready,
+- * and that way ensure that no add_device() calls get missed.
++ * and that way ensure that no probe_device() calls get missed.
+  */
+ static int arm_smmu_legacy_bus_init(void)
+ {
+@@ -1062,7 +1062,6 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
+ 	struct arm_smmu_master_cfg *cfg = dev_iommu_priv_get(dev);
+ 	struct arm_smmu_device *smmu = cfg->smmu;
+ 	struct arm_smmu_smr *smrs = smmu->smrs;
+-	struct iommu_group *group;
+ 	int i, idx, ret;
+ 
+ 	mutex_lock(&smmu->stream_map_mutex);
+@@ -1090,18 +1089,9 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
+ 		cfg->smendx[i] = (s16)idx;
+ 	}
+ 
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group)) {
+-		ret = PTR_ERR(group);
+-		goto out_err;
+-	}
+-	iommu_group_put(group);
+-
+ 	/* It worked! Now, poke the actual hardware */
+-	for_each_cfg_sme(cfg, fwspec, i, idx) {
++	for_each_cfg_sme(cfg, fwspec, i, idx)
+ 		arm_smmu_write_sme(smmu, idx);
+-		smmu->s2crs[idx].group = group;
+-	}
+ 
+ 	mutex_unlock(&smmu->stream_map_mutex);
+ 	return 0;
+@@ -1172,7 +1162,7 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ 
+ 	/*
+ 	 * FIXME: The arch/arm DMA API code tries to attach devices to its own
+-	 * domains between of_xlate() and add_device() - we have no way to cope
++	 * domains between of_xlate() and probe_device() - we have no way to cope
+ 	 * with that, so until ARM gets converted to rely on groups and default
+ 	 * domains, just say no (but more politely than by dereferencing NULL).
+ 	 * This should be at least a WARN_ON once that's sorted.
+@@ -1382,7 +1372,7 @@ struct arm_smmu_device *arm_smmu_get_by_fwnode(struct fwnode_handle *fwnode)
+ 	return dev ? dev_get_drvdata(dev) : NULL;
+ }
+ 
+-static int arm_smmu_add_device(struct device *dev)
++static struct iommu_device *arm_smmu_probe_device(struct device *dev)
+ {
+ 	struct arm_smmu_device *smmu = NULL;
+ 	struct arm_smmu_master_cfg *cfg;
+@@ -1403,7 +1393,7 @@ static int arm_smmu_add_device(struct device *dev)
+ 	} else if (fwspec && fwspec->ops == &arm_smmu_ops) {
+ 		smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
+ 	} else {
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 	}
+ 
+ 	ret = -EINVAL;
+@@ -1444,21 +1434,19 @@ static int arm_smmu_add_device(struct device *dev)
+ 	if (ret)
+ 		goto out_cfg_free;
+ 
+-	iommu_device_link(&smmu->iommu, dev);
+-
+ 	device_link_add(dev, smmu->dev,
+ 			DL_FLAG_PM_RUNTIME | DL_FLAG_AUTOREMOVE_SUPPLIER);
+ 
+-	return 0;
++	return &smmu->iommu;
+ 
+ out_cfg_free:
+ 	kfree(cfg);
+ out_free:
+ 	iommu_fwspec_free(dev);
+-	return ret;
++	return ERR_PTR(ret);
+ }
+ 
+-static void arm_smmu_remove_device(struct device *dev)
++static void arm_smmu_release_device(struct device *dev)
+ {
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct arm_smmu_master_cfg *cfg;
+@@ -1475,13 +1463,11 @@ static void arm_smmu_remove_device(struct device *dev)
+ 	if (ret < 0)
+ 		return;
+ 
+-	iommu_device_unlink(&smmu->iommu, dev);
+ 	arm_smmu_master_free_smes(cfg, fwspec);
+ 
+ 	arm_smmu_rpm_put(smmu);
+ 
+ 	dev_iommu_priv_set(dev, NULL);
+-	iommu_group_remove_device(dev);
+ 	kfree(cfg);
+ 	iommu_fwspec_free(dev);
+ }
+@@ -1512,6 +1498,11 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
+ 	else
+ 		group = generic_device_group(dev);
+ 
++	/* Remember group for faster lookups */
++	if (!IS_ERR(group))
++		for_each_cfg_sme(cfg, fwspec, i, idx)
++			smmu->s2crs[idx].group = group;
++
+ 	return group;
+ }
+ 
+@@ -1628,8 +1619,8 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
+ 	.iotlb_sync		= arm_smmu_iotlb_sync,
+ 	.iova_to_phys		= arm_smmu_iova_to_phys,
+-	.add_device		= arm_smmu_add_device,
+-	.remove_device		= arm_smmu_remove_device,
++	.probe_device		= arm_smmu_probe_device,
++	.release_device		= arm_smmu_release_device,
+ 	.device_group		= arm_smmu_device_group,
+ 	.domain_get_attr	= arm_smmu_domain_get_attr,
+ 	.domain_set_attr	= arm_smmu_domain_set_attr,
 -- 
 2.17.1
