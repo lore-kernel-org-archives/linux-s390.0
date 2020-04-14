@@ -1,189 +1,137 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from aserp2120.oracle.com ([141.146.126.78]:53006 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726750AbgDQSwV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Apr 2020 14:52:21 -0400
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: [PATCH v3 3/4] hugetlbfs: remove hugetlb_add_hstate() warning for existing hstate
-Date: Fri, 17 Apr 2020 11:50:48 -0700
-Message-Id: <20200417185049.275845-4-mike.kravetz@oracle.com>
-In-Reply-To: <20200417185049.275845-1-mike.kravetz@oracle.com>
-References: <20200417185049.275845-1-mike.kravetz@oracle.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from 8bytes.org ([81.169.241.247]:35034 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2502903AbgDNNQH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:16:07 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v2 27/33] iommu/renesas: Convert to probe/release_device() call-backs
+Date: Tue, 14 Apr 2020 15:15:36 +0200
+Message-Id: <20200414131542.25608-28-joro@8bytes.org>
+In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
+References: <20200414131542.25608-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Randy Dunlap <rdunlap@infradead.org>, Mina Almasry <almasrymina@google.com>, Peter Xu <peterx@redhat.com>, Nitesh Narayan Lal <nitesh@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Kravetz <mike.kravetz@oracle.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-The routine hugetlb_add_hstate prints a warning if the hstate already
-exists.  This was originally done as part of kernel command line
-parsing.  If 'hugepagesz=' was specified more than once, the warning
-	pr_warn("hugepagesz= specified twice, ignoring\n");
-would be printed.
+From: Joerg Roedel <jroedel@suse.de>
 
-Some architectures want to enable all huge page sizes.  They would
-call hugetlb_add_hstate for all supported sizes.  However, this was
-done after command line processing and as a result hstates could have
-already been created for some sizes.  To make sure no warning were
-printed, there would often be code like:
-	if (!size_to_hstate(size)
-		hugetlb_add_hstate(ilog2(size) - PAGE_SHIFT)
+Convert the Renesas IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
-The only time we want to print the warning is as the result of command
-line processing.  So, remove the warning from hugetlb_add_hstate and
-add it to the single arch independent routine processing "hugepagesz=".
-After this, calls to size_to_hstate() in arch specific code can be
-removed and hugetlb_add_hstate can be called without worrying about
-warning messages.
-
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Mina Almasry <almasrymina@google.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/arm64/mm/hugetlbpage.c   | 16 ++++------------
- arch/powerpc/mm/hugetlbpage.c |  3 +--
- arch/riscv/mm/hugetlbpage.c   |  2 +-
- arch/sparc/mm/init_64.c       | 19 ++++---------------
- arch/x86/mm/hugetlbpage.c     |  2 +-
- mm/hugetlb.c                  |  9 ++++++---
- 6 files changed, 17 insertions(+), 34 deletions(-)
+ drivers/iommu/ipmmu-vmsa.c | 60 +++++++++++++-------------------------
+ 1 file changed, 20 insertions(+), 40 deletions(-)
 
-diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
-index f706b821aba6..21fa98b51e00 100644
---- a/arch/arm64/mm/hugetlbpage.c
-+++ b/arch/arm64/mm/hugetlbpage.c
-@@ -441,22 +441,14 @@ void huge_ptep_clear_flush(struct vm_area_struct *vma,
- 	clear_flush(vma->vm_mm, addr, ptep, pgsize, ncontig);
- }
- 
--static void __init add_huge_page_size(unsigned long size)
--{
--	if (size_to_hstate(size))
--		return;
--
--	hugetlb_add_hstate(ilog2(size) - PAGE_SHIFT);
--}
--
- static int __init hugetlbpage_init(void)
+diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+index 310cf09feea3..fb7e702dee23 100644
+--- a/drivers/iommu/ipmmu-vmsa.c
++++ b/drivers/iommu/ipmmu-vmsa.c
+@@ -805,24 +805,8 @@ static int ipmmu_of_xlate(struct device *dev,
+ static int ipmmu_init_arm_mapping(struct device *dev)
  {
- #ifdef CONFIG_ARM64_4K_PAGES
--	add_huge_page_size(PUD_SIZE);
-+	hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
- #endif
--	add_huge_page_size(CONT_PMD_SIZE);
--	add_huge_page_size(PMD_SIZE);
--	add_huge_page_size(CONT_PTE_SIZE);
-+	hugetlb_add_hstate(CONT_PMD_SHIFT - PAGE_SHIFT);
-+	hugetlb_add_hstate(PMD_SHIFT - PAGE_SHIFT);
-+	hugetlb_add_hstate(CONT_PTE_SHIFT - PAGE_SHIFT);
+ 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
+-	struct iommu_group *group;
+ 	int ret;
  
- 	return 0;
- }
-diff --git a/arch/powerpc/mm/hugetlbpage.c b/arch/powerpc/mm/hugetlbpage.c
-index 2c3fa0a7787b..4d5ed1093615 100644
---- a/arch/powerpc/mm/hugetlbpage.c
-+++ b/arch/powerpc/mm/hugetlbpage.c
-@@ -584,8 +584,7 @@ static int __init add_huge_page_size(unsigned long long size)
- 	if (!arch_hugetlb_valid_size((unsigned long)size))
- 		return -EINVAL;
- 
--	if (!size_to_hstate(size))
--		hugetlb_add_hstate(shift - PAGE_SHIFT);
-+	hugetlb_add_hstate(shift - PAGE_SHIFT);
- 	return 0;
- }
- 
-diff --git a/arch/riscv/mm/hugetlbpage.c b/arch/riscv/mm/hugetlbpage.c
-index 4e5d7e9f0eef..932dadfdca54 100644
---- a/arch/riscv/mm/hugetlbpage.c
-+++ b/arch/riscv/mm/hugetlbpage.c
-@@ -26,7 +26,7 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
- static __init int gigantic_pages_init(void)
- {
- 	/* With CONTIG_ALLOC, we can allocate gigantic pages at runtime */
--	if (IS_ENABLED(CONFIG_64BIT) && !size_to_hstate(1UL << PUD_SHIFT))
-+	if (IS_ENABLED(CONFIG_64BIT))
- 		hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
- 	return 0;
- }
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 4618f96fd30f..ae819a16d07a 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -325,23 +325,12 @@ static void __update_mmu_tsb_insert(struct mm_struct *mm, unsigned long tsb_inde
- }
- 
- #ifdef CONFIG_HUGETLB_PAGE
--static void __init add_huge_page_size(unsigned long size)
--{
--	unsigned int order;
+-	/* Create a device group and add the device to it. */
+-	group = iommu_group_alloc();
+-	if (IS_ERR(group)) {
+-		dev_err(dev, "Failed to allocate IOMMU group\n");
+-		return PTR_ERR(group);
+-	}
 -
--	if (size_to_hstate(size))
--		return;
+-	ret = iommu_group_add_device(group, dev);
+-	iommu_group_put(group);
 -
--	order = ilog2(size) - PAGE_SHIFT;
--	hugetlb_add_hstate(order);
--}
+-	if (ret < 0) {
+-		dev_err(dev, "Failed to add device to IPMMU group\n");
+-		return ret;
+-	}
 -
- static int __init hugetlbpage_init(void)
- {
--	add_huge_page_size(1UL << HPAGE_64K_SHIFT);
--	add_huge_page_size(1UL << HPAGE_SHIFT);
--	add_huge_page_size(1UL << HPAGE_256MB_SHIFT);
--	add_huge_page_size(1UL << HPAGE_2GB_SHIFT);
-+	hugetlb_add_hstate(HPAGE_64K_SHIFT - PAGE_SHIFT);
-+	hugetlb_add_hstate(HPAGE_SHIFT - PAGE_SHIFT);
-+	hugetlb_add_hstate(HPAGE_256MB_SHIFT - PAGE_SHIFT);
-+	hugetlb_add_hstate(HPAGE_2GB_SHIFT - PAGE_SHIFT);
- 
+ 	/*
+ 	 * Create the ARM mapping, used by the ARM DMA mapping core to allocate
+ 	 * VAs. This will allocate a corresponding IOMMU domain.
+@@ -856,48 +840,39 @@ static int ipmmu_init_arm_mapping(struct device *dev)
  	return 0;
+ 
+ error:
+-	iommu_group_remove_device(dev);
+ 	if (mmu->mapping)
+ 		arm_iommu_release_mapping(mmu->mapping);
+ 
+ 	return ret;
  }
-diff --git a/arch/x86/mm/hugetlbpage.c b/arch/x86/mm/hugetlbpage.c
-index 937d640a89e3..cf5781142716 100644
---- a/arch/x86/mm/hugetlbpage.c
-+++ b/arch/x86/mm/hugetlbpage.c
-@@ -195,7 +195,7 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
- static __init int gigantic_pages_init(void)
+ 
+-static int ipmmu_add_device(struct device *dev)
++static struct iommu_device *ipmmu_probe_device(struct device *dev)
  {
- 	/* With compaction or CMA we can allocate gigantic pages at runtime */
--	if (boot_cpu_has(X86_FEATURE_GBPAGES) && !size_to_hstate(1UL << PUD_SHIFT))
-+	if (boot_cpu_has(X86_FEATURE_GBPAGES))
- 		hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
- 	return 0;
- }
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index b2d276408cec..0e6eb755ae94 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3222,8 +3222,7 @@ static int __init hugetlb_init(void)
- 		}
+ 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
+-	struct iommu_group *group;
+-	int ret;
  
- 		default_hstate_size = HPAGE_SIZE;
--		if (!size_to_hstate(default_hstate_size))
--			hugetlb_add_hstate(HUGETLB_PAGE_ORDER);
-+		hugetlb_add_hstate(HUGETLB_PAGE_ORDER);
- 	}
- 	default_hstate_idx = hstate_index(size_to_hstate(default_hstate_size));
- 	if (default_hstate_max_huge_pages) {
-@@ -3268,7 +3267,6 @@ void __init hugetlb_add_hstate(unsigned int order)
- 	unsigned long i;
+ 	/*
+ 	 * Only let through devices that have been verified in xlate()
+ 	 */
+ 	if (!mmu)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
  
- 	if (size_to_hstate(PAGE_SIZE << order)) {
--		pr_warn("hugepagesz= specified twice, ignoring\n");
- 		return;
- 	}
- 	BUG_ON(hugetlb_max_hstate >= HUGE_MAX_HSTATE);
-@@ -3343,6 +3341,11 @@ static int __init hugepagesz_setup(char *s)
- 		return 0;
- 	}
+-	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA)) {
+-		ret = ipmmu_init_arm_mapping(dev);
+-		if (ret)
+-			return ret;
+-	} else {
+-		group = iommu_group_get_for_dev(dev);
+-		if (IS_ERR(group))
+-			return PTR_ERR(group);
++	return &mmu->iommu;
++}
  
-+	if (size_to_hstate(size)) {
-+		pr_warn("HugeTLB: hugepagesz %s specified twice, ignoring\n", s);
-+		return 0;
-+	}
+-		iommu_group_put(group);
+-	}
++static void ipmmu_probe_finalize(struct device *dev)
++{
++	int ret = 0;
+ 
+-	iommu_device_link(&mmu->iommu, dev);
+-	return 0;
++	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA))
++		ret = ipmmu_init_arm_mapping(dev);
 +
- 	hugetlb_add_hstate(ilog2(size) - PAGE_SHIFT);
- 	return 1;
++	if (ret)
++		dev_err(dev, "Can't create IOMMU mapping - DMA-OPS will not work\n");
  }
+ 
+-static void ipmmu_remove_device(struct device *dev)
++static void ipmmu_release_device(struct device *dev)
+ {
+-	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
+-
+-	iommu_device_unlink(&mmu->iommu, dev);
+ 	arm_iommu_detach_device(dev);
+-	iommu_group_remove_device(dev);
+ }
+ 
+ static struct iommu_group *ipmmu_find_group(struct device *dev)
+@@ -925,9 +900,14 @@ static const struct iommu_ops ipmmu_ops = {
+ 	.flush_iotlb_all = ipmmu_flush_iotlb_all,
+ 	.iotlb_sync = ipmmu_iotlb_sync,
+ 	.iova_to_phys = ipmmu_iova_to_phys,
+-	.add_device = ipmmu_add_device,
+-	.remove_device = ipmmu_remove_device,
++	.probe_device = ipmmu_probe_device,
++	.release_device = ipmmu_release_device,
++	.probe_finalize = ipmmu_probe_finalize,
++#if defined(CONFIG_ARM) && !defined(CONFIG_IOMMU_DMA)
++	.device_group = generic_device_group,
++#else
+ 	.device_group = ipmmu_find_group,
++#endif
+ 	.pgsize_bitmap = SZ_1G | SZ_2M | SZ_4K,
+ 	.of_xlate = ipmmu_of_xlate,
+ };
 -- 
-2.25.2
+2.17.1
