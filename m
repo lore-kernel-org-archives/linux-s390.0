@@ -1,71 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16752 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727100AbgD2PLv (ORCPT
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47510 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729746AbgDNP14 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 11:11:51 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 08/13] net/smc: move testlink work to system work queue
-Date: Wed, 29 Apr 2020 17:10:44 +0200
-Message-Id: <20200429151049.49979-9-kgraul@linux.ibm.com>
-In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
-References: <20200429151049.49979-1-kgraul@linux.ibm.com>
+        Tue, 14 Apr 2020 11:27:56 -0400
+Date: Tue, 14 Apr 2020 17:27:52 +0200
+From: "joro@8bytes.org" <joro@8bytes.org>
+Subject: Re: [RFC PATCH 11/34] iommu: Split off default domain allocation
+ from group assignment
+Message-ID: <20200414152752.GC14731@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+ <20200407183742.4344-12-joro@8bytes.org>
+ <6a801ff9e6471bda7c6f510dfa2ba7e7c35cb559.camel@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6a801ff9e6471bda7c6f510dfa2ba7e7c35cb559.camel@intel.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: "Derrick, Jonathan" <jonathan.derrick@intel.com>
+Cc: "heiko@sntech.de" <heiko@sntech.de>, "kgene@kernel.org" <kgene@kernel.org>, "jonathanh@nvidia.com" <jonathanh@nvidia.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>, "thierry.reding@gmail.com" <thierry.reding@gmail.com>, "bjorn.andersson@linaro.org" <bjorn.andersson@linaro.org>, "dwmw2@infradead.org" <dwmw2@infradead.org>, "m.szyprowski@samsung.com" <m.szyprowski@samsung.com>, "will@kernel.org" <will@kernel.org>, "jean-philippe@linaro.org" <jean-philippe@linaro.org>, "krzk@kernel.org" <krzk@kernel.org>, "robdclark@gmail.com" <robdclark@gmail.com>, "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>, "gerald.schaefer@de.ibm.com" <gerald.schaefer@de.ibm.com>, "agross@kernel.org" <agross@kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-rockchip@lists.infradead.org" <linux-rockchip@lists.infradead.org>, "linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>, "linux-mediatek@lists.infradead.org" <linux-mediatek@lists.infradead.org>, "jroedel@suse.de" <jroedel@suse.de>
 
-The testlink work waits for a response to the testlink request and
-blocks the single threaded llc_wq. This type of work does not have to be
-serialized and can be moved to the system work queue.
+Hi Jonathan,
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_llc.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+On Mon, Apr 13, 2020 at 10:10:50PM +0000, Derrick, Jonathan wrote:
+> I had to add the following for initial VMD support. The new PCIe domain
+> added on VMD endpoint probe didn't have the dev_iommu member set on the
+> VMD subdevices, which I'm guessing is due to probe_iommu_group already
+> having been run on the VMD endpoint's group prior to those subdevices
+> being added.
+> 
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index 8a5e1ac328dd..ac1e4fb9bf48 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -1577,6 +1577,9 @@ static int iommu_bus_notifier(struct notifier_block *nb,
+>         if (action == BUS_NOTIFY_ADD_DEVICE) {
+>                 int ret;
+>  
+> +               if (!dev_iommu_get(dev))
+> +                       return -ENOMEM;
+> +
+>                 ret = iommu_probe_device(dev);
+>                 return (ret) ? NOTIFY_DONE : NOTIFY_OK;
+>         } else if (action == BUS_NOTIFY_REMOVED_DEVICE) {
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index c267f5006faa..69cc0d65b437 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -613,14 +613,15 @@ static void smc_llc_testlink_work(struct work_struct *work)
- 	/* receive TEST LINK response over RoCE fabric */
- 	rc = wait_for_completion_interruptible_timeout(&link->llc_testlink_resp,
- 						       SMC_LLC_WAIT_TIME);
-+	if (link->state != SMC_LNK_ACTIVE)
-+		return;		/* link state changed */
- 	if (rc <= 0) {
- 		smc_lgr_terminate_sched(smc_get_lgr(link));
- 		return;
- 	}
- 	next_interval = link->llc_testlink_time;
- out:
--	queue_delayed_work(link->llc_wq, &link->llc_testlink_wrk,
--			   next_interval);
-+	schedule_delayed_work(&link->llc_testlink_wrk, next_interval);
- }
- 
- int smc_llc_link_init(struct smc_link *link)
-@@ -648,8 +649,8 @@ void smc_llc_link_active(struct smc_link *link, int testlink_time)
- 	link->state = SMC_LNK_ACTIVE;
- 	if (testlink_time) {
- 		link->llc_testlink_time = testlink_time * HZ;
--		queue_delayed_work(link->llc_wq, &link->llc_testlink_wrk,
--				   link->llc_testlink_time);
-+		schedule_delayed_work(&link->llc_testlink_wrk,
-+				      link->llc_testlink_time);
- 	}
- }
- 
-@@ -665,7 +666,7 @@ void smc_llc_link_inactive(struct smc_link *link)
- 	if (link->state == SMC_LNK_INACTIVE)
- 		return;
- 	link->state = SMC_LNK_INACTIVE;
--	cancel_delayed_work(&link->llc_testlink_wrk);
-+	cancel_delayed_work_sync(&link->llc_testlink_wrk);
- 	smc_wr_wakeup_reg_wait(link);
- 	smc_wr_wakeup_tx_wait(link);
- }
--- 
-2.17.1
+Right, thanks for catching this. The hotplug path does not allocate the
+dev->iommu structure yet. I'll have to figure out if the above patch
+adds it at the right place, but I'll fix it in the next version.
+
+Thanks again,
+
+	Joerg
