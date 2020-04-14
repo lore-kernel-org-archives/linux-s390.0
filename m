@@ -1,94 +1,188 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:37028 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725939AbgDSHvV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 19 Apr 2020 03:51:21 -0400
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH 3/7] KVM: PPC: Remove redundant kvm_run from vcpu_arch
-Date: Sun, 19 Apr 2020 15:51:02 +0800
-Message-Id: <20200419075106.16248-4-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
-References: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 07/29] powerpc: remove __ioremap_at and __iounmap_at
+Date: Tue, 14 Apr 2020 15:13:26 +0200
+Message-Id: <20200414131348.444715-8-hch@lst.de>
+In-Reply-To: <20200414131348.444715-1-hch@lst.de>
+References: <20200414131348.444715-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The 'kvm_run' field already exists in the 'vcpu' structure, which
-is the same structure as the 'kvm_run' in the 'vcpu_arch' and
-should be deleted.
+These helpers are only used for remapping the ISA I/O base.  Replace
+the mapping side with a remap_isa_range helper in isa-bridge.c that
+hard codes all the known arguments, and just remove __iounmap_at in
+favour of open coding it in the only caller.
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/powerpc/include/asm/kvm_host.h | 1 -
- arch/powerpc/kvm/book3s_hv.c        | 6 ++----
- arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
- 3 files changed, 3 insertions(+), 7 deletions(-)
+ arch/powerpc/include/asm/io.h    |  8 -----
+ arch/powerpc/kernel/isa-bridge.c | 28 +++++++++++++-----
+ arch/powerpc/mm/ioremap_64.c     | 50 --------------------------------
+ 3 files changed, 21 insertions(+), 65 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-index 1dc63101ffe1..2745ff8faa01 100644
---- a/arch/powerpc/include/asm/kvm_host.h
-+++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -795,7 +795,6 @@ struct kvm_vcpu_arch {
- 	struct mmio_hpte_cache_entry *pgfault_cache;
+diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
+index 91320985d33f..13f90dd03450 100644
+--- a/arch/powerpc/include/asm/io.h
++++ b/arch/powerpc/include/asm/io.h
+@@ -699,10 +699,6 @@ static inline void iosync(void)
+  *
+  * * iounmap undoes such a mapping and can be hooked
+  *
+- * * __ioremap_at (and the pending __iounmap_at) are low level functions to
+- *   create hand-made mappings for use only by the PCI code and cannot
+- *   currently be hooked. Must be page aligned.
+- *
+  * * __ioremap_caller is the same as above but takes an explicit caller
+  *   reference rather than using __builtin_return_address(0)
+  *
+@@ -729,10 +725,6 @@ void __iomem *do_ioremap(phys_addr_t pa, phys_addr_t offset, unsigned long size,
+ extern void __iomem *__ioremap_caller(phys_addr_t, unsigned long size,
+ 				      pgprot_t prot, void *caller);
  
- 	struct task_struct *run_task;
--	struct kvm_run *kvm_run;
+-extern void __iomem * __ioremap_at(phys_addr_t pa, void *ea,
+-				   unsigned long size, pgprot_t prot);
+-extern void __iounmap_at(void *ea, unsigned long size);
+-
+ /*
+  * When CONFIG_PPC_INDIRECT_PIO is set, we use the generic iomap implementation
+  * which needs some additional definitions here. They basically allow PIO
+diff --git a/arch/powerpc/kernel/isa-bridge.c b/arch/powerpc/kernel/isa-bridge.c
+index 773671b512df..2257d24e6a26 100644
+--- a/arch/powerpc/kernel/isa-bridge.c
++++ b/arch/powerpc/kernel/isa-bridge.c
+@@ -18,6 +18,7 @@
+ #include <linux/init.h>
+ #include <linux/mm.h>
+ #include <linux/notifier.h>
++#include <linux/vmalloc.h>
  
- 	spinlock_t vpa_update_lock;
- 	struct kvmppc_vpa vpa;
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 93493f0cbfe8..413ea2dcb10c 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2934,7 +2934,7 @@ static void post_guest_process(struct kvmppc_vcore *vc, bool is_master)
+ #include <asm/processor.h>
+ #include <asm/io.h>
+@@ -38,6 +39,22 @@ EXPORT_SYMBOL_GPL(isa_bridge_pcidev);
+ #define ISA_SPACE_MASK 0x1
+ #define ISA_SPACE_IO 0x1
  
- 		ret = RESUME_GUEST;
- 		if (vcpu->arch.trap)
--			ret = kvmppc_handle_exit_hv(vcpu->arch.kvm_run, vcpu,
-+			ret = kvmppc_handle_exit_hv(vcpu->run, vcpu,
- 						    vcpu->arch.run_task);
++static void remap_isa_base(phys_addr_t pa, unsigned long size)
++{
++	WARN_ON_ONCE(ISA_IO_BASE & ~PAGE_MASK);
++	WARN_ON_ONCE(pa & ~PAGE_MASK);
++	WARN_ON_ONCE(size & ~PAGE_MASK);
++
++	if (slab_is_available()) {
++		if (ioremap_page_range(ISA_IO_BASE, ISA_IO_BASE + size, pa,
++				pgprot_noncached(PAGE_KERNEL)))
++			unmap_kernel_range(ISA_IO_BASE, size);
++	} else {
++		early_ioremap_range(ISA_IO_BASE, pa, size,
++				pgprot_noncached(PAGE_KERNEL));
++	}
++}
++
+ static void pci_process_ISA_OF_ranges(struct device_node *isa_node,
+ 				      unsigned long phb_io_base_phys)
+ {
+@@ -105,15 +122,13 @@ static void pci_process_ISA_OF_ranges(struct device_node *isa_node,
+ 	if (size > 0x10000)
+ 		size = 0x10000;
  
- 		vcpu->arch.ret = ret;
-@@ -3920,7 +3920,6 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
- 	spin_lock(&vc->lock);
- 	vcpu->arch.ceded = 0;
- 	vcpu->arch.run_task = current;
--	vcpu->arch.kvm_run = kvm_run;
- 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
- 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
- 	vcpu->arch.busy_preempt = TB_NIL;
-@@ -3973,7 +3972,7 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
- 			if (signal_pending(v->arch.run_task)) {
- 				kvmppc_remove_runnable(vc, v);
- 				v->stat.signal_exits++;
--				v->arch.kvm_run->exit_reason = KVM_EXIT_INTR;
-+				v->run->exit_reason = KVM_EXIT_INTR;
- 				v->arch.ret = -EINTR;
- 				wake_up(&v->arch.cpu_run);
- 			}
-@@ -4049,7 +4048,6 @@ int kvmhv_run_single_vcpu(struct kvm_run *kvm_run,
- 	vc = vcpu->arch.vcore;
- 	vcpu->arch.ceded = 0;
- 	vcpu->arch.run_task = current;
--	vcpu->arch.kvm_run = kvm_run;
- 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
- 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
- 	vcpu->arch.busy_preempt = TB_NIL;
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index dc97e5be76f6..5a3987f3ebf3 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -290,8 +290,7 @@ long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
- 			r = RESUME_HOST;
- 			break;
- 		}
--		r = kvmhv_run_single_vcpu(vcpu->arch.kvm_run, vcpu, hdec_exp,
--					  lpcr);
-+		r = kvmhv_run_single_vcpu(vcpu->run, vcpu, hdec_exp, lpcr);
- 	} while (is_kvmppc_resume_guest(r));
+-	__ioremap_at(phb_io_base_phys, (void *)ISA_IO_BASE,
+-		     size, pgprot_noncached(PAGE_KERNEL));
++	remap_isa_base(phb_io_base_phys, size);
+ 	return;
  
- 	/* save L2 state for return */
+ inval_range:
+ 	printk(KERN_ERR "no ISA IO ranges or unexpected isa range, "
+ 	       "mapping 64k\n");
+-	__ioremap_at(phb_io_base_phys, (void *)ISA_IO_BASE,
+-		     0x10000, pgprot_noncached(PAGE_KERNEL));
++	remap_isa_base(phb_io_base_phys, 0x10000);
+ }
+ 
+ 
+@@ -248,8 +263,7 @@ void __init isa_bridge_init_non_pci(struct device_node *np)
+ 	 * and map it
+ 	 */
+ 	isa_io_base = ISA_IO_BASE;
+-	__ioremap_at(pbase, (void *)ISA_IO_BASE,
+-		     size, pgprot_noncached(PAGE_KERNEL));
++	remap_isa_base(pbase, size);
+ 
+ 	pr_debug("ISA: Non-PCI bridge is %pOF\n", np);
+ }
+@@ -297,7 +311,7 @@ static void isa_bridge_remove(void)
+ 	isa_bridge_pcidev = NULL;
+ 
+ 	/* Unmap the ISA area */
+-	__iounmap_at((void *)ISA_IO_BASE, 0x10000);
++	unmap_kernel_range(ISA_IO_BASE, 0x10000);
+ }
+ 
+ /**
+diff --git a/arch/powerpc/mm/ioremap_64.c b/arch/powerpc/mm/ioremap_64.c
+index 50a99d9684f7..ba5cbb0d66bd 100644
+--- a/arch/powerpc/mm/ioremap_64.c
++++ b/arch/powerpc/mm/ioremap_64.c
+@@ -4,56 +4,6 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ 
+-/**
+- * Low level function to establish the page tables for an IO mapping
+- */
+-void __iomem *__ioremap_at(phys_addr_t pa, void *ea, unsigned long size, pgprot_t prot)
+-{
+-	int ret;
+-	unsigned long va = (unsigned long)ea;
+-
+-	/* We don't support the 4K PFN hack with ioremap */
+-	if (pgprot_val(prot) & H_PAGE_4K_PFN)
+-		return NULL;
+-
+-	if ((ea + size) >= (void *)IOREMAP_END) {
+-		pr_warn("Outside the supported range\n");
+-		return NULL;
+-	}
+-
+-	WARN_ON(pa & ~PAGE_MASK);
+-	WARN_ON(((unsigned long)ea) & ~PAGE_MASK);
+-	WARN_ON(size & ~PAGE_MASK);
+-
+-	if (slab_is_available()) {
+-		ret = ioremap_page_range(va, va + size, pa, prot);
+-		if (ret)
+-			unmap_kernel_range(va, size);
+-	} else {
+-		ret = early_ioremap_range(va, pa, size, prot);
+-	}
+-
+-	if (ret)
+-		return NULL;
+-
+-	return (void __iomem *)ea;
+-}
+-EXPORT_SYMBOL(__ioremap_at);
+-
+-/**
+- * Low level function to tear down the page tables for an IO mapping. This is
+- * used for mappings that are manipulated manually, like partial unmapping of
+- * PCI IOs or ISA space.
+- */
+-void __iounmap_at(void *ea, unsigned long size)
+-{
+-	WARN_ON(((unsigned long)ea) & ~PAGE_MASK);
+-	WARN_ON(size & ~PAGE_MASK);
+-
+-	unmap_kernel_range((unsigned long)ea, size);
+-}
+-EXPORT_SYMBOL(__iounmap_at);
+-
+ void __iomem *__ioremap_caller(phys_addr_t addr, unsigned long size,
+ 			       pgprot_t prot, void *caller)
+ {
 -- 
-2.17.1
+2.25.1
