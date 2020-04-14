@@ -1,103 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56504 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725901AbgDUGMd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Apr 2020 02:12:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54840 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502667AbgDNNOY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:14:24 -0400
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 1/3] dasd: refactor dasd_ioctl_information
-Date: Tue, 21 Apr 2020 08:12:24 +0200
-Message-Id: <20200421061226.33731-2-hch@lst.de>
-In-Reply-To: <20200421061226.33731-1-hch@lst.de>
-References: <20200421061226.33731-1-hch@lst.de>
+Subject: [PATCH 03/29] staging: android: ion: use vmap instead of vm_map_ram
+Date: Tue, 14 Apr 2020 15:13:22 +0200
+Message-Id: <20200414131348.444715-4-hch@lst.de>
+In-Reply-To: <20200414131348.444715-1-hch@lst.de>
+References: <20200414131348.444715-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Prepare for in-kernel callers of this functionality.
+vm_map_ram can keep mappings around after the vm_unmap_ram.  Using that
+with non-PAGE_KERNEL mappings can lead to all kinds of aliasing issues.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/s390/block/dasd_ioctl.c | 38 +++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 16 deletions(-)
+ drivers/staging/android/ion/ion_heap.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index 9a5f3add325f..dabcb4ce92da 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -457,10 +457,9 @@ static int dasd_ioctl_read_profile(struct dasd_block *block, void __user *argp)
- /*
-  * Return dasd information. Used for BIODASDINFO and BIODASDINFO2.
-  */
--static int dasd_ioctl_information(struct dasd_block *block,
--				  unsigned int cmd, void __user *argp)
-+static int __dasd_ioctl_information(struct dasd_block *block,
-+		struct dasd_information2_t *dasd_info)
+diff --git a/drivers/staging/android/ion/ion_heap.c b/drivers/staging/android/ion/ion_heap.c
+index 473b465724f1..0755b11348ed 100644
+--- a/drivers/staging/android/ion/ion_heap.c
++++ b/drivers/staging/android/ion/ion_heap.c
+@@ -99,12 +99,12 @@ int ion_heap_map_user(struct ion_heap *heap, struct ion_buffer *buffer,
+ 
+ static int ion_heap_clear_pages(struct page **pages, int num, pgprot_t pgprot)
  {
--	struct dasd_information2_t *dasd_info;
- 	struct subchannel_id sch_id;
- 	struct ccw_dev_id dev_id;
- 	struct dasd_device *base;
-@@ -473,10 +472,6 @@ static int dasd_ioctl_information(struct dasd_block *block,
- 	if (!base->discipline || !base->discipline->fill_info)
- 		return -EINVAL;
+-	void *addr = vm_map_ram(pages, num, -1, pgprot);
++	void *addr = vmap(pages, num, VM_MAP, pgprot);
  
--	dasd_info = kzalloc(sizeof(struct dasd_information2_t), GFP_KERNEL);
--	if (dasd_info == NULL)
--		return -ENOMEM;
--
- 	rc = base->discipline->fill_info(base, dasd_info);
- 	if (rc) {
- 		kfree(dasd_info);
-@@ -520,15 +515,24 @@ static int dasd_ioctl_information(struct dasd_block *block,
- 	list_for_each(l, &base->ccw_queue)
- 		dasd_info->chanq_len++;
- 	spin_unlock_irqrestore(&block->queue_lock, flags);
-+	return 0;
-+}
+ 	if (!addr)
+ 		return -ENOMEM;
+ 	memset(addr, 0, PAGE_SIZE * num);
+-	vm_unmap_ram(addr, num);
++	vunmap(addr);
  
--	rc = 0;
--	if (copy_to_user(argp, dasd_info,
--			 ((cmd == (unsigned int) BIODASDINFO2) ?
--			  sizeof(struct dasd_information2_t) :
--			  sizeof(struct dasd_information_t))))
--		rc = -EFAULT;
-+static int dasd_ioctl_information(struct dasd_block *block, void __user *argp,
-+		size_t copy_size)
-+{
-+	struct dasd_information2_t *dasd_info;
-+	int error = 0;
-+
-+	dasd_info = kzalloc(sizeof(*dasd_info), GFP_KERNEL);
-+	if (!dasd_info)
-+		return -ENOMEM;
-+
-+	error = __dasd_ioctl_information(block, dasd_info);
-+	if (!error && copy_to_user(argp, dasd_info, copy_size))
-+		error = -EFAULT;
- 	kfree(dasd_info);
--	return rc;
-+	return error;
+ 	return 0;
  }
- 
- /*
-@@ -622,10 +626,12 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
- 		rc = dasd_ioctl_check_format(bdev, argp);
- 		break;
- 	case BIODASDINFO:
--		rc = dasd_ioctl_information(block, cmd, argp);
-+		rc = dasd_ioctl_information(block, argp,
-+				sizeof(struct dasd_information_t));
- 		break;
- 	case BIODASDINFO2:
--		rc = dasd_ioctl_information(block, cmd, argp);
-+		rc = dasd_ioctl_information(block, argp,
-+				sizeof(struct dasd_information2_t));
- 		break;
- 	case BIODASDPRRD:
- 		rc = dasd_ioctl_read_profile(block, argp);
 -- 
-2.26.1
+2.25.1
