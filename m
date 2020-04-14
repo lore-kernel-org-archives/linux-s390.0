@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:34802 "EHLO theia.8bytes.org"
+Received: from 8bytes.org ([81.169.241.247]:35334 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502888AbgDNNQE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:04 -0400
+        id S2502896AbgDNNQG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:16:06 -0400
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 11/33] iommu: Split off default domain allocation from group assignment
-Date: Tue, 14 Apr 2020 15:15:20 +0200
-Message-Id: <20200414131542.25608-12-joro@8bytes.org>
+Subject: [PATCH v2 20/33] iommu/virtio: Convert to probe/release_device() call-backs
+Date: Tue, 14 Apr 2020 15:15:29 +0200
+Message-Id: <20200414131542.25608-21-joro@8bytes.org>
 In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
@@ -16,215 +16,108 @@ Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsun
 
 From: Joerg Roedel <jroedel@suse.de>
 
-When a bus is initialized with iommu-ops, all devices on the bus are
-scanned and iommu-groups are allocated for them, and each groups will
-also get a default domain allocated.
-
-Until now this happened as soon as the group was created and the first
-device added to it. When other devices with different default domain
-requirements were added to the group later on, the default domain was
-re-allocated, if possible.
-
-This resulted in some back and forth and unnecessary allocations, so
-change the flow to defer default domain allocation until all devices
-have been added to their respective IOMMU groups.
-
-The default domains are allocated for newly allocated groups after
-each device on the bus is handled and was probed by the IOMMU driver.
+Convert the VirtIO IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/iommu.c | 154 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 151 insertions(+), 3 deletions(-)
+ drivers/iommu/virtio-iommu.c | 41 +++++++++---------------------------
+ 1 file changed, 10 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 8be047a4808f..7de0e29db333 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -199,7 +199,7 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
- 	dev->iommu->iommu_dev = iommu_dev;
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index d5cac4f46ca5..bda300c2a438 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -865,24 +865,23 @@ static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
+ 	return dev ? dev_to_virtio(dev)->priv : NULL;
+ }
  
- 	group = iommu_group_get_for_dev(dev);
--	if (!IS_ERR(group)) {
-+	if (IS_ERR(group)) {
- 		ret = PTR_ERR(group);
- 		goto out_release;
+-static int viommu_add_device(struct device *dev)
++static struct iommu_device *viommu_probe_device(struct device *dev)
+ {
+ 	int ret;
+-	struct iommu_group *group;
+ 	struct viommu_endpoint *vdev;
+ 	struct viommu_dev *viommu = NULL;
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 
+ 	if (!fwspec || fwspec->ops != &viommu_ops)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+ 	viommu = viommu_get_by_fwnode(fwspec->iommu_fwnode);
+ 	if (!viommu)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+ 	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
+ 	if (!vdev)
+-		return -ENOMEM;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	vdev->dev = dev;
+ 	vdev->viommu = viommu;
+@@ -896,45 +895,25 @@ static int viommu_add_device(struct device *dev)
+ 			goto err_free_dev;
  	}
-@@ -1599,6 +1599,37 @@ static int add_iommu_group(struct device *dev, void *data)
- 	return ret;
+ 
+-	ret = iommu_device_link(&viommu->iommu, dev);
+-	if (ret)
+-		goto err_free_dev;
++	return &viommu->iommu;
+ 
+-	/*
+-	 * Last step creates a default domain and attaches to it. Everything
+-	 * must be ready.
+-	 */
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group)) {
+-		ret = PTR_ERR(group);
+-		goto err_unlink_dev;
+-	}
+-
+-	iommu_group_put(group);
+-
+-	return PTR_ERR_OR_ZERO(group);
+-
+-err_unlink_dev:
+-	iommu_device_unlink(&viommu->iommu, dev);
+ err_free_dev:
+ 	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
+ 	kfree(vdev);
+ 
+-	return ret;
++	return ERR_PTR(ret);
  }
  
-+static int probe_iommu_group(struct device *dev, void *data)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct list_head *group_list = data;
-+	int ret;
-+
-+	if (!dev_iommu_get(dev))
-+		return -ENOMEM;
-+
-+	if (!try_module_get(ops->owner)) {
-+		ret = -EINVAL;
-+		goto err_free_dev_iommu;
-+	}
-+
-+	ret = __iommu_probe_device(dev, group_list);
-+	if (ret)
-+		goto err_module_put;
-+
-+	return 0;
-+
-+err_module_put:
-+	module_put(ops->owner);
-+err_free_dev_iommu:
-+	dev_iommu_free(dev);
-+
-+	if (ret == -ENODEV)
-+		ret = 0;
-+
-+	return ret;
-+}
-+
- static int remove_iommu_group(struct device *dev, void *data)
+-static void viommu_remove_device(struct device *dev)
++static void viommu_release_device(struct device *dev)
  {
- 	iommu_release_device(dev);
-@@ -1658,10 +1689,127 @@ static int iommu_bus_notifier(struct notifier_block *nb,
- 	return 0;
+-	struct viommu_endpoint *vdev;
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
++	struct viommu_endpoint *vdev;
+ 
+ 	if (!fwspec || fwspec->ops != &viommu_ops)
+ 		return;
+ 
+ 	vdev = dev_iommu_priv_get(dev);
+ 
+-	iommu_group_remove_device(dev);
+-	iommu_device_unlink(&vdev->viommu->iommu, dev);
+ 	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
+ 	kfree(vdev);
  }
- 
-+struct __group_domain_type {
-+	struct device *dev;
-+	unsigned int type;
-+};
-+
-+static int probe_get_default_domain_type(struct device *dev, void *data)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct __group_domain_type *gtype = data;
-+	unsigned int type = 0;
-+
-+	if (ops->def_domain_type)
-+		type = ops->def_domain_type(dev);
-+
-+	if (type) {
-+		if (gtype->type && gtype->type != type) {
-+			dev_warn(dev, "Device needs domain type %s, but device %s in the same iommu group requires type %s - using default\n",
-+				 iommu_domain_type_str(type),
-+				 dev_name(gtype->dev),
-+				 iommu_domain_type_str(gtype->type));
-+			gtype->type = 0;
-+		}
-+
-+		if (!gtype->dev) {
-+			gtype->dev  = dev;
-+			gtype->type = type;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void probe_alloc_default_domain(struct bus_type *bus,
-+				       struct iommu_group *group)
-+{
-+	struct __group_domain_type gtype;
-+
-+	memset(&gtype, 0, sizeof(gtype));
-+
-+	/* Ask for default domain requirements of all devices in the group */
-+	__iommu_group_for_each_dev(group, &gtype,
-+				   probe_get_default_domain_type);
-+
-+	if (!gtype.type)
-+		gtype.type = iommu_def_domain_type;
-+
-+	iommu_group_alloc_default_domain(bus, group, gtype.type);
-+}
-+
-+static int iommu_group_do_dma_attach(struct device *dev, void *data)
-+{
-+	struct iommu_domain *domain = data;
-+	const struct iommu_ops *ops;
-+	int ret;
-+
-+	ret = __iommu_attach_device(domain, dev);
-+
-+	ops = domain->ops;
-+
-+	if (ret == 0 && ops->probe_finalize)
-+		ops->probe_finalize(dev);
-+
-+	return ret;
-+}
-+
-+static int __iommu_group_dma_attach(struct iommu_group *group)
-+{
-+	return __iommu_group_for_each_dev(group, group->default_domain,
-+					  iommu_group_do_dma_attach);
-+}
-+
-+static int bus_iommu_probe(struct bus_type *bus)
-+{
-+	const struct iommu_ops *ops = bus->iommu_ops;
-+	int ret;
-+
-+	if (ops->probe_device) {
-+		struct iommu_group *group, *next;
-+		LIST_HEAD(group_list);
-+
-+		/*
-+		 * This code-path does not allocate the default domain when
-+		 * creating the iommu group, so do it after the groups are
-+		 * created.
-+		 */
-+		ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
-+		if (ret)
-+			return ret;
-+
-+		list_for_each_entry_safe(group, next, &group_list, entry) {
-+			/* Remove item from the list */
-+			list_del_init(&group->entry);
-+
-+			mutex_lock(&group->mutex);
-+
-+			/* Try to allocate default domain */
-+			probe_alloc_default_domain(bus, group);
-+
-+			if (!group->default_domain) {
-+				mutex_unlock(&group->mutex);
-+				continue;
-+			}
-+
-+			ret = __iommu_group_dma_attach(group);
-+
-+			mutex_unlock(&group->mutex);
-+
-+			if (ret)
-+				break;
-+		}
-+	} else {
-+		ret = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
-+	}
-+
-+	return ret;
-+}
-+
- static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
- {
--	int err;
- 	struct notifier_block *nb;
-+	int err;
- 
- 	nb = kzalloc(sizeof(struct notifier_block), GFP_KERNEL);
- 	if (!nb)
-@@ -1673,7 +1821,7 @@ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
- 	if (err)
- 		goto out_free;
- 
--	err = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
-+	err = bus_iommu_probe(bus);
- 	if (err)
- 		goto out_err;
- 
+@@ -960,8 +939,8 @@ static struct iommu_ops viommu_ops = {
+ 	.unmap			= viommu_unmap,
+ 	.iova_to_phys		= viommu_iova_to_phys,
+ 	.iotlb_sync		= viommu_iotlb_sync,
+-	.add_device		= viommu_add_device,
+-	.remove_device		= viommu_remove_device,
++	.probe_device		= viommu_probe_device,
++	.release_device		= viommu_release_device,
+ 	.device_group		= viommu_device_group,
+ 	.get_resv_regions	= viommu_get_resv_regions,
+ 	.put_resv_regions	= generic_iommu_put_resv_regions,
 -- 
 2.17.1
