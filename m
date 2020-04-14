@@ -1,153 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46860 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726028AbgDXI1U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Apr 2020 04:27:20 -0400
-Subject: Re: [kvm-unit-tests PATCH v5 04/10] s390x: interrupt registration
-References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
- <1582200043-21760-5-git-send-email-pmorel@linux.ibm.com>
-From: Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <c8d1081a-8e94-f28e-66e7-fe98aea31837@linux.ibm.com>
-Date: Fri, 24 Apr 2020 10:27:12 +0200
+Received: from bombadil.infradead.org ([198.137.202.133]:59830 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390793AbgDNH3d (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 03:29:33 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 09/10] block: mark invalidate_partition static
+Date: Tue, 14 Apr 2020 09:29:01 +0200
+Message-Id: <20200414072902.324936-10-hch@lst.de>
+In-Reply-To: <20200414072902.324936-1-hch@lst.de>
+References: <20200414072902.324936-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <1582200043-21760-5-git-send-email-pmorel@linux.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="wPx7vhOY84tMe3TtHWKKZgdUZIIxEscDN"
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org, Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---wPx7vhOY84tMe3TtHWKKZgdUZIIxEscDN
-Content-Type: multipart/mixed; boundary="PdD8IvfZTe6vLUBVmh1zujAiFl1yOzhLJ"
+invalidate_partition is only used in genhd.c, so mark it static.  Also
+drop the return value given that is is always ignored.
 
---PdD8IvfZTe6vLUBVmh1zujAiFl1yOzhLJ
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+---
+ block/genhd.c      | 27 +++++++++++++--------------
+ include/linux/fs.h |  1 -
+ 2 files changed, 13 insertions(+), 15 deletions(-)
 
-On 2/20/20 1:00 PM, Pierre Morel wrote:
-> Let's make it possible to add and remove a custom io interrupt handler,=
-
-> that can be used instead of the normal one.
->=20
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  lib/s390x/interrupt.c | 22 +++++++++++++++++++++-
->  lib/s390x/interrupt.h |  7 +++++++
->  2 files changed, 28 insertions(+), 1 deletion(-)
->  create mode 100644 lib/s390x/interrupt.h
->=20
-> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-> index 3a40cac..f6f0665 100644
-> --- a/lib/s390x/interrupt.c
-> +++ b/lib/s390x/interrupt.c
-> @@ -10,9 +10,9 @@
->   * under the terms of the GNU Library General Public License version 2=
-=2E
->   */
->  #include <libcflat.h>
-> -#include <asm/interrupt.h>
->  #include <asm/barrier.h>
->  #include <sclp.h>
-> +#include <interrupt.h>
-
-Hrm
-
-> =20
->  static bool pgm_int_expected;
->  static bool ext_int_expected;
-> @@ -144,12 +144,32 @@ void handle_mcck_int(void)
->  		     stap(), lc->mcck_old_psw.addr);
->  }
-> =20
-> +static void (*io_int_func)(void);
-> +
->  void handle_io_int(void)
->  {
-> +	if (*io_int_func)
-> +		return (*io_int_func)();
->  	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
->  		     stap(), lc->io_old_psw.addr);
->  }
-> =20
-> +int register_io_int_func(void (*f)(void))
-> +{
-> +	if (io_int_func)
-> +		return -1;
-> +	io_int_func =3D f;
-> +	return 0;
-> +}
-> +
-> +int unregister_io_int_func(void (*f)(void))
-> +{
-> +	if (io_int_func !=3D f)
-> +		return -1;
-> +	io_int_func =3D NULL;
-> +	return 0;
-> +}
-
-I'm currently working on something similar for PGMs and I see no
-additional value in two functions for this. Unregistering can be done by
-doing register_io_int_func(NULL)
-
-This should be enough:
-
-int register_io_int_func(void (*f)(void))
-{
-	io_int_func =3D f;
-}
-
-> +
->  void handle_svc_int(void)
->  {
->  	report_abort("Unexpected supervisor call interrupt: on cpu %d at %#lx=
-",
-> diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
-> new file mode 100644
-> index 0000000..e945ef7
-> --- /dev/null
-> +++ b/lib/s390x/interrupt.h
-> @@ -0,0 +1,7 @@
-> +#ifndef __INTERRUPT_H
-> +#include <asm/interrupt.h>
-> +
-> +int register_io_int_func(void (*f)(void));
-> +int unregister_io_int_func(void (*f)(void));
-> +
-> +#endif
->=20
-
-
-
---PdD8IvfZTe6vLUBVmh1zujAiFl1yOzhLJ--
-
---wPx7vhOY84tMe3TtHWKKZgdUZIIxEscDN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl6iouAACgkQ41TmuOI4
-ufi1yg/+OT/HIYcrKEY965SpT9ZzWtHuQuix0LbuTooJicTSB+3+2HMMDvBjPKWl
-/Yw5vdUCbuFC1iltxuI/EpceCUjFFzL7Pq4Nwvg0xH0TGDDaPkOOawJtMVkwpjVt
-iW7SbDDKTIN212uqIXgJ/uWX6ve/aANeI/ogSzV2MprwJX/IZelUrgLEu8dtn7Sc
-lYtpYSgbtzHHSYxYuvsAfCYcAX2e8X7OxTdogpAXAjE78QJRfAT+rKIuY2I7MvaW
-TygTwkvVjNaLEo2ryI3nEc3zt4F2AmVfvfncNjX4qiXUL3CwW8E2QrKPW86uaWoF
-LZuzOVV/fbeewr3YPjf8yX10XpN7BoAlI9nXZY3xurO3K63wkyIrJPG3fTZVs6fl
-3/h9zAvn3w1xmPMj5itldzRiMUF+GCbFQQweGyFeqXWs8GoDvc9JM7Ek0QQgiMYX
-PMjxcx3zg9dzdRy0ZN8VXa/PEUF3/b9g7F23VprJ8I3J7vXqJ/SFRL4U/B/eIcyk
-broJDhuu/bnunbYXfr4estfqjadpM2MuTYdmE5cZUdECJMYaYy23BK47LOqMAHWZ
-wLq9j6GKVQPw2/I9sBn1ahQIDW+VGLgDyUoGv+mc8xr7Y5nGX8BqeznKpBzR6ywC
-ab7/mEoeea1W3zXs3gET4isS8jwN+ZVkDZEeNGrfGymaUtzq7sM=
-=mExk
------END PGP SIGNATURE-----
-
---wPx7vhOY84tMe3TtHWKKZgdUZIIxEscDN--
+diff --git a/block/genhd.c b/block/genhd.c
+index 1cc50ad5b191..980a4609d4a5 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -878,6 +878,19 @@ void device_add_disk_no_queue_reg(struct device *parent, struct gendisk *disk)
+ }
+ EXPORT_SYMBOL(device_add_disk_no_queue_reg);
+ 
++static void invalidate_partition(struct gendisk *disk, int partno)
++{
++	struct block_device *bdev;
++
++	bdev = bdget_disk(disk, partno);
++	if (!bdev)
++		return;
++
++	fsync_bdev(bdev);
++	__invalidate_device(bdev, true);
++	bdput(bdev);
++}
++
+ void del_gendisk(struct gendisk *disk)
+ {
+ 	struct disk_part_iter piter;
+@@ -1806,20 +1819,6 @@ int bdev_read_only(struct block_device *bdev)
+ 
+ EXPORT_SYMBOL(bdev_read_only);
+ 
+-int invalidate_partition(struct gendisk *disk, int partno)
+-{
+-	int res = 0;
+-	struct block_device *bdev = bdget_disk(disk, partno);
+-	if (bdev) {
+-		fsync_bdev(bdev);
+-		res = __invalidate_device(bdev, true);
+-		bdput(bdev);
+-	}
+-	return res;
+-}
+-
+-EXPORT_SYMBOL(invalidate_partition);
+-
+ /*
+  * Disk events - monitor disk events like media change and eject request.
+  */
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 4f6f59b4f22a..2b4e9f86b151 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2723,7 +2723,6 @@ extern bool is_bad_inode(struct inode *);
+ extern int revalidate_disk(struct gendisk *);
+ extern int check_disk_change(struct block_device *);
+ extern int __invalidate_device(struct block_device *, bool);
+-extern int invalidate_partition(struct gendisk *, int);
+ #endif
+ unsigned long invalidate_mapping_pages(struct address_space *mapping,
+ 					pgoff_t start, pgoff_t end);
+-- 
+2.25.1
