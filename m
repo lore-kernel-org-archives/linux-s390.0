@@ -1,61 +1,152 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55024 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502783AbgDNNPV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:15:21 -0400
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 01/29] x86/hyperv: use vmalloc_exec for the hypercall page
-Date: Tue, 14 Apr 2020 15:13:20 +0200
-Message-Id: <20200414131348.444715-2-hch@lst.de>
+Subject: [PATCH 18/29] mm: remove the prot argument from vm_map_ram
+Date: Tue, 14 Apr 2020 15:13:37 +0200
+Message-Id: <20200414131348.444715-19-hch@lst.de>
 In-Reply-To: <20200414131348.444715-1-hch@lst.de>
 References: <20200414131348.444715-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>
+Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Use the designated helper for allocating executable kernel memory, and
-remove the now unused PAGE_KERNEL_RX define.
+This is always PAGE_KERNEL - for long term mappings with other
+properties vmap should be used.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
-Acked-by: Wei Liu <wei.liu@kernel.org>
 Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/x86/hyperv/hv_init.c            | 2 +-
- arch/x86/include/asm/pgtable_types.h | 2 --
- 2 files changed, 1 insertion(+), 3 deletions(-)
+ drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c   | 2 +-
+ drivers/media/common/videobuf2/videobuf2-dma-sg.c  | 3 +--
+ drivers/media/common/videobuf2/videobuf2-vmalloc.c | 3 +--
+ fs/erofs/decompressor.c                            | 2 +-
+ fs/xfs/xfs_buf.c                                   | 2 +-
+ include/linux/vmalloc.h                            | 3 +--
+ mm/nommu.c                                         | 2 +-
+ mm/vmalloc.c                                       | 4 ++--
+ 8 files changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-index b0da5320bcff..5a4b363ba67b 100644
---- a/arch/x86/hyperv/hv_init.c
-+++ b/arch/x86/hyperv/hv_init.c
-@@ -355,7 +355,7 @@ void __init hyperv_init(void)
- 	guest_id = generate_guest_id(0, LINUX_VERSION_CODE, 0);
- 	wrmsrl(HV_X64_MSR_GUEST_OS_ID, guest_id);
+diff --git a/drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c b/drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c
+index 9272bef57092..debaf7b18ab5 100644
+--- a/drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c
++++ b/drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c
+@@ -66,7 +66,7 @@ static void *mock_dmabuf_vmap(struct dma_buf *dma_buf)
+ {
+ 	struct mock_dmabuf *mock = to_mock(dma_buf);
  
--	hv_hypercall_pg  = __vmalloc(PAGE_SIZE, GFP_KERNEL, PAGE_KERNEL_RX);
-+	hv_hypercall_pg = vmalloc_exec(PAGE_SIZE);
- 	if (hv_hypercall_pg == NULL) {
- 		wrmsrl(HV_X64_MSR_GUEST_OS_ID, 0);
- 		goto remove_cpuhp_state;
-diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
-index b6606fe6cfdf..947867f112ea 100644
---- a/arch/x86/include/asm/pgtable_types.h
-+++ b/arch/x86/include/asm/pgtable_types.h
-@@ -194,7 +194,6 @@ enum page_cache_mode {
- #define _PAGE_TABLE_NOENC	 (__PP|__RW|_USR|___A|   0|___D|   0|   0)
- #define _PAGE_TABLE		 (__PP|__RW|_USR|___A|   0|___D|   0|   0| _ENC)
- #define __PAGE_KERNEL_RO	 (__PP|   0|   0|___A|__NX|___D|   0|___G)
--#define __PAGE_KERNEL_RX	 (__PP|   0|   0|___A|   0|___D|   0|___G)
- #define __PAGE_KERNEL_NOCACHE	 (__PP|__RW|   0|___A|__NX|___D|   0|___G| __NC)
- #define __PAGE_KERNEL_VVAR	 (__PP|   0|_USR|___A|__NX|___D|   0|___G)
- #define __PAGE_KERNEL_LARGE	 (__PP|__RW|   0|___A|__NX|___D|_PSE|___G)
-@@ -220,7 +219,6 @@ enum page_cache_mode {
- #define PAGE_KERNEL_RO		__pgprot_mask(__PAGE_KERNEL_RO         | _ENC)
- #define PAGE_KERNEL_EXEC	__pgprot_mask(__PAGE_KERNEL_EXEC       | _ENC)
- #define PAGE_KERNEL_EXEC_NOENC	__pgprot_mask(__PAGE_KERNEL_EXEC       |    0)
--#define PAGE_KERNEL_RX		__pgprot_mask(__PAGE_KERNEL_RX         | _ENC)
- #define PAGE_KERNEL_NOCACHE	__pgprot_mask(__PAGE_KERNEL_NOCACHE    | _ENC)
- #define PAGE_KERNEL_LARGE	__pgprot_mask(__PAGE_KERNEL_LARGE      | _ENC)
- #define PAGE_KERNEL_LARGE_EXEC	__pgprot_mask(__PAGE_KERNEL_LARGE_EXEC | _ENC)
+-	return vm_map_ram(mock->pages, mock->npages, 0, PAGE_KERNEL);
++	return vm_map_ram(mock->pages, mock->npages, 0);
+ }
+ 
+ static void mock_dmabuf_vunmap(struct dma_buf *dma_buf, void *vaddr)
+diff --git a/drivers/media/common/videobuf2/videobuf2-dma-sg.c b/drivers/media/common/videobuf2/videobuf2-dma-sg.c
+index 6db60e9d5183..92072a08af25 100644
+--- a/drivers/media/common/videobuf2/videobuf2-dma-sg.c
++++ b/drivers/media/common/videobuf2/videobuf2-dma-sg.c
+@@ -309,8 +309,7 @@ static void *vb2_dma_sg_vaddr(void *buf_priv)
+ 		if (buf->db_attach)
+ 			buf->vaddr = dma_buf_vmap(buf->db_attach->dmabuf);
+ 		else
+-			buf->vaddr = vm_map_ram(buf->pages,
+-					buf->num_pages, -1, PAGE_KERNEL);
++			buf->vaddr = vm_map_ram(buf->pages, buf->num_pages, -1);
+ 	}
+ 
+ 	/* add offset in case userptr is not page-aligned */
+diff --git a/drivers/media/common/videobuf2/videobuf2-vmalloc.c b/drivers/media/common/videobuf2/videobuf2-vmalloc.c
+index 1a4f0ca87c7c..c66fda4a65e4 100644
+--- a/drivers/media/common/videobuf2/videobuf2-vmalloc.c
++++ b/drivers/media/common/videobuf2/videobuf2-vmalloc.c
+@@ -107,8 +107,7 @@ static void *vb2_vmalloc_get_userptr(struct device *dev, unsigned long vaddr,
+ 		buf->vaddr = (__force void *)
+ 			ioremap(__pfn_to_phys(nums[0]), size + offset);
+ 	} else {
+-		buf->vaddr = vm_map_ram(frame_vector_pages(vec), n_pages, -1,
+-					PAGE_KERNEL);
++		buf->vaddr = vm_map_ram(frame_vector_pages(vec), n_pages, -1);
+ 	}
+ 
+ 	if (!buf->vaddr)
+diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
+index 5d2d81940679..7628816f2453 100644
+--- a/fs/erofs/decompressor.c
++++ b/fs/erofs/decompressor.c
+@@ -274,7 +274,7 @@ static int z_erofs_decompress_generic(struct z_erofs_decompress_req *rq,
+ 
+ 	i = 0;
+ 	while (1) {
+-		dst = vm_map_ram(rq->out, nrpages_out, -1, PAGE_KERNEL);
++		dst = vm_map_ram(rq->out, nrpages_out, -1);
+ 
+ 		/* retry two more times (totally 3 times) */
+ 		if (dst || ++i >= 3)
+diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
+index 9ec3eaf1c618..65538d18e64f 100644
+--- a/fs/xfs/xfs_buf.c
++++ b/fs/xfs/xfs_buf.c
+@@ -477,7 +477,7 @@ _xfs_buf_map_pages(
+ 		nofs_flag = memalloc_nofs_save();
+ 		do {
+ 			bp->b_addr = vm_map_ram(bp->b_pages, bp->b_page_count,
+-						-1, PAGE_KERNEL);
++						-1);
+ 			if (bp->b_addr)
+ 				break;
+ 			vm_unmap_aliases();
+diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
+index 15ffbd8e8e65..9273b1a91ca5 100644
+--- a/include/linux/vmalloc.h
++++ b/include/linux/vmalloc.h
+@@ -88,8 +88,7 @@ struct vmap_area {
+  *	Highlevel APIs for driver use
+  */
+ extern void vm_unmap_ram(const void *mem, unsigned int count);
+-extern void *vm_map_ram(struct page **pages, unsigned int count,
+-				int node, pgprot_t prot);
++extern void *vm_map_ram(struct page **pages, unsigned int count, int node);
+ extern void vm_unmap_aliases(void);
+ 
+ #ifdef CONFIG_MMU
+diff --git a/mm/nommu.c b/mm/nommu.c
+index 318df4e236c9..4f07b7ef0297 100644
+--- a/mm/nommu.c
++++ b/mm/nommu.c
+@@ -351,7 +351,7 @@ void vunmap(const void *addr)
+ }
+ EXPORT_SYMBOL(vunmap);
+ 
+-void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t prot)
++void *vm_map_ram(struct page **pages, unsigned int count, int node)
+ {
+ 	BUG();
+ 	return NULL;
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 258220b203f1..7356b3f07bd8 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -1834,7 +1834,7 @@ EXPORT_SYMBOL(vm_unmap_ram);
+  *
+  * Returns: a pointer to the address that has been mapped, or %NULL on failure
+  */
+-void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t prot)
++void *vm_map_ram(struct page **pages, unsigned int count, int node)
+ {
+ 	unsigned long size = (unsigned long)count << PAGE_SHIFT;
+ 	unsigned long addr;
+@@ -1858,7 +1858,7 @@ void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t pro
+ 
+ 	kasan_unpoison_vmalloc(mem, size);
+ 
+-	if (map_kernel_range(addr, size, prot, pages) < 0) {
++	if (map_kernel_range(addr, size, PAGE_KERNEL, pages) < 0) {
+ 		vm_unmap_ram(mem, count);
+ 		return NULL;
+ 	}
 -- 
 2.25.1
