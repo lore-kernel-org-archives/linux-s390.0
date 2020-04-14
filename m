@@ -1,100 +1,154 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:59744 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390783AbgDNH3X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 03:29:23 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/10] block: cleanup hd_struct freeing
-Date: Tue, 14 Apr 2020 09:28:55 +0200
-Message-Id: <20200414072902.324936-4-hch@lst.de>
-In-Reply-To: <20200414072902.324936-1-hch@lst.de>
-References: <20200414072902.324936-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from 8bytes.org ([81.169.241.247]:35058 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2502905AbgDNNQI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Apr 2020 09:16:08 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v2 29/33] iommu/omap: Convert to probe/release_device() call-backs
+Date: Tue, 14 Apr 2020 15:15:38 +0200
+Message-Id: <20200414131542.25608-30-joro@8bytes.org>
+In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
+References: <20200414131542.25608-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org, Johannes Thumshirn <johannes.thumshirn@wdc.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Move hd_ref_init out of line as there it isn't anywhere near a fast path,
-and rename the rcu ref freeing callbacks to be more descriptive.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Convert the OMAP IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- block/blk.h             | 10 +---------
- block/partitions/core.c | 18 +++++++++++++-----
- 2 files changed, 14 insertions(+), 14 deletions(-)
+ drivers/iommu/omap-iommu.c | 49 ++++++++++----------------------------
+ 1 file changed, 13 insertions(+), 36 deletions(-)
 
-diff --git a/block/blk.h b/block/blk.h
-index 0cbf64108922..b1a0b8cd87f0 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -389,7 +389,6 @@ char *disk_name(struct gendisk *hd, int partno, char *buf);
- #define ADDPART_FLAG_NONE	0
- #define ADDPART_FLAG_RAID	1
- #define ADDPART_FLAG_WHOLEDISK	2
--void __delete_partition(struct percpu_ref *ref);
- void delete_partition(struct gendisk *disk, struct hd_struct *part);
- int bdev_add_partition(struct block_device *bdev, int partno,
- 		sector_t start, sector_t length);
-@@ -397,14 +396,7 @@ int bdev_del_partition(struct block_device *bdev, int partno);
- int bdev_resize_partition(struct block_device *bdev, int partno,
- 		sector_t start, sector_t length);
- int disk_expand_part_tbl(struct gendisk *disk, int target);
--
--static inline int hd_ref_init(struct hd_struct *part)
--{
--	if (percpu_ref_init(&part->ref, __delete_partition, 0,
--				GFP_KERNEL))
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index ecc9d0829a91..6699fe6d9e06 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -1640,15 +1640,13 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	return ret;
+ }
+ 
+-static int omap_iommu_add_device(struct device *dev)
++static struct iommu_device *omap_iommu_probe_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data, *tmp;
++	struct platform_device *pdev;
+ 	struct omap_iommu *oiommu;
+-	struct iommu_group *group;
+ 	struct device_node *np;
+-	struct platform_device *pdev;
+ 	int num_iommus, i;
+-	int ret;
+ 
+ 	/*
+ 	 * Allocate the archdata iommu structure for DT-based devices.
+@@ -1657,7 +1655,7 @@ static int omap_iommu_add_device(struct device *dev)
+ 	 * IOMMU users.
+ 	 */
+ 	if (!dev->of_node)
+-		return 0;
++		return ERR_PTR(-ENODEV);
+ 
+ 	/*
+ 	 * retrieve the count of IOMMU nodes using phandle size as element size
+@@ -1670,27 +1668,27 @@ static int omap_iommu_add_device(struct device *dev)
+ 
+ 	arch_data = kcalloc(num_iommus + 1, sizeof(*arch_data), GFP_KERNEL);
+ 	if (!arch_data)
 -		return -ENOMEM;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	for (i = 0, tmp = arch_data; i < num_iommus; i++, tmp++) {
+ 		np = of_parse_phandle(dev->of_node, "iommus", i);
+ 		if (!np) {
+ 			kfree(arch_data);
+-			return -EINVAL;
++			return ERR_PTR(-EINVAL);
+ 		}
+ 
+ 		pdev = of_find_device_by_node(np);
+ 		if (!pdev) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			return -ENODEV;
++			return ERR_PTR(-ENODEV);
+ 		}
+ 
+ 		oiommu = platform_get_drvdata(pdev);
+ 		if (!oiommu) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			return -EINVAL;
++			return ERR_PTR(-EINVAL);
+ 		}
+ 
+ 		tmp->iommu_dev = oiommu;
+@@ -1699,46 +1697,25 @@ static int omap_iommu_add_device(struct device *dev)
+ 		of_node_put(np);
+ 	}
+ 
++	dev->archdata.iommu = arch_data;
++
+ 	/*
+ 	 * use the first IOMMU alone for the sysfs device linking.
+ 	 * TODO: Evaluate if a single iommu_group needs to be
+ 	 * maintained for both IOMMUs
+ 	 */
+ 	oiommu = arch_data->iommu_dev;
+-	ret = iommu_device_link(&oiommu->iommu, dev);
+-	if (ret) {
+-		kfree(arch_data);
+-		return ret;
+-	}
+-
+-	dev->archdata.iommu = arch_data;
+-
+-	/*
+-	 * IOMMU group initialization calls into omap_iommu_device_group, which
+-	 * needs a valid dev->archdata.iommu pointer
+-	 */
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group)) {
+-		iommu_device_unlink(&oiommu->iommu, dev);
+-		dev->archdata.iommu = NULL;
+-		kfree(arch_data);
+-		return PTR_ERR(group);
+-	}
+-	iommu_group_put(group);
+ 
 -	return 0;
--}
-+int hd_ref_init(struct hd_struct *part);
++	return &oiommu->iommu;
+ }
  
- static inline void hd_struct_get(struct hd_struct *part)
+-static void omap_iommu_remove_device(struct device *dev)
++static void omap_iommu_release_device(struct device *dev)
  {
-diff --git a/block/partitions/core.c b/block/partitions/core.c
-index 6dc534b502a9..c5b47627210a 100644
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -274,10 +274,10 @@ struct device_type part_type = {
- 	.uevent		= part_uevent,
+ 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
+ 
+ 	if (!dev->of_node || !arch_data)
+ 		return;
+ 
+-	iommu_device_unlink(&arch_data->iommu_dev->iommu, dev);
+-	iommu_group_remove_device(dev);
+-
+ 	dev->archdata.iommu = NULL;
+ 	kfree(arch_data);
+ 
+@@ -1763,8 +1740,8 @@ static const struct iommu_ops omap_iommu_ops = {
+ 	.map		= omap_iommu_map,
+ 	.unmap		= omap_iommu_unmap,
+ 	.iova_to_phys	= omap_iommu_iova_to_phys,
+-	.add_device	= omap_iommu_add_device,
+-	.remove_device	= omap_iommu_remove_device,
++	.probe_device	= omap_iommu_probe_device,
++	.release_device	= omap_iommu_release_device,
+ 	.device_group	= omap_iommu_device_group,
+ 	.pgsize_bitmap	= OMAP_IOMMU_PGSIZES,
  };
- 
--static void delete_partition_work_fn(struct work_struct *work)
-+static void hd_struct_free_work(struct work_struct *work)
- {
--	struct hd_struct *part = container_of(to_rcu_work(work), struct hd_struct,
--					rcu_work);
-+	struct hd_struct *part =
-+		container_of(to_rcu_work(work), struct hd_struct, rcu_work);
- 
- 	part->start_sect = 0;
- 	part->nr_sects = 0;
-@@ -285,13 +285,21 @@ static void delete_partition_work_fn(struct work_struct *work)
- 	put_device(part_to_dev(part));
- }
- 
--void __delete_partition(struct percpu_ref *ref)
-+static void hd_struct_free(struct percpu_ref *ref)
- {
- 	struct hd_struct *part = container_of(ref, struct hd_struct, ref);
--	INIT_RCU_WORK(&part->rcu_work, delete_partition_work_fn);
-+
-+	INIT_RCU_WORK(&part->rcu_work, hd_struct_free_work);
- 	queue_rcu_work(system_wq, &part->rcu_work);
- }
- 
-+int hd_ref_init(struct hd_struct *part)
-+{
-+	if (percpu_ref_init(&part->ref, hd_struct_free, 0, GFP_KERNEL))
-+		return -ENOMEM;
-+	return 0;
-+}
-+
- /*
-  * Must be called either with bd_mutex held, before a disk can be opened or
-  * after all disk users are gone.
 -- 
-2.25.1
+2.17.1
