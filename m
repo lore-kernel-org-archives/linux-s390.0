@@ -1,77 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:55096 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728666AbgDROns (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:43:48 -0400
+        id S2409159AbgDOLpU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:45:20 -0400
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 15/28] s390/cio: avoid duplicated 'ADD' uevents
-Date: Sat, 18 Apr 2020 10:43:15 -0400
-Message-Id: <20200418144328.10265-15-sashal@kernel.org>
-In-Reply-To: <20200418144328.10265-1-sashal@kernel.org>
-References: <20200418144328.10265-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 33/84] s390/cpum_sf: Fix wrong page count in error message
+Date: Wed, 15 Apr 2020 07:43:50 -0400
+Message-Id: <20200415114442.14166-33-sashal@kernel.org>
+In-Reply-To: <20200415114442.14166-1-sashal@kernel.org>
+References: <20200415114442.14166-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Cornelia Huck <cohuck@redhat.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit 05ce3e53f375295c2940390b2b429e506e07655c ]
+[ Upstream commit 4141b6a5e9f171325effc36a22eb92bf961e7a5c ]
 
-The common I/O layer delays the ADD uevent for subchannels and
-delegates generating this uevent to the individual subchannel
-drivers. The io_subchannel driver will do so when the associated
-ccw_device has been registered -- but unconditionally, so more
-ADD uevents will be generated if a subchannel has been unbound
-from the io_subchannel driver and later rebound.
+When perf record -e SF_CYCLES_BASIC_DIAG runs with very high
+frequency, the samples arrive faster than the perf process can
+save them to file. Eventually, for longer running processes, this
+leads to the siutation where the trace buffers allocated by perf
+slowly fills up. At one point the auxiliary trace buffer is full
+and  the CPU Measurement sampling facility is turned off. Furthermore
+a warning is printed to the kernel log buffer:
 
-To fix this, only generate the ADD event if uevents were still
-suppressed for the device.
+cpum_sf: The AUX buffer with 0 pages for the diagnostic-sampling
+	mode is full
 
-Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
-Message-Id: <20200327124503.9794-2-cohuck@redhat.com>
-Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+The number of allocated pages for the auxiliary trace buffer is shown
+as zero pages. That is wrong.
+
+Fix this by saving the number of allocated pages before entering the
+work loop in the interrupt handler. When the interrupt handler processes
+the samples, it may detect the buffer full condition and stop sampling,
+reducing the buffer size to zero.
+Print the correct value in the error message:
+
+cpum_sf: The AUX buffer with 256 pages for the diagnostic-sampling
+	mode is full
+
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/device.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index e5c32f4b5287e..d2203cd178138 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -828,8 +828,10 @@ static void io_subchannel_register(struct ccw_device *cdev)
- 	 * Now we know this subchannel will stay, we can throw
- 	 * our delayed uevent.
- 	 */
--	dev_set_uevent_suppress(&sch->dev, 0);
--	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	if (dev_get_uevent_suppress(&sch->dev)) {
-+		dev_set_uevent_suppress(&sch->dev, 0);
-+		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	}
- 	/* make it known to the system */
- 	ret = ccw_device_add(cdev);
- 	if (ret) {
-@@ -1037,8 +1039,11 @@ static int io_subchannel_probe(struct subchannel *sch)
- 		 * Throw the delayed uevent for the subchannel, register
- 		 * the ccw_device and exit.
- 		 */
--		dev_set_uevent_suppress(&sch->dev, 0);
--		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		if (dev_get_uevent_suppress(&sch->dev)) {
-+			/* should always be the case for the console */
-+			dev_set_uevent_suppress(&sch->dev, 0);
-+			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		}
- 		cdev = sch_get_cdev(sch);
- 		rc = ccw_device_add(cdev);
- 		if (rc) {
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index fdb8083e7870c..229e1e2f8253a 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1589,6 +1589,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
+ 	perf_aux_output_end(handle, size);
+ 	num_sdb = aux->sfb.num_sdb;
+ 
++	num_sdb = aux->sfb.num_sdb;
+ 	while (!done) {
+ 		/* Get an output handle */
+ 		aux = perf_aux_output_begin(handle, cpuhw->event);
 -- 
 2.20.1
