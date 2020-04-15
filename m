@@ -1,81 +1,41 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:33874 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729151AbgDUQPh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Apr 2020 12:15:37 -0400
-Subject: Re: [kvm-unit-tests PATCH v5 03/10] s390x: cr0: adding AFP-register
- control bit
-References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
- <1582200043-21760-4-git-send-email-pmorel@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <a4ce1829-027e-d632-be2b-9f6b59d9b96d@redhat.com>
-Date: Tue, 21 Apr 2020 18:15:26 +0200
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 15 Apr 2020 14:31:40 +0200
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: [PATCH v2 07/33] iommu: Add probe_device() and remove_device()
+ call-backs
+Message-ID: <20200415123140.GC21899@suse.de>
+References: <20200414131542.25608-1-joro@8bytes.org>
+ <20200414131542.25608-8-joro@8bytes.org>
+ <0ad37581-b464-30ac-c503-4c0daaf43867@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <1582200043-21760-4-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0ad37581-b464-30ac-c503-4c0daaf43867@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, thuth@redhat.com, cohuck@redhat.com
+To: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
 
-On 20.02.20 13:00, Pierre Morel wrote:
-> While adding the definition for the AFP-Register control bit, move all
-> existing definitions for CR0 out of the C zone to the assmbler zone to
-> keep the definitions concerning CR0 together.
+On Wed, Apr 15, 2020 at 02:36:20PM +0800, Lu Baolu wrote:
+> On 2020/4/14 21:15, Joerg Roedel wrote:
+> > From: Joerg Roedel<jroedel@suse.de>
+> > 
+> > Add call-backs to 'struct iommu_ops' as an alternative to the
+> > add_device() and remove_device() call-backs, which will be removed when
+> > all drivers are converted.
+> > 
+> > The new call-backs will not setupt IOMMU groups and domains anymore,
+> > so also add a probe_finalize() call-back where the IOMMU driver can do
+> > per-device setup work which require the device to be set up with a
+> > group and a domain.
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  lib/s390x/asm/arch_def.h | 11 ++++++-----
->  s390x/cstart64.S         |  2 +-
->  2 files changed, 7 insertions(+), 6 deletions(-)
-> 
-> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-> index 69a8256..863c2bf 100644
-> --- a/lib/s390x/asm/arch_def.h
-> +++ b/lib/s390x/asm/arch_def.h
-> @@ -18,6 +18,12 @@
->  
->  #define PSW_EXCEPTION_MASK (PSW_MASK_EA|PSW_MASK_BA)
->  
-> +#define CR0_EXTM_SCLP			0X0000000000000200UL
-> +#define CR0_EXTM_EXTC			0X0000000000002000UL
-> +#define CR0_EXTM_EMGC			0X0000000000004000UL
-> +#define CR0_EXTM_MASK			0X0000000000006200UL
-> +#define CR0_AFP_REG_CRTL		0x0000000000040000UL
-> +
->  #ifndef __ASSEMBLER__
->  
->  struct psw {
-> @@ -25,11 +31,6 @@ struct psw {
->  	uint64_t	addr;
->  };
->  
-> -#define CR0_EXTM_SCLP			0X0000000000000200UL
-> -#define CR0_EXTM_EXTC			0X0000000000002000UL
-> -#define CR0_EXTM_EMGC			0X0000000000004000UL
-> -#define CR0_EXTM_MASK			0X0000000000006200UL
-> -
->  struct lowcore {
->  	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
->  	uint32_t	ext_int_param;			/* 0x0080 */
-> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-> index 2885a36..3b59bd1 100644
-> --- a/s390x/cstart64.S
-> +++ b/s390x/cstart64.S
-> @@ -230,4 +230,4 @@ svc_int_psw:
->  	.quad	PSW_EXCEPTION_MASK, svc_int
->  initial_cr0:
->  	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
-> -	.quad	0x0000000000040000
-> +	.quad	CR0_AFP_REG_CRTL
-> 
+> The subject is inaccurate. probe_device() and release_device() are
+> added to replace the add and remove pair.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+This patch does not replace them yet, it just adds the new call-backs.
+The removal of add_device()/remove_device() happens later in the
+patch-set when all drivers are converted.
 
--- 
-Thanks,
+Regards,
 
-David / dhildenb
+	Joerg
