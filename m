@@ -1,61 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:43502 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409403AbgDOLrz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:47:55 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 05/21] s390/cpuinfo: fix wrong output when CPU0 is offline
-Date: Wed, 15 Apr 2020 07:47:32 -0400
-Message-Id: <20200415114748.15713-5-sashal@kernel.org>
-In-Reply-To: <20200415114748.15713-1-sashal@kernel.org>
-References: <20200415114748.15713-1-sashal@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52875 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1415628AbgDOQVU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Apr 2020 12:21:20 -0400
+Date: Wed, 15 Apr 2020 18:20:37 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2] kvm_host: unify VM_STAT and VCPU_STAT definitions in
+ a single place
+Message-ID: <20200415182037.521a92b2.cohuck@redhat.com>
+In-Reply-To: <20200414155625.20559-1-eesposit@redhat.com>
+References: <20200414155625.20559-1-eesposit@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Cc: kvm@vger.kernel.org, Philippe =?UTF-8?B?TWF0aGlldS1EYXVkw6k=?= <f4bug@amsat.org>, Marc Zyngier <maz@kernel.org>, James Morse <james.morse@arm.com>, Julien Thierry <julien.thierry.kdev@gmail.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, Paul Mackerras <paulus@ozlabs.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, Jim Mattson <jmattson@google.com>, Joerg Roedel <joro@8bytes.org>, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+On Tue, 14 Apr 2020 17:56:25 +0200
+Emanuele Giuseppe Esposito <eesposit@redhat.com> wrote:
 
-[ Upstream commit 872f27103874a73783aeff2aac2b41a489f67d7c ]
+> The macros VM_STAT and VCPU_STAT are redundantly implemented in multiple
+> files, each used by a different architecure to initialize the debugfs
+> entries for statistics. Since they all have the same purpose, they can be
+> unified in a single common definition in include/linux/kvm_host.h
+> 
+> Signed-off-by: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+> ---
+>  arch/arm64/kvm/guest.c    |  23 ++---
+>  arch/mips/kvm/mips.c      |  61 ++++++------
+>  arch/powerpc/kvm/book3s.c |  61 ++++++------
+>  arch/powerpc/kvm/booke.c  |  41 ++++----
+>  arch/s390/kvm/kvm-s390.c  | 203 +++++++++++++++++++-------------------
+>  arch/x86/kvm/x86.c        |  80 +++++++--------
+>  include/linux/kvm_host.h  |   5 +
+>  7 files changed, 231 insertions(+), 243 deletions(-)
 
-/proc/cpuinfo should not print information about CPU 0 when it is offline.
+Adds a bit of churn, but the end result does look nicer. Looks sane,
+but did not review in detail.
 
-Fixes: 281eaa8cb67c ("s390/cpuinfo: simplify locking and skip offline cpus early")
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-[heiko.carstens@de.ibm.com: shortened commit message]
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/processor.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/processor.c b/arch/s390/kernel/processor.c
-index d856263fd7687..737e22cf09728 100644
---- a/arch/s390/kernel/processor.c
-+++ b/arch/s390/kernel/processor.c
-@@ -139,8 +139,9 @@ static void show_cpu_mhz(struct seq_file *m, unsigned long n)
- static int show_cpuinfo(struct seq_file *m, void *v)
- {
- 	unsigned long n = (unsigned long) v - 1;
-+	unsigned long first = cpumask_first(cpu_online_mask);
- 
--	if (!n)
-+	if (n == first)
- 		show_cpu_summary(m, v);
- 	if (!machine_has_cpu_mhz)
- 		return 0;
-@@ -153,6 +154,8 @@ static inline void *c_update(loff_t *pos)
- {
- 	if (*pos)
- 		*pos = cpumask_next(*pos - 1, cpu_online_mask);
-+	else
-+		*pos = cpumask_first(cpu_online_mask);
- 	return *pos < nr_cpu_ids ? (void *)*pos + 1 : NULL;
- }
- 
--- 
-2.20.1
+Acked-by: Cornelia Huck <cohuck@redhat.com>
