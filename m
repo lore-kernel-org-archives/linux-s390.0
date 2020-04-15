@@ -1,71 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26842 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726476AbgD2PLi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 11:11:38 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 00/13] net/smc: preparations for SMC-R link failover
-Date: Wed, 29 Apr 2020 17:10:36 +0200
-Message-Id: <20200429151049.49979-1-kgraul@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:43790 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2409419AbgDOLsG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:48:06 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 14/21] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
+Date: Wed, 15 Apr 2020 07:47:41 -0400
+Message-Id: <20200415114748.15713-14-sashal@kernel.org>
+In-Reply-To: <20200415114748.15713-1-sashal@kernel.org>
+References: <20200415114748.15713-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-This patch series prepares the SMC code for the implementation of SMC-R link 
-failover capabilities which are still missing to reach full compliance with 
-RFC 7609.
-The code changes are separated into 65 patches which together form the new
-functionality. I tried to create meaningful patches which allow to follow the 
-implementation.
+From: David Hildenbrand <david@redhat.com>
 
-Question: how to handle the remaining 52 patches? All of them are needed for 
-link failover to work and should make it into the same merge window. 
-Can I send them all together?
+[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
 
-The SMC-R implementation will transparently make use of the link failover 
-feature when matching RoCE devices are available, no special setup is required.
-All RoCE devices with the same PNET ID as the TCP device (hardware-defined or 
-user-defined via the smc_pnet tool) are candidates to get used to form a link 
-in a link group. When at least 2 RoCE devices are available on both 
-communication endpoints then a symmetric link group is formed, meaning the link 
-group has 2 independent links. If one RoCE device goes down then all connections 
-on this link are moved to the surviving link. Upon recovery of the failing 
-device or availability of a new one, the symmetric link group will be restored.
+We have to properly retry again by returning -EINVAL immediately in case
+somebody else instantiated the table concurrently. We missed to add the
+goto in this function only. The code now matches the other, similar
+shadowing functions.
 
-Karsten Graul (13):
-  net/smc: rework pnet table to support SMC-R failover
-  net/smc: separate function for link initialization
-  net/smc: introduce link_idx for link group array
-  net/smc: convert static link ID to dynamic references
-  net/smc: convert static link ID instances to support multiple links
-  net/smc: multi-link support for smc_rmb_rtoken_handling()
-  net/smc: add new link state and related helpers
-  net/smc: move testlink work to system work queue
-  net/smc: simplify link deactivation
-  net/smc: use worker to process incoming llc messages
-  net/smc: process llc responses in tasklet context
-  net/smc: use mutex instead of rwlock_t to protect buffers
-  net/smc: move llc layer related init and clear into smc_llc.c
+We are overwriting an existing region 2 table entry. All allocated pages
+are added to the crst_list to be freed later, so they are not lost
+forever. However, when unshadowing the region 2 table, we wouldn't trigger
+unshadowing of the original shadowed region 3 table that we replaced. It
+would get unshadowed when the original region 3 table is modified. As it's
+not connected to the page table hierarchy anymore, it's not going to get
+used anymore. However, for a limited time, this page table will stick
+around, so it's in some sense a temporary memory leak.
 
- net/smc/af_smc.c   |  79 ++++---
- net/smc/smc.h      |   1 +
- net/smc/smc_cdc.c  |   8 +-
- net/smc/smc_clc.c  |  12 +-
- net/smc/smc_clc.h  |   1 +
- net/smc/smc_core.c | 542 +++++++++++++++++++++++++++++----------------
- net/smc/smc_core.h |  78 ++++---
- net/smc/smc_ib.c   |  63 +++---
- net/smc/smc_ib.h   |  10 +-
- net/smc/smc_ism.c  |   3 +-
- net/smc/smc_llc.c  | 396 ++++++++++++++++++---------------
- net/smc/smc_llc.h  |  16 +-
- net/smc/smc_pnet.c | 539 +++++++++++++++++++++++++-------------------
- net/smc/smc_pnet.h |   2 +
- net/smc/smc_tx.c   |  13 +-
- net/smc/smc_wr.c   |   2 +-
- 16 files changed, 1063 insertions(+), 702 deletions(-)
+Identified by manual code inspection. I don't think this classifies as
+stable material.
 
+Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/mm/gmap.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index b6c85b760305d..099db32ed104a 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1680,6 +1680,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 		goto out_free;
+ 	} else if (*table & _REGION_ENTRY_ORIGIN) {
+ 		rc = -EAGAIN;		/* Race with shadow */
++		goto out_free;
+ 	}
+ 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
+ 	/* mark as invalid as long as the parent table is not protected */
 -- 
-2.17.1
+2.20.1
