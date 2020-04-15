@@ -1,133 +1,113 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59526 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2408906AbgDOLhk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:37:40 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03FBXaMO023399
-        for <linux-s390@vger.kernel.org>; Wed, 15 Apr 2020 07:37:32 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30dnn82xfv-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 15 Apr 2020 07:37:32 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Wed, 15 Apr 2020 12:37:02 +0100
-Date: Wed, 15 Apr 2020 13:37:18 +0200
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: Re: [PATCH v2] kvm_host: unify VM_STAT and VCPU_STAT definitions in
- a single place
-In-Reply-To: <992ede27-3eae-f2da-ad38-1d3498853ad2@redhat.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:57764 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2441175AbgDOIaP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Apr 2020 04:30:15 -0400
+Received: by mail-wm1-f71.google.com with SMTP id n127so4669067wme.4
+        for <linux-s390@vger.kernel.org>; Wed, 15 Apr 2020 01:30:10 -0700 (PDT)
+Subject: Re: [PATCH v2] kvm_host: unify VM_STAT and VCPU_STAT definitions in a
+ single place
 References: <20200414155625.20559-1-eesposit@redhat.com>
-        <b479e7ff-4534-5ced-e19b-2a2914905a8b@amsat.org>
-        <992ede27-3eae-f2da-ad38-1d3498853ad2@redhat.com>
+ <b479e7ff-4534-5ced-e19b-2a2914905a8b@amsat.org>
+From: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Message-ID: <992ede27-3eae-f2da-ad38-1d3498853ad2@redhat.com>
+Date: Wed, 15 Apr 2020 10:30:06 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <b479e7ff-4534-5ced-e19b-2a2914905a8b@amsat.org>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Message-Id: <20200415133718.2db57666@p-imbrenda>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Cc: Philippe =?UTF-8?B?TWF0aGlldS1EYXVkw6k=?= <f4bug@amsat.org>, kvm@vger.kernel.org, Marc Zyngier <maz@kernel.org>, James Morse <james.morse@arm.com>, Julien Thierry <julien.thierry.kdev@gmail.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, Paul Mackerras <paulus@ozlabs.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, Jim Mattson <jmattson@google.com>, Joerg Roedel <joro@8bytes.org>, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org
+To: =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <f4bug@amsat.org>, kvm@vger.kernel.org
+Cc: Marc Zyngier <maz@kernel.org>, James Morse <james.morse@arm.com>, Julien Thierry <julien.thierry.kdev@gmail.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, Paul Mackerras <paulus@ozlabs.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, Jim Mattson <jmattson@google.com>, Joerg Roedel <joro@8bytes.org>, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org
 
-On Wed, 15 Apr 2020 10:30:06 +0200
-Emanuele Giuseppe Esposito <eesposit@redhat.com> wrote:
 
-> On 4/15/20 8:36 AM, Philippe Mathieu-Daudé wrote:
-> > On 4/14/20 5:56 PM, Emanuele Giuseppe Esposito wrote:  
-> >> The macros VM_STAT and VCPU_STAT are redundantly implemented in
-> >> multiple files, each used by a different architecure to initialize
-> >> the debugfs entries for statistics. Since they all have the same
-> >> purpose, they can be unified in a single common definition in
-> >> include/linux/kvm_host.h
-> >>
-> >> Signed-off-by: Emanuele Giuseppe Esposito <eesposit@redhat.com>
-> >> ---
-> >>   arch/arm64/kvm/guest.c    |  23 ++---
-> >>   arch/mips/kvm/mips.c      |  61 ++++++------
-> >>   arch/powerpc/kvm/book3s.c |  61 ++++++------
-> >>   arch/powerpc/kvm/booke.c  |  41 ++++----
-> >>   arch/s390/kvm/kvm-s390.c  | 203
-> >> +++++++++++++++++++------------------- arch/x86/kvm/x86.c        |
-> >>  80 +++++++-------- include/linux/kvm_host.h  |   5 +
-> >>   7 files changed, 231 insertions(+), 243 deletions(-)
-> >>
-> >> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-> >> index 23ebe51410f0..8417b200bec9 100644
-> >> --- a/arch/arm64/kvm/guest.c
-> >> +++ b/arch/arm64/kvm/guest.c
-> >> @@ -29,20 +29,17 @@
-> >>   
-> >>   #include "trace.h"
-> >>   
-> >> -#define VM_STAT(x) { #x, offsetof(struct kvm, stat.x),
-> >> KVM_STAT_VM } -#define VCPU_STAT(x) { #x, offsetof(struct
-> >> kvm_vcpu, stat.x), KVM_STAT_VCPU } -
-> >>   struct kvm_stats_debugfs_item debugfs_entries[] = {
-> >> -	VCPU_STAT(halt_successful_poll),
-> >> -	VCPU_STAT(halt_attempted_poll),
-> >> -	VCPU_STAT(halt_poll_invalid),
-> >> -	VCPU_STAT(halt_wakeup),
-> >> -	VCPU_STAT(hvc_exit_stat),
-> >> -	VCPU_STAT(wfe_exit_stat),
-> >> -	VCPU_STAT(wfi_exit_stat),
-> >> -	VCPU_STAT(mmio_exit_user),
-> >> -	VCPU_STAT(mmio_exit_kernel),
-> >> -	VCPU_STAT(exits),
-> >> +	VCPU_STAT("halt_successful_poll", halt_successful_poll),
-> >> +	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-> >> +	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-> >> +	VCPU_STAT("halt_wakeup", halt_wakeup),
-> >> +	VCPU_STAT("hvc_exit_stat", hvc_exit_stat),
-> >> +	VCPU_STAT("wfe_exit_stat", wfe_exit_stat),
-> >> +	VCPU_STAT("wfi_exit_stat", wfi_exit_stat),
-> >> +	VCPU_STAT("mmio_exit_user", mmio_exit_user),
-> >> +	VCPU_STAT("mmio_exit_kernel", mmio_exit_kernel),
-> >> +	VCPU_STAT("exits", exits),
-> >>   	{ NULL }
-> >>   };  
-> > 
-> > Patch easily reviewed with --word-diff.
-> > 
-> > [...]  
-> >> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-> >> index 6d58beb65454..2e6ead872957 100644
-> >> --- a/include/linux/kvm_host.h
-> >> +++ b/include/linux/kvm_host.h
-> >> @@ -1130,6 +1130,11 @@ struct kvm_stats_debugfs_item {
-> >>   #define KVM_DBGFS_GET_MODE(dbgfs_item)
-> >>               \ ((dbgfs_item)->mode ? (dbgfs_item)->mode : 0644)
-> >>   
-> >> +#define VM_STAT(n, x, ...)
-> >> 									   \
-> >> +	{ n, offsetof(struct kvm, stat.x), KVM_STAT_VM, ##
-> >> __VA_ARGS__ } +#define VCPU_STAT(n, x, ...)
-> >> 									   \
-> >>  
-> > 
-> > Not sure while you use so many whitespaces here... (maybe Paolo can
-> > strip some when applying?).  
+
+On 4/15/20 8:36 AM, Philippe Mathieu-Daudé wrote:
+> On 4/14/20 5:56 PM, Emanuele Giuseppe Esposito wrote:
+>> The macros VM_STAT and VCPU_STAT are redundantly implemented in multiple
+>> files, each used by a different architecure to initialize the debugfs
+>> entries for statistics. Since they all have the same purpose, they can be
+>> unified in a single common definition in include/linux/kvm_host.h
+>>
+>> Signed-off-by: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+>> ---
+>>   arch/arm64/kvm/guest.c    |  23 ++---
+>>   arch/mips/kvm/mips.c      |  61 ++++++------
+>>   arch/powerpc/kvm/book3s.c |  61 ++++++------
+>>   arch/powerpc/kvm/booke.c  |  41 ++++----
+>>   arch/s390/kvm/kvm-s390.c  | 203 +++++++++++++++++++-------------------
+>>   arch/x86/kvm/x86.c        |  80 +++++++--------
+>>   include/linux/kvm_host.h  |   5 +
+>>   7 files changed, 231 insertions(+), 243 deletions(-)
+>>
+>> diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
+>> index 23ebe51410f0..8417b200bec9 100644
+>> --- a/arch/arm64/kvm/guest.c
+>> +++ b/arch/arm64/kvm/guest.c
+>> @@ -29,20 +29,17 @@
+>>   
+>>   #include "trace.h"
+>>   
+>> -#define VM_STAT(x) { #x, offsetof(struct kvm, stat.x), KVM_STAT_VM }
+>> -#define VCPU_STAT(x) { #x, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU }
+>> -
+>>   struct kvm_stats_debugfs_item debugfs_entries[] = {
+>> -	VCPU_STAT(halt_successful_poll),
+>> -	VCPU_STAT(halt_attempted_poll),
+>> -	VCPU_STAT(halt_poll_invalid),
+>> -	VCPU_STAT(halt_wakeup),
+>> -	VCPU_STAT(hvc_exit_stat),
+>> -	VCPU_STAT(wfe_exit_stat),
+>> -	VCPU_STAT(wfi_exit_stat),
+>> -	VCPU_STAT(mmio_exit_user),
+>> -	VCPU_STAT(mmio_exit_kernel),
+>> -	VCPU_STAT(exits),
+>> +	VCPU_STAT("halt_successful_poll", halt_successful_poll),
+>> +	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
+>> +	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
+>> +	VCPU_STAT("halt_wakeup", halt_wakeup),
+>> +	VCPU_STAT("hvc_exit_stat", hvc_exit_stat),
+>> +	VCPU_STAT("wfe_exit_stat", wfe_exit_stat),
+>> +	VCPU_STAT("wfi_exit_stat", wfi_exit_stat),
+>> +	VCPU_STAT("mmio_exit_user", mmio_exit_user),
+>> +	VCPU_STAT("mmio_exit_kernel", mmio_exit_kernel),
+>> +	VCPU_STAT("exits", exits),
+>>   	{ NULL }
+>>   };
 > 
-> I honestly am not sure why it added few more spaces than I wanted,
-> but the idea was to follow the KVM_DBGFS_GET_MODE macro above and put
-> the backslash at the end of the line (80th char).
+> Patch easily reviewed with --word-diff.
+> 
+> [...]
+>> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+>> index 6d58beb65454..2e6ead872957 100644
+>> --- a/include/linux/kvm_host.h
+>> +++ b/include/linux/kvm_host.h
+>> @@ -1130,6 +1130,11 @@ struct kvm_stats_debugfs_item {
+>>   #define KVM_DBGFS_GET_MODE(dbgfs_item)                                         \
+>>   	((dbgfs_item)->mode ? (dbgfs_item)->mode : 0644)
+>>   
+>> +#define VM_STAT(n, x, ...) 													   \
+>> +	{ n, offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__ }
+>> +#define VCPU_STAT(n, x, ...)												   \
+> 
+> Not sure while you use so many whitespaces here... (maybe Paolo can
+> strip some when applying?).
 
-once the whitespace issues are fixed, you can also add
+I honestly am not sure why it added few more spaces than I wanted, but 
+the idea was to follow the KVM_DBGFS_GET_MODE macro above and put the 
+backslash at the end of the line (80th char).
 
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
- 
-> > 
-> > Otherwise it looks nicer that v1, thanks.
-> > 
-> > Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-> >   
-> >> +	{ n, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ##
-> >> __VA_ARGS__ } +
-> >>   extern struct kvm_stats_debugfs_item debugfs_entries[];
-> >>   extern struct dentry *kvm_debugfs_dir;
-> >>   
-> >>  
-> >   
+> 
+> Otherwise it looks nicer that v1, thanks.
+> 
+> Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+> 
+>> +	{ n, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__ }
+>> +
+>>   extern struct kvm_stats_debugfs_item debugfs_entries[];
+>>   extern struct dentry *kvm_debugfs_dir;
+>>   
+>>
 > 
