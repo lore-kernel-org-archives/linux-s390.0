@@ -1,188 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57590 "EHLO theia.8bytes.org"
+Received: from mail.kernel.org ([198.145.29.99]:41876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727173AbgDGSiE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:38:04 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 31/34] iommu/exynos: Create iommu_device in struct exynos_iommu_owner
-Date: Tue,  7 Apr 2020 20:37:39 +0200
-Message-Id: <20200407183742.4344-32-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
+        id S2897485AbgDOLqw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 15 Apr 2020 07:46:52 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 24/40] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
+Date: Wed, 15 Apr 2020 07:46:07 -0400
+Message-Id: <20200415114623.14972-24-sashal@kernel.org>
+In-Reply-To: <20200415114623.14972-1-sashal@kernel.org>
+References: <20200415114623.14972-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: David Hildenbrand <david@redhat.com>
 
-The 'struct exynos_iommu_owner' is an umbrella for multiple SYSMMU
-instances attached to one master. As such all these instances are
-handled the same, they are all configured with the same iommu_domain,
-for example.
+[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
 
-The IOMMU core code expects each device to have only one IOMMU
-attached, so create the IOMMU-device for the umbrella instead of each
-hardware SYSMMU.
+We have to properly retry again by returning -EINVAL immediately in case
+somebody else instantiated the table concurrently. We missed to add the
+goto in this function only. The code now matches the other, similar
+shadowing functions.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+We are overwriting an existing region 2 table entry. All allocated pages
+are added to the crst_list to be freed later, so they are not lost
+forever. However, when unshadowing the region 2 table, we wouldn't trigger
+unshadowing of the original shadowed region 3 table that we replaced. It
+would get unshadowed when the original region 3 table is modified. As it's
+not connected to the page table hierarchy anymore, it's not going to get
+used anymore. However, for a limited time, this page table will stick
+around, so it's in some sense a temporary memory leak.
+
+Identified by manual code inspection. I don't think this classifies as
+stable material.
+
+Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/exynos-iommu.c | 96 +++++++++++++++++++++++++++---------
- 1 file changed, 73 insertions(+), 23 deletions(-)
+ arch/s390/mm/gmap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 186ff5cc975c..86ecccbf0438 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -235,6 +235,8 @@ struct exynos_iommu_owner {
- 	struct list_head controllers;	/* list of sysmmu_drvdata.owner_node */
- 	struct iommu_domain *domain;	/* domain this device is attached */
- 	struct mutex rpm_lock;		/* for runtime pm of all sysmmus */
-+
-+	struct iommu_device iommu;	/* IOMMU core handle */
- };
- 
- /*
-@@ -274,8 +276,6 @@ struct sysmmu_drvdata {
- 	struct list_head owner_node;	/* node for owner controllers list */
- 	phys_addr_t pgtable;		/* assigned page table structure */
- 	unsigned int version;		/* our version */
--
--	struct iommu_device iommu;	/* IOMMU core handle */
- };
- 
- static struct exynos_iommu_domain *to_exynos_domain(struct iommu_domain *dom)
-@@ -625,18 +625,6 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
- 	data->sysmmu = dev;
- 	spin_lock_init(&data->lock);
- 
--	ret = iommu_device_sysfs_add(&data->iommu, &pdev->dev, NULL,
--				     dev_name(data->sysmmu));
--	if (ret)
--		return ret;
--
--	iommu_device_set_ops(&data->iommu, &exynos_iommu_ops);
--	iommu_device_set_fwnode(&data->iommu, &dev->of_node->fwnode);
--
--	ret = iommu_device_register(&data->iommu);
--	if (ret)
--		return ret;
--
- 	platform_set_drvdata(pdev, data);
- 
- 	__sysmmu_get_version(data);
-@@ -1261,6 +1249,8 @@ static int exynos_iommu_add_device(struct device *dev)
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 911c7ded35f15..fd67684a305d4 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1834,6 +1834,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 		goto out_free;
+ 	} else if (*table & _REGION_ENTRY_ORIGIN) {
+ 		rc = -EAGAIN;		/* Race with shadow */
++		goto out_free;
  	}
- 	iommu_group_put(group);
- 
-+	iommu_device_link(&owner->iommu, dev);
-+
- 	return 0;
- }
- 
-@@ -1282,18 +1272,82 @@ static void exynos_iommu_remove_device(struct device *dev)
- 			iommu_group_put(group);
- 		}
- 	}
-+	iommu_device_unlink(&owner->iommu, dev);
- 	iommu_group_remove_device(dev);
- 
- 	list_for_each_entry(data, &owner->controllers, owner_node)
- 		device_link_del(data->link);
- }
- 
-+static int exynos_iommu_device_init(struct exynos_iommu_owner *owner)
-+{
-+	static u32 counter = 0;
-+	int ret;
-+
-+	/*
-+	 * Create a virtual IOMMU device. In reality it is an umbrella for a
-+	 * number of SYSMMU platform devices, but that also means that any
-+	 * master can have more than one real IOMMU device. This drivers handles
-+	 * all the real devices for one master synchronously, so they appear as
-+	 * one anyway.
-+	 */
-+	ret = iommu_device_sysfs_add(&owner->iommu, NULL, NULL,
-+				     "sysmmu-owner-%d", counter++);
-+	if (ret)
-+		return ret;
-+
-+	iommu_device_set_ops(&owner->iommu, &exynos_iommu_ops);
-+
-+	return 0;
-+}
-+
-+static void exynos_iommu_device_remove(struct exynos_iommu_owner *owner)
-+{
-+	iommu_device_set_ops(&owner->iommu, NULL);
-+	iommu_device_sysfs_remove(&owner->iommu);
-+}
-+
-+static int exynos_owner_init(struct device *dev)
-+{
-+	struct exynos_iommu_owner *owner = dev->archdata.iommu;
-+	int ret;
-+
-+	if (owner)
-+		return 0;
-+
-+	owner = kzalloc(sizeof(*owner), GFP_KERNEL);
-+	if (!owner)
-+		return -ENOMEM;
-+
-+	ret = exynos_iommu_device_init(owner);
-+	if (ret)
-+		goto out_free_owner;
-+
-+	ret = iommu_device_register(&owner->iommu);
-+	if (ret)
-+		goto out_remove_iommu_device;
-+
-+	INIT_LIST_HEAD(&owner->controllers);
-+	mutex_init(&owner->rpm_lock);
-+	dev->archdata.iommu = owner;
-+
-+	return 0;
-+
-+out_remove_iommu_device:
-+	exynos_iommu_device_remove(owner);
-+out_free_owner:
-+	kfree(owner);
-+
-+	return ret;
-+}
-+
- static int exynos_iommu_of_xlate(struct device *dev,
- 				 struct of_phandle_args *spec)
- {
--	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct platform_device *sysmmu = of_find_device_by_node(spec->np);
- 	struct sysmmu_drvdata *data, *entry;
-+	struct exynos_iommu_owner *owner;
-+	int ret;
- 
- 	if (!sysmmu)
- 		return -ENODEV;
-@@ -1302,15 +1356,11 @@ static int exynos_iommu_of_xlate(struct device *dev,
- 	if (!data)
- 		return -ENODEV;
- 
--	if (!owner) {
--		owner = kzalloc(sizeof(*owner), GFP_KERNEL);
--		if (!owner)
--			return -ENOMEM;
-+	ret = exynos_owner_init(dev);
-+	if (ret)
-+		return ret;
- 
--		INIT_LIST_HEAD(&owner->controllers);
--		mutex_init(&owner->rpm_lock);
--		dev->archdata.iommu = owner;
--	}
-+	owner = dev->archdata.iommu;
- 
- 	list_for_each_entry(entry, &owner->controllers, owner_node)
- 		if (entry == data)
+ 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
+ 	/* mark as invalid as long as the parent table is not protected */
 -- 
-2.17.1
+2.20.1
