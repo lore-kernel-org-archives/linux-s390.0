@@ -1,86 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40900 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730155AbgDHTpE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 15:45:04 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 09/10] block: mark invalidate_partition static
-Date: Wed,  8 Apr 2020 21:44:38 +0200
-Message-Id: <20200408194439.1580699-10-hch@lst.de>
-In-Reply-To: <20200408194439.1580699-1-hch@lst.de>
-References: <20200408194439.1580699-1-hch@lst.de>
+Received: from mx2.suse.de ([195.135.220.15]:52318 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S369427AbgDOM3p (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 15 Apr 2020 08:29:45 -0400
+Date: Wed, 15 Apr 2020 14:29:40 +0200
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: [PATCH v2 13/33] iommu: Export bus_iommu_probe() and make is
+ safe for re-probing
+Message-ID: <20200415122940.GB21899@suse.de>
+References: <20200414131542.25608-1-joro@8bytes.org>
+ <20200414131542.25608-14-joro@8bytes.org>
+ <1853992c-47a6-3724-812c-a52558c13732@linux.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1853992c-47a6-3724-812c-a52558c13732@linux.intel.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
 
-invalidate_partition is only used in genhd.c, so mark it static.  Also
-drop the return value given that is is always ignored.
+Hi Baolu,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/genhd.c      | 27 +++++++++++++--------------
- include/linux/fs.h |  1 -
- 2 files changed, 13 insertions(+), 15 deletions(-)
+On Wed, Apr 15, 2020 at 02:10:03PM +0800, Lu Baolu wrote:
+> On 2020/4/14 21:15, Joerg Roedel wrote:
+> > > +	/* Device is probed already if in a group */
+> > +	if (iommu_group_get(dev) != NULL)
+> 
+> Same as
+> 	if (iommu_group_get(dev))
+> ?
+> 
+> By the way, do we need to put the group if device has already been
+> probed?
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 1cc50ad5b191..980a4609d4a5 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -878,6 +878,19 @@ void device_add_disk_no_queue_reg(struct device *parent, struct gendisk *disk)
- }
- EXPORT_SYMBOL(device_add_disk_no_queue_reg);
- 
-+static void invalidate_partition(struct gendisk *disk, int partno)
-+{
-+	struct block_device *bdev;
-+
-+	bdev = bdget_disk(disk, partno);
-+	if (!bdev)
-+		return;
-+
-+	fsync_bdev(bdev);
-+	__invalidate_device(bdev, true);
-+	bdput(bdev);
-+}
-+
- void del_gendisk(struct gendisk *disk)
- {
- 	struct disk_part_iter piter;
-@@ -1806,20 +1819,6 @@ int bdev_read_only(struct block_device *bdev)
- 
- EXPORT_SYMBOL(bdev_read_only);
- 
--int invalidate_partition(struct gendisk *disk, int partno)
--{
--	int res = 0;
--	struct block_device *bdev = bdget_disk(disk, partno);
--	if (bdev) {
--		fsync_bdev(bdev);
--		res = __invalidate_device(bdev, true);
--		bdput(bdev);
--	}
--	return res;
--}
--
--EXPORT_SYMBOL(invalidate_partition);
--
- /*
-  * Disk events - monitor disk events like media change and eject request.
-  */
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 4f6f59b4f22a..2b4e9f86b151 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -2723,7 +2723,6 @@ extern bool is_bad_inode(struct inode *);
- extern int revalidate_disk(struct gendisk *);
- extern int check_disk_change(struct block_device *);
- extern int __invalidate_device(struct block_device *, bool);
--extern int invalidate_partition(struct gendisk *, int);
- #endif
- unsigned long invalidate_mapping_pages(struct address_space *mapping,
- 					pgoff_t start, pgoff_t end);
--- 
-2.25.1
+Right, fixed both, thank you.
+
+
+Regards,
+
+	Joerg
