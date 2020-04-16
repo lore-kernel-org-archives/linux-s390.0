@@ -1,164 +1,202 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54984 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502699AbgDNNPG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:15:06 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 16/29] mm: remove map_vm_range
-Date: Tue, 14 Apr 2020 15:13:35 +0200
-Message-Id: <20200414131348.444715-17-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:42435 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2393854AbgDPOQy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Apr 2020 10:16:54 -0400
+Received: by mail-wr1-f70.google.com with SMTP id i10so1296209wrq.8
+        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 07:16:50 -0700 (PDT)
+Subject: Re: [PATCH v2] KVM: Optimize kvm_arch_vcpu_ioctl_run function
+References: <20200416051057.26526-1-tianjia.zhang@linux.alibaba.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <db7b02c0-2b7b-7c93-9dd0-b0303ea5da5e@redhat.com>
+Date: Thu, 16 Apr 2020 16:16:44 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200416051057.26526-1-tianjia.zhang@linux.alibaba.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Switch all callers to map_kernel_range, which symmetric to the unmap
-side (as well as the _noflush versions).
+On 16/04/20 07:10, Tianjia Zhang wrote:
+> In earlier versions of kvm, 'kvm_run' is an independent structure
+> and is not included in the vcpu structure. At present, 'kvm_run'
+> is already included in the vcpu structure, so the parameter
+> 'kvm_run' is redundant.
+> 
+> This patch simplify the function definition, removes the extra
+> 'kvm_run' parameter, and extract it from the 'kvm_vcpu' structure
+> if necessary.
+> 
+> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+> ---
+> 
+> v2 change:
+>   remove 'kvm_run' parameter and extract it from 'kvm_vcpu'
+> 
+>  arch/mips/kvm/mips.c       |  3 ++-
+>  arch/powerpc/kvm/powerpc.c |  3 ++-
+>  arch/s390/kvm/kvm-s390.c   |  3 ++-
+>  arch/x86/kvm/x86.c         | 11 ++++++-----
+>  include/linux/kvm_host.h   |  2 +-
+>  virt/kvm/arm/arm.c         |  6 +++---
+>  virt/kvm/kvm_main.c        |  2 +-
+>  7 files changed, 17 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+> index 8f05dd0a0f4e..ec24adf4857e 100644
+> --- a/arch/mips/kvm/mips.c
+> +++ b/arch/mips/kvm/mips.c
+> @@ -439,8 +439,9 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+>  	return -ENOIOCTLCMD;
+>  }
+>  
+> -int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
+> +int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+>  {
+> +	struct kvm_run *run = vcpu->run;
+>  	int r = -EINTR;
+>  
+>  	vcpu_load(vcpu);
+> diff --git a/arch/powerpc/kvm/powerpc.c b/arch/powerpc/kvm/powerpc.c
+> index e15166b0a16d..7e24691e138a 100644
+> --- a/arch/powerpc/kvm/powerpc.c
+> +++ b/arch/powerpc/kvm/powerpc.c
+> @@ -1764,8 +1764,9 @@ int kvm_vcpu_ioctl_set_one_reg(struct kvm_vcpu *vcpu, struct kvm_one_reg *reg)
+>  	return r;
+>  }
+>  
+> -int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
+> +int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+>  {
+> +	struct kvm_run *run = vcpu->run;
+>  	int r;
+>  
+>  	vcpu_load(vcpu);
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 19a81024fe16..443af3ead739 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -4333,8 +4333,9 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+>  		store_regs_fmt2(vcpu, kvm_run);
+>  }
+>  
+> -int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+> +int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+>  {
+> +	struct kvm_run *kvm_run = vcpu->run;
+>  	int rc;
+>  
+>  	if (kvm_run->immediate_exit)
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 3bf2ecafd027..a0338e86c90f 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -8707,8 +8707,9 @@ static void kvm_put_guest_fpu(struct kvm_vcpu *vcpu)
+>  	trace_kvm_fpu(0);
+>  }
+>  
+> -int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+> +int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+>  {
+> +	struct kvm_run *kvm_run = vcpu->run;
+>  	int r;
+>  
+>  	vcpu_load(vcpu);
+> @@ -8726,18 +8727,18 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+>  		r = -EAGAIN;
+>  		if (signal_pending(current)) {
+>  			r = -EINTR;
+> -			vcpu->run->exit_reason = KVM_EXIT_INTR;
+> +			kvm_run->exit_reason = KVM_EXIT_INTR;
+>  			++vcpu->stat.signal_exits;
+>  		}
+>  		goto out;
+>  	}
+>  
+> -	if (vcpu->run->kvm_valid_regs & ~KVM_SYNC_X86_VALID_FIELDS) {
+> +	if (kvm_run->kvm_valid_regs & ~KVM_SYNC_X86_VALID_FIELDS) {
+>  		r = -EINVAL;
+>  		goto out;
+>  	}
+>  
+> -	if (vcpu->run->kvm_dirty_regs) {
+> +	if (kvm_run->kvm_dirty_regs) {
+>  		r = sync_regs(vcpu);
+>  		if (r != 0)
+>  			goto out;
+> @@ -8767,7 +8768,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+>  
+>  out:
+>  	kvm_put_guest_fpu(vcpu);
+> -	if (vcpu->run->kvm_valid_regs)
+> +	if (kvm_run->kvm_valid_regs)
+>  		store_regs(vcpu);
+>  	post_kvm_run_save(vcpu);
+>  	kvm_sigset_deactivate(vcpu);
+> diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+> index 6d58beb65454..1e17ef719595 100644
+> --- a/include/linux/kvm_host.h
+> +++ b/include/linux/kvm_host.h
+> @@ -866,7 +866,7 @@ int kvm_arch_vcpu_ioctl_set_mpstate(struct kvm_vcpu *vcpu,
+>  				    struct kvm_mp_state *mp_state);
+>  int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+>  					struct kvm_guest_debug *dbg);
+> -int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run);
+> +int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu);
+>  
+>  int kvm_arch_init(void *opaque);
+>  void kvm_arch_exit(void);
+> diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+> index 48d0ec44ad77..f5390ac2165b 100644
+> --- a/virt/kvm/arm/arm.c
+> +++ b/virt/kvm/arm/arm.c
+> @@ -639,7 +639,6 @@ static void check_vcpu_requests(struct kvm_vcpu *vcpu)
+>  /**
+>   * kvm_arch_vcpu_ioctl_run - the main VCPU run function to execute guest code
+>   * @vcpu:	The VCPU pointer
+> - * @run:	The kvm_run structure pointer used for userspace state exchange
+>   *
+>   * This function is called through the VCPU_RUN ioctl called from user space. It
+>   * will execute VM code in a loop until the time slice for the process is used
+> @@ -647,8 +646,9 @@ static void check_vcpu_requests(struct kvm_vcpu *vcpu)
+>   * return with return value 0 and with the kvm_run structure filled in with the
+>   * required data for the requested emulation.
+>   */
+> -int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
+> +int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+>  {
+> +	struct kvm_run *run = vcpu->run;
+>  	int ret;
+>  
+>  	if (unlikely(!kvm_vcpu_initialized(vcpu)))
+> @@ -659,7 +659,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *run)
+>  		return ret;
+>  
+>  	if (run->exit_reason == KVM_EXIT_MMIO) {
+> -		ret = kvm_handle_mmio_return(vcpu, vcpu->run);
+> +		ret = kvm_handle_mmio_return(vcpu, run);
+>  		if (ret)
+>  			return ret;
+>  	}
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index 74bdb7bf3295..e18faea89146 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -3135,7 +3135,7 @@ static long kvm_vcpu_ioctl(struct file *filp,
+>  				synchronize_rcu();
+>  			put_pid(oldpid);
+>  		}
+> -		r = kvm_arch_vcpu_ioctl_run(vcpu, vcpu->run);
+> +		r = kvm_arch_vcpu_ioctl_run(vcpu);
+>  		trace_kvm_userspace_exit(vcpu->run->exit_reason, r);
+>  		break;
+>  	}
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- Documentation/core-api/cachetlb.rst |  2 +-
- include/linux/vmalloc.h             | 10 ++++------
- mm/vmalloc.c                        | 21 +++++++--------------
- mm/zsmalloc.c                       |  4 +++-
- net/ceph/ceph_common.c              |  3 +--
- 5 files changed, 16 insertions(+), 24 deletions(-)
+Queued, thanks.
 
-diff --git a/Documentation/core-api/cachetlb.rst b/Documentation/core-api/cachetlb.rst
-index 93cb65d52720..a1582cc79f0f 100644
---- a/Documentation/core-api/cachetlb.rst
-+++ b/Documentation/core-api/cachetlb.rst
-@@ -213,7 +213,7 @@ Here are the routines, one by one:
- 	there will be no entries in the cache for the kernel address
- 	space for virtual addresses in the range 'start' to 'end-1'.
- 
--	The first of these two routines is invoked after map_vm_area()
-+	The first of these two routines is invoked after map_kernel_range()
- 	has installed the page table entries.  The second is invoked
- 	before unmap_kernel_range() deletes the page table entries.
- 
-diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-index 3070b4dbc2d9..15ffbd8e8e65 100644
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -168,11 +168,11 @@ extern struct vm_struct *__get_vm_area_caller(unsigned long size,
- extern struct vm_struct *remove_vm_area(const void *addr);
- extern struct vm_struct *find_vm_area(const void *addr);
- 
--extern int map_vm_area(struct vm_struct *area, pgprot_t prot,
--			struct page **pages);
- #ifdef CONFIG_MMU
- extern int map_kernel_range_noflush(unsigned long start, unsigned long size,
- 				    pgprot_t prot, struct page **pages);
-+int map_kernel_range(unsigned long start, unsigned long size, pgprot_t prot,
-+		struct page **pages);
- extern void unmap_kernel_range_noflush(unsigned long addr, unsigned long size);
- extern void unmap_kernel_range(unsigned long addr, unsigned long size);
- static inline void set_vm_flush_reset_perms(void *addr)
-@@ -189,14 +189,12 @@ map_kernel_range_noflush(unsigned long start, unsigned long size,
- {
- 	return size >> PAGE_SHIFT;
- }
-+#define map_kernel_range map_kernel_range_noflush
- static inline void
- unmap_kernel_range_noflush(unsigned long addr, unsigned long size)
- {
- }
--static inline void
--unmap_kernel_range(unsigned long addr, unsigned long size)
--{
--}
-+#define unmap_kernel_range unmap_kernel_range_noflush
- static inline void set_vm_flush_reset_perms(void *addr)
- {
- }
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index ca8dc5d42580..b0c7cdc8701a 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -272,8 +272,8 @@ int map_kernel_range_noflush(unsigned long addr, unsigned long size,
- 	return 0;
- }
- 
--static int map_kernel_range(unsigned long start, unsigned long size,
--			   pgprot_t prot, struct page **pages)
-+int map_kernel_range(unsigned long start, unsigned long size, pgprot_t prot,
-+		struct page **pages)
- {
- 	int ret;
- 
-@@ -2027,16 +2027,6 @@ void unmap_kernel_range(unsigned long addr, unsigned long size)
- 	flush_tlb_kernel_range(addr, end);
- }
- 
--int map_vm_area(struct vm_struct *area, pgprot_t prot, struct page **pages)
--{
--	unsigned long addr = (unsigned long)area->addr;
--	int err;
--
--	err = map_kernel_range(addr, get_vm_area_size(area), prot, pages);
--
--	return err > 0 ? 0 : err;
--}
--
- static inline void setup_vmalloc_vm_locked(struct vm_struct *vm,
- 	struct vmap_area *va, unsigned long flags, const void *caller)
- {
-@@ -2408,7 +2398,8 @@ void *vmap(struct page **pages, unsigned int count,
- 	if (!area)
- 		return NULL;
- 
--	if (map_vm_area(area, prot, pages)) {
-+	if (map_kernel_range((unsigned long)area->addr, size, prot,
-+			pages) < 0) {
- 		vunmap(area->addr);
- 		return NULL;
- 	}
-@@ -2471,8 +2462,10 @@ static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
- 	}
- 	atomic_long_add(area->nr_pages, &nr_vmalloc_pages);
- 
--	if (map_vm_area(area, prot, pages))
-+	if (map_kernel_range((unsigned long)area->addr, get_vm_area_size(area),
-+			prot, pages) < 0)
- 		goto fail;
-+
- 	return area->addr;
- 
- fail:
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index ac0524330b9b..f6dc0673e62c 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1138,7 +1138,9 @@ static inline void __zs_cpu_down(struct mapping_area *area)
- static inline void *__zs_map_object(struct mapping_area *area,
- 				struct page *pages[2], int off, int size)
- {
--	BUG_ON(map_vm_area(area->vm, PAGE_KERNEL, pages));
-+	unsigned long addr = (unsigned long)area->vm->addr;
-+
-+	BUG_ON(map_kernel_range(addr, PAGE_SIZE * 2, PAGE_KERNEL, pages) < 0);
- 	area->vm_addr = area->vm->addr;
- 	return area->vm_addr + off;
- }
-diff --git a/net/ceph/ceph_common.c b/net/ceph/ceph_common.c
-index a0e97f6c1072..66f22e8aa529 100644
---- a/net/ceph/ceph_common.c
-+++ b/net/ceph/ceph_common.c
-@@ -190,8 +190,7 @@ EXPORT_SYMBOL(ceph_compare_options);
-  * kvmalloc() doesn't fall back to the vmalloc allocator unless flags are
-  * compatible with (a superset of) GFP_KERNEL.  This is because while the
-  * actual pages are allocated with the specified flags, the page table pages
-- * are always allocated with GFP_KERNEL.  map_vm_area() doesn't even take
-- * flags because GFP_KERNEL is hard-coded in {p4d,pud,pmd,pte}_alloc().
-+ * are always allocated with GFP_KERNEL.
-  *
-  * ceph_kvmalloc() may be called with GFP_KERNEL, GFP_NOFS or GFP_NOIO.
-  */
--- 
-2.25.1
+Paolo
