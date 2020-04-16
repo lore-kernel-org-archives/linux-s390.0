@@ -1,116 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:60589 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726350AbgD0EfX (ORCPT
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728550AbgDPWBd (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 27 Apr 2020 00:35:23 -0400
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH v4 1/7] KVM: s390: clean up redundant 'kvm_run' parameters
-Date: Mon, 27 Apr 2020 12:35:08 +0800
-Message-Id: <20200427043514.16144-2-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
-References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
+        Thu, 16 Apr 2020 18:01:33 -0400
+From: Matthew Wilcox <willy@infradead.org>
+Subject: [PATCH v3 06/11] s390: Add clear_bit_unlock_is_negative_byte implementation
+Date: Thu, 16 Apr 2020 15:01:25 -0700
+Message-Id: <20200416220130.13343-7-willy@infradead.org>
+In-Reply-To: <20200416220130.13343-1-willy@infradead.org>
+References: <20200416220130.13343-1-willy@infradead.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: linux-mm@kvack.org, linux-fsdevel@vger.kernel.org
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
-structure. For historical reasons, many kvm-related function parameters
-retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
-patch does a unified cleanup of these remaining redundant parameters.
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+This is the generic implementation.  I can't figure out an optimised
+implementation for s390.
+
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
 ---
- arch/s390/kvm/kvm-s390.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ arch/s390/include/asm/bitops.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index e335a7e5ead7..c0d94eaa00d7 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4176,8 +4176,9 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 	return rc;
+diff --git a/arch/s390/include/asm/bitops.h b/arch/s390/include/asm/bitops.h
+index 431e208a5ea4..d313ca6affaf 100644
+--- a/arch/s390/include/asm/bitops.h
++++ b/arch/s390/include/asm/bitops.h
+@@ -241,6 +241,15 @@ static inline void arch___clear_bit_unlock(unsigned long nr,
+ 	arch___clear_bit(nr, ptr);
  }
  
--static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void sync_regs_fmt2(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_run *kvm_run = vcpu->run;
- 	struct runtime_instr_cb *riccb;
- 	struct gs_cb *gscb;
- 
-@@ -4243,8 +4244,10 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	/* SIE will load etoken directly from SDNX and therefore kvm_run */
- }
- 
--static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void sync_regs(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_run *kvm_run = vcpu->run;
++static inline bool arch_clear_bit_unlock_is_negative_byte(unsigned int nr,
++						volatile unsigned long *p)
++{
++	arch_clear_bit_unlock(nr, p);
++	return arch_test_bit(7, p);
++}
++#define arch_clear_bit_unlock_is_negative_byte \
++	arch_clear_bit_unlock_is_negative_byte
 +
- 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
- 		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
- 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_CRS) {
-@@ -4273,7 +4276,7 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 
- 	/* Sync fmt2 only data */
- 	if (likely(!kvm_s390_pv_cpu_is_protected(vcpu))) {
--		sync_regs_fmt2(vcpu, kvm_run);
-+		sync_regs_fmt2(vcpu);
- 	} else {
- 		/*
- 		 * In several places we have to modify our internal view to
-@@ -4292,8 +4295,10 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	kvm_run->kvm_dirty_regs = 0;
- }
- 
--static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void store_regs_fmt2(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_run *kvm_run = vcpu->run;
-+
- 	kvm_run->s.regs.todpr = vcpu->arch.sie_block->todpr;
- 	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
- 	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
-@@ -4313,8 +4318,10 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
- }
- 
--static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void store_regs(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_run *kvm_run = vcpu->run;
-+
- 	kvm_run->psw_mask = vcpu->arch.sie_block->gpsw.mask;
- 	kvm_run->psw_addr = vcpu->arch.sie_block->gpsw.addr;
- 	kvm_run->s.regs.prefix = kvm_s390_get_prefix(vcpu);
-@@ -4333,7 +4340,7 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
- 	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
- 	if (likely(!kvm_s390_pv_cpu_is_protected(vcpu)))
--		store_regs_fmt2(vcpu, kvm_run);
-+		store_regs_fmt2(vcpu);
- }
- 
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
-@@ -4371,7 +4378,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
- 		goto out;
- 	}
- 
--	sync_regs(vcpu, kvm_run);
-+	sync_regs(vcpu);
- 	enable_cpu_timer_accounting(vcpu);
- 
- 	might_fault();
-@@ -4393,7 +4400,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
- 	}
- 
- 	disable_cpu_timer_accounting(vcpu);
--	store_regs(vcpu, kvm_run);
-+	store_regs(vcpu);
- 
- 	kvm_sigset_deactivate(vcpu);
- 
+ #include <asm-generic/bitops/instrumented-atomic.h>
+ #include <asm-generic/bitops/instrumented-non-atomic.h>
+ #include <asm-generic/bitops/instrumented-lock.h>
 -- 
-2.17.1
+2.25.1
