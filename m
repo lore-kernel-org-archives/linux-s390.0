@@ -1,66 +1,124 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57616 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726882AbgDGSh6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:37:58 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 13/34] iommu: Export bus_iommu_probe() and make is safe for re-probing
-Date: Tue,  7 Apr 2020 20:37:21 +0200
-Message-Id: <20200407183742.4344-14-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51626 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729249AbgDQCaJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Apr 2020 22:30:09 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03H23vlE059039
+        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:09 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30f05wmxsh-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:08 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
+        Fri, 17 Apr 2020 03:30:01 +0100
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v3 1/8] vfio-ccw: Introduce new helper functions to free/destroy regions
+Date: Fri, 17 Apr 2020 04:29:54 +0200
+In-Reply-To: <20200417023001.65006-1-farman@linux.ibm.com>
+References: <20200417023001.65006-1-farman@linux.ibm.com>
+Message-Id: <20200417023001.65006-2-farman@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Farhan Ali <alifm@linux.ibm.com>
 
-Add a check to the bus_iommu_probe() call-path to make sure it ignores
-devices which have already been successfully probed. Then export the
-bus_iommu_probe() function so it can be used by IOMMU drivers.
+Consolidate some of the cleanup code for the regions, so that
+as more are added we reduce code duplication.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/iommu/iommu.c | 6 +++++-
- include/linux/iommu.h | 1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 844613850595..cf25c1e48830 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -1615,6 +1615,10 @@ static int probe_iommu_group(struct device *dev, void *data)
- 	if (!dev_iommu_get(dev))
- 		return -ENOMEM;
- 
-+	/* Device is probed already if in a group */
-+	if (iommu_group_get(dev) != NULL)
-+		return 0;
-+
- 	if (!try_module_get(ops->owner)) {
- 		ret = -EINVAL;
- 		goto err_free_dev_iommu;
-@@ -1783,7 +1787,7 @@ static int iommu_group_create_direct_mappings(struct iommu_group *group)
- 					  iommu_do_create_direct_mappings);
+Notes:
+    v1->v2:
+     - Add Conny's r-b
+    
+    v0->v1: [EF]
+     - Commit message
+
+ drivers/s390/cio/vfio_ccw_drv.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 339a6bc0339b..8715c1c2f1e1 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -116,6 +116,14 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
  }
  
--static int bus_iommu_probe(struct bus_type *bus)
-+int bus_iommu_probe(struct bus_type *bus)
++static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
++{
++	if (private->cmd_region)
++		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
++	if (private->io_region)
++		kmem_cache_free(vfio_ccw_io_region, private->io_region);
++}
++
+ static int vfio_ccw_sch_probe(struct subchannel *sch)
  {
- 	const struct iommu_ops *ops = bus->iommu_ops;
- 	int ret;
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 30170d191e5e..fea1622408ad 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -445,6 +445,7 @@ static inline void iommu_iotlb_gather_init(struct iommu_iotlb_gather *gather)
- #define IOMMU_GROUP_NOTIFY_UNBOUND_DRIVER	6 /* Post Driver unbind */
+ 	struct pmcw *pmcw = &sch->schib.pmcw;
+@@ -181,10 +189,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	cio_disable_subchannel(sch);
+ out_free:
+ 	dev_set_drvdata(&sch->dev, NULL);
+-	if (private->cmd_region)
+-		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	if (private->io_region)
+-		kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	vfio_ccw_free_regions(private);
+ 	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 	return ret;
+@@ -200,8 +205,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
  
- extern int bus_set_iommu(struct bus_type *bus, const struct iommu_ops *ops);
-+extern int bus_iommu_probe(struct bus_type *bus);
- extern bool iommu_present(struct bus_type *bus);
- extern bool iommu_capable(struct bus_type *bus, enum iommu_cap cap);
- extern struct iommu_domain *iommu_domain_alloc(struct bus_type *bus);
+ 	dev_set_drvdata(&sch->dev, NULL);
+ 
+-	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	vfio_ccw_free_regions(private);
+ 	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 
+@@ -304,6 +308,12 @@ static void vfio_ccw_debug_exit(void)
+ 	debug_unregister(vfio_ccw_debug_trace_id);
+ }
+ 
++static void vfio_ccw_destroy_regions(void)
++{
++	kmem_cache_destroy(vfio_ccw_cmd_region);
++	kmem_cache_destroy(vfio_ccw_io_region);
++}
++
+ static int __init vfio_ccw_sch_init(void)
+ {
+ 	int ret;
+@@ -346,8 +356,7 @@ static int __init vfio_ccw_sch_init(void)
+ 	return ret;
+ 
+ out_err:
+-	kmem_cache_destroy(vfio_ccw_cmd_region);
+-	kmem_cache_destroy(vfio_ccw_io_region);
++	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+ 	return ret;
+@@ -357,8 +366,7 @@ static void __exit vfio_ccw_sch_exit(void)
+ {
+ 	css_driver_unregister(&vfio_ccw_sch_driver);
+ 	isc_unregister(VFIO_CCW_ISC);
+-	kmem_cache_destroy(vfio_ccw_io_region);
+-	kmem_cache_destroy(vfio_ccw_cmd_region);
++	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+ }
 -- 
 2.17.1
