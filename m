@@ -1,60 +1,144 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 19/30] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
-Date: Wed, 15 Apr 2020 07:47:00 -0400
-Message-Id: <20200415114711.15381-19-sashal@kernel.org>
-In-Reply-To: <20200415114711.15381-1-sashal@kernel.org>
-References: <20200415114711.15381-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51558 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729541AbgDQMia (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 17 Apr 2020 08:38:30 -0400
+Subject: Re: [PATCH v3 2/8] vfio-ccw: Register a chp_event callback for
+ vfio-ccw
+References: <20200417023001.65006-1-farman@linux.ibm.com>
+ <20200417023001.65006-3-farman@linux.ibm.com>
+ <20200417122907.034c8508.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <046d43e9-3411-3247-1368-3a94c9c93aa1@linux.ibm.com>
+Date: Fri, 17 Apr 2020 08:38:24 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200417122907.034c8508.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
 
-From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
 
-We have to properly retry again by returning -EINVAL immediately in case
-somebody else instantiated the table concurrently. We missed to add the
-goto in this function only. The code now matches the other, similar
-shadowing functions.
+On 4/17/20 6:29 AM, Cornelia Huck wrote:
+> On Fri, 17 Apr 2020 04:29:55 +0200
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> From: Farhan Ali <alifm@linux.ibm.com>
+>>
+>> Register the chp_event callback to receive channel path related
+>> events for the subchannels managed by vfio-ccw.
+>>
+>> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>
+>> Notes:
+>>     v2->v3:
+>>      - Add a call to cio_cancel_halt_clear() for CHP_VARY_OFF [CH]
+>>     
+>>     v1->v2:
+>>      - Move s390dbf before cio_update_schib() call [CH]
+>>     
+>>     v0->v1: [EF]
+>>      - Add s390dbf trace
+>>
+>>  drivers/s390/cio/vfio_ccw_drv.c | 45 +++++++++++++++++++++++++++++++++
+>>  1 file changed, 45 insertions(+)
+>>
+>> diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+>> index 8715c1c2f1e1..e48967c475e7 100644
+>> --- a/drivers/s390/cio/vfio_ccw_drv.c
+>> +++ b/drivers/s390/cio/vfio_ccw_drv.c
+>> @@ -19,6 +19,7 @@
+>>  
+>>  #include <asm/isc.h>
+>>  
+>> +#include "chp.h"
+>>  #include "ioasm.h"
+>>  #include "css.h"
+>>  #include "vfio_ccw_private.h"
+>> @@ -262,6 +263,49 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+>>  	return rc;
+>>  }
+>>  
+>> +static int vfio_ccw_chp_event(struct subchannel *sch,
+>> +			      struct chp_link *link, int event)
+>> +{
+>> +	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
+>> +	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
+>> +	int retry = 255;
+>> +
+>> +	if (!private || !mask)
+>> +		return 0;
+>> +
+>> +	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
+>> +			   mdev_uuid(private->mdev), sch->schid.cssid,
+>> +			   sch->schid.ssid, sch->schid.sch_no,
+>> +			   mask, event);
+>> +
+>> +	if (cio_update_schib(sch))
+>> +		return -ENODEV;
+>> +
+>> +	switch (event) {
+>> +	case CHP_VARY_OFF:
+>> +		/* Path logically turned off */
+>> +		sch->opm &= ~mask;
+>> +		sch->lpm &= ~mask;
+>> +		cio_cancel_halt_clear(sch, &retry);
+>> +		break;
+>> +	case CHP_OFFLINE:
+>> +		/* Path is gone */
+>> +		cio_cancel_halt_clear(sch, &retry);
+> 
+> Looking at this again: While calling the same function for both
+> CHP_VARY_OFF and CHP_OFFLINE is the right thing to do,
+> cio_cancel_halt_clear() is probably not that function. I don't think we
+> want to terminate an I/O that does not use the affected path.
+> 
+> Looking at what the normal I/O subchannel driver does, it first checks
+> for the lpum and does not do anything if the affected path does not
+> show up there. Following down the git history rabbit hole, that basic
+> check (surviving several reworks) precedes the first git import, so
+> there's unfortunately no patch description explaining that. Looking at
+> the PoP, I cannot find a whole lot of details... I think some of the
+> path-handling stuff is explained in non-public documentation, and
+> whoever wrote the original code (probably me) relied on the information
+> there.
+> 
+> tl;dr: We probably should check the lpum here as well.
 
-We are overwriting an existing region 2 table entry. All allocated pages
-are added to the crst_list to be freed later, so they are not lost
-forever. However, when unshadowing the region 2 table, we wouldn't trigger
-unshadowing of the original shadowed region 3 table that we replaced. It
-would get unshadowed when the original region 3 table is modified. As it's
-not connected to the page table hierarchy anymore, it's not going to get
-used anymore. However, for a limited time, this page table will stick
-around, so it's in some sense a temporary memory leak.
+Makes sense.  I'll go through that other doc and fix this up accordingly.
 
-Identified by manual code inspection. I don't think this classifies as
-stable material.
-
-Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/mm/gmap.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index ec9292917d3f2..3efe99f760063 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1683,6 +1683,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
- 		goto out_free;
- 	} else if (*table & _REGION_ENTRY_ORIGIN) {
- 		rc = -EAGAIN;		/* Race with shadow */
-+		goto out_free;
- 	}
- 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
- 	/* mark as invalid as long as the parent table is not protected */
--- 
-2.20.1
+> 
+>> +		break;
+>> +	case CHP_VARY_ON:
+>> +		/* Path logically turned on */
+>> +		sch->opm |= mask;
+>> +		sch->lpm |= mask;
+>> +		break;
+>> +	case CHP_ONLINE:
+>> +		/* Path became available */
+>> +		sch->lpm |= mask & sch->opm;
+>> +		break;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>>  static struct css_device_id vfio_ccw_sch_ids[] = {
+>>  	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
+>>  	{ /* end of list */ },
+>> @@ -279,6 +323,7 @@ static struct css_driver vfio_ccw_sch_driver = {
+>>  	.remove = vfio_ccw_sch_remove,
+>>  	.shutdown = vfio_ccw_sch_shutdown,
+>>  	.sch_event = vfio_ccw_sch_event,
+>> +	.chp_event = vfio_ccw_chp_event,
+>>  };
+>>  
+>>  static int __init vfio_ccw_debug_init(void)
+> 
