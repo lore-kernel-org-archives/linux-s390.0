@@ -1,89 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728551AbgDRUUa (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40474 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728969AbgDQCaJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Apr 2020 16:20:30 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFAAC061A0C
-        for <linux-s390@vger.kernel.org>; Sat, 18 Apr 2020 13:20:29 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id u13so7187519wrp.3
-        for <linux-s390@vger.kernel.org>; Sat, 18 Apr 2020 13:20:29 -0700 (PDT)
-From: Dmitry Safonov <dima@arista.com>
-Subject: [PATCHv3 28/50] s390: Add show_stack_loglvl()
-Date: Sat, 18 Apr 2020 21:19:22 +0100
-Message-Id: <20200418201944.482088-29-dima@arista.com>
-In-Reply-To: <20200418201944.482088-1-dima@arista.com>
-References: <20200418201944.482088-1-dima@arista.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Thu, 16 Apr 2020 22:30:09 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03H2CCWB144101
+        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:08 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 30f3f4gace-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:08 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
+        Fri, 17 Apr 2020 03:29:37 +0100
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v3 6/8] vfio-ccw: Refactor IRQ handlers
+Date: Fri, 17 Apr 2020 04:29:59 +0200
+In-Reply-To: <20200417023001.65006-1-farman@linux.ibm.com>
+References: <20200417023001.65006-1-farman@linux.ibm.com>
+Message-Id: <20200417023001.65006-7-farman@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Safonov <0x7f454c46@gmail.com>, Dmitry Safonov <dima@arista.com>, Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jslaby@suse.com>, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 
-Currently, the log-level of show_stack() depends on a platform
-realization. It creates situations where the headers are printed with
-lower log level or higher than the stacktrace (depending on
-a platform or user).
+To simplify future expansion.
 
-Furthermore, it forces the logic decision from user to an architecture
-side. In result, some users as sysrq/kdb/etc are doing tricks with
-temporary rising console_loglevel while printing their messages.
-And in result it not only may print unwanted messages from other CPUs,
-but also omit printing at all in the unlucky case where the printk()
-was deferred.
-
-Introducing log-level parameter and KERN_UNSUPPRESSED [1] seems
-an easier approach than introducing more printk buffers.
-Also, it will consolidate printings with headers.
-
-Introduce show_stack_loglvl(), that eventually will substitute
-show_stack().
-
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-[1]: https://lore.kernel.org/lkml/20190528002412.1625-1-dima@arista.com/T/#u
-Signed-off-by: Dmitry Safonov <dima@arista.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/kernel/dumpstack.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index 2c122d8bab93..887a054919fc 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -126,18 +126,24 @@ int get_stack_info(unsigned long sp, struct task_struct *task,
- 	return -EINVAL;
- }
+Notes:
+    v1->v2:
+     - Add Conny's r-b
+
+ drivers/s390/cio/vfio_ccw_ops.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index edec0fb7ace8..f3033f8fc96d 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -391,17 +391,21 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
  
--void show_stack(struct task_struct *task, unsigned long *stack)
-+void show_stack_loglvl(struct task_struct *task, unsigned long *stack,
-+		       const char *loglvl)
+ static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
  {
- 	struct unwind_state state;
+-	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
++	switch (info->index) {
++	case VFIO_CCW_IO_IRQ_INDEX:
++		info->count = 1;
++		info->flags = VFIO_IRQ_INFO_EVENTFD;
++		break;
++	default:
+ 		return -EINVAL;
+-
+-	info->count = 1;
+-	info->flags = VFIO_IRQ_INFO_EVENTFD;
++	}
  
--	printk("Call Trace:\n");
-+	printk("%sCall Trace:\n", loglvl);
- 	unwind_for_each_frame(&state, task, NULL, (unsigned long) stack)
--		printk(state.reliable ? " [<%016lx>] %pSR \n" :
--					"([<%016lx>] %pSR)\n",
--		       state.ip, (void *) state.ip);
-+		printk(state.reliable ? "%s [<%016lx>] %pSR \n" :
-+					"%s([<%016lx>] %pSR)\n",
-+		       loglvl, state.ip, (void *) state.ip);
- 	debug_show_held_locks(task ? : current);
+ 	return 0;
  }
  
-+void show_stack(struct task_struct *task, unsigned long *stack)
-+{
-+	show_stack_loglvl(task, stack, KERN_DEFAULT);
-+}
+ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
+ 				  uint32_t flags,
++				  uint32_t index,
+ 				  void __user *data)
+ {
+ 	struct vfio_ccw_private *private;
+@@ -411,7 +415,14 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
+ 		return -EINVAL;
+ 
+ 	private = dev_get_drvdata(mdev_parent_dev(mdev));
+-	ctx = &private->io_trigger;
 +
- static void show_last_breaking_event(struct pt_regs *regs)
- {
- 	printk("Last Breaking-Event-Address:\n");
++	switch (index) {
++	case VFIO_CCW_IO_IRQ_INDEX:
++		ctx = &private->io_trigger;
++		break;
++	default:
++		return -EINVAL;
++	}
+ 
+ 	switch (flags & VFIO_IRQ_SET_DATA_TYPE_MASK) {
+ 	case VFIO_IRQ_SET_DATA_NONE:
+@@ -583,7 +594,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+ 			return ret;
+ 
+ 		data = (void __user *)(arg + minsz);
+-		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, data);
++		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, hdr.index, data);
+ 	}
+ 	case VFIO_DEVICE_RESET:
+ 		return vfio_ccw_mdev_reset(mdev);
 -- 
-2.26.0
+2.17.1
