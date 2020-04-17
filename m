@@ -1,77 +1,96 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 11/28] mm: pass addr as unsigned long to vb_free
-Date: Wed,  8 Apr 2020 13:59:09 +0200
-Message-Id: <20200408115926.1467567-12-hch@lst.de>
-In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
-References: <20200408115926.1467567-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:31476 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728461AbgDQBhZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Apr 2020 21:37:25 -0400
+Date: Thu, 16 Apr 2020 20:37:15 -0500
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: Re: [PATCH 4/7] s390/module: Use s390_kernel_write() for relocations
+Message-ID: <20200417013715.kj6g4byvdy5uzgev@treble>
+References: <cover.1586881704.git.jpoimboe@redhat.com>
+ <e7f2ad87cf83dcdaa7b69b4e37c11fa355bdfe78.1586881704.git.jpoimboe@redhat.com>
+ <alpine.LSU.2.21.2004161047410.10475@pobox.suse.cz>
+ <20200416120651.wqmoaa35jft4prox@treble>
+ <20200416131635.scbpuued6l4xb6qq@treble>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200416131635.scbpuued6l4xb6qq@treble>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Miroslav Benes <mbenes@suse.cz>
+Cc: live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jessica Yu <jeyu@kernel.org>, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
 
-Ever use of addr in vb_free casts to unsigned long first, and the caller
-has an unsigned long version of the address available anyway.  Just pass
-that and avoid all the casts.
+On Thu, Apr 16, 2020 at 08:16:35AM -0500, Josh Poimboeuf wrote:
+> On Thu, Apr 16, 2020 at 07:06:51AM -0500, Josh Poimboeuf wrote:
+> > On Thu, Apr 16, 2020 at 10:56:02AM +0200, Miroslav Benes wrote:
+> > > > +	bool early = me->state == MODULE_STATE_UNFORMED;
+> > > > +
+> > > > +	return __apply_relocate_add(sechdrs, strtab, symindex, relsec, me,
+> > > > +				    early ? memcpy : s390_kernel_write);
+> > > 
+> > > The compiler warns about
+> > > 
+> > > arch/s390/kernel/module.c: In function 'apply_relocate_add':
+> > > arch/s390/kernel/module.c:453:24: warning: pointer type mismatch in conditional expression
+> > >          early ? memcpy : s390_kernel_write);
+> > 
+> > Thanks, I'll get all that cleaned up.
+> > 
+> > I could have sworn I got a SUCCESS message from the kbuild bot.  Does it
+> > ignore warnings nowadays?
+> 
+> Here's a fix on top of the original patch.
+> 
+> I changed s390_kernel_write() to return "void *" to match memcpy()
+> (probably a separate patch).
+> 
+> I also grabbed the text_mutex for the !early case in
+> apply_relocate_add() -- will do something similar for x86.
+> 
+> Will try to test this on a 390 box.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- mm/vmalloc.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+...and that borked the box pretty nicely.  Oops, big endian!  Need
+something like this on top.
 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 9183fc0d365a..aada9e9144bd 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1664,7 +1664,7 @@ static void *vb_alloc(unsigned long size, gfp_t gfp_mask)
- 	return vaddr;
- }
- 
--static void vb_free(const void *addr, unsigned long size)
-+static void vb_free(unsigned long addr, unsigned long size)
- {
- 	unsigned long offset;
- 	unsigned long vb_idx;
-@@ -1674,24 +1674,22 @@ static void vb_free(const void *addr, unsigned long size)
- 	BUG_ON(offset_in_page(size));
- 	BUG_ON(size > PAGE_SIZE*VMAP_MAX_ALLOC);
- 
--	flush_cache_vunmap((unsigned long)addr, (unsigned long)addr + size);
-+	flush_cache_vunmap(addr, addr + size);
- 
- 	order = get_order(size);
- 
--	offset = (unsigned long)addr & (VMAP_BLOCK_SIZE - 1);
--	offset >>= PAGE_SHIFT;
-+	offset = (addr & (VMAP_BLOCK_SIZE - 1)) >> PAGE_SHIFT;
- 
--	vb_idx = addr_to_vb_idx((unsigned long)addr);
-+	vb_idx = addr_to_vb_idx(addr);
- 	rcu_read_lock();
- 	vb = radix_tree_lookup(&vmap_block_tree, vb_idx);
- 	rcu_read_unlock();
- 	BUG_ON(!vb);
- 
--	vunmap_page_range((unsigned long)addr, (unsigned long)addr + size);
-+	vunmap_page_range(addr, addr + size);
- 
- 	if (debug_pagealloc_enabled_static())
--		flush_tlb_kernel_range((unsigned long)addr,
--					(unsigned long)addr + size);
-+		flush_tlb_kernel_range(addr, addr + size);
- 
- 	spin_lock(&vb->lock);
- 
-@@ -1791,7 +1789,7 @@ void vm_unmap_ram(const void *mem, unsigned int count)
- 
- 	if (likely(count <= VMAP_MAX_ALLOC)) {
- 		debug_check_no_locks_freed(mem, size);
--		vb_free(mem, size);
-+		vb_free(addr, size);
- 		return;
+Sorry about not testing the patch in the first place, it looked trivial
+and somehow I was thinking Peter writes exclusively bug-free code.
+
+diff --git a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
+index ee0904a23e24..513e640430ae 100644
+--- a/arch/s390/kernel/module.c
++++ b/arch/s390/kernel/module.c
+@@ -198,21 +198,25 @@ static int apply_rela_bits(Elf_Addr loc, Elf_Addr val,
  	}
  
+ 	if (bits == 8) {
+-		write(dest, &val, 1);
++		unsigned char tmp = val;
++		write(dest, &tmp, 1);
+ 	} else if (bits == 12) {
+ 		unsigned short tmp = (val & 0xfff) |
+ 			(*(unsigned short *) loc & 0xf000);
+ 		write(dest, &tmp, 2);
+ 	} else if (bits == 16) {
+-		write(dest, &val, 2);
++		unsigned short tmp = val;
++		write(dest, &tmp, 2);
+ 	} else if (bits == 20) {
+ 		unsigned int tmp = (val & 0xfff) << 16 |
+ 			(val & 0xff000) >> 4 | (*(unsigned int *) loc & 0xf00000ff);
+ 		write(dest, &tmp, 4);
+ 	} else if (bits == 32) {
+-		write(dest, &val, 4);
++		unsigned int tmp = val;
++		write(dest, &tmp, 4);
+ 	} else if (bits == 64) {
+-		write(dest, &val, 8);
++		unsigned long tmp = val;
++		write(dest, &tmp, 8);
+ 	}
+ 	return 0;
+ }
+
 -- 
-2.25.1
+Josh
