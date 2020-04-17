@@ -1,8 +1,15 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 17 Apr 2020 05:01:13 -0400
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:24840 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729962AbgDQI5u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 17 Apr 2020 04:57:50 -0400
+Received: by mail-wm1-f70.google.com with SMTP id v185so558544wmg.0
+        for <linux-s390@vger.kernel.org>; Fri, 17 Apr 2020 01:57:46 -0700 (PDT)
+Date: Fri, 17 Apr 2020 04:57:41 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH V2] vhost: do not enable VHOST_MENU by default
-Message-ID: <20200417050029-mutt-send-email-mst@kernel.org>
+Message-ID: <20200417045454-mutt-send-email-mst@kernel.org>
 References: <20200415024356.23751-1-jasowang@redhat.com>
  <20200416185426-mutt-send-email-mst@kernel.org>
  <b7e2deb7-cb64-b625-aeb4-760c7b28c0c8@redhat.com>
@@ -17,7 +24,7 @@ Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 In-Reply-To: <73843240-3040-655d-baa9-683341ed4786@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Jason Wang <jasowang@redhat.com>
 Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, benh@kernel.crashing.org, paulus@samba.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, Michael Ellerman <mpe@ellerman.id.au>
@@ -88,8 +95,28 @@ On Fri, Apr 17, 2020 at 04:51:19PM +0800, Jason Wang wrote:
 > not set.
 > 
 > Thanks
+
+Hmm. So looking at Documentation/kbuild/kconfig-language.rst :
+
+        Things that merit "default y/m" include:
+
+        a) A new Kconfig option for something that used to always be built
+           should be "default y".
+
+
+        b) A new gatekeeping Kconfig option that hides/shows other Kconfig
+           options (but does not generate any code of its own), should be
+           "default y" so people will see those other options.
+
+        c) Sub-driver behavior or similar options for a driver that is
+           "default n". This allows you to provide sane defaults.
+
+
+So it looks like VHOST_MENU is actually matching rule b).
+So what's the problem we are trying to solve with this patch, exactly?
+
+Geert could you clarify pls?
+
+
 > 
-
-BTW do entries with no prompt actually appear in defconfig?
-
 > > 
