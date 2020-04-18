@@ -1,102 +1,56 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:35298 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502914AbgDNNQL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:11 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 31/33] iommu/exynos: Convert to probe/release_device() call-backs
-Date: Tue, 14 Apr 2020 15:15:40 +0200
-Message-Id: <20200414131542.25608-32-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 35/73] s390/cio: generate delayed uevent for vfio-ccw subchannels
+Date: Sat, 18 Apr 2020 09:47:37 -0400
+Message-Id: <20200418134815.6519-35-sashal@kernel.org>
+In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
+References: <20200418134815.6519-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Eric Farman <farman@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Cornelia Huck <cohuck@redhat.com>
 
-Convert the Exynos IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+[ Upstream commit 2bc55eaeb88d30accfc1b6ac2708d4e4b81ca260 ]
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+The common I/O layer delays the ADD uevent for subchannels and
+delegates generating this uevent to the individual subchannel
+drivers. The vfio-ccw I/O subchannel driver, however, did not
+do that, and will not generate an ADD uevent for subchannels
+that had not been bound to a different driver (or none at all,
+which also triggers the uevent).
+
+Generate the ADD uevent at the end of the probe function if
+uevents were still suppressed for the device.
+
+Message-Id: <20200327124503.9794-3-cohuck@redhat.com>
+Fixes: 63f1934d562d ("vfio: ccw: basic implementation for vfio_ccw driver")
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/exynos-iommu.c | 26 ++++++--------------------
- 1 file changed, 6 insertions(+), 20 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 09cdd163560a..60c8a56e4a3f 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -1235,19 +1235,13 @@ static phys_addr_t exynos_iommu_iova_to_phys(struct iommu_domain *iommu_domain,
- 	return phys;
- }
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index e401a3d0aa570..339a6bc0339b0 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -167,6 +167,11 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	if (ret)
+ 		goto out_disable;
  
--static int exynos_iommu_add_device(struct device *dev)
-+static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
- {
- 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct sysmmu_drvdata *data;
--	struct iommu_group *group;
- 
- 	if (!has_sysmmu(dev))
--		return -ENODEV;
--
--	group = iommu_group_get_for_dev(dev);
--
--	if (IS_ERR(group))
--		return PTR_ERR(group);
-+		return ERR_PTR(-ENODEV);
- 
- 	list_for_each_entry(data, &owner->controllers, owner_node) {
- 		/*
-@@ -1259,17 +1253,15 @@ static int exynos_iommu_add_device(struct device *dev)
- 					     DL_FLAG_STATELESS |
- 					     DL_FLAG_PM_RUNTIME);
- 	}
--	iommu_group_put(group);
- 
- 	/* There is always at least one entry, see exynos_iommu_of_xlate() */
- 	data = list_first_entry(&owner->controllers,
- 				struct sysmmu_drvdata, owner_node);
--	iommu_device_link(&data->iommu, dev);
- 
--	return 0;
-+	return &data->iommu;
- }
- 
--static void exynos_iommu_remove_device(struct device *dev)
-+static void exynos_iommu_release_device(struct device *dev)
- {
- 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct sysmmu_drvdata *data;
-@@ -1287,15 +1279,9 @@ static void exynos_iommu_remove_device(struct device *dev)
- 			iommu_group_put(group);
- 		}
- 	}
--	iommu_group_remove_device(dev);
- 
- 	list_for_each_entry(data, &owner->controllers, owner_node)
- 		device_link_del(data->link);
--
--	/* There is always at least one entry, see exynos_iommu_of_xlate() */
--	data = list_first_entry(&owner->controllers,
--				struct sysmmu_drvdata, owner_node);
--	iommu_device_unlink(&data->iommu, dev);
- }
- 
- static int exynos_iommu_of_xlate(struct device *dev,
-@@ -1341,8 +1327,8 @@ static const struct iommu_ops exynos_iommu_ops = {
- 	.unmap = exynos_iommu_unmap,
- 	.iova_to_phys = exynos_iommu_iova_to_phys,
- 	.device_group = generic_device_group,
--	.add_device = exynos_iommu_add_device,
--	.remove_device = exynos_iommu_remove_device,
-+	.probe_device = exynos_iommu_probe_device,
-+	.release_device = exynos_iommu_release_device,
- 	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
- 	.of_xlate = exynos_iommu_of_xlate,
- };
++	if (dev_get_uevent_suppress(&sch->dev)) {
++		dev_set_uevent_suppress(&sch->dev, 0);
++		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++	}
++
+ 	VFIO_CCW_MSG_EVENT(4, "bound to subchannel %x.%x.%04x\n",
+ 			   sch->schid.cssid, sch->schid.ssid,
+ 			   sch->schid.sch_no);
 -- 
-2.17.1
+2.20.1
