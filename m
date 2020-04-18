@@ -1,89 +1,77 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH v3 3/7] KVM: PPC: Remove redundant kvm_run from vcpu_arch
-Date: Sun, 26 Apr 2020 20:39:01 +0800
-Message-Id: <20200426123905.8336-4-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20200426123905.8336-1-tianjia.zhang@linux.alibaba.com>
-References: <20200426123905.8336-1-tianjia.zhang@linux.alibaba.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:55774 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726100AbgDRNtC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Apr 2020 09:49:02 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 36/73] s390/cio: avoid duplicated 'ADD' uevents
+Date: Sat, 18 Apr 2020 09:47:38 -0400
+Message-Id: <20200418134815.6519-36-sashal@kernel.org>
+In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
+References: <20200418134815.6519-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-The 'kvm_run' field already exists in the 'vcpu' structure, which
-is the same structure as the 'kvm_run' in the 'vcpu_arch' and
-should be deleted.
+From: Cornelia Huck <cohuck@redhat.com>
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+[ Upstream commit 05ce3e53f375295c2940390b2b429e506e07655c ]
+
+The common I/O layer delays the ADD uevent for subchannels and
+delegates generating this uevent to the individual subchannel
+drivers. The io_subchannel driver will do so when the associated
+ccw_device has been registered -- but unconditionally, so more
+ADD uevents will be generated if a subchannel has been unbound
+from the io_subchannel driver and later rebound.
+
+To fix this, only generate the ADD event if uevents were still
+suppressed for the device.
+
+Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
+Message-Id: <20200327124503.9794-2-cohuck@redhat.com>
+Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/kvm_host.h | 1 -
- arch/powerpc/kvm/book3s_hv.c        | 6 ++----
- arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
- 3 files changed, 3 insertions(+), 7 deletions(-)
+ drivers/s390/cio/device.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-index 1dc63101ffe1..2745ff8faa01 100644
---- a/arch/powerpc/include/asm/kvm_host.h
-+++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -795,7 +795,6 @@ struct kvm_vcpu_arch {
- 	struct mmio_hpte_cache_entry *pgfault_cache;
- 
- 	struct task_struct *run_task;
--	struct kvm_run *kvm_run;
- 
- 	spinlock_t vpa_update_lock;
- 	struct kvmppc_vpa vpa;
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 93493f0cbfe8..413ea2dcb10c 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2934,7 +2934,7 @@ static void post_guest_process(struct kvmppc_vcore *vc, bool is_master)
- 
- 		ret = RESUME_GUEST;
- 		if (vcpu->arch.trap)
--			ret = kvmppc_handle_exit_hv(vcpu->arch.kvm_run, vcpu,
-+			ret = kvmppc_handle_exit_hv(vcpu->run, vcpu,
- 						    vcpu->arch.run_task);
- 
- 		vcpu->arch.ret = ret;
-@@ -3920,7 +3920,6 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
- 	spin_lock(&vc->lock);
- 	vcpu->arch.ceded = 0;
- 	vcpu->arch.run_task = current;
--	vcpu->arch.kvm_run = kvm_run;
- 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
- 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
- 	vcpu->arch.busy_preempt = TB_NIL;
-@@ -3973,7 +3972,7 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
- 			if (signal_pending(v->arch.run_task)) {
- 				kvmppc_remove_runnable(vc, v);
- 				v->stat.signal_exits++;
--				v->arch.kvm_run->exit_reason = KVM_EXIT_INTR;
-+				v->run->exit_reason = KVM_EXIT_INTR;
- 				v->arch.ret = -EINTR;
- 				wake_up(&v->arch.cpu_run);
- 			}
-@@ -4049,7 +4048,6 @@ int kvmhv_run_single_vcpu(struct kvm_run *kvm_run,
- 	vc = vcpu->arch.vcore;
- 	vcpu->arch.ceded = 0;
- 	vcpu->arch.run_task = current;
--	vcpu->arch.kvm_run = kvm_run;
- 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
- 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
- 	vcpu->arch.busy_preempt = TB_NIL;
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index dc97e5be76f6..5a3987f3ebf3 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -290,8 +290,7 @@ long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
- 			r = RESUME_HOST;
- 			break;
- 		}
--		r = kvmhv_run_single_vcpu(vcpu->arch.kvm_run, vcpu, hdec_exp,
--					  lpcr);
-+		r = kvmhv_run_single_vcpu(vcpu->run, vcpu, hdec_exp, lpcr);
- 	} while (is_kvmppc_resume_guest(r));
- 
- 	/* save L2 state for return */
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 0c6245fc77069..983f9c9e08deb 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -849,8 +849,10 @@ static void io_subchannel_register(struct ccw_device *cdev)
+ 	 * Now we know this subchannel will stay, we can throw
+ 	 * our delayed uevent.
+ 	 */
+-	dev_set_uevent_suppress(&sch->dev, 0);
+-	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++	if (dev_get_uevent_suppress(&sch->dev)) {
++		dev_set_uevent_suppress(&sch->dev, 0);
++		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++	}
+ 	/* make it known to the system */
+ 	ret = ccw_device_add(cdev);
+ 	if (ret) {
+@@ -1058,8 +1060,11 @@ static int io_subchannel_probe(struct subchannel *sch)
+ 		 * Throw the delayed uevent for the subchannel, register
+ 		 * the ccw_device and exit.
+ 		 */
+-		dev_set_uevent_suppress(&sch->dev, 0);
+-		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++		if (dev_get_uevent_suppress(&sch->dev)) {
++			/* should always be the case for the console */
++			dev_set_uevent_suppress(&sch->dev, 0);
++			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++		}
+ 		cdev = sch_get_cdev(sch);
+ 		rc = ccw_device_add(cdev);
+ 		if (rc) {
 -- 
-2.17.1
+2.20.1
