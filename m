@@ -1,35 +1,64 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 0/1] remove ioclt_by_bdev from DASD
-Date: Thu, 30 Apr 2020 13:17:53 +0200
-Message-Id: <20200430111754.98508-1-sth@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:56008 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728785AbgDROoW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:44:22 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 12/23] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
+Date: Sat, 18 Apr 2020 10:43:54 -0400
+Message-Id: <20200418144405.10565-12-sashal@kernel.org>
+In-Reply-To: <20200418144405.10565-1-sashal@kernel.org>
+References: <20200418144405.10565-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: axboe@kernel.dk, hch@lst.de
-Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-Hi Christoph and Jens,
+From: David Hildenbrand <david@redhat.com>
 
-here I have a different proposal how to remove the ioctl_by_bdev calls
-from the DASD device driver. The patch is tested and from my perspective
-OK to be integrated.
-If you find it acceptable please feel free to integrate it into your tree.
-Otherwise I am open for suggestions.
+[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
 
-Regards,
-Stefan
+We have to properly retry again by returning -EINVAL immediately in case
+somebody else instantiated the table concurrently. We missed to add the
+goto in this function only. The code now matches the other, similar
+shadowing functions.
 
-Stefan Haberland (1):
-  s390/dasd: remove ioctl_by_bdev from DASD driver
+We are overwriting an existing region 2 table entry. All allocated pages
+are added to the crst_list to be freed later, so they are not lost
+forever. However, when unshadowing the region 2 table, we wouldn't trigger
+unshadowing of the original shadowed region 3 table that we replaced. It
+would get unshadowed when the original region 3 table is modified. As it's
+not connected to the page table hierarchy anymore, it's not going to get
+used anymore. However, for a limited time, this page table will stick
+around, so it's in some sense a temporary memory leak.
 
- block/partitions/ibm.c           | 67 ++++++++++++++++++--------------
- drivers/s390/block/dasd_devmap.c | 17 +++++++-
- drivers/s390/block/dasd_diag.c   | 10 +++++
- drivers/s390/block/dasd_eckd.c   | 10 +++++
- drivers/s390/block/dasd_fba.c    |  8 ++++
- drivers/s390/block/dasd_genhd.c  |  1 +
- drivers/s390/block/dasd_int.h    | 10 +++++
- 7 files changed, 91 insertions(+), 32 deletions(-)
+Identified by manual code inspection. I don't think this classifies as
+stable material.
 
+Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/mm/gmap.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index b6c85b760305d..099db32ed104a 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1680,6 +1680,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 		goto out_free;
+ 	} else if (*table & _REGION_ENTRY_ORIGIN) {
+ 		rc = -EAGAIN;		/* Race with shadow */
++		goto out_free;
+ 	}
+ 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
+ 	/* mark as invalid as long as the parent table is not protected */
 -- 
-2.17.1
+2.20.1
