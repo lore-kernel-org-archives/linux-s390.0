@@ -1,87 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10104 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726489AbgDXKqA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Apr 2020 06:46:00 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v6 01/10] s390x: saving regs for interrupts
-Date: Fri, 24 Apr 2020 12:45:43 +0200
-Message-Id: <1587725152-25569-2-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
-References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:55598 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728730AbgDROoD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:44:03 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 27/28] KVM: s390: vsie: Fix delivery of addressing exceptions
+Date: Sat, 18 Apr 2020 10:43:27 -0400
+Message-Id: <20200418144328.10265-27-sashal@kernel.org>
+In-Reply-To: <20200418144328.10265-1-sashal@kernel.org>
+References: <20200418144328.10265-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-If we use multiple source of interrupts, for example, using SCLP
-console to print information while using I/O interrupts, we need
-to have a re-entrant register saving interruption handling.
+From: David Hildenbrand <david@redhat.com>
 
-Instead of saving at a static memory address, let's save the base
-registers and the floating point registers on the stack.
+[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
 
-Note that we keep the static register saving to recover from the
-RESET tests.
+Whenever we get an -EFAULT, we failed to read in guest 2 physical
+address space. Such addressing exceptions are reported via a program
+intercept to the nested hypervisor.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+We faked the intercept, we have to return to guest 2. Instead, right
+now we would be returning -EFAULT from the intercept handler, eventually
+crashing the VM.
+the correct thing to do is to return 1 as rc == 1 is the internal
+representation of "we have to go back into g2".
+
+Addressing exceptions can only happen if the g2->g3 page tables
+reference invalid g2 addresses (say, either a table or the final page is
+not accessible - so something that basically never happens in sane
+environments.
+
+Identified by manual code inspection.
+
+Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[borntraeger@de.ibm.com: fix patch description]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- s390x/cstart64.S | 34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
+ arch/s390/kvm/vsie.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 9af6bb3..ba2e67c 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -118,6 +118,36 @@ memsetxc:
- 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
- 	.endm
- 
-+/* Save registers on the stack (r15), so we can have stacked interrupts. */
-+	.macro SAVE_IRQ_REGS
-+	/* Allocate a stack frame for 15 integer registers */
-+	slgfi   %r15, 15 * 8
-+	/* Store all registers from r0 to r14 on the stack */
-+	stmg    %r0, %r14, 0(%r15)
-+	/* Allocate a stack frame for 16 floating point registers */
-+	/* The size of a FP register is the size of an integer */
-+	slgfi   %r15, 16 * 8
-+	/* Save fp register on stack: offset to SP is multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	std	\i, \i * 8(%r15)
-+	.endr
-+	.endm
-+
-+/* Restore the register in reverse order */
-+	.macro RESTORE_IRQ_REGS
-+	/* Restore fp register from stack: SP still where it was left */
-+	/* and offset to SP is a multile of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	ld	\i, \i * 8(%r15)
-+	.endr
-+	/* Now it is done, rewind the stack pointer by 16 integers */
-+	algfi   %r15, 16 * 8
-+	/* Load the registers from stack */
-+	lmg     %r0, %r14, 0(%r15)
-+	/* Rewind the stack by 15 integers */
-+	algfi   %r15, 15 * 8
-+	.endm
-+
- .section .text
- /*
-  * load_reset calling convention:
-@@ -182,9 +212,9 @@ mcck_int:
- 	lpswe	GEN_LC_MCCK_OLD_PSW
- 
- io_int:
--	SAVE_REGS
-+	SAVE_IRQ_REGS
- 	brasl	%r14, handle_io_int
--	RESTORE_REGS
-+	RESTORE_IRQ_REGS
- 	lpswe	GEN_LC_IO_OLD_PSW
- 
- svc_int:
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 061906f98dc5c..0120383219c03 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1027,6 +1027,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		scb_s->iprcc = PGM_ADDRESSING;
+ 		scb_s->pgmilc = 4;
+ 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
++		rc = 1;
+ 	}
+ 	return rc;
+ }
 -- 
-2.25.1
+2.20.1
