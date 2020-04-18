@@ -1,176 +1,60 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21094 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726872AbgDXKqC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Apr 2020 06:46:02 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v6 06/10] s390x: css: stsch, enumeration test
-Date: Fri, 24 Apr 2020 12:45:48 +0200
-Message-Id: <1587725152-25569-7-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
-References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 29/78] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
+Date: Sat, 18 Apr 2020 10:39:58 -0400
+Message-Id: <20200418144047.9013-29-sashal@kernel.org>
+In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
+References: <20200418144047.9013-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-First step for testing the channel subsystem is to enumerate the css and
-retrieve the css devices.
+From: David Hildenbrand <david@redhat.com>
 
-This tests the success of STSCH I/O instruction, we do not test the
-reaction of the VM for an instruction with wrong parameters.
+[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+We have to properly retry again by returning -EINVAL immediately in case
+somebody else instantiated the table concurrently. We missed to add the
+goto in this function only. The code now matches the other, similar
+shadowing functions.
+
+We are overwriting an existing region 2 table entry. All allocated pages
+are added to the crst_list to be freed later, so they are not lost
+forever. However, when unshadowing the region 2 table, we wouldn't trigger
+unshadowing of the original shadowed region 3 table that we replaced. It
+would get unshadowed when the original region 3 table is modified. As it's
+not connected to the page table hierarchy anymore, it's not going to get
+used anymore. However, for a limited time, this page table will stick
+around, so it's in some sense a temporary memory leak.
+
+Identified by manual code inspection. I don't think this classifies as
+stable material.
+
+Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/s390x/css.h     |  1 +
- s390x/Makefile      |  2 +
- s390x/css.c         | 92 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |  4 ++
- 4 files changed, 99 insertions(+)
- create mode 100644 s390x/css.c
+ arch/s390/mm/gmap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index bab0dd5..9417541 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -82,6 +82,7 @@ struct pmcw {
- 	uint8_t  chpid[8];
- 	uint32_t flags2;
- };
-+#define PMCW_CHANNEL_TYPE(pmcw) (pmcw->flags2 >> 21)
- 
- struct schib {
- 	struct pmcw pmcw;
-diff --git a/s390x/Makefile b/s390x/Makefile
-index ddb4b48..baebf18 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -17,6 +17,7 @@ tests += $(TEST_DIR)/stsi.elf
- tests += $(TEST_DIR)/skrf.elf
- tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
-+tests += $(TEST_DIR)/css.elf
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- 
- all: directories test_cases test_cases_binary
-@@ -51,6 +52,7 @@ cflatobjs += lib/s390x/sclp-console.o
- cflatobjs += lib/s390x/interrupt.o
- cflatobjs += lib/s390x/mmu.o
- cflatobjs += lib/s390x/smp.o
-+cflatobjs += lib/s390x/css_dump.o
- 
- OBJDIRS += lib/s390x
- 
-diff --git a/s390x/css.c b/s390x/css.c
-new file mode 100644
-index 0000000..cc97e79
---- /dev/null
-+++ b/s390x/css.c
-@@ -0,0 +1,92 @@
-+/*
-+ * Channel Subsystem tests
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+
-+#include <libcflat.h>
-+#include <alloc_phys.h>
-+#include <asm/page.h>
-+#include <string.h>
-+#include <interrupt.h>
-+#include <asm/arch_def.h>
-+
-+#include <css.h>
-+
-+#define SID_ONE		0x00010000
-+
-+static struct schib schib;
-+static int test_device_sid;
-+
-+static void test_enumerate(void)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int cc;
-+	int scn;
-+	int scn_found = 0;
-+	int dev_found = 0;
-+
-+	for (scn = 0; scn < 0xffff; scn++) {
-+		cc = stsch(scn|SID_ONE, &schib);
-+		switch (cc) {
-+		case 0:		/* 0 means SCHIB stored */
-+			break;
-+		case 3:		/* 3 means no more channels */
-+			goto out;
-+		default:	/* 1 or 2 should never happened for STSCH */
-+			report(0, "Unexpected cc=%d on subchannel number 0x%x",
-+			       cc, scn);
-+			return;
-+		}
-+		/* We currently only support type 0, a.k.a. I/O channels */
-+		if (PMCW_CHANNEL_TYPE(pmcw) != 0)
-+			continue;
-+		/* We ignore I/O channels without valid devices */
-+		scn_found++;
-+		if (!(pmcw->flags & PMCW_DNV))
-+			continue;
-+		/* We keep track of the first device as our test device */
-+		if (!test_device_sid)
-+			test_device_sid = scn|SID_ONE;
-+		dev_found++;
-+	}
-+out:
-+	if (!dev_found) {
-+		report(0,
-+		       "Tested subchannels: %d, I/O subchannels: %d, I/O devices: %d",
-+		       scn, scn_found, dev_found);
-+		return;
-+	}
-+	report(1,
-+	       "Tested subchannels: %d, I/O subchannels: %d, I/O devices: %d",
-+	       scn, scn_found, dev_found);
-+}
-+
-+static struct {
-+	const char *name;
-+	void (*func)(void);
-+} tests[] = {
-+	{ "enumerate (stsch)", test_enumerate },
-+	{ NULL, NULL }
-+};
-+
-+int main(int argc, char *argv[])
-+{
-+	int i;
-+
-+	report_prefix_push("Channel Subsystem");
-+	for (i = 0; tests[i].name; i++) {
-+		report_prefix_push(tests[i].name);
-+		tests[i].func();
-+		report_prefix_pop();
-+	}
-+	report_prefix_pop();
-+
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 07013b2..a436ec0 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -83,3 +83,7 @@ extra_params = -m 1G
- [sclp-3g]
- file = sclp.elf
- extra_params = -m 3G
-+
-+[css]
-+file = css.elf
-+extra_params =-device ccw-pong
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index edcdca97e85ee..06d602c5ec7b7 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1840,6 +1840,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 		goto out_free;
+ 	} else if (*table & _REGION_ENTRY_ORIGIN) {
+ 		rc = -EAGAIN;		/* Race with shadow */
++		goto out_free;
+ 	}
+ 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
+ 	/* mark as invalid as long as the parent table is not protected */
 -- 
-2.25.1
+2.20.1
