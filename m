@@ -1,138 +1,62 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:34942 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502892AbgDNNQF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:05 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 16/33] iommu/vt-d: Convert to probe/release_device() call-backs
-Date: Tue, 14 Apr 2020 15:15:25 +0200
-Message-Id: <20200414131542.25608-17-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 23/23] KVM: s390: vsie: Fix delivery of addressing exceptions
+Date: Sat, 18 Apr 2020 10:44:05 -0400
+Message-Id: <20200418144405.10565-23-sashal@kernel.org>
+In-Reply-To: <20200418144405.10565-1-sashal@kernel.org>
+References: <20200418144405.10565-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: David Hildenbrand <david@redhat.com>
 
-Convert the Intel IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Whenever we get an -EFAULT, we failed to read in guest 2 physical
+address space. Such addressing exceptions are reported via a program
+intercept to the nested hypervisor.
+
+We faked the intercept, we have to return to guest 2. Instead, right
+now we would be returning -EFAULT from the intercept handler, eventually
+crashing the VM.
+the correct thing to do is to return 1 as rc == 1 is the internal
+representation of "we have to go back into g2".
+
+Addressing exceptions can only happen if the g2->g3 page tables
+reference invalid g2 addresses (say, either a table or the final page is
+not accessible - so something that basically never happens in sane
+environments.
+
+Identified by manual code inspection.
+
+Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[borntraeger@de.ibm.com: fix patch description]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 67 ++++---------------------------------
- 1 file changed, 6 insertions(+), 61 deletions(-)
+ arch/s390/kvm/vsie.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index b9f905a55dda..b906727f5b85 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5781,78 +5781,27 @@ static bool intel_iommu_capable(enum iommu_cap cap)
- 	return false;
- }
- 
--static int intel_iommu_add_device(struct device *dev)
-+static struct iommu_device *intel_iommu_probe_device(struct device *dev)
- {
--	struct dmar_domain *dmar_domain;
--	struct iommu_domain *domain;
- 	struct intel_iommu *iommu;
--	struct iommu_group *group;
- 	u8 bus, devfn;
--	int ret;
- 
- 	iommu = device_to_iommu(dev, &bus, &devfn);
- 	if (!iommu)
--		return -ENODEV;
--
--	iommu_device_link(&iommu->iommu, dev);
-+		return ERR_PTR(-ENODEV);
- 
- 	if (translation_pre_enabled(iommu))
- 		dev->archdata.iommu = DEFER_DEVICE_DOMAIN_INFO;
- 
--	group = iommu_group_get_for_dev(dev);
--
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto unlink;
--	}
--
--	iommu_group_put(group);
--
--	domain = iommu_get_domain_for_dev(dev);
--	dmar_domain = to_dmar_domain(domain);
--	if (domain->type == IOMMU_DOMAIN_DMA) {
--		if (device_def_domain_type(dev) == IOMMU_DOMAIN_IDENTITY) {
--			ret = iommu_request_dm_for_dev(dev);
--			if (ret) {
--				dmar_remove_one_dev_info(dev);
--				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
--				domain_add_dev_info(si_domain, dev);
--				dev_info(dev,
--					 "Device uses a private identity domain.\n");
--			}
--		}
--	} else {
--		if (device_def_domain_type(dev) == IOMMU_DOMAIN_DMA) {
--			ret = iommu_request_dma_domain_for_dev(dev);
--			if (ret) {
--				dmar_remove_one_dev_info(dev);
--				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
--				if (!get_private_domain_for_dev(dev)) {
--					dev_warn(dev,
--						 "Failed to get a private domain.\n");
--					ret = -ENOMEM;
--					goto unlink;
--				}
--
--				dev_info(dev,
--					 "Device uses a private dma domain.\n");
--			}
--		}
--	}
--
- 	if (device_needs_bounce(dev)) {
- 		dev_info(dev, "Use Intel IOMMU bounce page dma_ops\n");
- 		set_dma_ops(dev, &bounce_dma_ops);
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index da246d95b87c1..d3f046eca7db9 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -947,6 +947,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		scb_s->iprcc = PGM_ADDRESSING;
+ 		scb_s->pgmilc = 4;
+ 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
++		rc = 1;
  	}
- 
--	return 0;
--
--unlink:
--	iommu_device_unlink(&iommu->iommu, dev);
--	return ret;
-+	return &iommu->iommu;
+ 	return rc;
  }
- 
--static void intel_iommu_remove_device(struct device *dev)
-+static void intel_iommu_release_device(struct device *dev)
- {
- 	struct intel_iommu *iommu;
- 	u8 bus, devfn;
-@@ -5863,10 +5812,6 @@ static void intel_iommu_remove_device(struct device *dev)
- 
- 	dmar_remove_one_dev_info(dev);
- 
--	iommu_group_remove_device(dev);
--
--	iommu_device_unlink(&iommu->iommu, dev);
--
- 	if (device_needs_bounce(dev))
- 		set_dma_ops(dev, NULL);
- }
-@@ -6198,8 +6143,8 @@ const struct iommu_ops intel_iommu_ops = {
- 	.map			= intel_iommu_map,
- 	.unmap			= intel_iommu_unmap,
- 	.iova_to_phys		= intel_iommu_iova_to_phys,
--	.add_device		= intel_iommu_add_device,
--	.remove_device		= intel_iommu_remove_device,
-+	.probe_device		= intel_iommu_probe_device,
-+	.release_device		= intel_iommu_release_device,
- 	.get_resv_regions	= intel_iommu_get_resv_regions,
- 	.put_resv_regions	= generic_iommu_put_resv_regions,
- 	.apply_resv_region	= intel_iommu_apply_resv_region,
 -- 
-2.17.1
+2.20.1
