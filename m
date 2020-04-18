@@ -1,65 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502811AbgDNNPb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:15:31 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 20/29] gpu/drm: remove the powerpc hack in drm_legacy_sg_alloc
-Date: Tue, 14 Apr 2020 15:13:39 +0200
-Message-Id: <20200414131348.444715-21-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:54068 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726310AbgDROnM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:43:12 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 35/47] KVM: s390: vsie: Fix delivery of addressing exceptions
+Date: Sat, 18 Apr 2020 10:42:15 -0400
+Message-Id: <20200418144227.9802-35-sashal@kernel.org>
+In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
+References: <20200418144227.9802-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-The non-cached vmalloc mapping was initially added as a hack for the
-first-gen amigaone platform (6xx/book32s), isn't fully supported
-upstream, and which used the legacy radeon driver together with
-non-coherent DMA. However this only ever worked reliably for DRI .
+From: David Hildenbrand <david@redhat.com>
 
-Remove the hack as it is the last user of __vmalloc passing a page
-protection flag other than PAGE_KERNEL and didn't do anything for
-other platforms with non-coherent DMA.
+[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Whenever we get an -EFAULT, we failed to read in guest 2 physical
+address space. Such addressing exceptions are reported via a program
+intercept to the nested hypervisor.
+
+We faked the intercept, we have to return to guest 2. Instead, right
+now we would be returning -EFAULT from the intercept handler, eventually
+crashing the VM.
+the correct thing to do is to return 1 as rc == 1 is the internal
+representation of "we have to go back into g2".
+
+Addressing exceptions can only happen if the g2->g3 page tables
+reference invalid g2 addresses (say, either a table or the final page is
+not accessible - so something that basically never happens in sane
+environments.
+
+Identified by manual code inspection.
+
+Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[borntraeger@de.ibm.com: fix patch description]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_scatter.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ arch/s390/kvm/vsie.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/drm_scatter.c b/drivers/gpu/drm/drm_scatter.c
-index ca520028b2cb..f4e6184d1877 100644
---- a/drivers/gpu/drm/drm_scatter.c
-+++ b/drivers/gpu/drm/drm_scatter.c
-@@ -43,15 +43,6 @@
- 
- #define DEBUG_SCATTER 0
- 
--static inline void *drm_vmalloc_dma(unsigned long size)
--{
--#if defined(__powerpc__) && defined(CONFIG_NOT_COHERENT_CACHE)
--	return __vmalloc(size, GFP_KERNEL, pgprot_noncached_wc(PAGE_KERNEL));
--#else
--	return vmalloc_32(size);
--#endif
--}
--
- static void drm_sg_cleanup(struct drm_sg_mem * entry)
- {
- 	struct page *page;
-@@ -126,7 +117,7 @@ int drm_legacy_sg_alloc(struct drm_device *dev, void *data,
- 		return -ENOMEM;
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index a2b28cd1e3fed..17d73b71df1d8 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1024,6 +1024,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		scb_s->iprcc = PGM_ADDRESSING;
+ 		scb_s->pgmilc = 4;
+ 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
++		rc = 1;
  	}
- 
--	entry->virtual = drm_vmalloc_dma(pages << PAGE_SHIFT);
-+	entry->virtual = vmalloc_32(pages << PAGE_SHIFT);
- 	if (!entry->virtual) {
- 		kfree(entry->busaddr);
- 		kfree(entry->pagelist);
+ 	return rc;
+ }
 -- 
-2.25.1
+2.20.1
