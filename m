@@ -1,122 +1,60 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40578 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729382AbgDHTor (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 15:44:47 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 02/10] block: pass a hd_struct to delete_partition
-Date: Wed,  8 Apr 2020 21:44:31 +0200
-Message-Id: <20200408194439.1580699-3-hch@lst.de>
-In-Reply-To: <20200408194439.1580699-1-hch@lst.de>
-References: <20200408194439.1580699-1-hch@lst.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 31/75] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
+Date: Sat, 18 Apr 2020 10:08:26 -0400
+Message-Id: <20200418140910.8280-31-sashal@kernel.org>
+In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
+References: <20200418140910.8280-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-All callers have the hd_strut at hand, so pass it instead of doing
-another lookup.
+From: David Hildenbrand <david@redhat.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
+
+We have to properly retry again by returning -EINVAL immediately in case
+somebody else instantiated the table concurrently. We missed to add the
+goto in this function only. The code now matches the other, similar
+shadowing functions.
+
+We are overwriting an existing region 2 table entry. All allocated pages
+are added to the crst_list to be freed later, so they are not lost
+forever. However, when unshadowing the region 2 table, we wouldn't trigger
+unshadowing of the original shadowed region 3 table that we replaced. It
+would get unshadowed when the original region 3 table is modified. As it's
+not connected to the page table hierarchy anymore, it's not going to get
+used anymore. However, for a limited time, this page table will stick
+around, so it's in some sense a temporary memory leak.
+
+Identified by manual code inspection. I don't think this classifies as
+stable material.
+
+Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk.h             |  2 +-
- block/genhd.c           |  2 +-
- block/partitions/core.c | 22 ++++++++--------------
- 3 files changed, 10 insertions(+), 16 deletions(-)
+ arch/s390/mm/gmap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/blk.h b/block/blk.h
-index 305e0ac22bf7..0cbf64108922 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -390,7 +390,7 @@ char *disk_name(struct gendisk *hd, int partno, char *buf);
- #define ADDPART_FLAG_RAID	1
- #define ADDPART_FLAG_WHOLEDISK	2
- void __delete_partition(struct percpu_ref *ref);
--void delete_partition(struct gendisk *disk, int partno);
-+void delete_partition(struct gendisk *disk, struct hd_struct *part);
- int bdev_add_partition(struct block_device *bdev, int partno,
- 		sector_t start, sector_t length);
- int bdev_del_partition(struct block_device *bdev, int partno);
-diff --git a/block/genhd.c b/block/genhd.c
-index 06b642b23a07..1cc50ad5b191 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -897,7 +897,7 @@ void del_gendisk(struct gendisk *disk)
- 	while ((part = disk_part_iter_next(&piter))) {
- 		invalidate_partition(disk, part->partno);
- 		bdev_unhash_inode(part_devt(part));
--		delete_partition(disk, part->partno);
-+		delete_partition(disk, part);
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index edcdca97e85ee..06d602c5ec7b7 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1840,6 +1840,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 		goto out_free;
+ 	} else if (*table & _REGION_ENTRY_ORIGIN) {
+ 		rc = -EAGAIN;		/* Race with shadow */
++		goto out_free;
  	}
- 	disk_part_iter_exit(&piter);
- 
-diff --git a/block/partitions/core.c b/block/partitions/core.c
-index 7577bdba3b2b..0b1b67f50652 100644
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -296,20 +296,12 @@ void __delete_partition(struct percpu_ref *ref)
-  * Must be called either with bd_mutex held, before a disk can be opened or
-  * after all disk users are gone.
-  */
--void delete_partition(struct gendisk *disk, int partno)
-+void delete_partition(struct gendisk *disk, struct hd_struct *part)
- {
- 	struct disk_part_tbl *ptbl =
- 		rcu_dereference_protected(disk->part_tbl, 1);
--	struct hd_struct *part;
--
--	if (partno >= ptbl->len)
--		return;
- 
--	part = rcu_dereference_protected(ptbl->part[partno], 1);
--	if (!part)
--		return;
--
--	rcu_assign_pointer(ptbl->part[partno], NULL);
-+	rcu_assign_pointer(ptbl->part[part->partno], NULL);
- 	rcu_assign_pointer(ptbl->last_lookup, NULL);
- 	kobject_put(part->holder_dir);
- 	device_del(part_to_dev(part));
-@@ -520,10 +512,10 @@ int bdev_del_partition(struct block_device *bdev, int partno)
- 	if (!part)
- 		return -ENXIO;
- 
-+	ret = -ENOMEM;
- 	bdevp = bdget(part_devt(part));
--	disk_put_part(part);
- 	if (!bdevp)
--		return -ENOMEM;
-+		goto out_put_part;
- 
- 	mutex_lock(&bdevp->bd_mutex);
- 
-@@ -535,13 +527,15 @@ int bdev_del_partition(struct block_device *bdev, int partno)
- 	invalidate_bdev(bdevp);
- 
- 	mutex_lock_nested(&bdev->bd_mutex, 1);
--	delete_partition(bdev->bd_disk, partno);
-+	delete_partition(bdev->bd_disk, part);
- 	mutex_unlock(&bdev->bd_mutex);
- 
- 	ret = 0;
- out_unlock:
- 	mutex_unlock(&bdevp->bd_mutex);
- 	bdput(bdevp);
-+out_put_part:
-+	disk_put_part(part);
- 	return ret;
- }
- 
-@@ -617,7 +611,7 @@ int blk_drop_partitions(struct gendisk *disk, struct block_device *bdev)
- 
- 	disk_part_iter_init(&piter, disk, DISK_PITER_INCL_EMPTY);
- 	while ((part = disk_part_iter_next(&piter)))
--		delete_partition(disk, part->partno);
-+		delete_partition(disk, part);
- 	disk_part_iter_exit(&piter);
- 
- 	return 0;
+ 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
+ 	/* mark as invalid as long as the parent table is not protected */
 -- 
-2.25.1
+2.20.1
