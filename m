@@ -1,137 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:35034 "EHLO theia.8bytes.org"
+Received: from mail.kernel.org ([198.145.29.99]:53338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502903AbgDNNQH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:07 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 27/33] iommu/renesas: Convert to probe/release_device() call-backs
-Date: Tue, 14 Apr 2020 15:15:36 +0200
-Message-Id: <20200414131542.25608-28-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
+        id S1726517AbgDROmw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:42:52 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 19/47] s390/cio: avoid duplicated 'ADD' uevents
+Date: Sat, 18 Apr 2020 10:41:59 -0400
+Message-Id: <20200418144227.9802-19-sashal@kernel.org>
+In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
+References: <20200418144227.9802-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Cornelia Huck <cohuck@redhat.com>
 
-Convert the Renesas IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+[ Upstream commit 05ce3e53f375295c2940390b2b429e506e07655c ]
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+The common I/O layer delays the ADD uevent for subchannels and
+delegates generating this uevent to the individual subchannel
+drivers. The io_subchannel driver will do so when the associated
+ccw_device has been registered -- but unconditionally, so more
+ADD uevents will be generated if a subchannel has been unbound
+from the io_subchannel driver and later rebound.
+
+To fix this, only generate the ADD event if uevents were still
+suppressed for the device.
+
+Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
+Message-Id: <20200327124503.9794-2-cohuck@redhat.com>
+Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/ipmmu-vmsa.c | 60 +++++++++++++-------------------------
- 1 file changed, 20 insertions(+), 40 deletions(-)
+ drivers/s390/cio/device.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index 310cf09feea3..fb7e702dee23 100644
---- a/drivers/iommu/ipmmu-vmsa.c
-+++ b/drivers/iommu/ipmmu-vmsa.c
-@@ -805,24 +805,8 @@ static int ipmmu_of_xlate(struct device *dev,
- static int ipmmu_init_arm_mapping(struct device *dev)
- {
- 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
--	struct iommu_group *group;
- 	int ret;
- 
--	/* Create a device group and add the device to it. */
--	group = iommu_group_alloc();
--	if (IS_ERR(group)) {
--		dev_err(dev, "Failed to allocate IOMMU group\n");
--		return PTR_ERR(group);
--	}
--
--	ret = iommu_group_add_device(group, dev);
--	iommu_group_put(group);
--
--	if (ret < 0) {
--		dev_err(dev, "Failed to add device to IPMMU group\n");
--		return ret;
--	}
--
- 	/*
- 	 * Create the ARM mapping, used by the ARM DMA mapping core to allocate
- 	 * VAs. This will allocate a corresponding IOMMU domain.
-@@ -856,48 +840,39 @@ static int ipmmu_init_arm_mapping(struct device *dev)
- 	return 0;
- 
- error:
--	iommu_group_remove_device(dev);
- 	if (mmu->mapping)
- 		arm_iommu_release_mapping(mmu->mapping);
- 
- 	return ret;
- }
- 
--static int ipmmu_add_device(struct device *dev)
-+static struct iommu_device *ipmmu_probe_device(struct device *dev)
- {
- 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
--	struct iommu_group *group;
--	int ret;
- 
- 	/*
- 	 * Only let through devices that have been verified in xlate()
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index 1540229a37bba..c9bc9a6bd73b7 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -827,8 +827,10 @@ static void io_subchannel_register(struct ccw_device *cdev)
+ 	 * Now we know this subchannel will stay, we can throw
+ 	 * our delayed uevent.
  	 */
- 	if (!mmu)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
--	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA)) {
--		ret = ipmmu_init_arm_mapping(dev);
--		if (ret)
--			return ret;
--	} else {
--		group = iommu_group_get_for_dev(dev);
--		if (IS_ERR(group))
--			return PTR_ERR(group);
-+	return &mmu->iommu;
-+}
- 
--		iommu_group_put(group);
--	}
-+static void ipmmu_probe_finalize(struct device *dev)
-+{
-+	int ret = 0;
- 
--	iommu_device_link(&mmu->iommu, dev);
--	return 0;
-+	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA))
-+		ret = ipmmu_init_arm_mapping(dev);
-+
-+	if (ret)
-+		dev_err(dev, "Can't create IOMMU mapping - DMA-OPS will not work\n");
- }
- 
--static void ipmmu_remove_device(struct device *dev)
-+static void ipmmu_release_device(struct device *dev)
- {
--	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
--
--	iommu_device_unlink(&mmu->iommu, dev);
- 	arm_iommu_detach_device(dev);
--	iommu_group_remove_device(dev);
- }
- 
- static struct iommu_group *ipmmu_find_group(struct device *dev)
-@@ -925,9 +900,14 @@ static const struct iommu_ops ipmmu_ops = {
- 	.flush_iotlb_all = ipmmu_flush_iotlb_all,
- 	.iotlb_sync = ipmmu_iotlb_sync,
- 	.iova_to_phys = ipmmu_iova_to_phys,
--	.add_device = ipmmu_add_device,
--	.remove_device = ipmmu_remove_device,
-+	.probe_device = ipmmu_probe_device,
-+	.release_device = ipmmu_release_device,
-+	.probe_finalize = ipmmu_probe_finalize,
-+#if defined(CONFIG_ARM) && !defined(CONFIG_IOMMU_DMA)
-+	.device_group = generic_device_group,
-+#else
- 	.device_group = ipmmu_find_group,
-+#endif
- 	.pgsize_bitmap = SZ_1G | SZ_2M | SZ_4K,
- 	.of_xlate = ipmmu_of_xlate,
- };
+-	dev_set_uevent_suppress(&sch->dev, 0);
+-	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++	if (dev_get_uevent_suppress(&sch->dev)) {
++		dev_set_uevent_suppress(&sch->dev, 0);
++		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++	}
+ 	/* make it known to the system */
+ 	ret = ccw_device_add(cdev);
+ 	if (ret) {
+@@ -1036,8 +1038,11 @@ static int io_subchannel_probe(struct subchannel *sch)
+ 		 * Throw the delayed uevent for the subchannel, register
+ 		 * the ccw_device and exit.
+ 		 */
+-		dev_set_uevent_suppress(&sch->dev, 0);
+-		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++		if (dev_get_uevent_suppress(&sch->dev)) {
++			/* should always be the case for the console */
++			dev_set_uevent_suppress(&sch->dev, 0);
++			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++		}
+ 		cdev = sch_get_cdev(sch);
+ 		rc = ccw_device_add(cdev);
+ 		if (rc) {
 -- 
-2.17.1
+2.20.1
