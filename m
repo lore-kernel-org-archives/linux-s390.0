@@ -1,98 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40474 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728969AbgDQCaJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Apr 2020 22:30:09 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03H2CCWB144101
-        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:08 -0400
-Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 30f3f4gace-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:08 -0400
-Received: from localhost
-        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Fri, 17 Apr 2020 03:29:37 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 6/8] vfio-ccw: Refactor IRQ handlers
-Date: Fri, 17 Apr 2020 04:29:59 +0200
-In-Reply-To: <20200417023001.65006-1-farman@linux.ibm.com>
-References: <20200417023001.65006-1-farman@linux.ibm.com>
-Message-Id: <20200417023001.65006-7-farman@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:55096 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728666AbgDROns (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:43:48 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 15/28] s390/cio: avoid duplicated 'ADD' uevents
+Date: Sat, 18 Apr 2020 10:43:15 -0400
+Message-Id: <20200418144328.10265-15-sashal@kernel.org>
+In-Reply-To: <20200418144328.10265-1-sashal@kernel.org>
+References: <20200418144328.10265-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-To simplify future expansion.
+From: Cornelia Huck <cohuck@redhat.com>
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+[ Upstream commit 05ce3e53f375295c2940390b2b429e506e07655c ]
+
+The common I/O layer delays the ADD uevent for subchannels and
+delegates generating this uevent to the individual subchannel
+drivers. The io_subchannel driver will do so when the associated
+ccw_device has been registered -- but unconditionally, so more
+ADD uevents will be generated if a subchannel has been unbound
+from the io_subchannel driver and later rebound.
+
+To fix this, only generate the ADD event if uevents were still
+suppressed for the device.
+
+Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
+Message-Id: <20200327124503.9794-2-cohuck@redhat.com>
+Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ drivers/s390/cio/device.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-Notes:
-    v1->v2:
-     - Add Conny's r-b
-
- drivers/s390/cio/vfio_ccw_ops.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index edec0fb7ace8..f3033f8fc96d 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -391,17 +391,21 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
- 
- static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
- {
--	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
-+	switch (info->index) {
-+	case VFIO_CCW_IO_IRQ_INDEX:
-+		info->count = 1;
-+		info->flags = VFIO_IRQ_INFO_EVENTFD;
-+		break;
-+	default:
- 		return -EINVAL;
--
--	info->count = 1;
--	info->flags = VFIO_IRQ_INFO_EVENTFD;
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index e5c32f4b5287e..d2203cd178138 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -828,8 +828,10 @@ static void io_subchannel_register(struct ccw_device *cdev)
+ 	 * Now we know this subchannel will stay, we can throw
+ 	 * our delayed uevent.
+ 	 */
+-	dev_set_uevent_suppress(&sch->dev, 0);
+-	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++	if (dev_get_uevent_suppress(&sch->dev)) {
++		dev_set_uevent_suppress(&sch->dev, 0);
++		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
 +	}
- 
- 	return 0;
- }
- 
- static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 				  uint32_t flags,
-+				  uint32_t index,
- 				  void __user *data)
- {
- 	struct vfio_ccw_private *private;
-@@ -411,7 +415,14 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 		return -EINVAL;
- 
- 	private = dev_get_drvdata(mdev_parent_dev(mdev));
--	ctx = &private->io_trigger;
-+
-+	switch (index) {
-+	case VFIO_CCW_IO_IRQ_INDEX:
-+		ctx = &private->io_trigger;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 
- 	switch (flags & VFIO_IRQ_SET_DATA_TYPE_MASK) {
- 	case VFIO_IRQ_SET_DATA_NONE:
-@@ -583,7 +594,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 			return ret;
- 
- 		data = (void __user *)(arg + minsz);
--		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, data);
-+		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, hdr.index, data);
- 	}
- 	case VFIO_DEVICE_RESET:
- 		return vfio_ccw_mdev_reset(mdev);
+ 	/* make it known to the system */
+ 	ret = ccw_device_add(cdev);
+ 	if (ret) {
+@@ -1037,8 +1039,11 @@ static int io_subchannel_probe(struct subchannel *sch)
+ 		 * Throw the delayed uevent for the subchannel, register
+ 		 * the ccw_device and exit.
+ 		 */
+-		dev_set_uevent_suppress(&sch->dev, 0);
+-		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++		if (dev_get_uevent_suppress(&sch->dev)) {
++			/* should always be the case for the console */
++			dev_set_uevent_suppress(&sch->dev, 0);
++			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
++		}
+ 		cdev = sch_get_cdev(sch);
+ 		rc = ccw_device_add(cdev);
+ 		if (rc) {
 -- 
-2.17.1
+2.20.1
