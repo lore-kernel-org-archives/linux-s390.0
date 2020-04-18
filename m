@@ -1,73 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:35298 "EHLO theia.8bytes.org"
+Received: from mail.kernel.org ([198.145.29.99]:53286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502895AbgDNNQF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:05 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 18/33] iommu/pamu: Convert to probe/release_device() call-backs
-Date: Tue, 14 Apr 2020 15:15:27 +0200
-Message-Id: <20200414131542.25608-19-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
+        id S1728446AbgDROmv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Apr 2020 10:42:51 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 18/47] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
+Date: Sat, 18 Apr 2020 10:41:58 -0400
+Message-Id: <20200418144227.9802-18-sashal@kernel.org>
+In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
+References: <20200418144227.9802-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: David Hildenbrand <david@redhat.com>
 
-Convert the PAMU IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+We have to properly retry again by returning -EINVAL immediately in case
+somebody else instantiated the table concurrently. We missed to add the
+goto in this function only. The code now matches the other, similar
+shadowing functions.
+
+We are overwriting an existing region 2 table entry. All allocated pages
+are added to the crst_list to be freed later, so they are not lost
+forever. However, when unshadowing the region 2 table, we wouldn't trigger
+unshadowing of the original shadowed region 3 table that we replaced. It
+would get unshadowed when the original region 3 table is modified. As it's
+not connected to the page table hierarchy anymore, it's not going to get
+used anymore. However, for a limited time, this page table will stick
+around, so it's in some sense a temporary memory leak.
+
+Identified by manual code inspection. I don't think this classifies as
+stable material.
+
+Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/fsl_pamu_domain.c | 22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ arch/s390/mm/gmap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
-index 06828e2698d5..928d37771ece 100644
---- a/drivers/iommu/fsl_pamu_domain.c
-+++ b/drivers/iommu/fsl_pamu_domain.c
-@@ -1016,25 +1016,13 @@ static struct iommu_group *fsl_pamu_device_group(struct device *dev)
- 	return group;
- }
- 
--static int fsl_pamu_add_device(struct device *dev)
-+static struct iommu_device *fsl_pamu_probe_device(struct device *dev)
- {
--	struct iommu_group *group;
--
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
--
--	iommu_device_link(&pamu_iommu, dev);
--
--	return 0;
-+	return &pamu_iommu;
- }
- 
--static void fsl_pamu_remove_device(struct device *dev)
-+static void fsl_pamu_release_device(struct device *dev)
- {
--	iommu_device_unlink(&pamu_iommu, dev);
--	iommu_group_remove_device(dev);
- }
- 
- static const struct iommu_ops fsl_pamu_ops = {
-@@ -1048,8 +1036,8 @@ static const struct iommu_ops fsl_pamu_ops = {
- 	.iova_to_phys	= fsl_pamu_iova_to_phys,
- 	.domain_set_attr = fsl_pamu_set_domain_attr,
- 	.domain_get_attr = fsl_pamu_get_domain_attr,
--	.add_device	= fsl_pamu_add_device,
--	.remove_device	= fsl_pamu_remove_device,
-+	.probe_device	= fsl_pamu_probe_device,
-+	.release_device	= fsl_pamu_release_device,
- 	.device_group   = fsl_pamu_device_group,
- };
- 
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 911c7ded35f15..fd67684a305d4 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1834,6 +1834,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
+ 		goto out_free;
+ 	} else if (*table & _REGION_ENTRY_ORIGIN) {
+ 		rc = -EAGAIN;		/* Race with shadow */
++		goto out_free;
+ 	}
+ 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
+ 	/* mark as invalid as long as the parent table is not protected */
 -- 
-2.17.1
+2.20.1
