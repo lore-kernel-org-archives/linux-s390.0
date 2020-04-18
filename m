@@ -1,118 +1,62 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-qk1-f177.google.com ([209.85.222.177]:42565 "EHLO
-        mail-qk1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726847AbgDIXd3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Apr 2020 19:33:29 -0400
-Received: by mail-qk1-f177.google.com with SMTP id x66so583812qkd.9
-        for <linux-s390@vger.kernel.org>; Thu, 09 Apr 2020 16:33:29 -0700 (PDT)
-From: Qian Cai <cai@lca.pw>
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Subject: s390 boot woe due to "block: fix busy device checking in
- blk_drop_partitions"
-Message-Id: <AD16A450-794F-4EEA-A7BF-42452F18294A@lca.pw>
-Date: Thu, 9 Apr 2020 19:33:25 -0400
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 55/78] KVM: s390: vsie: Fix delivery of addressing exceptions
+Date: Sat, 18 Apr 2020 10:40:24 -0400
+Message-Id: <20200418144047.9013-55-sashal@kernel.org>
+In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
+References: <20200418144047.9013-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-Reverted the linux-next commit on today=E2=80=99s tree,
+From: David Hildenbrand <david@redhat.com>
 
-d3ef5536274f (=E2=80=9Cblock: fix busy device checking in =
-blk_drop_partitions=E2=80=9D)
+[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
 
-makes IBM partition to be recognized again on s390 rootfs,
+Whenever we get an -EFAULT, we failed to read in guest 2 physical
+address space. Such addressing exceptions are reported via a program
+intercept to the nested hypervisor.
 
-01: [   83.443963]  dasda:VOL1/  0X0121: dasda1                          =
-      =20
-01: [   85.124667] qeth 0.0.8000 enc8000: renamed from eth0              =
-      =20
-01: [   85.731860] dasd-eckd 0.0.0120: DASD with 4 KB/block, 72122400 KB =
-total s
-01: ize, 48 KB/track, compatible disk layout                             =
-      =20
-01: [   86.076722]  dasdb:VOL1/  0X0120: dasdb1 dasdb2
+We faked the intercept, we have to return to guest 2. Instead, right
+now we would be returning -EFAULT from the intercept handler, eventually
+crashing the VM.
+the correct thing to do is to return 1 as rc == 1 is the internal
+representation of "we have to go back into g2".
 
-Otherwise, it is DOA,
+Addressing exceptions can only happen if the g2->g3 page tables
+reference invalid g2 addresses (say, either a table or the final page is
+not accessible - so something that basically never happens in sane
+environments.
 
-00:          Starting Show Plymouth Boot Screen...                       =
-      =20
-00: [   37.202263] qeth 0.0.8000: portname is deprecated and is ignored  =
-      =20
-00: [   37.677993] qdio: 0.0.8002 OSA on SC 4 using AI:1 QEBSM:0 PRI:1 =
-TDD:1 SIG
-00: A:RW A                                                               =
-      =20
-00: [   37.770970] qeth 0.0.8000: MAC address 02:de:ad:be:ef:87 =
-successfully reg
-00: istered                                                              =
-      =20
-00: [   37.771547] qeth 0.0.8000: Device is a Virtual NIC QDIO card =
-(level: V642
-00: )                                                                    =
-      =20
-00: [   37.771547] with link type Virt.NIC QDIO.                         =
-      =20
-00: [   38.036231] ccw_init (415) used greatest stack depth: 56496 bytes =
-left  =20
-00:          Starting dracut initqueue hook...                           =
-      =20
-00: [   39.176304] dasd-eckd 0.0.0120: A channel path to the device has =
-become o
-00: perational                                                           =
-      =20
-00: [   39.453273] dasd-eckd 0.0.0120: New DASD 3390/0E (CU 3990/01) =
-with 100170
-00:  cylinders, 15 heads, 224 sectors                                    =
-      =20
-00: [   39.655564] dasd-eckd 0.0.0121: A channel path to the device has =
-become o
-00: perational                                                           =
-      =20
-00: [   39.722706] dasd-eckd 0.0.0121: New DASD 3390/0E (CU 3990/01) =
-with 100170
-00:  cylinders, 15 heads, 224 sectors                                    =
-      =20
-01: [   41.133963] dasd-eckd 0.0.0121: DASD with 4 KB/block, 72122400 KB =
-total s
-01: ize, 48 KB/track, compatible disk layout                             =
-      =20
-01: [   41.145510] dasd-eckd 0.0.0120: DASD with 4 KB/block, 72122400 KB =
-total s
-01: ize, 48 KB/track, compatible disk layout                             =
-      =20
-01: [   41.609625] qeth 0.0.8000 enc8000: renamed from eth0 =20
-01: [   41.609625] qeth 0.0.8000 enc8000: renamed from eth0              =
-      =20
-01: Warning: /dev/mapper/rhel_ibm--z--135-root does not exist            =
-      =20
-01: Warning: /dev/rhel_ibm-z-135/root does not exist                     =
-      =20
-01: Warning: /dev/rhel_ibm-z-135/swap does not exist                     =
-      =20
-01:                                                                      =
-      =20
-01: Generating "/run/initramfs/rdsosreport.txt"                          =
-      =20
-01:                                                                      =
-      =20
-01:                                                                      =
-      =20
-01: Entering emergency mode. Exit the shell to continue.                 =
-      =20
-01: Type "journalctl" to view system logs.                               =
-      =20
-01: You might want to save "/run/initramfs/rdsosreport.txt" to a USB =
-stick or /b
-01: oot                                                                  =
-      =20
-01: after mounting them and attach it to a bug report.                   =
-      =20
-01:                                                                      =
-      =20
-01:                                                                      =
-      =20
-00: dracut:/#=20
+Identified by manual code inspection.
+
+Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+[borntraeger@de.ibm.com: fix patch description]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/kvm/vsie.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 076090f9e666c..4f6c22d72072a 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		scb_s->iprcc = PGM_ADDRESSING;
+ 		scb_s->pgmilc = 4;
+ 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
++		rc = 1;
+ 	}
+ 	return rc;
+ }
+-- 
+2.20.1
