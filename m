@@ -1,64 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36162 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409040AbgDOLny (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:43:54 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 071/106] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
-Date: Wed, 15 Apr 2020 07:41:51 -0400
-Message-Id: <20200415114226.13103-71-sashal@kernel.org>
-In-Reply-To: <20200415114226.13103-1-sashal@kernel.org>
-References: <20200415114226.13103-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:37028 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725939AbgDSHvV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 19 Apr 2020 03:51:21 -0400
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH 3/7] KVM: PPC: Remove redundant kvm_run from vcpu_arch
+Date: Sun, 19 Apr 2020 15:51:02 +0800
+Message-Id: <20200419075106.16248-4-tianjia.zhang@linux.alibaba.com>
+In-Reply-To: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
+References: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
 
-From: David Hildenbrand <david@redhat.com>
+The 'kvm_run' field already exists in the 'vcpu' structure, which
+is the same structure as the 'kvm_run' in the 'vcpu_arch' and
+should be deleted.
 
-[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
-
-We have to properly retry again by returning -EINVAL immediately in case
-somebody else instantiated the table concurrently. We missed to add the
-goto in this function only. The code now matches the other, similar
-shadowing functions.
-
-We are overwriting an existing region 2 table entry. All allocated pages
-are added to the crst_list to be freed later, so they are not lost
-forever. However, when unshadowing the region 2 table, we wouldn't trigger
-unshadowing of the original shadowed region 3 table that we replaced. It
-would get unshadowed when the original region 3 table is modified. As it's
-not connected to the page table hierarchy anymore, it's not going to get
-used anymore. However, for a limited time, this page table will stick
-around, so it's in some sense a temporary memory leak.
-
-Identified by manual code inspection. I don't think this classifies as
-stable material.
-
-Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 ---
- arch/s390/mm/gmap.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/kvm_host.h | 1 -
+ arch/powerpc/kvm/book3s_hv.c        | 6 ++----
+ arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
+ 3 files changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index edcdca97e85ee..06d602c5ec7b7 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1840,6 +1840,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
- 		goto out_free;
- 	} else if (*table & _REGION_ENTRY_ORIGIN) {
- 		rc = -EAGAIN;		/* Race with shadow */
-+		goto out_free;
- 	}
- 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
- 	/* mark as invalid as long as the parent table is not protected */
+diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
+index 1dc63101ffe1..2745ff8faa01 100644
+--- a/arch/powerpc/include/asm/kvm_host.h
++++ b/arch/powerpc/include/asm/kvm_host.h
+@@ -795,7 +795,6 @@ struct kvm_vcpu_arch {
+ 	struct mmio_hpte_cache_entry *pgfault_cache;
+ 
+ 	struct task_struct *run_task;
+-	struct kvm_run *kvm_run;
+ 
+ 	spinlock_t vpa_update_lock;
+ 	struct kvmppc_vpa vpa;
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 93493f0cbfe8..413ea2dcb10c 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -2934,7 +2934,7 @@ static void post_guest_process(struct kvmppc_vcore *vc, bool is_master)
+ 
+ 		ret = RESUME_GUEST;
+ 		if (vcpu->arch.trap)
+-			ret = kvmppc_handle_exit_hv(vcpu->arch.kvm_run, vcpu,
++			ret = kvmppc_handle_exit_hv(vcpu->run, vcpu,
+ 						    vcpu->arch.run_task);
+ 
+ 		vcpu->arch.ret = ret;
+@@ -3920,7 +3920,6 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
+ 	spin_lock(&vc->lock);
+ 	vcpu->arch.ceded = 0;
+ 	vcpu->arch.run_task = current;
+-	vcpu->arch.kvm_run = kvm_run;
+ 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
+ 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
+ 	vcpu->arch.busy_preempt = TB_NIL;
+@@ -3973,7 +3972,7 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
+ 			if (signal_pending(v->arch.run_task)) {
+ 				kvmppc_remove_runnable(vc, v);
+ 				v->stat.signal_exits++;
+-				v->arch.kvm_run->exit_reason = KVM_EXIT_INTR;
++				v->run->exit_reason = KVM_EXIT_INTR;
+ 				v->arch.ret = -EINTR;
+ 				wake_up(&v->arch.cpu_run);
+ 			}
+@@ -4049,7 +4048,6 @@ int kvmhv_run_single_vcpu(struct kvm_run *kvm_run,
+ 	vc = vcpu->arch.vcore;
+ 	vcpu->arch.ceded = 0;
+ 	vcpu->arch.run_task = current;
+-	vcpu->arch.kvm_run = kvm_run;
+ 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
+ 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
+ 	vcpu->arch.busy_preempt = TB_NIL;
+diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
+index dc97e5be76f6..5a3987f3ebf3 100644
+--- a/arch/powerpc/kvm/book3s_hv_nested.c
++++ b/arch/powerpc/kvm/book3s_hv_nested.c
+@@ -290,8 +290,7 @@ long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
+ 			r = RESUME_HOST;
+ 			break;
+ 		}
+-		r = kvmhv_run_single_vcpu(vcpu->arch.kvm_run, vcpu, hdec_exp,
+-					  lpcr);
++		r = kvmhv_run_single_vcpu(vcpu->run, vcpu, hdec_exp, lpcr);
+ 	} while (is_kvmppc_resume_guest(r));
+ 
+ 	/* save L2 state for return */
 -- 
-2.20.1
+2.17.1
