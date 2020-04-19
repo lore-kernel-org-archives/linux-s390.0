@@ -1,190 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57498 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726676AbgDGSh7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:37:59 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 15/34] iommu/amd: Convert to probe/release_device() call-backs
-Date: Tue,  7 Apr 2020 20:37:23 +0200
-Message-Id: <20200407183742.4344-16-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:45895 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725923AbgDSHvT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 19 Apr 2020 03:51:19 -0400
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH 0/7] clean up redundant 'kvm_run' parameters
+Date: Sun, 19 Apr 2020 15:50:59 +0800
+Message-Id: <20200419075106.16248-1-tianjia.zhang@linux.alibaba.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
 
-From: Joerg Roedel <jroedel@suse.de>
+In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
+structure. Earlier than historical reasons, many kvm-related function
+parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
+This patch does a unified cleanup of these remaining redundant parameters.
 
-Convert the AMD IOMMU Driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+This series of patches has completely cleaned the architecture of
+arm64, mips, ppc, and s390 (no such redundant code on x86). Due to
+the large number of modified codes, a separate patch is made for each
+platform. On the ppc platform, there is also a redundant structure
+pointer of 'kvm_run' in 'vcpu_arch', which has also been cleaned
+separately.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/amd_iommu.c | 71 ++++++++++++---------------------------
- 1 file changed, 22 insertions(+), 49 deletions(-)
+Thanks and best.
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 0b4b4faa876d..c30367413683 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -343,21 +343,9 @@ static bool check_device(struct device *dev)
- 	return true;
- }
- 
--static void init_iommu_group(struct device *dev)
--{
--	struct iommu_group *group;
--
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return;
--
--	iommu_group_put(group);
--}
--
- static int iommu_init_device(struct device *dev)
- {
- 	struct iommu_dev_data *dev_data;
--	struct amd_iommu *iommu;
- 	int devid;
- 
- 	if (dev->archdata.iommu)
-@@ -367,8 +355,6 @@ static int iommu_init_device(struct device *dev)
- 	if (devid < 0)
- 		return devid;
- 
--	iommu = amd_iommu_rlookup_table[devid];
--
- 	dev_data = find_dev_data(devid);
- 	if (!dev_data)
- 		return -ENOMEM;
-@@ -391,8 +377,6 @@ static int iommu_init_device(struct device *dev)
- 
- 	dev->archdata.iommu = dev_data;
- 
--	iommu_device_link(&iommu->iommu, dev);
--
- 	return 0;
- }
- 
-@@ -410,7 +394,7 @@ static void iommu_ignore_device(struct device *dev)
- 	setup_aliases(dev);
- }
- 
--static void iommu_uninit_device(struct device *dev)
-+static void amd_iommu_uninit_device(struct device *dev)
- {
- 	struct iommu_dev_data *dev_data;
- 	struct amd_iommu *iommu;
-@@ -429,13 +413,6 @@ static void iommu_uninit_device(struct device *dev)
- 	if (dev_data->domain)
- 		detach_device(dev);
- 
--	iommu_device_unlink(&iommu->iommu, dev);
--
--	iommu_group_remove_device(dev);
--
--	/* Remove dma-ops */
--	dev->dma_ops = NULL;
--
- 	/*
- 	 * We keep dev_data around for unplugged devices and reuse it when the
- 	 * device is re-plugged - not doing so would introduce a ton of races.
-@@ -2152,55 +2129,50 @@ static void detach_device(struct device *dev)
- 	spin_unlock_irqrestore(&domain->lock, flags);
- }
- 
--static int amd_iommu_add_device(struct device *dev)
-+static struct iommu_device *amd_iommu_probe_device(struct device *dev)
- {
--	struct iommu_dev_data *dev_data;
--	struct iommu_domain *domain;
-+	struct iommu_device *iommu_dev;
- 	struct amd_iommu *iommu;
- 	int ret, devid;
- 
--	if (get_dev_data(dev))
--		return 0;
--
- 	if (!check_device(dev))
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
- 	devid = get_device_id(dev);
- 	if (devid < 0)
--		return devid;
-+		return ERR_PTR(devid);
- 
- 	iommu = amd_iommu_rlookup_table[devid];
- 
-+	if (get_dev_data(dev))
-+		return &iommu->iommu;
-+
- 	ret = iommu_init_device(dev);
- 	if (ret) {
- 		if (ret != -ENOTSUPP)
- 			dev_err(dev, "Failed to initialize - trying to proceed anyway\n");
--
-+		iommu_dev = ERR_PTR(ret);
- 		iommu_ignore_device(dev);
--		dev->dma_ops = NULL;
--		goto out;
-+	} else {
-+		iommu_dev = &iommu->iommu;
- 	}
--	init_iommu_group(dev);
- 
--	dev_data = get_dev_data(dev);
-+	iommu_completion_wait(iommu);
- 
--	BUG_ON(!dev_data);
-+	return iommu_dev;
-+}
- 
--	if (dev_data->iommu_v2)
--		iommu_request_dm_for_dev(dev);
-+static void amd_iommu_probe_finalize(struct device *dev)
-+{
-+	struct iommu_domain *domain;
- 
- 	/* Domains are initialized for this device - have a look what we ended up with */
- 	domain = iommu_get_domain_for_dev(dev);
- 	if (domain->type == IOMMU_DOMAIN_DMA)
- 		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
--
--out:
--	iommu_completion_wait(iommu);
--
--	return 0;
- }
- 
--static void amd_iommu_remove_device(struct device *dev)
-+static void amd_iommu_release_device(struct device *dev)
- {
- 	struct amd_iommu *iommu;
- 	int devid;
-@@ -2214,7 +2186,7 @@ static void amd_iommu_remove_device(struct device *dev)
- 
- 	iommu = amd_iommu_rlookup_table[devid];
- 
--	iommu_uninit_device(dev);
-+	amd_iommu_uninit_device(dev);
- 	iommu_completion_wait(iommu);
- }
- 
-@@ -2687,8 +2659,9 @@ const struct iommu_ops amd_iommu_ops = {
- 	.map = amd_iommu_map,
- 	.unmap = amd_iommu_unmap,
- 	.iova_to_phys = amd_iommu_iova_to_phys,
--	.add_device = amd_iommu_add_device,
--	.remove_device = amd_iommu_remove_device,
-+	.probe_device = amd_iommu_probe_device,
-+	.release_device = amd_iommu_release_device,
-+	.probe_finalize = amd_iommu_probe_finalize,
- 	.device_group = amd_iommu_device_group,
- 	.domain_get_attr = amd_iommu_domain_get_attr,
- 	.get_resv_regions = amd_iommu_get_resv_regions,
+Tianjia Zhang (7):
+  KVM: s390: clean up redundant 'kvm_run' parameters
+  KVM: arm64: clean up redundant 'kvm_run' parameters
+  KVM: PPC: Remove redundant kvm_run from vcpu_arch
+  KVM: PPC: clean up redundant 'kvm_run' parameters
+  KVM: PPC: clean up redundant kvm_run parameters in assembly
+  KVM: MIPS: clean up redundant 'kvm_run' parameters
+  KVM: MIPS: clean up redundant kvm_run parameters in assembly
+
+ arch/arm64/include/asm/kvm_coproc.h      |  12 +--
+ arch/arm64/include/asm/kvm_host.h        |  11 +-
+ arch/arm64/include/asm/kvm_mmu.h         |   2 +-
+ arch/arm64/kvm/handle_exit.c             |  36 +++----
+ arch/arm64/kvm/sys_regs.c                |  13 ++-
+ arch/mips/include/asm/kvm_host.h         |  32 +-----
+ arch/mips/kvm/emulate.c                  |  59 ++++-------
+ arch/mips/kvm/entry.c                    |  15 +--
+ arch/mips/kvm/mips.c                     |  14 +--
+ arch/mips/kvm/trap_emul.c                | 114 +++++++++-----------
+ arch/mips/kvm/vz.c                       |  26 ++---
+ arch/powerpc/include/asm/kvm_book3s.h    |  16 ++-
+ arch/powerpc/include/asm/kvm_host.h      |   1 -
+ arch/powerpc/include/asm/kvm_ppc.h       |  27 +++--
+ arch/powerpc/kvm/book3s.c                |   4 +-
+ arch/powerpc/kvm/book3s.h                |   2 +-
+ arch/powerpc/kvm/book3s_64_mmu_hv.c      |  12 +--
+ arch/powerpc/kvm/book3s_64_mmu_radix.c   |   4 +-
+ arch/powerpc/kvm/book3s_emulate.c        |  10 +-
+ arch/powerpc/kvm/book3s_hv.c             |  64 ++++++------
+ arch/powerpc/kvm/book3s_hv_nested.c      |  12 +--
+ arch/powerpc/kvm/book3s_interrupts.S     |  17 ++-
+ arch/powerpc/kvm/book3s_paired_singles.c |  72 ++++++-------
+ arch/powerpc/kvm/book3s_pr.c             |  33 +++---
+ arch/powerpc/kvm/booke.c                 |  39 +++----
+ arch/powerpc/kvm/booke.h                 |   8 +-
+ arch/powerpc/kvm/booke_emulate.c         |   2 +-
+ arch/powerpc/kvm/booke_interrupts.S      |   9 +-
+ arch/powerpc/kvm/bookehv_interrupts.S    |  10 +-
+ arch/powerpc/kvm/e500_emulate.c          |  15 ++-
+ arch/powerpc/kvm/emulate.c               |  10 +-
+ arch/powerpc/kvm/emulate_loadstore.c     |  32 +++---
+ arch/powerpc/kvm/powerpc.c               |  72 ++++++-------
+ arch/powerpc/kvm/trace_hv.h              |   6 +-
+ arch/s390/kvm/kvm-s390.c                 | 127 ++++++++++++-----------
+ virt/kvm/arm/arm.c                       |   6 +-
+ virt/kvm/arm/mmio.c                      |  11 +-
+ virt/kvm/arm/mmu.c                       |   5 +-
+ 38 files changed, 441 insertions(+), 519 deletions(-)
+
 -- 
 2.17.1
