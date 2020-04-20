@@ -1,59 +1,90 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:34753 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404306AbgDCPbK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Apr 2020 11:31:10 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 3/5] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
-Date: Fri,  3 Apr 2020 17:30:48 +0200
-Message-Id: <20200403153050.20569-4-david@redhat.com>
-In-Reply-To: <20200403153050.20569-1-david@redhat.com>
-References: <20200403153050.20569-1-david@redhat.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48482 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725773AbgDTIUY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Apr 2020 04:20:24 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03K826Zb058968
+        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2020 04:20:23 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30gmu6p9vd-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2020 04:20:22 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Mon, 20 Apr 2020 09:19:44 +0100
+Subject: Re: [PATCH v1 1/1] MAINTAINERS: add a reviewer for KVM/s390
+References: <20200417152936.772256-1-imbrenda@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Date: Mon, 20 Apr 2020 10:20:12 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200417152936.772256-1-imbrenda@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="E8XIqcMFE0b8bOXhIJWAR0qJZlJouAziU"
+Message-Id: <484ed04c-506d-7fe7-0e1f-88e407c326f5@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>, borntraeger@de.ibm.com
+Cc: pbonzini@redhat.com, cohuck@redhat.com, david@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-We have to properly retry again by returning -EINVAL immediately in case
-somebody else instantiated the table concurrently. We missed to add the
-goto in this function only. The code now matches the other, similar
-shadowing functions.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--E8XIqcMFE0b8bOXhIJWAR0qJZlJouAziU
+Content-Type: multipart/mixed; boundary="CFqijrthZE1Uvqp7Y4ooU86cikOYvQqRe"
 
-We are overwriting an existing region 2 table entry. All allocated pages
-are added to the crst_list to be freed later, so they are not lost
-forever. However, when unshadowing the region 2 table, we wouldn't trigge=
-r
-unshadowing of the original shadowed region 3 table that we replaced. It
-would get unshadowed when the original region 3 table is modified. As it'=
-s
-not connected to the page table hierarchy anymore, it's not going to get
-used anymore. However, for a limited time, this page table will stick
-around, so it's in some sense a temporary memory leak.
+--CFqijrthZE1Uvqp7Y4ooU86cikOYvQqRe
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Identified by manual code inspection. I don't think this classifies as
-stable material.
+On 4/17/20 5:29 PM, Claudio Imbrenda wrote:
+> Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  MAINTAINERS | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 6851ef7cf1bd..48e0147f9dd8 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -9326,6 +9326,7 @@ M:	Christian Borntraeger <borntraeger@de.ibm.com>=
 
-Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table s=
-hadowing")
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/mm/gmap.c | 1 +
- 1 file changed, 1 insertion(+)
+>  M:	Janosch Frank <frankja@linux.ibm.com>
+>  R:	David Hildenbrand <david@redhat.com>
+>  R:	Cornelia Huck <cohuck@redhat.com>
+> +R:	Claudio Imbrenda <imbrenda@linux.ibm.com>
+>  L:	kvm@vger.kernel.org
+>  S:	Supported
+>  W:	http://www.ibm.com/developerworks/linux/linux390/
+>=20
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index b93dd54b234a..24ef30fb0833 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1844,6 +1844,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long =
-saddr, unsigned long r3t,
- 		goto out_free;
- 	} else if (*table & _REGION_ENTRY_ORIGIN) {
- 		rc =3D -EAGAIN;		/* Race with shadow */
-+		goto out_free;
- 	}
- 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
- 	/* mark as invalid as long as the parent table is not protected */
---=20
-2.25.1
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+
+
+--CFqijrthZE1Uvqp7Y4ooU86cikOYvQqRe--
+
+--E8XIqcMFE0b8bOXhIJWAR0qJZlJouAziU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl6dWzwACgkQ41TmuOI4
+ufi5lQ/9FrfToixNfOtCfsfu//i2UlwKpgQ/e5hbMFocgIBEudfuh6y6wDJbRc4l
+QNlkdXDrPlyIH+430v1BtEB6wNMLQoRjFUej794DGqReF1HD0SgaFbMkvBUABN2k
+5EtV94H/wFpuv9UkxEWy4L7id6YOicda6YwLWk8VMaLFlCDnGGXfKcOblLIJYxVD
+2SqtJfEUEmV5+vZpGghS9F9fvDDrhnlYk8o61UC7Id8g15wNI5s5EF9SIspRqqaF
+VcOrY0MpNPSDpBSTIjKDoGAcdRq2D7PoYCax2+qBju6W25o00AcbizHJtVQxxOie
+hd+Kn6+JYxP6T/KwIP9TWlplSro4sFLrnlrwFadcnVoByZpbRUzqtlIB2iVGeUX2
+FL3dXAF7+6rJlZMO7WDac6TIr1qxty3DxHcR5RkTzubNStw/N4TKUQAuQbEE79JW
+b/JmDcfyMcQxZAVCefmMm+GCpRod8cT6Ac7Wi0OMf+Cd+gXWNRHaOcQLEk2287We
+i80PuxZ+4o+p1aAdHQCr65zKGtl7shzDheMd+2ygIvAf1y8AmPmsOTw3r9DmQmFq
+ZdxiNSAR1oOIY5JaSv6qbfl/fhe/1y0ZpZ3icDXr4p1rYfWZgtr2mpXLFjeAz/GY
+MOC0Pog5X1Pk710Q08nUf2b+8Z0IXK0f1sDWeCLeFvsk3tDkqRM=
+=hFMo
+-----END PGP SIGNATURE-----
+
+--E8XIqcMFE0b8bOXhIJWAR0qJZlJouAziU--
