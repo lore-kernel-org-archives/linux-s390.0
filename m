@@ -1,30 +1,23 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50452 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725784AbgDTRfq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Apr 2020 13:35:46 -0400
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5F2C061A0F
-        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2020 10:35:46 -0700 (PDT)
-Received: by mail-io1-xd30.google.com with SMTP id z2so7597148iol.11
-        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2020 10:35:46 -0700 (PDT)
+Received: from verein.lst.de ([213.95.11.211]:42044 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726136AbgDTR0G (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Apr 2020 13:26:06 -0400
+Date: Mon, 20 Apr 2020 19:26:04 +0200
+From: Christoph Hellwig <hch@lst.de>
 Subject: Re: more partition handling cleanups v2
+Message-ID: <20200420172604.GA1562@lst.de>
 References: <20200414072902.324936-1-hch@lst.de>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <c1c720cb-659c-44ca-1a64-16e08725accd@kernel.dk>
-Date: Mon, 20 Apr 2020 11:35:43 -0600
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20200414072902.324936-1-hch@lst.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
+To: Jens Axboe <axboe@kernel.dk>
 Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-On 4/14/20 1:28 AM, Christoph Hellwig wrote:
+On Tue, Apr 14, 2020 at 09:28:52AM +0200, Christoph Hellwig wrote:
 > Hi Jens,
 > 
 > this series cleans up more lose ends in the partitioning code.  It also
@@ -34,7 +27,5 @@ On 4/14/20 1:28 AM, Christoph Hellwig wrote:
 >  - fix a brown paperbag typo in blkpg_do_ioctl
 >  - fix a commit message typo
 
-Applied for 5.8.
-
--- 
-Jens Axboe
+ping?  This is the first of a few series to eventually kill
+ioctl_by_bdev, so I'd like to get things moving.
