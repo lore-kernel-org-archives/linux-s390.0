@@ -1,60 +1,83 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47836 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726716AbgDWJKb (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11744 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726945AbgDTQUe (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Apr 2020 05:10:31 -0400
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03N95NMj008334
-        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 05:10:30 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30jvfu9e6w-1
+        Mon, 20 Apr 2020 12:20:34 -0400
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03KG3UVR039186
+        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2020 12:20:33 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30ggr1hakt-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 05:10:30 -0400
+        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2020 12:20:33 -0400
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 23 Apr 2020 10:09:32 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v2 05/10] s390x: smp: Loop if secondary cpu returns into cpu setup again
-Date: Thu, 23 Apr 2020 05:10:08 -0400
-In-Reply-To: <20200423091013.11587-1-frankja@linux.ibm.com>
-References: <20200423091013.11587-1-frankja@linux.ibm.com>
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <gerald.schaefer@de.ibm.com>;
+        Mon, 20 Apr 2020 17:19:49 +0100
+Date: Mon, 20 Apr 2020 18:20:23 +0200
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Subject: Re: [RFC][Qusetion] the value of cleared_(ptes|pmds|puds|p4ds) in
+ struct mmu_gather
+In-Reply-To: <68affa6e-44cd-37e3-cdfc-8eec31c4097e@de.ibm.com>
+References: <fbb00ac0-9104-8d25-f225-7b3d1b17a01f@huawei.com>
+        <20200330121654.GL20696@hirez.programming.kicks-ass.net>
+        <68affa6e-44cd-37e3-cdfc-8eec31c4097e@de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200423091013.11587-6-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200420182023.6b8e143a@thinkpad>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Zhenyu Ye <yezhenyu2@huawei.com>, npiggin@gmail.com, will.deacon@arm.com, mingo@kernel.org, torvalds@linux-foundation.org, Vasily Gorbik <gor@linux.ibm.com>, akpm@linux-foundation.org, luto@kernel.org, bp@alien8.de, Marc Zyngier <maz@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, arm@kernel.org, xiexiangyou@huawei.com, linux-s390 <linux-s390@vger.kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-Up to now a secondary cpu could have returned from the function it was
-executing and ending up somewhere in cstart64.S. This was mostly
-circumvented by an endless loop in the function that it executed.
+On Wed, 8 Apr 2020 10:51:59 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Let's add a loop to the end of the cpu setup, so we don't have to rely
-on added loops in the tests.
+[...]
+> 
+> adding Gerald and Vasily. Gerald can you have a look?
+> 
+> >>
+> >>
+> >> In my view, the cleared_(ptes|pmds|puds) and (pte|pmd|pud)_free_tlb
+> >> correspond one-to-one.  So we should set cleared_ptes in pte_free_tlb(),
+> >> then use it when needed.
+> > 
+> > So pte_free_tlb() clears a table of PTE entries, or a PMD level entity,
+> > also see free_pte_range(). So the generic code makes sense to me. The
+> > PTE level invalidations will have happened on tlb_remove_tlb_entry().
+> > 
+> >> I'm very confused about this. Which is wrong? Or is there something
+> >> I understand wrong?
+> > 
+> > I agree the s390 case is puzzling, Martin does s390 need a PTE level
+> > invalidate for removing a PTE table or was this a mistake?
+> > 
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- s390x/cstart64.S | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Peter is right, the PTE level invalidations will happen before. For
+s390, not exactly at the tlb_remove_tlb_entry() itself, since
+__tlb_remove_tlb_entry() is not defined, but rather directly at the
+preceding ptep_get_and_clear(). I think this also the reason why we
+cannot easily optimize for larger granularity.
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 9af6bb3..ecffbe0 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -161,7 +161,9 @@ smp_cpu_setup_state:
- 	lctlg   %c0, %c0, GEN_LC_SW_INT_CRS
- 	/* We should only go once through cpu setup and not for every restart */
- 	stg	%r14, GEN_LC_RESTART_NEW_PSW + 8
--	br	%r14
-+	brasl	%r14, %r14
-+	/* If the function returns, just loop here */
-+0:	j	0
- 
- pgm_int:
- 	SAVE_REGS
--- 
-2.25.1
+Anyway, pte_free_tlb() will then later only take care of freeing
+the page table page, no further PTE level clearing/invalidation
+needed. I see no reason why s390 should behave differently from
+the generic code, wrt to cleared_pxds setting in pxd_free_tlb().
+
+So I guess this was an "off-by-one" mistake in commit 9de7d833e3708
+("s390/tlb: Convert to generic mmu_gather"), since the other
+pxd_free_tlb() functions also show similar puzzling behavior.
+Not consistently off-by-one though, as pmd_free_tlb() seems
+to behave correctly, setting tlb->cleared_puds = 1, similar to
+generic code.
+
+That was a very nice catch, Zhenyu, thanks for reporting!
+We are not yet making use of the tlb->cleared_pxds for s390, but
+we would certainly have stumbled over this if we ever tried.
+Will send a patch to make s390 behave like generic code here.
+
+Regards,
+Gerald
