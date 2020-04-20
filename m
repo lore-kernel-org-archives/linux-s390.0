@@ -1,36 +1,40 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 04/34] iommu/vt-d: Wire up iommu_ops->def_domain_type
-Date: Tue,  7 Apr 2020 20:37:12 +0200
-Message-Id: <20200407183742.4344-5-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50452 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725784AbgDTRfq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Apr 2020 13:35:46 -0400
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B5F2C061A0F
+        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2020 10:35:46 -0700 (PDT)
+Received: by mail-io1-xd30.google.com with SMTP id z2so7597148iol.11
+        for <linux-s390@vger.kernel.org>; Mon, 20 Apr 2020 10:35:46 -0700 (PDT)
+Subject: Re: more partition handling cleanups v2
+References: <20200414072902.324936-1-hch@lst.de>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <c1c720cb-659c-44ca-1a64-16e08725accd@kernel.dk>
+Date: Mon, 20 Apr 2020 11:35:43 -0600
+MIME-Version: 1.0
+In-Reply-To: <20200414072902.324936-1-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+On 4/14/20 1:28 AM, Christoph Hellwig wrote:
+> Hi Jens,
+> 
+> this series cleans up more lose ends in the partitioning code.  It also
+> removes a rather annoying use of ioctl_by_bdev in the s390 dasd driver.
+> 
+> Changes since v1:
+>  - fix a brown paperbag typo in blkpg_do_ioctl
+>  - fix a commit message typo
 
-The Intel VT-d driver already has a matching function to determine the
-default domain type for a device. Wire it up in intel_iommu_ops.
+Applied for 5.8.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/intel-iommu.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index ef0a5246700e..b9f905a55dda 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -6209,6 +6209,7 @@ const struct iommu_ops intel_iommu_ops = {
- 	.dev_enable_feat	= intel_iommu_dev_enable_feat,
- 	.dev_disable_feat	= intel_iommu_dev_disable_feat,
- 	.is_attach_deferred	= intel_iommu_is_attach_deferred,
-+	.def_domain_type	= device_def_domain_type,
- 	.pgsize_bitmap		= INTEL_IOMMU_PGSIZES,
- };
- 
 -- 
-2.17.1
+Jens Axboe
