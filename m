@@ -1,34 +1,22 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23292 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728443AbgDWN5p (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Apr 2020 09:57:45 -0400
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03NDWkB1074790
-        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 09:57:45 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30jrxmqk44-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 09:57:45 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
-        Thu, 23 Apr 2020 14:57:17 +0100
-Date: Thu, 23 Apr 2020 15:56:20 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:31627 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726764AbgDTMN2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Apr 2020 08:13:28 -0400
+Date: Mon, 20 Apr 2020 14:13:17 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH 1/1] vfio-ccw: Enable transparent CCW IPL from DASD
+Message-ID: <20200420141317.4537498f.cohuck@redhat.com>
 In-Reply-To: <20200417182939.11460-2-jrossi@linux.ibm.com>
 References: <20200417182939.11460-1-jrossi@linux.ibm.com>
         <20200417182939.11460-2-jrossi@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200423155620.493cb7cb.pasic@linux.ibm.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Jared Rossi <jrossi@linux.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
 On Fri, 17 Apr 2020 14:29:39 -0400
 Jared Rossi <jrossi@linux.ibm.com> wrote:
@@ -37,13 +25,45 @@ Jared Rossi <jrossi@linux.ibm.com> wrote:
 > This check is not needed as all Linux channel programs are intended
 > to use prefetch and will be executed in the same way regardless.
 
-Hm. This is a guest thing or? So you basically say, it is OK to do
-this, because you know that the guest is gonna be Linux and that it
-the channel program is intended to use prefetch -- but the ORB supplied
-by the guest that designates the channel program happens to state the
-opposite.
+Hm... my understanding is that we have the reasonable expectation that
+our guests will always issue channel programs that work fine with
+prefetch even if the bit is not set in the orb (including CCW IPL, in
+the way it is implemented in the s390-ccw QEMU bios), and therefore
+this patch is just making things less complicated.
 
-Or am I missing something?
+If a future guest does issue a channel program where that does not hold
+true, it will run into trouble, and I'm not sure that this would be
+easy to debug. Can we log this somewhere?
 
-Regards,
-Halil 
+Also, it might make sense to add some note of our
+behaviour/expectations to Documentation/s390/vfio-ccw.rst.
+
+> 
+> Signed-off-by: Jared Rossi <jrossi@linux.ibm.com>
+> ---
+>  drivers/s390/cio/vfio_ccw_cp.c  | 16 ++++------------
+>  drivers/s390/cio/vfio_ccw_cp.h  |  2 +-
+>  drivers/s390/cio/vfio_ccw_fsm.c |  6 +++---
+>  3 files changed, 8 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index 3645d1720c4b..5b47ecbb4baa 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+(...)
+> @@ -690,7 +682,7 @@ void cp_free(struct channel_program *cp)
+>  }
+>  
+>  /**
+> - * cp_prefetch() - translate a guest physical address channel program to
+> + * cp_fetch() - translate a guest physical address channel program to
+
+I would not rename this -- we are still doing what is called
+'prefetch', even though we also do it if the guest did not instruct us
+to do so.
+
+(also below)
+
+>   *                 a real-device runnable channel program.
+>   * @cp: channel_program on which to perform the operation
+>   *
