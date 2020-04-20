@@ -1,79 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bilbo.ozlabs.org ([203.11.71.1]:56955 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725773AbgDTH0H (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Apr 2020 03:26:07 -0400
-Date: Mon, 20 Apr 2020 17:25:59 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: linux-next: Tree for Apr 20
-Message-ID: <20200420172559.7b6dc5f1@canb.auug.org.au>
-In-Reply-To: <2d87a4f9-9d87-e929-9b03-31f92dad5ca6@de.ibm.com>
+Received: from mail-eopbgr70087.outbound.protection.outlook.com ([40.107.7.87]:32294
+        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725865AbgDTHXg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Apr 2020 03:23:36 -0400
+From: Hadar Gat <Hadar.Gat@arm.com>
+Subject: RE: linux-next: Tree for Apr 20
+Date: Mon, 20 Apr 2020 07:23:18 +0000
+Message-ID: <DB6PR0802MB2533E416D358177D5CA53564E9D40@DB6PR0802MB2533.eurprd08.prod.outlook.com>
 References: <20200420142610.390e5922@canb.auug.org.au>
-        <2d87a4f9-9d87-e929-9b03-31f92dad5ca6@de.ibm.com>
+ <2d87a4f9-9d87-e929-9b03-31f92dad5ca6@de.ibm.com>
+In-Reply-To: <2d87a4f9-9d87-e929-9b03-31f92dad5ca6@de.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/nsiZCIx22N7QTYaG_qWGcT.";
- protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, linux-s390 <linux-s390@vger.kernel.org>, Hadar Gat <hadar.gat@arm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, linux-s390 <linux-s390@vger.kernel.org>, Gilad Ben-Yossef <gilad@benyossef.com>, Ofir Drang <Ofir.Drang@arm.com>, nd <nd@arm.com>
 
---Sig_/nsiZCIx22N7QTYaG_qWGcT.
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-Hi all,
-
-On Mon, 20 Apr 2020 09:14:15 +0200 Christian Borntraeger <borntraeger@de.ib=
-m.com> wrote:
->
-> s390 defconfig still does not compile. While the media kconfig problem is=
- gone I now have
->=20
->   CC [M]  drivers/char/hw_random/cctrng.o
-> drivers/char/hw_random/cctrng.c: In function =E2=80=98cc_trng_compwork_ha=
-ndler=E2=80=99:
-> drivers/char/hw_random/cctrng.c:334:49: error: =E2=80=98fips_enabled=E2=
-=80=99 undeclared (first use in this function); did you mean =E2=80=98vdso_=
-enabled=E2=80=99?
->   334 |  if (CC_REG_FLD_GET(RNG_ISR, CRNGT_ERR, isr) && fips_enabled) {
->       |                                                 ^~~~~~~~~~~~
->       |                                                 vdso_enabled
-> drivers/char/hw_random/cctrng.c:334:49: note: each undeclared identifier =
-is reported only once for each function it appears in
-> drivers/char/hw_random/cctrng.c:335:3: error: implicit declaration of fun=
-ction =E2=80=98fips_fail_notify=E2=80=99 [-Werror=3Dimplicit-function-decla=
-ration]
->   335 |   fips_fail_notify();
->       |   ^~~~~~~~~~~~~~~~
-> cc1: some warnings being treated as errors
->=20
-> Can we maybe make this driver depend on ARM?
-
-Caused by commit
-
-  a583ed310bb6 ("hwrng: cctrng - introduce Arm CryptoCell driver")
-
-which has neglected to include linux/fips.h ...
-
---=20
-Cheers,
-Stephen Rothwell
-
---Sig_/nsiZCIx22N7QTYaG_qWGcT.
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl6dTocACgkQAVBC80lX
-0Gy81gf/WJ4AlMZZfY9lStGjc/+IIXvqC9ZjIuTV7NNS21twzwLU0p65Dv3ARscH
-nGIJKpCXvhMGjzrxbFJHCf4oBO+b3Q57hB2RXeCbuetpYkxFi/d8Z9zWjigALGwD
-TKMuDQUjlsV0VPra0G/YV+Qsr3xjR6q61Zz1nldhehpYkkmlQwT77hxBuqJYOjWe
-8PVao1gyoFcy3fWr6DXZRrlgRE/QTTAWoypQuGnCFg5iUgnlwXwXWE6AHnY4pxcP
-BJAsu+uKgf+lKLHsVQqdFGBTHVptKwx00SLUxhoMS8TH73H1IndUlYKKfIIopHcy
-zRBXR/Q65yhWhUj4X/pkrNJdDt1KhQ==
-=mzcp
------END PGP SIGNATURE-----
-
---Sig_/nsiZCIx22N7QTYaG_qWGcT.--
+DQo+IE9uIDIwLjA0LjIwIDA2OjI2LCBTdGVwaGVuIFJvdGh3ZWxsIHdyb3RlOg0KPiA+IEhpIGFs
+bCwNCj4gPg0KPiA+IENoYW5nZXMgc2luY2UgMjAyMDA0MTc6DQo+ID4NCj4gPiBNeSBmaXhlcyB0
+cmVlIGlzIGVtcHR5IGFnYWluLg0KPiA+DQo+ID4gVGhlIHFjb20gdHJlZSBzdGlsbCBoYWQgaXRz
+IGJ1aWxkIGZhaWx1cmUgZm9yIHdoaWNoIEkgcmV2ZXJ0ZWQgYSBjb21taXQuDQo+ID4NCj4gPiBU
+aGUgY3J5cHRvIHRyZWUgc3RpbGwgaGFzIGl0cyBidWlsZCBmYWlsdXJlIGZvciB3aGljaCBJIHJl
+dmVydGVkIDUgY29tbWl0cy4NCj4gPg0KPiA+IFRoZSBkcm0tbWlzYyB0cmVlIGdhaW5lZCBhIGJ1
+aWxkIGZhaWx1cmUgZm9yIHdoaWNoIEkgZGlzYWJsZWQgYQ0KPiA+IENPTVBJTEVfVEVTVCBzZXR0
+aW5nLg0KPiA+DQo+ID4gVGhlIHNvdW5kLWFzb2MgdHJlZSBzdGlsbCBoYXMgaXRzIGJ1aWxkIGZh
+aWx1cmVzIHNvIEkgdXNlZCB0aGUgdmVyc2lvbg0KPiA+IGZyb20gbmV4dC0yMDIwMDQxNC4NCj4g
+Pg0KPiA+IFRoZSBpcG1pIHRyZWUgZ2FpbmVkIGEgYnVpbGQgZmFpbHVyZSBmb3Igd2hpY2ggSSBh
+cHBsaWVkIGEgcGF0Y2guDQo+ID4NCj4gPiBOb24tbWVyZ2UgY29tbWl0cyAocmVsYXRpdmUgdG8g
+TGludXMnIHRyZWUpOiAyNzMyDQo+ID4gIDM1NDQgZmlsZXMgY2hhbmdlZCwgNzY1MTUgaW5zZXJ0
+aW9ucygrKSwgMzcyNzEgZGVsZXRpb25zKC0pDQo+IA0KPiBzMzkwIGRlZmNvbmZpZyBzdGlsbCBk
+b2VzIG5vdCBjb21waWxlLiBXaGlsZSB0aGUgbWVkaWEga2NvbmZpZyBwcm9ibGVtIGlzDQo+IGdv
+bmUgSSBub3cgaGF2ZQ0KPiANCj4gICBDQyBbTV0gIGRyaXZlcnMvY2hhci9od19yYW5kb20vY2N0
+cm5nLm8NCj4gZHJpdmVycy9jaGFyL2h3X3JhbmRvbS9jY3RybmcuYzogSW4gZnVuY3Rpb24g4oCY
+Y2NfdHJuZ19jb21wd29ya19oYW5kbGVy4oCZOg0KPiBkcml2ZXJzL2NoYXIvaHdfcmFuZG9tL2Nj
+dHJuZy5jOjMzNDo0OTogZXJyb3I6IOKAmGZpcHNfZW5hYmxlZOKAmSB1bmRlY2xhcmVkDQo+IChm
+aXJzdCB1c2UgaW4gdGhpcyBmdW5jdGlvbik7IGRpZCB5b3UgbWVhbiDigJh2ZHNvX2VuYWJsZWTi
+gJk/DQo+ICAgMzM0IHwgIGlmIChDQ19SRUdfRkxEX0dFVChSTkdfSVNSLCBDUk5HVF9FUlIsIGlz
+cikgJiYgZmlwc19lbmFibGVkKSB7DQo+ICAgICAgIHwgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgXn5+fn5+fn5+fn5+DQo+ICAgICAgIHwgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgdmRzb19lbmFibGVkDQo+IGRy
+aXZlcnMvY2hhci9od19yYW5kb20vY2N0cm5nLmM6MzM0OjQ5OiBub3RlOiBlYWNoIHVuZGVjbGFy
+ZWQgaWRlbnRpZmllciBpcw0KPiByZXBvcnRlZCBvbmx5IG9uY2UgZm9yIGVhY2ggZnVuY3Rpb24g
+aXQgYXBwZWFycyBpbg0KPiBkcml2ZXJzL2NoYXIvaHdfcmFuZG9tL2NjdHJuZy5jOjMzNTozOiBl
+cnJvcjogaW1wbGljaXQgZGVjbGFyYXRpb24gb2YNCj4gZnVuY3Rpb24g4oCYZmlwc19mYWlsX25v
+dGlmeeKAmSBbLVdlcnJvcj1pbXBsaWNpdC1mdW5jdGlvbi1kZWNsYXJhdGlvbl0NCj4gICAzMzUg
+fCAgIGZpcHNfZmFpbF9ub3RpZnkoKTsNCj4gICAgICAgfCAgIF5+fn5+fn5+fn5+fn5+fn4NCj4g
+Y2MxOiBzb21lIHdhcm5pbmdzIGJlaW5nIHRyZWF0ZWQgYXMgZXJyb3JzDQo+IA0KPiBDYW4gd2Ug
+bWF5YmUgbWFrZSB0aGlzIGRyaXZlciBkZXBlbmQgb24gQVJNPw0KDQpIaSwNClRoaXMgY29tcGls
+YXRpb24gaXNzdWUgaXMgYWxyZWFkeSBmaXhlZC4NCkl0IHdhcyBwdXNoZWQgZmV3IGRheXMgYWdv
+IGFuZCBpcyB3YWl0aW5nIHRvIGJlIGFwcGxpZWQuDQpodHRwczovL2xvcmUua2VybmVsLm9yZy9s
+aW51eC1jcnlwdG8vMDk2ZGI3NjktYTUwOC1iMGZhLWYwMTgtMmM0YzgwNzA2MWNiQGluZnJhZGVh
+ZC5vcmcvDQpUaGFua3MsDQpIYWRhcg0KDQo=
