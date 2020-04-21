@@ -1,70 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:35234 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502917AbgDNNQK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:10 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 33/33] iommu: Unexport iommu_group_get_for_dev()
-Date: Tue, 14 Apr 2020 15:15:42 +0200
-Message-Id: <20200414131542.25608-34-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56504 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725901AbgDUGMd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 21 Apr 2020 02:12:33 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 1/3] dasd: refactor dasd_ioctl_information
+Date: Tue, 21 Apr 2020 08:12:24 +0200
+Message-Id: <20200421061226.33731-2-hch@lst.de>
+In-Reply-To: <20200421061226.33731-1-hch@lst.de>
+References: <20200421061226.33731-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Jens Axboe <axboe@kernel.dk>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+Prepare for in-kernel callers of this functionality.
 
-The function is now only used in IOMMU core code and shouldn't be used
-outside of it anyway, so remove the export for it.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/iommu/iommu.c | 4 ++--
- include/linux/iommu.h | 1 -
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/s390/block/dasd_ioctl.c | 38 +++++++++++++++++++--------------
+ 1 file changed, 22 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 9a7120746b8e..e9413732c61e 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -91,6 +91,7 @@ static void __iommu_detach_group(struct iommu_domain *domain,
- 				 struct iommu_group *group);
- static int iommu_create_device_direct_mappings(struct iommu_group *group,
- 					       struct device *dev);
-+static struct iommu_group *iommu_group_get_for_dev(struct device *dev);
- 
- #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
- struct iommu_group_attribute iommu_group_attr_##_name =		\
-@@ -1483,7 +1484,7 @@ static int iommu_alloc_default_domain(struct device *dev)
-  * to the returned IOMMU group, which will already include the provided
-  * device.  The reference should be released with iommu_group_put().
+diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
+index 9a5f3add325f..dabcb4ce92da 100644
+--- a/drivers/s390/block/dasd_ioctl.c
++++ b/drivers/s390/block/dasd_ioctl.c
+@@ -457,10 +457,9 @@ static int dasd_ioctl_read_profile(struct dasd_block *block, void __user *argp)
+ /*
+  * Return dasd information. Used for BIODASDINFO and BIODASDINFO2.
   */
--struct iommu_group *iommu_group_get_for_dev(struct device *dev)
-+static struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+-static int dasd_ioctl_information(struct dasd_block *block,
+-				  unsigned int cmd, void __user *argp)
++static int __dasd_ioctl_information(struct dasd_block *block,
++		struct dasd_information2_t *dasd_info)
  {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
- 	struct iommu_group *group;
-@@ -1514,7 +1515,6 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+-	struct dasd_information2_t *dasd_info;
+ 	struct subchannel_id sch_id;
+ 	struct ccw_dev_id dev_id;
+ 	struct dasd_device *base;
+@@ -473,10 +472,6 @@ static int dasd_ioctl_information(struct dasd_block *block,
+ 	if (!base->discipline || !base->discipline->fill_info)
+ 		return -EINVAL;
  
- 	return ERR_PTR(ret);
+-	dasd_info = kzalloc(sizeof(struct dasd_information2_t), GFP_KERNEL);
+-	if (dasd_info == NULL)
+-		return -ENOMEM;
+-
+ 	rc = base->discipline->fill_info(base, dasd_info);
+ 	if (rc) {
+ 		kfree(dasd_info);
+@@ -520,15 +515,24 @@ static int dasd_ioctl_information(struct dasd_block *block,
+ 	list_for_each(l, &base->ccw_queue)
+ 		dasd_info->chanq_len++;
+ 	spin_unlock_irqrestore(&block->queue_lock, flags);
++	return 0;
++}
+ 
+-	rc = 0;
+-	if (copy_to_user(argp, dasd_info,
+-			 ((cmd == (unsigned int) BIODASDINFO2) ?
+-			  sizeof(struct dasd_information2_t) :
+-			  sizeof(struct dasd_information_t))))
+-		rc = -EFAULT;
++static int dasd_ioctl_information(struct dasd_block *block, void __user *argp,
++		size_t copy_size)
++{
++	struct dasd_information2_t *dasd_info;
++	int error = 0;
++
++	dasd_info = kzalloc(sizeof(*dasd_info), GFP_KERNEL);
++	if (!dasd_info)
++		return -ENOMEM;
++
++	error = __dasd_ioctl_information(block, dasd_info);
++	if (!error && copy_to_user(argp, dasd_info, copy_size))
++		error = -EFAULT;
+ 	kfree(dasd_info);
+-	return rc;
++	return error;
  }
--EXPORT_SYMBOL(iommu_group_get_for_dev);
  
- struct iommu_domain *iommu_group_default_domain(struct iommu_group *group)
- {
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index dd076366383f..7cfd2dddb49d 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -527,7 +527,6 @@ extern int iommu_page_response(struct device *dev,
- 			       struct iommu_page_response *msg);
- 
- extern int iommu_group_id(struct iommu_group *group);
--extern struct iommu_group *iommu_group_get_for_dev(struct device *dev);
- extern struct iommu_domain *iommu_group_default_domain(struct iommu_group *);
- 
- extern int iommu_domain_get_attr(struct iommu_domain *domain, enum iommu_attr,
+ /*
+@@ -622,10 +626,12 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
+ 		rc = dasd_ioctl_check_format(bdev, argp);
+ 		break;
+ 	case BIODASDINFO:
+-		rc = dasd_ioctl_information(block, cmd, argp);
++		rc = dasd_ioctl_information(block, argp,
++				sizeof(struct dasd_information_t));
+ 		break;
+ 	case BIODASDINFO2:
+-		rc = dasd_ioctl_information(block, cmd, argp);
++		rc = dasd_ioctl_information(block, argp,
++				sizeof(struct dasd_information2_t));
+ 		break;
+ 	case BIODASDPRRD:
+ 		rc = dasd_ioctl_read_profile(block, argp);
 -- 
-2.17.1
+2.26.1
