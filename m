@@ -1,190 +1,164 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48862 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726018AbgDULCJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Apr 2020 07:02:09 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:34506 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728503AbgDUJl0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Apr 2020 05:41:26 -0400
+Date: Tue, 21 Apr 2020 11:41:14 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v3 5/8] vfio-ccw: Introduce a new CRW region
+Message-ID: <20200421114114.672f35a4.cohuck@redhat.com>
+In-Reply-To: <20200417023001.65006-6-farman@linux.ibm.com>
 References: <20200417023001.65006-1-farman@linux.ibm.com>
- <20200417023001.65006-6-farman@linux.ibm.com>
- <20200421114114.672f35a4.cohuck@redhat.com>
-From: Eric Farman <farman@linux.ibm.com>
-Message-ID: <e24dfccc-d2b7-9a47-3cef-323c01797ee1@linux.ibm.com>
-Date: Tue, 21 Apr 2020 07:02:03 -0400
+        <20200417023001.65006-6-farman@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20200421114114.672f35a4.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Eric Farman <farman@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
 
+On Fri, 17 Apr 2020 04:29:58 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-
-On 4/21/20 5:41 AM, Cornelia Huck wrote:
-> On Fri, 17 Apr 2020 04:29:58 +0200
-> Eric Farman <farman@linux.ibm.com> wrote:
+> From: Farhan Ali <alifm@linux.ibm.com>
 > 
->> From: Farhan Ali <alifm@linux.ibm.com>
->>
->> This region provides a mechanism to pass Channel Report Word(s)
->> that affect vfio-ccw devices, and need to be passed to the guest
->> for its awareness and/or processing.
->>
->> The base driver (see crw_collect_info()) provides space for two
->> CRWs, as a subchannel event may have two CRWs chained together
->> (one for the ssid, one for the subcahnnel).  All other CRWs will
-
-s/subcahnnel/subchannel/
-
->> only occupy the first one.  Even though this support will also
->> only utilize the first one, we'll provide space for two also.
+> This region provides a mechanism to pass Channel Report Word(s)
+> that affect vfio-ccw devices, and need to be passed to the guest
+> for its awareness and/or processing.
 > 
-> This is no longer true?
+> The base driver (see crw_collect_info()) provides space for two
+> CRWs, as a subchannel event may have two CRWs chained together
+> (one for the ssid, one for the subcahnnel).  All other CRWs will
+> only occupy the first one.  Even though this support will also
+> only utilize the first one, we'll provide space for two also.
 
-Oops, yes.
+This is no longer true?
 
 > 
->>
->> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
->> Signed-off-by: Eric Farman <farman@linux.ibm.com>
->> ---
->>
->> Notes:
->>     v2->v3:
->>      - Remove "if list-empty" check, since there's no list yet [EF]
->>      - Reduce the CRW region to one fullword, instead of two [CH]
->>     
->>     v1->v2:
->>      - Add new region info to Documentation/s390/vfio-ccw.rst [CH]
->>      - Add a block comment to struct ccw_crw_region [CH]
->>     
->>     v0->v1: [EF]
->>      - Clean up checkpatch (whitespace) errors
->>      - Add ret=-ENOMEM in error path for new region
->>      - Add io_mutex for region read (originally in last patch)
->>      - Change crw1/crw2 to crw0/crw1
->>      - Reorder cleanup of regions
->>
->>  Documentation/s390/vfio-ccw.rst     | 16 +++++++++
->>  drivers/s390/cio/vfio_ccw_chp.c     | 53 +++++++++++++++++++++++++++++
->>  drivers/s390/cio/vfio_ccw_drv.c     | 20 +++++++++++
->>  drivers/s390/cio/vfio_ccw_ops.c     |  4 +++
->>  drivers/s390/cio/vfio_ccw_private.h |  3 ++
->>  include/uapi/linux/vfio.h           |  1 +
->>  include/uapi/linux/vfio_ccw.h       |  8 +++++
->>  7 files changed, 105 insertions(+)
->>
->> diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
->> index 98832d95f395..3338551ef642 100644
->> --- a/Documentation/s390/vfio-ccw.rst
->> +++ b/Documentation/s390/vfio-ccw.rst
->> @@ -247,6 +247,22 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_SCHIB.
->>  Reading this region triggers a STORE SUBCHANNEL to be issued to the
->>  associated hardware.
->>  
->> +vfio-ccw crw region
->> +---------------------
->> +
->> +The vfio-ccw crw region is used to return Channel Report Word (CRW)
->> +data to userspace::
->> +
->> +  struct ccw_crw_region {
->> +         __u32 crw;
->> +  } __packed;
->> +
->> +This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_CRW.
->> +
->> +Currently, space is provided for a single CRW. Handling of chained
->> +CRWs (not implemented in vfio-ccw) can be accomplished by re-reading
->> +the region for additional CRW data.
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
 > 
-> What about the following instead:
+> Notes:
+>     v2->v3:
+>      - Remove "if list-empty" check, since there's no list yet [EF]
+>      - Reduce the CRW region to one fullword, instead of two [CH]
+>     
+>     v1->v2:
+>      - Add new region info to Documentation/s390/vfio-ccw.rst [CH]
+>      - Add a block comment to struct ccw_crw_region [CH]
+>     
+>     v0->v1: [EF]
+>      - Clean up checkpatch (whitespace) errors
+>      - Add ret=-ENOMEM in error path for new region
+>      - Add io_mutex for region read (originally in last patch)
+>      - Change crw1/crw2 to crw0/crw1
+>      - Reorder cleanup of regions
 > 
-> "Reading this region returns a CRW if one that is relevant for this
-> subchannel (e.g. one reporting changes in channel path state) is
-> pending, or all zeroes if not. If multiple CRWs are pending (including
-> possibly chained CRWs), reading this region again will return the next
-> one, until no more CRWs are pending and zeroes are returned. This is
-> similar to how STORE CHANNEL REPORT WORD works."
+>  Documentation/s390/vfio-ccw.rst     | 16 +++++++++
+>  drivers/s390/cio/vfio_ccw_chp.c     | 53 +++++++++++++++++++++++++++++
+>  drivers/s390/cio/vfio_ccw_drv.c     | 20 +++++++++++
+>  drivers/s390/cio/vfio_ccw_ops.c     |  4 +++
+>  drivers/s390/cio/vfio_ccw_private.h |  3 ++
+>  include/uapi/linux/vfio.h           |  1 +
+>  include/uapi/linux/vfio_ccw.h       |  8 +++++
+>  7 files changed, 105 insertions(+)
+> 
+> diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+> index 98832d95f395..3338551ef642 100644
+> --- a/Documentation/s390/vfio-ccw.rst
+> +++ b/Documentation/s390/vfio-ccw.rst
+> @@ -247,6 +247,22 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_SCHIB.
+>  Reading this region triggers a STORE SUBCHANNEL to be issued to the
+>  associated hardware.
+>  
+> +vfio-ccw crw region
+> +---------------------
+> +
+> +The vfio-ccw crw region is used to return Channel Report Word (CRW)
+> +data to userspace::
+> +
+> +  struct ccw_crw_region {
+> +         __u32 crw;
+> +  } __packed;
+> +
+> +This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_CRW.
+> +
+> +Currently, space is provided for a single CRW. Handling of chained
+> +CRWs (not implemented in vfio-ccw) can be accomplished by re-reading
+> +the region for additional CRW data.
 
-Sounds good to me.
+What about the following instead:
 
-Hrm...  Maybe coffee hasn't hit yet.  Should I wire STCRW into this, or
-just rely on the notification from the host to trigger the read?
+"Reading this region returns a CRW if one that is relevant for this
+subchannel (e.g. one reporting changes in channel path state) is
+pending, or all zeroes if not. If multiple CRWs are pending (including
+possibly chained CRWs), reading this region again will return the next
+one, until no more CRWs are pending and zeroes are returned. This is
+similar to how STORE CHANNEL REPORT WORD works."
 
-> 
->> +
->>  vfio-ccw operation details
->>  --------------------------
->>  
->> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
->> index 18f3b3e873a9..c1362aae61f5 100644
->> --- a/drivers/s390/cio/vfio_ccw_chp.c
->> +++ b/drivers/s390/cio/vfio_ccw_chp.c
->> @@ -74,3 +74,56 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private)
->>  					    VFIO_REGION_INFO_FLAG_READ,
->>  					    private->schib_region);
->>  }
->> +
->> +static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
->> +					char __user *buf, size_t count,
->> +					loff_t *ppos)
->> +{
->> +	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
->> +	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
->> +	struct ccw_crw_region *region;
->> +	int ret;
->> +
->> +	if (pos + count > sizeof(*region))
->> +		return -EINVAL;
->> +
->> +	mutex_lock(&private->io_mutex);
->> +	region = private->region[i].data;
->> +
->> +	if (copy_to_user(buf, (void *)region + pos, count))
->> +		ret = -EFAULT;
->> +	else
->> +		ret = count;
-> 
-> I see that you implemented it a bit differently in patch 7, but I think
-> resetting crw to 0 immediately after the copy_to_user() is cleaner. It
-> also can be done in this patch already :)
+> +
+>  vfio-ccw operation details
+>  --------------------------
+>  
+> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
+> index 18f3b3e873a9..c1362aae61f5 100644
+> --- a/drivers/s390/cio/vfio_ccw_chp.c
+> +++ b/drivers/s390/cio/vfio_ccw_chp.c
+> @@ -74,3 +74,56 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private)
+>  					    VFIO_REGION_INFO_FLAG_READ,
+>  					    private->schib_region);
+>  }
+> +
+> +static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
+> +					char __user *buf, size_t count,
+> +					loff_t *ppos)
+> +{
+> +	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
+> +	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
+> +	struct ccw_crw_region *region;
+> +	int ret;
+> +
+> +	if (pos + count > sizeof(*region))
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&private->io_mutex);
+> +	region = private->region[i].data;
+> +
+> +	if (copy_to_user(buf, (void *)region + pos, count))
+> +		ret = -EFAULT;
+> +	else
+> +		ret = count;
 
-Ha, yes.  I actually had it set that way, but didn't like the result in
-patch 7.  I'll revisit that.
+I see that you implemented it a bit differently in patch 7, but I think
+resetting crw to 0 immediately after the copy_to_user() is cleaner. It
+also can be done in this patch already :)
 
-> 
->> +
->> +	mutex_unlock(&private->io_mutex);
->> +	return ret;
->> +}
-> 
-> (...)
-> 
->> diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
->> index 758bf214898d..faf57e691d4a 100644
->> --- a/include/uapi/linux/vfio_ccw.h
->> +++ b/include/uapi/linux/vfio_ccw.h
->> @@ -44,4 +44,12 @@ struct ccw_schib_region {
->>  	__u8 schib_area[SCHIB_AREA_SIZE];
->>  } __packed;
->>  
->> +/*
->> + * Used for returning Channel Report Word(s) to userspace.
-> 
-> s/Channel Report Word(s)/a Channel Report Word/ ?
+> +
+> +	mutex_unlock(&private->io_mutex);
+> +	return ret;
+> +}
 
-Nod.
+(...)
 
-> 
->> + * Note: this is controlled by a capability
->> + */
->> +struct ccw_crw_region {
->> +	__u32 crw;
->> +} __packed;
->> +
->>  #endif
-> 
+> diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
+> index 758bf214898d..faf57e691d4a 100644
+> --- a/include/uapi/linux/vfio_ccw.h
+> +++ b/include/uapi/linux/vfio_ccw.h
+> @@ -44,4 +44,12 @@ struct ccw_schib_region {
+>  	__u8 schib_area[SCHIB_AREA_SIZE];
+>  } __packed;
+>  
+> +/*
+> + * Used for returning Channel Report Word(s) to userspace.
+
+s/Channel Report Word(s)/a Channel Report Word/ ?
+
+> + * Note: this is controlled by a capability
+> + */
+> +struct ccw_crw_region {
+> +	__u32 crw;
+> +} __packed;
+> +
+>  #endif
