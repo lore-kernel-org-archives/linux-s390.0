@@ -1,99 +1,129 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:40590 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729382AbgDHTou (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 15:44:50 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/10] block: cleanup hd_struct freeing
-Date: Wed,  8 Apr 2020 21:44:32 +0200
-Message-Id: <20200408194439.1580699-4-hch@lst.de>
-In-Reply-To: <20200408194439.1580699-1-hch@lst.de>
-References: <20200408194439.1580699-1-hch@lst.de>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:39475 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726874AbgDUJYy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Apr 2020 05:24:54 -0400
+Date: Tue, 21 Apr 2020 11:24:31 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 4/8] vfio-ccw: Introduce a new schib region
+Message-ID: <20200421112431.01440c58.cohuck@redhat.com>
+In-Reply-To: <20200417023001.65006-5-farman@linux.ibm.com>
+References: <20200417023001.65006-1-farman@linux.ibm.com>
+        <20200417023001.65006-5-farman@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, linux-s390@vger.kernel.org
+To: Eric Farman <farman@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
 
-Move hd_ref_init out of line as there it isn't anywhere near a fast path,
-and rename the rcu ref freeing callbacks to be more descriptive.
+On Fri, 17 Apr 2020 04:29:57 +0200
+Eric Farman <farman@linux.ibm.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/blk.h             | 10 +---------
- block/partitions/core.c | 18 +++++++++++++-----
- 2 files changed, 14 insertions(+), 14 deletions(-)
+> From: Farhan Ali <alifm@linux.ibm.com>
+> 
+> The schib region can be used by userspace to get the subchannel-
+> information block (SCHIB) for the passthrough subchannel.
+> This can be useful to get information such as channel path
+> information via the SCHIB.PMCW fields.
+> 
+> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> ---
+> 
+> Notes:
+>     v2->v3:
+>      - Updated Copyright year and Authors [CH]
+>      - Mention that schib region triggers a STSCH [CH]
+>     
+>     v1->v2:
+>      - Add new region info to Documentation/s390/vfio-ccw.rst [CH]
+>      - Add a block comment to struct ccw_schib_region [CH]
+>     
+>     v0->v1: [EF]
+>      - Clean up checkpatch (#include, whitespace) errors
+>      - Remove unnecessary includes from vfio_ccw_chp.c
+>      - Add ret=-ENOMEM in error path for new region
+>      - Add call to vfio_ccw_unregister_dev_regions() during error exit
+>        path of vfio_ccw_mdev_open()
+>      - New info on the module prologue
+>      - Reorder cleanup of regions
+> 
+>  Documentation/s390/vfio-ccw.rst     | 19 +++++++-
+>  drivers/s390/cio/Makefile           |  2 +-
+>  drivers/s390/cio/vfio_ccw_chp.c     | 76 +++++++++++++++++++++++++++++
+>  drivers/s390/cio/vfio_ccw_drv.c     | 20 ++++++++
+>  drivers/s390/cio/vfio_ccw_ops.c     | 14 +++++-
+>  drivers/s390/cio/vfio_ccw_private.h |  3 ++
+>  include/uapi/linux/vfio.h           |  1 +
+>  include/uapi/linux/vfio_ccw.h       | 10 ++++
+>  8 files changed, 141 insertions(+), 4 deletions(-)
+>  create mode 100644 drivers/s390/cio/vfio_ccw_chp.c
+> 
 
-diff --git a/block/blk.h b/block/blk.h
-index 0cbf64108922..b1a0b8cd87f0 100644
---- a/block/blk.h
-+++ b/block/blk.h
-@@ -389,7 +389,6 @@ char *disk_name(struct gendisk *hd, int partno, char *buf);
- #define ADDPART_FLAG_NONE	0
- #define ADDPART_FLAG_RAID	1
- #define ADDPART_FLAG_WHOLEDISK	2
--void __delete_partition(struct percpu_ref *ref);
- void delete_partition(struct gendisk *disk, struct hd_struct *part);
- int bdev_add_partition(struct block_device *bdev, int partno,
- 		sector_t start, sector_t length);
-@@ -397,14 +396,7 @@ int bdev_del_partition(struct block_device *bdev, int partno);
- int bdev_resize_partition(struct block_device *bdev, int partno,
- 		sector_t start, sector_t length);
- int disk_expand_part_tbl(struct gendisk *disk, int target);
--
--static inline int hd_ref_init(struct hd_struct *part)
--{
--	if (percpu_ref_init(&part->ref, __delete_partition, 0,
--				GFP_KERNEL))
--		return -ENOMEM;
--	return 0;
--}
-+int hd_ref_init(struct hd_struct *part);
- 
- static inline void hd_struct_get(struct hd_struct *part)
- {
-diff --git a/block/partitions/core.c b/block/partitions/core.c
-index 0b1b67f50652..13d61ed76e0e 100644
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -274,10 +274,10 @@ struct device_type part_type = {
- 	.uevent		= part_uevent,
- };
- 
--static void delete_partition_work_fn(struct work_struct *work)
-+static void hd_struct_free_work(struct work_struct *work)
- {
--	struct hd_struct *part = container_of(to_rcu_work(work), struct hd_struct,
--					rcu_work);
-+	struct hd_struct *part =
-+		container_of(to_rcu_work(work), struct hd_struct, rcu_work);
- 
- 	part->start_sect = 0;
- 	part->nr_sects = 0;
-@@ -285,13 +285,21 @@ static void delete_partition_work_fn(struct work_struct *work)
- 	put_device(part_to_dev(part));
- }
- 
--void __delete_partition(struct percpu_ref *ref)
-+static void hd_struct_free(struct percpu_ref *ref)
- {
- 	struct hd_struct *part = container_of(ref, struct hd_struct, ref);
--	INIT_RCU_WORK(&part->rcu_work, delete_partition_work_fn);
-+
-+	INIT_RCU_WORK(&part->rcu_work, hd_struct_free_work);
- 	queue_rcu_work(system_wq, &part->rcu_work);
- }
- 
-+int hd_ref_init(struct hd_struct *part)
-+{
-+	if (percpu_ref_init(&part->ref, hd_struct_free, 0, GFP_KERNEL))
-+		return -ENOMEM;
-+	return 0;
-+}
-+
- /*
-  * Must be called either with bd_mutex held, before a disk can be opened or
-  * after all disk users are gone.
--- 
-2.25.1
+(...)
+
+> +static ssize_t vfio_ccw_schib_region_read(struct vfio_ccw_private *private,
+> +					  char __user *buf, size_t count,
+> +					  loff_t *ppos)
+> +{
+> +	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
+> +	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
+> +	struct ccw_schib_region *region;
+> +	int ret;
+> +
+> +	if (pos + count > sizeof(*region))
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&private->io_mutex);
+> +	region = private->region[i].data;
+> +
+> +	if (cio_update_schib(private->sch)) {
+> +		ret = -ENODEV;
+> +		goto out;
+> +	}
+> +
+> +	memcpy(region, &private->sch->schib, sizeof(*region));
+> +
+> +	if (copy_to_user(buf, (void *)region + pos, count)) {
+> +		ret = -EFAULT;
+> +		goto out;
+> +	}
+> +
+> +	ret = count;
+> +
+> +out:
+> +	mutex_unlock(&private->io_mutex);
+> +	return ret;
+> +}
+> +
+> +static ssize_t vfio_ccw_schib_region_write(struct vfio_ccw_private *private,
+> +					   const char __user *buf, size_t count,
+> +					   loff_t *ppos)
+> +{
+> +	return -EINVAL;
+> +}
+
+I'm wondering if we should make this callback optional (not in this patch).
+
+> +
+> +
+> +static void vfio_ccw_schib_region_release(struct vfio_ccw_private *private,
+> +					  struct vfio_ccw_region *region)
+> +{
+> +
+> +}
+
+Same here.
+
+> +
+> +const struct vfio_ccw_regops vfio_ccw_schib_region_ops = {
+> +	.read = vfio_ccw_schib_region_read,
+> +	.write = vfio_ccw_schib_region_write,
+> +	.release = vfio_ccw_schib_region_release,
+> +};
+
+(...)
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
