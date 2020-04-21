@@ -1,97 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32398 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50076 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729204AbgD3N4O (ORCPT
+        by vger.kernel.org with ESMTP id S1728802AbgDUOCR (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:56:14 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 12/14] net/smc: adapt SMC remote DELETE_RKEY processing to use the LLC flow
-Date: Thu, 30 Apr 2020 15:55:49 +0200
-Message-Id: <20200430135551.26267-13-kgraul@linux.ibm.com>
-In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
-References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+        Tue, 21 Apr 2020 10:02:17 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03LDYw4m082709
+        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2020 10:02:17 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30gmuynwfe-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2020 10:02:16 -0400
+Received: from localhost
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <gerald.schaefer@de.ibm.com>;
+        Tue, 21 Apr 2020 15:01:30 +0100
+Date: Tue, 21 Apr 2020 16:02:01 +0200
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Subject: Re: [PATCH v3 0/4] Clean up hugetlb boot command line processing
+In-Reply-To: <20200417185049.275845-1-mike.kravetz@oracle.com>
+References: <20200417185049.275845-1-mike.kravetz@oracle.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <20200421160201.0ddb9763@thinkpad>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Randy Dunlap <rdunlap@infradead.org>, Mina Almasry <almasrymina@google.com>, Peter Xu <peterx@redhat.com>, Nitesh Narayan Lal <nitesh@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-Use the LLC flow framework for the processing of DELETE_RKEY messages
-that were received from the peer.
+On Fri, 17 Apr 2020 11:50:45 -0700
+Mike Kravetz <mike.kravetz@oracle.com> wrote:
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_llc.c | 37 ++++++++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 13 deletions(-)
+> v3 -
+>    Used weak attribute method of defining arch_hugetlb_valid_size.
+>      This eliminates changes to arch specific hugetlb.h files (Peter)
+>    Updated documentation (Peter, Randy)
+>    Fixed handling of implicitly specified gigantic page preallocation
+>      in existing code and removed documentation of such.  There is now
+>      no difference between handling of gigantic and non-gigantic pages.
+>      (Peter, Nitesh).
+>      This requires the most review as there is a small change to
+>      undocumented behavior.  See patch 4 commit message for details.
+>    Added Acks and Reviews (Mina, Peter)
+> 
+> v2 -
+>    Fix build errors with patch 1 (Will)
+>    Change arch_hugetlb_valid_size arg to unsigned long and remove
+>      irrelevant 'extern' keyword (Christophe)
+>    Documentation and other misc changes (Randy, Christophe, Mina)
+>    Do not process command line options if !hugepages_supported()
+>      (Dave, but it sounds like we may want to additional changes to
+>       hugepages_supported() for x86?  If that is needed I would prefer
+>       a separate patch.)
+> 
+> Longpeng(Mike) reported a weird message from hugetlb command line processing
+> and proposed a solution [1].  While the proposed patch does address the
+> specific issue, there are other related issues in command line processing.
+> As hugetlbfs evolved, updates to command line processing have been made to
+> meet immediate needs and not necessarily in a coordinated manner.  The result
+> is that some processing is done in arch specific code, some is done in arch
+> independent code and coordination is problematic.  Semantics can vary between
+> architectures.
+> 
+> The patch series does the following:
+> - Define arch specific arch_hugetlb_valid_size routine used to validate
+>   passed huge page sizes.
+> - Move hugepagesz= command line parsing out of arch specific code and into
+>   an arch independent routine.
+> - Clean up command line processing to follow desired semantics and
+>   document those semantics.
+> 
+> [1] https://lore.kernel.org/linux-mm/20200305033014.1152-1-longpeng2@huawei.com
+> 
+> Mike Kravetz (4):
+>   hugetlbfs: add arch_hugetlb_valid_size
+>   hugetlbfs: move hugepagesz= parsing to arch independent code
+>   hugetlbfs: remove hugetlb_add_hstate() warning for existing hstate
+>   hugetlbfs: clean up command line processing
+> 
+>  .../admin-guide/kernel-parameters.txt         |  40 ++--
+>  Documentation/admin-guide/mm/hugetlbpage.rst  |  35 ++++
+>  arch/arm64/mm/hugetlbpage.c                   |  30 +--
+>  arch/powerpc/mm/hugetlbpage.c                 |  30 +--
+>  arch/riscv/mm/hugetlbpage.c                   |  24 +--
+>  arch/s390/mm/hugetlbpage.c                    |  24 +--
+>  arch/sparc/mm/init_64.c                       |  43 +---
+>  arch/x86/mm/hugetlbpage.c                     |  23 +--
+>  include/linux/hugetlb.h                       |   2 +-
+>  mm/hugetlb.c                                  | 190 +++++++++++++++---
+>  10 files changed, 271 insertions(+), 170 deletions(-)
+> 
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index b7b5cc01b78e..e458207bde9e 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -601,31 +601,37 @@ static void smc_llc_rmt_conf_rkey(struct smc_link_group *lgr)
- 	smc_llc_flow_qentry_del(&lgr->llc_flow_rmt);
- }
- 
--static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
--				      struct smc_llc_msg_confirm_rkey_cont *llc)
--{
--	/* ignore rtokens for other links, we have only one link */
--	llc->hd.flags |= SMC_LLC_FLAG_RESP;
--	smc_llc_send_message(link, llc);
--}
--
--static void smc_llc_rx_delete_rkey(struct smc_link *link,
--				   struct smc_llc_msg_delete_rkey *llc)
-+/* process a delete_rkey request from peer, remote flow */
-+static void smc_llc_rmt_delete_rkey(struct smc_link_group *lgr)
- {
-+	struct smc_llc_msg_delete_rkey *llc;
-+	struct smc_llc_qentry *qentry;
-+	struct smc_link *link;
- 	u8 err_mask = 0;
- 	int i, max;
- 
-+	qentry = lgr->llc_flow_rmt.qentry;
-+	llc = &qentry->msg.delete_rkey;
-+	link = qentry->link;
-+
- 	max = min_t(u8, llc->num_rkeys, SMC_LLC_DEL_RKEY_MAX);
- 	for (i = 0; i < max; i++) {
- 		if (smc_rtoken_delete(link, llc->rkey[i]))
- 			err_mask |= 1 << (SMC_LLC_DEL_RKEY_MAX - 1 - i);
- 	}
--
- 	if (err_mask) {
- 		llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
- 		llc->err_mask = err_mask;
- 	}
-+	llc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	smc_llc_send_message(link, &qentry->msg);
-+	smc_llc_flow_qentry_del(&lgr->llc_flow_rmt);
-+}
- 
-+static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
-+				      struct smc_llc_msg_confirm_rkey_cont *llc)
-+{
-+	/* ignore rtokens for other links, we have only one link */
- 	llc->hd.flags |= SMC_LLC_FLAG_RESP;
- 	smc_llc_send_message(link, llc);
- }
-@@ -698,8 +704,13 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
- 		smc_llc_rx_confirm_rkey_cont(link, &llc->confirm_rkey_cont);
- 		break;
- 	case SMC_LLC_DELETE_RKEY:
--		smc_llc_rx_delete_rkey(link, &llc->delete_rkey);
--		break;
-+		/* new request from remote, assign to remote flow */
-+		if (smc_llc_flow_start(&lgr->llc_flow_rmt, qentry)) {
-+			/* process here, does not wait for more llc msgs */
-+			smc_llc_rmt_delete_rkey(lgr);
-+			smc_llc_flow_stop(lgr, &lgr->llc_flow_rmt);
-+		}
-+		return;
- 	}
- out:
- 	kfree(qentry);
--- 
-2.17.1
+Looks good and works fine for s390, thanks for cleaning up!
+
+Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com> # s390
