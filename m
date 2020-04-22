@@ -1,263 +1,152 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: [PATCH v4 2/4] hugetlbfs: move hugepagesz= parsing to arch independent code
-Date: Tue, 28 Apr 2020 13:56:12 -0700
-Message-Id: <20200428205614.246260-3-mike.kravetz@oracle.com>
-In-Reply-To: <20200428205614.246260-1-mike.kravetz@oracle.com>
-References: <20200428205614.246260-1-mike.kravetz@oracle.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:45390 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726702AbgDVM6d (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Apr 2020 08:58:33 -0400
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH v2 7/7] KVM: MIPS: clean up redundant kvm_run parameters in assembly
+Date: Wed, 22 Apr 2020 20:58:10 +0800
+Message-Id: <20200422125810.34847-8-tianjia.zhang@linux.alibaba.com>
+In-Reply-To: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
+References: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Randy Dunlap <rdunlap@infradead.org>, Mina Almasry <almasrymina@google.com>, Peter Xu <peterx@redhat.com>, Nitesh Narayan Lal <nitesh@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Kravetz <mike.kravetz@oracle.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
 
-Now that architectures provide arch_hugetlb_valid_size(), parsing
-of "hugepagesz=" can be done in architecture independent code.
-Create a single routine to handle hugepagesz= parsing and remove
-all arch specific routines.  We can also remove the interface
-hugetlb_bad_size() as this is no longer used outside arch independent
-code.
+In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
+structure. Earlier than historical reasons, many kvm-related function
+parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
+This patch does a unified cleanup of these remaining redundant parameters.
 
-This also provides consistent behavior of hugetlbfs command line
-options.  The hugepagesz= option should only be specified once for
-a specific size, but some architectures allow multiple instances.
-This appears to be more of an oversight when code was added by some
-architectures to set up ALL huge pages sizes.
-
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Mina Almasry <almasrymina@google.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>  [s390]
-Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 ---
- arch/arm64/mm/hugetlbpage.c   | 15 ---------------
- arch/powerpc/mm/hugetlbpage.c | 15 ---------------
- arch/riscv/mm/hugetlbpage.c   | 16 ----------------
- arch/s390/mm/hugetlbpage.c    | 18 ------------------
- arch/sparc/mm/init_64.c       | 22 ----------------------
- arch/x86/mm/hugetlbpage.c     | 16 ----------------
- include/linux/hugetlb.h       |  1 -
- mm/hugetlb.c                  | 23 +++++++++++++++++------
- 8 files changed, 17 insertions(+), 109 deletions(-)
+ arch/mips/include/asm/kvm_host.h |  4 ++--
+ arch/mips/kvm/entry.c            | 15 +++++----------
+ arch/mips/kvm/mips.c             |  3 ++-
+ arch/mips/kvm/trap_emul.c        |  2 +-
+ arch/mips/kvm/vz.c               |  2 +-
+ 5 files changed, 11 insertions(+), 15 deletions(-)
 
-diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
-index 069b96ee2aec..f706b821aba6 100644
---- a/arch/arm64/mm/hugetlbpage.c
-+++ b/arch/arm64/mm/hugetlbpage.c
-@@ -476,18 +476,3 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
+diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+index 971439297cea..db915c55166d 100644
+--- a/arch/mips/include/asm/kvm_host.h
++++ b/arch/mips/include/asm/kvm_host.h
+@@ -310,7 +310,7 @@ struct kvm_mmu_memory_cache {
+ #define KVM_MIPS_GUEST_TLB_SIZE	64
+ struct kvm_vcpu_arch {
+ 	void *guest_ebase;
+-	int (*vcpu_run)(struct kvm_run *run, struct kvm_vcpu *vcpu);
++	int (*vcpu_run)(struct kvm_vcpu *vcpu);
  
- 	return false;
- }
--
--static __init int setup_hugepagesz(char *opt)
--{
--	unsigned long ps = memparse(opt, &opt);
--
--	if (arch_hugetlb_valid_size(ps)) {
--		add_huge_page_size(ps);
--		return 1;
--	}
--
--	hugetlb_bad_size();
--	pr_err("hugepagesz: Unsupported page size %lu K\n", ps >> 10);
--	return 0;
--}
--__setup("hugepagesz=", setup_hugepagesz);
-diff --git a/arch/powerpc/mm/hugetlbpage.c b/arch/powerpc/mm/hugetlbpage.c
-index de54d2a37830..2c3fa0a7787b 100644
---- a/arch/powerpc/mm/hugetlbpage.c
-+++ b/arch/powerpc/mm/hugetlbpage.c
-@@ -589,21 +589,6 @@ static int __init add_huge_page_size(unsigned long long size)
- 	return 0;
- }
+ 	/* Host registers preserved across guest mode execution */
+ 	unsigned long host_stack;
+@@ -821,7 +821,7 @@ int kvm_mips_emulation_init(struct kvm_mips_callbacks **install_callbacks);
+ /* Debug: dump vcpu state */
+ int kvm_arch_vcpu_dump_regs(struct kvm_vcpu *vcpu);
  
--static int __init hugepage_setup_sz(char *str)
--{
--	unsigned long long size;
+-extern int kvm_mips_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu);
++extern int kvm_mips_handle_exit(struct kvm_vcpu *vcpu);
+ 
+ /* Building of entry/exception code */
+ int kvm_mips_entry_setup(void);
+diff --git a/arch/mips/kvm/entry.c b/arch/mips/kvm/entry.c
+index 16e1c93b484f..e3f29af3b6cd 100644
+--- a/arch/mips/kvm/entry.c
++++ b/arch/mips/kvm/entry.c
+@@ -204,7 +204,7 @@ static inline void build_set_exc_base(u32 **p, unsigned int reg)
+  * Assemble the start of the vcpu_run function to run a guest VCPU. The function
+  * conforms to the following prototype:
+  *
+- * int vcpu_run(struct kvm_run *run, struct kvm_vcpu *vcpu);
++ * int vcpu_run(struct kvm_vcpu *vcpu);
+  *
+  * The exit from the guest and return to the caller is handled by the code
+  * generated by kvm_mips_build_ret_to_host().
+@@ -217,8 +217,7 @@ void *kvm_mips_build_vcpu_run(void *addr)
+ 	unsigned int i;
+ 
+ 	/*
+-	 * A0: run
+-	 * A1: vcpu
++	 * A0: vcpu
+ 	 */
+ 
+ 	/* k0/k1 not being used in host kernel context */
+@@ -237,10 +236,10 @@ void *kvm_mips_build_vcpu_run(void *addr)
+ 	kvm_mips_build_save_scratch(&p, V1, K1);
+ 
+ 	/* VCPU scratch register has pointer to vcpu */
+-	UASM_i_MTC0(&p, A1, scratch_vcpu[0], scratch_vcpu[1]);
++	UASM_i_MTC0(&p, A0, scratch_vcpu[0], scratch_vcpu[1]);
+ 
+ 	/* Offset into vcpu->arch */
+-	UASM_i_ADDIU(&p, K1, A1, offsetof(struct kvm_vcpu, arch));
++	UASM_i_ADDIU(&p, K1, A0, offsetof(struct kvm_vcpu, arch));
+ 
+ 	/*
+ 	 * Save the host stack to VCPU, used for exception processing
+@@ -628,10 +627,7 @@ void *kvm_mips_build_exit(void *addr)
+ 	/* Now that context has been saved, we can use other registers */
+ 
+ 	/* Restore vcpu */
+-	UASM_i_MFC0(&p, S1, scratch_vcpu[0], scratch_vcpu[1]);
 -
--	size = memparse(str, &str);
--
--	if (add_huge_page_size(size) != 0) {
--		hugetlb_bad_size();
--		pr_err("Invalid huge page size specified(%llu)\n", size);
--	}
--
--	return 1;
--}
--__setup("hugepagesz=", hugepage_setup_sz);
--
- static int __init hugetlbpage_init(void)
+-	/* Restore run (vcpu->run) */
+-	UASM_i_LW(&p, S0, offsetof(struct kvm_vcpu, run), S1);
++	UASM_i_MFC0(&p, S0, scratch_vcpu[0], scratch_vcpu[1]);
+ 
+ 	/*
+ 	 * Save Host level EPC, BadVaddr and Cause to VCPU, useful to process
+@@ -793,7 +789,6 @@ void *kvm_mips_build_exit(void *addr)
+ 	 * with this in the kernel
+ 	 */
+ 	uasm_i_move(&p, A0, S0);
+-	uasm_i_move(&p, A1, S1);
+ 	UASM_i_LA(&p, T9, (unsigned long)kvm_mips_handle_exit);
+ 	uasm_i_jalr(&p, RA, T9);
+ 	 UASM_i_ADDIU(&p, SP, SP, -CALLFRAME_SIZ);
+diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+index 9710477a9827..32850470c037 100644
+--- a/arch/mips/kvm/mips.c
++++ b/arch/mips/kvm/mips.c
+@@ -1186,8 +1186,9 @@ static void kvm_mips_set_c0_status(void)
+ /*
+  * Return value is in the form (errcode<<2 | RESUME_FLAG_HOST | RESUME_FLAG_NV)
+  */
+-int kvm_mips_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu)
++int kvm_mips_handle_exit(struct kvm_vcpu *vcpu)
  {
- 	bool configured = false;
-diff --git a/arch/riscv/mm/hugetlbpage.c b/arch/riscv/mm/hugetlbpage.c
-index da1f516bc451..4e5d7e9f0eef 100644
---- a/arch/riscv/mm/hugetlbpage.c
-+++ b/arch/riscv/mm/hugetlbpage.c
-@@ -22,22 +22,6 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
- 		return false;
- }
++	struct kvm_run *run = vcpu->run;
+ 	u32 cause = vcpu->arch.host_cp0_cause;
+ 	u32 exccode = (cause >> CAUSEB_EXCCODE) & 0x1f;
+ 	u32 __user *opc = (u32 __user *) vcpu->arch.pc;
+diff --git a/arch/mips/kvm/trap_emul.c b/arch/mips/kvm/trap_emul.c
+index d822f3aee3dc..04c864cc356a 100644
+--- a/arch/mips/kvm/trap_emul.c
++++ b/arch/mips/kvm/trap_emul.c
+@@ -1238,7 +1238,7 @@ static int kvm_trap_emul_vcpu_run(struct kvm_vcpu *vcpu)
+ 	 */
+ 	kvm_mips_suspend_mm(cpu);
  
--static __init int setup_hugepagesz(char *opt)
--{
--	unsigned long ps = memparse(opt, &opt);
--
--	if (arch_hugetlb_valid_size(ps)) {
--		hugetlb_add_hstate(ilog2(ps) - PAGE_SHIFT);
--		return 1;
--	}
--
--	hugetlb_bad_size();
--	pr_err("hugepagesz: Unsupported page size %lu M\n", ps >> 20);
--	return 0;
--
--}
--__setup("hugepagesz=", setup_hugepagesz);
--
- #ifdef CONFIG_CONTIG_ALLOC
- static __init int gigantic_pages_init(void)
- {
-diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-index ac25b207624c..242dfc0d462d 100644
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -261,24 +261,6 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
- 		return false;
- }
+-	r = vcpu->arch.vcpu_run(vcpu->run, vcpu);
++	r = vcpu->arch.vcpu_run(vcpu);
  
--static __init int setup_hugepagesz(char *opt)
--{
--	unsigned long size;
--	char *string = opt;
--
--	size = memparse(opt, &opt);
--	if (arch_hugetlb_valid_size(size)) {
--		hugetlb_add_hstate(ilog2(size) - PAGE_SHIFT);
--	} else {
--		hugetlb_bad_size();
--		pr_err("hugepagesz= specifies an unsupported page size %s\n",
--			string);
--		return 0;
--	}
--	return 1;
--}
--__setup("hugepagesz=", setup_hugepagesz);
--
- static unsigned long hugetlb_get_unmapped_area_bottomup(struct file *file,
- 		unsigned long addr, unsigned long len,
- 		unsigned long pgoff, unsigned long flags)
-diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
-index 2bfe8e22b706..4618f96fd30f 100644
---- a/arch/sparc/mm/init_64.c
-+++ b/arch/sparc/mm/init_64.c
-@@ -397,28 +397,6 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
+ 	/* We may have migrated while handling guest exits */
+ 	cpu = smp_processor_id();
+diff --git a/arch/mips/kvm/vz.c b/arch/mips/kvm/vz.c
+index 94f1d23828e3..c5878fa0636d 100644
+--- a/arch/mips/kvm/vz.c
++++ b/arch/mips/kvm/vz.c
+@@ -3152,7 +3152,7 @@ static int kvm_vz_vcpu_run(struct kvm_vcpu *vcpu)
+ 	kvm_vz_vcpu_load_tlb(vcpu, cpu);
+ 	kvm_vz_vcpu_load_wired(vcpu);
  
- 	return true;
- }
--
--static int __init setup_hugepagesz(char *string)
--{
--	unsigned long long hugepage_size;
--	int rc = 0;
--
--	hugepage_size = memparse(string, &string);
--
--	if (!arch_hugetlb_valid_size((unsigned long)hugepage_size)) {
--		hugetlb_bad_size();
--		pr_err("hugepagesz=%llu not supported by MMU.\n",
--			hugepage_size);
--		goto out;
--	}
--
--	add_huge_page_size(hugepage_size);
--	rc = 1;
--
--out:
--	return rc;
--}
--__setup("hugepagesz=", setup_hugepagesz);
- #endif	/* CONFIG_HUGETLB_PAGE */
+-	r = vcpu->arch.vcpu_run(vcpu->run, vcpu);
++	r = vcpu->arch.vcpu_run(vcpu);
  
- void update_mmu_cache(struct vm_area_struct *vma, unsigned long address, pte_t *ptep)
-diff --git a/arch/x86/mm/hugetlbpage.c b/arch/x86/mm/hugetlbpage.c
-index 1c4372bfe782..937d640a89e3 100644
---- a/arch/x86/mm/hugetlbpage.c
-+++ b/arch/x86/mm/hugetlbpage.c
-@@ -191,22 +191,6 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
- 		return false;
- }
+ 	kvm_vz_vcpu_save_wired(vcpu);
  
--static __init int setup_hugepagesz(char *opt)
--{
--	unsigned long ps = memparse(opt, &opt);
--
--	if (arch_hugetlb_valid_size(ps)) {
--		hugetlb_add_hstate(ilog2(ps) - PAGE_SHIFT);
--	} else {
--		hugetlb_bad_size();
--		printk(KERN_ERR "hugepagesz: Unsupported page size %lu M\n",
--			ps >> 20);
--		return 0;
--	}
--	return 1;
--}
--__setup("hugepagesz=", setup_hugepagesz);
--
- #ifdef CONFIG_CONTIG_ALLOC
- static __init int gigantic_pages_init(void)
- {
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 2eb15f5ab01e..0c13706054ef 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -519,7 +519,6 @@ int huge_add_to_page_cache(struct page *page, struct address_space *mapping,
- int __init __alloc_bootmem_huge_page(struct hstate *h);
- int __init alloc_bootmem_huge_page(struct hstate *h);
- 
--void __init hugetlb_bad_size(void);
- void __init hugetlb_add_hstate(unsigned order);
- bool __init arch_hugetlb_valid_size(unsigned long size);
- struct hstate *size_to_hstate(unsigned long size);
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 63ca4241ea87..6a8454bc2917 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3262,12 +3262,6 @@ bool __init __attribute((weak)) arch_hugetlb_valid_size(unsigned long size)
- 	return size == HPAGE_SIZE;
- }
- 
--/* Should be called on processing a hugepagesz=... option */
--void __init hugetlb_bad_size(void)
--{
--	parsed_valid_hugepagesz = false;
--}
--
- void __init hugetlb_add_hstate(unsigned int order)
- {
- 	struct hstate *h;
-@@ -3337,6 +3331,23 @@ static int __init hugetlb_nrpages_setup(char *s)
- }
- __setup("hugepages=", hugetlb_nrpages_setup);
- 
-+static int __init hugepagesz_setup(char *s)
-+{
-+	unsigned long size;
-+
-+	size = (unsigned long)memparse(s, NULL);
-+
-+	if (!arch_hugetlb_valid_size(size)) {
-+		parsed_valid_hugepagesz = false;
-+		pr_err("HugeTLB: unsupported hugepagesz %s\n", s);
-+		return 0;
-+	}
-+
-+	hugetlb_add_hstate(ilog2(size) - PAGE_SHIFT);
-+	return 1;
-+}
-+__setup("hugepagesz=", hugepagesz_setup);
-+
- static int __init default_hugepagesz_setup(char *s)
- {
- 	unsigned long size;
 -- 
-2.25.4
+2.17.1
