@@ -1,603 +1,248 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52048 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1732376AbgDNP5E (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 11:57:04 -0400
-Received: by mail-wm1-f71.google.com with SMTP id h184so866271wmf.5
-        for <linux-s390@vger.kernel.org>; Tue, 14 Apr 2020 08:56:54 -0700 (PDT)
-From: Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Subject: [PATCH v2] kvm_host: unify VM_STAT and VCPU_STAT definitions in a single place
-Date: Tue, 14 Apr 2020 17:56:25 +0200
-Message-Id: <20200414155625.20559-1-eesposit@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:51747 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726030AbgDVM6a (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Apr 2020 08:58:30 -0400
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH v2 5/7] KVM: PPC: clean up redundant kvm_run parameters in assembly
+Date: Wed, 22 Apr 2020 20:58:08 +0800
+Message-Id: <20200422125810.34847-6-tianjia.zhang@linux.alibaba.com>
+In-Reply-To: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
+References: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>, Marc Zyngier <maz@kernel.org>, James Morse <james.morse@arm.com>, Julien Thierry <julien.thierry.kdev@gmail.com>, Suzuki K Poulose <suzuki.poulose@arm.com>, Paul Mackerras <paulus@ozlabs.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>, Jim Mattson <jmattson@google.com>, Joerg Roedel <joro@8bytes.org>, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linux-s390@vger.kernel.org, Emanuele Giuseppe Esposito <eesposit@redhat.com>
+To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
 
-The macros VM_STAT and VCPU_STAT are redundantly implemented in multiple
-files, each used by a different architecure to initialize the debugfs
-entries for statistics. Since they all have the same purpose, they can be
-unified in a single common definition in include/linux/kvm_host.h
+In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
+structure. Earlier than historical reasons, many kvm-related function
+parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
+This patch does a unified cleanup of these remaining redundant parameters.
 
-Signed-off-by: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 ---
- arch/arm64/kvm/guest.c    |  23 ++---
- arch/mips/kvm/mips.c      |  61 ++++++------
- arch/powerpc/kvm/book3s.c |  61 ++++++------
- arch/powerpc/kvm/booke.c  |  41 ++++----
- arch/s390/kvm/kvm-s390.c  | 203 +++++++++++++++++++-------------------
- arch/x86/kvm/x86.c        |  80 +++++++--------
- include/linux/kvm_host.h  |   5 +
- 7 files changed, 231 insertions(+), 243 deletions(-)
+ arch/powerpc/include/asm/kvm_ppc.h    |  2 +-
+ arch/powerpc/kvm/book3s_interrupts.S  | 17 ++++++++---------
+ arch/powerpc/kvm/book3s_pr.c          |  9 ++++-----
+ arch/powerpc/kvm/booke.c              |  9 ++++-----
+ arch/powerpc/kvm/booke_interrupts.S   |  9 ++++-----
+ arch/powerpc/kvm/bookehv_interrupts.S | 10 +++++-----
+ 6 files changed, 26 insertions(+), 30 deletions(-)
 
-diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-index 23ebe51410f0..8417b200bec9 100644
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -29,20 +29,17 @@
- 
- #include "trace.h"
- 
--#define VM_STAT(x) { #x, offsetof(struct kvm, stat.x), KVM_STAT_VM }
--#define VCPU_STAT(x) { #x, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU }
--
- struct kvm_stats_debugfs_item debugfs_entries[] = {
--	VCPU_STAT(halt_successful_poll),
--	VCPU_STAT(halt_attempted_poll),
--	VCPU_STAT(halt_poll_invalid),
--	VCPU_STAT(halt_wakeup),
--	VCPU_STAT(hvc_exit_stat),
--	VCPU_STAT(wfe_exit_stat),
--	VCPU_STAT(wfi_exit_stat),
--	VCPU_STAT(mmio_exit_user),
--	VCPU_STAT(mmio_exit_kernel),
--	VCPU_STAT(exits),
-+	VCPU_STAT("halt_successful_poll", halt_successful_poll),
-+	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-+	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-+	VCPU_STAT("halt_wakeup", halt_wakeup),
-+	VCPU_STAT("hvc_exit_stat", hvc_exit_stat),
-+	VCPU_STAT("wfe_exit_stat", wfe_exit_stat),
-+	VCPU_STAT("wfi_exit_stat", wfi_exit_stat),
-+	VCPU_STAT("mmio_exit_user", mmio_exit_user),
-+	VCPU_STAT("mmio_exit_kernel", mmio_exit_kernel),
-+	VCPU_STAT("exits", exits),
- 	{ NULL }
+diff --git a/arch/powerpc/include/asm/kvm_ppc.h b/arch/powerpc/include/asm/kvm_ppc.h
+index ccf66b3a4c1d..0a056c64c317 100644
+--- a/arch/powerpc/include/asm/kvm_ppc.h
++++ b/arch/powerpc/include/asm/kvm_ppc.h
+@@ -59,7 +59,7 @@ enum xlate_readwrite {
  };
  
-diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
-index 8f05dd0a0f4e..fdf1c14d9205 100644
---- a/arch/mips/kvm/mips.c
-+++ b/arch/mips/kvm/mips.c
-@@ -39,40 +39,39 @@
- #define VECTORSPACING 0x100	/* for EI/VI mode */
- #endif
+ extern int kvmppc_vcpu_run(struct kvm_vcpu *vcpu);
+-extern int __kvmppc_vcpu_run(struct kvm_run *run, struct kvm_vcpu *vcpu);
++extern int __kvmppc_vcpu_run(struct kvm_vcpu *vcpu);
+ extern void kvmppc_handler_highmem(void);
  
--#define VCPU_STAT(x) offsetof(struct kvm_vcpu, stat.x)
- struct kvm_stats_debugfs_item debugfs_entries[] = {
--	{ "wait",	  VCPU_STAT(wait_exits),	 KVM_STAT_VCPU },
--	{ "cache",	  VCPU_STAT(cache_exits),	 KVM_STAT_VCPU },
--	{ "signal",	  VCPU_STAT(signal_exits),	 KVM_STAT_VCPU },
--	{ "interrupt",	  VCPU_STAT(int_exits),		 KVM_STAT_VCPU },
--	{ "cop_unusable", VCPU_STAT(cop_unusable_exits), KVM_STAT_VCPU },
--	{ "tlbmod",	  VCPU_STAT(tlbmod_exits),	 KVM_STAT_VCPU },
--	{ "tlbmiss_ld",	  VCPU_STAT(tlbmiss_ld_exits),	 KVM_STAT_VCPU },
--	{ "tlbmiss_st",	  VCPU_STAT(tlbmiss_st_exits),	 KVM_STAT_VCPU },
--	{ "addrerr_st",	  VCPU_STAT(addrerr_st_exits),	 KVM_STAT_VCPU },
--	{ "addrerr_ld",	  VCPU_STAT(addrerr_ld_exits),	 KVM_STAT_VCPU },
--	{ "syscall",	  VCPU_STAT(syscall_exits),	 KVM_STAT_VCPU },
--	{ "resvd_inst",	  VCPU_STAT(resvd_inst_exits),	 KVM_STAT_VCPU },
--	{ "break_inst",	  VCPU_STAT(break_inst_exits),	 KVM_STAT_VCPU },
--	{ "trap_inst",	  VCPU_STAT(trap_inst_exits),	 KVM_STAT_VCPU },
--	{ "msa_fpe",	  VCPU_STAT(msa_fpe_exits),	 KVM_STAT_VCPU },
--	{ "fpe",	  VCPU_STAT(fpe_exits),		 KVM_STAT_VCPU },
--	{ "msa_disabled", VCPU_STAT(msa_disabled_exits), KVM_STAT_VCPU },
--	{ "flush_dcache", VCPU_STAT(flush_dcache_exits), KVM_STAT_VCPU },
-+	VCPU_STAT("wait", wait_exits),
-+	VCPU_STAT("cache", cache_exits),
-+	VCPU_STAT("signal", signal_exits),
-+	VCPU_STAT("interrupt", int_exits),
-+	VCPU_STAT("cop_unusable", cop_unusable_exits),
-+	VCPU_STAT("tlbmod", tlbmod_exits),
-+	VCPU_STAT("tlbmiss_ld", tlbmiss_ld_exits),
-+	VCPU_STAT("tlbmiss_st", tlbmiss_st_exits),
-+	VCPU_STAT("addrerr_st", addrerr_st_exits),
-+	VCPU_STAT("addrerr_ld", addrerr_ld_exits),
-+	VCPU_STAT("syscall", syscall_exits),
-+	VCPU_STAT("resvd_inst", resvd_inst_exits),
-+	VCPU_STAT("break_inst", break_inst_exits),
-+	VCPU_STAT("trap_inst", trap_inst_exits),
-+	VCPU_STAT("msa_fpe", msa_fpe_exits),
-+	VCPU_STAT("fpe", fpe_exits),
-+	VCPU_STAT("msa_disabled", msa_disabled_exits),
-+	VCPU_STAT("flush_dcache", flush_dcache_exits),
- #ifdef CONFIG_KVM_MIPS_VZ
--	{ "vz_gpsi",	  VCPU_STAT(vz_gpsi_exits),	 KVM_STAT_VCPU },
--	{ "vz_gsfc",	  VCPU_STAT(vz_gsfc_exits),	 KVM_STAT_VCPU },
--	{ "vz_hc",	  VCPU_STAT(vz_hc_exits),	 KVM_STAT_VCPU },
--	{ "vz_grr",	  VCPU_STAT(vz_grr_exits),	 KVM_STAT_VCPU },
--	{ "vz_gva",	  VCPU_STAT(vz_gva_exits),	 KVM_STAT_VCPU },
--	{ "vz_ghfc",	  VCPU_STAT(vz_ghfc_exits),	 KVM_STAT_VCPU },
--	{ "vz_gpa",	  VCPU_STAT(vz_gpa_exits),	 KVM_STAT_VCPU },
--	{ "vz_resvd",	  VCPU_STAT(vz_resvd_exits),	 KVM_STAT_VCPU },
-+	VCPU_STAT("vz_gpsi", vz_gpsi_exits),
-+	VCPU_STAT("vz_gsfc", vz_gsfc_exits),
-+	VCPU_STAT("vz_hc", vz_hc_exits),
-+	VCPU_STAT("vz_grr", vz_grr_exits),
-+	VCPU_STAT("vz_gva", vz_gva_exits),
-+	VCPU_STAT("vz_ghfc", vz_ghfc_exits),
-+	VCPU_STAT("vz_gpa", vz_gpa_exits),
-+	VCPU_STAT("vz_resvd", vz_resvd_exits),
- #endif
--	{ "halt_successful_poll", VCPU_STAT(halt_successful_poll), KVM_STAT_VCPU },
--	{ "halt_attempted_poll", VCPU_STAT(halt_attempted_poll), KVM_STAT_VCPU },
--	{ "halt_poll_invalid", VCPU_STAT(halt_poll_invalid), KVM_STAT_VCPU },
--	{ "halt_wakeup",  VCPU_STAT(halt_wakeup),	 KVM_STAT_VCPU },
-+	VCPU_STAT("halt_successful_poll", halt_successful_poll),
-+	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-+	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-+	VCPU_STAT("halt_wakeup", halt_wakeup),
- 	{NULL}
- };
+ extern void kvmppc_dump_vcpu(struct kvm_vcpu *vcpu);
+diff --git a/arch/powerpc/kvm/book3s_interrupts.S b/arch/powerpc/kvm/book3s_interrupts.S
+index f7ad99d972ce..0eff749d8027 100644
+--- a/arch/powerpc/kvm/book3s_interrupts.S
++++ b/arch/powerpc/kvm/book3s_interrupts.S
+@@ -55,8 +55,7 @@
+  ****************************************************************************/
  
-diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
-index 5690a1f9b976..37508a356f28 100644
---- a/arch/powerpc/kvm/book3s.c
-+++ b/arch/powerpc/kvm/book3s.c
-@@ -36,41 +36,38 @@
- #include "book3s.h"
- #include "trace.h"
+ /* Registers:
+- *  r3: kvm_run pointer
+- *  r4: vcpu pointer
++ *  r3: vcpu pointer
+  */
+ _GLOBAL(__kvmppc_vcpu_run)
  
--#define VM_STAT(x, ...) offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__
--#define VCPU_STAT(x, ...) offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__
--
- /* #define EXIT_DEBUG */
+@@ -68,8 +67,8 @@ kvm_start_entry:
+ 	/* Save host state to the stack */
+ 	PPC_STLU r1, -SWITCH_FRAME_SIZE(r1)
  
- struct kvm_stats_debugfs_item debugfs_entries[] = {
--	{ "exits",       VCPU_STAT(sum_exits) },
--	{ "mmio",        VCPU_STAT(mmio_exits) },
--	{ "sig",         VCPU_STAT(signal_exits) },
--	{ "sysc",        VCPU_STAT(syscall_exits) },
--	{ "inst_emu",    VCPU_STAT(emulated_inst_exits) },
--	{ "dec",         VCPU_STAT(dec_exits) },
--	{ "ext_intr",    VCPU_STAT(ext_intr_exits) },
--	{ "queue_intr",  VCPU_STAT(queue_intr) },
--	{ "halt_poll_success_ns",	VCPU_STAT(halt_poll_success_ns) },
--	{ "halt_poll_fail_ns",		VCPU_STAT(halt_poll_fail_ns) },
--	{ "halt_wait_ns",		VCPU_STAT(halt_wait_ns) },
--	{ "halt_successful_poll", VCPU_STAT(halt_successful_poll), },
--	{ "halt_attempted_poll", VCPU_STAT(halt_attempted_poll), },
--	{ "halt_successful_wait",	VCPU_STAT(halt_successful_wait) },
--	{ "halt_poll_invalid", VCPU_STAT(halt_poll_invalid) },
--	{ "halt_wakeup", VCPU_STAT(halt_wakeup) },
--	{ "pf_storage",  VCPU_STAT(pf_storage) },
--	{ "sp_storage",  VCPU_STAT(sp_storage) },
--	{ "pf_instruc",  VCPU_STAT(pf_instruc) },
--	{ "sp_instruc",  VCPU_STAT(sp_instruc) },
--	{ "ld",          VCPU_STAT(ld) },
--	{ "ld_slow",     VCPU_STAT(ld_slow) },
--	{ "st",          VCPU_STAT(st) },
--	{ "st_slow",     VCPU_STAT(st_slow) },
--	{ "pthru_all",       VCPU_STAT(pthru_all) },
--	{ "pthru_host",      VCPU_STAT(pthru_host) },
--	{ "pthru_bad_aff",   VCPU_STAT(pthru_bad_aff) },
--	{ "largepages_2M",    VM_STAT(num_2M_pages, .mode = 0444) },
--	{ "largepages_1G",    VM_STAT(num_1G_pages, .mode = 0444) },
-+	VCPU_STAT("exits", sum_exits),
-+	VCPU_STAT("mmio", mmio_exits),
-+	VCPU_STAT("sig", signal_exits),
-+	VCPU_STAT("sysc", syscall_exits),
-+	VCPU_STAT("inst_emu", emulated_inst_exits),
-+	VCPU_STAT("dec", dec_exits),
-+	VCPU_STAT("ext_intr", ext_intr_exits),
-+	VCPU_STAT("queue_intr", queue_intr),
-+	VCPU_STAT("halt_poll_success_ns", halt_poll_success_ns),
-+	VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
-+	VCPU_STAT("halt_wait_ns", halt_wait_ns),
-+	VCPU_STAT("halt_successful_poll", halt_successful_poll),
-+	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-+	VCPU_STAT("halt_successful_wait", halt_successful_wait),
-+	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-+	VCPU_STAT("halt_wakeup", halt_wakeup),
-+	VCPU_STAT("pf_storage", pf_storage),
-+	VCPU_STAT("sp_storage", sp_storage),
-+	VCPU_STAT("pf_instruc", pf_instruc),
-+	VCPU_STAT("sp_instruc", sp_instruc),
-+	VCPU_STAT("ld", ld),
-+	VCPU_STAT("ld_slow", ld_slow),
-+	VCPU_STAT("st", st),
-+	VCPU_STAT("st_slow", st_slow),
-+	VCPU_STAT("pthru_all", pthru_all),
-+	VCPU_STAT("pthru_host", pthru_host),
-+	VCPU_STAT("pthru_bad_aff", pthru_bad_aff),
-+	VM_STAT("largepages_2M", num_2M_pages, .mode = 0444),
-+	VM_STAT("largepages_1G", num_1G_pages, .mode = 0444),
- 	{ NULL }
- };
+-	/* Save r3 (kvm_run) and r4 (vcpu) */
+-	SAVE_2GPRS(3, r1)
++	/* Save r3 (vcpu) */
++	SAVE_GPR(3, r1)
+ 
+ 	/* Save non-volatile registers (r14 - r31) */
+ 	SAVE_NVGPRS(r1)
+@@ -82,11 +81,11 @@ kvm_start_entry:
+ 	PPC_STL	r0, _LINK(r1)
+ 
+ 	/* Load non-volatile guest state from the vcpu */
+-	VCPU_LOAD_NVGPRS(r4)
++	VCPU_LOAD_NVGPRS(r3)
+ 
+ kvm_start_lightweight:
+ 	/* Copy registers into shadow vcpu so we can access them in real mode */
+-	mr	r3, r4
++	mr	r4, r3
+ 	bl	FUNC(kvmppc_copy_to_svcpu)
+ 	nop
+ 	REST_GPR(4, r1)
+@@ -191,10 +190,10 @@ after_sprg3_load:
+ 	PPC_STL	r31, VCPU_GPR(R31)(r7)
+ 
+ 	/* Pass the exit number as 3rd argument to kvmppc_handle_exit */
+-	lwz	r5, VCPU_TRAP(r7)
++	lwz	r4, VCPU_TRAP(r7)
+ 
+-	/* Restore r3 (kvm_run) and r4 (vcpu) */
+-	REST_2GPRS(3, r1)
++	/* Restore r3 (vcpu) */
++	REST_GPR(3, r1)
+ 	bl	FUNC(kvmppc_handle_exit_pr)
+ 
+ 	/* If RESUME_GUEST, get back in the loop */
+diff --git a/arch/powerpc/kvm/book3s_pr.c b/arch/powerpc/kvm/book3s_pr.c
+index ef54f917bdaf..01c8fe5abe0d 100644
+--- a/arch/powerpc/kvm/book3s_pr.c
++++ b/arch/powerpc/kvm/book3s_pr.c
+@@ -1151,9 +1151,9 @@ static int kvmppc_exit_pr_progint(struct kvm_vcpu *vcpu, unsigned int exit_nr)
+ 	return r;
+ }
+ 
+-int kvmppc_handle_exit_pr(struct kvm_run *run, struct kvm_vcpu *vcpu,
+-			  unsigned int exit_nr)
++int kvmppc_handle_exit_pr(struct kvm_vcpu *vcpu, unsigned int exit_nr)
+ {
++	struct kvm_run *run = vcpu->run;
+ 	int r = RESUME_HOST;
+ 	int s;
+ 
+@@ -1826,7 +1826,6 @@ static void kvmppc_core_vcpu_free_pr(struct kvm_vcpu *vcpu)
+ 
+ static int kvmppc_vcpu_run_pr(struct kvm_vcpu *vcpu)
+ {
+-	struct kvm_run *run = vcpu->run;
+ 	int ret;
+ #ifdef CONFIG_ALTIVEC
+ 	unsigned long uninitialized_var(vrsave);
+@@ -1834,7 +1833,7 @@ static int kvmppc_vcpu_run_pr(struct kvm_vcpu *vcpu)
+ 
+ 	/* Check if we can run the vcpu at all */
+ 	if (!vcpu->arch.sane) {
+-		run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
++		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+@@ -1861,7 +1860,7 @@ static int kvmppc_vcpu_run_pr(struct kvm_vcpu *vcpu)
+ 
+ 	kvmppc_fix_ee_before_entry();
+ 
+-	ret = __kvmppc_vcpu_run(run, vcpu);
++	ret = __kvmppc_vcpu_run(vcpu);
+ 
+ 	kvmppc_clear_debug(vcpu);
  
 diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
-index 6c18ea88fd25..c2984cb6dfa7 100644
+index 26b3f5900b72..942039aae598 100644
 --- a/arch/powerpc/kvm/booke.c
 +++ b/arch/powerpc/kvm/booke.c
-@@ -35,29 +35,26 @@
+@@ -732,12 +732,11 @@ int kvmppc_core_check_requests(struct kvm_vcpu *vcpu)
  
- unsigned long kvmppc_booke_handlers;
+ int kvmppc_vcpu_run(struct kvm_vcpu *vcpu)
+ {
+-	struct kvm_run *run = vcpu->run;
+ 	int ret, s;
+ 	struct debug_reg debug;
  
--#define VM_STAT(x) offsetof(struct kvm, stat.x), KVM_STAT_VM
--#define VCPU_STAT(x) offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU
--
- struct kvm_stats_debugfs_item debugfs_entries[] = {
--	{ "mmio",       VCPU_STAT(mmio_exits) },
--	{ "sig",        VCPU_STAT(signal_exits) },
--	{ "itlb_r",     VCPU_STAT(itlb_real_miss_exits) },
--	{ "itlb_v",     VCPU_STAT(itlb_virt_miss_exits) },
--	{ "dtlb_r",     VCPU_STAT(dtlb_real_miss_exits) },
--	{ "dtlb_v",     VCPU_STAT(dtlb_virt_miss_exits) },
--	{ "sysc",       VCPU_STAT(syscall_exits) },
--	{ "isi",        VCPU_STAT(isi_exits) },
--	{ "dsi",        VCPU_STAT(dsi_exits) },
--	{ "inst_emu",   VCPU_STAT(emulated_inst_exits) },
--	{ "dec",        VCPU_STAT(dec_exits) },
--	{ "ext_intr",   VCPU_STAT(ext_intr_exits) },
--	{ "halt_successful_poll", VCPU_STAT(halt_successful_poll) },
--	{ "halt_attempted_poll", VCPU_STAT(halt_attempted_poll) },
--	{ "halt_poll_invalid", VCPU_STAT(halt_poll_invalid) },
--	{ "halt_wakeup", VCPU_STAT(halt_wakeup) },
--	{ "doorbell", VCPU_STAT(dbell_exits) },
--	{ "guest doorbell", VCPU_STAT(gdbell_exits) },
--	{ "remote_tlb_flush", VM_STAT(remote_tlb_flush) },
-+	VCPU_STAT("mmio", mmio_exits),
-+	VCPU_STAT("sig", signal_exits),
-+	VCPU_STAT("itlb_r", itlb_real_miss_exits),
-+	VCPU_STAT("itlb_v", itlb_virt_miss_exits),
-+	VCPU_STAT("dtlb_r", dtlb_real_miss_exits),
-+	VCPU_STAT("dtlb_v", dtlb_virt_miss_exits),
-+	VCPU_STAT("sysc", syscall_exits),
-+	VCPU_STAT("isi", isi_exits),
-+	VCPU_STAT("dsi", dsi_exits),
-+	VCPU_STAT("inst_emu", emulated_inst_exits),
-+	VCPU_STAT("dec", dec_exits),
-+	VCPU_STAT("ext_intr", ext_intr_exits),
-+	VCPU_STAT("halt_successful_poll", halt_successful_poll),
-+	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-+	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-+	VCPU_STAT("halt_wakeup", halt_wakeup),
-+	VCPU_STAT("doorbell", dbell_exits),
-+	VCPU_STAT("guest doorbell", gdbell_exits),
-+	VM_STAT("remote_tlb_flush", remote_tlb_flush),
- 	{ NULL }
- };
+ 	if (!vcpu->arch.sane) {
+-		run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
++		vcpu->run->exit_reason = KVM_EXIT_INTERNAL_ERROR;
+ 		return -EINVAL;
+ 	}
  
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 19a81024fe16..dbeb7da07f18 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -57,110 +57,107 @@
- #define VCPU_IRQS_MAX_BUF (sizeof(struct kvm_s390_irq) * \
- 			   (KVM_MAX_VCPUS + LOCAL_IRQS))
+@@ -779,7 +778,7 @@ int kvmppc_vcpu_run(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.pgdir = vcpu->kvm->mm->pgd;
+ 	kvmppc_fix_ee_before_entry();
  
--#define VCPU_STAT(x) offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU
--#define VM_STAT(x) offsetof(struct kvm, stat.x), KVM_STAT_VM
--
- struct kvm_stats_debugfs_item debugfs_entries[] = {
--	{ "userspace_handled", VCPU_STAT(exit_userspace) },
--	{ "exit_null", VCPU_STAT(exit_null) },
--	{ "exit_validity", VCPU_STAT(exit_validity) },
--	{ "exit_stop_request", VCPU_STAT(exit_stop_request) },
--	{ "exit_external_request", VCPU_STAT(exit_external_request) },
--	{ "exit_io_request", VCPU_STAT(exit_io_request) },
--	{ "exit_external_interrupt", VCPU_STAT(exit_external_interrupt) },
--	{ "exit_instruction", VCPU_STAT(exit_instruction) },
--	{ "exit_pei", VCPU_STAT(exit_pei) },
--	{ "exit_program_interruption", VCPU_STAT(exit_program_interruption) },
--	{ "exit_instr_and_program_int", VCPU_STAT(exit_instr_and_program) },
--	{ "exit_operation_exception", VCPU_STAT(exit_operation_exception) },
--	{ "halt_successful_poll", VCPU_STAT(halt_successful_poll) },
--	{ "halt_attempted_poll", VCPU_STAT(halt_attempted_poll) },
--	{ "halt_poll_invalid", VCPU_STAT(halt_poll_invalid) },
--	{ "halt_no_poll_steal", VCPU_STAT(halt_no_poll_steal) },
--	{ "halt_wakeup", VCPU_STAT(halt_wakeup) },
--	{ "instruction_lctlg", VCPU_STAT(instruction_lctlg) },
--	{ "instruction_lctl", VCPU_STAT(instruction_lctl) },
--	{ "instruction_stctl", VCPU_STAT(instruction_stctl) },
--	{ "instruction_stctg", VCPU_STAT(instruction_stctg) },
--	{ "deliver_ckc", VCPU_STAT(deliver_ckc) },
--	{ "deliver_cputm", VCPU_STAT(deliver_cputm) },
--	{ "deliver_emergency_signal", VCPU_STAT(deliver_emergency_signal) },
--	{ "deliver_external_call", VCPU_STAT(deliver_external_call) },
--	{ "deliver_service_signal", VCPU_STAT(deliver_service_signal) },
--	{ "deliver_virtio", VCPU_STAT(deliver_virtio) },
--	{ "deliver_stop_signal", VCPU_STAT(deliver_stop_signal) },
--	{ "deliver_prefix_signal", VCPU_STAT(deliver_prefix_signal) },
--	{ "deliver_restart_signal", VCPU_STAT(deliver_restart_signal) },
--	{ "deliver_program", VCPU_STAT(deliver_program) },
--	{ "deliver_io", VCPU_STAT(deliver_io) },
--	{ "deliver_machine_check", VCPU_STAT(deliver_machine_check) },
--	{ "exit_wait_state", VCPU_STAT(exit_wait_state) },
--	{ "inject_ckc", VCPU_STAT(inject_ckc) },
--	{ "inject_cputm", VCPU_STAT(inject_cputm) },
--	{ "inject_external_call", VCPU_STAT(inject_external_call) },
--	{ "inject_float_mchk", VM_STAT(inject_float_mchk) },
--	{ "inject_emergency_signal", VCPU_STAT(inject_emergency_signal) },
--	{ "inject_io", VM_STAT(inject_io) },
--	{ "inject_mchk", VCPU_STAT(inject_mchk) },
--	{ "inject_pfault_done", VM_STAT(inject_pfault_done) },
--	{ "inject_program", VCPU_STAT(inject_program) },
--	{ "inject_restart", VCPU_STAT(inject_restart) },
--	{ "inject_service_signal", VM_STAT(inject_service_signal) },
--	{ "inject_set_prefix", VCPU_STAT(inject_set_prefix) },
--	{ "inject_stop_signal", VCPU_STAT(inject_stop_signal) },
--	{ "inject_pfault_init", VCPU_STAT(inject_pfault_init) },
--	{ "inject_virtio", VM_STAT(inject_virtio) },
--	{ "instruction_epsw", VCPU_STAT(instruction_epsw) },
--	{ "instruction_gs", VCPU_STAT(instruction_gs) },
--	{ "instruction_io_other", VCPU_STAT(instruction_io_other) },
--	{ "instruction_lpsw", VCPU_STAT(instruction_lpsw) },
--	{ "instruction_lpswe", VCPU_STAT(instruction_lpswe) },
--	{ "instruction_pfmf", VCPU_STAT(instruction_pfmf) },
--	{ "instruction_ptff", VCPU_STAT(instruction_ptff) },
--	{ "instruction_stidp", VCPU_STAT(instruction_stidp) },
--	{ "instruction_sck", VCPU_STAT(instruction_sck) },
--	{ "instruction_sckpf", VCPU_STAT(instruction_sckpf) },
--	{ "instruction_spx", VCPU_STAT(instruction_spx) },
--	{ "instruction_stpx", VCPU_STAT(instruction_stpx) },
--	{ "instruction_stap", VCPU_STAT(instruction_stap) },
--	{ "instruction_iske", VCPU_STAT(instruction_iske) },
--	{ "instruction_ri", VCPU_STAT(instruction_ri) },
--	{ "instruction_rrbe", VCPU_STAT(instruction_rrbe) },
--	{ "instruction_sske", VCPU_STAT(instruction_sske) },
--	{ "instruction_ipte_interlock", VCPU_STAT(instruction_ipte_interlock) },
--	{ "instruction_essa", VCPU_STAT(instruction_essa) },
--	{ "instruction_stsi", VCPU_STAT(instruction_stsi) },
--	{ "instruction_stfl", VCPU_STAT(instruction_stfl) },
--	{ "instruction_tb", VCPU_STAT(instruction_tb) },
--	{ "instruction_tpi", VCPU_STAT(instruction_tpi) },
--	{ "instruction_tprot", VCPU_STAT(instruction_tprot) },
--	{ "instruction_tsch", VCPU_STAT(instruction_tsch) },
--	{ "instruction_sthyi", VCPU_STAT(instruction_sthyi) },
--	{ "instruction_sie", VCPU_STAT(instruction_sie) },
--	{ "instruction_sigp_sense", VCPU_STAT(instruction_sigp_sense) },
--	{ "instruction_sigp_sense_running", VCPU_STAT(instruction_sigp_sense_running) },
--	{ "instruction_sigp_external_call", VCPU_STAT(instruction_sigp_external_call) },
--	{ "instruction_sigp_emergency", VCPU_STAT(instruction_sigp_emergency) },
--	{ "instruction_sigp_cond_emergency", VCPU_STAT(instruction_sigp_cond_emergency) },
--	{ "instruction_sigp_start", VCPU_STAT(instruction_sigp_start) },
--	{ "instruction_sigp_stop", VCPU_STAT(instruction_sigp_stop) },
--	{ "instruction_sigp_stop_store_status", VCPU_STAT(instruction_sigp_stop_store_status) },
--	{ "instruction_sigp_store_status", VCPU_STAT(instruction_sigp_store_status) },
--	{ "instruction_sigp_store_adtl_status", VCPU_STAT(instruction_sigp_store_adtl_status) },
--	{ "instruction_sigp_set_arch", VCPU_STAT(instruction_sigp_arch) },
--	{ "instruction_sigp_set_prefix", VCPU_STAT(instruction_sigp_prefix) },
--	{ "instruction_sigp_restart", VCPU_STAT(instruction_sigp_restart) },
--	{ "instruction_sigp_cpu_reset", VCPU_STAT(instruction_sigp_cpu_reset) },
--	{ "instruction_sigp_init_cpu_reset", VCPU_STAT(instruction_sigp_init_cpu_reset) },
--	{ "instruction_sigp_unknown", VCPU_STAT(instruction_sigp_unknown) },
--	{ "instruction_diag_10", VCPU_STAT(diagnose_10) },
--	{ "instruction_diag_44", VCPU_STAT(diagnose_44) },
--	{ "instruction_diag_9c", VCPU_STAT(diagnose_9c) },
--	{ "diag_9c_ignored", VCPU_STAT(diagnose_9c_ignored) },
--	{ "instruction_diag_258", VCPU_STAT(diagnose_258) },
--	{ "instruction_diag_308", VCPU_STAT(diagnose_308) },
--	{ "instruction_diag_500", VCPU_STAT(diagnose_500) },
--	{ "instruction_diag_other", VCPU_STAT(diagnose_other) },
-+	VCPU_STAT("userspace_handled", exit_userspace),
-+	VCPU_STAT("exit_null", exit_null),
-+	VCPU_STAT("exit_validity", exit_validity),
-+	VCPU_STAT("exit_stop_request", exit_stop_request),
-+	VCPU_STAT("exit_external_request", exit_external_request),
-+	VCPU_STAT("exit_io_request", exit_io_request),
-+	VCPU_STAT("exit_external_interrupt", exit_external_interrupt),
-+	VCPU_STAT("exit_instruction", exit_instruction),
-+	VCPU_STAT("exit_pei", exit_pei),
-+	VCPU_STAT("exit_program_interruption", exit_program_interruption),
-+	VCPU_STAT("exit_instr_and_program_int", exit_instr_and_program),
-+	VCPU_STAT("exit_operation_exception", exit_operation_exception),
-+	VCPU_STAT("halt_successful_poll", halt_successful_poll),
-+	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-+	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-+	VCPU_STAT("halt_no_poll_steal", halt_no_poll_steal),
-+	VCPU_STAT("halt_wakeup", halt_wakeup),
-+	VCPU_STAT("instruction_lctlg", instruction_lctlg),
-+	VCPU_STAT("instruction_lctl", instruction_lctl),
-+	VCPU_STAT("instruction_stctl", instruction_stctl),
-+	VCPU_STAT("instruction_stctg", instruction_stctg),
-+	VCPU_STAT("deliver_ckc", deliver_ckc),
-+	VCPU_STAT("deliver_cputm", deliver_cputm),
-+	VCPU_STAT("deliver_emergency_signal", deliver_emergency_signal),
-+	VCPU_STAT("deliver_external_call", deliver_external_call),
-+	VCPU_STAT("deliver_service_signal", deliver_service_signal),
-+	VCPU_STAT("deliver_virtio", deliver_virtio),
-+	VCPU_STAT("deliver_stop_signal", deliver_stop_signal),
-+	VCPU_STAT("deliver_prefix_signal", deliver_prefix_signal),
-+	VCPU_STAT("deliver_restart_signal", deliver_restart_signal),
-+	VCPU_STAT("deliver_program", deliver_program),
-+	VCPU_STAT("deliver_io", deliver_io),
-+	VCPU_STAT("deliver_machine_check", deliver_machine_check),
-+	VCPU_STAT("exit_wait_state", exit_wait_state),
-+	VCPU_STAT("inject_ckc", inject_ckc),
-+	VCPU_STAT("inject_cputm", inject_cputm),
-+	VCPU_STAT("inject_external_call", inject_external_call),
-+	VM_STAT("inject_float_mchk", inject_float_mchk),
-+	VCPU_STAT("inject_emergency_signal", inject_emergency_signal),
-+	VM_STAT("inject_io", inject_io),
-+	VCPU_STAT("inject_mchk", inject_mchk),
-+	VM_STAT("inject_pfault_done", inject_pfault_done),
-+	VCPU_STAT("inject_program", inject_program),
-+	VCPU_STAT("inject_restart", inject_restart),
-+	VM_STAT("inject_service_signal", inject_service_signal),
-+	VCPU_STAT("inject_set_prefix", inject_set_prefix),
-+	VCPU_STAT("inject_stop_signal", inject_stop_signal),
-+	VCPU_STAT("inject_pfault_init", inject_pfault_init),
-+	VM_STAT("inject_virtio", inject_virtio),
-+	VCPU_STAT("instruction_epsw", instruction_epsw),
-+	VCPU_STAT("instruction_gs", instruction_gs),
-+	VCPU_STAT("instruction_io_other", instruction_io_other),
-+	VCPU_STAT("instruction_lpsw", instruction_lpsw),
-+	VCPU_STAT("instruction_lpswe", instruction_lpswe),
-+	VCPU_STAT("instruction_pfmf", instruction_pfmf),
-+	VCPU_STAT("instruction_ptff", instruction_ptff),
-+	VCPU_STAT("instruction_stidp", instruction_stidp),
-+	VCPU_STAT("instruction_sck", instruction_sck),
-+	VCPU_STAT("instruction_sckpf", instruction_sckpf),
-+	VCPU_STAT("instruction_spx", instruction_spx),
-+	VCPU_STAT("instruction_stpx", instruction_stpx),
-+	VCPU_STAT("instruction_stap", instruction_stap),
-+	VCPU_STAT("instruction_iske", instruction_iske),
-+	VCPU_STAT("instruction_ri", instruction_ri),
-+	VCPU_STAT("instruction_rrbe", instruction_rrbe),
-+	VCPU_STAT("instruction_sske", instruction_sske),
-+	VCPU_STAT("instruction_ipte_interlock", instruction_ipte_interlock),
-+	VCPU_STAT("instruction_essa", instruction_essa),
-+	VCPU_STAT("instruction_stsi", instruction_stsi),
-+	VCPU_STAT("instruction_stfl", instruction_stfl),
-+	VCPU_STAT("instruction_tb", instruction_tb),
-+	VCPU_STAT("instruction_tpi", instruction_tpi),
-+	VCPU_STAT("instruction_tprot", instruction_tprot),
-+	VCPU_STAT("instruction_tsch", instruction_tsch),
-+	VCPU_STAT("instruction_sthyi", instruction_sthyi),
-+	VCPU_STAT("instruction_sie", instruction_sie),
-+	VCPU_STAT("instruction_sigp_sense", instruction_sigp_sense),
-+	VCPU_STAT("instruction_sigp_sense_running", instruction_sigp_sense_running),
-+	VCPU_STAT("instruction_sigp_external_call", instruction_sigp_external_call),
-+	VCPU_STAT("instruction_sigp_emergency", instruction_sigp_emergency),
-+	VCPU_STAT("instruction_sigp_cond_emergency", instruction_sigp_cond_emergency),
-+	VCPU_STAT("instruction_sigp_start", instruction_sigp_start),
-+	VCPU_STAT("instruction_sigp_stop", instruction_sigp_stop),
-+	VCPU_STAT("instruction_sigp_stop_store_status", instruction_sigp_stop_store_status),
-+	VCPU_STAT("instruction_sigp_store_status", instruction_sigp_store_status),
-+	VCPU_STAT("instruction_sigp_store_adtl_status", instruction_sigp_store_adtl_status),
-+	VCPU_STAT("instruction_sigp_set_arch", instruction_sigp_arch),
-+	VCPU_STAT("instruction_sigp_set_prefix", instruction_sigp_prefix),
-+	VCPU_STAT("instruction_sigp_restart", instruction_sigp_restart),
-+	VCPU_STAT("instruction_sigp_cpu_reset", instruction_sigp_cpu_reset),
-+	VCPU_STAT("instruction_sigp_init_cpu_reset", instruction_sigp_init_cpu_reset),
-+	VCPU_STAT("instruction_sigp_unknown", instruction_sigp_unknown),
-+	VCPU_STAT("instruction_diag_10", diagnose_10),
-+	VCPU_STAT("instruction_diag_44", diagnose_44),
-+	VCPU_STAT("instruction_diag_9c", diagnose_9c),
-+	VCPU_STAT("diag_9c_ignored", diagnose_9c_ignored),
-+	VCPU_STAT("instruction_diag_258", diagnose_258),
-+	VCPU_STAT("instruction_diag_308", diagnose_308),
-+	VCPU_STAT("instruction_diag_500", diagnose_500),
-+	VCPU_STAT("instruction_diag_other", diagnose_other),
- 	{ NULL }
- };
+-	ret = __kvmppc_vcpu_run(run, vcpu);
++	ret = __kvmppc_vcpu_run(vcpu);
  
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b8124b562dea..86d50db85ef4 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -97,9 +97,6 @@ static u64 __read_mostly efer_reserved_bits = ~((u64)EFER_SCE);
+ 	/* No need for guest_exit. It's done in handle_exit.
+ 	   We also get here with interrupts enabled. */
+@@ -983,9 +982,9 @@ static int kvmppc_resume_inst_load(struct kvm_vcpu *vcpu,
+  *
+  * Return value is in the form (errcode<<2 | RESUME_FLAG_HOST | RESUME_FLAG_NV)
+  */
+-int kvmppc_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu,
+-                       unsigned int exit_nr)
++int kvmppc_handle_exit(struct kvm_vcpu *vcpu, unsigned int exit_nr)
+ {
++	struct kvm_run *run = vcpu->run;
+ 	int r = RESUME_HOST;
+ 	int s;
+ 	int idx;
+diff --git a/arch/powerpc/kvm/booke_interrupts.S b/arch/powerpc/kvm/booke_interrupts.S
+index 2e56ab5a5f55..6fa82efe833b 100644
+--- a/arch/powerpc/kvm/booke_interrupts.S
++++ b/arch/powerpc/kvm/booke_interrupts.S
+@@ -237,7 +237,7 @@ _GLOBAL(kvmppc_resume_host)
+ 	/* Switch to kernel stack and jump to handler. */
+ 	LOAD_REG_ADDR(r3, kvmppc_handle_exit)
+ 	mtctr	r3
+-	lwz	r3, HOST_RUN(r1)
++	mr	r3, r4
+ 	lwz	r2, HOST_R2(r1)
+ 	mr	r14, r4 /* Save vcpu pointer. */
  
- static u64 __read_mostly cr4_reserved_bits = CR4_RESERVED_BITS;
+@@ -337,15 +337,14 @@ heavyweight_exit:
  
--#define VM_STAT(x, ...) offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__
--#define VCPU_STAT(x, ...) offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__
--
- #define KVM_X2APIC_API_VALID_FLAGS (KVM_X2APIC_API_USE_32BIT_IDS | \
-                                     KVM_X2APIC_API_DISABLE_BROADCAST_QUIRK)
  
-@@ -194,45 +191,44 @@ u64 __read_mostly supported_xss;
- EXPORT_SYMBOL_GPL(supported_xss);
+ /* Registers:
+- *  r3: kvm_run pointer
+- *  r4: vcpu pointer
++ *  r3: vcpu pointer
+  */
+ _GLOBAL(__kvmppc_vcpu_run)
+ 	stwu	r1, -HOST_STACK_SIZE(r1)
+-	stw	r1, VCPU_HOST_STACK(r4)	/* Save stack pointer to vcpu. */
++	stw	r1, VCPU_HOST_STACK(r3)	/* Save stack pointer to vcpu. */
  
- struct kvm_stats_debugfs_item debugfs_entries[] = {
--	{ "pf_fixed", VCPU_STAT(pf_fixed) },
--	{ "pf_guest", VCPU_STAT(pf_guest) },
--	{ "tlb_flush", VCPU_STAT(tlb_flush) },
--	{ "invlpg", VCPU_STAT(invlpg) },
--	{ "exits", VCPU_STAT(exits) },
--	{ "io_exits", VCPU_STAT(io_exits) },
--	{ "mmio_exits", VCPU_STAT(mmio_exits) },
--	{ "signal_exits", VCPU_STAT(signal_exits) },
--	{ "irq_window", VCPU_STAT(irq_window_exits) },
--	{ "nmi_window", VCPU_STAT(nmi_window_exits) },
--	{ "halt_exits", VCPU_STAT(halt_exits) },
--	{ "halt_successful_poll", VCPU_STAT(halt_successful_poll) },
--	{ "halt_attempted_poll", VCPU_STAT(halt_attempted_poll) },
--	{ "halt_poll_invalid", VCPU_STAT(halt_poll_invalid) },
--	{ "halt_wakeup", VCPU_STAT(halt_wakeup) },
--	{ "hypercalls", VCPU_STAT(hypercalls) },
--	{ "request_irq", VCPU_STAT(request_irq_exits) },
--	{ "irq_exits", VCPU_STAT(irq_exits) },
--	{ "host_state_reload", VCPU_STAT(host_state_reload) },
--	{ "fpu_reload", VCPU_STAT(fpu_reload) },
--	{ "insn_emulation", VCPU_STAT(insn_emulation) },
--	{ "insn_emulation_fail", VCPU_STAT(insn_emulation_fail) },
--	{ "irq_injections", VCPU_STAT(irq_injections) },
--	{ "nmi_injections", VCPU_STAT(nmi_injections) },
--	{ "req_event", VCPU_STAT(req_event) },
--	{ "l1d_flush", VCPU_STAT(l1d_flush) },
--	{ "mmu_shadow_zapped", VM_STAT(mmu_shadow_zapped) },
--	{ "mmu_pte_write", VM_STAT(mmu_pte_write) },
--	{ "mmu_pte_updated", VM_STAT(mmu_pte_updated) },
--	{ "mmu_pde_zapped", VM_STAT(mmu_pde_zapped) },
--	{ "mmu_flooded", VM_STAT(mmu_flooded) },
--	{ "mmu_recycled", VM_STAT(mmu_recycled) },
--	{ "mmu_cache_miss", VM_STAT(mmu_cache_miss) },
--	{ "mmu_unsync", VM_STAT(mmu_unsync) },
--	{ "remote_tlb_flush", VM_STAT(remote_tlb_flush) },
--	{ "largepages", VM_STAT(lpages, .mode = 0444) },
--	{ "nx_largepages_splitted", VM_STAT(nx_lpage_splits, .mode = 0444) },
--	{ "max_mmu_page_hash_collisions",
--		VM_STAT(max_mmu_page_hash_collisions) },
-+	VCPU_STAT("pf_fixed", pf_fixed),
-+	VCPU_STAT("pf_guest", pf_guest),
-+	VCPU_STAT("tlb_flush", tlb_flush),
-+	VCPU_STAT("invlpg", invlpg),
-+	VCPU_STAT("exits", exits),
-+	VCPU_STAT("io_exits", io_exits),
-+	VCPU_STAT("mmio_exits", mmio_exits),
-+	VCPU_STAT("signal_exits", signal_exits),
-+	VCPU_STAT("irq_window", irq_window_exits),
-+	VCPU_STAT("nmi_window", nmi_window_exits),
-+	VCPU_STAT("halt_exits", halt_exits),
-+	VCPU_STAT("halt_successful_poll", halt_successful_poll),
-+	VCPU_STAT("halt_attempted_poll", halt_attempted_poll),
-+	VCPU_STAT("halt_poll_invalid", halt_poll_invalid),
-+	VCPU_STAT("halt_wakeup", halt_wakeup),
-+	VCPU_STAT("hypercalls", hypercalls),
-+	VCPU_STAT("request_irq", request_irq_exits),
-+	VCPU_STAT("irq_exits", irq_exits),
-+	VCPU_STAT("host_state_reload", host_state_reload),
-+	VCPU_STAT("fpu_reload", fpu_reload),
-+	VCPU_STAT("insn_emulation", insn_emulation),
-+	VCPU_STAT("insn_emulation_fail", insn_emulation_fail),
-+	VCPU_STAT("irq_injections", irq_injections),
-+	VCPU_STAT("nmi_injections", nmi_injections),
-+	VCPU_STAT("req_event", req_event),
-+	VCPU_STAT("l1d_flush", l1d_flush),
-+	VM_STAT("mmu_shadow_zapped", mmu_shadow_zapped),
-+	VM_STAT("mmu_pte_write", mmu_pte_write),
-+	VM_STAT("mmu_pte_updated", mmu_pte_updated),
-+	VM_STAT("mmu_pde_zapped", mmu_pde_zapped),
-+	VM_STAT("mmu_flooded", mmu_flooded),
-+	VM_STAT("mmu_recycled", mmu_recycled),
-+	VM_STAT("mmu_cache_miss", mmu_cache_miss),
-+	VM_STAT("mmu_unsync", mmu_unsync),
-+	VM_STAT("remote_tlb_flush", remote_tlb_flush),
-+	VM_STAT("largepages", lpages, .mode = 0444),
-+	VM_STAT("nx_largepages_splitted", nx_lpage_splits, .mode = 0444),
-+	VM_STAT("max_mmu_page_hash_collisions", max_mmu_page_hash_collisions),
- 	{ NULL }
- };
+ 	/* Save host state to stack. */
+-	stw	r3, HOST_RUN(r1)
++	mr	r4, r3
+ 	mflr	r3
+ 	stw	r3, HOST_STACK_LR(r1)
+ 	mfcr	r5
+diff --git a/arch/powerpc/kvm/bookehv_interrupts.S b/arch/powerpc/kvm/bookehv_interrupts.S
+index c577ba4b3169..8262c14fc9e6 100644
+--- a/arch/powerpc/kvm/bookehv_interrupts.S
++++ b/arch/powerpc/kvm/bookehv_interrupts.S
+@@ -434,9 +434,10 @@ _GLOBAL(kvmppc_resume_host)
+ #endif
  
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 6d58beb65454..2e6ead872957 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -1130,6 +1130,11 @@ struct kvm_stats_debugfs_item {
- #define KVM_DBGFS_GET_MODE(dbgfs_item)                                         \
- 	((dbgfs_item)->mode ? (dbgfs_item)->mode : 0644)
+ 	/* Switch to kernel stack and jump to handler. */
+-	PPC_LL	r3, HOST_RUN(r1)
++	mr	r3, r4
+ 	mr	r5, r14 /* intno */
+ 	mr	r14, r4 /* Save vcpu pointer. */
++	mr	r4, r5
+ 	bl	kvmppc_handle_exit
  
-+#define VM_STAT(n, x, ...) 													   \
-+	{ n, offsetof(struct kvm, stat.x), KVM_STAT_VM, ## __VA_ARGS__ }
-+#define VCPU_STAT(n, x, ...)												   \
-+	{ n, offsetof(struct kvm_vcpu, stat.x), KVM_STAT_VCPU, ## __VA_ARGS__ }
-+
- extern struct kvm_stats_debugfs_item debugfs_entries[];
- extern struct dentry *kvm_debugfs_dir;
+ 	/* Restore vcpu pointer and the nonvolatiles we used. */
+@@ -525,15 +526,14 @@ heavyweight_exit:
+ 	blr
  
+ /* Registers:
+- *  r3: kvm_run pointer
+- *  r4: vcpu pointer
++ *  r3: vcpu pointer
+  */
+ _GLOBAL(__kvmppc_vcpu_run)
+ 	stwu	r1, -HOST_STACK_SIZE(r1)
+-	PPC_STL	r1, VCPU_HOST_STACK(r4)	/* Save stack pointer to vcpu. */
++	PPC_STL	r1, VCPU_HOST_STACK(r3)	/* Save stack pointer to vcpu. */
+ 
+ 	/* Save host state to stack. */
+-	PPC_STL	r3, HOST_RUN(r1)
++	mr	r4, r3
+ 	mflr	r3
+ 	mfcr	r5
+ 	PPC_STL	r3, HOST_STACK_LR(r1)
 -- 
-2.25.2
+2.17.1
