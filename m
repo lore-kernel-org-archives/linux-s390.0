@@ -1,68 +1,156 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29141 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726917AbgDVNqJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Apr 2020 09:46:09 -0400
-Date: Wed, 22 Apr 2020 15:45:43 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 1/7] KVM: s390: clean up redundant 'kvm_run'
- parameters
-Message-ID: <20200422154543.2efba3dd.cohuck@redhat.com>
-In-Reply-To: <20200422125810.34847-2-tianjia.zhang@linux.alibaba.com>
+Received: from out30-45.freemail.mail.aliyun.com ([115.124.30.45]:50949 "EHLO
+        out30-45.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725810AbgDVM6V (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Apr 2020 08:58:21 -0400
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH v2 1/7] KVM: s390: clean up redundant 'kvm_run' parameters
+Date: Wed, 22 Apr 2020 20:58:04 +0800
+Message-Id: <20200422125810.34847-2-tianjia.zhang@linux.alibaba.com>
+In-Reply-To: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
 References: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
-        <20200422125810.34847-2-tianjia.zhang@linux.alibaba.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Cc: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
 
-On Wed, 22 Apr 2020 20:58:04 +0800
-Tianjia Zhang <tianjia.zhang@linux.alibaba.com> wrote:
+In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
+structure. Earlier than historical reasons, many kvm-related function
+parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
+This patch does a unified cleanup of these remaining redundant parameters.
 
-> In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
-> structure. Earlier than historical reasons, many kvm-related function
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+---
+ arch/s390/kvm/kvm-s390.c | 37 ++++++++++++++++++++++---------------
+ 1 file changed, 22 insertions(+), 15 deletions(-)
 
-s/Earlier than/For/ ?
-
-> parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
-> This patch does a unified cleanup of these remaining redundant parameters.
-> 
-> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-> ---
->  arch/s390/kvm/kvm-s390.c | 37 ++++++++++++++++++++++---------------
->  1 file changed, 22 insertions(+), 15 deletions(-)
-> 
-> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-> index e335a7e5ead7..d7bb2e7a07ff 100644
-> --- a/arch/s390/kvm/kvm-s390.c
-> +++ b/arch/s390/kvm/kvm-s390.c
-> @@ -4176,8 +4176,9 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
->  	return rc;
->  }
->  
-> -static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-> +static void sync_regs_fmt2(struct kvm_vcpu *vcpu)
->  {
-> +	struct kvm_run *kvm_run = vcpu->run;
->  	struct runtime_instr_cb *riccb;
->  	struct gs_cb *gscb;
->  
-> @@ -4235,7 +4236,7 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
->  		}
->  		if (vcpu->arch.gs_enabled) {
->  			current->thread.gs_cb = (struct gs_cb *)
-> -						&vcpu->run->s.regs.gscb;
-> +						&kvm_run->s.regs.gscb;
-
-Not sure if these changes (vcpu->run-> => kvm_run->) are really worth
-it. (It seems they amount to at least as much as the changes advertised
-in the patch description.)
-
-Other opinions?
-
->  			restore_gs_cb(current->thread.gs_cb);
->  		}
->  		preempt_enable();
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index e335a7e5ead7..d7bb2e7a07ff 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4176,8 +4176,9 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
+ 	return rc;
+ }
+ 
+-static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
++static void sync_regs_fmt2(struct kvm_vcpu *vcpu)
+ {
++	struct kvm_run *kvm_run = vcpu->run;
+ 	struct runtime_instr_cb *riccb;
+ 	struct gs_cb *gscb;
+ 
+@@ -4235,7 +4236,7 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 		}
+ 		if (vcpu->arch.gs_enabled) {
+ 			current->thread.gs_cb = (struct gs_cb *)
+-						&vcpu->run->s.regs.gscb;
++						&kvm_run->s.regs.gscb;
+ 			restore_gs_cb(current->thread.gs_cb);
+ 		}
+ 		preempt_enable();
+@@ -4243,8 +4244,10 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	/* SIE will load etoken directly from SDNX and therefore kvm_run */
+ }
+ 
+-static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
++static void sync_regs(struct kvm_vcpu *vcpu)
+ {
++	struct kvm_run *kvm_run = vcpu->run;
++
+ 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
+ 		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
+ 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_CRS) {
+@@ -4257,23 +4260,23 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 		vcpu->arch.sie_block->ckc = kvm_run->s.regs.ckc;
+ 	}
+ 	save_access_regs(vcpu->arch.host_acrs);
+-	restore_access_regs(vcpu->run->s.regs.acrs);
++	restore_access_regs(kvm_run->s.regs.acrs);
+ 	/* save host (userspace) fprs/vrs */
+ 	save_fpu_regs();
+ 	vcpu->arch.host_fpregs.fpc = current->thread.fpu.fpc;
+ 	vcpu->arch.host_fpregs.regs = current->thread.fpu.regs;
+ 	if (MACHINE_HAS_VX)
+-		current->thread.fpu.regs = vcpu->run->s.regs.vrs;
++		current->thread.fpu.regs = kvm_run->s.regs.vrs;
+ 	else
+-		current->thread.fpu.regs = vcpu->run->s.regs.fprs;
+-	current->thread.fpu.fpc = vcpu->run->s.regs.fpc;
++		current->thread.fpu.regs = kvm_run->s.regs.fprs;
++	current->thread.fpu.fpc = kvm_run->s.regs.fpc;
+ 	if (test_fp_ctl(current->thread.fpu.fpc))
+ 		/* User space provided an invalid FPC, let's clear it */
+ 		current->thread.fpu.fpc = 0;
+ 
+ 	/* Sync fmt2 only data */
+ 	if (likely(!kvm_s390_pv_cpu_is_protected(vcpu))) {
+-		sync_regs_fmt2(vcpu, kvm_run);
++		sync_regs_fmt2(vcpu);
+ 	} else {
+ 		/*
+ 		 * In several places we have to modify our internal view to
+@@ -4292,8 +4295,10 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	kvm_run->kvm_dirty_regs = 0;
+ }
+ 
+-static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
++static void store_regs_fmt2(struct kvm_vcpu *vcpu)
+ {
++	struct kvm_run *kvm_run = vcpu->run;
++
+ 	kvm_run->s.regs.todpr = vcpu->arch.sie_block->todpr;
+ 	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
+ 	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
+@@ -4313,8 +4318,10 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
+ }
+ 
+-static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
++static void store_regs(struct kvm_vcpu *vcpu)
+ {
++	struct kvm_run *kvm_run = vcpu->run;
++
+ 	kvm_run->psw_mask = vcpu->arch.sie_block->gpsw.mask;
+ 	kvm_run->psw_addr = vcpu->arch.sie_block->gpsw.addr;
+ 	kvm_run->s.regs.prefix = kvm_s390_get_prefix(vcpu);
+@@ -4324,16 +4331,16 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	kvm_run->s.regs.pft = vcpu->arch.pfault_token;
+ 	kvm_run->s.regs.pfs = vcpu->arch.pfault_select;
+ 	kvm_run->s.regs.pfc = vcpu->arch.pfault_compare;
+-	save_access_regs(vcpu->run->s.regs.acrs);
++	save_access_regs(kvm_run->s.regs.acrs);
+ 	restore_access_regs(vcpu->arch.host_acrs);
+ 	/* Save guest register state */
+ 	save_fpu_regs();
+-	vcpu->run->s.regs.fpc = current->thread.fpu.fpc;
++	kvm_run->s.regs.fpc = current->thread.fpu.fpc;
+ 	/* Restore will be done lazily at return */
+ 	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
+ 	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
+ 	if (likely(!kvm_s390_pv_cpu_is_protected(vcpu)))
+-		store_regs_fmt2(vcpu, kvm_run);
++		store_regs_fmt2(vcpu);
+ }
+ 
+ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+@@ -4371,7 +4378,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+ 		goto out;
+ 	}
+ 
+-	sync_regs(vcpu, kvm_run);
++	sync_regs(vcpu);
+ 	enable_cpu_timer_accounting(vcpu);
+ 
+ 	might_fault();
+@@ -4393,7 +4400,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ 	disable_cpu_timer_accounting(vcpu);
+-	store_regs(vcpu, kvm_run);
++	store_regs(vcpu);
+ 
+ 	kvm_sigset_deactivate(vcpu);
+ 
+-- 
+2.17.1
