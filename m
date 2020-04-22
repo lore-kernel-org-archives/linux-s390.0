@@ -1,169 +1,81 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30920 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727080AbgDGTUg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 15:20:36 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v7 04/15] s390/vfio-ap: implement in-use callback for vfio_ap driver
-Date: Tue,  7 Apr 2020 15:20:04 -0400
-Message-Id: <20200407192015.19887-5-akrowiak@linux.ibm.com>
-In-Reply-To: <20200407192015.19887-1-akrowiak@linux.ibm.com>
-References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:53073 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730273AbgDVK1z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Apr 2020 06:27:55 -0400
+Date: Wed, 22 Apr 2020 12:27:46 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 0/8] s390x/vfio-ccw: Channel Path Handling [KVM]
+Message-ID: <20200422122746.33c53ee3.cohuck@redhat.com>
+In-Reply-To: <8acd4662-5a8b-ceda-108f-ed2cfac8dcee@linux.ibm.com>
+References: <20200417023001.65006-1-farman@linux.ibm.com>
+        <20200421173544.36b48657.cohuck@redhat.com>
+        <8acd4662-5a8b-ceda-108f-ed2cfac8dcee@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Eric Farman <farman@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>
 
-Let's implement the callback to indicate when an APQN
-is in use by the vfio_ap device driver. The callback is
-invoked whenever a change to the apmask or aqmask would
-result in one or more queue devices being removed from the driver. The
-vfio_ap device driver will indicate a resource is in use
-if the APQN of any of the queue devices to be removed are assigned to
-any of the matrix mdevs under the driver's control.
+On Tue, 21 Apr 2020 23:10:20 -0400
+Eric Farman <farman@linux.ibm.com> wrote:
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_drv.c     |  1 +
- drivers/s390/crypto/vfio_ap_ops.c     | 47 +++++++++++++++++----------
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- 3 files changed, 33 insertions(+), 17 deletions(-)
+> On 4/21/20 11:35 AM, Cornelia Huck wrote:
+> > On Fri, 17 Apr 2020 04:29:53 +0200
+> > Eric Farman <farman@linux.ibm.com> wrote:
+> >   
+> >> Here is a new pass at the channel-path handling code for vfio-ccw.
+> >> Changes from previous versions are recorded in git notes for each patch.
+> >>
+> >> I dropped the "Remove inline get_schid()" patch from this version.
+> >> When I made the change suggested in v2, it seemed rather frivolous and
+> >> better to just drop it for the time being.
+> >>
+> >> I suspect that patches 5 and 7 would be better squashed together, but I
+> >> have not done that here.  For future versions, I guess.  
+> > 
+> > The result also might get a bit large.  
+> 
+> True.
+> 
+> Not that someone would pick patch 5 and not 7, but vfio-ccw is broken
+> between them, because of a mismatch in IRQs.  An example from hotplug:
+> 
+> error: internal error: unable to execute QEMU command 'device_add':
+> vfio: unexpected number of irqs 1
+> 
+> Maybe I just pull the CRW_IRQ definition into 5, and leave the wiring of
+> the CRW stuff in 7.  That seems to leave a better behavior.
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index e9c226c0730e..5197a1fe14d4 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -174,6 +174,7 @@ static int __init vfio_ap_init(void)
- 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
- 	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
- 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-+	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
- 
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 00699bd72d2b..8ece0d52ff4c 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -500,7 +500,9 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
-  *
-  * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
-  */
--static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
-+static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
-+					  unsigned long *mdev_apm,
-+					  unsigned long *mdev_aqm)
- {
- 	struct ap_matrix_mdev *lstdev;
- 	DECLARE_BITMAP(apm, AP_DEVICES);
-@@ -517,12 +519,10 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
- 		 * We work on full longs, as we can only exclude the leftover
- 		 * bits in non-inverse order. The leftover is all zeros.
- 		 */
--		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
--				lstdev->matrix.apm, AP_DEVICES))
-+		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
- 			continue;
- 
--		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
--				lstdev->matrix.aqm, AP_DOMAINS))
-+		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
- 			continue;
- 
- 		return -EADDRINUSE;
-@@ -594,6 +594,7 @@ static ssize_t assign_adapter_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apid;
-+	DECLARE_BITMAP(apm, AP_DEVICES);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
-@@ -619,18 +620,18 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (ret)
- 		goto done;
- 
--	set_bit_inv(apid, matrix_mdev->matrix.apm);
-+	memset(apm, 0, sizeof(apm));
-+	set_bit_inv(apid, apm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
-+	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
-+					     matrix_mdev->matrix.aqm);
- 	if (ret)
--		goto share_err;
-+		goto done;
- 
-+	set_bit_inv(apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_qlinks_for_apid(matrix_mdev, apid);
- 	ret = count;
--	goto done;
- 
--share_err:
--	clear_bit_inv(apid, matrix_mdev->matrix.apm);
- done:
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -767,6 +768,7 @@ static ssize_t assign_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apqi;
-+	DECLARE_BITMAP(aqm, AP_DOMAINS);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
-@@ -787,18 +789,18 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (ret)
- 		goto done;
- 
--	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
-+	memset(aqm, 0, sizeof(aqm));
-+	set_bit_inv(apqi, aqm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
-+	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
-+					     matrix_mdev->matrix.apm, aqm);
- 	if (ret)
--		goto share_err;
-+		goto done;
- 
-+	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_qlinks_for_apqi(matrix_mdev, apqi);
- 	ret = count;
--	goto done;
- 
--share_err:
--	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
- done:
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -1369,3 +1371,14 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
-+
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
-+{
-+	bool in_use;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	in_use = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm) ? true : false;
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return in_use;
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index e1f8c82cc55d..4b6e144bab17 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -105,4 +105,6 @@ struct vfio_ap_queue {
- int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
- 
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
--- 
-2.21.1
+Ok, that makes sense.
+
+> 
+> >   
+> >>
+> >> With this, and the corresponding QEMU series (to be posted momentarily),
+> >> applied I am able to configure off/on a CHPID (for example, by issuing
+> >> "chchp -c 0/1 xx" on the host), and the guest is able to see both the
+> >> events and reflect the updated path masks in its structures.  
+> > 
+> > Basically, this looks good to me (modulo my comments).  
+> 
+> Woo!  Thanks for the feedback; I'm going to try to get them all
+> addressed in the next couple of days.
+> 
+> > 
+> > One thing though that keeps coming up: do we need any kind of
+> > serialization? Can there be any confusion from concurrent reads from
+> > userspace, or are we sure that we always provide consistent data?
+> >   
+> 
+> I'm feeling better with the rearrangement in this version of how we get
+> data from the queue of CRWs into the region and off to the guest.  The
+> weirdness I described a few months ago seems to have been triggered by
+> one of the patches that's now been dropped.  But I'll walk through this
+> code again once I get your latest comments applied.
+
+Ok. Might also be nice if somebody else could spend some cycles looking
+at this (hint, hint :)
