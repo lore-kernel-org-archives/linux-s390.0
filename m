@@ -1,56 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31308 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726364AbgDUGe5 (ORCPT
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:59722 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725810AbgDVM7I (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Apr 2020 02:34:57 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03L6XUx6073619
-        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2020 02:34:57 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30ggxpmj6u-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 21 Apr 2020 02:34:57 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Tue, 21 Apr 2020 07:34:09 +0100
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/2] MAINTAINERS: add a reviewer for KVM/s390
-Date: Tue, 21 Apr 2020 08:34:47 +0200
-In-Reply-To: <20200421063447.6814-1-borntraeger@de.ibm.com>
-References: <20200421063447.6814-1-borntraeger@de.ibm.com>
-Message-Id: <20200421063447.6814-3-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
+        Wed, 22 Apr 2020 08:59:08 -0400
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH v2 3/7] KVM: PPC: Remove redundant kvm_run from vcpu_arch
+Date: Wed, 22 Apr 2020 20:58:06 +0800
+Message-Id: <20200422125810.34847-4-tianjia.zhang@linux.alibaba.com>
+In-Reply-To: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
+References: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
+To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+The 'kvm_run' field already exists in the 'vcpu' structure, which
+is the same structure as the 'kvm_run' in the 'vcpu_arch' and
+should be deleted.
 
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200417152936.772256-1-imbrenda@linux.ibm.com
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 ---
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/kvm_host.h | 1 -
+ arch/powerpc/kvm/book3s_hv.c        | 6 ++----
+ arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
+ 3 files changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index b816a453b10e..de7eb50c8c81 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9329,6 +9329,7 @@ M:	Christian Borntraeger <borntraeger@de.ibm.com>
- M:	Janosch Frank <frankja@linux.ibm.com>
- R:	David Hildenbrand <david@redhat.com>
- R:	Cornelia Huck <cohuck@redhat.com>
-+R:	Claudio Imbrenda <imbrenda@linux.ibm.com>
- L:	kvm@vger.kernel.org
- S:	Supported
- W:	http://www.ibm.com/developerworks/linux/linux390/
+diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
+index 1dc63101ffe1..2745ff8faa01 100644
+--- a/arch/powerpc/include/asm/kvm_host.h
++++ b/arch/powerpc/include/asm/kvm_host.h
+@@ -795,7 +795,6 @@ struct kvm_vcpu_arch {
+ 	struct mmio_hpte_cache_entry *pgfault_cache;
+ 
+ 	struct task_struct *run_task;
+-	struct kvm_run *kvm_run;
+ 
+ 	spinlock_t vpa_update_lock;
+ 	struct kvmppc_vpa vpa;
+diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+index 93493f0cbfe8..413ea2dcb10c 100644
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -2934,7 +2934,7 @@ static void post_guest_process(struct kvmppc_vcore *vc, bool is_master)
+ 
+ 		ret = RESUME_GUEST;
+ 		if (vcpu->arch.trap)
+-			ret = kvmppc_handle_exit_hv(vcpu->arch.kvm_run, vcpu,
++			ret = kvmppc_handle_exit_hv(vcpu->run, vcpu,
+ 						    vcpu->arch.run_task);
+ 
+ 		vcpu->arch.ret = ret;
+@@ -3920,7 +3920,6 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
+ 	spin_lock(&vc->lock);
+ 	vcpu->arch.ceded = 0;
+ 	vcpu->arch.run_task = current;
+-	vcpu->arch.kvm_run = kvm_run;
+ 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
+ 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
+ 	vcpu->arch.busy_preempt = TB_NIL;
+@@ -3973,7 +3972,7 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
+ 			if (signal_pending(v->arch.run_task)) {
+ 				kvmppc_remove_runnable(vc, v);
+ 				v->stat.signal_exits++;
+-				v->arch.kvm_run->exit_reason = KVM_EXIT_INTR;
++				v->run->exit_reason = KVM_EXIT_INTR;
+ 				v->arch.ret = -EINTR;
+ 				wake_up(&v->arch.cpu_run);
+ 			}
+@@ -4049,7 +4048,6 @@ int kvmhv_run_single_vcpu(struct kvm_run *kvm_run,
+ 	vc = vcpu->arch.vcore;
+ 	vcpu->arch.ceded = 0;
+ 	vcpu->arch.run_task = current;
+-	vcpu->arch.kvm_run = kvm_run;
+ 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
+ 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
+ 	vcpu->arch.busy_preempt = TB_NIL;
+diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
+index dc97e5be76f6..5a3987f3ebf3 100644
+--- a/arch/powerpc/kvm/book3s_hv_nested.c
++++ b/arch/powerpc/kvm/book3s_hv_nested.c
+@@ -290,8 +290,7 @@ long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
+ 			r = RESUME_HOST;
+ 			break;
+ 		}
+-		r = kvmhv_run_single_vcpu(vcpu->arch.kvm_run, vcpu, hdec_exp,
+-					  lpcr);
++		r = kvmhv_run_single_vcpu(vcpu->run, vcpu, hdec_exp, lpcr);
+ 	} while (is_kvmppc_resume_guest(r));
+ 
+ 	/* save L2 state for return */
 -- 
-2.25.2
+2.17.1
