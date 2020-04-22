@@ -1,78 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:51134 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730824AbgDQOEy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Apr 2020 10:04:54 -0400
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH v2 5/9] s390: Change s390_kernel_write() return type to match memcpy()
-Date: Fri, 17 Apr 2020 09:04:30 -0500
-Message-Id: <8194db48a4aa32caf55fb028669a48ab9ab3c874.1587131959.git.jpoimboe@redhat.com>
-In-Reply-To: <cover.1587131959.git.jpoimboe@redhat.com>
-References: <cover.1587131959.git.jpoimboe@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10854 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725924AbgDVJLZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Apr 2020 05:11:25 -0400
+Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03M93NuF106903
+        for <linux-s390@vger.kernel.org>; Wed, 22 Apr 2020 05:11:24 -0400
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 30ghu7snpu-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 22 Apr 2020 05:11:24 -0400
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Wed, 22 Apr 2020 10:10:29 +0100
+Subject: Re: [kvm-unit-tests PATCH v5 03/10] s390x: cr0: adding AFP-register
+ control bit
+References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
+ <1582200043-21760-4-git-send-email-pmorel@linux.ibm.com>
+ <a40f5061-e261-a6dd-ea6a-a8bec703175f@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Date: Wed, 22 Apr 2020 11:11:17 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <a40f5061-e261-a6dd-ea6a-a8bec703175f@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Message-Id: <a3083ef7-d007-f6e9-9770-fc5fd158d95f@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: live-patching@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jessica Yu <jeyu@kernel.org>, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-s390_kernel_write()'s function type is almost identical to memcpy().
-Change its return type to "void *" so they can be used interchangeably.
 
-Cc: linux-s390@vger.kernel.org
-Cc: heiko.carstens@de.ibm.com
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
----
- arch/s390/include/asm/uaccess.h | 2 +-
- arch/s390/mm/maccess.c          | 9 ++++++---
- 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uacc=
-ess.h
-index a470f1fa9f2a..324438889fe1 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -276,6 +276,6 @@ static inline unsigned long __must_check clear_user(v=
-oid __user *to, unsigned lo
- }
-=20
- int copy_to_user_real(void __user *dest, void *src, unsigned long count)=
-;
--void s390_kernel_write(void *dst, const void *src, size_t size);
-+void *s390_kernel_write(void *dst, const void *src, size_t size);
-=20
- #endif /* __S390_UACCESS_H */
-diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
-index de7ca4b6718f..22a0be655f27 100644
---- a/arch/s390/mm/maccess.c
-+++ b/arch/s390/mm/maccess.c
-@@ -55,19 +55,22 @@ static notrace long s390_kernel_write_odd(void *dst, =
-const void *src, size_t siz
-  */
- static DEFINE_SPINLOCK(s390_kernel_write_lock);
-=20
--void notrace s390_kernel_write(void *dst, const void *src, size_t size)
-+notrace void *s390_kernel_write(void *dst, const void *src, size_t size)
- {
-+	void *tmp =3D dst;
- 	unsigned long flags;
- 	long copied;
-=20
- 	spin_lock_irqsave(&s390_kernel_write_lock, flags);
- 	while (size) {
--		copied =3D s390_kernel_write_odd(dst, src, size);
--		dst +=3D copied;
-+		copied =3D s390_kernel_write_odd(tmp, src, size);
-+		tmp +=3D copied;
- 		src +=3D copied;
- 		size -=3D copied;
- 	}
- 	spin_unlock_irqrestore(&s390_kernel_write_lock, flags);
-+
-+	return dst;
- }
-=20
- static int __no_sanitize_address __memcpy_real(void *dest, void *src, si=
-ze_t count)
---=20
-2.21.1
+On 2020-04-22 09:39, Janosch Frank wrote:
+> On 2/20/20 1:00 PM, Pierre Morel wrote:
+>> While adding the definition for the AFP-Register control bit, move all
+>> existing definitions for CR0 out of the C zone to the assmbler zone to
+>> keep the definitions concerning CR0 together.
+> 
+> How about:
+> s390x: Move control register bit definitions and add AFP to them
+> 
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+If no one disagree I'll pick it.
+
+Thanks for the review
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
