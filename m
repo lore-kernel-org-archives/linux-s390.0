@@ -1,54 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10854 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725924AbgDVJLZ (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30862 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726563AbgDVJML (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Apr 2020 05:11:25 -0400
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03M93NuF106903
-        for <linux-s390@vger.kernel.org>; Wed, 22 Apr 2020 05:11:24 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 30ghu7snpu-1
+        Wed, 22 Apr 2020 05:12:11 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03M91r9Z003493
+        for <linux-s390@vger.kernel.org>; Wed, 22 Apr 2020 05:12:10 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30gf5t2dbx-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Wed, 22 Apr 2020 05:11:24 -0400
+        for <linux-s390@vger.kernel.org>; Wed, 22 Apr 2020 05:12:10 -0400
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
         for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Wed, 22 Apr 2020 10:10:29 +0100
+        Wed, 22 Apr 2020 10:11:21 +0100
 Subject: Re: [kvm-unit-tests PATCH v5 03/10] s390x: cr0: adding AFP-register
  control bit
 References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
  <1582200043-21760-4-git-send-email-pmorel@linux.ibm.com>
- <a40f5061-e261-a6dd-ea6a-a8bec703175f@linux.ibm.com>
+ <20200422095928.0623886c.cohuck@redhat.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Date: Wed, 22 Apr 2020 11:11:17 +0200
+Date: Wed, 22 Apr 2020 11:12:04 +0200
 MIME-Version: 1.0
-In-Reply-To: <a40f5061-e261-a6dd-ea6a-a8bec703175f@linux.ibm.com>
+In-Reply-To: <20200422095928.0623886c.cohuck@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Message-Id: <a3083ef7-d007-f6e9-9770-fc5fd158d95f@linux.ibm.com>
+Message-Id: <e7fa91ba-1128-7b89-851c-b5dd0afe6315@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
 
 
-On 2020-04-22 09:39, Janosch Frank wrote:
-> On 2/20/20 1:00 PM, Pierre Morel wrote:
+On 2020-04-22 09:59, Cornelia Huck wrote:
+> On Thu, 20 Feb 2020 13:00:36 +0100
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
 >> While adding the definition for the AFP-Register control bit, move all
 >> existing definitions for CR0 out of the C zone to the assmbler zone to
 >> keep the definitions concerning CR0 together.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/asm/arch_def.h | 11 ++++++-----
+>>   s390x/cstart64.S         |  2 +-
+>>   2 files changed, 7 insertions(+), 6 deletions(-)
+>>
 > 
-> How about:
-> s390x: Move control register bit definitions and add AFP to them
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 > 
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> 
-If no one disagree I'll pick it.
 
-Thanks for the review
+Thanks for the review,
+Regards,
+
 Pierre
 
 -- 
