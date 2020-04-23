@@ -1,79 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:54545 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728865AbgDWQUN (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2370 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729176AbgDWP4P (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Apr 2020 12:20:13 -0400
-Date: Thu, 23 Apr 2020 18:20:01 +0200
-From: Cornelia Huck <cohuck@redhat.com>
+        Thu, 23 Apr 2020 11:56:15 -0400
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03NFbfTR043763
+        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 11:56:14 -0400
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 30gc30jbr0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 11:56:14 -0400
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 03NFbhcY043866
+        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 11:56:13 -0400
+Date: Thu, 23 Apr 2020 17:55:59 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [RFD] uevent handling for subchannels
-Message-ID: <20200423182001.40345df8.cohuck@redhat.com>
-In-Reply-To: <c69da1c0-d151-257b-fe43-786e47a3cf9b@linux.vnet.ibm.com>
+Message-ID: <20200423175559.309cc924.pasic@linux.ibm.com>
+In-Reply-To: <20200417143811.7e6ecb2c.cohuck@redhat.com>
 References: <20200403124032.5e70603d.cohuck@redhat.com>
         <20200417143811.7e6ecb2c.cohuck@redhat.com>
-        <8649ea94-8617-07b6-170e-65c278d9383b@linux.vnet.ibm.com>
-        <c69da1c0-d151-257b-fe43-786e47a3cf9b@linux.vnet.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Vineeth Vijayan <vneethv@linux.vnet.ibm.com>
-Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Peter Oberparleiter <oberpar@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>
 
-On Thu, 23 Apr 2020 16:52:24 +0200
-Vineeth Vijayan <vneethv@linux.vnet.ibm.com> wrote:
+On Fri, 17 Apr 2020 14:38:11 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-> Hi Corenelia,
+> Friendly ping.
 > 
-> few cents on this,
+
+Sorry for the late answer. I prefer to let Vineeth give us his opinion
+first. I did invest some 30 minutes in understanding the problem, but
+I'm not sure I understood it properly. According to my current
+understanding, the current state of affairs is a mess, and the proposed
+change wouldn't make the situation substantially cleaner, but it would
+help with the problem at hand.
+
+Conny, do you have more background information on uevent suppression
+(is there some sort of a generic contract between kernel and userspace
+for uevent suppression)?
+
+From a quick grep it seems to me that most of the uses are about being
+nice to userspace in a sense, that we want to make sure that when
+event is received by userspace it can do it's thing, and does not have
+to wait until the kernel has finished with the stuff that needs to be
+done to reach a state of affairs that can be considered normal.
+
+Regards,
+Halil
+
+
+
+> On Fri, 3 Apr 2020 12:40:32 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
 > 
-> 1. css_register_subchannel() is called only for valid subchannels, which 
-> is taken care in the
-> css_alloc_subchannel(). So Adding a second css_sch_is_valid() in 
-> css_register_subchannel()
-> might not help us here. We still need to find a mechanism to avoid the 
-> performance impact
-> because of the uevent-storm from IO-subchannels without any valid device 
-> on them.
-
-Ah, I missed that.
-
-But I'm wondering whether the number of non-operational devices that
-will end up not being registered is actually that high in a normal
-setup.
-
-The really bad case, as I understand it, is
-
-0    ...    n      ...      m ... 0xffff
-<nothing> <dev> <nothing> <dev> <nothing>
-
-where we end up with large numbers of subchannels with !dnv prior to n
-and between n and m. (On LPAR; z/VM and QEMU will usually have mostly
-consecutive devices-on-subchannels, unless there has been a huge amount
-of hotplug been going on.)
-
-In this case, the !dnv check already prevents us from even registering
-the device, so the only problematic devices left are those where we
-fail to successfully drive I/O to -- are these very common on sane
-setups?
-
-(The code has seen some revisions since I introduced that suppression
-stuff, maybe I'm missing something.)
-
+> > Hi,
+> > 
+> > this is kind-of-a-followup to the uevent patches I sent in
+> > <20200327124503.9794-1-cohuck@redhat.com> last Friday.
+> > 
+> > Currently, the common I/O layer will suppress uevents for subchannels
+> > that are being registered, delegating generating a delayed ADD uevent
+> > to the driver that actually binds to it and only generating the uevent
+> > itself if no driver gets bound. The initial version of that delaying
+> > was introduced in fa1a8c23eb7d ("s390: cio: Delay uevents for
+> > subchannels"); from what I remember, we were seeing quite bad storms of
+> > uevents on LPARs that had a lot of I/O subchannels with no device
+> > accessible through them.
+[..]
+> > Thoughts?
+> > 
 > 
-> 2. We will have to find a way to get the AVAILABLE-VALID-CCW-device 
-> information from css layer,
-> which would help vfio-ccw drivers to work with the uevents when it is 
-> not suppressed.
-
-But if we bind the subchannel to vfio-ccw, we do not have any ccw
-device, right? Or am I misunderstanding?
-
-> Then we could also change the way ccw_device_call_sch_unregister() 
-> works, where
-> the subchannel-unregister is happening from an upper layer.
-
-Hm, what's the problem here? This seems to be mostly a case of "we did
-I/O to the device and it appeared not operational; so we go ahead and
-unregister the subchannel"? Childless I/O subchannels are a bit useless.
