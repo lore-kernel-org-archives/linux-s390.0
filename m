@@ -1,80 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37866 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65086 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726562AbgDGLmt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 07:42:49 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 037BaFd7121529
-        for <linux-s390@vger.kernel.org>; Tue, 7 Apr 2020 07:42:47 -0400
-Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3082mqd06b-1
+        by vger.kernel.org with ESMTP id S1726541AbgDWJKb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 23 Apr 2020 05:10:31 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03N93Wjs025953
+        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 05:10:30 -0400
+Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 30k3xu7bbj-1
         (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 07 Apr 2020 07:42:47 -0400
+        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 05:10:30 -0400
 Received: from localhost
-        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <borntraeger@de.ibm.com>;
-        Tue, 7 Apr 2020 12:42:18 +0100
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/3] KVM: s390: vsie: Fix region 1 ASCE sanity shadow address checks
-Date: Tue,  7 Apr 2020 13:42:38 +0200
-In-Reply-To: <20200407114240.156419-1-borntraeger@de.ibm.com>
-References: <20200407114240.156419-1-borntraeger@de.ibm.com>
-Message-Id: <20200407114240.156419-2-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
+        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 23 Apr 2020 10:09:41 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH v2 06/10] s390x: smp: Remove unneeded cpu loops
+Date: Thu, 23 Apr 2020 05:10:09 -0400
+In-Reply-To: <20200423091013.11587-1-frankja@linux.ibm.com>
+References: <20200423091013.11587-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20200423091013.11587-7-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com
 
-From: David Hildenbrand <david@redhat.com>
+Now that we have a loop which is executed after we return from the
+main function of a secondary cpu, we can remove the surplus loops.
 
-In case we have a region 1 the following calculation
-(31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)
-results in 64. As shifts beyond the size are undefined the compiler is
-free to use instructions like sllg. sllg will only use 6 bits of the
-shift value (here 64) resulting in no shift at all. That means that ALL
-addresses will be rejected.
-
-The can result in endless loops, e.g. when prefix cannot get mapped.
-
-Fixes: 4be130a08420 ("s390/mm: add shadow gmap support")
-Tested-by: Janosch Frank <frankja@linux.ibm.com>
-Reported-by: Janosch Frank <frankja@linux.ibm.com>
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-2-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: fix patch description, remove WARN_ON_ONCE]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/mm/gmap.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ s390x/smp.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 2fbece47ef6f..7e9a6761f254 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -787,14 +787,18 @@ static void gmap_call_notifier(struct gmap *gmap, unsigned long start,
- static inline unsigned long *gmap_table_walk(struct gmap *gmap,
- 					     unsigned long gaddr, int level)
- {
-+	const int asce_type = gmap->asce & _ASCE_TYPE_MASK;
- 	unsigned long *table;
+diff --git a/s390x/smp.c b/s390x/smp.c
+index a8e3dd7..7462211 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -35,15 +35,9 @@ static void set_flag(int val)
+ 	mb();
+ }
  
- 	if ((gmap->asce & _ASCE_TYPE_MASK) + 4 < (level * 4))
- 		return NULL;
- 	if (gmap_is_shadow(gmap) && gmap->removed)
- 		return NULL;
--	if (gaddr & (-1UL << (31 + ((gmap->asce & _ASCE_TYPE_MASK) >> 2)*11)))
-+
-+	if (asce_type != _ASCE_TYPE_REGION1 &&
-+	    gaddr & (-1UL << (31 + (asce_type >> 2) * 11)))
- 		return NULL;
-+
- 	table = gmap->table;
- 	switch (gmap->asce & _ASCE_TYPE_MASK) {
- 	case _ASCE_TYPE_REGION1:
+-static void cpu_loop(void)
+-{
+-	for (;;) {}
+-}
+-
+ static void test_func(void)
+ {
+ 	set_flag(1);
+-	cpu_loop();
+ }
+ 
+ static void test_start(void)
+@@ -292,7 +286,7 @@ int main(void)
+ 
+ 	/* Setting up the cpu to give it a stack and lowcore */
+ 	psw.mask = extract_psw_mask();
+-	psw.addr = (unsigned long)cpu_loop;
++	psw.addr = (unsigned long)test_func;
+ 	smp_cpu_setup(1, psw);
+ 	smp_cpu_stop(1);
+ 
 -- 
 2.25.1
