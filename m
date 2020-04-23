@@ -1,41 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727906AbgD2Nhm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Apr 2020 09:37:42 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 05/34] iommu/amd: Remove dma_mask check from check_device()
-Date: Wed, 29 Apr 2020 15:36:43 +0200
-Message-Id: <20200429133712.31431-6-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:56230 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725884AbgDWJK3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 23 Apr 2020 05:10:29 -0400
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03N922E5097423
+        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 05:10:28 -0400
+Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30k7rbrt61-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 05:10:28 -0400
+Received: from localhost
+        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
+        Thu, 23 Apr 2020 10:10:20 +0100
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH v2 02/10] s390x: smp: Dirty fpc before initial reset test
+Date: Thu, 23 Apr 2020 05:10:05 -0400
+In-Reply-To: <20200423091013.11587-1-frankja@linux.ibm.com>
+References: <20200423091013.11587-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20200423091013.11587-3-frankja@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com
 
-From: Joerg Roedel <jroedel@suse.de>
+Let's dirty the fpc, before we test if the initial reset sets it to 0.
 
-The check was only needed for the DMA-API implementation in the AMD
-IOMMU driver, which no longer exists.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/iommu/amd_iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ s390x/smp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 73b4f84cf449..504f2db75eda 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -326,7 +326,7 @@ static bool check_device(struct device *dev)
+diff --git a/s390x/smp.c b/s390x/smp.c
+index 8c9b98a..95df8c4 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -185,6 +185,7 @@ static void test_emcall(void)
+ /* Used to dirty registers of cpu #1 before it is reset */
+ static void test_func_initial(void)
  {
- 	int devid;
- 
--	if (!dev || !dev->dma_mask)
-+	if (!dev)
- 		return false;
- 
- 	devid = get_device_id(dev);
++	asm volatile("sfpc %0" :: "d" (0x11));
+ 	lctlg(1, 0x42000UL);
+ 	lctlg(7, 0x43000UL);
+ 	lctlg(13, 0x44000UL);
 -- 
-2.17.1
+2.25.1
