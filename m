@@ -1,50 +1,81 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:49226 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728331AbgDHMAl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 08:00:41 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 14/28] mm: don't return the number of pages from map_kernel_range{,_noflush}
-Date: Wed,  8 Apr 2020 13:59:12 +0200
-Message-Id: <20200408115926.1467567-15-hch@lst.de>
-In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
-References: <20200408115926.1467567-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21072 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726857AbgDXKqC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 24 Apr 2020 06:46:02 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03OAUr66069668
+        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2020 06:46:01 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30jrj7ut6j-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2020 06:46:00 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
+        Fri, 24 Apr 2020 11:45:21 +0100
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v6 03/10] s390x: Move control register bit definitions and add AFP to them
+Date: Fri, 24 Apr 2020 12:45:45 +0200
+In-Reply-To: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+Message-Id: <1587725152-25569-4-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-None of the callers needs the number of pages, and a 0 / -errno return
-value is a lot more intuitive.
+While adding the definition for the AFP-Register control bit, move all
+existing definitions for CR0 out of the C zone to the assmbler zone to
+keep the definitions concerning CR0 together.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- mm/vmalloc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/s390x/asm/arch_def.h | 11 ++++++-----
+ s390x/cstart64.S         |  2 +-
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index a3d810def567..ca8dc5d42580 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -249,7 +249,7 @@ static int vmap_p4d_range(pgd_t *pgd, unsigned long addr,
-  * function.
-  *
-  * RETURNS:
-- * The number of pages mapped on success, -errno on failure.
-+ * 0 on success, -errno on failure.
-  */
- int map_kernel_range_noflush(unsigned long addr, unsigned long size,
- 			     pgprot_t prot, struct page **pages)
-@@ -269,7 +269,7 @@ int map_kernel_range_noflush(unsigned long addr, unsigned long size,
- 			return err;
- 	} while (pgd++, addr = next, addr != end);
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index c54409a..a0d2362 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -20,17 +20,18 @@
+ #define PSW_EXCEPTION_MASK	(PSW_MASK_EA | PSW_MASK_BA)
+ #define PSW_RESET_MASK		(PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW)
  
--	return nr;
-+	return 0;
- }
++#define CR0_EXTM_SCLP			0X0000000000000200UL
++#define CR0_EXTM_EXTC			0X0000000000002000UL
++#define CR0_EXTM_EMGC			0X0000000000004000UL
++#define CR0_EXTM_MASK			0X0000000000006200UL
++#define CR0_AFP_REG_CRTL		0x0000000000040000UL
++
+ #ifndef __ASSEMBLER__
+ struct psw {
+ 	uint64_t	mask;
+ 	uint64_t	addr;
+ };
  
- static int map_kernel_range(unsigned long start, unsigned long size,
+-#define CR0_EXTM_SCLP			0X0000000000000200UL
+-#define CR0_EXTM_EXTC			0X0000000000002000UL
+-#define CR0_EXTM_EMGC			0X0000000000004000UL
+-#define CR0_EXTM_MASK			0X0000000000006200UL
+-
+ struct lowcore {
+ 	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
+ 	uint32_t	ext_int_param;			/* 0x0080 */
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index e394b3a..2906e39 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -241,4 +241,4 @@ svc_int_psw:
+ 	.quad	PSW_EXCEPTION_MASK, svc_int
+ initial_cr0:
+ 	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
+-	.quad	0x0000000000040000
++	.quad	CR0_AFP_REG_CRTL
 -- 
 2.25.1
