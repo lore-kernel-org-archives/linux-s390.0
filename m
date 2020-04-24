@@ -1,77 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:55774 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726100AbgDRNtC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Apr 2020 09:49:02 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 36/73] s390/cio: avoid duplicated 'ADD' uevents
-Date: Sat, 18 Apr 2020 09:47:38 -0400
-Message-Id: <20200418134815.6519-36-sashal@kernel.org>
-In-Reply-To: <20200418134815.6519-1-sashal@kernel.org>
-References: <20200418134815.6519-1-sashal@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:54571 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726776AbgDXKNb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Apr 2020 06:13:31 -0400
+Subject: Re: [PATCH v2 10/10] s390x: Fix library constant definitions
+References: <20200423091013.11587-1-frankja@linux.ibm.com>
+ <20200423091013.11587-11-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <1ffe6eca-0f17-939e-ecf4-2719c455cb6f@redhat.com>
+Date: Fri, 24 Apr 2020 12:13:23 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200423091013.11587-11-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com
 
-From: Cornelia Huck <cohuck@redhat.com>
+On 23.04.20 11:10, Janosch Frank wrote:
+> Seems like I uppercased the whole region instead of only the ULs when
+> I added those definitions. Let's make the x lowercase again.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  lib/s390x/asm/arch_def.h | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+> index 15a4d49..1b3bb0c 100644
+> --- a/lib/s390x/asm/arch_def.h
+> +++ b/lib/s390x/asm/arch_def.h
+> @@ -19,10 +19,10 @@ struct psw {
+>  #define PSW_MASK_DAT			0x0400000000000000UL
+>  #define PSW_MASK_PSTATE			0x0001000000000000UL
+>  
+> -#define CR0_EXTM_SCLP			0X0000000000000200UL
+> -#define CR0_EXTM_EXTC			0X0000000000002000UL
+> -#define CR0_EXTM_EMGC			0X0000000000004000UL
+> -#define CR0_EXTM_MASK			0X0000000000006200UL
+> +#define CR0_EXTM_SCLP			0x0000000000000200UL
+> +#define CR0_EXTM_EXTC			0x0000000000002000UL
+> +#define CR0_EXTM_EMGC			0x0000000000004000UL
+> +#define CR0_EXTM_MASK			0x0000000000006200UL
+>  
+>  struct lowcore {
+>  	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
+> 
 
-[ Upstream commit 05ce3e53f375295c2940390b2b429e506e07655c ]
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-The common I/O layer delays the ADD uevent for subchannels and
-delegates generating this uevent to the individual subchannel
-drivers. The io_subchannel driver will do so when the associated
-ccw_device has been registered -- but unconditionally, so more
-ADD uevents will be generated if a subchannel has been unbound
-from the io_subchannel driver and later rebound.
-
-To fix this, only generate the ADD event if uevents were still
-suppressed for the device.
-
-Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
-Message-Id: <20200327124503.9794-2-cohuck@redhat.com>
-Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/device.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 0c6245fc77069..983f9c9e08deb 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -849,8 +849,10 @@ static void io_subchannel_register(struct ccw_device *cdev)
- 	 * Now we know this subchannel will stay, we can throw
- 	 * our delayed uevent.
- 	 */
--	dev_set_uevent_suppress(&sch->dev, 0);
--	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	if (dev_get_uevent_suppress(&sch->dev)) {
-+		dev_set_uevent_suppress(&sch->dev, 0);
-+		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	}
- 	/* make it known to the system */
- 	ret = ccw_device_add(cdev);
- 	if (ret) {
-@@ -1058,8 +1060,11 @@ static int io_subchannel_probe(struct subchannel *sch)
- 		 * Throw the delayed uevent for the subchannel, register
- 		 * the ccw_device and exit.
- 		 */
--		dev_set_uevent_suppress(&sch->dev, 0);
--		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		if (dev_get_uevent_suppress(&sch->dev)) {
-+			/* should always be the case for the console */
-+			dev_set_uevent_suppress(&sch->dev, 0);
-+			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		}
- 		cdev = sch_get_cdev(sch);
- 		rc = ccw_device_add(cdev);
- 		if (rc) {
 -- 
-2.20.1
+Thanks,
+
+David / dhildenb
