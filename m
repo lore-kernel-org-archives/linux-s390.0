@@ -1,106 +1,346 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2] s390: simplify memory notifier for protecting kdump crash kernel area
-Date: Fri, 24 Apr 2020 10:39:04 +0200
-Message-Id: <20200424083904.8587-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45880 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726909AbgDXKqE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 24 Apr 2020 06:46:04 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v6 09/10] s390x: css: ssch/tsch with sense and interrupt
+Date: Fri, 24 Apr 2020 12:45:51 +0200
+Message-Id: <1587725152-25569-10-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, "Eric W . Biederman" <ebiederm@xmission.com>, Michal Hocko <mhocko@kernel.org>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-Assume we have a crashkernel area of 256MB reserved:
+We add a new css_lib file to contain the I/O function we may
+share with different tests.
+First function is the subchannel_enable() function.
 
-root@vm0:~# cat /proc/iomem
-00000000-6fffffff : System RAM
-  0f258000-0fcfffff : Kernel code
-  0fd00000-101d10e3 : Kernel data
-  105b3000-1068dfff : Kernel bss
-70000000-7fffffff : Crash kernel
+When a channel is enabled we can start a SENSE_ID command using
+the SSCH instruction to recognize the control unit and device.
 
-This exactly corresponds to memory block 7 (memory block size is 256MB).
-Trying to offline that memory block results in:
+This tests the success of SSCH, the I/O interruption and the TSCH
+instructions.
 
-root@vm0:~# echo "offline" > /sys/devices/system/memory/memory7/state
--bash: echo: write error: Device or resource busy
+The test expects a device with a control unit type of 0xC0CA as the
+first subchannel of the CSS.
 
-[  128.458762] page:000003d081c00000 refcount:1 mapcount:0 mapping:000000=
-00d01cecd4 index:0x0
-[  128.458773] flags: 0x1ffff00000001000(reserved)
-[  128.458781] raw: 1ffff00000001000 000003d081c00008 000003d081c00008 00=
-00000000000000
-[  128.458781] raw: 0000000000000000 0000000000000000 ffffffff00000001 00=
-00000000000000
-[  128.458783] page dumped because: unmovable page
-
-The craskernel area is marked reserved in the bootmem allocator. This
-results in the memmap getting initialized (refcount=3D1, PG_reserved), bu=
-t
-the pages are never freed to the page allocator.
-
-So these pages look like allocated pages that are unmovable (esp.
-PG_reserved), and therefore, memory offlining fails early, when trying to
-isolate the page range.
-
-We only have to care about the exchange area, make that clear.
-
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
+ lib/s390x/asm/arch_def.h |   1 +
+ lib/s390x/css.h          |  20 ++++++
+ lib/s390x/css_lib.c      |  55 +++++++++++++++
+ s390x/Makefile           |   1 +
+ s390x/css.c              | 149 +++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 226 insertions(+)
+ create mode 100644 lib/s390x/css_lib.c
 
-Follow up of:
-- "[PATCH v1] s390: drop memory notifier for protecting kdump crash kerne=
-l
-   area"
-
-v1 -> v2:
-- Keep the notifier, check for exchange area only
-
----
- arch/s390/kernel/setup.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
-
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 0f0b140b5558..c0881f0a3175 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -594,9 +594,10 @@ static void __init setup_memory_end(void)
- #ifdef CONFIG_CRASH_DUMP
-=20
- /*
-- * When kdump is enabled, we have to ensure that no memory from
-- * the area [0 - crashkernel memory size] and
-- * [crashk_res.start - crashk_res.end] is set offline.
-+ * When kdump is enabled, we have to ensure that no memory from the area
-+ * [0 - crashkernel memory size] is set offline - it will be exchanged w=
-ith
-+ * the crashkernel memory region when kdump is triggered. The crashkerne=
-l
-+ * memory region can never get offlined (pages are unmovable).
-  */
- static int kdump_mem_notifier(struct notifier_block *nb,
- 			      unsigned long action, void *data)
-@@ -607,11 +608,7 @@ static int kdump_mem_notifier(struct notifier_block =
-*nb,
- 		return NOTIFY_OK;
- 	if (arg->start_pfn < PFN_DOWN(resource_size(&crashk_res)))
- 		return NOTIFY_BAD;
--	if (arg->start_pfn > PFN_DOWN(crashk_res.end))
--		return NOTIFY_OK;
--	if (arg->start_pfn + arg->nr_pages - 1 < PFN_DOWN(crashk_res.start))
--		return NOTIFY_OK;
--	return NOTIFY_BAD;
-+	return NOTIFY_OK;
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index e04866c..7a63ab7 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -10,6 +10,7 @@
+ #ifndef _ASM_S390X_ARCH_DEF_H_
+ #define _ASM_S390X_ARCH_DEF_H_
+ 
++#define PSW_MASK_IO			0x0200000000000000UL
+ #define PSW_MASK_EXT			0x0100000000000000UL
+ #define PSW_MASK_DAT			0x0400000000000000UL
+ #define PSW_MASK_SHORT_PSW		0x0008000000000000UL
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+index 9417541..f278d0b 100644
+--- a/lib/s390x/css.h
++++ b/lib/s390x/css.h
+@@ -97,6 +97,19 @@ struct irb {
+ 	uint32_t emw[8];
+ } __attribute__ ((aligned(4)));
+ 
++#define CCW_CMD_SENSE_ID	0xe4
++#define PONG_CU			0xc0ca
++struct senseid {
++	/* common part */
++	uint8_t reserved;        /* always 0x'FF' */
++	uint16_t cu_type;        /* control unit type */
++	uint8_t cu_model;        /* control unit model */
++	uint16_t dev_type;       /* device type */
++	uint8_t dev_model;       /* device model */
++	uint8_t unused;          /* padding byte */
++	uint8_t padding[256 - 10]; /* Extra padding for CCW */
++} __attribute__ ((aligned(4))) __attribute__ ((packed));
++
+ /* CSS low level access functions */
+ 
+ static inline int ssch(unsigned long schid, struct orb *addr)
+@@ -254,4 +267,11 @@ static inline struct ccw *dump_ccw(struct ccw *cp)
+ 	return NULL;
  }
-=20
- static struct notifier_block kdump_mem_nb =3D {
---=20
-2.25.3
+ #endif /* DEBUG_CSS */
++
++#define SID_ONE         0x00010000
++
++/* Library functions */
++int enable_subchannel(unsigned int sid);
++int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
++
+ #endif
+diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
+new file mode 100644
+index 0000000..80b9359
+--- /dev/null
++++ b/lib/s390x/css_lib.c
+@@ -0,0 +1,55 @@
++/*
++ * Channel subsystem library functions
++ *
++ * Copyright (c) 2020 IBM Corp.
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++#include <stdint.h>
++#include <stddef.h>
++#include <css.h>
++
++int enable_subchannel(unsigned int sid)
++{
++	struct schib schib;
++	struct pmcw *pmcw = &schib.pmcw;
++	int try_count = 5;
++	int cc;
++
++	if (!(sid & SID_ONE))
++		return -1;
++
++	cc = stsch(sid, &schib);
++	if (cc)
++		return -cc;
++
++	do {
++		pmcw->flags |= PMCW_ENABLE;
++
++		cc = msch(sid, &schib);
++		if (cc)
++			return -cc;
++
++		cc = stsch(sid, &schib);
++		if (cc)
++			return -cc;
++
++	} while (!(pmcw->flags & PMCW_ENABLE) && --try_count);
++
++	return try_count;
++}
++
++int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
++{
++	struct orb orb;
++
++	orb.intparm = sid;
++	orb.ctrl = ORB_F_INIT_IRQ|ORB_F_FORMAT|ORB_F_LPM_DFLT;
++	orb.cpa = (unsigned int) (unsigned long)ccw;
++
++	return ssch(sid, &orb);
++}
+diff --git a/s390x/Makefile b/s390x/Makefile
+index baebf18..166cb5c 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -53,6 +53,7 @@ cflatobjs += lib/s390x/interrupt.o
+ cflatobjs += lib/s390x/mmu.o
+ cflatobjs += lib/s390x/smp.o
+ cflatobjs += lib/s390x/css_dump.o
++cflatobjs += lib/s390x/css_lib.o
+ 
+ OBJDIRS += lib/s390x
+ 
+diff --git a/s390x/css.c b/s390x/css.c
+index fa068bf..b9dbf01 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -20,9 +20,26 @@
+ #include <css.h>
+ 
+ #define SID_ONE		0x00010000
++#define PSW_PRG_MASK (PSW_MASK_EA | PSW_MASK_BA)
++
++#define PONG_CU_TYPE		0xc0ca
++
++struct lowcore *lowcore = (void *)0x0;
+ 
+ static struct schib schib;
+ static int test_device_sid;
++#define NUM_CCW  100
++static struct ccw1 ccw[NUM_CCW];
++static struct irb irb;
++static struct senseid senseid;
++
++static void set_io_irq_subclass_mask(uint64_t const new_mask)
++{
++	asm volatile (
++		"lctlg %%c6, %%c6, %[source]\n"
++		: /* No outputs */
++		: [source] "R" (new_mask));
++}
+ 
+ static void test_enumerate(void)
+ {
+@@ -115,12 +132,143 @@ static void test_enable(void)
+ 	report(1, "Tested");
+ }
+ 
++static void enable_io_isc(void)
++{
++	/* Let's enable all ISCs for I/O interrupt */
++	set_io_irq_subclass_mask(0x00000000ff000000);
++}
++
++static void irq_io(void)
++{
++	int ret = 0;
++	char *flags;
++	int sid;
++
++	report_prefix_push("Interrupt");
++	/* Lowlevel set the SID as interrupt parameter. */
++	if (lowcore->io_int_param != test_device_sid) {
++		report(0,
++		       "Bad io_int_param: %x expected %x",
++		       lowcore->io_int_param, test_device_sid);
++		goto pop;
++	}
++	report_prefix_pop();
++
++	report_prefix_push("tsch");
++	sid = lowcore->subsys_id_word;
++	ret = tsch(sid, &irb);
++	switch (ret) {
++	case 1:
++		dump_irb(&irb);
++		flags = dump_scsw_flags(irb.scsw.ctrl);
++		report(0,
++		       "I/O interrupt, but sch not status pending: %s", flags);
++		break;
++	case 2:
++		report(0, "TSCH returns unexpected CC 2");
++		break;
++	case 3:
++		report(0, "Subchannel %08x not operational", sid);
++		break;
++	case 0:
++		/* Stay humble on success */
++		break;
++	}
++pop:
++	report_prefix_pop();
++	lowcore->io_old_psw.mask &= ~PSW_MASK_WAIT;
++}
++
++static int start_subchannel(int code, void *data, int count)
++{
++	int ret;
++
++	report_prefix_push("start_senseid");
++	/* Build the CCW chain with a single CCW */
++	ccw[0].code = code;
++	ccw[0].flags = 0; /* No flags need to be set */
++	ccw[0].count = count;
++	ccw[0].data_address = (int)(unsigned long)data;
++
++	ret = start_ccw1_chain(test_device_sid, ccw);
++	if (ret) {
++		report(0, "start_ccw_chain failed ret=%d", ret);
++		report_prefix_pop();
++		return 0;
++	}
++	report_prefix_pop();
++	return 1;
++}
++
++/*
++ * test_sense
++ * Pre-requisits:
++ * - We need the QEMU PONG device as the first recognized
++ *   device by the enumeration.
++ * - ./s390x-run s390x/css.elf -device ccw-pong,cu_type=0xc0ca
++ */
++static void test_sense(void)
++{
++	int ret;
++
++	if (!test_device_sid) {
++		report_skip("No device");
++		return;
++	}
++
++	ret = enable_subchannel(test_device_sid);
++	if (ret < 0) {
++		report(0,
++		       "Could not enable the subchannel: %08x",
++		       test_device_sid);
++		return;
++	}
++
++	ret = register_io_int_func(irq_io);
++	if (ret) {
++		report(0, "Could not register IRQ handler");
++		goto unreg_cb;
++	}
++
++	lowcore->io_int_param = 0;
++
++	ret = start_subchannel(CCW_CMD_SENSE_ID, &senseid, sizeof(senseid));
++	if (!ret) {
++		report(0, "start_senseid failed");
++		goto unreg_cb;
++	}
++
++	wfi(PSW_MASK_IO);
++
++	if (lowcore->io_int_param != test_device_sid) {
++		report(0,
++		       "No interrupts. io_int_param: expect 0x%08x, got 0x%08x",
++		       test_device_sid, lowcore->io_int_param);
++		goto unreg_cb;
++	}
++
++	report_info("reserved %02x cu_type %04x cu_model %02x dev_type %04x dev_model %02x",
++		    senseid.reserved, senseid.cu_type, senseid.cu_model,
++		    senseid.dev_type, senseid.dev_model);
++
++	if (senseid.cu_type == PONG_CU)
++		report(1, "cu_type: expect 0x%04x got 0x%04x",
++		       PONG_CU_TYPE, senseid.cu_type);
++	else
++		report(0, "cu_type: expect 0x%04x got 0x%04x",
++		       PONG_CU_TYPE, senseid.cu_type);
++
++unreg_cb:
++	unregister_io_int_func(irq_io);
++}
++
+ static struct {
+ 	const char *name;
+ 	void (*func)(void);
+ } tests[] = {
+ 	{ "enumerate (stsch)", test_enumerate },
+ 	{ "enable (msch)", test_enable },
++	{ "sense (ssch/tsch)", test_sense },
+ 	{ NULL, NULL }
+ };
+ 
+@@ -129,6 +277,7 @@ int main(int argc, char *argv[])
+ 	int i;
+ 
+ 	report_prefix_push("Channel Subsystem");
++	enable_io_isc();
+ 	for (i = 0; tests[i].name; i++) {
+ 		report_prefix_push(tests[i].name);
+ 		tests[i].func();
+-- 
+2.25.1
