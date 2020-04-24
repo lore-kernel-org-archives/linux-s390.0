@@ -1,124 +1,139 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 24/29] mm: remove __vmalloc_node_flags_caller
-Date: Tue, 14 Apr 2020 15:13:43 +0200
-Message-Id: <20200414131348.444715-25-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62114 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726247AbgDXLvw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 24 Apr 2020 07:51:52 -0400
+Subject: Re: [PATCH v2 04/10] s390x: smp: Test local interrupts after cpu
+ reset
+References: <20200423091013.11587-1-frankja@linux.ibm.com>
+ <20200423091013.11587-5-frankja@linux.ibm.com>
+ <8bdbe934-fff9-cc2a-3043-4851365735f3@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <c92a928a-aa94-38b6-f8af-d0bf28e368fd@linux.ibm.com>
+Date: Fri, 24 Apr 2020 13:51:45 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+In-Reply-To: <8bdbe934-fff9-cc2a-3043-4851365735f3@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="aOrwj5xvk38smJvn6YESLUkGSJZgLIb52"
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com
 
-Just use __vmalloc_node instead which gets and extra argument.  To be
-able to to use __vmalloc_node in all caller make it available outside
-of vmalloc and implement it in nommu.c.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--aOrwj5xvk38smJvn6YESLUkGSJZgLIb52
+Content-Type: multipart/mixed; boundary="lZfKXrBz9XIErdMhMDpoUgWKD9h2NyaY3"
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- include/linux/vmalloc.h |  4 ++--
- kernel/bpf/syscall.c    |  5 ++---
- mm/nommu.c              |  4 ++--
- mm/util.c               |  2 +-
- mm/vmalloc.c            | 10 +---------
- 5 files changed, 8 insertions(+), 17 deletions(-)
+--lZfKXrBz9XIErdMhMDpoUgWKD9h2NyaY3
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-index 4a46d296e70d..108f49b47756 100644
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -115,8 +115,8 @@ extern void *__vmalloc_node_range(unsigned long size, unsigned long align,
- 			unsigned long start, unsigned long end, gfp_t gfp_mask,
- 			pgprot_t prot, unsigned long vm_flags, int node,
- 			const void *caller);
--extern void *__vmalloc_node_flags_caller(unsigned long size,
--					 int node, gfp_t flags, void *caller);
-+void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
-+		int node, const void *caller);
- 
- extern void vfree(const void *addr);
- extern void vfree_atomic(const void *addr);
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 64783da34202..48d98ea8fad6 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -299,9 +299,8 @@ static void *__bpf_map_area_alloc(u64 size, int numa_node, bool mmapable)
- 		return vmalloc_user_node_flags(size, numa_node, GFP_KERNEL |
- 					       __GFP_RETRY_MAYFAIL | flags);
- 	}
--	return __vmalloc_node_flags_caller(size, numa_node,
--					   GFP_KERNEL | __GFP_RETRY_MAYFAIL |
--					   flags, __builtin_return_address(0));
-+	return __vmalloc_node(size, 1, GFP_KERNEL | __GFP_RETRY_MAYFAIL | flags,
-+			      numa_node, __builtin_return_address(0));
- }
- 
- void *bpf_map_area_alloc(u64 size, int numa_node)
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 9553efa59787..81a86cd85893 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -150,8 +150,8 @@ void *__vmalloc(unsigned long size, gfp_t gfp_mask)
- }
- EXPORT_SYMBOL(__vmalloc);
- 
--void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
--		void *caller)
-+void *__vmalloc_node(unsigned long size, unsigned long align, gfp_t gfp_mask,
-+		int node, const void *caller)
- {
- 	return __vmalloc(size, flags);
- }
-diff --git a/mm/util.c b/mm/util.c
-index 988d11e6c17c..6d5868adbe18 100644
---- a/mm/util.c
-+++ b/mm/util.c
-@@ -580,7 +580,7 @@ void *kvmalloc_node(size_t size, gfp_t flags, int node)
- 	if (ret || size <= PAGE_SIZE)
- 		return ret;
- 
--	return __vmalloc_node_flags_caller(size, node, flags,
-+	return __vmalloc_node(size, 1, flags, node,
- 			__builtin_return_address(0));
- }
- EXPORT_SYMBOL(kvmalloc_node);
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 3d59d848ad48..ae8249ef5821 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -2400,8 +2400,6 @@ void *vmap(struct page **pages, unsigned int count,
- }
- EXPORT_SYMBOL(vmap);
- 
--static void *__vmalloc_node(unsigned long size, unsigned long align,
--			    gfp_t gfp_mask, int node, const void *caller);
- static void *__vmalloc_area_node(struct vm_struct *area, gfp_t gfp_mask,
- 				 pgprot_t prot, int node)
- {
-@@ -2552,7 +2550,7 @@ EXPORT_SYMBOL_GPL(__vmalloc_node_range);
-  *
-  * Return: pointer to the allocated memory or %NULL on error
-  */
--static void *__vmalloc_node(unsigned long size, unsigned long align,
-+void *__vmalloc_node(unsigned long size, unsigned long align,
- 			    gfp_t gfp_mask, int node, const void *caller)
- {
- 	return __vmalloc_node_range(size, align, VMALLOC_START, VMALLOC_END,
-@@ -2566,12 +2564,6 @@ void *__vmalloc(unsigned long size, gfp_t gfp_mask)
- }
- EXPORT_SYMBOL(__vmalloc);
- 
--void *__vmalloc_node_flags_caller(unsigned long size, int node, gfp_t flags,
--				  void *caller)
--{
--	return __vmalloc_node(size, 1, flags, node, caller);
--}
--
- /**
-  * vmalloc - allocate virtually contiguous memory
-  * @size:    allocation size
--- 
-2.25.1
+On 4/24/20 12:07 PM, David Hildenbrand wrote:
+> On 23.04.20 11:10, Janosch Frank wrote:
+>> Local interrupts (external and emergency call) should be cleared after=
+
+>> any cpu reset.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>> ---
+>>  s390x/smp.c | 22 ++++++++++++++++++++++
+>>  1 file changed, 22 insertions(+)
+>>
+>> diff --git a/s390x/smp.c b/s390x/smp.c
+>> index 8a6cd1d..a8e3dd7 100644
+>> --- a/s390x/smp.c
+>> +++ b/s390x/smp.c
+>> @@ -243,6 +243,20 @@ static void test_reset_initial(void)
+>>  	report_prefix_pop();
+>>  }
+>> =20
+>> +static void test_local_ints(void)
+>> +{
+>> +	unsigned long mask;
+>> +
+>> +	expect_ext_int();
+>> +	/* Open masks for ecall and emcall */
+>> +	ctl_set_bit(0, 13);
+>> +	ctl_set_bit(0, 14);
+>> +	mask =3D extract_psw_mask();
+>> +	mask |=3D PSW_MASK_EXT;
+>> +	load_psw_mask(mask);
+>> +	set_flag(1);
+>> +}
+>=20
+> I think last time I looked at this I got it all wrong. So, we actually
+> don't expect that an interrupt triggers here, correct?
+
+Correct
+
+>=20
+> The SIGP_CPU_RESET should have cleared both interrupts on this cpu. So
+> once we enable them, none should trigger.
+
+Yes
+
+>=20
+> Why do we have "expect_ext_int()" ?
+
+Excellent question, that should not be there.
+Fortunately removing it doesn't change the test results.
+
+>=20
+>> +
+>>  static void test_reset(void)
+>>  {
+>>  	struct psw psw;
+>> @@ -251,10 +265,18 @@ static void test_reset(void)
+>>  	psw.addr =3D (unsigned long)test_func;
+>> =20
+>>  	report_prefix_push("cpu reset");
+>> +	sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
+>> +	sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
+>>  	smp_cpu_start(1, psw);
+>> =20
+>>  	sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
+>>  	report(smp_cpu_stopped(1), "cpu stopped");
+>> +
+>> +	set_flag(0);
+>> +	psw.addr =3D (unsigned long)test_local_ints;
+>> +	smp_cpu_start(1, psw);
+>> +	wait_for_flag();
+>> +	report(true, "local interrupts cleared");
+>>  	report_prefix_pop();
+>>  }
+>> =20
+>>
+>=20
+>=20
+
+
+
+--lZfKXrBz9XIErdMhMDpoUgWKD9h2NyaY3--
+
+--aOrwj5xvk38smJvn6YESLUkGSJZgLIb52
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl6i0tEACgkQ41TmuOI4
+ufj4EA//aXAKunI1QR4Ntu+FV3GAd2rgU8RBpTd1kDK/MvbYUykdg7tW4VYjvRAG
+eO7fiYX92s+ARdvlU4hc5LMfdcMi1ftxotKnq83DP450ZqbBZcrzkYL3IcXqLnl0
+rmUs4gihMloe9Yan7qY+F/Etemoaa0aqBCXikK1q3Gnmm/UG2QkfNTr8cWAnn0M7
+UUxxpt9zbMGJ8yyAdSC7Da9t4+95nFfd3avnNokTjh7LIaZY6cTaN+oPwSVvHMqh
+TqsrgLRsylABJoGkwTZNVUtlV9pPk/lBuxZUsDvekCOdxvG2899s85jAvnXn+ylP
+n0TyqA4hsRLV9K0uINXBnibUQnR5hYdOoE3sieBkUGncrJBwoRRavR6N3u+5d2e8
+CGbcr0kYGi4ObPFpbF3v0kXUfnFWpglb0YZ4PIyiMGh9NXBjOEOfxq1l8uBUSwEn
+FtSWmEzU9Vid2le/V3pZL4VVRDzqU7jIX+59hZCriQRU3meObX5APv9JbpItFw0d
+X8v4hKybMV82nBtSYsAp8349ukskupj9p6wS9nHCcpk4wNk6LwG+9TubYj5yURLz
+qq6s/eEMJwqcbrRP484TDyyinUVjz0shh77PIXGT/R6iE+2/2ET7C3uL3babPhEL
+9ylVZ6Bt4uemlFw1iyL3cjKffRz9nF4u66ECc3/1brunw+9qTFk=
+=f38m
+-----END PGP SIGNATURE-----
+
+--aOrwj5xvk38smJvn6YESLUkGSJZgLIb52--
