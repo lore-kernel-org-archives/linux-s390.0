@@ -1,123 +1,95 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:40134 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727995AbgD2Nhu (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 09:37:50 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 20/34] iommu/virtio: Convert to probe/release_device() call-backs
-Date: Wed, 29 Apr 2020 15:36:58 +0200
-Message-Id: <20200429133712.31431-21-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:52405 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726289AbgDXKDk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 24 Apr 2020 06:03:40 -0400
+Subject: Re: [PATCH v3] s390x: smp: Test all CRs on initial reset
+References: <2ebdf5d6-74ac-d9e5-d329-29611a5f87cd@redhat.com>
+ <20200424093356.11931-1-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <a37706b5-9319-0a70-181f-5a6afbb79d64@redhat.com>
+Date: Fri, 24 Apr 2020 12:03:31 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200424093356.11931-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com
 
-From: Joerg Roedel <jroedel@suse.de>
+On 24.04.20 11:33, Janosch Frank wrote:
+> All CRs are set to 0 and CRs 0 and 14 are set to pre-defined values,
+> so we also need to test 1-13 and 15 for 0.
+>=20
+> And while we're at it, let's also set some values to cr 1, 7 and 13, so
+> we can actually be sure that they will be zeroed.
+>=20
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  s390x/smp.c | 18 +++++++++++++++++-
+>  1 file changed, 17 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index fa40753..7144c9b 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
+> @@ -182,16 +182,28 @@ static void test_emcall(void)
+>  	report_prefix_pop();
+>  }
+> =20
+> +/* Used to dirty registers of cpu #1 before it is reset */
+> +static void test_func_initial(void)
+> +{
+> +	lctlg(1, 0x42000UL);
+> +	lctlg(7, 0x43000UL);
+> +	lctlg(13, 0x44000UL);
+> +	set_flag(1);
+> +}
+> +
+>  static void test_reset_initial(void)
+>  {
+>  	struct cpu_status *status =3D alloc_pages(0);
+>  	struct psw psw;
+> +	int i;
+> =20
+>  	psw.mask =3D extract_psw_mask();
+> -	psw.addr =3D (unsigned long)test_func;
+> +	psw.addr =3D (unsigned long)test_func_initial;
+> =20
+>  	report_prefix_push("reset initial");
+> +	set_flag(0);
+>  	smp_cpu_start(1, psw);
+> +	wait_for_flag();
+> =20
+>  	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
+>  	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
+> @@ -202,6 +214,10 @@ static void test_reset_initial(void)
+>  	report(!status->fpc, "fpc");
+>  	report(!status->cputm, "cpu timer");
+>  	report(!status->todpr, "todpr");
+> +	for (i =3D 1; i <=3D 13; i++) {
+> +		report(status->crs[i] =3D=3D 0, "cr%d =3D=3D 0", i);
+> +	}
+> +	report(status->crs[15] =3D=3D 0, "cr15 =3D=3D 0");
+>  	report_prefix_pop();
+> =20
+>  	report_prefix_push("initialized");
+>=20
 
-Convert the VirtIO IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/virtio-iommu.c | 41 +++++++++---------------------------
- 1 file changed, 10 insertions(+), 31 deletions(-)
+Queued to
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index d5cac4f46ca5..bda300c2a438 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -865,24 +865,23 @@ static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
- 	return dev ? dev_to_virtio(dev)->priv : NULL;
- }
- 
--static int viommu_add_device(struct device *dev)
-+static struct iommu_device *viommu_probe_device(struct device *dev)
- {
- 	int ret;
--	struct iommu_group *group;
- 	struct viommu_endpoint *vdev;
- 	struct viommu_dev *viommu = NULL;
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 
- 	if (!fwspec || fwspec->ops != &viommu_ops)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
- 	viommu = viommu_get_by_fwnode(fwspec->iommu_fwnode);
- 	if (!viommu)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
- 	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
- 	if (!vdev)
--		return -ENOMEM;
-+		return ERR_PTR(-ENOMEM);
- 
- 	vdev->dev = dev;
- 	vdev->viommu = viommu;
-@@ -896,45 +895,25 @@ static int viommu_add_device(struct device *dev)
- 			goto err_free_dev;
- 	}
- 
--	ret = iommu_device_link(&viommu->iommu, dev);
--	if (ret)
--		goto err_free_dev;
-+	return &viommu->iommu;
- 
--	/*
--	 * Last step creates a default domain and attaches to it. Everything
--	 * must be ready.
--	 */
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto err_unlink_dev;
--	}
--
--	iommu_group_put(group);
--
--	return PTR_ERR_OR_ZERO(group);
--
--err_unlink_dev:
--	iommu_device_unlink(&viommu->iommu, dev);
- err_free_dev:
- 	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
- 	kfree(vdev);
- 
--	return ret;
-+	return ERR_PTR(ret);
- }
- 
--static void viommu_remove_device(struct device *dev)
-+static void viommu_release_device(struct device *dev)
- {
--	struct viommu_endpoint *vdev;
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-+	struct viommu_endpoint *vdev;
- 
- 	if (!fwspec || fwspec->ops != &viommu_ops)
- 		return;
- 
- 	vdev = dev_iommu_priv_get(dev);
- 
--	iommu_group_remove_device(dev);
--	iommu_device_unlink(&vdev->viommu->iommu, dev);
- 	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
- 	kfree(vdev);
- }
-@@ -960,8 +939,8 @@ static struct iommu_ops viommu_ops = {
- 	.unmap			= viommu_unmap,
- 	.iova_to_phys		= viommu_iova_to_phys,
- 	.iotlb_sync		= viommu_iotlb_sync,
--	.add_device		= viommu_add_device,
--	.remove_device		= viommu_remove_device,
-+	.probe_device		= viommu_probe_device,
-+	.release_device		= viommu_release_device,
- 	.device_group		= viommu_device_group,
- 	.get_resv_regions	= viommu_get_resv_regions,
- 	.put_resv_regions	= generic_iommu_put_resv_regions,
--- 
-2.17.1
+https://github.com/davidhildenbrand/kvm-unit-tests.git s390x-next
+
+thanks!
+
+--=20
+Thanks,
+
+David / dhildenb
