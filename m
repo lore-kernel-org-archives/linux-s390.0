@@ -1,60 +1,101 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 31/75] KVM: s390: vsie: Fix possible race when shadowing region 3 tables
-Date: Sat, 18 Apr 2020 10:08:26 -0400
-Message-Id: <20200418140910.8280-31-sashal@kernel.org>
-In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
-References: <20200418140910.8280-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:44295 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726347AbgDXIS4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 24 Apr 2020 04:18:56 -0400
+Subject: Re: [PATCH v1] s390: drop memory notifier for protecting kdump crash
+ kernel area
+References: <20200424081218.6919-1-david@redhat.com>
 From: David Hildenbrand <david@redhat.com>
+Message-ID: <548f3adb-7569-93a0-ef79-0f5d65f8ef0d@redhat.com>
+Date: Fri, 24 Apr 2020 10:18:45 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200424081218.6919-1-david@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
+List-ID: <linux-s390.vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, "Eric W . Biederman" <ebiederm@xmission.com>, Michal Hocko <mhocko@kernel.org>
 
-[ Upstream commit 1493e0f944f3c319d11e067c185c904d01c17ae5 ]
+On 24.04.20 10:12, David Hildenbrand wrote:
+> Assume we have a crashkernel area of 256MB reserved:
+> 
+> root@vm0:~# cat /proc/iomem
+> 00000000-6fffffff : System RAM
+>   0f258000-0fcfffff : Kernel code
+>   0fd00000-101d10e3 : Kernel data
+>   105b3000-1068dfff : Kernel bss
+> 70000000-7fffffff : Crash kernel
+> 
+> This exactly corresponds to memory block 7 (memory block size is 256MB).
+> Trying to offline that memory block results in:
+> 
+> root@vm0:~# echo "offline" > /sys/devices/system/memory/memory7/state
+> -bash: echo: write error: Device or resource busy
+> 
+> [  128.458762] page:000003d081c00000 refcount:1 mapcount:0 mapping:00000000d01cecd4 index:0x0
+> [  128.458773] flags: 0x1ffff00000001000(reserved)
+> [  128.458781] raw: 1ffff00000001000 000003d081c00008 000003d081c00008 0000000000000000
+> [  128.458781] raw: 0000000000000000 0000000000000000 ffffffff00000001 0000000000000000
+> [  128.458783] page dumped because: unmovable page
+> 
+> The craskernel area is marked reserved in the bootmem allocator. This
+> results in the memmap getting initialized (refcount=1, PG_reserved), but
+> the pages are never freed to the page allocator.
+> 
+> So these pages look like allocated pages that are unmovable (esp.
+> PG_reserved), and therefore, memory offlining fails early, when trying to
+> isolate the page range.
+> 
+> We don't need a special memory notifier and can drop it. Repeating the
+> above test with this patch results in the same behavior.
+> 
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> Cc: Philipp Rudo <prudo@linux.ibm.com>
+> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> Cc: Eric W. Biederman <ebiederm@xmission.com>
+> Cc: Michal Hocko <mhocko@kernel.org>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  arch/s390/kernel/setup.c | 33 ---------------------------------
+>  1 file changed, 33 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+> index 0f0b140b5558..95d4fba0d811 100644
+> --- a/arch/s390/kernel/setup.c
+> +++ b/arch/s390/kernel/setup.c
+> @@ -39,7 +39,6 @@
+>  #include <linux/kernel_stat.h>
+>  #include <linux/dma-contiguous.h>
+>  #include <linux/device.h>
+> -#include <linux/notifier.h>
+>  #include <linux/pfn.h>
+>  #include <linux/ctype.h>
+>  #include <linux/reboot.h>
+> @@ -591,35 +590,6 @@ static void __init setup_memory_end(void)
+>  	pr_notice("The maximum memory size is %luMB\n", memory_end >> 20);
+>  }
+>  
+> -#ifdef CONFIG_CRASH_DUMP
+> -
+> -/*
+> - * When kdump is enabled, we have to ensure that no memory from
+> - * the area [0 - crashkernel memory size] and
+> - * [crashk_res.start - crashk_res.end] is set offline.
+> - */
 
-We have to properly retry again by returning -EINVAL immediately in case
-somebody else instantiated the table concurrently. We missed to add the
-goto in this function only. The code now matches the other, similar
-shadowing functions.
+Re-reading that comment, I missed the [0 - crashkernel memory size]
+part (for relocation IIRC). So we might want to keep checking for [0 -
+crashkernel memory size] - will double check.
 
-We are overwriting an existing region 2 table entry. All allocated pages
-are added to the crst_list to be freed later, so they are not lost
-forever. However, when unshadowing the region 2 table, we wouldn't trigger
-unshadowing of the original shadowed region 3 table that we replaced. It
-would get unshadowed when the original region 3 table is modified. As it's
-not connected to the page table hierarchy anymore, it's not going to get
-used anymore. However, for a limited time, this page table will stick
-around, so it's in some sense a temporary memory leak.
 
-Identified by manual code inspection. I don't think this classifies as
-stable material.
-
-Fixes: 998f637cc4b9 ("s390/mm: avoid races on region/segment/page table shadowing")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-4-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/mm/gmap.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index edcdca97e85ee..06d602c5ec7b7 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -1840,6 +1840,7 @@ int gmap_shadow_r3t(struct gmap *sg, unsigned long saddr, unsigned long r3t,
- 		goto out_free;
- 	} else if (*table & _REGION_ENTRY_ORIGIN) {
- 		rc = -EAGAIN;		/* Race with shadow */
-+		goto out_free;
- 	}
- 	crst_table_init(s_r3t, _REGION3_ENTRY_EMPTY);
- 	/* mark as invalid as long as the parent table is not protected */
 -- 
-2.20.1
+Thanks,
+
+David / dhildenb
