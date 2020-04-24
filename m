@@ -1,111 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29078 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34264 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726363AbgD2Ai6 (ORCPT
+        by vger.kernel.org with ESMTP id S1726882AbgDXNDC (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Apr 2020 20:38:58 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date: Tue, 28 Apr 2020 20:38:53 -0400
-From: Jared Rossi <jrossi@linux.ibm.com>
+        Fri, 24 Apr 2020 09:03:02 -0400
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03OCqF7G142290
+        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2020 09:03:01 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 30k7rn78xm-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2020 09:03:00 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <linux-s390@vger.kernel.org> from <pasic@linux.ibm.com>;
+        Fri, 24 Apr 2020 14:02:21 +0100
+Date: Fri, 24 Apr 2020 15:02:40 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH 1/1] vfio-ccw: Enable transparent CCW IPL from DASD
-In-Reply-To: <20200424145007.75101d10.pasic@linux.ibm.com>
+In-Reply-To: <20200420141317.4537498f.cohuck@redhat.com>
 References: <20200417182939.11460-1-jrossi@linux.ibm.com>
- <20200417182939.11460-2-jrossi@linux.ibm.com>
- <20200423155620.493cb7cb.pasic@linux.ibm.com>
- <20200423171103.497dcd02.cohuck@redhat.com>
- <b6dc3d32-3e84-4ce1-59a2-d5de99716027@linux.ibm.com>
- <20200424145007.75101d10.pasic@linux.ibm.com>
-Message-ID: <0d413224be93719a149ce8a5a0aef77b@linux.vnet.ibm.com>
+        <20200417182939.11460-2-jrossi@linux.ibm.com>
+        <20200420141317.4537498f.cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20200424150240.6fdede81.pasic@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2020-04-24 08:50, Halil Pasic wrote:
-> On Thu, 23 Apr 2020 16:25:39 -0400
-> Eric Farman <farman@linux.ibm.com> wrote:
-> 
->> 
->> 
->> On 4/23/20 11:11 AM, Cornelia Huck wrote:
->> > On Thu, 23 Apr 2020 15:56:20 +0200
->> > Halil Pasic <pasic@linux.ibm.com> wrote:
->> >
->> >> On Fri, 17 Apr 2020 14:29:39 -0400
->> >> Jared Rossi <jrossi@linux.ibm.com> wrote:
->> >>
->> >>> Remove the explicit prefetch check when using vfio-ccw devices.
->> >>> This check is not needed as all Linux channel programs are intended
->> >>> to use prefetch and will be executed in the same way regardless.
->> >>
->> >> Hm. This is a guest thing or? So you basically say, it is OK to do
->> >> this, because you know that the guest is gonna be Linux and that it
->> >> the channel program is intended to use prefetch -- but the ORB supplied
->> >> by the guest that designates the channel program happens to state the
->> >> opposite.
->> >>
->> >> Or am I missing something?
->> >
->> > I see this as a kind of architecture compliance/ease of administration
->> > tradeoff, as we none of the guests we currently support uses something
->> > that breaks with prefetching outside of IPL (which has a different
->> > workaround).>
-> 
-> And that workaround AFAIR makes sure that we don't issue a CP that is
-> self-modifying or otherwise reliant on non-prefetch. So any time we see
-> a self-modifying program we know, we have an incompatible setup.
-> 
-> In any case I believe the commit message is inadequate, as it does not
-> reflect about the risks.
-> 
->> > One thing that still concerns me a bit is debuggability if a future
->> > guest indeed does want to dynamically rewrite a channel program: the
->> 
->> +1 for some debuggability, just in general
->> 
->> > guest thinks it instructed the device to not prefetch, and then
->> > suddenly things do not work as expected. We can log when a guest
->> > submits an orb without prefetch set, but we can't find out if the guest
->> > actually does something that relies on non-prefetch.
->> 
->> Without going too far down a non-prefetch rabbit-hole, can we use the
->> cpa_within_range logic to see if the address of the CCW being fetched
->> exists as the CDA of an earlier (non-TIC) CCW in the chain we're
->> processing, and tracing/logging/messaging something about a possible
->> conflict?
->> 
->> (Jared, you did some level of this tracing with our real/synthetic 
->> tests
->> some time ago.  Any chance something of it could be polished and made
->> useful, without being overly heavy on the mainline path?)
->> 
-> 
-> Back then I believe I made a proposal on how this logic could look 
-> like.
-> I think all we need is checking for self rewrites (ccw reads to the
-> addresses that comprise the  complete original channel program), and 
-> for
-> status-modifier 'skips'. The latter could be easily done by putting 
-> some
-> sort of poison at the end of the detected channel program segments.
-> 
+On Mon, 20 Apr 2020 14:13:17 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
- From what I previously did with the tracing, I don't think that there is 
-a
-practical way to determine if a cp is actually doing something that 
-relies
-on non-prefetch.  It seems we would need to examine the CCWs to find 
-reads
-and also validate the addresses those CCWs access to check if there is a
-conflict.  Probably this is too much overhead considering that we expect
-it to be a rare occurrence?
+> > Remove the explicit prefetch check when using vfio-ccw devices.
+> > This check is not needed as all Linux channel programs are intended
+> > to use prefetch and will be executed in the same way regardless.  
+> 
+> Hm... my understanding is that we have the reasonable expectation that
+> our guests will always issue channel programs that work fine with
+> prefetch even if the bit is not set in the orb (including CCW IPL, in
+> the way it is implemented in the s390-ccw QEMU bios), and therefore
+> this patch is just making things less complicated.
 
-Is it too simplistic to print a kernel warning stating that an ORB did 
-not
-have the p-bit set, but it is being prefetched anyway?
+AFAIR the problem is not s390-ccw QEMU bios. We could easily fix that.
+The practical problem is some channel programs generated by zipl that
+simply fail to set the bit (although they could). That is a perfectly
+legit thing to do, because the prefetch bit was originally about
+performance.
+
+Sorry I missed your mail, so complained about the same
+issues.
 
 Regards,
-Jared Rossi
+Halil
