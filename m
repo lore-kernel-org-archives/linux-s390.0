@@ -1,107 +1,87 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/29] mm: rename CONFIG_PGTABLE_MAPPING to CONFIG_ZSMALLOC_PGTABLE_MAPPING
-Date: Tue, 14 Apr 2020 15:13:29 +0200
-Message-Id: <20200414131348.444715-11-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:47004 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726717AbgDXKNZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 24 Apr 2020 06:13:25 -0400
+Subject: Re: [PATCH v2 09/10] s390x: smp: Add restart when running test
+References: <20200423091013.11587-1-frankja@linux.ibm.com>
+ <20200423091013.11587-10-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <89fbb3c2-9dfc-818e-3442-4aa102ff0705@redhat.com>
+Date: Fri, 24 Apr 2020 12:13:17 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+In-Reply-To: <20200423091013.11587-10-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com
 
-Rename the Kconfig variable to clarify the scope.
+On 23.04.20 11:10, Janosch Frank wrote:
+> Let's make sure we can restart a cpu that is already running.
+> Restarting it if it is stopped is implicitely tested by the the other
+> restart calls in the smp test.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  s390x/smp.c | 29 +++++++++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+> 
+> diff --git a/s390x/smp.c b/s390x/smp.c
+> index 48321f4..35ca9c7 100644
+> --- a/s390x/smp.c
+> +++ b/s390x/smp.c
+> @@ -52,6 +52,34 @@ static void test_start(void)
+>  	report(1, "start");
+>  }
+>  
+> +/*
+> + * Does only test restart when the target is running.
+> + * The other tests do restarts when stopped multiple times already.
+> + */
+> +static void test_restart(void)
+> +{
+> +	struct cpu *cpu = smp_cpu_from_addr(1);
+> +	struct lowcore *lc = cpu->lowcore;
+> +
+> +	lc->restart_new_psw.mask = extract_psw_mask();
+> +	lc->restart_new_psw.addr = (unsigned long)test_func;
+> +
+> +	/* Make sure cpu is running */
+> +	smp_cpu_stop(0);
+> +	set_flag(0);
+> +	smp_cpu_restart(1);
+> +	wait_for_flag();
+> +
+> +	/*
+> +	 * Wait until cpu 1 has set the flag because it executed the
+> +	 * restart function.
+> +	 */
+> +	set_flag(0);
+> +	smp_cpu_restart(1);
+> +	wait_for_flag();
+> +	report(1, "restart while running");
+> +}
+> +
+>  static void test_stop(void)
+>  {
+>  	smp_cpu_stop(1);
+> @@ -295,6 +323,7 @@ int main(void)
+>  	smp_cpu_stop(1);
+>  
+>  	test_start();
+> +	test_restart();
+>  	test_stop();
+>  	test_stop_store_status();
+>  	test_store_status();
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- arch/arm/configs/omap2plus_defconfig | 2 +-
- include/linux/zsmalloc.h             | 2 +-
- mm/Kconfig                           | 2 +-
- mm/zsmalloc.c                        | 8 ++++----
- 4 files changed, 7 insertions(+), 7 deletions(-)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-diff --git a/arch/arm/configs/omap2plus_defconfig b/arch/arm/configs/omap2plus_defconfig
-index 3cc3ca5fa027..583d8abd80a4 100644
---- a/arch/arm/configs/omap2plus_defconfig
-+++ b/arch/arm/configs/omap2plus_defconfig
-@@ -81,7 +81,7 @@ CONFIG_PARTITION_ADVANCED=y
- CONFIG_BINFMT_MISC=y
- CONFIG_CMA=y
- CONFIG_ZSMALLOC=m
--CONFIG_PGTABLE_MAPPING=y
-+CONFIG_ZSMALLOC_PGTABLE_MAPPING=y
- CONFIG_NET=y
- CONFIG_PACKET=y
- CONFIG_UNIX=y
-diff --git a/include/linux/zsmalloc.h b/include/linux/zsmalloc.h
-index 2219cce81ca4..0fdbf653b173 100644
---- a/include/linux/zsmalloc.h
-+++ b/include/linux/zsmalloc.h
-@@ -20,7 +20,7 @@
-  * zsmalloc mapping modes
-  *
-  * NOTE: These only make a difference when a mapped object spans pages.
-- * They also have no effect when PGTABLE_MAPPING is selected.
-+ * They also have no effect when ZSMALLOC_PGTABLE_MAPPING is selected.
-  */
- enum zs_mapmode {
- 	ZS_MM_RW, /* normal read-write mapping */
-diff --git a/mm/Kconfig b/mm/Kconfig
-index c1acc34c1c35..09a9edfb8461 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -705,7 +705,7 @@ config ZSMALLOC
- 	  returned by an alloc().  This handle must be mapped in order to
- 	  access the allocated space.
- 
--config PGTABLE_MAPPING
-+config ZSMALLOC_PGTABLE_MAPPING
- 	bool "Use page table mapping to access object in zsmalloc"
- 	depends on ZSMALLOC
- 	help
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index 2f836a2b993f..ac0524330b9b 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -293,7 +293,7 @@ struct zspage {
- };
- 
- struct mapping_area {
--#ifdef CONFIG_PGTABLE_MAPPING
-+#ifdef CONFIG_ZSMALLOC_PGTABLE_MAPPING
- 	struct vm_struct *vm; /* vm area for mapping object that span pages */
- #else
- 	char *vm_buf; /* copy buffer for objects that span pages */
-@@ -1113,7 +1113,7 @@ static struct zspage *find_get_zspage(struct size_class *class)
- 	return zspage;
- }
- 
--#ifdef CONFIG_PGTABLE_MAPPING
-+#ifdef CONFIG_ZSMALLOC_PGTABLE_MAPPING
- static inline int __zs_cpu_up(struct mapping_area *area)
- {
- 	/*
-@@ -1151,7 +1151,7 @@ static inline void __zs_unmap_object(struct mapping_area *area,
- 	unmap_kernel_range(addr, PAGE_SIZE * 2);
- }
- 
--#else /* CONFIG_PGTABLE_MAPPING */
-+#else /* CONFIG_ZSMALLOC_PGTABLE_MAPPING */
- 
- static inline int __zs_cpu_up(struct mapping_area *area)
- {
-@@ -1233,7 +1233,7 @@ static void __zs_unmap_object(struct mapping_area *area,
- 	pagefault_enable();
- }
- 
--#endif /* CONFIG_PGTABLE_MAPPING */
-+#endif /* CONFIG_ZSMALLOC_PGTABLE_MAPPING */
- 
- static int zs_cpu_prepare(unsigned int cpu)
- {
 -- 
-2.25.1
+Thanks,
+
+David / dhildenb
