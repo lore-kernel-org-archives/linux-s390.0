@@ -1,66 +1,74 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:35236 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502890AbgDNNQE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:04 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 13/33] iommu: Export bus_iommu_probe() and make is safe for re-probing
-Date: Tue, 14 Apr 2020 15:15:22 +0200
-Message-Id: <20200414131542.25608-14-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
+Subject: [PATCH v3 05/10] s390: Change s390_kernel_write() return type to match memcpy()
+Date: Sat, 25 Apr 2020 06:07:25 -0500
+Message-Id: <6ddfa9a98db346f295249fbfdbf80e7a18fbabf0.1587812518.git.jpoimboe@redhat.com>
+In-Reply-To: <cover.1587812518.git.jpoimboe@redhat.com>
+References: <cover.1587812518.git.jpoimboe@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: live-patching@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jessica Yu <jeyu@kernel.org>, Joe Lawrence <joe.lawrence@redhat.com>, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
 
-From: Joerg Roedel <jroedel@suse.de>
+s390_kernel_write()'s function type is almost identical to memcpy().
+Change its return type to "void *" so they can be used interchangeably.
 
-Add a check to the bus_iommu_probe() call-path to make sure it ignores
-devices which have already been successfully probed. Then export the
-bus_iommu_probe() function so it can be used by IOMMU drivers.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: linux-s390@vger.kernel.org
+Cc: heiko.carstens@de.ibm.com
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 ---
- drivers/iommu/iommu.c | 6 +++++-
- include/linux/iommu.h | 1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/uaccess.h | 2 +-
+ arch/s390/mm/maccess.c          | 9 ++++++---
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 834a45da0ed0..a2ff95424044 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -1615,6 +1615,10 @@ static int probe_iommu_group(struct device *dev, void *data)
- 	if (!dev_iommu_get(dev))
- 		return -ENOMEM;
- 
-+	/* Device is probed already if in a group */
-+	if (iommu_group_get(dev) != NULL)
-+		return 0;
-+
- 	if (!try_module_get(ops->owner)) {
- 		ret = -EINVAL;
- 		goto err_free_dev_iommu;
-@@ -1783,7 +1787,7 @@ static int iommu_group_create_direct_mappings(struct iommu_group *group)
- 					  iommu_do_create_direct_mappings);
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uacc=
+ess.h
+index a470f1fa9f2a..324438889fe1 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -276,6 +276,6 @@ static inline unsigned long __must_check clear_user(v=
+oid __user *to, unsigned lo
  }
- 
--static int bus_iommu_probe(struct bus_type *bus)
-+int bus_iommu_probe(struct bus_type *bus)
+=20
+ int copy_to_user_real(void __user *dest, void *src, unsigned long count)=
+;
+-void s390_kernel_write(void *dst, const void *src, size_t size);
++void *s390_kernel_write(void *dst, const void *src, size_t size);
+=20
+ #endif /* __S390_UACCESS_H */
+diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
+index de7ca4b6718f..22a0be655f27 100644
+--- a/arch/s390/mm/maccess.c
++++ b/arch/s390/mm/maccess.c
+@@ -55,19 +55,22 @@ static notrace long s390_kernel_write_odd(void *dst, =
+const void *src, size_t siz
+  */
+ static DEFINE_SPINLOCK(s390_kernel_write_lock);
+=20
+-void notrace s390_kernel_write(void *dst, const void *src, size_t size)
++notrace void *s390_kernel_write(void *dst, const void *src, size_t size)
  {
- 	const struct iommu_ops *ops = bus->iommu_ops;
- 	int ret;
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 30170d191e5e..fea1622408ad 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -445,6 +445,7 @@ static inline void iommu_iotlb_gather_init(struct iommu_iotlb_gather *gather)
- #define IOMMU_GROUP_NOTIFY_UNBOUND_DRIVER	6 /* Post Driver unbind */
- 
- extern int bus_set_iommu(struct bus_type *bus, const struct iommu_ops *ops);
-+extern int bus_iommu_probe(struct bus_type *bus);
- extern bool iommu_present(struct bus_type *bus);
- extern bool iommu_capable(struct bus_type *bus, enum iommu_cap cap);
- extern struct iommu_domain *iommu_domain_alloc(struct bus_type *bus);
--- 
-2.17.1
++	void *tmp =3D dst;
+ 	unsigned long flags;
+ 	long copied;
+=20
+ 	spin_lock_irqsave(&s390_kernel_write_lock, flags);
+ 	while (size) {
+-		copied =3D s390_kernel_write_odd(dst, src, size);
+-		dst +=3D copied;
++		copied =3D s390_kernel_write_odd(tmp, src, size);
++		tmp +=3D copied;
+ 		src +=3D copied;
+ 		size -=3D copied;
+ 	}
+ 	spin_unlock_irqrestore(&s390_kernel_write_lock, flags);
++
++	return dst;
+ }
+=20
+ static int __no_sanitize_address __memcpy_real(void *dest, void *src, si=
+ze_t count)
+--=20
+2.21.1
