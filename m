@@ -1,85 +1,85 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30274 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726659AbgDWJKa (ORCPT
+Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:48030 "EHLO
+        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726135AbgDZMjO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Apr 2020 05:10:30 -0400
-Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03N922Mp097395
-        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 05:10:30 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30k7rbrt6g-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 05:10:29 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <frankja@linux.ibm.com>;
-        Thu, 23 Apr 2020 10:09:39 +0100
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v2 04/10] s390x: smp: Test local interrupts after cpu reset
-Date: Thu, 23 Apr 2020 05:10:07 -0400
-In-Reply-To: <20200423091013.11587-1-frankja@linux.ibm.com>
-References: <20200423091013.11587-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200423091013.11587-5-frankja@linux.ibm.com>
+        Sun, 26 Apr 2020 08:39:14 -0400
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Subject: [PATCH v3 0/7] clean up redundant 'kvm_run' parameters
+Date: Sun, 26 Apr 2020 20:38:58 +0800
+Message-Id: <20200426123905.8336-1-tianjia.zhang@linux.alibaba.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com
+To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
 
-Local interrupts (external and emergency call) should be cleared after
-any cpu reset.
+In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
+structure. Earlier than historical reasons, many kvm-related function
+parameters retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time.
+This patch does a unified cleanup of these remaining redundant parameters.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+This series of patches has completely cleaned the architecture of
+arm64, mips, ppc, and s390 (no such redundant code on x86). Due to
+the large number of modified codes, a separate patch is made for each
+platform. On the ppc platform, there is also a redundant structure
+pointer of 'kvm_run' in 'vcpu_arch', which has also been cleaned
+separately.
+
 ---
- s390x/smp.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+v3 change:
+  Keep the existing `vcpu->run` in the function body unchanged.
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 8a6cd1d..a8e3dd7 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -243,6 +243,20 @@ static void test_reset_initial(void)
- 	report_prefix_pop();
- }
- 
-+static void test_local_ints(void)
-+{
-+	unsigned long mask;
-+
-+	expect_ext_int();
-+	/* Open masks for ecall and emcall */
-+	ctl_set_bit(0, 13);
-+	ctl_set_bit(0, 14);
-+	mask = extract_psw_mask();
-+	mask |= PSW_MASK_EXT;
-+	load_psw_mask(mask);
-+	set_flag(1);
-+}
-+
- static void test_reset(void)
- {
- 	struct psw psw;
-@@ -251,10 +265,18 @@ static void test_reset(void)
- 	psw.addr = (unsigned long)test_func;
- 
- 	report_prefix_push("cpu reset");
-+	sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
-+	sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
- 	smp_cpu_start(1, psw);
- 
- 	sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
- 	report(smp_cpu_stopped(1), "cpu stopped");
-+
-+	set_flag(0);
-+	psw.addr = (unsigned long)test_local_ints;
-+	smp_cpu_start(1, psw);
-+	wait_for_flag();
-+	report(true, "local interrupts cleared");
- 	report_prefix_pop();
- }
- 
+v2 change:
+  s390 retains the original variable name and minimizes modification.
+
+Tianjia Zhang (7):
+  KVM: s390: clean up redundant 'kvm_run' parameters
+  KVM: arm64: clean up redundant 'kvm_run' parameters
+  KVM: PPC: Remove redundant kvm_run from vcpu_arch
+  KVM: PPC: clean up redundant 'kvm_run' parameters
+  KVM: PPC: clean up redundant kvm_run parameters in assembly
+  KVM: MIPS: clean up redundant 'kvm_run' parameters
+  KVM: MIPS: clean up redundant kvm_run parameters in assembly
+
+ arch/arm64/include/asm/kvm_coproc.h      |  12 +--
+ arch/arm64/include/asm/kvm_host.h        |  11 +--
+ arch/arm64/include/asm/kvm_mmu.h         |   2 +-
+ arch/arm64/kvm/handle_exit.c             |  36 +++----
+ arch/arm64/kvm/sys_regs.c                |  13 ++-
+ arch/mips/include/asm/kvm_host.h         |  32 +------
+ arch/mips/kvm/emulate.c                  |  59 ++++--------
+ arch/mips/kvm/entry.c                    |  15 +--
+ arch/mips/kvm/mips.c                     |  14 +--
+ arch/mips/kvm/trap_emul.c                | 114 ++++++++++-------------
+ arch/mips/kvm/vz.c                       |  26 ++----
+ arch/powerpc/include/asm/kvm_book3s.h    |  16 ++--
+ arch/powerpc/include/asm/kvm_host.h      |   1 -
+ arch/powerpc/include/asm/kvm_ppc.h       |  27 +++---
+ arch/powerpc/kvm/book3s.c                |   4 +-
+ arch/powerpc/kvm/book3s.h                |   2 +-
+ arch/powerpc/kvm/book3s_64_mmu_hv.c      |  12 +--
+ arch/powerpc/kvm/book3s_64_mmu_radix.c   |   4 +-
+ arch/powerpc/kvm/book3s_emulate.c        |  10 +-
+ arch/powerpc/kvm/book3s_hv.c             |  64 ++++++-------
+ arch/powerpc/kvm/book3s_hv_nested.c      |  12 +--
+ arch/powerpc/kvm/book3s_interrupts.S     |  17 ++--
+ arch/powerpc/kvm/book3s_paired_singles.c |  72 +++++++-------
+ arch/powerpc/kvm/book3s_pr.c             |  33 ++++---
+ arch/powerpc/kvm/booke.c                 |  39 ++++----
+ arch/powerpc/kvm/booke.h                 |   8 +-
+ arch/powerpc/kvm/booke_emulate.c         |   2 +-
+ arch/powerpc/kvm/booke_interrupts.S      |   9 +-
+ arch/powerpc/kvm/bookehv_interrupts.S    |  10 +-
+ arch/powerpc/kvm/e500_emulate.c          |  15 ++-
+ arch/powerpc/kvm/emulate.c               |  10 +-
+ arch/powerpc/kvm/emulate_loadstore.c     |  32 +++----
+ arch/powerpc/kvm/powerpc.c               |  72 +++++++-------
+ arch/powerpc/kvm/trace_hv.h              |   6 +-
+ arch/s390/kvm/kvm-s390.c                 |  23 +++--
+ virt/kvm/arm/arm.c                       |   6 +-
+ virt/kvm/arm/mmio.c                      |  11 ++-
+ virt/kvm/arm/mmu.c                       |   5 +-
+ 38 files changed, 389 insertions(+), 467 deletions(-)
+
 -- 
-2.25.1
+2.17.1
