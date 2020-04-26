@@ -1,42 +1,92 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga07-in.huawei.com ([45.249.212.35]:35880 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725862AbgDRHxN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Apr 2020 03:53:13 -0400
-From: Jason Yan <yanaijie@huawei.com>
-Subject: [PATCH] KVM: s390: remove unneeded semicolon in gisa_vcpu_kicker()
-Date: Sat, 18 Apr 2020 16:19:26 +0800
-Message-ID: <20200418081926.41666-1-yanaijie@huawei.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Received: from mail.kernel.org ([198.145.29.99]:59150 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726092AbgDZDB2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 25 Apr 2020 23:01:28 -0400
+Date: Sat, 25 Apr 2020 20:01:24 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 3/3] mm/hugetlb: Introduce
+ HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS
+Message-Id: <20200425200124.20d0c75fcaef05d062d3667c@linux-foundation.org>
+In-Reply-To: <87d37591-caa2-b82b-392a-3a29b2c7e9a6@arm.com>
+References: <1586864670-21799-1-git-send-email-anshuman.khandual@arm.com>
+        <1586864670-21799-4-git-send-email-anshuman.khandual@arm.com>
+        <20200425175511.7a68efb5e2f4436fe0328c1d@linux-foundation.org>
+        <87d37591-caa2-b82b-392a-3a29b2c7e9a6@arm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, Ulrich.Weigand@de.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jason Yan <yanaijie@huawei.com>, Hulk Robot <hulkci@huawei.com>
+To: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: linux-mm@kvack.org, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Mike Kravetz <mike.kravetz@oracle.com>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Fix the following coccicheck warning:
+On Sun, 26 Apr 2020 08:13:17 +0530 Anshuman Khandual <anshuman.khandual@arm.com> wrote:
 
-arch/s390/kvm/interrupt.c:3085:2-3: Unneeded semicolon
+> 
+> 
+> On 04/26/2020 06:25 AM, Andrew Morton wrote:
+> > On Tue, 14 Apr 2020 17:14:30 +0530 Anshuman Khandual <anshuman.khandual@arm.com> wrote:
+> > 
+> >> There are multiple similar definitions for arch_clear_hugepage_flags() on
+> >> various platforms. This introduces HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS for those
+> >> platforms that need to define their own arch_clear_hugepage_flags() while
+> >> also providing a generic fallback definition for others to use. This help
+> >> reduce code duplication.
+> >>
+> >> ...
+> >>
+> >> --- a/include/linux/hugetlb.h
+> >> +++ b/include/linux/hugetlb.h
+> >> @@ -544,6 +544,10 @@ static inline int is_hugepage_only_range(struct mm_struct *mm,
+> >>  }
+> >>  #endif
+> >>  
+> >> +#ifndef HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS
+> >> +static inline void arch_clear_hugepage_flags(struct page *page) { }
+> >> +#endif
+> >> +
+> >>  #ifndef arch_make_huge_pte
+> >>  static inline pte_t arch_make_huge_pte(pte_t entry, struct vm_area_struct *vma,
+> >>  				       struct page *page, int writable)
+> > 
+> > This is the rather old-school way of doing it.  The Linus-suggested way is
+> > 
+> > #ifndef arch_clear_hugepage_flags
+> > static inline void arch_clear_hugepage_flags(struct page *page)
+> > {
+> > }
+> > #define arch_clear_hugepage_flags arch_clear_hugepage_flags
+> 
+> Do we need that above line here ? Is not that implicit.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Jason Yan <yanaijie@huawei.com>
----
- arch/s390/kvm/interrupt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It depends if other header files want to test whether
+arch_clear_hugepage_flags is already defined.  If the header heorarchy
+is well-defined and working properly, they shouldn't need to, because
+we're reliably indluding the relevant arch header before (or early
+within) include/linux/hugetlb.h.
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 8191106bf7b9..559177123d0f 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -3082,7 +3082,7 @@ static enum hrtimer_restart gisa_vcpu_kicker(struct hrtimer *timer)
- 		__airqs_kick_single_vcpu(kvm, pending_mask);
- 		hrtimer_forward_now(timer, ns_to_ktime(gi->expires));
- 		return HRTIMER_RESTART;
--	};
-+	}
- 
- 	return HRTIMER_NORESTART;
- }
--- 
-2.21.1
+It would be nice if
+
+#define arch_clear_hugepage_flags arch_clear_hugepage_flags
+#define arch_clear_hugepage_flags arch_clear_hugepage_flags
+
+were to generate an compiler error but it doesn't.  If it did we could
+detect these incorrect inclusion orders.
+
+> > #endif
+> > 
+> > And the various arch headers do
+> > 
+> > static inline void arch_clear_hugepage_flags(struct page *page)
+> > {
+> > 	<some implementation>
+> > }
+> > #define arch_clear_hugepage_flags arch_clear_hugepage_flags
+> > 
+> > It's a small difference - mainly to avoid adding two variables to the
+> > overall namespace where one would do.
+> 
+> Understood, will change and resend.
+
+That's OK - I've queued up that fix.
