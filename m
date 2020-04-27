@@ -1,156 +1,181 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC 1/2] s390/zcore: traverse resources instead of memblocks
-Date: Fri, 17 Apr 2020 17:01:50 +0200
-Message-Id: <20200417150151.17239-2-david@redhat.com>
-In-Reply-To: <20200417150151.17239-1-david@redhat.com>
-References: <20200417150151.17239-1-david@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34538 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726172AbgD0F2t (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 27 Apr 2020 01:28:49 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-kernel-owner@vger.kernel.org
+References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com> <20200427043514.16144-8-tianjia.zhang@linux.alibaba.com>
+In-Reply-To: <20200427043514.16144-8-tianjia.zhang@linux.alibaba.com>
+From: Huacai Chen <chenhuacai@gmail.com>
+Date: Mon, 27 Apr 2020 13:36:16 +0800
+Message-ID: <CAAhV-H5vifJfV+HjJS2UpW-56tdsXFA6VYhaf3xi92POxuPTyg@mail.gmail.com>
+Subject: Re: [PATCH v4 7/7] KVM: MIPS: clean up redundant kvm_run parameters
+ in assembly
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Kirill Smelkov <kirr@nexedi.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>
+To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, paulus@ozlabs.org, mpe@ellerman.id.au, Benjamin Herrenschmidt <benh@kernel.crashing.org>, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, Thomas Gleixner <tglx@linutronix.de>, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, x86@kernel.org, hpa@zytor.com, Marc Zyngier <maz@kernel.org>, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, Peter Xu <peterx@redhat.com>, thuth@redhat.com, kvm@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, kvmarm@lists.cs.columbia.edu, "open list:MIPS" <linux-mips@vger.kernel.org>, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-The zcore memmap basically contains the first level of all system RAM fro=
-m
-/proc/iomem. We want to disable CONFIG_ARCH_KEEP_MEMBLOCK (e.g., to not
-create memblocks for hotplugged/standby memory and save space), switch to
-traversing system ram resources instead. During early boot, we create
-resources for all early memblocks (including the crash kernel area). When
-adding standby memory, we currently create both, memblocks and resources.
+Reviewed-by: Huacai Chen <chenhc@lemote.com>
 
-Note: As we don't have memory hotplug after boot (standby memory is added
-via sclp during boot), we don't have to worry about races.
-
-I am only able to test under KVM (where I hacked up zcore to still
-create the memmap file)
-
-root@vm0:~# cat /proc/iomem
-00000000-2fffffff : System RAM
-  10424000-10ec6fff : Kernel code
-  10ec7000-1139a0e3 : Kernel data
-  1177a000-11850fff : Kernel bss
-30000000-3fffffff : Crash kernel
-
-Result without this patch:
-root@vm0:~# cat /sys/kernel/debug/zcore/memmap
-0000000000000000 0000000040000000
-
-Result with this patch:
-root@vm0:~# cat /sys/kernel/debug/zcore/memmap
-0000000000000000 0000000030000000 0000000030000000 0000000010000000
-
-The difference is due to memblocks getting merged, resources (currently)
-not. So we might have some more entries, but they describe the same
-memory map.
-
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Philipp Rudo <prudo@linux.ibm.com>
-Cc: Kirill Smelkov <kirr@nexedi.com>
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/s390/char/zcore.c | 61 ++++++++++++++++++++++++++++++---------
- 1 file changed, 48 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/s390/char/zcore.c b/drivers/s390/char/zcore.c
-index 08f812475f5e..c40ac7d548d8 100644
---- a/drivers/s390/char/zcore.c
-+++ b/drivers/s390/char/zcore.c
-@@ -16,7 +16,7 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/debugfs.h>
--#include <linux/memblock.h>
-+#include <linux/ioport.h>
-=20
- #include <asm/asm-offsets.h>
- #include <asm/ipl.h>
-@@ -139,35 +139,70 @@ static void release_hsa(void)
- 	hsa_available =3D 0;
- }
-=20
-+struct zcore_memmap_info {
-+	char *buf;
-+	size_t length;
-+};
-+
- static ssize_t zcore_memmap_read(struct file *filp, char __user *buf,
- 				 size_t count, loff_t *ppos)
- {
--	return simple_read_from_buffer(buf, count, ppos, filp->private_data,
--				       memblock.memory.cnt * CHUNK_INFO_SIZE);
-+	struct zcore_memmap_info *info =3D filp->private_data;
-+
-+	return simple_read_from_buffer(buf, count, ppos, info->buf,
-+				       info->length);
-+}
-+
-+static int zcore_count_ram_resource(struct resource *res, void *arg)
-+{
-+	size_t *count =3D arg;
-+
-+	*count +=3D 1;
-+	return 0;
-+}
-+
-+static int zcore_process_ram_resource(struct resource *res, void *arg)
-+{
-+	char **buf =3D arg;
-+
-+	sprintf(*buf, "%016lx %016lx ", (unsigned long) res->start,
-+		(unsigned long) resource_size(res));
-+
-+	*buf +=3D CHUNK_INFO_SIZE;
-+	return 0;
- }
-=20
- static int zcore_memmap_open(struct inode *inode, struct file *filp)
- {
--	struct memblock_region *reg;
-+	struct zcore_memmap_info *info;
-+	size_t count =3D 0;
- 	char *buf;
--	int i =3D 0;
-=20
--	buf =3D kcalloc(memblock.memory.cnt, CHUNK_INFO_SIZE, GFP_KERNEL);
-+	walk_system_ram_res(0, ULONG_MAX, &count, zcore_count_ram_resource);
-+
-+	info =3D kmalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+	buf =3D kcalloc(count, CHUNK_INFO_SIZE, GFP_KERNEL);
- 	if (!buf) {
-+		kfree(info);
- 		return -ENOMEM;
- 	}
--	for_each_memblock(memory, reg) {
--		sprintf(buf + (i++ * CHUNK_INFO_SIZE), "%016llx %016llx ",
--			(unsigned long long) reg->base,
--			(unsigned long long) reg->size);
--	}
--	filp->private_data =3D buf;
-+	info->length =3D count * CHUNK_INFO_SIZE;
-+	info->buf =3D buf;
-+
-+	walk_system_ram_res(0, ULONG_MAX, &buf, zcore_process_ram_resource);
-+
-+	filp->private_data =3D info;
- 	return nonseekable_open(inode, filp);
- }
-=20
- static int zcore_memmap_release(struct inode *inode, struct file *filp)
- {
--	kfree(filp->private_data);
-+	struct zcore_memmap_info *info =3D filp->private_data;
-+
-+	kfree(info->buf);
-+	kfree(info);
- 	return 0;
- }
-=20
---=20
-2.25.1
+On Mon, Apr 27, 2020 at 12:35 PM Tianjia Zhang
+<tianjia.zhang@linux.alibaba.com> wrote:
+>
+> In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
+> structure. For historical reasons, many kvm-related function parameters
+> retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
+> patch does a unified cleanup of these remaining redundant parameters.
+>
+> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+> ---
+>  arch/mips/include/asm/kvm_host.h |  4 ++--
+>  arch/mips/kvm/entry.c            | 21 ++++++++-------------
+>  arch/mips/kvm/mips.c             |  3 ++-
+>  arch/mips/kvm/trap_emul.c        |  2 +-
+>  arch/mips/kvm/vz.c               |  2 +-
+>  5 files changed, 14 insertions(+), 18 deletions(-)
+>
+> diff --git a/arch/mips/include/asm/kvm_host.h b/arch/mips/include/asm/kvm_host.h
+> index 971439297cea..db915c55166d 100644
+> --- a/arch/mips/include/asm/kvm_host.h
+> +++ b/arch/mips/include/asm/kvm_host.h
+> @@ -310,7 +310,7 @@ struct kvm_mmu_memory_cache {
+>  #define KVM_MIPS_GUEST_TLB_SIZE        64
+>  struct kvm_vcpu_arch {
+>         void *guest_ebase;
+> -       int (*vcpu_run)(struct kvm_run *run, struct kvm_vcpu *vcpu);
+> +       int (*vcpu_run)(struct kvm_vcpu *vcpu);
+>
+>         /* Host registers preserved across guest mode execution */
+>         unsigned long host_stack;
+> @@ -821,7 +821,7 @@ int kvm_mips_emulation_init(struct kvm_mips_callbacks **install_callbacks);
+>  /* Debug: dump vcpu state */
+>  int kvm_arch_vcpu_dump_regs(struct kvm_vcpu *vcpu);
+>
+> -extern int kvm_mips_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu);
+> +extern int kvm_mips_handle_exit(struct kvm_vcpu *vcpu);
+>
+>  /* Building of entry/exception code */
+>  int kvm_mips_entry_setup(void);
+> diff --git a/arch/mips/kvm/entry.c b/arch/mips/kvm/entry.c
+> index 16e1c93b484f..1083f35361ea 100644
+> --- a/arch/mips/kvm/entry.c
+> +++ b/arch/mips/kvm/entry.c
+> @@ -204,7 +204,7 @@ static inline void build_set_exc_base(u32 **p, unsigned int reg)
+>   * Assemble the start of the vcpu_run function to run a guest VCPU. The function
+>   * conforms to the following prototype:
+>   *
+> - * int vcpu_run(struct kvm_run *run, struct kvm_vcpu *vcpu);
+> + * int vcpu_run(struct kvm_vcpu *vcpu);
+>   *
+>   * The exit from the guest and return to the caller is handled by the code
+>   * generated by kvm_mips_build_ret_to_host().
+> @@ -217,8 +217,7 @@ void *kvm_mips_build_vcpu_run(void *addr)
+>         unsigned int i;
+>
+>         /*
+> -        * A0: run
+> -        * A1: vcpu
+> +        * A0: vcpu
+>          */
+>
+>         /* k0/k1 not being used in host kernel context */
+> @@ -237,10 +236,10 @@ void *kvm_mips_build_vcpu_run(void *addr)
+>         kvm_mips_build_save_scratch(&p, V1, K1);
+>
+>         /* VCPU scratch register has pointer to vcpu */
+> -       UASM_i_MTC0(&p, A1, scratch_vcpu[0], scratch_vcpu[1]);
+> +       UASM_i_MTC0(&p, A0, scratch_vcpu[0], scratch_vcpu[1]);
+>
+>         /* Offset into vcpu->arch */
+> -       UASM_i_ADDIU(&p, K1, A1, offsetof(struct kvm_vcpu, arch));
+> +       UASM_i_ADDIU(&p, K1, A0, offsetof(struct kvm_vcpu, arch));
+>
+>         /*
+>          * Save the host stack to VCPU, used for exception processing
+> @@ -628,10 +627,7 @@ void *kvm_mips_build_exit(void *addr)
+>         /* Now that context has been saved, we can use other registers */
+>
+>         /* Restore vcpu */
+> -       UASM_i_MFC0(&p, S1, scratch_vcpu[0], scratch_vcpu[1]);
+> -
+> -       /* Restore run (vcpu->run) */
+> -       UASM_i_LW(&p, S0, offsetof(struct kvm_vcpu, run), S1);
+> +       UASM_i_MFC0(&p, S0, scratch_vcpu[0], scratch_vcpu[1]);
+>
+>         /*
+>          * Save Host level EPC, BadVaddr and Cause to VCPU, useful to process
+> @@ -793,7 +789,6 @@ void *kvm_mips_build_exit(void *addr)
+>          * with this in the kernel
+>          */
+>         uasm_i_move(&p, A0, S0);
+> -       uasm_i_move(&p, A1, S1);
+>         UASM_i_LA(&p, T9, (unsigned long)kvm_mips_handle_exit);
+>         uasm_i_jalr(&p, RA, T9);
+>          UASM_i_ADDIU(&p, SP, SP, -CALLFRAME_SIZ);
+> @@ -835,7 +830,7 @@ static void *kvm_mips_build_ret_from_exit(void *addr)
+>          * guest, reload k1
+>          */
+>
+> -       uasm_i_move(&p, K1, S1);
+> +       uasm_i_move(&p, K1, S0);
+>         UASM_i_ADDIU(&p, K1, K1, offsetof(struct kvm_vcpu, arch));
+>
+>         /*
+> @@ -869,8 +864,8 @@ static void *kvm_mips_build_ret_to_guest(void *addr)
+>  {
+>         u32 *p = addr;
+>
+> -       /* Put the saved pointer to vcpu (s1) back into the scratch register */
+> -       UASM_i_MTC0(&p, S1, scratch_vcpu[0], scratch_vcpu[1]);
+> +       /* Put the saved pointer to vcpu (s0) back into the scratch register */
+> +       UASM_i_MTC0(&p, S0, scratch_vcpu[0], scratch_vcpu[1]);
+>
+>         /* Load up the Guest EBASE to minimize the window where BEV is set */
+>         UASM_i_LW(&p, T0, offsetof(struct kvm_vcpu_arch, guest_ebase), K1);
+> diff --git a/arch/mips/kvm/mips.c b/arch/mips/kvm/mips.c
+> index 9710477a9827..32850470c037 100644
+> --- a/arch/mips/kvm/mips.c
+> +++ b/arch/mips/kvm/mips.c
+> @@ -1186,8 +1186,9 @@ static void kvm_mips_set_c0_status(void)
+>  /*
+>   * Return value is in the form (errcode<<2 | RESUME_FLAG_HOST | RESUME_FLAG_NV)
+>   */
+> -int kvm_mips_handle_exit(struct kvm_run *run, struct kvm_vcpu *vcpu)
+> +int kvm_mips_handle_exit(struct kvm_vcpu *vcpu)
+>  {
+> +       struct kvm_run *run = vcpu->run;
+>         u32 cause = vcpu->arch.host_cp0_cause;
+>         u32 exccode = (cause >> CAUSEB_EXCCODE) & 0x1f;
+>         u32 __user *opc = (u32 __user *) vcpu->arch.pc;
+> diff --git a/arch/mips/kvm/trap_emul.c b/arch/mips/kvm/trap_emul.c
+> index d822f3aee3dc..04c864cc356a 100644
+> --- a/arch/mips/kvm/trap_emul.c
+> +++ b/arch/mips/kvm/trap_emul.c
+> @@ -1238,7 +1238,7 @@ static int kvm_trap_emul_vcpu_run(struct kvm_vcpu *vcpu)
+>          */
+>         kvm_mips_suspend_mm(cpu);
+>
+> -       r = vcpu->arch.vcpu_run(vcpu->run, vcpu);
+> +       r = vcpu->arch.vcpu_run(vcpu);
+>
+>         /* We may have migrated while handling guest exits */
+>         cpu = smp_processor_id();
+> diff --git a/arch/mips/kvm/vz.c b/arch/mips/kvm/vz.c
+> index 94f1d23828e3..c5878fa0636d 100644
+> --- a/arch/mips/kvm/vz.c
+> +++ b/arch/mips/kvm/vz.c
+> @@ -3152,7 +3152,7 @@ static int kvm_vz_vcpu_run(struct kvm_vcpu *vcpu)
+>         kvm_vz_vcpu_load_tlb(vcpu, cpu);
+>         kvm_vz_vcpu_load_wired(vcpu);
+>
+> -       r = vcpu->arch.vcpu_run(vcpu->run, vcpu);
+> +       r = vcpu->arch.vcpu_run(vcpu);
+>
+>         kvm_vz_vcpu_save_wired(vcpu);
+>
+> --
+> 2.17.1
+>
