@@ -1,78 +1,138 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53112 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727971AbgD2Nhs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Apr 2020 09:37:48 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 14/34] iommu/amd: Remove dev_data->passthrough
-Date: Wed, 29 Apr 2020 15:36:52 +0200
-Message-Id: <20200429133712.31431-15-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v3 2/4] hugetlbfs: move hugepagesz= parsing to arch
+ independent code
+References: <20200417185049.275845-1-mike.kravetz@oracle.com>
+ <20200417185049.275845-3-mike.kravetz@oracle.com>
+ <7583dfcc-62d8-2a54-6eef-bcb4e01129b3@gmail.com>
+ <5a380060-38db-b690-1003-678ca0f28f07@oracle.com>
+ <b1f04f9f-fa46-c2a0-7693-4a0679d2a1ee@oracle.com>
+From: Sandipan Das <sandipan@linux.ibm.com>
+Message-ID: <9c82a0b1-db0e-9b34-88a1-bc810d6b5eec@linux.ibm.com>
+Date: Tue, 28 Apr 2020 09:47:13 +0530
+MIME-Version: 1.0
+In-Reply-To: <b1f04f9f-fa46-c2a0-7693-4a0679d2a1ee@oracle.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S.Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Randy Dunlap <rdunlap@infradead.org>, Mina Almasry <almasrymina@google.com>, Peter Xu <peterx@redhat.com>, Nitesh Narayan Lal <nitesh@redhat.com>, Andrew Morton <akpm@linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+Hi Mike,
 
-Make use of generic IOMMU infrastructure to gather the same information
-carried in dev_data->passthrough and remove the struct member.
+On 28/04/20 12:39 am, Mike Kravetz wrote:
+> On 4/27/20 10:25 AM, Mike Kravetz wrote:
+>> On 4/26/20 10:04 PM, Sandipan Das wrote:
+>>> On 18/04/20 12:20 am, Mike Kravetz wrote:
+>>>> Now that architectures provide arch_hugetlb_valid_size(), parsing
+>>>> of "hugepagesz=" can be done in architecture independent code.
+>>>
+>>> This isn't working as expected on powerpc64.
+>>>
+>>>   [    0.000000] Kernel command line: root=UUID=dc7b49cf-95a2-4996-8e7d-7c64ddc7a6ff hugepagesz=16G hugepages=2 
+>>>   [    0.000000] HugeTLB: huge pages not supported, ignoring hugepagesz = 16G
+>>>   [    0.000000] HugeTLB: huge pages not supported, ignoring hugepages = 2
+>>>   [    0.284177] HugeTLB registered 16.0 MiB page size, pre-allocated 0 pages
+>>>   [    0.284182] HugeTLB registered 16.0 GiB page size, pre-allocated 0 pages
+>>>   [    2.585062]     hugepagesz=16G
+>>>   [    2.585063]     hugepages=2
+>>>
+>>
+>> In the new arch independent version of hugepages_setup, I added the following
+>> code in patch 4 off this series:
+>>
+>>> +	if (!hugepages_supported()) {
+>>> +		pr_warn("HugeTLB: huge pages not supported, ignoring hugepages = %s\n", s);
+>>> +		return 0;
+>>> +	}
+>>> +
+>>
+>> The easy solution is to remove all the hugepages_supported() checks from
+>> command line parsing routines and rely on the later check in hugetlb_init().
+> 
+> Here is a patch to address the issue.  Sorry, as my series breaks all hugetlb
+> command line processing on powerpc.
+> 
+> Sandipan, can you test the following patch?
+> 
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/amd_iommu.c       | 10 +++++-----
- drivers/iommu/amd_iommu_types.h |  1 -
- 2 files changed, 5 insertions(+), 6 deletions(-)
+The following patch does fix the issue. Thanks.
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 3e0d27f7622e..0b4b4faa876d 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2047,8 +2047,8 @@ static int pdev_iommuv2_enable(struct pci_dev *pdev)
- static int attach_device(struct device *dev,
- 			 struct protection_domain *domain)
- {
--	struct pci_dev *pdev;
- 	struct iommu_dev_data *dev_data;
-+	struct pci_dev *pdev;
- 	unsigned long flags;
- 	int ret;
- 
-@@ -2067,8 +2067,10 @@ static int attach_device(struct device *dev,
- 
- 	pdev = to_pci_dev(dev);
- 	if (domain->flags & PD_IOMMUV2_MASK) {
-+		struct iommu_domain *def_domain = iommu_get_dma_domain(dev);
-+
- 		ret = -EINVAL;
--		if (!dev_data->passthrough)
-+		if (def_domain->type != IOMMU_DOMAIN_IDENTITY)
- 			goto out;
- 
- 		if (dev_data->iommu_v2) {
-@@ -2189,9 +2191,7 @@ static int amd_iommu_add_device(struct device *dev)
- 
- 	/* Domains are initialized for this device - have a look what we ended up with */
- 	domain = iommu_get_domain_for_dev(dev);
--	if (domain->type == IOMMU_DOMAIN_IDENTITY)
--		dev_data->passthrough = true;
--	else if (domain->type == IOMMU_DOMAIN_DMA)
-+	if (domain->type == IOMMU_DOMAIN_DMA)
- 		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
- 
- out:
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index ca8c4522045b..d0d7b6a0c3d8 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -640,7 +640,6 @@ struct iommu_dev_data {
- 	struct pci_dev *pdev;
- 	u16 devid;			  /* PCI Device ID */
- 	bool iommu_v2;			  /* Device can make use of IOMMUv2 */
--	bool passthrough;		  /* Device is identity mapped */
- 	struct {
- 		bool enabled;
- 		int qdep;
--- 
-2.17.1
+Tested-by: Sandipan Das <sandipan@linux.ibm.com>
+
+
+> From 480fe2847361e2a85aeec1fb39fe643bb7100a07 Mon Sep 17 00:00:00 2001
+> From: Mike Kravetz <mike.kravetz@oracle.com>
+> Date: Mon, 27 Apr 2020 11:37:30 -0700
+> Subject: [PATCH] hugetlbfs: fix changes to command line processing
+> 
+> Previously, a check for hugepages_supported was added before processing
+> hugetlb command line parameters.  On some architectures such as powerpc,
+> hugepages_supported() is not set to true until after command line
+> processing.  Therefore, no hugetlb command line parameters would be
+> accepted.
+> 
+> Remove the additional checks for hugepages_supported.  In hugetlb_init,
+> print a warning if !hugepages_supported and command line parameters were
+> specified.
+> 
+> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+> ---
+>  mm/hugetlb.c | 20 ++++----------------
+>  1 file changed, 4 insertions(+), 16 deletions(-)
+> 
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index 1075abdb5717..5548e8851b93 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -3212,8 +3212,11 @@ static int __init hugetlb_init(void)
+>  {
+>  	int i;
+>  
+> -	if (!hugepages_supported())
+> +	if (!hugepages_supported()) {
+> +		if (hugetlb_max_hstate || default_hstate_max_huge_pages)
+> +			pr_warn("HugeTLB: huge pages not supported, ignoring associated command-line parameters\n");
+>  		return 0;
+> +	}
+>  
+>  	/*
+>  	 * Make sure HPAGE_SIZE (HUGETLB_PAGE_ORDER) hstate exists.  Some
+> @@ -3315,11 +3318,6 @@ static int __init hugepages_setup(char *s)
+>  	unsigned long *mhp;
+>  	static unsigned long *last_mhp;
+>  
+> -	if (!hugepages_supported()) {
+> -		pr_warn("HugeTLB: huge pages not supported, ignoring hugepages = %s\n", s);
+> -		return 0;
+> -	}
+> -
+>  	if (!parsed_valid_hugepagesz) {
+>  		pr_warn("HugeTLB: hugepages=%s does not follow a valid hugepagesz, ignoring\n", s);
+>  		parsed_valid_hugepagesz = true;
+> @@ -3372,11 +3370,6 @@ static int __init hugepagesz_setup(char *s)
+>  	struct hstate *h;
+>  
+>  	parsed_valid_hugepagesz = false;
+> -	if (!hugepages_supported()) {
+> -		pr_warn("HugeTLB: huge pages not supported, ignoring hugepagesz = %s\n", s);
+> -		return 0;
+> -	}
+> -
+>  	size = (unsigned long)memparse(s, NULL);
+>  
+>  	if (!arch_hugetlb_valid_size(size)) {
+> @@ -3424,11 +3417,6 @@ static int __init default_hugepagesz_setup(char *s)
+>  	unsigned long size;
+>  
+>  	parsed_valid_hugepagesz = false;
+> -	if (!hugepages_supported()) {
+> -		pr_warn("HugeTLB: huge pages not supported, ignoring default_hugepagesz = %s\n", s);
+> -		return 0;
+> -	}
+> -
+>  	if (parsed_default_hugepagesz) {
+>  		pr_err("HugeTLB: default_hugepagesz previously specified, ignoring %s\n", s);
+>  		return 0;
+> 
