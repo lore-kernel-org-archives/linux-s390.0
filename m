@@ -1,77 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2130.oracle.com ([156.151.31.86]:56388 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726432AbgDQSyB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 17 Apr 2020 14:54:01 -0400
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: [PATCH v3 0/4] Clean up hugetlb boot command line processing
-Date: Fri, 17 Apr 2020 11:50:45 -0700
-Message-Id: <20200417185049.275845-1-mike.kravetz@oracle.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39496 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726271AbgD1Iu2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Apr 2020 04:50:28 -0400
+Subject: Re: [kvm-unit-tests PATCH v6 10/10] s390x: css: ping pong
+References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+ <1587725152-25569-11-git-send-email-pmorel@linux.ibm.com>
+ <ecd95341-0cc2-1aee-239d-5de63cf6e7e1@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <6591ec0d-5b44-1d85-a314-c6b9f87b7952@linux.ibm.com>
+Date: Tue, 28 Apr 2020 10:50:20 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <ecd95341-0cc2-1aee-239d-5de63cf6e7e1@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Randy Dunlap <rdunlap@infradead.org>, Mina Almasry <almasrymina@google.com>, Peter Xu <peterx@redhat.com>, Nitesh Narayan Lal <nitesh@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Kravetz <mike.kravetz@oracle.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-v3 -
-   Used weak attribute method of defining arch_hugetlb_valid_size.
-     This eliminates changes to arch specific hugetlb.h files (Peter)
-   Updated documentation (Peter, Randy)
-   Fixed handling of implicitly specified gigantic page preallocation
-     in existing code and removed documentation of such.  There is now
-     no difference between handling of gigantic and non-gigantic pages.
-     (Peter, Nitesh).
-     This requires the most review as there is a small change to
-     undocumented behavior.  See patch 4 commit message for details.
-   Added Acks and Reviews (Mina, Peter)
 
-v2 -
-   Fix build errors with patch 1 (Will)
-   Change arch_hugetlb_valid_size arg to unsigned long and remove
-     irrelevant 'extern' keyword (Christophe)
-   Documentation and other misc changes (Randy, Christophe, Mina)
-   Do not process command line options if !hugepages_supported()
-     (Dave, but it sounds like we may want to additional changes to
-      hugepages_supported() for x86?  If that is needed I would prefer
-      a separate patch.)
 
-Longpeng(Mike) reported a weird message from hugetlb command line processing
-and proposed a solution [1].  While the proposed patch does address the
-specific issue, there are other related issues in command line processing.
-As hugetlbfs evolved, updates to command line processing have been made to
-meet immediate needs and not necessarily in a coordinated manner.  The result
-is that some processing is done in arch specific code, some is done in arch
-independent code and coordination is problematic.  Semantics can vary between
-architectures.
+On 2020-04-27 15:14, Janosch Frank wrote:
+> On 4/24/20 12:45 PM, Pierre Morel wrote:
+>> To test a write command with the SSCH instruction we need a QEMU device,
+>> with control unit type 0xC0CA. The PONG device is such a device.
+>>
+>> This type of device responds to PONG_WRITE requests by incrementing an
+>> integer, stored as a string at offset 0 of the CCW data.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 
-The patch series does the following:
-- Define arch specific arch_hugetlb_valid_size routine used to validate
-  passed huge page sizes.
-- Move hugepagesz= command line parsing out of arch specific code and into
-  an arch independent routine.
-- Clean up command line processing to follow desired semantics and
-  document those semantics.
+>> +static void test_ping(void)
+>> +{
+>> +	int success, result;
+>> +	int cnt = 0, max = 4;
+>> +
+>> +	if (senseid.cu_type != PONG_CU) {
+>> +		report_skip("No PONG, no ping-pong");
+> 
+> "Device is not a pong device."
 
-[1] https://lore.kernel.org/linux-mm/20200305033014.1152-1-longpeng2@huawei.com
+:( so far for poetry
 
-Mike Kravetz (4):
-  hugetlbfs: add arch_hugetlb_valid_size
-  hugetlbfs: move hugepagesz= parsing to arch independent code
-  hugetlbfs: remove hugetlb_add_hstate() warning for existing hstate
-  hugetlbfs: clean up command line processing
 
- .../admin-guide/kernel-parameters.txt         |  40 ++--
- Documentation/admin-guide/mm/hugetlbpage.rst  |  35 ++++
- arch/arm64/mm/hugetlbpage.c                   |  30 +--
- arch/powerpc/mm/hugetlbpage.c                 |  30 +--
- arch/riscv/mm/hugetlbpage.c                   |  24 +--
- arch/s390/mm/hugetlbpage.c                    |  24 +--
- arch/sparc/mm/init_64.c                       |  43 +---
- arch/x86/mm/hugetlbpage.c                     |  23 +--
- include/linux/hugetlb.h                       |   2 +-
- mm/hugetlb.c                                  | 190 +++++++++++++++---
- 10 files changed, 271 insertions(+), 170 deletions(-)
+> 
+>> +		return;
+>> +	}
+>> +
+>> +	result = register_io_int_func(irq_io);
+>> +	if (result) {
+>> +		report(0, "Could not register IRQ handler");
+>> +		return;
+>> +	}
+> 
+> I'm not sure if it's worth checking the return values or even having a
+> check in register_io_int_func() in the first place.
+
+I wait for reviewers/maintainers having already given their reviewed-by 
+to the interrupt registration patch to give their opinion.
+Then I change it if needed.
+
+Regards,
+Pierre
 
 -- 
-2.25.2
+Pierre Morel
+IBM Lab Boeblingen
