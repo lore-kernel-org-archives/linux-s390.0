@@ -1,191 +1,188 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([198.137.202.133]:47146 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728187AbgDHMAM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Apr 2020 08:00:12 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/28] powerpc: remove __ioremap_at and __iounmap_at
-Date: Wed,  8 Apr 2020 13:59:04 +0200
-Message-Id: <20200408115926.1467567-7-hch@lst.de>
-In-Reply-To: <20200408115926.1467567-1-hch@lst.de>
-References: <20200408115926.1467567-1-hch@lst.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: [PATCH v4 3/4] hugetlbfs: remove hugetlb_add_hstate() warning for existing hstate
+Date: Tue, 28 Apr 2020 13:56:13 -0700
+Message-Id: <20200428205614.246260-4-mike.kravetz@oracle.com>
+In-Reply-To: <20200428205614.246260-1-mike.kravetz@oracle.com>
+References: <20200428205614.246260-1-mike.kravetz@oracle.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "David S . Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>, Longpeng <longpeng2@huawei.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Randy Dunlap <rdunlap@infradead.org>, Mina Almasry <almasrymina@google.com>, Peter Xu <peterx@redhat.com>, Nitesh Narayan Lal <nitesh@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Kravetz <mike.kravetz@oracle.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Anders Roxell <anders.roxell@linaro.org>
 
-These helpers are only used for remapping the ISA I/O base.  Replace
-the mapping side with a remap_isa_range helper in isa-bridge.c that
-hard codes all the known arguments, and just remove __iounmap_at in
-favour of open coding it in the only caller.
+The routine hugetlb_add_hstate prints a warning if the hstate already
+exists.  This was originally done as part of kernel command line
+parsing.  If 'hugepagesz=' was specified more than once, the warning
+	pr_warn("hugepagesz= specified twice, ignoring\n");
+would be printed.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Some architectures want to enable all huge page sizes.  They would
+call hugetlb_add_hstate for all supported sizes.  However, this was
+done after command line processing and as a result hstates could have
+already been created for some sizes.  To make sure no warning were
+printed, there would often be code like:
+	if (!size_to_hstate(size)
+		hugetlb_add_hstate(ilog2(size) - PAGE_SHIFT)
+
+The only time we want to print the warning is as the result of command
+line processing.  So, remove the warning from hugetlb_add_hstate and
+add it to the single arch independent routine processing "hugepagesz=".
+After this, calls to size_to_hstate() in arch specific code can be
+removed and hugetlb_add_hstate can be called without worrying about
+warning messages.
+
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Mina Almasry <almasrymina@google.com>
+Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>  [s390]
+Acked-by: Will Deacon <will@kernel.org>
+Tested-by: Anders Roxell <anders.roxell@linaro.org>
 ---
- arch/powerpc/include/asm/io.h    |  8 -----
- arch/powerpc/kernel/isa-bridge.c | 28 +++++++++++++-----
- arch/powerpc/mm/ioremap_64.c     | 50 --------------------------------
- 3 files changed, 21 insertions(+), 65 deletions(-)
+ arch/arm64/mm/hugetlbpage.c   | 16 ++++------------
+ arch/powerpc/mm/hugetlbpage.c |  3 +--
+ arch/riscv/mm/hugetlbpage.c   |  2 +-
+ arch/sparc/mm/init_64.c       | 19 ++++---------------
+ arch/x86/mm/hugetlbpage.c     |  2 +-
+ mm/hugetlb.c                  |  9 ++++++---
+ 6 files changed, 17 insertions(+), 34 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/io.h b/arch/powerpc/include/asm/io.h
-index 71f1c5d69839..4fdbb9e45dd7 100644
---- a/arch/powerpc/include/asm/io.h
-+++ b/arch/powerpc/include/asm/io.h
-@@ -699,10 +699,6 @@ static inline void iosync(void)
-  *
-  * * iounmap undoes such a mapping and can be hooked
-  *
-- * * __ioremap_at (and the pending __iounmap_at) are low level functions to
-- *   create hand-made mappings for use only by the PCI code and cannot
-- *   currently be hooked. Must be page aligned.
-- *
-  * * __ioremap_caller is the same as above but takes an explicit caller
-  *   reference rather than using __builtin_return_address(0)
-  *
-@@ -729,10 +725,6 @@ void __iomem *do_ioremap(phys_addr_t pa, phys_addr_t offset, unsigned long size,
- extern void __iomem *__ioremap_caller(phys_addr_t, unsigned long size,
- 				      pgprot_t prot, void *caller);
+diff --git a/arch/arm64/mm/hugetlbpage.c b/arch/arm64/mm/hugetlbpage.c
+index f706b821aba6..14bed8f4674a 100644
+--- a/arch/arm64/mm/hugetlbpage.c
++++ b/arch/arm64/mm/hugetlbpage.c
+@@ -441,22 +441,14 @@ void huge_ptep_clear_flush(struct vm_area_struct *vma,
+ 	clear_flush(vma->vm_mm, addr, ptep, pgsize, ncontig);
+ }
  
--extern void __iomem * __ioremap_at(phys_addr_t pa, void *ea,
--				   unsigned long size, pgprot_t prot);
--extern void __iounmap_at(void *ea, unsigned long size);
+-static void __init add_huge_page_size(unsigned long size)
+-{
+-	if (size_to_hstate(size))
+-		return;
 -
- /*
-  * When CONFIG_PPC_INDIRECT_PIO is set, we use the generic iomap implementation
-  * which needs some additional definitions here. They basically allow PIO
-diff --git a/arch/powerpc/kernel/isa-bridge.c b/arch/powerpc/kernel/isa-bridge.c
-index 773671b512df..2257d24e6a26 100644
---- a/arch/powerpc/kernel/isa-bridge.c
-+++ b/arch/powerpc/kernel/isa-bridge.c
-@@ -18,6 +18,7 @@
- #include <linux/init.h>
- #include <linux/mm.h>
- #include <linux/notifier.h>
-+#include <linux/vmalloc.h>
+-	hugetlb_add_hstate(ilog2(size) - PAGE_SHIFT);
+-}
+-
+ static int __init hugetlbpage_init(void)
+ {
+ #ifdef CONFIG_ARM64_4K_PAGES
+-	add_huge_page_size(PUD_SIZE);
++	hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
+ #endif
+-	add_huge_page_size(CONT_PMD_SIZE);
+-	add_huge_page_size(PMD_SIZE);
+-	add_huge_page_size(CONT_PTE_SIZE);
++	hugetlb_add_hstate((CONT_PMD_SHIFT + PMD_SHIFT) - PAGE_SHIFT);
++	hugetlb_add_hstate(PMD_SHIFT - PAGE_SHIFT);
++	hugetlb_add_hstate((CONT_PTE_SHIFT + PAGE_SHIFT) - PAGE_SHIFT);
  
- #include <asm/processor.h>
- #include <asm/io.h>
-@@ -38,6 +39,22 @@ EXPORT_SYMBOL_GPL(isa_bridge_pcidev);
- #define ISA_SPACE_MASK 0x1
- #define ISA_SPACE_IO 0x1
+ 	return 0;
+ }
+diff --git a/arch/powerpc/mm/hugetlbpage.c b/arch/powerpc/mm/hugetlbpage.c
+index 2c3fa0a7787b..4d5ed1093615 100644
+--- a/arch/powerpc/mm/hugetlbpage.c
++++ b/arch/powerpc/mm/hugetlbpage.c
+@@ -584,8 +584,7 @@ static int __init add_huge_page_size(unsigned long long size)
+ 	if (!arch_hugetlb_valid_size((unsigned long)size))
+ 		return -EINVAL;
  
-+static void remap_isa_base(phys_addr_t pa, unsigned long size)
-+{
-+	WARN_ON_ONCE(ISA_IO_BASE & ~PAGE_MASK);
-+	WARN_ON_ONCE(pa & ~PAGE_MASK);
-+	WARN_ON_ONCE(size & ~PAGE_MASK);
-+
-+	if (slab_is_available()) {
-+		if (ioremap_page_range(ISA_IO_BASE, ISA_IO_BASE + size, pa,
-+				pgprot_noncached(PAGE_KERNEL)))
-+			unmap_kernel_range(ISA_IO_BASE, size);
-+	} else {
-+		early_ioremap_range(ISA_IO_BASE, pa, size,
-+				pgprot_noncached(PAGE_KERNEL));
+-	if (!size_to_hstate(size))
+-		hugetlb_add_hstate(shift - PAGE_SHIFT);
++	hugetlb_add_hstate(shift - PAGE_SHIFT);
+ 	return 0;
+ }
+ 
+diff --git a/arch/riscv/mm/hugetlbpage.c b/arch/riscv/mm/hugetlbpage.c
+index 4e5d7e9f0eef..932dadfdca54 100644
+--- a/arch/riscv/mm/hugetlbpage.c
++++ b/arch/riscv/mm/hugetlbpage.c
+@@ -26,7 +26,7 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
+ static __init int gigantic_pages_init(void)
+ {
+ 	/* With CONTIG_ALLOC, we can allocate gigantic pages at runtime */
+-	if (IS_ENABLED(CONFIG_64BIT) && !size_to_hstate(1UL << PUD_SHIFT))
++	if (IS_ENABLED(CONFIG_64BIT))
+ 		hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
+ 	return 0;
+ }
+diff --git a/arch/sparc/mm/init_64.c b/arch/sparc/mm/init_64.c
+index 4618f96fd30f..ae819a16d07a 100644
+--- a/arch/sparc/mm/init_64.c
++++ b/arch/sparc/mm/init_64.c
+@@ -325,23 +325,12 @@ static void __update_mmu_tsb_insert(struct mm_struct *mm, unsigned long tsb_inde
+ }
+ 
+ #ifdef CONFIG_HUGETLB_PAGE
+-static void __init add_huge_page_size(unsigned long size)
+-{
+-	unsigned int order;
+-
+-	if (size_to_hstate(size))
+-		return;
+-
+-	order = ilog2(size) - PAGE_SHIFT;
+-	hugetlb_add_hstate(order);
+-}
+-
+ static int __init hugetlbpage_init(void)
+ {
+-	add_huge_page_size(1UL << HPAGE_64K_SHIFT);
+-	add_huge_page_size(1UL << HPAGE_SHIFT);
+-	add_huge_page_size(1UL << HPAGE_256MB_SHIFT);
+-	add_huge_page_size(1UL << HPAGE_2GB_SHIFT);
++	hugetlb_add_hstate(HPAGE_64K_SHIFT - PAGE_SHIFT);
++	hugetlb_add_hstate(HPAGE_SHIFT - PAGE_SHIFT);
++	hugetlb_add_hstate(HPAGE_256MB_SHIFT - PAGE_SHIFT);
++	hugetlb_add_hstate(HPAGE_2GB_SHIFT - PAGE_SHIFT);
+ 
+ 	return 0;
+ }
+diff --git a/arch/x86/mm/hugetlbpage.c b/arch/x86/mm/hugetlbpage.c
+index 937d640a89e3..cf5781142716 100644
+--- a/arch/x86/mm/hugetlbpage.c
++++ b/arch/x86/mm/hugetlbpage.c
+@@ -195,7 +195,7 @@ bool __init arch_hugetlb_valid_size(unsigned long size)
+ static __init int gigantic_pages_init(void)
+ {
+ 	/* With compaction or CMA we can allocate gigantic pages at runtime */
+-	if (boot_cpu_has(X86_FEATURE_GBPAGES) && !size_to_hstate(1UL << PUD_SHIFT))
++	if (boot_cpu_has(X86_FEATURE_GBPAGES))
+ 		hugetlb_add_hstate(PUD_SHIFT - PAGE_SHIFT);
+ 	return 0;
+ }
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 6a8454bc2917..2ae0e506cfc7 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3222,8 +3222,7 @@ static int __init hugetlb_init(void)
+ 		}
+ 
+ 		default_hstate_size = HPAGE_SIZE;
+-		if (!size_to_hstate(default_hstate_size))
+-			hugetlb_add_hstate(HUGETLB_PAGE_ORDER);
++		hugetlb_add_hstate(HUGETLB_PAGE_ORDER);
+ 	}
+ 	default_hstate_idx = hstate_index(size_to_hstate(default_hstate_size));
+ 	if (default_hstate_max_huge_pages) {
+@@ -3268,7 +3267,6 @@ void __init hugetlb_add_hstate(unsigned int order)
+ 	unsigned long i;
+ 
+ 	if (size_to_hstate(PAGE_SIZE << order)) {
+-		pr_warn("hugepagesz= specified twice, ignoring\n");
+ 		return;
+ 	}
+ 	BUG_ON(hugetlb_max_hstate >= HUGE_MAX_HSTATE);
+@@ -3343,6 +3341,11 @@ static int __init hugepagesz_setup(char *s)
+ 		return 0;
+ 	}
+ 
++	if (size_to_hstate(size)) {
++		pr_warn("HugeTLB: hugepagesz %s specified twice, ignoring\n", s);
++		return 0;
 +	}
-+}
 +
- static void pci_process_ISA_OF_ranges(struct device_node *isa_node,
- 				      unsigned long phb_io_base_phys)
- {
-@@ -105,15 +122,13 @@ static void pci_process_ISA_OF_ranges(struct device_node *isa_node,
- 	if (size > 0x10000)
- 		size = 0x10000;
- 
--	__ioremap_at(phb_io_base_phys, (void *)ISA_IO_BASE,
--		     size, pgprot_noncached(PAGE_KERNEL));
-+	remap_isa_base(phb_io_base_phys, size);
- 	return;
- 
- inval_range:
- 	printk(KERN_ERR "no ISA IO ranges or unexpected isa range, "
- 	       "mapping 64k\n");
--	__ioremap_at(phb_io_base_phys, (void *)ISA_IO_BASE,
--		     0x10000, pgprot_noncached(PAGE_KERNEL));
-+	remap_isa_base(phb_io_base_phys, 0x10000);
+ 	hugetlb_add_hstate(ilog2(size) - PAGE_SHIFT);
+ 	return 1;
  }
- 
- 
-@@ -248,8 +263,7 @@ void __init isa_bridge_init_non_pci(struct device_node *np)
- 	 * and map it
- 	 */
- 	isa_io_base = ISA_IO_BASE;
--	__ioremap_at(pbase, (void *)ISA_IO_BASE,
--		     size, pgprot_noncached(PAGE_KERNEL));
-+	remap_isa_base(pbase, size);
- 
- 	pr_debug("ISA: Non-PCI bridge is %pOF\n", np);
- }
-@@ -297,7 +311,7 @@ static void isa_bridge_remove(void)
- 	isa_bridge_pcidev = NULL;
- 
- 	/* Unmap the ISA area */
--	__iounmap_at((void *)ISA_IO_BASE, 0x10000);
-+	unmap_kernel_range(ISA_IO_BASE, 0x10000);
- }
- 
- /**
-diff --git a/arch/powerpc/mm/ioremap_64.c b/arch/powerpc/mm/ioremap_64.c
-index 50a99d9684f7..ba5cbb0d66bd 100644
---- a/arch/powerpc/mm/ioremap_64.c
-+++ b/arch/powerpc/mm/ioremap_64.c
-@@ -4,56 +4,6 @@
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- 
--/**
-- * Low level function to establish the page tables for an IO mapping
-- */
--void __iomem *__ioremap_at(phys_addr_t pa, void *ea, unsigned long size, pgprot_t prot)
--{
--	int ret;
--	unsigned long va = (unsigned long)ea;
--
--	/* We don't support the 4K PFN hack with ioremap */
--	if (pgprot_val(prot) & H_PAGE_4K_PFN)
--		return NULL;
--
--	if ((ea + size) >= (void *)IOREMAP_END) {
--		pr_warn("Outside the supported range\n");
--		return NULL;
--	}
--
--	WARN_ON(pa & ~PAGE_MASK);
--	WARN_ON(((unsigned long)ea) & ~PAGE_MASK);
--	WARN_ON(size & ~PAGE_MASK);
--
--	if (slab_is_available()) {
--		ret = ioremap_page_range(va, va + size, pa, prot);
--		if (ret)
--			unmap_kernel_range(va, size);
--	} else {
--		ret = early_ioremap_range(va, pa, size, prot);
--	}
--
--	if (ret)
--		return NULL;
--
--	return (void __iomem *)ea;
--}
--EXPORT_SYMBOL(__ioremap_at);
--
--/**
-- * Low level function to tear down the page tables for an IO mapping. This is
-- * used for mappings that are manipulated manually, like partial unmapping of
-- * PCI IOs or ISA space.
-- */
--void __iounmap_at(void *ea, unsigned long size)
--{
--	WARN_ON(((unsigned long)ea) & ~PAGE_MASK);
--	WARN_ON(size & ~PAGE_MASK);
--
--	unmap_kernel_range((unsigned long)ea, size);
--}
--EXPORT_SYMBOL(__iounmap_at);
--
- void __iomem *__ioremap_caller(phys_addr_t addr, unsigned long size,
- 			       pgprot_t prot, void *caller)
- {
 -- 
-2.25.1
+2.25.4
