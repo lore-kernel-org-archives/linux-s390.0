@@ -1,137 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57756 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727073AbgDGSiD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:38:03 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 28/34] iommu/renesas: Convert to probe/release_device() call-backs
-Date: Tue,  7 Apr 2020 20:37:36 +0200
-Message-Id: <20200407183742.4344-29-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8528 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726377AbgD1IRg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Apr 2020 04:17:36 -0400
+Subject: Re: [kvm-unit-tests PATCH v6 06/10] s390x: css: stsch, enumeration
+ test
+References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+ <1587725152-25569-7-git-send-email-pmorel@linux.ibm.com>
+ <2f1e27a9-1cb2-79b2-b655-6f170431a14f@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <9eb8ac80-057f-0fb1-0f95-4a6ab91136b5@linux.ibm.com>
+Date: Tue, 28 Apr 2020 10:17:29 +0200
+MIME-Version: 1.0
+In-Reply-To: <2f1e27a9-1cb2-79b2-b655-6f170431a14f@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-From: Joerg Roedel <jroedel@suse.de>
 
-Convert the Renesas IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/ipmmu-vmsa.c | 60 +++++++++++++-------------------------
- 1 file changed, 20 insertions(+), 40 deletions(-)
+On 2020-04-27 15:06, Janosch Frank wrote:
+> On 4/24/20 12:45 PM, Pierre Morel wrote:
+>> First step for testing the channel subsystem is to enumerate the css and
+>> retrieve the css devices.
+>>
+...snip...
+>> diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+>> index bab0dd5..9417541 100644
+>> --- a/lib/s390x/css.h
+>> +++ b/lib/s390x/css.h
+>> @@ -82,6 +82,7 @@ struct pmcw {
+>>   	uint8_t  chpid[8];
+>>   	uint32_t flags2;
+>>   };
+>> +#define PMCW_CHANNEL_TYPE(pmcw) (pmcw->flags2 >> 21)
+> 
+> Why isn't this in the library patch?
 
-diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index 310cf09feea3..fb7e702dee23 100644
---- a/drivers/iommu/ipmmu-vmsa.c
-+++ b/drivers/iommu/ipmmu-vmsa.c
-@@ -805,24 +805,8 @@ static int ipmmu_of_xlate(struct device *dev,
- static int ipmmu_init_arm_mapping(struct device *dev)
- {
- 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
--	struct iommu_group *group;
- 	int ret;
- 
--	/* Create a device group and add the device to it. */
--	group = iommu_group_alloc();
--	if (IS_ERR(group)) {
--		dev_err(dev, "Failed to allocate IOMMU group\n");
--		return PTR_ERR(group);
--	}
--
--	ret = iommu_group_add_device(group, dev);
--	iommu_group_put(group);
--
--	if (ret < 0) {
--		dev_err(dev, "Failed to add device to IPMMU group\n");
--		return ret;
--	}
--
- 	/*
- 	 * Create the ARM mapping, used by the ARM DMA mapping core to allocate
- 	 * VAs. This will allocate a corresponding IOMMU domain.
-@@ -856,48 +840,39 @@ static int ipmmu_init_arm_mapping(struct device *dev)
- 	return 0;
- 
- error:
--	iommu_group_remove_device(dev);
- 	if (mmu->mapping)
- 		arm_iommu_release_mapping(mmu->mapping);
- 
- 	return ret;
- }
- 
--static int ipmmu_add_device(struct device *dev)
-+static struct iommu_device *ipmmu_probe_device(struct device *dev)
- {
- 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
--	struct iommu_group *group;
--	int ret;
- 
- 	/*
- 	 * Only let through devices that have been verified in xlate()
- 	 */
- 	if (!mmu)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
--	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA)) {
--		ret = ipmmu_init_arm_mapping(dev);
--		if (ret)
--			return ret;
--	} else {
--		group = iommu_group_get_for_dev(dev);
--		if (IS_ERR(group))
--			return PTR_ERR(group);
-+	return &mmu->iommu;
-+}
- 
--		iommu_group_put(group);
--	}
-+static void ipmmu_probe_finalize(struct device *dev)
-+{
-+	int ret = 0;
- 
--	iommu_device_link(&mmu->iommu, dev);
--	return 0;
-+	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA))
-+		ret = ipmmu_init_arm_mapping(dev);
-+
-+	if (ret)
-+		dev_err(dev, "Can't create IOMMU mapping - DMA-OPS will not work\n");
- }
- 
--static void ipmmu_remove_device(struct device *dev)
-+static void ipmmu_release_device(struct device *dev)
- {
--	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
--
--	iommu_device_unlink(&mmu->iommu, dev);
- 	arm_iommu_detach_device(dev);
--	iommu_group_remove_device(dev);
- }
- 
- static struct iommu_group *ipmmu_find_group(struct device *dev)
-@@ -925,9 +900,14 @@ static const struct iommu_ops ipmmu_ops = {
- 	.flush_iotlb_all = ipmmu_flush_iotlb_all,
- 	.iotlb_sync = ipmmu_iotlb_sync,
- 	.iova_to_phys = ipmmu_iova_to_phys,
--	.add_device = ipmmu_add_device,
--	.remove_device = ipmmu_remove_device,
-+	.probe_device = ipmmu_probe_device,
-+	.release_device = ipmmu_release_device,
-+	.probe_finalize = ipmmu_probe_finalize,
-+#if defined(CONFIG_ARM) && !defined(CONFIG_IOMMU_DMA)
-+	.device_group = generic_device_group,
-+#else
- 	.device_group = ipmmu_find_group,
-+#endif
- 	.pgsize_bitmap = SZ_1G | SZ_2M | SZ_4K,
- 	.of_xlate = ipmmu_of_xlate,
- };
+OK
+
+
+>> @@ -51,6 +52,7 @@ cflatobjs += lib/s390x/sclp-console.o
+>>   cflatobjs += lib/s390x/interrupt.o
+>>   cflatobjs += lib/s390x/mmu.o
+>>   cflatobjs += lib/s390x/smp.o
+>> +cflatobjs += lib/s390x/css_dump.o
+> 
+> Why isn't this in the library patch?
+
+OK
+
+> 
+...snip...
+>> +#define SID_ONE		0x00010000
+> 
+> Why isn't this in the library patch?
+
+OK
+
+> 
+...snip...
+>> +		if (!test_device_sid)
+>> +			test_device_sid = scn|SID_ONE;
+> 
+> Give the pipe some space :)
+> 
+>> +		dev_found++;
+> 
+> Newlines would make this more readable.
+
+OK and yes.
+
+> 
+>> +	}
+>> +out:
+> 
+> We can report dev_found instead of 0/1 and a if/else
+> 
+> report(dev_found,
+> 	"Tested subchannels: %d, I/O subchannels: %d, I/O devices: %d",
+>                      scn, scn_found, dev_found);	
+
+Yes, :)
+
+
+Thanks,
+Pierre
+
 -- 
-2.17.1
+Pierre Morel
+IBM Lab Boeblingen
