@@ -1,51 +1,83 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32114 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727785AbgD2Ofj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 10:35:39 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v3 10/10] s390x: Fix library constant definitions
-Date: Wed, 29 Apr 2020 10:35:18 -0400
-Message-Id: <20200429143518.1360468-11-frankja@linux.ibm.com>
-In-Reply-To: <20200429143518.1360468-1-frankja@linux.ibm.com>
-References: <20200429143518.1360468-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 22/34] iommu/mediatek: Convert to probe/release_device() call-backs
+Date: Wed, 29 Apr 2020 15:37:00 +0200
+Message-Id: <20200429133712.31431-23-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Seems like I uppercased the whole region instead of only the ULs when
-I added those definitions. Let's make the x lowercase again.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Convert the Mediatek IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- lib/s390x/asm/arch_def.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iommu/mtk_iommu.c | 24 ++++++------------------
+ 1 file changed, 6 insertions(+), 18 deletions(-)
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 15a4d49..1b3bb0c 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -19,10 +19,10 @@ struct psw {
- #define PSW_MASK_DAT			0x0400000000000000UL
- #define PSW_MASK_PSTATE			0x0001000000000000UL
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 5f4d6df59cf6..2be96f1cdbd2 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -441,38 +441,26 @@ static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	return pa;
+ }
  
--#define CR0_EXTM_SCLP			0X0000000000000200UL
--#define CR0_EXTM_EXTC			0X0000000000002000UL
--#define CR0_EXTM_EMGC			0X0000000000004000UL
--#define CR0_EXTM_MASK			0X0000000000006200UL
-+#define CR0_EXTM_SCLP			0x0000000000000200UL
-+#define CR0_EXTM_EXTC			0x0000000000002000UL
-+#define CR0_EXTM_EMGC			0x0000000000004000UL
-+#define CR0_EXTM_MASK			0x0000000000006200UL
+-static int mtk_iommu_add_device(struct device *dev)
++static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
+ {
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct mtk_iommu_data *data;
+-	struct iommu_group *group;
  
- struct lowcore {
- 	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+-		return -ENODEV; /* Not a iommu client device */
++		return ERR_PTR(-ENODEV); /* Not a iommu client device */
+ 
+ 	data = dev_iommu_priv_get(dev);
+-	iommu_device_link(&data->iommu, dev);
+ 
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
+-	return 0;
++	return &data->iommu;
+ }
+ 
+-static void mtk_iommu_remove_device(struct device *dev)
++static void mtk_iommu_release_device(struct device *dev)
+ {
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+-	struct mtk_iommu_data *data;
+ 
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+ 		return;
+ 
+-	data = dev_iommu_priv_get(dev);
+-	iommu_device_unlink(&data->iommu, dev);
+-
+-	iommu_group_remove_device(dev);
+ 	iommu_fwspec_free(dev);
+ }
+ 
+@@ -526,8 +514,8 @@ static const struct iommu_ops mtk_iommu_ops = {
+ 	.flush_iotlb_all = mtk_iommu_flush_iotlb_all,
+ 	.iotlb_sync	= mtk_iommu_iotlb_sync,
+ 	.iova_to_phys	= mtk_iommu_iova_to_phys,
+-	.add_device	= mtk_iommu_add_device,
+-	.remove_device	= mtk_iommu_remove_device,
++	.probe_device	= mtk_iommu_probe_device,
++	.release_device	= mtk_iommu_release_device,
+ 	.device_group	= mtk_iommu_device_group,
+ 	.of_xlate	= mtk_iommu_of_xlate,
+ 	.pgsize_bitmap	= SZ_4K | SZ_64K | SZ_1M | SZ_16M,
 -- 
-2.25.1
+2.17.1
