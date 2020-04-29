@@ -1,120 +1,187 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41000 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26927 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726883AbgDXKqC (ORCPT
+        by vger.kernel.org with ESMTP id S1727106AbgD2PLk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Apr 2020 06:46:02 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03OAWb46124845
-        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2020 06:46:02 -0400
-Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30gmv32c6c-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Fri, 24 Apr 2020 06:46:02 -0400
-Received: from localhost
-        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <pmorel@linux.ibm.com>;
-        Fri, 24 Apr 2020 11:45:09 +0100
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v6 02/10] s390x: Use PSW bits definitions in cstart
-Date: Fri, 24 Apr 2020 12:45:44 +0200
-In-Reply-To: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
-References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
-Message-Id: <1587725152-25569-3-git-send-email-pmorel@linux.ibm.com>
+        Wed, 29 Apr 2020 11:11:40 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 13/13] net/smc: move llc layer related init and clear into smc_llc.c
+Date: Wed, 29 Apr 2020 17:10:49 +0200
+Message-Id: <20200429151049.49979-14-kgraul@linux.ibm.com>
+In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
+References: <20200429151049.49979-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-This patch defines the PSW bits EA/BA used to initialize the PSW masks
-for exceptions.
+Introduce smc_llc_lgr_init() and smc_llc_lgr_clear() to implement all
+llc layer specific initialization and cleanup in module smc_llc.c.
 
-Since some PSW mask definitions exist already in arch_def.h we add these
-definitions there.
-We move all PSW definitions together and protect assembler code against
-C syntax.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- lib/s390x/asm/arch_def.h | 16 ++++++++++++----
- s390x/cstart64.S         | 15 ++++++++-------
- 2 files changed, 20 insertions(+), 11 deletions(-)
+ net/smc/af_smc.c   |  6 ++----
+ net/smc/smc_core.c |  6 +++---
+ net/smc/smc_core.h |  2 ++
+ net/smc/smc_llc.c  | 26 +++++++++++++++++++++-----
+ net/smc/smc_llc.h  |  5 +++--
+ 5 files changed, 31 insertions(+), 14 deletions(-)
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 15a4d49..c54409a 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -10,15 +10,22 @@
- #ifndef _ASM_S390X_ARCH_DEF_H_
- #define _ASM_S390X_ARCH_DEF_H_
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index e39f6aedd3bd..e859e3f420d9 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -381,7 +381,6 @@ static int smcr_lgr_reg_rmbs(struct smc_link_group *lgr,
  
-+#define PSW_MASK_EXT			0x0100000000000000UL
-+#define PSW_MASK_DAT			0x0400000000000000UL
-+#define PSW_MASK_SHORT_PSW		0x0008000000000000UL
-+#define PSW_MASK_PSTATE			0x0001000000000000UL
-+#define PSW_MASK_BA			0x0000000080000000UL
-+#define PSW_MASK_EA			0x0000000100000000UL
-+
-+#define PSW_EXCEPTION_MASK	(PSW_MASK_EA | PSW_MASK_BA)
-+#define PSW_RESET_MASK		(PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW)
-+
-+#ifndef __ASSEMBLER__
- struct psw {
- 	uint64_t	mask;
- 	uint64_t	addr;
- };
+ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
+ {
+-	struct net *net = sock_net(smc->clcsock->sk);
+ 	struct smc_link *link = smc->conn.lnk;
+ 	int rest;
+ 	int rc;
+@@ -433,7 +432,7 @@ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
+ 	if (rc < 0)
+ 		return SMC_CLC_DECL_TIMEOUT_AL;
  
--#define PSW_MASK_EXT			0x0100000000000000UL
--#define PSW_MASK_DAT			0x0400000000000000UL
--#define PSW_MASK_PSTATE			0x0001000000000000UL
--
- #define CR0_EXTM_SCLP			0X0000000000000200UL
- #define CR0_EXTM_EXTC			0X0000000000002000UL
- #define CR0_EXTM_EMGC			0X0000000000004000UL
-@@ -297,4 +304,5 @@ static inline uint32_t get_prefix(void)
- 	return current_prefix;
+-	smc_llc_link_active(link, net->ipv4.sysctl_tcp_keepalive_time);
++	smc_llc_link_active(link);
+ 
+ 	return 0;
+ }
+@@ -1019,7 +1018,6 @@ void smc_close_non_accepted(struct sock *sk)
+ 
+ static int smcr_serv_conf_first_link(struct smc_sock *smc)
+ {
+-	struct net *net = sock_net(smc->clcsock->sk);
+ 	struct smc_link *link = smc->conn.lnk;
+ 	int rest;
+ 	int rc;
+@@ -1065,7 +1063,7 @@ static int smcr_serv_conf_first_link(struct smc_sock *smc)
+ 		return rc == -EAGAIN ? SMC_CLC_DECL_TIMEOUT_AL : rc;
+ 	}
+ 
+-	smc_llc_link_active(link, net->ipv4.sysctl_tcp_keepalive_time);
++	smc_llc_link_active(link);
+ 
+ 	return 0;
+ }
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 8a43d2948493..db49f8cd5c95 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -412,8 +412,8 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
+ 		memcpy(lgr->peer_systemid, ini->ib_lcl->id_for_peer,
+ 		       SMC_SYSTEMID_LEN);
+-		INIT_LIST_HEAD(&lgr->llc_event_q);
+-		spin_lock_init(&lgr->llc_event_q_lock);
++		smc_llc_lgr_init(lgr, smc);
++
+ 		link_idx = SMC_SINGLE_LINK;
+ 		lnk = &lgr->lnk[link_idx];
+ 		rc = smcr_link_init(lgr, lnk, link_idx, ini);
+@@ -614,7 +614,7 @@ static void smc_lgr_free(struct smc_link_group *lgr)
+ 			if (lgr->lnk[i].state != SMC_LNK_UNUSED)
+ 				smcr_link_clear(&lgr->lnk[i]);
+ 		}
+-		smc_llc_event_flush(lgr);
++		smc_llc_lgr_clear(lgr);
+ 		if (!atomic_dec_return(&lgr_cnt))
+ 			wake_up(&lgrs_deleted);
+ 	}
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 379ced490c49..b5781511063d 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -238,6 +238,8 @@ struct smc_link_group {
+ 						/* protects llc_event_q */
+ 			struct work_struct	llc_event_work;
+ 						/* llc event worker */
++			int			llc_testlink_time;
++						/* link keep alive time */
+ 		};
+ 		struct { /* SMC-D */
+ 			u64			peer_gid;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 265889c8b03b..e715dd6735ee 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -493,7 +493,7 @@ static void smc_llc_rx_delete_rkey(struct smc_link *link,
  }
  
-+#endif /* __ASSEMBLER */
- #endif
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index ba2e67c..e394b3a 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -12,6 +12,7 @@
-  */
- #include <asm/asm-offsets.h>
- #include <asm/sigp.h>
-+#include <asm/arch_def.h>
+ /* flush the llc event queue */
+-void smc_llc_event_flush(struct smc_link_group *lgr)
++static void smc_llc_event_flush(struct smc_link_group *lgr)
+ {
+ 	struct smc_llc_qentry *qentry, *q;
  
- .section .init
+@@ -669,6 +669,23 @@ static void smc_llc_testlink_work(struct work_struct *work)
+ 	schedule_delayed_work(&link->llc_testlink_wrk, next_interval);
+ }
  
-@@ -225,19 +226,19 @@ svc_int:
++void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
++{
++	struct net *net = sock_net(smc->clcsock->sk);
++
++	INIT_WORK(&lgr->llc_event_work, smc_llc_event_work);
++	INIT_LIST_HEAD(&lgr->llc_event_q);
++	spin_lock_init(&lgr->llc_event_q_lock);
++	lgr->llc_testlink_time = net->ipv4.sysctl_tcp_keepalive_time;
++}
++
++/* called after lgr was removed from lgr_list */
++void smc_llc_lgr_clear(struct smc_link_group *lgr)
++{
++	smc_llc_event_flush(lgr);
++	cancel_work_sync(&lgr->llc_event_work);
++}
++
+ int smc_llc_link_init(struct smc_link *link)
+ {
+ 	init_completion(&link->llc_confirm);
+@@ -679,16 +696,15 @@ int smc_llc_link_init(struct smc_link *link)
+ 	init_completion(&link->llc_delete_rkey_resp);
+ 	mutex_init(&link->llc_delete_rkey_mutex);
+ 	init_completion(&link->llc_testlink_resp);
+-	INIT_WORK(&link->lgr->llc_event_work, smc_llc_event_work);
+ 	INIT_DELAYED_WORK(&link->llc_testlink_wrk, smc_llc_testlink_work);
+ 	return 0;
+ }
  
- 	.align	8
- reset_psw:
--	.quad	0x0008000180000000
-+	.quad	PSW_RESET_MASK
- initial_psw:
--	.quad	0x0000000180000000, clear_bss_start
-+	.quad	PSW_EXCEPTION_MASK, clear_bss_start
- pgm_int_psw:
--	.quad	0x0000000180000000, pgm_int
-+	.quad	PSW_EXCEPTION_MASK, pgm_int
- ext_int_psw:
--	.quad	0x0000000180000000, ext_int
-+	.quad	PSW_EXCEPTION_MASK, ext_int
- mcck_int_psw:
--	.quad	0x0000000180000000, mcck_int
-+	.quad	PSW_EXCEPTION_MASK, mcck_int
- io_int_psw:
--	.quad	0x0000000180000000, io_int
-+	.quad	PSW_EXCEPTION_MASK, io_int
- svc_int_psw:
--	.quad	0x0000000180000000, svc_int
-+	.quad	PSW_EXCEPTION_MASK, svc_int
- initial_cr0:
- 	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
- 	.quad	0x0000000000040000
+-void smc_llc_link_active(struct smc_link *link, int testlink_time)
++void smc_llc_link_active(struct smc_link *link)
+ {
+ 	link->state = SMC_LNK_ACTIVE;
+-	if (testlink_time) {
+-		link->llc_testlink_time = testlink_time * HZ;
++	if (link->lgr->llc_testlink_time) {
++		link->llc_testlink_time = link->lgr->llc_testlink_time * HZ;
+ 		schedule_delayed_work(&link->llc_testlink_wrk,
+ 				      link->llc_testlink_time);
+ 	}
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 9de83495ad14..66063f22166b 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -53,15 +53,16 @@ int smc_llc_send_add_link(struct smc_link *link, u8 mac[], u8 gid[],
+ 			  enum smc_llc_reqresp reqresp);
+ int smc_llc_send_delete_link(struct smc_link *link,
+ 			     enum smc_llc_reqresp reqresp, bool orderly);
++void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc);
++void smc_llc_lgr_clear(struct smc_link_group *lgr);
+ int smc_llc_link_init(struct smc_link *link);
+-void smc_llc_link_active(struct smc_link *link, int testlink_time);
++void smc_llc_link_active(struct smc_link *link);
+ void smc_llc_link_deleting(struct smc_link *link);
+ void smc_llc_link_clear(struct smc_link *link);
+ int smc_llc_do_confirm_rkey(struct smc_link *link,
+ 			    struct smc_buf_desc *rmb_desc);
+ int smc_llc_do_delete_rkey(struct smc_link *link,
+ 			   struct smc_buf_desc *rmb_desc);
+-void smc_llc_event_flush(struct smc_link_group *lgr);
+ int smc_llc_init(void) __init;
+ 
+ #endif /* SMC_LLC_H */
 -- 
-2.25.1
+2.17.1
