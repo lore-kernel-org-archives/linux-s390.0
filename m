@@ -1,61 +1,180 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:58718 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726378AbgD3K3r (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 06:29:47 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:47122 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726516AbgD2MP1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Apr 2020 08:15:27 -0400
+Subject: Re: [PATCH v2 08/10] s390x: smp: Wait for sigp completion
+References: <20200423091013.11587-1-frankja@linux.ibm.com>
+ <20200423091013.11587-9-frankja@linux.ibm.com>
+ <6084d368-86d6-b8fd-d4d3-5e0d72cef590@redhat.com>
+ <18b6f022-81b7-6e0d-996d-3abcffceca41@linux.ibm.com>
+ <be5ed01e-f4f6-6e3a-deb0-8f983e658e0f@linux.ibm.com>
+ <8182df06-8190-001d-ad02-ae13fb99ec72@redhat.com>
+ <802601e1-0bc0-faba-b802-2b0e24e3d96b@linux.ibm.com>
+ <5ef08433-10fd-ccca-eb13-5a93bd462c4c@redhat.com>
+ <cca03b19-4008-78c8-0528-e928b013b715@linux.ibm.com>
+ <b1372d9f-ad21-af27-3c7f-1b60ab2e0597@redhat.com>
+ <23fb6bc6-6ac9-6337-4446-2248ce2b0a14@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 0/3] mm/memory_hotplug: Allow to not create firmware memmap entries
-Date: Thu, 30 Apr 2020 12:29:05 +0200
-Message-Id: <20200430102908.10107-1-david@redhat.com>
+Message-ID: <aa231c30-2d21-55a7-ea22-eedfff6dbec1@redhat.com>
+Date: Wed, 29 Apr 2020 14:15:18 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <23fb6bc6-6ac9-6337-4446-2248ce2b0a14@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Dave Jiang <dave.jiang@intel.com>, Eric Biederman <ebiederm@xmission.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jason Wang <jasowang@redhat.com>, Juergen Gross <jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Len Brown <lenb@kernel.org>, Leonardo Bras <leobras.c@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Nathan Lynch <nathanl@linux.ibm.com>, Oscar Salvador <osalvador@suse.de>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Paul Mackerras <paulus@samba.org>, Pavel Tatashin <pasha.tatashin@soleen.com>, Pingfan Liu <kernelfans@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Stefano Stabellini <sstabellini@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vishal Verma <vishal.l.verma@intel.com>, Wei Liu <wei.liu@kernel.org>, Wei Yang <richard.weiyang@gmail.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com
 
-This is the follow up of [1]:
-	[PATCH v1 0/3] mm/memory_hotplug: Make virtio-mem play nicely with
-	kexec-tools
+On 29.04.20 14:09, Janosch Frank wrote:
+> On 4/29/20 1:47 PM, David Hildenbrand wrote:
+>> On 29.04.20 13:21, Janosch Frank wrote:
+>>> On 4/29/20 11:55 AM, David Hildenbrand wrote:
+>>>> On 29.04.20 11:37, Janosch Frank wrote:
+>>>>> On 4/29/20 11:06 AM, David Hildenbrand wrote:
+>>>>>> On 29.04.20 10:57, Janosch Frank wrote:
+>>>>>>> On 4/24/20 1:40 PM, Janosch Frank wrote:
+>>>>>>>> On 4/24/20 12:11 PM, David Hildenbrand wrote:
+>>>>>>>>> On 23.04.20 11:10, Janosch Frank wrote:
+>>>>>>>>>> Sigp orders are not necessarily finished when the processor finished
+>>>>>>>>>> the sigp instruction. We need to poll if the order has been finished
+>>>>>>>>>> before we continue.
+>>>>>>>>>>
+>>>>>>>>>> For (re)start and stop we already use sigp sense running and sigp
+>>>>>>>>>> sense loops. But we still lack completion checks for stop and store
+>>>>>>>>>> status, as well as the cpu resets.
+>>>>>>>>>>
+>>>>>>>>>> Let's add them.
+>>>>>>>>>>
+>>>>>>>>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>>>>>>>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>>>>>>>>>> ---
+>>>>>>>>>>  lib/s390x/smp.c | 8 ++++++++
+>>>>>>>>>>  lib/s390x/smp.h | 1 +
+>>>>>>>>>>  s390x/smp.c     | 4 ++++
+>>>>>>>>>>  3 files changed, 13 insertions(+)
+>>>>>>>>>>
+>>>>>>>>>> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+>>>>>>>>>> index 6ef0335..2555bf4 100644
+>>>>>>>>>> --- a/lib/s390x/smp.c
+>>>>>>>>>> +++ b/lib/s390x/smp.c
+>>>>>>>>>> @@ -154,6 +154,14 @@ int smp_cpu_start(uint16_t addr, struct psw psw)
+>>>>>>>>>>  	return rc;
+>>>>>>>>>>  }
+>>>>>>>>>>  
+>>>>>>>>>> +void smp_cpu_wait_for_completion(uint16_t addr)
+>>>>>>>>>> +{
+>>>>>>>>>> +	uint32_t status;
+>>>>>>>>>> +
+>>>>>>>>>> +	/* Loops when cc == 2, i.e. when the cpu is busy with a sigp order */
+>>>>>>>>>> +	sigp_retry(1, SIGP_SENSE, 0, &status);
+>>>>>>>>>> +}
+>>>>>>>>>> +
+>>>>>>>>>>  int smp_cpu_destroy(uint16_t addr)
+>>>>>>>>>>  {
+>>>>>>>>>>  	struct cpu *cpu;
+>>>>>>>>>> diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
+>>>>>>>>>> index ce63a89..a8b98c0 100644
+>>>>>>>>>> --- a/lib/s390x/smp.h
+>>>>>>>>>> +++ b/lib/s390x/smp.h
+>>>>>>>>>> @@ -45,6 +45,7 @@ int smp_cpu_restart(uint16_t addr);
+>>>>>>>>>>  int smp_cpu_start(uint16_t addr, struct psw psw);
+>>>>>>>>>>  int smp_cpu_stop(uint16_t addr);
+>>>>>>>>>>  int smp_cpu_stop_store_status(uint16_t addr);
+>>>>>>>>>> +void smp_cpu_wait_for_completion(uint16_t addr);
+>>>>>>>>>>  int smp_cpu_destroy(uint16_t addr);
+>>>>>>>>>>  int smp_cpu_setup(uint16_t addr, struct psw psw);
+>>>>>>>>>>  void smp_teardown(void);
+>>>>>>>>>> diff --git a/s390x/smp.c b/s390x/smp.c
+>>>>>>>>>> index 7462211..48321f4 100644
+>>>>>>>>>> --- a/s390x/smp.c
+>>>>>>>>>> +++ b/s390x/smp.c
+>>>>>>>>>> @@ -75,6 +75,7 @@ static void test_stop_store_status(void)
+>>>>>>>>>>  	lc->prefix_sa = 0;
+>>>>>>>>>>  	lc->grs_sa[15] = 0;
+>>>>>>>>>>  	smp_cpu_stop_store_status(1);
+>>>>>>>>>> +	smp_cpu_wait_for_completion(1);
+>>>>>>>>>>  	mb();
+>>>>>>>>>>  	report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
+>>>>>>>>>>  	report(lc->grs_sa[15], "stack");
+>>>>>>>>>> @@ -85,6 +86,7 @@ static void test_stop_store_status(void)
+>>>>>>>>>>  	lc->prefix_sa = 0;
+>>>>>>>>>>  	lc->grs_sa[15] = 0;
+>>>>>>>>>>  	smp_cpu_stop_store_status(1);
+>>>>>>>>>
+>>>>>>>>> Just curious: Would it make sense to add that inside
+>>>>>>>>> smp_cpu_stop_store_status() instead?
+>>>>>>>>>
+>>>>>>>>
+>>>>>>>> I think so, we also wait for stop and start to finish, so why not for
+>>>>>>>> this order code.
+>>>>>>>>
+>>>>>>>
+>>>>>>> I've moved the waiting into the smp library and now the prefix check for
+>>>>>>> stop and store status fails every so often if executed repeatedly.
+>>>>>>>
+>>>>>>> I've tried making the lc ptr volatile, a print of the prefix before the
+>>>>>>> report seems to fix the issue, a print after the report still shows the
+>>>>>>> issue but according to the print both values are the same.
+>>>>>>>
+>>>>>>> I'm currently at a loss...
+>>>>>>
+>>>>>> Are you missing a barrier() somewhere?
+>>>>>>
+>>>>>
+>>>>> Maybe, but the question is where?
+>>>>>
+>>>>> There's already one before the report:
+>>>>> smp_cpu_stop_store_status(1);
+>>>>> mb();
+>>>>> report(lc->prefix_sa == (uint32_t)(uintptr_t)cpu->lowcore, "prefix");
+>>>>
+>>>> The issue here is:
+>>>>
+>>>> SIGP_SENSE is always handled in the kernel for KVM. Meaning, it will
+>>>> complete even before the target CPU executed the stop and store (in QEMU).
+>>>>
+>>>> Reading the PoP:
+>>>>
+>>>> "One of the following conditions exists at the
+>>>> addressed CPU: ... A previously issued stop-
+>>>> and-store-status ... has been accepted by the
+>>>> addressed CPU, and execution of the func-
+>>>> tion requested by the order has not yet been
+>>>> completed.
+>>>>
+>>>> "If the currently specified order is sense ... then the order
+>>>> is rejected, and condition code 2 is set."
+>>>>
+>>>> So, in case of KVM, SENSE does not wait for completion of the previous
+>>>> order. I remember that was a performance improvements, because we wanted
+>>>> to avoid going to user space just to sense if another CPU is running.
+>>>> (and I remember that the documentation was inconsistent)
+>>>
+>>> So, KVM is not architectural compliant when it comes to SIGP SENSE?
+>>> I guess I need to go back to looping until the prefix is > 0
+>>
+>> Yeah, or fix SIGP_SENSE in KVM. Would need QEMU and KVM changes. I
+>> remember that a tricky part was checking if external calls are pending
+>> for a CPU from user space.
+>>
+>> We could pass that information along with the intercept to QEMU.
+>>
+>> AFAIKs, SIGP SENSE is not used on a hot path in Linux.
+>>
+> 
+> For now I'd rather have a workaround in the test until I can find cycles
+> to find a solution in KVM/QEMU.
+> 
+> SIGP SENSE has been working quite well for Linux for the last few years,
+> so I won't start running around now frantically fixing stuff.
 
-I realized that this is not only helpful for virtio-mem, but also for
-dax/kmem - it's a fix for that use case (see patch #3) of persistent
-memory.
+Huh. I thought that's why we have the SMP tests after all ;)
 
-Also, while testing, I discovered that kexec-tools will *not* add dax/kme=
-m
-memory (anything not directly under the root when parsing /proc/iomem) to
-the elfcorehdr, so this memory will never get included in a dump. This
-probably has to be fixed in kexec-tools - virtio-mem will require this as
-well.
 
-v1 -> v2:
-- Don't change the resource name
-- Rename the flag to MHP_NO_FIRMWARE_MEMMAP to reflect what it is doing
-- Rephrase subjects/descriptions
-- Use the flag for dax/kmem
+-- 
+Thanks,
 
-I'll have to rebase virtio-mem on these changes, there will be a resend.
-
-[1] https://lkml.kernel.org/r/20200429160803.109056-1-david@redhat.com
-
-David Hildenbrand (3):
-  mm/memory_hotplug: Prepare passing flags to add_memory() and friends
-  mm/memory_hotplug: Introduce MHP_NO_FIRMWARE_MEMMAP
-  device-dax: Add system ram (add_memory()) with MHP_NO_FIRMWARE_MEMMAP
-
- arch/powerpc/platforms/powernv/memtrace.c       |  2 +-
- arch/powerpc/platforms/pseries/hotplug-memory.c |  2 +-
- drivers/acpi/acpi_memhotplug.c                  |  2 +-
- drivers/base/memory.c                           |  2 +-
- drivers/dax/kmem.c                              |  3 ++-
- drivers/hv/hv_balloon.c                         |  2 +-
- drivers/s390/char/sclp_cmd.c                    |  2 +-
- drivers/xen/balloon.c                           |  2 +-
- include/linux/memory_hotplug.h                  | 15 ++++++++++++---
- mm/memory_hotplug.c                             | 14 ++++++++------
- 10 files changed, 29 insertions(+), 17 deletions(-)
-
---=20
-2.25.3
+David / dhildenb
