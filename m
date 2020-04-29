@@ -1,173 +1,246 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:35034 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502882AbgDNNQC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:02 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 07/33] iommu: Add probe_device() and remove_device() call-backs
-Date: Tue, 14 Apr 2020 15:15:16 +0200
-Message-Id: <20200414131542.25608-8-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 07/13] net/smc: add new link state and related helpers
+Date: Wed, 29 Apr 2020 17:10:43 +0200
+Message-Id: <20200429151049.49979-8-kgraul@linux.ibm.com>
+In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
+References: <20200429151049.49979-1-kgraul@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Joerg Roedel <jroedel@suse.de>
+Before a link can be reused it must have been cleared. Lowest current
+link state is INACTIVE, which does not mean that the link is already
+cleared.
+Add a new state UNUSED that is set when the link is cleared and can be
+reused.
+Add helper smc_llc_usable_link() to find an active link in a link group,
+and smc_link_usable() to determine if a link is usable.
 
-Add call-backs to 'struct iommu_ops' as an alternative to the
-add_device() and remove_device() call-backs, which will be removed when
-all drivers are converted.
-
-The new call-backs will not setupt IOMMU groups and domains anymore,
-so also add a probe_finalize() call-back where the IOMMU driver can do
-per-device setup work which require the device to be set up with a
-group and a domain.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/iommu/iommu.c | 63 ++++++++++++++++++++++++++++++++++++++-----
- include/linux/iommu.h |  9 +++++++
- 2 files changed, 66 insertions(+), 6 deletions(-)
+ net/smc/smc_core.c | 36 +++++++++++++++++++-----------------
+ net/smc/smc_core.h |  9 +++++++++
+ net/smc/smc_llc.c  |  4 ++--
+ net/smc/smc_llc.h  | 11 +++++++++++
+ net/smc/smc_wr.c   |  2 +-
+ 5 files changed, 42 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 5877abd9b693..6cfe7799dc8c 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -174,6 +174,36 @@ static void dev_iommu_free(struct device *dev)
- 	dev->iommu = NULL;
- }
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index e8897d60b27f..57890cbd4e8a 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -260,7 +260,7 @@ static void smc_lgr_free_work(struct work_struct *work)
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 			struct smc_link *lnk = &lgr->lnk[i];
  
-+static int __iommu_probe_device(struct device *dev)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct iommu_device *iommu_dev;
-+	struct iommu_group *group;
-+	int ret;
-+
-+	iommu_dev = ops->probe_device(dev);
-+	if (IS_ERR(iommu_dev))
-+		return PTR_ERR(iommu_dev);
-+
-+	dev->iommu->iommu_dev = iommu_dev;
-+
-+	group = iommu_group_get_for_dev(dev);
-+	if (!IS_ERR(group)) {
-+		ret = PTR_ERR(group);
-+		goto out_release;
-+	}
-+	iommu_group_put(group);
-+
-+	iommu_device_link(iommu_dev, dev);
-+
-+	return 0;
-+
-+out_release:
-+	ops->release_device(dev);
-+
-+	return ret;
-+}
-+
- int iommu_probe_device(struct device *dev)
- {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
-@@ -191,10 +221,17 @@ int iommu_probe_device(struct device *dev)
- 		goto err_free_dev_param;
+-			if (lnk->state != SMC_LNK_INACTIVE)
++			if (smc_link_usable(lnk))
+ 				smc_llc_link_inactive(lnk);
+ 		}
  	}
+@@ -286,7 +286,7 @@ static u8 smcr_next_link_id(struct smc_link_group *lgr)
+ 		if (!link_id)	/* skip zero as link_id */
+ 			link_id = ++lgr->next_link_id;
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+-			if (lgr->lnk[i].state != SMC_LNK_INACTIVE &&
++			if (smc_link_usable(&lgr->lnk[i]) &&
+ 			    lgr->lnk[i].link_id == link_id)
+ 				continue;
+ 		}
+@@ -350,6 +350,7 @@ static int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ out:
+ 	put_device(&ini->ib_dev->ibdev->dev);
+ 	memset(lnk, 0, sizeof(struct smc_link));
++	lnk->state = SMC_LNK_UNUSED;
+ 	if (!atomic_dec_return(&ini->ib_dev->lnk_cnt))
+ 		wake_up(&ini->ib_dev->lnks_deleted);
+ 	return rc;
+@@ -500,6 +501,8 @@ void smc_conn_free(struct smc_connection *conn)
  
--	ret = ops->add_device(dev);
-+	if (ops->probe_device)
-+		ret = __iommu_probe_device(dev);
-+	else
-+		ret = ops->add_device(dev);
-+
- 	if (ret)
- 		goto err_module_put;
- 
-+	if (ops->probe_finalize)
-+		ops->probe_finalize(dev);
-+
- 	return 0;
- 
- err_module_put:
-@@ -204,17 +241,31 @@ int iommu_probe_device(struct device *dev)
- 	return ret;
- }
- 
-+static void __iommu_release_device(struct device *dev)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+
-+	iommu_device_unlink(dev->iommu->iommu_dev, dev);
-+
-+	iommu_group_remove_device(dev);
-+
-+	ops->release_device(dev);
-+}
-+
- void iommu_release_device(struct device *dev)
+ static void smcr_link_clear(struct smc_link *lnk)
  {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
- 
--	if (dev->iommu_group)
-+	if (!dev->iommu)
-+		return;
++	struct smc_ib_device *smcibdev;
 +
-+	if (ops->release_device)
-+		__iommu_release_device(dev);
-+	else if (dev->iommu_group)
- 		ops->remove_device(dev);
- 
--	if (dev->iommu) {
--		module_put(ops->owner);
--		dev_iommu_free(dev);
--	}
-+	module_put(ops->owner);
-+	dev_iommu_free(dev);
+ 	if (lnk->peer_qpn == 0)
+ 		return;
+ 	lnk->peer_qpn = 0;
+@@ -510,8 +513,11 @@ static void smcr_link_clear(struct smc_link *lnk)
+ 	smc_ib_dealloc_protection_domain(lnk);
+ 	smc_wr_free_link_mem(lnk);
+ 	put_device(&lnk->smcibdev->ibdev->dev);
+-	if (!atomic_dec_return(&lnk->smcibdev->lnk_cnt))
+-		wake_up(&lnk->smcibdev->lnks_deleted);
++	smcibdev = lnk->smcibdev;
++	memset(lnk, 0, sizeof(struct smc_link));
++	lnk->state = SMC_LNK_UNUSED;
++	if (!atomic_dec_return(&smcibdev->lnk_cnt))
++		wake_up(&smcibdev->lnks_deleted);
  }
  
- static struct iommu_domain *__iommu_domain_alloc(struct bus_type *bus,
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 1f027b07e499..30170d191e5e 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -225,6 +225,10 @@ struct iommu_iotlb_gather {
-  * @iova_to_phys: translate iova to physical address
-  * @add_device: add device to iommu grouping
-  * @remove_device: remove device from iommu grouping
-+ * @probe_device: Add device to iommu driver handling
-+ * @release_device: Remove device from iommu driver handling
-+ * @probe_finalize: Do final setup work after the device is added to an IOMMU
-+ *                  group and attached to the groups domain
-  * @device_group: find iommu group for a particular device
-  * @domain_get_attr: Query domain attributes
-  * @domain_set_attr: Change domain attributes
-@@ -275,6 +279,9 @@ struct iommu_ops {
- 	phys_addr_t (*iova_to_phys)(struct iommu_domain *domain, dma_addr_t iova);
- 	int (*add_device)(struct device *dev);
- 	void (*remove_device)(struct device *dev);
-+	struct iommu_device *(*probe_device)(struct device *dev);
-+	void (*release_device)(struct device *dev);
-+	void (*probe_finalize)(struct device *dev);
- 	struct iommu_group *(*device_group)(struct device *dev);
- 	int (*domain_get_attr)(struct iommu_domain *domain,
- 			       enum iommu_attr attr, void *data);
-@@ -375,6 +382,7 @@ struct iommu_fault_param {
-  *
-  * @fault_param: IOMMU detected device fault reporting data
-  * @fwspec:	 IOMMU fwspec data
-+ * @iommu_dev:	 IOMMU device this device is linked to
-  * @priv:	 IOMMU Driver private data
-  *
-  * TODO: migrate other per device data pointers under iommu_dev_data, e.g.
-@@ -384,6 +392,7 @@ struct dev_iommu {
- 	struct mutex lock;
- 	struct iommu_fault_param	*fault_param;
- 	struct iommu_fwspec		*fwspec;
-+	struct iommu_device		*iommu_dev;
- 	void				*priv;
+ static void smcr_buf_free(struct smc_link_group *lgr, bool is_rmb,
+@@ -604,9 +610,8 @@ static void smc_lgr_free(struct smc_link_group *lgr)
+ 			wake_up(&lgr->smcd->lgrs_deleted);
+ 	} else {
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+-			if (lgr->lnk[i].state == SMC_LNK_INACTIVE)
+-				continue;
+-			smcr_link_clear(&lgr->lnk[i]);
++			if (lgr->lnk[i].state != SMC_LNK_UNUSED)
++				smcr_link_clear(&lgr->lnk[i]);
+ 		}
+ 		if (!atomic_dec_return(&lgr_cnt))
+ 			wake_up(&lgrs_deleted);
+@@ -686,7 +691,7 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 			struct smc_link *lnk = &lgr->lnk[i];
+ 
+-			if (lnk->state != SMC_LNK_INACTIVE)
++			if (smc_link_usable(lnk))
+ 				smc_llc_link_inactive(lnk);
+ 		}
+ 	}
+@@ -764,7 +769,7 @@ void smc_port_terminate(struct smc_ib_device *smcibdev, u8 ibport)
+ 			continue;
+ 		/* tbd - terminate only when no more links are active */
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+-			if (lgr->lnk[i].state == SMC_LNK_INACTIVE ||
++			if (!smc_link_usable(&lgr->lnk[i]) ||
+ 			    lgr->lnk[i].state == SMC_LNK_DELETING)
+ 				continue;
+ 			if (lgr->lnk[i].smcibdev == smcibdev &&
+@@ -1161,8 +1166,7 @@ static int smcr_buf_map_usable_links(struct smc_link_group *lgr,
+ 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 		struct smc_link *lnk = &lgr->lnk[i];
+ 
+-		if (lnk->state != SMC_LNK_ACTIVE &&
+-		    lnk->state != SMC_LNK_ACTIVATING)
++		if (!smc_link_usable(lnk))
+ 			continue;
+ 		if (smcr_buf_map_link(buf_desc, is_rmb, lnk)) {
+ 			smcr_buf_unuse(buf_desc, lnk);
+@@ -1294,14 +1298,14 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+ 
+ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn)
+ {
+-	if (!conn->lgr || conn->lgr->is_smcd)
++	if (!conn->lgr || conn->lgr->is_smcd || !smc_link_usable(conn->lnk))
+ 		return;
+ 	smc_ib_sync_sg_for_cpu(conn->lnk, conn->sndbuf_desc, DMA_TO_DEVICE);
+ }
+ 
+ void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn)
+ {
+-	if (!conn->lgr || conn->lgr->is_smcd)
++	if (!conn->lgr || conn->lgr->is_smcd || !smc_link_usable(conn->lnk))
+ 		return;
+ 	smc_ib_sync_sg_for_device(conn->lnk, conn->sndbuf_desc, DMA_TO_DEVICE);
+ }
+@@ -1313,8 +1317,7 @@ void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn)
+ 	if (!conn->lgr || conn->lgr->is_smcd)
+ 		return;
+ 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+-		if (conn->lgr->lnk[i].state != SMC_LNK_ACTIVE &&
+-		    conn->lgr->lnk[i].state != SMC_LNK_ACTIVATING)
++		if (!smc_link_usable(&conn->lgr->lnk[i]))
+ 			continue;
+ 		smc_ib_sync_sg_for_cpu(&conn->lgr->lnk[i], conn->rmb_desc,
+ 				       DMA_FROM_DEVICE);
+@@ -1328,8 +1331,7 @@ void smc_rmb_sync_sg_for_device(struct smc_connection *conn)
+ 	if (!conn->lgr || conn->lgr->is_smcd)
+ 		return;
+ 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+-		if (conn->lgr->lnk[i].state != SMC_LNK_ACTIVE &&
+-		    conn->lgr->lnk[i].state != SMC_LNK_ACTIVATING)
++		if (!smc_link_usable(&conn->lgr->lnk[i]))
+ 			continue;
+ 		smc_ib_sync_sg_for_device(&conn->lgr->lnk[i], conn->rmb_desc,
+ 					  DMA_FROM_DEVICE);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index f68ba187ecf8..2b1960c8c8ce 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -32,6 +32,7 @@ enum smc_lgr_role {		/* possible roles of a link group */
  };
  
+ enum smc_link_state {			/* possible states of a link */
++	SMC_LNK_UNUSED,		/* link is unused */
+ 	SMC_LNK_INACTIVE,	/* link is inactive */
+ 	SMC_LNK_ACTIVATING,	/* link is being activated */
+ 	SMC_LNK_ACTIVE,		/* link is active */
+@@ -295,6 +296,14 @@ static inline struct smc_connection *smc_lgr_find_conn(
+ 	return res;
+ }
+ 
++/* returns true if the specified link is usable */
++static inline bool smc_link_usable(struct smc_link *lnk)
++{
++	if (lnk->state == SMC_LNK_UNUSED || lnk->state == SMC_LNK_INACTIVE)
++		return false;
++	return true;
++}
++
+ struct smc_sock;
+ struct smc_clc_msg_accept_confirm;
+ struct smc_clc_msg_local;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 903ae068da3a..c267f5006faa 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -372,7 +372,7 @@ static void smc_llc_send_message_work(struct work_struct *work)
+ 	struct smc_wr_buf *wr_buf;
+ 	int rc;
+ 
+-	if (llcwrk->link->state == SMC_LNK_INACTIVE)
++	if (!smc_link_usable(llcwrk->link))
+ 		goto out;
+ 	rc = smc_llc_add_pending_send(llcwrk->link, &wr_buf, &pend);
+ 	if (rc)
+@@ -562,7 +562,7 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ 		return; /* short message */
+ 	if (llc->raw.hdr.length != sizeof(*llc))
+ 		return; /* invalid message */
+-	if (link->state == SMC_LNK_INACTIVE)
++	if (!smc_link_usable(link))
+ 		return; /* link not active, drop msg */
+ 
+ 	switch (llc->raw.hdr.common.type) {
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 461c0c3ef76e..08171131110c 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -35,6 +35,17 @@ enum smc_llc_msg_type {
+ 	SMC_LLC_DELETE_RKEY		= 0x09,
+ };
+ 
++/* returns a usable link of the link group, or NULL */
++static inline struct smc_link *smc_llc_usable_link(struct smc_link_group *lgr)
++{
++	int i;
++
++	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++)
++		if (smc_link_usable(&lgr->lnk[i]))
++			return &lgr->lnk[i];
++	return NULL;
++}
++
+ /* transmit */
+ int smc_llc_send_confirm_link(struct smc_link *lnk,
+ 			      enum smc_llc_reqresp reqresp);
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 337ee52ad3d3..93223628c002 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -207,7 +207,7 @@ int smc_wr_tx_get_free_slot(struct smc_link *link,
+ 	} else {
+ 		rc = wait_event_interruptible_timeout(
+ 			link->wr_tx_wait,
+-			link->state == SMC_LNK_INACTIVE ||
++			!smc_link_usable(link) ||
+ 			lgr->terminating ||
+ 			(smc_wr_tx_get_free_slot_index(link, &idx) != -EBUSY),
+ 			SMC_WR_TX_WAIT_FREE_SLOT_TIME);
 -- 
 2.17.1
