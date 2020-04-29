@@ -1,107 +1,80 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 09/13] net/smc: simplify link deactivation
-Date: Wed, 29 Apr 2020 17:10:45 +0200
-Message-Id: <20200429151049.49979-10-kgraul@linux.ibm.com>
-In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
-References: <20200429151049.49979-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25772 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726355AbgD2Ofc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 10:35:32 -0400
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH v3 01/10] s390x: smp: Test all CRs on initial reset
+Date: Wed, 29 Apr 2020 10:35:09 -0400
+Message-Id: <20200429143518.1360468-2-frankja@linux.ibm.com>
+In-Reply-To: <20200429143518.1360468-1-frankja@linux.ibm.com>
+References: <20200429143518.1360468-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com
 
-Cancel the testlink worker during link clear processing and remove the
-extra function smc_llc_link_inactive().
+All CRs are set to 0 and CRs 0 and 14 are set to pre-defined values,
+so we also need to test 1-13 and 15 for 0.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+And while we're at it, let's also set some values to cr 1, 7 and 13, so
+we can actually be sure that they will be zeroed.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- net/smc/smc_core.c |  8 ++------
- net/smc/smc_llc.c  | 15 ++++-----------
- net/smc/smc_llc.h  |  1 -
- 3 files changed, 6 insertions(+), 18 deletions(-)
+ s390x/smp.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 57890cbd4e8a..78ccfbf6e4af 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -261,7 +261,7 @@ static void smc_lgr_free_work(struct work_struct *work)
- 			struct smc_link *lnk = &lgr->lnk[i];
- 
- 			if (smc_link_usable(lnk))
--				smc_llc_link_inactive(lnk);
-+				lnk->state = SMC_LNK_INACTIVE;
- 		}
- 	}
- 	smc_lgr_free(lgr);
-@@ -692,7 +692,7 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
- 			struct smc_link *lnk = &lgr->lnk[i];
- 
- 			if (smc_link_usable(lnk))
--				smc_llc_link_inactive(lnk);
-+				lnk->state = SMC_LNK_INACTIVE;
- 		}
- 	}
- }
-@@ -706,16 +706,12 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft)
- 	struct smc_connection *conn;
- 	struct smc_sock *smc;
- 	struct rb_node *node;
--	int i;
- 
- 	if (lgr->terminating)
- 		return;	/* lgr already terminating */
- 	if (!soft)
- 		cancel_delayed_work_sync(&lgr->free_work);
- 	lgr->terminating = 1;
--	if (!lgr->is_smcd)
--		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++)
--			smc_llc_link_inactive(&lgr->lnk[i]);
- 
- 	/* kill remaining link group connections */
- 	read_lock_bh(&lgr->conns_lock);
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 69cc0d65b437..2f03131c85fd 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -660,22 +660,15 @@ void smc_llc_link_deleting(struct smc_link *link)
- 	smc_wr_wakeup_tx_wait(link);
+diff --git a/s390x/smp.c b/s390x/smp.c
+index fa40753..7144c9b 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -182,16 +182,28 @@ static void test_emcall(void)
+ 	report_prefix_pop();
  }
  
--/* called in tasklet context */
--void smc_llc_link_inactive(struct smc_link *link)
--{
--	if (link->state == SMC_LNK_INACTIVE)
--		return;
--	link->state = SMC_LNK_INACTIVE;
--	cancel_delayed_work_sync(&link->llc_testlink_wrk);
--	smc_wr_wakeup_reg_wait(link);
--	smc_wr_wakeup_tx_wait(link);
--}
--
- /* called in worker context */
- void smc_llc_link_clear(struct smc_link *link)
++/* Used to dirty registers of cpu #1 before it is reset */
++static void test_func_initial(void)
++{
++	lctlg(1, 0x42000UL);
++	lctlg(7, 0x43000UL);
++	lctlg(13, 0x44000UL);
++	set_flag(1);
++}
++
+ static void test_reset_initial(void)
  {
- 	flush_workqueue(link->llc_wq);
- 	destroy_workqueue(link->llc_wq);
-+	complete(&link->llc_testlink_resp);
-+	cancel_delayed_work_sync(&link->llc_testlink_wrk);
-+	smc_wr_wakeup_reg_wait(link);
-+	smc_wr_wakeup_tx_wait(link);
- }
+ 	struct cpu_status *status = alloc_pages(0);
+ 	struct psw psw;
++	int i;
  
- /* register a new rtoken at the remote peer */
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 08171131110c..c2c9d48d079f 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -56,7 +56,6 @@ int smc_llc_send_delete_link(struct smc_link *link,
- int smc_llc_link_init(struct smc_link *link);
- void smc_llc_link_active(struct smc_link *link, int testlink_time);
- void smc_llc_link_deleting(struct smc_link *link);
--void smc_llc_link_inactive(struct smc_link *link);
- void smc_llc_link_clear(struct smc_link *link);
- int smc_llc_do_confirm_rkey(struct smc_link *link,
- 			    struct smc_buf_desc *rmb_desc);
+ 	psw.mask = extract_psw_mask();
+-	psw.addr = (unsigned long)test_func;
++	psw.addr = (unsigned long)test_func_initial;
+ 
+ 	report_prefix_push("reset initial");
++	set_flag(0);
+ 	smp_cpu_start(1, psw);
++	wait_for_flag();
+ 
+ 	sigp_retry(1, SIGP_INITIAL_CPU_RESET, 0, NULL);
+ 	sigp(1, SIGP_STORE_STATUS_AT_ADDRESS, (uintptr_t)status, NULL);
+@@ -202,6 +214,10 @@ static void test_reset_initial(void)
+ 	report(!status->fpc, "fpc");
+ 	report(!status->cputm, "cpu timer");
+ 	report(!status->todpr, "todpr");
++	for (i = 1; i <= 13; i++) {
++		report(status->crs[i] == 0, "cr%d == 0", i);
++	}
++	report(status->crs[15] == 0, "cr15 == 0");
+ 	report_prefix_pop();
+ 
+ 	report_prefix_push("initialized");
 -- 
-2.17.1
+2.25.1
