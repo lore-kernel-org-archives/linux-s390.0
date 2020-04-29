@@ -1,108 +1,154 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23444 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728715AbgDQCaJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Apr 2020 22:30:09 -0400
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03H24JY5111552
-        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:07 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 30f2f09q7y-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:07 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Fri, 17 Apr 2020 03:29:45 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 3/8] vfio-ccw: Refactor the unregister of the async regions
-Date: Fri, 17 Apr 2020 04:29:56 +0200
-In-Reply-To: <20200417023001.65006-1-farman@linux.ibm.com>
-References: <20200417023001.65006-1-farman@linux.ibm.com>
-Message-Id: <20200417023001.65006-4-farman@linux.ibm.com>
+Received: from 8bytes.org ([81.169.241.247]:40166 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727965AbgD2Nhy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:54 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 29/34] iommu/omap: Convert to probe/release_device() call-backs
+Date: Wed, 29 Apr 2020 15:37:07 +0200
+Message-Id: <20200429133712.31431-30-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-This is mostly for the purposes of a later patch, since
-we'll need to do the same thing later.
+From: Joerg Roedel <jroedel@suse.de>
 
-While we are at it, move the resulting function call to ahead
-of the unregistering of the IOMMU notifier, so that it's done
-in the reverse order of how it was created.
+Convert the OMAP IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
+ drivers/iommu/omap-iommu.c | 49 ++++++++++----------------------------
+ 1 file changed, 13 insertions(+), 36 deletions(-)
 
-Notes:
-    v1->v2:
-     - Add Conny's r-b
-
- drivers/s390/cio/vfio_ccw_ops.c     | 20 ++++++++++++--------
- drivers/s390/cio/vfio_ccw_private.h |  1 +
- 2 files changed, 13 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index f0d71ab77c50..d4fc84b8867f 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -181,7 +181,6 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
- {
- 	struct vfio_ccw_private *private =
- 		dev_get_drvdata(mdev_parent_dev(mdev));
--	int i;
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index ecc9d0829a91..6699fe6d9e06 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -1640,15 +1640,13 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	return ret;
+ }
  
- 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
- 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
-@@ -191,15 +190,9 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+-static int omap_iommu_add_device(struct device *dev)
++static struct iommu_device *omap_iommu_probe_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data, *tmp;
++	struct platform_device *pdev;
+ 	struct omap_iommu *oiommu;
+-	struct iommu_group *group;
+ 	struct device_node *np;
+-	struct platform_device *pdev;
+ 	int num_iommus, i;
+-	int ret;
+ 
+ 	/*
+ 	 * Allocate the archdata iommu structure for DT-based devices.
+@@ -1657,7 +1655,7 @@ static int omap_iommu_add_device(struct device *dev)
+ 	 * IOMMU users.
+ 	 */
+ 	if (!dev->of_node)
+-		return 0;
++		return ERR_PTR(-ENODEV);
+ 
+ 	/*
+ 	 * retrieve the count of IOMMU nodes using phandle size as element size
+@@ -1670,27 +1668,27 @@ static int omap_iommu_add_device(struct device *dev)
+ 
+ 	arch_data = kcalloc(num_iommus + 1, sizeof(*arch_data), GFP_KERNEL);
+ 	if (!arch_data)
+-		return -ENOMEM;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	for (i = 0, tmp = arch_data; i < num_iommus; i++, tmp++) {
+ 		np = of_parse_phandle(dev->of_node, "iommus", i);
+ 		if (!np) {
+ 			kfree(arch_data);
+-			return -EINVAL;
++			return ERR_PTR(-EINVAL);
+ 		}
+ 
+ 		pdev = of_find_device_by_node(np);
+ 		if (!pdev) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			return -ENODEV;
++			return ERR_PTR(-ENODEV);
+ 		}
+ 
+ 		oiommu = platform_get_drvdata(pdev);
+ 		if (!oiommu) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			return -EINVAL;
++			return ERR_PTR(-EINVAL);
+ 		}
+ 
+ 		tmp->iommu_dev = oiommu;
+@@ -1699,46 +1697,25 @@ static int omap_iommu_add_device(struct device *dev)
+ 		of_node_put(np);
  	}
  
- 	cp_free(&private->cp);
-+	vfio_ccw_unregister_dev_regions(private);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
- 				 &private->nb);
++	dev->archdata.iommu = arch_data;
++
+ 	/*
+ 	 * use the first IOMMU alone for the sysfs device linking.
+ 	 * TODO: Evaluate if a single iommu_group needs to be
+ 	 * maintained for both IOMMUs
+ 	 */
+ 	oiommu = arch_data->iommu_dev;
+-	ret = iommu_device_link(&oiommu->iommu, dev);
+-	if (ret) {
+-		kfree(arch_data);
+-		return ret;
+-	}
 -
--	for (i = 0; i < private->num_regions; i++)
--		private->region[i].ops->release(private, &private->region[i]);
+-	dev->archdata.iommu = arch_data;
 -
--	private->num_regions = 0;
--	kfree(private->region);
--	private->region = NULL;
+-	/*
+-	 * IOMMU group initialization calls into omap_iommu_device_group, which
+-	 * needs a valid dev->archdata.iommu pointer
+-	 */
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group)) {
+-		iommu_device_unlink(&oiommu->iommu, dev);
+-		dev->archdata.iommu = NULL;
+-		kfree(arch_data);
+-		return PTR_ERR(group);
+-	}
+-	iommu_group_put(group);
+ 
+-	return 0;
++	return &oiommu->iommu;
  }
  
- static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
-@@ -482,6 +475,17 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
- 	return 0;
- }
+-static void omap_iommu_remove_device(struct device *dev)
++static void omap_iommu_release_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
  
-+void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private)
-+{
-+	int i;
-+
-+	for (i = 0; i < private->num_regions; i++)
-+		private->region[i].ops->release(private, &private->region[i]);
-+	private->num_regions = 0;
-+	kfree(private->region);
-+	private->region = NULL;
-+}
-+
- static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 				   unsigned int cmd,
- 				   unsigned long arg)
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 9b9bb4982972..ce3834159d98 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -53,6 +53,7 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
- 				 unsigned int subtype,
- 				 const struct vfio_ccw_regops *ops,
- 				 size_t size, u32 flags, void *data);
-+void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
+ 	if (!dev->of_node || !arch_data)
+ 		return;
  
- int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
+-	iommu_device_unlink(&arch_data->iommu_dev->iommu, dev);
+-	iommu_group_remove_device(dev);
+-
+ 	dev->archdata.iommu = NULL;
+ 	kfree(arch_data);
  
+@@ -1763,8 +1740,8 @@ static const struct iommu_ops omap_iommu_ops = {
+ 	.map		= omap_iommu_map,
+ 	.unmap		= omap_iommu_unmap,
+ 	.iova_to_phys	= omap_iommu_iova_to_phys,
+-	.add_device	= omap_iommu_add_device,
+-	.remove_device	= omap_iommu_remove_device,
++	.probe_device	= omap_iommu_probe_device,
++	.release_device	= omap_iommu_release_device,
+ 	.device_group	= omap_iommu_device_group,
+ 	.pgsize_bitmap	= OMAP_IOMMU_PGSIZES,
+ };
 -- 
 2.17.1
