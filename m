@@ -1,108 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:53151 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728088AbgDGLQP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 07:16:15 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH] vfio-ccw: document possible errors
-Date: Tue,  7 Apr 2020 13:16:05 +0200
-Message-Id: <20200407111605.1795-1-cohuck@redhat.com>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:38571 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727106AbgD2MXw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 08:23:52 -0400
+Received: by mail-wr1-f70.google.com with SMTP id d17so1617423wrr.17
+        for <linux-s390@vger.kernel.org>; Wed, 29 Apr 2020 05:23:47 -0700 (PDT)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: Re: [PATCH v4 3/7] KVM: PPC: Remove redundant kvm_run from vcpu_arch
+In-Reply-To: <20200427043514.16144-4-tianjia.zhang@linux.alibaba.com>
+References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com> <20200427043514.16144-4-tianjia.zhang@linux.alibaba.com>
+Date: Wed, 29 Apr 2020 14:23:42 +0200
+Message-ID: <87lfmeh44x.fsf@vitty.brq.redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com
 
-Interacting with the I/O and the async regions can yield a number
-of errors, which had been undocumented so far. These are part of
-the api, so remedy that.
+Tianjia Zhang <tianjia.zhang@linux.alibaba.com> writes:
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- Documentation/s390/vfio-ccw.rst | 54 ++++++++++++++++++++++++++++++++-
- 1 file changed, 53 insertions(+), 1 deletion(-)
+> The 'kvm_run' field already exists in the 'vcpu' structure, which
+> is the same structure as the 'kvm_run' in the 'vcpu_arch' and
+> should be deleted.
+>
+> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+> ---
+>  arch/powerpc/include/asm/kvm_host.h | 1 -
+>  arch/powerpc/kvm/book3s_hv.c        | 6 ++----
+>  arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
+>  3 files changed, 3 insertions(+), 7 deletions(-)
+>
+> diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
+> index 1dc63101ffe1..2745ff8faa01 100644
+> --- a/arch/powerpc/include/asm/kvm_host.h
+> +++ b/arch/powerpc/include/asm/kvm_host.h
+> @@ -795,7 +795,6 @@ struct kvm_vcpu_arch {
+>  	struct mmio_hpte_cache_entry *pgfault_cache;
+>  
+>  	struct task_struct *run_task;
+> -	struct kvm_run *kvm_run;
+>  
+>  	spinlock_t vpa_update_lock;
+>  	struct kvmppc_vpa vpa;
+> diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
+> index 93493f0cbfe8..413ea2dcb10c 100644
+> --- a/arch/powerpc/kvm/book3s_hv.c
+> +++ b/arch/powerpc/kvm/book3s_hv.c
+> @@ -2934,7 +2934,7 @@ static void post_guest_process(struct kvmppc_vcore *vc, bool is_master)
+>  
+>  		ret = RESUME_GUEST;
+>  		if (vcpu->arch.trap)
+> -			ret = kvmppc_handle_exit_hv(vcpu->arch.kvm_run, vcpu,
+> +			ret = kvmppc_handle_exit_hv(vcpu->run, vcpu,
+>  						    vcpu->arch.run_task);
+>  
+>  		vcpu->arch.ret = ret;
+> @@ -3920,7 +3920,6 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
+>  	spin_lock(&vc->lock);
+>  	vcpu->arch.ceded = 0;
+>  	vcpu->arch.run_task = current;
+> -	vcpu->arch.kvm_run = kvm_run;
+>  	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
+>  	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
+>  	vcpu->arch.busy_preempt = TB_NIL;
+> @@ -3973,7 +3972,7 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
+>  			if (signal_pending(v->arch.run_task)) {
+>  				kvmppc_remove_runnable(vc, v);
+>  				v->stat.signal_exits++;
+> -				v->arch.kvm_run->exit_reason = KVM_EXIT_INTR;
+> +				v->run->exit_reason = KVM_EXIT_INTR;
+>  				v->arch.ret = -EINTR;
+>  				wake_up(&v->arch.cpu_run);
+>  			}
+> @@ -4049,7 +4048,6 @@ int kvmhv_run_single_vcpu(struct kvm_run *kvm_run,
+>  	vc = vcpu->arch.vcore;
+>  	vcpu->arch.ceded = 0;
+>  	vcpu->arch.run_task = current;
+> -	vcpu->arch.kvm_run = kvm_run;
+>  	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
+>  	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
+>  	vcpu->arch.busy_preempt = TB_NIL;
+> diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
+> index dc97e5be76f6..5a3987f3ebf3 100644
+> --- a/arch/powerpc/kvm/book3s_hv_nested.c
+> +++ b/arch/powerpc/kvm/book3s_hv_nested.c
+> @@ -290,8 +290,7 @@ long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
+>  			r = RESUME_HOST;
+>  			break;
+>  		}
+> -		r = kvmhv_run_single_vcpu(vcpu->arch.kvm_run, vcpu, hdec_exp,
+> -					  lpcr);
+> +		r = kvmhv_run_single_vcpu(vcpu->run, vcpu, hdec_exp, lpcr);
+>  	} while (is_kvmppc_resume_guest(r));
+>  
+>  	/* save L2 state for return */
 
-diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-cc=
-w.rst
-index fca9c4f5bd9c..4538215a362c 100644
---- a/Documentation/s390/vfio-ccw.rst
-+++ b/Documentation/s390/vfio-ccw.rst
-@@ -210,7 +210,36 @@ Subchannel.
-=20
- irb_area stores the I/O result.
-=20
--ret_code stores a return code for each access of the region.
-+ret_code stores a return code for each access of the region. The followi=
-ng
-+values may occur:
-+
-+``0``
-+  The operation was successful.
-+
-+``-EOPNOTSUPP``
-+  The orb specified transport mode or an unidentified IDAW format, did n=
-ot
-+  specify prefetch mode, or the scsw specified a function other than the
-+  start function.
-+
-+``-EIO``
-+  A request was issued while the device was not in a state ready to acce=
-pt
-+  requests, or an internal error occurred.
-+
-+``-EBUSY``
-+  The subchannel was status pending or busy, or a request is already act=
-ive.
-+
-+``-EAGAIN``
-+  A request was being processed, and the caller should retry.
-+
-+``-EACCES``
-+  The channel path(s) used for the I/O were found to be not operational.
-+
-+``-ENODEV``
-+  The device was found to be not operational.
-+
-+``-EINVAL``
-+  The orb specified a chain longer than 255 ccws, or an internal error
-+  occurred.
-=20
- This region is always available.
-=20
-@@ -231,6 +260,29 @@ This region is exposed via region type VFIO_REGION_S=
-UBTYPE_CCW_ASYNC_CMD.
-=20
- Currently, CLEAR SUBCHANNEL and HALT SUBCHANNEL use this region.
-=20
-+command specifies the command to be issued; ret_code stores a return cod=
-e
-+for each access of the region. The following values may occur:
-+
-+``0``
-+  The operation was successful.
-+
-+``-ENODEV``
-+  The device was found to be not operational.
-+
-+``-EINVAL``
-+  A command other than halt or clear was specified.
-+
-+``-EIO``
-+  A request was issued while the device was not in a state ready to acce=
-pt
-+  requests.
-+
-+``-EAGAIN``
-+  A request was being processed, and the caller should retry.
-+
-+``-EBUSY``
-+  The subchannel was status pending or busy while processing a halt requ=
-est.
-+
-+
- vfio-ccw operation details
- --------------------------
-=20
---=20
-2.21.1
+FWIW,
+
+Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+
+-- 
+Vitaly
