@@ -1,84 +1,107 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 19/34] iommu/s390: Convert to probe/release_device() call-backs
-Date: Wed, 29 Apr 2020 15:36:57 +0200
-Message-Id: <20200429133712.31431-20-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 09/13] net/smc: simplify link deactivation
+Date: Wed, 29 Apr 2020 17:10:45 +0200
+Message-Id: <20200429151049.49979-10-kgraul@linux.ibm.com>
+In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
+References: <20200429151049.49979-1-kgraul@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Joerg Roedel <jroedel@suse.de>
+Cancel the testlink worker during link clear processing and remove the
+extra function smc_llc_link_inactive().
 
-Convert the S390 IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/iommu/s390-iommu.c | 22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+ net/smc/smc_core.c |  8 ++------
+ net/smc/smc_llc.c  | 15 ++++-----------
+ net/smc/smc_llc.h  |  1 -
+ 3 files changed, 6 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 1137f3ddcb85..610f0828f22d 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -166,21 +166,14 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 57890cbd4e8a..78ccfbf6e4af 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -261,7 +261,7 @@ static void smc_lgr_free_work(struct work_struct *work)
+ 			struct smc_link *lnk = &lgr->lnk[i];
+ 
+ 			if (smc_link_usable(lnk))
+-				smc_llc_link_inactive(lnk);
++				lnk->state = SMC_LNK_INACTIVE;
+ 		}
+ 	}
+ 	smc_lgr_free(lgr);
+@@ -692,7 +692,7 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
+ 			struct smc_link *lnk = &lgr->lnk[i];
+ 
+ 			if (smc_link_usable(lnk))
+-				smc_llc_link_inactive(lnk);
++				lnk->state = SMC_LNK_INACTIVE;
+ 		}
  	}
  }
+@@ -706,16 +706,12 @@ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft)
+ 	struct smc_connection *conn;
+ 	struct smc_sock *smc;
+ 	struct rb_node *node;
+-	int i;
  
--static int s390_iommu_add_device(struct device *dev)
-+static struct iommu_device *s390_iommu_probe_device(struct device *dev)
- {
--	struct iommu_group *group = iommu_group_get_for_dev(dev);
- 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
+ 	if (lgr->terminating)
+ 		return;	/* lgr already terminating */
+ 	if (!soft)
+ 		cancel_delayed_work_sync(&lgr->free_work);
+ 	lgr->terminating = 1;
+-	if (!lgr->is_smcd)
+-		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++)
+-			smc_llc_link_inactive(&lgr->lnk[i]);
  
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
--	iommu_device_link(&zdev->iommu_dev, dev);
--
--	return 0;
-+	return &zdev->iommu_dev;
+ 	/* kill remaining link group connections */
+ 	read_lock_bh(&lgr->conns_lock);
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 69cc0d65b437..2f03131c85fd 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -660,22 +660,15 @@ void smc_llc_link_deleting(struct smc_link *link)
+ 	smc_wr_wakeup_tx_wait(link);
  }
  
--static void s390_iommu_remove_device(struct device *dev)
-+static void s390_iommu_release_device(struct device *dev)
- {
- 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
- 	struct iommu_domain *domain;
-@@ -191,7 +184,7 @@ static void s390_iommu_remove_device(struct device *dev)
- 	 * to vfio-pci and completing the VFIO_SET_IOMMU ioctl (which triggers
- 	 * the attach_dev), removing the device via
- 	 * "echo 1 > /sys/bus/pci/devices/.../remove" won't trigger detach_dev,
--	 * only remove_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
-+	 * only release_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
- 	 * notifier.
- 	 *
- 	 * So let's call detach_dev from here if it hasn't been called before.
-@@ -201,9 +194,6 @@ static void s390_iommu_remove_device(struct device *dev)
- 		if (domain)
- 			s390_iommu_detach_device(domain, dev);
- 	}
+-/* called in tasklet context */
+-void smc_llc_link_inactive(struct smc_link *link)
+-{
+-	if (link->state == SMC_LNK_INACTIVE)
+-		return;
+-	link->state = SMC_LNK_INACTIVE;
+-	cancel_delayed_work_sync(&link->llc_testlink_wrk);
+-	smc_wr_wakeup_reg_wait(link);
+-	smc_wr_wakeup_tx_wait(link);
+-}
 -
--	iommu_device_unlink(&zdev->iommu_dev, dev);
--	iommu_group_remove_device(dev);
+ /* called in worker context */
+ void smc_llc_link_clear(struct smc_link *link)
+ {
+ 	flush_workqueue(link->llc_wq);
+ 	destroy_workqueue(link->llc_wq);
++	complete(&link->llc_testlink_resp);
++	cancel_delayed_work_sync(&link->llc_testlink_wrk);
++	smc_wr_wakeup_reg_wait(link);
++	smc_wr_wakeup_tx_wait(link);
  }
  
- static int s390_iommu_update_trans(struct s390_domain *s390_domain,
-@@ -373,8 +363,8 @@ static const struct iommu_ops s390_iommu_ops = {
- 	.map = s390_iommu_map,
- 	.unmap = s390_iommu_unmap,
- 	.iova_to_phys = s390_iommu_iova_to_phys,
--	.add_device = s390_iommu_add_device,
--	.remove_device = s390_iommu_remove_device,
-+	.probe_device = s390_iommu_probe_device,
-+	.release_device = s390_iommu_release_device,
- 	.device_group = generic_device_group,
- 	.pgsize_bitmap = S390_IOMMU_PGSIZES,
- };
+ /* register a new rtoken at the remote peer */
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 08171131110c..c2c9d48d079f 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -56,7 +56,6 @@ int smc_llc_send_delete_link(struct smc_link *link,
+ int smc_llc_link_init(struct smc_link *link);
+ void smc_llc_link_active(struct smc_link *link, int testlink_time);
+ void smc_llc_link_deleting(struct smc_link *link);
+-void smc_llc_link_inactive(struct smc_link *link);
+ void smc_llc_link_clear(struct smc_link *link);
+ int smc_llc_do_confirm_rkey(struct smc_link *link,
+ 			    struct smc_buf_desc *rmb_desc);
 -- 
 2.17.1
