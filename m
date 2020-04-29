@@ -1,47 +1,47 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga04-in.huawei.com ([45.249.212.190]:2856 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726018AbgDUM3m (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Apr 2020 08:29:42 -0400
-From: Zou Wei <zou_wei@huawei.com>
-Subject: [PATCH -next] s390/zcrypt: fix kzalloc-simple.cocci warnings
-Date: Tue, 21 Apr 2020 20:35:48 +0800
-Message-ID: <1587472548-105240-1-git-send-email-zou_wei@huawei.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v3 04/34] iommu/vt-d: Wire up iommu_ops->def_domain_type
+References: <20200429133712.31431-1-joro@8bytes.org>
+ <20200429133712.31431-5-joro@8bytes.org>
+From: Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <b091a9e0-4bbb-2cd9-861e-e958bc691f73@linux.intel.com>
+Date: Thu, 30 Apr 2020 07:58:18 +0800
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20200429133712.31431-5-joro@8bytes.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: freude@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Zou Wei <zou_wei@huawei.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: baolu.lu@linux.intel.com, Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-This patch fixes below warning reported by coccicheck
+On 2020/4/29 21:36, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
+> 
+> The Intel VT-d driver already has a matching function to determine the
+> default domain type for a device. Wire it up in intel_iommu_ops.
+> 
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
 
-drivers/s390/crypto/zcrypt_ep11misc.c:198:8-15: WARNING:
-kzalloc should be used for cprb, instead of kmalloc/memset
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
-Fixes: 7384eb725e2d ("s390/zcrypt: add new low level ep11 functions support file")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
----
- drivers/s390/crypto/zcrypt_ep11misc.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Best regards,
+baolu
 
-diff --git a/drivers/s390/crypto/zcrypt_ep11misc.c b/drivers/s390/crypto/zcrypt_ep11misc.c
-index 004ce02..3c3d403 100644
---- a/drivers/s390/crypto/zcrypt_ep11misc.c
-+++ b/drivers/s390/crypto/zcrypt_ep11misc.c
-@@ -195,11 +195,10 @@ static inline struct ep11_cprb *alloc_cprb(size_t payload_len)
- 	size_t len = sizeof(struct ep11_cprb) + payload_len;
- 	struct ep11_cprb *cprb;
- 
--	cprb = kmalloc(len, GFP_KERNEL);
-+	cprb = kzalloc(len, GFP_KERNEL);
- 	if (!cprb)
- 		return NULL;
- 
--	memset(cprb, 0, len);
- 	cprb->cprb_len = sizeof(struct ep11_cprb);
- 	cprb->cprb_ver_id = 0x04;
- 	memcpy(cprb->func_id, "T4", 2);
--- 
-2.6.2
+> ---
+>   drivers/iommu/intel-iommu.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+> index ef0a5246700e..b9f905a55dda 100644
+> --- a/drivers/iommu/intel-iommu.c
+> +++ b/drivers/iommu/intel-iommu.c
+> @@ -6209,6 +6209,7 @@ const struct iommu_ops intel_iommu_ops = {
+>   	.dev_enable_feat	= intel_iommu_dev_enable_feat,
+>   	.dev_disable_feat	= intel_iommu_dev_disable_feat,
+>   	.is_attach_deferred	= intel_iommu_is_attach_deferred,
+> +	.def_domain_type	= device_def_domain_type,
+>   	.pgsize_bitmap		= INTEL_IOMMU_PGSIZES,
+>   };
+>   
+> 
