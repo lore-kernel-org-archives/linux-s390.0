@@ -1,65 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8350 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728620AbgD3N4L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:56:11 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 04/14] net/smc: add logic to evaluate CONFIRM_LINK messages to LLC layer
-Date: Thu, 30 Apr 2020 15:55:41 +0200
-Message-Id: <20200430135551.26267-5-kgraul@linux.ibm.com>
-In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
-References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+Received: from 8bytes.org ([81.169.241.247]:39874 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728073AbgD2Nhz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:55 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 34/34] iommu: Unexport iommu_group_get_for_dev()
+Date: Wed, 29 Apr 2020 15:37:12 +0200
+Message-Id: <20200429133712.31431-35-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Introduce smc_llc_eval_conf_link() to evaluate the CONFIRM_LINK message
-contents. This implements this logic at the LLC layer. The function will
-be used by af_smc.c to process the received LLC layer messages.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+The function is now only used in IOMMU core code and shouldn't be used
+outside of it anyway, so remove the export for it.
+
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- net/smc/smc_llc.c | 11 +++++++++++
- net/smc/smc_llc.h |  2 ++
- 2 files changed, 13 insertions(+)
+ drivers/iommu/iommu.c | 4 ++--
+ include/linux/iommu.h | 1 -
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index a146b3b43580..9248b90fe37e 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -946,6 +946,17 @@ int smc_llc_do_delete_rkey(struct smc_link *link,
- 	return rc;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 48a95f7d7999..a9e5618cde80 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -91,6 +91,7 @@ static void __iommu_detach_group(struct iommu_domain *domain,
+ 				 struct iommu_group *group);
+ static int iommu_create_device_direct_mappings(struct iommu_group *group,
+ 					       struct device *dev);
++static struct iommu_group *iommu_group_get_for_dev(struct device *dev);
+ 
+ #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
+ struct iommu_group_attribute iommu_group_attr_##_name =		\
+@@ -1500,7 +1501,7 @@ static int iommu_alloc_default_domain(struct device *dev)
+  * to the returned IOMMU group, which will already include the provided
+  * device.  The reference should be released with iommu_group_put().
+  */
+-struct iommu_group *iommu_group_get_for_dev(struct device *dev)
++static struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+ 	struct iommu_group *group;
+@@ -1531,7 +1532,6 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+ 
+ 	return ERR_PTR(ret);
  }
+-EXPORT_SYMBOL(iommu_group_get_for_dev);
  
-+/* evaluate confirm link request or response */
-+int smc_llc_eval_conf_link(struct smc_llc_qentry *qentry,
-+			   enum smc_llc_reqresp type)
-+{
-+	if (type == SMC_LLC_REQ)	/* SMC server assigns link_id */
-+		qentry->link->link_id = qentry->msg.confirm_link.link_num;
-+	if (!(qentry->msg.raw.hdr.flags & SMC_LLC_FLAG_NO_RMBE_EYEC))
-+		return -ENOTSUPP;
-+	return 0;
-+}
-+
- /***************************** init, exit, misc ******************************/
+ struct iommu_domain *iommu_group_default_domain(struct iommu_group *group)
+ {
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index dd076366383f..7cfd2dddb49d 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -527,7 +527,6 @@ extern int iommu_page_response(struct device *dev,
+ 			       struct iommu_page_response *msg);
  
- static struct smc_wr_rx_handler smc_llc_rx_handlers[] = {
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 49e99ff00ee7..637acf91ffb7 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -66,6 +66,8 @@ int smc_llc_do_delete_rkey(struct smc_link *link,
- int smc_llc_flow_initiate(struct smc_link_group *lgr,
- 			  enum smc_llc_flowtype type);
- void smc_llc_flow_stop(struct smc_link_group *lgr, struct smc_llc_flow *flow);
-+int smc_llc_eval_conf_link(struct smc_llc_qentry *qentry,
-+			   enum smc_llc_reqresp type);
- struct smc_llc_qentry *smc_llc_wait(struct smc_link_group *lgr,
- 				    struct smc_link *lnk,
- 				    int time_out, u8 exp_msg);
+ extern int iommu_group_id(struct iommu_group *group);
+-extern struct iommu_group *iommu_group_get_for_dev(struct device *dev);
+ extern struct iommu_domain *iommu_group_default_domain(struct iommu_group *);
+ 
+ extern int iommu_domain_get_attr(struct iommu_domain *domain, enum iommu_attr,
 -- 
 2.17.1
