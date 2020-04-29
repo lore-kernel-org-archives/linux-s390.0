@@ -1,90 +1,59 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 19/29] mm: enforce that vmap can't map pages executable
-Date: Tue, 14 Apr 2020 15:13:38 +0200
-Message-Id: <20200414131348.444715-20-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from 8bytes.org ([81.169.241.247]:40068 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727967AbgD2Nhy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:54 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 30/34] iommu/exynos: Use first SYSMMU in controllers list for IOMMU core
+Date: Wed, 29 Apr 2020 15:37:08 +0200
+Message-Id: <20200429133712.31431-31-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-To help enforcing the W^X protection don't allow remapping existing
-pages as executable.
+From: Joerg Roedel <jroedel@suse.de>
 
-x86 bits from Peter Zijlstra <peterz@infradead.org>,
-arm64 bits from Mark Rutland <mark.rutland@arm.com>.
+On Exynos platforms there can be more than one SYSMMU (IOMMU) for one
+DMA master device. Since the IOMMU core code expects only one hardware
+IOMMU, use the first SYSMMU in the list.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/arm64/include/asm/pgtable.h     | 3 +++
- arch/x86/include/asm/pgtable_types.h | 6 ++++++
- include/asm-generic/pgtable.h        | 4 ++++
- mm/vmalloc.c                         | 2 +-
- 4 files changed, 14 insertions(+), 1 deletion(-)
+ drivers/iommu/exynos-iommu.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 538c85e62f86..47095216d6a8 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -407,6 +407,9 @@ static inline pmd_t pmd_mkdevmap(pmd_t pmd)
- #define __pgprot_modify(prot,mask,bits) \
- 	__pgprot((pgprot_val(prot) & ~(mask)) | (bits))
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index 186ff5cc975c..09cdd163560a 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -1261,6 +1261,11 @@ static int exynos_iommu_add_device(struct device *dev)
+ 	}
+ 	iommu_group_put(group);
  
-+#define pgprot_nx(prot) \
-+	__pgprot_modify(prot, 0, PTE_PXN)
++	/* There is always at least one entry, see exynos_iommu_of_xlate() */
++	data = list_first_entry(&owner->controllers,
++				struct sysmmu_drvdata, owner_node);
++	iommu_device_link(&data->iommu, dev);
 +
- /*
-  * Mark the prot value as uncacheable and unbufferable.
-  */
-diff --git a/arch/x86/include/asm/pgtable_types.h b/arch/x86/include/asm/pgtable_types.h
-index 947867f112ea..2e7c442cc618 100644
---- a/arch/x86/include/asm/pgtable_types.h
-+++ b/arch/x86/include/asm/pgtable_types.h
-@@ -282,6 +282,12 @@ typedef struct pgprot { pgprotval_t pgprot; } pgprot_t;
+ 	return 0;
+ }
  
- typedef struct { pgdval_t pgd; } pgd_t;
+@@ -1286,6 +1291,11 @@ static void exynos_iommu_remove_device(struct device *dev)
  
-+static inline pgprot_t pgprot_nx(pgprot_t prot)
-+{
-+	return __pgprot(pgprot_val(prot) | _PAGE_NX);
-+}
-+#define pgprot_nx pgprot_nx
+ 	list_for_each_entry(data, &owner->controllers, owner_node)
+ 		device_link_del(data->link);
 +
- #ifdef CONFIG_X86_PAE
++	/* There is always at least one entry, see exynos_iommu_of_xlate() */
++	data = list_first_entry(&owner->controllers,
++				struct sysmmu_drvdata, owner_node);
++	iommu_device_unlink(&data->iommu, dev);
+ }
  
- /*
-diff --git a/include/asm-generic/pgtable.h b/include/asm-generic/pgtable.h
-index 329b8c8ca703..8c5f9c29698b 100644
---- a/include/asm-generic/pgtable.h
-+++ b/include/asm-generic/pgtable.h
-@@ -491,6 +491,10 @@ static inline int arch_unmap_one(struct mm_struct *mm,
- #define flush_tlb_fix_spurious_fault(vma, address) flush_tlb_page(vma, address)
- #endif
- 
-+#ifndef pgprot_nx
-+#define pgprot_nx(prot)	(prot)
-+#endif
-+
- #ifndef pgprot_noncached
- #define pgprot_noncached(prot)	(prot)
- #endif
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 7356b3f07bd8..334c75251ddb 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -2390,7 +2390,7 @@ void *vmap(struct page **pages, unsigned int count,
- 	if (!area)
- 		return NULL;
- 
--	if (map_kernel_range((unsigned long)area->addr, size, prot,
-+	if (map_kernel_range((unsigned long)area->addr, size, pgprot_nx(prot),
- 			pages) < 0) {
- 		vunmap(area->addr);
- 		return NULL;
+ static int exynos_iommu_of_xlate(struct device *dev,
 -- 
-2.25.1
+2.17.1
