@@ -1,77 +1,137 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26170 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727071AbgDWMBW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Apr 2020 08:01:22 -0400
-Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03NB2diu021650
-        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 08:01:22 -0400
-Received: from e06smtp07.uk.ibm.com (e06smtp07.uk.ibm.com [195.75.94.103])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 30k7rkwm2j-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 23 Apr 2020 08:01:21 -0400
-Received: from localhost
-        by e06smtp07.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <imbrenda@linux.ibm.com>;
-        Thu, 23 Apr 2020 13:01:14 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH v1 1/1] s390/protvirt: fix compilation issue
-Date: Thu, 23 Apr 2020 14:01:14 +0200
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56674 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726158AbgD2BzA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 28 Apr 2020 21:55:00 -0400
+Date: Wed, 29 Apr 2020 11:54:56 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: linux-next: Tree for Apr 28
+Message-ID: <20200429115456.34d511a0@canb.auug.org.au>
+In-Reply-To: <20200429013435.GA1133928@ubuntu-s3-xlarge-x86>
+References: <20200428181006.06b4e3bc@canb.auug.org.au>
+        <20200428190459.GA2299615@ubuntu-s3-xlarge-x86>
+        <20200429012421.GA132200@google.com>
+        <20200429013435.GA1133928@ubuntu-s3-xlarge-x86>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20200423120114.2027410-1-imbrenda@linux.ibm.com>
+Content-Type: multipart/signed; boundary="Sig_/gasmWOgPFOuCsqK9DhGzRnS";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, gor@linux.ibm.com, cohuck@redhat.com, david@redhat.com, kbuild test robot <lkp@intel.com>, Philipp Rudo <prudo@linux.ibm.com>
+To: Nathan Chancellor <natechancellor@gmail.com>
+Cc: Minchan Kim <minchan@kernel.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org, linux-s390@vger.kernel.org
 
-The kernel fails to compile with CONFIG_PROTECTED_VIRTUALIZATION_GUEST
-set but CONFIG_KVM unset.
+--Sig_/gasmWOgPFOuCsqK9DhGzRnS
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-This patch fixes the issue by making the needed variable always available.
+Hi all,
 
-Fixes: a0f60f8431999bf5 ("s390/protvirt: Add sysfs firmware interface for Ultravisor information")
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Philipp Rudo <prudo@linux.ibm.com>
-Suggested-by: Philipp Rudo <prudo@linux.ibm.com>
-CC: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- arch/s390/boot/uv.c   | 2 --
- arch/s390/kernel/uv.c | 3 ++-
- 2 files changed, 2 insertions(+), 3 deletions(-)
+On Tue, 28 Apr 2020 18:34:35 -0700 Nathan Chancellor <natechancellor@gmail.=
+com> wrote:
+>
+> On Tue, Apr 28, 2020 at 06:24:21PM -0700, Minchan Kim wrote:
+> >=20
+> > On Tue, Apr 28, 2020 at 12:04:59PM -0700, Nathan Chancellor wrote:=20
+> > >=20
+> > > I am seeing the following build error on s390 defconfig, caused by
+> > > commit 743f242d65ec ("mm: support compat_sys_process_madvise").
+> > > Apologies if it has already been reported, I did a search of lore and
+> > > found nothing.
+> > >=20
+> > > Cheers,
+> > > Nathan
+> > >=20
+> > > $ make -j$(nproc) -s ARCH=3Ds390 CROSS_COMPILE=3Ds390x-linux- defconf=
+ig all
+> > > ...
+> > > mm/madvise.c: In function '__se_compat_sys_process_madvise':
+> > > ./include/linux/compiler.h:394:38: error: call to '__compiletime_asse=
+rt_162' declared with attribute error: BUILD_BUG_ON failed: sizeof(unsigned=
+ long) > 4 && !__TYPE_IS_PTR(unsigned long)
+> > >   394 |  _compiletime_assert(condition, msg, __compiletime_assert_, _=
+_COUNTER__)
+> > >       |                                      ^
+> >=20
+> > Could you try this patch? I think it should fix it.
+> >=20
+> > From 3f993353c310a027f138d822a79ce49770fe6e50 Mon Sep 17 00:00:00 2001
+> > From: Minchan Kim <minchan@kernel.org>
+> > Date: Tue, 28 Apr 2020 18:20:24 -0700
+> > Subject: [PATCH] mm: fix s390 compat build error
+> >=20
+> > Nathan reported build error with sys_compat_process_madvise.
+> > This patch should fix it.
+> >=20
+> > Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+> > Signed-off-by: Minchan Kim <minchan@kernel.org> =20
+>=20
+> Tested-by: Nathan Chancellor <natechancellor@gmail.com> # build
+>=20
+> > ---
+> >  include/linux/compat.h | 5 +++--
+> >  mm/madvise.c           | 9 ++++++---
+> >  2 files changed, 9 insertions(+), 5 deletions(-)
+> >=20
+> > diff --git a/include/linux/compat.h b/include/linux/compat.h
+> > index 1134ba3e61d0..19c524513cbb 100644
+> > --- a/include/linux/compat.h
+> > +++ b/include/linux/compat.h
+> > @@ -820,9 +820,10 @@ asmlinkage long compat_sys_pwritev64v2(unsigned lo=
+ng fd,
+> >  		unsigned long vlen, loff_t pos, rwf_t flags);
+> >  #endif
+> > =20
+> > -asmlinkage ssize_t compat_sys_process_madvise(int which,
+> > +asmlinkage ssize_t compat_sys_process_madvise(compat_int_t which,
+> >  		compat_pid_t upid, const struct compat_iovec __user *vec,
+> > -		unsigned long vlen, int behavior, unsigned long flags);
+> > +		compat_ulong_t vlen, compat_int_t behavior,
+> > +		compat_ulong_t flags);
+> > =20
+> >  /*
+> >   * Deprecated system calls which are still defined in
+> > diff --git a/mm/madvise.c b/mm/madvise.c
+> > index 8fec261457a6..99c06d5f0785 100644
+> > --- a/mm/madvise.c
+> > +++ b/mm/madvise.c
+> > @@ -1311,9 +1311,12 @@ SYSCALL_DEFINE6(process_madvise, int, which, pid=
+_t, upid,
+> >  }
+> > =20
+> >  #ifdef CONFIG_COMPAT
+> > -COMPAT_SYSCALL_DEFINE6(process_madvise, int, which, compat_pid_t, upid,
+> > -		const struct compat_iovec __user *, vec, unsigned long, vlen,
+> > -		int, behavior, unsigned long, flags)
+> > +COMPAT_SYSCALL_DEFINE6(process_madvise, compat_int_t, which,
+> > +			compat_pid_t, upid,
+> > +			const struct compat_iovec __user *, vec,
+> > +			compat_ulong_t, vlen,
+> > +			compat_int_t, behavior,
+> > +			compat_ulong_t, flags)
+> > =20
+> >  {
+> >  	ssize_t ret;
 
-diff --git a/arch/s390/boot/uv.c b/arch/s390/boot/uv.c
-index 8fde561f1d07..f887a479cdc7 100644
---- a/arch/s390/boot/uv.c
-+++ b/arch/s390/boot/uv.c
-@@ -7,9 +7,7 @@
- #ifdef CONFIG_PROTECTED_VIRTUALIZATION_GUEST
- int __bootdata_preserved(prot_virt_guest);
- #endif
--#if IS_ENABLED(CONFIG_KVM)
- struct uv_info __bootdata_preserved(uv_info);
--#endif
- 
- void uv_query_info(void)
- {
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index c86d654351d1..4c0677fc8904 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -23,10 +23,11 @@
- int __bootdata_preserved(prot_virt_guest);
- #endif
- 
-+struct uv_info __bootdata_preserved(uv_info);
-+
- #if IS_ENABLED(CONFIG_KVM)
- int prot_virt_host;
- EXPORT_SYMBOL(prot_virt_host);
--struct uv_info __bootdata_preserved(uv_info);
- EXPORT_SYMBOL(uv_info);
- 
- static int __init prot_virt_setup(char *val)
--- 
-2.25.3
+I have applied that fix to linux-next for today.
+
+--=20
+Cheers,
+Stephen Rothwell
+
+--Sig_/gasmWOgPFOuCsqK9DhGzRnS
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl6o3nAACgkQAVBC80lX
+0Gz+Igf9Hb8ZlJssg//EROPEfO1qasV0kDfSSXtR6c6fjxlGQTZhCNIsUkVWFAmM
+k48ouvgZPo0b1BNiaKD8O32/d87JpVVhrPOyIFDk0qLu6Om2FSK3oDS2yLyeWJvb
+jmTdDpcy2pgG3tgata6jXc8U7/xTIyNCkb+Y+5vRzCLbsd5wywMXTiy6yOWbAW+k
+O1llVGbkle6+vLbQU9vP966BLIRh01GXX2yE/vtS2r4+Dyjbqt3zJP4NwinkRQgM
+5KBTdFwEYLG2z/W41PdWDfPR6StT0dofRnRmZpc/DJyAlx1NuhnDBf4xww1bhrLj
+d7YXTUbNMJQ63WW6rKrcs2DMjN01Ww==
+=KlNm
+-----END PGP SIGNATURE-----
+
+--Sig_/gasmWOgPFOuCsqK9DhGzRnS--
