@@ -1,72 +1,126 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:39874 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728073AbgD2Nhz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 09:37:55 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 34/34] iommu: Unexport iommu_group_get_for_dev()
-Date: Wed, 29 Apr 2020 15:37:12 +0200
-Message-Id: <20200429133712.31431-35-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28336 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726911AbgD2PLh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 11:11:37 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 03/13] net/smc: introduce link_idx for link group array
+Date: Wed, 29 Apr 2020 17:10:39 +0200
+Message-Id: <20200429151049.49979-4-kgraul@linux.ibm.com>
+In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
+References: <20200429151049.49979-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Joerg Roedel <jroedel@suse.de>
+The link_id is the index of the link in the array of the link group.
+When a link in the array is reused for a new link, a different unique
+link_id should be used, otherwise the index in the array could collide
+with the previous link at this array position.
+Use a new variable link_idx as array index, and make link_id an
+increasing unique id value.
 
-The function is now only used in IOMMU core code and shouldn't be used
-outside of it anyway, so remove the export for it.
-
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/iommu/iommu.c | 4 ++--
- include/linux/iommu.h | 1 -
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ net/smc/smc_core.c | 34 +++++++++++++++++++++++++++++-----
+ net/smc/smc_core.h |  2 ++
+ 2 files changed, 31 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 48a95f7d7999..a9e5618cde80 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -91,6 +91,7 @@ static void __iommu_detach_group(struct iommu_domain *domain,
- 				 struct iommu_group *group);
- static int iommu_create_device_direct_mappings(struct iommu_group *group,
- 					       struct device *dev);
-+static struct iommu_group *iommu_group_get_for_dev(struct device *dev);
- 
- #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
- struct iommu_group_attribute iommu_group_attr_##_name =		\
-@@ -1500,7 +1501,7 @@ static int iommu_alloc_default_domain(struct device *dev)
-  * to the returned IOMMU group, which will already include the provided
-  * device.  The reference should be released with iommu_group_put().
-  */
--struct iommu_group *iommu_group_get_for_dev(struct device *dev)
-+static struct iommu_group *iommu_group_get_for_dev(struct device *dev)
- {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
- 	struct iommu_group *group;
-@@ -1531,7 +1532,6 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
- 
- 	return ERR_PTR(ret);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 3bb45c33db22..d233112ced2a 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -245,8 +245,28 @@ static void smc_lgr_terminate_work(struct work_struct *work)
+ 	__smc_lgr_terminate(lgr, true);
  }
--EXPORT_SYMBOL(iommu_group_get_for_dev);
  
- struct iommu_domain *iommu_group_default_domain(struct iommu_group *group)
+-static int smcr_link_init(struct smc_link *lnk, u8 link_id,
+-			  struct smc_init_info *ini)
++/* return next unique link id for the lgr */
++static u8 smcr_next_link_id(struct smc_link_group *lgr)
++{
++	u8 link_id;
++	int i;
++
++	while (1) {
++		link_id = ++lgr->next_link_id;
++		if (!link_id)	/* skip zero as link_id */
++			link_id = ++lgr->next_link_id;
++		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++			if (lgr->lnk[i].state != SMC_LNK_INACTIVE &&
++			    lgr->lnk[i].link_id == link_id)
++				continue;
++		}
++		break;
++	}
++	return link_id;
++}
++
++static int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
++			  u8 link_idx, struct smc_init_info *ini)
  {
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index dd076366383f..7cfd2dddb49d 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -527,7 +527,6 @@ extern int iommu_page_response(struct device *dev,
- 			       struct iommu_page_response *msg);
+ 	u8 rndvec[3];
+ 	int rc;
+@@ -254,7 +274,8 @@ static int smcr_link_init(struct smc_link *lnk, u8 link_id,
+ 	get_device(&ini->ib_dev->ibdev->dev);
+ 	atomic_inc(&ini->ib_dev->lnk_cnt);
+ 	lnk->state = SMC_LNK_ACTIVATING;
+-	lnk->link_id = link_id;
++	lnk->link_id = smcr_next_link_id(lgr);
++	lnk->link_idx = link_idx;
+ 	lnk->smcibdev = ini->ib_dev;
+ 	lnk->ibport = ini->ib_port;
+ 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
+@@ -310,6 +331,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	struct list_head *lgr_list;
+ 	struct smc_link *lnk;
+ 	spinlock_t *lgr_lock;
++	u8 link_idx;
+ 	int rc = 0;
+ 	int i;
  
- extern int iommu_group_id(struct iommu_group *group);
--extern struct iommu_group *iommu_group_get_for_dev(struct device *dev);
- extern struct iommu_domain *iommu_group_default_domain(struct iommu_group *);
+@@ -338,6 +360,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		INIT_LIST_HEAD(&lgr->sndbufs[i]);
+ 		INIT_LIST_HEAD(&lgr->rmbs[i]);
+ 	}
++	lgr->next_link_id = 0;
+ 	smc_lgr_list.num += SMC_LGR_NUM_INCR;
+ 	memcpy(&lgr->id, (u8 *)&smc_lgr_list.num, SMC_LGR_ID_SIZE);
+ 	INIT_DELAYED_WORK(&lgr->free_work, smc_lgr_free_work);
+@@ -358,8 +381,9 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 		memcpy(lgr->peer_systemid, ini->ib_lcl->id_for_peer,
+ 		       SMC_SYSTEMID_LEN);
  
- extern int iommu_domain_get_attr(struct iommu_domain *domain, enum iommu_attr,
+-		lnk = &lgr->lnk[SMC_SINGLE_LINK];
+-		rc = smcr_link_init(lnk, SMC_SINGLE_LINK, ini);
++		link_idx = SMC_SINGLE_LINK;
++		lnk = &lgr->lnk[link_idx];
++		rc = smcr_link_init(lgr, lnk, link_idx, ini);
+ 		if (rc)
+ 			goto free_lgr;
+ 		lgr_list = &smc_lgr_list.list;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 8041db20c753..c459b0639bf3 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -115,6 +115,7 @@ struct smc_link {
+ 	u8			peer_mac[ETH_ALEN];	/* = gid[8:10||13:15] */
+ 	u8			peer_gid[SMC_GID_SIZE];	/* gid of peer*/
+ 	u8			link_id;	/* unique # within link group */
++	u8			link_idx;	/* index in lgr link array */
+ 
+ 	enum smc_link_state	state;		/* state of link */
+ 	struct workqueue_struct *llc_wq;	/* single thread work queue */
+@@ -222,6 +223,7 @@ struct smc_link_group {
+ 						/* remote addr/key pairs */
+ 			DECLARE_BITMAP(rtokens_used_mask, SMC_RMBS_PER_LGR_MAX);
+ 						/* used rtoken elements */
++			u8			next_link_id;
+ 		};
+ 		struct { /* SMC-D */
+ 			u64			peer_gid;
 -- 
 2.17.1
