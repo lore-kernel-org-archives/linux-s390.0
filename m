@@ -1,77 +1,143 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:56888 "EHLO mail.kernel.org"
+Received: from 8bytes.org ([81.169.241.247]:40134 "EHLO theia.8bytes.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728903AbgDROov (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:44:51 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 11/19] s390/cio: avoid duplicated 'ADD' uevents
-Date: Sat, 18 Apr 2020 10:44:28 -0400
-Message-Id: <20200418144436.10818-11-sashal@kernel.org>
-In-Reply-To: <20200418144436.10818-1-sashal@kernel.org>
-References: <20200418144436.10818-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1728038AbgD2Nhx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:53 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 28/34] iommu/omap: Remove orphan_dev tracking
+Date: Wed, 29 Apr 2020 15:37:06 +0200
+Message-Id: <20200429133712.31431-29-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-From: Cornelia Huck <cohuck@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 05ce3e53f375295c2940390b2b429e506e07655c ]
+Remove the tracking of device which could not be probed because
+their IOMMU is not probed yet. Replace it with a call to
+bus_iommu_probe() when a new IOMMU is probed.
 
-The common I/O layer delays the ADD uevent for subchannels and
-delegates generating this uevent to the individual subchannel
-drivers. The io_subchannel driver will do so when the associated
-ccw_device has been registered -- but unconditionally, so more
-ADD uevents will be generated if a subchannel has been unbound
-from the io_subchannel driver and later rebound.
-
-To fix this, only generate the ADD event if uevents were still
-suppressed for the device.
-
-Fixes: fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")
-Message-Id: <20200327124503.9794-2-cohuck@redhat.com>
-Reported-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Boris Fiuczynski <fiuczy@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/s390/cio/device.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/iommu/omap-iommu.c | 54 +++-----------------------------------
+ 1 file changed, 4 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index 6aae684128021..2389a1dc6d300 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -872,8 +872,10 @@ static void io_subchannel_register(struct ccw_device *cdev)
- 	 * Now we know this subchannel will stay, we can throw
- 	 * our delayed uevent.
- 	 */
--	dev_set_uevent_suppress(&sch->dev, 0);
--	kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	if (dev_get_uevent_suppress(&sch->dev)) {
-+		dev_set_uevent_suppress(&sch->dev, 0);
-+		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+	}
- 	/* make it known to the system */
- 	ret = ccw_device_add(cdev);
- 	if (ret) {
-@@ -1082,8 +1084,11 @@ static int io_subchannel_probe(struct subchannel *sch)
- 		 * Throw the delayed uevent for the subchannel, register
- 		 * the ccw_device and exit.
- 		 */
--		dev_set_uevent_suppress(&sch->dev, 0);
--		kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		if (dev_get_uevent_suppress(&sch->dev)) {
-+			/* should always be the case for the console */
-+			dev_set_uevent_suppress(&sch->dev, 0);
-+			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
-+		}
- 		cdev = sch_get_cdev(sch);
- 		rc = ccw_device_add(cdev);
- 		if (rc) {
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index 887fefcb03b4..ecc9d0829a91 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -35,15 +35,6 @@
+ 
+ static const struct iommu_ops omap_iommu_ops;
+ 
+-struct orphan_dev {
+-	struct device *dev;
+-	struct list_head node;
+-};
+-
+-static LIST_HEAD(orphan_dev_list);
+-
+-static DEFINE_SPINLOCK(orphan_lock);
+-
+ #define to_iommu(dev)	((struct omap_iommu *)dev_get_drvdata(dev))
+ 
+ /* bitmap of the page sizes currently supported */
+@@ -62,8 +53,6 @@ static DEFINE_SPINLOCK(orphan_lock);
+ static struct platform_driver omap_iommu_driver;
+ static struct kmem_cache *iopte_cachep;
+ 
+-static int _omap_iommu_add_device(struct device *dev);
+-
+ /**
+  * to_omap_domain - Get struct omap_iommu_domain from generic iommu_domain
+  * @dom:	generic iommu domain handle
+@@ -1177,7 +1166,6 @@ static int omap_iommu_probe(struct platform_device *pdev)
+ 	struct omap_iommu *obj;
+ 	struct resource *res;
+ 	struct device_node *of = pdev->dev.of_node;
+-	struct orphan_dev *orphan_dev, *tmp;
+ 
+ 	if (!of) {
+ 		pr_err("%s: only DT-based devices are supported\n", __func__);
+@@ -1260,13 +1248,8 @@ static int omap_iommu_probe(struct platform_device *pdev)
+ 
+ 	dev_info(&pdev->dev, "%s registered\n", obj->name);
+ 
+-	list_for_each_entry_safe(orphan_dev, tmp, &orphan_dev_list, node) {
+-		err = _omap_iommu_add_device(orphan_dev->dev);
+-		if (!err) {
+-			list_del(&orphan_dev->node);
+-			kfree(orphan_dev);
+-		}
+-	}
++	/* Re-probe bus to probe device attached to this IOMMU */
++	bus_iommu_probe(&platform_bus_type);
+ 
+ 	return 0;
+ 
+@@ -1657,7 +1640,7 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	return ret;
+ }
+ 
+-static int _omap_iommu_add_device(struct device *dev)
++static int omap_iommu_add_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data, *tmp;
+ 	struct omap_iommu *oiommu;
+@@ -1666,8 +1649,6 @@ static int _omap_iommu_add_device(struct device *dev)
+ 	struct platform_device *pdev;
+ 	int num_iommus, i;
+ 	int ret;
+-	struct orphan_dev *orphan_dev;
+-	unsigned long flags;
+ 
+ 	/*
+ 	 * Allocate the archdata iommu structure for DT-based devices.
+@@ -1702,23 +1683,7 @@ static int _omap_iommu_add_device(struct device *dev)
+ 		if (!pdev) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			spin_lock_irqsave(&orphan_lock, flags);
+-			list_for_each_entry(orphan_dev, &orphan_dev_list,
+-					    node) {
+-				if (orphan_dev->dev == dev)
+-					break;
+-			}
+-			spin_unlock_irqrestore(&orphan_lock, flags);
+-
+-			if (orphan_dev && orphan_dev->dev == dev)
+-				return -EPROBE_DEFER;
+-
+-			orphan_dev = kzalloc(sizeof(*orphan_dev), GFP_KERNEL);
+-			orphan_dev->dev = dev;
+-			spin_lock_irqsave(&orphan_lock, flags);
+-			list_add(&orphan_dev->node, &orphan_dev_list);
+-			spin_unlock_irqrestore(&orphan_lock, flags);
+-			return -EPROBE_DEFER;
++			return -ENODEV;
+ 		}
+ 
+ 		oiommu = platform_get_drvdata(pdev);
+@@ -1764,17 +1729,6 @@ static int _omap_iommu_add_device(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int omap_iommu_add_device(struct device *dev)
+-{
+-	int ret;
+-
+-	ret = _omap_iommu_add_device(dev);
+-	if (ret == -EPROBE_DEFER)
+-		return 0;
+-
+-	return ret;
+-}
+-
+ static void omap_iommu_remove_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
 -- 
-2.20.1
+2.17.1
