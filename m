@@ -1,79 +1,137 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:30053 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726765AbgD3PYn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:24:43 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [kvm-unit-tests PULL 00/17] s390x updates
-Date: Thu, 30 Apr 2020 17:24:13 +0200
-Message-Id: <20200430152430.40349-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Received: from 8bytes.org ([81.169.241.247]:39874 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728032AbgD2Nhw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:52 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 27/34] iommu/renesas: Convert to probe/release_device() call-backs
+Date: Wed, 29 Apr 2020 15:37:05 +0200
+Message-Id: <20200429133712.31431-28-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Andrew Jones <drjones@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Hi Paolo,
+From: Joerg Roedel <jroedel@suse.de>
 
-The following changes since commit 5c052c904ded7ecd80d8f7efe2803821b45ce4=
-83:
+Convert the Renesas IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
-  kvm-unit-tests: nSVM: Test that CR0[63:32] are not set on VMRUN of nest=
-ed guests (2020-04-21 12:16:07 -0400)
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ drivers/iommu/ipmmu-vmsa.c | 60 +++++++++++++-------------------------
+ 1 file changed, 20 insertions(+), 40 deletions(-)
 
-are available in the Git repository at:
-
-  https://github.com/davidhildenbrand/kvm-unit-tests.git tags/s390x-2020-=
-04-30
-
-for you to fetch changes up to f7df29115f736b9ffe8e529ba9c2b418d2f5e736:
-
-  s390x: Fix library constant definitions (2020-04-30 16:52:14 +0200)
-
-----------------------------------------------------------------
-New maintainer, reviewer, and cc list. New STSI test. Lots of minor fixes
-and cleanups
-
-----------------------------------------------------------------
-Andrew Jones (1):
-      s390x: unittests: Use smp parameter
-
-Christian Borntraeger (2):
-      s390x/smp: fix detection of "running"
-      s390x/smp: add minimal test for sigp sense running status
-
-Cornelia Huck (2):
-      MAINTAINERS: s390x: add myself as reviewer
-      MAINTAINERS: s390x: add linux-s390 list
-
-David Hildenbrand (1):
-      s390x: STFLE operates on doublewords
-
-Janosch Frank (10):
-      s390x: Add stsi 3.2.2 tests
-      s390x: smp: Test all CRs on initial reset
-      s390x: smp: Dirty fpc before initial reset test
-      s390x: smp: Test stop and store status on a running and stopped cpu
-      s390x: smp: Test local interrupts after cpu reset
-      s390x: smp: Loop if secondary cpu returns into cpu setup again
-      s390x: smp: Remove unneeded cpu loops
-      s390x: smp: Use full PSW to bringup new cpu
-      s390x: smp: Add restart when running test
-      s390x: Fix library constant definitions
-
-Thomas Huth (1):
-      MAINTAINERS: Add Janosch as a s390x maintainer
-
- MAINTAINERS              |   4 +-
- lib/s390x/asm/arch_def.h |   8 ++--
- lib/s390x/asm/facility.h |  14 +++----
- lib/s390x/io.c           |   2 +-
- lib/s390x/smp.c          |   6 ++-
- lib/s390x/smp.h          |   2 +-
- s390x/cstart64.S         |   5 ++-
- s390x/smp.c              | 105 +++++++++++++++++++++++++++++++++++++++++=
-++----
- s390x/stsi.c             |  73 ++++++++++++++++++++++++++++++++
- s390x/unittests.cfg      |   3 +-
- 10 files changed, 196 insertions(+), 26 deletions(-)
+diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+index 310cf09feea3..fb7e702dee23 100644
+--- a/drivers/iommu/ipmmu-vmsa.c
++++ b/drivers/iommu/ipmmu-vmsa.c
+@@ -805,24 +805,8 @@ static int ipmmu_of_xlate(struct device *dev,
+ static int ipmmu_init_arm_mapping(struct device *dev)
+ {
+ 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
+-	struct iommu_group *group;
+ 	int ret;
+ 
+-	/* Create a device group and add the device to it. */
+-	group = iommu_group_alloc();
+-	if (IS_ERR(group)) {
+-		dev_err(dev, "Failed to allocate IOMMU group\n");
+-		return PTR_ERR(group);
+-	}
+-
+-	ret = iommu_group_add_device(group, dev);
+-	iommu_group_put(group);
+-
+-	if (ret < 0) {
+-		dev_err(dev, "Failed to add device to IPMMU group\n");
+-		return ret;
+-	}
+-
+ 	/*
+ 	 * Create the ARM mapping, used by the ARM DMA mapping core to allocate
+ 	 * VAs. This will allocate a corresponding IOMMU domain.
+@@ -856,48 +840,39 @@ static int ipmmu_init_arm_mapping(struct device *dev)
+ 	return 0;
+ 
+ error:
+-	iommu_group_remove_device(dev);
+ 	if (mmu->mapping)
+ 		arm_iommu_release_mapping(mmu->mapping);
+ 
+ 	return ret;
+ }
+ 
+-static int ipmmu_add_device(struct device *dev)
++static struct iommu_device *ipmmu_probe_device(struct device *dev)
+ {
+ 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
+-	struct iommu_group *group;
+-	int ret;
+ 
+ 	/*
+ 	 * Only let through devices that have been verified in xlate()
+ 	 */
+ 	if (!mmu)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+-	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA)) {
+-		ret = ipmmu_init_arm_mapping(dev);
+-		if (ret)
+-			return ret;
+-	} else {
+-		group = iommu_group_get_for_dev(dev);
+-		if (IS_ERR(group))
+-			return PTR_ERR(group);
++	return &mmu->iommu;
++}
+ 
+-		iommu_group_put(group);
+-	}
++static void ipmmu_probe_finalize(struct device *dev)
++{
++	int ret = 0;
+ 
+-	iommu_device_link(&mmu->iommu, dev);
+-	return 0;
++	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA))
++		ret = ipmmu_init_arm_mapping(dev);
++
++	if (ret)
++		dev_err(dev, "Can't create IOMMU mapping - DMA-OPS will not work\n");
+ }
+ 
+-static void ipmmu_remove_device(struct device *dev)
++static void ipmmu_release_device(struct device *dev)
+ {
+-	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
+-
+-	iommu_device_unlink(&mmu->iommu, dev);
+ 	arm_iommu_detach_device(dev);
+-	iommu_group_remove_device(dev);
+ }
+ 
+ static struct iommu_group *ipmmu_find_group(struct device *dev)
+@@ -925,9 +900,14 @@ static const struct iommu_ops ipmmu_ops = {
+ 	.flush_iotlb_all = ipmmu_flush_iotlb_all,
+ 	.iotlb_sync = ipmmu_iotlb_sync,
+ 	.iova_to_phys = ipmmu_iova_to_phys,
+-	.add_device = ipmmu_add_device,
+-	.remove_device = ipmmu_remove_device,
++	.probe_device = ipmmu_probe_device,
++	.release_device = ipmmu_release_device,
++	.probe_finalize = ipmmu_probe_finalize,
++#if defined(CONFIG_ARM) && !defined(CONFIG_IOMMU_DMA)
++	.device_group = generic_device_group,
++#else
+ 	.device_group = ipmmu_find_group,
++#endif
+ 	.pgsize_bitmap = SZ_1G | SZ_2M | SZ_4K,
+ 	.of_xlate = ipmmu_of_xlate,
+ };
+-- 
+2.17.1
