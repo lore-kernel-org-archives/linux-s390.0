@@ -1,93 +1,107 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57590 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726956AbgDGSiB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:38:01 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 22/34] iommu/msm: Convert to probe/release_device() call-backs
-Date: Tue,  7 Apr 2020 20:37:30 +0200
-Message-Id: <20200407183742.4344-23-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27032 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726637AbgD2PLi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 11:11:38 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 06/13] net/smc: multi-link support for smc_rmb_rtoken_handling()
+Date: Wed, 29 Apr 2020 17:10:42 +0200
+Message-Id: <20200429151049.49979-7-kgraul@linux.ibm.com>
+In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
+References: <20200429151049.49979-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Joerg Roedel <jroedel@suse.de>
+Extend smc_rmb_rtoken_handling() and smc_rtoken_delete() to support
+multiple links.
 
-Convert the MSM IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/iommu/msm_iommu.c | 34 +++++++---------------------------
- 1 file changed, 7 insertions(+), 27 deletions(-)
+ net/smc/af_smc.c   |  4 ++--
+ net/smc/smc_core.c | 14 ++++++++------
+ net/smc/smc_core.h |  2 +-
+ 3 files changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
-index 94a6df1bddd6..10cd4db0710a 100644
---- a/drivers/iommu/msm_iommu.c
-+++ b/drivers/iommu/msm_iommu.c
-@@ -388,43 +388,23 @@ static struct msm_iommu_dev *find_iommu_for_dev(struct device *dev)
- 	return ret;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 890dc6422f8c..e39f6aedd3bd 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -640,7 +640,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 	if (ini->cln_first_contact == SMC_FIRST_CONTACT)
+ 		smc_link_save_peer_info(link, aclc);
+ 
+-	if (smc_rmb_rtoken_handling(&smc->conn, aclc))
++	if (smc_rmb_rtoken_handling(&smc->conn, link, aclc))
+ 		return smc_connect_abort(smc, SMC_CLC_DECL_ERR_RTOK,
+ 					 ini->cln_first_contact);
+ 
+@@ -1231,7 +1231,7 @@ static int smc_listen_rdma_finish(struct smc_sock *new_smc,
+ 	if (local_contact == SMC_FIRST_CONTACT)
+ 		smc_link_save_peer_info(link, cclc);
+ 
+-	if (smc_rmb_rtoken_handling(&new_smc->conn, cclc)) {
++	if (smc_rmb_rtoken_handling(&new_smc->conn, link, cclc)) {
+ 		reason_code = SMC_CLC_DECL_ERR_RTOK;
+ 		goto decline;
+ 	}
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 5df3f8f41d19..e8897d60b27f 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1392,19 +1392,20 @@ int smc_rtoken_add(struct smc_link *lnk, __be64 nw_vaddr, __be32 nw_rkey)
+ 	return i;
  }
  
--static int msm_iommu_add_device(struct device *dev)
-+static struct iommu_device *msm_iommu_probe_device(struct device *dev)
+-/* delete an rtoken */
++/* delete an rtoken from all links */
+ int smc_rtoken_delete(struct smc_link *lnk, __be32 nw_rkey)
  {
- 	struct msm_iommu_dev *iommu;
--	struct iommu_group *group;
- 	unsigned long flags;
+ 	struct smc_link_group *lgr = smc_get_lgr(lnk);
+ 	u32 rkey = ntohl(nw_rkey);
+-	int i;
++	int i, j;
  
- 	spin_lock_irqsave(&msm_iommu_lock, flags);
- 	iommu = find_iommu_for_dev(dev);
- 	spin_unlock_irqrestore(&msm_iommu_lock, flags);
- 
--	if (iommu)
--		iommu_device_link(&iommu->iommu, dev);
--	else
--		return -ENODEV;
+ 	for (i = 0; i < SMC_RMBS_PER_LGR_MAX; i++) {
+ 		if (lgr->rtokens[i][lnk->link_idx].rkey == rkey &&
+ 		    test_bit(i, lgr->rtokens_used_mask)) {
+-			lgr->rtokens[i][lnk->link_idx].rkey = 0;
+-			lgr->rtokens[i][lnk->link_idx].dma_addr = 0;
 -
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
-+	if (!iommu)
-+		return ERR_PTR(-ENODEV);
++			for (j = 0; j < SMC_LINKS_PER_LGR_MAX; j++) {
++				lgr->rtokens[i][j].rkey = 0;
++				lgr->rtokens[i][j].dma_addr = 0;
++			}
+ 			clear_bit(i, lgr->rtokens_used_mask);
+ 			return 0;
+ 		}
+@@ -1414,9 +1415,10 @@ int smc_rtoken_delete(struct smc_link *lnk, __be32 nw_rkey)
  
--	return 0;
-+	return &iommu->iommu;
- }
- 
--static void msm_iommu_remove_device(struct device *dev)
-+static void msm_iommu_release_device(struct device *dev)
+ /* save rkey and dma_addr received from peer during clc handshake */
+ int smc_rmb_rtoken_handling(struct smc_connection *conn,
++			    struct smc_link *lnk,
+ 			    struct smc_clc_msg_accept_confirm *clc)
  {
--	struct msm_iommu_dev *iommu;
--	unsigned long flags;
--
--	spin_lock_irqsave(&msm_iommu_lock, flags);
--	iommu = find_iommu_for_dev(dev);
--	spin_unlock_irqrestore(&msm_iommu_lock, flags);
--
--	if (iommu)
--		iommu_device_unlink(&iommu->iommu, dev);
--
--	iommu_group_remove_device(dev);
- }
- 
- static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev)
-@@ -708,8 +688,8 @@ static struct iommu_ops msm_iommu_ops = {
- 	 */
- 	.iotlb_sync = NULL,
- 	.iova_to_phys = msm_iommu_iova_to_phys,
--	.add_device = msm_iommu_add_device,
--	.remove_device = msm_iommu_remove_device,
-+	.probe_device = msm_iommu_probe_device,
-+	.release_device = msm_iommu_release_device,
- 	.device_group = generic_device_group,
- 	.pgsize_bitmap = MSM_IOMMU_PGSIZES,
- 	.of_xlate = qcom_iommu_of_xlate,
+-	conn->rtoken_idx = smc_rtoken_add(conn->lnk, clc->rmb_dma_addr,
++	conn->rtoken_idx = smc_rtoken_add(lnk, clc->rmb_dma_addr,
+ 					  clc->rmb_rkey);
+ 	if (conn->rtoken_idx < 0)
+ 		return conn->rtoken_idx;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 66753ba23bc6..f68ba187ecf8 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -309,7 +309,7 @@ void smc_smcd_terminate_all(struct smcd_dev *dev);
+ void smc_smcr_terminate_all(struct smc_ib_device *smcibdev);
+ int smc_buf_create(struct smc_sock *smc, bool is_smcd);
+ int smc_uncompress_bufsize(u8 compressed);
+-int smc_rmb_rtoken_handling(struct smc_connection *conn,
++int smc_rmb_rtoken_handling(struct smc_connection *conn, struct smc_link *link,
+ 			    struct smc_clc_msg_accept_confirm *clc);
+ int smc_rtoken_add(struct smc_link *lnk, __be64 nw_vaddr, __be32 nw_rkey);
+ int smc_rtoken_delete(struct smc_link *lnk, __be32 nw_rkey);
 -- 
 2.17.1
