@@ -1,317 +1,232 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17018 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728074AbgD3N4X (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:56:23 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 01/14] net/smc: add event-based llc_flow framework
-Date: Thu, 30 Apr 2020 15:55:38 +0200
-Message-Id: <20200430135551.26267-2-kgraul@linux.ibm.com>
-In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
-References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+Received: from 8bytes.org ([81.169.241.247]:39838 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727921AbgD2Nhp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:45 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 11/34] iommu: Split off default domain allocation from group assignment
+Date: Wed, 29 Apr 2020 15:36:49 +0200
+Message-Id: <20200429133712.31431-12-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-The new framework allows to start specific types of LLC control flows,
-protects active flows and makes it possible to wait for flows to finish
-before starting a new flow.
-This mechanism is used for the LLC control layer to model flows like
-'add link' or 'delete link' which need to send/receive several LLC
-messages and are not allowed to get interrupted by the wrong type of
-messages.
-'Add link' or 'Delete link' messages arriving in the middle of a flow
-are delayed and processed when the current flow finished.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+When a bus is initialized with iommu-ops, all devices on the bus are
+scanned and iommu-groups are allocated for them, and each groups will
+also get a default domain allocated.
+
+Until now this happened as soon as the group was created and the first
+device added to it. When other devices with different default domain
+requirements were added to the group later on, the default domain was
+re-allocated, if possible.
+
+This resulted in some back and forth and unnecessary allocations, so
+change the flow to defer default domain allocation until all devices
+have been added to their respective IOMMU groups.
+
+The default domains are allocated for newly allocated groups after
+each device on the bus is handled and was probed by the IOMMU driver.
+
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- net/smc/smc_core.c |   2 +
- net/smc/smc_core.h |  24 +++++++
- net/smc/smc_llc.c  | 165 +++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_llc.h  |   8 +++
- 4 files changed, 199 insertions(+)
+ drivers/iommu/iommu.c | 154 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 151 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index db49f8cd5c95..4867ddcfe0c6 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -263,6 +263,7 @@ static void smc_lgr_free_work(struct work_struct *work)
- 			if (smc_link_usable(lnk))
- 				lnk->state = SMC_LNK_INACTIVE;
- 		}
-+		wake_up_interruptible_all(&lgr->llc_waiter);
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 8be047a4808f..7de0e29db333 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -199,7 +199,7 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+ 	dev->iommu->iommu_dev = iommu_dev;
+ 
+ 	group = iommu_group_get_for_dev(dev);
+-	if (!IS_ERR(group)) {
++	if (IS_ERR(group)) {
+ 		ret = PTR_ERR(group);
+ 		goto out_release;
  	}
- 	smc_lgr_free(lgr);
- }
-@@ -696,6 +697,7 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
- 			if (smc_link_usable(lnk))
- 				lnk->state = SMC_LNK_INACTIVE;
- 		}
-+		wake_up_interruptible_all(&lgr->llc_waiter);
- 	}
+@@ -1599,6 +1599,37 @@ static int add_iommu_group(struct device *dev, void *data)
+ 	return ret;
  }
  
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index b5781511063d..70399217ad6f 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -197,6 +197,20 @@ struct smc_rtoken {				/* address/key of remote RMB */
- 
- struct smcd_dev;
- 
-+enum smc_llc_flowtype {
-+	SMC_LLC_FLOW_NONE	= 0,
-+	SMC_LLC_FLOW_ADD_LINK	= 2,
-+	SMC_LLC_FLOW_DEL_LINK	= 4,
-+	SMC_LLC_FLOW_RKEY	= 6,
-+};
-+
-+struct smc_llc_qentry;
-+
-+struct smc_llc_flow {
-+	enum smc_llc_flowtype type;
-+	struct smc_llc_qentry *qentry;
-+};
-+
- struct smc_link_group {
- 	struct list_head	list;
- 	struct rb_root		conns_all;	/* connection tree */
-@@ -238,6 +252,16 @@ struct smc_link_group {
- 						/* protects llc_event_q */
- 			struct work_struct	llc_event_work;
- 						/* llc event worker */
-+			wait_queue_head_t	llc_waiter;
-+						/* w4 next llc event */
-+			struct smc_llc_flow	llc_flow_lcl;
-+						/* llc local control field */
-+			struct smc_llc_flow	llc_flow_rmt;
-+						/* llc remote control field */
-+			struct smc_llc_qentry	*delayed_event;
-+						/* arrived when flow active */
-+			spinlock_t		llc_flow_lock;
-+						/* protects llc flow */
- 			int			llc_testlink_time;
- 						/* link keep alive time */
- 		};
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index e715dd6735ee..647cf1a2dfa5 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -140,6 +140,154 @@ struct smc_llc_qentry {
- 	union smc_llc_msg msg;
- };
- 
-+struct smc_llc_qentry *smc_llc_flow_qentry_clr(struct smc_llc_flow *flow)
++static int probe_iommu_group(struct device *dev, void *data)
 +{
-+	struct smc_llc_qentry *qentry = flow->qentry;
++	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	struct list_head *group_list = data;
++	int ret;
 +
-+	flow->qentry = NULL;
-+	return qentry;
-+}
++	if (!dev_iommu_get(dev))
++		return -ENOMEM;
 +
-+void smc_llc_flow_qentry_del(struct smc_llc_flow *flow)
-+{
-+	struct smc_llc_qentry *qentry;
-+
-+	if (flow->qentry) {
-+		qentry = flow->qentry;
-+		flow->qentry = NULL;
-+		kfree(qentry);
-+	}
-+}
-+
-+static inline void smc_llc_flow_qentry_set(struct smc_llc_flow *flow,
-+					   struct smc_llc_qentry *qentry)
-+{
-+	flow->qentry = qentry;
-+}
-+
-+/* try to start a new llc flow, initiated by an incoming llc msg */
-+static bool smc_llc_flow_start(struct smc_llc_flow *flow,
-+			       struct smc_llc_qentry *qentry)
-+{
-+	struct smc_link_group *lgr = qentry->link->lgr;
-+
-+	spin_lock_bh(&lgr->llc_flow_lock);
-+	if (flow->type) {
-+		/* a flow is already active */
-+		if ((qentry->msg.raw.hdr.common.type == SMC_LLC_ADD_LINK ||
-+		     qentry->msg.raw.hdr.common.type == SMC_LLC_DELETE_LINK) &&
-+		    !lgr->delayed_event) {
-+			lgr->delayed_event = qentry;
-+		} else {
-+			/* forget this llc request */
-+			kfree(qentry);
-+		}
-+		spin_unlock_bh(&lgr->llc_flow_lock);
-+		return false;
-+	}
-+	switch (qentry->msg.raw.hdr.common.type) {
-+	case SMC_LLC_ADD_LINK:
-+		flow->type = SMC_LLC_FLOW_ADD_LINK;
-+		break;
-+	case SMC_LLC_DELETE_LINK:
-+		flow->type = SMC_LLC_FLOW_DEL_LINK;
-+		break;
-+	case SMC_LLC_CONFIRM_RKEY:
-+	case SMC_LLC_DELETE_RKEY:
-+		flow->type = SMC_LLC_FLOW_RKEY;
-+		break;
-+	default:
-+		flow->type = SMC_LLC_FLOW_NONE;
-+	}
-+	if (qentry == lgr->delayed_event)
-+		lgr->delayed_event = NULL;
-+	spin_unlock_bh(&lgr->llc_flow_lock);
-+	smc_llc_flow_qentry_set(flow, qentry);
-+	return true;
-+}
-+
-+/* start a new local llc flow, wait till current flow finished */
-+int smc_llc_flow_initiate(struct smc_link_group *lgr,
-+			  enum smc_llc_flowtype type)
-+{
-+	enum smc_llc_flowtype allowed_remote = SMC_LLC_FLOW_NONE;
-+	int rc;
-+
-+	/* all flows except confirm_rkey and delete_rkey are exclusive,
-+	 * confirm/delete rkey flows can run concurrently (local and remote)
-+	 */
-+	if (type == SMC_LLC_FLOW_RKEY)
-+		allowed_remote = SMC_LLC_FLOW_RKEY;
-+again:
-+	if (list_empty(&lgr->list))
-+		return -ENODEV;
-+	spin_lock_bh(&lgr->llc_flow_lock);
-+	if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_NONE &&
-+	    (lgr->llc_flow_rmt.type == SMC_LLC_FLOW_NONE ||
-+	     lgr->llc_flow_rmt.type == allowed_remote)) {
-+		lgr->llc_flow_lcl.type = type;
-+		spin_unlock_bh(&lgr->llc_flow_lock);
-+		return 0;
-+	}
-+	spin_unlock_bh(&lgr->llc_flow_lock);
-+	rc = wait_event_interruptible_timeout(lgr->llc_waiter,
-+			(lgr->llc_flow_lcl.type == SMC_LLC_FLOW_NONE &&
-+			 (lgr->llc_flow_rmt.type == SMC_LLC_FLOW_NONE ||
-+			  lgr->llc_flow_rmt.type == allowed_remote)),
-+			SMC_LLC_WAIT_TIME);
-+	if (!rc)
-+		return -ETIMEDOUT;
-+	goto again;
-+}
-+
-+/* finish the current llc flow */
-+void smc_llc_flow_stop(struct smc_link_group *lgr, struct smc_llc_flow *flow)
-+{
-+	spin_lock_bh(&lgr->llc_flow_lock);
-+	memset(flow, 0, sizeof(*flow));
-+	flow->type = SMC_LLC_FLOW_NONE;
-+	spin_unlock_bh(&lgr->llc_flow_lock);
-+	if (!list_empty(&lgr->list) && lgr->delayed_event &&
-+	    flow == &lgr->llc_flow_lcl)
-+		schedule_work(&lgr->llc_event_work);
-+	else
-+		wake_up_interruptible(&lgr->llc_waiter);
-+}
-+
-+/* lnk is optional and used for early wakeup when link goes down, useful in
-+ * cases where we wait for a response on the link after we sent a request
-+ */
-+struct smc_llc_qentry *smc_llc_wait(struct smc_link_group *lgr,
-+				    struct smc_link *lnk,
-+				    int time_out, u8 exp_msg)
-+{
-+	struct smc_llc_flow *flow = &lgr->llc_flow_lcl;
-+
-+	wait_event_interruptible_timeout(lgr->llc_waiter,
-+					 (flow->qentry ||
-+					  (lnk && !smc_link_usable(lnk)) ||
-+					  list_empty(&lgr->list)),
-+					 time_out);
-+	if (!flow->qentry ||
-+	    (lnk && !smc_link_usable(lnk)) || list_empty(&lgr->list)) {
-+		smc_llc_flow_qentry_del(flow);
-+		goto out;
-+	}
-+	if (exp_msg && flow->qentry->msg.raw.hdr.common.type != exp_msg) {
-+		if (exp_msg == SMC_LLC_ADD_LINK &&
-+		    flow->qentry->msg.raw.hdr.common.type ==
-+		    SMC_LLC_DELETE_LINK) {
-+			/* flow_start will delay the unexpected msg */
-+			smc_llc_flow_start(&lgr->llc_flow_lcl,
-+					   smc_llc_flow_qentry_clr(flow));
-+			return NULL;
-+		}
-+		smc_llc_flow_qentry_del(flow);
-+	}
-+out:
-+	return flow->qentry;
-+}
-+
- /********************************** send *************************************/
- 
- struct smc_llc_tx_pend {
-@@ -547,6 +695,16 @@ static void smc_llc_event_work(struct work_struct *work)
- 						  llc_event_work);
- 	struct smc_llc_qentry *qentry;
- 
-+	if (!lgr->llc_flow_lcl.type && lgr->delayed_event) {
-+		if (smc_link_usable(lgr->delayed_event->link)) {
-+			smc_llc_event_handler(lgr->delayed_event);
-+		} else {
-+			qentry = lgr->delayed_event;
-+			lgr->delayed_event = NULL;
-+			kfree(qentry);
-+		}
++	if (!try_module_get(ops->owner)) {
++		ret = -EINVAL;
++		goto err_free_dev_iommu;
 +	}
 +
- again:
- 	spin_lock_bh(&lgr->llc_event_q_lock);
- 	if (!list_empty(&lgr->llc_event_q)) {
-@@ -676,6 +834,8 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
- 	INIT_WORK(&lgr->llc_event_work, smc_llc_event_work);
- 	INIT_LIST_HEAD(&lgr->llc_event_q);
- 	spin_lock_init(&lgr->llc_event_q_lock);
-+	spin_lock_init(&lgr->llc_flow_lock);
-+	init_waitqueue_head(&lgr->llc_waiter);
- 	lgr->llc_testlink_time = net->ipv4.sysctl_tcp_keepalive_time;
- }
- 
-@@ -683,7 +843,12 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
- void smc_llc_lgr_clear(struct smc_link_group *lgr)
++	ret = __iommu_probe_device(dev, group_list);
++	if (ret)
++		goto err_module_put;
++
++	return 0;
++
++err_module_put:
++	module_put(ops->owner);
++err_free_dev_iommu:
++	dev_iommu_free(dev);
++
++	if (ret == -ENODEV)
++		ret = 0;
++
++	return ret;
++}
++
+ static int remove_iommu_group(struct device *dev, void *data)
  {
- 	smc_llc_event_flush(lgr);
-+	wake_up_interruptible_all(&lgr->llc_waiter);
- 	cancel_work_sync(&lgr->llc_event_work);
-+	if (lgr->delayed_event) {
-+		kfree(lgr->delayed_event);
-+		lgr->delayed_event = NULL;
-+	}
+ 	iommu_release_device(dev);
+@@ -1658,10 +1689,127 @@ static int iommu_bus_notifier(struct notifier_block *nb,
+ 	return 0;
  }
  
- int smc_llc_link_init(struct smc_link *link)
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 66063f22166b..49e99ff00ee7 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -63,6 +63,14 @@ int smc_llc_do_confirm_rkey(struct smc_link *link,
- 			    struct smc_buf_desc *rmb_desc);
- int smc_llc_do_delete_rkey(struct smc_link *link,
- 			   struct smc_buf_desc *rmb_desc);
-+int smc_llc_flow_initiate(struct smc_link_group *lgr,
-+			  enum smc_llc_flowtype type);
-+void smc_llc_flow_stop(struct smc_link_group *lgr, struct smc_llc_flow *flow);
-+struct smc_llc_qentry *smc_llc_wait(struct smc_link_group *lgr,
-+				    struct smc_link *lnk,
-+				    int time_out, u8 exp_msg);
-+struct smc_llc_qentry *smc_llc_flow_qentry_clr(struct smc_llc_flow *flow);
-+void smc_llc_flow_qentry_del(struct smc_llc_flow *flow);
- int smc_llc_init(void) __init;
++struct __group_domain_type {
++	struct device *dev;
++	unsigned int type;
++};
++
++static int probe_get_default_domain_type(struct device *dev, void *data)
++{
++	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	struct __group_domain_type *gtype = data;
++	unsigned int type = 0;
++
++	if (ops->def_domain_type)
++		type = ops->def_domain_type(dev);
++
++	if (type) {
++		if (gtype->type && gtype->type != type) {
++			dev_warn(dev, "Device needs domain type %s, but device %s in the same iommu group requires type %s - using default\n",
++				 iommu_domain_type_str(type),
++				 dev_name(gtype->dev),
++				 iommu_domain_type_str(gtype->type));
++			gtype->type = 0;
++		}
++
++		if (!gtype->dev) {
++			gtype->dev  = dev;
++			gtype->type = type;
++		}
++	}
++
++	return 0;
++}
++
++static void probe_alloc_default_domain(struct bus_type *bus,
++				       struct iommu_group *group)
++{
++	struct __group_domain_type gtype;
++
++	memset(&gtype, 0, sizeof(gtype));
++
++	/* Ask for default domain requirements of all devices in the group */
++	__iommu_group_for_each_dev(group, &gtype,
++				   probe_get_default_domain_type);
++
++	if (!gtype.type)
++		gtype.type = iommu_def_domain_type;
++
++	iommu_group_alloc_default_domain(bus, group, gtype.type);
++}
++
++static int iommu_group_do_dma_attach(struct device *dev, void *data)
++{
++	struct iommu_domain *domain = data;
++	const struct iommu_ops *ops;
++	int ret;
++
++	ret = __iommu_attach_device(domain, dev);
++
++	ops = domain->ops;
++
++	if (ret == 0 && ops->probe_finalize)
++		ops->probe_finalize(dev);
++
++	return ret;
++}
++
++static int __iommu_group_dma_attach(struct iommu_group *group)
++{
++	return __iommu_group_for_each_dev(group, group->default_domain,
++					  iommu_group_do_dma_attach);
++}
++
++static int bus_iommu_probe(struct bus_type *bus)
++{
++	const struct iommu_ops *ops = bus->iommu_ops;
++	int ret;
++
++	if (ops->probe_device) {
++		struct iommu_group *group, *next;
++		LIST_HEAD(group_list);
++
++		/*
++		 * This code-path does not allocate the default domain when
++		 * creating the iommu group, so do it after the groups are
++		 * created.
++		 */
++		ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
++		if (ret)
++			return ret;
++
++		list_for_each_entry_safe(group, next, &group_list, entry) {
++			/* Remove item from the list */
++			list_del_init(&group->entry);
++
++			mutex_lock(&group->mutex);
++
++			/* Try to allocate default domain */
++			probe_alloc_default_domain(bus, group);
++
++			if (!group->default_domain) {
++				mutex_unlock(&group->mutex);
++				continue;
++			}
++
++			ret = __iommu_group_dma_attach(group);
++
++			mutex_unlock(&group->mutex);
++
++			if (ret)
++				break;
++		}
++	} else {
++		ret = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
++	}
++
++	return ret;
++}
++
+ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
+ {
+-	int err;
+ 	struct notifier_block *nb;
++	int err;
  
- #endif /* SMC_LLC_H */
+ 	nb = kzalloc(sizeof(struct notifier_block), GFP_KERNEL);
+ 	if (!nb)
+@@ -1673,7 +1821,7 @@ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
+ 	if (err)
+ 		goto out_free;
+ 
+-	err = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
++	err = bus_iommu_probe(bus);
+ 	if (err)
+ 		goto out_err;
+ 
 -- 
 2.17.1
