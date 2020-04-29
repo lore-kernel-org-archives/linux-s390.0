@@ -1,96 +1,366 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:60981 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726524AbgD2QIf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 12:08:35 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 0/3] mm/memory_hotplug: Make virtio-mem play nicely with kexec-tools
-Date: Wed, 29 Apr 2020 18:08:00 +0200
-Message-Id: <20200429160803.109056-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 11/13] net/smc: process llc responses in tasklet context
+Date: Wed, 29 Apr 2020 17:10:47 +0200
+Message-Id: <20200429151049.49979-12-kgraul@linux.ibm.com>
+In-Reply-To: <20200429151049.49979-1-kgraul@linux.ibm.com>
+References: <20200429151049.49979-1-kgraul@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Dave Jiang <dave.jiang@intel.com>, Eric Biederman <ebiederm@xmission.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jason Wang <jasowang@redhat.com>, Juergen Gross <jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Len Brown <lenb@kernel.org>, Leonardo Bras <leobras.c@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Nathan Lynch <nathanl@linux.ibm.com>, Oscar Salvador <osalvador@suse.de>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Paul Mackerras <paulus@samba.org>, Pingfan Liu <kernelfans@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Stefano Stabellini <sstabellini@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vishal Verma <vishal.l.verma@intel.com>, Wei Liu <wei.liu@kernel.org>, Wei Yang <richard.weiyang@gmail.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-This series is based on [1]:
-	[PATCH v2 00/10] virtio-mem: paravirtualized memory
-That will hopefull get picked up soon, rebased to -next.
+When llc responses are received then possible waiters for this response
+are to be notified. This can be done in tasklet context, without to
+use a work in the llc work queue. Move all code that handles llc
+responses into smc_llc_rx_response().
 
-The following patches were reverted from -next [2]:
-	[PATCH 0/3] kexec/memory_hotplug: Prevent removal and accidental use
-As discussed in that thread, they should be reverted from -next already.
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/smc_core.h |   8 +-
+ net/smc/smc_llc.c  | 216 +++++++++++++++++++++++----------------------
+ 2 files changed, 116 insertions(+), 108 deletions(-)
 
-In theory, if people agree, we could take the first two patches via the
--mm tree now and the last (virtio-mem) patch via MST's tree once picking =
-up
-virtio-mem. No strong feelings.
-
-
-Memory added by virtio-mem is special and might contain logical holes,
-especially after memory unplug, but also when adding memory in
-sub-section size. While memory in these holes can usually be read, that
-memory should not be touched. virtio-mem managed device memory is never
-exposed via any firmware memmap (esp., e820). The device driver will
-request to plug memory from the hypervisor and add it to Linux.
-
-On a cold start, all memory is unplugged, and the guest driver will first
-request to plug memory from the hypervisor, to then add it to Linux. Afte=
-r
-a reboot, all memory will get unplugged (except in rare, special cases). =
-In
-case the device driver comes up and detects that some memory is still
-plugged after a reboot, it will manually request to unplug all memory fro=
-m
-the hypervisor first - to then request to plug memory from the hypervisor
-and add to Linux. This is essentially a defragmentation step, where all
-logical holes are removed.
-
-As the device driver is responsible for detecting, adding and managing th=
-at
-memory, also kexec should treat it like that. It is special. We need a wa=
-y
-to teach kexec-tools to not add that memory to the fixed-up firmware
-memmap, to not place kexec images onto this memory, but still allow kdump
-to dump it. Add a flag to tell memory hotplug code to
-not create /sys/firmware/memmap entries and to indicate it via
-"System RAM (driver managed)" in /proc/iomem.
-
-Before this series, kexec_file_load() already did the right thing (for
-virtio-mem) by not adding that memory to the fixed-up firmware memmap and
-letting the device driver handle it. With this series, also kexec_load() =
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 6548e9a06f73..d785656b3489 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -129,10 +129,10 @@ struct smc_link {
+ 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
+ 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+ 	int			llc_testlink_time; /* testlink interval */
+-	struct completion	llc_confirm_rkey; /* wait 4 rx of cnf rkey */
+-	int			llc_confirm_rkey_rc; /* rc from cnf rkey msg */
+-	struct completion	llc_delete_rkey; /* wait 4 rx of del rkey */
+-	int			llc_delete_rkey_rc; /* rc from del rkey msg */
++	struct completion	llc_confirm_rkey_resp; /* w4 rx of cnf rkey */
++	int			llc_confirm_rkey_resp_rc; /* rc from cnf rkey */
++	struct completion	llc_delete_rkey_resp; /* w4 rx of del rkey */
++	int			llc_delete_rkey_resp_rc; /* rc from del rkey */
+ 	struct mutex		llc_delete_rkey_mutex; /* serialize usage */
+ };
+ 
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index be74876a36ae..265889c8b03b 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -384,27 +384,17 @@ static void smc_llc_rx_confirm_link(struct smc_link *link,
+ 				    struct smc_llc_msg_confirm_link *llc)
+ {
+ 	struct smc_link_group *lgr = smc_get_lgr(link);
+-	int conf_rc;
++	int conf_rc = 0;
+ 
+ 	/* RMBE eyecatchers are not supported */
+-	if (llc->hd.flags & SMC_LLC_FLAG_NO_RMBE_EYEC)
+-		conf_rc = 0;
+-	else
++	if (!(llc->hd.flags & SMC_LLC_FLAG_NO_RMBE_EYEC))
+ 		conf_rc = ENOTSUPP;
+ 
+-	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		if (lgr->role == SMC_SERV &&
+-		    link->state == SMC_LNK_ACTIVATING) {
+-			link->llc_confirm_resp_rc = conf_rc;
+-			complete(&link->llc_confirm_resp);
+-		}
+-	} else {
+-		if (lgr->role == SMC_CLNT &&
+-		    link->state == SMC_LNK_ACTIVATING) {
+-			link->llc_confirm_rc = conf_rc;
+-			link->link_id = llc->link_num;
+-			complete(&link->llc_confirm);
+-		}
++	if (lgr->role == SMC_CLNT &&
++	    link->state == SMC_LNK_ACTIVATING) {
++		link->llc_confirm_rc = conf_rc;
++		link->link_id = llc->link_num;
++		complete(&link->llc_confirm);
+ 	}
+ }
+ 
+@@ -413,27 +403,22 @@ static void smc_llc_rx_add_link(struct smc_link *link,
+ {
+ 	struct smc_link_group *lgr = smc_get_lgr(link);
+ 
+-	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		if (link->state == SMC_LNK_ACTIVATING)
+-			complete(&link->llc_add_resp);
+-	} else {
+-		if (link->state == SMC_LNK_ACTIVATING) {
+-			complete(&link->llc_add);
+-			return;
+-		}
++	if (link->state == SMC_LNK_ACTIVATING) {
++		complete(&link->llc_add);
++		return;
++	}
+ 
+-		if (lgr->role == SMC_SERV) {
+-			smc_llc_prep_add_link(llc, link,
+-					link->smcibdev->mac[link->ibport - 1],
+-					link->gid, SMC_LLC_REQ);
++	if (lgr->role == SMC_SERV) {
++		smc_llc_prep_add_link(llc, link,
++				link->smcibdev->mac[link->ibport - 1],
++				link->gid, SMC_LLC_REQ);
+ 
+-		} else {
+-			smc_llc_prep_add_link(llc, link,
+-					link->smcibdev->mac[link->ibport - 1],
+-					link->gid, SMC_LLC_RESP);
+-		}
+-		smc_llc_send_message(link, llc);
++	} else {
++		smc_llc_prep_add_link(llc, link,
++				link->smcibdev->mac[link->ibport - 1],
++				link->gid, SMC_LLC_RESP);
+ 	}
++	smc_llc_send_message(link, llc);
+ }
+ 
+ static void smc_llc_rx_delete_link(struct smc_link *link,
+@@ -441,34 +426,24 @@ static void smc_llc_rx_delete_link(struct smc_link *link,
+ {
+ 	struct smc_link_group *lgr = smc_get_lgr(link);
+ 
+-	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		if (lgr->role == SMC_SERV)
+-			smc_lgr_schedule_free_work_fast(lgr);
++	smc_lgr_forget(lgr);
++	smc_llc_link_deleting(link);
++	if (lgr->role == SMC_SERV) {
++		/* client asks to delete this link, send request */
++		smc_llc_prep_delete_link(llc, link, SMC_LLC_REQ, true);
+ 	} else {
+-		smc_lgr_forget(lgr);
+-		smc_llc_link_deleting(link);
+-		if (lgr->role == SMC_SERV) {
+-			/* client asks to delete this link, send request */
+-			smc_llc_prep_delete_link(llc, link, SMC_LLC_REQ, true);
+-		} else {
+-			/* server requests to delete this link, send response */
+-			smc_llc_prep_delete_link(llc, link, SMC_LLC_RESP, true);
+-		}
+-		smc_llc_send_message(link, llc);
+-		smc_lgr_terminate_sched(lgr);
++		/* server requests to delete this link, send response */
++		smc_llc_prep_delete_link(llc, link, SMC_LLC_RESP, true);
+ 	}
++	smc_llc_send_message(link, llc);
++	smc_lgr_terminate_sched(lgr);
+ }
+ 
+ static void smc_llc_rx_test_link(struct smc_link *link,
+ 				 struct smc_llc_msg_test_link *llc)
+ {
+-	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		if (link->state == SMC_LNK_ACTIVE)
+-			complete(&link->llc_testlink_resp);
+-	} else {
+-		llc->hd.flags |= SMC_LLC_FLAG_RESP;
+-		smc_llc_send_message(link, llc);
+-	}
++	llc->hd.flags |= SMC_LLC_FLAG_RESP;
++	smc_llc_send_message(link, llc);
+ }
+ 
+ static void smc_llc_rx_confirm_rkey(struct smc_link *link,
+@@ -476,34 +451,24 @@ static void smc_llc_rx_confirm_rkey(struct smc_link *link,
+ {
+ 	int rc;
+ 
+-	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		link->llc_confirm_rkey_rc = llc->hd.flags &
+-					    SMC_LLC_FLAG_RKEY_NEG;
+-		complete(&link->llc_confirm_rkey);
+-	} else {
+-		rc = smc_rtoken_add(link,
+-				    llc->rtoken[0].rmb_vaddr,
+-				    llc->rtoken[0].rmb_key);
++	rc = smc_rtoken_add(link,
++			    llc->rtoken[0].rmb_vaddr,
++			    llc->rtoken[0].rmb_key);
+ 
+-		/* ignore rtokens for other links, we have only one link */
++	/* ignore rtokens for other links, we have only one link */
+ 
+-		llc->hd.flags |= SMC_LLC_FLAG_RESP;
+-		if (rc < 0)
+-			llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
+-		smc_llc_send_message(link, llc);
+-	}
++	llc->hd.flags |= SMC_LLC_FLAG_RESP;
++	if (rc < 0)
++		llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
++	smc_llc_send_message(link, llc);
+ }
+ 
+ static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
+ 				      struct smc_llc_msg_confirm_rkey_cont *llc)
+ {
+-	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		/* unused as long as we don't send this type of msg */
+-	} else {
+-		/* ignore rtokens for other links, we have only one link */
+-		llc->hd.flags |= SMC_LLC_FLAG_RESP;
+-		smc_llc_send_message(link, llc);
+-	}
++	/* ignore rtokens for other links, we have only one link */
++	llc->hd.flags |= SMC_LLC_FLAG_RESP;
++	smc_llc_send_message(link, llc);
+ }
+ 
+ static void smc_llc_rx_delete_rkey(struct smc_link *link,
+@@ -512,25 +477,19 @@ static void smc_llc_rx_delete_rkey(struct smc_link *link,
+ 	u8 err_mask = 0;
+ 	int i, max;
+ 
+-	if (llc->hd.flags & SMC_LLC_FLAG_RESP) {
+-		link->llc_delete_rkey_rc = llc->hd.flags &
+-					    SMC_LLC_FLAG_RKEY_NEG;
+-		complete(&link->llc_delete_rkey);
+-	} else {
+-		max = min_t(u8, llc->num_rkeys, SMC_LLC_DEL_RKEY_MAX);
+-		for (i = 0; i < max; i++) {
+-			if (smc_rtoken_delete(link, llc->rkey[i]))
+-				err_mask |= 1 << (SMC_LLC_DEL_RKEY_MAX - 1 - i);
+-		}
 -
-which relies on user space to provide a fixed up firmware memmap - does
-the right thing with virtio-mem memory.
-
-When the virtio-mem device driver(s) come up, they will request to unplug
-all memory from the hypervisor first (esp. defragment), to then request t=
-o
-plug consecutive memory ranges from the hypervisor, and add them to Linux
-- just like on a reboot where we still have memory plugged.
-
-[1] https://lore.kernel.org/r/20200311171422.10484-1-david@redhat.com/
-[2] https://lore.kernel.org/r/20200326180730.4754-1-james.morse@arm.com
-
-David Hildenbrand (3):
-  mm/memory_hotplug: Prepare passing flags to add_memory() and friends
-  mm/memory_hotplug: Introduce MHP_DRIVER_MANAGED
-  virtio-mem: Add memory with MHP_DRIVER_MANAGED
-
- arch/powerpc/platforms/powernv/memtrace.c     |  2 +-
- .../platforms/pseries/hotplug-memory.c        |  2 +-
- drivers/acpi/acpi_memhotplug.c                |  2 +-
- drivers/base/memory.c                         |  2 +-
- drivers/dax/kmem.c                            |  2 +-
- drivers/hv/hv_balloon.c                       |  2 +-
- drivers/s390/char/sclp_cmd.c                  |  2 +-
- drivers/virtio/virtio_mem.c                   |  3 +-
- drivers/xen/balloon.c                         |  2 +-
- include/linux/memory_hotplug.h                | 15 +++++++--
- mm/memory_hotplug.c                           | 31 +++++++++++++------
- 11 files changed, 44 insertions(+), 21 deletions(-)
-
---=20
-2.25.3
+-		if (err_mask) {
+-			llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
+-			llc->err_mask = err_mask;
+-		}
++	max = min_t(u8, llc->num_rkeys, SMC_LLC_DEL_RKEY_MAX);
++	for (i = 0; i < max; i++) {
++		if (smc_rtoken_delete(link, llc->rkey[i]))
++			err_mask |= 1 << (SMC_LLC_DEL_RKEY_MAX - 1 - i);
++	}
+ 
+-		llc->hd.flags |= SMC_LLC_FLAG_RESP;
+-		smc_llc_send_message(link, llc);
++	if (err_mask) {
++		llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
++		llc->err_mask = err_mask;
+ 	}
++
++	llc->hd.flags |= SMC_LLC_FLAG_RESP;
++	smc_llc_send_message(link, llc);
+ }
+ 
+ /* flush the llc event queue */
+@@ -601,6 +560,49 @@ static void smc_llc_event_work(struct work_struct *work)
+ 	spin_unlock_bh(&lgr->llc_event_q_lock);
+ }
+ 
++/* process llc responses in tasklet context */
++static void smc_llc_rx_response(struct smc_link *link, union smc_llc_msg *llc)
++{
++	int rc = 0;
++
++	switch (llc->raw.hdr.common.type) {
++	case SMC_LLC_TEST_LINK:
++		if (link->state == SMC_LNK_ACTIVE)
++			complete(&link->llc_testlink_resp);
++		break;
++	case SMC_LLC_CONFIRM_LINK:
++		if (!(llc->raw.hdr.flags & SMC_LLC_FLAG_NO_RMBE_EYEC))
++			rc = ENOTSUPP;
++		if (link->lgr->role == SMC_SERV &&
++		    link->state == SMC_LNK_ACTIVATING) {
++			link->llc_confirm_resp_rc = rc;
++			complete(&link->llc_confirm_resp);
++		}
++		break;
++	case SMC_LLC_ADD_LINK:
++		if (link->state == SMC_LNK_ACTIVATING)
++			complete(&link->llc_add_resp);
++		break;
++	case SMC_LLC_DELETE_LINK:
++		if (link->lgr->role == SMC_SERV)
++			smc_lgr_schedule_free_work_fast(link->lgr);
++		break;
++	case SMC_LLC_CONFIRM_RKEY:
++		link->llc_confirm_rkey_resp_rc = llc->raw.hdr.flags &
++						 SMC_LLC_FLAG_RKEY_NEG;
++		complete(&link->llc_confirm_rkey_resp);
++		break;
++	case SMC_LLC_CONFIRM_RKEY_CONT:
++		/* unused as long as we don't send this type of msg */
++		break;
++	case SMC_LLC_DELETE_RKEY:
++		link->llc_delete_rkey_resp_rc = llc->raw.hdr.flags &
++						SMC_LLC_FLAG_RKEY_NEG;
++		complete(&link->llc_delete_rkey_resp);
++		break;
++	}
++}
++
+ /* copy received msg and add it to the event queue */
+ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ {
+@@ -615,6 +617,12 @@ static void smc_llc_rx_handler(struct ib_wc *wc, void *buf)
+ 	if (llc->raw.hdr.length != sizeof(*llc))
+ 		return; /* invalid message */
+ 
++	/* process responses immediately */
++	if (llc->raw.hdr.flags & SMC_LLC_FLAG_RESP) {
++		smc_llc_rx_response(link, llc);
++		return;
++	}
++
+ 	qentry = kmalloc(sizeof(*qentry), GFP_ATOMIC);
+ 	if (!qentry)
+ 		return;
+@@ -667,8 +675,8 @@ int smc_llc_link_init(struct smc_link *link)
+ 	init_completion(&link->llc_confirm_resp);
+ 	init_completion(&link->llc_add);
+ 	init_completion(&link->llc_add_resp);
+-	init_completion(&link->llc_confirm_rkey);
+-	init_completion(&link->llc_delete_rkey);
++	init_completion(&link->llc_confirm_rkey_resp);
++	init_completion(&link->llc_delete_rkey_resp);
+ 	mutex_init(&link->llc_delete_rkey_mutex);
+ 	init_completion(&link->llc_testlink_resp);
+ 	INIT_WORK(&link->lgr->llc_event_work, smc_llc_event_work);
+@@ -708,14 +716,14 @@ int smc_llc_do_confirm_rkey(struct smc_link *link,
+ 	int rc;
+ 
+ 	/* protected by mutex smc_create_lgr_pending */
+-	reinit_completion(&link->llc_confirm_rkey);
++	reinit_completion(&link->llc_confirm_rkey_resp);
+ 	rc = smc_llc_send_confirm_rkey(link, rmb_desc);
+ 	if (rc)
+ 		return rc;
+ 	/* receive CONFIRM RKEY response from server over RoCE fabric */
+-	rc = wait_for_completion_interruptible_timeout(&link->llc_confirm_rkey,
+-						       SMC_LLC_WAIT_TIME);
+-	if (rc <= 0 || link->llc_confirm_rkey_rc)
++	rc = wait_for_completion_interruptible_timeout(
++			&link->llc_confirm_rkey_resp, SMC_LLC_WAIT_TIME);
++	if (rc <= 0 || link->llc_confirm_rkey_resp_rc)
+ 		return -EFAULT;
+ 	return 0;
+ }
+@@ -729,14 +737,14 @@ int smc_llc_do_delete_rkey(struct smc_link *link,
+ 	mutex_lock(&link->llc_delete_rkey_mutex);
+ 	if (link->state != SMC_LNK_ACTIVE)
+ 		goto out;
+-	reinit_completion(&link->llc_delete_rkey);
++	reinit_completion(&link->llc_delete_rkey_resp);
+ 	rc = smc_llc_send_delete_rkey(link, rmb_desc);
+ 	if (rc)
+ 		goto out;
+ 	/* receive DELETE RKEY response from server over RoCE fabric */
+-	rc = wait_for_completion_interruptible_timeout(&link->llc_delete_rkey,
+-						       SMC_LLC_WAIT_TIME);
+-	if (rc <= 0 || link->llc_delete_rkey_rc)
++	rc = wait_for_completion_interruptible_timeout(
++			&link->llc_delete_rkey_resp, SMC_LLC_WAIT_TIME);
++	if (rc <= 0 || link->llc_delete_rkey_resp_rc)
+ 		rc = -EFAULT;
+ 	else
+ 		rc = 0;
+-- 
+2.17.1
