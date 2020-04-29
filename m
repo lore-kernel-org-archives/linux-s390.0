@@ -1,145 +1,111 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:35234 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502889AbgDNNQF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:05 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 12/33] iommu: Move iommu_group_create_direct_mappings() out of iommu_group_add_device()
-Date: Tue, 14 Apr 2020 15:15:21 +0200
-Message-Id: <20200414131542.25608-13-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29078 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726363AbgD2Ai6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Apr 2020 20:38:58 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date: Tue, 28 Apr 2020 20:38:53 -0400
+From: Jared Rossi <jrossi@linux.ibm.com>
+Subject: Re: [PATCH 1/1] vfio-ccw: Enable transparent CCW IPL from DASD
+In-Reply-To: <20200424145007.75101d10.pasic@linux.ibm.com>
+References: <20200417182939.11460-1-jrossi@linux.ibm.com>
+ <20200417182939.11460-2-jrossi@linux.ibm.com>
+ <20200423155620.493cb7cb.pasic@linux.ibm.com>
+ <20200423171103.497dcd02.cohuck@redhat.com>
+ <b6dc3d32-3e84-4ce1-59a2-d5de99716027@linux.ibm.com>
+ <20200424145007.75101d10.pasic@linux.ibm.com>
+Message-ID: <0d413224be93719a149ce8a5a0aef77b@linux.vnet.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+On 2020-04-24 08:50, Halil Pasic wrote:
+> On Thu, 23 Apr 2020 16:25:39 -0400
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> 
+>> 
+>> On 4/23/20 11:11 AM, Cornelia Huck wrote:
+>> > On Thu, 23 Apr 2020 15:56:20 +0200
+>> > Halil Pasic <pasic@linux.ibm.com> wrote:
+>> >
+>> >> On Fri, 17 Apr 2020 14:29:39 -0400
+>> >> Jared Rossi <jrossi@linux.ibm.com> wrote:
+>> >>
+>> >>> Remove the explicit prefetch check when using vfio-ccw devices.
+>> >>> This check is not needed as all Linux channel programs are intended
+>> >>> to use prefetch and will be executed in the same way regardless.
+>> >>
+>> >> Hm. This is a guest thing or? So you basically say, it is OK to do
+>> >> this, because you know that the guest is gonna be Linux and that it
+>> >> the channel program is intended to use prefetch -- but the ORB supplied
+>> >> by the guest that designates the channel program happens to state the
+>> >> opposite.
+>> >>
+>> >> Or am I missing something?
+>> >
+>> > I see this as a kind of architecture compliance/ease of administration
+>> > tradeoff, as we none of the guests we currently support uses something
+>> > that breaks with prefetching outside of IPL (which has a different
+>> > workaround).>
+> 
+> And that workaround AFAIR makes sure that we don't issue a CP that is
+> self-modifying or otherwise reliant on non-prefetch. So any time we see
+> a self-modifying program we know, we have an incompatible setup.
+> 
+> In any case I believe the commit message is inadequate, as it does not
+> reflect about the risks.
+> 
+>> > One thing that still concerns me a bit is debuggability if a future
+>> > guest indeed does want to dynamically rewrite a channel program: the
+>> 
+>> +1 for some debuggability, just in general
+>> 
+>> > guest thinks it instructed the device to not prefetch, and then
+>> > suddenly things do not work as expected. We can log when a guest
+>> > submits an orb without prefetch set, but we can't find out if the guest
+>> > actually does something that relies on non-prefetch.
+>> 
+>> Without going too far down a non-prefetch rabbit-hole, can we use the
+>> cpa_within_range logic to see if the address of the CCW being fetched
+>> exists as the CDA of an earlier (non-TIC) CCW in the chain we're
+>> processing, and tracing/logging/messaging something about a possible
+>> conflict?
+>> 
+>> (Jared, you did some level of this tracing with our real/synthetic 
+>> tests
+>> some time ago.  Any chance something of it could be polished and made
+>> useful, without being overly heavy on the mainline path?)
+>> 
+> 
+> Back then I believe I made a proposal on how this logic could look 
+> like.
+> I think all we need is checking for self rewrites (ccw reads to the
+> addresses that comprise the  complete original channel program), and 
+> for
+> status-modifier 'skips'. The latter could be easily done by putting 
+> some
+> sort of poison at the end of the detected channel program segments.
+> 
 
-After the previous changes the iommu group may not have a default
-domain when iommu_group_add_device() is called. With no default domain
-iommu_group_create_direct_mappings() will do nothing and no direct
-mappings will be created.
+ From what I previously did with the tracing, I don't think that there is 
+a
+practical way to determine if a cp is actually doing something that 
+relies
+on non-prefetch.  It seems we would need to examine the CCWs to find 
+reads
+and also validate the addresses those CCWs access to check if there is a
+conflict.  Probably this is too much overhead considering that we expect
+it to be a rare occurrence?
 
-Rename iommu_group_create_direct_mappings() to
-iommu_create_device_direct_mappings() to better reflect that the
-function creates direct mappings only for one device and not for all
-devices in the group. Then move the call to the places where a default
-domain actually exists.
+Is it too simplistic to print a kernel warning stating that an ORB did 
+not
+have the p-bit set, but it is being prefetched anyway?
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/iommu.c | 35 ++++++++++++++++++++++++++++++-----
- 1 file changed, 30 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 7de0e29db333..834a45da0ed0 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -89,6 +89,8 @@ static int __iommu_attach_group(struct iommu_domain *domain,
- 				struct iommu_group *group);
- static void __iommu_detach_group(struct iommu_domain *domain,
- 				 struct iommu_group *group);
-+static int iommu_create_device_direct_mappings(struct iommu_group *group,
-+					       struct device *dev);
- 
- #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
- struct iommu_group_attribute iommu_group_attr_##_name =		\
-@@ -243,6 +245,8 @@ static int __iommu_probe_device_helper(struct device *dev)
- 	if (group->default_domain)
- 		ret = __iommu_attach_device(group->default_domain, dev);
- 
-+	iommu_create_device_direct_mappings(group, dev);
-+
- 	iommu_group_put(group);
- 
- 	if (ret)
-@@ -263,6 +267,7 @@ static int __iommu_probe_device_helper(struct device *dev)
- int iommu_probe_device(struct device *dev)
- {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct iommu_group *group;
- 	int ret;
- 
- 	WARN_ON(dev->iommu_group);
-@@ -285,6 +290,10 @@ int iommu_probe_device(struct device *dev)
- 	if (ret)
- 		goto err_module_put;
- 
-+	group = iommu_group_get(dev);
-+	iommu_create_device_direct_mappings(group, dev);
-+	iommu_group_put(group);
-+
- 	if (ops->probe_finalize)
- 		ops->probe_finalize(dev);
- 
-@@ -736,8 +745,8 @@ int iommu_group_set_name(struct iommu_group *group, const char *name)
- }
- EXPORT_SYMBOL_GPL(iommu_group_set_name);
- 
--static int iommu_group_create_direct_mappings(struct iommu_group *group,
--					      struct device *dev)
-+static int iommu_create_device_direct_mappings(struct iommu_group *group,
-+					       struct device *dev)
- {
- 	struct iommu_domain *domain = group->default_domain;
- 	struct iommu_resv_region *entry;
-@@ -841,8 +850,6 @@ int iommu_group_add_device(struct iommu_group *group, struct device *dev)
- 
- 	dev->iommu_group = group;
- 
--	iommu_group_create_direct_mappings(group, dev);
--
- 	mutex_lock(&group->mutex);
- 	list_add_tail(&device->list, &group->devices);
- 	if (group->domain)
-@@ -1736,6 +1743,7 @@ static void probe_alloc_default_domain(struct bus_type *bus,
- 		gtype.type = iommu_def_domain_type;
- 
- 	iommu_group_alloc_default_domain(bus, group, gtype.type);
-+
- }
- 
- static int iommu_group_do_dma_attach(struct device *dev, void *data)
-@@ -1760,6 +1768,21 @@ static int __iommu_group_dma_attach(struct iommu_group *group)
- 					  iommu_group_do_dma_attach);
- }
- 
-+static int iommu_do_create_direct_mappings(struct device *dev, void *data)
-+{
-+	struct iommu_group *group = data;
-+
-+	iommu_create_device_direct_mappings(group, dev);
-+
-+	return 0;
-+}
-+
-+static int iommu_group_create_direct_mappings(struct iommu_group *group)
-+{
-+	return __iommu_group_for_each_dev(group, group,
-+					  iommu_do_create_direct_mappings);
-+}
-+
- static int bus_iommu_probe(struct bus_type *bus)
- {
- 	const struct iommu_ops *ops = bus->iommu_ops;
-@@ -1792,6 +1815,8 @@ static int bus_iommu_probe(struct bus_type *bus)
- 				continue;
- 			}
- 
-+			iommu_group_create_direct_mappings(group);
-+
- 			ret = __iommu_group_dma_attach(group);
- 
- 			mutex_unlock(&group->mutex);
-@@ -2632,7 +2657,7 @@ request_default_domain_for_dev(struct device *dev, unsigned long type)
- 		iommu_domain_free(group->default_domain);
- 	group->default_domain = domain;
- 
--	iommu_group_create_direct_mappings(group, dev);
-+	iommu_create_device_direct_mappings(group, dev);
- 
- 	dev_info(dev, "Using iommu %s mapping\n",
- 		 type == IOMMU_DOMAIN_DMA ? "dma" : "direct");
--- 
-2.17.1
+Regards,
+Jared Rossi
