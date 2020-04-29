@@ -1,196 +1,93 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10294 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726582AbgDXKqA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 24 Apr 2020 06:46:00 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v6 00/10] s390x: Testing the Channel Subsystem I/O
-Date: Fri, 24 Apr 2020 12:45:42 +0200
-Message-Id: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+Received: from 8bytes.org ([81.169.241.247]:40166 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727997AbgD2Nhu (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:50 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 21/34] iommu/msm: Convert to probe/release_device() call-backs
+Date: Wed, 29 Apr 2020 15:36:59 +0200
+Message-Id: <20200429133712.31431-22-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-Goal of the series is to have a framwork to test Channel-Subsystem I/O with
-QEMU/KVM.
-  
-To be able to support interrupt for CSS I/O and for SCLP we need to modify
-the interrupt framework to allow re-entrant interruptions.
-  
-We add a registration for IRQ callbacks to the test programm to define its own
-interrupt handler. We need to do special work under interrupt like acknoledging
-the interrupt.
-  
-Being working on PSW bits to allow I/O interrupt, we define new PSW bits
-in arch_def.h and use __ASSEMBLER__ define to be able to include this header
-in an assembler source file.
+From: Joerg Roedel <jroedel@suse.de>
 
-This series presents four major tests:
-- Enumeration:
-        The CSS is enumerated using the STSCH instruction recursively on all
-        potentially existing channels.
-        Keeping the first channel found as a reference for future use.
-        Checks STSCH
+Convert the MSM IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ drivers/iommu/msm_iommu.c | 34 +++++++---------------------------
+ 1 file changed, 7 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
+index 94a6df1bddd6..10cd4db0710a 100644
+--- a/drivers/iommu/msm_iommu.c
++++ b/drivers/iommu/msm_iommu.c
+@@ -388,43 +388,23 @@ static struct msm_iommu_dev *find_iommu_for_dev(struct device *dev)
+ 	return ret;
+ }
  
-- Enable:
-        If the enumeration succeeded the tests enables the reference
-        channel with MSCH and verifies with STSCH that the channel is
-        effectively enabled  
-        Checks MSCH       
+-static int msm_iommu_add_device(struct device *dev)
++static struct iommu_device *msm_iommu_probe_device(struct device *dev)
+ {
+ 	struct msm_iommu_dev *iommu;
+-	struct iommu_group *group;
+ 	unsigned long flags;
  
-- Sense:
-        If the channel is enabled this test sends a SENSE_ID command
-        to the reference channel, analysing the answer and expecting
-        the Control unit type being 0xc0ca
-        Checks SSCH(READ) and IO-IRQ
-
-- ping-pong:
-        If the reference channel leads to the PONG device (0xc0ca),
-        the test exchanges a string containing a 9 digit number with
-        the PONG device and expecting this number to be incremented
-        by the PONG device.
-        Checks SSCH(WRITE)
-
-
-Note:
-- The following patches may be pulled first:
-  s390x: saving regs for interrupts
-  s390x: Use PSW bits definitions in cstart
-  s390x: Move control register bit definitions and add AFP to them
-
-- I think this one if it receives reviewed-by can also be pulled now:
-  s390x: define wfi: wait for interrupt
-
-- this patch has a comment from Janosch who asks change so... need opinion:
-  but since I need reviews for the next patches I let it here unchanged.
-  s390x: interrupt registration
-
-- These 5 patches are really I/O oriented and need reviewed-by:
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: css: ssch/tsch with sense and interrupt
-  s390x: css: ping pong
-
-Pierre Morel (10):
-  s390x: saving regs for interrupts
-  s390x: Use PSW bits definitions in cstart
-  s390x: Move control register bit definitions and add AFP to them
-  s390x: interrupt registration
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: define wfi: wait for interrupt
-  s390x: css: ssch/tsch with sense and interrupt
-  s390x: css: ping pong
-
- lib/s390x/asm/arch_def.h |  31 +++-
- lib/s390x/css.h          | 277 +++++++++++++++++++++++++++++++
- lib/s390x/css_dump.c     | 157 ++++++++++++++++++
- lib/s390x/css_lib.c      |  55 +++++++
- lib/s390x/interrupt.c    |  23 ++-
- lib/s390x/interrupt.h    |   8 +
- s390x/Makefile           |   3 +
- s390x/css.c              | 343 +++++++++++++++++++++++++++++++++++++++
- s390x/cstart64.S         |  51 ++++--
- s390x/unittests.cfg      |   4 +
- 10 files changed, 936 insertions(+), 16 deletions(-)
- create mode 100644 lib/s390x/css.h
- create mode 100644 lib/s390x/css_dump.c
- create mode 100644 lib/s390x/css_lib.c
- create mode 100644 lib/s390x/interrupt.h
- create mode 100644 s390x/css.c
-
+ 	spin_lock_irqsave(&msm_iommu_lock, flags);
+ 	iommu = find_iommu_for_dev(dev);
+ 	spin_unlock_irqrestore(&msm_iommu_lock, flags);
+ 
+-	if (iommu)
+-		iommu_device_link(&iommu->iommu, dev);
+-	else
+-		return -ENODEV;
+-
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
++	if (!iommu)
++		return ERR_PTR(-ENODEV);
+ 
+-	return 0;
++	return &iommu->iommu;
+ }
+ 
+-static void msm_iommu_remove_device(struct device *dev)
++static void msm_iommu_release_device(struct device *dev)
+ {
+-	struct msm_iommu_dev *iommu;
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&msm_iommu_lock, flags);
+-	iommu = find_iommu_for_dev(dev);
+-	spin_unlock_irqrestore(&msm_iommu_lock, flags);
+-
+-	if (iommu)
+-		iommu_device_unlink(&iommu->iommu, dev);
+-
+-	iommu_group_remove_device(dev);
+ }
+ 
+ static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+@@ -708,8 +688,8 @@ static struct iommu_ops msm_iommu_ops = {
+ 	 */
+ 	.iotlb_sync = NULL,
+ 	.iova_to_phys = msm_iommu_iova_to_phys,
+-	.add_device = msm_iommu_add_device,
+-	.remove_device = msm_iommu_remove_device,
++	.probe_device = msm_iommu_probe_device,
++	.release_device = msm_iommu_release_device,
+ 	.device_group = generic_device_group,
+ 	.pgsize_bitmap = MSM_IOMMU_PGSIZES,
+ 	.of_xlate = qcom_iommu_of_xlate,
 -- 
-2.25.1
-
-Changelog:
-
-from v5 to v6
-- Added comments for IRQ handling in
-  s390x: saving regs for interrupts
-  (Janosch) 
-
-- fixed BUG on reset_psw, added PSW_MASK_PSW_SHORT
-  and PSW_RESET_MASK
-
-- fixed several lines over 80 chars
-
-- fixed licenses, use GPL V2 (no more LGPL)
-
-- replacing delay() with wfi() (Wait For Interrupt)
-  during the css tests
-  (suggested by Connie's comments)
-
-- suppressing delay() induces suppressing the patch
-  "s390x: export the clock get_clock_ms() utility"
-  which is already reviewed but can be picked from
-  the v5 series.
-
-- changed the logic of the tests, the 4 css tests
-  are always run one after the other so no need to 
-  re-run enumeration and enabling at the begining
-  of each tests, it has alredy been done.
-  This makes code simpler.
-
-from v4 to v5
-- add a patch to explicitely define the initial_cr0
-  value
-  (Janosch)
-- add RB from Janosh on interrupt registration
-- several formating, typo correction and removing
-  unnecessary initialization in "linrary resources..."
-  (Janosch)
-- several formating and typo corrections on
-  "stsch enumeration test"
-  (Connie)
-- reworking the msch test
-  (Connie)
-- reworking of ssch test, pack the sense-id structure
-  (Connie)
-
-from v3 to v4
-- add RB from David and Thomas for patchs 
-  (3) irq registration and (4) clock export
-- rework the PSW bit definitions
-  (Thomas)
-- Suppress undef DEBUG from css_dump
-  (Thomas)
-- rework report() functions using new scheme
-  (Thomas)
-- suppress un-necessary report_info()
-- more spelling corrections
-- add a loop around enable bit testing
-  (Connie)
-- rework IRQ testing
-  (Connie)
-- Test data addresses to be under 2G
-  (Connie)
-
-from v2 to v3:
-- Rework spelling
-  (Connie)
-- More descriptions
-  (Connie)
-- use __ASSEMBLER__ preprocessing to keep
-  bits definitions and C structures in the same file
-  (David)
-- rename the new file clock.h as time.h
-  (Janosch, David?)
-- use registration for the IO interruption
-  (David, Thomas)
-- test the SCHIB to verify it has really be modified
-  (Connie)
-- Lot of simplifications in the tests
-  (Connie)
-
-from v1 to v2:
-- saving floating point registers (David, Janosh)
-- suppress unused PSW bits defintions (Janosh)
-- added Thomas reviewed-by
-- style and comments modifications (Connie, Janosh)
-- moved get_clock_ms() into headers and use it (Thomas)
-- separate header and library utility from tests
-- Suppress traces, separate tests, make better usage of reports
+2.17.1
