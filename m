@@ -1,38 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:59068 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725786AbgDVIFv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Apr 2020 04:05:51 -0400
-Date: Wed, 22 Apr 2020 10:05:39 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH v5 05/10] s390x: export the clock
- get_clock_ms() utility
-Message-ID: <20200422100539.5a4f3a2f.cohuck@redhat.com>
-In-Reply-To: <1582200043-21760-6-git-send-email-pmorel@linux.ibm.com>
-References: <1582200043-21760-1-git-send-email-pmorel@linux.ibm.com>
-        <1582200043-21760-6-git-send-email-pmorel@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53080 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727879AbgD2Nhk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Apr 2020 09:37:40 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 03/34] iommu/amd: Implement iommu_ops->def_domain_type call-back
+Date: Wed, 29 Apr 2020 15:36:41 +0200
+Message-Id: <20200429133712.31431-4-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-On Thu, 20 Feb 2020 13:00:38 +0100
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+From: Joerg Roedel <jroedel@suse.de>
 
-> Let's move get_clock_ms() to lib/s390/asm/time.h, so it can be used in
-> multiple places.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: David Hildenbrand <david@redhat.com>
-> Reviewed-by: Thomas Huth <thuth@redhat.com>
-> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-> ---
->  lib/s390x/asm/time.h | 26 ++++++++++++++++++++++++++
->  s390x/intercept.c    | 11 +----------
->  2 files changed, 27 insertions(+), 10 deletions(-)
->  create mode 100644 lib/s390x/asm/time.h
+Implement the new def_domain_type call-back for the AMD IOMMU driver.
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ drivers/iommu/amd_iommu.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 20cce366e951..73b4f84cf449 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2661,6 +2661,20 @@ static void amd_iommu_iotlb_sync(struct iommu_domain *domain,
+ 	amd_iommu_flush_iotlb_all(domain);
+ }
+ 
++static int amd_iommu_def_domain_type(struct device *dev)
++{
++	struct iommu_dev_data *dev_data;
++
++	dev_data = get_dev_data(dev);
++	if (!dev_data)
++		return 0;
++
++	if (dev_data->iommu_v2)
++		return IOMMU_DOMAIN_IDENTITY;
++
++	return 0;
++}
++
+ const struct iommu_ops amd_iommu_ops = {
+ 	.capable = amd_iommu_capable,
+ 	.domain_alloc = amd_iommu_domain_alloc,
+@@ -2680,6 +2694,7 @@ const struct iommu_ops amd_iommu_ops = {
+ 	.pgsize_bitmap	= AMD_IOMMU_PGSIZES,
+ 	.flush_iotlb_all = amd_iommu_flush_iotlb_all,
+ 	.iotlb_sync = amd_iommu_iotlb_sync,
++	.def_domain_type = amd_iommu_def_domain_type,
+ };
+ 
+ /*****************************************************************************
+-- 
+2.17.1
