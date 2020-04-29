@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: [PATCH v3 05/10] s390: Change s390_kernel_write() return type to match memcpy()
-Date: Sat, 25 Apr 2020 06:07:25 -0500
-Message-Id: <6ddfa9a98db346f295249fbfdbf80e7a18fbabf0.1587812518.git.jpoimboe@redhat.com>
-In-Reply-To: <cover.1587812518.git.jpoimboe@redhat.com>
-References: <cover.1587812518.git.jpoimboe@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:35340 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726493AbgD2QmA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Apr 2020 12:42:00 -0400
+Date: Wed, 29 Apr 2020 16:41:55 +0000
+From: Wei Liu <wei.liu@kernel.org>
+Subject: Re: [PATCH v1 1/3] mm/memory_hotplug: Prepare passing flags to
+ add_memory() and friends
+Message-ID: <20200429164154.ctflq4ouwrwwe4wq@liuwe-devbox-debian-v2.j3c5onc20sse1dnehy4noqpfcg.zx.internal.cloudapp.net>
+References: <20200429160803.109056-1-david@redhat.com>
+ <20200429160803.109056-2-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200429160803.109056-2-david@redhat.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: live-patching@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jessica Yu <jeyu@kernel.org>, Joe Lawrence <joe.lawrence@redhat.com>, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Jason Wang <jasowang@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Pingfan Liu <kernelfans@gmail.com>, Leonardo Bras <leobras.c@gmail.com>, Nathan Lynch <nathanl@linux.ibm.com>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richard.weiyang@gmail.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Eric Biederman <ebiederm@xmission.com>
 
-s390_kernel_write()'s function type is almost identical to memcpy().
-Change its return type to "void *" so they can be used interchangeably.
+On Wed, Apr 29, 2020 at 06:08:01PM +0200, David Hildenbrand wrote:
+> We soon want to pass flags - prepare for that.
+> 
+> This patch is based on a similar patch by Oscar Salvador:
+> 
+> https://lkml.kernel.org/r/20190625075227.15193-3-osalvador@suse.de
+> 
+[...]
+> ---
+>  drivers/hv/hv_balloon.c                         |  2 +-
 
-Cc: linux-s390@vger.kernel.org
-Cc: heiko.carstens@de.ibm.com
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
----
- arch/s390/include/asm/uaccess.h | 2 +-
- arch/s390/mm/maccess.c          | 9 ++++++---
- 2 files changed, 7 insertions(+), 4 deletions(-)
+> diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+> index 32e3bc0aa665..0194bed1a573 100644
+> --- a/drivers/hv/hv_balloon.c
+> +++ b/drivers/hv/hv_balloon.c
+> @@ -726,7 +726,7 @@ static void hv_mem_hot_add(unsigned long start, unsigned long size,
+>  
+>  		nid = memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
+>  		ret = add_memory(nid, PFN_PHYS((start_pfn)),
+> -				(HA_CHUNK << PAGE_SHIFT));
+> +				(HA_CHUNK << PAGE_SHIFT), 0);
+>  
+>  		if (ret) {
+>  			pr_err("hot_add memory failed error is %d\n", ret);
 
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uacc=
-ess.h
-index a470f1fa9f2a..324438889fe1 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -276,6 +276,6 @@ static inline unsigned long __must_check clear_user(v=
-oid __user *to, unsigned lo
- }
-=20
- int copy_to_user_real(void __user *dest, void *src, unsigned long count)=
-;
--void s390_kernel_write(void *dst, const void *src, size_t size);
-+void *s390_kernel_write(void *dst, const void *src, size_t size);
-=20
- #endif /* __S390_UACCESS_H */
-diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
-index de7ca4b6718f..22a0be655f27 100644
---- a/arch/s390/mm/maccess.c
-+++ b/arch/s390/mm/maccess.c
-@@ -55,19 +55,22 @@ static notrace long s390_kernel_write_odd(void *dst, =
-const void *src, size_t siz
-  */
- static DEFINE_SPINLOCK(s390_kernel_write_lock);
-=20
--void notrace s390_kernel_write(void *dst, const void *src, size_t size)
-+notrace void *s390_kernel_write(void *dst, const void *src, size_t size)
- {
-+	void *tmp =3D dst;
- 	unsigned long flags;
- 	long copied;
-=20
- 	spin_lock_irqsave(&s390_kernel_write_lock, flags);
- 	while (size) {
--		copied =3D s390_kernel_write_odd(dst, src, size);
--		dst +=3D copied;
-+		copied =3D s390_kernel_write_odd(tmp, src, size);
-+		tmp +=3D copied;
- 		src +=3D copied;
- 		size -=3D copied;
- 	}
- 	spin_unlock_irqrestore(&s390_kernel_write_lock, flags);
-+
-+	return dst;
- }
-=20
- static int __no_sanitize_address __memcpy_real(void *dest, void *src, si=
-ze_t count)
---=20
-2.21.1
+Acked-by: Wei Liu <wei.liu@kernel.org>
