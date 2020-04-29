@@ -1,94 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:59722 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725810AbgDVM7I (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Apr 2020 08:59:08 -0400
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH v2 3/7] KVM: PPC: Remove redundant kvm_run from vcpu_arch
-Date: Wed, 22 Apr 2020 20:58:06 +0800
-Message-Id: <20200422125810.34847-4-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
-References: <20200422125810.34847-1-tianjia.zhang@linux.alibaba.com>
+Received: from 8bytes.org ([81.169.241.247]:39788 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727944AbgD2Nhr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:47 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 13/34] iommu: Export bus_iommu_probe() and make is safe for re-probing
+Date: Wed, 29 Apr 2020 15:36:51 +0200
+Message-Id: <20200429133712.31431-14-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-The 'kvm_run' field already exists in the 'vcpu' structure, which
-is the same structure as the 'kvm_run' in the 'vcpu_arch' and
-should be deleted.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Add a check to the bus_iommu_probe() call-path to make sure it ignores
+devices which have already been successfully probed. Then export the
+bus_iommu_probe() function so it can be used by IOMMU drivers.
+
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/powerpc/include/asm/kvm_host.h | 1 -
- arch/powerpc/kvm/book3s_hv.c        | 6 ++----
- arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
- 3 files changed, 3 insertions(+), 7 deletions(-)
+ drivers/iommu/iommu.c | 10 +++++++++-
+ include/linux/iommu.h |  1 +
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-index 1dc63101ffe1..2745ff8faa01 100644
---- a/arch/powerpc/include/asm/kvm_host.h
-+++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -795,7 +795,6 @@ struct kvm_vcpu_arch {
- 	struct mmio_hpte_cache_entry *pgfault_cache;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 834a45da0ed0..397fd4fd0c32 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -1610,11 +1610,19 @@ static int probe_iommu_group(struct device *dev, void *data)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+ 	struct list_head *group_list = data;
++	struct iommu_group *group;
+ 	int ret;
  
- 	struct task_struct *run_task;
--	struct kvm_run *kvm_run;
+ 	if (!dev_iommu_get(dev))
+ 		return -ENOMEM;
  
- 	spinlock_t vpa_update_lock;
- 	struct kvmppc_vpa vpa;
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 93493f0cbfe8..413ea2dcb10c 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2934,7 +2934,7 @@ static void post_guest_process(struct kvmppc_vcore *vc, bool is_master)
++	/* Device is probed already if in a group */
++	group = iommu_group_get(dev);
++	if (group) {
++		iommu_group_put(group);
++		return 0;
++	}
++
+ 	if (!try_module_get(ops->owner)) {
+ 		ret = -EINVAL;
+ 		goto err_free_dev_iommu;
+@@ -1783,7 +1791,7 @@ static int iommu_group_create_direct_mappings(struct iommu_group *group)
+ 					  iommu_do_create_direct_mappings);
+ }
  
- 		ret = RESUME_GUEST;
- 		if (vcpu->arch.trap)
--			ret = kvmppc_handle_exit_hv(vcpu->arch.kvm_run, vcpu,
-+			ret = kvmppc_handle_exit_hv(vcpu->run, vcpu,
- 						    vcpu->arch.run_task);
+-static int bus_iommu_probe(struct bus_type *bus)
++int bus_iommu_probe(struct bus_type *bus)
+ {
+ 	const struct iommu_ops *ops = bus->iommu_ops;
+ 	int ret;
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 30170d191e5e..fea1622408ad 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -445,6 +445,7 @@ static inline void iommu_iotlb_gather_init(struct iommu_iotlb_gather *gather)
+ #define IOMMU_GROUP_NOTIFY_UNBOUND_DRIVER	6 /* Post Driver unbind */
  
- 		vcpu->arch.ret = ret;
-@@ -3920,7 +3920,6 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
- 	spin_lock(&vc->lock);
- 	vcpu->arch.ceded = 0;
- 	vcpu->arch.run_task = current;
--	vcpu->arch.kvm_run = kvm_run;
- 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
- 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
- 	vcpu->arch.busy_preempt = TB_NIL;
-@@ -3973,7 +3972,7 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
- 			if (signal_pending(v->arch.run_task)) {
- 				kvmppc_remove_runnable(vc, v);
- 				v->stat.signal_exits++;
--				v->arch.kvm_run->exit_reason = KVM_EXIT_INTR;
-+				v->run->exit_reason = KVM_EXIT_INTR;
- 				v->arch.ret = -EINTR;
- 				wake_up(&v->arch.cpu_run);
- 			}
-@@ -4049,7 +4048,6 @@ int kvmhv_run_single_vcpu(struct kvm_run *kvm_run,
- 	vc = vcpu->arch.vcore;
- 	vcpu->arch.ceded = 0;
- 	vcpu->arch.run_task = current;
--	vcpu->arch.kvm_run = kvm_run;
- 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
- 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
- 	vcpu->arch.busy_preempt = TB_NIL;
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index dc97e5be76f6..5a3987f3ebf3 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -290,8 +290,7 @@ long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
- 			r = RESUME_HOST;
- 			break;
- 		}
--		r = kvmhv_run_single_vcpu(vcpu->arch.kvm_run, vcpu, hdec_exp,
--					  lpcr);
-+		r = kvmhv_run_single_vcpu(vcpu->run, vcpu, hdec_exp, lpcr);
- 	} while (is_kvmppc_resume_guest(r));
- 
- 	/* save L2 state for return */
+ extern int bus_set_iommu(struct bus_type *bus, const struct iommu_ops *ops);
++extern int bus_iommu_probe(struct bus_type *bus);
+ extern bool iommu_present(struct bus_type *bus);
+ extern bool iommu_capable(struct bus_type *bus, enum iommu_cap cap);
+ extern struct iommu_domain *iommu_domain_alloc(struct bus_type *bus);
 -- 
 2.17.1
