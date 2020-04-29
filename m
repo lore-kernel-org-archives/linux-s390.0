@@ -1,112 +1,73 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 25/29] mm: switch the test_vmalloc module to use __vmalloc_node
-Date: Tue, 14 Apr 2020 15:13:44 +0200
-Message-Id: <20200414131348.444715-26-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from 8bytes.org ([81.169.241.247]:40068 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727977AbgD2Nht (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 09:37:49 -0400
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 18/34] iommu/pamu: Convert to probe/release_device() call-backs
+Date: Wed, 29 Apr 2020 15:36:56 +0200
+Message-Id: <20200429133712.31431-19-joro@8bytes.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-No need to export the very low-level __vmalloc_node_range when the
-test module can use a slightly higher level variant.
+From: Joerg Roedel <jroedel@suse.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Convert the PAMU IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- lib/test_vmalloc.c | 26 +++++++-------------------
- mm/vmalloc.c       | 17 ++++++++---------
- 2 files changed, 15 insertions(+), 28 deletions(-)
+ drivers/iommu/fsl_pamu_domain.c | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/lib/test_vmalloc.c b/lib/test_vmalloc.c
-index 8bbefcaddfe8..cd6aef05dfb4 100644
---- a/lib/test_vmalloc.c
-+++ b/lib/test_vmalloc.c
-@@ -91,12 +91,8 @@ static int random_size_align_alloc_test(void)
- 		 */
- 		size = ((rnd % 10) + 1) * PAGE_SIZE;
- 
--		ptr = __vmalloc_node_range(size, align,
--		   VMALLOC_START, VMALLOC_END,
--		   GFP_KERNEL | __GFP_ZERO,
--		   PAGE_KERNEL,
--		   0, 0, __builtin_return_address(0));
--
-+		ptr = __vmalloc_node(size, align, GFP_KERNEL | __GFP_ZERO,
-+				__builtin_return_address(0));
- 		if (!ptr)
- 			return -1;
- 
-@@ -118,12 +114,8 @@ static int align_shift_alloc_test(void)
- 	for (i = 0; i < BITS_PER_LONG; i++) {
- 		align = ((unsigned long) 1) << i;
- 
--		ptr = __vmalloc_node_range(PAGE_SIZE, align,
--			VMALLOC_START, VMALLOC_END,
--			GFP_KERNEL | __GFP_ZERO,
--			PAGE_KERNEL,
--			0, 0, __builtin_return_address(0));
--
-+		ptr = __vmalloc_node(PAGE_SIZE, align, GFP_KERNEL | __GFP_ZERO,
-+				__builtin_return_address(0));
- 		if (!ptr)
- 			return -1;
- 
-@@ -139,13 +131,9 @@ static int fix_align_alloc_test(void)
- 	int i;
- 
- 	for (i = 0; i < test_loop_count; i++) {
--		ptr = __vmalloc_node_range(5 * PAGE_SIZE,
--			THREAD_ALIGN << 1,
--			VMALLOC_START, VMALLOC_END,
--			GFP_KERNEL | __GFP_ZERO,
--			PAGE_KERNEL,
--			0, 0, __builtin_return_address(0));
--
-+		ptr = __vmalloc_node(5 * PAGE_SIZE, THREAD_ALIGN << 1,
-+				GFP_KERNEL | __GFP_ZERO,
-+				__builtin_return_address(0));
- 		if (!ptr)
- 			return -1;
- 
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index ae8249ef5821..333fbe77255a 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -2522,15 +2522,6 @@ void *__vmalloc_node_range(unsigned long size, unsigned long align,
- 	return NULL;
+diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
+index 06828e2698d5..928d37771ece 100644
+--- a/drivers/iommu/fsl_pamu_domain.c
++++ b/drivers/iommu/fsl_pamu_domain.c
+@@ -1016,25 +1016,13 @@ static struct iommu_group *fsl_pamu_device_group(struct device *dev)
+ 	return group;
  }
  
--/*
-- * This is only for performance analysis of vmalloc and stress purpose.
-- * It is required by vmalloc test module, therefore do not use it other
-- * than that.
-- */
--#ifdef CONFIG_TEST_VMALLOC_MODULE
--EXPORT_SYMBOL_GPL(__vmalloc_node_range);
--#endif
--
- /**
-  * __vmalloc_node - allocate virtually contiguous memory
-  * @size:	    allocation size
-@@ -2556,6 +2547,14 @@ void *__vmalloc_node(unsigned long size, unsigned long align,
- 	return __vmalloc_node_range(size, align, VMALLOC_START, VMALLOC_END,
- 				gfp_mask, PAGE_KERNEL, 0, node, caller);
- }
-+/*
-+ * This is only for performance analysis of vmalloc and stress purpose.
-+ * It is required by vmalloc test module, therefore do not use it other
-+ * than that.
-+ */
-+#ifdef CONFIG_TEST_VMALLOC_MODULE
-+EXPORT_SYMBOL_GPL(__vmalloc_node);
-+#endif
- 
- void *__vmalloc(unsigned long size, gfp_t gfp_mask)
+-static int fsl_pamu_add_device(struct device *dev)
++static struct iommu_device *fsl_pamu_probe_device(struct device *dev)
  {
+-	struct iommu_group *group;
+-
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
+-
+-	iommu_device_link(&pamu_iommu, dev);
+-
+-	return 0;
++	return &pamu_iommu;
+ }
+ 
+-static void fsl_pamu_remove_device(struct device *dev)
++static void fsl_pamu_release_device(struct device *dev)
+ {
+-	iommu_device_unlink(&pamu_iommu, dev);
+-	iommu_group_remove_device(dev);
+ }
+ 
+ static const struct iommu_ops fsl_pamu_ops = {
+@@ -1048,8 +1036,8 @@ static const struct iommu_ops fsl_pamu_ops = {
+ 	.iova_to_phys	= fsl_pamu_iova_to_phys,
+ 	.domain_set_attr = fsl_pamu_set_domain_attr,
+ 	.domain_get_attr = fsl_pamu_get_domain_attr,
+-	.add_device	= fsl_pamu_add_device,
+-	.remove_device	= fsl_pamu_remove_device,
++	.probe_device	= fsl_pamu_probe_device,
++	.release_device	= fsl_pamu_release_device,
+ 	.device_group   = fsl_pamu_device_group,
+ };
+ 
 -- 
-2.25.1
+2.17.1
