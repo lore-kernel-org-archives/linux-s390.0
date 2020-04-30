@@ -1,152 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55024 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502783AbgDNNPV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Apr 2020 09:15:21 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 18/29] mm: remove the prot argument from vm_map_ram
-Date: Tue, 14 Apr 2020 15:13:37 +0200
-Message-Id: <20200414131348.444715-19-hch@lst.de>
-In-Reply-To: <20200414131348.444715-1-hch@lst.de>
-References: <20200414131348.444715-1-hch@lst.de>
+Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:1432 "EHLO
+        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726697AbgD3W01 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 18:26:27 -0400
+Subject: Re: [PATCH v1 1/1] fs/splice: add missing callback for inaccessible
+ pages
+References: <20200428225043.3091359-1-imbrenda@linux.ibm.com>
+ <2a1abf38-d321-e3c7-c3b1-53b6db6da310@intel.com>
+ <d77d1e86-ac99-8c18-658c-d8150a71b11e@de.ibm.com>
+ <4b32c162-6ea4-ba91-b6d5-8961b7dff6e8@de.ibm.com>
+ <f681d61d-c83b-1472-a52f-d5cb951676fd@de.ibm.com>
+From: John Hubbard <jhubbard@nvidia.com>
+Message-ID: <0b7c0575-5d31-e34a-13bf-f2e67c5aa3d4@nvidia.com>
+Date: Thu, 30 Apr 2020 15:26:25 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <f681d61d-c83b-1472-a52f-d5cb951676fd@de.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, x86@kernel.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Laura Abbott <labbott@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Sakari Ailus <sakari.ailus@linux.intel.com>, Minchan Kim <minchan@kernel.org>, Nitin Gupta <ngupta@vflare.org>
-Cc: Robin Murphy <robin.murphy@arm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Peter Zijlstra <peterz@infradead.org>, linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Dave Hansen <dave.hansen@intel.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, akpm@linux-foundation.org, jack@suse.cz, kirill@shutemov.name
+Cc: david@redhat.com, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, peterz@infradead.org, sean.j.christopherson@intel.com
 
-This is always PAGE_KERNEL - for long term mappings with other
-properties vmap should be used.
+On 2020-04-30 12:54, Christian Borntraeger wrote:
+> On 30.04.20 21:02, Christian Borntraeger wrote:
+>> On 30.04.20 20:12, Christian Borntraeger wrote:
+>>> On 29.04.20 18:07, Dave Hansen wrote:
+>>>> On 4/28/20 3:50 PM, Claudio Imbrenda wrote:
+>>>>> If a page is inaccesible and it is used for things like sendfile, then
+>>>>> the content of the page is not always touched, and can be passed
+>>>>> directly to a driver, causing issues.
+>>>>>
+>>>>> This patch fixes the issue by adding a call to arch_make_page_accessible
+>>>>> in page_cache_pipe_buf_confirm; this fixes the issue.
+>>>>
+>>>> I spent about 5 minutes putting together a patch:
+>>>>
+>>>> 	https://sr71.net/~dave/intel/accessible.patch
+>>>
+>>> You only set the page flag for compound pages. that of course leaves a big pile
+>>> of pages marked a not accessible, thus explaining the sendto trace and all kind
+>>> of other random traces.
+>>>
+>>>
+>>> What do you see when you also do the  SetPageAccessible(page);
+>>> in the else page of prep_new_page (order == 0).
+>>> (I do get > 10000 of these non compound page allocs just during boot).
+>>>
+>>
+>> And yes, I think you are right that we should call the callback also for !FOLL_PIN.
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c   | 2 +-
- drivers/media/common/videobuf2/videobuf2-dma-sg.c  | 3 +--
- drivers/media/common/videobuf2/videobuf2-vmalloc.c | 3 +--
- fs/erofs/decompressor.c                            | 2 +-
- fs/xfs/xfs_buf.c                                   | 2 +-
- include/linux/vmalloc.h                            | 3 +--
- mm/nommu.c                                         | 2 +-
- mm/vmalloc.c                                       | 4 ++--
- 8 files changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c b/drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c
-index 9272bef57092..debaf7b18ab5 100644
---- a/drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c
-+++ b/drivers/gpu/drm/i915/gem/selftests/mock_dmabuf.c
-@@ -66,7 +66,7 @@ static void *mock_dmabuf_vmap(struct dma_buf *dma_buf)
- {
- 	struct mock_dmabuf *mock = to_mock(dma_buf);
- 
--	return vm_map_ram(mock->pages, mock->npages, 0, PAGE_KERNEL);
-+	return vm_map_ram(mock->pages, mock->npages, 0);
- }
- 
- static void mock_dmabuf_vunmap(struct dma_buf *dma_buf, void *vaddr)
-diff --git a/drivers/media/common/videobuf2/videobuf2-dma-sg.c b/drivers/media/common/videobuf2/videobuf2-dma-sg.c
-index 6db60e9d5183..92072a08af25 100644
---- a/drivers/media/common/videobuf2/videobuf2-dma-sg.c
-+++ b/drivers/media/common/videobuf2/videobuf2-dma-sg.c
-@@ -309,8 +309,7 @@ static void *vb2_dma_sg_vaddr(void *buf_priv)
- 		if (buf->db_attach)
- 			buf->vaddr = dma_buf_vmap(buf->db_attach->dmabuf);
- 		else
--			buf->vaddr = vm_map_ram(buf->pages,
--					buf->num_pages, -1, PAGE_KERNEL);
-+			buf->vaddr = vm_map_ram(buf->pages, buf->num_pages, -1);
- 	}
- 
- 	/* add offset in case userptr is not page-aligned */
-diff --git a/drivers/media/common/videobuf2/videobuf2-vmalloc.c b/drivers/media/common/videobuf2/videobuf2-vmalloc.c
-index 1a4f0ca87c7c..c66fda4a65e4 100644
---- a/drivers/media/common/videobuf2/videobuf2-vmalloc.c
-+++ b/drivers/media/common/videobuf2/videobuf2-vmalloc.c
-@@ -107,8 +107,7 @@ static void *vb2_vmalloc_get_userptr(struct device *dev, unsigned long vaddr,
- 		buf->vaddr = (__force void *)
- 			ioremap(__pfn_to_phys(nums[0]), size + offset);
- 	} else {
--		buf->vaddr = vm_map_ram(frame_vector_pages(vec), n_pages, -1,
--					PAGE_KERNEL);
-+		buf->vaddr = vm_map_ram(frame_vector_pages(vec), n_pages, -1);
- 	}
- 
- 	if (!buf->vaddr)
-diff --git a/fs/erofs/decompressor.c b/fs/erofs/decompressor.c
-index 5d2d81940679..7628816f2453 100644
---- a/fs/erofs/decompressor.c
-+++ b/fs/erofs/decompressor.c
-@@ -274,7 +274,7 @@ static int z_erofs_decompress_generic(struct z_erofs_decompress_req *rq,
- 
- 	i = 0;
- 	while (1) {
--		dst = vm_map_ram(rq->out, nrpages_out, -1, PAGE_KERNEL);
-+		dst = vm_map_ram(rq->out, nrpages_out, -1);
- 
- 		/* retry two more times (totally 3 times) */
- 		if (dst || ++i >= 3)
-diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
-index 9ec3eaf1c618..65538d18e64f 100644
---- a/fs/xfs/xfs_buf.c
-+++ b/fs/xfs/xfs_buf.c
-@@ -477,7 +477,7 @@ _xfs_buf_map_pages(
- 		nofs_flag = memalloc_nofs_save();
- 		do {
- 			bp->b_addr = vm_map_ram(bp->b_pages, bp->b_page_count,
--						-1, PAGE_KERNEL);
-+						-1);
- 			if (bp->b_addr)
- 				break;
- 			vm_unmap_aliases();
-diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-index 15ffbd8e8e65..9273b1a91ca5 100644
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -88,8 +88,7 @@ struct vmap_area {
-  *	Highlevel APIs for driver use
-  */
- extern void vm_unmap_ram(const void *mem, unsigned int count);
--extern void *vm_map_ram(struct page **pages, unsigned int count,
--				int node, pgprot_t prot);
-+extern void *vm_map_ram(struct page **pages, unsigned int count, int node);
- extern void vm_unmap_aliases(void);
- 
- #ifdef CONFIG_MMU
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 318df4e236c9..4f07b7ef0297 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -351,7 +351,7 @@ void vunmap(const void *addr)
- }
- EXPORT_SYMBOL(vunmap);
- 
--void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t prot)
-+void *vm_map_ram(struct page **pages, unsigned int count, int node)
- {
- 	BUG();
- 	return NULL;
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 258220b203f1..7356b3f07bd8 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -1834,7 +1834,7 @@ EXPORT_SYMBOL(vm_unmap_ram);
-  *
-  * Returns: a pointer to the address that has been mapped, or %NULL on failure
-  */
--void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t prot)
-+void *vm_map_ram(struct page **pages, unsigned int count, int node)
- {
- 	unsigned long size = (unsigned long)count << PAGE_SHIFT;
- 	unsigned long addr;
-@@ -1858,7 +1858,7 @@ void *vm_map_ram(struct page **pages, unsigned int count, int node, pgprot_t pro
- 
- 	kasan_unpoison_vmalloc(mem, size);
- 
--	if (map_kernel_range(addr, size, prot, pages) < 0) {
-+	if (map_kernel_range(addr, size, PAGE_KERNEL, pages) < 0) {
- 		vm_unmap_ram(mem, count);
- 		return NULL;
- 	}
--- 
-2.25.1
+Disclaimer: I haven't dug into the details of the latest points above,
+so answers below will be narrowly focused.
+
+
+> 
+> Thinking again about this I am no longer sure. Adding John Hubbard.
+> 
+> Documentation/core-api/pin_user_pages.rst says:
+> -------snip----------
+> Another way of thinking about these flags is as a progression of restrictions:
+> FOLL_GET is for struct page manipulation, without affecting the data that the
+> struct page refers to. FOLL_PIN is a *replacement* for FOLL_GET, and is for
+> short term pins on pages whose data *will* get accessed. As such, FOLL_PIN is
+> a "more severe" form of pinning. And finally, FOLL_LONGTERM is an even more
+> restrictive case that has FOLL_PIN as a prerequisite: this is for pages that
+> will be pinned longterm, and whose data will be accessed.
+> -------snip----------
+> 
+> So John,is it ok to give a page to an I/O device where the code has used gup
+> with FOLL_GET (or gup fast without pup) or would you consider this a bug?
+> 
+
+Well, it's a bug (or a bug-in-waiting): even though gup/FOLL_GET works
+just as well (and as badly) as ever, pup/FOLL_PIN is required in order
+to safely and correctly allow a non-CPU device to operate on a page's
+data. Core mm and fs code is going to key off of page_maybe_dma_pinned()
+in order to make critical decisions about writeback and umount, and
+FOLL_PIN opts into that; FOLL_GET does not.
+
+Basically, you'd be creating another set of call sites that someone
+would have to convert to pup/FOLL_PIN.
+
+btw, on the FOLL_LONGTERM documentation above: that's more of an
+aspiration than a description of current behavior, in some ways.
+The current FOLL_LONGTERM is a little more quirky than is implied
+there.
+
+Also on a related note, I've been slow in posting patches to implement
+the remaining call site conversions, and am trying to get back to that
+asap. There have been some distractions. :) Once every call site is
+correctly using gup or pup, it will be easier for everyone.
+
+
+thanks,
+--
+John Hubbard
+NVIDIA
