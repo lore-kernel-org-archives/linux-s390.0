@@ -1,93 +1,85 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:40166 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727997AbgD2Nhu (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 29 Apr 2020 09:37:50 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 21/34] iommu/msm: Convert to probe/release_device() call-backs
-Date: Wed, 29 Apr 2020 15:36:59 +0200
-Message-Id: <20200429133712.31431-22-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 13/14] net/smc: remove handling of CONFIRM_RKEY_CONTINUE
+Date: Thu, 30 Apr 2020 15:55:50 +0200
+Message-Id: <20200430135551.26267-14-kgraul@linux.ibm.com>
+In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
+References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Joerg Roedel <jroedel@suse.de>
+The new SMC-R multiple link support will support a maximum of 3 links,
+and one CONFIRM_RKEY LLC message can transport 3 rkeys of an rmb buffer.
+There is no need for the LLC message type CONFIRM_RKEY_CONTINUE which is
+needed when more than 3 rkeys per rmb buffer needs to be exchanged.
 
-Convert the MSM IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/iommu/msm_iommu.c | 34 +++++++---------------------------
- 1 file changed, 7 insertions(+), 27 deletions(-)
+ net/smc/smc_llc.c | 21 ++++-----------------
+ 1 file changed, 4 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/iommu/msm_iommu.c b/drivers/iommu/msm_iommu.c
-index 94a6df1bddd6..10cd4db0710a 100644
---- a/drivers/iommu/msm_iommu.c
-+++ b/drivers/iommu/msm_iommu.c
-@@ -388,43 +388,23 @@ static struct msm_iommu_dev *find_iommu_for_dev(struct device *dev)
- 	return ret;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index e458207bde9e..92c9a8a8aaf9 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -98,12 +98,6 @@ struct smc_llc_msg_confirm_rkey {	/* type 0x06 */
+ 	u8 reserved;
+ };
+ 
+-struct smc_llc_msg_confirm_rkey_cont {	/* type 0x08 */
+-	struct smc_llc_hdr hd;
+-	u8 num_rkeys;
+-	struct smc_rmb_rtoken rtoken[SMC_LLC_RKEYS_PER_MSG];
+-};
+-
+ #define SMC_LLC_DEL_RKEY_MAX	8
+ #define SMC_LLC_FLAG_RKEY_RETRY	0x10
+ #define SMC_LLC_FLAG_RKEY_NEG	0x20
+@@ -123,7 +117,6 @@ union smc_llc_msg {
+ 	struct smc_llc_msg_del_link delete_link;
+ 
+ 	struct smc_llc_msg_confirm_rkey confirm_rkey;
+-	struct smc_llc_msg_confirm_rkey_cont confirm_rkey_cont;
+ 	struct smc_llc_msg_delete_rkey delete_rkey;
+ 
+ 	struct smc_llc_msg_test_link test_link;
+@@ -628,14 +621,6 @@ static void smc_llc_rmt_delete_rkey(struct smc_link_group *lgr)
+ 	smc_llc_flow_qentry_del(&lgr->llc_flow_rmt);
  }
  
--static int msm_iommu_add_device(struct device *dev)
-+static struct iommu_device *msm_iommu_probe_device(struct device *dev)
+-static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
+-				      struct smc_llc_msg_confirm_rkey_cont *llc)
+-{
+-	/* ignore rtokens for other links, we have only one link */
+-	llc->hd.flags |= SMC_LLC_FLAG_RESP;
+-	smc_llc_send_message(link, llc);
+-}
+-
+ /* flush the llc event queue */
+ static void smc_llc_event_flush(struct smc_link_group *lgr)
  {
- 	struct msm_iommu_dev *iommu;
--	struct iommu_group *group;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&msm_iommu_lock, flags);
- 	iommu = find_iommu_for_dev(dev);
- 	spin_unlock_irqrestore(&msm_iommu_lock, flags);
- 
--	if (iommu)
--		iommu_device_link(&iommu->iommu, dev);
--	else
--		return -ENODEV;
--
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
-+	if (!iommu)
-+		return ERR_PTR(-ENODEV);
- 
--	return 0;
-+	return &iommu->iommu;
- }
- 
--static void msm_iommu_remove_device(struct device *dev)
-+static void msm_iommu_release_device(struct device *dev)
- {
--	struct msm_iommu_dev *iommu;
--	unsigned long flags;
--
--	spin_lock_irqsave(&msm_iommu_lock, flags);
--	iommu = find_iommu_for_dev(dev);
--	spin_unlock_irqrestore(&msm_iommu_lock, flags);
--
--	if (iommu)
--		iommu_device_unlink(&iommu->iommu, dev);
--
--	iommu_group_remove_device(dev);
- }
- 
- static int msm_iommu_attach_dev(struct iommu_domain *domain, struct device *dev)
-@@ -708,8 +688,8 @@ static struct iommu_ops msm_iommu_ops = {
- 	 */
- 	.iotlb_sync = NULL,
- 	.iova_to_phys = msm_iommu_iova_to_phys,
--	.add_device = msm_iommu_add_device,
--	.remove_device = msm_iommu_remove_device,
-+	.probe_device = msm_iommu_probe_device,
-+	.release_device = msm_iommu_release_device,
- 	.device_group = generic_device_group,
- 	.pgsize_bitmap = MSM_IOMMU_PGSIZES,
- 	.of_xlate = qcom_iommu_of_xlate,
+@@ -701,7 +686,9 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
+ 		}
+ 		return;
+ 	case SMC_LLC_CONFIRM_RKEY_CONT:
+-		smc_llc_rx_confirm_rkey_cont(link, &llc->confirm_rkey_cont);
++		/* not used because max links is 3, and 3 rkeys fit into
++		 * one CONFIRM_RKEY message
++		 */
+ 		break;
+ 	case SMC_LLC_DELETE_RKEY:
+ 		/* new request from remote, assign to remote flow */
+@@ -770,7 +757,7 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 			smc_lgr_schedule_free_work_fast(link->lgr);
+ 		break;
+ 	case SMC_LLC_CONFIRM_RKEY_CONT:
+-		/* unused as long as we don't send this type of msg */
++		/* not used because max links is 3 */
+ 		break;
+ 	}
+ 	kfree(qentry);
 -- 
 2.17.1
