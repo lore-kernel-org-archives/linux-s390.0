@@ -1,166 +1,86 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 05/14] net/smc: adapt SMC server code to use the LLC flow
-Date: Thu, 30 Apr 2020 15:55:42 +0200
-Message-Id: <20200430135551.26267-6-kgraul@linux.ibm.com>
-In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
-References: <20200430135551.26267-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 24/30] s390/ftrace: fix potential crashes when switching tracers
+Date: Thu, 30 Apr 2020 09:53:19 -0400
+Message-Id: <20200430135325.20762-24-sashal@kernel.org>
+In-Reply-To: <20200430135325.20762-1-sashal@kernel.org>
+References: <20200430135325.20762-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Philipp Rudo <prudo@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Change the code that processes the SMC server part of connection
-establishment to use the LLC flow framework (CONFIRM_LINK response
-messages).
+From: Philipp Rudo <prudo@linux.ibm.com>
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+[ Upstream commit 8ebf6da9db1b2a20bb86cc1bee2552e894d03308 ]
+
+Switching tracers include instruction patching. To prevent that a
+instruction is patched while it's read the instruction patching is done
+in stop_machine 'context'. This also means that any function called
+during stop_machine must not be traced. Thus add 'notrace' to all
+functions called within stop_machine.
+
+Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
+Fixes: 38f2c691a4b3 ("s390: improve wait logic of stop_machine")
+Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
+Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c   | 39 +++++++++++++++------------------------
- net/smc/smc_core.h |  3 ---
- net/smc/smc_llc.c  | 20 +++++---------------
- 3 files changed, 20 insertions(+), 42 deletions(-)
+ arch/s390/kernel/diag.c  | 2 +-
+ arch/s390/kernel/smp.c   | 4 ++--
+ arch/s390/kernel/trace.c | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e859e3f420d9..ab3aef1ddfa4 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1019,9 +1019,11 @@ void smc_close_non_accepted(struct sock *sk)
- static int smcr_serv_conf_first_link(struct smc_sock *smc)
+diff --git a/arch/s390/kernel/diag.c b/arch/s390/kernel/diag.c
+index 35c842aa87058..4c7cf8787a848 100644
+--- a/arch/s390/kernel/diag.c
++++ b/arch/s390/kernel/diag.c
+@@ -128,7 +128,7 @@ void diag_stat_inc(enum diag_stat_enum nr)
+ }
+ EXPORT_SYMBOL(diag_stat_inc);
+ 
+-void diag_stat_inc_norecursion(enum diag_stat_enum nr)
++void notrace diag_stat_inc_norecursion(enum diag_stat_enum nr)
  {
- 	struct smc_link *link = smc->conn.lnk;
--	int rest;
-+	struct smc_llc_qentry *qentry;
- 	int rc;
- 
-+	link->lgr->type = SMC_LGR_SINGLE;
-+
- 	if (smcr_link_reg_rmb(link, smc->conn.rmb_desc, false))
- 		return SMC_CLC_DECL_ERR_REGRMB;
- 
-@@ -1031,40 +1033,27 @@ static int smcr_serv_conf_first_link(struct smc_sock *smc)
- 		return SMC_CLC_DECL_TIMEOUT_CL;
- 
- 	/* receive CONFIRM LINK response from client over the RoCE fabric */
--	rest = wait_for_completion_interruptible_timeout(
--		&link->llc_confirm_resp,
--		SMC_LLC_WAIT_FIRST_TIME);
--	if (rest <= 0) {
-+	qentry = smc_llc_wait(link->lgr, link, SMC_LLC_WAIT_TIME,
-+			      SMC_LLC_CONFIRM_LINK);
-+	if (!qentry) {
- 		struct smc_clc_msg_decline dclc;
- 
- 		rc = smc_clc_wait_msg(smc, &dclc, sizeof(dclc),
- 				      SMC_CLC_DECLINE, CLC_WAIT_TIME_SHORT);
- 		return rc == -EAGAIN ? SMC_CLC_DECL_TIMEOUT_CL : rc;
- 	}
--
--	if (link->llc_confirm_resp_rc)
-+	rc = smc_llc_eval_conf_link(qentry, SMC_LLC_RESP);
-+	smc_llc_flow_qentry_del(&link->lgr->llc_flow_lcl);
-+	if (rc)
- 		return SMC_CLC_DECL_RMBE_EC;
- 
--	/* send ADD LINK request to client over the RoCE fabric */
--	rc = smc_llc_send_add_link(link,
--				   link->smcibdev->mac[link->ibport - 1],
--				   link->gid, SMC_LLC_REQ);
--	if (rc < 0)
--		return SMC_CLC_DECL_TIMEOUT_AL;
--
--	/* receive ADD LINK response from client over the RoCE fabric */
--	rest = wait_for_completion_interruptible_timeout(&link->llc_add_resp,
--							 SMC_LLC_WAIT_TIME);
--	if (rest <= 0) {
--		struct smc_clc_msg_decline dclc;
--
--		rc = smc_clc_wait_msg(smc, &dclc, sizeof(dclc),
--				      SMC_CLC_DECLINE, CLC_WAIT_TIME_SHORT);
--		return rc == -EAGAIN ? SMC_CLC_DECL_TIMEOUT_AL : rc;
--	}
-+	/* confirm_rkey is implicit on 1st contact */
-+	smc->conn.rmb_desc->is_conf_rkey = true;
- 
- 	smc_llc_link_active(link);
- 
-+	/* initial contact - try to establish second link */
-+	/* tbd: call smc_llc_srv_add_link(link); */
- 	return 0;
+ 	this_cpu_inc(diag_stat.counter[nr]);
+ 	trace_s390_diagnose_norecursion(diag_map[nr].code);
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index ecd24711f3aa9..8e31dfd85de32 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -393,7 +393,7 @@ int smp_find_processor_id(u16 address)
+ 	return -1;
  }
  
-@@ -1240,7 +1229,9 @@ static int smc_listen_rdma_finish(struct smc_sock *new_smc,
- 			goto decline;
- 		}
- 		/* QP confirmation over RoCE fabric */
-+		smc_llc_flow_initiate(link->lgr, SMC_LLC_FLOW_ADD_LINK);
- 		reason_code = smcr_serv_conf_first_link(new_smc);
-+		smc_llc_flow_stop(link->lgr, &link->lgr->llc_flow_lcl);
- 		if (reason_code)
- 			goto decline;
- 	}
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 51366a9f4980..01a9cb885ef2 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -121,11 +121,8 @@ struct smc_link {
- 
- 	enum smc_link_state	state;		/* state of link */
- 	struct completion	llc_confirm;	/* wait for rx of conf link */
--	struct completion	llc_confirm_resp; /* wait 4 rx of cnf lnk rsp */
- 	int			llc_confirm_rc; /* rc from confirm link msg */
--	int			llc_confirm_resp_rc; /* rc from conf_resp msg */
- 	struct completion	llc_add;	/* wait for rx of add link */
--	struct completion	llc_add_resp;	/* wait for rx of add link rsp*/
- 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
- 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
- 	int			llc_testlink_time; /* testlink interval */
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 9248b90fe37e..5381b16fd482 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -724,26 +724,18 @@ static void smc_llc_rx_response(struct smc_link *link,
+-bool arch_vcpu_is_preempted(int cpu)
++bool notrace arch_vcpu_is_preempted(int cpu)
  {
- 	u8 llc_type = qentry->msg.raw.hdr.common.type;
- 	union smc_llc_msg *llc = &qentry->msg;
--	int rc = 0;
+ 	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
+ 		return false;
+@@ -403,7 +403,7 @@ bool arch_vcpu_is_preempted(int cpu)
+ }
+ EXPORT_SYMBOL(arch_vcpu_is_preempted);
  
- 	switch (llc_type) {
- 	case SMC_LLC_TEST_LINK:
- 		if (link->state == SMC_LNK_ACTIVE)
- 			complete(&link->llc_testlink_resp);
- 		break;
--	case SMC_LLC_CONFIRM_LINK:
--		if (!(llc->raw.hdr.flags & SMC_LLC_FLAG_NO_RMBE_EYEC))
--			rc = ENOTSUPP;
--		if (link->lgr->role == SMC_SERV &&
--		    link->state == SMC_LNK_ACTIVATING) {
--			link->llc_confirm_resp_rc = rc;
--			complete(&link->llc_confirm_resp);
--		}
--		break;
- 	case SMC_LLC_ADD_LINK:
--		if (link->state == SMC_LNK_ACTIVATING)
--			complete(&link->llc_add_resp);
--		break;
-+	case SMC_LLC_CONFIRM_LINK:
-+		/* assign responses to the local flow, we requested them */
-+		smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
-+		wake_up_interruptible(&link->lgr->llc_waiter);
-+		return;
- 	case SMC_LLC_DELETE_LINK:
- 		if (link->lgr->role == SMC_SERV)
- 			smc_lgr_schedule_free_work_fast(link->lgr);
-@@ -866,9 +858,7 @@ void smc_llc_lgr_clear(struct smc_link_group *lgr)
- int smc_llc_link_init(struct smc_link *link)
+-void smp_yield_cpu(int cpu)
++void notrace smp_yield_cpu(int cpu)
  {
- 	init_completion(&link->llc_confirm);
--	init_completion(&link->llc_confirm_resp);
- 	init_completion(&link->llc_add);
--	init_completion(&link->llc_add_resp);
- 	init_completion(&link->llc_confirm_rkey_resp);
- 	init_completion(&link->llc_delete_rkey_resp);
- 	mutex_init(&link->llc_delete_rkey_mutex);
+ 	if (MACHINE_HAS_DIAG9C) {
+ 		diag_stat_inc_norecursion(DIAG_STAT_X09C);
+diff --git a/arch/s390/kernel/trace.c b/arch/s390/kernel/trace.c
+index 490b52e850145..11a669f3cc93c 100644
+--- a/arch/s390/kernel/trace.c
++++ b/arch/s390/kernel/trace.c
+@@ -14,7 +14,7 @@ EXPORT_TRACEPOINT_SYMBOL(s390_diagnose);
+ 
+ static DEFINE_PER_CPU(unsigned int, diagnose_trace_depth);
+ 
+-void trace_s390_diagnose_norecursion(int diag_nr)
++void notrace trace_s390_diagnose_norecursion(int diag_nr)
+ {
+ 	unsigned long flags;
+ 	unsigned int *depth;
 -- 
-2.17.1
+2.20.1
