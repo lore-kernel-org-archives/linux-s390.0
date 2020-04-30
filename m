@@ -1,143 +1,61 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 12/34] iommu: Move iommu_group_create_direct_mappings() out of iommu_group_add_device()
-Date: Wed, 29 Apr 2020 15:36:50 +0200
-Message-Id: <20200429133712.31431-13-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:58718 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726378AbgD3K3r (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Apr 2020 06:29:47 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v2 0/3] mm/memory_hotplug: Allow to not create firmware memmap entries
+Date: Thu, 30 Apr 2020 12:29:05 +0200
+Message-Id: <20200430102908.10107-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Dave Jiang <dave.jiang@intel.com>, Eric Biederman <ebiederm@xmission.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Jason Wang <jasowang@redhat.com>, Juergen Gross <jgross@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Len Brown <lenb@kernel.org>, Leonardo Bras <leobras.c@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Hocko <mhocko@suse.com>, Nathan Lynch <nathanl@linux.ibm.com>, Oscar Salvador <osalvador@suse.de>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Paul Mackerras <paulus@samba.org>, Pavel Tatashin <pasha.tatashin@soleen.com>, Pingfan Liu <kernelfans@gmail.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Stefano Stabellini <sstabellini@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vishal Verma <vishal.l.verma@intel.com>, Wei Liu <wei.liu@kernel.org>, Wei Yang <richard.weiyang@gmail.com>
 
-From: Joerg Roedel <jroedel@suse.de>
+This is the follow up of [1]:
+	[PATCH v1 0/3] mm/memory_hotplug: Make virtio-mem play nicely with
+	kexec-tools
 
-After the previous changes the iommu group may not have a default
-domain when iommu_group_add_device() is called. With no default domain
-iommu_group_create_direct_mappings() will do nothing and no direct
-mappings will be created.
+I realized that this is not only helpful for virtio-mem, but also for
+dax/kmem - it's a fix for that use case (see patch #3) of persistent
+memory.
 
-Rename iommu_group_create_direct_mappings() to
-iommu_create_device_direct_mappings() to better reflect that the
-function creates direct mappings only for one device and not for all
-devices in the group. Then move the call to the places where a default
-domain actually exists.
+Also, while testing, I discovered that kexec-tools will *not* add dax/kme=
+m
+memory (anything not directly under the root when parsing /proc/iomem) to
+the elfcorehdr, so this memory will never get included in a dump. This
+probably has to be fixed in kexec-tools - virtio-mem will require this as
+well.
 
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/iommu.c | 35 ++++++++++++++++++++++++++++++-----
- 1 file changed, 30 insertions(+), 5 deletions(-)
+v1 -> v2:
+- Don't change the resource name
+- Rename the flag to MHP_NO_FIRMWARE_MEMMAP to reflect what it is doing
+- Rephrase subjects/descriptions
+- Use the flag for dax/kmem
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 7de0e29db333..834a45da0ed0 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -89,6 +89,8 @@ static int __iommu_attach_group(struct iommu_domain *domain,
- 				struct iommu_group *group);
- static void __iommu_detach_group(struct iommu_domain *domain,
- 				 struct iommu_group *group);
-+static int iommu_create_device_direct_mappings(struct iommu_group *group,
-+					       struct device *dev);
- 
- #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
- struct iommu_group_attribute iommu_group_attr_##_name =		\
-@@ -243,6 +245,8 @@ static int __iommu_probe_device_helper(struct device *dev)
- 	if (group->default_domain)
- 		ret = __iommu_attach_device(group->default_domain, dev);
- 
-+	iommu_create_device_direct_mappings(group, dev);
-+
- 	iommu_group_put(group);
- 
- 	if (ret)
-@@ -263,6 +267,7 @@ static int __iommu_probe_device_helper(struct device *dev)
- int iommu_probe_device(struct device *dev)
- {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct iommu_group *group;
- 	int ret;
- 
- 	WARN_ON(dev->iommu_group);
-@@ -285,6 +290,10 @@ int iommu_probe_device(struct device *dev)
- 	if (ret)
- 		goto err_module_put;
- 
-+	group = iommu_group_get(dev);
-+	iommu_create_device_direct_mappings(group, dev);
-+	iommu_group_put(group);
-+
- 	if (ops->probe_finalize)
- 		ops->probe_finalize(dev);
- 
-@@ -736,8 +745,8 @@ int iommu_group_set_name(struct iommu_group *group, const char *name)
- }
- EXPORT_SYMBOL_GPL(iommu_group_set_name);
- 
--static int iommu_group_create_direct_mappings(struct iommu_group *group,
--					      struct device *dev)
-+static int iommu_create_device_direct_mappings(struct iommu_group *group,
-+					       struct device *dev)
- {
- 	struct iommu_domain *domain = group->default_domain;
- 	struct iommu_resv_region *entry;
-@@ -841,8 +850,6 @@ int iommu_group_add_device(struct iommu_group *group, struct device *dev)
- 
- 	dev->iommu_group = group;
- 
--	iommu_group_create_direct_mappings(group, dev);
--
- 	mutex_lock(&group->mutex);
- 	list_add_tail(&device->list, &group->devices);
- 	if (group->domain)
-@@ -1736,6 +1743,7 @@ static void probe_alloc_default_domain(struct bus_type *bus,
- 		gtype.type = iommu_def_domain_type;
- 
- 	iommu_group_alloc_default_domain(bus, group, gtype.type);
-+
- }
- 
- static int iommu_group_do_dma_attach(struct device *dev, void *data)
-@@ -1760,6 +1768,21 @@ static int __iommu_group_dma_attach(struct iommu_group *group)
- 					  iommu_group_do_dma_attach);
- }
- 
-+static int iommu_do_create_direct_mappings(struct device *dev, void *data)
-+{
-+	struct iommu_group *group = data;
-+
-+	iommu_create_device_direct_mappings(group, dev);
-+
-+	return 0;
-+}
-+
-+static int iommu_group_create_direct_mappings(struct iommu_group *group)
-+{
-+	return __iommu_group_for_each_dev(group, group,
-+					  iommu_do_create_direct_mappings);
-+}
-+
- static int bus_iommu_probe(struct bus_type *bus)
- {
- 	const struct iommu_ops *ops = bus->iommu_ops;
-@@ -1792,6 +1815,8 @@ static int bus_iommu_probe(struct bus_type *bus)
- 				continue;
- 			}
- 
-+			iommu_group_create_direct_mappings(group);
-+
- 			ret = __iommu_group_dma_attach(group);
- 
- 			mutex_unlock(&group->mutex);
-@@ -2632,7 +2657,7 @@ request_default_domain_for_dev(struct device *dev, unsigned long type)
- 		iommu_domain_free(group->default_domain);
- 	group->default_domain = domain;
- 
--	iommu_group_create_direct_mappings(group, dev);
-+	iommu_create_device_direct_mappings(group, dev);
- 
- 	dev_info(dev, "Using iommu %s mapping\n",
- 		 type == IOMMU_DOMAIN_DMA ? "dma" : "direct");
--- 
-2.17.1
+I'll have to rebase virtio-mem on these changes, there will be a resend.
+
+[1] https://lkml.kernel.org/r/20200429160803.109056-1-david@redhat.com
+
+David Hildenbrand (3):
+  mm/memory_hotplug: Prepare passing flags to add_memory() and friends
+  mm/memory_hotplug: Introduce MHP_NO_FIRMWARE_MEMMAP
+  device-dax: Add system ram (add_memory()) with MHP_NO_FIRMWARE_MEMMAP
+
+ arch/powerpc/platforms/powernv/memtrace.c       |  2 +-
+ arch/powerpc/platforms/pseries/hotplug-memory.c |  2 +-
+ drivers/acpi/acpi_memhotplug.c                  |  2 +-
+ drivers/base/memory.c                           |  2 +-
+ drivers/dax/kmem.c                              |  3 ++-
+ drivers/hv/hv_balloon.c                         |  2 +-
+ drivers/s390/char/sclp_cmd.c                    |  2 +-
+ drivers/xen/balloon.c                           |  2 +-
+ include/linux/memory_hotplug.h                  | 15 ++++++++++++---
+ mm/memory_hotplug.c                             | 14 ++++++++------
+ 10 files changed, 29 insertions(+), 17 deletions(-)
+
+--=20
+2.25.3
