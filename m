@@ -1,99 +1,317 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:40905 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726814AbgD3PYy (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17018 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728074AbgD3N4X (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 11:24:54 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [kvm-unit-tests PULL 07/17] s390x/smp: add minimal test for sigp sense running status
-Date: Thu, 30 Apr 2020 17:24:20 +0200
-Message-Id: <20200430152430.40349-8-david@redhat.com>
-In-Reply-To: <20200430152430.40349-1-david@redhat.com>
-References: <20200430152430.40349-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+        Thu, 30 Apr 2020 09:56:23 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 01/14] net/smc: add event-based llc_flow framework
+Date: Thu, 30 Apr 2020 15:55:38 +0200
+Message-Id: <20200430135551.26267-2-kgraul@linux.ibm.com>
+In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
+References: <20200430135551.26267-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+The new framework allows to start specific types of LLC control flows,
+protects active flows and makes it possible to wait for flows to finish
+before starting a new flow.
+This mechanism is used for the LLC control layer to model flows like
+'add link' or 'delete link' which need to send/receive several LLC
+messages and are not allowed to get interrupted by the wrong type of
+messages.
+'Add link' or 'Delete link' messages arriving in the middle of a flow
+are delayed and processed when the current flow finished.
 
-Two minimal tests:
-- our own CPU should be running when we check ourselves
-- a CPU should at least have some times with a not running
-indication. To speed things up we stop CPU1
-
-Also rename smp_cpu_running to smp_sense_running_status.
-
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-Id: <20200402154441.13063-1-borntraeger@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- lib/s390x/smp.c |  2 +-
- lib/s390x/smp.h |  2 +-
- s390x/smp.c     | 14 ++++++++++++++
- 3 files changed, 16 insertions(+), 2 deletions(-)
+ net/smc/smc_core.c |   2 +
+ net/smc/smc_core.h |  24 +++++++
+ net/smc/smc_llc.c  | 165 +++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_llc.h  |   8 +++
+ 4 files changed, 199 insertions(+)
 
-diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-index 203792a..df8dcd9 100644
---- a/lib/s390x/smp.c
-+++ b/lib/s390x/smp.c
-@@ -58,7 +58,7 @@ bool smp_cpu_stopped(uint16_t addr)
- 	return !!(status & (SIGP_STATUS_CHECK_STOP|SIGP_STATUS_STOPPED));
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index db49f8cd5c95..4867ddcfe0c6 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -263,6 +263,7 @@ static void smc_lgr_free_work(struct work_struct *work)
+ 			if (smc_link_usable(lnk))
+ 				lnk->state = SMC_LNK_INACTIVE;
+ 		}
++		wake_up_interruptible_all(&lgr->llc_waiter);
+ 	}
+ 	smc_lgr_free(lgr);
  }
-=20
--bool smp_cpu_running(uint16_t addr)
-+bool smp_sense_running_status(uint16_t addr)
- {
- 	if (sigp(addr, SIGP_SENSE_RUNNING, 0, NULL) !=3D SIGP_CC_STATUS_STORED)
- 		return true;
-diff --git a/lib/s390x/smp.h b/lib/s390x/smp.h
-index ce63a89..d66e39a 100644
---- a/lib/s390x/smp.h
-+++ b/lib/s390x/smp.h
-@@ -40,7 +40,7 @@ struct cpu_status {
- int smp_query_num_cpus(void);
- struct cpu *smp_cpu_from_addr(uint16_t addr);
- bool smp_cpu_stopped(uint16_t addr);
--bool smp_cpu_running(uint16_t addr);
-+bool smp_sense_running_status(uint16_t addr);
- int smp_cpu_restart(uint16_t addr);
- int smp_cpu_start(uint16_t addr, struct psw psw);
- int smp_cpu_stop(uint16_t addr);
-diff --git a/s390x/smp.c b/s390x/smp.c
-index fa40753..1641979 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -182,6 +182,19 @@ static void test_emcall(void)
- 	report_prefix_pop();
+@@ -696,6 +697,7 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
+ 			if (smc_link_usable(lnk))
+ 				lnk->state = SMC_LNK_INACTIVE;
+ 		}
++		wake_up_interruptible_all(&lgr->llc_waiter);
+ 	}
  }
-=20
-+static void test_sense_running(void)
+ 
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index b5781511063d..70399217ad6f 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -197,6 +197,20 @@ struct smc_rtoken {				/* address/key of remote RMB */
+ 
+ struct smcd_dev;
+ 
++enum smc_llc_flowtype {
++	SMC_LLC_FLOW_NONE	= 0,
++	SMC_LLC_FLOW_ADD_LINK	= 2,
++	SMC_LLC_FLOW_DEL_LINK	= 4,
++	SMC_LLC_FLOW_RKEY	= 6,
++};
++
++struct smc_llc_qentry;
++
++struct smc_llc_flow {
++	enum smc_llc_flowtype type;
++	struct smc_llc_qentry *qentry;
++};
++
+ struct smc_link_group {
+ 	struct list_head	list;
+ 	struct rb_root		conns_all;	/* connection tree */
+@@ -238,6 +252,16 @@ struct smc_link_group {
+ 						/* protects llc_event_q */
+ 			struct work_struct	llc_event_work;
+ 						/* llc event worker */
++			wait_queue_head_t	llc_waiter;
++						/* w4 next llc event */
++			struct smc_llc_flow	llc_flow_lcl;
++						/* llc local control field */
++			struct smc_llc_flow	llc_flow_rmt;
++						/* llc remote control field */
++			struct smc_llc_qentry	*delayed_event;
++						/* arrived when flow active */
++			spinlock_t		llc_flow_lock;
++						/* protects llc flow */
+ 			int			llc_testlink_time;
+ 						/* link keep alive time */
+ 		};
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index e715dd6735ee..647cf1a2dfa5 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -140,6 +140,154 @@ struct smc_llc_qentry {
+ 	union smc_llc_msg msg;
+ };
+ 
++struct smc_llc_qentry *smc_llc_flow_qentry_clr(struct smc_llc_flow *flow)
 +{
-+	report_prefix_push("sense_running");
-+	/* we (CPU0) are running */
-+	report(smp_sense_running_status(0), "CPU0 sense claims running");
-+	/* stop the target CPU (CPU1) to speed up the not running case */
-+	smp_cpu_stop(1);
-+	/* Make sure to have at least one time with a not running indication */
-+	while(smp_sense_running_status(1));
-+	report(true, "CPU1 sense claims not running");
-+	report_prefix_pop();
++	struct smc_llc_qentry *qentry = flow->qentry;
++
++	flow->qentry = NULL;
++	return qentry;
 +}
 +
- static void test_reset_initial(void)
++void smc_llc_flow_qentry_del(struct smc_llc_flow *flow)
++{
++	struct smc_llc_qentry *qentry;
++
++	if (flow->qentry) {
++		qentry = flow->qentry;
++		flow->qentry = NULL;
++		kfree(qentry);
++	}
++}
++
++static inline void smc_llc_flow_qentry_set(struct smc_llc_flow *flow,
++					   struct smc_llc_qentry *qentry)
++{
++	flow->qentry = qentry;
++}
++
++/* try to start a new llc flow, initiated by an incoming llc msg */
++static bool smc_llc_flow_start(struct smc_llc_flow *flow,
++			       struct smc_llc_qentry *qentry)
++{
++	struct smc_link_group *lgr = qentry->link->lgr;
++
++	spin_lock_bh(&lgr->llc_flow_lock);
++	if (flow->type) {
++		/* a flow is already active */
++		if ((qentry->msg.raw.hdr.common.type == SMC_LLC_ADD_LINK ||
++		     qentry->msg.raw.hdr.common.type == SMC_LLC_DELETE_LINK) &&
++		    !lgr->delayed_event) {
++			lgr->delayed_event = qentry;
++		} else {
++			/* forget this llc request */
++			kfree(qentry);
++		}
++		spin_unlock_bh(&lgr->llc_flow_lock);
++		return false;
++	}
++	switch (qentry->msg.raw.hdr.common.type) {
++	case SMC_LLC_ADD_LINK:
++		flow->type = SMC_LLC_FLOW_ADD_LINK;
++		break;
++	case SMC_LLC_DELETE_LINK:
++		flow->type = SMC_LLC_FLOW_DEL_LINK;
++		break;
++	case SMC_LLC_CONFIRM_RKEY:
++	case SMC_LLC_DELETE_RKEY:
++		flow->type = SMC_LLC_FLOW_RKEY;
++		break;
++	default:
++		flow->type = SMC_LLC_FLOW_NONE;
++	}
++	if (qentry == lgr->delayed_event)
++		lgr->delayed_event = NULL;
++	spin_unlock_bh(&lgr->llc_flow_lock);
++	smc_llc_flow_qentry_set(flow, qentry);
++	return true;
++}
++
++/* start a new local llc flow, wait till current flow finished */
++int smc_llc_flow_initiate(struct smc_link_group *lgr,
++			  enum smc_llc_flowtype type)
++{
++	enum smc_llc_flowtype allowed_remote = SMC_LLC_FLOW_NONE;
++	int rc;
++
++	/* all flows except confirm_rkey and delete_rkey are exclusive,
++	 * confirm/delete rkey flows can run concurrently (local and remote)
++	 */
++	if (type == SMC_LLC_FLOW_RKEY)
++		allowed_remote = SMC_LLC_FLOW_RKEY;
++again:
++	if (list_empty(&lgr->list))
++		return -ENODEV;
++	spin_lock_bh(&lgr->llc_flow_lock);
++	if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_NONE &&
++	    (lgr->llc_flow_rmt.type == SMC_LLC_FLOW_NONE ||
++	     lgr->llc_flow_rmt.type == allowed_remote)) {
++		lgr->llc_flow_lcl.type = type;
++		spin_unlock_bh(&lgr->llc_flow_lock);
++		return 0;
++	}
++	spin_unlock_bh(&lgr->llc_flow_lock);
++	rc = wait_event_interruptible_timeout(lgr->llc_waiter,
++			(lgr->llc_flow_lcl.type == SMC_LLC_FLOW_NONE &&
++			 (lgr->llc_flow_rmt.type == SMC_LLC_FLOW_NONE ||
++			  lgr->llc_flow_rmt.type == allowed_remote)),
++			SMC_LLC_WAIT_TIME);
++	if (!rc)
++		return -ETIMEDOUT;
++	goto again;
++}
++
++/* finish the current llc flow */
++void smc_llc_flow_stop(struct smc_link_group *lgr, struct smc_llc_flow *flow)
++{
++	spin_lock_bh(&lgr->llc_flow_lock);
++	memset(flow, 0, sizeof(*flow));
++	flow->type = SMC_LLC_FLOW_NONE;
++	spin_unlock_bh(&lgr->llc_flow_lock);
++	if (!list_empty(&lgr->list) && lgr->delayed_event &&
++	    flow == &lgr->llc_flow_lcl)
++		schedule_work(&lgr->llc_event_work);
++	else
++		wake_up_interruptible(&lgr->llc_waiter);
++}
++
++/* lnk is optional and used for early wakeup when link goes down, useful in
++ * cases where we wait for a response on the link after we sent a request
++ */
++struct smc_llc_qentry *smc_llc_wait(struct smc_link_group *lgr,
++				    struct smc_link *lnk,
++				    int time_out, u8 exp_msg)
++{
++	struct smc_llc_flow *flow = &lgr->llc_flow_lcl;
++
++	wait_event_interruptible_timeout(lgr->llc_waiter,
++					 (flow->qentry ||
++					  (lnk && !smc_link_usable(lnk)) ||
++					  list_empty(&lgr->list)),
++					 time_out);
++	if (!flow->qentry ||
++	    (lnk && !smc_link_usable(lnk)) || list_empty(&lgr->list)) {
++		smc_llc_flow_qentry_del(flow);
++		goto out;
++	}
++	if (exp_msg && flow->qentry->msg.raw.hdr.common.type != exp_msg) {
++		if (exp_msg == SMC_LLC_ADD_LINK &&
++		    flow->qentry->msg.raw.hdr.common.type ==
++		    SMC_LLC_DELETE_LINK) {
++			/* flow_start will delay the unexpected msg */
++			smc_llc_flow_start(&lgr->llc_flow_lcl,
++					   smc_llc_flow_qentry_clr(flow));
++			return NULL;
++		}
++		smc_llc_flow_qentry_del(flow);
++	}
++out:
++	return flow->qentry;
++}
++
+ /********************************** send *************************************/
+ 
+ struct smc_llc_tx_pend {
+@@ -547,6 +695,16 @@ static void smc_llc_event_work(struct work_struct *work)
+ 						  llc_event_work);
+ 	struct smc_llc_qentry *qentry;
+ 
++	if (!lgr->llc_flow_lcl.type && lgr->delayed_event) {
++		if (smc_link_usable(lgr->delayed_event->link)) {
++			smc_llc_event_handler(lgr->delayed_event);
++		} else {
++			qentry = lgr->delayed_event;
++			lgr->delayed_event = NULL;
++			kfree(qentry);
++		}
++	}
++
+ again:
+ 	spin_lock_bh(&lgr->llc_event_q_lock);
+ 	if (!list_empty(&lgr->llc_event_q)) {
+@@ -676,6 +834,8 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
+ 	INIT_WORK(&lgr->llc_event_work, smc_llc_event_work);
+ 	INIT_LIST_HEAD(&lgr->llc_event_q);
+ 	spin_lock_init(&lgr->llc_event_q_lock);
++	spin_lock_init(&lgr->llc_flow_lock);
++	init_waitqueue_head(&lgr->llc_waiter);
+ 	lgr->llc_testlink_time = net->ipv4.sysctl_tcp_keepalive_time;
+ }
+ 
+@@ -683,7 +843,12 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
+ void smc_llc_lgr_clear(struct smc_link_group *lgr)
  {
- 	struct cpu_status *status =3D alloc_pages(0);
-@@ -251,6 +264,7 @@ int main(void)
- 	test_store_status();
- 	test_ecall();
- 	test_emcall();
-+	test_sense_running();
- 	test_reset();
- 	test_reset_initial();
- 	smp_cpu_destroy(1);
---=20
-2.25.3
+ 	smc_llc_event_flush(lgr);
++	wake_up_interruptible_all(&lgr->llc_waiter);
+ 	cancel_work_sync(&lgr->llc_event_work);
++	if (lgr->delayed_event) {
++		kfree(lgr->delayed_event);
++		lgr->delayed_event = NULL;
++	}
+ }
+ 
+ int smc_llc_link_init(struct smc_link *link)
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 66063f22166b..49e99ff00ee7 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -63,6 +63,14 @@ int smc_llc_do_confirm_rkey(struct smc_link *link,
+ 			    struct smc_buf_desc *rmb_desc);
+ int smc_llc_do_delete_rkey(struct smc_link *link,
+ 			   struct smc_buf_desc *rmb_desc);
++int smc_llc_flow_initiate(struct smc_link_group *lgr,
++			  enum smc_llc_flowtype type);
++void smc_llc_flow_stop(struct smc_link_group *lgr, struct smc_llc_flow *flow);
++struct smc_llc_qentry *smc_llc_wait(struct smc_link_group *lgr,
++				    struct smc_link *lnk,
++				    int time_out, u8 exp_msg);
++struct smc_llc_qentry *smc_llc_flow_qentry_clr(struct smc_llc_flow *flow);
++void smc_llc_flow_qentry_del(struct smc_llc_flow *flow);
+ int smc_llc_init(void) __init;
+ 
+ #endif /* SMC_LLC_H */
+-- 
+2.17.1
