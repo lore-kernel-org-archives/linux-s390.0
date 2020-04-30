@@ -1,40 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:34908 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502874AbgDNNQB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:01 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 04/33] iommu/vt-d: Wire up iommu_ops->def_domain_type
-Date: Tue, 14 Apr 2020 15:15:13 +0200
-Message-Id: <20200414131542.25608-5-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23878 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728629AbgD3N4N (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:56:13 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 10/14] net/smc: new smc_rtoken_set functions for multiple link support
+Date: Thu, 30 Apr 2020 15:55:47 +0200
+Message-Id: <20200430135551.26267-11-kgraul@linux.ibm.com>
+In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
+References: <20200430135551.26267-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Joerg Roedel <jroedel@suse.de>
+Introduce smc_rtoken_set() to set the rtoken for a new link to an
+existing rmb whose rtoken is given, and smc_rtoken_set2() to set an
+rtoken for a new link whose link_id is given.
 
-The Intel VT-d driver already has a matching function to determine the
-default domain type for a device. Wire it up in intel_iommu_ops.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/iommu/intel-iommu.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/smc/smc_core.c | 47 ++++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_core.h |  4 ++++
+ 2 files changed, 51 insertions(+)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index ef0a5246700e..b9f905a55dda 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -6209,6 +6209,7 @@ const struct iommu_ops intel_iommu_ops = {
- 	.dev_enable_feat	= intel_iommu_dev_enable_feat,
- 	.dev_disable_feat	= intel_iommu_dev_disable_feat,
- 	.is_attach_deferred	= intel_iommu_is_attach_deferred,
-+	.def_domain_type	= device_def_domain_type,
- 	.pgsize_bitmap		= INTEL_IOMMU_PGSIZES,
- };
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index f71a366ed6ac..096dce92ee2b 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1368,6 +1368,53 @@ static inline int smc_rmb_reserve_rtoken_idx(struct smc_link_group *lgr)
+ 	return -ENOSPC;
+ }
  
++static int smc_rtoken_find_by_link(struct smc_link_group *lgr, int lnk_idx,
++				   u32 rkey)
++{
++	int i;
++
++	for (i = 0; i < SMC_RMBS_PER_LGR_MAX; i++) {
++		if (test_bit(i, lgr->rtokens_used_mask) &&
++		    lgr->rtokens[i][lnk_idx].rkey == rkey)
++			return i;
++	}
++	return -ENOENT;
++}
++
++/* set rtoken for a new link to an existing rmb */
++void smc_rtoken_set(struct smc_link_group *lgr, int link_idx, int link_idx_new,
++		    __be32 nw_rkey_known, __be64 nw_vaddr, __be32 nw_rkey)
++{
++	int rtok_idx;
++
++	rtok_idx = smc_rtoken_find_by_link(lgr, link_idx, ntohl(nw_rkey_known));
++	if (rtok_idx == -ENOENT)
++		return;
++	lgr->rtokens[rtok_idx][link_idx_new].rkey = ntohl(nw_rkey);
++	lgr->rtokens[rtok_idx][link_idx_new].dma_addr = be64_to_cpu(nw_vaddr);
++}
++
++/* set rtoken for a new link whose link_id is given */
++void smc_rtoken_set2(struct smc_link_group *lgr, int rtok_idx, int link_id,
++		     __be64 nw_vaddr, __be32 nw_rkey)
++{
++	u64 dma_addr = be64_to_cpu(nw_vaddr);
++	u32 rkey = ntohl(nw_rkey);
++	bool found = false;
++	int link_idx;
++
++	for (link_idx = 0; link_idx < SMC_LINKS_PER_LGR_MAX; link_idx++) {
++		if (lgr->lnk[link_idx].link_id == link_id) {
++			found = true;
++			break;
++		}
++	}
++	if (!found)
++		return;
++	lgr->rtokens[rtok_idx][link_idx].rkey = rkey;
++	lgr->rtokens[rtok_idx][link_idx].dma_addr = dma_addr;
++}
++
+ /* add a new rtoken from peer */
+ int smc_rtoken_add(struct smc_link *lnk, __be64 nw_vaddr, __be32 nw_rkey)
+ {
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 364a54e28d61..0be26386057f 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -352,6 +352,10 @@ int smc_rmb_rtoken_handling(struct smc_connection *conn, struct smc_link *link,
+ 			    struct smc_clc_msg_accept_confirm *clc);
+ int smc_rtoken_add(struct smc_link *lnk, __be64 nw_vaddr, __be32 nw_rkey);
+ int smc_rtoken_delete(struct smc_link *lnk, __be32 nw_rkey);
++void smc_rtoken_set(struct smc_link_group *lgr, int link_idx, int link_idx_new,
++		    __be32 nw_rkey_known, __be64 nw_vaddr, __be32 nw_rkey);
++void smc_rtoken_set2(struct smc_link_group *lgr, int rtok_idx, int link_id,
++		     __be64 nw_vaddr, __be32 nw_rkey);
+ void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn);
+ void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn);
+ void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn);
 -- 
 2.17.1
