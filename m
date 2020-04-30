@@ -1,86 +1,53 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 24/30] s390/ftrace: fix potential crashes when switching tracers
-Date: Thu, 30 Apr 2020 09:53:19 -0400
-Message-Id: <20200430135325.20762-24-sashal@kernel.org>
-In-Reply-To: <20200430135325.20762-1-sashal@kernel.org>
-References: <20200430135325.20762-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:44174 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727079AbgD3PZH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:25:07 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PULL 13/17] s390x: smp: Loop if secondary cpu returns into cpu setup again
+Date: Thu, 30 Apr 2020 17:24:26 +0200
+Message-Id: <20200430152430.40349-14-david@redhat.com>
+In-Reply-To: <20200430152430.40349-1-david@redhat.com>
+References: <20200430152430.40349-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Philipp Rudo <prudo@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>
 
-From: Philipp Rudo <prudo@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-[ Upstream commit 8ebf6da9db1b2a20bb86cc1bee2552e894d03308 ]
+Up to now a secondary cpu could have returned from the function it was
+executing and ending up somewhere in cstart64.S. This was mostly
+circumvented by an endless loop in the function that it executed.
 
-Switching tracers include instruction patching. To prevent that a
-instruction is patched while it's read the instruction patching is done
-in stop_machine 'context'. This also means that any function called
-during stop_machine must not be traced. Thus add 'notrace' to all
-functions called within stop_machine.
+Let's add a loop to the end of the cpu setup, so we don't have to rely
+on added loops in the tests.
 
-Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
-Fixes: 38f2c691a4b3 ("s390: improve wait logic of stop_machine")
-Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
-Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200429143518.1360468-6-frankja@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kernel/diag.c  | 2 +-
- arch/s390/kernel/smp.c   | 4 ++--
- arch/s390/kernel/trace.c | 2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ s390x/cstart64.S | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/diag.c b/arch/s390/kernel/diag.c
-index 35c842aa87058..4c7cf8787a848 100644
---- a/arch/s390/kernel/diag.c
-+++ b/arch/s390/kernel/diag.c
-@@ -128,7 +128,7 @@ void diag_stat_inc(enum diag_stat_enum nr)
- }
- EXPORT_SYMBOL(diag_stat_inc);
- 
--void diag_stat_inc_norecursion(enum diag_stat_enum nr)
-+void notrace diag_stat_inc_norecursion(enum diag_stat_enum nr)
- {
- 	this_cpu_inc(diag_stat.counter[nr]);
- 	trace_s390_diagnose_norecursion(diag_map[nr].code);
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index ecd24711f3aa9..8e31dfd85de32 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -393,7 +393,7 @@ int smp_find_processor_id(u16 address)
- 	return -1;
- }
- 
--bool arch_vcpu_is_preempted(int cpu)
-+bool notrace arch_vcpu_is_preempted(int cpu)
- {
- 	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
- 		return false;
-@@ -403,7 +403,7 @@ bool arch_vcpu_is_preempted(int cpu)
- }
- EXPORT_SYMBOL(arch_vcpu_is_preempted);
- 
--void smp_yield_cpu(int cpu)
-+void notrace smp_yield_cpu(int cpu)
- {
- 	if (MACHINE_HAS_DIAG9C) {
- 		diag_stat_inc_norecursion(DIAG_STAT_X09C);
-diff --git a/arch/s390/kernel/trace.c b/arch/s390/kernel/trace.c
-index 490b52e850145..11a669f3cc93c 100644
---- a/arch/s390/kernel/trace.c
-+++ b/arch/s390/kernel/trace.c
-@@ -14,7 +14,7 @@ EXPORT_TRACEPOINT_SYMBOL(s390_diagnose);
- 
- static DEFINE_PER_CPU(unsigned int, diagnose_trace_depth);
- 
--void trace_s390_diagnose_norecursion(int diag_nr)
-+void notrace trace_s390_diagnose_norecursion(int diag_nr)
- {
- 	unsigned long flags;
- 	unsigned int *depth;
--- 
-2.20.1
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index 9af6bb3..ecffbe0 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -161,7 +161,9 @@ smp_cpu_setup_state:
+ 	lctlg   %c0, %c0, GEN_LC_SW_INT_CRS
+ 	/* We should only go once through cpu setup and not for every restart *=
+/
+ 	stg	%r14, GEN_LC_RESTART_NEW_PSW + 8
+-	br	%r14
++	brasl	%r14, %r14
++	/* If the function returns, just loop here */
++0:	j	0
+=20
+ pgm_int:
+ 	SAVE_REGS
+--=20
+2.25.3
