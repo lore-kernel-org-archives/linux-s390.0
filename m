@@ -1,181 +1,265 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61754 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729197AbgD3N4M (ORCPT
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:25202 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726531AbgD3K3y (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:56:12 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 07/14] net/smc: multiple link support and LLC flow for smc_llc_do_confirm_rkey
-Date: Thu, 30 Apr 2020 15:55:44 +0200
-Message-Id: <20200430135551.26267-8-kgraul@linux.ibm.com>
-In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
-References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+        Thu, 30 Apr 2020 06:29:54 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v2 1/3] mm/memory_hotplug: Prepare passing flags to add_memory() and friends
+Date: Thu, 30 Apr 2020 12:29:06 +0200
+Message-Id: <20200430102908.10107-2-david@redhat.com>
+In-Reply-To: <20200430102908.10107-1-david@redhat.com>
+References: <20200430102908.10107-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Wei Liu <wei.liu@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Jason Wang <jasowang@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Pingfan Liu <kernelfans@gmail.com>, Leonardo Bras <leobras.c@gmail.com>, Nathan Lynch <nathanl@linux.ibm.com>, Oscar Salvador <osalvador@suse.de>, Michal Hocko <mhocko@suse.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richard.weiyang@gmail.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Eric Biederman <ebiederm@xmission.com>
 
-Adapt smc_llc_do_confirm_rkey() to use the LLC flow and support the
-rkeys of multiple links when the CONFIRM_RKEY LLC message is build.
+We soon want to pass flags - prepare for that.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+This patch is based on a similar patch by Oscar Salvador:
+
+https://lkml.kernel.org/r/20190625075227.15193-3-osalvador@suse.de
+
+Acked-by: Wei Liu <wei.liu@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Pingfan Liu <kernelfans@gmail.com>
+Cc: Leonardo Bras <leobras.c@gmail.com>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org
+Cc: linux-nvdimm@lists.01.org
+Cc: linux-hyperv@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: xen-devel@lists.xenproject.org
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- net/smc/smc_core.h |  2 --
- net/smc/smc_llc.c  | 65 ++++++++++++++++++++++++++++++----------------
- net/smc/smc_llc.h  |  2 +-
- 3 files changed, 43 insertions(+), 26 deletions(-)
+ arch/powerpc/platforms/powernv/memtrace.c       |  2 +-
+ arch/powerpc/platforms/pseries/hotplug-memory.c |  2 +-
+ drivers/acpi/acpi_memhotplug.c                  |  2 +-
+ drivers/base/memory.c                           |  2 +-
+ drivers/dax/kmem.c                              |  2 +-
+ drivers/hv/hv_balloon.c                         |  2 +-
+ drivers/s390/char/sclp_cmd.c                    |  2 +-
+ drivers/xen/balloon.c                           |  2 +-
+ include/linux/memory_hotplug.h                  |  7 ++++---
+ mm/memory_hotplug.c                             | 11 ++++++-----
+ 10 files changed, 18 insertions(+), 16 deletions(-)
 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 31237c4c0d93..4e0dfb1d5804 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -123,8 +123,6 @@ struct smc_link {
- 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
- 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
- 	int			llc_testlink_time; /* testlink interval */
--	struct completion	llc_confirm_rkey_resp; /* w4 rx of cnf rkey */
--	int			llc_confirm_rkey_resp_rc; /* rc from cnf rkey */
- 	struct completion	llc_delete_rkey_resp; /* w4 rx of del rkey */
- 	int			llc_delete_rkey_resp_rc; /* rc from del rkey */
- 	struct mutex		llc_delete_rkey_mutex; /* serialize usage */
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 644e9ab0dec5..5db11f54b4cd 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -369,27 +369,44 @@ int smc_llc_send_confirm_link(struct smc_link *link,
- }
- 
- /* send LLC confirm rkey request */
--static int smc_llc_send_confirm_rkey(struct smc_link *link,
-+static int smc_llc_send_confirm_rkey(struct smc_link *send_link,
- 				     struct smc_buf_desc *rmb_desc)
- {
- 	struct smc_llc_msg_confirm_rkey *rkeyllc;
- 	struct smc_wr_tx_pend_priv *pend;
- 	struct smc_wr_buf *wr_buf;
--	int rc;
-+	struct smc_link *link;
-+	int i, rc, rtok_ix;
- 
--	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
-+	rc = smc_llc_add_pending_send(send_link, &wr_buf, &pend);
- 	if (rc)
+diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/pla=
+tforms/powernv/memtrace.c
+index 13b369d2cc45..a7475d18c671 100644
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -224,7 +224,7 @@ static int memtrace_online(void)
+ 			ent->mem =3D 0;
+ 		}
+=20
+-		if (add_memory(ent->nid, ent->start, ent->size)) {
++		if (add_memory(ent->nid, ent->start, ent->size, 0)) {
+ 			pr_err("Failed to add trace memory to node %d\n",
+ 				ent->nid);
+ 			ret +=3D 1;
+diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/power=
+pc/platforms/pseries/hotplug-memory.c
+index 5ace2f9a277e..ae44eba46ca0 100644
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -646,7 +646,7 @@ static int dlpar_add_lmb(struct drmem_lmb *lmb)
+ 	block_sz =3D memory_block_size_bytes();
+=20
+ 	/* Add the memory */
+-	rc =3D __add_memory(lmb->nid, lmb->base_addr, block_sz);
++	rc =3D __add_memory(lmb->nid, lmb->base_addr, block_sz, 0);
+ 	if (rc) {
+ 		invalidate_lmb_associativity_index(lmb);
  		return rc;
- 	rkeyllc = (struct smc_llc_msg_confirm_rkey *)wr_buf;
- 	memset(rkeyllc, 0, sizeof(*rkeyllc));
- 	rkeyllc->hd.common.type = SMC_LLC_CONFIRM_RKEY;
- 	rkeyllc->hd.length = sizeof(struct smc_llc_msg_confirm_rkey);
-+
-+	rtok_ix = 1;
-+	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+		link = &send_link->lgr->lnk[i];
-+		if (link->state == SMC_LNK_ACTIVE && link != send_link) {
-+			rkeyllc->rtoken[rtok_ix].link_id = link->link_id;
-+			rkeyllc->rtoken[rtok_ix].rmb_key =
-+				htonl(rmb_desc->mr_rx[link->link_idx]->rkey);
-+			rkeyllc->rtoken[rtok_ix].rmb_vaddr = cpu_to_be64(
-+				(u64)sg_dma_address(
-+					rmb_desc->sgt[link->link_idx].sgl));
-+			rtok_ix++;
-+		}
-+	}
-+	/* rkey of send_link is in rtoken[0] */
-+	rkeyllc->rtoken[0].num_rkeys = rtok_ix - 1;
- 	rkeyllc->rtoken[0].rmb_key =
--		htonl(rmb_desc->mr_rx[link->link_idx]->rkey);
-+		htonl(rmb_desc->mr_rx[send_link->link_idx]->rkey);
- 	rkeyllc->rtoken[0].rmb_vaddr = cpu_to_be64(
--		(u64)sg_dma_address(rmb_desc->sgt[link->link_idx].sgl));
-+		(u64)sg_dma_address(rmb_desc->sgt[send_link->link_idx].sgl));
- 	/* send llc message */
--	rc = smc_wr_tx_send(link, pend);
-+	rc = smc_wr_tx_send(send_link, pend);
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplu=
+g.c
+index e294f44a7850..d91b3584d4b2 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -207,7 +207,7 @@ static int acpi_memory_enable_device(struct acpi_memo=
+ry_device *mem_device)
+ 		if (node < 0)
+ 			node =3D memory_add_physaddr_to_nid(info->start_addr);
+=20
+-		result =3D __add_memory(node, info->start_addr, info->length);
++		result =3D __add_memory(node, info->start_addr, info->length, 0);
+=20
+ 		/*
+ 		 * If the memory block has been used by the kernel, add_memory()
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 2b09b68b9f78..c0ef7d9e310a 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -432,7 +432,7 @@ static ssize_t probe_store(struct device *dev, struct=
+ device_attribute *attr,
+=20
+ 	nid =3D memory_add_physaddr_to_nid(phys_addr);
+ 	ret =3D __add_memory(nid, phys_addr,
+-			   MIN_MEMORY_BLOCK_SIZE * sections_per_block);
++			   MIN_MEMORY_BLOCK_SIZE * sections_per_block, 0);
+=20
+ 	if (ret)
+ 		goto out;
+diff --git a/drivers/dax/kmem.c b/drivers/dax/kmem.c
+index 3d0a7e702c94..e159184e0ba0 100644
+--- a/drivers/dax/kmem.c
++++ b/drivers/dax/kmem.c
+@@ -65,7 +65,7 @@ int dev_dax_kmem_probe(struct device *dev)
+ 	new_res->flags =3D IORESOURCE_SYSTEM_RAM;
+ 	new_res->name =3D dev_name(dev);
+=20
+-	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res));
++	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res), 0)=
+;
+ 	if (rc) {
+ 		release_resource(new_res);
+ 		kfree(new_res);
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 32e3bc0aa665..0194bed1a573 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -726,7 +726,7 @@ static void hv_mem_hot_add(unsigned long start, unsig=
+ned long size,
+=20
+ 		nid =3D memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
+ 		ret =3D add_memory(nid, PFN_PHYS((start_pfn)),
+-				(HA_CHUNK << PAGE_SHIFT));
++				(HA_CHUNK << PAGE_SHIFT), 0);
+=20
+ 		if (ret) {
+ 			pr_err("hot_add memory failed error is %d\n", ret);
+diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+index a864b21af602..a6a908244c74 100644
+--- a/drivers/s390/char/sclp_cmd.c
++++ b/drivers/s390/char/sclp_cmd.c
+@@ -406,7 +406,7 @@ static void __init add_memory_merged(u16 rn)
+ 	if (!size)
+ 		goto skip_add;
+ 	for (addr =3D start; addr < start + size; addr +=3D block_size)
+-		add_memory(0, addr, block_size);
++		add_memory(0, addr, block_size, 0);
+ skip_add:
+ 	first_rn =3D rn;
+ 	num =3D 1;
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 0c142bcab79d..6ec0373fa624 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -347,7 +347,7 @@ static enum bp_state reserve_additional_memory(void)
+ 	mutex_unlock(&balloon_mutex);
+ 	/* add_memory_resource() requires the device_hotplug lock */
+ 	lock_device_hotplug();
+-	rc =3D add_memory_resource(nid, resource);
++	rc =3D add_memory_resource(nid, resource, 0);
+ 	unlock_device_hotplug();
+ 	mutex_lock(&balloon_mutex);
+=20
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplu=
+g.h
+index 7dca9cd6076b..0151fb935c09 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -339,9 +339,10 @@ extern void set_zone_contiguous(struct zone *zone);
+ extern void clear_zone_contiguous(struct zone *zone);
+=20
+ extern void __ref free_area_init_core_hotplug(int nid);
+-extern int __add_memory(int nid, u64 start, u64 size);
+-extern int add_memory(int nid, u64 start, u64 size);
+-extern int add_memory_resource(int nid, struct resource *resource);
++extern int __add_memory(int nid, u64 start, u64 size, unsigned long flag=
+s);
++extern int add_memory(int nid, u64 start, u64 size, unsigned long flags)=
+;
++extern int add_memory_resource(int nid, struct resource *resource,
++			       unsigned long flags);
+ extern void move_pfn_range_to_zone(struct zone *zone, unsigned long star=
+t_pfn,
+ 		unsigned long nr_pages, struct vmem_altmap *altmap);
+ extern void remove_pfn_range_from_zone(struct zone *zone,
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 555137bd0882..c01be92693e3 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1004,7 +1004,8 @@ static int online_memory_block(struct memory_block =
+*mem, void *arg)
+  *
+  * we are OK calling __meminit stuff here - we have CONFIG_MEMORY_HOTPLU=
+G
+  */
+-int __ref add_memory_resource(int nid, struct resource *res)
++int __ref add_memory_resource(int nid, struct resource *res,
++			      unsigned long flags)
+ {
+ 	struct mhp_params params =3D { .pgprot =3D PAGE_KERNEL };
+ 	u64 start, size;
+@@ -1082,7 +1083,7 @@ int __ref add_memory_resource(int nid, struct resou=
+rce *res)
+ }
+=20
+ /* requires device_hotplug_lock, see add_memory_resource() */
+-int __ref __add_memory(int nid, u64 start, u64 size)
++int __ref __add_memory(int nid, u64 start, u64 size, unsigned long flags=
+)
+ {
+ 	struct resource *res;
+ 	int ret;
+@@ -1091,18 +1092,18 @@ int __ref __add_memory(int nid, u64 start, u64 si=
+ze)
+ 	if (IS_ERR(res))
+ 		return PTR_ERR(res);
+=20
+-	ret =3D add_memory_resource(nid, res);
++	ret =3D add_memory_resource(nid, res, flags);
+ 	if (ret < 0)
+ 		release_memory_resource(res);
+ 	return ret;
+ }
+=20
+-int add_memory(int nid, u64 start, u64 size)
++int add_memory(int nid, u64 start, u64 size, unsigned long flags)
+ {
+ 	int rc;
+=20
+ 	lock_device_hotplug();
+-	rc =3D __add_memory(nid, start, size);
++	rc =3D __add_memory(nid, start, size, flags);
+ 	unlock_device_hotplug();
+=20
  	return rc;
- }
- 
-@@ -712,6 +729,7 @@ static void smc_llc_rx_response(struct smc_link *link,
- 		break;
- 	case SMC_LLC_ADD_LINK:
- 	case SMC_LLC_CONFIRM_LINK:
-+	case SMC_LLC_CONFIRM_RKEY:
- 		/* assign responses to the local flow, we requested them */
- 		smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
- 		wake_up_interruptible(&link->lgr->llc_waiter);
-@@ -720,11 +738,6 @@ static void smc_llc_rx_response(struct smc_link *link,
- 		if (link->lgr->role == SMC_SERV)
- 			smc_lgr_schedule_free_work_fast(link->lgr);
- 		break;
--	case SMC_LLC_CONFIRM_RKEY:
--		link->llc_confirm_rkey_resp_rc = llc->raw.hdr.flags &
--						 SMC_LLC_FLAG_RKEY_NEG;
--		complete(&link->llc_confirm_rkey_resp);
--		break;
- 	case SMC_LLC_CONFIRM_RKEY_CONT:
- 		/* unused as long as we don't send this type of msg */
- 		break;
-@@ -837,7 +850,6 @@ void smc_llc_lgr_clear(struct smc_link_group *lgr)
- 
- int smc_llc_link_init(struct smc_link *link)
- {
--	init_completion(&link->llc_confirm_rkey_resp);
- 	init_completion(&link->llc_delete_rkey_resp);
- 	mutex_init(&link->llc_delete_rkey_mutex);
- 	init_completion(&link->llc_testlink_resp);
-@@ -870,23 +882,30 @@ void smc_llc_link_clear(struct smc_link *link)
- 	smc_wr_wakeup_tx_wait(link);
- }
- 
--/* register a new rtoken at the remote peer */
--int smc_llc_do_confirm_rkey(struct smc_link *link,
-+/* register a new rtoken at the remote peer (for all links) */
-+int smc_llc_do_confirm_rkey(struct smc_link *send_link,
- 			    struct smc_buf_desc *rmb_desc)
- {
--	int rc;
-+	struct smc_link_group *lgr = send_link->lgr;
-+	struct smc_llc_qentry *qentry = NULL;
-+	int rc = 0;
- 
--	/* protected by mutex smc_create_lgr_pending */
--	reinit_completion(&link->llc_confirm_rkey_resp);
--	rc = smc_llc_send_confirm_rkey(link, rmb_desc);
-+	rc = smc_llc_flow_initiate(lgr, SMC_LLC_FLOW_RKEY);
- 	if (rc)
- 		return rc;
-+	rc = smc_llc_send_confirm_rkey(send_link, rmb_desc);
-+	if (rc)
-+		goto out;
- 	/* receive CONFIRM RKEY response from server over RoCE fabric */
--	rc = wait_for_completion_interruptible_timeout(
--			&link->llc_confirm_rkey_resp, SMC_LLC_WAIT_TIME);
--	if (rc <= 0 || link->llc_confirm_rkey_resp_rc)
--		return -EFAULT;
--	return 0;
-+	qentry = smc_llc_wait(lgr, send_link, SMC_LLC_WAIT_TIME,
-+			      SMC_LLC_CONFIRM_RKEY);
-+	if (!qentry || (qentry->msg.raw.hdr.flags & SMC_LLC_FLAG_RKEY_NEG))
-+		rc = -EFAULT;
-+out:
-+	if (qentry)
-+		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
-+	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
-+	return rc;
- }
- 
- /* unregister an rtoken at the remote peer */
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 637acf91ffb7..d82d8346b61e 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -59,7 +59,7 @@ int smc_llc_link_init(struct smc_link *link);
- void smc_llc_link_active(struct smc_link *link);
- void smc_llc_link_deleting(struct smc_link *link);
- void smc_llc_link_clear(struct smc_link *link);
--int smc_llc_do_confirm_rkey(struct smc_link *link,
-+int smc_llc_do_confirm_rkey(struct smc_link *send_link,
- 			    struct smc_buf_desc *rmb_desc);
- int smc_llc_do_delete_rkey(struct smc_link *link,
- 			   struct smc_buf_desc *rmb_desc);
--- 
-2.17.1
+--=20
+2.25.3
