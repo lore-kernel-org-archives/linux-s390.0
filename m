@@ -1,343 +1,155 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51434 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729245AbgDQCaK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Apr 2020 22:30:10 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03H23wDa059146
-        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:09 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 30f05wmxsc-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Thu, 16 Apr 2020 22:30:08 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <linux-s390@vger.kernel.org> from <farman@linux.ibm.com>;
-        Fri, 17 Apr 2020 03:29:46 +0100
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v3 4/8] vfio-ccw: Introduce a new schib region
-Date: Fri, 17 Apr 2020 04:29:57 +0200
-In-Reply-To: <20200417023001.65006-1-farman@linux.ibm.com>
-References: <20200417023001.65006-1-farman@linux.ibm.com>
-Message-Id: <20200417023001.65006-5-farman@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:30155 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726973AbgD3PYu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:24:50 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PULL 04/17] s390x: Add stsi 3.2.2 tests
+Date: Thu, 30 Apr 2020 17:24:17 +0200
+Message-Id: <20200430152430.40349-5-david@redhat.com>
+In-Reply-To: <20200430152430.40349-1-david@redhat.com>
+References: <20200430152430.40349-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
 
-The schib region can be used by userspace to get the subchannel-
-information block (SCHIB) for the passthrough subchannel.
-This can be useful to get information such as channel path
-information via the SCHIB.PMCW fields.
+Subcode 3.2.2 is handled by KVM/QEMU and should therefore be tested
+a bit more thoroughly.
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+In this test we set a custom name and uuid through the QEMU command
+line. Both parameters will be passed to the guest on a stsi subcode
+3.2.2 call and will then be checked.
+
+We also compare the configured cpu numbers against the smp reported
+numbers and if the reserved + configured add up to the total number
+reported.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200331071456.3302-1-frankja@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
+ s390x/stsi.c        | 73 +++++++++++++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |  1 +
+ 2 files changed, 74 insertions(+)
 
-Notes:
-    v2->v3:
-     - Updated Copyright year and Authors [CH]
-     - Mention that schib region triggers a STSCH [CH]
-    
-    v1->v2:
-     - Add new region info to Documentation/s390/vfio-ccw.rst [CH]
-     - Add a block comment to struct ccw_schib_region [CH]
-    
-    v0->v1: [EF]
-     - Clean up checkpatch (#include, whitespace) errors
-     - Remove unnecessary includes from vfio_ccw_chp.c
-     - Add ret=-ENOMEM in error path for new region
-     - Add call to vfio_ccw_unregister_dev_regions() during error exit
-       path of vfio_ccw_mdev_open()
-     - New info on the module prologue
-     - Reorder cleanup of regions
-
- Documentation/s390/vfio-ccw.rst     | 19 +++++++-
- drivers/s390/cio/Makefile           |  2 +-
- drivers/s390/cio/vfio_ccw_chp.c     | 76 +++++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_drv.c     | 20 ++++++++
- drivers/s390/cio/vfio_ccw_ops.c     | 14 +++++-
- drivers/s390/cio/vfio_ccw_private.h |  3 ++
- include/uapi/linux/vfio.h           |  1 +
- include/uapi/linux/vfio_ccw.h       | 10 ++++
- 8 files changed, 141 insertions(+), 4 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_chp.c
-
-diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
-index fca9c4f5bd9c..98832d95f395 100644
---- a/Documentation/s390/vfio-ccw.rst
-+++ b/Documentation/s390/vfio-ccw.rst
-@@ -231,6 +231,22 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD.
- 
- Currently, CLEAR SUBCHANNEL and HALT SUBCHANNEL use this region.
- 
-+vfio-ccw schib region
-+---------------------
-+
-+The vfio-ccw schib region is used to return Subchannel-Information
-+Block (SCHIB) data to userspace::
-+
-+  struct ccw_schib_region {
-+  #define SCHIB_AREA_SIZE 52
-+         __u8 schib_area[SCHIB_AREA_SIZE];
-+  } __packed;
-+
-+This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_SCHIB.
-+
-+Reading this region triggers a STORE SUBCHANNEL to be issued to the
-+associated hardware.
-+
- vfio-ccw operation details
- --------------------------
- 
-@@ -333,7 +349,8 @@ through DASD/ECKD device online in a guest now and use it as a block
- device.
- 
- The current code allows the guest to start channel programs via
--START SUBCHANNEL, and to issue HALT SUBCHANNEL and CLEAR SUBCHANNEL.
-+START SUBCHANNEL, and to issue HALT SUBCHANNEL, CLEAR SUBCHANNEL,
-+and STORE SUBCHANNEL.
- 
- vfio-ccw supports classic (command mode) channel I/O only. Transport
- mode (HPF) is not supported.
-diff --git a/drivers/s390/cio/Makefile b/drivers/s390/cio/Makefile
-index 23eae4188876..a9235f111e79 100644
---- a/drivers/s390/cio/Makefile
-+++ b/drivers/s390/cio/Makefile
-@@ -21,5 +21,5 @@ qdio-objs := qdio_main.o qdio_thinint.o qdio_debug.o qdio_setup.o
- obj-$(CONFIG_QDIO) += qdio.o
- 
- vfio_ccw-objs += vfio_ccw_drv.o vfio_ccw_cp.o vfio_ccw_ops.o vfio_ccw_fsm.o \
--	vfio_ccw_async.o vfio_ccw_trace.o
-+	vfio_ccw_async.o vfio_ccw_trace.o vfio_ccw_chp.o
- obj-$(CONFIG_VFIO_CCW) += vfio_ccw.o
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-new file mode 100644
-index 000000000000..18f3b3e873a9
---- /dev/null
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -0,0 +1,76 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Channel path related status regions for vfio_ccw
-+ *
-+ * Copyright IBM Corp. 2020
-+ *
-+ * Author(s): Farhan Ali <alifm@linux.ibm.com>
-+ *            Eric Farman <farman@linux.ibm.com>
-+ */
-+
-+#include <linux/vfio.h>
-+#include "vfio_ccw_private.h"
-+
-+static ssize_t vfio_ccw_schib_region_read(struct vfio_ccw_private *private,
-+					  char __user *buf, size_t count,
-+					  loff_t *ppos)
+diff --git a/s390x/stsi.c b/s390x/stsi.c
+index e9206bc..66b4257 100644
+--- a/s390x/stsi.c
++++ b/s390x/stsi.c
+@@ -14,7 +14,28 @@
+ #include <asm/page.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/interrupt.h>
++#include <smp.h>
+=20
++struct stsi_322 {
++	uint8_t reserved[31];
++	uint8_t count;
++	struct {
++		uint8_t reserved2[4];
++		uint16_t total_cpus;
++		uint16_t conf_cpus;
++		uint16_t standby_cpus;
++		uint16_t reserved_cpus;
++		uint8_t name[8];
++		uint32_t caf;
++		uint8_t cpi[16];
++		uint8_t reserved5[3];
++		uint8_t ext_name_encoding;
++		uint32_t reserved3;
++		uint8_t uuid[16];
++	} vm[8];
++	uint8_t reserved4[1504];
++	uint8_t ext_names[8][256];
++};
+ static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE *=
+ 2)));
+=20
+ static void test_specs(void)
+@@ -76,11 +97,63 @@ static void test_fc(void)
+ 	report(stsi_get_fc(pagebuf) >=3D 2, "query fc >=3D 2");
+ }
+=20
++static void test_3_2_2(void)
 +{
-+	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
-+	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
-+	struct ccw_schib_region *region;
-+	int ret;
++	int rc;
++	/* EBCDIC for "kvm-unit" */
++	const uint8_t vm_name[] =3D { 0x92, 0xa5, 0x94, 0x60, 0xa4, 0x95, 0x89,
++				    0xa3 };
++	const uint8_t uuid[] =3D { 0x0f, 0xb8, 0x4a, 0x86, 0x72, 0x7c,
++				 0x11, 0xea, 0xbc, 0x55, 0x02, 0x42, 0xac, 0x13,
++				 0x00, 0x03 };
++	/* EBCDIC for "KVM/" */
++	const uint8_t cpi_kvm[] =3D { 0xd2, 0xe5, 0xd4, 0x61 };
++	const char *vm_name_ext =3D "kvm-unit-test";
++	struct stsi_322 *data =3D (void *)pagebuf;
 +
-+	if (pos + count > sizeof(*region))
-+		return -EINVAL;
++	report_prefix_push("3.2.2");
 +
-+	mutex_lock(&private->io_mutex);
-+	region = private->region[i].data;
-+
-+	if (cio_update_schib(private->sch)) {
-+		ret = -ENODEV;
++	/* Is the function code available at all? */
++	if (stsi_get_fc(pagebuf) < 3) {
++		report_skip("Running under lpar, no level 3 to test.");
 +		goto out;
 +	}
 +
-+	memcpy(region, &private->sch->schib, sizeof(*region));
++	rc =3D stsi(pagebuf, 3, 2, 2);
++	report(!rc, "call");
 +
-+	if (copy_to_user(buf, (void *)region + pos, count)) {
-+		ret = -EFAULT;
++	/* For now we concentrate on KVM/QEMU */
++	if (memcmp(&data->vm[0].cpi, cpi_kvm, sizeof(cpi_kvm))) {
++		report_skip("Not running under KVM/QEMU.");
 +		goto out;
 +	}
 +
-+	ret = count;
++	report(!memcmp(data->vm[0].uuid, uuid, sizeof(uuid)), "uuid");
++	report(data->vm[0].conf_cpus =3D=3D smp_query_num_cpus(), "cpu # config=
+ured");
++	report(data->vm[0].total_cpus =3D=3D
++	       data->vm[0].reserved_cpus + data->vm[0].conf_cpus,
++	       "cpu # total =3D=3D conf + reserved");
++	report(data->vm[0].standby_cpus =3D=3D 0, "cpu # standby");
++	report(!memcmp(data->vm[0].name, vm_name, sizeof(data->vm[0].name)),
++	       "VM name =3D=3D kvm-unit-test");
++
++	if (data->vm[0].ext_name_encoding !=3D 2) {
++		report_skip("Extended VM names are not UTF-8.");
++		goto out;
++	}
++	report(!memcmp(data->ext_names[0], vm_name_ext, sizeof(vm_name_ext)),
++		       "ext VM name =3D=3D kvm-unit-test");
 +
 +out:
-+	mutex_unlock(&private->io_mutex);
-+	return ret;
++	report_prefix_pop();
 +}
 +
-+static ssize_t vfio_ccw_schib_region_write(struct vfio_ccw_private *private,
-+					   const char __user *buf, size_t count,
-+					   loff_t *ppos)
-+{
-+	return -EINVAL;
-+}
-+
-+
-+static void vfio_ccw_schib_region_release(struct vfio_ccw_private *private,
-+					  struct vfio_ccw_region *region)
-+{
-+
-+}
-+
-+const struct vfio_ccw_regops vfio_ccw_schib_region_ops = {
-+	.read = vfio_ccw_schib_region_read,
-+	.write = vfio_ccw_schib_region_write,
-+	.release = vfio_ccw_schib_region_release,
-+};
-+
-+int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private)
-+{
-+	return vfio_ccw_register_dev_region(private,
-+					    VFIO_REGION_SUBTYPE_CCW_SCHIB,
-+					    &vfio_ccw_schib_region_ops,
-+					    sizeof(struct ccw_schib_region),
-+					    VFIO_REGION_INFO_FLAG_READ,
-+					    private->schib_region);
-+}
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index e48967c475e7..8e05ed611c10 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -27,6 +27,7 @@
- struct workqueue_struct *vfio_ccw_work_q;
- static struct kmem_cache *vfio_ccw_io_region;
- static struct kmem_cache *vfio_ccw_cmd_region;
-+static struct kmem_cache *vfio_ccw_schib_region;
- 
- debug_info_t *vfio_ccw_debug_msg_id;
- debug_info_t *vfio_ccw_debug_trace_id;
-@@ -119,6 +120,8 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
- 
- static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
+ int main(void)
  {
-+	if (private->schib_region)
-+		kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
- 	if (private->cmd_region)
- 		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
- 	if (private->io_region)
-@@ -156,6 +159,12 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (!private->cmd_region)
- 		goto out_free;
- 
-+	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
-+						  GFP_KERNEL | GFP_DMA);
-+
-+	if (!private->schib_region)
-+		goto out_free;
-+
- 	private->sch = sch;
- 	dev_set_drvdata(&sch->dev, private);
- 	mutex_init(&private->io_mutex);
-@@ -355,6 +364,7 @@ static void vfio_ccw_debug_exit(void)
- 
- static void vfio_ccw_destroy_regions(void)
- {
-+	kmem_cache_destroy(vfio_ccw_schib_region);
- 	kmem_cache_destroy(vfio_ccw_cmd_region);
- 	kmem_cache_destroy(vfio_ccw_io_region);
+ 	report_prefix_push("stsi");
+ 	test_priv();
+ 	test_specs();
+ 	test_fc();
++	test_3_2_2();
+ 	return report_summary();
  }
-@@ -391,6 +401,16 @@ static int __init vfio_ccw_sch_init(void)
- 		goto out_err;
- 	}
- 
-+	vfio_ccw_schib_region = kmem_cache_create_usercopy("vfio_ccw_schib_region",
-+					sizeof(struct ccw_schib_region), 0,
-+					SLAB_ACCOUNT, 0,
-+					sizeof(struct ccw_schib_region), NULL);
-+
-+	if (!vfio_ccw_schib_region) {
-+		ret = -ENOMEM;
-+		goto out_err;
-+	}
-+
- 	isc_register(VFIO_CCW_ISC);
- 	ret = css_driver_register(&vfio_ccw_sch_driver);
- 	if (ret) {
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index d4fc84b8867f..22988d67b6bb 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -172,8 +172,18 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
- 
- 	ret = vfio_ccw_register_async_dev_regions(private);
- 	if (ret)
--		vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
--					 &private->nb);
-+		goto out_unregister;
-+
-+	ret = vfio_ccw_register_schib_dev_regions(private);
-+	if (ret)
-+		goto out_unregister;
-+
-+	return ret;
-+
-+out_unregister:
-+	vfio_ccw_unregister_dev_regions(private);
-+	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-+				 &private->nb);
- 	return ret;
- }
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index ce3834159d98..d6601a8adf13 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -56,6 +56,7 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
- void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
- 
- int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
-+int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
- 
- /**
-  * struct vfio_ccw_private
-@@ -69,6 +70,7 @@ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
-  * @io_mutex: protect against concurrent update of I/O regions
-  * @region: additional regions for other subchannel operations
-  * @cmd_region: MMIO region for asynchronous I/O commands other than START
-+ * @schib_region: MMIO region for SCHIB information
-  * @num_regions: number of additional regions
-  * @cp: channel program for the current I/O operation
-  * @irb: irb info received from interrupt
-@@ -87,6 +89,7 @@ struct vfio_ccw_private {
- 	struct mutex		io_mutex;
- 	struct vfio_ccw_region *region;
- 	struct ccw_cmd_region	*cmd_region;
-+	struct ccw_schib_region *schib_region;
- 	int num_regions;
- 
- 	struct channel_program	cp;
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 015516bcfaa3..7a1abbd889bd 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -378,6 +378,7 @@ struct vfio_region_gfx_edid {
- 
- /* sub-types for VFIO_REGION_TYPE_CCW */
- #define VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD	(1)
-+#define VFIO_REGION_SUBTYPE_CCW_SCHIB		(2)
- 
- /*
-  * The MSIX mappable capability informs that MSIX data of a BAR can be mmapped
-diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
-index cbecbf0cd54f..758bf214898d 100644
---- a/include/uapi/linux/vfio_ccw.h
-+++ b/include/uapi/linux/vfio_ccw.h
-@@ -34,4 +34,14 @@ struct ccw_cmd_region {
- 	__u32 ret_code;
- } __packed;
- 
-+/*
-+ * Used for processing commands that read the subchannel-information block
-+ * Reading this region triggers a stsch() to hardware
-+ * Note: this is controlled by a capability
-+ */
-+struct ccw_schib_region {
-+#define SCHIB_AREA_SIZE 52
-+	__u8 schib_area[SCHIB_AREA_SIZE];
-+} __packed;
-+
- #endif
--- 
-2.17.1
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index 07013b2..535db21 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -71,6 +71,7 @@ extra_params=3D-device diag288,id=3Dwatchdog0 --watchdo=
+g-action inject-nmi
+=20
+ [stsi]
+ file =3D stsi.elf
++extra_params=3D-name kvm-unit-test --uuid 0fb84a86-727c-11ea-bc55-0242ac=
+130003 -smp 1,maxcpus=3D8
+=20
+ [smp]
+ file =3D smp.elf
+--=20
+2.25.3
