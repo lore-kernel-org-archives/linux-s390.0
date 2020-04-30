@@ -1,63 +1,83 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:42947 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:54450 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727812AbgD3PZL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:25:11 -0400
+        with ESMTP id S1726488AbgD3PBC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:01:02 -0400
+Subject: Re: [PATCH v3 00/10] s390x: smp: Improve smp code part 2
+References: <20200429143518.1360468-1-frankja@linux.ibm.com>
 From: David Hildenbrand <david@redhat.com>
-Subject: [kvm-unit-tests PULL 14/17] s390x: smp: Remove unneeded cpu loops
-Date: Thu, 30 Apr 2020 17:24:27 +0200
-Message-Id: <20200430152430.40349-15-david@redhat.com>
-In-Reply-To: <20200430152430.40349-1-david@redhat.com>
-References: <20200430152430.40349-1-david@redhat.com>
+Message-ID: <bfececd9-e66d-46db-e3ed-7d5a07a6c35d@redhat.com>
+Date: Thu, 30 Apr 2020 17:00:33 +0200
 MIME-Version: 1.0
+In-Reply-To: <20200429143518.1360468-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com
 
-From: Janosch Frank <frankja@linux.ibm.com>
+On 29.04.20 16:35, Janosch Frank wrote:
+> Let's continue cleaning up the smp test and smp related functions.
+>=20
+> We add:
+>    * Test for external/emergency calls after reset
+>    * Test SIGP restart while running
+>    * SIGP stop and store status while running
+>    * CR testing on reset
+>=20
+> We fix:
+>    * Proper check for sigp completion
+>    * smp_cpu_setup_state() loop and return address in r14
+>=20
+> v3:
+> 	* Added some rev-bys and acks
+> 	* Add a workaround for stop and store status
+> 	* Beautified cr checking with loop
+>=20
+> v2:
+> 	* Added some rev-bys and acks
+> 	* Explicitly stop and start cpu before hot restart test
+>=20
+> GIT: https://github.com/frankjaa/kvm-unit-tests/tree/smp_cleanup2
+>=20
+> Janosch Frank (10):
+>   s390x: smp: Test all CRs on initial reset
+>   s390x: smp: Dirty fpc before initial reset test
+>   s390x: smp: Test stop and store status on a running and stopped cpu
+>   s390x: smp: Test local interrupts after cpu reset
+>   s390x: smp: Loop if secondary cpu returns into cpu setup again
+>   s390x: smp: Remove unneeded cpu loops
+>   s390x: smp: Use full PSW to bringup new cpu
+>   s390x: smp: Wait for sigp completion
+>   s390x: smp: Add restart when running test
+>   s390x: Fix library constant definitions
+>=20
+>  lib/s390x/asm/arch_def.h |   8 ++--
+>  lib/s390x/smp.c          |  11 +++++
+>  lib/s390x/smp.h          |   1 +
+>  s390x/cstart64.S         |   5 +-
+>  s390x/smp.c              | 101 +++++++++++++++++++++++++++++++++++----
+>  5 files changed, 112 insertions(+), 14 deletions(-)
+>=20
 
-Now that we have a loop which is executed after we return from the
-main function of a secondary cpu, we can remove the surplus loops.
+I already had #1 applied. Applied everything else except #8, that might
+require more thought. Gave it a test under z/VM and TCG.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20200429143518.1360468-7-frankja@linux.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- s390x/smp.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+Under z/VM I get:
 
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 447b998..f2319c4 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -35,15 +35,9 @@ static void set_flag(int val)
- 	mb();
- }
-=20
--static void cpu_loop(void)
--{
--	for (;;) {}
--}
--
- static void test_func(void)
- {
- 	set_flag(1);
--	cpu_loop();
- }
-=20
- static void test_start(void)
-@@ -306,7 +300,7 @@ int main(void)
-=20
- 	/* Setting up the cpu to give it a stack and lowcore */
- 	psw.mask =3D extract_psw_mask();
--	psw.addr =3D (unsigned long)cpu_loop;
-+	psw.addr =3D (unsigned long)test_func;
- 	smp_cpu_setup(1, psw);
- 	smp_cpu_stop(1);
-=20
+ABORT: smp: cpu reset: Unexpected external call interrupt (code 0x1201):
+on cpu 1 at 0x110f4
+
+Which - I think - is expected with older kernels (on 5.4.13) that miss
+the reset of local interrupts via the new kernel interface
+
+https://github.com/davidhildenbrand/qemu.git s390-tcg-next
+
+Thanks!
+
 --=20
-2.25.3
+Thanks,
+
+David / dhildenb
