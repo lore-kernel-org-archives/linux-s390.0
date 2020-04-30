@@ -1,241 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:53796 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2439546AbgDNLpS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 07:45:18 -0400
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH 3/3] mm/hugetlb: Introduce HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS
-Date: Tue, 14 Apr 2020 17:14:30 +0530
-Message-Id: <1586864670-21799-4-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1586864670-21799-1-git-send-email-anshuman.khandual@arm.com>
-References: <1586864670-21799-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32398 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729204AbgD3N4O (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:56:14 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 12/14] net/smc: adapt SMC remote DELETE_RKEY processing to use the LLC flow
+Date: Thu, 30 Apr 2020 15:55:49 +0200
+Message-Id: <20200430135551.26267-13-kgraul@linux.ibm.com>
+In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
+References: <20200430135551.26267-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Mike Kravetz <mike.kravetz@oracle.com>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-There are multiple similar definitions for arch_clear_hugepage_flags() on
-various platforms. This introduces HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS for those
-platforms that need to define their own arch_clear_hugepage_flags() while
-also providing a generic fallback definition for others to use. This help
-reduce code duplication.
+Use the LLC flow framework for the processing of DELETE_RKEY messages
+that were received from the peer.
 
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: Rich Felker <dalias@libc.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: x86@kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-ia64@vger.kernel.org
-Cc: linux-mips@vger.kernel.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-riscv@lists.infradead.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-sh@vger.kernel.org
-Cc: sparclinux@vger.kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- arch/arm/include/asm/hugetlb.h     | 1 +
- arch/arm64/include/asm/hugetlb.h   | 1 +
- arch/ia64/include/asm/hugetlb.h    | 4 ----
- arch/mips/include/asm/hugetlb.h    | 4 ----
- arch/parisc/include/asm/hugetlb.h  | 4 ----
- arch/powerpc/include/asm/hugetlb.h | 4 ----
- arch/riscv/include/asm/hugetlb.h   | 4 ----
- arch/s390/include/asm/hugetlb.h    | 1 +
- arch/sh/include/asm/hugetlb.h      | 1 +
- arch/sparc/include/asm/hugetlb.h   | 4 ----
- arch/x86/include/asm/hugetlb.h     | 4 ----
- include/linux/hugetlb.h            | 4 ++++
- 12 files changed, 8 insertions(+), 28 deletions(-)
+ net/smc/smc_llc.c | 37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm/include/asm/hugetlb.h b/arch/arm/include/asm/hugetlb.h
-index 9ecd516d1ff7..7107c1e6f020 100644
---- a/arch/arm/include/asm/hugetlb.h
-+++ b/arch/arm/include/asm/hugetlb.h
-@@ -14,6 +14,7 @@
- #include <asm/hugetlb-3level.h>
- #include <asm-generic/hugetlb.h>
- 
-+#define HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS
- static inline void arch_clear_hugepage_flags(struct page *page)
- {
- 	clear_bit(PG_dcache_clean, &page->flags);
-diff --git a/arch/arm64/include/asm/hugetlb.h b/arch/arm64/include/asm/hugetlb.h
-index 8f58e052697a..5369cf26a05d 100644
---- a/arch/arm64/include/asm/hugetlb.h
-+++ b/arch/arm64/include/asm/hugetlb.h
-@@ -17,6 +17,7 @@
- extern bool arch_hugetlb_migration_supported(struct hstate *h);
- #endif
- 
-+#define HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS
- static inline void arch_clear_hugepage_flags(struct page *page)
- {
- 	clear_bit(PG_dcache_clean, &page->flags);
-diff --git a/arch/ia64/include/asm/hugetlb.h b/arch/ia64/include/asm/hugetlb.h
-index f17c1e228045..2ecff18a32e5 100644
---- a/arch/ia64/include/asm/hugetlb.h
-+++ b/arch/ia64/include/asm/hugetlb.h
-@@ -28,10 +28,6 @@ static inline void huge_ptep_clear_flush(struct vm_area_struct *vma,
- {
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index b7b5cc01b78e..e458207bde9e 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -601,31 +601,37 @@ static void smc_llc_rmt_conf_rkey(struct smc_link_group *lgr)
+ 	smc_llc_flow_qentry_del(&lgr->llc_flow_rmt);
  }
  
--static inline void arch_clear_hugepage_flags(struct page *page)
+-static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
+-				      struct smc_llc_msg_confirm_rkey_cont *llc)
 -{
+-	/* ignore rtokens for other links, we have only one link */
+-	llc->hd.flags |= SMC_LLC_FLAG_RESP;
+-	smc_llc_send_message(link, llc);
 -}
 -
- #include <asm-generic/hugetlb.h>
- 
- #endif /* _ASM_IA64_HUGETLB_H */
-diff --git a/arch/mips/include/asm/hugetlb.h b/arch/mips/include/asm/hugetlb.h
-index 8b201e281f67..10e3be870df7 100644
---- a/arch/mips/include/asm/hugetlb.h
-+++ b/arch/mips/include/asm/hugetlb.h
-@@ -75,10 +75,6 @@ static inline int huge_ptep_set_access_flags(struct vm_area_struct *vma,
- 	return changed;
- }
- 
--static inline void arch_clear_hugepage_flags(struct page *page)
--{
--}
--
- #include <asm-generic/hugetlb.h>
- 
- #endif /* __ASM_HUGETLB_H */
-diff --git a/arch/parisc/include/asm/hugetlb.h b/arch/parisc/include/asm/hugetlb.h
-index 411d9d867baa..a69cf9efb0c1 100644
---- a/arch/parisc/include/asm/hugetlb.h
-+++ b/arch/parisc/include/asm/hugetlb.h
-@@ -42,10 +42,6 @@ int huge_ptep_set_access_flags(struct vm_area_struct *vma,
- 					     unsigned long addr, pte_t *ptep,
- 					     pte_t pte, int dirty);
- 
--static inline void arch_clear_hugepage_flags(struct page *page)
--{
--}
--
- #include <asm-generic/hugetlb.h>
- 
- #endif /* _ASM_PARISC64_HUGETLB_H */
-diff --git a/arch/powerpc/include/asm/hugetlb.h b/arch/powerpc/include/asm/hugetlb.h
-index 9dd50e1e4fe5..d259e056e6cf 100644
---- a/arch/powerpc/include/asm/hugetlb.h
-+++ b/arch/powerpc/include/asm/hugetlb.h
-@@ -61,10 +61,6 @@ int huge_ptep_set_access_flags(struct vm_area_struct *vma,
- 			       unsigned long addr, pte_t *ptep,
- 			       pte_t pte, int dirty);
- 
--static inline void arch_clear_hugepage_flags(struct page *page)
--{
--}
--
- #include <asm-generic/hugetlb.h>
- 
- #else /* ! CONFIG_HUGETLB_PAGE */
-diff --git a/arch/riscv/include/asm/hugetlb.h b/arch/riscv/include/asm/hugetlb.h
-index 866f6ae6467c..a5c2ca1d1cd8 100644
---- a/arch/riscv/include/asm/hugetlb.h
-+++ b/arch/riscv/include/asm/hugetlb.h
-@@ -5,8 +5,4 @@
- #include <asm-generic/hugetlb.h>
- #include <asm/page.h>
- 
--static inline void arch_clear_hugepage_flags(struct page *page)
--{
--}
--
- #endif /* _ASM_RISCV_HUGETLB_H */
-diff --git a/arch/s390/include/asm/hugetlb.h b/arch/s390/include/asm/hugetlb.h
-index 7d27ea96ec2f..9f067a66609b 100644
---- a/arch/s390/include/asm/hugetlb.h
-+++ b/arch/s390/include/asm/hugetlb.h
-@@ -35,6 +35,7 @@ static inline int prepare_hugepage_range(struct file *file,
- 	return 0;
- }
- 
-+#define HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS
- static inline void arch_clear_hugepage_flags(struct page *page)
+-static void smc_llc_rx_delete_rkey(struct smc_link *link,
+-				   struct smc_llc_msg_delete_rkey *llc)
++/* process a delete_rkey request from peer, remote flow */
++static void smc_llc_rmt_delete_rkey(struct smc_link_group *lgr)
  {
- 	clear_bit(PG_arch_1, &page->flags);
-diff --git a/arch/sh/include/asm/hugetlb.h b/arch/sh/include/asm/hugetlb.h
-index 536ad2cb8aa4..869b5a947f07 100644
---- a/arch/sh/include/asm/hugetlb.h
-+++ b/arch/sh/include/asm/hugetlb.h
-@@ -26,6 +26,7 @@ static inline void huge_ptep_clear_flush(struct vm_area_struct *vma,
- {
- }
++	struct smc_llc_msg_delete_rkey *llc;
++	struct smc_llc_qentry *qentry;
++	struct smc_link *link;
+ 	u8 err_mask = 0;
+ 	int i, max;
  
-+#define HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS
- static inline void arch_clear_hugepage_flags(struct page *page)
- {
- 	clear_bit(PG_dcache_clean, &page->flags);
-diff --git a/arch/sparc/include/asm/hugetlb.h b/arch/sparc/include/asm/hugetlb.h
-index a056fe1119f5..53838a173f62 100644
---- a/arch/sparc/include/asm/hugetlb.h
-+++ b/arch/sparc/include/asm/hugetlb.h
-@@ -47,10 +47,6 @@ static inline int huge_ptep_set_access_flags(struct vm_area_struct *vma,
- 	return changed;
- }
- 
--static inline void arch_clear_hugepage_flags(struct page *page)
--{
--}
--
- #define __HAVE_ARCH_HUGETLB_FREE_PGD_RANGE
- void hugetlb_free_pgd_range(struct mmu_gather *tlb, unsigned long addr,
- 			    unsigned long end, unsigned long floor,
-diff --git a/arch/x86/include/asm/hugetlb.h b/arch/x86/include/asm/hugetlb.h
-index cc98f79074d0..1721b1aadeb1 100644
---- a/arch/x86/include/asm/hugetlb.h
-+++ b/arch/x86/include/asm/hugetlb.h
-@@ -7,8 +7,4 @@
- 
- #define hugepages_supported() boot_cpu_has(X86_FEATURE_PSE)
- 
--static inline void arch_clear_hugepage_flags(struct page *page)
--{
--}
--
- #endif /* _ASM_X86_HUGETLB_H */
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 2342e5a8d1dd..359cfa1b6f54 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -544,6 +544,10 @@ static inline int is_hugepage_only_range(struct mm_struct *mm,
- }
- #endif
- 
-+#ifndef HAVE_ARCH_CLEAR_HUGEPAGE_FLAGS
-+static inline void arch_clear_hugepage_flags(struct page *page) { }
-+#endif
++	qentry = lgr->llc_flow_rmt.qentry;
++	llc = &qentry->msg.delete_rkey;
++	link = qentry->link;
 +
- #ifndef arch_make_huge_pte
- static inline pte_t arch_make_huge_pte(pte_t entry, struct vm_area_struct *vma,
- 				       struct page *page, int writable)
+ 	max = min_t(u8, llc->num_rkeys, SMC_LLC_DEL_RKEY_MAX);
+ 	for (i = 0; i < max; i++) {
+ 		if (smc_rtoken_delete(link, llc->rkey[i]))
+ 			err_mask |= 1 << (SMC_LLC_DEL_RKEY_MAX - 1 - i);
+ 	}
+-
+ 	if (err_mask) {
+ 		llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
+ 		llc->err_mask = err_mask;
+ 	}
++	llc->hd.flags |= SMC_LLC_FLAG_RESP;
++	smc_llc_send_message(link, &qentry->msg);
++	smc_llc_flow_qentry_del(&lgr->llc_flow_rmt);
++}
+ 
++static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
++				      struct smc_llc_msg_confirm_rkey_cont *llc)
++{
++	/* ignore rtokens for other links, we have only one link */
+ 	llc->hd.flags |= SMC_LLC_FLAG_RESP;
+ 	smc_llc_send_message(link, llc);
+ }
+@@ -698,8 +704,13 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
+ 		smc_llc_rx_confirm_rkey_cont(link, &llc->confirm_rkey_cont);
+ 		break;
+ 	case SMC_LLC_DELETE_RKEY:
+-		smc_llc_rx_delete_rkey(link, &llc->delete_rkey);
+-		break;
++		/* new request from remote, assign to remote flow */
++		if (smc_llc_flow_start(&lgr->llc_flow_rmt, qentry)) {
++			/* process here, does not wait for more llc msgs */
++			smc_llc_rmt_delete_rkey(lgr);
++			smc_llc_flow_stop(lgr, &lgr->llc_flow_rmt);
++		}
++		return;
+ 	}
+ out:
+ 	kfree(qentry);
 -- 
-2.20.1
+2.17.1
