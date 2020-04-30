@@ -1,66 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:41608 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2409304AbgDOLqg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Apr 2020 07:46:36 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 11/40] s390/cpum_sf: Fix wrong page count in error message
-Date: Wed, 15 Apr 2020 07:45:54 -0400
-Message-Id: <20200415114623.14972-11-sashal@kernel.org>
-In-Reply-To: <20200415114623.14972-1-sashal@kernel.org>
-References: <20200415114623.14972-1-sashal@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:46863 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726814AbgD3PYo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:24:44 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PULL 01/17] MAINTAINERS: Add Janosch as a s390x maintainer
+Date: Thu, 30 Apr 2020 17:24:14 +0200
+Message-Id: <20200430152430.40349-2-david@redhat.com>
+In-Reply-To: <20200430152430.40349-1-david@redhat.com>
+References: <20200430152430.40349-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, Janosch Frank <frankja@de.ibm.com>, David Hildenbrand <david@redhat.com>
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
 
-[ Upstream commit 4141b6a5e9f171325effc36a22eb92bf961e7a5c ]
+Both, David and I, often do not have as much spare time for the
+kvm-unit-tests as we would like to have, so we could use a little
+bit of additional help here. Janosch did some excellent work for
+the s390x kvm-unit-tests in the past months and is listed as reviewer
+for these patches since quite a while already, so he's a very well
+suited for the maintainer job here, too.
 
-When perf record -e SF_CYCLES_BASIC_DIAG runs with very high
-frequency, the samples arrive faster than the perf process can
-save them to file. Eventually, for longer running processes, this
-leads to the siutation where the trace buffers allocated by perf
-slowly fills up. At one point the auxiliary trace buffer is full
-and  the CPU Measurement sampling facility is turned off. Furthermore
-a warning is printed to the kernel log buffer:
-
-cpum_sf: The AUX buffer with 0 pages for the diagnostic-sampling
-	mode is full
-
-The number of allocated pages for the auxiliary trace buffer is shown
-as zero pages. That is wrong.
-
-Fix this by saving the number of allocated pages before entering the
-work loop in the interrupt handler. When the interrupt handler processes
-the samples, it may detect the buffer full condition and stop sampling,
-reducing the buffer size to zero.
-Print the correct value in the error message:
-
-cpum_sf: The AUX buffer with 256 pages for the diagnostic-sampling
-	mode is full
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Janosch Frank <frankja@de.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20200205101935.19219-1-thuth@redhat.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 1 +
- 1 file changed, 1 insertion(+)
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 5bfb1ce129f4b..74a296cea21cc 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1537,6 +1537,7 @@ static void hw_collect_aux(struct cpu_hw_sf *cpuhw)
- 	perf_aux_output_end(handle, size);
- 	num_sdb = aux->sfb.num_sdb;
- 
-+	num_sdb = aux->sfb.num_sdb;
- 	while (!done) {
- 		/* Get an output handle */
- 		aux = perf_aux_output_begin(handle, cpuhw->event);
--- 
-2.20.1
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 48da1db..082be95 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -80,7 +80,7 @@ F: lib/ppc64/*
+ S390X
+ M: Thomas Huth <thuth@redhat.com>
+ M: David Hildenbrand <david@redhat.com>
+-R: Janosch Frank <frankja@linux.ibm.com>
++M: Janosch Frank <frankja@linux.ibm.com>
+ L: kvm@vger.kernel.org
+ F: s390x/*
+ F: lib/s390x/*
+--=20
+2.25.3
