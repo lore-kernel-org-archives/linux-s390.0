@@ -1,9 +1,9 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30678 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38126 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726375AbgD3Tpj (ORCPT
+        by vger.kernel.org with ESMTP id S1726318AbgD3Tiu (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 15:45:39 -0400
+        Thu, 30 Apr 2020 15:38:50 -0400
 Subject: Re: [PATCH v1 1/1] fs/splice: add missing callback for inaccessible
  pages
 References: <20200428225043.3091359-1-imbrenda@linux.ibm.com>
@@ -11,8 +11,8 @@ References: <20200428225043.3091359-1-imbrenda@linux.ibm.com>
  <d77d1e86-ac99-8c18-658c-d8150a71b11e@de.ibm.com>
  <540f483f-5e58-f342-e771-9d90c4d3fb6a@intel.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <3be8c483-fd08-32ee-851c-c9f0d7752f66@de.ibm.com>
-Date: Thu, 30 Apr 2020 21:45:19 +0200
+Message-ID: <f32fa7f8-a259-80cc-ec70-d9cd690a8430@de.ibm.com>
+Date: Thu, 30 Apr 2020 21:38:28 +0200
 MIME-Version: 1.0
 In-Reply-To: <540f483f-5e58-f342-e771-9d90c4d3fb6a@intel.com>
 Content-Type: text/plain; charset=utf-8
@@ -53,4 +53,4 @@ On 30.04.20 21:32, Dave Hansen wrote:
 > I updated the patch and double-checked that it triggers properly with a
 > socket-based sendfile().
 
-Can you place the updated patch somewhere?
+Do you have a calltrace? 
