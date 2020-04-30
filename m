@@ -1,66 +1,86 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727784AbgDROKZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Apr 2020 10:10:25 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.5 60/75] KVM: s390: vsie: Fix delivery of addressing exceptions
-Date: Sat, 18 Apr 2020 10:08:55 -0400
-Message-Id: <20200418140910.8280-60-sashal@kernel.org>
-In-Reply-To: <20200418140910.8280-1-sashal@kernel.org>
-References: <20200418140910.8280-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 42/57] s390/ftrace: fix potential crashes when switching tracers
+Date: Thu, 30 Apr 2020 09:52:03 -0400
+Message-Id: <20200430135218.20372-42-sashal@kernel.org>
+In-Reply-To: <20200430135218.20372-1-sashal@kernel.org>
+References: <20200430135218.20372-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: David Hildenbrand <david@redhat.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: Philipp Rudo <prudo@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Philipp Rudo <prudo@linux.ibm.com>
 
-[ Upstream commit 4d4cee96fb7a3cc53702a9be8299bf525be4ee98 ]
+[ Upstream commit 8ebf6da9db1b2a20bb86cc1bee2552e894d03308 ]
 
-Whenever we get an -EFAULT, we failed to read in guest 2 physical
-address space. Such addressing exceptions are reported via a program
-intercept to the nested hypervisor.
+Switching tracers include instruction patching. To prevent that a
+instruction is patched while it's read the instruction patching is done
+in stop_machine 'context'. This also means that any function called
+during stop_machine must not be traced. Thus add 'notrace' to all
+functions called within stop_machine.
 
-We faked the intercept, we have to return to guest 2. Instead, right
-now we would be returning -EFAULT from the intercept handler, eventually
-crashing the VM.
-the correct thing to do is to return 1 as rc == 1 is the internal
-representation of "we have to go back into g2".
-
-Addressing exceptions can only happen if the g2->g3 page tables
-reference invalid g2 addresses (say, either a table or the final page is
-not accessible - so something that basically never happens in sane
-environments.
-
-Identified by manual code inspection.
-
-Fixes: a3508fbe9dc6 ("KVM: s390: vsie: initial support for nested virtualization")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-3-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-[borntraeger@de.ibm.com: fix patch description]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: 1ec2772e0c3c ("s390/diag: add a statistic for diagnose calls")
+Fixes: 38f2c691a4b3 ("s390: improve wait logic of stop_machine")
+Fixes: 4ecf0a43e729 ("processor: get rid of cpu_relax_yield")
+Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/vsie.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/s390/kernel/diag.c  | 2 +-
+ arch/s390/kernel/smp.c   | 4 ++--
+ arch/s390/kernel/trace.c | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 076090f9e666c..4f6c22d72072a 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1202,6 +1202,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_s->iprcc = PGM_ADDRESSING;
- 		scb_s->pgmilc = 4;
- 		scb_s->gpsw.addr = __rewind_psw(scb_s->gpsw, 4);
-+		rc = 1;
- 	}
- 	return rc;
+diff --git a/arch/s390/kernel/diag.c b/arch/s390/kernel/diag.c
+index 61f2b0412345a..ccba63aaeb470 100644
+--- a/arch/s390/kernel/diag.c
++++ b/arch/s390/kernel/diag.c
+@@ -133,7 +133,7 @@ void diag_stat_inc(enum diag_stat_enum nr)
  }
+ EXPORT_SYMBOL(diag_stat_inc);
+ 
+-void diag_stat_inc_norecursion(enum diag_stat_enum nr)
++void notrace diag_stat_inc_norecursion(enum diag_stat_enum nr)
+ {
+ 	this_cpu_inc(diag_stat.counter[nr]);
+ 	trace_s390_diagnose_norecursion(diag_map[nr].code);
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index f468a10e52062..66bf050d785cf 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -403,7 +403,7 @@ int smp_find_processor_id(u16 address)
+ 	return -1;
+ }
+ 
+-bool arch_vcpu_is_preempted(int cpu)
++bool notrace arch_vcpu_is_preempted(int cpu)
+ {
+ 	if (test_cpu_flag_of(CIF_ENABLED_WAIT, cpu))
+ 		return false;
+@@ -413,7 +413,7 @@ bool arch_vcpu_is_preempted(int cpu)
+ }
+ EXPORT_SYMBOL(arch_vcpu_is_preempted);
+ 
+-void smp_yield_cpu(int cpu)
++void notrace smp_yield_cpu(int cpu)
+ {
+ 	if (MACHINE_HAS_DIAG9C) {
+ 		diag_stat_inc_norecursion(DIAG_STAT_X09C);
+diff --git a/arch/s390/kernel/trace.c b/arch/s390/kernel/trace.c
+index 490b52e850145..11a669f3cc93c 100644
+--- a/arch/s390/kernel/trace.c
++++ b/arch/s390/kernel/trace.c
+@@ -14,7 +14,7 @@ EXPORT_TRACEPOINT_SYMBOL(s390_diagnose);
+ 
+ static DEFINE_PER_CPU(unsigned int, diagnose_trace_depth);
+ 
+-void trace_s390_diagnose_norecursion(int diag_nr)
++void notrace trace_s390_diagnose_norecursion(int diag_nr)
+ {
+ 	unsigned long flags;
+ 	unsigned int *depth;
 -- 
 2.20.1
