@@ -1,237 +1,150 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57756 "EHLO theia.8bytes.org"
+Received: from mga03.intel.com ([134.134.136.65]:17685 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726899AbgDGSiA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 7 Apr 2020 14:38:00 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 18/34] iommu/arm-smmu: Convert to probe/release_device() call-backs
-Date: Tue,  7 Apr 2020 20:37:26 +0200
-Message-Id: <20200407183742.4344-19-joro@8bytes.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
+        id S1726279AbgD3AIF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Apr 2020 20:08:05 -0400
+Subject: Re: [PATCH v3 16/34] iommu/vt-d: Convert to probe/release_device()
+ call-backs
+References: <20200429133712.31431-1-joro@8bytes.org>
+ <20200429133712.31431-17-joro@8bytes.org>
+From: Lu Baolu <baolu.lu@linux.intel.com>
+Message-ID: <7ceca31f-cf24-d4f8-04fd-74691dd3c11a@linux.intel.com>
+Date: Thu, 30 Apr 2020 08:07:57 +0800
+MIME-Version: 1.0
+In-Reply-To: <20200429133712.31431-17-joro@8bytes.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: baolu.lu@linux.intel.com, Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 
-From: Joerg Roedel <jroedel@suse.de>
+On 2020/4/29 21:36, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
+> 
+> Convert the Intel IOMMU driver to use the probe_device() and
+> release_device() call-backs of iommu_ops, so that the iommu core code
+> does the group and sysfs setup.
+> 
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
 
-Convert the arm-smmu and arm-smmu-v3 drivers to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code does the
-group and sysfs setup.
+Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/arm-smmu-v3.c | 42 +++++++++----------------------------
- drivers/iommu/arm-smmu.c    | 30 ++++++++------------------
- 2 files changed, 19 insertions(+), 53 deletions(-)
+Best regards,
+baolu
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index 82508730feb7..7d3c38e088d7 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -2914,27 +2914,26 @@ static bool arm_smmu_sid_in_range(struct arm_smmu_device *smmu, u32 sid)
- 
- static struct iommu_ops arm_smmu_ops;
- 
--static int arm_smmu_add_device(struct device *dev)
-+static struct iommu_device *arm_smmu_probe_device(struct device *dev)
- {
- 	int i, ret;
- 	struct arm_smmu_device *smmu;
- 	struct arm_smmu_master *master;
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct iommu_group *group;
- 
- 	if (!fwspec || fwspec->ops != &arm_smmu_ops)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
- 	if (WARN_ON_ONCE(dev_iommu_priv_get(dev)))
--		return -EBUSY;
-+		return ERR_PTR(-EBUSY);
- 
- 	smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
- 	if (!smmu)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
- 	master = kzalloc(sizeof(*master), GFP_KERNEL);
- 	if (!master)
--		return -ENOMEM;
-+		return ERR_PTR(-ENOMEM);
- 
- 	master->dev = dev;
- 	master->smmu = smmu;
-@@ -2971,34 +2970,15 @@ static int arm_smmu_add_device(struct device *dev)
- 	 */
- 	arm_smmu_enable_pasid(master);
- 
--	if (!(smmu->features & ARM_SMMU_FEAT_2_LVL_CDTAB))
--		master->ssid_bits = min_t(u8, master->ssid_bits,
--					  CTXDESC_LINEAR_CDMAX);
--
--	ret = iommu_device_link(&smmu->iommu, dev);
--	if (ret)
--		goto err_disable_pasid;
--
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto err_unlink;
--	}
--
--	iommu_group_put(group);
--	return 0;
-+	return &smmu->iommu;
- 
--err_unlink:
--	iommu_device_unlink(&smmu->iommu, dev);
--err_disable_pasid:
--	arm_smmu_disable_pasid(master);
- err_free_master:
- 	kfree(master);
- 	dev_iommu_priv_set(dev, NULL);
--	return ret;
-+	return ERR_PTR(ret);
- }
- 
--static void arm_smmu_remove_device(struct device *dev)
-+static void arm_smmu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct arm_smmu_master *master;
-@@ -3010,8 +2990,6 @@ static void arm_smmu_remove_device(struct device *dev)
- 	master = dev_iommu_priv_get(dev);
- 	smmu = master->smmu;
- 	arm_smmu_detach_dev(master);
--	iommu_group_remove_device(dev);
--	iommu_device_unlink(&smmu->iommu, dev);
- 	arm_smmu_disable_pasid(master);
- 	kfree(master);
- 	iommu_fwspec_free(dev);
-@@ -3138,8 +3116,8 @@ static struct iommu_ops arm_smmu_ops = {
- 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
- 	.iotlb_sync		= arm_smmu_iotlb_sync,
- 	.iova_to_phys		= arm_smmu_iova_to_phys,
--	.add_device		= arm_smmu_add_device,
--	.remove_device		= arm_smmu_remove_device,
-+	.probe_device		= arm_smmu_probe_device,
-+	.release_device		= arm_smmu_release_device,
- 	.device_group		= arm_smmu_device_group,
- 	.domain_get_attr	= arm_smmu_domain_get_attr,
- 	.domain_set_attr	= arm_smmu_domain_set_attr,
-diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
-index 3493501d8b2c..7b13b2371ad2 100644
---- a/drivers/iommu/arm-smmu.c
-+++ b/drivers/iommu/arm-smmu.c
-@@ -220,7 +220,7 @@ static int arm_smmu_register_legacy_master(struct device *dev,
-  * With the legacy DT binding in play, we have no guarantees about
-  * probe order, but then we're also not doing default domains, so we can
-  * delay setting bus ops until we're sure every possible SMMU is ready,
-- * and that way ensure that no add_device() calls get missed.
-+ * and that way ensure that no probe_device() calls get missed.
-  */
- static int arm_smmu_legacy_bus_init(void)
- {
-@@ -1062,7 +1062,6 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
- 	struct arm_smmu_master_cfg *cfg = dev_iommu_priv_get(dev);
- 	struct arm_smmu_device *smmu = cfg->smmu;
- 	struct arm_smmu_smr *smrs = smmu->smrs;
--	struct iommu_group *group;
- 	int i, idx, ret;
- 
- 	mutex_lock(&smmu->stream_map_mutex);
-@@ -1090,13 +1089,6 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
- 		cfg->smendx[i] = (s16)idx;
- 	}
- 
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto out_err;
--	}
--	iommu_group_put(group);
--
- 	/* It worked! Now, poke the actual hardware */
- 	for_each_cfg_sme(cfg, fwspec, i, idx) {
- 		arm_smmu_write_sme(smmu, idx);
-@@ -1172,7 +1164,7 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
- 
- 	/*
- 	 * FIXME: The arch/arm DMA API code tries to attach devices to its own
--	 * domains between of_xlate() and add_device() - we have no way to cope
-+	 * domains between of_xlate() and probe_device() - we have no way to cope
- 	 * with that, so until ARM gets converted to rely on groups and default
- 	 * domains, just say no (but more politely than by dereferencing NULL).
- 	 * This should be at least a WARN_ON once that's sorted.
-@@ -1382,7 +1374,7 @@ struct arm_smmu_device *arm_smmu_get_by_fwnode(struct fwnode_handle *fwnode)
- 	return dev ? dev_get_drvdata(dev) : NULL;
- }
- 
--static int arm_smmu_add_device(struct device *dev)
-+static struct iommu_device *arm_smmu_probe_device(struct device *dev)
- {
- 	struct arm_smmu_device *smmu = NULL;
- 	struct arm_smmu_master_cfg *cfg;
-@@ -1403,7 +1395,7 @@ static int arm_smmu_add_device(struct device *dev)
- 	} else if (fwspec && fwspec->ops == &arm_smmu_ops) {
- 		smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
- 	} else {
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 	}
- 
- 	ret = -EINVAL;
-@@ -1444,21 +1436,19 @@ static int arm_smmu_add_device(struct device *dev)
- 	if (ret)
- 		goto out_cfg_free;
- 
--	iommu_device_link(&smmu->iommu, dev);
--
- 	device_link_add(dev, smmu->dev,
- 			DL_FLAG_PM_RUNTIME | DL_FLAG_AUTOREMOVE_SUPPLIER);
- 
--	return 0;
-+	return &smmu->iommu;
- 
- out_cfg_free:
- 	kfree(cfg);
- out_free:
- 	iommu_fwspec_free(dev);
--	return ret;
-+	return ERR_PTR(ret);
- }
- 
--static void arm_smmu_remove_device(struct device *dev)
-+static void arm_smmu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct arm_smmu_master_cfg *cfg;
-@@ -1475,13 +1465,11 @@ static void arm_smmu_remove_device(struct device *dev)
- 	if (ret < 0)
- 		return;
- 
--	iommu_device_unlink(&smmu->iommu, dev);
- 	arm_smmu_master_free_smes(cfg, fwspec);
- 
- 	arm_smmu_rpm_put(smmu);
- 
- 	dev_iommu_priv_set(dev, NULL);
--	iommu_group_remove_device(dev);
- 	kfree(cfg);
- 	iommu_fwspec_free(dev);
- }
-@@ -1632,8 +1620,8 @@ static struct iommu_ops arm_smmu_ops = {
- 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
- 	.iotlb_sync		= arm_smmu_iotlb_sync,
- 	.iova_to_phys		= arm_smmu_iova_to_phys,
--	.add_device		= arm_smmu_add_device,
--	.remove_device		= arm_smmu_remove_device,
-+	.probe_device		= arm_smmu_probe_device,
-+	.release_device		= arm_smmu_release_device,
- 	.device_group		= arm_smmu_device_group,
- 	.domain_get_attr	= arm_smmu_domain_get_attr,
- 	.domain_set_attr	= arm_smmu_domain_set_attr,
--- 
-2.17.1
+> ---
+>   drivers/iommu/intel-iommu.c | 67 ++++---------------------------------
+>   1 file changed, 6 insertions(+), 61 deletions(-)
+> 
+> diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+> index b9f905a55dda..b906727f5b85 100644
+> --- a/drivers/iommu/intel-iommu.c
+> +++ b/drivers/iommu/intel-iommu.c
+> @@ -5781,78 +5781,27 @@ static bool intel_iommu_capable(enum iommu_cap cap)
+>   	return false;
+>   }
+>   
+> -static int intel_iommu_add_device(struct device *dev)
+> +static struct iommu_device *intel_iommu_probe_device(struct device *dev)
+>   {
+> -	struct dmar_domain *dmar_domain;
+> -	struct iommu_domain *domain;
+>   	struct intel_iommu *iommu;
+> -	struct iommu_group *group;
+>   	u8 bus, devfn;
+> -	int ret;
+>   
+>   	iommu = device_to_iommu(dev, &bus, &devfn);
+>   	if (!iommu)
+> -		return -ENODEV;
+> -
+> -	iommu_device_link(&iommu->iommu, dev);
+> +		return ERR_PTR(-ENODEV);
+>   
+>   	if (translation_pre_enabled(iommu))
+>   		dev->archdata.iommu = DEFER_DEVICE_DOMAIN_INFO;
+>   
+> -	group = iommu_group_get_for_dev(dev);
+> -
+> -	if (IS_ERR(group)) {
+> -		ret = PTR_ERR(group);
+> -		goto unlink;
+> -	}
+> -
+> -	iommu_group_put(group);
+> -
+> -	domain = iommu_get_domain_for_dev(dev);
+> -	dmar_domain = to_dmar_domain(domain);
+> -	if (domain->type == IOMMU_DOMAIN_DMA) {
+> -		if (device_def_domain_type(dev) == IOMMU_DOMAIN_IDENTITY) {
+> -			ret = iommu_request_dm_for_dev(dev);
+> -			if (ret) {
+> -				dmar_remove_one_dev_info(dev);
+> -				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
+> -				domain_add_dev_info(si_domain, dev);
+> -				dev_info(dev,
+> -					 "Device uses a private identity domain.\n");
+> -			}
+> -		}
+> -	} else {
+> -		if (device_def_domain_type(dev) == IOMMU_DOMAIN_DMA) {
+> -			ret = iommu_request_dma_domain_for_dev(dev);
+> -			if (ret) {
+> -				dmar_remove_one_dev_info(dev);
+> -				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
+> -				if (!get_private_domain_for_dev(dev)) {
+> -					dev_warn(dev,
+> -						 "Failed to get a private domain.\n");
+> -					ret = -ENOMEM;
+> -					goto unlink;
+> -				}
+> -
+> -				dev_info(dev,
+> -					 "Device uses a private dma domain.\n");
+> -			}
+> -		}
+> -	}
+> -
+>   	if (device_needs_bounce(dev)) {
+>   		dev_info(dev, "Use Intel IOMMU bounce page dma_ops\n");
+>   		set_dma_ops(dev, &bounce_dma_ops);
+>   	}
+>   
+> -	return 0;
+> -
+> -unlink:
+> -	iommu_device_unlink(&iommu->iommu, dev);
+> -	return ret;
+> +	return &iommu->iommu;
+>   }
+>   
+> -static void intel_iommu_remove_device(struct device *dev)
+> +static void intel_iommu_release_device(struct device *dev)
+>   {
+>   	struct intel_iommu *iommu;
+>   	u8 bus, devfn;
+> @@ -5863,10 +5812,6 @@ static void intel_iommu_remove_device(struct device *dev)
+>   
+>   	dmar_remove_one_dev_info(dev);
+>   
+> -	iommu_group_remove_device(dev);
+> -
+> -	iommu_device_unlink(&iommu->iommu, dev);
+> -
+>   	if (device_needs_bounce(dev))
+>   		set_dma_ops(dev, NULL);
+>   }
+> @@ -6198,8 +6143,8 @@ const struct iommu_ops intel_iommu_ops = {
+>   	.map			= intel_iommu_map,
+>   	.unmap			= intel_iommu_unmap,
+>   	.iova_to_phys		= intel_iommu_iova_to_phys,
+> -	.add_device		= intel_iommu_add_device,
+> -	.remove_device		= intel_iommu_remove_device,
+> +	.probe_device		= intel_iommu_probe_device,
+> +	.release_device		= intel_iommu_release_device,
+>   	.get_resv_regions	= intel_iommu_get_resv_regions,
+>   	.put_resv_regions	= generic_iommu_put_resv_regions,
+>   	.apply_resv_region	= intel_iommu_apply_resv_region,
+> 
