@@ -1,111 +1,91 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19770 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728919AbgD3N4N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:56:13 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 11/14] net/smc: adapt SMC remote CONFIRM_RKEY processing to use the LLC flow
-Date: Thu, 30 Apr 2020 15:55:48 +0200
-Message-Id: <20200430135551.26267-12-kgraul@linux.ibm.com>
-In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
-References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:28494 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727071AbgD3PYw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:24:52 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PULL 06/17] s390x: STFLE operates on doublewords
+Date: Thu, 30 Apr 2020 17:24:19 +0200
+Message-Id: <20200430152430.40349-7-david@redhat.com>
+In-Reply-To: <20200430152430.40349-1-david@redhat.com>
+References: <20200430152430.40349-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-Use the LLC flow framework for the processing of CONFIRM_RKEY messages
-that were received from the peer.
+STFLE operates on doublewords, not bytes. Passing in "256" resulted in
+some ignored bits getting set. Not bad, but also not clean.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Let's just convert our stfle handling code to operate on doublewords.
+
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Message-Id: <20200401163305.31550-1-david@redhat.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- net/smc/smc_llc.c | 56 ++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 41 insertions(+), 15 deletions(-)
+ lib/s390x/asm/facility.h | 14 +++++++-------
+ lib/s390x/io.c           |  2 +-
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 4945abbad111..b7b5cc01b78e 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -105,6 +105,7 @@ struct smc_llc_msg_confirm_rkey_cont {	/* type 0x08 */
- };
- 
- #define SMC_LLC_DEL_RKEY_MAX	8
-+#define SMC_LLC_FLAG_RKEY_RETRY	0x10
- #define SMC_LLC_FLAG_RKEY_NEG	0x20
- 
- struct smc_llc_msg_delete_rkey {	/* type 0x09 */
-@@ -563,21 +564,41 @@ static void smc_llc_rx_delete_link(struct smc_link *link,
- 	smc_lgr_terminate_sched(lgr);
- }
- 
--static void smc_llc_rx_confirm_rkey(struct smc_link *link,
--				    struct smc_llc_msg_confirm_rkey *llc)
-+/* process a confirm_rkey request from peer, remote flow */
-+static void smc_llc_rmt_conf_rkey(struct smc_link_group *lgr)
+diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
+index e34dc2c..def2705 100644
+--- a/lib/s390x/asm/facility.h
++++ b/lib/s390x/asm/facility.h
+@@ -14,12 +14,12 @@
+ #include <asm/facility.h>
+ #include <asm/arch_def.h>
+=20
+-#define NR_STFL_BYTES 256
+-extern uint8_t stfl_bytes[];
++#define NB_STFL_DOUBLEWORDS 32
++extern uint64_t stfl_doublewords[];
+=20
+ static inline bool test_facility(int nr)
  {
--	int rc;
--
--	rc = smc_rtoken_add(link,
--			    llc->rtoken[0].rmb_vaddr,
--			    llc->rtoken[0].rmb_key);
--
--	/* ignore rtokens for other links, we have only one link */
--
-+	struct smc_llc_msg_confirm_rkey *llc;
-+	struct smc_llc_qentry *qentry;
-+	struct smc_link *link;
-+	int num_entries;
-+	int rk_idx;
-+	int i;
-+
-+	qentry = lgr->llc_flow_rmt.qentry;
-+	llc = &qentry->msg.confirm_rkey;
-+	link = qentry->link;
-+
-+	num_entries = llc->rtoken[0].num_rkeys;
-+	/* first rkey entry is for receiving link */
-+	rk_idx = smc_rtoken_add(link,
-+				llc->rtoken[0].rmb_vaddr,
-+				llc->rtoken[0].rmb_key);
-+	if (rk_idx < 0)
-+		goto out_err;
-+
-+	for (i = 1; i <= min_t(u8, num_entries, SMC_LLC_RKEYS_PER_MSG - 1); i++)
-+		smc_rtoken_set2(lgr, rk_idx, llc->rtoken[i].link_id,
-+				llc->rtoken[i].rmb_vaddr,
-+				llc->rtoken[i].rmb_key);
-+	/* max links is 3 so there is no need to support conf_rkey_cont msgs */
-+	goto out;
-+out_err:
-+	llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
-+	llc->hd.flags |= SMC_LLC_FLAG_RKEY_RETRY;
-+out:
- 	llc->hd.flags |= SMC_LLC_FLAG_RESP;
--	if (rc < 0)
--		llc->hd.flags |= SMC_LLC_FLAG_RKEY_NEG;
--	smc_llc_send_message(link, llc);
-+	smc_llc_send_message(link, &qentry->msg);
-+	smc_llc_flow_qentry_del(&lgr->llc_flow_rmt);
+-	return stfl_bytes[nr / 8] & (0x80U >> (nr % 8));
++	return stfl_doublewords[nr / 64] & (0x8000000000000000UL >> (nr % 64));
  }
- 
- static void smc_llc_rx_confirm_rkey_cont(struct smc_link *link,
-@@ -666,8 +687,13 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
- 		smc_llc_rx_delete_link(link, &llc->delete_link);
- 		break;
- 	case SMC_LLC_CONFIRM_RKEY:
--		smc_llc_rx_confirm_rkey(link, &llc->confirm_rkey);
--		break;
-+		/* new request from remote, assign to remote flow */
-+		if (smc_llc_flow_start(&lgr->llc_flow_rmt, qentry)) {
-+			/* process here, does not wait for more llc msgs */
-+			smc_llc_rmt_conf_rkey(lgr);
-+			smc_llc_flow_stop(lgr, &lgr->llc_flow_rmt);
-+		}
-+		return;
- 	case SMC_LLC_CONFIRM_RKEY_CONT:
- 		smc_llc_rx_confirm_rkey_cont(link, &llc->confirm_rkey_cont);
- 		break;
--- 
-2.17.1
+=20
+ static inline void stfl(void)
+@@ -27,9 +27,9 @@ static inline void stfl(void)
+ 	asm volatile("	stfl	0(0)\n" : : : "memory");
+ }
+=20
+-static inline void stfle(uint8_t *fac, unsigned int len)
++static inline void stfle(uint64_t *fac, unsigned int nb_doublewords)
+ {
+-	register unsigned long r0 asm("0") =3D len - 1;
++	register unsigned long r0 asm("0") =3D nb_doublewords - 1;
+=20
+ 	asm volatile("	.insn	s,0xb2b00000,0(%1)\n"
+ 		     : "+d" (r0) : "a" (fac) : "memory", "cc");
+@@ -40,9 +40,9 @@ static inline void setup_facilities(void)
+ 	struct lowcore *lc =3D NULL;
+=20
+ 	stfl();
+-	memcpy(stfl_bytes, &lc->stfl, sizeof(lc->stfl));
++	memcpy(stfl_doublewords, &lc->stfl, sizeof(lc->stfl));
+ 	if (test_facility(7))
+-		stfle(stfl_bytes, NR_STFL_BYTES);
++		stfle(stfl_doublewords, NB_STFL_DOUBLEWORDS);
+ }
+=20
+ #endif
+diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+index e091c37..c0f0bf7 100644
+--- a/lib/s390x/io.c
++++ b/lib/s390x/io.c
+@@ -19,7 +19,7 @@
+ #include "smp.h"
+=20
+ extern char ipl_args[];
+-uint8_t stfl_bytes[NR_STFL_BYTES] __attribute__((aligned(8)));
++uint64_t stfl_doublewords[NB_STFL_DOUBLEWORDS];
+=20
+ static struct spinlock lock;
+=20
+--=20
+2.25.3
