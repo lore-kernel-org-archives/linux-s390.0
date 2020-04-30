@@ -1,56 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43042 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728129AbgD3N4Z (ORCPT
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:59598 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727079AbgD3PZJ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:56:25 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 09/14] net/smc: move the TEST_LINK response processing into event handler
-Date: Thu, 30 Apr 2020 15:55:46 +0200
-Message-Id: <20200430135551.26267-10-kgraul@linux.ibm.com>
-In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
-References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+        Thu, 30 Apr 2020 11:25:09 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PULL 12/17] s390x: smp: Test local interrupts after cpu reset
+Date: Thu, 30 Apr 2020 17:24:25 +0200
+Message-Id: <20200430152430.40349-13-david@redhat.com>
+In-Reply-To: <20200430152430.40349-1-david@redhat.com>
+References: <20200430152430.40349-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>
 
-Get rid of the extra function and move the two-liner for the TEST_LINK
-response processing into the event handler function.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Local interrupts (external and emergency call) should be cleared after
+any cpu reset.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200429143518.1360468-5-frankja@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- net/smc/smc_llc.c | 10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ s390x/smp.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index f9ec270818fa..4945abbad111 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -563,13 +563,6 @@ static void smc_llc_rx_delete_link(struct smc_link *link,
- 	smc_lgr_terminate_sched(lgr);
+diff --git a/s390x/smp.c b/s390x/smp.c
+index 57eacb2..447b998 100644
+--- a/s390x/smp.c
++++ b/s390x/smp.c
+@@ -258,6 +258,19 @@ static void test_reset_initial(void)
+ 	report_prefix_pop();
  }
- 
--static void smc_llc_rx_test_link(struct smc_link *link,
--				 struct smc_llc_msg_test_link *llc)
--{
--	llc->hd.flags |= SMC_LLC_FLAG_RESP;
--	smc_llc_send_message(link, llc);
--}
--
- static void smc_llc_rx_confirm_rkey(struct smc_link *link,
- 				    struct smc_llc_msg_confirm_rkey *llc)
+=20
++static void test_local_ints(void)
++{
++	unsigned long mask;
++
++	/* Open masks for ecall and emcall */
++	ctl_set_bit(0, 13);
++	ctl_set_bit(0, 14);
++	mask =3D extract_psw_mask();
++	mask |=3D PSW_MASK_EXT;
++	load_psw_mask(mask);
++	set_flag(1);
++}
++
+ static void test_reset(void)
  {
-@@ -640,7 +633,8 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
- 
- 	switch (llc->raw.hdr.common.type) {
- 	case SMC_LLC_TEST_LINK:
--		smc_llc_rx_test_link(link, &llc->test_link);
-+		llc->test_link.hd.flags |= SMC_LLC_FLAG_RESP;
-+		smc_llc_send_message(link, llc);
- 		break;
- 	case SMC_LLC_ADD_LINK:
- 		if (list_empty(&lgr->list))
--- 
-2.17.1
+ 	struct psw psw;
+@@ -266,10 +279,18 @@ static void test_reset(void)
+ 	psw.addr =3D (unsigned long)test_func;
+=20
+ 	report_prefix_push("cpu reset");
++	sigp(1, SIGP_EMERGENCY_SIGNAL, 0, NULL);
++	sigp(1, SIGP_EXTERNAL_CALL, 0, NULL);
+ 	smp_cpu_start(1, psw);
+=20
+ 	sigp_retry(1, SIGP_CPU_RESET, 0, NULL);
+ 	report(smp_cpu_stopped(1), "cpu stopped");
++
++	set_flag(0);
++	psw.addr =3D (unsigned long)test_local_ints;
++	smp_cpu_start(1, psw);
++	wait_for_flag();
++	report(true, "local interrupts cleared");
+ 	report_prefix_pop();
+ }
+=20
+--=20
+2.25.3
