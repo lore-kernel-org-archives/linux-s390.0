@@ -1,113 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58938 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727078AbgDGTUg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Apr 2020 15:20:36 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v7 05/15] s390/vfio-ap: introduce shadow CRYCB
-Date: Tue,  7 Apr 2020 15:20:05 -0400
-Message-Id: <20200407192015.19887-6-akrowiak@linux.ibm.com>
-In-Reply-To: <20200407192015.19887-1-akrowiak@linux.ibm.com>
-References: <20200407192015.19887-1-akrowiak@linux.ibm.com>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:49342 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727800AbgD3PZZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:25:25 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PULL 17/17] s390x: Fix library constant definitions
+Date: Thu, 30 Apr 2020 17:24:30 +0200
+Message-Id: <20200430152430.40349-18-david@redhat.com>
+In-Reply-To: <20200430152430.40349-1-david@redhat.com>
+References: <20200430152430.40349-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, jjherne@linux.ibm.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>
 
-Let's introduce a shadow copy of the KVM guest's CRYCB and maintain it for
-the lifespan of the guest. The shadow CRYCB will be used to provide the
-AP configuration for a KVM guest.
+From: Janosch Frank <frankja@linux.ibm.com>
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Seems like I uppercased the whole region instead of only the ULs when
+I added those definitions. Let's make the x lowercase again.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20200429143518.1360468-11-frankja@linux.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 31 +++++++++++++++++++++------
- drivers/s390/crypto/vfio_ap_private.h |  1 +
- 2 files changed, 25 insertions(+), 7 deletions(-)
+ lib/s390x/asm/arch_def.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 8ece0d52ff4c..b8b678032ab7 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -280,14 +280,32 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
- 	return 0;
- }
- 
-+static void vfio_ap_matrix_clear(struct ap_matrix *matrix)
-+{
-+	bitmap_clear(matrix->apm, 0, AP_DEVICES);
-+	bitmap_clear(matrix->aqm, 0, AP_DOMAINS);
-+	bitmap_clear(matrix->adm, 0, AP_DOMAINS);
-+}
-+
- static void vfio_ap_matrix_init(struct ap_config_info *info,
- 				struct ap_matrix *matrix)
- {
-+	vfio_ap_matrix_clear(matrix);
- 	matrix->apm_max = info->apxa ? info->Na : 63;
- 	matrix->aqm_max = info->apxa ? info->Nd : 15;
- 	matrix->adm_max = info->apxa ? info->Nd : 15;
- }
- 
-+static bool vfio_ap_mdev_commit_crycb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	if (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd) {
-+		kvm_arch_crypto_set_masks(matrix_mdev->kvm,
-+					  matrix_mdev->shadow_crycb.apm,
-+					  matrix_mdev->shadow_crycb.aqm,
-+					  matrix_mdev->shadow_crycb.adm);
-+	}
-+}
-+
- static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -303,6 +321,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 
- 	matrix_mdev->mdev = mdev;
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
-+	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_crycb);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook.hook = handle_pqap;
- 	matrix_mdev->pqap_hook.owner = THIS_MODULE;
-@@ -1126,13 +1145,9 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	if (ret)
- 		return NOTIFY_DONE;
- 
--	/* If there is no CRYCB pointer, then we can't copy the masks */
--	if (!matrix_mdev->kvm->arch.crypto.crycbd)
--		return NOTIFY_DONE;
--
--	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
--				  matrix_mdev->matrix.aqm,
--				  matrix_mdev->matrix.adm);
-+	memcpy(&matrix_mdev->shadow_crycb, &matrix_mdev->matrix,
-+	       sizeof(matrix_mdev->shadow_crycb));
-+	vfio_ap_mdev_commit_crycb(matrix_mdev);
- 
- 	return NOTIFY_OK;
- }
-@@ -1247,6 +1262,8 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 		kvm_put_kvm(matrix_mdev->kvm);
- 		matrix_mdev->kvm = NULL;
- 	}
-+
-+	vfio_ap_matrix_clear(&matrix_mdev->shadow_crycb);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 4b6e144bab17..87cc270c3212 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -83,6 +83,7 @@ struct ap_matrix {
- struct ap_matrix_mdev {
- 	struct list_head node;
- 	struct ap_matrix matrix;
-+	struct ap_matrix shadow_crycb;
- 	struct notifier_block group_notifier;
- 	struct notifier_block iommu_notifier;
- 	struct kvm *kvm;
--- 
-2.21.1
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 15a4d49..1b3bb0c 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -19,10 +19,10 @@ struct psw {
+ #define PSW_MASK_DAT			0x0400000000000000UL
+ #define PSW_MASK_PSTATE			0x0001000000000000UL
+=20
+-#define CR0_EXTM_SCLP			0X0000000000000200UL
+-#define CR0_EXTM_EXTC			0X0000000000002000UL
+-#define CR0_EXTM_EMGC			0X0000000000004000UL
+-#define CR0_EXTM_MASK			0X0000000000006200UL
++#define CR0_EXTM_SCLP			0x0000000000000200UL
++#define CR0_EXTM_EXTC			0x0000000000002000UL
++#define CR0_EXTM_EMGC			0x0000000000004000UL
++#define CR0_EXTM_MASK			0x0000000000006200UL
+=20
+ struct lowcore {
+ 	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
+--=20
+2.25.3
