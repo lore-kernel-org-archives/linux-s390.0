@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 25/34] iommu/rockchip: Convert to probe/release_device() call-backs
-Date: Wed, 29 Apr 2020 15:37:03 +0200
-Message-Id: <20200429133712.31431-26-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:30053 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726765AbgD3PYn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 30 Apr 2020 11:24:43 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [kvm-unit-tests PULL 00/17] s390x updates
+Date: Thu, 30 Apr 2020 17:24:13 +0200
+Message-Id: <20200430152430.40349-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: kvm@vger.kernel.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>, Andrew Jones <drjones@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
 
-From: Joerg Roedel <jroedel@suse.de>
+Hi Paolo,
 
-Convert the Rockchip IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+The following changes since commit 5c052c904ded7ecd80d8f7efe2803821b45ce4=
+83:
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/rockchip-iommu.c | 26 +++++++-------------------
- 1 file changed, 7 insertions(+), 19 deletions(-)
+  kvm-unit-tests: nSVM: Test that CR0[63:32] are not set on VMRUN of nest=
+ed guests (2020-04-21 12:16:07 -0400)
 
-diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
-index b33cdd5aad81..d25c2486ca07 100644
---- a/drivers/iommu/rockchip-iommu.c
-+++ b/drivers/iommu/rockchip-iommu.c
-@@ -1054,40 +1054,28 @@ static void rk_iommu_domain_free(struct iommu_domain *domain)
- 	kfree(rk_domain);
- }
- 
--static int rk_iommu_add_device(struct device *dev)
-+static struct iommu_device *rk_iommu_probe_device(struct device *dev)
- {
--	struct iommu_group *group;
--	struct rk_iommu *iommu;
- 	struct rk_iommudata *data;
-+	struct rk_iommu *iommu;
- 
- 	data = dev->archdata.iommu;
- 	if (!data)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
- 	iommu = rk_iommu_from_dev(dev);
- 
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--	iommu_group_put(group);
--
--	iommu_device_link(&iommu->iommu, dev);
- 	data->link = device_link_add(dev, iommu->dev,
- 				     DL_FLAG_STATELESS | DL_FLAG_PM_RUNTIME);
- 
--	return 0;
-+	return &iommu->iommu;
- }
- 
--static void rk_iommu_remove_device(struct device *dev)
-+static void rk_iommu_release_device(struct device *dev)
- {
--	struct rk_iommu *iommu;
- 	struct rk_iommudata *data = dev->archdata.iommu;
- 
--	iommu = rk_iommu_from_dev(dev);
--
- 	device_link_del(data->link);
--	iommu_device_unlink(&iommu->iommu, dev);
--	iommu_group_remove_device(dev);
- }
- 
- static struct iommu_group *rk_iommu_device_group(struct device *dev)
-@@ -1126,8 +1114,8 @@ static const struct iommu_ops rk_iommu_ops = {
- 	.detach_dev = rk_iommu_detach_device,
- 	.map = rk_iommu_map,
- 	.unmap = rk_iommu_unmap,
--	.add_device = rk_iommu_add_device,
--	.remove_device = rk_iommu_remove_device,
-+	.probe_device = rk_iommu_probe_device,
-+	.release_device = rk_iommu_release_device,
- 	.iova_to_phys = rk_iommu_iova_to_phys,
- 	.device_group = rk_iommu_device_group,
- 	.pgsize_bitmap = RK_IOMMU_PGSIZE_BITMAP,
--- 
-2.17.1
+are available in the Git repository at:
+
+  https://github.com/davidhildenbrand/kvm-unit-tests.git tags/s390x-2020-=
+04-30
+
+for you to fetch changes up to f7df29115f736b9ffe8e529ba9c2b418d2f5e736:
+
+  s390x: Fix library constant definitions (2020-04-30 16:52:14 +0200)
+
+----------------------------------------------------------------
+New maintainer, reviewer, and cc list. New STSI test. Lots of minor fixes
+and cleanups
+
+----------------------------------------------------------------
+Andrew Jones (1):
+      s390x: unittests: Use smp parameter
+
+Christian Borntraeger (2):
+      s390x/smp: fix detection of "running"
+      s390x/smp: add minimal test for sigp sense running status
+
+Cornelia Huck (2):
+      MAINTAINERS: s390x: add myself as reviewer
+      MAINTAINERS: s390x: add linux-s390 list
+
+David Hildenbrand (1):
+      s390x: STFLE operates on doublewords
+
+Janosch Frank (10):
+      s390x: Add stsi 3.2.2 tests
+      s390x: smp: Test all CRs on initial reset
+      s390x: smp: Dirty fpc before initial reset test
+      s390x: smp: Test stop and store status on a running and stopped cpu
+      s390x: smp: Test local interrupts after cpu reset
+      s390x: smp: Loop if secondary cpu returns into cpu setup again
+      s390x: smp: Remove unneeded cpu loops
+      s390x: smp: Use full PSW to bringup new cpu
+      s390x: smp: Add restart when running test
+      s390x: Fix library constant definitions
+
+Thomas Huth (1):
+      MAINTAINERS: Add Janosch as a s390x maintainer
+
+ MAINTAINERS              |   4 +-
+ lib/s390x/asm/arch_def.h |   8 ++--
+ lib/s390x/asm/facility.h |  14 +++----
+ lib/s390x/io.c           |   2 +-
+ lib/s390x/smp.c          |   6 ++-
+ lib/s390x/smp.h          |   2 +-
+ s390x/cstart64.S         |   5 ++-
+ s390x/smp.c              | 105 +++++++++++++++++++++++++++++++++++++++++=
+++----
+ s390x/stsi.c             |  73 ++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg      |   3 +-
+ 10 files changed, 196 insertions(+), 26 deletions(-)
