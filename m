@@ -1,94 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:11459 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726548AbgD0Eff (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 27 Apr 2020 00:35:35 -0400
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH v4 3/7] KVM: PPC: Remove redundant kvm_run from vcpu_arch
-Date: Mon, 27 Apr 2020 12:35:10 +0800
-Message-Id: <20200427043514.16144-4-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
-References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
+Received: from mga06.intel.com ([134.134.136.31]:64761 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726447AbgD3WUJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Apr 2020 18:20:09 -0400
+Subject: Re: [PATCH v2 1/1] fs/splice: add missing callback for inaccessible
+ pages
+From: Dave Hansen <dave.hansen@intel.com>
+References: <20200430143825.3534128-1-imbrenda@linux.ibm.com>
+ <1a3f5107-9847-73d4-5059-c6ef9d293551@de.ibm.com>
+ <e3e95a35-b0e3-b733-92f4-98bcccbe7ca5@intel.com>
+Message-ID: <561b39e0-4501-a6c3-5aa8-13a68d1c9484@intel.com>
+Date: Thu, 30 Apr 2020 15:20:07 -0700
+MIME-Version: 1.0
+In-Reply-To: <e3e95a35-b0e3-b733-92f4-98bcccbe7ca5@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, viro@zeniv.linux.org.uk
+Cc: david@redhat.com, akpm@linux-foundation.org, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, jack@suse.cz, kirill@shutemov.name, peterz@infradead.org, sean.j.christopherson@intel.com, Ulrich.Weigand@de.ibm.com
 
-The 'kvm_run' field already exists in the 'vcpu' structure, which
-is the same structure as the 'kvm_run' in the 'vcpu_arch' and
-should be deleted.
+One other thing...  The gup code will not take references on ref-frozen
+pages:
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
----
- arch/powerpc/include/asm/kvm_host.h | 1 -
- arch/powerpc/kvm/book3s_hv.c        | 6 ++----
- arch/powerpc/kvm/book3s_hv_nested.c | 3 +--
- 3 files changed, 3 insertions(+), 7 deletions(-)
+> static inline __must_check bool try_get_page(struct page *page)
+> {
+>         page = compound_head(page);
+>         if (WARN_ON_ONCE(page_ref_count(page) <= 0))
+>                 return false;
+>         page_ref_inc(page);
+>         return true;
+> }
 
-diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
-index 1dc63101ffe1..2745ff8faa01 100644
---- a/arch/powerpc/include/asm/kvm_host.h
-+++ b/arch/powerpc/include/asm/kvm_host.h
-@@ -795,7 +795,6 @@ struct kvm_vcpu_arch {
- 	struct mmio_hpte_cache_entry *pgfault_cache;
- 
- 	struct task_struct *run_task;
--	struct kvm_run *kvm_run;
- 
- 	spinlock_t vpa_update_lock;
- 	struct kvmppc_vpa vpa;
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 93493f0cbfe8..413ea2dcb10c 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -2934,7 +2934,7 @@ static void post_guest_process(struct kvmppc_vcore *vc, bool is_master)
- 
- 		ret = RESUME_GUEST;
- 		if (vcpu->arch.trap)
--			ret = kvmppc_handle_exit_hv(vcpu->arch.kvm_run, vcpu,
-+			ret = kvmppc_handle_exit_hv(vcpu->run, vcpu,
- 						    vcpu->arch.run_task);
- 
- 		vcpu->arch.ret = ret;
-@@ -3920,7 +3920,6 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
- 	spin_lock(&vc->lock);
- 	vcpu->arch.ceded = 0;
- 	vcpu->arch.run_task = current;
--	vcpu->arch.kvm_run = kvm_run;
- 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
- 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
- 	vcpu->arch.busy_preempt = TB_NIL;
-@@ -3973,7 +3972,7 @@ static int kvmppc_run_vcpu(struct kvm_run *kvm_run, struct kvm_vcpu *vcpu)
- 			if (signal_pending(v->arch.run_task)) {
- 				kvmppc_remove_runnable(vc, v);
- 				v->stat.signal_exits++;
--				v->arch.kvm_run->exit_reason = KVM_EXIT_INTR;
-+				v->run->exit_reason = KVM_EXIT_INTR;
- 				v->arch.ret = -EINTR;
- 				wake_up(&v->arch.cpu_run);
- 			}
-@@ -4049,7 +4048,6 @@ int kvmhv_run_single_vcpu(struct kvm_run *kvm_run,
- 	vc = vcpu->arch.vcore;
- 	vcpu->arch.ceded = 0;
- 	vcpu->arch.run_task = current;
--	vcpu->arch.kvm_run = kvm_run;
- 	vcpu->arch.stolen_logged = vcore_stolen_time(vc, mftb());
- 	vcpu->arch.state = KVMPPC_VCPU_RUNNABLE;
- 	vcpu->arch.busy_preempt = TB_NIL;
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index dc97e5be76f6..5a3987f3ebf3 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -290,8 +290,7 @@ long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
- 			r = RESUME_HOST;
- 			break;
- 		}
--		r = kvmhv_run_single_vcpu(vcpu->arch.kvm_run, vcpu, hdec_exp,
--					  lpcr);
-+		r = kvmhv_run_single_vcpu(vcpu->run, vcpu, hdec_exp, lpcr);
- 	} while (is_kvmppc_resume_guest(r));
- 
- 	/* save L2 state for return */
--- 
-2.17.1
+*But*, notice that the path that skips taking a ref is also a
+WARN_ON_ONCE().  Basically, if you get to try_get_page() on a ref-frozen
+page, it's considered buggy.  This makes sense because you fundamentally
+can't freeze refs on a page that might have more refs taken on it.
+
+I think all the other users do this by ensuring that any PTE that could
+be gup'd is set non-present before the refs are frozen and remote TLBs
+are flushed which also ensures no GUPs are running.  I don't know if the
+s390 code has some other way of preventing GUPs, but leaving Present=1
+PTEs while you freeze refs would be quite troublesome on x86.
