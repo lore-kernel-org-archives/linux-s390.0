@@ -1,56 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35406 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728094AbgD3N4W (ORCPT
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:24009 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726333AbgD3REW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Apr 2020 09:56:22 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 03/14] net/smc: introduce link group type
-Date: Thu, 30 Apr 2020 15:55:40 +0200
-Message-Id: <20200430135551.26267-4-kgraul@linux.ibm.com>
-In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
-References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+        Thu, 30 Apr 2020 13:04:22 -0400
+Subject: Re: [PATCH v2 6/9] s390/module: Use s390_kernel_write() for late
+ relocations
+References: <cover.1587131959.git.jpoimboe@redhat.com>
+ <18266eb2c2c9a2ce0033426837d89dcb363a85d3.1587131959.git.jpoimboe@redhat.com>
+ <20200422164037.7edd21ea@thinkpad> <20200422172126.743908f5@thinkpad>
+ <20200422194605.n77t2wtx5fomxpyd@treble> <20200423141834.234ed0bc@thinkpad>
+ <alpine.LSU.2.21.2004231513250.6520@pobox.suse.cz>
+ <20200423141228.sjvnxwdqlzoyqdwg@treble>
+ <20200423181030.b5mircvgc7zmqacr@treble> <20200430143821.GA10092@redhat.com>
+ <20200430164842.bvkrh5fz24ro7ye2@treble>
+From: Joe Lawrence <joe.lawrence@redhat.com>
+Message-ID: <691690e3-b792-bac5-2080-2abfc0beb11b@redhat.com>
+Date: Thu, 30 Apr 2020 13:04:10 -0400
+MIME-Version: 1.0
+In-Reply-To: <20200430164842.bvkrh5fz24ro7ye2@treble>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Miroslav Benes <mbenes@suse.cz>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jessica Yu <jeyu@kernel.org>, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, Vasily Gorbik <gor@linux.ibm.com>
 
-Add a type field to the link group which reflects the current link group
-redundancy state.
+On 4/30/20 12:48 PM, Josh Poimboeuf wrote:
+> On Thu, Apr 30, 2020 at 10:38:21AM -0400, Joe Lawrence wrote:
+>> On Thu, Apr 23, 2020 at 01:10:30PM -0500, Josh Poimboeuf wrote:
+>> This is more of note for the future, but when/if we add livepatch
+>> support on arm64 we'll need to make the very same adjustment there as
+>> well.  See the following pattern:
+>>
+>> arch/arm64/kernel/module.c:
+>>
+>>    reloc_insn_movw()
+>>    reloc_insn_imm()
+>>    reloc_insn_adrp()
+>>
+>>      *place = cpu_to_le32(insn);
+>>
+>> maybe something like aarch64_insn_patch_text_nosync() could be used
+>> there, I dunno. (It looks like ftrace and jump_labels are using that
+>> interface.)
+>>
+>> This is outside the scope of the patchset, but I thought I'd mention it
+>> as I was curious to see how other arches were currently handling their
+>> relocation updates.
+> 
+> True... I suspect your klp-convert selftests will catch that?
+> 
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_core.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+Indeed.  Actually I had hacked enough livepatch code support on ARM to 
+see what happened when converting and loading the test patches :)
 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 70399217ad6f..51366a9f4980 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -197,6 +197,14 @@ struct smc_rtoken {				/* address/key of remote RMB */
- 
- struct smcd_dev;
- 
-+enum smc_lgr_type {				/* redundancy state of lgr */
-+	SMC_LGR_NONE,			/* no active links, lgr to be deleted */
-+	SMC_LGR_SINGLE,			/* 1 active RNIC on each peer */
-+	SMC_LGR_SYMMETRIC,		/* 2 active RNICs on each peer */
-+	SMC_LGR_ASYMMETRIC_PEER,	/* local has 2, peer 1 active RNICs */
-+	SMC_LGR_ASYMMETRIC_LOCAL,	/* local has 1, peer 2 active RNICs */
-+};
-+
- enum smc_llc_flowtype {
- 	SMC_LLC_FLOW_NONE	= 0,
- 	SMC_LLC_FLOW_ADD_LINK	= 2,
-@@ -246,6 +254,8 @@ struct smc_link_group {
- 			DECLARE_BITMAP(rtokens_used_mask, SMC_RMBS_PER_LGR_MAX);
- 						/* used rtoken elements */
- 			u8			next_link_id;
-+			enum smc_lgr_type	type;
-+						/* redundancy state */
- 			struct list_head	llc_event_q;
- 						/* queue for llc events */
- 			spinlock_t		llc_event_q_lock;
--- 
-2.17.1
+-- Joe
