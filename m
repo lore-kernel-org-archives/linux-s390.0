@@ -1,83 +1,181 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 22/34] iommu/mediatek: Convert to probe/release_device() call-backs
-Date: Wed, 29 Apr 2020 15:37:00 +0200
-Message-Id: <20200429133712.31431-23-joro@8bytes.org>
-In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
-References: <20200429133712.31431-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61754 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729197AbgD3N4M (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Apr 2020 09:56:12 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 07/14] net/smc: multiple link support and LLC flow for smc_llc_do_confirm_rkey
+Date: Thu, 30 Apr 2020 15:55:44 +0200
+Message-Id: <20200430135551.26267-8-kgraul@linux.ibm.com>
+In-Reply-To: <20200430135551.26267-1-kgraul@linux.ibm.com>
+References: <20200430135551.26267-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Joerg Roedel <jroedel@suse.de>
+Adapt smc_llc_do_confirm_rkey() to use the LLC flow and support the
+rkeys of multiple links when the CONFIRM_RKEY LLC message is build.
 
-Convert the Mediatek IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/iommu/mtk_iommu.c | 24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+ net/smc/smc_core.h |  2 --
+ net/smc/smc_llc.c  | 65 ++++++++++++++++++++++++++++++----------------
+ net/smc/smc_llc.h  |  2 +-
+ 3 files changed, 43 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 5f4d6df59cf6..2be96f1cdbd2 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -441,38 +441,26 @@ static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
- 	return pa;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 31237c4c0d93..4e0dfb1d5804 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -123,8 +123,6 @@ struct smc_link {
+ 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
+ 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+ 	int			llc_testlink_time; /* testlink interval */
+-	struct completion	llc_confirm_rkey_resp; /* w4 rx of cnf rkey */
+-	int			llc_confirm_rkey_resp_rc; /* rc from cnf rkey */
+ 	struct completion	llc_delete_rkey_resp; /* w4 rx of del rkey */
+ 	int			llc_delete_rkey_resp_rc; /* rc from del rkey */
+ 	struct mutex		llc_delete_rkey_mutex; /* serialize usage */
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 644e9ab0dec5..5db11f54b4cd 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -369,27 +369,44 @@ int smc_llc_send_confirm_link(struct smc_link *link,
  }
  
--static int mtk_iommu_add_device(struct device *dev)
-+static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
+ /* send LLC confirm rkey request */
+-static int smc_llc_send_confirm_rkey(struct smc_link *link,
++static int smc_llc_send_confirm_rkey(struct smc_link *send_link,
+ 				     struct smc_buf_desc *rmb_desc)
  {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct mtk_iommu_data *data;
--	struct iommu_group *group;
+ 	struct smc_llc_msg_confirm_rkey *rkeyllc;
+ 	struct smc_wr_tx_pend_priv *pend;
+ 	struct smc_wr_buf *wr_buf;
+-	int rc;
++	struct smc_link *link;
++	int i, rc, rtok_ix;
  
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
--		return -ENODEV; /* Not a iommu client device */
-+		return ERR_PTR(-ENODEV); /* Not a iommu client device */
+-	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
++	rc = smc_llc_add_pending_send(send_link, &wr_buf, &pend);
+ 	if (rc)
+ 		return rc;
+ 	rkeyllc = (struct smc_llc_msg_confirm_rkey *)wr_buf;
+ 	memset(rkeyllc, 0, sizeof(*rkeyllc));
+ 	rkeyllc->hd.common.type = SMC_LLC_CONFIRM_RKEY;
+ 	rkeyllc->hd.length = sizeof(struct smc_llc_msg_confirm_rkey);
++
++	rtok_ix = 1;
++	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++		link = &send_link->lgr->lnk[i];
++		if (link->state == SMC_LNK_ACTIVE && link != send_link) {
++			rkeyllc->rtoken[rtok_ix].link_id = link->link_id;
++			rkeyllc->rtoken[rtok_ix].rmb_key =
++				htonl(rmb_desc->mr_rx[link->link_idx]->rkey);
++			rkeyllc->rtoken[rtok_ix].rmb_vaddr = cpu_to_be64(
++				(u64)sg_dma_address(
++					rmb_desc->sgt[link->link_idx].sgl));
++			rtok_ix++;
++		}
++	}
++	/* rkey of send_link is in rtoken[0] */
++	rkeyllc->rtoken[0].num_rkeys = rtok_ix - 1;
+ 	rkeyllc->rtoken[0].rmb_key =
+-		htonl(rmb_desc->mr_rx[link->link_idx]->rkey);
++		htonl(rmb_desc->mr_rx[send_link->link_idx]->rkey);
+ 	rkeyllc->rtoken[0].rmb_vaddr = cpu_to_be64(
+-		(u64)sg_dma_address(rmb_desc->sgt[link->link_idx].sgl));
++		(u64)sg_dma_address(rmb_desc->sgt[send_link->link_idx].sgl));
+ 	/* send llc message */
+-	rc = smc_wr_tx_send(link, pend);
++	rc = smc_wr_tx_send(send_link, pend);
+ 	return rc;
+ }
  
- 	data = dev_iommu_priv_get(dev);
--	iommu_device_link(&data->iommu, dev);
+@@ -712,6 +729,7 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 		break;
+ 	case SMC_LLC_ADD_LINK:
+ 	case SMC_LLC_CONFIRM_LINK:
++	case SMC_LLC_CONFIRM_RKEY:
+ 		/* assign responses to the local flow, we requested them */
+ 		smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
+ 		wake_up_interruptible(&link->lgr->llc_waiter);
+@@ -720,11 +738,6 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 		if (link->lgr->role == SMC_SERV)
+ 			smc_lgr_schedule_free_work_fast(link->lgr);
+ 		break;
+-	case SMC_LLC_CONFIRM_RKEY:
+-		link->llc_confirm_rkey_resp_rc = llc->raw.hdr.flags &
+-						 SMC_LLC_FLAG_RKEY_NEG;
+-		complete(&link->llc_confirm_rkey_resp);
+-		break;
+ 	case SMC_LLC_CONFIRM_RKEY_CONT:
+ 		/* unused as long as we don't send this type of msg */
+ 		break;
+@@ -837,7 +850,6 @@ void smc_llc_lgr_clear(struct smc_link_group *lgr)
  
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
+ int smc_llc_link_init(struct smc_link *link)
+ {
+-	init_completion(&link->llc_confirm_rkey_resp);
+ 	init_completion(&link->llc_delete_rkey_resp);
+ 	mutex_init(&link->llc_delete_rkey_mutex);
+ 	init_completion(&link->llc_testlink_resp);
+@@ -870,23 +882,30 @@ void smc_llc_link_clear(struct smc_link *link)
+ 	smc_wr_wakeup_tx_wait(link);
+ }
+ 
+-/* register a new rtoken at the remote peer */
+-int smc_llc_do_confirm_rkey(struct smc_link *link,
++/* register a new rtoken at the remote peer (for all links) */
++int smc_llc_do_confirm_rkey(struct smc_link *send_link,
+ 			    struct smc_buf_desc *rmb_desc)
+ {
+-	int rc;
++	struct smc_link_group *lgr = send_link->lgr;
++	struct smc_llc_qentry *qentry = NULL;
++	int rc = 0;
+ 
+-	/* protected by mutex smc_create_lgr_pending */
+-	reinit_completion(&link->llc_confirm_rkey_resp);
+-	rc = smc_llc_send_confirm_rkey(link, rmb_desc);
++	rc = smc_llc_flow_initiate(lgr, SMC_LLC_FLOW_RKEY);
+ 	if (rc)
+ 		return rc;
++	rc = smc_llc_send_confirm_rkey(send_link, rmb_desc);
++	if (rc)
++		goto out;
+ 	/* receive CONFIRM RKEY response from server over RoCE fabric */
+-	rc = wait_for_completion_interruptible_timeout(
+-			&link->llc_confirm_rkey_resp, SMC_LLC_WAIT_TIME);
+-	if (rc <= 0 || link->llc_confirm_rkey_resp_rc)
+-		return -EFAULT;
 -	return 0;
-+	return &data->iommu;
++	qentry = smc_llc_wait(lgr, send_link, SMC_LLC_WAIT_TIME,
++			      SMC_LLC_CONFIRM_RKEY);
++	if (!qentry || (qentry->msg.raw.hdr.flags & SMC_LLC_FLAG_RKEY_NEG))
++		rc = -EFAULT;
++out:
++	if (qentry)
++		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
++	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
++	return rc;
  }
  
--static void mtk_iommu_remove_device(struct device *dev)
-+static void mtk_iommu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct mtk_iommu_data *data;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return;
- 
--	data = dev_iommu_priv_get(dev);
--	iommu_device_unlink(&data->iommu, dev);
--
--	iommu_group_remove_device(dev);
- 	iommu_fwspec_free(dev);
- }
- 
-@@ -526,8 +514,8 @@ static const struct iommu_ops mtk_iommu_ops = {
- 	.flush_iotlb_all = mtk_iommu_flush_iotlb_all,
- 	.iotlb_sync	= mtk_iommu_iotlb_sync,
- 	.iova_to_phys	= mtk_iommu_iova_to_phys,
--	.add_device	= mtk_iommu_add_device,
--	.remove_device	= mtk_iommu_remove_device,
-+	.probe_device	= mtk_iommu_probe_device,
-+	.release_device	= mtk_iommu_release_device,
- 	.device_group	= mtk_iommu_device_group,
- 	.of_xlate	= mtk_iommu_of_xlate,
- 	.pgsize_bitmap	= SZ_4K | SZ_64K | SZ_1M | SZ_16M,
+ /* unregister an rtoken at the remote peer */
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 637acf91ffb7..d82d8346b61e 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -59,7 +59,7 @@ int smc_llc_link_init(struct smc_link *link);
+ void smc_llc_link_active(struct smc_link *link);
+ void smc_llc_link_deleting(struct smc_link *link);
+ void smc_llc_link_clear(struct smc_link *link);
+-int smc_llc_do_confirm_rkey(struct smc_link *link,
++int smc_llc_do_confirm_rkey(struct smc_link *send_link,
+ 			    struct smc_buf_desc *rmb_desc);
+ int smc_llc_do_delete_rkey(struct smc_link *link,
+ 			   struct smc_buf_desc *rmb_desc);
 -- 
 2.17.1
