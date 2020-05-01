@@ -1,78 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20986 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3574 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728587AbgEDMTP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 08:19:15 -0400
+        by vger.kernel.org with ESMTP id S1728642AbgEAKse (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 May 2020 06:48:34 -0400
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 01/12] net/smc: save state of last sent CDC message
-Date: Mon,  4 May 2020 14:18:37 +0200
-Message-Id: <20200504121848.46585-2-kgraul@linux.ibm.com>
-In-Reply-To: <20200504121848.46585-1-kgraul@linux.ibm.com>
-References: <20200504121848.46585-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next 12/13] net/smc: allocate index for a new link
+Date: Fri,  1 May 2020 12:48:12 +0200
+Message-Id: <20200501104813.76601-13-kgraul@linux.ibm.com>
+In-Reply-To: <20200501104813.76601-1-kgraul@linux.ibm.com>
+References: <20200501104813.76601-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-When a link goes down and all connections of this link need to be
-switched to an other link then the producer cursor and the sequence of
-the last successfully sent CDC message must be known. Add the two fields
-to the SMC connection and update it in the tx completion handler.
-And to allow matching of sequences in error cases reset the seqno to the
-old value in smc_cdc_msg_send() when the actual send failed.
+Add smc_llc_alloc_alt_link() to find a free link index for a new link,
+depending on the new link group type. And update constants for the
+maximum number of links to 3 (2 symmetric and 1 dangling asymmetric link).
+These maximum numbers are the same as used by other implementations of the
+SMC-R protocol.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc.h     | 4 ++++
- net/smc/smc_cdc.c | 6 ++++++
- 2 files changed, 10 insertions(+)
+ net/smc/smc_core.h |  2 +-
+ net/smc/smc_llc.c  | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 1a084afa7372..1e9113771600 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -143,6 +143,9 @@ struct smc_connection {
- 						 * .prod cf. TCP snd_nxt
- 						 * .cons cf. TCP sends ack
- 						 */
-+	union smc_host_cursor	local_tx_ctrl_fin;
-+						/* prod crsr - confirmed by peer
-+						 */
- 	union smc_host_cursor	tx_curs_prep;	/* tx - prepared data
- 						 * snd_max..wmem_alloc
- 						 */
-@@ -154,6 +157,7 @@ struct smc_connection {
- 						 */
- 	atomic_t		sndbuf_space;	/* remaining space in sndbuf */
- 	u16			tx_cdc_seq;	/* sequence # for CDC send */
-+	u16			tx_cdc_seq_fin;	/* sequence # - tx completed */
- 	spinlock_t		send_lock;	/* protect wr_sends */
- 	struct delayed_work	tx_work;	/* retry of smc_cdc_msg_send */
- 	u32			tx_off;		/* base offset in peer rmb */
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index f64589d823aa..c5e33296e55c 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -47,6 +47,9 @@ static void smc_cdc_tx_handler(struct smc_wr_tx_pend_priv *pnd_snd,
- 		/* guarantee 0 <= sndbuf_space <= sndbuf_desc->len */
- 		smp_mb__after_atomic();
- 		smc_curs_copy(&conn->tx_curs_fin, &cdcpend->cursor, conn);
-+		smc_curs_copy(&conn->local_tx_ctrl_fin, &cdcpend->p_cursor,
-+			      conn);
-+		conn->tx_cdc_seq_fin = cdcpend->ctrl_seq;
- 	}
- 	smc_tx_sndbuf_nonfull(smc);
- 	bh_unlock_sock(&smc->sk);
-@@ -104,6 +107,9 @@ int smc_cdc_msg_send(struct smc_connection *conn,
- 	if (!rc) {
- 		smc_curs_copy(&conn->rx_curs_confirmed, &cfed, conn);
- 		conn->local_rx_ctrl.prod_flags.cons_curs_upd_req = 0;
-+	} else {
-+		conn->tx_cdc_seq--;
-+		conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
- 	}
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index da3cddbd1651..eb27f2eb7c8c 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -128,7 +128,7 @@ struct smc_link {
+ /* For now we just allow one parallel link per link group. The SMC protocol
+  * allows more (up to 8).
+  */
+-#define SMC_LINKS_PER_LGR_MAX	1
++#define SMC_LINKS_PER_LGR_MAX	3
+ #define SMC_SINGLE_LINK		0
  
- 	return rc;
+ #define SMC_FIRST_CONTACT	1		/* first contact to a peer */
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index e478a4c11877..3a25b6ebe3a8 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -541,6 +541,30 @@ static int smc_llc_send_message(struct smc_link *link, void *llcbuf)
+ 
+ /********************************* receive ***********************************/
+ 
++static int smc_llc_alloc_alt_link(struct smc_link_group *lgr,
++				  enum smc_lgr_type lgr_new_t)
++{
++	int i;
++
++	if (lgr->type == SMC_LGR_SYMMETRIC ||
++	    (lgr->type != SMC_LGR_SINGLE &&
++	     (lgr_new_t == SMC_LGR_ASYMMETRIC_LOCAL ||
++	      lgr_new_t == SMC_LGR_ASYMMETRIC_PEER)))
++		return -EMLINK;
++
++	if (lgr_new_t == SMC_LGR_ASYMMETRIC_LOCAL ||
++	    lgr_new_t == SMC_LGR_ASYMMETRIC_PEER) {
++		for (i = SMC_LINKS_PER_LGR_MAX - 1; i >= 0; i--)
++			if (lgr->lnk[i].state == SMC_LNK_UNUSED)
++				return i;
++	} else {
++		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++)
++			if (lgr->lnk[i].state == SMC_LNK_UNUSED)
++				return i;
++	}
++	return -EMLINK;
++}
++
+ static void smc_llc_rx_delete_link(struct smc_link *link,
+ 				   struct smc_llc_msg_del_link *llc)
+ {
 -- 
 2.17.1
