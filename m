@@ -1,90 +1,114 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58408 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728203AbgECMjs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 May 2020 08:39:48 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15628 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728268AbgEAKsa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 May 2020 06:48:30 -0400
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 05/11] net/smc: rkey processing for a new link as SMC server
-Date: Sun,  3 May 2020 14:38:44 +0200
-Message-Id: <20200503123850.57261-6-kgraul@linux.ibm.com>
-In-Reply-To: <20200503123850.57261-1-kgraul@linux.ibm.com>
-References: <20200503123850.57261-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next 03/13] net/smc: map and register buffers for a new link
+Date: Fri,  1 May 2020 12:48:03 +0200
+Message-Id: <20200501104813.76601-4-kgraul@linux.ibm.com>
+In-Reply-To: <20200501104813.76601-1-kgraul@linux.ibm.com>
+References: <20200501104813.76601-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Part of SMC server new link establishment is the exchange of rkeys for
-used buffers.
-Loop over all used RMB buffers and send ADD_LINK_CONTINUE LLC messages
-to the peer.
+Introduce support to map and register all current buffers for a new
+link. smcr_buf_map_lgr() will map used buffers for a new link and
+smcr_buf_reg_lgr() can be called to register used buffers on the
+IB device of the new link.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_llc.c | 43 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 42 insertions(+), 1 deletion(-)
+ net/smc/smc_core.c | 60 ++++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_core.h |  2 ++
+ 2 files changed, 62 insertions(+)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index e2f254e21759..de73432bd72f 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -863,6 +863,47 @@ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
- 	mutex_unlock(&lgr->llc_conf_mutex);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index d5ecea490b4e..0e87f652caea 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1185,6 +1185,66 @@ int smcr_link_reg_rmb(struct smc_link *link, struct smc_buf_desc *rmb_desc)
+ 	return 0;
  }
  
-+static int smc_llc_srv_rkey_exchange(struct smc_link *link,
-+				     struct smc_link *link_new)
++static int _smcr_buf_map_lgr(struct smc_link *lnk, struct mutex *lock,
++			     struct list_head *lst, bool is_rmb)
 +{
-+	struct smc_llc_msg_add_link_cont *addc_llc;
-+	struct smc_link_group *lgr = link->lgr;
-+	u8 max, num_rkeys_send, num_rkeys_recv;
-+	struct smc_llc_qentry *qentry = NULL;
-+	struct smc_buf_desc *buf_pos;
-+	int buf_lst;
++	struct smc_buf_desc *buf_desc, *bf;
 +	int rc = 0;
-+	int i;
++
++	mutex_lock(lock);
++	list_for_each_entry_safe(buf_desc, bf, lst, list) {
++		if (!buf_desc->used)
++			continue;
++		rc = smcr_buf_map_link(buf_desc, is_rmb, lnk);
++		if (rc)
++			goto out;
++	}
++out:
++	mutex_unlock(lock);
++	return rc;
++}
++
++/* map all used buffers of lgr for a new link */
++int smcr_buf_map_lgr(struct smc_link *lnk)
++{
++	struct smc_link_group *lgr = lnk->lgr;
++	int i, rc = 0;
++
++	for (i = 0; i < SMC_RMBE_SIZES; i++) {
++		rc = _smcr_buf_map_lgr(lnk, &lgr->rmbs_lock,
++				       &lgr->rmbs[i], true);
++		if (rc)
++			return rc;
++		rc = _smcr_buf_map_lgr(lnk, &lgr->sndbufs_lock,
++				       &lgr->sndbufs[i], false);
++		if (rc)
++			return rc;
++	}
++	return 0;
++}
++
++/* register all used buffers of lgr for a new link */
++int smcr_buf_reg_lgr(struct smc_link *lnk)
++{
++	struct smc_link_group *lgr = lnk->lgr;
++	struct smc_buf_desc *buf_desc, *bf;
++	int i, rc = 0;
 +
 +	mutex_lock(&lgr->rmbs_lock);
-+	num_rkeys_send = lgr->conns_num;
-+	buf_pos = smc_llc_get_first_rmb(lgr, &buf_lst);
-+	do {
-+		smc_llc_add_link_cont(link, link_new, &num_rkeys_send,
-+				      &buf_lst, &buf_pos);
-+		qentry = smc_llc_wait(lgr, link, SMC_LLC_WAIT_TIME,
-+				      SMC_LLC_ADD_LINK_CONT);
-+		if (!qentry) {
-+			rc = -ETIMEDOUT;
-+			goto out;
++	for (i = 0; i < SMC_RMBE_SIZES; i++) {
++		list_for_each_entry_safe(buf_desc, bf, &lgr->rmbs[i], list) {
++			if (!buf_desc->used)
++				continue;
++			rc = smcr_link_reg_rmb(lnk, buf_desc);
++			if (rc)
++				goto out;
 +		}
-+		addc_llc = &qentry->msg.add_link_cont;
-+		num_rkeys_recv = addc_llc->num_rkeys;
-+		max = min_t(u8, num_rkeys_recv, SMC_LLC_RKEYS_PER_CONT_MSG);
-+		for (i = 0; i < max; i++) {
-+			smc_rtoken_set(lgr, link->link_idx, link_new->link_idx,
-+				       addc_llc->rt[i].rmb_key,
-+				       addc_llc->rt[i].rmb_vaddr_new,
-+				       addc_llc->rt[i].rmb_key_new);
-+			num_rkeys_recv--;
-+		}
-+		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
-+	} while (num_rkeys_send || num_rkeys_recv);
++	}
 +out:
 +	mutex_unlock(&lgr->rmbs_lock);
 +	return rc;
 +}
 +
- int smc_llc_srv_add_link(struct smc_link *link)
+ static struct smc_buf_desc *smcr_new_buf_create(struct smc_link_group *lgr,
+ 						bool is_rmb, int bufsize)
  {
- 	enum smc_lgr_type lgr_new_t = SMC_LGR_SYMMETRIC;
-@@ -923,7 +964,7 @@ int smc_llc_srv_add_link(struct smc_link *link)
- 	rc = smcr_buf_reg_lgr(link_new);
- 	if (rc)
- 		goto out_err;
--	/* tbd: rc = smc_llc_srv_rkey_exchange(link, link_new); */
-+	rc = smc_llc_srv_rkey_exchange(link, link_new);
- 	if (rc)
- 		goto out_err;
- 	/* tbd: rc = smc_llc_srv_conf_link(link, link_new, lgr_new_t); */
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index fa532a423fd7..61ddb5264936 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -368,6 +368,8 @@ int smc_core_init(void);
+ void smc_core_exit(void);
+ 
+ void smcr_link_clear(struct smc_link *lnk);
++int smcr_buf_map_lgr(struct smc_link *lnk);
++int smcr_buf_reg_lgr(struct smc_link *lnk);
+ int smcr_link_reg_rmb(struct smc_link *link, struct smc_buf_desc *rmb_desc);
+ static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
+ {
 -- 
 2.17.1
