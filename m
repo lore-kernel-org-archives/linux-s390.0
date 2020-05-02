@@ -1,99 +1,52 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52188 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727090AbgEEM1x (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 08:27:53 -0400
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v4 8/8] vfio-ccw: Add trace for CRW event
-Date: Tue,  5 May 2020 14:27:45 +0200
-Message-Id: <20200505122745.53208-9-farman@linux.ibm.com>
-In-Reply-To: <20200505122745.53208-1-farman@linux.ibm.com>
-References: <20200505122745.53208-1-farman@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: KVM: s390/mm: Clarification for two return value checks in
+ gmap_shadow()
+References: <7f0b7ac0-d061-9484-bc5e-bdd9e32aa42b@web.de>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <993d6b88-1f8f-745e-90b6-6ab0917a57a6@redhat.com>
+Date: Sat, 2 May 2020 19:27:31 +0200
+MIME-Version: 1.0
+In-Reply-To: <7f0b7ac0-d061-9484-bc5e-bdd9e32aa42b@web.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Markus Elfring <Markus.Elfring@web.de>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, =?UTF-8?Q?Christian_Borntr=c3=a4ger?= <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
 
-Since CRW events are (should be) rare, let's put a trace
-in that routine too.
+On 02.05.20 17:43, Markus Elfring wrote:
+> Hello,
+>=20
+> I have tried another small script out for the semantic patch language.
+> This source code analysis approach points out that the function =E2=80=9C=
+gmap_find_shadow=E2=80=9D
+> is called two times by the function =E2=80=9Cgmap_shadow=E2=80=9D.
+> https://elixir.bootlin.com/linux/v5.7-rc3/source/arch/s390/mm/gmap.c#L1=
+628
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/log=
+/arch/s390/mm/gmap.c
+>=20
+> Null pointer checks are performed at these places.
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
+Right, in case we have already a shadow, we return it. In case we are
+just concurrently creating/initializing another one, we return -EINVAL
+so the caller will retry (and find the fully initialized one). In case
+we get NULL, we have to create a new one.
 
-Notes:
-    v3->v4:
-     - Added Conny's r-b
+> The function =E2=80=9Cgmap_find_shadow=E2=80=9D is documented in the sa=
+me source file
+> that the pointer =E2=80=9CERR_PTR(-EAGAIN)=E2=80=9D can eventually be r=
+eturned.
+> Are the referenced gmap data structures always initialised here?
 
- drivers/s390/cio/vfio_ccw_drv.c   |  1 +
- drivers/s390/cio/vfio_ccw_trace.c |  1 +
- drivers/s390/cio/vfio_ccw_trace.h | 30 ++++++++++++++++++++++++++++++
- 3 files changed, 32 insertions(+)
+-EAGAIN makes sure that we are not touching partially initialized one.
+In case we find a valid gmap shadow, it is fully initialized. That's
+what we have the ->initialized field for.
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 9144360851ed..8c625b530035 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -336,6 +336,7 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 	if (!private || !mask)
- 		return 0;
- 
-+	trace_vfio_ccw_chp_event(private->sch->schid, mask, event);
- 	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
- 			   mdev_uuid(private->mdev), sch->schid.cssid,
- 			   sch->schid.ssid, sch->schid.sch_no,
-diff --git a/drivers/s390/cio/vfio_ccw_trace.c b/drivers/s390/cio/vfio_ccw_trace.c
-index 8c671d2519f6..4a0205905afc 100644
---- a/drivers/s390/cio/vfio_ccw_trace.c
-+++ b/drivers/s390/cio/vfio_ccw_trace.c
-@@ -9,6 +9,7 @@
- #define CREATE_TRACE_POINTS
- #include "vfio_ccw_trace.h"
- 
-+EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_chp_event);
- EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_async_request);
- EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_event);
- EXPORT_TRACEPOINT_SYMBOL(vfio_ccw_fsm_io_request);
-diff --git a/drivers/s390/cio/vfio_ccw_trace.h b/drivers/s390/cio/vfio_ccw_trace.h
-index f5d31887d413..62fb30598d47 100644
---- a/drivers/s390/cio/vfio_ccw_trace.h
-+++ b/drivers/s390/cio/vfio_ccw_trace.h
-@@ -17,6 +17,36 @@
- 
- #include <linux/tracepoint.h>
- 
-+TRACE_EVENT(vfio_ccw_chp_event,
-+	TP_PROTO(struct subchannel_id schid,
-+		 int mask,
-+		 int event),
-+	TP_ARGS(schid, mask, event),
-+
-+	TP_STRUCT__entry(
-+		__field(u8, cssid)
-+		__field(u8, ssid)
-+		__field(u16, sch_no)
-+		__field(int, mask)
-+		__field(int, event)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->cssid = schid.cssid;
-+		__entry->ssid = schid.ssid;
-+		__entry->sch_no = schid.sch_no;
-+		__entry->mask = mask;
-+		__entry->event = event;
-+	),
-+
-+	TP_printk("schid=%x.%x.%04x mask=0x%x event=%d",
-+		  __entry->cssid,
-+		  __entry->ssid,
-+		  __entry->sch_no,
-+		  __entry->mask,
-+		  __entry->event)
-+);
-+
- TRACE_EVENT(vfio_ccw_fsm_async_request,
- 	TP_PROTO(struct subchannel_id schid,
- 		 int command,
--- 
-2.17.1
+Hope that answers your question.
+
+--=20
+Thanks,
+
+David / dhildenb
