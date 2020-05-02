@@ -1,134 +1,203 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33598 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728692AbgEFIJ7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:09:59 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net-next 03/10] s390/qeth: add debugfs file for local IP addresses
-Date: Wed,  6 May 2020 10:09:42 +0200
-Message-Id: <20200506080949.3915-4-jwi@linux.ibm.com>
-In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
-References: <20200506080949.3915-1-jwi@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28160 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727860AbgEBMgS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 08:36:18 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 09/13] net/smc: llc_del_link_work and use the LLC flow for delete link
+Date: Sat,  2 May 2020 14:35:48 +0200
+Message-Id: <20200502123552.17204-10-kgraul@linux.ibm.com>
+In-Reply-To: <20200502123552.17204-1-kgraul@linux.ibm.com>
+References: <20200502123552.17204-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-For debugging purposes, provide read access to the local_addr caches
-via debug/qeth/<dev_name>/local_addrs.
+Introduce a work that is scheduled when a new DELETE_LINK LLC request is
+received. The work will call either the SMC client or SMC server
+DELETE_LINK processing.
+And use the LLC flow framework to process incoming DELETE_LINK LLC
+messages, scheduling the llc_del_link_work for those events.
+With these changes smc_lgr_forget() is only called by one function and
+can be migrated into smc_lgr_cleanup_early().
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |  2 ++
- drivers/s390/net/qeth_core_main.c | 32 ++++++++++++++++++++++++++++++-
- 2 files changed, 33 insertions(+), 1 deletion(-)
+ net/smc/smc_core.c | 22 +++++++------------
+ net/smc/smc_core.h |  2 +-
+ net/smc/smc_llc.c  | 55 ++++++++++++++++++++++++++++++----------------
+ 3 files changed, 45 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index b92af3735dd4..3d8b8e0f2438 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -11,6 +11,7 @@
- #define __QETH_CORE_H__
- 
- #include <linux/completion.h>
-+#include <linux/debugfs.h>
- #include <linux/if.h>
- #include <linux/if_arp.h>
- #include <linux/etherdevice.h>
-@@ -797,6 +798,7 @@ struct qeth_card {
- 	struct qeth_channel data;
- 
- 	struct net_device *dev;
-+	struct dentry *debugfs;
- 	struct qeth_card_stats stats;
- 	struct qeth_card_info info;
- 	struct qeth_token token;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 6b5d42a4501c..771282cb7aef 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -61,6 +61,7 @@ EXPORT_SYMBOL_GPL(qeth_core_header_cache);
- static struct kmem_cache *qeth_qdio_outbuf_cache;
- 
- static struct device *qeth_core_root_dev;
-+static struct dentry *qeth_debugfs_root;
- static struct lock_class_key qdio_out_skb_queue_key;
- 
- static void qeth_issue_next_read_cb(struct qeth_card *card,
-@@ -805,6 +806,24 @@ static void qeth_del_local_addrs6(struct qeth_card *card,
- 	spin_unlock(&card->local_addrs6_lock);
- }
- 
-+static int qeth_debugfs_local_addr_show(struct seq_file *m, void *v)
-+{
-+	struct qeth_card *card = m->private;
-+	struct qeth_local_addr *tmp;
-+	unsigned int i;
-+
-+	rcu_read_lock();
-+	hash_for_each_rcu(card->local_addrs4, i, tmp, hnode)
-+		seq_printf(m, "%pI4\n", &tmp->addr.s6_addr32[3]);
-+	hash_for_each_rcu(card->local_addrs6, i, tmp, hnode)
-+		seq_printf(m, "%pI6c\n", &tmp->addr);
-+	rcu_read_unlock();
-+
-+	return 0;
-+}
-+
-+DEFINE_SHOW_ATTRIBUTE(qeth_debugfs_local_addr);
-+
- static void qeth_issue_ipa_msg(struct qeth_ipa_cmd *cmd, int rc,
- 		struct qeth_card *card)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 2f8faa9c9e8e..a964304283fa 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -193,12 +193,19 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
+ void smc_lgr_cleanup_early(struct smc_connection *conn)
  {
-@@ -1608,6 +1627,11 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
- 	if (!card->read_cmd)
- 		goto out_read_cmd;
+ 	struct smc_link_group *lgr = conn->lgr;
++	struct list_head *lgr_list;
++	spinlock_t *lgr_lock;
  
-+	card->debugfs = debugfs_create_dir(dev_name(&gdev->dev),
-+					   qeth_debugfs_root);
-+	debugfs_create_file("local_addrs", 0400, card->debugfs, card,
-+			    &qeth_debugfs_local_addr_fops);
-+
- 	card->qeth_service_level.seq_print = qeth_core_sl_print;
- 	register_service_level(&card->qeth_service_level);
- 	return card;
-@@ -5085,9 +5109,11 @@ static int qeth_qdio_establish(struct qeth_card *card)
- static void qeth_core_free_card(struct qeth_card *card)
+ 	if (!lgr)
+ 		return;
+ 
+ 	smc_conn_free(conn);
+-	smc_lgr_forget(lgr);
++	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
++	spin_lock_bh(lgr_lock);
++	/* do not use this link group for new connections */
++	if (!list_empty(lgr_list))
++		list_del_init(lgr_list);
++	spin_unlock_bh(lgr_lock);
+ 	smc_lgr_schedule_free_work_fast(lgr);
+ }
+ 
+@@ -653,19 +660,6 @@ static void smc_lgr_free(struct smc_link_group *lgr)
+ 	kfree(lgr);
+ }
+ 
+-void smc_lgr_forget(struct smc_link_group *lgr)
+-{
+-	struct list_head *lgr_list;
+-	spinlock_t *lgr_lock;
+-
+-	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
+-	spin_lock_bh(lgr_lock);
+-	/* do not use this link group for new connections */
+-	if (!list_empty(lgr_list))
+-		list_del_init(lgr_list);
+-	spin_unlock_bh(lgr_lock);
+-}
+-
+ static void smcd_unregister_all_dmbs(struct smc_link_group *lgr)
  {
- 	QETH_CARD_TEXT(card, 2, "freecrd");
-+
-+	unregister_service_level(&card->qeth_service_level);
-+	debugfs_remove_recursive(card->debugfs);
- 	qeth_put_cmd(card->read_cmd);
- 	destroy_workqueue(card->event_wq);
--	unregister_service_level(&card->qeth_service_level);
- 	dev_set_drvdata(&card->gdev->dev, NULL);
- 	kfree(card);
- }
-@@ -6967,6 +6993,8 @@ static int __init qeth_core_init(void)
+ 	int i;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 4e00819e2db7..7fe53feb9dc4 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -254,6 +254,7 @@ struct smc_link_group {
+ 			struct mutex		llc_conf_mutex;
+ 						/* protects lgr reconfig. */
+ 			struct work_struct	llc_add_link_work;
++			struct work_struct	llc_del_link_work;
+ 			struct work_struct	llc_event_work;
+ 						/* llc event worker */
+ 			wait_queue_head_t	llc_waiter;
+@@ -343,7 +344,6 @@ struct smc_sock;
+ struct smc_clc_msg_accept_confirm;
+ struct smc_clc_msg_local;
  
- 	pr_info("loading core functions\n");
- 
-+	qeth_debugfs_root = debugfs_create_dir("qeth", NULL);
-+
- 	rc = qeth_register_dbf_views();
- 	if (rc)
- 		goto dbf_err;
-@@ -7008,6 +7036,7 @@ static int __init qeth_core_init(void)
- register_err:
- 	qeth_unregister_dbf_views();
- dbf_err:
-+	debugfs_remove_recursive(qeth_debugfs_root);
- 	pr_err("Initializing the qeth device driver failed\n");
- 	return rc;
- }
-@@ -7021,6 +7050,7 @@ static void __exit qeth_core_exit(void)
- 	kmem_cache_destroy(qeth_core_header_cache);
- 	root_device_unregister(qeth_core_root_dev);
- 	qeth_unregister_dbf_views();
-+	debugfs_remove_recursive(qeth_debugfs_root);
- 	pr_info("core functions removed\n");
+-void smc_lgr_forget(struct smc_link_group *lgr);
+ void smc_lgr_cleanup_early(struct smc_connection *conn);
+ void smc_lgr_terminate_sched(struct smc_link_group *lgr);
+ void smcr_port_add(struct smc_ib_device *smcibdev, u8 ibport);
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 9d102c912be9..e4e3910a9624 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1118,22 +1118,18 @@ static void smc_llc_add_link_work(struct work_struct *work)
+ 	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
  }
  
+-static void smc_llc_rx_delete_link(struct smc_link *link,
+-				   struct smc_llc_msg_del_link *llc)
++static void smc_llc_delete_link_work(struct work_struct *work)
+ {
+-	struct smc_link_group *lgr = smc_get_lgr(link);
++	struct smc_link_group *lgr = container_of(work, struct smc_link_group,
++						  llc_del_link_work);
+ 
+-	smc_lgr_forget(lgr);
+-	if (lgr->role == SMC_SERV) {
+-		/* client asks to delete this link, send request */
+-		smc_llc_send_delete_link(link, 0, SMC_LLC_REQ, true,
+-					 SMC_LLC_DEL_PROG_INIT_TERM);
+-	} else {
+-		/* server requests to delete this link, send response */
+-		smc_llc_send_delete_link(link, 0, SMC_LLC_RESP, true,
+-					 SMC_LLC_DEL_PROG_INIT_TERM);
++	if (list_empty(&lgr->list)) {
++		/* link group is terminating */
++		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
++		goto out;
+ 	}
+-	smcr_link_down_cond(link);
++out:
++	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
+ }
+ 
+ /* process a confirm_rkey request from peer, remote flow */
+@@ -1255,8 +1251,30 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
+ 		}
+ 		break;
+ 	case SMC_LLC_DELETE_LINK:
+-		smc_llc_rx_delete_link(link, &llc->delete_link);
+-		break;
++		if (lgr->role == SMC_CLNT) {
++			/* server requests to delete this link, send response */
++			if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE) {
++				/* DEL LINK REQ during ADD LINK SEQ */
++				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
++							qentry);
++				wake_up_interruptible(&lgr->llc_waiter);
++			} else if (smc_llc_flow_start(&lgr->llc_flow_lcl,
++						      qentry)) {
++				schedule_work(&lgr->llc_del_link_work);
++			}
++		} else {
++			if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK &&
++			    !lgr->llc_flow_lcl.qentry) {
++				/* DEL LINK REQ during ADD LINK SEQ */
++				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
++							qentry);
++				wake_up_interruptible(&lgr->llc_waiter);
++			} else if (smc_llc_flow_start(&lgr->llc_flow_lcl,
++						      qentry)) {
++				schedule_work(&lgr->llc_del_link_work);
++			}
++		}
++		return;
+ 	case SMC_LLC_CONFIRM_RKEY:
+ 		/* new request from remote, assign to remote flow */
+ 		if (smc_llc_flow_start(&lgr->llc_flow_rmt, qentry)) {
+@@ -1325,6 +1343,7 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 			complete(&link->llc_testlink_resp);
+ 		break;
+ 	case SMC_LLC_ADD_LINK:
++	case SMC_LLC_DELETE_LINK:
+ 	case SMC_LLC_CONFIRM_LINK:
+ 	case SMC_LLC_ADD_LINK_CONT:
+ 	case SMC_LLC_CONFIRM_RKEY:
+@@ -1333,10 +1352,6 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 		smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
+ 		wake_up_interruptible(&link->lgr->llc_waiter);
+ 		return;
+-	case SMC_LLC_DELETE_LINK:
+-		if (link->lgr->role == SMC_SERV)
+-			smc_lgr_schedule_free_work_fast(link->lgr);
+-		break;
+ 	case SMC_LLC_CONFIRM_RKEY_CONT:
+ 		/* not used because max links is 3 */
+ 		break;
+@@ -1424,6 +1439,7 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
+ 
+ 	INIT_WORK(&lgr->llc_event_work, smc_llc_event_work);
+ 	INIT_WORK(&lgr->llc_add_link_work, smc_llc_add_link_work);
++	INIT_WORK(&lgr->llc_del_link_work, smc_llc_delete_link_work);
+ 	INIT_LIST_HEAD(&lgr->llc_event_q);
+ 	spin_lock_init(&lgr->llc_event_q_lock);
+ 	spin_lock_init(&lgr->llc_flow_lock);
+@@ -1439,6 +1455,7 @@ void smc_llc_lgr_clear(struct smc_link_group *lgr)
+ 	wake_up_interruptible_all(&lgr->llc_waiter);
+ 	cancel_work_sync(&lgr->llc_event_work);
+ 	cancel_work_sync(&lgr->llc_add_link_work);
++	cancel_work_sync(&lgr->llc_del_link_work);
+ 	if (lgr->delayed_event) {
+ 		kfree(lgr->delayed_event);
+ 		lgr->delayed_event = NULL;
 -- 
 2.17.1
