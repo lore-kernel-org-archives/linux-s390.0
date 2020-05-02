@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32998 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728427AbgECMjt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 May 2020 08:39:49 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7468 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727882AbgEBMgS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 08:36:18 -0400
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 10/11] net/smc: delete link processing as SMC server
-Date: Sun,  3 May 2020 14:38:49 +0200
-Message-Id: <20200503123850.57261-11-kgraul@linux.ibm.com>
-In-Reply-To: <20200503123850.57261-1-kgraul@linux.ibm.com>
-References: <20200503123850.57261-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next 11/13] net/smc: delete link processing as SMC server
+Date: Sat,  2 May 2020 14:35:50 +0200
+Message-Id: <20200502123552.17204-12-kgraul@linux.ibm.com>
+In-Reply-To: <20200502123552.17204-1-kgraul@linux.ibm.com>
+References: <20200502123552.17204-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
