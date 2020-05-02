@@ -1,49 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12048 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725320AbgEEHfd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 03:35:33 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH] KVM: s390: Remove false WARN_ON_ONCE for the PQAP instruction
-Date: Tue,  5 May 2020 09:35:25 +0200
-Message-Id: <20200505073525.2287-1-borntraeger@de.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58686 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726418AbgEBXij (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 19:38:39 -0400
+Date: Sat, 02 May 2020 16:38:37 -0700 (PDT)
+Message-Id: <20200502.163837.822343488746704553.davem@davemloft.net>
+Subject: Re: [PATCH net-next 01/13] net/smc: first part of add link
+ processing as SMC client
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200502123552.17204-2-kgraul@linux.ibm.com>
+References: <20200502123552.17204-1-kgraul@linux.ibm.com>
+        <20200502123552.17204-2-kgraul@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=iso-8859-7
+Content-Transfer-Encoding: base64
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Qian Cai <cailca@icloud.com>, Pierre Morel <pmorel@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-In LPAR we will only get an intercept for FC==3 for the PQAP
-instruction. Running nested under z/VM can result in other intercepts as
-well, for example PQAP(QCI). So the WARN_ON_ONCE is not right. Let
-us simply remove it.
-
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Tony Krowiak <akrowiak@linux.ibm.com>
-Reported-by: Qian Cai <cailca@icloud.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/priv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index 69a824f9ef0b..bbe46c6aedbf 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -626,10 +626,12 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
- 	 * available for the guest are AQIC and TAPQ with the t bit set
- 	 * since we do not set IC.3 (FIII) we currently will only intercept
- 	 * the AQIC function code.
-+	 * Note: running nested under z/VM can result in intercepts, e.g.
-+	 * for PQAP(QCI). We do not support this and bail out.
- 	 */
- 	reg0 = vcpu->run->s.regs.gprs[0];
- 	fc = (reg0 >> 24) & 0xff;
--	if (WARN_ON_ONCE(fc != 0x03))
-+	if (fc != 0x03)
- 		return -EOPNOTSUPP;
- 
- 	/* PQAP instruction is allowed for guest kernel only */
--- 
-2.25.4
+RnJvbTogS2Fyc3RlbiBHcmF1bCA8a2dyYXVsQGxpbnV4LmlibS5jb20+DQpEYXRlOiBTYXQsICAy
+IE1heSAyMDIwIDE0OjM1OjQwICswMjAwDQoNCj4gK3N0YXRpYyB2b2lkIHNtY19sbGNfcHJvY2Vz
+c19jbGlfYWRkX2xpbmsoc3RydWN0IHNtY19saW5rX2dyb3VwICpsZ3IpDQo+ICt7DQo+ICsJc3Ry
+dWN0IHNtY19sbGNfcWVudHJ5ICpxZW50cnk7DQo+ICsNCj4gKwlxZW50cnkgPSBzbWNfbGxjX2Zs
+b3dfcWVudHJ5X2NscigmbGdyLT5sbGNfZmxvd19sY2wpOw0KPiArDQo+ICsJbXV0ZXhfbG9jaygm
+bGdyLT5sbGNfY29uZl9tdXRleCk7DQo+ICsJc21jX2xsY19jbGlfYWRkX2xpbmsocWVudHJ5LT5s
+aW5rLCBxZW50cnkpOw0KPiArCW11dGV4X3VubG9jaygmbGdyLT5sbGNfY29uZl9tdXRleCk7DQo+
+ICt9DQo+ICsNCj4gIC8qIHdvcmtlciB0byBwcm9jZXNzIGFuIGFkZCBsaW5rIG1lc3NhZ2UgKi8N
+Cg0KWW91IG11c3QgbWFrZSBzdXJlIHRoZSBjb21waWxhdGlvbiBzdWNjZWVkcyB3aXRob3V0IHdh
+cm5pbmdzIGFmdGVyIGVhY2gNCmFuZCBldmVyeSBwYXRjaCBpbiB5b3VyIHBhdGNoIHNlcmllcy4N
+Cg0KSGVyZSB5b3UgYXJlIGFkZGluZyBhIHN0YXRpYyBmdW5jdGlvbiB3aGljaCBpcyBjb21wbGV0
+ZWx5IHVudXNlZCBzbyBJIGtub3cNCnRoZSBjb21waWxlciB3aWxsIHdhcm4gd2l0aG91dCBldmVu
+IGJ1aWxkIHRlc3RpbmcgdGhpcyBwYXRjaC4NCg0KQW5kIHRoaXMgd2FzIGRvbmUgaW4gdGhlIHBy
+ZXZpb3VzIHBhdGNoIHNlcmllcyBhcyB3ZWxsLCB3aGljaCBJIHdpbGwNCmZpeCB1cCByaWdodCBu
+b3c6DQoNCm5ldC9zbWMvc21jX2xsYy5jOjU0NDoxMjogd2FybmluZzogoXNtY19sbGNfYWxsb2Nf
+YWx0X2xpbmuiIGRlZmluZWQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1mdW5jdGlvbl0NCiBzdGF0
+aWMgaW50IHNtY19sbGNfYWxsb2NfYWx0X2xpbmsoc3RydWN0IHNtY19saW5rX2dyb3VwICpsZ3Is
+DQogICAgICAgICAgICBefn5+fn5+fn5+fn5+fn5+fn5+fn5+DQoNCkkgZ2V0IHRoZSBmZWVsaW5n
+LCBzZWVpbmcgYWxsIG9mIHRoaXMsIHRoYXQgeW91IGFyZSBzcGxpdHRpbmcgdXAgdGhlDQpwYXRj
+aCBzZXQgcHJvcGVybHkgb25seSBiZWNhdXNlIEkgZmlybWx5IHJlcXVpcmVkIHlvdSB0byBkbyBz
+by4gIFRoaXMNCmVmZm9ydCBsb29rcyBoYWxmIGhlYXJ0ZWQgYW5kIGJlaW5nIGRvbmUgcmVsdWN0
+YW50bHkuDQoNClBsZWFzZSBjbGVhbiBhbGwgb2YgdGhpcyB1cCBhbmQgc3VibWl0IHRoZXNlIGNo
+YW5nZXMgY2xlYW5seSBhbmQNCnByb3Blcmx5LCB0aGFuayB5b3UuDQo=
