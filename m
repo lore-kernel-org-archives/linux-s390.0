@@ -1,56 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15918 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39852 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728568AbgEZJdV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 May 2020 05:33:21 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/3] KVM: s390: vsie: Move conditional reschedule
-Date: Tue, 26 May 2020 11:33:11 +0200
-Message-Id: <20200526093313.77976-2-borntraeger@de.ibm.com>
-In-Reply-To: <20200526093313.77976-1-borntraeger@de.ibm.com>
-References: <20200526093313.77976-1-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
+        by vger.kernel.org with ESMTP id S1727844AbgEBMgS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 08:36:18 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 00/13] net/smc: add and delete link processing
+Date: Sat,  2 May 2020 14:35:39 +0200
+Message-Id: <20200502123552.17204-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: David Hildenbrand <david@redhat.com>
+These patches add the 'add link' and 'delete link' processing as 
+SMC server and client. This processing allows to establish and
+remove links of a link group dynamically.
 
-Let's move it to the outer loop, in case we ever run again into long
-loops, trying to map the prefix. While at it, convert it to cond_resched().
+They are based on the patches I sent yesterday, I cannot see yesterdays
+patches in the net-next git tree yet.
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-5-david@redhat.com
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/kvm/vsie.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Karsten Graul (13):
+  net/smc: first part of add link processing as SMC client
+  net/smc: rkey processing for a new link as SMC client
+  net/smc: final part of add link processing as SMC client
+  net/smc: first part of add link processing as SMC server
+  net/smc: rkey processing for a new link as SMC server
+  net/smc: final part of add link processing as SMC server
+  net/smc: delete an asymmetric link as SMC server
+  net/smc: activate SMC server add link functions
+  net/smc: llc_del_link_work and use the LLC flow for delete link
+  net/smc: delete link processing as SMC client
+  net/smc: delete link processing as SMC server
+  net/smc: enqueue local LLC messages
+  net/smc: save state of last sent CDC message
 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 4f6c22d72072..ef05b4e167fb 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1000,8 +1000,6 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 
- 	handle_last_fault(vcpu, vsie_page);
- 
--	if (need_resched())
--		schedule();
- 	if (test_cpu_flag(CIF_MCCK_PENDING))
- 		s390_handle_mcck();
- 
-@@ -1185,6 +1183,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		    kvm_s390_vcpu_has_irq(vcpu, 0) ||
- 		    kvm_s390_vcpu_sie_inhibited(vcpu))
- 			break;
-+		cond_resched();
- 	}
- 
- 	if (rc == -EFAULT) {
+ net/smc/af_smc.c   |   4 +-
+ net/smc/smc.h      |   4 +
+ net/smc/smc_cdc.c  |   6 +
+ net/smc/smc_core.c |  29 +-
+ net/smc/smc_core.h |   4 +-
+ net/smc/smc_llc.c  | 774 +++++++++++++++++++++++++++++++++++++++++++--
+ net/smc/smc_llc.h  |   5 +
+ net/smc/smc_wr.c   |   2 +-
+ net/smc/smc_wr.h   |   1 +
+ 9 files changed, 786 insertions(+), 43 deletions(-)
+
 -- 
-2.25.4
+2.17.1
