@@ -1,168 +1,155 @@
-Return-Path: <netdev-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33504 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727029AbgEBMgS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 08:36:18 -0400
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 01/13] net/smc: first part of add link processing as SMC client
-Date: Sat,  2 May 2020 14:35:40 +0200
-Message-Id: <20200502123552.17204-2-kgraul@linux.ibm.com>
+Subject: [PATCH net-next 07/13] net/smc: delete an asymmetric link as SMC server
+Date: Sat,  2 May 2020 14:35:46 +0200
+Message-Id: <20200502123552.17204-8-kgraul@linux.ibm.com>
 In-Reply-To: <20200502123552.17204-1-kgraul@linux.ibm.com>
 References: <20200502123552.17204-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-First set of functions to process an ADD_LINK LLC request as an SMC
-client. Find an alternate IB device, determine the new link group type
-and get the index for the new link. Then ready the link, map the buffers
-and send an ADD_LINK LLC response. If any error occurs, send a reject
-LLC message and terminate the processing.
+When a link group moved from asymmetric to symmetric state then the
+dangling asymmetric link can be deleted. Add smc_llc_find_asym_link() to
+find the respective link and add smc_llc_delete_asym_link() to delete
+it.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_core.c |  4 +-
- net/smc/smc_core.h |  2 +
- net/smc/smc_llc.c  | 94 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 98 insertions(+), 2 deletions(-)
+ net/smc/smc_llc.c | 81 ++++++++++++++++++++++++++++++++++++++++++++++-
+ net/smc/smc_wr.c  |  2 +-
+ net/smc/smc_wr.h  |  1 +
+ 3 files changed, 82 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 60c708f6de51..2f8faa9c9e8e 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -273,8 +273,8 @@ static u8 smcr_next_link_id(struct smc_link_group *lgr)
- 	return link_id;
- }
- 
--static int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
--			  u8 link_idx, struct smc_init_info *ini)
-+int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
-+		   u8 link_idx, struct smc_init_info *ini)
- {
- 	u8 rndvec[3];
- 	int rc;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 555ada9d2423..4e00819e2db7 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -374,6 +374,8 @@ void smc_lgr_schedule_free_work_fast(struct smc_link_group *lgr);
- int smc_core_init(void);
- void smc_core_exit(void);
- 
-+int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
-+		   u8 link_idx, struct smc_init_info *ini);
- void smcr_link_clear(struct smc_link *lnk);
- int smcr_buf_map_lgr(struct smc_link *lnk);
- int smcr_buf_reg_lgr(struct smc_link *lnk);
 diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 50f59746bdf9..e0c85fe90bdf 100644
+index 20ce29b88b50..e6e280a3683d 100644
 --- a/net/smc/smc_llc.c
 +++ b/net/smc/smc_llc.c
-@@ -17,6 +17,7 @@
- #include "smc_core.h"
- #include "smc_clc.h"
- #include "smc_llc.h"
-+#include "smc_pnet.h"
- 
- #define SMC_LLC_DATA_LEN		40
- 
-@@ -565,6 +566,99 @@ static int smc_llc_alloc_alt_link(struct smc_link_group *lgr,
- 	return -EMLINK;
+@@ -863,6 +863,85 @@ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
+ 	mutex_unlock(&lgr->llc_conf_mutex);
  }
  
-+/* prepare and send an add link reject response */
-+static int smc_llc_cli_add_link_reject(struct smc_llc_qentry *qentry)
++/* find the asymmetric link when 3 links are established  */
++static struct smc_link *smc_llc_find_asym_link(struct smc_link_group *lgr)
 +{
-+	qentry->msg.raw.hdr.flags |= SMC_LLC_FLAG_RESP;
-+	qentry->msg.raw.hdr.flags |= SMC_LLC_FLAG_ADD_LNK_REJ;
-+	qentry->msg.raw.hdr.add_link_rej_rsn = SMC_LLC_REJ_RSN_NO_ALT_PATH;
-+	return smc_llc_send_message(qentry->link, &qentry->msg);
-+}
++	int asym_idx = -ENOENT;
++	int i, j, k;
++	bool found;
 +
-+static void smc_llc_save_add_link_info(struct smc_link *link,
-+				       struct smc_llc_msg_add_link *add_llc)
-+{
-+	link->peer_qpn = ntoh24(add_llc->sender_qp_num);
-+	memcpy(link->peer_gid, add_llc->sender_gid, SMC_GID_SIZE);
-+	memcpy(link->peer_mac, add_llc->sender_mac, ETH_ALEN);
-+	link->peer_psn = ntoh24(add_llc->initial_psn);
-+	link->peer_mtu = add_llc->qp_mtu;
-+}
-+
-+/* as an SMC client, process an add link request */
-+int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
-+{
-+	struct smc_llc_msg_add_link *llc = &qentry->msg.add_link;
-+	enum smc_lgr_type lgr_new_t = SMC_LGR_SYMMETRIC;
-+	struct smc_link_group *lgr = smc_get_lgr(link);
-+	struct smc_link *lnk_new = NULL;
-+	struct smc_init_info ini;
-+	int lnk_idx, rc = 0;
-+
-+	ini.vlan_id = lgr->vlan_id;
-+	smc_pnet_find_alt_roce(lgr, &ini, link->smcibdev);
-+	if (!memcmp(llc->sender_gid, link->peer_gid, SMC_GID_SIZE) &&
-+	    !memcmp(llc->sender_mac, link->peer_mac, ETH_ALEN)) {
-+		if (!ini.ib_dev)
-+			goto out_reject;
-+		lgr_new_t = SMC_LGR_ASYMMETRIC_PEER;
++	/* determine asymmetric link */
++	found = false;
++	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++		for (j = i + 1; j < SMC_LINKS_PER_LGR_MAX; j++) {
++			if (!smc_link_usable(&lgr->lnk[i]) ||
++			    !smc_link_usable(&lgr->lnk[j]))
++				continue;
++			if (!memcmp(lgr->lnk[i].gid, lgr->lnk[j].gid,
++				    SMC_GID_SIZE)) {
++				found = true;	/* asym_lnk is i or j */
++				break;
++			}
++		}
++		if (found)
++			break;
 +	}
-+	if (!ini.ib_dev) {
-+		lgr_new_t = SMC_LGR_ASYMMETRIC_LOCAL;
-+		ini.ib_dev = link->smcibdev;
-+		ini.ib_port = link->ibport;
++	if (!found)
++		goto out; /* no asymmetric link */
++	for (k = 0; k < SMC_LINKS_PER_LGR_MAX; k++) {
++		if (!smc_link_usable(&lgr->lnk[k]))
++			continue;
++		if (k != i &&
++		    !memcmp(lgr->lnk[i].peer_gid, lgr->lnk[k].peer_gid,
++			    SMC_GID_SIZE)) {
++			asym_idx = i;
++			break;
++		}
++		if (k != j &&
++		    !memcmp(lgr->lnk[j].peer_gid, lgr->lnk[k].peer_gid,
++			    SMC_GID_SIZE)) {
++			asym_idx = j;
++			break;
++		}
 +	}
-+	lnk_idx = smc_llc_alloc_alt_link(lgr, lgr_new_t);
-+	if (lnk_idx < 0)
-+		goto out_reject;
-+	lnk_new = &lgr->lnk[lnk_idx];
-+	rc = smcr_link_init(lgr, lnk_new, lnk_idx, &ini);
-+	if (rc)
-+		goto out_reject;
-+	smc_llc_save_add_link_info(lnk_new, llc);
-+	lnk_new->link_id = llc->link_num;
-+
-+	rc = smc_ib_ready_link(lnk_new);
-+	if (rc)
-+		goto out_clear_lnk;
-+
-+	rc = smcr_buf_map_lgr(lnk_new);
-+	if (rc)
-+		goto out_clear_lnk;
-+
-+	rc = smc_llc_send_add_link(link,
-+				   lnk_new->smcibdev->mac[ini.ib_port - 1],
-+				   lnk_new->gid, lnk_new, SMC_LLC_RESP);
-+	if (rc)
-+		goto out_clear_lnk;
-+	/* tbd: rc = smc_llc_cli_rkey_exchange(link, lnk_new); */
-+	if (rc) {
-+		rc = 0;
-+		goto out_clear_lnk;
-+	}
-+	/* tbd: rc = smc_llc_cli_conf_link(link, &ini, lnk_new, lgr_new_t); */
-+	if (!rc)
-+		goto out;
-+out_clear_lnk:
-+	smcr_link_clear(lnk_new);
-+out_reject:
-+	smc_llc_cli_add_link_reject(qentry);
 +out:
-+	kfree(qentry);
-+	return rc;
++	return (asym_idx < 0) ? NULL : &lgr->lnk[asym_idx];
 +}
 +
-+static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
++static void smc_llc_delete_asym_link(struct smc_link_group *lgr)
 +{
++	struct smc_link *lnk_new = NULL, *lnk_asym;
 +	struct smc_llc_qentry *qentry;
++	int rc;
 +
-+	qentry = smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
-+
-+	mutex_lock(&lgr->llc_conf_mutex);
-+	smc_llc_cli_add_link(qentry->link, qentry);
-+	mutex_unlock(&lgr->llc_conf_mutex);
++	lnk_asym = smc_llc_find_asym_link(lgr);
++	if (!lnk_asym)
++		return; /* no asymmetric link */
++	if (!smc_link_downing(&lnk_asym->state))
++		return;
++	/* tbd: lnk_new = smc_switch_conns(lgr, lnk_asym, false); */
++	smc_wr_tx_wait_no_pending_sends(lnk_asym);
++	if (!lnk_new)
++		goto out_free;
++	/* change flow type from ADD_LINK into DEL_LINK */
++	lgr->llc_flow_lcl.type = SMC_LLC_FLOW_DEL_LINK;
++	rc = smc_llc_send_delete_link(lnk_new, lnk_asym->link_id, SMC_LLC_REQ,
++				      true, SMC_LLC_DEL_NO_ASYM_NEEDED);
++	if (rc) {
++		smcr_link_down_cond(lnk_new);
++		goto out_free;
++	}
++	qentry = smc_llc_wait(lgr, lnk_new, SMC_LLC_WAIT_TIME,
++			      SMC_LLC_DELETE_LINK);
++	if (!qentry) {
++		smcr_link_down_cond(lnk_new);
++		goto out_free;
++	}
++	smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
++out_free:
++	smcr_link_clear(lnk_asym);
 +}
 +
- /* worker to process an add link message */
- static void smc_llc_add_link_work(struct work_struct *work)
+ static int smc_llc_srv_rkey_exchange(struct smc_link *link,
+ 				     struct smc_link *link_new)
  {
+@@ -1014,7 +1093,7 @@ static void smc_llc_process_srv_add_link(struct smc_link_group *lgr)
+ 	rc = smc_llc_srv_add_link(link);
+ 	if (!rc && lgr->type == SMC_LGR_SYMMETRIC) {
+ 		/* delete any asymmetric link */
+-		/* tbd: smc_llc_delete_asym_link(lgr); */
++		smc_llc_delete_asym_link(lgr);
+ 	}
+ 	mutex_unlock(&lgr->llc_conf_mutex);
+ }
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 031e6c9561b1..3fd27bea4f7a 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -61,7 +61,7 @@ static inline bool smc_wr_is_tx_pend(struct smc_link *link)
+ }
+ 
+ /* wait till all pending tx work requests on the given link are completed */
+-static inline int smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
++int smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
+ {
+ 	if (wait_event_timeout(link->wr_tx_wait, !smc_wr_is_tx_pend(link),
+ 			       SMC_WR_TX_WAIT_PENDING_TIME))
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index 3ac99c898418..f7eaeb3391f3 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -106,6 +106,7 @@ void smc_wr_tx_dismiss_slots(struct smc_link *lnk, u8 wr_rx_hdr_type,
+ 			     smc_wr_tx_filter filter,
+ 			     smc_wr_tx_dismisser dismisser,
+ 			     unsigned long data);
++int smc_wr_tx_wait_no_pending_sends(struct smc_link *link);
+ 
+ int smc_wr_rx_register_handler(struct smc_wr_rx_handler *handler);
+ int smc_wr_rx_post_init(struct smc_link *link);
 -- 
 2.17.1
