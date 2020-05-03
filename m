@@ -1,47 +1,151 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38110 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726744AbgEDMTO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 08:19:14 -0400
+Return-Path: <netdev-owner@vger.kernel.org>
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 00/12] net/smc: add failover processing
-Date: Mon,  4 May 2020 14:18:36 +0200
-Message-Id: <20200504121848.46585-1-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Subject: [PATCH net-next v2 07/11] net/smc: delete an asymmetric link as SMC server
+Date: Sun,  3 May 2020 14:38:46 +0200
+Message-Id: <20200503123850.57261-8-kgraul@linux.ibm.com>
+In-Reply-To: <20200503123850.57261-1-kgraul@linux.ibm.com>
+References: <20200503123850.57261-1-kgraul@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-This patch series adds the actual SMC-R link failover processing and 
-improved link group termination. There will be one more (very small) 
-series after this which will complete the SMC-R link failover support.
+When a link group moved from asymmetric to symmetric state then the
+dangling asymmetric link can be deleted. Add smc_llc_find_asym_link() to
+find the respective link and add smc_llc_delete_asym_link() to delete
+it.
 
-Karsten Graul (12):
-  net/smc: save state of last sent CDC message
-  net/smc: switch connections to alternate link
-  net/smc: send failover validation message
-  net/smc: handle incoming CDC validation message
-  net/smc: wait for departure of an IB message
-  net/smc: send DELETE_LINK,ALL message and wait for send to complete
-  net/smc: assign link to a new connection
-  net/smc: asymmetric link tagging
-  net/smc: add termination reason and handle LLC protocol violation
-  net/smc: improve termination processing
-  net/smc: create improved SMC-R link_uid
-  net/smc: save SMC-R peer link_uid
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/smc_llc.c | 81 ++++++++++++++++++++++++++++++++++++++++++++++-
+ net/smc/smc_wr.c  |  2 +-
+ net/smc/smc_wr.h  |  1 +
+ 3 files changed, 82 insertions(+), 2 deletions(-)
 
- net/smc/af_smc.c   |   2 +
- net/smc/smc.h      |   6 +
- net/smc/smc_cdc.c  |  86 +++++++++++--
- net/smc/smc_cdc.h  |   2 +
- net/smc/smc_core.c | 303 +++++++++++++++++++++++++++++++++++++--------
- net/smc/smc_core.h |  14 ++-
- net/smc/smc_llc.c  | 111 +++++++++++++++--
- net/smc/smc_llc.h  |  12 ++
- net/smc/smc_tx.c   |  12 +-
- net/smc/smc_wr.c   |  39 ++++++
- net/smc/smc_wr.h   |   2 +
- 11 files changed, 514 insertions(+), 75 deletions(-)
-
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 1fefee55e293..9d102c912be9 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -863,6 +863,85 @@ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
+ 	mutex_unlock(&lgr->llc_conf_mutex);
+ }
+ 
++/* find the asymmetric link when 3 links are established  */
++static struct smc_link *smc_llc_find_asym_link(struct smc_link_group *lgr)
++{
++	int asym_idx = -ENOENT;
++	int i, j, k;
++	bool found;
++
++	/* determine asymmetric link */
++	found = false;
++	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++		for (j = i + 1; j < SMC_LINKS_PER_LGR_MAX; j++) {
++			if (!smc_link_usable(&lgr->lnk[i]) ||
++			    !smc_link_usable(&lgr->lnk[j]))
++				continue;
++			if (!memcmp(lgr->lnk[i].gid, lgr->lnk[j].gid,
++				    SMC_GID_SIZE)) {
++				found = true;	/* asym_lnk is i or j */
++				break;
++			}
++		}
++		if (found)
++			break;
++	}
++	if (!found)
++		goto out; /* no asymmetric link */
++	for (k = 0; k < SMC_LINKS_PER_LGR_MAX; k++) {
++		if (!smc_link_usable(&lgr->lnk[k]))
++			continue;
++		if (k != i &&
++		    !memcmp(lgr->lnk[i].peer_gid, lgr->lnk[k].peer_gid,
++			    SMC_GID_SIZE)) {
++			asym_idx = i;
++			break;
++		}
++		if (k != j &&
++		    !memcmp(lgr->lnk[j].peer_gid, lgr->lnk[k].peer_gid,
++			    SMC_GID_SIZE)) {
++			asym_idx = j;
++			break;
++		}
++	}
++out:
++	return (asym_idx < 0) ? NULL : &lgr->lnk[asym_idx];
++}
++
++static void smc_llc_delete_asym_link(struct smc_link_group *lgr)
++{
++	struct smc_link *lnk_new = NULL, *lnk_asym;
++	struct smc_llc_qentry *qentry;
++	int rc;
++
++	lnk_asym = smc_llc_find_asym_link(lgr);
++	if (!lnk_asym)
++		return; /* no asymmetric link */
++	if (!smc_link_downing(&lnk_asym->state))
++		return;
++	/* tbd: lnk_new = smc_switch_conns(lgr, lnk_asym, false); */
++	smc_wr_tx_wait_no_pending_sends(lnk_asym);
++	if (!lnk_new)
++		goto out_free;
++	/* change flow type from ADD_LINK into DEL_LINK */
++	lgr->llc_flow_lcl.type = SMC_LLC_FLOW_DEL_LINK;
++	rc = smc_llc_send_delete_link(lnk_new, lnk_asym->link_id, SMC_LLC_REQ,
++				      true, SMC_LLC_DEL_NO_ASYM_NEEDED);
++	if (rc) {
++		smcr_link_down_cond(lnk_new);
++		goto out_free;
++	}
++	qentry = smc_llc_wait(lgr, lnk_new, SMC_LLC_WAIT_TIME,
++			      SMC_LLC_DELETE_LINK);
++	if (!qentry) {
++		smcr_link_down_cond(lnk_new);
++		goto out_free;
++	}
++	smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
++out_free:
++	smcr_link_clear(lnk_asym);
++}
++
+ static int smc_llc_srv_rkey_exchange(struct smc_link *link,
+ 				     struct smc_link *link_new)
+ {
+@@ -1014,7 +1093,7 @@ static void smc_llc_process_srv_add_link(struct smc_link_group *lgr)
+ 	rc = smc_llc_srv_add_link(link);
+ 	if (!rc && lgr->type == SMC_LGR_SYMMETRIC) {
+ 		/* delete any asymmetric link */
+-		/* tbd: smc_llc_delete_asym_link(lgr); */
++		smc_llc_delete_asym_link(lgr);
+ 	}
+ 	mutex_unlock(&lgr->llc_conf_mutex);
+ }
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 031e6c9561b1..3fd27bea4f7a 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -61,7 +61,7 @@ static inline bool smc_wr_is_tx_pend(struct smc_link *link)
+ }
+ 
+ /* wait till all pending tx work requests on the given link are completed */
+-static inline int smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
++int smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
+ {
+ 	if (wait_event_timeout(link->wr_tx_wait, !smc_wr_is_tx_pend(link),
+ 			       SMC_WR_TX_WAIT_PENDING_TIME))
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index 3ac99c898418..f7eaeb3391f3 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -106,6 +106,7 @@ void smc_wr_tx_dismiss_slots(struct smc_link *lnk, u8 wr_rx_hdr_type,
+ 			     smc_wr_tx_filter filter,
+ 			     smc_wr_tx_dismisser dismisser,
+ 			     unsigned long data);
++int smc_wr_tx_wait_no_pending_sends(struct smc_link *link);
+ 
+ int smc_wr_rx_register_handler(struct smc_wr_rx_handler *handler);
+ int smc_wr_rx_post_init(struct smc_link *link);
 -- 
 2.17.1
