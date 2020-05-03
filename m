@@ -1,138 +1,121 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2120.oracle.com ([156.151.31.85]:56266 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403800AbgE0Rhg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 May 2020 13:37:36 -0400
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [PATCH v3 0/8] padata: parallelize deferred page init
-Date: Wed, 27 May 2020 13:36:00 -0400
-Message-Id: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32998 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728427AbgECMjt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 May 2020 08:39:49 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v2 10/11] net/smc: delete link processing as SMC server
+Date: Sun,  3 May 2020 14:38:49 +0200
+Message-Id: <20200503123850.57261-11-kgraul@linux.ibm.com>
+In-Reply-To: <20200503123850.57261-1-kgraul@linux.ibm.com>
+References: <20200503123850.57261-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Thanks to Alex for his continued review and Josh for running v2!  Please
-continue to review and test, and acks for the padata parts would be
-appreciated.
+Add smc_llc_process_srv_delete_link() to process a DELETE_LINK request
+as SMC server. When the request is to delete ALL links then terminate
+the whole link group. If not, find the link to delete by its link_id,
+send the DELETE_LINK request LLC message and wait for the response.
+No matter if a response was received, clear the deleted link and update
+the link group state.
 
-Daniel
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ net/smc/smc_llc.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
---
-
-Deferred struct page init is a bottleneck in kernel boot--the biggest
-for us and probably others.  Optimizing it maximizes availability for
-large-memory systems and allows spinning up short-lived VMs as needed
-without having to leave them running.  It also benefits bare metal
-machines hosting VMs that are sensitive to downtime.  In projects such
-as VMM Fast Restart[1], where guest state is preserved across kexec
-reboot, it helps prevent application and network timeouts in the guests.
-
-So, multithread deferred init to take full advantage of system memory
-bandwidth.
-
-Extend padata, a framework that handles many parallel singlethreaded
-jobs, to handle multithreaded jobs as well by adding support for
-splitting up the work evenly, specifying a minimum amount of work that's
-appropriate for one helper thread to do, load balancing between helpers,
-and coordinating them.  More documentation in patches 4 and 8.
-
-This series is the first step in a project to address other memory
-proportional bottlenecks in the kernel such as pmem struct page init,
-vfio page pinning, hugetlb fallocate, and munmap.  Deferred page init
-doesn't require concurrency limits, resource control, or priority
-adjustments like these other users will because it happens during boot
-when the system is otherwise idle and waiting for page init to finish.
-
-This has been run on a variety of x86 systems and speeds up kernel boot
-by 4% to 49%, saving up to 1.6 out of 4 seconds.  Patch 6 has more
-numbers.
-
-The powerpc and s390 lists are included in case they want to give this a
-try, they had enabled this feature when it was configured per arch.
-
-Series based on v5.7-rc7 plus these three from mmotm
-
-  mm-call-touch_nmi_watchdog-on-max-order-boundaries-in-deferred-init.patch
-  mm-initialize-deferred-pages-with-interrupts-enabled.patch
-  mm-call-cond_resched-from-deferred_init_memmap.patch
-
-and it's available here:
-
-  git://oss.oracle.com/git/linux-dmjordan.git padata-mt-definit-v3
-  https://oss.oracle.com/git/gitweb.cgi?p=linux-dmjordan.git;a=shortlog;h=refs/heads/padata-mt-definit-v3
-
-and the future users and related features are available as
-work-in-progress:
-
-  git://oss.oracle.com/git/linux-dmjordan.git padata-mt-wip-v0.5
-  https://oss.oracle.com/git/gitweb.cgi?p=linux-dmjordan.git;a=shortlog;h=refs/heads/padata-mt-wip-v0.5
-
-v3:
- - Remove nr_pages accounting as suggested by Alex, adding a new patch
- - Align deferred init ranges up not down, simplify surrounding code (Alex)
- - Add Josh's T-b's from v2 (Josh's T-b's for v1 lost in rebase, apologies!)
- - Move padata.h include up in init/main.c to reduce patch collisions (Andrew)
- - Slightly reword Documentation patch
- - Rebase on v5.7-rc7 and retest
-
-v2:
- - Improve the problem statement (Andrew, Josh, Pavel)
- - Add T-b's to unchanged patches (Josh)
- - Fully initialize max-order blocks to avoid buddy issues (Alex)
- - Parallelize on section-aligned boundaries to avoid potential
-   false sharing (Alex)
- - Return the maximum thread count from a function that architectures
-   can override, with the generic version returning 1 (current
-   behavior).  Override for x86 since that's the only arch this series
-   has been tested on so far.  Other archs can test with more threads
-   by dropping patch 6.
- - Rebase to v5.7-rc6, rerun tests
-
-RFC v4 [2] -> v1:
- - merged with padata (Peter)
- - got rid of the 'task' nomenclature (Peter, Jon)
-
-future work branch:
- - made lockdep-aware (Jason, Peter)
- - adjust workqueue worker priority with renice_or_cancel() (Tejun)
- - fixed undo problem in VFIO (Alex)
-
-The remaining feedback, mainly resource control awareness (cgroup etc),
-is TODO for later series.
-
-[1] https://static.sched.com/hosted_files/kvmforum2019/66/VMM-fast-restart_kvmforum2019.pdf
-    https://www.youtube.com/watch?v=pBsHnf93tcQ
-    https://lore.kernel.org/linux-mm/1588812129-8596-1-git-send-email-anthony.yznaga@oracle.com/
-
-[2] https://lore.kernel.org/linux-mm/20181105165558.11698-1-daniel.m.jordan@oracle.com/
-
-Daniel Jordan (8):
-  padata: remove exit routine
-  padata: initialize earlier
-  padata: allocate work structures for parallel jobs from a pool
-  padata: add basic support for multithreaded jobs
-  mm: don't track number of pages during deferred initialization
-  mm: parallelize deferred_init_memmap()
-  mm: make deferred init's max threads arch-specific
-  padata: document multithreaded jobs
-
- Documentation/core-api/padata.rst |  41 +++--
- arch/x86/mm/init_64.c             |  12 ++
- include/linux/memblock.h          |   3 +
- include/linux/padata.h            |  43 ++++-
- init/main.c                       |   2 +
- kernel/padata.c                   | 277 ++++++++++++++++++++++++------
- mm/Kconfig                        |   6 +-
- mm/page_alloc.c                   |  59 +++++--
- 8 files changed, 361 insertions(+), 82 deletions(-)
-
-
-base-commit: 9cb1fd0efd195590b828b9b865421ad345a4a145
-prerequisite-patch-id: 4ad522141e1119a325a9799dad2bd982fbac8b7c
-prerequisite-patch-id: 169273327e56f5461101a71dfbd6b4cfd4570cf0
-prerequisite-patch-id: 0f34692c8a9673d4c4f6a3545cf8ec3a2abf8620
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index cd57b4fb1842..ac065f6d60dc 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1187,6 +1187,76 @@ static void smc_llc_process_cli_delete_link(struct smc_link_group *lgr)
+ 	kfree(qentry);
+ }
+ 
++static void smc_llc_process_srv_delete_link(struct smc_link_group *lgr)
++{
++	struct smc_llc_msg_del_link *del_llc;
++	struct smc_link *lnk, *lnk_del;
++	struct smc_llc_qentry *qentry;
++	int active_links;
++	int i;
++
++	mutex_lock(&lgr->llc_conf_mutex);
++	qentry = smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
++	lnk = qentry->link;
++	del_llc = &qentry->msg.delete_link;
++
++	if (qentry->msg.delete_link.hd.flags & SMC_LLC_FLAG_DEL_LINK_ALL) {
++		/* delete entire lgr */
++		smc_lgr_terminate_sched(lgr);
++		goto out;
++	}
++	/* delete single link */
++	lnk_del = NULL;
++	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++		if (lgr->lnk[i].link_id == del_llc->link_num) {
++			lnk_del = &lgr->lnk[i];
++			break;
++		}
++	}
++	if (!lnk_del)
++		goto out; /* asymmetric link already deleted */
++
++	if (smc_link_downing(&lnk_del->state)) {
++		/* tbd: call smc_switch_conns(lgr, lnk_del, false); */
++		smc_wr_tx_wait_no_pending_sends(lnk_del);
++	}
++	if (!list_empty(&lgr->list)) {
++		/* qentry is either a request from peer (send it back to
++		 * initiate the DELETE_LINK processing), or a locally
++		 * enqueued DELETE_LINK request (forward it)
++		 */
++		if (!smc_llc_send_message(lnk, &qentry->msg)) {
++			struct smc_llc_msg_del_link *del_llc_resp;
++			struct smc_llc_qentry *qentry2;
++
++			qentry2 = smc_llc_wait(lgr, lnk, SMC_LLC_WAIT_TIME,
++					       SMC_LLC_DELETE_LINK);
++			if (!qentry2) {
++			} else {
++				del_llc_resp = &qentry2->msg.delete_link;
++				smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
++			}
++		}
++	}
++	smcr_link_clear(lnk_del);
++
++	active_links = smc_llc_active_link_count(lgr);
++	if (active_links == 1) {
++		lgr->type = SMC_LGR_SINGLE;
++	} else if (!active_links) {
++		lgr->type = SMC_LGR_NONE;
++		smc_lgr_terminate_sched(lgr);
++	}
++
++	if (lgr->type == SMC_LGR_SINGLE && !list_empty(&lgr->list)) {
++		/* trigger setup of asymm alt link */
++		/* tbd: call smc_llc_srv_add_link_local(lnk); */
++	}
++out:
++	mutex_unlock(&lgr->llc_conf_mutex);
++	kfree(qentry);
++}
++
+ static void smc_llc_delete_link_work(struct work_struct *work)
+ {
+ 	struct smc_link_group *lgr = container_of(work, struct smc_link_group,
+@@ -1200,6 +1270,8 @@ static void smc_llc_delete_link_work(struct work_struct *work)
+ 
+ 	if (lgr->role == SMC_CLNT)
+ 		smc_llc_process_cli_delete_link(lgr);
++	else
++		smc_llc_process_srv_delete_link(lgr);
+ out:
+ 	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
+ }
 -- 
-2.26.2
+2.17.1
