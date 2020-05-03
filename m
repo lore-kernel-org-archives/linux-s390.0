@@ -1,151 +1,127 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63144 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728700AbgEFIJ7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:09:59 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net-next 05/10] s390/qeth: don't use restricted offloads for local traffic
-Date: Wed,  6 May 2020 10:09:44 +0200
-Message-Id: <20200506080949.3915-6-jwi@linux.ibm.com>
-In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
-References: <20200506080949.3915-1-jwi@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56274 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728359AbgECMjs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 May 2020 08:39:48 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v2 09/11] net/smc: delete link processing as SMC client
+Date: Sun,  3 May 2020 14:38:48 +0200
+Message-Id: <20200503123850.57261-10-kgraul@linux.ibm.com>
+In-Reply-To: <20200503123850.57261-1-kgraul@linux.ibm.com>
+References: <20200503123850.57261-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Current OSA models don't support TSO for traffic to local next-hops, and
-some old models didn't offer TX CSO for such packets either.
+Add smc_llc_process_cli_delete_link() to process a DELETE_LINK request
+as SMC client. When the request is to delete ALL links then terminate
+the whole link group. If not, find the link to delete by its link_id,
+send the DELETE_LINK response LLC message and then clear the deleted
+link. Finally determine and update the link group state.
 
-So as part of .ndo_features_check, check if a packet's next-hop resides
-on the same OSA Adapter. Opt out from affected HW offloads accordingly.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 84 +++++++++++++++++++++++++++++--
- drivers/s390/net/qeth_l2_main.c   |  1 +
- 2 files changed, 81 insertions(+), 4 deletions(-)
+ net/smc/smc_llc.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 72 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 771282cb7aef..1f18b38047a0 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -806,6 +806,58 @@ static void qeth_del_local_addrs6(struct qeth_card *card,
- 	spin_unlock(&card->local_addrs6_lock);
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index e4e3910a9624..cd57b4fb1842 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -863,6 +863,18 @@ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
+ 	mutex_unlock(&lgr->llc_conf_mutex);
  }
  
-+static bool qeth_next_hop_is_local_v4(struct qeth_card *card,
-+				      struct sk_buff *skb)
++static int smc_llc_active_link_count(struct smc_link_group *lgr)
 +{
-+	struct qeth_local_addr *tmp;
-+	bool is_local = false;
-+	unsigned int key;
-+	__be32 next_hop;
++	int i, link_count = 0;
 +
-+	if (hash_empty(card->local_addrs4))
-+		return false;
-+
-+	rcu_read_lock();
-+	next_hop = qeth_next_hop_v4_rcu(skb, qeth_dst_check_rcu(skb, 4));
-+	key = ipv4_addr_hash(next_hop);
-+
-+	hash_for_each_possible_rcu(card->local_addrs4, tmp, hnode, key) {
-+		if (tmp->addr.s6_addr32[3] == next_hop) {
-+			is_local = true;
-+			break;
-+		}
++	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++		if (!smc_link_usable(&lgr->lnk[i]))
++			continue;
++		link_count++;
 +	}
-+	rcu_read_unlock();
-+
-+	return is_local;
++	return link_count;
 +}
 +
-+static bool qeth_next_hop_is_local_v6(struct qeth_card *card,
-+				      struct sk_buff *skb)
-+{
-+	struct qeth_local_addr *tmp;
-+	struct in6_addr *next_hop;
-+	bool is_local = false;
-+	u32 key;
-+
-+	if (hash_empty(card->local_addrs6))
-+		return false;
-+
-+	rcu_read_lock();
-+	next_hop = qeth_next_hop_v6_rcu(skb, qeth_dst_check_rcu(skb, 6));
-+	key = ipv6_addr_hash(next_hop);
-+
-+	hash_for_each_possible_rcu(card->local_addrs6, tmp, hnode, key) {
-+		if (ipv6_addr_equal(&tmp->addr, next_hop)) {
-+			is_local = true;
-+			break;
-+		}
-+	}
-+	rcu_read_unlock();
-+
-+	return is_local;
-+}
-+
- static int qeth_debugfs_local_addr_show(struct seq_file *m, void *v)
+ /* find the asymmetric link when 3 links are established  */
+ static struct smc_link *smc_llc_find_asym_link(struct smc_link_group *lgr)
  {
- 	struct qeth_card *card = m->private;
-@@ -6578,10 +6630,6 @@ static int qeth_set_csum_on(struct qeth_card *card, enum qeth_ipa_funcs cstype,
- 	if (lp2lp)
- 		*lp2lp = qeth_ipa_caps_enabled(&caps, QETH_IPA_CHECKSUM_LP2LP);
- 
--	if (lp2lp && !*lp2lp)
--		dev_warn(&card->gdev->dev,
--			 "Hardware checksumming is performed only if %s and its peer use different OSA Express 3 ports\n",
--			 QETH_CARD_IFNAME(card));
- 	return 0;
+@@ -1118,6 +1130,63 @@ static void smc_llc_add_link_work(struct work_struct *work)
+ 	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
  }
  
-@@ -6816,6 +6864,34 @@ netdev_features_t qeth_features_check(struct sk_buff *skb,
- 				      struct net_device *dev,
- 				      netdev_features_t features)
- {
-+	/* Traffic with local next-hop is not eligible for some offloads: */
-+	if (skb->ip_summed == CHECKSUM_PARTIAL) {
-+		struct qeth_card *card = dev->ml_priv;
-+		netdev_features_t restricted = 0;
++static void smc_llc_process_cli_delete_link(struct smc_link_group *lgr)
++{
++	struct smc_link *lnk_del = NULL, *lnk_asym, *lnk;
++	struct smc_llc_msg_del_link *del_llc;
++	struct smc_llc_qentry *qentry;
++	int active_links;
++	int lnk_idx;
 +
-+		if (skb_is_gso(skb) && !netif_needs_gso(skb, features))
-+			restricted |= NETIF_F_ALL_TSO;
++	qentry = smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
++	lnk = qentry->link;
++	del_llc = &qentry->msg.delete_link;
 +
-+		switch (vlan_get_protocol(skb)) {
-+		case htons(ETH_P_IP):
-+			if (!card->info.has_lp2lp_cso_v4)
-+				restricted |= NETIF_F_IP_CSUM;
-+
-+			if (restricted && qeth_next_hop_is_local_v4(card, skb))
-+				features &= ~restricted;
-+			break;
-+		case htons(ETH_P_IPV6):
-+			if (!card->info.has_lp2lp_cso_v6)
-+				restricted |= NETIF_F_IPV6_CSUM;
-+
-+			if (restricted && qeth_next_hop_is_local_v6(card, skb))
-+				features &= ~restricted;
-+			break;
-+		default:
-+			break;
-+		}
++	if (del_llc->hd.flags & SMC_LLC_FLAG_DEL_LINK_ALL) {
++		smc_lgr_terminate_sched(lgr);
++		goto out;
 +	}
++	mutex_lock(&lgr->llc_conf_mutex);
++	/* delete single link */
++	for (lnk_idx = 0; lnk_idx < SMC_LINKS_PER_LGR_MAX; lnk_idx++) {
++		if (lgr->lnk[lnk_idx].link_id != del_llc->link_num)
++			continue;
++		lnk_del = &lgr->lnk[lnk_idx];
++		break;
++	}
++	del_llc->hd.flags |= SMC_LLC_FLAG_RESP;
++	if (!lnk_del) {
++		/* link was not found */
++		del_llc->reason = htonl(SMC_LLC_DEL_NOLNK);
++		smc_llc_send_message(lnk, &qentry->msg);
++		goto out_unlock;
++	}
++	lnk_asym = smc_llc_find_asym_link(lgr);
 +
- 	/* GSO segmentation builds skbs with
- 	 *	a (small) linear part for the headers, and
- 	 *	page frags for the data.
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 47f624b37040..da47e423e1b1 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -710,6 +710,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
- 
- 	if (card->dev->hw_features & (NETIF_F_TSO | NETIF_F_TSO6)) {
- 		card->dev->needed_headroom = sizeof(struct qeth_hdr_tso);
-+		netif_keep_dst(card->dev);
- 		netif_set_gso_max_size(card->dev,
- 				       PAGE_SIZE * (QDIO_MAX_ELEMENTS_PER_BUFFER - 1));
++	del_llc->reason = 0;
++	smc_llc_send_message(lnk, &qentry->msg); /* response */
++
++	if (smc_link_downing(&lnk_del->state)) {
++		/* tbd: call smc_switch_conns(lgr, lnk_del, false); */
++		smc_wr_tx_wait_no_pending_sends(lnk_del);
++	}
++	smcr_link_clear(lnk_del);
++
++	active_links = smc_llc_active_link_count(lgr);
++	if (lnk_del == lnk_asym) {
++		/* expected deletion of asym link, don't change lgr state */
++	} else if (active_links == 1) {
++		lgr->type = SMC_LGR_SINGLE;
++	} else if (!active_links) {
++		lgr->type = SMC_LGR_NONE;
++		smc_lgr_terminate_sched(lgr);
++	}
++out_unlock:
++	mutex_unlock(&lgr->llc_conf_mutex);
++out:
++	kfree(qentry);
++}
++
+ static void smc_llc_delete_link_work(struct work_struct *work)
+ {
+ 	struct smc_link_group *lgr = container_of(work, struct smc_link_group,
+@@ -1128,6 +1197,9 @@ static void smc_llc_delete_link_work(struct work_struct *work)
+ 		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
+ 		goto out;
  	}
++
++	if (lgr->role == SMC_CLNT)
++		smc_llc_process_cli_delete_link(lgr);
+ out:
+ 	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
+ }
 -- 
 2.17.1
