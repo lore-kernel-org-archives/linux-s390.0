@@ -1,130 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20332 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728927AbgE3Onp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 30 May 2020 10:43:45 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49646 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728743AbgEDMTQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 08:19:16 -0400
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next] net/smc: pre-fetch send buffer outside of send_lock
-Date: Sat, 30 May 2020 16:42:37 +0200
-Message-Id: <20200530144237.15883-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next 09/12] net/smc: add termination reason and handle LLC protocol violation
+Date: Mon,  4 May 2020 14:18:45 +0200
+Message-Id: <20200504121848.46585-10-kgraul@linux.ibm.com>
+In-Reply-To: <20200504121848.46585-1-kgraul@linux.ibm.com>
+References: <20200504121848.46585-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Pre-fetch send buffer for the CDC validation message before entering the
-send_lock. Without that the send call might fail with -EBUSY because
-there are no free buffers and waiting for buffers is not possible under
-send_lock.
+Allow to set the reason code for the link group termination, and set
+meaningful values before termination processing is triggered. This
+reason code is sent to the peer in the final delete link message.
+When the LLC request or response layer receives a message type that was
+not handled, drop a warning and terminate the link group.
 
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- net/smc/smc_cdc.c  | 10 +++-------
- net/smc/smc_cdc.h  |  4 +++-
- net/smc/smc_core.c | 18 +++++++++++++++---
- 3 files changed, 21 insertions(+), 11 deletions(-)
+ net/smc/smc_core.c |  8 ++++++--
+ net/smc/smc_core.h |  2 ++
+ net/smc/smc_llc.c  | 14 ++++++++++++++
+ net/smc/smc_llc.h  |  8 ++++++++
+ 4 files changed, 30 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index b2b85e1be72c..a47e8855e045 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -116,19 +116,15 @@ int smc_cdc_msg_send(struct smc_connection *conn,
- }
- 
- /* send a validation msg indicating the move of a conn to an other QP link */
--int smcr_cdc_msg_send_validation(struct smc_connection *conn)
-+int smcr_cdc_msg_send_validation(struct smc_connection *conn,
-+				 struct smc_cdc_tx_pend *pend,
-+				 struct smc_wr_buf *wr_buf)
- {
- 	struct smc_host_cdc_msg *local = &conn->local_tx_ctrl;
- 	struct smc_link *link = conn->lnk;
--	struct smc_cdc_tx_pend *pend;
--	struct smc_wr_buf *wr_buf;
- 	struct smc_cdc_msg *peer;
- 	int rc;
- 
--	rc = smc_cdc_get_free_slot(conn, link, &wr_buf, NULL, &pend);
--	if (rc)
--		return rc;
--
- 	peer = (struct smc_cdc_msg *)wr_buf;
- 	peer->common.type = local->common.type;
- 	peer->len = local->len;
-diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
-index 2ddcc5fb5ceb..0a0a89abd38b 100644
---- a/net/smc/smc_cdc.h
-+++ b/net/smc/smc_cdc.h
-@@ -296,7 +296,9 @@ int smc_cdc_msg_send(struct smc_connection *conn, struct smc_wr_buf *wr_buf,
- 		     struct smc_cdc_tx_pend *pend);
- int smc_cdc_get_slot_and_msg_send(struct smc_connection *conn);
- int smcd_cdc_msg_send(struct smc_connection *conn);
--int smcr_cdc_msg_send_validation(struct smc_connection *conn);
-+int smcr_cdc_msg_send_validation(struct smc_connection *conn,
-+				 struct smc_cdc_tx_pend *pend,
-+				 struct smc_wr_buf *wr_buf);
- int smc_cdc_init(void) __init;
- void smcd_cdc_rx_init(struct smc_connection *conn);
- 
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 65de700e1f17..7964a21e5e6f 100644
+index be15b30a1234..b6f93b44f9c7 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -483,7 +483,8 @@ static int smc_write_space(struct smc_connection *conn)
- 	return space;
- }
+@@ -878,8 +878,11 @@ static void smc_lgr_cleanup(struct smc_link_group *lgr)
+ 		smc_ism_put_vlan(lgr->smcd, lgr->vlan_id);
+ 		put_device(&lgr->smcd->dev);
+ 	} else {
+-		smc_llc_send_link_delete_all(lgr, false,
+-					     SMC_LLC_DEL_OP_INIT_TERM);
++		u32 rsn = lgr->llc_termination_rsn;
++
++		if (!rsn)
++			rsn = SMC_LLC_DEL_PROG_INIT_TERM;
++		smc_llc_send_link_delete_all(lgr, false, rsn);
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 			struct smc_link *lnk = &lgr->lnk[i];
  
--static int smc_switch_cursor(struct smc_sock *smc)
-+static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
-+			     struct smc_wr_buf *wr_buf)
- {
- 	struct smc_connection *conn = &smc->conn;
- 	union smc_host_cursor cons, fin;
-@@ -520,11 +521,14 @@ static int smc_switch_cursor(struct smc_sock *smc)
+@@ -1018,6 +1021,7 @@ void smc_smcr_terminate_all(struct smc_ib_device *smcibdev)
  
- 	if (smc->sk.sk_state != SMC_INIT &&
- 	    smc->sk.sk_state != SMC_CLOSED) {
--		rc = smcr_cdc_msg_send_validation(conn);
-+		rc = smcr_cdc_msg_send_validation(conn, pend, wr_buf);
- 		if (!rc) {
- 			schedule_delayed_work(&conn->tx_work, 0);
- 			smc->sk.sk_data_ready(&smc->sk);
- 		}
-+	} else {
-+		smc_wr_tx_put_slot(conn->lnk,
-+				   (struct smc_wr_tx_pend_priv *)pend);
+ 	list_for_each_entry_safe(lgr, lg, &lgr_free_list, list) {
+ 		list_del_init(&lgr->list);
++		smc_llc_set_termination_rsn(lgr, SMC_LLC_DEL_OP_INIT_TERM);
+ 		__smc_lgr_terminate(lgr, false);
  	}
- 	return rc;
+ 
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 6ed7ab6d89d5..32bc45af9a1a 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -271,6 +271,8 @@ struct smc_link_group {
+ 						/* protects llc flow */
+ 			int			llc_testlink_time;
+ 						/* link keep alive time */
++			u32			llc_termination_rsn;
++						/* rsn code for termination */
+ 		};
+ 		struct { /* SMC-D */
+ 			u64			peer_gid;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index f65b2aac6b52..482acf80e26e 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1420,6 +1420,14 @@ static void smc_llc_rmt_delete_rkey(struct smc_link_group *lgr)
+ 	smc_llc_flow_qentry_del(&lgr->llc_flow_rmt);
  }
-@@ -533,7 +537,9 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 				  struct smc_link *from_lnk, bool is_dev_err)
+ 
++static void smc_llc_protocol_violation(struct smc_link_group *lgr, u8 type)
++{
++	pr_warn_ratelimited("smc: SMC-R lg %*phN LLC protocol violation: "
++			    "llc_type %d\n", SMC_LGR_ID_SIZE, &lgr->id, type);
++	smc_llc_set_termination_rsn(lgr, SMC_LLC_DEL_PROT_VIOL);
++	smc_lgr_terminate_sched(lgr);
++}
++
+ /* flush the llc event queue */
+ static void smc_llc_event_flush(struct smc_link_group *lgr)
  {
- 	struct smc_link *to_lnk = NULL;
-+	struct smc_cdc_tx_pend *pend;
- 	struct smc_connection *conn;
-+	struct smc_wr_buf *wr_buf;
- 	struct smc_sock *smc;
- 	struct rb_node *node;
- 	int i, rc = 0;
-@@ -582,10 +588,16 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+@@ -1520,6 +1528,9 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
+ 			smc_llc_flow_stop(lgr, &lgr->llc_flow_rmt);
  		}
- 		sock_hold(&smc->sk);
- 		read_unlock_bh(&lgr->conns_lock);
-+		/* pre-fetch buffer outside of send_lock, might sleep */
-+		rc = smc_cdc_get_free_slot(conn, to_lnk, &wr_buf, NULL, &pend);
-+		if (rc) {
-+			smcr_link_down_cond_sched(to_lnk);
-+			return NULL;
-+		}
- 		/* avoid race with smcr_tx_sndbuf_nonempty() */
- 		spin_lock_bh(&conn->send_lock);
- 		conn->lnk = to_lnk;
--		rc = smc_switch_cursor(smc);
-+		rc = smc_switch_cursor(smc, pend, wr_buf);
- 		spin_unlock_bh(&conn->send_lock);
- 		sock_put(&smc->sk);
- 		if (rc) {
+ 		return;
++	default:
++		smc_llc_protocol_violation(lgr, llc->raw.hdr.common.type);
++		break;
+ 	}
+ out:
+ 	kfree(qentry);
+@@ -1579,6 +1590,9 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 	case SMC_LLC_CONFIRM_RKEY_CONT:
+ 		/* not used because max links is 3 */
+ 		break;
++	default:
++		smc_llc_protocol_violation(link->lgr, llc_type);
++		break;
+ 	}
+ 	kfree(qentry);
+ }
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index 6d2a5d943b83..f5882ebf357b 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -60,6 +60,14 @@ static inline struct smc_link *smc_llc_usable_link(struct smc_link_group *lgr)
+ 	return NULL;
+ }
+ 
++/* set the termination reason code for the link group */
++static inline void smc_llc_set_termination_rsn(struct smc_link_group *lgr,
++					       u32 rsn)
++{
++	if (!lgr->llc_termination_rsn)
++		lgr->llc_termination_rsn = rsn;
++}
++
+ /* transmit */
+ int smc_llc_send_confirm_link(struct smc_link *lnk,
+ 			      enum smc_llc_reqresp reqresp);
 -- 
 2.17.1
