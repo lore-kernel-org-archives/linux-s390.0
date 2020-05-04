@@ -1,78 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:54626 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728415AbgEBS2J (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 2 May 2020 14:28:09 -0400
-From: Eric Biggers <ebiggers@kernel.org>
-Subject: [PATCH 4/7] crypto: s390/sha1 - prefix the "sha1_" functions
-Date: Sat,  2 May 2020 11:24:24 -0700
-Message-Id: <20200502182427.104383-5-ebiggers@kernel.org>
-In-Reply-To: <20200502182427.104383-1-ebiggers@kernel.org>
-References: <20200502182427.104383-1-ebiggers@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729958AbgEDSWE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 14:22:04 -0400
+Date: Mon, 04 May 2020 11:22:03 -0700 (PDT)
+Message-Id: <20200504.112203.513284964071545941.davem@davemloft.net>
+Subject: Re: [PATCH net] s390/qeth: fix cancelling of TX timer on
+ dev_close()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200504173942.69298-1-jwi@linux.ibm.com>
+References: <20200504173942.69298-1-jwi@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, "Jason A . Donenfeld" <Jason@zx2c4.com>, Theodore Ts'o <tytso@mit.edu>, linux-s390@vger.kernel.org
+To: jwi@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, ubraun@linux.ibm.com
 
-From: Eric Biggers <ebiggers@google.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Mon,  4 May 2020 19:39:42 +0200
 
-Prefix the s390 SHA-1 functions with "s390_sha1_" rather than "sha1_".
-This allows us to rename the library function sha_init() to sha1_init()
-without causing a naming collision.
+> With the introduction of TX coalescing, .ndo_start_xmit now potentially
+> starts the TX completion timer. So only kill the timer _after_ TX has
+> been disabled.
+> 
+> Fixes: ee1e52d1e4bb ("s390/qeth: add TX IRQ coalescing support for IQD devices")
+> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- arch/s390/crypto/sha1_s390.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/crypto/sha1_s390.c b/arch/s390/crypto/sha1_s390.c
-index 7c15542d368547..698b1e6d3c14d1 100644
---- a/arch/s390/crypto/sha1_s390.c
-+++ b/arch/s390/crypto/sha1_s390.c
-@@ -27,7 +27,7 @@
- 
- #include "sha.h"
- 
--static int sha1_init(struct shash_desc *desc)
-+static int s390_sha1_init(struct shash_desc *desc)
- {
- 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
- 
-@@ -42,7 +42,7 @@ static int sha1_init(struct shash_desc *desc)
- 	return 0;
- }
- 
--static int sha1_export(struct shash_desc *desc, void *out)
-+static int s390_sha1_export(struct shash_desc *desc, void *out)
- {
- 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
- 	struct sha1_state *octx = out;
-@@ -53,7 +53,7 @@ static int sha1_export(struct shash_desc *desc, void *out)
- 	return 0;
- }
- 
--static int sha1_import(struct shash_desc *desc, const void *in)
-+static int s390_sha1_import(struct shash_desc *desc, const void *in)
- {
- 	struct s390_sha_ctx *sctx = shash_desc_ctx(desc);
- 	const struct sha1_state *ictx = in;
-@@ -67,11 +67,11 @@ static int sha1_import(struct shash_desc *desc, const void *in)
- 
- static struct shash_alg alg = {
- 	.digestsize	=	SHA1_DIGEST_SIZE,
--	.init		=	sha1_init,
-+	.init		=	s390_sha1_init,
- 	.update		=	s390_sha_update,
- 	.final		=	s390_sha_final,
--	.export		=	sha1_export,
--	.import		=	sha1_import,
-+	.export		=	s390_sha1_export,
-+	.import		=	s390_sha1_import,
- 	.descsize	=	sizeof(struct s390_sha_ctx),
- 	.statesize	=	sizeof(struct sha1_state),
- 	.base		=	{
--- 
-2.26.2
+Applied, thanks Julian.
