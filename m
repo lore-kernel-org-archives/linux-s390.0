@@ -1,136 +1,149 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52332 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727830AbgEHRXr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 May 2020 13:23:47 -0400
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 3/8] zfcp: move fc_host updates during xport data handling into fenced function
-Date: Fri,  8 May 2020 19:23:30 +0200
-Message-Id: <ae454c2dc6da0b02907c489af91d0b211d331825.1588956679.git.bblock@linux.ibm.com>
-In-Reply-To: <cover.1588956679.git.bblock@linux.ibm.com>
-References: <cover.1588956679.git.bblock@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38588 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728614AbgEDMTP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 08:19:15 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 04/12] net/smc: handle incoming CDC validation message
+Date: Mon,  4 May 2020 14:18:40 +0200
+Message-Id: <20200504121848.46585-5-kgraul@linux.ibm.com>
+In-Reply-To: <20200504121848.46585-1-kgraul@linux.ibm.com>
+References: <20200504121848.46585-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-When executing exchange port data for a FCP device for the first time, or
-after an adapter recovery, we update several properties of the fibre
-channel host object which represents that FCP device.
+Call smc_cdc_msg_validate() when a CDC message with the failover
+validation bit enabled was received. Validate that the sequence number
+sent with the message is one we already have received. If not, messages
+were lost and the connection is terminated using a new abort_work.
 
-When moving the scsi host object allocation and registration - and thus
-also the fibre channel host object allocation - to after the first
-exchange config and exchange port data, this is not possible for the
-former case.
-
-Move all these update into separate, and fenced function that first
-checks whether the scsi host object already exists or not, before making
-the updates.
-
-During the first ever exchange port data in the adapter life cycle
-this will make the exchange port data handler skip over this update
-step, but we can repeat it later, after we allocated the scsi host
-object.
-
-For any further recovery of that adapter the work flow is only changed
-slightly because then the scsi host object already exists and we don't
-free it until we release the adapter completely at the end of its life
-cycle.
-
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_ext.h  |  3 +++
- drivers/s390/scsi/zfcp_fsf.c  | 12 +++---------
- drivers/s390/scsi/zfcp_scsi.c | 19 +++++++++++++++++++
- 3 files changed, 25 insertions(+), 9 deletions(-)
+ net/smc/smc.h      |  2 ++
+ net/smc/smc_cdc.c  | 37 +++++++++++++++++++++++++++++++------
+ net/smc/smc_core.c | 15 +++++++++++++++
+ 3 files changed, 48 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_ext.h b/drivers/s390/scsi/zfcp_ext.h
-index 4c4be754cf6e..5dc9bdc5803f 100644
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -176,6 +176,9 @@ extern void zfcp_scsi_shost_update_config_data(
- 	struct zfcp_adapter *const adapter,
- 	const struct fsf_qtcb_bottom_config *const bottom,
- 	const bool bottom_incomplete);
-+extern void zfcp_scsi_shost_update_port_data(
-+	struct zfcp_adapter *const adapter,
-+	const struct fsf_qtcb_bottom_port *const bottom);
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 1e9113771600..6f1c42da7a4c 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -188,12 +188,14 @@ struct smc_connection {
+ 	spinlock_t		acurs_lock;	/* protect cursors */
+ #endif
+ 	struct work_struct	close_work;	/* peer sent some closing */
++	struct work_struct	abort_work;	/* abort the connection */
+ 	struct tasklet_struct	rx_tsklet;	/* Receiver tasklet for SMC-D */
+ 	u8			rx_off;		/* receive offset:
+ 						 * 0 for SMC-R, 32 for SMC-D
+ 						 */
+ 	u64			peer_token;	/* SMC-D token of peer */
+ 	u8			killed : 1;	/* abnormal termination */
++	u8			out_of_sync : 1; /* out of sync with peer */
+ };
  
- /* zfcp_sysfs.c */
- extern const struct attribute_group *zfcp_unit_attr_groups[];
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 54edfcbe84ce..bfb567a1d7bf 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -725,19 +725,10 @@ static void zfcp_fsf_exchange_port_evaluate(struct zfcp_fsf_req *req)
- {
- 	struct zfcp_adapter *adapter = req->adapter;
- 	struct fsf_qtcb_bottom_port *bottom = &req->qtcb->bottom.port;
--	struct Scsi_Host *shost = adapter->scsi_host;
+ struct smc_sock {				/* smc sock container */
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index e6b7eef71831..b2b85e1be72c 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -282,6 +282,28 @@ static void smc_cdc_handle_urg_data_arrival(struct smc_sock *smc,
+ 	sk_send_sigurg(&smc->sk);
+ }
  
- 	if (req->data)
- 		memcpy(req->data, bottom, sizeof(*bottom));
- 
--	fc_host_permanent_port_name(shost) = bottom->wwpn;
--	fc_host_maxframe_size(shost) = bottom->maximum_frame_size;
--	fc_host_supported_speeds(shost) =
--		zfcp_fsf_convert_portspeed(bottom->supported_speed);
--	memcpy(fc_host_supported_fc4s(shost), bottom->supported_fc4_types,
--	       FC_FC4_LIST_SIZE);
--	memcpy(fc_host_active_fc4s(shost), bottom->active_fc4_types,
--	       FC_FC4_LIST_SIZE);
- 	if (adapter->adapter_features & FSF_FEATURE_FC_SECURITY)
- 		adapter->fc_security_algorithms =
- 			bottom->fc_security_algorithms;
-@@ -764,6 +755,7 @@ static void zfcp_fsf_exchange_port_data_handler(struct zfcp_fsf_req *req)
- 		 */
- 		zfcp_diag_update_xdata(diag_hdr, bottom, false);
- 
-+		zfcp_scsi_shost_update_port_data(req->adapter, bottom);
- 		zfcp_fsf_exchange_port_evaluate(req);
- 		break;
- 	case FSF_EXCHANGE_CONFIG_DATA_INCOMPLETE:
-@@ -772,6 +764,8 @@ static void zfcp_fsf_exchange_port_data_handler(struct zfcp_fsf_req *req)
- 
- 		zfcp_fsf_link_down_info_eval(req,
- 			&qtcb->header.fsf_status_qual.link_down_info);
++static void smc_cdc_msg_validate(struct smc_sock *smc, struct smc_cdc_msg *cdc,
++				 struct smc_link *link)
++{
++	struct smc_connection *conn = &smc->conn;
++	u16 recv_seq = ntohs(cdc->seqno);
++	s16 diff;
 +
-+		zfcp_scsi_shost_update_port_data(req->adapter, bottom);
- 		zfcp_fsf_exchange_port_evaluate(req);
- 		break;
++	/* check that seqnum was seen before */
++	diff = conn->local_rx_ctrl.seqno - recv_seq;
++	if (diff < 0) { /* diff larger than 0x7fff */
++		/* drop connection */
++		conn->out_of_sync = 1;	/* prevent any further receives */
++		spin_lock_bh(&conn->send_lock);
++		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
++		conn->lnk = link;
++		spin_unlock_bh(&conn->send_lock);
++		sock_hold(&smc->sk); /* sock_put in abort_work */
++		if (!schedule_work(&conn->abort_work))
++			sock_put(&smc->sk);
++	}
++}
++
+ static void smc_cdc_msg_recv_action(struct smc_sock *smc,
+ 				    struct smc_cdc_msg *cdc)
+ {
+@@ -412,16 +434,19 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
+ 	read_lock_bh(&lgr->conns_lock);
+ 	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
+ 	read_unlock_bh(&lgr->conns_lock);
+-	if (!conn)
++	if (!conn || conn->out_of_sync)
+ 		return;
+ 	smc = container_of(conn, struct smc_sock, conn);
+ 
+-	if (!cdc->prod_flags.failover_validation) {
+-		if (smc_cdc_before(ntohs(cdc->seqno),
+-				   conn->local_rx_ctrl.seqno))
+-			/* received seqno is old */
+-			return;
++	if (cdc->prod_flags.failover_validation) {
++		smc_cdc_msg_validate(smc, cdc, link);
++		return;
  	}
-diff --git a/drivers/s390/scsi/zfcp_scsi.c b/drivers/s390/scsi/zfcp_scsi.c
-index e1281a1ce488..f98e4015a0ed 100644
---- a/drivers/s390/scsi/zfcp_scsi.c
-+++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -911,6 +911,25 @@ void zfcp_scsi_shost_update_config_data(
++	if (smc_cdc_before(ntohs(cdc->seqno),
++			   conn->local_rx_ctrl.seqno))
++		/* received seqno is old */
++		return;
++
+ 	smc_cdc_msg_recv(smc, cdc);
+ }
+ 
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index a558ce0bde97..b5633fa19b6d 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -615,6 +615,8 @@ void smc_conn_free(struct smc_connection *conn)
+ 		tasklet_kill(&conn->rx_tsklet);
+ 	} else {
+ 		smc_cdc_tx_dismiss_slots(conn);
++		if (current_work() != &conn->abort_work)
++			cancel_work_sync(&conn->abort_work);
+ 	}
+ 	if (!list_empty(&lgr->list)) {
+ 		smc_lgr_unregister_conn(conn);
+@@ -996,6 +998,18 @@ void smc_smcr_terminate_all(struct smc_ib_device *smcibdev)
  	}
  }
  
-+void zfcp_scsi_shost_update_port_data(
-+	struct zfcp_adapter *const adapter,
-+	const struct fsf_qtcb_bottom_port *const bottom)
++/* abort connection, abort_work scheduled from tasklet context */
++static void smc_conn_abort_work(struct work_struct *work)
 +{
-+	struct Scsi_Host *const shost = adapter->scsi_host;
++	struct smc_connection *conn = container_of(work,
++						   struct smc_connection,
++						   abort_work);
++	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
 +
-+	if (shost == NULL)
-+		return;
-+
-+	fc_host_permanent_port_name(shost) = bottom->wwpn;
-+	fc_host_maxframe_size(shost) = bottom->maximum_frame_size;
-+	fc_host_supported_speeds(shost) =
-+		zfcp_fsf_convert_portspeed(bottom->supported_speed);
-+	memcpy(fc_host_supported_fc4s(shost), bottom->supported_fc4_types,
-+	       FC_FC4_LIST_SIZE);
-+	memcpy(fc_host_active_fc4s(shost), bottom->active_fc4_types,
-+	       FC_FC4_LIST_SIZE);
++	smc_conn_kill(conn, true);
++	sock_put(&smc->sk); /* sock_hold done by schedulers of abort_work */
 +}
 +
- struct fc_function_template zfcp_transport_functions = {
- 	.show_starget_port_id = 1,
- 	.show_starget_port_name = 1,
+ /* link is up - establish alternate link if applicable */
+ static void smcr_link_up(struct smc_link_group *lgr,
+ 			 struct smc_ib_device *smcibdev, u8 ibport)
+@@ -1302,6 +1316,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
+ 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
+ 	conn->urg_state = SMC_URG_READ;
++	INIT_WORK(&smc->conn.abort_work, smc_conn_abort_work);
+ 	if (ini->is_smcd) {
+ 		conn->rx_off = sizeof(struct smcd_cdc_msg);
+ 		smcd_cdc_rx_init(conn); /* init tasklet for this conn */
 -- 
 2.17.1
