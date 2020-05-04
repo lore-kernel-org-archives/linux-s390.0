@@ -1,94 +1,133 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48604 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726791AbgE1GGW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 May 2020 02:06:22 -0400
-From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH] s390: vdso: Use $(LD) instead of $(CC) to link vDSO
-Date: Wed, 27 May 2020 23:06:01 -0700
-Message-Id: <20200528060600.2732012-1-natechancellor@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49652 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728686AbgEDMTP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 08:19:15 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 07/12] net/smc: assign link to a new connection
+Date: Mon,  4 May 2020 14:18:43 +0200
+Message-Id: <20200504121848.46585-8-kgraul@linux.ibm.com>
+In-Reply-To: <20200504121848.46585-1-kgraul@linux.ibm.com>
+References: <20200504121848.46585-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, Fangrui Song <maskray@google.com>, Nathan Chancellor <natechancellor@gmail.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Currently, the VDSO is being linked through $(CC). This does not match
-how the rest of the kernel links objects, which is through the $(LD)
-variable.
+For new connections, assign a link from the link group, using some
+simple load balancing.
 
-When clang is built in a default configuration, it first attempts to use
-the target triple's default linker, which is just ld. However, the user
-can override this through the CLANG_DEFAULT_LINKER cmake define so that
-clang uses another linker by default, such as LLVM's own linker, ld.lld.
-This can be useful to get more optimized links across various different
-projects.
-
-However, this is problematic for the s390 vDSO because ld.lld does not
-have any s390 emulatiom support:
-
-https://github.com/llvm/llvm-project/blob/llvmorg-10.0.1-rc1/lld/ELF/Driver.cpp#L132-L150
-
-Thus, if a user is using a toolchain with ld.lld as the default, they
-will see an error, even if they have specified ld.bfd through the LD
-make variable:
-
-$ make -j"$(nproc)" -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- LLVM=1 \
-                       LD=s390x-linux-gnu-ld \
-                       defconfig arch/s390/kernel/vdso64/
-ld.lld: error: unknown emulation: elf64_s390
-clang-11: error: linker command failed with exit code 1 (use -v to see invocation)
-
-Normally, '-fuse-ld=bfd' could be used to get around this; however, this
-can be fragile, depending on paths and variable naming. The cleaner
-solution for the kernel is to take advantage of the fact that $(LD) can
-be invoked directly, which bypasses the heuristics of $(CC) and respects
-the user's choice. Similar changes have been done for ARM, ARM64, and
-MIPS.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1041
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- arch/s390/kernel/vdso64/Makefile | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ net/smc/smc_core.c | 65 ++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 46 insertions(+), 19 deletions(-)
 
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index bec19e7e6e1c..b8db1ffbc2b9 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -18,8 +18,8 @@ KBUILD_AFLAGS_64 += -m64 -s
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 8f630b76c5a4..9c19b9aa3719 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -121,16 +121,59 @@ static void smc_lgr_add_alert_token(struct smc_connection *conn)
+ 	rb_insert_color(&conn->alert_node, &conn->lgr->conns_all);
+ }
  
- KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
- KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
--KBUILD_CFLAGS_64 += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
--		    -Wl,--hash-style=both
-+ldflags-y := -shared -nostdlib -soname=linux-vdso64.so.1 \
-+	     --hash-style=both -T
++/* assign an SMC-R link to the connection */
++static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
++{
++	enum smc_link_state expected = first ? SMC_LNK_ACTIVATING :
++				       SMC_LNK_ACTIVE;
++	int i, j;
++
++	/* do link balancing */
++	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++		struct smc_link *lnk = &conn->lgr->lnk[i];
++
++		if (lnk->state != expected)
++			continue;
++		if (conn->lgr->role == SMC_CLNT) {
++			conn->lnk = lnk; /* temporary, SMC server assigns link*/
++			break;
++		}
++		if (conn->lgr->conns_num % 2) {
++			for (j = i + 1; j < SMC_LINKS_PER_LGR_MAX; j++) {
++				struct smc_link *lnk2;
++
++				lnk2 = &conn->lgr->lnk[j];
++				if (lnk2->state == expected) {
++					conn->lnk = lnk2;
++					break;
++				}
++			}
++		}
++		if (!conn->lnk)
++			conn->lnk = lnk;
++		break;
++	}
++	if (!conn->lnk)
++		return SMC_CLC_DECL_NOACTLINK;
++	return 0;
++}
++
+ /* Register connection in link group by assigning an alert token
+  * registered in a search tree.
+  * Requires @conns_lock
+  * Note that '0' is a reserved value and not assigned.
+  */
+-static int smc_lgr_register_conn(struct smc_connection *conn)
++static int smc_lgr_register_conn(struct smc_connection *conn, bool first)
+ {
+ 	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
+ 	static atomic_t nexttoken = ATOMIC_INIT(0);
++	int rc;
  
- $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
- $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
-@@ -37,8 +37,8 @@ KASAN_SANITIZE := n
- $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
- 
- # link rule for the .so file, .lds has to be first
--$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
--	$(call if_changed,vdso64ld)
-+$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) FORCE
-+	$(call if_changed,ld)
- 
- # strip rule for the .so file
- $(obj)/%.so: OBJCOPYFLAGS := -S
-@@ -50,8 +50,6 @@ $(obj-vdso64): %.o: %.S FORCE
- 	$(call if_changed_dep,vdso64as)
- 
- # actual build commands
--quiet_cmd_vdso64ld = VDSO64L $@
--      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
- quiet_cmd_vdso64as = VDSO64A $@
-       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
- 
-
-base-commit: 9cb1fd0efd195590b828b9b865421ad345a4a145
++	if (!conn->lgr->is_smcd) {
++		rc = smcr_lgr_conn_assign_link(conn, first);
++		if (rc)
++			return rc;
++	}
+ 	/* find a new alert_token_local value not yet used by some connection
+ 	 * in this link group
+ 	 */
+@@ -141,22 +184,6 @@ static int smc_lgr_register_conn(struct smc_connection *conn)
+ 			conn->alert_token_local = 0;
+ 	}
+ 	smc_lgr_add_alert_token(conn);
+-
+-	/* assign the new connection to a link */
+-	if (!conn->lgr->is_smcd) {
+-		struct smc_link *lnk;
+-		int i;
+-
+-		/* tbd - link balancing */
+-		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+-			lnk = &conn->lgr->lnk[i];
+-			if (lnk->state == SMC_LNK_ACTIVATING ||
+-			    lnk->state == SMC_LNK_ACTIVE)
+-				conn->lnk = lnk;
+-		}
+-		if (!conn->lnk)
+-			return SMC_CLC_DECL_NOACTLINK;
+-	}
+ 	conn->lgr->conns_num++;
+ 	return 0;
+ }
+@@ -1285,7 +1312,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 			/* link group found */
+ 			ini->cln_first_contact = SMC_REUSE_CONTACT;
+ 			conn->lgr = lgr;
+-			rc = smc_lgr_register_conn(conn); /* add conn to lgr */
++			rc = smc_lgr_register_conn(conn, false);
+ 			write_unlock_bh(&lgr->conns_lock);
+ 			if (!rc && delayed_work_pending(&lgr->free_work))
+ 				cancel_delayed_work(&lgr->free_work);
+@@ -1313,7 +1340,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 			goto out;
+ 		lgr = conn->lgr;
+ 		write_lock_bh(&lgr->conns_lock);
+-		rc = smc_lgr_register_conn(conn); /* add smc conn to lgr */
++		rc = smc_lgr_register_conn(conn, true);
+ 		write_unlock_bh(&lgr->conns_lock);
+ 		if (rc)
+ 			goto out;
 -- 
-2.27.0.rc0
+2.17.1
