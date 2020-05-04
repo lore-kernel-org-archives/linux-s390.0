@@ -1,180 +1,135 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:42117 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2389129AbgEZLFw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 May 2020 07:05:52 -0400
-Received: by mail-wr1-f72.google.com with SMTP id q24so4262269wra.14
-        for <linux-s390@vger.kernel.org>; Tue, 26 May 2020 04:05:46 -0700 (PDT)
-From: Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Subject: [PATCH v3 7/7] [not for merge] netstats: example use of stats_fs API
-Date: Tue, 26 May 2020 13:03:17 +0200
-Message-Id: <20200526110318.69006-8-eesposit@redhat.com>
-In-Reply-To: <20200526110318.69006-1-eesposit@redhat.com>
-References: <20200526110318.69006-1-eesposit@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41508 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728742AbgEDMTP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 08:19:15 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 05/12] net/smc: wait for departure of an IB message
+Date: Mon,  4 May 2020 14:18:41 +0200
+Message-Id: <20200504121848.46585-6-kgraul@linux.ibm.com>
+In-Reply-To: <20200504121848.46585-1-kgraul@linux.ibm.com>
+References: <20200504121848.46585-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Paolo Bonzini <pbonzini@redhat.com>, Jim Mattson <jmattson@google.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Emanuele Giuseppe Esposito <e.emanuelegiuseppe@gmail.com>, David Rientjes <rientjes@google.com>, Jonathan Adams <jwadams@google.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org, Emanuele Giuseppe Esposito <eesposit@redhat.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Apply stats_fs on the networking statistics subsystem.
+Introduce smc_wr_tx_send_wait() to send an IB message and wait for the
+tx completion event of the message. This makes sure that the message is
+no longer in-flight when the function returns.
 
-Currently it only works with disabled network namespace
-(CONFIG_NET_NS=n), because multiple namespaces will have the same
-device name under the same root source that will cause a conflict in
-stats_fs.
-
-Signed-off-by: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- include/linux/netdevice.h |  2 ++
- net/Kconfig               |  1 +
- net/core/dev.c            | 66 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 69 insertions(+)
+ net/smc/smc_core.h |  1 +
+ net/smc/smc_wr.c   | 39 +++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_wr.h   |  2 ++
+ 3 files changed, 42 insertions(+)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 130a668049ab..408c4e7b0e21 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -48,6 +48,7 @@
- #include <uapi/linux/if_bonding.h>
- #include <uapi/linux/pkt_cls.h>
- #include <linux/hashtable.h>
-+#include <linux/stats_fs.h>
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 584f11230c4f..86eebbadc8f6 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -85,6 +85,7 @@ struct smc_link {
+ 	struct smc_rdma_sges	*wr_tx_rdma_sges;/*RDMA WRITE gather meta data*/
+ 	struct smc_rdma_wr	*wr_tx_rdmas;	/* WR RDMA WRITE */
+ 	struct smc_wr_tx_pend	*wr_tx_pends;	/* WR send waiting for CQE */
++	struct completion	*wr_tx_compl;	/* WR send CQE completion */
+ 	/* above four vectors have wr_tx_cnt elements and use the same index */
+ 	dma_addr_t		wr_tx_dma_addr;	/* DMA address of wr_tx_bufs */
+ 	atomic_long_t		wr_tx_id;	/* seq # of last sent WR */
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 3fd27bea4f7a..7239ba9b99dc 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -44,6 +44,7 @@ struct smc_wr_tx_pend {	/* control data for a pending send request */
+ 	struct smc_link		*link;
+ 	u32			idx;
+ 	struct smc_wr_tx_pend_priv priv;
++	u8			compl_requested;
+ };
  
- struct netpoll_info;
- struct device;
-@@ -2117,6 +2118,7 @@ struct net_device {
- 	unsigned		wol_enabled:1;
+ /******************************** send queue *********************************/
+@@ -103,6 +104,8 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
+ 	if (pnd_snd_idx == link->wr_tx_cnt)
+ 		return;
+ 	link->wr_tx_pends[pnd_snd_idx].wc_status = wc->status;
++	if (link->wr_tx_pends[pnd_snd_idx].compl_requested)
++		complete(&link->wr_tx_compl[pnd_snd_idx]);
+ 	memcpy(&pnd_snd, &link->wr_tx_pends[pnd_snd_idx], sizeof(pnd_snd));
+ 	/* clear the full struct smc_wr_tx_pend including .priv */
+ 	memset(&link->wr_tx_pends[pnd_snd_idx], 0,
+@@ -275,6 +278,33 @@ int smc_wr_tx_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv)
+ 	return rc;
+ }
  
- 	struct list_head	net_notifier_list;
-+	struct stats_fs_source	*stats_fs_src;
- 
- #if IS_ENABLED(CONFIG_MACSEC)
- 	/* MACsec management functions */
-diff --git a/net/Kconfig b/net/Kconfig
-index df8d8c9bd021..3441d5bb6107 100644
---- a/net/Kconfig
-+++ b/net/Kconfig
-@@ -8,6 +8,7 @@ menuconfig NET
- 	select NLATTR
- 	select GENERIC_NET_UTILS
- 	select BPF
-+	select STATS_FS_API
- 	---help---
- 	  Unless you really know what you are doing, you should say Y here.
- 	  The reason is that some programs need kernel networking support even
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 522288177bbd..3db48cd1a097 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -142,6 +142,7 @@
- #include <linux/net_namespace.h>
- #include <linux/indirect_call_wrapper.h>
- #include <net/devlink.h>
-+#include <linux/stats_fs.h>
- 
- #include "net-sysfs.h"
- 
-@@ -150,6 +151,11 @@
- /* This should be increased if a protocol with a bigger head is added. */
- #define GRO_MAX_HEAD (MAX_HEADER + 128)
- 
-+#define NETDEV_STAT(str, m, ...)						\
-+	{ str, offsetof(struct rtnl_link_stats64, m),				\
-+	  &stats_fs_type_netdev_u64,						\
-+	  STATS_FS_SUM, ## __VA_ARGS__ }
-+
- static DEFINE_SPINLOCK(ptype_lock);
- static DEFINE_SPINLOCK(offload_lock);
- struct list_head ptype_base[PTYPE_HASH_SIZE] __read_mostly;
-@@ -196,6 +202,53 @@ static DEFINE_READ_MOSTLY_HASHTABLE(napi_hash, 8);
- 
- static seqcount_t devnet_rename_seq;
- 
-+static uint64_t stats_fs_get_netdev_u64(struct stats_fs_value *val,
-+					void *base)
++/* Send prepared WR slot via ib_post_send and wait for send completion
++ * notification.
++ * @priv: pointer to smc_wr_tx_pend_priv identifying prepared message buffer
++ */
++int smc_wr_tx_send_wait(struct smc_link *link, struct smc_wr_tx_pend_priv *priv,
++			unsigned long timeout)
 +{
-+	struct net_device *netdev = (struct net_device *)base;
-+	struct rtnl_link_stats64 net_stats;
++	struct smc_wr_tx_pend *pend;
++	int rc;
 +
-+	dev_get_stats(netdev, &net_stats);
++	pend = container_of(priv, struct smc_wr_tx_pend, priv);
++	pend->compl_requested = 1;
++	init_completion(&link->wr_tx_compl[pend->idx]);
 +
-+	return stats_fs_get_u64(val, &net_stats);
++	rc = smc_wr_tx_send(link, priv);
++	if (rc)
++		return rc;
++	/* wait for completion by smc_wr_tx_process_cqe() */
++	rc = wait_for_completion_interruptible_timeout(
++					&link->wr_tx_compl[pend->idx], timeout);
++	if (rc <= 0)
++		rc = -ENODATA;
++	if (rc > 0)
++		rc = 0;
++	return rc;
 +}
 +
-+static struct stats_fs_type stats_fs_type_netdev_u64 = {
-+	.get = stats_fs_get_netdev_u64,
-+	.clear = NULL,
-+	.sign = false
-+};
-+
-+static struct stats_fs_source *netdev_root;
-+
-+static struct stats_fs_value stats_fs_netdev_entries[] = {
-+	NETDEV_STAT("rx_packets", rx_packets),
-+	NETDEV_STAT("tx_packets", tx_packets),
-+	NETDEV_STAT("rx_bytes", rx_bytes),
-+	NETDEV_STAT("tx_bytes", tx_bytes),
-+	NETDEV_STAT("rx_errors", rx_errors),
-+	NETDEV_STAT("tx_errors", tx_errors),
-+	NETDEV_STAT("rx_dropped", rx_dropped),
-+	NETDEV_STAT("tx_dropped", tx_dropped),
-+	NETDEV_STAT("multicast", multicast),
-+	NETDEV_STAT("collisions", collisions),
-+	NETDEV_STAT("rx_length_errors", rx_length_errors),
-+	NETDEV_STAT("rx_over_errors", rx_over_errors),
-+	NETDEV_STAT("rx_crc_errors", rx_crc_errors),
-+	NETDEV_STAT("rx_frame_errors", rx_frame_errors),
-+	NETDEV_STAT("rx_fifo_errors", rx_fifo_errors),
-+	NETDEV_STAT("rx_missed_errors", rx_missed_errors),
-+	NETDEV_STAT("tx_aborted_errors", tx_aborted_errors),
-+	NETDEV_STAT("tx_carrier_errors", tx_carrier_errors),
-+	NETDEV_STAT("tx_fifo_errors", tx_fifo_errors),
-+	NETDEV_STAT("tx_heartbeat_errors", tx_heartbeat_errors),
-+	NETDEV_STAT("tx_window_errors", tx_window_errors),
-+	NETDEV_STAT("rx_compressed", rx_compressed),
-+	NETDEV_STAT("tx_compressed", tx_compressed),
-+	NETDEV_STAT("rx_nohandler", rx_nohandler),
-+	{ NULL }
-+};
-+
- static inline void dev_base_seq_inc(struct net *net)
+ /* Register a memory region and wait for result. */
+ int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
  {
- 	while (++net->dev_base_seq == 0)
-@@ -8783,6 +8836,11 @@ static void rollback_registered_many(struct list_head *head)
- 	ASSERT_RTNL();
+@@ -555,6 +585,8 @@ void smc_wr_free_link(struct smc_link *lnk)
  
- 	list_for_each_entry_safe(dev, tmp, head, unreg_list) {
-+		stats_fs_source_remove_subordinate(netdev_root,
-+						   dev->stats_fs_src);
-+		stats_fs_source_revoke(dev->stats_fs_src);
-+		stats_fs_source_put(dev->stats_fs_src);
-+
- 		/* Some devices call without registering
- 		 * for initialization unwind. Remove those
- 		 * devices and proceed with the remaining.
-@@ -9436,6 +9494,11 @@ int register_netdevice(struct net_device *dev)
- 	    dev->rtnl_link_state == RTNL_LINK_INITIALIZED)
- 		rtmsg_ifinfo(RTM_NEWLINK, dev, ~0U, GFP_KERNEL);
+ void smc_wr_free_link_mem(struct smc_link *lnk)
+ {
++	kfree(lnk->wr_tx_compl);
++	lnk->wr_tx_compl = NULL;
+ 	kfree(lnk->wr_tx_pends);
+ 	lnk->wr_tx_pends = NULL;
+ 	kfree(lnk->wr_tx_mask);
+@@ -625,8 +657,15 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
+ 				    GFP_KERNEL);
+ 	if (!link->wr_tx_pends)
+ 		goto no_mem_wr_tx_mask;
++	link->wr_tx_compl = kcalloc(SMC_WR_BUF_CNT,
++				    sizeof(link->wr_tx_compl[0]),
++				    GFP_KERNEL);
++	if (!link->wr_tx_compl)
++		goto no_mem_wr_tx_pends;
+ 	return 0;
  
-+	dev->stats_fs_src = stats_fs_source_create(0, dev->name);
-+	stats_fs_source_add_subordinate(netdev_root, dev->stats_fs_src);
-+	stats_fs_source_add_values(dev->stats_fs_src, stats_fs_netdev_entries,
-+				   dev, 0);
-+
- out:
- 	return ret;
- 
-@@ -10500,6 +10563,9 @@ static int __init net_dev_init(void)
- 	if (netdev_kobject_init())
- 		goto out;
- 
-+	netdev_root = stats_fs_source_create(0, "net");
-+	stats_fs_source_register(netdev_root);
-+
- 	INIT_LIST_HEAD(&ptype_all);
- 	for (i = 0; i < PTYPE_HASH_SIZE; i++)
- 		INIT_LIST_HEAD(&ptype_base[i]);
++no_mem_wr_tx_pends:
++	kfree(link->wr_tx_pends);
+ no_mem_wr_tx_mask:
+ 	kfree(link->wr_tx_mask);
+ no_mem_wr_rx_sges:
+diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
+index f7eaeb3391f3..423b8709f1c9 100644
+--- a/net/smc/smc_wr.h
++++ b/net/smc/smc_wr.h
+@@ -101,6 +101,8 @@ int smc_wr_tx_put_slot(struct smc_link *link,
+ 		       struct smc_wr_tx_pend_priv *wr_pend_priv);
+ int smc_wr_tx_send(struct smc_link *link,
+ 		   struct smc_wr_tx_pend_priv *wr_pend_priv);
++int smc_wr_tx_send_wait(struct smc_link *link, struct smc_wr_tx_pend_priv *priv,
++			unsigned long timeout);
+ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context);
+ void smc_wr_tx_dismiss_slots(struct smc_link *lnk, u8 wr_rx_hdr_type,
+ 			     smc_wr_tx_filter filter,
 -- 
-2.25.4
+2.17.1
