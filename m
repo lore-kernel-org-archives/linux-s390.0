@@ -1,70 +1,130 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39232 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727035AbgERQHn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 May 2020 12:07:43 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 03/12] s390x: Move control register bit definitions and add AFP to them
-Date: Mon, 18 May 2020 18:07:22 +0200
-Message-Id: <1589818051-20549-4-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
-References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 03/11] s390/qeth: add debugfs file for local IP addresses
+Date: Tue,  5 May 2020 18:25:51 +0200
+Message-Id: <20200505162559.14138-4-jwi@linux.ibm.com>
+In-Reply-To: <20200505162559.14138-1-jwi@linux.ibm.com>
+References: <20200505162559.14138-1-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-While adding the definition for the AFP-Register control bit, move all
-existing definitions for CR0 out of the C zone to the assmbler zone to
-keep the definitions concerning CR0 together.
+For debugging purposes, provide read access to the local_addr caches
+via debug/qeth/<dev_name>/local_addrs.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- lib/s390x/asm/arch_def.h | 11 ++++++-----
- s390x/cstart64.S         |  2 +-
- 2 files changed, 7 insertions(+), 6 deletions(-)
+ drivers/s390/net/qeth_core.h      |  2 ++
+ drivers/s390/net/qeth_core_main.c | 32 ++++++++++++++++++++++++++++++-
+ 2 files changed, 33 insertions(+), 1 deletion(-)
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 820af93..54ffd0b 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -19,17 +19,18 @@
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index b92af3735dd4..3d8b8e0f2438 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -11,6 +11,7 @@
+ #define __QETH_CORE_H__
  
- #define PSW_EXCEPTION_MASK	(PSW_MASK_EA | PSW_MASK_BA)
+ #include <linux/completion.h>
++#include <linux/debugfs.h>
+ #include <linux/if.h>
+ #include <linux/if_arp.h>
+ #include <linux/etherdevice.h>
+@@ -797,6 +798,7 @@ struct qeth_card {
+ 	struct qeth_channel data;
  
-+#define CR0_EXTM_SCLP			0X0000000000000200UL
-+#define CR0_EXTM_EXTC			0X0000000000002000UL
-+#define CR0_EXTM_EMGC			0X0000000000004000UL
-+#define CR0_EXTM_MASK			0X0000000000006200UL
-+#define CR0_AFP_REG_CRTL		0x0000000000040000UL
+ 	struct net_device *dev;
++	struct dentry *debugfs;
+ 	struct qeth_card_stats stats;
+ 	struct qeth_card_info info;
+ 	struct qeth_token token;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 6b5d42a4501c..771282cb7aef 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -61,6 +61,7 @@ EXPORT_SYMBOL_GPL(qeth_core_header_cache);
+ static struct kmem_cache *qeth_qdio_outbuf_cache;
+ 
+ static struct device *qeth_core_root_dev;
++static struct dentry *qeth_debugfs_root;
+ static struct lock_class_key qdio_out_skb_queue_key;
+ 
+ static void qeth_issue_next_read_cb(struct qeth_card *card,
+@@ -805,6 +806,24 @@ static void qeth_del_local_addrs6(struct qeth_card *card,
+ 	spin_unlock(&card->local_addrs6_lock);
+ }
+ 
++static int qeth_debugfs_local_addr_show(struct seq_file *m, void *v)
++{
++	struct qeth_card *card = m->private;
++	struct qeth_local_addr *tmp;
++	unsigned int i;
 +
- #ifndef __ASSEMBLER__
- struct psw {
- 	uint64_t	mask;
- 	uint64_t	addr;
- };
++	rcu_read_lock();
++	hash_for_each_rcu(card->local_addrs4, i, tmp, hnode)
++		seq_printf(m, "%pI4\n", &tmp->addr.s6_addr32[3]);
++	hash_for_each_rcu(card->local_addrs6, i, tmp, hnode)
++		seq_printf(m, "%pI6c\n", &tmp->addr);
++	rcu_read_unlock();
++
++	return 0;
++}
++
++DEFINE_SHOW_ATTRIBUTE(qeth_debugfs_local_addr);
++
+ static void qeth_issue_ipa_msg(struct qeth_ipa_cmd *cmd, int rc,
+ 		struct qeth_card *card)
+ {
+@@ -1608,6 +1627,11 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
+ 	if (!card->read_cmd)
+ 		goto out_read_cmd;
  
--#define CR0_EXTM_SCLP			0X0000000000000200UL
--#define CR0_EXTM_EXTC			0X0000000000002000UL
--#define CR0_EXTM_EMGC			0X0000000000004000UL
--#define CR0_EXTM_MASK			0X0000000000006200UL
--
- struct lowcore {
- 	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
- 	uint32_t	ext_int_param;			/* 0x0080 */
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index e890568..0679fce 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -248,4 +248,4 @@ svc_int_psw:
- 	.quad	PSW_EXCEPTION_MASK, svc_int
- initial_cr0:
- 	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
--	.quad	0x0000000000040000
-+	.quad	CR0_AFP_REG_CRTL
++	card->debugfs = debugfs_create_dir(dev_name(&gdev->dev),
++					   qeth_debugfs_root);
++	debugfs_create_file("local_addrs", 0400, card->debugfs, card,
++			    &qeth_debugfs_local_addr_fops);
++
+ 	card->qeth_service_level.seq_print = qeth_core_sl_print;
+ 	register_service_level(&card->qeth_service_level);
+ 	return card;
+@@ -5085,9 +5109,11 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ static void qeth_core_free_card(struct qeth_card *card)
+ {
+ 	QETH_CARD_TEXT(card, 2, "freecrd");
++
++	unregister_service_level(&card->qeth_service_level);
++	debugfs_remove_recursive(card->debugfs);
+ 	qeth_put_cmd(card->read_cmd);
+ 	destroy_workqueue(card->event_wq);
+-	unregister_service_level(&card->qeth_service_level);
+ 	dev_set_drvdata(&card->gdev->dev, NULL);
+ 	kfree(card);
+ }
+@@ -6967,6 +6993,8 @@ static int __init qeth_core_init(void)
+ 
+ 	pr_info("loading core functions\n");
+ 
++	qeth_debugfs_root = debugfs_create_dir("qeth", NULL);
++
+ 	rc = qeth_register_dbf_views();
+ 	if (rc)
+ 		goto dbf_err;
+@@ -7008,6 +7036,7 @@ static int __init qeth_core_init(void)
+ register_err:
+ 	qeth_unregister_dbf_views();
+ dbf_err:
++	debugfs_remove_recursive(qeth_debugfs_root);
+ 	pr_err("Initializing the qeth device driver failed\n");
+ 	return rc;
+ }
+@@ -7021,6 +7050,7 @@ static void __exit qeth_core_exit(void)
+ 	kmem_cache_destroy(qeth_core_header_cache);
+ 	root_device_unregister(qeth_core_root_dev);
+ 	qeth_unregister_dbf_views();
++	debugfs_remove_recursive(qeth_debugfs_root);
+ 	pr_info("core functions removed\n");
+ }
+ 
 -- 
-2.25.1
+2.17.1
