@@ -1,254 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39884 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727850AbgEBMgT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 08:36:19 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 02/13] net/smc: rkey processing for a new link as SMC client
-Date: Sat,  2 May 2020 14:35:41 +0200
-Message-Id: <20200502123552.17204-3-kgraul@linux.ibm.com>
-In-Reply-To: <20200502123552.17204-1-kgraul@linux.ibm.com>
-References: <20200502123552.17204-1-kgraul@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39604 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728660AbgEEM1v (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 08:27:51 -0400
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v4 1/8] vfio-ccw: Introduce new helper functions to free/destroy regions
+Date: Tue,  5 May 2020 14:27:38 +0200
+Message-Id: <20200505122745.53208-2-farman@linux.ibm.com>
+In-Reply-To: <20200505122745.53208-1-farman@linux.ibm.com>
+References: <20200505122745.53208-1-farman@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 
-Part of the SMC client new link establishment process is the exchange of
-rkeys for all used buffers.
-Add new LLC message type ADD_LINK_CONTINUE which is used to exchange
-rkeys of all current RMB buffers. Add functions to iterate over all
-used RMB buffers of the link group, and implement the ADD_LINK_CONTINUE
-processing.
+From: Farhan Ali <alifm@linux.ibm.com>
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Consolidate some of the cleanup code for the regions, so that
+as more are added we reduce code duplication.
+
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- net/smc/smc_llc.c | 157 +++++++++++++++++++++++++++++++++++++++++++++-
- net/smc/smc_llc.h |   1 +
- 2 files changed, 157 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index e0c85fe90bdf..af1727c2b7ea 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -70,6 +70,23 @@ struct smc_llc_msg_add_link {		/* type 0x02 */
- 	u8 reserved[8];
- };
- 
-+struct smc_llc_msg_add_link_cont_rt {
-+	__be32 rmb_key;
-+	__be32 rmb_key_new;
-+	__be64 rmb_vaddr_new;
-+};
-+
-+#define SMC_LLC_RKEYS_PER_CONT_MSG	2
-+
-+struct smc_llc_msg_add_link_cont {	/* type 0x03 */
-+	struct smc_llc_hdr hd;
-+	u8 link_num;
-+	u8 num_rkeys;
-+	u8 reserved2[2];
-+	struct smc_llc_msg_add_link_cont_rt rt[SMC_LLC_RKEYS_PER_CONT_MSG];
-+	u8 reserved[4];
-+} __packed;			/* format defined in RFC7609 */
-+
- #define SMC_LLC_FLAG_DEL_LINK_ALL	0x40
- #define SMC_LLC_FLAG_DEL_LINK_ORDERLY	0x20
- 
-@@ -121,6 +138,7 @@ struct smc_llc_msg_delete_rkey {	/* type 0x09 */
- union smc_llc_msg {
- 	struct smc_llc_msg_confirm_link confirm_link;
- 	struct smc_llc_msg_add_link add_link;
-+	struct smc_llc_msg_add_link_cont add_link_cont;
- 	struct smc_llc_msg_del_link delete_link;
- 
- 	struct smc_llc_msg_confirm_rkey confirm_rkey;
-@@ -566,6 +584,137 @@ static int smc_llc_alloc_alt_link(struct smc_link_group *lgr,
- 	return -EMLINK;
+Notes:
+    v1->v2:
+     - Add Conny's r-b
+    
+    v0->v1: [EF]
+     - Commit message
+
+ drivers/s390/cio/vfio_ccw_drv.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 339a6bc0339b..8715c1c2f1e1 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -116,6 +116,14 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
  }
  
-+/* return first buffer from any of the next buf lists */
-+static struct smc_buf_desc *_smc_llc_get_next_rmb(struct smc_link_group *lgr,
-+						  int *buf_lst)
++static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
 +{
-+	struct smc_buf_desc *buf_pos;
-+
-+	while (*buf_lst < SMC_RMBE_SIZES) {
-+		buf_pos = list_first_entry_or_null(&lgr->rmbs[*buf_lst],
-+						   struct smc_buf_desc, list);
-+		if (buf_pos)
-+			return buf_pos;
-+		(*buf_lst)++;
-+	}
-+	return NULL;
++	if (private->cmd_region)
++		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
++	if (private->io_region)
++		kmem_cache_free(vfio_ccw_io_region, private->io_region);
 +}
 +
-+/* return next rmb from buffer lists */
-+static struct smc_buf_desc *smc_llc_get_next_rmb(struct smc_link_group *lgr,
-+						 int *buf_lst,
-+						 struct smc_buf_desc *buf_pos)
-+{
-+	struct smc_buf_desc *buf_next;
-+
-+	if (!buf_pos || list_is_last(&buf_pos->list, &lgr->rmbs[*buf_lst])) {
-+		(*buf_lst)++;
-+		return _smc_llc_get_next_rmb(lgr, buf_lst);
-+	}
-+	buf_next = list_next_entry(buf_pos, list);
-+	return buf_next;
-+}
-+
-+static struct smc_buf_desc *smc_llc_get_first_rmb(struct smc_link_group *lgr,
-+						  int *buf_lst)
-+{
-+	*buf_lst = 0;
-+	return smc_llc_get_next_rmb(lgr, buf_lst, NULL);
-+}
-+
-+/* send one add_link_continue msg */
-+static int smc_llc_add_link_cont(struct smc_link *link,
-+				 struct smc_link *link_new, u8 *num_rkeys_todo,
-+				 int *buf_lst, struct smc_buf_desc **buf_pos)
-+{
-+	struct smc_llc_msg_add_link_cont *addc_llc;
-+	struct smc_link_group *lgr = link->lgr;
-+	int prim_lnk_idx, lnk_idx, i, rc;
-+	struct smc_wr_tx_pend_priv *pend;
-+	struct smc_wr_buf *wr_buf;
-+	struct smc_buf_desc *rmb;
-+	u8 n;
-+
-+	rc = smc_llc_add_pending_send(link, &wr_buf, &pend);
-+	if (rc)
-+		return rc;
-+	addc_llc = (struct smc_llc_msg_add_link_cont *)wr_buf;
-+	memset(addc_llc, 0, sizeof(*addc_llc));
-+
-+	prim_lnk_idx = link->link_idx;
-+	lnk_idx = link_new->link_idx;
-+	addc_llc->link_num = link_new->link_id;
-+	addc_llc->num_rkeys = *num_rkeys_todo;
-+	n = *num_rkeys_todo;
-+	for (i = 0; i < min_t(u8, n, SMC_LLC_RKEYS_PER_CONT_MSG); i++) {
-+		if (!*buf_pos) {
-+			addc_llc->num_rkeys = addc_llc->num_rkeys -
-+					      *num_rkeys_todo;
-+			*num_rkeys_todo = 0;
-+			break;
-+		}
-+		rmb = *buf_pos;
-+
-+		addc_llc->rt[i].rmb_key = htonl(rmb->mr_rx[prim_lnk_idx]->rkey);
-+		addc_llc->rt[i].rmb_key_new = htonl(rmb->mr_rx[lnk_idx]->rkey);
-+		addc_llc->rt[i].rmb_vaddr_new =
-+			cpu_to_be64((u64)sg_dma_address(rmb->sgt[lnk_idx].sgl));
-+
-+		(*num_rkeys_todo)--;
-+		*buf_pos = smc_llc_get_next_rmb(lgr, buf_lst, *buf_pos);
-+		while (*buf_pos && !(*buf_pos)->used)
-+			*buf_pos = smc_llc_get_next_rmb(lgr, buf_lst, *buf_pos);
-+	}
-+	addc_llc->hd.common.type = SMC_LLC_ADD_LINK_CONT;
-+	addc_llc->hd.length = sizeof(struct smc_llc_msg_add_link_cont);
-+	if (lgr->role == SMC_CLNT)
-+		addc_llc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	return smc_wr_tx_send(link, pend);
-+}
-+
-+static int smc_llc_cli_rkey_exchange(struct smc_link *link,
-+				     struct smc_link *link_new)
-+{
-+	struct smc_llc_msg_add_link_cont *addc_llc;
-+	struct smc_link_group *lgr = link->lgr;
-+	u8 max, num_rkeys_send, num_rkeys_recv;
-+	struct smc_llc_qentry *qentry;
-+	struct smc_buf_desc *buf_pos;
-+	int buf_lst;
-+	int rc = 0;
-+	int i;
-+
-+	mutex_lock(&lgr->rmbs_lock);
-+	num_rkeys_send = lgr->conns_num;
-+	buf_pos = smc_llc_get_first_rmb(lgr, &buf_lst);
-+	do {
-+		qentry = smc_llc_wait(lgr, NULL, SMC_LLC_WAIT_TIME,
-+				      SMC_LLC_ADD_LINK_CONT);
-+		if (!qentry) {
-+			rc = -ETIMEDOUT;
-+			break;
-+		}
-+		addc_llc = &qentry->msg.add_link_cont;
-+		num_rkeys_recv = addc_llc->num_rkeys;
-+		max = min_t(u8, num_rkeys_recv, SMC_LLC_RKEYS_PER_CONT_MSG);
-+		for (i = 0; i < max; i++) {
-+			smc_rtoken_set(lgr, link->link_idx, link_new->link_idx,
-+				       addc_llc->rt[i].rmb_key,
-+				       addc_llc->rt[i].rmb_vaddr_new,
-+				       addc_llc->rt[i].rmb_key_new);
-+			num_rkeys_recv--;
-+		}
-+		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
-+		rc = smc_llc_add_link_cont(link, link_new, &num_rkeys_send,
-+					   &buf_lst, &buf_pos);
-+		if (rc)
-+			break;
-+	} while (num_rkeys_send || num_rkeys_recv);
-+
-+	mutex_unlock(&lgr->rmbs_lock);
-+	return rc;
-+}
-+
- /* prepare and send an add link reject response */
- static int smc_llc_cli_add_link_reject(struct smc_llc_qentry *qentry)
+ static int vfio_ccw_sch_probe(struct subchannel *sch)
  {
-@@ -631,7 +780,7 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
- 				   lnk_new->gid, lnk_new, SMC_LLC_RESP);
- 	if (rc)
- 		goto out_clear_lnk;
--	/* tbd: rc = smc_llc_cli_rkey_exchange(link, lnk_new); */
-+	rc = smc_llc_cli_rkey_exchange(link, lnk_new);
- 	if (rc) {
- 		rc = 0;
- 		goto out_clear_lnk;
-@@ -805,6 +954,7 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
- 		}
- 		return;
- 	case SMC_LLC_CONFIRM_LINK:
-+	case SMC_LLC_ADD_LINK_CONT:
- 		if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE) {
- 			/* a flow is waiting for this message */
- 			smc_llc_flow_qentry_set(&lgr->llc_flow_lcl, qentry);
-@@ -884,6 +1034,7 @@ static void smc_llc_rx_response(struct smc_link *link,
- 		break;
- 	case SMC_LLC_ADD_LINK:
- 	case SMC_LLC_CONFIRM_LINK:
-+	case SMC_LLC_ADD_LINK_CONT:
- 	case SMC_LLC_CONFIRM_RKEY:
- 	case SMC_LLC_DELETE_RKEY:
- 		/* assign responses to the local flow, we requested them */
-@@ -1103,6 +1254,10 @@ static struct smc_wr_rx_handler smc_llc_rx_handlers[] = {
- 		.handler	= smc_llc_rx_handler,
- 		.type		= SMC_LLC_ADD_LINK
- 	},
-+	{
-+		.handler	= smc_llc_rx_handler,
-+		.type		= SMC_LLC_ADD_LINK_CONT
-+	},
- 	{
- 		.handler	= smc_llc_rx_handler,
- 		.type		= SMC_LLC_DELETE_LINK
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 4ed4486e5082..97a4f02f5a93 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -28,6 +28,7 @@ enum smc_llc_reqresp {
- enum smc_llc_msg_type {
- 	SMC_LLC_CONFIRM_LINK		= 0x01,
- 	SMC_LLC_ADD_LINK		= 0x02,
-+	SMC_LLC_ADD_LINK_CONT		= 0x03,
- 	SMC_LLC_DELETE_LINK		= 0x04,
- 	SMC_LLC_CONFIRM_RKEY		= 0x06,
- 	SMC_LLC_TEST_LINK		= 0x07,
+ 	struct pmcw *pmcw = &sch->schib.pmcw;
+@@ -181,10 +189,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	cio_disable_subchannel(sch);
+ out_free:
+ 	dev_set_drvdata(&sch->dev, NULL);
+-	if (private->cmd_region)
+-		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	if (private->io_region)
+-		kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	vfio_ccw_free_regions(private);
+ 	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 	return ret;
+@@ -200,8 +205,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
+ 
+ 	dev_set_drvdata(&sch->dev, NULL);
+ 
+-	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	vfio_ccw_free_regions(private);
+ 	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 
+@@ -304,6 +308,12 @@ static void vfio_ccw_debug_exit(void)
+ 	debug_unregister(vfio_ccw_debug_trace_id);
+ }
+ 
++static void vfio_ccw_destroy_regions(void)
++{
++	kmem_cache_destroy(vfio_ccw_cmd_region);
++	kmem_cache_destroy(vfio_ccw_io_region);
++}
++
+ static int __init vfio_ccw_sch_init(void)
+ {
+ 	int ret;
+@@ -346,8 +356,7 @@ static int __init vfio_ccw_sch_init(void)
+ 	return ret;
+ 
+ out_err:
+-	kmem_cache_destroy(vfio_ccw_cmd_region);
+-	kmem_cache_destroy(vfio_ccw_io_region);
++	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+ 	return ret;
+@@ -357,8 +366,7 @@ static void __exit vfio_ccw_sch_exit(void)
+ {
+ 	css_driver_unregister(&vfio_ccw_sch_driver);
+ 	isc_unregister(VFIO_CCW_ISC);
+-	kmem_cache_destroy(vfio_ccw_io_region);
+-	kmem_cache_destroy(vfio_ccw_cmd_region);
++	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+ }
 -- 
 2.17.1
