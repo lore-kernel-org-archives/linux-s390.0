@@ -1,82 +1,78 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57222 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727893AbgEHRXr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 May 2020 13:23:47 -0400
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 4/8] zfcp: fence fc_host updates during link-down handling
-Date: Fri,  8 May 2020 19:23:31 +0200
-Message-Id: <f841f2cda61dcd7b8549910c44e1831927459edf.1588956679.git.bblock@linux.ibm.com>
-In-Reply-To: <cover.1588956679.git.bblock@linux.ibm.com>
-References: <cover.1588956679.git.bblock@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10220 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730664AbgEEQ0L (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 12:26:11 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 08/11] s390/qeth: set TX IRQ marker on last buffer in a group
+Date: Tue,  5 May 2020 18:25:56 +0200
+Message-Id: <20200505162559.14138-9-jwi@linux.ibm.com>
+In-Reply-To: <20200505162559.14138-1-jwi@linux.ibm.com>
+References: <20200505162559.14138-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-When receiving a notification that a FCP device lost its local link we
-usually update the fibre channel host object which represents that FCP
-device to reflect that.
+When qeth_flush_buffers() gets called for a group of TX buffers
+(currently up to 2 for OSA-style devices), the code iterates over each
+buffer for some final processing.
 
-This notification/information can also surface when the FCP device is
-running through adapter recovery (exchange config and exchange port data
-return incomplete).
+During this processing, it sets the TX IRQ marker on the leading buffer
+rather than the last one. This can result in delayed TX completion of
+the trailing buffers. So pull the IRQ marker code out of the loop, and
+apply it to the final buffer.
 
-When moving the scsi host object allocation and registration  - and thus
-also the fibre channel host object allocation - to after the first
-exchange config and exchange port data, and this happens during the very
-first adapter recovery, these updates can not be done until after the
-scsi host object is allocated.
-
-Reorder the fc_host updates in zfcp_fsf_fc_host_link_down() so that they
-only happen after a check of whether the scsi host object is already
-allocated or not.
-
-During the first adapter recovery this will cause the skip of these
-updates if a link-down condition is detected, but we can repeat them
-after we allocated the scsi host object, if necessary.
-
-For any further link-down handling the only changes in the work flow are
-the slightly reordered assignments in zfcp_fsf_fc_host_link_down().
-
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index bfb567a1d7bf..8c4b690e329e 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -124,17 +124,21 @@ static void zfcp_fsf_fc_host_link_down(struct zfcp_adapter *adapter)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 4d1d053eebb7..164cc7f377fc 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3617,11 +3617,11 @@ static int qeth_switch_to_nonpacking_if_needed(struct qeth_qdio_out_q *queue)
+ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 			       int count)
  {
- 	struct Scsi_Host *shost = adapter->scsi_host;
++	struct qeth_qdio_out_buffer *buf = queue->bufs[index];
++	unsigned int qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
+ 	struct qeth_card *card = queue->card;
+-	struct qeth_qdio_out_buffer *buf;
+ 	int rc;
+ 	int i;
+-	unsigned int qdio_flags;
  
-+	adapter->hydra_version = 0;
-+	adapter->peer_wwpn = 0;
-+	adapter->peer_wwnn = 0;
-+	adapter->peer_d_id = 0;
-+
-+	/* if there is no shost yet, we have nothing to zero-out */
-+	if (shost == NULL)
-+		return;
-+
- 	fc_host_port_id(shost) = 0;
- 	fc_host_fabric_name(shost) = 0;
- 	fc_host_speed(shost) = FC_PORTSPEED_UNKNOWN;
- 	fc_host_port_type(shost) = FC_PORTTYPE_UNKNOWN;
--	adapter->hydra_version = 0;
- 	snprintf(fc_host_model(shost), FC_SYMBOLIC_NAME_SIZE, "0x%04x", 0);
- 	memset(fc_host_active_fc4s(shost), 0, FC_FC4_LIST_SIZE);
--
--	adapter->peer_wwpn = 0;
--	adapter->peer_wwnn = 0;
--	adapter->peer_d_id = 0;
- }
+ 	for (i = index; i < index + count; ++i) {
+ 		unsigned int bidx = QDIO_BUFNR(i);
+@@ -3638,9 +3638,10 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 		if (IS_IQD(card)) {
+ 			skb_queue_walk(&buf->skb_list, skb)
+ 				skb_tx_timestamp(skb);
+-			continue;
+ 		}
++	}
  
- static void zfcp_fsf_link_down_info_eval(struct zfcp_fsf_req *req,
++	if (!IS_IQD(card)) {
+ 		if (!queue->do_pack) {
+ 			if ((atomic_read(&queue->used_buffers) >=
+ 				(QETH_HIGH_WATERMARK_PACK -
+@@ -3665,12 +3666,12 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 				buf->buffer->element[0].sflags |= SBAL_SFLAGS0_PCI_REQ;
+ 			}
+ 		}
++
++		if (atomic_read(&queue->set_pci_flags_count))
++			qdio_flags |= QDIO_FLAG_PCI_OUT;
+ 	}
+ 
+ 	QETH_TXQ_STAT_INC(queue, doorbell);
+-	qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
+-	if (atomic_read(&queue->set_pci_flags_count))
+-		qdio_flags |= QDIO_FLAG_PCI_OUT;
+ 	rc = do_QDIO(CARD_DDEV(queue->card), qdio_flags,
+ 		     queue->queue_no, index, count);
+ 
 -- 
 2.17.1
