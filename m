@@ -1,8 +1,8 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31698 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40266 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729060AbgEEOuR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 10:50:17 -0400
+        by vger.kernel.org with ESMTP id S1727083AbgEEOkC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 10:40:02 -0400
 Subject: Re: [PATCH v2 1/1] fs/splice: add missing callback for inaccessible
  pages
 References: <20200430143825.3534128-1-imbrenda@linux.ibm.com>
@@ -12,49 +12,52 @@ References: <20200430143825.3534128-1-imbrenda@linux.ibm.com>
  <a10ec7ad-2648-950e-7f30-07c08e400e7b@intel.com>
  <20200504134154.GA21001@oc3748833570.ibm.com>
  <231da2f1-a6ef-0cf9-7f57-95e8b925997b@intel.com>
- <20200505135556.GA9920@oc3748833570.ibm.com>
- <fd300dca-f0b4-ce3b-4a97-244030624fbd@de.ibm.com>
- <d1de4fb2-dfe6-83fa-9973-2505d4c397ec@de.ibm.com>
- <20200505143300.GA14113@oc3748833570.ibm.com>
+ <45bc81bb-8765-ffff-6e47-8ee9702c8bcd@de.ibm.com>
+ <6e97a4b0-df4f-90c7-a6f7-61ee52e0833e@intel.com>
+ <da6bc7cb-ef13-08cd-f162-663b4a66043b@de.ibm.com>
+ <fcc9adea-598f-f882-c3e3-09d190cd5d52@intel.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <d31af5af-91fd-a29e-2985-78b61261bc77@de.ibm.com>
-Date: Tue, 5 May 2020 16:49:54 +0200
+Message-ID: <d0a7970b-b7bf-c362-fc7e-1f5aaa8aef29@de.ibm.com>
+Date: Tue, 5 May 2020 16:39:38 +0200
 MIME-Version: 1.0
-In-Reply-To: <20200505143300.GA14113@oc3748833570.ibm.com>
+In-Reply-To: <fcc9adea-598f-f882-c3e3-09d190cd5d52@intel.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Ulrich Weigand <uweigand@de.ibm.com>
-Cc: Dave Hansen <dave.hansen@intel.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, viro@zeniv.linux.org.uk, david@redhat.com, akpm@linux-foundation.org, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, jack@suse.cz, kirill@shutemov.name, peterz@infradead.org, sean.j.christopherson@intel.com, Ulrich.Weigand@de.ibm.com
+To: Dave Hansen <dave.hansen@intel.com>, Ulrich Weigand <uweigand@de.ibm.com>
+Cc: Claudio Imbrenda <imbrenda@linux.ibm.com>, viro@zeniv.linux.org.uk, david@redhat.com, akpm@linux-foundation.org, aarcange@redhat.com, linux-mm@kvack.org, frankja@linux.ibm.com, sfr@canb.auug.org.au, jhubbard@nvidia.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, jack@suse.cz, kirill@shutemov.name, peterz@infradead.org, sean.j.christopherson@intel.com, Ulrich.Weigand@de.ibm.com
 
 
 
-On 05.05.20 16:33, Ulrich Weigand wrote:
-> On Tue, May 05, 2020 at 04:03:00PM +0200, Christian Borntraeger wrote:
->>> Just looked at 
->>> commit 88b1a17dfc3ed7728316478fae0f5ad508f50397  mm: add 'try_get_page()' helper function
+On 05.05.20 16:34, Dave Hansen wrote:
+> On 5/5/20 7:31 AM, Christian Borntraeger wrote:
+>>> So, the requirements are:
 >>>
->>> which says:
->>>     Also like 'get_page()', you can't use this function unless you already
->>>     had a reference to the page.  The intent is that you can use this
->>>     exactly like get_page(), but in situations where you want to limit the
->>>     maximum reference count.
->>>     
->>>     The code currently does an unconditional WARN_ON_ONCE() if we ever hit
->>>     the reference count issues (either zero or negative), as a notification
->>>     that the conditional non-increment actually happened.
+>>> 1. Allow host-side DMA and CPU access to shared pages
+>>> 2. Stop host-side DMA and CPU access to encrypted pages
+>>> 3. Allow pages to be converted between the states at the request of the
+>>>    guest
 >>>
->>> If try_get_page must not be called with an existing reference, that means
->> 		s/not//
->>> that when we call it the page reference is already higher and our freeze
->>> will never succeed. That would imply that we cannot trigger this. No?
+>>> Stopping the DMA is pretty easy, even across the gazillions of drivers
+>>> in the tree because even random ethernet drivers do stuff like:
+>>>
+>>>                 txdr->buffer_info[i].dma =
+>>>                         dma_map_single(&pdev->dev, skb->data, skb->len,
+>>>                                        DMA_TO_DEVICE);
+>>>
+>>> So the DMA can be stopped at the mapping layer.  It's a *LOT* easier to
+>>> catch there since the IOMMUs already provide isolation between the I/O
+>>> and CPU address spaces.
+>> And your problem is that the guest could convert this after the dma_map?
+>> So you looked into our code if this would help?
 > 
-> Well, my understanding is that the "existing" reference may be one of the
-> references that is expected by our freeze code, in particular in gup the
-> existing reference is simply the one from the pte.  So in this case our
-> freeze *would* succeeed.
+> Yep, it seemed like a close-enough problem.
 
-If thats the case then "<0" looks indeed better than "<=0" for the check.
-I think try_get_page was never meant to exclude a parallel page_ref_freeze/unfreeze.
+Is there a way to prevent the guest from switching the state? We also have 2
+variants of secure pages
+1. those that are secure and when the host accesses them will be encrypted
+2. those that are marked by the guest as shared. When you look at 
+arch_make_page_accessible we first try to "pin" the shared state. So the guest
+trying to "unshare" such a page would trigger an exit that we can handle.
