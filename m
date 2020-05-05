@@ -1,174 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51780 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726531AbgEGRqS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 May 2020 13:46:18 -0400
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83D46C05BD0A
-        for <linux-s390@vger.kernel.org>; Thu,  7 May 2020 10:46:18 -0700 (PDT)
-Received: by mail-io1-xd43.google.com with SMTP id y26so2227732ioj.2
-        for <linux-s390@vger.kernel.org>; Thu, 07 May 2020 10:46:18 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200504110344.17560-1-eesposit@redhat.com>
-In-Reply-To: <20200504110344.17560-1-eesposit@redhat.com>
-From: Jonathan Adams <jwadams@google.com>
-Date: Thu, 7 May 2020 10:45:40 -0700
-Message-ID: <CA+VK+GN=iDhDV2ZDJbBsxrjZ3Qoyotk_L0DvsbwDVvqrpFZ8fQ@mail.gmail.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8826 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726350AbgEERar (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 13:30:47 -0400
 Subject: Re: [PATCH v2 0/5] Statsfs: a new ram-based file sytem for Linux
  kernel statistics
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+References: <20200504110344.17560-1-eesposit@redhat.com>
+ <alpine.DEB.2.22.394.2005041429210.224786@chino.kir.corp.google.com>
+ <f2654143-b8e5-5a1f-8bd0-0cb0df2cd638@redhat.com>
+ <CALMp9eQYcLr_REzDC1kWTHX4SJWt7x+Zd1KwNvS1YGd5TVM1xA@mail.gmail.com>
+ <1d12f846-bf89-7b0a-5c71-e61d83b1a36f@redhat.com>
+ <alpine.DEB.2.22.394.2005051003380.216575@chino.kir.corp.google.com>
+ <6cfdf81f-caef-2489-0906-25915d9d58ff@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <02518c19-59b3-ffbd-cf50-dfdd0d277e0f@de.ibm.com>
+Date: Tue, 5 May 2020 19:30:32 +0200
+MIME-Version: 1.0
+In-Reply-To: <6cfdf81f-caef-2489-0906-25915d9d58ff@redhat.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Cc: kvm list <kvm@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Jim Mattson <jmattson@google.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Emanuele Giuseppe Esposito <e.emanuelegiuseppe@gmail.com>, LKML <linux-kernel@vger.kernel.org>, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>, David Rientjes <rientjes@google.com>
+Cc: Jim Mattson <jmattson@google.com>, Emanuele Giuseppe Esposito <eesposit@redhat.com>, Jonathan Adams <jwadams@google.com>, kvm list <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Emanuele Giuseppe Esposito <e.emanuelegiuseppe@gmail.com>, LKML <linux-kernel@vger.kernel.org>, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Linux FS Devel <linux-fsdevel@vger.kernel.org>, Stefan Raspl <raspl@linux.ibm.com>
 
-On Mon, May 4, 2020 at 4:05 AM Emanuele Giuseppe Esposito
-<eesposit@redhat.com> wrote:
-...
-> Statsfs offers a generic and stable API, allowing any kind of
-> directory/file organization and supporting multiple kind of aggregations
-> (not only sum, but also average, max, min and count_zero) and data types
-> (all unsigned and signed types plus boolean). The implementation, which i=
-s
-> a generalization of KVM=E2=80=99s debugfs statistics code, takes care of =
-gathering
-> and displaying information at run time; users only need to specify the
-> values to be included in each source.
->
-> Statsfs would also be a different mountpoint from debugfs, and would not
-> suffer from limited access due to the security lock down patches. Its mai=
-n
-> function is to display each statistics as a file in the desired folder
-> hierarchy defined through the API. Statsfs files can be read, and possibl=
-y
-> cleared if their file mode allows it.
->
-> Statsfs has two main components: the public API defined by
-> include/linux/statsfs.h, and the virtual file system which should end up
-> in /sys/kernel/stats.
+Adding Stefan Raspl, who has done a lot of kvm_stat work in the past.
 
-This is good work.  As David Rientjes mentioned, I'm currently investigatin=
-g
-a similar project, based on a google-internal debugfs-based FS we call
-"metricfs".  It's
-designed in a slightly different fashion than statsfs here is, and the
-statistics exported are
-mostly fed into our OpenTelemetry-like system.  We're motivated by
-wanting an upstreamed solution, so that we can upstream the metrics we
-create that are of general interest, and lower the overall rebasing
-burden for our tree.
-
-Some feedback on your design as proposed:
-
- - the 8/16/32/64 signed/unsigned integers seems like a wart, and the
-built-in support to grab any offset from a structure doesn't seem like
-much of an advantage.  A simpler interface would be to just support an
-"integer" (possibly signed/unsigned) type, which is always 64-bit, and
-allow the caller to provide a function pointer to retrieve the value,
-with one or two void *s cbargs.  Then the framework could provide an
-offset-based callback (or callbacks) similar to the existing
-functionality, and a similar one for per-CPU based statistics.  A
-second "clear" callback could be optionally provided to allow for
-statistics to be cleared, as in your current proposal.
-
- - A callback-style interface also allows for a lot more flexibility
-in sourcing values, and doesn't lock your callers into one way of
-storing them.  You would, of course, have to be clear about locking
-rules etc. for the callbacks.
-
- - Beyond the statistic's type, one *very* useful piece of metadata
-for telemetry tools is knowing whether a given statistic is
-"cumulative" (an unsigned counter which is only ever increased), as
-opposed to a floating value (like "amount of memory used").
-
-I agree with the folks asking for a binary interface to read
-statistics, but I also agree that it can be added on later.  I'm more
-concerned with getting the statistics model and capabilities right
-from the beginning, because those are harder to adjust later.
-
-Would you be open to collaborating on the statsfs design?  As
-background for this discussion, here are some details of how our
-metricfs implementation approaches statistics:
-
-1. Each metricfs metric can have one or two string or integer "keys".
-If these exist, they expand the metric from a single value into a
-multi-dimensional table. For example, we use this to report a hash
-table we keep of functions calling "WARN()", in a 'warnings'
-statistic:
-
-% cat .../warnings/values
-x86_pmu_stop 1
-%
-
-Indicates that the x86_pmu_stop() function has had a WARN() fire once
-since the system was booted.  If multiple functions have fired
-WARN()s, they are listed in this table with their own counts. [1]  We
-also use these to report per-CPU counters on a CPU-by-CPU basis:
-
-% cat .../irq_x86/NMI/values
-0 42
-1 18
-... one line per cpu
-%
-
-2.  We also export some metadata about each statistic.  For example,
-the metadata for the NMI counter above looks like:
-
-% cat .../NMI/annotations
-DESCRIPTION Non-maskable\ interrupts
-CUMULATIVE
-% cat .../NMI/fields
-cpu value
-int int
-%
-
-(Describing the statistic, marking it as "cumulative", and saying the
-fields are "cpu" and "value", both ints).  The metadata doesn't change
-much, so having separate files allows the user-space agent to read
-them once and then the values multiple times.
-
-3. We have a (very few) statistics where the value itself is a string,
-usually for device statuses.
-
-For our use cases, we generally don't both output a statistic and it's
-aggregation from the kernel; either we sum up things in the kernel
-(e.g. over a bunch of per-cpu or per-memcg counters) and only have the
-result statistic, or we expect user-space to sum up the data if it's
-interested.  The tabular form makes it pretty easy to do so (i.e. you
-can use awk(1) to sum all of the per-cpu NMI counters).  We don't
-generally reset statistics, except as a side effect of removing a
-device.
-
-Thanks again for the patchset, and for pointing out that KVM also
-needs statistics sent out; it's great that there is interest in this.
-
-Cheers,
-- jonathan
-
-P.S.  I also have a couple (non-critical) high-level notes:
-  * It's not clear what tree your patches are against, or their
-dependencies; I was able to get them to apply to linux-next master
-with a little massaging, but then they failed to compile because
-they're built on top of your "libfs: group and simplify linux fs code"
-patch series you sent out in late april.  Including a git link or at
-least a baseline tree and a list of the patch series you rely upon is
-helpful for anyone wanting to try out your changes.
-
-  * The main reason I was trying to try out your patches was to get a
-sense of the set of directories and things the KVM example generates;
-while it's apparently the same as the existing KVM debugfs tree, it's
-useful to know how this ends up looking on a real system, and I'm not
-familiar with the KVM stats.  Since this patch is intended slightly
-more broadly than just KVM, it might have been useful to include
-sample output for those not familiar with how things are today.
-
-
-[1]    We also use this to export various network/storage statistics
-on a per-device basis.  e.g. network bytes received counts:
-
-% cat .../rx_bytes/values
-lo 501360681
-eth0 1457631256
-...
-%
+On 05.05.20 19:21, Paolo Bonzini wrote:
+> On 05/05/20 19:07, David Rientjes wrote:
+>>> I am totally in favor of having a binary format, but it should be
+>>> introduced as a separate series on top of this one---and preferably by
+>>> someone who has already put some thought into the problem (which
+>>> Emanuele and I have not, beyond ensuring that the statsfs concept and
+>>> API is flexible enough).
+>>>
+>> The concern is that once this series is merged then /sys/kernel/stats 
+>> could be considered an ABI and there would be a reasonable expectation 
+>> that it will remain stable, in so far as the stats that userspace is 
+>> interested in are stable and not obsoleted.
+>>
+>> So is this a suggestion that the binary format becomes complementary to 
+>> statsfs and provide a means for getting all stats from a single subsystem, 
+>> or that this series gets converted to such a format before it is merged?
+> 
+> The binary format should be complementary.  The ASCII format should
+> indeed be considered stable even though individual statistics would come
+> and go.  It may make sense to allow disabling ASCII files via mount
+> and/or Kconfig options; but either way, the binary format can and should
+> be added on top.
+> 
+> I have not put any thought into what the binary format would look like
+> and what its features would be.  For example these are but the first
+> questions that come to mind:
+> 
+> * would it be possible to read/clear an arbitrary statistic with
+> pread/pwrite, or do you have to read all of them?
+> 
+> * if userspace wants to read the schema just once and then read the
+> statistics many times, how is it informed of schema changes?
+> 
+> * and of course the details of how the schema (names of stat and
+> subsources) is encoded and what details it should include about the
+> values (e.g. type or just signedness).
+> 
+> Another possibility is to query stats via BPF.  This could be a third
+> way to access the stats, or it could be alternative to a binary format.
+> 
+> Paolo
+> 
