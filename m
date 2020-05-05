@@ -1,99 +1,57 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH v3 1/3] dasd: refactor dasd_ioctl_information
-Date: Fri,  8 May 2020 15:14:53 +0200
-Message-Id: <20200508131455.55407-2-sth@linux.ibm.com>
-In-Reply-To: <20200508131455.55407-1-sth@linux.ibm.com>
-References: <20200508131455.55407-1-sth@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55312 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728834AbgEENBz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 09:01:55 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 2/2] net/smc: remove unused inline function smc_curs_read
+Date: Tue,  5 May 2020 15:01:21 +0200
+Message-Id: <20200505130121.103272-3-kgraul@linux.ibm.com>
+In-Reply-To: <20200505130121.103272-1-kgraul@linux.ibm.com>
+References: <20200505130121.103272-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: hch@lst.de
-Cc: axboe@kernel.dk, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Christoph Hellwig <hch@lst.de>
+From: YueHaibing <yuehaibing@huawei.com>
 
-Prepare for in-kernel callers of this functionality.
+commit bac6de7b6370 ("net/smc: eliminate cursor read and write calls")
+left behind this.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/block/dasd_ioctl.c | 38 +++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 16 deletions(-)
+ net/smc/smc_cdc.h | 17 -----------------
+ 1 file changed, 17 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index 9a5f3add325f..dabcb4ce92da 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -457,10 +457,9 @@ static int dasd_ioctl_read_profile(struct dasd_block *block, void __user *argp)
- /*
-  * Return dasd information. Used for BIODASDINFO and BIODASDINFO2.
-  */
--static int dasd_ioctl_information(struct dasd_block *block,
--				  unsigned int cmd, void __user *argp)
-+static int __dasd_ioctl_information(struct dasd_block *block,
-+		struct dasd_information2_t *dasd_info)
- {
--	struct dasd_information2_t *dasd_info;
- 	struct subchannel_id sch_id;
- 	struct ccw_dev_id dev_id;
- 	struct dasd_device *base;
-@@ -473,10 +472,6 @@ static int dasd_ioctl_information(struct dasd_block *block,
- 	if (!base->discipline || !base->discipline->fill_info)
- 		return -EINVAL;
- 
--	dasd_info = kzalloc(sizeof(struct dasd_information2_t), GFP_KERNEL);
--	if (dasd_info == NULL)
--		return -ENOMEM;
--
- 	rc = base->discipline->fill_info(base, dasd_info);
- 	if (rc) {
- 		kfree(dasd_info);
-@@ -520,15 +515,24 @@ static int dasd_ioctl_information(struct dasd_block *block,
- 	list_for_each(l, &base->ccw_queue)
- 		dasd_info->chanq_len++;
- 	spin_unlock_irqrestore(&block->queue_lock, flags);
-+	return 0;
-+}
- 
--	rc = 0;
--	if (copy_to_user(argp, dasd_info,
--			 ((cmd == (unsigned int) BIODASDINFO2) ?
--			  sizeof(struct dasd_information2_t) :
--			  sizeof(struct dasd_information_t))))
--		rc = -EFAULT;
-+static int dasd_ioctl_information(struct dasd_block *block, void __user *argp,
-+		size_t copy_size)
-+{
-+	struct dasd_information2_t *dasd_info;
-+	int error = 0;
-+
-+	dasd_info = kzalloc(sizeof(*dasd_info), GFP_KERNEL);
-+	if (!dasd_info)
-+		return -ENOMEM;
-+
-+	error = __dasd_ioctl_information(block, dasd_info);
-+	if (!error && copy_to_user(argp, dasd_info, copy_size))
-+		error = -EFAULT;
- 	kfree(dasd_info);
--	return rc;
-+	return error;
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 9cfabc9af120..2ddcc5fb5ceb 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -97,23 +97,6 @@ static inline void smc_curs_add(int size, union smc_host_cursor *curs,
+ 	}
  }
  
- /*
-@@ -622,10 +626,12 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
- 		rc = dasd_ioctl_check_format(bdev, argp);
- 		break;
- 	case BIODASDINFO:
--		rc = dasd_ioctl_information(block, cmd, argp);
-+		rc = dasd_ioctl_information(block, argp,
-+				sizeof(struct dasd_information_t));
- 		break;
- 	case BIODASDINFO2:
--		rc = dasd_ioctl_information(block, cmd, argp);
-+		rc = dasd_ioctl_information(block, argp,
-+				sizeof(struct dasd_information2_t));
- 		break;
- 	case BIODASDPRRD:
- 		rc = dasd_ioctl_read_profile(block, argp);
+-/* SMC cursors are 8 bytes long and require atomic reading and writing */
+-static inline u64 smc_curs_read(union smc_host_cursor *curs,
+-				struct smc_connection *conn)
+-{
+-#ifndef KERNEL_HAS_ATOMIC64
+-	unsigned long flags;
+-	u64 ret;
+-
+-	spin_lock_irqsave(&conn->acurs_lock, flags);
+-	ret = curs->acurs;
+-	spin_unlock_irqrestore(&conn->acurs_lock, flags);
+-	return ret;
+-#else
+-	return atomic64_read(&curs->acurs);
+-#endif
+-}
+-
+ /* Copy cursor src into tgt */
+ static inline void smc_curs_copy(union smc_host_cursor *tgt,
+ 				 union smc_host_cursor *src,
 -- 
 2.17.1
