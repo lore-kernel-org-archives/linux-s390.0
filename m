@@ -1,1160 +1,335 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:43019 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728603AbgEDLEF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 07:04:05 -0400
-Received: by mail-wr1-f70.google.com with SMTP id z5so3403021wrt.17
-        for <linux-s390@vger.kernel.org>; Mon, 04 May 2020 04:03:58 -0700 (PDT)
-From: Emanuele Giuseppe Esposito <eesposit@redhat.com>
-Subject: [PATCH v2 3/5] kunit: tests for stats_fs API
-Date: Mon,  4 May 2020 13:03:42 +0200
-Message-Id: <20200504110344.17560-4-eesposit@redhat.com>
-In-Reply-To: <20200504110344.17560-1-eesposit@redhat.com>
-References: <20200504110344.17560-1-eesposit@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60030 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728233AbgEEM1x (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 08:27:53 -0400
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v4 4/8] vfio-ccw: Introduce a new schib region
+Date: Tue,  5 May 2020 14:27:41 +0200
+Message-Id: <20200505122745.53208-5-farman@linux.ibm.com>
+In-Reply-To: <20200505122745.53208-1-farman@linux.ibm.com>
+References: <20200505122745.53208-1-farman@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>, Jim Mattson <jmattson@google.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Emanuele Giuseppe Esposito <e.emanuelegiuseppe@gmail.com>, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, Emanuele Giuseppe Esposito <eesposit@redhat.com>
+To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
+Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
 
-Add kunit tests to extensively test the stats_fs API functionality.
+From: Farhan Ali <alifm@linux.ibm.com>
 
-In order to run them, the kernel .config must set CONFIG_KUNIT=y
-and a new .kunitconfig file must be created with CONFIG_STATS_FS=y
-and CONFIG_STATS_FS_TEST=y
+The schib region can be used by userspace to get the subchannel-
+information block (SCHIB) for the passthrough subchannel.
+This can be useful to get information such as channel path
+information via the SCHIB.PMCW fields.
 
-Tests can be then started by running the following command from the root
-directory of the linux kernel source tree:
-./tools/testing/kunit/kunit.py run --timeout=30 --jobs=`nproc --all`
-
-Signed-off-by: Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- fs/Kconfig                   |    6 +
- fs/stats_fs/Makefile         |    2 +
- fs/stats_fs/stats_fs-tests.c | 1088 ++++++++++++++++++++++++++++++++++
- 3 files changed, 1096 insertions(+)
- create mode 100644 fs/stats_fs/stats_fs-tests.c
 
-diff --git a/fs/Kconfig b/fs/Kconfig
-index 1b0de0f19e96..0844e8defd22 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -334,4 +334,10 @@ config STATS_FS
- 	  stats_fs is a virtual file system that provides counters and
- 	  other statistics about the running kernel.
+Notes:
+    v3->v4:
+     - Added Conny's r-b
+    
+    v2->v3:
+     - Updated Copyright year and Authors [CH]
+     - Mention that schib region triggers a STSCH [CH]
+    
+    v1->v2:
+     - Add new region info to Documentation/s390/vfio-ccw.rst [CH]
+     - Add a block comment to struct ccw_schib_region [CH]
+    
+    v0->v1: [EF]
+     - Clean up checkpatch (#include, whitespace) errors
+     - Remove unnecessary includes from vfio_ccw_chp.c
+     - Add ret=-ENOMEM in error path for new region
+     - Add call to vfio_ccw_unregister_dev_regions() during error exit
+       path of vfio_ccw_mdev_open()
+     - New info on the module prologue
+     - Reorder cleanup of regions
+
+ Documentation/s390/vfio-ccw.rst     | 19 +++++++-
+ drivers/s390/cio/Makefile           |  2 +-
+ drivers/s390/cio/vfio_ccw_chp.c     | 76 +++++++++++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_drv.c     | 20 ++++++++
+ drivers/s390/cio/vfio_ccw_ops.c     | 14 +++++-
+ drivers/s390/cio/vfio_ccw_private.h |  3 ++
+ include/uapi/linux/vfio.h           |  1 +
+ include/uapi/linux/vfio_ccw.h       | 10 ++++
+ 8 files changed, 141 insertions(+), 4 deletions(-)
+ create mode 100644 drivers/s390/cio/vfio_ccw_chp.c
+
+diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+index fca9c4f5bd9c..98832d95f395 100644
+--- a/Documentation/s390/vfio-ccw.rst
++++ b/Documentation/s390/vfio-ccw.rst
+@@ -231,6 +231,22 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD.
  
-+config STATS_FS_TEST
-+	bool "Tests for stats_fs"
-+	depends on STATS_FS && KUNIT
-+	help
-+	  tests for the stats_fs API.
+ Currently, CLEAR SUBCHANNEL and HALT SUBCHANNEL use this region.
+ 
++vfio-ccw schib region
++---------------------
 +
- endmenu
-diff --git a/fs/stats_fs/Makefile b/fs/stats_fs/Makefile
-index 94fe52d590d5..9db130fac6b6 100644
---- a/fs/stats_fs/Makefile
-+++ b/fs/stats_fs/Makefile
-@@ -1,4 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0-only
- stats_fs-objs	:= stats_fs.o
-+stats_fs-tests-objs	:= stats_fs-tests.o
++The vfio-ccw schib region is used to return Subchannel-Information
++Block (SCHIB) data to userspace::
++
++  struct ccw_schib_region {
++  #define SCHIB_AREA_SIZE 52
++         __u8 schib_area[SCHIB_AREA_SIZE];
++  } __packed;
++
++This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_SCHIB.
++
++Reading this region triggers a STORE SUBCHANNEL to be issued to the
++associated hardware.
++
+ vfio-ccw operation details
+ --------------------------
  
- obj-$(CONFIG_STATS_FS)	+= stats_fs.o
-+obj-$(CONFIG_STATS_FS_TEST) += stats_fs-tests.o
-diff --git a/fs/stats_fs/stats_fs-tests.c b/fs/stats_fs/stats_fs-tests.c
+@@ -333,7 +349,8 @@ through DASD/ECKD device online in a guest now and use it as a block
+ device.
+ 
+ The current code allows the guest to start channel programs via
+-START SUBCHANNEL, and to issue HALT SUBCHANNEL and CLEAR SUBCHANNEL.
++START SUBCHANNEL, and to issue HALT SUBCHANNEL, CLEAR SUBCHANNEL,
++and STORE SUBCHANNEL.
+ 
+ vfio-ccw supports classic (command mode) channel I/O only. Transport
+ mode (HPF) is not supported.
+diff --git a/drivers/s390/cio/Makefile b/drivers/s390/cio/Makefile
+index 23eae4188876..a9235f111e79 100644
+--- a/drivers/s390/cio/Makefile
++++ b/drivers/s390/cio/Makefile
+@@ -21,5 +21,5 @@ qdio-objs := qdio_main.o qdio_thinint.o qdio_debug.o qdio_setup.o
+ obj-$(CONFIG_QDIO) += qdio.o
+ 
+ vfio_ccw-objs += vfio_ccw_drv.o vfio_ccw_cp.o vfio_ccw_ops.o vfio_ccw_fsm.o \
+-	vfio_ccw_async.o vfio_ccw_trace.o
++	vfio_ccw_async.o vfio_ccw_trace.o vfio_ccw_chp.o
+ obj-$(CONFIG_VFIO_CCW) += vfio_ccw.o
+diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
 new file mode 100644
-index 000000000000..46c3fb510ee9
+index 000000000000..18f3b3e873a9
 --- /dev/null
-+++ b/fs/stats_fs/stats_fs-tests.c
-@@ -0,0 +1,1088 @@
++++ b/drivers/s390/cio/vfio_ccw_chp.c
+@@ -0,0 +1,76 @@
 +// SPDX-License-Identifier: GPL-2.0
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/file.h>
-+#include <linux/fs.h>
-+#include <linux/slab.h>
-+#include <linux/anon_inodes.h>
-+#include <linux/spinlock.h>
-+#include <linux/uaccess.h>
-+#include <linux/rwsem.h>
-+#include <linux/list.h>
-+#include <linux/kref.h>
++/*
++ * Channel path related status regions for vfio_ccw
++ *
++ * Copyright IBM Corp. 2020
++ *
++ * Author(s): Farhan Ali <alifm@linux.ibm.com>
++ *            Eric Farman <farman@linux.ibm.com>
++ */
 +
-+#include <linux/limits.h>
-+#include <linux/stats_fs.h>
-+#include <kunit/test.h>
-+#include "internal.h"
++#include <linux/vfio.h>
++#include "vfio_ccw_private.h"
 +
-+#define STATS_FS_STAT(el, x, ...)                                              \
-+	{                                                                      \
-+		.name = #x, .offset = offsetof(struct container, el.x),        \
-+		##__VA_ARGS__                                                  \
++static ssize_t vfio_ccw_schib_region_read(struct vfio_ccw_private *private,
++					  char __user *buf, size_t count,
++					  loff_t *ppos)
++{
++	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
++	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
++	struct ccw_schib_region *region;
++	int ret;
++
++	if (pos + count > sizeof(*region))
++		return -EINVAL;
++
++	mutex_lock(&private->io_mutex);
++	region = private->region[i].data;
++
++	if (cio_update_schib(private->sch)) {
++		ret = -ENODEV;
++		goto out;
 +	}
 +
-+#define ARR_SIZE(el) ((int)(sizeof(el) / sizeof(struct stats_fs_value) - 1))
++	memcpy(region, &private->sch->schib, sizeof(*region));
 +
-+struct test_values_struct {
-+	uint64_t u64;
-+	int32_t s32;
-+	bool bo;
-+	uint8_t u8;
-+	int16_t s16;
-+};
-+
-+struct container {
-+	struct test_values_struct vals;
-+};
-+
-+struct stats_fs_value test_values[6] = {
-+	STATS_FS_STAT(vals, u64, .type = STATS_FS_U64,
-+		      .aggr_kind = STATS_FS_NONE, .mode = 0),
-+	STATS_FS_STAT(vals, s32, .type = STATS_FS_S32,
-+		      .aggr_kind = STATS_FS_NONE, .mode = 0),
-+	STATS_FS_STAT(vals, bo, .type = STATS_FS_BOOL,
-+		      .aggr_kind = STATS_FS_NONE, .mode = 0),
-+	STATS_FS_STAT(vals, u8, .type = STATS_FS_U8, .aggr_kind = STATS_FS_NONE,
-+		      .mode = 0),
-+	STATS_FS_STAT(vals, s16, .type = STATS_FS_S16,
-+		      .aggr_kind = STATS_FS_NONE, .mode = 0),
-+	{ NULL },
-+};
-+
-+struct stats_fs_value test_aggr[4] = {
-+	STATS_FS_STAT(vals, s32, .type = STATS_FS_S32,
-+		      .aggr_kind = STATS_FS_MIN, .mode = 0),
-+	STATS_FS_STAT(vals, bo, .type = STATS_FS_BOOL,
-+		      .aggr_kind = STATS_FS_MAX, .mode = 0),
-+	STATS_FS_STAT(vals, u64, .type = STATS_FS_U64,
-+		      .aggr_kind = STATS_FS_SUM, .mode = 0),
-+	{ NULL },
-+};
-+
-+struct stats_fs_value test_same_name[3] = {
-+	STATS_FS_STAT(vals, s32, .type = STATS_FS_S32,
-+		      .aggr_kind = STATS_FS_NONE, .mode = 0),
-+	STATS_FS_STAT(vals, s32, .type = STATS_FS_S32,
-+		      .aggr_kind = STATS_FS_MIN, .mode = 0),
-+	{ NULL },
-+};
-+
-+struct stats_fs_value test_all_aggr[6] = {
-+	STATS_FS_STAT(vals, s32, .type = STATS_FS_S32,
-+		      .aggr_kind = STATS_FS_MIN, .mode = 0),
-+	STATS_FS_STAT(vals, bo, .type = STATS_FS_BOOL,
-+		      .aggr_kind = STATS_FS_COUNT_ZERO, .mode = 0),
-+	STATS_FS_STAT(vals, u64, .type = STATS_FS_U64,
-+		      .aggr_kind = STATS_FS_SUM, .mode = 0),
-+	STATS_FS_STAT(vals, u8, .type = STATS_FS_U8, .aggr_kind = STATS_FS_AVG,
-+		      .mode = 0),
-+	STATS_FS_STAT(vals, s16, .type = STATS_FS_S16,
-+		      .aggr_kind = STATS_FS_MAX, .mode = 0),
-+	{ NULL },
-+};
-+
-+#define def_u64 ((uint64_t)64)
-+
-+#define def_val_s32 ((int32_t)S32_MIN)
-+#define def_val_bool ((bool)true)
-+#define def_val_u8 ((uint8_t)127)
-+#define def_val_s16 ((int16_t)10000)
-+
-+#define def_val2_s32 ((int32_t)S16_MAX)
-+#define def_val2_bool ((bool)false)
-+#define def_val2_u8 ((uint8_t)255)
-+#define def_val2_s16 ((int16_t)-20000)
-+
-+struct container cont = {
-+	.vals = {
-+			.u64 = def_u64,
-+			.s32 = def_val_s32,
-+			.bo = def_val_bool,
-+			.u8 = def_val_u8,
-+			.s16 = def_val_s16,
-+		},
-+};
-+
-+struct container cont2 = {
-+	.vals = {
-+			.u64 = def_u64,
-+			.s32 = def_val2_s32,
-+			.bo = def_val2_bool,
-+			.u8 = def_val2_u8,
-+			.s16 = def_val2_s16,
-+		},
-+};
-+
-+static void get_stats_at_addr(struct stats_fs_source *src, void *addr,
-+			      int *aggr, int *val, int use_addr)
-+{
-+	struct stats_fs_value *entry;
-+	struct stats_fs_value_source *src_entry;
-+	int counter_val = 0, counter_aggr = 0;
-+
-+	list_for_each_entry (src_entry, &src->values_head, list_element) {
-+		if (use_addr && src_entry->base_addr != addr)
-+			continue;
-+
-+		for (entry = src_entry->values; entry->name; entry++) {
-+			if (entry->aggr_kind == STATS_FS_NONE)
-+				counter_val++;
-+			else
-+				counter_aggr++;
-+		}
++	if (copy_to_user(buf, (void *)region + pos, count)) {
++		ret = -EFAULT;
++		goto out;
 +	}
 +
-+	if (aggr)
-+		*aggr = counter_aggr;
++	ret = count;
 +
-+	if (val)
-+		*val = counter_val;
++out:
++	mutex_unlock(&private->io_mutex);
++	return ret;
 +}
 +
-+int source_has_subsource(struct stats_fs_source *src,
-+			 struct stats_fs_source *sub)
++static ssize_t vfio_ccw_schib_region_write(struct vfio_ccw_private *private,
++					   const char __user *buf, size_t count,
++					   loff_t *ppos)
 +{
-+	struct stats_fs_source *entry;
-+
-+	list_for_each_entry (entry, &src->subordinates_head, list_element) {
-+		if (entry == sub)
-+			return 1;
-+	}
-+	return 0;
++	return -EINVAL;
 +}
 +
-+int get_number_subsources(struct stats_fs_source *src)
++
++static void vfio_ccw_schib_region_release(struct vfio_ccw_private *private,
++					  struct vfio_ccw_region *region)
 +{
-+	struct stats_fs_source *entry;
-+	int counter = 0;
 +
-+	list_for_each_entry (entry, &src->subordinates_head, list_element) {
-+		counter++;
-+	}
-+	return counter;
 +}
 +
-+int get_number_values(struct stats_fs_source *src)
-+{
-+	int counter = 0;
-+
-+	get_stats_at_addr(src, NULL, NULL, &counter, 0);
-+	return counter;
-+}
-+
-+int get_total_number_values(struct stats_fs_source *src)
-+{
-+	struct stats_fs_source *sub_entry;
-+	int counter = 0;
-+
-+	get_stats_at_addr(src, NULL, NULL, &counter, 0);
-+
-+	list_for_each_entry (sub_entry, &src->subordinates_head, list_element) {
-+		counter += get_total_number_values(sub_entry);
-+	}
-+
-+	return counter;
-+}
-+
-+int get_number_aggregates(struct stats_fs_source *src)
-+{
-+	int counter = 0;
-+
-+	get_stats_at_addr(src, NULL, &counter, NULL, 1);
-+	return counter;
-+}
-+
-+int get_number_values_with_base(struct stats_fs_source *src, void *addr)
-+{
-+	int counter = 0;
-+
-+	get_stats_at_addr(src, addr, NULL, &counter, 1);
-+	return counter;
-+}
-+
-+int get_number_aggr_with_base(struct stats_fs_source *src, void *addr)
-+{
-+	int counter = 0;
-+
-+	get_stats_at_addr(src, addr, &counter, NULL, 1);
-+	return counter;
-+}
-+
-+static void test_empty_folder(struct kunit *test)
-+{
-+	struct stats_fs_source *src;
-+
-+	src = stats_fs_source_create("kvm_%d", 123);
-+	KUNIT_EXPECT_EQ(test, strcmp(src->name, "kvm_123"), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_subsources(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), 0);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_add_subfolder(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub;
-+
-+	src = stats_fs_source_create("parent");
-+	sub = stats_fs_source_create("child");
-+	stats_fs_source_add_subordinate(src, sub);
-+	KUNIT_EXPECT_EQ(test, source_has_subsource(src, sub), true);
-+	KUNIT_EXPECT_EQ(test, get_number_subsources(src), 1);
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_values(sub), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(sub), 0);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+
-+	stats_fs_source_put(sub);
-+	sub = stats_fs_source_create("not a child");
-+	KUNIT_EXPECT_EQ(test, source_has_subsource(src, sub), false);
-+	KUNIT_EXPECT_EQ(test, get_number_subsources(src), 1);
-+
-+	stats_fs_source_put(sub);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_add_value(struct kunit *test)
-+{
-+	struct stats_fs_source *src;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+
-+	// add values
-+	n = stats_fs_source_add_values(src, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+
-+	// add same values, nothing happens
-+	n = stats_fs_source_add_values(src, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, -EEXIST);
-+	n = get_number_values_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+
-+	// size is invaried
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), ARR_SIZE(test_values));
-+
-+	// no aggregates
-+	n = get_number_aggr_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), ARR_SIZE(test_values));
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), 0);
-+
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_add_value_in_subfolder(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub, *sub_not;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub = stats_fs_source_create("child");
-+
-+	// src -> sub
-+	stats_fs_source_add_subordinate(src, sub);
-+
-+	// add values
-+	n = stats_fs_source_add_values(sub, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(sub, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src),
-+			ARR_SIZE(test_values));
-+
-+	KUNIT_EXPECT_EQ(test, get_number_values(sub), ARR_SIZE(test_values));
-+	// no values in sub
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(sub), 0);
-+
-+	// different folder
-+	sub_not = stats_fs_source_create("not a child");
-+
-+	// add values
-+	n = stats_fs_source_add_values(sub_not, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(sub_not, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src),
-+			ARR_SIZE(test_values));
-+
-+	// remove sub, check values is 0
-+	stats_fs_source_remove_subordinate(src, sub);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+
-+	// re-add sub, check value are added
-+	stats_fs_source_add_subordinate(src, sub);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src),
-+			ARR_SIZE(test_values));
-+
-+	// add sub_not, check value are twice as many
-+	stats_fs_source_add_subordinate(src, sub_not);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src),
-+			ARR_SIZE(test_values) * 2);
-+
-+	KUNIT_EXPECT_EQ(test, get_number_values(sub_not),
-+			ARR_SIZE(test_values));
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(sub_not), 0);
-+
-+	stats_fs_source_put(sub);
-+	stats_fs_source_put(sub_not);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_search_value(struct kunit *test)
-+{
-+	struct stats_fs_source *src;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+
-+	// add values
-+	n = stats_fs_source_add_values(src, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+
-+	// get u64
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, ((bool)ret), def_val_bool);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	// get a non-added value
-+	n = stats_fs_source_get_value_by_name(src, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_search_value_in_subfolder(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub = stats_fs_source_create("child");
-+
-+	// src -> sub
-+	stats_fs_source_add_subordinate(src, sub);
-+
-+	// add values to sub
-+	n = stats_fs_source_add_values(sub, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(sub, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+
-+	n = stats_fs_source_get_value_by_name(sub, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(sub, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(sub, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, ((bool)ret), def_val_bool);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(sub, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+	n = stats_fs_source_get_value_by_name(src, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	stats_fs_source_put(sub);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_search_value_in_empty_folder(struct kunit *test)
-+{
-+	struct stats_fs_source *src;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("empty folder");
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_subsources(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), 0);
-+
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(src, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_add_aggregate(struct kunit *test)
-+{
-+	struct stats_fs_source *src;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+
-+	// add aggr to src, no values
-+	n = stats_fs_source_add_values(src, test_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	// count values
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+
-+	// add same array again, should not be added
-+	n = stats_fs_source_add_values(src, test_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, -EEXIST);
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), ARR_SIZE(test_aggr));
-+
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_add_aggregate_in_subfolder(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub, *sub_not;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub = stats_fs_source_create("child");
-+	// src->sub
-+	stats_fs_source_add_subordinate(src, sub);
-+
-+	// add aggr to sub
-+	n = stats_fs_source_add_values(sub, test_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+
-+	KUNIT_EXPECT_EQ(test, get_number_values(sub), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(sub), ARR_SIZE(test_aggr));
-+
-+	// not a child
-+	sub_not = stats_fs_source_create("not a child");
-+
-+	// add aggr to "not a child"
-+	n = stats_fs_source_add_values(sub_not, test_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub_not, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), 0);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+
-+	// remove sub
-+	stats_fs_source_remove_subordinate(src, sub);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+
-+	// re-add both
-+	stats_fs_source_add_subordinate(src, sub);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+	stats_fs_source_add_subordinate(src, sub_not);
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+
-+	KUNIT_EXPECT_EQ(test, get_number_values(sub_not), 0);
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(sub_not),
-+			ARR_SIZE(test_aggr));
-+
-+	stats_fs_source_put(sub);
-+	stats_fs_source_put(sub_not);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_search_aggregate(struct kunit *test)
-+{
-+	struct stats_fs_source *src;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	n = stats_fs_source_add_values(src, test_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+	n = get_number_aggr_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, (int64_t)ret, S64_MAX);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	n = stats_fs_source_get_value_by_name(src, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_search_aggregate_in_subfolder(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub = stats_fs_source_create("child");
-+
-+	stats_fs_source_add_subordinate(src, sub);
-+
-+	n = stats_fs_source_add_values(sub, test_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+	n = get_number_aggr_with_base(sub, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	// no u64 in test_aggr
-+	n = stats_fs_source_get_value_by_name(sub, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(sub, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, (int64_t)ret, S64_MAX);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(sub, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	n = stats_fs_source_get_value_by_name(sub, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+	n = stats_fs_source_get_value_by_name(src, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	stats_fs_source_put(sub);
-+	stats_fs_source_put(src);
-+}
-+
-+void test_search_same(struct kunit *test)
-+{
-+	struct stats_fs_source *src;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	n = stats_fs_source_add_values(src, test_same_name, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 1);
-+	n = get_number_aggr_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 1);
-+
-+	n = stats_fs_source_add_values(src, test_same_name, &cont);
-+	KUNIT_EXPECT_EQ(test, n, -EEXIST);
-+	n = get_number_values_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 1);
-+	n = get_number_aggr_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 1);
-+
-+	// returns first the value
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_add_mixed(struct kunit *test)
-+{
-+	struct stats_fs_source *src;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+
-+	n = stats_fs_source_add_values(src, test_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_add_values(src, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+
-+	n = stats_fs_source_add_values(src, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, -EEXIST);
-+	n = get_number_values_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+	n = stats_fs_source_add_values(src, test_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, -EEXIST);
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+
-+	KUNIT_EXPECT_EQ(test, get_number_values(src), ARR_SIZE(test_values));
-+	KUNIT_EXPECT_EQ(test, get_number_aggregates(src), ARR_SIZE(test_aggr));
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_search_mixed(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub = stats_fs_source_create("child");
-+	stats_fs_source_add_subordinate(src, sub);
-+
-+	// src has the aggregates, sub the values. Just search
-+	n = stats_fs_source_add_values(sub, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(sub, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+	n = stats_fs_source_add_values(src, test_aggr, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_aggr));
-+
-+	// u64 is sum so again same value
-+	n = stats_fs_source_get_value_by_name(sub, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	// s32 is min so return the value also in the aggregate
-+	n = stats_fs_source_get_value_by_name(sub, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	// bo is max
-+	n = stats_fs_source_get_value_by_name(sub, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, (bool)ret, def_val_bool);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, (bool)ret, def_val_bool);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+
-+	n = stats_fs_source_get_value_by_name(sub, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+	n = stats_fs_source_get_value_by_name(src, "does not exist", &ret);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	KUNIT_EXPECT_EQ(test, n, -ENOENT);
-+
-+	stats_fs_source_put(sub);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_all_aggregations_agg_val_val(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub1, *sub2;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub1 = stats_fs_source_create("child1");
-+	sub2 = stats_fs_source_create("child2");
-+	stats_fs_source_add_subordinate(src, sub1);
-+	stats_fs_source_add_subordinate(src, sub2);
-+
-+	n = stats_fs_source_add_values(sub1, test_all_aggr, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub1, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+	n = stats_fs_source_add_values(sub2, test_all_aggr, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub2, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	n = stats_fs_source_add_values(src, test_all_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	// sum
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64 * 2);
-+
-+	// min
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+
-+	// count_0
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 1ull);
-+
-+	// avg
-+	n = stats_fs_source_get_value_by_name(src, "u8", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 191ull);
-+
-+	// max
-+	n = stats_fs_source_get_value_by_name(src, "s16", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (int16_t)ret, def_val_s16);
-+
-+	stats_fs_source_put(sub1);
-+	stats_fs_source_put(sub2);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_all_aggregations_val_agg_val(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub1, *sub2;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub1 = stats_fs_source_create("child1");
-+	sub2 = stats_fs_source_create("child2");
-+	stats_fs_source_add_subordinate(src, sub1);
-+	stats_fs_source_add_subordinate(src, sub2);
-+
-+	n = stats_fs_source_add_values(src, test_all_aggr, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(src, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+	n = stats_fs_source_add_values(sub2, test_all_aggr, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub2, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	n = stats_fs_source_add_values(sub1, test_all_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub1, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64);
-+	n = stats_fs_source_get_value_by_name(sub1, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	n = stats_fs_source_get_value_by_name(sub2, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64);
-+
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+	n = stats_fs_source_get_value_by_name(sub1, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (int64_t)ret, S64_MAX); // MIN
-+	n = stats_fs_source_get_value_by_name(sub2, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val2_s32);
-+
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (bool)ret, def_val_bool);
-+	n = stats_fs_source_get_value_by_name(sub1, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	n = stats_fs_source_get_value_by_name(sub2, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (bool)ret, def_val2_bool);
-+
-+	n = stats_fs_source_get_value_by_name(src, "u8", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (uint8_t)ret, def_val_u8);
-+	n = stats_fs_source_get_value_by_name(sub1, "u8", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 0ull);
-+	n = stats_fs_source_get_value_by_name(sub2, "u8", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (uint8_t)ret, def_val2_u8);
-+
-+	n = stats_fs_source_get_value_by_name(src, "s16", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (int16_t)ret, def_val_s16);
-+	n = stats_fs_source_get_value_by_name(sub1, "s16", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (int64_t)ret, S64_MIN); // MAX
-+	n = stats_fs_source_get_value_by_name(sub2, "s16", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (int16_t)ret, def_val2_s16);
-+
-+	stats_fs_source_put(sub1);
-+	stats_fs_source_put(sub2);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_all_aggregations_agg_val_val_sub(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub1, *sub11;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub1 = stats_fs_source_create("child1");
-+	sub11 = stats_fs_source_create("child11");
-+	stats_fs_source_add_subordinate(src, sub1);
-+	stats_fs_source_add_subordinate(sub1, sub11); // changes here!
-+
-+	n = stats_fs_source_add_values(sub1, test_values, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(sub1, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+	n = stats_fs_source_add_values(sub11, test_values, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_values_with_base(sub11, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_values));
-+
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src),
-+			ARR_SIZE(test_values) * 2);
-+
-+	n = stats_fs_source_add_values(sub1, test_all_aggr, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub1, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+	n = stats_fs_source_add_values(sub11, test_all_aggr, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub11, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	n = stats_fs_source_add_values(src, test_all_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	// sum
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64 * 2);
-+
-+	// min
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+
-+	// count_0
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 1ull);
-+
-+	// avg
-+	n = stats_fs_source_get_value_by_name(src, "u8", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 191ull);
-+
-+	// max
-+	n = stats_fs_source_get_value_by_name(src, "s16", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (int16_t)ret, def_val_s16);
-+
-+	stats_fs_source_put(sub1);
-+	stats_fs_source_put(sub11);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_all_aggregations_agg_no_val_sub(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub1, *sub11;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub1 = stats_fs_source_create("child1");
-+	sub11 = stats_fs_source_create("child11");
-+	stats_fs_source_add_subordinate(src, sub1);
-+	stats_fs_source_add_subordinate(sub1, sub11);
-+
-+	n = stats_fs_source_add_values(sub11, test_all_aggr, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub11, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+
-+	n = stats_fs_source_add_values(src, test_all_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	// sum
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64);
-+
-+	// min
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val2_s32);
-+
-+	// count_0
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 1ull);
-+
-+	// avg
-+	n = stats_fs_source_get_value_by_name(src, "u8", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (uint8_t)ret, def_val2_u8);
-+
-+	// max
-+	n = stats_fs_source_get_value_by_name(src, "s16", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (int16_t)ret, def_val2_s16);
-+
-+	stats_fs_source_put(sub1);
-+	stats_fs_source_put(sub11);
-+	stats_fs_source_put(src);
-+}
-+
-+static void test_all_aggregations_agg_agg_val_sub(struct kunit *test)
-+{
-+	struct stats_fs_source *src, *sub1, *sub11, *sub12;
-+	uint64_t ret;
-+	int n;
-+
-+	src = stats_fs_source_create("parent");
-+	sub1 = stats_fs_source_create("child1");
-+	sub11 = stats_fs_source_create("child11");
-+	sub12 = stats_fs_source_create("child12");
-+	stats_fs_source_add_subordinate(src, sub1);
-+	stats_fs_source_add_subordinate(sub1, sub11);
-+	stats_fs_source_add_subordinate(sub1, sub12);
-+
-+	n = stats_fs_source_add_values(sub11, test_all_aggr, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub11, &cont2);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	n = stats_fs_source_add_values(sub12, test_all_aggr, &cont);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub12, &cont);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	KUNIT_EXPECT_EQ(test, get_total_number_values(src), 0);
-+
-+	n = stats_fs_source_add_values(src, test_all_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(src, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	n = stats_fs_source_add_values(sub1, test_all_aggr, NULL);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	n = get_number_aggr_with_base(sub1, NULL);
-+	KUNIT_EXPECT_EQ(test, n, ARR_SIZE(test_all_aggr));
-+
-+	// sum
-+	n = stats_fs_source_get_value_by_name(src, "u64", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, def_u64 * 2);
-+
-+	// min
-+	n = stats_fs_source_get_value_by_name(src, "s32", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ((int32_t)ret), def_val_s32);
-+
-+	// count_0
-+	n = stats_fs_source_get_value_by_name(src, "bo", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, ret, 1ull);
-+
-+	// avg
-+	n = stats_fs_source_get_value_by_name(src, "u8", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (uint8_t)ret,
-+			(uint8_t)((def_val2_u8 + def_val_u8) / 2));
-+
-+	// max
-+	n = stats_fs_source_get_value_by_name(src, "s16", &ret);
-+	KUNIT_EXPECT_EQ(test, n, 0);
-+	KUNIT_EXPECT_EQ(test, (int16_t)ret, def_val_s16);
-+
-+	stats_fs_source_put(sub1);
-+	stats_fs_source_put(sub11);
-+	stats_fs_source_put(sub12);
-+	stats_fs_source_put(src);
-+}
-+
-+static struct kunit_case stats_fs_test_cases[] = {
-+	KUNIT_CASE(test_empty_folder),
-+	KUNIT_CASE(test_add_subfolder),
-+	KUNIT_CASE(test_add_value),
-+	KUNIT_CASE(test_add_value_in_subfolder),
-+	KUNIT_CASE(test_search_value),
-+	KUNIT_CASE(test_search_value_in_subfolder),
-+	KUNIT_CASE(test_search_value_in_empty_folder),
-+	KUNIT_CASE(test_add_aggregate),
-+	KUNIT_CASE(test_add_aggregate_in_subfolder),
-+	KUNIT_CASE(test_search_aggregate),
-+	KUNIT_CASE(test_search_aggregate_in_subfolder),
-+	KUNIT_CASE(test_search_same),
-+	KUNIT_CASE(test_add_mixed),
-+	KUNIT_CASE(test_search_mixed),
-+	KUNIT_CASE(test_all_aggregations_agg_val_val),
-+	KUNIT_CASE(test_all_aggregations_val_agg_val),
-+	KUNIT_CASE(test_all_aggregations_agg_val_val_sub),
-+	KUNIT_CASE(test_all_aggregations_agg_no_val_sub),
-+	KUNIT_CASE(test_all_aggregations_agg_agg_val_sub),
-+	{}
++const struct vfio_ccw_regops vfio_ccw_schib_region_ops = {
++	.read = vfio_ccw_schib_region_read,
++	.write = vfio_ccw_schib_region_write,
++	.release = vfio_ccw_schib_region_release,
 +};
 +
-+static struct kunit_suite stats_fs_test_suite = {
-+	.name = "stats_fs",
-+	.test_cases = stats_fs_test_cases,
-+};
++int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private)
++{
++	return vfio_ccw_register_dev_region(private,
++					    VFIO_REGION_SUBTYPE_CCW_SCHIB,
++					    &vfio_ccw_schib_region_ops,
++					    sizeof(struct ccw_schib_region),
++					    VFIO_REGION_INFO_FLAG_READ,
++					    private->schib_region);
++}
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index fb1275a7d1f5..7aeff42f370d 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -27,6 +27,7 @@
+ struct workqueue_struct *vfio_ccw_work_q;
+ static struct kmem_cache *vfio_ccw_io_region;
+ static struct kmem_cache *vfio_ccw_cmd_region;
++static struct kmem_cache *vfio_ccw_schib_region;
+ 
+ debug_info_t *vfio_ccw_debug_msg_id;
+ debug_info_t *vfio_ccw_debug_trace_id;
+@@ -119,6 +120,8 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+ 
+ static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
+ {
++	if (private->schib_region)
++		kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
+ 	if (private->cmd_region)
+ 		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+ 	if (private->io_region)
+@@ -156,6 +159,12 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	if (!private->cmd_region)
+ 		goto out_free;
+ 
++	private->schib_region = kmem_cache_zalloc(vfio_ccw_schib_region,
++						  GFP_KERNEL | GFP_DMA);
 +
-+kunit_test_suite(stats_fs_test_suite);
++	if (!private->schib_region)
++		goto out_free;
++
+ 	private->sch = sch;
+ 	dev_set_drvdata(&sch->dev, private);
+ 	mutex_init(&private->io_mutex);
+@@ -357,6 +366,7 @@ static void vfio_ccw_debug_exit(void)
+ 
+ static void vfio_ccw_destroy_regions(void)
+ {
++	kmem_cache_destroy(vfio_ccw_schib_region);
+ 	kmem_cache_destroy(vfio_ccw_cmd_region);
+ 	kmem_cache_destroy(vfio_ccw_io_region);
+ }
+@@ -393,6 +403,16 @@ static int __init vfio_ccw_sch_init(void)
+ 		goto out_err;
+ 	}
+ 
++	vfio_ccw_schib_region = kmem_cache_create_usercopy("vfio_ccw_schib_region",
++					sizeof(struct ccw_schib_region), 0,
++					SLAB_ACCOUNT, 0,
++					sizeof(struct ccw_schib_region), NULL);
++
++	if (!vfio_ccw_schib_region) {
++		ret = -ENOMEM;
++		goto out_err;
++	}
++
+ 	isc_register(VFIO_CCW_ISC);
+ 	ret = css_driver_register(&vfio_ccw_sch_driver);
+ 	if (ret) {
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index d4fc84b8867f..22988d67b6bb 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -172,8 +172,18 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
+ 
+ 	ret = vfio_ccw_register_async_dev_regions(private);
+ 	if (ret)
+-		vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+-					 &private->nb);
++		goto out_unregister;
++
++	ret = vfio_ccw_register_schib_dev_regions(private);
++	if (ret)
++		goto out_unregister;
++
++	return ret;
++
++out_unregister:
++	vfio_ccw_unregister_dev_regions(private);
++	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
++				 &private->nb);
+ 	return ret;
+ }
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index ce3834159d98..d6601a8adf13 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -56,6 +56,7 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
+ void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
+ 
+ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
++int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
+ 
+ /**
+  * struct vfio_ccw_private
+@@ -69,6 +70,7 @@ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
+  * @io_mutex: protect against concurrent update of I/O regions
+  * @region: additional regions for other subchannel operations
+  * @cmd_region: MMIO region for asynchronous I/O commands other than START
++ * @schib_region: MMIO region for SCHIB information
+  * @num_regions: number of additional regions
+  * @cp: channel program for the current I/O operation
+  * @irb: irb info received from interrupt
+@@ -87,6 +89,7 @@ struct vfio_ccw_private {
+ 	struct mutex		io_mutex;
+ 	struct vfio_ccw_region *region;
+ 	struct ccw_cmd_region	*cmd_region;
++	struct ccw_schib_region *schib_region;
+ 	int num_regions;
+ 
+ 	struct channel_program	cp;
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 015516bcfaa3..7a1abbd889bd 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -378,6 +378,7 @@ struct vfio_region_gfx_edid {
+ 
+ /* sub-types for VFIO_REGION_TYPE_CCW */
+ #define VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD	(1)
++#define VFIO_REGION_SUBTYPE_CCW_SCHIB		(2)
+ 
+ /*
+  * The MSIX mappable capability informs that MSIX data of a BAR can be mmapped
+diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
+index cbecbf0cd54f..758bf214898d 100644
+--- a/include/uapi/linux/vfio_ccw.h
++++ b/include/uapi/linux/vfio_ccw.h
+@@ -34,4 +34,14 @@ struct ccw_cmd_region {
+ 	__u32 ret_code;
+ } __packed;
+ 
++/*
++ * Used for processing commands that read the subchannel-information block
++ * Reading this region triggers a stsch() to hardware
++ * Note: this is controlled by a capability
++ */
++struct ccw_schib_region {
++#define SCHIB_AREA_SIZE 52
++	__u8 schib_area[SCHIB_AREA_SIZE];
++} __packed;
++
+ #endif
 -- 
-2.25.2
+2.17.1
