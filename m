@@ -1,34 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ms11p00im-qufo17281401.me.com ([17.58.38.51]:54761 "EHLO
-        ms11p00im-qufo17281401.me.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729335AbgEEPDR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 11:03:17 -0400
-Content-Type: text/plain;
-        charset=us-ascii
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50058 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728402AbgEEJP4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 05:15:56 -0400
 Subject: Re: [PATCH v2] KVM: s390: Remove false WARN_ON_ONCE for the PQAP
  instruction
-From: Qian Cai <cailca@icloud.com>
-In-Reply-To: <a9dcc2b8-15a5-73ff-5784-46c61c8eb2b8@de.ibm.com>
-Date: Tue, 5 May 2020 11:03:12 -0400
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <9D5D39B5-B4FE-4371-A8D3-A03D7CC78C2F@icloud.com>
 References: <20200505083515.2720-1-borntraeger@de.ibm.com>
- <a9dcc2b8-15a5-73ff-5784-46c61c8eb2b8@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <a9dcc2b8-15a5-73ff-5784-46c61c8eb2b8@de.ibm.com>
+Date: Tue, 5 May 2020 11:15:49 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200505083515.2720-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Pierre Morel <pmorel@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Qian Cai <cailca@icloud.com>, Pierre Morel <pmorel@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
 
+On 05.05.20 10:35, Christian Borntraeger wrote:
+> In LPAR we will only get an intercept for FC==3 for the PQAP
+> instruction. Running nested under z/VM can result in other intercepts as
+> well as ECA_APIE is an effective bit: If one hypervisor layer has
+> turned this bit off, the end result will be that we will get intercepts for
+> all function codes. Usually the first one will be a query like PQAP(QCI).
+> So the WARN_ON_ONCE is not right. Let us simply remove it.
+> 
+> Cc: Pierre Morel <pmorel@linux.ibm.com>
+> Cc: Tony Krowiak <akrowiak@linux.ibm.com>
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/kvm/20200505073525.2287-1-borntraeger@de.ibm.com
+> Reported-by: Qian Cai <cailca@icloud.com>
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  arch/s390/kvm/priv.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index 69a824f9ef0b..893893642415 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -626,10 +626,12 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+>  	 * available for the guest are AQIC and TAPQ with the t bit set
+>  	 * since we do not set IC.3 (FIII) we currently will only intercept
+>  	 * the AQIC function code.
+> +	 * Note: running nested under z/VM can result in intercepts for other
+> +	 * function codes, e.g. PQAP(QCI). We do not support this and bail out.
+>  	 */
+>  	reg0 = vcpu->run->s.regs.gprs[0];
+>  	fc = (reg0 >> 24) & 0xff;
+> -	if (WARN_ON_ONCE(fc != 0x03))
+> +	if (fc != 0x03)
+>  		return -EOPNOTSUPP;
+>  
+>  	/* PQAP instruction is allowed for guest kernel only */
+> 
 
+applied for kvms390/master.
 
-> On May 5, 2020, at 5:15 AM, Christian Borntraeger =
-<borntraeger@de.ibm.com> wrote:
-
-> applied for kvms390/master.
->=20
-> Qian Cai, can you verify that this fixes the issue?
-
-Thank you for tracking it down and removed the warning, so there is no =
-way for me to trigger it anymore. Otherwise, my simple test case works =
-fine for z/VM nested KVM here.
+Qian Cai, can you verify that this fixes the issue?
