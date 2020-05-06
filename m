@@ -1,102 +1,134 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2130.oracle.com ([156.151.31.86]:52240 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387564AbgE0RjD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 May 2020 13:39:03 -0400
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [PATCH v3 7/8] mm: make deferred init's max threads arch-specific
-Date: Wed, 27 May 2020 13:36:07 -0400
-Message-Id: <20200527173608.2885243-8-daniel.m.jordan@oracle.com>
-In-Reply-To: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
-References: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33598 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728692AbgEFIJ7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:09:59 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 03/10] s390/qeth: add debugfs file for local IP addresses
+Date: Wed,  6 May 2020 10:09:42 +0200
+Message-Id: <20200506080949.3915-4-jwi@linux.ibm.com>
+In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
+References: <20200506080949.3915-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Using padata during deferred init has only been tested on x86, so for
-now limit it to this architecture.
+For debugging purposes, provide read access to the local_addr caches
+via debug/qeth/<dev_name>/local_addrs.
 
-If another arch wants this, it can find the max thread limit that's best
-for it and override deferred_page_init_max_threads().
-
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Tested-by: Josh Triplett <josh@joshtriplett.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/x86/mm/init_64.c    | 12 ++++++++++++
- include/linux/memblock.h |  3 +++
- mm/page_alloc.c          | 13 ++++++++-----
- 3 files changed, 23 insertions(+), 5 deletions(-)
+ drivers/s390/net/qeth_core.h      |  2 ++
+ drivers/s390/net/qeth_core_main.c | 32 ++++++++++++++++++++++++++++++-
+ 2 files changed, 33 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 8b5f73f5e207c..2d749ec12ea8a 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1260,6 +1260,18 @@ void __init mem_init(void)
- 	mem_init_print_info(NULL);
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index b92af3735dd4..3d8b8e0f2438 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -11,6 +11,7 @@
+ #define __QETH_CORE_H__
+ 
+ #include <linux/completion.h>
++#include <linux/debugfs.h>
+ #include <linux/if.h>
+ #include <linux/if_arp.h>
+ #include <linux/etherdevice.h>
+@@ -797,6 +798,7 @@ struct qeth_card {
+ 	struct qeth_channel data;
+ 
+ 	struct net_device *dev;
++	struct dentry *debugfs;
+ 	struct qeth_card_stats stats;
+ 	struct qeth_card_info info;
+ 	struct qeth_token token;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 6b5d42a4501c..771282cb7aef 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -61,6 +61,7 @@ EXPORT_SYMBOL_GPL(qeth_core_header_cache);
+ static struct kmem_cache *qeth_qdio_outbuf_cache;
+ 
+ static struct device *qeth_core_root_dev;
++static struct dentry *qeth_debugfs_root;
+ static struct lock_class_key qdio_out_skb_queue_key;
+ 
+ static void qeth_issue_next_read_cb(struct qeth_card *card,
+@@ -805,6 +806,24 @@ static void qeth_del_local_addrs6(struct qeth_card *card,
+ 	spin_unlock(&card->local_addrs6_lock);
  }
  
-+#ifdef CONFIG_DEFERRED_STRUCT_PAGE_INIT
-+int __init deferred_page_init_max_threads(const struct cpumask *node_cpumask)
++static int qeth_debugfs_local_addr_show(struct seq_file *m, void *v)
 +{
-+	/*
-+	 * More CPUs always led to greater speedups on tested systems, up to
-+	 * all the nodes' CPUs.  Use all since the system is otherwise idle
-+	 * now.
-+	 */
-+	return max_t(int, cpumask_weight(node_cpumask), 1);
-+}
-+#endif
++	struct qeth_card *card = m->private;
++	struct qeth_local_addr *tmp;
++	unsigned int i;
 +
- int kernel_set_to_readonly;
- 
- void mark_rodata_ro(void)
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 6bc37a731d27b..2b289df44194f 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -275,6 +275,9 @@ void __next_mem_pfn_range_in_zone(u64 *idx, struct zone *zone,
- #define for_each_free_mem_pfn_range_in_zone_from(i, zone, p_start, p_end) \
- 	for (; i != U64_MAX;					  \
- 	     __next_mem_pfn_range_in_zone(&i, zone, p_start, p_end))
++	rcu_read_lock();
++	hash_for_each_rcu(card->local_addrs4, i, tmp, hnode)
++		seq_printf(m, "%pI4\n", &tmp->addr.s6_addr32[3]);
++	hash_for_each_rcu(card->local_addrs6, i, tmp, hnode)
++		seq_printf(m, "%pI6c\n", &tmp->addr);
++	rcu_read_unlock();
 +
-+int __init deferred_page_init_max_threads(const struct cpumask *node_cpumask);
-+
- #endif /* CONFIG_DEFERRED_STRUCT_PAGE_INIT */
- 
- /**
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 1d47016849531..329fd1a809c59 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1835,6 +1835,13 @@ deferred_init_memmap_chunk(unsigned long start_pfn, unsigned long end_pfn,
- 	}
- }
- 
-+/* An arch may override for more concurrency. */
-+__weak int __init
-+deferred_page_init_max_threads(const struct cpumask *node_cpumask)
-+{
-+	return 1;
++	return 0;
 +}
 +
- /* Initialise remaining memory on a node */
- static int __init deferred_init_memmap(void *data)
++DEFINE_SHOW_ATTRIBUTE(qeth_debugfs_local_addr);
++
+ static void qeth_issue_ipa_msg(struct qeth_ipa_cmd *cmd, int rc,
+ 		struct qeth_card *card)
  {
-@@ -1883,11 +1890,7 @@ static int __init deferred_init_memmap(void *data)
- 						 first_init_pfn))
- 		goto zone_empty;
+@@ -1608,6 +1627,11 @@ static struct qeth_card *qeth_alloc_card(struct ccwgroup_device *gdev)
+ 	if (!card->read_cmd)
+ 		goto out_read_cmd;
  
--	/*
--	 * More CPUs always led to greater speedups on tested systems, up to
--	 * all the nodes' CPUs.  Use all since the system is otherwise idle now.
--	 */
--	max_threads = max(cpumask_weight(cpumask), 1u);
-+	max_threads = deferred_page_init_max_threads(cpumask);
++	card->debugfs = debugfs_create_dir(dev_name(&gdev->dev),
++					   qeth_debugfs_root);
++	debugfs_create_file("local_addrs", 0400, card->debugfs, card,
++			    &qeth_debugfs_local_addr_fops);
++
+ 	card->qeth_service_level.seq_print = qeth_core_sl_print;
+ 	register_service_level(&card->qeth_service_level);
+ 	return card;
+@@ -5085,9 +5109,11 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ static void qeth_core_free_card(struct qeth_card *card)
+ {
+ 	QETH_CARD_TEXT(card, 2, "freecrd");
++
++	unregister_service_level(&card->qeth_service_level);
++	debugfs_remove_recursive(card->debugfs);
+ 	qeth_put_cmd(card->read_cmd);
+ 	destroy_workqueue(card->event_wq);
+-	unregister_service_level(&card->qeth_service_level);
+ 	dev_set_drvdata(&card->gdev->dev, NULL);
+ 	kfree(card);
+ }
+@@ -6967,6 +6993,8 @@ static int __init qeth_core_init(void)
  
- 	while (spfn < epfn) {
- 		unsigned long epfn_align = ALIGN(epfn, PAGES_PER_SECTION);
+ 	pr_info("loading core functions\n");
+ 
++	qeth_debugfs_root = debugfs_create_dir("qeth", NULL);
++
+ 	rc = qeth_register_dbf_views();
+ 	if (rc)
+ 		goto dbf_err;
+@@ -7008,6 +7036,7 @@ static int __init qeth_core_init(void)
+ register_err:
+ 	qeth_unregister_dbf_views();
+ dbf_err:
++	debugfs_remove_recursive(qeth_debugfs_root);
+ 	pr_err("Initializing the qeth device driver failed\n");
+ 	return rc;
+ }
+@@ -7021,6 +7050,7 @@ static void __exit qeth_core_exit(void)
+ 	kmem_cache_destroy(qeth_core_header_cache);
+ 	root_device_unregister(qeth_core_root_dev);
+ 	qeth_unregister_dbf_views();
++	debugfs_remove_recursive(qeth_debugfs_root);
+ 	pr_info("core functions removed\n");
+ }
+ 
 -- 
-2.26.2
+2.17.1
