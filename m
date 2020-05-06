@@ -1,27 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6888 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728058AbgEFNkb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 09:40:31 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:26877 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726712AbgEFLYk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 07:24:40 -0400
+Date: Wed, 6 May 2020 13:24:27 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v3 1/1] vfio-ccw: Enable transparent CCW IPL from DASD
-References: <20200506001544.16213-1-jrossi@linux.ibm.com>
- <20200506001544.16213-2-jrossi@linux.ibm.com>
-From: Eric Farman <farman@linux.ibm.com>
-Message-ID: <6ef4e1f1-ebbd-2b62-7d0e-947a3e07cbd5@linux.ibm.com>
-Date: Wed, 6 May 2020 09:40:25 -0400
-MIME-Version: 1.0
+Message-ID: <20200506132427.2f64a07d.cohuck@redhat.com>
 In-Reply-To: <20200506001544.16213-2-jrossi@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+References: <20200506001544.16213-1-jrossi@linux.ibm.com>
+        <20200506001544.16213-2-jrossi@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jared Rossi <jrossi@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jared Rossi <jrossi@linux.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On Tue,  5 May 2020 20:15:44 -0400
+Jared Rossi <jrossi@linux.ibm.com> wrote:
 
-
-On 5/5/20 8:15 PM, Jared Rossi wrote:
 > Remove the explicit prefetch check when using vfio-ccw devices.
 > This check does not trigger in practice as all Linux channel programs
 > are intended to use prefetch.
@@ -45,35 +44,9 @@ On 5/5/20 8:15 PM, Jared Rossi wrote:
 >  drivers/s390/cio/vfio_ccw_cp.c  | 19 ++++++++++++-------
 >  2 files changed, 18 insertions(+), 7 deletions(-)
 > 
-> diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
-> index fca9c4f5bd9c..23e7d136f8b4 100644
-> --- a/Documentation/s390/vfio-ccw.rst
-> +++ b/Documentation/s390/vfio-ccw.rst
-> @@ -335,6 +335,12 @@ device.
->  The current code allows the guest to start channel programs via
->  START SUBCHANNEL, and to issue HALT SUBCHANNEL and CLEAR SUBCHANNEL.
->  
-> +Currently all channel programs are prefetched, regardless of the
-> +p-bit setting in the ORB.  As a result, self modifying channel
-> +programs are not supported.  For this reason, IPL has to be handled as
-> +a special case by a userspace/guest program; this has been implemented
-> +in QEMU's s390-ccw bios as of QEMU 4.1.
-> +
->  vfio-ccw supports classic (command mode) channel I/O only. Transport
->  mode (HPF) is not supported.
->  
-> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-> index 3645d1720c4b..d423ca934779 100644
-> --- a/drivers/s390/cio/vfio_ccw_cp.c
-> +++ b/drivers/s390/cio/vfio_ccw_cp.c
-> @@ -8,6 +8,7 @@
->   *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
->   */
->  
-> +#include <linux/ratelimit.h>
->  #include <linux/mm.h>
->  #include <linux/slab.h>
->  #include <linux/iommu.h>
+
+(...)
+
 > @@ -625,23 +626,27 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
 >   * the target channel program from @orb->cmd.iova to the new ccwchain(s).
 >   *
@@ -90,11 +63,6 @@ On 5/5/20 8:15 PM, Jared Rossi wrote:
 >  int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
 >  {
 > +	static DEFINE_RATELIMIT_STATE(ratelimit_state, 5 * HZ, 1);
-
-This looks peculiar, being static and on the stack.  But I guess it is
-fine.  And as Conny mentions, a comment about the boot messages would be
-good.
-
 >  	int ret;
 >  
 >  	/*
@@ -102,30 +70,30 @@ good.
 > -	 * Only support prefetch enable mode now.
 > +	 * We only support prefetching the channel program. We assume all channel
 > +	 * programs executed by supported guests (i.e. Linux) likewise support
-
-s/(i.e. Linux) //
-
-> +	 * prefetching. 
-
-Even if prefetching is not specified the channel program
-> +	 * is still executed using prefetch. 
-
-The above sentence seems redundant, and can be removed.
-
-Executing a channel program that
+> +	 * prefetching. Even if prefetching is not specified the channel program
+> +	 * is still executed using prefetch. Executing a channel program that
 > +	 * does not specify prefetching will typically not cause an error, but a
 > +	 * warning is issued to help identify the problem if something does break.
 >  	 */
 > -	if (!orb->cmd.pfch)
 > -		return -EOPNOTSUPP;
+
+/* custom ratelimiting to avoid flood during boot */
+
+(to avoid people stumbling over this)
+
 > +	if (!orb->cmd.pfch && __ratelimit(&ratelimit_state))
 > +		dev_warn(mdev, "executing channel program with prefetch, but prefetch isn't specified");
 
-Works well enough (with QEMU patch, obviously).
+hmm... what about
 
-Almost-r-b: me :)
+"prefetching channel program even though prefetch not specified in orb"?
 
 >  
 >  	INIT_LIST_HEAD(&cp->ccwchain_list);
 >  	memcpy(&cp->orb, orb, sizeof(*orb));
-> 
+
+(...)
+
+Apart from the bikeshedding, looks sane to me; but would like more
+opinions.
