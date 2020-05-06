@@ -1,81 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18865 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4832 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727832AbgEHRXs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 May 2020 13:23:48 -0400
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 6/8] zfcp: fence adapter status propagation for common statuses
-Date: Fri,  8 May 2020 19:23:33 +0200
-Message-Id: <f51fe5f236a1e3d1ce53379c308777561bfe35e1.1588956679.git.bblock@linux.ibm.com>
-In-Reply-To: <cover.1588956679.git.bblock@linux.ibm.com>
-References: <cover.1588956679.git.bblock@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        by vger.kernel.org with ESMTP id S1728714AbgEFIKB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:10:01 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 07/10] s390/qeth: indicate contiguous TX buffer elements
+Date: Wed,  6 May 2020 10:09:46 +0200
+Message-Id: <20200506080949.3915-8-jwi@linux.ibm.com>
+In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
+References: <20200506080949.3915-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Common status flags that all main objects - adapter, port, and unit -
-support are propagated to sub-objects when set or cleared. For instance,
-when setting the status ZFCP_STATUS_COMMON_ERP_INUSE for an adapter
-object, we will propagate this to all its child ports and units - same
-for when clearing a common status flag.
+The TX path usually maps the full content of a page into a buffer
+element. But there's specific skb layouts (ie. linearized TSO skbs)
+where the HW header (1) requires a separate buffer element, and (2) is
+page-contiguous with the packet data that's mapped into the next buffer
+element.
+Flag such buffer elements accordingly, so that HW can optimize its data
+access for them.
 
-Units of an adapter object are enumerated via __shost_for_each_device()
-over the scsi host object of the corresponding adapter.
-
-Once we move the scsi host object allocation and registration to after
-the first exchange config and exchange port data, this won't be possible
-for cases where we set or clear common statuses during the very first
-adapter recovery.
-
-But since we won't have any port or unit objects yet at that point of
-time, we can just fence the status propagation for cases where the scsi
-host object is not yet set in the adapter object. It won't change any
-effective status propagations, but will prevent us from dereferencing
-invalid pointers.
-
-For any later point in the work flow the scsi host object will be set
-and thus nothing is changed then.
-
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_erp.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/s390/net/qeth_core_main.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
-index 356f51d2bbee..283bcb985655 100644
---- a/drivers/s390/scsi/zfcp_erp.c
-+++ b/drivers/s390/scsi/zfcp_erp.c
-@@ -1642,6 +1642,13 @@ void zfcp_erp_set_adapter_status(struct zfcp_adapter *adapter, u32 mask)
- 		atomic_or(common_mask, &port->status);
- 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
- 
-+	/*
-+	 * if `scsi_host` is missing, xconfig/xport data has never completed
-+	 * yet, so we can't access it, but there are also no SDEVs yet
-+	 */
-+	if (adapter->scsi_host == NULL)
-+		return;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 9c9a6edb5384..4d1d053eebb7 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -4110,8 +4110,16 @@ static unsigned int qeth_fill_buffer(struct qeth_qdio_out_buffer *buf,
+ 		buffer->element[element].addr = virt_to_phys(hdr);
+ 		buffer->element[element].length = hd_len;
+ 		buffer->element[element].eflags = SBAL_EFLAGS_FIRST_FRAG;
+-		/* remember to free cache-allocated HW header: */
+-		buf->is_header[element] = ((void *)hdr != skb->data);
 +
- 	spin_lock_irqsave(adapter->scsi_host->host_lock, flags);
- 	__shost_for_each_device(sdev, adapter->scsi_host)
- 		atomic_or(common_mask, &sdev_to_zfcp(sdev)->status);
-@@ -1679,6 +1686,13 @@ void zfcp_erp_clear_adapter_status(struct zfcp_adapter *adapter, u32 mask)
++		/* HW header is allocated from cache: */
++		if ((void *)hdr != skb->data)
++			buf->is_header[element] = 1;
++		/* HW header was pushed and is contiguous with linear part: */
++		else if (length > 0 && !PAGE_ALIGNED(data) &&
++			 (data == (char *)hdr + hd_len))
++			buffer->element[element].eflags |=
++				SBAL_EFLAGS_CONTIGUOUS;
++
+ 		element++;
  	}
- 	read_unlock_irqrestore(&adapter->port_list_lock, flags);
  
-+	/*
-+	 * if `scsi_host` is missing, xconfig/xport data has never completed
-+	 * yet, so we can't access it, but there are also no SDEVs yet
-+	 */
-+	if (adapter->scsi_host == NULL)
-+		return;
-+
- 	spin_lock_irqsave(adapter->scsi_host->host_lock, flags);
- 	__shost_for_each_device(sdev, adapter->scsi_host) {
- 		atomic_andnot(common_mask, &sdev_to_zfcp(sdev)->status);
 -- 
 2.17.1
