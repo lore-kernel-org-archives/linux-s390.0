@@ -1,46 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2130.oracle.com ([156.151.31.86]:57820 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726548AbgETS3f (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 May 2020 14:29:35 -0400
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [PATCH v2 1/7] padata: remove exit routine
-Date: Wed, 20 May 2020 14:26:39 -0400
-Message-Id: <20200520182645.1658949-2-daniel.m.jordan@oracle.com>
-In-Reply-To: <20200520182645.1658949-1-daniel.m.jordan@oracle.com>
-References: <20200520182645.1658949-1-daniel.m.jordan@oracle.com>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:56074 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729908AbgEFQch (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 12:32:37 -0400
+Received: by mail-wr1-f70.google.com with SMTP id v17so1595639wrq.8
+        for <linux-s390@vger.kernel.org>; Wed, 06 May 2020 09:32:34 -0700 (PDT)
+Subject: Re: [GIT PULL 1/1] KVM: s390: Remove false WARN_ON_ONCE for the PQAP
+ instruction
+References: <20200506115945.13132-1-borntraeger@de.ibm.com>
+ <20200506115945.13132-2-borntraeger@de.ibm.com>
+ <bcd98cbd-1e28-47a2-6cbd-668da4ddb9f5@redhat.com>
+ <fe991071-25d0-3842-73cc-23cb365850f3@de.ibm.com>
+ <a8688ff1-edc6-fdd8-9575-adbf726f9f06@redhat.com>
+ <328f4d06-5c1e-5255-cb4f-e8534f2171bf@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <e955f2f0-904b-394e-fa19-e3a461ecc92f@redhat.com>
+Date: Wed, 6 May 2020 18:32:32 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <328f4d06-5c1e-5255-cb4f-e8534f2171bf@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
+To: David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, Qian Cai <cailca@icloud.com>
 
-padata_driver_exit() is unnecessary because padata isn't built as a
-module and doesn't exit.
+On 06/05/20 15:09, David Hildenbrand wrote:
+> IIRC, it's perfectly valid - according to the documentation - to ignore
+> ECA_APIE. That's the weird thing about effective controls. You don't
+> really know what you get in the end.
 
-padata's init routine will soon allocate memory, so getting rid of the
-exit function now avoids pointless code to free it.
+Ah okay, then yeah it could be considered a quality of implementation
+issue but not a bug.  Thanks for the lecture! :)
 
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
----
- kernel/padata.c | 6 ------
- 1 file changed, 6 deletions(-)
-
-diff --git a/kernel/padata.c b/kernel/padata.c
-index a6afa12fb75ee..835919c745266 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -1072,10 +1072,4 @@ static __init int padata_driver_init(void)
- }
- module_init(padata_driver_init);
- 
--static __exit void padata_driver_exit(void)
--{
--	cpuhp_remove_multi_state(CPUHP_PADATA_DEAD);
--	cpuhp_remove_multi_state(hp_online);
--}
--module_exit(padata_driver_exit);
- #endif
--- 
-2.26.2
+Paolo
