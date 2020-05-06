@@ -1,225 +1,124 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16220 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728607AbgEAKsb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 May 2020 06:48:31 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 04/13] net/smc: extend smc_llc_send_add_link() and smc_llc_send_delete_link()
-Date: Fri,  1 May 2020 12:48:04 +0200
-Message-Id: <20200501104813.76601-5-kgraul@linux.ibm.com>
-In-Reply-To: <20200501104813.76601-1-kgraul@linux.ibm.com>
-References: <20200501104813.76601-1-kgraul@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20338 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728699AbgEFIJ7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:09:59 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 04/10] s390/qeth: extract helpers for next-hop lookup
+Date: Wed,  6 May 2020 10:09:43 +0200
+Message-Id: <20200506080949.3915-5-jwi@linux.ibm.com>
+In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
+References: <20200506080949.3915-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-All LLC sends are done from worker context only, so remove the prep
-functions which were used to build the message before it was sent, and
-add the function content into the respective send function
-smc_llc_send_add_link() and smc_llc_send_delete_link().
-Extend smc_llc_send_add_link() to include the qp_mtu value in the LLC
-message, which is needed to establish a link after the initial link was
-created. Extend smc_llc_send_delete_link() to contain a link_id and a
-reason code for the link deletion in the LLC message, which is needed
-when a specific link should be deleted.
-And add the list of existing DELETE_LINK reason codes.
+These will be used in a subsequent patch.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- net/smc/smc_core.c |  3 +-
- net/smc/smc_llc.c  | 89 ++++++++++++++++++++++++----------------------
- net/smc/smc_llc.h  | 16 +++++++--
- 3 files changed, 62 insertions(+), 46 deletions(-)
+ drivers/s390/net/qeth_core.h    | 29 ++++++++++++++++++++++-------
+ drivers/s390/net/qeth_l3_main.c | 18 +++++-------------
+ 2 files changed, 27 insertions(+), 20 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 0e87f652caea..c905675017c7 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -199,7 +199,8 @@ void smc_lgr_cleanup_early(struct smc_connection *conn)
- static int smcr_link_send_delete(struct smc_link *lnk, bool orderly)
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 3d8b8e0f2438..6b0d37d2c638 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -34,6 +34,7 @@
+ #include <net/ipv6.h>
+ #include <net/if_inet6.h>
+ #include <net/addrconf.h>
++#include <net/route.h>
+ #include <net/sch_generic.h>
+ #include <net/tcp.h>
+ 
+@@ -234,11 +235,7 @@ struct qeth_hdr_layer3 {
+ 	__u16 frame_offset;
+ 	union {
+ 		/* TX: */
+-		struct in6_addr ipv6_addr;
+-		struct ipv4 {
+-			u8 res[12];
+-			u32 addr;
+-		} ipv4;
++		struct in6_addr addr;
+ 		/* RX: */
+ 		struct rx {
+ 			u8 res1[2];
+@@ -355,8 +352,7 @@ static inline bool qeth_l3_same_next_hop(struct qeth_hdr_layer3 *h1,
+ 					 struct qeth_hdr_layer3 *h2)
  {
- 	if (lnk->state == SMC_LNK_ACTIVE &&
--	    !smc_llc_send_delete_link(lnk, SMC_LLC_REQ, orderly)) {
-+	    !smc_llc_send_delete_link(lnk, 0, SMC_LLC_REQ, orderly,
-+				      SMC_LLC_DEL_PROG_INIT_TERM)) {
- 		return 0;
- 	}
- 	return -ENOTCONN;
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 327cf30b98cc..171835926db6 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -58,7 +58,13 @@ struct smc_llc_msg_add_link {		/* type 0x02 */
- 	u8 sender_gid[SMC_GID_SIZE];
- 	u8 sender_qp_num[3];
- 	u8 link_num;
--	u8 flags2;	/* QP mtu */
-+#if defined(__BIG_ENDIAN_BITFIELD)
-+	u8 reserved3 : 4,
-+	   qp_mtu   : 4;
-+#elif defined(__LITTLE_ENDIAN_BITFIELD)
-+	u8 qp_mtu   : 4,
-+	   reserved3 : 4;
-+#endif
- 	u8 initial_psn[3];
- 	u8 reserved[8];
- };
-@@ -427,26 +433,9 @@ static int smc_llc_send_delete_rkey(struct smc_link *link,
- 	return rc;
+ 	return !((h1->flags ^ h2->flags) & QETH_HDR_IPV6) &&
+-	       ipv6_addr_equal(&h1->next_hop.ipv6_addr,
+-			       &h2->next_hop.ipv6_addr);
++	       ipv6_addr_equal(&h1->next_hop.addr, &h2->next_hop.addr);
  }
  
--/* prepare an add link message */
--static void smc_llc_prep_add_link(struct smc_llc_msg_add_link *addllc,
--				  struct smc_link *link, u8 mac[], u8 gid[],
--				  enum smc_llc_reqresp reqresp)
--{
--	memset(addllc, 0, sizeof(*addllc));
--	addllc->hd.common.type = SMC_LLC_ADD_LINK;
--	addllc->hd.length = sizeof(struct smc_llc_msg_add_link);
--	if (reqresp == SMC_LLC_RESP) {
--		addllc->hd.flags |= SMC_LLC_FLAG_RESP;
--		/* always reject more links for now */
--		addllc->hd.flags |= SMC_LLC_FLAG_ADD_LNK_REJ;
--		addllc->hd.add_link_rej_rsn = SMC_LLC_REJ_RSN_NO_ALT_PATH;
--	}
--	memcpy(addllc->sender_mac, mac, ETH_ALEN);
--	memcpy(addllc->sender_gid, gid, SMC_GID_SIZE);
--}
--
- /* send ADD LINK request or response */
- int smc_llc_send_add_link(struct smc_link *link, u8 mac[], u8 gid[],
-+			  struct smc_link *link_new,
- 			  enum smc_llc_reqresp reqresp)
- {
- 	struct smc_llc_msg_add_link *addllc;
-@@ -458,32 +447,33 @@ int smc_llc_send_add_link(struct smc_link *link, u8 mac[], u8 gid[],
- 	if (rc)
- 		return rc;
- 	addllc = (struct smc_llc_msg_add_link *)wr_buf;
--	smc_llc_prep_add_link(addllc, link, mac, gid, reqresp);
-+
-+	memset(addllc, 0, sizeof(*addllc));
-+	addllc->hd.common.type = SMC_LLC_ADD_LINK;
-+	addllc->hd.length = sizeof(struct smc_llc_msg_add_link);
-+	if (reqresp == SMC_LLC_RESP)
-+		addllc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	memcpy(addllc->sender_mac, mac, ETH_ALEN);
-+	memcpy(addllc->sender_gid, gid, SMC_GID_SIZE);
-+	if (link_new) {
-+		addllc->link_num = link_new->link_id;
-+		hton24(addllc->sender_qp_num, link_new->roce_qp->qp_num);
-+		hton24(addllc->initial_psn, link_new->psn_initial);
-+		if (reqresp == SMC_LLC_REQ)
-+			addllc->qp_mtu = link_new->path_mtu;
-+		else
-+			addllc->qp_mtu = min(link_new->path_mtu,
-+					     link_new->peer_mtu);
-+	}
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
- 	return rc;
+ struct qeth_local_addr {
+@@ -945,6 +941,25 @@ static inline struct dst_entry *qeth_dst_check_rcu(struct sk_buff *skb, int ipv)
+ 	return dst;
  }
  
--/* prepare a delete link message */
--static void smc_llc_prep_delete_link(struct smc_llc_msg_del_link *delllc,
--				     struct smc_link *link,
--				     enum smc_llc_reqresp reqresp, bool orderly)
--{
--	memset(delllc, 0, sizeof(*delllc));
--	delllc->hd.common.type = SMC_LLC_DELETE_LINK;
--	delllc->hd.length = sizeof(struct smc_llc_msg_add_link);
--	if (reqresp == SMC_LLC_RESP)
--		delllc->hd.flags |= SMC_LLC_FLAG_RESP;
--	/* DEL_LINK_ALL because only 1 link supported */
--	delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ALL;
--	if (orderly)
--		delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ORDERLY;
--	delllc->link_num = link->link_id;
--}
--
- /* send DELETE LINK request or response */
--int smc_llc_send_delete_link(struct smc_link *link,
--			     enum smc_llc_reqresp reqresp, bool orderly)
-+int smc_llc_send_delete_link(struct smc_link *link, u8 link_del_id,
-+			     enum smc_llc_reqresp reqresp, bool orderly,
-+			     u32 reason)
- {
- 	struct smc_llc_msg_del_link *delllc;
- 	struct smc_wr_tx_pend_priv *pend;
-@@ -494,7 +484,19 @@ int smc_llc_send_delete_link(struct smc_link *link,
- 	if (rc)
- 		return rc;
- 	delllc = (struct smc_llc_msg_del_link *)wr_buf;
--	smc_llc_prep_delete_link(delllc, link, reqresp, orderly);
++static inline __be32 qeth_next_hop_v4_rcu(struct sk_buff *skb,
++					  struct dst_entry *dst)
++{
++	struct rtable *rt = (struct rtable *) dst;
 +
-+	memset(delllc, 0, sizeof(*delllc));
-+	delllc->hd.common.type = SMC_LLC_DELETE_LINK;
-+	delllc->hd.length = sizeof(struct smc_llc_msg_del_link);
-+	if (reqresp == SMC_LLC_RESP)
-+		delllc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	if (orderly)
-+		delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ORDERLY;
-+	if (link_del_id)
-+		delllc->link_num = link_del_id;
++	return (rt) ? rt_nexthop(rt, ip_hdr(skb)->daddr) : ip_hdr(skb)->daddr;
++}
++
++static inline struct in6_addr *qeth_next_hop_v6_rcu(struct sk_buff *skb,
++						    struct dst_entry *dst)
++{
++	struct rt6_info *rt = (struct rt6_info *) dst;
++
++	if (rt && !ipv6_addr_any(&rt->rt6i_gateway))
++		return &rt->rt6i_gateway;
 +	else
-+		delllc->hd.flags |= SMC_LLC_FLAG_DEL_LINK_ALL;
-+	delllc->reason = htonl(reason);
- 	/* send llc message */
- 	rc = smc_wr_tx_send(link, pend);
- 	return rc;
-@@ -547,12 +549,13 @@ static void smc_llc_rx_delete_link(struct smc_link *link,
- 	smc_lgr_forget(lgr);
- 	if (lgr->role == SMC_SERV) {
- 		/* client asks to delete this link, send request */
--		smc_llc_prep_delete_link(llc, link, SMC_LLC_REQ, true);
-+		smc_llc_send_delete_link(link, 0, SMC_LLC_REQ, true,
-+					 SMC_LLC_DEL_PROG_INIT_TERM);
- 	} else {
- 		/* server requests to delete this link, send response */
--		smc_llc_prep_delete_link(llc, link, SMC_LLC_RESP, true);
-+		smc_llc_send_delete_link(link, 0, SMC_LLC_RESP, true,
-+					 SMC_LLC_DEL_PROG_INIT_TERM);
- 	}
--	smc_llc_send_message(link, llc);
- 	smc_lgr_terminate_sched(lgr);
- }
- 
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index 48029a5e14c3..d2c50d3e43a6 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -35,6 +35,16 @@ enum smc_llc_msg_type {
- 	SMC_LLC_DELETE_RKEY		= 0x09,
- };
- 
-+/* LLC DELETE LINK Request Reason Codes */
-+#define SMC_LLC_DEL_LOST_PATH		0x00010000
-+#define SMC_LLC_DEL_OP_INIT_TERM	0x00020000
-+#define SMC_LLC_DEL_PROG_INIT_TERM	0x00030000
-+#define SMC_LLC_DEL_PROT_VIOL		0x00040000
-+#define SMC_LLC_DEL_NO_ASYM_NEEDED	0x00050000
-+/* LLC DELETE LINK Response Reason Codes */
-+#define SMC_LLC_DEL_NOLNK	0x00100000  /* Unknown Link ID (no link) */
-+#define SMC_LLC_DEL_NOLGR	0x00200000  /* Unknown Link Group */
++		return &ipv6_hdr(skb)->daddr;
++}
 +
- /* returns a usable link of the link group, or NULL */
- static inline struct smc_link *smc_llc_usable_link(struct smc_link_group *lgr)
+ static inline void qeth_tx_csum(struct sk_buff *skb, u8 *flags, int ipv)
  {
-@@ -50,9 +60,11 @@ static inline struct smc_link *smc_llc_usable_link(struct smc_link_group *lgr)
- int smc_llc_send_confirm_link(struct smc_link *lnk,
- 			      enum smc_llc_reqresp reqresp);
- int smc_llc_send_add_link(struct smc_link *link, u8 mac[], u8 gid[],
-+			  struct smc_link *link_new,
- 			  enum smc_llc_reqresp reqresp);
--int smc_llc_send_delete_link(struct smc_link *link,
--			     enum smc_llc_reqresp reqresp, bool orderly);
-+int smc_llc_send_delete_link(struct smc_link *link, u8 link_del_id,
-+			     enum smc_llc_reqresp reqresp, bool orderly,
-+			     u32 reason);
- void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc);
- void smc_llc_lgr_clear(struct smc_link_group *lgr);
- int smc_llc_link_init(struct smc_link *link);
+ 	*flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index fec4ac41e946..1e50aa0297a3 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1694,8 +1694,8 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
+ 
+ 		if (skb->protocol == htons(ETH_P_AF_IUCV)) {
+ 			l3_hdr->flags = QETH_HDR_IPV6 | QETH_CAST_UNICAST;
+-			l3_hdr->next_hop.ipv6_addr.s6_addr16[0] = htons(0xfe80);
+-			memcpy(&l3_hdr->next_hop.ipv6_addr.s6_addr32[2],
++			l3_hdr->next_hop.addr.s6_addr16[0] = htons(0xfe80);
++			memcpy(&l3_hdr->next_hop.addr.s6_addr32[2],
+ 			       iucv_trans_hdr(skb)->destUserID, 8);
+ 			return;
+ 		}
+@@ -1729,18 +1729,10 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
+ 	l3_hdr->flags |= qeth_l3_cast_type_to_flag(cast_type);
+ 
+ 	if (ipv == 4) {
+-		struct rtable *rt = (struct rtable *) dst;
+-
+-		*((__be32 *) &hdr->hdr.l3.next_hop.ipv4.addr) = (rt) ?
+-				rt_nexthop(rt, ip_hdr(skb)->daddr) :
+-				ip_hdr(skb)->daddr;
++		l3_hdr->next_hop.addr.s6_addr32[3] =
++					qeth_next_hop_v4_rcu(skb, dst);
+ 	} else if (ipv == 6) {
+-		struct rt6_info *rt = (struct rt6_info *) dst;
+-
+-		if (rt && !ipv6_addr_any(&rt->rt6i_gateway))
+-			l3_hdr->next_hop.ipv6_addr = rt->rt6i_gateway;
+-		else
+-			l3_hdr->next_hop.ipv6_addr = ipv6_hdr(skb)->daddr;
++		l3_hdr->next_hop.addr = *qeth_next_hop_v6_rcu(skb, dst);
+ 
+ 		hdr->hdr.l3.flags |= QETH_HDR_IPV6;
+ 		if (!IS_IQD(card))
 -- 
 2.17.1
