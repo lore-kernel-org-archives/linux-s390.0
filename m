@@ -1,103 +1,92 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Jared Rossi <jrossi@linux.ibm.com>
-Subject: [PATCH v4 1/1] vfio-ccw: Enable transparent CCW IPL from DASD
-Date: Wed,  6 May 2020 17:24:40 -0400
-Message-Id: <20200506212440.31323-2-jrossi@linux.ibm.com>
-In-Reply-To: <20200506212440.31323-1-jrossi@linux.ibm.com>
-References: <20200506212440.31323-1-jrossi@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.110.172]:56194 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726712AbgEFGNF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 6 May 2020 02:13:05 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V2 0/3] mm/hugetlb: Add some new generic fallbacks
+Date: Wed,  6 May 2020 11:42:11 +0530
+Message-Id: <1588745534-24418-1-git-send-email-anshuman.khandual@arm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Mike Kravetz <mike.kravetz@oracle.com>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Remove the explicit prefetch check when using vfio-ccw devices.
-This check does not trigger in practice as all Linux channel programs
-are intended to use prefetch.
+This series adds the following new generic fallbacks. Before that it drops
+__HAVE_ARCH_HUGE_PTEP_GET from arm64 platform.
 
-It is expected that all ORBs issued by Linux will request prefetch.
-Although non-prefetching ORBs are not rejected, they will prefetch
-nonetheless. A warning is issued up to once per 5 seconds when a
-forced prefetch occurs.
+1. is_hugepage_only_range()
+2. arch_clear_hugepage_flags()
 
-A non-prefetch ORB does not necessarily result in an error, however
-frequent encounters with non-prefetch ORBs indicate that channel
-programs are being executed in a way that is inconsistent with what
-the guest is requesting. While there is currently no known case of an
-error caused by forced prefetch, it is possible in theory that forced
-prefetch could result in an error if applied to a channel program that
-is dependent on non-prefetch.
+This has been boot tested on arm64 and x86 platforms but built tested on
+some more platforms including the changed ones here. This series applies
+on v5.7-rc4. After this arm (32 bit) remains the sole platform defining
+it's own huge_ptep_get() via __HAVE_ARCH_HUGE_PTEP_GET.
 
-Signed-off-by: Jared Rossi <jrossi@linux.ibm.com>
----
- Documentation/s390/vfio-ccw.rst |  6 ++++++
- drivers/s390/cio/vfio_ccw_cp.c  | 19 ++++++++++++-------
- 2 files changed, 18 insertions(+), 7 deletions(-)
+Changes in V2:
 
-diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
-index fca9c4f5bd9c..23e7d136f8b4 100644
---- a/Documentation/s390/vfio-ccw.rst
-+++ b/Documentation/s390/vfio-ccw.rst
-@@ -335,6 +335,12 @@ device.
- The current code allows the guest to start channel programs via
- START SUBCHANNEL, and to issue HALT SUBCHANNEL and CLEAR SUBCHANNEL.
- 
-+Currently all channel programs are prefetched, regardless of the
-+p-bit setting in the ORB.  As a result, self modifying channel
-+programs are not supported.  For this reason, IPL has to be handled as
-+a special case by a userspace/guest program; this has been implemented
-+in QEMU's s390-ccw bios as of QEMU 4.1.
-+
- vfio-ccw supports classic (command mode) channel I/O only. Transport
- mode (HPF) is not supported.
- 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index 3645d1720c4b..f237480c3d43 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -8,6 +8,7 @@
-  *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
-  */
- 
-+#include <linux/ratelimit.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/iommu.h>
-@@ -625,23 +626,27 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
-  * the target channel program from @orb->cmd.iova to the new ccwchain(s).
-  *
-  * Limitations:
-- * 1. Supports only prefetch enabled mode.
-- * 2. Supports idal(c64) ccw chaining.
-- * 3. Supports 4k idaw.
-+ * 1. Supports idal(c64) ccw chaining.
-+ * 2. Supports 4k idaw.
-  *
-  * Returns:
-  *   %0 on success and a negative error value on failure.
-  */
- int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- {
-+	/* custom ratelimit used to avoid flood during guest IPL */
-+	static DEFINE_RATELIMIT_STATE(ratelimit_state, 5 * HZ, 1);
- 	int ret;
- 
- 	/*
--	 * XXX:
--	 * Only support prefetch enable mode now.
-+	 * We only support prefetching the channel program. We assume all channel
-+	 * programs executed by supported guests likewise support prefetching.
-+	 * Executing a channel program that does not specify prefetching will
-+	 * typically not cause an error, but a warning is issued to help identify
-+	 * the problem if something does break.
- 	 */
--	if (!orb->cmd.pfch)
--		return -EOPNOTSUPP;
-+	if (!orb->cmd.pfch && __ratelimit(&ratelimit_state))
-+		dev_warn(mdev, "Prefetching channel program even though prefetch not specified in ORB");
- 
- 	INIT_LIST_HEAD(&cp->ccwchain_list);
- 	memcpy(&cp->orb, orb, sizeof(*orb));
+- Adopted "#ifndef func" method (adding a single symbol to namespace) per Andrew
+- Updated the commit messages in [PATCH 2/3] and [PATCH 3/3] as required
+
+Changes in V1: (https://patchwork.kernel.org/project/linux-mm/list/?series=270677)
+
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: x86@kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+
+Anshuman Khandual (3):
+  arm64/mm: Drop __HAVE_ARCH_HUGE_PTEP_GET
+  mm/hugetlb: Define a generic fallback for is_hugepage_only_range()
+  mm/hugetlb: Define a generic fallback for arch_clear_hugepage_flags()
+
+ arch/arm/include/asm/hugetlb.h     |  7 +------
+ arch/arm64/include/asm/hugetlb.h   | 13 +------------
+ arch/ia64/include/asm/hugetlb.h    |  5 +----
+ arch/mips/include/asm/hugetlb.h    | 11 -----------
+ arch/parisc/include/asm/hugetlb.h  | 10 ----------
+ arch/powerpc/include/asm/hugetlb.h |  5 +----
+ arch/riscv/include/asm/hugetlb.h   | 10 ----------
+ arch/s390/include/asm/hugetlb.h    |  8 +-------
+ arch/sh/include/asm/hugetlb.h      |  7 +------
+ arch/sparc/include/asm/hugetlb.h   | 10 ----------
+ arch/x86/include/asm/hugetlb.h     | 10 ----------
+ include/linux/hugetlb.h            | 14 ++++++++++++++
+ 12 files changed, 20 insertions(+), 90 deletions(-)
+
 -- 
-2.17.0
+2.20.1
