@@ -1,51 +1,151 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30046 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63144 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728349AbgEFIJ6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:09:58 -0400
+        by vger.kernel.org with ESMTP id S1728700AbgEFIJ7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:09:59 -0400
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net-next 00/10] s390/qeth: updates 2020-05-06
-Date: Wed,  6 May 2020 10:09:39 +0200
-Message-Id: <20200506080949.3915-1-jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 05/10] s390/qeth: don't use restricted offloads for local traffic
+Date: Wed,  6 May 2020 10:09:44 +0200
+Message-Id: <20200506080949.3915-6-jwi@linux.ibm.com>
+In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
+References: <20200506080949.3915-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>
 Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Hi Dave,
+Current OSA models don't support TSO for traffic to local next-hops, and
+some old models didn't offer TX CSO for such packets either.
 
-please apply the following patch series for qeth to netdev's net-next
-tree.
-Same patches as yesterday, except that the ethtool reset has been
-dropped for now.
+So as part of .ndo_features_check, check if a packet's next-hop resides
+on the same OSA Adapter. Opt out from affected HW offloads accordingly.
 
-This primarily adds infrastructure to deal with HW offloads when the
-packets get forwarded over the adapter's internal switch.
-Aside from that, just some minor tweaking for the TX code.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core_main.c | 84 +++++++++++++++++++++++++++++--
+ drivers/s390/net/qeth_l2_main.c   |  1 +
+ 2 files changed, 81 insertions(+), 4 deletions(-)
 
-Thanks,
-Julian
-
-Julian Wiedmann (10):
-  s390/qeth: keep track of LP2LP capability for csum offload
-  s390/qeth: process local address events
-  s390/qeth: add debugfs file for local IP addresses
-  s390/qeth: extract helpers for next-hop lookup
-  s390/qeth: don't use restricted offloads for local traffic
-  s390/qeth: merge TX skb mapping code
-  s390/qeth: indicate contiguous TX buffer elements
-  s390/qeth: set TX IRQ marker on last buffer in a group
-  s390/qeth: return error when starting a reset fails
-  s390/qeth: clean up Kconfig help text
-
- drivers/s390/net/Kconfig          |   9 +-
- drivers/s390/net/qeth_core.h      |  49 +++-
- drivers/s390/net/qeth_core_main.c | 465 +++++++++++++++++++++++++-----
- drivers/s390/net/qeth_core_mpc.h  |  25 ++
- drivers/s390/net/qeth_core_sys.c  |  15 +-
- drivers/s390/net/qeth_l2_main.c   |   2 +
- drivers/s390/net/qeth_l3_main.c   |  19 +-
- 7 files changed, 486 insertions(+), 98 deletions(-)
-
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 771282cb7aef..1f18b38047a0 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -806,6 +806,58 @@ static void qeth_del_local_addrs6(struct qeth_card *card,
+ 	spin_unlock(&card->local_addrs6_lock);
+ }
+ 
++static bool qeth_next_hop_is_local_v4(struct qeth_card *card,
++				      struct sk_buff *skb)
++{
++	struct qeth_local_addr *tmp;
++	bool is_local = false;
++	unsigned int key;
++	__be32 next_hop;
++
++	if (hash_empty(card->local_addrs4))
++		return false;
++
++	rcu_read_lock();
++	next_hop = qeth_next_hop_v4_rcu(skb, qeth_dst_check_rcu(skb, 4));
++	key = ipv4_addr_hash(next_hop);
++
++	hash_for_each_possible_rcu(card->local_addrs4, tmp, hnode, key) {
++		if (tmp->addr.s6_addr32[3] == next_hop) {
++			is_local = true;
++			break;
++		}
++	}
++	rcu_read_unlock();
++
++	return is_local;
++}
++
++static bool qeth_next_hop_is_local_v6(struct qeth_card *card,
++				      struct sk_buff *skb)
++{
++	struct qeth_local_addr *tmp;
++	struct in6_addr *next_hop;
++	bool is_local = false;
++	u32 key;
++
++	if (hash_empty(card->local_addrs6))
++		return false;
++
++	rcu_read_lock();
++	next_hop = qeth_next_hop_v6_rcu(skb, qeth_dst_check_rcu(skb, 6));
++	key = ipv6_addr_hash(next_hop);
++
++	hash_for_each_possible_rcu(card->local_addrs6, tmp, hnode, key) {
++		if (ipv6_addr_equal(&tmp->addr, next_hop)) {
++			is_local = true;
++			break;
++		}
++	}
++	rcu_read_unlock();
++
++	return is_local;
++}
++
+ static int qeth_debugfs_local_addr_show(struct seq_file *m, void *v)
+ {
+ 	struct qeth_card *card = m->private;
+@@ -6578,10 +6630,6 @@ static int qeth_set_csum_on(struct qeth_card *card, enum qeth_ipa_funcs cstype,
+ 	if (lp2lp)
+ 		*lp2lp = qeth_ipa_caps_enabled(&caps, QETH_IPA_CHECKSUM_LP2LP);
+ 
+-	if (lp2lp && !*lp2lp)
+-		dev_warn(&card->gdev->dev,
+-			 "Hardware checksumming is performed only if %s and its peer use different OSA Express 3 ports\n",
+-			 QETH_CARD_IFNAME(card));
+ 	return 0;
+ }
+ 
+@@ -6816,6 +6864,34 @@ netdev_features_t qeth_features_check(struct sk_buff *skb,
+ 				      struct net_device *dev,
+ 				      netdev_features_t features)
+ {
++	/* Traffic with local next-hop is not eligible for some offloads: */
++	if (skb->ip_summed == CHECKSUM_PARTIAL) {
++		struct qeth_card *card = dev->ml_priv;
++		netdev_features_t restricted = 0;
++
++		if (skb_is_gso(skb) && !netif_needs_gso(skb, features))
++			restricted |= NETIF_F_ALL_TSO;
++
++		switch (vlan_get_protocol(skb)) {
++		case htons(ETH_P_IP):
++			if (!card->info.has_lp2lp_cso_v4)
++				restricted |= NETIF_F_IP_CSUM;
++
++			if (restricted && qeth_next_hop_is_local_v4(card, skb))
++				features &= ~restricted;
++			break;
++		case htons(ETH_P_IPV6):
++			if (!card->info.has_lp2lp_cso_v6)
++				restricted |= NETIF_F_IPV6_CSUM;
++
++			if (restricted && qeth_next_hop_is_local_v6(card, skb))
++				features &= ~restricted;
++			break;
++		default:
++			break;
++		}
++	}
++
+ 	/* GSO segmentation builds skbs with
+ 	 *	a (small) linear part for the headers, and
+ 	 *	page frags for the data.
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 47f624b37040..da47e423e1b1 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -710,6 +710,7 @@ static int qeth_l2_setup_netdev(struct qeth_card *card)
+ 
+ 	if (card->dev->hw_features & (NETIF_F_TSO | NETIF_F_TSO6)) {
+ 		card->dev->needed_headroom = sizeof(struct qeth_hdr_tso);
++		netif_keep_dst(card->dev);
+ 		netif_set_gso_max_size(card->dev,
+ 				       PAGE_SIZE * (QDIO_MAX_ELEMENTS_PER_BUFFER - 1));
+ 	}
 -- 
 2.17.1
