@@ -1,101 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2120.oracle.com ([156.151.31.85]:58644 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726576AbgETS2N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 20 May 2020 14:28:13 -0400
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [PATCH v2 6/7] mm: make deferred init's max threads arch-specific
-Date: Wed, 20 May 2020 14:26:44 -0400
-Message-Id: <20200520182645.1658949-7-daniel.m.jordan@oracle.com>
-In-Reply-To: <20200520182645.1658949-1-daniel.m.jordan@oracle.com>
-References: <20200520182645.1658949-1-daniel.m.jordan@oracle.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25884 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728707AbgEFIKA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:10:00 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 06/10] s390/qeth: merge TX skb mapping code
+Date: Wed,  6 May 2020 10:09:45 +0200
+Message-Id: <20200506080949.3915-7-jwi@linux.ibm.com>
+In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
+References: <20200506080949.3915-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Using padata during deferred init has only been tested on x86, so for
-now limit it to this architecture.
+Merge the __qeth_fill_buffer() helper into its only caller. This way all
+mapping-related context is in one place, and we can make some more use
+of it in a subsequent patch.
 
-If another arch wants this, it can find the max thread limit that's best
-for it and override deferred_page_init_max_threads().
-
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/x86/mm/init_64.c    | 12 ++++++++++++
- include/linux/memblock.h |  3 +++
- mm/page_alloc.c          | 13 ++++++++-----
- 3 files changed, 23 insertions(+), 5 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 64 +++++++++++++------------------
+ 1 file changed, 27 insertions(+), 37 deletions(-)
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 8b5f73f5e207c..2d749ec12ea8a 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -1260,6 +1260,18 @@ void __init mem_init(void)
- 	mem_init_print_info(NULL);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 1f18b38047a0..9c9a6edb5384 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -4081,15 +4081,39 @@ static bool qeth_iqd_may_bulk(struct qeth_qdio_out_q *queue,
+ 	       qeth_l3_iqd_same_vlan(&prev_hdr->hdr.l3, &curr_hdr->hdr.l3);
  }
  
-+#ifdef CONFIG_DEFERRED_STRUCT_PAGE_INIT
-+int __init deferred_page_init_max_threads(const struct cpumask *node_cpumask)
-+{
-+	/*
-+	 * More CPUs always led to greater speedups on tested systems, up to
-+	 * all the nodes' CPUs.  Use all since the system is otherwise idle
-+	 * now.
-+	 */
-+	return max_t(int, cpumask_weight(node_cpumask), 1);
-+}
-+#endif
-+
- int kernel_set_to_readonly;
- 
- void mark_rodata_ro(void)
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 6bc37a731d27b..2b289df44194f 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -275,6 +275,9 @@ void __next_mem_pfn_range_in_zone(u64 *idx, struct zone *zone,
- #define for_each_free_mem_pfn_range_in_zone_from(i, zone, p_start, p_end) \
- 	for (; i != U64_MAX;					  \
- 	     __next_mem_pfn_range_in_zone(&i, zone, p_start, p_end))
-+
-+int __init deferred_page_init_max_threads(const struct cpumask *node_cpumask);
-+
- #endif /* CONFIG_DEFERRED_STRUCT_PAGE_INIT */
- 
- /**
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 9cb780e8dec78..0d7d805f98b2d 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1843,6 +1843,13 @@ deferred_init_memmap_chunk(unsigned long start_pfn, unsigned long end_pfn,
- 	atomic_long_add(nr_pages, &args->nr_pages);
- }
- 
-+/* An arch may override for more concurrency. */
-+__weak int __init
-+deferred_page_init_max_threads(const struct cpumask *node_cpumask)
-+{
-+	return 1;
-+}
-+
- /* Initialise remaining memory on a node */
- static int __init deferred_init_memmap(void *data)
+-static unsigned int __qeth_fill_buffer(struct sk_buff *skb,
+-				       struct qeth_qdio_out_buffer *buf,
+-				       bool is_first_elem, unsigned int offset)
++/**
++ * qeth_fill_buffer() - map skb into an output buffer
++ * @buf:	buffer to transport the skb
++ * @skb:	skb to map into the buffer
++ * @hdr:	qeth_hdr for this skb. Either at skb->data, or allocated
++ *		from qeth_core_header_cache.
++ * @offset:	when mapping the skb, start at skb->data + offset
++ * @hd_len:	if > 0, build a dedicated header element of this size
++ */
++static unsigned int qeth_fill_buffer(struct qeth_qdio_out_buffer *buf,
++				     struct sk_buff *skb, struct qeth_hdr *hdr,
++				     unsigned int offset, unsigned int hd_len)
  {
-@@ -1891,11 +1898,7 @@ static int __init deferred_init_memmap(void *data)
- 						 first_init_pfn))
- 		goto zone_empty;
+ 	struct qdio_buffer *buffer = buf->buffer;
+ 	int element = buf->next_element_to_fill;
+ 	int length = skb_headlen(skb) - offset;
+ 	char *data = skb->data + offset;
+ 	unsigned int elem_length, cnt;
++	bool is_first_elem = true;
++
++	__skb_queue_tail(&buf->skb_list, skb);
++
++	/* build dedicated element for HW Header */
++	if (hd_len) {
++		is_first_elem = false;
++
++		buffer->element[element].addr = virt_to_phys(hdr);
++		buffer->element[element].length = hd_len;
++		buffer->element[element].eflags = SBAL_EFLAGS_FIRST_FRAG;
++		/* remember to free cache-allocated HW header: */
++		buf->is_header[element] = ((void *)hdr != skb->data);
++		element++;
++	}
  
--	/*
--	 * More CPUs always led to greater speedups on tested systems, up to
--	 * all the nodes' CPUs.  Use all since the system is otherwise idle now.
--	 */
--	max_threads = max(cpumask_weight(cpumask), 1u);
-+	max_threads = deferred_page_init_max_threads(cpumask);
+ 	/* map linear part into buffer element(s) */
+ 	while (length > 0) {
+@@ -4143,40 +4167,6 @@ static unsigned int __qeth_fill_buffer(struct sk_buff *skb,
+ 	return element;
+ }
  
- 	while (spfn < epfn) {
- 		epfn_align = ALIGN_DOWN(epfn, PAGES_PER_SECTION);
+-/**
+- * qeth_fill_buffer() - map skb into an output buffer
+- * @buf:	buffer to transport the skb
+- * @skb:	skb to map into the buffer
+- * @hdr:	qeth_hdr for this skb. Either at skb->data, or allocated
+- *		from qeth_core_header_cache.
+- * @offset:	when mapping the skb, start at skb->data + offset
+- * @hd_len:	if > 0, build a dedicated header element of this size
+- */
+-static unsigned int qeth_fill_buffer(struct qeth_qdio_out_buffer *buf,
+-				     struct sk_buff *skb, struct qeth_hdr *hdr,
+-				     unsigned int offset, unsigned int hd_len)
+-{
+-	struct qdio_buffer *buffer = buf->buffer;
+-	bool is_first_elem = true;
+-
+-	__skb_queue_tail(&buf->skb_list, skb);
+-
+-	/* build dedicated header element */
+-	if (hd_len) {
+-		int element = buf->next_element_to_fill;
+-		is_first_elem = false;
+-
+-		buffer->element[element].addr = virt_to_phys(hdr);
+-		buffer->element[element].length = hd_len;
+-		buffer->element[element].eflags = SBAL_EFLAGS_FIRST_FRAG;
+-		/* remember to free cache-allocated qeth_hdr: */
+-		buf->is_header[element] = ((void *)hdr != skb->data);
+-		buf->next_element_to_fill++;
+-	}
+-
+-	return __qeth_fill_buffer(skb, buf, is_first_elem, offset);
+-}
+-
+ static int __qeth_xmit(struct qeth_card *card, struct qeth_qdio_out_q *queue,
+ 		       struct sk_buff *skb, unsigned int elements,
+ 		       struct qeth_hdr *hdr, unsigned int offset,
 -- 
-2.26.2
+2.17.1
