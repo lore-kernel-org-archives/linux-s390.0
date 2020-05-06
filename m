@@ -1,240 +1,108 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27282 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728609AbgEEMbY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 08:31:24 -0400
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v4 7/8] vfio-ccw: Wire up the CRW irq and CRW region
-Date: Tue,  5 May 2020 14:27:44 +0200
-Message-Id: <20200505122745.53208-8-farman@linux.ibm.com>
-In-Reply-To: <20200505122745.53208-1-farman@linux.ibm.com>
-References: <20200505122745.53208-1-farman@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:37282 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725966AbgEFTJN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 6 May 2020 15:09:13 -0400
+Date: Wed, 6 May 2020 12:09:09 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH net-next 10/11] s390/qeth: allow reset via ethtool
+Message-ID: <20200506120909.3e7d88ff@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <104f8e57-42d2-8853-d540-76b8516043d5@linux.ibm.com>
+References: <20200505162559.14138-1-jwi@linux.ibm.com>
+        <20200505162559.14138-11-jwi@linux.ibm.com>
+        <20200505102149.1fd5b9ba@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <a19ccf27-2280-036c-057f-8e6d2319bb28@linux.ibm.com>
+        <20200505112940.6fe70918@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <6788c6f1-52cb-c421-7251-500a391bb48b@linux.ibm.com>
+        <20200505142855.24b7c1bf@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+        <104f8e57-42d2-8853-d540-76b8516043d5@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: David Miller <davem@davemloft.net>, netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jiri Pirko <jiri@resnulli.us>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+On Wed, 6 May 2020 09:56:41 +0200 Julian Wiedmann wrote:
+> On 05.05.20 23:28, Jakub Kicinski wrote:
+> > On Tue, 5 May 2020 21:57:43 +0200 Julian Wiedmann wrote:  
+> >>> This is the comment from the uAPI header:
+> >>>
+> >>> /* The reset() operation must clear the flags for the components which
+> >>>  * were actually reset.  On successful return, the flags indicate the
+> >>>  * components which were not reset, either because they do not exist
+> >>>  * in the hardware or because they cannot be reset independently.  The
+> >>>  * driver must never reset any components that were not requested.
+> >>>  */
+> >>>
+> >>> Now let's take ETH_RESET_PHY as an example. Surely you're not resetting
+> >>> any PHY here, so that bit should not be cleared. Please look at the
+> >>> bits and select the ones which make sense, add whatever is missing.
+> >>>     
+> >>
+> >> It's a virtual device, _none_ of them make much sense?! We better not be
+> >> resetting any actual HW components, the other interfaces on the same
+> >> adapter would be quite unhappy about that.  
+> > 
+> > Well, then, you can't use the API in its current form. You can't say
+> > none of the sub-options are applicable, but the sum of them does.
+> 
+> Agreed, that's my take as well. So we'll basically need a ETH_RESET_FULL bit,
+> for devices that don't fit into the fine-grained component model.
 
-Use the IRQ to notify userspace that there is a CRW
-pending in the region, related to path-availability
-changes on the passthrough subchannel.
+I'd say you're barely re-opening all communication channels with the
+device, without any loss of configuration, right? So perhaps
+RESET_DRV_IFC? Not great but best I can come up with :S
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
+> >> Sorry for being dense, and I appreciate that the API leaves a lot of room
+> >> for sophisticated partial resets where the driver/HW allows it.
+> >> But it sounds like what you're suggesting is
+> >> (1) we select a rather arbitrary set of components that _might_ represent a
+> >>     full "virtual" reset, and then
+> >> (2) expect the user to guess a super-set of these features. And not worry
+> >>     when they selected too much, and this obscure PHY thing failed to reset.  
+> > 
+> > No, please see the code I provided below, and read how the interface 
+> > is supposed to work. I posted the code comment in my previous reply. 
+> > I don't know what else I can do for you.
+> > 
+> > User can still pass "all" but you can't _clear_ all bits, 'cause you
+> > didn't reset any PHY, MAC, etc.
+> >   
+> >> So I looked at gve's implementation and thought "yep, looks simple enough".  
+> > 
+> > Ugh, yeah, gve is not a good example.
+> >   
+> >> But if we start asking users to interpret HW bits that hardly make any
+> >> sense to them, we're worse off than with the existing custom sysfs trigger...  
+> > 
+> > Actually - operationally, how do you expect people to use this reset?
+> > Some user space system detects the NIC is in a bad state? Does the
+> > interface communicate that via some log messages or such?
+> > 
+> > The commit message doesn't really explain the "why".
+> >   
+> 
+> Usually the driver will detect a hung condition itself, and trigger an
+> automatic reset internally (eg. from the TX watchdog).
+> But if that doesn't work, you'll hopefully get enough noisy log warnings
+> to investigate & reset the interface manually.
+> Besides that, it's just an easy way to exercise/test the reset code.
 
-Notes:
-    v3->v4:
-     - s/vfio_ccw_alloc_crw()/vfio_ccw_queue_crw()/ [CH]
-     - Remove cssid from crw that is built [CH]
-    
-    v2->v3:
-     - Refactor vfio_ccw_alloc_crw() to accept rsc, erc, and rsid fields
-       of a CRW as input [CH]
-     - Copy the right amount of CRWs to the crw_region [EF]
-     - Use sizeof(target) for the memcpy, rather than sizeof(source) [EF]
-     - Ensure the CRW region is empty if no CRW is present [EF/CH]
-     - Refactor how data goes from private-to-region-to-user [CH]
-     - Reduce the number of CRWs from two to one [CH]
-     - s/vc_crw/crw/ [EF]
-    
-    v1->v2:
-     - Remove extraneous 0x0 in crw.rsid assignment [CH]
-     - Refactor the building/queueing of a crw into its own routine [EF]
-    
-    v0->v1: [EF]
-     - Place the non-refactoring changes from the previous patch here
-     - Clean up checkpatch (whitespace) errors
-     - s/chp_crw/crw/
-     - Move acquire/release of io_mutex in vfio_ccw_crw_region_read()
-       into patch that introduces that region
-     - Remove duplicate include from vfio_ccw_drv.c
-     - Reorder include in vfio_ccw_private.h
+Perhaps a better path would be using devlink health? There's currently
+no way to force a recovery, but that's effectively what you're doing
+here, right? We can extend the devlink API.
 
- drivers/s390/cio/vfio_ccw_chp.c     | 17 ++++++++++
- drivers/s390/cio/vfio_ccw_drv.c     | 49 +++++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_private.h |  8 +++++
- 3 files changed, 74 insertions(+)
-
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-index 37ea344a4d72..876f6ade51cc 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -82,14 +82,24 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
- 	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
- 	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
- 	struct ccw_crw_region *region;
-+	struct vfio_ccw_crw *crw;
- 	int ret;
- 
- 	if (pos + count > sizeof(*region))
- 		return -EINVAL;
- 
-+	crw = list_first_entry_or_null(&private->crw,
-+				       struct vfio_ccw_crw, next);
-+
-+	if (crw)
-+		list_del(&crw->next);
-+
- 	mutex_lock(&private->io_mutex);
- 	region = private->region[i].data;
- 
-+	if (crw)
-+		memcpy(&region->crw, &crw->crw, sizeof(region->crw));
-+
- 	if (copy_to_user(buf, (void *)region + pos, count))
- 		ret = -EFAULT;
- 	else
-@@ -98,6 +108,13 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
- 	region->crw = 0;
- 
- 	mutex_unlock(&private->io_mutex);
-+
-+	kfree(crw);
-+
-+	/* Notify the guest if more CRWs are on our queue */
-+	if (!list_empty(&private->crw) && private->crw_trigger)
-+		eventfd_signal(private->crw_trigger, 1);
-+
- 	return ret;
- }
- 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index e4deae6fd525..9144360851ed 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -108,6 +108,16 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		eventfd_signal(private->io_trigger, 1);
- }
- 
-+static void vfio_ccw_crw_todo(struct work_struct *work)
-+{
-+	struct vfio_ccw_private *private;
-+
-+	private = container_of(work, struct vfio_ccw_private, crw_work);
-+
-+	if (!list_empty(&private->crw) && private->crw_trigger)
-+		eventfd_signal(private->crw_trigger, 1);
-+}
-+
- /*
-  * Css driver callbacks
-  */
-@@ -186,7 +196,9 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_free;
- 
-+	INIT_LIST_HEAD(&private->crw);
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
-+	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
- 	atomic_set(&private->avail, 1);
- 	private->state = VFIO_CCW_STATE_STANDBY;
- 
-@@ -217,9 +229,15 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- static int vfio_ccw_sch_remove(struct subchannel *sch)
- {
- 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_crw *crw, *temp;
- 
- 	vfio_ccw_sch_quiesce(sch);
- 
-+	list_for_each_entry_safe(crw, temp, &private->crw, next) {
-+		list_del(&crw->next);
-+		kfree(crw);
-+	}
-+
- 	vfio_ccw_mdev_unreg(sch);
- 
- 	dev_set_drvdata(&sch->dev, NULL);
-@@ -281,6 +299,33 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	return rc;
- }
- 
-+static void vfio_ccw_queue_crw(struct vfio_ccw_private *private,
-+			       unsigned int rsc,
-+			       unsigned int erc,
-+			       unsigned int rsid)
-+{
-+	struct vfio_ccw_crw *crw;
-+
-+	/*
-+	 * If unable to allocate a CRW, just drop the event and
-+	 * carry on.  The guest will either see a later one or
-+	 * learn when it issues its own store subchannel.
-+	 */
-+	crw = kzalloc(sizeof(*crw), GFP_ATOMIC);
-+	if (!crw)
-+		return;
-+
-+	/*
-+	 * Build the CRW based on the inputs given to us.
-+	 */
-+	crw->crw.rsc = rsc;
-+	crw->crw.erc = erc;
-+	crw->crw.rsid = rsid;
-+
-+	list_add_tail(&crw->next, &private->crw);
-+	queue_work(vfio_ccw_work_q, &private->crw_work);
-+}
-+
- static int vfio_ccw_chp_event(struct subchannel *sch,
- 			      struct chp_link *link, int event)
- {
-@@ -311,6 +356,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 		/* Path is gone */
- 		if (sch->schib.pmcw.lpum & mask)
- 			cio_cancel_halt_clear(sch, &retry);
-+		vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_PERRN,
-+				   link->chpid.id);
- 		break;
- 	case CHP_VARY_ON:
- 		/* Path logically turned on */
-@@ -320,6 +367,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 	case CHP_ONLINE:
- 		/* Path became available */
- 		sch->lpm |= mask & sch->opm;
-+		vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_INIT,
-+				   link->chpid.id);
- 		break;
- 	}
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 97131b4df0b9..8723156b29ea 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -17,6 +17,7 @@
- #include <linux/eventfd.h>
- #include <linux/workqueue.h>
- #include <linux/vfio_ccw.h>
-+#include <asm/crw.h>
- #include <asm/debug.h>
- 
- #include "css.h"
-@@ -59,6 +60,11 @@ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
- int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
- int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private);
- 
-+struct vfio_ccw_crw {
-+	struct list_head	next;
-+	struct crw		crw;
-+};
-+
- /**
-  * struct vfio_ccw_private
-  * @sch: pointer to the subchannel
-@@ -98,10 +104,12 @@ struct vfio_ccw_private {
- 	struct channel_program	cp;
- 	struct irb		irb;
- 	union scsw		scsw;
-+	struct list_head	crw;
- 
- 	struct eventfd_ctx	*io_trigger;
- 	struct eventfd_ctx	*crw_trigger;
- 	struct work_struct	io_work;
-+	struct work_struct	crw_work;
- } __aligned(8);
- 
- extern int vfio_ccw_mdev_reg(struct subchannel *sch);
--- 
-2.17.1
+> Integration with a daemon / management layer definitely sounds like an
+> option, and I'd much rather point those people towards ethtool instead
+> of sysfs.
+> 
+> >>> Then my suggestion would be something like:
+> >>>
+> >>>   #define QETH_RESET_FLAGS (flag | flag | flag)
+> >>>
+> >>>   if ((*flags & QETH_RESET_FLAGS) != QETH_RESET_FLAGS))
+> >>> 	return -EINVAL;
+> >>>   ...
+> >>>   *flags &= ~QETH_RESET_FLAGS;  
