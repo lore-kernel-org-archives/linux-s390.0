@@ -1,47 +1,78 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37716 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730810AbgEVSjw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 22 May 2020 14:39:52 -0400
-From: Petr Tesarik <ptesarik@suse.com>
-Subject: [PATCH 1/1] s390/pci: Log new handle in clp_disable_fh()
-Date: Fri, 22 May 2020 20:39:22 +0200
-Message-Id: <20200522183922.5253-1-ptesarik@suse.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24730 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728712AbgEFIKA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:10:00 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 08/10] s390/qeth: set TX IRQ marker on last buffer in a group
+Date: Wed,  6 May 2020 10:09:47 +0200
+Message-Id: <20200506080949.3915-9-jwi@linux.ibm.com>
+In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
+References: <20200506080949.3915-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, linux-kernel@vger.kernel.org, Petr Tesarik <ptesarik@suse.com>
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-After disabling a function, the original handle is logged instead of
-the disabled handle.
+When qeth_flush_buffers() gets called for a group of TX buffers
+(currently up to 2 for OSA-style devices), the code iterates over each
+buffer for some final processing.
 
-Fixes: 17cdec960cf77 (s390/pci: Recover handle in clp_set_pci_fn())
-Signed-off-by: Petr Tesarik <ptesarik@suse.com>
+During this processing, it sets the TX IRQ marker on the leading buffer
+rather than the last one. This can result in delayed TX completion of
+the trailing buffers. So pull the IRQ marker code out of the loop, and
+apply it to the final buffer.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/pci/pci_clp.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index ea794ae755ae..179bcecefdee 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -309,14 +309,13 @@ int clp_enable_fh(struct zpci_dev *zdev, u8 nr_dma_as)
- 
- int clp_disable_fh(struct zpci_dev *zdev)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 4d1d053eebb7..164cc7f377fc 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -3617,11 +3617,11 @@ static int qeth_switch_to_nonpacking_if_needed(struct qeth_qdio_out_q *queue)
+ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 			       int count)
  {
--	u32 fh = zdev->fh;
++	struct qeth_qdio_out_buffer *buf = queue->bufs[index];
++	unsigned int qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
+ 	struct qeth_card *card = queue->card;
+-	struct qeth_qdio_out_buffer *buf;
  	int rc;
+ 	int i;
+-	unsigned int qdio_flags;
  
- 	if (!zdev_enabled(zdev))
- 		return 0;
+ 	for (i = index; i < index + count; ++i) {
+ 		unsigned int bidx = QDIO_BUFNR(i);
+@@ -3638,9 +3638,10 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 		if (IS_IQD(card)) {
+ 			skb_queue_walk(&buf->skb_list, skb)
+ 				skb_tx_timestamp(skb);
+-			continue;
+ 		}
++	}
  
- 	rc = clp_set_pci_fn(zdev, 0, CLP_SET_DISABLE_PCI_FN);
--	zpci_dbg(3, "dis fid:%x, fh:%x, rc:%d\n", zdev->fid, fh, rc);
-+	zpci_dbg(3, "dis fid:%x, fh:%x, rc:%d\n", zdev->fid, zdev->fh, rc);
- 	return rc;
- }
++	if (!IS_IQD(card)) {
+ 		if (!queue->do_pack) {
+ 			if ((atomic_read(&queue->used_buffers) >=
+ 				(QETH_HIGH_WATERMARK_PACK -
+@@ -3665,12 +3666,12 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
+ 				buf->buffer->element[0].sflags |= SBAL_SFLAGS0_PCI_REQ;
+ 			}
+ 		}
++
++		if (atomic_read(&queue->set_pci_flags_count))
++			qdio_flags |= QDIO_FLAG_PCI_OUT;
+ 	}
+ 
+ 	QETH_TXQ_STAT_INC(queue, doorbell);
+-	qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
+-	if (atomic_read(&queue->set_pci_flags_count))
+-		qdio_flags |= QDIO_FLAG_PCI_OUT;
+ 	rc = do_QDIO(CARD_DDEV(queue->card), qdio_flags,
+ 		     queue->queue_no, index, count);
  
 -- 
-2.26.1
+2.17.1
