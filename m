@@ -1,115 +1,131 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59724 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6888 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730671AbgEEQ0L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 12:26:11 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 06/11] s390/qeth: merge TX skb mapping code
-Date: Tue,  5 May 2020 18:25:54 +0200
-Message-Id: <20200505162559.14138-7-jwi@linux.ibm.com>
-In-Reply-To: <20200505162559.14138-1-jwi@linux.ibm.com>
-References: <20200505162559.14138-1-jwi@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1728058AbgEFNkb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 09:40:31 -0400
+Subject: Re: [PATCH v3 1/1] vfio-ccw: Enable transparent CCW IPL from DASD
+References: <20200506001544.16213-1-jrossi@linux.ibm.com>
+ <20200506001544.16213-2-jrossi@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <6ef4e1f1-ebbd-2b62-7d0e-947a3e07cbd5@linux.ibm.com>
+Date: Wed, 6 May 2020 09:40:25 -0400
+MIME-Version: 1.0
+In-Reply-To: <20200506001544.16213-2-jrossi@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Jared Rossi <jrossi@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Merge the __qeth_fill_buffer() helper into its only caller. This way all
-mapping-related context is in one place, and we can make some more use
-of it in a subsequent patch.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 64 +++++++++++++------------------
- 1 file changed, 27 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 1f18b38047a0..9c9a6edb5384 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4081,15 +4081,39 @@ static bool qeth_iqd_may_bulk(struct qeth_qdio_out_q *queue,
- 	       qeth_l3_iqd_same_vlan(&prev_hdr->hdr.l3, &curr_hdr->hdr.l3);
- }
- 
--static unsigned int __qeth_fill_buffer(struct sk_buff *skb,
--				       struct qeth_qdio_out_buffer *buf,
--				       bool is_first_elem, unsigned int offset)
-+/**
-+ * qeth_fill_buffer() - map skb into an output buffer
-+ * @buf:	buffer to transport the skb
-+ * @skb:	skb to map into the buffer
-+ * @hdr:	qeth_hdr for this skb. Either at skb->data, or allocated
-+ *		from qeth_core_header_cache.
-+ * @offset:	when mapping the skb, start at skb->data + offset
-+ * @hd_len:	if > 0, build a dedicated header element of this size
-+ */
-+static unsigned int qeth_fill_buffer(struct qeth_qdio_out_buffer *buf,
-+				     struct sk_buff *skb, struct qeth_hdr *hdr,
-+				     unsigned int offset, unsigned int hd_len)
- {
- 	struct qdio_buffer *buffer = buf->buffer;
- 	int element = buf->next_element_to_fill;
- 	int length = skb_headlen(skb) - offset;
- 	char *data = skb->data + offset;
- 	unsigned int elem_length, cnt;
-+	bool is_first_elem = true;
-+
-+	__skb_queue_tail(&buf->skb_list, skb);
-+
-+	/* build dedicated element for HW Header */
-+	if (hd_len) {
-+		is_first_elem = false;
-+
-+		buffer->element[element].addr = virt_to_phys(hdr);
-+		buffer->element[element].length = hd_len;
-+		buffer->element[element].eflags = SBAL_EFLAGS_FIRST_FRAG;
-+		/* remember to free cache-allocated HW header: */
-+		buf->is_header[element] = ((void *)hdr != skb->data);
-+		element++;
-+	}
- 
- 	/* map linear part into buffer element(s) */
- 	while (length > 0) {
-@@ -4143,40 +4167,6 @@ static unsigned int __qeth_fill_buffer(struct sk_buff *skb,
- 	return element;
- }
- 
--/**
-- * qeth_fill_buffer() - map skb into an output buffer
-- * @buf:	buffer to transport the skb
-- * @skb:	skb to map into the buffer
-- * @hdr:	qeth_hdr for this skb. Either at skb->data, or allocated
-- *		from qeth_core_header_cache.
-- * @offset:	when mapping the skb, start at skb->data + offset
-- * @hd_len:	if > 0, build a dedicated header element of this size
-- */
--static unsigned int qeth_fill_buffer(struct qeth_qdio_out_buffer *buf,
--				     struct sk_buff *skb, struct qeth_hdr *hdr,
--				     unsigned int offset, unsigned int hd_len)
--{
--	struct qdio_buffer *buffer = buf->buffer;
--	bool is_first_elem = true;
--
--	__skb_queue_tail(&buf->skb_list, skb);
--
--	/* build dedicated header element */
--	if (hd_len) {
--		int element = buf->next_element_to_fill;
--		is_first_elem = false;
--
--		buffer->element[element].addr = virt_to_phys(hdr);
--		buffer->element[element].length = hd_len;
--		buffer->element[element].eflags = SBAL_EFLAGS_FIRST_FRAG;
--		/* remember to free cache-allocated qeth_hdr: */
--		buf->is_header[element] = ((void *)hdr != skb->data);
--		buf->next_element_to_fill++;
--	}
--
--	return __qeth_fill_buffer(skb, buf, is_first_elem, offset);
--}
--
- static int __qeth_xmit(struct qeth_card *card, struct qeth_qdio_out_q *queue,
- 		       struct sk_buff *skb, unsigned int elements,
- 		       struct qeth_hdr *hdr, unsigned int offset,
--- 
-2.17.1
+On 5/5/20 8:15 PM, Jared Rossi wrote:
+> Remove the explicit prefetch check when using vfio-ccw devices.
+> This check does not trigger in practice as all Linux channel programs
+> are intended to use prefetch.
+> 
+> It is expected that all ORBs issued by Linux will request prefetch.
+> Although non-prefetching ORBs are not rejected, they will prefetch
+> nonetheless. A warning is issued up to once per 5 seconds when a
+> forced prefetch occurs.
+> 
+> A non-prefetch ORB does not necessarily result in an error, however
+> frequent encounters with non-prefetch ORBs indicate that channel
+> programs are being executed in a way that is inconsistent with what
+> the guest is requesting. While there is currently no known case of an
+> error caused by forced prefetch, it is possible in theory that forced
+> prefetch could result in an error if applied to a channel program that
+> is dependent on non-prefetch.
+> 
+> Signed-off-by: Jared Rossi <jrossi@linux.ibm.com>
+> ---
+>  Documentation/s390/vfio-ccw.rst |  6 ++++++
+>  drivers/s390/cio/vfio_ccw_cp.c  | 19 ++++++++++++-------
+>  2 files changed, 18 insertions(+), 7 deletions(-)
+> 
+> diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+> index fca9c4f5bd9c..23e7d136f8b4 100644
+> --- a/Documentation/s390/vfio-ccw.rst
+> +++ b/Documentation/s390/vfio-ccw.rst
+> @@ -335,6 +335,12 @@ device.
+>  The current code allows the guest to start channel programs via
+>  START SUBCHANNEL, and to issue HALT SUBCHANNEL and CLEAR SUBCHANNEL.
+>  
+> +Currently all channel programs are prefetched, regardless of the
+> +p-bit setting in the ORB.  As a result, self modifying channel
+> +programs are not supported.  For this reason, IPL has to be handled as
+> +a special case by a userspace/guest program; this has been implemented
+> +in QEMU's s390-ccw bios as of QEMU 4.1.
+> +
+>  vfio-ccw supports classic (command mode) channel I/O only. Transport
+>  mode (HPF) is not supported.
+>  
+> diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+> index 3645d1720c4b..d423ca934779 100644
+> --- a/drivers/s390/cio/vfio_ccw_cp.c
+> +++ b/drivers/s390/cio/vfio_ccw_cp.c
+> @@ -8,6 +8,7 @@
+>   *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
+>   */
+>  
+> +#include <linux/ratelimit.h>
+>  #include <linux/mm.h>
+>  #include <linux/slab.h>
+>  #include <linux/iommu.h>
+> @@ -625,23 +626,27 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+>   * the target channel program from @orb->cmd.iova to the new ccwchain(s).
+>   *
+>   * Limitations:
+> - * 1. Supports only prefetch enabled mode.
+> - * 2. Supports idal(c64) ccw chaining.
+> - * 3. Supports 4k idaw.
+> + * 1. Supports idal(c64) ccw chaining.
+> + * 2. Supports 4k idaw.
+>   *
+>   * Returns:
+>   *   %0 on success and a negative error value on failure.
+>   */
+>  int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
+>  {
+> +	static DEFINE_RATELIMIT_STATE(ratelimit_state, 5 * HZ, 1);
+
+This looks peculiar, being static and on the stack.  But I guess it is
+fine.  And as Conny mentions, a comment about the boot messages would be
+good.
+
+>  	int ret;
+>  
+>  	/*
+> -	 * XXX:
+> -	 * Only support prefetch enable mode now.
+> +	 * We only support prefetching the channel program. We assume all channel
+> +	 * programs executed by supported guests (i.e. Linux) likewise support
+
+s/(i.e. Linux) //
+
+> +	 * prefetching. 
+
+Even if prefetching is not specified the channel program
+> +	 * is still executed using prefetch. 
+
+The above sentence seems redundant, and can be removed.
+
+Executing a channel program that
+> +	 * does not specify prefetching will typically not cause an error, but a
+> +	 * warning is issued to help identify the problem if something does break.
+>  	 */
+> -	if (!orb->cmd.pfch)
+> -		return -EOPNOTSUPP;
+> +	if (!orb->cmd.pfch && __ratelimit(&ratelimit_state))
+> +		dev_warn(mdev, "executing channel program with prefetch, but prefetch isn't specified");
+
+Works well enough (with QEMU patch, obviously).
+
+Almost-r-b: me :)
+
+>  
+>  	INIT_LIST_HEAD(&cp->ccwchain_list);
+>  	memcpy(&cp->orb, orb, sizeof(*orb));
+> 
