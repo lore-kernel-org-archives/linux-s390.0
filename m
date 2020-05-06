@@ -1,128 +1,114 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25426 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728318AbgERQHm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 May 2020 12:07:42 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 09/12] s390x: css: msch, enable test
-Date: Mon, 18 May 2020 18:07:28 +0200
-Message-Id: <1589818051-20549-10-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
-References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5966 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728704AbgEFIKA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:10:00 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH v2 net-next 01/10] s390/qeth: keep track of LP2LP capability for csum offload
+Date: Wed,  6 May 2020 10:09:40 +0200
+Message-Id: <20200506080949.3915-2-jwi@linux.ibm.com>
+In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
+References: <20200506080949.3915-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: David Miller <davem@davemloft.net>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-A second step when testing the channel subsystem is to prepare a channel
-for use.
-This includes:
-- Get the current subchannel Information Block (SCHIB) using STSCH
-- Update it in memory to set the ENABLE bit
-- Tell the CSS that the SCHIB has been modified using MSCH
-- Get the SCHIB from the CSS again to verify that the subchannel is
-  enabled.
-- If the subchannel is not enabled retry a predefined retries count.
+When enabling TX CSO, make a note of whether the device has support for
+LP2LP offloading. This will become relevant in subsequent patches.
 
-This tests the MSCH instruction to enable a channel succesfuly.
-This is NOT a routine to really enable the channel, no retry is done,
-in case of error, a report is made.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- s390x/css.c | 67 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
+ drivers/s390/net/qeth_core.h      |  3 +++
+ drivers/s390/net/qeth_core_main.c | 23 ++++++++++++++---------
+ 2 files changed, 17 insertions(+), 9 deletions(-)
 
-diff --git a/s390x/css.c b/s390x/css.c
-index d7989d8..1b60a47 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -16,6 +16,7 @@
- #include <string.h>
- #include <interrupt.h>
- #include <asm/arch_def.h>
-+#include <asm/time.h>
- 
- #include <css.h>
- 
-@@ -65,11 +66,77 @@ out:
- 	       scn, scn_found, dev_found);
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index e0b26310ecab..2ac7771394d8 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -688,6 +688,9 @@ struct qeth_card_info {
+ 	u8 promisc_mode:1;
+ 	u8 use_v1_blkt:1;
+ 	u8 is_vm_nic:1;
++	/* no bitfield, we take a pointer on these two: */
++	u8 has_lp2lp_cso_v6;
++	u8 has_lp2lp_cso_v4;
+ 	enum qeth_card_types type;
+ 	enum qeth_link_types link_type;
+ 	int broadcast_capable;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index f7689461c242..ef96890eea5c 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -6300,7 +6300,7 @@ static int qeth_set_csum_off(struct qeth_card *card, enum qeth_ipa_funcs cstype,
  }
  
-+#define MAX_ENABLE_RETRIES	5
-+static void test_enable(void)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int retry_count = 0;
-+	int cc;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+
-+	/* Read the SCHIB for this subchannel */
-+	cc = stsch(test_device_sid, &schib);
-+	if (cc) {
-+		report(0, "stsch cc=%d", cc);
-+		return;
-+	}
-+
-+	if (pmcw->flags & PMCW_ENABLE) {
-+		report(1, "stsch: sch %08x already enabled", test_device_sid);
-+		return;
-+	}
-+
-+retry:
-+	/* Update the SCHIB to enable the channel */
-+	pmcw->flags |= PMCW_ENABLE;
-+
-+	/* Tell the CSS we want to modify the subchannel */
-+	cc = msch(test_device_sid, &schib);
-+	if (cc) {
-+		/*
-+		 * If the subchannel is status pending or
-+		 * if a function is in progress,
-+		 * we consider both cases as errors.
-+		 */
-+		report(0, "msch cc=%d", cc);
-+		return;
-+	}
-+
-+	/*
-+	 * Read the SCHIB again to verify the enablement
-+	 */
-+	cc = stsch(test_device_sid, &schib);
-+	if (cc) {
-+		report(0, "stsch cc=%d", cc);
-+		return;
-+	}
-+
-+	if (pmcw->flags & PMCW_ENABLE) {
-+		report(1, "msch: sch %08x enabled after %d retries",
-+		       test_device_sid, retry_count);
-+		return;
-+	}
-+
-+	if (retry_count++ < MAX_ENABLE_RETRIES) {
-+		mdelay(10); /* the hardware was not ready, let it some time */
-+		goto retry;
-+	}
-+
-+	report(0,
-+	       "msch: enabling sch %08x failed after %d retries. pmcw: %x",
-+	       test_device_sid, retry_count, pmcw->flags);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
-+	{ "enable (msch)", test_enable },
- 	{ NULL, NULL }
- };
+ static int qeth_set_csum_on(struct qeth_card *card, enum qeth_ipa_funcs cstype,
+-			    enum qeth_prot_versions prot)
++			    enum qeth_prot_versions prot, u8 *lp2lp)
+ {
+ 	u32 required_features = QETH_IPA_CHECKSUM_UDP | QETH_IPA_CHECKSUM_TCP;
+ 	struct qeth_cmd_buffer *iob;
+@@ -6352,8 +6352,11 @@ static int qeth_set_csum_on(struct qeth_card *card, enum qeth_ipa_funcs cstype,
  
+ 	dev_info(&card->gdev->dev, "HW Checksumming (%sbound IPv%d) enabled\n",
+ 		 cstype == IPA_INBOUND_CHECKSUM ? "in" : "out", prot);
+-	if (!qeth_ipa_caps_enabled(&caps, QETH_IPA_CHECKSUM_LP2LP) &&
+-	    cstype == IPA_OUTBOUND_CHECKSUM)
++
++	if (lp2lp)
++		*lp2lp = qeth_ipa_caps_enabled(&caps, QETH_IPA_CHECKSUM_LP2LP);
++
++	if (lp2lp && !*lp2lp)
+ 		dev_warn(&card->gdev->dev,
+ 			 "Hardware checksumming is performed only if %s and its peer use different OSA Express 3 ports\n",
+ 			 QETH_CARD_IFNAME(card));
+@@ -6361,9 +6364,9 @@ static int qeth_set_csum_on(struct qeth_card *card, enum qeth_ipa_funcs cstype,
+ }
+ 
+ static int qeth_set_ipa_csum(struct qeth_card *card, bool on, int cstype,
+-			     enum qeth_prot_versions prot)
++			     enum qeth_prot_versions prot, u8 *lp2lp)
+ {
+-	return on ? qeth_set_csum_on(card, cstype, prot) :
++	return on ? qeth_set_csum_on(card, cstype, prot, lp2lp) :
+ 		    qeth_set_csum_off(card, cstype, prot);
+ }
+ 
+@@ -6451,13 +6454,13 @@ static int qeth_set_ipa_rx_csum(struct qeth_card *card, bool on)
+ 
+ 	if (qeth_is_supported(card, IPA_INBOUND_CHECKSUM))
+ 		rc_ipv4 = qeth_set_ipa_csum(card, on, IPA_INBOUND_CHECKSUM,
+-					    QETH_PROT_IPV4);
++					    QETH_PROT_IPV4, NULL);
+ 	if (!qeth_is_supported6(card, IPA_INBOUND_CHECKSUM_V6))
+ 		/* no/one Offload Assist available, so the rc is trivial */
+ 		return rc_ipv4;
+ 
+ 	rc_ipv6 = qeth_set_ipa_csum(card, on, IPA_INBOUND_CHECKSUM,
+-				    QETH_PROT_IPV6);
++				    QETH_PROT_IPV6, NULL);
+ 
+ 	if (on)
+ 		/* enable: success if any Assist is active */
+@@ -6504,13 +6507,15 @@ int qeth_set_features(struct net_device *dev, netdev_features_t features)
+ 
+ 	if ((changed & NETIF_F_IP_CSUM)) {
+ 		rc = qeth_set_ipa_csum(card, features & NETIF_F_IP_CSUM,
+-				       IPA_OUTBOUND_CHECKSUM, QETH_PROT_IPV4);
++				       IPA_OUTBOUND_CHECKSUM, QETH_PROT_IPV4,
++				       &card->info.has_lp2lp_cso_v4);
+ 		if (rc)
+ 			changed ^= NETIF_F_IP_CSUM;
+ 	}
+ 	if (changed & NETIF_F_IPV6_CSUM) {
+ 		rc = qeth_set_ipa_csum(card, features & NETIF_F_IPV6_CSUM,
+-				       IPA_OUTBOUND_CHECKSUM, QETH_PROT_IPV6);
++				       IPA_OUTBOUND_CHECKSUM, QETH_PROT_IPV6,
++				       &card->info.has_lp2lp_cso_v6);
+ 		if (rc)
+ 			changed ^= NETIF_F_IPV6_CSUM;
+ 	}
 -- 
-2.25.1
+2.17.1
