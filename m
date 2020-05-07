@@ -1,95 +1,128 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from bilbo.ozlabs.org ([203.11.71.1]:60013 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725771AbgEZF7c (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 May 2020 01:59:32 -0400
-Date: Tue, 26 May 2020 15:59:24 +1000
-From: Paul Mackerras <paulus@ozlabs.org>
-Subject: Re: [PATCH v4 5/7] KVM: PPC: clean up redundant kvm_run parameters
- in assembly
-Message-ID: <20200526055924.GD282305@thinks.paulus.ozlabs.org>
-References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
- <20200427043514.16144-6-tianjia.zhang@linux.alibaba.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200427043514.16144-6-tianjia.zhang@linux.alibaba.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11732 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725893AbgEGJal (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 May 2020 05:30:41 -0400
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [PATCH 1/2] PCI/IOV: Introduce pci_iov_sysfs_link() function
+Date: Thu,  7 May 2020 11:30:33 +0200
+Message-Id: <20200507093034.56143-2-schnelle@linux.ibm.com>
+In-Reply-To: <20200507093034.56143-1-schnelle@linux.ibm.com>
+References: <20200507093034.56143-1-schnelle@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Cc: pbonzini@redhat.com, tsbogend@alpha.franken.de, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>
 
-On Mon, Apr 27, 2020 at 12:35:12PM +0800, Tianjia Zhang wrote:
-> In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
-> structure. For historical reasons, many kvm-related function parameters
-> retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
-> patch does a unified cleanup of these remaining redundant parameters.
+Currently pci_iov_add_virtfn() scans the SR-IOV BARs, adds the VF to the
+bus and also creates the sysfs links between the newly added VF and its
+parent PF.
 
-Some of these changes don't look completely correct to me, see below.
-If you're expecting these patches to go through my tree, I can fix up
-the patch and commit it (with you as author), noting the changes I
-made in the commit message.  Do you want me to do that?
+With pdev->no_vf_scan fencing off the entire pci_iov_add_virtfn() call
+s390 as the sole pdev->no_vf_scan user thus ends up missing these sysfs
+links which are required for example by QEMU/libvirt.
 
-> diff --git a/arch/powerpc/kvm/book3s_interrupts.S b/arch/powerpc/kvm/book3s_interrupts.S
-> index f7ad99d972ce..0eff749d8027 100644
-> --- a/arch/powerpc/kvm/book3s_interrupts.S
-> +++ b/arch/powerpc/kvm/book3s_interrupts.S
-> @@ -55,8 +55,7 @@
->   ****************************************************************************/
->  
->  /* Registers:
-> - *  r3: kvm_run pointer
-> - *  r4: vcpu pointer
-> + *  r3: vcpu pointer
->   */
->  _GLOBAL(__kvmppc_vcpu_run)
->  
-> @@ -68,8 +67,8 @@ kvm_start_entry:
->  	/* Save host state to the stack */
->  	PPC_STLU r1, -SWITCH_FRAME_SIZE(r1)
->  
-> -	/* Save r3 (kvm_run) and r4 (vcpu) */
-> -	SAVE_2GPRS(3, r1)
-> +	/* Save r3 (vcpu) */
-> +	SAVE_GPR(3, r1)
->  
->  	/* Save non-volatile registers (r14 - r31) */
->  	SAVE_NVGPRS(r1)
-> @@ -82,11 +81,11 @@ kvm_start_entry:
->  	PPC_STL	r0, _LINK(r1)
->  
->  	/* Load non-volatile guest state from the vcpu */
-> -	VCPU_LOAD_NVGPRS(r4)
-> +	VCPU_LOAD_NVGPRS(r3)
->  
->  kvm_start_lightweight:
->  	/* Copy registers into shadow vcpu so we can access them in real mode */
-> -	mr	r3, r4
-> +	mr	r4, r3
+Instead of duplicating the code refactor pci_iov_add_virtfn() to make
+sysfs link creation callable separately.
 
-This mr doesn't seem necessary.
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+---
+ drivers/pci/iov.c   | 36 +++++++++++++++++++++++++-----------
+ include/linux/pci.h |  8 ++++++++
+ 2 files changed, 33 insertions(+), 11 deletions(-)
 
->  	bl	FUNC(kvmppc_copy_to_svcpu)
->  	nop
->  	REST_GPR(4, r1)
-
-This should be loading r4 from GPR3(r1), not GPR4(r1) - which is what
-REST_GPR(4, r1) will do.
-
-Then, in the file but not in the patch context, there is this line:
-
-	PPC_LL	r3, GPR4(r1)		/* vcpu pointer */
-
-where once again GPR4 needs to be GPR3.
-
-> @@ -191,10 +190,10 @@ after_sprg3_load:
->  	PPC_STL	r31, VCPU_GPR(R31)(r7)
->  
->  	/* Pass the exit number as 3rd argument to kvmppc_handle_exit */
-
-The comment should be modified to say "2nd" instead of "3rd",
-otherwise it is confusing.
-
-The rest of the patch looks OK.
-
-Paul.
+diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
+index 4d1f392b05f9..ee6fbe688498 100644
+--- a/drivers/pci/iov.c
++++ b/drivers/pci/iov.c
+@@ -133,12 +133,35 @@ static void pci_read_vf_config_common(struct pci_dev *virtfn)
+ 			     &physfn->sriov->subsystem_device);
+ }
+ 
++int pci_iov_sysfs_link(struct pci_dev *dev,
++		struct pci_dev *virtfn, int id)
++{
++	char buf[VIRTFN_ID_LEN];
++	int rc;
++
++	sprintf(buf, "virtfn%u", id);
++	rc = sysfs_create_link(&dev->dev.kobj, &virtfn->dev.kobj, buf);
++	if (rc)
++		goto failed;
++	rc = sysfs_create_link(&virtfn->dev.kobj, &dev->dev.kobj, "physfn");
++	if (rc)
++		goto failed1;
++
++	kobject_uevent(&virtfn->dev.kobj, KOBJ_CHANGE);
++
++	return 0;
++
++failed1:
++	sysfs_remove_link(&dev->dev.kobj, buf);
++failed:
++	return rc;
++}
++
+ int pci_iov_add_virtfn(struct pci_dev *dev, int id)
+ {
+ 	int i;
+ 	int rc = -ENOMEM;
+ 	u64 size;
+-	char buf[VIRTFN_ID_LEN];
+ 	struct pci_dev *virtfn;
+ 	struct resource *res;
+ 	struct pci_sriov *iov = dev->sriov;
+@@ -182,23 +205,14 @@ int pci_iov_add_virtfn(struct pci_dev *dev, int id)
+ 	}
+ 
+ 	pci_device_add(virtfn, virtfn->bus);
+-
+-	sprintf(buf, "virtfn%u", id);
+-	rc = sysfs_create_link(&dev->dev.kobj, &virtfn->dev.kobj, buf);
++	rc = pci_iov_sysfs_link(dev, virtfn, id);
+ 	if (rc)
+ 		goto failed1;
+-	rc = sysfs_create_link(&virtfn->dev.kobj, &dev->dev.kobj, "physfn");
+-	if (rc)
+-		goto failed2;
+-
+-	kobject_uevent(&virtfn->dev.kobj, KOBJ_CHANGE);
+ 
+ 	pci_bus_add_device(virtfn);
+ 
+ 	return 0;
+ 
+-failed2:
+-	sysfs_remove_link(&dev->dev.kobj, buf);
+ failed1:
+ 	pci_stop_and_remove_bus_device(virtfn);
+ 	pci_dev_put(dev);
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 83ce1cdf5676..93a063a7d7f9 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -2048,6 +2048,8 @@ int pci_iov_virtfn_devfn(struct pci_dev *dev, int id);
+ 
+ int pci_enable_sriov(struct pci_dev *dev, int nr_virtfn);
+ void pci_disable_sriov(struct pci_dev *dev);
++
++int pci_iov_sysfs_link(struct pci_dev *dev, struct pci_dev *virtfn, int id);
+ int pci_iov_add_virtfn(struct pci_dev *dev, int id);
+ void pci_iov_remove_virtfn(struct pci_dev *dev, int id);
+ int pci_num_vf(struct pci_dev *dev);
+@@ -2073,6 +2075,12 @@ static inline int pci_iov_virtfn_devfn(struct pci_dev *dev, int id)
+ }
+ static inline int pci_enable_sriov(struct pci_dev *dev, int nr_virtfn)
+ { return -ENODEV; }
++
++static inline int pci_iov_sysfs_link(struct pci_dev *dev,
++				     struct pci_dev *virtfn, int id)
++{
++	return -ENODEV;
++}
+ static inline int pci_iov_add_virtfn(struct pci_dev *dev, int id)
+ {
+ 	return -ENOSYS;
+-- 
+2.17.1
