@@ -1,75 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3462 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727778AbgEBMgR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 08:36:17 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 06/13] net/smc: final part of add link processing as SMC server
-Date: Sat,  2 May 2020 14:35:45 +0200
-Message-Id: <20200502123552.17204-7-kgraul@linux.ibm.com>
-In-Reply-To: <20200502123552.17204-1-kgraul@linux.ibm.com>
-References: <20200502123552.17204-1-kgraul@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54980 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726900AbgEGNku (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 May 2020 09:40:50 -0400
+From: Marc Hartmayer <mhartmay@linux.ibm.com>
+Subject: Re: [kvm-unit-tests RFC] s390x: Add Protected VM support
+In-Reply-To: <20200506135016.ml3k73siokhltyl5@kamzik.brq.redhat.com>
+References: <20200506124636.21876-1-mhartmay@linux.ibm.com> <20200506135016.ml3k73siokhltyl5@kamzik.brq.redhat.com>
+Date: Thu, 07 May 2020 15:40:39 +0200
+Message-ID: <87wo5n6ey0.fsf@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Andrew Jones <drjones@redhat.com>, Marc Hartmayer <mhartmay@linux.ibm.com>
+Cc: kvm@vger.kernel.org, Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-This patch finalizes the ADD_LINK processing of new links. Send the
-CONFIRM_LINK request to the peer, receive the response and set link
-state to ACTIVE.
+On Wed, May 06, 2020 at 03:50 PM +0200, Andrew Jones <drjones@redhat.com> wrote:
+> On Wed, May 06, 2020 at 02:46:36PM +0200, Marc Hartmayer wrote:
+>> Add support for Protected Virtual Machine (PVM) tests. For starting a
+>> PVM guest we must be able to generate a PVM image by using the
+>> `genprotimg` tool from the s390-tools collection. This requires the
+>> ability to pass a machine-specific host-key document, so the option
+>> `--host-key-document` is added to the configure script.
+>> 
+>> Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+>> ---
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_llc.c | 29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+[…snip…]
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index e1d61b6b083b..20ce29b88b50 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -904,6 +904,33 @@ static int smc_llc_srv_rkey_exchange(struct smc_link *link,
- 	return rc;
- }
- 
-+static int smc_llc_srv_conf_link(struct smc_link *link,
-+				 struct smc_link *link_new,
-+				 enum smc_lgr_type lgr_new_t)
-+{
-+	struct smc_link_group *lgr = link->lgr;
-+	struct smc_llc_qentry *qentry = NULL;
-+	int rc;
-+
-+	/* send CONFIRM LINK request over the RoCE fabric */
-+	rc = smc_llc_send_confirm_link(link_new, SMC_LLC_REQ);
-+	if (rc)
-+		return -ENOLINK;
-+	/* receive CONFIRM LINK response over the RoCE fabric */
-+	qentry = smc_llc_wait(lgr, link, SMC_LLC_WAIT_FIRST_TIME,
-+			      SMC_LLC_CONFIRM_LINK);
-+	if (!qentry) {
-+		/* send DELETE LINK */
-+		smc_llc_send_delete_link(link, link_new->link_id, SMC_LLC_REQ,
-+					 false, SMC_LLC_DEL_LOST_PATH);
-+		return -ENOLINK;
-+	}
-+	smc_llc_link_active(link_new);
-+	lgr->type = lgr_new_t;
-+	smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
-+	return 0;
-+}
-+
- int smc_llc_srv_add_link(struct smc_link *link)
- {
- 	enum smc_lgr_type lgr_new_t = SMC_LGR_SYMMETRIC;
-@@ -967,7 +994,7 @@ int smc_llc_srv_add_link(struct smc_link *link)
- 	rc = smc_llc_srv_rkey_exchange(link, link_new);
- 	if (rc)
- 		goto out_err;
--	/* tbd: rc = smc_llc_srv_conf_link(link, link_new, lgr_new_t); */
-+	rc = smc_llc_srv_conf_link(link, link_new, lgr_new_t);
- 	if (rc)
- 		goto out_err;
- 	return 0;
+> +
+>>  	"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
+>> +	if [ "${pv_support}" == 1 ]; then
+>> +		pv_cmd "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
+>> +	fi
+>>  	exec {fd}<&-
+>>  }
+>> -- 
+>> 2.17.0
+>>
+>
+> I don't think making the changes to scripts/common.bash will work for
+> standalone tests. Why not do this stuff in s390x/run instead?
+
+Okay, I’ve looked into the code, and the reason for this approach is
+that I want to treat the PVM and the “normal” test case as two separate
+test cases, but using the same test configuration. I don’t see how I can
+achieve this by editing s390x/run and for the standalone case.
+
+Maybe this approach is already broken and I should simply add the PVM
+testcases as extra test cases to the unittest.cfg - but this would
+result in duplicated code in the configuration file.
+
+> Also,
+> do you need the pv_support[ed] parameter? You could just do a
+> [ -f "${kernel%.elf}.pv.img" ] to decide if you should run again
+> with PV, right?
+>
+> Thanks,
+> drew
+>
 -- 
-2.17.1
+Kind regards / Beste Grüße
+   Marc Hartmayer
+
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Gregor Pillen 
+Geschäftsführung: Dirk Wittkopp
+Sitz der Gesellschaft: Böblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
