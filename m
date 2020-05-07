@@ -1,70 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36990 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729589AbgEFQFz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 12:05:55 -0400
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D8DC0610D5
-        for <linux-s390@vger.kernel.org>; Wed,  6 May 2020 09:05:54 -0700 (PDT)
-Received: by mail-qk1-x742.google.com with SMTP id g185so2489422qke.7
-        for <linux-s390@vger.kernel.org>; Wed, 06 May 2020 09:05:54 -0700 (PDT)
-Date: Wed, 6 May 2020 13:05:52 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH rdma-next] RDMA: Allow ib_client's to fail when add() is
- called
-Message-ID: <20200506160552.GA9993@ziepe.ca>
-References: <20200421172440.387069-1-leon@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7504 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725923AbgEGM17 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 May 2020 08:27:59 -0400
+Date: Thu, 7 May 2020 14:27:44 +0200
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Subject: Re: [PATCH v4 06/11] s390/module: Use s390_kernel_write() for late
+ relocations
+Message-ID: <20200507142744.05271ac0@thinkpad>
+In-Reply-To: <nycvar.YFH.7.76.2005071159490.25812@cbobk.fhfr.pm>
+References: <cover.1588173720.git.jpoimboe@redhat.com>
+        <4710f82c960ff5f8b0dd7dba6aafde5bea275cfa.1588173720.git.jpoimboe@redhat.com>
+        <nycvar.YFH.7.76.2005071159490.25812@cbobk.fhfr.pm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200421172440.387069-1-leon@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Leon Romanovsky <leon@kernel.org>
-Cc: Doug Ledford <dledford@redhat.com>, Bart Van Assche <bvanassche@acm.org>, "David S. Miller" <davem@davemloft.net>, Dennis Dalessandro <dennis.dalessandro@intel.com>, Jakub Kicinski <kuba@kernel.org>, Karsten Graul <kgraul@linux.ibm.com>, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, Niranjana Vishwanathapura <niranjana.vishwanathapura@intel.com>, rds-devel@oss.oracle.com, Santosh Shilimkar <santosh.shilimkar@oracle.com>, target-devel@vger.kernel.org, Ursula Braun <ubraun@linux.ibm.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>, live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jessica Yu <jeyu@kernel.org>, Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-On Tue, Apr 21, 2020 at 08:24:40PM +0300, Leon Romanovsky wrote:
-> From: Jason Gunthorpe <jgg@mellanox.com>
-> 
-> When a client is added it isn't allowed to fail, but all the client's have
-> various failure paths within their add routines.
-> 
-> This creates the very fringe condition where the client was added, failed
-> during add and didn't set the client_data. The core code will then still
-> call other client_data centric ops like remove(), rename(), get_nl_info(),
-> and get_net_dev_by_params() with NULL client_data - which is confusing and
-> unexpected.
-> 
-> If the add() callback fails, then do not call any more client ops for the
-> device, even remove.
-> 
-> Remove all the now redundant checks for NULL client_data in ops callbacks.
-> 
-> Update all the add() callbacks to return error codes
-> appropriately. EOPNOTSUPP is used for cases where the ULP does not support
-> the ib_device - eg because it only works with IB.
-> 
-> Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-> Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-> Acked-by: Ursula Braun <ubraun@linux.ibm.com>
-> ---
->  drivers/infiniband/core/cm.c                  | 24 ++++++++++--------
->  drivers/infiniband/core/cma.c                 | 23 +++++++++--------
->  drivers/infiniband/core/device.c              | 16 ++++++++++--
->  drivers/infiniband/core/mad.c                 | 17 ++++++++++---
->  drivers/infiniband/core/multicast.c           | 12 ++++-----
->  drivers/infiniband/core/sa_query.c            | 22 ++++++++--------
->  drivers/infiniband/core/user_mad.c            | 22 ++++++++--------
->  drivers/infiniband/core/uverbs_main.c         | 24 +++++++++---------
->  drivers/infiniband/ulp/ipoib/ipoib_main.c     | 15 ++++-------
->  .../infiniband/ulp/opa_vnic/opa_vnic_vema.c   | 12 ++++-----
->  drivers/infiniband/ulp/srp/ib_srp.c           | 21 ++++++++--------
->  drivers/infiniband/ulp/srpt/ib_srpt.c         | 25 ++++++++-----------
->  include/rdma/ib_verbs.h                       |  2 +-
->  net/rds/ib.c                                  | 21 ++++++++++------
->  net/smc/smc_ib.c                              | 10 +++-----
->  15 files changed, 142 insertions(+), 124 deletions(-)
+On Thu, 7 May 2020 12:00:13 +0200 (CEST)
+Jiri Kosina <jikos@kernel.org> wrote:
 
-Applied to for-next
+> On Wed, 29 Apr 2020, Josh Poimboeuf wrote:
+> 
+> > From: Peter Zijlstra <peterz@infradead.org>
+> > 
+> > Because of late module patching, a livepatch module needs to be able to
+> > apply some of its relocations well after it has been loaded.  Instead of
+> > playing games with module_{dis,en}able_ro(), use existing text poking
+> > mechanisms to apply relocations after module loading.
+> > 
+> > So far only x86, s390 and Power have HAVE_LIVEPATCH but only the first
+> > two also have STRICT_MODULE_RWX.
+> > 
+> > This will allow removal of the last module_disable_ro() usage in
+> > livepatch.  The ultimate goal is to completely disallow making
+> > executable mappings writable.
+> > 
+> > [ jpoimboe: Split up patches.  Use mod state to determine whether
+> > 	    memcpy() can be used.  Test and add fixes. ]
+> > 
+> > Cc: linux-s390@vger.kernel.org
+> > Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Suggested-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+> > Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > Acked-by: Joe Lawrence <joe.lawrence@redhat.com>
+> > Acked-by: Miroslav Benes <mbenes@suse.cz>
+> 
+> Could we please get an Ack / Reviewed-by: for this patch from s390 folks?
+> 
+> Thanks,
+> 
 
-Jason
+Looks pretty straightforward, and using s390_kernel_write() is OK, so
+
+Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com> # s390
