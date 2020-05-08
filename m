@@ -1,78 +1,90 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24730 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728712AbgEFIKA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:10:00 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net-next 08/10] s390/qeth: set TX IRQ marker on last buffer in a group
-Date: Wed,  6 May 2020 10:09:47 +0200
-Message-Id: <20200506080949.3915-9-jwi@linux.ibm.com>
-In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
-References: <20200506080949.3915-1-jwi@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1928 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727896AbgEHRXs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 May 2020 13:23:48 -0400
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 7/8] zfcp: fence early sysfs interfaces for accesses of shost objects
+Date: Fri,  8 May 2020 19:23:34 +0200
+Message-Id: <ef65366d309993ca91b6917727590ca7ca166c8f.1588956679.git.bblock@linux.ibm.com>
+In-Reply-To: <cover.1588956679.git.bblock@linux.ibm.com>
+References: <cover.1588956679.git.bblock@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-When qeth_flush_buffers() gets called for a group of TX buffers
-(currently up to 2 for OSA-style devices), the code iterates over each
-buffer for some final processing.
+When setting an adapter online for the first time, we also create a
+couple of entries for it in the sysfs device tree. This is also true
+even if the adapter has not yet ever gone successfully through exchange
+config and exchange port data.
 
-During this processing, it sets the TX IRQ marker on the leading buffer
-rather than the last one. This can result in delayed TX completion of
-the trailing buffers. So pull the IRQ marker code out of the loop, and
-apply it to the final buffer.
+When moving the scsi host object allocation and registration to after
+the first exchange config and exchange port data, this make
+the `port_rescan` attribute susceptible to invalid pointer-dereferences
+of the shost field before the adapter is fully initialized.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+When written to, it schedules a `scan_work` item that will in turn make
+use of the associated fibre channel host object to check the topology
+used for this FCP device.
+
+Because scanning for remote ports can't be done successfully without
+completing exchange config and exchange port data first, we can simply
+fence `port_rescan`, and so prevent the illegal access.
+
+As with cases where we can't get a reference to the adapter, we also
+return -ENODEV here. Applications need to handle that errno today
+already.
+
+After a successful allocation of the scsi host object nothing changes in
+the work flow.
+
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/s390/scsi/zfcp_sysfs.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 4d1d053eebb7..164cc7f377fc 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3617,11 +3617,11 @@ static int qeth_switch_to_nonpacking_if_needed(struct qeth_qdio_out_q *queue)
- static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 			       int count)
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index 7ec30ded0169..8d9662e8b717 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -216,10 +216,22 @@ static ssize_t zfcp_sysfs_port_rescan_store(struct device *dev,
  {
-+	struct qeth_qdio_out_buffer *buf = queue->bufs[index];
-+	unsigned int qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
- 	struct qeth_card *card = queue->card;
--	struct qeth_qdio_out_buffer *buf;
- 	int rc;
- 	int i;
--	unsigned int qdio_flags;
+ 	struct ccw_device *cdev = to_ccwdev(dev);
+ 	struct zfcp_adapter *adapter = zfcp_ccw_adapter_by_cdev(cdev);
++	int retval = 0;
  
- 	for (i = index; i < index + count; ++i) {
- 		unsigned int bidx = QDIO_BUFNR(i);
-@@ -3638,9 +3638,10 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 		if (IS_IQD(card)) {
- 			skb_queue_walk(&buf->skb_list, skb)
- 				skb_tx_timestamp(skb);
--			continue;
- 		}
+ 	if (!adapter)
+ 		return -ENODEV;
+ 
++	/*
++	 * If `scsi_host` is missing, we can't schedule `scan_work`, as it
++	 * makes use of the corresponding fc_host object. But this state is
++	 * only possible if xconfig/xport data has never completed yet,
++	 * and we couldn't successfully scan for ports anyway.
++	 */
++	if (adapter->scsi_host == NULL) {
++		retval = -ENODEV;
++		goto out;
 +	}
- 
-+	if (!IS_IQD(card)) {
- 		if (!queue->do_pack) {
- 			if ((atomic_read(&queue->used_buffers) >=
- 				(QETH_HIGH_WATERMARK_PACK -
-@@ -3665,12 +3666,12 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 				buf->buffer->element[0].sflags |= SBAL_SFLAGS0_PCI_REQ;
- 			}
- 		}
 +
-+		if (atomic_read(&queue->set_pci_flags_count))
-+			qdio_flags |= QDIO_FLAG_PCI_OUT;
- 	}
- 
- 	QETH_TXQ_STAT_INC(queue, doorbell);
--	qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
--	if (atomic_read(&queue->set_pci_flags_count))
--		qdio_flags |= QDIO_FLAG_PCI_OUT;
- 	rc = do_QDIO(CARD_DDEV(queue->card), qdio_flags,
- 		     queue->queue_no, index, count);
- 
+ 	/*
+ 	 * Users wish is our command: immediately schedule and flush a
+ 	 * worker to conduct a synchronous port scan, that is, neither
+@@ -227,9 +239,9 @@ static ssize_t zfcp_sysfs_port_rescan_store(struct device *dev,
+ 	 */
+ 	queue_delayed_work(adapter->work_queue, &adapter->scan_work, 0);
+ 	flush_delayed_work(&adapter->scan_work);
++out:
+ 	zfcp_ccw_adapter_put(adapter);
+-
+-	return (ssize_t) count;
++	return retval ? retval : (ssize_t) count;
+ }
+ static ZFCP_DEV_ATTR(adapter, port_rescan, S_IWUSR, NULL,
+ 		     zfcp_sysfs_port_rescan_store);
 -- 
 2.17.1
