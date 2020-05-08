@@ -1,121 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7468 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727882AbgEBMgS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 08:36:18 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 11/13] net/smc: delete link processing as SMC server
-Date: Sat,  2 May 2020 14:35:50 +0200
-Message-Id: <20200502123552.17204-12-kgraul@linux.ibm.com>
-In-Reply-To: <20200502123552.17204-1-kgraul@linux.ibm.com>
-References: <20200502123552.17204-1-kgraul@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:42444 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726612AbgEHDIs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 7 May 2020 23:08:48 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V3 0/3] mm/hugetlb: Add some new generic fallbacks
+Date: Fri,  8 May 2020 08:37:48 +0530
+Message-Id: <1588907271-11920-1-git-send-email-anshuman.khandual@arm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Mike Kravetz <mike.kravetz@oracle.com>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add smc_llc_process_srv_delete_link() to process a DELETE_LINK request
-as SMC server. When the request is to delete ALL links then terminate
-the whole link group. If not, find the link to delete by its link_id,
-send the DELETE_LINK request LLC message and wait for the response.
-No matter if a response was received, clear the deleted link and update
-the link group state.
+This series adds the following new generic fallbacks. Before that it drops
+__HAVE_ARCH_HUGE_PTEP_GET from arm64 platform.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_llc.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 72 insertions(+)
+1. is_hugepage_only_range()
+2. arch_clear_hugepage_flags()
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index cd57b4fb1842..ac065f6d60dc 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1187,6 +1187,76 @@ static void smc_llc_process_cli_delete_link(struct smc_link_group *lgr)
- 	kfree(qentry);
- }
- 
-+static void smc_llc_process_srv_delete_link(struct smc_link_group *lgr)
-+{
-+	struct smc_llc_msg_del_link *del_llc;
-+	struct smc_link *lnk, *lnk_del;
-+	struct smc_llc_qentry *qentry;
-+	int active_links;
-+	int i;
-+
-+	mutex_lock(&lgr->llc_conf_mutex);
-+	qentry = smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
-+	lnk = qentry->link;
-+	del_llc = &qentry->msg.delete_link;
-+
-+	if (qentry->msg.delete_link.hd.flags & SMC_LLC_FLAG_DEL_LINK_ALL) {
-+		/* delete entire lgr */
-+		smc_lgr_terminate_sched(lgr);
-+		goto out;
-+	}
-+	/* delete single link */
-+	lnk_del = NULL;
-+	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+		if (lgr->lnk[i].link_id == del_llc->link_num) {
-+			lnk_del = &lgr->lnk[i];
-+			break;
-+		}
-+	}
-+	if (!lnk_del)
-+		goto out; /* asymmetric link already deleted */
-+
-+	if (smc_link_downing(&lnk_del->state)) {
-+		/* tbd: call smc_switch_conns(lgr, lnk_del, false); */
-+		smc_wr_tx_wait_no_pending_sends(lnk_del);
-+	}
-+	if (!list_empty(&lgr->list)) {
-+		/* qentry is either a request from peer (send it back to
-+		 * initiate the DELETE_LINK processing), or a locally
-+		 * enqueued DELETE_LINK request (forward it)
-+		 */
-+		if (!smc_llc_send_message(lnk, &qentry->msg)) {
-+			struct smc_llc_msg_del_link *del_llc_resp;
-+			struct smc_llc_qentry *qentry2;
-+
-+			qentry2 = smc_llc_wait(lgr, lnk, SMC_LLC_WAIT_TIME,
-+					       SMC_LLC_DELETE_LINK);
-+			if (!qentry2) {
-+			} else {
-+				del_llc_resp = &qentry2->msg.delete_link;
-+				smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
-+			}
-+		}
-+	}
-+	smcr_link_clear(lnk_del);
-+
-+	active_links = smc_llc_active_link_count(lgr);
-+	if (active_links == 1) {
-+		lgr->type = SMC_LGR_SINGLE;
-+	} else if (!active_links) {
-+		lgr->type = SMC_LGR_NONE;
-+		smc_lgr_terminate_sched(lgr);
-+	}
-+
-+	if (lgr->type == SMC_LGR_SINGLE && !list_empty(&lgr->list)) {
-+		/* trigger setup of asymm alt link */
-+		/* tbd: call smc_llc_srv_add_link_local(lnk); */
-+	}
-+out:
-+	mutex_unlock(&lgr->llc_conf_mutex);
-+	kfree(qentry);
-+}
-+
- static void smc_llc_delete_link_work(struct work_struct *work)
- {
- 	struct smc_link_group *lgr = container_of(work, struct smc_link_group,
-@@ -1200,6 +1270,8 @@ static void smc_llc_delete_link_work(struct work_struct *work)
- 
- 	if (lgr->role == SMC_CLNT)
- 		smc_llc_process_cli_delete_link(lgr);
-+	else
-+		smc_llc_process_srv_delete_link(lgr);
- out:
- 	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
- }
+This has been boot tested on arm64 and x86 platforms but built tested on
+some more platforms including the changed ones here. This series applies
+on v5.7-rc4. After this arm (32 bit) remains the sole platform defining
+it's own huge_ptep_get() via __HAVE_ARCH_HUGE_PTEP_GET.
+
+Changes in V3:
+
+- Added READ_ONCE() in generic huge_ptep_get() per Will
+
+Changes in V2: (https://patchwork.kernel.org/project/linux-mm/list/?series=282947)
+
+- Adopted "#ifndef func" method (adding a single symbol to namespace) per Andrew
+- Updated the commit messages in [PATCH 2/3] and [PATCH 3/3] as required
+
+Changes in V1: (https://patchwork.kernel.org/project/linux-mm/list/?series=270677)
+
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Rich Felker <dalias@libc.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: x86@kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-ia64@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-riscv@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-sh@vger.kernel.org
+Cc: sparclinux@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+
+Anshuman Khandual (3):
+  arm64/mm: Drop __HAVE_ARCH_HUGE_PTEP_GET
+  mm/hugetlb: Define a generic fallback for is_hugepage_only_range()
+  mm/hugetlb: Define a generic fallback for arch_clear_hugepage_flags()
+
+ arch/arm/include/asm/hugetlb.h     |  7 +------
+ arch/arm64/include/asm/hugetlb.h   | 13 +------------
+ arch/ia64/include/asm/hugetlb.h    |  5 +----
+ arch/mips/include/asm/hugetlb.h    | 11 -----------
+ arch/parisc/include/asm/hugetlb.h  | 10 ----------
+ arch/powerpc/include/asm/hugetlb.h |  5 +----
+ arch/riscv/include/asm/hugetlb.h   | 10 ----------
+ arch/s390/include/asm/hugetlb.h    |  8 +-------
+ arch/sh/include/asm/hugetlb.h      |  7 +------
+ arch/sparc/include/asm/hugetlb.h   | 10 ----------
+ arch/x86/include/asm/hugetlb.h     | 10 ----------
+ include/asm-generic/hugetlb.h      |  2 +-
+ include/linux/hugetlb.h            | 14 ++++++++++++++
+ 13 files changed, 21 insertions(+), 91 deletions(-)
+
 -- 
-2.17.1
+2.20.1
