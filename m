@@ -1,135 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41508 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728742AbgEDMTP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 08:19:15 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 05/12] net/smc: wait for departure of an IB message
-Date: Mon,  4 May 2020 14:18:41 +0200
-Message-Id: <20200504121848.46585-6-kgraul@linux.ibm.com>
-In-Reply-To: <20200504121848.46585-1-kgraul@linux.ibm.com>
-References: <20200504121848.46585-1-kgraul@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49352 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727834AbgEHRXr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 May 2020 13:23:47 -0400
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 5/8] zfcp: move p-t-p port allocation to after xport data
+Date: Fri,  8 May 2020 19:23:32 +0200
+Message-Id: <73e5d4ac21e2b37bf0c3ca8e530bc5a5c6e74f8f.1588956679.git.bblock@linux.ibm.com>
+In-Reply-To: <cover.1588956679.git.bblock@linux.ibm.com>
+References: <cover.1588956679.git.bblock@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-Introduce smc_wr_tx_send_wait() to send an IB message and wait for the
-tx completion event of the message. This makes sure that the message is
-no longer in-flight when the function returns.
+When doing the very first adapter recovery - initialization - for a FCP
+device in a point-to-point topology we also allocate the port object
+corresponding to the attached remote port, and trigger a port recovery
+for it that will run after the adapter recovery finished.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Right now this happens right after we finished with the exchange config
+data command, and uses the fibre channel host object corresponding to
+the FCP device to determine whether a point-to-point topology is used.
+
+When moving the scsi host object allocation and registration - and thus
+also the fibre channel host object allocation - to after the first
+exchange config and exchange port data, this use of the fc_host object
+is not possible anymore at that point in the work flow.
+
+But the allocation and recovery trigger doesn't have notable
+side-effects on the following exchange port data processing, so we can
+move those to after xport data, and thus also to after the scsi host
+object allocation, once we move it. Then the fc_host object can be used
+again, like it is now.
+
+For any further adapter recoveries this doesn't change anything, because
+at that point the port object already exists and recovery is triggered
+elsewhere for existing port objects.
+
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- net/smc/smc_core.h |  1 +
- net/smc/smc_wr.c   | 39 +++++++++++++++++++++++++++++++++++++++
- net/smc/smc_wr.h   |  2 ++
- 3 files changed, 42 insertions(+)
+ drivers/s390/scsi/zfcp_erp.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 584f11230c4f..86eebbadc8f6 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -85,6 +85,7 @@ struct smc_link {
- 	struct smc_rdma_sges	*wr_tx_rdma_sges;/*RDMA WRITE gather meta data*/
- 	struct smc_rdma_wr	*wr_tx_rdmas;	/* WR RDMA WRITE */
- 	struct smc_wr_tx_pend	*wr_tx_pends;	/* WR send waiting for CQE */
-+	struct completion	*wr_tx_compl;	/* WR send CQE completion */
- 	/* above four vectors have wr_tx_cnt elements and use the same index */
- 	dma_addr_t		wr_tx_dma_addr;	/* DMA address of wr_tx_bufs */
- 	atomic_long_t		wr_tx_id;	/* seq # of last sent WR */
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 3fd27bea4f7a..7239ba9b99dc 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -44,6 +44,7 @@ struct smc_wr_tx_pend {	/* control data for a pending send request */
- 	struct smc_link		*link;
- 	u32			idx;
- 	struct smc_wr_tx_pend_priv priv;
-+	u8			compl_requested;
- };
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index 3d0bc000f500..356f51d2bbee 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -4,7 +4,7 @@
+  *
+  * Error Recovery Procedures (ERP).
+  *
+- * Copyright IBM Corp. 2002, 2017
++ * Copyright IBM Corp. 2002, 2020
+  */
  
- /******************************** send queue *********************************/
-@@ -103,6 +104,8 @@ static inline void smc_wr_tx_process_cqe(struct ib_wc *wc)
- 	if (pnd_snd_idx == link->wr_tx_cnt)
- 		return;
- 	link->wr_tx_pends[pnd_snd_idx].wc_status = wc->status;
-+	if (link->wr_tx_pends[pnd_snd_idx].compl_requested)
-+		complete(&link->wr_tx_compl[pnd_snd_idx]);
- 	memcpy(&pnd_snd, &link->wr_tx_pends[pnd_snd_idx], sizeof(pnd_snd));
- 	/* clear the full struct smc_wr_tx_pend including .priv */
- 	memset(&link->wr_tx_pends[pnd_snd_idx], 0,
-@@ -275,6 +278,33 @@ int smc_wr_tx_send(struct smc_link *link, struct smc_wr_tx_pend_priv *priv)
- 	return rc;
- }
+ #define KMSG_COMPONENT "zfcp"
+@@ -768,10 +768,14 @@ static enum zfcp_erp_act_result zfcp_erp_adapter_strat_fsf_xconf(
+ 	if (!(atomic_read(&adapter->status) & ZFCP_STATUS_ADAPTER_XCONFIG_OK))
+ 		return ZFCP_ERP_FAILED;
  
-+/* Send prepared WR slot via ib_post_send and wait for send completion
-+ * notification.
-+ * @priv: pointer to smc_wr_tx_pend_priv identifying prepared message buffer
-+ */
-+int smc_wr_tx_send_wait(struct smc_link *link, struct smc_wr_tx_pend_priv *priv,
-+			unsigned long timeout)
-+{
-+	struct smc_wr_tx_pend *pend;
-+	int rc;
-+
-+	pend = container_of(priv, struct smc_wr_tx_pend, priv);
-+	pend->compl_requested = 1;
-+	init_completion(&link->wr_tx_compl[pend->idx]);
-+
-+	rc = smc_wr_tx_send(link, priv);
-+	if (rc)
-+		return rc;
-+	/* wait for completion by smc_wr_tx_process_cqe() */
-+	rc = wait_for_completion_interruptible_timeout(
-+					&link->wr_tx_compl[pend->idx], timeout);
-+	if (rc <= 0)
-+		rc = -ENODATA;
-+	if (rc > 0)
-+		rc = 0;
-+	return rc;
++	return ZFCP_ERP_SUCCEEDED;
 +}
 +
- /* Register a memory region and wait for result. */
- int smc_wr_reg_send(struct smc_link *link, struct ib_mr *mr)
- {
-@@ -555,6 +585,8 @@ void smc_wr_free_link(struct smc_link *lnk)
++static void
++zfcp_erp_adapter_strategy_open_ptp_port(struct zfcp_adapter *const adapter)
++{
+ 	if (fc_host_port_type(adapter->scsi_host) == FC_PORTTYPE_PTP)
+ 		zfcp_erp_enqueue_ptp_port(adapter);
+-
+-	return ZFCP_ERP_SUCCEEDED;
+ }
  
- void smc_wr_free_link_mem(struct smc_link *lnk)
- {
-+	kfree(lnk->wr_tx_compl);
-+	lnk->wr_tx_compl = NULL;
- 	kfree(lnk->wr_tx_pends);
- 	lnk->wr_tx_pends = NULL;
- 	kfree(lnk->wr_tx_mask);
-@@ -625,8 +657,15 @@ int smc_wr_alloc_link_mem(struct smc_link *link)
- 				    GFP_KERNEL);
- 	if (!link->wr_tx_pends)
- 		goto no_mem_wr_tx_mask;
-+	link->wr_tx_compl = kcalloc(SMC_WR_BUF_CNT,
-+				    sizeof(link->wr_tx_compl[0]),
-+				    GFP_KERNEL);
-+	if (!link->wr_tx_compl)
-+		goto no_mem_wr_tx_pends;
- 	return 0;
+ static enum zfcp_erp_act_result zfcp_erp_adapter_strategy_open_fsf_xport(
+@@ -809,6 +813,8 @@ static enum zfcp_erp_act_result zfcp_erp_adapter_strategy_open_fsf(
+ 	if (zfcp_erp_adapter_strategy_open_fsf_xport(act) == ZFCP_ERP_FAILED)
+ 		return ZFCP_ERP_FAILED;
  
-+no_mem_wr_tx_pends:
-+	kfree(link->wr_tx_pends);
- no_mem_wr_tx_mask:
- 	kfree(link->wr_tx_mask);
- no_mem_wr_rx_sges:
-diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
-index f7eaeb3391f3..423b8709f1c9 100644
---- a/net/smc/smc_wr.h
-+++ b/net/smc/smc_wr.h
-@@ -101,6 +101,8 @@ int smc_wr_tx_put_slot(struct smc_link *link,
- 		       struct smc_wr_tx_pend_priv *wr_pend_priv);
- int smc_wr_tx_send(struct smc_link *link,
- 		   struct smc_wr_tx_pend_priv *wr_pend_priv);
-+int smc_wr_tx_send_wait(struct smc_link *link, struct smc_wr_tx_pend_priv *priv,
-+			unsigned long timeout);
- void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context);
- void smc_wr_tx_dismiss_slots(struct smc_link *lnk, u8 wr_rx_hdr_type,
- 			     smc_wr_tx_filter filter,
++	zfcp_erp_adapter_strategy_open_ptp_port(act->adapter);
++
+ 	if (mempool_resize(act->adapter->pool.sr_data,
+ 			   act->adapter->stat_read_buf_num))
+ 		return ZFCP_ERP_FAILED;
 -- 
 2.17.1
