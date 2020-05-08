@@ -1,217 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:44583 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2389659AbgEYJmC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 May 2020 05:42:02 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 09/10] vfio-ccw: Wire up the CRW irq and CRW region
-Date: Mon, 25 May 2020 11:41:14 +0200
-Message-Id: <20200525094115.222299-10-cohuck@redhat.com>
-In-Reply-To: <20200525094115.222299-1-cohuck@redhat.com>
-References: <20200525094115.222299-1-cohuck@redhat.com>
+Received: from verein.lst.de ([213.95.11.211]:53335 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727051AbgEHPxJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 8 May 2020 11:53:09 -0400
+Date: Fri, 8 May 2020 17:53:06 +0200
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v3 2/3] block: add a s390-only biodasdinfo method
+Message-ID: <20200508155306.GB4200@lst.de>
+References: <20200508131455.55407-1-sth@linux.ibm.com> <20200508131455.55407-3-sth@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200508131455.55407-3-sth@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: hch@lst.de, axboe@kernel.dk, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com
 
-From: Farhan Ali <alifm@linux.ibm.com>
+On Fri, May 08, 2020 at 03:14:54PM +0200, Stefan Haberland wrote:
+> From: Christoph Hellwig <hch@lst.de>
+> 
+> The IBM partition parser needs to query the DASD driver for details that
+> are very s390 specific.  Instead of using ioctl_by_bdev with a fake user
+> space pointer just add a s390-specific method to get the information
+> directly.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> [sth@linux.ibm.com: remove fop, add gendisk check, export funcion]
+> Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 
-Use the IRQ to notify userspace that there is a CRW
-pending in the region, related to path-availability
-changes on the passthrough subchannel.
+The subject and changelog need updates for your changes.  I think you
+should also claim authorship, even if a few bits are originally from me.
+Probaby it would make sense to even just merge this into the next patch.
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20200505122745.53208-8-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_chp.c     | 17 ++++++++++
- drivers/s390/cio/vfio_ccw_drv.c     | 49 +++++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_private.h |  8 +++++
- 3 files changed, 74 insertions(+)
+> index fa552f9f1666..6eac7b11c75b 100644
+> --- a/drivers/s390/block/dasd_int.h
+> +++ b/drivers/s390/block/dasd_int.h
+> @@ -845,6 +845,7 @@ void dasd_destroy_partitions(struct dasd_block *);
+>  
+>  /* externals in dasd_ioctl.c */
+>  int  dasd_ioctl(struct block_device *, fmode_t, unsigned int, unsigned long);
+> +int dasd_biodasdinfo(struct gendisk *disk, struct dasd_information2_t *info);
 
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-index 37ea344a4d72..876f6ade51cc 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -82,14 +82,24 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
- 	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
- 	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
- 	struct ccw_crw_region *region;
-+	struct vfio_ccw_crw *crw;
- 	int ret;
- 
- 	if (pos + count > sizeof(*region))
- 		return -EINVAL;
- 
-+	crw = list_first_entry_or_null(&private->crw,
-+				       struct vfio_ccw_crw, next);
-+
-+	if (crw)
-+		list_del(&crw->next);
-+
- 	mutex_lock(&private->io_mutex);
- 	region = private->region[i].data;
- 
-+	if (crw)
-+		memcpy(&region->crw, &crw->crw, sizeof(region->crw));
-+
- 	if (copy_to_user(buf, (void *)region + pos, count))
- 		ret = -EFAULT;
- 	else
-@@ -98,6 +108,13 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
- 	region->crw = 0;
- 
- 	mutex_unlock(&private->io_mutex);
-+
-+	kfree(crw);
-+
-+	/* Notify the guest if more CRWs are on our queue */
-+	if (!list_empty(&private->crw) && private->crw_trigger)
-+		eventfd_signal(private->crw_trigger, 1);
-+
- 	return ret;
- }
- 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index e4deae6fd525..9144360851ed 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -108,6 +108,16 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		eventfd_signal(private->io_trigger, 1);
- }
- 
-+static void vfio_ccw_crw_todo(struct work_struct *work)
-+{
-+	struct vfio_ccw_private *private;
-+
-+	private = container_of(work, struct vfio_ccw_private, crw_work);
-+
-+	if (!list_empty(&private->crw) && private->crw_trigger)
-+		eventfd_signal(private->crw_trigger, 1);
-+}
-+
- /*
-  * Css driver callbacks
-  */
-@@ -186,7 +196,9 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_free;
- 
-+	INIT_LIST_HEAD(&private->crw);
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
-+	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
- 	atomic_set(&private->avail, 1);
- 	private->state = VFIO_CCW_STATE_STANDBY;
- 
-@@ -217,9 +229,15 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- static int vfio_ccw_sch_remove(struct subchannel *sch)
- {
- 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_crw *crw, *temp;
- 
- 	vfio_ccw_sch_quiesce(sch);
- 
-+	list_for_each_entry_safe(crw, temp, &private->crw, next) {
-+		list_del(&crw->next);
-+		kfree(crw);
-+	}
-+
- 	vfio_ccw_mdev_unreg(sch);
- 
- 	dev_set_drvdata(&sch->dev, NULL);
-@@ -281,6 +299,33 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	return rc;
- }
- 
-+static void vfio_ccw_queue_crw(struct vfio_ccw_private *private,
-+			       unsigned int rsc,
-+			       unsigned int erc,
-+			       unsigned int rsid)
-+{
-+	struct vfio_ccw_crw *crw;
-+
-+	/*
-+	 * If unable to allocate a CRW, just drop the event and
-+	 * carry on.  The guest will either see a later one or
-+	 * learn when it issues its own store subchannel.
-+	 */
-+	crw = kzalloc(sizeof(*crw), GFP_ATOMIC);
-+	if (!crw)
-+		return;
-+
-+	/*
-+	 * Build the CRW based on the inputs given to us.
-+	 */
-+	crw->crw.rsc = rsc;
-+	crw->crw.erc = erc;
-+	crw->crw.rsid = rsid;
-+
-+	list_add_tail(&crw->next, &private->crw);
-+	queue_work(vfio_ccw_work_q, &private->crw_work);
-+}
-+
- static int vfio_ccw_chp_event(struct subchannel *sch,
- 			      struct chp_link *link, int event)
- {
-@@ -311,6 +356,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 		/* Path is gone */
- 		if (sch->schib.pmcw.lpum & mask)
- 			cio_cancel_halt_clear(sch, &retry);
-+		vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_PERRN,
-+				   link->chpid.id);
- 		break;
- 	case CHP_VARY_ON:
- 		/* Path logically turned on */
-@@ -320,6 +367,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 	case CHP_ONLINE:
- 		/* Path became available */
- 		sch->lpm |= mask & sch->opm;
-+		vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_INIT,
-+				   link->chpid.id);
- 		break;
- 	}
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 97131b4df0b9..8723156b29ea 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -17,6 +17,7 @@
- #include <linux/eventfd.h>
- #include <linux/workqueue.h>
- #include <linux/vfio_ccw.h>
-+#include <asm/crw.h>
- #include <asm/debug.h>
- 
- #include "css.h"
-@@ -59,6 +60,11 @@ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
- int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
- int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private);
- 
-+struct vfio_ccw_crw {
-+	struct list_head	next;
-+	struct crw		crw;
-+};
-+
- /**
-  * struct vfio_ccw_private
-  * @sch: pointer to the subchannel
-@@ -98,10 +104,12 @@ struct vfio_ccw_private {
- 	struct channel_program	cp;
- 	struct irb		irb;
- 	union scsw		scsw;
-+	struct list_head	crw;
- 
- 	struct eventfd_ctx	*io_trigger;
- 	struct eventfd_ctx	*crw_trigger;
- 	struct work_struct	io_work;
-+	struct work_struct	crw_work;
- } __aligned(8);
- 
- extern int vfio_ccw_mdev_reg(struct subchannel *sch);
--- 
-2.25.4
+I think this needs to go to a public include/linux/ header for the
+partitioning code to share the prototype.
+
+> +int dasd_biodasdinfo(struct gendisk *disk, struct dasd_information2_t *info)
+> +{
+> +	struct dasd_device *base;
+> +	int error;
+> +
+> +	/*
+> +	 * we might get called externaly, so check if the gendisk belongs
+> +	 * to a DASD by checking the fops pointer
+> +	 */
+> +	if (disk->fops != &dasd_device_operations)
+> +		return -EINVAL;
+
+I think a function comment (e.g. kernel doc) explaining the use case and
+this detail might be useful.
