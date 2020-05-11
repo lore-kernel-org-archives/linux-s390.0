@@ -1,155 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33504 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727029AbgEBMgS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 2 May 2020 08:36:18 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 07/13] net/smc: delete an asymmetric link as SMC server
-Date: Sat,  2 May 2020 14:35:46 +0200
-Message-Id: <20200502123552.17204-8-kgraul@linux.ibm.com>
-In-Reply-To: <20200502123552.17204-1-kgraul@linux.ibm.com>
-References: <20200502123552.17204-1-kgraul@linux.ibm.com>
+Received: from userp2120.oracle.com ([156.151.31.85]:36664 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729319AbgEKSyk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 11 May 2020 14:54:40 -0400
+Subject: Re: [PATCH V3 2/3] mm/hugetlb: Define a generic fallback for
+ is_hugepage_only_range()
+References: <1588907271-11920-1-git-send-email-anshuman.khandual@arm.com>
+ <1588907271-11920-3-git-send-email-anshuman.khandual@arm.com>
+ <9fc622e1-45ff-b79f-ebe0-35614837456c@oracle.com>
+ <c21ab871-da06-baf6-ba31-80b13402b8c9@arm.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Message-ID: <ab931b52-1f1b-1ff3-47ee-377de3ed1a98@oracle.com>
+Date: Mon, 11 May 2020 11:52:34 -0700
+MIME-Version: 1.0
+In-Reply-To: <c21ab871-da06-baf6-ba31-80b13402b8c9@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-When a link group moved from asymmetric to symmetric state then the
-dangling asymmetric link can be deleted. Add smc_llc_find_asym_link() to
-find the respective link and add smc_llc_delete_asym_link() to delete
-it.
+On 5/10/20 8:14 PM, Anshuman Khandual wrote:
+> On 05/09/2020 03:52 AM, Mike Kravetz wrote:
+>> On 5/7/20 8:07 PM, Anshuman Khandual wrote:
+>>
+>> Did you try building without CONFIG_HUGETLB_PAGE defined?  I'm guessing
+> 
+> Yes I did for multiple platforms (s390, arm64, ia64, x86, powerpc etc).
+> 
+>> that you need a stub for is_hugepage_only_range().  Or, perhaps add this
+>> to asm-generic/hugetlb.h?
+>>
+> There is already a stub (include/linux/hugetlb.h) when !CONFIG_HUGETLB_PAGE.
+> 
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
----
- net/smc/smc_llc.c | 81 ++++++++++++++++++++++++++++++++++++++++++++++-
- net/smc/smc_wr.c  |  2 +-
- net/smc/smc_wr.h  |  1 +
- 3 files changed, 82 insertions(+), 2 deletions(-)
+Thanks!  I missed that stub in the existing code.  I like the removal of
+redundant code.
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 20ce29b88b50..e6e280a3683d 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -863,6 +863,85 @@ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
- 	mutex_unlock(&lgr->llc_conf_mutex);
- }
- 
-+/* find the asymmetric link when 3 links are established  */
-+static struct smc_link *smc_llc_find_asym_link(struct smc_link_group *lgr)
-+{
-+	int asym_idx = -ENOENT;
-+	int i, j, k;
-+	bool found;
-+
-+	/* determine asymmetric link */
-+	found = false;
-+	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+		for (j = i + 1; j < SMC_LINKS_PER_LGR_MAX; j++) {
-+			if (!smc_link_usable(&lgr->lnk[i]) ||
-+			    !smc_link_usable(&lgr->lnk[j]))
-+				continue;
-+			if (!memcmp(lgr->lnk[i].gid, lgr->lnk[j].gid,
-+				    SMC_GID_SIZE)) {
-+				found = true;	/* asym_lnk is i or j */
-+				break;
-+			}
-+		}
-+		if (found)
-+			break;
-+	}
-+	if (!found)
-+		goto out; /* no asymmetric link */
-+	for (k = 0; k < SMC_LINKS_PER_LGR_MAX; k++) {
-+		if (!smc_link_usable(&lgr->lnk[k]))
-+			continue;
-+		if (k != i &&
-+		    !memcmp(lgr->lnk[i].peer_gid, lgr->lnk[k].peer_gid,
-+			    SMC_GID_SIZE)) {
-+			asym_idx = i;
-+			break;
-+		}
-+		if (k != j &&
-+		    !memcmp(lgr->lnk[j].peer_gid, lgr->lnk[k].peer_gid,
-+			    SMC_GID_SIZE)) {
-+			asym_idx = j;
-+			break;
-+		}
-+	}
-+out:
-+	return (asym_idx < 0) ? NULL : &lgr->lnk[asym_idx];
-+}
-+
-+static void smc_llc_delete_asym_link(struct smc_link_group *lgr)
-+{
-+	struct smc_link *lnk_new = NULL, *lnk_asym;
-+	struct smc_llc_qentry *qentry;
-+	int rc;
-+
-+	lnk_asym = smc_llc_find_asym_link(lgr);
-+	if (!lnk_asym)
-+		return; /* no asymmetric link */
-+	if (!smc_link_downing(&lnk_asym->state))
-+		return;
-+	/* tbd: lnk_new = smc_switch_conns(lgr, lnk_asym, false); */
-+	smc_wr_tx_wait_no_pending_sends(lnk_asym);
-+	if (!lnk_new)
-+		goto out_free;
-+	/* change flow type from ADD_LINK into DEL_LINK */
-+	lgr->llc_flow_lcl.type = SMC_LLC_FLOW_DEL_LINK;
-+	rc = smc_llc_send_delete_link(lnk_new, lnk_asym->link_id, SMC_LLC_REQ,
-+				      true, SMC_LLC_DEL_NO_ASYM_NEEDED);
-+	if (rc) {
-+		smcr_link_down_cond(lnk_new);
-+		goto out_free;
-+	}
-+	qentry = smc_llc_wait(lgr, lnk_new, SMC_LLC_WAIT_TIME,
-+			      SMC_LLC_DELETE_LINK);
-+	if (!qentry) {
-+		smcr_link_down_cond(lnk_new);
-+		goto out_free;
-+	}
-+	smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
-+out_free:
-+	smcr_link_clear(lnk_asym);
-+}
-+
- static int smc_llc_srv_rkey_exchange(struct smc_link *link,
- 				     struct smc_link *link_new)
- {
-@@ -1014,7 +1093,7 @@ static void smc_llc_process_srv_add_link(struct smc_link_group *lgr)
- 	rc = smc_llc_srv_add_link(link);
- 	if (!rc && lgr->type == SMC_LGR_SYMMETRIC) {
- 		/* delete any asymmetric link */
--		/* tbd: smc_llc_delete_asym_link(lgr); */
-+		smc_llc_delete_asym_link(lgr);
- 	}
- 	mutex_unlock(&lgr->llc_conf_mutex);
- }
-diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
-index 031e6c9561b1..3fd27bea4f7a 100644
---- a/net/smc/smc_wr.c
-+++ b/net/smc/smc_wr.c
-@@ -61,7 +61,7 @@ static inline bool smc_wr_is_tx_pend(struct smc_link *link)
- }
- 
- /* wait till all pending tx work requests on the given link are completed */
--static inline int smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
-+int smc_wr_tx_wait_no_pending_sends(struct smc_link *link)
- {
- 	if (wait_event_timeout(link->wr_tx_wait, !smc_wr_is_tx_pend(link),
- 			       SMC_WR_TX_WAIT_PENDING_TIME))
-diff --git a/net/smc/smc_wr.h b/net/smc/smc_wr.h
-index 3ac99c898418..f7eaeb3391f3 100644
---- a/net/smc/smc_wr.h
-+++ b/net/smc/smc_wr.h
-@@ -106,6 +106,7 @@ void smc_wr_tx_dismiss_slots(struct smc_link *lnk, u8 wr_rx_hdr_type,
- 			     smc_wr_tx_filter filter,
- 			     smc_wr_tx_dismisser dismisser,
- 			     unsigned long data);
-+int smc_wr_tx_wait_no_pending_sends(struct smc_link *link);
- 
- int smc_wr_rx_register_handler(struct smc_wr_rx_handler *handler);
- int smc_wr_rx_post_init(struct smc_link *link);
+Acked-by: Mike Kravetz <mike.kravetz@oracle.com>
+
 -- 
-2.17.1
+Mike Kravetz
