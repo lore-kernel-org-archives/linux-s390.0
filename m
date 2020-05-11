@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <02b965de57774f393bb16d669164e0cef2497f2f.camel@perches.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7436 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729846AbgEKUhi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 11 May 2020 16:37:38 -0400
 Subject: Re: [PATCH -next] s390: Remove two unused inline functions
-From: Joe Perches <joe@perches.com>
-Date: Mon, 11 May 2020 13:38:57 -0700
-In-Reply-To: <cf344230-27b1-7302-36bb-55c25c6b5de4@de.ibm.com>
 References: <20200508140724.11324-1-yuehaibing@huawei.com>
-         <20200511060750.GA93884@tuxmaker.boeblingen.de.ibm.com>
-         <20200511161756.7586afe6@gandalf.local.home>
-         <cf344230-27b1-7302-36bb-55c25c6b5de4@de.ibm.com>
-Content-Type: text/plain; charset="ISO-8859-1"
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <3d8212c5-fb46-9fa7-a118-52dd8ef246d1@de.ibm.com>
+Date: Mon, 11 May 2020 22:36:59 +0200
 MIME-Version: 1.0
+In-Reply-To: <20200508140724.11324-1-yuehaibing@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Steven Rostedt <rostedt@goodmis.org>, Sven Schnelle <svens@linux.ibm.com>
-Cc: YueHaibing <yuehaibing@huawei.com>, mingo@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: YueHaibing <yuehaibing@huawei.com>, rostedt@goodmis.org, mingo@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, svens@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2020-05-11 at 22:27 +0200, Christian Borntraeger wrote:
-> On 11.05.20 22:17, Steven Rostedt wrote:
-> > On Mon, 11 May 2020 08:07:51 +0200
-> > Sven Schnelle <svens@linux.ibm.com> wrote:
-> > 
-> > > Thanks for noticing, looks like i missed them.
-> > > 
-> > > Acked-by: Sven Schnelle <svens@linux.ibm.com>
-> > 
-> > As this is s390 specific, will it be going through the s390 repo?
+
+
+On 08.05.20 16:07, YueHaibing wrote:
+> commit 657480d9c015 ("s390: support KPROBES_ON_FTRACE")
+> left behind this, remove it.
 > 
-> Yes. 
-> I will pick this up. Vasily will then take care of it.
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+> ---
+>  arch/s390/kernel/ftrace.c | 16 ----------------
+>  1 file changed, 16 deletions(-)
+> 
+> diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+> index 4cd9b1ada834..44e01dd1e624 100644
+> --- a/arch/s390/kernel/ftrace.c
+> +++ b/arch/s390/kernel/ftrace.c
+> @@ -72,22 +72,6 @@ static inline void ftrace_generate_orig_insn(struct ftrace_insn *insn)
+>  #endif
+>  }
+>  
+> -static inline void ftrace_generate_kprobe_nop_insn(struct ftrace_insn *insn)
+> -{
+> -#ifdef CONFIG_KPROBES
+> -	insn->opc = BREAKPOINT_INSTRUCTION;
+> -	insn->disp = KPROBE_ON_FTRACE_NOP;
+> -#endif
+> -}
+> -
+> -static inline void ftrace_generate_kprobe_call_insn(struct ftrace_insn *insn)
+> -{
+> -#ifdef CONFIG_KPROBES
+> -	insn->opc = BREAKPOINT_INSTRUCTION;
+> -	insn->disp = KPROBE_ON_FTRACE_CALL;
+> -#endif
+> -}
+> -
+>  int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
+>  		       unsigned long addr)
+>  {
+> 
 
-Awhile back, I posted a list of apparently unused static inline
-functions in .h files treewide found by a script:
-
-https://lore.kernel.org/lkml/4603e761a5f39f4d97375e1e08d20d720c526341.camel@perches.com/
-
-Here are the s390 entries:
-
-arch/s390/include/asm/atomic_ops.h:138:static inline long __atomic64_cmpxchg_bool(long *ptr, long old, long new)
-arch/s390/include/asm/bitops.h:278:static inline void __set_bit_inv(unsigned long nr, volatile unsigned long *ptr)
-arch/s390/include/asm/bitops.h:283:static inline void __clear_bit_inv(unsigned long nr, volatile unsigned long *ptr)
-arch/s390/include/asm/cpu_mcf.h:106:static inline int kernel_cpumcf_begin(void)
-arch/s390/include/asm/cpu_mcf.h:114:static inline void kernel_cpumcf_end(void)
-arch/s390/include/asm/ftrace.h:64:static inline int is_ftrace_nop(struct ftrace_insn *insn)
-arch/s390/include/asm/kvm_para.h:146:static inline long kvm_hypercall5(unsigned long nr, unsigned long p1,
-arch/s390/include/asm/kvm_para.h:175:static inline long kvm_hypercall6(unsigned long nr, unsigned long p1,
-arch/s390/include/asm/pci_dma.h:134:static inline void invalidate_table_entry(unsigned long *entry)
-arch/s390/include/asm/pci_dma.h:176:static inline int entry_isprotected(unsigned long entry)
-arch/s390/include/asm/timex.h:52:static inline void store_clock_comparator(__u64 *time)
+thanks, applied.
