@@ -1,78 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ej1-f67.google.com ([209.85.218.67]:36124 "EHLO
-        mail-ej1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387644AbgEYS0Q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 14:26:16 -0400
-From: =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
-Subject: [PATCH 1/8] driver core: Add helper for accessing Power Management callbacs
-Date: Mon, 25 May 2020 18:26:01 +0000
-Message-Id: <20200525182608.1823735-2-kw@linux.com>
-In-Reply-To: <20200525182608.1823735-1-kw@linux.com>
-References: <20200525182608.1823735-1-kw@linux.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25416 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730276AbgEMWRU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 13 May 2020 18:17:20 -0400
+From: Collin Walling <walling@linux.ibm.com>
+Subject: [PATCH v6 0/2] Use DIAG318 to set Control Program Name & Version Codes
+Date: Wed, 13 May 2020 18:15:55 -0400
+Message-Id: <20200513221557.14366-1-walling@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Kevin Hilman <khilman@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Felipe Balbi <balbi@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, John Stultz <john.stultz@linaro.org>, "David S. Miller" <davem@davemloft.net>, greybus-dev@lists.linaro.org, netdev@vger.kernel.org, linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 
-Add driver_to_pm() helper allowing for accessing the Power Management
-callbacs for a particular device.  Access to the callbacs (struct
-dev_pm_ops) is normally done through using the pm pointer that is
-embedded within the device_driver struct.
+Changelog:
 
-Helper allows for the code required to reference the pm pointer and
-access Power Management callbas to be simplified.  Changing the
-following:
+    v6
+	- KVM disables diag318 get/set by default
+	- added new IOCTL to tell KVM to enable diag318
+	- removed VCPU event message in favor of VM_EVENT only
 
-  struct device_driver *drv = dev->driver;
-  if (dev->driver && dev->driver->pm && dev->driver->pm->prepare) {
-      int ret = dev->driver->pm->prepare(dev);
+    v5
+        - s/cpc/diag318_info in order to make the relevant data more clear
+        - removed mutex locks for diag318_info get/set
 
-To:
+    v4
+        - removed setup.c changes introduced in bullet 1 of v3
+        - kept diag318_info struct cleanup
+        - analogous QEMU patches:
+            https://lists.gnu.org/archive/html/qemu-devel/2019-05/msg00164.html
 
-  const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
-  if (pm && pm->prepare) {
-      int ret = pm->prepare(dev);
+    v3
+        - kernel patch for diag 0x318 instruction call fixup [removed in v4]
+        - removed CPU model code
+        - cleaned up diag318_info struct
+        - cpnc is no longer unshadowed as it was not needed
+        - rebased on 5.1.0-rc3
 
-Or, changing the following:
+This instruction call is executed once-and-only-once during Kernel setup.
+The availability of this instruction depends on Read Info byte 134, bit 0.
 
-     const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+DIAG 318's functionality is also emulated by KVM, which means we can enable 
+this feature for a guest even if the host kernel cannot support it. This
+feature is made available starting with the zEC12-full model (see analogous
+QEMU patches).
 
-To:
-     const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
+The diag318_info is composed of a Control Program Name Code (CPNC) and a
+Control Program Version Code (CPVC). These values are used for problem 
+diagnosis and allows IBM to identify control program information by answering 
+the following question:
 
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
----
- include/linux/device/driver.h | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+    "What environment is this guest running in?" (CPNC)
+    "What are more details regarding the OS?" (CPVC)
 
-diff --git a/include/linux/device/driver.h b/include/linux/device/driver.h
-index ee7ba5b5417e..ccd0b315fd93 100644
---- a/include/linux/device/driver.h
-+++ b/include/linux/device/driver.h
-@@ -236,6 +236,21 @@ driver_find_device_by_acpi_dev(struct device_driver *drv, const void *adev)
- }
- #endif
- 
-+/**
-+ * driver_to_pm - Return Power Management callbacs (struct dev_pm_ops) for
-+ *                a particular device.
-+ * @drv: Pointer to a device (struct device_driver) for which you want to access
-+ *       the Power Management callbacks.
-+ *
-+ * Returns a pointer to the struct dev_pm_ops embedded within the device (struct
-+ * device_driver), or returns NULL if Power Management is not present and the
-+ * pointer is not valid.
-+ */
-+static inline const struct dev_pm_ops *driver_to_pm(struct device_driver *drv)
-+{
-+	return drv && drv->pm ? drv->pm : NULL;
-+}
-+
- extern int driver_deferred_probe_timeout;
- void driver_deferred_probe_add(struct device *dev);
- int driver_deferred_probe_check_state(struct device *dev);
+In the future, we will implement the CPVC to convey more information about the 
+OS. For now, we set this field to 0 until we come up with a solid plan.
+
+Collin Walling (2):
+  s390/setup: diag318: refactor struct
+  s390/kvm: diagnose 318 handling
+
+ Documentation/virt/kvm/devices/vm.rst | 29 +++++++++
+ arch/s390/include/asm/diag.h          |  6 +-
+ arch/s390/include/asm/kvm_host.h      |  6 +-
+ arch/s390/include/uapi/asm/kvm.h      |  5 ++
+ arch/s390/kernel/setup.c              |  3 +-
+ arch/s390/kvm/diag.c                  | 20 ++++++
+ arch/s390/kvm/kvm-s390.c              | 89 +++++++++++++++++++++++++++
+ arch/s390/kvm/kvm-s390.h              |  1 +
+ arch/s390/kvm/vsie.c                  |  2 +
+ 9 files changed, 154 insertions(+), 7 deletions(-)
+
 -- 
-2.26.2
+2.21.3
