@@ -1,96 +1,110 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1589528699.26119.9.camel@mhfsdcap03>
-Subject: Re: [PATCH v2 23/33] iommu/mediatek-v1 Convert to
- probe/release_device() call-backs
-From: Yong Wu <yong.wu@mediatek.com>
-Date: Fri, 15 May 2020 15:44:59 +0800
-In-Reply-To: <20200414131542.25608-24-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
-         <20200414131542.25608-24-joro@8bytes.org>
-Content-Type: text/plain; charset="UTF-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51548 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388740AbgEMO3m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 13 May 2020 10:29:42 -0400
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [RFC PATCH v2 2/4] vfio-ccw: Utilize scsw actl to serialize start operations
+Date: Wed, 13 May 2020 16:29:32 +0200
+Message-Id: <20200513142934.28788-3-farman@linux.ibm.com>
+In-Reply-To: <20200513142934.28788-1-farman@linux.ibm.com>
+References: <20200513142934.28788-1-farman@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Matthias Brugger <matthias.bgg@gmail.com>, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, linux-mediatek@lists.infradead.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Jared Rossi <jrossi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 
-T24gVHVlLCAyMDIwLTA0LTE0IGF0IDE1OjE1ICswMjAwLCBKb2VyZyBSb2VkZWwgd3JvdGU6DQo+
-IEZyb206IEpvZXJnIFJvZWRlbCA8anJvZWRlbEBzdXNlLmRlPg0KPiANCj4gQ29udmVydCB0aGUg
-TWVkaWF0ZWstdjEgSU9NTVUgZHJpdmVyIHRvIHVzZSB0aGUgcHJvYmVfZGV2aWNlKCkgYW5kDQo+
-IHJlbGVhc2VfZGV2aWNlKCkgY2FsbC1iYWNrcyBvZiBpb21tdV9vcHMsIHNvIHRoYXQgdGhlIGlv
-bW11IGNvcmUgY29kZQ0KPiBkb2VzIHRoZSBncm91cCBhbmQgc3lzZnMgc2V0dXAuDQo+IA0KPiBT
-aWduZWQtb2ZmLWJ5OiBKb2VyZyBSb2VkZWwgPGpyb2VkZWxAc3VzZS5kZT4NCj4gLS0tDQo+ICBk
-cml2ZXJzL2lvbW11L210a19pb21tdV92MS5jIHwgNTAgKysrKysrKysrKysrKysrLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tDQo+ICAxIGZpbGUgY2hhbmdlZCwgMjAgaW5zZXJ0aW9ucygrKSwgMzAgZGVs
-ZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pb21tdS9tdGtfaW9tbXVfdjEu
-YyBiL2RyaXZlcnMvaW9tbXUvbXRrX2lvbW11X3YxLmMNCj4gaW5kZXggYTMxYmUwNTYwMWM5Li43
-YmRkNzRjN2NiOWYgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW9tbXUvbXRrX2lvbW11X3YxLmMN
-Cj4gKysrIGIvZHJpdmVycy9pb21tdS9tdGtfaW9tbXVfdjEuYw0KPiBAQCAtNDE2LDE0ICs0MTYs
-MTIgQEAgc3RhdGljIGludCBtdGtfaW9tbXVfY3JlYXRlX21hcHBpbmcoc3RydWN0IGRldmljZSAq
-ZGV2LA0KPiAgCXJldHVybiAwOw0KPiAgfQ0KPiAgDQo+IC1zdGF0aWMgaW50IG10a19pb21tdV9h
-ZGRfZGV2aWNlKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gK3N0YXRpYyBzdHJ1Y3QgaW9tbXVfZGV2
-aWNlICptdGtfaW9tbXVfcHJvYmVfZGV2aWNlKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gIHsNCj4g
-IAlzdHJ1Y3QgaW9tbXVfZndzcGVjICpmd3NwZWMgPSBkZXZfaW9tbXVfZndzcGVjX2dldChkZXYp
-Ow0KPiAtCXN0cnVjdCBkbWFfaW9tbXVfbWFwcGluZyAqbXRrX21hcHBpbmc7DQo+ICAJc3RydWN0
-IG9mX3BoYW5kbGVfYXJncyBpb21tdV9zcGVjOw0KPiAgCXN0cnVjdCBvZl9waGFuZGxlX2l0ZXJh
-dG9yIGl0Ow0KPiAgCXN0cnVjdCBtdGtfaW9tbXVfZGF0YSAqZGF0YTsNCj4gLQlzdHJ1Y3QgaW9t
-bXVfZ3JvdXAgKmdyb3VwOw0KPiAgCWludCBlcnI7DQo+ICANCj4gIAlvZl9mb3JfZWFjaF9waGFu
-ZGxlKCZpdCwgZXJyLCBkZXYtPm9mX25vZGUsICJpb21tdXMiLA0KPiBAQCAtNDQyLDM1ICs0NDAs
-MjggQEAgc3RhdGljIGludCBtdGtfaW9tbXVfYWRkX2RldmljZShzdHJ1Y3QgZGV2aWNlICpkZXYp
-DQo+ICAJfQ0KPiAgDQo+ICAJaWYgKCFmd3NwZWMgfHwgZndzcGVjLT5vcHMgIT0gJm10a19pb21t
-dV9vcHMpDQo+IC0JCXJldHVybiAtRU5PREVWOyAvKiBOb3QgYSBpb21tdSBjbGllbnQgZGV2aWNl
-ICovDQo+ICsJCXJldHVybiBFUlJfUFRSKC1FTk9ERVYpOyAvKiBOb3QgYSBpb21tdSBjbGllbnQg
-ZGV2aWNlICovDQo+ICANCj4gLQkvKg0KPiAtCSAqIFRoaXMgaXMgYSBzaG9ydC10ZXJtIGJvZGdl
-IGJlY2F1c2UgdGhlIEFSTSBETUEgY29kZSBkb2Vzbid0DQo+IC0JICogdW5kZXJzdGFuZCBtdWx0
-aS1kZXZpY2UgZ3JvdXBzLCBidXQgd2UgaGF2ZSB0byBjYWxsIGludG8gaXQNCj4gLQkgKiBzdWNj
-ZXNzZnVsbHkgKGFuZCBub3QganVzdCByZWx5IG9uIGEgbm9ybWFsIElPTU1VIEFQSSBhdHRhY2gN
-Cj4gLQkgKiBoZXJlKSBpbiBvcmRlciB0byBzZXQgdGhlIGNvcnJlY3QgRE1BIEFQSSBvcHMgb24g
-QGRldi4NCj4gLQkgKi8NCj4gLQlncm91cCA9IGlvbW11X2dyb3VwX2FsbG9jKCk7DQo+IC0JaWYg
-KElTX0VSUihncm91cCkpDQo+IC0JCXJldHVybiBQVFJfRVJSKGdyb3VwKTsNCj4gKwlkYXRhID0g
-ZGV2X2lvbW11X3ByaXZfZ2V0KGRldik7DQo+ICANCj4gLQllcnIgPSBpb21tdV9ncm91cF9hZGRf
-ZGV2aWNlKGdyb3VwLCBkZXYpOw0KPiAtCWlvbW11X2dyb3VwX3B1dChncm91cCk7DQo+IC0JaWYg
-KGVycikNCj4gLQkJcmV0dXJuIGVycjsNCj4gKwlyZXR1cm4gJmRhdGEtPmlvbW11Ow0KPiArfQ0K
-PiAgDQo+IC0JZGF0YSA9IGRldl9pb21tdV9wcml2X2dldChkZXYpOw0KPiArc3RhdGljIHZvaWQg
-bXRrX2lvbW11X3Byb2JlX2ZpbmFsaXplKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gK3sNCj4gKwlz
-dHJ1Y3QgZG1hX2lvbW11X21hcHBpbmcgKm10a19tYXBwaW5nOw0KPiArCXN0cnVjdCBtdGtfaW9t
-bXVfZGF0YSAqZGF0YTsNCj4gKwlpbnQgZXJyOw0KPiArDQo+ICsJZGF0YSAgICAgICAgPSBkZXZf
-aW9tbXVfcHJpdl9nZXQoZGV2KTsNCj4gIAltdGtfbWFwcGluZyA9IGRhdGEtPmRldi0+YXJjaGRh
-dGEuaW9tbXU7DQo+IC0JZXJyID0gYXJtX2lvbW11X2F0dGFjaF9kZXZpY2UoZGV2LCBtdGtfbWFw
-cGluZyk7DQo+IC0JaWYgKGVycikgew0KPiAtCQlpb21tdV9ncm91cF9yZW1vdmVfZGV2aWNlKGRl
-dik7DQo+IC0JCXJldHVybiBlcnI7DQo+IC0JfQ0KPiAgDQo+IC0JcmV0dXJuIGlvbW11X2Rldmlj
-ZV9saW5rKCZkYXRhLT5pb21tdSwgZGV2KTsNCj4gKwllcnIgPSBhcm1faW9tbXVfYXR0YWNoX2Rl
-dmljZShkZXYsIG10a19tYXBwaW5nKTsNCj4gKwlpZiAoZXJyKQ0KPiArCQlkZXZfZXJyKGRldiwg
-IkNhbid0IGNyZWF0ZSBJT01NVSBtYXBwaW5nIC0gRE1BLU9QUyB3aWxsIG5vdCB3b3JrXG4iKTsN
-Cg0KDQpIaSBKb2VyZywNCg0KICAgICBUaGFua3MgdmVyeSBtdWNoIGZvciB0aGlzIHBhdGNoLg0K
-DQogICAgIFRoaXMgYXJtX2lvbW11X2F0dGFjaF9kZXZpY2UgaXMgY2FsbGVkIGp1c3QgYXMgd2Ug
-ZXhwZWN0ZWQuDQoNCiAgICAgQnV0IGl0IHdpbGwgZmFpbCBpbiB0aGlzIGNhbGxzdGFjayBhcyB0
-aGUgZ3JvdXAtPm11dGV4IHdhcyB0cmllZCB0bw0KYmUgcmUtbG9ja2VkLi4uDQoNCls8YzA5Mzhl
-OGM+XSAoaW9tbXVfYXR0YWNoX2RldmljZSkgZnJvbSBbPGMwMzE3NTkwPl0NCihfX2FybV9pb21t
-dV9hdHRhY2hfZGV2aWNlKzB4MzQvMHg5MCkNCls8YzAzMTc1OTA+XSAoX19hcm1faW9tbXVfYXR0
-YWNoX2RldmljZSkgZnJvbSBbPGMwMzE3NWY4Pl0NCihhcm1faW9tbXVfYXR0YWNoX2RldmljZSsw
-eGMvMHgyMCkNCls8YzAzMTc1Zjg+XSAoYXJtX2lvbW11X2F0dGFjaF9kZXZpY2UpIGZyb20gWzxj
-MDk0MzJjYz5dDQoobXRrX2lvbW11X3Byb2JlX2ZpbmFsaXplKzB4MzQvMHg1MCkNCls8YzA5NDMy
-Y2M+XSAobXRrX2lvbW11X3Byb2JlX2ZpbmFsaXplKSBmcm9tIFs8YzA5M2E4YWM+XQ0KKGJ1c19p
-b21tdV9wcm9iZSsweDJhOC8weDJjNCkNCls8YzA5M2E4YWM+XSAoYnVzX2lvbW11X3Byb2JlKSBm
-cm9tIFs8YzA5M2E5NTA+XSAoYnVzX3NldF9pb21tdQ0KKzB4ODgvMHhkNCkNCls8YzA5M2E5NTA+
-XSAoYnVzX3NldF9pb21tdSkgZnJvbSBbPGMwOTQzYzc0Pl0gKG10a19pb21tdV9wcm9iZQ0KKzB4
-MmY4LzB4MzY0KQ0KDQoNCj4gIH0NCj4gIA0KPiAtc3RhdGljIHZvaWQgbXRrX2lvbW11X3JlbW92
-ZV9kZXZpY2Uoc3RydWN0IGRldmljZSAqZGV2KQ0KPiArc3RhdGljIHZvaWQgbXRrX2lvbW11X3Jl
-bGVhc2VfZGV2aWNlKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gIHsNCj4gIAlzdHJ1Y3QgaW9tbXVf
-ZndzcGVjICpmd3NwZWMgPSBkZXZfaW9tbXVfZndzcGVjX2dldChkZXYpOw0KPiAgCXN0cnVjdCBt
-dGtfaW9tbXVfZGF0YSAqZGF0YTsNCj4gQEAgLTQ3OSw5ICs0NzAsNiBAQCBzdGF0aWMgdm9pZCBt
-dGtfaW9tbXVfcmVtb3ZlX2RldmljZShzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+ICAJCXJldHVybjsN
-Cj4gIA0KPiAgCWRhdGEgPSBkZXZfaW9tbXVfcHJpdl9nZXQoZGV2KTsNCj4gLQlpb21tdV9kZXZp
-Y2VfdW5saW5rKCZkYXRhLT5pb21tdSwgZGV2KTsNCj4gLQ0KPiAtCWlvbW11X2dyb3VwX3JlbW92
-ZV9kZXZpY2UoZGV2KTsNCj4gIAlpb21tdV9md3NwZWNfZnJlZShkZXYpOw0KPiAgfQ0KPiAgDQo+
-IEBAIC01MzQsOCArNTIyLDEwIEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgaW9tbXVfb3BzIG10a19p
-b21tdV9vcHMgPSB7DQo+ICAJLm1hcAkJPSBtdGtfaW9tbXVfbWFwLA0KPiAgCS51bm1hcAkJPSBt
-dGtfaW9tbXVfdW5tYXAsDQo+ICAJLmlvdmFfdG9fcGh5cwk9IG10a19pb21tdV9pb3ZhX3RvX3Bo
-eXMsDQo+IC0JLmFkZF9kZXZpY2UJPSBtdGtfaW9tbXVfYWRkX2RldmljZSwNCj4gLQkucmVtb3Zl
-X2RldmljZQk9IG10a19pb21tdV9yZW1vdmVfZGV2aWNlLA0KPiArCS5wcm9iZV9kZXZpY2UJPSBt
-dGtfaW9tbXVfcHJvYmVfZGV2aWNlLA0KPiArCS5wcm9iZV9maW5hbGl6ZSA9IG10a19pb21tdV9w
-cm9iZV9maW5hbGl6ZSwNCj4gKwkucmVsZWFzZV9kZXZpY2UJPSBtdGtfaW9tbXVfcmVsZWFzZV9k
-ZXZpY2UsDQo+ICsJLmRldmljZV9ncm91cAk9IGdlbmVyaWNfZGV2aWNlX2dyb3VwLA0KPiAgCS5w
-Z3NpemVfYml0bWFwCT0gfjBVTCA8PCBNVDI3MDFfSU9NTVVfUEFHRV9TSElGVCwNCj4gIH07DQo+
-ICANCg0K
+We need a convenient way to manage the fact that a START SUBCHANNEL
+command is synchronous, the HALT SUBCHANNEL and CLEAR SUBCHANNEL
+commands are asynchronous, and the interrupts for all three are
+also asynchronous and unstacked from a workqueue.
+
+Fortunately, the POPS does provide a mechanism to serialize the
+operations, in the form of the activity control flags of the SCSW.
+Since we initialize the private->scsw from the guest io_region for
+each new START (done under the protection of the io_mutex), and
+then never touch it again, we can use that as a space to indicate
+which commands are active at the device.
+
+For a START SUBCHANNEL command, the POPS states:
+
+> Condition code 2 is set, and no other action is
+> taken, when a start, halt, or clear function is currently
+> in progress at the subchannel
+
+So, mark START PENDING in this copy of the SCSW Activity
+Controls, and use it to track when a command has started
+versus when its interrupt has been unstacked from the workqueue
+and processed. It's a bit unnatural, in that this doesn't
+transition the flags to Subchannel/Device Active once the
+command has been accepted. Since this is only in our local
+copy of the SCSW, and not the actual contents of the SCHIB,
+this is fine enough.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+---
+ drivers/s390/cio/vfio_ccw_drv.c |  4 +++-
+ drivers/s390/cio/vfio_ccw_fsm.c | 12 ++++++++++++
+ drivers/s390/cio/vfio_ccw_ops.c |  4 +++-
+ 3 files changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 7dd3efa1ccb8..ee153fa72a0f 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -98,8 +98,10 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+ 	mutex_unlock(&private->io_mutex);
+ 
+-	if (private->mdev && scsw_is_solicited(&irb->scsw) && is_final)
++	if (private->mdev && scsw_is_solicited(&irb->scsw) && is_final) {
+ 		private->state = VFIO_CCW_STATE_IDLE;
++		private->scsw.cmd.actl &= ~SCSW_ACTL_START_PEND;
++	}
+ 
+ 	if (private->io_trigger)
+ 		eventfd_signal(private->io_trigger, 1);
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index 23e61aa638e4..258ce32549f3 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -246,8 +246,20 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+ 	char *errstr = "request";
+ 	struct subchannel_id schid = get_schid(private);
+ 
++	if (scsw_actl(scsw) & SCSW_ACTL_START_PEND) {
++		io_region->ret_code = -EBUSY;
++		VFIO_CCW_MSG_EVENT(2,
++				   "%pUl (%x.%x.%04x): actl %x pending\n",
++				   mdev_uuid(mdev), schid.cssid,
++				   schid.ssid, schid.sch_no,
++				   scsw_actl(scsw));
++		errstr = "pending";
++		goto err_out;
++	}
++
+ 	private->state = VFIO_CCW_STATE_CP_PROCESSING;
+ 	memcpy(scsw, io_region->scsw_area, sizeof(*scsw));
++	scsw->cmd.actl |= SCSW_ACTL_START_PEND;
+ 
+ 	if (scsw->cmd.fctl & SCSW_FCTL_START_FUNC) {
+ 		orb = (union orb *)io_region->orb_area;
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index f0d71ab77c50..d2f9babb751c 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -269,8 +269,10 @@ static ssize_t vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
+ 	}
+ 
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_IO_REQ);
+-	if (region->ret_code != 0)
++	if (region->ret_code != 0) {
+ 		private->state = VFIO_CCW_STATE_IDLE;
++		private->scsw.cmd.actl &= ~SCSW_ACTL_START_PEND;
++	}
+ 	ret = (region->ret_code != 0) ? region->ret_code : count;
+ 
+ out_unlock:
+-- 
+2.17.1
