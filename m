@@ -1,67 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:36104 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389294AbgEYS0W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 14:26:22 -0400
-From: =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
-Subject: [PATCH 5/8] usb: phy: fsl: Use the new device_to_pm() helper to access struct dev_pm_ops
-Date: Mon, 25 May 2020 18:26:05 +0000
-Message-Id: <20200525182608.1823735-6-kw@linux.com>
-In-Reply-To: <20200525182608.1823735-1-kw@linux.com>
-References: <20200525182608.1823735-1-kw@linux.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51692 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729189AbgEMI2C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 13 May 2020 04:28:02 -0400
+Subject: Re: s390x: kdump kernel can not boot if I load kernel and initrd
+ images via the kexec_file_load syscall.
+References: <4d7ff4bb-f09e-7aec-964f-f5cc2412e5b7@redhat.com>
+ <20200511111558.2d3e3db3@laptop2-ibm.local>
+ <20200511170146.28eaafed@laptop2-ibm.local>
+ <19903f1e-b3ae-730e-8a02-ed30fb47e9ba@redhat.com>
+ <559a3c8f-9da9-a64d-aa78-434365c4b271@redhat.com>
+ <79241fab-3299-1ba3-1c2b-a29eb4e0af7c@redhat.com>
+ <20200512193956.15ae3f23@laptop2-ibm.local>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <ea013211-575e-993d-9437-ba961ef64fe0@de.ibm.com>
+Date: Wed, 13 May 2020 10:27:56 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200512193956.15ae3f23@laptop2-ibm.local>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Kevin Hilman <khilman@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Felipe Balbi <balbi@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, John Stultz <john.stultz@linaro.org>, "David S. Miller" <davem@davemloft.net>, greybus-dev@lists.linaro.org, netdev@vger.kernel.org, linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org
+To: Philipp Rudo <prudo@linux.ibm.com>, lijiang <lijiang@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Baoquan He <bhe@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Use the new device_to_pm() helper to access Power Management callbacs
-(struct dev_pm_ops) for a particular device (struct device_driver).
 
-No functional change intended.
 
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
----
- drivers/usb/phy/phy-fsl-usb.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+On 12.05.20 19:39, Philipp Rudo wrote:
+> Hi Lianbo,
+> 
+> stupid me obviously never tested the kdump+initrd combination...
+> 
+> The patch below fixed the problem for me. Could please give it a try, too.
+> 
+> Thanks
+> Philipp
+> 
+> ---
+> 
+> From 3f77088c9139582261d2e3ee6476324fc1ded401 Mon Sep 17 00:00:00 2001
+> From: Philipp Rudo <prudo@linux.ibm.com>
+> Date: Tue, 12 May 2020 19:25:14 +0200
+> Subject: [PATCH] s390/kexec_file: fix initrd location for kdump kernel
+> 
+> initrd_start must not point at the location the initrd is loaded into
+> the crashkernel memory but at the location it will be after the
+> crashkernel memory is swapped with the memory at 0.
+> 
+> Fixes: ee337f5469fd ("s390/kexec_file: Add crash support to image loader")
+> Reported-by: Lianbo Jiang <lijiang@redhat.com>
+> Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
+> ---
+>  arch/s390/kernel/machine_kexec_file.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
+> index 8415ae7d2a23..f9e4baa64b67 100644
+> --- a/arch/s390/kernel/machine_kexec_file.c
+> +++ b/arch/s390/kernel/machine_kexec_file.c
+> @@ -151,7 +151,7 @@ static int kexec_file_add_initrd(struct kimage *image,
+>  		buf.mem += crashk_res.start;
+>  	buf.memsz = buf.bufsz;
+>  
+> -	data->parm->initrd_start = buf.mem;
+> +	data->parm->initrd_start = data->memsz;
+>  	data->parm->initrd_size = buf.memsz;
+>  	data->memsz += buf.memsz;
 
-diff --git a/drivers/usb/phy/phy-fsl-usb.c b/drivers/usb/phy/phy-fsl-usb.c
-index b451f4695f3f..3b9ad5db8380 100644
---- a/drivers/usb/phy/phy-fsl-usb.c
-+++ b/drivers/usb/phy/phy-fsl-usb.c
-@@ -460,6 +460,7 @@ int fsl_otg_start_host(struct otg_fsm *fsm, int on)
- 	struct device *dev;
- 	struct fsl_otg *otg_dev =
- 		container_of(otg->usb_phy, struct fsl_otg, phy);
-+	const struct dev_pm_ops *pm;
- 	u32 retval = 0;
- 
- 	if (!otg->host)
-@@ -479,8 +480,9 @@ int fsl_otg_start_host(struct otg_fsm *fsm, int on)
- 		else {
- 			otg_reset_controller();
- 			VDBG("host on......\n");
--			if (dev->driver->pm && dev->driver->pm->resume) {
--				retval = dev->driver->pm->resume(dev);
-+			pm = driver_to_pm(dev->driver);
-+			if (pm && pm->resume) {
-+				retval = pm->resume(dev);
- 				if (fsm->id) {
- 					/* default-b */
- 					fsl_otg_drv_vbus(fsm, 1);
-@@ -504,8 +506,9 @@ int fsl_otg_start_host(struct otg_fsm *fsm, int on)
- 		else {
- 			VDBG("host off......\n");
- 			if (dev && dev->driver) {
--				if (dev->driver->pm && dev->driver->pm->suspend)
--					retval = dev->driver->pm->suspend(dev);
-+				pm = driver_to_pm(dev->driver);
-+				if (pm && pm->suspend)
-+					retval = pm->suspend(dev);
- 				if (fsm->id)
- 					/* default-b */
- 					fsl_otg_drv_vbus(fsm, 0);
--- 
-2.26.2
+
+Thanks, applied. 
