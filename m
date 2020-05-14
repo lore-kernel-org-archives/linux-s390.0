@@ -1,32 +1,39 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32768 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727827AbgENUMa (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13514 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726067AbgENLpY (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 May 2020 16:12:30 -0400
-Date: Thu, 14 May 2020 13:12:29 -0700 (PDT)
-Message-Id: <20200514.131229.1854195473777943633.davem@davemloft.net>
-Subject: Re: [PATCH net 1/1] MAINTAINERS: another add of Karsten Graul for
- S390 networking
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20200514114512.101771-1-ubraun@linux.ibm.com>
-References: <20200514114512.101771-1-ubraun@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+        Thu, 14 May 2020 07:45:24 -0400
+From: Ursula Braun <ubraun@linux.ibm.com>
+Subject: [PATCH net 1/1] MAINTAINERS: another add of Karsten Graul for S390 networking
+Date: Thu, 14 May 2020 13:45:12 +0200
+Message-Id: <20200514114512.101771-1-ubraun@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: ubraun@linux.ibm.com
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, kgraul@linux.ibm.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, kgraul@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Ursula Braun <ubraun@linux.ibm.com>
-Date: Thu, 14 May 2020 13:45:12 +0200
+Complete adding of Karsten as maintainer for all S390 networking
+parts in the kernel.
 
-> Complete adding of Karsten as maintainer for all S390 networking
-> parts in the kernel.
-> 
-> Cc: Julian Wiedmann <jwi@linux.ibm.com>
-> Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
-> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>
+Acked-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+---
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-Applied, thanks.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 85894787825e..391e7eea6a3e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -14655,6 +14655,7 @@ F:	net/iucv/
+ 
+ S390 NETWORK DRIVERS
+ M:	Julian Wiedmann <jwi@linux.ibm.com>
++M:	Karsten Graul <kgraul@linux.ibm.com>
+ M:	Ursula Braun <ubraun@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
+ S:	Supported
+-- 
+2.17.1
