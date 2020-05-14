@@ -1,115 +1,110 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7292 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727090AbgEEM1v (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 08:27:51 -0400
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v4 2/8] vfio-ccw: Register a chp_event callback for vfio-ccw
-Date: Tue,  5 May 2020 14:27:39 +0200
-Message-Id: <20200505122745.53208-3-farman@linux.ibm.com>
-In-Reply-To: <20200505122745.53208-1-farman@linux.ibm.com>
-References: <20200505122745.53208-1-farman@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22520 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725925AbgENIdl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 May 2020 04:33:41 -0400
+Subject: Re: [PATCH v6 1/2] s390/setup: diag318: refactor struct
+References: <20200513221557.14366-1-walling@linux.ibm.com>
+ <20200513221557.14366-2-walling@linux.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <cf47cb01-863b-f7e1-6a0d-22bf16d9a09b@linux.ibm.com>
+Date: Thu, 14 May 2020 10:33:33 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200513221557.14366-2-walling@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="qWfG88lzbT31LqIVd4SmACT4nwUkZVnKz"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Collin Walling <walling@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 
-From: Farhan Ali <alifm@linux.ibm.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--qWfG88lzbT31LqIVd4SmACT4nwUkZVnKz
+Content-Type: multipart/mixed; boundary="pzuwDLFSNrOSbQ08m7saGCqxmiBflQpSI"
 
-Register the chp_event callback to receive channel path related
-events for the subchannels managed by vfio-ccw.
+--pzuwDLFSNrOSbQ08m7saGCqxmiBflQpSI
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
+On 5/14/20 12:15 AM, Collin Walling wrote:
+> The diag318 struct introduced in include/asm/diag.h can be
+> reused in KVM, so let's condense the version code fields in the
+> diag318_info struct for easier usage and simplify it until we
+> can determine how the data should be formatted.
+>=20
+> Signed-off-by: Collin Walling <walling@linux.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-Notes:
-    v3->v4:
-     - Check schib.lpum before calling cio_cancel_halt_clear [CH]
-    
-    v2->v3:
-     - Add a call to cio_cancel_halt_clear() for CHP_VARY_OFF [CH]
-    
-    v1->v2:
-     - Move s390dbf before cio_update_schib() call [CH]
-    
-    v0->v1: [EF]
-     - Add s390dbf trace
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 
- drivers/s390/cio/vfio_ccw_drv.c | 47 +++++++++++++++++++++++++++++++++
- 1 file changed, 47 insertions(+)
+> ---
+>  arch/s390/include/asm/diag.h | 6 ++----
+>  arch/s390/kernel/setup.c     | 3 +--
+>  2 files changed, 3 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.=
+h
+> index 0036eab14391..ca8f85b53a90 100644
+> --- a/arch/s390/include/asm/diag.h
+> +++ b/arch/s390/include/asm/diag.h
+> @@ -298,10 +298,8 @@ struct diag26c_mac_resp {
+>  union diag318_info {
+>  	unsigned long val;
+>  	struct {
+> -		unsigned int cpnc : 8;
+> -		unsigned int cpvc_linux : 24;
+> -		unsigned char cpvc_distro[3];
+> -		unsigned char zero;
+> +		unsigned long cpnc : 8;
+> +		unsigned long cpvc : 56;
+>  	};
+>  };
+> =20
+> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+> index 36445dd40fdb..1aaaf11acc6b 100644
+> --- a/arch/s390/kernel/setup.c
+> +++ b/arch/s390/kernel/setup.c
+> @@ -1028,8 +1028,7 @@ static void __init setup_control_program_code(voi=
+d)
+>  {
+>  	union diag318_info diag318_info =3D {
+>  		.cpnc =3D CPNC_LINUX,
+> -		.cpvc_linux =3D 0,
+> -		.cpvc_distro =3D {0},
+> +		.cpvc =3D 0,
+>  	};
+> =20
+>  	if (!sclp.has_diag318)
+>=20
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 8715c1c2f1e1..fb1275a7d1f5 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -19,6 +19,7 @@
- 
- #include <asm/isc.h>
- 
-+#include "chp.h"
- #include "ioasm.h"
- #include "css.h"
- #include "vfio_ccw_private.h"
-@@ -262,6 +263,51 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	return rc;
- }
- 
-+static int vfio_ccw_chp_event(struct subchannel *sch,
-+			      struct chp_link *link, int event)
-+{
-+	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
-+	int retry = 255;
-+
-+	if (!private || !mask)
-+		return 0;
-+
-+	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
-+			   mdev_uuid(private->mdev), sch->schid.cssid,
-+			   sch->schid.ssid, sch->schid.sch_no,
-+			   mask, event);
-+
-+	if (cio_update_schib(sch))
-+		return -ENODEV;
-+
-+	switch (event) {
-+	case CHP_VARY_OFF:
-+		/* Path logically turned off */
-+		sch->opm &= ~mask;
-+		sch->lpm &= ~mask;
-+		if (sch->schib.pmcw.lpum & mask)
-+			cio_cancel_halt_clear(sch, &retry);
-+		break;
-+	case CHP_OFFLINE:
-+		/* Path is gone */
-+		if (sch->schib.pmcw.lpum & mask)
-+			cio_cancel_halt_clear(sch, &retry);
-+		break;
-+	case CHP_VARY_ON:
-+		/* Path logically turned on */
-+		sch->opm |= mask;
-+		sch->lpm |= mask;
-+		break;
-+	case CHP_ONLINE:
-+		/* Path became available */
-+		sch->lpm |= mask & sch->opm;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- static struct css_device_id vfio_ccw_sch_ids[] = {
- 	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
- 	{ /* end of list */ },
-@@ -279,6 +325,7 @@ static struct css_driver vfio_ccw_sch_driver = {
- 	.remove = vfio_ccw_sch_remove,
- 	.shutdown = vfio_ccw_sch_shutdown,
- 	.sch_event = vfio_ccw_sch_event,
-+	.chp_event = vfio_ccw_chp_event,
- };
- 
- static int __init vfio_ccw_debug_init(void)
--- 
-2.17.1
+
+
+--pzuwDLFSNrOSbQ08m7saGCqxmiBflQpSI--
+
+--qWfG88lzbT31LqIVd4SmACT4nwUkZVnKz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl69Al4ACgkQ41TmuOI4
+ufh2JQ/9FWCjQB8INIm+Ew0JppRYgRZXiWntkHyj1xaetw4wvtT9/i44PtFrtfEm
+YuHGFuDvHW3TE7sOWJ89/RUr+DeANf1+qGQPO7Tk1gK/hCGmHkUVytQqjlhGAJrh
+bmPPztouk6HyaO1UA8W2OOidn+C0MvlQ3Oj58Z6PtMq5UfKzCfYvz/pEIWvgMuFJ
+m1nEhUNVgnmym3T2Nzda13LBqWFJbu5MTU33ZCWmQAG8KoF8krnMvxl5Rot2VBcJ
+OI3hOGdf9VlCbilAQEHf6tBoRsWieQhhMnvpkfuagmr/Iep5BJPlILsP1ivA0hG0
+krfIEPWFroFNCM8/SFTeTKpz+sDmtpE6+SfYGNiETKyRZgMnl3P92ENAC6hOt/VR
+goQwVJxW9glaXFznQN+Jr/S5utQzaLlO8AeiawF8hoqBltETD8M7rWb5+jA/HOPK
+IavYYRaZ4JtEpYpbqkBVrb2abfjXK1xA5iEbXlfs4GaAL11y/jyGoxQOHYYFqAZy
+uRzl9oJl7tY5VOYIU33z0Wdj93ar2JQjzcU99rI/OuMbCXhlAeQOliWqZhAM73lK
+6okg5kczouZBOSuyrQ4OAZTVqrGyjEPbwTYipx8mQGlLOl+ISROjOZO0LpQ9hjvD
+PM90fuiM12q4oZDb/YI8LMU1py936TBUu/1FN1/40lga1DvpbHU=
+=/nd2
+-----END PGP SIGNATURE-----
+
+--qWfG88lzbT31LqIVd4SmACT4nwUkZVnKz--
