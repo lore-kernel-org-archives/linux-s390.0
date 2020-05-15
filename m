@@ -1,81 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <1589784680.15083.19.camel@mhfsdcap03>
+Date: Fri, 15 May 2020 12:07:18 +0200
+From: Joerg Roedel <joro@8bytes.org>
 Subject: Re: [PATCH v2 23/33] iommu/mediatek-v1 Convert to
  probe/release_device() call-backs
-From: Yong Wu <yong.wu@mediatek.com>
-Date: Mon, 18 May 2020 14:51:20 +0800
-In-Reply-To: <20200515100718.GS18353@8bytes.org>
+Message-ID: <20200515100718.GS18353@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
-         <20200414131542.25608-24-joro@8bytes.org>
-         <1589528699.26119.9.camel@mhfsdcap03> <20200515100718.GS18353@8bytes.org>
-Content-Type: text/plain; charset="UTF-8"
+ <20200414131542.25608-24-joro@8bytes.org>
+ <1589528699.26119.9.camel@mhfsdcap03>
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1589528699.26119.9.camel@mhfsdcap03>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Joerg Roedel <jroedel@suse.de>, Will Deacon <will@kernel.org>, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+To: Yong Wu <yong.wu@mediatek.com>
+Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Matthias Brugger <matthias.bgg@gmail.com>, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, linux-mediatek@lists.infradead.org
 
-T24gRnJpLCAyMDIwLTA1LTE1IGF0IDEyOjA3ICswMjAwLCBKb2VyZyBSb2VkZWwgd3JvdGU6DQo+
-IEhpLA0KPiANCj4gT24gRnJpLCBNYXkgMTUsIDIwMjAgYXQgMDM6NDQ6NTlQTSArMDgwMCwgWW9u
-ZyBXdSB3cm90ZToNCj4gPiBPbiBUdWUsIDIwMjAtMDQtMTQgYXQgMTU6MTUgKzAyMDAsIEpvZXJn
-IFJvZWRlbCB3cm90ZToNCj4gPiA+IC0JcmV0dXJuIGlvbW11X2RldmljZV9saW5rKCZkYXRhLT5p
-b21tdSwgZGV2KTsNCj4gPiA+ICsJZXJyID0gYXJtX2lvbW11X2F0dGFjaF9kZXZpY2UoZGV2LCBt
-dGtfbWFwcGluZyk7DQo+ID4gPiArCWlmIChlcnIpDQo+ID4gPiArCQlkZXZfZXJyKGRldiwgIkNh
-bid0IGNyZWF0ZSBJT01NVSBtYXBwaW5nIC0gRE1BLU9QUyB3aWxsIG5vdCB3b3JrXG4iKTsNCj4g
-PiANCj4gPiANCj4gPiBIaSBKb2VyZywNCj4gPiANCj4gPiAgICAgIFRoYW5rcyB2ZXJ5IG11Y2gg
-Zm9yIHRoaXMgcGF0Y2guDQo+ID4gDQo+ID4gICAgICBUaGlzIGFybV9pb21tdV9hdHRhY2hfZGV2
-aWNlIGlzIGNhbGxlZCBqdXN0IGFzIHdlIGV4cGVjdGVkLg0KPiA+IA0KPiA+ICAgICAgQnV0IGl0
-IHdpbGwgZmFpbCBpbiB0aGlzIGNhbGxzdGFjayBhcyB0aGUgZ3JvdXAtPm11dGV4IHdhcyB0cmll
-ZCB0bw0KPiA+IGJlIHJlLWxvY2tlZC4uLg0KPiA+IA0KPiA+IFs8YzA5MzhlOGM+XSAoaW9tbXVf
-YXR0YWNoX2RldmljZSkgZnJvbSBbPGMwMzE3NTkwPl0NCj4gPiAoX19hcm1faW9tbXVfYXR0YWNo
-X2RldmljZSsweDM0LzB4OTApDQo+ID4gWzxjMDMxNzU5MD5dIChfX2FybV9pb21tdV9hdHRhY2hf
-ZGV2aWNlKSBmcm9tIFs8YzAzMTc1Zjg+XQ0KPiA+IChhcm1faW9tbXVfYXR0YWNoX2RldmljZSsw
-eGMvMHgyMCkNCj4gPiBbPGMwMzE3NWY4Pl0gKGFybV9pb21tdV9hdHRhY2hfZGV2aWNlKSBmcm9t
-IFs8YzA5NDMyY2M+XQ0KPiA+IChtdGtfaW9tbXVfcHJvYmVfZmluYWxpemUrMHgzNC8weDUwKQ0K
-PiA+IFs8YzA5NDMyY2M+XSAobXRrX2lvbW11X3Byb2JlX2ZpbmFsaXplKSBmcm9tIFs8YzA5M2E4
-YWM+XQ0KPiA+IChidXNfaW9tbXVfcHJvYmUrMHgyYTgvMHgyYzQpDQo+ID4gWzxjMDkzYThhYz5d
-IChidXNfaW9tbXVfcHJvYmUpIGZyb20gWzxjMDkzYTk1MD5dIChidXNfc2V0X2lvbW11DQo+ID4g
-KzB4ODgvMHhkNCkNCj4gPiBbPGMwOTNhOTUwPl0gKGJ1c19zZXRfaW9tbXUpIGZyb20gWzxjMDk0
-M2M3ND5dIChtdGtfaW9tbXVfcHJvYmUNCj4gPiArMHgyZjgvMHgzNjQpDQo+IA0KPiBUaGFua3Mg
-Zm9yIHRoZSByZXBvcnQsIGlzDQo+IA0KPiAJaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbGttbC8x
-NTg5NTMwMTIzLTMwMjQwLTEtZ2l0LXNlbmQtZW1haWwteW9uZy53dUBtZWRpYXRlay5jb20vDQo+
-IA0KPiBUaGUgZml4IGZvciB0aGlzIGlzc3VlIG9yIGlzIHNvbWV0aGluZyBlbHNlIHJlcXVpcmVk
-Pw0KDQpOby4gVGhhdCBwYXRjaCBvbmx5IGFkanVzdCB0aGUgaW50ZXJuYWwgZmxvdyB0byBzYXRp
-c2Z5IHRoZSBsYXRlc3QNCmZyYW1ld29yaywgaXQncyBub3QgZm9yIGZpeGluZyB0aGlzIG11dGV4
-IGlzc3VlLiANCg0KSGVyZSBJIG9ubHkgcmVwb3J0ZWQgdGhpcyBpc3N1ZS4NCg0KYmVsb3cgaXMg
-bXkgbG9jYWwgcGF0Y2guIHNwbGl0ICJkbWFfYXR0YWNoIiB0byBhdHRhY2hfZGV2aWNlIGFuZA0K
-cHJvYmVfZmluYWxpemUuIEFib3V0IGF0dGFjaF9kZXZpY2UsIFVzZSB0aGUgZXhpc3RlZA0KX19p
-b21tdV9hdHRhY2hfZ3JvdXAgaW5zdGVhZC4gVGhlbiByZW5hbWUgZnJvbSB0aGUgImRtYV9hdHRh
-Y2giIHRvDQoicHJvYmVfZmluYWxpemUiIHRvIGRvIHRoZSBwcm9iZV9maW5hbGl6ZSBqb2IuIEFu
-ZCBtb3ZlIGl0IG91dHNpZGUgb2YNCnRoZSBtdXRleF91bmxvY2suDQoNCkknbSBub3Qgc3VyZSBp
-ZiBpdCBpcyByaWdodC4gYW5kIG9mIGNvdXJzZSBJIHdpbGwgdGVzdCBpZiB5b3UgaGF2ZSBhbnkN
-Cm90aGVyIHNvbHV0aW9uLiBUaGFua3MuDQoNCg0KLS0tIGEvZHJpdmVycy9pb21tdS9pb21tdS5j
-DQorKysgYi9kcml2ZXJzL2lvbW11L2lvbW11LmMNCkBAIC0xNjY1LDI2ICsxNjY1LDIwIEBAIHN0
-YXRpYyB2b2lkIHByb2JlX2FsbG9jX2RlZmF1bHRfZG9tYWluKHN0cnVjdA0KYnVzX3R5cGUgKmJ1
-cywNCiANCiB9DQogDQotc3RhdGljIGludCBpb21tdV9ncm91cF9kb19kbWFfYXR0YWNoKHN0cnVj
-dCBkZXZpY2UgKmRldiwgdm9pZCAqZGF0YSkNCitzdGF0aWMgaW50IGlvbW11X2dyb3VwX2RvX3By
-b2JlX2ZpbmFsaXplKHN0cnVjdCBkZXZpY2UgKmRldiwgdm9pZA0KKmRhdGEpDQogew0KIAlzdHJ1
-Y3QgaW9tbXVfZG9tYWluICpkb21haW4gPSBkYXRhOw0KLQljb25zdCBzdHJ1Y3QgaW9tbXVfb3Bz
-ICpvcHM7DQotCWludCByZXQ7DQotDQotCXJldCA9IF9faW9tbXVfYXR0YWNoX2RldmljZShkb21h
-aW4sIGRldik7DQotDQotCW9wcyA9IGRvbWFpbi0+b3BzOw0KKwljb25zdCBzdHJ1Y3QgaW9tbXVf
-b3BzICpvcHMgPSBkb21haW4tPm9wczsNCiANCi0JaWYgKHJldCA9PSAwICYmIG9wcy0+cHJvYmVf
-ZmluYWxpemUpDQorCWlmIChvcHMtPnByb2JlX2ZpbmFsaXplKQ0KIAkJb3BzLT5wcm9iZV9maW5h
-bGl6ZShkZXYpOw0KLQ0KLQlyZXR1cm4gcmV0Ow0KKwlyZXR1cm4gMDsNCiB9DQogDQotc3RhdGlj
-IGludCBfX2lvbW11X2dyb3VwX2RtYV9hdHRhY2goc3RydWN0IGlvbW11X2dyb3VwICpncm91cCkN
-CitzdGF0aWMgaW50IGlvbW11X2dyb3VwX3Byb2JlX2ZpbmFsaXplKHN0cnVjdCBpb21tdV9ncm91
-cCAqZ3JvdXApDQogew0KIAlyZXR1cm4gX19pb21tdV9ncm91cF9mb3JfZWFjaF9kZXYoZ3JvdXAs
-IGdyb3VwLT5kZWZhdWx0X2RvbWFpbiwNCi0JCQkJCSAgaW9tbXVfZ3JvdXBfZG9fZG1hX2F0dGFj
-aCk7DQorCQkJCQkgIGlvbW11X2dyb3VwX2RvX3Byb2JlX2ZpbmFsaXplKTsNCiB9DQogDQogc3Rh
-dGljIGludCBpb21tdV9kb19jcmVhdGVfZGlyZWN0X21hcHBpbmdzKHN0cnVjdCBkZXZpY2UgKmRl
-diwgdm9pZA0KKmRhdGEpDQpAQCAtMTczMSwxMiArMTcyNSwxNCBAQCBpbnQgYnVzX2lvbW11X3By
-b2JlKHN0cnVjdCBidXNfdHlwZSAqYnVzKQ0KIA0KIAkJaW9tbXVfZ3JvdXBfY3JlYXRlX2RpcmVj
-dF9tYXBwaW5ncyhncm91cCk7DQogDQotCQlyZXQgPSBfX2lvbW11X2dyb3VwX2RtYV9hdHRhY2go
-Z3JvdXApOw0KKwkJcmV0ID0gX19pb21tdV9hdHRhY2hfZ3JvdXAoZ3JvdXAtPmRlZmF1bHRfZG9t
-YWluLCBncm91cCk7DQogDQogCQltdXRleF91bmxvY2soJmdyb3VwLT5tdXRleCk7DQogDQogCQlp
-ZiAocmV0KQ0KIAkJCWJyZWFrOw0KKw0KKwkJaW9tbXVfZ3JvdXBfcHJvYmVfZmluYWxpemUoZ3Jv
-dXApOw0KIAl9DQogDQogCXJldHVybiByZXQ7DQotLSANCg0KPiANCj4gDQo+IFRoYW5rcywNCj4g
-DQo+IAlKb2VyZw0KPiANCj4gX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX18NCj4gTGludXgtbWVkaWF0ZWsgbWFpbGluZyBsaXN0DQo+IExpbnV4LW1lZGlhdGVr
-QGxpc3RzLmluZnJhZGVhZC5vcmcNCj4gaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1h
-bi9saXN0aW5mby9saW51eC1tZWRpYXRlaw0KDQo=
+Hi,
+
+On Fri, May 15, 2020 at 03:44:59PM +0800, Yong Wu wrote:
+> On Tue, 2020-04-14 at 15:15 +0200, Joerg Roedel wrote:
+> > -	return iommu_device_link(&data->iommu, dev);
+> > +	err = arm_iommu_attach_device(dev, mtk_mapping);
+> > +	if (err)
+> > +		dev_err(dev, "Can't create IOMMU mapping - DMA-OPS will not work\n");
+> 
+> 
+> Hi Joerg,
+> 
+>      Thanks very much for this patch.
+> 
+>      This arm_iommu_attach_device is called just as we expected.
+> 
+>      But it will fail in this callstack as the group->mutex was tried to
+> be re-locked...
+> 
+> [<c0938e8c>] (iommu_attach_device) from [<c0317590>]
+> (__arm_iommu_attach_device+0x34/0x90)
+> [<c0317590>] (__arm_iommu_attach_device) from [<c03175f8>]
+> (arm_iommu_attach_device+0xc/0x20)
+> [<c03175f8>] (arm_iommu_attach_device) from [<c09432cc>]
+> (mtk_iommu_probe_finalize+0x34/0x50)
+> [<c09432cc>] (mtk_iommu_probe_finalize) from [<c093a8ac>]
+> (bus_iommu_probe+0x2a8/0x2c4)
+> [<c093a8ac>] (bus_iommu_probe) from [<c093a950>] (bus_set_iommu
+> +0x88/0xd4)
+> [<c093a950>] (bus_set_iommu) from [<c0943c74>] (mtk_iommu_probe
+> +0x2f8/0x364)
+
+Thanks for the report, is
+
+	https://lore.kernel.org/lkml/1589530123-30240-1-git-send-email-yong.wu@mediatek.com/
+
+The fix for this issue or is something else required?
+
+
+Thanks,
+
+	Joerg
