@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 7 May 2020 12:00:13 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v4 06/11] s390/module: Use s390_kernel_write() for late
- relocations
-In-Reply-To: <4710f82c960ff5f8b0dd7dba6aafde5bea275cfa.1588173720.git.jpoimboe@redhat.com>
-Message-ID: <nycvar.YFH.7.76.2005071159490.25812@cbobk.fhfr.pm>
-References: <cover.1588173720.git.jpoimboe@redhat.com> <4710f82c960ff5f8b0dd7dba6aafde5bea275cfa.1588173720.git.jpoimboe@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28162 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726594AbgEOHFQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 15 May 2020 03:05:16 -0400
+Subject: Re: [kvm-unit-tests PATCH v6 06/10] s390x: css: stsch, enumeration
+ test
+References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
+ <1587725152-25569-7-git-send-email-pmorel@linux.ibm.com>
+ <20200514140552.107abbde.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <f6143792-3f35-529e-6eea-b59fa8393c72@linux.ibm.com>
+Date: Fri, 15 May 2020 09:05:10 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200514140552.107abbde.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jessica Yu <jeyu@kernel.org>, Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-On Wed, 29 Apr 2020, Josh Poimboeuf wrote:
 
-> From: Peter Zijlstra <peterz@infradead.org>
-> 
-> Because of late module patching, a livepatch module needs to be able to
-> apply some of its relocations well after it has been loaded.  Instead of
-> playing games with module_{dis,en}able_ro(), use existing text poking
-> mechanisms to apply relocations after module loading.
-> 
-> So far only x86, s390 and Power have HAVE_LIVEPATCH but only the first
-> two also have STRICT_MODULE_RWX.
-> 
-> This will allow removal of the last module_disable_ro() usage in
-> livepatch.  The ultimate goal is to completely disallow making
-> executable mappings writable.
-> 
-> [ jpoimboe: Split up patches.  Use mod state to determine whether
-> 	    memcpy() can be used.  Test and add fixes. ]
-> 
-> Cc: linux-s390@vger.kernel.org
-> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-> Suggested-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> Acked-by: Joe Lawrence <joe.lawrence@redhat.com>
-> Acked-by: Miroslav Benes <mbenes@suse.cz>
 
-Could we please get an Ack / Reviewed-by: for this patch from s390 folks?
+On 2020-05-14 14:05, Cornelia Huck wrote:
+> On Fri, 24 Apr 2020 12:45:48 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> First step for testing the channel subsystem is to enumerate the css and
+>> retrieve the css devices.
+>>
+>> This tests the success of STSCH I/O instruction, we do not test the
+> 
+> s/of/of the/
+
+Yes, zhanks.
+
+> 
+>> reaction of the VM for an instruction with wrong parameters.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/css.h     |  1 +
+>>   s390x/Makefile      |  2 +
+>>   s390x/css.c         | 92 +++++++++++++++++++++++++++++++++++++++++++++
+>>   s390x/unittests.cfg |  4 ++
+>>   4 files changed, 99 insertions(+)
+>>   create mode 100644 s390x/css.c
+>>
+> 
+> (...)
+> 
+>> +static void test_enumerate(void)
+>> +{
+>> +	struct pmcw *pmcw = &schib.pmcw;
+...snip...
+			goto out;
+>> +		default:	/* 1 or 2 should never happened for STSCH */
+> 
+> s/happened/happen/
+
+Yes, thanks.
+
+> 
+>> +			report(0, "Unexpected cc=%d on subchannel number 0x%x",
+>> +			       cc, scn);
+>> +			return;
+>> +		}
+> 
 
 Thanks,
 
+Regards,
+Pierre
+
 -- 
-Jiri Kosina
-SUSE Labs
+Pierre Morel
+IBM Lab Boeblingen
