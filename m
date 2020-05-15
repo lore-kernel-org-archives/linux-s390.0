@@ -1,41 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:65142 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728557AbgEHNPJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 8 May 2020 09:15:09 -0400
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH v3 0/3] s390/dasd: remove ioctl_by_bdev from DASD driver
-Date: Fri,  8 May 2020 15:14:52 +0200
-Message-Id: <20200508131455.55407-1-sth@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13198 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726212AbgEOWUE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 15 May 2020 18:20:04 -0400
+From: Collin Walling <walling@linux.ibm.com>
+Subject: [PATCH v7 1/3] s390/setup: diag 318: refactor struct
+Date: Fri, 15 May 2020 18:19:33 -0400
+Message-Id: <20200515221935.18775-2-walling@linux.ibm.com>
+In-Reply-To: <20200515221935.18775-1-walling@linux.ibm.com>
+References: <20200515221935.18775-1-walling@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: hch@lst.de
-Cc: axboe@kernel.dk, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
 
-Hi Christoph,
+The diag 318 struct introduced in include/asm/diag.h can be
+reused in KVM, so let's condense the version code fields in the
+diag318_info struct for easier usage and simplify it until we
+can determine how the data should be formatted.
 
-as discussed yesterday I have picked your first patch, adopted the second
-one and created a new third patch to remove the ioctl_by_bdev calls.
-I export the symbol for the dasd_biodasdinfo function and obtain the
-pointer with a kallsyms_lookup_name.
-The checking if the gendisk is owned by a DASD is done by comparing the
-fops pointer as you suggested. Looks like the most suitable method here.
+Signed-off-by: Collin Walling <walling@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ arch/s390/include/asm/diag.h | 6 ++----
+ arch/s390/kernel/setup.c     | 3 +--
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
-Please note that this patch is not ready for inclusion and only basic
-function tested. It is just for discussion.
-
-Christoph Hellwig (2):
-  dasd: refactor dasd_ioctl_information
-  block: add a s390-only biodasdinfo method
-
-Stefan Haberland (1):
-  s390/dasd: remove ioctl_by_bdev calls
-
- block/partitions/ibm.c          | 15 +++++++--
- drivers/s390/block/dasd_int.h   |  1 +
- drivers/s390/block/dasd_ioctl.c | 59 ++++++++++++++++++++++++---------
- include/linux/blkdev.h          |  1 +
- 4 files changed, 57 insertions(+), 19 deletions(-)
-
+diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
+index 0036eab14391..ca8f85b53a90 100644
+--- a/arch/s390/include/asm/diag.h
++++ b/arch/s390/include/asm/diag.h
+@@ -298,10 +298,8 @@ struct diag26c_mac_resp {
+ union diag318_info {
+ 	unsigned long val;
+ 	struct {
+-		unsigned int cpnc : 8;
+-		unsigned int cpvc_linux : 24;
+-		unsigned char cpvc_distro[3];
+-		unsigned char zero;
++		unsigned long cpnc : 8;
++		unsigned long cpvc : 56;
+ 	};
+ };
+ 
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 36445dd40fdb..1aaaf11acc6b 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -1028,8 +1028,7 @@ static void __init setup_control_program_code(void)
+ {
+ 	union diag318_info diag318_info = {
+ 		.cpnc = CPNC_LINUX,
+-		.cpvc_linux = 0,
+-		.cpvc_distro = {0},
++		.cpvc = 0,
+ 	};
+ 
+ 	if (!sclp.has_diag318)
 -- 
-2.17.1
+2.21.3
