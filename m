@@ -1,210 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from merlin.infradead.org ([205.233.59.134]:55474 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726975AbgE2Vpx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 May 2020 17:45:53 -0400
-Message-ID: <20200529214203.729797639@infradead.org>
-Date: Fri, 29 May 2020 23:35:52 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v3 2/5] powerpc64: Break asm/percpu.h vs spinlock_types.h dependency
-References: <20200529213550.683440625@infradead.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41284 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726489AbgERINT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 18 May 2020 04:13:19 -0400
+Subject: Re: [PATCH v3 3/3] s390/dasd: remove ioctl_by_bdev calls
+References: <20200508131455.55407-1-sth@linux.ibm.com>
+ <20200508131455.55407-4-sth@linux.ibm.com> <20200508155342.GC4200@lst.de>
+ <6cd6788e-ce3d-7869-307a-9a6723f6eb79@linux.ibm.com>
+ <20200516154344.GA16828@lst.de>
+From: Stefan Haberland <sth@linux.ibm.com>
+Message-ID: <f6e9e3ba-4dac-8a44-456b-0c759f1e0ca4@linux.ibm.com>
+Date: Mon, 18 May 2020 10:13:09 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20200516154344.GA16828@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: mingo@kernel.org, will@kernel.org, tglx@linutronix.de
-Cc: x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, peterz@infradead.org, davem@davemloft.net, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: axboe@kernel.dk, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com
 
-In order to use <asm/percpu.h> in lockdep.h, we need to make sure
-asm/percpu.h does not itself depend on lockdep.
+Am 16.05.20 um 17:43 schrieb Christoph Hellwig:
+> On Mon, May 11, 2020 at 06:30:44PM +0200, Stefan Haberland wrote:
+>> Am 08.05.20 um 17:53 schrieb Christoph Hellwig:
+>>> I think this should use symbol_get instead.
+>> Thanks for the Feedback, also for the previous patch.
+>> I will incorporate it, run some test cycles and submit the patches
+>> again when I am ready.
+> Did you manage to get back to this?
 
-The below seems to make that so and builds powerpc64-defconfig +
-PROVE_LOCKING.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- arch/powerpc/include/asm/dtl.h         |   52 +++++++++++++++++++++++++++++++++
- arch/powerpc/include/asm/lppaca.h      |   44 ---------------------------
- arch/powerpc/kernel/time.c             |    1 
- arch/powerpc/kvm/book3s_hv.c           |    1 
- arch/powerpc/platforms/pseries/dtl.c   |    1 
- arch/powerpc/platforms/pseries/lpar.c  |    1 
- arch/powerpc/platforms/pseries/setup.c |    1 
- arch/powerpc/platforms/pseries/svm.c   |    1 
- 8 files changed, 58 insertions(+), 44 deletions(-)
-
---- /dev/null
-+++ b/arch/powerpc/include/asm/dtl.h
-@@ -0,0 +1,52 @@
-+#ifndef _ASM_POWERPC_DTL_H
-+#define _ASM_POWERPC_DTL_H
-+
-+#include <asm/lppaca.h>
-+#include <linux/spinlock_types.h>
-+
-+/*
-+ * Layout of entries in the hypervisor's dispatch trace log buffer.
-+ */
-+struct dtl_entry {
-+	u8	dispatch_reason;
-+	u8	preempt_reason;
-+	__be16	processor_id;
-+	__be32	enqueue_to_dispatch_time;
-+	__be32	ready_to_enqueue_time;
-+	__be32	waiting_to_ready_time;
-+	__be64	timebase;
-+	__be64	fault_addr;
-+	__be64	srr0;
-+	__be64	srr1;
-+};
-+
-+#define DISPATCH_LOG_BYTES	4096	/* bytes per cpu */
-+#define N_DISPATCH_LOG		(DISPATCH_LOG_BYTES / sizeof(struct dtl_entry))
-+
-+/*
-+ * Dispatch trace log event enable mask:
-+ *   0x1: voluntary virtual processor waits
-+ *   0x2: time-slice preempts
-+ *   0x4: virtual partition memory page faults
-+ */
-+#define DTL_LOG_CEDE		0x1
-+#define DTL_LOG_PREEMPT		0x2
-+#define DTL_LOG_FAULT		0x4
-+#define DTL_LOG_ALL		(DTL_LOG_CEDE | DTL_LOG_PREEMPT | DTL_LOG_FAULT)
-+
-+extern struct kmem_cache *dtl_cache;
-+extern rwlock_t dtl_access_lock;
-+
-+/*
-+ * When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE = y, the cpu accounting code controls
-+ * reading from the dispatch trace log.  If other code wants to consume
-+ * DTL entries, it can set this pointer to a function that will get
-+ * called once for each DTL entry that gets processed.
-+ */
-+extern void (*dtl_consumer)(struct dtl_entry *entry, u64 index);
-+
-+extern void register_dtl_buffer(int cpu);
-+extern void alloc_dtl_buffers(unsigned long *time_limit);
-+extern long hcall_vphn(unsigned long cpu, u64 flags, __be32 *associativity);
-+
-+#endif /* _ASM_POWERPC_DTL_H */
---- a/arch/powerpc/include/asm/lppaca.h
-+++ b/arch/powerpc/include/asm/lppaca.h
-@@ -42,7 +42,6 @@
-  */
- #include <linux/cache.h>
- #include <linux/threads.h>
--#include <linux/spinlock_types.h>
- #include <asm/types.h>
- #include <asm/mmu.h>
- #include <asm/firmware.h>
-@@ -146,49 +145,6 @@ struct slb_shadow {
- 	} save_area[SLB_NUM_BOLTED];
- } ____cacheline_aligned;
- 
--/*
-- * Layout of entries in the hypervisor's dispatch trace log buffer.
-- */
--struct dtl_entry {
--	u8	dispatch_reason;
--	u8	preempt_reason;
--	__be16	processor_id;
--	__be32	enqueue_to_dispatch_time;
--	__be32	ready_to_enqueue_time;
--	__be32	waiting_to_ready_time;
--	__be64	timebase;
--	__be64	fault_addr;
--	__be64	srr0;
--	__be64	srr1;
--};
--
--#define DISPATCH_LOG_BYTES	4096	/* bytes per cpu */
--#define N_DISPATCH_LOG		(DISPATCH_LOG_BYTES / sizeof(struct dtl_entry))
--
--/*
-- * Dispatch trace log event enable mask:
-- *   0x1: voluntary virtual processor waits
-- *   0x2: time-slice preempts
-- *   0x4: virtual partition memory page faults
-- */
--#define DTL_LOG_CEDE		0x1
--#define DTL_LOG_PREEMPT		0x2
--#define DTL_LOG_FAULT		0x4
--#define DTL_LOG_ALL		(DTL_LOG_CEDE | DTL_LOG_PREEMPT | DTL_LOG_FAULT)
--
--extern struct kmem_cache *dtl_cache;
--extern rwlock_t dtl_access_lock;
--
--/*
-- * When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE = y, the cpu accounting code controls
-- * reading from the dispatch trace log.  If other code wants to consume
-- * DTL entries, it can set this pointer to a function that will get
-- * called once for each DTL entry that gets processed.
-- */
--extern void (*dtl_consumer)(struct dtl_entry *entry, u64 index);
--
--extern void register_dtl_buffer(int cpu);
--extern void alloc_dtl_buffers(unsigned long *time_limit);
- extern long hcall_vphn(unsigned long cpu, u64 flags, __be32 *associativity);
- 
- #endif /* CONFIG_PPC_BOOK3S */
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -69,6 +69,7 @@
- #include <asm/vdso_datapage.h>
- #include <asm/firmware.h>
- #include <asm/asm-prototypes.h>
-+#include <asm/dtl.h>
- 
- /* powerpc clocksource/clockevent code */
- 
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -74,6 +74,7 @@
- #include <asm/hw_breakpoint.h>
- #include <asm/kvm_book3s_uvmem.h>
- #include <asm/ultravisor.h>
-+#include <asm/dtl.h>
- 
- #include "book3s.h"
- 
---- a/arch/powerpc/platforms/pseries/dtl.c
-+++ b/arch/powerpc/platforms/pseries/dtl.c
-@@ -12,6 +12,7 @@
- #include <asm/smp.h>
- #include <linux/uaccess.h>
- #include <asm/firmware.h>
-+#include <asm/dtl.h>
- #include <asm/lppaca.h>
- #include <asm/debugfs.h>
- #include <asm/plpar_wrappers.h>
---- a/arch/powerpc/platforms/pseries/lpar.c
-+++ b/arch/powerpc/platforms/pseries/lpar.c
-@@ -40,6 +40,7 @@
- #include <asm/fadump.h>
- #include <asm/asm-prototypes.h>
- #include <asm/debugfs.h>
-+#include <asm/dtl.h>
- 
- #include "pseries.h"
- 
---- a/arch/powerpc/platforms/pseries/setup.c
-+++ b/arch/powerpc/platforms/pseries/setup.c
-@@ -70,6 +70,7 @@
- #include <asm/asm-const.h>
- #include <asm/swiotlb.h>
- #include <asm/svm.h>
-+#include <asm/dtl.h>
- 
- #include "pseries.h"
- #include "../../../../drivers/pci/pci.h"
---- a/arch/powerpc/platforms/pseries/svm.c
-+++ b/arch/powerpc/platforms/pseries/svm.c
-@@ -11,6 +11,7 @@
- #include <asm/svm.h>
- #include <asm/swiotlb.h>
- #include <asm/ultravisor.h>
-+#include <asm/dtl.h>
- 
- static int __init init_svm(void)
- {
+Hi, yes. We had some internal discussions about the patch and I am running
+some tests.
+I need to have a look at virtblk devices with DASD layout and afterwards
+I will send the patches again.
