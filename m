@@ -1,49 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2096 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728746AbgEZJdi (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38270 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726413AbgERLw1 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 May 2020 05:33:38 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 0/3] KVM: s390: Cleanups for 5.8
-Date: Tue, 26 May 2020 11:33:10 +0200
-Message-Id: <20200526093313.77976-1-borntraeger@de.ibm.com>
+        Mon, 18 May 2020 07:52:27 -0400
+Date: Mon, 18 May 2020 13:51:00 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH RESEND] lib: fix bitmap_parse() on 64-bit big endian archs
+Message-ID: <20200518115059.GA19150@oc3871087118.ibm.com>
+References: <1589798090-11136-1-git-send-email-agordeev@linux.ibm.com>
+ <CAHp75VdM2yrpd2d3pK2RkmbhF3yiM4=fiTXL4i3yu3AxV3wY-A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHp75VdM2yrpd2d3pK2RkmbhF3yiM4=fiTXL4i3yu3AxV3wY-A@mail.gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Stable <stable@vger.kernel.org>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Amritha Nambiar <amritha.nambiar@intel.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, Chris Wilson <chris@chris-wilson.co.uk>, Kees Cook <keescook@chromium.org>, Matthew Wilcox <willy@infradead.org>, Miklos Szeredi <mszeredi@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Steffen Klassert <steffen.klassert@secunet.com>, "Tobin C . Harding" <tobin@kernel.org>, Vineet Gupta <vineet.gupta1@synopsys.com>, Will Deacon <will.deacon@arm.com>, Willem de Bruijn <willemb@google.com>
 
-Paolo,
+On Mon, May 18, 2020 at 02:33:43PM +0300, Andy Shevchenko wrote:
+> On Mon, May 18, 2020 at 1:40 PM Alexander Gordeev
+> <agordeev@linux.ibm.com> wrote:
+> >
+> > Commit 2d6261583be0 ("lib: rework bitmap_parse()") does
+> > not take into account order of halfwords on 64-bit big
+> > endian architectures.
+> 
+> Thanks for report and the patch!
+> 
+> Did it work before? Can we have a test case for that that we will see
+> the failure?
 
-The following changes since commit 2a173ec993baa6a97e7b0fb89240200a88d90746:
+The test exists and enabled with CONFIG_TEST_BITMAP.
+It does not appear ever passed before on 64 BE.
+It does not fail on 64 LE for me either.
 
-  MAINTAINERS: add a reviewer for KVM/s390 (2020-04-20 11:24:00 +0200)
+Thanks!
 
-are available in the Git repository at:
+[...]
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.8-1
-
-for you to fetch changes up to 0b545fd17f84184f9536bde68c3521e36c488448:
-
-  KVM: s390: remove unneeded semicolon in gisa_vcpu_kicker() (2020-04-20 11:33:32 +0200)
-
-----------------------------------------------------------------
-KVM: s390: Cleanups for 5.8
-
-- vsie (nesting) cleanups
-- remove unneeded semicolon
-
-----------------------------------------------------------------
-David Hildenbrand (2):
-      KVM: s390: vsie: Move conditional reschedule
-      KVM: s390: vsie: gmap_table_walk() simplifications
-
-Jason Yan (1):
-      KVM: s390: remove unneeded semicolon in gisa_vcpu_kicker()
-
- arch/s390/kvm/interrupt.c |  2 +-
- arch/s390/kvm/vsie.c      |  3 +--
- arch/s390/mm/gmap.c       | 10 +++++-----
- 3 files changed, 7 insertions(+), 8 deletions(-)
+> -- 
+> With Best Regards,
+> Andy Shevchenko
