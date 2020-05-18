@@ -1,120 +1,95 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29290 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726386AbgERWKT (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18402 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726386AbgERWBO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 May 2020 18:10:19 -0400
-Date: Tue, 19 May 2020 00:09:43 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
+        Mon, 18 May 2020 18:01:14 -0400
 Subject: Re: [RFC PATCH v2 0/4] vfio-ccw: Fix interrupt handling for
  HALT/CLEAR
-Message-ID: <20200519000943.70098774.pasic@linux.ibm.com>
-In-Reply-To: <20200518180903.7cb21dd8.cohuck@redhat.com>
 References: <20200513142934.28788-1-farman@linux.ibm.com>
- <20200518180903.7cb21dd8.cohuck@redhat.com>
+ <20200514154601.007ae46f.pasic@linux.ibm.com>
+ <4e00c83b-146f-9f1d-882b-a5378257f32c@linux.ibm.com>
+ <20200515165539.2e4a8485.pasic@linux.ibm.com>
+ <931b96fc-0bb5-cdc1-bb1c-102a96f346ea@linux.ibm.com>
+ <20200515203759.4ffc6f31.pasic@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <cb87469c-84ad-933a-3473-afa9b009c499@linux.ibm.com>
+Date: Mon, 18 May 2020 18:01:09 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200515203759.4ffc6f31.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, Jared Rossi <jrossi@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-On Mon, 18 May 2020 18:09:03 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
 
-> On Wed, 13 May 2020 16:29:30 +0200
+
+On 5/15/20 2:37 PM, Halil Pasic wrote:
+> On Fri, 15 May 2020 14:12:05 -0400
 > Eric Farman <farman@linux.ibm.com> wrote:
 > 
-> > Hi Conny,
-> > 
-> > Back in January, I suggested a small patch [1] to try to clean up
-> > the handling of HSCH/CSCH interrupts, especially as it relates to
-> > concurrent SSCH interrupts. Here is a new attempt to address this.
-> > 
-> > There was some suggestion earlier about locking the FSM, but I'm not
-> > seeing any problems with that. Rather, what I'm noticing is that the
-> > flow between a synchronous START and asynchronous HALT/CLEAR have
-> > different impacts on the FSM state. Consider:
-> > 
-> >     CPU 1                           CPU 2
-> > 
-> >     SSCH (set state=CP_PENDING)
-> >     INTERRUPT (set state=IDLE)
-> >     CSCH (no change in state)
-> >                                     SSCH (set state=CP_PENDING)
+>>>>> Also why do we see the scenario you describe in the wild? I agree that
+>>>>> this should be taken care of in the kernel as well, but according to my
+>>>>> understanding QEMU is already supposed to reject the second SSCH (CPU 2)
+>>>>> with cc 2 because it sees that FC clear function is set. Or?  
+>>>>
+>>>> Maybe for virtio, but for vfio this all gets passed through to the
+>>>> kernel who makes that distinction. And as I've mentioned above, that's
+>>>> not happening.  
+>>>
+>>> Let's have a look at the following qemu functions. AFAIK it is
+>>> common to vfio and virtio, or? Will prefix my inline   
+>>
+>> My mistake, I didn't look far enough up the callchain in my quick look
+>> at the code.
+>>
+>> ...snip...
+>>
 > 
-> This is the transition I do not understand. When we get a request via
-> the I/O area, we go to CP_PROCESSING and start doing translations.
-> However, we only transition to CP_PENDING if we actually do a SSCH with
-> cc 0 -- which shouldn't be possible in the flow you outline... unless
-> it really is something that can be taken care of with locking (state
-> machine transitioning due to an interrupt without locking, so we go to
-> IDLE without other parts noticing.)
-
-I argued, that the second SSCH is to be caught by QEMU. So I think
-we are kind of on the same page, and yet when it comes to details
-we are not.
-
-The details: We have multiple non-atomic things going on
-* the clear function FC gets set at the host subchannel 
-* the clear function completes and the subchannel becomes status pending
-* an interrupt is delivered that indicates the subchannel event
-* the interrupt handler gets invoked
-* STSCH does its thing
-* state is set to IDLE
-
-So theoretically, between STSCH is done (and cleared FC clear bit)
-and state=IDLE an SSCH can go through.
-
-
+> No problem. I'm glad I was at least little helpful.
 > 
-> >     INTERRUPT (set state=IDLE)
-> >                                     INTERRUPT (set state=IDLE)
+>>>
+>>> So unless somebody (e.g. the kernel vfio-ccw) nukes the FC bits qemu
+>>> should prevent the second SSCH from your example getting to the kernel,
+>>> or?  
+>>
+>> It's not so much something "nukes the FC bits" ... but rather that that
+>> the data in the irb_area of the io_region is going to reflect what the
+>> subchannel told us for the interrupt.
 > 
-> But taking a step back (and ignoring your series and the discussion,
-> sorry about that):
+> This is why the word composition came into my mind. If the HW subchannel
+> has FC clear, but QEMU subchannel does not the way things compose (or
+> superpose) is fishy.
 > 
-> We need to do something (creating a local translation of the guest's
-> channel program) that does not have any relation to the process in the
-> architecture at all, but is only something that needs to be done
-> because of what vfio-ccw is trying to do (issuing a channel program on
-> behalf of another entity.) 
+>>
+>> Hrm... If something is polling on TSCH instead of waiting for a tap on
+>> the shoulder, that's gonna act weird too. Maybe the bits need to be in
+>> io_region.irb_area proper, rather than this weird private->scsw space.
+> 
+> Do we agree that the scenario you described with that diagram should not
+> have hit kernel in the first place, because if things were correct QEMU
+> should have fenced the second SSCH?
+> 
+> I think you do, but want to be sure. If not, then we need to meditate
+> some more on this.
 
-I violently disagree with this point. Looking at the whole vfio-ccw
-device the translation is part of the execution of the channel program,
-more specifically it fits in as prefetching. Thus it needs to happen
-with the FC start bit set. Before FC start is set the subchannel is
-not allowed to process (including look at) the channel program. At least
-that is what I remember.
-
-> Trying to sort that out by poking at actl
-> and fctl bits does not seem like the best way; especially as keeping
-> the bits up-to-date via STSCH is an exercise in futility.
-
-I disagree. A single subchannel is processing at most one channel
-program at any given point in time. Or am I reading the PoP wrong?
+I think I do too.  :)  I'll meditate on this a bit later, because...
 
 > 
-> What about the following (and yes, I had suggested something vaguely in
-> that direction before):
-> 
-> - Detach the cp from the subchannel (or better, remove the 1:1
->   relationship). By that I mean building the cp as a separately
->   allocated structure (maybe embedding a kref, but that might not be
->   needed), and appending it to a list after SSCH with cc=0. Discard it
->   if cc!=0.
-> - Remove the CP_PENDING state. The state is either IDLE after any
->   successful SSCH/HSCH/CSCH, or a new state in that case. But no
->   special state for SSCH.
-> - A successful CSCH removes the first queued request, if any.
-> - A final interrupt removes the first queued request, if any.
-> 
-> Thoughts?
-> 
+> I do tend to think that the kernel part is not supposed to rely on
+> userspace playing nice.
 
-See above. IMHO the second SSCH is to be rejected by QEMU. I've
-explained this in more detail in my previous mail.
+...this is important, and I'd rather get the kernel buttoned up first
+before sorting out QEMU.
 
-Regards,
-Halil
+ Especially when it comes to integrity and
+> correctness. I can't tell  just yet if this is something we must
+> or just can catch in the kernel module. I'm for catching it regardless,
+> but I'm even more for everything working as it is supposed. :)
+> 
+> Regards,
+> Halil
+> 
