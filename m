@@ -1,52 +1,109 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29118 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388740AbgEMO3o (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51754 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728347AbgERQHo (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 May 2020 10:29:44 -0400
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [RFC PATCH v2 1/4] vfio-ccw: Do not reset FSM state for unsolicited interrupts
-Date: Wed, 13 May 2020 16:29:31 +0200
-Message-Id: <20200513142934.28788-2-farman@linux.ibm.com>
-In-Reply-To: <20200513142934.28788-1-farman@linux.ibm.com>
-References: <20200513142934.28788-1-farman@linux.ibm.com>
+        Mon, 18 May 2020 12:07:44 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v7 12/12] s390x: css: ping pong
+Date: Mon, 18 May 2020 18:07:31 +0200
+Message-Id: <1589818051-20549-13-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Jared Rossi <jrossi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-The interrupt handler in vfio_ccw_sch_io_todo() presumes that every
-interrupt should reset the FSM state back to IDLE. But this means
-that an unsolicited interrupt will cause the FSM to be reset, such
-that an in-flight I/O (either still being built, or out on the wire)
-will cause a solicited interrupt for which vfio-ccw is no longer
-expecting.
+To test a write command with the SSCH instruction we need a QEMU device,
+with control unit type 0xC0CA. The PONG device is such a device.
 
-Example IRB, while state=CP_PROCESSING:
+This type of device responds to PONG_WRITE requests by incrementing an
+integer, stored as a string at offset 0 of the CCW data.
 
-  irb.w0=00c00011 irb.cpa=02f420f8 irb.w2=85000000
-
-Simply check that the interrupt is solicited before touching the
-FSM state.
-
-Fixes: bbe37e4cb8970 ("vfio: ccw: introduce a finite state machine")
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ s390x/css.c | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 339a6bc0339b..7dd3efa1ccb8 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -98,7 +98,7 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
- 	mutex_unlock(&private->io_mutex);
+diff --git a/s390x/css.c b/s390x/css.c
+index c94a916..da80574 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -21,6 +21,12 @@
+ #include <css.h>
  
--	if (private->mdev && is_final)
-+	if (private->mdev && scsw_is_solicited(&irb->scsw) && is_final)
- 		private->state = VFIO_CCW_STATE_IDLE;
+ #define PONG_CU_TYPE		0xc0ca
++/* Channel Commands for PONG device */
++#define PONG_WRITE	0x21 /* Write */
++#define PONG_READ	0x22 /* Read buffer */
++
++#define BUFSZ	9
++static char buffer[BUFSZ];
  
- 	if (private->io_trigger)
+ struct lowcore *lowcore = (void *)0x0;
+ 
+@@ -274,6 +280,53 @@ unreg_cb:
+ 	unregister_io_int_func(irq_io);
+ }
+ 
++static void test_ping(void)
++{
++	int success, result;
++	int cnt = 0, max = 4;
++
++	if (senseid.cu_type != PONG_CU) {
++		report_skip("Device is not a pong device.");
++		return;
++	}
++
++	result = register_io_int_func(irq_io);
++	if (result) {
++		report(0, "Could not register IRQ handler");
++		return;
++	}
++
++	while (cnt++ < max) {
++		snprintf(buffer, BUFSZ, "%08x\n", cnt);
++		success = start_subchannel(PONG_WRITE, buffer, BUFSZ, 0);
++		if (!success) {
++			report(0, "start_subchannel failed");
++			goto unreg_cb;
++		}
++
++		wait_for_interrupt(PSW_MASK_IO);
++
++		success = start_subchannel(PONG_READ, buffer, BUFSZ, 0);
++		if (!success) {
++			report(0, "start_subchannel failed");
++			goto unreg_cb;
++		}
++
++		wait_for_interrupt(PSW_MASK_IO);
++
++		result = atol(buffer);
++		if (result != (cnt + 1)) {
++			report(0, "Bad answer from pong: %08x - %08x",
++			       cnt, result);
++			goto unreg_cb;
++		}
++	}
++	report(1, "ping-pong count 0x%08x", cnt);
++
++unreg_cb:
++	unregister_io_int_func(irq_io);
++}
++
+ static struct {
+ 	const char *name;
+ 	void (*func)(void);
+@@ -281,6 +334,7 @@ static struct {
+ 	{ "enumerate (stsch)", test_enumerate },
+ 	{ "enable (msch)", test_enable },
+ 	{ "sense (ssch/tsch)", test_sense },
++	{ "ping-pong (ssch/tsch)", test_ping },
+ 	{ NULL, NULL }
+ };
+ 
 -- 
-2.17.1
+2.25.1
