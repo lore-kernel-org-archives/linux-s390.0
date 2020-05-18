@@ -1,323 +1,243 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:43972 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728879AbgEEM16 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 08:27:58 -0400
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v4 6/8] vfio-ccw: Introduce a new CRW region
-Date: Tue,  5 May 2020 14:27:43 +0200
-Message-Id: <20200505122745.53208-7-farman@linux.ibm.com>
-In-Reply-To: <20200505122745.53208-1-farman@linux.ibm.com>
-References: <20200505122745.53208-1-farman@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55078 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727005AbgERQHj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 18 May 2020 12:07:39 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v7 00/12] s390x: Testing the Channel Subsystem I/O
+Date: Mon, 18 May 2020 18:07:19 +0200
+Message-Id: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-From: Farhan Ali <alifm@linux.ibm.com>
+Goal of the series is to have a framework to test Channel-Subsystem I/O with
+QEMU/KVM.
+  
+To be able to support interrupt for CSS I/O and for SCLP we need to modify
+the interrupt framework to allow re-entrant interruptions.
+  
+We add a registration for IRQ callbacks to the test program to define its own
+interrupt handler. We need to do special work under interrupt like acknowledging
+the interrupt.
+  
+Being working on PSW bits to allow I/O interrupt, we define new PSW bits
+in arch_def.h and use __ASSEMBLER__ define to be able to include this header
+in an assembler source file.
 
-This region provides a mechanism to pass a Channel Report Word
-that affect vfio-ccw devices, and needs to be passed to the guest
-for its awareness and/or processing.
+This series presents four major tests:
+- Enumeration:
+        The CSS is enumerated using the STSCH instruction recursively on all
+        potentially existing channels.
+        Keeping the first channel found as a reference for future use.
+        Checks STSCH
+ 
+- Enable:
+        If the enumeration succeeded the tests enables the reference
+        channel with MSCH and verifies with STSCH that the channel is
+        effectively enabled, retrying a predefined count on failure
+	to enable the channel
+        Checks MSCH       
+ 
+- Sense:
+        If the channel is enabled this test sends a SENSE_ID command
+        to the reference channel, analyzing the answer and expecting
+        the Control unit type being 0xc0ca
+        Checks SSCH(READ) and IO-IRQ
 
-The base driver (see crw_collect_info()) provides space for two
-CRWs, as a subchannel event may have two CRWs chained together
-(one for the ssid, one for the subchannel).  As vfio-ccw will
-deal with everything at the subchannel level, provide space
-for a single CRW to be transferred in one shot.
+- ping-pong:
+        If the reference channel leads to the PONG device (0xc0ca),
+        the test exchanges a string containing a 9 digit number with
+        the PONG device and expecting this number to be incremented
+        by the PONG device.
+        Checks SSCH(WRITE)
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
----
 
-Notes:
-    v3->v4:
-     - Move crw_trigger and CRW_IRQ from later patch to here [EF]
-     - Cleanup descriptions of sizeof CRW region in doc, commentary,
-       and commit description [CH]
-     - Clear crw when finished [CH]
-    
-    v2->v3:
-     - Remove "if list-empty" check, since there's no list yet [EF]
-     - Reduce the CRW region to one fullword, instead of two [CH]
-    
-    v1->v2:
-     - Add new region info to Documentation/s390/vfio-ccw.rst [CH]
-     - Add a block comment to struct ccw_crw_region [CH]
-    
-    v0->v1: [EF]
-     - Clean up checkpatch (whitespace) errors
-     - Add ret=-ENOMEM in error path for new region
-     - Add io_mutex for region read (originally in last patch)
-     - Change crw1/crw2 to crw0/crw1
-     - Reorder cleanup of regions
+Note:
+- The following patches may be pulled first:
+  s390x: saving regs for interrupts
+  s390x: Use PSW bits definitions in cstart
+  s390x: Move control register bit definitions and add AFP to them
+  s390x: export the clock get_clock_ms() utility
+  s390x: use get_clock_ms() to calculate a delay in ms
 
- Documentation/s390/vfio-ccw.rst     | 19 ++++++++++
- drivers/s390/cio/vfio_ccw_chp.c     | 55 +++++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_drv.c     | 20 +++++++++++
- drivers/s390/cio/vfio_ccw_ops.c     |  8 +++++
- drivers/s390/cio/vfio_ccw_private.h |  4 +++
- include/uapi/linux/vfio.h           |  2 ++
- include/uapi/linux/vfio_ccw.h       |  8 +++++
- 7 files changed, 116 insertions(+)
+- I think this one if it receives reviewed-by can also be pulled now:
+  s390x: define function to wait for interrupt
 
-diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
-index 98832d95f395..da3a9e22663d 100644
---- a/Documentation/s390/vfio-ccw.rst
-+++ b/Documentation/s390/vfio-ccw.rst
-@@ -247,6 +247,25 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_SCHIB.
- Reading this region triggers a STORE SUBCHANNEL to be issued to the
- associated hardware.
- 
-+vfio-ccw crw region
-+---------------------
-+
-+The vfio-ccw crw region is used to return Channel Report Word (CRW)
-+data to userspace::
-+
-+  struct ccw_crw_region {
-+         __u32 crw;
-+  } __packed;
-+
-+This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_CRW.
-+
-+Reading this region returns a CRW if one that is relevant for this
-+subchannel (e.g. one reporting changes in channel path state) is
-+pending, or all zeroes if not. If multiple CRWs are pending (including
-+possibly chained CRWs), reading this region again will return the next
-+one, until no more CRWs are pending and zeroes are returned. This is
-+similar to how STORE CHANNEL REPORT WORD works.
-+
- vfio-ccw operation details
- --------------------------
- 
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-index 18f3b3e873a9..37ea344a4d72 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -74,3 +74,58 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private)
- 					    VFIO_REGION_INFO_FLAG_READ,
- 					    private->schib_region);
- }
-+
-+static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
-+					char __user *buf, size_t count,
-+					loff_t *ppos)
-+{
-+	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
-+	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
-+	struct ccw_crw_region *region;
-+	int ret;
-+
-+	if (pos + count > sizeof(*region))
-+		return -EINVAL;
-+
-+	mutex_lock(&private->io_mutex);
-+	region = private->region[i].data;
-+
-+	if (copy_to_user(buf, (void *)region + pos, count))
-+		ret = -EFAULT;
-+	else
-+		ret = count;
-+
-+	region->crw = 0;
-+
-+	mutex_unlock(&private->io_mutex);
-+	return ret;
-+}
-+
-+static ssize_t vfio_ccw_crw_region_write(struct vfio_ccw_private *private,
-+					 const char __user *buf, size_t count,
-+					 loff_t *ppos)
-+{
-+	return -EINVAL;
-+}
-+
-+static void vfio_ccw_crw_region_release(struct vfio_ccw_private *private,
-+					struct vfio_ccw_region *region)
-+{
-+
-+}
-+
-+const struct vfio_ccw_regops vfio_ccw_crw_region_ops = {
-+	.read = vfio_ccw_crw_region_read,
-+	.write = vfio_ccw_crw_region_write,
-+	.release = vfio_ccw_crw_region_release,
-+};
-+
-+int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private)
-+{
-+	return vfio_ccw_register_dev_region(private,
-+					    VFIO_REGION_SUBTYPE_CCW_CRW,
-+					    &vfio_ccw_crw_region_ops,
-+					    sizeof(struct ccw_crw_region),
-+					    VFIO_REGION_INFO_FLAG_READ,
-+					    private->crw_region);
-+}
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 7aeff42f370d..e4deae6fd525 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -28,6 +28,7 @@ struct workqueue_struct *vfio_ccw_work_q;
- static struct kmem_cache *vfio_ccw_io_region;
- static struct kmem_cache *vfio_ccw_cmd_region;
- static struct kmem_cache *vfio_ccw_schib_region;
-+static struct kmem_cache *vfio_ccw_crw_region;
- 
- debug_info_t *vfio_ccw_debug_msg_id;
- debug_info_t *vfio_ccw_debug_trace_id;
-@@ -120,6 +121,8 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
- 
- static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
- {
-+	if (private->crw_region)
-+		kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
- 	if (private->schib_region)
- 		kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
- 	if (private->cmd_region)
-@@ -165,6 +168,12 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (!private->schib_region)
- 		goto out_free;
- 
-+	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
-+						GFP_KERNEL | GFP_DMA);
-+
-+	if (!private->crw_region)
-+		goto out_free;
-+
- 	private->sch = sch;
- 	dev_set_drvdata(&sch->dev, private);
- 	mutex_init(&private->io_mutex);
-@@ -366,6 +375,7 @@ static void vfio_ccw_debug_exit(void)
- 
- static void vfio_ccw_destroy_regions(void)
- {
-+	kmem_cache_destroy(vfio_ccw_crw_region);
- 	kmem_cache_destroy(vfio_ccw_schib_region);
- 	kmem_cache_destroy(vfio_ccw_cmd_region);
- 	kmem_cache_destroy(vfio_ccw_io_region);
-@@ -413,6 +423,16 @@ static int __init vfio_ccw_sch_init(void)
- 		goto out_err;
- 	}
- 
-+	vfio_ccw_crw_region = kmem_cache_create_usercopy("vfio_ccw_crw_region",
-+					sizeof(struct ccw_crw_region), 0,
-+					SLAB_ACCOUNT, 0,
-+					sizeof(struct ccw_crw_region), NULL);
-+
-+	if (!vfio_ccw_crw_region) {
-+		ret = -ENOMEM;
-+		goto out_err;
-+	}
-+
- 	isc_register(VFIO_CCW_ISC);
- 	ret = css_driver_register(&vfio_ccw_sch_driver);
- 	if (ret) {
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index c3a74ab7bb86..8b3ed5b45277 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -178,6 +178,10 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
- 	if (ret)
- 		goto out_unregister;
- 
-+	ret = vfio_ccw_register_crw_dev_regions(private);
-+	if (ret)
-+		goto out_unregister;
-+
- 	return ret;
- 
- out_unregister:
-@@ -389,6 +393,7 @@ static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
- {
- 	switch (info->index) {
- 	case VFIO_CCW_IO_IRQ_INDEX:
-+	case VFIO_CCW_CRW_IRQ_INDEX:
- 		info->count = 1;
- 		info->flags = VFIO_IRQ_INFO_EVENTFD;
- 		break;
-@@ -416,6 +421,9 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 	case VFIO_CCW_IO_IRQ_INDEX:
- 		ctx = &private->io_trigger;
- 		break;
-+	case VFIO_CCW_CRW_IRQ_INDEX:
-+		ctx = &private->crw_trigger;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index d6601a8adf13..97131b4df0b9 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -57,6 +57,7 @@ void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
- 
- int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
- int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
-+int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private);
- 
- /**
-  * struct vfio_ccw_private
-@@ -71,6 +72,7 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
-  * @region: additional regions for other subchannel operations
-  * @cmd_region: MMIO region for asynchronous I/O commands other than START
-  * @schib_region: MMIO region for SCHIB information
-+ * @crw_region: MMIO region for getting channel report words
-  * @num_regions: number of additional regions
-  * @cp: channel program for the current I/O operation
-  * @irb: irb info received from interrupt
-@@ -90,6 +92,7 @@ struct vfio_ccw_private {
- 	struct vfio_ccw_region *region;
- 	struct ccw_cmd_region	*cmd_region;
- 	struct ccw_schib_region *schib_region;
-+	struct ccw_crw_region	*crw_region;
- 	int num_regions;
- 
- 	struct channel_program	cp;
-@@ -97,6 +100,7 @@ struct vfio_ccw_private {
- 	union scsw		scsw;
- 
- 	struct eventfd_ctx	*io_trigger;
-+	struct eventfd_ctx	*crw_trigger;
- 	struct work_struct	io_work;
- } __aligned(8);
- 
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 7a1abbd889bd..907758cf6d60 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -379,6 +379,7 @@ struct vfio_region_gfx_edid {
- /* sub-types for VFIO_REGION_TYPE_CCW */
- #define VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD	(1)
- #define VFIO_REGION_SUBTYPE_CCW_SCHIB		(2)
-+#define VFIO_REGION_SUBTYPE_CCW_CRW		(3)
- 
- /*
-  * The MSIX mappable capability informs that MSIX data of a BAR can be mmapped
-@@ -578,6 +579,7 @@ enum {
- 
- enum {
- 	VFIO_CCW_IO_IRQ_INDEX,
-+	VFIO_CCW_CRW_IRQ_INDEX,
- 	VFIO_CCW_NUM_IRQS
- };
- 
-diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
-index 758bf214898d..cff5076586df 100644
---- a/include/uapi/linux/vfio_ccw.h
-+++ b/include/uapi/linux/vfio_ccw.h
-@@ -44,4 +44,12 @@ struct ccw_schib_region {
- 	__u8 schib_area[SCHIB_AREA_SIZE];
- } __packed;
- 
-+/*
-+ * Used for returning a Channel Report Word to userspace.
-+ * Note: this is controlled by a capability
-+ */
-+struct ccw_crw_region {
-+	__u32 crw;
-+} __packed;
-+
- #endif
+- this patch has a comment from Janosch who asks change so... need opinion:
+  but since I need reviews for the next patches I let it here unchanged.
+  s390x: interrupt registration
+
+- These 5 patches are really I/O oriented and need reviewed-by:
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
+  s390x: css: ping pong
+
+Regards,
+Pierre
+
+Pierre Morel (12):
+  s390x: saving regs for interrupts
+  s390x: Use PSW bits definitions in cstart
+  s390x: Move control register bit definitions and add AFP to them
+  s390x: interrupt registration
+  s390x: export the clock get_clock_ms() utility
+  s390x: use get_clock_ms() to calculate a delay in ms
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: define function to wait for interrupt
+  s390x: css: ssch/tsch with sense and interrupt
+  s390x: css: ping pong
+
+ lib/s390x/asm/arch_def.h |  32 +++-
+ lib/s390x/asm/time.h     |  36 ++++
+ lib/s390x/css.h          | 279 ++++++++++++++++++++++++++++++
+ lib/s390x/css_dump.c     | 157 +++++++++++++++++
+ lib/s390x/css_lib.c      |  55 ++++++
+ lib/s390x/interrupt.c    |  23 ++-
+ lib/s390x/interrupt.h    |   8 +
+ s390x/Makefile           |   3 +
+ s390x/css.c              | 355 +++++++++++++++++++++++++++++++++++++++
+ s390x/cstart64.S         |  58 +++++--
+ s390x/intercept.c        |  11 +-
+ s390x/unittests.cfg      |   4 +
+ 12 files changed, 995 insertions(+), 26 deletions(-)
+ create mode 100644 lib/s390x/asm/time.h
+ create mode 100644 lib/s390x/css.h
+ create mode 100644 lib/s390x/css_dump.c
+ create mode 100644 lib/s390x/css_lib.c
+ create mode 100644 lib/s390x/interrupt.h
+ create mode 100644 s390x/css.c
+
 -- 
-2.17.1
+2.25.1
+
+Changelog:
+
+from v6 to v7
+
+* s390x: saving regs for interrupts
+- macro name modificatio for SAVE_REGS_STACK
+  (David)
+- saving the FPC
+  (David)
+
+* s390x: Use PSW bits definitions in cstart
+- suppress definition for PSW_RESET_MASK
+  use PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW
+  (David)
+
+* s390x: Library resources for CSS tests
+* s390x: css: stsch, enumeration test
+  move library definitions from stsch patche
+  to the Library patch
+  add the library to the s390 Makefile here
+  (Janosch)
+  
+* s390x: css: msch, enable test
+  Add retries when enable fails
+  (Connie)
+  Re-introduce the patches for delay implementation
+  to add a delay between retries
+
+* s390x: define function to wait for interrupt
+  Changed name from wfi to wait_for_interrupt
+  (Janosch)
+
+* s390x: css: ssch/tsch with sense and interrupt
+  add a flag parameter to ssch and use it to add
+  SLI (Suppress Length Indication) flag for SENSE_ID
+  (Connie)
+
+
+from v5 to v6
+- Added comments for IRQ handling in
+  s390x: saving regs for interrupts
+  (Janosch) 
+
+- fixed BUG on reset_psw, added PSW_MASK_PSW_SHORT
+  and PSW_RESET_MASK
+
+- fixed several lines over 80 chars
+
+- fixed licenses, use GPL V2 (no more LGPL)
+
+- replacing delay() with wfi() (Wait For Interrupt)
+  during the css tests
+  (suggested by Connie's comments)
+
+- suppressing delay() induces suppressing the patch
+  "s390x: export the clock get_clock_ms() utility"
+  which is already reviewed but can be picked from
+  the v5 series.
+
+- changed the logic of the tests, the 4 css tests
+  are always run one after the other so no need to 
+  re-run enumeration and enabling at the begining
+  of each tests, it has alredy been done.
+  This makes code simpler.
+
+from v4 to v5
+- add a patch to explicitely define the initial_cr0
+  value
+  (Janosch)
+- add RB from Janosh on interrupt registration
+- several formating, typo correction and removing
+  unnecessary initialization in "linrary resources..."
+  (Janosch)
+- several formating and typo corrections on
+  "stsch enumeration test"
+  (Connie)
+- reworking the msch test
+  (Connie)
+- reworking of ssch test, pack the sense-id structure
+  (Connie)
+
+from v3 to v4
+- add RB from David and Thomas for patchs 
+  (3) irq registration and (4) clock export
+- rework the PSW bit definitions
+  (Thomas)
+- Suppress undef DEBUG from css_dump
+  (Thomas)
+- rework report() functions using new scheme
+  (Thomas)
+- suppress un-necessary report_info()
+- more spelling corrections
+- add a loop around enable bit testing
+  (Connie)
+- rework IRQ testing
+  (Connie)
+- Test data addresses to be under 2G
+  (Connie)
+
+from v2 to v3:
+- Rework spelling
+  (Connie)
+- More descriptions
+  (Connie)
+- use __ASSEMBLER__ preprocessing to keep
+  bits definitions and C structures in the same file
+  (David)
+- rename the new file clock.h as time.h
+  (Janosch, David?)
+- use registration for the IO interruption
+  (David, Thomas)
+- test the SCHIB to verify it has really be modified
+  (Connie)
+- Lot of simplifications in the tests
+  (Connie)
+
+from v1 to v2:
+- saving floating point registers (David, Janosh)
+- suppress unused PSW bits defintions (Janosh)
+- added Thomas reviewed-by
+- style and comments modifications (Connie, Janosh)
+- moved get_clock_ms() into headers and use it (Thomas)
+- separate header and library utility from tests
+- Suppress traces, separate tests, make better usage of reports
