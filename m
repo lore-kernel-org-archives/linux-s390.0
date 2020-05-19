@@ -1,179 +1,22 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ej1-f67.google.com ([209.85.218.67]:37256 "EHLO
-        mail-ej1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389424AbgEYS0Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 14:26:24 -0400
-From: =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
-Subject: [PATCH 6/8] PCI/PM: Use the new device_to_pm() helper to access struct dev_pm_ops
-Date: Mon, 25 May 2020 18:26:06 +0000
-Message-Id: <20200525182608.1823735-7-kw@linux.com>
-In-Reply-To: <20200525182608.1823735-1-kw@linux.com>
-References: <20200525182608.1823735-1-kw@linux.com>
+Received: from verein.lst.de ([213.95.11.211]:44313 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726203AbgESO3p (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 19 May 2020 10:29:45 -0400
+Date: Tue, 19 May 2020 16:29:42 +0200
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH v4 2/2] s390/dasd: remove ioctl_by_bdev calls
+Message-ID: <20200519142942.GA16127@lst.de>
+References: <20200519142259.102279-1-sth@linux.ibm.com> <20200519142259.102279-3-sth@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200519142259.102279-3-sth@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Kevin Hilman <khilman@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Felipe Balbi <balbi@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, John Stultz <john.stultz@linaro.org>, "David S. Miller" <davem@davemloft.net>, greybus-dev@lists.linaro.org, netdev@vger.kernel.org, linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: hch@lst.de, axboe@kernel.dk, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com
 
-Use the new device_to_pm() helper to access Power Management callbacs
-(struct dev_pm_ops) for a particular device (struct device_driver).
+Looks good:
 
-No functional change intended.
-
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
----
- drivers/pci/pci-driver.c | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 0454ca0e4e3f..bb52bb6642a0 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -652,7 +652,7 @@ static bool pci_has_legacy_pm_support(struct pci_dev *pci_dev)
- static int pci_pm_prepare(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	if (pm && pm->prepare) {
- 		int error = pm->prepare(dev);
-@@ -721,7 +721,7 @@ static void pcie_pme_root_status_cleanup(struct pci_dev *pci_dev)
- static int pci_pm_suspend(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	pci_dev->skip_bus_pm = false;
- 
-@@ -787,7 +787,7 @@ static int pci_pm_suspend_late(struct device *dev)
- static int pci_pm_suspend_noirq(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	if (dev_pm_smart_suspend_and_suspended(dev)) {
- 		dev->power.may_skip_resume = true;
-@@ -889,7 +889,7 @@ static int pci_pm_suspend_noirq(struct device *dev)
- static int pci_pm_resume_noirq(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 	pci_power_t prev_state = pci_dev->current_state;
- 	bool skip_bus_pm = pci_dev->skip_bus_pm;
- 
-@@ -931,7 +931,7 @@ static int pci_pm_resume_noirq(struct device *dev)
- static int pci_pm_resume(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	/*
- 	 * This is necessary for the suspend error path in which resume is
-@@ -976,7 +976,7 @@ struct dev_pm_ops __weak pcibios_pm_ops;
- static int pci_pm_freeze(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return pci_legacy_suspend(dev, PMSG_FREEZE);
-@@ -1012,7 +1012,7 @@ static int pci_pm_freeze(struct device *dev)
- static int pci_pm_freeze_noirq(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return pci_legacy_suspend_late(dev, PMSG_FREEZE);
-@@ -1040,7 +1040,7 @@ static int pci_pm_freeze_noirq(struct device *dev)
- static int pci_pm_thaw_noirq(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 	int error;
- 
- 	if (pcibios_pm_ops.thaw_noirq) {
-@@ -1073,7 +1073,7 @@ static int pci_pm_thaw_noirq(struct device *dev)
- static int pci_pm_thaw(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 	int error = 0;
- 
- 	if (pci_has_legacy_pm_support(pci_dev))
-@@ -1094,7 +1094,7 @@ static int pci_pm_thaw(struct device *dev)
- static int pci_pm_poweroff(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return pci_legacy_suspend(dev, PMSG_HIBERNATE);
-@@ -1138,7 +1138,7 @@ static int pci_pm_poweroff_late(struct device *dev)
- static int pci_pm_poweroff_noirq(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	if (dev_pm_smart_suspend_and_suspended(dev))
- 		return 0;
-@@ -1181,7 +1181,7 @@ static int pci_pm_poweroff_noirq(struct device *dev)
- static int pci_pm_restore_noirq(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 	int error;
- 
- 	if (pcibios_pm_ops.restore_noirq) {
-@@ -1205,7 +1205,7 @@ static int pci_pm_restore_noirq(struct device *dev)
- static int pci_pm_restore(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	/*
- 	 * This is necessary for the hibernation error path in which restore is
-@@ -1248,7 +1248,7 @@ static int pci_pm_restore(struct device *dev)
- static int pci_pm_runtime_suspend(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 	pci_power_t prev = pci_dev->current_state;
- 	int error;
- 
-@@ -1303,7 +1303,7 @@ static int pci_pm_runtime_suspend(struct device *dev)
- static int pci_pm_runtime_resume(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 	pci_power_t prev_state = pci_dev->current_state;
- 	int error = 0;
- 
-@@ -1334,7 +1334,7 @@ static int pci_pm_runtime_resume(struct device *dev)
- static int pci_pm_runtime_idle(struct device *dev)
- {
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
--	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-+	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
- 
- 	/*
- 	 * If pci_dev->driver is not set (unbound), the device should
--- 
-2.26.2
+Reviewed-by: Christoph Hellwig <hch@lst.de>
