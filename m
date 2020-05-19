@@ -1,47 +1,246 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21718 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388367AbgEYInx (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3734 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726474AbgESTKX (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 25 May 2020 04:43:53 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH] s390x: stsi: Make output tap13 compatible
-Date: Mon, 25 May 2020 10:43:40 +0200
-Message-Id: <20200525084340.1454-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Tue, 19 May 2020 15:10:23 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 1/5] net/iucv: remove pm support
+Date: Tue, 19 May 2020 21:10:08 +0200
+Message-Id: <20200519191012.65438-2-jwi@linux.ibm.com>
+In-Reply-To: <20200519191012.65438-1-jwi@linux.ibm.com>
+References: <20200519191012.65438-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, thuth@redhat.com, stzi@linux.ibm.com, mhartmay@linux.ibm.com, david@redhat.com, cohuck@redhat.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>
 
-In tap13 output # is a special character and only "skip" and "todo"
-are allowed to come after it. Let's appease our CI environment and
-replace # with "count".
+commit 394216275c7d ("s390: remove broken hibernate / power management support")
+removed support for ARCH_HIBERNATION_POSSIBLE from s390.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+So drop the unused pm ops from the s390-only iucv bus driver.
+
+CC: Hendrik Brueckner <brueckner@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- s390x/stsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/iucv/iucv.c | 188 ------------------------------------------------
+ 1 file changed, 188 deletions(-)
 
-diff --git a/s390x/stsi.c b/s390x/stsi.c
-index 66b4257..b81cea7 100644
---- a/s390x/stsi.c
-+++ b/s390x/stsi.c
-@@ -129,11 +129,11 @@ static void test_3_2_2(void)
- 	}
+diff --git a/net/iucv/iucv.c b/net/iucv/iucv.c
+index 9a2d023842fe..19250a0c85d3 100644
+--- a/net/iucv/iucv.c
++++ b/net/iucv/iucv.c
+@@ -67,32 +67,9 @@ static int iucv_bus_match(struct device *dev, struct device_driver *drv)
+ 	return 0;
+ }
  
- 	report(!memcmp(data->vm[0].uuid, uuid, sizeof(uuid)), "uuid");
--	report(data->vm[0].conf_cpus == smp_query_num_cpus(), "cpu # configured");
-+	report(data->vm[0].conf_cpus == smp_query_num_cpus(), "cpu count configured");
- 	report(data->vm[0].total_cpus ==
- 	       data->vm[0].reserved_cpus + data->vm[0].conf_cpus,
--	       "cpu # total == conf + reserved");
--	report(data->vm[0].standby_cpus == 0, "cpu # standby");
-+	       "cpu count total == conf + reserved");
-+	report(data->vm[0].standby_cpus == 0, "cpu count standby");
- 	report(!memcmp(data->vm[0].name, vm_name, sizeof(data->vm[0].name)),
- 	       "VM name == kvm-unit-test");
+-enum iucv_pm_states {
+-	IUCV_PM_INITIAL = 0,
+-	IUCV_PM_FREEZING = 1,
+-	IUCV_PM_THAWING = 2,
+-	IUCV_PM_RESTORING = 3,
+-};
+-static enum iucv_pm_states iucv_pm_state;
+-
+-static int iucv_pm_prepare(struct device *);
+-static void iucv_pm_complete(struct device *);
+-static int iucv_pm_freeze(struct device *);
+-static int iucv_pm_thaw(struct device *);
+-static int iucv_pm_restore(struct device *);
+-
+-static const struct dev_pm_ops iucv_pm_ops = {
+-	.prepare = iucv_pm_prepare,
+-	.complete = iucv_pm_complete,
+-	.freeze = iucv_pm_freeze,
+-	.thaw = iucv_pm_thaw,
+-	.restore = iucv_pm_restore,
+-};
+-
+ struct bus_type iucv_bus = {
+ 	.name = "iucv",
+ 	.match = iucv_bus_match,
+-	.pm = &iucv_pm_ops,
+ };
+ EXPORT_SYMBOL(iucv_bus);
  
+@@ -434,31 +411,6 @@ static void iucv_block_cpu(void *data)
+ 	cpumask_clear_cpu(cpu, &iucv_irq_cpumask);
+ }
+ 
+-/**
+- * iucv_block_cpu_almost
+- * @data: unused
+- *
+- * Allow connection-severed interrupts only on this cpu.
+- */
+-static void iucv_block_cpu_almost(void *data)
+-{
+-	int cpu = smp_processor_id();
+-	union iucv_param *parm;
+-
+-	/* Allow iucv control interrupts only */
+-	parm = iucv_param_irq[cpu];
+-	memset(parm, 0, sizeof(union iucv_param));
+-	parm->set_mask.ipmask = 0x08;
+-	iucv_call_b2f0(IUCV_SETMASK, parm);
+-	/* Allow iucv-severed interrupt only */
+-	memset(parm, 0, sizeof(union iucv_param));
+-	parm->set_mask.ipmask = 0x20;
+-	iucv_call_b2f0(IUCV_SETCONTROLMASK, parm);
+-
+-	/* Clear indication that iucv interrupts are allowed for this cpu. */
+-	cpumask_clear_cpu(cpu, &iucv_irq_cpumask);
+-}
+-
+ /**
+  * iucv_declare_cpu
+  * @data: unused
+@@ -1834,146 +1786,6 @@ static void iucv_external_interrupt(struct ext_code ext_code,
+ 	spin_unlock(&iucv_queue_lock);
+ }
+ 
+-static int iucv_pm_prepare(struct device *dev)
+-{
+-	int rc = 0;
+-
+-#ifdef CONFIG_PM_DEBUG
+-	printk(KERN_INFO "iucv_pm_prepare\n");
+-#endif
+-	if (dev->driver && dev->driver->pm && dev->driver->pm->prepare)
+-		rc = dev->driver->pm->prepare(dev);
+-	return rc;
+-}
+-
+-static void iucv_pm_complete(struct device *dev)
+-{
+-#ifdef CONFIG_PM_DEBUG
+-	printk(KERN_INFO "iucv_pm_complete\n");
+-#endif
+-	if (dev->driver && dev->driver->pm && dev->driver->pm->complete)
+-		dev->driver->pm->complete(dev);
+-}
+-
+-/**
+- * iucv_path_table_empty() - determine if iucv path table is empty
+- *
+- * Returns 0 if there are still iucv pathes defined
+- *	   1 if there are no iucv pathes defined
+- */
+-static int iucv_path_table_empty(void)
+-{
+-	int i;
+-
+-	for (i = 0; i < iucv_max_pathid; i++) {
+-		if (iucv_path_table[i])
+-			return 0;
+-	}
+-	return 1;
+-}
+-
+-/**
+- * iucv_pm_freeze() - Freeze PM callback
+- * @dev:	iucv-based device
+- *
+- * disable iucv interrupts
+- * invoke callback function of the iucv-based driver
+- * shut down iucv, if no iucv-pathes are established anymore
+- */
+-static int iucv_pm_freeze(struct device *dev)
+-{
+-	int cpu;
+-	struct iucv_irq_list *p, *n;
+-	int rc = 0;
+-
+-#ifdef CONFIG_PM_DEBUG
+-	printk(KERN_WARNING "iucv_pm_freeze\n");
+-#endif
+-	if (iucv_pm_state != IUCV_PM_FREEZING) {
+-		for_each_cpu(cpu, &iucv_irq_cpumask)
+-			smp_call_function_single(cpu, iucv_block_cpu_almost,
+-						 NULL, 1);
+-		cancel_work_sync(&iucv_work);
+-		list_for_each_entry_safe(p, n, &iucv_work_queue, list) {
+-			list_del_init(&p->list);
+-			iucv_sever_pathid(p->data.ippathid,
+-					  iucv_error_no_listener);
+-			kfree(p);
+-		}
+-	}
+-	iucv_pm_state = IUCV_PM_FREEZING;
+-	if (dev->driver && dev->driver->pm && dev->driver->pm->freeze)
+-		rc = dev->driver->pm->freeze(dev);
+-	if (iucv_path_table_empty())
+-		iucv_disable();
+-	return rc;
+-}
+-
+-/**
+- * iucv_pm_thaw() - Thaw PM callback
+- * @dev:	iucv-based device
+- *
+- * make iucv ready for use again: allocate path table, declare interrupt buffers
+- *				  and enable iucv interrupts
+- * invoke callback function of the iucv-based driver
+- */
+-static int iucv_pm_thaw(struct device *dev)
+-{
+-	int rc = 0;
+-
+-#ifdef CONFIG_PM_DEBUG
+-	printk(KERN_WARNING "iucv_pm_thaw\n");
+-#endif
+-	iucv_pm_state = IUCV_PM_THAWING;
+-	if (!iucv_path_table) {
+-		rc = iucv_enable();
+-		if (rc)
+-			goto out;
+-	}
+-	if (cpumask_empty(&iucv_irq_cpumask)) {
+-		if (iucv_nonsmp_handler)
+-			/* enable interrupts on one cpu */
+-			iucv_allow_cpu(NULL);
+-		else
+-			/* enable interrupts on all cpus */
+-			iucv_setmask_mp();
+-	}
+-	if (dev->driver && dev->driver->pm && dev->driver->pm->thaw)
+-		rc = dev->driver->pm->thaw(dev);
+-out:
+-	return rc;
+-}
+-
+-/**
+- * iucv_pm_restore() - Restore PM callback
+- * @dev:	iucv-based device
+- *
+- * make iucv ready for use again: allocate path table, declare interrupt buffers
+- *				  and enable iucv interrupts
+- * invoke callback function of the iucv-based driver
+- */
+-static int iucv_pm_restore(struct device *dev)
+-{
+-	int rc = 0;
+-
+-#ifdef CONFIG_PM_DEBUG
+-	printk(KERN_WARNING "iucv_pm_restore %p\n", iucv_path_table);
+-#endif
+-	if ((iucv_pm_state != IUCV_PM_RESTORING) && iucv_path_table)
+-		pr_warn("Suspending Linux did not completely close all IUCV connections\n");
+-	iucv_pm_state = IUCV_PM_RESTORING;
+-	if (cpumask_empty(&iucv_irq_cpumask)) {
+-		rc = iucv_query_maxconn();
+-		rc = iucv_enable();
+-		if (rc)
+-			goto out;
+-	}
+-	if (dev->driver && dev->driver->pm && dev->driver->pm->restore)
+-		rc = dev->driver->pm->restore(dev);
+-out:
+-	return rc;
+-}
+-
+ struct iucv_interface iucv_if = {
+ 	.message_receive = iucv_message_receive,
+ 	.__message_receive = __iucv_message_receive,
 -- 
-2.25.1
+2.17.1
