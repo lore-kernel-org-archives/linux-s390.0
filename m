@@ -1,199 +1,89 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 08/11] net/smc: llc_del_link_work and use the LLC flow for delete link
-Date: Sun,  3 May 2020 14:38:47 +0200
-Message-Id: <20200503123850.57261-9-kgraul@linux.ibm.com>
-In-Reply-To: <20200503123850.57261-1-kgraul@linux.ibm.com>
-References: <20200503123850.57261-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
+Subject: [PATCH v2 7/7] padata: document multithreaded jobs
+Date: Wed, 20 May 2020 14:26:45 -0400
+Message-Id: <20200520182645.1658949-8-daniel.m.jordan@oracle.com>
+In-Reply-To: <20200520182645.1658949-1-daniel.m.jordan@oracle.com>
+References: <20200520182645.1658949-1-daniel.m.jordan@oracle.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
 
-Introduce a work that is scheduled when a new DELETE_LINK LLC request is
-received. The work will call either the SMC client or SMC server
-DELETE_LINK processing.
-And use the LLC flow framework to process incoming DELETE_LINK LLC
-messages, scheduling the llc_del_link_work for those events.
-With these changes smc_lgr_forget() is only called by one function and
-can be migrated into smc_lgr_cleanup_early().
+Add Documentation for multithreaded jobs.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
 ---
- net/smc/smc_core.c | 22 +++++++------------
- net/smc/smc_core.h |  2 +-
- net/smc/smc_llc.c  | 55 ++++++++++++++++++++++++++++++----------------
- 3 files changed, 45 insertions(+), 34 deletions(-)
+ Documentation/core-api/padata.rst | 41 +++++++++++++++++++++++--------
+ 1 file changed, 31 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2f8faa9c9e8e..a964304283fa 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -193,12 +193,19 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
- void smc_lgr_cleanup_early(struct smc_connection *conn)
- {
- 	struct smc_link_group *lgr = conn->lgr;
-+	struct list_head *lgr_list;
-+	spinlock_t *lgr_lock;
+diff --git a/Documentation/core-api/padata.rst b/Documentation/core-api/padata.rst
+index 9a24c111781d9..b7e047af993e8 100644
+--- a/Documentation/core-api/padata.rst
++++ b/Documentation/core-api/padata.rst
+@@ -4,23 +4,26 @@
+ The padata parallel execution mechanism
+ =======================================
  
- 	if (!lgr)
- 		return;
+-:Date: December 2019
++:Date: April 2020
  
- 	smc_conn_free(conn);
--	smc_lgr_forget(lgr);
-+	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
-+	spin_lock_bh(lgr_lock);
-+	/* do not use this link group for new connections */
-+	if (!list_empty(lgr_list))
-+		list_del_init(lgr_list);
-+	spin_unlock_bh(lgr_lock);
- 	smc_lgr_schedule_free_work_fast(lgr);
- }
+ Padata is a mechanism by which the kernel can farm jobs out to be done in
+-parallel on multiple CPUs while retaining their ordering.  It was developed for
+-use with the IPsec code, which needs to be able to perform encryption and
+-decryption on large numbers of packets without reordering those packets.  The
+-crypto developers made a point of writing padata in a sufficiently general
+-fashion that it could be put to other uses as well.
++parallel on multiple CPUs while optionally retaining their ordering.
  
-@@ -653,19 +660,6 @@ static void smc_lgr_free(struct smc_link_group *lgr)
- 	kfree(lgr);
- }
+-Usage
+-=====
++It was originally developed for IPsec, which needs to perform encryption and
++decryption on large numbers of packets without reordering those packets.  This
++is currently the sole consumer of padata's serialized job support.
++
++Padata also supports multithreaded jobs, splitting up the job evenly while load
++balancing and coordinating between threads.
++
++Running Serialized Jobs
++=======================
  
--void smc_lgr_forget(struct smc_link_group *lgr)
--{
--	struct list_head *lgr_list;
--	spinlock_t *lgr_lock;
--
--	lgr_list = smc_lgr_list_head(lgr, &lgr_lock);
--	spin_lock_bh(lgr_lock);
--	/* do not use this link group for new connections */
--	if (!list_empty(lgr_list))
--		list_del_init(lgr_list);
--	spin_unlock_bh(lgr_lock);
--}
--
- static void smcd_unregister_all_dmbs(struct smc_link_group *lgr)
- {
- 	int i;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 4e00819e2db7..7fe53feb9dc4 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -254,6 +254,7 @@ struct smc_link_group {
- 			struct mutex		llc_conf_mutex;
- 						/* protects lgr reconfig. */
- 			struct work_struct	llc_add_link_work;
-+			struct work_struct	llc_del_link_work;
- 			struct work_struct	llc_event_work;
- 						/* llc event worker */
- 			wait_queue_head_t	llc_waiter;
-@@ -343,7 +344,6 @@ struct smc_sock;
- struct smc_clc_msg_accept_confirm;
- struct smc_clc_msg_local;
+ Initializing
+ ------------
  
--void smc_lgr_forget(struct smc_link_group *lgr);
- void smc_lgr_cleanup_early(struct smc_connection *conn);
- void smc_lgr_terminate_sched(struct smc_link_group *lgr);
- void smcr_port_add(struct smc_ib_device *smcibdev, u8 ibport);
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 9d102c912be9..e4e3910a9624 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1118,22 +1118,18 @@ static void smc_llc_add_link_work(struct work_struct *work)
- 	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
- }
+-The first step in using padata is to set up a padata_instance structure for
+-overall control of how jobs are to be run::
++The first step in using padata to run parallel jobs is to set up a
++padata_instance structure for overall control of how jobs are to be run::
  
--static void smc_llc_rx_delete_link(struct smc_link *link,
--				   struct smc_llc_msg_del_link *llc)
-+static void smc_llc_delete_link_work(struct work_struct *work)
- {
--	struct smc_link_group *lgr = smc_get_lgr(link);
-+	struct smc_link_group *lgr = container_of(work, struct smc_link_group,
-+						  llc_del_link_work);
+     #include <linux/padata.h>
  
--	smc_lgr_forget(lgr);
--	if (lgr->role == SMC_SERV) {
--		/* client asks to delete this link, send request */
--		smc_llc_send_delete_link(link, 0, SMC_LLC_REQ, true,
--					 SMC_LLC_DEL_PROG_INIT_TERM);
--	} else {
--		/* server requests to delete this link, send response */
--		smc_llc_send_delete_link(link, 0, SMC_LLC_RESP, true,
--					 SMC_LLC_DEL_PROG_INIT_TERM);
-+	if (list_empty(&lgr->list)) {
-+		/* link group is terminating */
-+		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
-+		goto out;
- 	}
--	smcr_link_down_cond(link);
-+out:
-+	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
- }
+@@ -162,6 +165,24 @@ functions that correspond to the allocation in reverse::
+ It is the user's responsibility to ensure all outstanding jobs are complete
+ before any of the above are called.
  
- /* process a confirm_rkey request from peer, remote flow */
-@@ -1255,8 +1251,30 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
- 		}
- 		break;
- 	case SMC_LLC_DELETE_LINK:
--		smc_llc_rx_delete_link(link, &llc->delete_link);
--		break;
-+		if (lgr->role == SMC_CLNT) {
-+			/* server requests to delete this link, send response */
-+			if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE) {
-+				/* DEL LINK REQ during ADD LINK SEQ */
-+				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
-+							qentry);
-+				wake_up_interruptible(&lgr->llc_waiter);
-+			} else if (smc_llc_flow_start(&lgr->llc_flow_lcl,
-+						      qentry)) {
-+				schedule_work(&lgr->llc_del_link_work);
-+			}
-+		} else {
-+			if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK &&
-+			    !lgr->llc_flow_lcl.qentry) {
-+				/* DEL LINK REQ during ADD LINK SEQ */
-+				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
-+							qentry);
-+				wake_up_interruptible(&lgr->llc_waiter);
-+			} else if (smc_llc_flow_start(&lgr->llc_flow_lcl,
-+						      qentry)) {
-+				schedule_work(&lgr->llc_del_link_work);
-+			}
-+		}
-+		return;
- 	case SMC_LLC_CONFIRM_RKEY:
- 		/* new request from remote, assign to remote flow */
- 		if (smc_llc_flow_start(&lgr->llc_flow_rmt, qentry)) {
-@@ -1325,6 +1343,7 @@ static void smc_llc_rx_response(struct smc_link *link,
- 			complete(&link->llc_testlink_resp);
- 		break;
- 	case SMC_LLC_ADD_LINK:
-+	case SMC_LLC_DELETE_LINK:
- 	case SMC_LLC_CONFIRM_LINK:
- 	case SMC_LLC_ADD_LINK_CONT:
- 	case SMC_LLC_CONFIRM_RKEY:
-@@ -1333,10 +1352,6 @@ static void smc_llc_rx_response(struct smc_link *link,
- 		smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
- 		wake_up_interruptible(&link->lgr->llc_waiter);
- 		return;
--	case SMC_LLC_DELETE_LINK:
--		if (link->lgr->role == SMC_SERV)
--			smc_lgr_schedule_free_work_fast(link->lgr);
--		break;
- 	case SMC_LLC_CONFIRM_RKEY_CONT:
- 		/* not used because max links is 3 */
- 		break;
-@@ -1424,6 +1439,7 @@ void smc_llc_lgr_init(struct smc_link_group *lgr, struct smc_sock *smc)
++Running Multithreaded Jobs
++==========================
++
++A multithreaded job has a main thread and zero or more helper threads, with the
++main thread participating in the job and then waiting until all helpers have
++finished.  padata splits the job into units called chunks, where a chunk is a
++piece of the job that one thread completes in one call to the thread function.
++
++A user has to do three things to run a multithreaded job.  First, describe the
++job by defining a padata_mt_job structure, which is explained in the Interface
++section.  This includes a pointer to the thread function, which padata will
++call each time it assigns a job chunk to a thread.  Then, define the thread
++function, which accepts three arguments, ``start``, ``end``, and ``arg``, where
++the first two delimit the range that the thread operates on and the last is a
++pointer to the job's shared state, if any.  Prepare the shared state, which is
++typically a stack-allocated structure that wraps the required data.  Last, call
++padata_do_multithreaded(), which will return once the job is finished.
++
+ Interface
+ =========
  
- 	INIT_WORK(&lgr->llc_event_work, smc_llc_event_work);
- 	INIT_WORK(&lgr->llc_add_link_work, smc_llc_add_link_work);
-+	INIT_WORK(&lgr->llc_del_link_work, smc_llc_delete_link_work);
- 	INIT_LIST_HEAD(&lgr->llc_event_q);
- 	spin_lock_init(&lgr->llc_event_q_lock);
- 	spin_lock_init(&lgr->llc_flow_lock);
-@@ -1439,6 +1455,7 @@ void smc_llc_lgr_clear(struct smc_link_group *lgr)
- 	wake_up_interruptible_all(&lgr->llc_waiter);
- 	cancel_work_sync(&lgr->llc_event_work);
- 	cancel_work_sync(&lgr->llc_add_link_work);
-+	cancel_work_sync(&lgr->llc_del_link_work);
- 	if (lgr->delayed_event) {
- 		kfree(lgr->delayed_event);
- 		lgr->delayed_event = NULL;
 -- 
-2.17.1
+2.26.2
