@@ -1,89 +1,116 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49012 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725879AbgEGNgw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 7 May 2020 09:36:52 -0400
-Date: Thu, 7 May 2020 15:36:48 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v4 05/11] s390: Change s390_kernel_write() return type
- to match memcpy()
-In-Reply-To: <be5119b30920d2da6fca3f6d2b1aca5712a2fd30.1588173720.git.jpoimboe@redhat.com>
-Message-ID: <nycvar.YFH.7.76.2005071534170.25812@cbobk.fhfr.pm>
-References: <cover.1588173720.git.jpoimboe@redhat.com> <be5119b30920d2da6fca3f6d2b1aca5712a2fd30.1588173720.git.jpoimboe@redhat.com>
+Received: from userp2130.oracle.com ([156.151.31.86]:46464 "EHLO
+        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726814AbgEUVQW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 May 2020 17:16:22 -0400
+Date: Thu, 21 May 2020 17:15:20 -0400
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
+Subject: Re: [PATCH v2 5/7] mm: parallelize deferred_init_memmap()
+Message-ID: <20200521211520.sqkwg4qbvx4oviob@ca-dmjordan1.us.oracle.com>
+References: <20200520182645.1658949-1-daniel.m.jordan@oracle.com>
+ <20200520182645.1658949-6-daniel.m.jordan@oracle.com>
+ <CAKgT0UfWOe-_rA+o5Uh-mTKSodsv9pFvApun=oYeAsOpMpP83Q@mail.gmail.com>
+ <20200521153743.ymrwhgceazzc6ccb@ca-dmjordan1.us.oracle.com>
+ <CAKgT0Uc_LNe+KuyYxFnQ44GAfygEOQNubxwzxmTDVBvFA=WZkA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKgT0Uc_LNe+KuyYxFnQ44GAfygEOQNubxwzxmTDVBvFA=WZkA@mail.gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: live-patching@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Jessica Yu <jeyu@kernel.org>, Joe Lawrence <joe.lawrence@redhat.com>, Miroslav Benes <mbenes@suse.cz>, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>, Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>, Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" <linuxppc-dev@lists.ozlabs.org>
 
-On Wed, 29 Apr 2020, Josh Poimboeuf wrote:
+On Thu, May 21, 2020 at 09:46:35AM -0700, Alexander Duyck wrote:
+> It is more about not bothering with the extra tracking. We don't
+> really need it and having it doesn't really add much in the way of
+> value.
 
-> s390_kernel_write()'s function type is almost identical to memcpy().
-> Change its return type to "void *" so they can be used interchangeably.
+Yeah, it can probably go.
+
+> > > > @@ -1863,11 +1892,32 @@ static int __init deferred_init_memmap(void *data)
+> > > >                 goto zone_empty;
+> > > >
+> > > >         /*
+> > > > -        * Initialize and free pages in MAX_ORDER sized increments so
+> > > > -        * that we can avoid introducing any issues with the buddy
+> > > > -        * allocator.
+> > > > +        * More CPUs always led to greater speedups on tested systems, up to
+> > > > +        * all the nodes' CPUs.  Use all since the system is otherwise idle now.
+> > > >          */
+> > > > +       max_threads = max(cpumask_weight(cpumask), 1u);
+> > > > +
+> > > >         while (spfn < epfn) {
+> > > > +               epfn_align = ALIGN_DOWN(epfn, PAGES_PER_SECTION);
+> > > > +
+> > > > +               if (IS_ALIGNED(spfn, PAGES_PER_SECTION) &&
+> > > > +                   epfn_align - spfn >= PAGES_PER_SECTION) {
+> > > > +                       struct definit_args arg = { zone, ATOMIC_LONG_INIT(0) };
+> > > > +                       struct padata_mt_job job = {
+> > > > +                               .thread_fn   = deferred_init_memmap_chunk,
+> > > > +                               .fn_arg      = &arg,
+> > > > +                               .start       = spfn,
+> > > > +                               .size        = epfn_align - spfn,
+> > > > +                               .align       = PAGES_PER_SECTION,
+> > > > +                               .min_chunk   = PAGES_PER_SECTION,
+> > > > +                               .max_threads = max_threads,
+> > > > +                       };
+> > > > +
+> > > > +                       padata_do_multithreaded(&job);
+> > > > +                       nr_pages += atomic_long_read(&arg.nr_pages);
+> > > > +                       spfn = epfn_align;
+> > > > +               }
+> > > > +
+> > > >                 nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
+> > > >                 cond_resched();
+> > > >         }
+> > >
+> > > This doesn't look right. You are basically adding threads in addition
+> > > to calls to deferred_init_maxorder.
+> >
+> > The deferred_init_maxorder call is there to do the remaining, non-section
+> > aligned part of a range.  It doesn't have to be done this way.
 > 
-> Cc: linux-s390@vger.kernel.org
-> Cc: heiko.carstens@de.ibm.com
-> Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-> Acked-by: Joe Lawrence <joe.lawrence@redhat.com>
-> Acked-by: Miroslav Benes <mbenes@suse.cz>
+> It is also doing the advancing though isn't it?
 
-Also for this one -- s390 folks, could you please provide your Ack for 
-taking things through livepatching.git as part of this series?
+Yes.  Not sure what you're getting at.  There's the 'spfn = epfn_align' before
+so nothing is skipped.  It's true that the nonaligned part is done outside of
+padata when it could be done by a thread that'd otherwise be waiting or idle,
+which should be addressed in the next version.
 
-Thanks.
+> I think I resolved this with the fix for it I described in the other
+> email. We just need to swap out spfn for epfn and make sure we align
+> spfn with epfn_align. Then I think that takes care of possible skips.
 
-> ---
->  arch/s390/include/asm/uaccess.h | 2 +-
->  arch/s390/mm/maccess.c          | 9 ++++++---
->  2 files changed, 7 insertions(+), 4 deletions(-)
+Right, though your fix looks a lot like deferred_init_mem_pfn_range_in_zone().
+Seems better to just use that and not repeat ourselves.  Lame that it's
+starting at the beginning of the ranges every time, maybe it could be
+generalized somehow, but I think it should be fast enough.
+
+> > We could use deferred_init_mem_pfn_range_in_zone() instead of the for_each
+> > loop.
+> >
+> > What I was trying to avoid by aligning down is creating a discontiguous pfn
+> > range that get passed to padata.  We already discussed how those are handled
+> > by the zone iterator in the thread function, but job->size can be exaggerated
+> > to include parts of the range that are never touched.  Thinking more about it
+> > though, it's a small fraction of the total work and shouldn't matter.
 > 
-> diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
-> index a470f1fa9f2a..324438889fe1 100644
-> --- a/arch/s390/include/asm/uaccess.h
-> +++ b/arch/s390/include/asm/uaccess.h
-> @@ -276,6 +276,6 @@ static inline unsigned long __must_check clear_user(void __user *to, unsigned lo
->  }
->  
->  int copy_to_user_real(void __user *dest, void *src, unsigned long count);
-> -void s390_kernel_write(void *dst, const void *src, size_t size);
-> +void *s390_kernel_write(void *dst, const void *src, size_t size);
->  
->  #endif /* __S390_UACCESS_H */
-> diff --git a/arch/s390/mm/maccess.c b/arch/s390/mm/maccess.c
-> index de7ca4b6718f..22a0be655f27 100644
-> --- a/arch/s390/mm/maccess.c
-> +++ b/arch/s390/mm/maccess.c
-> @@ -55,19 +55,22 @@ static notrace long s390_kernel_write_odd(void *dst, const void *src, size_t siz
->   */
->  static DEFINE_SPINLOCK(s390_kernel_write_lock);
->  
-> -void notrace s390_kernel_write(void *dst, const void *src, size_t size)
-> +notrace void *s390_kernel_write(void *dst, const void *src, size_t size)
->  {
-> +	void *tmp = dst;
->  	unsigned long flags;
->  	long copied;
->  
->  	spin_lock_irqsave(&s390_kernel_write_lock, flags);
->  	while (size) {
-> -		copied = s390_kernel_write_odd(dst, src, size);
-> -		dst += copied;
-> +		copied = s390_kernel_write_odd(tmp, src, size);
-> +		tmp += copied;
->  		src += copied;
->  		size -= copied;
->  	}
->  	spin_unlock_irqrestore(&s390_kernel_write_lock, flags);
-> +
-> +	return dst;
->  }
->  
->  static int __no_sanitize_address __memcpy_real(void *dest, void *src, size_t count)
-> -- 
-> 2.21.1
-> 
+> So the problem with aligning down is that you are going to be slowed
+> up as you have to go single threaded to initialize whatever remains.
+> So worst case scenario is that you have a section aligned block and
+> you will process all but 1 section in parallel, and then have to
+> process the remaining section one max order block at a time.
 
--- 
-Jiri Kosina
-SUSE Labs
+Yes, aligning up is better.
+
+> > > This should accomplish the same thing, but much more efficiently.
+> >
+> > Well, more cleanly.  I'll give it a try.
+> 
+> I agree I am not sure if it will make a big difference on x86, however
+> the more ranges you have to process the faster this approach should be
+> as it stays parallel the entire time rather than having to drop out
+> and process the last section one max order block at a time.
+
+Right.
