@@ -1,57 +1,95 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-References: <20191221150402.13868-1-murphyt7@tcd.ie>
-From: Logan Gunthorpe <logang@deltatee.com>
-Message-ID: <465815ae-9292-f37a-59b9-03949cb68460@deltatee.com>
-Date: Thu, 28 May 2020 18:00:44 -0600
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42162 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727042AbgEUGPw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 21 May 2020 02:15:52 -0400
+Subject: Re: [PATCH v7 3/3] s390/kvm: diagnose 0x318 get/set handling
+References: <20200515221935.18775-1-walling@linux.ibm.com>
+ <20200515221935.18775-4-walling@linux.ibm.com>
+ <b08dbb8a-76fd-3693-d470-6171074ffce4@de.ibm.com>
+From: Collin Walling <walling@linux.ibm.com>
+Message-ID: <d1ef0fed-053c-8e95-f5a6-53423de27957@linux.ibm.com>
+Date: Thu, 21 May 2020 02:15:47 -0400
 MIME-Version: 1.0
-In-Reply-To: <20191221150402.13868-1-murphyt7@tcd.ie>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <b08dbb8a-76fd-3693-d470-6171074ffce4@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the dma-iommu api
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Tom Murphy <murphyt7@tcd.ie>, iommu@lists.linux-foundation.org
-Cc: kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-tegra@vger.kernel.org, Julien Grall <julien.grall@arm.com>, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Eric Auger <eric.auger@redhat.com>, Alex Williamson <alex.williamson@redhat.com>, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, Matthias Brugger <matthias.bgg@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, David Woodhouse <dwmw2@infradead.org>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Lu Baolu <baolu.lu@linux.intel.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: pbonzini@redhat.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
 
-Hi Tom,
-
-On 2019-12-21 8:03 a.m., Tom Murphy wrote:
-> This patchset converts the intel iommu driver to the dma-iommu api.
-
-Just wanted to note that I've rebased your series on recent kernels and
-have done some testing on my old Sandybridge machine (without the DO NOT
-MERGE patch) and have found no issues. I hope this can make progress
-soon and get merged soon. If you like you can add:
-
-Tested-By: Logan Gunthorpe <logang@deltatee.com>
-
-> While converting the driver I exposed a bug in the intel i915 driver which causes a huge amount of artifacts on the screen of my laptop. You can see a picture of it here:
-> https://github.com/pippy360/kernelPatches/blob/master/IMG_20191219_225922.jpg
+On 5/18/20 5:15 AM, Christian Borntraeger wrote:
 > 
-> This issue is most likely in the i915 driver and is most likely caused by the driver not respecting the return value of the dma_map_ops::map_sg function. You can see the driver ignoring the return value here:
-> https://github.com/torvalds/linux/blob/7e0165b2f1a912a06e381e91f0f4e495f4ac3736/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c#L51
 > 
-> Previously this didn’t cause issues because the intel map_sg always returned the same number of elements as the input scatter gather list but with the change to this dma-iommu api this is no longer the case. I wasn’t able to track the bug down to a specific line of code unfortunately.  
+> On 16.05.20 00:19, Collin Walling wrote:
+>> DIAGNOSE 0x318 (diag 318) sets information regarding the environment
+>> the VM is running in (Linux, z/VM, etc) and is observed via
+>> firmware/service events.
+>>
+>> This is a privileged s390x instruction that must be intercepted by
+>> SIE. Userspace handling is required, so let's introduce some functions
+>> to communicate between userspace and KVM via ioctls. These will be used
+>> to get/set the diag 318 related information.
+>>
+>> The Control Program Name Code (CPNC) is stored in the SIE block. The
+>> CPNC along with the Control Program Version Code (CPVC) are stored in
+>> the kvm_arch struct.
+>>
+>> Signed-off-by: Collin Walling <walling@linux.ibm.com>
+>> ---
+>>  Documentation/virt/kvm/devices/vm.rst | 21 +++++++
+>>  arch/s390/include/asm/kvm_host.h      |  5 +-
+>>  arch/s390/include/uapi/asm/kvm.h      |  4 ++
+>>  arch/s390/kvm/kvm-s390.c              | 82 +++++++++++++++++++++++++++
+>>  arch/s390/kvm/vsie.c                  |  2 +
+>>  5 files changed, 113 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
+>> index 0aa5b1cfd700..52cc906dd7bd 100644
+>> --- a/Documentation/virt/kvm/devices/vm.rst
+>> +++ b/Documentation/virt/kvm/devices/vm.rst
+>> @@ -314,3 +314,24 @@ Allows userspace to query the status of migration mode.
+>>  	     if it is enabled
+>>  :Returns:   -EFAULT if the given address is not accessible from kernel space;
+>>  	    0 in case of success.
+>> +
+>> +6. GROUP: KVM_S390_VM_MISC
+>> +==========================
+>> +
+>> +:Architectures: s390
+>> +
+>> +6.1. KVM_S390_VM_MISC_DIAG_318 (r/w)
+>> +-----------------------------------
+>> +
+>> +Allows userspace to retrieve and set the DIAGNOSE 0x318 information,
+>> +which consists of a 1-byte "Control Program Name Code" and a 7-byte
+>> +"Control Program Version Code" (a 64 bit value all in all). This
+>> +information is set by the guest (usually during IPL). This interface is
+>> +intended to allow retrieving and setting it during migration; while no
+>> +real harm is done if the information is changed outside of migration,
+>> +it is strongly discouraged.
+>> +
+>> +:Parameters: address of a buffer in user space (u64), where the
+>> +	     information is read from or stored into
+>> +:Returns:    -EFAULT if the given address is not accessible from kernel space;
+>> +	     0 in case of success
+> 
+> 
+> An alternative would be a new sync_reg value + KVM capability.
+> 
+> 
 
-I did some digging into this myself and while I don't have full patch, I
-think I traced it closer to the problem.
+I did some investigation into this (new grounds for me)
 
-Sadly, ignoring the number of nents returned by map_sg() is endemic to
-dma-buf users, but AMD's GPU driver seems to do the same thing,
-presumably without issues.
+sync_reg would handle the migration part, and then we'd just need the
+ioctl so the diag instruction handler can set the data. Does that sound
+right?
 
-Digging a bit further, I found that the i915 has an "innovative" way of
-iterating through SGLs, see [1]. I suspect if __sgt_iter is changed to
-increment with sg_dma_len() and return NULL when there is no length
-left, it may fix the issue.
+-- 
+Regards,
+Collin
 
-But, sorry, I don't really have the means or time to fix and test this
-myself.
-
-Thanks,
-
-Logan
-
-[1]
-https://elixir.bootlin.com/linux/v5.7-rc7/source/drivers/gpu/drm/i915/i915_scatterlist.h#L76
+Stay safe and stay healthy
