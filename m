@@ -1,97 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52456 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726212AbgEOWUC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 15 May 2020 18:20:02 -0400
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v7 0/3] Use DIAG318 to set Control Program Name & Version Codes
-Date: Fri, 15 May 2020 18:19:32 -0400
-Message-Id: <20200515221935.18775-1-walling@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:38519 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2389633AbgEYJlo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 05:41:44 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 05/10] vfio-ccw: Refactor the unregister of the async regions
+Date: Mon, 25 May 2020 11:41:10 +0200
+Message-Id: <20200525094115.222299-6-cohuck@redhat.com>
+In-Reply-To: <20200525094115.222299-1-cohuck@redhat.com>
+References: <20200525094115.222299-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-Changelog:
+From: Eric Farman <farman@linux.ibm.com>
 
-    v7
+This is mostly for the purposes of a later patch, since
+we'll need to do the same thing later.
 
-    • Removed diag handler, as it will now take place within userspace
-    • Removed KVM_S390_VM_MISC_ENABLE_DIAG318 (undoes first bullet in v6)
-    • Misc clean ups and fixes
-        - introduced a new patch to s/diag318/diag_318 and s/byte_134/fac134
-          to keep things consistent with the rest of the code
+While we are at it, move the resulting function call to ahead
+of the unregistering of the IOMMU notifier, so that it's done
+in the reverse order of how it was created.
 
-    v6
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200505122745.53208-4-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_ops.c     | 20 ++++++++++++--------
+ drivers/s390/cio/vfio_ccw_private.h |  1 +
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-    • KVM disables diag318 get/set by default [removed in v7]
-    • added new IOCTL to tell KVM to enable diag318 [removed in v7]
-    • removed VCPU event message in favor of VM_EVENT only
-
-    v5
-    
-    • s/cpc/diag318_info in order to make the relevant data more clear
-    • removed mutex locks for diag318_info get/set
-
-    v4
-    
-    • removed setup.c changes introduced in bullet 1 of v3
-    • kept diag318_info struct cleanup
-    • analogous QEMU patches:
-        https://lists.gnu.org/archive/html/qemu-devel/2019-05/msg00164.html
-
-    v3
-    
-    • kernel patch for diag 0x318 instruction call fixup [removed in v4]
-    • removed CPU model code
-    • cleaned up diag318_info struct
-    • cpnc is no longer unshadowed as it was not needed
-    • rebased on 5.1.0-rc3
-
--------------------------------------------------------------------------------
-
-This instruction call is executed once-and-only-once during Kernel setup.
-The availability of this instruction depends on Read Info byte 134 (aka fac134),
-bit 0.
-
-DIAG 0x318's is handled by userspace and may be enabled for a guest even if the
-host kernel cannot support it.
-
-The diag318_info is composed of a Control Program Name Code (CPNC) and a
-Control Program Version Code (CPVC). The CPNC is stored in SIE blocks, and
-the CPNC & CPVC pair is stored in the kvm_arch struct. 
-
-These values are used for problem diagnosis and allows IBM to identify control
-program information by answering the following question:
-
-    "What environment is this guest running in?" (CPNC)
-    "What are more details regarding the OS?" (CPVC)
-
-In the future, we will implement the CPVC to convey more information about the 
-OS (such as Linux version and potentially some value denoting a specific 
-distro + release). For now, we set this field to 0 until we come up with a solid 
-plan.
-
-Collin Walling (3):
-  s390/setup: diag 318: refactor struct
-  s390: keep diag 318 variables consistent with the rest
-  s390/kvm: diagnose 0x318 get/set handling
-
- Documentation/virt/kvm/devices/vm.rst | 21 +++++++
- arch/s390/include/asm/diag.h          |  8 +--
- arch/s390/include/asm/kvm_host.h      |  5 +-
- arch/s390/include/asm/sclp.h          |  2 +-
- arch/s390/include/uapi/asm/kvm.h      |  4 ++
- arch/s390/kernel/setup.c              |  9 ++-
- arch/s390/kvm/kvm-s390.c              | 82 +++++++++++++++++++++++++++
- arch/s390/kvm/vsie.c                  |  2 +
- drivers/s390/char/sclp.h              |  2 +-
- drivers/s390/char/sclp_early.c        |  2 +-
- 10 files changed, 123 insertions(+), 14 deletions(-)
-
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index f0d71ab77c50..d4fc84b8867f 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -181,7 +181,6 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+ {
+ 	struct vfio_ccw_private *private =
+ 		dev_get_drvdata(mdev_parent_dev(mdev));
+-	int i;
+ 
+ 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+ 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+@@ -191,15 +190,9 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+ 	}
+ 
+ 	cp_free(&private->cp);
++	vfio_ccw_unregister_dev_regions(private);
+ 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+ 				 &private->nb);
+-
+-	for (i = 0; i < private->num_regions; i++)
+-		private->region[i].ops->release(private, &private->region[i]);
+-
+-	private->num_regions = 0;
+-	kfree(private->region);
+-	private->region = NULL;
+ }
+ 
+ static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
+@@ -482,6 +475,17 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
+ 	return 0;
+ }
+ 
++void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private)
++{
++	int i;
++
++	for (i = 0; i < private->num_regions; i++)
++		private->region[i].ops->release(private, &private->region[i]);
++	private->num_regions = 0;
++	kfree(private->region);
++	private->region = NULL;
++}
++
+ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+ 				   unsigned int cmd,
+ 				   unsigned long arg)
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 9b9bb4982972..ce3834159d98 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -53,6 +53,7 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
+ 				 unsigned int subtype,
+ 				 const struct vfio_ccw_regops *ops,
+ 				 size_t size, u32 flags, void *data);
++void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
+ 
+ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
+ 
 -- 
-2.21.3
+2.25.4
