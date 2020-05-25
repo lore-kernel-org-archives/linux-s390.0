@@ -1,67 +1,109 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13198 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726212AbgEOWUE (ORCPT
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:49636 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2389632AbgEYJlf (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 15 May 2020 18:20:04 -0400
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v7 1/3] s390/setup: diag 318: refactor struct
-Date: Fri, 15 May 2020 18:19:33 -0400
-Message-Id: <20200515221935.18775-2-walling@linux.ibm.com>
-In-Reply-To: <20200515221935.18775-1-walling@linux.ibm.com>
-References: <20200515221935.18775-1-walling@linux.ibm.com>
+        Mon, 25 May 2020 05:41:35 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 03/10] vfio-ccw: Introduce new helper functions to free/destroy regions
+Date: Mon, 25 May 2020 11:41:08 +0200
+Message-Id: <20200525094115.222299-4-cohuck@redhat.com>
+In-Reply-To: <20200525094115.222299-1-cohuck@redhat.com>
+References: <20200525094115.222299-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 
-The diag 318 struct introduced in include/asm/diag.h can be
-reused in KVM, so let's condense the version code fields in the
-diag318_info struct for easier usage and simplify it until we
-can determine how the data should be formatted.
+From: Farhan Ali <alifm@linux.ibm.com>
 
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Consolidate some of the cleanup code for the regions, so that
+as more are added we reduce code duplication.
+
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Message-Id: <20200505122745.53208-2-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/include/asm/diag.h | 6 ++----
- arch/s390/kernel/setup.c     | 3 +--
- 2 files changed, 3 insertions(+), 6 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
-index 0036eab14391..ca8f85b53a90 100644
---- a/arch/s390/include/asm/diag.h
-+++ b/arch/s390/include/asm/diag.h
-@@ -298,10 +298,8 @@ struct diag26c_mac_resp {
- union diag318_info {
- 	unsigned long val;
- 	struct {
--		unsigned int cpnc : 8;
--		unsigned int cpvc_linux : 24;
--		unsigned char cpvc_distro[3];
--		unsigned char zero;
-+		unsigned long cpnc : 8;
-+		unsigned long cpvc : 56;
- 	};
- };
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 339a6bc0339b..8715c1c2f1e1 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -116,6 +116,14 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
+ }
  
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 36445dd40fdb..1aaaf11acc6b 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -1028,8 +1028,7 @@ static void __init setup_control_program_code(void)
++static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
++{
++	if (private->cmd_region)
++		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
++	if (private->io_region)
++		kmem_cache_free(vfio_ccw_io_region, private->io_region);
++}
++
+ static int vfio_ccw_sch_probe(struct subchannel *sch)
  {
- 	union diag318_info diag318_info = {
- 		.cpnc = CPNC_LINUX,
--		.cpvc_linux = 0,
--		.cpvc_distro = {0},
-+		.cpvc = 0,
- 	};
+ 	struct pmcw *pmcw = &sch->schib.pmcw;
+@@ -181,10 +189,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	cio_disable_subchannel(sch);
+ out_free:
+ 	dev_set_drvdata(&sch->dev, NULL);
+-	if (private->cmd_region)
+-		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	if (private->io_region)
+-		kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	vfio_ccw_free_regions(private);
+ 	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 	return ret;
+@@ -200,8 +205,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
  
- 	if (!sclp.has_diag318)
+ 	dev_set_drvdata(&sch->dev, NULL);
+ 
+-	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	vfio_ccw_free_regions(private);
+ 	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 
+@@ -304,6 +308,12 @@ static void vfio_ccw_debug_exit(void)
+ 	debug_unregister(vfio_ccw_debug_trace_id);
+ }
+ 
++static void vfio_ccw_destroy_regions(void)
++{
++	kmem_cache_destroy(vfio_ccw_cmd_region);
++	kmem_cache_destroy(vfio_ccw_io_region);
++}
++
+ static int __init vfio_ccw_sch_init(void)
+ {
+ 	int ret;
+@@ -346,8 +356,7 @@ static int __init vfio_ccw_sch_init(void)
+ 	return ret;
+ 
+ out_err:
+-	kmem_cache_destroy(vfio_ccw_cmd_region);
+-	kmem_cache_destroy(vfio_ccw_io_region);
++	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+ 	return ret;
+@@ -357,8 +366,7 @@ static void __exit vfio_ccw_sch_exit(void)
+ {
+ 	css_driver_unregister(&vfio_ccw_sch_driver);
+ 	isc_unregister(VFIO_CCW_ISC);
+-	kmem_cache_destroy(vfio_ccw_io_region);
+-	kmem_cache_destroy(vfio_ccw_cmd_region);
++	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+ }
 -- 
-2.21.3
+2.25.4
