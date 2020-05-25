@@ -1,56 +1,306 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:52965 "EHLO
-        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726337AbgE0GYT (ORCPT
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:40593 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2389658AbgEYJl5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 27 May 2020 02:24:19 -0400
-Subject: Re: [PATCH v4 6/7] KVM: MIPS: clean up redundant 'kvm_run' parameters
-References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
- <20200427043514.16144-7-tianjia.zhang@linux.alibaba.com>
- <CAAhV-H7kpKUfQoWid6GSNL5+4hTTroGyL83EaW6yZwS2+Ti9kA@mail.gmail.com>
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Message-ID: <37246a25-c4dc-7757-3f5c-d46870a4f186@linux.alibaba.com>
-Date: Wed, 27 May 2020 14:24:08 +0800
+        Mon, 25 May 2020 05:41:57 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 08/10] vfio-ccw: Introduce a new CRW region
+Date: Mon, 25 May 2020 11:41:13 +0200
+Message-Id: <20200525094115.222299-9-cohuck@redhat.com>
+In-Reply-To: <20200525094115.222299-1-cohuck@redhat.com>
+References: <20200525094115.222299-1-cohuck@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <CAAhV-H7kpKUfQoWid6GSNL5+4hTTroGyL83EaW6yZwS2+Ti9kA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Huacai Chen <chenhuacai@gmail.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, paulus@ozlabs.org, mpe@ellerman.id.au, Benjamin Herrenschmidt <benh@kernel.crashing.org>, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, Thomas Gleixner <tglx@linutronix.de>, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, x86@kernel.org, hpa@zytor.com, Marc Zyngier <maz@kernel.org>, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, Peter Xu <peterx@redhat.com>, thuth@redhat.com, kvm@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, kvmarm@lists.cs.columbia.edu, "open list:MIPS" <linux-mips@vger.kernel.org>, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 
+From: Farhan Ali <alifm@linux.ibm.com>
 
+This region provides a mechanism to pass a Channel Report Word
+that affect vfio-ccw devices, and needs to be passed to the guest
+for its awareness and/or processing.
 
-On 2020/4/27 13:40, Huacai Chen wrote:
-> Reviewed-by: Huacai Chen <chenhc@lemote.com>
-> 
-> On Mon, Apr 27, 2020 at 12:35 PM Tianjia Zhang
-> <tianjia.zhang@linux.alibaba.com> wrote:
->>
->> In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
->> structure. For historical reasons, many kvm-related function parameters
->> retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
->> patch does a unified cleanup of these remaining redundant parameters.
->>
->> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
->> ---
->>   arch/mips/include/asm/kvm_host.h |  28 +-------
->>   arch/mips/kvm/emulate.c          |  59 ++++++----------
->>   arch/mips/kvm/mips.c             |  11 ++-
->>   arch/mips/kvm/trap_emul.c        | 114 ++++++++++++++-----------------
->>   arch/mips/kvm/vz.c               |  26 +++----
->>   5 files changed, 87 insertions(+), 151 deletions(-)
->>
+The base driver (see crw_collect_info()) provides space for two
+CRWs, as a subchannel event may have two CRWs chained together
+(one for the ssid, one for the subchannel).  As vfio-ccw will
+deal with everything at the subchannel level, provide space
+for a single CRW to be transferred in one shot.
 
-Hi Huacai,
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200505122745.53208-7-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ Documentation/s390/vfio-ccw.rst     | 19 ++++++++++
+ drivers/s390/cio/vfio_ccw_chp.c     | 55 +++++++++++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_drv.c     | 20 +++++++++++
+ drivers/s390/cio/vfio_ccw_ops.c     |  8 +++++
+ drivers/s390/cio/vfio_ccw_private.h |  4 +++
+ include/uapi/linux/vfio.h           |  2 ++
+ include/uapi/linux/vfio_ccw.h       |  8 +++++
+ 7 files changed, 116 insertions(+)
 
-These two patches(6/7 and 7/7) should be merged into the tree of the 
-mips architecture separately. At present, there seems to be no good way 
-to merge the whole architecture patchs.
-
-For this series of patches, some architectures have been merged, some 
-need to update the patch.
-
-Thanks and best,
-Tianjia
+diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+index 32310df525ba..4d2e9e71dfb0 100644
+--- a/Documentation/s390/vfio-ccw.rst
++++ b/Documentation/s390/vfio-ccw.rst
+@@ -298,6 +298,25 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_SCHIB.
+ Reading this region triggers a STORE SUBCHANNEL to be issued to the
+ associated hardware.
+ 
++vfio-ccw crw region
++---------------------
++
++The vfio-ccw crw region is used to return Channel Report Word (CRW)
++data to userspace::
++
++  struct ccw_crw_region {
++         __u32 crw;
++  } __packed;
++
++This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_CRW.
++
++Reading this region returns a CRW if one that is relevant for this
++subchannel (e.g. one reporting changes in channel path state) is
++pending, or all zeroes if not. If multiple CRWs are pending (including
++possibly chained CRWs), reading this region again will return the next
++one, until no more CRWs are pending and zeroes are returned. This is
++similar to how STORE CHANNEL REPORT WORD works.
++
+ vfio-ccw operation details
+ --------------------------
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
+index 18f3b3e873a9..37ea344a4d72 100644
+--- a/drivers/s390/cio/vfio_ccw_chp.c
++++ b/drivers/s390/cio/vfio_ccw_chp.c
+@@ -74,3 +74,58 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private)
+ 					    VFIO_REGION_INFO_FLAG_READ,
+ 					    private->schib_region);
+ }
++
++static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
++					char __user *buf, size_t count,
++					loff_t *ppos)
++{
++	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
++	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
++	struct ccw_crw_region *region;
++	int ret;
++
++	if (pos + count > sizeof(*region))
++		return -EINVAL;
++
++	mutex_lock(&private->io_mutex);
++	region = private->region[i].data;
++
++	if (copy_to_user(buf, (void *)region + pos, count))
++		ret = -EFAULT;
++	else
++		ret = count;
++
++	region->crw = 0;
++
++	mutex_unlock(&private->io_mutex);
++	return ret;
++}
++
++static ssize_t vfio_ccw_crw_region_write(struct vfio_ccw_private *private,
++					 const char __user *buf, size_t count,
++					 loff_t *ppos)
++{
++	return -EINVAL;
++}
++
++static void vfio_ccw_crw_region_release(struct vfio_ccw_private *private,
++					struct vfio_ccw_region *region)
++{
++
++}
++
++const struct vfio_ccw_regops vfio_ccw_crw_region_ops = {
++	.read = vfio_ccw_crw_region_read,
++	.write = vfio_ccw_crw_region_write,
++	.release = vfio_ccw_crw_region_release,
++};
++
++int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private)
++{
++	return vfio_ccw_register_dev_region(private,
++					    VFIO_REGION_SUBTYPE_CCW_CRW,
++					    &vfio_ccw_crw_region_ops,
++					    sizeof(struct ccw_crw_region),
++					    VFIO_REGION_INFO_FLAG_READ,
++					    private->crw_region);
++}
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 7aeff42f370d..e4deae6fd525 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -28,6 +28,7 @@ struct workqueue_struct *vfio_ccw_work_q;
+ static struct kmem_cache *vfio_ccw_io_region;
+ static struct kmem_cache *vfio_ccw_cmd_region;
+ static struct kmem_cache *vfio_ccw_schib_region;
++static struct kmem_cache *vfio_ccw_crw_region;
+ 
+ debug_info_t *vfio_ccw_debug_msg_id;
+ debug_info_t *vfio_ccw_debug_trace_id;
+@@ -120,6 +121,8 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+ 
+ static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
+ {
++	if (private->crw_region)
++		kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
+ 	if (private->schib_region)
+ 		kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
+ 	if (private->cmd_region)
+@@ -165,6 +168,12 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	if (!private->schib_region)
+ 		goto out_free;
+ 
++	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
++						GFP_KERNEL | GFP_DMA);
++
++	if (!private->crw_region)
++		goto out_free;
++
+ 	private->sch = sch;
+ 	dev_set_drvdata(&sch->dev, private);
+ 	mutex_init(&private->io_mutex);
+@@ -366,6 +375,7 @@ static void vfio_ccw_debug_exit(void)
+ 
+ static void vfio_ccw_destroy_regions(void)
+ {
++	kmem_cache_destroy(vfio_ccw_crw_region);
+ 	kmem_cache_destroy(vfio_ccw_schib_region);
+ 	kmem_cache_destroy(vfio_ccw_cmd_region);
+ 	kmem_cache_destroy(vfio_ccw_io_region);
+@@ -413,6 +423,16 @@ static int __init vfio_ccw_sch_init(void)
+ 		goto out_err;
+ 	}
+ 
++	vfio_ccw_crw_region = kmem_cache_create_usercopy("vfio_ccw_crw_region",
++					sizeof(struct ccw_crw_region), 0,
++					SLAB_ACCOUNT, 0,
++					sizeof(struct ccw_crw_region), NULL);
++
++	if (!vfio_ccw_crw_region) {
++		ret = -ENOMEM;
++		goto out_err;
++	}
++
+ 	isc_register(VFIO_CCW_ISC);
+ 	ret = css_driver_register(&vfio_ccw_sch_driver);
+ 	if (ret) {
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index c3a74ab7bb86..8b3ed5b45277 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -178,6 +178,10 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
+ 	if (ret)
+ 		goto out_unregister;
+ 
++	ret = vfio_ccw_register_crw_dev_regions(private);
++	if (ret)
++		goto out_unregister;
++
+ 	return ret;
+ 
+ out_unregister:
+@@ -389,6 +393,7 @@ static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
+ {
+ 	switch (info->index) {
+ 	case VFIO_CCW_IO_IRQ_INDEX:
++	case VFIO_CCW_CRW_IRQ_INDEX:
+ 		info->count = 1;
+ 		info->flags = VFIO_IRQ_INFO_EVENTFD;
+ 		break;
+@@ -416,6 +421,9 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
+ 	case VFIO_CCW_IO_IRQ_INDEX:
+ 		ctx = &private->io_trigger;
+ 		break;
++	case VFIO_CCW_CRW_IRQ_INDEX:
++		ctx = &private->crw_trigger;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index d6601a8adf13..97131b4df0b9 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -57,6 +57,7 @@ void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
+ 
+ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
+ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
++int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private);
+ 
+ /**
+  * struct vfio_ccw_private
+@@ -71,6 +72,7 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
+  * @region: additional regions for other subchannel operations
+  * @cmd_region: MMIO region for asynchronous I/O commands other than START
+  * @schib_region: MMIO region for SCHIB information
++ * @crw_region: MMIO region for getting channel report words
+  * @num_regions: number of additional regions
+  * @cp: channel program for the current I/O operation
+  * @irb: irb info received from interrupt
+@@ -90,6 +92,7 @@ struct vfio_ccw_private {
+ 	struct vfio_ccw_region *region;
+ 	struct ccw_cmd_region	*cmd_region;
+ 	struct ccw_schib_region *schib_region;
++	struct ccw_crw_region	*crw_region;
+ 	int num_regions;
+ 
+ 	struct channel_program	cp;
+@@ -97,6 +100,7 @@ struct vfio_ccw_private {
+ 	union scsw		scsw;
+ 
+ 	struct eventfd_ctx	*io_trigger;
++	struct eventfd_ctx	*crw_trigger;
+ 	struct work_struct	io_work;
+ } __aligned(8);
+ 
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 7a1abbd889bd..907758cf6d60 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -379,6 +379,7 @@ struct vfio_region_gfx_edid {
+ /* sub-types for VFIO_REGION_TYPE_CCW */
+ #define VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD	(1)
+ #define VFIO_REGION_SUBTYPE_CCW_SCHIB		(2)
++#define VFIO_REGION_SUBTYPE_CCW_CRW		(3)
+ 
+ /*
+  * The MSIX mappable capability informs that MSIX data of a BAR can be mmapped
+@@ -578,6 +579,7 @@ enum {
+ 
+ enum {
+ 	VFIO_CCW_IO_IRQ_INDEX,
++	VFIO_CCW_CRW_IRQ_INDEX,
+ 	VFIO_CCW_NUM_IRQS
+ };
+ 
+diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
+index 758bf214898d..cff5076586df 100644
+--- a/include/uapi/linux/vfio_ccw.h
++++ b/include/uapi/linux/vfio_ccw.h
+@@ -44,4 +44,12 @@ struct ccw_schib_region {
+ 	__u8 schib_area[SCHIB_AREA_SIZE];
+ } __packed;
+ 
++/*
++ * Used for returning a Channel Report Word to userspace.
++ * Note: this is controlled by a capability
++ */
++struct ccw_crw_region {
++	__u32 crw;
++} __packed;
++
+ #endif
+-- 
+2.25.4
