@@ -1,286 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48070 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726059AbgESTJO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 May 2020 15:09:14 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 2/2] s390/net: remove pm support from iucv drivers
-Date: Tue, 19 May 2020 21:09:04 +0200
-Message-Id: <20200519190904.64217-3-jwi@linux.ibm.com>
-In-Reply-To: <20200519190904.64217-1-jwi@linux.ibm.com>
-References: <20200519190904.64217-1-jwi@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:35406 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2389628AbgEYJld (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 05:41:33 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 02/10] vfio-ccw: document possible errors
+Date: Mon, 25 May 2020 11:41:07 +0200
+Message-Id: <20200525094115.222299-3-cohuck@redhat.com>
+In-Reply-To: <20200525094115.222299-1-cohuck@redhat.com>
+References: <20200525094115.222299-1-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Hendrik Brueckner <brueckner@linux.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-Commit 394216275c7d ("s390: remove broken hibernate / power management support")
-removed support for ARCH_HIBERNATION_POSSIBLE on s390.
-So drop the unused pm ops from the iucv drivers.
+Interacting with the I/O and the async regions can yield a number
+of errors, which had been undocumented so far. These are part of
+the api, so remedy that.
 
-CC: Hendrik Brueckner <brueckner@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Message-Id: <20200407111605.1795-1-cohuck@redhat.com>
 ---
- drivers/s390/net/netiucv.c  | 104 +-----------------------------------
- drivers/s390/net/smsgiucv.c |  65 ----------------------
- 2 files changed, 1 insertion(+), 168 deletions(-)
+ Documentation/s390/vfio-ccw.rst | 56 +++++++++++++++++++++++++++++++--
+ 1 file changed, 54 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/netiucv.c b/drivers/s390/net/netiucv.c
-index 5ce2424ca729..260860cf3aa1 100644
---- a/drivers/s390/net/netiucv.c
-+++ b/drivers/s390/net/netiucv.c
-@@ -112,27 +112,10 @@ DECLARE_PER_CPU(char[256], iucv_dbf_txt_buf);
-  */
- #define PRINTK_HEADER " iucv: "       /* for debugging */
+diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+index 23e7d136f8b4..3a946fd45562 100644
+--- a/Documentation/s390/vfio-ccw.rst
++++ b/Documentation/s390/vfio-ccw.rst
+@@ -204,15 +204,44 @@ definition of the region is::
+ 	  __u32   ret_code;
+   } __packed;
  
--/* dummy device to make sure netiucv_pm functions are called */
--static struct device *netiucv_dev;
--
--static int netiucv_pm_prepare(struct device *);
--static void netiucv_pm_complete(struct device *);
--static int netiucv_pm_freeze(struct device *);
--static int netiucv_pm_restore_thaw(struct device *);
--
--static const struct dev_pm_ops netiucv_pm_ops = {
--	.prepare = netiucv_pm_prepare,
--	.complete = netiucv_pm_complete,
--	.freeze = netiucv_pm_freeze,
--	.thaw = netiucv_pm_restore_thaw,
--	.restore = netiucv_pm_restore_thaw,
--};
--
- static struct device_driver netiucv_driver = {
- 	.owner = THIS_MODULE,
- 	.name = "netiucv",
- 	.bus  = &iucv_bus,
--	.pm = &netiucv_pm_ops,
- };
- 
- static int netiucv_callback_connreq(struct iucv_path *, u8 *, u8 *);
-@@ -213,7 +196,6 @@ struct netiucv_priv {
- 	fsm_instance            *fsm;
-         struct iucv_connection  *conn;
- 	struct device           *dev;
--	int			 pm_state;
- };
- 
- /**
-@@ -1275,72 +1257,6 @@ static int netiucv_close(struct net_device *dev)
- 	return 0;
- }
- 
--static int netiucv_pm_prepare(struct device *dev)
--{
--	IUCV_DBF_TEXT(trace, 3, __func__);
--	return 0;
--}
--
--static void netiucv_pm_complete(struct device *dev)
--{
--	IUCV_DBF_TEXT(trace, 3, __func__);
--	return;
--}
--
--/**
-- * netiucv_pm_freeze() - Freeze PM callback
-- * @dev:	netiucv device
-- *
-- * close open netiucv interfaces
-- */
--static int netiucv_pm_freeze(struct device *dev)
--{
--	struct netiucv_priv *priv = dev_get_drvdata(dev);
--	struct net_device *ndev = NULL;
--	int rc = 0;
--
--	IUCV_DBF_TEXT(trace, 3, __func__);
--	if (priv && priv->conn)
--		ndev = priv->conn->netdev;
--	if (!ndev)
--		goto out;
--	netif_device_detach(ndev);
--	priv->pm_state = fsm_getstate(priv->fsm);
--	rc = netiucv_close(ndev);
--out:
--	return rc;
--}
--
--/**
-- * netiucv_pm_restore_thaw() - Thaw and restore PM callback
-- * @dev:	netiucv device
-- *
-- * re-open netiucv interfaces closed during freeze
-- */
--static int netiucv_pm_restore_thaw(struct device *dev)
--{
--	struct netiucv_priv *priv = dev_get_drvdata(dev);
--	struct net_device *ndev = NULL;
--	int rc = 0;
--
--	IUCV_DBF_TEXT(trace, 3, __func__);
--	if (priv && priv->conn)
--		ndev = priv->conn->netdev;
--	if (!ndev)
--		goto out;
--	switch (priv->pm_state) {
--	case DEV_STATE_RUNNING:
--	case DEV_STATE_STARTWAIT:
--		rc = netiucv_open(ndev);
--		break;
--	default:
--		break;
--	}
--	netif_device_attach(ndev);
--out:
--	return rc;
--}
--
- /**
-  * Start transmission of a packet.
-  * Called from generic network device layer.
-@@ -2156,7 +2072,6 @@ static void __exit netiucv_exit(void)
- 		netiucv_unregister_device(dev);
- 	}
- 
--	device_unregister(netiucv_dev);
- 	driver_unregister(&netiucv_driver);
- 	iucv_unregister(&netiucv_handler, 1);
- 	iucv_unregister_dbf_views();
-@@ -2182,27 +2097,10 @@ static int __init netiucv_init(void)
- 		IUCV_DBF_TEXT_(setup, 2, "ret %d from driver_register\n", rc);
- 		goto out_iucv;
- 	}
--	/* establish dummy device */
--	netiucv_dev = kzalloc(sizeof(struct device), GFP_KERNEL);
--	if (!netiucv_dev) {
--		rc = -ENOMEM;
--		goto out_driver;
--	}
--	dev_set_name(netiucv_dev, "netiucv");
--	netiucv_dev->bus = &iucv_bus;
--	netiucv_dev->parent = iucv_root;
--	netiucv_dev->release = (void (*)(struct device *))kfree;
--	netiucv_dev->driver = &netiucv_driver;
--	rc = device_register(netiucv_dev);
--	if (rc) {
--		put_device(netiucv_dev);
--		goto out_driver;
--	}
++This region is always available.
 +
- 	netiucv_banner();
- 	return rc;
+ While starting an I/O request, orb_area should be filled with the
+ guest ORB, and scsw_area should be filled with the SCSW of the Virtual
+ Subchannel.
  
--out_driver:
--	driver_unregister(&netiucv_driver);
- out_iucv:
- 	iucv_unregister(&netiucv_handler, 1);
- out_dbf:
-diff --git a/drivers/s390/net/smsgiucv.c b/drivers/s390/net/smsgiucv.c
-index 066b5c3aaae6..c84ec2fbf99b 100644
---- a/drivers/s390/net/smsgiucv.c
-+++ b/drivers/s390/net/smsgiucv.c
-@@ -29,12 +29,9 @@ MODULE_AUTHOR
- MODULE_DESCRIPTION ("Linux for S/390 IUCV special message driver");
+ irb_area stores the I/O result.
  
- static struct iucv_path *smsg_path;
--/* dummy device used as trigger for PM functions */
--static struct device *smsg_dev;
+-ret_code stores a return code for each access of the region.
++ret_code stores a return code for each access of the region. The following
++values may occur:
++
++``0``
++  The operation was successful.
++
++``-EOPNOTSUPP``
++  The orb specified transport mode or an unidentified IDAW format, or the
++  scsw specified a function other than the start function.
++
++``-EIO``
++  A request was issued while the device was not in a state ready to accept
++  requests, or an internal error occurred.
++
++``-EBUSY``
++  The subchannel was status pending or busy, or a request is already active.
++
++``-EAGAIN``
++  A request was being processed, and the caller should retry.
++
++``-EACCES``
++  The channel path(s) used for the I/O were found to be not operational.
++
++``-ENODEV``
++  The device was found to be not operational.
++
++``-EINVAL``
++  The orb specified a chain longer than 255 ccws, or an internal error
++  occurred.
  
- static DEFINE_SPINLOCK(smsg_list_lock);
- static LIST_HEAD(smsg_list);
--static int iucv_path_connected;
+-This region is always available.
  
- static int smsg_path_pending(struct iucv_path *, u8 *, u8 *);
- static void smsg_message_pending(struct iucv_path *, struct iucv_message *);
-@@ -124,60 +121,15 @@ void smsg_unregister_callback(const char *prefix,
- 	kfree(cb);
- }
+ vfio-ccw cmd region
+ -------------------
+@@ -231,6 +260,29 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD.
  
--static int smsg_pm_freeze(struct device *dev)
--{
--#ifdef CONFIG_PM_DEBUG
--	printk(KERN_WARNING "smsg_pm_freeze\n");
--#endif
--	if (smsg_path && iucv_path_connected) {
--		iucv_path_sever(smsg_path, NULL);
--		iucv_path_connected = 0;
--	}
--	return 0;
--}
--
--static int smsg_pm_restore_thaw(struct device *dev)
--{
--	int rc;
--
--#ifdef CONFIG_PM_DEBUG
--	printk(KERN_WARNING "smsg_pm_restore_thaw\n");
--#endif
--	if (smsg_path && !iucv_path_connected) {
--		memset(smsg_path, 0, sizeof(*smsg_path));
--		smsg_path->msglim = 255;
--		smsg_path->flags = 0;
--		rc = iucv_path_connect(smsg_path, &smsg_handler, "*MSG    ",
--				       NULL, NULL, NULL);
--#ifdef CONFIG_PM_DEBUG
--		if (rc)
--			printk(KERN_ERR
--			       "iucv_path_connect returned with rc %i\n", rc);
--#endif
--		if (!rc)
--			iucv_path_connected = 1;
--		cpcmd("SET SMSG IUCV", NULL, 0, NULL);
--	}
--	return 0;
--}
--
--static const struct dev_pm_ops smsg_pm_ops = {
--	.freeze = smsg_pm_freeze,
--	.thaw = smsg_pm_restore_thaw,
--	.restore = smsg_pm_restore_thaw,
--};
--
- static struct device_driver smsg_driver = {
- 	.owner = THIS_MODULE,
- 	.name = SMSGIUCV_DRV_NAME,
- 	.bus  = &iucv_bus,
--	.pm = &smsg_pm_ops,
- };
+ Currently, CLEAR SUBCHANNEL and HALT SUBCHANNEL use this region.
  
- static void __exit smsg_exit(void)
- {
- 	cpcmd("SET SMSG OFF", NULL, 0, NULL);
--	device_unregister(smsg_dev);
- 	iucv_unregister(&smsg_handler, 1);
- 	driver_unregister(&smsg_driver);
- }
-@@ -205,27 +157,10 @@ static int __init smsg_init(void)
- 			       NULL, NULL, NULL);
- 	if (rc)
- 		goto out_free_path;
--	else
--		iucv_path_connected = 1;
--	smsg_dev = kzalloc(sizeof(struct device), GFP_KERNEL);
--	if (!smsg_dev) {
--		rc = -ENOMEM;
--		goto out_free_path;
--	}
--	dev_set_name(smsg_dev, "smsg_iucv");
--	smsg_dev->bus = &iucv_bus;
--	smsg_dev->parent = iucv_root;
--	smsg_dev->release = (void (*)(struct device *))kfree;
--	smsg_dev->driver = &smsg_driver;
--	rc = device_register(smsg_dev);
--	if (rc)
--		goto out_put;
++command specifies the command to be issued; ret_code stores a return code
++for each access of the region. The following values may occur:
++
++``0``
++  The operation was successful.
++
++``-ENODEV``
++  The device was found to be not operational.
++
++``-EINVAL``
++  A command other than halt or clear was specified.
++
++``-EIO``
++  A request was issued while the device was not in a state ready to accept
++  requests.
++
++``-EAGAIN``
++  A request was being processed, and the caller should retry.
++
++``-EBUSY``
++  The subchannel was status pending or busy while processing a halt request.
++
++
+ vfio-ccw operation details
+ --------------------------
  
- 	cpcmd("SET SMSG IUCV", NULL, 0, NULL);
- 	return 0;
- 
--out_put:
--	put_device(smsg_dev);
- out_free_path:
- 	iucv_path_free(smsg_path);
- 	smsg_path = NULL;
 -- 
-2.17.1
+2.25.4
