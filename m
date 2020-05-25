@@ -1,127 +1,107 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56274 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728359AbgECMjs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 3 May 2020 08:39:48 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 09/11] net/smc: delete link processing as SMC client
-Date: Sun,  3 May 2020 14:38:48 +0200
-Message-Id: <20200503123850.57261-10-kgraul@linux.ibm.com>
-In-Reply-To: <20200503123850.57261-1-kgraul@linux.ibm.com>
-References: <20200503123850.57261-1-kgraul@linux.ibm.com>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:27574 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2389581AbgEYJll (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 25 May 2020 05:41:41 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL 04/10] vfio-ccw: Register a chp_event callback for vfio-ccw
+Date: Mon, 25 May 2020 11:41:09 +0200
+Message-Id: <20200525094115.222299-5-cohuck@redhat.com>
+In-Reply-To: <20200525094115.222299-1-cohuck@redhat.com>
+References: <20200525094115.222299-1-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 
-Add smc_llc_process_cli_delete_link() to process a DELETE_LINK request
-as SMC client. When the request is to delete ALL links then terminate
-the whole link group. If not, find the link to delete by its link_id,
-send the DELETE_LINK response LLC message and then clear the deleted
-link. Finally determine and update the link group state.
+From: Farhan Ali <alifm@linux.ibm.com>
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Register the chp_event callback to receive channel path related
+events for the subchannels managed by vfio-ccw.
+
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200505122745.53208-3-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- net/smc/smc_llc.c | 72 +++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 72 insertions(+)
+ drivers/s390/cio/vfio_ccw_drv.c | 47 +++++++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index e4e3910a9624..cd57b4fb1842 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -863,6 +863,18 @@ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
- 	mutex_unlock(&lgr->llc_conf_mutex);
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 8715c1c2f1e1..fb1275a7d1f5 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -19,6 +19,7 @@
+ 
+ #include <asm/isc.h>
+ 
++#include "chp.h"
+ #include "ioasm.h"
+ #include "css.h"
+ #include "vfio_ccw_private.h"
+@@ -262,6 +263,51 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+ 	return rc;
  }
  
-+static int smc_llc_active_link_count(struct smc_link_group *lgr)
++static int vfio_ccw_chp_event(struct subchannel *sch,
++			      struct chp_link *link, int event)
 +{
-+	int i, link_count = 0;
++	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
++	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
++	int retry = 255;
 +
-+	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+		if (!smc_link_usable(&lgr->lnk[i]))
-+			continue;
-+		link_count++;
-+	}
-+	return link_count;
-+}
++	if (!private || !mask)
++		return 0;
 +
- /* find the asymmetric link when 3 links are established  */
- static struct smc_link *smc_llc_find_asym_link(struct smc_link_group *lgr)
- {
-@@ -1118,6 +1130,63 @@ static void smc_llc_add_link_work(struct work_struct *work)
- 	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
- }
- 
-+static void smc_llc_process_cli_delete_link(struct smc_link_group *lgr)
-+{
-+	struct smc_link *lnk_del = NULL, *lnk_asym, *lnk;
-+	struct smc_llc_msg_del_link *del_llc;
-+	struct smc_llc_qentry *qentry;
-+	int active_links;
-+	int lnk_idx;
++	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
++			   mdev_uuid(private->mdev), sch->schid.cssid,
++			   sch->schid.ssid, sch->schid.sch_no,
++			   mask, event);
 +
-+	qentry = smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
-+	lnk = qentry->link;
-+	del_llc = &qentry->msg.delete_link;
++	if (cio_update_schib(sch))
++		return -ENODEV;
 +
-+	if (del_llc->hd.flags & SMC_LLC_FLAG_DEL_LINK_ALL) {
-+		smc_lgr_terminate_sched(lgr);
-+		goto out;
-+	}
-+	mutex_lock(&lgr->llc_conf_mutex);
-+	/* delete single link */
-+	for (lnk_idx = 0; lnk_idx < SMC_LINKS_PER_LGR_MAX; lnk_idx++) {
-+		if (lgr->lnk[lnk_idx].link_id != del_llc->link_num)
-+			continue;
-+		lnk_del = &lgr->lnk[lnk_idx];
++	switch (event) {
++	case CHP_VARY_OFF:
++		/* Path logically turned off */
++		sch->opm &= ~mask;
++		sch->lpm &= ~mask;
++		if (sch->schib.pmcw.lpum & mask)
++			cio_cancel_halt_clear(sch, &retry);
++		break;
++	case CHP_OFFLINE:
++		/* Path is gone */
++		if (sch->schib.pmcw.lpum & mask)
++			cio_cancel_halt_clear(sch, &retry);
++		break;
++	case CHP_VARY_ON:
++		/* Path logically turned on */
++		sch->opm |= mask;
++		sch->lpm |= mask;
++		break;
++	case CHP_ONLINE:
++		/* Path became available */
++		sch->lpm |= mask & sch->opm;
 +		break;
 +	}
-+	del_llc->hd.flags |= SMC_LLC_FLAG_RESP;
-+	if (!lnk_del) {
-+		/* link was not found */
-+		del_llc->reason = htonl(SMC_LLC_DEL_NOLNK);
-+		smc_llc_send_message(lnk, &qentry->msg);
-+		goto out_unlock;
-+	}
-+	lnk_asym = smc_llc_find_asym_link(lgr);
 +
-+	del_llc->reason = 0;
-+	smc_llc_send_message(lnk, &qentry->msg); /* response */
-+
-+	if (smc_link_downing(&lnk_del->state)) {
-+		/* tbd: call smc_switch_conns(lgr, lnk_del, false); */
-+		smc_wr_tx_wait_no_pending_sends(lnk_del);
-+	}
-+	smcr_link_clear(lnk_del);
-+
-+	active_links = smc_llc_active_link_count(lgr);
-+	if (lnk_del == lnk_asym) {
-+		/* expected deletion of asym link, don't change lgr state */
-+	} else if (active_links == 1) {
-+		lgr->type = SMC_LGR_SINGLE;
-+	} else if (!active_links) {
-+		lgr->type = SMC_LGR_NONE;
-+		smc_lgr_terminate_sched(lgr);
-+	}
-+out_unlock:
-+	mutex_unlock(&lgr->llc_conf_mutex);
-+out:
-+	kfree(qentry);
++	return 0;
 +}
 +
- static void smc_llc_delete_link_work(struct work_struct *work)
- {
- 	struct smc_link_group *lgr = container_of(work, struct smc_link_group,
-@@ -1128,6 +1197,9 @@ static void smc_llc_delete_link_work(struct work_struct *work)
- 		smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
- 		goto out;
- 	}
-+
-+	if (lgr->role == SMC_CLNT)
-+		smc_llc_process_cli_delete_link(lgr);
- out:
- 	smc_llc_flow_stop(lgr, &lgr->llc_flow_lcl);
- }
+ static struct css_device_id vfio_ccw_sch_ids[] = {
+ 	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
+ 	{ /* end of list */ },
+@@ -279,6 +325,7 @@ static struct css_driver vfio_ccw_sch_driver = {
+ 	.remove = vfio_ccw_sch_remove,
+ 	.shutdown = vfio_ccw_sch_shutdown,
+ 	.sch_event = vfio_ccw_sch_event,
++	.chp_event = vfio_ccw_chp_event,
+ };
+ 
+ static int __init vfio_ccw_debug_init(void)
 -- 
-2.17.1
+2.25.4
