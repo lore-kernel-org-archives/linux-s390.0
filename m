@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 19/47] s390/mm: fix set_huge_pte_at() for empty ptes
-Date: Thu, 28 May 2020 07:55:32 -0400
-Message-Id: <20200528115600.1405808-19-sashal@kernel.org>
-In-Reply-To: <20200528115600.1405808-1-sashal@kernel.org>
-References: <20200528115600.1405808-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:46901 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389339AbgEYS0U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 14:26:20 -0400
+From: =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
+Subject: [PATCH 4/8] scsi: pm: Use the new device_to_pm() helper to access struct dev_pm_ops
+Date: Mon, 25 May 2020 18:26:04 +0000
+Message-Id: <20200525182608.1823735-5-kw@linux.com>
+In-Reply-To: <20200525182608.1823735-1-kw@linux.com>
+References: <20200525182608.1823735-1-kw@linux.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Kevin Hilman <khilman@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Felipe Balbi <balbi@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, John Stultz <john.stultz@linaro.org>, "David S. Miller" <davem@davemloft.net>, greybus-dev@lists.linaro.org, netdev@vger.kernel.org, linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Use the new device_to_pm() helper to access Power Management callbacs
+(struct dev_pm_ops) for a particular device (struct device_driver).
 
-[ Upstream commit ac8372f3b4e41015549b331a4f350224661e7fc6 ]
+No functional change intended.
 
-On s390, the layout of normal and large ptes (i.e. pmds/puds) differs.
-Therefore, set_huge_pte_at() does a conversion from a normal pte to
-the corresponding large pmd/pud. So, when converting an empty pte, this
-should result in an empty pmd/pud, which would return true for
-pmd/pud_none().
-
-However, after conversion we also mark the pmd/pud as large, and
-therefore present. For empty ptes, this will result in an empty pmd/pud
-that is also marked as large, and pmd/pud_none() would not return true.
-
-There is currently no issue with this behaviour, as set_huge_pte_at()
-does not seem to be called for empty ptes. It would be valid though, so
-let's fix this by not marking empty ptes as large in set_huge_pte_at().
-
-This was found by testing a patch from from Anshuman Khandual, which is
-currently discussed on LKML ("mm/debug: Add more arch page table helper
-tests").
-
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
 ---
- arch/s390/mm/hugetlbpage.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/scsi_pm.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-index 5674710a4841..7dfae86afa47 100644
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -159,10 +159,13 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
- 		rste &= ~_SEGMENT_ENTRY_NOEXEC;
+diff --git a/drivers/scsi/scsi_pm.c b/drivers/scsi/scsi_pm.c
+index 5f0ad8b32e3a..8f40b60d3383 100644
+--- a/drivers/scsi/scsi_pm.c
++++ b/drivers/scsi/scsi_pm.c
+@@ -53,7 +53,7 @@ static int do_scsi_restore(struct device *dev, const struct dev_pm_ops *pm)
+ static int scsi_dev_type_suspend(struct device *dev,
+ 		int (*cb)(struct device *, const struct dev_pm_ops *))
+ {
+-	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
++	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
+ 	int err;
  
- 	/* Set correct table type for 2G hugepages */
--	if ((pte_val(*ptep) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3)
--		rste |= _REGION_ENTRY_TYPE_R3 | _REGION3_ENTRY_LARGE;
--	else
-+	if ((pte_val(*ptep) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3) {
-+		if (likely(pte_present(pte)))
-+			rste |= _REGION3_ENTRY_LARGE;
-+		rste |= _REGION_ENTRY_TYPE_R3;
-+	} else if (likely(pte_present(pte)))
- 		rste |= _SEGMENT_ENTRY_LARGE;
-+
- 	clear_huge_pte_skeys(mm, rste);
- 	pte_val(*ptep) = rste;
- }
+ 	/* flush pending in-flight resume operations, suspend is synchronous */
+@@ -72,7 +72,7 @@ static int scsi_dev_type_suspend(struct device *dev,
+ static int scsi_dev_type_resume(struct device *dev,
+ 		int (*cb)(struct device *, const struct dev_pm_ops *))
+ {
+-	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
++	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
+ 	int err = 0;
+ 
+ 	err = cb(dev, pm);
+@@ -232,7 +232,7 @@ static int scsi_bus_restore(struct device *dev)
+ 
+ static int sdev_runtime_suspend(struct device *dev)
+ {
+-	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
++	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
+ 	struct scsi_device *sdev = to_scsi_device(dev);
+ 	int err = 0;
+ 
+@@ -262,7 +262,7 @@ static int scsi_runtime_suspend(struct device *dev)
+ static int sdev_runtime_resume(struct device *dev)
+ {
+ 	struct scsi_device *sdev = to_scsi_device(dev);
+-	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
++	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
+ 	int err = 0;
+ 
+ 	blk_pre_runtime_resume(sdev->request_queue);
 -- 
-2.25.1
+2.26.2
