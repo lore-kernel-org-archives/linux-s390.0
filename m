@@ -1,29 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:52755 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2389442AbgE0QLU (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2096 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728746AbgEZJdi (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 27 May 2020 12:11:20 -0400
-Received: by mail-wm1-f69.google.com with SMTP id x11so977788wmc.9
-        for <linux-s390@vger.kernel.org>; Wed, 27 May 2020 09:11:17 -0700 (PDT)
-Subject: Re: [GIT PULL 0/3] KVM: s390: Cleanups for 5.8
-References: <20200526093313.77976-1-borntraeger@de.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <42e54cbc-799a-9275-5084-04410b1eac33@redhat.com>
-Date: Wed, 27 May 2020 18:11:13 +0200
+        Tue, 26 May 2020 05:33:38 -0400
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 0/3] KVM: s390: Cleanups for 5.8
+Date: Tue, 26 May 2020 11:33:10 +0200
+Message-Id: <20200526093313.77976-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20200526093313.77976-1-borntraeger@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-On 26/05/20 11:33, Christian Borntraeger wrote:
->   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.8-1
+Paolo,
 
-Pulled, thanks.
+The following changes since commit 2a173ec993baa6a97e7b0fb89240200a88d90746:
 
-Paolo
+  MAINTAINERS: add a reviewer for KVM/s390 (2020-04-20 11:24:00 +0200)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-next-5.8-1
+
+for you to fetch changes up to 0b545fd17f84184f9536bde68c3521e36c488448:
+
+  KVM: s390: remove unneeded semicolon in gisa_vcpu_kicker() (2020-04-20 11:33:32 +0200)
+
+----------------------------------------------------------------
+KVM: s390: Cleanups for 5.8
+
+- vsie (nesting) cleanups
+- remove unneeded semicolon
+
+----------------------------------------------------------------
+David Hildenbrand (2):
+      KVM: s390: vsie: Move conditional reschedule
+      KVM: s390: vsie: gmap_table_walk() simplifications
+
+Jason Yan (1):
+      KVM: s390: remove unneeded semicolon in gisa_vcpu_kicker()
+
+ arch/s390/kvm/interrupt.c |  2 +-
+ arch/s390/kvm/vsie.c      |  3 +--
+ arch/s390/mm/gmap.c       | 10 +++++-----
+ 3 files changed, 7 insertions(+), 8 deletions(-)
