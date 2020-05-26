@@ -1,84 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ej1-f66.google.com ([209.85.218.66]:37236 "EHLO
-        mail-ej1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387644AbgEYS0N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 14:26:13 -0400
-From: =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
-Subject: [PATCH 0/8] Add helper for accessing Power Management callbacs
-Date: Mon, 25 May 2020 18:26:00 +0000
-Message-Id: <20200525182608.1823735-1-kw@linux.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37128 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728746AbgEZJdW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 May 2020 05:33:22 -0400
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/3] KVM: s390: vsie: gmap_table_walk() simplifications
+Date: Tue, 26 May 2020 11:33:12 +0200
+Message-Id: <20200526093313.77976-3-borntraeger@de.ibm.com>
+In-Reply-To: <20200526093313.77976-1-borntraeger@de.ibm.com>
+References: <20200526093313.77976-1-borntraeger@de.ibm.com>
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Kevin Hilman <khilman@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Felipe Balbi <balbi@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, John Stultz <john.stultz@linaro.org>, "David S. Miller" <davem@davemloft.net>, greybus-dev@lists.linaro.org, netdev@vger.kernel.org, linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-This series aims to add a new driver_to_pm() helper allowing for
-accessing the Power Management callbacs for a particular device.
+From: David Hildenbrand <david@redhat.com>
 
-Access to the callbacs (struct dev_pm_ops) is normally done through
-using the pm pointer that is embedded within the device_driver struct.
+Let's use asce_type where applicable. Also, simplify our sanity check for
+valid table levels and convert it into a WARN_ON_ONCE(). Check if we even
+have a valid gmap shadow as the very first step.
 
-This new helper allows for the code required to reference the pm pointer
-and access Power Management callbas to be simplified.  Changing the
-following:
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-6-david@redhat.com
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/mm/gmap.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-  struct device_driver *drv = dev->driver;
-  if (dev->driver && dev->driver->pm && dev->driver->pm->prepare) {
-      int ret = dev->driver->pm->prepare(dev);
-
-To:
-
-  const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
-  if (pm && pm->prepare) {
-      int ret = pm->prepare(dev);
-
-Or, changing the following:
-
-     const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
-
-To:
-     const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
-
-This series builds on top of the previous commit 6da2f2ccfd2d ("PCI/PM:
-Make power management op coding style consistent") that had an aim to
-make accessing the Power Managemnet callbacs more consistent.
-
-No functional change intended.
-
-Links:
-  https://lore.kernel.org/driverdev-devel/20191014230016.240912-6-helgaas@kernel.org/
-  https://lore.kernel.org/driverdev-devel/8592302.r4xC6RIy69@kreacher/
-  https://lore.kernel.org/driverdev-devel/20191016135002.GA24678@kadam/
-
-Krzysztof Wilczyński (8):
-  driver core: Add helper for accessing Power Management callbacs
-  ACPI: PM: Use the new device_to_pm() helper to access struct
-    dev_pm_ops
-  greybus: Use the new device_to_pm() helper to access struct dev_pm_ops
-  scsi: pm: Use the new device_to_pm() helper to access struct
-    dev_pm_ops
-  usb: phy: fsl: Use the new device_to_pm() helper to access struct
-    dev_pm_ops
-  PCI/PM: Use the new device_to_pm() helper to access struct dev_pm_ops
-  PM: Use the new device_to_pm() helper to access struct dev_pm_ops
-  net/iucv: Use the new device_to_pm() helper to access struct
-    dev_pm_ops
-
- drivers/acpi/device_pm.c         |  5 ++-
- drivers/base/power/domain.c      | 12 ++++--
- drivers/base/power/generic_ops.c | 65 ++++++++++++++------------------
- drivers/base/power/main.c        | 48 +++++++++++++++--------
- drivers/base/power/runtime.c     |  7 ++--
- drivers/greybus/bundle.c         |  4 +-
- drivers/pci/pci-driver.c         | 32 ++++++++--------
- drivers/scsi/scsi_pm.c           |  8 ++--
- drivers/usb/phy/phy-fsl-usb.c    | 11 ++++--
- include/linux/device/driver.h    | 15 ++++++++
- net/iucv/iucv.c                  | 30 +++++++++------
- 11 files changed, 138 insertions(+), 99 deletions(-)
-
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 1a95d8809cc3..4b6903fbba4a 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -788,19 +788,19 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
+ 					     unsigned long gaddr, int level)
+ {
+ 	const int asce_type = gmap->asce & _ASCE_TYPE_MASK;
+-	unsigned long *table;
++	unsigned long *table = gmap->table;
+ 
+-	if ((gmap->asce & _ASCE_TYPE_MASK) + 4 < (level * 4))
+-		return NULL;
+ 	if (gmap_is_shadow(gmap) && gmap->removed)
+ 		return NULL;
+ 
++	if (WARN_ON_ONCE(level > (asce_type >> 2) + 1))
++		return NULL;
++
+ 	if (asce_type != _ASCE_TYPE_REGION1 &&
+ 	    gaddr & (-1UL << (31 + (asce_type >> 2) * 11)))
+ 		return NULL;
+ 
+-	table = gmap->table;
+-	switch (gmap->asce & _ASCE_TYPE_MASK) {
++	switch (asce_type) {
+ 	case _ASCE_TYPE_REGION1:
+ 		table += (gaddr & _REGION1_INDEX) >> _REGION1_SHIFT;
+ 		if (level == 4)
 -- 
-2.26.2
+2.25.4
