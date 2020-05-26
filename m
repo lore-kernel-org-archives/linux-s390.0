@@ -1,87 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:30170 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726050AbgENMD3 (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60434 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388712AbgEZLIL (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 May 2020 08:03:29 -0400
-Date: Thu, 14 May 2020 14:03:15 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH v6 05/10] s390x: Library resources for
- CSS tests
-Message-ID: <20200514140315.6077046b.cohuck@redhat.com>
-In-Reply-To: <1587725152-25569-6-git-send-email-pmorel@linux.ibm.com>
-References: <1587725152-25569-1-git-send-email-pmorel@linux.ibm.com>
-        <1587725152-25569-6-git-send-email-pmorel@linux.ibm.com>
+        Tue, 26 May 2020 07:08:11 -0400
+Subject: Re: [RFC PATCH v2 0/4] vfio-ccw: Fix interrupt handling for
+ HALT/CLEAR
+References: <20200513142934.28788-1-farman@linux.ibm.com>
+ <20200526115541.4a11accc.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <a52368d3-8cec-7b99-1587-25e055228b62@linux.ibm.com>
+Date: Tue, 26 May 2020 07:08:07 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200526115541.4a11accc.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Jared Rossi <jrossi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-On Fri, 24 Apr 2020 12:45:47 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-> These are the include and library utilities for the css tests patch
-> series.
 
-"Provide some definitions and library routines that can be used by
-tests targeting the channel subsystem."
-
-?
-
+On 5/26/20 5:55 AM, Cornelia Huck wrote:
+> On Wed, 13 May 2020 16:29:30 +0200
+> Eric Farman <farman@linux.ibm.com> wrote:
 > 
-> Debug function can be activated by defining DEBUG_CSS before the
-> inclusion of the css.h header file.
+>> There was some suggestion earlier about locking the FSM, but I'm not
+>> seeing any problems with that. Rather, what I'm noticing is that the
+>> flow between a synchronous START and asynchronous HALT/CLEAR have
+>> different impacts on the FSM state. Consider:
+>>
+>>     CPU 1                           CPU 2
+>>
+>>     SSCH (set state=CP_PENDING)
+>>     INTERRUPT (set state=IDLE)
+>>     CSCH (no change in state)
+>>                                     SSCH (set state=CP_PENDING)
+>>     INTERRUPT (set state=IDLE)
+>>                                     INTERRUPT (set state=IDLE)
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  lib/s390x/css.h      | 256 +++++++++++++++++++++++++++++++++++++++++++
->  lib/s390x/css_dump.c | 157 ++++++++++++++++++++++++++
->  2 files changed, 413 insertions(+)
->  create mode 100644 lib/s390x/css.h
->  create mode 100644 lib/s390x/css_dump.c
+> A different question (not related to how we want to fix this): How
+> easily can you trigger this bug? Is this during normal testing with a
+> bit of I/O stress, or do you have a special test case?
+> 
 
-(...)
+I have hit this with "normal testing with a bit of I/O stress" but it's
+been maddeningly slow to repro (invariably when I'm not running with any
+detailed traces enabled). So I expedite the process with the channel
+path handling code, and this script running on the host:
 
-> diff --git a/lib/s390x/css_dump.c b/lib/s390x/css_dump.c
-> new file mode 100644
-> index 0000000..2f33fab
-> --- /dev/null
-> +++ b/lib/s390x/css_dump.c
-> @@ -0,0 +1,157 @@
-> +/*
-> + * Channel subsystem structures dumping
-> + *
-> + * Copyright (c) 2020 IBM Corp.
-> + *
-> + * Authors:
-> + *  Pierre Morel <pmorel@linux.ibm.com>
-> + *
-> + * This code is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License version 2.
-> + *
-> + * Description:
-> + * Provides the dumping functions for various structures used by subchannels:
-> + * - ORB  : Operation request block, describes the I/O operation and points to
-> + *          a CCW chain
-> + * - CCW  : Channel Command Word, describes the data and flow control
+while True:
+    tempChpid = random.choice(chpids)
+    tempFunction = random.choice(["-c", "-v"])
 
-"describes the command, data, and flow control" ?
+    doChzdev(tempFunction, "0", tempChpid)
+    doSleep()
 
-> + * - IRB  : Interuption response Block, describes the result of an operation
-
-s/operation/operation;/
-
-> + *          holds a SCSW and model-dependent data.
-> + * - SCHIB: SubCHannel Information Block composed of:
-
-> + *   - SCSW: SubChannel Status Word, status of the channel.
-> + *   - PMCW: Path Management Control Word
-> + * You need the QEMU ccw-pong device in QEMU to answer the I/O transfers.
-> + */
-
-(...)
-
-Otherwise, looks good.
+    doChzdev(tempFunction, "1", tempChpid)
+    doSleep()
