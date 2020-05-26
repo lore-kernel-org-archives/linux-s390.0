@@ -1,78 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10220 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730664AbgEEQ0L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 12:26:11 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 08/11] s390/qeth: set TX IRQ marker on last buffer in a group
-Date: Tue,  5 May 2020 18:25:56 +0200
-Message-Id: <20200505162559.14138-9-jwi@linux.ibm.com>
-In-Reply-To: <20200505162559.14138-1-jwi@linux.ibm.com>
-References: <20200505162559.14138-1-jwi@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:56189 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2388592AbgEZQaV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 May 2020 12:30:21 -0400
+Date: Tue, 26 May 2020 18:30:05 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v7 07/12] s390x: Library resources for
+ CSS tests
+Message-ID: <20200526183005.76fc9124.cohuck@redhat.com>
+In-Reply-To: <1589818051-20549-8-git-send-email-pmorel@linux.ibm.com>
+References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+        <1589818051-20549-8-git-send-email-pmorel@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-When qeth_flush_buffers() gets called for a group of TX buffers
-(currently up to 2 for OSA-style devices), the code iterates over each
-buffer for some final processing.
+On Mon, 18 May 2020 18:07:26 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-During this processing, it sets the TX IRQ marker on the leading buffer
-rather than the last one. This can result in delayed TX completion of
-the trailing buffers. So pull the IRQ marker code out of the loop, and
-apply it to the final buffer.
+> Provide some definitions and library routines that can be used by
+> tests targeting the channel subsystem.
+> 
+> Debug function can be activated by defining DEBUG_CSS before the
+> inclusion of the css.h header file.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  lib/s390x/css.h      | 259 +++++++++++++++++++++++++++++++++++++++++++
+>  lib/s390x/css_dump.c | 157 ++++++++++++++++++++++++++
+>  s390x/Makefile       |   1 +
+>  3 files changed, 417 insertions(+)
+>  create mode 100644 lib/s390x/css.h
+>  create mode 100644 lib/s390x/css_dump.c
+> 
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+(...)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 4d1d053eebb7..164cc7f377fc 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3617,11 +3617,11 @@ static int qeth_switch_to_nonpacking_if_needed(struct qeth_qdio_out_q *queue)
- static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 			       int count)
- {
-+	struct qeth_qdio_out_buffer *buf = queue->bufs[index];
-+	unsigned int qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
- 	struct qeth_card *card = queue->card;
--	struct qeth_qdio_out_buffer *buf;
- 	int rc;
- 	int i;
--	unsigned int qdio_flags;
- 
- 	for (i = index; i < index + count; ++i) {
- 		unsigned int bidx = QDIO_BUFNR(i);
-@@ -3638,9 +3638,10 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 		if (IS_IQD(card)) {
- 			skb_queue_walk(&buf->skb_list, skb)
- 				skb_tx_timestamp(skb);
--			continue;
- 		}
-+	}
- 
-+	if (!IS_IQD(card)) {
- 		if (!queue->do_pack) {
- 			if ((atomic_read(&queue->used_buffers) >=
- 				(QETH_HIGH_WATERMARK_PACK -
-@@ -3665,12 +3666,12 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 				buf->buffer->element[0].sflags |= SBAL_SFLAGS0_PCI_REQ;
- 			}
- 		}
-+
-+		if (atomic_read(&queue->set_pci_flags_count))
-+			qdio_flags |= QDIO_FLAG_PCI_OUT;
- 	}
- 
- 	QETH_TXQ_STAT_INC(queue, doorbell);
--	qdio_flags = QDIO_FLAG_SYNC_OUTPUT;
--	if (atomic_read(&queue->set_pci_flags_count))
--		qdio_flags |= QDIO_FLAG_PCI_OUT;
- 	rc = do_QDIO(CARD_DDEV(queue->card), qdio_flags,
- 		     queue->queue_no, index, count);
- 
--- 
-2.17.1
+> +struct ccw1 {
+> +	unsigned char code;
+> +	unsigned char flags;
+> +	unsigned short count;
+
+I'm wondering why you're using unsigned {char,short} here, instead of
+the uint*_t types everywhere else? It's not wrong, but probably better
+to be consistent?
+
+> +	uint32_t data_address;
+> +} __attribute__ ((aligned(4)));
+> +
+> +#define SID_ONE		0x00010000
+> +
+
+I think it would be beneficial for the names to somewhat match the
+naming in Linux and/or QEMU -- or more speaking names (as you do for
+some), which is also good.
+
+> +#define ORB_M_KEY	0xf0000000
+> +#define ORB_F_SUSPEND	0x08000000
+> +#define ORB_F_STREAMING	0x04000000
+> +#define ORB_F_MODIFCTRL	0x02000000
+> +#define ORB_F_SYNC	0x01000000
+> +#define ORB_F_FORMAT	0x00800000
+> +#define ORB_F_PREFETCH	0x00400000
+> +#define ORB_F_INIT_IRQ	0x00200000
+
+ORB_F_ISIC? (As it does not refer to 'initialization', but 'initial'.)
+
+> +#define ORB_F_ADDRLIMIT	0x00100000
+> +#define ORB_F_SUSP_IRQ	0x00080000
+
+ORB_F_SSIC? (As it deals with suppression.)
+
+> +#define ORB_F_TRANSPORT	0x00040000
+> +#define ORB_F_IDAW2	0x00020000
+
+ORB_F_IDAW_FMT2?
+
+Or following Linux/QEMU, use ORB_F_C64 for a certain retro appeal :)
+
+> +#define ORB_F_IDAW_2K	0x00010000
+> +#define ORB_M_LPM	0x0000ff00
+> +#define ORB_F_LPM_DFLT	0x00008000
+
+That's a default lpm of 0x80, right? It's a bit buried between the orb
+definitions, and it also seems to be more of a implementation choice --
+move it out from the flags here?
+
+> +#define ORB_F_ILSM	0x00000080
+
+ORB_F_ILS?
+
+> +#define ORB_F_CCW_IND	0x00000040
+
+ORB_F_MIDAW? I had a hard time figuring out that one :)
+
+> +#define ORB_F_ORB_EXT	0x00000001
+
+(...)
+
+> +/*
+> + * Try o have a more human representation of the PMCW flags
+
+s/o/to/
+
+> + * each letter in the string represent the first
+
+s/represent/represents/
+
+> + * letter of the associated bit in the flag fields.
+> + */
+
+(...)
+
+Generally, looks good to me.
