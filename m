@@ -1,345 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35044 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54694 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730794AbgEMWRU (ORCPT
+        by vger.kernel.org with ESMTP id S1731446AbgEZLjb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 May 2020 18:17:20 -0400
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v6 2/2] s390/kvm: diagnose 318 handling
-Date: Wed, 13 May 2020 18:15:57 -0400
-Message-Id: <20200513221557.14366-3-walling@linux.ibm.com>
-In-Reply-To: <20200513221557.14366-1-walling@linux.ibm.com>
-References: <20200513221557.14366-1-walling@linux.ibm.com>
+        Tue, 26 May 2020 07:39:31 -0400
+Subject: Re: [kvm-unit-tests PATCH v7 01/12] s390x: saving regs for interrupts
+References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+ <1589818051-20549-2-git-send-email-pmorel@linux.ibm.com>
+ <e06ed054-6038-3a7e-3eda-0d37ee382919@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <ec90a237-0edb-121e-6c16-f1dc96a3a169@linux.ibm.com>
+Date: Tue, 26 May 2020 13:39:25 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <e06ed054-6038-3a7e-3eda-0d37ee382919@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-DIAGNOSE 0x318 (diag318) is a privileged s390x instruction that must
-be intercepted by SIE and handled via KVM. Let's introduce some
-functions to communicate between userspace and KVM via ioctls. These
-will be used to get/set the diag318 related information, as well as
-check the system if KVM supports handling this instruction.
 
-This information can help with diagnosing the environment the VM is
-running in (Linux, z/VM, etc) if the OS calls this instruction.
 
-By default, this feature is disabled and can only be enabled if a
-user space program (such as QEMU) explicitly requests it.
+On 2020-05-26 12:30, Janosch Frank wrote:
+> On 5/18/20 6:07 PM, Pierre Morel wrote:
+>> If we use multiple source of interrupts, for example, using SCLP
+>> console to print information while using I/O interrupts, we need
+>> to have a re-entrant register saving interruption handling.
+>>
+>> Instead of saving at a static memory address, let's save the base
+>> registers, the floating point registers and the floating point
+>> control register on the stack in case of I/O interrupts
+>>
+>> Note that we keep the static register saving to recover from the
+>> RESET tests.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> 
+> Some nits below
+> 
+> Acked-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+> 
 
-The Control Program Name Code (CPNC) is stored in the SIE block
-and a copy is retained in each VCPU. The Control Program Version
-Code (CPVC) is not designed to be stored in the SIE block, so we
-retain a copy in each VCPU next to the CPNC.
+Thanks, I will modify the nits as you proposed.
 
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
----
- Documentation/virt/kvm/devices/vm.rst | 29 +++++++++
- arch/s390/include/asm/kvm_host.h      |  6 +-
- arch/s390/include/uapi/asm/kvm.h      |  5 ++
- arch/s390/kvm/diag.c                  | 20 ++++++
- arch/s390/kvm/kvm-s390.c              | 89 +++++++++++++++++++++++++++
- arch/s390/kvm/kvm-s390.h              |  1 +
- arch/s390/kvm/vsie.c                  |  2 +
- 7 files changed, 151 insertions(+), 1 deletion(-)
+regards,
+Pierre
 
-diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
-index 0aa5b1cfd700..9344d45ace6d 100644
---- a/Documentation/virt/kvm/devices/vm.rst
-+++ b/Documentation/virt/kvm/devices/vm.rst
-@@ -314,3 +314,32 @@ Allows userspace to query the status of migration mode.
- 	     if it is enabled
- :Returns:   -EFAULT if the given address is not accessible from kernel space;
- 	    0 in case of success.
-+
-+6. GROUP: KVM_S390_VM_MISC
-+Architectures: s390
-+
-+ 6.1. KVM_S390_VM_MISC_ENABLE_DIAG318
-+
-+ Allows userspace to enable the DIAGNOSE 0x318 instruction call for a
-+ guest OS. By default, KVM will not allow this instruction to be executed
-+ by a guest, even if support is in place. Userspace must explicitly enable
-+ the instruction handling for DIAGNOSE 0x318 via this call.
-+
-+ Parameters: none
-+ Returns:    0 after setting a flag telling KVM to enable this feature
-+
-+ 6.2. KVM_S390_VM_MISC_DIAG318 (r/w)
-+
-+ Allows userspace to retrieve and set the DIAGNOSE 0x318 information,
-+ which consists of a 1-byte "Control Program Name Code" and a 7-byte
-+ "Control Program Version Code" (a 64 bit value all in all). This
-+ information is set by the guest (usually during IPL). This interface is
-+ intended to allow retrieving and setting it during migration; while no
-+ real harm is done if the information is changed outside of migration,
-+ it is strongly discouraged.
-+
-+ Parameters: address of a buffer in user space (u64), where the
-+	     information is read from or stored into
-+ Returns:    -EFAULT if the given address is not accessible from kernel space;
-+	     -EOPNOTSUPP if feature has not been requested to be enabled first;
-+	     0 in case of success
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index d6bcd34f3ec3..77a46416bd62 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -260,7 +260,8 @@ struct kvm_s390_sie_block {
- 	__u32	scaol;			/* 0x0064 */
- 	__u8	sdf;			/* 0x0068 */
- 	__u8    epdx;			/* 0x0069 */
--	__u8    reserved6a[2];		/* 0x006a */
-+	__u8	cpnc;			/* 0x006a */
-+	__u8	reserved6b;		/* 0x006b */
- 	__u32	todpr;			/* 0x006c */
- #define GISA_FORMAT1 0x00000001
- 	__u32	gd;			/* 0x0070 */
-@@ -454,6 +455,7 @@ struct kvm_vcpu_stat {
- 	u64 diagnose_9c_ignored;
- 	u64 diagnose_258;
- 	u64 diagnose_308;
-+	u64 diagnose_318;
- 	u64 diagnose_500;
- 	u64 diagnose_other;
- };
-@@ -938,6 +940,7 @@ struct kvm_arch{
- 	int user_sigp;
- 	int user_stsi;
- 	int user_instr0;
-+	int use_diag318;
- 	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
- 	wait_queue_head_t ipte_wq;
- 	int ipte_lock_count;
-@@ -956,6 +959,7 @@ struct kvm_arch{
- 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- 	struct kvm_s390_gisa_interrupt gisa_int;
- 	struct kvm_s390_pv pv;
-+	union diag318_info diag318_info;
- };
- 
- #define KVM_HVA_ERR_BAD		(-1UL)
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 436ec7636927..92cfe14ba2e1 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -74,6 +74,7 @@ struct kvm_s390_io_adapter_req {
- #define KVM_S390_VM_CRYPTO		2
- #define KVM_S390_VM_CPU_MODEL		3
- #define KVM_S390_VM_MIGRATION		4
-+#define KVM_S390_VM_MISC		5
- 
- /* kvm attributes for mem_ctrl */
- #define KVM_S390_VM_MEM_ENABLE_CMMA	0
-@@ -171,6 +172,10 @@ struct kvm_s390_vm_cpu_subfunc {
- #define KVM_S390_VM_MIGRATION_START	1
- #define KVM_S390_VM_MIGRATION_STATUS	2
- 
-+/* kvm attributes for KVM_S390_VM_MISC */
-+#define KVM_S390_VM_MISC_ENABLE_DIAG318	0
-+#define KVM_S390_VM_MISC_DIAG318		1
-+
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
-diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
-index 563429dece03..3caed4b880c8 100644
---- a/arch/s390/kvm/diag.c
-+++ b/arch/s390/kvm/diag.c
-@@ -253,6 +253,24 @@ static int __diag_virtio_hypercall(struct kvm_vcpu *vcpu)
- 	return ret < 0 ? ret : 0;
- }
- 
-+static int __diag_set_diag318_info(struct kvm_vcpu *vcpu)
-+{
-+	unsigned int reg = (vcpu->arch.sie_block->ipa & 0xf0) >> 4;
-+	u64 info = vcpu->run->s.regs.gprs[reg];
-+
-+	if (!vcpu->kvm->arch.use_diag318)
-+		return -EOPNOTSUPP;
-+
-+	vcpu->stat.diagnose_318++;
-+	kvm_s390_set_diag318_info(vcpu->kvm, info);
-+
-+	VCPU_EVENT(vcpu, 3, "diag 0x318 cpnc: 0x%x cpvc: 0x%llx",
-+		   vcpu->kvm->arch.diag318_info.cpnc,
-+		   (u64)vcpu->kvm->arch.diag318_info.cpvc);
-+
-+	return 0;
-+}
-+
- int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
- {
- 	int code = kvm_s390_get_base_disp_rs(vcpu, NULL) & 0xffff;
-@@ -272,6 +290,8 @@ int kvm_s390_handle_diag(struct kvm_vcpu *vcpu)
- 		return __diag_page_ref_service(vcpu);
- 	case 0x308:
- 		return __diag_ipl_functions(vcpu);
-+	case 0x318:
-+		return __diag_set_diag318_info(vcpu);
- 	case 0x500:
- 		return __diag_virtio_hypercall(vcpu);
- 	default:
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d05bb040fd42..c3eee468815f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -159,6 +159,7 @@ struct kvm_stats_debugfs_item debugfs_entries[] = {
- 	{ "diag_9c_ignored", VCPU_STAT(diagnose_9c_ignored) },
- 	{ "instruction_diag_258", VCPU_STAT(diagnose_258) },
- 	{ "instruction_diag_308", VCPU_STAT(diagnose_308) },
-+	{ "instruction_diag_318", VCPU_STAT(diagnose_318) },
- 	{ "instruction_diag_500", VCPU_STAT(diagnose_500) },
- 	{ "instruction_diag_other", VCPU_STAT(diagnose_other) },
- 	{ NULL }
-@@ -1243,6 +1244,76 @@ static int kvm_s390_get_tod(struct kvm *kvm, struct kvm_device_attr *attr)
- 	return ret;
- }
- 
-+void kvm_s390_set_diag318_info(struct kvm *kvm, u64 info)
-+{
-+	struct kvm_vcpu *vcpu;
-+	int i;
-+
-+	kvm->arch.diag318_info.val = info;
-+
-+	VM_EVENT(kvm, 3, "SET: CPNC: 0x%x CPVC: 0x%llx",
-+		 kvm->arch.diag318_info.cpnc, kvm->arch.diag318_info.cpvc);
-+
-+	if (sclp.has_diag318) {
-+		kvm_for_each_vcpu(i, vcpu, kvm) {
-+			vcpu->arch.sie_block->cpnc = kvm->arch.diag318_info.cpnc;
-+		}
-+	}
-+}
-+
-+static int kvm_s390_vm_set_misc(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+	u64 diag318_info;
-+
-+	switch (attr->attr) {
-+	case KVM_S390_VM_MISC_ENABLE_DIAG318:
-+		kvm->arch.use_diag318 = 1;
-+		ret = 0;
-+		break;
-+	case KVM_S390_VM_MISC_DIAG318:
-+		ret = -EFAULT;
-+		if (!kvm->arch.use_diag318)
-+			return -EOPNOTSUPP;
-+		if (get_user(diag318_info, (u64 __user *)attr->addr))
-+			break;
-+		kvm_s390_set_diag318_info(kvm, diag318_info);
-+		ret = 0;
-+		break;
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+	return ret;
-+}
-+
-+static int kvm_s390_get_diag318_info(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	if (put_user(kvm->arch.diag318_info.val, (u64 __user *)attr->addr))
-+		return -EFAULT;
-+
-+	VM_EVENT(kvm, 3, "QUERY: CPNC: 0x%x, CPVC: 0x%llx",
-+		 kvm->arch.diag318_info.cpnc, (u64)kvm->arch.diag318_info.cpvc);
-+	return 0;
-+}
-+
-+static int kvm_s390_get_misc(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+
-+	switch (attr->attr) {
-+	case KVM_S390_VM_MISC_DIAG318:
-+		if (!kvm->arch.use_diag318)
-+			return -ENXIO;
-+		ret = kvm_s390_get_diag318_info(kvm, attr);
-+		break;
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+	return ret;
-+}
-+
- static int kvm_s390_set_processor(struct kvm *kvm, struct kvm_device_attr *attr)
- {
- 	struct kvm_s390_vm_cpu_processor *proc;
-@@ -1689,6 +1760,9 @@ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = kvm_s390_vm_set_migration(kvm, attr);
- 		break;
-+	case KVM_S390_VM_MISC:
-+		ret = kvm_s390_vm_set_misc(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1714,6 +1788,9 @@ static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = kvm_s390_vm_get_migration(kvm, attr);
- 		break;
-+	case KVM_S390_VM_MISC:
-+		ret = kvm_s390_get_misc(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1787,6 +1864,16 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = 0;
- 		break;
-+	case KVM_S390_VM_MISC:
-+		switch (attr->attr) {
-+		case KVM_S390_VM_MISC_DIAG318:
-+			ret = 0;
-+			break;
-+		default:
-+			ret = -ENXIO;
-+			break;
-+		}
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -3075,6 +3162,8 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- 		vcpu->arch.sie_block->ictl |= ICTL_OPEREXC;
- 	/* make vcpu_load load the right gmap on the first trigger */
- 	vcpu->arch.enabled_gmap = vcpu->arch.gmap;
-+	if (sclp.has_diag318)
-+		vcpu->arch.sie_block->cpnc = vcpu->kvm->arch.diag318_info.cpnc;
- }
- 
- static bool kvm_has_pckmo_subfunc(struct kvm *kvm, unsigned long nr)
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index 79dcd647b378..59195447737e 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -326,6 +326,7 @@ int kvm_s390_handle_sigp(struct kvm_vcpu *vcpu);
- int kvm_s390_handle_sigp_pei(struct kvm_vcpu *vcpu);
- 
- /* implemented in kvm-s390.c */
-+void kvm_s390_set_diag318_info(struct kvm *kvm, u64 info);
- void kvm_s390_set_tod_clock(struct kvm *kvm,
- 			    const struct kvm_s390_vm_tod_clock *gtod);
- long kvm_arch_fault_in_page(struct kvm_vcpu *vcpu, gpa_t gpa, int writable);
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 4f6c22d72072..3a63ad5ee8d8 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -548,6 +548,8 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_s->ecd |= scb_o->ecd & ECD_ETOKENF;
- 
- 	scb_s->hpid = HPID_VSIE;
-+	if (sclp.has_diag318)
-+		scb_s->cpnc = scb_o->cpnc;
- 
- 	prepare_ibc(vcpu, vsie_page);
- 	rc = shadow_crycb(vcpu, vsie_page);
 -- 
-2.21.3
+Pierre Morel
+IBM Lab Boeblingen
