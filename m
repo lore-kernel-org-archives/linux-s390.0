@@ -1,114 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5966 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728704AbgEFIKA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 6 May 2020 04:10:00 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH v2 net-next 01/10] s390/qeth: keep track of LP2LP capability for csum offload
-Date: Wed,  6 May 2020 10:09:40 +0200
-Message-Id: <20200506080949.3915-2-jwi@linux.ibm.com>
-In-Reply-To: <20200506080949.3915-1-jwi@linux.ibm.com>
-References: <20200506080949.3915-1-jwi@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731494AbgEZQsP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 26 May 2020 12:48:15 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53626C03E96F
+        for <linux-s390@vger.kernel.org>; Tue, 26 May 2020 09:48:15 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id f3so22792858ioj.1
+        for <linux-s390@vger.kernel.org>; Tue, 26 May 2020 09:48:15 -0700 (PDT)
+Subject: Re: [greybus-dev] [PATCH 8/8] net/iucv: Use the new device_to_pm()
+ helper to access struct dev_pm_ops
+References: <20200525182608.1823735-1-kw@linux.com>
+ <20200525182608.1823735-9-kw@linux.com> <20200526063521.GC2578492@kroah.com>
+ <20200526150744.GC75990@rocinante>
+From: Alex Elder <elder@linaro.org>
+Message-ID: <acb9415a-d0d0-3ebc-b5ae-c26a7dc2114a@linaro.org>
+Date: Tue, 26 May 2020 11:48:12 -0500
+MIME-Version: 1.0
+In-Reply-To: <20200526150744.GC75990@rocinante>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Ulf Hansson <ulf.hansson@linaro.org>, linux-pci@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, Pavel Machek <pavel@ucw.cz>, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, Kevin Hilman <khilman@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, linux-acpi@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Dan Carpenter <dan.carpenter@oracle.com>, Len Brown <lenb@kernel.org>, linux-pm@vger.kernel.org, "James E.J. Bottomley" <jejb@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Johan Hovold <johan@kernel.org>, greybus-dev@lists.linaro.org, John Stultz <john.stultz@linaro.org>, Bjorn Helgaas <bhelgaas@google.com>, Felipe Balbi <balbi@kernel.org>, Alex Elder <elder@kernel.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org, linux-usb@vger.kernel.org, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Karsten Graul <kgraul@linux.ibm.com>, "David S. Miller" <davem@davemloft.net>
 
-When enabling TX CSO, make a note of whether the device has support for
-LP2LP offloading. This will become relevant in subsequent patches.
+On 5/26/20 10:07 AM, Krzysztof Wilczyński wrote:
+> Hello Greg,
+> 
+> [...]
+>> It's "interesting" how using your new helper doesn't actually make the
+>> code smaller.  Perhaps it isn't a good helper function?
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h      |  3 +++
- drivers/s390/net/qeth_core_main.c | 23 ++++++++++++++---------
- 2 files changed, 17 insertions(+), 9 deletions(-)
+Helper functions often improve code readability, which is
+beneficial even if it doesn't reduce code size or efficiency.
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index e0b26310ecab..2ac7771394d8 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -688,6 +688,9 @@ struct qeth_card_info {
- 	u8 promisc_mode:1;
- 	u8 use_v1_blkt:1;
- 	u8 is_vm_nic:1;
-+	/* no bitfield, we take a pointer on these two: */
-+	u8 has_lp2lp_cso_v6;
-+	u8 has_lp2lp_cso_v4;
- 	enum qeth_card_types type;
- 	enum qeth_link_types link_type;
- 	int broadcast_capable;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index f7689461c242..ef96890eea5c 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6300,7 +6300,7 @@ static int qeth_set_csum_off(struct qeth_card *card, enum qeth_ipa_funcs cstype,
- }
- 
- static int qeth_set_csum_on(struct qeth_card *card, enum qeth_ipa_funcs cstype,
--			    enum qeth_prot_versions prot)
-+			    enum qeth_prot_versions prot, u8 *lp2lp)
- {
- 	u32 required_features = QETH_IPA_CHECKSUM_UDP | QETH_IPA_CHECKSUM_TCP;
- 	struct qeth_cmd_buffer *iob;
-@@ -6352,8 +6352,11 @@ static int qeth_set_csum_on(struct qeth_card *card, enum qeth_ipa_funcs cstype,
- 
- 	dev_info(&card->gdev->dev, "HW Checksumming (%sbound IPv%d) enabled\n",
- 		 cstype == IPA_INBOUND_CHECKSUM ? "in" : "out", prot);
--	if (!qeth_ipa_caps_enabled(&caps, QETH_IPA_CHECKSUM_LP2LP) &&
--	    cstype == IPA_OUTBOUND_CHECKSUM)
-+
-+	if (lp2lp)
-+		*lp2lp = qeth_ipa_caps_enabled(&caps, QETH_IPA_CHECKSUM_LP2LP);
-+
-+	if (lp2lp && !*lp2lp)
- 		dev_warn(&card->gdev->dev,
- 			 "Hardware checksumming is performed only if %s and its peer use different OSA Express 3 ports\n",
- 			 QETH_CARD_IFNAME(card));
-@@ -6361,9 +6364,9 @@ static int qeth_set_csum_on(struct qeth_card *card, enum qeth_ipa_funcs cstype,
- }
- 
- static int qeth_set_ipa_csum(struct qeth_card *card, bool on, int cstype,
--			     enum qeth_prot_versions prot)
-+			     enum qeth_prot_versions prot, u8 *lp2lp)
- {
--	return on ? qeth_set_csum_on(card, cstype, prot) :
-+	return on ? qeth_set_csum_on(card, cstype, prot, lp2lp) :
- 		    qeth_set_csum_off(card, cstype, prot);
- }
- 
-@@ -6451,13 +6454,13 @@ static int qeth_set_ipa_rx_csum(struct qeth_card *card, bool on)
- 
- 	if (qeth_is_supported(card, IPA_INBOUND_CHECKSUM))
- 		rc_ipv4 = qeth_set_ipa_csum(card, on, IPA_INBOUND_CHECKSUM,
--					    QETH_PROT_IPV4);
-+					    QETH_PROT_IPV4, NULL);
- 	if (!qeth_is_supported6(card, IPA_INBOUND_CHECKSUM_V6))
- 		/* no/one Offload Assist available, so the rc is trivial */
- 		return rc_ipv4;
- 
- 	rc_ipv6 = qeth_set_ipa_csum(card, on, IPA_INBOUND_CHECKSUM,
--				    QETH_PROT_IPV6);
-+				    QETH_PROT_IPV6, NULL);
- 
- 	if (on)
- 		/* enable: success if any Assist is active */
-@@ -6504,13 +6507,15 @@ int qeth_set_features(struct net_device *dev, netdev_features_t features)
- 
- 	if ((changed & NETIF_F_IP_CSUM)) {
- 		rc = qeth_set_ipa_csum(card, features & NETIF_F_IP_CSUM,
--				       IPA_OUTBOUND_CHECKSUM, QETH_PROT_IPV4);
-+				       IPA_OUTBOUND_CHECKSUM, QETH_PROT_IPV4,
-+				       &card->info.has_lp2lp_cso_v4);
- 		if (rc)
- 			changed ^= NETIF_F_IP_CSUM;
- 	}
- 	if (changed & NETIF_F_IPV6_CSUM) {
- 		rc = qeth_set_ipa_csum(card, features & NETIF_F_IPV6_CSUM,
--				       IPA_OUTBOUND_CHECKSUM, QETH_PROT_IPV6);
-+				       IPA_OUTBOUND_CHECKSUM, QETH_PROT_IPV6,
-+				       &card->info.has_lp2lp_cso_v6);
- 		if (rc)
- 			changed ^= NETIF_F_IPV6_CSUM;
- 	}
--- 
-2.17.1
+But I won't argue for or against this particular change.
+It's OK with me either way.
+
+					-Alex
+
+> The idea for the helper was inspired by the comment Dan made to Bjorn
+> about Bjorn's change, as per:
+> 
+>    https://lore.kernel.org/driverdev-devel/20191016135002.GA24678@kadam/
+> 
+> It looked like a good idea to try to reduce the following:
+> 
+>    dev->driver && dev->driver->pm && dev->driver->pm->prepare
+> 
+> Into something more succinct.  Albeit, given the feedback from yourself
+> and Rafael, I gather that this helper is not really a good addition.
+> 
+> Thank you everyone and sorry for the commotion!
+> 
+> Krzysztof
+> _______________________________________________
+> greybus-dev mailing list
+> greybus-dev@lists.linaro.org
+> https://lists.linaro.org/mailman/listinfo/greybus-dev
+> 
