@@ -1,54 +1,32 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35074 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728364AbgEZH73 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 May 2020 03:59:29 -0400
-Subject: Re: [PATCH 8/8] net/iucv: Use the new device_to_pm() helper to access
- struct dev_pm_ops
+Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726776AbgEZGfY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 May 2020 02:35:24 -0400
+Date: Tue, 26 May 2020 08:35:21 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 8/8] net/iucv: Use the new device_to_pm() helper to
+ access struct dev_pm_ops
+Message-ID: <20200526063521.GC2578492@kroah.com>
 References: <20200525182608.1823735-1-kw@linux.com>
  <20200525182608.1823735-9-kw@linux.com>
-From: Ursula Braun <ubraun@linux.ibm.com>
-Message-ID: <55c3d2eb-feff-bf33-235d-b89c0abef7b1@linux.ibm.com>
-Date: Tue, 26 May 2020 09:07:27 +0200
 MIME-Version: 1.0
-In-Reply-To: <20200525182608.1823735-9-kw@linux.com>
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200525182608.1823735-9-kw@linux.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>, Dan Carpenter <dan.carpenter@oracle.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Kevin Hilman <khilman@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Felipe Balbi <balbi@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, John Stultz <john.stultz@linaro.org>, "David S. Miller" <davem@davemloft.net>, greybus-dev@lists.linaro.org, netdev@vger.kernel.org, linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org
+To: Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Kevin Hilman <khilman@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Felipe Balbi <balbi@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, John Stultz <john.stultz@linaro.org>, "David S. Miller" <davem@davemloft.net>, greybus-dev@lists.linaro.org, netdev@vger.kernel.org, linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org, linux-pm@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org
 
-
-
-On 5/25/20 8:26 PM, Krzysztof Wilczyński wrote:
+On Mon, May 25, 2020 at 06:26:08PM +0000, Krzysztof Wilczyński wrote:
 > Use the new device_to_pm() helper to access Power Management callbacs
 > (struct dev_pm_ops) for a particular device (struct device_driver).
 > 
 > No functional change intended.
 > 
 > Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-
-pm support is going to be removed (for s390 in general and) for
-net/iucv/iucv.c with this net-next patch:
-
-commit 4b32f86bf1673acb16441dd55d7b325609f54897
-Author: Julian Wiedmann <jwi@linux.ibm.com>
-Date:   Tue May 19 21:10:08 2020 +0200
-
-    net/iucv: remove pm support
-    
-    commit 394216275c7d ("s390: remove broken hibernate / power management support")
-    removed support for ARCH_HIBERNATION_POSSIBLE from s390.
-    
-    So drop the unused pm ops from the s390-only iucv bus driver.
-    
-    CC: Hendrik Brueckner <brueckner@linux.ibm.com>
-    Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-    Signed-off-by: David S. Miller <davem@davemloft.net>
-
 > ---
 >  net/iucv/iucv.c | 30 ++++++++++++++++++------------
 >  1 file changed, 18 insertions(+), 12 deletions(-)
@@ -57,5 +35,26 @@ Date:   Tue May 19 21:10:08 2020 +0200
 > index 9a2d023842fe..1a3029ab7c1f 100644
 > --- a/net/iucv/iucv.c
 > +++ b/net/iucv/iucv.c
+> @@ -1836,23 +1836,23 @@ static void iucv_external_interrupt(struct ext_code ext_code,
+>  
+>  static int iucv_pm_prepare(struct device *dev)
+>  {
+> -	int rc = 0;
+> +	const struct dev_pm_ops *pm = driver_to_pm(dev->driver);
+>  
+>  #ifdef CONFIG_PM_DEBUG
+>  	printk(KERN_INFO "iucv_pm_prepare\n");
+>  #endif
+> -	if (dev->driver && dev->driver->pm && dev->driver->pm->prepare)
+> -		rc = dev->driver->pm->prepare(dev);
+> -	return rc;
+> +	return pm && pm->prepare ? pm->prepare(dev) : 0;
 
-...
+No need for ? : here either, just use if () please.
+
+It's "interesting" how using your new helper doesn't actually make the
+code smaller.  Perhaps it isn't a good helper function?
+
+thanks,
+
+greg k-h
