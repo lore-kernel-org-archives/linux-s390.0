@@ -1,64 +1,95 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37128 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728746AbgEZJdW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 May 2020 05:33:22 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/3] KVM: s390: vsie: gmap_table_walk() simplifications
-Date: Tue, 26 May 2020 11:33:12 +0200
-Message-Id: <20200526093313.77976-3-borntraeger@de.ibm.com>
-In-Reply-To: <20200526093313.77976-1-borntraeger@de.ibm.com>
-References: <20200526093313.77976-1-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
+Received: from bilbo.ozlabs.org ([203.11.71.1]:60013 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725771AbgEZF7c (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 May 2020 01:59:32 -0400
+Date: Tue, 26 May 2020 15:59:24 +1000
+From: Paul Mackerras <paulus@ozlabs.org>
+Subject: Re: [PATCH v4 5/7] KVM: PPC: clean up redundant kvm_run parameters
+ in assembly
+Message-ID: <20200526055924.GD282305@thinks.paulus.ozlabs.org>
+References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
+ <20200427043514.16144-6-tianjia.zhang@linux.alibaba.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200427043514.16144-6-tianjia.zhang@linux.alibaba.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Cc: pbonzini@redhat.com, tsbogend@alpha.franken.de, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+On Mon, Apr 27, 2020 at 12:35:12PM +0800, Tianjia Zhang wrote:
+> In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
+> structure. For historical reasons, many kvm-related function parameters
+> retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
+> patch does a unified cleanup of these remaining redundant parameters.
 
-Let's use asce_type where applicable. Also, simplify our sanity check for
-valid table levels and convert it into a WARN_ON_ONCE(). Check if we even
-have a valid gmap shadow as the very first step.
+Some of these changes don't look completely correct to me, see below.
+If you're expecting these patches to go through my tree, I can fix up
+the patch and commit it (with you as author), noting the changes I
+made in the commit message.  Do you want me to do that?
 
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200403153050.20569-6-david@redhat.com
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/mm/gmap.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+> diff --git a/arch/powerpc/kvm/book3s_interrupts.S b/arch/powerpc/kvm/book3s_interrupts.S
+> index f7ad99d972ce..0eff749d8027 100644
+> --- a/arch/powerpc/kvm/book3s_interrupts.S
+> +++ b/arch/powerpc/kvm/book3s_interrupts.S
+> @@ -55,8 +55,7 @@
+>   ****************************************************************************/
+>  
+>  /* Registers:
+> - *  r3: kvm_run pointer
+> - *  r4: vcpu pointer
+> + *  r3: vcpu pointer
+>   */
+>  _GLOBAL(__kvmppc_vcpu_run)
+>  
+> @@ -68,8 +67,8 @@ kvm_start_entry:
+>  	/* Save host state to the stack */
+>  	PPC_STLU r1, -SWITCH_FRAME_SIZE(r1)
+>  
+> -	/* Save r3 (kvm_run) and r4 (vcpu) */
+> -	SAVE_2GPRS(3, r1)
+> +	/* Save r3 (vcpu) */
+> +	SAVE_GPR(3, r1)
+>  
+>  	/* Save non-volatile registers (r14 - r31) */
+>  	SAVE_NVGPRS(r1)
+> @@ -82,11 +81,11 @@ kvm_start_entry:
+>  	PPC_STL	r0, _LINK(r1)
+>  
+>  	/* Load non-volatile guest state from the vcpu */
+> -	VCPU_LOAD_NVGPRS(r4)
+> +	VCPU_LOAD_NVGPRS(r3)
+>  
+>  kvm_start_lightweight:
+>  	/* Copy registers into shadow vcpu so we can access them in real mode */
+> -	mr	r3, r4
+> +	mr	r4, r3
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 1a95d8809cc3..4b6903fbba4a 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -788,19 +788,19 @@ static inline unsigned long *gmap_table_walk(struct gmap *gmap,
- 					     unsigned long gaddr, int level)
- {
- 	const int asce_type = gmap->asce & _ASCE_TYPE_MASK;
--	unsigned long *table;
-+	unsigned long *table = gmap->table;
- 
--	if ((gmap->asce & _ASCE_TYPE_MASK) + 4 < (level * 4))
--		return NULL;
- 	if (gmap_is_shadow(gmap) && gmap->removed)
- 		return NULL;
- 
-+	if (WARN_ON_ONCE(level > (asce_type >> 2) + 1))
-+		return NULL;
-+
- 	if (asce_type != _ASCE_TYPE_REGION1 &&
- 	    gaddr & (-1UL << (31 + (asce_type >> 2) * 11)))
- 		return NULL;
- 
--	table = gmap->table;
--	switch (gmap->asce & _ASCE_TYPE_MASK) {
-+	switch (asce_type) {
- 	case _ASCE_TYPE_REGION1:
- 		table += (gaddr & _REGION1_INDEX) >> _REGION1_SHIFT;
- 		if (level == 4)
--- 
-2.25.4
+This mr doesn't seem necessary.
+
+>  	bl	FUNC(kvmppc_copy_to_svcpu)
+>  	nop
+>  	REST_GPR(4, r1)
+
+This should be loading r4 from GPR3(r1), not GPR4(r1) - which is what
+REST_GPR(4, r1) will do.
+
+Then, in the file but not in the patch context, there is this line:
+
+	PPC_LL	r3, GPR4(r1)		/* vcpu pointer */
+
+where once again GPR4 needs to be GPR3.
+
+> @@ -191,10 +190,10 @@ after_sprg3_load:
+>  	PPC_STL	r31, VCPU_GPR(R31)(r7)
+>  
+>  	/* Pass the exit number as 3rd argument to kvmppc_handle_exit */
+
+The comment should be modified to say "2nd" instead of "3rd",
+otherwise it is confusing.
+
+The rest of the patch looks OK.
+
+Paul.
