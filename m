@@ -1,74 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51822 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728695AbgEEM1w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 May 2020 08:27:52 -0400
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v4 0/8] s390x/vfio-ccw: Channel Path Handling [KVM]
-Date: Tue,  5 May 2020 14:27:37 +0200
-Message-Id: <20200505122745.53208-1-farman@linux.ibm.com>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:40912 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727112AbgEZSLK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 May 2020 14:11:10 -0400
+Subject: Re: [kvm-unit-tests PATCH v7 05/12] s390x: export the clock
+ get_clock_ms() utility
+References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+ <1589818051-20549-6-git-send-email-pmorel@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <80ccd983-df12-a6ee-239e-b367ebc9dded@redhat.com>
+Date: Tue, 26 May 2020 20:10:51 +0200
+MIME-Version: 1.0
+In-Reply-To: <1589818051-20549-6-git-send-email-pmorel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, kvm@vger.kernel.org
-Cc: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, Jason Herne <jjherne@linux.ibm.com>, Jared Rossi <jrossi@linux.ibm.com>, Eric Farman <farman@linux.ibm.com>
+To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-Here is a new pass at the channel-path handling code for vfio-ccw.
-Changes from previous versions are recorded in git notes for each patch.
-Patches 5 through 7 got swizzled a little bit, in order to better
-compartmentalize the code they define. Basically, the IRQ definitions
-were moved from patch 7 to 5, and then patch 6 was placed ahead of
-patch 5.
+On 18/05/2020 18.07, Pierre Morel wrote:
+> To serve multiple times, the function get_clock_ms() is moved
+> from intercept.c test to the new file asm/time.h.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  lib/s390x/asm/time.h | 26 ++++++++++++++++++++++++++
+>  s390x/intercept.c    | 11 +----------
+>  2 files changed, 27 insertions(+), 10 deletions(-)
+>  create mode 100644 lib/s390x/asm/time.h
+> 
+> diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
+> new file mode 100644
+> index 0000000..25c7a3c
+> --- /dev/null
+> +++ b/lib/s390x/asm/time.h
+> @@ -0,0 +1,26 @@
+> +/*
+> + * Clock utilities for s390
+> + *
+> + * Authors:
+> + *  Thomas Huth <thuth@redhat.com>
+> + *
+> + * Copied from the s390/intercept test by:
+> + *  Pierre Morel <pmorel@linux.ibm.com>
+> + *
+> + * This code is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License version 2.
+> + */
+> +#ifndef _ASM_S390X_TIME_H_
+> +#define _ASM_S390X_TIME_H_
 
-I have put Conny's r-b's on patches 1, 3, 4, (new) 5, and 8, and believe
-I have addressed all comments from v3, with two exceptions:
+Please also remove the underscores at the beginning (and preferably also
+at the end) here.
 
-> I'm wondering if we should make this [vfio_ccw_schib_region_{write,release}]
-> callback optional (not in this patch).
-
-I have that implemented on top of this series, and will send later as part
-of a larger cleanup series.
-
-> One thing though that keeps coming up: do we need any kind of
-> serialization? Can there be any confusion from concurrent reads from
-> userspace, or are we sure that we always provide consistent data?
-
-I _think_ this is in good shape, though as suggested another set of
-eyeballs would be nice. There is still a problem on the main
-interrupt/FSM path, which I'm not attempting to address here.
-
-With this code plus the corresponding QEMU series (posted momentarily)
-applied I am able to configure off/on a CHPID (for example, by issuing
-"chchp -c 0/1 xx" on the host), and the guest is able to see both the
-events and reflect the updated path masks in its structures.
-
-v3: https://lore.kernel.org/kvm/20200417023001.65006-1-farman@linux.ibm.com/
-v2: https://lore.kernel.org/kvm/20200206213825.11444-1-farman@linux.ibm.com/
-v1: https://lore.kernel.org/kvm/20191115025620.19593-1-farman@linux.ibm.com/
-
-Eric Farman (3):
-  vfio-ccw: Refactor the unregister of the async regions
-  vfio-ccw: Refactor IRQ handlers
-  vfio-ccw: Add trace for CRW event
-
-Farhan Ali (5):
-  vfio-ccw: Introduce new helper functions to free/destroy regions
-  vfio-ccw: Register a chp_event callback for vfio-ccw
-  vfio-ccw: Introduce a new schib region
-  vfio-ccw: Introduce a new CRW region
-  vfio-ccw: Wire up the CRW irq and CRW region
-
- Documentation/s390/vfio-ccw.rst     |  38 ++++++-
- drivers/s390/cio/Makefile           |   2 +-
- drivers/s390/cio/vfio_ccw_chp.c     | 148 +++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_drv.c     | 165 ++++++++++++++++++++++++++--
- drivers/s390/cio/vfio_ccw_ops.c     |  65 ++++++++---
- drivers/s390/cio/vfio_ccw_private.h |  16 +++
- drivers/s390/cio/vfio_ccw_trace.c   |   1 +
- drivers/s390/cio/vfio_ccw_trace.h   |  30 +++++
- include/uapi/linux/vfio.h           |   3 +
- include/uapi/linux/vfio_ccw.h       |  18 +++
- 10 files changed, 458 insertions(+), 28 deletions(-)
- create mode 100644 drivers/s390/cio/vfio_ccw_chp.c
-
--- 
-2.17.1
+ Thanks,
+  Thomas
