@@ -1,128 +1,70 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11732 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725893AbgEGJal (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 May 2020 05:30:41 -0400
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Subject: [PATCH 1/2] PCI/IOV: Introduce pci_iov_sysfs_link() function
-Date: Thu,  7 May 2020 11:30:33 +0200
-Message-Id: <20200507093034.56143-2-schnelle@linux.ibm.com>
-In-Reply-To: <20200507093034.56143-1-schnelle@linux.ibm.com>
-References: <20200507093034.56143-1-schnelle@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+MIME-Version: 1.0
+References: <20200525182608.1823735-1-kw@linux.com> <20200525182608.1823735-6-kw@linux.com>
+In-Reply-To: <20200525182608.1823735-6-kw@linux.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Tue, 26 May 2020 10:38:56 +0200
+Message-ID: <CAJZ5v0i-RnP7RycZ3GqOZuEYqrX_+r5-VS7DqtNCyHDwp1sPKg@mail.gmail.com>
+Subject: Re: [PATCH 5/8] usb: phy: fsl: Use the new device_to_pm() helper to
+ access struct dev_pm_ops
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>
+To: =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Kevin Hilman <khilman@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, Pavel Machek <pavel@ucw.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Felipe Balbi <balbi@kernel.org>, Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, John Stultz <john.stultz@linaro.org>, "David S. Miller" <davem@davemloft.net>, greybus-dev@lists.linaro.org, netdev <netdev@vger.kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux PCI <linux-pci@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>, linux-s390@vger.kernel.org, "open list:TARGET SUBSYSTEM" <linux-scsi@vger.kernel.org>, "open list:ULTRA-WIDEBAND (UWB) SUBSYSTEM:" <linux-usb@vger.kernel.org>
 
-Currently pci_iov_add_virtfn() scans the SR-IOV BARs, adds the VF to the
-bus and also creates the sysfs links between the newly added VF and its
-parent PF.
+On Mon, May 25, 2020 at 8:26 PM Krzysztof Wilczyński <kw@linux.com> wrote:
+>
+> Use the new device_to_pm() helper to access Power Management callbacs
+> (struct dev_pm_ops) for a particular device (struct device_driver).
+>
+> No functional change intended.
+>
+> Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
+> ---
+>  drivers/usb/phy/phy-fsl-usb.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/usb/phy/phy-fsl-usb.c b/drivers/usb/phy/phy-fsl-usb.c
+> index b451f4695f3f..3b9ad5db8380 100644
+> --- a/drivers/usb/phy/phy-fsl-usb.c
+> +++ b/drivers/usb/phy/phy-fsl-usb.c
+> @@ -460,6 +460,7 @@ int fsl_otg_start_host(struct otg_fsm *fsm, int on)
+>         struct device *dev;
+>         struct fsl_otg *otg_dev =
+>                 container_of(otg->usb_phy, struct fsl_otg, phy);
+> +       const struct dev_pm_ops *pm;
+>         u32 retval = 0;
+>
+>         if (!otg->host)
+> @@ -479,8 +480,9 @@ int fsl_otg_start_host(struct otg_fsm *fsm, int on)
+>                 else {
+>                         otg_reset_controller();
+>                         VDBG("host on......\n");
+> -                       if (dev->driver->pm && dev->driver->pm->resume) {
+> -                               retval = dev->driver->pm->resume(dev);
+> +                       pm = driver_to_pm(dev->driver);
+> +                       if (pm && pm->resume) {
+> +                               retval = pm->resume(dev);
 
-With pdev->no_vf_scan fencing off the entire pci_iov_add_virtfn() call
-s390 as the sole pdev->no_vf_scan user thus ends up missing these sysfs
-links which are required for example by QEMU/libvirt.
+And why is the new version better this time?
 
-Instead of duplicating the code refactor pci_iov_add_virtfn() to make
-sysfs link creation callable separately.
-
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
----
- drivers/pci/iov.c   | 36 +++++++++++++++++++++++++-----------
- include/linux/pci.h |  8 ++++++++
- 2 files changed, 33 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
-index 4d1f392b05f9..ee6fbe688498 100644
---- a/drivers/pci/iov.c
-+++ b/drivers/pci/iov.c
-@@ -133,12 +133,35 @@ static void pci_read_vf_config_common(struct pci_dev *virtfn)
- 			     &physfn->sriov->subsystem_device);
- }
- 
-+int pci_iov_sysfs_link(struct pci_dev *dev,
-+		struct pci_dev *virtfn, int id)
-+{
-+	char buf[VIRTFN_ID_LEN];
-+	int rc;
-+
-+	sprintf(buf, "virtfn%u", id);
-+	rc = sysfs_create_link(&dev->dev.kobj, &virtfn->dev.kobj, buf);
-+	if (rc)
-+		goto failed;
-+	rc = sysfs_create_link(&virtfn->dev.kobj, &dev->dev.kobj, "physfn");
-+	if (rc)
-+		goto failed1;
-+
-+	kobject_uevent(&virtfn->dev.kobj, KOBJ_CHANGE);
-+
-+	return 0;
-+
-+failed1:
-+	sysfs_remove_link(&dev->dev.kobj, buf);
-+failed:
-+	return rc;
-+}
-+
- int pci_iov_add_virtfn(struct pci_dev *dev, int id)
- {
- 	int i;
- 	int rc = -ENOMEM;
- 	u64 size;
--	char buf[VIRTFN_ID_LEN];
- 	struct pci_dev *virtfn;
- 	struct resource *res;
- 	struct pci_sriov *iov = dev->sriov;
-@@ -182,23 +205,14 @@ int pci_iov_add_virtfn(struct pci_dev *dev, int id)
- 	}
- 
- 	pci_device_add(virtfn, virtfn->bus);
--
--	sprintf(buf, "virtfn%u", id);
--	rc = sysfs_create_link(&dev->dev.kobj, &virtfn->dev.kobj, buf);
-+	rc = pci_iov_sysfs_link(dev, virtfn, id);
- 	if (rc)
- 		goto failed1;
--	rc = sysfs_create_link(&virtfn->dev.kobj, &dev->dev.kobj, "physfn");
--	if (rc)
--		goto failed2;
--
--	kobject_uevent(&virtfn->dev.kobj, KOBJ_CHANGE);
- 
- 	pci_bus_add_device(virtfn);
- 
- 	return 0;
- 
--failed2:
--	sysfs_remove_link(&dev->dev.kobj, buf);
- failed1:
- 	pci_stop_and_remove_bus_device(virtfn);
- 	pci_dev_put(dev);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 83ce1cdf5676..93a063a7d7f9 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -2048,6 +2048,8 @@ int pci_iov_virtfn_devfn(struct pci_dev *dev, int id);
- 
- int pci_enable_sriov(struct pci_dev *dev, int nr_virtfn);
- void pci_disable_sriov(struct pci_dev *dev);
-+
-+int pci_iov_sysfs_link(struct pci_dev *dev, struct pci_dev *virtfn, int id);
- int pci_iov_add_virtfn(struct pci_dev *dev, int id);
- void pci_iov_remove_virtfn(struct pci_dev *dev, int id);
- int pci_num_vf(struct pci_dev *dev);
-@@ -2073,6 +2075,12 @@ static inline int pci_iov_virtfn_devfn(struct pci_dev *dev, int id)
- }
- static inline int pci_enable_sriov(struct pci_dev *dev, int nr_virtfn)
- { return -ENODEV; }
-+
-+static inline int pci_iov_sysfs_link(struct pci_dev *dev,
-+				     struct pci_dev *virtfn, int id)
-+{
-+	return -ENODEV;
-+}
- static inline int pci_iov_add_virtfn(struct pci_dev *dev, int id)
- {
- 	return -ENOSYS;
--- 
-2.17.1
+>                                 if (fsm->id) {
+>                                         /* default-b */
+>                                         fsl_otg_drv_vbus(fsm, 1);
+> @@ -504,8 +506,9 @@ int fsl_otg_start_host(struct otg_fsm *fsm, int on)
+>                 else {
+>                         VDBG("host off......\n");
+>                         if (dev && dev->driver) {
+> -                               if (dev->driver->pm && dev->driver->pm->suspend)
+> -                                       retval = dev->driver->pm->suspend(dev);
+> +                               pm = driver_to_pm(dev->driver);
+> +                               if (pm && pm->suspend)
+> +                                       retval = pm->suspend(dev);
+>                                 if (fsm->id)
+>                                         /* default-b */
+>                                         fsl_otg_drv_vbus(fsm, 0);
+> --
+> 2.26.2
+>
