@@ -1,95 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45112 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728142AbgERQHn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 May 2020 12:07:43 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 04/12] s390x: interrupt registration
-Date: Mon, 18 May 2020 18:07:23 +0200
-Message-Id: <1589818051-20549-5-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
-References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+Received: from bilbo.ozlabs.org ([203.11.71.1]:34689 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726598AbgEZF7b (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 May 2020 01:59:31 -0400
+Date: Tue, 26 May 2020 15:49:50 +1000
+From: Paul Mackerras <paulus@ozlabs.org>
+Subject: Re: [PATCH v4 4/7] KVM: PPC: clean up redundant 'kvm_run' parameters
+Message-ID: <20200526054950.GC282305@thinks.paulus.ozlabs.org>
+References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
+ <20200427043514.16144-5-tianjia.zhang@linux.alibaba.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200427043514.16144-5-tianjia.zhang@linux.alibaba.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Cc: pbonzini@redhat.com, tsbogend@alpha.franken.de, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Let's make it possible to add and remove a custom io interrupt handler,
-that can be used instead of the normal one.
+On Mon, Apr 27, 2020 at 12:35:11PM +0800, Tianjia Zhang wrote:
+> In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
+> structure. For historical reasons, many kvm-related function parameters
+> retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
+> patch does a unified cleanup of these remaining redundant parameters.
+> 
+> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/interrupt.c | 23 ++++++++++++++++++++++-
- lib/s390x/interrupt.h |  8 ++++++++
- 2 files changed, 30 insertions(+), 1 deletion(-)
- create mode 100644 lib/s390x/interrupt.h
+This looks OK, though possibly a little larger than it needs to be
+because of variable name changes (kvm_run -> run) that aren't strictly
+necessary.
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 3a40cac..243b9c2 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -10,9 +10,9 @@
-  * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
--#include <asm/interrupt.h>
- #include <asm/barrier.h>
- #include <sclp.h>
-+#include <interrupt.h>
- 
- static bool pgm_int_expected;
- static bool ext_int_expected;
-@@ -144,12 +144,33 @@ void handle_mcck_int(void)
- 		     stap(), lc->mcck_old_psw.addr);
- }
- 
-+static void (*io_int_func)(void);
-+
- void handle_io_int(void)
- {
-+	if (io_int_func)
-+		return io_int_func();
-+
- 	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
- 		     stap(), lc->io_old_psw.addr);
- }
- 
-+int register_io_int_func(void (*f)(void))
-+{
-+	if (io_int_func)
-+		return -1;
-+	io_int_func = f;
-+	return 0;
-+}
-+
-+int unregister_io_int_func(void (*f)(void))
-+{
-+	if (io_int_func != f)
-+		return -1;
-+	io_int_func = NULL;
-+	return 0;
-+}
-+
- void handle_svc_int(void)
- {
- 	report_abort("Unexpected supervisor call interrupt: on cpu %d at %#lx",
-diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
-new file mode 100644
-index 0000000..323258d
---- /dev/null
-+++ b/lib/s390x/interrupt.h
-@@ -0,0 +1,8 @@
-+#ifndef __INTERRUPT_H
-+#define __INTERRUPT_H
-+#include <asm/interrupt.h>
-+
-+int register_io_int_func(void (*f)(void));
-+int unregister_io_int_func(void (*f)(void));
-+
-+#endif /* __INTERRUPT_H */
--- 
-2.25.1
+Reviewed-by: Paul Mackerras <paulus@ozlabs.org>
