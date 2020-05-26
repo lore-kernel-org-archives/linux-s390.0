@@ -1,47 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2120.oracle.com ([156.151.31.85]:57438 "EHLO
-        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387564AbgE0RjC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 May 2020 13:39:02 -0400
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [PATCH v3 1/8] padata: remove exit routine
-Date: Wed, 27 May 2020 13:36:01 -0400
-Message-Id: <20200527173608.2885243-2-daniel.m.jordan@oracle.com>
-In-Reply-To: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
-References: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:30565 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728750AbgEZJgh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 May 2020 05:36:37 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH] s390/virtio: remove unused pm callbacks
+Date: Tue, 26 May 2020 11:36:29 +0200
+Message-Id: <20200526093629.257649-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-padata_driver_exit() is unnecessary because padata isn't built as a
-module and doesn't exit.
+Support for hibernation on s390 has been recently been removed with
+commit 394216275c7d ("s390: remove broken hibernate / power management
+support"), no need to keep unused code around.
 
-padata's init routine will soon allocate memory, so getting rid of the
-exit function now avoids pointless code to free it.
-
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Tested-by: Josh Triplett <josh@joshtriplett.org>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- kernel/padata.c | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/s390/virtio/virtio_ccw.c | 26 --------------------------
+ 1 file changed, 26 deletions(-)
 
-diff --git a/kernel/padata.c b/kernel/padata.c
-index a6afa12fb75ee..835919c745266 100644
---- a/kernel/padata.c
-+++ b/kernel/padata.c
-@@ -1072,10 +1072,4 @@ static __init int padata_driver_init(void)
- }
- module_init(padata_driver_init);
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 957889a42d2e..5730572b52cd 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -1372,27 +1372,6 @@ static struct ccw_device_id virtio_ids[] = {
+ 	{},
+ };
  
--static __exit void padata_driver_exit(void)
+-#ifdef CONFIG_PM_SLEEP
+-static int virtio_ccw_freeze(struct ccw_device *cdev)
 -{
--	cpuhp_remove_multi_state(CPUHP_PADATA_DEAD);
--	cpuhp_remove_multi_state(hp_online);
+-	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+-
+-	return virtio_device_freeze(&vcdev->vdev);
 -}
--module_exit(padata_driver_exit);
- #endif
+-
+-static int virtio_ccw_restore(struct ccw_device *cdev)
+-{
+-	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+-	int ret;
+-
+-	ret = virtio_ccw_set_transport_rev(vcdev);
+-	if (ret)
+-		return ret;
+-
+-	return virtio_device_restore(&vcdev->vdev);
+-}
+-#endif
+-
+ static struct ccw_driver virtio_ccw_driver = {
+ 	.driver = {
+ 		.owner = THIS_MODULE,
+@@ -1405,11 +1384,6 @@ static struct ccw_driver virtio_ccw_driver = {
+ 	.set_online = virtio_ccw_online,
+ 	.notify = virtio_ccw_cio_notify,
+ 	.int_class = IRQIO_VIR,
+-#ifdef CONFIG_PM_SLEEP
+-	.freeze = virtio_ccw_freeze,
+-	.thaw = virtio_ccw_restore,
+-	.restore = virtio_ccw_restore,
+-#endif
+ };
+ 
+ static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
 -- 
-2.26.2
+2.25.4
