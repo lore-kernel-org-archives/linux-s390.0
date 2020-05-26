@@ -1,79 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3574 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15918 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728642AbgEAKse (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 1 May 2020 06:48:34 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 12/13] net/smc: allocate index for a new link
-Date: Fri,  1 May 2020 12:48:12 +0200
-Message-Id: <20200501104813.76601-13-kgraul@linux.ibm.com>
-In-Reply-To: <20200501104813.76601-1-kgraul@linux.ibm.com>
-References: <20200501104813.76601-1-kgraul@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1728568AbgEZJdV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 26 May 2020 05:33:21 -0400
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/3] KVM: s390: vsie: Move conditional reschedule
+Date: Tue, 26 May 2020 11:33:11 +0200
+Message-Id: <20200526093313.77976-2-borntraeger@de.ibm.com>
+In-Reply-To: <20200526093313.77976-1-borntraeger@de.ibm.com>
+References: <20200526093313.77976-1-borntraeger@de.ibm.com>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.vnet.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-Add smc_llc_alloc_alt_link() to find a free link index for a new link,
-depending on the new link group type. And update constants for the
-maximum number of links to 3 (2 symmetric and 1 dangling asymmetric link).
-These maximum numbers are the same as used by other implementations of the
-SMC-R protocol.
+From: David Hildenbrand <david@redhat.com>
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Let's move it to the outer loop, in case we ever run again into long
+loops, trying to map the prefix. While at it, convert it to cond_resched().
+
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200403153050.20569-5-david@redhat.com
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- net/smc/smc_core.h |  2 +-
- net/smc/smc_llc.c  | 24 ++++++++++++++++++++++++
- 2 files changed, 25 insertions(+), 1 deletion(-)
+ arch/s390/kvm/vsie.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index da3cddbd1651..eb27f2eb7c8c 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -128,7 +128,7 @@ struct smc_link {
- /* For now we just allow one parallel link per link group. The SMC protocol
-  * allows more (up to 8).
-  */
--#define SMC_LINKS_PER_LGR_MAX	1
-+#define SMC_LINKS_PER_LGR_MAX	3
- #define SMC_SINGLE_LINK		0
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 4f6c22d72072..ef05b4e167fb 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -1000,8 +1000,6 @@ static int do_vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
  
- #define SMC_FIRST_CONTACT	1		/* first contact to a peer */
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index e478a4c11877..3a25b6ebe3a8 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -541,6 +541,30 @@ static int smc_llc_send_message(struct smc_link *link, void *llcbuf)
+ 	handle_last_fault(vcpu, vsie_page);
  
- /********************************* receive ***********************************/
+-	if (need_resched())
+-		schedule();
+ 	if (test_cpu_flag(CIF_MCCK_PENDING))
+ 		s390_handle_mcck();
  
-+static int smc_llc_alloc_alt_link(struct smc_link_group *lgr,
-+				  enum smc_lgr_type lgr_new_t)
-+{
-+	int i;
-+
-+	if (lgr->type == SMC_LGR_SYMMETRIC ||
-+	    (lgr->type != SMC_LGR_SINGLE &&
-+	     (lgr_new_t == SMC_LGR_ASYMMETRIC_LOCAL ||
-+	      lgr_new_t == SMC_LGR_ASYMMETRIC_PEER)))
-+		return -EMLINK;
-+
-+	if (lgr_new_t == SMC_LGR_ASYMMETRIC_LOCAL ||
-+	    lgr_new_t == SMC_LGR_ASYMMETRIC_PEER) {
-+		for (i = SMC_LINKS_PER_LGR_MAX - 1; i >= 0; i--)
-+			if (lgr->lnk[i].state == SMC_LNK_UNUSED)
-+				return i;
-+	} else {
-+		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++)
-+			if (lgr->lnk[i].state == SMC_LNK_UNUSED)
-+				return i;
-+	}
-+	return -EMLINK;
-+}
-+
- static void smc_llc_rx_delete_link(struct smc_link *link,
- 				   struct smc_llc_msg_del_link *llc)
- {
+@@ -1185,6 +1183,7 @@ static int vsie_run(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		    kvm_s390_vcpu_has_irq(vcpu, 0) ||
+ 		    kvm_s390_vcpu_sie_inhibited(vcpu))
+ 			break;
++		cond_resched();
+ 	}
+ 
+ 	if (rc == -EFAULT) {
 -- 
-2.17.1
+2.25.4
