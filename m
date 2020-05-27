@@ -1,188 +1,269 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:5008 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726825AbgEGJam (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 May 2020 05:30:42 -0400
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Subject: [PATCH 2/2] s390/pci: create links between PFs and VFs
-Date: Thu,  7 May 2020 11:30:34 +0200
-Message-Id: <20200507093034.56143-3-schnelle@linux.ibm.com>
-In-Reply-To: <20200507093034.56143-1-schnelle@linux.ibm.com>
-References: <20200507093034.56143-1-schnelle@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+References: <20200527173608.2885243-1-daniel.m.jordan@oracle.com> <20200527173608.2885243-7-daniel.m.jordan@oracle.com>
+In-Reply-To: <20200527173608.2885243-7-daniel.m.jordan@oracle.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Date: Wed, 27 May 2020 14:27:15 -0700
+Message-ID: <CAKgT0UcT7JuJcM3iG2ZhMDj32wz4KTgH2sv-jdyfhR0_jy85iA@mail.gmail.com>
+Subject: Re: [PATCH v3 6/8] mm: parallelize deferred_init_memmap()
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>
+To: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>, Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, "open list:LINUX FOR POWERPC (32-BIT AND 64-BIT)" <linuxppc-dev@lists.ozlabs.org>
 
-On s390 PCI Virtual Functions (VFs) are scanned by firmware and are made
-available to Linux via the hot-plug interface. As such the common code
-path of doing the scan directly using the parent Physical Function (PF)
-is not used and fenced off with the no_vf_scan attribute.
+On Wed, May 27, 2020 at 10:37 AM Daniel Jordan
+<daniel.m.jordan@oracle.com> wrote:
+>
+> Deferred struct page init is a significant bottleneck in kernel boot.
+> Optimizing it maximizes availability for large-memory systems and allows
+> spinning up short-lived VMs as needed without having to leave them
+> running.  It also benefits bare metal machines hosting VMs that are
+> sensitive to downtime.  In projects such as VMM Fast Restart[1], where
+> guest state is preserved across kexec reboot, it helps prevent
+> application and network timeouts in the guests.
+>
+> Multithread to take full advantage of system memory bandwidth.
+>
+> The maximum number of threads is capped at the number of CPUs on the
+> node because speedups always improve with additional threads on every
+> system tested, and at this phase of boot, the system is otherwise idle
+> and waiting on page init to finish.
+>
+> Helper threads operate on section-aligned ranges to both avoid false
+> sharing when setting the pageblock's migrate type and to avoid accessing
+> uninitialized buddy pages, though max order alignment is enough for the
+> latter.
+>
+> The minimum chunk size is also a section.  There was benefit to using
+> multiple threads even on relatively small memory (1G) systems, and this
+> is the smallest size that the alignment allows.
+>
+> The time (milliseconds) is the slowest node to initialize since boot
+> blocks until all nodes finish.  intel_pstate is loaded in active mode
+> without hwp and with turbo enabled, and intel_idle is active as well.
+>
+>     Intel(R) Xeon(R) Platinum 8167M CPU @ 2.00GHz (Skylake, bare metal)
+>       2 nodes * 26 cores * 2 threads = 104 CPUs
+>       384G/node = 768G memory
+>
+>                    kernel boot                 deferred init
+>                    ------------------------    ------------------------
+>     node% (thr)    speedup  time_ms (stdev)    speedup  time_ms (stdev)
+>           (  0)         --   4089.7 (  8.1)         --   1785.7 (  7.6)
+>        2% (  1)       1.7%   4019.3 (  1.5)       3.8%   1717.7 ( 11.8)
+>       12% (  6)      34.9%   2662.7 (  2.9)      79.9%    359.3 (  0.6)
+>       25% ( 13)      39.9%   2459.0 (  3.6)      91.2%    157.0 (  0.0)
+>       37% ( 19)      39.2%   2485.0 ( 29.7)      90.4%    172.0 ( 28.6)
+>       50% ( 26)      39.3%   2482.7 ( 25.7)      90.3%    173.7 ( 30.0)
+>       75% ( 39)      39.0%   2495.7 (  5.5)      89.4%    190.0 (  1.0)
+>      100% ( 52)      40.2%   2443.7 (  3.8)      92.3%    138.0 (  1.0)
+>
+>     Intel(R) Xeon(R) CPU E5-2699C v4 @ 2.20GHz (Broadwell, kvm guest)
+>       1 node * 16 cores * 2 threads = 32 CPUs
+>       192G/node = 192G memory
+>
+>                    kernel boot                 deferred init
+>                    ------------------------    ------------------------
+>     node% (thr)    speedup  time_ms (stdev)    speedup  time_ms (stdev)
+>           (  0)         --   1988.7 (  9.6)         --   1096.0 ( 11.5)
+>        3% (  1)       1.1%   1967.0 ( 17.6)       0.3%   1092.7 ( 11.0)
+>       12% (  4)      41.1%   1170.3 ( 14.2)      73.8%    287.0 (  3.6)
+>       25% (  8)      47.1%   1052.7 ( 21.9)      83.9%    177.0 ( 13.5)
+>       38% ( 12)      48.9%   1016.3 ( 12.1)      86.8%    144.7 (  1.5)
+>       50% ( 16)      48.9%   1015.7 (  8.1)      87.8%    134.0 (  4.4)
+>       75% ( 24)      49.1%   1012.3 (  3.1)      88.1%    130.3 (  2.3)
+>      100% ( 32)      49.5%   1004.0 (  5.3)      88.5%    125.7 (  2.1)
+>
+>     Intel(R) Xeon(R) CPU E5-2699 v3 @ 2.30GHz (Haswell, bare metal)
+>       2 nodes * 18 cores * 2 threads = 72 CPUs
+>       128G/node = 256G memory
+>
+>                    kernel boot                 deferred init
+>                    ------------------------    ------------------------
+>     node% (thr)    speedup  time_ms (stdev)    speedup  time_ms (stdev)
+>           (  0)         --   1680.0 (  4.6)         --    627.0 (  4.0)
+>        3% (  1)       0.3%   1675.7 (  4.5)      -0.2%    628.0 (  3.6)
+>       11% (  4)      25.6%   1250.7 (  2.1)      67.9%    201.0 (  0.0)
+>       25% (  9)      30.7%   1164.0 ( 17.3)      81.8%    114.3 ( 17.7)
+>       36% ( 13)      31.4%   1152.7 ( 10.8)      84.0%    100.3 ( 17.9)
+>       50% ( 18)      31.5%   1150.7 (  9.3)      83.9%    101.0 ( 14.1)
+>       75% ( 27)      31.7%   1148.0 (  5.6)      84.5%     97.3 (  6.4)
+>      100% ( 36)      32.0%   1142.3 (  4.0)      85.6%     90.0 (  1.0)
+>
+>     AMD EPYC 7551 32-Core Processor (Zen, kvm guest)
+>       1 node * 8 cores * 2 threads = 16 CPUs
+>       64G/node = 64G memory
+>
+>                    kernel boot                 deferred init
+>                    ------------------------    ------------------------
+>     node% (thr)    speedup  time_ms (stdev)    speedup  time_ms (stdev)
+>           (  0)         --   1029.3 ( 25.1)         --    240.7 (  1.5)
+>        6% (  1)      -0.6%   1036.0 (  7.8)      -2.2%    246.0 (  0.0)
+>       12% (  2)      11.8%    907.7 (  8.6)      44.7%    133.0 (  1.0)
+>       25% (  4)      13.9%    886.0 ( 10.6)      62.6%     90.0 (  6.0)
+>       38% (  6)      17.8%    845.7 ( 14.2)      69.1%     74.3 (  3.8)
+>       50% (  8)      16.8%    856.0 ( 22.1)      72.9%     65.3 (  5.7)
+>       75% ( 12)      15.4%    871.0 ( 29.2)      79.8%     48.7 (  7.4)
+>      100% ( 16)      21.0%    813.7 ( 21.0)      80.5%     47.0 (  5.2)
+>
+> Server-oriented distros that enable deferred page init sometimes run in
+> small VMs, and they still benefit even though the fraction of boot time
+> saved is smaller:
+>
+>     AMD EPYC 7551 32-Core Processor (Zen, kvm guest)
+>       1 node * 2 cores * 2 threads = 4 CPUs
+>       16G/node = 16G memory
+>
+>                    kernel boot                 deferred init
+>                    ------------------------    ------------------------
+>     node% (thr)    speedup  time_ms (stdev)    speedup  time_ms (stdev)
+>           (  0)         --    716.0 ( 14.0)         --     49.7 (  0.6)
+>       25% (  1)       1.8%    703.0 (  5.3)      -4.0%     51.7 (  0.6)
+>       50% (  2)       1.6%    704.7 (  1.2)      43.0%     28.3 (  0.6)
+>       75% (  3)       2.7%    696.7 ( 13.1)      49.7%     25.0 (  0.0)
+>      100% (  4)       4.1%    687.0 ( 10.4)      55.7%     22.0 (  0.0)
+>
+>     Intel(R) Xeon(R) CPU E5-2699 v3 @ 2.30GHz (Haswell, kvm guest)
+>       1 node * 2 cores * 2 threads = 4 CPUs
+>       14G/node = 14G memory
+>
+>                    kernel boot                 deferred init
+>                    ------------------------    ------------------------
+>     node% (thr)    speedup  time_ms (stdev)    speedup  time_ms (stdev)
+>           (  0)         --    787.7 (  6.4)         --    122.3 (  0.6)
+>       25% (  1)       0.2%    786.3 ( 10.8)      -2.5%    125.3 (  2.1)
+>       50% (  2)       5.9%    741.0 ( 13.9)      37.6%     76.3 ( 19.7)
+>       75% (  3)       8.3%    722.0 ( 19.0)      49.9%     61.3 (  3.2)
+>      100% (  4)       9.3%    714.7 (  9.5)      56.4%     53.3 (  1.5)
+>
+> On Josh's 96-CPU and 192G memory system:
+>
+>     Without this patch series:
+>     [    0.487132] node 0 initialised, 23398907 pages in 292ms
+>     [    0.499132] node 1 initialised, 24189223 pages in 304ms
+>     ...
+>     [    0.629376] Run /sbin/init as init process
+>
+>     With this patch series:
+>     [    0.231435] node 1 initialised, 24189223 pages in 32ms
+>     [    0.236718] node 0 initialised, 23398907 pages in 36ms
+>
+> [1] https://static.sched.com/hosted_files/kvmforum2019/66/VMM-fast-restart_kvmforum2019.pdf
+>
+> Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+> Tested-by: Josh Triplett <josh@joshtriplett.org>
+> ---
+>  mm/Kconfig      |  6 +++---
+>  mm/page_alloc.c | 46 ++++++++++++++++++++++++++++++++++++++++------
+>  2 files changed, 43 insertions(+), 9 deletions(-)
+>
+> diff --git a/mm/Kconfig b/mm/Kconfig
+> index c1acc34c1c358..04c1da3f9f44c 100644
+> --- a/mm/Kconfig
+> +++ b/mm/Kconfig
+> @@ -750,13 +750,13 @@ config DEFERRED_STRUCT_PAGE_INIT
+>         depends on SPARSEMEM
+>         depends on !NEED_PER_CPU_KM
+>         depends on 64BIT
+> +       select PADATA
+>         help
+>           Ordinarily all struct pages are initialised during early boot in a
+>           single thread. On very large machines this can take a considerable
+>           amount of time. If this option is set, large machines will bring up
+> -         a subset of memmap at boot and then initialise the rest in parallel
+> -         by starting one-off "pgdatinitX" kernel thread for each node X. This
+> -         has a potential performance impact on processes running early in the
+> +         a subset of memmap at boot and then initialise the rest in parallel.
+> +         This has a potential performance impact on tasks running early in the
+>           lifetime of the system until these kthreads finish the
+>           initialisation.
+>
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index d64f3027fdfa6..1d47016849531 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -68,6 +68,7 @@
+>  #include <linux/lockdep.h>
+>  #include <linux/nmi.h>
+>  #include <linux/psi.h>
+> +#include <linux/padata.h>
+>
+>  #include <asm/sections.h>
+>  #include <asm/tlbflush.h>
+> @@ -1814,6 +1815,26 @@ deferred_init_maxorder(u64 *i, struct zone *zone, unsigned long *start_pfn,
+>         return nr_pages;
+>  }
+>
+> +static void __init
+> +deferred_init_memmap_chunk(unsigned long start_pfn, unsigned long end_pfn,
+> +                          void *arg)
+> +{
+> +       unsigned long spfn, epfn;
+> +       struct zone *zone = arg;
+> +       u64 i;
+> +
+> +       deferred_init_mem_pfn_range_in_zone(&i, zone, &spfn, &epfn, start_pfn);
+> +
+> +       /*
+> +        * Initialize and free pages in MAX_ORDER sized increments so that we
+> +        * can avoid introducing any issues with the buddy allocator.
+> +        */
+> +       while (spfn < end_pfn) {
+> +               deferred_init_maxorder(&i, zone, &spfn, &epfn);
+> +               cond_resched();
+> +       }
+> +}
+> +
+>  /* Initialise remaining memory on a node */
+>  static int __init deferred_init_memmap(void *data)
+>  {
+> @@ -1823,7 +1844,7 @@ static int __init deferred_init_memmap(void *data)
+>         unsigned long first_init_pfn, flags;
+>         unsigned long start = jiffies;
+>         struct zone *zone;
+> -       int zid;
+> +       int zid, max_threads;
+>         u64 i;
+>
+>         /* Bind memory initialisation thread to a local node if possible */
+> @@ -1863,13 +1884,26 @@ static int __init deferred_init_memmap(void *data)
+>                 goto zone_empty;
+>
+>         /*
+> -        * Initialize and free pages in MAX_ORDER sized increments so
+> -        * that we can avoid introducing any issues with the buddy
+> -        * allocator.
+> +        * More CPUs always led to greater speedups on tested systems, up to
+> +        * all the nodes' CPUs.  Use all since the system is otherwise idle now.
+>          */
+> +       max_threads = max(cpumask_weight(cpumask), 1u);
+> +
+>         while (spfn < epfn) {
+> -               deferred_init_maxorder(&i, zone, &spfn, &epfn);
+> -               cond_resched();
+> +               unsigned long epfn_align = ALIGN(epfn, PAGES_PER_SECTION);
+> +               struct padata_mt_job job = {
+> +                       .thread_fn   = deferred_init_memmap_chunk,
+> +                       .fn_arg      = zone,
+> +                       .start       = spfn,
+> +                       .size        = epfn_align - spfn,
+> +                       .align       = PAGES_PER_SECTION,
+> +                       .min_chunk   = PAGES_PER_SECTION,
+> +                       .max_threads = max_threads,
+> +               };
+> +
+> +               padata_do_multithreaded(&job);
+> +               deferred_init_mem_pfn_range_in_zone(&i, zone, &spfn, &epfn,
+> +                                                   epfn_align);
+>         }
+>  zone_empty:
+>         /* Sanity check that the next zone really is unpopulated */
 
-Even if the partition created the VFs itself e.g. using the sriov_numvfs
-attribute of a PF, the PF/VF links thus need to be established after the
-fact. To do this when a VF is plugged we scan through all functions on
-the same zbus and test whether they are the parent PF in which case we
-establish the necessary links.
+So I am not a huge fan of using deferred_init_mem_pfn_range_in zone
+simply for the fact that we end up essentially discarding the i value
+and will have to walk the list repeatedly. However I don't think the
+overhead will be that great as I suspect there aren't going to be
+systems with that many ranges. So this is probably fine.
 
-With these links established there is now no more need to fence off
-pci_iov_remove_virtfn() for pdev->no_vf_scan as the common code now
-works fine.
-
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
----
- arch/s390/include/asm/pci.h     |  3 +-
- arch/s390/include/asm/pci_clp.h |  3 +-
- arch/s390/pci/pci_bus.c         | 69 ++++++++++++++++++++++++++++++++-
- arch/s390/pci/pci_clp.c         |  1 +
- drivers/pci/iov.c               |  3 --
- 5 files changed, 73 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index c1558cf071b8..99b92c3e46b0 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -131,7 +131,8 @@ struct zpci_dev {
- 	u8		port;
- 	u8		rid_available	: 1;
- 	u8		has_hp_slot	: 1;
--	u8		reserved	: 6;
-+	u8		is_physfn	: 1;
-+	u8		reserved	: 5;
- 	unsigned int	devfn;		/* DEVFN part of the RID*/
- 
- 	struct mutex lock;
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index 896ee41e23e3..eb51272dd2cc 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -95,7 +95,8 @@ struct clp_rsp_query_pci {
- 	u16 vfn;			/* virtual fn number */
- 	u16			:  3;
- 	u16 rid_avail		:  1;
--	u16			:  2;
-+	u16 is_physfn		:  1;
-+	u16 reserved1		:  1;
- 	u16 mio_addr_avail	:  1;
- 	u16 util_str_avail	:  1;	/* utility string available? */
- 	u16 pfgid		:  8;	/* pci function group id */
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index 542c6b8f56df..52d79a2f6722 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -126,6 +126,64 @@ static struct zpci_bus *zpci_bus_alloc(int pchid)
- 	return zbus;
- }
- 
-+#ifdef CONFIG_PCI_IOV
-+static int zpci_bus_link_virtfn(struct pci_dev *pdev,
-+		struct pci_dev *virtfn, int vfid)
-+{
-+	int rc;
-+
-+	virtfn->physfn = pci_dev_get(pdev);
-+	rc = pci_iov_sysfs_link(pdev, virtfn, vfid);
-+	if (rc) {
-+		pci_dev_put(pdev);
-+		virtfn->physfn = NULL;
-+		return rc;
-+	}
-+	return 0;
-+}
-+
-+static int zpci_bus_setup_virtfn(struct zpci_bus *zbus,
-+		struct pci_dev *virtfn, int vfn)
-+{
-+	int i, cand_devfn;
-+	struct zpci_dev *zdev;
-+	struct pci_dev *pdev;
-+	int vfid = vfn - 1; /* Linux' vfid's start at 0 vfn at 1*/
-+	int rc = 0;
-+
-+	virtfn->is_virtfn = 1;
-+	virtfn->multifunction = 0;
-+	WARN_ON(vfid < 0);
-+	/* If the parent PF for the given VF is also configured in the
-+	 * instance, it must be on the same zbus.
-+	 * We can then identify the parent PF by checking what
-+	 * devfn the VF would have if it belonged to that PF using the PF's
-+	 * stride and offset. Only if this candidate devfn matches the
-+	 * actual devfn will we link both functions.
-+	 */
-+	for (i = 0; i < ZPCI_FUNCTIONS_PER_BUS; i++) {
-+		zdev = zbus->function[i];
-+		if (zdev && zdev->is_physfn) {
-+			pdev = pci_get_slot(zbus->bus, zdev->devfn);
-+			cand_devfn = pci_iov_virtfn_devfn(pdev, vfid);
-+			if (cand_devfn == virtfn->devfn) {
-+				rc = zpci_bus_link_virtfn(pdev, virtfn, vfid);
-+				break;
-+			}
-+		}
-+	}
-+	return rc;
-+}
-+#else
-+static inline int zpci_bus_setup_virtfn(struct zpci_bus *zbus,
-+		struct pci_dev *virtfn, int vfn)
-+{
-+	virtfn->is_virtfn = 1;
-+	virtfn->multifunction = 0;
-+	return 0;
-+}
-+#endif
-+
- static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
- {
- 	struct pci_bus *bus;
-@@ -157,11 +215,20 @@ static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
- 
- 	pdev = pci_scan_single_device(bus, zdev->devfn);
- 	if (pdev) {
--		pdev->multifunction = 1;
-+		if (!zdev->is_physfn) {
-+			rc = zpci_bus_setup_virtfn(zbus, pdev, zdev->vfn);
-+			if (rc)
-+				goto failed_with_pdev;
-+		}
- 		pci_bus_add_device(pdev);
- 	}
- 
- 	return 0;
-+
-+failed_with_pdev:
-+	pci_stop_and_remove_bus_device(pdev);
-+	pci_dev_put(pdev);
-+	return rc;
- }
- 
- static void zpci_bus_add_devices(struct zpci_bus *zbus)
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 9b318824a134..d7bd3c287cf7 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -159,6 +159,7 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
- 	zdev->uid = response->uid;
- 	zdev->fmb_length = sizeof(u32) * response->fmb_len;
- 	zdev->rid_available = response->rid_avail;
-+	zdev->is_physfn = response->is_physfn;
- 	if (!s390_pci_no_rid && zdev->rid_available)
- 		zdev->devfn = response->rid & ZPCI_RID_MASK_DEVFN;
- 
-diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
-index ee6fbe688498..b37e08c4f9d1 100644
---- a/drivers/pci/iov.c
-+++ b/drivers/pci/iov.c
-@@ -571,9 +571,6 @@ static void sriov_del_vfs(struct pci_dev *dev)
- 	struct pci_sriov *iov = dev->sriov;
- 	int i;
- 
--	if (dev->no_vf_scan)
--		return;
--
- 	for (i = 0; i < iov->num_VFs; i++)
- 		pci_iov_remove_virtfn(dev, i);
- }
--- 
-2.17.1
+Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
