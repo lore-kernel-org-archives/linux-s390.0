@@ -1,70 +1,118 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388930AbgE1L5J (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 May 2020 07:57:09 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 12/26] s390/mm: fix set_huge_pte_at() for empty ptes
-Date: Thu, 28 May 2020 07:56:40 -0400
-Message-Id: <20200528115654.1406165-12-sashal@kernel.org>
-In-Reply-To: <20200528115654.1406165-1-sashal@kernel.org>
-References: <20200528115654.1406165-1-sashal@kernel.org>
+Received: from userp2120.oracle.com ([156.151.31.85]:56264 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2403778AbgE0Rhg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 May 2020 13:37:36 -0400
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
+Subject: [PATCH v3 2/8] padata: initialize earlier
+Date: Wed, 27 May 2020 13:36:02 -0400
+Message-Id: <20200527173608.2885243-3-daniel.m.jordan@oracle.com>
+In-Reply-To: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
+References: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+padata will soon initialize the system's struct pages in parallel, so it
+needs to be ready by page_alloc_init_late().
 
-[ Upstream commit ac8372f3b4e41015549b331a4f350224661e7fc6 ]
+The error return from padata_driver_init() triggers an initcall warning,
+so add a warning to padata_init() to avoid silent failure.
 
-On s390, the layout of normal and large ptes (i.e. pmds/puds) differs.
-Therefore, set_huge_pte_at() does a conversion from a normal pte to
-the corresponding large pmd/pud. So, when converting an empty pte, this
-should result in an empty pmd/pud, which would return true for
-pmd/pud_none().
-
-However, after conversion we also mark the pmd/pud as large, and
-therefore present. For empty ptes, this will result in an empty pmd/pud
-that is also marked as large, and pmd/pud_none() would not return true.
-
-There is currently no issue with this behaviour, as set_huge_pte_at()
-does not seem to be called for empty ptes. It would be valid though, so
-let's fix this by not marking empty ptes as large in set_huge_pte_at().
-
-This was found by testing a patch from from Anshuman Khandual, which is
-currently discussed on LKML ("mm/debug: Add more arch page table helper
-tests").
-
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Tested-by: Josh Triplett <josh@joshtriplett.org>
 ---
- arch/s390/mm/hugetlbpage.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ include/linux/padata.h |  6 ++++++
+ init/main.c            |  2 ++
+ kernel/padata.c        | 17 ++++++++---------
+ 3 files changed, 16 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-index 5674710a4841..7dfae86afa47 100644
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -159,10 +159,13 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
- 		rste &= ~_SEGMENT_ENTRY_NOEXEC;
+diff --git a/include/linux/padata.h b/include/linux/padata.h
+index a0d8b41850b25..476ecfa41f363 100644
+--- a/include/linux/padata.h
++++ b/include/linux/padata.h
+@@ -164,6 +164,12 @@ struct padata_instance {
+ #define	PADATA_INVALID	4
+ };
  
- 	/* Set correct table type for 2G hugepages */
--	if ((pte_val(*ptep) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3)
--		rste |= _REGION_ENTRY_TYPE_R3 | _REGION3_ENTRY_LARGE;
--	else
-+	if ((pte_val(*ptep) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3) {
-+		if (likely(pte_present(pte)))
-+			rste |= _REGION3_ENTRY_LARGE;
-+		rste |= _REGION_ENTRY_TYPE_R3;
-+	} else if (likely(pte_present(pte)))
- 		rste |= _SEGMENT_ENTRY_LARGE;
++#ifdef CONFIG_PADATA
++extern void __init padata_init(void);
++#else
++static inline void __init padata_init(void) {}
++#endif
 +
- 	clear_huge_pte_skeys(mm, rste);
- 	pte_val(*ptep) = rste;
+ extern struct padata_instance *padata_alloc_possible(const char *name);
+ extern void padata_free(struct padata_instance *pinst);
+ extern struct padata_shell *padata_alloc_shell(struct padata_instance *pinst);
+diff --git a/init/main.c b/init/main.c
+index 03371976d3872..df32f67214d23 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -63,6 +63,7 @@
+ #include <linux/debugobjects.h>
+ #include <linux/lockdep.h>
+ #include <linux/kmemleak.h>
++#include <linux/padata.h>
+ #include <linux/pid_namespace.h>
+ #include <linux/device/driver.h>
+ #include <linux/kthread.h>
+@@ -1482,6 +1483,7 @@ static noinline void __init kernel_init_freeable(void)
+ 	smp_init();
+ 	sched_init_smp();
+ 
++	padata_init();
+ 	page_alloc_init_late();
+ 	/* Initialize page ext after all struct pages are initialized. */
+ 	page_ext_init();
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 835919c745266..6f709bc0fc413 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -31,7 +31,6 @@
+ #include <linux/slab.h>
+ #include <linux/sysfs.h>
+ #include <linux/rcupdate.h>
+-#include <linux/module.h>
+ 
+ #define MAX_OBJ_NUM 1000
+ 
+@@ -1050,26 +1049,26 @@ void padata_free_shell(struct padata_shell *ps)
  }
+ EXPORT_SYMBOL(padata_free_shell);
+ 
+-#ifdef CONFIG_HOTPLUG_CPU
+-
+-static __init int padata_driver_init(void)
++void __init padata_init(void)
+ {
++#ifdef CONFIG_HOTPLUG_CPU
+ 	int ret;
+ 
+ 	ret = cpuhp_setup_state_multi(CPUHP_AP_ONLINE_DYN, "padata:online",
+ 				      padata_cpu_online, NULL);
+ 	if (ret < 0)
+-		return ret;
++		goto err;
+ 	hp_online = ret;
+ 
+ 	ret = cpuhp_setup_state_multi(CPUHP_PADATA_DEAD, "padata:dead",
+ 				      NULL, padata_cpu_dead);
+ 	if (ret < 0) {
+ 		cpuhp_remove_multi_state(hp_online);
+-		return ret;
++		goto err;
+ 	}
+-	return 0;
+-}
+-module_init(padata_driver_init);
+ 
++	return;
++err:
++	pr_warn("padata: initialization failed\n");
+ #endif
++}
 -- 
-2.25.1
+2.26.2
