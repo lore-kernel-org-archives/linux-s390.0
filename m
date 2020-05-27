@@ -1,149 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38588 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728614AbgEDMTP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 May 2020 08:19:15 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 04/12] net/smc: handle incoming CDC validation message
-Date: Mon,  4 May 2020 14:18:40 +0200
-Message-Id: <20200504121848.46585-5-kgraul@linux.ibm.com>
-In-Reply-To: <20200504121848.46585-1-kgraul@linux.ibm.com>
-References: <20200504121848.46585-1-kgraul@linux.ibm.com>
+Received: from aserp2120.oracle.com ([141.146.126.78]:59324 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2403842AbgE0Rhn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 May 2020 13:37:43 -0400
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
+Subject: [PATCH v3 8/8] padata: document multithreaded jobs
+Date: Wed, 27 May 2020 13:36:08 -0400
+Message-Id: <20200527173608.2885243-9-daniel.m.jordan@oracle.com>
+In-Reply-To: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
+References: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
 
-Call smc_cdc_msg_validate() when a CDC message with the failover
-validation bit enabled was received. Validate that the sequence number
-sent with the message is one we already have received. If not, messages
-were lost and the connection is terminated using a new abort_work.
+Add Documentation for multithreaded jobs.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Tested-by: Josh Triplett <josh@joshtriplett.org>
 ---
- net/smc/smc.h      |  2 ++
- net/smc/smc_cdc.c  | 37 +++++++++++++++++++++++++++++++------
- net/smc/smc_core.c | 15 +++++++++++++++
- 3 files changed, 48 insertions(+), 6 deletions(-)
+ Documentation/core-api/padata.rst | 41 +++++++++++++++++++++++--------
+ 1 file changed, 31 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 1e9113771600..6f1c42da7a4c 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -188,12 +188,14 @@ struct smc_connection {
- 	spinlock_t		acurs_lock;	/* protect cursors */
- #endif
- 	struct work_struct	close_work;	/* peer sent some closing */
-+	struct work_struct	abort_work;	/* abort the connection */
- 	struct tasklet_struct	rx_tsklet;	/* Receiver tasklet for SMC-D */
- 	u8			rx_off;		/* receive offset:
- 						 * 0 for SMC-R, 32 for SMC-D
- 						 */
- 	u64			peer_token;	/* SMC-D token of peer */
- 	u8			killed : 1;	/* abnormal termination */
-+	u8			out_of_sync : 1; /* out of sync with peer */
- };
+diff --git a/Documentation/core-api/padata.rst b/Documentation/core-api/padata.rst
+index 9a24c111781d9..0830e5b0e8211 100644
+--- a/Documentation/core-api/padata.rst
++++ b/Documentation/core-api/padata.rst
+@@ -4,23 +4,26 @@
+ The padata parallel execution mechanism
+ =======================================
  
- struct smc_sock {				/* smc sock container */
-diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
-index e6b7eef71831..b2b85e1be72c 100644
---- a/net/smc/smc_cdc.c
-+++ b/net/smc/smc_cdc.c
-@@ -282,6 +282,28 @@ static void smc_cdc_handle_urg_data_arrival(struct smc_sock *smc,
- 	sk_send_sigurg(&smc->sk);
- }
+-:Date: December 2019
++:Date: May 2020
  
-+static void smc_cdc_msg_validate(struct smc_sock *smc, struct smc_cdc_msg *cdc,
-+				 struct smc_link *link)
-+{
-+	struct smc_connection *conn = &smc->conn;
-+	u16 recv_seq = ntohs(cdc->seqno);
-+	s16 diff;
-+
-+	/* check that seqnum was seen before */
-+	diff = conn->local_rx_ctrl.seqno - recv_seq;
-+	if (diff < 0) { /* diff larger than 0x7fff */
-+		/* drop connection */
-+		conn->out_of_sync = 1;	/* prevent any further receives */
-+		spin_lock_bh(&conn->send_lock);
-+		conn->local_tx_ctrl.conn_state_flags.peer_conn_abort = 1;
-+		conn->lnk = link;
-+		spin_unlock_bh(&conn->send_lock);
-+		sock_hold(&smc->sk); /* sock_put in abort_work */
-+		if (!schedule_work(&conn->abort_work))
-+			sock_put(&smc->sk);
-+	}
-+}
-+
- static void smc_cdc_msg_recv_action(struct smc_sock *smc,
- 				    struct smc_cdc_msg *cdc)
- {
-@@ -412,16 +434,19 @@ static void smc_cdc_rx_handler(struct ib_wc *wc, void *buf)
- 	read_lock_bh(&lgr->conns_lock);
- 	conn = smc_lgr_find_conn(ntohl(cdc->token), lgr);
- 	read_unlock_bh(&lgr->conns_lock);
--	if (!conn)
-+	if (!conn || conn->out_of_sync)
- 		return;
- 	smc = container_of(conn, struct smc_sock, conn);
+ Padata is a mechanism by which the kernel can farm jobs out to be done in
+-parallel on multiple CPUs while retaining their ordering.  It was developed for
+-use with the IPsec code, which needs to be able to perform encryption and
+-decryption on large numbers of packets without reordering those packets.  The
+-crypto developers made a point of writing padata in a sufficiently general
+-fashion that it could be put to other uses as well.
++parallel on multiple CPUs while optionally retaining their ordering.
  
--	if (!cdc->prod_flags.failover_validation) {
--		if (smc_cdc_before(ntohs(cdc->seqno),
--				   conn->local_rx_ctrl.seqno))
--			/* received seqno is old */
--			return;
-+	if (cdc->prod_flags.failover_validation) {
-+		smc_cdc_msg_validate(smc, cdc, link);
-+		return;
- 	}
-+	if (smc_cdc_before(ntohs(cdc->seqno),
-+			   conn->local_rx_ctrl.seqno))
-+		/* received seqno is old */
-+		return;
+-Usage
+-=====
++It was originally developed for IPsec, which needs to perform encryption and
++decryption on large numbers of packets without reordering those packets.  This
++is currently the sole consumer of padata's serialized job support.
 +
- 	smc_cdc_msg_recv(smc, cdc);
- }
++Padata also supports multithreaded jobs, splitting up the job evenly while load
++balancing and coordinating between threads.
++
++Running Serialized Jobs
++=======================
  
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index a558ce0bde97..b5633fa19b6d 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -615,6 +615,8 @@ void smc_conn_free(struct smc_connection *conn)
- 		tasklet_kill(&conn->rx_tsklet);
- 	} else {
- 		smc_cdc_tx_dismiss_slots(conn);
-+		if (current_work() != &conn->abort_work)
-+			cancel_work_sync(&conn->abort_work);
- 	}
- 	if (!list_empty(&lgr->list)) {
- 		smc_lgr_unregister_conn(conn);
-@@ -996,6 +998,18 @@ void smc_smcr_terminate_all(struct smc_ib_device *smcibdev)
- 	}
- }
+ Initializing
+ ------------
  
-+/* abort connection, abort_work scheduled from tasklet context */
-+static void smc_conn_abort_work(struct work_struct *work)
-+{
-+	struct smc_connection *conn = container_of(work,
-+						   struct smc_connection,
-+						   abort_work);
-+	struct smc_sock *smc = container_of(conn, struct smc_sock, conn);
+-The first step in using padata is to set up a padata_instance structure for
+-overall control of how jobs are to be run::
++The first step in using padata to run serialized jobs is to set up a
++padata_instance structure for overall control of how jobs are to be run::
+ 
+     #include <linux/padata.h>
+ 
+@@ -162,6 +165,24 @@ functions that correspond to the allocation in reverse::
+ It is the user's responsibility to ensure all outstanding jobs are complete
+ before any of the above are called.
+ 
++Running Multithreaded Jobs
++==========================
 +
-+	smc_conn_kill(conn, true);
-+	sock_put(&smc->sk); /* sock_hold done by schedulers of abort_work */
-+}
++A multithreaded job has a main thread and zero or more helper threads, with the
++main thread participating in the job and then waiting until all helpers have
++finished.  padata splits the job into units called chunks, where a chunk is a
++piece of the job that one thread completes in one call to the thread function.
 +
- /* link is up - establish alternate link if applicable */
- static void smcr_link_up(struct smc_link_group *lgr,
- 			 struct smc_ib_device *smcibdev, u8 ibport)
-@@ -1302,6 +1316,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
- 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
- 	conn->urg_state = SMC_URG_READ;
-+	INIT_WORK(&smc->conn.abort_work, smc_conn_abort_work);
- 	if (ini->is_smcd) {
- 		conn->rx_off = sizeof(struct smcd_cdc_msg);
- 		smcd_cdc_rx_init(conn); /* init tasklet for this conn */
++A user has to do three things to run a multithreaded job.  First, describe the
++job by defining a padata_mt_job structure, which is explained in the Interface
++section.  This includes a pointer to the thread function, which padata will
++call each time it assigns a job chunk to a thread.  Then, define the thread
++function, which accepts three arguments, ``start``, ``end``, and ``arg``, where
++the first two delimit the range that the thread operates on and the last is a
++pointer to the job's shared state, if any.  Prepare the shared state, which is
++typically allocated on the main thread's stack.  Last, call
++padata_do_multithreaded(), which will return once the job is finished.
++
+ Interface
+ =========
+ 
 -- 
-2.17.1
+2.26.2
