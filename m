@@ -1,108 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2032 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727987AbgERQHj (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3298 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726649AbgE0Kod (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 May 2020 12:07:39 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 02/12] s390x: Use PSW bits definitions in cstart
-Date: Mon, 18 May 2020 18:07:21 +0200
-Message-Id: <1589818051-20549-3-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
-References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+        Wed, 27 May 2020 06:44:33 -0400
+Subject: Re: [PATCH] vfio-ccw: document possible errors
+References: <20200407111605.1795-1-cohuck@redhat.com>
+ <55932365-3d36-1629-5d65-06c71e8231f9@linux.ibm.com>
+ <20200508125541.72adc626.cohuck@redhat.com>
+ <ed9b7c9b-3dc7-e573-55a8-d52f28877da9@linux.ibm.com>
+ <20200527081934.2dceda89.cohuck@redhat.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <b9fe4698-c889-3480-9720-013c8af79c16@linux.ibm.com>
+Date: Wed, 27 May 2020 06:44:29 -0400
+MIME-Version: 1.0
+In-Reply-To: <20200527081934.2dceda89.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-This patch defines the PSW bits EA/BA used to initialize the PSW masks
-for exceptions.
 
-Since some PSW mask definitions exist already in arch_def.h we add these
-definitions there.
-We move all PSW definitions together and protect assembler code against
-C syntax.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/asm/arch_def.h | 15 +++++++++++----
- s390x/cstart64.S         | 15 ++++++++-------
- 2 files changed, 19 insertions(+), 11 deletions(-)
+On 5/27/20 2:19 AM, Cornelia Huck wrote:
+> On Tue, 26 May 2020 15:39:22 -0400
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> On 5/8/20 6:55 AM, Cornelia Huck wrote:
+>>> On Fri, 17 Apr 2020 12:33:18 -0400
+>>> Eric Farman <farman@linux.ibm.com> wrote:
+>>>   
+>>>> On 4/7/20 7:16 AM, Cornelia Huck wrote:  
+>>>>> Interacting with the I/O and the async regions can yield a number
+>>>>> of errors, which had been undocumented so far. These are part of
+>>>>> the api, so remedy that.    
+>>>>
+>>>> (Makes a note to myself, to do the same for the schib/crw regions we're
+>>>> adding for channel path handling.)  
+>>>
+>>> Yes, please :) I plan to merge this today, so you can add a patch on
+>>> top.  
+>>
+>> I finally picked this up and realized that the io and async regions both
+>> document the return codes that would be stored in a field within their
+>> respective regions. The schib/crw regions don't have any such field, so
+>> the only values to be documented are the ones that the .read callback
+>> itself returns. What obvious thing am I missing?
+> 
+> The fact that you are right :)
+> 
+> No need to do anything, I might have spread my own confusion here ;)
+> 
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 15a4d49..820af93 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -10,15 +10,21 @@
- #ifndef _ASM_S390X_ARCH_DEF_H_
- #define _ASM_S390X_ARCH_DEF_H_
- 
-+#define PSW_MASK_EXT			0x0100000000000000UL
-+#define PSW_MASK_DAT			0x0400000000000000UL
-+#define PSW_MASK_SHORT_PSW		0x0008000000000000UL
-+#define PSW_MASK_PSTATE			0x0001000000000000UL
-+#define PSW_MASK_BA			0x0000000080000000UL
-+#define PSW_MASK_EA			0x0000000100000000UL
-+
-+#define PSW_EXCEPTION_MASK	(PSW_MASK_EA | PSW_MASK_BA)
-+
-+#ifndef __ASSEMBLER__
- struct psw {
- 	uint64_t	mask;
- 	uint64_t	addr;
- };
- 
--#define PSW_MASK_EXT			0x0100000000000000UL
--#define PSW_MASK_DAT			0x0400000000000000UL
--#define PSW_MASK_PSTATE			0x0001000000000000UL
--
- #define CR0_EXTM_SCLP			0X0000000000000200UL
- #define CR0_EXTM_EXTC			0X0000000000002000UL
- #define CR0_EXTM_EMGC			0X0000000000004000UL
-@@ -297,4 +303,5 @@ static inline uint32_t get_prefix(void)
- 	return current_prefix;
- }
- 
-+#endif /* __ASSEMBLER */
- #endif
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 3c7d8a9..e890568 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -12,6 +12,7 @@
-  */
- #include <asm/asm-offsets.h>
- #include <asm/sigp.h>
-+#include <asm/arch_def.h>
- 
- .section .init
- 
-@@ -232,19 +233,19 @@ svc_int:
- 
- 	.align	8
- reset_psw:
--	.quad	0x0008000180000000
-+	.quad	PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW
- initial_psw:
--	.quad	0x0000000180000000, clear_bss_start
-+	.quad	PSW_EXCEPTION_MASK, clear_bss_start
- pgm_int_psw:
--	.quad	0x0000000180000000, pgm_int
-+	.quad	PSW_EXCEPTION_MASK, pgm_int
- ext_int_psw:
--	.quad	0x0000000180000000, ext_int
-+	.quad	PSW_EXCEPTION_MASK, ext_int
- mcck_int_psw:
--	.quad	0x0000000180000000, mcck_int
-+	.quad	PSW_EXCEPTION_MASK, mcck_int
- io_int_psw:
--	.quad	0x0000000180000000, io_int
-+	.quad	PSW_EXCEPTION_MASK, io_int
- svc_int_psw:
--	.quad	0x0000000180000000, svc_int
-+	.quad	PSW_EXCEPTION_MASK, svc_int
- initial_cr0:
- 	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
- 	.quad	0x0000000000040000
--- 
-2.25.1
+Oh, good. I was worried vacation was too long/short. :)
+
+Thanks for confirming; will get back to the other things on the list
+instead.
