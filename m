@@ -1,71 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from aserp2120.oracle.com ([141.146.126.78]:59238 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2403803AbgE0Rhg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 May 2020 13:37:36 -0400
-From: Daniel Jordan <daniel.m.jordan@oracle.com>
-Subject: [PATCH v3 5/8] mm: don't track number of pages during deferred initialization
-Date: Wed, 27 May 2020 13:36:05 -0400
-Message-Id: <20200527173608.2885243-6-daniel.m.jordan@oracle.com>
-In-Reply-To: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
-References: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23978 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2390576AbgE0Pyc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 27 May 2020 11:54:32 -0400
+Subject: Re: [kvm-unit-tests PATCH v7 04/12] s390x: interrupt registration
+References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+ <1589818051-20549-5-git-send-email-pmorel@linux.ibm.com>
+ <dcfa518e-ce93-fb71-3e70-b95c12b0b32e@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <6ebf59e6-4fd1-a85c-d0aa-cd64382f9a10@linux.ibm.com>
+Date: Wed, 27 May 2020 17:54:26 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <dcfa518e-ce93-fb71-3e70-b95c12b0b32e@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-Deferred page init used to report the number of pages initialized:
 
-  node 0 initialised, 32439114 pages in 97ms
 
-Tracking this makes the code more complicated when using multiple
-threads.  Given that the statistic probably has limited value,
-especially since a zone grows on demand so that the page count can vary,
-just remove it.
+On 2020-05-26 20:08, Thomas Huth wrote:
+> On 18/05/2020 18.07, Pierre Morel wrote:
+>> Let's make it possible to add and remove a custom io interrupt handler,
+>> that can be used instead of the normal one.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Reviewed-by: Thomas Huth <thuth@redhat.com>
+>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>   lib/s390x/interrupt.c | 23 ++++++++++++++++++++++-
+>>   lib/s390x/interrupt.h |  8 ++++++++
+>>   2 files changed, 30 insertions(+), 1 deletion(-)
+>>   create mode 100644 lib/s390x/interrupt.h
+> ...
+>> diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
+>> new file mode 100644
+>> index 0000000..323258d
+>> --- /dev/null
+>> +++ b/lib/s390x/interrupt.h
+>> @@ -0,0 +1,8 @@
+>> +#ifndef __INTERRUPT_H
+>> +#define __INTERRUPT_H
+> 
+> Looking at this patch again, I noticed another nit: No double
+> underscores at the beginning of header guards, please! That's reserved
+> namespace. Simply use INTERRUPT_H or S390X_INTERRUPT_H or something
+> similar instead.
+> 
+>   Thanks,
+>    Thomas
+> 
 
-The boot message now looks like
+OK, thanks
+Pierre
 
-  node 0 deferred pages initialised in 97ms
-
-Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
-Suggested-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
----
- mm/page_alloc.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index d0c0d9364aa6d..d64f3027fdfa6 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1819,7 +1819,7 @@ static int __init deferred_init_memmap(void *data)
- {
- 	pg_data_t *pgdat = data;
- 	const struct cpumask *cpumask = cpumask_of_node(pgdat->node_id);
--	unsigned long spfn = 0, epfn = 0, nr_pages = 0;
-+	unsigned long spfn = 0, epfn = 0;
- 	unsigned long first_init_pfn, flags;
- 	unsigned long start = jiffies;
- 	struct zone *zone;
-@@ -1868,15 +1868,15 @@ static int __init deferred_init_memmap(void *data)
- 	 * allocator.
- 	 */
- 	while (spfn < epfn) {
--		nr_pages += deferred_init_maxorder(&i, zone, &spfn, &epfn);
-+		deferred_init_maxorder(&i, zone, &spfn, &epfn);
- 		cond_resched();
- 	}
- zone_empty:
- 	/* Sanity check that the next zone really is unpopulated */
- 	WARN_ON(++zid < MAX_NR_ZONES && populated_zone(++zone));
- 
--	pr_info("node %d initialised, %lu pages in %ums\n",
--		pgdat->node_id,	nr_pages, jiffies_to_msecs(jiffies - start));
-+	pr_info("node %d deferred pages initialised in %ums\n",
-+		pgdat->node_id, jiffies_to_msecs(jiffies - start));
- 
- 	pgdat_init_report_one_done();
- 	return 0;
 -- 
-2.26.2
+Pierre Morel
+IBM Lab Boeblingen
