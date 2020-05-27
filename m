@@ -1,109 +1,41 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51754 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728347AbgERQHo (ORCPT
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:50813 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725948AbgE0FYE (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 May 2020 12:07:44 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 12/12] s390x: css: ping pong
-Date: Mon, 18 May 2020 18:07:31 +0200
-Message-Id: <1589818051-20549-13-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
-References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+        Wed, 27 May 2020 01:24:04 -0400
+Subject: Re: [PATCH v4 3/7] KVM: PPC: Remove redundant kvm_run from vcpu_arch
+References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
+ <20200427043514.16144-4-tianjia.zhang@linux.alibaba.com>
+ <20200527042055.GG293451@thinks.paulus.ozlabs.org>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Message-ID: <56064e35-583f-0dc8-9156-aabebdb8aff4@linux.alibaba.com>
+Date: Wed, 27 May 2020 13:23:54 +0800
+MIME-Version: 1.0
+In-Reply-To: <20200527042055.GG293451@thinks.paulus.ozlabs.org>
+Content-Type: text/plain; charset=gbk; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Paul Mackerras <paulus@ozlabs.org>
+Cc: pbonzini@redhat.com, tsbogend@alpha.franken.de, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-To test a write command with the SSCH instruction we need a QEMU device,
-with control unit type 0xC0CA. The PONG device is such a device.
 
-This type of device responds to PONG_WRITE requests by incrementing an
-integer, stored as a string at offset 0 of the CCW data.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- s390x/css.c | 54 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+On 2020/5/27 12:20, Paul Mackerras wrote:
+> On Mon, Apr 27, 2020 at 12:35:10PM +0800, Tianjia Zhang wrote:
+>> The 'kvm_run' field already exists in the 'vcpu' structure, which
+>> is the same structure as the 'kvm_run' in the 'vcpu_arch' and
+>> should be deleted.
+>>
+>> Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+> 
+> Thanks, patches 3 and 4 of this series applied to my kvm-ppc-next branch.
+> 
+> Paul.
+> 
 
-diff --git a/s390x/css.c b/s390x/css.c
-index c94a916..da80574 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -21,6 +21,12 @@
- #include <css.h>
- 
- #define PONG_CU_TYPE		0xc0ca
-+/* Channel Commands for PONG device */
-+#define PONG_WRITE	0x21 /* Write */
-+#define PONG_READ	0x22 /* Read buffer */
-+
-+#define BUFSZ	9
-+static char buffer[BUFSZ];
- 
- struct lowcore *lowcore = (void *)0x0;
- 
-@@ -274,6 +280,53 @@ unreg_cb:
- 	unregister_io_int_func(irq_io);
- }
- 
-+static void test_ping(void)
-+{
-+	int success, result;
-+	int cnt = 0, max = 4;
-+
-+	if (senseid.cu_type != PONG_CU) {
-+		report_skip("Device is not a pong device.");
-+		return;
-+	}
-+
-+	result = register_io_int_func(irq_io);
-+	if (result) {
-+		report(0, "Could not register IRQ handler");
-+		return;
-+	}
-+
-+	while (cnt++ < max) {
-+		snprintf(buffer, BUFSZ, "%08x\n", cnt);
-+		success = start_subchannel(PONG_WRITE, buffer, BUFSZ, 0);
-+		if (!success) {
-+			report(0, "start_subchannel failed");
-+			goto unreg_cb;
-+		}
-+
-+		wait_for_interrupt(PSW_MASK_IO);
-+
-+		success = start_subchannel(PONG_READ, buffer, BUFSZ, 0);
-+		if (!success) {
-+			report(0, "start_subchannel failed");
-+			goto unreg_cb;
-+		}
-+
-+		wait_for_interrupt(PSW_MASK_IO);
-+
-+		result = atol(buffer);
-+		if (result != (cnt + 1)) {
-+			report(0, "Bad answer from pong: %08x - %08x",
-+			       cnt, result);
-+			goto unreg_cb;
-+		}
-+	}
-+	report(1, "ping-pong count 0x%08x", cnt);
-+
-+unreg_cb:
-+	unregister_io_int_func(irq_io);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
-@@ -281,6 +334,7 @@ static struct {
- 	{ "enumerate (stsch)", test_enumerate },
- 	{ "enable (msch)", test_enable },
- 	{ "sense (ssch/tsch)", test_sense },
-+	{ "ping-pong (ssch/tsch)", test_ping },
- 	{ NULL, NULL }
- };
- 
--- 
-2.25.1
+Thanks for your suggestion, for 5/7, I will submit a new version patch.
+
+Thanks,
+Tianjia
