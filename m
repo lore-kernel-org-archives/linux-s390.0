@@ -1,258 +1,311 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26796 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726212AbgEOWUF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 15 May 2020 18:20:05 -0400
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v7 3/3] s390/kvm: diagnose 0x318 get/set handling
-Date: Fri, 15 May 2020 18:19:35 -0400
-Message-Id: <20200515221935.18775-4-walling@linux.ibm.com>
-In-Reply-To: <20200515221935.18775-1-walling@linux.ibm.com>
-References: <20200515221935.18775-1-walling@linux.ibm.com>
+Received: from userp2120.oracle.com ([156.151.31.85]:56270 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2403801AbgE0Rhi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 27 May 2020 13:37:38 -0400
+From: Daniel Jordan <daniel.m.jordan@oracle.com>
+Subject: [PATCH v3 4/8] padata: add basic support for multithreaded jobs
+Date: Wed, 27 May 2020 13:36:04 -0400
+Message-Id: <20200527173608.2885243-5-daniel.m.jordan@oracle.com>
+In-Reply-To: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
+References: <20200527173608.2885243-1-daniel.m.jordan@oracle.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
+To: Andrew Morton <akpm@linux-foundation.org>, Herbert Xu <herbert@gondor.apana.org.au>, Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>, Jonathan Corbet <corbet@lwn.net>, Josh Triplett <josh@joshtriplett.org>, Kirill Tkhai <ktkhai@virtuozzo.com>, Michal Hocko <mhocko@kernel.org>, Pavel Machek <pavel@ucw.cz>, Pavel Tatashin <pasha.tatashin@soleen.com>, Peter Zijlstra <peterz@infradead.org>, Randy Dunlap <rdunlap@infradead.org>, Robert Elliott <elliott@hpe.com>, Shile Zhang <shile.zhang@linux.alibaba.com>, Steven Sistare <steven.sistare@oracle.com>, Tejun Heo <tj@kernel.org>, Zi Yan <ziy@nvidia.com>, linux-crypto@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Daniel Jordan <daniel.m.jordan@oracle.com>
 
-DIAGNOSE 0x318 (diag 318) sets information regarding the environment
-the VM is running in (Linux, z/VM, etc) and is observed via
-firmware/service events.
+Sometimes the kernel doesn't take full advantage of system memory
+bandwidth, leading to a single CPU spending excessive time in
+initialization paths where the data scales with memory size.
 
-This is a privileged s390x instruction that must be intercepted by
-SIE. Userspace handling is required, so let's introduce some functions
-to communicate between userspace and KVM via ioctls. These will be used
-to get/set the diag 318 related information.
+Multithreading naturally addresses this problem.
 
-The Control Program Name Code (CPNC) is stored in the SIE block. The
-CPNC along with the Control Program Version Code (CPVC) are stored in
-the kvm_arch struct.
+Extend padata, a framework that handles many parallel yet singlethreaded
+jobs, to also handle multithreaded jobs by adding support for splitting
+up the work evenly, specifying a minimum amount of work that's
+appropriate for one helper thread to do, load balancing between helpers,
+and coordinating them.
 
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
+This is inspired by work from Pavel Tatashin and Steve Sistare.
+
+Signed-off-by: Daniel Jordan <daniel.m.jordan@oracle.com>
+Tested-by: Josh Triplett <josh@joshtriplett.org>
 ---
- Documentation/virt/kvm/devices/vm.rst | 21 +++++++
- arch/s390/include/asm/kvm_host.h      |  5 +-
- arch/s390/include/uapi/asm/kvm.h      |  4 ++
- arch/s390/kvm/kvm-s390.c              | 82 +++++++++++++++++++++++++++
- arch/s390/kvm/vsie.c                  |  2 +
- 5 files changed, 113 insertions(+), 1 deletion(-)
+ include/linux/padata.h |  29 ++++++++
+ kernel/padata.c        | 152 ++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 178 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
-index 0aa5b1cfd700..52cc906dd7bd 100644
---- a/Documentation/virt/kvm/devices/vm.rst
-+++ b/Documentation/virt/kvm/devices/vm.rst
-@@ -314,3 +314,24 @@ Allows userspace to query the status of migration mode.
- 	     if it is enabled
- :Returns:   -EFAULT if the given address is not accessible from kernel space;
- 	    0 in case of success.
-+
-+6. GROUP: KVM_S390_VM_MISC
-+==========================
-+
-+:Architectures: s390
-+
-+6.1. KVM_S390_VM_MISC_DIAG_318 (r/w)
-+-----------------------------------
-+
-+Allows userspace to retrieve and set the DIAGNOSE 0x318 information,
-+which consists of a 1-byte "Control Program Name Code" and a 7-byte
-+"Control Program Version Code" (a 64 bit value all in all). This
-+information is set by the guest (usually during IPL). This interface is
-+intended to allow retrieving and setting it during migration; while no
-+real harm is done if the information is changed outside of migration,
-+it is strongly discouraged.
-+
-+:Parameters: address of a buffer in user space (u64), where the
-+	     information is read from or stored into
-+:Returns:    -EFAULT if the given address is not accessible from kernel space;
-+	     0 in case of success
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index d6bcd34f3ec3..c03222051043 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -260,7 +260,8 @@ struct kvm_s390_sie_block {
- 	__u32	scaol;			/* 0x0064 */
- 	__u8	sdf;			/* 0x0068 */
- 	__u8    epdx;			/* 0x0069 */
--	__u8    reserved6a[2];		/* 0x006a */
-+	__u8	cpnc;			/* 0x006a */
-+	__u8	reserved6b;		/* 0x006b */
- 	__u32	todpr;			/* 0x006c */
- #define GISA_FORMAT1 0x00000001
- 	__u32	gd;			/* 0x0070 */
-@@ -938,6 +939,7 @@ struct kvm_arch{
- 	int user_sigp;
- 	int user_stsi;
- 	int user_instr0;
-+	int use_diag_318;
- 	struct s390_io_adapter *adapters[MAX_S390_IO_ADAPTERS];
- 	wait_queue_head_t ipte_wq;
- 	int ipte_lock_count;
-@@ -956,6 +958,7 @@ struct kvm_arch{
- 	DECLARE_BITMAP(idle_mask, KVM_MAX_VCPUS);
- 	struct kvm_s390_gisa_interrupt gisa_int;
- 	struct kvm_s390_pv pv;
-+	union diag_318_info diag_318_info;
+diff --git a/include/linux/padata.h b/include/linux/padata.h
+index 3bfa503503ac5..b0affa466a841 100644
+--- a/include/linux/padata.h
++++ b/include/linux/padata.h
+@@ -4,6 +4,9 @@
+  *
+  * Copyright (C) 2008, 2009 secunet Security Networks AG
+  * Copyright (C) 2008, 2009 Steffen Klassert <steffen.klassert@secunet.com>
++ *
++ * Copyright (c) 2020 Oracle and/or its affiliates.
++ * Author: Daniel Jordan <daniel.m.jordan@oracle.com>
+  */
+ 
+ #ifndef PADATA_H
+@@ -130,6 +133,31 @@ struct padata_shell {
+ 	struct list_head		list;
  };
  
- #define KVM_HVA_ERR_BAD		(-1UL)
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 436ec7636927..2ce8e6f72206 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -74,6 +74,7 @@ struct kvm_s390_io_adapter_req {
- #define KVM_S390_VM_CRYPTO		2
- #define KVM_S390_VM_CPU_MODEL		3
- #define KVM_S390_VM_MIGRATION		4
-+#define KVM_S390_VM_MISC		5
- 
- /* kvm attributes for mem_ctrl */
- #define KVM_S390_VM_MEM_ENABLE_CMMA	0
-@@ -171,6 +172,9 @@ struct kvm_s390_vm_cpu_subfunc {
- #define KVM_S390_VM_MIGRATION_START	1
- #define KVM_S390_VM_MIGRATION_STATUS	2
- 
-+/* kvm attributes for KVM_S390_VM_MISC */
-+#define KVM_S390_VM_MISC_DIAG_318	0
++/**
++ * struct padata_mt_job - represents one multithreaded job
++ *
++ * @thread_fn: Called for each chunk of work that a padata thread does.
++ * @fn_arg: The thread function argument.
++ * @start: The start of the job (units are job-specific).
++ * @size: size of this node's work (units are job-specific).
++ * @align: Ranges passed to the thread function fall on this boundary, with the
++ *         possible exceptions of the beginning and end of the job.
++ * @min_chunk: The minimum chunk size in job-specific units.  This allows
++ *             the client to communicate the minimum amount of work that's
++ *             appropriate for one worker thread to do at once.
++ * @max_threads: Max threads to use for the job, actual number may be less
++ *               depending on task size and minimum chunk size.
++ */
++struct padata_mt_job {
++	void (*thread_fn)(unsigned long start, unsigned long end, void *arg);
++	void			*fn_arg;
++	unsigned long		start;
++	unsigned long		size;
++	unsigned long		align;
++	unsigned long		min_chunk;
++	int			max_threads;
++};
 +
- /* for KVM_GET_REGS and KVM_SET_REGS */
- struct kvm_regs {
- 	/* general purpose regs for s390 */
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d05bb040fd42..cf8a3f1be839 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1243,6 +1243,70 @@ static int kvm_s390_get_tod(struct kvm *kvm, struct kvm_device_attr *attr)
- 	return ret;
+ /**
+  * struct padata_instance - The overall control structure.
+  *
+@@ -171,6 +199,7 @@ extern void padata_free_shell(struct padata_shell *ps);
+ extern int padata_do_parallel(struct padata_shell *ps,
+ 			      struct padata_priv *padata, int *cb_cpu);
+ extern void padata_do_serial(struct padata_priv *padata);
++extern void __init padata_do_multithreaded(struct padata_mt_job *job);
+ extern int padata_set_cpumask(struct padata_instance *pinst, int cpumask_type,
+ 			      cpumask_var_t cpumask);
+ extern int padata_start(struct padata_instance *pinst);
+diff --git a/kernel/padata.c b/kernel/padata.c
+index 78ff9aa529204..e78f57d9aef90 100644
+--- a/kernel/padata.c
++++ b/kernel/padata.c
+@@ -7,6 +7,9 @@
+  * Copyright (C) 2008, 2009 secunet Security Networks AG
+  * Copyright (C) 2008, 2009 Steffen Klassert <steffen.klassert@secunet.com>
+  *
++ * Copyright (c) 2020 Oracle and/or its affiliates.
++ * Author: Daniel Jordan <daniel.m.jordan@oracle.com>
++ *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms and conditions of the GNU General Public License,
+  * version 2, as published by the Free Software Foundation.
+@@ -21,6 +24,7 @@
+  * 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+  */
+ 
++#include <linux/completion.h>
+ #include <linux/export.h>
+ #include <linux/cpumask.h>
+ #include <linux/err.h>
+@@ -32,6 +36,8 @@
+ #include <linux/sysfs.h>
+ #include <linux/rcupdate.h>
+ 
++#define	PADATA_WORK_ONSTACK	1	/* Work's memory is on stack */
++
+ struct padata_work {
+ 	struct work_struct	pw_work;
+ 	struct list_head	pw_list;  /* padata_free_works linkage */
+@@ -42,7 +48,17 @@ static DEFINE_SPINLOCK(padata_works_lock);
+ static struct padata_work *padata_works;
+ static LIST_HEAD(padata_free_works);
+ 
++struct padata_mt_job_state {
++	spinlock_t		lock;
++	struct completion	completion;
++	struct padata_mt_job	*job;
++	int			nworks;
++	int			nworks_fini;
++	unsigned long		chunk_size;
++};
++
+ static void padata_free_pd(struct parallel_data *pd);
++static void __init padata_mt_helper(struct work_struct *work);
+ 
+ static int padata_index_to_cpu(struct parallel_data *pd, int cpu_index)
+ {
+@@ -81,18 +97,56 @@ static struct padata_work *padata_work_alloc(void)
  }
  
-+static int kvm_s390_set_diag_318_info(struct kvm *kvm, __u64 addr)
+ static void padata_work_init(struct padata_work *pw, work_func_t work_fn,
+-			     void *data)
++			     void *data, int flags)
+ {
+-	INIT_WORK(&pw->pw_work, work_fn);
++	if (flags & PADATA_WORK_ONSTACK)
++		INIT_WORK_ONSTACK(&pw->pw_work, work_fn);
++	else
++		INIT_WORK(&pw->pw_work, work_fn);
+ 	pw->pw_data = data;
+ }
+ 
++static int __init padata_work_alloc_mt(int nworks, void *data,
++				       struct list_head *head)
 +{
-+	struct kvm_vcpu *vcpu;
-+	u64 info;
 +	int i;
 +
-+	if (get_user(info, (u64 __user *)addr))
-+		return -EFAULT;
++	spin_lock(&padata_works_lock);
++	/* Start at 1 because the current task participates in the job. */
++	for (i = 1; i < nworks; ++i) {
++		struct padata_work *pw = padata_work_alloc();
 +
-+	kvm->arch.diag_318_info.val = info;
-+
-+	if (sclp.has_diag_318) {
-+		kvm_for_each_vcpu(i, vcpu, kvm) {
-+			vcpu->arch.sie_block->cpnc = kvm->arch.diag_318_info.cpnc;
-+		}
++		if (!pw)
++			break;
++		padata_work_init(pw, padata_mt_helper, data, 0);
++		list_add(&pw->pw_list, head);
 +	}
++	spin_unlock(&padata_works_lock);
 +
-+	VM_EVENT(kvm, 3, "SET: CPNC: 0x%x CPVC: 0x%llx",
-+		 kvm->arch.diag_318_info.cpnc, (u64)kvm->arch.diag_318_info.cpvc);
-+
-+	return 0;
++	return i;
 +}
 +
-+static int kvm_s390_vm_set_misc(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+
-+	switch (attr->attr) {
-+	case KVM_S390_VM_MISC_DIAG_318:
-+		ret = kvm_s390_set_diag_318_info(kvm, attr->addr);
-+		break;
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+	return ret;
-+}
-+
-+static int kvm_s390_get_diag_318_info(struct kvm *kvm, __u64 addr)
-+{
-+	if (put_user(kvm->arch.diag_318_info.val, (u64 __user *)addr))
-+		return -EFAULT;
-+
-+	VM_EVENT(kvm, 3, "QUERY: CPNC: 0x%x, CPVC: 0x%llx",
-+		 kvm->arch.diag_318_info.cpnc, (u64)kvm->arch.diag_318_info.cpvc);
-+
-+	return 0;
-+}
-+
-+static int kvm_s390_get_misc(struct kvm *kvm, struct kvm_device_attr *attr)
-+{
-+	int ret;
-+
-+	switch (attr->attr) {
-+	case KVM_S390_VM_MISC_DIAG_318:
-+		ret = kvm_s390_get_diag_318_info(kvm, attr->addr);
-+		break;
-+	default:
-+		ret = -ENXIO;
-+		break;
-+	}
-+	return ret;
-+}
-+
- static int kvm_s390_set_processor(struct kvm *kvm, struct kvm_device_attr *attr)
+ static void padata_work_free(struct padata_work *pw)
  {
- 	struct kvm_s390_vm_cpu_processor *proc;
-@@ -1689,6 +1753,9 @@ static int kvm_s390_vm_set_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = kvm_s390_vm_set_migration(kvm, attr);
- 		break;
-+	case KVM_S390_VM_MISC:
-+		ret = kvm_s390_vm_set_misc(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1714,6 +1781,9 @@ static int kvm_s390_vm_get_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = kvm_s390_vm_get_migration(kvm, attr);
- 		break;
-+	case KVM_S390_VM_MISC:
-+		ret = kvm_s390_get_misc(kvm, attr);
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -1787,6 +1857,16 @@ static int kvm_s390_vm_has_attr(struct kvm *kvm, struct kvm_device_attr *attr)
- 	case KVM_S390_VM_MIGRATION:
- 		ret = 0;
- 		break;
-+	case KVM_S390_VM_MISC:
-+		switch (attr->attr) {
-+		case KVM_S390_VM_MISC_DIAG_318:
-+			ret = 0;
-+			break;
-+		default:
-+			ret = -ENXIO;
-+			break;
-+		}
-+		break;
- 	default:
- 		ret = -ENXIO;
- 		break;
-@@ -3075,6 +3155,8 @@ void kvm_arch_vcpu_postcreate(struct kvm_vcpu *vcpu)
- 		vcpu->arch.sie_block->ictl |= ICTL_OPEREXC;
- 	/* make vcpu_load load the right gmap on the first trigger */
- 	vcpu->arch.enabled_gmap = vcpu->arch.gmap;
-+	if (sclp.has_diag_318)
-+		vcpu->arch.sie_block->cpnc = vcpu->kvm->arch.diag_318_info.cpnc;
+ 	lockdep_assert_held(&padata_works_lock);
+ 	list_add(&pw->pw_list, &padata_free_works);
  }
  
- static bool kvm_has_pckmo_subfunc(struct kvm *kvm, unsigned long nr)
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 4f6c22d72072..a6820267e661 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -548,6 +548,8 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_s->ecd |= scb_o->ecd & ECD_ETOKENF;
++static void __init padata_works_free(struct list_head *works)
++{
++	struct padata_work *cur, *next;
++
++	if (list_empty(works))
++		return;
++
++	spin_lock(&padata_works_lock);
++	list_for_each_entry_safe(cur, next, works, pw_list) {
++		list_del(&cur->pw_list);
++		padata_work_free(cur);
++	}
++	spin_unlock(&padata_works_lock);
++}
++
+ static void padata_parallel_worker(struct work_struct *parallel_work)
+ {
+ 	struct padata_work *pw = container_of(parallel_work, struct padata_work,
+@@ -168,7 +222,7 @@ int padata_do_parallel(struct padata_shell *ps,
+ 	pw = padata_work_alloc();
+ 	spin_unlock(&padata_works_lock);
+ 	if (pw) {
+-		padata_work_init(pw, padata_parallel_worker, padata);
++		padata_work_init(pw, padata_parallel_worker, padata, 0);
+ 		queue_work(pinst->parallel_wq, &pw->pw_work);
+ 	} else {
+ 		/* Maximum works limit exceeded, run in the current task. */
+@@ -409,6 +463,98 @@ static int pd_setup_cpumasks(struct parallel_data *pd,
+ 	return err;
+ }
  
- 	scb_s->hpid = HPID_VSIE;
-+	if (sclp.has_diag_318)
-+		scb_s->cpnc = scb_o->cpnc;
- 
- 	prepare_ibc(vcpu, vsie_page);
- 	rc = shadow_crycb(vcpu, vsie_page);
++static void __init padata_mt_helper(struct work_struct *w)
++{
++	struct padata_work *pw = container_of(w, struct padata_work, pw_work);
++	struct padata_mt_job_state *ps = pw->pw_data;
++	struct padata_mt_job *job = ps->job;
++	bool done;
++
++	spin_lock(&ps->lock);
++
++	while (job->size > 0) {
++		unsigned long start, size, end;
++
++		start = job->start;
++		/* So end is chunk size aligned if enough work remains. */
++		size = roundup(start + 1, ps->chunk_size) - start;
++		size = min(size, job->size);
++		end = start + size;
++
++		job->start = end;
++		job->size -= size;
++
++		spin_unlock(&ps->lock);
++		job->thread_fn(start, end, job->fn_arg);
++		spin_lock(&ps->lock);
++	}
++
++	++ps->nworks_fini;
++	done = (ps->nworks_fini == ps->nworks);
++	spin_unlock(&ps->lock);
++
++	if (done)
++		complete(&ps->completion);
++}
++
++/**
++ * padata_do_multithreaded - run a multithreaded job
++ * @job: Description of the job.
++ *
++ * See the definition of struct padata_mt_job for more details.
++ */
++void __init padata_do_multithreaded(struct padata_mt_job *job)
++{
++	/* In case threads finish at different times. */
++	static const unsigned long load_balance_factor = 4;
++	struct padata_work my_work, *pw;
++	struct padata_mt_job_state ps;
++	LIST_HEAD(works);
++	int nworks;
++
++	if (job->size == 0)
++		return;
++
++	/* Ensure at least one thread when size < min_chunk. */
++	nworks = max(job->size / job->min_chunk, 1ul);
++	nworks = min(nworks, job->max_threads);
++
++	if (nworks == 1) {
++		/* Single thread, no coordination needed, cut to the chase. */
++		job->thread_fn(job->start, job->start + job->size, job->fn_arg);
++		return;
++	}
++
++	spin_lock_init(&ps.lock);
++	init_completion(&ps.completion);
++	ps.job	       = job;
++	ps.nworks      = padata_work_alloc_mt(nworks, &ps, &works);
++	ps.nworks_fini = 0;
++
++	/*
++	 * Chunk size is the amount of work a helper does per call to the
++	 * thread function.  Load balance large jobs between threads by
++	 * increasing the number of chunks, guarantee at least the minimum
++	 * chunk size from the caller, and honor the caller's alignment.
++	 */
++	ps.chunk_size = job->size / (ps.nworks * load_balance_factor);
++	ps.chunk_size = max(ps.chunk_size, job->min_chunk);
++	ps.chunk_size = roundup(ps.chunk_size, job->align);
++
++	list_for_each_entry(pw, &works, pw_list)
++		queue_work(system_unbound_wq, &pw->pw_work);
++
++	/* Use the current thread, which saves starting a workqueue worker. */
++	padata_work_init(&my_work, padata_mt_helper, &ps, PADATA_WORK_ONSTACK);
++	padata_mt_helper(&my_work.pw_work);
++
++	/* Wait for all the helpers to finish. */
++	wait_for_completion(&ps.completion);
++
++	destroy_work_on_stack(&my_work.pw_work);
++	padata_works_free(&works);
++}
++
+ static void __padata_list_init(struct padata_list *pd_list)
+ {
+ 	INIT_LIST_HEAD(&pd_list->list);
 -- 
-2.21.3
+2.26.2
