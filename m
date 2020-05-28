@@ -1,97 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:38519 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2389633AbgEYJlo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 05:41:44 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 05/10] vfio-ccw: Refactor the unregister of the async regions
-Date: Mon, 25 May 2020 11:41:10 +0200
-Message-Id: <20200525094115.222299-6-cohuck@redhat.com>
-In-Reply-To: <20200525094115.222299-1-cohuck@redhat.com>
-References: <20200525094115.222299-1-cohuck@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726791AbgE1GGW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 May 2020 02:06:22 -0400
+From: Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH] s390: vdso: Use $(LD) instead of $(CC) to link vDSO
+Date: Wed, 27 May 2020 23:06:01 -0700
+Message-Id: <20200528060600.2732012-1-natechancellor@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com, Fangrui Song <maskray@google.com>, Nathan Chancellor <natechancellor@gmail.com>
 
-From: Eric Farman <farman@linux.ibm.com>
+Currently, the VDSO is being linked through $(CC). This does not match
+how the rest of the kernel links objects, which is through the $(LD)
+variable.
 
-This is mostly for the purposes of a later patch, since
-we'll need to do the same thing later.
+When clang is built in a default configuration, it first attempts to use
+the target triple's default linker, which is just ld. However, the user
+can override this through the CLANG_DEFAULT_LINKER cmake define so that
+clang uses another linker by default, such as LLVM's own linker, ld.lld.
+This can be useful to get more optimized links across various different
+projects.
 
-While we are at it, move the resulting function call to ahead
-of the unregistering of the IOMMU notifier, so that it's done
-in the reverse order of how it was created.
+However, this is problematic for the s390 vDSO because ld.lld does not
+have any s390 emulatiom support:
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20200505122745.53208-4-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+https://github.com/llvm/llvm-project/blob/llvmorg-10.0.1-rc1/lld/ELF/Driver.cpp#L132-L150
+
+Thus, if a user is using a toolchain with ld.lld as the default, they
+will see an error, even if they have specified ld.bfd through the LD
+make variable:
+
+$ make -j"$(nproc)" -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- LLVM=1 \
+                       LD=s390x-linux-gnu-ld \
+                       defconfig arch/s390/kernel/vdso64/
+ld.lld: error: unknown emulation: elf64_s390
+clang-11: error: linker command failed with exit code 1 (use -v to see invocation)
+
+Normally, '-fuse-ld=bfd' could be used to get around this; however, this
+can be fragile, depending on paths and variable naming. The cleaner
+solution for the kernel is to take advantage of the fact that $(LD) can
+be invoked directly, which bypasses the heuristics of $(CC) and respects
+the user's choice. Similar changes have been done for ARM, ARM64, and
+MIPS.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1041
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 ---
- drivers/s390/cio/vfio_ccw_ops.c     | 20 ++++++++++++--------
- drivers/s390/cio/vfio_ccw_private.h |  1 +
- 2 files changed, 13 insertions(+), 8 deletions(-)
+ arch/s390/kernel/vdso64/Makefile | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index f0d71ab77c50..d4fc84b8867f 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -181,7 +181,6 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
- {
- 	struct vfio_ccw_private *private =
- 		dev_get_drvdata(mdev_parent_dev(mdev));
--	int i;
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index bec19e7e6e1c..b8db1ffbc2b9 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -18,8 +18,8 @@ KBUILD_AFLAGS_64 += -m64 -s
  
- 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
- 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
-@@ -191,15 +190,9 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
- 	}
+ KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
+ KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
+-KBUILD_CFLAGS_64 += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
+-		    -Wl,--hash-style=both
++ldflags-y := -shared -nostdlib -soname=linux-vdso64.so.1 \
++	     --hash-style=both -T
  
- 	cp_free(&private->cp);
-+	vfio_ccw_unregister_dev_regions(private);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
- 				 &private->nb);
--
--	for (i = 0; i < private->num_regions; i++)
--		private->region[i].ops->release(private, &private->region[i]);
--
--	private->num_regions = 0;
--	kfree(private->region);
--	private->region = NULL;
- }
+ $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
+ $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
+@@ -37,8 +37,8 @@ KASAN_SANITIZE := n
+ $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
  
- static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
-@@ -482,6 +475,17 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
- 	return 0;
- }
+ # link rule for the .so file, .lds has to be first
+-$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
+-	$(call if_changed,vdso64ld)
++$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) FORCE
++	$(call if_changed,ld)
  
-+void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private)
-+{
-+	int i;
-+
-+	for (i = 0; i < private->num_regions; i++)
-+		private->region[i].ops->release(private, &private->region[i]);
-+	private->num_regions = 0;
-+	kfree(private->region);
-+	private->region = NULL;
-+}
-+
- static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 				   unsigned int cmd,
- 				   unsigned long arg)
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 9b9bb4982972..ce3834159d98 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -53,6 +53,7 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
- 				 unsigned int subtype,
- 				 const struct vfio_ccw_regops *ops,
- 				 size_t size, u32 flags, void *data);
-+void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
+ # strip rule for the .so file
+ $(obj)/%.so: OBJCOPYFLAGS := -S
+@@ -50,8 +50,6 @@ $(obj-vdso64): %.o: %.S FORCE
+ 	$(call if_changed_dep,vdso64as)
  
- int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
+ # actual build commands
+-quiet_cmd_vdso64ld = VDSO64L $@
+-      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
+ quiet_cmd_vdso64as = VDSO64A $@
+       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
  
+
+base-commit: 9cb1fd0efd195590b828b9b865421ad345a4a145
 -- 
-2.25.4
+2.27.0.rc0
