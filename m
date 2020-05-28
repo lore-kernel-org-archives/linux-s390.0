@@ -1,112 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:35406 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:51756 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2389628AbgEYJld (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 25 May 2020 05:41:33 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 02/10] vfio-ccw: document possible errors
-Date: Mon, 25 May 2020 11:41:07 +0200
-Message-Id: <20200525094115.222299-3-cohuck@redhat.com>
-In-Reply-To: <20200525094115.222299-1-cohuck@redhat.com>
-References: <20200525094115.222299-1-cohuck@redhat.com>
+        with ESMTP id S1727016AbgE1FWe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 28 May 2020 01:22:34 -0400
+Received: by mail-ed1-f69.google.com with SMTP id f10so10995687edn.10
+        for <linux-s390@vger.kernel.org>; Wed, 27 May 2020 22:22:29 -0700 (PDT)
+Subject: Re: [PATCH v3 0/7] Statsfs: a new ram-based file system for Linux
+ kernel statistics
+References: <20200526110318.69006-1-eesposit@redhat.com>
+ <20200526153128.448bfb43@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+ <6a754b40-b148-867d-071d-8f31c5c0d172@redhat.com>
+ <20200527132321.54bcdf04@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+ <af2ba926-73bc-26c3-7ce7-bd45f657fd85@redhat.com>
+ <b6fa4439-c6b8-63a4-84fd-fbac3d4f10fd@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <c33f59e4-36ca-8fa9-af8f-b4cec4896b00@redhat.com>
+Date: Thu, 28 May 2020 07:22:25 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <b6fa4439-c6b8-63a4-84fd-fbac3d4f10fd@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: David Ahern <dsahern@gmail.com>, Jakub Kicinski <kuba@kernel.org>, Emanuele Giuseppe Esposito <eesposit@redhat.com>
+Cc: kvm@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Jim Mattson <jmattson@google.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Emanuele Giuseppe Esposito <e.emanuelegiuseppe@gmail.com>, David Rientjes <rientjes@google.com>, Jonathan Adams <jwadams@google.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>
 
-Interacting with the I/O and the async regions can yield a number
-of errors, which had been undocumented so far. These are part of
-the api, so remedy that.
+On 28/05/20 00:21, David Ahern wrote:
+> On 5/27/20 3:07 PM, Paolo Bonzini wrote:
+>> I see what you meant now.  statsfs can also be used to enumerate objects
+>> if one is so inclined (with the prototype in patch 7, for example, each
+>> network interface becomes a directory).
+> 
+> there are many use cases that have 100's to 1000's have network devices.
+> Having a sysfs entry per device already bloats memory usage for these
+> use cases; another filesystem with an entry per device makes that worse.
+> Really the wrong direction for large scale systems.
 
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Message-Id: <20200407111605.1795-1-cohuck@redhat.com>
----
- Documentation/s390/vfio-ccw.rst | 56 +++++++++++++++++++++++++++++++--
- 1 file changed, 54 insertions(+), 2 deletions(-)
+Hi David,
 
-diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
-index 23e7d136f8b4..3a946fd45562 100644
---- a/Documentation/s390/vfio-ccw.rst
-+++ b/Documentation/s390/vfio-ccw.rst
-@@ -204,15 +204,44 @@ definition of the region is::
- 	  __u32   ret_code;
-   } __packed;
- 
-+This region is always available.
-+
- While starting an I/O request, orb_area should be filled with the
- guest ORB, and scsw_area should be filled with the SCSW of the Virtual
- Subchannel.
- 
- irb_area stores the I/O result.
- 
--ret_code stores a return code for each access of the region.
-+ret_code stores a return code for each access of the region. The following
-+values may occur:
-+
-+``0``
-+  The operation was successful.
-+
-+``-EOPNOTSUPP``
-+  The orb specified transport mode or an unidentified IDAW format, or the
-+  scsw specified a function other than the start function.
-+
-+``-EIO``
-+  A request was issued while the device was not in a state ready to accept
-+  requests, or an internal error occurred.
-+
-+``-EBUSY``
-+  The subchannel was status pending or busy, or a request is already active.
-+
-+``-EAGAIN``
-+  A request was being processed, and the caller should retry.
-+
-+``-EACCES``
-+  The channel path(s) used for the I/O were found to be not operational.
-+
-+``-ENODEV``
-+  The device was found to be not operational.
-+
-+``-EINVAL``
-+  The orb specified a chain longer than 255 ccws, or an internal error
-+  occurred.
- 
--This region is always available.
- 
- vfio-ccw cmd region
- -------------------
-@@ -231,6 +260,29 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD.
- 
- Currently, CLEAR SUBCHANNEL and HALT SUBCHANNEL use this region.
- 
-+command specifies the command to be issued; ret_code stores a return code
-+for each access of the region. The following values may occur:
-+
-+``0``
-+  The operation was successful.
-+
-+``-ENODEV``
-+  The device was found to be not operational.
-+
-+``-EINVAL``
-+  A command other than halt or clear was specified.
-+
-+``-EIO``
-+  A request was issued while the device was not in a state ready to accept
-+  requests.
-+
-+``-EAGAIN``
-+  A request was being processed, and the caller should retry.
-+
-+``-EBUSY``
-+  The subchannel was status pending or busy while processing a halt request.
-+
-+
- vfio-ccw operation details
- --------------------------
- 
--- 
-2.25.4
+IMO the important part for now is having a flexible kernel API for
+exposing statistics across multiple subsystems, so that they can be
+harvested in an efficient way.  The userspace API is secondary, and
+multiple APIs can be added to cater for different usecases.
+
+For example, as of the first five patches the memory usage is the same
+as what is now in the mainline kernel, since all the patchset does is
+take existing debugfs inodes and move them to statsfs.  I agree that, if
+the concept is extended to the whole kernel, scalability and memory
+usage becomes an issue; and indeed, the long-term plan is to support a
+binary format that is actually _more_ efficient than the status quo for
+large scale systems.
+
+In the meanwhile, the new filesystem can be disabled (see the difference
+between "STATS_FS" and "STATS_FS_API") if it imposes undesirable overhead.
+
+Thanks,
+
+Paolo
