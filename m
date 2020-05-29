@@ -1,78 +1,35 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from ts18-13.vcr.istar.ca ([204.191.154.188]:56172 "EHLO
-        ale.deltatee.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1726829AbgE2TFf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 May 2020 15:05:35 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 29 May 2020 05:45:23 -0700
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the dma-iommu api
+Message-ID: <20200529124523.GA11817@infradead.org>
 References: <20191221150402.13868-1-murphyt7@tcd.ie>
  <465815ae-9292-f37a-59b9-03949cb68460@deltatee.com>
- <20200529124523.GA11817@infradead.org>
-From: Logan Gunthorpe <logang@deltatee.com>
-Message-ID: <33137cfb-603c-86e8-1091-f36117ecfaf3@deltatee.com>
-Date: Fri, 29 May 2020 13:05:12 -0600
 MIME-Version: 1.0
-In-Reply-To: <20200529124523.GA11817@infradead.org>
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-CA
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the dma-iommu api
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <465815ae-9292-f37a-59b9-03949cb68460@deltatee.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@infradead.org>
+To: Logan Gunthorpe <logang@deltatee.com>
 Cc: Tom Murphy <murphyt7@tcd.ie>, iommu@lists.linux-foundation.org, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Julien Grall <julien.grall@arm.com>, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Alex Williamson <alex.williamson@redhat.com>, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 
+On Thu, May 28, 2020 at 06:00:44PM -0600, Logan Gunthorpe wrote:
+> > This issue is most likely in the i915 driver and is most likely caused by the driver not respecting the return value of the dma_map_ops::map_sg function. You can see the driver ignoring the return value here:
+> > https://github.com/torvalds/linux/blob/7e0165b2f1a912a06e381e91f0f4e495f4ac3736/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c#L51
+> > 
+> > Previously this didn’t cause issues because the intel map_sg always returned the same number of elements as the input scatter gather list but with the change to this dma-iommu api this is no longer the case. I wasn’t able to track the bug down to a specific line of code unfortunately.  
 
+Mark did a big audit into the map_sg API abuse and initially had
+some i915 patches, but then gave up on them with this comment:
 
-On 2020-05-29 6:45 a.m., Christoph Hellwig wrote:
-> On Thu, May 28, 2020 at 06:00:44PM -0600, Logan Gunthorpe wrote:
->>> This issue is most likely in the i915 driver and is most likely caused by the driver not respecting the return value of the dma_map_ops::map_sg function. You can see the driver ignoring the return value here:
->>> https://github.com/torvalds/linux/blob/7e0165b2f1a912a06e381e91f0f4e495f4ac3736/drivers/gpu/drm/i915/gem/i915_gem_dmabuf.c#L51
->>>
->>> Previously this didn’t cause issues because the intel map_sg always returned the same number of elements as the input scatter gather list but with the change to this dma-iommu api this is no longer the case. I wasn’t able to track the bug down to a specific line of code unfortunately.  
-> 
-> Mark did a big audit into the map_sg API abuse and initially had
-> some i915 patches, but then gave up on them with this comment:
-> 
-> "The biggest TODO is DRM/i915 driver and I don't feel brave enough to fix
->  it fully. The driver creatively uses sg_table->orig_nents to store the
->  size of the allocate scatterlist and ignores the number of the entries
->  returned by dma_map_sg function. In this patchset I only fixed the
->  sg_table objects exported by dmabuf related functions. I hope that I
->  didn't break anything there."
-> 
-> it would be really nice if the i915 maintainers could help with sorting
-> that API abuse out.
-> 
+"The biggest TODO is DRM/i915 driver and I don't feel brave enough to fix
+ it fully. The driver creatively uses sg_table->orig_nents to store the
+ size of the allocate scatterlist and ignores the number of the entries
+ returned by dma_map_sg function. In this patchset I only fixed the
+ sg_table objects exported by dmabuf related functions. I hope that I
+ didn't break anything there."
 
-I agree completely that the API abuse should be sorted out, but I think
-that's much larger than just the i915 driver. Pretty much every dma-buf
-map_dma_buf implementation I looked at ignores the returned nents of
-sg_attrs. This sucks, but I don't think it's the bug Tom ran into. See:
-
-amdgpu_dma_buf_map
-armada_gem_prime_map_dma_buf
-drm_gem_map_dma_buf
-i915_gem_map_dma_buf
-tegra_gem_prime_map_dma_buf
-
-So this should probably be addressed by the whole GPU community.
-
-However, as Robin pointed out, there are other ugly tricks like stopping
-iterating through the SGL when sg_dma_len() is zero. For example, the
-AMD driver appears to use drm_prime_sg_to_page_addr_arrays() which does
-this trick and thus likely isn't buggy (otherwise, I'd expect someone to
-have complained by now seeing AMD has already switched to IOMMU-DMA.
-
-As I tried to point out in my previous email, i915 does not do this
-trick. In fact, it completely ignores sg_dma_len() and is thus
-completely broken. See i915_scatterlist.h and the __sgt_iter() function.
-So it doesn't sound to me like Mark's fix would address the issue at
-all. Per my previous email, I'd guess that it can be fixed simply by
-adjusting the __sgt_iter() function to do something more sensible.
-(Better yet, if possible, ditch __sgt_iter() and use the common DRM
-function that AMD uses).
-
-This would at least allow us to make progress with Tom's IOMMU-DMA patch
-set and once that gets in, it will be harder for other drivers to make
-the same mistake.
-
-Logan
+it would be really nice if the i915 maintainers could help with sorting
+that API abuse out.
