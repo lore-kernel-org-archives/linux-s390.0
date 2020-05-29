@@ -1,87 +1,48 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:35386 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2502900AbgDNNQG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Apr 2020 09:16:06 -0400
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 22/33] iommu/mediatek: Convert to probe/release_device() call-backs
-Date: Tue, 14 Apr 2020 15:15:31 +0200
-Message-Id: <20200414131542.25608-23-joro@8bytes.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-References: <20200414131542.25608-1-joro@8bytes.org>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+References: <20191221150402.13868-1-murphyt7@tcd.ie>
+ <465815ae-9292-f37a-59b9-03949cb68460@deltatee.com>
+ <20200529124523.GA11817@infradead.org>
+ <CGME20200529190523eucas1p2c086133e707257c0cdc002f502d4f51d@eucas1p2.samsung.com>
+ <33137cfb-603c-86e8-1091-f36117ecfaf3@deltatee.com>
+ <ef2150d5-7b6a-df25-c10d-e43316fe7812@samsung.com>
+From: Logan Gunthorpe <logang@deltatee.com>
+Message-ID: <b9140772-0370-a858-578c-af503a06d8e9@deltatee.com>
+Date: Fri, 29 May 2020 15:21:04 -0600
+MIME-Version: 1.0
+In-Reply-To: <ef2150d5-7b6a-df25-c10d-e43316fe7812@samsung.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-CA
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the dma-iommu api
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Marek Szyprowski <m.szyprowski@samsung.com>, Christoph Hellwig <hch@infradead.org>
+Cc: Tom Murphy <murphyt7@tcd.ie>, iommu@lists.linux-foundation.org, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Julien Grall <julien.grall@arm.com>, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Alex Williamson <alex.williamson@redhat.com>, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, Kukjin Kim <kgene@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 
-From: Joerg Roedel <jroedel@suse.de>
 
-Convert the Mediatek IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- drivers/iommu/mtk_iommu.c | 24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+On 2020-05-29 3:11 p.m., Marek Szyprowski wrote:
+> Patches are pending:
+> https://lore.kernel.org/linux-iommu/20200513132114.6046-1-m.szyprowski@samsung.com/T/
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 5f4d6df59cf6..2be96f1cdbd2 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -441,38 +441,26 @@ static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
- 	return pa;
- }
- 
--static int mtk_iommu_add_device(struct device *dev)
-+static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct mtk_iommu_data *data;
--	struct iommu_group *group;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
--		return -ENODEV; /* Not a iommu client device */
-+		return ERR_PTR(-ENODEV); /* Not a iommu client device */
- 
- 	data = dev_iommu_priv_get(dev);
--	iommu_device_link(&data->iommu, dev);
- 
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
--	return 0;
-+	return &data->iommu;
- }
- 
--static void mtk_iommu_remove_device(struct device *dev)
-+static void mtk_iommu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct mtk_iommu_data *data;
- 
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return;
- 
--	data = dev_iommu_priv_get(dev);
--	iommu_device_unlink(&data->iommu, dev);
--
--	iommu_group_remove_device(dev);
- 	iommu_fwspec_free(dev);
- }
- 
-@@ -526,8 +514,8 @@ static const struct iommu_ops mtk_iommu_ops = {
- 	.flush_iotlb_all = mtk_iommu_flush_iotlb_all,
- 	.iotlb_sync	= mtk_iommu_iotlb_sync,
- 	.iova_to_phys	= mtk_iommu_iova_to_phys,
--	.add_device	= mtk_iommu_add_device,
--	.remove_device	= mtk_iommu_remove_device,
-+	.probe_device	= mtk_iommu_probe_device,
-+	.release_device	= mtk_iommu_release_device,
- 	.device_group	= mtk_iommu_device_group,
- 	.of_xlate	= mtk_iommu_of_xlate,
- 	.pgsize_bitmap	= SZ_4K | SZ_64K | SZ_1M | SZ_16M,
--- 
-2.17.1
+Cool, nice! Though, I still don't think that fixes the issue in
+i915_scatterlist.h given it still ignores sg_dma_len() and strictly
+relies on sg_next()/sg_is_last() to stop iterating -- and I suspect this
+is the bug that got in Tom's way.
+
+>> However, as Robin pointed out, there are other ugly tricks like stopping
+>> iterating through the SGL when sg_dma_len() is zero. For example, the
+>> AMD driver appears to use drm_prime_sg_to_page_addr_arrays() which does
+>> this trick and thus likely isn't buggy (otherwise, I'd expect someone to
+>> have complained by now seeing AMD has already switched to IOMMU-DMA.
+> 
+> I'm not sure that this is a trick. Stopping at zero sg_dma_len() was 
+> somewhere documented.
+
+Well whatever you want to call it, it is ugly to have some drivers doing
+one thing with the returned value and others assuming there's an extra
+zero at the end. It just causes confusion for people reading/copying the
+code. It would be better if they are all consistent. However, I concede
+stopping at zero should not be broken, presently.
+
+Logan
