@@ -1,70 +1,210 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:50152 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389047AbgE1L5h (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 May 2020 07:57:37 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 10/17] s390/mm: fix set_huge_pte_at() for empty ptes
-Date: Thu, 28 May 2020 07:57:17 -0400
-Message-Id: <20200528115724.1406376-10-sashal@kernel.org>
-In-Reply-To: <20200528115724.1406376-1-sashal@kernel.org>
-References: <20200528115724.1406376-1-sashal@kernel.org>
+Received: from merlin.infradead.org ([205.233.59.134]:55474 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726975AbgE2Vpx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 May 2020 17:45:53 -0400
+Message-ID: <20200529214203.729797639@infradead.org>
+Date: Fri, 29 May 2020 23:35:52 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH v3 2/5] powerpc64: Break asm/percpu.h vs spinlock_types.h dependency
+References: <20200529213550.683440625@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: mingo@kernel.org, will@kernel.org, tglx@linutronix.de
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, peterz@infradead.org, davem@davemloft.net, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+In order to use <asm/percpu.h> in lockdep.h, we need to make sure
+asm/percpu.h does not itself depend on lockdep.
 
-[ Upstream commit ac8372f3b4e41015549b331a4f350224661e7fc6 ]
+The below seems to make that so and builds powerpc64-defconfig +
+PROVE_LOCKING.
 
-On s390, the layout of normal and large ptes (i.e. pmds/puds) differs.
-Therefore, set_huge_pte_at() does a conversion from a normal pte to
-the corresponding large pmd/pud. So, when converting an empty pte, this
-should result in an empty pmd/pud, which would return true for
-pmd/pud_none().
-
-However, after conversion we also mark the pmd/pud as large, and
-therefore present. For empty ptes, this will result in an empty pmd/pud
-that is also marked as large, and pmd/pud_none() would not return true.
-
-There is currently no issue with this behaviour, as set_huge_pte_at()
-does not seem to be called for empty ptes. It would be valid though, so
-let's fix this by not marking empty ptes as large in set_huge_pte_at().
-
-This was found by testing a patch from from Anshuman Khandual, which is
-currently discussed on LKML ("mm/debug: Add more arch page table helper
-tests").
-
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- arch/s390/mm/hugetlbpage.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/dtl.h         |   52 +++++++++++++++++++++++++++++++++
+ arch/powerpc/include/asm/lppaca.h      |   44 ---------------------------
+ arch/powerpc/kernel/time.c             |    1 
+ arch/powerpc/kvm/book3s_hv.c           |    1 
+ arch/powerpc/platforms/pseries/dtl.c   |    1 
+ arch/powerpc/platforms/pseries/lpar.c  |    1 
+ arch/powerpc/platforms/pseries/setup.c |    1 
+ arch/powerpc/platforms/pseries/svm.c   |    1 
+ 8 files changed, 58 insertions(+), 44 deletions(-)
 
-diff --git a/arch/s390/mm/hugetlbpage.c b/arch/s390/mm/hugetlbpage.c
-index 5674710a4841..7dfae86afa47 100644
---- a/arch/s390/mm/hugetlbpage.c
-+++ b/arch/s390/mm/hugetlbpage.c
-@@ -159,10 +159,13 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr,
- 		rste &= ~_SEGMENT_ENTRY_NOEXEC;
- 
- 	/* Set correct table type for 2G hugepages */
--	if ((pte_val(*ptep) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3)
--		rste |= _REGION_ENTRY_TYPE_R3 | _REGION3_ENTRY_LARGE;
--	else
-+	if ((pte_val(*ptep) & _REGION_ENTRY_TYPE_MASK) == _REGION_ENTRY_TYPE_R3) {
-+		if (likely(pte_present(pte)))
-+			rste |= _REGION3_ENTRY_LARGE;
-+		rste |= _REGION_ENTRY_TYPE_R3;
-+	} else if (likely(pte_present(pte)))
- 		rste |= _SEGMENT_ENTRY_LARGE;
+--- /dev/null
++++ b/arch/powerpc/include/asm/dtl.h
+@@ -0,0 +1,52 @@
++#ifndef _ASM_POWERPC_DTL_H
++#define _ASM_POWERPC_DTL_H
 +
- 	clear_huge_pte_skeys(mm, rste);
- 	pte_val(*ptep) = rste;
- }
--- 
-2.25.1
++#include <asm/lppaca.h>
++#include <linux/spinlock_types.h>
++
++/*
++ * Layout of entries in the hypervisor's dispatch trace log buffer.
++ */
++struct dtl_entry {
++	u8	dispatch_reason;
++	u8	preempt_reason;
++	__be16	processor_id;
++	__be32	enqueue_to_dispatch_time;
++	__be32	ready_to_enqueue_time;
++	__be32	waiting_to_ready_time;
++	__be64	timebase;
++	__be64	fault_addr;
++	__be64	srr0;
++	__be64	srr1;
++};
++
++#define DISPATCH_LOG_BYTES	4096	/* bytes per cpu */
++#define N_DISPATCH_LOG		(DISPATCH_LOG_BYTES / sizeof(struct dtl_entry))
++
++/*
++ * Dispatch trace log event enable mask:
++ *   0x1: voluntary virtual processor waits
++ *   0x2: time-slice preempts
++ *   0x4: virtual partition memory page faults
++ */
++#define DTL_LOG_CEDE		0x1
++#define DTL_LOG_PREEMPT		0x2
++#define DTL_LOG_FAULT		0x4
++#define DTL_LOG_ALL		(DTL_LOG_CEDE | DTL_LOG_PREEMPT | DTL_LOG_FAULT)
++
++extern struct kmem_cache *dtl_cache;
++extern rwlock_t dtl_access_lock;
++
++/*
++ * When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE = y, the cpu accounting code controls
++ * reading from the dispatch trace log.  If other code wants to consume
++ * DTL entries, it can set this pointer to a function that will get
++ * called once for each DTL entry that gets processed.
++ */
++extern void (*dtl_consumer)(struct dtl_entry *entry, u64 index);
++
++extern void register_dtl_buffer(int cpu);
++extern void alloc_dtl_buffers(unsigned long *time_limit);
++extern long hcall_vphn(unsigned long cpu, u64 flags, __be32 *associativity);
++
++#endif /* _ASM_POWERPC_DTL_H */
+--- a/arch/powerpc/include/asm/lppaca.h
++++ b/arch/powerpc/include/asm/lppaca.h
+@@ -42,7 +42,6 @@
+  */
+ #include <linux/cache.h>
+ #include <linux/threads.h>
+-#include <linux/spinlock_types.h>
+ #include <asm/types.h>
+ #include <asm/mmu.h>
+ #include <asm/firmware.h>
+@@ -146,49 +145,6 @@ struct slb_shadow {
+ 	} save_area[SLB_NUM_BOLTED];
+ } ____cacheline_aligned;
+ 
+-/*
+- * Layout of entries in the hypervisor's dispatch trace log buffer.
+- */
+-struct dtl_entry {
+-	u8	dispatch_reason;
+-	u8	preempt_reason;
+-	__be16	processor_id;
+-	__be32	enqueue_to_dispatch_time;
+-	__be32	ready_to_enqueue_time;
+-	__be32	waiting_to_ready_time;
+-	__be64	timebase;
+-	__be64	fault_addr;
+-	__be64	srr0;
+-	__be64	srr1;
+-};
+-
+-#define DISPATCH_LOG_BYTES	4096	/* bytes per cpu */
+-#define N_DISPATCH_LOG		(DISPATCH_LOG_BYTES / sizeof(struct dtl_entry))
+-
+-/*
+- * Dispatch trace log event enable mask:
+- *   0x1: voluntary virtual processor waits
+- *   0x2: time-slice preempts
+- *   0x4: virtual partition memory page faults
+- */
+-#define DTL_LOG_CEDE		0x1
+-#define DTL_LOG_PREEMPT		0x2
+-#define DTL_LOG_FAULT		0x4
+-#define DTL_LOG_ALL		(DTL_LOG_CEDE | DTL_LOG_PREEMPT | DTL_LOG_FAULT)
+-
+-extern struct kmem_cache *dtl_cache;
+-extern rwlock_t dtl_access_lock;
+-
+-/*
+- * When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE = y, the cpu accounting code controls
+- * reading from the dispatch trace log.  If other code wants to consume
+- * DTL entries, it can set this pointer to a function that will get
+- * called once for each DTL entry that gets processed.
+- */
+-extern void (*dtl_consumer)(struct dtl_entry *entry, u64 index);
+-
+-extern void register_dtl_buffer(int cpu);
+-extern void alloc_dtl_buffers(unsigned long *time_limit);
+ extern long hcall_vphn(unsigned long cpu, u64 flags, __be32 *associativity);
+ 
+ #endif /* CONFIG_PPC_BOOK3S */
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -69,6 +69,7 @@
+ #include <asm/vdso_datapage.h>
+ #include <asm/firmware.h>
+ #include <asm/asm-prototypes.h>
++#include <asm/dtl.h>
+ 
+ /* powerpc clocksource/clockevent code */
+ 
+--- a/arch/powerpc/kvm/book3s_hv.c
++++ b/arch/powerpc/kvm/book3s_hv.c
+@@ -74,6 +74,7 @@
+ #include <asm/hw_breakpoint.h>
+ #include <asm/kvm_book3s_uvmem.h>
+ #include <asm/ultravisor.h>
++#include <asm/dtl.h>
+ 
+ #include "book3s.h"
+ 
+--- a/arch/powerpc/platforms/pseries/dtl.c
++++ b/arch/powerpc/platforms/pseries/dtl.c
+@@ -12,6 +12,7 @@
+ #include <asm/smp.h>
+ #include <linux/uaccess.h>
+ #include <asm/firmware.h>
++#include <asm/dtl.h>
+ #include <asm/lppaca.h>
+ #include <asm/debugfs.h>
+ #include <asm/plpar_wrappers.h>
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -40,6 +40,7 @@
+ #include <asm/fadump.h>
+ #include <asm/asm-prototypes.h>
+ #include <asm/debugfs.h>
++#include <asm/dtl.h>
+ 
+ #include "pseries.h"
+ 
+--- a/arch/powerpc/platforms/pseries/setup.c
++++ b/arch/powerpc/platforms/pseries/setup.c
+@@ -70,6 +70,7 @@
+ #include <asm/asm-const.h>
+ #include <asm/swiotlb.h>
+ #include <asm/svm.h>
++#include <asm/dtl.h>
+ 
+ #include "pseries.h"
+ #include "../../../../drivers/pci/pci.h"
+--- a/arch/powerpc/platforms/pseries/svm.c
++++ b/arch/powerpc/platforms/pseries/svm.c
+@@ -11,6 +11,7 @@
+ #include <asm/svm.h>
+ #include <asm/swiotlb.h>
+ #include <asm/ultravisor.h>
++#include <asm/dtl.h>
+ 
+ static int __init init_svm(void)
+ {
