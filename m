@@ -1,243 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55078 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727005AbgERQHj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 May 2020 12:07:39 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v7 00/12] s390x: Testing the Channel Subsystem I/O
-Date: Mon, 18 May 2020 18:07:19 +0200
-Message-Id: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60612 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728390AbgE2Wjc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 29 May 2020 18:39:32 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0FD7C08C5CB
+        for <linux-s390@vger.kernel.org>; Fri, 29 May 2020 15:39:30 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id 5so2054950pjd.0
+        for <linux-s390@vger.kernel.org>; Fri, 29 May 2020 15:39:30 -0700 (PDT)
+Subject: Re: [PATCH v2] blkdev: Replace blksize_bits() with ilog2()
+References: <20200529141100.37519-1-pilgrimtao@gmail.com>
+ <20200529202713.GC19604@bombadil.infradead.org>
+ <c7a5bbc4-ffc2-6a63-fed3-9874969afc31@acm.org>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <fe0fc36e-fa67-a6b9-cc7a-d86d3f21cf2c@kernel.dk>
+Date: Fri, 29 May 2020 16:39:26 -0600
+MIME-Version: 1.0
+In-Reply-To: <c7a5bbc4-ffc2-6a63-fed3-9874969afc31@acm.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Bart Van Assche <bvanassche@acm.org>, Matthew Wilcox <willy@infradead.org>, Kaitao Cheng <pilgrimtao@gmail.com>
+Cc: hch@lst.de, sth@linux.ibm.com, viro@zeniv.linux.org.uk, clm@fb.com, jaegeuk@kernel.org, hch@infradead.org, mark@fasheh.com, dhowells@redhat.com, balbi@kernel.org, damien.lemoal@wdc.com, ming.lei@redhat.com, martin.petersen@oracle.com, satyat@google.com, chaitanya.kulkarni@wdc.com, houtao1@huawei.com, asml.silence@gmail.com, ajay.joshi@wdc.com, linux-kernel@vger.kernel.org, songmuchun@bytedance.com, hoeppner@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, sagi@grimberg.me, linux-nvme@lists.infradead.org, gregkh@linuxfoundation.org, linux-usb@vger.kernel.org, josef@toxicpanda.com, dsterba@suse.com, linux-btrfs@vger.kernel.org, chao@kernel.org, linux-f2fs-devel@lists.sourceforge.net, darrick.wong@oracle.com, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, jlbec@evilplan.org, joseph.qi@linux.alibaba.com, ocfs2-devel@oss.oracle.com, deepa.kernel@gmail.com
 
-Goal of the series is to have a framework to test Channel-Subsystem I/O with
-QEMU/KVM.
-  
-To be able to support interrupt for CSS I/O and for SCLP we need to modify
-the interrupt framework to allow re-entrant interruptions.
-  
-We add a registration for IRQ callbacks to the test program to define its own
-interrupt handler. We need to do special work under interrupt like acknowledging
-the interrupt.
-  
-Being working on PSW bits to allow I/O interrupt, we define new PSW bits
-in arch_def.h and use __ASSEMBLER__ define to be able to include this header
-in an assembler source file.
+On 5/29/20 4:27 PM, Bart Van Assche wrote:
+> On 2020-05-29 13:27, Matthew Wilcox wrote:
+>> On Fri, May 29, 2020 at 10:11:00PM +0800, Kaitao Cheng wrote:
+>>> There is a function named ilog2() exist which can replace blksize.
+>>> The generated code will be shorter and more efficient on some
+>>> architecture, such as arm64. And ilog2() can be optimized according
+>>> to different architecture.
+>>
+>> We'd get the same benefit from a smaller patch with just:
+>>
+>> --- a/include/linux/blkdev.h
+>> +++ b/include/linux/blkdev.h
+>> @@ -1502,15 +1502,9 @@ static inline int blk_rq_aligned(struct request_queue *q, unsigned long addr,
+>>  	return !(addr & alignment) && !(len & alignment);
+>>  }
+>>  
+>> -/* assumes size > 256 */
+>>  static inline unsigned int blksize_bits(unsigned int size)
+>>  {
+>> -	unsigned int bits = 8;
+>> -	do {
+>> -		bits++;
+>> -		size >>= 1;
+>> -	} while (size > 256);
+>> -	return bits;
+>> +	return ilog2(size);
+>>  }
+>>  
+>>  static inline unsigned int block_size(struct block_device *bdev)
+> 
+> Hi Matthew,
+> 
+> I had suggested to change all blksize_bits() calls into ilog2() calls
+> because I think that a single function to calculate the logarithm base 2
+> is sufficient.
 
-This series presents four major tests:
-- Enumeration:
-        The CSS is enumerated using the STSCH instruction recursively on all
-        potentially existing channels.
-        Keeping the first channel found as a reference for future use.
-        Checks STSCH
- 
-- Enable:
-        If the enumeration succeeded the tests enables the reference
-        channel with MSCH and verifies with STSCH that the channel is
-        effectively enabled, retrying a predefined count on failure
-	to enable the channel
-        Checks MSCH       
- 
-- Sense:
-        If the channel is enabled this test sends a SENSE_ID command
-        to the reference channel, analyzing the answer and expecting
-        the Control unit type being 0xc0ca
-        Checks SSCH(READ) and IO-IRQ
+I think this should be a two-parter:
 
-- ping-pong:
-        If the reference channel leads to the PONG device (0xc0ca),
-        the test exchanges a string containing a 9 digit number with
-        the PONG device and expecting this number to be incremented
-        by the PONG device.
-        Checks SSCH(WRITE)
+1) Use the inode blkbits where appropriate
+2) Then do this change
 
-
-Note:
-- The following patches may be pulled first:
-  s390x: saving regs for interrupts
-  s390x: Use PSW bits definitions in cstart
-  s390x: Move control register bit definitions and add AFP to them
-  s390x: export the clock get_clock_ms() utility
-  s390x: use get_clock_ms() to calculate a delay in ms
-
-- I think this one if it receives reviewed-by can also be pulled now:
-  s390x: define function to wait for interrupt
-
-- this patch has a comment from Janosch who asks change so... need opinion:
-  but since I need reviews for the next patches I let it here unchanged.
-  s390x: interrupt registration
-
-- These 5 patches are really I/O oriented and need reviewed-by:
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: css: ssch/tsch with sense and interrupt
-  s390x: css: ping pong
-
-Regards,
-Pierre
-
-Pierre Morel (12):
-  s390x: saving regs for interrupts
-  s390x: Use PSW bits definitions in cstart
-  s390x: Move control register bit definitions and add AFP to them
-  s390x: interrupt registration
-  s390x: export the clock get_clock_ms() utility
-  s390x: use get_clock_ms() to calculate a delay in ms
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: define function to wait for interrupt
-  s390x: css: ssch/tsch with sense and interrupt
-  s390x: css: ping pong
-
- lib/s390x/asm/arch_def.h |  32 +++-
- lib/s390x/asm/time.h     |  36 ++++
- lib/s390x/css.h          | 279 ++++++++++++++++++++++++++++++
- lib/s390x/css_dump.c     | 157 +++++++++++++++++
- lib/s390x/css_lib.c      |  55 ++++++
- lib/s390x/interrupt.c    |  23 ++-
- lib/s390x/interrupt.h    |   8 +
- s390x/Makefile           |   3 +
- s390x/css.c              | 355 +++++++++++++++++++++++++++++++++++++++
- s390x/cstart64.S         |  58 +++++--
- s390x/intercept.c        |  11 +-
- s390x/unittests.cfg      |   4 +
- 12 files changed, 995 insertions(+), 26 deletions(-)
- create mode 100644 lib/s390x/asm/time.h
- create mode 100644 lib/s390x/css.h
- create mode 100644 lib/s390x/css_dump.c
- create mode 100644 lib/s390x/css_lib.c
- create mode 100644 lib/s390x/interrupt.h
- create mode 100644 s390x/css.c
+I'm leaning towards just doing it in blksize_bits() instead of updating
+every caller, unless there aren't that many left once we've gone
+through patch 1.
 
 -- 
-2.25.1
-
-Changelog:
-
-from v6 to v7
-
-* s390x: saving regs for interrupts
-- macro name modificatio for SAVE_REGS_STACK
-  (David)
-- saving the FPC
-  (David)
-
-* s390x: Use PSW bits definitions in cstart
-- suppress definition for PSW_RESET_MASK
-  use PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW
-  (David)
-
-* s390x: Library resources for CSS tests
-* s390x: css: stsch, enumeration test
-  move library definitions from stsch patche
-  to the Library patch
-  add the library to the s390 Makefile here
-  (Janosch)
-  
-* s390x: css: msch, enable test
-  Add retries when enable fails
-  (Connie)
-  Re-introduce the patches for delay implementation
-  to add a delay between retries
-
-* s390x: define function to wait for interrupt
-  Changed name from wfi to wait_for_interrupt
-  (Janosch)
-
-* s390x: css: ssch/tsch with sense and interrupt
-  add a flag parameter to ssch and use it to add
-  SLI (Suppress Length Indication) flag for SENSE_ID
-  (Connie)
-
-
-from v5 to v6
-- Added comments for IRQ handling in
-  s390x: saving regs for interrupts
-  (Janosch) 
-
-- fixed BUG on reset_psw, added PSW_MASK_PSW_SHORT
-  and PSW_RESET_MASK
-
-- fixed several lines over 80 chars
-
-- fixed licenses, use GPL V2 (no more LGPL)
-
-- replacing delay() with wfi() (Wait For Interrupt)
-  during the css tests
-  (suggested by Connie's comments)
-
-- suppressing delay() induces suppressing the patch
-  "s390x: export the clock get_clock_ms() utility"
-  which is already reviewed but can be picked from
-  the v5 series.
-
-- changed the logic of the tests, the 4 css tests
-  are always run one after the other so no need to 
-  re-run enumeration and enabling at the begining
-  of each tests, it has alredy been done.
-  This makes code simpler.
-
-from v4 to v5
-- add a patch to explicitely define the initial_cr0
-  value
-  (Janosch)
-- add RB from Janosh on interrupt registration
-- several formating, typo correction and removing
-  unnecessary initialization in "linrary resources..."
-  (Janosch)
-- several formating and typo corrections on
-  "stsch enumeration test"
-  (Connie)
-- reworking the msch test
-  (Connie)
-- reworking of ssch test, pack the sense-id structure
-  (Connie)
-
-from v3 to v4
-- add RB from David and Thomas for patchs 
-  (3) irq registration and (4) clock export
-- rework the PSW bit definitions
-  (Thomas)
-- Suppress undef DEBUG from css_dump
-  (Thomas)
-- rework report() functions using new scheme
-  (Thomas)
-- suppress un-necessary report_info()
-- more spelling corrections
-- add a loop around enable bit testing
-  (Connie)
-- rework IRQ testing
-  (Connie)
-- Test data addresses to be under 2G
-  (Connie)
-
-from v2 to v3:
-- Rework spelling
-  (Connie)
-- More descriptions
-  (Connie)
-- use __ASSEMBLER__ preprocessing to keep
-  bits definitions and C structures in the same file
-  (David)
-- rename the new file clock.h as time.h
-  (Janosch, David?)
-- use registration for the IO interruption
-  (David, Thomas)
-- test the SCHIB to verify it has really be modified
-  (Connie)
-- Lot of simplifications in the tests
-  (Connie)
-
-from v1 to v2:
-- saving floating point registers (David, Janosh)
-- suppress unused PSW bits defintions (Janosh)
-- added Thomas reviewed-by
-- style and comments modifications (Connie, Janosh)
-- moved get_clock_ms() into headers and use it (Thomas)
-- separate header and library utility from tests
-- Suppress traces, separate tests, make better usage of reports
+Jens Axboe
