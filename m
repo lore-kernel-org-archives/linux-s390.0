@@ -1,29 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 29 May 2020 16:29:17 -0700 (PDT)
-Message-Id: <20200529.162917.1970892823680223252.davem@davemloft.net>
-Subject: Re: [RFC][PATCH v3 1/5] sparc64: Fix asm/percpu.h build error
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20200529214203.673108357@infradead.org>
+Message-ID: <20200529214203.673108357@infradead.org>
+Date: Fri, 29 May 2020 23:35:51 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: [RFC][PATCH v3 1/5] sparc64: Fix asm/percpu.h build error
 References: <20200529213550.683440625@infradead.org>
-        <20200529214203.673108357@infradead.org>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: peterz@infradead.org
-Cc: mingo@kernel.org, will@kernel.org, tglx@linutronix.de, x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org
+To: mingo@kernel.org, will@kernel.org, tglx@linutronix.de
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, peterz@infradead.org, davem@davemloft.net, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Fri, 29 May 2020 23:35:51 +0200
+In order to break a header dependency between lockdep and task_struct,
+I need per-cpu stuff from lockdep.
 
-> ../arch/sparc/include/asm/percpu_64.h:7:24: warning: call-clobbered register used for global register variable
-> register unsigned long __local_per_cpu_offset asm("g5");
+Including <asm/percpu.h> from lockdep.h gives a build error, this
+patch cures that, but results in the following warning:
 
-The "-ffixed-g5" option on the command line tells gcc that we are
-using 'g5' as a fixed register, so some part of your build isn't using
-the:
+../arch/sparc/include/asm/percpu_64.h:7:24: warning: call-clobbered register used for global register variable
+register unsigned long __local_per_cpu_offset asm("g5");
 
-KBUILD_CFLAGS += -ffixed-g4 -ffixed-g5 -fcall-used-g7 -Wno-sign-compare
+But i've no idea how to fix that :/ but it does build.
 
-from arch/sparc/Makefile for some reason.
+Not-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+ arch/sparc/include/asm/trap_block.h |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/arch/sparc/include/asm/trap_block.h
++++ b/arch/sparc/include/asm/trap_block.h
+@@ -2,6 +2,8 @@
+ #ifndef _SPARC_TRAP_BLOCK_H
+ #define _SPARC_TRAP_BLOCK_H
+ 
++#include <linux/threads.h>
++
+ #include <asm/hypervisor.h>
+ #include <asm/asi.h>
+ 
