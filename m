@@ -1,145 +1,46 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 11 Jun 2020 22:51:45 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH] printk: Make linux/printk.h self-contained
-Message-ID: <20200611125144.GA2506@gondor.apana.org.au>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:48836 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725616AbgFBGNJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 2 Jun 2020 02:13:09 -0400
+Date: Tue, 2 Jun 2020 08:13:05 +0200
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2] blkdev: Replace blksize_bits() with ilog2()
+Message-ID: <20200602061305.GA2258861@kroah.com>
+References: <20200529141100.37519-1-pilgrimtao@gmail.com>
+ <c8412d98-0328-0976-e5f9-5beddc148a35@kernel.dk>
+ <CAAWJmAZOQQQeNiTr48OSRRdO2pG+q4c=6gjT55CkWC5FN=HXmA@mail.gmail.com>
+ <20200601084426.GB1667318@kroah.com>
+ <20200602055152.GA11620@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200602055152.GA11620@lst.de>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Tao pilgrim <pilgrimtao@gmail.com>, Jens Axboe <axboe@kernel.dk>, sth@linux.ibm.com, viro@zeniv.linux.org.uk, clm@fb.com, jaegeuk@kernel.org, hch@infradead.org, Mark Fasheh <mark@fasheh.com>, dhowells@redhat.com, balbi@kernel.org, damien.lemoal@wdc.com, bvanassche@acm.org, ming.lei@redhat.com, martin.petersen@oracle.com, satyat@google.com, chaitanya.kulkarni@wdc.com, houtao1@huawei.com, asml.silence@gmail.com, ajay.joshi@wdc.com, linux-kernel@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>, hoeppner@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, sagi@grimberg.me, linux-nvme@lists.infradead.org, linux-usb@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>, dsterba@suse.com, linux-btrfs@vger.kernel.org, chao@kernel.org, linux-f2fs-devel@lists.sourceforge.net, darrick.wong@oracle.com, linux-xfs@vger.kernel.org, linux-fsdevel@vger.kernel.org, jlbec@evilplan.org, joseph.qi@linux.alibaba.com, ocfs2-devel@oss.oracle.com, deepa.kernel@gmail.com
 
-As it stands if you include printk.h it will fail to compile
-because it requires definitions from ratelimit.h.  However, simply
-including ratelimit.h from printk.h does not work due to inclusion
-loops involving sched.h and kernel.h.
+On Tue, Jun 02, 2020 at 07:51:52AM +0200, Christoph Hellwig wrote:
+> On Mon, Jun 01, 2020 at 10:44:26AM +0200, Greg KH wrote:
+> > But does this code path actually show up anywhere that is actually
+> > measurable as mattering?
+> > 
+> > If so, please show that benchmark results.
+> 
+> I think the requests are starting to be a bit unreasonable.  Tao is
+> replacing a reimplementation of a standard function with that standard
+> function / compiler builtin.  We don't put such a high burden on that.
 
-This patch solves this by moving bits from ratelimit.h into a new
-header file which can then be included by printk.h without any
-worries about header loops.
+That's fine, but to say it is "faster" usually means we want to see it
+actually going faster somehow :)
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> And once the proper existing fields are used where possible as shown
+> in my reply just replacing the rest seems totally obvious - quite
+> contrary I think keeping a reimplementation would need a high bar.
 
-diff --git a/include/linux/ratelimit_types.h b/include/linux/ratelimit_types.h
-new file mode 100644
-index 000000000000..b676aa419eef
---- /dev/null
-+++ b/include/linux/ratelimit_types.h
-@@ -0,0 +1,43 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_RATELIMIT_TYPES_H
-+#define _LINUX_RATELIMIT_TYPES_H
-+
-+#include <linux/bits.h>
-+#include <linux/param.h>
-+#include <linux/spinlock_types.h>
-+
-+#define DEFAULT_RATELIMIT_INTERVAL	(5 * HZ)
-+#define DEFAULT_RATELIMIT_BURST		10
-+
-+/* issue num suppressed message on exit */
-+#define RATELIMIT_MSG_ON_RELEASE	BIT(0)
-+
-+struct ratelimit_state {
-+	raw_spinlock_t	lock;		/* protect the state */
-+
-+	int		interval;
-+	int		burst;
-+	int		printed;
-+	int		missed;
-+	unsigned long	begin;
-+	unsigned long	flags;
-+};
-+
-+#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) {		\
-+		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),	\
-+		.interval	= interval_init,			\
-+		.burst		= burst_init,				\
-+	}
-+
-+#define RATELIMIT_STATE_INIT_DISABLED					\
-+	RATELIMIT_STATE_INIT(ratelimit_state, 0, DEFAULT_RATELIMIT_BURST)
-+
-+#define DEFINE_RATELIMIT_STATE(name, interval_init, burst_init)		\
-+									\
-+	struct ratelimit_state name =					\
-+		RATELIMIT_STATE_INIT(name, interval_init, burst_init)	\
-+
-+extern int ___ratelimit(struct ratelimit_state *rs, const char *func);
-+#define __ratelimit(state) ___ratelimit(state, __func__)
-+
-+#endif /* _LINUX_RATELIMIT_TYPES_H */
-diff --git a/include/linux/printk.h b/include/linux/printk.h
-index e061635e0409..1cd862cfd2f4 100644
---- a/include/linux/printk.h
-+++ b/include/linux/printk.h
-@@ -7,6 +7,7 @@
- #include <linux/kern_levels.h>
- #include <linux/linkage.h>
- #include <linux/cache.h>
-+#include <linux/ratelimit_types.h>
- 
- extern const char linux_banner[];
- extern const char linux_proc_banner[];
-diff --git a/include/linux/ratelimit.h b/include/linux/ratelimit.h
-index 8ddf79e9207a..b17e0cd0a30c 100644
---- a/include/linux/ratelimit.h
-+++ b/include/linux/ratelimit.h
-@@ -2,41 +2,10 @@
- #ifndef _LINUX_RATELIMIT_H
- #define _LINUX_RATELIMIT_H
- 
--#include <linux/param.h>
-+#include <linux/ratelimit_types.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- 
--#define DEFAULT_RATELIMIT_INTERVAL	(5 * HZ)
--#define DEFAULT_RATELIMIT_BURST		10
--
--/* issue num suppressed message on exit */
--#define RATELIMIT_MSG_ON_RELEASE	BIT(0)
--
--struct ratelimit_state {
--	raw_spinlock_t	lock;		/* protect the state */
--
--	int		interval;
--	int		burst;
--	int		printed;
--	int		missed;
--	unsigned long	begin;
--	unsigned long	flags;
--};
--
--#define RATELIMIT_STATE_INIT(name, interval_init, burst_init) {		\
--		.lock		= __RAW_SPIN_LOCK_UNLOCKED(name.lock),	\
--		.interval	= interval_init,			\
--		.burst		= burst_init,				\
--	}
--
--#define RATELIMIT_STATE_INIT_DISABLED					\
--	RATELIMIT_STATE_INIT(ratelimit_state, 0, DEFAULT_RATELIMIT_BURST)
--
--#define DEFINE_RATELIMIT_STATE(name, interval_init, burst_init)		\
--									\
--	struct ratelimit_state name =					\
--		RATELIMIT_STATE_INIT(name, interval_init, burst_init)	\
--
- static inline void ratelimit_state_init(struct ratelimit_state *rs,
- 					int interval, int burst)
- {
-@@ -73,9 +42,6 @@ ratelimit_set_flags(struct ratelimit_state *rs, unsigned long flags)
- 
- extern struct ratelimit_state printk_ratelimit_state;
- 
--extern int ___ratelimit(struct ratelimit_state *rs, const char *func);
--#define __ratelimit(state) ___ratelimit(state, __func__)
--
- #ifdef CONFIG_PRINTK
- 
- #define WARN_ON_RATELIMIT(condition, state)	({		\
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Your patch makes sense, I was not objecting to that.
+
+thanks,
+
+greg k-h
