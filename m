@@ -1,102 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34498 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729009AbgFEVlT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 17:41:19 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v8 11/16] s390/vfio-ap: allow configuration of matrix mdev in use by a KVM guest
-Date: Fri,  5 Jun 2020 17:39:59 -0400
-Message-Id: <20200605214004.14270-12-akrowiak@linux.ibm.com>
-In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
-References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:43289 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726112AbgFBPeo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 2 Jun 2020 11:34:44 -0400
+Date: Tue, 2 Jun 2020 17:34:34 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PULL 08/10] vfio-ccw: Introduce a new CRW region
+Message-ID: <20200602173434.6a81181b.cohuck@redhat.com>
+In-Reply-To: <71bf02e5-dbb4-0b3f-0956-b1b13dadf42a@linux.ibm.com>
+References: <20200525094115.222299-1-cohuck@redhat.com>
+        <20200525094115.222299-9-cohuck@redhat.com>
+        <20200602151313.0e639b57.cohuck@redhat.com>
+        <71bf02e5-dbb4-0b3f-0956-b1b13dadf42a@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>
 
-The current support for pass-through crypto adapters does not allow
-configuration of a matrix mdev when it is in use by a KVM guest. Let's
-allow AP resources - i.e., adapters, domains and control domains - to be
-assigned to or unassigned from a matrix mdev while it is in use by a guest.
-This is in preparation for the introduction of support for dynamic
-configuration of the AP matrix for a running KVM guest.
+On Tue, 2 Jun 2020 10:46:25 -0400
+Eric Farman <farman@linux.ibm.com> wrote:
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 24 ------------------------
- 1 file changed, 24 deletions(-)
+> On 6/2/20 9:13 AM, Cornelia Huck wrote:
+> > On Mon, 25 May 2020 11:41:13 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> >   
+> >> From: Farhan Ali <alifm@linux.ibm.com>
+> >>
+> >> This region provides a mechanism to pass a Channel Report Word
+> >> that affect vfio-ccw devices, and needs to be passed to the guest
+> >> for its awareness and/or processing.
+> >>
+> >> The base driver (see crw_collect_info()) provides space for two
+> >> CRWs, as a subchannel event may have two CRWs chained together
+> >> (one for the ssid, one for the subchannel).  As vfio-ccw will
+> >> deal with everything at the subchannel level, provide space
+> >> for a single CRW to be transferred in one shot.
+> >>
+> >> Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+> >> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> >> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> >> Message-Id: <20200505122745.53208-7-farman@linux.ibm.com>
+> >> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> >> ---
+> >>  Documentation/s390/vfio-ccw.rst     | 19 ++++++++++
+> >>  drivers/s390/cio/vfio_ccw_chp.c     | 55 +++++++++++++++++++++++++++++
+> >>  drivers/s390/cio/vfio_ccw_drv.c     | 20 +++++++++++
+> >>  drivers/s390/cio/vfio_ccw_ops.c     |  8 +++++
+> >>  drivers/s390/cio/vfio_ccw_private.h |  4 +++
+> >>  include/uapi/linux/vfio.h           |  2 ++
+> >>  include/uapi/linux/vfio_ccw.h       |  8 +++++
+> >>  7 files changed, 116 insertions(+)
+> >>  
+> > 
+> > (...)
+> >   
+> >> @@ -413,6 +423,16 @@ static int __init vfio_ccw_sch_init(void)
+> >>  		goto out_err;
+> >>  	}
+> >>  
+> >> +	vfio_ccw_crw_region = kmem_cache_create_usercopy("vfio_ccw_crw_region",
+> >> +					sizeof(struct ccw_crw_region), 0,
+> >> +					SLAB_ACCOUNT, 0,
+> >> +					sizeof(struct ccw_crw_region), NULL);  
+> > 
+> > Ugh, I just tested this rebased to the s390 features branch, and I must
+> > have used some different options, because I now get
+> > 
+> >    kmem_cache_create(vfio_ccw_crw_region) integrity check failed
+> > 
+> > presumably due to the size of the ccw_crw_region.
+> > 
+> > We maybe need to pad it up (leave it unpacked)? Eric, what do you think?  
+> 
+> Certainly packing a single one-word struct is weird, and the message is
+> coming out of the tiny struct itself:
+> 
+> mm/slab-common.c:88:
+>         if (!name || in_interrupt() || size < sizeof(void *) ||
+>                 size > KMALLOC_MAX_SIZE) {
+>                 pr_err("kmem_cache_create(%s) integrity check failed\n",
+> name);
+> 
+> That's protected by CONFIG_DEBUG_VM which wasn't enabled in my config.
+> So playing around with things, we'd have to explicitly add a pad (or the
+> second CRW, ha!) to get the struct back up to a doubleword. That'd be
+> fine with me.
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 68bdf80807c6..4f59f471b4d3 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -773,10 +773,6 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow assignment of adapter */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apid);
- 	if (ret)
- 		return ret;
-@@ -828,10 +824,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow un-assignment of adapter */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apid);
- 	if (ret)
- 		return ret;
-@@ -891,10 +883,6 @@ static ssize_t assign_domain_store(struct device *dev,
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
- 
--	/* If the guest is running, disallow assignment of domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apqi);
- 	if (ret)
- 		return ret;
-@@ -946,10 +934,6 @@ static ssize_t unassign_domain_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow un-assignment of domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apqi);
- 	if (ret)
- 		return ret;
-@@ -991,10 +975,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow assignment of control domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &id);
- 	if (ret)
- 		return ret;
-@@ -1036,10 +1016,6 @@ static ssize_t unassign_control_domain_store(struct device *dev,
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
- 
--	/* If the guest is running, disallow un-assignment of control domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &domid);
- 	if (ret)
- 		return ret;
--- 
-2.21.1
+I think I'll just go with
+
+struct ccw_crw_region {                                                         
+        __u32 crw;                                                              
+        __u32 pad;                                                              
+} __packed;
+
+here and in the doc. I'll do some tests and do another pull request
+tomorrow.
