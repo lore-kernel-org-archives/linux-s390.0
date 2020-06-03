@@ -1,117 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:51323 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732624AbgFWNO2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Jun 2020 09:14:28 -0400
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH v6 1/5] KVM: s390: clean up redundant 'kvm_run' parameters
-Date: Tue, 23 Jun 2020 21:14:14 +0800
-Message-Id: <20200623131418.31473-2-tianjia.zhang@linux.alibaba.com>
-In-Reply-To: <20200623131418.31473-1-tianjia.zhang@linux.alibaba.com>
-References: <20200623131418.31473-1-tianjia.zhang@linux.alibaba.com>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:35570 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726141AbgFCL1i (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:38 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL v2 05/10] vfio-ccw: Refactor the unregister of the async regions
+Date: Wed,  3 Jun 2020 13:27:11 +0200
+Message-Id: <20200603112716.332801-6-cohuck@redhat.com>
+In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
+References: <20200603112716.332801-1-cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@linux.alibaba.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
-structure. For historical reasons, many kvm-related function parameters
-retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
-patch does a unified cleanup of these remaining redundant parameters.
+From: Eric Farman <farman@linux.ibm.com>
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+This is mostly for the purposes of a later patch, since
+we'll need to do the same thing later.
+
+While we are at it, move the resulting function call to ahead
+of the unregistering of the IOMMU notifier, so that it's done
+in the reverse order of how it was created.
+
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200505122745.53208-4-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/kvm/kvm-s390.c | 23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/s390/cio/vfio_ccw_ops.c     | 20 ++++++++++++--------
+ drivers/s390/cio/vfio_ccw_private.h |  1 +
+ 2 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d47c19718615..f5f96dc33712 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4175,8 +4175,9 @@ static int __vcpu_run(struct kvm_vcpu *vcpu)
- 	return rc;
- }
- 
--static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void sync_regs_fmt2(struct kvm_vcpu *vcpu)
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index f0d71ab77c50..d4fc84b8867f 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -181,7 +181,6 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
  {
-+	struct kvm_run *kvm_run = vcpu->run;
- 	struct runtime_instr_cb *riccb;
- 	struct gs_cb *gscb;
+ 	struct vfio_ccw_private *private =
+ 		dev_get_drvdata(mdev_parent_dev(mdev));
+-	int i;
  
-@@ -4242,8 +4243,10 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	/* SIE will load etoken directly from SDNX and therefore kvm_run */
- }
- 
--static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void sync_regs(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_run *kvm_run = vcpu->run;
-+
- 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_PREFIX)
- 		kvm_s390_set_prefix(vcpu, kvm_run->s.regs.prefix);
- 	if (kvm_run->kvm_dirty_regs & KVM_SYNC_CRS) {
-@@ -4272,7 +4275,7 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 
- 	/* Sync fmt2 only data */
- 	if (likely(!kvm_s390_pv_cpu_is_protected(vcpu))) {
--		sync_regs_fmt2(vcpu, kvm_run);
-+		sync_regs_fmt2(vcpu);
- 	} else {
- 		/*
- 		 * In several places we have to modify our internal view to
-@@ -4291,8 +4294,10 @@ static void sync_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	kvm_run->kvm_dirty_regs = 0;
- }
- 
--static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void store_regs_fmt2(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_run *kvm_run = vcpu->run;
-+
- 	kvm_run->s.regs.todpr = vcpu->arch.sie_block->todpr;
- 	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
- 	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
-@@ -4312,8 +4317,10 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
- }
- 
--static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
-+static void store_regs(struct kvm_vcpu *vcpu)
- {
-+	struct kvm_run *kvm_run = vcpu->run;
-+
- 	kvm_run->psw_mask = vcpu->arch.sie_block->gpsw.mask;
- 	kvm_run->psw_addr = vcpu->arch.sie_block->gpsw.addr;
- 	kvm_run->s.regs.prefix = kvm_s390_get_prefix(vcpu);
-@@ -4332,7 +4339,7 @@ static void store_regs(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
- 	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
- 	if (likely(!kvm_s390_pv_cpu_is_protected(vcpu)))
--		store_regs_fmt2(vcpu, kvm_run);
-+		store_regs_fmt2(vcpu);
- }
- 
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
-@@ -4370,7 +4377,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
- 		goto out;
+ 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+ 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+@@ -191,15 +190,9 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
  	}
  
--	sync_regs(vcpu, kvm_run);
-+	sync_regs(vcpu);
- 	enable_cpu_timer_accounting(vcpu);
+ 	cp_free(&private->cp);
++	vfio_ccw_unregister_dev_regions(private);
+ 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+ 				 &private->nb);
+-
+-	for (i = 0; i < private->num_regions; i++)
+-		private->region[i].ops->release(private, &private->region[i]);
+-
+-	private->num_regions = 0;
+-	kfree(private->region);
+-	private->region = NULL;
+ }
  
- 	might_fault();
-@@ -4392,7 +4399,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu)
- 	}
+ static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
+@@ -482,6 +475,17 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
+ 	return 0;
+ }
  
- 	disable_cpu_timer_accounting(vcpu);
--	store_regs(vcpu, kvm_run);
-+	store_regs(vcpu);
++void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private)
++{
++	int i;
++
++	for (i = 0; i < private->num_regions; i++)
++		private->region[i].ops->release(private, &private->region[i]);
++	private->num_regions = 0;
++	kfree(private->region);
++	private->region = NULL;
++}
++
+ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+ 				   unsigned int cmd,
+ 				   unsigned long arg)
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 9b9bb4982972..ce3834159d98 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -53,6 +53,7 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
+ 				 unsigned int subtype,
+ 				 const struct vfio_ccw_regops *ops,
+ 				 size_t size, u32 flags, void *data);
++void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
  
- 	kvm_sigset_deactivate(vcpu);
+ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
  
 -- 
-2.17.1
+2.25.4
