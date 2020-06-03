@@ -1,80 +1,106 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:41432 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:26264 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725275AbgFCGoE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 02:44:04 -0400
-Date: Wed, 3 Jun 2020 08:43:56 +0200
+        with ESMTP id S1726120AbgFCL1g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:36 -0400
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] s390/virtio: remove unused pm callbacks
-Message-ID: <20200603084356.326d66aa.cohuck@redhat.com>
-In-Reply-To: <20200526093629.257649-1-cohuck@redhat.com>
-References: <20200526093629.257649-1-cohuck@redhat.com>
+Subject: [PULL v2 04/10] vfio-ccw: Register a chp_event callback for vfio-ccw
+Date: Wed,  3 Jun 2020 13:27:10 +0200
+Message-Id: <20200603112716.332801-5-cohuck@redhat.com>
+In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
+References: <20200603112716.332801-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 
-Friendly ping.
+From: Farhan Ali <alifm@linux.ibm.com>
 
-On Tue, 26 May 2020 11:36:29 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+Register the chp_event callback to receive channel path related
+events for the subchannels managed by vfio-ccw.
 
-> Support for hibernation on s390 has been recently been removed with
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200505122745.53208-3-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_drv.c | 47 +++++++++++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
 
-(one 'been' too much here, I just noticed :)
-
-> commit 394216275c7d ("s390: remove broken hibernate / power management
-> support"), no need to keep unused code around.
-> 
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 26 --------------------------
->  1 file changed, 26 deletions(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 957889a42d2e..5730572b52cd 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -1372,27 +1372,6 @@ static struct ccw_device_id virtio_ids[] = {
->  	{},
->  };
->  
-> -#ifdef CONFIG_PM_SLEEP
-> -static int virtio_ccw_freeze(struct ccw_device *cdev)
-> -{
-> -	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-> -
-> -	return virtio_device_freeze(&vcdev->vdev);
-> -}
-> -
-> -static int virtio_ccw_restore(struct ccw_device *cdev)
-> -{
-> -	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-> -	int ret;
-> -
-> -	ret = virtio_ccw_set_transport_rev(vcdev);
-> -	if (ret)
-> -		return ret;
-> -
-> -	return virtio_device_restore(&vcdev->vdev);
-> -}
-> -#endif
-> -
->  static struct ccw_driver virtio_ccw_driver = {
->  	.driver = {
->  		.owner = THIS_MODULE,
-> @@ -1405,11 +1384,6 @@ static struct ccw_driver virtio_ccw_driver = {
->  	.set_online = virtio_ccw_online,
->  	.notify = virtio_ccw_cio_notify,
->  	.int_class = IRQIO_VIR,
-> -#ifdef CONFIG_PM_SLEEP
-> -	.freeze = virtio_ccw_freeze,
-> -	.thaw = virtio_ccw_restore,
-> -	.restore = virtio_ccw_restore,
-> -#endif
->  };
->  
->  static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 8715c1c2f1e1..fb1275a7d1f5 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -19,6 +19,7 @@
+ 
+ #include <asm/isc.h>
+ 
++#include "chp.h"
+ #include "ioasm.h"
+ #include "css.h"
+ #include "vfio_ccw_private.h"
+@@ -262,6 +263,51 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+ 	return rc;
+ }
+ 
++static int vfio_ccw_chp_event(struct subchannel *sch,
++			      struct chp_link *link, int event)
++{
++	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
++	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
++	int retry = 255;
++
++	if (!private || !mask)
++		return 0;
++
++	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
++			   mdev_uuid(private->mdev), sch->schid.cssid,
++			   sch->schid.ssid, sch->schid.sch_no,
++			   mask, event);
++
++	if (cio_update_schib(sch))
++		return -ENODEV;
++
++	switch (event) {
++	case CHP_VARY_OFF:
++		/* Path logically turned off */
++		sch->opm &= ~mask;
++		sch->lpm &= ~mask;
++		if (sch->schib.pmcw.lpum & mask)
++			cio_cancel_halt_clear(sch, &retry);
++		break;
++	case CHP_OFFLINE:
++		/* Path is gone */
++		if (sch->schib.pmcw.lpum & mask)
++			cio_cancel_halt_clear(sch, &retry);
++		break;
++	case CHP_VARY_ON:
++		/* Path logically turned on */
++		sch->opm |= mask;
++		sch->lpm |= mask;
++		break;
++	case CHP_ONLINE:
++		/* Path became available */
++		sch->lpm |= mask & sch->opm;
++		break;
++	}
++
++	return 0;
++}
++
+ static struct css_device_id vfio_ccw_sch_ids[] = {
+ 	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
+ 	{ /* end of list */ },
+@@ -279,6 +325,7 @@ static struct css_driver vfio_ccw_sch_driver = {
+ 	.remove = vfio_ccw_sch_remove,
+ 	.shutdown = vfio_ccw_sch_shutdown,
+ 	.sch_event = vfio_ccw_sch_event,
++	.chp_event = vfio_ccw_chp_event,
+ };
+ 
+ static int __init vfio_ccw_debug_init(void)
+-- 
+2.25.4
