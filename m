@@ -1,160 +1,216 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:50191 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725838AbgFAKmv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 1 Jun 2020 06:42:51 -0400
-Received: by mail-qt1-f199.google.com with SMTP id p9so5503660qtn.5
-        for <linux-s390@vger.kernel.org>; Mon, 01 Jun 2020 03:42:43 -0700 (PDT)
-Date: Mon, 1 Jun 2020 03:42:40 -0700
-From: Jerry Snitselaar <jsnitsel@redhat.com>
-Subject: Re: [PATCH v2 00/33] iommu: Move iommu_group setup to IOMMU core code
-Message-ID: <20200601104240.7f5xhz7gooqhaq4n@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-References: <20200414131542.25608-1-joro@8bytes.org>
- <20200529221623.qc6twmpzryh7nkvb@cantor>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:53823 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725859AbgFCL1x (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:53 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL v2 09/10] vfio-ccw: Wire up the CRW irq and CRW region
+Date: Wed,  3 Jun 2020 13:27:15 +0200
+Message-Id: <20200603112716.332801-10-cohuck@redhat.com>
+In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
+References: <20200603112716.332801-1-cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20200529221623.qc6twmpzryh7nkvb@cantor>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org, iommu@lists.linux-foundation.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 
-On Fri May 29 20, Jerry Snitselaar wrote:
->On Tue Apr 14 20, Joerg Roedel wrote:
->>Hi,
->>
->>here is the second version of this patch-set. The first version with
->>some more introductory text can be found here:
->>
->>	https://lore.kernel.org/lkml/20200407183742.4344-1-joro@8bytes.org/
->>
->>Changes v1->v2:
->>
->>	* Rebased to v5.7-rc1
->>
->>	* Re-wrote the arm-smmu changes as suggested by Robin Murphy
->>
->>	* Re-worked the Exynos patches to hopefully not break the
->>	  driver anymore
->>
->>	* Fixed a missing mutex_unlock() reported by Marek Szyprowski,
->>	  thanks for that.
->>
->>There is also a git-branch available with these patches applied:
->>
->>	https://git.kernel.org/pub/scm/linux/kernel/git/joro/linux.git/log/?h=iommu-probe-device-v2
->>
->>Please review.
->>
->>Thanks,
->>
->>	Joerg
->>
->>Joerg Roedel (32):
->> iommu: Move default domain allocation to separate function
->> iommu/amd: Implement iommu_ops->def_domain_type call-back
->> iommu/vt-d: Wire up iommu_ops->def_domain_type
->> iommu/amd: Remove dma_mask check from check_device()
->> iommu/amd: Return -ENODEV in add_device when device is not handled by
->>   IOMMU
->> iommu: Add probe_device() and remove_device() call-backs
->> iommu: Move default domain allocation to iommu_probe_device()
->> iommu: Keep a list of allocated groups in __iommu_probe_device()
->> iommu: Move new probe_device path to separate function
->> iommu: Split off default domain allocation from group assignment
->> iommu: Move iommu_group_create_direct_mappings() out of
->>   iommu_group_add_device()
->> iommu: Export bus_iommu_probe() and make is safe for re-probing
->> iommu/amd: Remove dev_data->passthrough
->> iommu/amd: Convert to probe/release_device() call-backs
->> iommu/vt-d: Convert to probe/release_device() call-backs
->> iommu/arm-smmu: Convert to probe/release_device() call-backs
->> iommu/pamu: Convert to probe/release_device() call-backs
->> iommu/s390: Convert to probe/release_device() call-backs
->> iommu/virtio: Convert to probe/release_device() call-backs
->> iommu/msm: Convert to probe/release_device() call-backs
->> iommu/mediatek: Convert to probe/release_device() call-backs
->> iommu/mediatek-v1 Convert to probe/release_device() call-backs
->> iommu/qcom: Convert to probe/release_device() call-backs
->> iommu/rockchip: Convert to probe/release_device() call-backs
->> iommu/tegra: Convert to probe/release_device() call-backs
->> iommu/renesas: Convert to probe/release_device() call-backs
->> iommu/omap: Remove orphan_dev tracking
->> iommu/omap: Convert to probe/release_device() call-backs
->> iommu/exynos: Use first SYSMMU in controllers list for IOMMU core
->> iommu/exynos: Convert to probe/release_device() call-backs
->> iommu: Remove add_device()/remove_device() code-paths
->> iommu: Unexport iommu_group_get_for_dev()
->>
->>Sai Praneeth Prakhya (1):
->> iommu: Add def_domain_type() callback in iommu_ops
->>
->>drivers/iommu/amd_iommu.c       |  97 ++++----
->>drivers/iommu/amd_iommu_types.h |   1 -
->>drivers/iommu/arm-smmu-v3.c     |  38 +--
->>drivers/iommu/arm-smmu.c        |  39 ++--
->>drivers/iommu/exynos-iommu.c    |  24 +-
->>drivers/iommu/fsl_pamu_domain.c |  22 +-
->>drivers/iommu/intel-iommu.c     |  68 +-----
->>drivers/iommu/iommu.c           | 393 +++++++++++++++++++++++++-------
->>drivers/iommu/ipmmu-vmsa.c      |  60 ++---
->>drivers/iommu/msm_iommu.c       |  34 +--
->>drivers/iommu/mtk_iommu.c       |  24 +-
->>drivers/iommu/mtk_iommu_v1.c    |  50 ++--
->>drivers/iommu/omap-iommu.c      |  99 ++------
->>drivers/iommu/qcom_iommu.c      |  24 +-
->>drivers/iommu/rockchip-iommu.c  |  26 +--
->>drivers/iommu/s390-iommu.c      |  22 +-
->>drivers/iommu/tegra-gart.c      |  24 +-
->>drivers/iommu/tegra-smmu.c      |  31 +--
->>drivers/iommu/virtio-iommu.c    |  41 +---
->>include/linux/iommu.h           |  21 +-
->>20 files changed, 533 insertions(+), 605 deletions(-)
->>
->>-- 
->>2.17.1
->>
->>_______________________________________________
->>iommu mailing list
->>iommu@lists.linux-foundation.org
->>https://lists.linuxfoundation.org/mailman/listinfo/iommu
->>
->
->Hi Joerg,
->
->With this patchset, I have an epyc system where if I boot with
->iommu=nopt and force a dump I will see some io page faults for a nic
->on the system. The vmcore is harvested and the system reboots. I
->haven't reproduced it on other systems yet, but without the patchset I
->don't see the io page faults during the kdump.
->
->Regards,
->Jerry
+From: Farhan Ali <alifm@linux.ibm.com>
 
-I just hit an issue on a separate intel based system (kdump iommu=nopt),
-where it panics in during intel_iommu_attach_device, in is_aux_domain,
-due to device_domain_info being DEFER_DEVICE_DOMAIN_INFO. That doesn't
-get set to a valid address until the domain_add_dev_info call.
+Use the IRQ to notify userspace that there is a CRW
+pending in the region, related to path-availability
+changes on the passthrough subchannel.
 
-Is it as simple as the following?
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200505122745.53208-8-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/cio/vfio_ccw_chp.c     | 17 ++++++++++
+ drivers/s390/cio/vfio_ccw_drv.c     | 49 +++++++++++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_private.h |  8 +++++
+ 3 files changed, 74 insertions(+)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 29d3940847d3..f1bbeed46a4c 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5053,8 +5053,8 @@ is_aux_domain(struct device *dev, struct iommu_domain *domain)
-  {
-         struct device_domain_info *info = dev->archdata.iommu;
-  
--       return info && info->auxd_enabled &&
--                       domain->type == IOMMU_DOMAIN_UNMANAGED;
-+       return info && info != DEFER_DEVICE_DOMAIN_INFO &&
-+               info->auxd_enabled && domain->type == IOMMU_DOMAIN_UNMANAGED;
-  }
-  
-  static void auxiliary_link_device(struct dmar_domain *domain,
-
-
-Regards,
-Jerry
+diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
+index 37ea344a4d72..876f6ade51cc 100644
+--- a/drivers/s390/cio/vfio_ccw_chp.c
++++ b/drivers/s390/cio/vfio_ccw_chp.c
+@@ -82,14 +82,24 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
+ 	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
+ 	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
+ 	struct ccw_crw_region *region;
++	struct vfio_ccw_crw *crw;
+ 	int ret;
+ 
+ 	if (pos + count > sizeof(*region))
+ 		return -EINVAL;
+ 
++	crw = list_first_entry_or_null(&private->crw,
++				       struct vfio_ccw_crw, next);
++
++	if (crw)
++		list_del(&crw->next);
++
+ 	mutex_lock(&private->io_mutex);
+ 	region = private->region[i].data;
+ 
++	if (crw)
++		memcpy(&region->crw, &crw->crw, sizeof(region->crw));
++
+ 	if (copy_to_user(buf, (void *)region + pos, count))
+ 		ret = -EFAULT;
+ 	else
+@@ -98,6 +108,13 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
+ 	region->crw = 0;
+ 
+ 	mutex_unlock(&private->io_mutex);
++
++	kfree(crw);
++
++	/* Notify the guest if more CRWs are on our queue */
++	if (!list_empty(&private->crw) && private->crw_trigger)
++		eventfd_signal(private->crw_trigger, 1);
++
+ 	return ret;
+ }
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index e4deae6fd525..9144360851ed 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -108,6 +108,16 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 		eventfd_signal(private->io_trigger, 1);
+ }
+ 
++static void vfio_ccw_crw_todo(struct work_struct *work)
++{
++	struct vfio_ccw_private *private;
++
++	private = container_of(work, struct vfio_ccw_private, crw_work);
++
++	if (!list_empty(&private->crw) && private->crw_trigger)
++		eventfd_signal(private->crw_trigger, 1);
++}
++
+ /*
+  * Css driver callbacks
+  */
+@@ -186,7 +196,9 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	if (ret)
+ 		goto out_free;
+ 
++	INIT_LIST_HEAD(&private->crw);
+ 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
++	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
+ 	atomic_set(&private->avail, 1);
+ 	private->state = VFIO_CCW_STATE_STANDBY;
+ 
+@@ -217,9 +229,15 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ static int vfio_ccw_sch_remove(struct subchannel *sch)
+ {
+ 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
++	struct vfio_ccw_crw *crw, *temp;
+ 
+ 	vfio_ccw_sch_quiesce(sch);
+ 
++	list_for_each_entry_safe(crw, temp, &private->crw, next) {
++		list_del(&crw->next);
++		kfree(crw);
++	}
++
+ 	vfio_ccw_mdev_unreg(sch);
+ 
+ 	dev_set_drvdata(&sch->dev, NULL);
+@@ -281,6 +299,33 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
+ 	return rc;
+ }
+ 
++static void vfio_ccw_queue_crw(struct vfio_ccw_private *private,
++			       unsigned int rsc,
++			       unsigned int erc,
++			       unsigned int rsid)
++{
++	struct vfio_ccw_crw *crw;
++
++	/*
++	 * If unable to allocate a CRW, just drop the event and
++	 * carry on.  The guest will either see a later one or
++	 * learn when it issues its own store subchannel.
++	 */
++	crw = kzalloc(sizeof(*crw), GFP_ATOMIC);
++	if (!crw)
++		return;
++
++	/*
++	 * Build the CRW based on the inputs given to us.
++	 */
++	crw->crw.rsc = rsc;
++	crw->crw.erc = erc;
++	crw->crw.rsid = rsid;
++
++	list_add_tail(&crw->next, &private->crw);
++	queue_work(vfio_ccw_work_q, &private->crw_work);
++}
++
+ static int vfio_ccw_chp_event(struct subchannel *sch,
+ 			      struct chp_link *link, int event)
+ {
+@@ -311,6 +356,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
+ 		/* Path is gone */
+ 		if (sch->schib.pmcw.lpum & mask)
+ 			cio_cancel_halt_clear(sch, &retry);
++		vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_PERRN,
++				   link->chpid.id);
+ 		break;
+ 	case CHP_VARY_ON:
+ 		/* Path logically turned on */
+@@ -320,6 +367,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
+ 	case CHP_ONLINE:
+ 		/* Path became available */
+ 		sch->lpm |= mask & sch->opm;
++		vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_INIT,
++				   link->chpid.id);
+ 		break;
+ 	}
+ 
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 97131b4df0b9..8723156b29ea 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -17,6 +17,7 @@
+ #include <linux/eventfd.h>
+ #include <linux/workqueue.h>
+ #include <linux/vfio_ccw.h>
++#include <asm/crw.h>
+ #include <asm/debug.h>
+ 
+ #include "css.h"
+@@ -59,6 +60,11 @@ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
+ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
+ int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private);
+ 
++struct vfio_ccw_crw {
++	struct list_head	next;
++	struct crw		crw;
++};
++
+ /**
+  * struct vfio_ccw_private
+  * @sch: pointer to the subchannel
+@@ -98,10 +104,12 @@ struct vfio_ccw_private {
+ 	struct channel_program	cp;
+ 	struct irb		irb;
+ 	union scsw		scsw;
++	struct list_head	crw;
+ 
+ 	struct eventfd_ctx	*io_trigger;
+ 	struct eventfd_ctx	*crw_trigger;
+ 	struct work_struct	io_work;
++	struct work_struct	crw_work;
+ } __aligned(8);
+ 
+ extern int vfio_ccw_mdev_reg(struct subchannel *sch);
+-- 
+2.25.4
