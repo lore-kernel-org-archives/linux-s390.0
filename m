@@ -1,117 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52414 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730251AbgFONA6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Jun 2020 09:00:58 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 6/6] kernel: add a kernel_wait helper
-Date: Mon, 15 Jun 2020 15:00:32 +0200
-Message-Id: <20200615130032.931285-7-hch@lst.de>
-In-Reply-To: <20200615130032.931285-1-hch@lst.de>
-References: <20200615130032.931285-1-hch@lst.de>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:36372 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726104AbgFCL1g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:36 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL v2 02/10] vfio-ccw: document possible errors
+Date: Wed,  3 Jun 2020 13:27:08 +0200
+Message-Id: <20200603112716.332801-3-cohuck@redhat.com>
+In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
+References: <20200603112716.332801-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
 
-Add a helper that waits for a pid and stores the status in the passed
-in kernel pointer.  Use it to fix the usage of kernel_wait4 in
-call_usermodehelper_exec_sync that only happens to work due to the
-implicit set_fs(KERNEL_DS) for kernel threads.
+Interacting with the I/O and the async regions can yield a number
+of errors, which had been undocumented so far. These are part of
+the api, so remedy that.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Message-Id: <20200407111605.1795-1-cohuck@redhat.com>
 ---
- include/linux/sched/task.h |  1 +
- kernel/exit.c              | 16 ++++++++++++++++
- kernel/umh.c               | 29 ++++-------------------------
- 3 files changed, 21 insertions(+), 25 deletions(-)
+ Documentation/s390/vfio-ccw.rst | 56 +++++++++++++++++++++++++++++++--
+ 1 file changed, 54 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-index 38359071236ad7..a80007df396e95 100644
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -102,6 +102,7 @@ struct task_struct *fork_idle(int);
- struct mm_struct *copy_init_mm(void);
- extern pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
- extern long kernel_wait4(pid_t, int __user *, int, struct rusage *);
-+int kernel_wait(pid_t pid, int *stat);
+diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+index 23e7d136f8b4..3a946fd45562 100644
+--- a/Documentation/s390/vfio-ccw.rst
++++ b/Documentation/s390/vfio-ccw.rst
+@@ -204,15 +204,44 @@ definition of the region is::
+ 	  __u32   ret_code;
+   } __packed;
  
- extern void free_task(struct task_struct *tsk);
- 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 727150f2810338..fd598846df0b17 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -1626,6 +1626,22 @@ long kernel_wait4(pid_t upid, int __user *stat_addr, int options,
- 	return ret;
- }
- 
-+int kernel_wait(pid_t pid, int *stat)
-+{
-+	struct wait_opts wo = {
-+		.wo_type	= PIDTYPE_PID,
-+		.wo_pid		= find_get_pid(pid),
-+		.wo_flags	= WEXITED,
-+	};
-+	int ret;
++This region is always available.
 +
-+	ret = do_wait(&wo);
-+	if (ret > 0 && wo.wo_stat)
-+		*stat = wo.wo_stat;
-+	put_pid(wo.wo_pid);
-+	return ret;
-+}
+ While starting an I/O request, orb_area should be filled with the
+ guest ORB, and scsw_area should be filled with the SCSW of the Virtual
+ Subchannel.
+ 
+ irb_area stores the I/O result.
+ 
+-ret_code stores a return code for each access of the region.
++ret_code stores a return code for each access of the region. The following
++values may occur:
 +
- SYSCALL_DEFINE4(wait4, pid_t, upid, int __user *, stat_addr,
- 		int, options, struct rusage __user *, ru)
- {
-diff --git a/kernel/umh.c b/kernel/umh.c
-index 1284823dbad338..6fd948e478bec4 100644
---- a/kernel/umh.c
-+++ b/kernel/umh.c
-@@ -126,37 +126,16 @@ static void call_usermodehelper_exec_sync(struct subprocess_info *sub_info)
- {
- 	pid_t pid;
++``0``
++  The operation was successful.
++
++``-EOPNOTSUPP``
++  The orb specified transport mode or an unidentified IDAW format, or the
++  scsw specified a function other than the start function.
++
++``-EIO``
++  A request was issued while the device was not in a state ready to accept
++  requests, or an internal error occurred.
++
++``-EBUSY``
++  The subchannel was status pending or busy, or a request is already active.
++
++``-EAGAIN``
++  A request was being processed, and the caller should retry.
++
++``-EACCES``
++  The channel path(s) used for the I/O were found to be not operational.
++
++``-ENODEV``
++  The device was found to be not operational.
++
++``-EINVAL``
++  The orb specified a chain longer than 255 ccws, or an internal error
++  occurred.
  
--	/* If SIGCLD is ignored kernel_wait4 won't populate the status. */
-+	/* If SIGCLD is ignored do_wait won't populate the status. */
- 	kernel_sigaction(SIGCHLD, SIG_DFL);
- 	pid = kernel_thread(call_usermodehelper_exec_async, sub_info, SIGCHLD);
--	if (pid < 0) {
-+	if (pid < 0)
- 		sub_info->retval = pid;
--	} else {
--		int ret = -ECHILD;
--		/*
--		 * Normally it is bogus to call wait4() from in-kernel because
--		 * wait4() wants to write the exit code to a userspace address.
--		 * But call_usermodehelper_exec_sync() always runs as kernel
--		 * thread (workqueue) and put_user() to a kernel address works
--		 * OK for kernel threads, due to their having an mm_segment_t
--		 * which spans the entire address space.
--		 *
--		 * Thus the __user pointer cast is valid here.
--		 */
--		kernel_wait4(pid, (int __user *)&ret, 0, NULL);
--
--		/*
--		 * If ret is 0, either call_usermodehelper_exec_async failed and
--		 * the real error code is already in sub_info->retval or
--		 * sub_info->retval is 0 anyway, so don't mess with it then.
--		 */
--		if (ret)
--			sub_info->retval = ret;
--	}
-+	else
-+		kernel_wait(pid, &sub_info->retval);
+-This region is always available.
  
- 	/* Restore default kernel sig handler */
- 	kernel_sigaction(SIGCHLD, SIG_IGN);
--
- 	umh_complete(sub_info);
- }
+ vfio-ccw cmd region
+ -------------------
+@@ -231,6 +260,29 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD.
+ 
+ Currently, CLEAR SUBCHANNEL and HALT SUBCHANNEL use this region.
+ 
++command specifies the command to be issued; ret_code stores a return code
++for each access of the region. The following values may occur:
++
++``0``
++  The operation was successful.
++
++``-ENODEV``
++  The device was found to be not operational.
++
++``-EINVAL``
++  A command other than halt or clear was specified.
++
++``-EIO``
++  A request was issued while the device was not in a state ready to accept
++  requests.
++
++``-EAGAIN``
++  A request was being processed, and the caller should retry.
++
++``-EBUSY``
++  The subchannel was status pending or busy while processing a halt request.
++
++
+ vfio-ccw operation details
+ --------------------------
  
 -- 
-2.26.2
+2.25.4
