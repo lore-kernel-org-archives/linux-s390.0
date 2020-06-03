@@ -1,53 +1,108 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 185/606] s390/kaslr: add support for R_390_JMP_SLOT relocation type
-Date: Mon,  8 Jun 2020 19:05:10 -0400
-Message-Id: <20200608231211.3363633-185-sashal@kernel.org>
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:38306 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726083AbgFCL1e (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:34 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL v2 03/10] vfio-ccw: Introduce new helper functions to free/destroy regions
+Date: Wed,  3 Jun 2020 13:27:09 +0200
+Message-Id: <20200603112716.332801-4-cohuck@redhat.com>
+In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
+References: <20200603112716.332801-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Farhan Ali <alifm@linux.ibm.com>
 
-commit 4c1cbcbd6c56c79de2c07159be4f55386bb0bef2 upstream.
+Consolidate some of the cleanup code for the regions, so that
+as more are added we reduce code duplication.
 
-With certain kernel configurations, the R_390_JMP_SLOT relocation type
-might be generated, which is not expected by the KASLR relocation code,
-and the kernel stops with the message "Unknown relocation type".
-
-This was found with a zfcpdump kernel config, where CONFIG_MODULES=n
-and CONFIG_VFIO=n. In that case, symbol_get() is used on undefined
-__weak symbols in virt/kvm/vfio.c, which results in the generation
-of R_390_JMP_SLOT relocation types.
-
-Fix this by handling R_390_JMP_SLOT similar to R_390_GLOB_DAT.
-
-Fixes: 805bc0bc238f ("s390/kernel: build a relocatable kernel")
-Cc: <stable@vger.kernel.org> # v5.2+
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Reviewed-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <20200505122745.53208-2-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/kernel/machine_kexec_reloc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/cio/vfio_ccw_drv.c | 28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/kernel/machine_kexec_reloc.c b/arch/s390/kernel/machine_kexec_reloc.c
-index d5035de9020e..b7182cec48dc 100644
---- a/arch/s390/kernel/machine_kexec_reloc.c
-+++ b/arch/s390/kernel/machine_kexec_reloc.c
-@@ -28,6 +28,7 @@ int arch_kexec_do_relocs(int r_type, void *loc, unsigned long val,
- 		break;
- 	case R_390_64:		/* Direct 64 bit.  */
- 	case R_390_GLOB_DAT:
-+	case R_390_JMP_SLOT:
- 		*(u64 *)loc = val;
- 		break;
- 	case R_390_PC16:	/* PC relative 16 bit.	*/
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 339a6bc0339b..8715c1c2f1e1 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -116,6 +116,14 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_INTERRUPT);
+ }
+ 
++static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
++{
++	if (private->cmd_region)
++		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
++	if (private->io_region)
++		kmem_cache_free(vfio_ccw_io_region, private->io_region);
++}
++
+ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ {
+ 	struct pmcw *pmcw = &sch->schib.pmcw;
+@@ -181,10 +189,7 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
+ 	cio_disable_subchannel(sch);
+ out_free:
+ 	dev_set_drvdata(&sch->dev, NULL);
+-	if (private->cmd_region)
+-		kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	if (private->io_region)
+-		kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	vfio_ccw_free_regions(private);
+ 	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 	return ret;
+@@ -200,8 +205,7 @@ static int vfio_ccw_sch_remove(struct subchannel *sch)
+ 
+ 	dev_set_drvdata(&sch->dev, NULL);
+ 
+-	kmem_cache_free(vfio_ccw_cmd_region, private->cmd_region);
+-	kmem_cache_free(vfio_ccw_io_region, private->io_region);
++	vfio_ccw_free_regions(private);
+ 	kfree(private->cp.guest_cp);
+ 	kfree(private);
+ 
+@@ -304,6 +308,12 @@ static void vfio_ccw_debug_exit(void)
+ 	debug_unregister(vfio_ccw_debug_trace_id);
+ }
+ 
++static void vfio_ccw_destroy_regions(void)
++{
++	kmem_cache_destroy(vfio_ccw_cmd_region);
++	kmem_cache_destroy(vfio_ccw_io_region);
++}
++
+ static int __init vfio_ccw_sch_init(void)
+ {
+ 	int ret;
+@@ -346,8 +356,7 @@ static int __init vfio_ccw_sch_init(void)
+ 	return ret;
+ 
+ out_err:
+-	kmem_cache_destroy(vfio_ccw_cmd_region);
+-	kmem_cache_destroy(vfio_ccw_io_region);
++	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+ 	return ret;
+@@ -357,8 +366,7 @@ static void __exit vfio_ccw_sch_exit(void)
+ {
+ 	css_driver_unregister(&vfio_ccw_sch_driver);
+ 	isc_unregister(VFIO_CCW_ISC);
+-	kmem_cache_destroy(vfio_ccw_io_region);
+-	kmem_cache_destroy(vfio_ccw_cmd_region);
++	vfio_ccw_destroy_regions();
+ 	destroy_workqueue(vfio_ccw_work_q);
+ 	vfio_ccw_debug_exit();
+ }
 -- 
-2.25.1
+2.25.4
