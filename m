@@ -1,33 +1,35 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23162 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725943AbgFDVrQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Jun 2020 17:47:16 -0400
-Date: Thu, 4 Jun 2020 23:44:21 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:41432 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725275AbgFCGoE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 02:44:04 -0400
+Date: Wed, 3 Jun 2020 08:43:56 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH] s390/virtio: remove unused pm callbacks
-Message-ID: <20200604234421.4ada966b.pasic@linux.ibm.com>
+Message-ID: <20200603084356.326d66aa.cohuck@redhat.com>
 In-Reply-To: <20200526093629.257649-1-cohuck@redhat.com>
 References: <20200526093629.257649-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+
+Friendly ping.
 
 On Tue, 26 May 2020 11:36:29 +0200
 Cornelia Huck <cohuck@redhat.com> wrote:
 
 > Support for hibernation on s390 has been recently been removed with
+
+(one 'been' too much here, I just noticed :)
+
 > commit 394216275c7d ("s390: remove broken hibernate / power management
 > support"), no need to keep unused code around.
 > 
 > Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
-
 > ---
 >  drivers/s390/virtio/virtio_ccw.c | 26 --------------------------
 >  1 file changed, 26 deletions(-)
