@@ -1,233 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25418 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728842AbgFEVkS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 17:40:18 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v8 09/16] s390/vfio_ap: add qlink from ap_matrix_mdev struct to vfio_ap_queue struct
-Date: Fri,  5 Jun 2020 17:39:57 -0400
-Message-Id: <20200605214004.14270-10-akrowiak@linux.ibm.com>
-In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
-References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:46985 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725859AbgFCL12 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:28 -0400
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PULL v2 01/10] vfio-ccw: Enable transparent CCW IPL from DASD
+Date: Wed,  3 Jun 2020 13:27:07 +0200
+Message-Id: <20200603112716.332801-2-cohuck@redhat.com>
+In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
+References: <20200603112716.332801-1-cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Jared Rossi <jrossi@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 
-In order to make retrieval of a vfio_ap_queue struct more
-efficient when we already have a pointer to the ap_matrix_mdev to which the
-queue's APQN is assigned, let's go ahead and add a link from the
-ap_matrix_mdev struct to the vfio_ap_queue struct.
+From: Jared Rossi <jrossi@linux.ibm.com>
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Remove the explicit prefetch check when using vfio-ccw devices.
+This check does not trigger in practice as all Linux channel programs
+are intended to use prefetch.
+
+It is expected that all ORBs issued by Linux will request prefetch.
+Although non-prefetching ORBs are not rejected, they will prefetch
+nonetheless. A warning is issued up to once per 5 seconds when a
+forced prefetch occurs.
+
+A non-prefetch ORB does not necessarily result in an error, however
+frequent encounters with non-prefetch ORBs indicate that channel
+programs are being executed in a way that is inconsistent with what
+the guest is requesting. While there is currently no known case of an
+error caused by forced prefetch, it is possible in theory that forced
+prefetch could result in an error if applied to a channel program that
+is dependent on non-prefetch.
+
+Signed-off-by: Jared Rossi <jrossi@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Message-Id: <20200506212440.31323-2-jrossi@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 102 ++++++++++++++++++--------
- drivers/s390/crypto/vfio_ap_private.h |   2 +
- 2 files changed, 72 insertions(+), 32 deletions(-)
+ Documentation/s390/vfio-ccw.rst |  6 ++++++
+ drivers/s390/cio/vfio_ccw_cp.c  | 19 ++++++++++++-------
+ 2 files changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index add442977b9a..9a019b2b86f8 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -50,6 +50,19 @@ static struct vfio_ap_queue *vfio_ap_get_queue(unsigned long apqn)
- 	return q;
- }
+diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
+index fca9c4f5bd9c..23e7d136f8b4 100644
+--- a/Documentation/s390/vfio-ccw.rst
++++ b/Documentation/s390/vfio-ccw.rst
+@@ -335,6 +335,12 @@ device.
+ The current code allows the guest to start channel programs via
+ START SUBCHANNEL, and to issue HALT SUBCHANNEL and CLEAR SUBCHANNEL.
  
-+struct vfio_ap_queue *vfio_ap_get_mdev_queue(struct ap_matrix_mdev *matrix_mdev,
-+					     unsigned long apqn)
-+{
-+	struct vfio_ap_queue *q;
++Currently all channel programs are prefetched, regardless of the
++p-bit setting in the ORB.  As a result, self modifying channel
++programs are not supported.  For this reason, IPL has to be handled as
++a special case by a userspace/guest program; this has been implemented
++in QEMU's s390-ccw bios as of QEMU 4.1.
 +
-+	hash_for_each_possible(matrix_mdev->qtable, q, mdev_qnode, apqn) {
-+		if (q && (q->apqn == apqn))
-+			return q;
-+	}
-+
-+	return NULL;
-+}
-+
- /**
-  * vfio_ap_wait_for_irqclear
-  * @apqn: The AP Queue number
-@@ -337,6 +350,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 	matrix_mdev->mdev = mdev;
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
-+	hash_init(matrix_mdev->qtable);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook.hook = handle_pqap;
- 	matrix_mdev->pqap_hook.owner = THIS_MODULE;
-@@ -639,7 +653,7 @@ static int vfio_ap_mdev_filter_matrix(struct ap_matrix_mdev *matrix_mdev,
- 			 * filter the APQI.
- 			 */
- 			apqn = AP_MKQID(apid, apqi);
--			if (!vfio_ap_get_queue(apqn)) {
-+			if (!vfio_ap_get_mdev_queue(matrix_mdev, apqn)) {
- 				if (filter_apids)
- 					clear_bit_inv(apid, shadow_apcb->apm);
- 				else
-@@ -682,7 +696,6 @@ static bool vfio_ap_mdev_config_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
- 	vfio_ap_matrix_init(&matrix_dev->info, &shadow_apcb);
- 	napm = bitmap_weight(matrix_mdev->matrix.apm, AP_DEVICES);
- 	naqm = bitmap_weight(matrix_mdev->matrix.aqm, AP_DOMAINS);
--
- 	/*
- 	 * If there are no APIDs or no APQIs assigned to the matrix mdev,
- 	 * then no APQNs shall be assigned to the guest CRYCB.
-@@ -694,6 +707,7 @@ static bool vfio_ap_mdev_config_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
- 		 */
- 		napm = vfio_ap_mdev_filter_matrix(matrix_mdev, &shadow_apcb,
- 						  true);
-+
- 		/*
- 		 * If there are no APQNs that can be assigned to the guest's
- 		 * CRYCB after filtering, then try filtering the APQIs.
-@@ -742,56 +756,75 @@ enum qlink_type {
- 	UNLINK_APQI,
- };
+ vfio-ccw supports classic (command mode) channel I/O only. Transport
+ mode (HPF) is not supported.
  
-+static void vfio_ap_mdev_link_queue(struct ap_matrix_mdev *matrix_mdev,
-+				    unsigned long apid, unsigned long apqi)
-+{
-+	struct vfio_ap_queue *q;
-+
-+	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
-+	if (q) {
-+		q->matrix_mdev = matrix_mdev;
-+		hash_add(matrix_mdev->qtable,
-+			 &q->mdev_qnode, q->apqn);
-+	}
-+}
-+
-+static void vfio_ap_mdev_unlink_queue(unsigned long apid, unsigned long apqi)
-+{
-+	struct vfio_ap_queue *q;
-+
-+	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
-+	if (q) {
-+		q->matrix_mdev = NULL;
-+		hash_del(&q->mdev_qnode);
-+	}
-+}
-+
- /**
-  * vfio_ap_mdev_link_queues
-  *
-  * @matrix_mdev: The matrix mdev to link.
-- * @type:	 The type of link.
-+ * @type:	 The type of @qlink_id.
-  * @qlink_id:	 The APID or APQI of the queues to link.
-  *
-- * Sets the link from the queues with the specified @qlink_id (i.e., APID or
-- * APQI) to @matrix_mdev:
-- *	qlink_id == LINK_APID: Link @matrix_mdev to the queues with the
-- *		    specified APID>
-- *	qlink_id == UNLINK_APID: Unlink @matrix_mdev from the queues with the
-- *		    specified APID>
-- *	qlink_id == LINK_APQI: Link @matrix_mdev to the queues with the
-- *		    specified APQI>
-- *	qlink_id == UNLINK_APQI: Unlink @matrix_mdev from the queues with the
-- *		    specified APQI>
-+ * Sets or clears the links between the queues with the specified @qlink_id
-+ * and the @matrix_mdev:
-+ *	@type == LINK_APID: Set the links between the @matrix_mdev and the
-+ *			    queues with the specified @qlink_id (APID)
-+ *	@type == LINK_APQI: Set the links between the @matrix_mdev and the
-+ *			    queues with the specified @qlink_id (APQI)
-+ *	@type == UNLINK_APID: Clear the links between the @matrix_mdev and the
-+ *			      queues with the specified @qlink_id (APID)
-+ *	@type == UNLINK_APQI: Clear the links between the @matrix_mdev and the
-+ *			      queues with the specified @qlink_id (APQI)
+diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
+index 3645d1720c4b..b9febc581b1f 100644
+--- a/drivers/s390/cio/vfio_ccw_cp.c
++++ b/drivers/s390/cio/vfio_ccw_cp.c
+@@ -8,6 +8,7 @@
+  *            Xiao Feng Ren <renxiaof@linux.vnet.ibm.com>
   */
- static void vfio_ap_mdev_link_queues(struct ap_matrix_mdev *matrix_mdev,
- 				     enum qlink_type type,
- 				     unsigned long qlink_id)
+ 
++#include <linux/ratelimit.h>
+ #include <linux/mm.h>
+ #include <linux/slab.h>
+ #include <linux/iommu.h>
+@@ -625,23 +626,27 @@ static int ccwchain_fetch_one(struct ccwchain *chain,
+  * the target channel program from @orb->cmd.iova to the new ccwchain(s).
+  *
+  * Limitations:
+- * 1. Supports only prefetch enabled mode.
+- * 2. Supports idal(c64) ccw chaining.
+- * 3. Supports 4k idaw.
++ * 1. Supports idal(c64) ccw chaining.
++ * 2. Supports 4k idaw.
+  *
+  * Returns:
+  *   %0 on success and a negative error value on failure.
+  */
+ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
  {
- 	unsigned long id;
--	struct vfio_ap_queue *q;
-+
++	/* custom ratelimit used to avoid flood during guest IPL */
++	static DEFINE_RATELIMIT_STATE(ratelimit_state, 5 * HZ, 1);
+ 	int ret;
  
- 	switch (type) {
- 	case LINK_APID:
-+		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
-+				     matrix_mdev->matrix.aqm_max + 1)
-+			vfio_ap_mdev_link_queue(matrix_mdev, qlink_id, id);
-+		break;
- 	case UNLINK_APID:
- 		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
--				     matrix_mdev->matrix.aqm_max + 1) {
--			q = vfio_ap_get_queue(AP_MKQID(qlink_id, id));
--			if (q) {
--				if (type == LINK_APID)
--					q->matrix_mdev = matrix_mdev;
--				else
--					q->matrix_mdev = NULL;
--			}
--		}
-+				     matrix_mdev->matrix.aqm_max + 1)
-+			vfio_ap_mdev_unlink_queue(qlink_id, id);
-+		break;
-+	case LINK_APQI:
-+		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
-+				     matrix_mdev->matrix.apm_max + 1)
-+			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
- 		break;
- 	default:
- 		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
--				     matrix_mdev->matrix.apm_max + 1) {
--			q = vfio_ap_get_queue(AP_MKQID(id, qlink_id));
--			if (q) {
--				if (type == LINK_APQI)
--					q->matrix_mdev = matrix_mdev;
--				else
--					q->matrix_mdev = NULL;
--			}
--		}
-+				     matrix_mdev->matrix.apm_max + 1)
-+			vfio_ap_mdev_unlink_queue(id, qlink_id);
- 		break;
- 	}
- }
-@@ -1612,6 +1645,7 @@ static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
- 		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
- 		    test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
- 			q->matrix_mdev = matrix_mdev;
-+			hash_add(matrix_mdev->qtable, &q->mdev_qnode, q->apqn);
- 			break;
- 		}
- 	}
-@@ -1647,6 +1681,10 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 	apqi = AP_QID_QUEUE(q->apqn);
- 	vfio_ap_mdev_reset_queue(apid, apqi, 1);
- 	vfio_ap_irq_disable(q);
-+
-+	if (q->matrix_mdev)
-+		hash_del(&q->mdev_qnode);
-+
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 8e24a073166b..055bce6d45db 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -89,6 +89,7 @@ struct ap_matrix_mdev {
- 	struct kvm *kvm;
- 	struct kvm_s390_module_hook pqap_hook;
- 	struct mdev_device *mdev;
-+	DECLARE_HASHTABLE(qtable, 8);
- };
+ 	/*
+-	 * XXX:
+-	 * Only support prefetch enable mode now.
++	 * We only support prefetching the channel program. We assume all channel
++	 * programs executed by supported guests likewise support prefetching.
++	 * Executing a channel program that does not specify prefetching will
++	 * typically not cause an error, but a warning is issued to help identify
++	 * the problem if something does break.
+ 	 */
+-	if (!orb->cmd.pfch)
+-		return -EOPNOTSUPP;
++	if (!orb->cmd.pfch && __ratelimit(&ratelimit_state))
++		dev_warn(mdev, "Prefetching channel program even though prefetch not specified in ORB");
  
- extern int vfio_ap_mdev_register(void);
-@@ -100,6 +101,7 @@ struct vfio_ap_queue {
- 	int	apqn;
- #define VFIO_AP_ISC_INVALID 0xff
- 	unsigned char saved_isc;
-+	struct hlist_node mdev_qnode;
- };
- 
- int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
+ 	INIT_LIST_HEAD(&cp->ccwchain_list);
+ 	memcpy(&cp->orb, orb, sizeof(*orb));
 -- 
-2.21.1
+2.25.4
