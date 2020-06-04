@@ -1,28 +1,136 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Wed, 17 Jun 2020 17:15:24 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [v3 PATCH 0/2] Splitting ratelimit.h and lockdep.h
-Message-ID: <20200617071524.GA3055@gondor.apana.org.au>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49534 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727881AbgFDHmm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Jun 2020 03:42:42 -0400
+Subject: Re: [kvm-unit-tests PATCH v7 07/12] s390x: Library resources for CSS
+ tests
+References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+ <1589818051-20549-8-git-send-email-pmorel@linux.ibm.com>
+ <20200526183005.76fc9124.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <1920d8a8-76fb-dc0c-3d40-0db69dc7e207@linux.ibm.com>
+Date: Thu, 4 Jun 2020 09:42:36 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200526183005.76fc9124.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-Hi:
 
-v3
 
-Split into two patches.
+On 2020-05-26 18:30, Cornelia Huck wrote:
+> On Mon, 18 May 2020 18:07:26 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> Provide some definitions and library routines that can be used by
+>> tests targeting the channel subsystem.
+>>
+>> Debug function can be activated by defining DEBUG_CSS before the
+>> inclusion of the css.h header file.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/css.h      | 259 +++++++++++++++++++++++++++++++++++++++++++
+>>   lib/s390x/css_dump.c | 157 ++++++++++++++++++++++++++
+>>   s390x/Makefile       |   1 +
+>>   3 files changed, 417 insertions(+)
+>>   create mode 100644 lib/s390x/css.h
+>>   create mode 100644 lib/s390x/css_dump.c
+>>
+> 
+> (...)
+> 
+>> +struct ccw1 {
+>> +	unsigned char code;
+>> +	unsigned char flags;
+>> +	unsigned short count;
+> 
+> I'm wondering why you're using unsigned {char,short} here, instead of
+> the uint*_t types everywhere else? It's not wrong, but probably better
+> to be consistent?
+> 
+>> +	uint32_t data_address;
+>> +} __attribute__ ((aligned(4)));
+>> +
+>> +#define SID_ONE		0x00010000
+>> +
+> 
+> I think it would be beneficial for the names to somewhat match the
+> naming in Linux and/or QEMU -- or more speaking names (as you do for
+> some), which is also good.
+> 
+>> +#define ORB_M_KEY	0xf0000000
+>> +#define ORB_F_SUSPEND	0x08000000
+>> +#define ORB_F_STREAMING	0x04000000
+>> +#define ORB_F_MODIFCTRL	0x02000000
+>> +#define ORB_F_SYNC	0x01000000
+>> +#define ORB_F_FORMAT	0x00800000
+>> +#define ORB_F_PREFETCH	0x00400000
+>> +#define ORB_F_INIT_IRQ	0x00200000
+> 
+> ORB_F_ISIC? (As it does not refer to 'initialization', but 'initial'.)
+> 
+>> +#define ORB_F_ADDRLIMIT	0x00100000
+>> +#define ORB_F_SUSP_IRQ	0x00080000
+> 
+> ORB_F_SSIC? (As it deals with suppression.)
+> 
+>> +#define ORB_F_TRANSPORT	0x00040000
+>> +#define ORB_F_IDAW2	0x00020000
+> 
+> ORB_F_IDAW_FMT2?
+> 
+> Or following Linux/QEMU, use ORB_F_C64 for a certain retro appeal :)
+> 
+>> +#define ORB_F_IDAW_2K	0x00010000
+>> +#define ORB_M_LPM	0x0000ff00
+>> +#define ORB_F_LPM_DFLT	0x00008000
+> 
+> That's a default lpm of 0x80, right? It's a bit buried between the orb
+> definitions, and it also seems to be more of a implementation choice --
+> move it out from the flags here?
+> 
+>> +#define ORB_F_ILSM	0x00000080
+> 
+> ORB_F_ILS?
+> 
+>> +#define ORB_F_CCW_IND	0x00000040
+> 
+> ORB_F_MIDAW? I had a hard time figuring out that one :)
+> 
+>> +#define ORB_F_ORB_EXT	0x00000001
+> 
+> (...)
+> 
+>> +/*
+>> + * Try o have a more human representation of the PMCW flags
+> 
+> s/o/to/
+> 
+>> + * each letter in the string represent the first
+> 
+> s/represent/represents/
+> 
+>> + * letter of the associated bit in the flag fields.
+>> + */
+> 
+> (...)
+> 
+> Generally, looks good to me.
+> 
 
---
+Thanks a lot,
+I take all your remarks and will update the names for better ones as you 
+suggest.
 
-This patch series splits ratelimit.h and lockdep.h to avoid header
-loops involving kernel.h and printk.h.
+Regards,
+Pierre
 
-Cheers,
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Pierre Morel
+IBM Lab Boeblingen
