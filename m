@@ -1,257 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58536 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725885AbgF0H1f (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Jun 2020 03:27:35 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 1/5] exec: cleanup the execve wrappers
-Date: Sat, 27 Jun 2020 09:27:00 +0200
-Message-Id: <20200627072704.2447163-2-hch@lst.de>
-In-Reply-To: <20200627072704.2447163-1-hch@lst.de>
-References: <20200627072704.2447163-1-hch@lst.de>
+        with ESMTP id S1729073AbgFDUmA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Jun 2020 16:42:00 -0400
+Date: Thu, 4 Jun 2020 22:41:16 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [RFC][PATCH v3 1/5] sparc64: Fix asm/percpu.h build error
+Message-ID: <20200604204116.GD4496@worktop.programming.kicks-ass.net>
+References: <20200529213550.683440625@infradead.org>
+ <20200529214203.673108357@infradead.org>
+ <20200529.162917.1970892823680223252.davem@davemloft.net>
+ <20200604165703.GG3976@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200604165703.GG3976@hirez.programming.kicks-ass.net>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: mingo@kernel.org, will@kernel.org, tglx@linutronix.de, x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org
 
-Remove a whole bunch of wrappers that eventually all call
-__do_execve_file, and consolidate the execvce helpers to:
+On Thu, Jun 04, 2020 at 06:57:03PM +0200, Peter Zijlstra wrote:
 
-  (1) __do_execveat, which is the lowest level helper implementing the
-      actual functionality
-  (2) do_execvat, which is used by all callers that want native
-      pointers
-  (3) do_compat_execve, which is used by all compat syscalls
+> I think I see, what happens is that these headers end up in the VDSO
+> build, and that doesn't have these CFLAGS, because userspace.
+> 
+> Let me see what to do about that.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+I feel like the below is cheating, but it's the best I could find :/
+VDSO including kernel headers and the utter maze that our kernel headers
+are makes it really hard to untangle :/
+
+This builds sparc64-defconfig and sparc64-all{no,mod}config.
+
+Dave, does this work for you, or should I try hardder?
+
 ---
- fs/exec.c               | 98 +++++++++++------------------------------
- include/linux/binfmts.h | 12 ++---
- init/main.c             |  7 +--
- kernel/umh.c            | 16 +++----
- 4 files changed, 41 insertions(+), 92 deletions(-)
+ arch/sparc/include/asm/percpu_64.h  | 2 ++
+ arch/sparc/include/asm/trap_block.h | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index e6e8a9a7032784..354fdaa536ae7d 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1815,10 +1815,7 @@ static int exec_binprm(struct linux_binprm *bprm)
- 	return 0;
- }
- 
--/*
-- * sys_execve() executes a new program.
-- */
--static int __do_execve_file(int fd, struct filename *filename,
-+static int __do_execveat(int fd, struct filename *filename,
- 			    struct user_arg_ptr argv,
- 			    struct user_arg_ptr envp,
- 			    int flags, struct file *file)
-@@ -1972,74 +1969,16 @@ static int __do_execve_file(int fd, struct filename *filename,
- 	return retval;
- }
- 
--static int do_execveat_common(int fd, struct filename *filename,
--			      struct user_arg_ptr argv,
--			      struct user_arg_ptr envp,
--			      int flags)
--{
--	return __do_execve_file(fd, filename, argv, envp, flags, NULL);
--}
--
--int do_execve_file(struct file *file, void *__argv, void *__envp)
--{
--	struct user_arg_ptr argv = { .ptr.native = __argv };
--	struct user_arg_ptr envp = { .ptr.native = __envp };
--
--	return __do_execve_file(AT_FDCWD, NULL, argv, envp, 0, file);
--}
--
--int do_execve(struct filename *filename,
--	const char __user *const __user *__argv,
--	const char __user *const __user *__envp)
--{
--	struct user_arg_ptr argv = { .ptr.native = __argv };
--	struct user_arg_ptr envp = { .ptr.native = __envp };
--	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
--}
--
- int do_execveat(int fd, struct filename *filename,
- 		const char __user *const __user *__argv,
- 		const char __user *const __user *__envp,
--		int flags)
-+		int flags, struct file *file)
- {
- 	struct user_arg_ptr argv = { .ptr.native = __argv };
- 	struct user_arg_ptr envp = { .ptr.native = __envp };
- 
--	return do_execveat_common(fd, filename, argv, envp, flags);
--}
--
--#ifdef CONFIG_COMPAT
--static int compat_do_execve(struct filename *filename,
--	const compat_uptr_t __user *__argv,
--	const compat_uptr_t __user *__envp)
--{
--	struct user_arg_ptr argv = {
--		.is_compat = true,
--		.ptr.compat = __argv,
--	};
--	struct user_arg_ptr envp = {
--		.is_compat = true,
--		.ptr.compat = __envp,
--	};
--	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
--}
--
--static int compat_do_execveat(int fd, struct filename *filename,
--			      const compat_uptr_t __user *__argv,
--			      const compat_uptr_t __user *__envp,
--			      int flags)
--{
--	struct user_arg_ptr argv = {
--		.is_compat = true,
--		.ptr.compat = __argv,
--	};
--	struct user_arg_ptr envp = {
--		.is_compat = true,
--		.ptr.compat = __envp,
--	};
--	return do_execveat_common(fd, filename, argv, envp, flags);
-+	return __do_execveat(fd, filename, argv, envp, flags, file);
- }
--#endif
- 
- void set_binfmt(struct linux_binfmt *new)
- {
-@@ -2070,7 +2009,7 @@ SYSCALL_DEFINE3(execve,
- 		const char __user *const __user *, argv,
- 		const char __user *const __user *, envp)
- {
--	return do_execve(getname(filename), argv, envp);
-+	return do_execveat(AT_FDCWD, getname(filename), argv, envp, 0, NULL);
- }
- 
- SYSCALL_DEFINE5(execveat,
-@@ -2080,18 +2019,34 @@ SYSCALL_DEFINE5(execveat,
- 		int, flags)
- {
- 	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
-+	struct filename *name = getname_flags(filename, lookup_flags, NULL);
- 
--	return do_execveat(fd,
--			   getname_flags(filename, lookup_flags, NULL),
--			   argv, envp, flags);
-+	return do_execveat(fd, name, argv, envp, flags, NULL);
- }
- 
- #ifdef CONFIG_COMPAT
-+static int do_compat_execve(int fd, struct filename *filename,
-+		const compat_uptr_t __user *__argv,
-+		const compat_uptr_t __user *__envp,
-+		int flags)
-+{
-+	struct user_arg_ptr argv = {
-+		.is_compat = true,
-+		.ptr.compat = __argv,
-+	};
-+	struct user_arg_ptr envp = {
-+		.is_compat = true,
-+		.ptr.compat = __envp,
-+	};
+diff --git a/arch/sparc/include/asm/percpu_64.h b/arch/sparc/include/asm/percpu_64.h
+index 32ef6f05cc565..a8786a4b90b6b 100644
+--- a/arch/sparc/include/asm/percpu_64.h
++++ b/arch/sparc/include/asm/percpu_64.h
+@@ -4,7 +4,9 @@
+
+ #include <linux/compiler.h>
+
++#ifndef BUILD_VDSO
+ register unsigned long __local_per_cpu_offset asm("g5");
++#endif
+
+ #ifdef CONFIG_SMP
+
+diff --git a/arch/sparc/include/asm/trap_block.h b/arch/sparc/include/asm/trap_block.h
+index 0f6d0c4f66838..ace0d48e837e5 100644
+--- a/arch/sparc/include/asm/trap_block.h
++++ b/arch/sparc/include/asm/trap_block.h
+@@ -2,6 +2,8 @@
+ #ifndef _SPARC_TRAP_BLOCK_H
+ #define _SPARC_TRAP_BLOCK_H
+
++#include <linux/threads.h>
 +
-+	return __do_execveat(fd, filename, argv, envp, flags, NULL);
-+}
-+
- COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
- 	const compat_uptr_t __user *, argv,
- 	const compat_uptr_t __user *, envp)
- {
--	return compat_do_execve(getname(filename), argv, envp);
-+	return do_compat_execve(AT_FDCWD, getname(filename), argv, envp, 0);
- }
- 
- COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
-@@ -2101,9 +2056,8 @@ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
- 		       int,  flags)
- {
- 	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
-+	struct filename *name = getname_flags(filename, lookup_flags, NULL);
- 
--	return compat_do_execveat(fd,
--				  getname_flags(filename, lookup_flags, NULL),
--				  argv, envp, flags);
-+	return do_compat_execve(fd, name, argv, envp, flags);
- }
- #endif
-diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
-index 4a20b7517dd036..bed702e4b1fbd9 100644
---- a/include/linux/binfmts.h
-+++ b/include/linux/binfmts.h
-@@ -134,13 +134,9 @@ int copy_string_kernel(const char *arg, struct linux_binprm *bprm);
- extern void set_binfmt(struct linux_binfmt *new);
- extern ssize_t read_code(struct file *, unsigned long, loff_t, size_t);
- 
--extern int do_execve(struct filename *,
--		     const char __user * const __user *,
--		     const char __user * const __user *);
--extern int do_execveat(int, struct filename *,
--		       const char __user * const __user *,
--		       const char __user * const __user *,
--		       int);
--int do_execve_file(struct file *file, void *__argv, void *__envp);
-+int do_execveat(int fd, struct filename *filename,
-+		const char __user *const __user *__argv,
-+		const char __user *const __user *__envp,
-+		int flags, struct file *file);
- 
- #endif /* _LINUX_BINFMTS_H */
-diff --git a/init/main.c b/init/main.c
-index 0ead83e86b5aa2..838950ea7bca22 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1329,9 +1329,10 @@ static int run_init_process(const char *init_filename)
- 	pr_debug("  with environment:\n");
- 	for (p = envp_init; *p; p++)
- 		pr_debug("    %s\n", *p);
--	return do_execve(getname_kernel(init_filename),
--		(const char __user *const __user *)argv_init,
--		(const char __user *const __user *)envp_init);
-+	return do_execveat(AT_FDCWD, getname_kernel(init_filename),
-+			(const char __user *const __user *)argv_init,
-+			(const char __user *const __user *)envp_init,
-+			0, NULL);
- }
- 
- static int try_to_run_init_process(const char *init_filename)
-diff --git a/kernel/umh.c b/kernel/umh.c
-index 79f139a7ca03c6..7aa9a5817582ca 100644
---- a/kernel/umh.c
-+++ b/kernel/umh.c
-@@ -103,15 +103,13 @@ static int call_usermodehelper_exec_async(void *data)
- 	commit_creds(new);
- 
- 	sub_info->pid = task_pid_nr(current);
--	if (sub_info->file) {
--		retval = do_execve_file(sub_info->file,
--					sub_info->argv, sub_info->envp);
--		if (!retval)
--			current->flags |= PF_UMH;
--	} else
--		retval = do_execve(getname_kernel(sub_info->path),
--				   (const char __user *const __user *)sub_info->argv,
--				   (const char __user *const __user *)sub_info->envp);
-+	retval = do_execveat(AT_FDCWD,
-+			sub_info->path ? getname_kernel(sub_info->path) : NULL,
-+			(const char __user *const __user *)sub_info->argv,
-+			(const char __user *const __user *)sub_info->envp,
-+			0, sub_info->file);
-+	if (sub_info->file && !retval)
-+		current->flags |= PF_UMH;
- out:
- 	sub_info->retval = retval;
- 	/*
--- 
-2.26.2
+ #include <asm/hypervisor.h>
+ #include <asm/asi.h>
