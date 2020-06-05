@@ -1,282 +1,198 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731899AbgFWIjZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Jun 2020 04:39:25 -0400
-Message-ID: <20200623083721.216740948@infradead.org>
-Date: Tue, 23 Jun 2020 10:36:47 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v4 2/8] x86/entry: Fix NMI vs IRQ state tracking
-References: <20200623083645.277342609@infradead.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v8 05/16] s390/vfio-ap: implement in-use callback for vfio_ap driver
+Date: Fri,  5 Jun 2020 17:39:53 -0400
+Message-Id: <20200605214004.14270-6-akrowiak@linux.ibm.com>
+In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: mingo@kernel.org, will@kernel.org, tglx@linutronix.de
-Cc: x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, peterz@infradead.org, davem@davemloft.net, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux@armlinux.org.uk
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-While the nmi_enter() users did
-trace_hardirqs_{off_prepare,on_finish}() there was no matching
-lockdep_hardirqs_*() calls to complete the picture.
+Let's implement the callback to indicate when an APQN
+is in use by the vfio_ap device driver. The callback is
+invoked whenever a change to the apmask or aqmask would
+result in one or more queue devices being removed from the driver. The
+vfio_ap device driver will indicate a resource is in use
+if the APQN of any of the queue devices to be removed are assigned to
+any of the matrix mdevs under the driver's control.
 
-Introduce idtentry_{enter,exit}_nmi() to enable proper IRQ state
-tracking across the NMIs.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- arch/x86/entry/common.c         |   42 ++++++++++++++++++++++++++++++++++++----
- arch/x86/include/asm/idtentry.h |    3 ++
- arch/x86/kernel/nmi.c           |    9 +++-----
- arch/x86/kernel/traps.c         |   17 +++++-----------
- include/linux/hardirq.h         |   28 ++++++++++++++++++--------
- 5 files changed, 70 insertions(+), 29 deletions(-)
+ drivers/s390/crypto/vfio_ap_drv.c     |  1 +
+ drivers/s390/crypto/vfio_ap_ops.c     | 68 ++++++++++++++++++++-------
+ drivers/s390/crypto/vfio_ap_private.h |  2 +
+ 3 files changed, 53 insertions(+), 18 deletions(-)
 
---- a/arch/x86/entry/common.c
-+++ b/arch/x86/entry/common.c
-@@ -550,7 +550,7 @@ SYSCALL_DEFINE0(ni_syscall)
-  * The return value must be fed into the rcu_exit argument of
-  * idtentry_exit_cond_rcu().
-  */
--bool noinstr idtentry_enter_cond_rcu(struct pt_regs *regs)
-+noinstr bool idtentry_enter_cond_rcu(struct pt_regs *regs)
- {
- 	if (user_mode(regs)) {
- 		enter_from_user_mode();
-@@ -640,7 +640,7 @@ static void idtentry_exit_cond_resched(s
-  * Counterpart to idtentry_enter_cond_rcu(). The return value of the entry
-  * function must be fed into the @rcu_exit argument.
-  */
--void noinstr idtentry_exit_cond_rcu(struct pt_regs *regs, bool rcu_exit)
-+noinstr void idtentry_exit_cond_rcu(struct pt_regs *regs, bool rcu_exit)
- {
- 	lockdep_assert_irqs_disabled();
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 59233cf7419d..86fc83701e05 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -173,6 +173,7 @@ static int __init vfio_ap_init(void)
+ 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
+ 	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
+ 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
++	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
+ 	vfio_ap_drv.ids = ap_queue_ids;
  
-@@ -684,7 +684,7 @@ void noinstr idtentry_exit_cond_rcu(stru
-  * Invokes enter_from_user_mode() to establish the proper context for
-  * NOHZ_FULL. Otherwise scheduling on exit would not be possible.
-  */
--void noinstr idtentry_enter_user(struct pt_regs *regs)
-+noinstr void idtentry_enter_user(struct pt_regs *regs)
- {
- 	enter_from_user_mode();
- }
-@@ -701,13 +701,47 @@ void noinstr idtentry_enter_user(struct
-  *
-  * Counterpart to idtentry_enter_user().
-  */
--void noinstr idtentry_exit_user(struct pt_regs *regs)
-+noinstr void idtentry_exit_user(struct pt_regs *regs)
- {
- 	lockdep_assert_irqs_disabled();
- 
- 	prepare_exit_to_usermode(regs);
+ 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 21b98a392f36..2eebb2b6d2d4 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -501,18 +501,36 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
+ 	return 0;
  }
  
-+noinstr bool idtentry_enter_nmi(struct pt_regs *regs)
++#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
++			 "already assigned to %s"
++
++static void vfio_ap_mdev_log_sharing_err(const char *mdev_name,
++					 unsigned long *apm,
++					 unsigned long *aqm)
 +{
-+	bool irq_state = lockdep_hardirqs_enabled(current);
++	unsigned long apid, apqi;
 +
-+	__nmi_enter();
-+	lockdep_hardirqs_off(CALLER_ADDR0);
-+	lockdep_hardirq_enter();
-+	rcu_nmi_enter();
-+
-+	instrumentation_begin();
-+	trace_hardirqs_off_finish();
-+	ftrace_nmi_enter();
-+	instrumentation_end();
-+
-+	return irq_state;
++	for_each_set_bit_inv(apid, apm, AP_DEVICES)
++		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
++			pr_err(MDEV_SHARING_ERR, apid, apqi, mdev_name);
 +}
-+
-+noinstr void idtentry_exit_nmi(struct pt_regs *regs, bool restore)
-+{
-+	instrumentation_begin();
-+	ftrace_nmi_exit();
-+	if (restore) {
-+		trace_hardirqs_on_prepare();
-+		lockdep_hardirqs_on_prepare(CALLER_ADDR0);
-+	}
-+	instrumentation_end();
-+
-+	rcu_nmi_exit();
-+	lockdep_hardirq_exit();
-+	if (restore)
-+		lockdep_hardirqs_on(CALLER_ADDR0);
-+	__nmi_exit();
-+}
-+
- #ifdef CONFIG_XEN_PV
- #ifndef CONFIG_PREEMPTION
- /*
---- a/arch/x86/include/asm/idtentry.h
-+++ b/arch/x86/include/asm/idtentry.h
-@@ -16,6 +16,9 @@ void idtentry_exit_user(struct pt_regs *
- bool idtentry_enter_cond_rcu(struct pt_regs *regs);
- void idtentry_exit_cond_rcu(struct pt_regs *regs, bool rcu_exit);
- 
-+bool idtentry_enter_nmi(struct pt_regs *regs);
-+void idtentry_exit_nmi(struct pt_regs *regs, bool irq_state);
 +
  /**
-  * DECLARE_IDTENTRY - Declare functions for simple IDT entry points
-  *		      No error code pushed by hardware
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -330,7 +330,6 @@ static noinstr void default_do_nmi(struc
- 	__this_cpu_write(last_nmi_rip, regs->ip);
- 
- 	instrumentation_begin();
--	trace_hardirqs_off_finish();
- 
- 	handled = nmi_handle(NMI_LOCAL, regs);
- 	__this_cpu_add(nmi_stats.normal, handled);
-@@ -417,8 +416,6 @@ static noinstr void default_do_nmi(struc
- 		unknown_nmi_error(reason, regs);
- 
- out:
--	if (regs->flags & X86_EFLAGS_IF)
--		trace_hardirqs_on_prepare();
- 	instrumentation_end();
- }
- 
-@@ -478,6 +475,8 @@ static DEFINE_PER_CPU(unsigned long, nmi
- 
- DEFINE_IDTENTRY_RAW(exc_nmi)
- {
-+	bool irq_state;
-+
- 	if (IS_ENABLED(CONFIG_SMP) && arch_cpu_is_offline(smp_processor_id()))
- 		return;
- 
-@@ -491,14 +490,14 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
- 
- 	this_cpu_write(nmi_dr7, local_db_save());
- 
--	nmi_enter();
-+	irq_state = idtentry_enter_nmi(regs);
- 
- 	inc_irq_stat(__nmi_count);
- 
- 	if (!ignore_nmis)
- 		default_do_nmi(regs);
- 
--	nmi_exit();
-+	idtentry_exit_nmi(regs, irq_state);
- 
- 	local_db_restore(this_cpu_read(nmi_dr7));
- 
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -403,7 +403,7 @@ DEFINE_IDTENTRY_DF(exc_double_fault)
- 	}
- #endif
- 
--	nmi_enter();
-+	idtentry_enter_nmi(regs);
- 	instrumentation_begin();
- 	notify_die(DIE_TRAP, str, regs, error_code, X86_TRAP_DF, SIGSEGV);
- 
-@@ -649,15 +649,12 @@ DEFINE_IDTENTRY_RAW(exc_int3)
- 		instrumentation_end();
- 		idtentry_exit_user(regs);
- 	} else {
--		nmi_enter();
-+		bool irq_state = idtentry_enter_nmi(regs);
- 		instrumentation_begin();
--		trace_hardirqs_off_finish();
- 		if (!do_int3(regs))
- 			die("int3", regs, 0);
--		if (regs->flags & X86_EFLAGS_IF)
--			trace_hardirqs_on_prepare();
- 		instrumentation_end();
--		nmi_exit();
-+		idtentry_exit_nmi(regs, irq_state);
- 	}
- }
- 
-@@ -865,9 +862,8 @@ static void handle_debug(struct pt_regs
- static __always_inline void exc_debug_kernel(struct pt_regs *regs,
- 					     unsigned long dr6)
- {
--	nmi_enter();
-+	bool irq_state = idtentry_enter_nmi(regs);
- 	instrumentation_begin();
--	trace_hardirqs_off_finish();
- 
- 	/*
- 	 * Catch SYSENTER with TF set and clear DR_STEP. If this hit a
-@@ -878,10 +874,8 @@ static __always_inline void exc_debug_ke
- 
- 	handle_debug(regs, dr6, false);
- 
--	if (regs->flags & X86_EFLAGS_IF)
--		trace_hardirqs_on_prepare();
- 	instrumentation_end();
--	nmi_exit();
-+	idtentry_exit_nmi(regs, irq_state);
- }
- 
- static __always_inline void exc_debug_user(struct pt_regs *regs,
-@@ -891,6 +885,7 @@ static __always_inline void exc_debug_us
- 	instrumentation_begin();
- 
- 	handle_debug(regs, dr6, true);
-+
- 	instrumentation_end();
- 	idtentry_exit_user(regs);
- }
---- a/include/linux/hardirq.h
-+++ b/include/linux/hardirq.h
-@@ -111,32 +111,42 @@ extern void rcu_nmi_exit(void);
- /*
-  * nmi_enter() can nest up to 15 times; see NMI_BITS.
+  * vfio_ap_mdev_verify_no_sharing
+  *
+  * Verifies that the APQNs derived from the cross product of the AP adapter IDs
+- * and AP queue indexes comprising the AP matrix are not configured for another
++ * and AP queue indexes comprising an AP matrix are not assigned to another
+  * mediated device. AP queue sharing is not allowed.
+  *
+  * @matrix_mdev: the mediated matrix device
++ * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
++ * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
+  *
+  * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
   */
--#define nmi_enter()						\
-+#define __nmi_enter()						\
- 	do {							\
-+		lockdep_off();					\
- 		arch_nmi_enter();				\
- 		printk_nmi_enter();				\
--		lockdep_off();					\
- 		BUG_ON(in_nmi() == NMI_MASK);			\
- 		__preempt_count_add(NMI_OFFSET + HARDIRQ_OFFSET);	\
--		rcu_nmi_enter();				\
-+	} while (0)
-+
-+#define nmi_enter()						\
-+	do {							\
-+		__nmi_enter();					\
- 		lockdep_hardirq_enter();			\
-+		rcu_nmi_enter();				\
- 		instrumentation_begin();			\
- 		ftrace_nmi_enter();				\
- 		instrumentation_end();				\
- 	} while (0)
+-static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
++static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
++					  unsigned long *mdev_apm,
++					  unsigned long *mdev_aqm)
+ {
+ 	struct ap_matrix_mdev *lstdev;
+ 	DECLARE_BITMAP(apm, AP_DEVICES);
+@@ -529,14 +547,15 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+ 		 * We work on full longs, as we can only exclude the leftover
+ 		 * bits in non-inverse order. The leftover is all zeros.
+ 		 */
+-		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
+-				lstdev->matrix.apm, AP_DEVICES))
++		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
+ 			continue;
  
-+#define __nmi_exit()						\
-+	do {							\
-+		BUG_ON(!in_nmi());				\
-+		__preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);	\
-+		printk_nmi_exit();				\
-+		arch_nmi_exit();				\
-+		lockdep_on();					\
-+	} while (0)
-+
- #define nmi_exit()						\
- 	do {							\
- 		instrumentation_begin();			\
- 		ftrace_nmi_exit();				\
- 		instrumentation_end();				\
--		lockdep_hardirq_exit();				\
- 		rcu_nmi_exit();					\
--		BUG_ON(!in_nmi());				\
--		__preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);	\
--		lockdep_on();					\
--		printk_nmi_exit();				\
--		arch_nmi_exit();				\
-+		lockdep_hardirq_exit();				\
-+		__nmi_exit();					\
- 	} while (0)
+-		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
+-				lstdev->matrix.aqm, AP_DOMAINS))
++		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
+ 			continue;
  
- #endif /* LINUX_HARDIRQ_H */
++		vfio_ap_mdev_log_sharing_err(dev_name(mdev_dev(lstdev->mdev)),
++					     apm, aqm);
++
+ 		return -EADDRINUSE;
+ 	}
+ 
+@@ -642,6 +661,7 @@ static ssize_t assign_adapter_store(struct device *dev,
+ {
+ 	int ret;
+ 	unsigned long apid;
++	DECLARE_BITMAP(apm, AP_DEVICES);
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+@@ -667,18 +687,18 @@ static ssize_t assign_adapter_store(struct device *dev,
+ 	if (ret)
+ 		goto done;
+ 
+-	set_bit_inv(apid, matrix_mdev->matrix.apm);
++	memset(apm, 0, sizeof(apm));
++	set_bit_inv(apid, apm);
+ 
+-	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
++	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
++					     matrix_mdev->matrix.aqm);
+ 	if (ret)
+-		goto share_err;
++		goto done;
+ 
++	set_bit_inv(apid, matrix_mdev->matrix.apm);
+ 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
+ 	ret = count;
+-	goto done;
+ 
+-share_err:
+-	clear_bit_inv(apid, matrix_mdev->matrix.apm);
+ done:
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+@@ -790,6 +810,7 @@ static ssize_t assign_domain_store(struct device *dev,
+ {
+ 	int ret;
+ 	unsigned long apqi;
++	DECLARE_BITMAP(aqm, AP_DOMAINS);
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
+@@ -810,18 +831,18 @@ static ssize_t assign_domain_store(struct device *dev,
+ 	if (ret)
+ 		goto done;
+ 
+-	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
++	memset(aqm, 0, sizeof(aqm));
++	set_bit_inv(apqi, aqm);
+ 
+-	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
++	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
++					     matrix_mdev->matrix.apm, aqm);
+ 	if (ret)
+-		goto share_err;
++		goto done;
+ 
++	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+ 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
+ 	ret = count;
+-	goto done;
+ 
+-share_err:
+-	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
+ done:
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+@@ -1397,3 +1418,14 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
+ 	kfree(q);
+ 	mutex_unlock(&matrix_dev->lock);
+ }
++
++bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
++{
++	bool in_use;
++
++	mutex_lock(&matrix_dev->lock);
++	in_use = !!vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
++	mutex_unlock(&matrix_dev->lock);
++
++	return in_use;
++}
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index a2aa05bec718..ad2d5b6a2851 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -103,4 +103,6 @@ struct vfio_ap_queue {
+ int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
+ void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
+ 
++bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
++
+ #endif /* _VFIO_AP_PRIVATE_H_ */
+-- 
+2.21.1
