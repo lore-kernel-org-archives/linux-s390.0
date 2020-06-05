@@ -1,165 +1,37 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 141/388] s390/qdio: consistently restore the IRQ handler
-Date: Wed, 17 Jun 2020 21:03:58 -0400
-Message-Id: <20200618010805.600873-141-sashal@kernel.org>
-In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
-References: <20200618010805.600873-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:56399 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726144AbgFEJAf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 05:00:35 -0400
+Date: Fri, 5 Jun 2020 11:00:25 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v7 09/12] s390x: css: msch, enable test
+Message-ID: <20200605110025.4a360fe6.cohuck@redhat.com>
+In-Reply-To: <3aaa9a99-6958-062d-14a7-fcf8d447ad19@linux.ibm.com>
+References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+        <1589818051-20549-10-git-send-email-pmorel@linux.ibm.com>
+        <20200527114239.65fa9473.cohuck@redhat.com>
+        <65501204-f6f3-7800-e382-63ccad77ca38@linux.ibm.com>
+        <20200604152945.4cb433bd.cohuck@redhat.com>
+        <ea12784c-df16-db4b-dd9c-b5b77bcbe9f9@linux.ibm.com>
+        <3aaa9a99-6958-062d-14a7-fcf8d447ad19@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On Fri, 5 Jun 2020 10:24:56 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-[ Upstream commit 7b942b4be971d49cb185ce4690d7fbf94636e88a ]
+> Hi Connie,
+> 
+> for the next series, I will move more code of the css.c to the css_lib.c 
+> to be able to reuse it for other tests.
+> One of your suggestions IIRC.
+> So I will not be able to keep your RB until you have a look at the changes.
+> I will keep the same algorithms but still...
 
-For rolling back after an error, qdio_establish() calls qdio_shutdown().
-If the error occurs early enough, then the qdio_irq's state still is
-QDIO_IRQ_STATE_INACTIVE and qdio_shutdown() does nothing.
-
-But at _any_ point where qdio_establish() bails out in this way,
-qdio_setup_irq() will have already replaced the IRQ handler. This then
-won't be restored after an early error, and the device can end up being
-returned to the device driver with qdio's IRQ handler still installed.
-
-Slightly reorder qdio_setup_irq() so we can be 100% sure that the IRQ
-handler was replaced. Then fix the bug in qdio_establish() by calling a
-helper that rolls back only the IRQ handler modification.
-
-Also use the new helper in qdio_shutdown() to keep things in sync, and
-slightly clean up the locking while doing so.
-This makes minor semantical changes, but holding setup_mutex gives us
-sufficient leeway to eg. pull qdio_shutdown_thinint() outside of the
-ccwdev lock's scope.
-
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/qdio.h       |  1 +
- drivers/s390/cio/qdio_main.c  | 18 +++++-------------
- drivers/s390/cio/qdio_setup.c | 20 ++++++++++++++++----
- 3 files changed, 22 insertions(+), 17 deletions(-)
-
-diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
-index b8453b594679..3cf223bc1d5f 100644
---- a/drivers/s390/cio/qdio.h
-+++ b/drivers/s390/cio/qdio.h
-@@ -389,6 +389,7 @@ int qdio_setup_get_ssqd(struct qdio_irq *irq_ptr,
- 			struct subchannel_id *schid,
- 			struct qdio_ssqd_desc *data);
- int qdio_setup_irq(struct qdio_irq *irq_ptr, struct qdio_initialize *init_data);
-+void qdio_shutdown_irq(struct qdio_irq *irq);
- void qdio_print_subchannel_info(struct qdio_irq *irq_ptr);
- void qdio_release_memory(struct qdio_irq *irq_ptr);
- int qdio_setup_init(void);
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index bcc3ab14e72d..da5a11138020 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -1154,35 +1154,27 @@ int qdio_shutdown(struct ccw_device *cdev, int how)
- 
- 	/* cleanup subchannel */
- 	spin_lock_irq(get_ccwdev_lock(cdev));
--
-+	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_CLEANUP);
- 	if (how & QDIO_FLAG_CLEANUP_USING_CLEAR)
- 		rc = ccw_device_clear(cdev, QDIO_DOING_CLEANUP);
- 	else
- 		/* default behaviour is halt */
- 		rc = ccw_device_halt(cdev, QDIO_DOING_CLEANUP);
-+	spin_unlock_irq(get_ccwdev_lock(cdev));
- 	if (rc) {
- 		DBF_ERROR("%4x SHUTD ERR", irq_ptr->schid.sch_no);
- 		DBF_ERROR("rc:%4d", rc);
- 		goto no_cleanup;
- 	}
- 
--	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_CLEANUP);
--	spin_unlock_irq(get_ccwdev_lock(cdev));
- 	wait_event_interruptible_timeout(cdev->private->wait_q,
- 		irq_ptr->state == QDIO_IRQ_STATE_INACTIVE ||
- 		irq_ptr->state == QDIO_IRQ_STATE_ERR,
- 		10 * HZ);
--	spin_lock_irq(get_ccwdev_lock(cdev));
- 
- no_cleanup:
- 	qdio_shutdown_thinint(irq_ptr);
--
--	/* restore interrupt handler */
--	if ((void *)cdev->handler == (void *)qdio_int_handler) {
--		cdev->handler = irq_ptr->orig_handler;
--		cdev->private->intparm = 0;
--	}
--	spin_unlock_irq(get_ccwdev_lock(cdev));
-+	qdio_shutdown_irq(irq_ptr);
- 
- 	qdio_set_state(irq_ptr, QDIO_IRQ_STATE_INACTIVE);
- 	mutex_unlock(&irq_ptr->setup_mutex);
-@@ -1352,8 +1344,8 @@ int qdio_establish(struct ccw_device *cdev,
- 
- 	rc = qdio_establish_thinint(irq_ptr);
- 	if (rc) {
-+		qdio_shutdown_irq(irq_ptr);
- 		mutex_unlock(&irq_ptr->setup_mutex);
--		qdio_shutdown(cdev, QDIO_FLAG_CLEANUP_USING_CLEAR);
- 		return rc;
- 	}
- 
-@@ -1371,8 +1363,8 @@ int qdio_establish(struct ccw_device *cdev,
- 	if (rc) {
- 		DBF_ERROR("%4x est IO ERR", irq_ptr->schid.sch_no);
- 		DBF_ERROR("rc:%4x", rc);
-+		qdio_shutdown_irq(irq_ptr);
- 		mutex_unlock(&irq_ptr->setup_mutex);
--		qdio_shutdown(cdev, QDIO_FLAG_CLEANUP_USING_CLEAR);
- 		return rc;
- 	}
- 
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index 3083edd61f0c..d12f094db056 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -491,6 +491,12 @@ int qdio_setup_irq(struct qdio_irq *irq_ptr, struct qdio_initialize *init_data)
- 
- 	/* qdr, qib, sls, slsbs, slibs, sbales are filled now */
- 
-+	/* set our IRQ handler */
-+	spin_lock_irq(get_ccwdev_lock(cdev));
-+	irq_ptr->orig_handler = cdev->handler;
-+	cdev->handler = qdio_int_handler;
-+	spin_unlock_irq(get_ccwdev_lock(cdev));
-+
- 	/* get qdio commands */
- 	ciw = ccw_device_get_ciw(cdev, CIW_TYPE_EQUEUE);
- 	if (!ciw) {
-@@ -506,12 +512,18 @@ int qdio_setup_irq(struct qdio_irq *irq_ptr, struct qdio_initialize *init_data)
- 	}
- 	irq_ptr->aqueue = *ciw;
- 
--	/* set new interrupt handler */
-+	return 0;
-+}
-+
-+void qdio_shutdown_irq(struct qdio_irq *irq)
-+{
-+	struct ccw_device *cdev = irq->cdev;
-+
-+	/* restore IRQ handler */
- 	spin_lock_irq(get_ccwdev_lock(cdev));
--	irq_ptr->orig_handler = cdev->handler;
--	cdev->handler = qdio_int_handler;
-+	cdev->handler = irq->orig_handler;
-+	cdev->private->intparm = 0;
- 	spin_unlock_irq(get_ccwdev_lock(cdev));
--	return 0;
- }
- 
- void qdio_print_subchannel_info(struct qdio_irq *irq_ptr)
--- 
-2.25.1
+np, I'll look at it again.
