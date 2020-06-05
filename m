@@ -1,53 +1,48 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:59608 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728543AbgFHXMO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:12:14 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 002/606] s390/ism: fix error return code in ism_probe()
-Date: Mon,  8 Jun 2020 19:02:07 -0400
-Message-Id: <20200608231211.3363633-2-sashal@kernel.org>
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17940 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726507AbgFEKwm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 06:52:42 -0400
+Date: Fri, 5 Jun 2020 12:52:30 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390/virtio: remove unused pm callbacks
+Message-ID: <20200605105230.GA4189@osiris>
+References: <20200526093629.257649-1-cohuck@redhat.com>
+ <20200604234421.4ada966b.pasic@linux.ibm.com>
+ <20200605093907.4d4b3c2a.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200605093907.4d4b3c2a.cohuck@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Wei Yongjun <weiyongjun1@huawei.com>, Hulk Robot <hulkci@huawei.com>, Ursula Braun <ubraun@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+On Fri, Jun 05, 2020 at 09:39:07AM +0200, Cornelia Huck wrote:
+> On Thu, 4 Jun 2020 23:44:21 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+> > On Tue, 26 May 2020 11:36:29 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> > 
+> > > Support for hibernation on s390 has been recently been removed with
+> 
+> s/been recently been removed/recently been removed/
+> 
+> > > commit 394216275c7d ("s390: remove broken hibernate / power management
+> > > support"), no need to keep unused code around.
+> > > 
+> > > Signed-off-by: Cornelia Huck <cohuck@redhat.com>  
+> > 
+> > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> 
+> Thanks!
+> 
+> As this is only a single patch, I think a pull request is a bit
+> overkill, so it would probably be best for someone to pick this
+> directly.
+> 
+> s390 arch maintainers? Michael?
 
-[ Upstream commit 29b74cb75e3572d83708745e81e24d37837415f9 ]
-
-Fix to return negative error code -ENOMEM from the smcd_alloc_dev()
-error handling case instead of 0, as done elsewhere in this function.
-
-Fixes: 684b89bc39ce ("s390/ism: add device driver for internal shared memory")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/ism_drv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index 4fc2056bd227..e615dc240150 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -521,8 +521,10 @@ static int ism_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 
- 	ism->smcd = smcd_alloc_dev(&pdev->dev, dev_name(&pdev->dev), &ism_ops,
- 				   ISM_NR_DMBS);
--	if (!ism->smcd)
-+	if (!ism->smcd) {
-+		ret = -ENOMEM;
- 		goto err_resource;
-+	}
- 
- 	ism->smcd->priv = ism;
- 	ret = ism_dev_init(ism);
--- 
-2.25.1
+Applied, thanks!
