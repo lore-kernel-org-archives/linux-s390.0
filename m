@@ -1,57 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:44277 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726261AbgFPLzE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Jun 2020 07:55:04 -0400
-Subject: Re: [PATCH v4 6/7] KVM: MIPS: clean up redundant 'kvm_run' parameters
-References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
- <20200427043514.16144-7-tianjia.zhang@linux.alibaba.com>
- <CAAhV-H7kpKUfQoWid6GSNL5+4hTTroGyL83EaW6yZwS2+Ti9kA@mail.gmail.com>
- <37246a25-c4dc-7757-3f5c-d46870a4f186@linux.alibaba.com>
- <30c2ac06-1a7e-2f85-fbe1-e9dc25bf2ae2@redhat.com>
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Message-ID: <5f0d01ad-d299-083b-70e4-995ad7596fbd@linux.alibaba.com>
-Date: Tue, 16 Jun 2020 19:54:54 +0800
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34498 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729009AbgFEVlT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 17:41:19 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v8 11/16] s390/vfio-ap: allow configuration of matrix mdev in use by a KVM guest
+Date: Fri,  5 Jun 2020 17:39:59 -0400
+Message-Id: <20200605214004.14270-12-akrowiak@linux.ibm.com>
+In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <30c2ac06-1a7e-2f85-fbe1-e9dc25bf2ae2@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>, Huacai Chen <chenhuacai@gmail.com>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>, paulus@ozlabs.org, mpe@ellerman.id.au, Benjamin Herrenschmidt <benh@kernel.crashing.org>, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, Thomas Gleixner <tglx@linutronix.de>, mingo@redhat.com, Borislav Petkov <bp@alien8.de>, x86@kernel.org, hpa@zytor.com, Marc Zyngier <maz@kernel.org>, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, Peter Xu <peterx@redhat.com>, thuth@redhat.com, kvm@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, kvmarm@lists.cs.columbia.edu, "open list:MIPS" <linux-mips@vger.kernel.org>, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
+The current support for pass-through crypto adapters does not allow
+configuration of a matrix mdev when it is in use by a KVM guest. Let's
+allow AP resources - i.e., adapters, domains and control domains - to be
+assigned to or unassigned from a matrix mdev while it is in use by a guest.
+This is in preparation for the introduction of support for dynamic
+configuration of the AP matrix for a running KVM guest.
 
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 24 ------------------------
+ 1 file changed, 24 deletions(-)
 
-On 2020/5/29 17:48, Paolo Bonzini wrote:
-> On 27/05/20 08:24, Tianjia Zhang wrote:
->>>>
->>>>
->>
->> Hi Huacai,
->>
->> These two patches(6/7 and 7/7) should be merged into the tree of the
->> mips architecture separately. At present, there seems to be no good way
->> to merge the whole architecture patchs.
->>
->> For this series of patches, some architectures have been merged, some
->> need to update the patch.
-> 
-> Hi Tianjia, I will take care of this during the merge window.
-> 
-> Thanks,
-> 
-> Paolo
-> 
-
-Hi Paolo,
-
-The following individual patch is the v5 version of 5/7 in this group of 
-patches.
-
-https://lkml.org/lkml/2020/5/28/106
-([v5] KVM: PPC: clean up redundant kvm_run parameters in assembly)
-
-Thanks and best,
-Tianjia
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 68bdf80807c6..4f59f471b4d3 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -773,10 +773,6 @@ static ssize_t assign_adapter_store(struct device *dev,
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+-	/* If the guest is running, disallow assignment of adapter */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &apid);
+ 	if (ret)
+ 		return ret;
+@@ -828,10 +824,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+-	/* If the guest is running, disallow un-assignment of adapter */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &apid);
+ 	if (ret)
+ 		return ret;
+@@ -891,10 +883,6 @@ static ssize_t assign_domain_store(struct device *dev,
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
+ 
+-	/* If the guest is running, disallow assignment of domain */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &apqi);
+ 	if (ret)
+ 		return ret;
+@@ -946,10 +934,6 @@ static ssize_t unassign_domain_store(struct device *dev,
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+-	/* If the guest is running, disallow un-assignment of domain */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &apqi);
+ 	if (ret)
+ 		return ret;
+@@ -991,10 +975,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
+ 	struct mdev_device *mdev = mdev_from_dev(dev);
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 
+-	/* If the guest is running, disallow assignment of control domain */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &id);
+ 	if (ret)
+ 		return ret;
+@@ -1036,10 +1016,6 @@ static ssize_t unassign_control_domain_store(struct device *dev,
+ 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+ 	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
+ 
+-	/* If the guest is running, disallow un-assignment of control domain */
+-	if (matrix_mdev->kvm)
+-		return -EBUSY;
+-
+ 	ret = kstrtoul(buf, 0, &domid);
+ 	if (ret)
+ 		return ret;
+-- 
+2.21.1
