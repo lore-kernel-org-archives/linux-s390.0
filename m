@@ -1,97 +1,78 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:35570 "EHLO
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:28517 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726141AbgFCL1i (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:38 -0400
+        by vger.kernel.org with ESMTP id S1726084AbgFEJDA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 05:03:00 -0400
+Date: Fri, 5 Jun 2020 11:02:50 +0200
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL v2 05/10] vfio-ccw: Refactor the unregister of the async regions
-Date: Wed,  3 Jun 2020 13:27:11 +0200
-Message-Id: <20200603112716.332801-6-cohuck@redhat.com>
-In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
-References: <20200603112716.332801-1-cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v7 11/12] s390x: css: ssch/tsch with
+ sense and interrupt
+Message-ID: <20200605110250.461ea3b7.cohuck@redhat.com>
+In-Reply-To: <a53f84e9-8e32-2ac2-2af1-0edd911841c4@linux.ibm.com>
+References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
+        <1589818051-20549-12-git-send-email-pmorel@linux.ibm.com>
+        <20200527120905.5fb20a4e.cohuck@redhat.com>
+        <a53f84e9-8e32-2ac2-2af1-0edd911841c4@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-From: Eric Farman <farman@linux.ibm.com>
+On Fri, 5 Jun 2020 09:37:39 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-This is mostly for the purposes of a later patch, since
-we'll need to do the same thing later.
+> On 2020-05-27 12:09, Cornelia Huck wrote:
+> > On Mon, 18 May 2020 18:07:30 +0200
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> >   
+> >> We add a new css_lib file to contain the I/O functions we may
+> >> share with different tests.
+> >> First function is the subchannel_enable() function.
+> >>
+> >> When a channel is enabled we can start a SENSE_ID command using
+> >> the SSCH instruction to recognize the control unit and device.
+> >>
+> >> This tests the success of SSCH, the I/O interruption and the TSCH
+> >> instructions.
+> >>
+> >> The test expects a device with a control unit type of 0xC0CA as the
+> >> first subchannel of the CSS.  
+> > 
+> > It might make sense to extend this to be able to check for any expected
+> > type (e.g. 0x3832, should my suggestion to split css tests and css-pong
+> > tests make sense.)  
+> 
+> right.
+> 
+> >   
+> >>
+> >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> >> ---
+> >>   lib/s390x/css.h     |  20 ++++++
+> >>   lib/s390x/css_lib.c |  55 +++++++++++++++++
+> >>   s390x/Makefile      |   1 +
+> >>   s390x/css.c         | 145 ++++++++++++++++++++++++++++++++++++++++++++
+> >>   4 files changed, 221 insertions(+)
+> >>   create mode 100644 lib/s390x/css_lib.c  
+> > 
+> > (...)
+> >   
+> >> +int enable_subchannel(unsigned int sid)
+> >> +{
+> >> +	struct schib schib;
+> >> +	struct pmcw *pmcw = &schib.pmcw;
+> >> +	int try_count = 5;
+> >> +	int cc;
+> >> +
+> >> +	if (!(sid & SID_ONE))
+> >> +		return -1;  
+> > 
+> > Hm... this error is indistinguishable for the caller from a cc 1 for
+> > the msch. Use something else (as this is a coding error)?  
+> 
+> right it is a coding error -> assert ?
 
-While we are at it, move the resulting function call to ahead
-of the unregistering of the IOMMU notifier, so that it's done
-in the reverse order of how it was created.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20200505122745.53208-4-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_ops.c     | 20 ++++++++++++--------
- drivers/s390/cio/vfio_ccw_private.h |  1 +
- 2 files changed, 13 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index f0d71ab77c50..d4fc84b8867f 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -181,7 +181,6 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
- {
- 	struct vfio_ccw_private *private =
- 		dev_get_drvdata(mdev_parent_dev(mdev));
--	int i;
- 
- 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
- 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
-@@ -191,15 +190,9 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
- 	}
- 
- 	cp_free(&private->cp);
-+	vfio_ccw_unregister_dev_regions(private);
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
- 				 &private->nb);
--
--	for (i = 0; i < private->num_regions; i++)
--		private->region[i].ops->release(private, &private->region[i]);
--
--	private->num_regions = 0;
--	kfree(private->region);
--	private->region = NULL;
- }
- 
- static ssize_t vfio_ccw_mdev_read_io_region(struct vfio_ccw_private *private,
-@@ -482,6 +475,17 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
- 	return 0;
- }
- 
-+void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private)
-+{
-+	int i;
-+
-+	for (i = 0; i < private->num_regions; i++)
-+		private->region[i].ops->release(private, &private->region[i]);
-+	private->num_regions = 0;
-+	kfree(private->region);
-+	private->region = NULL;
-+}
-+
- static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 				   unsigned int cmd,
- 				   unsigned long arg)
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 9b9bb4982972..ce3834159d98 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -53,6 +53,7 @@ int vfio_ccw_register_dev_region(struct vfio_ccw_private *private,
- 				 unsigned int subtype,
- 				 const struct vfio_ccw_regops *ops,
- 				 size_t size, u32 flags, void *data);
-+void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
- 
- int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
- 
--- 
-2.25.4
+Sounds good to me.
