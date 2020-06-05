@@ -1,174 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29956 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15628 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725926AbgFDMqL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Jun 2020 08:46:11 -0400
-Subject: Re: [kvm-unit-tests PATCH v7 09/12] s390x: css: msch, enable test
-References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
- <1589818051-20549-10-git-send-email-pmorel@linux.ibm.com>
- <20200527114239.65fa9473.cohuck@redhat.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <65501204-f6f3-7800-e382-63ccad77ca38@linux.ibm.com>
-Date: Thu, 4 Jun 2020 14:46:05 +0200
+        by vger.kernel.org with ESMTP id S1728865AbgFEVkU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 17:40:20 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v8 07/16] s390/vfio-ap: sysfs attribute to display the guest's matrix
+Date: Fri,  5 Jun 2020 17:39:55 -0400
+Message-Id: <20200605214004.14270-8-akrowiak@linux.ibm.com>
+In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20200527114239.65fa9473.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
+The matrix of adapters and domains configured in a guest's CRYCB may
+differ from the matrix of adapters and domains assigned to the matrix mdev,
+so this patch introduces a sysfs attribute to display the matrix of a guest
+using the matrix mdev. For a matrix mdev denoted by $uuid, the crycb for a
+guest using the matrix mdev can be displayed as follows:
 
+   cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
 
-On 2020-05-27 11:42, Cornelia Huck wrote:
-> On Mon, 18 May 2020 18:07:28 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->> A second step when testing the channel subsystem is to prepare a channel
->> for use.
->> This includes:
->> - Get the current subchannel Information Block (SCHIB) using STSCH
->> - Update it in memory to set the ENABLE bit
->> - Tell the CSS that the SCHIB has been modified using MSCH
->> - Get the SCHIB from the CSS again to verify that the subchannel is
->>    enabled.
->> - If the subchannel is not enabled retry a predefined retries count.
->>
->> This tests the MSCH instruction to enable a channel succesfuly.
->> This is NOT a routine to really enable the channel, no retry is done,
->> in case of error, a report is made.
-> 
-> Hm... so you retry if the subchannel is not enabled after cc 0, but you
-> don't retry if the cc indicates busy/status pending? Makes sense, as we
-> don't expect the subchannel to be busy, but a more precise note in the
-> patch description would be good :)
+If a guest is not using the matrix mdev at the time the crycb is displayed,
+an error (ENODEV) will be returned.
 
-OK, I add something like
-"
-- If the command succeed but subchannel is not enabled retry a
-   predefined retries count.
-- If the command fails, report the failure and do not retry, even
-   if cc indicates a busy/status as we do not expect this.
-"
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_ops.c | 58 +++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
-> 
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   s390x/css.c | 67 +++++++++++++++++++++++++++++++++++++++++++++++++++++
->>   1 file changed, 67 insertions(+)
->>
->> diff --git a/s390x/css.c b/s390x/css.c
->> index d7989d8..1b60a47 100644
->> --- a/s390x/css.c
->> +++ b/s390x/css.c
->> @@ -16,6 +16,7 @@
->>   #include <string.h>
->>   #include <interrupt.h>
->>   #include <asm/arch_def.h>
->> +#include <asm/time.h>
->>   
->>   #include <css.h>
->>   
->> @@ -65,11 +66,77 @@ out:
->>   	       scn, scn_found, dev_found);
->>   }
->>   
->> +#define MAX_ENABLE_RETRIES	5
->> +static void test_enable(void)
->> +{
->> +	struct pmcw *pmcw = &schib.pmcw;
->> +	int retry_count = 0;
->> +	int cc;
->> +
->> +	if (!test_device_sid) {
->> +		report_skip("No device");
->> +		return;
->> +	}
->> +
->> +	/* Read the SCHIB for this subchannel */
->> +	cc = stsch(test_device_sid, &schib);
->> +	if (cc) {
->> +		report(0, "stsch cc=%d", cc);
->> +		return;
->> +	}
->> +
->> +	if (pmcw->flags & PMCW_ENABLE) {
->> +		report(1, "stsch: sch %08x already enabled", test_device_sid);
->> +		return;
->> +	}
->> +
->> +retry:
->> +	/* Update the SCHIB to enable the channel */
->> +	pmcw->flags |= PMCW_ENABLE;
->> +
->> +	/* Tell the CSS we want to modify the subchannel */
->> +	cc = msch(test_device_sid, &schib);
->> +	if (cc) {
->> +		/*
->> +		 * If the subchannel is status pending or
->> +		 * if a function is in progress,
->> +		 * we consider both cases as errors.
-> 
-> Could also be cc 3, but that would be even more weird. Just logging the
-> cc seems fine, though.
-> 
->> +		 */
->> +		report(0, "msch cc=%d", cc);
->> +		return;
->> +	}
->> +
->> +	/*
->> +	 * Read the SCHIB again to verify the enablement
->> +	 */
->> +	cc = stsch(test_device_sid, &schib);
->> +	if (cc) {
->> +		report(0, "stsch cc=%d", cc);
->> +		return;
->> +	}
->> +
->> +	if (pmcw->flags & PMCW_ENABLE) {
->> +		report(1, "msch: sch %08x enabled after %d retries",
->> +		       test_device_sid, retry_count);
->> +		return;
->> +	}
->> +
->> +	if (retry_count++ < MAX_ENABLE_RETRIES) {
->> +		mdelay(10); /* the hardware was not ready, let it some time */
-> 
-> s/let/give/
-> 
->> +		goto retry;
->> +	}
->> +
->> +	report(0,
->> +	       "msch: enabling sch %08x failed after %d retries. pmcw: %x",
->> +	       test_device_sid, retry_count, pmcw->flags);
->> +}
->> +
->>   static struct {
->>   	const char *name;
->>   	void (*func)(void);
->>   } tests[] = {
->>   	{ "enumerate (stsch)", test_enumerate },
->> +	{ "enable (msch)", test_enable },
->>   	{ NULL, NULL }
->>   };
->>   
-> 
-> Otherwise,
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> 
-
-Thanks a lot.
-I make the corrections.
-
-regards,
-Pierre
-
-
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index b5ed36e2c948..779659074776 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1086,6 +1086,63 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+ }
+ static DEVICE_ATTR_RO(matrix);
+ 
++static ssize_t guest_matrix_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	char *bufpos = buf;
++	unsigned long apid;
++	unsigned long apqi;
++	unsigned long apid1;
++	unsigned long apqi1;
++	unsigned long napm_bits = matrix_mdev->shadow_apcb.apm_max + 1;
++	unsigned long naqm_bits = matrix_mdev->shadow_apcb.aqm_max + 1;
++	int nchars = 0;
++	int n;
++
++	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
++		return -ENODEV;
++
++	apid1 = find_first_bit_inv(matrix_mdev->shadow_apcb.apm, napm_bits);
++	apqi1 = find_first_bit_inv(matrix_mdev->shadow_apcb.aqm, naqm_bits);
++
++	mutex_lock(&matrix_dev->lock);
++
++	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
++		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
++				     napm_bits) {
++			for_each_set_bit_inv(apqi,
++					     matrix_mdev->shadow_apcb.aqm,
++					     naqm_bits) {
++				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
++					    apqi);
++				bufpos += n;
++				nchars += n;
++			}
++		}
++	} else if (apid1 < napm_bits) {
++		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
++				     napm_bits) {
++			n = sprintf(bufpos, "%02lx.\n", apid);
++			bufpos += n;
++			nchars += n;
++		}
++	} else if (apqi1 < naqm_bits) {
++		for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm,
++				     naqm_bits) {
++			n = sprintf(bufpos, ".%04lx\n", apqi);
++			bufpos += n;
++			nchars += n;
++		}
++	}
++
++	mutex_unlock(&matrix_dev->lock);
++
++	return nchars;
++}
++static DEVICE_ATTR_RO(guest_matrix);
++
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+@@ -1095,6 +1152,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_unassign_control_domain.attr,
+ 	&dev_attr_control_domains.attr,
+ 	&dev_attr_matrix.attr,
++	&dev_attr_guest_matrix.attr,
+ 	NULL,
+ };
+ 
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.21.1
