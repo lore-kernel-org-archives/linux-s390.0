@@ -1,149 +1,98 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-References: <20200412194859.12663-5-rppt@kernel.org>
-Subject: Re: [PATCH 04/21] mm: free_area_init: use maximal zone PFNs rather
- than zone sizes
-From: Greg Ungerer <gerg@linux-m68k.org>
-Message-ID: <f53e68db-ed81-6ef6-5087-c7246d010ea2@linux-m68k.org>
-Date: Mon, 15 Jun 2020 13:53:42 +1000
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:27210 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729580AbgFHPbG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 11:31:06 -0400
+Subject: Re: [kvm-unit-tests PATCH v8 01/12] s390x: Use PSW bits definitions
+ in cstart
+References: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
+ <1591603981-16879-2-git-send-email-pmorel@linux.ibm.com>
+ <59f3dda9-6cd1-a3b4-5265-1a9fb2ff51ed@redhat.com>
+ <e03cb81c-30cc-7cbc-c3a8-cc863a5d0be1@linux.ibm.com>
+ <1e51b893-dc1e-1740-f286-ec00195d6a7f@redhat.com>
+ <d94b6f43-2250-17ee-e146-1347c0350294@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <77f6ed8f-4b4c-be0f-f29a-429618c9e3c0@redhat.com>
+Date: Mon, 8 Jun 2020 17:30:53 +0200
 MIME-Version: 1.0
-In-Reply-To: <20200412194859.12663-5-rppt@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <d94b6f43-2250-17ee-e146-1347c0350294@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-arch-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: rppt@kernel.org
-Cc: Hoan@os.amperecomputing.com, James.Bottomley@HansenPartnership.com, akpm@linux-foundation.org, bcain@codeaurora.org, bhe@redhat.com, catalin.marinas@arm.com, corbet@lwn.net, dalias@libc.org, davem@davemloft.net, deller@gmx.de, geert@linux-m68k.org, green.hu@gmail.com, guoren@kernel.org, gxt@pku.edu.cn, heiko.carstens@de.ibm.com, jcmvbkbc@gmail.com, ley.foon.tan@intel.com, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-csky@vger.kernel.org, linux-doc@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linux@armlinux.org.uk, linuxppc-dev@lists.ozlabs.org, mattst88@gmail.com, mhocko@kernel.org, monstr@monstr.eu, mpe@ellerman.id.au, msalter@redhat.com, nickhu@andestech.com, openrisc@lists.librecores.org, paul.walmsley@sifive.com, richard@nod.at, rppt@linux.ibm.com, shorne@gmail.com, sparclinux@vger.kernel.org, tony.luck@intel.com, tsbogend@alpha.franken.de, uclinux-h8-devel@lists.sourceforge.jp, vgupta@synopsys.com, x86@kernel.org, ysato@users.sourceforge.jp
+To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-Hi Mike,
-
-From: Mike Rapoport <rppt@linux.ibm.com>
-> Currently, architectures that use free_area_init() to initialize memory map
-> and node and zone structures need to calculate zone and hole sizes. We can
-> use free_area_init_nodes() instead and let it detect the zone boundaries
-> while the architectures will only have to supply the possible limits for
-> the zones.
+On 08/06/2020 17.28, Pierre Morel wrote:
 > 
-> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> On 2020-06-08 16:52, Thomas Huth wrote:
+>> On 08/06/2020 16.33, Pierre Morel wrote:
+>>>
+>>>
+>>> On 2020-06-08 10:43, Thomas Huth wrote:
+>>>> On 08/06/2020 10.12, Pierre Morel wrote:
+>>>>> This patch defines the PSW bits EA/BA used to initialize the PSW masks
+>>>>> for exceptions.
+>>>>>
+>>>>> Since some PSW mask definitions exist already in arch_def.h we add
+>>>>> these
+>>>>> definitions there.
+>>>>> We move all PSW definitions together and protect assembler code
+>>>>> against
+>>>>> C syntax.
+>>>>>
+>>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+>>>>> ---
+>>>>>    lib/s390x/asm/arch_def.h | 15 +++++++++++----
+>>>>>    s390x/cstart64.S         | 15 ++++++++-------
+>>>>>    2 files changed, 19 insertions(+), 11 deletions(-)
+>>>>>
+>>>>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>>>>> index 1b3bb0c..5388114 100644
+>>>>> --- a/lib/s390x/asm/arch_def.h
+>>>>> +++ b/lib/s390x/asm/arch_def.h
+>>>>> @@ -10,15 +10,21 @@
+>>>>>    #ifndef _ASM_S390X_ARCH_DEF_H_
+>>>>>    #define _ASM_S390X_ARCH_DEF_H_
+>>>>>    +#define PSW_MASK_EXT            0x0100000000000000UL
+>>>>> +#define PSW_MASK_DAT            0x0400000000000000UL
+>>>>> +#define PSW_MASK_SHORT_PSW        0x0008000000000000UL
+>>>>> +#define PSW_MASK_PSTATE            0x0001000000000000UL
+>>>>> +#define PSW_MASK_BA            0x0000000080000000UL
+>>>>> +#define PSW_MASK_EA            0x0000000100000000UL
+>>>>> +
+>>>>> +#define PSW_EXCEPTION_MASK    (PSW_MASK_EA | PSW_MASK_BA)
+>>>>
+>>>> PSW_EXCEPTION_MASK sounds a little bit unfortunate - that term rather
+>>>> reminds me of something that disables some interrupts
+>>>> ... in case you
+>>>> respin, maybe rather use something like "PSW_EXC_ADDR_MODE" ?
+>>>
+>>> EXCEPTIONS_PSW_MASK ?
+>>
+>> I think it is the _MASK suffix that mainly bugs me here, since this is
+>> not a define that you normally use for extracting the bits from a PSW...
+>> so EXCEPTIONS_PSW without _MASK would be fine for me... but as long as
+>> I'm the only one who has a strange feeling about this, it's also ok if
+>> you keep the current name.
+>>
+>>   Thomas
+>>
+> 
+> The _MASK is because it is applied to the psw.mask and not to the
+> psw.addr part.
+> 
+> But I agree that the name is not good, to keep the naming convention,
+> may be it should be:
+> 
+> PSW_MASK_ON_EXCEPTION
+> 
+> beginning with PSW_MASK_ like all other psw.mask definitions and
+> ON_EXCEPTION clearly define when it is used.
 
-This is causing some new warnings for me on boot on at least one non-MMU m68k target:
+Good idea, PSW_MASK_ON_EXCEPTION sounds better for me, too!
 
-...
-NET: Registered protocol family 17
-BUG: Bad page state in process swapper  pfn:20165
-page:41fe0ca0 refcount:0 mapcount:1 mapping:00000000 index:0x0
-flags: 0x0()
-raw: 00000000 00000100 00000122 00000000 00000000 00000000 00000000 00000000
-page dumped because: nonzero mapcount
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.8.0-rc1-00001-g3a38f8a60c65-dirty #1
-Stack from 404c9ebc:
-         404c9ebc 4029ab28 4029ab28 40088470 41fe0ca0 40299e21 40299df1 404ba2a4
-         00020165 00000000 41fd2c10 402c7ba0 41fd2c04 40088504 41fe0ca0 40299e21
-         00000000 40088a12 41fe0ca0 41fe0ca4 0000020a 00000000 00000001 402ca000
-         00000000 41fe0ca0 41fd2c10 41fd2c10 00000000 00000000 402b2388 00000001
-         400a0934 40091056 404c9f44 404c9f44 40088db4 402c7ba0 00000001 41fd2c04
-         41fe0ca0 41fd2000 41fe0ca0 40089e02 4026ecf4 40089e4e 41fe0ca0 ffffffff
-Call Trace:
-         [<40088470>] 0x40088470
-  [<40088504>] 0x40088504
-  [<40088a12>] 0x40088a12
-  [<402ca000>] 0x402ca000
-  [<400a0934>] 0x400a0934
-
-         [<40091056>] 0x40091056
-  [<40088db4>] 0x40088db4
-  [<40089e02>] 0x40089e02
-  [<4026ecf4>] 0x4026ecf4
-  [<40089e4e>] 0x40089e4e
-
-         [<4008ca26>] 0x4008ca26
-  [<4004adf8>] 0x4004adf8
-  [<402701ec>] 0x402701ec
-  [<4008f25e>] 0x4008f25e
-  [<400516f4>] 0x400516f4
-
-         [<4026eec0>] 0x4026eec0
-  [<400224f0>] 0x400224f0
-  [<402ca000>] 0x402ca000
-  [<4026eeda>] 0x4026eeda
-  [<40020b00>] 0x40020b00
-...
-
-Lots more of them.
-
-...
-BUG: Bad page state in process swapper  pfn:201a0
-page:41fe1400 refcount:0 mapcount:1 mapping:00000000 index:0x0
-flags: 0x0()
-raw: 00000000 00000100 00000122 00000000 00000000 00000000 00000000 00000000
-page dumped because: nonzero mapcount
-CPU: 0 PID: 1 Comm: swapper Tainted: G    B             5.8.0-rc1-00001-g3a38f8a60c65-dirty #1
-Stack from 404c9ebc:
-         404c9ebc 4029ab28 4029ab28 40088470 41fe1400 40299e21 40299df1 404ba2a4
-         000201a0 00000000 41fd2c10 402c7ba0 41fd2c04 40088504 41fe1400 40299e21
-         00000000 40088a12 41fe1400 41fe1404 0000020a 0000003b 00000001 40340000
-         00000000 41fe1400 41fd2c10 41fd2c10 00000000 00000000 41fe13e0 40022826
-         00000044 404c9f44 404c9f44 404c9f44 40088db4 402c7ba0 00000001 41fd2c04
-         41fe1400 41fd2000 41fe1400 40089e02 4026ecf4 40089e4e 41fe1400 ffffffff
-Call Trace:
-         [<40088470>] 0x40088470
-  [<40088504>] 0x40088504
-  [<40088a12>] 0x40088a12
-  [<40022826>] 0x40022826
-  [<40088db4>] 0x40088db4
-
-         [<40089e02>] 0x40089e02
-  [<4026ecf4>] 0x4026ecf4
-  [<40089e4e>] 0x40089e4e
-  [<4008ca26>] 0x4008ca26
-  [<4004adf8>] 0x4004adf8
-
-         [<402701ec>] 0x402701ec
-  [<4008f25e>] 0x4008f25e
-  [<400516f4>] 0x400516f4
-  [<4026eec0>] 0x4026eec0
-  [<400224f0>] 0x400224f0
-
-         [<402ca000>] 0x402ca000
-  [<4026eeda>] 0x4026eeda
-  [<40020b00>] 0x40020b00
-Freeing unused kernel memory: 648K
-This architecture does not have kernel memory protection.
-Run /init as init process
-...
-
-System boots pretty much as normal through user space after this.
-Seems to be fully operational despite all those BUGONs.
-
-Specifically this is a M5208EVB target (arch/m68k/configs/m5208evb).
-
-
-[snip]
-> diff --git a/arch/m68k/mm/init.c b/arch/m68k/mm/init.c
-> index b88d510d4fe3..6d3147662ff2 100644
-> --- a/arch/m68k/mm/init.c
-> +++ b/arch/m68k/mm/init.c
-> @@ -84,7 +84,7 @@ void __init paging_init(void)
->  	 * page_alloc get different views of the world.
->  	 */
->  	unsigned long end_mem = memory_end & PAGE_MASK;
-> -	unsigned long zones_size[MAX_NR_ZONES] = { 0, };
-> +	unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0, };
->  
->  	high_memory = (void *) end_mem;
->  
-> @@ -98,8 +98,8 @@ void __init paging_init(void)
->  	 */
->  	set_fs (USER_DS);
->  
-> -	zones_size[ZONE_DMA] = (end_mem - PAGE_OFFSET) >> PAGE_SHIFT;
-> -	free_area_init(zones_size);
-> +	max_zone_pfn[ZONE_DMA] = end_mem >> PAGE_SHIFT;
-> +	free_area_init(max_zone_pfn);
-
-This worries me a little. On this target PAGE_OFFSET will be non-0.
-
-Thoughts?
-
-Regards
-Greg
+ Thomas
