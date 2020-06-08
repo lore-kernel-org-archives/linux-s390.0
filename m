@@ -1,100 +1,89 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 16/24] s390/vdso: Use $(LD) instead of $(CC) to link vDSO
-Date: Tue, 23 Jun 2020 13:35:51 -0400
-Message-Id: <20200623173559.1355728-16-sashal@kernel.org>
-In-Reply-To: <20200623173559.1355728-1-sashal@kernel.org>
-References: <20200623173559.1355728-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23694 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729982AbgFHOZV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 10:25:21 -0400
+Subject: Re: [kvm-unit-tests PATCH v8 02/12] s390x: Move control register bit
+ definitions and add AFP to them
+References: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
+ <1591603981-16879-3-git-send-email-pmorel@linux.ibm.com>
+ <ac5e93fa-3b52-0f28-2c62-64c31b902c33@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <33625241-be13-f823-a3bb-27f7daca2934@linux.ibm.com>
+Date: Mon, 8 Jun 2020 16:25:13 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <ac5e93fa-3b52-0f28-2c62-64c31b902c33@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Nathan Chancellor <natechancellor@gmail.com>, Nick Desaulniers <ndesaulniers@google.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, clang-built-linux@googlegroups.com
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 2b2a25845d534ac6d55086e35c033961fdd83a26 ]
 
-Currently, the VDSO is being linked through $(CC). This does not match
-how the rest of the kernel links objects, which is through the $(LD)
-variable.
+On 2020-06-08 10:45, Thomas Huth wrote:
+> On 08/06/2020 10.12, Pierre Morel wrote:
+>> While adding the definition for the AFP-Register control bit, move all
+>> existing definitions for CR0 out of the C zone to the assmbler zone to
+>> keep the definitions concerning CR0 together.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>> ---
+>>   lib/s390x/asm/arch_def.h | 11 ++++++-----
+>>   s390x/cstart64.S         |  2 +-
+>>   2 files changed, 7 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>> index 5388114..12045ff 100644
+>> --- a/lib/s390x/asm/arch_def.h
+>> +++ b/lib/s390x/asm/arch_def.h
+>> @@ -19,17 +19,18 @@
+>>   
+>>   #define PSW_EXCEPTION_MASK	(PSW_MASK_EA | PSW_MASK_BA)
+>>   
+>> +#define CR0_EXTM_SCLP			0x0000000000000200UL
+>> +#define CR0_EXTM_EXTC			0x0000000000002000UL
+>> +#define CR0_EXTM_EMGC			0x0000000000004000UL
+>> +#define CR0_EXTM_MASK			0x0000000000006200UL
+>> +#define CR0_AFP_REG_CRTL		0x0000000000040000UL
+>> +
+>>   #ifndef __ASSEMBLER__
+>>   struct psw {
+>>   	uint64_t	mask;
+>>   	uint64_t	addr;
+>>   };
+>>   
+>> -#define CR0_EXTM_SCLP			0x0000000000000200UL
+>> -#define CR0_EXTM_EXTC			0x0000000000002000UL
+>> -#define CR0_EXTM_EMGC			0x0000000000004000UL
+>> -#define CR0_EXTM_MASK			0x0000000000006200UL
+>> -
+>>   struct lowcore {
+>>   	uint8_t		pad_0x0000[0x0080 - 0x0000];	/* 0x0000 */
+>>   	uint32_t	ext_int_param;			/* 0x0080 */
+>> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+>> index 6e85635..b50c42c 100644
+>> --- a/s390x/cstart64.S
+>> +++ b/s390x/cstart64.S
+>> @@ -214,4 +214,4 @@ svc_int_psw:
+>>   	.quad	PSW_EXCEPTION_MASK, svc_int
+>>   initial_cr0:
+>>   	/* enable AFP-register control, so FP regs (+BFP instr) can be used */
+>> -	.quad	0x0000000000040000
+>> +	.quad	CR0_AFP_REG_CRTL
+>>
+> 
+> Acked-by: Thomas Huth <thuth@redhat.com>
+> 
 
-When clang is built in a default configuration, it first attempts to use
-the target triple's default linker, which is just ld. However, the user
-can override this through the CLANG_DEFAULT_LINKER cmake define so that
-clang uses another linker by default, such as LLVM's own linker, ld.lld.
-This can be useful to get more optimized links across various different
-projects.
+Thanks,
+Pierre
 
-However, this is problematic for the s390 vDSO because ld.lld does not
-have any s390 emulatiom support:
-
-https://github.com/llvm/llvm-project/blob/llvmorg-10.0.1-rc1/lld/ELF/Driver.cpp#L132-L150
-
-Thus, if a user is using a toolchain with ld.lld as the default, they
-will see an error, even if they have specified ld.bfd through the LD
-make variable:
-
-$ make -j"$(nproc)" -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- LLVM=1 \
-                       LD=s390x-linux-gnu-ld \
-                       defconfig arch/s390/kernel/vdso64/
-ld.lld: error: unknown emulation: elf64_s390
-clang-11: error: linker command failed with exit code 1 (use -v to see invocation)
-
-Normally, '-fuse-ld=bfd' could be used to get around this; however, this
-can be fragile, depending on paths and variable naming. The cleaner
-solution for the kernel is to take advantage of the fact that $(LD) can
-be invoked directly, which bypasses the heuristics of $(CC) and respects
-the user's choice. Similar changes have been done for ARM, ARM64, and
-MIPS.
-
-Link: https://lkml.kernel.org/r/20200602192523.32758-1-natechancellor@gmail.com
-Link: https://github.com/ClangBuiltLinux/linux/issues/1041
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-[heiko.carstens@de.ibm.com: add --build-id flag]
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/vdso64/Makefile | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
-
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index bec19e7e6e1cf..4a66a1cb919b1 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -18,8 +18,8 @@ KBUILD_AFLAGS_64 += -m64 -s
- 
- KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
- KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
--KBUILD_CFLAGS_64 += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
--		    -Wl,--hash-style=both
-+ldflags-y := -fPIC -shared -nostdlib -soname=linux-vdso64.so.1 \
-+	     --hash-style=both --build-id -T
- 
- $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
- $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
-@@ -37,8 +37,8 @@ KASAN_SANITIZE := n
- $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
- 
- # link rule for the .so file, .lds has to be first
--$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
--	$(call if_changed,vdso64ld)
-+$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) FORCE
-+	$(call if_changed,ld)
- 
- # strip rule for the .so file
- $(obj)/%.so: OBJCOPYFLAGS := -S
-@@ -50,8 +50,6 @@ $(obj-vdso64): %.o: %.S FORCE
- 	$(call if_changed_dep,vdso64as)
- 
- # actual build commands
--quiet_cmd_vdso64ld = VDSO64L $@
--      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
- quiet_cmd_vdso64as = VDSO64A $@
-       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
- 
 -- 
-2.25.1
+Pierre Morel
+IBM Lab Boeblingen
