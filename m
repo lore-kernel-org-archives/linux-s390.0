@@ -1,94 +1,260 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30090 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14370 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729273AbgFOJcM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jun 2020 05:32:12 -0400
+        by vger.kernel.org with ESMTP id S1729033AbgFHINJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 04:13:09 -0400
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v9 05/12] s390x: export the clock get_clock_ms() utility
-Date: Mon, 15 Jun 2020 11:31:54 +0200
-Message-Id: <1592213521-19390-6-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
-References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v8 00/12] s390x: Testing the Channel Subsystem I/O
+Date: Mon,  8 Jun 2020 10:12:49 +0200
+Message-Id: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-To serve multiple times, the function get_clock_ms() is moved
-from intercept.c test to the new file asm/time.h.
+Hi All,
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- lib/s390x/asm/time.h | 26 ++++++++++++++++++++++++++
- s390x/intercept.c    | 11 +----------
- 2 files changed, 27 insertions(+), 10 deletions(-)
+Goal of the series is to have a framework to test Channel-Subsystem I/O with
+QEMU/KVM.
+  
+To be able to support interrupt for CSS I/O and for SCLP we need to modify
+the interrupt framework to allow re-entrant interruptions.
+  
+We add a registration for IRQ callbacks to the test program to define its own
+interrupt handler. We need to do special work under interrupt like acknowledging
+the interrupt.
+  
+Being working on PSW bits to allow I/O interrupt, we define new PSW bits
+in arch_def.h and use __ASSEMBLER__ define to be able to include this header
+in an assembler source file.
+
+This series presents four major tests:
+- Enumeration:
+        The CSS is enumerated using the STSCH instruction recursively on all
+        potentially existing channels.
+        Keeping the first channel found as a reference for future use.
+        Checks STSCH
+ 
+- Enable:
+        If the enumeration succeeded the tests enables the reference
+        channel with MSCH and verifies with STSCH that the channel is
+        effectively enabled, retrying a predefined count on failure
+	to enable the channel
+        Checks MSCH       
+ 
+- Sense:
+        If the channel is enabled this test sends a SENSE_ID command
+        to the reference channel, analyzing the answer and expecting
+        the Control unit type being 0x3832, a.k.a. virtio-net-ccw.
+        Checks SSCH(READ) and IO-IRQ
+
+Note:
+- The following patches are general usage and may be pulled first:
+  s390x: Use PSW bits definitions in cstart
+  s390x: Move control register bit definitions and add AFP to them
+  s390x: saving regs for interrupts
+  s390x: interrupt registration
+  s390x: export the clock get_clock_ms() utility
+  s390x: clock and delays caluculations
+  s390x: define function to wait for interrupt
+  s390x: retrieve decimal and hexadecimal kernel parameters
+
+- These 4 patches are really I/O oriented:
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
+
+Regards,
+Pierre
+
+Pierre Morel (12):
+  s390x: Use PSW bits definitions in cstart
+  s390x: Move control register bit definitions and add AFP to them
+  s390x: saving regs for interrupts
+  s390x: interrupt registration
+  s390x: export the clock get_clock_ms() utility
+  s390x: clock and delays caluculations
+  s390x: define function to wait for interrupt
+  s390x: retrieve decimal and hexadecimal kernel parameters
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
+
+ lib/s390x/asm/arch_def.h |  32 ++++-
+ lib/s390x/asm/time.h     |  51 +++++++
+ lib/s390x/css.h          | 277 +++++++++++++++++++++++++++++++++++++++
+ lib/s390x/css_dump.c     | 153 +++++++++++++++++++++
+ lib/s390x/css_lib.c      | 176 +++++++++++++++++++++++++
+ lib/s390x/interrupt.c    |  23 +++-
+ lib/s390x/interrupt.h    |   8 ++
+ lib/s390x/kernel-args.c  |  60 +++++++++
+ lib/s390x/kernel-args.h  |  18 +++
+ s390x/Makefile           |   4 +
+ s390x/css.c              | 229 ++++++++++++++++++++++++++++++++
+ s390x/cstart64.S         |  58 ++++++--
+ s390x/intercept.c        |  11 +-
+ s390x/unittests.cfg      |   4 +
+ 14 files changed, 1078 insertions(+), 26 deletions(-)
  create mode 100644 lib/s390x/asm/time.h
+ create mode 100644 lib/s390x/css.h
+ create mode 100644 lib/s390x/css_dump.c
+ create mode 100644 lib/s390x/css_lib.c
+ create mode 100644 lib/s390x/interrupt.h
+ create mode 100644 lib/s390x/kernel-args.c
+ create mode 100644 lib/s390x/kernel-args.h
+ create mode 100644 s390x/css.c
 
-diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
-new file mode 100644
-index 0000000..1791380
---- /dev/null
-+++ b/lib/s390x/asm/time.h
-@@ -0,0 +1,26 @@
-+/*
-+ * Clock utilities for s390
-+ *
-+ * Authors:
-+ *  Thomas Huth <thuth@redhat.com>
-+ *
-+ * Copied from the s390/intercept test by:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+#ifndef ASM_S390X_TIME_H
-+#define ASM_S390X_TIME_H
-+
-+static inline uint64_t get_clock_ms(void)
-+{
-+	uint64_t clk;
-+
-+	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
-+
-+	/* Bit 51 is incrememented each microsecond */
-+	return (clk >> (63 - 51)) / 1000;
-+}
-+
-+#endif
-diff --git a/s390x/intercept.c b/s390x/intercept.c
-index 5f46b82..2e38257 100644
---- a/s390x/intercept.c
-+++ b/s390x/intercept.c
-@@ -14,6 +14,7 @@
- #include <asm/interrupt.h>
- #include <asm/page.h>
- #include <asm/facility.h>
-+#include <asm/time.h>
- 
- static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
- 
-@@ -153,16 +154,6 @@ static void test_testblock(void)
- 	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
- }
- 
--static uint64_t get_clock_ms(void)
--{
--	uint64_t clk;
--
--	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
--
--	/* Bit 51 is incrememented each microsecond */
--	return (clk >> (63 - 51)) / 1000;
--}
--
- struct {
- 	const char *name;
- 	void (*func)(void);
 -- 
 2.25.1
+
+Changelog:
+
+from v7 to v8
+
+* Suppress ccw-pong specific remote device
+  (Thomas, Janosch)
+
+* use virtio-net-ccw as device instead of a specific
+  device: no more need for QEMU patch
+  (Connie)
+
+* Add kernel parameter to access a different device.
+  (Connie)
+
+* Add tests on subschannel reading, length, garbage.
+  (Connie)
+
+* Several naming changes and reorganizations of definitions.
+  (Connie)
+
+* Take wrapping into account for delay calculation
+
+* Align CCW1 on 8 bytes boundary
+
+* Reorganize the first three patches
+  (Janosch)
+
+from v6 to v7
+
+* s390x: saving regs for interrupts
+- macro name modificatio for SAVE_REGS_STACK
+  (David)
+- saving the FPC
+  (David)
+
+* s390x: Use PSW bits definitions in cstart
+- suppress definition for PSW_RESET_MASK
+  use PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW
+  (David)
+
+* s390x: Library resources for CSS tests
+* s390x: css: stsch, enumeration test
+  move library definitions from stsch patche
+  to the Library patch
+  add the library to the s390 Makefile here
+  (Janosch)
+  
+* s390x: css: msch, enable test
+  Add retries when enable fails
+  (Connie)
+  Re-introduce the patches for delay implementation
+  to add a delay between retries
+
+* s390x: define function to wait for interrupt
+  Changed name from wfi to wait_for_interrupt
+  (Janosch)
+
+* s390x: css: ssch/tsch with sense and interrupt
+  add a flag parameter to ssch and use it to add
+  SLI (Suppress Length Indication) flag for SENSE_ID
+  (Connie)
+
+
+from v5 to v6
+- Added comments for IRQ handling in
+  s390x: saving regs for interrupts
+  (Janosch) 
+
+- fixed BUG on reset_psw, added PSW_MASK_PSW_SHORT
+  and PSW_RESET_MASK
+
+- fixed several lines over 80 chars
+
+- fixed licenses, use GPL V2 (no more LGPL)
+
+- replacing delay() with wfi() (Wait For Interrupt)
+  during the css tests
+  (suggested by Connie's comments)
+
+- suppressing delay() induces suppressing the patch
+  "s390x: export the clock get_clock_ms() utility"
+  which is already reviewed but can be picked from
+  the v5 series.
+
+- changed the logic of the tests, the 4 css tests
+  are always run one after the other so no need to 
+  re-run enumeration and enabling at the begining
+  of each tests, it has alredy been done.
+  This makes code simpler.
+
+from v4 to v5
+- add a patch to explicitely define the initial_cr0
+  value
+  (Janosch)
+- add RB from Janosh on interrupt registration
+- several formating, typo correction and removing
+  unnecessary initialization in "linrary resources..."
+  (Janosch)
+- several formating and typo corrections on
+  "stsch enumeration test"
+  (Connie)
+- reworking the msch test
+  (Connie)
+- reworking of ssch test, pack the sense-id structure
+  (Connie)
+
+from v3 to v4
+- add RB from David and Thomas for patchs 
+  (3) irq registration and (4) clock export
+- rework the PSW bit definitions
+  (Thomas)
+- Suppress undef DEBUG from css_dump
+  (Thomas)
+- rework report() functions using new scheme
+  (Thomas)
+- suppress un-necessary report_info()
+- more spelling corrections
+- add a loop around enable bit testing
+  (Connie)
+- rework IRQ testing
+  (Connie)
+- Test data addresses to be under 2G
+  (Connie)
+
+from v2 to v3:
+- Rework spelling
+  (Connie)
+- More descriptions
+  (Connie)
+- use __ASSEMBLER__ preprocessing to keep
+  bits definitions and C structures in the same file
+  (David)
+- rename the new file clock.h as time.h
+  (Janosch, David?)
+- use registration for the IO interruption
+  (David, Thomas)
+- test the SCHIB to verify it has really be modified
+  (Connie)
+- Lot of simplifications in the tests
+  (Connie)
+
+from v1 to v2:
+- saving floating point registers (David, Janosh)
+- suppress unused PSW bits defintions (Janosh)
+- added Thomas reviewed-by
+- style and comments modifications (Connie, Janosh)
+- moved get_clock_ms() into headers and use it (Thomas)
+- separate header and library utility from tests
+- Suppress traces, separate tests, make better usage of reports
