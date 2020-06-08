@@ -1,97 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:50368 "EHLO mail.kernel.org"
+Received: from mga07.intel.com ([134.134.136.100]:24601 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730023AbgFRBSw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:18:52 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 104/266] s390/qdio: put thinint indicator after early error
-Date: Wed, 17 Jun 2020 21:13:49 -0400
-Message-Id: <20200618011631.604574-104-sashal@kernel.org>
-In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
-References: <20200618011631.604574-1-sashal@kernel.org>
+        id S1729027AbgFHNAK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 8 Jun 2020 09:00:10 -0400
+Date: Mon, 8 Jun 2020 16:00:06 +0300
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH RESEND2] lib: fix bitmap_parse() on 64-bit big endian
+ archs
+Message-ID: <20200608130006.GN2428291@smile.fi.intel.com>
+References: <1591611829-23071-1-git-send-email-agordeev@linux.ibm.com>
+ <CAHp75VcFdrvNMj0TL8ZHxShqqGDM31Hy8vitmn9HOPjZ6f9uYw@mail.gmail.com>
+ <20200608124433.GA28369@oc3871087118.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200608124433.GA28369@oc3871087118.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Stable <stable@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Yury Norov <yury.norov@gmail.com>, Amritha Nambiar <amritha.nambiar@intel.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, Chris Wilson <chris@chris-wilson.co.uk>, Kees Cook <keescook@chromium.org>, Matthew Wilcox <willy@infradead.org>, Miklos Szeredi <mszeredi@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Steffen Klassert <steffen.klassert@secunet.com>, "Tobin C . Harding" <tobin@kernel.org>, Vineet Gupta <vineet.gupta1@synopsys.com>, Will Deacon <will.deacon@arm.com>, Willem de Bruijn <willemb@google.com>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On Mon, Jun 08, 2020 at 02:44:34PM +0200, Alexander Gordeev wrote:
+> On Mon, Jun 08, 2020 at 03:03:05PM +0300, Andy Shevchenko wrote:
+> > On Mon, Jun 8, 2020 at 1:26 PM Alexander Gordeev <agordeev@linux.ibm.com> wrote:
+> > >
+> > > Commit 2d6261583be0 ("lib: rework bitmap_parse()") does not
+> > > take into account order of halfwords on 64-bit big endian
+> > > architectures. As result (at least) Receive Packet Steering,
+> > > IRQ affinity masks and runtime kernel test "test_bitmap" get
+> > > broken on s390.
+> > 
+> > ...
+> > 
+> > > +#if defined(__BIG_ENDIAN) && defined(CONFIG_64BIT)
+> > 
+> > I think it's better to re-use existing patterns.
+> > 
+> > ipc/sem.c:1682:#if defined(CONFIG_64BIT) && defined(__BIG_ENDIAN)
+> > 
+> > > +static void save_x32_chunk(unsigned long *maskp, u32 chunk, int chunk_idx)
+> > > +{
+> > > +       maskp += (chunk_idx / 2);
+> > > +       ((u32 *)maskp)[(chunk_idx & 1) ^ 1] = chunk;
+> > > +}
+> > > +#else
+> > > +static void save_x32_chunk(unsigned long *maskp, u32 chunk, int chunk_idx)
+> > > +{
+> > > +       ((u32 *)maskp)[chunk_idx] = chunk;
+> > > +}
+> > > +#endif
+> > 
+> > See below.
+> > 
+> > ...
+> > 
+> > > -               end = bitmap_get_x32_reverse(start, end, bitmap++);
+> > > +               end = bitmap_get_x32_reverse(start, end, &chunk);
+> > >                 if (IS_ERR(end))
+> > >                         return PTR_ERR(end);
+> > > +
+> > > +               save_x32_chunk(maskp, chunk, chunk_idx++);
+> > 
+> > Can't we simple do
+> > 
+> >         int chunk_index = 0;
+> >         ...
+> >         do {
+> > #if defined(CONFIG_64BIT) && defined(__BIG_ENDIAN)
+> >                end = bitmap_get_x32_reverse(start, end,
+> > bitmap[chunk_index ^ 1]);
+> > #else
+> >                end = bitmap_get_x32_reverse(start, end, bitmap[chunk_index]);
+> > #endif
+> >         ...
+> >         } while (++chunk_index);
+> > 
+> > ?
+> 
+> Well, unless we ignore coding style 21) Conditional Compilation
+> we could. Do you still insist it would be better?
 
-[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
+I think it's okay to do here
+ - it's not a big function
+ - it has no stub versions (you always do something)
+ - the result pretty much readable (5 lines any editor can keep on screen)
+ - and it's not ignoring, see "Wherever possible...", compare readability of
+   two versions, for yours reader needs to go somewhere to read, calculate and
+   return, when everything already being forgotten
+ - last but not least, I bet it makes code shorter (at least in C)
 
-qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
-If the subsequent qdio_establish_thinint() fails, we miss to put the
-DSCI again. Thus the DSCI isn't available for re-use. Given enough of
-such errors, we could end up with having only the shared DSCI available.
-
-Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
-such an error internally.
-
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/qdio.h         |  1 -
- drivers/s390/cio/qdio_setup.c   |  1 -
- drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
- 3 files changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
-index a58b45df95d7..3b0a4483a252 100644
---- a/drivers/s390/cio/qdio.h
-+++ b/drivers/s390/cio/qdio.h
-@@ -372,7 +372,6 @@ static inline int multicast_outbound(struct qdio_q *q)
- extern u64 last_ai_time;
- 
- /* prototypes for thin interrupt */
--void qdio_setup_thinint(struct qdio_irq *irq_ptr);
- int qdio_establish_thinint(struct qdio_irq *irq_ptr);
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
- void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index ee0b3c586211..9dc56aa3ae55 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
- 	setup_queues(irq_ptr, init_data);
- 
- 	setup_qib(irq_ptr, init_data);
--	qdio_setup_thinint(irq_ptr);
- 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
- 			init_data->qib_param_field,
- 			init_data->input_slib_elements,
-diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
-index 93ee067c10ca..ddf780b12d40 100644
---- a/drivers/s390/cio/qdio_thinint.c
-+++ b/drivers/s390/cio/qdio_thinint.c
-@@ -268,17 +268,19 @@ int __init tiqdio_register_thinints(void)
- 
- int qdio_establish_thinint(struct qdio_irq *irq_ptr)
- {
-+	int rc;
-+
- 	if (!is_thinint_irq(irq_ptr))
- 		return 0;
--	return set_subchannel_ind(irq_ptr, 0);
--}
- 
--void qdio_setup_thinint(struct qdio_irq *irq_ptr)
--{
--	if (!is_thinint_irq(irq_ptr))
--		return;
- 	irq_ptr->dsci = get_indicator();
- 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
-+
-+	rc = set_subchannel_ind(irq_ptr, 0);
-+	if (rc)
-+		put_indicator(irq_ptr->dsci);
-+
-+	return rc;
- }
- 
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
-2.25.1
+With Best Regards,
+Andy Shevchenko
