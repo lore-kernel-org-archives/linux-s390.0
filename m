@@ -1,319 +1,102 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v8 10/16] s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
-Date: Fri,  5 Jun 2020 17:39:58 -0400
-Message-Id: <20200605214004.14270-11-akrowiak@linux.ibm.com>
-In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
-References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41788 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730267AbgFHQQ4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 12:16:56 -0400
+Subject: Re: [kvm-unit-tests PATCH v8 06/12] s390x: clock and delays
+ caluculations
+References: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
+ <1591603981-16879-7-git-send-email-pmorel@linux.ibm.com>
+ <2f449a7b-2701-abcc-42b7-5b7441c10761@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <77a4005a-4164-b871-02b4-314417ff11e4@linux.ibm.com>
+Date: Mon, 8 Jun 2020 18:16:49 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <2f449a7b-2701-abcc-42b7-5b7441c10761@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-The current implementation does not allow assignment of an AP adapter or
-domain to an mdev device if the APQNs resulting from the assignment
-do not reference AP queue devices that are bound to the vfio_ap device
-driver. This patch allows assignment of AP resources to the matrix mdev as
-long as the APQNs resulting from the assignment:
-   1. Are not reserved by the AP BUS for use by the zcrypt device drivers.
-   2. Are not assigned to another matrix mdev.
 
-The rationale behind this is twofold:
-   1. The AP architecture does not preclude assignment of APQNs to an AP
-      configuration that are not available to the system.
-   2. APQNs that do not reference a queue device bound to the vfio_ap
-      device driver will not be assigned to the guest's CRYCB, so the
-      guest will not get access to queues not bound to the vfio_ap driver.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 212 +++++-------------------------
- 1 file changed, 35 insertions(+), 177 deletions(-)
+On 2020-06-08 17:55, Thomas Huth wrote:
+> On 08/06/2020 10.12, Pierre Morel wrote:
+>> The hardware gives us a good definition of the microsecond,
+>> let's keep this information and let the routine accessing
+>> the hardware keep all the information and return microseconds.
+>>
+>> Calculate delays in microseconds and take care about wrapping
+>> around zero.
+>>
+>> Define values with macros and use inlines to keep the
+>> milliseconds interface.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/asm/time.h | 29 +++++++++++++++++++++++++++--
+>>   1 file changed, 27 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
+>> index 1791380..eb15941 100644
+>> --- a/lib/s390x/asm/time.h
+>> +++ b/lib/s390x/asm/time.h
+>> @@ -13,14 +13,39 @@
+>>   #ifndef ASM_S390X_TIME_H
+>>   #define ASM_S390X_TIME_H
+>>   
+>> -static inline uint64_t get_clock_ms(void)
+>> +#define STCK_SHIFT	(63 - 51)
+> 
+> Could you maybe rather call this STCK_SHIFT_US instead, so that it is
+> clear that we refer to the microsecond bit here?
+> 
+>> +#define STCK_MAX	((1 << (STCK_SHIFT + 1)) - 1)
+> 
+> Hmm, is that really right? Shouldn't that rather be
+> 
+>   ((1 << (51 + 1)) - 1)
+> 
+> instead?
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 9a019b2b86f8..68bdf80807c6 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1,4 +1,3 @@
--// SPDX-License-Identifier: GPL-2.0+
- /*
-  * Adjunct processor matrix VFIO device driver callbacks.
-  *
-@@ -421,122 +420,6 @@ static struct attribute_group *vfio_ap_mdev_type_groups[] = {
- 	NULL,
- };
- 
--struct vfio_ap_queue_reserved {
--	unsigned long *apid;
--	unsigned long *apqi;
--	bool reserved;
--};
--
--/**
-- * vfio_ap_has_queue
-- *
-- * @dev: an AP queue device
-- * @data: a struct vfio_ap_queue_reserved reference
-- *
-- * Flags whether the AP queue device (@dev) has a queue ID containing the APQN,
-- * apid or apqi specified in @data:
-- *
-- * - If @data contains both an apid and apqi value, then @data will be flagged
-- *   as reserved if the APID and APQI fields for the AP queue device matches
-- *
-- * - If @data contains only an apid value, @data will be flagged as
-- *   reserved if the APID field in the AP queue device matches
-- *
-- * - If @data contains only an apqi value, @data will be flagged as
-- *   reserved if the APQI field in the AP queue device matches
-- *
-- * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
-- * @data does not contain either an apid or apqi.
-- */
--static int vfio_ap_has_queue(struct device *dev, void *data)
--{
--	struct vfio_ap_queue_reserved *qres = data;
--	struct ap_queue *ap_queue = to_ap_queue(dev);
--	ap_qid_t qid;
--	unsigned long id;
--
--	if (qres->apid && qres->apqi) {
--		qid = AP_MKQID(*qres->apid, *qres->apqi);
--		if (qid == ap_queue->qid)
--			qres->reserved = true;
--	} else if (qres->apid && !qres->apqi) {
--		id = AP_QID_CARD(ap_queue->qid);
--		if (id == *qres->apid)
--			qres->reserved = true;
--	} else if (!qres->apid && qres->apqi) {
--		id = AP_QID_QUEUE(ap_queue->qid);
--		if (id == *qres->apqi)
--			qres->reserved = true;
--	} else {
--		return -EINVAL;
--	}
--
--	return 0;
--}
--
--/**
-- * vfio_ap_verify_queue_reserved
-- *
-- * @matrix_dev: a mediated matrix device
-- * @apid: an AP adapter ID
-- * @apqi: an AP queue index
-- *
-- * Verifies that the AP queue with @apid/@apqi is reserved by the VFIO AP device
-- * driver according to the following rules:
-- *
-- * - If both @apid and @apqi are not NULL, then there must be an AP queue
-- *   device bound to the vfio_ap driver with the APQN identified by @apid and
-- *   @apqi
-- *
-- * - If only @apid is not NULL, then there must be an AP queue device bound
-- *   to the vfio_ap driver with an APQN containing @apid
-- *
-- * - If only @apqi is not NULL, then there must be an AP queue device bound
-- *   to the vfio_ap driver with an APQN containing @apqi
-- *
-- * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
-- */
--static int vfio_ap_verify_queue_reserved(unsigned long *apid,
--					 unsigned long *apqi)
--{
--	int ret;
--	struct vfio_ap_queue_reserved qres;
--
--	qres.apid = apid;
--	qres.apqi = apqi;
--	qres.reserved = false;
--
--	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				     &qres, vfio_ap_has_queue);
--	if (ret)
--		return ret;
--
--	if (qres.reserved)
--		return 0;
--
--	return -EADDRNOTAVAIL;
--}
--
--static int
--vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
--					     unsigned long apid)
--{
--	int ret;
--	unsigned long apqi;
--	unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
--
--	if (find_first_bit_inv(matrix_mdev->matrix.aqm, nbits) >= nbits)
--		return vfio_ap_verify_queue_reserved(&apid, NULL);
--
--	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
--		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
--		if (ret)
--			return ret;
--	}
--
--	return 0;
--}
--
- #define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
- 			 "already assigned to %s"
- 
-@@ -573,6 +456,11 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
- 	DECLARE_BITMAP(aqm, AP_DOMAINS);
- 
- 	list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
-+		/*
-+		 * If either of the input masks belongs to the mdev to which an
-+		 * AP resource is being assigned, then we don't need to verify
-+		 * that mdev's masks.
-+		 */
- 		if (matrix_mdev == lstdev)
- 			continue;
- 
-@@ -598,6 +486,20 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
- 	return 0;
- }
- 
-+static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev,
-+				       unsigned long *mdev_apm,
-+				       unsigned long *mdev_aqm)
-+{
-+	DECLARE_BITMAP(apm, AP_DEVICES);
-+	DECLARE_BITMAP(aqm, AP_DOMAINS);
-+
-+	if (bitmap_and(apm, mdev_apm, ap_perms.apm, AP_DEVICES) &&
-+	    bitmap_and(aqm, mdev_aqm, ap_perms.aqm, AP_DOMAINS))
-+		return -EADDRNOTAVAIL;
-+
-+	return vfio_ap_mdev_verify_no_sharing(matrix_mdev, mdev_apm, mdev_aqm);
-+}
-+
- /**
-  * vfio_ap_mdev_filter_matrix
-  *
-@@ -882,33 +784,21 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (apid > matrix_mdev->matrix.apm_max)
- 		return -ENODEV;
- 
--	/*
--	 * Set the bit in the AP mask (APM) corresponding to the AP adapter
--	 * number (APID). The bits in the mask, from most significant to least
--	 * significant bit, correspond to APIDs 0-255.
--	 */
--	mutex_lock(&matrix_dev->lock);
--
--	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
--	if (ret)
--		goto done;
--
- 	memset(apm, 0, sizeof(apm));
- 	set_bit_inv(apid, apm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
--					     matrix_mdev->matrix.aqm);
--	if (ret)
--		goto done;
--
-+	mutex_lock(&matrix_dev->lock);
-+	ret = vfio_ap_mdev_validate_masks(matrix_mdev, apm,
-+					  matrix_mdev->matrix.aqm);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->lock);
-+		return ret;
-+	}
- 	set_bit_inv(apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
--	ret = count;
--
--done:
- 	mutex_unlock(&matrix_dev->lock);
- 
--	return ret;
-+	return count;
- }
- static DEVICE_ATTR_WO(assign_adapter);
- 
-@@ -958,26 +848,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
- }
- static DEVICE_ATTR_WO(unassign_adapter);
- 
--static int
--vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
--					     unsigned long apqi)
--{
--	int ret;
--	unsigned long apid;
--	unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
--
--	if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
--		return vfio_ap_verify_queue_reserved(NULL, &apqi);
--
--	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
--		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
--		if (ret)
--			return ret;
--	}
--
--	return 0;
--}
--
- /**
-  * assign_domain_store
-  *
-@@ -1031,28 +901,21 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (apqi > max_apqi)
- 		return -ENODEV;
- 
--	mutex_lock(&matrix_dev->lock);
--
--	ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
--	if (ret)
--		goto done;
--
- 	memset(aqm, 0, sizeof(aqm));
- 	set_bit_inv(apqi, aqm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
--					     matrix_mdev->matrix.apm, aqm);
--	if (ret)
--		goto done;
--
-+	mutex_lock(&matrix_dev->lock);
-+	ret = vfio_ap_mdev_validate_masks(matrix_mdev, matrix_mdev->matrix.apm,
-+					  aqm);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->lock);
-+		return ret;
-+	}
- 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
--	ret = count;
--
--done:
- 	mutex_unlock(&matrix_dev->lock);
- 
--	return ret;
-+	return count;
- }
- static DEVICE_ATTR_WO(assign_domain);
- 
-@@ -1139,11 +1002,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 	if (id > matrix_mdev->matrix.adm_max)
- 		return -ENODEV;
- 
--	/* Set the bit in the ADM (bitmask) corresponding to the AP control
--	 * domain number (id). The bits in the mask, from most significant to
--	 * least significant, correspond to IDs 0 up to the one less than the
--	 * number of control domains that can be assigned.
--	 */
- 	mutex_lock(&matrix_dev->lock);
- 	set_bit_inv(id, matrix_mdev->matrix.adm);
- 	mutex_unlock(&matrix_dev->lock);
+:) ooops, right.
+
+> 
+> (you want to have a max. value for the 52 bits that count the
+> microseconds, not a max value for the remainder bits, do you?)
+> 
+>> +static inline uint64_t get_clock_us(void)
+>>   {
+>>   	uint64_t clk;
+>>   
+>>   	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
+>>   
+>>   	/* Bit 51 is incrememented each microsecond */
+>> -	return (clk >> (63 - 51)) / 1000;
+>> +	return clk >> STCK_SHIFT;
+>> +}
+>> +
+>> +static inline void udelay(unsigned long us)
+>> +{
+>> +	unsigned long startclk = get_clock_us();
+>> +	unsigned long c;
+>> +
+>> +	do {
+>> +		c = get_clock_us();
+>> +		if (c < startclk)
+>> +			c += STCK_MAX;
+>> +	} while (c < (startclk + us));
+> 
+> You could omit the parentheses around "startclk + us" here.
+
+OK
+
+Thanks,
+Pierre
+
 -- 
-2.21.1
+Pierre Morel
+IBM Lab Boeblingen
