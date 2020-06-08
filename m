@@ -1,106 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:26264 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726120AbgFCL1g (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:36 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL v2 04/10] vfio-ccw: Register a chp_event callback for vfio-ccw
-Date: Wed,  3 Jun 2020 13:27:10 +0200
-Message-Id: <20200603112716.332801-5-cohuck@redhat.com>
-In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
-References: <20200603112716.332801-1-cohuck@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57882 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729393AbgFHK2Z (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 06:28:25 -0400
+Date: Mon, 8 Jun 2020 12:28:02 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [PATCH RESEND] lib: fix bitmap_parse() on 64-bit big endian archs
+Message-ID: <20200608102801.GA22989@oc3871087118.ibm.com>
+References: <1589798090-11136-1-git-send-email-agordeev@linux.ibm.com>
+ <CAHp75VdM2yrpd2d3pK2RkmbhF3yiM4=fiTXL4i3yu3AxV3wY-A@mail.gmail.com>
+ <20200518115059.GA19150@oc3871087118.ibm.com>
+ <20200602102430.GA17703@oc3871087118.ibm.com>
+ <20200605132558.GM2428291@smile.fi.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200605132558.GM2428291@smile.fi.intel.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-s390@vger.kernel.org, Stable <stable@vger.kernel.org>, Yury Norov <yury.norov@gmail.com>, Amritha Nambiar <amritha.nambiar@intel.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, Chris Wilson <chris@chris-wilson.co.uk>, Kees Cook <keescook@chromium.org>, Matthew Wilcox <willy@infradead.org>, Miklos Szeredi <mszeredi@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Steffen Klassert <steffen.klassert@secunet.com>, "Tobin C . Harding" <tobin@kernel.org>, Vineet Gupta <vineet.gupta1@synopsys.com>, Will Deacon <will.deacon@arm.com>, Willem de Bruijn <willemb@google.com>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+On Fri, Jun 05, 2020 at 04:25:58PM +0300, Andy Shevchenko wrote:
+> Test case, please.
 
-Register the chp_event callback to receive channel path related
-events for the subchannels managed by vfio-ccw.
+Hi Andy,
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20200505122745.53208-3-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_drv.c | 47 +++++++++++++++++++++++++++++++++
- 1 file changed, 47 insertions(+)
+Below is the output of the runtime kernel test "test_bitmap".
+I resent the patch with Andrew Morton on CC, but did not include
+the excessive test output:
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 8715c1c2f1e1..fb1275a7d1f5 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -19,6 +19,7 @@
- 
- #include <asm/isc.h>
- 
-+#include "chp.h"
- #include "ioasm.h"
- #include "css.h"
- #include "vfio_ccw_private.h"
-@@ -262,6 +263,51 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	return rc;
- }
- 
-+static int vfio_ccw_chp_event(struct subchannel *sch,
-+			      struct chp_link *link, int event)
-+{
-+	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	int mask = chp_ssd_get_mask(&sch->ssd_info, link);
-+	int retry = 255;
-+
-+	if (!private || !mask)
-+		return 0;
-+
-+	VFIO_CCW_MSG_EVENT(2, "%pUl (%x.%x.%04x): mask=0x%x event=%d\n",
-+			   mdev_uuid(private->mdev), sch->schid.cssid,
-+			   sch->schid.ssid, sch->schid.sch_no,
-+			   mask, event);
-+
-+	if (cio_update_schib(sch))
-+		return -ENODEV;
-+
-+	switch (event) {
-+	case CHP_VARY_OFF:
-+		/* Path logically turned off */
-+		sch->opm &= ~mask;
-+		sch->lpm &= ~mask;
-+		if (sch->schib.pmcw.lpum & mask)
-+			cio_cancel_halt_clear(sch, &retry);
-+		break;
-+	case CHP_OFFLINE:
-+		/* Path is gone */
-+		if (sch->schib.pmcw.lpum & mask)
-+			cio_cancel_halt_clear(sch, &retry);
-+		break;
-+	case CHP_VARY_ON:
-+		/* Path logically turned on */
-+		sch->opm |= mask;
-+		sch->lpm |= mask;
-+		break;
-+	case CHP_ONLINE:
-+		/* Path became available */
-+		sch->lpm |= mask & sch->opm;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
- static struct css_device_id vfio_ccw_sch_ids[] = {
- 	{ .match_flags = 0x1, .type = SUBCHANNEL_TYPE_IO, },
- 	{ /* end of list */ },
-@@ -279,6 +325,7 @@ static struct css_driver vfio_ccw_sch_driver = {
- 	.remove = vfio_ccw_sch_remove,
- 	.shutdown = vfio_ccw_sch_shutdown,
- 	.sch_event = vfio_ccw_sch_event,
-+	.chp_event = vfio_ccw_chp_event,
- };
- 
- static int __init vfio_ccw_debug_init(void)
--- 
-2.25.4
+test_bitmap: parse: 4: input is 1, result is 0x100000000, expected 0x1
+test_bitmap: parse: 5: input is deadbeef, result is 0xdeadbeef00000000, expected 0xdeadbeef
+test_bitmap: parse: 6: input is 1,0, result is 0x1, expected 0x100000000
+test_bitmap: parse: 7: input is deadbeef,,0,1, result is 0x1, expected 0xdeadbeef
+test_bitmap: parse: 8: input is deadbeef,1,0, result is 0x1, expected 0x100000000
+test_bitmap: parse: 9: input is baadf00d,deadbeef,1,0, result is 0x1, expected 0x100000000
+test_bitmap: parse: 10: input is badf00d,deadbeef,1,0, errno is -75, expected 0
+test_bitmap: parse: 11: input is badf00d,deadbeef,1,0, errno is -75, expected 0
+test_bitmap: parse: 12: input is   badf00d,deadbeef,1,0  , errno is -75, expected 0
+test_bitmap: parse: 13: input is  , badf00d,deadbeef,1,0 , , errno is -75, expected 0
+test_bitmap: parse: 14: input is  , badf00d, ,, ,,deadbeef,1,0 , , errno is -75, expected 0
+test_bitmap: parse: 16: input is 3,0, errno is 0, expected -75
+test_bitmap: parse_user: 4: input is 1, result is 0x100000000, expected 0x1
+test_bitmap: parse_user: 5: input is deadbeef, result is 0xdeadbeef00000000, expected 0xdeadbeef
+test_bitmap: parse_user: 6: input is 1,0, result is 0x1, expected 0x100000000
+test_bitmap: parse_user: 7: input is deadbeef,,0,1, result is 0x1, expected 0xdeadbeef
+test_bitmap: parse_user: 8: input is deadbeef,1,0, result is 0x1, expected 0x100000000
+test_bitmap: parse_user: 9: input is baadf00d,deadbeef,1,0, result is 0x1, expected 0x100000000
+test_bitmap: parse_user: 10: input is badf00d,deadbeef,1,0, errno is -75, expected 0
+test_bitmap: parse_user: 11: input is badf00d,deadbeef,1,0, errno is -75, expected 0
+test_bitmap: parse_user: 12: input is   badf00d,deadbeef,1,0  , errno is -75, expected 0
+test_bitmap: parse_user: 13: input is  , badf00d,deadbeef,1,0 , , errno is -75, expected 0
+test_bitmap: parse_user: 14: input is  , badf00d, ,, ,,deadbeef,1,0 , , errno is -75, expected 0
+test_bitmap: parse_user: 16: input is 3,0, errno is 0, expected -75
+
+Thanks!
+
+
+> Yes, you can simulate BE test case on LE platform and vise versa.
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
+> 
+> 
