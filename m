@@ -1,57 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19748 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726494AbgFQOzE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jun 2020 10:55:04 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 1/2] s390/qeth: fix error handling for isolation mode cmds
-Date: Wed, 17 Jun 2020 16:54:52 +0200
-Message-Id: <20200617145453.61382-2-jwi@linux.ibm.com>
-In-Reply-To: <20200617145453.61382-1-jwi@linux.ibm.com>
-References: <20200617145453.61382-1-jwi@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54722 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726404AbgFIHx4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Jun 2020 03:53:56 -0400
+Subject: Re: [kvm-unit-tests PATCH v8 08/12] s390x: retrieve decimal and
+ hexadecimal kernel parameters
+References: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
+ <1591603981-16879-9-git-send-email-pmorel@linux.ibm.com>
+ <b013343d-d08d-43c6-1fac-f29d3070b535@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <1f7ae06a-b754-a75c-8658-8c46274fdc32@linux.ibm.com>
+Date: Tue, 9 Jun 2020 09:53:50 +0200
+MIME-Version: 1.0
+In-Reply-To: <b013343d-d08d-43c6-1fac-f29d3070b535@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-Current(?) OSA devices also store their cmd-specific return codes for
-SET_ACCESS_CONTROL cmds into the top-level cmd->hdr.return_code.
-So once we added stricter checking for the top-level field a while ago,
-none of the error logic that rolls back the user's configuration to its
-old state is applied any longer.
 
-For this specific cmd, go back to the old model where we peek into the
-cmd structure even though the top-level field indicated an error.
 
-Fixes: 686c97ee29c8 ("s390/qeth: fix error handling in adapter command callbacks")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+On 2020-06-09 07:21, Thomas Huth wrote:
+> On 08/06/2020 10.12, Pierre Morel wrote:
+>> We often need to retrieve hexadecimal kernel parameters.
+>> Let's implement a shared utility to do it.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   lib/s390x/kernel-args.c | 60 +++++++++++++++++++++++++++++++++++++++++
+>>   lib/s390x/kernel-args.h | 18 +++++++++++++
+>>   s390x/Makefile          |  1 +
+>>   3 files changed, 79 insertions(+)
+>>   create mode 100644 lib/s390x/kernel-args.c
+>>   create mode 100644 lib/s390x/kernel-args.h
+> [...]
+>> +int kernel_arg(int argc, char *argv[], const char *str, unsigned long *val)
+>> +{
+>> +	int i, ret;
+>> +	char *p;
+>> +
+>> +	for (i = 0; i < argc; i++) {
+>> +		ret = strncmp(argv[i], str, strlen(str));
+>> +		if (ret)
+>> +			continue;
+>> +		p = strchr(argv[i], '=');
+>> +		if (!p)
+>> +			return -1;
+>> +		p = strchr(p, 'x');
+>> +		if (!p)
+>> +			*val = atol(p + 1);
+> 
+> If p is NULL, then you call atol(NULL + 1) ... I think you need another
+> temporary variable here instead to hold the new pointer / NULL value?
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 18a0fb75a710..9636415f810b 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4544,9 +4544,6 @@ static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
- 	int fallback = *(int *)reply->param;
- 
- 	QETH_CARD_TEXT(card, 4, "setaccb");
--	if (cmd->hdr.return_code)
--		return -EIO;
--	qeth_setadpparms_inspect_rc(cmd);
- 
- 	access_ctrl_req = &cmd->data.setadapterparms.data.set_access_ctrl;
- 	QETH_CARD_TEXT_(card, 2, "rc=%d",
-@@ -4556,7 +4553,7 @@ static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
- 		QETH_DBF_MESSAGE(3, "ERR:SET_ACCESS_CTRL(%#x) on device %x: %#x\n",
- 				 access_ctrl_req->subcmd_code, CARD_DEVID(card),
- 				 cmd->data.setadapterparms.hdr.return_code);
--	switch (cmd->data.setadapterparms.hdr.return_code) {
-+	switch (qeth_setadpparms_inspect_rc(cmd)) {
- 	case SET_ACCESS_CTRL_RC_SUCCESS:
- 		if (card->options.isolation == ISOLATION_MODE_NONE) {
- 			dev_info(&card->gdev->dev,
+
+grrrr, clearly!
+
+> 
+>   Thomas
+> 
+
+Thanks,
+Pierre
+
 -- 
-2.17.1
+Pierre Morel
+IBM Lab Boeblingen
