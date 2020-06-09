@@ -1,97 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:39016 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727876AbgFRBLP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:11:15 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 143/388] s390/qdio: put thinint indicator after early error
-Date: Wed, 17 Jun 2020 21:04:00 -0400
-Message-Id: <20200618010805.600873-143-sashal@kernel.org>
-In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
-References: <20200618010805.600873-1-sashal@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30728 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726404AbgFIHy0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Jun 2020 03:54:26 -0400
+Subject: Re: [kvm-unit-tests PATCH v8 07/12] s390x: define function to wait
+ for interrupt
+References: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
+ <1591603981-16879-8-git-send-email-pmorel@linux.ibm.com>
+ <0005ec91-d4ac-2892-a800-76c96e7b34a0@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <c9dd11b7-ad84-ff7f-9703-d736e68ea87e@linux.ibm.com>
+Date: Tue, 9 Jun 2020 09:54:14 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <0005ec91-d4ac-2892-a800-76c96e7b34a0@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
 
-qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
-If the subsequent qdio_establish_thinint() fails, we miss to put the
-DSCI again. Thus the DSCI isn't available for re-use. Given enough of
-such errors, we could end up with having only the shared DSCI available.
+On 2020-06-09 07:07, Thomas Huth wrote:
+> On 08/06/2020 10.12, Pierre Morel wrote:
+>> Allow the program to wait for an interrupt.
+>>
+>> The interrupt handler is in charge to remove the WAIT bit
+>> when it finished handling the interrupt.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>> ---
+>>   lib/s390x/asm/arch_def.h | 14 ++++++++++++++
+>>   1 file changed, 14 insertions(+)
+>>
+>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>> index 12045ff..e0ced12 100644
+>> --- a/lib/s390x/asm/arch_def.h
+>> +++ b/lib/s390x/asm/arch_def.h
+>> @@ -10,9 +10,11 @@
+>>   #ifndef _ASM_S390X_ARCH_DEF_H_
+>>   #define _ASM_S390X_ARCH_DEF_H_
+>>   
+>> +#define PSW_MASK_IO			0x0200000000000000UL
+>>   #define PSW_MASK_EXT			0x0100000000000000UL
+>>   #define PSW_MASK_DAT			0x0400000000000000UL
+>>   #define PSW_MASK_SHORT_PSW		0x0008000000000000UL
+>> +#define PSW_MASK_WAIT			0x0002000000000000UL
+>>   #define PSW_MASK_PSTATE			0x0001000000000000UL
+>>   #define PSW_MASK_BA			0x0000000080000000UL
+>>   #define PSW_MASK_EA			0x0000000100000000UL
+>> @@ -253,6 +255,18 @@ static inline void load_psw_mask(uint64_t mask)
+>>   		: "+r" (tmp) :  "a" (&psw) : "memory", "cc" );
+>>   }
+>>   
+>> +static inline void wait_for_interrupt(uint64_t irq_mask)
+>> +{
+>> +	uint64_t psw_mask = extract_psw_mask();
+>> +
+>> +	load_psw_mask(psw_mask | irq_mask | PSW_MASK_WAIT);
+>> +	/*
+>> +	 * After being woken and having processed the interrupt, let's restore
+>> +	 * the PSW mask.
+>> +	 */
+>> +	load_psw_mask(psw_mask);
+>> +}
+>> +
+>>   static inline void enter_pstate(void)
+>>   {
+>>   	uint64_t mask;
+>>
+> 
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> 
+Thanks,
+Pierre
 
-Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
-such an error internally.
-
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/qdio.h         |  1 -
- drivers/s390/cio/qdio_setup.c   |  1 -
- drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
- 3 files changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
-index 3cf223bc1d5f..a2afd7bc100b 100644
---- a/drivers/s390/cio/qdio.h
-+++ b/drivers/s390/cio/qdio.h
-@@ -364,7 +364,6 @@ static inline int multicast_outbound(struct qdio_q *q)
- extern u64 last_ai_time;
- 
- /* prototypes for thin interrupt */
--void qdio_setup_thinint(struct qdio_irq *irq_ptr);
- int qdio_establish_thinint(struct qdio_irq *irq_ptr);
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
- void tiqdio_add_device(struct qdio_irq *irq_ptr);
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index d12f094db056..8edfa0982221 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -480,7 +480,6 @@ int qdio_setup_irq(struct qdio_irq *irq_ptr, struct qdio_initialize *init_data)
- 	}
- 
- 	setup_qib(irq_ptr, init_data);
--	qdio_setup_thinint(irq_ptr);
- 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
- 			init_data->qib_param_field,
- 			init_data->input_slib_elements,
-diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
-index ae50373617cd..0faa0ad21732 100644
---- a/drivers/s390/cio/qdio_thinint.c
-+++ b/drivers/s390/cio/qdio_thinint.c
-@@ -227,17 +227,19 @@ int __init tiqdio_register_thinints(void)
- 
- int qdio_establish_thinint(struct qdio_irq *irq_ptr)
- {
-+	int rc;
-+
- 	if (!is_thinint_irq(irq_ptr))
- 		return 0;
--	return set_subchannel_ind(irq_ptr, 0);
--}
- 
--void qdio_setup_thinint(struct qdio_irq *irq_ptr)
--{
--	if (!is_thinint_irq(irq_ptr))
--		return;
- 	irq_ptr->dsci = get_indicator();
- 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
-+
-+	rc = set_subchannel_ind(irq_ptr, 0);
-+	if (rc)
-+		put_indicator(irq_ptr->dsci);
-+
-+	return rc;
- }
- 
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
-2.25.1
+Pierre Morel
+IBM Lab Boeblingen
