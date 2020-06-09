@@ -1,216 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:53823 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725859AbgFCL1x (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:53 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL v2 09/10] vfio-ccw: Wire up the CRW irq and CRW region
-Date: Wed,  3 Jun 2020 13:27:15 +0200
-Message-Id: <20200603112716.332801-10-cohuck@redhat.com>
-In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
-References: <20200603112716.332801-1-cohuck@redhat.com>
+Received: from foss.arm.com ([217.140.110.172]:43834 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726903AbgFIPKg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 9 Jun 2020 11:10:36 -0400
+Subject: Re: [PATCH v6] s390: Fix vDSO clock_getres()
+References: <20200324121027.21665-1-vincenzo.frascino@arm.com>
+ <20200609144608.GB4575@osiris>
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Message-ID: <fefd4ba9-6e00-5aba-ac95-b1fbf7e1bf13@arm.com>
+Date: Tue, 9 Jun 2020 16:12:00 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200609144608.GB4575@osiris>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tglx@linutronix.de, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-From: Farhan Ali <alifm@linux.ibm.com>
+Hi Heiko,
 
-Use the IRQ to notify userspace that there is a CRW
-pending in the region, related to path-availability
-changes on the passthrough subchannel.
+On 6/9/20 3:46 PM, Heiko Carstens wrote:
+> Hello Vincenzo,
+> 
+> sorry it took such a long time to answer!
+> 
+>> clock_getres in the vDSO library has to preserve the same behaviour
+>> of posix_get_hrtimer_res().
+>>
+>> In particular, posix_get_hrtimer_res() does:
+>>     sec = 0;
+>>     ns = hrtimer_resolution;
+>> and hrtimer_resolution depends on the enablement of the high
+>> resolution timers that can happen either at compile or at run time.
+>>
+>> Fix the s390 vdso implementation of clock_getres keeping a copy of
+>> hrtimer_resolution in vdso data and using that directly.
+>>
+>> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+>> Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+>> ---
+>>  arch/s390/include/asm/vdso.h           |  1 +
+>>  arch/s390/kernel/asm-offsets.c         |  2 +-
+>>  arch/s390/kernel/time.c                |  1 +
+>>  arch/s390/kernel/vdso64/clock_getres.S | 10 +++++-----
+>>  4 files changed, 8 insertions(+), 6 deletions(-)
+> ...
+> 
+>> diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
+>> index 081435398e0a..022b58c980db 100644
+>> --- a/arch/s390/kernel/vdso64/clock_getres.S
+>> +++ b/arch/s390/kernel/vdso64/clock_getres.S
+>> @@ -17,12 +17,14 @@
+>>  	.type  __kernel_clock_getres,@function
+>>  __kernel_clock_getres:
+>>  	CFI_STARTPROC
+>> -	larl	%r1,4f
+>> +	larl	%r1,3f
+>> +	lg	%r0,0(%r1)
+>>  	cghi	%r2,__CLOCK_REALTIME_COARSE
+>>  	je	0f
+>>  	cghi	%r2,__CLOCK_MONOTONIC_COARSE
+>>  	je	0f
+>> -	larl	%r1,3f
+>> +	larl	%r1,_vdso_data
+>> +	l	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
+> 
+> This should be llgf for proper zero extension. The code works anyway,
+> since the upper lg would clear the high order bits, however this looks
+> like it works more or less by accident ;)
+> 
+> I changed it and applied your patch. Thanks a lot!
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20200505122745.53208-8-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_chp.c     | 17 ++++++++++
- drivers/s390/cio/vfio_ccw_drv.c     | 49 +++++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_private.h |  8 +++++
- 3 files changed, 74 insertions(+)
+Thank you for this and for the explanation. I must admit that this was the first
+attempt to write s390 assembly. I had to go through most of the "Principles of
+Operation" before I could get something meaningful going ;)
 
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-index 37ea344a4d72..876f6ade51cc 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -82,14 +82,24 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
- 	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
- 	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
- 	struct ccw_crw_region *region;
-+	struct vfio_ccw_crw *crw;
- 	int ret;
- 
- 	if (pos + count > sizeof(*region))
- 		return -EINVAL;
- 
-+	crw = list_first_entry_or_null(&private->crw,
-+				       struct vfio_ccw_crw, next);
-+
-+	if (crw)
-+		list_del(&crw->next);
-+
- 	mutex_lock(&private->io_mutex);
- 	region = private->region[i].data;
- 
-+	if (crw)
-+		memcpy(&region->crw, &crw->crw, sizeof(region->crw));
-+
- 	if (copy_to_user(buf, (void *)region + pos, count))
- 		ret = -EFAULT;
- 	else
-@@ -98,6 +108,13 @@ static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
- 	region->crw = 0;
- 
- 	mutex_unlock(&private->io_mutex);
-+
-+	kfree(crw);
-+
-+	/* Notify the guest if more CRWs are on our queue */
-+	if (!list_empty(&private->crw) && private->crw_trigger)
-+		eventfd_signal(private->crw_trigger, 1);
-+
- 	return ret;
- }
- 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index e4deae6fd525..9144360851ed 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -108,6 +108,16 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
- 		eventfd_signal(private->io_trigger, 1);
- }
- 
-+static void vfio_ccw_crw_todo(struct work_struct *work)
-+{
-+	struct vfio_ccw_private *private;
-+
-+	private = container_of(work, struct vfio_ccw_private, crw_work);
-+
-+	if (!list_empty(&private->crw) && private->crw_trigger)
-+		eventfd_signal(private->crw_trigger, 1);
-+}
-+
- /*
-  * Css driver callbacks
-  */
-@@ -186,7 +196,9 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (ret)
- 		goto out_free;
- 
-+	INIT_LIST_HEAD(&private->crw);
- 	INIT_WORK(&private->io_work, vfio_ccw_sch_io_todo);
-+	INIT_WORK(&private->crw_work, vfio_ccw_crw_todo);
- 	atomic_set(&private->avail, 1);
- 	private->state = VFIO_CCW_STATE_STANDBY;
- 
-@@ -217,9 +229,15 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- static int vfio_ccw_sch_remove(struct subchannel *sch)
- {
- 	struct vfio_ccw_private *private = dev_get_drvdata(&sch->dev);
-+	struct vfio_ccw_crw *crw, *temp;
- 
- 	vfio_ccw_sch_quiesce(sch);
- 
-+	list_for_each_entry_safe(crw, temp, &private->crw, next) {
-+		list_del(&crw->next);
-+		kfree(crw);
-+	}
-+
- 	vfio_ccw_mdev_unreg(sch);
- 
- 	dev_set_drvdata(&sch->dev, NULL);
-@@ -281,6 +299,33 @@ static int vfio_ccw_sch_event(struct subchannel *sch, int process)
- 	return rc;
- }
- 
-+static void vfio_ccw_queue_crw(struct vfio_ccw_private *private,
-+			       unsigned int rsc,
-+			       unsigned int erc,
-+			       unsigned int rsid)
-+{
-+	struct vfio_ccw_crw *crw;
-+
-+	/*
-+	 * If unable to allocate a CRW, just drop the event and
-+	 * carry on.  The guest will either see a later one or
-+	 * learn when it issues its own store subchannel.
-+	 */
-+	crw = kzalloc(sizeof(*crw), GFP_ATOMIC);
-+	if (!crw)
-+		return;
-+
-+	/*
-+	 * Build the CRW based on the inputs given to us.
-+	 */
-+	crw->crw.rsc = rsc;
-+	crw->crw.erc = erc;
-+	crw->crw.rsid = rsid;
-+
-+	list_add_tail(&crw->next, &private->crw);
-+	queue_work(vfio_ccw_work_q, &private->crw_work);
-+}
-+
- static int vfio_ccw_chp_event(struct subchannel *sch,
- 			      struct chp_link *link, int event)
- {
-@@ -311,6 +356,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 		/* Path is gone */
- 		if (sch->schib.pmcw.lpum & mask)
- 			cio_cancel_halt_clear(sch, &retry);
-+		vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_PERRN,
-+				   link->chpid.id);
- 		break;
- 	case CHP_VARY_ON:
- 		/* Path logically turned on */
-@@ -320,6 +367,8 @@ static int vfio_ccw_chp_event(struct subchannel *sch,
- 	case CHP_ONLINE:
- 		/* Path became available */
- 		sch->lpm |= mask & sch->opm;
-+		vfio_ccw_queue_crw(private, CRW_RSC_CPATH, CRW_ERC_INIT,
-+				   link->chpid.id);
- 		break;
- 	}
- 
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 97131b4df0b9..8723156b29ea 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -17,6 +17,7 @@
- #include <linux/eventfd.h>
- #include <linux/workqueue.h>
- #include <linux/vfio_ccw.h>
-+#include <asm/crw.h>
- #include <asm/debug.h>
- 
- #include "css.h"
-@@ -59,6 +60,11 @@ int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
- int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
- int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private);
- 
-+struct vfio_ccw_crw {
-+	struct list_head	next;
-+	struct crw		crw;
-+};
-+
- /**
-  * struct vfio_ccw_private
-  * @sch: pointer to the subchannel
-@@ -98,10 +104,12 @@ struct vfio_ccw_private {
- 	struct channel_program	cp;
- 	struct irb		irb;
- 	union scsw		scsw;
-+	struct list_head	crw;
- 
- 	struct eventfd_ctx	*io_trigger;
- 	struct eventfd_ctx	*crw_trigger;
- 	struct work_struct	io_work;
-+	struct work_struct	crw_work;
- } __aligned(8);
- 
- extern int vfio_ccw_mdev_reg(struct subchannel *sch);
+> 
+
 -- 
-2.25.4
+Regards,
+Vincenzo
+
+P.S. Now I can finally say that once in my life I wrote s390 assembler ;)
