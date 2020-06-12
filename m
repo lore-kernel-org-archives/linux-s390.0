@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:35546 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726279AbgFLNOI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 12 Jun 2020 09:14:08 -0400
-Date: Fri, 12 Jun 2020 15:14:05 +0200
-From: Petr Mladek <pmladek@suse.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725791AbgFLLcO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 12 Jun 2020 07:32:14 -0400
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Date: Fri, 12 Jun 2020 20:32:09 +0900
 Subject: Re: [v2 PATCH] printk: Make linux/printk.h self-contained
-Message-ID: <20200612131405.GI4311@linux-b0ei>
+Message-ID: <20200612113209.GA1204@jagdpanzerIV.localdomain>
 References: <20200611125144.GA2506@gondor.apana.org.au>
  <20200612043634.GA30181@gondor.apana.org.au>
 MIME-Version: 1.0
@@ -16,9 +16,9 @@ In-Reply-To: <20200612043634.GA30181@gondor.apana.org.au>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+Cc: Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-On Fri 2020-06-12 14:36:35, Herbert Xu wrote:
+On (20/06/12 14:36), Herbert Xu wrote:
 > As it stands if you include printk.h by itself it will fail to
 > compile because it requires definitions from ratelimit.h.  However,
 > simply including ratelimit.h from printk.h does not work due to
@@ -44,13 +44,7 @@ On Fri 2020-06-12 14:36:35, Herbert Xu wrote:
 > 
 > Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-I am fine with the changes as long as the kernel test robot
-does not complain ;-)
+FWIW,
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 
-Acked-by: Petr Mladek <pmladek@suse.com>
-
-Well, I wonder if PeterZ is fine with the lockdep part. It might make
-sense to split it into separate patch as a prerequisite.
-
-Best Regards,
-Petr
+	-ss
