@@ -1,49 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([217.72.192.75]:56425 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729124AbgFOSrW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Jun 2020 14:47:22 -0400
-MIME-Version: 1.0
-References: <20200615130032.931285-1-hch@lst.de> <20200615130032.931285-3-hch@lst.de>
- <CAK8P3a0bRD3RzE_X6Tjzu9Tj+OhHhP+S=k6+VYODBGko8oQhew@mail.gmail.com>
- <20200615141239.GA12951@lst.de> <CAMzpN2heSzZzg16ws3yQkd7YZwmPPx_4RFCpb9JYfFWJ9gfPhA@mail.gmail.com>
-In-Reply-To: <CAMzpN2heSzZzg16ws3yQkd7YZwmPPx_4RFCpb9JYfFWJ9gfPhA@mail.gmail.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 15 Jun 2020 20:47:02 +0200
-Message-ID: <CAK8P3a3q-hC7kZwLPbc+E5VYcqthQS4J4Rqo+rKkBRU2n071XA@mail.gmail.com>
+Received: from verein.lst.de ([213.95.11.211]:34309 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730431AbgFOQlh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 15 Jun 2020 12:41:37 -0400
+Date: Mon, 15 Jun 2020 18:41:33 +0200
+From: Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH 2/6] exec: simplify the compat syscall handling
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20200615164133.GA23493@lst.de>
+References: <20200615130032.931285-1-hch@lst.de> <20200615130032.931285-3-hch@lst.de> <CAK8P3a0bRD3RzE_X6Tjzu9Tj+OhHhP+S=k6+VYODBGko8oQhew@mail.gmail.com> <20200615141239.GA12951@lst.de> <CAK8P3a2MeZhayZWkPbd4Ckq3n410p_n808NJTwN=JjzqHRiAXg@mail.gmail.com> <20200615144310.GA15101@lst.de> <CAK8P3a17h782gO65qJ9Mmz0EuiTSKQPEyr_=nvqOtnmQZuh9Kw@mail.gmail.com> <20200615150926.GA17108@lst.de> <CAMzpN2htYX7s6pmRg-c8qwZL1f1_+sB=ztDG_L=617hWsm-=8g@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMzpN2htYX7s6pmRg-c8qwZL1f1_+sB=ztDG_L=617hWsm-=8g@mail.gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Brian Gerst <brgerst@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>, Luis Chamberlain <mcgrof@kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>, Arnd Bergmann <arnd@arndb.de>, Al Viro <viro@zeniv.linux.org.uk>, Luis Chamberlain <mcgrof@kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Jun 15, 2020 at 4:48 PM Brian Gerst <brgerst@gmail.com> wrote:
-> On Mon, Jun 15, 2020 at 10:13 AM Christoph Hellwig <hch@lst.de> wrote:
-> > On Mon, Jun 15, 2020 at 03:31:35PM +0200, Arnd Bergmann wrote:
+On Mon, Jun 15, 2020 at 11:33:49AM -0400, Brian Gerst wrote:
+> If you move those aliases above all the __SYSCALL_* defines it will
+> work, since that will get the forward declaration too.  This would be
+> the simplest workaround.
 
-> >
-> > I'd rather keep it in common code as that allows all the low-level
-> > exec stuff to be marked static, and avoid us growing new pointless
-> > compat variants through copy and paste.
-> > smart compiler to d
-> >
-> > > I don't really understand
-> > > the comment, why can't this just use this?
-> >
-> > That errors out with:
-> >
-> > ld: arch/x86/entry/syscall_x32.o:(.rodata+0x1040): undefined reference to
-> > `__x32_sys_execve'
-> > ld: arch/x86/entry/syscall_x32.o:(.rodata+0x1108): undefined reference to
-> > `__x32_sys_execveat'
-> > make: *** [Makefile:1139: vmlinux] Error 1
->
-> I think I have a fix for this, by modifying the syscall wrappers to
-> add an alias for the __x32 variant to the native __x64_sys_foo().
-> I'll get back to you with a patch.
+That compiles and also passes my exaustive x32 tests (chroot + ls -l).
 
-Do we actually need the __x32 prefix any more, or could we just
-change all x32 specific calls to use __x64_compat_sys_foo()?
+This is the updated version:
 
-      Arnd
+http://git.infradead.org/users/hch/misc.git/commitdiff/c8d319711ad2f53be003ae8e9be08519068bdcee
