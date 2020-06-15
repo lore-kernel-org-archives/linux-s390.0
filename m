@@ -1,62 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2552 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19200 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726248AbgFDGtr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Jun 2020 02:49:47 -0400
-Subject: Re: [kvm-unit-tests PATCH v7 05/12] s390x: export the clock
- get_clock_ms() utility
-References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
- <1589818051-20549-6-git-send-email-pmorel@linux.ibm.com>
- <80ccd983-df12-a6ee-239e-b367ebc9dded@redhat.com>
+        by vger.kernel.org with ESMTP id S1728285AbgFOMje (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 15 Jun 2020 08:39:34 -0400
 From: Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <3edefd98-f9ef-8428-34f5-370ee61f860d@linux.ibm.com>
-Date: Thu, 4 Jun 2020 08:49:39 +0200
-MIME-Version: 1.0
-In-Reply-To: <80ccd983-df12-a6ee-239e-b367ebc9dded@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2 0/1] s390: virtio: let's arch choose to accept devices without IOMMU feature
+Date: Mon, 15 Jun 2020 14:39:23 +0200
+Message-Id: <1592224764-1258-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 
+An architecture protecting the guest memory against unauthorized host
+access may want to enforce VIRTIO I/O device protection through the
+use of VIRTIO_F_IOMMU_PLATFORM.
 
+Let's give a chance to the architecture to accept or not devices
+without VIRTIO_F_IOMMU_PLATFORM.
 
-On 2020-05-26 20:10, Thomas Huth wrote:
-> On 18/05/2020 18.07, Pierre Morel wrote:
->> To serve multiple times, the function get_clock_ms() is moved
->> from intercept.c test to the new file asm/time.h.
+Pierre Morel (1):
+  s390: virtio: let arch accept devices without IOMMU feature
 
-...snip...
-
->> index 0000000..25c7a3c
->> --- /dev/null
->> +++ b/lib/s390x/asm/time.h
->> @@ -0,0 +1,26 @@
->> +/*
->> + * Clock utilities for s390
->> + *
->> + * Authors:
->> + *  Thomas Huth <thuth@redhat.com>
->> + *
->> + * Copied from the s390/intercept test by:
->> + *  Pierre Morel <pmorel@linux.ibm.com>
->> + *
->> + * This code is free software; you can redistribute it and/or modify it
->> + * under the terms of the GNU General Public License version 2.
->> + */
->> +#ifndef _ASM_S390X_TIME_H_
->> +#define _ASM_S390X_TIME_H_
-> 
-> Please also remove the underscores at the beginning (and preferably also
-> at the end) here.
-
-OK,
-
-Regards,
-Pierre
+ arch/s390/mm/init.c     | 6 ++++++
+ drivers/virtio/virtio.c | 9 +++++++++
+ include/linux/virtio.h  | 2 ++
+ 3 files changed, 17 insertions(+)
 
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.25.1
+
+Changelog to v2:
+
+- put the test in virtio_finalize_features()
+  (Connie)
+
+- put the test inside VIRTIO core
+  (Jason)
+
+- pass a virtio device as parameter
+  (Halil)
