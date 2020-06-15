@@ -1,56 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48114 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732493AbgF2Tkc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:40:32 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 14/20] block: remove the NULL queue check in generic_make_request_checks
-Date: Mon, 29 Jun 2020 21:39:41 +0200
-Message-Id: <20200629193947.2705954-15-hch@lst.de>
-In-Reply-To: <20200629193947.2705954-1-hch@lst.de>
-References: <20200629193947.2705954-1-hch@lst.de>
+        with ESMTP id S1728773AbgFOTph (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Jun 2020 15:45:37 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200615130032.931285-1-hch@lst.de> <20200615130032.931285-3-hch@lst.de>
+ <CAK8P3a0bRD3RzE_X6Tjzu9Tj+OhHhP+S=k6+VYODBGko8oQhew@mail.gmail.com>
+ <20200615141239.GA12951@lst.de> <CAMzpN2heSzZzg16ws3yQkd7YZwmPPx_4RFCpb9JYfFWJ9gfPhA@mail.gmail.com>
+ <CAK8P3a3q-hC7kZwLPbc+E5VYcqthQS4J4Rqo+rKkBRU2n071XA@mail.gmail.com>
+In-Reply-To: <CAK8P3a3q-hC7kZwLPbc+E5VYcqthQS4J4Rqo+rKkBRU2n071XA@mail.gmail.com>
+From: Brian Gerst <brgerst@gmail.com>
+Date: Mon, 15 Jun 2020 15:45:24 -0400
+Message-ID: <CAMzpN2iDPKatOqs+Uuw70ACbnB-D__dgSRZU0wBjOUBwTGOJ-A@mail.gmail.com>
+Subject: Re: [PATCH 2/6] exec: simplify the compat syscall handling
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>, Luis Chamberlain <mcgrof@kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-All registers disks must have a valid queue pointer, so don't bother to
-log a warning for that case.
+On Mon, Jun 15, 2020 at 2:47 PM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Mon, Jun 15, 2020 at 4:48 PM Brian Gerst <brgerst@gmail.com> wrote:
+> > On Mon, Jun 15, 2020 at 10:13 AM Christoph Hellwig <hch@lst.de> wrote:
+> > > On Mon, Jun 15, 2020 at 03:31:35PM +0200, Arnd Bergmann wrote:
+>
+> > >
+> > > I'd rather keep it in common code as that allows all the low-level
+> > > exec stuff to be marked static, and avoid us growing new pointless
+> > > compat variants through copy and paste.
+> > > smart compiler to d
+> > >
+> > > > I don't really understand
+> > > > the comment, why can't this just use this?
+> > >
+> > > That errors out with:
+> > >
+> > > ld: arch/x86/entry/syscall_x32.o:(.rodata+0x1040): undefined reference to
+> > > `__x32_sys_execve'
+> > > ld: arch/x86/entry/syscall_x32.o:(.rodata+0x1108): undefined reference to
+> > > `__x32_sys_execveat'
+> > > make: *** [Makefile:1139: vmlinux] Error 1
+> >
+> > I think I have a fix for this, by modifying the syscall wrappers to
+> > add an alias for the __x32 variant to the native __x64_sys_foo().
+> > I'll get back to you with a patch.
+>
+> Do we actually need the __x32 prefix any more, or could we just
+> change all x32 specific calls to use __x64_compat_sys_foo()?
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/blk-core.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+I suppose that would work too.  The prefix really describes the
+register mapping.
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 95dca74534ff73..37435d0d433564 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -973,22 +973,12 @@ static inline blk_status_t blk_check_zone_append(struct request_queue *q,
- static noinline_for_stack bool
- generic_make_request_checks(struct bio *bio)
- {
--	struct request_queue *q;
-+	struct request_queue *q = bio->bi_disk->queue;
- 	int nr_sectors = bio_sectors(bio);
- 	blk_status_t status = BLK_STS_IOERR;
--	char b[BDEVNAME_SIZE];
- 
- 	might_sleep();
- 
--	q = bio->bi_disk->queue;
--	if (unlikely(!q)) {
--		printk(KERN_ERR
--		       "generic_make_request: Trying to access "
--			"nonexistent block-device %s (%Lu)\n",
--			bio_devname(bio, b), (long long)bio->bi_iter.bi_sector);
--		goto end_io;
--	}
--
- 	/*
- 	 * For a REQ_NOWAIT based request, return -EOPNOTSUPP
- 	 * if queue is not a request based queue.
--- 
-2.26.2
+--
+Brian Gerst
