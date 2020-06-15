@@ -1,52 +1,35 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50194 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727097AbgFDLUy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Jun 2020 07:20:54 -0400
-Date: Thu, 4 Jun 2020 13:20:45 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH] vfio-ccw: make vfio_ccw_regops variables declarations static
-Message-ID: <patch.git-a34be7aede18.your-ad-here.call-01591269421-ext-5655@work.hours>
-References: <20200603112716.332801-1-cohuck@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 15 Jun 2020 15:17:27 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] printk: Make linux/printk.h self-contained
+Message-ID: <20200615151727.3c7e9786@oasis.local.home>
+In-Reply-To: <20200615114038.GA20708@gondor.apana.org.au>
+References: <20200611125144.GA2506@gondor.apana.org.au>
+        <20200613122834.GA23739@xsang-OptiPlex-9020>
+        <20200613130949.GA22005@gondor.apana.org.au>
+        <20200613142901.65xieioomt6bbqa6@ltop.local>
+        <20200615114038.GA20708@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>, kernel test robot <lkp@intel.com>, linux-sparse@vger.kernel.org, Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kbuild-all@lists.01.org
 
-Fixes the following sparse warnings:
-drivers/s390/cio/vfio_ccw_chp.c:62:30: warning: symbol 'vfio_ccw_schib_region_ops' was not declared. Should it be static?
-drivers/s390/cio/vfio_ccw_chp.c:117:30: warning: symbol 'vfio_ccw_crw_region_ops' was not declared. Should it be static?
+On Mon, 15 Jun 2020 21:40:38 +1000
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
 
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
----
- drivers/s390/cio/vfio_ccw_chp.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> Thanks for investigating.  I now realise that this was sent against
+> my first patch which did have this problem, which was fixed in my
+> second patch.  Sorry for the false alarm.
 
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-index 876f6ade51cc..a646fc81c872 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -59,7 +59,7 @@ static void vfio_ccw_schib_region_release(struct vfio_ccw_private *private,
- 
- }
- 
--const struct vfio_ccw_regops vfio_ccw_schib_region_ops = {
-+static const struct vfio_ccw_regops vfio_ccw_schib_region_ops = {
- 	.read = vfio_ccw_schib_region_read,
- 	.write = vfio_ccw_schib_region_write,
- 	.release = vfio_ccw_schib_region_release,
-@@ -131,7 +131,7 @@ static void vfio_ccw_crw_region_release(struct vfio_ccw_private *private,
- 
- }
- 
--const struct vfio_ccw_regops vfio_ccw_crw_region_ops = {
-+static const struct vfio_ccw_regops vfio_ccw_crw_region_ops = {
- 	.read = vfio_ccw_crw_region_read,
- 	.write = vfio_ccw_crw_region_write,
- 	.release = vfio_ccw_crw_region_release,
--- 
-2.21.0
+Which is why it is recommended that new patches start their own threads ;-)
+
+That said,
+
+Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+
+for the v2 patch.
+
+-- Steve
