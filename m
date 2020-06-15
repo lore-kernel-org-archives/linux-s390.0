@@ -1,37 +1,133 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:43751 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726606AbgFPJrJ (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29432 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729148AbgFOJcM (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Jun 2020 05:47:09 -0400
-Subject: Re: [kvm-unit-tests PATCH v9 08/12] s390x: retrieve decimal and
- hexadecimal kernel parameters
+        Mon, 15 Jun 2020 05:32:12 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v9 08/12] s390x: retrieve decimal and hexadecimal kernel parameters
+Date: Mon, 15 Jun 2020 11:31:57 +0200
+Message-Id: <1592213521-19390-9-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
 References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
- <1592213521-19390-9-git-send-email-pmorel@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <a25fa4b1-da51-4dba-48c7-5d7154073d68@redhat.com>
-Date: Tue, 16 Jun 2020 11:47:00 +0200
-MIME-Version: 1.0
-In-Reply-To: <1592213521-19390-9-git-send-email-pmorel@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-On 15/06/2020 11.31, Pierre Morel wrote:
-> We often need to retrieve hexadecimal kernel parameters.
-> Let's implement a shared utility to do it.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  lib/s390x/kernel-args.c | 60 +++++++++++++++++++++++++++++++++++++++++
->  lib/s390x/kernel-args.h | 18 +++++++++++++
->  s390x/Makefile          |  1 +
->  3 files changed, 79 insertions(+)
->  create mode 100644 lib/s390x/kernel-args.c
->  create mode 100644 lib/s390x/kernel-args.h
+We often need to retrieve hexadecimal kernel parameters.
+Let's implement a shared utility to do it.
 
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ lib/s390x/kernel-args.c | 60 +++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/kernel-args.h | 18 +++++++++++++
+ s390x/Makefile          |  1 +
+ 3 files changed, 79 insertions(+)
+ create mode 100644 lib/s390x/kernel-args.c
+ create mode 100644 lib/s390x/kernel-args.h
+
+diff --git a/lib/s390x/kernel-args.c b/lib/s390x/kernel-args.c
+new file mode 100644
+index 0000000..2d3b2c2
+--- /dev/null
++++ b/lib/s390x/kernel-args.c
+@@ -0,0 +1,60 @@
++/*
++ * Retrieving kernel arguments
++ *
++ * Copyright (c) 2020 IBM Corp
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++
++#include <libcflat.h>
++#include <string.h>
++#include <asm/arch_def.h>
++#include <kernel-args.h>
++
++static const char *hex_digit = "0123456789abcdef";
++
++static unsigned long htol(char *s)
++{
++	unsigned long v = 0, shift = 0, value = 0;
++	int i, digit, len = strlen(s);
++
++	for (shift = 0, i = len - 1; i >= 0; i--, shift += 4) {
++		digit = s[i] | 0x20;	/* Set lowercase */
++		if (!strchr(hex_digit, digit))
++			return 0;	/* this is not a digit ! */
++
++		if (digit <= '9')
++			v = digit - '0';
++		else
++			v = digit - 'a' + 10;
++		value += (v << shift);
++	}
++
++	return value;
++}
++
++int kernel_arg(int argc, char *argv[], const char *str, unsigned long *val)
++{
++	int i, ret;
++	char *p, *q;
++
++	for (i = 0; i < argc; i++) {
++		ret = strncmp(argv[i], str, strlen(str));
++		if (ret)
++			continue;
++		p = strchr(argv[i], '=');
++		if (!p)
++			return -1;
++		q = strchr(p, 'x');
++		if (!q)
++			*val = atol(p + 1);
++		else
++			*val = htol(q + 1);
++		return 0;
++	}
++	return -2;
++}
+diff --git a/lib/s390x/kernel-args.h b/lib/s390x/kernel-args.h
+new file mode 100644
+index 0000000..a88e34e
+--- /dev/null
++++ b/lib/s390x/kernel-args.h
+@@ -0,0 +1,18 @@
++/*
++ * Kernel argument
++ *
++ * Copyright (c) 2020 IBM Corp
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++
++#ifndef KERNEL_ARGS_H
++#define KERNEL_ARGS_H
++
++int kernel_arg(int argc, char *argv[], const char *str, unsigned long *val);
++
++#endif
+diff --git a/s390x/Makefile b/s390x/Makefile
+index ddb4b48..47a94cc 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -51,6 +51,7 @@ cflatobjs += lib/s390x/sclp-console.o
+ cflatobjs += lib/s390x/interrupt.o
+ cflatobjs += lib/s390x/mmu.o
+ cflatobjs += lib/s390x/smp.o
++cflatobjs += lib/s390x/kernel-args.o
+ 
+ OBJDIRS += lib/s390x
+ 
+-- 
+2.25.1
