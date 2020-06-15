@@ -1,38 +1,71 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-MIME-Version: 1.0
-References: <20200615130032.931285-1-hch@lst.de> <20200615130032.931285-3-hch@lst.de>
- <CAK8P3a0bRD3RzE_X6Tjzu9Tj+OhHhP+S=k6+VYODBGko8oQhew@mail.gmail.com> <20200615141239.GA12951@lst.de>
-In-Reply-To: <20200615141239.GA12951@lst.de>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 15 Jun 2020 16:40:28 +0200
-Message-ID: <CAK8P3a2MeZhayZWkPbd4Ckq3n410p_n808NJTwN=JjzqHRiAXg@mail.gmail.com>
+Date: Mon, 15 Jun 2020 16:12:39 +0200
+From: Christoph Hellwig <hch@lst.de>
 Subject: Re: [PATCH 2/6] exec: simplify the compat syscall handling
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20200615141239.GA12951@lst.de>
+References: <20200615130032.931285-1-hch@lst.de> <20200615130032.931285-3-hch@lst.de> <CAK8P3a0bRD3RzE_X6Tjzu9Tj+OhHhP+S=k6+VYODBGko8oQhew@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a0bRD3RzE_X6Tjzu9Tj+OhHhP+S=k6+VYODBGko8oQhew@mail.gmail.com>
 Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Luis Chamberlain <mcgrof@kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Christoph Hellwig <hch@lst.de>, Al Viro <viro@zeniv.linux.org.uk>, Luis Chamberlain <mcgrof@kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Jun 15, 2020 at 4:12 PM Christoph Hellwig <hch@lst.de> wrote:
-> On Mon, Jun 15, 2020 at 03:31:35PM +0200, Arnd Bergmann wrote:
+On Mon, Jun 15, 2020 at 03:31:35PM +0200, Arnd Bergmann wrote:
+> >  #ifdef CONFIG_COMPAT
+> > -       if (unlikely(argv.is_compat)) {
+> > +       if (in_compat_syscall()) {
+> > +               const compat_uptr_t __user *compat_argv =
+> > +                       compat_ptr((unsigned long)argv);
+> >                 compat_uptr_t compat;
+> >
+> > -               if (get_user(compat, argv.ptr.compat + nr))
+> > +               if (get_user(compat, compat_argv + nr))
+> >                         return ERR_PTR(-EFAULT);
+> >
+> >                 return compat_ptr(compat);
+> >         }
+> >  #endif
+> 
+> I would expect that the "#ifdef CONFIG_COMPAT" can be removed
+> now, since compat_ptr() and in_compat_syscall() are now defined
+> unconditionally. I have not tried that though.
 
->
-> > I don't really understand
-> > the comment, why can't this just use this?
->
-> That errors out with:
->
-> ld: arch/x86/entry/syscall_x32.o:(.rodata+0x1040): undefined reference to
-> `__x32_sys_execve'
-> ld: arch/x86/entry/syscall_x32.o:(.rodata+0x1108): undefined reference to
-> `__x32_sys_execveat'
-> make: *** [Makefile:1139: vmlinux] Error 1
+True, I'll give it a spin.
 
-Ah, I see: it's marked x32-only, so arch/x86/entry/syscall_x32.c
-uses the __x32 prefix instead of the __x64 one. Marking it 'common'
-instead would make it work, but also create an extra entry point
-for native processes, something that commit
-6365b842aae4 ("x86/syscalls: Split the x32 syscalls into their own table")
-was trying to avoid.
+> > +/*
+> > + * x32 syscalls are listed in the same table as x86_64 ones, so we need to
+> > + * define compat syscalls that are exactly the same as the native version for
+> > + * the syscall table machinery to work.  Sigh..
+> > + */
+> > +#ifdef CONFIG_X86_X32
+> >  COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
+> > -       const compat_uptr_t __user *, argv,
+> > -       const compat_uptr_t __user *, envp)
+> > +                      const char __user *const __user *, argv,
+> > +                      const char __user *const __user *, envp)
+> >  {
+> > -       return do_compat_execve(AT_FDCWD, getname(filename), argv, envp, 0);
+> > +       return do_execveat(AT_FDCWD, getname(filename), argv, envp, 0, NULL);
+> >  }
+> 
+> Maybe move it to arch/x86/kernel/process_64.c or arch/x86/entry/syscall_x32.c
+> to keep it out of the common code if this is needed.
 
-      Arnd
+I'd rather keep it in common code as that allows all the low-level
+exec stuff to be marked static, and avoid us growing new pointless
+compat variants through copy and paste.
+smart compiler to d
+
+> I don't really understand
+> the comment, why can't this just use this?
+
+That errors out with:
+
+ld: arch/x86/entry/syscall_x32.o:(.rodata+0x1040): undefined reference to
+`__x32_sys_execve'
+ld: arch/x86/entry/syscall_x32.o:(.rodata+0x1108): undefined reference to
+`__x32_sys_execveat'
+make: *** [Makefile:1139: vmlinux] Error 1
