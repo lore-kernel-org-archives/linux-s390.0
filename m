@@ -1,308 +1,257 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:57976 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726163AbgFCL1q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:46 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL v2 08/10] vfio-ccw: Introduce a new CRW region
-Date: Wed,  3 Jun 2020 13:27:14 +0200
-Message-Id: <20200603112716.332801-9-cohuck@redhat.com>
-In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
-References: <20200603112716.332801-1-cohuck@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52358 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730262AbgFONAn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Jun 2020 09:00:43 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 1/6] exec: cleanup the execve wrappers
+Date: Mon, 15 Jun 2020 15:00:27 +0200
+Message-Id: <20200615130032.931285-2-hch@lst.de>
+In-Reply-To: <20200615130032.931285-1-hch@lst.de>
+References: <20200615130032.931285-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Farhan Ali <alifm@linux.ibm.com>
+Remove a whole bunch of wrappers that eventually all call
+__do_execve_file, and consolidate the execvce helpers to:
 
-This region provides a mechanism to pass a Channel Report Word
-that affect vfio-ccw devices, and needs to be passed to the guest
-for its awareness and/or processing.
+  (1) __do_execveat, which is the lowest level helper implementing the
+      actual functionality
+  (2) do_execvat, which is used by all callers that want native
+      pointers
+  (3) do_compat_execve, which is used by all compat syscalls
 
-The base driver (see crw_collect_info()) provides space for two
-CRWs, as a subchannel event may have two CRWs chained together
-(one for the ssid, one for the subchannel).  As vfio-ccw will
-deal with everything at the subchannel level, provide space
-for a single CRW to be transferred in one shot.
-
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20200505122745.53208-7-farman@linux.ibm.com>
-[CH: added padding to ccw_crw_region]
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- Documentation/s390/vfio-ccw.rst     | 20 +++++++++++
- drivers/s390/cio/vfio_ccw_chp.c     | 55 +++++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_drv.c     | 20 +++++++++++
- drivers/s390/cio/vfio_ccw_ops.c     |  8 +++++
- drivers/s390/cio/vfio_ccw_private.h |  4 +++
- include/uapi/linux/vfio.h           |  2 ++
- include/uapi/linux/vfio_ccw.h       |  9 +++++
- 7 files changed, 118 insertions(+)
+ fs/exec.c               | 98 +++++++++++------------------------------
+ include/linux/binfmts.h | 12 ++---
+ init/main.c             |  7 +--
+ kernel/umh.c            | 16 +++----
+ 4 files changed, 41 insertions(+), 92 deletions(-)
 
-diff --git a/Documentation/s390/vfio-ccw.rst b/Documentation/s390/vfio-ccw.rst
-index 32310df525ba..8aad08a8b8a5 100644
---- a/Documentation/s390/vfio-ccw.rst
-+++ b/Documentation/s390/vfio-ccw.rst
-@@ -298,6 +298,26 @@ This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_SCHIB.
- Reading this region triggers a STORE SUBCHANNEL to be issued to the
- associated hardware.
- 
-+vfio-ccw crw region
-+---------------------
-+
-+The vfio-ccw crw region is used to return Channel Report Word (CRW)
-+data to userspace::
-+
-+  struct ccw_crw_region {
-+         __u32 crw;
-+         __u32 pad;
-+  } __packed;
-+
-+This region is exposed via region type VFIO_REGION_SUBTYPE_CCW_CRW.
-+
-+Reading this region returns a CRW if one that is relevant for this
-+subchannel (e.g. one reporting changes in channel path state) is
-+pending, or all zeroes if not. If multiple CRWs are pending (including
-+possibly chained CRWs), reading this region again will return the next
-+one, until no more CRWs are pending and zeroes are returned. This is
-+similar to how STORE CHANNEL REPORT WORD works.
-+
- vfio-ccw operation details
- --------------------------
- 
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-index 18f3b3e873a9..37ea344a4d72 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -74,3 +74,58 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private)
- 					    VFIO_REGION_INFO_FLAG_READ,
- 					    private->schib_region);
+diff --git a/fs/exec.c b/fs/exec.c
+index e6e8a9a7032784..354fdaa536ae7d 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1815,10 +1815,7 @@ static int exec_binprm(struct linux_binprm *bprm)
+ 	return 0;
  }
-+
-+static ssize_t vfio_ccw_crw_region_read(struct vfio_ccw_private *private,
-+					char __user *buf, size_t count,
-+					loff_t *ppos)
-+{
-+	unsigned int i = VFIO_CCW_OFFSET_TO_INDEX(*ppos) - VFIO_CCW_NUM_REGIONS;
-+	loff_t pos = *ppos & VFIO_CCW_OFFSET_MASK;
-+	struct ccw_crw_region *region;
-+	int ret;
-+
-+	if (pos + count > sizeof(*region))
-+		return -EINVAL;
-+
-+	mutex_lock(&private->io_mutex);
-+	region = private->region[i].data;
-+
-+	if (copy_to_user(buf, (void *)region + pos, count))
-+		ret = -EFAULT;
-+	else
-+		ret = count;
-+
-+	region->crw = 0;
-+
-+	mutex_unlock(&private->io_mutex);
-+	return ret;
-+}
-+
-+static ssize_t vfio_ccw_crw_region_write(struct vfio_ccw_private *private,
-+					 const char __user *buf, size_t count,
-+					 loff_t *ppos)
-+{
-+	return -EINVAL;
-+}
-+
-+static void vfio_ccw_crw_region_release(struct vfio_ccw_private *private,
-+					struct vfio_ccw_region *region)
-+{
-+
-+}
-+
-+const struct vfio_ccw_regops vfio_ccw_crw_region_ops = {
-+	.read = vfio_ccw_crw_region_read,
-+	.write = vfio_ccw_crw_region_write,
-+	.release = vfio_ccw_crw_region_release,
-+};
-+
-+int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private)
-+{
-+	return vfio_ccw_register_dev_region(private,
-+					    VFIO_REGION_SUBTYPE_CCW_CRW,
-+					    &vfio_ccw_crw_region_ops,
-+					    sizeof(struct ccw_crw_region),
-+					    VFIO_REGION_INFO_FLAG_READ,
-+					    private->crw_region);
-+}
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 7aeff42f370d..e4deae6fd525 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -28,6 +28,7 @@ struct workqueue_struct *vfio_ccw_work_q;
- static struct kmem_cache *vfio_ccw_io_region;
- static struct kmem_cache *vfio_ccw_cmd_region;
- static struct kmem_cache *vfio_ccw_schib_region;
-+static struct kmem_cache *vfio_ccw_crw_region;
  
- debug_info_t *vfio_ccw_debug_msg_id;
- debug_info_t *vfio_ccw_debug_trace_id;
-@@ -120,6 +121,8 @@ static void vfio_ccw_sch_irq(struct subchannel *sch)
+-/*
+- * sys_execve() executes a new program.
+- */
+-static int __do_execve_file(int fd, struct filename *filename,
++static int __do_execveat(int fd, struct filename *filename,
+ 			    struct user_arg_ptr argv,
+ 			    struct user_arg_ptr envp,
+ 			    int flags, struct file *file)
+@@ -1972,74 +1969,16 @@ static int __do_execve_file(int fd, struct filename *filename,
+ 	return retval;
+ }
  
- static void vfio_ccw_free_regions(struct vfio_ccw_private *private)
+-static int do_execveat_common(int fd, struct filename *filename,
+-			      struct user_arg_ptr argv,
+-			      struct user_arg_ptr envp,
+-			      int flags)
+-{
+-	return __do_execve_file(fd, filename, argv, envp, flags, NULL);
+-}
+-
+-int do_execve_file(struct file *file, void *__argv, void *__envp)
+-{
+-	struct user_arg_ptr argv = { .ptr.native = __argv };
+-	struct user_arg_ptr envp = { .ptr.native = __envp };
+-
+-	return __do_execve_file(AT_FDCWD, NULL, argv, envp, 0, file);
+-}
+-
+-int do_execve(struct filename *filename,
+-	const char __user *const __user *__argv,
+-	const char __user *const __user *__envp)
+-{
+-	struct user_arg_ptr argv = { .ptr.native = __argv };
+-	struct user_arg_ptr envp = { .ptr.native = __envp };
+-	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+-}
+-
+ int do_execveat(int fd, struct filename *filename,
+ 		const char __user *const __user *__argv,
+ 		const char __user *const __user *__envp,
+-		int flags)
++		int flags, struct file *file)
  {
-+	if (private->crw_region)
-+		kmem_cache_free(vfio_ccw_crw_region, private->crw_region);
- 	if (private->schib_region)
- 		kmem_cache_free(vfio_ccw_schib_region, private->schib_region);
- 	if (private->cmd_region)
-@@ -165,6 +168,12 @@ static int vfio_ccw_sch_probe(struct subchannel *sch)
- 	if (!private->schib_region)
- 		goto out_free;
+ 	struct user_arg_ptr argv = { .ptr.native = __argv };
+ 	struct user_arg_ptr envp = { .ptr.native = __envp };
  
-+	private->crw_region = kmem_cache_zalloc(vfio_ccw_crw_region,
-+						GFP_KERNEL | GFP_DMA);
-+
-+	if (!private->crw_region)
-+		goto out_free;
-+
- 	private->sch = sch;
- 	dev_set_drvdata(&sch->dev, private);
- 	mutex_init(&private->io_mutex);
-@@ -366,6 +375,7 @@ static void vfio_ccw_debug_exit(void)
+-	return do_execveat_common(fd, filename, argv, envp, flags);
+-}
+-
+-#ifdef CONFIG_COMPAT
+-static int compat_do_execve(struct filename *filename,
+-	const compat_uptr_t __user *__argv,
+-	const compat_uptr_t __user *__envp)
+-{
+-	struct user_arg_ptr argv = {
+-		.is_compat = true,
+-		.ptr.compat = __argv,
+-	};
+-	struct user_arg_ptr envp = {
+-		.is_compat = true,
+-		.ptr.compat = __envp,
+-	};
+-	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+-}
+-
+-static int compat_do_execveat(int fd, struct filename *filename,
+-			      const compat_uptr_t __user *__argv,
+-			      const compat_uptr_t __user *__envp,
+-			      int flags)
+-{
+-	struct user_arg_ptr argv = {
+-		.is_compat = true,
+-		.ptr.compat = __argv,
+-	};
+-	struct user_arg_ptr envp = {
+-		.is_compat = true,
+-		.ptr.compat = __envp,
+-	};
+-	return do_execveat_common(fd, filename, argv, envp, flags);
++	return __do_execveat(fd, filename, argv, envp, flags, file);
+ }
+-#endif
  
- static void vfio_ccw_destroy_regions(void)
+ void set_binfmt(struct linux_binfmt *new)
  {
-+	kmem_cache_destroy(vfio_ccw_crw_region);
- 	kmem_cache_destroy(vfio_ccw_schib_region);
- 	kmem_cache_destroy(vfio_ccw_cmd_region);
- 	kmem_cache_destroy(vfio_ccw_io_region);
-@@ -413,6 +423,16 @@ static int __init vfio_ccw_sch_init(void)
- 		goto out_err;
- 	}
- 
-+	vfio_ccw_crw_region = kmem_cache_create_usercopy("vfio_ccw_crw_region",
-+					sizeof(struct ccw_crw_region), 0,
-+					SLAB_ACCOUNT, 0,
-+					sizeof(struct ccw_crw_region), NULL);
-+
-+	if (!vfio_ccw_crw_region) {
-+		ret = -ENOMEM;
-+		goto out_err;
-+	}
-+
- 	isc_register(VFIO_CCW_ISC);
- 	ret = css_driver_register(&vfio_ccw_sch_driver);
- 	if (ret) {
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index c3a74ab7bb86..8b3ed5b45277 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -178,6 +178,10 @@ static int vfio_ccw_mdev_open(struct mdev_device *mdev)
- 	if (ret)
- 		goto out_unregister;
- 
-+	ret = vfio_ccw_register_crw_dev_regions(private);
-+	if (ret)
-+		goto out_unregister;
-+
- 	return ret;
- 
- out_unregister:
-@@ -389,6 +393,7 @@ static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
+@@ -2070,7 +2009,7 @@ SYSCALL_DEFINE3(execve,
+ 		const char __user *const __user *, argv,
+ 		const char __user *const __user *, envp)
  {
- 	switch (info->index) {
- 	case VFIO_CCW_IO_IRQ_INDEX:
-+	case VFIO_CCW_CRW_IRQ_INDEX:
- 		info->count = 1;
- 		info->flags = VFIO_IRQ_INFO_EVENTFD;
- 		break;
-@@ -416,6 +421,9 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 	case VFIO_CCW_IO_IRQ_INDEX:
- 		ctx = &private->io_trigger;
- 		break;
-+	case VFIO_CCW_CRW_IRQ_INDEX:
-+		ctx = &private->crw_trigger;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index d6601a8adf13..97131b4df0b9 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -57,6 +57,7 @@ void vfio_ccw_unregister_dev_regions(struct vfio_ccw_private *private);
+-	return do_execve(getname(filename), argv, envp);
++	return do_execveat(AT_FDCWD, getname(filename), argv, envp, 0, NULL);
+ }
  
- int vfio_ccw_register_async_dev_regions(struct vfio_ccw_private *private);
- int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
-+int vfio_ccw_register_crw_dev_regions(struct vfio_ccw_private *private);
+ SYSCALL_DEFINE5(execveat,
+@@ -2080,18 +2019,34 @@ SYSCALL_DEFINE5(execveat,
+ 		int, flags)
+ {
+ 	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
++	struct filename *name = getname_flags(filename, lookup_flags, NULL);
  
- /**
-  * struct vfio_ccw_private
-@@ -71,6 +72,7 @@ int vfio_ccw_register_schib_dev_regions(struct vfio_ccw_private *private);
-  * @region: additional regions for other subchannel operations
-  * @cmd_region: MMIO region for asynchronous I/O commands other than START
-  * @schib_region: MMIO region for SCHIB information
-+ * @crw_region: MMIO region for getting channel report words
-  * @num_regions: number of additional regions
-  * @cp: channel program for the current I/O operation
-  * @irb: irb info received from interrupt
-@@ -90,6 +92,7 @@ struct vfio_ccw_private {
- 	struct vfio_ccw_region *region;
- 	struct ccw_cmd_region	*cmd_region;
- 	struct ccw_schib_region *schib_region;
-+	struct ccw_crw_region	*crw_region;
- 	int num_regions;
+-	return do_execveat(fd,
+-			   getname_flags(filename, lookup_flags, NULL),
+-			   argv, envp, flags);
++	return do_execveat(fd, name, argv, envp, flags, NULL);
+ }
  
- 	struct channel_program	cp;
-@@ -97,6 +100,7 @@ struct vfio_ccw_private {
- 	union scsw		scsw;
- 
- 	struct eventfd_ctx	*io_trigger;
-+	struct eventfd_ctx	*crw_trigger;
- 	struct work_struct	io_work;
- } __aligned(8);
- 
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 7a1abbd889bd..907758cf6d60 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -379,6 +379,7 @@ struct vfio_region_gfx_edid {
- /* sub-types for VFIO_REGION_TYPE_CCW */
- #define VFIO_REGION_SUBTYPE_CCW_ASYNC_CMD	(1)
- #define VFIO_REGION_SUBTYPE_CCW_SCHIB		(2)
-+#define VFIO_REGION_SUBTYPE_CCW_CRW		(3)
- 
- /*
-  * The MSIX mappable capability informs that MSIX data of a BAR can be mmapped
-@@ -578,6 +579,7 @@ enum {
- 
- enum {
- 	VFIO_CCW_IO_IRQ_INDEX,
-+	VFIO_CCW_CRW_IRQ_INDEX,
- 	VFIO_CCW_NUM_IRQS
- };
- 
-diff --git a/include/uapi/linux/vfio_ccw.h b/include/uapi/linux/vfio_ccw.h
-index 758bf214898d..aa04f3aa6db0 100644
---- a/include/uapi/linux/vfio_ccw.h
-+++ b/include/uapi/linux/vfio_ccw.h
-@@ -44,4 +44,13 @@ struct ccw_schib_region {
- 	__u8 schib_area[SCHIB_AREA_SIZE];
- } __packed;
- 
-+/*
-+ * Used for returning a Channel Report Word to userspace.
-+ * Note: this is controlled by a capability
-+ */
-+struct ccw_crw_region {
-+	__u32 crw;
-+	__u32 pad;
-+} __packed;
+ #ifdef CONFIG_COMPAT
++static int do_compat_execve(int fd, struct filename *filename,
++		const compat_uptr_t __user *__argv,
++		const compat_uptr_t __user *__envp,
++		int flags)
++{
++	struct user_arg_ptr argv = {
++		.is_compat = true,
++		.ptr.compat = __argv,
++	};
++	struct user_arg_ptr envp = {
++		.is_compat = true,
++		.ptr.compat = __envp,
++	};
 +
++	return __do_execveat(fd, filename, argv, envp, flags, NULL);
++}
++
+ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
+ 	const compat_uptr_t __user *, argv,
+ 	const compat_uptr_t __user *, envp)
+ {
+-	return compat_do_execve(getname(filename), argv, envp);
++	return do_compat_execve(AT_FDCWD, getname(filename), argv, envp, 0);
+ }
+ 
+ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
+@@ -2101,9 +2056,8 @@ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
+ 		       int,  flags)
+ {
+ 	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
++	struct filename *name = getname_flags(filename, lookup_flags, NULL);
+ 
+-	return compat_do_execveat(fd,
+-				  getname_flags(filename, lookup_flags, NULL),
+-				  argv, envp, flags);
++	return do_compat_execve(fd, name, argv, envp, flags);
+ }
  #endif
+diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
+index 4a20b7517dd036..bed702e4b1fbd9 100644
+--- a/include/linux/binfmts.h
++++ b/include/linux/binfmts.h
+@@ -134,13 +134,9 @@ int copy_string_kernel(const char *arg, struct linux_binprm *bprm);
+ extern void set_binfmt(struct linux_binfmt *new);
+ extern ssize_t read_code(struct file *, unsigned long, loff_t, size_t);
+ 
+-extern int do_execve(struct filename *,
+-		     const char __user * const __user *,
+-		     const char __user * const __user *);
+-extern int do_execveat(int, struct filename *,
+-		       const char __user * const __user *,
+-		       const char __user * const __user *,
+-		       int);
+-int do_execve_file(struct file *file, void *__argv, void *__envp);
++int do_execveat(int fd, struct filename *filename,
++		const char __user *const __user *__argv,
++		const char __user *const __user *__envp,
++		int flags, struct file *file);
+ 
+ #endif /* _LINUX_BINFMTS_H */
+diff --git a/init/main.c b/init/main.c
+index 0ead83e86b5aa2..838950ea7bca22 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1329,9 +1329,10 @@ static int run_init_process(const char *init_filename)
+ 	pr_debug("  with environment:\n");
+ 	for (p = envp_init; *p; p++)
+ 		pr_debug("    %s\n", *p);
+-	return do_execve(getname_kernel(init_filename),
+-		(const char __user *const __user *)argv_init,
+-		(const char __user *const __user *)envp_init);
++	return do_execveat(AT_FDCWD, getname_kernel(init_filename),
++			(const char __user *const __user *)argv_init,
++			(const char __user *const __user *)envp_init,
++			0, NULL);
+ }
+ 
+ static int try_to_run_init_process(const char *init_filename)
+diff --git a/kernel/umh.c b/kernel/umh.c
+index 79f139a7ca03c6..7aa9a5817582ca 100644
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -103,15 +103,13 @@ static int call_usermodehelper_exec_async(void *data)
+ 	commit_creds(new);
+ 
+ 	sub_info->pid = task_pid_nr(current);
+-	if (sub_info->file) {
+-		retval = do_execve_file(sub_info->file,
+-					sub_info->argv, sub_info->envp);
+-		if (!retval)
+-			current->flags |= PF_UMH;
+-	} else
+-		retval = do_execve(getname_kernel(sub_info->path),
+-				   (const char __user *const __user *)sub_info->argv,
+-				   (const char __user *const __user *)sub_info->envp);
++	retval = do_execveat(AT_FDCWD,
++			sub_info->path ? getname_kernel(sub_info->path) : NULL,
++			(const char __user *const __user *)sub_info->argv,
++			(const char __user *const __user *)sub_info->envp,
++			0, sub_info->file);
++	if (sub_info->file && !retval)
++		current->flags |= PF_UMH;
+ out:
+ 	sub_info->retval = retval;
+ 	/*
 -- 
-2.25.4
+2.26.2
