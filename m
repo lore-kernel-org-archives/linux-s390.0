@@ -1,104 +1,89 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33376 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387535AbgFWRgS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:36:18 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 15/24] s390/ptrace: fix setting syscall number
-Date: Tue, 23 Jun 2020 13:35:50 -0400
-Message-Id: <20200623173559.1355728-15-sashal@kernel.org>
-In-Reply-To: <20200623173559.1355728-1-sashal@kernel.org>
-References: <20200623173559.1355728-1-sashal@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH 04/21] mm: free_area_init: use maximal zone PFNs rather
+ than zone sizes
+References: <20200412194859.12663-5-rppt@kernel.org>
+ <f53e68db-ed81-6ef6-5087-c7246d010ea2@linux-m68k.org>
+ <20200615062234.GA7882@kernel.org>
+ <24563231-ed19-6f4f-617e-4d6bfc7553e4@linux-m68k.org>
+ <20200615082937.GB7882@kernel.org>
+From: Greg Ungerer <gerg@linux-m68k.org>
+Message-ID: <5cae945c-1d15-9857-f7a5-defa884f7b3c@linux-m68k.org>
+Date: Mon, 15 Jun 2020 23:02:21 +1000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20200615082937.GB7882@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Mike Rapoport <rppt@kernel.org>
+Cc: akpm@linux-foundation.org, bhe@redhat.com, geert@linux-m68k.org, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mm@kvack.org, rppt@linux.ibm.com
 
-From: Sven Schnelle <svens@linux.ibm.com>
+Hi Mike,
 
-[ Upstream commit 873e5a763d604c32988c4a78913a8dab3862d2f9 ]
+On 15/6/20 6:29 pm, Mike Rapoport wrote:
+> (reduced the spam list)
+> 
+> On Mon, Jun 15, 2020 at 05:17:28PM +1000, Greg Ungerer wrote:
+>> On 15/6/20 4:22 pm, Mike Rapoport wrote:
+>>> On Mon, Jun 15, 2020 at 01:53:42PM +1000, Greg Ungerer wrote:
+>>>> From: Mike Rapoport <rppt@linux.ibm.com>
+>>>>> Currently, architectures that use free_area_init() to initialize memory map
+>>>>> and node and zone structures need to calculate zone and hole sizes. We can
+>>>>> use free_area_init_nodes() instead and let it detect the zone boundaries
+>>>>> while the architectures will only have to supply the possible limits for
+>>>>> the zones.
+>>>>>
+>>>>> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+>>>>
+>>>> This is causing some new warnings for me on boot on at least one non-MMU m68k target:
+>>>
+>>> There were a couple of changes that cause this. The free_area_init()
+>>> now relies on memblock data and architectural limits for zone sizes
+>>> rather than on explisit pfns calculated by the arch code. I've update
+>>> motorola variant and missed coldfire. Angelo sent a fix for mcfmmu.c
+>>> [1] and I've updated it to include nommu as well
+>>>
+>>> [1] https://lore.kernel.org/linux-m68k/20200614225119.777702-1-angelo.dureghello@timesys.com
+>>>
+>>>>  From 55b8523df2a5c4565b132c0691990f0821040fec Mon Sep 17 00:00:00 2001
+>>> From: Angelo Dureghello <angelo.dureghello@timesys.com>
+>>> Date: Mon, 15 Jun 2020 00:51:19 +0200
+>>> Subject: [PATCH] m68k: fix registration of memory regions with memblock
+>>>
+>>> Commit 3f08a302f533 ("mm: remove CONFIG_HAVE_MEMBLOCK_NODE_MAP option")
+>>> introduced assumption that UMA systems have their memory at node 0 and
+>>> updated most of them, but it forgot nommu and coldfire variants of m68k.
+>>>
+>>> The later change in free area initialization in commit fa3354e4ea39 ("mm:
+>>> free_area_init: use maximal zone PFNs rather than zone sizes") exposed that
+>>> and caused a lot of "BUG: Bad page state in process swapper" reports.
+>>
+>> Even with this patch applied I am still seeing the same messages.
+> 
+> Argh, it was to early in the morning...
+> Can you please try the one below?
+> 
+> It seems that coldfire didn't register all its physical memory with
+> memblock and the pfn list was damaged because of that.
+> 
+> 
+> diff --git a/arch/m68k/kernel/setup_no.c b/arch/m68k/kernel/setup_no.c
+> index e779b19e0193..f66f4b1d062e 100644
+> --- a/arch/m68k/kernel/setup_no.c
+> +++ b/arch/m68k/kernel/setup_no.c
+> @@ -138,7 +138,8 @@ void __init setup_arch(char **cmdline_p)
+>   	pr_debug("MEMORY -> ROMFS=0x%p-0x%06lx MEM=0x%06lx-0x%06lx\n ",
+>   		 __bss_stop, memory_start, memory_start, memory_end);
+>   
+> -	memblock_add(memory_start, memory_end - memory_start);
+> +	memblock_add(_rambase, memory_end - _rambase);
+> +	memblock_reserve(_rambase, memory_start - _rambase);
+>   
+>   	/* Keep a copy of command line */
+>   	*cmdline_p = &command_line[0];
 
-When strace wants to update the syscall number, it sets GPR2
-to the desired number and updates the GPR via PTRACE_SETREGSET.
-It doesn't update regs->int_code which would cause the old syscall
-executed on syscall restart. As we cannot change the ptrace ABI and
-don't have a field for the interruption code, check whether the tracee
-is in a syscall and the last instruction was svc. In that case assume
-that the tracer wants to update the syscall number and copy the GPR2
-value to regs->int_code.
+Yep, thats got it. Boots clean again with this one.
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/ptrace.c | 31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 5a2b1501d9983..5aa786063eb3e 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -324,6 +324,25 @@ static inline void __poke_user_per(struct task_struct *child,
- 		child->thread.per_user.end = data;
- }
- 
-+static void fixup_int_code(struct task_struct *child, addr_t data)
-+{
-+	struct pt_regs *regs = task_pt_regs(child);
-+	int ilc = regs->int_code >> 16;
-+	u16 insn;
-+
-+	if (ilc > 6)
-+		return;
-+
-+	if (ptrace_access_vm(child, regs->psw.addr - (regs->int_code >> 16),
-+			&insn, sizeof(insn), FOLL_FORCE) != sizeof(insn))
-+		return;
-+
-+	/* double check that tracee stopped on svc instruction */
-+	if ((insn >> 8) != 0xa)
-+		return;
-+
-+	regs->int_code = 0x20000 | (data & 0xffff);
-+}
- /*
-  * Write a word to the user area of a process at location addr. This
-  * operation does have an additional problem compared to peek_user.
-@@ -335,7 +354,9 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
- 	struct user *dummy = NULL;
- 	addr_t offset;
- 
-+
- 	if (addr < (addr_t) &dummy->regs.acrs) {
-+		struct pt_regs *regs = task_pt_regs(child);
- 		/*
- 		 * psw and gprs are stored on the stack
- 		 */
-@@ -353,7 +374,11 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
- 				/* Invalid addressing mode bits */
- 				return -EINVAL;
- 		}
--		*(addr_t *)((addr_t) &task_pt_regs(child)->psw + addr) = data;
-+
-+		if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
-+			addr == offsetof(struct user, regs.gprs[2]))
-+			fixup_int_code(child, data);
-+		*(addr_t *)((addr_t) &regs->psw + addr) = data;
- 
- 	} else if (addr < (addr_t) (&dummy->regs.orig_gpr2)) {
- 		/*
-@@ -719,6 +744,10 @@ static int __poke_user_compat(struct task_struct *child,
- 			regs->psw.mask = (regs->psw.mask & ~PSW_MASK_BA) |
- 				(__u64)(tmp & PSW32_ADDR_AMODE);
- 		} else {
-+
-+			if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
-+				addr == offsetof(struct compat_user, regs.gprs[2]))
-+				fixup_int_code(child, data);
- 			/* gpr 0-15 */
- 			*(__u32*)((addr_t) &regs->psw + addr*2 + 4) = tmp;
- 		}
--- 
-2.25.1
+Regards
+Greg
