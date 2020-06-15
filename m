@@ -1,97 +1,63 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:40796 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732585AbgFRBaj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:30:39 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 25/60] s390/qdio: put thinint indicator after early error
-Date: Wed, 17 Jun 2020 21:29:29 -0400
-Message-Id: <20200618013004.610532-25-sashal@kernel.org>
-In-Reply-To: <20200618013004.610532-1-sashal@kernel.org>
-References: <20200618013004.610532-1-sashal@kernel.org>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 3/6] exec: cleanup the count() function
+Date: Mon, 15 Jun 2020 15:00:29 +0200
+Message-Id: <20200615130032.931285-4-hch@lst.de>
+In-Reply-To: <20200615130032.931285-1-hch@lst.de>
+References: <20200615130032.931285-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+Remove the max argument as it is hard wired to MAX_ARG_STRINGS, and
+give the function a slightly less generic name.
 
-[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
-
-qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
-If the subsequent qdio_establish_thinint() fails, we miss to put the
-DSCI again. Thus the DSCI isn't available for re-use. Given enough of
-such errors, we could end up with having only the shared DSCI available.
-
-Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
-such an error internally.
-
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/cio/qdio.h         |  1 -
- drivers/s390/cio/qdio_setup.c   |  1 -
- drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ fs/exec.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
-index 7e70f9298cc1..11f6ebd04545 100644
---- a/drivers/s390/cio/qdio.h
-+++ b/drivers/s390/cio/qdio.h
-@@ -376,7 +376,6 @@ static inline int multicast_outbound(struct qdio_q *q)
- extern u64 last_ai_time;
- 
- /* prototypes for thin interrupt */
--void qdio_setup_thinint(struct qdio_irq *irq_ptr);
- int qdio_establish_thinint(struct qdio_irq *irq_ptr);
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
- void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index d0090c5c88e7..a64615a10352 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
- 	setup_queues(irq_ptr, init_data);
- 
- 	setup_qib(irq_ptr, init_data);
--	qdio_setup_thinint(irq_ptr);
- 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
- 			init_data->qib_param_field,
- 			init_data->input_slib_elements,
-diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
-index debe69adfc70..aecb6445a567 100644
---- a/drivers/s390/cio/qdio_thinint.c
-+++ b/drivers/s390/cio/qdio_thinint.c
-@@ -268,17 +268,19 @@ int __init tiqdio_register_thinints(void)
- 
- int qdio_establish_thinint(struct qdio_irq *irq_ptr)
- {
-+	int rc;
-+
- 	if (!is_thinint_irq(irq_ptr))
- 		return 0;
--	return set_subchannel_ind(irq_ptr, 0);
--}
- 
--void qdio_setup_thinint(struct qdio_irq *irq_ptr)
--{
--	if (!is_thinint_irq(irq_ptr))
--		return;
- 	irq_ptr->dsci = get_indicator();
- 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
-+
-+	rc = set_subchannel_ind(irq_ptr, 0);
-+	if (rc)
-+		put_indicator(irq_ptr->dsci);
-+
-+	return rc;
+diff --git a/fs/exec.c b/fs/exec.c
+index 94107eceda8a67..6e4d9d1ffa35fa 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -411,9 +411,9 @@ get_user_arg_ptr(const char __user *const __user *argv, int nr)
  }
  
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
+ /*
+- * count() counts the number of strings in array ARGV.
++ * count_strings() counts the number of strings in array ARGV.
+  */
+-static int count(const char __user *const __user *argv, int max)
++static int count_strings(const char __user *const __user *argv)
+ {
+ 	int i = 0;
+ 
+@@ -427,7 +427,7 @@ static int count(const char __user *const __user *argv, int max)
+ 			if (IS_ERR(p))
+ 				return -EFAULT;
+ 
+-			if (i >= max)
++			if (i >= MAX_ARG_STRINGS)
+ 				return -E2BIG;
+ 			++i;
+ 
+@@ -445,11 +445,11 @@ static int prepare_arg_pages(struct linux_binprm *bprm,
+ {
+ 	unsigned long limit, ptr_size;
+ 
+-	bprm->argc = count(argv, MAX_ARG_STRINGS);
++	bprm->argc = count_strings(argv);
+ 	if (bprm->argc < 0)
+ 		return bprm->argc;
+ 
+-	bprm->envc = count(envp, MAX_ARG_STRINGS);
++	bprm->envc = count_strings(envp);
+ 	if (bprm->envc < 0)
+ 		return bprm->envc;
+ 
 -- 
-2.25.1
+2.26.2
