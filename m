@@ -1,104 +1,72 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387723AbgFWRhE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:37:04 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 4/6] s390/ptrace: fix setting syscall number
-Date: Tue, 23 Jun 2020 13:36:56 -0400
-Message-Id: <20200623173658.1356241-4-sashal@kernel.org>
-In-Reply-To: <20200623173658.1356241-1-sashal@kernel.org>
-References: <20200623173658.1356241-1-sashal@kernel.org>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4/6] exec: split prepare_arg_pages
+Date: Mon, 15 Jun 2020 15:00:30 +0200
+Message-Id: <20200615130032.931285-5-hch@lst.de>
+In-Reply-To: <20200615130032.931285-1-hch@lst.de>
+References: <20200615130032.931285-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+Move counting the arguments and enviroment variables out of
+prepare_arg_pages and rename the rest of the function to check_arg_limit.
+This prepares for a version of do_execvat that takes kernel pointers.
 
-[ Upstream commit 873e5a763d604c32988c4a78913a8dab3862d2f9 ]
-
-When strace wants to update the syscall number, it sets GPR2
-to the desired number and updates the GPR via PTRACE_SETREGSET.
-It doesn't update regs->int_code which would cause the old syscall
-executed on syscall restart. As we cannot change the ptrace ABI and
-don't have a field for the interruption code, check whether the tracee
-is in a syscall and the last instruction was svc. In that case assume
-that the tracer wants to update the syscall number and copy the GPR2
-value to regs->int_code.
-
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/kernel/ptrace.c | 31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+ fs/exec.c | 26 ++++++++++++++------------
+ 1 file changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index fc2974b929c37..ee757d6f585e6 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -308,6 +308,25 @@ static inline void __poke_user_per(struct task_struct *child,
- 		child->thread.per_user.end = data;
+diff --git a/fs/exec.c b/fs/exec.c
+index 6e4d9d1ffa35fa..696b1e8180d7d8 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -439,20 +439,10 @@ static int count_strings(const char __user *const __user *argv)
+ 	return i;
  }
  
-+static void fixup_int_code(struct task_struct *child, addr_t data)
-+{
-+	struct pt_regs *regs = task_pt_regs(child);
-+	int ilc = regs->int_code >> 16;
-+	u16 insn;
-+
-+	if (ilc > 6)
-+		return;
-+
-+	if (ptrace_access_vm(child, regs->psw.addr - (regs->int_code >> 16),
-+			&insn, sizeof(insn), FOLL_FORCE) != sizeof(insn))
-+		return;
-+
-+	/* double check that tracee stopped on svc instruction */
-+	if ((insn >> 8) != 0xa)
-+		return;
-+
-+	regs->int_code = 0x20000 | (data & 0xffff);
-+}
- /*
-  * Write a word to the user area of a process at location addr. This
-  * operation does have an additional problem compared to peek_user.
-@@ -319,7 +338,9 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
- 	struct user *dummy = NULL;
- 	addr_t offset;
+-static int prepare_arg_pages(struct linux_binprm *bprm,
+-		const char __user *const __user *argv,
+-		const char __user *const __user *envp)
++static int check_arg_limit(struct linux_binprm *bprm)
+ {
+ 	unsigned long limit, ptr_size;
  
-+
- 	if (addr < (addr_t) &dummy->regs.acrs) {
-+		struct pt_regs *regs = task_pt_regs(child);
- 		/*
- 		 * psw and gprs are stored on the stack
- 		 */
-@@ -337,7 +358,11 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
- 				/* Invalid addressing mode bits */
- 				return -EINVAL;
- 		}
--		*(addr_t *)((addr_t) &task_pt_regs(child)->psw + addr) = data;
-+
-+		if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
-+			addr == offsetof(struct user, regs.gprs[2]))
-+			fixup_int_code(child, data);
-+		*(addr_t *)((addr_t) &regs->psw + addr) = data;
+-	bprm->argc = count_strings(argv);
+-	if (bprm->argc < 0)
+-		return bprm->argc;
+-
+-	bprm->envc = count_strings(envp);
+-	if (bprm->envc < 0)
+-		return bprm->envc;
+-
+ 	/*
+ 	 * Limit to 1/4 of the max stack size or 3/4 of _STK_LIM
+ 	 * (whichever is smaller) for the argv+env strings.
+@@ -1890,7 +1880,19 @@ int do_execveat(int fd, struct filename *filename,
+ 	if (retval)
+ 		goto out_unmark;
  
- 	} else if (addr < (addr_t) (&dummy->regs.orig_gpr2)) {
- 		/*
-@@ -703,6 +728,10 @@ static int __poke_user_compat(struct task_struct *child,
- 			regs->psw.mask = (regs->psw.mask & ~PSW_MASK_BA) |
- 				(__u64)(tmp & PSW32_ADDR_AMODE);
- 		} else {
+-	retval = prepare_arg_pages(bprm, argv, envp);
++	bprm->argc = count_strings(argv);
++	if (bprm->argc < 0) {
++		retval = bprm->argc;
++		goto out;
++	}
 +
-+			if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
-+				addr == offsetof(struct compat_user, regs.gprs[2]))
-+				fixup_int_code(child, data);
- 			/* gpr 0-15 */
- 			*(__u32*)((addr_t) &regs->psw + addr*2 + 4) = tmp;
- 		}
++	bprm->envc = count_strings(envp);
++	if (bprm->envc < 0) {
++		retval = bprm->envc;
++		goto out;
++	}
++
++	retval = check_arg_limit(bprm);
+ 	if (retval < 0)
+ 		goto out;
+ 
 -- 
-2.25.1
+2.26.2
