@@ -1,234 +1,117 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v8 02/16] s390/vfio-ap: use new AP bus interface to search for queue devices
-Date: Fri,  5 Jun 2020 17:39:50 -0400
-Message-Id: <20200605214004.14270-3-akrowiak@linux.ibm.com>
-In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
-References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52414 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730251AbgFONA6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Jun 2020 09:00:58 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 6/6] kernel: add a kernel_wait helper
+Date: Mon, 15 Jun 2020 15:00:32 +0200
+Message-Id: <20200615130032.931285-7-hch@lst.de>
+In-Reply-To: <20200615130032.931285-1-hch@lst.de>
+References: <20200615130032.931285-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch refactor's the vfio_ap device driver to use the AP bus's
-ap_get_qdev() function to retrieve the vfio_ap_queue struct containing
-information about a queue that is bound to the vfio_ap device driver.
-The bus's ap_get_qdev() function retrieves the queue device from a
-hashtable keyed by APQN. This is much more efficient than looping over
-the list of devices attached to the AP bus by several orders of
-magnitude.
+Add a helper that waits for a pid and stores the status in the passed
+in kernel pointer.  Use it to fix the usage of kernel_wait4 in
+call_usermodehelper_exec_sync that only happens to work due to the
+implicit set_fs(KERNEL_DS) for kernel threads.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     | 27 ++-------
- drivers/s390/crypto/vfio_ap_ops.c     | 82 +++++++++++++++------------
- drivers/s390/crypto/vfio_ap_private.h |  8 ++-
- 3 files changed, 58 insertions(+), 59 deletions(-)
+ include/linux/sched/task.h |  1 +
+ kernel/exit.c              | 16 ++++++++++++++++
+ kernel/umh.c               | 29 ++++-------------------------
+ 3 files changed, 21 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index be2520cc010b..59233cf7419d 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -51,15 +51,9 @@ MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
-  */
- static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
- {
--	struct vfio_ap_queue *q;
--
--	q = kzalloc(sizeof(*q), GFP_KERNEL);
--	if (!q)
--		return -ENOMEM;
--	dev_set_drvdata(&apdev->device, q);
--	q->apqn = to_ap_queue(&apdev->device)->qid;
--	q->saved_isc = VFIO_AP_ISC_INVALID;
--	return 0;
-+	struct ap_queue *queue = to_ap_queue(&apdev->device);
+diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
+index 38359071236ad7..a80007df396e95 100644
+--- a/include/linux/sched/task.h
++++ b/include/linux/sched/task.h
+@@ -102,6 +102,7 @@ struct task_struct *fork_idle(int);
+ struct mm_struct *copy_init_mm(void);
+ extern pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
+ extern long kernel_wait4(pid_t, int __user *, int, struct rusage *);
++int kernel_wait(pid_t pid, int *stat);
+ 
+ extern void free_task(struct task_struct *tsk);
+ 
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 727150f2810338..fd598846df0b17 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -1626,6 +1626,22 @@ long kernel_wait4(pid_t upid, int __user *stat_addr, int options,
+ 	return ret;
+ }
+ 
++int kernel_wait(pid_t pid, int *stat)
++{
++	struct wait_opts wo = {
++		.wo_type	= PIDTYPE_PID,
++		.wo_pid		= find_get_pid(pid),
++		.wo_flags	= WEXITED,
++	};
++	int ret;
 +
-+	return vfio_ap_mdev_probe_queue(queue);
- }
- 
- /**
-@@ -70,18 +64,9 @@ static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
-  */
- static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
- {
--	struct vfio_ap_queue *q;
--	int apid, apqi;
--
--	mutex_lock(&matrix_dev->lock);
--	q = dev_get_drvdata(&apdev->device);
--	dev_set_drvdata(&apdev->device, NULL);
--	apid = AP_QID_CARD(q->apqn);
--	apqi = AP_QID_QUEUE(q->apqn);
--	vfio_ap_mdev_reset_queue(apid, apqi, 1);
--	vfio_ap_irq_disable(q);
--	kfree(q);
--	mutex_unlock(&matrix_dev->lock);
-+	struct ap_queue *queue = to_ap_queue(&apdev->device);
++	ret = do_wait(&wo);
++	if (ret > 0 && wo.wo_stat)
++		*stat = wo.wo_stat;
++	put_pid(wo.wo_pid);
++	return ret;
++}
 +
-+	vfio_ap_mdev_remove_queue(queue);
- }
- 
- static void vfio_ap_matrix_dev_release(struct device *dev)
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e0bde8518745..7c96b6fd9f70 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -26,43 +26,26 @@
- 
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
- 
--static int match_apqn(struct device *dev, const void *data)
--{
--	struct vfio_ap_queue *q = dev_get_drvdata(dev);
--
--	return (q->apqn == *(int *)(data)) ? 1 : 0;
--}
--
- /**
-- * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
-- * @matrix_mdev: the associated mediated matrix
-+ * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
-  * @apqn: The queue APQN
-  *
-- * Retrieve a queue with a specific APQN from the list of the
-- * devices of the vfio_ap_drv.
-- * Verify that the APID and the APQI are set in the matrix.
-+ * Retrieve a queue with a specific APQN from the AP queue devices attached to
-+ * the AP bus.
-  *
-- * Returns the pointer to the associated vfio_ap_queue
-+ * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
-  */
--static struct vfio_ap_queue *vfio_ap_get_queue(
--					struct ap_matrix_mdev *matrix_mdev,
--					int apqn)
-+static struct vfio_ap_queue *vfio_ap_get_queue(unsigned long apqn)
+ SYSCALL_DEFINE4(wait4, pid_t, upid, int __user *, stat_addr,
+ 		int, options, struct rusage __user *, ru)
  {
-+	struct ap_queue *queue;
- 	struct vfio_ap_queue *q;
--	struct device *dev;
- 
--	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
--		return NULL;
--	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
-+	queue = ap_get_qdev(apqn);
-+	if (!queue)
- 		return NULL;
- 
--	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				 &apqn, match_apqn);
--	if (!dev)
--		return NULL;
--	q = dev_get_drvdata(dev);
--	q->matrix_mdev = matrix_mdev;
--	put_device(dev);
-+	q = dev_get_drvdata(&queue->ap_dev.device);
-+	put_device(&queue->ap_dev.device);
- 
- 	return q;
- }
-@@ -293,10 +276,11 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
- 	matrix_mdev = container_of(vcpu->kvm->arch.crypto.pqap_hook,
- 				   struct ap_matrix_mdev, pqap_hook);
- 
--	q = vfio_ap_get_queue(matrix_mdev, apqn);
-+	q = vfio_ap_get_queue(apqn);
- 	if (!q)
- 		goto out_unlock;
- 
-+	q->matrix_mdev = matrix_mdev;
- 	status = vcpu->run->s.regs.gprs[1];
- 
- 	/* If IR bit(16) is set we enable the interrupt */
-@@ -1116,16 +1100,11 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 
- static void vfio_ap_irq_disable_apqn(int apqn)
+diff --git a/kernel/umh.c b/kernel/umh.c
+index 1284823dbad338..6fd948e478bec4 100644
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -126,37 +126,16 @@ static void call_usermodehelper_exec_sync(struct subprocess_info *sub_info)
  {
--	struct device *dev;
- 	struct vfio_ap_queue *q;
+ 	pid_t pid;
  
--	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				 &apqn, match_apqn);
--	if (dev) {
--		q = dev_get_drvdata(dev);
-+	q = vfio_ap_get_queue(apqn);
-+	if (q)
- 		vfio_ap_irq_disable(q);
--		put_device(dev);
+-	/* If SIGCLD is ignored kernel_wait4 won't populate the status. */
++	/* If SIGCLD is ignored do_wait won't populate the status. */
+ 	kernel_sigaction(SIGCHLD, SIG_DFL);
+ 	pid = kernel_thread(call_usermodehelper_exec_async, sub_info, SIGCHLD);
+-	if (pid < 0) {
++	if (pid < 0)
+ 		sub_info->retval = pid;
+-	} else {
+-		int ret = -ECHILD;
+-		/*
+-		 * Normally it is bogus to call wait4() from in-kernel because
+-		 * wait4() wants to write the exit code to a userspace address.
+-		 * But call_usermodehelper_exec_sync() always runs as kernel
+-		 * thread (workqueue) and put_user() to a kernel address works
+-		 * OK for kernel threads, due to their having an mm_segment_t
+-		 * which spans the entire address space.
+-		 *
+-		 * Thus the __user pointer cast is valid here.
+-		 */
+-		kernel_wait4(pid, (int __user *)&ret, 0, NULL);
+-
+-		/*
+-		 * If ret is 0, either call_usermodehelper_exec_async failed and
+-		 * the real error code is already in sub_info->retval or
+-		 * sub_info->retval is 0 anyway, so don't mess with it then.
+-		 */
+-		if (ret)
+-			sub_info->retval = ret;
 -	}
++	else
++		kernel_wait(pid, &sub_info->retval);
+ 
+ 	/* Restore default kernel sig handler */
+ 	kernel_sigaction(SIGCHLD, SIG_IGN);
+-
+ 	umh_complete(sub_info);
  }
  
- int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
-@@ -1302,3 +1281,36 @@ void vfio_ap_mdev_unregister(void)
- {
- 	mdev_unregister_device(&matrix_dev->device);
- }
-+
-+int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
-+{
-+	struct vfio_ap_queue *q;
-+
-+	q = kzalloc(sizeof(*q), GFP_KERNEL);
-+	if (!q)
-+		return -ENOMEM;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	dev_set_drvdata(&queue->ap_dev.device, q);
-+	q->apqn = queue->qid;
-+	q->saved_isc = VFIO_AP_ISC_INVALID;
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return 0;
-+}
-+
-+void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
-+{
-+	struct vfio_ap_queue *q;
-+	int apid, apqi;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	q = dev_get_drvdata(&queue->ap_dev.device);
-+	dev_set_drvdata(&queue->ap_dev.device, NULL);
-+	apid = AP_QID_CARD(q->apqn);
-+	apqi = AP_QID_QUEUE(q->apqn);
-+	vfio_ap_mdev_reset_queue(apid, apqi, 1);
-+	vfio_ap_irq_disable(q);
-+	kfree(q);
-+	mutex_unlock(&matrix_dev->lock);
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index f46dde56b464..a2aa05bec718 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/mutex.h>
- #include <linux/kvm_host.h>
-+#include <linux/hashtable.h>
- 
- #include "ap_bus.h"
- 
-@@ -90,8 +91,6 @@ struct ap_matrix_mdev {
- 
- extern int vfio_ap_mdev_register(void);
- extern void vfio_ap_mdev_unregister(void);
--int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
--			     unsigned int retry);
- 
- struct vfio_ap_queue {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -100,5 +99,8 @@ struct vfio_ap_queue {
- #define VFIO_AP_ISC_INVALID 0xff
- 	unsigned char saved_isc;
- };
--struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
-+
-+int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
-+void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
 -- 
-2.21.1
+2.26.2
