@@ -1,152 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50428 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39498 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729071AbgFEVm0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 17:42:26 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v8 16/16] s390/vfio-ap: handle probe/remove not due to host AP config changes
-Date: Fri,  5 Jun 2020 17:40:04 -0400
-Message-Id: <20200605214004.14270-17-akrowiak@linux.ibm.com>
-In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
-References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1729682AbgFOLvF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 15 Jun 2020 07:51:05 -0400
+Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
+References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
+ <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
+ <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
+ <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
+ <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <52cde80c-f33a-dbb7-d0b0-2733b3eb85c3@linux.ibm.com>
+Date: Mon, 15 Jun 2020 13:50:56 +0200
 MIME-Version: 1.0
+In-Reply-To: <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 
-AP queue devices are probed or removed for reasons other than changes
-to the host AP configuration:
 
-* Each queue device associated with a card device will get created and
-  probed when the state of the AP adapter represented by the card device
-  dynamically changes from standby to online.
 
-* Each queue device associated with a card device will get removed
-  when the state of the AP adapter to which the queue represented by the
-  queue device dynamically changes from online to standby.
+On 2020-06-15 05:01, Jason Wang wrote:
+> 
+> On 2020/6/12 下午7:38, Pierre Morel wrote:
+>>
+>>
+>> On 2020-06-12 11:21, Pierre Morel wrote:
+>>>
+>>>
+>>> On 2020-06-11 05:10, Jason Wang wrote:
+>>>>
+>>>> On 2020/6/10 下午9:11, Pierre Morel wrote:
+>>>>> Protected Virtualisation protects the memory of the guest and
+>>>>> do not allow a the host to access all of its memory.
+>>>>>
+>>>>> Let's refuse a VIRTIO device which does not use IOMMU
+>>>>> protected access.
+>>>>>
+>>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>>> ---
+>>>>>   drivers/s390/virtio/virtio_ccw.c | 5 +++++
+>>>>>   1 file changed, 5 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/s390/virtio/virtio_ccw.c 
+>>>>> b/drivers/s390/virtio/virtio_ccw.c
+>>>>> index 5730572b52cd..06ffbc96587a 100644
+>>>>> --- a/drivers/s390/virtio/virtio_ccw.c
+>>>>> +++ b/drivers/s390/virtio/virtio_ccw.c
+>>>>> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct 
+>>>>> virtio_device *vdev, u8 status)
+>>>>>       if (!ccw)
+>>>>>           return;
+>>>>> +    /* Protected Virtualisation guest needs IOMMU */
+>>>>> +    if (is_prot_virt_guest() &&
+>>>>> +        !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
+>>>>> +            status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
+>>>>> +
+>>>>>       /* Write the status to the host. */
+>>>>>       vcdev->dma_area->status = status;
+>>>>>       ccw->cmd_code = CCW_CMD_WRITE_STATUS;
+>>>>
+>>>>
+>>>> I wonder whether we need move it to virtio core instead of ccw.
+>>>>
+>>>> I think the other memory protection technologies may suffer from 
+>>>> this as well.
+>>>>
+>>>> Thanks
+>>>>
+>>>
+>>>
+>>> What would you think of the following, also taking into account 
+>>> Connie's comment on where the test should be done:
+>>>
+>>> - declare a weak function in virtio.c code, returning that memory 
+>>> protection is not in use.
+>>>
+>>> - overwrite the function in the arch code
+>>>
+>>> - call this function inside core virtio_finalize_features() and if 
+>>> required fail if the device don't have VIRTIO_F_IOMMU_PLATFORM.
+> 
+> 
+> I think this is fine.
+> 
 
-* Each queue device associated with a card device will get removed
-  when the type of the AP adapter to which the queue represented by the
-  queue device dynamically changes.
+Thanks,
+I try this.
 
-* Each queue device associated with a card device will get removed
-  when the status of the queue represented by the queue device changes
-  from operating to check stop.
+Regards,
+Pierre
 
-* AP queue devices can be manually bound to or unbound from the vfio_ap
-  device driver by a root user via the sysfs bind/unbind attributes of the
-  driver.
 
-In response to a queue device probe or remove that is not the result of a
-change to the host's AP configuration, if a KVM guest is using the matrix
-mdev to which the APQN of the queue device is assigned, the vfio_ap device
-driver must respond accordingly. In an ideal world, the queue corresponding
-to the queue device being probed would be hot plugged into the guest.
-Likewise, the queue corresponding to the queue device being removed would
-be hot unplugged from the guest. Unfortunately, the AP architecture
-precludes plugging or unplugging individual queues, so let's handle
-the probe or remove of an AP queue device as follows:
 
-Handling Probe
---------------
-There are two requirements that must be met in order to give a
-guest access to the queue corresponding to the queue device being probed:
 
-* Each APQN derived from the APID of the queue device and the APQIs of the
-  domains already assigned to the guest's AP configuration must reference
-  a queue device bound to the vfio_ap device driver.
-
-* Each APQN derived from the APQI of the queue device and the APIDs of the
-  adapters assigned to the guest's AP configuration must reference a queue
-  device bound to the vfio_ap device driver.
-
-If the above conditions are met, the APQN will be assigned to the guest's
-AP configuration and the guest will be given access to the queue.
-
-Handling Remove
----------------
-Since the AP architecture precludes us from taking access to an individual
-queue from a guest, we are left with the choice of taking access away from
-either the adapter or the domain to which the queue is connected. Access to
-the adapter will be taken away because it is likely that most of the time,
-the remove callback will be invoked because the adapter state has
-transitioned from online to standby. In such a case, no queue connected
-to the adapter will be available to access.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 38 +++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
-
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index cfe93ff9cc8c..5ee60dac7ad1 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1681,6 +1681,15 @@ static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
- 	}
- }
- 
-+void vfio_ap_mdev_hot_plug_queue(struct vfio_ap_queue *q)
-+{
-+	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
-+		return;
-+
-+	if (vfio_ap_mdev_config_shadow_apcb(q->matrix_mdev))
-+		vfio_ap_mdev_commit_shadow_apcb(q->matrix_mdev);
-+}
-+
- int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
- {
- 	struct vfio_ap_queue *q;
-@@ -1694,11 +1703,35 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
- 	q->apqn = queue->qid;
- 	q->saved_isc = VFIO_AP_ISC_INVALID;
- 	vfio_ap_queue_link_mdev(q);
-+	/* Make sure we're not in the middle of an AP configuration change. */
-+	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
-+		vfio_ap_mdev_hot_plug_queue(q);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return 0;
- }
- 
-+void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
-+{
-+	unsigned long apid = AP_QID_CARD(q->apqn);
-+	unsigned long apqi = AP_QID_QUEUE(q->apqn);
-+
-+	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
-+		return;
-+
-+	/*
-+	 * If the APQN is assigned to the guest, then let's
-+	 * go ahead and unplug the adapter since the
-+	 * architecture does not provide a means to unplug
-+	 * an individual queue.
-+	 */
-+	if (test_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm) &&
-+	    test_bit_inv(apqi, q->matrix_mdev->shadow_apcb.aqm)) {
-+		if (vfio_ap_mdev_unassign_guest_apid(q->matrix_mdev, apid))
-+			vfio_ap_mdev_commit_shadow_apcb(q->matrix_mdev);
-+	}
-+}
-+
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- {
- 	struct vfio_ap_queue *q;
-@@ -1706,6 +1739,11 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 
- 	mutex_lock(&matrix_dev->lock);
- 	q = dev_get_drvdata(&queue->ap_dev.device);
-+
-+	/* Make sure we're not in the middle of an AP configuration change. */
-+	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
-+		vfio_ap_mdev_hot_unplug_queue(q);
-+
- 	dev_set_drvdata(&queue->ap_dev.device, NULL);
- 	apid = AP_QID_CARD(q->apqn);
- 	apqi = AP_QID_QUEUE(q->apqn);
 -- 
-2.21.1
+Pierre Morel
+IBM Lab Boeblingen
