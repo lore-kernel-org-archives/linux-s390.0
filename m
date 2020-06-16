@@ -1,53 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37450 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730187AbgFHXQK (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:16:10 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 197/606] s390/kexec_file: fix initrd location for kdump kernel
-Date: Mon,  8 Jun 2020 19:05:22 -0400
-Message-Id: <20200608231211.3363633-197-sashal@kernel.org>
-In-Reply-To: <20200608231211.3363633-1-sashal@kernel.org>
-References: <20200608231211.3363633-1-sashal@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18882 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730984AbgFPQLp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 16 Jun 2020 12:11:45 -0400
+Subject: Re: [kvm-unit-tests PATCH v9 01/12] s390x: Use PSW bits definitions
+ in cstart
+From: Pierre Morel <pmorel@linux.ibm.com>
+References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
+ <1592213521-19390-2-git-send-email-pmorel@linux.ibm.com>
+ <f160d328-694a-4476-4863-c49a1d0e5349@redhat.com>
+ <eebf1927-f1b2-cca0-529a-9a97c761345d@linux.ibm.com>
+Message-ID: <fc27e211-2d9c-63f1-4f10-ca3d744a3ea7@linux.ibm.com>
+Date: Tue, 16 Jun 2020 18:11:37 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <eebf1927-f1b2-cca0-529a-9a97c761345d@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Philipp Rudo <prudo@linux.ibm.com>, Lianbo Jiang <lijiang@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-s390@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-From: Philipp Rudo <prudo@linux.ibm.com>
 
-commit 70b690547d5ea1a3d135a4cc39cd1e08246d0c3a upstream.
 
-initrd_start must not point at the location the initrd is loaded into
-the crashkernel memory but at the location it will be after the
-crashkernel memory is swapped with the memory at 0.
+On 2020-06-16 18:08, Pierre Morel wrote:
+> 
+> 
+> On 2020-06-16 15:13, Thomas Huth wrote:
+>> On 15/06/2020 11.31, Pierre Morel wrote:
+>>> This patch defines the PSW bits EA/BA used to initialize the PSW masks
+>>> for exceptions.
+> 
 
-Fixes: ee337f5469fd ("s390/kexec_file: Add crash support to image loader")
-Reported-by: Lianbo Jiang <lijiang@redhat.com>
-Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-Tested-by: Lianbo Jiang <lijiang@redhat.com>
-Link: https://lore.kernel.org/r/20200512193956.15ae3f23@laptop2-ibm.local
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/s390/kernel/machine_kexec_file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> Should I keep your RB for the arch_def.h ?
+> 
 
-diff --git a/arch/s390/kernel/machine_kexec_file.c b/arch/s390/kernel/machine_kexec_file.c
-index 8415ae7d2a23..f9e4baa64b67 100644
---- a/arch/s390/kernel/machine_kexec_file.c
-+++ b/arch/s390/kernel/machine_kexec_file.c
-@@ -151,7 +151,7 @@ static int kexec_file_add_initrd(struct kimage *image,
- 		buf.mem += crashk_res.start;
- 	buf.memsz = buf.bufsz;
- 
--	data->parm->initrd_start = buf.mem;
-+	data->parm->initrd_start = data->memsz;
- 	data->parm->initrd_size = buf.memsz;
- 	data->memsz += buf.memsz;
- 
+Hi, sorry, the changes in arch_def go are not used any more so...
+
 -- 
-2.25.1
+Pierre Morel
+IBM Lab Boeblingen
