@@ -1,29 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:47431 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728183AbgFPPOV (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57220 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728644AbgFPOBh (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 16 Jun 2020 11:14:21 -0400
+        Tue, 16 Jun 2020 10:01:37 -0400
 Subject: Re: [kvm-unit-tests PATCH v9 01/12] s390x: Use PSW bits definitions
  in cstart
+From: Pierre Morel <pmorel@linux.ibm.com>
 References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
  <1592213521-19390-2-git-send-email-pmorel@linux.ibm.com>
  <f160d328-694a-4476-4863-c49a1d0e5349@redhat.com>
  <13898aa9-800b-4de8-71b8-f64ee07fc793@linux.ibm.com>
-From: Thomas Huth <thuth@redhat.com>
-Message-ID: <b2bffa74-ea11-c6f9-82fa-bb1ddfa4abfb@redhat.com>
-Date: Tue, 16 Jun 2020 17:14:02 +0200
+Message-ID: <a5ba4032-2ff8-e21a-268b-0244745e85b3@linux.ibm.com>
+Date: Tue, 16 Jun 2020 16:01:07 +0200
 MIME-Version: 1.0
 In-Reply-To: <13898aa9-800b-4de8-71b8-f64ee07fc793@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com
 
-On 16/06/2020 15.58, Pierre Morel wrote:
+
+
+On 2020-06-16 15:58, Pierre Morel wrote:
 > 
 > 
 > On 2020-06-16 15:13, Thomas Huth wrote:
@@ -50,7 +52,7 @@ On 16/06/2020 15.58, Pierre Morel wrote:
 >>> @@ -10,15 +10,21 @@
 >>>   #ifndef _ASM_S390X_ARCH_DEF_H_
 >>>   #define _ASM_S390X_ARCH_DEF_H_
->>>   +#define PSW_MASK_EXT            0x0100000000000000UL
+>>> +#define PSW_MASK_EXT            0x0100000000000000UL
 >>> +#define PSW_MASK_DAT            0x0400000000000000UL
 >>> +#define PSW_MASK_SHORT_PSW        0x0008000000000000UL
 >>> +#define PSW_MASK_PSTATE            0x0001000000000000UL
@@ -64,7 +66,7 @@ On 16/06/2020 15.58, Pierre Morel wrote:
 >>>       uint64_t    mask;
 >>>       uint64_t    addr;
 >>>   };
->>>   -#define PSW_MASK_EXT            0x0100000000000000UL
+>>> -#define PSW_MASK_EXT            0x0100000000000000UL
 >>> -#define PSW_MASK_DAT            0x0400000000000000UL
 >>> -#define PSW_MASK_PSTATE            0x0001000000000000UL
 >>> -
@@ -74,7 +76,7 @@ On 16/06/2020 15.58, Pierre Morel wrote:
 >>> @@ -297,4 +303,5 @@ static inline uint32_t get_prefix(void)
 >>>       return current_prefix;
 >>>   }
->>>   +#endif /* __ASSEMBLER */
+>>> +#endif /* __ASSEMBLER */
 >>>   #endif
 >>> diff --git a/s390x/cstart64.S b/s390x/cstart64.S
 >>> index e084f13..d386f35 100644
@@ -85,9 +87,9 @@ On 16/06/2020 15.58, Pierre Morel wrote:
 >>>   #include <asm/asm-offsets.h>
 >>>   #include <asm/sigp.h>
 >>> +#include <asm/arch_def.h>
->>>     .section .init
->>>   @@ -198,19 +199,19 @@ svc_int:
->>>         .align    8
+>>>   .section .init
+>>> @@ -198,19 +199,19 @@ svc_int:
+>>>       .align    8
 >>>   reset_psw:
 >>> -    .quad    0x0008000180000000
 >>> +    .quad    PSW_MASK_ON_EXCEPTION | PSW_MASK_SHORT_PSW
@@ -110,7 +112,7 @@ On 16/06/2020 15.58, Pierre Morel wrote:
 >>> -    .quad    0x0000000180000000, svc_int
 >>> +    .quad    PSW_MASK_ON_EXCEPTION, svc_int
 >>>   initial_cr0:
->>>       /* enable AFP-register control, so FP regs (+BFP instr) can be
+>>>       /* enable AFP-register control, so FP regs (+BFP instr) can be 
 >>> used */
 >>>       .quad    0x0000000000040000
 >>>
@@ -118,14 +120,13 @@ On 16/06/2020 15.58, Pierre Morel wrote:
 >> I'm afraid, by when I compile this on RHEL7, the toolchain complains:
 > 
 > I will try to figure out why.
-> which version are you using? and which compiler?
 
-$ as --version
-GNU assembler version 2.27-43.base.el7
-$ gcc --version
-gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-39)
+What if you suppress the parenthesis?
 
-I think the problem are the "UL" suffixes ... IIRC they are only
-supported by newer versions of the binutils.
+-#define PSW_MASK_ON_EXCEPTION  (PSW_MASK_EA | PSW_MASK_BA)
++#define PSW_MASK_ON_EXCEPTION  PSW_MASK_EA | PSW_MASK_BA
 
- Thomas
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
