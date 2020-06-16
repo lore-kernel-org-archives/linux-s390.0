@@ -1,93 +1,137 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 042/108] s390/qdio: put thinint indicator after early error
-Date: Wed, 17 Jun 2020 21:24:54 -0400
-Message-Id: <20200618012600.608744-42-sashal@kernel.org>
-In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
-References: <20200618012600.608744-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41284 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730393AbgFPTvC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 16 Jun 2020 15:51:02 -0400
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [RFC PATCH v3 2/3] vfio-ccw: Remove the CP_PENDING FSM state
+Date: Tue, 16 Jun 2020 21:50:52 +0200
+Message-Id: <20200616195053.99253-3-farman@linux.ibm.com>
+In-Reply-To: <20200616195053.99253-1-farman@linux.ibm.com>
+References: <20200616195053.99253-1-farman@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Jared Rossi <jrossi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+The FSM state is set to CP_PROCESSING when a START operation begins,
+is set to CP_PENDING when a START operation is done (the SSCH
+instruction gets a cc0), and is set back to IDLE when the final
+interrupt is received (or if the START fails somehow). However, it is
+categorically impossible to distinguish between interrupts when
+other instructions can generate "final" interrupts via the async
+region, so using this information for any decision-making at the
+completion of an I/O is fraught with peril.
 
-[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
+We could replace "CP_PENDING" with a generic "OPERATION_PENDING" state,
+but it doesn't appear to buy us anything as far as knowing if we get
+one interrupt for a START and another for a CLEAR, or if we just get
+one interrupt for the CLEAR and the START never got off the ground.
 
-qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
-If the subsequent qdio_establish_thinint() fails, we miss to put the
-DSCI again. Thus the DSCI isn't available for re-use. Given enough of
-such errors, we could end up with having only the shared DSCI available.
+So let's remove that entirely, and just move the FSM back to IDLE
+once the START process completes.
 
-Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
-such an error internally.
-
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
 ---
- drivers/s390/cio/qdio.h         |  1 -
- drivers/s390/cio/qdio_setup.c   |  1 -
- drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c     |  3 ---
+ drivers/s390/cio/vfio_ccw_fsm.c     | 16 +++-------------
+ drivers/s390/cio/vfio_ccw_ops.c     |  3 +--
+ drivers/s390/cio/vfio_ccw_private.h |  1 -
+ 4 files changed, 4 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
-index 29d6b5222f1c..0f8d13288611 100644
---- a/drivers/s390/cio/qdio.h
-+++ b/drivers/s390/cio/qdio.h
-@@ -377,7 +377,6 @@ static inline int multicast_outbound(struct qdio_q *q)
- extern u64 last_ai_time;
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 7e2a790dc9a1..b76c9008871b 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -101,9 +101,6 @@ static void vfio_ccw_sch_io_todo(struct work_struct *work)
+ 	memcpy(private->io_region->irb_area, irb, sizeof(*irb));
+ 	mutex_unlock(&private->io_mutex);
  
- /* prototypes for thin interrupt */
--void qdio_setup_thinint(struct qdio_irq *irq_ptr);
- int qdio_establish_thinint(struct qdio_irq *irq_ptr);
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
- void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index d0090c5c88e7..a64615a10352 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
- 	setup_queues(irq_ptr, init_data);
- 
- 	setup_qib(irq_ptr, init_data);
--	qdio_setup_thinint(irq_ptr);
- 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
- 			init_data->qib_param_field,
- 			init_data->input_slib_elements,
-diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
-index 831a3a0a2837..4dc1108069d4 100644
---- a/drivers/s390/cio/qdio_thinint.c
-+++ b/drivers/s390/cio/qdio_thinint.c
-@@ -270,17 +270,19 @@ int __init tiqdio_register_thinints(void)
- 
- int qdio_establish_thinint(struct qdio_irq *irq_ptr)
- {
-+	int rc;
-+
- 	if (!is_thinint_irq(irq_ptr))
- 		return 0;
--	return set_subchannel_ind(irq_ptr, 0);
--}
- 
--void qdio_setup_thinint(struct qdio_irq *irq_ptr)
--{
--	if (!is_thinint_irq(irq_ptr))
--		return;
- 	irq_ptr->dsci = get_indicator();
- 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
-+
-+	rc = set_subchannel_ind(irq_ptr, 0);
-+	if (rc)
-+		put_indicator(irq_ptr->dsci);
-+
-+	return rc;
+-	if (private->mdev && is_final)
+-		private->state = VFIO_CCW_STATE_IDLE;
+-
+ 	if (private->io_trigger)
+ 		eventfd_signal(private->io_trigger, 1);
+ }
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index d806f88eba72..f0952192480e 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -49,7 +49,6 @@ static int fsm_io_helper(struct vfio_ccw_private *private)
+ 		 */
+ 		sch->schib.scsw.cmd.actl |= SCSW_ACTL_START_PEND;
+ 		ret = 0;
+-		private->state = VFIO_CCW_STATE_CP_PENDING;
+ 		private->cp.started = true;
+ 		break;
+ 	case 1:		/* Status pending */
+@@ -188,12 +187,6 @@ static void fsm_io_error(struct vfio_ccw_private *private,
+ 	private->io_region->ret_code = -EIO;
  }
  
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
+-static void fsm_io_busy(struct vfio_ccw_private *private,
+-			enum vfio_ccw_event event)
+-{
+-	private->io_region->ret_code = -EBUSY;
+-}
+-
+ static void fsm_io_retry(struct vfio_ccw_private *private,
+ 			 enum vfio_ccw_event event)
+ {
+@@ -309,6 +302,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+ 			cp_free(&private->cp);
+ 			goto err_out;
+ 		}
++		private->state = VFIO_CCW_STATE_IDLE;
+ 		return;
+ 	} else if (scsw->cmd.fctl & SCSW_FCTL_HALT_FUNC) {
+ 		VFIO_CCW_MSG_EVENT(2,
+@@ -331,6 +325,8 @@ static void fsm_io_request(struct vfio_ccw_private *private,
+ err_out:
+ 	trace_vfio_ccw_fsm_io_request(scsw->cmd.fctl, schid,
+ 				      io_region->ret_code, errstr);
++
++	private->state = VFIO_CCW_STATE_IDLE;
+ }
+ 
+ /*
+@@ -405,10 +401,4 @@ fsm_func_t *vfio_ccw_jumptable[NR_VFIO_CCW_STATES][NR_VFIO_CCW_EVENTS] = {
+ 		[VFIO_CCW_EVENT_ASYNC_REQ]	= fsm_async_retry,
+ 		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
+ 	},
+-	[VFIO_CCW_STATE_CP_PENDING] = {
+-		[VFIO_CCW_EVENT_NOT_OPER]	= fsm_notoper,
+-		[VFIO_CCW_EVENT_IO_REQ]		= fsm_io_busy,
+-		[VFIO_CCW_EVENT_ASYNC_REQ]	= fsm_async_request,
+-		[VFIO_CCW_EVENT_INTERRUPT]	= fsm_irq,
+-	},
+ };
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index 8b3ed5b45277..0b67c04decee 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -276,8 +276,7 @@ static ssize_t vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
+ 	}
+ 
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_IO_REQ);
+-	if (region->ret_code != 0)
+-		private->state = VFIO_CCW_STATE_IDLE;
++
+ 	ret = (region->ret_code != 0) ? region->ret_code : count;
+ 
+ out_unlock:
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 8723156b29ea..f592897f1930 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -125,7 +125,6 @@ enum vfio_ccw_state {
+ 	VFIO_CCW_STATE_STANDBY,
+ 	VFIO_CCW_STATE_IDLE,
+ 	VFIO_CCW_STATE_CP_PROCESSING,
+-	VFIO_CCW_STATE_CP_PENDING,
+ 	/* last element! */
+ 	NR_VFIO_CCW_STATES
+ };
 -- 
-2.25.1
+2.17.1
