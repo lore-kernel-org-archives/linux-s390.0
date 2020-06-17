@@ -1,56 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11084 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726270AbgFQKoM (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19748 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726494AbgFQOzE (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jun 2020 06:44:12 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v3 0/1] s390: virtio: let arch choose to accept devices without IOMMU feature
-Date: Wed, 17 Jun 2020 12:43:56 +0200
-Message-Id: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+        Wed, 17 Jun 2020 10:55:04 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 1/2] s390/qeth: fix error handling for isolation mode cmds
+Date: Wed, 17 Jun 2020 16:54:52 +0200
+Message-Id: <20200617145453.61382-2-jwi@linux.ibm.com>
+In-Reply-To: <20200617145453.61382-1-jwi@linux.ibm.com>
+References: <20200617145453.61382-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-An architecture protecting the guest memory against unauthorized host
-access may want to enforce VIRTIO I/O device protection through the
-use of VIRTIO_F_IOMMU_PLATFORM.
+Current(?) OSA devices also store their cmd-specific return codes for
+SET_ACCESS_CONTROL cmds into the top-level cmd->hdr.return_code.
+So once we added stricter checking for the top-level field a while ago,
+none of the error logic that rolls back the user's configuration to its
+old state is applied any longer.
 
-Let's give a chance to the architecture to accept or not devices
-without VIRTIO_F_IOMMU_PLATFORM.
+For this specific cmd, go back to the old model where we peek into the
+cmd structure even though the top-level field indicated an error.
 
-Pierre Morel (1):
-  s390: virtio: let arch accept devices without IOMMU feature
+Fixes: 686c97ee29c8 ("s390/qeth: fix error handling in adapter command callbacks")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core_main.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
- arch/s390/mm/init.c     |  6 ++++++
- drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
- include/linux/virtio.h  |  2 ++
- 3 files changed, 30 insertions(+)
-
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 18a0fb75a710..9636415f810b 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -4544,9 +4544,6 @@ static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
+ 	int fallback = *(int *)reply->param;
+ 
+ 	QETH_CARD_TEXT(card, 4, "setaccb");
+-	if (cmd->hdr.return_code)
+-		return -EIO;
+-	qeth_setadpparms_inspect_rc(cmd);
+ 
+ 	access_ctrl_req = &cmd->data.setadapterparms.data.set_access_ctrl;
+ 	QETH_CARD_TEXT_(card, 2, "rc=%d",
+@@ -4556,7 +4553,7 @@ static int qeth_setadpparms_set_access_ctrl_cb(struct qeth_card *card,
+ 		QETH_DBF_MESSAGE(3, "ERR:SET_ACCESS_CTRL(%#x) on device %x: %#x\n",
+ 				 access_ctrl_req->subcmd_code, CARD_DEVID(card),
+ 				 cmd->data.setadapterparms.hdr.return_code);
+-	switch (cmd->data.setadapterparms.hdr.return_code) {
++	switch (qeth_setadpparms_inspect_rc(cmd)) {
+ 	case SET_ACCESS_CTRL_RC_SUCCESS:
+ 		if (card->options.isolation == ISOLATION_MODE_NONE) {
+ 			dev_info(&card->gdev->dev,
 -- 
-2.25.1
-
-Changelog
-
-to v3:
-
-- add warning
-  (Connie, Christian)
-
-- add comment
-  (Connie)
-
-- change hook name
-  (Halil, Connie)
-
-to v2:
-
-- put the test in virtio_finalize_features()
-  (Connie)
-
-- put the test inside VIRTIO core
-  (Jason)
-
-- pass a virtio device as parameter
-  (Halil)
+2.17.1
