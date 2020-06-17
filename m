@@ -1,58 +1,146 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12612 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2405765AbgFYPHx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 25 Jun 2020 11:07:53 -0400
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v2 1/2] docs: kvm: add documentation for KVM_CAP_S390_DIAG318
-Date: Thu, 25 Jun 2020 11:07:23 -0400
-Message-Id: <20200625150724.10021-2-walling@linux.ibm.com>
-In-Reply-To: <20200625150724.10021-1-walling@linux.ibm.com>
-References: <20200625150724.10021-1-walling@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 17 Jun 2020 12:44:13 -0400
+From: Peter Xu <peterx@redhat.com>
+Subject: Re: [PATCH 19/25] mm/s390: Use mm_fault_accounting()
+Message-ID: <20200617164413.GG76766@xz-x1>
+References: <20200615221607.7764-1-peterx@redhat.com>
+ <20200615222302.8452-1-peterx@redhat.com>
+ <20200616155933.GA12897@oc3871087118.ibm.com>
+ <20200616163510.GD11838@xz-x1>
+ <edb88596-6f2c-2648-748d-591a0b1e0131@de.ibm.com>
+ <20200617160617.GD76766@xz-x1>
+ <8bd8dcf6-f2f0-d44e-9bf8-6fd4fe299aa9@de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <8bd8dcf6-f2f0-d44e-9bf8-6fd4fe299aa9@de.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Alexander Gordeev <agordeev@linux.ibm.com>, linux-kernel@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Andrea Arcangeli <aarcange@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
 
-Documentation for the s390 DIAGNOSE 0x318 instruction handling.
+On Wed, Jun 17, 2020 at 06:14:52PM +0200, Christian Borntraeger wrote:
+> 
+> 
+> On 17.06.20 18:06, Peter Xu wrote:
+> > Hi, Christian,
+> > 
+> > On Wed, Jun 17, 2020 at 08:19:29AM +0200, Christian Borntraeger wrote:
+> >>
+> >>
+> >> On 16.06.20 18:35, Peter Xu wrote:
+> >>> Hi, Alexander,
+> >>>
+> >>> On Tue, Jun 16, 2020 at 05:59:33PM +0200, Alexander Gordeev wrote:
+> >>>>> @@ -489,21 +489,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+> >>>>>  	if (unlikely(fault & VM_FAULT_ERROR))
+> >>>>>  		goto out_up;
+> >>>>>
+> >>>>> -	/*
+> >>>>> -	 * Major/minor page fault accounting is only done on the
+> >>>>> -	 * initial attempt. If we go through a retry, it is extremely
+> >>>>> -	 * likely that the page will be found in page cache at that point.
+> >>>>> -	 */
+> >>>>>  	if (flags & FAULT_FLAG_ALLOW_RETRY) {
+> >>>>> -		if (fault & VM_FAULT_MAJOR) {
+> >>>>> -			tsk->maj_flt++;
+> >>>>> -			perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS_MAJ, 1,
+> >>>>> -				      regs, address);
+> >>>>> -		} else {
+> >>>>> -			tsk->min_flt++;
+> >>>>> -			perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS_MIN, 1,
+> >>>>> -				      regs, address);
+> >>>>> -		}
+> >>>>>  		if (fault & VM_FAULT_RETRY) {
+> >>>>>  			if (IS_ENABLED(CONFIG_PGSTE) && gmap &&
+> >>>>>  			    (flags & FAULT_FLAG_RETRY_NOWAIT)) {
+> > 
+> > [1]
+> > 
+> >>>>
+> >>>> Seems like the call to mm_fault_accounting() will be missed if
+> >>>> we entered here with FAULT_FLAG_RETRY_NOWAIT flag set, since it
+> >>>> jumps to "out_up"...
+> >>>
+> >>> This is true as a functional change.  However that also means that we've got a
+> >>> VM_FAULT_RETRY, which hints that this fault has been requested to retry rather
+> >>> than handled correctly (for instance, due to some try_lock failed during the
+> >>> fault process).
+> >>>
+> >>> To me, that case should not be counted as a page fault at all?  Or we might get
+> >>> the same duplicated accounting when the page fault retried from a higher stack.
+> >>>
+> >>> Thanks
+> >>
+> >> This case below (the one with the gmap) is the KVM case for doing a so called
+> >> pseudo page fault to our guests. (we notify our guests about major host page
+> >> faults and let it reschedule to something else instead of halting the vcpu).
+> >> This is being resolved with either gup or fixup_user_fault asynchronously by
+> >> KVM code (this can also be sync when the guest does not match some conditions)
+> >> We do not change the counters in that code as far as I can tell so we should
+> >> continue to do it here.
+> >>
+> >> (see arch/s390/kvm/kvm-s390.c
+> >> static int vcpu_post_run(struct kvm_vcpu *vcpu, int exit_reason)
+> >> {
+> >> [...]
+> >>         } else if (current->thread.gmap_pfault) {
+> >>                 trace_kvm_s390_major_guest_pfault(vcpu);
+> >>                 current->thread.gmap_pfault = 0;
+> >>                 if (kvm_arch_setup_async_pf(vcpu))
+> >>                         return 0;
+> >>                 return kvm_arch_fault_in_page(vcpu, current->thread.gmap_addr, 1);
+> >>         }
+> > 
+> > Please correct me if I'm wrong... but I still think what this patch does is the
+> > right thing to do.
+> > 
+> > Note again that IMHO when reached [1] above it means the page fault is not
+> > handled correctly so we need to fallback to KVM async page fault, then we
+> > shouldn't increment the accountings until it's finally handled correctly. That
+> > final accounting should be done in the async pf path in gup code where the page
+> > fault is handled:
+> > 
+> >   kvm_arch_fault_in_page
+> >     gmap_fault
+> >       fixup_user_fault
+> > 
+> > Where in fixup_user_fault() we have:
+> > 
+> > 	if (tsk) {
+> > 		if (major)
+> > 			tsk->maj_flt++;
+> > 		else
+> > 			tsk->min_flt++;
+> > 	}
+> > 
+> 
+> Right that case does work. Its the case where we do not inject a pseudo pagefault and
+> instead fall back to synchronous fault-in.
+> What is about the other case:
+> 
+> kvm_setup_async_pf
+> 	->workqueue
+> 		async_pf_execute
+> 			get_user_pages_remote
+> 
+> Does get_user_pages_remote do the accounting as well? I cant see that.
+> 
 
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
----
- Documentation/virt/kvm/api.rst | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+It should, with:
 
-diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
-index 426f94582b7a..e0b4f2088c46 100644
---- a/Documentation/virt/kvm/api.rst
-+++ b/Documentation/virt/kvm/api.rst
-@@ -6150,3 +6150,23 @@ KVM can therefore start protected VMs.
- This capability governs the KVM_S390_PV_COMMAND ioctl and the
- KVM_MP_STATE_LOAD MP_STATE. KVM_SET_MP_STATE can fail for protected
- guests when the state change is invalid.
-+
-+8.24 KVM_CAP_S390_DIAG318
-+-------------------------
-+
-+:Architecture: s390
-+
-+This capability enables a guest to set information about its control program
-+(i.e. guest kernel type and version). The information is helpful during
-+system/firmware service events, providing additional data about the guest
-+environments running on the machine.
-+
-+The information is associated with the DIAGNOSE 0x318 instruction, which sets
-+an 8-byte value consisting of a one-byte Control Program Name Code (CPNC) and
-+a 7-byte Control Program Version Code (CPVC). The CPNC determines what
-+environment the control program is running in (e.g. Linux, z/VM...), and the
-+CPVC is used for information specific to OS (e.g. Linux version, Linux
-+distribution...)
-+
-+If this capability is available, then the CPNC and CPVC can be synchronized
-+between KVM and userspace via the sync regs mechanism (KVM_SYNC_DIAG318).
+  get_user_pages_remote
+    __get_user_pages_remote
+      __get_user_pages_locked
+        __get_user_pages
+          faultin_page
+
+Where the accounting is done in faultin_page().
+
+We probably need to also move the accounting in faultin_page() to be after the
+retry check too, but that should be irrelevant to this patch.
+
+Thanks!
+
 -- 
-2.26.2
+Peter Xu
