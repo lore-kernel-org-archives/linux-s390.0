@@ -1,27 +1,28 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:34105 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729578AbgFSLWz (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22780 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725901AbgFQLYW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 19 Jun 2020 07:22:55 -0400
-Date: Fri, 19 Jun 2020 13:21:52 +0200
-From: Cornelia Huck <cohuck@redhat.com>
+        Wed, 17 Jun 2020 07:24:22 -0400
 Subject: Re: [RFC PATCH v3 0/3] vfio-ccw: Fix interrupt handling for
  HALT/CLEAR
-Message-ID: <20200619132152.59498435.cohuck@redhat.com>
-In-Reply-To: <20200616195053.99253-1-farman@linux.ibm.com>
 References: <20200616195053.99253-1-farman@linux.ibm.com>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <5ae6151b-31de-eca6-2917-4e23ecd4f0df@linux.ibm.com>
+Date: Wed, 17 Jun 2020 07:24:17 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20200616195053.99253-1-farman@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Eric Farman <farman@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
 Cc: Jared Rossi <jrossi@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-On Tue, 16 Jun 2020 21:50:50 +0200
-Eric Farman <farman@linux.ibm.com> wrote:
 
+
+On 6/16/20 3:50 PM, Eric Farman wrote:
 > Let's continue our discussion of the handling of vfio-ccw interrupts.
 > 
 > The initial fix [1] relied upon the interrupt path's examination of the
@@ -53,16 +54,16 @@ Eric Farman <farman@linux.ibm.com> wrote:
 > 
 > Having said all of that, in v2 Conny suggested [3] the following:
 > 
-> > - Detach the cp from the subchannel (or better, remove the 1:1
-> >   relationship). By that I mean building the cp as a separately
-> >   allocated structure (maybe embedding a kref, but that might not be
-> >   needed), and appending it to a list after SSCH with cc=0. Discard it
-> >   if cc!=0.
-> > - Remove the CP_PENDING state. The state is either IDLE after any
-> >   successful SSCH/HSCH/CSCH, or a new state in that case. But no
-> >   special state for SSCH.
-> > - A successful CSCH removes the first queued request, if any.
-> > - A final interrupt removes the first queued request, if any.  
+>> - Detach the cp from the subchannel (or better, remove the 1:1
+>>   relationship). By that I mean building the cp as a separately
+>>   allocated structure (maybe embedding a kref, but that might not be
+>>   needed), and appending it to a list after SSCH with cc=0. Discard it
+>>   if cc!=0.
+>> - Remove the CP_PENDING state. The state is either IDLE after any
+>>   successful SSCH/HSCH/CSCH, or a new state in that case. But no
+>>   special state for SSCH.
+>> - A successful CSCH removes the first queued request, if any.
+>> - A final interrupt removes the first queued request, if any.
 > 
 > What I have implemented here is basically this, with a few changes:
 > 
@@ -74,6 +75,12 @@ Eric Farman <farman@linux.ibm.com> wrote:
 >    probe path to the I/O path seems excessive. So I implemented a
 >    "started" flag to the cp, set after a cc0 from the START, and examine
 >    that on the interrupt path to determine whether cp_free() is needed.
+
+FYI... After a day or two of running, I sprung a kernel debug oops for
+list corruption in ccwchain_free(). I'm going to blame this piece, since
+it was the last thing I changed and I hadn't come across any such damage
+since v2. So either "started" is a bad idea, or a broken one. Or both. :)
+
 >  - I opted against a "SOMETHING_PENDING" state if START/HALT/CLEAR
 >    got a cc0, and just put the FSM back to IDLE. It becomes too unwieldy
 >    to discern which operation an interrupt is completing, and whether
@@ -85,12 +92,6 @@ Eric Farman <farman@linux.ibm.com> wrote:
 >    to asynchronously perform the [START/HALT/CLEAR] function."
 >    This means that an in-flight START could still receive data from the
 >    device/subchannel, so not a good idea to release memory at that point.
-
-Hm, csch clears any pending status, so it is indeed special in a way.
-If we do a csch with cc 0, we already know for sure that we won't get
-any further status other than an interrupt indicating that clear has
-been done. This was my reasoning behind csch dequeuing the request.
-
 > 
 > Separate from all that, I added a small check of the io_work queue to
 > the FSM START path. Part of the problems I've seen was that an interrupt
