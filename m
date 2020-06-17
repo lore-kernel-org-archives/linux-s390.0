@@ -1,24 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:48765 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725967AbgFQKUO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 17 Jun 2020 06:20:14 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:58320 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725536AbgFQKGV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Jun 2020 06:06:21 -0400
+Date: Wed, 17 Jun 2020 12:06:10 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH] KVM: s390: reduce number of IO pins to 1
-References: <20200617083620.5409-1-borntraeger@de.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <d17de7d7-6cca-672a-5519-c67fc147f6a5@redhat.com>
-Date: Wed, 17 Jun 2020 12:19:56 +0200
-MIME-Version: 1.0
+Message-ID: <20200617120610.211936ad.cohuck@redhat.com>
 In-Reply-To: <20200617083620.5409-1-borntraeger@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+References: <20200617083620.5409-1-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
 
-On 17.06.20 10:36, Christian Borntraeger wrote:
+On Wed, 17 Jun 2020 10:36:20 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+
 > The current number of KVM_IRQCHIP_NUM_PINS results in an order 3
 > allocation (32kb) for each guest start/restart. This can result in OOM
 > killer activity even with free swap when the memory is fragmented
@@ -49,41 +51,16 @@ On 17.06.20 10:36, Christian Borntraeger wrote:
 > anything other than KVM_IRQ_ROUTING_S390_ADAPTER and the chip/pin is
 > only used for KVM_IRQ_ROUTING_IRQCHIP. So let us use a small number to
 > reduce the memory footprint.
+
+Right, I added that #define when I was not sure yet whether we would
+need to support chip/pin routing, and it just was never revisited
+again. I think we can safely assume that it is uninteresting on s390.
+Getting it down to the minimum seems to be the right thing to do.
+
 > 
 > Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 > ---
 >  arch/s390/include/asm/kvm_host.h | 8 ++++----
 >  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-> index cee3cb6455a2..6ea0820e7c7f 100644
-> --- a/arch/s390/include/asm/kvm_host.h
-> +++ b/arch/s390/include/asm/kvm_host.h
-> @@ -31,12 +31,12 @@
->  #define KVM_USER_MEM_SLOTS 32
->  
->  /*
-> - * These seem to be used for allocating ->chip in the routing table,
-> - * which we don't use. 4096 is an out-of-thin-air value. If we need
-> - * to look at ->chip later on, we'll need to revisit this.
-> + * These seem to be used for allocating ->chip in the routing table, which we
-> + * don't use. 1 is as small as we can get to reduce the needed memory. If we
-> + * need to look at ->chip later on, we'll need to revisit this.
->   */
->  #define KVM_NR_IRQCHIPS 1
-> -#define KVM_IRQCHIP_NUM_PINS 4096
-> +#define KVM_IRQCHIP_NUM_PINS 1
->  #define KVM_HALT_POLL_NS_DEFAULT 50000
->  
->  /* s390-specific vcpu->requests bit members */
-> 
 
-Guess it doesn't make sense to wrap all the "->chip" handling in a
-separate set of defines.
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
