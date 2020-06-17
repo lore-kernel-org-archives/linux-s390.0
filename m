@@ -1,12 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:60452 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731672AbgFSJbU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 19 Jun 2020 05:31:20 -0400
-Date: Fri, 19 Jun 2020 11:31:14 +0200
-From: Petr Mladek <pmladek@suse.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49066 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725554AbgFQH7T (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Jun 2020 03:59:19 -0400
+Date: Wed, 17 Jun 2020 09:58:31 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
 Subject: Re: [v3 PATCH 2/2] printk: Make linux/printk.h self-contained
-Message-ID: <20200619093114.GJ3617@alley>
+Message-ID: <20200617075831.GA4479@osiris>
 References: <20200617071524.GA3055@gondor.apana.org.au>
  <E1jlSK1-0003hL-J3@fornost.hmeau.com>
 MIME-Version: 1.0
@@ -16,9 +17,9 @@ In-Reply-To: <E1jlSK1-0003hL-J3@fornost.hmeau.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+Cc: Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-On Wed 2020-06-17 17:17:21, Herbert Xu wrote:
+On Wed, Jun 17, 2020 at 05:17:21PM +1000, Herbert Xu wrote:
 > As it stands if you include printk.h by itself it will fail to
 > compile because it requires definitions from ratelimit.h.  However,
 > simply including ratelimit.h from printk.h does not work due to
@@ -40,9 +41,12 @@ On Wed 2020-06-17 17:17:21, Herbert Xu wrote:
 > Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 > Acked-by: Petr Mladek <pmladek@suse.com>
 > Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+> ---
+> 
+>  arch/s390/include/asm/bug.h     |    2 -
 
-JFYI, the patch has been committed into printk/linux.git,
-branch for-5.9.
+FWIW, feel free to add
 
-Best Regards,
-Petr
+Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+
+for the s390 part.
