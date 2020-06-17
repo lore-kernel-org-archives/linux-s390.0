@@ -1,44 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32074 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45728 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728826AbgFJNMA (ORCPT
+        by vger.kernel.org with ESMTP id S1725536AbgFQLZx (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 10 Jun 2020 09:12:00 -0400
+        Wed, 17 Jun 2020 07:25:53 -0400
+Subject: Re: [kvm-unit-tests PATCH v9 11/12] s390x: css: msch, enable test
+References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
+ <1592213521-19390-12-git-send-email-pmorel@linux.ibm.com>
+ <20200617105433.6a79e92c.cohuck@redhat.com>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
-Date: Wed, 10 Jun 2020 15:11:51 +0200
-Message-Id: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
+Message-ID: <c529e53c-3b4e-8c5f-9dc2-4a7a1507a44e@linux.ibm.com>
+Date: Wed, 17 Jun 2020 13:25:46 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200617105433.6a79e92c.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
 
-Protected Virtualisation protects the memory of the guest and
-do not allow a the host to access all of its memory.
 
-Let's refuse a VIRTIO device which does not use IOMMU
-protected access.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- drivers/s390/virtio/virtio_ccw.c | 5 +++++
- 1 file changed, 5 insertions(+)
+On 2020-06-17 10:54, Cornelia Huck wrote:
+> On Mon, 15 Jun 2020 11:32:00 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> A second step when testing the channel subsystem is to prepare a channel
+>> for use.
+...snip...
+>> +
+>> +	/* Read the SCHIB for this subchannel */
+>> +	cc = stsch(schid, &schib);
+>> +	if (cc) {
+>> +		report_info("stsch failed with cc=%d", cc);
+> 
+> Mention the schid in the message?
 
-diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-index 5730572b52cd..06ffbc96587a 100644
---- a/drivers/s390/virtio/virtio_ccw.c
-+++ b/drivers/s390/virtio/virtio_ccw.c
-@@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
- 	if (!ccw)
- 		return;
- 
-+	/* Protected Virtualisation guest needs IOMMU */
-+	if (is_prot_virt_guest() &&
-+	    !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
-+			status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
-+
- 	/* Write the status to the host. */
- 	vcdev->dma_area->status = status;
- 	ccw->cmd_code = CCW_CMD_WRITE_STATUS;
+Yes:
+report_info("stsch: sch %08x failed with cc=%d", schid, cc);
+
+> 
+>> +		return cc;
+>> +	}
+>> +
+>> +	if (pmcw->flags & PMCW_ENABLE) {
+>> +		report_info("stsch: sch %08x already enabled", schid);
+>> +		return 0;
+>> +	}
+>> +
+>> +retry:
+>> +	/* Update the SCHIB to enable the channel */
+>> +	pmcw->flags |= PMCW_ENABLE;
+>> +
+>> +	/* Tell the CSS we want to modify the subchannel */
+>> +	cc = msch(schid, &schib);
+>> +	if (cc) {
+>> +		/*
+>> +		 * If the subchannel is status pending or
+>> +		 * if a function is in progress,
+>> +		 * we consider both cases as errors.
+>> +		 */
+>> +		report_info("msch failed with cc=%d", cc);
+
+added schid here too
+
+>> +		return cc;
+>> +	}
+>> +
+>> +	/*
+>> +	 * Read the SCHIB again to verify the enablement
+>> +	 */
+>> +	cc = stsch(schid, &schib);
+>> +	if (cc) {
+>> +		report_info("stsch failed with cc=%d", cc);
+> 
+> Also add the schid here? Maybe also add a marker to distinguish the two
+> cases?
+
+changed to:
+report_info("stsch: updating sch %08x failed with cc=%d",schid, cc);
+                     ^^^
+> 
+>> +		return cc;
+>> +	}
+>> +
+>> +	if (pmcw->flags & PMCW_ENABLE) {
+>> +		report_info("Subchannel %08x enabled after %d retries",
+>> +			    schid, retry_count);
+>> +		return 0;
+>> +	}
+>> +
+>> +	if (retry_count++ < MAX_ENABLE_RETRIES) {
+>> +		mdelay(10); /* the hardware was not ready, give it some time */
+>> +		goto retry;
+>> +	}
+>> +
+>> +	report_info("msch: enabling sch %08x failed after %d retries. pmcw flags: %x",
+>> +		    schid, retry_count, pmcw->flags);
+>> +	return -1;
+>> +}
+> 
+> With the messages updated,
+> 
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> 
+
+Thanks,
+Pierre
+
 -- 
-2.25.1
+Pierre Morel
+IBM Lab Boeblingen
