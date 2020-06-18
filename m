@@ -1,97 +1,93 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51614 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728825AbgFOJdh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jun 2020 05:33:37 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v9 03/12] s390x: saving regs for interrupts
-Date: Mon, 15 Jun 2020 11:31:52 +0200
-Message-Id: <1592213521-19390-4-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
-References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 067/172] s390/qdio: put thinint indicator after early error
+Date: Wed, 17 Jun 2020 21:20:33 -0400
+Message-Id: <20200618012218.607130-67-sashal@kernel.org>
+In-Reply-To: <20200618012218.607130-1-sashal@kernel.org>
+References: <20200618012218.607130-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-If we use multiple source of interrupts, for example, using SCLP
-console to print information while using I/O interrupts, we need
-to have a re-entrant register saving interruption handling.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Instead of saving at a static memory address, let's save the base
-registers, the floating point registers and the floating point
-control register on the stack in case of I/O interrupts
+[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
 
-Note that we keep the static register saving to recover from the
-RESET tests.
+qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
+If the subsequent qdio_establish_thinint() fails, we miss to put the
+DSCI again. Thus the DSCI isn't available for re-use. Given enough of
+such errors, we could end up with having only the shared DSCI available.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
+Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
+such an error internally.
+
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- s390x/cstart64.S | 41 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
+ drivers/s390/cio/qdio.h         |  1 -
+ drivers/s390/cio/qdio_setup.c   |  1 -
+ drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index e7327ea..7ca9496 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -119,6 +119,43 @@ memsetxc:
- 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
- 	.endm
+diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
+index a6f7c2986b94..ed60b8d4efe6 100644
+--- a/drivers/s390/cio/qdio.h
++++ b/drivers/s390/cio/qdio.h
+@@ -377,7 +377,6 @@ static inline int multicast_outbound(struct qdio_q *q)
+ extern u64 last_ai_time;
  
-+/* Save registers on the stack (r15), so we can have stacked interrupts. */
-+	.macro SAVE_REGS_STACK
-+	/* Allocate a stack frame for 15 general registers */
-+	slgfi   %r15, 15 * 8
-+	/* Store registers r0 to r14 on the stack */
-+	stmg    %r0, %r14, 0(%r15)
-+	/* Allocate a stack frame for 16 floating point registers */
-+	/* The size of a FP register is the size of an double word */
-+	slgfi   %r15, 16 * 8
-+	/* Save fp register on stack: offset to SP is multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	std	\i, \i * 8(%r15)
-+	.endr
-+	/* Save fpc, but keep stack aligned on 64bits */
-+	slgfi   %r15, 8
-+	efpc	%r0
-+	stg	%r0, 0(%r15)
-+	.endm
+ /* prototypes for thin interrupt */
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr);
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr);
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
+ void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index d040c4920ee7..b8955e20f246 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -480,7 +480,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
+ 	setup_queues(irq_ptr, init_data);
+ 
+ 	setup_qib(irq_ptr, init_data);
+-	qdio_setup_thinint(irq_ptr);
+ 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
+ 			init_data->qib_param_field,
+ 			init_data->input_slib_elements,
+diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
+index 6628e0c9e70e..e6b22a58150a 100644
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -267,17 +267,19 @@ int __init tiqdio_register_thinints(void)
+ 
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr)
+ {
++	int rc;
 +
-+/* Restore the register in reverse order */
-+	.macro RESTORE_REGS_STACK
-+	/* Restore fpc */
-+	lfpc	0(%r15)
-+	algfi	%r15, 8
-+	/* Restore fp register from stack: SP still where it was left */
-+	/* and offset to SP is a multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	ld	\i, \i * 8(%r15)
-+	.endr
-+	/* Now that we're done, rewind the stack pointer by 16 double word */
-+	algfi   %r15, 16 * 8
-+	/* Load the registers from stack */
-+	lmg     %r0, %r14, 0(%r15)
-+	/* Rewind the stack by 15 double word */
-+	algfi   %r15, 15 * 8
-+	.endm
+ 	if (!is_thinint_irq(irq_ptr))
+ 		return 0;
+-	return set_subchannel_ind(irq_ptr, 0);
+-}
+ 
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr)
+-{
+-	if (!is_thinint_irq(irq_ptr))
+-		return;
+ 	irq_ptr->dsci = get_indicator();
+ 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
 +
- .section .text
- /*
-  * load_reset calling convention:
-@@ -186,9 +223,9 @@ mcck_int:
- 	lpswe	GEN_LC_MCCK_OLD_PSW
++	rc = set_subchannel_ind(irq_ptr, 0);
++	if (rc)
++		put_indicator(irq_ptr->dsci);
++
++	return rc;
+ }
  
- io_int:
--	SAVE_REGS
-+	SAVE_REGS_STACK
- 	brasl	%r14, handle_io_int
--	RESTORE_REGS
-+	RESTORE_REGS_STACK
- 	lpswe	GEN_LC_IO_OLD_PSW
- 
- svc_int:
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
 2.25.1
