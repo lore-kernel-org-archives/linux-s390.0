@@ -1,95 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6072 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729155AbgFOJcM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jun 2020 05:32:12 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v9 04/12] s390x: interrupt registration
-Date: Mon, 15 Jun 2020 11:31:53 +0200
-Message-Id: <1592213521-19390-5-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
-References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:38122 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732223AbgFRB3D (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:29:03 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 32/80] s390/qdio: put thinint indicator after early error
+Date: Wed, 17 Jun 2020 21:27:31 -0400
+Message-Id: <20200618012819.609778-32-sashal@kernel.org>
+In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
+References: <20200618012819.609778-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Let's make it possible to add and remove a custom io interrupt handler,
-that can be used instead of the normal one.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
+
+qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
+If the subsequent qdio_establish_thinint() fails, we miss to put the
+DSCI again. Thus the DSCI isn't available for re-use. Given enough of
+such errors, we could end up with having only the shared DSCI available.
+
+Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
+such an error internally.
+
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/s390x/interrupt.c | 23 ++++++++++++++++++++++-
- lib/s390x/interrupt.h |  8 ++++++++
- 2 files changed, 30 insertions(+), 1 deletion(-)
- create mode 100644 lib/s390x/interrupt.h
+ drivers/s390/cio/qdio.h         |  1 -
+ drivers/s390/cio/qdio_setup.c   |  1 -
+ drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 3a40cac..243b9c2 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -10,9 +10,9 @@
-  * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
--#include <asm/interrupt.h>
- #include <asm/barrier.h>
- #include <sclp.h>
-+#include <interrupt.h>
+diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
+index 7e70f9298cc1..11f6ebd04545 100644
+--- a/drivers/s390/cio/qdio.h
++++ b/drivers/s390/cio/qdio.h
+@@ -376,7 +376,6 @@ static inline int multicast_outbound(struct qdio_q *q)
+ extern u64 last_ai_time;
  
- static bool pgm_int_expected;
- static bool ext_int_expected;
-@@ -144,12 +144,33 @@ void handle_mcck_int(void)
- 		     stap(), lc->mcck_old_psw.addr);
+ /* prototypes for thin interrupt */
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr);
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr);
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
+ void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index d0090c5c88e7..a64615a10352 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
+ 	setup_queues(irq_ptr, init_data);
+ 
+ 	setup_qib(irq_ptr, init_data);
+-	qdio_setup_thinint(irq_ptr);
+ 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
+ 			init_data->qib_param_field,
+ 			init_data->input_slib_elements,
+diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
+index debe69adfc70..aecb6445a567 100644
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -268,17 +268,19 @@ int __init tiqdio_register_thinints(void)
+ 
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr)
+ {
++	int rc;
++
+ 	if (!is_thinint_irq(irq_ptr))
+ 		return 0;
+-	return set_subchannel_ind(irq_ptr, 0);
+-}
+ 
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr)
+-{
+-	if (!is_thinint_irq(irq_ptr))
+-		return;
+ 	irq_ptr->dsci = get_indicator();
+ 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
++
++	rc = set_subchannel_ind(irq_ptr, 0);
++	if (rc)
++		put_indicator(irq_ptr->dsci);
++
++	return rc;
  }
  
-+static void (*io_int_func)(void);
-+
- void handle_io_int(void)
- {
-+	if (io_int_func)
-+		return io_int_func();
-+
- 	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
- 		     stap(), lc->io_old_psw.addr);
- }
- 
-+int register_io_int_func(void (*f)(void))
-+{
-+	if (io_int_func)
-+		return -1;
-+	io_int_func = f;
-+	return 0;
-+}
-+
-+int unregister_io_int_func(void (*f)(void))
-+{
-+	if (io_int_func != f)
-+		return -1;
-+	io_int_func = NULL;
-+	return 0;
-+}
-+
- void handle_svc_int(void)
- {
- 	report_abort("Unexpected supervisor call interrupt: on cpu %d at %#lx",
-diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
-new file mode 100644
-index 0000000..1973d26
---- /dev/null
-+++ b/lib/s390x/interrupt.h
-@@ -0,0 +1,8 @@
-+#ifndef INTERRUPT_H
-+#define INTERRUPT_H
-+#include <asm/interrupt.h>
-+
-+int register_io_int_func(void (*f)(void));
-+int unregister_io_int_func(void (*f)(void));
-+
-+#endif /* INTERRUPT_H */
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
 2.25.1
