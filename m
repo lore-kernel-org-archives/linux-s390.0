@@ -1,96 +1,93 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733267AbgFWRfo (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:35:44 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 16/28] s390/ptrace: return -ENOSYS when invalid syscall is supplied
-Date: Tue, 23 Jun 2020 13:35:11 -0400
-Message-Id: <20200623173523.1355411-16-sashal@kernel.org>
-In-Reply-To: <20200623173523.1355411-1-sashal@kernel.org>
-References: <20200623173523.1355411-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 042/108] s390/qdio: put thinint indicator after early error
+Date: Wed, 17 Jun 2020 21:24:54 -0400
+Message-Id: <20200618012600.608744-42-sashal@kernel.org>
+In-Reply-To: <20200618012600.608744-1-sashal@kernel.org>
+References: <20200618012600.608744-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit cd29fa798001075a554b978df3a64e6656c25794 ]
+[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
 
-The current code returns the syscall number which an invalid
-syscall number is supplied and tracing is enabled. This makes
-the strace testsuite fail.
+qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
+If the subsequent qdio_establish_thinint() fails, we miss to put the
+DSCI again. Thus the DSCI isn't available for re-use. Given enough of
+such errors, we could end up with having only the shared DSCI available.
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
+such an error internally.
+
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/ptrace.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ drivers/s390/cio/qdio.h         |  1 -
+ drivers/s390/cio/qdio_setup.c   |  1 -
+ drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 9eee345568890..3f29646313e82 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -838,6 +838,7 @@ long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
- asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
+diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
+index 29d6b5222f1c..0f8d13288611 100644
+--- a/drivers/s390/cio/qdio.h
++++ b/drivers/s390/cio/qdio.h
+@@ -377,7 +377,6 @@ static inline int multicast_outbound(struct qdio_q *q)
+ extern u64 last_ai_time;
+ 
+ /* prototypes for thin interrupt */
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr);
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr);
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
+ void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index d0090c5c88e7..a64615a10352 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
+ 	setup_queues(irq_ptr, init_data);
+ 
+ 	setup_qib(irq_ptr, init_data);
+-	qdio_setup_thinint(irq_ptr);
+ 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
+ 			init_data->qib_param_field,
+ 			init_data->input_slib_elements,
+diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
+index 831a3a0a2837..4dc1108069d4 100644
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -270,17 +270,19 @@ int __init tiqdio_register_thinints(void)
+ 
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr)
  {
- 	unsigned long mask = -1UL;
-+	long ret = -1;
++	int rc;
++
+ 	if (!is_thinint_irq(irq_ptr))
+ 		return 0;
+-	return set_subchannel_ind(irq_ptr, 0);
+-}
  
- 	if (is_compat_task())
- 		mask = 0xffffffff;
-@@ -854,8 +855,7 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- 		 * debugger stored an invalid system call number. Skip
- 		 * the system call and the system call restart handling.
- 		 */
--		clear_pt_regs_flag(regs, PIF_SYSCALL);
--		return -1;
-+		goto skip;
- 	}
- 
- #ifdef CONFIG_SECCOMP
-@@ -871,7 +871,7 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- 			sd.arch = AUDIT_ARCH_S390X;
- 		}
- 
--		sd.nr = regs->gprs[2] & 0xffff;
-+		sd.nr = regs->int_code & 0xffff;
- 		sd.args[0] = regs->orig_gpr2 & mask;
- 		sd.args[1] = regs->gprs[3] & mask;
- 		sd.args[2] = regs->gprs[4] & mask;
-@@ -880,19 +880,26 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- 		sd.args[5] = regs->gprs[7] & mask;
- 
- 		if (__secure_computing(&sd) == -1)
--			return -1;
-+			goto skip;
- 	}
- #endif /* CONFIG_SECCOMP */
- 
- 	if (unlikely(test_thread_flag(TIF_SYSCALL_TRACEPOINT)))
--		trace_sys_enter(regs, regs->gprs[2]);
-+		trace_sys_enter(regs, regs->int_code & 0xffff);
- 
- 
--	audit_syscall_entry(regs->gprs[2], regs->orig_gpr2 & mask,
-+	audit_syscall_entry(regs->int_code & 0xffff, regs->orig_gpr2 & mask,
- 			    regs->gprs[3] &mask, regs->gprs[4] &mask,
- 			    regs->gprs[5] &mask);
- 
-+	if ((signed long)regs->gprs[2] >= NR_syscalls) {
-+		regs->gprs[2] = -ENOSYS;
-+		ret = -ENOSYS;
-+	}
- 	return regs->gprs[2];
-+skip:
-+	clear_pt_regs_flag(regs, PIF_SYSCALL);
-+	return ret;
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr)
+-{
+-	if (!is_thinint_irq(irq_ptr))
+-		return;
+ 	irq_ptr->dsci = get_indicator();
+ 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
++
++	rc = set_subchannel_ind(irq_ptr, 0);
++	if (rc)
++		put_indicator(irq_ptr->dsci);
++
++	return rc;
  }
  
- asmlinkage void do_syscall_trace_exit(struct pt_regs *regs)
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
 2.25.1
