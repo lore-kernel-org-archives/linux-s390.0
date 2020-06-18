@@ -1,112 +1,48 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15628 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728865AbgFEVkU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 17:40:20 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v8 07/16] s390/vfio-ap: sysfs attribute to display the guest's matrix
-Date: Fri,  5 Jun 2020 17:39:55 -0400
-Message-Id: <20200605214004.14270-8-akrowiak@linux.ibm.com>
-In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
-References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:38970 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727801AbgFRBLO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:11:14 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 142/388] s390/qdio: tear down thinint indicator after early error
+Date: Wed, 17 Jun 2020 21:03:59 -0400
+Message-Id: <20200618010805.600873-142-sashal@kernel.org>
+In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
+References: <20200618010805.600873-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-The matrix of adapters and domains configured in a guest's CRYCB may
-differ from the matrix of adapters and domains assigned to the matrix mdev,
-so this patch introduces a sysfs attribute to display the matrix of a guest
-using the matrix mdev. For a matrix mdev denoted by $uuid, the crycb for a
-guest using the matrix mdev can be displayed as follows:
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-   cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
+[ Upstream commit 68a381746f20e5435206173e22d0a011ef78790e ]
 
-If a guest is not using the matrix mdev at the time the crycb is displayed,
-an error (ENODEV) will be returned.
+qdio_establish() calls qdio_establish_thinint(), but later has an error
+exit path that doesn't roll this call back. Fix it.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 58 +++++++++++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
+ drivers/s390/cio/qdio_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index b5ed36e2c948..779659074776 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1086,6 +1086,63 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
- }
- static DEVICE_ATTR_RO(matrix);
- 
-+static ssize_t guest_matrix_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	char *bufpos = buf;
-+	unsigned long apid;
-+	unsigned long apqi;
-+	unsigned long apid1;
-+	unsigned long apqi1;
-+	unsigned long napm_bits = matrix_mdev->shadow_apcb.apm_max + 1;
-+	unsigned long naqm_bits = matrix_mdev->shadow_apcb.aqm_max + 1;
-+	int nchars = 0;
-+	int n;
-+
-+	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
-+		return -ENODEV;
-+
-+	apid1 = find_first_bit_inv(matrix_mdev->shadow_apcb.apm, napm_bits);
-+	apqi1 = find_first_bit_inv(matrix_mdev->shadow_apcb.aqm, naqm_bits);
-+
-+	mutex_lock(&matrix_dev->lock);
-+
-+	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
-+		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
-+				     napm_bits) {
-+			for_each_set_bit_inv(apqi,
-+					     matrix_mdev->shadow_apcb.aqm,
-+					     naqm_bits) {
-+				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
-+					    apqi);
-+				bufpos += n;
-+				nchars += n;
-+			}
-+		}
-+	} else if (apid1 < napm_bits) {
-+		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
-+				     napm_bits) {
-+			n = sprintf(bufpos, "%02lx.\n", apid);
-+			bufpos += n;
-+			nchars += n;
-+		}
-+	} else if (apqi1 < naqm_bits) {
-+		for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm,
-+				     naqm_bits) {
-+			n = sprintf(bufpos, ".%04lx\n", apqi);
-+			bufpos += n;
-+			nchars += n;
-+		}
-+	}
-+
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return nchars;
-+}
-+static DEVICE_ATTR_RO(guest_matrix);
-+
- static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_assign_adapter.attr,
- 	&dev_attr_unassign_adapter.attr,
-@@ -1095,6 +1152,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_unassign_control_domain.attr,
- 	&dev_attr_control_domains.attr,
- 	&dev_attr_matrix.attr,
-+	&dev_attr_guest_matrix.attr,
- 	NULL,
- };
- 
+diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
+index da5a11138020..80cc811bd2e0 100644
+--- a/drivers/s390/cio/qdio_main.c
++++ b/drivers/s390/cio/qdio_main.c
+@@ -1363,6 +1363,7 @@ int qdio_establish(struct ccw_device *cdev,
+ 	if (rc) {
+ 		DBF_ERROR("%4x est IO ERR", irq_ptr->schid.sch_no);
+ 		DBF_ERROR("rc:%4x", rc);
++		qdio_shutdown_thinint(irq_ptr);
+ 		qdio_shutdown_irq(irq_ptr);
+ 		mutex_unlock(&irq_ptr->setup_mutex);
+ 		return rc;
 -- 
-2.21.1
+2.25.1
