@@ -1,96 +1,257 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:65406 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728815AbgFOKzX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jun 2020 06:55:23 -0400
-Subject: Re: [PATCH v7 3/3] s390/kvm: diagnose 0x318 get/set handling
-References: <20200515221935.18775-1-walling@linux.ibm.com>
- <20200515221935.18775-4-walling@linux.ibm.com>
- <b08dbb8a-76fd-3693-d470-6171074ffce4@de.ibm.com>
- <d1ef0fed-053c-8e95-f5a6-53423de27957@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <96ba2e27-d7fd-f6f4-481b-46bf36907a7e@de.ibm.com>
-Date: Mon, 15 Jun 2020 12:55:15 +0200
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57782 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730924AbgFROqk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Jun 2020 10:46:40 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 1/6] exec: cleanup the execve wrappers
+Date: Thu, 18 Jun 2020 16:46:22 +0200
+Message-Id: <20200618144627.114057-2-hch@lst.de>
+In-Reply-To: <20200618144627.114057-1-hch@lst.de>
+References: <20200618144627.114057-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <d1ef0fed-053c-8e95-f5a6-53423de27957@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Collin Walling <walling@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Remove a whole bunch of wrappers that eventually all call
+__do_execve_file, and consolidate the execvce helpers to:
 
+  (1) __do_execveat, which is the lowest level helper implementing the
+      actual functionality
+  (2) do_execvat, which is used by all callers that want native
+      pointers
+  (3) do_compat_execve, which is used by all compat syscalls
 
-On 21.05.20 08:15, Collin Walling wrote:
-> On 5/18/20 5:15 AM, Christian Borntraeger wrote:
->>
->>
->> On 16.05.20 00:19, Collin Walling wrote:
->>> DIAGNOSE 0x318 (diag 318) sets information regarding the environment
->>> the VM is running in (Linux, z/VM, etc) and is observed via
->>> firmware/service events.
->>>
->>> This is a privileged s390x instruction that must be intercepted by
->>> SIE. Userspace handling is required, so let's introduce some functions
->>> to communicate between userspace and KVM via ioctls. These will be used
->>> to get/set the diag 318 related information.
->>>
->>> The Control Program Name Code (CPNC) is stored in the SIE block. The
->>> CPNC along with the Control Program Version Code (CPVC) are stored in
->>> the kvm_arch struct.
->>>
->>> Signed-off-by: Collin Walling <walling@linux.ibm.com>
->>> ---
->>>  Documentation/virt/kvm/devices/vm.rst | 21 +++++++
->>>  arch/s390/include/asm/kvm_host.h      |  5 +-
->>>  arch/s390/include/uapi/asm/kvm.h      |  4 ++
->>>  arch/s390/kvm/kvm-s390.c              | 82 +++++++++++++++++++++++++++
->>>  arch/s390/kvm/vsie.c                  |  2 +
->>>  5 files changed, 113 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/Documentation/virt/kvm/devices/vm.rst b/Documentation/virt/kvm/devices/vm.rst
->>> index 0aa5b1cfd700..52cc906dd7bd 100644
->>> --- a/Documentation/virt/kvm/devices/vm.rst
->>> +++ b/Documentation/virt/kvm/devices/vm.rst
->>> @@ -314,3 +314,24 @@ Allows userspace to query the status of migration mode.
->>>  	     if it is enabled
->>>  :Returns:   -EFAULT if the given address is not accessible from kernel space;
->>>  	    0 in case of success.
->>> +
->>> +6. GROUP: KVM_S390_VM_MISC
->>> +==========================
->>> +
->>> +:Architectures: s390
->>> +
->>> +6.1. KVM_S390_VM_MISC_DIAG_318 (r/w)
->>> +-----------------------------------
->>> +
->>> +Allows userspace to retrieve and set the DIAGNOSE 0x318 information,
->>> +which consists of a 1-byte "Control Program Name Code" and a 7-byte
->>> +"Control Program Version Code" (a 64 bit value all in all). This
->>> +information is set by the guest (usually during IPL). This interface is
->>> +intended to allow retrieving and setting it during migration; while no
->>> +real harm is done if the information is changed outside of migration,
->>> +it is strongly discouraged.
->>> +
->>> +:Parameters: address of a buffer in user space (u64), where the
->>> +	     information is read from or stored into
->>> +:Returns:    -EFAULT if the given address is not accessible from kernel space;
->>> +	     0 in case of success
->>
->>
->> An alternative would be a new sync_reg value + KVM capability.
->>
->>
-> 
-> I did some investigation into this (new grounds for me)
-> 
-> sync_reg would handle the migration part, and then we'd just need the
-> ioctl so the diag instruction handler can set the data. Does that sound
-> right?
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ fs/exec.c               | 98 +++++++++++------------------------------
+ include/linux/binfmts.h | 12 ++---
+ init/main.c             |  7 +--
+ kernel/umh.c            | 16 +++----
+ 4 files changed, 41 insertions(+), 92 deletions(-)
 
-We would not even need the ioctl. We could just export/import this all the
-time. See the sync_regs and store_regs functions.
+diff --git a/fs/exec.c b/fs/exec.c
+index e6e8a9a7032784..354fdaa536ae7d 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1815,10 +1815,7 @@ static int exec_binprm(struct linux_binprm *bprm)
+ 	return 0;
+ }
+ 
+-/*
+- * sys_execve() executes a new program.
+- */
+-static int __do_execve_file(int fd, struct filename *filename,
++static int __do_execveat(int fd, struct filename *filename,
+ 			    struct user_arg_ptr argv,
+ 			    struct user_arg_ptr envp,
+ 			    int flags, struct file *file)
+@@ -1972,74 +1969,16 @@ static int __do_execve_file(int fd, struct filename *filename,
+ 	return retval;
+ }
+ 
+-static int do_execveat_common(int fd, struct filename *filename,
+-			      struct user_arg_ptr argv,
+-			      struct user_arg_ptr envp,
+-			      int flags)
+-{
+-	return __do_execve_file(fd, filename, argv, envp, flags, NULL);
+-}
+-
+-int do_execve_file(struct file *file, void *__argv, void *__envp)
+-{
+-	struct user_arg_ptr argv = { .ptr.native = __argv };
+-	struct user_arg_ptr envp = { .ptr.native = __envp };
+-
+-	return __do_execve_file(AT_FDCWD, NULL, argv, envp, 0, file);
+-}
+-
+-int do_execve(struct filename *filename,
+-	const char __user *const __user *__argv,
+-	const char __user *const __user *__envp)
+-{
+-	struct user_arg_ptr argv = { .ptr.native = __argv };
+-	struct user_arg_ptr envp = { .ptr.native = __envp };
+-	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+-}
+-
+ int do_execveat(int fd, struct filename *filename,
+ 		const char __user *const __user *__argv,
+ 		const char __user *const __user *__envp,
+-		int flags)
++		int flags, struct file *file)
+ {
+ 	struct user_arg_ptr argv = { .ptr.native = __argv };
+ 	struct user_arg_ptr envp = { .ptr.native = __envp };
+ 
+-	return do_execveat_common(fd, filename, argv, envp, flags);
+-}
+-
+-#ifdef CONFIG_COMPAT
+-static int compat_do_execve(struct filename *filename,
+-	const compat_uptr_t __user *__argv,
+-	const compat_uptr_t __user *__envp)
+-{
+-	struct user_arg_ptr argv = {
+-		.is_compat = true,
+-		.ptr.compat = __argv,
+-	};
+-	struct user_arg_ptr envp = {
+-		.is_compat = true,
+-		.ptr.compat = __envp,
+-	};
+-	return do_execveat_common(AT_FDCWD, filename, argv, envp, 0);
+-}
+-
+-static int compat_do_execveat(int fd, struct filename *filename,
+-			      const compat_uptr_t __user *__argv,
+-			      const compat_uptr_t __user *__envp,
+-			      int flags)
+-{
+-	struct user_arg_ptr argv = {
+-		.is_compat = true,
+-		.ptr.compat = __argv,
+-	};
+-	struct user_arg_ptr envp = {
+-		.is_compat = true,
+-		.ptr.compat = __envp,
+-	};
+-	return do_execveat_common(fd, filename, argv, envp, flags);
++	return __do_execveat(fd, filename, argv, envp, flags, file);
+ }
+-#endif
+ 
+ void set_binfmt(struct linux_binfmt *new)
+ {
+@@ -2070,7 +2009,7 @@ SYSCALL_DEFINE3(execve,
+ 		const char __user *const __user *, argv,
+ 		const char __user *const __user *, envp)
+ {
+-	return do_execve(getname(filename), argv, envp);
++	return do_execveat(AT_FDCWD, getname(filename), argv, envp, 0, NULL);
+ }
+ 
+ SYSCALL_DEFINE5(execveat,
+@@ -2080,18 +2019,34 @@ SYSCALL_DEFINE5(execveat,
+ 		int, flags)
+ {
+ 	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
++	struct filename *name = getname_flags(filename, lookup_flags, NULL);
+ 
+-	return do_execveat(fd,
+-			   getname_flags(filename, lookup_flags, NULL),
+-			   argv, envp, flags);
++	return do_execveat(fd, name, argv, envp, flags, NULL);
+ }
+ 
+ #ifdef CONFIG_COMPAT
++static int do_compat_execve(int fd, struct filename *filename,
++		const compat_uptr_t __user *__argv,
++		const compat_uptr_t __user *__envp,
++		int flags)
++{
++	struct user_arg_ptr argv = {
++		.is_compat = true,
++		.ptr.compat = __argv,
++	};
++	struct user_arg_ptr envp = {
++		.is_compat = true,
++		.ptr.compat = __envp,
++	};
++
++	return __do_execveat(fd, filename, argv, envp, flags, NULL);
++}
++
+ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
+ 	const compat_uptr_t __user *, argv,
+ 	const compat_uptr_t __user *, envp)
+ {
+-	return compat_do_execve(getname(filename), argv, envp);
++	return do_compat_execve(AT_FDCWD, getname(filename), argv, envp, 0);
+ }
+ 
+ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
+@@ -2101,9 +2056,8 @@ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
+ 		       int,  flags)
+ {
+ 	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
++	struct filename *name = getname_flags(filename, lookup_flags, NULL);
+ 
+-	return compat_do_execveat(fd,
+-				  getname_flags(filename, lookup_flags, NULL),
+-				  argv, envp, flags);
++	return do_compat_execve(fd, name, argv, envp, flags);
+ }
+ #endif
+diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
+index 4a20b7517dd036..bed702e4b1fbd9 100644
+--- a/include/linux/binfmts.h
++++ b/include/linux/binfmts.h
+@@ -134,13 +134,9 @@ int copy_string_kernel(const char *arg, struct linux_binprm *bprm);
+ extern void set_binfmt(struct linux_binfmt *new);
+ extern ssize_t read_code(struct file *, unsigned long, loff_t, size_t);
+ 
+-extern int do_execve(struct filename *,
+-		     const char __user * const __user *,
+-		     const char __user * const __user *);
+-extern int do_execveat(int, struct filename *,
+-		       const char __user * const __user *,
+-		       const char __user * const __user *,
+-		       int);
+-int do_execve_file(struct file *file, void *__argv, void *__envp);
++int do_execveat(int fd, struct filename *filename,
++		const char __user *const __user *__argv,
++		const char __user *const __user *__envp,
++		int flags, struct file *file);
+ 
+ #endif /* _LINUX_BINFMTS_H */
+diff --git a/init/main.c b/init/main.c
+index 0ead83e86b5aa2..838950ea7bca22 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1329,9 +1329,10 @@ static int run_init_process(const char *init_filename)
+ 	pr_debug("  with environment:\n");
+ 	for (p = envp_init; *p; p++)
+ 		pr_debug("    %s\n", *p);
+-	return do_execve(getname_kernel(init_filename),
+-		(const char __user *const __user *)argv_init,
+-		(const char __user *const __user *)envp_init);
++	return do_execveat(AT_FDCWD, getname_kernel(init_filename),
++			(const char __user *const __user *)argv_init,
++			(const char __user *const __user *)envp_init,
++			0, NULL);
+ }
+ 
+ static int try_to_run_init_process(const char *init_filename)
+diff --git a/kernel/umh.c b/kernel/umh.c
+index 79f139a7ca03c6..7aa9a5817582ca 100644
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -103,15 +103,13 @@ static int call_usermodehelper_exec_async(void *data)
+ 	commit_creds(new);
+ 
+ 	sub_info->pid = task_pid_nr(current);
+-	if (sub_info->file) {
+-		retval = do_execve_file(sub_info->file,
+-					sub_info->argv, sub_info->envp);
+-		if (!retval)
+-			current->flags |= PF_UMH;
+-	} else
+-		retval = do_execve(getname_kernel(sub_info->path),
+-				   (const char __user *const __user *)sub_info->argv,
+-				   (const char __user *const __user *)sub_info->envp);
++	retval = do_execveat(AT_FDCWD,
++			sub_info->path ? getname_kernel(sub_info->path) : NULL,
++			(const char __user *const __user *)sub_info->argv,
++			(const char __user *const __user *)sub_info->envp,
++			0, sub_info->file);
++	if (sub_info->file && !retval)
++		current->flags |= PF_UMH;
+ out:
+ 	sub_info->retval = retval;
+ 	/*
+-- 
+2.26.2
