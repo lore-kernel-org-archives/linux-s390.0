@@ -1,257 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58582 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726412AbgF0H1t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Jun 2020 03:27:49 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5/5] exec: add a kernel_execveat helper
-Date: Sat, 27 Jun 2020 09:27:04 +0200
-Message-Id: <20200627072704.2447163-6-hch@lst.de>
-In-Reply-To: <20200627072704.2447163-1-hch@lst.de>
-References: <20200627072704.2447163-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:50368 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730023AbgFRBSw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:18:52 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 104/266] s390/qdio: put thinint indicator after early error
+Date: Wed, 17 Jun 2020 21:13:49 -0400
+Message-Id: <20200618011631.604574-104-sashal@kernel.org>
+In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
+References: <20200618011631.604574-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Add a kernel_execveat helper to execute a binary with kernel space argv
-and envp pointers.  Switch executing init and user mode helpers to this
-new helper instead of relying on the implicit set_fs(KERNEL_DS) for early
-init code and kernel threads, and move the getname call into the
-do_execve helper.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
+
+qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
+If the subsequent qdio_establish_thinint() fails, we miss to put the
+DSCI again. Thus the DSCI isn't available for re-use. Given enough of
+such errors, we could end up with having only the shared DSCI available.
+
+Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
+such an error internally.
+
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exec.c               | 109 ++++++++++++++++++++++++++++++++--------
- include/linux/binfmts.h |   6 +--
- init/main.c             |   6 +--
- kernel/umh.c            |   8 ++-
- 4 files changed, 95 insertions(+), 34 deletions(-)
+ drivers/s390/cio/qdio.h         |  1 -
+ drivers/s390/cio/qdio_setup.c   |  1 -
+ drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index 34781db6bf6889..7923b8334ae600 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -435,6 +435,21 @@ static int count_strings(const char __user *const __user *argv)
- 	return i;
- }
+diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
+index a58b45df95d7..3b0a4483a252 100644
+--- a/drivers/s390/cio/qdio.h
++++ b/drivers/s390/cio/qdio.h
+@@ -372,7 +372,6 @@ static inline int multicast_outbound(struct qdio_q *q)
+ extern u64 last_ai_time;
  
-+static int count_kernel_strings(const char *const *argv)
-+{
-+	int i;
-+
-+	if (!argv)
-+		return 0;
-+
-+	for (i = 0; argv[i]; i++) {
-+		if (i >= MAX_ARG_STRINGS)
-+			return -E2BIG;
-+	}
-+
-+	return i;
-+}
-+
- static int check_arg_limit(struct linux_binprm *bprm)
+ /* prototypes for thin interrupt */
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr);
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr);
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
+ void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index ee0b3c586211..9dc56aa3ae55 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
+ 	setup_queues(irq_ptr, init_data);
+ 
+ 	setup_qib(irq_ptr, init_data);
+-	qdio_setup_thinint(irq_ptr);
+ 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
+ 			init_data->qib_param_field,
+ 			init_data->input_slib_elements,
+diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
+index 93ee067c10ca..ddf780b12d40 100644
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -268,17 +268,19 @@ int __init tiqdio_register_thinints(void)
+ 
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr)
  {
- 	unsigned long limit, ptr_size;
-@@ -611,6 +626,19 @@ int copy_string_kernel(const char *arg, struct linux_binprm *bprm)
- }
- EXPORT_SYMBOL(copy_string_kernel);
- 
-+static int copy_strings_kernel(int argc, const char *const *argv,
-+		struct linux_binprm *bprm)
-+{
-+	int ret;
++	int rc;
 +
-+	while (argc-- > 0) {
-+		ret = copy_string_kernel(argv[argc], bprm);
-+		if (ret)
-+			break;
-+	}
-+	return ret;
-+}
-+
- #ifdef CONFIG_MMU
+ 	if (!is_thinint_irq(irq_ptr))
+ 		return 0;
+-	return set_subchannel_ind(irq_ptr, 0);
+-}
  
- /*
-@@ -1793,9 +1821,11 @@ static int exec_binprm(struct linux_binprm *bprm)
- 	return 0;
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr)
+-{
+-	if (!is_thinint_irq(irq_ptr))
+-		return;
+ 	irq_ptr->dsci = get_indicator();
+ 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
++
++	rc = set_subchannel_ind(irq_ptr, 0);
++	if (rc)
++		put_indicator(irq_ptr->dsci);
++
++	return rc;
  }
  
--int do_execveat(int fd, struct filename *filename,
-+static int __do_execveat(int fd, struct filename *filename,
- 		const char __user *const __user *argv,
- 		const char __user *const __user *envp,
-+		const char *const *kernel_argv,
-+		const char *const *kernel_envp,
- 		int flags, struct file *file)
- {
- 	char *pathbuf = NULL;
-@@ -1876,16 +1906,30 @@ int do_execveat(int fd, struct filename *filename,
- 	if (retval)
- 		goto out_unmark;
- 
--	bprm->argc = count_strings(argv);
--	if (bprm->argc < 0) {
--		retval = bprm->argc;
--		goto out;
--	}
-+	if (unlikely(kernel_argv)) {
-+		bprm->argc = count_kernel_strings(kernel_argv);
-+		if (bprm->argc < 0) {
-+			retval = bprm->argc;
-+			goto out;
-+		}
- 
--	bprm->envc = count_strings(envp);
--	if (bprm->envc < 0) {
--		retval = bprm->envc;
--		goto out;
-+		bprm->envc = count_kernel_strings(kernel_envp);
-+		if (bprm->envc < 0) {
-+			retval = bprm->envc;
-+			goto out;
-+		}
-+	} else {
-+		bprm->argc = count_strings(argv);
-+		if (bprm->argc < 0) {
-+			retval = bprm->argc;
-+			goto out;
-+		}
-+
-+		bprm->envc = count_strings(envp);
-+		if (bprm->envc < 0) {
-+			retval = bprm->envc;
-+			goto out;
-+		}
- 	}
- 
- 	retval = check_arg_limit(bprm);
-@@ -1902,13 +1946,22 @@ int do_execveat(int fd, struct filename *filename,
- 		goto out;
- 
- 	bprm->exec = bprm->p;
--	retval = copy_strings(bprm->envc, envp, bprm);
--	if (retval < 0)
--		goto out;
- 
--	retval = copy_strings(bprm->argc, argv, bprm);
--	if (retval < 0)
--		goto out;
-+	if (unlikely(kernel_argv)) {
-+		retval = copy_strings_kernel(bprm->envc, kernel_envp, bprm);
-+		if (retval < 0)
-+			goto out;
-+		retval = copy_strings_kernel(bprm->argc, kernel_argv, bprm);
-+		if (retval < 0)
-+			goto out;
-+	} else {
-+		retval = copy_strings(bprm->envc, envp, bprm);
-+		if (retval < 0)
-+			goto out;
-+		retval = copy_strings(bprm->argc, argv, bprm);
-+		if (retval < 0)
-+			goto out;
-+	}
- 
- 	retval = exec_binprm(bprm);
- 	if (retval < 0)
-@@ -1959,6 +2012,23 @@ int do_execveat(int fd, struct filename *filename,
- 	return retval;
- }
- 
-+static int do_execveat(int fd, const char *filename,
-+		       const char __user *const __user *argv,
-+		       const char __user *const __user *envp, int flags)
-+{
-+	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
-+	struct filename *name = getname_flags(filename, lookup_flags, NULL);
-+
-+	return __do_execveat(fd, name, argv, envp, NULL, NULL, flags, NULL);
-+}
-+
-+int kernel_execveat(int fd, const char *filename, const char *const *argv,
-+		const char *const *envp, int flags, struct file *file)
-+{
-+	return __do_execveat(fd, getname_kernel(filename), NULL, NULL, argv,
-+			     envp, flags, file);
-+}
-+
- void set_binfmt(struct linux_binfmt *new)
- {
- 	struct mm_struct *mm = current->mm;
-@@ -1988,7 +2058,7 @@ SYSCALL_DEFINE3(execve,
- 		const char __user *const __user *, argv,
- 		const char __user *const __user *, envp)
- {
--	return do_execveat(AT_FDCWD, getname(filename), argv, envp, 0, NULL);
-+	return do_execveat(AT_FDCWD, filename, argv, envp, 0);
- }
- 
- SYSCALL_DEFINE5(execveat,
-@@ -1997,8 +2067,5 @@ SYSCALL_DEFINE5(execveat,
- 		const char __user *const __user *, envp,
- 		int, flags)
- {
--	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
--	struct filename *name = getname_flags(filename, lookup_flags, NULL);
--
--	return do_execveat(fd, name, argv, envp, flags, NULL);
-+	return do_execveat(fd, filename, argv, envp, flags);
- }
-diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
-index bed702e4b1fbd9..1e61c980c16354 100644
---- a/include/linux/binfmts.h
-+++ b/include/linux/binfmts.h
-@@ -134,9 +134,7 @@ int copy_string_kernel(const char *arg, struct linux_binprm *bprm);
- extern void set_binfmt(struct linux_binfmt *new);
- extern ssize_t read_code(struct file *, unsigned long, loff_t, size_t);
- 
--int do_execveat(int fd, struct filename *filename,
--		const char __user *const __user *__argv,
--		const char __user *const __user *__envp,
--		int flags, struct file *file);
-+int kernel_execveat(int fd, const char *filename, const char *const *argv,
-+		const char *const *envp, int flags, struct file *file);
- 
- #endif /* _LINUX_BINFMTS_H */
-diff --git a/init/main.c b/init/main.c
-index 838950ea7bca22..33de235dc2aa00 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1329,10 +1329,8 @@ static int run_init_process(const char *init_filename)
- 	pr_debug("  with environment:\n");
- 	for (p = envp_init; *p; p++)
- 		pr_debug("    %s\n", *p);
--	return do_execveat(AT_FDCWD, getname_kernel(init_filename),
--			(const char __user *const __user *)argv_init,
--			(const char __user *const __user *)envp_init,
--			0, NULL);
-+	return kernel_execveat(AT_FDCWD, init_filename, argv_init, envp_init, 0,
-+			       NULL);
- }
- 
- static int try_to_run_init_process(const char *init_filename)
-diff --git a/kernel/umh.c b/kernel/umh.c
-index 7aa9a5817582ca..1284823dbad338 100644
---- a/kernel/umh.c
-+++ b/kernel/umh.c
-@@ -103,11 +103,9 @@ static int call_usermodehelper_exec_async(void *data)
- 	commit_creds(new);
- 
- 	sub_info->pid = task_pid_nr(current);
--	retval = do_execveat(AT_FDCWD,
--			sub_info->path ? getname_kernel(sub_info->path) : NULL,
--			(const char __user *const __user *)sub_info->argv,
--			(const char __user *const __user *)sub_info->envp,
--			0, sub_info->file);
-+	retval = kernel_execveat(AT_FDCWD, sub_info->path,
-+			(const char *const *)sub_info->argv,
-+			(const char *const *)sub_info->envp, 0, sub_info->file);
- 	if (sub_info->file && !retval)
- 		current->flags |= PF_UMH;
- out:
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
 -- 
-2.26.2
+2.25.1
