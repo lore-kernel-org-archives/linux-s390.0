@@ -1,66 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2130.oracle.com ([156.151.31.86]:55738 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728585AbgFOSJm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Jun 2020 14:09:42 -0400
-Date: Mon, 15 Jun 2020 21:07:53 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [PATCH 1/2] mm, treewide: Rename kzfree() to kfree_sensitive()
-Message-ID: <20200615180753.GJ4151@kadam>
-References: <20200413211550.8307-1-longman@redhat.com>
- <20200413211550.8307-2-longman@redhat.com>
+Received: from mail.kernel.org ([198.145.29.99]:40796 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732585AbgFRBaj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 17 Jun 2020 21:30:39 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 25/60] s390/qdio: put thinint indicator after early error
+Date: Wed, 17 Jun 2020 21:29:29 -0400
+Message-Id: <20200618013004.610532-25-sashal@kernel.org>
+In-Reply-To: <20200618013004.610532-1-sashal@kernel.org>
+References: <20200618013004.610532-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200413211550.8307-2-longman@redhat.com>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Waiman Long <longman@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Joe Perches <joe@perches.com>, Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>, samba-technical@lists.samba.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-sctp@vger.kernel.org, target-devel@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, x86@kernel.org, kasan-dev@googlegroups.com, cocci@systeme.lip6.fr, linux-wpan@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-crypto@vger.kernel.org, linux-pm@vger.kernel.org, ecryptfs@vger.kernel.org, linux-nfs@vger.kernel.org, linux-fscrypt@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-cifs@vger.kernel.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-bluetooth@vger.kernel.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, tipc-discussion@lists.sourceforge.net, wireguard@lists.zx2c4.com, linux-ppp@vger.kernel.org, linux-integrity@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-btrfs@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-On Mon, Apr 13, 2020 at 05:15:49PM -0400, Waiman Long wrote:
-> diff --git a/mm/slab_common.c b/mm/slab_common.c
-> index 23c7500eea7d..c08bc7eb20bd 100644
-> --- a/mm/slab_common.c
-> +++ b/mm/slab_common.c
-> @@ -1707,17 +1707,17 @@ void *krealloc(const void *p, size_t new_size, gfp_t flags)
->  EXPORT_SYMBOL(krealloc);
->  
->  /**
-> - * kzfree - like kfree but zero memory
-> + * kfree_sensitive - Clear sensitive information in memory before freeing
->   * @p: object to free memory of
->   *
->   * The memory of the object @p points to is zeroed before freed.
-> - * If @p is %NULL, kzfree() does nothing.
-> + * If @p is %NULL, kfree_sensitive() does nothing.
->   *
->   * Note: this function zeroes the whole allocated buffer which can be a good
->   * deal bigger than the requested buffer size passed to kmalloc(). So be
->   * careful when using this function in performance sensitive code.
->   */
-> -void kzfree(const void *p)
-> +void kfree_sensitive(const void *p)
->  {
->  	size_t ks;
->  	void *mem = (void *)p;
-> @@ -1725,10 +1725,10 @@ void kzfree(const void *p)
->  	if (unlikely(ZERO_OR_NULL_PTR(mem)))
->  		return;
->  	ks = ksize(mem);
-> -	memset(mem, 0, ks);
-> +	memzero_explicit(mem, ks);
-        ^^^^^^^^^^^^^^^^^^^^^^^^^
-This is an unrelated bug fix.  It really needs to be pulled into a
-separate patch by itself and back ported to stable kernels.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
->  	kfree(mem);
->  }
-> -EXPORT_SYMBOL(kzfree);
-> +EXPORT_SYMBOL(kfree_sensitive);
->  
->  /**
->   * ksize - get the actual amount of memory allocated for a given object
+[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
 
-regards,
-dan carpenter
+qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
+If the subsequent qdio_establish_thinint() fails, we miss to put the
+DSCI again. Thus the DSCI isn't available for re-use. Given enough of
+such errors, we could end up with having only the shared DSCI available.
+
+Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
+such an error internally.
+
+Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/s390/cio/qdio.h         |  1 -
+ drivers/s390/cio/qdio_setup.c   |  1 -
+ drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
+index 7e70f9298cc1..11f6ebd04545 100644
+--- a/drivers/s390/cio/qdio.h
++++ b/drivers/s390/cio/qdio.h
+@@ -376,7 +376,6 @@ static inline int multicast_outbound(struct qdio_q *q)
+ extern u64 last_ai_time;
+ 
+ /* prototypes for thin interrupt */
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr);
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr);
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
+ void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
+diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
+index d0090c5c88e7..a64615a10352 100644
+--- a/drivers/s390/cio/qdio_setup.c
++++ b/drivers/s390/cio/qdio_setup.c
+@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
+ 	setup_queues(irq_ptr, init_data);
+ 
+ 	setup_qib(irq_ptr, init_data);
+-	qdio_setup_thinint(irq_ptr);
+ 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
+ 			init_data->qib_param_field,
+ 			init_data->input_slib_elements,
+diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
+index debe69adfc70..aecb6445a567 100644
+--- a/drivers/s390/cio/qdio_thinint.c
++++ b/drivers/s390/cio/qdio_thinint.c
+@@ -268,17 +268,19 @@ int __init tiqdio_register_thinints(void)
+ 
+ int qdio_establish_thinint(struct qdio_irq *irq_ptr)
+ {
++	int rc;
++
+ 	if (!is_thinint_irq(irq_ptr))
+ 		return 0;
+-	return set_subchannel_ind(irq_ptr, 0);
+-}
+ 
+-void qdio_setup_thinint(struct qdio_irq *irq_ptr)
+-{
+-	if (!is_thinint_irq(irq_ptr))
+-		return;
+ 	irq_ptr->dsci = get_indicator();
+ 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
++
++	rc = set_subchannel_ind(irq_ptr, 0);
++	if (rc)
++		put_indicator(irq_ptr->dsci);
++
++	return rc;
+ }
+ 
+ void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
+-- 
+2.25.1
