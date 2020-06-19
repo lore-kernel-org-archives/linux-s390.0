@@ -1,69 +1,32 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:60400 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733274AbgFWRfp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Jun 2020 13:35:45 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 17/28] s390/ptrace: pass invalid syscall numbers to tracing
-Date: Tue, 23 Jun 2020 13:35:12 -0400
-Message-Id: <20200623173523.1355411-17-sashal@kernel.org>
-In-Reply-To: <20200623173523.1355411-1-sashal@kernel.org>
-References: <20200623173523.1355411-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33916 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726278AbgFSD2B (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Jun 2020 23:28:01 -0400
+Date: Thu, 18 Jun 2020 20:27:59 -0700 (PDT)
+Message-Id: <20200618.202759.2208335891359562794.davem@davemloft.net>
+Subject: Re: [PATCH net 0/2] s390/qeth: fixes 2020-06-17
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200617145453.61382-1-jwi@linux.ibm.com>
+References: <20200617145453.61382-1-jwi@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: jwi@linux.ibm.com
+Cc: kuba@kernel.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, ubraun@linux.ibm.com, kgraul@linux.ibm.com
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Wed, 17 Jun 2020 16:54:51 +0200
 
-[ Upstream commit 00332c16b1604242a56289ff2b26e283dbad0812 ]
+> please apply the following patch series for qeth to netdev's net tree.
+> 
+> The first patch fixes a regression in the error handling for a specific
+> cmd type. I have some follow-ups queued up for net-next to clean this
+> up properly...
+> 
+> The second patch fine-tunes the HW offload restrictions that went in
+> with this merge window. In some setups we don't need to apply them.
 
-tracing expects to see invalid syscalls, so pass it through.
-The syscall path in entry.S checks the syscall number before
-looking up the handler, so it is still safe.
-
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/entry.S  | 2 +-
- arch/s390/kernel/ptrace.c | 6 ++----
- 2 files changed, 3 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 3ae64914bd144..9584e743102b7 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -368,9 +368,9 @@ ENTRY(system_call)
- 	jnz	.Lsysc_nr_ok
- 	# svc 0: system call number in %r1
- 	llgfr	%r1,%r1				# clear high word in r1
-+	sth	%r1,__PT_INT_CODE+2(%r11)
- 	cghi	%r1,NR_syscalls
- 	jnl	.Lsysc_nr_ok
--	sth	%r1,__PT_INT_CODE+2(%r11)
- 	slag	%r8,%r1,3
- .Lsysc_nr_ok:
- 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 3f29646313e82..fca78b269349d 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -848,11 +848,9 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- 	 * call number to gprs[2].
- 	 */
- 	if (test_thread_flag(TIF_SYSCALL_TRACE) &&
--	    (tracehook_report_syscall_entry(regs) ||
--	     regs->gprs[2] >= NR_syscalls)) {
-+	    tracehook_report_syscall_entry(regs)) {
- 		/*
--		 * Tracing decided this syscall should not happen or the
--		 * debugger stored an invalid system call number. Skip
-+		 * Tracing decided this syscall should not happen. Skip
- 		 * the system call and the system call restart handling.
- 		 */
- 		goto skip;
--- 
-2.25.1
+Series applied, thanks.
