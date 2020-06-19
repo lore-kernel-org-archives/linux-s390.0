@@ -1,49 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48088 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387656AbgF2TkY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:40:24 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/20] dm: stop using ->queuedata
-Date: Mon, 29 Jun 2020 21:39:37 +0200
-Message-Id: <20200629193947.2705954-11-hch@lst.de>
-In-Reply-To: <20200629193947.2705954-1-hch@lst.de>
-References: <20200629193947.2705954-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46632 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728081AbgFSMrf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 19 Jun 2020 08:47:35 -0400
+Date: Fri, 19 Jun 2020 14:47:23 +0200
+From: Philipp Rudo <prudo@linux.ibm.com>
+Subject: Re: [PATCH RFC 1/2] s390/zcore: traverse resources instead of
+ memblocks
+Message-ID: <20200619144723.01fc99e8@laptop2-ibm.local>
+In-Reply-To: <20200610114523.GA5943@osiris>
+References: <20200417150151.17239-1-david@redhat.com>
+        <20200417150151.17239-2-david@redhat.com>
+        <20200610114523.GA5943@osiris>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Kirill Smelkov <kirr@nexedi.com>, Alexander Egorenkov <egorenar@linux.vnet.ibm.com>
 
-Instead of setting up the queuedata as well just use one private data
-field.
+Hi David,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/md/dm.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+zcore/memmap is no longer needed and Alexander is preparing a patch to remove
+it. You can drop this patch.
 
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index e44473fe0f4873..c8d91f271c272e 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1789,7 +1789,7 @@ static blk_qc_t dm_process_bio(struct mapped_device *md,
- 
- static blk_qc_t dm_make_request(struct request_queue *q, struct bio *bio)
- {
--	struct mapped_device *md = q->queuedata;
-+	struct mapped_device *md = bio->bi_disk->private_data;
- 	blk_qc_t ret = BLK_QC_T_NONE;
- 	int srcu_idx;
- 	struct dm_table *map;
-@@ -1995,7 +1995,6 @@ static struct mapped_device *alloc_dev(int minor)
- 	md->queue = blk_alloc_queue(dm_make_request, numa_node_id);
- 	if (!md->queue)
- 		goto bad;
--	md->queue->queuedata = md;
- 
- 	md->disk = alloc_disk_node(1, md->numa_node_id);
- 	if (!md->disk)
--- 
-2.26.2
+Thanks
+Philipp
+
+On Wed, 10 Jun 2020 13:45:23 +0200
+Heiko Carstens <heiko.carstens@de.ibm.com> wrote:
+
+> On Fri, Apr 17, 2020 at 05:01:50PM +0200, David Hildenbrand wrote:
+> > The zcore memmap basically contains the first level of all system RAM from
+> > /proc/iomem. We want to disable CONFIG_ARCH_KEEP_MEMBLOCK (e.g., to not
+> > create memblocks for hotplugged/standby memory and save space), switch to
+> > traversing system ram resources instead. During early boot, we create
+> > resources for all early memblocks (including the crash kernel area). When
+> > adding standby memory, we currently create both, memblocks and resources.
+> > 
+> > Note: As we don't have memory hotplug after boot (standby memory is added
+> > via sclp during boot), we don't have to worry about races.
+> > 
+> > I am only able to test under KVM (where I hacked up zcore to still
+> > create the memmap file)
+> > 
+> > root@vm0:~# cat /proc/iomem
+> > 00000000-2fffffff : System RAM
+> >   10424000-10ec6fff : Kernel code
+> >   10ec7000-1139a0e3 : Kernel data
+> >   1177a000-11850fff : Kernel bss
+> > 30000000-3fffffff : Crash kernel
+> > 
+> > Result without this patch:
+> > root@vm0:~# cat /sys/kernel/debug/zcore/memmap
+> > 0000000000000000 0000000040000000
+> > 
+> > Result with this patch:
+> > root@vm0:~# cat /sys/kernel/debug/zcore/memmap
+> > 0000000000000000 0000000030000000 0000000030000000 0000000010000000
+> > 
+> > The difference is due to memblocks getting merged, resources (currently)
+> > not. So we might have some more entries, but they describe the same
+> > memory map.
+> > 
+> > Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Cc: Philipp Rudo <prudo@linux.ibm.com>
+> > Cc: Kirill Smelkov <kirr@nexedi.com>
+> > Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> > Signed-off-by: David Hildenbrand <david@redhat.com>
+> > ---
+> >  drivers/s390/char/zcore.c | 61 ++++++++++++++++++++++++++++++---------
+> >  1 file changed, 48 insertions(+), 13 deletions(-)  
+> 
+> I'm having a hard time to find any code that ever made use of this
+> file. After all this was only meant for our zfcp dumper, but as far as
+> I can tell there was never code out there that read the memmap file.
+> 
+> So the pragmatic approach would be to just change its contents, or a
+> more progressive variant would be to remove the file completely.
+> But maybe I'm entirely wrong...
+> 
+> I'm leaving this up to Philipp and Alexander :)
