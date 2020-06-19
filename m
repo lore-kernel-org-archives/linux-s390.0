@@ -1,150 +1,58 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14494 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729109AbgFHINO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 04:13:14 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v8 11/12] s390x: css: msch, enable test
-Date: Mon,  8 Jun 2020 10:13:00 +0200
-Message-Id: <1591603981-16879-12-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
-References: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 19 Jun 2020 16:27:29 -0300
+From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Subject: Re: [PATCH v2] s390: fix build error for sys_call_table_emu
+Message-ID: <20200619192729.GA29309@kernel.org>
+References: <20200618141426.16884-1-nixiaoming@huawei.com>
+ <20200619141717.GB9971@osiris>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200619141717.GB9971@osiris>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Xiaoming Ni <nixiaoming@huawei.com>, alexander.shishkin@linux.intel.com, arnd@arndb.de, borntraeger@de.ibm.com, catalin.marinas@arm.com, christian@brauner.io, cyphar@cyphar.com, dhowells@redhat.com, ebiederm@xmission.com, fenghua.yu@intel.com, geert@linux-m68k.org, gor@linux.ibm.com, ink@jurassic.park.msu.ru, jolsa@redhat.com, linux@armlinux.org.uk, lkp@intel.com, mark.rutland@arm.com, mattst88@gmail.com, minchan@kernel.org, mingo@redhat.com, monstr@monstr.eu, namhyung@kernel.org, peterz@infradead.org, rth@twiddle.net, sargun@sargun.me, sfr@canb.auug.org.au, tony.luck@intel.com, will@kernel.org, akpm@linux-foundation.org, alex.huangjianhui@huawei.com, zhongjubin@huawei.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, clang-built-linux@googlegroups.com, kbuild-all@lists.01.org, linux-mm@kvack.org
 
-A second step when testing the channel subsystem is to prepare a channel
-for use.
-This includes:
-- Get the current subchannel Information Block (SCHIB) using STSCH
-- Update it in memory to set the ENABLE bit
-- Tell the CSS that the SCHIB has been modified using MSCH
-- Get the SCHIB from the CSS again to verify that the subchannel is
-  enabled.
-- If the command succeeds but subchannel is not enabled retry a
-  predefined retries count.
-- If the command fails, report the failure and do not retry, even
-  if cc indicates a busy/status pending as we do not expect this.
+Em Fri, Jun 19, 2020 at 04:17:17PM +0200, Heiko Carstens escreveu:
+> On Thu, Jun 18, 2020 at 10:14:26PM +0800, Xiaoming Ni wrote:
+> > Build error on s390:
+> > 	arch/s390/kernel/entry.o: in function `sys_call_table_emu':
+> > 	>> (.rodata+0x1288): undefined reference to `__s390_'
+> > 
+> > In commit ("All arch: remove system call sys_sysctl")
+> >  148  common	fdatasync		sys_fdatasync			sys_fdatasync
+> > -149  common	_sysctl			sys_sysctl			compat_sys_sysctl
+> > +149  common	_sysctl			sys_ni_syscall
+> >  150  common	mlock			sys_mlock			sys_mlock
+> > 
+> > After the patch is integrated, there is a format error in the generated
+> > arch/s390/include/generated/asm/syscall_table.h:
+> > 	SYSCALL(sys_fdatasync, sys_fdatasync)
+> > 	SYSCALL(sys_ni_syscall,) /* cause build error */
+> > 	SYSCALL(sys_mlock,sys_mlock)
+> > 
+> > According to the guidance of Heiko Carstens, use "-" to fill the empty system call
+> >  Similarly, modify tools/perf/arch/s390/entry/syscalls/syscall.tbl.
+> > 
+> > Fixes: ("All arch: remove system call sys_sysctl")
+> > Fixes: https://lore.kernel.org/linuxppc-dev/20200616030734.87257-1-nixiaoming@huawei.com/
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+> > 
+> > changes in v2:
+> > 	use "-" to fill the empty system call
+> > 
+> > v1: https://lore.kernel.org/lkml/20200618110320.104013-1-nixiaoming@huawei.com/
+> > ---
+> >  arch/s390/kernel/syscalls/syscall.tbl           | 2 +-
+> >  tools/perf/arch/s390/entry/syscalls/syscall.tbl | 2 +-
+> >  2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> Acked-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-This tests the MSCH instruction to enable a channel succesfuly.
-This some retries are done and in case of error, and if the retries
-count is exceeded, a report is made.
+I get just copies of that file when it gets out of sync, so I suppose
+the patch should be just for arch/s390/kernel/syscalls/syscall.tbl and
+processed by the s/390 maintainer?
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/css_lib.c | 60 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/css.c         | 18 ++++++++++++++
- 2 files changed, 78 insertions(+)
-
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index dc5a512..831a116 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -15,6 +15,7 @@
- #include <string.h>
- #include <interrupt.h>
- #include <asm/arch_def.h>
-+#include <asm/time.h>
- 
- #include <css.h>
- 
-@@ -68,3 +69,62 @@ out:
- 		    scn, scn_found, dev_found);
- 	return schid;
- }
-+
-+int css_enable(int schid)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int retry_count = 0;
-+	int cc;
-+
-+	/* Read the SCHIB for this subchannel */
-+	cc = stsch(schid, &schib);
-+	if (cc) {
-+		report_info("stsch failed with cc=%d", cc);
-+		return cc;
-+	}
-+
-+	if (pmcw->flags & PMCW_ENABLE) {
-+		report_info("stsch: sch %08x already enabled", schid);
-+		return 0;
-+	}
-+
-+retry:
-+	/* Update the SCHIB to enable the channel */
-+	pmcw->flags |= PMCW_ENABLE;
-+
-+	/* Tell the CSS we want to modify the subchannel */
-+	cc = msch(schid, &schib);
-+	if (cc) {
-+		/*
-+		 * If the subchannel is status pending or
-+		 * if a function is in progress,
-+		 * we consider both cases as errors.
-+		 */
-+		report_info("msch failed with cc=%d", cc);
-+		return cc;
-+	}
-+
-+	/*
-+	 * Read the SCHIB again to verify the enablement
-+	 */
-+	cc = stsch(schid, &schib);
-+	if (cc) {
-+		report_info("stsch failed with cc=%d", cc);
-+		return cc;
-+	}
-+
-+	if (pmcw->flags & PMCW_ENABLE) {
-+		report_info("Subchannel %08x enabled after %d retries",
-+			    schid, retry_count);
-+		return 0;
-+	}
-+
-+	if (retry_count++ < MAX_ENABLE_RETRIES) {
-+		mdelay(10); /* the hardware was not ready, give it some time */
-+		goto retry;
-+	}
-+
-+	report_info("msch: enabling sch %08x failed after %d retries. pmcw flags: %x",
-+		    schid, retry_count, pmcw->flags);
-+	return -1;
-+}
-diff --git a/s390x/css.c b/s390x/css.c
-index f0e8f47..6f58d4a 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -40,11 +40,29 @@ static void test_enumerate(void)
- 	}
- }
- 
-+static void test_enable(void)
-+{
-+	int cc;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+
-+	cc = css_enable(test_device_sid);
-+
-+	if (cc)
-+		report(0, "Failed to enable subchannel %08x", test_device_sid);
-+	else
-+		report(1, "Subchannel %08x enabled", test_device_sid);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
-+	{ "enable (msch)", test_enable },
- 	{ NULL, NULL }
- };
- 
--- 
-2.25.1
+- Arnaldo
