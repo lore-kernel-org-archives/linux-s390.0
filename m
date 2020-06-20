@@ -1,57 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57770 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730924AbgFROqe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Jun 2020 10:46:34 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: properly support exec and wait with kernel pointers v2
-Date: Thu, 18 Jun 2020 16:46:21 +0200
-Message-Id: <20200618144627.114057-1-hch@lst.de>
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:38352 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726043AbgFTRCX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 20 Jun 2020 13:02:23 -0400
+Date: Sat, 20 Jun 2020 17:02:19 +0000
+From: Luis Chamberlain <mcgrof@kernel.org>
+Subject: Re: [PATCH 6/6] kernel: add a kernel_wait helper
+Message-ID: <20200620170219.GT11244@42.do-not-panic.com>
+References: <20200618144627.114057-1-hch@lst.de>
+ <20200618144627.114057-7-hch@lst.de>
+ <20200619211700.GS11244@42.do-not-panic.com>
+ <20200620063538.GA2408@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200620063538.GA2408@lst.de>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Al Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi all,
+On Sat, Jun 20, 2020 at 08:35:38AM +0200, Christoph Hellwig wrote:
+> On Fri, Jun 19, 2020 at 09:17:00PM +0000, Luis Chamberlain wrote:
+> > On Thu, Jun 18, 2020 at 04:46:27PM +0200, Christoph Hellwig wrote:
+> > > --- a/kernel/exit.c
+> > > +++ b/kernel/exit.c
+> > > @@ -1626,6 +1626,22 @@ long kernel_wait4(pid_t upid, int __user *stat_addr, int options,
+> > >  	return ret;
+> > >  }
+> > >  
+> > > +int kernel_wait(pid_t pid, int *stat)
+> > > +{
+> > > +	struct wait_opts wo = {
+> > > +		.wo_type	= PIDTYPE_PID,
+> > > +		.wo_pid		= find_get_pid(pid),
+> > > +		.wo_flags	= WEXITED,
+> > > +	};
+> > > +	int ret;
+> > > +
+> > > +	ret = do_wait(&wo);
+> > > +	if (ret > 0 && wo.wo_stat)
+> > > +		*stat = wo.wo_stat;
+> > 
+> > Since all we care about is WEXITED, that could be simplified
+> > to something like this:
+> > 
+> > if (ret > 0 && KWIFEXITED(wo.wo_stat)
+> >  	*stat = KWEXITSTATUS(wo.wo_stat)
+> > 
+> > Otherwise callers have to use W*() wrappers.
+> > 
+> > > +	put_pid(wo.wo_pid);
+> > > +	return ret;
+> > > +}
+> > 
+> > Then we don't get *any* in-kernel code dealing with the W*() crap.
+> > I just unwrapped this for the umh [0], given that otherwise we'd
+> > have to use KW*() callers elsewhere. Doing it upshot one level
+> > further would be even better.
+> > 
+> > [0] https://lkml.kernel.org/r/20200610154923.27510-1-mcgrof@kernel.org              
+> Do you just want to pick this patch up, add your suggested bits and
+> add it to the beginning of your series?  That should clean the whole
+> thing up a bit.  Nothing else in this series depends on the patch.
 
-this series first cleans up the exec code and then adds proper
-kernel_execveat and kernel_wait callers instead of relying on the fact
-that the early init code and kernel threads implicitly run with
-the address limit set to KERNEL_DS.
+Sure but let's wait to hear from the NFS folks.
 
-Note that the cleanup removes the compat execve(at) handlers entirely, as
-we can handle the compat difference very nicely in a unified codebase.
-x32 needs two hacky #defines for that for now, although those can go
-away if the x32 syscall rework from Brian gets merged.
+I'm waiting to hear from NFS folks if the one place where the UMH is
+fixed for the error code (on fs/nfsd/nfs4recover.c we never were
+disabling the upcall as the error code of -ENOENT or -EACCES was *never*
+properly checked for) to see how critical that was. If it can help
+stable kernels the fix can go in as I proposed, followed by this patch
+to further take the KWEXITSTATUS() up further, and ensure we *never*
+deal with this in-kernel. If its not a fix stable kernels should care
+for what you suggest of taking this patch first would be best and I'd be
+happy to do that.
 
-Changes since v1:
- - remove a pointless ifdef from get_user_arg_ptr
- - remove the need for a compat syscall handler for x32
-
-
-Diffstat:
- arch/arm64/include/asm/unistd32.h                  |    4 
- arch/mips/kernel/syscalls/syscall_n32.tbl          |    4 
- arch/mips/kernel/syscalls/syscall_o32.tbl          |    4 
- arch/parisc/kernel/syscalls/syscall.tbl            |    4 
- arch/powerpc/kernel/syscalls/syscall.tbl           |    4 
- arch/s390/kernel/syscalls/syscall.tbl              |    4 
- arch/sparc/kernel/syscalls.S                       |    4 
- arch/x86/entry/syscall_x32.c                       |    7 
- arch/x86/entry/syscalls/syscall_32.tbl             |    4 
- arch/x86/entry/syscalls/syscall_64.tbl             |    4 
- fs/exec.c                                          |  248 ++++++++-------------
- include/linux/binfmts.h                            |   10 
- include/linux/compat.h                             |    7 
- include/linux/sched/task.h                         |    1 
- include/uapi/asm-generic/unistd.h                  |    4 
- init/main.c                                        |    5 
- kernel/exit.c                                      |   16 +
- kernel/umh.c                                       |   43 ---
- tools/include/uapi/asm-generic/unistd.h            |    4 
- tools/perf/arch/powerpc/entry/syscalls/syscall.tbl |    4 
- tools/perf/arch/s390/entry/syscalls/syscall.tbl    |    4 
- tools/perf/arch/x86/entry/syscalls/syscall_64.tbl  |    4 
- 22 files changed, 170 insertions(+), 223 deletions(-)
+  Luis
