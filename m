@@ -1,198 +1,80 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v8 05/16] s390/vfio-ap: implement in-use callback for vfio_ap driver
-Date: Fri,  5 Jun 2020 17:39:53 -0400
-Message-Id: <20200605214004.14270-6-akrowiak@linux.ibm.com>
-In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
-References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:52713 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729311AbgFVPDR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 22 Jun 2020 11:03:17 -0400
+Date: Mon, 22 Jun 2020 17:03:03 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v8 2/2] s390/kvm: diagnose 0x318 sync and reset
+Message-ID: <20200622170303.5eee22db.cohuck@redhat.com>
+In-Reply-To: <43967a50-a69c-face-805d-7cc935d3f230@de.ibm.com>
+References: <20200618222222.23175-1-walling@linux.ibm.com>
+        <20200618222222.23175-3-walling@linux.ibm.com>
+        <20200622122456.781492a8.cohuck@redhat.com>
+        <43967a50-a69c-face-805d-7cc935d3f230@de.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Collin Walling <walling@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, pbonzini@redhat.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
 
-Let's implement the callback to indicate when an APQN
-is in use by the vfio_ap device driver. The callback is
-invoked whenever a change to the apmask or aqmask would
-result in one or more queue devices being removed from the driver. The
-vfio_ap device driver will indicate a resource is in use
-if the APQN of any of the queue devices to be removed are assigned to
-any of the matrix mdevs under the driver's control.
+On Mon, 22 Jun 2020 16:50:41 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_drv.c     |  1 +
- drivers/s390/crypto/vfio_ap_ops.c     | 68 ++++++++++++++++++++-------
- drivers/s390/crypto/vfio_ap_private.h |  2 +
- 3 files changed, 53 insertions(+), 18 deletions(-)
+> On 22.06.20 12:24, Cornelia Huck wrote:
+> > On Thu, 18 Jun 2020 18:22:22 -0400
+> > Collin Walling <walling@linux.ibm.com> wrote:
+> >   
+> >> DIAGNOSE 0x318 (diag318) sets information regarding the environment
+> >> the VM is running in (Linux, z/VM, etc) and is observed via
+> >> firmware/service events.
+> >>
+> >> This is a privileged s390x instruction that must be intercepted by
+> >> SIE. Userspace handles the instruction as well as migration. Data
+> >> is communicated via VCPU register synchronization.
+> >>
+> >> The Control Program Name Code (CPNC) is stored in the SIE block. The
+> >> CPNC along with the Control Program Version Code (CPVC) are stored
+> >> in the kvm_vcpu_arch struct.
+> >>
+> >> The CPNC is shadowed/unshadowed in VSIE.
+> >>
+> >> This data is reset on load normal and clear resets.
+> >>
+> >> Signed-off-by: Collin Walling <walling@linux.ibm.com>
+> >> ---
+> >>  arch/s390/include/asm/kvm_host.h |  4 +++-
+> >>  arch/s390/include/uapi/asm/kvm.h |  5 ++++-
+> >>  arch/s390/kvm/kvm-s390.c         | 11 ++++++++++-
+> >>  arch/s390/kvm/vsie.c             |  3 +++
+> >>  include/uapi/linux/kvm.h         |  1 +
+> >>  5 files changed, 21 insertions(+), 3 deletions(-)
+> >>  
+> > 
+> > (...)
+> >   
+> >> diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+> >> index 4fdf30316582..35cdb4307904 100644
+> >> --- a/include/uapi/linux/kvm.h
+> >> +++ b/include/uapi/linux/kvm.h
+> >> @@ -1031,6 +1031,7 @@ struct kvm_ppc_resize_hpt {
+> >>  #define KVM_CAP_PPC_SECURE_GUEST 181
+> >>  #define KVM_CAP_HALT_POLL 182
+> >>  #define KVM_CAP_ASYNC_PF_INT 183
+> >> +#define KVM_CAP_S390_DIAG318 184  
+> > 
+> > Do we strictly need this new cap, or would checking against the sync
+> > regs capabilities be enough?  
+> 
+> We could check the sync_regs valid field to decide about the sync. We do
+> that for ETOKEN as well and QEMU also uses it in handle_diag_318.
+> 
+> I think what this is used for is actually to tell the QEMU CPU model
+> if this is there. And for that the sync_reg validity seems wrong. So better
+> keep the CAP?
+> 
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 59233cf7419d..86fc83701e05 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -173,6 +173,7 @@ static int __init vfio_ap_init(void)
- 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
- 	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
- 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-+	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
- 
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 21b98a392f36..2eebb2b6d2d4 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -501,18 +501,36 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
- 	return 0;
- }
- 
-+#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
-+			 "already assigned to %s"
-+
-+static void vfio_ap_mdev_log_sharing_err(const char *mdev_name,
-+					 unsigned long *apm,
-+					 unsigned long *aqm)
-+{
-+	unsigned long apid, apqi;
-+
-+	for_each_set_bit_inv(apid, apm, AP_DEVICES)
-+		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
-+			pr_err(MDEV_SHARING_ERR, apid, apqi, mdev_name);
-+}
-+
- /**
-  * vfio_ap_mdev_verify_no_sharing
-  *
-  * Verifies that the APQNs derived from the cross product of the AP adapter IDs
-- * and AP queue indexes comprising the AP matrix are not configured for another
-+ * and AP queue indexes comprising an AP matrix are not assigned to another
-  * mediated device. AP queue sharing is not allowed.
-  *
-  * @matrix_mdev: the mediated matrix device
-+ * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
-+ * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
-  *
-  * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
-  */
--static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
-+static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
-+					  unsigned long *mdev_apm,
-+					  unsigned long *mdev_aqm)
- {
- 	struct ap_matrix_mdev *lstdev;
- 	DECLARE_BITMAP(apm, AP_DEVICES);
-@@ -529,14 +547,15 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
- 		 * We work on full longs, as we can only exclude the leftover
- 		 * bits in non-inverse order. The leftover is all zeros.
- 		 */
--		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
--				lstdev->matrix.apm, AP_DEVICES))
-+		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
- 			continue;
- 
--		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
--				lstdev->matrix.aqm, AP_DOMAINS))
-+		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
- 			continue;
- 
-+		vfio_ap_mdev_log_sharing_err(dev_name(mdev_dev(lstdev->mdev)),
-+					     apm, aqm);
-+
- 		return -EADDRINUSE;
- 	}
- 
-@@ -642,6 +661,7 @@ static ssize_t assign_adapter_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apid;
-+	DECLARE_BITMAP(apm, AP_DEVICES);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
-@@ -667,18 +687,18 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (ret)
- 		goto done;
- 
--	set_bit_inv(apid, matrix_mdev->matrix.apm);
-+	memset(apm, 0, sizeof(apm));
-+	set_bit_inv(apid, apm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
-+	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
-+					     matrix_mdev->matrix.aqm);
- 	if (ret)
--		goto share_err;
-+		goto done;
- 
-+	set_bit_inv(apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
- 	ret = count;
--	goto done;
- 
--share_err:
--	clear_bit_inv(apid, matrix_mdev->matrix.apm);
- done:
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -790,6 +810,7 @@ static ssize_t assign_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apqi;
-+	DECLARE_BITMAP(aqm, AP_DOMAINS);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
-@@ -810,18 +831,18 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (ret)
- 		goto done;
- 
--	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
-+	memset(aqm, 0, sizeof(aqm));
-+	set_bit_inv(apqi, aqm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
-+	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
-+					     matrix_mdev->matrix.apm, aqm);
- 	if (ret)
--		goto share_err;
-+		goto done;
- 
-+	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
- 	ret = count;
--	goto done;
- 
--share_err:
--	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
- done:
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -1397,3 +1418,14 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
-+
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
-+{
-+	bool in_use;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	in_use = !!vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return in_use;
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index a2aa05bec718..ad2d5b6a2851 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -103,4 +103,6 @@ struct vfio_ap_queue {
- int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
- 
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
--- 
-2.21.1
+Ok, makes sense.
