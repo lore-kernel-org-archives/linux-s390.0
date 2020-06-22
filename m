@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27810 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18582 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726317AbgF2SjI (ORCPT
+        by vger.kernel.org with ESMTP id S1729056AbgFVOEA (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:39:08 -0400
+        Mon, 22 Jun 2020 10:04:00 -0400
 Subject: Re: [PATCH v8 00/16] s390/vfio-ap: dynamic configuration support
 References: <20200605214004.14270-1-akrowiak@linux.ibm.com>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <b6c60eff-3f8f-3e35-df52-11f6fb95cc4a@linux.ibm.com>
-Date: Mon, 29 Jun 2020 11:11:44 -0400
+Message-ID: <a0700af0-d6c6-8bcc-5377-613f53d82c38@linux.ibm.com>
+Date: Mon, 22 Jun 2020 10:03:46 -0400
 MIME-Version: 1.0
 In-Reply-To: <20200605214004.14270-1-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -19,10 +19,7 @@ List-ID: <linux-s390.vger.kernel.org>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com
 
-This series has been on the mailing list since June 5th. It would be GREATLY
-appreciated if these patches can get some attention so we can move
-forward with providing dynamic Adjunct Processor configuration support for
-our customers. Thanks in advance for your time.
+Ping
 
 On 6/5/20 5:39 PM, Tony Krowiak wrote:
 > Note: Patch 1 - s390/ap: introduce new ap function ap_get_qdev() - is not
