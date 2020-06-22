@@ -1,39 +1,88 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48082 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387628AbgF2TkW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:40:22 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 09/20] bcache: stop setting ->queuedata
-Date: Mon, 29 Jun 2020 21:39:36 +0200
-Message-Id: <20200629193947.2705954-10-hch@lst.de>
-In-Reply-To: <20200629193947.2705954-1-hch@lst.de>
-References: <20200629193947.2705954-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21314 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729494AbgFVPh3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 22 Jun 2020 11:37:29 -0400
+Subject: Re: [PATCH v8 1/2] s390/setup: diag 318: refactor struct
+References: <20200618222222.23175-1-walling@linux.ibm.com>
+ <20200618222222.23175-2-walling@linux.ibm.com>
+ <e3edb120-33cb-9f3a-bf05-79b3a48613fe@de.ibm.com>
+From: Collin Walling <walling@linux.ibm.com>
+Message-ID: <de3ace0b-4f84-aa33-5f95-0f8ec308c865@linux.ibm.com>
+Date: Mon, 22 Jun 2020 11:37:21 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <e3edb120-33cb-9f3a-bf05-79b3a48613fe@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: pbonzini@redhat.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
 
-Nothing in bcache actually uses the ->queuedata field.
+On 6/22/20 10:56 AM, Christian Borntraeger wrote:
+> 
+> On 19.06.20 00:22, Collin Walling wrote:
+>> The diag 318 struct introduced in include/asm/diag.h can be
+>> reused in KVM, so let's condense the version code fields in the
+>> diag318_info struct for easier usage and simplify it until we
+>> can determine how the data should be formatted.
+>>
+>> Signed-off-by: Collin Walling <walling@linux.ibm.com>
+>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>> Reviewed-by: Thomas Huth <thuth@redhat.com>
+>> Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+> Series looks good to me. Can you respin the 2nd patch regarding the VSIE things
+> and I can then apply it.
+> 
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/md/bcache/super.c | 1 -
- 1 file changed, 1 deletion(-)
+Will do. Thanks.
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 2014016f9a60d3..21aa168113d30b 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -876,7 +876,6 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 		return -ENOMEM;
- 
- 	d->disk->queue			= q;
--	q->queuedata			= d;
- 	q->backing_dev_info->congested_data = d;
- 	q->limits.max_hw_sectors	= UINT_MAX;
- 	q->limits.max_sectors		= UINT_MAX;
+>> ---
+>>  arch/s390/include/asm/diag.h | 6 ++----
+>>  arch/s390/kernel/setup.c     | 3 +--
+>>  2 files changed, 3 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
+>> index 0036eab14391..ca8f85b53a90 100644
+>> --- a/arch/s390/include/asm/diag.h
+>> +++ b/arch/s390/include/asm/diag.h
+>> @@ -298,10 +298,8 @@ struct diag26c_mac_resp {
+>>  union diag318_info {
+>>  	unsigned long val;
+>>  	struct {
+>> -		unsigned int cpnc : 8;
+>> -		unsigned int cpvc_linux : 24;
+>> -		unsigned char cpvc_distro[3];
+>> -		unsigned char zero;
+>> +		unsigned long cpnc : 8;
+>> +		unsigned long cpvc : 56;
+>>  	};
+>>  };
+>>  
+>> diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+>> index 5853c9872dfe..878cacfc9c3e 100644
+>> --- a/arch/s390/kernel/setup.c
+>> +++ b/arch/s390/kernel/setup.c
+>> @@ -1021,8 +1021,7 @@ static void __init setup_control_program_code(void)
+>>  {
+>>  	union diag318_info diag318_info = {
+>>  		.cpnc = CPNC_LINUX,
+>> -		.cpvc_linux = 0,
+>> -		.cpvc_distro = {0},
+>> +		.cpvc = 0,
+>>  	};
+>>  
+>>  	if (!sclp.has_diag318)
+>>
+
+
 -- 
-2.26.2
+Regards,
+Collin
+
+Stay safe and stay healthy
