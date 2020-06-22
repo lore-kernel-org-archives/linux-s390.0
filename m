@@ -1,39 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from sonic310-21.consmr.mail.gq1.yahoo.com ([98.137.69.147]:33157
-        "EHLO sonic310-21.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729247AbgFVPaL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Jun 2020 11:30:11 -0400
-Date: Mon, 22 Jun 2020 11:30:04 -0400
-From: "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>
+Received: from mx2.suse.de ([195.135.220.15]:45790 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729348AbgFVO0Y (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 22 Jun 2020 10:26:24 -0400
+Date: Mon, 22 Jun 2020 12:02:57 +0200
+From: Joerg Roedel <jroedel@suse.de>
 Subject: Re: AMD IOMMU + SME + amdgpu regression
+Message-ID: <20200622100257.GD31822@suse.de>
 References: <1591915710.rakbpzst8h.none.ref@localhost>
-        <1591915710.rakbpzst8h.none@localhost> <20200622100257.GD31822@suse.de>
-In-Reply-To: <20200622100257.GD31822@suse.de>
+ <1591915710.rakbpzst8h.none@localhost>
 MIME-Version: 1.0
-Message-Id: <1592839701.mxvvths2x9.none@localhost>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1591915710.rakbpzst8h.none@localhost>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joerg Roedel <jroedel@suse.de>
-Cc: Andy Gross <agross@kernel.org>, Lu Baolu <baolu.lu@linux.intel.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Daniel Drake <drake@endlessm.com>, David Woodhouse <dwmw2@infradead.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christoph Hellwig <hch@lst.de>, Heiko Stuebner <heiko@sntech.de>, Jean-Philippe Brucker <jean-philippe@linaro.org>, jonathan.derrick@intel.com, Jonathan Hunter <jonathanh@nvidia.com>, Joerg Roedel <joro@8bytes.org>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, Marek Szyprowski <m.szyprowski@samsung.com>, David Rientjes <rientjes@google.com>, Rob Clark <robdclark@gmail.com>, Robin Murphy <robin.murphy@arm.com>, Thierry Reding <thierry.reding@gmail.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>
+To: "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>
+Cc: Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org, David Rientjes <rientjes@google.com>, Christoph Hellwig <hch@lst.de>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
 
-Excerpts from Joerg Roedel's message of June 22, 2020 6:02 am:
-> Hi Alex,
->=20
-> On Thu, Jun 11, 2020 at 07:05:21PM -0400, Alex Xu (Hello71) wrote:
->> I am using an ASRock B450 Pro4 with Ryzen 1600 and ASUS RX 480. I don't=20
->> understand this code at all, but let me know what I can do to=20
->> troubleshoot.
->=20
-> Does it boot without SME enabled?
->=20
->=20
-> Regards,
->=20
-> 	Joerg
->=20
+Hi Alex,
 
-Yes, it works with SME off with dbed452a078 ("dma-pool: decouple=20
-DMA_REMAP from DMA_COHERENT_POOL") applied.
+On Thu, Jun 11, 2020 at 07:05:21PM -0400, Alex Xu (Hello71) wrote:
+> I am using an ASRock B450 Pro4 with Ryzen 1600 and ASUS RX 480. I don't 
+> understand this code at all, but let me know what I can do to 
+> troubleshoot.
+
+Does it boot without SME enabled?
+
+
+Regards,
+
+	Joerg
