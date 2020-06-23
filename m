@@ -1,320 +1,282 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <20200623083721.512673481@infradead.org>
-Date: Tue, 23 Jun 2020 10:36:52 +0200
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56476 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731899AbgFWIjZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Jun 2020 04:39:25 -0400
+Message-ID: <20200623083721.216740948@infradead.org>
+Date: Tue, 23 Jun 2020 10:36:47 +0200
 From: Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH v4 7/8] lockdep: Change hardirq{s_enabled,_context} to per-cpu variables
+Subject: [PATCH v4 2/8] x86/entry: Fix NMI vs IRQ state tracking
 References: <20200623083645.277342609@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: mingo@kernel.org, will@kernel.org, tglx@linutronix.de
 Cc: x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, peterz@infradead.org, davem@davemloft.net, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux@armlinux.org.uk
 
-Currently all IRQ-tracking state is in task_struct, this means that
-task_struct needs to be defined before we use it.
+While the nmi_enter() users did
+trace_hardirqs_{off_prepare,on_finish}() there was no matching
+lockdep_hardirqs_*() calls to complete the picture.
 
-Especially for lockdep_assert_irq*() this can lead to header-hell.
-
-Move the hardirq state into per-cpu variables to avoid the task_struct
-dependency.
+Introduce idtentry_{enter,exit}_nmi() to enable proper IRQ state
+tracking across the NMIs.
 
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- include/linux/irqflags.h |   19 ++++++++++++-------
- include/linux/lockdep.h  |   34 ++++++++++++++++++----------------
- include/linux/sched.h    |    2 --
- kernel/fork.c            |    4 +---
- kernel/locking/lockdep.c |   30 +++++++++++++++---------------
- kernel/softirq.c         |    6 ++++++
- 6 files changed, 52 insertions(+), 43 deletions(-)
+ arch/x86/entry/common.c         |   42 ++++++++++++++++++++++++++++++++++++----
+ arch/x86/include/asm/idtentry.h |    3 ++
+ arch/x86/kernel/nmi.c           |    9 +++-----
+ arch/x86/kernel/traps.c         |   17 +++++-----------
+ include/linux/hardirq.h         |   28 ++++++++++++++++++--------
+ 5 files changed, 70 insertions(+), 29 deletions(-)
 
---- a/include/linux/irqflags.h
-+++ b/include/linux/irqflags.h
-@@ -14,6 +14,7 @@
- 
- #include <linux/typecheck.h>
- #include <asm/irqflags.h>
-+#include <asm/percpu.h>
- 
- /* Currently lockdep_softirqs_on/off is used only by lockdep */
- #ifdef CONFIG_PROVE_LOCKING
-@@ -31,18 +32,22 @@
- #endif
- 
- #ifdef CONFIG_TRACE_IRQFLAGS
-+
-+DECLARE_PER_CPU(int, hardirqs_enabled);
-+DECLARE_PER_CPU(int, hardirq_context);
-+
-   extern void trace_hardirqs_on_prepare(void);
-   extern void trace_hardirqs_off_finish(void);
-   extern void trace_hardirqs_on(void);
-   extern void trace_hardirqs_off(void);
--# define lockdep_hardirq_context(p)	((p)->hardirq_context)
-+# define lockdep_hardirq_context(p)	(this_cpu_read(hardirq_context))
- # define lockdep_softirq_context(p)	((p)->softirq_context)
--# define lockdep_hardirqs_enabled(p)	((p)->hardirqs_enabled)
-+# define lockdep_hardirqs_enabled(p)	(this_cpu_read(hardirqs_enabled))
- # define lockdep_softirqs_enabled(p)	((p)->softirqs_enabled)
--# define lockdep_hardirq_enter()		\
--do {						\
--	if (!current->hardirq_context++)	\
--		current->hardirq_threaded = 0;	\
-+# define lockdep_hardirq_enter()			\
-+do {							\
-+	if (this_cpu_inc_return(hardirq_context) == 1)	\
-+		current->hardirq_threaded = 0;		\
- } while (0)
- # define lockdep_hardirq_threaded()		\
- do {						\
-@@ -50,7 +55,7 @@ do {						\
- } while (0)
- # define lockdep_hardirq_exit()			\
- do {						\
--	current->hardirq_context--;		\
-+	this_cpu_dec(hardirq_context);		\
- } while (0)
- # define lockdep_softirq_enter()		\
- do {						\
---- a/include/linux/lockdep.h
-+++ b/include/linux/lockdep.h
-@@ -20,6 +20,7 @@ extern int lock_stat;
- #define MAX_LOCKDEP_SUBCLASSES		8UL
- 
- #include <linux/types.h>
-+#include <asm/percpu.h>
- 
- enum lockdep_wait_type {
- 	LD_WAIT_INV = 0,	/* not checked, catch all */
-@@ -703,28 +704,29 @@ do {									\
- 	lock_release(&(lock)->dep_map, _THIS_IP_);			\
- } while (0)
- 
--#define lockdep_assert_irqs_enabled()	do {				\
--		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
--			  !current->hardirqs_enabled,			\
--			  "IRQs not enabled as expected\n");		\
--	} while (0)
-+DECLARE_PER_CPU(int, hardirqs_enabled);
-+DECLARE_PER_CPU(int, hardirq_context);
- 
--#define lockdep_assert_irqs_disabled()	do {				\
--		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
--			  current->hardirqs_enabled,			\
--			  "IRQs not disabled as expected\n");		\
--	} while (0)
-+#define lockdep_assert_irqs_enabled()					\
-+do {									\
-+	WARN_ON_ONCE(debug_locks && !this_cpu_read(hardirqs_enabled));	\
-+} while (0)
- 
--#define lockdep_assert_in_irq() do {					\
--		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
--			  !current->hardirq_context,			\
--			  "Not in hardirq as expected\n");		\
--	} while (0)
-+#define lockdep_assert_irqs_disabled()					\
-+do {									\
-+	WARN_ON_ONCE(debug_locks && this_cpu_read(hardirqs_enabled));	\
-+} while (0)
-+
-+#define lockdep_assert_in_irq()						\
-+do {									\
-+	WARN_ON_ONCE(debug_locks && !this_cpu_read(hardirq_context));	\
-+} while (0)
- 
- #else
- # define might_lock(lock) do { } while (0)
- # define might_lock_read(lock) do { } while (0)
- # define might_lock_nested(lock, subclass) do { } while (0)
-+
- # define lockdep_assert_irqs_enabled() do { } while (0)
- # define lockdep_assert_irqs_disabled() do { } while (0)
- # define lockdep_assert_in_irq() do { } while (0)
-@@ -734,7 +736,7 @@ do {									\
- 
- # define lockdep_assert_RT_in_threaded_ctx() do {			\
- 		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
--			  current->hardirq_context &&			\
-+			  lockdep_hardirq_context(current) &&		\
- 			  !(current->hardirq_threaded || current->irq_config),	\
- 			  "Not in threaded context on PREEMPT_RT as expected\n");	\
- } while (0)
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -991,8 +991,6 @@ struct task_struct {
- 	unsigned long			hardirq_disable_ip;
- 	unsigned int			hardirq_enable_event;
- 	unsigned int			hardirq_disable_event;
--	int				hardirqs_enabled;
--	int				hardirq_context;
- 	u64				hardirq_chain_key;
- 	unsigned long			softirq_disable_ip;
- 	unsigned long			softirq_enable_ip;
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1954,8 +1954,8 @@ static __latent_entropy struct task_stru
- 
- 	rt_mutex_init_task(p);
- 
-+	lockdep_assert_irqs_enabled();
- #ifdef CONFIG_PROVE_LOCKING
--	DEBUG_LOCKS_WARN_ON(!p->hardirqs_enabled);
- 	DEBUG_LOCKS_WARN_ON(!p->softirqs_enabled);
- #endif
- 	retval = -EAGAIN;
-@@ -2036,7 +2036,6 @@ static __latent_entropy struct task_stru
- #endif
- #ifdef CONFIG_TRACE_IRQFLAGS
- 	p->irq_events = 0;
--	p->hardirqs_enabled = 0;
- 	p->hardirq_enable_ip = 0;
- 	p->hardirq_enable_event = 0;
- 	p->hardirq_disable_ip = _THIS_IP_;
-@@ -2046,7 +2045,6 @@ static __latent_entropy struct task_stru
- 	p->softirq_enable_event = 0;
- 	p->softirq_disable_ip = 0;
- 	p->softirq_disable_event = 0;
--	p->hardirq_context = 0;
- 	p->softirq_context = 0;
- #endif
- 
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -2062,9 +2062,9 @@ print_bad_irq_dependency(struct task_str
- 	pr_warn("-----------------------------------------------------\n");
- 	pr_warn("%s/%d [HC%u[%lu]:SC%u[%lu]:HE%u:SE%u] is trying to acquire:\n",
- 		curr->comm, task_pid_nr(curr),
--		curr->hardirq_context, hardirq_count() >> HARDIRQ_SHIFT,
-+		lockdep_hardirq_context(curr), hardirq_count() >> HARDIRQ_SHIFT,
- 		curr->softirq_context, softirq_count() >> SOFTIRQ_SHIFT,
--		curr->hardirqs_enabled,
-+		lockdep_hardirqs_enabled(curr),
- 		curr->softirqs_enabled);
- 	print_lock(next);
- 
-@@ -3658,7 +3658,7 @@ void lockdep_hardirqs_on_prepare(unsigne
- 	if (unlikely(current->lockdep_recursion & LOCKDEP_RECURSION_MASK))
- 		return;
- 
--	if (unlikely(current->hardirqs_enabled)) {
-+	if (unlikely(lockdep_hardirqs_enabled(current))) {
- 		/*
- 		 * Neither irq nor preemption are disabled here
- 		 * so this is racy by nature but losing one hit
-@@ -3686,7 +3686,7 @@ void lockdep_hardirqs_on_prepare(unsigne
- 	 * Can't allow enabling interrupts while in an interrupt handler,
- 	 * that's general bad form and such. Recursion, limited stack etc..
- 	 */
--	if (DEBUG_LOCKS_WARN_ON(current->hardirq_context))
-+	if (DEBUG_LOCKS_WARN_ON(lockdep_hardirq_context(current)))
- 		return;
- 
- 	current->hardirq_chain_key = current->curr_chain_key;
-@@ -3724,7 +3724,7 @@ void noinstr lockdep_hardirqs_on(unsigne
- 	if (unlikely(current->lockdep_recursion & LOCKDEP_RECURSION_MASK))
- 		return;
- 
--	if (curr->hardirqs_enabled) {
-+	if (lockdep_hardirqs_enabled(curr)) {
- 		/*
- 		 * Neither irq nor preemption are disabled here
- 		 * so this is racy by nature but losing one hit
-@@ -3751,7 +3751,7 @@ void noinstr lockdep_hardirqs_on(unsigne
- 
- skip_checks:
- 	/* we'll do an OFF -> ON transition: */
--	curr->hardirqs_enabled = 1;
-+	this_cpu_write(hardirqs_enabled, 1);
- 	curr->hardirq_enable_ip = ip;
- 	curr->hardirq_enable_event = ++curr->irq_events;
- 	debug_atomic_inc(hardirqs_on_events);
-@@ -3783,11 +3783,11 @@ void noinstr lockdep_hardirqs_off(unsign
- 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
- 		return;
- 
--	if (curr->hardirqs_enabled) {
-+	if (lockdep_hardirqs_enabled(curr)) {
- 		/*
- 		 * We have done an ON -> OFF transition:
- 		 */
--		curr->hardirqs_enabled = 0;
-+		this_cpu_write(hardirqs_enabled, 0);
- 		curr->hardirq_disable_ip = ip;
- 		curr->hardirq_disable_event = ++curr->irq_events;
- 		debug_atomic_inc(hardirqs_off_events);
-@@ -3832,7 +3832,7 @@ void lockdep_softirqs_on(unsigned long i
- 	 * usage bit for all held locks, if hardirqs are
- 	 * enabled too:
- 	 */
--	if (curr->hardirqs_enabled)
-+	if (lockdep_hardirqs_enabled(curr))
- 		mark_held_locks(curr, LOCK_ENABLED_SOFTIRQ);
- 	lockdep_recursion_finish();
- }
-@@ -3881,7 +3881,7 @@ mark_usage(struct task_struct *curr, str
- 	 */
- 	if (!hlock->trylock) {
- 		if (hlock->read) {
--			if (curr->hardirq_context)
-+			if (lockdep_hardirq_context(curr))
- 				if (!mark_lock(curr, hlock,
- 						LOCK_USED_IN_HARDIRQ_READ))
- 					return 0;
-@@ -3890,7 +3890,7 @@ mark_usage(struct task_struct *curr, str
- 						LOCK_USED_IN_SOFTIRQ_READ))
- 					return 0;
- 		} else {
--			if (curr->hardirq_context)
-+			if (lockdep_hardirq_context(curr))
- 				if (!mark_lock(curr, hlock, LOCK_USED_IN_HARDIRQ))
- 					return 0;
- 			if (curr->softirq_context)
-@@ -3928,7 +3928,7 @@ mark_usage(struct task_struct *curr, str
- 
- static inline unsigned int task_irq_context(struct task_struct *task)
- {
--	return LOCK_CHAIN_HARDIRQ_CONTEXT * !!task->hardirq_context +
-+	return LOCK_CHAIN_HARDIRQ_CONTEXT * !!lockdep_hardirq_context(task) +
- 	       LOCK_CHAIN_SOFTIRQ_CONTEXT * !!task->softirq_context;
- }
- 
-@@ -4021,7 +4021,7 @@ static inline short task_wait_context(st
- 	 * Set appropriate wait type for the context; for IRQs we have to take
- 	 * into account force_irqthread as that is implied by PREEMPT_RT.
- 	 */
--	if (curr->hardirq_context) {
-+	if (lockdep_hardirq_context(curr)) {
- 		/*
- 		 * Check if force_irqthreads will run us threaded.
- 		 */
-@@ -4864,11 +4864,11 @@ static void check_flags(unsigned long fl
- 		return;
- 
- 	if (irqs_disabled_flags(flags)) {
--		if (DEBUG_LOCKS_WARN_ON(current->hardirqs_enabled)) {
-+		if (DEBUG_LOCKS_WARN_ON(lockdep_hardirqs_enabled(current))) {
- 			printk("possible reason: unannotated irqs-off.\n");
- 		}
- 	} else {
--		if (DEBUG_LOCKS_WARN_ON(!current->hardirqs_enabled)) {
-+		if (DEBUG_LOCKS_WARN_ON(!lockdep_hardirqs_enabled(current))) {
- 			printk("possible reason: unannotated irqs-on.\n");
- 		}
- 	}
---- a/kernel/softirq.c
-+++ b/kernel/softirq.c
-@@ -107,6 +107,12 @@ static bool ksoftirqd_running(unsigned l
-  * where hardirqs are disabled legitimately:
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -550,7 +550,7 @@ SYSCALL_DEFINE0(ni_syscall)
+  * The return value must be fed into the rcu_exit argument of
+  * idtentry_exit_cond_rcu().
   */
- #ifdef CONFIG_TRACE_IRQFLAGS
-+
-+DEFINE_PER_CPU(int, hardirqs_enabled);
-+DEFINE_PER_CPU(int, hardirq_context);
-+EXPORT_PER_CPU_SYMBOL_GPL(hardirqs_enabled);
-+EXPORT_PER_CPU_SYMBOL_GPL(hardirq_context);
-+
- void __local_bh_disable_ip(unsigned long ip, unsigned int cnt)
+-bool noinstr idtentry_enter_cond_rcu(struct pt_regs *regs)
++noinstr bool idtentry_enter_cond_rcu(struct pt_regs *regs)
  {
- 	unsigned long flags;
+ 	if (user_mode(regs)) {
+ 		enter_from_user_mode();
+@@ -640,7 +640,7 @@ static void idtentry_exit_cond_resched(s
+  * Counterpart to idtentry_enter_cond_rcu(). The return value of the entry
+  * function must be fed into the @rcu_exit argument.
+  */
+-void noinstr idtentry_exit_cond_rcu(struct pt_regs *regs, bool rcu_exit)
++noinstr void idtentry_exit_cond_rcu(struct pt_regs *regs, bool rcu_exit)
+ {
+ 	lockdep_assert_irqs_disabled();
+ 
+@@ -684,7 +684,7 @@ void noinstr idtentry_exit_cond_rcu(stru
+  * Invokes enter_from_user_mode() to establish the proper context for
+  * NOHZ_FULL. Otherwise scheduling on exit would not be possible.
+  */
+-void noinstr idtentry_enter_user(struct pt_regs *regs)
++noinstr void idtentry_enter_user(struct pt_regs *regs)
+ {
+ 	enter_from_user_mode();
+ }
+@@ -701,13 +701,47 @@ void noinstr idtentry_enter_user(struct
+  *
+  * Counterpart to idtentry_enter_user().
+  */
+-void noinstr idtentry_exit_user(struct pt_regs *regs)
++noinstr void idtentry_exit_user(struct pt_regs *regs)
+ {
+ 	lockdep_assert_irqs_disabled();
+ 
+ 	prepare_exit_to_usermode(regs);
+ }
+ 
++noinstr bool idtentry_enter_nmi(struct pt_regs *regs)
++{
++	bool irq_state = lockdep_hardirqs_enabled(current);
++
++	__nmi_enter();
++	lockdep_hardirqs_off(CALLER_ADDR0);
++	lockdep_hardirq_enter();
++	rcu_nmi_enter();
++
++	instrumentation_begin();
++	trace_hardirqs_off_finish();
++	ftrace_nmi_enter();
++	instrumentation_end();
++
++	return irq_state;
++}
++
++noinstr void idtentry_exit_nmi(struct pt_regs *regs, bool restore)
++{
++	instrumentation_begin();
++	ftrace_nmi_exit();
++	if (restore) {
++		trace_hardirqs_on_prepare();
++		lockdep_hardirqs_on_prepare(CALLER_ADDR0);
++	}
++	instrumentation_end();
++
++	rcu_nmi_exit();
++	lockdep_hardirq_exit();
++	if (restore)
++		lockdep_hardirqs_on(CALLER_ADDR0);
++	__nmi_exit();
++}
++
+ #ifdef CONFIG_XEN_PV
+ #ifndef CONFIG_PREEMPTION
+ /*
+--- a/arch/x86/include/asm/idtentry.h
++++ b/arch/x86/include/asm/idtentry.h
+@@ -16,6 +16,9 @@ void idtentry_exit_user(struct pt_regs *
+ bool idtentry_enter_cond_rcu(struct pt_regs *regs);
+ void idtentry_exit_cond_rcu(struct pt_regs *regs, bool rcu_exit);
+ 
++bool idtentry_enter_nmi(struct pt_regs *regs);
++void idtentry_exit_nmi(struct pt_regs *regs, bool irq_state);
++
+ /**
+  * DECLARE_IDTENTRY - Declare functions for simple IDT entry points
+  *		      No error code pushed by hardware
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -330,7 +330,6 @@ static noinstr void default_do_nmi(struc
+ 	__this_cpu_write(last_nmi_rip, regs->ip);
+ 
+ 	instrumentation_begin();
+-	trace_hardirqs_off_finish();
+ 
+ 	handled = nmi_handle(NMI_LOCAL, regs);
+ 	__this_cpu_add(nmi_stats.normal, handled);
+@@ -417,8 +416,6 @@ static noinstr void default_do_nmi(struc
+ 		unknown_nmi_error(reason, regs);
+ 
+ out:
+-	if (regs->flags & X86_EFLAGS_IF)
+-		trace_hardirqs_on_prepare();
+ 	instrumentation_end();
+ }
+ 
+@@ -478,6 +475,8 @@ static DEFINE_PER_CPU(unsigned long, nmi
+ 
+ DEFINE_IDTENTRY_RAW(exc_nmi)
+ {
++	bool irq_state;
++
+ 	if (IS_ENABLED(CONFIG_SMP) && arch_cpu_is_offline(smp_processor_id()))
+ 		return;
+ 
+@@ -491,14 +490,14 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
+ 
+ 	this_cpu_write(nmi_dr7, local_db_save());
+ 
+-	nmi_enter();
++	irq_state = idtentry_enter_nmi(regs);
+ 
+ 	inc_irq_stat(__nmi_count);
+ 
+ 	if (!ignore_nmis)
+ 		default_do_nmi(regs);
+ 
+-	nmi_exit();
++	idtentry_exit_nmi(regs, irq_state);
+ 
+ 	local_db_restore(this_cpu_read(nmi_dr7));
+ 
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -403,7 +403,7 @@ DEFINE_IDTENTRY_DF(exc_double_fault)
+ 	}
+ #endif
+ 
+-	nmi_enter();
++	idtentry_enter_nmi(regs);
+ 	instrumentation_begin();
+ 	notify_die(DIE_TRAP, str, regs, error_code, X86_TRAP_DF, SIGSEGV);
+ 
+@@ -649,15 +649,12 @@ DEFINE_IDTENTRY_RAW(exc_int3)
+ 		instrumentation_end();
+ 		idtentry_exit_user(regs);
+ 	} else {
+-		nmi_enter();
++		bool irq_state = idtentry_enter_nmi(regs);
+ 		instrumentation_begin();
+-		trace_hardirqs_off_finish();
+ 		if (!do_int3(regs))
+ 			die("int3", regs, 0);
+-		if (regs->flags & X86_EFLAGS_IF)
+-			trace_hardirqs_on_prepare();
+ 		instrumentation_end();
+-		nmi_exit();
++		idtentry_exit_nmi(regs, irq_state);
+ 	}
+ }
+ 
+@@ -865,9 +862,8 @@ static void handle_debug(struct pt_regs
+ static __always_inline void exc_debug_kernel(struct pt_regs *regs,
+ 					     unsigned long dr6)
+ {
+-	nmi_enter();
++	bool irq_state = idtentry_enter_nmi(regs);
+ 	instrumentation_begin();
+-	trace_hardirqs_off_finish();
+ 
+ 	/*
+ 	 * Catch SYSENTER with TF set and clear DR_STEP. If this hit a
+@@ -878,10 +874,8 @@ static __always_inline void exc_debug_ke
+ 
+ 	handle_debug(regs, dr6, false);
+ 
+-	if (regs->flags & X86_EFLAGS_IF)
+-		trace_hardirqs_on_prepare();
+ 	instrumentation_end();
+-	nmi_exit();
++	idtentry_exit_nmi(regs, irq_state);
+ }
+ 
+ static __always_inline void exc_debug_user(struct pt_regs *regs,
+@@ -891,6 +885,7 @@ static __always_inline void exc_debug_us
+ 	instrumentation_begin();
+ 
+ 	handle_debug(regs, dr6, true);
++
+ 	instrumentation_end();
+ 	idtentry_exit_user(regs);
+ }
+--- a/include/linux/hardirq.h
++++ b/include/linux/hardirq.h
+@@ -111,32 +111,42 @@ extern void rcu_nmi_exit(void);
+ /*
+  * nmi_enter() can nest up to 15 times; see NMI_BITS.
+  */
+-#define nmi_enter()						\
++#define __nmi_enter()						\
+ 	do {							\
++		lockdep_off();					\
+ 		arch_nmi_enter();				\
+ 		printk_nmi_enter();				\
+-		lockdep_off();					\
+ 		BUG_ON(in_nmi() == NMI_MASK);			\
+ 		__preempt_count_add(NMI_OFFSET + HARDIRQ_OFFSET);	\
+-		rcu_nmi_enter();				\
++	} while (0)
++
++#define nmi_enter()						\
++	do {							\
++		__nmi_enter();					\
+ 		lockdep_hardirq_enter();			\
++		rcu_nmi_enter();				\
+ 		instrumentation_begin();			\
+ 		ftrace_nmi_enter();				\
+ 		instrumentation_end();				\
+ 	} while (0)
+ 
++#define __nmi_exit()						\
++	do {							\
++		BUG_ON(!in_nmi());				\
++		__preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);	\
++		printk_nmi_exit();				\
++		arch_nmi_exit();				\
++		lockdep_on();					\
++	} while (0)
++
+ #define nmi_exit()						\
+ 	do {							\
+ 		instrumentation_begin();			\
+ 		ftrace_nmi_exit();				\
+ 		instrumentation_end();				\
+-		lockdep_hardirq_exit();				\
+ 		rcu_nmi_exit();					\
+-		BUG_ON(!in_nmi());				\
+-		__preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);	\
+-		lockdep_on();					\
+-		printk_nmi_exit();				\
+-		arch_nmi_exit();				\
++		lockdep_hardirq_exit();				\
++		__nmi_exit();					\
+ 	} while (0)
+ 
+ #endif /* LINUX_HARDIRQ_H */
