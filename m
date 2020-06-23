@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56582 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730725AbgFXJCV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Jun 2020 05:02:21 -0400
-Date: Wed, 24 Jun 2020 11:00:33 +0200
+        with ESMTP id S2388188AbgFWUIi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 23 Jun 2020 16:08:38 -0400
+Date: Tue, 23 Jun 2020 22:08:00 +0200
 From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: [PATCH v4 7/8] lockdep: Change hardirq{s_enabled,_context} to
  per-cpu variables
-Message-ID: <20200624090033.GD4800@hirez.programming.kicks-ass.net>
+Message-ID: <20200623200800.GD2483@worktop.programming.kicks-ass.net>
 References: <20200623083645.277342609@infradead.org>
  <20200623083721.512673481@infradead.org>
  <20200623150031.GA2986783@debian-buster-darwi.lab.linutronix.de>
@@ -16,123 +16,56 @@ References: <20200623083645.277342609@infradead.org>
  <20200623163730.GA4800@hirez.programming.kicks-ass.net>
  <20200623175957.GA106514@elver.google.com>
  <20200623181232.GB4800@hirez.programming.kicks-ass.net>
- <20200623202404.GE2483@worktop.programming.kicks-ass.net>
+ <CANpmjNMmYYa-mVo_Ao_n+9KzwxhGYcb6B6C72yCHyD9sZudDfA@mail.gmail.com>
+ <20200623191335.GA86296@elver.google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200623202404.GE2483@worktop.programming.kicks-ass.net>
+In-Reply-To: <20200623191335.GA86296@elver.google.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Marco Elver <elver@google.com>
-Cc: "Ahmed S. Darwish" <a.darwish@linutronix.de>, mingo@kernel.org, will@kernel.org, tglx@linutronix.de, x86@kernel.org, linux-kernel@vger.kernel.org, rostedt@goodmis.org, bigeasy@linutronix.de, davem@davemloft.net, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux@armlinux.org.uk
+Cc: "Ahmed S. Darwish" <a.darwish@linutronix.de>, Ingo Molnar <mingo@kernel.org>, Will Deacon <will@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, the arch/x86 maintainers <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Steven Rostedt <rostedt@goodmis.org>, bigeasy@linutronix.de, "David S. Miller" <davem@davemloft.net>, sparclinux@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux@armlinux.org.uk, Qian Cai <cai@lca.pw>
 
-On Tue, Jun 23, 2020 at 10:24:04PM +0200, Peter Zijlstra wrote:
-> On Tue, Jun 23, 2020 at 08:12:32PM +0200, Peter Zijlstra wrote:
-> > Fair enough; I'll rip it all up and boot a KCSAN kernel, see what if
-> > anything happens.
-> 
-> OK, so the below patch doesn't seem to have any nasty recursion issues
-> here. The only 'problem' is that lockdep now sees report_lock can cause
-> deadlocks.
-> 
-> It is completely right about it too, but I don't suspect there's much we
-> can do about it, it's pretty much the standard printk() with scheduler
-> locks held report.
+On Tue, Jun 23, 2020 at 09:13:35PM +0200, Marco Elver wrote:
+> [   10.182354] ------------[ cut here ]------------
+> [   10.183058] WARNING: CPU: 7 PID: 136 at kernel/locking/lockdep.c:398 lockdep_hardirqs_on_prepare+0x1c6/0x270
+> [   10.184347] Modules linked in:
+> [   10.184771] CPU: 7 PID: 136 Comm: systemd-journal Not tainted 5.8.0-rc1+ #3
+> [   10.185706] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1 04/01/2014
+> [   10.186821] RIP: 0010:lockdep_hardirqs_on_prepare+0x1c6/0x270
+> [   10.187594] Code: 75 28 65 48 8b 04 25 28 00 00 00 48 3b 44 24 08 0f 85 b9 00 00 00 48 83 c4 10 5b 41 5e 41 5f c3 65 48 ff 05 d4 24 4e 75 eb d8 <0f> 0b 90 41 c7 86 c4 08 00 00 00 00 00 00 eb c8 e8 65 09 71 01 85
+> [   10.190203] RSP: 0018:ffffa7ee802b7848 EFLAGS: 00010017
+> [   10.190989] RAX: 0000000000000001 RBX: ffff955e92a34ab0 RCX: 0000000000000001
+> [   10.192053] RDX: 0000000000000006 RSI: ffff955e92a34a88 RDI: ffff955e92a341c0
+> [   10.193117] RBP: ffffa7ee802b7be8 R08: 0000000000000000 R09: 0000ffffffffffff
+> [   10.194186] R10: 0000ffffffffffff R11: 0000ffff8d07e268 R12: 0000000000000001
+> [   10.195249] R13: ffffffff8e41bb10 R14: ffff955e92a341c0 R15: 0000000000000001
+> [   10.196312] FS:  00007fd6862aa8c0(0000) GS:ffff955e9fd80000(0000) knlGS:0000000000000000
+> [   10.197513] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [   10.198373] CR2: 00007fd6837dd000 CR3: 0000000812acc001 CR4: 0000000000760ee0
+> [   10.199436] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> [   10.200494] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> [   10.201554] PKRU: 55555554
+> [   10.201967] Call Trace:
+> [   10.202348]  ? _raw_spin_unlock_irqrestore+0x40/0x70
+> [   10.203093]  trace_hardirqs_on+0x56/0x60			<----- enter IRQ flags tracing code?
+> [   10.203686]  _raw_spin_unlock_irqrestore+0x40/0x70  		<----- take report_lock
+> [   10.204406]  prepare_report+0x11f/0x150
+> [   10.204986]  kcsan_report+0xca/0x6c0 			<----- generating a KCSAN report
 
-So I've been getting tons and tons of this:
+Oh, duh.. that's because lockdep_off() ;-)
 
-[   60.471348] ==================================================================
-[   60.479427] BUG: KCSAN: data-race in __rcu_read_lock / __rcu_read_unlock
-[   60.486909]
-[   60.488572] write (marked) to 0xffff88840fff1cf0 of 4 bytes by interrupt on cpu 1:
-[   60.497026]  __rcu_read_lock+0x37/0x60
-[   60.501214]  cpuacct_account_field+0x1b/0x170
-[   60.506081]  task_group_account_field+0x32/0x160
-[   60.511238]  account_system_time+0xe6/0x110
-[   60.515912]  update_process_times+0x1d/0xd0
-[   60.520585]  tick_sched_timer+0xfc/0x180
-[   60.524967]  __hrtimer_run_queues+0x271/0x440
-[   60.529832]  hrtimer_interrupt+0x222/0x670
-[   60.534409]  __sysvec_apic_timer_interrupt+0xb3/0x1a0
-[   60.540052]  asm_call_on_stack+0x12/0x20
-[   60.544434]  sysvec_apic_timer_interrupt+0xba/0x130
-[   60.549882]  asm_sysvec_apic_timer_interrupt+0x12/0x20
-[   60.555621]  delay_tsc+0x7d/0xe0
-[   60.559226]  kcsan_setup_watchpoint+0x292/0x4e0
-[   60.564284]  __rcu_read_unlock+0x73/0x2c0
-[   60.568763]  __unlock_page_memcg+0xda/0xf0
-[   60.573338]  unlock_page_memcg+0x32/0x40
-[   60.577721]  page_remove_rmap+0x5c/0x200
-[   60.582104]  unmap_page_range+0x83c/0xc10
-[   60.586582]  unmap_single_vma+0xb0/0x150
-[   60.590963]  unmap_vmas+0x81/0xe0
-[   60.594663]  exit_mmap+0x135/0x2b0
-[   60.598464]  __mmput+0x21/0x150
-[   60.601970]  mmput+0x2a/0x30
-[   60.605176]  exit_mm+0x2fc/0x350
-[   60.608780]  do_exit+0x372/0xff0
-[   60.612385]  do_group_exit+0x139/0x140
-[   60.616571]  __do_sys_exit_group+0xb/0x10
-[   60.621048]  __se_sys_exit_group+0xa/0x10
-[   60.625524]  __x64_sys_exit_group+0x1b/0x20
-[   60.630189]  do_syscall_64+0x6c/0xe0
-[   60.634182]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   60.639820]
-[   60.641485] read to 0xffff88840fff1cf0 of 4 bytes by task 2430 on cpu 1:
-[   60.648969]  __rcu_read_unlock+0x73/0x2c0
-[   60.653446]  __unlock_page_memcg+0xda/0xf0
-[   60.658019]  unlock_page_memcg+0x32/0x40
-[   60.662400]  page_remove_rmap+0x5c/0x200
-[   60.666782]  unmap_page_range+0x83c/0xc10
-[   60.671259]  unmap_single_vma+0xb0/0x150
-[   60.675641]  unmap_vmas+0x81/0xe0
-[   60.679341]  exit_mmap+0x135/0x2b0
-[   60.683141]  __mmput+0x21/0x150
-[   60.686647]  mmput+0x2a/0x30
-[   60.689853]  exit_mm+0x2fc/0x350
-[   60.693458]  do_exit+0x372/0xff0
-[   60.697062]  do_group_exit+0x139/0x140
-[   60.701248]  __do_sys_exit_group+0xb/0x10
-[   60.705724]  __se_sys_exit_group+0xa/0x10
-[   60.710201]  __x64_sys_exit_group+0x1b/0x20
-[   60.714872]  do_syscall_64+0x6c/0xe0
-[   60.718864]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[   60.724503]
-[   60.726156] Reported by Kernel Concurrency Sanitizer on:
-[   60.732089] CPU: 1 PID: 2430 Comm: sshd Not tainted 5.8.0-rc2-00186-gb4ee11fe08b3-dirty #303
-[   60.741510] Hardware name: Intel Corporation S2600GZ/S2600GZ, BIOS SE5C600.86B.02.02.0002.122320131210 12/23/2013
-[   60.752957] ==================================================================
-
-And I figured a quick way to get rid of that would be something like the
-below, seeing how volatile gets auto annotated... but that doesn't seem
-to actually work.
-
-What am I missing?
-
-
-
-diff --git a/kernel/rcu/tree_plugin.h b/kernel/rcu/tree_plugin.h
-index 352223664ebd..b08861118e1a 100644
---- a/kernel/rcu/tree_plugin.h
-+++ b/kernel/rcu/tree_plugin.h
-@@ -351,17 +351,17 @@ static int rcu_preempt_blocked_readers_cgp(struct rcu_node *rnp)
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index ab7571c1a1f5..c9ea05edce25 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -395,7 +395,7 @@ void lockdep_init_task(struct task_struct *task)
  
- static void rcu_preempt_read_enter(void)
+ static __always_inline void lockdep_recursion_finish(void)
  {
--	current->rcu_read_lock_nesting++;
-+	(*(volatile int *)&current->rcu_read_lock_nesting)++;
+-	if (WARN_ON_ONCE(--current->lockdep_recursion))
++	if (WARN_ON_ONCE((--current->lockdep_recursion) & LOCKDEP_RECURSION_MASK))
+ 		current->lockdep_recursion = 0;
  }
  
- static int rcu_preempt_read_exit(void)
- {
--	return --current->rcu_read_lock_nesting;
-+	return --(*(volatile int *)&current->rcu_read_lock_nesting);
- }
- 
- static void rcu_preempt_depth_set(int val)
- {
--	current->rcu_read_lock_nesting = val;
-+	WRITE_ONCE(current->rcu_read_lock_nesting, val);
- }
- 
- /*
