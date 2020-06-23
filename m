@@ -1,72 +1,100 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14124 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730571AbgFHQln (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 12:41:43 -0400
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH v2] lib: fix bitmap_parse() on 64-bit big endian archs
-Date: Mon,  8 Jun 2020 18:41:11 +0200
-Message-Id: <1591634471-17647-1-git-send-email-agordeev@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 16/24] s390/vdso: Use $(LD) instead of $(CC) to link vDSO
+Date: Tue, 23 Jun 2020 13:35:51 -0400
+Message-Id: <20200623173559.1355728-16-sashal@kernel.org>
+In-Reply-To: <20200623173559.1355728-1-sashal@kernel.org>
+References: <20200623173559.1355728-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, Alexander Gordeev <agordeev@linux.ibm.com>, stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Yury Norov <yury.norov@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Amritha Nambiar <amritha.nambiar@intel.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, Chris Wilson <chris@chris-wilson.co.uk>, Kees Cook <keescook@chromium.org>, Matthew Wilcox <willy@infradead.org>, Miklos Szeredi <mszeredi@redhat.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Steffen Klassert <steffen.klassert@secunet.com>, "Tobin C . Harding" <tobin@kernel.org>, Vineet Gupta <vineet.gupta1@synopsys.com>, Will Deacon <will.deacon@arm.com>, Willem de Bruijn <willemb@google.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Nathan Chancellor <natechancellor@gmail.com>, Nick Desaulniers <ndesaulniers@google.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, clang-built-linux@googlegroups.com
 
-Commit 2d6261583be0 ("lib: rework bitmap_parse()") does not
-take into account order of halfwords on 64-bit big endian
-architectures. As result (at least) Receive Packet Steering,
-IRQ affinity masks and runtime kernel test "test_bitmap" get
-broken on s390.
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-Fixes: 2d6261583be0 ("lib: rework bitmap_parse()")
-Cc: stable@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Amritha Nambiar <amritha.nambiar@intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Miklos Szeredi <mszeredi@redhat.com>
-Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: "Tobin C . Harding" <tobin@kernel.org>
-Cc: Vineet Gupta <vineet.gupta1@synopsys.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+[ Upstream commit 2b2a25845d534ac6d55086e35c033961fdd83a26 ]
+
+Currently, the VDSO is being linked through $(CC). This does not match
+how the rest of the kernel links objects, which is through the $(LD)
+variable.
+
+When clang is built in a default configuration, it first attempts to use
+the target triple's default linker, which is just ld. However, the user
+can override this through the CLANG_DEFAULT_LINKER cmake define so that
+clang uses another linker by default, such as LLVM's own linker, ld.lld.
+This can be useful to get more optimized links across various different
+projects.
+
+However, this is problematic for the s390 vDSO because ld.lld does not
+have any s390 emulatiom support:
+
+https://github.com/llvm/llvm-project/blob/llvmorg-10.0.1-rc1/lld/ELF/Driver.cpp#L132-L150
+
+Thus, if a user is using a toolchain with ld.lld as the default, they
+will see an error, even if they have specified ld.bfd through the LD
+make variable:
+
+$ make -j"$(nproc)" -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- LLVM=1 \
+                       LD=s390x-linux-gnu-ld \
+                       defconfig arch/s390/kernel/vdso64/
+ld.lld: error: unknown emulation: elf64_s390
+clang-11: error: linker command failed with exit code 1 (use -v to see invocation)
+
+Normally, '-fuse-ld=bfd' could be used to get around this; however, this
+can be fragile, depending on paths and variable naming. The cleaner
+solution for the kernel is to take advantage of the fact that $(LD) can
+be invoked directly, which bypasses the heuristics of $(CC) and respects
+the user's choice. Similar changes have been done for ARM, ARM64, and
+MIPS.
+
+Link: https://lkml.kernel.org/r/20200602192523.32758-1-natechancellor@gmail.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/1041
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+[heiko.carstens@de.ibm.com: add --build-id flag]
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/bitmap.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/s390/kernel/vdso64/Makefile | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/lib/bitmap.c b/lib/bitmap.c
-index 89260aa342d6..80d26b183248 100644
---- a/lib/bitmap.c
-+++ b/lib/bitmap.c
-@@ -739,6 +739,7 @@ int bitmap_parse(const char *start, unsigned int buflen,
- 	const char *end = strnchrnul(start, buflen, '\n') - 1;
- 	int chunks = BITS_TO_U32(nmaskbits);
- 	u32 *bitmap = (u32 *)maskp;
-+	int chunk = 0;
- 	int unset_bit;
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index bec19e7e6e1cf..4a66a1cb919b1 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -18,8 +18,8 @@ KBUILD_AFLAGS_64 += -m64 -s
  
- 	while (1) {
-@@ -749,9 +750,14 @@ int bitmap_parse(const char *start, unsigned int buflen,
- 		if (!chunks--)
- 			return -EOVERFLOW;
+ KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
+ KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
+-KBUILD_CFLAGS_64 += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
+-		    -Wl,--hash-style=both
++ldflags-y := -fPIC -shared -nostdlib -soname=linux-vdso64.so.1 \
++	     --hash-style=both --build-id -T
  
--		end = bitmap_get_x32_reverse(start, end, bitmap++);
-+#if defined(CONFIG_64BIT) && defined(__BIG_ENDIAN)
-+		end = bitmap_get_x32_reverse(start, end, &bitmap[chunk ^ 1]);
-+#else
-+		end = bitmap_get_x32_reverse(start, end, &bitmap[chunk]);
-+#endif
- 		if (IS_ERR(end))
- 			return PTR_ERR(end);
-+		chunk++;
- 	}
+ $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
+ $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
+@@ -37,8 +37,8 @@ KASAN_SANITIZE := n
+ $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
  
- 	unset_bit = (BITS_TO_U32(nmaskbits) - chunks) * 32;
+ # link rule for the .so file, .lds has to be first
+-$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
+-	$(call if_changed,vdso64ld)
++$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) FORCE
++	$(call if_changed,ld)
+ 
+ # strip rule for the .so file
+ $(obj)/%.so: OBJCOPYFLAGS := -S
+@@ -50,8 +50,6 @@ $(obj-vdso64): %.o: %.S FORCE
+ 	$(call if_changed_dep,vdso64as)
+ 
+ # actual build commands
+-quiet_cmd_vdso64ld = VDSO64L $@
+-      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
+ quiet_cmd_vdso64as = VDSO64A $@
+       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
+ 
 -- 
-2.23.0
+2.25.1
