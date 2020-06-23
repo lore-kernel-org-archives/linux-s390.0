@@ -1,83 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40424 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731887AbgFWJY3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 23 Jun 2020 05:24:29 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [GIT PULL 1/1] KVM: s390: reduce number of IO pins to 1
-Date: Tue, 23 Jun 2020 11:23:41 +0200
-Message-Id: <20200623092341.10348-2-frankja@linux.ibm.com>
-In-Reply-To: <20200623092341.10348-1-frankja@linux.ibm.com>
-References: <20200623092341.10348-1-frankja@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:60442 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1733280AbgFWRfq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 23 Jun 2020 13:35:46 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 18/28] s390/ptrace: fix setting syscall number
+Date: Tue, 23 Jun 2020 13:35:13 -0400
+Message-Id: <20200623173523.1355411-18-sashal@kernel.org>
+In-Reply-To: <20200623173523.1355411-1-sashal@kernel.org>
+References: <20200623173523.1355411-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-The current number of KVM_IRQCHIP_NUM_PINS results in an order 3
-allocation (32kb) for each guest start/restart. This can result in OOM
-killer activity even with free swap when the memory is fragmented
-enough:
+[ Upstream commit 873e5a763d604c32988c4a78913a8dab3862d2f9 ]
 
-kernel: qemu-system-s39 invoked oom-killer: gfp_mask=0x440dc0(GFP_KERNEL_ACCOUNT|__GFP_COMP|__GFP_ZERO), order=3, oom_score_adj=0
-kernel: CPU: 1 PID: 357274 Comm: qemu-system-s39 Kdump: loaded Not tainted 5.4.0-29-generic #33-Ubuntu
-kernel: Hardware name: IBM 8562 T02 Z06 (LPAR)
-kernel: Call Trace:
-kernel: ([<00000001f848fe2a>] show_stack+0x7a/0xc0)
-kernel:  [<00000001f8d3437a>] dump_stack+0x8a/0xc0
-kernel:  [<00000001f8687032>] dump_header+0x62/0x258
-kernel:  [<00000001f8686122>] oom_kill_process+0x172/0x180
-kernel:  [<00000001f8686abe>] out_of_memory+0xee/0x580
-kernel:  [<00000001f86e66b8>] __alloc_pages_slowpath+0xd18/0xe90
-kernel:  [<00000001f86e6ad4>] __alloc_pages_nodemask+0x2a4/0x320
-kernel:  [<00000001f86b1ab4>] kmalloc_order+0x34/0xb0
-kernel:  [<00000001f86b1b62>] kmalloc_order_trace+0x32/0xe0
-kernel:  [<00000001f84bb806>] kvm_set_irq_routing+0xa6/0x2e0
-kernel:  [<00000001f84c99a4>] kvm_arch_vm_ioctl+0x544/0x9e0
-kernel:  [<00000001f84b8936>] kvm_vm_ioctl+0x396/0x760
-kernel:  [<00000001f875df66>] do_vfs_ioctl+0x376/0x690
-kernel:  [<00000001f875e304>] ksys_ioctl+0x84/0xb0
-kernel:  [<00000001f875e39a>] __s390x_sys_ioctl+0x2a/0x40
-kernel:  [<00000001f8d55424>] system_call+0xd8/0x2c8
+When strace wants to update the syscall number, it sets GPR2
+to the desired number and updates the GPR via PTRACE_SETREGSET.
+It doesn't update regs->int_code which would cause the old syscall
+executed on syscall restart. As we cannot change the ptrace ABI and
+don't have a field for the interruption code, check whether the tracee
+is in a syscall and the last instruction was svc. In that case assume
+that the tracer wants to update the syscall number and copy the GPR2
+value to regs->int_code.
 
-As far as I can tell s390x does not use the iopins as we bail our for
-anything other than KVM_IRQ_ROUTING_S390_ADAPTER and the chip/pin is
-only used for KVM_IRQ_ROUTING_IRQCHIP. So let us use a small number to
-reduce the memory footprint.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200617083620.5409-1-borntraeger@de.ibm.com
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/kvm_host.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/s390/kernel/ptrace.c | 31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index cee3cb6455a2..6ea0820e7c7f 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -31,12 +31,12 @@
- #define KVM_USER_MEM_SLOTS 32
+diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
+index fca78b269349d..e007224b65bb2 100644
+--- a/arch/s390/kernel/ptrace.c
++++ b/arch/s390/kernel/ptrace.c
+@@ -324,6 +324,25 @@ static inline void __poke_user_per(struct task_struct *child,
+ 		child->thread.per_user.end = data;
+ }
  
++static void fixup_int_code(struct task_struct *child, addr_t data)
++{
++	struct pt_regs *regs = task_pt_regs(child);
++	int ilc = regs->int_code >> 16;
++	u16 insn;
++
++	if (ilc > 6)
++		return;
++
++	if (ptrace_access_vm(child, regs->psw.addr - (regs->int_code >> 16),
++			&insn, sizeof(insn), FOLL_FORCE) != sizeof(insn))
++		return;
++
++	/* double check that tracee stopped on svc instruction */
++	if ((insn >> 8) != 0xa)
++		return;
++
++	regs->int_code = 0x20000 | (data & 0xffff);
++}
  /*
-- * These seem to be used for allocating ->chip in the routing table,
-- * which we don't use. 4096 is an out-of-thin-air value. If we need
-- * to look at ->chip later on, we'll need to revisit this.
-+ * These seem to be used for allocating ->chip in the routing table, which we
-+ * don't use. 1 is as small as we can get to reduce the needed memory. If we
-+ * need to look at ->chip later on, we'll need to revisit this.
-  */
- #define KVM_NR_IRQCHIPS 1
--#define KVM_IRQCHIP_NUM_PINS 4096
-+#define KVM_IRQCHIP_NUM_PINS 1
- #define KVM_HALT_POLL_NS_DEFAULT 50000
+  * Write a word to the user area of a process at location addr. This
+  * operation does have an additional problem compared to peek_user.
+@@ -335,7 +354,9 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
+ 	struct user *dummy = NULL;
+ 	addr_t offset;
  
- /* s390-specific vcpu->requests bit members */
++
+ 	if (addr < (addr_t) &dummy->regs.acrs) {
++		struct pt_regs *regs = task_pt_regs(child);
+ 		/*
+ 		 * psw and gprs are stored on the stack
+ 		 */
+@@ -353,7 +374,11 @@ static int __poke_user(struct task_struct *child, addr_t addr, addr_t data)
+ 				/* Invalid addressing mode bits */
+ 				return -EINVAL;
+ 		}
+-		*(addr_t *)((addr_t) &task_pt_regs(child)->psw + addr) = data;
++
++		if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
++			addr == offsetof(struct user, regs.gprs[2]))
++			fixup_int_code(child, data);
++		*(addr_t *)((addr_t) &regs->psw + addr) = data;
+ 
+ 	} else if (addr < (addr_t) (&dummy->regs.orig_gpr2)) {
+ 		/*
+@@ -719,6 +744,10 @@ static int __poke_user_compat(struct task_struct *child,
+ 			regs->psw.mask = (regs->psw.mask & ~PSW_MASK_BA) |
+ 				(__u64)(tmp & PSW32_ADDR_AMODE);
+ 		} else {
++
++			if (test_pt_regs_flag(regs, PIF_SYSCALL) &&
++				addr == offsetof(struct compat_user, regs.gprs[2]))
++				fixup_int_code(child, data);
+ 			/* gpr 0-15 */
+ 			*(__u32*)((addr_t) &regs->psw + addr*2 + 4) = tmp;
+ 		}
 -- 
-2.25.4
+2.25.1
