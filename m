@@ -1,88 +1,153 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49048 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725867AbgF0SrB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Jun 2020 14:47:01 -0400
-Date: Sat, 27 Jun 2020 19:46:42 +0100
-From: Matthew Wilcox <willy@infradead.org>
-Subject: [PATCH 9/8] mm: Account PMD tables like PTE tables
-Message-ID: <20200627184642.GF25039@casper.infradead.org>
-References: <20200627143453.31835-1-rppt@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54502 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731516AbgFWIGW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 23 Jun 2020 04:06:22 -0400
+Subject: Re: [PATCH] KVM: s390: reduce number of IO pins to 1
+References: <20200617083620.5409-1-borntraeger@de.ibm.com>
+ <d17de7d7-6cca-672a-5519-c67fc147f6a5@redhat.com>
+ <6953c580-9b99-1c76-b6eb-510dcb70894c@de.ibm.com>
+ <66419659-e678-2daf-2e02-4f2158076ddb@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <7573ef21-9ed8-cbd0-5456-f8389e4fd25c@linux.ibm.com>
+Date: Tue, 23 Jun 2020 10:06:14 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200627143453.31835-1-rppt@kernel.org>
+In-Reply-To: <66419659-e678-2daf-2e02-4f2158076ddb@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="DkelNSMMLPGsqribB5qmbbqC5kh0zekX1"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Joerg Roedel <joro@8bytes.org>, Max Filippov <jcmvbkbc@gmail.com>, Mike Rapoport <rppt@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>, Stafford Horne <shorne@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Steven Rostedt <rostedt@goodmis.org>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Paolo Bonzini <pbonzini@redhat.com>
 
-We account the PTE level of the page tables to the process in order to
-make smarter OOM decisions and help diagnose why memory is fragmented.
-For these same reasons, we should account pages allocated for PMDs.
-With larger process address spaces and ASLR, the number of PMDs in use
-is higher than it used to be so the inaccuracy is starting to matter.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--DkelNSMMLPGsqribB5qmbbqC5kh0zekX1
+Content-Type: multipart/mixed; boundary="CSIFHQ09u4KiIGL2plJVKzRwynvG1JVJY"
 
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- include/linux/mm.h | 24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+--CSIFHQ09u4KiIGL2plJVKzRwynvG1JVJY
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index dc7b87310c10..b283e25fcffa 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2271,7 +2271,7 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
- 	return ptlock_ptr(pmd_to_page(pmd));
- }
- 
--static inline bool pgtable_pmd_page_ctor(struct page *page)
-+static inline bool pmd_ptlock_init(struct page *page)
- {
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- 	page->pmd_huge_pte = NULL;
-@@ -2279,7 +2279,7 @@ static inline bool pgtable_pmd_page_ctor(struct page *page)
- 	return ptlock_init(page);
- }
- 
--static inline void pgtable_pmd_page_dtor(struct page *page)
-+static inline void pmd_ptlock_free(struct page *page)
- {
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- 	VM_BUG_ON_PAGE(page->pmd_huge_pte, page);
-@@ -2296,8 +2296,8 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
- 	return &mm->page_table_lock;
- }
- 
--static inline bool pgtable_pmd_page_ctor(struct page *page) { return true; }
--static inline void pgtable_pmd_page_dtor(struct page *page) {}
-+static inline bool pmd_ptlock_init(struct page *page) { return true; }
-+static inline void pmd_ptlock_free(struct page *page) {}
- 
- #define pmd_huge_pte(mm, pmd) ((mm)->pmd_huge_pte)
- 
-@@ -2310,6 +2310,22 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
- 	return ptl;
- }
- 
-+static inline bool pgtable_pmd_page_ctor(struct page *page)
-+{
-+	if (!pmd_ptlock_init(page))
-+		return false;
-+	__SetPageTable(page);
-+	inc_zone_page_state(page, NR_PAGETABLE);
-+	return true;
-+}
-+
-+static inline void pgtable_pmd_page_dtor(struct page *page)
-+{
-+	pmd_ptlock_free(page);
-+	__ClearPageTable(page);
-+	dec_zone_page_state(page, NR_PAGETABLE);
-+}
-+
- /*
-  * No scalability reason to split PUD locks yet, but follow the same pattern
-  * as the PMD locks to make it easier if we decide to.  The VM should not be
--- 
-2.27.0
+On 6/18/20 11:07 AM, David Hildenbrand wrote:
+> On 17.06.20 13:04, Christian Borntraeger wrote:
+>>
+>>
+>> On 17.06.20 12:19, David Hildenbrand wrote:
+>>> On 17.06.20 10:36, Christian Borntraeger wrote:
+>>>> The current number of KVM_IRQCHIP_NUM_PINS results in an order 3
+>>>> allocation (32kb) for each guest start/restart. This can result in O=
+OM
+>>>> killer activity even with free swap when the memory is fragmented
+>>>> enough:
+>>>>
+>>>> kernel: qemu-system-s39 invoked oom-killer: gfp_mask=3D0x440dc0(GFP_=
+KERNEL_ACCOUNT|__GFP_COMP|__GFP_ZERO), order=3D3, oom_score_adj=3D0
+>>>> kernel: CPU: 1 PID: 357274 Comm: qemu-system-s39 Kdump: loaded Not t=
+ainted 5.4.0-29-generic #33-Ubuntu
+>>>> kernel: Hardware name: IBM 8562 T02 Z06 (LPAR)
+>>>> kernel: Call Trace:
+>>>> kernel: ([<00000001f848fe2a>] show_stack+0x7a/0xc0)
+>>>> kernel:  [<00000001f8d3437a>] dump_stack+0x8a/0xc0
+>>>> kernel:  [<00000001f8687032>] dump_header+0x62/0x258
+>>>> kernel:  [<00000001f8686122>] oom_kill_process+0x172/0x180
+>>>> kernel:  [<00000001f8686abe>] out_of_memory+0xee/0x580
+>>>> kernel:  [<00000001f86e66b8>] __alloc_pages_slowpath+0xd18/0xe90
+>>>> kernel:  [<00000001f86e6ad4>] __alloc_pages_nodemask+0x2a4/0x320
+>>>> kernel:  [<00000001f86b1ab4>] kmalloc_order+0x34/0xb0
+>>>> kernel:  [<00000001f86b1b62>] kmalloc_order_trace+0x32/0xe0
+>>>> kernel:  [<00000001f84bb806>] kvm_set_irq_routing+0xa6/0x2e0
+>>>> kernel:  [<00000001f84c99a4>] kvm_arch_vm_ioctl+0x544/0x9e0
+>>>> kernel:  [<00000001f84b8936>] kvm_vm_ioctl+0x396/0x760
+>>>> kernel:  [<00000001f875df66>] do_vfs_ioctl+0x376/0x690
+>>>> kernel:  [<00000001f875e304>] ksys_ioctl+0x84/0xb0
+>>>> kernel:  [<00000001f875e39a>] __s390x_sys_ioctl+0x2a/0x40
+>>>> kernel:  [<00000001f8d55424>] system_call+0xd8/0x2c8
+>>>>
+>>>> As far as I can tell s390x does not use the iopins as we bail our fo=
+r
+>>>> anything other than KVM_IRQ_ROUTING_S390_ADAPTER and the chip/pin is=
+
+>>>> only used for KVM_IRQ_ROUTING_IRQCHIP. So let us use a small number =
+to
+>>>> reduce the memory footprint.
+>>>>
+>>>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> ---
+>>>>  arch/s390/include/asm/kvm_host.h | 8 ++++----
+>>>>  1 file changed, 4 insertions(+), 4 deletions(-)
+>>>>
+>>>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/as=
+m/kvm_host.h
+>>>> index cee3cb6455a2..6ea0820e7c7f 100644
+>>>> --- a/arch/s390/include/asm/kvm_host.h
+>>>> +++ b/arch/s390/include/asm/kvm_host.h
+>>>> @@ -31,12 +31,12 @@
+>>>>  #define KVM_USER_MEM_SLOTS 32
+>>>> =20
+>>>>  /*
+>>>> - * These seem to be used for allocating ->chip in the routing table=
+,
+>>>> - * which we don't use. 4096 is an out-of-thin-air value. If we need=
+
+>>>> - * to look at ->chip later on, we'll need to revisit this.
+>>>> + * These seem to be used for allocating ->chip in the routing table=
+, which we
+>>>> + * don't use. 1 is as small as we can get to reduce the needed memo=
+ry. If we
+>>>> + * need to look at ->chip later on, we'll need to revisit this.
+>>>>   */
+>>>>  #define KVM_NR_IRQCHIPS 1
+>>>> -#define KVM_IRQCHIP_NUM_PINS 4096
+>>>> +#define KVM_IRQCHIP_NUM_PINS 1
+>>>>  #define KVM_HALT_POLL_NS_DEFAULT 50000
+>>>> =20
+>>>>  /* s390-specific vcpu->requests bit members */
+>>>>
+>>>
+>>> Guess it doesn't make sense to wrap all the "->chip" handling in a
+>>> separate set of defines.
+>>>
+>>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>>
+>> I guess this is just the most simple solution. I am asking myself if I=
+ should add
+>> cc stable of Fixes as I was able to trigger this by having several gue=
+sts with a
+>> reboot loop and several guests that trigger memory overcommitment.
+>>
+>=20
+> I don't think this classifies as stable material.
+>=20
+I'd like to have it in stable.
+I'm not looking forward to getting bugzillas after distro tests and then
+telling them that we already have a patch for that.
+
+
+--CSIFHQ09u4KiIGL2plJVKzRwynvG1JVJY--
+
+--DkelNSMMLPGsqribB5qmbbqC5kh0zekX1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl7xt/YACgkQ41TmuOI4
+ufjzlg//W7axBUXmEBe6ndtBv5zgD9Kuklr/Grf8ZJ4yIuN/S582MQSfGN2dQs23
+5CSSQ24zHI0eXvDmSIbV8m3OuqJU8mBHRXY2ElaDtqwY2CtXP4qIz9izdynmua0x
+ixJBC58UoXHRt07vwoM9m365smsIUxfQuLfHsrQmRv/AgTGM0T9GYo+3wtArp1vv
+xQxgBLR9PKUFTJrs+yOXRMk5Q9tqNEQtebNKbqLyuNk88drOK9cb8S/5bH8g9TEs
+XfdCGZdOMaiylfImVZZVHHy+MfIqLbB1ayCtLXaNRZbxNKlnFr+1i7Gt1PZXFqkl
+t75sgEA9vCbkTbbiXuI+x34Fx+KP9jjslWMOU/qP7pLbTVzpcSTx54S4jV9Cw2Mu
+1ZPjNWhLLkcfluxfjGRMWb9c3kgqpLZR+y/erQ3NQ62q6MDTGsqeEYd2NW5iYdUC
+blIVV/Z4bnOc9TxGbcDMK/WgdR8l0+AwIWef/4CL2kEMu0cA89CWm22XziO2gNiv
+k8W1IDyRWBjIMXDST1mFuWeqccXQH76+B7/mlQh9yvNzNjnMDp4Kp5AFmraFM2io
+bcDDO1LBEzWrxjVR0Z5vIOoRuSM+2EVVWuB3s8qcjx8UI0lbpd8CYLyuh2dqrXVf
+ifMwXnUl6vuWnD9IDLNB2remy+OgM5Iwxxidt2nP/StY45rG0Po=
+=+gDt
+-----END PGP SIGNATURE-----
+
+--DkelNSMMLPGsqribB5qmbbqC5kh0zekX1--
