@@ -1,293 +1,100 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:53661 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2405462AbgFYPAq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Jun 2020 11:00:46 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH RFC] s390x/vmem: get rid of memory segment list
-Date: Thu, 25 Jun 2020 17:00:29 +0200
-Message-Id: <20200625150029.45019-1-david@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 19/28] s390/vdso: Use $(LD) instead of $(CC) to link vDSO
+Date: Tue, 23 Jun 2020 13:35:14 -0400
+Message-Id: <20200623173523.1355411-19-sashal@kernel.org>
+In-Reply-To: <20200623173523.1355411-1-sashal@kernel.org>
+References: <20200623173523.1355411-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Nathan Chancellor <natechancellor@gmail.com>, Nick Desaulniers <ndesaulniers@google.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org, clang-built-linux@googlegroups.com
 
-I can't come up with a satisfying reason why we still need the memory
-segment list. We used to represent in the list:
-- boot memory
-- standby memory added via add_memory()
-- loaded dcss segments
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-When loading/unloading dcss segments, we already track them in a
-separate list and check for overlaps
-(arch/s390/mm/extmem.c:segment_overlaps_others()) when loading segments.
+[ Upstream commit 2b2a25845d534ac6d55086e35c033961fdd83a26 ]
 
-The overlap check was introduced for some segments in
-commit b2300b9efe1b ("[S390] dcssblk: add >2G DCSSs support and stacked
-contiguous DCSSs support.")
-and was extended to cover all dcss segments in
-commit ca57114609d1 ("s390/extmem: remove code for 31 bit addressing
-mode").
+Currently, the VDSO is being linked through $(CC). This does not match
+how the rest of the kernel links objects, which is through the $(LD)
+variable.
 
-Although I doubt that overlaps with boot memory and standby memory
-are relevant, let's reshuffle the checks in load_segment() to request
-the resource first. This will bail out in case we have overlaps with
-other resources (esp. boot memory and standby memory). The order
-is now different compared to segment_unload() and segment_unload(), but
-that should not matter.
+When clang is built in a default configuration, it first attempts to use
+the target triple's default linker, which is just ld. However, the user
+can override this through the CLANG_DEFAULT_LINKER cmake define so that
+clang uses another linker by default, such as LLVM's own linker, ld.lld.
+This can be useful to get more optimized links across various different
+projects.
 
-This smells like a leftover from ancient times, let's get rid of it. We
-can now convert vmem_remove_mapping() into a void function - everybody
-ignored the return value already.
+However, this is problematic for the s390 vDSO because ld.lld does not
+have any s390 emulatiom support:
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+https://github.com/llvm/llvm-project/blob/llvmorg-10.0.1-rc1/lld/ELF/Driver.cpp#L132-L150
+
+Thus, if a user is using a toolchain with ld.lld as the default, they
+will see an error, even if they have specified ld.bfd through the LD
+make variable:
+
+$ make -j"$(nproc)" -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- LLVM=1 \
+                       LD=s390x-linux-gnu-ld \
+                       defconfig arch/s390/kernel/vdso64/
+ld.lld: error: unknown emulation: elf64_s390
+clang-11: error: linker command failed with exit code 1 (use -v to see invocation)
+
+Normally, '-fuse-ld=bfd' could be used to get around this; however, this
+can be fragile, depending on paths and variable naming. The cleaner
+solution for the kernel is to take advantage of the fact that $(LD) can
+be invoked directly, which bypasses the heuristics of $(CC) and respects
+the user's choice. Similar changes have been done for ARM, ARM64, and
+MIPS.
+
+Link: https://lkml.kernel.org/r/20200602192523.32758-1-natechancellor@gmail.com
+Link: https://github.com/ClangBuiltLinux/linux/issues/1041
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+[heiko.carstens@de.ibm.com: add --build-id flag]
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/pgtable.h |   2 +-
- arch/s390/mm/extmem.c           |  25 +++----
- arch/s390/mm/vmem.c             | 115 ++------------------------------
- 3 files changed, 21 insertions(+), 121 deletions(-)
+ arch/s390/kernel/vdso64/Makefile | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 19d603bd1f36e..7eb01a5459cdf 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -1669,7 +1669,7 @@ static inline swp_entry_t __swp_entry(unsigned long type, unsigned long offset)
- #define kern_addr_valid(addr)   (1)
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index bec19e7e6e1cf..4a66a1cb919b1 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -18,8 +18,8 @@ KBUILD_AFLAGS_64 += -m64 -s
  
- extern int vmem_add_mapping(unsigned long start, unsigned long size);
--extern int vmem_remove_mapping(unsigned long start, unsigned long size);
-+extern void vmem_remove_mapping(unsigned long start, unsigned long size);
- extern int s390_enable_sie(void);
- extern int s390_enable_skey(void);
- extern void s390_reset_cmma(struct mm_struct *mm);
-diff --git a/arch/s390/mm/extmem.c b/arch/s390/mm/extmem.c
-index 9e0aa7aa03ba4..105c09282f8c5 100644
---- a/arch/s390/mm/extmem.c
-+++ b/arch/s390/mm/extmem.c
-@@ -313,15 +313,10 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
- 		goto out_free;
- 	}
+ KBUILD_CFLAGS_64 := $(filter-out -m64,$(KBUILD_CFLAGS))
+ KBUILD_CFLAGS_64 += -m64 -fPIC -shared -fno-common -fno-builtin
+-KBUILD_CFLAGS_64 += -nostdlib -Wl,-soname=linux-vdso64.so.1 \
+-		    -Wl,--hash-style=both
++ldflags-y := -fPIC -shared -nostdlib -soname=linux-vdso64.so.1 \
++	     --hash-style=both --build-id -T
  
--	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
--
--	if (rc)
--		goto out_free;
--
- 	seg->res = kzalloc(sizeof(struct resource), GFP_KERNEL);
- 	if (seg->res == NULL) {
- 		rc = -ENOMEM;
--		goto out_shared;
-+		goto out_free;
- 	}
- 	seg->res->flags = IORESOURCE_BUSY | IORESOURCE_MEM;
- 	seg->res->start = seg->start_addr;
-@@ -335,12 +330,17 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
- 	if (rc == SEG_TYPE_SC ||
- 	    ((rc == SEG_TYPE_SR || rc == SEG_TYPE_ER) && !do_nonshared))
- 		seg->res->flags |= IORESOURCE_READONLY;
-+
-+	/* Check for overlapping resources before adding the mapping. */
- 	if (request_resource(&iomem_resource, seg->res)) {
- 		rc = -EBUSY;
--		kfree(seg->res);
--		goto out_shared;
-+		goto out_free_resource;
- 	}
+ $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
+ $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
+@@ -37,8 +37,8 @@ KASAN_SANITIZE := n
+ $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
  
-+	rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
-+	if (rc)
-+		goto out_resource;
-+
- 	if (do_nonshared)
- 		diag_cc = dcss_diag(&loadnsr_scode, seg->dcss_name,
- 				&start_addr, &end_addr);
-@@ -351,14 +351,14 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
- 		dcss_diag(&purgeseg_scode, seg->dcss_name,
- 				&dummy, &dummy);
- 		rc = diag_cc;
--		goto out_resource;
-+		goto out_mapping;
- 	}
- 	if (diag_cc > 1) {
- 		pr_warn("Loading DCSS %s failed with rc=%ld\n", name, end_addr);
- 		rc = dcss_diag_translate_rc(end_addr);
- 		dcss_diag(&purgeseg_scode, seg->dcss_name,
- 				&dummy, &dummy);
--		goto out_resource;
-+		goto out_mapping;
- 	}
- 	seg->start_addr = start_addr;
- 	seg->end = end_addr;
-@@ -377,11 +377,12 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
- 			(void*) seg->end, segtype_string[seg->vm_segtype]);
- 	}
- 	goto out;
-+ out_mapping:
-+	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
-  out_resource:
- 	release_resource(seg->res);
-+ out_free_resource:
- 	kfree(seg->res);
-- out_shared:
--	vmem_remove_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
-  out_free:
- 	kfree(seg);
-  out:
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 8b6282cf7d139..3b9e71654c37b 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -20,14 +20,6 @@
+ # link rule for the .so file, .lds has to be first
+-$(obj)/vdso64.so.dbg: $(src)/vdso64.lds $(obj-vdso64) FORCE
+-	$(call if_changed,vdso64ld)
++$(obj)/vdso64.so.dbg: $(obj)/vdso64.lds $(obj-vdso64) FORCE
++	$(call if_changed,ld)
  
- static DEFINE_MUTEX(vmem_mutex);
+ # strip rule for the .so file
+ $(obj)/%.so: OBJCOPYFLAGS := -S
+@@ -50,8 +50,6 @@ $(obj-vdso64): %.o: %.S FORCE
+ 	$(call if_changed_dep,vdso64as)
  
--struct memory_segment {
--	struct list_head list;
--	unsigned long start;
--	unsigned long size;
--};
--
--static LIST_HEAD(mem_segs);
--
- static void __ref *vmem_alloc_pages(unsigned int order)
- {
- 	unsigned long size = PAGE_SIZE << order;
-@@ -300,94 +292,25 @@ void vmemmap_free(unsigned long start, unsigned long end,
- {
- }
+ # actual build commands
+-quiet_cmd_vdso64ld = VDSO64L $@
+-      cmd_vdso64ld = $(CC) $(c_flags) -Wl,-T $(filter %.lds %.o,$^) -o $@
+ quiet_cmd_vdso64as = VDSO64A $@
+       cmd_vdso64as = $(CC) $(a_flags) -c -o $@ $<
  
--/*
-- * Add memory segment to the segment list if it doesn't overlap with
-- * an already present segment.
-- */
--static int insert_memory_segment(struct memory_segment *seg)
--{
--	struct memory_segment *tmp;
--
--	if (seg->start + seg->size > VMEM_MAX_PHYS ||
--	    seg->start + seg->size < seg->start)
--		return -ERANGE;
--
--	list_for_each_entry(tmp, &mem_segs, list) {
--		if (seg->start >= tmp->start + tmp->size)
--			continue;
--		if (seg->start + seg->size <= tmp->start)
--			continue;
--		return -ENOSPC;
--	}
--	list_add(&seg->list, &mem_segs);
--	return 0;
--}
--
--/*
-- * Remove memory segment from the segment list.
-- */
--static void remove_memory_segment(struct memory_segment *seg)
--{
--	list_del(&seg->list);
--}
--
--static void __remove_shared_memory(struct memory_segment *seg)
-+void vmem_remove_mapping(unsigned long start, unsigned long size)
- {
--	remove_memory_segment(seg);
--	vmem_remove_range(seg->start, seg->size);
--}
--
--int vmem_remove_mapping(unsigned long start, unsigned long size)
--{
--	struct memory_segment *seg;
--	int ret;
--
- 	mutex_lock(&vmem_mutex);
--
--	ret = -ENOENT;
--	list_for_each_entry(seg, &mem_segs, list) {
--		if (seg->start == start && seg->size == size)
--			break;
--	}
--
--	if (seg->start != start || seg->size != size)
--		goto out;
--
--	ret = 0;
--	__remove_shared_memory(seg);
--	kfree(seg);
--out:
-+	vmem_remove_range(start, size);
- 	mutex_unlock(&vmem_mutex);
--	return ret;
- }
- 
- int vmem_add_mapping(unsigned long start, unsigned long size)
- {
--	struct memory_segment *seg;
- 	int ret;
- 
--	mutex_lock(&vmem_mutex);
--	ret = -ENOMEM;
--	seg = kzalloc(sizeof(*seg), GFP_KERNEL);
--	if (!seg)
--		goto out;
--	seg->start = start;
--	seg->size = size;
--
--	ret = insert_memory_segment(seg);
--	if (ret)
--		goto out_free;
-+	if (start + size > VMEM_MAX_PHYS ||
-+	    start + size < start)
-+		return -ERANGE;
- 
-+	mutex_lock(&vmem_mutex);
- 	ret = vmem_add_mem(start, size);
- 	if (ret)
--		goto out_remove;
--	goto out;
--
--out_remove:
--	__remove_shared_memory(seg);
--out_free:
--	kfree(seg);
--out:
-+		vmem_remove_range(start, size);
- 	mutex_unlock(&vmem_mutex);
- 	return ret;
- }
-@@ -421,27 +344,3 @@ void __init vmem_map_init(void)
- 	pr_info("Write protected kernel read-only data: %luk\n",
- 		(unsigned long)(__end_rodata - _stext) >> 10);
- }
--
--/*
-- * Convert memblock.memory  to a memory segment list so there is a single
-- * list that contains all memory segments.
-- */
--static int __init vmem_convert_memory_chunk(void)
--{
--	struct memblock_region *reg;
--	struct memory_segment *seg;
--
--	mutex_lock(&vmem_mutex);
--	for_each_memblock(memory, reg) {
--		seg = kzalloc(sizeof(*seg), GFP_KERNEL);
--		if (!seg)
--			panic("Out of memory...\n");
--		seg->start = reg->base;
--		seg->size = reg->size;
--		insert_memory_segment(seg);
--	}
--	mutex_unlock(&vmem_mutex);
--	return 0;
--}
--
--core_initcall(vmem_convert_memory_chunk);
 -- 
-2.26.2
+2.25.1
