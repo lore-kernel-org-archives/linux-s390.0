@@ -1,279 +1,219 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52400 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730364AbgFONAz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 15 Jun 2020 09:00:55 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5/6] exec: add a kernel_execveat helper
-Date: Mon, 15 Jun 2020 15:00:31 +0200
-Message-Id: <20200615130032.931285-6-hch@lst.de>
-In-Reply-To: <20200615130032.931285-1-hch@lst.de>
-References: <20200615130032.931285-1-hch@lst.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <20200623083721.571835311@infradead.org>
+Date: Tue, 23 Jun 2020 10:36:53 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH v4 8/8] lockdep: Remove lockdep_hardirq{s_enabled,_context}() argument
+References: <20200623083645.277342609@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: mingo@kernel.org, will@kernel.org, tglx@linutronix.de
+Cc: x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, peterz@infradead.org, davem@davemloft.net, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux@armlinux.org.uk
 
-Add a kernel_execveat helper to execute a binary with kernel space argv
-and envp pointers.  Switch executing init and user mode helpers to this
-new helper instead of relying on the implicit set_fs(KERNEL_DS) for early
-init code and kernel threads, and move the getname call into the
-do_execve helper.
+Now that the macros use per-cpu data, we no longer need the argument.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- fs/exec.c               | 116 +++++++++++++++++++++++++++++++---------
- include/linux/binfmts.h |   6 +--
- init/main.c             |   6 +--
- kernel/umh.c            |   8 ++-
- 4 files changed, 97 insertions(+), 39 deletions(-)
+ arch/x86/entry/common.c        |    2 +-
+ include/linux/irqflags.h       |    8 ++++----
+ include/linux/lockdep.h        |    2 +-
+ kernel/locking/lockdep.c       |   30 +++++++++++++++---------------
+ kernel/softirq.c               |    2 +-
+ tools/include/linux/irqflags.h |    4 ++--
+ 6 files changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/fs/exec.c b/fs/exec.c
-index 696b1e8180d7d8..9e16d56aa53e86 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -439,6 +439,21 @@ static int count_strings(const char __user *const __user *argv)
- 	return i;
- }
+--- a/arch/x86/entry/common.c
++++ b/arch/x86/entry/common.c
+@@ -689,7 +689,7 @@ noinstr void idtentry_exit_user(struct p
  
-+static int count_kernel_strings(const char *const *argv)
-+{
-+	int i;
-+
-+	if (!argv)
-+		return 0;
-+
-+	for (i = 0; argv[i]; i++) {
-+		if (i >= MAX_ARG_STRINGS)
-+			return -E2BIG;
-+	}
-+
-+	return i;
-+}
-+
- static int check_arg_limit(struct linux_binprm *bprm)
+ noinstr bool idtentry_enter_nmi(struct pt_regs *regs)
  {
- 	unsigned long limit, ptr_size;
-@@ -615,6 +630,19 @@ int copy_string_kernel(const char *arg, struct linux_binprm *bprm)
+-	bool irq_state = lockdep_hardirqs_enabled(current);
++	bool irq_state = lockdep_hardirqs_enabled();
+ 
+ 	__nmi_enter();
+ 	lockdep_hardirqs_off(CALLER_ADDR0);
+--- a/include/linux/irqflags.h
++++ b/include/linux/irqflags.h
+@@ -40,9 +40,9 @@ DECLARE_PER_CPU(int, hardirq_context);
+   extern void trace_hardirqs_off_finish(void);
+   extern void trace_hardirqs_on(void);
+   extern void trace_hardirqs_off(void);
+-# define lockdep_hardirq_context(p)	(this_cpu_read(hardirq_context))
++# define lockdep_hardirq_context()	(this_cpu_read(hardirq_context))
+ # define lockdep_softirq_context(p)	((p)->softirq_context)
+-# define lockdep_hardirqs_enabled(p)	(this_cpu_read(hardirqs_enabled))
++# define lockdep_hardirqs_enabled()	(this_cpu_read(hardirqs_enabled))
+ # define lockdep_softirqs_enabled(p)	((p)->softirqs_enabled)
+ # define lockdep_hardirq_enter()			\
+ do {							\
+@@ -109,9 +109,9 @@ do {						\
+ # define trace_hardirqs_off_finish()		do { } while (0)
+ # define trace_hardirqs_on()		do { } while (0)
+ # define trace_hardirqs_off()		do { } while (0)
+-# define lockdep_hardirq_context(p)	0
++# define lockdep_hardirq_context()	0
+ # define lockdep_softirq_context(p)	0
+-# define lockdep_hardirqs_enabled(p)	0
++# define lockdep_hardirqs_enabled()	0
+ # define lockdep_softirqs_enabled(p)	0
+ # define lockdep_hardirq_enter()	do { } while (0)
+ # define lockdep_hardirq_threaded()	do { } while (0)
+--- a/include/linux/lockdep.h
++++ b/include/linux/lockdep.h
+@@ -736,7 +736,7 @@ do {									\
+ 
+ # define lockdep_assert_RT_in_threaded_ctx() do {			\
+ 		WARN_ONCE(debug_locks && !current->lockdep_recursion &&	\
+-			  lockdep_hardirq_context(current) &&		\
++			  lockdep_hardirq_context() &&			\
+ 			  !(current->hardirq_threaded || current->irq_config),	\
+ 			  "Not in threaded context on PREEMPT_RT as expected\n");	\
+ } while (0)
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -2062,9 +2062,9 @@ print_bad_irq_dependency(struct task_str
+ 	pr_warn("-----------------------------------------------------\n");
+ 	pr_warn("%s/%d [HC%u[%lu]:SC%u[%lu]:HE%u:SE%u] is trying to acquire:\n",
+ 		curr->comm, task_pid_nr(curr),
+-		lockdep_hardirq_context(curr), hardirq_count() >> HARDIRQ_SHIFT,
++		lockdep_hardirq_context(), hardirq_count() >> HARDIRQ_SHIFT,
+ 		curr->softirq_context, softirq_count() >> SOFTIRQ_SHIFT,
+-		lockdep_hardirqs_enabled(curr),
++		lockdep_hardirqs_enabled(),
+ 		curr->softirqs_enabled);
+ 	print_lock(next);
+ 
+@@ -3331,9 +3331,9 @@ print_usage_bug(struct task_struct *curr
+ 
+ 	pr_warn("%s/%d [HC%u[%lu]:SC%u[%lu]:HE%u:SE%u] takes:\n",
+ 		curr->comm, task_pid_nr(curr),
+-		lockdep_hardirq_context(curr), hardirq_count() >> HARDIRQ_SHIFT,
++		lockdep_hardirq_context(), hardirq_count() >> HARDIRQ_SHIFT,
+ 		lockdep_softirq_context(curr), softirq_count() >> SOFTIRQ_SHIFT,
+-		lockdep_hardirqs_enabled(curr),
++		lockdep_hardirqs_enabled(),
+ 		lockdep_softirqs_enabled(curr));
+ 	print_lock(this);
+ 
+@@ -3658,7 +3658,7 @@ void lockdep_hardirqs_on_prepare(unsigne
+ 	if (unlikely(current->lockdep_recursion & LOCKDEP_RECURSION_MASK))
+ 		return;
+ 
+-	if (unlikely(lockdep_hardirqs_enabled(current))) {
++	if (unlikely(lockdep_hardirqs_enabled())) {
+ 		/*
+ 		 * Neither irq nor preemption are disabled here
+ 		 * so this is racy by nature but losing one hit
+@@ -3686,7 +3686,7 @@ void lockdep_hardirqs_on_prepare(unsigne
+ 	 * Can't allow enabling interrupts while in an interrupt handler,
+ 	 * that's general bad form and such. Recursion, limited stack etc..
+ 	 */
+-	if (DEBUG_LOCKS_WARN_ON(lockdep_hardirq_context(current)))
++	if (DEBUG_LOCKS_WARN_ON(lockdep_hardirq_context()))
+ 		return;
+ 
+ 	current->hardirq_chain_key = current->curr_chain_key;
+@@ -3724,7 +3724,7 @@ void noinstr lockdep_hardirqs_on(unsigne
+ 	if (unlikely(current->lockdep_recursion & LOCKDEP_RECURSION_MASK))
+ 		return;
+ 
+-	if (lockdep_hardirqs_enabled(curr)) {
++	if (lockdep_hardirqs_enabled()) {
+ 		/*
+ 		 * Neither irq nor preemption are disabled here
+ 		 * so this is racy by nature but losing one hit
+@@ -3783,7 +3783,7 @@ void noinstr lockdep_hardirqs_off(unsign
+ 	if (DEBUG_LOCKS_WARN_ON(!irqs_disabled()))
+ 		return;
+ 
+-	if (lockdep_hardirqs_enabled(curr)) {
++	if (lockdep_hardirqs_enabled()) {
+ 		/*
+ 		 * We have done an ON -> OFF transition:
+ 		 */
+@@ -3832,7 +3832,7 @@ void lockdep_softirqs_on(unsigned long i
+ 	 * usage bit for all held locks, if hardirqs are
+ 	 * enabled too:
+ 	 */
+-	if (lockdep_hardirqs_enabled(curr))
++	if (lockdep_hardirqs_enabled())
+ 		mark_held_locks(curr, LOCK_ENABLED_SOFTIRQ);
+ 	lockdep_recursion_finish();
  }
- EXPORT_SYMBOL(copy_string_kernel);
+@@ -3881,7 +3881,7 @@ mark_usage(struct task_struct *curr, str
+ 	 */
+ 	if (!hlock->trylock) {
+ 		if (hlock->read) {
+-			if (lockdep_hardirq_context(curr))
++			if (lockdep_hardirq_context())
+ 				if (!mark_lock(curr, hlock,
+ 						LOCK_USED_IN_HARDIRQ_READ))
+ 					return 0;
+@@ -3890,7 +3890,7 @@ mark_usage(struct task_struct *curr, str
+ 						LOCK_USED_IN_SOFTIRQ_READ))
+ 					return 0;
+ 		} else {
+-			if (lockdep_hardirq_context(curr))
++			if (lockdep_hardirq_context())
+ 				if (!mark_lock(curr, hlock, LOCK_USED_IN_HARDIRQ))
+ 					return 0;
+ 			if (curr->softirq_context)
+@@ -3928,7 +3928,7 @@ mark_usage(struct task_struct *curr, str
  
-+static int copy_strings_kernel(int argc, const char *const *argv,
-+		struct linux_binprm *bprm)
-+{
-+	int ret;
-+
-+	while (argc-- > 0) {
-+		ret = copy_string_kernel(argv[argc], bprm);
-+		if (ret)
-+			break;
-+	}
-+	return ret;
-+}
-+
- #ifdef CONFIG_MMU
- 
- /*
-@@ -1797,9 +1825,11 @@ static int exec_binprm(struct linux_binprm *bprm)
- 	return 0;
- }
- 
--int do_execveat(int fd, struct filename *filename,
-+static int __do_execveat(int fd, struct filename *filename,
- 		const char __user *const __user *argv,
- 		const char __user *const __user *envp,
-+		const char *const *kernel_argv,
-+		const char *const *kernel_envp,
- 		int flags, struct file *file)
+ static inline unsigned int task_irq_context(struct task_struct *task)
  {
- 	char *pathbuf = NULL;
-@@ -1880,16 +1910,30 @@ int do_execveat(int fd, struct filename *filename,
- 	if (retval)
- 		goto out_unmark;
+-	return LOCK_CHAIN_HARDIRQ_CONTEXT * !!lockdep_hardirq_context(task) +
++	return LOCK_CHAIN_HARDIRQ_CONTEXT * !!lockdep_hardirq_context() +
+ 	       LOCK_CHAIN_SOFTIRQ_CONTEXT * !!task->softirq_context;
+ }
  
--	bprm->argc = count_strings(argv);
--	if (bprm->argc < 0) {
--		retval = bprm->argc;
--		goto out;
--	}
-+	if (unlikely(kernel_argv)) {
-+		bprm->argc = count_kernel_strings(kernel_argv);
-+		if (bprm->argc < 0) {
-+			retval = bprm->argc;
-+			goto out;
-+		}
+@@ -4021,7 +4021,7 @@ static inline short task_wait_context(st
+ 	 * Set appropriate wait type for the context; for IRQs we have to take
+ 	 * into account force_irqthread as that is implied by PREEMPT_RT.
+ 	 */
+-	if (lockdep_hardirq_context(curr)) {
++	if (lockdep_hardirq_context()) {
+ 		/*
+ 		 * Check if force_irqthreads will run us threaded.
+ 		 */
+@@ -4864,11 +4864,11 @@ static void check_flags(unsigned long fl
+ 		return;
  
--	bprm->envc = count_strings(envp);
--	if (bprm->envc < 0) {
--		retval = bprm->envc;
--		goto out;
-+		bprm->envc = count_kernel_strings(kernel_envp);
-+		if (bprm->envc < 0) {
-+			retval = bprm->envc;
-+			goto out;
-+		}
-+	} else {
-+		bprm->argc = count_strings(argv);
-+		if (bprm->argc < 0) {
-+			retval = bprm->argc;
-+			goto out;
-+		}
-+
-+		bprm->envc = count_strings(envp);
-+		if (bprm->envc < 0) {
-+			retval = bprm->envc;
-+			goto out;
-+		}
+ 	if (irqs_disabled_flags(flags)) {
+-		if (DEBUG_LOCKS_WARN_ON(lockdep_hardirqs_enabled(current))) {
++		if (DEBUG_LOCKS_WARN_ON(lockdep_hardirqs_enabled())) {
+ 			printk("possible reason: unannotated irqs-off.\n");
+ 		}
+ 	} else {
+-		if (DEBUG_LOCKS_WARN_ON(!lockdep_hardirqs_enabled(current))) {
++		if (DEBUG_LOCKS_WARN_ON(!lockdep_hardirqs_enabled())) {
+ 			printk("possible reason: unannotated irqs-on.\n");
+ 		}
  	}
- 
- 	retval = check_arg_limit(bprm);
-@@ -1906,13 +1950,22 @@ int do_execveat(int fd, struct filename *filename,
- 		goto out;
- 
- 	bprm->exec = bprm->p;
--	retval = copy_strings(bprm->envc, envp, bprm);
--	if (retval < 0)
--		goto out;
- 
--	retval = copy_strings(bprm->argc, argv, bprm);
--	if (retval < 0)
--		goto out;
-+	if (unlikely(kernel_argv)) {
-+		retval = copy_strings_kernel(bprm->envc, kernel_envp, bprm);
-+		if (retval < 0)
-+			goto out;
-+		retval = copy_strings_kernel(bprm->argc, kernel_argv, bprm);
-+		if (retval < 0)
-+			goto out;
-+	} else {
-+		retval = copy_strings(bprm->envc, envp, bprm);
-+		if (retval < 0)
-+			goto out;
-+		retval = copy_strings(bprm->argc, argv, bprm);
-+		if (retval < 0)
-+			goto out;
-+	}
- 
- 	retval = exec_binprm(bprm);
- 	if (retval < 0)
-@@ -1963,6 +2016,23 @@ int do_execveat(int fd, struct filename *filename,
- 	return retval;
- }
- 
-+static int do_execveat(int fd, const char *filename,
-+		       const char __user *const __user *argv,
-+		       const char __user *const __user *envp, int flags)
-+{
-+	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
-+	struct filename *name = getname_flags(filename, lookup_flags, NULL);
-+
-+	return __do_execveat(fd, name, argv, envp, NULL, NULL, flags, NULL);
-+}
-+
-+int kernel_execveat(int fd, const char *filename, const char *const *argv,
-+		const char *const *envp, int flags, struct file *file)
-+{
-+	return __do_execveat(fd, getname_kernel(filename), NULL, NULL, argv,
-+			     envp, flags, file);
-+}
-+
- void set_binfmt(struct linux_binfmt *new)
+--- a/kernel/softirq.c
++++ b/kernel/softirq.c
+@@ -230,7 +230,7 @@ static inline bool lockdep_softirq_start
  {
- 	struct mm_struct *mm = current->mm;
-@@ -1992,7 +2062,7 @@ SYSCALL_DEFINE3(execve,
- 		const char __user *const __user *, argv,
- 		const char __user *const __user *, envp)
- {
--	return do_execveat(AT_FDCWD, getname(filename), argv, envp, 0, NULL);
-+	return do_execveat(AT_FDCWD, filename, argv, envp, 0);
- }
+ 	bool in_hardirq = false;
  
- SYSCALL_DEFINE5(execveat,
-@@ -2001,10 +2071,7 @@ SYSCALL_DEFINE5(execveat,
- 		const char __user *const __user *, envp,
- 		int, flags)
- {
--	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
--	struct filename *name = getname_flags(filename, lookup_flags, NULL);
--
--	return do_execveat(fd, name, argv, envp, flags, NULL);
-+	return do_execveat(fd, filename, argv, envp, flags);
- }
+-	if (lockdep_hardirq_context(current)) {
++	if (lockdep_hardirq_context()) {
+ 		in_hardirq = true;
+ 		lockdep_hardirq_exit();
+ 	}
+--- a/tools/include/linux/irqflags.h
++++ b/tools/include/linux/irqflags.h
+@@ -2,9 +2,9 @@
+ #ifndef _LIBLOCKDEP_LINUX_TRACE_IRQFLAGS_H_
+ #define _LIBLOCKDEP_LINUX_TRACE_IRQFLAGS_H_
  
- /*
-@@ -2017,7 +2084,7 @@ COMPAT_SYSCALL_DEFINE3(execve, const char __user *, filename,
- 		       const char __user *const __user *, argv,
- 		       const char __user *const __user *, envp)
- {
--	return do_execveat(AT_FDCWD, getname(filename), argv, envp, 0, NULL);
-+	return do_execveat(AT_FDCWD, filename, argv, envp, 0);
- }
- 
- COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
-@@ -2026,9 +2093,6 @@ COMPAT_SYSCALL_DEFINE5(execveat, int, fd,
- 		       const char __user *const __user *, envp,
- 		       int,  flags)
- {
--	int lookup_flags = (flags & AT_EMPTY_PATH) ? LOOKUP_EMPTY : 0;
--	struct filename *name = getname_flags(filename, lookup_flags, NULL);
--
--	return do_execveat(fd, name, argv, envp, flags, NULL);
-+	return do_execveat(fd, filename, argv, envp, flags);
- }
- #endif /* CONFIG_X86_X32 */
-diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
-index bed702e4b1fbd9..1e61c980c16354 100644
---- a/include/linux/binfmts.h
-+++ b/include/linux/binfmts.h
-@@ -134,9 +134,7 @@ int copy_string_kernel(const char *arg, struct linux_binprm *bprm);
- extern void set_binfmt(struct linux_binfmt *new);
- extern ssize_t read_code(struct file *, unsigned long, loff_t, size_t);
- 
--int do_execveat(int fd, struct filename *filename,
--		const char __user *const __user *__argv,
--		const char __user *const __user *__envp,
--		int flags, struct file *file);
-+int kernel_execveat(int fd, const char *filename, const char *const *argv,
-+		const char *const *envp, int flags, struct file *file);
- 
- #endif /* _LINUX_BINFMTS_H */
-diff --git a/init/main.c b/init/main.c
-index 838950ea7bca22..33de235dc2aa00 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -1329,10 +1329,8 @@ static int run_init_process(const char *init_filename)
- 	pr_debug("  with environment:\n");
- 	for (p = envp_init; *p; p++)
- 		pr_debug("    %s\n", *p);
--	return do_execveat(AT_FDCWD, getname_kernel(init_filename),
--			(const char __user *const __user *)argv_init,
--			(const char __user *const __user *)envp_init,
--			0, NULL);
-+	return kernel_execveat(AT_FDCWD, init_filename, argv_init, envp_init, 0,
-+			       NULL);
- }
- 
- static int try_to_run_init_process(const char *init_filename)
-diff --git a/kernel/umh.c b/kernel/umh.c
-index 7aa9a5817582ca..1284823dbad338 100644
---- a/kernel/umh.c
-+++ b/kernel/umh.c
-@@ -103,11 +103,9 @@ static int call_usermodehelper_exec_async(void *data)
- 	commit_creds(new);
- 
- 	sub_info->pid = task_pid_nr(current);
--	retval = do_execveat(AT_FDCWD,
--			sub_info->path ? getname_kernel(sub_info->path) : NULL,
--			(const char __user *const __user *)sub_info->argv,
--			(const char __user *const __user *)sub_info->envp,
--			0, sub_info->file);
-+	retval = kernel_execveat(AT_FDCWD, sub_info->path,
-+			(const char *const *)sub_info->argv,
-+			(const char *const *)sub_info->envp, 0, sub_info->file);
- 	if (sub_info->file && !retval)
- 		current->flags |= PF_UMH;
- out:
--- 
-2.26.2
+-# define lockdep_hardirq_context(p)	0
++# define lockdep_hardirq_context()	0
+ # define lockdep_softirq_context(p)	0
+-# define lockdep_hardirqs_enabled(p)	0
++# define lockdep_hardirqs_enabled()	0
+ # define lockdep_softirqs_enabled(p)	0
+ # define lockdep_hardirq_enter()	do { } while (0)
+ # define lockdep_hardirq_exit()		do { } while (0)
