@@ -1,97 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:38122 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732223AbgFRB3D (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:29:03 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 32/80] s390/qdio: put thinint indicator after early error
-Date: Wed, 17 Jun 2020 21:27:31 -0400
-Message-Id: <20200618012819.609778-32-sashal@kernel.org>
-In-Reply-To: <20200618012819.609778-1-sashal@kernel.org>
-References: <20200618012819.609778-1-sashal@kernel.org>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:41582 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1732223AbgFWKYp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 23 Jun 2020 06:24:45 -0400
+Received: by mail-wr1-f71.google.com with SMTP id b14so14473740wrp.0
+        for <linux-s390@vger.kernel.org>; Tue, 23 Jun 2020 03:24:42 -0700 (PDT)
+Subject: Re: [PATCH v4 0/7] clean up redundant 'kvm_run' parameters
+References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
+ <fe463233-d094-fca5-b4e9-c1d97124fd69@redhat.com>
+ <3a2bee8b-20b4-5d33-7d12-09c374a5afde@linux.alibaba.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <bad08799-274e-0a6f-9638-92c0010b1ba1@redhat.com>
+Date: Tue, 23 Jun 2020 12:24:38 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <3a2bee8b-20b4-5d33-7d12-09c374a5afde@linux.alibaba.com>
+Content-Type: text/plain; charset="windows-1252"
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com
+Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On 23/06/20 12:00, Tianjia Zhang wrote:
+>=20
+>=20
+> On 2020/6/23 17:42, Paolo Bonzini wrote:
+>> On 27/04/20 06:35, Tianjia Zhang wrote:
+>>> In the current kvm version, 'kvm_run' has been included in the
+>>> 'kvm_vcpu'
+>>> structure. For historical reasons, many kvm-related function parameters
+>>> retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
+>>> patch does a unified cleanup of these remaining redundant parameters.
+>>>
+>>> This series of patches has completely cleaned the architecture of
+>>> arm64, mips, ppc, and s390 (no such redundant code on x86). Due to
+>>> the large number of modified codes, a separate patch is made for each
+>>> platform. On the ppc platform, there is also a redundant structure
+>>> pointer of 'kvm_run' in 'vcpu_arch', which has also been cleaned
+>>> separately.
+>>
+>> Tianjia, can you please refresh the patches so that each architecture
+>> maintainer can pick them up?=EF=BF=BD Thanks very much for this work!
+>>
+>> Paolo
+>>
+>=20
+> No problem, this is what I should do.
+> After I update, do I submit separately for each architecture or submit
+> them together in a patchset?
 
-[ Upstream commit 75e82bec6b2622c6f455b7a543fb5476a5d0eed7 ]
+You can send them together.
 
-qdio_establish() calls qdio_setup_thinint() via qdio_setup_irq().
-If the subsequent qdio_establish_thinint() fails, we miss to put the
-DSCI again. Thus the DSCI isn't available for re-use. Given enough of
-such errors, we could end up with having only the shared DSCI available.
-
-Merge qdio_setup_thinint() into qdio_establish_thinint(), and deal with
-such an error internally.
-
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/qdio.h         |  1 -
- drivers/s390/cio/qdio_setup.c   |  1 -
- drivers/s390/cio/qdio_thinint.c | 14 ++++++++------
- 3 files changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/s390/cio/qdio.h b/drivers/s390/cio/qdio.h
-index 7e70f9298cc1..11f6ebd04545 100644
---- a/drivers/s390/cio/qdio.h
-+++ b/drivers/s390/cio/qdio.h
-@@ -376,7 +376,6 @@ static inline int multicast_outbound(struct qdio_q *q)
- extern u64 last_ai_time;
- 
- /* prototypes for thin interrupt */
--void qdio_setup_thinint(struct qdio_irq *irq_ptr);
- int qdio_establish_thinint(struct qdio_irq *irq_ptr);
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr);
- void tiqdio_add_input_queues(struct qdio_irq *irq_ptr);
-diff --git a/drivers/s390/cio/qdio_setup.c b/drivers/s390/cio/qdio_setup.c
-index d0090c5c88e7..a64615a10352 100644
---- a/drivers/s390/cio/qdio_setup.c
-+++ b/drivers/s390/cio/qdio_setup.c
-@@ -479,7 +479,6 @@ int qdio_setup_irq(struct qdio_initialize *init_data)
- 	setup_queues(irq_ptr, init_data);
- 
- 	setup_qib(irq_ptr, init_data);
--	qdio_setup_thinint(irq_ptr);
- 	set_impl_params(irq_ptr, init_data->qib_param_field_format,
- 			init_data->qib_param_field,
- 			init_data->input_slib_elements,
-diff --git a/drivers/s390/cio/qdio_thinint.c b/drivers/s390/cio/qdio_thinint.c
-index debe69adfc70..aecb6445a567 100644
---- a/drivers/s390/cio/qdio_thinint.c
-+++ b/drivers/s390/cio/qdio_thinint.c
-@@ -268,17 +268,19 @@ int __init tiqdio_register_thinints(void)
- 
- int qdio_establish_thinint(struct qdio_irq *irq_ptr)
- {
-+	int rc;
-+
- 	if (!is_thinint_irq(irq_ptr))
- 		return 0;
--	return set_subchannel_ind(irq_ptr, 0);
--}
- 
--void qdio_setup_thinint(struct qdio_irq *irq_ptr)
--{
--	if (!is_thinint_irq(irq_ptr))
--		return;
- 	irq_ptr->dsci = get_indicator();
- 	DBF_HEX(&irq_ptr->dsci, sizeof(void *));
-+
-+	rc = set_subchannel_ind(irq_ptr, 0);
-+	if (rc)
-+		put_indicator(irq_ptr->dsci);
-+
-+	return rc;
- }
- 
- void qdio_shutdown_thinint(struct qdio_irq *irq_ptr)
--- 
-2.25.1
+Paolo
