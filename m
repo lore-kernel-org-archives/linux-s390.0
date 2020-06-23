@@ -1,36 +1,127 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:54359 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730331AbgFINwk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Jun 2020 09:52:40 -0400
-From: Florian Weimer <fweimer@redhat.com>
-Subject: Re: Add a new fchmodat4() syscall, v2
-References: <20190717012719.5524-1-palmer@sifive.com>
-Date: Tue, 09 Jun 2020 15:52:17 +0200
-In-Reply-To: <20190717012719.5524-1-palmer@sifive.com> (Palmer Dabbelt's
-        message of "Tue, 16 Jul 2019 18:27:15 -0700")
-Message-ID: <87o8pscpny.fsf@oldenburg2.str.redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 11/15] s390/vdso: fix vDSO clock_getres()
+Date: Tue, 23 Jun 2020 13:36:26 -0400
+Message-Id: <20200623173630.1355971-11-sashal@kernel.org>
+In-Reply-To: <20200623173630.1355971-1-sashal@kernel.org>
+References: <20200623173630.1355971-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Palmer Dabbelt <palmer@sifive.com>
-Cc: viro@zeniv.linux.org.uk, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, linux@armlinux.org.uk, catalin.marinas@arm.com, will@kernel.org, tony.luck@intel.com, fenghua.yu@intel.com, geert@linux-m68k.org, monstr@monstr.eu, ralf@linux-mips.org, paul.burton@mips.com, jhogan@kernel.org, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, mpe@ellerman.id.au, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, luto@kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, hpa@zytor.com, x86@kernel.org, peterz@infradead.org, acme@kernel.org, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, dhowells@redhat.com, firoz.khan@linaro.org, stefan@agner.ch, schwidefsky@de.ibm.com, axboe@kernel.dk, christian@brauner.io, hare@suse.com, deepa.kernel@gmail.com, tycho@tycho.ws, kim.phillips@arm.com, linux-alpha@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-arch@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-* Palmer Dabbelt:
+From: Vincenzo Frascino <vincenzo.frascino@arm.com>
 
-> This patch set adds fchmodat4(), a new syscall. The actual
-> implementation is super simple: essentially it's just the same as
-> fchmodat(), but LOOKUP_FOLLOW is conditionally set based on the flags.
-> I've attempted to make this match "man 2 fchmodat" as closely as
-> possible, which says EINVAL is returned for invalid flags (as opposed to
-> ENOTSUPP, which is currently returned by glibc for AT_SYMLINK_NOFOLLOW).
-> I have a sketch of a glibc patch that I haven't even compiled yet, but
-> seems fairly straight-forward:
+[ Upstream commit 478237a595120a18e9b52fd2c57a6e8b7a01e411 ]
 
-What's the status here?  We'd really like to see this system call in the
-kernel because our emulation in glibc has its problems (especially if
-/proc is not mounted).
+clock_getres in the vDSO library has to preserve the same behaviour
+of posix_get_hrtimer_res().
 
-Thanks,
-Florian
+In particular, posix_get_hrtimer_res() does:
+    sec = 0;
+    ns = hrtimer_resolution;
+and hrtimer_resolution depends on the enablement of the high
+resolution timers that can happen either at compile or at run time.
+
+Fix the s390 vdso implementation of clock_getres keeping a copy of
+hrtimer_resolution in vdso data and using that directly.
+
+Link: https://lkml.kernel.org/r/20200324121027.21665-1-vincenzo.frascino@arm.com
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Acked-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+[heiko.carstens@de.ibm.com: use llgf for proper zero extension]
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/include/asm/vdso.h           |  1 +
+ arch/s390/kernel/asm-offsets.c         |  2 +-
+ arch/s390/kernel/time.c                |  1 +
+ arch/s390/kernel/vdso64/clock_getres.S | 10 +++++-----
+ 4 files changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/arch/s390/include/asm/vdso.h b/arch/s390/include/asm/vdso.h
+index 169d7604eb804..f3ba84fa9bd18 100644
+--- a/arch/s390/include/asm/vdso.h
++++ b/arch/s390/include/asm/vdso.h
+@@ -36,6 +36,7 @@ struct vdso_data {
+ 	__u32 tk_shift;			/* Shift used for xtime_nsec	0x60 */
+ 	__u32 ts_dir;			/* TOD steering direction	0x64 */
+ 	__u64 ts_end;			/* TOD steering end		0x68 */
++	__u32 hrtimer_res;		/* hrtimer resolution		0x70 */
+ };
+ 
+ struct vdso_per_cpu_data {
+diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
+index 66e830f1c7bfe..e9d09f6e81d25 100644
+--- a/arch/s390/kernel/asm-offsets.c
++++ b/arch/s390/kernel/asm-offsets.c
+@@ -75,6 +75,7 @@ int main(void)
+ 	OFFSET(__VDSO_TK_SHIFT, vdso_data, tk_shift);
+ 	OFFSET(__VDSO_TS_DIR, vdso_data, ts_dir);
+ 	OFFSET(__VDSO_TS_END, vdso_data, ts_end);
++	OFFSET(__VDSO_CLOCK_REALTIME_RES, vdso_data, hrtimer_res);
+ 	OFFSET(__VDSO_ECTG_BASE, vdso_per_cpu_data, ectg_timer_base);
+ 	OFFSET(__VDSO_ECTG_USER, vdso_per_cpu_data, ectg_user_time);
+ 	OFFSET(__VDSO_CPU_NR, vdso_per_cpu_data, cpu_nr);
+@@ -86,7 +87,6 @@ int main(void)
+ 	DEFINE(__CLOCK_REALTIME_COARSE, CLOCK_REALTIME_COARSE);
+ 	DEFINE(__CLOCK_MONOTONIC_COARSE, CLOCK_MONOTONIC_COARSE);
+ 	DEFINE(__CLOCK_THREAD_CPUTIME_ID, CLOCK_THREAD_CPUTIME_ID);
+-	DEFINE(__CLOCK_REALTIME_RES, MONOTONIC_RES_NSEC);
+ 	DEFINE(__CLOCK_COARSE_RES, LOW_RES_NSEC);
+ 	BLANK();
+ 	/* idle data offsets */
+diff --git a/arch/s390/kernel/time.c b/arch/s390/kernel/time.c
+index e8766beee5ad8..8ea9db599d38d 100644
+--- a/arch/s390/kernel/time.c
++++ b/arch/s390/kernel/time.c
+@@ -310,6 +310,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 
+ 	vdso_data->tk_mult = tk->tkr_mono.mult;
+ 	vdso_data->tk_shift = tk->tkr_mono.shift;
++	vdso_data->hrtimer_res = hrtimer_resolution;
+ 	smp_wmb();
+ 	++vdso_data->tb_update_count;
+ }
+diff --git a/arch/s390/kernel/vdso64/clock_getres.S b/arch/s390/kernel/vdso64/clock_getres.S
+index 081435398e0a1..0c79caa32b592 100644
+--- a/arch/s390/kernel/vdso64/clock_getres.S
++++ b/arch/s390/kernel/vdso64/clock_getres.S
+@@ -17,12 +17,14 @@
+ 	.type  __kernel_clock_getres,@function
+ __kernel_clock_getres:
+ 	CFI_STARTPROC
+-	larl	%r1,4f
++	larl	%r1,3f
++	lg	%r0,0(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME_COARSE
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC_COARSE
+ 	je	0f
+-	larl	%r1,3f
++	larl	%r1,_vdso_data
++	llgf	%r0,__VDSO_CLOCK_REALTIME_RES(%r1)
+ 	cghi	%r2,__CLOCK_REALTIME
+ 	je	0f
+ 	cghi	%r2,__CLOCK_MONOTONIC
+@@ -36,7 +38,6 @@ __kernel_clock_getres:
+ 	jz	2f
+ 0:	ltgr	%r3,%r3
+ 	jz	1f				/* res == NULL */
+-	lg	%r0,0(%r1)
+ 	xc	0(8,%r3),0(%r3)			/* set tp->tv_sec to zero */
+ 	stg	%r0,8(%r3)			/* store tp->tv_usec */
+ 1:	lghi	%r2,0
+@@ -45,6 +46,5 @@ __kernel_clock_getres:
+ 	svc	0
+ 	br	%r14
+ 	CFI_ENDPROC
+-3:	.quad	__CLOCK_REALTIME_RES
+-4:	.quad	__CLOCK_COARSE_RES
++3:	.quad	__CLOCK_COARSE_RES
+ 	.size	__kernel_clock_getres,.-__kernel_clock_getres
+-- 
+2.25.1
