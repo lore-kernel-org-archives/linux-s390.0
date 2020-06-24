@@ -1,102 +1,48 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10308 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2405788AbgFXR7J (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 24 Jun 2020 13:59:09 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:36854 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404235AbgFXQNW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 24 Jun 2020 12:13:22 -0400
+Date: Wed, 24 Jun 2020 16:13:19 +0000
+From: Luis Chamberlain <mcgrof@kernel.org>
 Subject: Re: linux-next: umh: fix processed error when UMH_WAIT_PROC is used
  seems to break linux bridge on s390x (bisected)
+Message-ID: <20200624161319.GM13911@42.do-not-panic.com>
 References: <20200610154923.27510-5-mcgrof@kernel.org>
  <20200623141157.5409-1-borntraeger@de.ibm.com>
  <b7d658b9-606a-feb1-61f9-b58e3420d711@de.ibm.com>
  <3118dc0d-a3af-9337-c897-2380062a8644@de.ibm.com>
- <20200624144311.GA5839@infradead.org>
- <9e767819-9bbe-2181-521e-4d8ca28ca4f7@de.ibm.com>
- <20200624160953.GH4332@42.do-not-panic.com>
-Message-ID: <ea41e2a9-61f7-aec1-79e5-7b08b6dd5119@de.ibm.com>
-Date: Wed, 24 Jun 2020 19:58:37 +0200
+ <20200624120546.GC4332@42.do-not-panic.com>
+ <20200624131725.GL13911@42.do-not-panic.com>
 MIME-Version: 1.0
-In-Reply-To: <20200624160953.GH4332@42.do-not-panic.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200624131725.GL13911@42.do-not-panic.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Christoph Hellwig <hch@infradead.org>, ast@kernel.org, axboe@kernel.dk, bfields@fieldses.org, bridge@lists.linux-foundation.org, chainsaw@gentoo.org, christian.brauner@ubuntu.com, chuck.lever@oracle.com, davem@davemloft.net, dhowells@redhat.com, gregkh@linuxfoundation.org, jarkko.sakkinen@linux.intel.com, jmorris@namei.org, josh@joshtriplett.org, keescook@chromium.org, keyrings@vger.kernel.org, kuba@kernel.org, lars.ellenberg@linbit.com, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, nikolay@cumulusnetworks.com, philipp.reisner@linbit.com, ravenexp@gmail.com, roopa@cumulusnetworks.com, serge@hallyn.com, slyfox@gentoo.org, viro@zeniv.linux.org.uk, yangtiezhu@loongson.cn, netdev@vger.kernel.org, markward@linux.ibm.com, linux-s390 <linux-s390@vger.kernel.org>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Martin Doucha <mdoucha@suse.cz>, hch@infradead.org
+Cc: ast@kernel.org, axboe@kernel.dk, bfields@fieldses.org, bridge@lists.linux-foundation.org, chainsaw@gentoo.org, christian.brauner@ubuntu.com, chuck.lever@oracle.com, davem@davemloft.net, dhowells@redhat.com, gregkh@linuxfoundation.org, jarkko.sakkinen@linux.intel.com, jmorris@namei.org, josh@joshtriplett.org, keescook@chromium.org, keyrings@vger.kernel.org, kuba@kernel.org, lars.ellenberg@linbit.com, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, nikolay@cumulusnetworks.com, philipp.reisner@linbit.com, ravenexp@gmail.com, roopa@cumulusnetworks.com, serge@hallyn.com, slyfox@gentoo.org, viro@zeniv.linux.org.uk, yangtiezhu@loongson.cn, netdev@vger.kernel.org, markward@linux.ibm.com, linux-s390 <linux-s390@vger.kernel.org>
 
-
-
-On 24.06.20 18:09, Luis Chamberlain wrote:
-> On Wed, Jun 24, 2020 at 05:54:46PM +0200, Christian Borntraeger wrote:
->>
->>
->> On 24.06.20 16:43, Christoph Hellwig wrote:
->>> On Wed, Jun 24, 2020 at 01:11:54PM +0200, Christian Borntraeger wrote:
->>>> Does anyone have an idea why "umh: fix processed error when UMH_WAIT_PROC is used" breaks the
->>>> linux-bridge on s390?
->>>
->>> Are we even sure this is s390 specific and doesn't happen on other
->>> architectures with the same bridge setup?
->>
->> Fair point. AFAIK nobody has tested this yet on x86.
+On Wed, Jun 24, 2020 at 01:17:25PM +0000, Luis Chamberlain wrote:
+> I found however an LTP bug indicating the need to test for
+> s390 wait macros [0] in light of a recent bug in glibc for s390.
+> I am asking for references to that issue given I cannot find
+> any mention of this on glibc yet.
 > 
-> Regardless, can you enable dynamic debug prints, to see if the kernel
-> reveals anything on the bridge code which may be relevant:
-> 
-> echo "file net/bridge/* +p" > /sys/kernel/debug/dynamic_debug/control
-> 
->   Luis
+> [0] https://github.com/linux-test-project/ltp/issues/605
 
-When I start a guest the following happens with the patch:
+I looked into this and the bug associated was:
 
-[   47.420237] virbr0: port 2(vnet0) entered blocking state
-[   47.420242] virbr0: port 2(vnet0) entered disabled state
-[   47.420315] device vnet0 entered promiscuous mode
-[   47.420365] virbr0: port 2(vnet0) event 16
-[   47.420366] virbr0: br_fill_info event 16 port vnet0 master virbr0
-[   47.420373] virbr0: toggle option: 12 state: 0 -> 0
-[   47.420536] virbr0: port 2(vnet0) entered blocking state
-[   47.420538] virbr0: port 2(vnet0) event 16
-[   47.420539] virbr0: br_fill_info event 16 port vnet0 master virbr0
+https://sourceware.org/bugzilla/show_bug.cgi?id=19613
 
-and the nothing happens.
+The commit in question was upstream glibc commit
+b49ab5f4503f36dcbf43f821f817da66b2931fe6 ("Remove union wait [BZ
+#19613]"), and while I don't see anything s390 mentioned there,
+the issue there was due to the caller of the wait using a long
+instead of an int for the return value.
 
+In other words, that'd not the droid we are looking for.
 
-without the patch
-[   33.805410] virbr0: hello timer expired
-[   35.805413] virbr0: hello timer expired
-[   36.184349] virbr0: port 2(vnet0) entered blocking state
-[   36.184353] virbr0: port 2(vnet0) entered disabled state
-[   36.184427] device vnet0 entered promiscuous mode
-[   36.184479] virbr0: port 2(vnet0) event 16
-[   36.184480] virbr0: br_fill_info event 16 port vnet0 master virbr0
-[   36.184487] virbr0: toggle option: 12 state: 0 -> 0
-[   36.184636] virbr0: port 2(vnet0) entered blocking state
-[   36.184638] virbr0: port 2(vnet0) entered listening state
-[   36.184639] virbr0: port 2(vnet0) event 16
-[   36.184640] virbr0: br_fill_info event 16 port vnet0 master virbr0
-[   36.184645] virbr0: port 2(vnet0) event 16
-[   36.184646] virbr0: br_fill_info event 16 port vnet0 master virbr0
-[   37.805478] virbr0: hello timer expired
-[   38.205413] virbr0: port 2(vnet0) forward delay timer
-[   38.205414] virbr0: port 2(vnet0) entered learning state
-[   38.205427] virbr0: port 2(vnet0) event 16
-[   38.205430] virbr0: br_fill_info event 16 port vnet0 master virbr0
-[   38.765414] virbr0: port 2(vnet0) hold timer expired
-[   39.805415] virbr0: hello timer expired
-[   40.285410] virbr0: port 2(vnet0) forward delay timer
-[   40.285411] virbr0: port 2(vnet0) entered forwarding state
-[   40.285418] virbr0: topology change detected, propagating
-[   40.285420] virbr0: decreasing ageing time to 400
-[   40.285427] virbr0: port 2(vnet0) event 16
-[   40.285432] virbr0: br_fill_info event 16 port vnet0 master virbr0
-[   40.765408] virbr0: port 2(vnet0) hold timer expired
-[   41.805415] virbr0: hello timer expired
-[   42.765426] virbr0: port 2(vnet0) hold timer expired
-[   43.805425] virbr0: hello timer expired
-[   44.765426] virbr0: port 2(vnet0) hold timer expired
-[   45.805418] virbr0: hello timer expired
+So the issue is something else.
 
-and continuing....
+  Luis
