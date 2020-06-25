@@ -1,25 +1,27 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:59061 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:30785 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2390047AbgFYHKN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Jun 2020 03:10:13 -0400
-Subject: Re: [PATCH 1/2] docs: kvm: add documentation for KVM_CAP_S390_DIAG318
-References: <20200624202200.28209-1-walling@linux.ibm.com>
- <20200624202200.28209-2-walling@linux.ibm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <bead57a6-412a-c6b8-24be-2615979931ac@redhat.com>
-Date: Thu, 25 Jun 2020 09:10:00 +0200
-MIME-Version: 1.0
+        with ESMTP id S2390090AbgFYGbn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 25 Jun 2020 02:31:43 -0400
+Date: Thu, 25 Jun 2020 08:31:30 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/2] docs: kvm: add documentation for
+ KVM_CAP_S390_DIAG318
+Message-ID: <20200625083130.420819c9.cohuck@redhat.com>
 In-Reply-To: <20200624202200.28209-2-walling@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+References: <20200624202200.28209-1-walling@linux.ibm.com>
+        <20200624202200.28209-2-walling@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Collin Walling <walling@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
+To: Collin Walling <walling@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
 
-On 24.06.20 22:21, Collin Walling wrote:
+On Wed, 24 Jun 2020 16:21:59 -0400
+Collin Walling <walling@linux.ibm.com> wrote:
+
 > Documentation for the s390 DIAGNOSE 0x318 instruction handling.
 > 
 > Signed-off-by: Collin Walling <walling@linux.ibm.com>
@@ -42,6 +44,9 @@ On 24.06.20 22:21, Collin Walling wrote:
 > +:Architecture: s390
 > +
 > +This capability allows for information regarding the control program that may
+
+Maybe s/allows for/covers/ ?
+
 > +be observed via system/firmware service events. The availability of this
 > +capability indicates that KVM handling of the register synchronization, reset,
 > +and VSIE shadowing of the DIAGNOSE 0x318 related information is present.
@@ -54,11 +59,7 @@ On 24.06.20 22:21, Collin Walling wrote:
 > +
 > +If this capability is available, then the CPNC and CPVC can be synchronized
 > +between KVM and userspace via the sync regs mechanism (KVM_SYNC_DIAG318).
-> 
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Anyway,
 
--- 
-Thanks,
-
-David / dhildenb
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
