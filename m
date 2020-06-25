@@ -1,42 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48134 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729115AbgFDQ5S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 4 Jun 2020 12:57:18 -0400
-Date: Thu, 4 Jun 2020 18:57:03 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [RFC][PATCH v3 1/5] sparc64: Fix asm/percpu.h build error
-Message-ID: <20200604165703.GG3976@hirez.programming.kicks-ass.net>
-References: <20200529213550.683440625@infradead.org>
- <20200529214203.673108357@infradead.org>
- <20200529.162917.1970892823680223252.davem@davemloft.net>
+Received: from mail.kernel.org ([198.145.29.99]:49584 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727829AbgFYHbv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Jun 2020 03:31:51 -0400
+Date: Thu, 25 Jun 2020 08:31:45 +0100
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH v4 6/8] arm: Break cyclic percpu include
+Message-ID: <20200625073145.GA7444@willie-the-truck>
+References: <20200623083645.277342609@infradead.org>
+ <20200623083721.454517573@infradead.org>
+ <20200623090257.GA3743@willie-the-truck>
+ <20200624175320.GN4781@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200529.162917.1970892823680223252.davem@davemloft.net>
+In-Reply-To: <20200624175320.GN4781@hirez.programming.kicks-ass.net>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>
-Cc: mingo@kernel.org, will@kernel.org, tglx@linutronix.de, x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: mingo@kernel.org, tglx@linutronix.de, x86@kernel.org, linux-kernel@vger.kernel.org, a.darwish@linutronix.de, rostedt@goodmis.org, bigeasy@linutronix.de, davem@davemloft.net, sparclinux@vger.kernel.org, mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, heiko.carstens@de.ibm.com, linux-s390@vger.kernel.org, linux@armlinux.org.uk
 
-On Fri, May 29, 2020 at 04:29:17PM -0700, David Miller wrote:
-> From: Peter Zijlstra <peterz@infradead.org>
-> Date: Fri, 29 May 2020 23:35:51 +0200
+On Wed, Jun 24, 2020 at 07:53:20PM +0200, Peter Zijlstra wrote:
+> On Tue, Jun 23, 2020 at 10:02:57AM +0100, Will Deacon wrote:
+> > On Tue, Jun 23, 2020 at 10:36:51AM +0200, Peter Zijlstra wrote:
+> > > In order to use <asm/percpu.h> in irqflags.h, we need to make sure
+> > > asm/percpu.h does not itself depend on irqflags.h.
+> > > 
+> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > > ---
+> > >  arch/arm/include/asm/percpu.h |    2 ++
+> > >  1 file changed, 2 insertions(+)
+> > > 
+> > > --- a/arch/arm/include/asm/percpu.h
+> > > +++ b/arch/arm/include/asm/percpu.h
+> > > @@ -10,6 +10,8 @@
+> > >   * in the TPIDRPRW. TPIDRPRW only exists on V6K and V7
+> > >   */
+> > >  #if defined(CONFIG_SMP) && !defined(CONFIG_CPU_V6)
+> > > +register unsigned long current_stack_pointer asm ("sp");
+> > 
+> > If you define this unconditionally, then we can probably get rid of the
+> > copy in asm/thread_info.h, rather than duplicate the same #define.
 > 
-> > ../arch/sparc/include/asm/percpu_64.h:7:24: warning: call-clobbered register used for global register variable
-> > register unsigned long __local_per_cpu_offset asm("g5");
+> The below delta seems to build arm-allnoconfig, arm-defconfig and
+> arm-allmodconfig.
 > 
-> The "-ffixed-g5" option on the command line tells gcc that we are
-> using 'g5' as a fixed register, so some part of your build isn't using
-> the:
+> Although please don't ask me how asm/thread_info.h includes asm/percpu.h
 > 
-> KBUILD_CFLAGS += -ffixed-g4 -ffixed-g5 -fcall-used-g7 -Wno-sign-compare
-> 
-> from arch/sparc/Makefile for some reason.
+> Does that work for you?
 
-Thanks, that was the clue I needed.
+Yes, thanks! I can't believe you removed the helpful comment.
 
-I think I see, what happens is that these headers end up in the VDSO
-build, and that doesn't have these CFLAGS, because userspace.
+> -/*
+> - * how to get the current stack pointer in C
+> - */
 
-Let me see what to do about that.
+Will
