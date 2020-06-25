@@ -1,87 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:20740 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726156AbgFCL1k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 3 Jun 2020 07:27:40 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL v2 07/10] vfio-ccw: Refactor IRQ handlers
-Date: Wed,  3 Jun 2020 13:27:13 +0200
-Message-Id: <20200603112716.332801-8-cohuck@redhat.com>
-In-Reply-To: <20200603112716.332801-1-cohuck@redhat.com>
-References: <20200603112716.332801-1-cohuck@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47738 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2405309AbgFYPHk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 25 Jun 2020 11:07:40 -0400
+From: Collin Walling <walling@linux.ibm.com>
+Subject: [PATCH v2 2/2] docs: kvm: fix rst formatting
+Date: Thu, 25 Jun 2020 11:07:24 -0400
+Message-Id: <20200625150724.10021-3-walling@linux.ibm.com>
+In-Reply-To: <20200625150724.10021-1-walling@linux.ibm.com>
+References: <20200625150724.10021-1-walling@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>
+To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
 
-From: Eric Farman <farman@linux.ibm.com>
+Add a little rst touch-up for docs introduced in:
+ - commit 7de3f1423ff9 ("KVM: s390: Add new reset vcpu API") and
+ - commit 04ed89dc4aeb ("KVM: s390: protvirt: Add KVM api documentation")
 
-To simplify future expansion.
-
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Collin Walling <walling@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Message-Id: <20200505122745.53208-6-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/s390/cio/vfio_ccw_ops.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ Documentation/virt/kvm/api.rst | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 22988d67b6bb..c3a74ab7bb86 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -387,17 +387,21 @@ static int vfio_ccw_mdev_get_region_info(struct vfio_region_info *info,
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index e0b4f2088c46..19681e96eb33 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -6134,16 +6134,17 @@ in CPUID and only exposes Hyper-V identification. In this case, guest
+ thinks it's running on Hyper-V and only use Hyper-V hypercalls.
  
- static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
- {
--	if (info->index != VFIO_CCW_IO_IRQ_INDEX)
-+	switch (info->index) {
-+	case VFIO_CCW_IO_IRQ_INDEX:
-+		info->count = 1;
-+		info->flags = VFIO_IRQ_INFO_EVENTFD;
-+		break;
-+	default:
- 		return -EINVAL;
+ 8.22 KVM_CAP_S390_VCPU_RESETS
++-----------------------------
+ 
+-Architectures: s390
++:Architectures: s390
+ 
+ This capability indicates that the KVM_S390_NORMAL_RESET and
+ KVM_S390_CLEAR_RESET ioctls are available.
+ 
+ 8.23 KVM_CAP_S390_PROTECTED
++---------------------------
+ 
+-Architecture: s390
 -
--	info->count = 1;
--	info->flags = VFIO_IRQ_INFO_EVENTFD;
-+	}
++:Architecture: s390
  
- 	return 0;
- }
- 
- static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 				  uint32_t flags,
-+				  uint32_t index,
- 				  void __user *data)
- {
- 	struct vfio_ccw_private *private;
-@@ -407,7 +411,14 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 		return -EINVAL;
- 
- 	private = dev_get_drvdata(mdev_parent_dev(mdev));
--	ctx = &private->io_trigger;
-+
-+	switch (index) {
-+	case VFIO_CCW_IO_IRQ_INDEX:
-+		ctx = &private->io_trigger;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
- 
- 	switch (flags & VFIO_IRQ_SET_DATA_TYPE_MASK) {
- 	case VFIO_IRQ_SET_DATA_NONE:
-@@ -579,7 +590,7 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 			return ret;
- 
- 		data = (void __user *)(arg + minsz);
--		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, data);
-+		return vfio_ccw_mdev_set_irqs(mdev, hdr.flags, hdr.index, data);
- 	}
- 	case VFIO_DEVICE_RESET:
- 		return vfio_ccw_mdev_reset(mdev);
+ This capability indicates that the Ultravisor has been initialized and
+ KVM can therefore start protected VMs.
 -- 
-2.25.4
+2.26.2
