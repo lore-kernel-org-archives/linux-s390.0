@@ -1,10 +1,14 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 26 Jun 2020 10:00:01 +0100
-From: Christoph Hellwig <hch@infradead.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61164 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725306AbgFZFYX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 26 Jun 2020 01:24:23 -0400
 Subject: Re: linux-next: umh: fix processed error when UMH_WAIT_PROC is used
  seems to break linux bridge on s390x (bisected)
-Message-ID: <20200626090001.GA30103@infradead.org>
-References: <3118dc0d-a3af-9337-c897-2380062a8644@de.ibm.com>
+References: <20200623141157.5409-1-borntraeger@de.ibm.com>
+ <b7d658b9-606a-feb1-61f9-b58e3420d711@de.ibm.com>
+ <3118dc0d-a3af-9337-c897-2380062a8644@de.ibm.com>
  <20200624144311.GA5839@infradead.org>
  <9e767819-9bbe-2181-521e-4d8ca28ca4f7@de.ibm.com>
  <20200624160953.GH4332@42.do-not-panic.com>
@@ -13,54 +17,51 @@ References: <3118dc0d-a3af-9337-c897-2380062a8644@de.ibm.com>
  <4d8fbcea-a892-3453-091f-d57c03f9aa90@de.ibm.com>
  <1263e370-7cee-24d8-b98c-117bf7c90a83@de.ibm.com>
  <20200626025410.GJ4332@42.do-not-panic.com>
- <feb6a8c4-2b94-3f95-6637-679e089a71ca@de.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <feb6a8c4-2b94-3f95-6637-679e089a71ca@de.ibm.com>
+Date: Fri, 26 Jun 2020 07:22:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <feb6a8c4-2b94-3f95-6637-679e089a71ca@de.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200626025410.GJ4332@42.do-not-panic.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Luis Chamberlain <mcgrof@kernel.org>, Christoph Hellwig <hch@infradead.org>, ast@kernel.org, axboe@kernel.dk, bfields@fieldses.org, bridge@lists.linux-foundation.org, chainsaw@gentoo.org, christian.brauner@ubuntu.com, chuck.lever@oracle.com, davem@davemloft.net, dhowells@redhat.com, gregkh@linuxfoundation.org, jarkko.sakkinen@linux.intel.com, jmorris@namei.org, josh@joshtriplett.org, keescook@chromium.org, keyrings@vger.kernel.org, kuba@kernel.org, lars.ellenberg@linbit.com, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, nikolay@cumulusnetworks.com, philipp.reisner@linbit.com, ravenexp@gmail.com, roopa@cumulusnetworks.com, serge@hallyn.com, slyfox@gentoo.org, viro@zeniv.linux.org.uk, yangtiezhu@loongson.cn, netdev@vger.kernel.org, markward@linux.ibm.com, linux-s390 <linux-s390@vger.kernel.org>
+To: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Christoph Hellwig <hch@infradead.org>, ast@kernel.org, axboe@kernel.dk, bfields@fieldses.org, bridge@lists.linux-foundation.org, chainsaw@gentoo.org, christian.brauner@ubuntu.com, chuck.lever@oracle.com, davem@davemloft.net, dhowells@redhat.com, gregkh@linuxfoundation.org, jarkko.sakkinen@linux.intel.com, jmorris@namei.org, josh@joshtriplett.org, keescook@chromium.org, keyrings@vger.kernel.org, kuba@kernel.org, lars.ellenberg@linbit.com, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, linux-nfs@vger.kernel.org, linux-security-module@vger.kernel.org, nikolay@cumulusnetworks.com, philipp.reisner@linbit.com, ravenexp@gmail.com, roopa@cumulusnetworks.com, serge@hallyn.com, slyfox@gentoo.org, viro@zeniv.linux.org.uk, yangtiezhu@loongson.cn, netdev@vger.kernel.org, markward@linux.ibm.com, linux-s390 <linux-s390@vger.kernel.org>
 
-On Fri, Jun 26, 2020 at 07:22:34AM +0200, Christian Borntraeger wrote:
-> 
-> 
-> On 26.06.20 04:54, Luis Chamberlain wrote:
-> > On Wed, Jun 24, 2020 at 08:37:55PM +0200, Christian Borntraeger wrote:
-> >>
-> >>
-> >> On 24.06.20 20:32, Christian Borntraeger wrote:
-> >> [...]> 
-> >>> So the translations look correct. But your change is actually a sematic change
-> >>> if(ret) will only trigger if there is an error
-> >>> if (KWIFEXITED(ret)) will always trigger when the process ends. So we will always overwrite -ECHILD
-> >>> and we did not do it before. 
-> >>>
-> >>
-> >> So the right fix is
-> >>
-> >> diff --git a/kernel/umh.c b/kernel/umh.c
-> >> index f81e8698e36e..a3a3196e84d1 100644
-> >> --- a/kernel/umh.c
-> >> +++ b/kernel/umh.c
-> >> @@ -154,7 +154,7 @@ static void call_usermodehelper_exec_sync(struct subprocess_info *sub_info)
-> >>                  * the real error code is already in sub_info->retval or
-> >>                  * sub_info->retval is 0 anyway, so don't mess with it then.
-> >>                  */
-> >> -               if (KWIFEXITED(ret))
-> >> +               if (KWEXITSTATUS(ret))
-> >>                         sub_info->retval = KWEXITSTATUS(ret);
-> >>         }
-> >>  
-> >> I think.
-> > 
-> > Nope, the right form is to check for WIFEXITED() before using WEXITSTATUS().
-> 
-> But this IS a change over the previous code, no?
-> I will test next week as I am travelling right now. 
 
-I'm all for reverting back to the previous behavior.  If someone wants
-a behavior change it should be a separate patch.  And out of pure self
-interest I'd like to see that change after my addition of the
-kernel_wait helper to replace the kernel_wait4 abuse :)
+
+On 26.06.20 04:54, Luis Chamberlain wrote:
+> On Wed, Jun 24, 2020 at 08:37:55PM +0200, Christian Borntraeger wrote:
+>>
+>>
+>> On 24.06.20 20:32, Christian Borntraeger wrote:
+>> [...]> 
+>>> So the translations look correct. But your change is actually a sematic change
+>>> if(ret) will only trigger if there is an error
+>>> if (KWIFEXITED(ret)) will always trigger when the process ends. So we will always overwrite -ECHILD
+>>> and we did not do it before. 
+>>>
+>>
+>> So the right fix is
+>>
+>> diff --git a/kernel/umh.c b/kernel/umh.c
+>> index f81e8698e36e..a3a3196e84d1 100644
+>> --- a/kernel/umh.c
+>> +++ b/kernel/umh.c
+>> @@ -154,7 +154,7 @@ static void call_usermodehelper_exec_sync(struct subprocess_info *sub_info)
+>>                  * the real error code is already in sub_info->retval or
+>>                  * sub_info->retval is 0 anyway, so don't mess with it then.
+>>                  */
+>> -               if (KWIFEXITED(ret))
+>> +               if (KWEXITSTATUS(ret))
+>>                         sub_info->retval = KWEXITSTATUS(ret);
+>>         }
+>>  
+>> I think.
+> 
+> Nope, the right form is to check for WIFEXITED() before using WEXITSTATUS().
+
+But this IS a change over the previous code, no?
+I will test next week as I am travelling right now. 
