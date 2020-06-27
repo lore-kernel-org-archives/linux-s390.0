@@ -1,188 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48146 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387797AbgF2Tkk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:40:40 -0400
+        with ESMTP id S1726065AbgF0H1p (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Jun 2020 03:27:45 -0400
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 18/20] block: refator submit_bio_noacct
-Date: Mon, 29 Jun 2020 21:39:45 +0200
-Message-Id: <20200629193947.2705954-19-hch@lst.de>
-In-Reply-To: <20200629193947.2705954-1-hch@lst.de>
-References: <20200629193947.2705954-1-hch@lst.de>
+Subject: [PATCH 3/5] exec: cleanup the count() function
+Date: Sat, 27 Jun 2020 09:27:02 +0200
+Message-Id: <20200627072704.2447163-4-hch@lst.de>
+In-Reply-To: <20200627072704.2447163-1-hch@lst.de>
+References: <20200627072704.2447163-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Split out a __submit_bio_noacct helper for the actual de-recursion
-algorithm, and simplify the loop by using a continue when we can't
-enter the queue for a bio.
+Remove the max argument as it is hard wired to MAX_ARG_STRINGS, and
+give the function a slightly less generic name.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- block/blk-core.c | 131 +++++++++++++++++++++++++----------------------
- 1 file changed, 71 insertions(+), 60 deletions(-)
+ fs/exec.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 1caeb01e127768..b82f48c86e6f7a 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1085,6 +1085,74 @@ static blk_qc_t do_make_request(struct bio *bio)
- 	return ret;
+diff --git a/fs/exec.c b/fs/exec.c
+index 4e5db0e35797a5..a5d91f8b1341d5 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -407,9 +407,9 @@ get_user_arg_ptr(const char __user *const __user *argv, int nr)
  }
  
-+/*
-+ * The loop in this function may be a bit non-obvious, and so deserves some
-+ * explanation:
-+ *
-+ *  - Before entering the loop, bio->bi_next is NULL (as all callers ensure
-+ *    that), so we have a list with a single bio.
-+ *  - We pretend that we have just taken it off a longer list, so we assign
-+ *    bio_list to a pointer to the bio_list_on_stack, thus initialising the
-+ *    bio_list of new bios to be added.  ->submit_bio() may indeed add some more
-+ *    bios through a recursive call to submit_bio_noacct.  If it did, we find a
-+ *    non-NULL value in bio_list and re-enter the loop from the top.
-+ *  - In this case we really did just take the bio of the top of the list (no
-+ *    pretending) and so remove it from bio_list, and call into ->submit_bio()
-+ *    again.
-+ *
-+ * bio_list_on_stack[0] contains bios submitted by the current ->submit_bio.
-+ * bio_list_on_stack[1] contains bios that were submitted before the current
-+ *	->submit_bio_bio, but that haven't been processed yet.
-+ */
-+static blk_qc_t __submit_bio_noacct(struct bio *bio)
-+{
-+	struct bio_list bio_list_on_stack[2];
-+	blk_qc_t ret = BLK_QC_T_NONE;
-+
-+	BUG_ON(bio->bi_next);
-+
-+	bio_list_init(&bio_list_on_stack[0]);
-+	current->bio_list = bio_list_on_stack;
-+
-+	do {
-+		struct request_queue *q = bio->bi_disk->queue;
-+		struct bio_list lower, same;
-+
-+		if (unlikely(bio_queue_enter(bio) != 0))
-+			continue;
-+
-+		/*
-+		 * Create a fresh bio_list for all subordinate requests.
-+		 */
-+		bio_list_on_stack[1] = bio_list_on_stack[0];
-+		bio_list_init(&bio_list_on_stack[0]);
-+
-+		ret = do_make_request(bio);
-+
-+		/*
-+		 * Sort new bios into those for a lower level and those for the
-+		 * same level.
-+		 */
-+		bio_list_init(&lower);
-+		bio_list_init(&same);
-+		while ((bio = bio_list_pop(&bio_list_on_stack[0])) != NULL)
-+			if (q == bio->bi_disk->queue)
-+				bio_list_add(&same, bio);
-+			else
-+				bio_list_add(&lower, bio);
-+
-+		/*
-+		 * Now assemble so we handle the lowest level first.
-+		 */
-+		bio_list_merge(&bio_list_on_stack[0], &lower);
-+		bio_list_merge(&bio_list_on_stack[0], &same);
-+		bio_list_merge(&bio_list_on_stack[0], &bio_list_on_stack[1]);
-+	} while ((bio = bio_list_pop(&bio_list_on_stack[0])));
-+
-+	current->bio_list = NULL;
-+	return ret;
-+}
-+
- /**
-  * submit_bio_noacct - re-submit a bio to the block device layer for I/O
-  * @bio:  The bio describing the location in memory and on the device.
-@@ -1096,17 +1164,8 @@ static blk_qc_t do_make_request(struct bio *bio)
+ /*
+- * count() counts the number of strings in array ARGV.
++ * count_strings() counts the number of strings in array ARGV.
   */
- blk_qc_t submit_bio_noacct(struct bio *bio)
+-static int count(const char __user *const __user *argv, int max)
++static int count_strings(const char __user *const __user *argv)
  {
--	/*
--	 * bio_list_on_stack[0] contains bios submitted by the current
--	 * ->submit_bio.
--	 * bio_list_on_stack[1] contains bios that were submitted before the
--	 * current ->submit_bio_bio, but that haven't been processed yet.
--	 */
--	struct bio_list bio_list_on_stack[2];
--	blk_qc_t ret = BLK_QC_T_NONE;
--
- 	if (!submit_bio_checks(bio))
--		goto out;
-+		return BLK_QC_T_NONE;
+ 	int i = 0;
  
- 	/*
- 	 * We only want one ->submit_bio to be active at a time, else
-@@ -1120,58 +1179,10 @@ blk_qc_t submit_bio_noacct(struct bio *bio)
- 	 */
- 	if (current->bio_list) {
- 		bio_list_add(&current->bio_list[0], bio);
--		goto out;
-+		return BLK_QC_T_NONE;
- 	}
+@@ -423,7 +423,7 @@ static int count(const char __user *const __user *argv, int max)
+ 			if (IS_ERR(p))
+ 				return -EFAULT;
  
--	/* following loop may be a bit non-obvious, and so deserves some
--	 * explanation.
--	 * Before entering the loop, bio->bi_next is NULL (as all callers
--	 * ensure that) so we have a list with a single bio.
--	 * We pretend that we have just taken it off a longer list, so
--	 * we assign bio_list to a pointer to the bio_list_on_stack,
--	 * thus initialising the bio_list of new bios to be
--	 * added.  ->submit_bio() may indeed add some more bios
--	 * through a recursive call to submit_bio_noacct.  If it
--	 * did, we find a non-NULL value in bio_list and re-enter the loop
--	 * from the top.  In this case we really did just take the bio
--	 * of the top of the list (no pretending) and so remove it from
--	 * bio_list, and call into ->submit_bio() again.
--	 */
--	BUG_ON(bio->bi_next);
--	bio_list_init(&bio_list_on_stack[0]);
--	current->bio_list = bio_list_on_stack;
--	do {
--		struct request_queue *q = bio->bi_disk->queue;
--
--		if (likely(bio_queue_enter(bio) == 0)) {
--			struct bio_list lower, same;
--
--			/* Create a fresh bio_list for all subordinate requests */
--			bio_list_on_stack[1] = bio_list_on_stack[0];
--			bio_list_init(&bio_list_on_stack[0]);
--			ret = do_make_request(bio);
--
--			/* sort new bios into those for a lower level
--			 * and those for the same level
--			 */
--			bio_list_init(&lower);
--			bio_list_init(&same);
--			while ((bio = bio_list_pop(&bio_list_on_stack[0])) != NULL)
--				if (q == bio->bi_disk->queue)
--					bio_list_add(&same, bio);
--				else
--					bio_list_add(&lower, bio);
--			/* now assemble so we handle the lowest level first */
--			bio_list_merge(&bio_list_on_stack[0], &lower);
--			bio_list_merge(&bio_list_on_stack[0], &same);
--			bio_list_merge(&bio_list_on_stack[0], &bio_list_on_stack[1]);
--		}
--		bio = bio_list_pop(&bio_list_on_stack[0]);
--	} while (bio);
--	current->bio_list = NULL; /* deactivate */
--
--out:
--	return ret;
-+	return __submit_bio_noacct(bio);
- }
- EXPORT_SYMBOL(submit_bio_noacct);
+-			if (i >= max)
++			if (i >= MAX_ARG_STRINGS)
+ 				return -E2BIG;
+ 			++i;
+ 
+@@ -441,11 +441,11 @@ static int prepare_arg_pages(struct linux_binprm *bprm,
+ {
+ 	unsigned long limit, ptr_size;
+ 
+-	bprm->argc = count(argv, MAX_ARG_STRINGS);
++	bprm->argc = count_strings(argv);
+ 	if (bprm->argc < 0)
+ 		return bprm->argc;
+ 
+-	bprm->envc = count(envp, MAX_ARG_STRINGS);
++	bprm->envc = count_strings(envp);
+ 	if (bprm->envc < 0)
+ 		return bprm->envc;
  
 -- 
 2.26.2
