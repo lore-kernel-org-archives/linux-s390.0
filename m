@@ -1,117 +1,198 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:65326 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729196AbgFVPqw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 22 Jun 2020 11:46:52 -0400
-From: Collin Walling <walling@linux.ibm.com>
-Subject: [PATCH v9 0/2] Use DIAG318 to set Control Program Name & Version Codes
-Date: Mon, 22 Jun 2020 11:46:34 -0400
-Message-Id: <20200622154636.5499-1-walling@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:40222 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725850AbgF0OgP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 27 Jun 2020 10:36:15 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH 8/8] mm: move p?d_alloc_track to separate header file
+Date: Sat, 27 Jun 2020 17:34:53 +0300
+Message-Id: <20200627143453.31835-9-rppt@kernel.org>
+In-Reply-To: <20200627143453.31835-1-rppt@kernel.org>
+References: <20200627143453.31835-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: pbonzini@redhat.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, thuth@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: Abdul Haleem <abdhalee@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Joerg Roedel <joro@8bytes.org>, Max Filippov <jcmvbkbc@gmail.com>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>, Stafford Horne <shorne@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Steven Rostedt <rostedt@goodmis.org>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
 
-Changelog:
+From: Joerg Roedel <jroedel@suse.de>
 
-    v9
+The functions are only used in two source files, both residing in mm/
+subdirectory, so there is no need for them to be in the global <linux/mm.h>
+header.  Move them to the new mm/pgalloc-track.h header and include it only
+where needed.
 
-    • No longer unshadowing CPNC in VSIE
+[rppt: mv include/linux/pgalloc-track.h mm/]
 
-    v8
+Link: http://lkml.kernel.org/r/20200609120533.25867-1-joro@8bytes.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Abdul Haleem <abdhalee@linux.vnet.ibm.com>
+Cc: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ include/linux/mm.h | 45 ----------------------------------------
+ mm/ioremap.c       |  2 ++
+ mm/pgalloc-track.h | 51 ++++++++++++++++++++++++++++++++++++++++++++++
+ mm/vmalloc.c       |  1 +
+ 4 files changed, 54 insertions(+), 45 deletions(-)
+ create mode 100644 mm/pgalloc-track.h
 
-    • Reset is handled in KVM during initial and clear resets
-    • Sync/Store register handling
-    • Removed device IOCTL code
-    • Added KVM Capability for DIAG318
-        - this is for determining if the CPU model can enable this feature
-    • Reverted changes introduced by bullet 3 in v7
-    • Unshadowing CPNC again, as it makes sense if the guest executing in
-        VSIE sets a unique name/version code; this data should be preserved
-        - reverts bullet 4 in v3 [removed in v9]
-    • Diag318 is no longer reported via VM or CPU events
-        - no place to put this such that the messages aren't flooding the logs
-        - not necessary, as this data is primarily for IBM hardware/firmware
-            service events, and is observable via such events (e.g. CPU ring
-            dump)
-        - was nice for testing purposes
-    • A copy of the diag318 info (name & version code) is now stored in
-        the kvm_vcpu_arch struct, as opposed to the kvm_arch struct
-
-    v7
-
-    • Removed diag handler, as it will now take place within userspace
-    • Removed KVM_S390_VM_MISC_ENABLE_DIAG318 (undoes first bullet in v6)
-    • Misc clean ups and fixes [removed in v8]
-        - introduced a new patch to s/diag318/diag_318 and s/byte_134/fac134
-          to keep things consistent with the rest of the code
-
-    v6
-
-    • KVM disables diag318 get/set by default [removed in v7]
-    • added new IOCTL to tell KVM to enable diag318 [removed in v7]
-    • removed VCPU event message in favor of VM_EVENT only [removed in v8]
-
-    v5
-    
-    • s/cpc/diag318_info in order to make the relevant data more clear
-    • removed mutex locks for diag318_info get/set
-
-    v4
-    
-    • removed setup.c changes introduced in bullet 1 of v3
-    • kept diag318_info struct cleanup
-    • analogous QEMU patches:
-        https://lists.gnu.org/archive/html/qemu-devel/2019-05/msg00164.html
-
-    v3
-    
-    • kernel patch for diag 0x318 instruction call fixup [removed in v4]
-    • removed CPU model code
-    • cleaned up diag318_info struct
-    • cpnc is no longer unshadowed as it was not needed [removed in v8]
-    • rebased on 5.1.0-rc3
-
--------------------------------------------------------------------------------
-
-This instruction call is executed once-and-only-once during Kernel setup.
-The availability of this instruction depends on Read Info byte 134 (aka fac134),
-bit 0.
-
-DIAG 0x318's is handled by userspace and may be enabled for a guest even if the
-host kernel cannot support it.
-
-The diag318_info is composed of a Control Program Name Code (CPNC) and a
-Control Program Version Code (CPVC). The CPNC is stored in the SIE block, and
-the CPNC & CPVC pair is stored in the kvm_vcpu_arch struct. 
-
-These values are used for problem diagnosis and allows IBM to identify control
-program information by answering the following question:
-
-    "What environment is this guest running in?" (CPNC)
-    "What are more details regarding the OS?" (CPVC)
-
-In the future, we will implement the CPVC to convey more information about the 
-OS (such as Linux version and potentially some value denoting a specific 
-distro + release). For now, we set this field to 0 until we come up with a solid 
-plan.
-
-Collin Walling (2):
-  s390/setup: diag 318: refactor struct
-  s390/kvm: diagnose 0x318 sync and reset
-
- arch/s390/include/asm/diag.h     |  6 ++----
- arch/s390/include/asm/kvm_host.h |  4 +++-
- arch/s390/include/uapi/asm/kvm.h |  5 ++++-
- arch/s390/kernel/setup.c         |  3 +--
- arch/s390/kvm/kvm-s390.c         | 11 ++++++++++-
- arch/s390/kvm/vsie.c             |  1 +
- include/uapi/linux/kvm.h         |  1 +
- 7 files changed, 22 insertions(+), 9 deletions(-)
-
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index dc7b87310c10..5e878a3c7c57 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2093,51 +2093,11 @@ static inline pud_t *pud_alloc(struct mm_struct *mm, p4d_t *p4d,
+ 		NULL : pud_offset(p4d, address);
+ }
+ 
+-static inline p4d_t *p4d_alloc_track(struct mm_struct *mm, pgd_t *pgd,
+-				     unsigned long address,
+-				     pgtbl_mod_mask *mod_mask)
+-
+-{
+-	if (unlikely(pgd_none(*pgd))) {
+-		if (__p4d_alloc(mm, pgd, address))
+-			return NULL;
+-		*mod_mask |= PGTBL_PGD_MODIFIED;
+-	}
+-
+-	return p4d_offset(pgd, address);
+-}
+-
+-static inline pud_t *pud_alloc_track(struct mm_struct *mm, p4d_t *p4d,
+-				     unsigned long address,
+-				     pgtbl_mod_mask *mod_mask)
+-{
+-	if (unlikely(p4d_none(*p4d))) {
+-		if (__pud_alloc(mm, p4d, address))
+-			return NULL;
+-		*mod_mask |= PGTBL_P4D_MODIFIED;
+-	}
+-
+-	return pud_offset(p4d, address);
+-}
+-
+ static inline pmd_t *pmd_alloc(struct mm_struct *mm, pud_t *pud, unsigned long address)
+ {
+ 	return (unlikely(pud_none(*pud)) && __pmd_alloc(mm, pud, address))?
+ 		NULL: pmd_offset(pud, address);
+ }
+-
+-static inline pmd_t *pmd_alloc_track(struct mm_struct *mm, pud_t *pud,
+-				     unsigned long address,
+-				     pgtbl_mod_mask *mod_mask)
+-{
+-	if (unlikely(pud_none(*pud))) {
+-		if (__pmd_alloc(mm, pud, address))
+-			return NULL;
+-		*mod_mask |= PGTBL_PUD_MODIFIED;
+-	}
+-
+-	return pmd_offset(pud, address);
+-}
+ #endif /* CONFIG_MMU */
+ 
+ #if USE_SPLIT_PTE_PTLOCKS
+@@ -2253,11 +2213,6 @@ static inline void pgtable_pte_page_dtor(struct page *page)
+ 	((unlikely(pmd_none(*(pmd))) && __pte_alloc_kernel(pmd))? \
+ 		NULL: pte_offset_kernel(pmd, address))
+ 
+-#define pte_alloc_kernel_track(pmd, address, mask)			\
+-	((unlikely(pmd_none(*(pmd))) &&					\
+-	  (__pte_alloc_kernel(pmd) || ({*(mask)|=PGTBL_PMD_MODIFIED;0;})))?\
+-		NULL: pte_offset_kernel(pmd, address))
+-
+ #if USE_SPLIT_PMD_PTLOCKS
+ 
+ static struct page *pmd_to_page(pmd_t *pmd)
+diff --git a/mm/ioremap.c b/mm/ioremap.c
+index 5ee3526f71b8..5fa1ab41d152 100644
+--- a/mm/ioremap.c
++++ b/mm/ioremap.c
+@@ -13,6 +13,8 @@
+ #include <linux/export.h>
+ #include <asm/cacheflush.h>
+ 
++#include "pgalloc-track.h"
++
+ #ifdef CONFIG_HAVE_ARCH_HUGE_VMAP
+ static int __read_mostly ioremap_p4d_capable;
+ static int __read_mostly ioremap_pud_capable;
+diff --git a/mm/pgalloc-track.h b/mm/pgalloc-track.h
+new file mode 100644
+index 000000000000..1dcc865029a2
+--- /dev/null
++++ b/mm/pgalloc-track.h
+@@ -0,0 +1,51 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_PGALLLC_TRACK_H
++#define _LINUX_PGALLLC_TRACK_H
++
++#if defined(CONFIG_MMU)
++static inline p4d_t *p4d_alloc_track(struct mm_struct *mm, pgd_t *pgd,
++				     unsigned long address,
++				     pgtbl_mod_mask *mod_mask)
++{
++	if (unlikely(pgd_none(*pgd))) {
++		if (__p4d_alloc(mm, pgd, address))
++			return NULL;
++		*mod_mask |= PGTBL_PGD_MODIFIED;
++	}
++
++	return p4d_offset(pgd, address);
++}
++
++static inline pud_t *pud_alloc_track(struct mm_struct *mm, p4d_t *p4d,
++				     unsigned long address,
++				     pgtbl_mod_mask *mod_mask)
++{
++	if (unlikely(p4d_none(*p4d))) {
++		if (__pud_alloc(mm, p4d, address))
++			return NULL;
++		*mod_mask |= PGTBL_P4D_MODIFIED;
++	}
++
++	return pud_offset(p4d, address);
++}
++
++static inline pmd_t *pmd_alloc_track(struct mm_struct *mm, pud_t *pud,
++				     unsigned long address,
++				     pgtbl_mod_mask *mod_mask)
++{
++	if (unlikely(pud_none(*pud))) {
++		if (__pmd_alloc(mm, pud, address))
++			return NULL;
++		*mod_mask |= PGTBL_PUD_MODIFIED;
++	}
++
++	return pmd_offset(pud, address);
++}
++#endif /* CONFIG_MMU */
++
++#define pte_alloc_kernel_track(pmd, address, mask)			\
++	((unlikely(pmd_none(*(pmd))) &&					\
++	  (__pte_alloc_kernel(pmd) || ({*(mask)|=PGTBL_PMD_MODIFIED;0;})))?\
++		NULL: pte_offset_kernel(pmd, address))
++
++#endif /* _LINUX_PGALLLC_TRACK_H */
+diff --git a/mm/vmalloc.c b/mm/vmalloc.c
+index 5a2b55c8dd9a..5be3cf3b59de 100644
+--- a/mm/vmalloc.c
++++ b/mm/vmalloc.c
+@@ -41,6 +41,7 @@
+ #include <asm/shmparam.h>
+ 
+ #include "internal.h"
++#include "pgalloc-track.h"
+ 
+ bool is_vmalloc_addr(const void *x)
+ {
 -- 
 2.26.2
