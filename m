@@ -1,125 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:59246 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729036AbgFHXMD (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 8 Jun 2020 19:12:03 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 271/274] s390/bpf: Maintain 8-byte stack alignment
-Date: Mon,  8 Jun 2020 19:06:04 -0400
-Message-Id: <20200608230607.3361041-271-sashal@kernel.org>
-In-Reply-To: <20200608230607.3361041-1-sashal@kernel.org>
-References: <20200608230607.3361041-1-sashal@kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44620 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725907AbgF0VXj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Jun 2020 17:23:39 -0400
+Date: Sun, 28 Jun 2020 06:23:35 +0900
+From: Stafford Horne <shorne@gmail.com>
+Subject: Re: [PATCH 2/8] opeinrisc: switch to generic version of pte
+ allocation
+Message-ID: <20200627212335.GJ1401039@lianli.shorne-pla.net>
+References: <20200627143453.31835-1-rppt@kernel.org>
+ <20200627143453.31835-3-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200627143453.31835-3-rppt@kernel.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Daniel Borkmann <daniel@iogearbox.net>, Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org
+To: Mike Rapoport <rppt@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Joerg Roedel <joro@8bytes.org>, Max Filippov <jcmvbkbc@gmail.com>, Mike Rapoport <rppt@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Steven Rostedt <rostedt@goodmis.org>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+On Sat, Jun 27, 2020 at 05:34:47PM +0300, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> Replace pte_alloc_one(), pte_free() and pte_free_kernel() with the generic
+> implementation. The only actual functional change is the addition of
+> __GFP_ACCOUT for the allocation of the user page tables.
+> 
+> The pte_alloc_one_kernel() is kept back because its implementation on
+> openrisc is different than the generic one.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 
-[ Upstream commit effe5be17706167ee968fa28afe40dec9c6f71db ]
+Thank's for this.
 
-Certain kernel functions (e.g. get_vtimer/set_vtimer) cause kernel
-panic when the stack is not 8-byte aligned. Currently JITed BPF programs
-may trigger this by allocating stack frames with non-rounded sizes and
-then being interrupted. Fix by using rounded fp->aux->stack_depth.
-
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20200602174339.2501066-1-iii@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/net/bpf_jit_comp.c | 19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
-
-diff --git a/arch/s390/net/bpf_jit_comp.c b/arch/s390/net/bpf_jit_comp.c
-index 8d2134136290..0f37a1b635f8 100644
---- a/arch/s390/net/bpf_jit_comp.c
-+++ b/arch/s390/net/bpf_jit_comp.c
-@@ -594,7 +594,7 @@ static void bpf_jit_epilogue(struct bpf_jit *jit, u32 stack_depth)
-  * stack space for the large switch statement.
-  */
- static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
--				 int i, bool extra_pass)
-+				 int i, bool extra_pass, u32 stack_depth)
- {
- 	struct bpf_insn *insn = &fp->insnsi[i];
- 	u32 dst_reg = insn->dst_reg;
-@@ -1207,7 +1207,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
- 		 */
- 
- 		if (jit->seen & SEEN_STACK)
--			off = STK_OFF_TCCNT + STK_OFF + fp->aux->stack_depth;
-+			off = STK_OFF_TCCNT + STK_OFF + stack_depth;
- 		else
- 			off = STK_OFF_TCCNT;
- 		/* lhi %w0,1 */
-@@ -1249,7 +1249,7 @@ static noinline int bpf_jit_insn(struct bpf_jit *jit, struct bpf_prog *fp,
- 		/*
- 		 * Restore registers before calling function
- 		 */
--		save_restore_regs(jit, REGS_RESTORE, fp->aux->stack_depth);
-+		save_restore_regs(jit, REGS_RESTORE, stack_depth);
- 
- 		/*
- 		 * goto *(prog->bpf_func + tail_call_start);
-@@ -1519,7 +1519,7 @@ static int bpf_set_addr(struct bpf_jit *jit, int i)
-  * Compile eBPF program into s390x code
-  */
- static int bpf_jit_prog(struct bpf_jit *jit, struct bpf_prog *fp,
--			bool extra_pass)
-+			bool extra_pass, u32 stack_depth)
- {
- 	int i, insn_count, lit32_size, lit64_size;
- 
-@@ -1527,18 +1527,18 @@ static int bpf_jit_prog(struct bpf_jit *jit, struct bpf_prog *fp,
- 	jit->lit64 = jit->lit64_start;
- 	jit->prg = 0;
- 
--	bpf_jit_prologue(jit, fp->aux->stack_depth);
-+	bpf_jit_prologue(jit, stack_depth);
- 	if (bpf_set_addr(jit, 0) < 0)
- 		return -1;
- 	for (i = 0; i < fp->len; i += insn_count) {
--		insn_count = bpf_jit_insn(jit, fp, i, extra_pass);
-+		insn_count = bpf_jit_insn(jit, fp, i, extra_pass, stack_depth);
- 		if (insn_count < 0)
- 			return -1;
- 		/* Next instruction address */
- 		if (bpf_set_addr(jit, i + insn_count) < 0)
- 			return -1;
- 	}
--	bpf_jit_epilogue(jit, fp->aux->stack_depth);
-+	bpf_jit_epilogue(jit, stack_depth);
- 
- 	lit32_size = jit->lit32 - jit->lit32_start;
- 	lit64_size = jit->lit64 - jit->lit64_start;
-@@ -1569,6 +1569,7 @@ struct s390_jit_data {
-  */
- struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
- {
-+	u32 stack_depth = round_up(fp->aux->stack_depth, 8);
- 	struct bpf_prog *tmp, *orig_fp = fp;
- 	struct bpf_binary_header *header;
- 	struct s390_jit_data *jit_data;
-@@ -1621,7 +1622,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
- 	 *   - 3:   Calculate program size and addrs arrray
- 	 */
- 	for (pass = 1; pass <= 3; pass++) {
--		if (bpf_jit_prog(&jit, fp, extra_pass)) {
-+		if (bpf_jit_prog(&jit, fp, extra_pass, stack_depth)) {
- 			fp = orig_fp;
- 			goto free_addrs;
- 		}
-@@ -1635,7 +1636,7 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *fp)
- 		goto free_addrs;
- 	}
- skip_init_ctx:
--	if (bpf_jit_prog(&jit, fp, extra_pass)) {
-+	if (bpf_jit_prog(&jit, fp, extra_pass, stack_depth)) {
- 		bpf_jit_binary_free(header);
- 		fp = orig_fp;
- 		goto free_addrs;
--- 
-2.25.1
+Acked-by: Stafford Horne <shorne@gmail.com>
