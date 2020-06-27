@@ -1,69 +1,62 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.17.22]:52029 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbgF0MzI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 27 Jun 2020 08:55:08 -0400
-From: Oscar Carter <oscar.carter@gmx.com>
-Subject: [PATCH] drivers/s390/char/tty3270: Remove function callback casts
-Date: Sat, 27 Jun 2020 14:54:17 +0200
-Message-Id: <20200627125417.18887-1-oscar.carter@gmx.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH 7/8] mm: move lib/ioremap.c to mm/
+Date: Sat, 27 Jun 2020 17:34:52 +0300
+Message-Id: <20200627143453.31835-8-rppt@kernel.org>
+In-Reply-To: <20200627143453.31835-1-rppt@kernel.org>
+References: <20200627143453.31835-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Kees Cook <keescook@chromium.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: kernel-hardening@lists.openwall.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Oscar Carter <oscar.carter@gmx.com>
+To: linux-kernel@vger.kernel.org
+Cc: Abdul Haleem <abdhalee@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Joerg Roedel <joro@8bytes.org>, Max Filippov <jcmvbkbc@gmail.com>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>, Stafford Horne <shorne@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Steven Rostedt <rostedt@goodmis.org>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org
 
-In an effort to enable -Wcast-function-type in the top-level Makefile to
-support Control Flow Integrity builds, remove all the function callback
-casts.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-To do this modify the function prototypes accordingly.
+The functionality in lib/ioremap.c deals with pagetables, vmalloc and
+caches, so it naturally belongs to mm/
+Moving it there will also allow declaring p?d_alloc_track functions in an
+header file inside mm/ rather than having those declarations in
+include/linux/mm.h
 
-Signed-off-by: Oscar Carter <oscar.carter@gmx.com>
-=2D--
- drivers/s390/char/tty3270.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Suggested-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ lib/Makefile          | 1 -
+ mm/Makefile           | 2 +-
+ {lib => mm}/ioremap.c | 0
+ 3 files changed, 1 insertion(+), 2 deletions(-)
+ rename {lib => mm}/ioremap.c (100%)
 
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index 98d7fc152e32..aec996de44d9 100644
-=2D-- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -556,8 +556,9 @@ tty3270_scroll_backward(struct kbd_data *kbd)
-  * Pass input line to tty.
-  */
- static void
--tty3270_read_tasklet(struct raw3270_request *rrq)
-+tty3270_read_tasklet(unsigned long data)
- {
-+	struct raw3270_request *rrq =3D (struct raw3270_request *)data;
- 	static char kreset_data =3D TW_KR;
- 	struct tty3270 *tp =3D container_of(rrq->view, struct tty3270, view);
- 	char *input;
-@@ -652,8 +653,9 @@ tty3270_issue_read(struct tty3270 *tp, int lock)
-  * Hang up the tty
-  */
- static void
--tty3270_hangup_tasklet(struct tty3270 *tp)
-+tty3270_hangup_tasklet(unsigned long data)
- {
-+	struct tty3270 *tp =3D (struct tty3270 *)data;
- 	tty_port_tty_hangup(&tp->port, true);
- 	raw3270_put_view(&tp->view);
- }
-@@ -752,11 +754,9 @@ tty3270_alloc_view(void)
-
- 	tty_port_init(&tp->port);
- 	timer_setup(&tp->timer, tty3270_update, 0);
--	tasklet_init(&tp->readlet,
--		     (void (*)(unsigned long)) tty3270_read_tasklet,
-+	tasklet_init(&tp->readlet, tty3270_read_tasklet,
- 		     (unsigned long) tp->read);
--	tasklet_init(&tp->hanglet,
--		     (void (*)(unsigned long)) tty3270_hangup_tasklet,
-+	tasklet_init(&tp->hanglet, tty3270_hangup_tasklet,
- 		     (unsigned long) tp);
- 	INIT_WORK(&tp->resize_work, tty3270_resize_work);
-
-=2D-
-2.20.1
+diff --git a/lib/Makefile b/lib/Makefile
+index b1c42c10073b..5f9384adde9c 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -37,7 +37,6 @@ lib-y := ctype.o string.o vsprintf.o cmdline.o \
+ 	 nmi_backtrace.o nodemask.o win_minmax.o memcat_p.o
+ 
+ lib-$(CONFIG_PRINTK) += dump_stack.o
+-lib-$(CONFIG_MMU) += ioremap.o
+ lib-$(CONFIG_SMP) += cpumask.o
+ 
+ lib-y	+= kobject.o klist.o
+diff --git a/mm/Makefile b/mm/Makefile
+index 6e9d46b2efc9..d5649f1c12c0 100644
+--- a/mm/Makefile
++++ b/mm/Makefile
+@@ -38,7 +38,7 @@ mmu-y			:= nommu.o
+ mmu-$(CONFIG_MMU)	:= highmem.o memory.o mincore.o \
+ 			   mlock.o mmap.o mmu_gather.o mprotect.o mremap.o \
+ 			   msync.o page_vma_mapped.o pagewalk.o \
+-			   pgtable-generic.o rmap.o vmalloc.o
++			   pgtable-generic.o rmap.o vmalloc.o ioremap.o
+ 
+ 
+ ifdef CONFIG_CROSS_MEMORY_ATTACH
+diff --git a/lib/ioremap.c b/mm/ioremap.c
+similarity index 100%
+rename from lib/ioremap.c
+rename to mm/ioremap.c
+-- 
+2.26.2
