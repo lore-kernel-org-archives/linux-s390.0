@@ -1,148 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:1508 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729284AbgFOJcN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jun 2020 05:32:13 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v9 11/12] s390x: css: msch, enable test
-Date: Mon, 15 Jun 2020 11:32:00 +0200
-Message-Id: <1592213521-19390-12-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
-References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:39300 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726678AbgF0Ofc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 27 Jun 2020 10:35:32 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH 3/8] xtensa: switch to generic version of pte allocation
+Date: Sat, 27 Jun 2020 17:34:48 +0300
+Message-Id: <20200627143453.31835-4-rppt@kernel.org>
+In-Reply-To: <20200627143453.31835-1-rppt@kernel.org>
+References: <20200627143453.31835-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: Abdul Haleem <abdhalee@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Joerg Roedel <joro@8bytes.org>, Max Filippov <jcmvbkbc@gmail.com>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>, Stafford Horne <shorne@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Steven Rostedt <rostedt@goodmis.org>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org
 
-A second step when testing the channel subsystem is to prepare a channel
-for use.
-This includes:
-- Get the current subchannel Information Block (SCHIB) using STSCH
-- Update it in memory to set the ENABLE bit
-- Tell the CSS that the SCHIB has been modified using MSCH
-- Get the SCHIB from the CSS again to verify that the subchannel is
-  enabled.
-- If the command succeeds but subchannel is not enabled retry a
-  predefined retries count.
-- If the command fails, report the failure and do not retry, even
-  if cc indicates a busy/status pending as we do not expect this.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-This tests the MSCH instruction to enable a channel succesfuly.
-This some retries are done and in case of error, and if the retries
-count is exceeded, a report is made.
+xtensa clears PTEs during allocation of the page tables and pte_clear()
+sets the PTE to a non-zero value. Splitting ptes_clear() helper out of
+pte_alloc_one() and pte_alloc_one_kernel() allows reuse of base generic
+allocation methods (__pte_alloc_one() and __pte_alloc_one_kernel()) and the
+common GFP mask for page table allocations.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+The pte_free() and pte_free_kernel() implementations on xtensa are
+identical to the generic ones and can be dropped.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- lib/s390x/css_lib.c | 60 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/css.c         | 15 ++++++++++++
- 2 files changed, 75 insertions(+)
+ arch/xtensa/include/asm/pgalloc.h | 41 ++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 22 deletions(-)
 
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index b0a0294..06a76db 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -15,6 +15,7 @@
- #include <string.h>
- #include <interrupt.h>
- #include <asm/arch_def.h>
-+#include <asm/time.h>
+diff --git a/arch/xtensa/include/asm/pgalloc.h b/arch/xtensa/include/asm/pgalloc.h
+index 1d38f0e755ba..60ee94b42850 100644
+--- a/arch/xtensa/include/asm/pgalloc.h
++++ b/arch/xtensa/include/asm/pgalloc.h
+@@ -8,9 +8,14 @@
+ #ifndef _XTENSA_PGALLOC_H
+ #define _XTENSA_PGALLOC_H
  
- #include <css.h>
++#ifdef CONFIG_MMU
+ #include <linux/highmem.h>
+ #include <linux/slab.h>
  
-@@ -68,3 +69,62 @@ out:
- 		    scn, scn_found, dev_found);
- 	return schid;
- }
++#define __HAVE_ARCH_PTE_ALLOC_ONE_KERNEL
++#define __HAVE_ARCH_PTE_ALLOC_ONE
++#include <asm-generic/pgalloc.h>
 +
-+int css_enable(int schid)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int retry_count = 0;
-+	int cc;
-+
-+	/* Read the SCHIB for this subchannel */
-+	cc = stsch(schid, &schib);
-+	if (cc) {
-+		report_info("stsch failed with cc=%d", cc);
-+		return cc;
-+	}
-+
-+	if (pmcw->flags & PMCW_ENABLE) {
-+		report_info("stsch: sch %08x already enabled", schid);
-+		return 0;
-+	}
-+
-+retry:
-+	/* Update the SCHIB to enable the channel */
-+	pmcw->flags |= PMCW_ENABLE;
-+
-+	/* Tell the CSS we want to modify the subchannel */
-+	cc = msch(schid, &schib);
-+	if (cc) {
-+		/*
-+		 * If the subchannel is status pending or
-+		 * if a function is in progress,
-+		 * we consider both cases as errors.
-+		 */
-+		report_info("msch failed with cc=%d", cc);
-+		return cc;
-+	}
-+
-+	/*
-+	 * Read the SCHIB again to verify the enablement
-+	 */
-+	cc = stsch(schid, &schib);
-+	if (cc) {
-+		report_info("stsch failed with cc=%d", cc);
-+		return cc;
-+	}
-+
-+	if (pmcw->flags & PMCW_ENABLE) {
-+		report_info("Subchannel %08x enabled after %d retries",
-+			    schid, retry_count);
-+		return 0;
-+	}
-+
-+	if (retry_count++ < MAX_ENABLE_RETRIES) {
-+		mdelay(10); /* the hardware was not ready, give it some time */
-+		goto retry;
-+	}
-+
-+	report_info("msch: enabling sch %08x failed after %d retries. pmcw flags: %x",
-+		    schid, retry_count, pmcw->flags);
-+	return -1;
-+}
-diff --git a/s390x/css.c b/s390x/css.c
-index 230adf5..6948d73 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -31,11 +31,26 @@ static void test_enumerate(void)
- 	report(0, "No I/O device found");
+ /*
+  * Allocating and freeing a pmd is trivial: the 1-entry pmd is
+  * inside the pgd, so has no extra memory associated with it.
+@@ -33,45 +38,37 @@ static inline void pgd_free(struct mm_struct *mm, pgd_t *pgd)
+ 	free_page((unsigned long)pgd);
  }
  
-+static void test_enable(void)
++static inline void ptes_clear(pte_t *ptep)
 +{
-+	int cc;
++	int i;
 +
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+
-+	cc = css_enable(test_device_sid);
-+
-+	report(cc == 0, "Enable subchannel %08x", test_device_sid);
++	for (i = 0; i < PTRS_PER_PTE; i++)
++		pte_clear(NULL, 0, ptep + i);
 +}
 +
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
-+	{ "enable (msch)", test_enable },
- 	{ NULL, NULL }
- };
+ static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm)
+ {
+ 	pte_t *ptep;
+-	int i;
  
+-	ptep = (pte_t *)__get_free_page(GFP_KERNEL);
++	ptep = (pte_t *)__pte_alloc_one_kernel(mm);
+ 	if (!ptep)
+ 		return NULL;
+-	for (i = 0; i < 1024; i++)
+-		pte_clear(NULL, 0, ptep + i);
++	ptes_clear(ptep);
+ 	return ptep;
+ }
+ 
+ static inline pgtable_t pte_alloc_one(struct mm_struct *mm)
+ {
+-	pte_t *pte;
+ 	struct page *page;
+ 
+-	pte = pte_alloc_one_kernel(mm);
+-	if (!pte)
+-		return NULL;
+-	page = virt_to_page(pte);
+-	if (!pgtable_pte_page_ctor(page)) {
+-		__free_page(page);
++	page = __pte_alloc_one(mm, GFP_PGTABLE_USER);
++	if (!page)
+ 		return NULL;
+-	}
++	ptes_clear(page_address(page));
+ 	return page;
+ }
+ 
+-static inline void pte_free_kernel(struct mm_struct *mm, pte_t *pte)
+-{
+-	free_page((unsigned long)pte);
+-}
+-
+-static inline void pte_free(struct mm_struct *mm, pgtable_t pte)
+-{
+-	pgtable_pte_page_dtor(pte);
+-	__free_page(pte);
+-}
+ #define pmd_pgtable(pmd) pmd_page(pmd)
++#endif CONFIG_MMU
+ 
+ #endif /* _XTENSA_PGALLOC_H */
 -- 
-2.25.1
+2.26.2
