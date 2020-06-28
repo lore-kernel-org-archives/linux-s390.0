@@ -1,117 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730924AbgFROq5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 18 Jun 2020 10:46:57 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 6/6] kernel: add a kernel_wait helper
-Date: Thu, 18 Jun 2020 16:46:27 +0200
-Message-Id: <20200618144627.114057-7-hch@lst.de>
-In-Reply-To: <20200618144627.114057-1-hch@lst.de>
-References: <20200618144627.114057-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:51372 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725975AbgF1HAM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 28 Jun 2020 03:00:12 -0400
+Date: Sun, 28 Jun 2020 09:59:51 +0300
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH 9/8] mm: Account PMD tables like PTE tables
+Message-ID: <20200628065951.GB576120@kernel.org>
+References: <20200627143453.31835-1-rppt@kernel.org>
+ <20200627184642.GF25039@casper.infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200627184642.GF25039@casper.infradead.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Matthew Wilcox <willy@infradead.org>
+Cc: linux-kernel@vger.kernel.org, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Joerg Roedel <joro@8bytes.org>, Max Filippov <jcmvbkbc@gmail.com>, Mike Rapoport <rppt@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>, Stafford Horne <shorne@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Steven Rostedt <rostedt@goodmis.org>, linux-alpha@vger.kernel.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-um@lists.infradead.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org
 
-Add a helper that waits for a pid and stores the status in the passed
-in kernel pointer.  Use it to fix the usage of kernel_wait4 in
-call_usermodehelper_exec_sync that only happens to work due to the
-implicit set_fs(KERNEL_DS) for kernel threads.
+On Sat, Jun 27, 2020 at 07:46:42PM +0100, Matthew Wilcox wrote:
+> We account the PTE level of the page tables to the process in order to
+> make smarter OOM decisions and help diagnose why memory is fragmented.
+> For these same reasons, we should account pages allocated for PMDs.
+> With larger process address spaces and ASLR, the number of PMDs in use
+> is higher than it used to be so the inaccuracy is starting to matter.
+> 
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/sched/task.h |  1 +
- kernel/exit.c              | 16 ++++++++++++++++
- kernel/umh.c               | 29 ++++-------------------------
- 3 files changed, 21 insertions(+), 25 deletions(-)
+Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
 
-diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-index 38359071236ad7..a80007df396e95 100644
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -102,6 +102,7 @@ struct task_struct *fork_idle(int);
- struct mm_struct *copy_init_mm(void);
- extern pid_t kernel_thread(int (*fn)(void *), void *arg, unsigned long flags);
- extern long kernel_wait4(pid_t, int __user *, int, struct rusage *);
-+int kernel_wait(pid_t pid, int *stat);
- 
- extern void free_task(struct task_struct *tsk);
- 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 727150f2810338..fd598846df0b17 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -1626,6 +1626,22 @@ long kernel_wait4(pid_t upid, int __user *stat_addr, int options,
- 	return ret;
- }
- 
-+int kernel_wait(pid_t pid, int *stat)
-+{
-+	struct wait_opts wo = {
-+		.wo_type	= PIDTYPE_PID,
-+		.wo_pid		= find_get_pid(pid),
-+		.wo_flags	= WEXITED,
-+	};
-+	int ret;
-+
-+	ret = do_wait(&wo);
-+	if (ret > 0 && wo.wo_stat)
-+		*stat = wo.wo_stat;
-+	put_pid(wo.wo_pid);
-+	return ret;
-+}
-+
- SYSCALL_DEFINE4(wait4, pid_t, upid, int __user *, stat_addr,
- 		int, options, struct rusage __user *, ru)
- {
-diff --git a/kernel/umh.c b/kernel/umh.c
-index 1284823dbad338..6fd948e478bec4 100644
---- a/kernel/umh.c
-+++ b/kernel/umh.c
-@@ -126,37 +126,16 @@ static void call_usermodehelper_exec_sync(struct subprocess_info *sub_info)
- {
- 	pid_t pid;
- 
--	/* If SIGCLD is ignored kernel_wait4 won't populate the status. */
-+	/* If SIGCLD is ignored do_wait won't populate the status. */
- 	kernel_sigaction(SIGCHLD, SIG_DFL);
- 	pid = kernel_thread(call_usermodehelper_exec_async, sub_info, SIGCHLD);
--	if (pid < 0) {
-+	if (pid < 0)
- 		sub_info->retval = pid;
--	} else {
--		int ret = -ECHILD;
--		/*
--		 * Normally it is bogus to call wait4() from in-kernel because
--		 * wait4() wants to write the exit code to a userspace address.
--		 * But call_usermodehelper_exec_sync() always runs as kernel
--		 * thread (workqueue) and put_user() to a kernel address works
--		 * OK for kernel threads, due to their having an mm_segment_t
--		 * which spans the entire address space.
--		 *
--		 * Thus the __user pointer cast is valid here.
--		 */
--		kernel_wait4(pid, (int __user *)&ret, 0, NULL);
--
--		/*
--		 * If ret is 0, either call_usermodehelper_exec_async failed and
--		 * the real error code is already in sub_info->retval or
--		 * sub_info->retval is 0 anyway, so don't mess with it then.
--		 */
--		if (ret)
--			sub_info->retval = ret;
--	}
-+	else
-+		kernel_wait(pid, &sub_info->retval);
- 
- 	/* Restore default kernel sig handler */
- 	kernel_sigaction(SIGCHLD, SIG_IGN);
--
- 	umh_complete(sub_info);
- }
- 
+> ---
+>  include/linux/mm.h | 24 ++++++++++++++++++++----
+>  1 file changed, 20 insertions(+), 4 deletions(-)
+> 
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index dc7b87310c10..b283e25fcffa 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -2271,7 +2271,7 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
+>  	return ptlock_ptr(pmd_to_page(pmd));
+>  }
+>  
+> -static inline bool pgtable_pmd_page_ctor(struct page *page)
+> +static inline bool pmd_ptlock_init(struct page *page)
+>  {
+>  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>  	page->pmd_huge_pte = NULL;
+> @@ -2279,7 +2279,7 @@ static inline bool pgtable_pmd_page_ctor(struct page *page)
+>  	return ptlock_init(page);
+>  }
+>  
+> -static inline void pgtable_pmd_page_dtor(struct page *page)
+> +static inline void pmd_ptlock_free(struct page *page)
+>  {
+>  #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>  	VM_BUG_ON_PAGE(page->pmd_huge_pte, page);
+> @@ -2296,8 +2296,8 @@ static inline spinlock_t *pmd_lockptr(struct mm_struct *mm, pmd_t *pmd)
+>  	return &mm->page_table_lock;
+>  }
+>  
+> -static inline bool pgtable_pmd_page_ctor(struct page *page) { return true; }
+> -static inline void pgtable_pmd_page_dtor(struct page *page) {}
+> +static inline bool pmd_ptlock_init(struct page *page) { return true; }
+> +static inline void pmd_ptlock_free(struct page *page) {}
+>  
+>  #define pmd_huge_pte(mm, pmd) ((mm)->pmd_huge_pte)
+>  
+> @@ -2310,6 +2310,22 @@ static inline spinlock_t *pmd_lock(struct mm_struct *mm, pmd_t *pmd)
+>  	return ptl;
+>  }
+>  
+> +static inline bool pgtable_pmd_page_ctor(struct page *page)
+> +{
+> +	if (!pmd_ptlock_init(page))
+> +		return false;
+> +	__SetPageTable(page);
+> +	inc_zone_page_state(page, NR_PAGETABLE);
+> +	return true;
+> +}
+> +
+> +static inline void pgtable_pmd_page_dtor(struct page *page)
+> +{
+> +	pmd_ptlock_free(page);
+> +	__ClearPageTable(page);
+> +	dec_zone_page_state(page, NR_PAGETABLE);
+> +}
+> +
+>  /*
+>   * No scalability reason to split PUD locks yet, but follow the same pattern
+>   * as the PMD locks to make it easier if we decide to.  The VM should not be
+> -- 
+> 2.27.0
+> 
+
 -- 
-2.26.2
+Sincerely yours,
+Mike.
