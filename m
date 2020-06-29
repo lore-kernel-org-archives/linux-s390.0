@@ -1,95 +1,41 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21022 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729079AbgFHINL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 04:13:11 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v8 03/12] s390x: saving regs for interrupts
-Date: Mon,  8 Jun 2020 10:12:52 +0200
-Message-Id: <1591603981-16879-4-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
-References: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48052 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730861AbgF2TkP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:40:15 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 04/20] null_blk: stop using ->queuedata for bio mode
+Date: Mon, 29 Jun 2020 21:39:31 +0200
+Message-Id: <20200629193947.2705954-5-hch@lst.de>
+In-Reply-To: <20200629193947.2705954-1-hch@lst.de>
+References: <20200629193947.2705954-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-If we use multiple source of interrupts, for example, using SCLP
-console to print information while using I/O interrupts, we need
-to have a re-entrant register saving interruption handling.
+Instead of setting up the queuedata as well just use one private data
+field.
 
-Instead of saving at a static memory address, let's save the base
-registers, the floating point registers and the floating point
-control register on the stack in case of I/O interrupts
-
-Note that we keep the static register saving to recover from the
-RESET tests.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- s390x/cstart64.S | 41 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
+ drivers/block/null_blk_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index b50c42c..a9d8223 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -119,6 +119,43 @@ memsetxc:
- 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
- 	.endm
+diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.c
+index 82259242b9b5c9..93ce0a00b2ae01 100644
+--- a/drivers/block/null_blk_main.c
++++ b/drivers/block/null_blk_main.c
+@@ -1392,7 +1392,7 @@ static blk_qc_t null_queue_bio(struct request_queue *q, struct bio *bio)
+ {
+ 	sector_t sector = bio->bi_iter.bi_sector;
+ 	sector_t nr_sectors = bio_sectors(bio);
+-	struct nullb *nullb = q->queuedata;
++	struct nullb *nullb = bio->bi_disk->private_data;
+ 	struct nullb_queue *nq = nullb_to_queue(nullb);
+ 	struct nullb_cmd *cmd;
  
-+/* Save registers on the stack (r15), so we can have stacked interrupts. */
-+	.macro SAVE_REGS_STACK
-+	/* Allocate a stack frame for 15 general registers */
-+	slgfi   %r15, 15 * 8
-+	/* Store registers r0 to r14 on the stack */
-+	stmg    %r0, %r14, 0(%r15)
-+	/* Allocate a stack frame for 16 floating point registers */
-+	/* The size of a FP register is the size of an double word */
-+	slgfi   %r15, 16 * 8
-+	/* Save fp register on stack: offset to SP is multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	std	\i, \i * 8(%r15)
-+	.endr
-+	/* Save fpc, but keep stack aligned on 64bits */
-+	slgfi   %r15, 8
-+	efpc	%r0
-+	stg	%r0, 0(%r15)
-+	.endm
-+
-+/* Restore the register in reverse order */
-+	.macro RESTORE_REGS_STACK
-+	/* Restore fpc */
-+	lfpc	0(%r15)
-+	algfi	%r15, 8
-+	/* Restore fp register from stack: SP still where it was left */
-+	/* and offset to SP is a multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	ld	\i, \i * 8(%r15)
-+	.endr
-+	/* Now that we're done, rewind the stack pointer by 16 double word */
-+	algfi   %r15, 16 * 8
-+	/* Load the registers from stack */
-+	lmg     %r0, %r14, 0(%r15)
-+	/* Rewind the stack by 15 double word */
-+	algfi   %r15, 15 * 8
-+	.endm
-+
- .section .text
- /*
-  * load_reset calling convention:
-@@ -186,9 +223,9 @@ mcck_int:
- 	lpswe	GEN_LC_MCCK_OLD_PSW
- 
- io_int:
--	SAVE_REGS
-+	SAVE_REGS_STACK
- 	brasl	%r14, handle_io_int
--	RESTORE_REGS
-+	RESTORE_REGS_STACK
- 	lpswe	GEN_LC_IO_OLD_PSW
- 
- svc_int:
 -- 
-2.25.1
+2.26.2
