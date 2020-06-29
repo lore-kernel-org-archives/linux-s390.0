@@ -1,95 +1,109 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48542 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727976AbgF2Smj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 29 Jun 2020 14:42:39 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 29 Jun 2020 17:18:09 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
  IOMMU feature
+Message-ID: <20200629171241-mutt-send-email-mst@kernel.org>
 References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
  <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
- <20200618002956.5f179de4.pasic@linux.ibm.com>
- <20200619112051.74babdb1.cohuck@redhat.com>
- <7fe6e9ab-fd5a-3f92-1f3a-f9e6805d3730@linux.ibm.com>
- <20200629154439.14cc5ae7.cohuck@redhat.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <4777633f-728b-1a67-c870-0fafa313e468@linux.ibm.com>
-Date: Mon, 29 Jun 2020 18:10:02 +0200
+ <20200629115952-mutt-send-email-mst@kernel.org>
+ <66f808f2-5dd9-9127-d0e8-6bafbf13fc62@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20200629154439.14cc5ae7.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <66f808f2-5dd9-9127-d0e8-6bafbf13fc62@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 
-
-
-On 2020-06-29 15:44, Cornelia Huck wrote:
-> On Mon, 29 Jun 2020 15:14:04 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Mon, Jun 29, 2020 at 06:48:28PM +0200, Pierre Morel wrote:
 > 
->> On 2020-06-19 11:20, Cornelia Huck wrote:
->>> On Thu, 18 Jun 2020 00:29:56 +0200
->>> Halil Pasic <pasic@linux.ibm.com> wrote:
->>>    
->>>> On Wed, 17 Jun 2020 12:43:57 +0200
->>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
->>>>> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
->>>>>    	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->>>>>    		return 0;
->>>>>    
->>>>> +	if (arch_needs_virtio_iommu_platform(dev) &&
->>>>> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
->>>>> +		dev_warn(&dev->dev,
->>>>> +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+> On 2020-06-29 18:09, Michael S. Tsirkin wrote:
+> > On Wed, Jun 17, 2020 at 12:43:57PM +0200, Pierre Morel wrote:
+> > > An architecture protecting the guest memory against unauthorized host
+> > > access may want to enforce VIRTIO I/O device protection through the
+> > > use of VIRTIO_F_IOMMU_PLATFORM.
+> > > Let's give a chance to the architecture to accept or not devices
+> > > without VIRTIO_F_IOMMU_PLATFORM.
+> > 
+> > I agree it's a bit misleading. Protection is enforced by memory
+> > encryption, you can't trust the hypervisor to report the bit correctly
+> > so using that as a securoty measure would be pointless.
+> > The real gain here is that broken configs are easier to
+> > debug.
+> > 
+> > Here's an attempt at a better description:
+> > 
+> > 	On some architectures, guest knows that VIRTIO_F_IOMMU_PLATFORM is
+> > 	required for virtio to function: e.g. this is the case on s390 protected
+> > 	virt guests, since otherwise guest passes encrypted guest memory to devices,
+> > 	which the device can't read. Without VIRTIO_F_IOMMU_PLATFORM the
+> > 	result is that affected memory (or even a whole page containing
+> > 	it is corrupted). Detect and fail probe instead - that is easier
+> > 	to debug.
 > 
-> [Side note: wasn't there a patch renaming this bit on the list? I think
-> this name is only kept for userspace compat.]
+> Thanks indeed better aside from the "encrypted guest memory": the mechanism
+> used to avoid the access to the guest memory from the host by s390 is not
+> encryption but a hardware feature denying the general host access and
+> allowing pieces of memory to be shared between guest and host.
 
-Sorry, I do not understand what you expect from me.
-On which mailing list you think there is a patch on?
+s/encrypted/protected/
+
+> As a consequence the data read from memory is not corrupted but not read at
+> all and the read error kills the hypervizor with a SIGSEGV.
+
+s/(or even a whole page containing it is corrupted)/can not be
+	read and the read error kills the hypervizor with a SIGSEGV/
+
+
+As an aside, we could maybe handle that more gracefully
+on the hypervisor side.
 
 > 
->>>>
->>>> I'm not sure, divulging the current Linux name of this feature bit is a
->>>> good idea, but if everybody else is fine with this, I don't care that
->>>
->>> Not sure if that feature name will ever change, as it is exported in
->>> headers. At most, we might want to add the new ACCESS_PLATFORM define
->>> and keep the old one, but that would still mean some churn.
->>>    
->>>> much. An alternative would be:
->>>> "virtio: device falsely claims to have full access to the memory,
->>>> aborting the device"
->>>
->>> "virtio: device does not work with limited memory access" ?
->>>
->>> But no issue with keeping the current message.
->>>    
->>
->> If it is OK, I would like to specify that the arch is responsible to
->> accept or not the device.
->> The reason why the device is not accepted without IOMMU_PLATFORM is arch
->> specific.
+> > 
+> > however, now that we have described what it is (hypervisor
+> > misconfiguration) I ask a question: can we be sure this will never
+> > ever work? E.g. what if some future hypervisor gains ability to
+> > access the protected guest memory in some abstractly secure manner?
 > 
-> Hm, I'd think the reason is always the same (the device cannot access
-> the memory directly), just the way to figure out whether that is the
-> case or not is arch-specific, as with so many other things. No real
-> need to go into detail here, I think.
+> The goal of the s390 PV feature is to avoid this possibility so I don't
+> think so; however, there is a possibility that some hardware VIRTIO device
+> gain access to the guest's protected memory, even such device does not exist
+> yet.
 > 
-
-As you like, so I rename the subject to:
-"virtio: device does not work with limited memory access"
-
-Regards,
-
-Pierre
+> At the moment such device exists we will need a driver for it, at least to
+> enable the feature and apply policies, it is also one of the reasons why a
+> hook to the architecture is interesting.
 
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+Not neessarily, it could also be fully transparent. See e.g.
+recent AMD andvances allowing unmodified guests with SEV.
+
+
+> > We are blocking this here, and it's hard to predict the future,
+> > and a broken hypervisor can always find ways to crash the guest ...
+> 
+> yes, this is also something to fix on the hypervizor side, Halil is working
+> on it.
+> 
+> > 
+> > IMHO it would be safer to just print a warning.
+> > What do you think?
+> 
+> Sadly, putting a warning may not help as qemu is killed if it accesses the
+> protected memory.
+> Also note that the crash occurs not only on start but also on hotplug.
+> 
+> Thanks,
+> Pierre
+
+Well that depends on where does the warning go. If it's on a serial port
+it might be reported host side before the crash triggers.  But
+interesting point generally. How about a feature to send a warning code
+or string to host then?
+
+> -- 
+> Pierre Morel
+> IBM Lab Boeblingen
