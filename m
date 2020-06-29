@@ -1,217 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59502 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725280AbgFEHhp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 03:37:45 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [kvm-unit-tests PATCH v7 11/12] s390x: css: ssch/tsch with sense
- and interrupt
-References: <1589818051-20549-1-git-send-email-pmorel@linux.ibm.com>
- <1589818051-20549-12-git-send-email-pmorel@linux.ibm.com>
- <20200527120905.5fb20a4e.cohuck@redhat.com>
-Message-ID: <a53f84e9-8e32-2ac2-2af1-0edd911841c4@linux.ibm.com>
-Date: Fri, 5 Jun 2020 09:37:39 +0200
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44312 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731886AbgF2TRn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:17:43 -0400
 MIME-Version: 1.0
-In-Reply-To: <20200527120905.5fb20a4e.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200627143453.31835-1-rppt@kernel.org> <20200627143453.31835-2-rppt@kernel.org>
+In-Reply-To: <20200627143453.31835-2-rppt@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 29 Jun 2020 17:41:43 +0200
+Message-ID: <CAMuHMdUOrrrtKuhtWJvzKNNLXY1fx+Ym1oXGN2J_CZ7RqByGHQ@mail.gmail.com>
+Subject: Re: [PATCH 1/8] mm: remove unneeded includes of <asm/pgalloc.h>
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Christophe Leroy <christophe.leroy@csgroup.eu>, Joerg Roedel <joro@8bytes.org>, Max Filippov <jcmvbkbc@gmail.com>, Mike Rapoport <rppt@linux.ibm.com>, Peter Zijlstra <peterz@infradead.org>, Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>, Stafford Horne <shorne@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Steven Rostedt <rostedt@goodmis.org>, alpha <linux-alpha@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-csky@vger.kernel.org, "open list:QUALCOMM HEXAGON..." <linux-hexagon@vger.kernel.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Parisc List <linux-parisc@vger.kernel.org>, linux-riscv <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Linux-sh list <linux-sh@vger.kernel.org>, arcml <linux-snps-arc@lists.infradead.org>, linux-um <linux-um@lists.infradead.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Openrisc <openrisc@lists.librecores.org>, sparclinux <sparclinux@vger.kernel.org>
 
+On Sat, Jun 27, 2020 at 4:35 PM Mike Rapoport <rppt@kernel.org> wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+>
+> In the most cases <asm/pgalloc.h> header is required only for allocations
+> of page table memory. Most of the .c files that include that header do not
+> use symbols declared in <asm/pgalloc.h> and do not require that header.
+>
+> As for the other header files that used to include <asm/pgalloc.h>, it is
+> possible to move that include into the .c file that actually uses symbols
+> from <asm/pgalloc.h> and drop the include from the header file.
+>
+> The process was somewhat automated using
+>
+>         sed -i -E '/[<"]asm\/pgalloc\.h/d' \
+>                 $(grep -L -w -f /tmp/xx \
+>                         $(git grep -E -l '[<"]asm/pgalloc\.h'))
+>
+> where /tmp/xx contains all the symbols defined in
+> arch/*/include/asm/pgalloc.h.
+>
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 
+For the m68k part:
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-On 2020-05-27 12:09, Cornelia Huck wrote:
-> On Mon, 18 May 2020 18:07:30 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->> We add a new css_lib file to contain the I/O functions we may
->> share with different tests.
->> First function is the subchannel_enable() function.
->>
->> When a channel is enabled we can start a SENSE_ID command using
->> the SSCH instruction to recognize the control unit and device.
->>
->> This tests the success of SSCH, the I/O interruption and the TSCH
->> instructions.
->>
->> The test expects a device with a control unit type of 0xC0CA as the
->> first subchannel of the CSS.
-> 
-> It might make sense to extend this to be able to check for any expected
-> type (e.g. 0x3832, should my suggestion to split css tests and css-pong
-> tests make sense.)
+Gr{oetje,eeting}s,
 
-right.
-
-> 
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   lib/s390x/css.h     |  20 ++++++
->>   lib/s390x/css_lib.c |  55 +++++++++++++++++
->>   s390x/Makefile      |   1 +
->>   s390x/css.c         | 145 ++++++++++++++++++++++++++++++++++++++++++++
->>   4 files changed, 221 insertions(+)
->>   create mode 100644 lib/s390x/css_lib.c
-> 
-> (...)
-> 
->> +int enable_subchannel(unsigned int sid)
->> +{
->> +	struct schib schib;
->> +	struct pmcw *pmcw = &schib.pmcw;
->> +	int try_count = 5;
->> +	int cc;
->> +
->> +	if (!(sid & SID_ONE))
->> +		return -1;
-> 
-> Hm... this error is indistinguishable for the caller from a cc 1 for
-> the msch. Use something else (as this is a coding error)?
-
-right it is a coding error -> assert ?
-
-> 
->> +
->> +	cc = stsch(sid, &schib);
->> +	if (cc)
->> +		return -cc;
->> +
->> +	do {
->> +		pmcw->flags |= PMCW_ENABLE;
->> +
->> +		cc = msch(sid, &schib);
->> +		if (cc)
->> +			return -cc;
->> +
->> +		cc = stsch(sid, &schib);
->> +		if (cc)
->> +			return -cc;
->> +
->> +	} while (!(pmcw->flags & PMCW_ENABLE) && --try_count);
->> +
->> +	return try_count;
-> 
-> How useful is that information for the caller? I don't see the code
-> below making use of it.
-
-right,
-I will change the fail cases to a report_info and return 0 in case of 
-success.
-
-> 
->> +}
->> +
->> +int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
->> +{
->> +	struct orb orb;
->> +
->> +	orb.intparm = sid;
-> 
-> Just an idea: If you use something else here (maybe the cpa), and set
-> the intparm to the sid in msch, you can test something else: Does msch
-> properly set the intparm, and is that intparm overwritten by a
-> successful ssch, until the next ssch or msch comes around?
-
-good idea.
-Using cpa is all what we need at the current development.
-
-
-> 
->> +	orb.ctrl = ORB_F_INIT_IRQ|ORB_F_FORMAT|ORB_F_LPM_DFLT;
->> +	orb.cpa = (unsigned int) (unsigned long)ccw;
-> 
-> Use a struct initializer, so that unset fields are 0?
-
-not only more beautifull but effective. thanks!
-
-> 
->> +
->> +	return ssch(sid, &orb);
->> +}
-> 
-> (...)
-> 
->> +/*
->> + * test_sense
->> + * Pre-requisits:
->> + * - We need the QEMU PONG device as the first recognized
->> + *   device by the enumeration.
->> + * - ./s390x-run s390x/css.elf -device ccw-pong,cu_type=0xc0ca
->> + */
->> +static void test_sense(void)
->> +{
->> +	int ret;
->> +
->> +	if (!test_device_sid) {
->> +		report_skip("No device");
->> +		return;
->> +	}
->> +
->> +	ret = enable_subchannel(test_device_sid);
->> +	if (ret < 0) {
->> +		report(0,
->> +		       "Could not enable the subchannel: %08x",
->> +		       test_device_sid);
->> +		return;
->> +	}
->> +
->> +	ret = register_io_int_func(irq_io);
->> +	if (ret) {
->> +		report(0, "Could not register IRQ handler");
->> +		goto unreg_cb;
->> +	}
->> +
->> +	lowcore->io_int_param = 0;
->> +
->> +	ret = start_subchannel(CCW_CMD_SENSE_ID, &senseid, sizeof(senseid),
->> +			       CCW_F_SLI);
-> 
-> Clear senseid, before actually sending the program?
-
-yes.
-
-> 
->> +	if (!ret) {
->> +		report(0, "ssch failed for SENSE ID on sch %08x",
->> +		       test_device_sid);
->> +		goto unreg_cb;
->> +	}
->> +
->> +	wait_for_interrupt(PSW_MASK_IO);
->> +
->> +	if (lowcore->io_int_param != test_device_sid)
->> +		goto unreg_cb;
->> +
->> +	report_info("reserved %02x cu_type %04x cu_model %02x dev_type %04x dev_model %02x",
->> +		    senseid.reserved, senseid.cu_type, senseid.cu_model,
->> +		    senseid.dev_type, senseid.dev_model);
->> +
-> 
-> I'd also recommend checking that senseid.reserved is indeed 0xff -- in
-> combination with senseid clearing before the ssch, that ensures that
-> the senseid structure has actually been written to and is not pure
-> garbage. (It's also a cu type agnostic test :)
-
-good idea, thanks.
-
-> 
-> It also might make sense to check how much data you actually got, as
-> you set SLI.
-> 
-> 
-
-Yes, will do.
-
-Thanks for the comments, I make the changes for the next revision.
-
-Regards,
-Pierre
-
+                        Geert
 
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
