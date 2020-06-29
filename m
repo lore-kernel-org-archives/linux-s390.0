@@ -1,48 +1,28 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:38970 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727801AbgFRBLO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 17 Jun 2020 21:11:14 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 142/388] s390/qdio: tear down thinint indicator after early error
-Date: Wed, 17 Jun 2020 21:03:59 -0400
-Message-Id: <20200618010805.600873-142-sashal@kernel.org>
-In-Reply-To: <20200618010805.600873-1-sashal@kernel.org>
-References: <20200618010805.600873-1-sashal@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 29 Jun 2020 13:54:35 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] drivers/s390/char/tty3270: Remove function callback casts
+Message-ID: <20200629115435.GB4468@osiris>
+References: <20200627125417.18887-1-oscar.carter@gmx.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200627125417.18887-1-oscar.carter@gmx.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Oscar Carter <oscar.carter@gmx.com>
+Cc: Kees Cook <keescook@chromium.org>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kernel-hardening@lists.openwall.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On Sat, Jun 27, 2020 at 02:54:17PM +0200, Oscar Carter wrote:
+> In an effort to enable -Wcast-function-type in the top-level Makefile to
+> support Control Flow Integrity builds, remove all the function callback
+> casts.
+> 
+> To do this modify the function prototypes accordingly.
+> 
+> Signed-off-by: Oscar Carter <oscar.carter@gmx.com>
+> ---
+>  drivers/s390/char/tty3270.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 
-[ Upstream commit 68a381746f20e5435206173e22d0a011ef78790e ]
-
-qdio_establish() calls qdio_establish_thinint(), but later has an error
-exit path that doesn't roll this call back. Fix it.
-
-Fixes: 779e6e1c724d ("[S390] qdio: new qdio driver.")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/cio/qdio_main.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/s390/cio/qdio_main.c b/drivers/s390/cio/qdio_main.c
-index da5a11138020..80cc811bd2e0 100644
---- a/drivers/s390/cio/qdio_main.c
-+++ b/drivers/s390/cio/qdio_main.c
-@@ -1363,6 +1363,7 @@ int qdio_establish(struct ccw_device *cdev,
- 	if (rc) {
- 		DBF_ERROR("%4x est IO ERR", irq_ptr->schid.sch_no);
- 		DBF_ERROR("rc:%4x", rc);
-+		qdio_shutdown_thinint(irq_ptr);
- 		qdio_shutdown_irq(irq_ptr);
- 		mutex_unlock(&irq_ptr->setup_mutex);
- 		return rc;
--- 
-2.25.1
+Applied, thanks!
