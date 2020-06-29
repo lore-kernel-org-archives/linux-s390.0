@@ -1,115 +1,188 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60914 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725777AbgFTPWF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 20 Jun 2020 11:22:05 -0400
-Date: Sat, 20 Jun 2020 17:21:56 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.8-rc2
-Message-ID: <your-ad-here.call-01592666516-ext-8102@work.hours>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48146 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387797AbgF2Tkk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:40:40 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 18/20] block: refator submit_bio_noacct
+Date: Mon, 29 Jun 2020 21:39:45 +0200
+Message-Id: <20200629193947.2705954-19-hch@lst.de>
+In-Reply-To: <20200629193947.2705954-1-hch@lst.de>
+References: <20200629193947.2705954-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-Hello Linus,
+Split out a __submit_bio_noacct helper for the actual de-recursion
+algorithm, and simplify the loop by using a continue when we can't
+enter the queue for a bio.
 
-please pull s390 changes for 5.8-rc2.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ block/blk-core.c | 131 +++++++++++++++++++++++++----------------------
+ 1 file changed, 71 insertions(+), 60 deletions(-)
 
-Thank you,
-Vasily
-
-The following changes since commit b3a9e3b9622ae10064826dccb4f7a52bd88c7407:
-
-  Linux 5.8-rc1 (2020-06-14 12:45:04 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.8-2
-
-for you to fetch changes up to b3583fca5fb654af2cfc1c08259abb9728272538:
-
-  s390: fix syscall_get_error for compat processes (2020-06-17 23:05:05 +0200)
-
-----------------------------------------------------------------
-s390 fixes for 5.8-rc2
-
-- Few ptrace fixes mostly for strace and seccomp_bpf kernel tests
-  findings.
-
-- Cleanup unused pm callbacks in virtio ccw.
-
-- Replace kmalloc + memset with kzalloc in crypto.
-
-- Use $(LD) for vDSO linkage to make clang happy.
-
-- Fix vDSO clock_getres() to preserve the same behaviour as
-  posix_get_hrtimer_res().
-
-- Fix workqueue cpumask warning when NUMA=n and nr_node_ids=2.
-
-- Reduce SLSB writes during input processing, improve warnings and
-  cleanup qdio_data usage in qdio.
-
-- Few fixes to use scnprintf() instead of snprintf().
-
-----------------------------------------------------------------
-Chen Zhou (3):
-      s390/crypto: use scnprintf() instead of snprintf()
-      s390: use scnprintf() in sys_##_prefix##_##_name##_show
-      s390/protvirt: use scnprintf() instead of snprintf()
-
-Cornelia Huck (1):
-      s390/virtio: remove unused pm callbacks
-
-Dmitry V. Levin (1):
-      s390: fix syscall_get_error for compat processes
-
-Heiko Carstens (1):
-      s390/numa: let NODES_SHIFT depend on NEED_MULTIPLE_NODES
-
-Julian Wiedmann (4):
-      s390/qdio: fine-tune SLSB update
-      s390/qdio: reduce SLSB writes during Input Queue processing
-      s390/qdio: clean up usage of qdio_data
-      s390/qdio: warn about unexpected SLSB states
-
-Nathan Chancellor (1):
-      s390/vdso: Use $(LD) instead of $(CC) to link vDSO
-
-Sven Schnelle (5):
-      s390/seccomp: pass syscall arguments via seccomp_data
-      s390/ptrace: return -ENOSYS when invalid syscall is supplied
-      s390/ptrace: pass invalid syscall numbers to tracing
-      s390/ptrace: fix setting syscall number
-      selftests/seccomp: s390 shares the syscall and return value register
-
-Vincenzo Frascino (1):
-      s390/vdso: fix vDSO clock_getres()
-
-Zou Wei (1):
-      s390/zcrypt: use kzalloc
-
- arch/s390/Kconfig                             |   1 +
- arch/s390/crypto/prng.c                       |  14 ++--
- arch/s390/include/asm/syscall.h               |  12 ++-
- arch/s390/include/asm/vdso.h                  |   1 +
- arch/s390/kernel/asm-offsets.c                |   2 +-
- arch/s390/kernel/entry.S                      |   2 +-
- arch/s390/kernel/ipl.c                        |   2 +-
- arch/s390/kernel/ptrace.c                     |  83 +++++++++++++++++----
- arch/s390/kernel/time.c                       |   1 +
- arch/s390/kernel/uv.c                         |   8 +-
- arch/s390/kernel/vdso64/Makefile              |  10 +--
- arch/s390/kernel/vdso64/clock_getres.S        |  10 +--
- drivers/s390/cio/qdio.h                       |   7 +-
- drivers/s390/cio/qdio_debug.c                 |   4 +-
- drivers/s390/cio/qdio_main.c                  | 101 +++++++++++---------------
- drivers/s390/crypto/zcrypt_ep11misc.c         |   3 +-
- drivers/s390/virtio/virtio_ccw.c              |  26 -------
- tools/testing/selftests/seccomp/seccomp_bpf.c |   1 +
- 18 files changed, 154 insertions(+), 134 deletions(-)
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 1caeb01e127768..b82f48c86e6f7a 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -1085,6 +1085,74 @@ static blk_qc_t do_make_request(struct bio *bio)
+ 	return ret;
+ }
+ 
++/*
++ * The loop in this function may be a bit non-obvious, and so deserves some
++ * explanation:
++ *
++ *  - Before entering the loop, bio->bi_next is NULL (as all callers ensure
++ *    that), so we have a list with a single bio.
++ *  - We pretend that we have just taken it off a longer list, so we assign
++ *    bio_list to a pointer to the bio_list_on_stack, thus initialising the
++ *    bio_list of new bios to be added.  ->submit_bio() may indeed add some more
++ *    bios through a recursive call to submit_bio_noacct.  If it did, we find a
++ *    non-NULL value in bio_list and re-enter the loop from the top.
++ *  - In this case we really did just take the bio of the top of the list (no
++ *    pretending) and so remove it from bio_list, and call into ->submit_bio()
++ *    again.
++ *
++ * bio_list_on_stack[0] contains bios submitted by the current ->submit_bio.
++ * bio_list_on_stack[1] contains bios that were submitted before the current
++ *	->submit_bio_bio, but that haven't been processed yet.
++ */
++static blk_qc_t __submit_bio_noacct(struct bio *bio)
++{
++	struct bio_list bio_list_on_stack[2];
++	blk_qc_t ret = BLK_QC_T_NONE;
++
++	BUG_ON(bio->bi_next);
++
++	bio_list_init(&bio_list_on_stack[0]);
++	current->bio_list = bio_list_on_stack;
++
++	do {
++		struct request_queue *q = bio->bi_disk->queue;
++		struct bio_list lower, same;
++
++		if (unlikely(bio_queue_enter(bio) != 0))
++			continue;
++
++		/*
++		 * Create a fresh bio_list for all subordinate requests.
++		 */
++		bio_list_on_stack[1] = bio_list_on_stack[0];
++		bio_list_init(&bio_list_on_stack[0]);
++
++		ret = do_make_request(bio);
++
++		/*
++		 * Sort new bios into those for a lower level and those for the
++		 * same level.
++		 */
++		bio_list_init(&lower);
++		bio_list_init(&same);
++		while ((bio = bio_list_pop(&bio_list_on_stack[0])) != NULL)
++			if (q == bio->bi_disk->queue)
++				bio_list_add(&same, bio);
++			else
++				bio_list_add(&lower, bio);
++
++		/*
++		 * Now assemble so we handle the lowest level first.
++		 */
++		bio_list_merge(&bio_list_on_stack[0], &lower);
++		bio_list_merge(&bio_list_on_stack[0], &same);
++		bio_list_merge(&bio_list_on_stack[0], &bio_list_on_stack[1]);
++	} while ((bio = bio_list_pop(&bio_list_on_stack[0])));
++
++	current->bio_list = NULL;
++	return ret;
++}
++
+ /**
+  * submit_bio_noacct - re-submit a bio to the block device layer for I/O
+  * @bio:  The bio describing the location in memory and on the device.
+@@ -1096,17 +1164,8 @@ static blk_qc_t do_make_request(struct bio *bio)
+  */
+ blk_qc_t submit_bio_noacct(struct bio *bio)
+ {
+-	/*
+-	 * bio_list_on_stack[0] contains bios submitted by the current
+-	 * ->submit_bio.
+-	 * bio_list_on_stack[1] contains bios that were submitted before the
+-	 * current ->submit_bio_bio, but that haven't been processed yet.
+-	 */
+-	struct bio_list bio_list_on_stack[2];
+-	blk_qc_t ret = BLK_QC_T_NONE;
+-
+ 	if (!submit_bio_checks(bio))
+-		goto out;
++		return BLK_QC_T_NONE;
+ 
+ 	/*
+ 	 * We only want one ->submit_bio to be active at a time, else
+@@ -1120,58 +1179,10 @@ blk_qc_t submit_bio_noacct(struct bio *bio)
+ 	 */
+ 	if (current->bio_list) {
+ 		bio_list_add(&current->bio_list[0], bio);
+-		goto out;
++		return BLK_QC_T_NONE;
+ 	}
+ 
+-	/* following loop may be a bit non-obvious, and so deserves some
+-	 * explanation.
+-	 * Before entering the loop, bio->bi_next is NULL (as all callers
+-	 * ensure that) so we have a list with a single bio.
+-	 * We pretend that we have just taken it off a longer list, so
+-	 * we assign bio_list to a pointer to the bio_list_on_stack,
+-	 * thus initialising the bio_list of new bios to be
+-	 * added.  ->submit_bio() may indeed add some more bios
+-	 * through a recursive call to submit_bio_noacct.  If it
+-	 * did, we find a non-NULL value in bio_list and re-enter the loop
+-	 * from the top.  In this case we really did just take the bio
+-	 * of the top of the list (no pretending) and so remove it from
+-	 * bio_list, and call into ->submit_bio() again.
+-	 */
+-	BUG_ON(bio->bi_next);
+-	bio_list_init(&bio_list_on_stack[0]);
+-	current->bio_list = bio_list_on_stack;
+-	do {
+-		struct request_queue *q = bio->bi_disk->queue;
+-
+-		if (likely(bio_queue_enter(bio) == 0)) {
+-			struct bio_list lower, same;
+-
+-			/* Create a fresh bio_list for all subordinate requests */
+-			bio_list_on_stack[1] = bio_list_on_stack[0];
+-			bio_list_init(&bio_list_on_stack[0]);
+-			ret = do_make_request(bio);
+-
+-			/* sort new bios into those for a lower level
+-			 * and those for the same level
+-			 */
+-			bio_list_init(&lower);
+-			bio_list_init(&same);
+-			while ((bio = bio_list_pop(&bio_list_on_stack[0])) != NULL)
+-				if (q == bio->bi_disk->queue)
+-					bio_list_add(&same, bio);
+-				else
+-					bio_list_add(&lower, bio);
+-			/* now assemble so we handle the lowest level first */
+-			bio_list_merge(&bio_list_on_stack[0], &lower);
+-			bio_list_merge(&bio_list_on_stack[0], &same);
+-			bio_list_merge(&bio_list_on_stack[0], &bio_list_on_stack[1]);
+-		}
+-		bio = bio_list_pop(&bio_list_on_stack[0]);
+-	} while (bio);
+-	current->bio_list = NULL; /* deactivate */
+-
+-out:
+-	return ret;
++	return __submit_bio_noacct(bio);
+ }
+ EXPORT_SYMBOL(submit_bio_noacct);
+ 
+-- 
+2.26.2
