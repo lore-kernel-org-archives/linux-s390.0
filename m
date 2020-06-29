@@ -1,247 +1,380 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13200 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728786AbgFEVkT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 5 Jun 2020 17:40:19 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v8 00/16] s390/vfio-ap: dynamic configuration support
-Date: Fri,  5 Jun 2020 17:39:48 -0400
-Message-Id: <20200605214004.14270-1-akrowiak@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:40110 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732408AbgF2TY4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 29 Jun 2020 15:24:56 -0400
+Subject: Re: [PATCH V3 2/4] mm/debug_vm_pgtable: Add tests validating advanced
+ arch page table helpers
+References: <1592192277-8421-1-git-send-email-anshuman.khandual@arm.com>
+ <1592192277-8421-3-git-send-email-anshuman.khandual@arm.com>
+ <6da177e6-9219-9ccf-a402-f4293c7564f7@csgroup.eu>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <bdea0704-11a5-aab3-c9ce-a9e388394836@arm.com>
+Date: Mon, 29 Jun 2020 13:39:28 +0530
 MIME-Version: 1.0
+In-Reply-To: <6da177e6-9219-9ccf-a402-f4293c7564f7@csgroup.eu>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, linux-mm@kvack.org
+Cc: christophe.leroy@c-s.fr, ziy@nvidia.com, gerald.schaefer@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Note: Patch 1 - s390/ap: introduce new ap function ap_get_qdev() - is not
-      a part of this series. It is a forthcoming patch that is a
-      prerequisite to this series and is being provided so this series
-      will compile.
 
-The current design for AP pass-through does not support making dynamic
-changes to the AP matrix of a running guest resulting in a few 
-deficiencies this patch series is intended to mitigate:
+On 06/27/2020 12:48 PM, Christophe Leroy wrote:
+> Le 15/06/2020 à 05:37, Anshuman Khandual a écrit :
+>> This adds new tests validating for these following arch advanced page table
+>> helpers. These tests create and test specific mapping types at various page
+>> table levels.
+>>
+>> 1. pxxp_set_wrprotect()
+>> 2. pxxp_get_and_clear()
+>> 3. pxxp_set_access_flags()
+>> 4. pxxp_get_and_clear_full()
+>> 5. pxxp_test_and_clear_young()
+>> 6. pxx_leaf()
+>> 7. pxx_set_huge()
+>> 8. pxx_(clear|mk)_savedwrite()
+>> 9. huge_pxxp_xxx()
+>>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: Mike Rapoport <rppt@linux.ibm.com>
+>> Cc: Vineet Gupta <vgupta@synopsys.com>
+>> Cc: Catalin Marinas <catalin.marinas@arm.com>
+>> Cc: Will Deacon <will@kernel.org>
+>> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+>> Cc: Paul Mackerras <paulus@samba.org>
+>> Cc: Michael Ellerman <mpe@ellerman.id.au>
+>> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Ingo Molnar <mingo@redhat.com>
+>> Cc: Borislav Petkov <bp@alien8.de>
+>> Cc: "H. Peter Anvin" <hpa@zytor.com>
+>> Cc: Kirill A. Shutemov <kirill@shutemov.name>
+>> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+>> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+>> Cc: linux-snps-arc@lists.infradead.org
+>> Cc: linux-arm-kernel@lists.infradead.org
+>> Cc: linuxppc-dev@lists.ozlabs.org
+>> Cc: linux-s390@vger.kernel.org
+>> Cc: linux-riscv@lists.infradead.org
+>> Cc: x86@kernel.org
+>> Cc: linux-mm@kvack.org
+>> Cc: linux-arch@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>   mm/debug_vm_pgtable.c | 306 ++++++++++++++++++++++++++++++++++++++++++
+>>   1 file changed, 306 insertions(+)
+>>
+>> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+>> index ffa163d4c63c..e3f9f8317a98 100644
+>> --- a/mm/debug_vm_pgtable.c
+>> +++ b/mm/debug_vm_pgtable.c
+>> @@ -21,6 +21,7 @@
+>>   #include <linux/module.h>
+>>   #include <linux/pfn_t.h>
+>>   #include <linux/printk.h>
+>> +#include <linux/pgtable.h>
+>>   #include <linux/random.h>
+>>   #include <linux/spinlock.h>
+>>   #include <linux/swap.h>
+>> @@ -28,6 +29,7 @@
+>>   #include <linux/start_kernel.h>
+>>   #include <linux/sched/mm.h>
+>>   #include <asm/pgalloc.h>
+>> +#include <asm/tlbflush.h>
+>>     #define VMFLAGS    (VM_READ|VM_WRITE|VM_EXEC)
+>>   @@ -55,6 +57,54 @@ static void __init pte_basic_tests(unsigned long pfn, pgprot_t prot)
+>>       WARN_ON(pte_write(pte_wrprotect(pte_mkwrite(pte))));
+>>   }
+>>   +static void __init pte_advanced_tests(struct mm_struct *mm,
+>> +            struct vm_area_struct *vma, pte_t *ptep,
+>> +            unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+>> +{
+>> +    pte_t pte = pfn_pte(pfn, prot);
+>> +
+>> +    pte = pfn_pte(pfn, prot);
+>> +    set_pte_at(mm, vaddr, ptep, pte);
+>> +    ptep_set_wrprotect(mm, vaddr, ptep);
+>> +    pte = READ_ONCE(*ptep);
+> 
+> same
+> 
+>> +    WARN_ON(pte_write(pte));
+>> +
+>> +    pte = pfn_pte(pfn, prot);
+>> +    set_pte_at(mm, vaddr, ptep, pte);
+>> +    ptep_get_and_clear(mm, vaddr, ptep);
+>> +    pte = READ_ONCE(*ptep);
+> 
+> same
+> 
+>> +    WARN_ON(!pte_none(pte));
+>> +
+>> +    pte = pfn_pte(pfn, prot);
+>> +    pte = pte_wrprotect(pte);
+>> +    pte = pte_mkclean(pte);
+>> +    set_pte_at(mm, vaddr, ptep, pte);
+>> +    pte = pte_mkwrite(pte);
+>> +    pte = pte_mkdirty(pte);
+>> +    ptep_set_access_flags(vma, vaddr, ptep, pte, 1);
+>> +    pte = READ_ONCE(*ptep);
+> 
+> same
+> 
+>> +    WARN_ON(!(pte_write(pte) && pte_dirty(pte)));
+>> +
+>> +    pte = pfn_pte(pfn, prot);
+>> +    set_pte_at(mm, vaddr, ptep, pte);
+>> +    ptep_get_and_clear_full(mm, vaddr, ptep, 1);
+>> +    pte = READ_ONCE(*ptep);
+> 
+> same
+> 
+>> +    WARN_ON(!pte_none(pte));
+>> +
+>> +    pte = pte_mkyoung(pte);
+>> +    set_pte_at(mm, vaddr, ptep, pte);
+>> +    ptep_test_and_clear_young(vma, vaddr, ptep);
+>> +    pte = READ_ONCE(*ptep);
+> 
+> same
+> 
+>> +    WARN_ON(pte_young(pte));
+>> +}
+>> +
+>> +static void __init pte_savedwrite_tests(unsigned long pfn, pgprot_t prot)
+>> +{
+>> +    pte_t pte = pfn_pte(pfn, prot);
+>> +
+>> +    WARN_ON(!pte_savedwrite(pte_mk_savedwrite(pte_clear_savedwrite(pte))));
+>> +    WARN_ON(pte_savedwrite(pte_clear_savedwrite(pte_mk_savedwrite(pte))));
+>> +}
+>>   #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+>>   static void __init pmd_basic_tests(unsigned long pfn, pgprot_t prot)
+>>   {
+>> @@ -77,6 +127,89 @@ static void __init pmd_basic_tests(unsigned long pfn, pgprot_t prot)
+>>       WARN_ON(!pmd_bad(pmd_mkhuge(pmd)));
+>>   }
+>>   +static void __init pmd_advanced_tests(struct mm_struct *mm,
+>> +        struct vm_area_struct *vma, pmd_t *pmdp,
+>> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+>> +{
+>> +    pmd_t pmd = pfn_pmd(pfn, prot);
+>> +
+>> +    if (!has_transparent_hugepage())
+>> +        return;
+>> +
+>> +    /* Align the address wrt HPAGE_PMD_SIZE */
+>> +    vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
+>> +
+>> +    pmd = pfn_pmd(pfn, prot);
+>> +    set_pmd_at(mm, vaddr, pmdp, pmd);
+>> +    pmdp_set_wrprotect(mm, vaddr, pmdp);
+>> +    pmd = READ_ONCE(*pmdp);
+>> +    WARN_ON(pmd_write(pmd));
+>> +
+>> +    pmd = pfn_pmd(pfn, prot);
+>> +    set_pmd_at(mm, vaddr, pmdp, pmd);
+>> +    pmdp_huge_get_and_clear(mm, vaddr, pmdp);
+>> +    pmd = READ_ONCE(*pmdp);
+>> +    WARN_ON(!pmd_none(pmd));
+>> +
+>> +    pmd = pfn_pmd(pfn, prot);
+>> +    pmd = pmd_wrprotect(pmd);
+>> +    pmd = pmd_mkclean(pmd);
+>> +    set_pmd_at(mm, vaddr, pmdp, pmd);
+>> +    pmd = pmd_mkwrite(pmd);
+>> +    pmd = pmd_mkdirty(pmd);
+>> +    pmdp_set_access_flags(vma, vaddr, pmdp, pmd, 1);
+>> +    pmd = READ_ONCE(*pmdp);
+>> +    WARN_ON(!(pmd_write(pmd) && pmd_dirty(pmd)));
+>> +
+>> +    pmd = pmd_mkhuge(pfn_pmd(pfn, prot));
+>> +    set_pmd_at(mm, vaddr, pmdp, pmd);
+>> +    pmdp_huge_get_and_clear_full(vma, vaddr, pmdp, 1);
+>> +    pmd = READ_ONCE(*pmdp);
+>> +    WARN_ON(!pmd_none(pmd));
+>> +
+>> +    pmd = pmd_mkyoung(pmd);
+>> +    set_pmd_at(mm, vaddr, pmdp, pmd);
+>> +    pmdp_test_and_clear_young(vma, vaddr, pmdp);
+>> +    pmd = READ_ONCE(*pmdp);
+>> +    WARN_ON(pmd_young(pmd));
+>> +}
+>> +
+>> +static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot)
+>> +{
+>> +    pmd_t pmd = pfn_pmd(pfn, prot);
+>> +
+>> +    /*
+>> +     * PMD based THP is a leaf entry.
+>> +     */
+>> +    pmd = pmd_mkhuge(pmd);
+>> +    WARN_ON(!pmd_leaf(pmd));
+>> +}
+>> +
+>> +static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
+>> +{
+>> +    pmd_t pmd;
+>> +
+>> +    if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
+>> +        return;
+>> +    /*
+>> +     * X86 defined pmd_set_huge() verifies that the given
+>> +     * PMD is not a populated non-leaf entry.
+>> +     */
+>> +    WRITE_ONCE(*pmdp, __pmd(0));
+>> +    WARN_ON(!pmd_set_huge(pmdp, __pfn_to_phys(pfn), prot));
+>> +    WARN_ON(!pmd_clear_huge(pmdp));
+>> +    pmd = READ_ONCE(*pmdp);
+>> +    WARN_ON(!pmd_none(pmd));
+>> +}
+>> +
+>> +static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
+>> +{
+>> +    pmd_t pmd = pfn_pmd(pfn, prot);
+>> +
+>> +    WARN_ON(!pmd_savedwrite(pmd_mk_savedwrite(pmd_clear_savedwrite(pmd))));
+>> +    WARN_ON(pmd_savedwrite(pmd_clear_savedwrite(pmd_mk_savedwrite(pmd))));
+>> +}
+>> +
+>>   #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+>>   static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot)
+>>   {
+>> @@ -100,12 +233,115 @@ static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot)
+>>        */
+>>       WARN_ON(!pud_bad(pud_mkhuge(pud)));
+>>   }
+>> +
+>> +static void pud_advanced_tests(struct mm_struct *mm,
+>> +        struct vm_area_struct *vma, pud_t *pudp,
+>> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+>> +{
+>> +    pud_t pud = pfn_pud(pfn, prot);
+>> +
+>> +    if (!has_transparent_hugepage())
+>> +        return;
+>> +
+>> +    /* Align the address wrt HPAGE_PUD_SIZE */
+>> +    vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
+>> +
+>> +    set_pud_at(mm, vaddr, pudp, pud);
+>> +    pudp_set_wrprotect(mm, vaddr, pudp);
+>> +    pud = READ_ONCE(*pudp);
+>> +    WARN_ON(pud_write(pud));
+>> +
+>> +#ifndef __PAGETABLE_PMD_FOLDED
+>> +    pud = pfn_pud(pfn, prot);
+>> +    set_pud_at(mm, vaddr, pudp, pud);
+>> +    pudp_huge_get_and_clear(mm, vaddr, pudp);
+>> +    pud = READ_ONCE(*pudp);
+>> +    WARN_ON(!pud_none(pud));
+>> +
+>> +    pud = pfn_pud(pfn, prot);
+>> +    set_pud_at(mm, vaddr, pudp, pud);
+>> +    pudp_huge_get_and_clear_full(mm, vaddr, pudp, 1);
+>> +    pud = READ_ONCE(*pudp);
+>> +    WARN_ON(!pud_none(pud));
+>> +#endif /* __PAGETABLE_PMD_FOLDED */
+>> +    pud = pfn_pud(pfn, prot);
+>> +    pud = pud_wrprotect(pud);
+>> +    pud = pud_mkclean(pud);
+>> +    set_pud_at(mm, vaddr, pudp, pud);
+>> +    pud = pud_mkwrite(pud);
+>> +    pud = pud_mkdirty(pud);
+>> +    pudp_set_access_flags(vma, vaddr, pudp, pud, 1);
+>> +    pud = READ_ONCE(*pudp);
+>> +    WARN_ON(!(pud_write(pud) && pud_dirty(pud)));
+>> +
+>> +    pud = pud_mkyoung(pud);
+>> +    set_pud_at(mm, vaddr, pudp, pud);
+>> +    pudp_test_and_clear_young(vma, vaddr, pudp);
+>> +    pud = READ_ONCE(*pudp);
+>> +    WARN_ON(pud_young(pud));
+>> +}
+>> +
+>> +static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot)
+>> +{
+>> +    pud_t pud = pfn_pud(pfn, prot);
+>> +
+>> +    /*
+>> +     * PUD based THP is a leaf entry.
+>> +     */
+>> +    pud = pud_mkhuge(pud);
+>> +    WARN_ON(!pud_leaf(pud));
+>> +}
+>> +
+>> +static void __init pud_huge_tests(pud_t *pudp, unsigned long pfn, pgprot_t prot)
+>> +{
+>> +    pud_t pud;
+>> +
+>> +    if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
+>> +        return;
+>> +    /*
+>> +     * X86 defined pud_set_huge() verifies that the given
+>> +     * PUD is not a populated non-leaf entry.
+>> +     */
+>> +    WRITE_ONCE(*pudp, __pud(0));
+>> +    WARN_ON(!pud_set_huge(pudp, __pfn_to_phys(pfn), prot));
+>> +    WARN_ON(!pud_clear_huge(pudp));
+>> +    pud = READ_ONCE(*pudp);
+>> +    WARN_ON(!pud_none(pud));
+>> +}
+>>   #else  /* !CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
+>>   static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot) { }
+>> +static void pud_advanced_tests(struct mm_struct *mm,
+>> +        struct vm_area_struct *vma, pud_t *pudp,
+>> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+>> +{
+>> +}
+>> +static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot) { }
+>> +static void __init pud_huge_tests(pud_t *pudp, unsigned long pfn, pgprot_t prot)
+>> +{
+>> +}
+>>   #endif /* CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
+>>   #else  /* !CONFIG_TRANSPARENT_HUGEPAGE */
+>>   static void __init pmd_basic_tests(unsigned long pfn, pgprot_t prot) { }
+>>   static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot) { }
+>> +static void __init pmd_advanced_tests(struct mm_struct *mm,
+>> +        struct vm_area_struct *vma, pmd_t *pmdp,
+>> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+>> +{
+>> +}
+>> +static void __init pud_advanced_tests(struct mm_struct *mm,
+>> +        struct vm_area_struct *vma, pud_t *pudp,
+>> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+>> +{
+>> +}
+>> +static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot) { }
+>> +static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot) { }
+>> +static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
+>> +{
+>> +}
+>> +static void __init pud_huge_tests(pud_t *pudp, unsigned long pfn, pgprot_t prot)
+>> +{
+>> +}
+>> +static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot) { }
+>>   #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+>>     static void __init p4d_basic_tests(unsigned long pfn, pgprot_t prot)
+>> @@ -495,8 +731,56 @@ static void __init hugetlb_basic_tests(unsigned long pfn, pgprot_t prot)
+>>       WARN_ON(!pte_huge(pte_mkhuge(pte)));
+>>   #endif /* CONFIG_ARCH_WANT_GENERAL_HUGETLB */
+>>   }
+>> +
+>> +static void __init hugetlb_advanced_tests(struct mm_struct *mm,
+>> +                      struct vm_area_struct *vma,
+>> +                      pte_t *ptep, unsigned long pfn,
+>> +                      unsigned long vaddr, pgprot_t prot)
+>> +{
+>> +    struct page *page = pfn_to_page(pfn);
+>> +    pte_t pte = READ_ONCE(*ptep);
+> 
+> Remplace with ptep_get() to avoid build failure on powerpc 8xx.
 
-1. Adapters, domains and control domains can not be added to or removed
-   from a running guest. In order to modify a guest's AP configuration,
-   the guest must be terminated; only then can AP resources be assigned
-   to or unassigned from the guest's matrix mdev. The new AP 
-   configuration becomes available to the guest when it is subsequently
-   restarted.
-
-2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
-   be modified by a root user without any restrictions. A change to
-   either mask can result in AP queue devices being unbound from the
-   vfio_ap device driver and bound to a zcrypt device driver even if a
-   guest is using the queues, thus giving the host access to the guest's
-   private crypto data and vice versa.
-
-3. The APQNs derived from the Cartesian product of the APIDs of the
-   adapters and APQIs of the domains assigned to a matrix mdev must
-   reference an AP queue device bound to the vfio_ap device driver. The
-   AP architecture allows assignment of AP resources that are not
-   available to the system, so this artificial restriction is not 
-   compliant with the architecture.
-
-4. The AP configuration profile can be dynamically changed for the linux
-   host after a KVM guest is started. For example, a new domain can be
-   dynamically added to the configuration profile via the SE or an HMC
-   connected to a DPM enabled lpar. Likewise, AP adapters can be 
-   dynamically configured (online state) and deconfigured (standby state)
-   using the SE, an SCLP command or an HMC connected to a DPM enabled
-   lpar. This can result in inadvertent sharing of AP queues between the
-   guest and host.
-
-5. A root user can manually unbind an AP queue device representing a 
-   queue in use by a KVM guest via the vfio_ap device driver's sysfs 
-   unbind attribute. In this case, the guest will be using a queue that
-   is not bound to the driver which violates the device model.
-
-This patch series introduces the following changes to the current design
-to alleviate the shortcomings described above as well as to implement
-more of the AP architecture:
-
-1. A root user will be prevented from making changes to the AP bus's
-   /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the ownership of an APQN
-   changes from the vfio_ap device driver to a zcrypt driver when the
-   APQN is assigned to a matrix mdev.
-
-2. Allow a root user to hot plug/unplug AP adapters, domains and control
-   domains using the matrix mdev's assign/unassign attributes.
-
-4. Allow assignment of an AP adapter or domain to a matrix mdev even if
-   it results in assignment of an APQN that does not reference an AP
-   queue device bound to the vfio_ap device driver, as long as the APQN
-   is not reserved for use by the default zcrypt drivers (also known as
-   over-provisioning of AP resources). Allowing over-provisioning of AP
-   resources better models the architecture which does not preclude
-   assigning AP resources that are not yet available in the system. Such
-   APQNs, however, will not be assigned to the guest using the matrix
-   mdev; only APQNs referencing AP queue devices bound to the vfio_ap
-   device driver will actually get assigned to the guest.
-
-5. Handle dynamic changes to the AP device model. 
-
-1. Rationale for changes to AP bus's apmask/aqmask interfaces:
-----------------------------------------------------------
-Due to the extremely sensitive nature of cryptographic data, it is
-imperative that great care be taken to ensure that such data is secured.
-Allowing a root user, either inadvertently or maliciously, to configure
-these masks such that a queue is shared between the host and a guest is
-not only avoidable, it is advisable. It was suggested that this scenario
-is better handled in user space with management software, but that does
-not preclude a malicious administrator from using the sysfs interfaces
-to gain access to a guest's crypto data. It was also suggested that this
-scenario could be avoided by taking access to the adapter away from the
-guest and zeroing out the queues prior to the vfio_ap driver releasing the
-device; however, stealing an adapter in use from a guest as a by-product
-of an operation is bad and will likely cause problems for the guest
-unnecessarily. It was decided that the most effective solution with the
-least number of negative side effects is to prevent the situation at the
-source.
-
-2. Rationale for hot plug/unplug using matrix mdev sysfs interfaces:
-----------------------------------------------------------------
-Allowing a user to hot plug/unplug AP resources using the matrix mdev
-sysfs interfaces circumvents the need to terminate the guest in order to
-modify its AP configuration. Allowing dynamic configuration makes 
-reconfiguring a guest's AP matrix much less disruptive.
-
-3. Rationale for allowing over-provisioning of AP resources:
------------------------------------------------------------ 
-Allowing assignment of AP resources to a matrix mdev and ultimately to a
-guest better models the AP architecture. The architecture does not
-preclude assignment of unavailable AP resources. If a queue subsequently
-becomes available while a guest using the matrix mdev to which its APQN
-is assigned, the guest will be given access to it. If an APQN
-is dynamically unassigned from the underlying host system, it will 
-automatically become unavailable to the guest.
-
-Change log v6-v7:
-----------------
-* Added callbacks to AP bus:
-  - on_config_changed: Notifies implementing drivers that
-    the AP configuration has changed since last AP device scan.
-  - on_scan_complete: Notifies implementing drivers that the device scan
-    has completed.
-  - implemented on_config_changed and on_scan_complete callbacks for
-    vfio_ap device driver.
-  - updated vfio_ap device driver's probe and remove callbacks to handle
-    dynamic changes to the AP device model. 
-* Added code to filter APQNs when assigning AP resources to a KVM guest's
-  CRYCB
-
-Change log v7-v8:
-----------------
-* Now logging a message when an attempt to reserve APQNs for the zcrypt
-  drivers will result in taking a queue away from a KVM guest to provide
-  the sysadmin a way to ascertain why the sysfs operation failed.
-
-* Created locked and unlocked versions of the ap_parse_mask_str() function.
-
-* Now using new interface provided by an AP bus patch -
-  s390/ap: introduce new ap function ap_get_qdev() - to retrieve
-  struct ap_queue representing an AP queue device. This patch is not a
-  part of this series but is a prerequisite for this series. 
-
-Change log v6-v7:
-----------------
-
-Change log v5-v6:
-----------------
-* Fixed a bug in ap_bus.c introduced with patch 2/7 of the v5 
-  series. Harald Freudenberer pointed out that the mutex lock
-  for ap_perms_mutex in the apmask_store and aqmask_store functions
-  was not being freed. 
-
-* Removed patch 6/7 which added logging to the vfio_ap driver
-  to expedite acceptance of this series. The logging will be introduced
-  with a separate patch series to allow more time to explore options
-  such as DBF logging vs. tracepoints.
-
-* Added 3 patches related to ensuring that APQNs that do not reference
-  AP queue devices bound to the vfio_ap device driver are not assigned
-  to the guest CRYCB:
-
-  Patch 4: Filter CRYCB bits for unavailable queue devices
-  Patch 5: sysfs attribute to display the guest CRYCB
-  Patch 6: update guest CRYCB in vfio_ap probe and remove callbacks
-
-* Added a patch (Patch 9) to version the vfio_ap module.
-
-* Reshuffled patches to allow the in_use callback implementation to
-  invoke the vfio_ap_mdev_verify_no_sharing() function introduced in
-  patch 2. 
-
-Change log v4-v5:
-----------------
-* Added a patch to provide kernel s390dbf debug logs for VFIO AP
-
-Change log v3->v4:
------------------
-* Restored patches preventing root user from changing ownership of
-  APQNs from zcrypt drivers to the vfio_ap driver if the APQN is
-  assigned to an mdev.
-
-* No longer enforcing requirement restricting guest access to
-  queues represented by a queue device bound to the vfio_ap
-  device driver.
-
-* Removed shadow CRYCB and now directly updating the guest CRYCB
-  from the matrix mdev's matrix.
-
-* Rebased the patch series on top of 'vfio: ap: AP Queue Interrupt
-  Control' patches.
-
-* Disabled bind/unbind sysfs interfaces for vfio_ap driver
-
-Change log v2->v3:
------------------
-* Allow guest access to an AP queue only if the queue is bound to
-  the vfio_ap device driver.
-
-* Removed the patch to test CRYCB masks before taking the vCPUs
-  out of SIE. Now checking the shadow CRYCB in the vfio_ap driver.
-
-Change log v1->v2:
------------------
-* Removed patches preventing root user from unbinding AP queues from 
-  the vfio_ap device driver
-* Introduced a shadow CRYCB in the vfio_ap driver to manage dynamic 
-  changes to the AP guest configuration due to root user interventions
-  or hardware anomalies.
-
-Harald Freudenberger (2):
-  s390/ap: introduce new ap function ap_get_qdev()
-  s390/zcrypt: Notify driver on config changed and scan complete
-    callbacks
-
-Tony Krowiak (14):
-  s390/vfio-ap: use new AP bus interface to search for queue devices
-  s390/vfio-ap: manage link between queue struct and matrix mdev
-  s390/zcrypt: driver callback to indicate resource in use
-  s390/vfio-ap: implement in-use callback for vfio_ap driver
-  s390/vfio-ap: introduce shadow APCB
-  s390/vfio-ap: sysfs attribute to display the guest's matrix
-  s390/vfio-ap: filter matrix for unavailable queue devices
-  s390/vfio_ap: add qlink from ap_matrix_mdev struct to vfio_ap_queue
-    struct
-  s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
-  s390/vfio-ap: allow configuration of matrix mdev in use by a KVM guest
-  s390/vfio-ap: allow hot plug/unplug of AP resources using mdev device
-  s390/vfio-ap: handle host AP config change notification
-  s390/vfio-ap: handle AP bus scan completed notification
-  s390/vfio-ap: handle probe/remove not due to host AP config changes
-
- drivers/s390/crypto/ap_bus.c          |  417 +++++++--
- drivers/s390/crypto/ap_bus.h          |   41 +-
- drivers/s390/crypto/ap_card.c         |   47 +-
- drivers/s390/crypto/ap_queue.c        |   10 +-
- drivers/s390/crypto/vfio_ap_drv.c     |   34 +-
- drivers/s390/crypto/vfio_ap_ops.c     | 1165 ++++++++++++++++++++-----
- drivers/s390/crypto/vfio_ap_private.h |   23 +-
- 7 files changed, 1339 insertions(+), 398 deletions(-)
-
--- 
-2.21.1
+Sure, will replace all open PTE pointer accesses with ptep_get().
