@@ -1,97 +1,111 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:36348 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726408AbgFOWXK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jun 2020 18:23:10 -0400
-Received: by mail-qt1-f200.google.com with SMTP id t24so15185763qtj.15
-        for <linux-s390@vger.kernel.org>; Mon, 15 Jun 2020 15:23:05 -0700 (PDT)
-From: Peter Xu <peterx@redhat.com>
-Subject: [PATCH 19/25] mm/s390: Use mm_fault_accounting()
-Date: Mon, 15 Jun 2020 18:23:02 -0400
-Message-Id: <20200615222302.8452-1-peterx@redhat.com>
-In-Reply-To: <20200615221607.7764-1-peterx@redhat.com>
-References: <20200615221607.7764-1-peterx@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48172 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387802AbgF2Tks (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:40:48 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 19/20] block: shortcut __submit_bio_noacct for blk-mq drivers
+Date: Mon, 29 Jun 2020 21:39:46 +0200
+Message-Id: <20200629193947.2705954-20-hch@lst.de>
+In-Reply-To: <20200629193947.2705954-1-hch@lst.de>
+References: <20200629193947.2705954-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Peter Xu <peterx@redhat.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Andrea Arcangeli <aarcange@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-Use the new mm_fault_accounting() helper for page fault accounting.
+For blk-mq drivers bios can only be inserted for the same queue.  So
+bypass the complicated sorting logic in __submit_bio_noacct with
+a blk-mq simpler submission helper.
 
-Avoid doing page fault accounting multiple times if the page fault is retried.
-
-CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-CC: Vasily Gorbik <gor@linux.ibm.com>
-CC: Christian Borntraeger <borntraeger@de.ibm.com>
-CC: linux-s390@vger.kernel.org
-Signed-off-by: Peter Xu <peterx@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/mm/fault.c | 21 +++++----------------
- 1 file changed, 5 insertions(+), 16 deletions(-)
+ block/blk-core.c | 50 +++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 35 insertions(+), 15 deletions(-)
 
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index dedc28be27ab..8ca207635b59 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -392,7 +392,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	unsigned long trans_exc_code;
- 	unsigned long address;
- 	unsigned int flags;
--	vm_fault_t fault;
-+	vm_fault_t fault, major = 0;
+diff --git a/block/blk-core.c b/block/blk-core.c
+index b82f48c86e6f7a..46e3c0a37cc377 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -1071,20 +1071,6 @@ static noinline_for_stack bool submit_bio_checks(struct bio *bio)
+ 	return false;
+ }
  
- 	tsk = current;
- 	/*
-@@ -428,7 +428,6 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+-static blk_qc_t do_make_request(struct bio *bio)
+-{
+-	struct gendisk *disk = bio->bi_disk;
+-	blk_qc_t ret = BLK_QC_T_NONE;
+-
+-	if (blk_crypto_bio_prep(&bio)) {
+-		if (!disk->fops->submit_bio)
+-			return blk_mq_submit_bio(bio);
+-		ret = disk->fops->submit_bio(bio);
+-	}
+-	blk_queue_exit(disk->queue);
+-	return ret;
+-}
+-
+ /*
+  * The loop in this function may be a bit non-obvious, and so deserves some
+  * explanation:
+@@ -1127,7 +1113,11 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ 		bio_list_on_stack[1] = bio_list_on_stack[0];
+ 		bio_list_init(&bio_list_on_stack[0]);
+ 
+-		ret = do_make_request(bio);
++		if (blk_crypto_bio_prep(&bio))
++			ret = bio->bi_disk->fops->submit_bio(bio);
++		else
++			ret = BLK_QC_T_NONE;
++		blk_queue_exit(q);
+ 
+ 		/*
+ 		 * Sort new bios into those for a lower level and those for the
+@@ -1153,6 +1143,34 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
+ 	return ret;
+ }
+ 
++static blk_qc_t __submit_bio_noacct_mq(struct bio *bio)
++{
++	struct gendisk *disk = bio->bi_disk;
++	struct bio_list bio_list;
++	blk_qc_t ret = BLK_QC_T_NONE;
++
++	bio_list_init(&bio_list);
++	current->bio_list = &bio_list;
++
++	do {
++		WARN_ON_ONCE(bio->bi_disk != disk);
++
++		if (unlikely(bio_queue_enter(bio) != 0))
++			continue;
++
++		if (!blk_crypto_bio_prep(&bio)) {
++			blk_queue_exit(disk->queue);
++			ret = BLK_QC_T_NONE;
++			continue;
++		}
++
++		ret = blk_mq_submit_bio(bio);
++	} while ((bio = bio_list_pop(&bio_list)));
++
++	current->bio_list = NULL;
++	return ret;
++}
++
+ /**
+  * submit_bio_noacct - re-submit a bio to the block device layer for I/O
+  * @bio:  The bio describing the location in memory and on the device.
+@@ -1182,6 +1200,8 @@ blk_qc_t submit_bio_noacct(struct bio *bio)
+ 		return BLK_QC_T_NONE;
  	}
  
- 	address = trans_exc_code & __FAIL_ADDR_MASK;
--	perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS, 1, regs, address);
- 	flags = FAULT_FLAG_DEFAULT;
- 	if (user_mode(regs))
- 		flags |= FAULT_FLAG_USER;
-@@ -480,6 +479,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	 * the fault.
- 	 */
- 	fault = handle_mm_fault(vma, address, flags);
-+	major |= fault & VM_FAULT_MAJOR;
- 	if (fault_signal_pending(fault, regs)) {
- 		fault = VM_FAULT_SIGNAL;
- 		if (flags & FAULT_FLAG_RETRY_NOWAIT)
-@@ -489,21 +489,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 	if (unlikely(fault & VM_FAULT_ERROR))
- 		goto out_up;
- 
--	/*
--	 * Major/minor page fault accounting is only done on the
--	 * initial attempt. If we go through a retry, it is extremely
--	 * likely that the page will be found in page cache at that point.
--	 */
- 	if (flags & FAULT_FLAG_ALLOW_RETRY) {
--		if (fault & VM_FAULT_MAJOR) {
--			tsk->maj_flt++;
--			perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS_MAJ, 1,
--				      regs, address);
--		} else {
--			tsk->min_flt++;
--			perf_sw_event(PERF_COUNT_SW_PAGE_FAULTS_MIN, 1,
--				      regs, address);
--		}
- 		if (fault & VM_FAULT_RETRY) {
- 			if (IS_ENABLED(CONFIG_PGSTE) && gmap &&
- 			    (flags & FAULT_FLAG_RETRY_NOWAIT)) {
-@@ -519,6 +505,9 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
- 			goto retry;
- 		}
- 	}
-+
-+	mm_fault_accounting(tsk, regs, address, major);
-+
- 	if (IS_ENABLED(CONFIG_PGSTE) && gmap) {
- 		address =  __gmap_link(gmap, current->thread.gmap_addr,
- 				       address);
++	if (bio->bi_disk->queue->mq_ops)
++		return __submit_bio_noacct_mq(bio);
+ 	return __submit_bio_noacct(bio);
+ }
+ EXPORT_SYMBOL(submit_bio_noacct);
 -- 
 2.26.2
