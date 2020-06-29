@@ -1,80 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22770 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728411AbgFOJcL (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64878 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726158AbgF2Swk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jun 2020 05:32:11 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v9 06/12] s390x: clock and delays caluculations
-Date: Mon, 15 Jun 2020 11:31:55 +0200
-Message-Id: <1592213521-19390-7-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
-References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
+        Mon, 29 Jun 2020 14:52:40 -0400
+Date: Mon, 29 Jun 2020 14:44:32 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH RFC 2/2] s390/mm: don't set ARCH_KEEP_MEMBLOCK
+Message-ID: <20200629124432.GE4468@osiris>
+References: <20200417150151.17239-1-david@redhat.com>
+ <20200417150151.17239-3-david@redhat.com>
+ <20200626163215.GA4268@osiris>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200626163215.GA4268@osiris>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>
 
-The hardware gives us a good definition of the microsecond,
-let's keep this information and let the routine accessing
-the hardware keep all the information and return microseconds.
+On Fri, Jun 26, 2020 at 06:32:15PM +0200, Heiko Carstens wrote:
+> On Fri, Apr 17, 2020 at 05:01:51PM +0200, David Hildenbrand wrote:
+> > Commit 50be63450728 ("s390/mm: Convert bootmem to memblock") mentions
+> > 	"The original bootmem allocator is getting replaced by memblock. To
+> > 	cover the needs of the s390 kdump implementation the physical
+> > 	memory list is used."
+> > 
+> > zcore was converted to use resources instead of memblocks.
+> > memblock_discard() will *not* mess with "physmem", only with "memory" and
+> > "reserved" memblocks. So, that data will stay after early boot, to be
+> > used in arch/s390/kernel/crash_dump.c to create the ELF header from
+> > inside the 2nd (a.k.a. dumping) kernel.
+> > 
+> > We no longer need ARCH_KEEP_MEMBLOCK.
+> > 
+> > Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > Cc: Vasily Gorbik <gor@linux.ibm.com>
+> > Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> > Cc: Philipp Rudo <prudo@linux.ibm.com>
+> > Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+> > Signed-off-by: David Hildenbrand <david@redhat.com>
+> > ---
+> >  arch/s390/Kconfig | 1 -
+> >  1 file changed, 1 deletion(-)
+> 
+> Applied, thanks!
 
-Calculate delays in microseconds and take care about wrapping
-around zero.
+Hmm, this triggers:
 
-Define values with macros and use inlines to keep the
-milliseconds interface.
+WARNING: modpost: vmlinux.o(.text+0x1e7c2): Section mismatch in reference from the function elfcorehdr_alloc() to the variable .meminit.data:memblock
+The function elfcorehdr_alloc() references
+the variable __meminitdata memblock.
+This is often because elfcorehdr_alloc lacks a __meminitdata 
+annotation or the annotation of memblock is wrong.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/asm/time.h | 29 +++++++++++++++++++++++++++--
- 1 file changed, 27 insertions(+), 2 deletions(-)
+WARNING: modpost: vmlinux.o(.text+0x1e800): Section mismatch in reference from the function elfcorehdr_alloc() to the function .meminit.text:__next_mem_range()
+The function elfcorehdr_alloc() references
+the function __meminit __next_mem_range().
+This is often because elfcorehdr_alloc lacks a __meminit 
+annotation or the annotation of __next_mem_range is wrong.
 
-diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
-index 1791380..7f1d891 100644
---- a/lib/s390x/asm/time.h
-+++ b/lib/s390x/asm/time.h
-@@ -13,14 +13,39 @@
- #ifndef ASM_S390X_TIME_H
- #define ASM_S390X_TIME_H
- 
--static inline uint64_t get_clock_ms(void)
-+#define STCK_SHIFT_US	(63 - 51)
-+#define STCK_MAX	((1UL << 52) - 1)
-+
-+static inline uint64_t get_clock_us(void)
- {
- 	uint64_t clk;
- 
- 	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
- 
- 	/* Bit 51 is incrememented each microsecond */
--	return (clk >> (63 - 51)) / 1000;
-+	return clk >> STCK_SHIFT_US;
-+}
-+
-+static inline void udelay(unsigned long us)
-+{
-+	unsigned long startclk = get_clock_us();
-+	unsigned long c;
-+
-+	do {
-+		c = get_clock_us();
-+		if (c < startclk)
-+			c += STCK_MAX;
-+	} while (c < startclk + us);
-+}
-+
-+static inline void mdelay(unsigned long ms)
-+{
-+	udelay(ms * 1000);
-+}
-+
-+static inline uint64_t get_clock_ms(void)
-+{
-+	return get_clock_us() / 1000;
- }
- 
- #endif
--- 
-2.25.1
+WARNING: modpost: vmlinux.o(.text+0x1e844): Section mismatch in reference from the function elfcorehdr_alloc() to the function .meminit.text:__next_mem_range()
+The function elfcorehdr_alloc() references
+the function __meminit __next_mem_range().
+This is often because elfcorehdr_alloc lacks a __meminit 
+annotation or the annotation of __next_mem_range is wrong.
+
+So, reverted again ;)
