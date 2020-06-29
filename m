@@ -1,28 +1,27 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:40110 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732408AbgF2TY4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 29 Jun 2020 15:24:56 -0400
+Return-Path: <linux-arch-owner@vger.kernel.org>
 Subject: Re: [PATCH V3 2/4] mm/debug_vm_pgtable: Add tests validating advanced
  arch page table helpers
 References: <1592192277-8421-1-git-send-email-anshuman.khandual@arm.com>
  <1592192277-8421-3-git-send-email-anshuman.khandual@arm.com>
- <6da177e6-9219-9ccf-a402-f4293c7564f7@csgroup.eu>
+ <4da41eee-5ce0-2a5e-40eb-4424655b3489@csgroup.eu>
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Message-ID: <bdea0704-11a5-aab3-c9ce-a9e388394836@arm.com>
-Date: Mon, 29 Jun 2020 13:39:28 +0530
+Message-ID: <1a6138ca-40b0-5076-2f09-4ce6b7ee8d36@arm.com>
+Date: Mon, 29 Jun 2020 13:45:37 +0530
 MIME-Version: 1.0
-In-Reply-To: <6da177e6-9219-9ccf-a402-f4293c7564f7@csgroup.eu>
+In-Reply-To: <4da41eee-5ce0-2a5e-40eb-4424655b3489@csgroup.eu>
 Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christophe Leroy <christophe.leroy@csgroup.eu>, linux-mm@kvack.org
-Cc: christophe.leroy@c-s.fr, ziy@nvidia.com, gerald.schaefer@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: ziy@nvidia.com, gerald.schaefer@de.ibm.com, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
-On 06/27/2020 12:48 PM, Christophe Leroy wrote:
+
+On 06/27/2020 12:56 PM, Christophe Leroy wrote:
+> 
+> 
 > Le 15/06/2020 à 05:37, Anshuman Khandual a écrit :
 >> This adds new tests validating for these following arch advanced page table
 >> helpers. These tests create and test specific mapping types at various page
@@ -95,6 +94,9 @@ On 06/27/2020 12:48 PM, Christophe Leroy wrote:
 >>   +static void __init pte_advanced_tests(struct mm_struct *mm,
 >> +            struct vm_area_struct *vma, pte_t *ptep,
 >> +            unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+> 
+> Align args properly.
+> 
 >> +{
 >> +    pte_t pte = pfn_pte(pfn, prot);
 >> +
@@ -102,18 +104,12 @@ On 06/27/2020 12:48 PM, Christophe Leroy wrote:
 >> +    set_pte_at(mm, vaddr, ptep, pte);
 >> +    ptep_set_wrprotect(mm, vaddr, ptep);
 >> +    pte = READ_ONCE(*ptep);
-> 
-> same
-> 
 >> +    WARN_ON(pte_write(pte));
 >> +
 >> +    pte = pfn_pte(pfn, prot);
 >> +    set_pte_at(mm, vaddr, ptep, pte);
 >> +    ptep_get_and_clear(mm, vaddr, ptep);
 >> +    pte = READ_ONCE(*ptep);
-> 
-> same
-> 
 >> +    WARN_ON(!pte_none(pte));
 >> +
 >> +    pte = pfn_pte(pfn, prot);
@@ -124,27 +120,18 @@ On 06/27/2020 12:48 PM, Christophe Leroy wrote:
 >> +    pte = pte_mkdirty(pte);
 >> +    ptep_set_access_flags(vma, vaddr, ptep, pte, 1);
 >> +    pte = READ_ONCE(*ptep);
-> 
-> same
-> 
 >> +    WARN_ON(!(pte_write(pte) && pte_dirty(pte)));
 >> +
 >> +    pte = pfn_pte(pfn, prot);
 >> +    set_pte_at(mm, vaddr, ptep, pte);
 >> +    ptep_get_and_clear_full(mm, vaddr, ptep, 1);
 >> +    pte = READ_ONCE(*ptep);
-> 
-> same
-> 
 >> +    WARN_ON(!pte_none(pte));
 >> +
 >> +    pte = pte_mkyoung(pte);
 >> +    set_pte_at(mm, vaddr, ptep, pte);
 >> +    ptep_test_and_clear_young(vma, vaddr, ptep);
 >> +    pte = READ_ONCE(*ptep);
-> 
-> same
-> 
 >> +    WARN_ON(pte_young(pte));
 >> +}
 >> +
@@ -164,6 +151,9 @@ On 06/27/2020 12:48 PM, Christophe Leroy wrote:
 >>   +static void __init pmd_advanced_tests(struct mm_struct *mm,
 >> +        struct vm_area_struct *vma, pmd_t *pmdp,
 >> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+> 
+> Align args properly
+> 
 >> +{
 >> +    pmd_t pmd = pfn_pmd(pfn, prot);
 >> +
@@ -255,6 +245,9 @@ On 06/27/2020 12:48 PM, Christophe Leroy wrote:
 >> +static void pud_advanced_tests(struct mm_struct *mm,
 >> +        struct vm_area_struct *vma, pud_t *pudp,
 >> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+> 
+> Align args properly
+> 
 >> +{
 >> +    pud_t pud = pfn_pud(pfn, prot);
 >> +
@@ -331,6 +324,9 @@ On 06/27/2020 12:48 PM, Christophe Leroy wrote:
 >> +static void pud_advanced_tests(struct mm_struct *mm,
 >> +        struct vm_area_struct *vma, pud_t *pudp,
 >> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+> 
+> Align args properly
+> 
 >> +{
 >> +}
 >> +static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot) { }
@@ -344,37 +340,16 @@ On 06/27/2020 12:48 PM, Christophe Leroy wrote:
 >> +static void __init pmd_advanced_tests(struct mm_struct *mm,
 >> +        struct vm_area_struct *vma, pmd_t *pmdp,
 >> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
+> 
+> Align args properly
+> 
 >> +{
 >> +}
 >> +static void __init pud_advanced_tests(struct mm_struct *mm,
 >> +        struct vm_area_struct *vma, pud_t *pudp,
 >> +        unsigned long pfn, unsigned long vaddr, pgprot_t prot)
->> +{
->> +}
->> +static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot) { }
->> +static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot) { }
->> +static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
->> +{
->> +}
->> +static void __init pud_huge_tests(pud_t *pudp, unsigned long pfn, pgprot_t prot)
->> +{
->> +}
->> +static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot) { }
->>   #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
->>     static void __init p4d_basic_tests(unsigned long pfn, pgprot_t prot)
->> @@ -495,8 +731,56 @@ static void __init hugetlb_basic_tests(unsigned long pfn, pgprot_t prot)
->>       WARN_ON(!pte_huge(pte_mkhuge(pte)));
->>   #endif /* CONFIG_ARCH_WANT_GENERAL_HUGETLB */
->>   }
->> +
->> +static void __init hugetlb_advanced_tests(struct mm_struct *mm,
->> +                      struct vm_area_struct *vma,
->> +                      pte_t *ptep, unsigned long pfn,
->> +                      unsigned long vaddr, pgprot_t prot)
->> +{
->> +    struct page *page = pfn_to_page(pfn);
->> +    pte_t pte = READ_ONCE(*ptep);
 > 
-> Remplace with ptep_get() to avoid build failure on powerpc 8xx.
+> Align args properly
+> 
 
-Sure, will replace all open PTE pointer accesses with ptep_get().
+Sure, will fix the arguments alignment in the above mentioned places.
