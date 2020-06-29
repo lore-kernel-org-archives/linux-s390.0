@@ -1,107 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17036 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404222AbgFYMEO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 25 Jun 2020 08:04:14 -0400
-Date: Thu, 25 Jun 2020 14:03:27 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.8-rc3
-Message-ID: <20200625120327.GA7638@osiris>
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:46365 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391466AbgF2Vrq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 17:47:46 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20200629193947.2705954-1-hch@lst.de> <20200629193947.2705954-2-hch@lst.de>
+In-Reply-To: <20200629193947.2705954-2-hch@lst.de>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 29 Jun 2020 23:47:35 +0200
+Message-ID: <CAMuHMdXXORM_yD4bqk+MQ1yEA1jmOjO9eyfnsjxY1a5E5isEcg@mail.gmail.com>
+Subject: Re: [PATCH 01/20] nfblock: stop using ->queuedata
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, dm-devel@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, "open list:TENSILICA XTENSA PORT (xtensa)" <linux-xtensa@linux-xtensa.org>, Lars Ellenberg <drbd-dev@lists.linbit.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, "linux-nvdimm@lists.01.org" <linux-nvdimm@lists.01.org>, linux-nvme@lists.infradead.org, linux-s390 <linux-s390@vger.kernel.org>
 
-Hi Linus,
+On Mon, Jun 29, 2020 at 9:40 PM Christoph Hellwig <hch@lst.de> wrote:
+> Instead of setting up the queuedata as well just use one private data
+> field.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-please pull s390 updates for 5.8-rc3
+Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Thanks,
-Heiko
+Gr{oetje,eeting}s,
 
-The following changes since commit 48778464bb7d346b47157d21ffde2af6b2d39110:
+                        Geert
 
-  Linux 5.8-rc2 (2020-06-21 15:45:29 -0700)
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.8-3
-
-for you to fetch changes up to 827c4913923e0b441ba07ba4cc41e01181102303:
-
-  s390/debug: avoid kernel warning on too large number of pages (2020-06-23 14:05:55 +0200)
-
-----------------------------------------------------------------
-s390 fixes for 5.8-rc3
-
-- Fix kernel crash on system call single stepping.
-
-- Make sure early program check handler is executed with DAT on to
-  avoid an endless program check loop.
-
-- Add __GFP_NOWARN flag to debug feature to avoid user triggerable
-  allocation failure messages.
-
-----------------------------------------------------------------
-Christian Borntraeger (1):
-      s390/debug: avoid kernel warning on too large number of pages
-
-Sven Schnelle (1):
-      s390: fix system call single stepping
-
-Vasily Gorbik (1):
-      s390/kasan: fix early pgm check handler execution
-
- arch/s390/kernel/debug.c | 3 ++-
- arch/s390/kernel/early.c | 2 ++
- arch/s390/kernel/entry.S | 2 +-
- 3 files changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index 636446003a06..263075a1af36 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -198,9 +198,10 @@ static debug_entry_t ***debug_areas_alloc(int pages_per_area, int nr_areas)
- 	if (!areas)
- 		goto fail_malloc_areas;
- 	for (i = 0; i < nr_areas; i++) {
-+		/* GFP_NOWARN to avoid user triggerable WARN, we handle fails */
- 		areas[i] = kmalloc_array(pages_per_area,
- 					 sizeof(debug_entry_t *),
--					 GFP_KERNEL);
-+					 GFP_KERNEL | __GFP_NOWARN);
- 		if (!areas[i])
- 			goto fail_malloc_areas2;
- 		for (j = 0; j < pages_per_area; j++) {
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index cd241ee66eff..078277231858 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -170,6 +170,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
- 
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 496f74d98473..969b35b177dd 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -378,9 +378,9 @@ ENTRY(system_call)
- 	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
- 	BPOFF
- 	lg	%r12,__LC_CURRENT
--	lghi	%r13,__TASK_thread
- 	lghi	%r14,_PIF_SYSCALL
- .Lsysc_per:
-+	lghi	%r13,__TASK_thread
- 	lg	%r15,__LC_KERNEL_STACK
- 	la	%r11,STACK_FRAME_OVERHEAD(%r15)	# pointer to pt_regs
- 	UPDATE_VTIME %r8,%r9,__LC_SYNC_ENTER_TIMER
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
