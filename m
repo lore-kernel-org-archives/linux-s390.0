@@ -1,57 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58500 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725954AbgFJBpR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 9 Jun 2020 21:45:17 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6524DC03E96B
-        for <linux-s390@vger.kernel.org>; Tue,  9 Jun 2020 18:45:16 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id n141so640557qke.2
-        for <linux-s390@vger.kernel.org>; Tue, 09 Jun 2020 18:45:16 -0700 (PDT)
-From: Qian Cai <cai@lca.pw>
-Subject: [PATCH] s390: set NODES_SHIFT=0 when NUMA=n
-Date: Tue,  9 Jun 2020 21:45:01 -0400
-Message-Id: <20200610014501.4268-1-cai@lca.pw>
+        with ESMTP id S1731981AbgF2Tke (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 29 Jun 2020 15:40:34 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 13/20] block: tidy up a warning in bio_check_ro
+Date: Mon, 29 Jun 2020 21:39:40 +0200
+Message-Id: <20200629193947.2705954-14-hch@lst.de>
+In-Reply-To: <20200629193947.2705954-1-hch@lst.de>
+References: <20200629193947.2705954-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Qian Cai <cai@lca.pw>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-When NUMA=n and nr_node_ids=2, in apply_wqattrs_prepare(), it has,
+The "generic_make_request: " prefix has no value, and will soon become
+stale.
 
-for_each_node(node) {
-	if (wq_calc_node_cpumask(...
-
-where it will trigger a booting warning,
-
-WARNING: workqueue cpumask: online intersect > possible intersect
-
-because it found 2 nodes and wq_numa_possible_cpumask[1] is an empty
-cpumask. NUMA=y has no such problem because node_possible_map will be
-initialized properly containing only node 0. Fix it by setting
-NODES_SHIFT=0 when NUMA=n.
-
-Fixes: 701dc81e7412 ("s390/mm: remove fake numa support")
-Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ block/blk-core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index f854faff38c3..59625356d18a 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -462,7 +462,8 @@ config NUMA
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 76cfd5709f66cd..95dca74534ff73 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -869,8 +869,7 @@ static inline bool bio_check_ro(struct bio *bio, struct hd_struct *part)
+ 			return false;
  
- config NODES_SHIFT
- 	int
--	default "1"
-+	default "1" if NUMA
-+	default "0"
- 
- config SCHED_SMT
- 	def_bool n
+ 		WARN_ONCE(1,
+-		       "generic_make_request: Trying to write "
+-			"to read-only block-device %s (partno %d)\n",
++		       "Trying to write to read-only block-device %s (partno %d)\n",
+ 			bio_devname(bio, b), part->partno);
+ 		/* Older lvm-tools actually trigger this */
+ 		return false;
 -- 
-2.21.0 (Apple Git-122.2)
+2.26.2
