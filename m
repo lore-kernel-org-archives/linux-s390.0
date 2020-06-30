@@ -1,304 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29542 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18824 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729297AbgFOJcO (ORCPT
+        by vger.kernel.org with ESMTP id S1732042AbgF3Mdh (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 15 Jun 2020 05:32:14 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v9 12/12] s390x: css: ssch/tsch with sense and interrupt
-Date: Mon, 15 Jun 2020 11:32:01 +0200
-Message-Id: <1592213521-19390-13-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
-References: <1592213521-19390-1-git-send-email-pmorel@linux.ibm.com>
+        Tue, 30 Jun 2020 08:33:37 -0400
+Date: Tue, 30 Jun 2020 14:33:20 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [PATCH] mm/page_alloc: silence a KASAN false positive
+Message-ID: <your-ad-here.call-01593520400-ext-3384@work.hours>
+References: <20200610052154.5180-1-cai@lca.pw>
+ <CACT4Y+Ze=cddKcU_bYf4L=GaHuJRUjY=AdFFpM7aKy2+aZrmyQ@mail.gmail.com>
+ <20200610122600.GB954@lca.pw>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200610122600.GB954@lca.pw>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Qian Cai <cai@lca.pw>
+Cc: Dmitry Vyukov <dvyukov@google.com>, Andrew Morton <akpm@linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Alexander Potapenko <glider@google.com>, Kees Cook <keescook@chromium.org>, kasan-dev <kasan-dev@googlegroups.com>, Linux-MM <linux-mm@kvack.org>, linux-s390 <linux-s390@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>
 
-After a channel is enabled we start a SENSE_ID command using
-the SSCH instruction to recognize the control unit and device.
+On Wed, Jun 10, 2020 at 08:26:00AM -0400, Qian Cai wrote:
+> On Wed, Jun 10, 2020 at 07:54:50AM +0200, Dmitry Vyukov wrote:
+> > On Wed, Jun 10, 2020 at 7:22 AM Qian Cai <cai@lca.pw> wrote:
+> > >
+> > > kernel_init_free_pages() will use memset() on s390 to clear all pages
+> > > from kmalloc_order() which will override KASAN redzones because a
+> > > redzone was setup from the end of the allocation size to the end of the
+> > > last page. Silence it by not reporting it there. An example of the
+> > > report is,
+> > 
+> > Interesting. The reason why we did not hit it on x86_64 is because
+> > clear_page is implemented in asm (arch/x86/lib/clear_page_64.S) and
+> > thus is not instrumented. Arm64 probably does the same. However, on
+> > s390 clear_page is defined to memset.
+> > clear_[high]page are pretty extensively used in the kernel.
+> > We can either do this, or make clear_page non instrumented on s390 as
+> > well to match the existing implicit assumption. The benefit of the
+> > current approach is that we can find some real use-after-free's and
+> > maybe out-of-bounds on clear_page. The downside is that we may need
+> > more of these annotations. Thoughts?
+> 
+> Since we had already done the same thing in poison_page(), I suppose we
+> could do the same here. Also, clear_page() has been used in many places
+> on s390, and it is not clear to me if those are all safe like this.
+> 
+> There might be more annotations required, so it probably up to s390
+> maintainers (CC'ed) if they prefer not instrumenting clear_page() like
+> other arches.
+> 
 
-This tests the success of SSCH, the I/O interruption and the TSCH
-instructions.
+Sorry for delay. I assume you tested it without CONFIG_JUMP_LABEL.
+I had to fix couple of things before I was able to use init_on_alloc=1
+and init_on_free=1 boot options on s390 to reproduce KASAN problem:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.8-rc3&id=998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7
+https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=fixes&id=95e61b1b5d6394b53d147c0fcbe2ae70fbe09446
+https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=fixes&id=d6df52e9996dcc2062c3d9c9123288468bb95b52
 
-The SENSE_ID command response is tested to report 0xff inside
-its reserved field and to report the same control unit type
-as the cu_type kernel argument.
+Back to clear_page - we could certainly make it non-instrumented. But
+it didn't cause any problems so far. And as Dmitry pointed out we
+could potentially find additional bugs with it. So, I'm leaning
+towards original solution proposed. For that you have my
 
-Without the cu_type kernel argument, the test expects a device
-with a default control unit type of 0x3832, a.k.a virtio-net-ccw.
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Tested-by: Vasily Gorbik <gor@linux.ibm.com>
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/css.h     |  20 +++++++
- lib/s390x/css_lib.c |  46 +++++++++++++++
- s390x/css.c         | 140 +++++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 205 insertions(+), 1 deletion(-)
+Thank you for looking into this!
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index 0ddceb1..3091d63 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -100,6 +100,19 @@ struct irb {
- 	uint32_t emw[8];
- } __attribute__ ((aligned(4)));
- 
-+#define CCW_CMD_SENSE_ID	0xe4
-+#define CSS_SENSEID_COMMON_LEN	8
-+struct senseid {
-+	/* common part */
-+	uint8_t reserved;        /* always 0x'FF' */
-+	uint16_t cu_type;        /* control unit type */
-+	uint8_t cu_model;        /* control unit model */
-+	uint16_t dev_type;       /* device type */
-+	uint8_t dev_model;       /* device model */
-+	uint8_t unused;          /* padding byte */
-+	uint8_t padding[256 - 10]; /* Extra padding for CCW */
-+} __attribute__ ((aligned(4))) __attribute__ ((packed));
-+
- /* CSS low level access functions */
- 
- static inline int ssch(unsigned long schid, struct orb *addr)
-@@ -253,4 +266,11 @@ int css_enumerate(void);
- #define MAX_ENABLE_RETRIES      5
- int css_enable(int schid);
- 
-+
-+/* Library functions */
-+int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
-+int start_subchannel(unsigned int sid, int code, void *data, int count,
-+		     unsigned char flags);
-+int sch_read_len(int sid);
-+
- #endif
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index 06a76db..c3d93d3 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -128,3 +128,49 @@ retry:
- 		    schid, retry_count, pmcw->flags);
- 	return -1;
- }
-+
-+int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
-+{
-+	struct orb orb = {
-+		.intparm = sid,
-+		.ctrl = ORB_CTRL_ISIC|ORB_CTRL_FMT|ORB_LPM_DFLT,
-+		.cpa = (unsigned int) (unsigned long)ccw,
-+	};
-+
-+	return ssch(sid, &orb);
-+}
-+
-+/*
-+ * In the next revisions we will implement the possibility to handle
-+ * CCW chains doing this we will need to work with ccw1 pointers.
-+ * For now we only need a unique CCW.
-+ */
-+static struct ccw1 unique_ccw;
-+
-+int start_subchannel(unsigned int sid, int code, void *data, int count,
-+		     unsigned char flags)
-+{
-+	int cc;
-+	struct ccw1 *ccw = &unique_ccw;
-+
-+	report_prefix_push("start_subchannel");
-+	/* Build the CCW chain with a single CCW */
-+	ccw->code = code;
-+	ccw->flags = flags; /* No flags need to be set */
-+	ccw->count = count;
-+	ccw->data_address = (int)(unsigned long)data;
-+
-+	cc = start_ccw1_chain(sid, ccw);
-+	if (cc) {
-+		report(0, "start_ccw_chain failed ret=%d", cc);
-+		report_prefix_pop();
-+		return cc;
-+	}
-+	report_prefix_pop();
-+	return 0;
-+}
-+
-+int sch_read_len(int sid)
-+{
-+	return unique_ccw.count;
-+}
-diff --git a/s390x/css.c b/s390x/css.c
-index 6948d73..6b618a1 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -16,10 +16,18 @@
- #include <string.h>
- #include <interrupt.h>
- #include <asm/arch_def.h>
-+#include <kernel-args.h>
- 
- #include <css.h>
- 
-+#define DEFAULT_CU_TYPE		0x3832
-+static unsigned long cu_type = DEFAULT_CU_TYPE;
-+
-+struct lowcore *lowcore = (void *)0x0;
-+
- static int test_device_sid;
-+static struct irb irb;
-+static struct senseid senseid;
- 
- static void test_enumerate(void)
- {
-@@ -45,20 +53,150 @@ static void test_enable(void)
- 	report(cc == 0, "Enable subchannel %08x", test_device_sid);
- }
- 
-+static void enable_io_isc(void)
-+{
-+	/* Let's enable all ISCs for I/O interrupt */
-+	lctlg(6, 0x00000000ff000000);
-+}
-+
-+static void irq_io(void)
-+{
-+	int ret = 0;
-+	char *flags;
-+	int sid;
-+
-+	report_prefix_push("Interrupt");
-+	/* Lowlevel set the SID as interrupt parameter. */
-+	if (lowcore->io_int_param != test_device_sid) {
-+		report(0,
-+		       "Bad io_int_param: %x expected %x",
-+		       lowcore->io_int_param, test_device_sid);
-+		goto pop;
-+	}
-+	report_prefix_pop();
-+
-+	report_prefix_push("tsch");
-+	sid = lowcore->subsys_id_word;
-+	ret = tsch(sid, &irb);
-+	switch (ret) {
-+	case 1:
-+		dump_irb(&irb);
-+		flags = dump_scsw_flags(irb.scsw.ctrl);
-+		report(0,
-+		       "I/O interrupt, CC 1 but tsch reporting sch %08x as not status pending: %s",
-+		       sid, flags);
-+		break;
-+	case 2:
-+		report(0, "tsch returns unexpected CC 2");
-+		break;
-+	case 3:
-+		report(0, "tsch reporting sch %08x as not operational", sid);
-+		break;
-+	case 0:
-+		/* Stay humble on success */
-+		break;
-+	}
-+pop:
-+	report_prefix_pop();
-+	lowcore->io_old_psw.mask &= ~PSW_MASK_WAIT;
-+}
-+
-+/*
-+ * test_sense
-+ * Pre-requisits:
-+ * - We need the test device as the first recognized
-+ *   device by the enumeration.
-+ */
-+static void test_sense(void)
-+{
-+	int ret;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+
-+	ret = css_enable(test_device_sid);
-+	if (ret) {
-+		report(0,
-+		       "Could not enable the subchannel: %08x",
-+		       test_device_sid);
-+		return;
-+	}
-+
-+	ret = register_io_int_func(irq_io);
-+	if (ret) {
-+		report(0, "Could not register IRQ handler");
-+		goto unreg_cb;
-+	}
-+
-+	lowcore->io_int_param = 0;
-+
-+	memset(&senseid, 0, sizeof(senseid));
-+	ret = start_subchannel(test_device_sid, CCW_CMD_SENSE_ID,
-+			       &senseid, sizeof(senseid), CCW_F_SLI);
-+	if (ret) {
-+		report(0, "ssch failed for SENSE ID on sch %08x with cc %d",
-+		       test_device_sid, ret);
-+		goto unreg_cb;
-+	}
-+
-+	wait_for_interrupt(PSW_MASK_IO);
-+
-+	ret = sch_read_len(test_device_sid);
-+	if (ret < CSS_SENSEID_COMMON_LEN) {
-+		report(0,
-+		       "ssch succeeded for SENSE ID but report a too short length: %d",
-+		       ret);
-+		goto unreg_cb;
-+	}
-+
-+	if (senseid.reserved != 0xff) {
-+		report(0,
-+		       "ssch succeeded for SENSE ID but reports garbage: %x",
-+		       senseid.reserved);
-+		goto unreg_cb;
-+	}
-+
-+	if (lowcore->io_int_param != test_device_sid)
-+		goto unreg_cb;
-+
-+	report_info("senseid length read: %d", ret);
-+	report_info("reserved %02x cu_type %04x cu_model %02x dev_type %04x dev_model %02x",
-+		    senseid.reserved, senseid.cu_type, senseid.cu_model,
-+		    senseid.dev_type, senseid.dev_model);
-+
-+	report(senseid.cu_type == cu_type, "cu_type: expect 0x%04x got 0x%04x",
-+	       (uint16_t) cu_type, senseid.cu_type);
-+
-+unreg_cb:
-+	unregister_io_int_func(irq_io);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
- 	{ "enable (msch)", test_enable },
-+	{ "sense (ssch/tsch)", test_sense },
- 	{ NULL, NULL }
- };
- 
-+static unsigned long value;
-+
- int main(int argc, char *argv[])
- {
--	int i;
-+	int i, ret;
-+
-+	ret = kernel_arg(argc, argv, "cu_type=", &value);
-+	if (!ret)
-+		cu_type = (uint16_t)value;
-+	else
-+		report_info("Using cu_type default value: 0x%04lx", cu_type);
- 
- 	report_prefix_push("Channel Subsystem");
-+	enable_io_isc();
- 	for (i = 0; tests[i].name; i++) {
- 		report_prefix_push(tests[i].name);
- 		tests[i].func();
--- 
-2.25.1
+Andrew, would you pick this change up?
+Thank you
+
+Vasily
