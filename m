@@ -1,79 +1,55 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:8904 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729095AbgFHINM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 8 Jun 2020 04:13:12 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v8 06/12] s390x: clock and delays caluculations
-Date: Mon,  8 Jun 2020 10:12:55 +0200
-Message-Id: <1591603981-16879-7-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
-References: <1591603981-16879-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v1] s390/extmem: remove stale -ENOSPC comment and handling
+Date: Tue, 30 Jun 2020 10:42:40 +0200
+Message-Id: <20200630084240.8283-1-david@redhat.com>
+In-Reply-To: <20200625150029.45019-1-david@redhat.com>
+References: <20200625150029.45019-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-The hardware gives us a good definition of the microsecond,
-let's keep this information and let the routine accessing
-the hardware keep all the information and return microseconds.
+segment_load() will no longer return -ENOSPC. If a segment overlaps with
+storage, we now also return -EBUSY. Remove the stale comment from
+__segment_load() and the stale handling from segment_warning().
 
-Calculate delays in microseconds and take care about wrapping
-around zero.
-
-Define values with macros and use inlines to keep the
-milliseconds interface.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- lib/s390x/asm/time.h | 29 +++++++++++++++++++++++++++--
- 1 file changed, 27 insertions(+), 2 deletions(-)
+ arch/s390/mm/extmem.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
-index 1791380..eb15941 100644
---- a/lib/s390x/asm/time.h
-+++ b/lib/s390x/asm/time.h
-@@ -13,14 +13,39 @@
- #ifndef ASM_S390X_TIME_H
- #define ASM_S390X_TIME_H
- 
--static inline uint64_t get_clock_ms(void)
-+#define STCK_SHIFT	(63 - 51)
-+#define STCK_MAX	((1 << (STCK_SHIFT + 1)) - 1)
-+
-+static inline uint64_t get_clock_us(void)
- {
- 	uint64_t clk;
- 
- 	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
- 
- 	/* Bit 51 is incrememented each microsecond */
--	return (clk >> (63 - 51)) / 1000;
-+	return clk >> STCK_SHIFT;
-+}
-+
-+static inline void udelay(unsigned long us)
-+{
-+	unsigned long startclk = get_clock_us();
-+	unsigned long c;
-+
-+	do {
-+		c = get_clock_us();
-+		if (c < startclk)
-+			c += STCK_MAX;
-+	} while (c < (startclk + us));
-+}
-+
-+static inline void mdelay(unsigned long ms)
-+{
-+	udelay(ms * 1000);
-+}
-+
-+static inline uint64_t get_clock_ms(void)
-+{
-+	return get_clock_us() / 1000;
- }
- 
- #endif
+diff --git a/arch/s390/mm/extmem.c b/arch/s390/mm/extmem.c
+index 105c09282f8c5..5060956b8e7d6 100644
+--- a/arch/s390/mm/extmem.c
++++ b/arch/s390/mm/extmem.c
+@@ -401,8 +401,7 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
+  * -EIO     : could not perform query or load diagnose
+  * -ENOENT  : no such segment
+  * -EOPNOTSUPP: multi-part segment cannot be used with linux
+- * -ENOSPC  : segment cannot be used (overlaps with storage)
+- * -EBUSY   : segment can temporarily not be used (overlaps with dcss)
++ * -EBUSY   : segment cannot be used (overlaps with dcss or storage)
+  * -ERANGE  : segment cannot be used (exceeds kernel mapping range)
+  * -EPERM   : segment is currently loaded with incompatible permissions
+  * -ENOMEM  : out of memory
+@@ -627,10 +626,6 @@ void segment_warning(int rc, char *seg_name)
+ 		pr_err("DCSS %s has multiple page ranges and cannot be "
+ 		       "loaded or queried\n", seg_name);
+ 		break;
+-	case -ENOSPC:
+-		pr_err("DCSS %s overlaps with used storage and cannot "
+-		       "be loaded\n", seg_name);
+-		break;
+ 	case -EBUSY:
+ 		pr_err("%s needs used memory resources and cannot be "
+ 		       "loaded or queried\n", seg_name);
 -- 
-2.25.1
+2.26.2
