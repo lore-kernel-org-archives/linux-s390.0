@@ -1,86 +1,67 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 15/28] s390/seccomp: pass syscall arguments via seccomp_data
-Date: Tue, 23 Jun 2020 13:35:10 -0400
-Message-Id: <20200623173523.1355411-15-sashal@kernel.org>
-In-Reply-To: <20200623173523.1355411-1-sashal@kernel.org>
-References: <20200623173523.1355411-1-sashal@kernel.org>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Subject: Re: [PATCH V3 0/4] mm/debug_vm_pgtable: Add some more tests
+References: <1592192277-8421-1-git-send-email-anshuman.khandual@arm.com>
+ <70ddc7dd-b688-b73e-642a-6363178c8cdd@arm.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <1ed72a76-9f20-0169-4c16-c1d8808690eb@arm.com>
+Date: Tue, 30 Jun 2020 09:23:35 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <70ddc7dd-b688-b73e-642a-6363178c8cdd@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-mm@kvack.org
+Cc: christophe.leroy@c-s.fr, ziy@nvidia.com, gerald.schaefer@de.ibm.com, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Christophe Leroy <christophe.leroy@csgroup.eu>Vineet Gupta <vgupta@synopsys.com>, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Qian Cai <cai@lca.pw>
 
-From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 664f5f8de825648d1d31f6f5652e3cd117c77b50 ]
 
-Use __secure_computing() and pass the register data via
-seccomp_data so secure computing doesn't have to fetch it
-again.
+On 06/24/2020 08:43 AM, Anshuman Khandual wrote:
+> 
+> 
+> On 06/15/2020 09:07 AM, Anshuman Khandual wrote:
+>> This series adds some more arch page table helper validation tests which
+>> are related to core and advanced memory functions. This also creates a
+>> documentation, enlisting expected semantics for all page table helpers as
+>> suggested by Mike Rapoport previously (https://lkml.org/lkml/2020/1/30/40).
+>>
+>> There are many TRANSPARENT_HUGEPAGE and ARCH_HAS_TRANSPARENT_HUGEPAGE_PUD
+>> ifdefs scattered across the test. But consolidating all the fallback stubs
+>> is not very straight forward because ARCH_HAS_TRANSPARENT_HUGEPAGE_PUD is
+>> not explicitly dependent on ARCH_HAS_TRANSPARENT_HUGEPAGE.
+>>
+>> Tested on arm64, x86 platforms but only build tested on all other enabled
+>> platforms through ARCH_HAS_DEBUG_VM_PGTABLE i.e powerpc, arc, s390. The
+>> following failure on arm64 still exists which was mentioned previously. It
+>> will be fixed with the upcoming THP migration on arm64 enablement series.
+>>
+>> WARNING .... mm/debug_vm_pgtable.c:860 debug_vm_pgtable+0x940/0xa54
+>> WARN_ON(!pmd_present(pmd_mkinvalid(pmd_mkhuge(pmd))))
+>>
+>> This series is based on v5.8-rc1.
+>>
+>> Changes in V3:
+>>
+>> - Replaced HAVE_ARCH_SOFT_DIRTY with MEM_SOFT_DIRTY
+>> - Added HAVE_ARCH_HUGE_VMAP checks in pxx_huge_tests() per Gerald
+>> - Updated documentation for pmd_thp_tests() per Zi Yan
+>> - Replaced READ_ONCE() with huge_ptep_get() per Gerald
+>> - Added pte_mkhuge() and masking with PMD_MASK per Gerald
+>> - Replaced pte_same() with holding pfn check in pxx_swap_tests()
+>> - Added documentation for all (#ifdef #else #endif) per Gerald
+>> - Updated pmd_protnone_tests() per Gerald
+>> - Updated HugeTLB PTE creation in hugetlb_advanced_tests() per Gerald
+>> - Replaced [pmd|pud]_mknotpresent() with [pmd|pud]_mkinvalid()
+>> - Added has_transparent_hugepage() check for PMD and PUD tests
+>> - Added a patch which debug prints all individual tests being executed
+>> - Updated documentation for renamed [pmd|pud]_mkinvalid() helpers
+> 
+> Hello Gerald/Christophe/Vineet,
+> 
+> It would be really great if you could give this series a quick test
+> on s390/ppc/arc platforms respectively. Thank you.
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/ptrace.c | 31 ++++++++++++++++++++++++++-----
- 1 file changed, 26 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/kernel/ptrace.c b/arch/s390/kernel/ptrace.c
-index 58faa12542a1b..9eee345568890 100644
---- a/arch/s390/kernel/ptrace.c
-+++ b/arch/s390/kernel/ptrace.c
-@@ -839,6 +839,9 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- {
- 	unsigned long mask = -1UL;
- 
-+	if (is_compat_task())
-+		mask = 0xffffffff;
-+
- 	/*
- 	 * The sysc_tracesys code in entry.S stored the system
- 	 * call number to gprs[2].
-@@ -855,17 +858,35 @@ asmlinkage long do_syscall_trace_enter(struct pt_regs *regs)
- 		return -1;
- 	}
- 
-+#ifdef CONFIG_SECCOMP
- 	/* Do the secure computing check after ptrace. */
--	if (secure_computing()) {
--		/* seccomp failures shouldn't expose any additional code. */
--		return -1;
-+	if (unlikely(test_thread_flag(TIF_SECCOMP))) {
-+		struct seccomp_data sd;
-+
-+		if (is_compat_task()) {
-+			sd.instruction_pointer = regs->psw.addr & 0x7fffffff;
-+			sd.arch = AUDIT_ARCH_S390;
-+		} else {
-+			sd.instruction_pointer = regs->psw.addr;
-+			sd.arch = AUDIT_ARCH_S390X;
-+		}
-+
-+		sd.nr = regs->gprs[2] & 0xffff;
-+		sd.args[0] = regs->orig_gpr2 & mask;
-+		sd.args[1] = regs->gprs[3] & mask;
-+		sd.args[2] = regs->gprs[4] & mask;
-+		sd.args[3] = regs->gprs[5] & mask;
-+		sd.args[4] = regs->gprs[6] & mask;
-+		sd.args[5] = regs->gprs[7] & mask;
-+
-+		if (__secure_computing(&sd) == -1)
-+			return -1;
- 	}
-+#endif /* CONFIG_SECCOMP */
- 
- 	if (unlikely(test_thread_flag(TIF_SYSCALL_TRACEPOINT)))
- 		trace_sys_enter(regs, regs->gprs[2]);
- 
--	if (is_compat_task())
--		mask = 0xffffffff;
- 
- 	audit_syscall_entry(regs->gprs[2], regs->orig_gpr2 & mask,
- 			    regs->gprs[3] &mask, regs->gprs[4] &mask,
--- 
-2.25.1
+Thanks Alexander, Gerald and Christophe for testing this out on s390
+and ppc32 platforms. Probably Vineet and Qian (any other volunteers)
+could help us with arc and ppc64 platforms, which I would appreciate.
