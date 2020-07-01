@@ -1,95 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49138 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726247AbgGIIju (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 04:39:50 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v5 0/2] s390: virtio: let arch validate VIRTIO features
-Date: Thu,  9 Jul 2020 10:39:17 +0200
-Message-Id: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55878 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729125AbgGAJAE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 05:00:04 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 08/20] zram: stop using ->queuedata
+Date: Wed,  1 Jul 2020 10:59:35 +0200
+Message-Id: <20200701085947.3354405-9-hch@lst.de>
+In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
+References: <20200701085947.3354405-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-Hi all,
+Instead of setting up the queuedata as well just use one private data
+field.
 
-The goal of the series is to give a chance to the architecture
-to validate VIRTIO device features.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/block/zram/zram_drv.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-in this respin:
-
-1) I kept removed the ack from Jason as I reworked the patch
-   @Jason, the nature and goal of the patch did not really changed
-           please can I get back your acked-by with these changes?
-
-2) I suppressed the unnecessary verbosity of the architecture
-   specific patch
-
-3) put back the arch specific code inside arch/s390/mm/init.c
-   after offline discussion with Christian.
-
-Regards,
-Pierre
-
-Pierre Morel (2):
-  virtio: let arch validate VIRTIO features
-  s390: virtio: PV needs VIRTIO I/O device protection
-
- arch/s390/mm/init.c           | 27 +++++++++++++++++++++++++++
- drivers/virtio/virtio.c       | 19 +++++++++++++++++++
- include/linux/virtio_config.h |  1 +
- 3 files changed, 47 insertions(+)
-
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index 6e2ad90b17a376..0564e3f384089e 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -1586,7 +1586,7 @@ static void __zram_make_request(struct zram *zram, struct bio *bio)
+  */
+ static blk_qc_t zram_make_request(struct request_queue *queue, struct bio *bio)
+ {
+-	struct zram *zram = queue->queuedata;
++	struct zram *zram = bio->bi_disk->private_data;
+ 
+ 	if (!valid_io_request(zram, bio->bi_iter.bi_sector,
+ 					bio->bi_iter.bi_size)) {
+@@ -1912,7 +1912,6 @@ static int zram_add(void)
+ 	zram->disk->first_minor = device_id;
+ 	zram->disk->fops = &zram_devops;
+ 	zram->disk->queue = queue;
+-	zram->disk->queue->queuedata = zram;
+ 	zram->disk->private_data = zram;
+ 	snprintf(zram->disk->disk_name, 16, "zram%d", device_id);
+ 
 -- 
-2.25.1
-
-Changelog
-
-to v5:
-
-- return directly from S390 arch_validate_virtio_features()
-  when the guest is not protected.
-  (Connie)
-
-- Somme rewording
-  (Connie, Michael)
-
-- moved back code from arch/s390/ ...kernel/uv.c to ...mm/init.c
-  (Christian)
-
-to v4:
-
-- separate virtio and arch code
-  (Pierre)
-
-- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
-  (as interpreted from Heiko's comment)
-
-- moved validation inside the arch code
-  (Connie)
-
-- moved the call to arch validation before VIRTIO_F_1 test
-  (Michael)
-
-to v3:
-
-- add warning
-  (Connie, Christian)
-
-- add comment
-  (Connie)
-
-- change hook name
-  (Halil, Connie)
-
-to v2:
-
-- put the test in virtio_finalize_features()
-  (Connie)
-
-- put the test inside VIRTIO core
-  (Jason)
-
-- pass a virtio device as parameter
-  (Halil)
+2.26.2
