@@ -1,137 +1,41 @@
-Return-Path: <netdev-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 13/24] net/ipv4: switch ip_mroute_setsockopt to sockptr_t
-Date: Mon, 20 Jul 2020 14:47:26 +0200
-Message-Id: <20200720124737.118617-14-hch@lst.de>
-In-Reply-To: <20200720124737.118617-1-hch@lst.de>
-References: <20200720124737.118617-1-hch@lst.de>
+Subject: [PATCH 11/20] fs: remove a weird comment in submit_bh_wbc
+Date: Wed,  1 Jul 2020 10:59:38 +0200
+Message-Id: <20200701085947.3354405-12-hch@lst.de>
+In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
+References: <20200701085947.3354405-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: netdev-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+All bios can get remapped if submitted to partitions.  No need to
+comment on that.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/mroute.h |  5 +++--
- net/ipv4/ip_sockglue.c |  3 ++-
- net/ipv4/ipmr.c        | 14 +++++++-------
- 3 files changed, 12 insertions(+), 10 deletions(-)
+ fs/buffer.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/include/linux/mroute.h b/include/linux/mroute.h
-index 9a36fad9e068f6..6cbbfe94348cee 100644
---- a/include/linux/mroute.h
-+++ b/include/linux/mroute.h
-@@ -8,6 +8,7 @@
- #include <net/fib_notifier.h>
- #include <uapi/linux/mroute.h>
- #include <linux/mroute_base.h>
-+#include <linux/sockptr.h>
+diff --git a/fs/buffer.c b/fs/buffer.c
+index 64fe82ec65ff1f..2725ebbcfdc246 100644
+--- a/fs/buffer.c
++++ b/fs/buffer.c
+@@ -3040,12 +3040,7 @@ static int submit_bh_wbc(int op, int op_flags, struct buffer_head *bh,
+ 	if (test_set_buffer_req(bh) && (op == REQ_OP_WRITE))
+ 		clear_buffer_write_io_error(bh);
  
- #ifdef CONFIG_IP_MROUTE
- static inline int ip_mroute_opt(int opt)
-@@ -15,7 +16,7 @@ static inline int ip_mroute_opt(int opt)
- 	return opt >= MRT_BASE && opt <= MRT_MAX;
- }
- 
--int ip_mroute_setsockopt(struct sock *, int, char __user *, unsigned int);
-+int ip_mroute_setsockopt(struct sock *, int, sockptr_t, unsigned int);
- int ip_mroute_getsockopt(struct sock *, int, char __user *, int __user *);
- int ipmr_ioctl(struct sock *sk, int cmd, void __user *arg);
- int ipmr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *arg);
-@@ -23,7 +24,7 @@ int ip_mr_init(void);
- bool ipmr_rule_default(const struct fib_rule *rule);
- #else
- static inline int ip_mroute_setsockopt(struct sock *sock, int optname,
--				       char __user *optval, unsigned int optlen)
-+				       sockptr_t optval, unsigned int optlen)
- {
- 	return -ENOPROTOOPT;
- }
-diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
-index 36f746e01741f6..ac495b0cff8ffb 100644
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -925,7 +925,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
- 	if (optname == IP_ROUTER_ALERT)
- 		return ip_ra_control(sk, val ? 1 : 0, NULL);
- 	if (ip_mroute_opt(optname))
--		return ip_mroute_setsockopt(sk, optname, optval, optlen);
-+		return ip_mroute_setsockopt(sk, optname, USER_SOCKPTR(optval),
-+					    optlen);
- 
- 	err = 0;
- 	if (needs_rtnl)
-diff --git a/net/ipv4/ipmr.c b/net/ipv4/ipmr.c
-index 678639c01e4882..cdf3a40f9ff5fc 100644
---- a/net/ipv4/ipmr.c
-+++ b/net/ipv4/ipmr.c
-@@ -1341,7 +1341,7 @@ static void mrtsock_destruct(struct sock *sk)
-  * MOSPF/PIM router set up we can clean this up.
-  */
- 
--int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
-+int ip_mroute_setsockopt(struct sock *sk, int optname, sockptr_t optval,
- 			 unsigned int optlen)
- {
- 	struct net *net = sock_net(sk);
-@@ -1413,7 +1413,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (copy_from_user(&vif, optval, sizeof(vif))) {
-+		if (copy_from_sockptr(&vif, optval, sizeof(vif))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1441,7 +1441,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (copy_from_user(&mfc, optval, sizeof(mfc))) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1459,7 +1459,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1471,7 +1471,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1486,7 +1486,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1508,7 +1508,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(uval, (u32 __user *)optval)) {
-+		if (copy_from_sockptr(&uval, optval, sizeof(uval))) {
- 			ret = -EFAULT;
- 			break;
- 		}
+-	/*
+-	 * from here on down, it's all bio -- do the initial mapping,
+-	 * submit_bio -> generic_make_request may further map this bio around
+-	 */
+ 	bio = bio_alloc(GFP_NOIO, 1);
+-
+ 	bio->bi_iter.bi_sector = bh->b_blocknr * (bh->b_size >> 9);
+ 	bio_set_dev(bio, bh->b_bdev);
+ 	bio->bi_write_hint = write_hint;
 -- 
-2.27.0
+2.26.2
