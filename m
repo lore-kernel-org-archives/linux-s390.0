@@ -1,184 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25620 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726832AbgG3JtF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Jul 2020 05:49:05 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/2] s390/kvm: diagnose 0x318 sync and reset
-Date: Thu, 30 Jul 2020 11:48:57 +0200
-Message-Id: <20200730094857.175501-3-borntraeger@de.ibm.com>
-In-Reply-To: <20200730094857.175501-1-borntraeger@de.ibm.com>
-References: <20200730094857.175501-1-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55848 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726009AbgGAI74 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 04:59:56 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 03/20] drbd: stop using ->queuedata
+Date: Wed,  1 Jul 2020 10:59:30 +0200
+Message-Id: <20200701085947.3354405-4-hch@lst.de>
+In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
+References: <20200701085947.3354405-1-hch@lst.de>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Collin Walling <walling@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-From: Collin Walling <walling@linux.ibm.com>
+Instead of setting up the queuedata as well just use one private data
+field.
 
-DIAGNOSE 0x318 (diag318) sets information regarding the environment
-the VM is running in (Linux, z/VM, etc) and is observed via
-firmware/service events.
-
-This is a privileged s390x instruction that must be intercepted by
-SIE. Userspace handles the instruction as well as migration. Data
-is communicated via VCPU register synchronization.
-
-The Control Program Name Code (CPNC) is stored in the SIE block. The
-CPNC along with the Control Program Version Code (CPVC) are stored
-in the kvm_vcpu_arch struct.
-
-This data is reset on load normal and clear resets.
-
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20200622154636.5499-3-walling@linux.ibm.com
-[borntraeger@de.ibm.com: fix sync_reg position]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/include/asm/kvm_host.h |  4 +++-
- arch/s390/include/uapi/asm/kvm.h |  7 +++++--
- arch/s390/kvm/kvm-s390.c         | 11 ++++++++++-
- arch/s390/kvm/vsie.c             |  1 +
- include/uapi/linux/kvm.h         |  1 +
- 5 files changed, 20 insertions(+), 4 deletions(-)
+ drivers/block/drbd/drbd_main.c | 1 -
+ drivers/block/drbd/drbd_req.c  | 2 +-
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
-index cee3cb6455a2..371ec6beb618 100644
---- a/arch/s390/include/asm/kvm_host.h
-+++ b/arch/s390/include/asm/kvm_host.h
-@@ -260,7 +260,8 @@ struct kvm_s390_sie_block {
- 	__u32	scaol;			/* 0x0064 */
- 	__u8	sdf;			/* 0x0068 */
- 	__u8    epdx;			/* 0x0069 */
--	__u8    reserved6a[2];		/* 0x006a */
-+	__u8	cpnc;			/* 0x006a */
-+	__u8	reserved6b;		/* 0x006b */
- 	__u32	todpr;			/* 0x006c */
- #define GISA_FORMAT1 0x00000001
- 	__u32	gd;			/* 0x0070 */
-@@ -745,6 +746,7 @@ struct kvm_vcpu_arch {
- 	bool gs_enabled;
- 	bool skey_enabled;
- 	struct kvm_s390_pv_vcpu pv;
-+	union diag318_info diag318_info;
- };
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index 45fbd526c453bc..26f4e0aa7393b4 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -2805,7 +2805,6 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
+ 	if (!q)
+ 		goto out_no_q;
+ 	device->rq_queue = q;
+-	q->queuedata   = device;
  
- struct kvm_vm_stat {
-diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
-index 436ec7636927..7a6b14874d65 100644
---- a/arch/s390/include/uapi/asm/kvm.h
-+++ b/arch/s390/include/uapi/asm/kvm.h
-@@ -231,11 +231,13 @@ struct kvm_guest_debug_arch {
- #define KVM_SYNC_GSCB   (1UL << 9)
- #define KVM_SYNC_BPBC   (1UL << 10)
- #define KVM_SYNC_ETOKEN (1UL << 11)
-+#define KVM_SYNC_DIAG318 (1UL << 12)
+ 	disk = alloc_disk(1);
+ 	if (!disk)
+diff --git a/drivers/block/drbd/drbd_req.c b/drivers/block/drbd/drbd_req.c
+index c80a2f1c3c2a73..3f09b2ab977822 100644
+--- a/drivers/block/drbd/drbd_req.c
++++ b/drivers/block/drbd/drbd_req.c
+@@ -1595,7 +1595,7 @@ void do_submit(struct work_struct *ws)
  
- #define KVM_SYNC_S390_VALID_FIELDS \
- 	(KVM_SYNC_PREFIX | KVM_SYNC_GPRS | KVM_SYNC_ACRS | KVM_SYNC_CRS | \
- 	 KVM_SYNC_ARCH0 | KVM_SYNC_PFAULT | KVM_SYNC_VRS | KVM_SYNC_RICCB | \
--	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN)
-+	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN | \
-+	 KVM_SYNC_DIAG318)
+ blk_qc_t drbd_make_request(struct request_queue *q, struct bio *bio)
+ {
+-	struct drbd_device *device = (struct drbd_device *) q->queuedata;
++	struct drbd_device *device = bio->bi_disk->private_data;
+ 	unsigned long start_jif;
  
- /* length and alignment of the sdnx as a power of two */
- #define SDNXC 8
-@@ -264,7 +266,8 @@ struct kvm_sync_regs {
- 	__u8 reserved2 : 7;
- 	__u8 padding1[51];	/* riccb needs to be 64byte aligned */
- 	__u8 riccb[64];		/* runtime instrumentation controls block */
--	__u8 padding2[192];	/* sdnx needs to be 256byte aligned */
-+	__u64 diag318;		/* diagnose 0x318 info */
-+	__u8 padding2[184];	/* sdnx needs to be 256byte aligned */
- 	union {
- 		__u8 sdnx[SDNXL];  /* state description annex */
- 		struct {
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index d47c19718615..08e6cf6cb454 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -545,6 +545,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
- 	case KVM_CAP_S390_AIS_MIGRATION:
- 	case KVM_CAP_S390_VCPU_RESETS:
- 	case KVM_CAP_SET_GUEST_DEBUG:
-+	case KVM_CAP_S390_DIAG318:
- 		r = 1;
- 		break;
- 	case KVM_CAP_S390_HPAGE_1M:
-@@ -3267,7 +3268,8 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
- 				    KVM_SYNC_ACRS |
- 				    KVM_SYNC_CRS |
- 				    KVM_SYNC_ARCH0 |
--				    KVM_SYNC_PFAULT;
-+				    KVM_SYNC_PFAULT |
-+				    KVM_SYNC_DIAG318;
- 	kvm_s390_set_prefix(vcpu, 0);
- 	if (test_kvm_facility(vcpu->kvm, 64))
- 		vcpu->run->kvm_valid_regs |= KVM_SYNC_RICCB;
-@@ -3562,6 +3564,7 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
- 		vcpu->arch.sie_block->pp = 0;
- 		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
- 		vcpu->arch.sie_block->todpr = 0;
-+		vcpu->arch.sie_block->cpnc = 0;
- 	}
- }
- 
-@@ -3579,6 +3582,7 @@ static void kvm_arch_vcpu_ioctl_clear_reset(struct kvm_vcpu *vcpu)
- 
- 	regs->etoken = 0;
- 	regs->etoken_extension = 0;
-+	regs->diag318 = 0;
- }
- 
- int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
-@@ -4196,6 +4200,10 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 		if (vcpu->arch.pfault_token == KVM_S390_PFAULT_TOKEN_INVALID)
- 			kvm_clear_async_pf_completion_queue(vcpu);
- 	}
-+	if (kvm_run->kvm_dirty_regs & KVM_SYNC_DIAG318) {
-+		vcpu->arch.diag318_info.val = kvm_run->s.regs.diag318;
-+		vcpu->arch.sie_block->cpnc = vcpu->arch.diag318_info.cpnc;
-+	}
- 	/*
- 	 * If userspace sets the riccb (e.g. after migration) to a valid state,
- 	 * we should enable RI here instead of doing the lazy enablement.
-@@ -4297,6 +4305,7 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
- 	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
- 	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
- 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
-+	kvm_run->s.regs.diag318 = vcpu->arch.diag318_info.val;
- 	if (MACHINE_HAS_GS) {
- 		__ctl_set_bit(2, 4);
- 		if (vcpu->arch.gs_enabled)
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 9e9056cebfcf..4f3cbf6003a9 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -548,6 +548,7 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
- 		scb_s->ecd |= scb_o->ecd & ECD_ETOKENF;
- 
- 	scb_s->hpid = HPID_VSIE;
-+	scb_s->cpnc = scb_o->cpnc;
- 
- 	prepare_ibc(vcpu, vsie_page);
- 	rc = shadow_crycb(vcpu, vsie_page);
-diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
-index 4fdf30316582..35cdb4307904 100644
---- a/include/uapi/linux/kvm.h
-+++ b/include/uapi/linux/kvm.h
-@@ -1031,6 +1031,7 @@ struct kvm_ppc_resize_hpt {
- #define KVM_CAP_PPC_SECURE_GUEST 181
- #define KVM_CAP_HALT_POLL 182
- #define KVM_CAP_ASYNC_PF_INT 183
-+#define KVM_CAP_S390_DIAG318 184
- 
- #ifdef KVM_CAP_IRQ_ROUTING
- 
+ 	blk_queue_split(q, &bio);
 -- 
-2.25.4
+2.26.2
