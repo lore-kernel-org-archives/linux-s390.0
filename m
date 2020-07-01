@@ -1,213 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56470 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726852AbgGWGJi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:38 -0400
+        with ESMTP id S1729101AbgGAJAC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 05:00:02 -0400
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 11/26] netfilter: switch xt_copy_counters to sockptr_t
-Date: Thu, 23 Jul 2020 08:08:53 +0200
-Message-Id: <20200723060908.50081-12-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
+Subject: [PATCH 07/20] umem: stop using ->queuedata
+Date: Wed,  1 Jul 2020 10:59:34 +0200
+Message-Id: <20200701085947.3354405-8-hch@lst.de>
+In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
+References: <20200701085947.3354405-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+Instead of setting up the queuedata as well just use one private data
+field.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/netfilter/x_tables.h |  4 ++--
- net/ipv4/netfilter/arp_tables.c    |  7 +++----
- net/ipv4/netfilter/ip_tables.c     |  7 +++----
- net/ipv6/netfilter/ip6_tables.c    |  6 +++---
- net/netfilter/x_tables.c           | 20 ++++++++++----------
- 5 files changed, 21 insertions(+), 23 deletions(-)
+ drivers/block/umem.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
-index b8b943ee7b8b66..5deb099d156dcb 100644
---- a/include/linux/netfilter/x_tables.h
-+++ b/include/linux/netfilter/x_tables.h
-@@ -301,8 +301,8 @@ int xt_target_to_user(const struct xt_entry_target *t,
- int xt_data_to_user(void __user *dst, const void *src,
- 		    int usersize, int size, int aligned_size);
+diff --git a/drivers/block/umem.c b/drivers/block/umem.c
+index 1e2aa5ae27963c..5498f1cf36b3fe 100644
+--- a/drivers/block/umem.c
++++ b/drivers/block/umem.c
+@@ -521,7 +521,8 @@ static int mm_check_plugged(struct cardinfo *card)
  
--void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
--				 struct xt_counters_info *info);
-+void *xt_copy_counters(sockptr_t arg, unsigned int len,
-+		       struct xt_counters_info *info);
- struct xt_counters *xt_counters_alloc(unsigned int counters);
- 
- struct xt_table *xt_register_table(struct net *net,
-diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
-index 2c8a4dad39d748..6d24b686c7f00a 100644
---- a/net/ipv4/netfilter/arp_tables.c
-+++ b/net/ipv4/netfilter/arp_tables.c
-@@ -996,8 +996,7 @@ static int do_replace(struct net *net, const void __user *user,
- 	return ret;
- }
- 
--static int do_add_counters(struct net *net, const void __user *user,
--			   unsigned int len)
-+static int do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
+ static blk_qc_t mm_make_request(struct request_queue *q, struct bio *bio)
  {
- 	unsigned int i;
- 	struct xt_counters_info tmp;
-@@ -1008,7 +1007,7 @@ static int do_add_counters(struct net *net, const void __user *user,
- 	struct arpt_entry *iter;
- 	unsigned int addend;
+-	struct cardinfo *card = q->queuedata;
++	struct cardinfo *card = bio->bi_disk->private_data;
++
+ 	pr_debug("mm_make_request %llu %u\n",
+ 		 (unsigned long long)bio->bi_iter.bi_sector,
+ 		 bio->bi_iter.bi_size);
+@@ -888,7 +889,6 @@ static int mm_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	card->queue = blk_alloc_queue(mm_make_request, NUMA_NO_NODE);
+ 	if (!card->queue)
+ 		goto failed_alloc;
+-	card->queue->queuedata = card;
  
--	paddc = xt_copy_counters_from_user(user, len, &tmp);
-+	paddc = xt_copy_counters(arg, len, &tmp);
- 	if (IS_ERR(paddc))
- 		return PTR_ERR(paddc);
+ 	tasklet_init(&card->tasklet, process_page, (unsigned long)card);
  
-@@ -1420,7 +1419,7 @@ static int do_arpt_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned
- 		break;
- 
- 	case ARPT_SO_SET_ADD_COUNTERS:
--		ret = do_add_counters(sock_net(sk), user, len);
-+		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
- 		break;
- 
- 	default:
-diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
-index 161901dd1cae7f..4697d09c98dc3e 100644
---- a/net/ipv4/netfilter/ip_tables.c
-+++ b/net/ipv4/netfilter/ip_tables.c
-@@ -1151,8 +1151,7 @@ do_replace(struct net *net, const void __user *user, unsigned int len)
- }
- 
- static int
--do_add_counters(struct net *net, const void __user *user,
--		unsigned int len)
-+do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
- {
- 	unsigned int i;
- 	struct xt_counters_info tmp;
-@@ -1163,7 +1162,7 @@ do_add_counters(struct net *net, const void __user *user,
- 	struct ipt_entry *iter;
- 	unsigned int addend;
- 
--	paddc = xt_copy_counters_from_user(user, len, &tmp);
-+	paddc = xt_copy_counters(arg, len, &tmp);
- 	if (IS_ERR(paddc))
- 		return PTR_ERR(paddc);
- 
-@@ -1629,7 +1628,7 @@ do_ipt_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
- 		break;
- 
- 	case IPT_SO_SET_ADD_COUNTERS:
--		ret = do_add_counters(sock_net(sk), user, len);
-+		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
- 		break;
- 
- 	default:
-diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
-index fd1f8f93123188..a787aba30e2db7 100644
---- a/net/ipv6/netfilter/ip6_tables.c
-+++ b/net/ipv6/netfilter/ip6_tables.c
-@@ -1168,7 +1168,7 @@ do_replace(struct net *net, const void __user *user, unsigned int len)
- }
- 
- static int
--do_add_counters(struct net *net, const void __user *user, unsigned int len)
-+do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
- {
- 	unsigned int i;
- 	struct xt_counters_info tmp;
-@@ -1179,7 +1179,7 @@ do_add_counters(struct net *net, const void __user *user, unsigned int len)
- 	struct ip6t_entry *iter;
- 	unsigned int addend;
- 
--	paddc = xt_copy_counters_from_user(user, len, &tmp);
-+	paddc = xt_copy_counters(arg, len, &tmp);
- 	if (IS_ERR(paddc))
- 		return PTR_ERR(paddc);
- 	t = xt_find_table_lock(net, AF_INET6, tmp.name);
-@@ -1637,7 +1637,7 @@ do_ip6t_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
- 		break;
- 
- 	case IP6T_SO_SET_ADD_COUNTERS:
--		ret = do_add_counters(sock_net(sk), user, len);
-+		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
- 		break;
- 
- 	default:
-diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
-index 32bab45af7e415..b97eb4b538fd4e 100644
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1028,9 +1028,9 @@ int xt_check_target(struct xt_tgchk_param *par,
- EXPORT_SYMBOL_GPL(xt_check_target);
- 
- /**
-- * xt_copy_counters_from_user - copy counters and metadata from userspace
-+ * xt_copy_counters - copy counters and metadata from a sockptr_t
-  *
-- * @user: src pointer to userspace memory
-+ * @arg: src sockptr
-  * @len: alleged size of userspace memory
-  * @info: where to store the xt_counters_info metadata
-  *
-@@ -1047,8 +1047,8 @@ EXPORT_SYMBOL_GPL(xt_check_target);
-  * Return: returns pointer that caller has to test via IS_ERR().
-  * If IS_ERR is false, caller has to vfree the pointer.
-  */
--void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
--				 struct xt_counters_info *info)
-+void *xt_copy_counters(sockptr_t arg, unsigned int len,
-+		       struct xt_counters_info *info)
- {
- 	void *mem;
- 	u64 size;
-@@ -1062,12 +1062,12 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
- 			return ERR_PTR(-EINVAL);
- 
- 		len -= sizeof(compat_tmp);
--		if (copy_from_user(&compat_tmp, user, sizeof(compat_tmp)) != 0)
-+		if (copy_from_sockptr(&compat_tmp, arg, sizeof(compat_tmp)) != 0)
- 			return ERR_PTR(-EFAULT);
- 
- 		memcpy(info->name, compat_tmp.name, sizeof(info->name) - 1);
- 		info->num_counters = compat_tmp.num_counters;
--		user += sizeof(compat_tmp);
-+		sockptr_advance(arg, sizeof(compat_tmp));
- 	} else
- #endif
- 	{
-@@ -1075,10 +1075,10 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
- 			return ERR_PTR(-EINVAL);
- 
- 		len -= sizeof(*info);
--		if (copy_from_user(info, user, sizeof(*info)) != 0)
-+		if (copy_from_sockptr(info, arg, sizeof(*info)) != 0)
- 			return ERR_PTR(-EFAULT);
- 
--		user += sizeof(*info);
-+		sockptr_advance(arg, sizeof(*info));
- 	}
- 	info->name[sizeof(info->name) - 1] = '\0';
- 
-@@ -1092,13 +1092,13 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
- 	if (!mem)
- 		return ERR_PTR(-ENOMEM);
- 
--	if (copy_from_user(mem, user, len) == 0)
-+	if (copy_from_sockptr(mem, arg, len) == 0)
- 		return mem;
- 
- 	vfree(mem);
- 	return ERR_PTR(-EFAULT);
- }
--EXPORT_SYMBOL_GPL(xt_copy_counters_from_user);
-+EXPORT_SYMBOL_GPL(xt_copy_counters);
- 
- #ifdef CONFIG_COMPAT
- int xt_compat_target_offset(const struct xt_target *target)
 -- 
-2.27.0
+2.26.2
