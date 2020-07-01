@@ -1,110 +1,198 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Bruno Meneguele <bmeneg@redhat.com>
-Subject: [PATCH v5] ima: move APPRAISE_BOOTPARAM dependency on ARCH_POLICY to runtime
-Date: Thu,  9 Jul 2020 13:46:47 -0300
-Message-Id: <20200709164647.45153-1-bmeneg@redhat.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55948 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729250AbgGAJAV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 05:00:21 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 18/20] block: refator submit_bio_noacct
+Date: Wed,  1 Jul 2020 10:59:45 +0200
+Message-Id: <20200701085947.3354405-19-hch@lst.de>
+In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
+References: <20200701085947.3354405-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org
-Cc: zohar@linux.ibm.com, erichte@linux.ibm.com, nayna@linux.ibm.com, stable@vger.kernel.org, Bruno Meneguele <bmeneg@redhat.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-APPRAISE_BOOTPARAM has been marked as dependent on !ARCH_POLICY in compile
-time, enforcing the appraisal whenever the kernel had the arch policy option
-enabled.
+Split out a __submit_bio_noacct helper for the actual de-recursion
+algorithm, and simplify the loop by using a continue when we can't
+enter the queue for a bio.
 
-However it breaks systems where the option is set but the system didn't
-boot in a "secure boot" platform. In this scenario, anytime an appraisal
-policy (i.e. ima_policy=appraisal_tcb) is used it will be forced, without
-giving the user the opportunity to label the filesystem, before enforcing
-integrity.
-
-Considering the ARCH_POLICY is only effective when secure boot is actually
-enabled this patch remove the compile time dependency and move it to a
-runtime decision, based on the secure boot state of that platform.
-
-With this patch:
-
-- x86-64 with secure boot enabled
-
-[    0.004305] Secure boot enabled
-...
-[    0.015651] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
-[    0.015682] ima: appraise boot param ignored: secure boot enabled
-
-- powerpc with secure boot disabled
-
-[    0.000000] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
-[    0.000000] Secure boot mode disabled
-...
-< nothing about boot param ignored >
-
-System working fine without secure boot and with both options set:
-
-CONFIG_IMA_APPRAISE_BOOTPARAM=y
-CONFIG_IMA_ARCH_POLICY=y
-
-Audit logs pointing to "missing-hash" but still being able to execute due to
-ima_appraise=fix:
-
-type=INTEGRITY_DATA msg=audit(07/09/2020 12:30:27.778:1691) : pid=4976
-uid=root auid=root ses=2
-subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=appraise_data
-cause=missing-hash comm=bash name=/usr/bin/evmctl dev="dm-0" ino=493150
-res=no
-
-Cc: stable@vger.kernel.org
-Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
-Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
-Changelog:
-v5:
-  - add pr_info() to inform user the ima_appraise= boot param is being
-	ignored due to secure boot enabled (Nayna)
-  - add some testing results to commit log
-v4:
-  - instead of change arch_policy loading code, check secure boot state at
-	"ima_appraise=" parameter handler (Mimi)
-v3:
-  - extend secure boot arch checker to also consider trusted boot
-  - enforce IMA appraisal when secure boot is effectively enabled (Nayna)
-  - fix ima_appraise flag assignment by or'ing it (Mimi)
-v2:
-  - pr_info() message prefix correction
+ block/blk-core.c | 143 +++++++++++++++++++++++++----------------------
+ 1 file changed, 75 insertions(+), 68 deletions(-)
 
- security/integrity/ima/Kconfig        | 2 +-
- security/integrity/ima/ima_appraise.c | 5 +++++
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
-index edde88dbe576..62dc11a5af01 100644
---- a/security/integrity/ima/Kconfig
-+++ b/security/integrity/ima/Kconfig
-@@ -232,7 +232,7 @@ config IMA_APPRAISE_REQUIRE_POLICY_SIGS
+diff --git a/block/blk-core.c b/block/blk-core.c
+index ff9a88d2d244cb..57b5dc00d44cb1 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -1084,6 +1084,74 @@ static blk_qc_t __submit_bio(struct bio *bio)
+ 	return ret;
+ }
  
- config IMA_APPRAISE_BOOTPARAM
- 	bool "ima_appraise boot parameter"
--	depends on IMA_APPRAISE && !IMA_ARCH_POLICY
-+	depends on IMA_APPRAISE
- 	default y
- 	help
- 	  This option enables the different "ima_appraise=" modes
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index a9649b04b9f1..884de471b38a 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -19,6 +19,11 @@
- static int __init default_appraise_setup(char *str)
- {
- #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
-+	if (arch_ima_get_secureboot()) {
-+		pr_info("appraise boot param ignored: secure boot enabled");
-+		return 1;
-+	}
++/*
++ * The loop in this function may be a bit non-obvious, and so deserves some
++ * explanation:
++ *
++ *  - Before entering the loop, bio->bi_next is NULL (as all callers ensure
++ *    that), so we have a list with a single bio.
++ *  - We pretend that we have just taken it off a longer list, so we assign
++ *    bio_list to a pointer to the bio_list_on_stack, thus initialising the
++ *    bio_list of new bios to be added.  ->submit_bio() may indeed add some more
++ *    bios through a recursive call to submit_bio_noacct.  If it did, we find a
++ *    non-NULL value in bio_list and re-enter the loop from the top.
++ *  - In this case we really did just take the bio of the top of the list (no
++ *    pretending) and so remove it from bio_list, and call into ->submit_bio()
++ *    again.
++ *
++ * bio_list_on_stack[0] contains bios submitted by the current ->submit_bio.
++ * bio_list_on_stack[1] contains bios that were submitted before the current
++ *	->submit_bio_bio, but that haven't been processed yet.
++ */
++static blk_qc_t __submit_bio_noacct(struct bio *bio)
++{
++	struct bio_list bio_list_on_stack[2];
++	blk_qc_t ret = BLK_QC_T_NONE;
 +
- 	if (strncmp(str, "off", 3) == 0)
- 		ima_appraise = 0;
- 	else if (strncmp(str, "log", 3) == 0)
++	BUG_ON(bio->bi_next);
++
++	bio_list_init(&bio_list_on_stack[0]);
++	current->bio_list = bio_list_on_stack;
++
++	do {
++		struct request_queue *q = bio->bi_disk->queue;
++		struct bio_list lower, same;
++
++		if (unlikely(bio_queue_enter(bio) != 0))
++			continue;
++
++		/*
++		 * Create a fresh bio_list for all subordinate requests.
++		 */
++		bio_list_on_stack[1] = bio_list_on_stack[0];
++		bio_list_init(&bio_list_on_stack[0]);
++
++		ret = __submit_bio(bio);
++
++		/*
++		 * Sort new bios into those for a lower level and those for the
++		 * same level.
++		 */
++		bio_list_init(&lower);
++		bio_list_init(&same);
++		while ((bio = bio_list_pop(&bio_list_on_stack[0])) != NULL)
++			if (q == bio->bi_disk->queue)
++				bio_list_add(&same, bio);
++			else
++				bio_list_add(&lower, bio);
++
++		/*
++		 * Now assemble so we handle the lowest level first.
++		 */
++		bio_list_merge(&bio_list_on_stack[0], &lower);
++		bio_list_merge(&bio_list_on_stack[0], &same);
++		bio_list_merge(&bio_list_on_stack[0], &bio_list_on_stack[1]);
++	} while ((bio = bio_list_pop(&bio_list_on_stack[0])));
++
++	current->bio_list = NULL;
++	return ret;
++}
++
+ /**
+  * submit_bio_noacct - re-submit a bio to the block device layer for I/O
+  * @bio:  The bio describing the location in memory and on the device.
+@@ -1095,82 +1163,21 @@ static blk_qc_t __submit_bio(struct bio *bio)
+  */
+ blk_qc_t submit_bio_noacct(struct bio *bio)
+ {
+-	/*
+-	 * bio_list_on_stack[0] contains bios submitted by the current
+-	 * ->submit_bio.
+-	 * bio_list_on_stack[1] contains bios that were submitted before the
+-	 * current ->submit_bio_bio, but that haven't been processed yet.
+-	 */
+-	struct bio_list bio_list_on_stack[2];
+-	blk_qc_t ret = BLK_QC_T_NONE;
+-
+ 	if (!submit_bio_checks(bio))
+-		goto out;
++		return BLK_QC_T_NONE;
+ 
+ 	/*
+-	 * We only want one ->submit_bio to be active at a time, else
+-	 * stack usage with stacked devices could be a problem.  So use
+-	 * current->bio_list to keep a list of requests submited by a
+-	 * ->submit_bio method.  current->bio_list is also used as a
+-	 * flag to say if submit_bio_noacct is currently active in this
+-	 * task or not.  If it is NULL, then no make_request is active.  If
+-	 * it is non-NULL, then a make_request is active, and new requests
+-	 * should be added at the tail
++	 * We only want one ->submit_bio to be active at a time, else stack
++	 * usage with stacked devices could be a problem.  Use current->bio_list
++	 * to collect a list of requests submited by a ->submit_bio method while
++	 * it is active, and then process them after it returned.
+ 	 */
+ 	if (current->bio_list) {
+ 		bio_list_add(&current->bio_list[0], bio);
+-		goto out;
++		return BLK_QC_T_NONE;
+ 	}
+ 
+-	/* following loop may be a bit non-obvious, and so deserves some
+-	 * explanation.
+-	 * Before entering the loop, bio->bi_next is NULL (as all callers
+-	 * ensure that) so we have a list with a single bio.
+-	 * We pretend that we have just taken it off a longer list, so
+-	 * we assign bio_list to a pointer to the bio_list_on_stack,
+-	 * thus initialising the bio_list of new bios to be
+-	 * added.  ->submit_bio() may indeed add some more bios
+-	 * through a recursive call to submit_bio_noacct.  If it
+-	 * did, we find a non-NULL value in bio_list and re-enter the loop
+-	 * from the top.  In this case we really did just take the bio
+-	 * of the top of the list (no pretending) and so remove it from
+-	 * bio_list, and call into ->submit_bio() again.
+-	 */
+-	BUG_ON(bio->bi_next);
+-	bio_list_init(&bio_list_on_stack[0]);
+-	current->bio_list = bio_list_on_stack;
+-	do {
+-		struct request_queue *q = bio->bi_disk->queue;
+-
+-		if (likely(bio_queue_enter(bio) == 0)) {
+-			struct bio_list lower, same;
+-
+-			/* Create a fresh bio_list for all subordinate requests */
+-			bio_list_on_stack[1] = bio_list_on_stack[0];
+-			bio_list_init(&bio_list_on_stack[0]);
+-			ret = __submit_bio(bio);
+-
+-			/* sort new bios into those for a lower level
+-			 * and those for the same level
+-			 */
+-			bio_list_init(&lower);
+-			bio_list_init(&same);
+-			while ((bio = bio_list_pop(&bio_list_on_stack[0])) != NULL)
+-				if (q == bio->bi_disk->queue)
+-					bio_list_add(&same, bio);
+-				else
+-					bio_list_add(&lower, bio);
+-			/* now assemble so we handle the lowest level first */
+-			bio_list_merge(&bio_list_on_stack[0], &lower);
+-			bio_list_merge(&bio_list_on_stack[0], &same);
+-			bio_list_merge(&bio_list_on_stack[0], &bio_list_on_stack[1]);
+-		}
+-		bio = bio_list_pop(&bio_list_on_stack[0]);
+-	} while (bio);
+-	current->bio_list = NULL; /* deactivate */
+-
+-out:
+-	return ret;
++	return __submit_bio_noacct(bio);
+ }
+ EXPORT_SYMBOL(submit_bio_noacct);
+ 
 -- 
 2.26.2
