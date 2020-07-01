@@ -1,76 +1,75 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726410AbgF0H1t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 27 Jun 2020 03:27:49 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4/5] exec: split prepare_arg_pages
-Date: Sat, 27 Jun 2020 09:27:03 +0200
-Message-Id: <20200627072704.2447163-5-hch@lst.de>
-In-Reply-To: <20200627072704.2447163-1-hch@lst.de>
-References: <20200627072704.2447163-1-hch@lst.de>
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:32931 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728776AbgGAJXm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 05:23:42 -0400
+Date: Wed, 1 Jul 2020 11:23:13 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFD] uevent handling for subchannels
+Message-ID: <20200701112313.62a22156.cohuck@redhat.com>
+In-Reply-To: <20200629135631.10db3c32.cohuck@redhat.com>
+References: <20200403124032.5e70603d.cohuck@redhat.com>
+        <20200417143811.7e6ecb2c.cohuck@redhat.com>
+        <8649ea94-8617-07b6-170e-65c278d9383b@linux.vnet.ibm.com>
+        <c69da1c0-d151-257b-fe43-786e47a3cf9b@linux.vnet.ibm.com>
+        <20200423182001.40345df8.cohuck@redhat.com>
+        <53d7d08d-c1d2-dad3-7f01-a165b24b0359@linux.ibm.com>
+        <20200430124316.023a82b0.cohuck@redhat.com>
+        <20200629135631.10db3c32.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>, Brian Gerst <brgerst@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Oberparleiter <oberpar@linux.ibm.com>
+Cc: Vineeth Vijayan <vneethv@linux.vnet.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-s390@vger.kernel.org, Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Boris Fiuczynski <fiuczy@linux.ibm.com>
 
-Move counting the arguments and enviroment variables out of
-prepare_arg_pages and rename the rest of the function to check_arg_limit.
-This prepares for a version of do_execvat that takes kernel pointers.
+On Mon, 29 Jun 2020 13:56:31 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/exec.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+> Ok, so I've resumed the thinking process, and I think getting rid of
+> the "no I/O subchannel without functional device" approach is a good
+> idea, and allows us to make handling driver matches more similar to
+> everyone else.
 
-diff --git a/fs/exec.c b/fs/exec.c
-index a5d91f8b1341d5..34781db6bf6889 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -435,20 +435,10 @@ static int count_strings(const char __user *const __user *argv)
- 	return i;
- }
- 
--static int prepare_arg_pages(struct linux_binprm *bprm,
--		const char __user *const __user *argv,
--		const char __user *const __user *envp)
-+static int check_arg_limit(struct linux_binprm *bprm)
- {
- 	unsigned long limit, ptr_size;
- 
--	bprm->argc = count_strings(argv);
--	if (bprm->argc < 0)
--		return bprm->argc;
--
--	bprm->envc = count_strings(envp);
--	if (bprm->envc < 0)
--		return bprm->envc;
--
- 	/*
- 	 * Limit to 1/4 of the max stack size or 3/4 of _STK_LIM
- 	 * (whichever is smaller) for the argv+env strings.
-@@ -1886,7 +1876,19 @@ int do_execveat(int fd, struct filename *filename,
- 	if (retval)
- 		goto out_unmark;
- 
--	retval = prepare_arg_pages(bprm, argv, envp);
-+	bprm->argc = count_strings(argv);
-+	if (bprm->argc < 0) {
-+		retval = bprm->argc;
-+		goto out;
-+	}
-+
-+	bprm->envc = count_strings(envp);
-+	if (bprm->envc < 0) {
-+		retval = bprm->envc;
-+		goto out;
-+	}
-+
-+	retval = check_arg_limit(bprm);
- 	if (retval < 0)
- 		goto out;
- 
--- 
-2.26.2
+As an aside, there's another odd construct: the I/O subchannel driver
+*always* binds to the subchannel device, even if there is a problem,
+and schedules an unregistration of the subchannel device on error. This
+was introduced because events from machine check handling are not
+processed if there isn't a driver (at least I thought back then that it
+was a good idea.) I think a more correct way to handle this would be to
+do the following:
+
+* If something doesn't work, clean up and return an error in the probe
+  function. The subchannel device stays around, it's just not bound.
+* Have the css bus do some basic processing for subchannels not bound
+  to any driver (e.g., check dnv/w). This would also make it possible
+  to unregister dead message subchannels if a machine check is received
+  for them (don't know if that's an actual problem in pratice.)
+
+> 
+> What changes would be needed?
+> * The whole logic to suppress uevents for subchannels and generate one
+>   later will go. (Touches the various subchannel driver, including
+>   vfio-ccw.)
+> * ccw_device_todo() can just unregister the ccw device, and there's no
+>   longer a need for ccw_device_call_sch_unregister(). (IIUC, this also
+>   covers setting disconnected devices offline.)
+
+I'm actually not sure if unregistration-by-driver is the right thing
+for most cases (except for something like disconnected device removal),
+that should be done by the bus. Maybe something for later (don't fear,
+I don't plan to work on the common I/O layer again :)
+
+> * As the I/O subchannel driver now needs to deal with cases where no
+>   ccw device is available, the code for that needs to be checked.
+>   (That's probably the most time-consuming task.)
+
+Had a quick look, doesn't actually look too bad (most places already
+check for !cdev.)
+
+> 
+> Userspace should be fine with I/O subchannels without ccw device,
+> that's nothing new.
+> 
+> Does that sound reasonable?
