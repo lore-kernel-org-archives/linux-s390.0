@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v6 1/2] virtio: let arch validate VIRTIO features
-Date: Tue, 14 Jul 2020 13:38:01 +0200
-Message-Id: <1594726682-12076-2-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594726682-12076-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594726682-12076-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55928 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729198AbgGAJAQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 05:00:16 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 15/20] block: remove the nr_sectors variable in generic_make_request_checks
+Date: Wed,  1 Jul 2020 10:59:42 +0200
+Message-Id: <20200701085947.3354405-16-hch@lst.de>
+In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
+References: <20200701085947.3354405-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-An architecture may need to validate the VIRTIO devices features
-based on architecture specifics.
+The variable is only used once, so just open code the bio_sector()
+there.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/virtio/virtio.c       | 19 +++++++++++++++++++
- include/linux/virtio_config.h |  1 +
- 2 files changed, 20 insertions(+)
+ block/blk-core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index a977e32a88f2..c4e14d46a5b6 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
- }
- EXPORT_SYMBOL_GPL(virtio_add_status);
- 
-+/*
-+ * arch_validate_virtio_features - provide arch specific hook when finalizing
-+ *				   features for VIRTIO device dev
-+ * @dev: the VIRTIO device being added
-+ *
-+ * Permits the platform to handle architecture-specific requirements when
-+ * device features are finalized. This is the default implementation.
-+ * Architecture implementations can override this.
-+ */
-+
-+int __weak arch_validate_virtio_features(struct virtio_device *dev)
-+{
-+	return 0;
-+}
-+
- int virtio_finalize_features(struct virtio_device *dev)
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 37435d0d433564..28f60985dc75cc 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -974,7 +974,6 @@ static noinline_for_stack bool
+ generic_make_request_checks(struct bio *bio)
  {
- 	int ret = dev->config->finalize_features(dev);
-@@ -176,6 +191,10 @@ int virtio_finalize_features(struct virtio_device *dev)
- 	if (ret)
- 		return ret;
+ 	struct request_queue *q = bio->bi_disk->queue;
+-	int nr_sectors = bio_sectors(bio);
+ 	blk_status_t status = BLK_STS_IOERR;
  
-+	ret = arch_validate_virtio_features(dev);
-+	if (ret)
-+		return ret;
-+
- 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
- 		return 0;
- 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index bb4cc4910750..3f4117adf311 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -459,4 +459,5 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
- 		_r;							\
- 	})
- 
-+int arch_validate_virtio_features(struct virtio_device *dev);
- #endif /* _LINUX_VIRTIO_CONFIG_H */
+ 	might_sleep();
+@@ -1007,7 +1006,7 @@ generic_make_request_checks(struct bio *bio)
+ 	if (op_is_flush(bio->bi_opf) &&
+ 	    !test_bit(QUEUE_FLAG_WC, &q->queue_flags)) {
+ 		bio->bi_opf &= ~(REQ_PREFLUSH | REQ_FUA);
+-		if (!nr_sectors) {
++		if (!bio_sectors(bio)) {
+ 			status = BLK_STS_OK;
+ 			goto end_io;
+ 		}
 -- 
-2.25.1
+2.26.2
