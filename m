@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 11 Jul 2020 10:09:56 -0000
-From: "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: locking/core] sparc64: Fix asm/percpu.h build error
-In-Reply-To: <20200623083721.277992771@infradead.org>
-References: <20200623083721.277992771@infradead.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:55826 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730125AbgGBOrS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 2 Jul 2020 10:47:18 -0400
+Subject: Re: [PATCH 09/20] bcache: stop setting ->queuedata
+References: <20200701085947.3354405-1-hch@lst.de>
+ <20200701085947.3354405-10-hch@lst.de>
+From: Coly Li <colyli@suse.de>
+Message-ID: <67f92716-202d-5436-4a79-32f0942dc680@suse.de>
+Date: Thu, 2 Jul 2020 22:47:08 +0800
 MIME-Version: 1.0
-Message-ID: <159446219606.4006.16923768828083285770.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <20200701085947.3354405-10-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, "David S. Miller" <davem@davemloft.net>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-The following commit has been merged into the locking/core branch of tip:
+On 2020/7/1 16:59, Christoph Hellwig wrote:
+> Nothing in bcache actually uses the ->queuedata field.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Commit-ID:     48017e5481ce85ba52c4cff082cad5f021c4b413
-Gitweb:        https://git.kernel.org/tip/48017e5481ce85ba52c4cff082cad5f021c4b413
-Author:        Peter Zijlstra <peterz@infradead.org>
-AuthorDate:    Fri, 29 May 2020 22:40:58 +02:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Fri, 10 Jul 2020 12:00:01 +02:00
+Acked-by: Coly Li <colyli@suse.de>
 
-sparc64: Fix asm/percpu.h build error
-
-In order to break a header dependency between lockdep and task_struct,
-I need per-cpu stuff from lockdep.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: David S. Miller <davem@davemloft.net>
-Link: https://lkml.kernel.org/r/20200623083721.277992771@infradead.org
----
- arch/sparc/include/asm/percpu_64.h  | 2 ++
- arch/sparc/include/asm/trap_block.h | 2 ++
- 2 files changed, 4 insertions(+)
-
-diff --git a/arch/sparc/include/asm/percpu_64.h b/arch/sparc/include/asm/percpu_64.h
-index 32ef6f0..a8786a4 100644
---- a/arch/sparc/include/asm/percpu_64.h
-+++ b/arch/sparc/include/asm/percpu_64.h
-@@ -4,7 +4,9 @@
- 
- #include <linux/compiler.h>
- 
-+#ifndef BUILD_VDSO
- register unsigned long __local_per_cpu_offset asm("g5");
-+#endif
- 
- #ifdef CONFIG_SMP
- 
-diff --git a/arch/sparc/include/asm/trap_block.h b/arch/sparc/include/asm/trap_block.h
-index 0f6d0c4..ace0d48 100644
---- a/arch/sparc/include/asm/trap_block.h
-+++ b/arch/sparc/include/asm/trap_block.h
-@@ -2,6 +2,8 @@
- #ifndef _SPARC_TRAP_BLOCK_H
- #define _SPARC_TRAP_BLOCK_H
- 
-+#include <linux/threads.h>
-+
- #include <asm/hypervisor.h>
- #include <asm/asi.h>
- 
+> ---
+>  drivers/md/bcache/super.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+> index 2014016f9a60d3..21aa168113d30b 100644
+> --- a/drivers/md/bcache/super.c
+> +++ b/drivers/md/bcache/super.c
+> @@ -876,7 +876,6 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+>  		return -ENOMEM;
+>  
+>  	d->disk->queue			= q;
+> -	q->queuedata			= d;
+>  	q->backing_dev_info->congested_data = d;
+>  	q->limits.max_hw_sectors	= UINT_MAX;
+>  	q->limits.max_sectors		= UINT_MAX;
+> 
