@@ -1,105 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27332 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726081AbgGZSe4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 26 Jul 2020 14:34:56 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 2/2] net/smc: unique reason code for exceeded max dmb count
-Date: Sun, 26 Jul 2020 20:34:28 +0200
-Message-Id: <20200726183428.3284-3-kgraul@linux.ibm.com>
-In-Reply-To: <20200726183428.3284-1-kgraul@linux.ibm.com>
-References: <20200726183428.3284-1-kgraul@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:58004 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729213AbgGBB0f (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 1 Jul 2020 21:26:35 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 16/27] s390/kasan: fix early pgm check handler execution
+Date: Wed,  1 Jul 2020 21:26:04 -0400
+Message-Id: <20200702012615.2701532-16-sashal@kernel.org>
+In-Reply-To: <20200702012615.2701532-1-sashal@kernel.org>
+References: <20200702012615.2701532-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Alexander Egorenkov <egorenar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-When the maximum dmb buffer limit for an ism device is reached no more
-dmb buffers can be registered. When this happens the reason code is set
-to SMC_CLC_DECL_MEM indicating out-of-memory. This is the same reason
-code that is used when no memory could be allocated for the new dmb
-buffer.
-This is confusing for users when they see this error but there is more
-memory available. To solve this set a separate new reason code when the
-maximum dmb limit exceeded.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
+
+Currently if early_pgm_check_handler is called it ends up in pgm check
+loop. The problem is that early_pgm_check_handler is instrumented by
+KASAN but executed without DAT flag enabled which leads to addressing
+exception when KASAN checks try to access shadow memory.
+
+Fix that by executing early handlers with DAT flag on under KASAN as
+expected.
+
+Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c   | 13 +++++++++----
- net/smc/smc_clc.h  |  1 +
- net/smc/smc_core.c |  4 ++--
- 3 files changed, 12 insertions(+), 6 deletions(-)
+ arch/s390/kernel/early.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 832e36269b10..e7649bbc2b87 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -719,8 +719,11 @@ static int smc_connect_ism(struct smc_sock *smc,
- 	}
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index e7e6608b996c6..ad88bed743954 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -155,6 +155,8 @@ static noinline __init void setup_lowcore_early(void)
+ 	psw_t psw;
  
- 	/* Create send and receive buffers */
--	if (smc_buf_create(smc, true))
--		return smc_connect_abort(smc, SMC_CLC_DECL_MEM,
-+	rc = smc_buf_create(smc, true);
-+	if (rc)
-+		return smc_connect_abort(smc, (rc == -ENOSPC) ?
-+					      SMC_CLC_DECL_MAX_DMB :
-+					      SMC_CLC_DECL_MEM,
- 					 ini->cln_first_contact);
- 
- 	smc_conn_save_peer_info(smc, aclc);
-@@ -1200,12 +1203,14 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
- 	}
- 
- 	/* Create send and receive buffers */
--	if (smc_buf_create(new_smc, true)) {
-+	rc = smc_buf_create(new_smc, true);
-+	if (rc) {
- 		if (ini->cln_first_contact == SMC_FIRST_CONTACT)
- 			smc_lgr_cleanup_early(&new_smc->conn);
- 		else
- 			smc_conn_free(&new_smc->conn);
--		return SMC_CLC_DECL_MEM;
-+		return (rc == -ENOSPC) ? SMC_CLC_DECL_MAX_DMB :
-+					 SMC_CLC_DECL_MEM;
- 	}
- 
- 	return 0;
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 76c2b150d040..cf7b45306f4e 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -48,6 +48,7 @@
- #define SMC_CLC_DECL_NOACTLINK	0x030a0000  /* no active smc-r link in lgr    */
- #define SMC_CLC_DECL_NOSRVLINK	0x030b0000  /* SMC-R link from srv not found  */
- #define SMC_CLC_DECL_VERSMISMAT	0x030c0000  /* SMC version mismatch	      */
-+#define SMC_CLC_DECL_MAX_DMB	0x030d0000  /* SMC-D DMB limit exceeded       */
- #define SMC_CLC_DECL_SYNCERR	0x04000000  /* synchronization error          */
- #define SMC_CLC_DECL_PEERDECL	0x05000000  /* peer declined during handshake */
- #define SMC_CLC_DECL_INTERR	0x09990000  /* internal error		      */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index f82a2e599917..b42fa3b00d00 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1614,7 +1614,7 @@ static struct smc_buf_desc *smcd_new_buf_create(struct smc_link_group *lgr,
- 		rc = smc_ism_register_dmb(lgr, bufsize, buf_desc);
- 		if (rc) {
- 			kfree(buf_desc);
--			return ERR_PTR(-EAGAIN);
-+			return (rc == -ENOMEM) ? ERR_PTR(-EAGAIN) : ERR_PTR(rc);
- 		}
- 		buf_desc->pages = virt_to_page(buf_desc->cpu_addr);
- 		/* CDC header stored in buf. So, pretend it was smaller */
-@@ -1688,7 +1688,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 	}
- 
- 	if (IS_ERR(buf_desc))
--		return -ENOMEM;
-+		return PTR_ERR(buf_desc);
- 
- 	if (!is_smcd) {
- 		if (smcr_buf_map_usable_links(lgr, buf_desc, is_rmb)) {
+ 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
++	if (IS_ENABLED(CONFIG_KASAN))
++		psw.mask |= PSW_MASK_DAT;
+ 	psw.addr = (unsigned long) s390_base_ext_handler;
+ 	S390_lowcore.external_new_psw = psw;
+ 	psw.addr = (unsigned long) s390_base_pgm_handler;
 -- 
-2.17.1
+2.25.1
