@@ -1,123 +1,295 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:37438 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726261AbgGMDXv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 12 Jul 2020 23:23:51 -0400
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V5 0/4] mm/debug_vm_pgtable: Add some more tests
-Date: Mon, 13 Jul 2020 08:53:03 +0530
-Message-Id: <1594610587-4172-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24238 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726199AbgGBQb3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jul 2020 12:31:29 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v10 0/9] s390x: Testing the Channel Subsystem I/O
+Date: Thu,  2 Jul 2020 18:31:11 +0200
+Message-Id: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: agordeev@linux.ibm.com, ziy@nvidia.com, gerald.schaefer@de.ibm.com, christophe.leroy@c-s.fr, christophe.leroy@csgroup.eu, aneesh.kumar@linux.ibm.com, rppt@kernel.org, cai@lca.pw, Anshuman Khandual <anshuman.khandual@arm.com>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-This series adds some more arch page table helper validation tests which
-are related to core and advanced memory functions. This also creates a
-documentation, enlisting expected semantics for all page table helpers as
-suggested by Mike Rapoport previously (https://lkml.org/lkml/2020/1/30/40).
+Hi All,
 
-There are many TRANSPARENT_HUGEPAGE and ARCH_HAS_TRANSPARENT_HUGEPAGE_PUD
-ifdefs scattered across the test. But consolidating all the fallback stubs
-is not very straight forward because ARCH_HAS_TRANSPARENT_HUGEPAGE_PUD is
-not explicitly dependent on ARCH_HAS_TRANSPARENT_HUGEPAGE.
+Goal of the series is to have a framework to test Channel-Subsystem I/O with
+QEMU/KVM.
+  
+To be able to support interrupt for CSS I/O and for SCLP we need to modify
+the interrupt framework to allow re-entrant interruptions.
+  
+We add a registration for IRQ callbacks to the test program to define its own
+interrupt handler. We need to do special work under interrupt like acknowledging
+the interrupt.
+  
+This series presents three tests:
+- Enumeration:
+        The CSS is enumerated using the STSCH instruction recursively on all
+        potentially existing channels.
+        Keeping the first channel found as a reference for future use.
+        Checks STSCH
+ 
+- Enable:
+        If the enumeration succeeded the tests enables the reference
+        channel with MSCH and verifies with STSCH that the channel is
+        effectively enabled, retrying a predefined count on failure
+	to enable the channel
+        Checks MSCH       
+ 
+- Sense:
+        If the channel is enabled this test sends a SENSE_ID command
+        to the reference channel, analyzing the answer and expecting
+        the Control unit type being 0x3832, a.k.a. virtio-ccw.
+        Checks SSCH(READ) and IO-IRQ
 
-Tested on arm64, x86 platforms but only build tested on all other enabled
-platforms through ARCH_HAS_DEBUG_VM_PGTABLE i.e powerpc, arc, s390. The
-following failure on arm64 still exists which was mentioned previously. It
-will be fixed with the upcoming THP migration on arm64 enablement series.
+Note:
+- The following 5 patches are general usage and may be pulled first:
+  s390x: saving regs for interrupts
+  s390x: I/O interrupt registration
+  s390x: export the clock get_clock_ms() utility
+  s390x: clock and delays calculations
+  s390x: define function to wait for interrupt
 
-WARNING .... mm/debug_vm_pgtable.c:866 debug_vm_pgtable+0x940/0xa54
-WARN_ON(!pmd_present(pmd_mkinvalid(pmd_mkhuge(pmd))))
+- These 4 patches are really I/O oriented:
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
 
-This series is based on v5.8-rc5.
+Regards,
+Pierre
 
-Changes in V5:
+Pierre Morel (9):
+  s390x: saving regs for interrupts
+  s390x: I/O interrupt registration
+  s390x: export the clock get_clock_ms() utility
+  s390x: clock and delays calculations
+  s390x: define function to wait for interrupt
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
 
-- Dropped RANDOM_ORVALUE from hugetlb_advanced_tests()
-- Folded in Mike's patch for the rst document
-- Fixed typos in the rst document
-
-Changes in V4: (https://patchwork.kernel.org/project/linux-mm/list/?series=313173)
-
-- Replaced READ_ONCE() with ptep_get() while accessing PTE pointers per Christophe
-- Fixed function argument alignments per Christophe
-
-Changes in V3: (https://patchwork.kernel.org/project/linux-mm/list/?series=302483)
-
-- Replaced HAVE_ARCH_SOFT_DIRTY with MEM_SOFT_DIRTY
-- Added HAVE_ARCH_HUGE_VMAP checks in pxx_huge_tests() per Gerald
-- Updated documentation for pmd_thp_tests() per Zi Yan
-- Replaced READ_ONCE() with huge_ptep_get() per Gerald
-- Added pte_mkhuge() and masking with PMD_MASK per Gerald
-- Replaced pte_same() with holding pfn check in pxx_swap_tests()
-- Added documentation for all (#ifdef #else #endif) per Gerald
-- Updated pmd_protnone_tests() per Gerald
-- Updated HugeTLB PTE creation in hugetlb_advanced_tests() per Gerald
-- Replaced [pmd|pud]_mknotpresent() with [pmd|pud]_mkinvalid()
-- Added has_transparent_hugepage() check for PMD and PUD tests
-- Added a patch which debug prints all individual tests being executed
-- Updated documentation for renamed [pmd|pud]_mkinvalid() helpers
-
-Changes in V2: (https://patchwork.kernel.org/project/linux-mm/list/?series=260573)
-
-- Dropped CONFIG_ARCH_HAS_PTE_SPECIAL per Christophe
-- Dropped CONFIG_NUMA_BALANCING per Christophe
-- Dropped CONFIG_HAVE_ARCH_SOFT_DIRTY per Christophe
-- Dropped CONFIG_MIGRATION per Christophe
-- Replaced CONFIG_S390 with __HAVE_ARCH_PMDP_INVALIDATE
-- Moved page allocation & free inside swap_migration_tests() per Christophe
-- Added CONFIG_TRANSPARENT_HUGEPAGE to protect pfn_pmd()
-- Added CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD to protect pfn_pud()
-- Added a patch for other arch advanced page table helper tests
-- Added a patch creating a documentation for page table helper semantics
-
-Changes in V1: (https://patchwork.kernel.org/patch/11408253/)
-
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-riscv@lists.infradead.org
-Cc: x86@kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-doc@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-
-Anshuman Khandual (4):
-  mm/debug_vm_pgtable: Add tests validating arch helpers for core MM features
-  mm/debug_vm_pgtable: Add tests validating advanced arch page table helpers
-  mm/debug_vm_pgtable: Add debug prints for individual tests
-  Documentation/mm: Add descriptions for arch page table helpers
-
- Documentation/vm/arch_pgtable_helpers.rst | 258 +++++++++
- mm/debug_vm_pgtable.c                     | 666 +++++++++++++++++++++-
- 2 files changed, 922 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/vm/arch_pgtable_helpers.rst
+ lib/s390x/asm/arch_def.h |  14 ++
+ lib/s390x/asm/time.h     |  50 +++++++
+ lib/s390x/css.h          | 286 +++++++++++++++++++++++++++++++++++++++
+ lib/s390x/css_dump.c     | 152 +++++++++++++++++++++
+ lib/s390x/css_lib.c      | 277 +++++++++++++++++++++++++++++++++++++
+ lib/s390x/interrupt.c    |  23 +++-
+ lib/s390x/interrupt.h    |   8 ++
+ s390x/Makefile           |   3 +
+ s390x/css.c              | 162 ++++++++++++++++++++++
+ s390x/cstart64.S         |  41 +++++-
+ s390x/intercept.c        |  11 +-
+ s390x/unittests.cfg      |   4 +
+ 12 files changed, 1018 insertions(+), 13 deletions(-)
+ create mode 100644 lib/s390x/asm/time.h
+ create mode 100644 lib/s390x/css.h
+ create mode 100644 lib/s390x/css_dump.c
+ create mode 100644 lib/s390x/css_lib.c
+ create mode 100644 lib/s390x/interrupt.h
+ create mode 100644 s390x/css.c
 
 -- 
-2.20.1
+2.25.1
+
+from v9 to v10:
+
+- postpone and removed from series 
+  - s390x: Use PSW bits definitions in cstart
+  - s390x: Move control register bit definitions and add AFP to them
+  reason: gcc compiler for RedHat-7 does not allow UL suffix for
+          macro declarations.
+  (Thomas)
+
+- postpone and removed from series 
+  -s390x-retrieve-decimal-and-hexadecimal-kernel-par.patch
+  reason: must be reworked and since we can do without an argument
+          I prefer to separate it from this series.
+  (Janosch, Andrew)
+
+- several word spelling, better comments
+  (Connie, Thomas)
+
+- Extensively reworked ssch/tsch with sense and interrupt
+  - added a dedicated ISC to the channel subsystem test
+    when enabling a channel
+  - reworked the ISC enabling in CR6
+  - reworked the test on residual count
+  - moved the IRQ handler and the start function inside the
+    library to share with following CSS tests.
+  - added more report_info to the IRQ handler
+  - rename some functions, start_single_ccw, css_irq_io,
+    css_residual_count
+  (Connie, Pierre)
+
+from v8 to v9:
+
+- rename PSW_EXCEPTION_MASK to PSW_MASK_ON_EXCEPTION
+  (Thomas)
+
+- changed false max microseconds in delay calculation
+  (Thomas)
+
+- fix bug in decimal parameter calculation
+  (Thomas)
+
+- fix bug in msch inline assembly
+  (Thomas)
+
+- add report_abort() for unprobable result of tsch
+  in I/O IRQ
+  (Thomas)
+
+- use of existing lctlg() wrapper instead of new function
+  (Thomas)
+
+from v7 to v8
+
+* Suppress ccw-pong specific remote device
+  (Thomas, Janosch)
+
+* use virtio-net-ccw as device instead of a specific
+  device: no more need for QEMU patch
+  (Connie)
+
+* Add kernel parameter to access a different device.
+  (Connie)
+
+* Add tests on subschannel reading, length, garbage.
+  (Connie)
+
+* Several naming changes and reorganizations of definitions.
+  (Connie)
+
+* Take wrapping into account for delay calculation
+
+* Align CCW1 on 8 bytes boundary
+
+* Reorganize the first three patches
+  (Janosch)
+
+from v6 to v7
+
+* s390x: saving regs for interrupts
+- macro name modificatio for SAVE_REGS_STACK
+  (David)
+- saving the FPC
+  (David)
+
+* s390x: Use PSW bits definitions in cstart
+- suppress definition for PSW_RESET_MASK
+  use PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW
+  (David)
+
+* s390x: Library resources for CSS tests
+* s390x: css: stsch, enumeration test
+  move library definitions from stsch patche
+  to the Library patch
+  add the library to the s390 Makefile here
+  (Janosch)
+  
+* s390x: css: msch, enable test
+  Add retries when enable fails
+  (Connie)
+  Re-introduce the patches for delay implementation
+  to add a delay between retries
+
+* s390x: define function to wait for interrupt
+  Changed name from wfi to wait_for_interrupt
+  (Janosch)
+
+* s390x: css: ssch/tsch with sense and interrupt
+  add a flag parameter to ssch and use it to add
+  SLI (Suppress Length Indication) flag for SENSE_ID
+  (Connie)
+
+
+from v5 to v6
+- Added comments for IRQ handling in
+  s390x: saving regs for interrupts
+  (Janosch) 
+
+- fixed BUG on reset_psw, added PSW_MASK_PSW_SHORT
+  and PSW_RESET_MASK
+
+- fixed several lines over 80 chars
+
+- fixed licenses, use GPL V2 (no more LGPL)
+
+- replacing delay() with wfi() (Wait For Interrupt)
+  during the css tests
+  (suggested by Connie's comments)
+
+- suppressing delay() induces suppressing the patch
+  "s390x: export the clock get_clock_ms() utility"
+  which is already reviewed but can be picked from
+  the v5 series.
+
+- changed the logic of the tests, the 4 css tests
+  are always run one after the other so no need to 
+  re-run enumeration and enabling at the begining
+  of each tests, it has alredy been done.
+  This makes code simpler.
+
+from v4 to v5
+- add a patch to explicitely define the initial_cr0
+  value
+  (Janosch)
+- add RB from Janosh on interrupt registration
+- several formating, typo correction and removing
+  unnecessary initialization in "linrary resources..."
+  (Janosch)
+- several formating and typo corrections on
+  "stsch enumeration test"
+  (Connie)
+- reworking the msch test
+  (Connie)
+- reworking of ssch test, pack the sense-id structure
+  (Connie)
+
+from v3 to v4
+- add RB from David and Thomas for patchs 
+  (3) irq registration and (4) clock export
+- rework the PSW bit definitions
+  (Thomas)
+- Suppress undef DEBUG from css_dump
+  (Thomas)
+- rework report() functions using new scheme
+  (Thomas)
+- suppress un-necessary report_info()
+- more spelling corrections
+- add a loop around enable bit testing
+  (Connie)
+- rework IRQ testing
+  (Connie)
+- Test data addresses to be under 2G
+  (Connie)
+
+from v2 to v3:
+- Rework spelling
+  (Connie)
+- More descriptions
+  (Connie)
+- use __ASSEMBLER__ preprocessing to keep
+  bits definitions and C structures in the same file
+  (David)
+- rename the new file clock.h as time.h
+  (Janosch, David?)
+- use registration for the IO interruption
+  (David, Thomas)
+- test the SCHIB to verify it has really be modified
+  (Connie)
+- Lot of simplifications in the tests
+  (Connie)
+
+from v1 to v2:
+- saving floating point registers (David, Janosh)
+- suppress unused PSW bits defintions (Janosh)
+- added Thomas reviewed-by
+- style and comments modifications (Connie, Janosh)
+- moved get_clock_ms() into headers and use it (Thomas)
+- separate header and library utility from tests
+- Suppress traces, separate tests, make better usage of reports
