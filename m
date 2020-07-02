@@ -1,48 +1,30 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40892 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726039AbgGCNVF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:21:05 -0400
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 3/7] scsi: docs: update outdated link to IBM developerworks
-Date: Fri,  3 Jul 2020 15:19:59 +0200
-Message-Id: <9ab0341d6ddca46cfc885e4cd9dc38f535969b02.1593780621.git.bblock@linux.ibm.com>
-In-Reply-To: <cover.1593780621.git.bblock@linux.ibm.com>
-References: <cover.1593780621.git.bblock@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:58434 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726169AbgGBGOo (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 2 Jul 2020 02:14:44 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200701085947.3354405-1-hch@lst.de> <20200701085947.3354405-13-hch@lst.de>
+In-Reply-To: <20200701085947.3354405-13-hch@lst.de>
+From: Song Liu <song@kernel.org>
+Date: Wed, 1 Jul 2020 23:14:30 -0700
+Message-ID: <CAPhsuW5=055Eo-b3fjC_b-nJz-fg1FGwy_aqrNNtHm-U8vut-A@mail.gmail.com>
+Subject: Re: [PATCH 12/20] block: remove the request_queue argument from blk_queue_split
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jonathan Corbet <corbet@lwn.net>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, dm-devel@redhat.com, open list <linux-kernel@vger.kernel.org>, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid <linux-raid@vger.kernel.org>, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-IBM decided to retire a lot of the content that was previously hosted on
-"developerworks", and so some of the links we've used for documentation
-are now dead or redirect to some general landing page with no
-correlation to what the links were meant to provide.
+On Wed, Jul 1, 2020 at 2:02 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> The queue can be trivially derived from the bio, so pass one less
+> argument.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+[...]
+>  drivers/md/md.c               |  2 +-
 
-The s390-tools package is meanwhile also hosted on github, so we can
-link to the script directly instead of to the archive.
-
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
----
- Documentation/scsi/scsi-parameters.rst | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/Documentation/scsi/scsi-parameters.rst b/Documentation/scsi/scsi-parameters.rst
-index 9aba897c97ac..e5f68b431f5c 100644
---- a/Documentation/scsi/scsi-parameters.rst
-+++ b/Documentation/scsi/scsi-parameters.rst
-@@ -94,7 +94,7 @@ parameters may be changed at runtime by the command
- 			(/proc/sys/dev/scsi/logging_level).
- 			There is also a nice 'scsi_logging_level' script in the
- 			S390-tools package, available for download at
--			http://www-128.ibm.com/developerworks/linux/linux390/s390-tools-1.5.4.html
-+			https://github.com/ibm-s390-tools/s390-tools/blob/master/scripts/scsi_logging_level
- 
- 	scsi_mod.scan=	[SCSI] sync (default) scans SCSI busses as they are
- 			discovered.  async scans them in kernel threads,
--- 
-2.26.2
+For md.c:
+Acked-by: Song Liu <song@kernel.org>
