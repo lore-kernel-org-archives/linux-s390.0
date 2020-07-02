@@ -1,296 +1,179 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55532 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726832AbgGQO6b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 17 Jul 2020 10:58:31 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 3/3] s390x: Ultavisor guest API test
-Date: Fri, 17 Jul 2020 10:58:13 -0400
-Message-Id: <20200717145813.62573-4-frankja@linux.ibm.com>
-In-Reply-To: <20200717145813.62573-1-frankja@linux.ibm.com>
-References: <20200717145813.62573-1-frankja@linux.ibm.com>
+Received: from mx2.suse.de ([195.135.220.15]:57000 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730308AbgGBOtH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 2 Jul 2020 10:49:07 -0400
+Subject: Re: [PATCH 16/20] block: move ->make_request_fn to struct
+ block_device_operations
+References: <20200701085947.3354405-1-hch@lst.de>
+ <20200701085947.3354405-17-hch@lst.de>
+From: Coly Li <colyli@suse.de>
+Message-ID: <ded333a3-c6d9-2a4d-b427-b06aaa1e925c@suse.de>
+Date: Thu, 2 Jul 2020 22:48:54 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200701085947.3354405-17-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-Test the error conditions of guest 2 Ultravisor calls, namely:
-     * Query Ultravisor information
-     * Set shared access
-     * Remove shared access
+On 2020/7/1 16:59, Christoph Hellwig wrote:
+> The make_request_fn is a little weird in that it sits directly in
+> struct request_queue instead of an operation vector.  Replace it with
+> a block_device_operations method called submit_bio (which describes much
+> better what it does).  Also remove the request_queue argument to it, as
+> the queue can be derived pretty trivially from the bio.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/asm/uv.h  |  68 +++++++++++++++++++
- s390x/Makefile      |   1 +
- s390x/unittests.cfg |   3 +
- s390x/uv-guest.c    | 156 ++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 228 insertions(+)
- create mode 100644 lib/s390x/asm/uv.h
- create mode 100644 s390x/uv-guest.c
+For the bcache part,
 
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-new file mode 100644
-index 0000000..14ab5cc
---- /dev/null
-+++ b/lib/s390x/asm/uv.h
-@@ -0,0 +1,68 @@
-+/*
-+ * s390x Ultravisor related definitions
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Janosch Frank <frankja@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+#ifndef UV_H
-+#define UV_H
-+
-+#define UVC_RC_EXECUTED		0x0001
-+#define UVC_RC_INV_CMD		0x0002
-+#define UVC_RC_INV_STATE	0x0003
-+#define UVC_RC_INV_LEN		0x0005
-+#define UVC_RC_NO_RESUME	0x0007
-+
-+#define UVC_CMD_QUI			0x0001
-+#define UVC_CMD_SET_SHARED_ACCESS	0x1000
-+#define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
-+
-+/* Bits in installed uv calls */
-+enum uv_cmds_inst {
-+	BIT_UVC_CMD_QUI = 0,
-+	BIT_UVC_CMD_SET_SHARED_ACCESS = 8,
-+	BIT_UVC_CMD_REMOVE_SHARED_ACCESS = 9,
-+};
-+
-+struct uv_cb_header {
-+	u16 len;
-+	u16 cmd;	/* Command Code */
-+	u16 rc;		/* Response Code */
-+	u16 rrc;	/* Return Reason Code */
-+} __attribute__((packed))  __attribute__((aligned(8)));
-+
-+struct uv_cb_qui {
-+	struct uv_cb_header header;
-+	u64 reserved08;
-+	u64 inst_calls_list[4];
-+	u64 reserved30[15];
-+} __attribute__((packed))  __attribute__((aligned(8)));
-+
-+struct uv_cb_share {
-+	struct uv_cb_header header;
-+	u64 reserved08[3];
-+	u64 paddr;
-+	u64 reserved28;
-+} __attribute__((packed))  __attribute__((aligned(8)));
-+
-+static inline int uv_call(unsigned long r1, unsigned long r2)
-+{
-+	int cc;
-+
-+	asm volatile(
-+		"0:	.insn rrf,0xB9A40000,%[r1],%[r2],0,0\n"
-+		"		brc	3,0b\n"
-+		"		ipm	%[cc]\n"
-+		"		srl	%[cc],28\n"
-+		: [cc] "=d" (cc)
-+		: [r1] "a" (r1), [r2] "a" (r2)
-+		: "memory", "cc");
-+	return cc;
-+}
-+
-+#endif
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 0f54bf4..c2213ad 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -18,6 +18,7 @@ tests += $(TEST_DIR)/skrf.elf
- tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
- tests += $(TEST_DIR)/css.elf
-+tests += $(TEST_DIR)/uv-guest.elf
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- 
- all: directories test_cases test_cases_binary
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index b35269b..38c3257 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -92,3 +92,6 @@ extra_params = -device virtio-net-ccw
- [skrf]
- file = skrf.elf
- smp = 2
-+
-+[uv-guest]
-+file = uv-guest.elf
-\ No newline at end of file
-diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-new file mode 100644
-index 0000000..0cb5fae
---- /dev/null
-+++ b/s390x/uv-guest.c
-@@ -0,0 +1,156 @@
-+/*
-+ * Guest Ultravisor Call tests
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Janosch Frank <frankja@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+
-+#include <libcflat.h>
-+#include <alloc_page.h>
-+#include <asm/page.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/interrupt.h>
-+#include <asm/facility.h>
-+#include <asm/uv.h>
-+
-+static inline int share(unsigned long addr, u16 cmd)
-+{
-+	struct uv_cb_share uvcb = {
-+		.header.cmd = cmd,
-+		.header.len = sizeof(uvcb),
-+		.paddr = addr
-+	};
-+
-+	uv_call(0, (u64)&uvcb);
-+	return uvcb.header.rc;
-+}
-+
-+static inline int uv_set_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_SET_SHARED_ACCESS);
-+}
-+
-+static inline int uv_remove_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
-+}
-+
-+static void test_priv(void)
-+{
-+	struct uv_cb_header uvcb = {};
-+
-+	report_prefix_push("privileged");
-+
-+	report_prefix_push("query");
-+	expect_pgm_int();
-+	uvcb.cmd = UVC_CMD_QUI;
-+	uvcb.len = sizeof(struct uv_cb_qui);
-+	enter_pstate();
-+	uv_call(0, (u64)&uvcb);
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+	report_prefix_pop();
-+
-+	report_prefix_push("share");
-+	expect_pgm_int();
-+	enter_pstate();
-+	uv_set_shared(0x42000);
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+	report_prefix_pop();
-+
-+	report_prefix_push("unshare");
-+	expect_pgm_int();
-+	enter_pstate();
-+	uv_remove_shared(0x42000);
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+	report_prefix_pop();
-+
-+	report_prefix_pop();
-+}
-+
-+static void test_query(void)
-+{
-+	struct uv_cb_qui uvcb = {
-+		.header.cmd = UVC_CMD_QUI,
-+		.header.len = sizeof(uvcb) - 8,
-+	};
-+
-+	report_prefix_push("query");
-+	uv_call(0, (u64)&uvcb);
-+	report(uvcb.header.rc == UVC_RC_INV_LEN, "length");
-+
-+	uvcb.header.len = sizeof(uvcb);
-+	uv_call(0, (u64)&uvcb);
-+	report(uvcb.header.rc == UVC_RC_EXECUTED, "successful query");
-+
-+	/*
-+	 * These bits have been introduced with the very first
-+	 * Ultravisor version and are expected to always be available
-+	 * because they are basic building blocks.
-+	 */
-+	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_QUI)),
-+	       "query indicated");
-+	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_SET_SHARED_ACCESS)),
-+	       "share indicated");
-+	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_REMOVE_SHARED_ACCESS)),
-+	       "unshare indicated");
-+	report_prefix_pop();
-+}
-+
-+static void test_sharing(void)
-+{
-+	unsigned long mem = (unsigned long)alloc_page();
-+	struct uv_cb_share uvcb = {
-+		.header.cmd = UVC_CMD_SET_SHARED_ACCESS,
-+		.header.len = sizeof(uvcb) - 8,
-+	};
-+
-+	report_prefix_push("share");
-+	uv_call(0, (u64)&uvcb);
-+	report(uvcb.header.rc == UVC_RC_INV_LEN, "length");
-+	report(uv_set_shared(mem) == UVC_RC_EXECUTED, "share");
-+	report_prefix_pop();
-+
-+	report_prefix_push("unshare");
-+	uvcb.header.cmd = UVC_CMD_REMOVE_SHARED_ACCESS;
-+	uv_call(0, (u64)&uvcb);
-+	report(uvcb.header.rc == UVC_RC_INV_LEN, "length");
-+	report(uv_remove_shared(mem) == UVC_RC_EXECUTED, "unshare");
-+	free_page((void *)mem);
-+	report_prefix_pop();
-+
-+	report_prefix_pop();
-+}
-+
-+static void test_invalid(void)
-+{
-+	struct uv_cb_header uvcb = {
-+		.len = 16,
-+		.cmd = 0x4242,
-+	};
-+
-+	uv_call(0, (u64)&uvcb);
-+	report(uvcb.rc == UVC_RC_INV_CMD, "invalid command");
-+}
-+
-+int main(void)
-+{
-+	bool has_uvc = test_facility(158);
-+
-+	report_prefix_push("uvc");
-+	if (!has_uvc) {
-+		report_skip("Ultravisor call facility is not available");
-+		goto done;
-+	}
-+
-+	test_priv();
-+	test_invalid();
-+	test_query();
-+	test_sharing();
-+done:
-+	return report_summary();
-+}
--- 
-2.25.1
+Acked-by: Coly Li <colyli@suse.de>
+
+> ---
+>  Documentation/block/biodoc.rst                |  2 +-
+>  .../block/writeback_cache_control.rst         |  2 +-
+>  arch/m68k/emu/nfblock.c                       |  5 +-
+>  arch/xtensa/platforms/iss/simdisk.c           |  5 +-
+>  block/blk-cgroup.c                            |  2 +-
+>  block/blk-core.c                              | 53 +++++++------------
+>  block/blk-mq.c                                | 10 ++--
+>  block/blk.h                                   |  2 -
+>  drivers/block/brd.c                           |  5 +-
+>  drivers/block/drbd/drbd_int.h                 |  2 +-
+>  drivers/block/drbd/drbd_main.c                |  9 ++--
+>  drivers/block/drbd/drbd_req.c                 |  2 +-
+>  drivers/block/null_blk_main.c                 | 17 ++++--
+>  drivers/block/pktcdvd.c                       | 11 ++--
+>  drivers/block/ps3vram.c                       | 15 +++---
+>  drivers/block/rsxx/dev.c                      |  7 ++-
+>  drivers/block/umem.c                          |  5 +-
+>  drivers/block/zram/zram_drv.c                 | 11 ++--
+>  drivers/lightnvm/core.c                       |  8 +--
+>  drivers/lightnvm/pblk-init.c                  | 12 +++--
+>  drivers/md/bcache/request.c                   |  4 +-
+>  drivers/md/bcache/request.h                   |  4 +-
+>  drivers/md/bcache/super.c                     | 23 +++++---
+>  drivers/md/dm.c                               | 23 ++++----
+>  drivers/md/md.c                               |  5 +-
+>  drivers/nvdimm/blk.c                          |  5 +-
+>  drivers/nvdimm/btt.c                          |  5 +-
+>  drivers/nvdimm/pmem.c                         |  5 +-
+>  drivers/nvme/host/core.c                      |  1 +
+>  drivers/nvme/host/multipath.c                 |  5 +-
+>  drivers/nvme/host/nvme.h                      |  1 +
+>  drivers/s390/block/dcssblk.c                  |  9 ++--
+>  drivers/s390/block/xpram.c                    |  6 +--
+>  include/linux/blk-mq.h                        |  2 +-
+>  include/linux/blkdev.h                        |  7 +--
+>  include/linux/lightnvm.h                      |  3 +-
+>  36 files changed, 153 insertions(+), 140 deletions(-)
+> 
+[snipped]
+
+> diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
+> index 7acf024e99f351..fc5702b10074d6 100644
+> --- a/drivers/md/bcache/request.c
+> +++ b/drivers/md/bcache/request.c
+> @@ -1158,7 +1158,7 @@ static void quit_max_writeback_rate(struct cache_set *c,
+>  
+>  /* Cached devices - read & write stuff */
+>  
+> -blk_qc_t cached_dev_make_request(struct request_queue *q, struct bio *bio)
+> +blk_qc_t cached_dev_submit_bio(struct bio *bio)
+>  {
+>  	struct search *s;
+>  	struct bcache_device *d = bio->bi_disk->private_data;
+> @@ -1291,7 +1291,7 @@ static void flash_dev_nodata(struct closure *cl)
+>  	continue_at(cl, search_free, NULL);
+>  }
+>  
+> -blk_qc_t flash_dev_make_request(struct request_queue *q, struct bio *bio)
+> +blk_qc_t flash_dev_submit_bio(struct bio *bio)
+>  {
+>  	struct search *s;
+>  	struct closure *cl;
+> diff --git a/drivers/md/bcache/request.h b/drivers/md/bcache/request.h
+> index bb005c93dd7218..82b38366a95deb 100644
+> --- a/drivers/md/bcache/request.h
+> +++ b/drivers/md/bcache/request.h
+> @@ -37,10 +37,10 @@ unsigned int bch_get_congested(const struct cache_set *c);
+>  void bch_data_insert(struct closure *cl);
+>  
+>  void bch_cached_dev_request_init(struct cached_dev *dc);
+> -blk_qc_t cached_dev_make_request(struct request_queue *q, struct bio *bio);
+> +blk_qc_t cached_dev_submit_bio(struct bio *bio);
+>  
+>  void bch_flash_dev_request_init(struct bcache_device *d);
+> -blk_qc_t flash_dev_make_request(struct request_queue *q, struct bio *bio);
+> +blk_qc_t flash_dev_submit_bio(struct bio *bio);
+>  
+>  extern struct kmem_cache *bch_search_cache;
+>  
+> diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+> index 21aa168113d30b..de13f6e916966d 100644
+> --- a/drivers/md/bcache/super.c
+> +++ b/drivers/md/bcache/super.c
+> @@ -680,7 +680,16 @@ static int ioctl_dev(struct block_device *b, fmode_t mode,
+>  	return d->ioctl(d, mode, cmd, arg);
+>  }
+>  
+> -static const struct block_device_operations bcache_ops = {
+> +static const struct block_device_operations bcache_cached_ops = {
+> +	.submit_bio	= cached_dev_submit_bio,
+> +	.open		= open_dev,
+> +	.release	= release_dev,
+> +	.ioctl		= ioctl_dev,
+> +	.owner		= THIS_MODULE,
+> +};
+> +
+> +static const struct block_device_operations bcache_flash_ops = {
+> +	.submit_bio	= flash_dev_submit_bio,
+>  	.open		= open_dev,
+>  	.release	= release_dev,
+>  	.ioctl		= ioctl_dev,
+> @@ -820,8 +829,8 @@ static void bcache_device_free(struct bcache_device *d)
+>  }
+>  
+>  static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+> -			      sector_t sectors, make_request_fn make_request_fn,
+> -			      struct block_device *cached_bdev)
+> +		sector_t sectors, struct block_device *cached_bdev,
+> +		const struct block_device_operations *ops)
+>  {
+>  	struct request_queue *q;
+>  	const size_t max_stripes = min_t(size_t, INT_MAX,
+> @@ -868,10 +877,10 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
+>  
+>  	d->disk->major		= bcache_major;
+>  	d->disk->first_minor	= idx_to_first_minor(idx);
+> -	d->disk->fops		= &bcache_ops;
+> +	d->disk->fops		= ops;
+>  	d->disk->private_data	= d;
+>  
+> -	q = blk_alloc_queue(make_request_fn, NUMA_NO_NODE);
+> +	q = blk_alloc_queue(NUMA_NO_NODE);
+>  	if (!q)
+>  		return -ENOMEM;
+>  
+> @@ -1355,7 +1364,7 @@ static int cached_dev_init(struct cached_dev *dc, unsigned int block_size)
+>  
+>  	ret = bcache_device_init(&dc->disk, block_size,
+>  			 dc->bdev->bd_part->nr_sects - dc->sb.data_offset,
+> -			 cached_dev_make_request, dc->bdev);
+> +			 dc->bdev, &bcache_cached_ops);
+>  	if (ret)
+>  		return ret;
+>  
+> @@ -1468,7 +1477,7 @@ static int flash_dev_run(struct cache_set *c, struct uuid_entry *u)
+>  	kobject_init(&d->kobj, &bch_flash_dev_ktype);
+>  
+>  	if (bcache_device_init(d, block_bytes(c), u->sectors,
+> -			flash_dev_make_request, NULL))
+> +			NULL, &bcache_flash_ops))
+>  		goto err;
+>  
+>  	bcache_device_attach(d, c, u - c->uuids);
