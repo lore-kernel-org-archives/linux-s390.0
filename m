@@ -1,67 +1,50 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:47766 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726645AbgGCNjm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:39:42 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 7/9] s390/vmemmap: fallback to PTEs if mapping large PMD fails
-Date: Fri,  3 Jul 2020 15:39:15 +0200
-Message-Id: <20200703133917.39045-8-david@redhat.com>
-In-Reply-To: <20200703133917.39045-1-david@redhat.com>
-References: <20200703133917.39045-1-david@redhat.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 10/17] s390/kasan: fix early pgm check handler execution
+Date: Wed,  1 Jul 2020 21:26:42 -0400
+Message-Id: <20200702012649.2701799-10-sashal@kernel.org>
+In-Reply-To: <20200702012649.2701799-1-sashal@kernel.org>
+References: <20200702012649.2701799-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Alexander Egorenkov <egorenar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Let's fallback to single pages if short on huge pages. No need to stop
-memory hotplug.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
+
+Currently if early_pgm_check_handler is called it ends up in pgm check
+loop. The problem is that early_pgm_check_handler is instrumented by
+KASAN but executed without DAT flag enabled which leads to addressing
+exception when KASAN checks try to access shadow memory.
+
+Fix that by executing early handlers with DAT flag on under KASAN as
+expected.
+
+Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/mm/vmem.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/s390/kernel/early.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 5239130770b7b..b7fdb9536707f 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -422,23 +422,23 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
- 		}
+diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
+index 4ba5ad44a21a2..73045142febf0 100644
+--- a/arch/s390/kernel/early.c
++++ b/arch/s390/kernel/early.c
+@@ -317,6 +317,8 @@ static noinline __init void setup_lowcore_early(void)
+ 	psw_t psw;
  
- 		pm_dir = pmd_offset(pu_dir, address);
--		if (pmd_none(*pm_dir)) {
-+		if (pmd_none(*pm_dir) && MACHINE_HAS_EDAT1) {
-+			void *new_page;
-+
- 			/* Use 1MB frames for vmemmap if available. We always
- 			 * use large frames even if they are only partially
- 			 * used.
- 			 * Otherwise we would have also page tables since
- 			 * vmemmap_populate gets called for each section
- 			 * separately. */
--			if (MACHINE_HAS_EDAT1) {
--				void *new_page;
--
--				new_page = vmemmap_alloc_block(PMD_SIZE, node);
--				if (!new_page)
--					goto out;
-+			new_page = vmemmap_alloc_block(PMD_SIZE, node);
-+			if (new_page) {
- 				pmd_val(*pm_dir) = __pa(new_page) | sgt_prot;
- 				address = (address + PMD_SIZE) & PMD_MASK;
- 				continue;
- 			}
-+		}
-+		if (pmd_none(*pm_dir)) {
- 			pt_dir = vmem_pte_alloc();
- 			if (!pt_dir)
- 				goto out;
+ 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
++	if (IS_ENABLED(CONFIG_KASAN))
++		psw.mask |= PSW_MASK_DAT;
+ 	psw.addr = (unsigned long) s390_base_ext_handler;
+ 	S390_lowcore.external_new_psw = psw;
+ 	psw.addr = (unsigned long) s390_base_pgm_handler;
 -- 
-2.26.2
+2.25.1
