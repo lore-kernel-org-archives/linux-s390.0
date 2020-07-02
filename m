@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 11 Jul 2020 10:09:54 -0000
-From: "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: locking/core] s390: Break cyclic percpu include
-In-Reply-To: <20200623083721.396143816@infradead.org>
-References: <20200623083721.396143816@infradead.org>
-MIME-Version: 1.0
-Message-ID: <159446219491.4006.10096196387412426349.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31666 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726147AbgGBQdn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jul 2020 12:33:43 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v10 4/9] s390x: clock and delays calculations
+Date: Thu,  2 Jul 2020 18:31:15 +0200
+Message-Id: <1593707480-23921-5-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
+References: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-The following commit has been merged into the locking/core branch of tip:
+The hardware gives us a good definition of the microsecond,
+let's keep this information and let the routine accessing
+the hardware keep all the information and return microseconds.
 
-Commit-ID:     28e5bfd81c8de77504703adf24ceff9301e3c7be
-Gitweb:        https://git.kernel.org/tip/28e5bfd81c8de77504703adf24ceff9301e3c7be
-Author:        Peter Zijlstra <peterz@infradead.org>
-AuthorDate:    Fri, 29 May 2020 22:41:05 +02:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Fri, 10 Jul 2020 12:00:02 +02:00
+Calculate delays in microseconds and take care about wrapping
+around zero.
 
-s390: Break cyclic percpu include
+Define values with macros and use inlines to keep the
+milliseconds interface.
 
-In order to use <asm/percpu.h> in irqflags.h, we need to make sure
-asm/percpu.h does not itself depend on irqflags.h
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20200623083721.396143816@infradead.org
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/include/asm/smp.h         | 1 +
- arch/s390/include/asm/thread_info.h | 1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ lib/s390x/asm/time.h | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/include/asm/smp.h b/arch/s390/include/asm/smp.h
-index 7326f11..f48a43b 100644
---- a/arch/s390/include/asm/smp.h
-+++ b/arch/s390/include/asm/smp.h
-@@ -10,6 +10,7 @@
+diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
+index 1791380..7375aa2 100644
+--- a/lib/s390x/asm/time.h
++++ b/lib/s390x/asm/time.h
+@@ -13,14 +13,38 @@
+ #ifndef ASM_S390X_TIME_H
+ #define ASM_S390X_TIME_H
  
- #include <asm/sigp.h>
- #include <asm/lowcore.h>
-+#include <asm/processor.h>
+-static inline uint64_t get_clock_ms(void)
++#define STCK_SHIFT_US	(63 - 51)
++#define STCK_MAX	((1UL << 52) - 1)
++
++static inline uint64_t get_clock_us(void)
+ {
+ 	uint64_t clk;
  
- #define raw_smp_processor_id()	(S390_lowcore.cpu_nr)
+ 	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
  
-diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
-index e582fbe..13a04fc 100644
---- a/arch/s390/include/asm/thread_info.h
-+++ b/arch/s390/include/asm/thread_info.h
-@@ -24,7 +24,6 @@
- #ifndef __ASSEMBLY__
- #include <asm/lowcore.h>
- #include <asm/page.h>
--#include <asm/processor.h>
+-	/* Bit 51 is incrememented each microsecond */
+-	return (clk >> (63 - 51)) / 1000;
++	return clk >> STCK_SHIFT_US;
++}
++
++static inline uint64_t get_clock_ms(void)
++{
++	return get_clock_us() / 1000;
++}
++
++static inline void udelay(unsigned long us)
++{
++	unsigned long startclk = get_clock_us();
++	unsigned long c;
++
++	do {
++		c = get_clock_us();
++		if (c < startclk)
++			c += STCK_MAX;
++	} while (c < startclk + us);
++}
++
++static inline void mdelay(unsigned long ms)
++{
++	udelay(ms * 1000);
+ }
  
- #define STACK_INIT_OFFSET \
- 	(THREAD_SIZE - STACK_FRAME_OVERHEAD - sizeof(struct pt_regs))
+ #endif
+-- 
+2.25.1
