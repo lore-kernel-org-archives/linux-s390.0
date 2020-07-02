@@ -1,37 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15346 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:5434 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730264AbgGAOww (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 10:52:52 -0400
-Date: Wed, 1 Jul 2020 16:52:36 +0200
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Subject: Re: [PATCH v4 18/26] mm/s390: Use general page fault accounting
-Message-ID: <20200701165236.633d82fa@thinkpad>
-In-Reply-To: <20200630204548.39342-1-peterx@redhat.com>
-References: <20200630204548.39342-1-peterx@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        by vger.kernel.org with ESMTP id S1726465AbgGBQb3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jul 2020 12:31:29 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v10 1/9] s390x: saving regs for interrupts
+Date: Thu,  2 Jul 2020 18:31:12 +0200
+Message-Id: <1593707480-23921-2-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
+References: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Peter Xu <peterx@redhat.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, Michael Ellerman <mpe@ellerman.id.au>, Andrea Arcangeli <aarcange@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Will Deacon <will@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-On Tue, 30 Jun 2020 16:45:48 -0400
-Peter Xu <peterx@redhat.com> wrote:
+If we use multiple source of interrupts, for example, using SCLP
+console to print information while using I/O interrupts, we need
+to have a re-entrant register saving interruption handling.
 
-> Use the general page fault accounting by passing regs into handle_mm_fault().
-> It naturally solve the issue of multiple page fault accounting when page fault
-> retry happened.
-> 
-> CC: Heiko Carstens <heiko.carstens@de.ibm.com>
-> CC: Vasily Gorbik <gor@linux.ibm.com>
-> CC: Christian Borntraeger <borntraeger@de.ibm.com>
-> CC: linux-s390@vger.kernel.org
-> Signed-off-by: Peter Xu <peterx@redhat.com>
-> ---
->  arch/s390/mm/fault.c | 16 +---------------
->  1 file changed, 1 insertion(+), 15 deletions(-)
+Instead of saving at a static memory address, let's save the base
+registers, the floating point registers and the floating point
+control register on the stack in case of I/O interrupts
 
-Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Note that we keep the static register saving to recover from the
+RESET tests.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+---
+ s390x/cstart64.S | 41 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 2 deletions(-)
+
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index e084f13..4e51150 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -118,6 +118,43 @@ memsetxc:
+ 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+ 	.endm
+ 
++/* Save registers on the stack (r15), so we can have stacked interrupts. */
++	.macro SAVE_REGS_STACK
++	/* Allocate a stack frame for 15 general registers */
++	slgfi   %r15, 15 * 8
++	/* Store registers r0 to r14 on the stack */
++	stmg    %r0, %r14, 0(%r15)
++	/* Allocate a stack frame for 16 floating point registers */
++	/* The size of a FP register is the size of an double word */
++	slgfi   %r15, 16 * 8
++	/* Save fp register on stack: offset to SP is multiple of reg number */
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	std	\i, \i * 8(%r15)
++	.endr
++	/* Save fpc, but keep stack aligned on 64bits */
++	slgfi   %r15, 8
++	efpc	%r0
++	stg	%r0, 0(%r15)
++	.endm
++
++/* Restore the register in reverse order */
++	.macro RESTORE_REGS_STACK
++	/* Restore fpc */
++	lfpc	0(%r15)
++	algfi	%r15, 8
++	/* Restore fp register from stack: SP still where it was left */
++	/* and offset to SP is a multiple of reg number */
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	ld	\i, \i * 8(%r15)
++	.endr
++	/* Now that we're done, rewind the stack pointer by 16 double word */
++	algfi   %r15, 16 * 8
++	/* Load the registers from stack */
++	lmg     %r0, %r14, 0(%r15)
++	/* Rewind the stack by 15 double word */
++	algfi   %r15, 15 * 8
++	.endm
++
+ .section .text
+ /*
+  * load_reset calling convention:
+@@ -185,9 +222,9 @@ mcck_int:
+ 	lpswe	GEN_LC_MCCK_OLD_PSW
+ 
+ io_int:
+-	SAVE_REGS
++	SAVE_REGS_STACK
+ 	brasl	%r14, handle_io_int
+-	RESTORE_REGS
++	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_IO_OLD_PSW
+ 
+ svc_int:
+-- 
+2.25.1
