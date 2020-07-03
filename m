@@ -1,94 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3792 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727794AbgGNLQN (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 07:16:13 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v12 3/9] s390x: export the clock get_clock_ms() utility
-Date: Tue, 14 Jul 2020 13:15:42 +0200
-Message-Id: <1594725348-10034-4-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:44079 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725972AbgGCJpg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 05:45:36 -0400
+Date: Fri, 3 Jul 2020 11:45:27 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] vfio-ccw: Fix a build error due to missing include of
+ linux/slab.h
+Message-ID: <20200703114527.790ffb82.cohuck@redhat.com>
+In-Reply-To: <20200703022628.6036-1-sean.j.christopherson@intel.com>
+References: <20200703022628.6036-1-sean.j.christopherson@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-To serve multiple times, the function get_clock_ms() is moved
-from intercept.c test to the new file asm/time.h.
+On Thu,  2 Jul 2020 19:26:28 -0700
+Sean Christopherson <sean.j.christopherson@intel.com> wrote:
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- lib/s390x/asm/time.h | 26 ++++++++++++++++++++++++++
- s390x/intercept.c    | 11 +----------
- 2 files changed, 27 insertions(+), 10 deletions(-)
- create mode 100644 lib/s390x/asm/time.h
+> Include linux/slab.h to fix a build error due to kfree() being undefined.
+> 
+> Fixes: 3f02cb2fd9d2d ("vfio-ccw: Wire up the CRW irq and CRW region")
+> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> ---
+> 
+> Encountered this when cross-compiling with a pretty minimal config, didn't
+> bother digging into why the error only showed up in my environment.
+> 
+>  drivers/s390/cio/vfio_ccw_chp.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
+> index a646fc81c872..13b26a1c7988 100644
+> --- a/drivers/s390/cio/vfio_ccw_chp.c
+> +++ b/drivers/s390/cio/vfio_ccw_chp.c
+> @@ -8,6 +8,7 @@
+>   *            Eric Farman <farman@linux.ibm.com>
+>   */
+>  
+> +#include <linux/slab.h>
+>  #include <linux/vfio.h>
+>  #include "vfio_ccw_private.h"
+>  
 
-diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
-new file mode 100644
-index 0000000..1791380
---- /dev/null
-+++ b/lib/s390x/asm/time.h
-@@ -0,0 +1,26 @@
-+/*
-+ * Clock utilities for s390
-+ *
-+ * Authors:
-+ *  Thomas Huth <thuth@redhat.com>
-+ *
-+ * Copied from the s390/intercept test by:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+#ifndef ASM_S390X_TIME_H
-+#define ASM_S390X_TIME_H
-+
-+static inline uint64_t get_clock_ms(void)
-+{
-+	uint64_t clk;
-+
-+	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
-+
-+	/* Bit 51 is incrememented each microsecond */
-+	return (clk >> (63 - 51)) / 1000;
-+}
-+
-+#endif
-diff --git a/s390x/intercept.c b/s390x/intercept.c
-index 5f46b82..2e38257 100644
---- a/s390x/intercept.c
-+++ b/s390x/intercept.c
-@@ -14,6 +14,7 @@
- #include <asm/interrupt.h>
- #include <asm/page.h>
- #include <asm/facility.h>
-+#include <asm/time.h>
- 
- static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
- 
-@@ -153,16 +154,6 @@ static void test_testblock(void)
- 	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
- }
- 
--static uint64_t get_clock_ms(void)
--{
--	uint64_t clk;
--
--	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
--
--	/* Bit 51 is incrememented each microsecond */
--	return (clk >> (63 - 51)) / 1000;
--}
--
- struct {
- 	const char *name;
- 	void (*func)(void);
--- 
-2.25.1
+Thanks, applied.
