@@ -1,77 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55954 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729254AbgGAJAW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 05:00:22 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 19/20] block: shortcut __submit_bio_noacct for blk-mq drivers
-Date: Wed,  1 Jul 2020 10:59:46 +0200
-Message-Id: <20200701085947.3354405-20-hch@lst.de>
-In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
-References: <20200701085947.3354405-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50132 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726361AbgGCNVF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:21:05 -0400
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 6/7] zfcp: replace open-coded list move
+Date: Fri,  3 Jul 2020 15:20:02 +0200
+Message-Id: <cacb179f49ece50fd4dce119c61252d632cdc1d4.1593780621.git.bblock@linux.ibm.com>
+In-Reply-To: <cover.1593780621.git.bblock@linux.ibm.com>
+References: <cover.1593780621.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-For blk-mq drivers bios can only be inserted for the same queue.  So
-bypass the complicated sorting logic in __submit_bio_noacct with
-a blk-mq simpler submission helper.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Instead of manually moving each element of the unit and port lists into
+our temporary on-stack lists, splice them over in one go.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- block/blk-core.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ drivers/s390/scsi/zfcp_ccw.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 57b5dc00d44cb1..2ff166f0d24ee3 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1152,6 +1152,34 @@ static blk_qc_t __submit_bio_noacct(struct bio *bio)
- 	return ret;
- }
+diff --git a/drivers/s390/scsi/zfcp_ccw.c b/drivers/s390/scsi/zfcp_ccw.c
+index 49eda141ea43..d9fd0a41da64 100644
+--- a/drivers/s390/scsi/zfcp_ccw.c
++++ b/drivers/s390/scsi/zfcp_ccw.c
+@@ -124,13 +124,12 @@ static void zfcp_ccw_remove(struct ccw_device *cdev)
+ 		return;
  
-+static blk_qc_t __submit_bio_noacct_mq(struct bio *bio)
-+{
-+	struct gendisk *disk = bio->bi_disk;
-+	struct bio_list bio_list;
-+	blk_qc_t ret = BLK_QC_T_NONE;
-+
-+	bio_list_init(&bio_list);
-+	current->bio_list = &bio_list;
-+
-+	do {
-+		WARN_ON_ONCE(bio->bi_disk != disk);
-+
-+		if (unlikely(bio_queue_enter(bio) != 0))
-+			continue;
-+
-+		if (!blk_crypto_bio_prep(&bio)) {
-+			blk_queue_exit(disk->queue);
-+			ret = BLK_QC_T_NONE;
-+			continue;
-+		}
-+
-+		ret = blk_mq_submit_bio(bio);
-+	} while ((bio = bio_list_pop(&bio_list)));
-+
-+	current->bio_list = NULL;
-+	return ret;
-+}
-+
- /**
-  * submit_bio_noacct - re-submit a bio to the block device layer for I/O
-  * @bio:  The bio describing the location in memory and on the device.
-@@ -1177,6 +1205,8 @@ blk_qc_t submit_bio_noacct(struct bio *bio)
- 		return BLK_QC_T_NONE;
+ 	write_lock_irq(&adapter->port_list_lock);
+-	list_for_each_entry_safe(port, p, &adapter->port_list, list) {
++	list_for_each_entry(port, &adapter->port_list, list) {
+ 		write_lock(&port->unit_list_lock);
+-		list_for_each_entry_safe(unit, u, &port->unit_list, list)
+-			list_move(&unit->list, &unit_remove_lh);
++		list_splice_init(&port->unit_list, &unit_remove_lh);
+ 		write_unlock(&port->unit_list_lock);
+-		list_move(&port->list, &port_remove_lh);
  	}
++	list_splice_init(&adapter->port_list, &port_remove_lh);
+ 	write_unlock_irq(&adapter->port_list_lock);
+ 	zfcp_ccw_adapter_put(adapter); /* put from zfcp_ccw_adapter_by_cdev */
  
-+	if (!bio->bi_disk->fops->submit_bio)
-+		return __submit_bio_noacct_mq(bio);
- 	return __submit_bio_noacct(bio);
- }
- EXPORT_SYMBOL(submit_bio_noacct);
 -- 
 2.26.2
