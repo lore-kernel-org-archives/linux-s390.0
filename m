@@ -1,190 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64002 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727826AbgGNLQV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 07:16:21 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v12 8/9] s390x: css: msch, enable test
-Date: Tue, 14 Jul 2020 13:15:47 +0200
-Message-Id: <1594725348-10034-9-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35294 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726347AbgGCNVQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:21:16 -0400
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 7/7] zfcp: avoid benign overflow of the Request Queue's free-level
+Date: Fri,  3 Jul 2020 15:20:03 +0200
+Message-Id: <7f61f59a1f8db270312e64644f9173b8f1ac895f.1593780621.git.bblock@linux.ibm.com>
+In-Reply-To: <cover.1593780621.git.bblock@linux.ibm.com>
+References: <cover.1593780621.git.bblock@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-A second step when testing the channel subsystem is to prepare a channel
-for use.
-This includes:
-- Get the current subchannel Information Block (SCHIB) using STSCH
-- Update it in memory to set the ENABLE bit and the specified ISC
-- Tell the CSS that the SCHIB has been modified using MSCH
-- Get the SCHIB from the CSS again to verify that the subchannel is
-  enabled and uses the specified ISC.
-- If the command succeeds but subchannel is not enabled or the ISC
-  field is not as expected, retry a predefined retries count.
-- If the command fails, report the failure and do not retry, even
-  if cc indicates a busy/status pending as we do not expect this.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-This tests the MSCH instruction to enable a channel successfully.
-Retries are done and in case of error, and if the retries count
-is exceeded, a report is made.
+zfcp_qdio_send() and zfcp_qdio_int_req() run concurrently, adding and
+completing SBALs on the Request Queue. There's a theoretical race where
+zfcp_qdio_int_req() completes a number of SBALs & increments the queue's
+free-level _before_ zfcp_qdio_send() was able to decrement it.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+This can cause ->req_q_free to momentarily hold a value larger than
+QDIO_MAX_BUFFERS_PER_Q. Luckily zfcp_qdio_send() is always called under
+->req_q_lock, and all readers of the free-level also take this lock. So
+we can trust that zfcp_qdio_send() will clean up such a temporary
+overflow before anyone can actually observe it.
+
+But it's still confusing and annoying to worry about. So adjust the code
+to avoid this race.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- lib/s390x/css.h     |  9 ++++--
- lib/s390x/css_lib.c | 73 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/css.c         | 15 ++++++++++
- 3 files changed, 94 insertions(+), 3 deletions(-)
+ drivers/s390/scsi/zfcp_qdio.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index 0ddceb1..63a70f1 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -71,8 +71,10 @@ struct scsw {
+diff --git a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
+index d3d110a04884..e78d65bd46b1 100644
+--- a/drivers/s390/scsi/zfcp_qdio.c
++++ b/drivers/s390/scsi/zfcp_qdio.c
+@@ -260,17 +260,20 @@ int zfcp_qdio_send(struct zfcp_qdio *qdio, struct zfcp_qdio_req *q_req)
+ 	zfcp_qdio_account(qdio);
+ 	spin_unlock(&qdio->stat_lock);
  
- struct pmcw {
- 	uint32_t intparm;
--#define PMCW_DNV        0x0001
--#define PMCW_ENABLE     0x0080
-+#define PMCW_DNV	0x0001
-+#define PMCW_ENABLE	0x0080
-+#define PMCW_ISC_MASK	0x3800
-+#define PMCW_ISC_SHIFT	11
- 	uint16_t flags;
- 	uint16_t devnum;
- 	uint8_t  lpm;
-@@ -251,6 +253,7 @@ void dump_orb(struct orb *op);
++	atomic_sub(sbal_number, &qdio->req_q_free);
++
+ 	retval = do_QDIO(qdio->adapter->ccw_device, QDIO_FLAG_SYNC_OUTPUT, 0,
+ 			 q_req->sbal_first, sbal_number);
  
- int css_enumerate(void);
- #define MAX_ENABLE_RETRIES      5
--int css_enable(int schid);
+ 	if (unlikely(retval)) {
++		/* Failed to submit the IO, roll back our modifications. */
++		atomic_add(sbal_number, &qdio->req_q_free);
+ 		zfcp_qdio_zero_sbals(qdio->req_q, q_req->sbal_first,
+ 				     sbal_number);
+ 		return retval;
+ 	}
  
-+#define IO_SCH_ISC      3
-+int css_enable(int schid, int isc);
- #endif
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index fd087ce..e47a945 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -15,6 +15,7 @@
- #include <string.h>
- #include <interrupt.h>
- #include <asm/arch_def.h>
-+#include <asm/time.h>
- 
- #include <css.h>
- 
-@@ -68,3 +69,75 @@ out:
- 		    scn, scn_found, dev_found);
- 	return schid;
- }
-+
-+/*
-+ * css_enable: enable the subchannel with the specified ISC
-+ * @schid: Subchannel Identifier
-+ * @isc  : number of the interruption subclass to use
-+ * Return value:
-+ *   On success: 0
-+ *   On error the CC of the faulty instruction
-+ *      or -1 if the retry count is exceeded.
-+ */
-+int css_enable(int schid, int isc)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int retry_count = 0;
-+	uint16_t flags;
-+	int cc;
-+
-+	/* Read the SCHIB for this subchannel */
-+	cc = stsch(schid, &schib);
-+	if (cc) {
-+		report_info("stsch: sch %08x failed with cc=%d", schid, cc);
-+		return cc;
-+	}
-+
-+	flags = PMCW_ENABLE | (isc << PMCW_ISC_SHIFT);
-+	if ((pmcw->flags & (PMCW_ISC_MASK | PMCW_ENABLE)) == flags) {
-+		report_info("stsch: sch %08x already enabled", schid);
-+		return 0;
-+	}
-+
-+retry:
-+	/* Update the SCHIB to enable the channel and set the ISC */
-+	pmcw->flags &= ~PMCW_ISC_MASK;
-+	pmcw->flags |= flags;
-+
-+	/* Tell the CSS we want to modify the subchannel */
-+	cc = msch(schid, &schib);
-+	if (cc) {
-+		/*
-+		 * If the subchannel is status pending or
-+		 * if a function is in progress,
-+		 * we consider both cases as errors.
-+		 */
-+		report_info("msch: sch %08x failed with cc=%d", schid, cc);
-+		return cc;
-+	}
-+
-+	/*
-+	 * Read the SCHIB again to verify the enablement
-+	 */
-+	cc = stsch(schid, &schib);
-+	if (cc) {
-+		report_info("stsch: updating sch %08x failed with cc=%d",
-+			    schid, cc);
-+		return cc;
-+	}
-+
-+	if ((pmcw->flags & flags) == flags) {
-+		report_info("stsch: sch %08x successfully modified after %d retries",
-+			    schid, retry_count);
-+		return 0;
-+	}
-+
-+	if (retry_count++ < MAX_ENABLE_RETRIES) {
-+		mdelay(10); /* the hardware was not ready, give it some time */
-+		goto retry;
-+	}
-+
-+	report_info("msch: modifying sch %08x failed after %d retries. pmcw flags: %04x",
-+		    schid, retry_count, pmcw->flags);
-+	return -1;
-+}
-diff --git a/s390x/css.c b/s390x/css.c
-index e19ffc8..f314a0c 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -31,11 +31,26 @@ static void test_enumerate(void)
- 	report(0, "No I/O device found");
- }
- 
-+static void test_enable(void)
-+{
-+	int cc;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+
-+	cc = css_enable(test_device_sid, IO_SCH_ISC);
-+
-+	report(cc == 0, "Enable subchannel %08x", test_device_sid);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
-+	{ "enable (msch)", test_enable },
- 	{ NULL, NULL }
- };
+ 	/* account for transferred buffers */
+-	atomic_sub(sbal_number, &qdio->req_q_free);
+ 	qdio->req_q_idx += sbal_number;
+ 	qdio->req_q_idx %= QDIO_MAX_BUFFERS_PER_Q;
  
 -- 
-2.25.1
+2.26.2
