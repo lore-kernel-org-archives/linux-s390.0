@@ -1,113 +1,174 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34542 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728855AbgGTPEl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:04:41 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v9 07/15] s390/vfio-ap: sysfs attribute to display the guest's matrix
-Date: Mon, 20 Jul 2020 11:03:36 -0400
-Message-Id: <20200720150344.24488-8-akrowiak@linux.ibm.com>
-In-Reply-To: <20200720150344.24488-1-akrowiak@linux.ibm.com>
-References: <20200720150344.24488-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v1 3/9] s390/vmemmap: implement vmemmap_free()
+Date: Fri,  3 Jul 2020 15:39:11 +0200
+Message-Id: <20200703133917.39045-4-david@redhat.com>
+In-Reply-To: <20200703133917.39045-1-david@redhat.com>
+References: <20200703133917.39045-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-The matrix of adapters and domains configured in a guest's CRYCB may
-differ from the matrix of adapters and domains assigned to the matrix mdev,
-so this patch introduces a sysfs attribute to display the matrix of a guest
-using the matrix mdev. For a matrix mdev denoted by $uuid, the crycb for a
-guest using the matrix mdev can be displayed as follows:
+Reuse the shiny new remove_pagetable(), tweaking it to handle freeing of
+vmemmap pages, similar to the x86-64 variant (passing "bool direct" to
+distinguish).
 
-   cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
-
-If a guest is not using the matrix mdev at the time the crycb is displayed,
-an error (ENODEV) will be returned.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 58 +++++++++++++++++++++++++++++++
- 1 file changed, 58 insertions(+)
+ arch/s390/mm/vmem.c | 46 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 33 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index efb229033f9e..30bf23734af6 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1119,6 +1119,63 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index 6fe156c3f035c..16e109c292bf5 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -29,6 +29,15 @@ static void __ref *vmem_alloc_pages(unsigned int order)
+ 	return (void *) memblock_phys_alloc(size, size);
  }
- static DEVICE_ATTR_RO(matrix);
  
-+static ssize_t guest_matrix_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
++static void vmem_free_pages(unsigned long addr, int order)
 +{
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+	char *bufpos = buf;
-+	unsigned long apid;
-+	unsigned long apqi;
-+	unsigned long apid1;
-+	unsigned long apqi1;
-+	unsigned long napm_bits = matrix_mdev->shadow_apcb.apm_max + 1;
-+	unsigned long naqm_bits = matrix_mdev->shadow_apcb.aqm_max + 1;
-+	int nchars = 0;
-+	int n;
-+
-+	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
-+		return -ENODEV;
-+
-+	apid1 = find_first_bit_inv(matrix_mdev->shadow_apcb.apm, napm_bits);
-+	apqi1 = find_first_bit_inv(matrix_mdev->shadow_apcb.aqm, naqm_bits);
-+
-+	mutex_lock(&matrix_dev->lock);
-+
-+	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
-+		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
-+				     napm_bits) {
-+			for_each_set_bit_inv(apqi,
-+					     matrix_mdev->shadow_apcb.aqm,
-+					     naqm_bits) {
-+				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
-+					    apqi);
-+				bufpos += n;
-+				nchars += n;
-+			}
-+		}
-+	} else if (apid1 < napm_bits) {
-+		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
-+				     napm_bits) {
-+			n = sprintf(bufpos, "%02lx.\n", apid);
-+			bufpos += n;
-+			nchars += n;
-+		}
-+	} else if (apqi1 < naqm_bits) {
-+		for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm,
-+				     naqm_bits) {
-+			n = sprintf(bufpos, ".%04lx\n", apqi);
-+			bufpos += n;
-+			nchars += n;
-+		}
-+	}
-+
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return nchars;
++	/* We don't expect boot memory to be removed ever. */
++	if (!slab_is_available() ||
++	    WARN_ON_ONCE(PageReserved(phys_to_page(addr))))
++		return;
++	free_pages(addr, order);
 +}
-+static DEVICE_ATTR_RO(guest_matrix);
 +
- static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_assign_adapter.attr,
- 	&dev_attr_unassign_adapter.attr,
-@@ -1128,6 +1185,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_unassign_control_domain.attr,
- 	&dev_attr_control_domains.attr,
- 	&dev_attr_matrix.attr,
-+	&dev_attr_guest_matrix.attr,
- 	NULL,
- };
+ void *vmem_crst_alloc(unsigned long val)
+ {
+ 	unsigned long *table;
+@@ -139,7 +148,7 @@ static int vmem_add_range(unsigned long start, unsigned long size)
+ }
  
+ static void remove_pte_table(pmd_t *pmd, unsigned long addr,
+-			     unsigned long end)
++			     unsigned long end, bool direct)
+ {
+ 	unsigned long pages = 0;
+ 	pte_t *pte;
+@@ -149,15 +158,18 @@ static void remove_pte_table(pmd_t *pmd, unsigned long addr,
+ 		if (pte_none(*pte))
+ 			continue;
+ 
++		if (!direct)
++			vmem_free_pages(pfn_to_phys(pte_pfn(*pte)), 0);
+ 		pte_clear(&init_mm, addr, pte);
+ 		pages++;
+ 	}
+ 
+-	update_page_count(PG_DIRECT_MAP_4K, -pages);
++	if (direct)
++		update_page_count(PG_DIRECT_MAP_4K, -pages);
+ }
+ 
+ static void remove_pmd_table(pud_t *pud, unsigned long addr,
+-			     unsigned long end)
++			     unsigned long end, bool direct)
+ {
+ 	unsigned long next, pages = 0;
+ 	pmd_t *pmd;
+@@ -172,20 +184,24 @@ static void remove_pmd_table(pud_t *pud, unsigned long addr,
+ 		if (pmd_large(*pmd)) {
+ 			if (IS_ALIGNED(addr, PMD_SIZE) &&
+ 			    IS_ALIGNED(next, PMD_SIZE)) {
++				if (!direct)
++					vmem_free_pages(pmd_deref(*pmd),
++							get_order(PMD_SIZE));
+ 				pmd_clear(pmd);
+ 				pages++;
+ 			}
+ 			continue;
+ 		}
+ 
+-		remove_pte_table(pmd, addr, next);
++		remove_pte_table(pmd, addr, next, direct);
+ 	}
+ 
+-	update_page_count(PG_DIRECT_MAP_1M, -pages);
++	if (direct)
++		update_page_count(PG_DIRECT_MAP_1M, -pages);
+ }
+ 
+ static void remove_pud_table(p4d_t *p4d, unsigned long addr,
+-			     unsigned long end)
++			     unsigned long end, bool direct)
+ {
+ 	unsigned long next, pages = 0;
+ 	pud_t *pud;
+@@ -200,20 +216,22 @@ static void remove_pud_table(p4d_t *p4d, unsigned long addr,
+ 		if (pud_large(*pud)) {
+ 			if (IS_ALIGNED(addr, PUD_SIZE) &&
+ 			    IS_ALIGNED(next, PUD_SIZE)) {
++				WARN_ON_ONCE(!direct);
+ 				pud_clear(pud);
+ 				pages++;
+ 			}
+ 			continue;
+ 		}
+ 
+-		remove_pmd_table(pud, addr, next);
++		remove_pmd_table(pud, addr, next, direct);
+ 	}
+ 
+-	update_page_count(PG_DIRECT_MAP_2G, -pages);
++	if (direct)
++		update_page_count(PG_DIRECT_MAP_2G, -pages);
+ }
+ 
+ static void remove_p4d_table(pgd_t *pgd, unsigned long addr,
+-			     unsigned long end)
++			     unsigned long end, bool direct)
+ {
+ 	unsigned long next;
+ 	p4d_t *p4d;
+@@ -225,11 +243,12 @@ static void remove_p4d_table(pgd_t *pgd, unsigned long addr,
+ 		if (p4d_none(*p4d))
+ 			continue;
+ 
+-		remove_pud_table(p4d, addr, next);
++		remove_pud_table(p4d, addr, next, direct);
+ 	}
+ }
+ 
+-static void remove_pagetable(unsigned long start, unsigned long end)
++static void remove_pagetable(unsigned long start, unsigned long end,
++			     bool direct)
+ {
+ 	unsigned long addr, next;
+ 	pgd_t *pgd;
+@@ -244,7 +263,7 @@ static void remove_pagetable(unsigned long start, unsigned long end)
+ 		if (pgd_none(*pgd))
+ 			continue;
+ 
+-		remove_p4d_table(pgd, addr, next);
++		remove_p4d_table(pgd, addr, next, direct);
+ 	}
+ 
+ 	flush_tlb_kernel_range(start, end);
+@@ -256,7 +275,7 @@ static void remove_pagetable(unsigned long start, unsigned long end)
+  */
+ static void vmem_remove_range(unsigned long start, unsigned long size)
+ {
+-	remove_pagetable(start, start + size);
++	remove_pagetable(start, start + size, true);
+ }
+ 
+ /*
+@@ -351,6 +370,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+ void vmemmap_free(unsigned long start, unsigned long end,
+ 		struct vmem_altmap *altmap)
+ {
++	remove_pagetable(start, end, false);
+ }
+ 
+ void vmem_remove_mapping(unsigned long start, unsigned long size)
 -- 
-2.21.1
+2.26.2
