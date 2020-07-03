@@ -1,46 +1,60 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55144 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726780AbgGRNGx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Jul 2020 09:06:53 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net v2 03/10] net/smc: fix link lookup for new rdma connections
-Date: Sat, 18 Jul 2020 15:06:11 +0200
-Message-Id: <20200718130618.16724-4-kgraul@linux.ibm.com>
-In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
-References: <20200718130618.16724-1-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v1 5/9] s390/vmemmap: take the vmem_mutex when populating/freeing
+Date: Fri,  3 Jul 2020 15:39:13 +0200
+Message-Id: <20200703133917.39045-6-david@redhat.com>
+In-Reply-To: <20200703133917.39045-1-david@redhat.com>
+References: <20200703133917.39045-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-For new rdma connections the SMC server assigns the link and sends the
-link data in the clc accept message. To match the correct link use not
-only the qp_num but also the gid and the mac of the links. If there are
-equal qp_nums for different links the wrong link would be chosen.
+Let's synchronize all accesses to the 1:1 and vmemmap mappings. This will
+be especially relevant when wanting to cleanup empty page tables that could
+be shared by both. Avoid races when removing tables that might be just
+about to get reused.
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- net/smc/af_smc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/mm/vmem.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 903321543838..f80591567a3d 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -632,7 +632,9 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
- 			struct smc_link *l = &smc->conn.lgr->lnk[i];
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index bcddabd509da8..aa968f67d7f9f 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -293,6 +293,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+ 	pte_t *pt_dir;
+ 	int ret = -ENOMEM;
  
--			if (l->peer_qpn == ntoh24(aclc->qpn)) {
-+			if (l->peer_qpn == ntoh24(aclc->qpn) &&
-+			    !memcmp(l->peer_gid, &aclc->lcl.gid, SMC_GID_SIZE) &&
-+			    !memcmp(l->peer_mac, &aclc->lcl.mac, sizeof(l->peer_mac))) {
- 				link = l;
- 				break;
- 			}
++	mutex_lock(&vmem_mutex);
+ 	pgt_prot = pgprot_val(PAGE_KERNEL);
+ 	sgt_prot = pgprot_val(SEGMENT_KERNEL);
+ 	if (!MACHINE_HAS_NX) {
+@@ -364,6 +365,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+ 	}
+ 	ret = 0;
+ out:
++	mutex_unlock(&vmem_mutex);
+ 	if (ret)
+ 		vmemmap_free(start, end, altmap);
+ 	return ret;
+@@ -372,7 +374,9 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+ void vmemmap_free(unsigned long start, unsigned long end,
+ 		struct vmem_altmap *altmap)
+ {
++	mutex_lock(&vmem_mutex);
+ 	remove_pagetable(start, end, false);
++	mutex_unlock(&vmem_mutex);
+ }
+ 
+ void vmem_remove_mapping(unsigned long start, unsigned long size)
 -- 
-2.17.1
+2.26.2
