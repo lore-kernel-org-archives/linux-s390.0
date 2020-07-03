@@ -1,82 +1,201 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23686 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726504AbgGIIH7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 04:07:59 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v11 4/9] s390x: clock and delays calculations
-Date: Thu,  9 Jul 2020 10:07:43 +0200
-Message-Id: <1594282068-11054-5-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:29479 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726514AbgGCNjj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:39:39 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v1 6/9] s390/vmem: cleanup empty page tables
+Date: Fri,  3 Jul 2020 15:39:14 +0200
+Message-Id: <20200703133917.39045-7-david@redhat.com>
+In-Reply-To: <20200703133917.39045-1-david@redhat.com>
+References: <20200703133917.39045-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-The hardware gives us a good definition of the microsecond,
-let's keep this information and let the routine accessing
-the hardware keep all the information and return microseconds.
+Let's cleanup empty page tables. Consider only page tables that fully
+fall into the idendity mapping and the vmemmap range.
 
-Calculate delays in microseconds and take care about wrapping
-around zero.
+As there are no valid accesses to vmem/vmemmap within non-populated ranges,
+the single tlb flush at the end should be sufficient.
 
-Define values with macros and use inlines to keep the
-milliseconds interface.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- lib/s390x/asm/time.h | 30 +++++++++++++++++++++++++++---
- 1 file changed, 27 insertions(+), 3 deletions(-)
+ arch/s390/mm/vmem.c | 98 ++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 97 insertions(+), 1 deletion(-)
 
-diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
-index 1791380..7375aa2 100644
---- a/lib/s390x/asm/time.h
-+++ b/lib/s390x/asm/time.h
-@@ -13,14 +13,38 @@
- #ifndef ASM_S390X_TIME_H
- #define ASM_S390X_TIME_H
- 
--static inline uint64_t get_clock_ms(void)
-+#define STCK_SHIFT_US	(63 - 51)
-+#define STCK_MAX	((1UL << 52) - 1)
-+
-+static inline uint64_t get_clock_us(void)
- {
- 	uint64_t clk;
- 
- 	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
- 
--	/* Bit 51 is incrememented each microsecond */
--	return (clk >> (63 - 51)) / 1000;
-+	return clk >> STCK_SHIFT_US;
-+}
-+
-+static inline uint64_t get_clock_ms(void)
-+{
-+	return get_clock_us() / 1000;
-+}
-+
-+static inline void udelay(unsigned long us)
-+{
-+	unsigned long startclk = get_clock_us();
-+	unsigned long c;
-+
-+	do {
-+		c = get_clock_us();
-+		if (c < startclk)
-+			c += STCK_MAX;
-+	} while (c < startclk + us);
-+}
-+
-+static inline void mdelay(unsigned long ms)
-+{
-+	udelay(ms * 1000);
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index aa968f67d7f9f..5239130770b7b 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -63,6 +63,15 @@ pte_t __ref *vmem_pte_alloc(void)
+ 	return pte;
  }
  
- #endif
++static void vmem_pte_free(unsigned long *table)
++{
++	/* We don't expect boot memory to be removed ever. */
++	if (!slab_is_available() ||
++	    WARN_ON_ONCE(PageReserved(virt_to_page(table))))
++		return;
++	page_table_free(&init_mm, table);
++}
++
+ /*
+  * Add a physical memory range to the 1:1 mapping.
+  */
+@@ -168,6 +177,21 @@ static void remove_pte_table(pmd_t *pmd, unsigned long addr,
+ 		update_page_count(PG_DIRECT_MAP_4K, -pages);
+ }
+ 
++static void try_free_pte_table(pmd_t *pmd, unsigned long start)
++{
++	pte_t *pte;
++	int i;
++
++	/* We can safely assume this is fully in 1:1 mapping & vmemmap area */
++	pte = pte_offset_kernel(pmd, start);
++	for (i = 0; i < PTRS_PER_PTE; i++, pte++)
++		if (!pte_none(*pte))
++			return;
++
++	vmem_pte_free(__va(pmd_deref(*pmd)));
++	pmd_clear(pmd);
++}
++
+ static void remove_pmd_table(pud_t *pud, unsigned long addr,
+ 			     unsigned long end, bool direct)
+ {
+@@ -194,12 +218,36 @@ static void remove_pmd_table(pud_t *pud, unsigned long addr,
+ 		}
+ 
+ 		remove_pte_table(pmd, addr, next, direct);
++		try_free_pte_table(pmd, addr & PMD_MASK);
+ 	}
+ 
+ 	if (direct)
+ 		update_page_count(PG_DIRECT_MAP_1M, -pages);
+ }
+ 
++static void try_free_pmd_table(pud_t *pud, unsigned long start)
++{
++	const unsigned long end = start + PUD_SIZE;
++	pmd_t *pmd;
++	int i;
++
++	/* Don't mess with any tables not fully in 1:1 mapping & vmemmap area */
++	if (end > VMALLOC_START)
++		return;
++#ifdef CONFIG_KASAN
++	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++		return;
++#endif
++
++	pmd = pmd_offset(pud, start);
++	for (i = 0; i < PTRS_PER_PMD; i++, pmd++)
++		if (!pmd_none(*pmd))
++			return;
++
++	vmem_free_pages(pud_deref(*pud), CRST_ALLOC_ORDER);
++	pud_clear(pud);
++}
++
+ static void remove_pud_table(p4d_t *p4d, unsigned long addr,
+ 			     unsigned long end, bool direct)
+ {
+@@ -224,12 +272,36 @@ static void remove_pud_table(p4d_t *p4d, unsigned long addr,
+ 		}
+ 
+ 		remove_pmd_table(pud, addr, next, direct);
++		try_free_pmd_table(pud, addr & PUD_MASK);
+ 	}
+ 
+ 	if (direct)
+ 		update_page_count(PG_DIRECT_MAP_2G, -pages);
+ }
+ 
++static void try_free_pud_table(p4d_t *p4d, unsigned long start)
++{
++	const unsigned long end = start + P4D_SIZE;
++	pud_t *pud;
++	int i;
++
++	/* Don't mess with any tables not fully in 1:1 mapping & vmemmap area */
++	if (end > VMALLOC_START)
++		return;
++#ifdef CONFIG_KASAN
++	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++		return;
++#endif
++
++	pud = pud_offset(p4d, start);
++	for (i = 0; i < PTRS_PER_PUD; i++, pud++)
++		if (!pud_none(*pud))
++			return;
++
++	vmem_free_pages(p4d_deref(*p4d), CRST_ALLOC_ORDER);
++	p4d_clear(p4d);
++}
++
+ static void remove_p4d_table(pgd_t *pgd, unsigned long addr,
+ 			     unsigned long end, bool direct)
+ {
+@@ -244,9 +316,33 @@ static void remove_p4d_table(pgd_t *pgd, unsigned long addr,
+ 			continue;
+ 
+ 		remove_pud_table(p4d, addr, next, direct);
++		try_free_pud_table(p4d, addr & P4D_MASK);
+ 	}
+ }
+ 
++static void try_free_p4d_table(pgd_t *pgd, unsigned long start)
++{
++	const unsigned long end = start + PGDIR_SIZE;
++	p4d_t *p4d;
++	int i;
++
++	/* Don't mess with any tables not fully in 1:1 mapping & vmemmap area */
++	if (end > VMALLOC_START)
++		return;
++#ifdef CONFIG_KASAN
++	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
++		return;
++#endif
++
++	p4d = p4d_offset(pgd, start);
++	for (i = 0; i < PTRS_PER_P4D; i++, p4d++)
++		if (!p4d_none(*p4d))
++			return;
++
++	vmem_free_pages(pgd_deref(*pgd), CRST_ALLOC_ORDER);
++	pgd_clear(pgd);
++}
++
+ static void remove_pagetable(unsigned long start, unsigned long end,
+ 			     bool direct)
+ {
+@@ -264,6 +360,7 @@ static void remove_pagetable(unsigned long start, unsigned long end,
+ 			continue;
+ 
+ 		remove_p4d_table(pgd, addr, next, direct);
++		try_free_p4d_table(pgd, addr & PGDIR_MASK);
+ 	}
+ 
+ 	flush_tlb_kernel_range(start, end);
+@@ -271,7 +368,6 @@ static void remove_pagetable(unsigned long start, unsigned long end,
+ 
+ /*
+  * Remove a physical memory range from the 1:1 mapping.
+- * Currently only invalidates page table entries.
+  */
+ static void vmem_remove_range(unsigned long start, unsigned long size)
+ {
 -- 
-2.25.1
+2.26.2
