@@ -1,104 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49272 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55084 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726666AbgGWT0w (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 23 Jul 2020 15:26:52 -0400
-Date: Thu, 23 Jul 2020 21:26:43 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.8-rc7
-Message-ID: <20200723192643.GA7038@osiris>
+        by vger.kernel.org with ESMTP id S1726347AbgGCNV1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:21:27 -0400
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 4/7] scsi: docs: remove invalid link and update text for zfcp kernel config
+Date: Fri,  3 Jul 2020 15:20:00 +0200
+Message-Id: <96069b9f4c4f056a515b37e89b2bdfccc282e3d3.1593780621.git.bblock@linux.ibm.com>
+In-Reply-To: <cover.1593780621.git.bblock@linux.ibm.com>
+References: <cover.1593780621.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-Hello Linus,
+IBM decided to retire a lot of the content that was previously hosted on
+"developerworks", and so some of the links we've used for documentation
+are now dead or redirect to some general landing page with no correlation
+to what the links were meant to provide.
 
-please pull s390 updates for 5.8-rc7.
+Change the provided link in the Kconfig file for zfcp to rather refer to
+our device drivers book that we regularly update and publish for free,
+and whose name hasn't been changed since it was first published.
 
-Thanks,
-Heiko
+Our hardware is also not called "IBM eServer zSeries" anymore - in fact,
+it hasn't been called like that since 2006. Use a broader term that
+covers different server names over time.
 
-The following changes since commit ba47d845d715a010f7b51f6f89bae32845e6acb7:
+Lastly, add a short paragraph about how our HBAs are typically named, to
+have some more tangible references.
 
-  Linux 5.8-rc6 (2020-07-19 15:41:18 -0700)
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+---
+ drivers/scsi/Kconfig | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.8-6
-
-for you to fetch changes up to 0cfa112b33aba4473b00151c75b87818a835702a:
-
-  MAINTAINERS: add Matthew for s390 IOMMU (2020-07-22 17:01:23 +0200)
-
-----------------------------------------------------------------
-- Change cpum_cf/perf counter name from DFLT_CCERROR to DFLT_CCFINISH
-  to reflect reality and avoid further confusion. This is a user space
-  visible change therefore the commit has also a stable tag for 5.7,
-  where this counter was introduced.
-
-- Add Matthew Rosato as s390 IOMMU maintainer.
-
-----------------------------------------------------------------
-Gerald Schaefer (1):
-      MAINTAINERS: add Matthew for s390 IOMMU
-
-Thomas Richter (1):
-      s390/cpum_cf,perf: change DFLT_CCERROR counter name
-
- MAINTAINERS                                          | 1 +
- arch/s390/kernel/perf_cpum_cf_events.c               | 4 ++--
- tools/perf/pmu-events/arch/s390/cf_z15/extended.json | 2 +-
- 3 files changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index d53db30d1365..df5fc5625ec8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -14862,6 +14862,7 @@ F:	drivers/s390/block/dasd*
- F:	include/linux/dasd_mod.h
+diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
+index e9ff4cd5fbe9..571473a58f98 100644
+--- a/drivers/scsi/Kconfig
++++ b/drivers/scsi/Kconfig
+@@ -1469,14 +1469,19 @@ config SCSI_SUNESP
+ 	  module will be called sun_esp.
  
- S390 IOMMU (PCI)
-+M:	Matthew Rosato <mjrosato@linux.ibm.com>
- M:	Gerald Schaefer <gerald.schaefer@linux.ibm.com>
- L:	linux-s390@vger.kernel.org
- S:	Supported
-diff --git a/arch/s390/kernel/perf_cpum_cf_events.c b/arch/s390/kernel/perf_cpum_cf_events.c
-index 1e3df52b2b65..37265f551a11 100644
---- a/arch/s390/kernel/perf_cpum_cf_events.c
-+++ b/arch/s390/kernel/perf_cpum_cf_events.c
-@@ -292,7 +292,7 @@ CPUMF_EVENT_ATTR(cf_z15, TX_C_TABORT_SPECIAL, 0x00f5);
- CPUMF_EVENT_ATTR(cf_z15, DFLT_ACCESS, 0x00f7);
- CPUMF_EVENT_ATTR(cf_z15, DFLT_CYCLES, 0x00fc);
- CPUMF_EVENT_ATTR(cf_z15, DFLT_CC, 0x00108);
--CPUMF_EVENT_ATTR(cf_z15, DFLT_CCERROR, 0x00109);
-+CPUMF_EVENT_ATTR(cf_z15, DFLT_CCFINISH, 0x00109);
- CPUMF_EVENT_ATTR(cf_z15, MT_DIAG_CYCLES_ONE_THR_ACTIVE, 0x01c0);
- CPUMF_EVENT_ATTR(cf_z15, MT_DIAG_CYCLES_TWO_THR_ACTIVE, 0x01c1);
+ config ZFCP
+-	tristate "FCP host bus adapter driver for IBM eServer zSeries"
++	tristate "FCP host bus adapter driver for IBM mainframes"
+ 	depends on S390 && QDIO && SCSI
+ 	depends on SCSI_FC_ATTRS
+ 	help
+-          If you want to access SCSI devices attached to your IBM eServer
+-          zSeries by means of Fibre Channel interfaces say Y.
+-          For details please refer to the documentation provided by IBM at
+-          <http://oss.software.ibm.com/developerworks/opensource/linux390>
++	  If you want to access SCSI devices attached to your IBM mainframe by
++	  means of Fibre Channel Protocol host bus adapters say Y.
++
++	  Supported HBAs include different models of the FICON Express and FCP
++	  Express I/O cards.
++
++	  For a more complete list, and for more details about setup and
++	  operation refer to the IBM publication "Device Drivers, Features, and
++	  Commands", SC33-8411.
  
-@@ -629,7 +629,7 @@ static struct attribute *cpumcf_z15_pmu_event_attr[] __initdata = {
- 	CPUMF_EVENT_PTR(cf_z15, DFLT_ACCESS),
- 	CPUMF_EVENT_PTR(cf_z15, DFLT_CYCLES),
- 	CPUMF_EVENT_PTR(cf_z15, DFLT_CC),
--	CPUMF_EVENT_PTR(cf_z15, DFLT_CCERROR),
-+	CPUMF_EVENT_PTR(cf_z15, DFLT_CCFINISH),
- 	CPUMF_EVENT_PTR(cf_z15, MT_DIAG_CYCLES_ONE_THR_ACTIVE),
- 	CPUMF_EVENT_PTR(cf_z15, MT_DIAG_CYCLES_TWO_THR_ACTIVE),
- 	NULL,
-diff --git a/tools/perf/pmu-events/arch/s390/cf_z15/extended.json b/tools/perf/pmu-events/arch/s390/cf_z15/extended.json
-index 2df2e231e9ee..24c4ba2a9ae5 100644
---- a/tools/perf/pmu-events/arch/s390/cf_z15/extended.json
-+++ b/tools/perf/pmu-events/arch/s390/cf_z15/extended.json
-@@ -380,7 +380,7 @@
- 	{
- 		"Unit": "CPU-M-CF",
- 		"EventCode": "265",
--		"EventName": "DFLT_CCERROR",
-+		"EventName": "DFLT_CCFINISH",
- 		"BriefDescription": "Increments by one for every DEFLATE CONVERSION CALL instruction executed that ended in Condition Codes 0, 1 or 2",
- 		"PublicDescription": "Increments by one for every DEFLATE CONVERSION CALL instruction executed that ended in Condition Codes 0, 1 or 2"
- 	},
+           This driver is also available as a module. This module will be
+           called zfcp. If you want to compile it as a module, say M here
+-- 
+2.26.2
