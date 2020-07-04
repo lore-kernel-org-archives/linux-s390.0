@@ -1,49 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5200 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727091AbgGRNGz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Jul 2020 09:06:55 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net v2 10/10] net/smc: fix restoring of fallback changes
-Date: Sat, 18 Jul 2020 15:06:18 +0200
-Message-Id: <20200718130618.16724-11-kgraul@linux.ibm.com>
-In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
-References: <20200718130618.16724-1-kgraul@linux.ibm.com>
+Received: from mout.gmx.net ([212.227.17.21]:56559 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726738AbgGDMZh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 4 Jul 2020 08:25:37 -0400
+Date: Sat, 4 Jul 2020 14:25:17 +0200
+From: Oscar Carter <oscar.carter@gmx.com>
+Subject: Re: [PATCH] drivers/s390/char/tty3270: Remove function callback casts
+Message-ID: <20200704122517.GB3143@ubuntu>
+References: <20200627125417.18887-1-oscar.carter@gmx.com>
+ <202006270853.C40CA89806@keescook>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <202006270853.C40CA89806@keescook>
+Content-Transfer-Encoding: quoted-printable
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Kees Cook <keescook@chromium.org>
+Cc: Oscar Carter <oscar.carter@gmx.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kernel-hardening@lists.openwall.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-When a listen socket is closed then all non-accepted sockets in its
-accept queue are to be released. Inside __smc_release() the helper
-smc_restore_fallback_changes() restores the changes done to the socket
-without to check if the clcsocket has a file set. This can result in
-a crash. Fix this by checking the file pointer first.
+On Sat, Jun 27, 2020 at 09:10:56AM -0700, Kees Cook wrote:
+> On Sat, Jun 27, 2020 at 02:54:17PM +0200, Oscar Carter wrote:
+> > In an effort to enable -Wcast-function-type in the top-level Makefile =
+to
+> > support Control Flow Integrity builds, remove all the function callbac=
+k
+> > casts.
+> >
+> > To do this modify the function prototypes accordingly.
+> >
+> > Signed-off-by: Oscar Carter <oscar.carter@gmx.com>
+>
+> Oh yes, the tasklets! I'd love to see this fixed correctly. (Which is to
+> say, modernize the API.) Romain hasn't had time to continue the work:
+> https://lore.kernel.org/kernel-hardening/20190929163028.9665-1-romain.pe=
+rier@gmail.com/
+>
+> Is this something you'd want to tackle?
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Fixes: f536dffc0b79 ("net/smc: fix closing of fallback SMC sockets")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/af_smc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Yes, of course. It will be a pleasure to work on this. But without forgett=
+ing
+the work to remove all the function cast mismatches.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index d091509b5982..1163d51196da 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -126,8 +126,10 @@ EXPORT_SYMBOL_GPL(smc_proto6);
- 
- static void smc_restore_fallback_changes(struct smc_sock *smc)
- {
--	smc->clcsock->file->private_data = smc->sk.sk_socket;
--	smc->clcsock->file = NULL;
-+	if (smc->clcsock->file) { /* non-accepted sockets have no file yet */
-+		smc->clcsock->file->private_data = smc->sk.sk_socket;
-+		smc->clcsock->file = NULL;
-+	}
- }
- 
- static int __smc_release(struct smc_sock *smc)
--- 
-2.17.1
+> > ---
+> >  drivers/s390/char/tty3270.c | 12 ++++++------
+> >  1 file changed, 6 insertions(+), 6 deletions(-)
+> >
+> > diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
+> > index 98d7fc152e32..aec996de44d9 100644
+> > --- a/drivers/s390/char/tty3270.c
+> > +++ b/drivers/s390/char/tty3270.c
+> > @@ -556,8 +556,9 @@ tty3270_scroll_backward(struct kbd_data *kbd)
+> >   * Pass input line to tty.
+> >   */
+> >  static void
+> > -tty3270_read_tasklet(struct raw3270_request *rrq)
+> > +tty3270_read_tasklet(unsigned long data)
+> >  {
+> > +	struct raw3270_request *rrq =3D (struct raw3270_request *)data;
+>
+> Regardless, this is correct as far as fixing the prototype.
+>
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+>
+> --
+> Kees Cook
+
+Regards,
+Oscar Carter
