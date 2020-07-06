@@ -1,81 +1,212 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11532 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725941AbgGGK5L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jul 2020 06:57:11 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:46934 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729140AbgGFOYg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Jul 2020 10:24:36 -0400
+Date: Mon, 6 Jul 2020 16:24:13 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [kvm-unit-tests PATCH v10 9/9] s390x: css: ssch/tsch with sense
  and interrupt
+Message-ID: <20200706162413.1a24fe40.cohuck@redhat.com>
+In-Reply-To: <02eb7a70-7a74-6f09-334f-004e69aaa198@linux.ibm.com>
 References: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
- <1593707480-23921-10-git-send-email-pmorel@linux.ibm.com>
- <20200706114655.5088b6b7.cohuck@redhat.com>
- <02eb7a70-7a74-6f09-334f-004e69aaa198@linux.ibm.com>
- <20200706162413.1a24fe40.cohuck@redhat.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <b4bad260-1ae5-7cd8-2339-63c73e3218bd@linux.ibm.com>
-Date: Tue, 7 Jul 2020 12:57:03 +0200
+        <1593707480-23921-10-git-send-email-pmorel@linux.ibm.com>
+        <20200706114655.5088b6b7.cohuck@redhat.com>
+        <02eb7a70-7a74-6f09-334f-004e69aaa198@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20200706162413.1a24fe40.cohuck@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Pierre Morel <pmorel@linux.ibm.com>
 Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, drjones@redhat.com
 
+On Mon, 6 Jul 2020 15:01:50 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
+> On 2020-07-06 11:46, Cornelia Huck wrote:
+> > On Thu,  2 Jul 2020 18:31:20 +0200
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> >   
+> >> After a channel is enabled we start a SENSE_ID command using
+> >> the SSCH instruction to recognize the control unit and device.
+> >>
+> >> This tests the success of SSCH, the I/O interruption and the TSCH
+> >> instructions.
+> >>
+> >> The SENSE_ID command response is tested to report 0xff inside
+> >> its reserved field and to report the same control unit type
+> >> as the cu_type kernel argument.
+> >>
+> >> Without the cu_type kernel argument, the test expects a device
+> >> with a default control unit type of 0x3832, a.k.a virtio-net-ccw.
+> >>
+> >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> >> ---
+> >>   lib/s390x/asm/arch_def.h |   1 +
+> >>   lib/s390x/css.h          |  32 ++++++++-
+> >>   lib/s390x/css_lib.c      | 148 ++++++++++++++++++++++++++++++++++++++-
+> >>   s390x/css.c              |  94 ++++++++++++++++++++++++-
+> >>   4 files changed, 272 insertions(+), 3 deletions(-)  
 
-On 2020-07-06 16:24, Cornelia Huck wrote:
-> On Mon, 6 Jul 2020 15:01:50 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
->> On 2020-07-06 11:46, Cornelia Huck wrote:
->>> On Thu,  2 Jul 2020 18:31:20 +0200
->>> Pierre Morel <pmorel@linux.ibm.com> wrote:
->>>    
->>>> After a channel is enabled we start a SENSE_ID command using
->>>> the SSCH instruction to recognize the control unit and device.
->>>>
->>>> This tests the success of SSCH, the I/O interruption and the TSCH
->>>> instructions.
->>>>
->>>> The SENSE_ID command response is tested to report 0xff inside
->>>> its reserved field and to report the same control unit type
->>>> as the cu_type kernel argument.
->>>>
->>>> Without the cu_type kernel argument, the test expects a device
->>>> with a default control unit type of 0x3832, a.k.a virtio-net-ccw.
->>>>
->>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>>> ---
->>>>    lib/s390x/asm/arch_def.h |   1 +
->>>>    lib/s390x/css.h          |  32 ++++++++-
->>>>    lib/s390x/css_lib.c      | 148 ++++++++++++++++++++++++++++++++++++++-
->>>>    s390x/css.c              |  94 ++++++++++++++++++++++++-
->>>>    4 files changed, 272 insertions(+), 3 deletions(-)
-> 
-> (...)
-> 
->>>> @@ -114,6 +128,7 @@ retry:
->>>>    		return cc;
->>>>    	}
->>>>    
->>>> +	report_info("stsch: flags: %04x", pmcw->flags);
->>>
->>> It feels like all of this already should have been included in the
->>> previous patch?
->>
->> Yes, I did not want to modify it since it was reviewed-by.
-> 
-> It's not such a major change (the isc change and this here), though...
-> what do the others think?
-changed my mind:
-What about keeping css_enable() to only do enable, in case we only want 
-to do this, and add a function to modify the ISC.
+(...)
 
-Regards,
-Pierre
+> >> @@ -114,6 +128,7 @@ retry:
+> >>   		return cc;
+> >>   	}
+> >>   
+> >> +	report_info("stsch: flags: %04x", pmcw->flags);  
+> > 
+> > It feels like all of this already should have been included in the
+> > previous patch?  
+> 
+> Yes, I did not want to modify it since it was reviewed-by.
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+It's not such a major change (the isc change and this here), though...
+what do the others think?
+
+> 
+> >   
+> >>   	if (pmcw->flags & PMCW_ENABLE) {
+> >>   		report_info("stsch: sch %08x enabled after %d retries",
+> >>   			    schid, retry_count);
+
+(...)
+
+> >> +/*
+> >> + * css_residual_count
+> >> + * We expect no residual count when the ORB request was successful  
+> > 
+> > If we have a short block, but have suppressed the incorrect length
+> > indication, we may have a successful request with a nonzero count.
+> > Maybe replace this with "Return the residual count, if it is valid."?  
+> 
+> 
+> OK
+> 
+> >   
+> >> + * The residual count is valid when the subchannel is status pending
+> >> + * with primary status and device status only or device status and
+> >> + * subchannel status with PCI or incorrect length.
+> >> + * Return value:
+> >> + * Success: the residual count
+> >> + * Not meaningful: -1 (-1 can not be a valid count)
+> >> + */
+> >> +int css_residual_count(unsigned int schid)
+> >> +{
+> >> +
+> >> +	if (!(irb.scsw.ctrl & (SCSW_SC_PENDING | SCSW_SC_PRIMARY)))
+> >> +		goto fail;  
+> > 
+> > s/fail/invalid/ ? It's not really a failure :)  
+> 
+> yes
+> 
+> >   
+> >> +
+> >> +	if (irb.scsw.dev_stat)
+> >> +		if (irb.scsw.sch_stat & ~(SCSW_SCHS_PCI | SCSW_SCHS_IL))
+> >> +			goto fail;
+> >> +
+> >> +	return irb.scsw.count;
+> >> +
+> >> +fail:
+> >> +	report_info("sch  status %02x", irb.scsw.sch_stat);
+> >> +	report_info("dev  status %02x", irb.scsw.dev_stat);
+> >> +	report_info("ctrl status %08x", irb.scsw.ctrl);
+> >> +	report_info("count       %04x", irb.scsw.count);
+> >> +	report_info("ccw addr    %08x", irb.scsw.ccw_addr);  
+> > 
+> > I don't understand why you dump this data if no valid residual count is
+> > available. But maybe I don't understand the purpose of this function
+> > correctly.  
+> 
+> As debug information to facilitate the search why the function failed.
+> Would you prefer more accurate report_info inside the if tests?
+> or just return with error code?
+
+My main issue is that I don't understand why you consider this a
+failure. Depending on the interrupt, the count field may or may not
+contain valid information, and that's fine. If you consider a certain
+interrupt unexpected/a failure, I think it makes much more sense to
+check that outside of this function (and only call it if you actually
+get an expected interrupt.)
+
+> 
+> >   
+> 
+> >>   
+> >> +/*
+> >> + * test_sense
+> >> + * Pre-requisits:  
+> > 
+> > s/Pre-requisists/Pre-requisites/  
+> 
+> OK
+> 
+> >   
+> >> + * - We need the test device as the first recognized
+> >> + *   device by the enumeration.
+> >> + */
+> >> +static void test_sense(void)
+> >> +{
+> >> +	int ret;
+> >> +	int len;
+> >> +
+> >> +	if (!test_device_sid) {
+> >> +		report_skip("No device");
+> >> +		return;
+> >> +	}
+> >> +
+> >> +	ret = css_enable(test_device_sid, IO_SCH_ISC);
+> >> +	if (ret) {
+> >> +		report(0,
+> >> +		       "Could not enable the subchannel: %08x",
+> >> +		       test_device_sid);
+> >> +		return;
+> >> +	}
+> >> +
+> >> +	ret = register_io_int_func(css_irq_io);
+> >> +	if (ret) {
+> >> +		report(0, "Could not register IRQ handler");
+> >> +		goto unreg_cb;
+> >> +	}
+> >> +
+> >> +	lowcore_ptr->io_int_param = 0;
+> >> +
+> >> +	memset(&senseid, 0, sizeof(senseid));
+> >> +	ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
+> >> +			       &senseid, sizeof(senseid), CCW_F_SLI);
+> >> +	if (ret) {
+> >> +		report(0, "ssch failed for SENSE ID on sch %08x with cc %d",
+> >> +		       test_device_sid, ret);
+> >> +		goto unreg_cb;
+> >> +	}
+> >> +
+> >> +	wait_for_interrupt(PSW_MASK_IO);
+> >> +
+> >> +	if (lowcore_ptr->io_int_param != test_device_sid) {
+> >> +		report(0, "ssch succeeded but interrupt parameter is wrong: expect %08x got %08x",
+> >> +		       test_device_sid, lowcore_ptr->io_int_param);
+> >> +		goto unreg_cb;
+> >> +	}
+> >> +
+> >> +	ret = css_residual_count(test_device_sid);
+> >> +	if (ret < 0) {
+> >> +		report(0, "ssch succeeded for SENSE ID but can not get a valid residual count");
+> >> +		goto unreg_cb;
+> >> +	}  
+> > 
+> > I'm not sure what you're testing here. You should first test whether
+> > the I/O concluded normally (i.e., whether you actually get something
+> > like status pending with channel end/device end). If not, it does not
+> > make much sense to look either at the residual count or at the sense id
+> > data.
+> > 
+> > If css_residual_count does not return something >= 0 for that 'normal'
+> > case, something is definitely fishy, though :)  
+> 
+> I will add the test before the call to get the residual count.
+> May be it leads to rework the css_residual_count too.
+
+Sounds good (sorry about causing all that additional churn).
