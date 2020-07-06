@@ -1,73 +1,338 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50222 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727055AbgGRNGy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Jul 2020 09:06:54 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net v2 07/10] net/smc: fix handling of delete link requests
-Date: Sat, 18 Jul 2020 15:06:15 +0200
-Message-Id: <20200718130618.16724-8-kgraul@linux.ibm.com>
-In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
-References: <20200718130618.16724-1-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V4 4/4] Documentation/mm: Add descriptions for arch page table helpers
+Date: Mon,  6 Jul 2020 06:18:36 +0530
+Message-Id: <1593996516-7186-5-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <1593996516-7186-1-git-send-email-anshuman.khandual@arm.com>
+References: <1593996516-7186-1-git-send-email-anshuman.khandual@arm.com>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-mm@kvack.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-As smc client the delete link requests are assigned to the flow when
-_any_ flow is active. This may break other flows that do not expect
-delete link requests during their handling. Fix that by assigning the
-request only when an add link flow is active. With that fix the code
-for smc client and smc server is the same, so remove the separate
-handling.
+This adds a specific description file for all arch page table helpers which
+is in sync with the semantics being tested via CONFIG_DEBUG_VM_PGTABLE. All
+future changes either to these descriptions here or the debug test should
+always remain in sync.
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Fixes: 9ec6bf19ec8b ("net/smc: llc_del_link_work and use the LLC flow for delete link")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: linux-snps-arc@lists.infradead.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Cc: x86@kernel.org
+Cc: linux-arch@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: linux-doc@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Suggested-by: Mike Rapoport <rppt@kernel.org>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- net/smc/smc_llc.c | 29 +++++++----------------------
- 1 file changed, 7 insertions(+), 22 deletions(-)
+ Documentation/vm/arch_pgtable_helpers.rst | 258 ++++++++++++++++++++++
+ mm/debug_vm_pgtable.c                     |   6 +
+ 2 files changed, 264 insertions(+)
+ create mode 100644 Documentation/vm/arch_pgtable_helpers.rst
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 30da040ab5b6..fa8cd57a9b32 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1544,28 +1544,13 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
- 		}
- 		break;
- 	case SMC_LLC_DELETE_LINK:
--		if (lgr->role == SMC_CLNT) {
--			/* server requests to delete this link, send response */
--			if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE) {
--				/* DEL LINK REQ during ADD LINK SEQ */
--				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
--							qentry);
--				wake_up(&lgr->llc_msg_waiter);
--			} else if (smc_llc_flow_start(&lgr->llc_flow_lcl,
--						      qentry)) {
--				schedule_work(&lgr->llc_del_link_work);
--			}
--		} else {
--			if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK &&
--			    !lgr->llc_flow_lcl.qentry) {
--				/* DEL LINK REQ during ADD LINK SEQ */
--				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
--							qentry);
--				wake_up(&lgr->llc_msg_waiter);
--			} else if (smc_llc_flow_start(&lgr->llc_flow_lcl,
--						      qentry)) {
--				schedule_work(&lgr->llc_del_link_work);
--			}
-+		if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK &&
-+		    !lgr->llc_flow_lcl.qentry) {
-+			/* DEL LINK REQ during ADD LINK SEQ */
-+			smc_llc_flow_qentry_set(&lgr->llc_flow_lcl, qentry);
-+			wake_up(&lgr->llc_msg_waiter);
-+		} else if (smc_llc_flow_start(&lgr->llc_flow_lcl, qentry)) {
-+			schedule_work(&lgr->llc_del_link_work);
- 		}
- 		return;
- 	case SMC_LLC_CONFIRM_RKEY:
+diff --git a/Documentation/vm/arch_pgtable_helpers.rst b/Documentation/vm/arch_pgtable_helpers.rst
+new file mode 100644
+index 000000000000..cd7609b05446
+--- /dev/null
++++ b/Documentation/vm/arch_pgtable_helpers.rst
+@@ -0,0 +1,258 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. _arch_page_table_helpers:
++
++===============================
++Architecture Page Table Helpers
++===============================
++
++Generic MM expects architectures (with MMU) to provide helpers to create, access
++and modify page table entries at various level for different memory functions.
++These page table helpers need to conform to a common semantics across platforms.
++Following tables describe the expected semantics which can also be tested during
++boot via CONFIG_DEBUG_VM_PGTABLE option. All future changes in here or the debug
++test need to be in sync.
++
++======================
++PTE Page Table Helpers
++======================
++
++--------------------------------------------------------------------------------
++| pte_same                  | Tests whether both PTE entries are the same      |
++--------------------------------------------------------------------------------
++| pte_bad                   | Tests a non-table mapped PTE                     |
++--------------------------------------------------------------------------------
++| pte_present               | Tests a valid mapped PTE                         |
++--------------------------------------------------------------------------------
++| pte_young                 | Tests a young PTE                                |
++--------------------------------------------------------------------------------
++| pte_dirty                 | Tests a dirty PTE                                |
++--------------------------------------------------------------------------------
++| pte_write                 | Tests a writable PTE                             |
++--------------------------------------------------------------------------------
++| pte_special               | Tests a special PTE                              |
++--------------------------------------------------------------------------------
++| pte_protnone              | Tests a PROT_NONE PTE                            |
++--------------------------------------------------------------------------------
++| pte_devmap                | Tests a ZONE_DEVICE mapped PTE                   |
++--------------------------------------------------------------------------------
++| pte_soft_dirty            | Tests a soft dirty PTE                           |
++--------------------------------------------------------------------------------
++| pte_swp_soft_dirty        | Tests a soft dirty swapped PTE                   |
++--------------------------------------------------------------------------------
++| pte_mkyoung               | Creates a young PTE                              |
++--------------------------------------------------------------------------------
++| pte_mkold                 | Creates an old PTE                               |
++--------------------------------------------------------------------------------
++| pte_mkdirty               | Creates a dirty PTE                              |
++--------------------------------------------------------------------------------
++| pte_mkclean               | Creates a clean PTE                              |
++--------------------------------------------------------------------------------
++| pte_mkwrite               | Creates a writable PTE                           |
++--------------------------------------------------------------------------------
++| pte_mkwrprotect           | Creates a write protected PTE                    |
++--------------------------------------------------------------------------------
++| pte_mkspecial             | Creates a special PTE                            |
++--------------------------------------------------------------------------------
++| pte_mkdevmap              | Creates a ZONE_DEVICE mapped PTE                 |
++--------------------------------------------------------------------------------
++| pte_mksoft_dirty          | Creates a soft dirty PTE                         |
++--------------------------------------------------------------------------------
++| pte_clear_soft_dirty      | Clears a soft dirty PTE                          |
++--------------------------------------------------------------------------------
++| pte_swp_mksoft_dirty      | Creates a soft dirty swapped PTE                 |
++--------------------------------------------------------------------------------
++| pte_swp_clear_soft_dirty  | Clears a soft dirty swapped PTE                  |
++--------------------------------------------------------------------------------
++| pte_mknotpresent          | Invalidates a mapped PTE                         |
++--------------------------------------------------------------------------------
++| ptep_get_and_clear        | Clears a PTE                                     |
++--------------------------------------------------------------------------------
++| ptep_get_and_clear_full   | Clears a PTE                                     |
++--------------------------------------------------------------------------------
++| ptep_test_and_clear_young | Clears young from a PTE                          |
++--------------------------------------------------------------------------------
++| ptep_set_wrprotect        | Converts into a write protected PTE              |
++--------------------------------------------------------------------------------
++| ptep_set_access_flags     | Converts into a more permissive PTE              |
++--------------------------------------------------------------------------------
++
++======================
++PMD Page Table Helpers
++======================
++
++--------------------------------------------------------------------------------
++| pmd_same                  | Tests whether both PMD entries are the same      |
++--------------------------------------------------------------------------------
++| pmd_bad                   | Tests a non-table mapped PMD                     |
++--------------------------------------------------------------------------------
++| pmd_leaf                  | Tests a leaf mapped PMD                          |
++--------------------------------------------------------------------------------
++| pmd_huge                  | Tests a HugeTLB mapped PMD                       |
++--------------------------------------------------------------------------------
++| pmd_trans_huge            | Tests a Transparent Huge Page (THP) at PMD       |
++--------------------------------------------------------------------------------
++| pmd_present               | Tests a valid mapped PMD                         |
++--------------------------------------------------------------------------------
++| pmd_young                 | Tests a young PMD                                |
++--------------------------------------------------------------------------------
++| pmd_dirty                 | Tests a dirty PMD                                |
++--------------------------------------------------------------------------------
++| pmd_write                 | Tests a writable PMD                             |
++--------------------------------------------------------------------------------
++| pmd_special               | Tests a special PMD                              |
++--------------------------------------------------------------------------------
++| pmd_protnone              | Tests a PROT_NONE PMD                            |
++--------------------------------------------------------------------------------
++| pmd_devmap                | Tests a ZONE_DEVICE mapped PMD                   |
++--------------------------------------------------------------------------------
++| pmd_soft_dirty            | Tests a soft dirty PMD                           |
++--------------------------------------------------------------------------------
++| pmd_swp_soft_dirty        | Tests a soft dirty swapped PMD                   |
++--------------------------------------------------------------------------------
++| pmd_mkyoung               | Creates a young PMD                              |
++--------------------------------------------------------------------------------
++| pmd_mkold                 | Creates an old PMD                               |
++--------------------------------------------------------------------------------
++| pmd_mkdirty               | Creates a dirty PMD                              |
++--------------------------------------------------------------------------------
++| pmd_mkclean               | Creates a clean PMD                              |
++--------------------------------------------------------------------------------
++| pmd_mkwrite               | Creates a writable PMD                           |
++--------------------------------------------------------------------------------
++| pmd_mkwrprotect           | Creates a write protected PMD                    |
++--------------------------------------------------------------------------------
++| pmd_mkspecial             | Creates a special PMD                            |
++--------------------------------------------------------------------------------
++| pmd_mkdevmap              | Creates a ZONE_DEVICE mapped PMD                 |
++--------------------------------------------------------------------------------
++| pmd_mksoft_dirty          | Creates a soft dirty PMD                         |
++--------------------------------------------------------------------------------
++| pmd_clear_soft_dirty      | Clears a soft dirty PMD                          |
++--------------------------------------------------------------------------------
++| pmd_swp_mksoft_dirty      | Creates a soft dirty swapped PMD                 |
++--------------------------------------------------------------------------------
++| pmd_swp_clear_soft_dirty  | Clears a soft dirty swapped PMD                  |
++--------------------------------------------------------------------------------
++| pmd_mkinvalid             | Invalidates a mapped PMD [1]                     |
++--------------------------------------------------------------------------------
++| pmd_set_huge              | Creates a PMD huge mapping                       |
++--------------------------------------------------------------------------------
++| pmd_clear_huge            | Clears a PMD huge mapping                        |
++--------------------------------------------------------------------------------
++| pmdp_get_and_clear        | Clears a PMD                                     |
++--------------------------------------------------------------------------------
++| pmdp_get_and_clear_full   | Clears a PMD                                     |
++--------------------------------------------------------------------------------
++| pmdp_test_and_clear_young | Clears young from a PMD                          |
++--------------------------------------------------------------------------------
++| pmdp_set_wrprotect        | Converts into a write protected PMD              |
++--------------------------------------------------------------------------------
++| pmdp_set_access_flags     | Converts into a more permissive PMD              |
++--------------------------------------------------------------------------------
++
++======================
++PUD Page Table Helpers
++======================
++
++--------------------------------------------------------------------------------
++| pud_same                  | Tests whether both PUD entries are the same      |
++--------------------------------------------------------------------------------
++| pud_bad                   | Tests a non-table mapped PUD                     |
++--------------------------------------------------------------------------------
++| pud_leaf                  | Tests a leaf mapped PUD                          |
++--------------------------------------------------------------------------------
++| pud_huge                  | Tests a HugeTLB mapped PUD                       |
++--------------------------------------------------------------------------------
++| pud_trans_huge            | Tests a Transparent Huge Page (THP) at PUD       |
++--------------------------------------------------------------------------------
++| pud_present               | Tests a valid mapped PUD                         |
++--------------------------------------------------------------------------------
++| pud_young                 | Tests a young PUD                                |
++--------------------------------------------------------------------------------
++| pud_dirty                 | Tests a dirty PUD                                |
++--------------------------------------------------------------------------------
++| pud_write                 | Tests a writable PUD                             |
++--------------------------------------------------------------------------------
++| pud_devmap                | Tests a ZONE_DEVICE mapped PUD                   |
++--------------------------------------------------------------------------------
++| pud_mkyoung               | Creates a young PUD                              |
++--------------------------------------------------------------------------------
++| pud_mkold                 | Creates an old PUD                               |
++--------------------------------------------------------------------------------
++| pud_mkdirty               | Creates a dirty PUD                              |
++--------------------------------------------------------------------------------
++| pud_mkclean               | Creates a clean PUD                              |
++--------------------------------------------------------------------------------
++| pud_mkwrite               | Creates a writable PMD                           |
++--------------------------------------------------------------------------------
++| pud_mkwrprotect           | Creates a write protected PMD                    |
++--------------------------------------------------------------------------------
++| pud_mkdevmap              | Creates a ZONE_DEVICE mapped PMD                 |
++--------------------------------------------------------------------------------
++| pud_mkinvalid             | Invalidates a mapped PUD [1]                     |
++--------------------------------------------------------------------------------
++| pud_set_huge              | Creates a PUD huge mapping                       |
++--------------------------------------------------------------------------------
++| pud_clear_huge            | Clears a PUD huge mapping                        |
++--------------------------------------------------------------------------------
++| pudp_get_and_clear        | Clears a PUD                                     |
++--------------------------------------------------------------------------------
++| pudp_get_and_clear_full   | Clears a PUD                                     |
++--------------------------------------------------------------------------------
++| pudp_test_and_clear_young | Clears young from a PUD                          |
++--------------------------------------------------------------------------------
++| pudp_set_wrprotect        | Converts into a write protected PUD              |
++--------------------------------------------------------------------------------
++| pudp_set_access_flags     | Converts into a more permissive PUD              |
++--------------------------------------------------------------------------------
++
++==========================
++HugeTLB Page Table Helpers
++==========================
++
++--------------------------------------------------------------------------------
++| pte_huge                  | Tests a HugeTLB                                  |
++--------------------------------------------------------------------------------
++| pte_mkhuge                | Creates a HugeTLB                                |
++--------------------------------------------------------------------------------
++| huge_pte_dirty            | Tests a dirty HugeTLB                            |
++--------------------------------------------------------------------------------
++| huge_pte_write            | Tests a writable HugeTLB                         |
++--------------------------------------------------------------------------------
++| huge_pte_mkdirty          | Creates a dirty HugeTLB                          |
++--------------------------------------------------------------------------------
++| huge_pte_mkwrite          | Creates a writable HugeTLB                       |
++--------------------------------------------------------------------------------
++| huge_pte_mkwrprotect      | Creates a write protected HugeTLB                |
++--------------------------------------------------------------------------------
++| huge_ptep_get_and_clear   | Clears a HugeTLB                                 |
++--------------------------------------------------------------------------------
++| huge_ptep_set_wrprotect   | Converts into a write protected HugeTLB          |
++--------------------------------------------------------------------------------
++| huge_ptep_set_access_flags  | Converts into a more permissive HugeTLB        |
++--------------------------------------------------------------------------------
++
++========================
++SWAP Page Table Helpers
++========================
++
++--------------------------------------------------------------------------------
++| __pte_to_swp_entry        | Creates a swapped entry (arch) from a mapepd PTE |
++--------------------------------------------------------------------------------
++| __swp_to_pte_entry        | Creates a mapped PTE from a swapped entry (arch) |
++--------------------------------------------------------------------------------
++| __pmd_to_swp_entry        | Creates a swapped entry (arch) from a mapepd PMD |
++--------------------------------------------------------------------------------
++| __swp_to_pmd_entry        | Creates a mapped PMD from a swapped entry (arch) |
++--------------------------------------------------------------------------------
++| is_migration_entry        | Tests a migration (read or write) swapped entry  |
++--------------------------------------------------------------------------------
++| is_write_migration_entry  | Tests a write migration swapped entry            |
++--------------------------------------------------------------------------------
++| make_migration_entry_read | Converts into read migration swapped entry       |
++--------------------------------------------------------------------------------
++| make_migration_entry      | Creates a migration swapped entry (read or write)|
++--------------------------------------------------------------------------------
++
++[1] https://lore.kernel.org/linux-mm/20181017020930.GN30832@redhat.com/
+diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+index a9ae8cb7e832..4f0a61f6aff5 100644
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -31,6 +31,12 @@
+ #include <asm/pgalloc.h>
+ #include <asm/tlbflush.h>
+ 
++/*
++ * Please refer Documentation/vm/arch_pgtable_helpers.rst for the semantics
++ * expectations that are being validated here. All future changes in here
++ * or the documentation need to be in sync.
++ */
++
+ #define VMFLAGS	(VM_READ|VM_WRITE|VM_EXEC)
+ 
+ /*
 -- 
-2.17.1
+2.20.1
