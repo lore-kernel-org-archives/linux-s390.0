@@ -1,64 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34784 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726308AbgG1FMy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Jul 2020 01:12:54 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH 04/15] arm64: numa: simplify dummy_numa_init()
-Date: Tue, 28 Jul 2020 08:11:42 +0300
-Message-Id: <20200728051153.1590-5-rppt@kernel.org>
-In-Reply-To: <20200728051153.1590-1-rppt@kernel.org>
-References: <20200728051153.1590-1-rppt@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:55292 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728857AbgGFHbJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Jul 2020 03:31:09 -0400
+Subject: Re: [PATCH v1 4/9] s390/vmemmap: cleanup when vmemmap_populate()
+ fails
+References: <20200703133917.39045-5-david@redhat.com>
+ <202007040129.TlExXvvF%lkp@intel.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <03e828a4-a363-0977-c49f-d9b424ec27d1@redhat.com>
+Date: Mon, 6 Jul 2020 09:30:56 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <202007040129.TlExXvvF%lkp@intel.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org
+Cc: kbuild-all@lists.01.org, linux-s390@vger.kernel.org, linux-mm@kvack.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On 03.07.20 19:09, kernel test robot wrote:
+> Hi David,
+> 
+> I love your patch! Yet something to improve:
+> 
+> [auto build test ERROR on s390/features]
+> [also build test ERROR on next-20200703]
+> [cannot apply to linux/master kvms390/next linus/master v5.8-rc3]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use  as documented in
+> https://git-scm.com/docs/git-format-patch]
+> 
+> url:    https://github.com/0day-ci/linux/commits/David-Hildenbrand/s390-implement-and-optimize-vmemmap_free/20200703-214348
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+> config: s390-alldefconfig (attached as .config)
+> compiler: s390-linux-gcc (GCC) 9.3.0
+> reproduce (this is a W=1 build):
+>         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>         chmod +x ~/bin/make.cross
+>         # save the attached .config to linux build tree
+>         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=s390 
+> 
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+> 
+> All error/warnings (new ones prefixed by >>):
+> 
+>    arch/s390/mm/vmem.c: In function 'vmemmap_populate':
+>>> arch/s390/mm/vmem.c:368:3: error: implicit declaration of function 'vmemmap_free'; did you mean 'vmem_altmap_free'? [-Werror=implicit-function-declaration]
+>      368 |   vmemmap_free(start, end, altmap);
+>          |   ^~~~~~~~~~~~
+>          |   vmem_altmap_free
+>    arch/s390/mm/vmem.c: At top level:
+>    arch/s390/mm/vmem.c:372:6: warning: no previous prototype for 'vmemmap_free' [-Wmissing-prototypes]
+>      372 | void vmemmap_free(unsigned long start, unsigned long end,
+>          |      ^~~~~~~~~~~~
+>>> arch/s390/mm/vmem.c:372:6: warning: conflicting types for 'vmemmap_free'
+>    arch/s390/mm/vmem.c:368:3: note: previous implicit declaration of 'vmemmap_free' was here
+>      368 |   vmemmap_free(start, end, altmap);
+>          |   ^~~~~~~~~~~~
+>    cc1: some warnings being treated as errors
 
-dummy_numa_init() loops over memblock.memory and passes nid=0 to
-numa_add_memblk() which essentially wraps memblock_set_node(). However,
-memblock_set_node() can cope with entire memory span itself, so the loop
-over memblock.memory regions is redundant.
+Ah, vmemmap_free() is only defined with CONFIG_MEMORY_HOTPLUG. Easy to fix.
 
-Replace the loop with a single call to memblock_set_node() to the entire
-memory.
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/arm64/mm/numa.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
-
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index aafcee3e3f7e..0cbdbcc885fb 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -423,19 +423,16 @@ static int __init numa_init(int (*init_func)(void))
-  */
- static int __init dummy_numa_init(void)
- {
-+	phys_addr_t start = memblock_start_of_DRAM();
-+	phys_addr_t end = memblock_end_of_DRAM();
- 	int ret;
--	struct memblock_region *mblk;
- 
- 	if (numa_off)
- 		pr_info("NUMA disabled\n"); /* Forced off on command line. */
--	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n",
--		memblock_start_of_DRAM(), memblock_end_of_DRAM() - 1);
--
--	for_each_memblock(memory, mblk) {
--		ret = numa_add_memblk(0, mblk->base, mblk->base + mblk->size);
--		if (!ret)
--			continue;
-+	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n", start, end - 1);
- 
-+	ret = numa_add_memblk(0, start, end);
-+	if (ret) {
- 		pr_err("NUMA init failed\n");
- 		return ret;
- 	}
 -- 
-2.26.2
+Thanks,
+
+David / dhildenb
