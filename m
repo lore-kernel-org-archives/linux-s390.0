@@ -1,34 +1,129 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from 8bytes.org ([81.169.241.247]:57566 "EHLO theia.8bytes.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729592AbgGOJR3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 15 Jul 2020 05:17:29 -0400
-Date: Wed, 15 Jul 2020 11:17:20 +0200
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: AMD IOMMU + SME + amdgpu regression
-Message-ID: <20200715091720.GV27672@8bytes.org>
-References: <1591915710.rakbpzst8h.none.ref@localhost>
- <1591915710.rakbpzst8h.none@localhost>
- <20200622100257.GD31822@suse.de>
- <1592839701.mxvvths2x9.none@localhost>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50746 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729121AbgGFPDy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 6 Jul 2020 11:03:54 -0400
+Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
+ IOMMU feature
+References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+ <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+ <20200629115651-mutt-send-email-mst@kernel.org>
+ <20200629180526.41d0732b.cohuck@redhat.com>
+ <26ecd4c6-837b-1ce6-170b-a0155e4dd4d4@linux.ibm.com>
+ <a677decc-5be3-8095-bc33-0f95634011f6@linux.ibm.com>
+ <20200706163340.2ce7a5f2.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <42f3733d-9f68-91b3-29f9-e88dd4495886@linux.ibm.com>
+Date: Mon, 6 Jul 2020 17:01:47 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1592839701.mxvvths2x9.none@localhost>
+In-Reply-To: <20200706163340.2ce7a5f2.cohuck@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>
-Cc: Joerg Roedel <jroedel@suse.de>, Andy Gross <agross@kernel.org>, Lu Baolu <baolu.lu@linux.intel.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Daniel Drake <drake@endlessm.com>, David Woodhouse <dwmw2@infradead.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christoph Hellwig <hch@lst.de>, Heiko Stuebner <heiko@sntech.de>, Jean-Philippe Brucker <jean-philippe@linaro.org>, jonathan.derrick@intel.com, Jonathan Hunter <jonathanh@nvidia.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, Marek Szyprowski <m.szyprowski@samsung.com>, David Rientjes <rientjes@google.com>, Rob Clark <robdclark@gmail.com>, Robin Murphy <robin.murphy@arm.com>, Thierry Reding <thierry.reding@gmail.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 
-On Mon, Jun 22, 2020 at 11:30:04AM -0400, Alex Xu (Hello71) wrote:
-> Yes, it works with SME off with dbed452a078 ("dma-pool: decouple 
-> DMA_REMAP from DMA_COHERENT_POOL") applied.
 
-Okay, I can reproduce the problem on my Ryzen System, and the boot log
-shows various warnings/bugs from the amdgpu driver. I think this should
-be looked at by the AMDGPU folks first, as I didn't really got far
-looking into the GPU drivers code.
 
-Regards,
+On 2020-07-06 16:33, Cornelia Huck wrote:
+> On Mon, 6 Jul 2020 15:37:37 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> On 2020-07-02 15:03, Pierre Morel wrote:
+>>>
+>>>
+>>> On 2020-06-29 18:05, Cornelia Huck wrote:
+>>>> On Mon, 29 Jun 2020 11:57:14 -0400
+>>>> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>>>>   
+>>>>> On Wed, Jun 17, 2020 at 12:43:57PM +0200, Pierre Morel wrote:
+>>>>>> An architecture protecting the guest memory against unauthorized host
+>>>>>> access may want to enforce VIRTIO I/O device protection through the
+>>>>>> use of VIRTIO_F_IOMMU_PLATFORM.
+>>>>>>
+>>>>>> Let's give a chance to the architecture to accept or not devices
+>>>>>> without VIRTIO_F_IOMMU_PLATFORM.
+>>>>>>
+>>>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>>>> Acked-by: Jason Wang <jasowang@redhat.com>
+>>>>>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>>>> ---
+>>>>>>    arch/s390/mm/init.c     |  6 ++++++
+>>>>>>    drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
+>>>>>>    include/linux/virtio.h  |  2 ++
+>>>>>>    3 files changed, 30 insertions(+)
+>>>>   
+>>>>>> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct
+>>>>>> virtio_device *dev)
+>>>>>>        if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>>>>>>            return 0;
+>>>>>> +    if (arch_needs_virtio_iommu_platform(dev) &&
+>>>>>> +        !virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+>>>>>> +        dev_warn(&dev->dev,
+>>>>>> +             "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+>>>>>> +        return -ENODEV;
+>>>>>> +    }
+>>>>>> +
+>>>>>>        virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
+>>>>>>        status = dev->config->get_status(dev);
+>>>>>>        if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+>>>>>
+>>>>> Well don't you need to check it *before* VIRTIO_F_VERSION_1, not after?
+>>>>
+>>>> But it's only available with VERSION_1 anyway, isn't it? So it probably
+>>>> also needs to fail when this feature is needed if VERSION_1 has not been
+>>>> negotiated, I think.
+>>
+>>
+>> would be something like:
+>>
+>> -       if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>> -               return 0;
+>> +       if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+>> +               ret = arch_accept_virtio_features(dev);
+>> +               if (ret)
+>> +                       dev_warn(&dev->dev,
+>> +                                "virtio: device must provide
+>> VIRTIO_F_VERSION_1\n");
+>> +               return ret;
+>> +       }
+> 
+> That looks wrong; I think we want to validate in all cases. What about:
+> 
+> ret = arch_accept_virtio_features(dev); // this can include checking for
+>                                          // older or newer features
+> if (ret)
+> 	// assume that the arch callback moaned already
+> 	return ret;
+> 
+> if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+> 	return 0;
+> 
+> // do the virtio-1 only FEATURES_OK dance
 
-	Joerg
+hum, you are right, I was too focused on keeping my simple 
+arch_accept_virtio_features() function unchanged.
+It must be more general.
+
+> 
+>>
+>>
+>> just a thought on the function name:
+>> It becomes more general than just IOMMU_PLATFORM related.
+>>
+>> What do you think of:
+>>
+>> arch_accept_virtio_features()
+> 
+> Or maybe arch_validate_virtio_features()?
+
+OK validated.
+
+Thanks,
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
