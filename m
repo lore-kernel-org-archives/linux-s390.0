@@ -1,87 +1,96 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:54267 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725851AbgGJHcf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 10 Jul 2020 03:32:35 -0400
-Subject: Re: [PATCH v6 0/5] clean up redundant 'kvm_run' parameters
-References: <20200623131418.31473-1-tianjia.zhang@linux.alibaba.com>
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Message-ID: <6604e273-d7b1-5007-8721-75c4a4dec68e@linux.alibaba.com>
-Date: Fri, 10 Jul 2020 15:32:24 +0800
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46014 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726745AbgGGLOz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jul 2020 07:14:55 -0400
+Subject: Re: [kvm-unit-tests PATCH v10 9/9] s390x: css: ssch/tsch with sense
+ and interrupt
+References: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
+ <1593707480-23921-10-git-send-email-pmorel@linux.ibm.com>
+ <20200706114655.5088b6b7.cohuck@redhat.com>
+ <02eb7a70-7a74-6f09-334f-004e69aaa198@linux.ibm.com>
+ <20200706162413.1a24fe40.cohuck@redhat.com>
+ <b4bad260-1ae5-7cd8-2339-63c73e3218bd@linux.ibm.com>
+ <20200707130530.1f365c5f.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <9080a181-90f5-425b-dc36-41444079c41e@linux.ibm.com>
+Date: Tue, 7 Jul 2020 13:14:49 +0200
 MIME-Version: 1.0
-In-Reply-To: <20200623131418.31473-1-tianjia.zhang@linux.alibaba.com>
-Content-Type: text/plain; charset=gbk; format=flowed
+In-Reply-To: <20200707130530.1f365c5f.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, drjones@redhat.com
 
-Hi Paolo,
 
-Any opinion on this series patches? Can I help with this patchset ?
 
-Thanks and best,
-Tianjia
+On 2020-07-07 13:05, Cornelia Huck wrote:
+> On Tue, 7 Jul 2020 12:57:03 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> On 2020-07-06 16:24, Cornelia Huck wrote:
+>>> On Mon, 6 Jul 2020 15:01:50 +0200
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>    
+>>>> On 2020-07-06 11:46, Cornelia Huck wrote:
+>>>>> On Thu,  2 Jul 2020 18:31:20 +0200
+>>>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>>>       
+>>>>>> After a channel is enabled we start a SENSE_ID command using
+>>>>>> the SSCH instruction to recognize the control unit and device.
+>>>>>>
+>>>>>> This tests the success of SSCH, the I/O interruption and the TSCH
+>>>>>> instructions.
+>>>>>>
+>>>>>> The SENSE_ID command response is tested to report 0xff inside
+>>>>>> its reserved field and to report the same control unit type
+>>>>>> as the cu_type kernel argument.
+>>>>>>
+>>>>>> Without the cu_type kernel argument, the test expects a device
+>>>>>> with a default control unit type of 0x3832, a.k.a virtio-net-ccw.
+>>>>>>
+>>>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>>>> ---
+>>>>>>     lib/s390x/asm/arch_def.h |   1 +
+>>>>>>     lib/s390x/css.h          |  32 ++++++++-
+>>>>>>     lib/s390x/css_lib.c      | 148 ++++++++++++++++++++++++++++++++++++++-
+>>>>>>     s390x/css.c              |  94 ++++++++++++++++++++++++-
+>>>>>>     4 files changed, 272 insertions(+), 3 deletions(-)
+>>>
+>>> (...)
+>>>    
+>>>>>> @@ -114,6 +128,7 @@ retry:
+>>>>>>     		return cc;
+>>>>>>     	}
+>>>>>>     
+>>>>>> +	report_info("stsch: flags: %04x", pmcw->flags);
+>>>>>
+>>>>> It feels like all of this already should have been included in the
+>>>>> previous patch?
+>>>>
+>>>> Yes, I did not want to modify it since it was reviewed-by.
+>>>
+>>> It's not such a major change (the isc change and this here), though...
+>>> what do the others think?
+>> changed my mind:
+>> What about keeping css_enable() to only do enable, in case we only want
+>> to do this, and add a function to modify the ISC.
+> 
+> Hm, the isc is only really relevant while the subchannel is enabled, so
+> this would be fine if we only ever modified the isc while the
+> subchannel is disabled. On the other hand, we introduce an extra round
+> of msch. No strong opinion on my side.
+> 
 
-On 2020/6/23 21:14, Tianjia Zhang wrote:
-> In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
-> structure. For historical reasons, many kvm-related function parameters
-> retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
-> patch does a unified cleanup of these remaining redundant parameters.
-> 
-> This series of patches has completely cleaned the architecture of
-> arm64, mips, ppc, and s390 (no such redundant code on x86). Due to
-> the large number of modified codes, a separate patch is made for each
-> platform. On the ppc platform, there is also a redundant structure
-> pointer of 'kvm_run' in 'vcpu_arch', which has also been cleaned
-> separately.
-> 
-> ---
-> v6 changes:
->    Rearrange patch sets, only keep the unmerged patch.
->    rebase on mainline.
-> 
-> v5 change:
->    ppc: fix for review.
-> 
-> v4 change:
->    mips: fixes two errors in entry.c.
-> 
-> v3 change:
->    Keep the existing `vcpu->run` in the function body unchanged.
-> 
-> v2 change:
->    s390 retains the original variable name and minimizes modification.
-> 
-> Tianjia Zhang (5):
->    KVM: s390: clean up redundant 'kvm_run' parameters
->    KVM: arm64: clean up redundant 'kvm_run' parameters
->    KVM: PPC: clean up redundant kvm_run parameters in assembly
->    KVM: MIPS: clean up redundant 'kvm_run' parameters
->    KVM: MIPS: clean up redundant kvm_run parameters in assembly
-> 
->   arch/arm64/include/asm/kvm_coproc.h   |  12 +--
->   arch/arm64/include/asm/kvm_host.h     |  11 +--
->   arch/arm64/include/asm/kvm_mmu.h      |   2 +-
->   arch/arm64/kvm/arm.c                  |   6 +-
->   arch/arm64/kvm/handle_exit.c          |  36 ++++----
->   arch/arm64/kvm/mmio.c                 |  11 +--
->   arch/arm64/kvm/mmu.c                  |   5 +-
->   arch/arm64/kvm/sys_regs.c             |  13 ++-
->   arch/mips/include/asm/kvm_host.h      |  32 ++------
->   arch/mips/kvm/emulate.c               |  59 +++++--------
->   arch/mips/kvm/entry.c                 |  21 ++---
->   arch/mips/kvm/mips.c                  |  14 ++--
->   arch/mips/kvm/trap_emul.c             | 114 +++++++++++---------------
->   arch/mips/kvm/vz.c                    |  26 +++---
->   arch/powerpc/include/asm/kvm_ppc.h    |   2 +-
->   arch/powerpc/kvm/book3s_interrupts.S  |  22 +++--
->   arch/powerpc/kvm/book3s_pr.c          |   9 +-
->   arch/powerpc/kvm/booke.c              |   9 +-
->   arch/powerpc/kvm/booke_interrupts.S   |   9 +-
->   arch/powerpc/kvm/bookehv_interrupts.S |  10 +--
->   arch/s390/kvm/kvm-s390.c              |  23 ++++--
->   21 files changed, 188 insertions(+), 258 deletions(-)
-> 
+Hum too, I fear we can not avoid the msch round:
+After your comment I realize that we can not let the channel enabled 
+without a valid ISC in the case we enable IRQ.
+So unless other opinion, back to the css_enable(schid, isc).
+
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
