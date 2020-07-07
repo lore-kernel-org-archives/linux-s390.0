@@ -1,20 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from helcar.hmeau.com ([216.24.177.18]:39386 "EHLO fornost.hmeau.com"
+Received: from helcar.hmeau.com ([216.24.177.18]:55898 "EHLO fornost.hmeau.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726069AbgGPGiA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jul 2020 02:38:00 -0400
-Date: Thu, 16 Jul 2020 16:36:50 +1000
+        id S1727077AbgGGDnG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 6 Jul 2020 23:43:06 -0400
+Date: Tue, 7 Jul 2020 13:42:04 +1000
 From: Herbert Xu <herbert@gondor.apana.org.au>
 Subject: [PATCH RESEND] lockdep: Move list.h inclusion into lockdep.h
-Message-ID: <20200716063649.GA23065@gondor.apana.org.au>
+Message-ID: <20200707034204.GA13225@gondor.apana.org.au>
+References: <20200617071524.GA3055@gondor.apana.org.au>
+ <E1jlSJz-0003hE-8g@fornost.hmeau.com>
+ <20200617082459.GC2531@hirez.programming.kicks-ass.net>
+ <20200617122449.GX31238@alley>
+ <20200618143735.GJ576905@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20200618143735.GJ576905@hirez.programming.kicks-ass.net>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>
 
+On Thu, Jun 18, 2020 at 04:37:35PM +0200, Peter Zijlstra wrote:
+>
+> OK, done. tip/locking/header should contain just this patch, and that
+> branch also got merged into tip/locking/core.
+
+Hi Peter:
+
+Could you please apply this patch on top as there is still a header
+loop otherwise? Thanks!
+
+---8<---
 Currently lockdep_types.h includes list.h without actually using any
 of its macros or functions.  All it needs are the type definitions
 which were moved into types.h long ago.  This potentially causes
