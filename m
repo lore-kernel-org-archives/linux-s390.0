@@ -1,115 +1,90 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 18/24] net/ipv6: switch ipv6_flowlabel_opt to sockptr_t
-Date: Mon, 20 Jul 2020 14:47:31 +0200
-Message-Id: <20200720124737.118617-19-hch@lst.de>
-In-Reply-To: <20200720124737.118617-1-hch@lst.de>
-References: <20200720124737.118617-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64758 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730072AbgGHPFZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jul 2020 11:05:25 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 2/5] net/smc: fix work request handling
+Date: Wed,  8 Jul 2020 17:05:12 +0200
+Message-Id: <20200708150515.44938-3-kgraul@linux.ibm.com>
+In-Reply-To: <20200708150515.44938-1-kgraul@linux.ibm.com>
+References: <20200708150515.44938-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+Wait for pending sends only when smc_switch_conns() found a link to move
+the connections to. Do not wait during link freeing, this can lead to
+permanent hang situations. And refuse to provide a new tx slot on an
+unusable link.
 
-Note that the get case is pretty weird in that it actually copies data
-back to userspace from setsockopt.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: c6f02ebeea3a ("net/smc: switch connections to alternate link")
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- include/net/ipv6.h       |  2 +-
- net/ipv6/ip6_flowlabel.c | 16 +++++++++-------
- net/ipv6/ipv6_sockglue.c |  2 +-
- 3 files changed, 11 insertions(+), 9 deletions(-)
+ net/smc/smc_llc.c |  8 ++++----
+ net/smc/smc_wr.c  | 10 ++++++----
+ 2 files changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/include/net/ipv6.h b/include/net/ipv6.h
-index 262fc88dbd7e2f..4c9d89b5d73268 100644
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -406,7 +406,7 @@ struct ipv6_txoptions *fl6_merge_options(struct ipv6_txoptions *opt_space,
- 					 struct ip6_flowlabel *fl,
- 					 struct ipv6_txoptions *fopt);
- void fl6_free_socklist(struct sock *sk);
--int ipv6_flowlabel_opt(struct sock *sk, char __user *optval, int optlen);
-+int ipv6_flowlabel_opt(struct sock *sk, sockptr_t optval, int optlen);
- int ipv6_flowlabel_opt_get(struct sock *sk, struct in6_flowlabel_req *freq,
- 			   int flags);
- int ip6_flowlabel_init(void);
-diff --git a/net/ipv6/ip6_flowlabel.c b/net/ipv6/ip6_flowlabel.c
-index 27ee6de9beffc4..6b3c315f3d461a 100644
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -371,7 +371,7 @@ static int fl6_renew(struct ip6_flowlabel *fl, unsigned long linger, unsigned lo
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index df164232574b..c1a038689c63 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1241,8 +1241,8 @@ static void smc_llc_process_cli_delete_link(struct smc_link_group *lgr)
+ 	smc_llc_send_message(lnk, &qentry->msg); /* response */
  
- static struct ip6_flowlabel *
- fl_create(struct net *net, struct sock *sk, struct in6_flowlabel_req *freq,
--	  char __user *optval, int optlen, int *err_p)
-+	  sockptr_t optval, int optlen, int *err_p)
- {
- 	struct ip6_flowlabel *fl = NULL;
- 	int olen;
-@@ -401,7 +401,8 @@ fl_create(struct net *net, struct sock *sk, struct in6_flowlabel_req *freq,
- 		memset(fl->opt, 0, sizeof(*fl->opt));
- 		fl->opt->tot_len = sizeof(*fl->opt) + olen;
- 		err = -EFAULT;
--		if (copy_from_user(fl->opt+1, optval+CMSG_ALIGN(sizeof(*freq)), olen))
-+		sockptr_advance(optval, CMSG_ALIGN(sizeof(*freq)));
-+		if (copy_from_sockptr(fl->opt + 1, optval, olen))
- 			goto done;
- 
- 		msg.msg_controllen = olen;
-@@ -604,7 +605,7 @@ static int ipv6_flowlabel_renew(struct sock *sk, struct in6_flowlabel_req *freq)
- }
- 
- static int ipv6_flowlabel_get(struct sock *sk, struct in6_flowlabel_req *freq,
--		void __user *optval, int optlen)
-+		sockptr_t optval, int optlen)
- {
- 	struct ipv6_fl_socklist *sfl, *sfl1 = NULL;
- 	struct ip6_flowlabel *fl, *fl1 = NULL;
-@@ -702,8 +703,9 @@ static int ipv6_flowlabel_get(struct sock *sk, struct in6_flowlabel_req *freq,
- 		goto recheck;
- 
- 	if (!freq->flr_label) {
--		if (copy_to_user(&((struct in6_flowlabel_req __user *) optval)->flr_label,
--				 &fl->label, sizeof(fl->label))) {
-+		sockptr_advance(optval,
-+				offsetof(struct in6_flowlabel_req, flr_label));
-+		if (copy_to_sockptr(optval, &fl->label, sizeof(fl->label))) {
- 			/* Intentionally ignore fault. */
- 		}
+ 	if (smc_link_downing(&lnk_del->state)) {
+-		smc_switch_conns(lgr, lnk_del, false);
+-		smc_wr_tx_wait_no_pending_sends(lnk_del);
++		if (smc_switch_conns(lgr, lnk_del, false))
++			smc_wr_tx_wait_no_pending_sends(lnk_del);
  	}
-@@ -716,13 +718,13 @@ static int ipv6_flowlabel_get(struct sock *sk, struct in6_flowlabel_req *freq,
- 	return err;
- }
+ 	smcr_link_clear(lnk_del, true);
  
--int ipv6_flowlabel_opt(struct sock *sk, char __user *optval, int optlen)
-+int ipv6_flowlabel_opt(struct sock *sk, sockptr_t optval, int optlen)
+@@ -1316,8 +1316,8 @@ static void smc_llc_process_srv_delete_link(struct smc_link_group *lgr)
+ 		goto out; /* asymmetric link already deleted */
+ 
+ 	if (smc_link_downing(&lnk_del->state)) {
+-		smc_switch_conns(lgr, lnk_del, false);
+-		smc_wr_tx_wait_no_pending_sends(lnk_del);
++		if (smc_switch_conns(lgr, lnk_del, false))
++			smc_wr_tx_wait_no_pending_sends(lnk_del);
+ 	}
+ 	if (!list_empty(&lgr->list)) {
+ 		/* qentry is either a request from peer (send it back to
+diff --git a/net/smc/smc_wr.c b/net/smc/smc_wr.c
+index 7239ba9b99dc..1e23cdd41eb1 100644
+--- a/net/smc/smc_wr.c
++++ b/net/smc/smc_wr.c
+@@ -169,6 +169,8 @@ void smc_wr_tx_cq_handler(struct ib_cq *ib_cq, void *cq_context)
+ static inline int smc_wr_tx_get_free_slot_index(struct smc_link *link, u32 *idx)
  {
- 	struct in6_flowlabel_req freq;
+ 	*idx = link->wr_tx_cnt;
++	if (!smc_link_usable(link))
++		return -ENOLINK;
+ 	for_each_clear_bit(*idx, link->wr_tx_mask, link->wr_tx_cnt) {
+ 		if (!test_and_set_bit(*idx, link->wr_tx_mask))
+ 			return 0;
+@@ -560,15 +562,15 @@ void smc_wr_free_link(struct smc_link *lnk)
+ {
+ 	struct ib_device *ibdev;
  
- 	if (optlen < sizeof(freq))
- 		return -EINVAL;
--	if (copy_from_user(&freq, optval, sizeof(freq)))
-+	if (copy_from_sockptr(&freq, optval, sizeof(freq)))
- 		return -EFAULT;
++	if (!lnk->smcibdev)
++		return;
++	ibdev = lnk->smcibdev->ibdev;
++
+ 	if (smc_wr_tx_wait_no_pending_sends(lnk))
+ 		memset(lnk->wr_tx_mask, 0,
+ 		       BITS_TO_LONGS(SMC_WR_BUF_CNT) *
+ 						sizeof(*lnk->wr_tx_mask));
  
- 	switch (freq.flr_action) {
-diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
-index 119dfaf5f4bb26..3897fb55372d38 100644
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -929,7 +929,7 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
- 		retv = 0;
- 		break;
- 	case IPV6_FLOWLABEL_MGR:
--		retv = ipv6_flowlabel_opt(sk, optval, optlen);
-+		retv = ipv6_flowlabel_opt(sk, USER_SOCKPTR(optval), optlen);
- 		break;
- 	case IPV6_IPSEC_POLICY:
- 	case IPV6_XFRM_POLICY:
+-	if (!lnk->smcibdev)
+-		return;
+-	ibdev = lnk->smcibdev->ibdev;
+-
+ 	if (lnk->wr_rx_dma_addr) {
+ 		ib_dma_unmap_single(ibdev, lnk->wr_rx_dma_addr,
+ 				    SMC_WR_BUF_SIZE * lnk->wr_rx_cnt,
 -- 
-2.27.0
+2.17.1
