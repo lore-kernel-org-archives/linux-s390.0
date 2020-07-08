@@ -1,98 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26958 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726353AbgG3PGR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Jul 2020 11:06:17 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 1/4] s390/qeth: tolerate pre-filled RX buffer
-Date: Thu, 30 Jul 2020 17:01:18 +0200
-Message-Id: <20200730150121.18005-2-jwi@linux.ibm.com>
-In-Reply-To: <20200730150121.18005-1-jwi@linux.ibm.com>
-References: <20200730150121.18005-1-jwi@linux.ibm.com>
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:37988 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729632AbgGHObC (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jul 2020 10:31:02 -0400
+Received: by mail-qv1-f71.google.com with SMTP id j18so29431065qvk.1
+        for <linux-s390@vger.kernel.org>; Wed, 08 Jul 2020 07:30:59 -0700 (PDT)
+Date: Wed, 8 Jul 2020 10:30:54 -0400
+From: Peter Xu <peterx@redhat.com>
+Subject: Re: [PATCH v5 18/25] mm/s390: Use general page fault accounting
+Message-ID: <20200708143054.GB199122@xz-x1>
+References: <20200707225021.200906-1-peterx@redhat.com>
+ <20200707225021.200906-19-peterx@redhat.com>
+ <20200708054947.GA4026@oc3871087118.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200708054947.GA4026@oc3871087118.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Will Deacon <will@kernel.org>, Andrea Arcangeli <aarcange@redhat.com>, David Rientjes <rientjes@google.com>, John Hubbard <jhubbard@nvidia.com>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-When preparing a buffer for RX refill, tolerate that it already has a
-pool_entry attached. Otherwise we could easily leak such a pool_entry
-when re-driving the RX refill after an error (from eg. do_qdio()).
+On Wed, Jul 08, 2020 at 07:49:47AM +0200, Alexander Gordeev wrote:
+> On Tue, Jul 07, 2020 at 06:50:14PM -0400, Peter Xu wrote:
+> > Use the general page fault accounting by passing regs into handle_mm_fault().
+> > It naturally solve the issue of multiple page fault accounting when page fault
+> > retry happened.
+> > 
+> > CC: Heiko Carstens <heiko.carstens@de.ibm.com>
+> > CC: Vasily Gorbik <gor@linux.ibm.com>
+> > CC: Christian Borntraeger <borntraeger@de.ibm.com>
+> > CC: linux-s390@vger.kernel.org
+> > Reviewed-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> > Acked-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+> > Signed-off-by: Peter Xu <peterx@redhat.com>
+> > ---
+> >  arch/s390/mm/fault.c | 16 +---------------
+> >  1 file changed, 1 insertion(+), 15 deletions(-)
+> > 
+> > diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
+> > index fc14df0b4d6e..9aa201df2e94 100644
+> > --- a/arch/s390/mm/fault.c
+> > +++ b/arch/s390/mm/fault.c
+> > @@ -478,7 +478,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+> >  	 * make sure we exit gracefully rather than endlessly redo
+> >  	 * the fault.
+> >  	 */
+> > -	fault = handle_mm_fault(vma, address, flags, NULL);
+> > +	fault = handle_mm_fault(vma, address, flags, regs);
+> >  	if (fault_signal_pending(fault, regs)) {
+> >  		fault = VM_FAULT_SIGNAL;
+> >  		if (flags & FAULT_FLAG_RETRY_NOWAIT)
+> > @@ -488,21 +488,7 @@ static inline vm_fault_t do_exception(struct pt_regs *regs, int access)
+> >  	if (unlikely(fault & VM_FAULT_ERROR))
+> >  		goto out_up;
+> >  
+> > -	/*
+> > -	 * Major/minor page fault accounting is only done on the
+> > -	 * initial attempt. If we go through a retry, it is extremely
+> > -	 * likely that the page will be found in page cache at that point.
+> > -	 */
+> >  	if (flags & FAULT_FLAG_ALLOW_RETRY) {
+> 
+> Shouldn't this check ^^^ be dropped as well?
+> 
+> Since commit 4064b9827063 ("mm: allow VM_FAULT_RETRY for multiple times")
+> FAULT_FLAG_ALLOW_RETRY never gets unset, so no need to check..
 
-This needs some minor adjustment in the code that drains RX buffer(s)
-prior to RX refill and during teardown, so that ->pool_entry is NULLed
-accordingly.
+I agree, but it should be out of the scope of the accounting changes that this
+patch wants to address.  Maybe more suitable for a work on top?
 
-Fixes: 4a71df50047f ("qeth: new qeth device driver")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+This should also exist for most of the archs too, and I'm also not sure whether
+compiler could be smart enough to optimize this directly since it seems to have
+all the knowledge.
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 8a76022fceda..b356ee5de9f8 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -204,12 +204,17 @@ EXPORT_SYMBOL_GPL(qeth_threads_running);
- void qeth_clear_working_pool_list(struct qeth_card *card)
- {
- 	struct qeth_buffer_pool_entry *pool_entry, *tmp;
-+	struct qeth_qdio_q *queue = card->qdio.in_q;
-+	unsigned int i;
- 
- 	QETH_CARD_TEXT(card, 5, "clwrklst");
- 	list_for_each_entry_safe(pool_entry, tmp,
- 			    &card->qdio.in_buf_pool.entry_list, list){
- 			list_del(&pool_entry->list);
- 	}
-+
-+	for (i = 0; i < ARRAY_SIZE(queue->bufs); i++)
-+		queue->bufs[i].pool_entry = NULL;
- }
- EXPORT_SYMBOL_GPL(qeth_clear_working_pool_list);
- 
-@@ -2965,7 +2970,7 @@ static struct qeth_buffer_pool_entry *qeth_find_free_buffer_pool_entry(
- static int qeth_init_input_buffer(struct qeth_card *card,
- 		struct qeth_qdio_buffer *buf)
- {
--	struct qeth_buffer_pool_entry *pool_entry;
-+	struct qeth_buffer_pool_entry *pool_entry = buf->pool_entry;
- 	int i;
- 
- 	if ((card->options.cq == QETH_CQ_ENABLED) && (!buf->rx_skb)) {
-@@ -2976,9 +2981,13 @@ static int qeth_init_input_buffer(struct qeth_card *card,
- 			return -ENOMEM;
- 	}
- 
--	pool_entry = qeth_find_free_buffer_pool_entry(card);
--	if (!pool_entry)
--		return -ENOBUFS;
-+	if (!pool_entry) {
-+		pool_entry = qeth_find_free_buffer_pool_entry(card);
-+		if (!pool_entry)
-+			return -ENOBUFS;
-+
-+		buf->pool_entry = pool_entry;
-+	}
- 
- 	/*
- 	 * since the buffer is accessed only from the input_tasklet
-@@ -2986,8 +2995,6 @@ static int qeth_init_input_buffer(struct qeth_card *card,
- 	 * the QETH_IN_BUF_REQUEUE_THRESHOLD we should never run  out off
- 	 * buffers
- 	 */
--
--	buf->pool_entry = pool_entry;
- 	for (i = 0; i < QETH_MAX_BUFFER_ELEMENTS(card); ++i) {
- 		buf->buffer->element[i].length = PAGE_SIZE;
- 		buf->buffer->element[i].addr =
-@@ -5771,6 +5778,7 @@ static unsigned int qeth_rx_poll(struct qeth_card *card, int budget)
- 		if (done) {
- 			QETH_CARD_STAT_INC(card, rx_bufs);
- 			qeth_put_buffer_pool_entry(card, buffer->pool_entry);
-+			buffer->pool_entry = NULL;
- 			qeth_queue_input_buffer(card, card->rx.b_index);
- 			card->rx.b_count--;
- 
+Thanks,
+
 -- 
-2.17.1
+Peter Xu
