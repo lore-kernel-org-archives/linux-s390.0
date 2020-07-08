@@ -1,123 +1,256 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 11 Jul 2020 10:09:57 -0000
-From: "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: locking/core] lockdep: Prepare for NMI IRQ state tracking
-In-Reply-To: <20200623083721.155449112@infradead.org>
-References: <20200623083721.155449112@infradead.org>
-MIME-Version: 1.0
-Message-ID: <159446219720.4006.9282048000882212758.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30050 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729921AbgGHPF0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jul 2020 11:05:26 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 3/5] net/smc: fix sleep bug in smc_pnet_find_roce_resource()
+Date: Wed,  8 Jul 2020 17:05:13 +0200
+Message-Id: <20200708150515.44938-4-kgraul@linux.ibm.com>
+In-Reply-To: <20200708150515.44938-1-kgraul@linux.ibm.com>
+References: <20200708150515.44938-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-The following commit has been merged into the locking/core branch of tip:
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Commit-ID:     859d069ee1ddd87862e1d6a356a82ed417dbeb67
-Gitweb:        https://git.kernel.org/tip/859d069ee1ddd87862e1d6a356a82ed417dbeb67
-Author:        Peter Zijlstra <peterz@infradead.org>
-AuthorDate:    Wed, 27 May 2020 15:00:57 +02:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Fri, 10 Jul 2020 12:00:01 +02:00
+Tests showed this BUG:
+[572555.252867] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:935
+[572555.252876] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 131031, name: smcapp
+[572555.252879] INFO: lockdep is turned off.
+[572555.252883] CPU: 1 PID: 131031 Comm: smcapp Tainted: G           O      5.7.0-rc3uschi+ #356
+[572555.252885] Hardware name: IBM 3906 M03 703 (LPAR)
+[572555.252887] Call Trace:
+[572555.252896]  [<00000000ac364554>] show_stack+0x94/0xe8
+[572555.252901]  [<00000000aca1f400>] dump_stack+0xa0/0xe0
+[572555.252906]  [<00000000ac3c8c10>] ___might_sleep+0x260/0x280
+[572555.252910]  [<00000000acdc0c98>] __mutex_lock+0x48/0x940
+[572555.252912]  [<00000000acdc15c2>] mutex_lock_nested+0x32/0x40
+[572555.252975]  [<000003ff801762d0>] mlx5_lag_get_roce_netdev+0x30/0xc0 [mlx5_core]
+[572555.252996]  [<000003ff801fb3aa>] mlx5_ib_get_netdev+0x3a/0xe0 [mlx5_ib]
+[572555.253007]  [<000003ff80063848>] smc_pnet_find_roce_resource+0x1d8/0x310 [smc]
+[572555.253011]  [<000003ff800602f0>] __smc_connect+0x1f0/0x3e0 [smc]
+[572555.253015]  [<000003ff80060634>] smc_connect+0x154/0x190 [smc]
+[572555.253022]  [<00000000acbed8d4>] __sys_connect+0x94/0xd0
+[572555.253025]  [<00000000acbef620>] __s390x_sys_socketcall+0x170/0x360
+[572555.253028]  [<00000000acdc6800>] system_call+0x298/0x2b8
+[572555.253030] INFO: lockdep is turned off.
 
-lockdep: Prepare for NMI IRQ state tracking
+Function smc_pnet_find_rdma_dev() might be called from
+smc_pnet_find_roce_resource(). It holds the smc_ib_devices list
+spinlock while calling infiniband op get_netdev(). At least for mlx5
+the get_netdev operation wants mutex serialization, which conflicts
+with the smc_ib_devices spinlock.
+This patch switches the smc_ib_devices spinlock into a mutex to
+allow sleeping when calling get_netdev().
 
-There is no reason not to always, accurately, track IRQ state.
-
-This change also makes IRQ state tracking ignore lockdep_off().
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20200623083721.155449112@infradead.org
+Fixes: a4cf0443c414 ("smc: introduce SMC as an IB-client")
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- kernel/locking/lockdep.c | 46 +++++++++++++++++++++++++++++++++++----
- 1 file changed, 42 insertions(+), 4 deletions(-)
+ net/smc/smc_core.c |  5 +++--
+ net/smc/smc_ib.c   | 11 ++++++-----
+ net/smc/smc_ib.h   |  3 ++-
+ net/smc/smc_pnet.c | 21 +++++++++++----------
+ 4 files changed, 22 insertions(+), 18 deletions(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 29a8de4..d595623 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -395,7 +395,7 @@ void lockdep_init_task(struct task_struct *task)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index d695ce71837e..8bf34d9f27e5 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -15,6 +15,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/wait.h>
+ #include <linux/reboot.h>
++#include <linux/mutex.h>
+ #include <net/tcp.h>
+ #include <net/sock.h>
+ #include <rdma/ib_verbs.h>
+@@ -1961,14 +1962,14 @@ static void smc_core_going_away(void)
+ 	struct smc_ib_device *smcibdev;
+ 	struct smcd_dev *smcd;
  
- static __always_inline void lockdep_recursion_finish(void)
+-	spin_lock(&smc_ib_devices.lock);
++	mutex_lock(&smc_ib_devices.mutex);
+ 	list_for_each_entry(smcibdev, &smc_ib_devices.list, list) {
+ 		int i;
+ 
+ 		for (i = 0; i < SMC_MAX_PORTS; i++)
+ 			set_bit(i, smcibdev->ports_going_away);
+ 	}
+-	spin_unlock(&smc_ib_devices.lock);
++	mutex_unlock(&smc_ib_devices.mutex);
+ 
+ 	spin_lock(&smcd_dev_list.lock);
+ 	list_for_each_entry(smcd, &smcd_dev_list.list, list) {
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 562a52d01ad1..7637fdebbb78 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -16,6 +16,7 @@
+ #include <linux/workqueue.h>
+ #include <linux/scatterlist.h>
+ #include <linux/wait.h>
++#include <linux/mutex.h>
+ #include <rdma/ib_verbs.h>
+ #include <rdma/ib_cache.h>
+ 
+@@ -33,7 +34,7 @@
+ #define SMC_QP_RNR_RETRY			7 /* 7: infinite */
+ 
+ struct smc_ib_devices smc_ib_devices = {	/* smc-registered ib devices */
+-	.lock = __SPIN_LOCK_UNLOCKED(smc_ib_devices.lock),
++	.mutex = __MUTEX_INITIALIZER(smc_ib_devices.mutex),
+ 	.list = LIST_HEAD_INIT(smc_ib_devices.list),
+ };
+ 
+@@ -565,9 +566,9 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
+ 	INIT_WORK(&smcibdev->port_event_work, smc_ib_port_event_work);
+ 	atomic_set(&smcibdev->lnk_cnt, 0);
+ 	init_waitqueue_head(&smcibdev->lnks_deleted);
+-	spin_lock(&smc_ib_devices.lock);
++	mutex_lock(&smc_ib_devices.mutex);
+ 	list_add_tail(&smcibdev->list, &smc_ib_devices.list);
+-	spin_unlock(&smc_ib_devices.lock);
++	mutex_unlock(&smc_ib_devices.mutex);
+ 	ib_set_client_data(ibdev, &smc_ib_client, smcibdev);
+ 	INIT_IB_EVENT_HANDLER(&smcibdev->event_handler, smcibdev->ibdev,
+ 			      smc_ib_global_event_handler);
+@@ -602,9 +603,9 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
  {
--	if (WARN_ON_ONCE(--current->lockdep_recursion))
-+	if (WARN_ON_ONCE((--current->lockdep_recursion) & LOCKDEP_RECURSION_MASK))
- 		current->lockdep_recursion = 0;
+ 	struct smc_ib_device *smcibdev = client_data;
+ 
+-	spin_lock(&smc_ib_devices.lock);
++	mutex_lock(&smc_ib_devices.mutex);
+ 	list_del_init(&smcibdev->list); /* remove from smc_ib_devices */
+-	spin_unlock(&smc_ib_devices.lock);
++	mutex_unlock(&smc_ib_devices.mutex);
+ 	pr_warn_ratelimited("smc: removing ib device %s\n",
+ 			    smcibdev->ibdev->name);
+ 	smc_smcr_terminate_all(smcibdev);
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index e6a696ae15f3..ae6776e1e726 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -14,6 +14,7 @@
+ 
+ #include <linux/interrupt.h>
+ #include <linux/if_ether.h>
++#include <linux/mutex.h>
+ #include <linux/wait.h>
+ #include <rdma/ib_verbs.h>
+ #include <net/smc.h>
+@@ -25,7 +26,7 @@
+ 
+ struct smc_ib_devices {			/* list of smc ib devices definition */
+ 	struct list_head	list;
+-	spinlock_t		lock;	/* protects list of smc ib devices */
++	struct mutex		mutex;	/* protects list of smc ib devices */
+ };
+ 
+ extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 014d91b9778e..d4aac31d39f5 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -12,6 +12,7 @@
+ #include <linux/module.h>
+ #include <linux/list.h>
+ #include <linux/ctype.h>
++#include <linux/mutex.h>
+ #include <net/netlink.h>
+ #include <net/genetlink.h>
+ 
+@@ -129,7 +130,7 @@ static int smc_pnet_remove_by_pnetid(struct net *net, char *pnet_name)
+ 		return rc;
+ 
+ 	/* remove ib devices */
+-	spin_lock(&smc_ib_devices.lock);
++	mutex_lock(&smc_ib_devices.mutex);
+ 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
+ 		for (ibport = 0; ibport < SMC_MAX_PORTS; ibport++) {
+ 			if (ibdev->pnetid_by_user[ibport] &&
+@@ -149,7 +150,7 @@ static int smc_pnet_remove_by_pnetid(struct net *net, char *pnet_name)
+ 			}
+ 		}
+ 	}
+-	spin_unlock(&smc_ib_devices.lock);
++	mutex_unlock(&smc_ib_devices.mutex);
+ 	/* remove smcd devices */
+ 	spin_lock(&smcd_dev_list.lock);
+ 	list_for_each_entry(smcd_dev, &smcd_dev_list.list, list) {
+@@ -240,14 +241,14 @@ static bool smc_pnet_apply_ib(struct smc_ib_device *ib_dev, u8 ib_port,
+ 	u8 pnet_null[SMC_MAX_PNETID_LEN] = {0};
+ 	bool applied = false;
+ 
+-	spin_lock(&smc_ib_devices.lock);
++	mutex_lock(&smc_ib_devices.mutex);
+ 	if (smc_pnet_match(ib_dev->pnetid[ib_port - 1], pnet_null)) {
+ 		memcpy(ib_dev->pnetid[ib_port - 1], pnet_name,
+ 		       SMC_MAX_PNETID_LEN);
+ 		ib_dev->pnetid_by_user[ib_port - 1] = true;
+ 		applied = true;
+ 	}
+-	spin_unlock(&smc_ib_devices.lock);
++	mutex_unlock(&smc_ib_devices.mutex);
+ 	return applied;
  }
  
-@@ -3646,7 +3646,16 @@ static void __trace_hardirqs_on_caller(void)
-  */
- void lockdep_hardirqs_on_prepare(unsigned long ip)
+@@ -300,7 +301,7 @@ static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
  {
--	if (unlikely(!debug_locks || current->lockdep_recursion))
-+	if (unlikely(!debug_locks))
-+		return;
-+
-+	/*
-+	 * NMIs do not (and cannot) track lock dependencies, nothing to do.
-+	 */
-+	if (unlikely(in_nmi()))
-+		return;
-+
-+	if (unlikely(current->lockdep_recursion & LOCKDEP_RECURSION_MASK))
- 		return;
+ 	struct smc_ib_device *ibdev;
  
- 	if (unlikely(current->hardirqs_enabled)) {
-@@ -3692,7 +3701,27 @@ void noinstr lockdep_hardirqs_on(unsigned long ip)
+-	spin_lock(&smc_ib_devices.lock);
++	mutex_lock(&smc_ib_devices.mutex);
+ 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
+ 		if (!strncmp(ibdev->ibdev->name, ib_name,
+ 			     sizeof(ibdev->ibdev->name)) ||
+@@ -311,7 +312,7 @@ static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
+ 	}
+ 	ibdev = NULL;
+ out:
+-	spin_unlock(&smc_ib_devices.lock);
++	mutex_unlock(&smc_ib_devices.mutex);
+ 	return ibdev;
+ }
+ 
+@@ -825,7 +826,7 @@ static void _smc_pnet_find_roce_by_pnetid(u8 *pnet_id,
+ 	int i;
+ 
+ 	ini->ib_dev = NULL;
+-	spin_lock(&smc_ib_devices.lock);
++	mutex_lock(&smc_ib_devices.mutex);
+ 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
+ 		if (ibdev == known_dev)
+ 			continue;
+@@ -844,7 +845,7 @@ static void _smc_pnet_find_roce_by_pnetid(u8 *pnet_id,
+ 		}
+ 	}
+ out:
+-	spin_unlock(&smc_ib_devices.lock);
++	mutex_unlock(&smc_ib_devices.mutex);
+ }
+ 
+ /* find alternate roce device with same pnet_id and vlan_id */
+@@ -863,7 +864,7 @@ static void smc_pnet_find_rdma_dev(struct net_device *netdev,
  {
- 	struct task_struct *curr = current;
+ 	struct smc_ib_device *ibdev;
  
--	if (unlikely(!debug_locks || curr->lockdep_recursion))
-+	if (unlikely(!debug_locks))
-+		return;
-+
-+	/*
-+	 * NMIs can happen in the middle of local_irq_{en,dis}able() where the
-+	 * tracking state and hardware state are out of sync.
-+	 *
-+	 * NMIs must save lockdep_hardirqs_enabled() to restore IRQ state from,
-+	 * and not rely on hardware state like normal interrupts.
-+	 */
-+	if (unlikely(in_nmi())) {
-+		/*
-+		 * Skip:
-+		 *  - recursion check, because NMI can hit lockdep;
-+		 *  - hardware state check, because above;
-+		 *  - chain_key check, see lockdep_hardirqs_on_prepare().
-+		 */
-+		goto skip_checks;
-+	}
-+
-+	if (unlikely(current->lockdep_recursion & LOCKDEP_RECURSION_MASK))
- 		return;
+-	spin_lock(&smc_ib_devices.lock);
++	mutex_lock(&smc_ib_devices.mutex);
+ 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
+ 		struct net_device *ndev;
+ 		int i;
+@@ -888,7 +889,7 @@ static void smc_pnet_find_rdma_dev(struct net_device *netdev,
+ 			}
+ 		}
+ 	}
+-	spin_unlock(&smc_ib_devices.lock);
++	mutex_unlock(&smc_ib_devices.mutex);
+ }
  
- 	if (curr->hardirqs_enabled) {
-@@ -3720,6 +3749,7 @@ void noinstr lockdep_hardirqs_on(unsigned long ip)
- 	DEBUG_LOCKS_WARN_ON(current->hardirq_chain_key !=
- 			    current->curr_chain_key);
- 
-+skip_checks:
- 	/* we'll do an OFF -> ON transition: */
- 	curr->hardirqs_enabled = 1;
- 	curr->hardirq_enable_ip = ip;
-@@ -3735,7 +3765,15 @@ void noinstr lockdep_hardirqs_off(unsigned long ip)
- {
- 	struct task_struct *curr = current;
- 
--	if (unlikely(!debug_locks || curr->lockdep_recursion))
-+	if (unlikely(!debug_locks))
-+		return;
-+
-+	/*
-+	 * Matching lockdep_hardirqs_on(), allow NMIs in the middle of lockdep;
-+	 * they will restore the software state. This ensures the software
-+	 * state is consistent inside NMIs as well.
-+	 */
-+	if (unlikely(!in_nmi() && (current->lockdep_recursion & LOCKDEP_RECURSION_MASK)))
- 		return;
- 
- 	/*
+ /* Determine the corresponding IB device port based on the hardware PNETID.
+-- 
+2.17.1
