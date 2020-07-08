@@ -1,54 +1,38 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:59200 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729111AbgGBB1W (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:27:22 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 08/13] s390/kasan: fix early pgm check handler execution
-Date: Wed,  1 Jul 2020 21:27:07 -0400
-Message-Id: <20200702012712.2701986-8-sashal@kernel.org>
-In-Reply-To: <20200702012712.2701986-1-sashal@kernel.org>
-References: <20200702012712.2701986-1-sashal@kernel.org>
+        id S1725446AbgGHTeO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 8 Jul 2020 15:34:14 -0400
+Date: Wed, 8 Jul 2020 14:39:42 -0500
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Subject: Re: [PATCH][next] s390/dasd: Use struct_size() helper
+Message-ID: <20200708193942.GJ11533@embeddedor>
+References: <20200619165600.GA8668@embeddedor>
+ <47a86753-fd4d-9a7a-c808-5f387c872ab3@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <47a86753-fd4d-9a7a-c808-5f387c872ab3@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Alexander Egorenkov <egorenar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: Jan Hoeppner <hoeppner@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+On Wed, Jul 08, 2020 at 11:13:08AM +0200, Stefan Haberland wrote:
+> Am 19.06.20 um 18:56 schrieb Gustavo A. R. Silva:
+> > Make use of the struct_size() helper instead of an open-coded version
+> > in order to avoid any potential type mistakes. Also, remove unnecessary
+> > variable _datasize_.
+> >
+> > This code was detected with the help of Coccinelle and, audited and
+> > fixed manually.
+> >
+> > Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+> 
+> Thanks for the patch.
+> Tested and applied.
 
-[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
+Thanks, Stefan.
 
-Currently if early_pgm_check_handler is called it ends up in pgm check
-loop. The problem is that early_pgm_check_handler is instrumented by
-KASAN but executed without DAT flag enabled which leads to addressing
-exception when KASAN checks try to access shadow memory.
-
-Fix that by executing early handlers with DAT flag on under KASAN as
-expected.
-
-Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/early.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index a651c2bc94ef8..f862cc27fe98f 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -288,6 +288,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
- 
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
--- 
-2.25.1
+--
+Gustavo
