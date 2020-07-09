@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54580 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726624AbgGIIIB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 04:08:01 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21738 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726124AbgGIIH6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 04:07:58 -0400
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v11 7/9] s390x: css: stsch, enumeration test
-Date: Thu,  9 Jul 2020 10:07:46 +0200
-Message-Id: <1594282068-11054-8-git-send-email-pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v11 5/9] s390x: define function to wait for interrupt
+Date: Thu,  9 Jul 2020 10:07:44 +0200
+Message-Id: <1594282068-11054-6-git-send-email-pmorel@linux.ibm.com>
 In-Reply-To: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
 References: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
@@ -14,195 +14,49 @@ List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-First step for testing the channel subsystem is to enumerate the css and
-retrieve the css devices.
+Allow the program to wait for an interrupt.
 
-We currently don't enable multiple subchannel sets and therefore only
-look in subchannel set 0
-
-This tests the success of STSCH I/O instruction, we do not test the
-reaction of the VM for an instruction with wrong parameters.
+The interrupt handler is in charge to remove the WAIT bit
+when it finished handling the interrupt.
 
 Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- lib/s390x/css_lib.c | 70 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/Makefile      |  2 ++
- s390x/css.c         | 55 +++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |  4 +++
- 4 files changed, 131 insertions(+)
- create mode 100644 lib/s390x/css_lib.c
- create mode 100644 s390x/css.c
+ lib/s390x/asm/arch_def.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-new file mode 100644
-index 0000000..fd087ce
---- /dev/null
-+++ b/lib/s390x/css_lib.c
-@@ -0,0 +1,70 @@
-+/*
-+ * Channel Subsystem tests library
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+#include <libcflat.h>
-+#include <alloc_phys.h>
-+#include <asm/page.h>
-+#include <string.h>
-+#include <interrupt.h>
-+#include <asm/arch_def.h>
-+
-+#include <css.h>
-+
-+static struct schib schib;
-+
-+/*
-+ * css_enumerate:
-+ * On success return the first subchannel ID found.
-+ * On error return an invalid subchannel ID containing cc
-+ */
-+int css_enumerate(void)
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 1b3bb0c..022a564 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -17,6 +17,7 @@ struct psw {
+ 
+ #define PSW_MASK_EXT			0x0100000000000000UL
+ #define PSW_MASK_DAT			0x0400000000000000UL
++#define PSW_MASK_WAIT			0x0002000000000000UL
+ #define PSW_MASK_PSTATE			0x0001000000000000UL
+ 
+ #define CR0_EXTM_SCLP			0x0000000000000200UL
+@@ -246,6 +247,18 @@ static inline void load_psw_mask(uint64_t mask)
+ 		: "+r" (tmp) :  "a" (&psw) : "memory", "cc" );
+ }
+ 
++static inline void wait_for_interrupt(uint64_t irq_mask)
 +{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int scn_found = 0;
-+	int dev_found = 0;
-+	int schid = 0;
-+	int cc;
-+	int scn;
++	uint64_t psw_mask = extract_psw_mask();
 +
-+	for (scn = 0; scn < 0xffff; scn++) {
-+		cc = stsch(scn | SCHID_ONE, &schib);
-+		switch (cc) {
-+		case 0:		/* 0 means SCHIB stored */
-+			break;
-+		case 3:		/* 3 means no more channels */
-+			goto out;
-+		default:	/* 1 or 2 should never happen for STSCH */
-+			report_abort("Unexpected error %d on subchannel %08x",
-+				     cc, scn | SCHID_ONE);
-+			return cc;
-+		}
-+
-+		/* We currently only support type 0, a.k.a. I/O channels */
-+		if (PMCW_CHANNEL_TYPE(pmcw) != 0)
-+			continue;
-+
-+		/* We ignore I/O channels without valid devices */
-+		scn_found++;
-+		if (!(pmcw->flags & PMCW_DNV))
-+			continue;
-+
-+		/* We keep track of the first device as our test device */
-+		if (!schid)
-+			schid = scn | SCHID_ONE;
-+		report_info("Found subchannel %08x", scn | SCHID_ONE);
-+		dev_found++;
-+	}
-+
-+out:
-+	report_info("Tested subchannels: %d, I/O subchannels: %d, I/O devices: %d",
-+		    scn, scn_found, dev_found);
-+	return schid;
-+}
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 050c40b..166cb5c 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -17,6 +17,7 @@ tests += $(TEST_DIR)/stsi.elf
- tests += $(TEST_DIR)/skrf.elf
- tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
-+tests += $(TEST_DIR)/css.elf
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- 
- all: directories test_cases test_cases_binary
-@@ -52,6 +53,7 @@ cflatobjs += lib/s390x/interrupt.o
- cflatobjs += lib/s390x/mmu.o
- cflatobjs += lib/s390x/smp.o
- cflatobjs += lib/s390x/css_dump.o
-+cflatobjs += lib/s390x/css_lib.o
- 
- OBJDIRS += lib/s390x
- 
-diff --git a/s390x/css.c b/s390x/css.c
-new file mode 100644
-index 0000000..e19ffc8
---- /dev/null
-+++ b/s390x/css.c
-@@ -0,0 +1,55 @@
-+/*
-+ * Channel Subsystem tests
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+
-+#include <libcflat.h>
-+#include <alloc_phys.h>
-+#include <asm/page.h>
-+#include <string.h>
-+#include <interrupt.h>
-+#include <asm/arch_def.h>
-+
-+#include <css.h>
-+
-+static int test_device_sid;
-+
-+static void test_enumerate(void)
-+{
-+	test_device_sid = css_enumerate();
-+	if (test_device_sid & SCHID_ONE) {
-+		report(1, "Schid of first I/O device: 0x%08x", test_device_sid);
-+		return;
-+	}
-+	report(0, "No I/O device found");
++	load_psw_mask(psw_mask | irq_mask | PSW_MASK_WAIT);
++	/*
++	 * After being woken and having processed the interrupt, let's restore
++	 * the PSW mask.
++	 */
++	load_psw_mask(psw_mask);
 +}
 +
-+static struct {
-+	const char *name;
-+	void (*func)(void);
-+} tests[] = {
-+	{ "enumerate (stsch)", test_enumerate },
-+	{ NULL, NULL }
-+};
-+
-+int main(int argc, char *argv[])
-+{
-+	int i;
-+
-+	report_prefix_push("Channel Subsystem");
-+	for (i = 0; tests[i].name; i++) {
-+		report_prefix_push(tests[i].name);
-+		tests[i].func();
-+		report_prefix_pop();
-+	}
-+	report_prefix_pop();
-+
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index b307329..0f156af 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -84,3 +84,7 @@ extra_params = -m 1G
- [sclp-3g]
- file = sclp.elf
- extra_params = -m 3G
-+
-+[css]
-+file = css.elf
-+extra_params = -device virtio-net-ccw
+ static inline void enter_pstate(void)
+ {
+ 	uint64_t mask;
 -- 
 2.25.1
