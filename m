@@ -1,47 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8674 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8328 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726072AbgGZSez (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 26 Jul 2020 14:34:55 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 1/2] s390/ism: indicate correct error reason in ism_alloc_dmb()
-Date: Sun, 26 Jul 2020 20:34:27 +0200
-Message-Id: <20200726183428.3284-2-kgraul@linux.ibm.com>
-In-Reply-To: <20200726183428.3284-1-kgraul@linux.ibm.com>
-References: <20200726183428.3284-1-kgraul@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1726615AbgGIPHX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 11:07:23 -0400
+Date: Thu, 9 Jul 2020 17:06:15 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v5 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+Message-ID: <20200709170615.468236da.pasic@linux.ibm.com>
+In-Reply-To: <c9be019f-236e-5e44-64b6-0875cd40ab11@linux.ibm.com>
+References: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
+        <1594283959-13742-3-git-send-email-pmorel@linux.ibm.com>
+        <20200709105733.6d68fa53.cohuck@redhat.com>
+        <270d8674-0f73-0a38-a2a7-fbc1caa44301@linux.ibm.com>
+        <20200709164700.09a83069.pasic@linux.ibm.com>
+        <c9be019f-236e-5e44-64b6-0875cd40ab11@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 
-When the ism driver allocates a new dmb in ism_alloc_dmb() it must
-first check for and reserve a slot in the sba bitmap. When
-find_next_zero_bit() finds no free slot then the return code is -ENOMEM.
-This code conflicts with the error when the alloc() fails later in the
-code. As a result of that the caller can not differentiate
-between out-of-memory conditions and sba-bitmap-full conditions.
-Fix that by using the return code -ENOSPC when the sba slot
-reservation failed.
+On Thu, 9 Jul 2020 16:51:04 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- drivers/s390/net/ism_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> 
+> On 2020-07-09 16:47, Halil Pasic wrote:
+> > On Thu, 9 Jul 2020 12:51:58 +0200
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> > 
+> >>>> +int arch_validate_virtio_features(struct virtio_device *dev)
+> >>>> +{
+> >>>> +	if (!is_prot_virt_guest())
+> >>>> +		return 0;
+> >>>> +
+> >>>> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+> >>>> +		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");
+> >>>
+> >>> I'd probably use "legacy virtio not supported with protected
+> >>> virtualization".
+> >>>    
+> >>>> +		return -ENODEV;
+> >>>> +	}
+> >>>> +
+> >>>> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+> >>>> +		dev_warn(&dev->dev,
+> >>>> +			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+> >>>
+> >>> "support for limited memory access required for protected
+> >>> virtualization"
+> >>>
+> >>> ?
+> >>>
+> >>> Mentioning the feature flag is shorter in both cases, though.
+> >>
+> >> And I think easier to look for in case of debugging purpose.
+> >> I change it if there is more demands.
+> > 
+> > Not all our end users are kernel and/or qemu developers. I find the
+> > messages from v4 less technical, more informative, and way better.
+> > 
+> > Regards,
+> > Halil
+> > 
+> 
+> Can you please tell me the messages you are speaking of, because for me 
+> the warning's messages are exactly the same in v4 and v5!?
+> 
+> I checked many times, but may be I still missed something.
+> 
 
-diff --git a/drivers/s390/net/ism_drv.c b/drivers/s390/net/ism_drv.c
-index c7fade836d83..5fbe9eae84d1 100644
---- a/drivers/s390/net/ism_drv.c
-+++ b/drivers/s390/net/ism_drv.c
-@@ -231,7 +231,7 @@ static int ism_alloc_dmb(struct ism_dev *ism, struct smcd_dmb *dmb)
- 		bit = find_next_zero_bit(ism->sba_bitmap, ISM_NR_DMBS,
- 					 ISM_DMB_BIT_OFFSET);
- 		if (bit == ISM_NR_DMBS)
--			return -ENOMEM;
-+			return -ENOSPC;
- 
- 		dmb->sba_idx = bit;
- 	}
--- 
-2.17.1
+Sorry, my bad. My brain is over-generating. The messages where discussed
+at v3 and Connie made a very similar proposal to the one above which I
+seconded (for reference look at Message-ID:
+<833c71f2-0057-896a-5e21-2c6263834402@linux.ibm.com>). I was under the
+impression that it got implemented in v4, but it was not. That's why I
+ended up talking bs.
+
+Regards,
+Halil
