@@ -1,41 +1,32 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 11/20] fs: remove a weird comment in submit_bh_wbc
-Date: Wed,  1 Jul 2020 10:59:38 +0200
-Message-Id: <20200701085947.3354405-12-hch@lst.de>
-In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
-References: <20200701085947.3354405-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from 8bytes.org ([81.169.241.247]:52102 "EHLO theia.8bytes.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726715AbgGIPYy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 9 Jul 2020 11:24:54 -0400
+Date: Thu, 9 Jul 2020 17:24:50 +0200
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v3 00/34] iommu: Move iommu_group setup to IOMMU core code
+Message-ID: <20200709152450.GC27672@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
+ <20200701004020.GA6221@lca.pw>
+ <20200704001709.GA1502@lca.pw>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200704001709.GA1502@lca.pw>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: Qian Cai <cai@lca.pw>
+Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Drake <drake@endlessm.com>, linux-rockchip@lists.infradead.org, iommu@lists.linux-foundation.org, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, jonathan.derrick@intel.com
 
-All bios can get remapped if submitted to partitions.  No need to
-comment on that.
+On Fri, Jul 03, 2020 at 08:17:09PM -0400, Qian Cai wrote:
+> FYI, I have just sent a patch to fix this,
+> 
+> https://lore.kernel.org/linux-iommu/20200704001003.2303-1-cai@lca.pw/
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/buffer.c | 5 -----
- 1 file changed, 5 deletions(-)
+Just queued that fix, thanks. Please don't send patches to my suse
+email address, use only the 8bytes.org one.
 
-diff --git a/fs/buffer.c b/fs/buffer.c
-index 64fe82ec65ff1f..2725ebbcfdc246 100644
---- a/fs/buffer.c
-+++ b/fs/buffer.c
-@@ -3040,12 +3040,7 @@ static int submit_bh_wbc(int op, int op_flags, struct buffer_head *bh,
- 	if (test_set_buffer_req(bh) && (op == REQ_OP_WRITE))
- 		clear_buffer_write_io_error(bh);
- 
--	/*
--	 * from here on down, it's all bio -- do the initial mapping,
--	 * submit_bio -> generic_make_request may further map this bio around
--	 */
- 	bio = bio_alloc(GFP_NOIO, 1);
--
- 	bio->bi_iter.bi_sector = bh->b_blocknr * (bh->b_size >> 9);
- 	bio_set_dev(bio, bh->b_bdev);
- 	bio->bi_write_hint = write_hint;
--- 
-2.26.2
+Thanks,
+
+	Joerg
