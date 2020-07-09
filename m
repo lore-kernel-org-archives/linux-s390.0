@@ -1,46 +1,95 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65184 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726272AbgGCNVb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:21:31 -0400
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 1/7] zfcp: use prandom_u32_max() for backoff
-Date: Fri,  3 Jul 2020 15:19:57 +0200
-Message-Id: <8fc7c4c4069ff1783f4a9ccd84a923f581a09ec5.1593780621.git.bblock@linux.ibm.com>
-In-Reply-To: <cover.1593780621.git.bblock@linux.ibm.com>
-References: <cover.1593780621.git.bblock@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14546 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726311AbgGIIH4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 04:07:56 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v11 2/9] s390x: I/O interrupt registration
+Date: Thu,  9 Jul 2020 10:07:41 +0200
+Message-Id: <1594282068-11054-3-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
+References: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, George Spelvin <lkml@sdf.org>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-From: George Spelvin <lkml@sdf.org>
+Let's make it possible to add and remove a custom io interrupt handler,
+that can be used instead of the normal one.
 
-We don't need crypto-grade random numbers for randomized backoffs.
-Instead use prandom_u32_max(ep_ro) which generates a pseudo-random
-number uniformly distributed in the interval [0, ep_ro).
-
-Signed-off-by: George Spelvin <lkml@sdf.org>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/scsi/zfcp_fc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/s390x/interrupt.c | 23 ++++++++++++++++++++++-
+ lib/s390x/interrupt.h |  8 ++++++++
+ 2 files changed, 30 insertions(+), 1 deletion(-)
+ create mode 100644 lib/s390x/interrupt.h
 
-diff --git a/drivers/s390/scsi/zfcp_fc.c b/drivers/s390/scsi/zfcp_fc.c
-index b018b61bd168..d24cafe02708 100644
---- a/drivers/s390/scsi/zfcp_fc.c
-+++ b/drivers/s390/scsi/zfcp_fc.c
-@@ -48,7 +48,7 @@ unsigned int zfcp_fc_port_scan_backoff(void)
- {
- 	if (!port_scan_backoff)
- 		return 0;
--	return get_random_int() % port_scan_backoff;
-+	return prandom_u32_max(port_scan_backoff);
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 3a40cac..243b9c2 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -10,9 +10,9 @@
+  * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+-#include <asm/interrupt.h>
+ #include <asm/barrier.h>
+ #include <sclp.h>
++#include <interrupt.h>
+ 
+ static bool pgm_int_expected;
+ static bool ext_int_expected;
+@@ -144,12 +144,33 @@ void handle_mcck_int(void)
+ 		     stap(), lc->mcck_old_psw.addr);
  }
  
- static void zfcp_fc_port_scan_time(struct zfcp_adapter *adapter)
++static void (*io_int_func)(void);
++
+ void handle_io_int(void)
+ {
++	if (io_int_func)
++		return io_int_func();
++
+ 	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
+ 		     stap(), lc->io_old_psw.addr);
+ }
+ 
++int register_io_int_func(void (*f)(void))
++{
++	if (io_int_func)
++		return -1;
++	io_int_func = f;
++	return 0;
++}
++
++int unregister_io_int_func(void (*f)(void))
++{
++	if (io_int_func != f)
++		return -1;
++	io_int_func = NULL;
++	return 0;
++}
++
+ void handle_svc_int(void)
+ {
+ 	report_abort("Unexpected supervisor call interrupt: on cpu %d at %#lx",
+diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
+new file mode 100644
+index 0000000..1973d26
+--- /dev/null
++++ b/lib/s390x/interrupt.h
+@@ -0,0 +1,8 @@
++#ifndef INTERRUPT_H
++#define INTERRUPT_H
++#include <asm/interrupt.h>
++
++int register_io_int_func(void (*f)(void));
++int unregister_io_int_func(void (*f)(void));
++
++#endif /* INTERRUPT_H */
 -- 
-2.26.2
+2.25.1
