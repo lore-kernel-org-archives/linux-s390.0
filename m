@@ -1,43 +1,95 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60872 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728690AbgGNOXV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:23:21 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 06/10] s390/qeth: use u64_to_user_ptr() in the OAT code
-Date: Tue, 14 Jul 2020 16:23:01 +0200
-Message-Id: <20200714142305.29297-7-jwi@linux.ibm.com>
-In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
-References: <20200714142305.29297-1-jwi@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49138 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726247AbgGIIju (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 04:39:50 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v5 0/2] s390: virtio: let arch validate VIRTIO features
+Date: Thu,  9 Jul 2020 10:39:17 +0200
+Message-Id: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 
-Use the correct helper for casting to a user pointer.
+Hi all,
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+The goal of the series is to give a chance to the architecture
+to validate VIRTIO device features.
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index bd6489d87ede..31fa9ffc7cf4 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4907,10 +4907,8 @@ static int qeth_query_oat_command(struct qeth_card *card, char __user *udata)
- 	rc = qeth_send_ipa_cmd(card, iob, qeth_setadpparms_query_oat_cb,
- 			       &priv);
- 	if (!rc) {
--		if (is_compat_task())
--			tmp = compat_ptr(oat_data.ptr);
--		else
--			tmp = (void __user *)(unsigned long)oat_data.ptr;
-+		tmp = is_compat_task() ? compat_ptr(oat_data.ptr) :
-+					 u64_to_user_ptr(oat_data.ptr);
- 
- 		if (copy_to_user(tmp, priv.buffer,
- 		    priv.response_len)) {
+in this respin:
+
+1) I kept removed the ack from Jason as I reworked the patch
+   @Jason, the nature and goal of the patch did not really changed
+           please can I get back your acked-by with these changes?
+
+2) I suppressed the unnecessary verbosity of the architecture
+   specific patch
+
+3) put back the arch specific code inside arch/s390/mm/init.c
+   after offline discussion with Christian.
+
+Regards,
+Pierre
+
+Pierre Morel (2):
+  virtio: let arch validate VIRTIO features
+  s390: virtio: PV needs VIRTIO I/O device protection
+
+ arch/s390/mm/init.c           | 27 +++++++++++++++++++++++++++
+ drivers/virtio/virtio.c       | 19 +++++++++++++++++++
+ include/linux/virtio_config.h |  1 +
+ 3 files changed, 47 insertions(+)
+
 -- 
-2.17.1
+2.25.1
+
+Changelog
+
+to v5:
+
+- return directly from S390 arch_validate_virtio_features()
+  when the guest is not protected.
+  (Connie)
+
+- Somme rewording
+  (Connie, Michael)
+
+- moved back code from arch/s390/ ...kernel/uv.c to ...mm/init.c
+  (Christian)
+
+to v4:
+
+- separate virtio and arch code
+  (Pierre)
+
+- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
+  (as interpreted from Heiko's comment)
+
+- moved validation inside the arch code
+  (Connie)
+
+- moved the call to arch validation before VIRTIO_F_1 test
+  (Michael)
+
+to v3:
+
+- add warning
+  (Connie, Christian)
+
+- add comment
+  (Connie)
+
+- change hook name
+  (Halil, Connie)
+
+to v2:
+
+- put the test in virtio_finalize_features()
+  (Connie)
+
+- put the test inside VIRTIO core
+  (Jason)
+
+- pass a virtio device as parameter
+  (Halil)
