@@ -1,427 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15726 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727104AbgGPIXn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jul 2020 04:23:43 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v13 9/9] s390x: css: ssch/tsch with sense and interrupt
-Date: Thu, 16 Jul 2020 10:23:29 +0200
-Message-Id: <1594887809-10521-10-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:53940 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725943AbgGJGrt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 10 Jul 2020 02:47:49 -0400
+Subject: Re: [mm/debug_vm_pgtable] a97a171093:
+ BUG:unable_to_handle_page_fault_for_address
+References: <20200709061122.GN3874@shao2-debian>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <686d83dc-d49f-77f2-1581-8f2be1a5fc60@arm.com>
+Date: Fri, 10 Jul 2020 12:17:14 +0530
+MIME-Version: 1.0
+In-Reply-To: <20200709061122.GN3874@shao2-debian>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: kernel test robot <lkp@intel.com>
+Cc: linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, lkp@lists.01.org
 
-After a channel is enabled we start a SENSE_ID command using
-the SSCH instruction to recognize the control unit and device.
 
-This tests the success of SSCH, the I/O interruption and the TSCH
-instructions.
 
-The SENSE_ID command response is tested to report 0xff inside
-its reserved field and to report the same control unit type
-as the cu_type kernel argument.
+On 07/09/2020 11:41 AM, kernel test robot wrote:
+> [   94.349598] BUG: unable to handle page fault for address: ffffed10a7ffddff
+> [   94.351039] #PF: supervisor read access in kernel mode
+> [   94.352172] #PF: error_code(0x0000) - not-present page
+> [   94.353256] PGD 43ffed067 P4D 43ffed067 PUD 43fdee067 PMD 0 
+> [   94.354484] Oops: 0000 [#1] SMP KASAN
+> [   94.355238] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.8.0-rc4-00002-ga97a17109332c #1
+> [   94.360456] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-1 04/01/2014
+> [   94.361950] RIP: 0010:hugetlb_advanced_tests+0x137/0x699
+> [   94.363026] Code: 8b 13 4d 85 f6 75 0b 48 ff 05 2c e4 6a 01 31 ed eb 41 bf f8 ff ff ff ba ff ff 37 00 4c 01 f7 48 c1 e2 2a 48 89 f9 48 c1 e9 03 <80> 3c 11 00 74 05 e8 cd c0 67 fa ba f8 ff ff ff 49 8b 2c 16 48 85
+> [   94.366592] RSP: 0000:ffffc90000047d30 EFLAGS: 00010a06
+> [   94.367693] RAX: 1ffffffff1049b80 RBX: ffff888380525308 RCX: 1ffff110a7ffddff
+> [   94.369215] RDX: dffffc0000000000 RSI: 1ffff11087ffdc00 RDI: ffff88853ffeeff8
+> [   94.370693] RBP: 000000000018e510 R08: 0000000000000025 R09: 0000000000000001
+> [   94.372165] R10: ffff888380523c07 R11: ffffed10700a4780 R12: ffff88843208e510
+> [   94.373674] R13: 0000000000000025 R14: ffff88843ffef000 R15: 000031e01ae61000
+> [   94.375147] FS:  0000000000000000(0000) GS:ffff8883a3800000(0000) knlGS:0000000000000000
+> [   94.376883] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [   94.378051] CR2: ffffed10a7ffddff CR3: 0000000004e15000 CR4: 00000000000406a0
+> [   94.379522] Call Trace:
+> [   94.380073]  debug_vm_pgtable+0xd81/0x2029
+> [   94.380871]  ? pmd_advanced_tests+0x621/0x621
+> [   94.381819]  do_one_initcall+0x1eb/0xbd0
+> [   94.382551]  ? trace_event_raw_event_initcall_finish+0x240/0x240
+> [   94.383634]  ? rcu_read_lock_sched_held+0xb9/0x110
+> [   94.388727]  ? rcu_read_lock_held+0xd0/0xd0
+> [   94.389604]  ? __kasan_check_read+0x1d/0x30
+> [   94.390485]  kernel_init_freeable+0x430/0x4f8
+> [   94.391416]  ? rest_init+0x3f8/0x3f8
+> [   94.392185]  kernel_init+0x14/0x1e8
+> [   94.392918]  ret_from_fork+0x22/0x30
+> [   94.393662] Modules linked in:
+> [   94.394289] CR2: ffffed10a7ffddff
+> [   94.395000] ---[ end trace 8ca5a1655dfb8c39 ]---
 
-Without the cu_type kernel argument, the test expects a device
-with a default control unit type of 0x3832, a.k.a virtio-net-ccw.
+This bug is caused from here.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/asm/arch_def.h |   1 +
- lib/s390x/css.h          |  35 ++++++++
- lib/s390x/css_lib.c      | 180 +++++++++++++++++++++++++++++++++++++++
- s390x/css.c              |  80 +++++++++++++++++
- 4 files changed, 296 insertions(+)
+static inline struct mem_section *__nr_to_section(unsigned long nr)
+{
+#ifdef CONFIG_SPARSEMEM_EXTREME
+        if (!mem_section)
+                return NULL;
+#endif
+        if (!mem_section[SECTION_NR_TO_ROOT(nr)]) <-------- BUG
+                return NULL;
+        return &mem_section[SECTION_NR_TO_ROOT(nr)][nr & SECTION_ROOT_MASK];
+}
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 022a564..edc06ef 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -16,6 +16,7 @@ struct psw {
- };
- 
- #define PSW_MASK_EXT			0x0100000000000000UL
-+#define PSW_MASK_IO			0x0200000000000000UL
- #define PSW_MASK_DAT			0x0400000000000000UL
- #define PSW_MASK_WAIT			0x0002000000000000UL
- #define PSW_MASK_PSTATE			0x0001000000000000UL
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index 63a70f1..221b67c 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -11,6 +11,8 @@
- #ifndef CSS_H
- #define CSS_H
- 
-+#define lowcore_ptr ((struct lowcore *)0x0)
-+
- /* subchannel ID bit 16 must always be one */
- #define SCHID_ONE	0x00010000
- 
-@@ -62,9 +64,18 @@ struct orb {
- } __attribute__ ((aligned(4)));
- 
- struct scsw {
-+#define SCSW_SC_PENDING		0x00000001
-+#define SCSW_SC_SECONDARY	0x00000002
-+#define SCSW_SC_PRIMARY		0x00000004
-+#define SCSW_SC_INTERMEDIATE	0x00000008
-+#define SCSW_SC_ALERT		0x00000010
- 	uint32_t ctrl;
- 	uint32_t ccw_addr;
-+#define SCSW_DEVS_DEV_END	0x04
-+#define SCSW_DEVS_SCH_END	0x08
- 	uint8_t  dev_stat;
-+#define SCSW_SCHS_PCI	0x80
-+#define SCSW_SCHS_IL	0x40
- 	uint8_t  sch_stat;
- 	uint16_t count;
- };
-@@ -102,6 +113,19 @@ struct irb {
- 	uint32_t emw[8];
- } __attribute__ ((aligned(4)));
- 
-+#define CCW_CMD_SENSE_ID	0xe4
-+#define CSS_SENSEID_COMMON_LEN	8
-+struct senseid {
-+	/* common part */
-+	uint8_t reserved;        /* always 0x'FF' */
-+	uint16_t cu_type;        /* control unit type */
-+	uint8_t cu_model;        /* control unit model */
-+	uint16_t dev_type;       /* device type */
-+	uint8_t dev_model;       /* device model */
-+	uint8_t unused;          /* padding byte */
-+	uint8_t padding[256 - 8]; /* Extended part */
-+} __attribute__ ((aligned(4))) __attribute__ ((packed));
-+
- /* CSS low level access functions */
- 
- static inline int ssch(unsigned long schid, struct orb *addr)
-@@ -256,4 +280,15 @@ int css_enumerate(void);
- 
- #define IO_SCH_ISC      3
- int css_enable(int schid, int isc);
-+
-+/* Library functions */
-+int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
-+int start_single_ccw(unsigned int sid, int code, void *data, int count,
-+		     unsigned char flags);
-+void css_irq_io(void);
-+int css_residual_count(unsigned int schid);
-+
-+void enable_io_isc(uint8_t isc);
-+int wait_and_check_io_completion(int schid);
-+
- #endif
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index e47a945..274c293 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -16,6 +16,7 @@
- #include <interrupt.h>
- #include <asm/arch_def.h>
- #include <asm/time.h>
-+#include <asm/arch_def.h>
- 
- #include <css.h>
- 
-@@ -141,3 +142,182 @@ retry:
- 		    schid, retry_count, pmcw->flags);
- 	return -1;
- }
-+
-+static struct irb irb;
-+
-+void css_irq_io(void)
-+{
-+	int ret = 0;
-+	char *flags;
-+	int sid;
-+
-+	report_prefix_push("Interrupt");
-+	sid = lowcore_ptr->subsys_id_word;
-+	/* Lowlevel set the SID as interrupt parameter. */
-+	if (lowcore_ptr->io_int_param != sid) {
-+		report(0,
-+		       "io_int_param: %x differs from subsys_id_word: %x",
-+		       lowcore_ptr->io_int_param, sid);
-+		goto pop;
-+	}
-+	report_info("subsys_id_word: %08x io_int_param %08x io_int_word %08x",
-+			lowcore_ptr->subsys_id_word,
-+			lowcore_ptr->io_int_param,
-+			lowcore_ptr->io_int_word);
-+	report_prefix_pop();
-+
-+	report_prefix_push("tsch");
-+	ret = tsch(sid, &irb);
-+	switch (ret) {
-+	case 1:
-+		dump_irb(&irb);
-+		flags = dump_scsw_flags(irb.scsw.ctrl);
-+		report(0,
-+		       "I/O interrupt, but tsch returns CC 1 for subchannel %08x. SCSW flags: %s",
-+		       sid, flags);
-+		break;
-+	case 2:
-+		report(0, "tsch returns unexpected CC 2");
-+		break;
-+	case 3:
-+		report(0, "tsch reporting sch %08x as not operational", sid);
-+		break;
-+	case 0:
-+		/* Stay humble on success */
-+		break;
-+	}
-+pop:
-+	report_prefix_pop();
-+	lowcore_ptr->io_old_psw.mask &= ~PSW_MASK_WAIT;
-+}
-+
-+int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
-+{
-+	struct orb orb = {
-+		.intparm = sid,
-+		.ctrl = ORB_CTRL_ISIC|ORB_CTRL_FMT|ORB_LPM_DFLT,
-+		.cpa = (unsigned int) (unsigned long)ccw,
-+	};
-+
-+	return ssch(sid, &orb);
-+}
-+
-+/*
-+ * In the future, we want to implement support for CCW chains;
-+ * for that, we will need to work with ccw1 pointers.
-+ */
-+static struct ccw1 unique_ccw;
-+
-+int start_single_ccw(unsigned int sid, int code, void *data, int count,
-+		     unsigned char flags)
-+{
-+	int cc;
-+	struct ccw1 *ccw = &unique_ccw;
-+
-+	report_prefix_push("start_subchannel");
-+	/* Build the CCW chain with a single CCW */
-+	ccw->code = code;
-+	ccw->flags = flags;
-+	ccw->count = count;
-+	ccw->data_address = (int)(unsigned long)data;
-+
-+	cc = start_ccw1_chain(sid, ccw);
-+	if (cc) {
-+		report(0, "cc = %d", cc);
-+		report_prefix_pop();
-+		return cc;
-+	}
-+	report_prefix_pop();
-+	return 0;
-+}
-+
-+/* wait_and_check_io_completion:
-+ * @schid: the subchannel ID
-+ *
-+ * Makes the most common check to validate a successful I/O
-+ * completion.
-+ * Only report failures.
-+ */
-+int wait_and_check_io_completion(int schid)
-+{
-+	int ret = 0;
-+
-+	wait_for_interrupt(PSW_MASK_IO);
-+
-+	report_prefix_push("check I/O completion");
-+
-+	if (lowcore_ptr->io_int_param != schid) {
-+		report(0, "interrupt parameter: expected %08x got %08x",
-+		       schid, lowcore_ptr->io_int_param);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+	/* Verify that device status is valid */
-+	if (!(irb.scsw.ctrl & SCSW_SC_PENDING)) {
-+		report(0, "No status pending after interrupt. Subch Ctrl: %08x",
-+		       irb.scsw.ctrl);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+	if (!(irb.scsw.ctrl & (SCSW_SC_SECONDARY | SCSW_SC_PRIMARY))) {
-+		report(0, "Primary or secondary status missing. Subch Ctrl: %08x",
-+		       irb.scsw.ctrl);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+	if (!(irb.scsw.dev_stat & (SCSW_DEVS_DEV_END | SCSW_DEVS_SCH_END))) {
-+		report(0, "No device end or sch end. Dev. status: %02x",
-+		       irb.scsw.dev_stat);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+	if (irb.scsw.sch_stat & ~SCSW_SCHS_IL) {
-+		report_info("Unexpected Subch. status %02x", irb.scsw.sch_stat);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+end:
-+	report_prefix_pop();
-+	return ret;
-+}
-+
-+/*
-+ * css_residual_count
-+ * Return the residual count, if it is valid.
-+ *
-+ * Return value:
-+ * Success: the residual count
-+ * Not meaningful: -1 (-1 can not be a valid count)
-+ */
-+int css_residual_count(unsigned int schid)
-+{
-+
-+	if (!(irb.scsw.ctrl & (SCSW_SC_PENDING | SCSW_SC_PRIMARY)))
-+		goto invalid;
-+
-+	if (irb.scsw.dev_stat)
-+		if (irb.scsw.sch_stat & ~(SCSW_SCHS_PCI | SCSW_SCHS_IL))
-+			goto invalid;
-+
-+	return irb.scsw.count;
-+
-+invalid:
-+	return -1;
-+}
-+
-+/*
-+ * enable_io_isc: setup ISC in Control Register 6
-+ * @isc: The interruption Sub Class as a bitfield
-+ */
-+void enable_io_isc(uint8_t isc)
-+{
-+	uint64_t value;
-+
-+	value = (uint64_t)isc << 24;
-+	lctlg(6, value);
-+}
-diff --git a/s390x/css.c b/s390x/css.c
-index f314a0c..ee3bc83 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -19,7 +19,11 @@
- 
- #include <css.h>
- 
-+#define DEFAULT_CU_TYPE		0x3832 /* virtio-ccw */
-+static unsigned long cu_type = DEFAULT_CU_TYPE;
-+
- static int test_device_sid;
-+static struct senseid senseid;
- 
- static void test_enumerate(void)
- {
-@@ -45,12 +49,87 @@ static void test_enable(void)
- 	report(cc == 0, "Enable subchannel %08x", test_device_sid);
- }
- 
-+/*
-+ * test_sense
-+ * Pre-requisites:
-+ * - We need the test device as the first recognized
-+ *   device by the enumeration.
-+ */
-+static void test_sense(void)
-+{
-+	int ret;
-+	int len;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+
-+	ret = css_enable(test_device_sid, IO_SCH_ISC);
-+	if (ret) {
-+		report(0, "Could not enable the subchannel: %08x",
-+		       test_device_sid);
-+		return;
-+	}
-+
-+	ret = register_io_int_func(css_irq_io);
-+	if (ret) {
-+		report(0, "Could not register IRQ handler");
-+		return;
-+	}
-+
-+	lowcore_ptr->io_int_param = 0;
-+
-+	memset(&senseid, 0, sizeof(senseid));
-+	ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
-+			       &senseid, sizeof(senseid), CCW_F_SLI);
-+	if (ret)
-+		goto error;
-+
-+	if (wait_and_check_io_completion(test_device_sid) < 0)
-+		goto error;
-+
-+	/* Test transfer completion */
-+	report_prefix_push("ssch transfer completion");
-+
-+	ret = css_residual_count(test_device_sid);
-+
-+	if (ret < 0) {
-+		report_info("no valid residual count");
-+	} else if (ret != 0) {
-+		len = sizeof(senseid) - ret;
-+		if (ret && len < CSS_SENSEID_COMMON_LEN) {
-+			report(0, "transferred a too short length: %d", ret);
-+			goto error;
-+		} else if (ret && len)
-+			report_info("transferred a shorter length: %d", len);
-+	}
-+
-+	if (senseid.reserved != 0xff) {
-+		report(0, "transferred garbage: 0x%02x", senseid.reserved);
-+		goto error;
-+	}
-+
-+	report_prefix_pop();
-+
-+	report_info("reserved 0x%02x cu_type 0x%04x cu_model 0x%02x dev_type 0x%04x dev_model 0x%02x",
-+		    senseid.reserved, senseid.cu_type, senseid.cu_model,
-+		    senseid.dev_type, senseid.dev_model);
-+
-+	report(senseid.cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
-+	       (uint16_t) cu_type, senseid.cu_type);
-+
-+error:
-+	unregister_io_int_func(css_irq_io);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
- 	{ "enable (msch)", test_enable },
-+	{ "sense (ssch/tsch)", test_sense },
- 	{ NULL, NULL }
- };
- 
-@@ -59,6 +138,7 @@ int main(int argc, char *argv[])
- 	int i;
- 
- 	report_prefix_push("Channel Subsystem");
-+	enable_io_isc(0x80 >> IO_SCH_ISC);
- 	for (i = 0; tests[i].name; i++) {
- 		report_prefix_push(tests[i].name);
- 		tests[i].func();
--- 
-2.25.1
+static inline struct mem_section *__pfn_to_section(unsigned long pfn)
+{
+        return __nr_to_section(pfn_to_section_nr(pfn));
+}
+
+#define __pfn_to_page(pfn)                              \
+({      unsigned long __pfn = (pfn);                    \
+        struct mem_section *__sec = __pfn_to_section(__pfn);    \
+        __section_mem_map_addr(__sec) + __pfn;          \
+})
+
+which is called via hugetlb_advanced_tests().
+
+paddr = (__pfn_to_phys(pfn) | RANDOM_ORVALUE) & PMD_MASK;
+pte = pte_mkhuge(mk_pte(pfn_to_page(PHYS_PFN(paddr)), prot));
+
+Primary reason being RANDOM_ORVALUE, which is added to the paddr before
+being masked with PMD_MASK. This clobbers up the pfn value which cannot
+be searched in relevant memory sections. This problem stays hidden on
+other configs where pfn_to_page() does not go via memory section search.
+Dropping off RANDOM_ORVALUE solves the problem. Probably, just wanted to
+drop that off during V2 series (https://lkml.org/lkml/2020/4/8/997) but
+dont remember why ended up keeping it again.
