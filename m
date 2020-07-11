@@ -1,98 +1,66 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53052 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725905AbgGNLij (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 07:38:39 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v6 0/2] s390: virtio: let arch validate VIRTIO features
-Date: Tue, 14 Jul 2020 13:38:00 +0200
-Message-Id: <1594726682-12076-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 11 Jul 2020 10:09:56 -0000
+From: "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: locking/core] sparc64: Fix asm/percpu.h build error
+In-Reply-To: <20200623083721.277992771@infradead.org>
+References: <20200623083721.277992771@infradead.org>
+MIME-Version: 1.0
+Message-ID: <159446219606.4006.16923768828083285770.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: linux-tip-commits@vger.kernel.org
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, "David S. Miller" <davem@davemloft.net>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-Hi all,
+The following commit has been merged into the locking/core branch of tip:
 
-The goal of the series is to give a chance to the architecture
-to validate VIRTIO device features.
+Commit-ID:     48017e5481ce85ba52c4cff082cad5f021c4b413
+Gitweb:        https://git.kernel.org/tip/48017e5481ce85ba52c4cff082cad5f021c4b413
+Author:        Peter Zijlstra <peterz@infradead.org>
+AuthorDate:    Fri, 29 May 2020 22:40:58 +02:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Fri, 10 Jul 2020 12:00:01 +02:00
 
-in this respin:
+sparc64: Fix asm/percpu.h build error
 
-1) I kept removed the ack from Jason as I reworked the patch
-   @Jason, the nature and goal of the patch did not really changed
-           please can I get back your acked-by with these changes?
+In order to break a header dependency between lockdep and task_struct,
+I need per-cpu stuff from lockdep.
 
-2) Rewording for warning messages
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: David S. Miller <davem@davemloft.net>
+Link: https://lkml.kernel.org/r/20200623083721.277992771@infradead.org
+---
+ arch/sparc/include/asm/percpu_64.h  | 2 ++
+ arch/sparc/include/asm/trap_block.h | 2 ++
+ 2 files changed, 4 insertions(+)
 
-Regards,
-Pierre
-
-
-Pierre Morel (2):
-  virtio: let arch validate VIRTIO features
-  s390: virtio: PV needs VIRTIO I/O device protection
-
- arch/s390/mm/init.c           | 28 ++++++++++++++++++++++++++++
- drivers/virtio/virtio.c       | 19 +++++++++++++++++++
- include/linux/virtio_config.h |  1 +
- 3 files changed, 48 insertions(+)
-
--- 
-2.25.1
-
-Changelog
-
-to v6:
-
-- rewording warning messages
-  (Connie, Halil)
-
-to v5:
-
-- return directly from S390 arch_validate_virtio_features()
-  when the guest is not protected.
-  (Connie)
-
-- Somme rewording
-  (Connie, Michael)
-
-- moved back code from arch/s390/ ...kernel/uv.c to ...mm/init.c
-  (Christian)
-
-to v4:
-
-- separate virtio and arch code
-  (Pierre)
-
-- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
-  (as interpreted from Heiko's comment)
-
-- moved validation inside the arch code
-  (Connie)
-
-- moved the call to arch validation before VIRTIO_F_1 test
-  (Michael)
-
-to v3:
-
-- add warning
-  (Connie, Christian)
-
-- add comment
-  (Connie)
-
-- change hook name
-  (Halil, Connie)
-
-to v2:
-
-- put the test in virtio_finalize_features()
-  (Connie)
-
-- put the test inside VIRTIO core
-  (Jason)
-
-- pass a virtio device as parameter
-  (Halil)
+diff --git a/arch/sparc/include/asm/percpu_64.h b/arch/sparc/include/asm/percpu_64.h
+index 32ef6f0..a8786a4 100644
+--- a/arch/sparc/include/asm/percpu_64.h
++++ b/arch/sparc/include/asm/percpu_64.h
+@@ -4,7 +4,9 @@
+ 
+ #include <linux/compiler.h>
+ 
++#ifndef BUILD_VDSO
+ register unsigned long __local_per_cpu_offset asm("g5");
++#endif
+ 
+ #ifdef CONFIG_SMP
+ 
+diff --git a/arch/sparc/include/asm/trap_block.h b/arch/sparc/include/asm/trap_block.h
+index 0f6d0c4..ace0d48 100644
+--- a/arch/sparc/include/asm/trap_block.h
++++ b/arch/sparc/include/asm/trap_block.h
+@@ -2,6 +2,8 @@
+ #ifndef _SPARC_TRAP_BLOCK_H
+ #define _SPARC_TRAP_BLOCK_H
+ 
++#include <linux/threads.h>
++
+ #include <asm/hypervisor.h>
+ #include <asm/asi.h>
+ 
