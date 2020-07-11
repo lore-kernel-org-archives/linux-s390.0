@@ -1,83 +1,123 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9072 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731922AbgGaJq0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 31 Jul 2020 05:46:26 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests GIT PULL 00/11] s390x patches
-Date: Fri, 31 Jul 2020 11:45:56 +0200
-Message-Id: <20200731094607.15204-1-frankja@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 11 Jul 2020 10:09:57 -0000
+From: "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: locking/core] lockdep: Prepare for NMI IRQ state tracking
+In-Reply-To: <20200623083721.155449112@infradead.org>
+References: <20200623083721.155449112@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Message-ID: <159446219720.4006.9282048000882212758.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+To: linux-tip-commits@vger.kernel.org
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-Hi Paolo,
+The following commit has been merged into the locking/core branch of tip:
 
-The following changes since commit 82147b77199bbfec2c61c97685cfb34f3f97c889:
+Commit-ID:     859d069ee1ddd87862e1d6a356a82ed417dbeb67
+Gitweb:        https://git.kernel.org/tip/859d069ee1ddd87862e1d6a356a82ed417dbeb67
+Author:        Peter Zijlstra <peterz@infradead.org>
+AuthorDate:    Wed, 27 May 2020 15:00:57 +02:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Fri, 10 Jul 2020 12:00:01 +02:00
 
-  fw_cfg: avoid index out of bounds (2020-07-30 17:57:55 -0400)
+lockdep: Prepare for NMI IRQ state tracking
 
-are available in the Git repository at:
+There is no reason not to always, accurately, track IRQ state.
 
-  https://github.com/frankjaa/kvm-unit-tests.git tags/s390x-2020-31-07
+This change also makes IRQ state tracking ignore lockdep_off().
 
-for you to fetch changes up to c2f4799a861993b82950b9e5a3a44fc65ba05ec6:
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200623083721.155449112@infradead.org
+---
+ kernel/locking/lockdep.c | 46 +++++++++++++++++++++++++++++++++++----
+ 1 file changed, 42 insertions(+), 4 deletions(-)
 
-  s390x: fix inline asm on gcc10 (2020-07-31 04:35:33 -0400)
-
-----------------------------------------------------------------
-* IO tests from Pierre
-* GCC 10 compile fix from Claudio
-* CPU model test fix from Thomas
-----------------------------------------------------------------
-
-Claudio Imbrenda (1):
-  s390x: fix inline asm on gcc10
-
-Pierre Morel (9):
-  s390x: saving regs for interrupts
-  s390x: I/O interrupt registration
-  s390x: export the clock get_clock_ms() utility
-  s390x: clock and delays calculations
-  s390x: define function to wait for interrupt
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: css: ssch/tsch with sense and interrupt
-
-Thomas Huth (1):
-  s390x/cpumodel: The missing DFP facility on TCG is expected
-
- lib/s390x/asm/arch_def.h |  14 ++
- lib/s390x/asm/cpacf.h    |   5 +-
- lib/s390x/asm/time.h     |  50 ++++++
- lib/s390x/css.h          | 294 +++++++++++++++++++++++++++++++++++
- lib/s390x/css_dump.c     | 152 +++++++++++++++++++
- lib/s390x/css_lib.c      | 320 +++++++++++++++++++++++++++++++++++++++
- lib/s390x/interrupt.c    |  23 ++-
- lib/s390x/interrupt.h    |   8 +
- lib/s390x/vm.c           |  46 ++++++
- lib/s390x/vm.h           |  14 ++
- s390x/Makefile           |   4 +
- s390x/cpumodel.c         |  19 ++-
- s390x/css.c              | 150 ++++++++++++++++++
- s390x/cstart64.S         |  41 ++++-
- s390x/emulator.c         |  25 +--
- s390x/intercept.c        |  11 +-
- s390x/unittests.cfg      |   4 +
- 17 files changed, 1147 insertions(+), 33 deletions(-)
- create mode 100644 lib/s390x/asm/time.h
- create mode 100644 lib/s390x/css.h
- create mode 100644 lib/s390x/css_dump.c
- create mode 100644 lib/s390x/css_lib.c
- create mode 100644 lib/s390x/interrupt.h
- create mode 100644 lib/s390x/vm.c
- create mode 100644 lib/s390x/vm.h
- create mode 100644 s390x/css.c
-
--- 
-2.25.4
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 29a8de4..d595623 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -395,7 +395,7 @@ void lockdep_init_task(struct task_struct *task)
+ 
+ static __always_inline void lockdep_recursion_finish(void)
+ {
+-	if (WARN_ON_ONCE(--current->lockdep_recursion))
++	if (WARN_ON_ONCE((--current->lockdep_recursion) & LOCKDEP_RECURSION_MASK))
+ 		current->lockdep_recursion = 0;
+ }
+ 
+@@ -3646,7 +3646,16 @@ static void __trace_hardirqs_on_caller(void)
+  */
+ void lockdep_hardirqs_on_prepare(unsigned long ip)
+ {
+-	if (unlikely(!debug_locks || current->lockdep_recursion))
++	if (unlikely(!debug_locks))
++		return;
++
++	/*
++	 * NMIs do not (and cannot) track lock dependencies, nothing to do.
++	 */
++	if (unlikely(in_nmi()))
++		return;
++
++	if (unlikely(current->lockdep_recursion & LOCKDEP_RECURSION_MASK))
+ 		return;
+ 
+ 	if (unlikely(current->hardirqs_enabled)) {
+@@ -3692,7 +3701,27 @@ void noinstr lockdep_hardirqs_on(unsigned long ip)
+ {
+ 	struct task_struct *curr = current;
+ 
+-	if (unlikely(!debug_locks || curr->lockdep_recursion))
++	if (unlikely(!debug_locks))
++		return;
++
++	/*
++	 * NMIs can happen in the middle of local_irq_{en,dis}able() where the
++	 * tracking state and hardware state are out of sync.
++	 *
++	 * NMIs must save lockdep_hardirqs_enabled() to restore IRQ state from,
++	 * and not rely on hardware state like normal interrupts.
++	 */
++	if (unlikely(in_nmi())) {
++		/*
++		 * Skip:
++		 *  - recursion check, because NMI can hit lockdep;
++		 *  - hardware state check, because above;
++		 *  - chain_key check, see lockdep_hardirqs_on_prepare().
++		 */
++		goto skip_checks;
++	}
++
++	if (unlikely(current->lockdep_recursion & LOCKDEP_RECURSION_MASK))
+ 		return;
+ 
+ 	if (curr->hardirqs_enabled) {
+@@ -3720,6 +3749,7 @@ void noinstr lockdep_hardirqs_on(unsigned long ip)
+ 	DEBUG_LOCKS_WARN_ON(current->hardirq_chain_key !=
+ 			    current->curr_chain_key);
+ 
++skip_checks:
+ 	/* we'll do an OFF -> ON transition: */
+ 	curr->hardirqs_enabled = 1;
+ 	curr->hardirq_enable_ip = ip;
+@@ -3735,7 +3765,15 @@ void noinstr lockdep_hardirqs_off(unsigned long ip)
+ {
+ 	struct task_struct *curr = current;
+ 
+-	if (unlikely(!debug_locks || curr->lockdep_recursion))
++	if (unlikely(!debug_locks))
++		return;
++
++	/*
++	 * Matching lockdep_hardirqs_on(), allow NMIs in the middle of lockdep;
++	 * they will restore the software state. This ensures the software
++	 * state is consistent inside NMIs as well.
++	 */
++	if (unlikely(!in_nmi() && (current->lockdep_recursion & LOCKDEP_RECURSION_MASK)))
+ 		return;
+ 
+ 	/*
