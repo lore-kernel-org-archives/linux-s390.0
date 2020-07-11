@@ -1,58 +1,62 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55866 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729093AbgGAJAB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 05:00:01 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/20] rsxx: stop using ->queuedata
-Date: Wed,  1 Jul 2020 10:59:33 +0200
-Message-Id: <20200701085947.3354405-7-hch@lst.de>
-In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
-References: <20200701085947.3354405-1-hch@lst.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 11 Jul 2020 10:09:54 -0000
+From: "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: locking/core] s390: Break cyclic percpu include
+In-Reply-To: <20200623083721.396143816@infradead.org>
+References: <20200623083721.396143816@infradead.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Message-ID: <159446219491.4006.10096196387412426349.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: linux-tip-commits@vger.kernel.org
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-Instead of setting up the queuedata as well just use one private data
-field.
+The following commit has been merged into the locking/core branch of tip:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Commit-ID:     28e5bfd81c8de77504703adf24ceff9301e3c7be
+Gitweb:        https://git.kernel.org/tip/28e5bfd81c8de77504703adf24ceff9301e3c7be
+Author:        Peter Zijlstra <peterz@infradead.org>
+AuthorDate:    Fri, 29 May 2020 22:41:05 +02:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Fri, 10 Jul 2020 12:00:02 +02:00
+
+s390: Break cyclic percpu include
+
+In order to use <asm/percpu.h> in irqflags.h, we need to make sure
+asm/percpu.h does not itself depend on irqflags.h
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lkml.kernel.org/r/20200623083721.396143816@infradead.org
 ---
- drivers/block/rsxx/dev.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ arch/s390/include/asm/smp.h         | 1 +
+ arch/s390/include/asm/thread_info.h | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/rsxx/dev.c b/drivers/block/rsxx/dev.c
-index 3ba07ab30c84f5..6a4d8d26e32cbd 100644
---- a/drivers/block/rsxx/dev.c
-+++ b/drivers/block/rsxx/dev.c
-@@ -119,7 +119,7 @@ static void bio_dma_done_cb(struct rsxx_cardinfo *card,
+diff --git a/arch/s390/include/asm/smp.h b/arch/s390/include/asm/smp.h
+index 7326f11..f48a43b 100644
+--- a/arch/s390/include/asm/smp.h
++++ b/arch/s390/include/asm/smp.h
+@@ -10,6 +10,7 @@
  
- static blk_qc_t rsxx_make_request(struct request_queue *q, struct bio *bio)
- {
--	struct rsxx_cardinfo *card = q->queuedata;
-+	struct rsxx_cardinfo *card = bio->bi_disk->private_data;
- 	struct rsxx_bio_meta *bio_meta;
- 	blk_status_t st = BLK_STS_IOERR;
+ #include <asm/sigp.h>
+ #include <asm/lowcore.h>
++#include <asm/processor.h>
  
-@@ -267,8 +267,6 @@ int rsxx_setup_dev(struct rsxx_cardinfo *card)
- 		card->queue->limits.discard_alignment   = RSXX_HW_BLK_SIZE;
- 	}
+ #define raw_smp_processor_id()	(S390_lowcore.cpu_nr)
  
--	card->queue->queuedata = card;
--
- 	snprintf(card->gendisk->disk_name, sizeof(card->gendisk->disk_name),
- 		 "rsxx%d", card->disk_id);
- 	card->gendisk->major = card->major;
-@@ -289,7 +287,6 @@ void rsxx_destroy_dev(struct rsxx_cardinfo *card)
- 	card->gendisk = NULL;
+diff --git a/arch/s390/include/asm/thread_info.h b/arch/s390/include/asm/thread_info.h
+index e582fbe..13a04fc 100644
+--- a/arch/s390/include/asm/thread_info.h
++++ b/arch/s390/include/asm/thread_info.h
+@@ -24,7 +24,6 @@
+ #ifndef __ASSEMBLY__
+ #include <asm/lowcore.h>
+ #include <asm/page.h>
+-#include <asm/processor.h>
  
- 	blk_cleanup_queue(card->queue);
--	card->queue->queuedata = NULL;
- 	unregister_blkdev(card->major, DRIVER_NAME);
- }
- 
--- 
-2.26.2
+ #define STACK_INIT_OFFSET \
+ 	(THREAD_SIZE - STACK_FRAME_OVERHEAD - sizeof(struct pt_regs))
