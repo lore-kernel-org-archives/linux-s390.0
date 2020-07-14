@@ -1,108 +1,188 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-42.freemail.mail.aliyun.com ([115.124.30.42]:35605 "EHLO
-        out30-42.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725892AbgGMDH3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 12 Jul 2020 23:07:29 -0400
-Subject: Re: [PATCH v4 5/7] KVM: PPC: clean up redundant kvm_run parameters in
- assembly
-References: <20200427043514.16144-1-tianjia.zhang@linux.alibaba.com>
- <20200427043514.16144-6-tianjia.zhang@linux.alibaba.com>
- <20200526055924.GD282305@thinks.paulus.ozlabs.org>
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Message-ID: <c3540a4b-a568-3428-0427-ae2a1f30dbe2@linux.alibaba.com>
-Date: Mon, 13 Jul 2020 11:07:18 +0800
-MIME-Version: 1.0
-In-Reply-To: <20200526055924.GD282305@thinks.paulus.ozlabs.org>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 10/10] s390/qeth: constify the MPC initialization data
+Date: Tue, 14 Jul 2020 16:23:05 +0200
+Message-Id: <20200714142305.29297-11-jwi@linux.ibm.com>
+In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
+References: <20200714142305.29297-1-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paul Mackerras <paulus@ozlabs.org>
-Cc: pbonzini@redhat.com, tsbogend@alpha.franken.de, mpe@ellerman.id.au, benh@kernel.crashing.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
+We're not modifying these data blobs, so mark them as constant.
 
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core_main.c |  2 +-
+ drivers/s390/net/qeth_core_mpc.c  | 16 ++++++++--------
+ drivers/s390/net/qeth_core_mpc.h  | 17 ++++++++---------
+ 3 files changed, 17 insertions(+), 18 deletions(-)
 
-On 2020/5/26 13:59, Paul Mackerras wrote:
-> On Mon, Apr 27, 2020 at 12:35:12PM +0800, Tianjia Zhang wrote:
->> In the current kvm version, 'kvm_run' has been included in the 'kvm_vcpu'
->> structure. For historical reasons, many kvm-related function parameters
->> retain the 'kvm_run' and 'kvm_vcpu' parameters at the same time. This
->> patch does a unified cleanup of these remaining redundant parameters.
-> 
-> Some of these changes don't look completely correct to me, see below.
-> If you're expecting these patches to go through my tree, I can fix up
-> the patch and commit it (with you as author), noting the changes I
-> made in the commit message.  Do you want me to do that?
-> 
-
-I am very glad for you to do so, although I have submitted a new version 
-of patch, I still prefer you to fix up and commit it.
-
-Thanks and best,
-Tianjia
-
->> diff --git a/arch/powerpc/kvm/book3s_interrupts.S b/arch/powerpc/kvm/book3s_interrupts.S
->> index f7ad99d972ce..0eff749d8027 100644
->> --- a/arch/powerpc/kvm/book3s_interrupts.S
->> +++ b/arch/powerpc/kvm/book3s_interrupts.S
->> @@ -55,8 +55,7 @@
->>    ****************************************************************************/
->>   
->>   /* Registers:
->> - *  r3: kvm_run pointer
->> - *  r4: vcpu pointer
->> + *  r3: vcpu pointer
->>    */
->>   _GLOBAL(__kvmppc_vcpu_run)
->>   
->> @@ -68,8 +67,8 @@ kvm_start_entry:
->>   	/* Save host state to the stack */
->>   	PPC_STLU r1, -SWITCH_FRAME_SIZE(r1)
->>   
->> -	/* Save r3 (kvm_run) and r4 (vcpu) */
->> -	SAVE_2GPRS(3, r1)
->> +	/* Save r3 (vcpu) */
->> +	SAVE_GPR(3, r1)
->>   
->>   	/* Save non-volatile registers (r14 - r31) */
->>   	SAVE_NVGPRS(r1)
->> @@ -82,11 +81,11 @@ kvm_start_entry:
->>   	PPC_STL	r0, _LINK(r1)
->>   
->>   	/* Load non-volatile guest state from the vcpu */
->> -	VCPU_LOAD_NVGPRS(r4)
->> +	VCPU_LOAD_NVGPRS(r3)
->>   
->>   kvm_start_lightweight:
->>   	/* Copy registers into shadow vcpu so we can access them in real mode */
->> -	mr	r3, r4
->> +	mr	r4, r3
-> 
-> This mr doesn't seem necessary.
-> 
->>   	bl	FUNC(kvmppc_copy_to_svcpu)
->>   	nop
->>   	REST_GPR(4, r1)
-> 
-> This should be loading r4 from GPR3(r1), not GPR4(r1) - which is what
-> REST_GPR(4, r1) will do.
-> 
-> Then, in the file but not in the patch context, there is this line:
-> 
-> 	PPC_LL	r3, GPR4(r1)		/* vcpu pointer */
-> 
-> where once again GPR4 needs to be GPR3.
-> 
->> @@ -191,10 +190,10 @@ after_sprg3_load:
->>   	PPC_STL	r31, VCPU_GPR(R31)(r7)
->>   
->>   	/* Pass the exit number as 3rd argument to kvmppc_handle_exit */
-> 
-> The comment should be modified to say "2nd" instead of "3rd",
-> otherwise it is confusing.
-> 
-> The rest of the patch looks OK.
-> 
-> Paul.
-> 
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 01a280b5e8d2..8a76022fceda 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -2026,7 +2026,7 @@ static bool qeth_mpc_match_reply(struct qeth_cmd_buffer *iob,
+ }
+ 
+ static struct qeth_cmd_buffer *qeth_mpc_alloc_cmd(struct qeth_card *card,
+-						  void *data,
++						  const void *data,
+ 						  unsigned int data_length)
+ {
+ 	struct qeth_cmd_buffer *iob;
+diff --git a/drivers/s390/net/qeth_core_mpc.c b/drivers/s390/net/qeth_core_mpc.c
+index e3f4866c158e..68c2588b9dcc 100644
+--- a/drivers/s390/net/qeth_core_mpc.c
++++ b/drivers/s390/net/qeth_core_mpc.c
+@@ -10,7 +10,7 @@
+ #include <asm/cio.h>
+ #include "qeth_core_mpc.h"
+ 
+-unsigned char IDX_ACTIVATE_READ[] = {
++const unsigned char IDX_ACTIVATE_READ[] = {
+ 	0x00, 0x00, 0x80, 0x00,  0x00, 0x00, 0x00, 0x00,
+ 	0x19, 0x01, 0x01, 0x80,  0x00, 0x00, 0x00, 0x00,
+ 	0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0xc8, 0xc1,
+@@ -18,7 +18,7 @@ unsigned char IDX_ACTIVATE_READ[] = {
+ 	0x00, 0x00
+ };
+ 
+-unsigned char IDX_ACTIVATE_WRITE[] = {
++const unsigned char IDX_ACTIVATE_WRITE[] = {
+ 	0x00, 0x00, 0x80, 0x00,  0x00, 0x00, 0x00, 0x00,
+ 	0x15, 0x01, 0x01, 0x80,  0x00, 0x00, 0x00, 0x00,
+ 	0xff, 0xff, 0x00, 0x00,  0x00, 0x00, 0xc8, 0xc1,
+@@ -26,7 +26,7 @@ unsigned char IDX_ACTIVATE_WRITE[] = {
+ 	0x00, 0x00
+ };
+ 
+-unsigned char CM_ENABLE[] = {
++const unsigned char CM_ENABLE[] = {
+ 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x01,
+ 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x63,
+ 	0x10, 0x00, 0x00, 0x01,
+@@ -45,7 +45,7 @@ unsigned char CM_ENABLE[] = {
+ 	0xff, 0xff, 0xff
+ };
+ 
+-unsigned char CM_SETUP[] = {
++const unsigned char CM_SETUP[] = {
+ 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x02,
+ 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x64,
+ 	0x10, 0x00, 0x00, 0x01,
+@@ -65,7 +65,7 @@ unsigned char CM_SETUP[] = {
+ 	0x04, 0x06, 0xc8, 0x00
+ };
+ 
+-unsigned char ULP_ENABLE[] = {
++const unsigned char ULP_ENABLE[] = {
+ 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x03,
+ 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x6b,
+ 	0x10, 0x00, 0x00, 0x01,
+@@ -85,7 +85,7 @@ unsigned char ULP_ENABLE[] = {
+ 	0xf1, 0x00, 0x00
+ };
+ 
+-unsigned char ULP_SETUP[] = {
++const unsigned char ULP_SETUP[] = {
+ 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x04,
+ 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x6c,
+ 	0x10, 0x00, 0x00, 0x01,
+@@ -107,7 +107,7 @@ unsigned char ULP_SETUP[] = {
+ 	0x00, 0x00, 0x00, 0x00
+ };
+ 
+-unsigned char DM_ACT[] = {
++const unsigned char DM_ACT[] = {
+ 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x05,
+ 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x55,
+ 	0x10, 0x00, 0x00, 0x01,
+@@ -123,7 +123,7 @@ unsigned char DM_ACT[] = {
+ 	0x05, 0x40, 0x01, 0x01,  0x00
+ };
+ 
+-unsigned char IPA_PDU_HEADER[] = {
++const unsigned char IPA_PDU_HEADER[] = {
+ 	0x00, 0xe0, 0x00, 0x00,  0x77, 0x77, 0x77, 0x77,
+ 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x00,
+ 	0x10, 0x00, 0x00, 0x01,  0x00, 0x00, 0x00, 0x00,
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index 9d6f39d8f9ab..b459def0fb26 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -13,13 +13,13 @@
+ #include <uapi/linux/if_ether.h>
+ #include <uapi/linux/in6.h>
+ 
++extern const unsigned char IPA_PDU_HEADER[];
+ #define IPA_PDU_HEADER_SIZE	0x40
+ #define QETH_IPA_PDU_LEN_TOTAL(buffer) (buffer + 0x0e)
+ #define QETH_IPA_PDU_LEN_PDU1(buffer) (buffer + 0x26)
+ #define QETH_IPA_PDU_LEN_PDU2(buffer) (buffer + 0x29)
+ #define QETH_IPA_PDU_LEN_PDU3(buffer) (buffer + 0x3a)
+ 
+-extern unsigned char IPA_PDU_HEADER[];
+ #define QETH_IPA_CMD_DEST_ADDR(buffer) (buffer + 0x2c)
+ 
+ #define QETH_SEQ_NO_LENGTH	4
+@@ -858,7 +858,7 @@ extern const char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd);
+ /* END OF   IP Assist related definitions                                    */
+ /*****************************************************************************/
+ 
+-extern unsigned char CM_ENABLE[];
++extern const unsigned char CM_ENABLE[];
+ #define CM_ENABLE_SIZE 0x63
+ #define QETH_CM_ENABLE_ISSUER_RM_TOKEN(buffer) (buffer + 0x2c)
+ #define QETH_CM_ENABLE_FILTER_TOKEN(buffer) (buffer + 0x53)
+@@ -868,7 +868,7 @@ extern unsigned char CM_ENABLE[];
+ 		(PDU_ENCAPSULATION(buffer) + 0x13)
+ 
+ 
+-extern unsigned char CM_SETUP[];
++extern const unsigned char CM_SETUP[];
+ #define CM_SETUP_SIZE 0x64
+ #define QETH_CM_SETUP_DEST_ADDR(buffer) (buffer + 0x2c)
+ #define QETH_CM_SETUP_CONNECTION_TOKEN(buffer) (buffer + 0x51)
+@@ -877,7 +877,7 @@ extern unsigned char CM_SETUP[];
+ #define QETH_CM_SETUP_RESP_DEST_ADDR(buffer) \
+ 		(PDU_ENCAPSULATION(buffer) + 0x1a)
+ 
+-extern unsigned char ULP_ENABLE[];
++extern const unsigned char ULP_ENABLE[];
+ #define ULP_ENABLE_SIZE 0x6b
+ #define QETH_ULP_ENABLE_LINKNUM(buffer) (buffer + 0x61)
+ #define QETH_ULP_ENABLE_DEST_ADDR(buffer) (buffer + 0x2c)
+@@ -898,7 +898,7 @@ extern unsigned char ULP_ENABLE[];
+ #define QETH_ULP_ENABLE_PROT_TYPE(buffer) (buffer + 0x50)
+ #define QETH_IPA_CMD_PROT_TYPE(buffer) (buffer + 0x19)
+ 
+-extern unsigned char ULP_SETUP[];
++extern const unsigned char ULP_SETUP[];
+ #define ULP_SETUP_SIZE 0x6c
+ #define QETH_ULP_SETUP_DEST_ADDR(buffer) (buffer + 0x2c)
+ #define QETH_ULP_SETUP_CONNECTION_TOKEN(buffer) (buffer + 0x51)
+@@ -910,7 +910,7 @@ extern unsigned char ULP_SETUP[];
+ 		(PDU_ENCAPSULATION(buffer) + 0x1a)
+ 
+ 
+-extern unsigned char DM_ACT[];
++extern const unsigned char DM_ACT[];
+ #define DM_ACT_SIZE 0x55
+ #define QETH_DM_ACT_DEST_ADDR(buffer) (buffer + 0x2c)
+ #define QETH_DM_ACT_CONNECTION_TOKEN(buffer) (buffer + 0x51)
+@@ -921,9 +921,8 @@ extern unsigned char DM_ACT[];
+ #define QETH_PDU_HEADER_SEQ_NO(buffer) (buffer + 0x1c)
+ #define QETH_PDU_HEADER_ACK_SEQ_NO(buffer) (buffer + 0x20)
+ 
+-extern unsigned char IDX_ACTIVATE_READ[];
+-extern unsigned char IDX_ACTIVATE_WRITE[];
+-
++extern const unsigned char IDX_ACTIVATE_READ[];
++extern const unsigned char IDX_ACTIVATE_WRITE[];
+ #define IDX_ACTIVATE_SIZE	0x22
+ #define QETH_IDX_ACT_PNO(buffer) (buffer+0x0b)
+ #define QETH_IDX_ACT_ISSUER_RM_TOKEN(buffer) (buffer + 0x0c)
+-- 
+2.17.1
