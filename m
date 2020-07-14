@@ -1,49 +1,27 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 07/10] s390/qeth: clean up a magic number in the OAT callback
-Date: Tue, 14 Jul 2020 16:23:02 +0200
-Message-Id: <20200714142305.29297-8-jwi@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39382 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726885AbgGNVyG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jul 2020 17:54:06 -0400
+Date: Tue, 14 Jul 2020 14:54:04 -0700 (PDT)
+Message-Id: <20200714.145404.1649791951202238667.davem@davemloft.net>
+Subject: Re: [PATCH net-next 00/10] s390/qeth: updates 2020-07-14
+From: David Miller <davem@davemloft.net>
 In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
 References: <20200714142305.29297-1-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: jwi@linux.ibm.com
+Cc: kuba@kernel.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, ubraun@linux.ibm.com, kgraul@linux.ibm.com
 
-Use the correct struct member instead of hardcoding its offset.
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Date: Tue, 14 Jul 2020 16:22:55 +0200
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core_main.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+> please apply the following patch series for qeth to netdev's net-next tree.
+> 
+> This brings a mix of cleanups for various parts of the control code.
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 31fa9ffc7cf4..c5ff7edb4ba1 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4839,7 +4839,6 @@ static int qeth_setadpparms_query_oat_cb(struct qeth_card *card,
- {
- 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *)data;
- 	struct qeth_qoat_priv *priv;
--	char *resdata;
- 	int resdatalen;
- 
- 	QETH_CARD_TEXT(card, 3, "qoatcb");
-@@ -4848,13 +4847,12 @@ static int qeth_setadpparms_query_oat_cb(struct qeth_card *card,
- 
- 	priv = (struct qeth_qoat_priv *)reply->param;
- 	resdatalen = cmd->data.setadapterparms.hdr.cmdlength;
--	resdata = (char *)data + 28;
- 
- 	if (resdatalen > (priv->buffer_len - priv->response_len))
- 		return -ENOSPC;
- 
--	memcpy((priv->buffer + priv->response_len), resdata,
--		resdatalen);
-+	memcpy(priv->buffer + priv->response_len,
-+	       &cmd->data.setadapterparms.hdr, resdatalen);
- 	priv->response_len += resdatalen;
- 
- 	if (cmd->data.setadapterparms.hdr.seq_no <
--- 
-2.17.1
+Series applied, thanks Julian.
