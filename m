@@ -1,117 +1,85 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40516 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728874AbgGTMsP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 08:48:15 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 08/24] net/xfrm: switch xfrm_user_policy to sockptr_t
-Date: Mon, 20 Jul 2020 14:47:21 +0200
-Message-Id: <20200720124737.118617-9-hch@lst.de>
-In-Reply-To: <20200720124737.118617-1-hch@lst.de>
-References: <20200720124737.118617-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:54594 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728903AbgGNOjT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:39:19 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 03/18] KVM: s390: reduce number of IO pins to 1
+Date: Tue, 14 Jul 2020 10:38:59 -0400
+Message-Id: <20200714143914.4035489-3-sashal@kernel.org>
+In-Reply-To: <20200714143914.4035489-1-sashal@kernel.org>
+References: <20200714143914.4035489-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit 774911290c589e98e3638e73b24b0a4d4530e97c ]
+
+The current number of KVM_IRQCHIP_NUM_PINS results in an order 3
+allocation (32kb) for each guest start/restart. This can result in OOM
+killer activity even with free swap when the memory is fragmented
+enough:
+
+kernel: qemu-system-s39 invoked oom-killer: gfp_mask=0x440dc0(GFP_KERNEL_ACCOUNT|__GFP_COMP|__GFP_ZERO), order=3, oom_score_adj=0
+kernel: CPU: 1 PID: 357274 Comm: qemu-system-s39 Kdump: loaded Not tainted 5.4.0-29-generic #33-Ubuntu
+kernel: Hardware name: IBM 8562 T02 Z06 (LPAR)
+kernel: Call Trace:
+kernel: ([<00000001f848fe2a>] show_stack+0x7a/0xc0)
+kernel:  [<00000001f8d3437a>] dump_stack+0x8a/0xc0
+kernel:  [<00000001f8687032>] dump_header+0x62/0x258
+kernel:  [<00000001f8686122>] oom_kill_process+0x172/0x180
+kernel:  [<00000001f8686abe>] out_of_memory+0xee/0x580
+kernel:  [<00000001f86e66b8>] __alloc_pages_slowpath+0xd18/0xe90
+kernel:  [<00000001f86e6ad4>] __alloc_pages_nodemask+0x2a4/0x320
+kernel:  [<00000001f86b1ab4>] kmalloc_order+0x34/0xb0
+kernel:  [<00000001f86b1b62>] kmalloc_order_trace+0x32/0xe0
+kernel:  [<00000001f84bb806>] kvm_set_irq_routing+0xa6/0x2e0
+kernel:  [<00000001f84c99a4>] kvm_arch_vm_ioctl+0x544/0x9e0
+kernel:  [<00000001f84b8936>] kvm_vm_ioctl+0x396/0x760
+kernel:  [<00000001f875df66>] do_vfs_ioctl+0x376/0x690
+kernel:  [<00000001f875e304>] ksys_ioctl+0x84/0xb0
+kernel:  [<00000001f875e39a>] __s390x_sys_ioctl+0x2a/0x40
+kernel:  [<00000001f8d55424>] system_call+0xd8/0x2c8
+
+As far as I can tell s390x does not use the iopins as we bail our for
+anything other than KVM_IRQ_ROUTING_S390_ADAPTER and the chip/pin is
+only used for KVM_IRQ_ROUTING_IRQCHIP. So let us use a small number to
+reduce the memory footprint.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200617083620.5409-1-borntraeger@de.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/xfrm.h       | 8 +++++---
- net/ipv4/ip_sockglue.c   | 3 ++-
- net/ipv6/ipv6_sockglue.c | 3 ++-
- net/xfrm/xfrm_state.c    | 6 +++---
- 4 files changed, 12 insertions(+), 8 deletions(-)
+ arch/s390/include/asm/kvm_host.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index f9e1fda82ddfc0..5e81868b574a73 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -15,6 +15,7 @@
- #include <linux/audit.h>
- #include <linux/slab.h>
- #include <linux/refcount.h>
-+#include <linux/sockptr.h>
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index abe60268335d2..0fe5600a037e4 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -31,12 +31,12 @@
+ #define KVM_USER_MEM_SLOTS 32
  
- #include <net/sock.h>
- #include <net/dst.h>
-@@ -1609,10 +1610,11 @@ int xfrm6_find_1stfragopt(struct xfrm_state *x, struct sk_buff *skb,
- void xfrm6_local_rxpmtu(struct sk_buff *skb, u32 mtu);
- int xfrm4_udp_encap_rcv(struct sock *sk, struct sk_buff *skb);
- int xfrm6_udp_encap_rcv(struct sock *sk, struct sk_buff *skb);
--int xfrm_user_policy(struct sock *sk, int optname,
--		     u8 __user *optval, int optlen);
-+int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval,
-+		     int optlen);
- #else
--static inline int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
-+static inline int xfrm_user_policy(struct sock *sk, int optname,
-+				   sockptr_t optval, int optlen)
- {
-  	return -ENOPROTOOPT;
- }
-diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
-index a5ea02d7a183eb..da933f99b5d517 100644
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -1322,7 +1322,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
- 		err = -EPERM;
- 		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
- 			break;
--		err = xfrm_user_policy(sk, optname, optval, optlen);
-+		err = xfrm_user_policy(sk, optname, USER_SOCKPTR(optval),
-+				       optlen);
- 		break;
+ /*
+- * These seem to be used for allocating ->chip in the routing table,
+- * which we don't use. 4096 is an out-of-thin-air value. If we need
+- * to look at ->chip later on, we'll need to revisit this.
++ * These seem to be used for allocating ->chip in the routing table, which we
++ * don't use. 1 is as small as we can get to reduce the needed memory. If we
++ * need to look at ->chip later on, we'll need to revisit this.
+  */
+ #define KVM_NR_IRQCHIPS 1
+-#define KVM_IRQCHIP_NUM_PINS 4096
++#define KVM_IRQCHIP_NUM_PINS 1
+ #define KVM_HALT_POLL_NS_DEFAULT 50000
  
- 	case IP_TRANSPARENT:
-diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
-index add8f791229945..56a74707c61741 100644
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -935,7 +935,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
- 		retv = -EPERM;
- 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
- 			break;
--		retv = xfrm_user_policy(sk, optname, optval, optlen);
-+		retv = xfrm_user_policy(sk, optname, USER_SOCKPTR(optval),
-+					optlen);
- 		break;
- 
- 	case IPV6_ADDR_PREFERENCES:
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 8be2d926acc21d..69520ad3d83bfb 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -2264,7 +2264,7 @@ static bool km_is_alive(const struct km_event *c)
- 	return is_alive;
- }
- 
--int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
-+int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval, int optlen)
- {
- 	int err;
- 	u8 *data;
-@@ -2274,7 +2274,7 @@ int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen
- 	if (in_compat_syscall())
- 		return -EOPNOTSUPP;
- 
--	if (!optval && !optlen) {
-+	if (sockptr_is_null(optval) && !optlen) {
- 		xfrm_sk_policy_insert(sk, XFRM_POLICY_IN, NULL);
- 		xfrm_sk_policy_insert(sk, XFRM_POLICY_OUT, NULL);
- 		__sk_dst_reset(sk);
-@@ -2284,7 +2284,7 @@ int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen
- 	if (optlen <= 0 || optlen > PAGE_SIZE)
- 		return -EMSGSIZE;
- 
--	data = memdup_user(optval, optlen);
-+	data = memdup_sockptr(optval, optlen);
- 	if (IS_ERR(data))
- 		return PTR_ERR(data);
- 
+ /* s390-specific vcpu->requests bit members */
 -- 
-2.27.0
+2.25.1
