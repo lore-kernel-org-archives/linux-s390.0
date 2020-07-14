@@ -1,89 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56540 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727779AbgGWGJy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:54 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 22/26] net/udp: switch udp_lib_setsockopt to sockptr_t
-Date: Thu, 23 Jul 2020 08:09:04 +0200
-Message-Id: <20200723060908.50081-23-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14018 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726801AbgGNLQL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Jul 2020 07:16:11 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v12 1/9] s390x: saving regs for interrupts
+Date: Tue, 14 Jul 2020 13:15:40 +0200
+Message-Id: <1594725348-10034-2-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
+References: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+If we use multiple source of interrupts, for example, using SCLP
+console to print information while using I/O interrupts, we need
+to have a re-entrant register saving interruption handling.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Instead of saving at a static memory address, let's save the base
+registers, the floating point registers and the floating point
+control register on the stack in case of I/O interrupts
+
+Note that we keep the static register saving to recover from the
+RESET tests.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 ---
- include/net/udp.h | 2 +-
- net/ipv4/udp.c    | 7 ++++---
- net/ipv6/udp.c    | 3 ++-
- 3 files changed, 7 insertions(+), 5 deletions(-)
+ s390x/cstart64.S | 41 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/udp.h b/include/net/udp.h
-index 17a9e86a807638..295d52a7359827 100644
---- a/include/net/udp.h
-+++ b/include/net/udp.h
-@@ -306,7 +306,7 @@ struct sk_buff *skb_udp_tunnel_segment(struct sk_buff *skb,
- int udp_lib_getsockopt(struct sock *sk, int level, int optname,
- 		       char __user *optval, int __user *optlen);
- int udp_lib_setsockopt(struct sock *sk, int level, int optname,
--		       char __user *optval, unsigned int optlen,
-+		       sockptr_t optval, unsigned int optlen,
- 		       int (*push_pending_frames)(struct sock *));
- struct sock *udp4_lib_lookup(struct net *net, __be32 saddr, __be16 sport,
- 			     __be32 daddr, __be16 dport, int dif);
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index bb95cddcb040a6..c6cb2d09dbc75e 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -2588,7 +2588,7 @@ void udp_destroy_sock(struct sock *sk)
-  *	Socket option code for UDP
-  */
- int udp_lib_setsockopt(struct sock *sk, int level, int optname,
--		       char __user *optval, unsigned int optlen,
-+		       sockptr_t optval, unsigned int optlen,
- 		       int (*push_pending_frames)(struct sock *))
- {
- 	struct udp_sock *up = udp_sk(sk);
-@@ -2599,7 +2599,7 @@ int udp_lib_setsockopt(struct sock *sk, int level, int optname,
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index e084f13..4e51150 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -118,6 +118,43 @@ memsetxc:
+ 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+ 	.endm
  
--	if (get_user(val, (int __user *)optval))
-+	if (copy_from_sockptr(&val, optval, sizeof(val)))
- 		return -EFAULT;
++/* Save registers on the stack (r15), so we can have stacked interrupts. */
++	.macro SAVE_REGS_STACK
++	/* Allocate a stack frame for 15 general registers */
++	slgfi   %r15, 15 * 8
++	/* Store registers r0 to r14 on the stack */
++	stmg    %r0, %r14, 0(%r15)
++	/* Allocate a stack frame for 16 floating point registers */
++	/* The size of a FP register is the size of an double word */
++	slgfi   %r15, 16 * 8
++	/* Save fp register on stack: offset to SP is multiple of reg number */
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	std	\i, \i * 8(%r15)
++	.endr
++	/* Save fpc, but keep stack aligned on 64bits */
++	slgfi   %r15, 8
++	efpc	%r0
++	stg	%r0, 0(%r15)
++	.endm
++
++/* Restore the register in reverse order */
++	.macro RESTORE_REGS_STACK
++	/* Restore fpc */
++	lfpc	0(%r15)
++	algfi	%r15, 8
++	/* Restore fp register from stack: SP still where it was left */
++	/* and offset to SP is a multiple of reg number */
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	ld	\i, \i * 8(%r15)
++	.endr
++	/* Now that we're done, rewind the stack pointer by 16 double word */
++	algfi   %r15, 16 * 8
++	/* Load the registers from stack */
++	lmg     %r0, %r14, 0(%r15)
++	/* Rewind the stack by 15 double word */
++	algfi   %r15, 15 * 8
++	.endm
++
+ .section .text
+ /*
+  * load_reset calling convention:
+@@ -185,9 +222,9 @@ mcck_int:
+ 	lpswe	GEN_LC_MCCK_OLD_PSW
  
- 	valbool = val ? 1 : 0;
-@@ -2707,7 +2707,8 @@ int udp_setsockopt(struct sock *sk, int level, int optname,
- 		   char __user *optval, unsigned int optlen)
- {
- 	if (level == SOL_UDP  ||  level == SOL_UDPLITE)
--		return udp_lib_setsockopt(sk, level, optname, optval, optlen,
-+		return udp_lib_setsockopt(sk, level, optname,
-+					  USER_SOCKPTR(optval), optlen,
- 					  udp_push_pending_frames);
- 	return ip_setsockopt(sk, level, optname, optval, optlen);
- }
-diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
-index 7c1143feb2bf7e..2df1e6c9d7cbf6 100644
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -1622,7 +1622,8 @@ int udpv6_setsockopt(struct sock *sk, int level, int optname,
- 		     char __user *optval, unsigned int optlen)
- {
- 	if (level == SOL_UDP  ||  level == SOL_UDPLITE)
--		return udp_lib_setsockopt(sk, level, optname, optval, optlen,
-+		return udp_lib_setsockopt(sk, level, optname,
-+					  USER_SOCKPTR(optval), optlen,
- 					  udp_v6_push_pending_frames);
- 	return ipv6_setsockopt(sk, level, optname, optval, optlen);
- }
+ io_int:
+-	SAVE_REGS
++	SAVE_REGS_STACK
+ 	brasl	%r14, handle_io_int
+-	RESTORE_REGS
++	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_IO_OLD_PSW
+ 
+ svc_int:
 -- 
-2.27.0
+2.25.1
