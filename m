@@ -1,77 +1,114 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51862 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbgGNUM3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 14 Jul 2020 16:12:29 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF795C061794
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2020 13:12:29 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id p205so10141169iod.8
-        for <linux-s390@vger.kernel.org>; Tue, 14 Jul 2020 13:12:29 -0700 (PDT)
-Subject: Re: [PATCH 1/2] s390/dasd: fix inability to use DASD with DIAG driver
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64780 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729383AbgGNUDg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Jul 2020 16:03:36 -0400
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 1/2] s390/dasd: fix inability to use DASD with DIAG driver
+Date: Tue, 14 Jul 2020 22:03:26 +0200
+Message-Id: <20200714200327.40927-2-sth@linux.ibm.com>
+In-Reply-To: <20200714200327.40927-1-sth@linux.ibm.com>
 References: <20200714200327.40927-1-sth@linux.ibm.com>
- <20200714200327.40927-2-sth@linux.ibm.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <c368fa07-4a7d-3eae-6143-a2db298c204e@kernel.dk>
-Date: Tue, 14 Jul 2020 14:12:27 -0600
-MIME-Version: 1.0
-In-Reply-To: <20200714200327.40927-2-sth@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Stefan Haberland <sth@linux.ibm.com>
+To: axboe@kernel.dk
 Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-On 7/14/20 2:03 PM, Stefan Haberland wrote:
-> During initialization of the DASD DIAG driver a request is issued
-> that has a bio structure that resides on the stack. With virtually
-> mapped kernel stacks this bio address might be in virtual storage
-> which is unsuitable for usage with the diag250 call.
-> In this case the device can not be set online using the DIAG
-> discipline and fails with -EOPNOTSUP.
-> In the system journal the following error message is presented:
-> 
-> dasd: X.X.XXXX Setting the DASD online with discipline DIAG failed
-> with rc=-95
-> 
-> Fix by allocating the bio structure instead of having it on the stack.
-> 
-> Fixes: ce3dc447493f ("s390: add support for virtually mapped kernel stacks")
-> Cc: stable@vger.kernel.org #4.20
-> Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-> Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-> ---
->  drivers/s390/block/dasd_diag.c | 25 +++++++++++++++++--------
->  1 file changed, 17 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/s390/block/dasd_diag.c b/drivers/s390/block/dasd_diag.c
-> index facb588d09e4..069d6b39cacf 100644
-> --- a/drivers/s390/block/dasd_diag.c
-> +++ b/drivers/s390/block/dasd_diag.c
-> @@ -319,7 +319,7 @@ dasd_diag_check_device(struct dasd_device *device)
->  	struct dasd_diag_characteristics *rdc_data;
->  	struct vtoc_cms_label *label;
->  	struct dasd_block *block;
-> -	struct dasd_diag_bio bio;
-> +	struct dasd_diag_bio *bio;
->  	unsigned int sb, bsize;
->  	blocknum_t end_block;
->  	int rc;
-> @@ -395,29 +395,36 @@ dasd_diag_check_device(struct dasd_device *device)
->  		rc = -ENOMEM;
->  		goto out;
->  	}
-> +	bio = kzalloc(sizeof(*bio), GFP_KERNEL);
-> +	if (bio == NULL)  {
-> +		DBF_DEV_EVENT(DBF_WARNING, device, "%s",
-> +			      "No memory to allocate initialization bio");
-> +		rc = -ENOMEM;
-> +		goto out_label;
-> +	}
+During initialization of the DASD DIAG driver a request is issued
+that has a bio structure that resides on the stack. With virtually
+mapped kernel stacks this bio address might be in virtual storage
+which is unsuitable for usage with the diag250 call.
+In this case the device can not be set online using the DIAG
+discipline and fails with -EOPNOTSUP.
+In the system journal the following error message is presented:
 
-Just curious, any reason this isn't just using bio_alloc()?
+dasd: X.X.XXXX Setting the DASD online with discipline DIAG failed
+with rc=-95
 
+Fix by allocating the bio structure instead of having it on the stack.
+
+Fixes: ce3dc447493f ("s390: add support for virtually mapped kernel stacks")
+Cc: stable@vger.kernel.org #4.20
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+---
+ drivers/s390/block/dasd_diag.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/s390/block/dasd_diag.c b/drivers/s390/block/dasd_diag.c
+index facb588d09e4..069d6b39cacf 100644
+--- a/drivers/s390/block/dasd_diag.c
++++ b/drivers/s390/block/dasd_diag.c
+@@ -319,7 +319,7 @@ dasd_diag_check_device(struct dasd_device *device)
+ 	struct dasd_diag_characteristics *rdc_data;
+ 	struct vtoc_cms_label *label;
+ 	struct dasd_block *block;
+-	struct dasd_diag_bio bio;
++	struct dasd_diag_bio *bio;
+ 	unsigned int sb, bsize;
+ 	blocknum_t end_block;
+ 	int rc;
+@@ -395,29 +395,36 @@ dasd_diag_check_device(struct dasd_device *device)
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
++	bio = kzalloc(sizeof(*bio), GFP_KERNEL);
++	if (bio == NULL)  {
++		DBF_DEV_EVENT(DBF_WARNING, device, "%s",
++			      "No memory to allocate initialization bio");
++		rc = -ENOMEM;
++		goto out_label;
++	}
+ 	rc = 0;
+ 	end_block = 0;
+ 	/* try all sizes - needed for ECKD devices */
+ 	for (bsize = 512; bsize <= PAGE_SIZE; bsize <<= 1) {
+ 		mdsk_init_io(device, bsize, 0, &end_block);
+-		memset(&bio, 0, sizeof (struct dasd_diag_bio));
+-		bio.type = MDSK_READ_REQ;
+-		bio.block_number = private->pt_block + 1;
+-		bio.buffer = label;
++		memset(bio, 0, sizeof(*bio));
++		bio->type = MDSK_READ_REQ;
++		bio->block_number = private->pt_block + 1;
++		bio->buffer = label;
+ 		memset(&private->iob, 0, sizeof (struct dasd_diag_rw_io));
+ 		private->iob.dev_nr = rdc_data->dev_nr;
+ 		private->iob.key = 0;
+ 		private->iob.flags = 0;	/* do synchronous io */
+ 		private->iob.block_count = 1;
+ 		private->iob.interrupt_params = 0;
+-		private->iob.bio_list = &bio;
++		private->iob.bio_list = bio;
+ 		private->iob.flaga = DASD_DIAG_FLAGA_DEFAULT;
+ 		rc = dia250(&private->iob, RW_BIO);
+ 		if (rc == 3) {
+ 			pr_warn("%s: A 64-bit DIAG call failed\n",
+ 				dev_name(&device->cdev->dev));
+ 			rc = -EOPNOTSUPP;
+-			goto out_label;
++			goto out_bio;
+ 		}
+ 		mdsk_term_io(device);
+ 		if (rc == 0)
+@@ -427,7 +434,7 @@ dasd_diag_check_device(struct dasd_device *device)
+ 		pr_warn("%s: Accessing the DASD failed because of an incorrect format (rc=%d)\n",
+ 			dev_name(&device->cdev->dev), rc);
+ 		rc = -EIO;
+-		goto out_label;
++		goto out_bio;
+ 	}
+ 	/* check for label block */
+ 	if (memcmp(label->label_id, DASD_DIAG_CMS1,
+@@ -457,6 +464,8 @@ dasd_diag_check_device(struct dasd_device *device)
+ 			(rc == 4) ? ", read-only device" : "");
+ 		rc = 0;
+ 	}
++out_bio:
++	kfree(bio);
+ out_label:
+ 	free_page((long) label);
+ out:
 -- 
-Jens Axboe
+2.17.1
