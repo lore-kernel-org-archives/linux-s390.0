@@ -1,98 +1,172 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14018 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726801AbgGNLQL (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31162 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725876AbgGNOXW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 07:16:11 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v12 1/9] s390x: saving regs for interrupts
-Date: Tue, 14 Jul 2020 13:15:40 +0200
-Message-Id: <1594725348-10034-2-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
+        Tue, 14 Jul 2020 10:23:22 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 09/10] s390/qeth: unify RX-mode hashtables
+Date: Tue, 14 Jul 2020 16:23:04 +0200
+Message-Id: <20200714142305.29297-10-jwi@linux.ibm.com>
+In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
+References: <20200714142305.29297-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-If we use multiple source of interrupts, for example, using SCLP
-console to print information while using I/O interrupts, we need
-to have a re-entrant register saving interruption handling.
+To keep track of the addresses programmed from an RX modeset, we have
+two separate hashtables (L2: mac_htable, L3: ip_mc_htable).
 
-Instead of saving at a static memory address, let's save the base
-registers, the floating point registers and the floating point
-control register on the stack in case of I/O interrupts
+These are never used at the same time, so unify them into a single
+rx_mode_addrs hashtable.
 
-Note that we keep the static register saving to recover from the
-RESET tests.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- s390x/cstart64.S | 41 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_core.h      |  3 +--
+ drivers/s390/net/qeth_core_main.c |  1 +
+ drivers/s390/net/qeth_l2_main.c   |  9 ++++-----
+ drivers/s390/net/qeth_l3_main.c   | 13 ++++++-------
+ 4 files changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index e084f13..4e51150 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -118,6 +118,43 @@ memsetxc:
- 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
- 	.endm
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index c77a87105ea8..3d54c8bbfa86 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -803,14 +803,13 @@ struct qeth_card {
+ 	struct workqueue_struct *event_wq;
+ 	struct workqueue_struct *cmd_wq;
+ 	wait_queue_head_t wait_q;
+-	DECLARE_HASHTABLE(mac_htable, 4);
+ 	DECLARE_HASHTABLE(ip_htable, 4);
+ 	DECLARE_HASHTABLE(local_addrs4, 4);
+ 	DECLARE_HASHTABLE(local_addrs6, 4);
+ 	spinlock_t local_addrs4_lock;
+ 	spinlock_t local_addrs6_lock;
+ 	struct mutex ip_lock;
+-	DECLARE_HASHTABLE(ip_mc_htable, 4);
++	DECLARE_HASHTABLE(rx_mode_addrs, 4);
+ 	struct work_struct rx_mode_work;
+ 	struct work_struct kernel_thread_starter;
+ 	spinlock_t thread_mask_lock;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 053a25e34e4b..01a280b5e8d2 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1647,6 +1647,7 @@ static void qeth_setup_card(struct qeth_card *card)
+ 	qeth_init_qdio_info(card);
+ 	INIT_DELAYED_WORK(&card->buffer_reclaim_work, qeth_buffer_reclaim_work);
+ 	INIT_WORK(&card->close_dev_work, qeth_close_dev_handler);
++	hash_init(card->rx_mode_addrs);
+ 	hash_init(card->local_addrs4);
+ 	hash_init(card->local_addrs6);
+ 	spin_lock_init(&card->local_addrs4_lock);
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 2d3bca3c0141..ef7a2db7a724 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -156,7 +156,7 @@ static void qeth_l2_drain_rx_mode_cache(struct qeth_card *card)
+ 	struct hlist_node *tmp;
+ 	int i;
  
-+/* Save registers on the stack (r15), so we can have stacked interrupts. */
-+	.macro SAVE_REGS_STACK
-+	/* Allocate a stack frame for 15 general registers */
-+	slgfi   %r15, 15 * 8
-+	/* Store registers r0 to r14 on the stack */
-+	stmg    %r0, %r14, 0(%r15)
-+	/* Allocate a stack frame for 16 floating point registers */
-+	/* The size of a FP register is the size of an double word */
-+	slgfi   %r15, 16 * 8
-+	/* Save fp register on stack: offset to SP is multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	std	\i, \i * 8(%r15)
-+	.endr
-+	/* Save fpc, but keep stack aligned on 64bits */
-+	slgfi   %r15, 8
-+	efpc	%r0
-+	stg	%r0, 0(%r15)
-+	.endm
-+
-+/* Restore the register in reverse order */
-+	.macro RESTORE_REGS_STACK
-+	/* Restore fpc */
-+	lfpc	0(%r15)
-+	algfi	%r15, 8
-+	/* Restore fp register from stack: SP still where it was left */
-+	/* and offset to SP is a multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	ld	\i, \i * 8(%r15)
-+	.endr
-+	/* Now that we're done, rewind the stack pointer by 16 double word */
-+	algfi   %r15, 16 * 8
-+	/* Load the registers from stack */
-+	lmg     %r0, %r14, 0(%r15)
-+	/* Rewind the stack by 15 double word */
-+	algfi   %r15, 15 * 8
-+	.endm
-+
- .section .text
- /*
-  * load_reset calling convention:
-@@ -185,9 +222,9 @@ mcck_int:
- 	lpswe	GEN_LC_MCCK_OLD_PSW
+-	hash_for_each_safe(card->mac_htable, i, tmp, mac, hnode) {
++	hash_for_each_safe(card->rx_mode_addrs, i, tmp, mac, hnode) {
+ 		hash_del(&mac->hnode);
+ 		kfree(mac);
+ 	}
+@@ -438,7 +438,7 @@ static void qeth_l2_add_mac(struct qeth_card *card, struct netdev_hw_addr *ha)
+ 	u32 mac_hash = get_unaligned((u32 *)(&ha->addr[2]));
+ 	struct qeth_mac *mac;
  
- io_int:
--	SAVE_REGS
-+	SAVE_REGS_STACK
- 	brasl	%r14, handle_io_int
--	RESTORE_REGS
-+	RESTORE_REGS_STACK
- 	lpswe	GEN_LC_IO_OLD_PSW
+-	hash_for_each_possible(card->mac_htable, mac, hnode, mac_hash) {
++	hash_for_each_possible(card->rx_mode_addrs, mac, hnode, mac_hash) {
+ 		if (ether_addr_equal_64bits(ha->addr, mac->mac_addr)) {
+ 			mac->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
+ 			return;
+@@ -452,7 +452,7 @@ static void qeth_l2_add_mac(struct qeth_card *card, struct netdev_hw_addr *ha)
+ 	ether_addr_copy(mac->mac_addr, ha->addr);
+ 	mac->disp_flag = QETH_DISP_ADDR_ADD;
  
- svc_int:
+-	hash_add(card->mac_htable, &mac->hnode, mac_hash);
++	hash_add(card->rx_mode_addrs, &mac->hnode, mac_hash);
+ }
+ 
+ static void qeth_l2_rx_mode_work(struct work_struct *work)
+@@ -475,7 +475,7 @@ static void qeth_l2_rx_mode_work(struct work_struct *work)
+ 		qeth_l2_add_mac(card, ha);
+ 	netif_addr_unlock_bh(dev);
+ 
+-	hash_for_each_safe(card->mac_htable, i, tmp, mac, hnode) {
++	hash_for_each_safe(card->rx_mode_addrs, i, tmp, mac, hnode) {
+ 		switch (mac->disp_flag) {
+ 		case QETH_DISP_ADDR_DELETE:
+ 			qeth_l2_remove_mac(card, mac->mac_addr);
+@@ -601,7 +601,6 @@ static int qeth_l2_probe_device(struct ccwgroup_device *gdev)
+ 			return rc;
+ 	}
+ 
+-	hash_init(card->mac_htable);
+ 	INIT_WORK(&card->rx_mode_work, qeth_l2_rx_mode_work);
+ 	return 0;
+ }
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index d4ce653ff111..15a12487ff7a 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -58,7 +58,7 @@ static struct qeth_ipaddr *qeth_l3_find_addr_by_ip(struct qeth_card *card,
+ 	struct qeth_ipaddr *addr;
+ 
+ 	if (query->is_multicast) {
+-		hash_for_each_possible(card->ip_mc_htable, addr, hnode, key)
++		hash_for_each_possible(card->rx_mode_addrs, addr, hnode, key)
+ 			if (qeth_l3_addr_match_ip(addr, query))
+ 				return addr;
+ 	} else {
+@@ -239,7 +239,7 @@ static void qeth_l3_drain_rx_mode_cache(struct qeth_card *card)
+ 	struct hlist_node *tmp;
+ 	int i;
+ 
+-	hash_for_each_safe(card->ip_mc_htable, i, tmp, addr, hnode) {
++	hash_for_each_safe(card->rx_mode_addrs, i, tmp, addr, hnode) {
+ 		hash_del(&addr->hnode);
+ 		kfree(addr);
+ 	}
+@@ -1093,7 +1093,7 @@ static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
+ 		if (!ipm)
+ 			continue;
+ 
+-		hash_add(card->ip_mc_htable, &ipm->hnode,
++		hash_add(card->rx_mode_addrs, &ipm->hnode,
+ 			 qeth_l3_ipaddr_hash(ipm));
+ 	}
+ 
+@@ -1124,8 +1124,8 @@ static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
+ 		if (!ipm)
+ 			continue;
+ 
+-		hash_add(card->ip_mc_htable,
+-				&ipm->hnode, qeth_l3_ipaddr_hash(ipm));
++		hash_add(card->rx_mode_addrs, &ipm->hnode,
++			 qeth_l3_ipaddr_hash(ipm));
+ 
+ 	}
+ 	read_unlock_bh(&in6_dev->lock);
+@@ -1219,7 +1219,7 @@ static void qeth_l3_rx_mode_work(struct work_struct *work)
+ 			vlan_for_each(card->dev, qeth_l3_add_mcast_rtnl, card);
+ 		rtnl_unlock();
+ 
+-		hash_for_each_safe(card->ip_mc_htable, i, tmp, addr, hnode) {
++		hash_for_each_safe(card->rx_mode_addrs, i, tmp, addr, hnode) {
+ 			switch (addr->disp_flag) {
+ 			case QETH_DISP_ADDR_DELETE:
+ 				rc = qeth_l3_deregister_addr_entry(card, addr);
+@@ -1998,7 +1998,6 @@ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
+ 		}
+ 	}
+ 
+-	hash_init(card->ip_mc_htable);
+ 	INIT_WORK(&card->rx_mode_work, qeth_l3_rx_mode_work);
+ 	return 0;
+ }
 -- 
-2.25.1
+2.17.1
