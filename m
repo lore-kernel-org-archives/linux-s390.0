@@ -1,68 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50480 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728713AbgGNOXY (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16520 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729713AbgGNUGM (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:23:24 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 04/10] s390/qeth: don't clear the configured isolation mode
-Date: Tue, 14 Jul 2020 16:22:59 +0200
-Message-Id: <20200714142305.29297-5-jwi@linux.ibm.com>
-In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
-References: <20200714142305.29297-1-jwi@linux.ibm.com>
+        Tue, 14 Jul 2020 16:06:12 -0400
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 2/2] s390/dasd: Use struct_size() helper
+Date: Tue, 14 Jul 2020 22:03:27 +0200
+Message-Id: <20200714200327.40927-3-sth@linux.ibm.com>
+In-Reply-To: <20200714200327.40927-1-sth@linux.ibm.com>
+References: <20200714200327.40927-1-sth@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: axboe@kernel.dk
+Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-When qeth_set_access_ctrl_online() is called during the device's
-initialization and discovers that isolation mode isn't supported, don't
-clear the user's currently configured mode.
-They intentionally choose to operate the device in this specific mode,
-and degrading the isolation is not an option.
+From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
 
-Only adjust the configuration when called via sysfs (ie. fallback = 1),
-and here follow the common pattern and restore it from prev_isolation.
+Make use of the struct_size() helper instead of an open-coded version
+in order to avoid any potential type mistakes. Also, remove unnecessary
+variable _datasize_.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+This code was detected with the help of Coccinelle and, audited and
+fixed manually.
+
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/s390/block/dasd_diag.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 514795c5eaad..782a5128ac04 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4663,19 +4663,19 @@ int qeth_set_access_ctrl_online(struct qeth_card *card, int fallback)
+diff --git a/drivers/s390/block/dasd_diag.c b/drivers/s390/block/dasd_diag.c
+index 069d6b39cacf..1b9e1442e6a5 100644
+--- a/drivers/s390/block/dasd_diag.c
++++ b/drivers/s390/block/dasd_diag.c
+@@ -515,7 +515,7 @@ static struct dasd_ccw_req *dasd_diag_build_cp(struct dasd_device *memdev,
+ 	struct req_iterator iter;
+ 	struct bio_vec bv;
+ 	char *dst;
+-	unsigned int count, datasize;
++	unsigned int count;
+ 	sector_t recid, first_rec, last_rec;
+ 	unsigned int blksize, off;
+ 	unsigned char rw_cmd;
+@@ -543,10 +543,8 @@ static struct dasd_ccw_req *dasd_diag_build_cp(struct dasd_device *memdev,
+ 	if (count != last_rec - first_rec + 1)
+ 		return ERR_PTR(-EINVAL);
+ 	/* Build the request */
+-	datasize = sizeof(struct dasd_diag_req) +
+-		count*sizeof(struct dasd_diag_bio);
+-	cqr = dasd_smalloc_request(DASD_DIAG_MAGIC, 0, datasize, memdev,
+-				   blk_mq_rq_to_pdu(req));
++	cqr = dasd_smalloc_request(DASD_DIAG_MAGIC, 0, struct_size(dreq, bio, count),
++				   memdev, blk_mq_rq_to_pdu(req));
+ 	if (IS_ERR(cqr))
+ 		return cqr;
  
- 	QETH_CARD_TEXT(card, 4, "setactlo");
- 
--	if (qeth_adp_supported(card, IPA_SETADP_SET_ACCESS_CONTROL)) {
--		rc = qeth_setadpparms_set_access_ctrl(card,
--			card->options.isolation, fallback);
--		if (rc) {
--			QETH_DBF_MESSAGE(3, "IPA(SET_ACCESS_CTRL(%d) on device %x: sent failed\n",
--					 rc, CARD_DEVID(card));
--			rc = -EOPNOTSUPP;
--		}
--	} else if (card->options.isolation != ISOLATION_MODE_NONE) {
--		card->options.isolation = ISOLATION_MODE_NONE;
--
-+	if (!qeth_adp_supported(card, IPA_SETADP_SET_ACCESS_CONTROL)) {
- 		dev_err(&card->gdev->dev, "Adapter does not "
- 			"support QDIO data connection isolation\n");
-+		if (fallback)
-+			card->options.isolation = card->options.prev_isolation;
-+		return -EOPNOTSUPP;
-+	}
-+
-+	rc = qeth_setadpparms_set_access_ctrl(card, card->options.isolation,
-+					      fallback);
-+	if (rc) {
-+		QETH_DBF_MESSAGE(3, "IPA(SET_ACCESS_CTRL(%d) on device %x: sent failed\n",
-+				 rc, CARD_DEVID(card));
- 		rc = -EOPNOTSUPP;
- 	}
- 	return rc;
 -- 
 2.17.1
