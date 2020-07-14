@@ -1,54 +1,40 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:58004 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729213AbgGBB0f (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:26:35 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 16/27] s390/kasan: fix early pgm check handler execution
-Date: Wed,  1 Jul 2020 21:26:04 -0400
-Message-Id: <20200702012615.2701532-16-sashal@kernel.org>
-In-Reply-To: <20200702012615.2701532-1-sashal@kernel.org>
-References: <20200702012615.2701532-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50744 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728716AbgGNOXY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:23:24 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 02/10] s390/qeth: fine-tune errno when cmds are cancelled
+Date: Tue, 14 Jul 2020 16:22:57 +0200
+Message-Id: <20200714142305.29297-3-jwi@linux.ibm.com>
+In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
+References: <20200714142305.29297-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Alexander Egorenkov <egorenar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+If we cancel all pending cmds (eg. when tearing down the device), don't
+blame it on an IO error.
 
-[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
-
-Currently if early_pgm_check_handler is called it ends up in pgm check
-loop. The problem is that early_pgm_check_handler is instrumented by
-KASAN but executed without DAT flag enabled which leads to addressing
-exception when KASAN checks try to access shadow memory.
-
-Fix that by executing early handlers with DAT flag on under KASAN as
-expected.
-
-Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/kernel/early.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/net/qeth_core_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index e7e6608b996c6..ad88bed743954 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -155,6 +155,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index c0f551602a5a..7d51be6665cc 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -969,7 +969,7 @@ void qeth_clear_ipacmd_list(struct qeth_card *card)
  
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
+ 	spin_lock_irqsave(&card->lock, flags);
+ 	list_for_each_entry(iob, &card->cmd_waiter_list, list)
+-		qeth_notify_cmd(iob, -EIO);
++		qeth_notify_cmd(iob, -ECANCELED);
+ 	spin_unlock_irqrestore(&card->lock, flags);
+ }
+ EXPORT_SYMBOL_GPL(qeth_clear_ipacmd_list);
 -- 
-2.25.1
+2.17.1
