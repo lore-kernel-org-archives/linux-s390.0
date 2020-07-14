@@ -1,93 +1,85 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64132 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726467AbgGGIpF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 7 Jul 2020 04:45:05 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v4 0/2] s390: virtio: let arch validate VIRTIO features
-Date: Tue,  7 Jul 2020 10:44:35 +0200
-Message-Id: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:54104 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726964AbgGNOiz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 14 Jul 2020 10:38:55 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.7 03/19] KVM: s390: reduce number of IO pins to 1
+Date: Tue, 14 Jul 2020 10:38:33 -0400
+Message-Id: <20200714143849.4035283-3-sashal@kernel.org>
+In-Reply-To: <20200714143849.4035283-1-sashal@kernel.org>
+References: <20200714143849.4035283-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-Hi all,
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-I changed the patch subject to reflect the content, becoming more
-general.
+[ Upstream commit 774911290c589e98e3638e73b24b0a4d4530e97c ]
 
-1) I removed the ack from Christian and Jason even far as
-   I understand they gave it for the functionality more than for the
-   implementation.
-   @Jason, @Christian, please can I get back your acked-by with these changes?
+The current number of KVM_IRQCHIP_NUM_PINS results in an order 3
+allocation (32kb) for each guest start/restart. This can result in OOM
+killer activity even with free swap when the memory is fragmented
+enough:
 
-2) previous patch had another name:
-   [PATCH v3 0/1] s390: virtio: let arch choose to accept devices without IOMMU feature
-   id: Message-Id: <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+kernel: qemu-system-s39 invoked oom-killer: gfp_mask=0x440dc0(GFP_KERNEL_ACCOUNT|__GFP_COMP|__GFP_ZERO), order=3, oom_score_adj=0
+kernel: CPU: 1 PID: 357274 Comm: qemu-system-s39 Kdump: loaded Not tainted 5.4.0-29-generic #33-Ubuntu
+kernel: Hardware name: IBM 8562 T02 Z06 (LPAR)
+kernel: Call Trace:
+kernel: ([<00000001f848fe2a>] show_stack+0x7a/0xc0)
+kernel:  [<00000001f8d3437a>] dump_stack+0x8a/0xc0
+kernel:  [<00000001f8687032>] dump_header+0x62/0x258
+kernel:  [<00000001f8686122>] oom_kill_process+0x172/0x180
+kernel:  [<00000001f8686abe>] out_of_memory+0xee/0x580
+kernel:  [<00000001f86e66b8>] __alloc_pages_slowpath+0xd18/0xe90
+kernel:  [<00000001f86e6ad4>] __alloc_pages_nodemask+0x2a4/0x320
+kernel:  [<00000001f86b1ab4>] kmalloc_order+0x34/0xb0
+kernel:  [<00000001f86b1b62>] kmalloc_order_trace+0x32/0xe0
+kernel:  [<00000001f84bb806>] kvm_set_irq_routing+0xa6/0x2e0
+kernel:  [<00000001f84c99a4>] kvm_arch_vm_ioctl+0x544/0x9e0
+kernel:  [<00000001f84b8936>] kvm_vm_ioctl+0x396/0x760
+kernel:  [<00000001f875df66>] do_vfs_ioctl+0x376/0x690
+kernel:  [<00000001f875e304>] ksys_ioctl+0x84/0xb0
+kernel:  [<00000001f875e39a>] __s390x_sys_ioctl+0x2a/0x40
+kernel:  [<00000001f8d55424>] system_call+0xd8/0x2c8
 
-3) The new version generalize the validation of the features by the
-   architecture, making it not IOMMU_PLATFORM specific anymore inside
-   virtio.c
+As far as I can tell s390x does not use the iopins as we bail our for
+anything other than KVM_IRQ_ROUTING_S390_ADAPTER and the chip/pin is
+only used for KVM_IRQ_ROUTING_IRQCHIP. So let us use a small number to
+reduce the memory footprint.
 
-   The architecture specific code for s390 is now testing the virtio
-   features.
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200617083620.5409-1-borntraeger@de.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/include/asm/kvm_host.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-4) Since I reworked the patch I also moved the arch specific code
-   from arch/s390/mm/init.c to arch/s390/kernel/to uv.c
-
-5) Finaly, I splitted the patch into generic virtio and arch
-   specific code.
-
-Regards,
-Pierre
-
-Pierre Morel (2):
-  virtio: let arch validate VIRTIO features
-  s390: virtio: PV needs VIRTIO I/O device protection
-
- arch/s390/kernel/uv.c         | 25 +++++++++++++++++++++++++
- drivers/virtio/virtio.c       | 19 +++++++++++++++++++
- include/linux/virtio_config.h |  1 +
- 3 files changed, 45 insertions(+)
-
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index d6bcd34f3ec32..ec65bc2bd084e 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -31,12 +31,12 @@
+ #define KVM_USER_MEM_SLOTS 32
+ 
+ /*
+- * These seem to be used for allocating ->chip in the routing table,
+- * which we don't use. 4096 is an out-of-thin-air value. If we need
+- * to look at ->chip later on, we'll need to revisit this.
++ * These seem to be used for allocating ->chip in the routing table, which we
++ * don't use. 1 is as small as we can get to reduce the needed memory. If we
++ * need to look at ->chip later on, we'll need to revisit this.
+  */
+ #define KVM_NR_IRQCHIPS 1
+-#define KVM_IRQCHIP_NUM_PINS 4096
++#define KVM_IRQCHIP_NUM_PINS 1
+ #define KVM_HALT_POLL_NS_DEFAULT 50000
+ 
+ /* s390-specific vcpu->requests bit members */
 -- 
 2.25.1
-
-Changelog
-
-to v4:
-
-- separate virtio and arch code
-  (Pierre)
-
-- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
-  (Heiko)
-
-- moved validation inside the arch code
-  (Connie)
-
-- moved the call to arch validation before VIRTIO_F_1 test
-  (Michael)
-
-to v3:
-
-- add warning
-  (Connie, Christian)
-
-- add comment
-  (Connie)
-
-- change hook name
-  (Halil, Connie)
-
-to v2:
-
-- put the test in virtio_finalize_features()
-  (Connie)
-
-- put the test inside VIRTIO core
-  (Jason)
-
-- pass a virtio device as parameter
-  (Halil)
