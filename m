@@ -1,123 +1,46 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/24] net: switch copy_bpf_fprog_from_user to sockptr_t
-Date: Mon, 20 Jul 2020 14:47:17 +0200
-Message-Id: <20200720124737.118617-5-hch@lst.de>
-In-Reply-To: <20200720124737.118617-1-hch@lst.de>
-References: <20200720124737.118617-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54116 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728857AbgGOOra (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 15 Jul 2020 10:47:30 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A03C08C5DB
+        for <linux-s390@vger.kernel.org>; Wed, 15 Jul 2020 07:47:30 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id q74so2533493iod.1
+        for <linux-s390@vger.kernel.org>; Wed, 15 Jul 2020 07:47:29 -0700 (PDT)
+Subject: Re: [PATCH 0/2] DASD DIAG patches
+References: <20200714200327.40927-1-sth@linux.ibm.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <e45950a7-a452-e7f0-f066-e1465cd97a4d@kernel.dk>
+Date: Wed, 15 Jul 2020 08:47:27 -0600
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200714200327.40927-1-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+On 7/14/20 2:03 PM, Stefan Haberland wrote:
+> Hi Jens,
+> 
+> please see the following two patches that fix and improve the DASD DIAG driver.
+> 
+> Regards,
+> Stefan
+> 
+> Gustavo A. R. Silva (1):
+>   s390/dasd: Use struct_size() helper
+> 
+> Stefan Haberland (1):
+>   s390/dasd: fix inability to use DASD with DIAG driver
+> 
+>  drivers/s390/block/dasd_diag.c | 33 ++++++++++++++++++++-------------
+>  1 file changed, 20 insertions(+), 13 deletions(-)
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/filter.h | 3 ++-
- net/core/filter.c      | 6 +++---
- net/core/sock.c        | 6 ++++--
- net/packet/af_packet.c | 4 ++--
- 4 files changed, 11 insertions(+), 8 deletions(-)
+Applied, thanks.
 
-diff --git a/include/linux/filter.h b/include/linux/filter.h
-index 4d049c8e1fbeaa..87954ef126df77 100644
---- a/include/linux/filter.h
-+++ b/include/linux/filter.h
-@@ -20,6 +20,7 @@
- #include <linux/kallsyms.h>
- #include <linux/if_vlan.h>
- #include <linux/vmalloc.h>
-+#include <linux/sockptr.h>
- #include <crypto/sha.h>
- 
- #include <net/sch_generic.h>
-@@ -1276,6 +1277,6 @@ struct bpf_sockopt_kern {
- 	s32		retval;
- };
- 
--int copy_bpf_fprog_from_user(struct sock_fprog *dst, void __user *src, int len);
-+int copy_bpf_fprog_from_user(struct sock_fprog *dst, sockptr_t src, int len);
- 
- #endif /* __LINUX_FILTER_H__ */
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 2bf6624796d86f..4cc1d381a273fd 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -77,14 +77,14 @@
- #include <net/transp_v6.h>
- #include <linux/btf_ids.h>
- 
--int copy_bpf_fprog_from_user(struct sock_fprog *dst, void __user *src, int len)
-+int copy_bpf_fprog_from_user(struct sock_fprog *dst, sockptr_t src, int len)
- {
- 	if (in_compat_syscall()) {
- 		struct compat_sock_fprog f32;
- 
- 		if (len != sizeof(f32))
- 			return -EINVAL;
--		if (copy_from_user(&f32, src, sizeof(f32)))
-+		if (copy_from_sockptr(&f32, src, sizeof(f32)))
- 			return -EFAULT;
- 		memset(dst, 0, sizeof(*dst));
- 		dst->len = f32.len;
-@@ -92,7 +92,7 @@ int copy_bpf_fprog_from_user(struct sock_fprog *dst, void __user *src, int len)
- 	} else {
- 		if (len != sizeof(*dst))
- 			return -EINVAL;
--		if (copy_from_user(dst, src, sizeof(*dst)))
-+		if (copy_from_sockptr(dst, src, sizeof(*dst)))
- 			return -EFAULT;
- 	}
- 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index d828bfe1c47dfa..91224709869389 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1062,7 +1062,8 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 	case SO_ATTACH_FILTER: {
- 		struct sock_fprog fprog;
- 
--		ret = copy_bpf_fprog_from_user(&fprog, optval, optlen);
-+		ret = copy_bpf_fprog_from_user(&fprog, USER_SOCKPTR(optval),
-+					       optlen);
- 		if (!ret)
- 			ret = sk_attach_filter(&fprog, sk);
- 		break;
-@@ -1083,7 +1084,8 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 	case SO_ATTACH_REUSEPORT_CBPF: {
- 		struct sock_fprog fprog;
- 
--		ret = copy_bpf_fprog_from_user(&fprog, optval, optlen);
-+		ret = copy_bpf_fprog_from_user(&fprog, USER_SOCKPTR(optval),
-+					       optlen);
- 		if (!ret)
- 			ret = sk_reuseport_attach_filter(&fprog, sk);
- 		break;
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index c240fb5de3f014..d8d4f78f78e451 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -1536,7 +1536,7 @@ static void __fanout_set_data_bpf(struct packet_fanout *f, struct bpf_prog *new)
- 	}
- }
- 
--static int fanout_set_data_cbpf(struct packet_sock *po, char __user *data,
-+static int fanout_set_data_cbpf(struct packet_sock *po, sockptr_t data,
- 				unsigned int len)
- {
- 	struct bpf_prog *new;
-@@ -1584,7 +1584,7 @@ static int fanout_set_data(struct packet_sock *po, char __user *data,
- {
- 	switch (po->fanout->type) {
- 	case PACKET_FANOUT_CBPF:
--		return fanout_set_data_cbpf(po, data, len);
-+		return fanout_set_data_cbpf(po, USER_SOCKPTR(data), len);
- 	case PACKET_FANOUT_EBPF:
- 		return fanout_set_data_ebpf(po, data, len);
- 	default:
 -- 
-2.27.0
+Jens Axboe
