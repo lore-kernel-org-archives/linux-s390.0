@@ -1,78 +1,96 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 05/10] net/smc: drop out-of-flow llc response messages
-Date: Thu, 16 Jul 2020 17:37:41 +0200
-Message-Id: <20200716153746.77303-6-kgraul@linux.ibm.com>
-In-Reply-To: <20200716153746.77303-1-kgraul@linux.ibm.com>
-References: <20200716153746.77303-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59228 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727033AbgGPIXi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 04:23:38 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v13 2/9] s390x: I/O interrupt registration
+Date: Thu, 16 Jul 2020 10:23:22 +0200
+Message-Id: <1594887809-10521-3-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-To be save from unexpected or late llc response messages check if the
-arrived message fits to the current flow type and drop out-of-flow
-messages. And drop it when there is already a response assigned to
-the flow.
+Let's make it possible to add and remove a custom io interrupt handler,
+that can be used instead of the normal one.
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Fixes: ef79d439cd12 ("net/smc: process llc responses in tasklet context")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 ---
- net/smc/smc_llc.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ lib/s390x/interrupt.c | 23 ++++++++++++++++++++++-
+ lib/s390x/interrupt.h |  8 ++++++++
+ 2 files changed, 30 insertions(+), 1 deletion(-)
+ create mode 100644 lib/s390x/interrupt.h
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 58f4da2e0cc7..78704f03e72a 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1587,6 +1587,8 @@ static void smc_llc_event_work(struct work_struct *work)
- static void smc_llc_rx_response(struct smc_link *link,
- 				struct smc_llc_qentry *qentry)
- {
-+	enum smc_llc_flowtype flowtype = link->lgr->llc_flow_lcl.type;
-+	struct smc_llc_flow *flow = &link->lgr->llc_flow_lcl;
- 	u8 llc_type = qentry->msg.raw.hdr.common.type;
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 3a40cac..243b9c2 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -10,9 +10,9 @@
+  * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+-#include <asm/interrupt.h>
+ #include <asm/barrier.h>
+ #include <sclp.h>
++#include <interrupt.h>
  
- 	switch (llc_type) {
-@@ -1595,15 +1597,20 @@ static void smc_llc_rx_response(struct smc_link *link,
- 			complete(&link->llc_testlink_resp);
- 		break;
- 	case SMC_LLC_ADD_LINK:
--	case SMC_LLC_DELETE_LINK:
--	case SMC_LLC_CONFIRM_LINK:
- 	case SMC_LLC_ADD_LINK_CONT:
-+	case SMC_LLC_CONFIRM_LINK:
-+		if (flowtype != SMC_LLC_FLOW_ADD_LINK || flow->qentry)
-+			break;	/* drop out-of-flow response */
-+		goto assign;
-+	case SMC_LLC_DELETE_LINK:
-+		if (flowtype != SMC_LLC_FLOW_DEL_LINK || flow->qentry)
-+			break;	/* drop out-of-flow response */
-+		goto assign;
- 	case SMC_LLC_CONFIRM_RKEY:
- 	case SMC_LLC_DELETE_RKEY:
--		/* assign responses to the local flow, we requested them */
--		smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
--		wake_up(&link->lgr->llc_msg_waiter);
--		return;
-+		if (flowtype != SMC_LLC_FLOW_RKEY || flow->qentry)
-+			break;	/* drop out-of-flow response */
-+		goto assign;
- 	case SMC_LLC_CONFIRM_RKEY_CONT:
- 		/* not used because max links is 3 */
- 		break;
-@@ -1612,6 +1619,11 @@ static void smc_llc_rx_response(struct smc_link *link,
- 		break;
- 	}
- 	kfree(qentry);
-+	return;
-+assign:
-+	/* assign responses to the local flow, we requested them */
-+	smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
-+	wake_up(&link->lgr->llc_msg_waiter);
+ static bool pgm_int_expected;
+ static bool ext_int_expected;
+@@ -144,12 +144,33 @@ void handle_mcck_int(void)
+ 		     stap(), lc->mcck_old_psw.addr);
  }
  
- static void smc_llc_enqueue(struct smc_link *link, union smc_llc_msg *llc)
++static void (*io_int_func)(void);
++
+ void handle_io_int(void)
+ {
++	if (io_int_func)
++		return io_int_func();
++
+ 	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
+ 		     stap(), lc->io_old_psw.addr);
+ }
+ 
++int register_io_int_func(void (*f)(void))
++{
++	if (io_int_func)
++		return -1;
++	io_int_func = f;
++	return 0;
++}
++
++int unregister_io_int_func(void (*f)(void))
++{
++	if (io_int_func != f)
++		return -1;
++	io_int_func = NULL;
++	return 0;
++}
++
+ void handle_svc_int(void)
+ {
+ 	report_abort("Unexpected supervisor call interrupt: on cpu %d at %#lx",
+diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
+new file mode 100644
+index 0000000..1973d26
+--- /dev/null
++++ b/lib/s390x/interrupt.h
+@@ -0,0 +1,8 @@
++#ifndef INTERRUPT_H
++#define INTERRUPT_H
++#include <asm/interrupt.h>
++
++int register_io_int_func(void (*f)(void));
++int unregister_io_int_func(void (*f)(void));
++
++#endif /* INTERRUPT_H */
 -- 
-2.17.1
+2.25.1
