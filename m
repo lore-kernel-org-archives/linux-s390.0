@@ -1,35 +1,46 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 09/20] bcache: stop setting ->queuedata
-Date: Wed,  1 Jul 2020 10:59:36 +0200
-Message-Id: <20200701085947.3354405-10-hch@lst.de>
-In-Reply-To: <20200701085947.3354405-1-hch@lst.de>
-References: <20200701085947.3354405-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34712 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729027AbgGPPiH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 11:38:07 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 03/10] net/smc: fix link lookup for new rdma connections
+Date: Thu, 16 Jul 2020 17:37:39 +0200
+Message-Id: <20200716153746.77303-4-kgraul@linux.ibm.com>
+In-Reply-To: <20200716153746.77303-1-kgraul@linux.ibm.com>
+References: <20200716153746.77303-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-xtensa@linux-xtensa.org, drbd-dev@lists.linbit.com, linuxppc-dev@lists.ozlabs.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-nvdimm@lists.01.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Nothing in bcache actually uses the ->queuedata field.
+For new rdma connections the SMC server assigns the link and sends the
+link data in the clc accept message. To match the correct link use not
+only the qp_num but also the gid and the mac of the links. If there are
+equal qp_nums for different links the wrong link would be chosen.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/md/bcache/super.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/smc/af_smc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 2014016f9a60d3..21aa168113d30b 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -876,7 +876,6 @@ static int bcache_device_init(struct bcache_device *d, unsigned int block_size,
- 		return -ENOMEM;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 903321543838..f80591567a3d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -632,7 +632,9 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 			struct smc_link *l = &smc->conn.lgr->lnk[i];
  
- 	d->disk->queue			= q;
--	q->queuedata			= d;
- 	q->backing_dev_info->congested_data = d;
- 	q->limits.max_hw_sectors	= UINT_MAX;
- 	q->limits.max_sectors		= UINT_MAX;
+-			if (l->peer_qpn == ntoh24(aclc->qpn)) {
++			if (l->peer_qpn == ntoh24(aclc->qpn) &&
++			    !memcmp(l->peer_gid, &aclc->lcl.gid, SMC_GID_SIZE) &&
++			    !memcmp(l->peer_mac, &aclc->lcl.mac, sizeof(l->peer_mac))) {
+ 				link = l;
+ 				break;
+ 			}
 -- 
-2.26.2
+2.17.1
