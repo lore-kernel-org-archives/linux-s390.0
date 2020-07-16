@@ -1,141 +1,83 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 26/26] net: optimize the sockptr_t for unified kernel/user address spaces
-Date: Thu, 23 Jul 2020 08:09:08 +0200
-Message-Id: <20200723060908.50081-27-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64502 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727055AbgGPIXj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 04:23:39 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v13 4/9] s390x: clock and delays calculations
+Date: Thu, 16 Jul 2020 10:23:24 +0200
+Message-Id: <1594887809-10521-5-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-For architectures like x86 and arm64 we don't need the separate bit to
-indicate that a pointer is a kernel pointer as the address spaces are
-unified.  That way the sockptr_t can be reduced to a union of two
-pointers, which leads to nicer calling conventions.
+The hardware gives us a good definition of the microsecond,
+let's keep this information and let the routine accessing
+the hardware keep all the information and return microseconds.
 
-The only caveat is that we need to check that users don't pass in kernel
-address and thus gain access to kernel memory.  Thus the USER_SOCKPTR
-helper is replaced with a init_user_sockptr function that does this check
-and returns an error if it fails.
+Calculate delays in microseconds and take care about wrapping
+around zero.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Define values with macros and use inlines to keep the
+milliseconds interface.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- include/linux/sockptr.h     | 32 ++++++++++++++++++++++++++++++--
- net/ipv4/bpfilter/sockopt.c | 14 ++++++++------
- net/socket.c                |  6 +++++-
- 3 files changed, 43 insertions(+), 9 deletions(-)
+ lib/s390x/asm/time.h | 30 +++++++++++++++++++++++++++---
+ 1 file changed, 27 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/sockptr.h b/include/linux/sockptr.h
-index 700856e13ea0c4..7d5cdb2b30b5f0 100644
---- a/include/linux/sockptr.h
-+++ b/include/linux/sockptr.h
-@@ -8,9 +8,34 @@
- #ifndef _LINUX_SOCKPTR_H
- #define _LINUX_SOCKPTR_H
+diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
+index 1791380..7375aa2 100644
+--- a/lib/s390x/asm/time.h
++++ b/lib/s390x/asm/time.h
+@@ -13,14 +13,38 @@
+ #ifndef ASM_S390X_TIME_H
+ #define ASM_S390X_TIME_H
  
-+#include <linux/compiler.h>
- #include <linux/slab.h>
- #include <linux/uaccess.h>
- 
-+#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
-+typedef union {
-+	void		*kernel;
-+	void __user	*user;
-+} sockptr_t;
+-static inline uint64_t get_clock_ms(void)
++#define STCK_SHIFT_US	(63 - 51)
++#define STCK_MAX	((1UL << 52) - 1)
 +
-+static inline bool sockptr_is_kernel(sockptr_t sockptr)
-+{
-+	return (unsigned long)sockptr.kernel >= TASK_SIZE;
++static inline uint64_t get_clock_us(void)
+ {
+ 	uint64_t clk;
+ 
+ 	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
+ 
+-	/* Bit 51 is incrememented each microsecond */
+-	return (clk >> (63 - 51)) / 1000;
++	return clk >> STCK_SHIFT_US;
 +}
 +
-+static inline sockptr_t KERNEL_SOCKPTR(void *p)
++static inline uint64_t get_clock_ms(void)
 +{
-+	return (sockptr_t) { .kernel = p };
++	return get_clock_us() / 1000;
 +}
 +
-+static inline int __must_check init_user_sockptr(sockptr_t *sp, void __user *p)
++static inline void udelay(unsigned long us)
 +{
-+	if ((unsigned long)p >= TASK_SIZE)
-+		return -EFAULT;
-+	sp->user = p;
-+	return 0;
-+}
-+#else /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
- typedef struct {
- 	union {
- 		void		*kernel;
-@@ -29,10 +54,13 @@ static inline sockptr_t KERNEL_SOCKPTR(void *p)
- 	return (sockptr_t) { .kernel = p, .is_kernel = true };
- }
- 
--static inline sockptr_t USER_SOCKPTR(void __user *p)
-+static inline int __must_check init_user_sockptr(sockptr_t *sp, void __user *p)
- {
--	return (sockptr_t) { .user = p };
-+	sp->user = p;
-+	sp->is_kernel = false;
-+	return 0;
- }
-+#endif /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
- 
- static inline bool sockptr_is_null(sockptr_t sockptr)
- {
-diff --git a/net/ipv4/bpfilter/sockopt.c b/net/ipv4/bpfilter/sockopt.c
-index 1b34cb9a7708ec..94f18d2352d007 100644
---- a/net/ipv4/bpfilter/sockopt.c
-+++ b/net/ipv4/bpfilter/sockopt.c
-@@ -57,16 +57,18 @@ int bpfilter_ip_set_sockopt(struct sock *sk, int optname, sockptr_t optval,
- 	return bpfilter_mbox_request(sk, optname, optval, optlen, true);
- }
- 
--int bpfilter_ip_get_sockopt(struct sock *sk, int optname, char __user *optval,
--			    int __user *optlen)
-+int bpfilter_ip_get_sockopt(struct sock *sk, int optname,
-+			    char __user *user_optval, int __user *optlen)
- {
--	int len;
-+	sockptr_t optval;
-+	int err, len;
- 
- 	if (get_user(len, optlen))
- 		return -EFAULT;
--
--	return bpfilter_mbox_request(sk, optname, USER_SOCKPTR(optval), len,
--				     false);
-+	err = init_user_sockptr(&optval, user_optval);
-+	if (err)
-+		return err;
-+	return bpfilter_mbox_request(sk, optname, optval, len, false);
- }
- 
- static int __init bpfilter_sockopt_init(void)
-diff --git a/net/socket.c b/net/socket.c
-index e44b8ac47f6f46..94ca4547cd7c53 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -2097,7 +2097,7 @@ static bool sock_use_custom_sol_socket(const struct socket *sock)
- int __sys_setsockopt(int fd, int level, int optname, char __user *user_optval,
- 		int optlen)
- {
--	sockptr_t optval = USER_SOCKPTR(user_optval);
-+	sockptr_t optval;
- 	char *kernel_optval = NULL;
- 	int err, fput_needed;
- 	struct socket *sock;
-@@ -2105,6 +2105,10 @@ int __sys_setsockopt(int fd, int level, int optname, char __user *user_optval,
- 	if (optlen < 0)
- 		return -EINVAL;
- 
-+	err = init_user_sockptr(&optval, user_optval);
-+	if (err)
-+		return err;
++	unsigned long startclk = get_clock_us();
++	unsigned long c;
 +
- 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
- 	if (!sock)
- 		return err;
++	do {
++		c = get_clock_us();
++		if (c < startclk)
++			c += STCK_MAX;
++	} while (c < startclk + us);
++}
++
++static inline void mdelay(unsigned long ms)
++{
++	udelay(ms * 1000);
+ }
+ 
+ #endif
 -- 
-2.27.0
+2.25.1
