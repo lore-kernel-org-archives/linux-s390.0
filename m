@@ -1,31 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga07-in.huawei.com ([45.249.212.35]:33976 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726238AbgGQBTw (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jul 2020 21:19:52 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62290 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726350AbgGPL0n (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 07:26:43 -0400
+Date: Thu, 16 Jul 2020 13:26:30 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
 Subject: Re: [PATCH -next] s390/mm: Convert to DEFINE_SHOW_ATTRIBUTE
+Message-ID: <20200716112630.GB8484@osiris>
 References: <20200716090703.14315-1-miaoqinglang@huawei.com>
- <20200716112630.GB8484@osiris>
-From: miaoqinglang <miaoqinglang@huawei.com>
-Message-ID: <8c16907a-e933-123e-880a-cdb76f4e56fc@huawei.com>
-Date: Fri, 17 Jul 2020 09:19:46 +0800
 MIME-Version: 1.0
-In-Reply-To: <20200716112630.GB8484@osiris>
-Content-Type: text/plain; charset="gbk"; format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200716090703.14315-1-miaoqinglang@huawei.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>
+To: Qinglang Miao <miaoqinglang@huawei.com>
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>
 
-Cu+/ve+/vSAyMDIwLzcvMTYgMTk6MjYsIEhlaWtvIENhcnN0ZW5zINC077+977+9Ogo+IE9uIFRo
-dSwgSnVsIDE2LCAyMDIwIGF0IDA1OjA3OjAzUE0gKzA4MDAsIFFpbmdsYW5nIE1pYW8gd3JvdGU6
-Cj4+IEZyb206IENoZW4gSHVhbmcgPGNoZW5odWFuZzVAaHVhd2VpLmNvbT4KPj4KPj4gVXNlIERF
-RklORV9TSE9XX0FUVFJJQlVURSBtYWNybyB0byBzaW1wbGlmeSB0aGUgY29kZS4KPj4KPj4gU2ln
-bmVkLW9mZi1ieTogQ2hlbiBIdWFuZyA8Y2hlbmh1YW5nNUBodWF3ZWkuY29tPgo+PiAtLS0KPj4g
-ICBhcmNoL3MzOTAvbW0vZHVtcF9wYWdldGFibGVzLmMgfCAxMiArLS0tLS0tLS0tLS0KPj4gICAx
-IGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDExIGRlbGV0aW9ucygtKQo+IFRoYW5rcyBm
-b3IgdGhlIHBhdGNoLCBob3dldmVyIHdlIGFyZSBnb2luZyB0byBjb252ZXJ0IHRoZSBzMzkwIHBh
-Z2UKPiB0YWJsZSBkdW1wZXIgdG8gZ2VuZXJpYyBjb2RlLCBzbyBJJ20gbm90IGdvaW5nIHRvIGFw
-cGx5IGFueSBjbGVhbnVwCj4gcGF0Y2hlcyBmb3IgdGhpcyBjb2RlIGFueW1vcmUuClRoYW5rcyBm
-b3IgeW91ciByZXBsYXksIEknbSBnbGFkIHRvIGtub3cgdGhhdC4KCg==
+On Thu, Jul 16, 2020 at 05:07:03PM +0800, Qinglang Miao wrote:
+> From: Chen Huang <chenhuang5@huawei.com>
+> 
+> Use DEFINE_SHOW_ATTRIBUTE macro to simplify the code.
+> 
+> Signed-off-by: Chen Huang <chenhuang5@huawei.com>
+> ---
+>  arch/s390/mm/dump_pagetables.c | 12 +-----------
+>  1 file changed, 1 insertion(+), 11 deletions(-)
+
+Thanks for the patch, however we are going to convert the s390 page
+table dumper to generic code, so I'm not going to apply any cleanup
+patches for this code anymore.
