@@ -1,154 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40588 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729115AbgGTMsh (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 08:48:37 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 16/24] net/ipv6: switch ip6_mroute_setsockopt to sockptr_t
-Date: Mon, 20 Jul 2020 14:47:29 +0200
-Message-Id: <20200720124737.118617-17-hch@lst.de>
-In-Reply-To: <20200720124737.118617-1-hch@lst.de>
-References: <20200720124737.118617-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19964 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727060AbgGPIXk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 04:23:40 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v13 5/9] s390x: define function to wait for interrupt
+Date: Thu, 16 Jul 2020 10:23:25 +0200
+Message-Id: <1594887809-10521-6-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+Allow the program to wait for an interrupt.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The interrupt handler is in charge to remove the WAIT bit
+when it finished handling the interrupt.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
 ---
- include/linux/mroute6.h  |  8 ++++----
- net/ipv6/ip6mr.c         | 17 +++++++++--------
- net/ipv6/ipv6_sockglue.c |  3 ++-
- 3 files changed, 15 insertions(+), 13 deletions(-)
+ lib/s390x/asm/arch_def.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/include/linux/mroute6.h b/include/linux/mroute6.h
-index c4a45859f586d4..bc351a85ce9b9c 100644
---- a/include/linux/mroute6.h
-+++ b/include/linux/mroute6.h
-@@ -8,6 +8,7 @@
- #include <net/net_namespace.h>
- #include <uapi/linux/mroute6.h>
- #include <linux/mroute_base.h>
-+#include <linux/sockptr.h>
- #include <net/fib_rules.h>
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 1b3bb0c..022a564 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -17,6 +17,7 @@ struct psw {
  
- #ifdef CONFIG_IPV6_MROUTE
-@@ -25,7 +26,7 @@ static inline int ip6_mroute_opt(int opt)
- struct sock;
+ #define PSW_MASK_EXT			0x0100000000000000UL
+ #define PSW_MASK_DAT			0x0400000000000000UL
++#define PSW_MASK_WAIT			0x0002000000000000UL
+ #define PSW_MASK_PSTATE			0x0001000000000000UL
  
- #ifdef CONFIG_IPV6_MROUTE
--extern int ip6_mroute_setsockopt(struct sock *, int, char __user *, unsigned int);
-+extern int ip6_mroute_setsockopt(struct sock *, int, sockptr_t, unsigned int);
- extern int ip6_mroute_getsockopt(struct sock *, int, char __user *, int __user *);
- extern int ip6_mr_input(struct sk_buff *skb);
- extern int ip6mr_ioctl(struct sock *sk, int cmd, void __user *arg);
-@@ -33,9 +34,8 @@ extern int ip6mr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *ar
- extern int ip6_mr_init(void);
- extern void ip6_mr_cleanup(void);
- #else
--static inline
--int ip6_mroute_setsockopt(struct sock *sock,
--			  int optname, char __user *optval, unsigned int optlen)
-+static inline int ip6_mroute_setsockopt(struct sock *sock, int optname,
-+		sockptr_t optval, unsigned int optlen)
- {
- 	return -ENOPROTOOPT;
+ #define CR0_EXTM_SCLP			0x0000000000000200UL
+@@ -246,6 +247,18 @@ static inline void load_psw_mask(uint64_t mask)
+ 		: "+r" (tmp) :  "a" (&psw) : "memory", "cc" );
  }
-diff --git a/net/ipv6/ip6mr.c b/net/ipv6/ip6mr.c
-index 1f4d20e97c07f9..06b0d2c329b94b 100644
---- a/net/ipv6/ip6mr.c
-+++ b/net/ipv6/ip6mr.c
-@@ -1629,7 +1629,8 @@ EXPORT_SYMBOL(mroute6_is_socket);
-  *	MOSPF/PIM router set up we can clean this up.
-  */
  
--int ip6_mroute_setsockopt(struct sock *sk, int optname, char __user *optval, unsigned int optlen)
-+int ip6_mroute_setsockopt(struct sock *sk, int optname, sockptr_t optval,
-+			  unsigned int optlen)
++static inline void wait_for_interrupt(uint64_t irq_mask)
++{
++	uint64_t psw_mask = extract_psw_mask();
++
++	load_psw_mask(psw_mask | irq_mask | PSW_MASK_WAIT);
++	/*
++	 * After being woken and having processed the interrupt, let's restore
++	 * the PSW mask.
++	 */
++	load_psw_mask(psw_mask);
++}
++
+ static inline void enter_pstate(void)
  {
- 	int ret, parent = 0;
- 	struct mif6ctl vif;
-@@ -1665,7 +1666,7 @@ int ip6_mroute_setsockopt(struct sock *sk, int optname, char __user *optval, uns
- 	case MRT6_ADD_MIF:
- 		if (optlen < sizeof(vif))
- 			return -EINVAL;
--		if (copy_from_user(&vif, optval, sizeof(vif)))
-+		if (copy_from_sockptr(&vif, optval, sizeof(vif)))
- 			return -EFAULT;
- 		if (vif.mif6c_mifi >= MAXMIFS)
- 			return -ENFILE;
-@@ -1678,7 +1679,7 @@ int ip6_mroute_setsockopt(struct sock *sk, int optname, char __user *optval, uns
- 	case MRT6_DEL_MIF:
- 		if (optlen < sizeof(mifi_t))
- 			return -EINVAL;
--		if (copy_from_user(&mifi, optval, sizeof(mifi_t)))
-+		if (copy_from_sockptr(&mifi, optval, sizeof(mifi_t)))
- 			return -EFAULT;
- 		rtnl_lock();
- 		ret = mif6_delete(mrt, mifi, 0, NULL);
-@@ -1697,7 +1698,7 @@ int ip6_mroute_setsockopt(struct sock *sk, int optname, char __user *optval, uns
- 	case MRT6_DEL_MFC_PROXY:
- 		if (optlen < sizeof(mfc))
- 			return -EINVAL;
--		if (copy_from_user(&mfc, optval, sizeof(mfc)))
-+		if (copy_from_sockptr(&mfc, optval, sizeof(mfc)))
- 			return -EFAULT;
- 		if (parent == 0)
- 			parent = mfc.mf6cc_parent;
-@@ -1718,7 +1719,7 @@ int ip6_mroute_setsockopt(struct sock *sk, int optname, char __user *optval, uns
- 
- 		if (optlen != sizeof(flags))
- 			return -EINVAL;
--		if (get_user(flags, (int __user *)optval))
-+		if (copy_from_sockptr(&flags, optval, sizeof(flags)))
- 			return -EFAULT;
- 		rtnl_lock();
- 		mroute_clean_tables(mrt, flags);
-@@ -1735,7 +1736,7 @@ int ip6_mroute_setsockopt(struct sock *sk, int optname, char __user *optval, uns
- 
- 		if (optlen != sizeof(v))
- 			return -EINVAL;
--		if (get_user(v, (int __user *)optval))
-+		if (copy_from_sockptr(&v, optval, sizeof(v)))
- 			return -EFAULT;
- 		mrt->mroute_do_assert = v;
- 		return 0;
-@@ -1748,7 +1749,7 @@ int ip6_mroute_setsockopt(struct sock *sk, int optname, char __user *optval, uns
- 
- 		if (optlen != sizeof(v))
- 			return -EINVAL;
--		if (get_user(v, (int __user *)optval))
-+		if (copy_from_sockptr(&v, optval, sizeof(v)))
- 			return -EFAULT;
- 		v = !!v;
- 		rtnl_lock();
-@@ -1769,7 +1770,7 @@ int ip6_mroute_setsockopt(struct sock *sk, int optname, char __user *optval, uns
- 
- 		if (optlen != sizeof(u32))
- 			return -EINVAL;
--		if (get_user(v, (u32 __user *)optval))
-+		if (copy_from_sockptr(&v, optval, sizeof(v)))
- 			return -EFAULT;
- 		/* "pim6reg%u" should not exceed 16 bytes (IFNAMSIZ) */
- 		if (v != RT_TABLE_DEFAULT && v >= 100000000)
-diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
-index 85892b35cff7b3..119dfaf5f4bb26 100644
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -337,7 +337,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
- 	valbool = (val != 0);
- 
- 	if (ip6_mroute_opt(optname))
--		return ip6_mroute_setsockopt(sk, optname, optval, optlen);
-+		return ip6_mroute_setsockopt(sk, optname, USER_SOCKPTR(optval),
-+					     optlen);
- 
- 	if (needs_rtnl)
- 		rtnl_lock();
+ 	uint64_t mask;
 -- 
-2.27.0
+2.25.1
