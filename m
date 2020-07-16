@@ -1,108 +1,426 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 9/9] s390/vmemmap: avoid memset(PAGE_UNUSED) when adding consecutive sections
-Date: Wed, 22 Jul 2020 11:45:58 +0200
-Message-Id: <20200722094558.9828-10-david@redhat.com>
-In-Reply-To: <20200722094558.9828-1-david@redhat.com>
-References: <20200722094558.9828-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61680 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728690AbgGPNEO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 09:04:14 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v14 9/9] s390x: css: ssch/tsch with sense and interrupt
+Date: Thu, 16 Jul 2020 15:04:05 +0200
+Message-Id: <1594904645-32499-1-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <d60336e9-9038-89b3-f1d6-82c9ee4b3aaa@redhat.com>
+References: <d60336e9-9038-89b3-f1d6-82c9ee4b3aaa@redhat.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-Let's avoid memset(PAGE_UNUSED) when adding consecutive sections,
-whereby the vmemmap of a single section does not span full PMDs.
+After a channel is enabled we start a SENSE_ID command using
+the SSCH instruction to recognize the control unit and device.
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+This tests the success of SSCH, the I/O interruption and the TSCH
+instructions.
+
+The SENSE_ID command response is tested to report 0xff inside
+its reserved field and to report the same control unit type
+as the cu_type kernel argument.
+
+Without the cu_type kernel argument, the test expects a device
+with a default control unit type of 0x3832, a.k.a virtio-net-ccw.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- arch/s390/mm/vmem.c | 45 ++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 42 insertions(+), 3 deletions(-)
+ lib/s390x/asm/arch_def.h |   1 +
+ lib/s390x/css.h          |  35 ++++++++
+ lib/s390x/css_lib.c      | 177 +++++++++++++++++++++++++++++++++++++++
+ s390x/css.c              |  80 ++++++++++++++++++
+ 4 files changed, 293 insertions(+)
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index df361bbacda1b..70ebfc7958a68 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -74,7 +74,22 @@ static void vmem_pte_free(unsigned long *table)
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 022a564..edc06ef 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -16,6 +16,7 @@ struct psw {
+ };
  
- #define PAGE_UNUSED 0xFD
+ #define PSW_MASK_EXT			0x0100000000000000UL
++#define PSW_MASK_IO			0x0200000000000000UL
+ #define PSW_MASK_DAT			0x0400000000000000UL
+ #define PSW_MASK_WAIT			0x0002000000000000UL
+ #define PSW_MASK_PSTATE			0x0001000000000000UL
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+index 63a70f1..221b67c 100644
+--- a/lib/s390x/css.h
++++ b/lib/s390x/css.h
+@@ -11,6 +11,8 @@
+ #ifndef CSS_H
+ #define CSS_H
  
--static void vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
-+/*
-+ * The unused vmemmap range, which was not yet memset(PAGE_UNUSED) ranges
-+ * from unused_pmd_start to next PMD_SIZE boundary.
-+ */
-+static unsigned long unused_pmd_start;
++#define lowcore_ptr ((struct lowcore *)0x0)
 +
-+static void vmemmap_flush_unused_pmd(void)
+ /* subchannel ID bit 16 must always be one */
+ #define SCHID_ONE	0x00010000
+ 
+@@ -62,9 +64,18 @@ struct orb {
+ } __attribute__ ((aligned(4)));
+ 
+ struct scsw {
++#define SCSW_SC_PENDING		0x00000001
++#define SCSW_SC_SECONDARY	0x00000002
++#define SCSW_SC_PRIMARY		0x00000004
++#define SCSW_SC_INTERMEDIATE	0x00000008
++#define SCSW_SC_ALERT		0x00000010
+ 	uint32_t ctrl;
+ 	uint32_t ccw_addr;
++#define SCSW_DEVS_DEV_END	0x04
++#define SCSW_DEVS_SCH_END	0x08
+ 	uint8_t  dev_stat;
++#define SCSW_SCHS_PCI	0x80
++#define SCSW_SCHS_IL	0x40
+ 	uint8_t  sch_stat;
+ 	uint16_t count;
+ };
+@@ -102,6 +113,19 @@ struct irb {
+ 	uint32_t emw[8];
+ } __attribute__ ((aligned(4)));
+ 
++#define CCW_CMD_SENSE_ID	0xe4
++#define CSS_SENSEID_COMMON_LEN	8
++struct senseid {
++	/* common part */
++	uint8_t reserved;        /* always 0x'FF' */
++	uint16_t cu_type;        /* control unit type */
++	uint8_t cu_model;        /* control unit model */
++	uint16_t dev_type;       /* device type */
++	uint8_t dev_model;       /* device model */
++	uint8_t unused;          /* padding byte */
++	uint8_t padding[256 - 8]; /* Extended part */
++} __attribute__ ((aligned(4))) __attribute__ ((packed));
++
+ /* CSS low level access functions */
+ 
+ static inline int ssch(unsigned long schid, struct orb *addr)
+@@ -256,4 +280,15 @@ int css_enumerate(void);
+ 
+ #define IO_SCH_ISC      3
+ int css_enable(int schid, int isc);
++
++/* Library functions */
++int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
++int start_single_ccw(unsigned int sid, int code, void *data, int count,
++		     unsigned char flags);
++void css_irq_io(void);
++int css_residual_count(unsigned int schid);
++
++void enable_io_isc(uint8_t isc);
++int wait_and_check_io_completion(int schid);
++
+ #endif
+diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
+index e47a945..8e02371 100644
+--- a/lib/s390x/css_lib.c
++++ b/lib/s390x/css_lib.c
+@@ -16,6 +16,7 @@
+ #include <interrupt.h>
+ #include <asm/arch_def.h>
+ #include <asm/time.h>
++#include <asm/arch_def.h>
+ 
+ #include <css.h>
+ 
+@@ -141,3 +142,179 @@ retry:
+ 		    schid, retry_count, pmcw->flags);
+ 	return -1;
+ }
++
++static struct irb irb;
++
++void css_irq_io(void)
 +{
-+	if (!unused_pmd_start)
-+		return;
-+	memset(__va(unused_pmd_start), PAGE_UNUSED,
-+	       ALIGN(unused_pmd_start, PMD_SIZE) - unused_pmd_start);
-+	unused_pmd_start = 0;
++	int ret = 0;
++	char *flags;
++	int sid;
++
++	report_prefix_push("Interrupt");
++	sid = lowcore_ptr->subsys_id_word;
++	/* Lowlevel set the SID as interrupt parameter. */
++	if (lowcore_ptr->io_int_param != sid) {
++		report(0,
++		       "io_int_param: %x differs from subsys_id_word: %x",
++		       lowcore_ptr->io_int_param, sid);
++		goto pop;
++	}
++	report_info("subsys_id_word: %08x io_int_param %08x io_int_word %08x",
++			lowcore_ptr->subsys_id_word,
++			lowcore_ptr->io_int_param,
++			lowcore_ptr->io_int_word);
++	report_prefix_pop();
++
++	report_prefix_push("tsch");
++	ret = tsch(sid, &irb);
++	switch (ret) {
++	case 1:
++		dump_irb(&irb);
++		flags = dump_scsw_flags(irb.scsw.ctrl);
++		report(0,
++		       "I/O interrupt, but tsch returns CC 1 for subchannel %08x. SCSW flags: %s",
++		       sid, flags);
++		break;
++	case 2:
++		report(0, "tsch returns unexpected CC 2");
++		break;
++	case 3:
++		report(0, "tsch reporting sch %08x as not operational", sid);
++		break;
++	case 0:
++		/* Stay humble on success */
++		break;
++	}
++pop:
++	report_prefix_pop();
++	lowcore_ptr->io_old_psw.mask &= ~PSW_MASK_WAIT;
 +}
 +
-+static void __vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
++int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
++{
++	struct orb orb = {
++		.intparm = sid,
++		.ctrl = ORB_CTRL_ISIC|ORB_CTRL_FMT|ORB_LPM_DFLT,
++		.cpa = (unsigned int) (unsigned long)ccw,
++	};
++
++	return ssch(sid, &orb);
++}
++
++/*
++ * In the future, we want to implement support for CCW chains;
++ * for that, we will need to work with ccw1 pointers.
++ */
++static struct ccw1 unique_ccw;
++
++int start_single_ccw(unsigned int sid, int code, void *data, int count,
++		     unsigned char flags)
++{
++	int cc;
++	struct ccw1 *ccw = &unique_ccw;
++
++	report_prefix_push("start_subchannel");
++	/* Build the CCW chain with a single CCW */
++	ccw->code = code;
++	ccw->flags = flags;
++	ccw->count = count;
++	ccw->data_address = (int)(unsigned long)data;
++
++	cc = start_ccw1_chain(sid, ccw);
++	if (cc) {
++		report(0, "cc = %d", cc);
++		report_prefix_pop();
++		return cc;
++	}
++	report_prefix_pop();
++	return 0;
++}
++
++/* wait_and_check_io_completion:
++ * @schid: the subchannel ID
++ *
++ * Makes the most common check to validate a successful I/O
++ * completion.
++ * Only report failures.
++ */
++int wait_and_check_io_completion(int schid)
++{
++	int ret = 0;
++
++	wait_for_interrupt(PSW_MASK_IO);
++
++	report_prefix_push("check I/O completion");
++
++	if (lowcore_ptr->io_int_param != schid) {
++		report(0, "interrupt parameter: expected %08x got %08x",
++		       schid, lowcore_ptr->io_int_param);
++		ret = -1;
++		goto end;
++	}
++
++	/* Verify that device status is valid */
++	if (!(irb.scsw.ctrl & SCSW_SC_PENDING)) {
++		report(0, "No status pending after interrupt. Subch Ctrl: %08x",
++		       irb.scsw.ctrl);
++		ret = -1;
++		goto end;
++	}
++
++	if (!(irb.scsw.ctrl & (SCSW_SC_SECONDARY | SCSW_SC_PRIMARY))) {
++		report(0, "Primary or secondary status missing. Subch Ctrl: %08x",
++		       irb.scsw.ctrl);
++		ret = -1;
++		goto end;
++	}
++
++	if (!(irb.scsw.dev_stat & (SCSW_DEVS_DEV_END | SCSW_DEVS_SCH_END))) {
++		report(0, "No device end or sch end. Dev. status: %02x",
++		       irb.scsw.dev_stat);
++		ret = -1;
++		goto end;
++	}
++
++	if (irb.scsw.sch_stat & ~SCSW_SCHS_IL) {
++		report_info("Unexpected Subch. status %02x", irb.scsw.sch_stat);
++		ret = -1;
++		goto end;
++	}
++
++end:
++	report_prefix_pop();
++	return ret;
++}
++
++/*
++ * css_residual_count
++ * Return the residual count, if it is valid.
++ *
++ * Return value:
++ * Success: the residual count
++ * Not meaningful: -1 (-1 can not be a valid count)
++ */
++int css_residual_count(unsigned int schid)
++{
++
++	if (!(irb.scsw.ctrl & (SCSW_SC_PENDING | SCSW_SC_PRIMARY)))
++		return -1;
++
++	if (irb.scsw.dev_stat)
++		if (irb.scsw.sch_stat & ~(SCSW_SCHS_PCI | SCSW_SCHS_IL))
++			return -1;
++
++	return irb.scsw.count;
++}
++
++/*
++ * enable_io_isc: setup ISC in Control Register 6
++ * @isc: The interruption Sub Class as a bitfield
++ */
++void enable_io_isc(uint8_t isc)
++{
++	uint64_t value;
++
++	value = (uint64_t)isc << 24;
++	lctlg(6, value);
++}
+diff --git a/s390x/css.c b/s390x/css.c
+index f314a0c..ee3bc83 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -19,7 +19,11 @@
+ 
+ #include <css.h>
+ 
++#define DEFAULT_CU_TYPE		0x3832 /* virtio-ccw */
++static unsigned long cu_type = DEFAULT_CU_TYPE;
++
+ static int test_device_sid;
++static struct senseid senseid;
+ 
+ static void test_enumerate(void)
  {
- 	/*
- 	 * As we expect to add in the same granularity as we remove, it's
-@@ -85,18 +100,41 @@ static void vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
- 	memset(__va(start), 0, sizeof(struct page));
+@@ -45,12 +49,87 @@ static void test_enable(void)
+ 	report(cc == 0, "Enable subchannel %08x", test_device_sid);
  }
  
-+static void vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
++/*
++ * test_sense
++ * Pre-requisites:
++ * - We need the test device as the first recognized
++ *   device by the enumeration.
++ */
++static void test_sense(void)
 +{
-+	/*
-+	 * We only optimize if the new used range directly follows the
-+	 * previously unused range (esp., when populating consecutive sections).
-+	 */
-+	if (unused_pmd_start == start) {
-+		unused_pmd_start = end;
-+		if (likely(IS_ALIGNED(unused_pmd_start, PMD_SIZE)))
-+			unused_pmd_start = 0;
++	int ret;
++	int len;
++
++	if (!test_device_sid) {
++		report_skip("No device");
 +		return;
 +	}
-+	vmemmap_flush_unused_pmd();
-+	__vmemmap_use_sub_pmd(start, end);
++
++	ret = css_enable(test_device_sid, IO_SCH_ISC);
++	if (ret) {
++		report(0, "Could not enable the subchannel: %08x",
++		       test_device_sid);
++		return;
++	}
++
++	ret = register_io_int_func(css_irq_io);
++	if (ret) {
++		report(0, "Could not register IRQ handler");
++		return;
++	}
++
++	lowcore_ptr->io_int_param = 0;
++
++	memset(&senseid, 0, sizeof(senseid));
++	ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
++			       &senseid, sizeof(senseid), CCW_F_SLI);
++	if (ret)
++		goto error;
++
++	if (wait_and_check_io_completion(test_device_sid) < 0)
++		goto error;
++
++	/* Test transfer completion */
++	report_prefix_push("ssch transfer completion");
++
++	ret = css_residual_count(test_device_sid);
++
++	if (ret < 0) {
++		report_info("no valid residual count");
++	} else if (ret != 0) {
++		len = sizeof(senseid) - ret;
++		if (ret && len < CSS_SENSEID_COMMON_LEN) {
++			report(0, "transferred a too short length: %d", ret);
++			goto error;
++		} else if (ret && len)
++			report_info("transferred a shorter length: %d", len);
++	}
++
++	if (senseid.reserved != 0xff) {
++		report(0, "transferred garbage: 0x%02x", senseid.reserved);
++		goto error;
++	}
++
++	report_prefix_pop();
++
++	report_info("reserved 0x%02x cu_type 0x%04x cu_model 0x%02x dev_type 0x%04x dev_model 0x%02x",
++		    senseid.reserved, senseid.cu_type, senseid.cu_model,
++		    senseid.dev_type, senseid.dev_model);
++
++	report(senseid.cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
++	       (uint16_t) cu_type, senseid.cu_type);
++
++error:
++	unregister_io_int_func(css_irq_io);
 +}
 +
- static void vmemmap_use_new_sub_pmd(unsigned long start, unsigned long end)
- {
- 	void *page = __va(ALIGN_DOWN(start, PMD_SIZE));
+ static struct {
+ 	const char *name;
+ 	void (*func)(void);
+ } tests[] = {
+ 	{ "enumerate (stsch)", test_enumerate },
+ 	{ "enable (msch)", test_enable },
++	{ "sense (ssch/tsch)", test_sense },
+ 	{ NULL, NULL }
+ };
  
-+	vmemmap_flush_unused_pmd();
-+
- 	/* Could be our memmap page is filled with PAGE_UNUSED already ... */
--	vmemmap_use_sub_pmd(start, end);
-+	__vmemmap_use_sub_pmd(start, end);
+@@ -59,6 +138,7 @@ int main(int argc, char *argv[])
+ 	int i;
  
- 	/* Mark the unused parts of the new memmap page PAGE_UNUSED. */
- 	if (!IS_ALIGNED(start, PMD_SIZE))
- 		memset(page, PAGE_UNUSED, start - __pa(page));
-+	/*
-+	 * We want to avoid memset(PAGE_UNUSED) when populating the vmemmap of
-+	 * consecutive sections. Remember for the last added PMD the last
-+	 * unused range in the populated PMD.
-+	 */
- 	if (!IS_ALIGNED(end, PMD_SIZE))
--		memset(__va(end), PAGE_UNUSED, __pa(page) + PMD_SIZE - end);
-+		unused_pmd_start = end;
- }
- 
- /* Returns true if the PMD is completely unused and can be freed. */
-@@ -104,6 +142,7 @@ static bool vmemmap_unuse_sub_pmd(unsigned long start, unsigned long end)
- {
- 	void *page = __va(ALIGN_DOWN(start, PMD_SIZE));
- 
-+	vmemmap_flush_unused_pmd();
- 	memset(__va(start), PAGE_UNUSED, end - start);
- 	return !memchr_inv(page, PAGE_UNUSED, PMD_SIZE);
- }
+ 	report_prefix_push("Channel Subsystem");
++	enable_io_isc(0x80 >> IO_SCH_ISC);
+ 	for (i = 0; tests[i].name; i++) {
+ 		report_prefix_push(tests[i].name);
+ 		tests[i].func();
 -- 
-2.26.2
+2.25.1
