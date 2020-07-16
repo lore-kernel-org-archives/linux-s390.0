@@ -1,138 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31236 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37870 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728722AbgGNOXY (ORCPT
+        by vger.kernel.org with ESMTP id S1726547AbgGPIXi (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:23:24 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 01/10] s390/qeth: reject unsupported link type earlier
-Date: Tue, 14 Jul 2020 16:22:56 +0200
-Message-Id: <20200714142305.29297-2-jwi@linux.ibm.com>
-In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
-References: <20200714142305.29297-1-jwi@linux.ibm.com>
+        Thu, 16 Jul 2020 04:23:38 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v13 1/9] s390x: saving regs for interrupts
+Date: Thu, 16 Jul 2020 10:23:21 +0200
+Message-Id: <1594887809-10521-2-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-Rather than delaying the decision until netdev setup, immediately reject
-a device when we discover that it has an unsupported link type
-(ie. Token Ring).
+If we use multiple source of interrupts, for example, using SCLP
+console to print information while using I/O interrupts, we need
+to have a re-entrant register saving interruption handling.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Instead of saving at a static memory address, let's save the base
+registers, the floating point registers and the floating point
+control register on the stack in case of I/O interrupts
+
+Note that we keep the static register saving to recover from the
+RESET tests.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/net/qeth_core_main.c | 38 ++++++++++++++++++++++---------
- drivers/s390/net/qeth_l3_main.c   |  6 -----
- 2 files changed, 27 insertions(+), 17 deletions(-)
+ s390x/cstart64.S | 41 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 88e998de2d03..c0f551602a5a 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -2436,6 +2436,17 @@ static int qeth_cm_setup(struct qeth_card *card)
- 	return qeth_send_control_data(card, iob, qeth_cm_setup_cb, NULL);
- }
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index e084f13..4e51150 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -118,6 +118,43 @@ memsetxc:
+ 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+ 	.endm
  
-+static bool qeth_is_supported_link_type(struct qeth_card *card, u8 link_type)
-+{
-+	if (link_type == QETH_LINK_TYPE_LANE_TR ||
-+	    link_type == QETH_LINK_TYPE_HSTR) {
-+		dev_err(&card->gdev->dev, "Unsupported Token Ring device\n");
-+		return false;
-+	}
++/* Save registers on the stack (r15), so we can have stacked interrupts. */
++	.macro SAVE_REGS_STACK
++	/* Allocate a stack frame for 15 general registers */
++	slgfi   %r15, 15 * 8
++	/* Store registers r0 to r14 on the stack */
++	stmg    %r0, %r14, 0(%r15)
++	/* Allocate a stack frame for 16 floating point registers */
++	/* The size of a FP register is the size of an double word */
++	slgfi   %r15, 16 * 8
++	/* Save fp register on stack: offset to SP is multiple of reg number */
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	std	\i, \i * 8(%r15)
++	.endr
++	/* Save fpc, but keep stack aligned on 64bits */
++	slgfi   %r15, 8
++	efpc	%r0
++	stg	%r0, 0(%r15)
++	.endm
 +
-+	return true;
-+}
++/* Restore the register in reverse order */
++	.macro RESTORE_REGS_STACK
++	/* Restore fpc */
++	lfpc	0(%r15)
++	algfi	%r15, 8
++	/* Restore fp register from stack: SP still where it was left */
++	/* and offset to SP is a multiple of reg number */
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	ld	\i, \i * 8(%r15)
++	.endr
++	/* Now that we're done, rewind the stack pointer by 16 double word */
++	algfi   %r15, 16 * 8
++	/* Load the registers from stack */
++	lmg     %r0, %r14, 0(%r15)
++	/* Rewind the stack by 15 double word */
++	algfi   %r15, 15 * 8
++	.endm
 +
- static int qeth_update_max_mtu(struct qeth_card *card, unsigned int max_mtu)
- {
- 	struct net_device *dev = card->dev;
-@@ -2495,8 +2506,8 @@ static int qeth_ulp_enable_cb(struct qeth_card *card, struct qeth_reply *reply,
- {
- 	__u16 mtu, framesize;
- 	__u16 len;
--	__u8 link_type;
- 	struct qeth_cmd_buffer *iob;
-+	u8 link_type = 0;
+ .section .text
+ /*
+  * load_reset calling convention:
+@@ -185,9 +222,9 @@ mcck_int:
+ 	lpswe	GEN_LC_MCCK_OLD_PSW
  
- 	QETH_CARD_TEXT(card, 2, "ulpenacb");
+ io_int:
+-	SAVE_REGS
++	SAVE_REGS_STACK
+ 	brasl	%r14, handle_io_int
+-	RESTORE_REGS
++	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_IO_OLD_PSW
  
-@@ -2516,9 +2527,11 @@ static int qeth_ulp_enable_cb(struct qeth_card *card, struct qeth_reply *reply,
- 	if (len >= QETH_MPC_DIFINFO_LEN_INDICATES_LINK_TYPE) {
- 		memcpy(&link_type,
- 		       QETH_ULP_ENABLE_RESP_LINK_TYPE(iob->data), 1);
--		card->info.link_type = link_type;
--	} else
--		card->info.link_type = 0;
-+		if (!qeth_is_supported_link_type(card, link_type))
-+			return -EPROTONOSUPPORT;
-+	}
-+
-+	card->info.link_type = link_type;
- 	QETH_CARD_TEXT_(card, 2, "link%d", card->info.link_type);
- 	return 0;
- }
-@@ -3100,7 +3113,6 @@ struct qeth_cmd_buffer *qeth_ipa_alloc_cmd(struct qeth_card *card,
- 					   enum qeth_prot_versions prot,
- 					   unsigned int data_length)
- {
--	enum qeth_link_types link_type = card->info.link_type;
- 	struct qeth_cmd_buffer *iob;
- 	struct qeth_ipacmd_hdr *hdr;
- 
-@@ -3116,7 +3128,7 @@ struct qeth_cmd_buffer *qeth_ipa_alloc_cmd(struct qeth_card *card,
- 	hdr->command = cmd_code;
- 	hdr->initiator = IPA_CMD_INITIATOR_HOST;
- 	/* hdr->seqno is set by qeth_send_control_data() */
--	hdr->adapter_type = (link_type == QETH_LINK_TYPE_HSTR) ? 2 : 1;
-+	hdr->adapter_type = QETH_LINK_TYPE_FAST_ETH;
- 	hdr->rel_adapter_no = (u8) card->dev->dev_port;
- 	hdr->prim_version_no = IS_LAYER2(card) ? 2 : 1;
- 	hdr->param_count = 1;
-@@ -3199,18 +3211,22 @@ static int qeth_query_setadapterparms_cb(struct qeth_card *card,
- 		struct qeth_reply *reply, unsigned long data)
- {
- 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
-+	struct qeth_query_cmds_supp *query_cmd;
- 
- 	QETH_CARD_TEXT(card, 3, "quyadpcb");
- 	if (qeth_setadpparms_inspect_rc(cmd))
- 		return -EIO;
- 
--	if (cmd->data.setadapterparms.data.query_cmds_supp.lan_type & 0x7f) {
--		card->info.link_type =
--		      cmd->data.setadapterparms.data.query_cmds_supp.lan_type;
-+	query_cmd = &cmd->data.setadapterparms.data.query_cmds_supp;
-+	if (query_cmd->lan_type & 0x7f) {
-+		if (!qeth_is_supported_link_type(card, query_cmd->lan_type))
-+			return -EPROTONOSUPPORT;
-+
-+		card->info.link_type = query_cmd->lan_type;
- 		QETH_CARD_TEXT_(card, 2, "lnk %d", card->info.link_type);
- 	}
--	card->options.adp.supported =
--		cmd->data.setadapterparms.data.query_cmds_supp.supported_cmds;
-+
-+	card->options.adp.supported = query_cmd->supported_cmds;
- 	return 0;
- }
- 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 1e50aa0297a3..d4ce653ff111 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1919,12 +1919,6 @@ static int qeth_l3_setup_netdev(struct qeth_card *card)
- 		return rc;
- 
- 	if (IS_OSD(card) || IS_OSX(card)) {
--		if ((card->info.link_type == QETH_LINK_TYPE_LANE_TR) ||
--		    (card->info.link_type == QETH_LINK_TYPE_HSTR)) {
--			pr_info("qeth_l3: ignoring TR device\n");
--			return -ENODEV;
--		}
--
- 		card->dev->netdev_ops = &qeth_l3_osa_netdev_ops;
- 
- 		/*IPv6 address autoconfiguration stuff*/
+ svc_int:
 -- 
-2.17.1
+2.25.1
