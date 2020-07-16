@@ -1,60 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56436 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725773AbgGWGJb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:31 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/26] net: switch sock_setbindtodevice to sockptr_t
-Date: Thu, 23 Jul 2020 08:08:48 +0200
-Message-Id: <20200723060908.50081-7-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37002 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729125AbgGPPiH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 11:38:07 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 01/10] net/smc: handle unexpected response types for confirm link
+Date: Thu, 16 Jul 2020 17:37:37 +0200
+Message-Id: <20200716153746.77303-2-kgraul@linux.ibm.com>
+In-Reply-To: <20200716153746.77303-1-kgraul@linux.ibm.com>
+References: <20200716153746.77303-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+A delete link could arrive during confirm link processing. Handle this
+situation directly in smc_llc_srv_conf_link() rather than using the
+logic in smc_llc_wait() to avoid the unexpected message handling there.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: 1551c95b6124 ("net/smc: final part of add link processing as SMC server")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/core/sock.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/smc/smc_llc.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 71fc7e4ddd0648..5b55bc9397f282 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -609,8 +609,7 @@ int sock_bindtoindex(struct sock *sk, int ifindex, bool lock_sk)
- }
- EXPORT_SYMBOL(sock_bindtoindex);
- 
--static int sock_setbindtodevice(struct sock *sk, char __user *optval,
--				int optlen)
-+static int sock_setbindtodevice(struct sock *sk, sockptr_t optval, int optlen)
- {
- 	int ret = -ENOPROTOOPT;
- #ifdef CONFIG_NETDEVICES
-@@ -632,7 +631,7 @@ static int sock_setbindtodevice(struct sock *sk, char __user *optval,
- 	memset(devname, 0, sizeof(devname));
- 
- 	ret = -EFAULT;
--	if (copy_from_user(devname, optval, optlen))
-+	if (copy_from_sockptr(devname, optval, optlen))
- 		goto out;
- 
- 	index = 0;
-@@ -840,7 +839,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 	 */
- 
- 	if (optname == SO_BINDTODEVICE)
--		return sock_setbindtodevice(sk, optval, optlen);
-+		return sock_setbindtodevice(sk, USER_SOCKPTR(optval), optlen);
- 
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index c1a038689c63..58f4da2e0cc7 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1051,12 +1051,14 @@ static int smc_llc_srv_conf_link(struct smc_link *link,
+ 	if (rc)
+ 		return -ENOLINK;
+ 	/* receive CONFIRM LINK response over the RoCE fabric */
+-	qentry = smc_llc_wait(lgr, link, SMC_LLC_WAIT_FIRST_TIME,
+-			      SMC_LLC_CONFIRM_LINK);
+-	if (!qentry) {
++	qentry = smc_llc_wait(lgr, link, SMC_LLC_WAIT_FIRST_TIME, 0);
++	if (!qentry ||
++	    qentry->msg.raw.hdr.common.type != SMC_LLC_CONFIRM_LINK) {
+ 		/* send DELETE LINK */
+ 		smc_llc_send_delete_link(link, link_new->link_id, SMC_LLC_REQ,
+ 					 false, SMC_LLC_DEL_LOST_PATH);
++		if (qentry)
++			smc_llc_flow_qentry_del(&lgr->llc_flow_lcl);
+ 		return -ENOLINK;
+ 	}
+ 	smc_llc_save_peer_uid(qentry);
 -- 
-2.27.0
+2.17.1
