@@ -1,155 +1,333 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:16282 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40096 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726993AbgGUNMB (ORCPT
+        by vger.kernel.org with ESMTP id S1725922AbgGPIXj (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Jul 2020 09:12:01 -0400
-Subject: Re: [kvm-unit-tests PATCH v13 0/9] s390x: Testing the Channel
- Subsystem I/O
-References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
-From: Janosch Frank <frankja@linux.ibm.com>
-Message-ID: <3000fa45-2273-5ca3-f4fd-2aac5edf7c5a@linux.ibm.com>
-Date: Tue, 21 Jul 2020 15:11:53 +0200
-MIME-Version: 1.0
-In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="ZyXOvTUTP9Fn6MPQEiv8Tq2eVqjiFlluY"
+        Thu, 16 Jul 2020 04:23:39 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v13 0/9] s390x: Testing the Channel Subsystem I/O
+Date: Thu, 16 Jul 2020 10:23:20 +0200
+Message-Id: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ZyXOvTUTP9Fn6MPQEiv8Tq2eVqjiFlluY
-Content-Type: multipart/mixed; boundary="y3JPpbATEgTWNhs3bOFLoYwFC1heqkXvP"
+Hi All,
 
---y3JPpbATEgTWNhs3bOFLoYwFC1heqkXvP
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+This new respin of the series add modifications to
+- patch 9: s390x: css: ssch/tsch with sense and interrupt
+Other patches did not change.
 
-On 7/16/20 10:23 AM, Pierre Morel wrote:
-> Hi All,
->=20
-> This new respin of the series add modifications to
-> - patch 9: s390x: css: ssch/tsch with sense and interrupt
-> Other patches did not change.
->=20
-> Recall:
->=20
-> Goal of the series is to have a framework to test Channel-Subsystem I/O=
- with
-> QEMU/KVM.
->  =20
-> To be able to support interrupt for CSS I/O and for SCLP we need to mod=
-ify
-> the interrupt framework to allow re-entrant interruptions.
->  =20
-> We add a registration for IRQ callbacks to the test program to define i=
-ts own
-> interrupt handler. We need to do special work under interrupt like ackn=
-owledging
-> the interrupt.
->  =20
-> This series presents three tests:
-> - Enumeration:
->         The CSS is enumerated using the STSCH instruction recursively o=
-n all
->         potentially existing channels.
->         Keeping the first channel found as a reference for future use.
->         Checks STSCH
-> =20
-> - Enable:
->         If the enumeration succeeded the tests enables the reference
->         channel with MSCH and verifies with STSCH that the channel is
->         effectively enabled, retrying a predefined count on failure
-> 	to enable the channel
->         Checks MSCH      =20
-> =20
-> - Sense:
->         If the channel is enabled this test sends a SENSE_ID command
->         to the reference channel, analyzing the answer and expecting
->         the Control unit type being 0x3832, a.k.a. virtio-ccw.
->         Checks SSCH(READ) and IO-IRQ
->=20
-> Note:
-> - The following 5 patches are general usage and may be pulled first:
->   s390x: saving regs for interrupts
->   s390x: I/O interrupt registration
->   s390x: export the clock get_clock_ms() utility
->   s390x: clock and delays calculations
->   s390x: define function to wait for interrupt
->=20
-> - These 4 patches are really I/O oriented:
->   s390x: Library resources for CSS tests
->   s390x: css: stsch, enumeration test
->   s390x: css: msch, enable test
->   s390x: css: ssch/tsch with sense and interrupt
->=20
-> Regards,
-> Pierre
+Recall:
 
-Thanks, picked
+Goal of the series is to have a framework to test Channel-Subsystem I/O with
+QEMU/KVM.
+  
+To be able to support interrupt for CSS I/O and for SCLP we need to modify
+the interrupt framework to allow re-entrant interruptions.
+  
+We add a registration for IRQ callbacks to the test program to define its own
+interrupt handler. We need to do special work under interrupt like acknowledging
+the interrupt.
+  
+This series presents three tests:
+- Enumeration:
+        The CSS is enumerated using the STSCH instruction recursively on all
+        potentially existing channels.
+        Keeping the first channel found as a reference for future use.
+        Checks STSCH
+ 
+- Enable:
+        If the enumeration succeeded the tests enables the reference
+        channel with MSCH and verifies with STSCH that the channel is
+        effectively enabled, retrying a predefined count on failure
+	to enable the channel
+        Checks MSCH       
+ 
+- Sense:
+        If the channel is enabled this test sends a SENSE_ID command
+        to the reference channel, analyzing the answer and expecting
+        the Control unit type being 0x3832, a.k.a. virtio-ccw.
+        Checks SSCH(READ) and IO-IRQ
 
->=20
-> Pierre Morel (9):
->   s390x: saving regs for interrupts
->   s390x: I/O interrupt registration
->   s390x: export the clock get_clock_ms() utility
->   s390x: clock and delays calculations
->   s390x: define function to wait for interrupt
->   s390x: Library resources for CSS tests
->   s390x: css: stsch, enumeration test
->   s390x: css: msch, enable test
->   s390x: css: ssch/tsch with sense and interrupt
->=20
->  lib/s390x/asm/arch_def.h |  14 ++
->  lib/s390x/asm/time.h     |  50 ++++++
->  lib/s390x/css.h          | 294 +++++++++++++++++++++++++++++++++++
->  lib/s390x/css_dump.c     | 152 ++++++++++++++++++
->  lib/s390x/css_lib.c      | 323 +++++++++++++++++++++++++++++++++++++++=
+Note:
+- The following 5 patches are general usage and may be pulled first:
+  s390x: saving regs for interrupts
+  s390x: I/O interrupt registration
+  s390x: export the clock get_clock_ms() utility
+  s390x: clock and delays calculations
+  s390x: define function to wait for interrupt
 
->  lib/s390x/interrupt.c    |  23 ++-
->  lib/s390x/interrupt.h    |   8 +
->  s390x/Makefile           |   3 +
->  s390x/css.c              | 150 ++++++++++++++++++
->  s390x/cstart64.S         |  41 ++++-
->  s390x/intercept.c        |  11 +-
->  s390x/unittests.cfg      |   4 +
->  12 files changed, 1060 insertions(+), 13 deletions(-)
->  create mode 100644 lib/s390x/asm/time.h
->  create mode 100644 lib/s390x/css.h
->  create mode 100644 lib/s390x/css_dump.c
->  create mode 100644 lib/s390x/css_lib.c
->  create mode 100644 lib/s390x/interrupt.h
->  create mode 100644 s390x/css.c
->=20
+- These 4 patches are really I/O oriented:
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
+
+Regards,
+Pierre
+
+Pierre Morel (9):
+  s390x: saving regs for interrupts
+  s390x: I/O interrupt registration
+  s390x: export the clock get_clock_ms() utility
+  s390x: clock and delays calculations
+  s390x: define function to wait for interrupt
+  s390x: Library resources for CSS tests
+  s390x: css: stsch, enumeration test
+  s390x: css: msch, enable test
+  s390x: css: ssch/tsch with sense and interrupt
+
+ lib/s390x/asm/arch_def.h |  14 ++
+ lib/s390x/asm/time.h     |  50 ++++++
+ lib/s390x/css.h          | 294 +++++++++++++++++++++++++++++++++++
+ lib/s390x/css_dump.c     | 152 ++++++++++++++++++
+ lib/s390x/css_lib.c      | 323 +++++++++++++++++++++++++++++++++++++++
+ lib/s390x/interrupt.c    |  23 ++-
+ lib/s390x/interrupt.h    |   8 +
+ s390x/Makefile           |   3 +
+ s390x/css.c              | 150 ++++++++++++++++++
+ s390x/cstart64.S         |  41 ++++-
+ s390x/intercept.c        |  11 +-
+ s390x/unittests.cfg      |   4 +
+ 12 files changed, 1060 insertions(+), 13 deletions(-)
+ create mode 100644 lib/s390x/asm/time.h
+ create mode 100644 lib/s390x/css.h
+ create mode 100644 lib/s390x/css_dump.c
+ create mode 100644 lib/s390x/css_lib.c
+ create mode 100644 lib/s390x/interrupt.h
+ create mode 100644 s390x/css.c
+
+-- 
+2.25.1
+
+from v12 to v13:
+
+- set the correct padding for senseid
+  (Thomas)
+
+from v11 to v12:
+
+- rewording from comments
+  (Connie)
+
+- fixing buggy tests in css_enable
+  (Connie)
+
+- Suppress some unusefull lines and tests
+  (Connie)
+
+from v10 to v11:
+
+- p8: added ISC to css_enable()
+  (Connie)
+
+- p9: rework css_residual_count()
+  suppress report_info, change label
+  (Connie)
+
+- p9: added wait_and_check_io_completion()
+  (after comment from Connie to test for completion)
+
+- p9: reworked the reports, mostly keeping the sentenses
+  but better use of report_prefix_...()
+
+from v9 to v10:
+
+- postpone and removed from series 
+  - s390x: Use PSW bits definitions in cstart
+  - s390x: Move control register bit definitions and add AFP to them
+  reason: gcc compiler for RedHat-7 does not allow UL suffix for
+          macro declarations.
+  (Thomas)
+
+- postpone and removed from series 
+  -s390x-retrieve-decimal-and-hexadecimal-kernel-par.patch
+  reason: must be reworked and since we can do without an argument
+          I prefer to separate it from this series.
+  (Janosch, Andrew)
+
+- several word spelling, better comments
+  (Connie, Thomas)
+
+- Extensively reworked ssch/tsch with sense and interrupt
+  - added a dedicated ISC to the channel subsystem test
+    when enabling a channel
+  - reworked the ISC enabling in CR6
+  - reworked the test on residual count
+  - moved the IRQ handler and the start function inside the
+    library to share with following CSS tests.
+  - added more report_info to the IRQ handler
+  - rename some functions, start_single_ccw, css_irq_io,
+    css_residual_count
+  (Connie, Pierre)
+
+from v8 to v9:
+
+- rename PSW_EXCEPTION_MASK to PSW_MASK_ON_EXCEPTION
+  (Thomas)
+
+- changed false max microseconds in delay calculation
+  (Thomas)
+
+- fix bug in decimal parameter calculation
+  (Thomas)
+
+- fix bug in msch inline assembly
+  (Thomas)
+
+- add report_abort() for unprobable result of tsch
+  in I/O IRQ
+  (Thomas)
+
+- use of existing lctlg() wrapper instead of new function
+  (Thomas)
+
+from v7 to v8
+
+* Suppress ccw-pong specific remote device
+  (Thomas, Janosch)
+
+* use virtio-net-ccw as device instead of a specific
+  device: no more need for QEMU patch
+  (Connie)
+
+* Add kernel parameter to access a different device.
+  (Connie)
+
+* Add tests on subschannel reading, length, garbage.
+  (Connie)
+
+* Several naming changes and reorganizations of definitions.
+  (Connie)
+
+* Take wrapping into account for delay calculation
+
+* Align CCW1 on 8 bytes boundary
+
+* Reorganize the first three patches
+  (Janosch)
+
+from v6 to v7
+
+* s390x: saving regs for interrupts
+- macro name modificatio for SAVE_REGS_STACK
+  (David)
+- saving the FPC
+  (David)
+
+* s390x: Use PSW bits definitions in cstart
+- suppress definition for PSW_RESET_MASK
+  use PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW
+  (David)
+
+* s390x: Library resources for CSS tests
+* s390x: css: stsch, enumeration test
+  move library definitions from stsch patche
+  to the Library patch
+  add the library to the s390 Makefile here
+  (Janosch)
+  
+* s390x: css: msch, enable test
+  Add retries when enable fails
+  (Connie)
+  Re-introduce the patches for delay implementation
+  to add a delay between retries
+
+* s390x: define function to wait for interrupt
+  Changed name from wfi to wait_for_interrupt
+  (Janosch)
+
+* s390x: css: ssch/tsch with sense and interrupt
+  add a flag parameter to ssch and use it to add
+  SLI (Suppress Length Indication) flag for SENSE_ID
+  (Connie)
 
 
+from v5 to v6
+- Added comments for IRQ handling in
+  s390x: saving regs for interrupts
+  (Janosch) 
 
---y3JPpbATEgTWNhs3bOFLoYwFC1heqkXvP--
+- fixed BUG on reset_psw, added PSW_MASK_PSW_SHORT
+  and PSW_RESET_MASK
 
---ZyXOvTUTP9Fn6MPQEiv8Tq2eVqjiFlluY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+- fixed several lines over 80 chars
 
------BEGIN PGP SIGNATURE-----
+- fixed licenses, use GPL V2 (no more LGPL)
 
-iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl8W6ZkACgkQ41TmuOI4
-ufiyRw/+MB+u0jg5fpYEgzxYMkkT6Gs/42LqNsXgI6csqK15E0qTpp0gCT8TRBuw
-YMr6zNQd3SR2umnz6SG2WdfzNe66lpNlpUK14Y6ajT455haufascmAOj2dGNc4F/
-4owWLz/nqYWAV02pVH0WxvQadZ+c+jrxYpwNsSGe+NsyTL1pqPfIgsfwM0tY0+KH
-U6WIEjCpe8rTOXDR9y3kAnOGY1ymAf4SA61PKlYEr1xdFfN+y4IYv/UOBaR6F7jM
-LCJre+d262ibUETC+n/JYdBpuKefhUponX1M38wjnXlzwHR9Oy2oHmzYkWLpLG8B
-gbI1oT3a4s2yWj1e8tcuy4vRWJ89nvejmh4w4ON8rrb4sYVpsWwDsfaM1XlFmRFK
-IgvoRaPURD1Y0lrORGdZimBHGQnsOOotfGyt/p5f5ZSK8tTj8odxhP+sjIF6xpI3
-Dpei24kEl3Kf6eOsqeUgdNrD6qcZkYe7ShCQJqzkTT9AC24BS/65bEvOO5YGSgao
-HtJVo88HigLWuMJLA3dyOL77TRY4vXZD1uI+/xHcT2+NXOi8CtM3th3E2ZSkLw8w
-lTWJ1RF1B/SCtrTdugQyN1IUHV6HajuUCi4GBCvdTofl8n/+/3Pi41pBPRDHB4wZ
-PKmqLdX8tsowl8HcWCjaWhUPMOUGQDc1AbgLHJDjr9uUS6Cz8uw=
-=CjRC
------END PGP SIGNATURE-----
+- replacing delay() with wfi() (Wait For Interrupt)
+  during the css tests
+  (suggested by Connie's comments)
 
---ZyXOvTUTP9Fn6MPQEiv8Tq2eVqjiFlluY--
+- suppressing delay() induces suppressing the patch
+  "s390x: export the clock get_clock_ms() utility"
+  which is already reviewed but can be picked from
+  the v5 series.
+
+- changed the logic of the tests, the 4 css tests
+  are always run one after the other so no need to 
+  re-run enumeration and enabling at the begining
+  of each tests, it has alredy been done.
+  This makes code simpler.
+
+from v4 to v5
+- add a patch to explicitely define the initial_cr0
+  value
+  (Janosch)
+- add RB from Janosh on interrupt registration
+- several formating, typo correction and removing
+  unnecessary initialization in "linrary resources..."
+  (Janosch)
+- several formating and typo corrections on
+  "stsch enumeration test"
+  (Connie)
+- reworking the msch test
+  (Connie)
+- reworking of ssch test, pack the sense-id structure
+  (Connie)
+
+from v3 to v4
+- add RB from David and Thomas for patchs 
+  (3) irq registration and (4) clock export
+- rework the PSW bit definitions
+  (Thomas)
+- Suppress undef DEBUG from css_dump
+  (Thomas)
+- rework report() functions using new scheme
+  (Thomas)
+- suppress un-necessary report_info()
+- more spelling corrections
+- add a loop around enable bit testing
+  (Connie)
+- rework IRQ testing
+  (Connie)
+- Test data addresses to be under 2G
+  (Connie)
+
+from v2 to v3:
+- Rework spelling
+  (Connie)
+- More descriptions
+  (Connie)
+- use __ASSEMBLER__ preprocessing to keep
+  bits definitions and C structures in the same file
+  (David)
+- rename the new file clock.h as time.h
+  (Janosch, David?)
+- use registration for the IO interruption
+  (David, Thomas)
+- test the SCHIB to verify it has really be modified
+  (Connie)
+- Lot of simplifications in the tests
+  (Connie)
+
+from v1 to v2:
+- saving floating point registers (David, Janosh)
+- suppress unused PSW bits defintions (Janosh)
+- added Thomas reviewed-by
+- style and comments modifications (Connie, Janosh)
+- moved get_clock_ms() into headers and use it (Thomas)
+- separate header and library utility from tests
+- Suppress traces, separate tests, make better usage of reports
