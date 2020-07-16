@@ -1,96 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33608 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726251AbgG1FMO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Jul 2020 01:12:14 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH 00/15] memblock: seasonal cleaning^w cleanup
-Date: Tue, 28 Jul 2020 08:11:38 +0300
-Message-Id: <20200728051153.1590-1-rppt@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:5034 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728951AbgGPPiF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 11:38:05 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 07/10] net/smc: fix handling of delete link requests
+Date: Thu, 16 Jul 2020 17:37:43 +0200
+Message-Id: <20200716153746.77303-8-kgraul@linux.ibm.com>
+In-Reply-To: <20200716153746.77303-1-kgraul@linux.ibm.com>
+References: <20200716153746.77303-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+As smc client the delete link requests are assigned to the flow when
+_any_ flow is active. This may break other flows that do not expect
+delete link requests during their handling. Fix that by assigning the
+request only when an add link flow is active. With that fix the code
+for smc client and smc server is the same, so remove the separate
+handling.
 
-Hi,
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: 9ec6bf19ec8b ("net/smc: llc_del_link_work and use the LLC flow for delete link")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/smc_llc.c | 29 +++++++----------------------
+ 1 file changed, 7 insertions(+), 22 deletions(-)
 
-These patches simplify several uses of memblock iterators and hide some of
-the memblock implementation details from the rest of the system.
-
-The patches are on top of v5.8-rc7 + cherry-pick of "mm/sparse: cleanup the
-code surrounding memory_present()" [1] from mmotm tree.
-
-[1] http://lkml.kernel.org/r/20200712083130.22919-1-rppt@kernel.org 
-
-Mike Rapoport (15):
-  KVM: PPC: Book3S HV: simplify kvm_cma_reserve()
-  dma-contiguous: simplify cma_early_percent_memory()
-  arm, xtensa: simplify initialization of high memory pages
-  arm64: numa: simplify dummy_numa_init()
-  h8300, nds32, openrisc: simplify detection of memory extents
-  powerpc: fadamp: simplify fadump_reserve_crash_area()
-  riscv: drop unneeded node initialization
-  mircoblaze: drop unneeded NUMA and sparsemem initializations
-  memblock: make for_each_memblock_type() iterator private
-  memblock: make memblock_debug and related functionality private
-  memblock: reduce number of parameters in for_each_mem_range()
-  arch, mm: replace for_each_memblock() with for_each_mem_pfn_range()
-  arch, drivers: replace for_each_membock() with for_each_mem_range()
-  x86/numa: remove redundant iteration over memblock.reserved
-  memblock: remove 'type' parameter from for_each_memblock()
-
- .clang-format                            |  1 +
- arch/arm/kernel/setup.c                  | 18 +++++---
- arch/arm/mm/init.c                       | 59 +++++-------------------
- arch/arm/mm/mmu.c                        | 39 ++++++----------
- arch/arm/mm/pmsa-v7.c                    | 20 ++++----
- arch/arm/mm/pmsa-v8.c                    | 17 ++++---
- arch/arm/xen/mm.c                        |  7 +--
- arch/arm64/kernel/machine_kexec_file.c   |  6 +--
- arch/arm64/kernel/setup.c                |  2 +-
- arch/arm64/mm/init.c                     | 11 ++---
- arch/arm64/mm/kasan_init.c               |  8 ++--
- arch/arm64/mm/mmu.c                      | 11 ++---
- arch/arm64/mm/numa.c                     | 15 +++---
- arch/c6x/kernel/setup.c                  |  9 ++--
- arch/h8300/kernel/setup.c                |  8 ++--
- arch/microblaze/mm/init.c                | 24 ++--------
- arch/mips/cavium-octeon/dma-octeon.c     | 12 ++---
- arch/mips/kernel/setup.c                 | 31 ++++++-------
- arch/mips/netlogic/xlp/setup.c           |  2 +-
- arch/nds32/kernel/setup.c                |  8 +---
- arch/openrisc/kernel/setup.c             |  9 +---
- arch/openrisc/mm/init.c                  |  8 ++--
- arch/powerpc/kernel/fadump.c             | 58 ++++++++---------------
- arch/powerpc/kvm/book3s_hv_builtin.c     | 11 +----
- arch/powerpc/mm/book3s64/hash_utils.c    | 16 +++----
- arch/powerpc/mm/book3s64/radix_pgtable.c | 11 ++---
- arch/powerpc/mm/kasan/kasan_init_32.c    |  8 ++--
- arch/powerpc/mm/mem.c                    | 33 +++++++------
- arch/powerpc/mm/numa.c                   |  7 +--
- arch/powerpc/mm/pgtable_32.c             |  8 ++--
- arch/riscv/mm/init.c                     | 33 ++++---------
- arch/riscv/mm/kasan_init.c               | 10 ++--
- arch/s390/kernel/crash_dump.c            |  8 ++--
- arch/s390/kernel/setup.c                 | 31 ++++++++-----
- arch/s390/mm/page-states.c               |  6 +--
- arch/s390/mm/vmem.c                      | 16 ++++---
- arch/sh/mm/init.c                        |  9 ++--
- arch/sparc/mm/init_64.c                  | 12 ++---
- arch/x86/mm/numa.c                       | 26 ++++-------
- arch/xtensa/mm/init.c                    | 55 ++++------------------
- drivers/bus/mvebu-mbus.c                 | 12 ++---
- drivers/s390/char/zcore.c                |  9 ++--
- include/linux/memblock.h                 | 45 +++++++++---------
- kernel/dma/contiguous.c                  | 11 +----
- mm/memblock.c                            | 28 +++++++----
- mm/page_alloc.c                          | 11 ++---
- mm/sparse.c                              | 10 ++--
- 47 files changed, 324 insertions(+), 485 deletions(-)
-
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 30da040ab5b6..fa8cd57a9b32 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1544,28 +1544,13 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
+ 		}
+ 		break;
+ 	case SMC_LLC_DELETE_LINK:
+-		if (lgr->role == SMC_CLNT) {
+-			/* server requests to delete this link, send response */
+-			if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE) {
+-				/* DEL LINK REQ during ADD LINK SEQ */
+-				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
+-							qentry);
+-				wake_up(&lgr->llc_msg_waiter);
+-			} else if (smc_llc_flow_start(&lgr->llc_flow_lcl,
+-						      qentry)) {
+-				schedule_work(&lgr->llc_del_link_work);
+-			}
+-		} else {
+-			if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK &&
+-			    !lgr->llc_flow_lcl.qentry) {
+-				/* DEL LINK REQ during ADD LINK SEQ */
+-				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
+-							qentry);
+-				wake_up(&lgr->llc_msg_waiter);
+-			} else if (smc_llc_flow_start(&lgr->llc_flow_lcl,
+-						      qentry)) {
+-				schedule_work(&lgr->llc_del_link_work);
+-			}
++		if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK &&
++		    !lgr->llc_flow_lcl.qentry) {
++			/* DEL LINK REQ during ADD LINK SEQ */
++			smc_llc_flow_qentry_set(&lgr->llc_flow_lcl, qentry);
++			wake_up(&lgr->llc_msg_waiter);
++		} else if (smc_llc_flow_start(&lgr->llc_flow_lcl, qentry)) {
++			schedule_work(&lgr->llc_del_link_work);
+ 		}
+ 		return;
+ 	case SMC_LLC_CONFIRM_RKEY:
 -- 
-2.26.2
+2.17.1
