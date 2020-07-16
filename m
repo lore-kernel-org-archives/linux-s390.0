@@ -1,79 +1,209 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22694 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727032AbgG0Jya (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48866 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725921AbgGPIXm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 27 Jul 2020 05:54:30 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 1/3] s390x: Add custom pgm cleanup function
-Date: Mon, 27 Jul 2020 05:54:13 -0400
-Message-Id: <20200727095415.494318-2-frankja@linux.ibm.com>
-In-Reply-To: <20200727095415.494318-1-frankja@linux.ibm.com>
-References: <20200727095415.494318-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Thu, 16 Jul 2020 04:23:42 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v13 7/9] s390x: css: stsch, enumeration test
+Date: Thu, 16 Jul 2020 10:23:27 +0200
+Message-Id: <1594887809-10521-8-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
 
-Sometimes we need to do cleanup which we don't necessarily want to add
-to interrupt.c, so lets add a way to register a cleanup function.
+First step for testing the channel subsystem is to enumerate the css and
+retrieve the css devices.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+We currently don't enable multiple subchannel sets and therefore only
+look in subchannel set 0
+
+This tests the success of STSCH I/O instruction, we do not test the
+reaction of the VM for an instruction with wrong parameters.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- lib/s390x/asm/interrupt.h |  1 +
- lib/s390x/interrupt.c     | 10 ++++++++++
- 2 files changed, 11 insertions(+)
+ lib/s390x/css_lib.c | 70 +++++++++++++++++++++++++++++++++++++++++++++
+ s390x/Makefile      |  2 ++
+ s390x/css.c         | 55 +++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |  4 +++
+ 4 files changed, 131 insertions(+)
+ create mode 100644 lib/s390x/css_lib.c
+ create mode 100644 s390x/css.c
 
-diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
-index 4cfade9..b2a7c83 100644
---- a/lib/s390x/asm/interrupt.h
-+++ b/lib/s390x/asm/interrupt.h
-@@ -15,6 +15,7 @@
- #define EXT_IRQ_EXTERNAL_CALL	0x1202
- #define EXT_IRQ_SERVICE_SIG	0x2401
- 
-+void register_pgm_int_func(void (*f)(void));
- void handle_pgm_int(void);
- void handle_ext_int(void);
- void handle_mcck_int(void);
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 243b9c2..51cc733 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -16,6 +16,7 @@
- 
- static bool pgm_int_expected;
- static bool ext_int_expected;
-+static void (*pgm_int_func)(void);
- static struct lowcore *lc;
- 
- void expect_pgm_int(void)
-@@ -51,6 +52,11 @@ void check_pgm_int_code(uint16_t code)
- 	       lc->pgm_int_code);
- }
- 
-+void register_pgm_int_func(void (*f)(void))
+diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
+new file mode 100644
+index 0000000..fd087ce
+--- /dev/null
++++ b/lib/s390x/css_lib.c
+@@ -0,0 +1,70 @@
++/*
++ * Channel Subsystem tests library
++ *
++ * Copyright (c) 2020 IBM Corp
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++#include <libcflat.h>
++#include <alloc_phys.h>
++#include <asm/page.h>
++#include <string.h>
++#include <interrupt.h>
++#include <asm/arch_def.h>
++
++#include <css.h>
++
++static struct schib schib;
++
++/*
++ * css_enumerate:
++ * On success return the first subchannel ID found.
++ * On error return an invalid subchannel ID containing cc
++ */
++int css_enumerate(void)
 +{
-+	pgm_int_func = f;
++	struct pmcw *pmcw = &schib.pmcw;
++	int scn_found = 0;
++	int dev_found = 0;
++	int schid = 0;
++	int cc;
++	int scn;
++
++	for (scn = 0; scn < 0xffff; scn++) {
++		cc = stsch(scn | SCHID_ONE, &schib);
++		switch (cc) {
++		case 0:		/* 0 means SCHIB stored */
++			break;
++		case 3:		/* 3 means no more channels */
++			goto out;
++		default:	/* 1 or 2 should never happen for STSCH */
++			report_abort("Unexpected error %d on subchannel %08x",
++				     cc, scn | SCHID_ONE);
++			return cc;
++		}
++
++		/* We currently only support type 0, a.k.a. I/O channels */
++		if (PMCW_CHANNEL_TYPE(pmcw) != 0)
++			continue;
++
++		/* We ignore I/O channels without valid devices */
++		scn_found++;
++		if (!(pmcw->flags & PMCW_DNV))
++			continue;
++
++		/* We keep track of the first device as our test device */
++		if (!schid)
++			schid = scn | SCHID_ONE;
++		report_info("Found subchannel %08x", scn | SCHID_ONE);
++		dev_found++;
++	}
++
++out:
++	report_info("Tested subchannels: %d, I/O subchannels: %d, I/O devices: %d",
++		    scn, scn_found, dev_found);
++	return schid;
++}
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 050c40b..166cb5c 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -17,6 +17,7 @@ tests += $(TEST_DIR)/stsi.elf
+ tests += $(TEST_DIR)/skrf.elf
+ tests += $(TEST_DIR)/smp.elf
+ tests += $(TEST_DIR)/sclp.elf
++tests += $(TEST_DIR)/css.elf
+ tests_binary = $(patsubst %.elf,%.bin,$(tests))
+ 
+ all: directories test_cases test_cases_binary
+@@ -52,6 +53,7 @@ cflatobjs += lib/s390x/interrupt.o
+ cflatobjs += lib/s390x/mmu.o
+ cflatobjs += lib/s390x/smp.o
+ cflatobjs += lib/s390x/css_dump.o
++cflatobjs += lib/s390x/css_lib.o
+ 
+ OBJDIRS += lib/s390x
+ 
+diff --git a/s390x/css.c b/s390x/css.c
+new file mode 100644
+index 0000000..e19ffc8
+--- /dev/null
++++ b/s390x/css.c
+@@ -0,0 +1,55 @@
++/*
++ * Channel Subsystem tests
++ *
++ * Copyright (c) 2020 IBM Corp
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++
++#include <libcflat.h>
++#include <alloc_phys.h>
++#include <asm/page.h>
++#include <string.h>
++#include <interrupt.h>
++#include <asm/arch_def.h>
++
++#include <css.h>
++
++static int test_device_sid;
++
++static void test_enumerate(void)
++{
++	test_device_sid = css_enumerate();
++	if (test_device_sid & SCHID_ONE) {
++		report(1, "Schid of first I/O device: 0x%08x", test_device_sid);
++		return;
++	}
++	report(0, "No I/O device found");
 +}
 +
- static void fixup_pgm_int(void)
- {
- 	switch (lc->pgm_int_code) {
-@@ -115,6 +121,10 @@ void handle_pgm_int(void)
- 	}
- 
- 	pgm_int_expected = false;
++static struct {
++	const char *name;
++	void (*func)(void);
++} tests[] = {
++	{ "enumerate (stsch)", test_enumerate },
++	{ NULL, NULL }
++};
 +
-+	if (pgm_int_func)
-+		return (*pgm_int_func)();
++int main(int argc, char *argv[])
++{
++	int i;
 +
- 	fixup_pgm_int();
- }
- 
++	report_prefix_push("Channel Subsystem");
++	for (i = 0; tests[i].name; i++) {
++		report_prefix_push(tests[i].name);
++		tests[i].func();
++		report_prefix_pop();
++	}
++	report_prefix_pop();
++
++	return report_summary();
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index b307329..0f156af 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -84,3 +84,7 @@ extra_params = -m 1G
+ [sclp-3g]
+ file = sclp.elf
+ extra_params = -m 3G
++
++[css]
++file = css.elf
++extra_params = -device virtio-net-ccw
 -- 
 2.25.1
