@@ -1,154 +1,107 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:51813 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726670AbgGCNjo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:39:44 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 8/9] s390/vmemmap: remember unused sub-pmd ranges
-Date: Fri,  3 Jul 2020 15:39:16 +0200
-Message-Id: <20200703133917.39045-9-david@redhat.com>
-In-Reply-To: <20200703133917.39045-1-david@redhat.com>
-References: <20200703133917.39045-1-david@redhat.com>
+Received: from foss.arm.com ([217.140.110.172]:47852 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726138AbgGQDVy (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 16 Jul 2020 23:21:54 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH V5 1/4] mm/debug_vm_pgtable: Add tests validating arch
+ helpers for core MM features
+References: <1594610587-4172-1-git-send-email-anshuman.khandual@arm.com>
+ <1594610587-4172-2-git-send-email-anshuman.khandual@arm.com>
+ <2ff756c5-28e2-b64a-3788-260ba30c6409@arm.com>
+Message-ID: <efdd0b57-6515-2ee7-a245-a23be6a1d823@arm.com>
+Date: Fri, 17 Jul 2020 08:50:35 +0530
 MIME-Version: 1.0
+In-Reply-To: <2ff756c5-28e2-b64a-3788-260ba30c6409@arm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: Steven Price <steven.price@arm.com>, linux-mm@kvack.org
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, agordeev@linux.ibm.com, Will Deacon <will@kernel.org>, linux-riscv@lists.infradead.org, linux-arch@vger.kernel.org, linux-s390@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org, christophe.leroy@csgroup.eu, Mike Rapoport <rppt@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, linux-arm-kernel@lists.infradead.org, ziy@nvidia.com, Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-snps-arc@lists.infradead.org, Vasily Gorbik <gor@linux.ibm.com>, cai@lca.pw, Paul Walmsley <paul.walmsley@sifive.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Thomas Gleixner <tglx@linutronix.de>, gerald.schaefer@de.ibm.com, christophe.leroy@c-s.fr, Vineet Gupta <vgupta@synopsys.com>, linux-kernel@vger.kernel.org, Palmer Dabbelt <palmer@dabbelt.com>, aneesh.kumar@linux.ibm.com, Borislav Petkov <bp@alien8.de>, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org, rppt@kernel.org
 
-With a memmap size of 56 bytes or 72 bytes per page, the memmap for a
-256 MB section won't span full PMDs. As we populate single sections and
-depopulate single sections, the depopulation step would not be able to
-free all vmemmap pmds anymore.
 
-Do it similarly to x86, marking the unused memmap ranges in a special way
-(pad it with 0xFD).
 
-This allows us to add/remove sections, cleaning up all allocated
-vmemmap pages even if the memmap size is not multiple of 16 bytes per page.
+On 07/16/2020 07:44 PM, Steven Price wrote:
+> On 13/07/2020 04:23, Anshuman Khandual wrote:
+>> This adds new tests validating arch page table helpers for these following
+>> core memory features. These tests create and test specific mapping types at
+>> various page table levels.
+>>
+>> 1. SPECIAL mapping
+>> 2. PROTNONE mapping
+>> 3. DEVMAP mapping
+>> 4. SOFTDIRTY mapping
+>> 5. SWAP mapping
+>> 6. MIGRATION mapping
+>> 7. HUGETLB mapping
+>> 8. THP mapping
+>>
+>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>> Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+>> Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+>> Cc: Mike Rapoport <rppt@linux.ibm.com>
+>> Cc: Vineet Gupta <vgupta@synopsys.com>
+>> Cc: Catalin Marinas <catalin.marinas@arm.com>
+>> Cc: Will Deacon <will@kernel.org>
+>> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+>> Cc: Paul Mackerras <paulus@samba.org>
+>> Cc: Michael Ellerman <mpe@ellerman.id.au>
+>> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+>> Cc: Thomas Gleixner <tglx@linutronix.de>
+>> Cc: Ingo Molnar <mingo@redhat.com>
+>> Cc: Borislav Petkov <bp@alien8.de>
+>> Cc: "H. Peter Anvin" <hpa@zytor.com>
+>> Cc: Kirill A. Shutemov <kirill@shutemov.name>
+>> Cc: Paul Walmsley <paul.walmsley@sifive.com>
+>> Cc: Palmer Dabbelt <palmer@dabbelt.com>
+>> Cc: linux-snps-arc@lists.infradead.org
+>> Cc: linux-arm-kernel@lists.infradead.org
+>> Cc: linuxppc-dev@lists.ozlabs.org
+>> Cc: linux-s390@vger.kernel.org
+>> Cc: linux-riscv@lists.infradead.org
+>> Cc: x86@kernel.org
+>> Cc: linux-mm@kvack.org
+>> Cc: linux-arch@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Tested-by: Vineet Gupta <vgupta@synopsys.com>    #arc
+>> Reviewed-by: Zi Yan <ziy@nvidia.com>
+>> Suggested-by: Catalin Marinas <catalin.marinas@arm.com>
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>   mm/debug_vm_pgtable.c | 302 +++++++++++++++++++++++++++++++++++++++++-
+>>   1 file changed, 301 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+>> index 61ab16fb2e36..2fac47db3eb7 100644
+>> --- a/mm/debug_vm_pgtable.c
+>> +++ b/mm/debug_vm_pgtable.c
+> [...]
+>> +
+>> +static void __init pte_swap_tests(unsigned long pfn, pgprot_t prot)
+>> +{
+>> +    swp_entry_t swp;
+>> +    pte_t pte;
+>> +
+>> +    pte = pfn_pte(pfn, prot);
+>> +    swp = __pte_to_swp_entry(pte);
+> 
+> Minor issue: this doesn't look necessarily valid - there's no reason a normal PTE can be turned into a swp_entry. In practise this is likely to work on all architectures because there's no reason not to use (at least) all the PFN bits for the swap entry, but it doesn't exactly seem correct.
 
-A 56 byte memmap can, for example, be created with !CONFIG_MEMCG and
-!CONFIG_SLUB.
+Agreed, that it is a simple test but nonetheless a valid one which
+makes sure that PFN value remained unchanged during pte <---> swp
+conversion.
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/mm/vmem.c | 66 ++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 60 insertions(+), 6 deletions(-)
+> 
+> Can we start with a swp_entry_t (from __swp_entry()) and check the round trip of that?
+> 
+> It would also seem sensible to have a check that is_swap_pte(__swp_entry_to_pte(__swp_entry(x,y))) is true.
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index b7fdb9536707f..a981ff5d47223 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -72,6 +72,42 @@ static void vmem_pte_free(unsigned long *table)
- 	page_table_free(&init_mm, table);
- }
- 
-+#define PAGE_UNUSED 0xFD
-+
-+static void vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
-+{
-+	/*
-+	 * As we expect to add in the same granularity as we remove, it's
-+	 * sufficient to mark only some piece used to block the memmap page from
-+	 * getting removed (just in case the memmap never gets initialized,
-+	 * e.g., because the memory block never gets onlined).
-+	 */
-+	memset(__va(start), 0, sizeof(struct page));
-+}
-+
-+static void vmemmap_use_new_sub_pmd(unsigned long start, unsigned long end)
-+{
-+	void *page = __va(ALIGN_DOWN(start, PMD_SIZE));
-+
-+	/* Could be our memmap page is filled with PAGE_UNUSED already ... */
-+	vmemmap_use_sub_pmd(start, end);
-+
-+	/* Mark the unused parts of the new memmap page PAGE_UNUSED. */
-+	if (!IS_ALIGNED(start, PMD_SIZE))
-+		memset(page, PAGE_UNUSED, start - __pa(page));
-+	if (!IS_ALIGNED(end, PMD_SIZE))
-+		memset(__va(end), PAGE_UNUSED, __pa(page) + PMD_SIZE - end);
-+}
-+
-+/* Returns true if the PMD is completely unused and can be freed. */
-+static bool vmemmap_unuse_sub_pmd(unsigned long start, unsigned long end)
-+{
-+	void *page = __va(ALIGN_DOWN(start, PMD_SIZE));
-+
-+	memset(__va(start), PAGE_UNUSED, end - start);
-+	return !memchr_inv(page, PAGE_UNUSED, PMD_SIZE);
-+}
-+
- /*
-  * Add a physical memory range to the 1:1 mapping.
-  */
-@@ -213,6 +249,11 @@ static void remove_pmd_table(pud_t *pud, unsigned long addr,
- 							get_order(PMD_SIZE));
- 				pmd_clear(pmd);
- 				pages++;
-+			} else if (!direct &&
-+				   vmemmap_unuse_sub_pmd(addr, next)) {
-+				vmem_free_pages(pmd_deref(*pmd),
-+						get_order(PMD_SIZE));
-+				pmd_clear(pmd);
- 			}
- 			continue;
- 		}
-@@ -381,7 +422,7 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
- 		struct vmem_altmap *altmap)
- {
- 	unsigned long pgt_prot, sgt_prot;
--	unsigned long address = start;
-+	unsigned long next, address = start;
- 	pgd_t *pg_dir;
- 	p4d_t *p4_dir;
- 	pud_t *pu_dir;
-@@ -425,16 +466,27 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
- 		if (pmd_none(*pm_dir) && MACHINE_HAS_EDAT1) {
- 			void *new_page;
- 
--			/* Use 1MB frames for vmemmap if available. We always
-+			/*
-+			 * Use 1MB frames for vmemmap if available. We always
- 			 * use large frames even if they are only partially
--			 * used.
-+			 * used, and mark the unused parts using PAGE_UNUSED.
-+			 *
-+			 * This is only an issue in some setups. E.g.,
-+			 * a full sections with 64 byte memmap per page need
-+			 * 4 MB in total. However, with 56 byte, it's 3.5 MB.
-+			 *
- 			 * Otherwise we would have also page tables since
- 			 * vmemmap_populate gets called for each section
--			 * separately. */
-+			 * separately.
-+			 */
- 			new_page = vmemmap_alloc_block(PMD_SIZE, node);
- 			if (new_page) {
- 				pmd_val(*pm_dir) = __pa(new_page) | sgt_prot;
--				address = (address + PMD_SIZE) & PMD_MASK;
-+				next = pmd_addr_end(address, end);
-+				if (!IS_ALIGNED(next, PMD_SIZE) ||
-+				    !IS_ALIGNED(address, PMD_SIZE))
-+					vmemmap_use_new_sub_pmd(address, next);
-+				address = next;
- 				continue;
- 			}
- 		}
-@@ -444,7 +496,9 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
- 				goto out;
- 			pmd_populate(&init_mm, pm_dir, pt_dir);
- 		} else if (pmd_large(*pm_dir)) {
--			address = (address + PMD_SIZE) & PMD_MASK;
-+			next = pmd_addr_end(address, end);
-+			vmemmap_use_sub_pmd(address, next);
-+			address = next;
- 			continue;
- 		}
- 
--- 
-2.26.2
+From past experiences, getting any these new tests involving platform
+helpers, working on all existing enabled archs is neither trivial nor
+going to be quick. Existing tests here are known to succeed in enabled
+platforms. Nonetheless, proposed tests as in the above suggestions do
+make sense but will try to accommodate them in a later patch.
