@@ -1,12 +1,12 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 28 Jul 2020 08:50:29 -0000
+Date: Fri, 17 Jul 2020 11:22:06 -0000
 From: "tip-bot2 for Herbert Xu" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: locking/header] lockdep: Move list.h inclusion into lockdep.h
+Subject: [tip: locking/core] lockdep: Move list.h inclusion into lockdep.h
 In-Reply-To: <20200716063649.GA23065@gondor.apana.org.au>
 References: <20200716063649.GA23065@gondor.apana.org.au>
 MIME-Version: 1.0
-Message-ID: <159592622946.4006.7922093273246703940.tip-bot2@tip-bot2>
+Message-ID: <159498492623.4006.16207982024495976101.tip-bot2@tip-bot2>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -14,14 +14,14 @@ List-ID: <linux-s390.vger.kernel.org>
 To: linux-tip-commits@vger.kernel.org
 Cc: Petr Mladek <pmladek@suse.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-The following commit has been merged into the locking/header branch of tip:
+The following commit has been merged into the locking/core branch of tip:
 
-Commit-ID:     e885d5d94793ef342e49d55672baabbc16e32bb1
-Gitweb:        https://git.kernel.org/tip/e885d5d94793ef342e49d55672baabbc16e32bb1
+Commit-ID:     5be542e945cb39a2457aa2cfe8b84aac95ef0f2d
+Gitweb:        https://git.kernel.org/tip/5be542e945cb39a2457aa2cfe8b84aac95ef0f2d
 Author:        Herbert Xu <herbert@gondor.apana.org.au>
 AuthorDate:    Thu, 16 Jul 2020 16:36:50 +10:00
 Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Tue, 28 Jul 2020 10:45:46 +02:00
+CommitterDate: Thu, 16 Jul 2020 23:19:51 +02:00
 
 lockdep: Move list.h inclusion into lockdep.h
 
@@ -48,10 +48,10 @@ Link: https://lkml.kernel.org/r/20200716063649.GA23065@gondor.apana.org.au
  2 files changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index 3b73cf8..b1ad5c0 100644
+index fd04b9e..7aafba0 100644
 --- a/include/linux/lockdep.h
 +++ b/include/linux/lockdep.h
-@@ -21,6 +21,7 @@ extern int lock_stat;
+@@ -22,6 +22,7 @@ extern int lock_stat;
  #ifdef CONFIG_LOCKDEP
  
  #include <linux/linkage.h>
