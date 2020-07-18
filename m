@@ -1,62 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46128 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55144 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726746AbgGBQbb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 2 Jul 2020 12:31:31 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v10 5/9] s390x: define function to wait for interrupt
-Date: Thu,  2 Jul 2020 18:31:16 +0200
-Message-Id: <1593707480-23921-6-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
-References: <1593707480-23921-1-git-send-email-pmorel@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1726780AbgGRNGx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Jul 2020 09:06:53 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net v2 03/10] net/smc: fix link lookup for new rdma connections
+Date: Sat, 18 Jul 2020 15:06:11 +0200
+Message-Id: <20200718130618.16724-4-kgraul@linux.ibm.com>
+In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
+References: <20200718130618.16724-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Allow the program to wait for an interrupt.
+For new rdma connections the SMC server assigns the link and sends the
+link data in the clc accept message. To match the correct link use not
+only the qp_num but also the gid and the mac of the links. If there are
+equal qp_nums for different links the wrong link would be chosen.
 
-The interrupt handler is in charge to remove the WAIT bit
-when it finished handling the interrupt.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: 0fb0b02bd6fd ("net/smc: adapt SMC client code to use the LLC flow")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- lib/s390x/asm/arch_def.h | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ net/smc/af_smc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 1b3bb0c..022a564 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -17,6 +17,7 @@ struct psw {
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 903321543838..f80591567a3d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -632,7 +632,9 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 			struct smc_link *l = &smc->conn.lgr->lnk[i];
  
- #define PSW_MASK_EXT			0x0100000000000000UL
- #define PSW_MASK_DAT			0x0400000000000000UL
-+#define PSW_MASK_WAIT			0x0002000000000000UL
- #define PSW_MASK_PSTATE			0x0001000000000000UL
- 
- #define CR0_EXTM_SCLP			0x0000000000000200UL
-@@ -246,6 +247,18 @@ static inline void load_psw_mask(uint64_t mask)
- 		: "+r" (tmp) :  "a" (&psw) : "memory", "cc" );
- }
- 
-+static inline void wait_for_interrupt(uint64_t irq_mask)
-+{
-+	uint64_t psw_mask = extract_psw_mask();
-+
-+	load_psw_mask(psw_mask | irq_mask | PSW_MASK_WAIT);
-+	/*
-+	 * After being woken and having processed the interrupt, let's restore
-+	 * the PSW mask.
-+	 */
-+	load_psw_mask(psw_mask);
-+}
-+
- static inline void enter_pstate(void)
- {
- 	uint64_t mask;
+-			if (l->peer_qpn == ntoh24(aclc->qpn)) {
++			if (l->peer_qpn == ntoh24(aclc->qpn) &&
++			    !memcmp(l->peer_gid, &aclc->lcl.gid, SMC_GID_SIZE) &&
++			    !memcmp(l->peer_mac, &aclc->lcl.mac, sizeof(l->peer_mac))) {
+ 				link = l;
+ 				break;
+ 			}
 -- 
-2.25.1
+2.17.1
