@@ -1,33 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726126AbgGSWal (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 19 Jul 2020 18:30:41 -0400
-Date: Sun, 19 Jul 2020 15:30:38 -0700 (PDT)
-Message-Id: <20200719.153038.2294671622833273160.davem@davemloft.net>
-Subject: Re: [PATCH net v2 00/10] net/smc: fixes 2020-07-16
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
-References: <20200718130618.16724-1-kgraul@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54464 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726532AbgGRNGx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Jul 2020 09:06:53 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net v2 00/10] net/smc: fixes 2020-07-16
+Date: Sat, 18 Jul 2020 15:06:08 +0200
+Message-Id: <20200718130618.16724-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kgraul@linux.ibm.com
+To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Karsten Graul <kgraul@linux.ibm.com>
-Date: Sat, 18 Jul 2020 15:06:08 +0200
+Please apply the following patch series for smc to netdev's net tree.
 
-> Please apply the following patch series for smc to netdev's net tree.
-> 
-> The patches address problems caused by late or unexpected link layer
-> control packets, dma sync calls for unmapped memory, freed buffers
-> that are not removed from the buffer list and a possible null pointer
-> access that results in a crash.
-> 
-> v1->v2: in patch 4, improve patch description and correct the comment
->         for the new mutex
+The patches address problems caused by late or unexpected link layer
+control packets, dma sync calls for unmapped memory, freed buffers
+that are not removed from the buffer list and a possible null pointer
+access that results in a crash.
 
-Series applied, thanks.
+v1->v2: in patch 4, improve patch description and correct the comment
+        for the new mutex
+
+Thanks,
+Karsten
+
+Karsten Graul (10):
+  net/smc: handle unexpected response types for confirm link
+  net/smc: clear link during SMC client link down processing
+  net/smc: fix link lookup for new rdma connections
+  net/smc: protect smc ib device initialization
+  net/smc: drop out-of-flow llc response messages
+  net/smc: move add link processing for new device into llc layer
+  net/smc: fix handling of delete link requests
+  net/smc: do not call dma sync for unmapped memory
+  net/smc: remove freed buffer from list
+  net/smc: fix restoring of fallback changes
+
+ net/smc/af_smc.c   |  12 +++--
+ net/smc/smc_core.c | 105 ++++++++-----------------------------
+ net/smc/smc_core.h |   5 ++
+ net/smc/smc_ib.c   |  16 ++++--
+ net/smc/smc_ib.h   |   1 +
+ net/smc/smc_llc.c  | 127 ++++++++++++++++++++++++++++++---------------
+ net/smc/smc_llc.h  |   2 +-
+ 7 files changed, 135 insertions(+), 133 deletions(-)
+
+-- 
+2.17.1
