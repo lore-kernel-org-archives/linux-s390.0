@@ -1,114 +1,108 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:43272 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727996AbgGFAtS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 5 Jul 2020 20:49:18 -0400
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V4 0/4] mm/debug_vm_pgtable: Add some more tests
-Date: Mon,  6 Jul 2020 06:18:32 +0530
-Message-Id: <1593996516-7186-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6268 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726777AbgGRNGx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Jul 2020 09:06:53 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net v2 04/10] net/smc: protect smc ib device initialization
+Date: Sat, 18 Jul 2020 15:06:12 +0200
+Message-Id: <20200718130618.16724-5-kgraul@linux.ibm.com>
+In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
+References: <20200718130618.16724-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Jonathan Corbet <corbet@lwn.net>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-doc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-This series adds some more arch page table helper validation tests which
-are related to core and advanced memory functions. This also creates a
-documentation, enlisting expected semantics for all page table helpers as
-suggested by Mike Rapoport previously (https://lkml.org/lkml/2020/1/30/40).
+Before an smc ib device is used the first time for an smc link it is
+lazily initialized. When there are 2 active link groups and a new ib
+device is brought online then it might happen that 2 link creations run
+in parallel and enter smc_ib_setup_per_ibdev(). Both allocate new send
+and receive completion queues on the device, but only one set of them
+keeps assigned and the other leaks.
+Fix that by protecting the setup and cleanup code using a mutex.
 
-There are many TRANSPARENT_HUGEPAGE and ARCH_HAS_TRANSPARENT_HUGEPAGE_PUD
-ifdefs scattered across the test. But consolidating all the fallback stubs
-is not very straight forward because ARCH_HAS_TRANSPARENT_HUGEPAGE_PUD is
-not explicitly dependent on ARCH_HAS_TRANSPARENT_HUGEPAGE.
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: f3c1deddb21c ("net/smc: separate function for link initialization")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/smc_ib.c | 16 +++++++++++++---
+ net/smc/smc_ib.h |  1 +
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
-Tested on arm64, x86 platforms but only build tested on all other enabled
-platforms through ARCH_HAS_DEBUG_VM_PGTABLE i.e powerpc, arc, s390. The
-following failure on arm64 still exists which was mentioned previously. It
-will be fixed with the upcoming THP migration on arm64 enablement series.
-
-WARNING .... mm/debug_vm_pgtable.c:860 debug_vm_pgtable+0x940/0xa54
-WARN_ON(!pmd_present(pmd_mkinvalid(pmd_mkhuge(pmd))))
-
-This series is based on v5.8-rc4.
-
-Changes in V4:
-
-- Replaced READ_ONCE() with ptep_get() while accessing PTE pointers per Christophe
-- Fixed function argument alignments per Christophe
-
-Changes in V3: (https://patchwork.kernel.org/project/linux-mm/list/?series=302483)
-
-- Replaced HAVE_ARCH_SOFT_DIRTY with MEM_SOFT_DIRTY
-- Added HAVE_ARCH_HUGE_VMAP checks in pxx_huge_tests() per Gerald
-- Updated documentation for pmd_thp_tests() per Zi Yan
-- Replaced READ_ONCE() with huge_ptep_get() per Gerald
-- Added pte_mkhuge() and masking with PMD_MASK per Gerald
-- Replaced pte_same() with holding pfn check in pxx_swap_tests()
-- Added documentation for all (#ifdef #else #endif) per Gerald
-- Updated pmd_protnone_tests() per Gerald
-- Updated HugeTLB PTE creation in hugetlb_advanced_tests() per Gerald
-- Replaced [pmd|pud]_mknotpresent() with [pmd|pud]_mkinvalid()
-- Added has_transparent_hugepage() check for PMD and PUD tests
-- Added a patch which debug prints all individual tests being executed
-- Updated documentation for renamed [pmd|pud]_mkinvalid() helpers
-
-Changes in V2: (https://patchwork.kernel.org/project/linux-mm/list/?series=260573)
-
-- Dropped CONFIG_ARCH_HAS_PTE_SPECIAL per Christophe
-- Dropped CONFIG_NUMA_BALANCING per Christophe
-- Dropped CONFIG_HAVE_ARCH_SOFT_DIRTY per Christophe
-- Dropped CONFIG_MIGRATION per Christophe
-- Replaced CONFIG_S390 with __HAVE_ARCH_PMDP_INVALIDATE
-- Moved page allocation & free inside swap_migration_tests() per Christophe
-- Added CONFIG_TRANSPARENT_HUGEPAGE to protect pfn_pmd()
-- Added CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD to protect pfn_pud()
-- Added a patch for other arch advanced page table helper tests
-- Added a patch creating a documentation for page table helper semantics
-
-Changes in V1: (https://patchwork.kernel.org/patch/11408253/)
-
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-riscv@lists.infradead.org
-Cc: x86@kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-doc@vger.kernel.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-
-
-Anshuman Khandual (4):
-  mm/debug_vm_pgtable: Add tests validating arch helpers for core MM features
-  mm/debug_vm_pgtable: Add tests validating advanced arch page table helpers
-  mm/debug_vm_pgtable: Add debug prints for individual tests
-  Documentation/mm: Add descriptions for arch page table helpers
-
- Documentation/vm/arch_pgtable_helpers.rst | 258 +++++++++
- mm/debug_vm_pgtable.c                     | 666 +++++++++++++++++++++-
- 2 files changed, 922 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/vm/arch_pgtable_helpers.rst
-
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 7637fdebbb78..1c314dbdc7fa 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -506,6 +506,10 @@ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
+ 	int cqe_size_order, smc_order;
+ 	long rc;
+ 
++	mutex_lock(&smcibdev->mutex);
++	rc = 0;
++	if (smcibdev->initialized)
++		goto out;
+ 	/* the calculated number of cq entries fits to mlx5 cq allocation */
+ 	cqe_size_order = cache_line_size() == 128 ? 7 : 6;
+ 	smc_order = MAX_ORDER - cqe_size_order - 1;
+@@ -517,7 +521,7 @@ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
+ 	rc = PTR_ERR_OR_ZERO(smcibdev->roce_cq_send);
+ 	if (IS_ERR(smcibdev->roce_cq_send)) {
+ 		smcibdev->roce_cq_send = NULL;
+-		return rc;
++		goto out;
+ 	}
+ 	smcibdev->roce_cq_recv = ib_create_cq(smcibdev->ibdev,
+ 					      smc_wr_rx_cq_handler, NULL,
+@@ -529,21 +533,26 @@ long smc_ib_setup_per_ibdev(struct smc_ib_device *smcibdev)
+ 	}
+ 	smc_wr_add_dev(smcibdev);
+ 	smcibdev->initialized = 1;
+-	return rc;
++	goto out;
+ 
+ err:
+ 	ib_destroy_cq(smcibdev->roce_cq_send);
++out:
++	mutex_unlock(&smcibdev->mutex);
+ 	return rc;
+ }
+ 
+ static void smc_ib_cleanup_per_ibdev(struct smc_ib_device *smcibdev)
+ {
++	mutex_lock(&smcibdev->mutex);
+ 	if (!smcibdev->initialized)
+-		return;
++		goto out;
+ 	smcibdev->initialized = 0;
+ 	ib_destroy_cq(smcibdev->roce_cq_recv);
+ 	ib_destroy_cq(smcibdev->roce_cq_send);
+ 	smc_wr_remove_dev(smcibdev);
++out:
++	mutex_unlock(&smcibdev->mutex);
+ }
+ 
+ static struct ib_client smc_ib_client;
+@@ -566,6 +575,7 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
+ 	INIT_WORK(&smcibdev->port_event_work, smc_ib_port_event_work);
+ 	atomic_set(&smcibdev->lnk_cnt, 0);
+ 	init_waitqueue_head(&smcibdev->lnks_deleted);
++	mutex_init(&smcibdev->mutex);
+ 	mutex_lock(&smc_ib_devices.mutex);
+ 	list_add_tail(&smcibdev->list, &smc_ib_devices.list);
+ 	mutex_unlock(&smc_ib_devices.mutex);
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index ae6776e1e726..2ce481187dd0 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -52,6 +52,7 @@ struct smc_ib_device {				/* ib-device infos for smc */
+ 	DECLARE_BITMAP(ports_going_away, SMC_MAX_PORTS);
+ 	atomic_t		lnk_cnt;	/* number of links on ibdev */
+ 	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all links*/
++	struct mutex		mutex;		/* protect dev setup+cleanup */
+ };
+ 
+ struct smc_buf_desc;
 -- 
-2.20.1
+2.17.1
