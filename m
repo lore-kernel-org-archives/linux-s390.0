@@ -1,37 +1,49 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 01/26] bpfilter: fix up a sparse annotation
-Date: Thu, 23 Jul 2020 08:08:43 +0200
-Message-Id: <20200723060908.50081-2-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5200 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727091AbgGRNGz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 18 Jul 2020 09:06:55 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net v2 10/10] net/smc: fix restoring of fallback changes
+Date: Sat, 18 Jul 2020 15:06:18 +0200
+Message-Id: <20200718130618.16724-11-kgraul@linux.ibm.com>
+In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
+References: <20200718130618.16724-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-The __user doesn't make sense when casting to an integer type, just
-switch to a uintptr_t cast which also removes the need for the __force.
+When a listen socket is closed then all non-accepted sockets in its
+accept queue are to be released. Inside __smc_release() the helper
+smc_restore_fallback_changes() restores the changes done to the socket
+without to check if the clcsocket has a file set. This can result in
+a crash. Fix this by checking the file pointer first.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: f536dffc0b79 ("net/smc: fix closing of fallback SMC sockets")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/bpfilter/bpfilter_kern.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/af_smc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/bpfilter/bpfilter_kern.c b/net/bpfilter/bpfilter_kern.c
-index 2c31e82cb953af..3bac5820062af1 100644
---- a/net/bpfilter/bpfilter_kern.c
-+++ b/net/bpfilter/bpfilter_kern.c
-@@ -44,7 +44,7 @@ static int __bpfilter_process_sockopt(struct sock *sk, int optname,
- 	req.is_set = is_set;
- 	req.pid = current->pid;
- 	req.cmd = optname;
--	req.addr = (long __force __user)optval;
-+	req.addr = (uintptr_t)optval;
- 	req.len = optlen;
- 	if (!bpfilter_ops.info.tgid)
- 		goto out;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index d091509b5982..1163d51196da 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -126,8 +126,10 @@ EXPORT_SYMBOL_GPL(smc_proto6);
+ 
+ static void smc_restore_fallback_changes(struct smc_sock *smc)
+ {
+-	smc->clcsock->file->private_data = smc->sk.sk_socket;
+-	smc->clcsock->file = NULL;
++	if (smc->clcsock->file) { /* non-accepted sockets have no file yet */
++		smc->clcsock->file->private_data = smc->sk.sk_socket;
++		smc->clcsock->file = NULL;
++	}
+ }
+ 
+ static int __smc_release(struct smc_sock *smc)
 -- 
-2.27.0
+2.17.1
