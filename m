@@ -1,67 +1,45 @@
 Return-Path: <netdev-owner@vger.kernel.org>
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 2/2] net/smc: fix dmb buffer shortage
-Date: Mon, 20 Jul 2020 16:24:29 +0200
-Message-Id: <20200720142429.17916-3-kgraul@linux.ibm.com>
-In-Reply-To: <20200720142429.17916-1-kgraul@linux.ibm.com>
-References: <20200720142429.17916-1-kgraul@linux.ibm.com>
+Subject: [PATCH net v2 02/10] net/smc: clear link during SMC client link down processing
+Date: Sat, 18 Jul 2020 15:06:10 +0200
+Message-Id: <20200718130618.16724-3-kgraul@linux.ibm.com>
+In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
+References: <20200718130618.16724-1-kgraul@linux.ibm.com>
 Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-There is a current limit of 1920 registered dmb buffers per ISM device
-for smc-d. One link group can contain 255 connections, each connection
-is using one dmb buffer. When the connection is closed then the
-registered buffer is held in a queue and is reused by the next
-connection. When a link group is 'full' then another link group is
-created and uses an own buffer pool. The link groups are added to a
-list using list_add() which puts a new link group to the first position
-in the list.
-In the situation that many connections are opened (>1920) and a few of
-them stay open while others are closed quickly we end up with at least 8
-link groups. For a new connection a matching link group is looked up,
-iterating over the list of link groups. The trailing 7 link groups
-all have registered dmb buffers which could be reused, while the first
-link group has only a few dmb buffers and then hit the 1920 limit.
-Because the first link group is not full (255 connection limit not
-reached) it is chosen and finally the connection falls back to TCP
-because there is no dmb buffer available in this link group.
-There are multiple ways to fix that: using list_add_tail() allows
-to scan older link groups first for free buffers which ensures that
-buffers are reused first. This fixes the problem for smc-r link groups
-as well. For smc-d there is an even better way to address this problem
-because smc-d does not have the 255 connections per link group limit.
-So fix the problem for smc-d by allowing large link groups.
+In a link-down condition we notify the SMC server and expect that the
+server will finally trigger the link clear processing on the client
+side. This could fail when anything along this notification path goes
+wrong. Clear the link as part of SMC client link-down processing to
+prevent dangling links.
 
-Fixes: c6ba7c9ba43d ("net/smc: add base infrastructure for SMC-D and ISM")
 Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: 541afa10c126 ("net/smc: add smcr_port_err() and smcr_link_down() processing")
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/smc/smc_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/smc/smc_core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index ca3dc6af73af..f82a2e599917 100644
+index f69d205b3e11..e286b3c8c962 100644
 --- a/net/smc/smc_core.c
 +++ b/net/smc/smc_core.c
-@@ -444,7 +444,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+@@ -1204,10 +1204,12 @@ static void smcr_link_down(struct smc_link *lnk)
+ 				SMC_LLC_WAIT_TIME);
+ 			mutex_lock(&lgr->llc_conf_mutex);
+ 		}
+-		if (!list_empty(&lgr->list))
++		if (!list_empty(&lgr->list)) {
+ 			smc_llc_send_delete_link(to_lnk, del_link_id,
+ 						 SMC_LLC_REQ, true,
+ 						 SMC_LLC_DEL_LOST_PATH);
++			smcr_link_clear(lnk, true);
++		}
+ 		wake_up(&lgr->llc_flow_waiter);	/* wake up next waiter */
  	}
- 	smc->conn.lgr = lgr;
- 	spin_lock_bh(lgr_lock);
--	list_add(&lgr->list, lgr_list);
-+	list_add_tail(&lgr->list, lgr_list);
- 	spin_unlock_bh(lgr_lock);
- 	return 0;
- 
-@@ -1311,7 +1311,7 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 		     smcr_lgr_match(lgr, ini->ib_lcl, role, ini->ib_clcqpn)) &&
- 		    !lgr->sync_err &&
- 		    lgr->vlan_id == ini->vlan_id &&
--		    (role == SMC_CLNT ||
-+		    (role == SMC_CLNT || ini->is_smcd ||
- 		     lgr->conns_num < SMC_RMBS_PER_LGR_MAX)) {
- 			/* link group found */
- 			ini->cln_first_contact = SMC_REUSE_CONTACT;
+ }
 -- 
 2.17.1
