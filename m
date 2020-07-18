@@ -1,98 +1,268 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37870 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726547AbgGPIXi (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4890 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726855AbgGRNGy (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jul 2020 04:23:38 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v13 1/9] s390x: saving regs for interrupts
-Date: Thu, 16 Jul 2020 10:23:21 +0200
-Message-Id: <1594887809-10521-2-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+        Sat, 18 Jul 2020 09:06:54 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net v2 06/10] net/smc: move add link processing for new device into llc layer
+Date: Sat, 18 Jul 2020 15:06:14 +0200
+Message-Id: <20200718130618.16724-7-kgraul@linux.ibm.com>
+In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
+References: <20200718130618.16724-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-If we use multiple source of interrupts, for example, using SCLP
-console to print information while using I/O interrupts, we need
-to have a re-entrant register saving interruption handling.
+When a new ib device is up smc will send an add link invitation to the
+peer if needed. This is currently done with rudimentary flow control.
+Under high workload these add link invitations can disturb other llc
+flows because they arrive unexpected. Fix this by integrating the
+invitations into the normal llc event flow and handle them as a flow.
+While at it, check for already assigned requests in the flow before
+the new add link request is assigned.
 
-Instead of saving at a static memory address, let's save the base
-registers, the floating point registers and the floating point
-control register on the stack in case of I/O interrupts
-
-Note that we keep the static register saving to recover from the
-RESET tests.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: 1f90a05d9ff9 ("net/smc: add smcr_port_add() and smcr_link_up() processing")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- s390x/cstart64.S | 41 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
+ net/smc/smc_core.c | 80 ++++------------------------------------------
+ net/smc/smc_llc.c  | 56 ++++++++++++++++++++++++++++----
+ net/smc/smc_llc.h  |  2 +-
+ 3 files changed, 58 insertions(+), 80 deletions(-)
 
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index e084f13..4e51150 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -118,6 +118,43 @@ memsetxc:
- 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
- 	.endm
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index e286b3c8c962..2e965de7412d 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -45,18 +45,10 @@ static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
+ static atomic_t lgr_cnt = ATOMIC_INIT(0); /* number of existing link groups */
+ static DECLARE_WAIT_QUEUE_HEAD(lgrs_deleted);
  
-+/* Save registers on the stack (r15), so we can have stacked interrupts. */
-+	.macro SAVE_REGS_STACK
-+	/* Allocate a stack frame for 15 general registers */
-+	slgfi   %r15, 15 * 8
-+	/* Store registers r0 to r14 on the stack */
-+	stmg    %r0, %r14, 0(%r15)
-+	/* Allocate a stack frame for 16 floating point registers */
-+	/* The size of a FP register is the size of an double word */
-+	slgfi   %r15, 16 * 8
-+	/* Save fp register on stack: offset to SP is multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	std	\i, \i * 8(%r15)
-+	.endr
-+	/* Save fpc, but keep stack aligned on 64bits */
-+	slgfi   %r15, 8
-+	efpc	%r0
-+	stg	%r0, 0(%r15)
-+	.endm
+-struct smc_ib_up_work {
+-	struct work_struct	work;
+-	struct smc_link_group	*lgr;
+-	struct smc_ib_device	*smcibdev;
+-	u8			ibport;
+-};
+-
+ static void smc_buf_free(struct smc_link_group *lgr, bool is_rmb,
+ 			 struct smc_buf_desc *buf_desc);
+ static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft);
+ 
+-static void smc_link_up_work(struct work_struct *work);
+ static void smc_link_down_work(struct work_struct *work);
+ 
+ /* return head of link group list and its lock for a given link group */
+@@ -1106,67 +1098,23 @@ static void smc_conn_abort_work(struct work_struct *work)
+ 	sock_put(&smc->sk); /* sock_hold done by schedulers of abort_work */
+ }
+ 
+-/* link is up - establish alternate link if applicable */
+-static void smcr_link_up(struct smc_link_group *lgr,
+-			 struct smc_ib_device *smcibdev, u8 ibport)
+-{
+-	struct smc_link *link = NULL;
+-
+-	if (list_empty(&lgr->list) ||
+-	    lgr->type == SMC_LGR_SYMMETRIC ||
+-	    lgr->type == SMC_LGR_ASYMMETRIC_PEER)
+-		return;
+-
+-	if (lgr->role == SMC_SERV) {
+-		/* trigger local add link processing */
+-		link = smc_llc_usable_link(lgr);
+-		if (!link)
+-			return;
+-		smc_llc_srv_add_link_local(link);
+-	} else {
+-		/* invite server to start add link processing */
+-		u8 gid[SMC_GID_SIZE];
+-
+-		if (smc_ib_determine_gid(smcibdev, ibport, lgr->vlan_id, gid,
+-					 NULL))
+-			return;
+-		if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE) {
+-			/* some other llc task is ongoing */
+-			wait_event_timeout(lgr->llc_flow_waiter,
+-				(list_empty(&lgr->list) ||
+-				 lgr->llc_flow_lcl.type == SMC_LLC_FLOW_NONE),
+-				SMC_LLC_WAIT_TIME);
+-		}
+-		/* lgr or device no longer active? */
+-		if (!list_empty(&lgr->list) &&
+-		    smc_ib_port_active(smcibdev, ibport))
+-			link = smc_llc_usable_link(lgr);
+-		if (link)
+-			smc_llc_send_add_link(link, smcibdev->mac[ibport - 1],
+-					      gid, NULL, SMC_LLC_REQ);
+-		wake_up(&lgr->llc_flow_waiter);	/* wake up next waiter */
+-	}
+-}
+-
+ void smcr_port_add(struct smc_ib_device *smcibdev, u8 ibport)
+ {
+-	struct smc_ib_up_work *ib_work;
+ 	struct smc_link_group *lgr, *n;
+ 
+ 	list_for_each_entry_safe(lgr, n, &smc_lgr_list.list, list) {
++		struct smc_link *link;
 +
-+/* Restore the register in reverse order */
-+	.macro RESTORE_REGS_STACK
-+	/* Restore fpc */
-+	lfpc	0(%r15)
-+	algfi	%r15, 8
-+	/* Restore fp register from stack: SP still where it was left */
-+	/* and offset to SP is a multiple of reg number */
-+	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
-+	ld	\i, \i * 8(%r15)
-+	.endr
-+	/* Now that we're done, rewind the stack pointer by 16 double word */
-+	algfi   %r15, 16 * 8
-+	/* Load the registers from stack */
-+	lmg     %r0, %r14, 0(%r15)
-+	/* Rewind the stack by 15 double word */
-+	algfi   %r15, 15 * 8
-+	.endm
+ 		if (strncmp(smcibdev->pnetid[ibport - 1], lgr->pnet_id,
+ 			    SMC_MAX_PNETID_LEN) ||
+ 		    lgr->type == SMC_LGR_SYMMETRIC ||
+ 		    lgr->type == SMC_LGR_ASYMMETRIC_PEER)
+ 			continue;
+-		ib_work = kmalloc(sizeof(*ib_work), GFP_KERNEL);
+-		if (!ib_work)
+-			continue;
+-		INIT_WORK(&ib_work->work, smc_link_up_work);
+-		ib_work->lgr = lgr;
+-		ib_work->smcibdev = smcibdev;
+-		ib_work->ibport = ibport;
+-		schedule_work(&ib_work->work);
 +
- .section .text
- /*
-  * load_reset calling convention:
-@@ -185,9 +222,9 @@ mcck_int:
- 	lpswe	GEN_LC_MCCK_OLD_PSW
++		/* trigger local add link processing */
++		link = smc_llc_usable_link(lgr);
++		if (link)
++			smc_llc_add_link_local(link);
+ 	}
+ }
  
- io_int:
--	SAVE_REGS
-+	SAVE_REGS_STACK
- 	brasl	%r14, handle_io_int
--	RESTORE_REGS
-+	RESTORE_REGS_STACK
- 	lpswe	GEN_LC_IO_OLD_PSW
+@@ -1249,20 +1197,6 @@ void smcr_port_err(struct smc_ib_device *smcibdev, u8 ibport)
+ 	}
+ }
  
- svc_int:
+-static void smc_link_up_work(struct work_struct *work)
+-{
+-	struct smc_ib_up_work *ib_work = container_of(work,
+-						      struct smc_ib_up_work,
+-						      work);
+-	struct smc_link_group *lgr = ib_work->lgr;
+-
+-	if (list_empty(&lgr->list))
+-		goto out;
+-	smcr_link_up(lgr, ib_work->smcibdev, ib_work->ibport);
+-out:
+-	kfree(ib_work);
+-}
+-
+ static void smc_link_down_work(struct work_struct *work)
+ {
+ 	struct smc_link *link = container_of(work, struct smc_link,
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 78704f03e72a..30da040ab5b6 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -895,6 +895,36 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
+ 	return rc;
+ }
+ 
++/* as an SMC client, invite server to start the add_link processing */
++static void smc_llc_cli_add_link_invite(struct smc_link *link,
++					struct smc_llc_qentry *qentry)
++{
++	struct smc_link_group *lgr = smc_get_lgr(link);
++	struct smc_init_info ini;
++
++	if (lgr->type == SMC_LGR_SYMMETRIC ||
++	    lgr->type == SMC_LGR_ASYMMETRIC_PEER)
++		goto out;
++
++	ini.vlan_id = lgr->vlan_id;
++	smc_pnet_find_alt_roce(lgr, &ini, link->smcibdev);
++	if (!ini.ib_dev)
++		goto out;
++
++	smc_llc_send_add_link(link, ini.ib_dev->mac[ini.ib_port - 1],
++			      ini.ib_gid, NULL, SMC_LLC_REQ);
++out:
++	kfree(qentry);
++}
++
++static bool smc_llc_is_local_add_link(union smc_llc_msg *llc)
++{
++	if (llc->raw.hdr.common.type == SMC_LLC_ADD_LINK &&
++	    !llc->add_link.qp_mtu && !llc->add_link.link_num)
++		return true;
++	return false;
++}
++
+ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
+ {
+ 	struct smc_llc_qentry *qentry;
+@@ -902,7 +932,10 @@ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
+ 	qentry = smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
+ 
+ 	mutex_lock(&lgr->llc_conf_mutex);
+-	smc_llc_cli_add_link(qentry->link, qentry);
++	if (smc_llc_is_local_add_link(&qentry->msg))
++		smc_llc_cli_add_link_invite(qentry->link, qentry);
++	else
++		smc_llc_cli_add_link(qentry->link, qentry);
+ 	mutex_unlock(&lgr->llc_conf_mutex);
+ }
+ 
+@@ -1160,14 +1193,14 @@ static void smc_llc_process_srv_add_link(struct smc_link_group *lgr)
+ 	mutex_unlock(&lgr->llc_conf_mutex);
+ }
+ 
+-/* enqueue a local add_link req to trigger a new add_link flow, only as SERV */
+-void smc_llc_srv_add_link_local(struct smc_link *link)
++/* enqueue a local add_link req to trigger a new add_link flow */
++void smc_llc_add_link_local(struct smc_link *link)
+ {
+ 	struct smc_llc_msg_add_link add_llc = {0};
+ 
+ 	add_llc.hd.length = sizeof(add_llc);
+ 	add_llc.hd.common.type = SMC_LLC_ADD_LINK;
+-	/* no dev and port needed, we as server ignore client data anyway */
++	/* no dev and port needed */
+ 	smc_llc_enqueue(link, (union smc_llc_msg *)&add_llc);
+ }
+ 
+@@ -1347,7 +1380,7 @@ static void smc_llc_process_srv_delete_link(struct smc_link_group *lgr)
+ 
+ 	if (lgr->type == SMC_LGR_SINGLE && !list_empty(&lgr->list)) {
+ 		/* trigger setup of asymm alt link */
+-		smc_llc_srv_add_link_local(lnk);
++		smc_llc_add_link_local(lnk);
+ 	}
+ out:
+ 	mutex_unlock(&lgr->llc_conf_mutex);
+@@ -1476,7 +1509,18 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
+ 		if (list_empty(&lgr->list))
+ 			goto out;	/* lgr is terminating */
+ 		if (lgr->role == SMC_CLNT) {
+-			if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK) {
++			if (smc_llc_is_local_add_link(llc)) {
++				if (lgr->llc_flow_lcl.type ==
++				    SMC_LLC_FLOW_ADD_LINK)
++					break;	/* add_link in progress */
++				if (smc_llc_flow_start(&lgr->llc_flow_lcl,
++						       qentry)) {
++					schedule_work(&lgr->llc_add_link_work);
++				}
++				return;
++			}
++			if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK &&
++			    !lgr->llc_flow_lcl.qentry) {
+ 				/* a flow is waiting for this message */
+ 				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
+ 							qentry);
+diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
+index a5d2fe3eea61..cc00a2ec4e92 100644
+--- a/net/smc/smc_llc.h
++++ b/net/smc/smc_llc.h
+@@ -103,7 +103,7 @@ void smc_llc_send_link_delete_all(struct smc_link_group *lgr, bool ord,
+ 				  u32 rsn);
+ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry);
+ int smc_llc_srv_add_link(struct smc_link *link);
+-void smc_llc_srv_add_link_local(struct smc_link *link);
++void smc_llc_add_link_local(struct smc_link *link);
+ int smc_llc_init(void) __init;
+ 
+ #endif /* SMC_LLC_H */
 -- 
-2.25.1
+2.17.1
