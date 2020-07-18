@@ -1,206 +1,78 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4874 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728894AbgGTPER (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:04:17 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v9 14/15] s390/vfio-ap: handle AP bus scan completed notification
-Date: Mon, 20 Jul 2020 11:03:43 -0400
-Message-Id: <20200720150344.24488-15-akrowiak@linux.ibm.com>
-In-Reply-To: <20200720150344.24488-1-akrowiak@linux.ibm.com>
-References: <20200720150344.24488-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net v2 05/10] net/smc: drop out-of-flow llc response messages
+Date: Sat, 18 Jul 2020 15:06:13 +0200
+Message-Id: <20200718130618.16724-6-kgraul@linux.ibm.com>
+In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
+References: <20200718130618.16724-1-kgraul@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Implements the driver callback invoked by the AP bus when the AP bus
-scan has completed. Since this callback is invoked after binding the newly
-added devices to their respective device drivers, the vfio_ap driver will
-attempt to plug the adapters, domains and control domains into each guest
-using a matrix mdev to which they are assigned. Keep in mind that an
-adapter or domain can be plugged in only if each APQN with the APID of the
-adapter or the APQI of the domain references a queue device bound to the
-vfio_ap device driver. Consequently, not all newly added adapters and
-domains will necessarily get hot plugged.
+To be save from unexpected or late llc response messages check if the
+arrived message fits to the current flow type and drop out-of-flow
+messages. And drop it when there is already a response assigned to
+the flow.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Fixes: ef79d439cd12 ("net/smc: process llc responses in tasklet context")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |   1 +
- drivers/s390/crypto/vfio_ap_ops.c     | 110 +++++++++++++++++++++++++-
- drivers/s390/crypto/vfio_ap_private.h |   2 +
- 3 files changed, 110 insertions(+), 3 deletions(-)
+ net/smc/smc_llc.c | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index ea0a7603e886..21bfae928be5 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -180,6 +180,7 @@ static int __init vfio_ap_init(void)
- 	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
- 	vfio_ap_drv.on_config_changed = vfio_ap_on_cfg_changed;
-+	vfio_ap_drv.on_scan_complete = vfio_ap_on_scan_complete;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 58f4da2e0cc7..78704f03e72a 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -1587,6 +1587,8 @@ static void smc_llc_event_work(struct work_struct *work)
+ static void smc_llc_rx_response(struct smc_link *link,
+ 				struct smc_llc_qentry *qentry)
+ {
++	enum smc_llc_flowtype flowtype = link->lgr->llc_flow_lcl.type;
++	struct smc_llc_flow *flow = &link->lgr->llc_flow_lcl;
+ 	u8 llc_type = qentry->msg.raw.hdr.common.type;
  
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
- 	if (ret) {
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e002d556abab..e6480f31a42b 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -616,14 +616,13 @@ static bool vfio_ap_mdev_config_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
- 		 * CRYCB after filtering, then try filtering the APQIs.
- 		 */
- 		if (napm == 0) {
--			naqm = vfio_ap_mdev_filter_matrix(matrix_mdev,
--							  &shadow_apcb, false);
--
- 			/*
- 			 * If there are no APQNs that can be assigned to the
- 			 * matrix mdev after filtering the APQIs, then no APQNs
- 			 * shall be assigned to the guest's CRYCB.
- 			 */
-+			naqm = vfio_ap_mdev_filter_matrix(matrix_mdev,
-+							  &shadow_apcb, false);
- 			if (naqm == 0) {
- 				bitmap_clear(shadow_apcb.apm, 0, AP_DEVICES);
- 				bitmap_clear(shadow_apcb.aqm, 0, AP_DOMAINS);
-@@ -1758,6 +1757,16 @@ static bool vfio_ap_mdev_unassign_apids(struct ap_matrix_mdev *matrix_mdev,
- 	for_each_set_bit_inv(apid, apm_unassign, AP_DEVICES) {
- 		unassigned |= vfio_ap_mdev_unassign_guest_apid(matrix_mdev,
- 							       apid);
-+		/*
-+		 * If the APID is not assigned to the matrix mdev's shadow
-+		 * CRYCB, continue with the next APID.
-+		 */
-+		if (!test_bit_inv(apid, matrix_mdev->shadow_apcb.apm))
-+			continue;
-+
-+		/* Unassign the APID from the matrix mdev's shadow CRYCB */
-+		clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
-+		unassigned = true;
+ 	switch (llc_type) {
+@@ -1595,15 +1597,20 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 			complete(&link->llc_testlink_resp);
+ 		break;
+ 	case SMC_LLC_ADD_LINK:
+-	case SMC_LLC_DELETE_LINK:
+-	case SMC_LLC_CONFIRM_LINK:
+ 	case SMC_LLC_ADD_LINK_CONT:
++	case SMC_LLC_CONFIRM_LINK:
++		if (flowtype != SMC_LLC_FLOW_ADD_LINK || flow->qentry)
++			break;	/* drop out-of-flow response */
++		goto assign;
++	case SMC_LLC_DELETE_LINK:
++		if (flowtype != SMC_LLC_FLOW_DEL_LINK || flow->qentry)
++			break;	/* drop out-of-flow response */
++		goto assign;
+ 	case SMC_LLC_CONFIRM_RKEY:
+ 	case SMC_LLC_DELETE_RKEY:
+-		/* assign responses to the local flow, we requested them */
+-		smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
+-		wake_up(&link->lgr->llc_msg_waiter);
+-		return;
++		if (flowtype != SMC_LLC_FLOW_RKEY || flow->qentry)
++			break;	/* drop out-of-flow response */
++		goto assign;
+ 	case SMC_LLC_CONFIRM_RKEY_CONT:
+ 		/* not used because max links is 3 */
+ 		break;
+@@ -1612,6 +1619,11 @@ static void smc_llc_rx_response(struct smc_link *link,
+ 		break;
  	}
- 
- 	return unassigned;
-@@ -1791,6 +1800,17 @@ static bool vfio_ap_mdev_unassign_apqis(struct ap_matrix_mdev *matrix_mdev,
- 	for_each_set_bit_inv(apqi, aqm_unassign, AP_DOMAINS) {
- 		unassigned |= vfio_ap_mdev_unassign_guest_apqi(matrix_mdev,
- 							       apqi);
-+
-+		/*
-+		 * If the APQI is not assigned to the matrix mdev's shadow
-+		 * CRYCB, continue with the next APQI
-+		 */
-+		if (!test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
-+			continue;
-+
-+		/* Unassign the APQI from the matrix mdev's shadow CRYCB */
-+		clear_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
-+		unassigned = true;
- 	}
- 
- 	return unassigned;
-@@ -1852,3 +1872,87 @@ void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
- 	}
- 	mutex_unlock(&matrix_dev->lock);
+ 	kfree(qentry);
++	return;
++assign:
++	/* assign responses to the local flow, we requested them */
++	smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
++	wake_up(&link->lgr->llc_msg_waiter);
  }
-+
-+bool vfio_ap_mdev_assign_apids(struct ap_matrix_mdev *matrix_mdev,
-+			       unsigned long *apm_assign)
-+{
-+	unsigned long apid;
-+	bool assigned = false;
-+
-+	for_each_set_bit_inv(apid, apm_assign, AP_DEVICES)
-+		if (test_bit_inv(apid, matrix_mdev->matrix.apm))
-+			if (vfio_ap_mdev_assign_guest_apid(matrix_mdev, apid))
-+				assigned = true;
-+
-+	return assigned;
-+}
-+
-+bool vfio_ap_mdev_assign_apqis(struct ap_matrix_mdev *matrix_mdev,
-+			       unsigned long *aqm_assign)
-+{
-+	unsigned long apqi;
-+	bool assigned = false;
-+
-+	for_each_set_bit_inv(apqi, aqm_assign, AP_DOMAINS)
-+		if (test_bit_inv(apqi, matrix_mdev->matrix.aqm))
-+			if (vfio_ap_mdev_assign_guest_apqi(matrix_mdev, apqi))
-+				assigned = true;
-+
-+	return assigned;
-+}
-+
-+void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-+			      struct ap_config_info *old_config_info)
-+{
-+	struct ap_matrix_mdev *matrix_mdev;
-+	DECLARE_BITMAP(apm_assign, AP_DEVICES);
-+	DECLARE_BITMAP(aqm_assign, AP_DOMAINS);
-+	int ap_add, aq_add;
-+	bool assign;
-+	unsigned long *cur_apm, *cur_aqm, *prev_apm, *prev_aqm;
-+
-+	/*
-+	 * If we are not in the middle of a host configuration change scan it is
-+	 * likely that the vfio_ap driver was loaded mid-scan, so let's handle
-+	 * this scenario by calling the vfio_ap_on_cfg_changed function which
-+	 * gets called at the start of an AP bus scan when the host AP
-+	 * configuration has changed.
-+	 */
-+	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
-+		vfio_ap_on_cfg_changed(new_config_info, old_config_info);
-+
-+	cur_apm = (unsigned long *)matrix_dev->config_info.apm;
-+	cur_aqm = (unsigned long *)matrix_dev->config_info.aqm;
-+
-+	prev_apm = (unsigned long *)matrix_dev->config_info_prev.apm;
-+	prev_aqm = (unsigned long *)matrix_dev->config_info_prev.aqm;
-+
-+	ap_add = bitmap_andnot(apm_assign, cur_apm, prev_apm, AP_DEVICES);
-+	aq_add = bitmap_andnot(aqm_assign, cur_aqm, prev_aqm, AP_DOMAINS);
-+
-+	mutex_lock(&matrix_dev->lock);
-+	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		if (!vfio_ap_mdev_has_crycb(matrix_mdev))
-+			continue;
-+
-+		assign = false;
-+
-+		if (ap_add)
-+			if (bitmap_intersects(matrix_mdev->matrix.apm,
-+					      apm_assign, AP_DEVICES))
-+				assign |= vfio_ap_mdev_assign_apids(matrix_mdev,
-+								    apm_assign);
-+
-+		if (aq_add)
-+			if (bitmap_intersects(matrix_mdev->matrix.aqm,
-+					      aqm_assign, AP_DOMAINS))
-+				assign |= vfio_ap_mdev_assign_apqis(matrix_mdev,
-+								    aqm_assign);
-+
-+		if (assign)
-+			vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
-+	}
-+
-+	matrix_dev->flags &= ~AP_MATRIX_CFG_CHG;
-+	mutex_unlock(&matrix_dev->lock);
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index fc8629e28ad3..da1754fd4f66 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -113,5 +113,7 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
- bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
- void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
- 			    struct ap_config_info *old_config_info);
-+void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-+			      struct ap_config_info *old_config_info);
  
- #endif /* _VFIO_AP_PRIVATE_H_ */
+ static void smc_llc_enqueue(struct smc_link *link, union smc_llc_msg *llc)
 -- 
-2.21.1
+2.17.1
