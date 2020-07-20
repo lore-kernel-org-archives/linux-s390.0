@@ -1,64 +1,131 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48766 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728379AbgGUR03 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Jul 2020 13:26:29 -0400
-Message-ID: <1595352376.5311.8.camel@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:36568 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729313AbgGTPiw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 11:38:52 -0400
+Date: Mon, 20 Jul 2020 12:38:41 -0300
+From: Bruno Meneguele <bmeneg@redhat.com>
 Subject: Re: [PATCH v6] ima: move APPRAISE_BOOTPARAM dependency on
  ARCH_POLICY to runtime
-From: Mimi Zohar <zohar@linux.ibm.com>
-Date: Tue, 21 Jul 2020 13:26:16 -0400
-In-Reply-To: <20200720153841.GG10323@glitch>
+Message-ID: <20200720153841.GG10323@glitch>
 References: <20200713164830.101165-1-bmeneg@redhat.com>
-         <d337cbba-e996-e898-1e75-9f142d480e5e@linux.vnet.ibm.com>
-         <1595257015.5055.8.camel@linux.ibm.com> <20200720153841.GG10323@glitch>
-Content-Type: text/plain; charset="utf-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+ <d337cbba-e996-e898-1e75-9f142d480e5e@linux.vnet.ibm.com>
+ <1595257015.5055.8.camel@linux.ibm.com>
+MIME-Version: 1.0
+In-Reply-To: <1595257015.5055.8.camel@linux.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="zGQnqpIoxlsbsOfg"
+Content-Disposition: inline
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Bruno Meneguele <bmeneg@redhat.com>
+To: Mimi Zohar <zohar@linux.ibm.com>
 Cc: Nayna <nayna@linux.vnet.ibm.com>, linux-kernel@vger.kernel.org, x86@kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-integrity@vger.kernel.org, erichte@linux.ibm.com, nayna@linux.ibm.com, stable@vger.kernel.org
 
-On Mon, 2020-07-20 at 12:38 -0300, Bruno Meneguele wrote:
-> On Mon, Jul 20, 2020 at 10:56:55AM -0400, Mimi Zohar wrote:
-> > On Mon, 2020-07-20 at 10:40 -0400, Nayna wrote:
-> > > On 7/13/20 12:48 PM, Bruno Meneguele wrote:
-> > > > The IMA_APPRAISE_BOOTPARAM config allows enabling different "ima_appraise="
-> > > > modes - log, fix, enforce - at run time, but not when IMA architecture
-> > > > specific policies are enabled.  This prevents properly labeling the
-> > > > filesystem on systems where secure boot is supported, but not enabled on the
-> > > > platform.  Only when secure boot is actually enabled should these IMA
-> > > > appraise modes be disabled.
-> > > >
-> > > > This patch removes the compile time dependency and makes it a runtime
-> > > > decision, based on the secure boot state of that platform.
-> > > >
-> > > > Test results as follows:
-> > > >
-> > > > -> x86-64 with secure boot enabled
-> > > >
-> > > > [    0.015637] Kernel command line: <...> ima_policy=appraise_tcb ima_appraise=fix
-> > > > [    0.015668] ima: Secure boot enabled: ignoring ima_appraise=fix boot parameter option
-> > > >
-> > 
-> > Is it common to have two colons in the same line?  Is the colon being
-> > used as a delimiter when parsing the kernel logs?  Should the second
-> > colon be replaced with a hyphen?  (No need to repost.  I'll fix it
-> > up.)
-> >  
-> 
-> AFAICS it has been used without any limitations, e.g:
-> 
-> PM: hibernation: Registered nosave memory: [mem 0x00000000-0x00000fff]
-> clocksource: hpet: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 133484873504 ns
-> microcode: CPU0: patch_level=0x08701013
-> Lockdown: modprobe: unsigned module loading is restricted; see man kernel_lockdown.7
-> ...
-> 
-> I'd say we're fine using it.
+--zGQnqpIoxlsbsOfg
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok.  FYI, it's now in next-integrity.
+On Mon, Jul 20, 2020 at 10:56:55AM -0400, Mimi Zohar wrote:
+> On Mon, 2020-07-20 at 10:40 -0400, Nayna wrote:
+> > On 7/13/20 12:48 PM, Bruno Meneguele wrote:
+> > > The IMA_APPRAISE_BOOTPARAM config allows enabling different "ima_appr=
+aise=3D"
+> > > modes - log, fix, enforce - at run time, but not when IMA architectur=
+e
+> > > specific policies are enabled. =A0This prevents properly labeling the
+> > > filesystem on systems where secure boot is supported, but not enabled=
+ on the
+> > > platform. =A0Only when secure boot is actually enabled should these I=
+MA
+> > > appraise modes be disabled.
+> > >
+> > > This patch removes the compile time dependency and makes it a runtime
+> > > decision, based on the secure boot state of that platform.
+> > >
+> > > Test results as follows:
+> > >
+> > > -> x86-64 with secure boot enabled
+> > >
+> > > [    0.015637] Kernel command line: <...> ima_policy=3Dappraise_tcb i=
+ma_appraise=3Dfix
+> > > [    0.015668] ima: Secure boot enabled: ignoring ima_appraise=3Dfix =
+boot parameter option
+> > >
+>=20
+> Is it common to have two colons in the same line? =A0Is the colon being
+> used as a delimiter when parsing the kernel logs? =A0Should the second
+> colon be replaced with a hyphen? =A0(No need to repost. =A0I'll fix it
+> up.)
+> =A0
 
-Mimi
+AFAICS it has been used without any limitations, e.g:
+
+PM: hibernation: Registered nosave memory: [mem 0x00000000-0x00000fff]
+clocksource: hpet: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 13=
+3484873504 ns
+microcode: CPU0: patch_level=3D0x08701013
+Lockdown: modprobe: unsigned module loading is restricted; see man kernel_l=
+ockdown.7
+...
+
+I'd say we're fine using it.
+
+>=20
+> > > -> powerpc with secure boot disabled
+> > >
+> > > [    0.000000] Kernel command line: <...> ima_policy=3Dappraise_tcb i=
+ma_appraise=3Dfix
+> > > [    0.000000] Secure boot mode disabled
+> > >
+> > > -> Running the system without secure boot and with both options set:
+> > >
+> > > CONFIG_IMA_APPRAISE_BOOTPARAM=3Dy
+> > > CONFIG_IMA_ARCH_POLICY=3Dy
+> > >
+> > > Audit prompts "missing-hash" but still allow execution and, consequen=
+tly,
+> > > filesystem labeling:
+> > >
+> > > type=3DINTEGRITY_DATA msg=3Daudit(07/09/2020 12:30:27.778:1691) : pid=
+=3D4976
+> > > uid=3Droot auid=3Droot ses=3D2
+> > > subj=3Dunconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 op=3Dapp=
+raise_data
+> > > cause=3Dmissing-hash comm=3Dbash name=3D/usr/bin/evmctl dev=3D"dm-0" =
+ino=3D493150
+> > > res=3Dno
+> > >
+> > > Cc: stable@vger.kernel.org
+> > > Fixes: d958083a8f64 ("x86/ima: define arch_get_ima_policy() for x86")
+> > > Signed-off-by: Bruno Meneguele <bmeneg@redhat.com>
+> >=20
+> >=20
+> > Reviewed-by: Nayna Jain<nayna@linux.ibm.com>
+> > Tested-by: Nayna Jain<nayna@linux.ibm.com>
+>=20
+> Thanks, Nayna.
+>=20
+> Mimi
+>=20
+
+--=20
+bmeneg=20
+PGP Key: http://bmeneg.com/pubkey.txt
+
+--zGQnqpIoxlsbsOfg
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEdWo6nTbnZdbDmXutYdRkFR+RokMFAl8VuoEACgkQYdRkFR+R
+okPE9AgAzeX+81xWo21ombBBIIV7StgWU8qS6SadvIvUksysp8K1+912UFK1SAVA
+IKLtwrRnv0HH4f3syFCsnQNb8m2Z5HRiBwj/kr/1h+xUkujfolpUgLdgQvlscVTD
+HkHUTSA86vjACGW7YvnyumWroHwirVUOovA91k0mk9pfkUq57Wrmr5G5rmacjMeK
+SKEu3NZlQKF6NTr0LUwxQ6y4e9i4skeNCIBFNFVR6re92LNhEAASVNMF6rhU7DCy
+9BQmy9QSvIwyDd0o+b3/FeskWyxYj6g40gtXYjlrl3BBMWk1oGF5KRdboclfL21U
+GioxjG6g710tRaCOZwB+9Wkwk/I49g==
+=1i4d
+-----END PGP SIGNATURE-----
+
+--zGQnqpIoxlsbsOfg--
