@@ -1,95 +1,117 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14546 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726311AbgGIIH4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 04:07:56 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v11 2/9] s390x: I/O interrupt registration
-Date: Thu,  9 Jul 2020 10:07:41 +0200
-Message-Id: <1594282068-11054-3-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40516 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728874AbgGTMsP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 08:48:15 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 08/24] net/xfrm: switch xfrm_user_policy to sockptr_t
+Date: Mon, 20 Jul 2020 14:47:21 +0200
+Message-Id: <20200720124737.118617-9-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
+References: <20200720124737.118617-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-Let's make it possible to add and remove a custom io interrupt handler,
-that can be used instead of the normal one.
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- lib/s390x/interrupt.c | 23 ++++++++++++++++++++++-
- lib/s390x/interrupt.h |  8 ++++++++
- 2 files changed, 30 insertions(+), 1 deletion(-)
- create mode 100644 lib/s390x/interrupt.h
+ include/net/xfrm.h       | 8 +++++---
+ net/ipv4/ip_sockglue.c   | 3 ++-
+ net/ipv6/ipv6_sockglue.c | 3 ++-
+ net/xfrm/xfrm_state.c    | 6 +++---
+ 4 files changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 3a40cac..243b9c2 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -10,9 +10,9 @@
-  * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
--#include <asm/interrupt.h>
- #include <asm/barrier.h>
- #include <sclp.h>
-+#include <interrupt.h>
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index f9e1fda82ddfc0..5e81868b574a73 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -15,6 +15,7 @@
+ #include <linux/audit.h>
+ #include <linux/slab.h>
+ #include <linux/refcount.h>
++#include <linux/sockptr.h>
  
- static bool pgm_int_expected;
- static bool ext_int_expected;
-@@ -144,12 +144,33 @@ void handle_mcck_int(void)
- 		     stap(), lc->mcck_old_psw.addr);
+ #include <net/sock.h>
+ #include <net/dst.h>
+@@ -1609,10 +1610,11 @@ int xfrm6_find_1stfragopt(struct xfrm_state *x, struct sk_buff *skb,
+ void xfrm6_local_rxpmtu(struct sk_buff *skb, u32 mtu);
+ int xfrm4_udp_encap_rcv(struct sock *sk, struct sk_buff *skb);
+ int xfrm6_udp_encap_rcv(struct sock *sk, struct sk_buff *skb);
+-int xfrm_user_policy(struct sock *sk, int optname,
+-		     u8 __user *optval, int optlen);
++int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval,
++		     int optlen);
+ #else
+-static inline int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
++static inline int xfrm_user_policy(struct sock *sk, int optname,
++				   sockptr_t optval, int optlen)
+ {
+  	return -ENOPROTOOPT;
+ }
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index a5ea02d7a183eb..da933f99b5d517 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -1322,7 +1322,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 		err = -EPERM;
+ 		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
+ 			break;
+-		err = xfrm_user_policy(sk, optname, optval, optlen);
++		err = xfrm_user_policy(sk, optname, USER_SOCKPTR(optval),
++				       optlen);
+ 		break;
+ 
+ 	case IP_TRANSPARENT:
+diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
+index add8f791229945..56a74707c61741 100644
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -935,7 +935,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 		retv = -EPERM;
+ 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
+ 			break;
+-		retv = xfrm_user_policy(sk, optname, optval, optlen);
++		retv = xfrm_user_policy(sk, optname, USER_SOCKPTR(optval),
++					optlen);
+ 		break;
+ 
+ 	case IPV6_ADDR_PREFERENCES:
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 8be2d926acc21d..69520ad3d83bfb 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2264,7 +2264,7 @@ static bool km_is_alive(const struct km_event *c)
+ 	return is_alive;
  }
  
-+static void (*io_int_func)(void);
-+
- void handle_io_int(void)
+-int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
++int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval, int optlen)
  {
-+	if (io_int_func)
-+		return io_int_func();
-+
- 	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
- 		     stap(), lc->io_old_psw.addr);
- }
+ 	int err;
+ 	u8 *data;
+@@ -2274,7 +2274,7 @@ int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen
+ 	if (in_compat_syscall())
+ 		return -EOPNOTSUPP;
  
-+int register_io_int_func(void (*f)(void))
-+{
-+	if (io_int_func)
-+		return -1;
-+	io_int_func = f;
-+	return 0;
-+}
-+
-+int unregister_io_int_func(void (*f)(void))
-+{
-+	if (io_int_func != f)
-+		return -1;
-+	io_int_func = NULL;
-+	return 0;
-+}
-+
- void handle_svc_int(void)
- {
- 	report_abort("Unexpected supervisor call interrupt: on cpu %d at %#lx",
-diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
-new file mode 100644
-index 0000000..1973d26
---- /dev/null
-+++ b/lib/s390x/interrupt.h
-@@ -0,0 +1,8 @@
-+#ifndef INTERRUPT_H
-+#define INTERRUPT_H
-+#include <asm/interrupt.h>
-+
-+int register_io_int_func(void (*f)(void));
-+int unregister_io_int_func(void (*f)(void));
-+
-+#endif /* INTERRUPT_H */
+-	if (!optval && !optlen) {
++	if (sockptr_is_null(optval) && !optlen) {
+ 		xfrm_sk_policy_insert(sk, XFRM_POLICY_IN, NULL);
+ 		xfrm_sk_policy_insert(sk, XFRM_POLICY_OUT, NULL);
+ 		__sk_dst_reset(sk);
+@@ -2284,7 +2284,7 @@ int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen
+ 	if (optlen <= 0 || optlen > PAGE_SIZE)
+ 		return -EMSGSIZE;
+ 
+-	data = memdup_user(optval, optlen);
++	data = memdup_sockptr(optval, optlen);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
+ 
 -- 
-2.25.1
+2.27.0
