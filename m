@@ -1,256 +1,387 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30050 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729921AbgGHPF0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 8 Jul 2020 11:05:26 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 3/5] net/smc: fix sleep bug in smc_pnet_find_roce_resource()
-Date: Wed,  8 Jul 2020 17:05:13 +0200
-Message-Id: <20200708150515.44938-4-kgraul@linux.ibm.com>
-In-Reply-To: <20200708150515.44938-1-kgraul@linux.ibm.com>
-References: <20200708150515.44938-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728779AbgGTMsm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 08:48:42 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 17/24] net/ipv6: split up ipv6_flowlabel_opt
+Date: Mon, 20 Jul 2020 14:47:30 +0200
+Message-Id: <20200720124737.118617-18-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
+References: <20200720124737.118617-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+Split ipv6_flowlabel_opt into a subfunction for each action and a small
+wrapper.
 
-Tests showed this BUG:
-[572555.252867] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:935
-[572555.252876] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 131031, name: smcapp
-[572555.252879] INFO: lockdep is turned off.
-[572555.252883] CPU: 1 PID: 131031 Comm: smcapp Tainted: G           O      5.7.0-rc3uschi+ #356
-[572555.252885] Hardware name: IBM 3906 M03 703 (LPAR)
-[572555.252887] Call Trace:
-[572555.252896]  [<00000000ac364554>] show_stack+0x94/0xe8
-[572555.252901]  [<00000000aca1f400>] dump_stack+0xa0/0xe0
-[572555.252906]  [<00000000ac3c8c10>] ___might_sleep+0x260/0x280
-[572555.252910]  [<00000000acdc0c98>] __mutex_lock+0x48/0x940
-[572555.252912]  [<00000000acdc15c2>] mutex_lock_nested+0x32/0x40
-[572555.252975]  [<000003ff801762d0>] mlx5_lag_get_roce_netdev+0x30/0xc0 [mlx5_core]
-[572555.252996]  [<000003ff801fb3aa>] mlx5_ib_get_netdev+0x3a/0xe0 [mlx5_ib]
-[572555.253007]  [<000003ff80063848>] smc_pnet_find_roce_resource+0x1d8/0x310 [smc]
-[572555.253011]  [<000003ff800602f0>] __smc_connect+0x1f0/0x3e0 [smc]
-[572555.253015]  [<000003ff80060634>] smc_connect+0x154/0x190 [smc]
-[572555.253022]  [<00000000acbed8d4>] __sys_connect+0x94/0xd0
-[572555.253025]  [<00000000acbef620>] __s390x_sys_socketcall+0x170/0x360
-[572555.253028]  [<00000000acdc6800>] system_call+0x298/0x2b8
-[572555.253030] INFO: lockdep is turned off.
-
-Function smc_pnet_find_rdma_dev() might be called from
-smc_pnet_find_roce_resource(). It holds the smc_ib_devices list
-spinlock while calling infiniband op get_netdev(). At least for mlx5
-the get_netdev operation wants mutex serialization, which conflicts
-with the smc_ib_devices spinlock.
-This patch switches the smc_ib_devices spinlock into a mutex to
-allow sleeping when calling get_netdev().
-
-Fixes: a4cf0443c414 ("smc: introduce SMC as an IB-client")
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/smc/smc_core.c |  5 +++--
- net/smc/smc_ib.c   | 11 ++++++-----
- net/smc/smc_ib.h   |  3 ++-
- net/smc/smc_pnet.c | 21 +++++++++++----------
- 4 files changed, 22 insertions(+), 18 deletions(-)
+ net/ipv6/ip6_flowlabel.c | 311 +++++++++++++++++++++------------------
+ 1 file changed, 167 insertions(+), 144 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index d695ce71837e..8bf34d9f27e5 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -15,6 +15,7 @@
- #include <linux/workqueue.h>
- #include <linux/wait.h>
- #include <linux/reboot.h>
-+#include <linux/mutex.h>
- #include <net/tcp.h>
- #include <net/sock.h>
- #include <rdma/ib_verbs.h>
-@@ -1961,14 +1962,14 @@ static void smc_core_going_away(void)
- 	struct smc_ib_device *smcibdev;
- 	struct smcd_dev *smcd;
+diff --git a/net/ipv6/ip6_flowlabel.c b/net/ipv6/ip6_flowlabel.c
+index ce4fbba4acce7e..27ee6de9beffc4 100644
+--- a/net/ipv6/ip6_flowlabel.c
++++ b/net/ipv6/ip6_flowlabel.c
+@@ -533,187 +533,210 @@ int ipv6_flowlabel_opt_get(struct sock *sk, struct in6_flowlabel_req *freq,
+ 	return -ENOENT;
+ }
  
--	spin_lock(&smc_ib_devices.lock);
-+	mutex_lock(&smc_ib_devices.mutex);
- 	list_for_each_entry(smcibdev, &smc_ib_devices.list, list) {
- 		int i;
- 
- 		for (i = 0; i < SMC_MAX_PORTS; i++)
- 			set_bit(i, smcibdev->ports_going_away);
- 	}
--	spin_unlock(&smc_ib_devices.lock);
-+	mutex_unlock(&smc_ib_devices.mutex);
- 
- 	spin_lock(&smcd_dev_list.lock);
- 	list_for_each_entry(smcd, &smcd_dev_list.list, list) {
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 562a52d01ad1..7637fdebbb78 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -16,6 +16,7 @@
- #include <linux/workqueue.h>
- #include <linux/scatterlist.h>
- #include <linux/wait.h>
-+#include <linux/mutex.h>
- #include <rdma/ib_verbs.h>
- #include <rdma/ib_cache.h>
- 
-@@ -33,7 +34,7 @@
- #define SMC_QP_RNR_RETRY			7 /* 7: infinite */
- 
- struct smc_ib_devices smc_ib_devices = {	/* smc-registered ib devices */
--	.lock = __SPIN_LOCK_UNLOCKED(smc_ib_devices.lock),
-+	.mutex = __MUTEX_INITIALIZER(smc_ib_devices.mutex),
- 	.list = LIST_HEAD_INIT(smc_ib_devices.list),
- };
- 
-@@ -565,9 +566,9 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
- 	INIT_WORK(&smcibdev->port_event_work, smc_ib_port_event_work);
- 	atomic_set(&smcibdev->lnk_cnt, 0);
- 	init_waitqueue_head(&smcibdev->lnks_deleted);
--	spin_lock(&smc_ib_devices.lock);
-+	mutex_lock(&smc_ib_devices.mutex);
- 	list_add_tail(&smcibdev->list, &smc_ib_devices.list);
--	spin_unlock(&smc_ib_devices.lock);
-+	mutex_unlock(&smc_ib_devices.mutex);
- 	ib_set_client_data(ibdev, &smc_ib_client, smcibdev);
- 	INIT_IB_EVENT_HANDLER(&smcibdev->event_handler, smcibdev->ibdev,
- 			      smc_ib_global_event_handler);
-@@ -602,9 +603,9 @@ static void smc_ib_remove_dev(struct ib_device *ibdev, void *client_data)
+-int ipv6_flowlabel_opt(struct sock *sk, char __user *optval, int optlen)
++#define socklist_dereference(__sflp) \
++	rcu_dereference_protected(__sflp, lockdep_is_held(&ip6_sk_fl_lock))
++
++static int ipv6_flowlabel_put(struct sock *sk, struct in6_flowlabel_req *freq)
  {
- 	struct smc_ib_device *smcibdev = client_data;
+-	int uninitialized_var(err);
+-	struct net *net = sock_net(sk);
+ 	struct ipv6_pinfo *np = inet6_sk(sk);
+-	struct in6_flowlabel_req freq;
+-	struct ipv6_fl_socklist *sfl1 = NULL;
+-	struct ipv6_fl_socklist *sfl;
+ 	struct ipv6_fl_socklist __rcu **sflp;
+-	struct ip6_flowlabel *fl, *fl1 = NULL;
+-
++	struct ipv6_fl_socklist *sfl;
  
--	spin_lock(&smc_ib_devices.lock);
-+	mutex_lock(&smc_ib_devices.mutex);
- 	list_del_init(&smcibdev->list); /* remove from smc_ib_devices */
--	spin_unlock(&smc_ib_devices.lock);
-+	mutex_unlock(&smc_ib_devices.mutex);
- 	pr_warn_ratelimited("smc: removing ib device %s\n",
- 			    smcibdev->ibdev->name);
- 	smc_smcr_terminate_all(smcibdev);
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index e6a696ae15f3..ae6776e1e726 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -14,6 +14,7 @@
+-	if (optlen < sizeof(freq))
+-		return -EINVAL;
++	if (freq->flr_flags & IPV6_FL_F_REFLECT) {
++		if (sk->sk_protocol != IPPROTO_TCP)
++			return -ENOPROTOOPT;
++		if (!np->repflow)
++			return -ESRCH;
++		np->flow_label = 0;
++		np->repflow = 0;
++		return 0;
++	}
  
- #include <linux/interrupt.h>
- #include <linux/if_ether.h>
-+#include <linux/mutex.h>
- #include <linux/wait.h>
- #include <rdma/ib_verbs.h>
- #include <net/smc.h>
-@@ -25,7 +26,7 @@
+-	if (copy_from_user(&freq, optval, sizeof(freq)))
+-		return -EFAULT;
++	spin_lock_bh(&ip6_sk_fl_lock);
++	for (sflp = &np->ipv6_fl_list;
++	     (sfl = socklist_dereference(*sflp)) != NULL;
++	     sflp = &sfl->next) {
++		if (sfl->fl->label == freq->flr_label)
++			goto found;
++	}
++	spin_unlock_bh(&ip6_sk_fl_lock);
++	return -ESRCH;
++found:
++	if (freq->flr_label == (np->flow_label & IPV6_FLOWLABEL_MASK))
++		np->flow_label &= ~IPV6_FLOWLABEL_MASK;
++	*sflp = sfl->next;
++	spin_unlock_bh(&ip6_sk_fl_lock);
++	fl_release(sfl->fl);
++	kfree_rcu(sfl, rcu);
++	return 0;
++}
++		
++static int ipv6_flowlabel_renew(struct sock *sk, struct in6_flowlabel_req *freq)
++{
++	struct ipv6_pinfo *np = inet6_sk(sk);
++	struct net *net = sock_net(sk);
++	struct ipv6_fl_socklist *sfl;
++	int err;
  
- struct smc_ib_devices {			/* list of smc ib devices definition */
- 	struct list_head	list;
--	spinlock_t		lock;	/* protects list of smc ib devices */
-+	struct mutex		mutex;	/* protects list of smc ib devices */
- };
+-	switch (freq.flr_action) {
+-	case IPV6_FL_A_PUT:
+-		if (freq.flr_flags & IPV6_FL_F_REFLECT) {
+-			if (sk->sk_protocol != IPPROTO_TCP)
+-				return -ENOPROTOOPT;
+-			if (!np->repflow)
+-				return -ESRCH;
+-			np->flow_label = 0;
+-			np->repflow = 0;
+-			return 0;
+-		}
+-		spin_lock_bh(&ip6_sk_fl_lock);
+-		for (sflp = &np->ipv6_fl_list;
+-		     (sfl = rcu_dereference_protected(*sflp,
+-						      lockdep_is_held(&ip6_sk_fl_lock))) != NULL;
+-		     sflp = &sfl->next) {
+-			if (sfl->fl->label == freq.flr_label) {
+-				if (freq.flr_label == (np->flow_label&IPV6_FLOWLABEL_MASK))
+-					np->flow_label &= ~IPV6_FLOWLABEL_MASK;
+-				*sflp = sfl->next;
+-				spin_unlock_bh(&ip6_sk_fl_lock);
+-				fl_release(sfl->fl);
+-				kfree_rcu(sfl, rcu);
+-				return 0;
+-			}
++	rcu_read_lock_bh();
++	for_each_sk_fl_rcu(np, sfl) {
++		if (sfl->fl->label == freq->flr_label) {
++			err = fl6_renew(sfl->fl, freq->flr_linger,
++					freq->flr_expires);
++			rcu_read_unlock_bh();
++			return err;
+ 		}
+-		spin_unlock_bh(&ip6_sk_fl_lock);
+-		return -ESRCH;
++	}
++	rcu_read_unlock_bh();
  
- extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 014d91b9778e..d4aac31d39f5 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -12,6 +12,7 @@
- #include <linux/module.h>
- #include <linux/list.h>
- #include <linux/ctype.h>
-+#include <linux/mutex.h>
- #include <net/netlink.h>
- #include <net/genetlink.h>
+-	case IPV6_FL_A_RENEW:
+-		rcu_read_lock_bh();
+-		for_each_sk_fl_rcu(np, sfl) {
+-			if (sfl->fl->label == freq.flr_label) {
+-				err = fl6_renew(sfl->fl, freq.flr_linger, freq.flr_expires);
+-				rcu_read_unlock_bh();
+-				return err;
+-			}
+-		}
+-		rcu_read_unlock_bh();
++	if (freq->flr_share == IPV6_FL_S_NONE &&
++	    ns_capable(net->user_ns, CAP_NET_ADMIN)) {
++		struct ip6_flowlabel *fl = fl_lookup(net, freq->flr_label);
  
-@@ -129,7 +130,7 @@ static int smc_pnet_remove_by_pnetid(struct net *net, char *pnet_name)
- 		return rc;
+-		if (freq.flr_share == IPV6_FL_S_NONE &&
+-		    ns_capable(net->user_ns, CAP_NET_ADMIN)) {
+-			fl = fl_lookup(net, freq.flr_label);
+-			if (fl) {
+-				err = fl6_renew(fl, freq.flr_linger, freq.flr_expires);
+-				fl_release(fl);
+-				return err;
+-			}
++		if (fl) {
++			err = fl6_renew(fl, freq->flr_linger,
++					freq->flr_expires);
++			fl_release(fl);
++			return err;
+ 		}
+-		return -ESRCH;
+-
+-	case IPV6_FL_A_GET:
+-		if (freq.flr_flags & IPV6_FL_F_REFLECT) {
+-			struct net *net = sock_net(sk);
+-			if (net->ipv6.sysctl.flowlabel_consistency) {
+-				net_info_ratelimited("Can not set IPV6_FL_F_REFLECT if flowlabel_consistency sysctl is enable\n");
+-				return -EPERM;
+-			}
++	}
++	return -ESRCH;
++}
  
- 	/* remove ib devices */
--	spin_lock(&smc_ib_devices.lock);
-+	mutex_lock(&smc_ib_devices.mutex);
- 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
- 		for (ibport = 0; ibport < SMC_MAX_PORTS; ibport++) {
- 			if (ibdev->pnetid_by_user[ibport] &&
-@@ -149,7 +150,7 @@ static int smc_pnet_remove_by_pnetid(struct net *net, char *pnet_name)
+-			if (sk->sk_protocol != IPPROTO_TCP)
+-				return -ENOPROTOOPT;
++static int ipv6_flowlabel_get(struct sock *sk, struct in6_flowlabel_req *freq,
++		void __user *optval, int optlen)
++{
++	struct ipv6_fl_socklist *sfl, *sfl1 = NULL;
++	struct ip6_flowlabel *fl, *fl1 = NULL;
++	struct ipv6_pinfo *np = inet6_sk(sk);
++	struct net *net = sock_net(sk);
++	int uninitialized_var(err);
+ 
+-			np->repflow = 1;
+-			return 0;
++	if (freq->flr_flags & IPV6_FL_F_REFLECT) {
++		if (net->ipv6.sysctl.flowlabel_consistency) {
++			net_info_ratelimited("Can not set IPV6_FL_F_REFLECT if flowlabel_consistency sysctl is enable\n");
++			return -EPERM;
+ 		}
+ 
+-		if (freq.flr_label & ~IPV6_FLOWLABEL_MASK)
+-			return -EINVAL;
++		if (sk->sk_protocol != IPPROTO_TCP)
++			return -ENOPROTOOPT;
++		np->repflow = 1;
++		return 0;
++	}
+ 
+-		if (net->ipv6.sysctl.flowlabel_state_ranges &&
+-		    (freq.flr_label & IPV6_FLOWLABEL_STATELESS_FLAG))
+-			return -ERANGE;
++	if (freq->flr_label & ~IPV6_FLOWLABEL_MASK)
++		return -EINVAL;
++	if (net->ipv6.sysctl.flowlabel_state_ranges &&
++	    (freq->flr_label & IPV6_FLOWLABEL_STATELESS_FLAG))
++		return -ERANGE;
+ 
+-		fl = fl_create(net, sk, &freq, optval, optlen, &err);
+-		if (!fl)
+-			return err;
+-		sfl1 = kmalloc(sizeof(*sfl1), GFP_KERNEL);
++	fl = fl_create(net, sk, freq, optval, optlen, &err);
++	if (!fl)
++		return err;
+ 
+-		if (freq.flr_label) {
+-			err = -EEXIST;
+-			rcu_read_lock_bh();
+-			for_each_sk_fl_rcu(np, sfl) {
+-				if (sfl->fl->label == freq.flr_label) {
+-					if (freq.flr_flags&IPV6_FL_F_EXCL) {
+-						rcu_read_unlock_bh();
+-						goto done;
+-					}
+-					fl1 = sfl->fl;
+-					if (!atomic_inc_not_zero(&fl1->users))
+-						fl1 = NULL;
+-					break;
++	sfl1 = kmalloc(sizeof(*sfl1), GFP_KERNEL);
++
++	if (freq->flr_label) {
++		err = -EEXIST;
++		rcu_read_lock_bh();
++		for_each_sk_fl_rcu(np, sfl) {
++			if (sfl->fl->label == freq->flr_label) {
++				if (freq->flr_flags & IPV6_FL_F_EXCL) {
++					rcu_read_unlock_bh();
++					goto done;
+ 				}
++				fl1 = sfl->fl;
++				if (!atomic_inc_not_zero(&fl1->users))
++					fl1 = NULL;
++				break;
  			}
+-			rcu_read_unlock_bh();
++		}
++		rcu_read_unlock_bh();
+ 
+-			if (!fl1)
+-				fl1 = fl_lookup(net, freq.flr_label);
+-			if (fl1) {
++		if (!fl1)
++			fl1 = fl_lookup(net, freq->flr_label);
++		if (fl1) {
+ recheck:
+-				err = -EEXIST;
+-				if (freq.flr_flags&IPV6_FL_F_EXCL)
+-					goto release;
+-				err = -EPERM;
+-				if (fl1->share == IPV6_FL_S_EXCL ||
+-				    fl1->share != fl->share ||
+-				    ((fl1->share == IPV6_FL_S_PROCESS) &&
+-				     (fl1->owner.pid != fl->owner.pid)) ||
+-				    ((fl1->share == IPV6_FL_S_USER) &&
+-				     !uid_eq(fl1->owner.uid, fl->owner.uid)))
+-					goto release;
+-
+-				err = -ENOMEM;
+-				if (!sfl1)
+-					goto release;
+-				if (fl->linger > fl1->linger)
+-					fl1->linger = fl->linger;
+-				if ((long)(fl->expires - fl1->expires) > 0)
+-					fl1->expires = fl->expires;
+-				fl_link(np, sfl1, fl1);
+-				fl_free(fl);
+-				return 0;
++			err = -EEXIST;
++			if (freq->flr_flags&IPV6_FL_F_EXCL)
++				goto release;
++			err = -EPERM;
++			if (fl1->share == IPV6_FL_S_EXCL ||
++			    fl1->share != fl->share ||
++			    ((fl1->share == IPV6_FL_S_PROCESS) &&
++			     (fl1->owner.pid != fl->owner.pid)) ||
++			    ((fl1->share == IPV6_FL_S_USER) &&
++			     !uid_eq(fl1->owner.uid, fl->owner.uid)))
++				goto release;
++
++			err = -ENOMEM;
++			if (!sfl1)
++				goto release;
++			if (fl->linger > fl1->linger)
++				fl1->linger = fl->linger;
++			if ((long)(fl->expires - fl1->expires) > 0)
++				fl1->expires = fl->expires;
++			fl_link(np, sfl1, fl1);
++			fl_free(fl);
++			return 0;
+ 
+ release:
+-				fl_release(fl1);
+-				goto done;
+-			}
+-		}
+-		err = -ENOENT;
+-		if (!(freq.flr_flags&IPV6_FL_F_CREATE))
++			fl_release(fl1);
+ 			goto done;
++		}
++	}
++	err = -ENOENT;
++	if (!(freq->flr_flags & IPV6_FL_F_CREATE))
++		goto done;
+ 
+-		err = -ENOMEM;
+-		if (!sfl1)
+-			goto done;
++	err = -ENOMEM;
++	if (!sfl1)
++		goto done;
+ 
+-		err = mem_check(sk);
+-		if (err != 0)
+-			goto done;
++	err = mem_check(sk);
++	if (err != 0)
++		goto done;
+ 
+-		fl1 = fl_intern(net, fl, freq.flr_label);
+-		if (fl1)
+-			goto recheck;
++	fl1 = fl_intern(net, fl, freq->flr_label);
++	if (fl1)
++		goto recheck;
+ 
+-		if (!freq.flr_label) {
+-			if (copy_to_user(&((struct in6_flowlabel_req __user *) optval)->flr_label,
+-					 &fl->label, sizeof(fl->label))) {
+-				/* Intentionally ignore fault. */
+-			}
++	if (!freq->flr_label) {
++		if (copy_to_user(&((struct in6_flowlabel_req __user *) optval)->flr_label,
++				 &fl->label, sizeof(fl->label))) {
++			/* Intentionally ignore fault. */
  		}
+-
+-		fl_link(np, sfl1, fl);
+-		return 0;
+-
+-	default:
+-		return -EINVAL;
  	}
--	spin_unlock(&smc_ib_devices.lock);
-+	mutex_unlock(&smc_ib_devices.mutex);
- 	/* remove smcd devices */
- 	spin_lock(&smcd_dev_list.lock);
- 	list_for_each_entry(smcd_dev, &smcd_dev_list.list, list) {
-@@ -240,14 +241,14 @@ static bool smc_pnet_apply_ib(struct smc_ib_device *ib_dev, u8 ib_port,
- 	u8 pnet_null[SMC_MAX_PNETID_LEN] = {0};
- 	bool applied = false;
  
--	spin_lock(&smc_ib_devices.lock);
-+	mutex_lock(&smc_ib_devices.mutex);
- 	if (smc_pnet_match(ib_dev->pnetid[ib_port - 1], pnet_null)) {
- 		memcpy(ib_dev->pnetid[ib_port - 1], pnet_name,
- 		       SMC_MAX_PNETID_LEN);
- 		ib_dev->pnetid_by_user[ib_port - 1] = true;
- 		applied = true;
- 	}
--	spin_unlock(&smc_ib_devices.lock);
-+	mutex_unlock(&smc_ib_devices.mutex);
- 	return applied;
++	fl_link(np, sfl1, fl);
++	return 0;
+ done:
+ 	fl_free(fl);
+ 	kfree(sfl1);
+ 	return err;
  }
  
-@@ -300,7 +301,7 @@ static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
- {
- 	struct smc_ib_device *ibdev;
++int ipv6_flowlabel_opt(struct sock *sk, char __user *optval, int optlen)
++{
++	struct in6_flowlabel_req freq;
++
++	if (optlen < sizeof(freq))
++		return -EINVAL;
++	if (copy_from_user(&freq, optval, sizeof(freq)))
++		return -EFAULT;
++
++	switch (freq.flr_action) {
++	case IPV6_FL_A_PUT:
++		return ipv6_flowlabel_put(sk, &freq);
++	case IPV6_FL_A_RENEW:
++		return ipv6_flowlabel_renew(sk, &freq);
++	case IPV6_FL_A_GET:
++		return ipv6_flowlabel_get(sk, &freq, optval, optlen);
++	default:
++		return -EINVAL;
++	}
++}
++
+ #ifdef CONFIG_PROC_FS
  
--	spin_lock(&smc_ib_devices.lock);
-+	mutex_lock(&smc_ib_devices.mutex);
- 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
- 		if (!strncmp(ibdev->ibdev->name, ib_name,
- 			     sizeof(ibdev->ibdev->name)) ||
-@@ -311,7 +312,7 @@ static struct smc_ib_device *smc_pnet_find_ib(char *ib_name)
- 	}
- 	ibdev = NULL;
- out:
--	spin_unlock(&smc_ib_devices.lock);
-+	mutex_unlock(&smc_ib_devices.mutex);
- 	return ibdev;
- }
- 
-@@ -825,7 +826,7 @@ static void _smc_pnet_find_roce_by_pnetid(u8 *pnet_id,
- 	int i;
- 
- 	ini->ib_dev = NULL;
--	spin_lock(&smc_ib_devices.lock);
-+	mutex_lock(&smc_ib_devices.mutex);
- 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
- 		if (ibdev == known_dev)
- 			continue;
-@@ -844,7 +845,7 @@ static void _smc_pnet_find_roce_by_pnetid(u8 *pnet_id,
- 		}
- 	}
- out:
--	spin_unlock(&smc_ib_devices.lock);
-+	mutex_unlock(&smc_ib_devices.mutex);
- }
- 
- /* find alternate roce device with same pnet_id and vlan_id */
-@@ -863,7 +864,7 @@ static void smc_pnet_find_rdma_dev(struct net_device *netdev,
- {
- 	struct smc_ib_device *ibdev;
- 
--	spin_lock(&smc_ib_devices.lock);
-+	mutex_lock(&smc_ib_devices.mutex);
- 	list_for_each_entry(ibdev, &smc_ib_devices.list, list) {
- 		struct net_device *ndev;
- 		int i;
-@@ -888,7 +889,7 @@ static void smc_pnet_find_rdma_dev(struct net_device *netdev,
- 			}
- 		}
- 	}
--	spin_unlock(&smc_ib_devices.lock);
-+	mutex_unlock(&smc_ib_devices.mutex);
- }
- 
- /* Determine the corresponding IB device port based on the hardware PNETID.
+ struct ip6fl_iter_state {
 -- 
-2.17.1
+2.27.0
