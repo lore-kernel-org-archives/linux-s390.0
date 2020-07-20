@@ -1,198 +1,280 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56446 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726650AbgGWGJc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:32 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 08/26] net: switch sock_set_timeout to sockptr_t
-Date: Thu, 23 Jul 2020 08:08:50 +0200
-Message-Id: <20200723060908.50081-9-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36736 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728627AbgGTPEN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Jul 2020 11:04:13 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v9 08/15] s390/vfio-ap: filter matrix for unavailable queue devices
+Date: Mon, 20 Jul 2020 11:03:37 -0400
+Message-Id: <20200720150344.24488-9-akrowiak@linux.ibm.com>
+In-Reply-To: <20200720150344.24488-1-akrowiak@linux.ibm.com>
+References: <20200720150344.24488-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+Even though APQNs for queues that are not in the host's AP configuration
+may be assigned to a matrix mdev, we do not want to set bits in the guest's
+APCB for APQNs that do not reference AP queue devices bound to the vfio_ap
+device driver. Ideally, it would be great if such APQNs could be filtered
+out before setting the bits in the guest's APCB; however, the architecture
+precludes filtering individual APQNs. Consequently, either the APID or APQI
+must be filtered.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+This patch introduces code to filter the APIDs or APQIs assigned to the
+matrix mdev's AP configuration before assigning them to the guest's AP
+configuration (i.e., APCB). We'll start by filtering the APIDs:
+
+   If an APQN assigned to the matrix mdev's AP configuration does not
+   reference a queue device bound to the vfio_ap device driver, the APID
+   will be filtered out (i.e., not assigned to the guest's APCB).
+
+If every APID assigned to the matrix mdev is filtered out, then we'll try
+filtering the APQI's:
+
+   If an APQN assigned to the matrix mdev's AP configuration does not
+   reference a queue device bound to the vfio_ap device driver, the APQI
+   will be filtered out (i.e., not assigned to the guest's APCB).
+
+In any case, if after filtering either the APIDs or APQIs there are any
+APQNs that can be assigned to the guest's APCB, they will be assigned and
+the CRYCB will be hot plugged into the guest.
+
+Example
+=======
+
+APQNs bound to vfio_ap device driver:
+   04.0004
+   04.0047
+   04.0054
+
+   05.0005
+   05.0047
+   05.0054
+
+Assignments to matrix mdev:
+   APIDs  APQIs  -> APQNs
+   04     0004      04.0004
+   05     0005      04.0005
+          0047      04.0047
+          0054      04.0054
+                    05.0004
+                    05.0005
+                    05.0047
+                    04.0054
+
+Filter APIDs:
+   APID 04 will be filtered because APQN 04.0005 is not bound.
+   APID 05 will be filtered because APQN 05.0004 is not bound.
+   APQNs remaining: None
+
+Filter APQIs:
+   APQI 04 will be filtered because APQN 05.0004 is not bound.
+   APQI 05 will be filtered because APQN 04.0005 is not bound.
+   APQNs remaining: 04.0047, 04.0054, 05.0047, 05.0054
+
+APQNs 04.0047, 04.0054, 05.0047, 05.0054 will be assigned to the CRYCB and
+hot plugged into the KVM guest.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- include/net/sock.h   |  3 ++-
- net/core/sock.c      | 26 ++++++++++++--------------
- net/mptcp/protocol.c |  6 ++++--
- net/socket.c         |  3 ++-
- 4 files changed, 20 insertions(+), 18 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 159 +++++++++++++++++++++++++++++-
+ 1 file changed, 155 insertions(+), 4 deletions(-)
 
-diff --git a/include/net/sock.h b/include/net/sock.h
-index 62e18fc8ac9f96..bfb2fe2fc36876 100644
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -59,6 +59,7 @@
- #include <linux/filter.h>
- #include <linux/rculist_nulls.h>
- #include <linux/poll.h>
-+#include <linux/sockptr.h>
- 
- #include <linux/atomic.h>
- #include <linux/refcount.h>
-@@ -1669,7 +1670,7 @@ void sock_pfree(struct sk_buff *skb);
- #endif
- 
- int sock_setsockopt(struct socket *sock, int level, int op,
--		    char __user *optval, unsigned int optlen);
-+		    sockptr_t optval, unsigned int optlen);
- 
- int sock_getsockopt(struct socket *sock, int level, int op,
- 		    char __user *optval, int __user *optlen);
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 8b9eddaff868a5..1444d7d53ba2fd 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -826,7 +826,7 @@ EXPORT_SYMBOL(sock_set_rcvbuf);
-  */
- 
- int sock_setsockopt(struct socket *sock, int level, int optname,
--		    char __user *optval, unsigned int optlen)
-+		    sockptr_t optval, unsigned int optlen)
- {
- 	struct sock_txtime sk_txtime;
- 	struct sock *sk = sock->sk;
-@@ -840,12 +840,12 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 	 */
- 
- 	if (optname == SO_BINDTODEVICE)
--		return sock_setbindtodevice(sk, USER_SOCKPTR(optval), optlen);
-+		return sock_setbindtodevice(sk, optval, optlen);
- 
- 	if (optlen < sizeof(int))
- 		return -EINVAL;
- 
--	if (get_user(val, (int __user *)optval))
-+	if (copy_from_sockptr(&val, optval, sizeof(val)))
- 		return -EFAULT;
- 
- 	valbool = val ? 1 : 0;
-@@ -958,7 +958,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 			ret = -EINVAL;	/* 1003.1g */
- 			break;
- 		}
--		if (copy_from_user(&ling, optval, sizeof(ling))) {
-+		if (copy_from_sockptr(&ling, optval, sizeof(ling))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1052,21 +1052,20 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 
- 	case SO_RCVTIMEO_OLD:
- 	case SO_RCVTIMEO_NEW:
--		ret = sock_set_timeout(&sk->sk_rcvtimeo, USER_SOCKPTR(optval),
-+		ret = sock_set_timeout(&sk->sk_rcvtimeo, optval,
- 				       optlen, optname == SO_RCVTIMEO_OLD);
- 		break;
- 
- 	case SO_SNDTIMEO_OLD:
- 	case SO_SNDTIMEO_NEW:
--		ret = sock_set_timeout(&sk->sk_sndtimeo, USER_SOCKPTR(optval),
-+		ret = sock_set_timeout(&sk->sk_sndtimeo, optval,
- 				       optlen, optname == SO_SNDTIMEO_OLD);
- 		break;
- 
- 	case SO_ATTACH_FILTER: {
- 		struct sock_fprog fprog;
- 
--		ret = copy_bpf_fprog_from_user(&fprog, USER_SOCKPTR(optval),
--					       optlen);
-+		ret = copy_bpf_fprog_from_user(&fprog, optval, optlen);
- 		if (!ret)
- 			ret = sk_attach_filter(&fprog, sk);
- 		break;
-@@ -1077,7 +1076,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 			u32 ufd;
- 
- 			ret = -EFAULT;
--			if (copy_from_user(&ufd, optval, sizeof(ufd)))
-+			if (copy_from_sockptr(&ufd, optval, sizeof(ufd)))
- 				break;
- 
- 			ret = sk_attach_bpf(ufd, sk);
-@@ -1087,8 +1086,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 	case SO_ATTACH_REUSEPORT_CBPF: {
- 		struct sock_fprog fprog;
- 
--		ret = copy_bpf_fprog_from_user(&fprog, USER_SOCKPTR(optval),
--					       optlen);
-+		ret = copy_bpf_fprog_from_user(&fprog, optval, optlen);
- 		if (!ret)
- 			ret = sk_reuseport_attach_filter(&fprog, sk);
- 		break;
-@@ -1099,7 +1097,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 			u32 ufd;
- 
- 			ret = -EFAULT;
--			if (copy_from_user(&ufd, optval, sizeof(ufd)))
-+			if (copy_from_sockptr(&ufd, optval, sizeof(ufd)))
- 				break;
- 
- 			ret = sk_reuseport_attach_bpf(ufd, sk);
-@@ -1179,7 +1177,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 
- 		if (sizeof(ulval) != sizeof(val) &&
- 		    optlen >= sizeof(ulval) &&
--		    get_user(ulval, (unsigned long __user *)optval)) {
-+		    copy_from_sockptr(&ulval, optval, sizeof(ulval))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1222,7 +1220,7 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 		if (optlen != sizeof(struct sock_txtime)) {
- 			ret = -EINVAL;
- 			break;
--		} else if (copy_from_user(&sk_txtime, optval,
-+		} else if (copy_from_sockptr(&sk_txtime, optval,
- 			   sizeof(struct sock_txtime))) {
- 			ret = -EFAULT;
- 			break;
-diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
-index f0b0b503c2628d..27b6f250b87dfd 100644
---- a/net/mptcp/protocol.c
-+++ b/net/mptcp/protocol.c
-@@ -1643,7 +1643,8 @@ static int mptcp_setsockopt_sol_socket(struct mptcp_sock *msk, int optname,
- 			return -EINVAL;
- 		}
- 
--		ret = sock_setsockopt(ssock, SOL_SOCKET, optname, optval, optlen);
-+		ret = sock_setsockopt(ssock, SOL_SOCKET, optname,
-+				      USER_SOCKPTR(optval), optlen);
- 		if (ret == 0) {
- 			if (optname == SO_REUSEPORT)
- 				sk->sk_reuseport = ssock->sk->sk_reuseport;
-@@ -1654,7 +1655,8 @@ static int mptcp_setsockopt_sol_socket(struct mptcp_sock *msk, int optname,
- 		return ret;
- 	}
- 
--	return sock_setsockopt(sk->sk_socket, SOL_SOCKET, optname, optval, optlen);
-+	return sock_setsockopt(sk->sk_socket, SOL_SOCKET, optname,
-+			       USER_SOCKPTR(optval), optlen);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 30bf23734af6..eaf4e9eab6cb 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -326,7 +326,7 @@ static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
+ 	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
  }
  
- static int mptcp_setsockopt_v6(struct mptcp_sock *msk, int optname,
-diff --git a/net/socket.c b/net/socket.c
-index 93846568c2fb7a..c97f83d879ae75 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -2130,7 +2130,8 @@ int __sys_setsockopt(int fd, int level, int optname, char __user *optval,
- 	}
+-static void vfio_ap_mdev_commit_crycb(struct ap_matrix_mdev *matrix_mdev)
++static void vfio_ap_mdev_commit_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
+ {
+ 	kvm_arch_crypto_set_masks(matrix_mdev->kvm,
+ 				  matrix_mdev->shadow_apcb.apm,
+@@ -597,6 +597,157 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
+ 	return 0;
+ }
  
- 	if (level == SOL_SOCKET && !sock_use_custom_sol_socket(sock))
--		err = sock_setsockopt(sock, level, optname, optval, optlen);
-+		err = sock_setsockopt(sock, level, optname,
-+				      USER_SOCKPTR(optval), optlen);
- 	else if (unlikely(!sock->ops->setsockopt))
- 		err = -EOPNOTSUPP;
- 	else
++/**
++ * vfio_ap_mdev_filter_matrix
++ *
++ * Filter APQNs assigned to the matrix mdev that do not reference an AP queue
++ * device bound to the vfio_ap device driver.
++ *
++ * @matrix_mdev:  the matrix mdev whose AP configuration is to be filtered
++ * @shadow_apcb:  the shadow of the KVM guest's APCB (contains AP configuration
++ *		  for guest)
++ * @filter_apids: boolean value indicating whether the APQNs shall be filtered
++ *		  by APID (true) or by APQI (false).
++ *
++ * Returns the number of APQNs remaining after filtering is complete.
++ */
++static int vfio_ap_mdev_filter_matrix(struct ap_matrix_mdev *matrix_mdev,
++				      struct ap_matrix *shadow_apcb,
++				      bool filter_apids)
++{
++	unsigned long apid, apqi, apqn;
++
++	memcpy(shadow_apcb, &matrix_mdev->matrix, sizeof(*shadow_apcb));
++
++	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
++		/*
++		 * If the APID is not assigned to the host AP configuration,
++		 * we can not assign it to the guest's AP configuration
++		 */
++		if (!test_bit_inv(apid,
++				  (unsigned long *)matrix_dev->info.apm)) {
++			clear_bit_inv(apid, shadow_apcb->apm);
++			continue;
++		}
++
++		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
++				     AP_DOMAINS) {
++			/*
++			 * If the APQI is not assigned to the host AP
++			 * configuration, then it can not be assigned to the
++			 * guest's AP configuration
++			 */
++			if (!test_bit_inv(apqi, (unsigned long *)
++					  matrix_dev->info.aqm)) {
++				clear_bit_inv(apqi, shadow_apcb->aqm);
++				continue;
++			}
++
++			/*
++			 * If the APQN is not bound to the vfio_ap device
++			 * driver, then we can't assign it to the guest's
++			 * AP configuration. The AP architecture won't
++			 * allow filtering of a single APQN, so if we're
++			 * filtering APIDs, then filter the APID; otherwise,
++			 * filter the APQI.
++			 */
++			apqn = AP_MKQID(apid, apqi);
++			if (!vfio_ap_get_queue(apqn)) {
++				if (filter_apids)
++					clear_bit_inv(apid, shadow_apcb->apm);
++				else
++					clear_bit_inv(apqi, shadow_apcb->aqm);
++				break;
++			}
++		}
++
++		/*
++		 * If we're filtering APQIs and all of them have been filtered,
++		 * there's no need to continue filtering.
++		 */
++		if (!filter_apids)
++			if (bitmap_empty(shadow_apcb->aqm, AP_DOMAINS))
++				break;
++	}
++
++	return bitmap_weight(shadow_apcb->apm, AP_DEVICES) *
++	       bitmap_weight(shadow_apcb->aqm, AP_DOMAINS);
++}
++
++/**
++ * vfio_ap_mdev_config_shadow_apcb
++ *
++ * Configure the shadow of a KVM guest's APCB specifying the adapters, domains
++ * and control domains to be assigned to the guest. The shadow APCB will be
++ * configured after filtering the APQNs assigned to the matrix mdev that do not
++ * reference a queue device bound to the vfio_ap device driver.
++ *
++ * @matrix_mdev: the matrix mdev whose shadow APCB is to be configured.
++ *
++ * Returns true if the shadow APCB contents have been changed; otherwise,
++ * returns false.
++ */
++static bool vfio_ap_mdev_config_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
++{
++	int napm, naqm;
++	struct ap_matrix shadow_apcb;
++
++	vfio_ap_matrix_init(&matrix_dev->info, &shadow_apcb);
++	napm = bitmap_weight(matrix_mdev->matrix.apm, AP_DEVICES);
++	naqm = bitmap_weight(matrix_mdev->matrix.aqm, AP_DOMAINS);
++
++	/*
++	 * If there are no APIDs or no APQIs assigned to the matrix mdev,
++	 * then no APQNs shall be assigned to the guest CRYCB.
++	 */
++	if ((napm != 0) || (naqm != 0)) {
++		/*
++		 * Filter the APIDs assigned to the matrix mdev for APQNs that
++		 * do not reference an AP queue device bound to the driver.
++		 */
++		napm = vfio_ap_mdev_filter_matrix(matrix_mdev, &shadow_apcb,
++						  true);
++		/*
++		 * If there are no APQNs that can be assigned to the guest's
++		 * CRYCB after filtering, then try filtering the APQIs.
++		 */
++		if (napm == 0) {
++			naqm = vfio_ap_mdev_filter_matrix(matrix_mdev,
++							  &shadow_apcb, false);
++
++			/*
++			 * If there are no APQNs that can be assigned to the
++			 * matrix mdev after filtering the APQIs, then no APQNs
++			 * shall be assigned to the guest's CRYCB.
++			 */
++			if (naqm == 0) {
++				bitmap_clear(shadow_apcb.apm, 0, AP_DEVICES);
++				bitmap_clear(shadow_apcb.aqm, 0, AP_DOMAINS);
++			}
++		}
++	}
++
++	/*
++	 * If the guest's AP configuration has not changed, then return
++	 * indicating such.
++	 */
++	if (bitmap_equal(matrix_mdev->shadow_apcb.apm, shadow_apcb.apm,
++			 AP_DEVICES) &&
++	    bitmap_equal(matrix_mdev->shadow_apcb.aqm, shadow_apcb.aqm,
++			 AP_DOMAINS) &&
++	    bitmap_equal(matrix_mdev->shadow_apcb.adm, shadow_apcb.adm,
++			 AP_DOMAINS))
++		return false;
++
++	/*
++	 * Copy the changes to the guest's CRYCB, then return indicating that
++	 * the guest's AP configuration has changed.
++	 */
++	memcpy(&matrix_mdev->shadow_apcb, &shadow_apcb, sizeof(shadow_apcb));
++
++	return true;
++}
++
+ enum qlink_type {
+ 	LINK_APID,
+ 	LINK_APQI,
+@@ -1284,9 +1435,8 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+ 	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
+ 		return NOTIFY_DONE;
+ 
+-	memcpy(&matrix_mdev->shadow_apcb, &matrix_mdev->matrix,
+-	       sizeof(matrix_mdev->shadow_apcb));
+-	vfio_ap_mdev_commit_crycb(matrix_mdev);
++	if (vfio_ap_mdev_config_shadow_apcb(matrix_mdev))
++		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
+ 
+ 	return NOTIFY_OK;
+ }
+@@ -1396,6 +1546,7 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+ 	mutex_lock(&matrix_dev->lock);
+ 	if (matrix_mdev->kvm) {
+ 		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
++		vfio_ap_matrix_clear_masks(&matrix_mdev->shadow_apcb);
+ 		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+ 		vfio_ap_mdev_reset_queues(mdev);
+ 		kvm_put_kvm(matrix_mdev->kvm);
 -- 
-2.27.0
+2.21.1
