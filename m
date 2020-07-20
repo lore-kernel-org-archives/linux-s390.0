@@ -1,193 +1,269 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26986 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727065AbgGRNGz (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58862 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729016AbgGTPEu (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 18 Jul 2020 09:06:55 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net v2 08/10] net/smc: do not call dma sync for unmapped memory
-Date: Sat, 18 Jul 2020 15:06:16 +0200
-Message-Id: <20200718130618.16724-9-kgraul@linux.ibm.com>
-In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
-References: <20200718130618.16724-1-kgraul@linux.ibm.com>
+        Mon, 20 Jul 2020 11:04:50 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v9 04/15] s390/zcrypt: driver callback to indicate resource in use
+Date: Mon, 20 Jul 2020 11:03:33 -0400
+Message-Id: <20200720150344.24488-5-akrowiak@linux.ibm.com>
+In-Reply-To: <20200720150344.24488-1-akrowiak@linux.ibm.com>
+References: <20200720150344.24488-1-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>, kernel test robot <lkp@intel.com>
 
-The dma related ...sync_sg... functions check the link state before the
-dma function is actually called. But the check in smc_link_usable()
-allows links in ACTIVATING state which are not yet mapped to dma memory.
-Under high load it may happen that the sync_sg functions are called for
-such a link which results in an debug output like
-   DMA-API: mlx5_core 0002:00:00.0: device driver tries to sync
-   DMA memory it has not allocated [device address=0x0000000103370000]
-   [size=65536 bytes]
-To fix that introduce a helper to check for the link state ACTIVE and
-use it where appropriate. And move the link state update to ACTIVATING
-to the end of smcr_link_init() when most initial setup is done.
+Introduces a new driver callback to prevent a root user from unbinding
+an AP queue from its device driver if the queue is in use. The intent of
+this callback is to provide a driver with the means to prevent a root user
+from inadvertently taking a queue away from a matrix mdev and giving it to
+the host while it is assigned to the matrix mdev. The callback will
+be invoked whenever a change to the AP bus's sysfs apmask or aqmask
+attributes would result in one or more AP queues being removed from its
+driver. If the callback responds in the affirmative for any driver
+queried, the change to the apmask or aqmask will be rejected with a device
+in use error.
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Fixes: d854fcbfaeda ("net/smc: add new link state and related helpers")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+For this patch, only non-default drivers will be queried. Currently,
+there is only one non-default driver, the vfio_ap device driver. The
+vfio_ap device driver facilitates pass-through of an AP queue to a
+guest. The idea here is that a guest may be administered by a different
+sysadmin than the host and we don't want AP resources to unexpectedly
+disappear from a guest's AP configuration (i.e., adapters, domains and
+control domains assigned to the matrix mdev). This will enforce the proper
+procedure for removing AP resources intended for guest usage which is to
+first unassign them from the matrix mdev, then unbind them from the
+vfio_ap device driver.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reported-by: kernel test robot <lkp@intel.com>
 ---
- net/smc/af_smc.c   |  2 +-
- net/smc/smc_core.c | 15 +++++++--------
- net/smc/smc_core.h |  5 +++++
- net/smc/smc_llc.c  | 10 +++++-----
- 4 files changed, 18 insertions(+), 14 deletions(-)
+ drivers/s390/crypto/ap_bus.c | 148 ++++++++++++++++++++++++++++++++---
+ drivers/s390/crypto/ap_bus.h |   4 +
+ 2 files changed, 142 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index f80591567a3d..d091509b5982 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -352,7 +352,7 @@ static int smcr_lgr_reg_rmbs(struct smc_link *link,
- 	 */
- 	mutex_lock(&lgr->llc_conf_mutex);
- 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
--		if (lgr->lnk[i].state != SMC_LNK_ACTIVE)
-+		if (!smc_link_active(&lgr->lnk[i]))
- 			continue;
- 		rc = smcr_link_reg_rmb(&lgr->lnk[i], rmb_desc);
- 		if (rc)
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2e965de7412d..42ba227f3e97 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -318,7 +318,6 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index e71ca4a719a5..d6a732c8d90a 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -35,6 +35,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/debugfs.h>
+ #include <linux/ctype.h>
++#include <linux/module.h>
  
- 	get_device(&ini->ib_dev->ibdev->dev);
- 	atomic_inc(&ini->ib_dev->lnk_cnt);
--	lnk->state = SMC_LNK_ACTIVATING;
- 	lnk->link_id = smcr_next_link_id(lgr);
- 	lnk->lgr = lgr;
- 	lnk->link_idx = link_idx;
-@@ -354,6 +353,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	rc = smc_wr_create_link(lnk);
- 	if (rc)
- 		goto destroy_qp;
-+	lnk->state = SMC_LNK_ACTIVATING;
+ #include "ap_bus.h"
+ #include "ap_debug.h"
+@@ -876,6 +877,23 @@ static int modify_bitmap(const char *str, unsigned long *bitmap, int bits)
  	return 0;
- 
- destroy_qp:
-@@ -542,8 +542,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 	smc_wr_wakeup_tx_wait(from_lnk);
- 
- 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
--		if (lgr->lnk[i].state != SMC_LNK_ACTIVE ||
--		    i == from_lnk->link_idx)
-+		if (!smc_link_active(&lgr->lnk[i]) || i == from_lnk->link_idx)
- 			continue;
- 		if (is_dev_err && from_lnk->smcibdev == lgr->lnk[i].smcibdev &&
- 		    from_lnk->ibport == lgr->lnk[i].ibport) {
-@@ -1269,7 +1268,7 @@ static bool smcr_lgr_match(struct smc_link_group *lgr,
- 		return false;
- 
- 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
--		if (lgr->lnk[i].state != SMC_LNK_ACTIVE)
-+		if (!smc_link_active(&lgr->lnk[i]))
- 			continue;
- 		if ((lgr->role == SMC_SERV || lgr->lnk[i].peer_qpn == clcqpn) &&
- 		    !memcmp(lgr->lnk[i].peer_gid, &lcl->gid, SMC_GID_SIZE) &&
-@@ -1717,14 +1716,14 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
- 
- void smc_sndbuf_sync_sg_for_cpu(struct smc_connection *conn)
- {
--	if (!conn->lgr || conn->lgr->is_smcd || !smc_link_usable(conn->lnk))
-+	if (!conn->lgr || conn->lgr->is_smcd || !smc_link_active(conn->lnk))
- 		return;
- 	smc_ib_sync_sg_for_cpu(conn->lnk, conn->sndbuf_desc, DMA_TO_DEVICE);
  }
  
- void smc_sndbuf_sync_sg_for_device(struct smc_connection *conn)
- {
--	if (!conn->lgr || conn->lgr->is_smcd || !smc_link_usable(conn->lnk))
-+	if (!conn->lgr || conn->lgr->is_smcd || !smc_link_active(conn->lnk))
- 		return;
- 	smc_ib_sync_sg_for_device(conn->lnk, conn->sndbuf_desc, DMA_TO_DEVICE);
- }
-@@ -1736,7 +1735,7 @@ void smc_rmb_sync_sg_for_cpu(struct smc_connection *conn)
- 	if (!conn->lgr || conn->lgr->is_smcd)
- 		return;
- 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
--		if (!smc_link_usable(&conn->lgr->lnk[i]))
-+		if (!smc_link_active(&conn->lgr->lnk[i]))
- 			continue;
- 		smc_ib_sync_sg_for_cpu(&conn->lgr->lnk[i], conn->rmb_desc,
- 				       DMA_FROM_DEVICE);
-@@ -1750,7 +1749,7 @@ void smc_rmb_sync_sg_for_device(struct smc_connection *conn)
- 	if (!conn->lgr || conn->lgr->is_smcd)
- 		return;
- 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
--		if (!smc_link_usable(&conn->lgr->lnk[i]))
-+		if (!smc_link_active(&conn->lgr->lnk[i]))
- 			continue;
- 		smc_ib_sync_sg_for_device(&conn->lgr->lnk[i], conn->rmb_desc,
- 					  DMA_FROM_DEVICE);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index c3ff512fd891..1c4d5439d0ff 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -349,6 +349,11 @@ static inline bool smc_link_usable(struct smc_link *lnk)
- 	return true;
- }
- 
-+static inline bool smc_link_active(struct smc_link *lnk)
++static int ap_parse_bitmap_str(const char *str, unsigned long *bitmap, int bits,
++			       unsigned long *newmap)
 +{
-+	return lnk->state == SMC_LNK_ACTIVE;
++	unsigned long size;
++	int rc;
++
++	size = BITS_TO_LONGS(bits)*sizeof(unsigned long);
++	if (*str == '+' || *str == '-') {
++		memcpy(newmap, bitmap, size);
++		rc = modify_bitmap(str, newmap, bits);
++	} else {
++		memset(newmap, 0, size);
++		rc = hex2bitmap(str, newmap, bits);
++	}
++	return rc;
 +}
 +
- struct smc_sock;
- struct smc_clc_msg_accept_confirm;
- struct smc_clc_msg_local;
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index fa8cd57a9b32..df5b0a6ea848 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -428,7 +428,7 @@ static int smc_llc_send_confirm_rkey(struct smc_link *send_link,
- 	rtok_ix = 1;
- 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
- 		link = &send_link->lgr->lnk[i];
--		if (link->state == SMC_LNK_ACTIVE && link != send_link) {
-+		if (smc_link_active(link) && link != send_link) {
- 			rkeyllc->rtoken[rtok_ix].link_id = link->link_id;
- 			rkeyllc->rtoken[rtok_ix].rmb_key =
- 				htonl(rmb_desc->mr_rx[link->link_idx]->rkey);
-@@ -944,7 +944,7 @@ static int smc_llc_active_link_count(struct smc_link_group *lgr)
- 	int i, link_count = 0;
- 
- 	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
--		if (!smc_link_usable(&lgr->lnk[i]))
-+		if (!smc_link_active(&lgr->lnk[i]))
- 			continue;
- 		link_count++;
+ int ap_parse_mask_str(const char *str,
+ 		      unsigned long *bitmap, int bits,
+ 		      struct mutex *lock)
+@@ -895,14 +913,7 @@ int ap_parse_mask_str(const char *str,
+ 		kfree(newmap);
+ 		return -ERESTARTSYS;
  	}
-@@ -1622,7 +1622,7 @@ static void smc_llc_rx_response(struct smc_link *link,
+-
+-	if (*str == '+' || *str == '-') {
+-		memcpy(newmap, bitmap, size);
+-		rc = modify_bitmap(str, newmap, bits);
+-	} else {
+-		memset(newmap, 0, size);
+-		rc = hex2bitmap(str, newmap, bits);
+-	}
++	rc = ap_parse_bitmap_str(str, bitmap, bits, newmap);
+ 	if (rc == 0)
+ 		memcpy(bitmap, newmap, size);
+ 	mutex_unlock(lock);
+@@ -1092,12 +1103,70 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
+ 	return rc;
+ }
  
- 	switch (llc_type) {
- 	case SMC_LLC_TEST_LINK:
--		if (link->state == SMC_LNK_ACTIVE)
-+		if (smc_link_active(link))
- 			complete(&link->llc_testlink_resp);
- 		break;
- 	case SMC_LLC_ADD_LINK:
-@@ -1706,7 +1706,7 @@ static void smc_llc_testlink_work(struct work_struct *work)
- 	u8 user_data[16] = { 0 };
++static int __verify_card_reservations(struct device_driver *drv, void *data)
++{
++	int rc = 0;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++	unsigned long *newapm = (unsigned long *)data;
++
++	/*
++	 * No need to verify whether the driver is using the queues if it is the
++	 * default driver.
++	 */
++	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
++		return 0;
++
++	/* The non-default driver's module must be loaded */
++	if (!try_module_get(drv->owner))
++		return 0;
++
++	if (ap_drv->in_use)
++		if (ap_drv->in_use(newapm, ap_perms.aqm))
++			rc = -EADDRINUSE;
++
++	module_put(drv->owner);
++
++	return rc;
++}
++
++static int apmask_commit(unsigned long *newapm)
++{
++	int rc;
++	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
++
++	/*
++	 * Check if any bits in the apmask have been set which will
++	 * result in queues being removed from non-default drivers
++	 */
++	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
++		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
++				      __verify_card_reservations);
++		if (rc)
++			return rc;
++	}
++
++	memcpy(ap_perms.apm, newapm, APMASKSIZE);
++
++	return 0;
++}
++
+ static ssize_t apmask_store(struct bus_type *bus, const char *buf,
+ 			    size_t count)
+ {
  	int rc;
++	DECLARE_BITMAP(newapm, AP_DEVICES);
++
++	if (mutex_lock_interruptible(&ap_perms_mutex))
++		return -ERESTARTSYS;
++
++	rc = ap_parse_bitmap_str(buf, ap_perms.apm, AP_DEVICES, newapm);
++	if (rc)
++		goto done;
  
--	if (link->state != SMC_LNK_ACTIVE)
-+	if (!smc_link_active(link))
- 		return;		/* don't reschedule worker */
- 	expire_time = link->wr_rx_tstamp + link->llc_testlink_time;
- 	if (time_is_after_jiffies(expire_time)) {
-@@ -1718,7 +1718,7 @@ static void smc_llc_testlink_work(struct work_struct *work)
- 	/* receive TEST LINK response over RoCE fabric */
- 	rc = wait_for_completion_interruptible_timeout(&link->llc_testlink_resp,
- 						       SMC_LLC_WAIT_TIME);
--	if (link->state != SMC_LNK_ACTIVE)
-+	if (!smc_link_active(link))
- 		return;		/* link state changed */
- 	if (rc <= 0) {
- 		smcr_link_down_cond_sched(link);
+-	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
++	rc = apmask_commit(newapm);
++
++done:
++	mutex_unlock(&ap_perms_mutex);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -1123,12 +1192,71 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
+ 	return rc;
+ }
+ 
++static int __verify_queue_reservations(struct device_driver *drv, void *data)
++{
++	int rc = 0;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++	unsigned long *newaqm = (unsigned long *)data;
++
++	/*
++	 * If the reserved bits do not identify queues reserved for use by the
++	 * non-default driver, there is no need to verify the driver is using
++	 * the queues.
++	 */
++	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
++		return 0;
++
++	/* The non-default driver's module must be loaded */
++	if (!try_module_get(drv->owner))
++		return 0;
++
++	if (ap_drv->in_use)
++		if (ap_drv->in_use(ap_perms.apm, newaqm))
++			rc = -EADDRINUSE;
++
++	module_put(drv->owner);
++
++	return rc;
++}
++
++static int aqmask_commit(unsigned long *newaqm)
++{
++	int rc;
++	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
++
++	/*
++	 * Check if any bits in the aqmask have been set which will
++	 * result in queues being removed from non-default drivers
++	 */
++	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
++		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
++				      __verify_queue_reservations);
++		if (rc)
++			return rc;
++	}
++
++	memcpy(ap_perms.aqm, newaqm, AQMASKSIZE);
++
++	return 0;
++}
++
+ static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
+ 			    size_t count)
+ {
+ 	int rc;
++	DECLARE_BITMAP(newaqm, AP_DOMAINS);
+ 
+-	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
++	if (mutex_lock_interruptible(&ap_perms_mutex))
++		return -ERESTARTSYS;
++
++	rc = ap_parse_bitmap_str(buf, ap_perms.aqm, AP_DOMAINS, newaqm);
++	if (rc)
++		goto done;
++
++	rc = aqmask_commit(newaqm);
++
++done:
++	mutex_unlock(&ap_perms_mutex);
+ 	if (rc)
+ 		return rc;
+ 
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 053cc34d2ca2..7d9646251bfd 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -136,6 +136,7 @@ struct ap_driver {
+ 
+ 	int (*probe)(struct ap_device *);
+ 	void (*remove)(struct ap_device *);
++	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
+ };
+ 
+ #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
+@@ -254,6 +255,9 @@ void ap_queue_init_state(struct ap_queue *aq);
+ struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
+ 			       int comp_device_type, unsigned int functions);
+ 
++#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
++#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
++
+ struct ap_perms {
+ 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
+ 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
 -- 
-2.17.1
+2.21.1
