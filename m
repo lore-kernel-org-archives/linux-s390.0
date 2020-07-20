@@ -1,128 +1,150 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:31374 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731684AbgGVJqc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Jul 2020 05:46:32 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 8/9] s390/vmemmap: remember unused sub-pmd ranges
-Date: Wed, 22 Jul 2020 11:45:57 +0200
-Message-Id: <20200722094558.9828-9-david@redhat.com>
-In-Reply-To: <20200722094558.9828-1-david@redhat.com>
-References: <20200722094558.9828-1-david@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40656 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729253AbgGTMs7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 08:48:59 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 23/24] net/tcp: switch do_tcp_setsockopt to sockptr_t
+Date: Mon, 20 Jul 2020 14:47:36 +0200
+Message-Id: <20200720124737.118617-24-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
+References: <20200720124737.118617-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-With a memmap size of 56 bytes or 72 bytes per page, the memmap for a
-256 MB section won't span full PMDs. As we populate single sections and
-depopulate single sections, the depopulation step would not be able to
-free all vmemmap pmds anymore.
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-Do it similarly to x86, marking the unused memmap ranges in a special way
-(pad it with 0xFD).
-
-This allows us to add/remove sections, cleaning up all allocated
-vmemmap pages even if the memmap size is not multiple of 16 bytes per page.
-
-A 56 byte memmap can, for example, be created with !CONFIG_MEMCG and
-!CONFIG_SLUB.
-
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/mm/vmem.c | 51 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 50 insertions(+), 1 deletion(-)
+ net/ipv4/tcp.c | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index e82a63de19db2..df361bbacda1b 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -72,6 +72,42 @@ static void vmem_pte_free(unsigned long *table)
- 	page_table_free(&init_mm, table);
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 49bf15c27deac7..71cbc61c335f71 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2764,7 +2764,7 @@ static inline bool tcp_can_repair_sock(const struct sock *sk)
+ 		(sk->sk_state != TCP_LISTEN);
  }
  
-+#define PAGE_UNUSED 0xFD
-+
-+static void vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
-+{
-+	/*
-+	 * As we expect to add in the same granularity as we remove, it's
-+	 * sufficient to mark only some piece used to block the memmap page from
-+	 * getting removed (just in case the memmap never gets initialized,
-+	 * e.g., because the memory block never gets onlined).
-+	 */
-+	memset(__va(start), 0, sizeof(struct page));
-+}
-+
-+static void vmemmap_use_new_sub_pmd(unsigned long start, unsigned long end)
-+{
-+	void *page = __va(ALIGN_DOWN(start, PMD_SIZE));
-+
-+	/* Could be our memmap page is filled with PAGE_UNUSED already ... */
-+	vmemmap_use_sub_pmd(start, end);
-+
-+	/* Mark the unused parts of the new memmap page PAGE_UNUSED. */
-+	if (!IS_ALIGNED(start, PMD_SIZE))
-+		memset(page, PAGE_UNUSED, start - __pa(page));
-+	if (!IS_ALIGNED(end, PMD_SIZE))
-+		memset(__va(end), PAGE_UNUSED, __pa(page) + PMD_SIZE - end);
-+}
-+
-+/* Returns true if the PMD is completely unused and can be freed. */
-+static bool vmemmap_unuse_sub_pmd(unsigned long start, unsigned long end)
-+{
-+	void *page = __va(ALIGN_DOWN(start, PMD_SIZE));
-+
-+	memset(__va(start), PAGE_UNUSED, end - start);
-+	return !memchr_inv(page, PAGE_UNUSED, PMD_SIZE);
-+}
-+
- /* __ref: we'll only call vmemmap_alloc_block() via vmemmap_populate() */
- static int __ref modify_pte_table(pmd_t *pmd, unsigned long addr,
- 				  unsigned long end, bool add, bool direct)
-@@ -157,6 +193,11 @@ static int __ref modify_pmd_table(pud_t *pud, unsigned long addr,
- 								get_order(PMD_SIZE));
- 					pmd_clear(pmd);
- 					pages++;
-+				} else if (!direct &&
-+					   vmemmap_unuse_sub_pmd(addr, next)) {
-+					vmem_free_pages(pmd_deref(*pmd),
-+							get_order(PMD_SIZE));
-+					pmd_clear(pmd);
- 				}
- 				continue;
- 			}
-@@ -182,6 +223,11 @@ static int __ref modify_pmd_table(pud_t *pud, unsigned long addr,
- 							       NUMA_NO_NODE);
- 				if (new_page) {
- 					pmd_val(*pmd) = __pa(new_page) | prot;
-+					if (!IS_ALIGNED(addr, PMD_SIZE) ||
-+					    !IS_ALIGNED(next, PMD_SIZE)) {
-+						vmemmap_use_new_sub_pmd(addr,
-+									next);
-+					}
- 					continue;
- 				}
- 			}
-@@ -189,8 +235,11 @@ static int __ref modify_pmd_table(pud_t *pud, unsigned long addr,
- 			if (!pte)
- 				goto out;
- 			pmd_populate(&init_mm, pmd, pte);
--		} else if (pmd_large(*pmd))
-+		} else if (pmd_large(*pmd)) {
-+			if (!direct)
-+				vmemmap_use_sub_pmd(addr, next);
- 			continue;
-+		}
+-static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int len)
++static int tcp_repair_set_window(struct tcp_sock *tp, sockptr_t optbuf, int len)
+ {
+ 	struct tcp_repair_window opt;
  
- 		ret = modify_pte_table(pmd, addr, next, add, direct);
- 		if (ret)
+@@ -2774,7 +2774,7 @@ static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int l
+ 	if (len != sizeof(opt))
+ 		return -EINVAL;
+ 
+-	if (copy_from_user(&opt, optbuf, sizeof(opt)))
++	if (copy_from_sockptr(&opt, optbuf, sizeof(opt)))
+ 		return -EFAULT;
+ 
+ 	if (opt.max_window < opt.snd_wnd)
+@@ -2796,17 +2796,17 @@ static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int l
+ 	return 0;
+ }
+ 
+-static int tcp_repair_options_est(struct sock *sk,
+-		struct tcp_repair_opt __user *optbuf, unsigned int len)
++static int tcp_repair_options_est(struct sock *sk, sockptr_t optbuf,
++		unsigned int len)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct tcp_repair_opt opt;
+ 
+ 	while (len >= sizeof(opt)) {
+-		if (copy_from_user(&opt, optbuf, sizeof(opt)))
++		if (copy_from_sockptr(&opt, optbuf, sizeof(opt)))
+ 			return -EFAULT;
+ 
+-		optbuf++;
++		sockptr_advance(optbuf, sizeof(opt));
+ 		len -= sizeof(opt);
+ 
+ 		switch (opt.opt_code) {
+@@ -3020,8 +3020,8 @@ EXPORT_SYMBOL(tcp_sock_set_keepcnt);
+ /*
+  *	Socket option code for TCP.
+  */
+-static int do_tcp_setsockopt(struct sock *sk, int level,
+-		int optname, char __user *optval, unsigned int optlen)
++static int do_tcp_setsockopt(struct sock *sk, int level, int optname,
++		sockptr_t optval, unsigned int optlen)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+@@ -3037,7 +3037,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 		if (optlen < 1)
+ 			return -EINVAL;
+ 
+-		val = strncpy_from_user(name, optval,
++		val = strncpy_from_sockptr(name, optval,
+ 					min_t(long, TCP_CA_NAME_MAX-1, optlen));
+ 		if (val < 0)
+ 			return -EFAULT;
+@@ -3056,7 +3056,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 		if (optlen < 1)
+ 			return -EINVAL;
+ 
+-		val = strncpy_from_user(name, optval,
++		val = strncpy_from_sockptr(name, optval,
+ 					min_t(long, TCP_ULP_NAME_MAX - 1,
+ 					      optlen));
+ 		if (val < 0)
+@@ -3079,7 +3079,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 		    optlen != TCP_FASTOPEN_KEY_BUF_LENGTH)
+ 			return -EINVAL;
+ 
+-		if (copy_from_user(key, optval, optlen))
++		if (copy_from_sockptr(key, optval, optlen))
+ 			return -EFAULT;
+ 
+ 		if (optlen == TCP_FASTOPEN_KEY_BUF_LENGTH)
+@@ -3095,7 +3095,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 	if (optlen < sizeof(int))
+ 		return -EINVAL;
+ 
+-	if (get_user(val, (int __user *)optval))
++	if (copy_from_sockptr(&val, optval, sizeof(val)))
+ 		return -EFAULT;
+ 
+ 	lock_sock(sk);
+@@ -3174,9 +3174,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 		if (!tp->repair)
+ 			err = -EINVAL;
+ 		else if (sk->sk_state == TCP_ESTABLISHED)
+-			err = tcp_repair_options_est(sk,
+-					(struct tcp_repair_opt __user *)optval,
+-					optlen);
++			err = tcp_repair_options_est(sk, optval, optlen);
+ 		else
+ 			err = -EPERM;
+ 		break;
+@@ -3249,8 +3247,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ #ifdef CONFIG_TCP_MD5SIG
+ 	case TCP_MD5SIG:
+ 	case TCP_MD5SIG_EXT:
+-		err = tp->af_specific->md5_parse(sk, optname,
+-						 USER_SOCKPTR(optval), optlen);
++		err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
+ 		break;
+ #endif
+ 	case TCP_USER_TIMEOUT:
+@@ -3334,7 +3331,8 @@ int tcp_setsockopt(struct sock *sk, int level, int optname, char __user *optval,
+ 	if (level != SOL_TCP)
+ 		return icsk->icsk_af_ops->setsockopt(sk, level, optname,
+ 						     optval, optlen);
+-	return do_tcp_setsockopt(sk, level, optname, optval, optlen);
++	return do_tcp_setsockopt(sk, level, optname, USER_SOCKPTR(optval),
++				 optlen);
+ }
+ EXPORT_SYMBOL(tcp_setsockopt);
+ 
 -- 
-2.26.2
+2.27.0
