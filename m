@@ -1,78 +1,137 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24086 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726352AbgGNLis (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 07:38:48 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v6 2/2] s390: virtio: PV needs VIRTIO I/O device protection
-Date: Tue, 14 Jul 2020 13:38:02 +0200
-Message-Id: <1594726682-12076-3-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594726682-12076-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594726682-12076-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 13/24] net/ipv4: switch ip_mroute_setsockopt to sockptr_t
+Date: Mon, 20 Jul 2020 14:47:26 +0200
+Message-Id: <20200720124737.118617-14-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
+References: <20200720124737.118617-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-If protected virtualization is active on s390, the virtio queues are
-not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
-negotiated. Use the new arch_validate_virtio_features() interface to
-fail probe if that's not the case, preventing a host error on access
-attempt.
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/mm/init.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ include/linux/mroute.h |  5 +++--
+ net/ipv4/ip_sockglue.c |  3 ++-
+ net/ipv4/ipmr.c        | 14 +++++++-------
+ 3 files changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 6dc7c3b60ef6..26efb663bac2 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -45,6 +45,7 @@
- #include <asm/kasan.h>
- #include <asm/dma-mapping.h>
- #include <asm/uv.h>
-+#include <linux/virtio_config.h>
+diff --git a/include/linux/mroute.h b/include/linux/mroute.h
+index 9a36fad9e068f6..6cbbfe94348cee 100644
+--- a/include/linux/mroute.h
++++ b/include/linux/mroute.h
+@@ -8,6 +8,7 @@
+ #include <net/fib_notifier.h>
+ #include <uapi/linux/mroute.h>
+ #include <linux/mroute_base.h>
++#include <linux/sockptr.h>
  
- pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
- 
-@@ -161,6 +162,33 @@ bool force_dma_unencrypted(struct device *dev)
- 	return is_prot_virt_guest();
+ #ifdef CONFIG_IP_MROUTE
+ static inline int ip_mroute_opt(int opt)
+@@ -15,7 +16,7 @@ static inline int ip_mroute_opt(int opt)
+ 	return opt >= MRT_BASE && opt <= MRT_MAX;
  }
  
-+/*
-+ * arch_validate_virtio_features
-+ * @dev: the VIRTIO device being added
-+ *
-+ * Return an error if required features are missing on a guest running
-+ * with protected virtualization.
-+ */
-+int arch_validate_virtio_features(struct virtio_device *dev)
-+{
-+	if (!is_prot_virt_guest())
-+		return 0;
-+
-+	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-+		dev_warn(&dev->dev,
-+			 "legacy virtio not supported with protected virtualizatio\n");
-+		return -ENODEV;
-+	}
-+
-+	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-+		dev_warn(&dev->dev,
-+			 "support for limited memory access required for protected virtualization\n");
-+		return -ENODEV;
-+	}
-+
-+	return 0;
-+}
-+
- /* protected virtualization */
- static void pv_init(void)
+-int ip_mroute_setsockopt(struct sock *, int, char __user *, unsigned int);
++int ip_mroute_setsockopt(struct sock *, int, sockptr_t, unsigned int);
+ int ip_mroute_getsockopt(struct sock *, int, char __user *, int __user *);
+ int ipmr_ioctl(struct sock *sk, int cmd, void __user *arg);
+ int ipmr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *arg);
+@@ -23,7 +24,7 @@ int ip_mr_init(void);
+ bool ipmr_rule_default(const struct fib_rule *rule);
+ #else
+ static inline int ip_mroute_setsockopt(struct sock *sock, int optname,
+-				       char __user *optval, unsigned int optlen)
++				       sockptr_t optval, unsigned int optlen)
  {
+ 	return -ENOPROTOOPT;
+ }
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index 36f746e01741f6..ac495b0cff8ffb 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -925,7 +925,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 	if (optname == IP_ROUTER_ALERT)
+ 		return ip_ra_control(sk, val ? 1 : 0, NULL);
+ 	if (ip_mroute_opt(optname))
+-		return ip_mroute_setsockopt(sk, optname, optval, optlen);
++		return ip_mroute_setsockopt(sk, optname, USER_SOCKPTR(optval),
++					    optlen);
+ 
+ 	err = 0;
+ 	if (needs_rtnl)
+diff --git a/net/ipv4/ipmr.c b/net/ipv4/ipmr.c
+index 678639c01e4882..cdf3a40f9ff5fc 100644
+--- a/net/ipv4/ipmr.c
++++ b/net/ipv4/ipmr.c
+@@ -1341,7 +1341,7 @@ static void mrtsock_destruct(struct sock *sk)
+  * MOSPF/PIM router set up we can clean this up.
+  */
+ 
+-int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
++int ip_mroute_setsockopt(struct sock *sk, int optname, sockptr_t optval,
+ 			 unsigned int optlen)
+ {
+ 	struct net *net = sock_net(sk);
+@@ -1413,7 +1413,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+-		if (copy_from_user(&vif, optval, sizeof(vif))) {
++		if (copy_from_sockptr(&vif, optval, sizeof(vif))) {
+ 			ret = -EFAULT;
+ 			break;
+ 		}
+@@ -1441,7 +1441,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+-		if (copy_from_user(&mfc, optval, sizeof(mfc))) {
++		if (copy_from_sockptr(&val, optval, sizeof(val))) {
+ 			ret = -EFAULT;
+ 			break;
+ 		}
+@@ -1459,7 +1459,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+-		if (get_user(val, (int __user *)optval)) {
++		if (copy_from_sockptr(&val, optval, sizeof(val))) {
+ 			ret = -EFAULT;
+ 			break;
+ 		}
+@@ -1471,7 +1471,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+-		if (get_user(val, (int __user *)optval)) {
++		if (copy_from_sockptr(&val, optval, sizeof(val))) {
+ 			ret = -EFAULT;
+ 			break;
+ 		}
+@@ -1486,7 +1486,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+-		if (get_user(val, (int __user *)optval)) {
++		if (copy_from_sockptr(&val, optval, sizeof(val))) {
+ 			ret = -EFAULT;
+ 			break;
+ 		}
+@@ -1508,7 +1508,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
+ 			ret = -EINVAL;
+ 			break;
+ 		}
+-		if (get_user(uval, (u32 __user *)optval)) {
++		if (copy_from_sockptr(&uval, optval, sizeof(uval))) {
+ 			ret = -EFAULT;
+ 			break;
+ 		}
 -- 
-2.25.1
+2.27.0
