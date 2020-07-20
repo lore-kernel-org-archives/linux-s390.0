@@ -1,190 +1,213 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55208 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727101AbgGPIXn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jul 2020 04:23:43 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v13 8/9] s390x: css: msch, enable test
-Date: Thu, 16 Jul 2020 10:23:28 +0200
-Message-Id: <1594887809-10521-9-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594887809-10521-1-git-send-email-pmorel@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40536 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728738AbgGTMsV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 08:48:21 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 10/24] netfilter: switch xt_copy_counters to sockptr_t
+Date: Mon, 20 Jul 2020 14:47:23 +0200
+Message-Id: <20200720124737.118617-11-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
+References: <20200720124737.118617-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-A second step when testing the channel subsystem is to prepare a channel
-for use.
-This includes:
-- Get the current subchannel Information Block (SCHIB) using STSCH
-- Update it in memory to set the ENABLE bit and the specified ISC
-- Tell the CSS that the SCHIB has been modified using MSCH
-- Get the SCHIB from the CSS again to verify that the subchannel is
-  enabled and uses the specified ISC.
-- If the command succeeds but subchannel is not enabled or the ISC
-  field is not as expected, retry a predefined retries count.
-- If the command fails, report the failure and do not retry, even
-  if cc indicates a busy/status pending as we do not expect this.
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-This tests the MSCH instruction to enable a channel successfully.
-Retries are done and in case of error, and if the retries count
-is exceeded, a report is made.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- lib/s390x/css.h     |  9 ++++--
- lib/s390x/css_lib.c | 73 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/css.c         | 15 ++++++++++
- 3 files changed, 94 insertions(+), 3 deletions(-)
+ include/linux/netfilter/x_tables.h |  4 ++--
+ net/ipv4/netfilter/arp_tables.c    |  7 +++----
+ net/ipv4/netfilter/ip_tables.c     |  7 +++----
+ net/ipv6/netfilter/ip6_tables.c    |  6 +++---
+ net/netfilter/x_tables.c           | 20 ++++++++++----------
+ 5 files changed, 21 insertions(+), 23 deletions(-)
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index 0ddceb1..63a70f1 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -71,8 +71,10 @@ struct scsw {
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index b8b943ee7b8b66..5deb099d156dcb 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -301,8 +301,8 @@ int xt_target_to_user(const struct xt_entry_target *t,
+ int xt_data_to_user(void __user *dst, const void *src,
+ 		    int usersize, int size, int aligned_size);
  
- struct pmcw {
- 	uint32_t intparm;
--#define PMCW_DNV        0x0001
--#define PMCW_ENABLE     0x0080
-+#define PMCW_DNV	0x0001
-+#define PMCW_ENABLE	0x0080
-+#define PMCW_ISC_MASK	0x3800
-+#define PMCW_ISC_SHIFT	11
- 	uint16_t flags;
- 	uint16_t devnum;
- 	uint8_t  lpm;
-@@ -251,6 +253,7 @@ void dump_orb(struct orb *op);
+-void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+-				 struct xt_counters_info *info);
++void *xt_copy_counters(sockptr_t arg, unsigned int len,
++		       struct xt_counters_info *info);
+ struct xt_counters *xt_counters_alloc(unsigned int counters);
  
- int css_enumerate(void);
- #define MAX_ENABLE_RETRIES      5
--int css_enable(int schid);
+ struct xt_table *xt_register_table(struct net *net,
+diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
+index 2c8a4dad39d748..6d24b686c7f00a 100644
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -996,8 +996,7 @@ static int do_replace(struct net *net, const void __user *user,
+ 	return ret;
+ }
  
-+#define IO_SCH_ISC      3
-+int css_enable(int schid, int isc);
+-static int do_add_counters(struct net *net, const void __user *user,
+-			   unsigned int len)
++static int do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
+ {
+ 	unsigned int i;
+ 	struct xt_counters_info tmp;
+@@ -1008,7 +1007,7 @@ static int do_add_counters(struct net *net, const void __user *user,
+ 	struct arpt_entry *iter;
+ 	unsigned int addend;
+ 
+-	paddc = xt_copy_counters_from_user(user, len, &tmp);
++	paddc = xt_copy_counters(arg, len, &tmp);
+ 	if (IS_ERR(paddc))
+ 		return PTR_ERR(paddc);
+ 
+@@ -1420,7 +1419,7 @@ static int do_arpt_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned
+ 		break;
+ 
+ 	case ARPT_SO_SET_ADD_COUNTERS:
+-		ret = do_add_counters(sock_net(sk), user, len);
++		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
+ 		break;
+ 
+ 	default:
+diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+index 161901dd1cae7f..4697d09c98dc3e 100644
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -1151,8 +1151,7 @@ do_replace(struct net *net, const void __user *user, unsigned int len)
+ }
+ 
+ static int
+-do_add_counters(struct net *net, const void __user *user,
+-		unsigned int len)
++do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
+ {
+ 	unsigned int i;
+ 	struct xt_counters_info tmp;
+@@ -1163,7 +1162,7 @@ do_add_counters(struct net *net, const void __user *user,
+ 	struct ipt_entry *iter;
+ 	unsigned int addend;
+ 
+-	paddc = xt_copy_counters_from_user(user, len, &tmp);
++	paddc = xt_copy_counters(arg, len, &tmp);
+ 	if (IS_ERR(paddc))
+ 		return PTR_ERR(paddc);
+ 
+@@ -1629,7 +1628,7 @@ do_ipt_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
+ 		break;
+ 
+ 	case IPT_SO_SET_ADD_COUNTERS:
+-		ret = do_add_counters(sock_net(sk), user, len);
++		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
+ 		break;
+ 
+ 	default:
+diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
+index fd1f8f93123188..a787aba30e2db7 100644
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -1168,7 +1168,7 @@ do_replace(struct net *net, const void __user *user, unsigned int len)
+ }
+ 
+ static int
+-do_add_counters(struct net *net, const void __user *user, unsigned int len)
++do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
+ {
+ 	unsigned int i;
+ 	struct xt_counters_info tmp;
+@@ -1179,7 +1179,7 @@ do_add_counters(struct net *net, const void __user *user, unsigned int len)
+ 	struct ip6t_entry *iter;
+ 	unsigned int addend;
+ 
+-	paddc = xt_copy_counters_from_user(user, len, &tmp);
++	paddc = xt_copy_counters(arg, len, &tmp);
+ 	if (IS_ERR(paddc))
+ 		return PTR_ERR(paddc);
+ 	t = xt_find_table_lock(net, AF_INET6, tmp.name);
+@@ -1637,7 +1637,7 @@ do_ip6t_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
+ 		break;
+ 
+ 	case IP6T_SO_SET_ADD_COUNTERS:
+-		ret = do_add_counters(sock_net(sk), user, len);
++		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
+ 		break;
+ 
+ 	default:
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 32bab45af7e415..b97eb4b538fd4e 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1028,9 +1028,9 @@ int xt_check_target(struct xt_tgchk_param *par,
+ EXPORT_SYMBOL_GPL(xt_check_target);
+ 
+ /**
+- * xt_copy_counters_from_user - copy counters and metadata from userspace
++ * xt_copy_counters - copy counters and metadata from a sockptr_t
+  *
+- * @user: src pointer to userspace memory
++ * @arg: src sockptr
+  * @len: alleged size of userspace memory
+  * @info: where to store the xt_counters_info metadata
+  *
+@@ -1047,8 +1047,8 @@ EXPORT_SYMBOL_GPL(xt_check_target);
+  * Return: returns pointer that caller has to test via IS_ERR().
+  * If IS_ERR is false, caller has to vfree the pointer.
+  */
+-void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+-				 struct xt_counters_info *info)
++void *xt_copy_counters(sockptr_t arg, unsigned int len,
++		       struct xt_counters_info *info)
+ {
+ 	void *mem;
+ 	u64 size;
+@@ -1062,12 +1062,12 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+ 			return ERR_PTR(-EINVAL);
+ 
+ 		len -= sizeof(compat_tmp);
+-		if (copy_from_user(&compat_tmp, user, sizeof(compat_tmp)) != 0)
++		if (copy_from_sockptr(&compat_tmp, arg, sizeof(compat_tmp)) != 0)
+ 			return ERR_PTR(-EFAULT);
+ 
+ 		memcpy(info->name, compat_tmp.name, sizeof(info->name) - 1);
+ 		info->num_counters = compat_tmp.num_counters;
+-		user += sizeof(compat_tmp);
++		sockptr_advance(arg, sizeof(compat_tmp));
+ 	} else
  #endif
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index fd087ce..e47a945 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -15,6 +15,7 @@
- #include <string.h>
- #include <interrupt.h>
- #include <asm/arch_def.h>
-+#include <asm/time.h>
+ 	{
+@@ -1075,10 +1075,10 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+ 			return ERR_PTR(-EINVAL);
  
- #include <css.h>
+ 		len -= sizeof(*info);
+-		if (copy_from_user(info, user, sizeof(*info)) != 0)
++		if (copy_from_sockptr(info, arg, sizeof(*info)) != 0)
+ 			return ERR_PTR(-EFAULT);
  
-@@ -68,3 +69,75 @@ out:
- 		    scn, scn_found, dev_found);
- 	return schid;
+-		user += sizeof(*info);
++		sockptr_advance(arg, sizeof(*info));
+ 	}
+ 	info->name[sizeof(info->name) - 1] = '\0';
+ 
+@@ -1092,13 +1092,13 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+ 	if (!mem)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	if (copy_from_user(mem, user, len) == 0)
++	if (copy_from_sockptr(mem, arg, len) == 0)
+ 		return mem;
+ 
+ 	vfree(mem);
+ 	return ERR_PTR(-EFAULT);
  }
-+
-+/*
-+ * css_enable: enable the subchannel with the specified ISC
-+ * @schid: Subchannel Identifier
-+ * @isc  : number of the interruption subclass to use
-+ * Return value:
-+ *   On success: 0
-+ *   On error the CC of the faulty instruction
-+ *      or -1 if the retry count is exceeded.
-+ */
-+int css_enable(int schid, int isc)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int retry_count = 0;
-+	uint16_t flags;
-+	int cc;
-+
-+	/* Read the SCHIB for this subchannel */
-+	cc = stsch(schid, &schib);
-+	if (cc) {
-+		report_info("stsch: sch %08x failed with cc=%d", schid, cc);
-+		return cc;
-+	}
-+
-+	flags = PMCW_ENABLE | (isc << PMCW_ISC_SHIFT);
-+	if ((pmcw->flags & (PMCW_ISC_MASK | PMCW_ENABLE)) == flags) {
-+		report_info("stsch: sch %08x already enabled", schid);
-+		return 0;
-+	}
-+
-+retry:
-+	/* Update the SCHIB to enable the channel and set the ISC */
-+	pmcw->flags &= ~PMCW_ISC_MASK;
-+	pmcw->flags |= flags;
-+
-+	/* Tell the CSS we want to modify the subchannel */
-+	cc = msch(schid, &schib);
-+	if (cc) {
-+		/*
-+		 * If the subchannel is status pending or
-+		 * if a function is in progress,
-+		 * we consider both cases as errors.
-+		 */
-+		report_info("msch: sch %08x failed with cc=%d", schid, cc);
-+		return cc;
-+	}
-+
-+	/*
-+	 * Read the SCHIB again to verify the enablement
-+	 */
-+	cc = stsch(schid, &schib);
-+	if (cc) {
-+		report_info("stsch: updating sch %08x failed with cc=%d",
-+			    schid, cc);
-+		return cc;
-+	}
-+
-+	if ((pmcw->flags & flags) == flags) {
-+		report_info("stsch: sch %08x successfully modified after %d retries",
-+			    schid, retry_count);
-+		return 0;
-+	}
-+
-+	if (retry_count++ < MAX_ENABLE_RETRIES) {
-+		mdelay(10); /* the hardware was not ready, give it some time */
-+		goto retry;
-+	}
-+
-+	report_info("msch: modifying sch %08x failed after %d retries. pmcw flags: %04x",
-+		    schid, retry_count, pmcw->flags);
-+	return -1;
-+}
-diff --git a/s390x/css.c b/s390x/css.c
-index e19ffc8..f314a0c 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -31,11 +31,26 @@ static void test_enumerate(void)
- 	report(0, "No I/O device found");
- }
+-EXPORT_SYMBOL_GPL(xt_copy_counters_from_user);
++EXPORT_SYMBOL_GPL(xt_copy_counters);
  
-+static void test_enable(void)
-+{
-+	int cc;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+
-+	cc = css_enable(test_device_sid, IO_SCH_ISC);
-+
-+	report(cc == 0, "Enable subchannel %08x", test_device_sid);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
-+	{ "enable (msch)", test_enable },
- 	{ NULL, NULL }
- };
- 
+ #ifdef CONFIG_COMPAT
+ int xt_compat_target_offset(const struct xt_target *target)
 -- 
-2.25.1
+2.27.0
