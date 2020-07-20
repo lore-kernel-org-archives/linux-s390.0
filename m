@@ -1,77 +1,55 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH 14/15] x86/numa: remove redundant iteration over memblock.reserved
-Date: Tue, 28 Jul 2020 08:11:52 +0300
-Message-Id: <20200728051153.1590-15-rppt@kernel.org>
-In-Reply-To: <20200728051153.1590-1-rppt@kernel.org>
-References: <20200728051153.1590-1-rppt@kernel.org>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 09/24] netfilter: remove the unused user argument to do_update_counters
+Date: Mon, 20 Jul 2020 14:47:22 +0200
+Message-Id: <20200720124737.118617-10-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
+References: <20200720124737.118617-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
-
-numa_clear_kernel_node_hotplug() function first traverses numa_meminfo
-regions to set node ID in memblock.reserved and than traverses
-memblock.reserved to update reserved_nodemask to include node IDs that were
-set in the first loop.
-
-Remove redundant traversal over memblock.reserved and update
-reserved_nodemask while iterating over numa_meminfo.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/x86/mm/numa.c | 26 ++++++++++----------------
- 1 file changed, 10 insertions(+), 16 deletions(-)
+ net/bridge/netfilter/ebtables.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index 8ee952038c80..4078abd33938 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -498,31 +498,25 @@ static void __init numa_clear_kernel_node_hotplug(void)
- 	 * and use those ranges to set the nid in memblock.reserved.
- 	 * This will split up the memblock regions along node
- 	 * boundaries and will set the node IDs as well.
-+	 *
-+	 * The nid will also be set in reserved_nodemask which is later
-+	 * used to clear MEMBLOCK_HOTPLUG flag.
-+	 *
-+	 * [ Note, when booting with mem=nn[kMG] or in a kdump kernel,
-+	 *   numa_meminfo might not include all memblock.reserved
-+	 *   memory ranges, because quirks such as trim_snb_memory()
-+	 *   reserve specific pages for Sandy Bridge graphics.
-+	 *   These ranges will remain with nid == MAX_NUMNODES. ]
- 	 */
- 	for (i = 0; i < numa_meminfo.nr_blks; i++) {
- 		struct numa_memblk *mb = numa_meminfo.blk + i;
- 		int ret;
+diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
+index fe13108af1f542..12f8929667bf43 100644
+--- a/net/bridge/netfilter/ebtables.c
++++ b/net/bridge/netfilter/ebtables.c
+@@ -1242,9 +1242,8 @@ void ebt_unregister_table(struct net *net, struct ebt_table *table,
  
- 		ret = memblock_set_node(mb->start, mb->end - mb->start, &memblock.reserved, mb->nid);
-+		node_set(mb->nid, reserved_nodemask);
- 		WARN_ON_ONCE(ret);
- 	}
+ /* userspace just supplied us with counters */
+ static int do_update_counters(struct net *net, const char *name,
+-				struct ebt_counter __user *counters,
+-				unsigned int num_counters,
+-				const void __user *user, unsigned int len)
++			      struct ebt_counter __user *counters,
++			      unsigned int num_counters, unsigned int len)
+ {
+ 	int i, ret;
+ 	struct ebt_counter *tmp;
+@@ -1299,7 +1298,7 @@ static int update_counters(struct net *net, const void __user *user,
+ 		return -EINVAL;
  
--	/*
--	 * Now go over all reserved memblock regions, to construct a
--	 * node mask of all kernel reserved memory areas.
--	 *
--	 * [ Note, when booting with mem=nn[kMG] or in a kdump kernel,
--	 *   numa_meminfo might not include all memblock.reserved
--	 *   memory ranges, because quirks such as trim_snb_memory()
--	 *   reserve specific pages for Sandy Bridge graphics. ]
--	 */
--	for_each_memblock(reserved, mb_region) {
--		int nid = memblock_get_region_node(mb_region);
--
--		if (nid != MAX_NUMNODES)
--			node_set(nid, reserved_nodemask);
--	}
--
- 	/*
- 	 * Finally, clear the MEMBLOCK_HOTPLUG flag for all memory
- 	 * belonging to the reserved node mask.
+ 	return do_update_counters(net, hlp.name, hlp.counters,
+-				hlp.num_counters, user, len);
++				  hlp.num_counters, len);
+ }
+ 
+ static inline int ebt_obj_to_user(char __user *um, const char *_name,
+@@ -2231,7 +2230,7 @@ static int compat_update_counters(struct net *net, void __user *user,
+ 		return update_counters(net, user, len);
+ 
+ 	return do_update_counters(net, hlp.name, compat_ptr(hlp.counters),
+-					hlp.num_counters, user, len);
++				  hlp.num_counters, len);
+ }
+ 
+ static int compat_do_ebt_get_ctl(struct sock *sk, int cmd,
 -- 
-2.26.2
+2.27.0
