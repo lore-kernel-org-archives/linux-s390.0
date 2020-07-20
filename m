@@ -1,201 +1,137 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:29479 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726514AbgGCNjj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:39:39 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 6/9] s390/vmem: cleanup empty page tables
-Date: Fri,  3 Jul 2020 15:39:14 +0200
-Message-Id: <20200703133917.39045-7-david@redhat.com>
-In-Reply-To: <20200703133917.39045-1-david@redhat.com>
-References: <20200703133917.39045-1-david@redhat.com>
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 14/24] net/ipv4: merge ip_options_get and ip_options_get_from_user
+Date: Mon, 20 Jul 2020 14:47:27 +0200
+Message-Id: <20200720124737.118617-15-hch@lst.de>
+In-Reply-To: <20200720124737.118617-1-hch@lst.de>
+References: <20200720124737.118617-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-Let's cleanup empty page tables. Consider only page tables that fully
-fall into the idendity mapping and the vmemmap range.
+Use the sockptr_t type to merge the versions.
 
-As there are no valid accesses to vmem/vmemmap within non-populated ranges,
-the single tlb flush at the end should be sufficient.
-
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/mm/vmem.c | 98 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 97 insertions(+), 1 deletion(-)
+ include/net/ip.h       |  5 ++---
+ net/ipv4/ip_options.c  | 43 +++++++++++-------------------------------
+ net/ipv4/ip_sockglue.c |  7 ++++---
+ 3 files changed, 17 insertions(+), 38 deletions(-)
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index aa968f67d7f9f..5239130770b7b 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -63,6 +63,15 @@ pte_t __ref *vmem_pte_alloc(void)
- 	return pte;
- }
+diff --git a/include/net/ip.h b/include/net/ip.h
+index 3d34acc95ca825..d66ad3a9522081 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -23,6 +23,7 @@
+ #include <linux/in.h>
+ #include <linux/skbuff.h>
+ #include <linux/jhash.h>
++#include <linux/sockptr.h>
  
-+static void vmem_pte_free(unsigned long *table)
-+{
-+	/* We don't expect boot memory to be removed ever. */
-+	if (!slab_is_available() ||
-+	    WARN_ON_ONCE(PageReserved(virt_to_page(table))))
-+		return;
-+	page_table_free(&init_mm, table);
-+}
-+
- /*
-  * Add a physical memory range to the 1:1 mapping.
-  */
-@@ -168,6 +177,21 @@ static void remove_pte_table(pmd_t *pmd, unsigned long addr,
- 		update_page_count(PG_DIRECT_MAP_4K, -pages);
- }
- 
-+static void try_free_pte_table(pmd_t *pmd, unsigned long start)
-+{
-+	pte_t *pte;
-+	int i;
-+
-+	/* We can safely assume this is fully in 1:1 mapping & vmemmap area */
-+	pte = pte_offset_kernel(pmd, start);
-+	for (i = 0; i < PTRS_PER_PTE; i++, pte++)
-+		if (!pte_none(*pte))
-+			return;
-+
-+	vmem_pte_free(__va(pmd_deref(*pmd)));
-+	pmd_clear(pmd);
-+}
-+
- static void remove_pmd_table(pud_t *pud, unsigned long addr,
- 			     unsigned long end, bool direct)
- {
-@@ -194,12 +218,36 @@ static void remove_pmd_table(pud_t *pud, unsigned long addr,
- 		}
- 
- 		remove_pte_table(pmd, addr, next, direct);
-+		try_free_pte_table(pmd, addr & PMD_MASK);
- 	}
- 
- 	if (direct)
- 		update_page_count(PG_DIRECT_MAP_1M, -pages);
- }
- 
-+static void try_free_pmd_table(pud_t *pud, unsigned long start)
-+{
-+	const unsigned long end = start + PUD_SIZE;
-+	pmd_t *pmd;
-+	int i;
-+
-+	/* Don't mess with any tables not fully in 1:1 mapping & vmemmap area */
-+	if (end > VMALLOC_START)
-+		return;
-+#ifdef CONFIG_KASAN
-+	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
-+		return;
-+#endif
-+
-+	pmd = pmd_offset(pud, start);
-+	for (i = 0; i < PTRS_PER_PMD; i++, pmd++)
-+		if (!pmd_none(*pmd))
-+			return;
-+
-+	vmem_free_pages(pud_deref(*pud), CRST_ALLOC_ORDER);
-+	pud_clear(pud);
-+}
-+
- static void remove_pud_table(p4d_t *p4d, unsigned long addr,
- 			     unsigned long end, bool direct)
- {
-@@ -224,12 +272,36 @@ static void remove_pud_table(p4d_t *p4d, unsigned long addr,
- 		}
- 
- 		remove_pmd_table(pud, addr, next, direct);
-+		try_free_pmd_table(pud, addr & PUD_MASK);
- 	}
- 
- 	if (direct)
- 		update_page_count(PG_DIRECT_MAP_2G, -pages);
- }
- 
-+static void try_free_pud_table(p4d_t *p4d, unsigned long start)
-+{
-+	const unsigned long end = start + P4D_SIZE;
-+	pud_t *pud;
-+	int i;
-+
-+	/* Don't mess with any tables not fully in 1:1 mapping & vmemmap area */
-+	if (end > VMALLOC_START)
-+		return;
-+#ifdef CONFIG_KASAN
-+	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
-+		return;
-+#endif
-+
-+	pud = pud_offset(p4d, start);
-+	for (i = 0; i < PTRS_PER_PUD; i++, pud++)
-+		if (!pud_none(*pud))
-+			return;
-+
-+	vmem_free_pages(p4d_deref(*p4d), CRST_ALLOC_ORDER);
-+	p4d_clear(p4d);
-+}
-+
- static void remove_p4d_table(pgd_t *pgd, unsigned long addr,
- 			     unsigned long end, bool direct)
- {
-@@ -244,9 +316,33 @@ static void remove_p4d_table(pgd_t *pgd, unsigned long addr,
- 			continue;
- 
- 		remove_pud_table(p4d, addr, next, direct);
-+		try_free_pud_table(p4d, addr & P4D_MASK);
+ #include <net/inet_sock.h>
+ #include <net/route.h>
+@@ -707,9 +708,7 @@ int __ip_options_compile(struct net *net, struct ip_options *opt,
+ int ip_options_compile(struct net *net, struct ip_options *opt,
+ 		       struct sk_buff *skb);
+ int ip_options_get(struct net *net, struct ip_options_rcu **optp,
+-		   unsigned char *data, int optlen);
+-int ip_options_get_from_user(struct net *net, struct ip_options_rcu **optp,
+-			     unsigned char __user *data, int optlen);
++		   sockptr_t data, int optlen);
+ void ip_options_undo(struct ip_options *opt);
+ void ip_forward_options(struct sk_buff *skb);
+ int ip_options_rcv_srr(struct sk_buff *skb, struct net_device *dev);
+diff --git a/net/ipv4/ip_options.c b/net/ipv4/ip_options.c
+index ddaa01ec2bce82..948747aac4e2d0 100644
+--- a/net/ipv4/ip_options.c
++++ b/net/ipv4/ip_options.c
+@@ -519,15 +519,20 @@ void ip_options_undo(struct ip_options *opt)
  	}
  }
  
-+static void try_free_p4d_table(pgd_t *pgd, unsigned long start)
-+{
-+	const unsigned long end = start + PGDIR_SIZE;
-+	p4d_t *p4d;
-+	int i;
-+
-+	/* Don't mess with any tables not fully in 1:1 mapping & vmemmap area */
-+	if (end > VMALLOC_START)
-+		return;
-+#ifdef CONFIG_KASAN
-+	if (start < KASAN_SHADOW_END && KASAN_SHADOW_START > end)
-+		return;
-+#endif
-+
-+	p4d = p4d_offset(pgd, start);
-+	for (i = 0; i < PTRS_PER_P4D; i++, p4d++)
-+		if (!p4d_none(*p4d))
-+			return;
-+
-+	vmem_free_pages(pgd_deref(*pgd), CRST_ALLOC_ORDER);
-+	pgd_clear(pgd);
-+}
-+
- static void remove_pagetable(unsigned long start, unsigned long end,
- 			     bool direct)
+-static struct ip_options_rcu *ip_options_get_alloc(const int optlen)
++int ip_options_get(struct net *net, struct ip_options_rcu **optp,
++		   sockptr_t data, int optlen)
  {
-@@ -264,6 +360,7 @@ static void remove_pagetable(unsigned long start, unsigned long end,
- 			continue;
+-	return kzalloc(sizeof(struct ip_options_rcu) + ((optlen + 3) & ~3),
++	struct ip_options_rcu *opt;
++
++	opt = kzalloc(sizeof(struct ip_options_rcu) + ((optlen + 3) & ~3),
+ 		       GFP_KERNEL);
+-}
++	if (!opt)
++		return -ENOMEM;
++	if (optlen && copy_from_sockptr(opt->opt.__data, data, optlen)) {
++		kfree(opt);
++		return -EFAULT;
++	}
  
- 		remove_p4d_table(pgd, addr, next, direct);
-+		try_free_p4d_table(pgd, addr & PGDIR_MASK);
- 	}
+-static int ip_options_get_finish(struct net *net, struct ip_options_rcu **optp,
+-				 struct ip_options_rcu *opt, int optlen)
+-{
+ 	while (optlen & 3)
+ 		opt->opt.__data[optlen++] = IPOPT_END;
+ 	opt->opt.optlen = optlen;
+@@ -540,32 +545,6 @@ static int ip_options_get_finish(struct net *net, struct ip_options_rcu **optp,
+ 	return 0;
+ }
  
- 	flush_tlb_kernel_range(start, end);
-@@ -271,7 +368,6 @@ static void remove_pagetable(unsigned long start, unsigned long end,
- 
- /*
-  * Remove a physical memory range from the 1:1 mapping.
-- * Currently only invalidates page table entries.
-  */
- static void vmem_remove_range(unsigned long start, unsigned long size)
+-int ip_options_get_from_user(struct net *net, struct ip_options_rcu **optp,
+-			     unsigned char __user *data, int optlen)
+-{
+-	struct ip_options_rcu *opt = ip_options_get_alloc(optlen);
+-
+-	if (!opt)
+-		return -ENOMEM;
+-	if (optlen && copy_from_user(opt->opt.__data, data, optlen)) {
+-		kfree(opt);
+-		return -EFAULT;
+-	}
+-	return ip_options_get_finish(net, optp, opt, optlen);
+-}
+-
+-int ip_options_get(struct net *net, struct ip_options_rcu **optp,
+-		   unsigned char *data, int optlen)
+-{
+-	struct ip_options_rcu *opt = ip_options_get_alloc(optlen);
+-
+-	if (!opt)
+-		return -ENOMEM;
+-	if (optlen)
+-		memcpy(opt->opt.__data, data, optlen);
+-	return ip_options_get_finish(net, optp, opt, optlen);
+-}
+-
+ void ip_forward_options(struct sk_buff *skb)
  {
+ 	struct   ip_options *opt	= &(IPCB(skb)->opt);
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index ac495b0cff8ffb..b12f39b52008a3 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -280,7 +280,8 @@ int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
+ 			err = cmsg->cmsg_len - sizeof(struct cmsghdr);
+ 
+ 			/* Our caller is responsible for freeing ipc->opt */
+-			err = ip_options_get(net, &ipc->opt, CMSG_DATA(cmsg),
++			err = ip_options_get(net, &ipc->opt,
++					     KERNEL_SOCKPTR(CMSG_DATA(cmsg)),
+ 					     err < 40 ? err : 40);
+ 			if (err)
+ 				return err;
+@@ -940,8 +941,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 
+ 		if (optlen > 40)
+ 			goto e_inval;
+-		err = ip_options_get_from_user(sock_net(sk), &opt,
+-					       optval, optlen);
++		err = ip_options_get(sock_net(sk), &opt, USER_SOCKPTR(optval),
++					      optlen);
+ 		if (err)
+ 			break;
+ 		old = rcu_dereference_protected(inet->inet_opt,
 -- 
-2.26.2
+2.27.0
