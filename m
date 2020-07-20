@@ -1,62 +1,47 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:38671 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729009AbgGUJzY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 21 Jul 2020 05:55:24 -0400
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH 03/24] net: add a new sockptr_t type
-Date: Tue, 21 Jul 2020 09:55:20 +0000
-Message-ID: <9b7ae3245bad474db2a3889bc1c1a329@AcuMS.aculab.com>
+Received: from mail.kernel.org ([198.145.29.99]:56244 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726486AbgGTRzq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Jul 2020 13:55:46 -0400
+Date: Mon, 20 Jul 2020 10:55:43 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+Subject: Re: [PATCH 03/24] net: add a new sockptr_t type
+Message-ID: <20200720175543.GF1292162@gmail.com>
 References: <20200720124737.118617-1-hch@lst.de>
- <20200720124737.118617-4-hch@lst.de> <20200720163748.GA1292162@gmail.com>
-In-Reply-To: <20200720163748.GA1292162@gmail.com>
-Content-Language: en-US
+ <20200720124737.118617-4-hch@lst.de>
+ <20200720163748.GA1292162@gmail.com>
+ <20200720174322.GA21785@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200720174322.GA21785@lst.de>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: 'Eric Biggers' <ebiggers@kernel.org>, Christoph Hellwig <hch@lst.de>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, "linux-hams@vger.kernel.org" <linux-hams@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-can@vger.kernel.org" <linux-can@vger.kernel.org>, "dccp@vger.kernel.org" <dccp@vger.kernel.org>, "linux-decnet-user@lists.sourceforge.net" <linux-decnet-user@lists.sourceforge.net>, "linux-wpan@vger.kernel.org" <linux-wpan@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "mptcp@lists.01.org" <mptcp@lists.01.org>, "lvs-devel@vger.kernel.org" <lvs-devel@vger.kernel.org>, "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>, "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>, "tipc-discussion@lists.sourceforge.net" <tipc-discussion@lists.sourceforge.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-From: Eric Biggers
-> Sent: 20 July 2020 17:38
-...
-> How does this not introduce a massive security hole when
-> CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE?
+On Mon, Jul 20, 2020 at 07:43:22PM +0200, Christoph Hellwig wrote:
+> On Mon, Jul 20, 2020 at 09:37:48AM -0700, Eric Biggers wrote:
+> > How does this not introduce a massive security hole when
+> > CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE?
+> > 
+> > AFAICS, userspace can pass in a pointer >= TASK_SIZE,
+> > and this code makes it be treated as a kernel pointer.
 > 
-> AFAICS, userspace can pass in a pointer >= TASK_SIZE,
-> and this code makes it be treated as a kernel pointer.
+> Yeah, we'll need to validate that before initializing the pointer.
+> 
+> But thinking this a little further:  doesn't this mean any
+> set_fs(KERNEL_DS) that has other user pointers than the one it is
+> intended for has the same issue?  Pretty much all of these are gone
+> in mainline now, but in older stable kernels there might be some
+> interesting cases, especially in the compat ioctl handlers.
 
-One thought I've had is that on 64-bit architectures there
-is almost always some part of the KVA that can never be valid
-and is larger than the maximum size of a user VA.
+Yes.  I thought that eliminating that class of bug is one of the main
+motivations for your "remove set_fs" work.  See commit 128394eff343
+("sg_write()/bsg_write() is not fit to be called under KERNEL_DS") for a case
+where this type of bug was fixed.
 
-If the user address is offset into this invalid area
-then it can always be distinguished from a kernel address.
+Are you aware of any specific cases that weren't already fixed?  If there are
+any, they need to be urgently fixed.
 
-Indeed it may be worth considering offsetting kernel
-addresses as well.
-
-This forces code to use the correct accessors.
-
-It doesn't solve the problem for 32bit systems with
-CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE since
-they are likely to have all 32bit addresses available
-to both use and kernel.
-
-If you end up with a 'fat pointer' then it may be worth
-adding the length and making it a 'buffer descriptor'.
-This can then be passed by address and the reduced
-number of parameters will probably offset the cost
-of the extra indirection.
-
-The read/write functions could then take the 'buffer descriptor',
-offset and length as parameters.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+- Eric
