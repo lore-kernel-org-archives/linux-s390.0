@@ -1,33 +1,113 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:48463 "EHLO verein.lst.de"
+Received: from mail.kernel.org ([198.145.29.99]:50816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728966AbgGTRn2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Jul 2020 13:43:28 -0400
-Date: Mon, 20 Jul 2020 19:43:22 +0200
-From: Christoph Hellwig <hch@lst.de>
+        id S1730889AbgGTQhv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 20 Jul 2020 12:37:51 -0400
+Date: Mon, 20 Jul 2020 09:37:48 -0700
+From: Eric Biggers <ebiggers@kernel.org>
 Subject: Re: [PATCH 03/24] net: add a new sockptr_t type
-Message-ID: <20200720174322.GA21785@lst.de>
-References: <20200720124737.118617-1-hch@lst.de> <20200720124737.118617-4-hch@lst.de> <20200720163748.GA1292162@gmail.com>
+Message-ID: <20200720163748.GA1292162@gmail.com>
+References: <20200720124737.118617-1-hch@lst.de>
+ <20200720124737.118617-4-hch@lst.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20200720163748.GA1292162@gmail.com>
+In-Reply-To: <20200720124737.118617-4-hch@lst.de>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Christoph Hellwig <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-On Mon, Jul 20, 2020 at 09:37:48AM -0700, Eric Biggers wrote:
-> How does this not introduce a massive security hole when
-> CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE?
+On Mon, Jul 20, 2020 at 02:47:16PM +0200, Christoph Hellwig wrote:
+> Add a uptr_t type that can hold a pointer to either a user or kernel
+> memory region, and simply helpers to copy to and from it.  For
+> architectures like x86 that have non-overlapping user and kernel
+> address space it just is a union and uses a TASK_SIZE check to
+> select the proper copy routine.  For architectures with overlapping
+> address spaces a flag to indicate the address space is used instead.
 > 
-> AFAICS, userspace can pass in a pointer >= TASK_SIZE,
-> and this code makes it be treated as a kernel pointer.
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  include/linux/sockptr.h | 121 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 121 insertions(+)
+>  create mode 100644 include/linux/sockptr.h
+> 
+> diff --git a/include/linux/sockptr.h b/include/linux/sockptr.h
+> new file mode 100644
+> index 00000000000000..e41dfa52555dec
+> --- /dev/null
+> +++ b/include/linux/sockptr.h
+> @@ -0,0 +1,121 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +/*
+> + * Copyright (c) 2020 Christoph Hellwig.
+> + *
+> + * Support for "universal" pointers that can point to either kernel or userspace
+> + * memory.
+> + */
+> +#ifndef _LINUX_SOCKPTR_H
+> +#define _LINUX_SOCKPTR_H
+> +
+> +#include <linux/slab.h>
+> +#include <linux/uaccess.h>
+> +
+> +#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
+> +typedef union {
+> +	void		*kernel;
+> +	void __user	*user;
+> +} sockptr_t;
+> +
+> +static inline bool sockptr_is_kernel(sockptr_t sockptr)
+> +{
+> +	return (unsigned long)sockptr.kernel >= TASK_SIZE;
+> +}
+> +
+> +static inline sockptr_t KERNEL_SOCKPTR(void *p)
+> +{
+> +	return (sockptr_t) { .kernel = p };
+> +}
+> +#else /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
+> +typedef struct {
+> +	union {
+> +		void		*kernel;
+> +		void __user	*user;
+> +	};
+> +	bool		is_kernel : 1;
+> +} sockptr_t;
+> +
+> +static inline bool sockptr_is_kernel(sockptr_t sockptr)
+> +{
+> +	return sockptr.is_kernel;
+> +}
+> +
+> +static inline sockptr_t KERNEL_SOCKPTR(void *p)
+> +{
+> +	return (sockptr_t) { .kernel = p, .is_kernel = true };
+> +}
+> +#endif /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
+> +
+> +static inline sockptr_t USER_SOCKPTR(void __user *p)
+> +{
+> +	return (sockptr_t) { .user = p };
+> +}
+> +
+> +static inline bool sockptr_is_null(sockptr_t sockptr)
+> +{
+> +	return !sockptr.user && !sockptr.kernel;
+> +}
+> +
+> +static inline int copy_from_sockptr(void *dst, sockptr_t src, size_t size)
+> +{
+> +	if (!sockptr_is_kernel(src))
+> +		return copy_from_user(dst, src.user, size);
+> +	memcpy(dst, src.kernel, size);
+> +	return 0;
+> +}
 
-Yeah, we'll need to validate that before initializing the pointer.
+How does this not introduce a massive security hole when
+CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE?
 
-But thinking this a little further:  doesn't this mean any
-set_fs(KERNEL_DS) that has other user pointers than the one it is
-intended for has the same issue?  Pretty much all of these are gone
-in mainline now, but in older stable kernels there might be some
-interesting cases, especially in the compat ioctl handlers.
+AFAICS, userspace can pass in a pointer >= TASK_SIZE,
+and this code makes it be treated as a kernel pointer.
+
+- Eric
