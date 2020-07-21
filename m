@@ -1,62 +1,30 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:24558 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731612AbgGVJqO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jul 2020 05:46:14 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 1/9] s390/vmem: rename vmem_add_mem() to vmem_add_range()
-Date: Wed, 22 Jul 2020 11:45:50 +0200
-Message-Id: <20200722094558.9828-2-david@redhat.com>
-In-Reply-To: <20200722094558.9828-1-david@redhat.com>
-References: <20200722094558.9828-1-david@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39314 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726425AbgGUAwk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 20:52:40 -0400
+Date: Mon, 20 Jul 2020 17:52:39 -0700 (PDT)
+Message-Id: <20200720.175239.84496358252925760.davem@davemloft.net>
+Subject: Re: [PATCH net 0/2] net/smc: fixes 2020-07-20
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200720142429.17916-1-kgraul@linux.ibm.com>
+References: <20200720142429.17916-1-kgraul@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Let's match the name to vmem_remove_range().
+From: Karsten Graul <kgraul@linux.ibm.com>
+Date: Mon, 20 Jul 2020 16:24:27 +0200
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- arch/s390/mm/vmem.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> Please apply the following patch series for smc to netdev's net tree.
+> 
+> Patch 1 fixes a problem with a buffer that is not put back when the
+> connection was killed in the meantime.
+> Patch 2 fixes a wrong behaviour when the maximum dmb buffer count
+> exceeded.
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 3b9e71654c37b..66c5333020ead 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -57,7 +57,7 @@ pte_t __ref *vmem_pte_alloc(void)
- /*
-  * Add a physical memory range to the 1:1 mapping.
-  */
--static int vmem_add_mem(unsigned long start, unsigned long size)
-+static int vmem_add_range(unsigned long start, unsigned long size)
- {
- 	unsigned long pgt_prot, sgt_prot, r3_prot;
- 	unsigned long pages4k, pages1m, pages2g;
-@@ -308,7 +308,7 @@ int vmem_add_mapping(unsigned long start, unsigned long size)
- 		return -ERANGE;
- 
- 	mutex_lock(&vmem_mutex);
--	ret = vmem_add_mem(start, size);
-+	ret = vmem_add_range(start, size);
- 	if (ret)
- 		vmem_remove_range(start, size);
- 	mutex_unlock(&vmem_mutex);
-@@ -325,7 +325,7 @@ void __init vmem_map_init(void)
- 	struct memblock_region *reg;
- 
- 	for_each_memblock(memory, reg)
--		vmem_add_mem(reg->base, reg->size);
-+		vmem_add_range(reg->base, reg->size);
- 	__set_memory((unsigned long)_stext,
- 		     (unsigned long)(_etext - _stext) >> PAGE_SHIFT,
- 		     SET_MEMORY_RO | SET_MEMORY_X);
--- 
-2.26.2
+Series applied, thank you.
