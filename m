@@ -1,196 +1,307 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4146 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729684AbgG3PBd (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35390 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726687AbgGUMzO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Jul 2020 11:01:33 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 2/4] s390/qeth: integrate RX refill worker with NAPI
-Date: Thu, 30 Jul 2020 17:01:19 +0200
-Message-Id: <20200730150121.18005-3-jwi@linux.ibm.com>
-In-Reply-To: <20200730150121.18005-1-jwi@linux.ibm.com>
-References: <20200730150121.18005-1-jwi@linux.ibm.com>
+        Tue, 21 Jul 2020 08:55:14 -0400
+Date: Tue, 21 Jul 2020 14:55:04 +0200
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH 3/3] s390x: Ultavisor guest API test
+Message-ID: <20200721145504.6ae2cb40@ibm-vm>
+In-Reply-To: <20200717145813.62573-4-frankja@linux.ibm.com>
+References: <20200717145813.62573-1-frankja@linux.ibm.com>
+        <20200717145813.62573-4-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com
 
-Running a RX refill outside of NAPI context is inherently racy, even
-though the worker is only started for an entirely idle RX ring.
-From the moment that the worker has replenished parts of the RX ring,
-the HW can use those RX buffers, raise an IRQ and cause our NAPI code to
-run concurrently to the RX refill worker.
+btw, s/Ultavisor/Ultravisor/ in the patch title (the R is missing!)
 
-Instead let the worker schedule our NAPI instance, and refill the RX
-ring from there. Keeping accurate count of how many buffers still need
-to be refilled also removes some quirky arithmetic from the low-level
-code.
+On Fri, 17 Jul 2020 10:58:13 -0400
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Fixes: b333293058aa ("qeth: add support for af_iucv HiperSockets transport")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h      |  2 +-
- drivers/s390/net/qeth_core_main.c | 40 +++++++++++++++++++------------
- drivers/s390/net/qeth_l2_main.c   |  1 -
- drivers/s390/net/qeth_l3_main.c   |  1 -
- 4 files changed, 26 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 3d54c8bbfa86..ecfd6d152e86 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -764,6 +764,7 @@ struct qeth_rx {
- 	u8 buf_element;
- 	int e_offset;
- 	int qdio_err;
-+	u8 bufs_refill;
- };
- 
- struct carrier_info {
-@@ -833,7 +834,6 @@ struct qeth_card {
- 	struct napi_struct napi;
- 	struct qeth_rx rx;
- 	struct delayed_work buffer_reclaim_work;
--	int reclaim_index;
- 	struct work_struct close_dev_work;
- };
- 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index b356ee5de9f8..c2e44853ac1a 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3492,20 +3492,15 @@ static int qeth_check_qdio_errors(struct qeth_card *card,
- 	return 0;
- }
- 
--static void qeth_queue_input_buffer(struct qeth_card *card, int index)
-+static unsigned int qeth_rx_refill_queue(struct qeth_card *card,
-+					 unsigned int count)
- {
- 	struct qeth_qdio_q *queue = card->qdio.in_q;
- 	struct list_head *lh;
--	int count;
- 	int i;
- 	int rc;
- 	int newcount = 0;
- 
--	count = (index < queue->next_buf_to_init)?
--		card->qdio.in_buf_pool.buf_count -
--		(queue->next_buf_to_init - index) :
--		card->qdio.in_buf_pool.buf_count -
--		(queue->next_buf_to_init + QDIO_MAX_BUFFERS_PER_Q - index);
- 	/* only requeue at a certain threshold to avoid SIGAs */
- 	if (count >= QETH_IN_BUF_REQUEUE_THRESHOLD(card)) {
- 		for (i = queue->next_buf_to_init;
-@@ -3533,12 +3528,11 @@ static void qeth_queue_input_buffer(struct qeth_card *card, int index)
- 				i++;
- 			if (i == card->qdio.in_buf_pool.buf_count) {
- 				QETH_CARD_TEXT(card, 2, "qsarbw");
--				card->reclaim_index = index;
- 				schedule_delayed_work(
- 					&card->buffer_reclaim_work,
- 					QETH_RECLAIM_WORK_TIME);
- 			}
--			return;
-+			return 0;
- 		}
- 
- 		/*
-@@ -3555,7 +3549,10 @@ static void qeth_queue_input_buffer(struct qeth_card *card, int index)
- 		}
- 		queue->next_buf_to_init = QDIO_BUFNR(queue->next_buf_to_init +
- 						     count);
-+		return count;
- 	}
-+
-+	return 0;
- }
- 
- static void qeth_buffer_reclaim_work(struct work_struct *work)
-@@ -3563,8 +3560,10 @@ static void qeth_buffer_reclaim_work(struct work_struct *work)
- 	struct qeth_card *card = container_of(work, struct qeth_card,
- 		buffer_reclaim_work.work);
- 
--	QETH_CARD_TEXT_(card, 2, "brw:%x", card->reclaim_index);
--	qeth_queue_input_buffer(card, card->reclaim_index);
-+	local_bh_disable();
-+	napi_schedule(&card->napi);
-+	/* kick-start the NAPI softirq: */
-+	local_bh_enable();
- }
- 
- static void qeth_handle_send_error(struct qeth_card *card,
-@@ -5743,6 +5742,7 @@ static unsigned int qeth_extract_skbs(struct qeth_card *card, int budget,
- 
- static unsigned int qeth_rx_poll(struct qeth_card *card, int budget)
- {
-+	struct qeth_rx *ctx = &card->rx;
- 	unsigned int work_done = 0;
- 
- 	while (budget > 0) {
-@@ -5779,8 +5779,10 @@ static unsigned int qeth_rx_poll(struct qeth_card *card, int budget)
- 			QETH_CARD_STAT_INC(card, rx_bufs);
- 			qeth_put_buffer_pool_entry(card, buffer->pool_entry);
- 			buffer->pool_entry = NULL;
--			qeth_queue_input_buffer(card, card->rx.b_index);
- 			card->rx.b_count--;
-+			ctx->bufs_refill++;
-+			ctx->bufs_refill -= qeth_rx_refill_queue(card,
-+								 ctx->bufs_refill);
- 
- 			/* Step forward to next buffer: */
- 			card->rx.b_index = QDIO_BUFNR(card->rx.b_index + 1);
-@@ -5820,9 +5822,16 @@ int qeth_poll(struct napi_struct *napi, int budget)
- 	if (card->options.cq == QETH_CQ_ENABLED)
- 		qeth_cq_poll(card);
- 
--	/* Exhausted the RX budget. Keep IRQ disabled, we get called again. */
--	if (budget && work_done >= budget)
--		return work_done;
-+	if (budget) {
-+		struct qeth_rx *ctx = &card->rx;
-+
-+		/* Process any substantial refill backlog: */
-+		ctx->bufs_refill -= qeth_rx_refill_queue(card, ctx->bufs_refill);
-+
-+		/* Exhausted the RX budget. Keep IRQ disabled, we get called again. */
-+		if (work_done >= budget)
-+			return work_done;
-+	}
- 
- 	if (napi_complete_done(napi, work_done) &&
- 	    qdio_start_irq(CARD_DDEV(card)))
-@@ -7009,6 +7018,7 @@ int qeth_stop(struct net_device *dev)
- 	}
- 
- 	napi_disable(&card->napi);
-+	cancel_delayed_work_sync(&card->buffer_reclaim_work);
- 	qdio_stop_irq(CARD_DDEV(card));
- 
- 	return 0;
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index ef7a2db7a724..38e97bbde9ed 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -285,7 +285,6 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 	if (card->state == CARD_STATE_SOFTSETUP) {
- 		qeth_clear_ipacmd_list(card);
- 		qeth_drain_output_queues(card);
--		cancel_delayed_work_sync(&card->buffer_reclaim_work);
- 		card->state = CARD_STATE_DOWN;
- 	}
- 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 15a12487ff7a..fe44b0249e34 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1169,7 +1169,6 @@ static void qeth_l3_stop_card(struct qeth_card *card)
- 		qeth_l3_clear_ip_htable(card, 1);
- 		qeth_clear_ipacmd_list(card);
- 		qeth_drain_output_queues(card);
--		cancel_delayed_work_sync(&card->buffer_reclaim_work);
- 		card->state = CARD_STATE_DOWN;
- 	}
- 
--- 
-2.17.1
+> Test the error conditions of guest 2 Ultravisor calls, namely:
+>      * Query Ultravisor information
+>      * Set shared access
+>      * Remove shared access
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/asm/uv.h  |  68 +++++++++++++++++++
+>  s390x/Makefile      |   1 +
+>  s390x/unittests.cfg |   3 +
+>  s390x/uv-guest.c    | 156
+> ++++++++++++++++++++++++++++++++++++++++++++ 4 files changed, 228
+> insertions(+) create mode 100644 lib/s390x/asm/uv.h
+>  create mode 100644 s390x/uv-guest.c
+> 
+> diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
+> new file mode 100644
+> index 0000000..14ab5cc
+> --- /dev/null
+> +++ b/lib/s390x/asm/uv.h
+> @@ -0,0 +1,68 @@
+> +/*
+> + * s390x Ultravisor related definitions
+> + *
+> + * Copyright (c) 2020 IBM Corp
+> + *
+> + * Authors:
+> + *  Janosch Frank <frankja@linux.ibm.com>
+> + *
+> + * This code is free software; you can redistribute it and/or modify
+> it
+> + * under the terms of the GNU General Public License version 2.
+> + */
+> +#ifndef UV_H
+> +#define UV_H
+> +
+> +#define UVC_RC_EXECUTED		0x0001
+> +#define UVC_RC_INV_CMD		0x0002
+> +#define UVC_RC_INV_STATE	0x0003
+> +#define UVC_RC_INV_LEN		0x0005
+> +#define UVC_RC_NO_RESUME	0x0007
+> +
+> +#define UVC_CMD_QUI			0x0001
+> +#define UVC_CMD_SET_SHARED_ACCESS	0x1000
+> +#define UVC_CMD_REMOVE_SHARED_ACCESS	0x1001
+> +
+> +/* Bits in installed uv calls */
+> +enum uv_cmds_inst {
+> +	BIT_UVC_CMD_QUI = 0,
+> +	BIT_UVC_CMD_SET_SHARED_ACCESS = 8,
+> +	BIT_UVC_CMD_REMOVE_SHARED_ACCESS = 9,
+> +};
+> +
+> +struct uv_cb_header {
+> +	u16 len;
+> +	u16 cmd;	/* Command Code */
+> +	u16 rc;		/* Response Code */
+> +	u16 rrc;	/* Return Reason Code */
+> +} __attribute__((packed))  __attribute__((aligned(8)));
+> +
+> +struct uv_cb_qui {
+> +	struct uv_cb_header header;
+> +	u64 reserved08;
+> +	u64 inst_calls_list[4];
+> +	u64 reserved30[15];
+> +} __attribute__((packed))  __attribute__((aligned(8)));
+> +
+> +struct uv_cb_share {
+> +	struct uv_cb_header header;
+> +	u64 reserved08[3];
+> +	u64 paddr;
+> +	u64 reserved28;
+> +} __attribute__((packed))  __attribute__((aligned(8)));
+> +
+> +static inline int uv_call(unsigned long r1, unsigned long r2)
+> +{
+> +	int cc;
+> +
+> +	asm volatile(
+> +		"0:	.insn rrf,0xB9A40000,%[r1],%[r2],0,0\n"
+> +		"		brc	3,0b\n"
+> +		"		ipm	%[cc]\n"
+> +		"		srl	%[cc],28\n"
+> +		: [cc] "=d" (cc)
+> +		: [r1] "a" (r1), [r2] "a" (r2)
+> +		: "memory", "cc");
+> +	return cc;
+> +}
+> +
+> +#endif
+> diff --git a/s390x/Makefile b/s390x/Makefile
+> index 0f54bf4..c2213ad 100644
+> --- a/s390x/Makefile
+> +++ b/s390x/Makefile
+> @@ -18,6 +18,7 @@ tests += $(TEST_DIR)/skrf.elf
+>  tests += $(TEST_DIR)/smp.elf
+>  tests += $(TEST_DIR)/sclp.elf
+>  tests += $(TEST_DIR)/css.elf
+> +tests += $(TEST_DIR)/uv-guest.elf
+>  tests_binary = $(patsubst %.elf,%.bin,$(tests))
+>  
+>  all: directories test_cases test_cases_binary
+> diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+> index b35269b..38c3257 100644
+> --- a/s390x/unittests.cfg
+> +++ b/s390x/unittests.cfg
+> @@ -92,3 +92,6 @@ extra_params = -device virtio-net-ccw
+>  [skrf]
+>  file = skrf.elf
+>  smp = 2
+> +
+> +[uv-guest]
+> +file = uv-guest.elf
+> \ No newline at end of file
+> diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
+> new file mode 100644
+> index 0000000..0cb5fae
+> --- /dev/null
+> +++ b/s390x/uv-guest.c
+> @@ -0,0 +1,156 @@
+> +/*
+> + * Guest Ultravisor Call tests
+> + *
+> + * Copyright (c) 2020 IBM Corp
+> + *
+> + * Authors:
+> + *  Janosch Frank <frankja@linux.ibm.com>
+> + *
+> + * This code is free software; you can redistribute it and/or modify
+> it
+> + * under the terms of the GNU General Public License version 2.
+> + */
+> +
+> +#include <libcflat.h>
+> +#include <alloc_page.h>
+> +#include <asm/page.h>
+> +#include <asm/asm-offsets.h>
+> +#include <asm/interrupt.h>
+> +#include <asm/facility.h>
+> +#include <asm/uv.h>
+> +
+> +static inline int share(unsigned long addr, u16 cmd)
+> +{
+> +	struct uv_cb_share uvcb = {
+> +		.header.cmd = cmd,
+> +		.header.len = sizeof(uvcb),
+> +		.paddr = addr
+> +	};
+> +
+> +	uv_call(0, (u64)&uvcb);
+> +	return uvcb.header.rc;
+> +}
+> +
+> +static inline int uv_set_shared(unsigned long addr)
+> +{
+> +	return share(addr, UVC_CMD_SET_SHARED_ACCESS);
+> +}
+> +
+> +static inline int uv_remove_shared(unsigned long addr)
+> +{
+> +	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
+> +}
+> +
+> +static void test_priv(void)
+> +{
+> +	struct uv_cb_header uvcb = {};
+> +
+> +	report_prefix_push("privileged");
+> +
+> +	report_prefix_push("query");
+> +	expect_pgm_int();
+> +	uvcb.cmd = UVC_CMD_QUI;
+> +	uvcb.len = sizeof(struct uv_cb_qui);
+> +	enter_pstate();
+> +	uv_call(0, (u64)&uvcb);
+> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("share");
+> +	expect_pgm_int();
+> +	enter_pstate();
+> +	uv_set_shared(0x42000);
+> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("unshare");
+> +	expect_pgm_int();
+> +	enter_pstate();
+> +	uv_remove_shared(0x42000);
+> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_pop();
+> +}
+> +
+> +static void test_query(void)
+> +{
+> +	struct uv_cb_qui uvcb = {
+> +		.header.cmd = UVC_CMD_QUI,
+> +		.header.len = sizeof(uvcb) - 8,
+> +	};
+> +
+> +	report_prefix_push("query");
+> +	uv_call(0, (u64)&uvcb);
+> +	report(uvcb.header.rc == UVC_RC_INV_LEN, "length");
+> +
+> +	uvcb.header.len = sizeof(uvcb);
+> +	uv_call(0, (u64)&uvcb);
+> +	report(uvcb.header.rc == UVC_RC_EXECUTED, "successful
+> query"); +
+> +	/*
+> +	 * These bits have been introduced with the very first
+> +	 * Ultravisor version and are expected to always be available
+> +	 * because they are basic building blocks.
+> +	 */
+> +	report(uvcb.inst_calls_list[0] & (1UL << (63 -
+> BIT_UVC_CMD_QUI)),
+> +	       "query indicated");
+> +	report(uvcb.inst_calls_list[0] & (1UL << (63 -
+> BIT_UVC_CMD_SET_SHARED_ACCESS)),
+> +	       "share indicated");
+> +	report(uvcb.inst_calls_list[0] & (1UL << (63 -
+> BIT_UVC_CMD_REMOVE_SHARED_ACCESS)),
+> +	       "unshare indicated");
+> +	report_prefix_pop();
+> +}
+> +
+> +static void test_sharing(void)
+> +{
+> +	unsigned long mem = (unsigned long)alloc_page();
+> +	struct uv_cb_share uvcb = {
+> +		.header.cmd = UVC_CMD_SET_SHARED_ACCESS,
+> +		.header.len = sizeof(uvcb) - 8,
+> +	};
+> +
+> +	report_prefix_push("share");
+> +	uv_call(0, (u64)&uvcb);
+> +	report(uvcb.header.rc == UVC_RC_INV_LEN, "length");
+> +	report(uv_set_shared(mem) == UVC_RC_EXECUTED, "share");
+> +	report_prefix_pop();
+> +
+> +	report_prefix_push("unshare");
+> +	uvcb.header.cmd = UVC_CMD_REMOVE_SHARED_ACCESS;
+> +	uv_call(0, (u64)&uvcb);
+> +	report(uvcb.header.rc == UVC_RC_INV_LEN, "length");
+> +	report(uv_remove_shared(mem) == UVC_RC_EXECUTED, "unshare");
+> +	free_page((void *)mem);
+> +	report_prefix_pop();
+> +
+> +	report_prefix_pop();
+> +}
+> +
+> +static void test_invalid(void)
+> +{
+> +	struct uv_cb_header uvcb = {
+> +		.len = 16,
+> +		.cmd = 0x4242,
+> +	};
+> +
+> +	uv_call(0, (u64)&uvcb);
+> +	report(uvcb.rc == UVC_RC_INV_CMD, "invalid command");
+> +}
+> +
+> +int main(void)
+> +{
+> +	bool has_uvc = test_facility(158);
+> +
+> +	report_prefix_push("uvc");
+> +	if (!has_uvc) {
+> +		report_skip("Ultravisor call facility is not
+> available");
+> +		goto done;
+> +	}
+> +
+> +	test_priv();
+> +	test_invalid();
+> +	test_query();
+> +	test_sharing();
+> +done:
+> +	return report_summary();
+> +}
