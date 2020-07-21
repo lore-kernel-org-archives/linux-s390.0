@@ -1,32 +1,27 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29274 "EHLO
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56412 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726558AbgGWMB0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 08:01:26 -0400
-Date: Thu, 23 Jul 2020 14:01:12 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [kvm-unit-tests PATCH 1/3] s390x: Add custom pgm cleanup
- function
-Message-ID: <20200723140112.6525ddba.cohuck@redhat.com>
-In-Reply-To: <20200717145813.62573-2-frankja@linux.ibm.com>
+        with ESMTP id S1726719AbgGUHMp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 21 Jul 2020 03:12:45 -0400
+Subject: Re: [kvm-unit-tests PATCH 1/3] s390x: Add custom pgm cleanup function
 References: <20200717145813.62573-1-frankja@linux.ibm.com>
-        <20200717145813.62573-2-frankja@linux.ibm.com>
+ <20200717145813.62573-2-frankja@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <c8a26cde-5e1f-5e49-c631-2bed93d911ea@redhat.com>
+Date: Tue, 21 Jul 2020 09:12:34 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200717145813.62573-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, imbrenda@linux.ibm.com
 
-On Fri, 17 Jul 2020 10:58:11 -0400
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
+On 17/07/2020 16.58, Janosch Frank wrote:
 > Sometimes we need to do cleanup which we don't necessarily want to add
 > to interrupt.c, so lets add a way to register a cleanup function.
-
-s/lets/let's/ :)
-
 > 
 > Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 > ---
@@ -72,10 +67,9 @@ s/lets/let's/ :)
 > +	if (pgm_int_func)
 > +		return (*pgm_int_func)();
 > +
-
-Maybe rather call this function, if set, instead of fixup_pgm_int() in
-handle_pgm_int()? Feels a bit cleaner to me.
-		
 >  	switch (lc->pgm_int_code) {
 >  	case PGM_INT_CODE_PRIVILEGED_OPERATION:
 >  		/* Normal operation is in supervisor state, so this exception
+> 
+
+Reviewed-by: Thomas Huth <thuth@redhat.com>
