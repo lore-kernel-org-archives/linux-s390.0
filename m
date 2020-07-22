@@ -1,54 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:54306 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728411AbgGBBXj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 1 Jul 2020 21:23:39 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 35/53] s390/kasan: fix early pgm check handler execution
-Date: Wed,  1 Jul 2020 21:21:44 -0400
-Message-Id: <20200702012202.2700645-35-sashal@kernel.org>
-In-Reply-To: <20200702012202.2700645-1-sashal@kernel.org>
-References: <20200702012202.2700645-1-sashal@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:24558 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731612AbgGVJqO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jul 2020 05:46:14 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v2 1/9] s390/vmem: rename vmem_add_mem() to vmem_add_range()
+Date: Wed, 22 Jul 2020 11:45:50 +0200
+Message-Id: <20200722094558.9828-2-david@redhat.com>
+In-Reply-To: <20200722094558.9828-1-david@redhat.com>
+References: <20200722094558.9828-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Alexander Egorenkov <egorenar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+Let's match the name to vmem_remove_range().
 
-[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
-
-Currently if early_pgm_check_handler is called it ends up in pgm check
-loop. The problem is that early_pgm_check_handler is instrumented by
-KASAN but executed without DAT flag enabled which leads to addressing
-exception when KASAN checks try to access shadow memory.
-
-Fix that by executing early handlers with DAT flag on under KASAN as
-expected.
-
-Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kernel/early.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/mm/vmem.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index cd241ee66eff4..0782772318580 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -170,6 +170,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index 3b9e71654c37b..66c5333020ead 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -57,7 +57,7 @@ pte_t __ref *vmem_pte_alloc(void)
+ /*
+  * Add a physical memory range to the 1:1 mapping.
+  */
+-static int vmem_add_mem(unsigned long start, unsigned long size)
++static int vmem_add_range(unsigned long start, unsigned long size)
+ {
+ 	unsigned long pgt_prot, sgt_prot, r3_prot;
+ 	unsigned long pages4k, pages1m, pages2g;
+@@ -308,7 +308,7 @@ int vmem_add_mapping(unsigned long start, unsigned long size)
+ 		return -ERANGE;
  
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
+ 	mutex_lock(&vmem_mutex);
+-	ret = vmem_add_mem(start, size);
++	ret = vmem_add_range(start, size);
+ 	if (ret)
+ 		vmem_remove_range(start, size);
+ 	mutex_unlock(&vmem_mutex);
+@@ -325,7 +325,7 @@ void __init vmem_map_init(void)
+ 	struct memblock_region *reg;
+ 
+ 	for_each_memblock(memory, reg)
+-		vmem_add_mem(reg->base, reg->size);
++		vmem_add_range(reg->base, reg->size);
+ 	__set_memory((unsigned long)_stext,
+ 		     (unsigned long)(_etext - _stext) >> PAGE_SHIFT,
+ 		     SET_MEMORY_RO | SET_MEMORY_X);
 -- 
-2.25.1
+2.26.2
