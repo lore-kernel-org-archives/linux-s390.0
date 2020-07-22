@@ -1,9 +1,9 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3160 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13464 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726615AbgG3LcV (ORCPT
+        by vger.kernel.org with ESMTP id S1726462AbgGVLsk (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Jul 2020 07:32:21 -0400
+        Wed, 22 Jul 2020 07:48:40 -0400
 Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
  protection
 References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
@@ -12,8 +12,8 @@ References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
  <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
  <20200715074917-mutt-send-email-mst@kernel.org>
 From: Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <e41d039c-5fe2-b9db-093b-c0dddcc2ad4f@linux.ibm.com>
-Date: Thu, 30 Jul 2020 13:31:20 +0200
+Message-ID: <be992b00-de1d-4499-ee7f-b2b2b5a8879d@linux.ibm.com>
+Date: Wed, 22 Jul 2020 13:48:24 +0200
 MIME-Version: 1.0
 In-Reply-To: <20200715074917-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
@@ -24,8 +24,6 @@ List-ID: <linux-s390.vger.kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
 Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-
-gentle ping.
 
 
 On 2020-07-15 13:51, Michael S. Tsirkin wrote:
@@ -116,6 +114,22 @@ On 2020-07-15 13:51, Michael S. Tsirkin wrote:
 >>>> -- 
 >>>> 2.25.1
 > 
+
+Hi Michael,
+
+I am not sure to understand the problem so I may propose a wrong 
+solution but, let's try:
+
+Would a callback registration instead of a weak function solve the problem?
+The registrating function in core could test a parameter to check if the 
+callback is in sync with the VIRTIO core.
+
+What do you think?
+
+Regards,
+Pierre
+
+
 
 -- 
 Pierre Morel
