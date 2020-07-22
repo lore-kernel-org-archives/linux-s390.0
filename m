@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.7 36/53] s390/debug: avoid kernel warning on too large number of pages
-Date: Wed,  1 Jul 2020 21:21:45 -0400
-Message-Id: <20200702012202.2700645-36-sashal@kernel.org>
-In-Reply-To: <20200702012202.2700645-1-sashal@kernel.org>
-References: <20200702012202.2700645-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:53350 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731684AbgGVJqW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Jul 2020 05:46:22 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v2 4/9] s390/vmemmap: cleanup when vmemmap_populate() fails
+Date: Wed, 22 Jul 2020 11:45:53 +0200
+Message-Id: <20200722094558.9828-5-david@redhat.com>
+In-Reply-To: <20200722094558.9828-1-david@redhat.com>
+References: <20200722094558.9828-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+Cleanup what we partially added in case vmemmap_populate() fails. For
+vmem, this is already handled by vmem_add_mapping().
 
-[ Upstream commit 827c4913923e0b441ba07ba4cc41e01181102303 ]
-
-When specifying insanely large debug buffers a kernel warning is
-printed. The debug code does handle the error gracefully, though.
-Instead of duplicating the check let us silence the warning to
-avoid crashes when panic_on_warn is used.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kernel/debug.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/s390/mm/vmem.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/debug.c b/arch/s390/kernel/debug.c
-index 6d321f5f101d6..7184d55d87aae 100644
---- a/arch/s390/kernel/debug.c
-+++ b/arch/s390/kernel/debug.c
-@@ -198,9 +198,10 @@ static debug_entry_t ***debug_areas_alloc(int pages_per_area, int nr_areas)
- 	if (!areas)
- 		goto fail_malloc_areas;
- 	for (i = 0; i < nr_areas; i++) {
-+		/* GFP_NOWARN to avoid user triggerable WARN, we handle fails */
- 		areas[i] = kmalloc_array(pages_per_area,
- 					 sizeof(debug_entry_t *),
--					 GFP_KERNEL);
-+					 GFP_KERNEL | __GFP_NOWARN);
- 		if (!areas[i])
- 			goto fail_malloc_areas2;
- 		for (j = 0; j < pages_per_area; j++) {
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index 43fe1e2eb90ea..be32a38bb91fd 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -332,8 +332,13 @@ static void vmem_remove_range(unsigned long start, unsigned long size)
+ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
+ 		struct vmem_altmap *altmap)
+ {
++	int ret;
++
+ 	/* We don't care about the node, just use NUMA_NO_NODE on allocations */
+-	return add_pagetable(start, end, false);
++	ret = add_pagetable(start, end, false);
++	if (ret)
++		remove_pagetable(start, end, false);
++	return ret;
+ }
+ 
+ void vmemmap_free(unsigned long start, unsigned long end,
 -- 
-2.25.1
+2.26.2
