@@ -1,115 +1,395 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 19/26] net/ipv6: switch ipv6_flowlabel_opt to sockptr_t
-Date: Thu, 23 Jul 2020 08:09:01 +0200
-Message-Id: <20200723060908.50081-20-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:29980 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730296AbgGVJqQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 22 Jul 2020 05:46:16 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v2 2/9] s390/vmem: consolidate vmem_add_range() and vmem_remove_range()
+Date: Wed, 22 Jul 2020 11:45:51 +0200
+Message-Id: <20200722094558.9828-3-david@redhat.com>
+In-Reply-To: <20200722094558.9828-1-david@redhat.com>
+References: <20200722094558.9828-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: netdev-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+We want to have only a single pagetable walker and reuse the same
+functionality for vmemmap handling. Let's start by consolidating
+vmem_add_range() and vmem_remove_range(), converting it into a
+recursive implementation.
 
-Note that the get case is pretty weird in that it actually copies data
-back to userspace from setsockopt.
+A recursive implementation makes it easier to expand individual cases
+without harming readability. In addition, we minimize traversing the
+whole hierarchy over and over again.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+One change is that we don't unmap large PMDs/PUDs when not completely
+covered by the request, something that should never happen with direct
+mappings, unless one would be removing in other granularity than added,
+which would be broken already.
+
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- include/net/ipv6.h       |  2 +-
- net/ipv6/ip6_flowlabel.c | 16 +++++++++-------
- net/ipv6/ipv6_sockglue.c |  2 +-
- 3 files changed, 11 insertions(+), 9 deletions(-)
+ arch/s390/mm/vmem.c | 317 +++++++++++++++++++++++++++-----------------
+ 1 file changed, 198 insertions(+), 119 deletions(-)
 
-diff --git a/include/net/ipv6.h b/include/net/ipv6.h
-index 262fc88dbd7e2f..4c9d89b5d73268 100644
---- a/include/net/ipv6.h
-+++ b/include/net/ipv6.h
-@@ -406,7 +406,7 @@ struct ipv6_txoptions *fl6_merge_options(struct ipv6_txoptions *opt_space,
- 					 struct ip6_flowlabel *fl,
- 					 struct ipv6_txoptions *fopt);
- void fl6_free_socklist(struct sock *sk);
--int ipv6_flowlabel_opt(struct sock *sk, char __user *optval, int optlen);
-+int ipv6_flowlabel_opt(struct sock *sk, sockptr_t optval, int optlen);
- int ipv6_flowlabel_opt_get(struct sock *sk, struct in6_flowlabel_req *freq,
- 			   int flags);
- int ip6_flowlabel_init(void);
-diff --git a/net/ipv6/ip6_flowlabel.c b/net/ipv6/ip6_flowlabel.c
-index 27ee6de9beffc4..6b3c315f3d461a 100644
---- a/net/ipv6/ip6_flowlabel.c
-+++ b/net/ipv6/ip6_flowlabel.c
-@@ -371,7 +371,7 @@ static int fl6_renew(struct ip6_flowlabel *fl, unsigned long linger, unsigned lo
- 
- static struct ip6_flowlabel *
- fl_create(struct net *net, struct sock *sk, struct in6_flowlabel_req *freq,
--	  char __user *optval, int optlen, int *err_p)
-+	  sockptr_t optval, int optlen, int *err_p)
- {
- 	struct ip6_flowlabel *fl = NULL;
- 	int olen;
-@@ -401,7 +401,8 @@ fl_create(struct net *net, struct sock *sk, struct in6_flowlabel_req *freq,
- 		memset(fl->opt, 0, sizeof(*fl->opt));
- 		fl->opt->tot_len = sizeof(*fl->opt) + olen;
- 		err = -EFAULT;
--		if (copy_from_user(fl->opt+1, optval+CMSG_ALIGN(sizeof(*freq)), olen))
-+		sockptr_advance(optval, CMSG_ALIGN(sizeof(*freq)));
-+		if (copy_from_sockptr(fl->opt + 1, optval, olen))
- 			goto done;
- 
- 		msg.msg_controllen = olen;
-@@ -604,7 +605,7 @@ static int ipv6_flowlabel_renew(struct sock *sk, struct in6_flowlabel_req *freq)
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index 66c5333020ead..177daf389d391 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -54,148 +54,227 @@ pte_t __ref *vmem_pte_alloc(void)
+ 	return pte;
  }
  
- static int ipv6_flowlabel_get(struct sock *sk, struct in6_flowlabel_req *freq,
--		void __user *optval, int optlen)
-+		sockptr_t optval, int optlen)
+-/*
+- * Add a physical memory range to the 1:1 mapping.
+- */
+-static int vmem_add_range(unsigned long start, unsigned long size)
++static void modify_pte_table(pmd_t *pmd, unsigned long addr, unsigned long end,
++			    bool add)
  {
- 	struct ipv6_fl_socklist *sfl, *sfl1 = NULL;
- 	struct ip6_flowlabel *fl, *fl1 = NULL;
-@@ -702,8 +703,9 @@ static int ipv6_flowlabel_get(struct sock *sk, struct in6_flowlabel_req *freq,
- 		goto recheck;
+-	unsigned long pgt_prot, sgt_prot, r3_prot;
+-	unsigned long pages4k, pages1m, pages2g;
+-	unsigned long end = start + size;
+-	unsigned long address = start;
+-	pgd_t *pg_dir;
+-	p4d_t *p4_dir;
+-	pud_t *pu_dir;
+-	pmd_t *pm_dir;
+-	pte_t *pt_dir;
+-	int ret = -ENOMEM;
++	unsigned long prot, pages = 0;
++	pte_t *pte;
  
- 	if (!freq->flr_label) {
--		if (copy_to_user(&((struct in6_flowlabel_req __user *) optval)->flr_label,
--				 &fl->label, sizeof(fl->label))) {
-+		sockptr_advance(optval,
-+				offsetof(struct in6_flowlabel_req, flr_label));
-+		if (copy_to_sockptr(optval, &fl->label, sizeof(fl->label))) {
- 			/* Intentionally ignore fault. */
- 		}
+-	pgt_prot = pgprot_val(PAGE_KERNEL);
+-	sgt_prot = pgprot_val(SEGMENT_KERNEL);
+-	r3_prot = pgprot_val(REGION3_KERNEL);
+-	if (!MACHINE_HAS_NX) {
+-		pgt_prot &= ~_PAGE_NOEXEC;
+-		sgt_prot &= ~_SEGMENT_ENTRY_NOEXEC;
+-		r3_prot &= ~_REGION_ENTRY_NOEXEC;
++	prot = pgprot_val(PAGE_KERNEL);
++	if (!MACHINE_HAS_NX)
++		prot &= ~_PAGE_NOEXEC;
++
++	pte = pte_offset_kernel(pmd, addr);
++	for (; addr < end; addr += PAGE_SIZE, pte++) {
++		if (!add) {
++			if (pte_none(*pte))
++				continue;
++			pte_clear(&init_mm, addr, pte);
++		} else if (pte_none(*pte)) {
++			pte_val(*pte) = addr | prot;
++		} else
++			continue;
++
++		pages++;
  	}
-@@ -716,13 +718,13 @@ static int ipv6_flowlabel_get(struct sock *sk, struct in6_flowlabel_req *freq,
- 	return err;
+-	pages4k = pages1m = pages2g = 0;
+-	while (address < end) {
+-		pg_dir = pgd_offset_k(address);
+-		if (pgd_none(*pg_dir)) {
+-			p4_dir = vmem_crst_alloc(_REGION2_ENTRY_EMPTY);
+-			if (!p4_dir)
+-				goto out;
+-			pgd_populate(&init_mm, pg_dir, p4_dir);
+-		}
+-		p4_dir = p4d_offset(pg_dir, address);
+-		if (p4d_none(*p4_dir)) {
+-			pu_dir = vmem_crst_alloc(_REGION3_ENTRY_EMPTY);
+-			if (!pu_dir)
++
++	update_page_count(PG_DIRECT_MAP_4K, add ? pages : -pages);
++}
++
++static int modify_pmd_table(pud_t *pud, unsigned long addr, unsigned long end,
++			    bool add)
++{
++	unsigned long next, prot, pages = 0;
++	int ret = -ENOMEM;
++	pmd_t *pmd;
++	pte_t *pte;
++
++	prot = pgprot_val(SEGMENT_KERNEL);
++	if (!MACHINE_HAS_NX)
++		prot &= ~_SEGMENT_ENTRY_NOEXEC;
++
++	pmd = pmd_offset(pud, addr);
++	for (; addr < end; addr = next, pmd++) {
++		next = pmd_addr_end(addr, end);
++
++		if (!add) {
++			if (pmd_none(*pmd))
++				continue;
++			if (pmd_large(*pmd) && !add) {
++				if (IS_ALIGNED(addr, PMD_SIZE) &&
++				    IS_ALIGNED(next, PMD_SIZE)) {
++					pmd_clear(pmd);
++					pages++;
++				}
++				continue;
++			}
++		} else if (pmd_none(*pmd)) {
++			if (IS_ALIGNED(addr, PMD_SIZE) &&
++			    IS_ALIGNED(next, PMD_SIZE) &&
++			    MACHINE_HAS_EDAT1 && addr &&
++			    !debug_pagealloc_enabled()) {
++				pmd_val(*pmd) = addr | prot;
++				pages++;
++				continue;
++			}
++			pte = vmem_pte_alloc();
++			if (!pte)
+ 				goto out;
+-			p4d_populate(&init_mm, p4_dir, pu_dir);
+-		}
+-		pu_dir = pud_offset(p4_dir, address);
+-		if (MACHINE_HAS_EDAT2 && pud_none(*pu_dir) && address &&
+-		    !(address & ~PUD_MASK) && (address + PUD_SIZE <= end) &&
+-		     !debug_pagealloc_enabled()) {
+-			pud_val(*pu_dir) = address | r3_prot;
+-			address += PUD_SIZE;
+-			pages2g++;
++			pmd_populate(&init_mm, pmd, pte);
++		} else if (pmd_large(*pmd))
+ 			continue;
+-		}
+-		if (pud_none(*pu_dir)) {
+-			pm_dir = vmem_crst_alloc(_SEGMENT_ENTRY_EMPTY);
+-			if (!pm_dir)
++
++		modify_pte_table(pmd, addr, next, add);
++	}
++	ret = 0;
++out:
++	update_page_count(PG_DIRECT_MAP_1M, add ? pages : -pages);
++	return ret;
++}
++
++static int modify_pud_table(p4d_t *p4d, unsigned long addr, unsigned long end,
++			    bool add)
++{
++	unsigned long next, prot, pages = 0;
++	int ret = -ENOMEM;
++	pud_t *pud;
++	pmd_t *pmd;
++
++	prot = pgprot_val(REGION3_KERNEL);
++	if (!MACHINE_HAS_NX)
++		prot &= ~_REGION_ENTRY_NOEXEC;
++
++	pud = pud_offset(p4d, addr);
++	for (; addr < end; addr = next, pud++) {
++		next = pud_addr_end(addr, end);
++
++		if (!add) {
++			if (pud_none(*pud))
++				continue;
++			if (pud_large(*pud)) {
++				if (IS_ALIGNED(addr, PUD_SIZE) &&
++				    IS_ALIGNED(next, PUD_SIZE)) {
++					pud_clear(pud);
++					pages++;
++				}
++				continue;
++			}
++		} else if (pud_none(*pud)) {
++			if (IS_ALIGNED(addr, PUD_SIZE) &&
++			    IS_ALIGNED(next, PUD_SIZE) &&
++			    MACHINE_HAS_EDAT2 && addr &&
++			    !debug_pagealloc_enabled()) {
++				pud_val(*pud) = addr | prot;
++				pages++;
++				continue;
++			}
++			pmd = vmem_crst_alloc(_SEGMENT_ENTRY_EMPTY);
++			if (!pmd)
+ 				goto out;
+-			pud_populate(&init_mm, pu_dir, pm_dir);
+-		}
+-		pm_dir = pmd_offset(pu_dir, address);
+-		if (MACHINE_HAS_EDAT1 && pmd_none(*pm_dir) && address &&
+-		    !(address & ~PMD_MASK) && (address + PMD_SIZE <= end) &&
+-		    !debug_pagealloc_enabled()) {
+-			pmd_val(*pm_dir) = address | sgt_prot;
+-			address += PMD_SIZE;
+-			pages1m++;
++			pud_populate(&init_mm, pud, pmd);
++		} else if (pud_large(*pud))
+ 			continue;
++
++		ret = modify_pmd_table(pud, addr, next, add);
++		if (ret)
++			goto out;
++	}
++	ret = 0;
++out:
++	update_page_count(PG_DIRECT_MAP_2G, add ? pages : -pages);
++	return ret;
++}
++
++static int modify_p4d_table(pgd_t *pgd, unsigned long addr, unsigned long end,
++			    bool add)
++{
++	unsigned long next;
++	int ret = -ENOMEM;
++	p4d_t *p4d;
++	pud_t *pud;
++
++	p4d = p4d_offset(pgd, addr);
++	for (; addr < end; addr = next, p4d++) {
++		next = p4d_addr_end(addr, end);
++
++		if (!add) {
++			if (p4d_none(*p4d))
++				continue;
++		} else if (p4d_none(*p4d)) {
++			pud = vmem_crst_alloc(_REGION3_ENTRY_EMPTY);
++			if (!pud)
++				goto out;
+ 		}
+-		if (pmd_none(*pm_dir)) {
+-			pt_dir = vmem_pte_alloc();
+-			if (!pt_dir)
++
++		ret = modify_pud_table(p4d, addr, next, add);
++		if (ret)
++			goto out;
++	}
++	ret = 0;
++out:
++	return ret;
++}
++
++static int modify_pagetable(unsigned long start, unsigned long end, bool add)
++{
++	unsigned long addr, next;
++	int ret = -ENOMEM;
++	pgd_t *pgd;
++	p4d_t *p4d;
++
++	if (WARN_ON_ONCE(!PAGE_ALIGNED(start | end)))
++		return -EINVAL;
++
++	for (addr = start; addr < end; addr = next) {
++		next = pgd_addr_end(addr, end);
++		pgd = pgd_offset_k(addr);
++
++		if (!add) {
++			if (pgd_none(*pgd))
++				continue;
++		} else if (pgd_none(*pgd)) {
++			p4d = vmem_crst_alloc(_REGION2_ENTRY_EMPTY);
++			if (!p4d)
+ 				goto out;
+-			pmd_populate(&init_mm, pm_dir, pt_dir);
++			pgd_populate(&init_mm, pgd, p4d);
+ 		}
+ 
+-		pt_dir = pte_offset_kernel(pm_dir, address);
+-		pte_val(*pt_dir) = address | pgt_prot;
+-		address += PAGE_SIZE;
+-		pages4k++;
++		ret = modify_p4d_table(pgd, addr, next, add);
++		if (ret)
++			goto out;
+ 	}
+ 	ret = 0;
+ out:
+-	update_page_count(PG_DIRECT_MAP_4K, pages4k);
+-	update_page_count(PG_DIRECT_MAP_1M, pages1m);
+-	update_page_count(PG_DIRECT_MAP_2G, pages2g);
++	if (!add)
++		flush_tlb_kernel_range(start, end);
+ 	return ret;
  }
  
--int ipv6_flowlabel_opt(struct sock *sk, char __user *optval, int optlen)
-+int ipv6_flowlabel_opt(struct sock *sk, sockptr_t optval, int optlen)
++static int add_pagetable(unsigned long start, unsigned long end)
++{
++	return modify_pagetable(start, end, true);
++}
++
++static int remove_pagetable(unsigned long start, unsigned long end)
++{
++	return modify_pagetable(start, end, false);
++}
++
++/*
++ * Add a physical memory range to the 1:1 mapping.
++ */
++static int vmem_add_range(unsigned long start, unsigned long size)
++{
++	return add_pagetable(start, start + size);
++}
++
+ /*
+  * Remove a physical memory range from the 1:1 mapping.
+  * Currently only invalidates page table entries.
+  */
+ static void vmem_remove_range(unsigned long start, unsigned long size)
  {
- 	struct in6_flowlabel_req freq;
+-	unsigned long pages4k, pages1m, pages2g;
+-	unsigned long end = start + size;
+-	unsigned long address = start;
+-	pgd_t *pg_dir;
+-	p4d_t *p4_dir;
+-	pud_t *pu_dir;
+-	pmd_t *pm_dir;
+-	pte_t *pt_dir;
+-
+-	pages4k = pages1m = pages2g = 0;
+-	while (address < end) {
+-		pg_dir = pgd_offset_k(address);
+-		if (pgd_none(*pg_dir)) {
+-			address += PGDIR_SIZE;
+-			continue;
+-		}
+-		p4_dir = p4d_offset(pg_dir, address);
+-		if (p4d_none(*p4_dir)) {
+-			address += P4D_SIZE;
+-			continue;
+-		}
+-		pu_dir = pud_offset(p4_dir, address);
+-		if (pud_none(*pu_dir)) {
+-			address += PUD_SIZE;
+-			continue;
+-		}
+-		if (pud_large(*pu_dir)) {
+-			pud_clear(pu_dir);
+-			address += PUD_SIZE;
+-			pages2g++;
+-			continue;
+-		}
+-		pm_dir = pmd_offset(pu_dir, address);
+-		if (pmd_none(*pm_dir)) {
+-			address += PMD_SIZE;
+-			continue;
+-		}
+-		if (pmd_large(*pm_dir)) {
+-			pmd_clear(pm_dir);
+-			address += PMD_SIZE;
+-			pages1m++;
+-			continue;
+-		}
+-		pt_dir = pte_offset_kernel(pm_dir, address);
+-		pte_clear(&init_mm, address, pt_dir);
+-		address += PAGE_SIZE;
+-		pages4k++;
+-	}
+-	flush_tlb_kernel_range(start, end);
+-	update_page_count(PG_DIRECT_MAP_4K, -pages4k);
+-	update_page_count(PG_DIRECT_MAP_1M, -pages1m);
+-	update_page_count(PG_DIRECT_MAP_2G, -pages2g);
++	remove_pagetable(start, start + size);
+ }
  
- 	if (optlen < sizeof(freq))
- 		return -EINVAL;
--	if (copy_from_user(&freq, optval, sizeof(freq)))
-+	if (copy_from_sockptr(&freq, optval, sizeof(freq)))
- 		return -EFAULT;
- 
- 	switch (freq.flr_action) {
-diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
-index 119dfaf5f4bb26..3897fb55372d38 100644
---- a/net/ipv6/ipv6_sockglue.c
-+++ b/net/ipv6/ipv6_sockglue.c
-@@ -929,7 +929,7 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
- 		retv = 0;
- 		break;
- 	case IPV6_FLOWLABEL_MGR:
--		retv = ipv6_flowlabel_opt(sk, optval, optlen);
-+		retv = ipv6_flowlabel_opt(sk, USER_SOCKPTR(optval), optlen);
- 		break;
- 	case IPV6_IPSEC_POLICY:
- 	case IPV6_XFRM_POLICY:
+ /*
 -- 
-2.27.0
+2.26.2
