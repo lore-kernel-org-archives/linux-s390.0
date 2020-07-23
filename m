@@ -1,58 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:36723 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731504AbgGAOSn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 1 Jul 2020 10:18:43 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 0/2] s390/mm: don't set ARCH_KEEP_MEMBLOCK
-Date: Wed,  1 Jul 2020 16:18:28 +0200
-Message-Id: <20200701141830.18749-1-david@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47198 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726867AbgGWLOw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 07:14:52 -0400
+Date: Thu, 23 Jul 2020 13:14:47 +0200
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Subject: Re: [PATCH 01/26] bpfilter: fix up a sparse annotation
+Message-ID: <20200723111447.3xj7cidlsspofsja@ltop.local>
+References: <20200723060908.50081-1-hch@lst.de>
+ <20200723060908.50081-2-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200723060908.50081-2-hch@lst.de>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Michael Holzheu <holzheu@linux.vnet.ibm.com>, Mike Rapoport <rppt@linux.ibm.com>, Philipp Rudo <prudo@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-This series is based on the latest s390/features branch, which contains
-"s390/zcore: remove memmap device". [1]
+On Thu, Jul 23, 2020 at 08:08:43AM +0200, Christoph Hellwig wrote:
+> The __user doesn't make sense when casting to an integer type, just
+> switch to a uintptr_t cast which also removes the need for the __force.
 
-Looking into why we still create memblocks for stdnaby/hotplugged memory
-(via add_memory()), I discovered that we might not need ARCH_KEEP_MEMBLOCK
-on s390x after all.
+Feel free to add my:
 
-This is relevant in the context of virtio-mem, where we hotplug a lot of
-small memory blocks (and want to avoid managing unused metadata). But also
-for existing setups, it might help to free up some memory after boot.
+Reviewed-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-Compile-tested on s390x, pseries, arm64, i386, mips64, powernv, sh, and
-x86_64.
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=features
-
-v1 -> v2:
-- "mm/memblock: expose only miminal interface to add/walk physmem"
--- Use inline function for __next_physmem_range
--- Rewrite some comments
-
-RFC -> v1:
-- "s390/zcore: traverse resources instead of memblocks" has been replaced
-  on s390/features by "s390/zcore: remove memmap devic"
-- Add "mm/memblock: expose only miminal interface to add/walk physmem"
--- Sort out section mismatch errors when using physmem after boot without
-   ARCH_KEEP_MEMBLOCK
-- "s390/mm: don't set ARCH_KEEP_MEMBLOCK"
--- Rephrase description
-
-David Hildenbrand (2):
-  mm/memblock: expose only miminal interface to add/walk physmem
-  s390/mm: don't set ARCH_KEEP_MEMBLOCK
-
- arch/s390/Kconfig             |  1 -
- arch/s390/kernel/crash_dump.c |  6 ++--
- include/linux/memblock.h      | 28 ++++++++++++++---
- mm/memblock.c                 | 57 ++++++++++++++++++-----------------
- 4 files changed, 55 insertions(+), 37 deletions(-)
-
--- 
-2.26.2
+-- Luc
