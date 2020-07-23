@@ -1,304 +1,117 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 11 Jul 2020 10:09:56 -0000
-From: "tip-bot2 for Peter Zijlstra" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: locking/core] x86/entry: Fix NMI vs IRQ state tracking
-In-Reply-To: <20200623083721.216740948@infradead.org>
-References: <20200623083721.216740948@infradead.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56456 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726715AbgGWGJd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:33 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 09/26] net/xfrm: switch xfrm_user_policy to sockptr_t
+Date: Thu, 23 Jul 2020 08:08:51 +0200
+Message-Id: <20200723060908.50081-10-hch@lst.de>
+In-Reply-To: <20200723060908.50081-1-hch@lst.de>
+References: <20200723060908.50081-1-hch@lst.de>
 MIME-Version: 1.0
-Message-ID: <159446219664.4006.7079542709989198544.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-The following commit has been merged into the locking/core branch of tip:
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-Commit-ID:     ba1f2b2eaa2a529dba722507c55ff3d761d325dd
-Gitweb:        https://git.kernel.org/tip/ba1f2b2eaa2a529dba722507c55ff3d761d325dd
-Author:        Peter Zijlstra <peterz@infradead.org>
-AuthorDate:    Wed, 27 May 2020 15:50:29 +02:00
-Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Fri, 10 Jul 2020 12:00:01 +02:00
-
-x86/entry: Fix NMI vs IRQ state tracking
-
-While the nmi_enter() users did
-trace_hardirqs_{off_prepare,on_finish}() there was no matching
-lockdep_hardirqs_*() calls to complete the picture.
-
-Introduce idtentry_{enter,exit}_nmi() to enable proper IRQ state
-tracking across the NMIs.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lkml.kernel.org/r/20200623083721.216740948@infradead.org
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/x86/entry/common.c         | 42 ++++++++++++++++++++++++++++----
- arch/x86/include/asm/idtentry.h |  3 ++-
- arch/x86/kernel/nmi.c           |  9 +++----
- arch/x86/kernel/traps.c         | 17 ++++---------
- include/linux/hardirq.h         | 28 ++++++++++++++-------
- 5 files changed, 70 insertions(+), 29 deletions(-)
+ include/net/xfrm.h       | 8 +++++---
+ net/ipv4/ip_sockglue.c   | 3 ++-
+ net/ipv6/ipv6_sockglue.c | 3 ++-
+ net/xfrm/xfrm_state.c    | 6 +++---
+ 4 files changed, 12 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/entry/common.c b/arch/x86/entry/common.c
-index 0521546..63c607d 100644
---- a/arch/x86/entry/common.c
-+++ b/arch/x86/entry/common.c
-@@ -592,7 +592,7 @@ SYSCALL_DEFINE0(ni_syscall)
-  * The return value must be fed into the state argument of
-  * idtentry_exit().
-  */
--idtentry_state_t noinstr idtentry_enter(struct pt_regs *regs)
-+noinstr idtentry_state_t idtentry_enter(struct pt_regs *regs)
- {
- 	idtentry_state_t ret = {
- 		.exit_rcu = false,
-@@ -687,7 +687,7 @@ static void idtentry_exit_cond_resched(struct pt_regs *regs, bool may_sched)
-  * Counterpart to idtentry_enter(). The return value of the entry
-  * function must be fed into the @state argument.
-  */
--void noinstr idtentry_exit(struct pt_regs *regs, idtentry_state_t state)
-+noinstr void idtentry_exit(struct pt_regs *regs, idtentry_state_t state)
- {
- 	lockdep_assert_irqs_disabled();
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index f9e1fda82ddfc0..5e81868b574a73 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -15,6 +15,7 @@
+ #include <linux/audit.h>
+ #include <linux/slab.h>
+ #include <linux/refcount.h>
++#include <linux/sockptr.h>
  
-@@ -731,7 +731,7 @@ void noinstr idtentry_exit(struct pt_regs *regs, idtentry_state_t state)
-  * Invokes enter_from_user_mode() to establish the proper context for
-  * NOHZ_FULL. Otherwise scheduling on exit would not be possible.
-  */
--void noinstr idtentry_enter_user(struct pt_regs *regs)
-+noinstr void idtentry_enter_user(struct pt_regs *regs)
+ #include <net/sock.h>
+ #include <net/dst.h>
+@@ -1609,10 +1610,11 @@ int xfrm6_find_1stfragopt(struct xfrm_state *x, struct sk_buff *skb,
+ void xfrm6_local_rxpmtu(struct sk_buff *skb, u32 mtu);
+ int xfrm4_udp_encap_rcv(struct sock *sk, struct sk_buff *skb);
+ int xfrm6_udp_encap_rcv(struct sock *sk, struct sk_buff *skb);
+-int xfrm_user_policy(struct sock *sk, int optname,
+-		     u8 __user *optval, int optlen);
++int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval,
++		     int optlen);
+ #else
+-static inline int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
++static inline int xfrm_user_policy(struct sock *sk, int optname,
++				   sockptr_t optval, int optlen)
  {
- 	check_user_regs(regs);
- 	enter_from_user_mode();
-@@ -749,13 +749,47 @@ void noinstr idtentry_enter_user(struct pt_regs *regs)
-  *
-  * Counterpart to idtentry_enter_user().
-  */
--void noinstr idtentry_exit_user(struct pt_regs *regs)
-+noinstr void idtentry_exit_user(struct pt_regs *regs)
- {
- 	lockdep_assert_irqs_disabled();
+  	return -ENOPROTOOPT;
+ }
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index a5ea02d7a183eb..da933f99b5d517 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -1322,7 +1322,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 		err = -EPERM;
+ 		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
+ 			break;
+-		err = xfrm_user_policy(sk, optname, optval, optlen);
++		err = xfrm_user_policy(sk, optname, USER_SOCKPTR(optval),
++				       optlen);
+ 		break;
  
- 	prepare_exit_to_usermode(regs);
+ 	case IP_TRANSPARENT:
+diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
+index add8f791229945..56a74707c61741 100644
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -935,7 +935,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 		retv = -EPERM;
+ 		if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
+ 			break;
+-		retv = xfrm_user_policy(sk, optname, optval, optlen);
++		retv = xfrm_user_policy(sk, optname, USER_SOCKPTR(optval),
++					optlen);
+ 		break;
+ 
+ 	case IPV6_ADDR_PREFERENCES:
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 8be2d926acc21d..69520ad3d83bfb 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2264,7 +2264,7 @@ static bool km_is_alive(const struct km_event *c)
+ 	return is_alive;
  }
  
-+noinstr bool idtentry_enter_nmi(struct pt_regs *regs)
-+{
-+	bool irq_state = lockdep_hardirqs_enabled(current);
-+
-+	__nmi_enter();
-+	lockdep_hardirqs_off(CALLER_ADDR0);
-+	lockdep_hardirq_enter();
-+	rcu_nmi_enter();
-+
-+	instrumentation_begin();
-+	trace_hardirqs_off_finish();
-+	ftrace_nmi_enter();
-+	instrumentation_end();
-+
-+	return irq_state;
-+}
-+
-+noinstr void idtentry_exit_nmi(struct pt_regs *regs, bool restore)
-+{
-+	instrumentation_begin();
-+	ftrace_nmi_exit();
-+	if (restore) {
-+		trace_hardirqs_on_prepare();
-+		lockdep_hardirqs_on_prepare(CALLER_ADDR0);
-+	}
-+	instrumentation_end();
-+
-+	rcu_nmi_exit();
-+	lockdep_hardirq_exit();
-+	if (restore)
-+		lockdep_hardirqs_on(CALLER_ADDR0);
-+	__nmi_exit();
-+}
-+
- #ifdef CONFIG_XEN_PV
- #ifndef CONFIG_PREEMPTION
- /*
-diff --git a/arch/x86/include/asm/idtentry.h b/arch/x86/include/asm/idtentry.h
-index 7227225..2b04974 100644
---- a/arch/x86/include/asm/idtentry.h
-+++ b/arch/x86/include/asm/idtentry.h
-@@ -20,6 +20,9 @@ typedef struct idtentry_state {
- idtentry_state_t idtentry_enter(struct pt_regs *regs);
- void idtentry_exit(struct pt_regs *regs, idtentry_state_t state);
- 
-+bool idtentry_enter_nmi(struct pt_regs *regs);
-+void idtentry_exit_nmi(struct pt_regs *regs, bool irq_state);
-+
- /**
-  * DECLARE_IDTENTRY - Declare functions for simple IDT entry points
-  *		      No error code pushed by hardware
-diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-index d7c5e44..4fc9954 100644
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -330,7 +330,6 @@ static noinstr void default_do_nmi(struct pt_regs *regs)
- 	__this_cpu_write(last_nmi_rip, regs->ip);
- 
- 	instrumentation_begin();
--	trace_hardirqs_off_finish();
- 
- 	handled = nmi_handle(NMI_LOCAL, regs);
- 	__this_cpu_add(nmi_stats.normal, handled);
-@@ -417,8 +416,6 @@ static noinstr void default_do_nmi(struct pt_regs *regs)
- 		unknown_nmi_error(reason, regs);
- 
- out:
--	if (regs->flags & X86_EFLAGS_IF)
--		trace_hardirqs_on_prepare();
- 	instrumentation_end();
- }
- 
-@@ -478,6 +475,8 @@ static DEFINE_PER_CPU(unsigned long, nmi_dr7);
- 
- DEFINE_IDTENTRY_RAW(exc_nmi)
+-int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen)
++int xfrm_user_policy(struct sock *sk, int optname, sockptr_t optval, int optlen)
  {
-+	bool irq_state;
-+
- 	if (IS_ENABLED(CONFIG_SMP) && arch_cpu_is_offline(smp_processor_id()))
- 		return;
+ 	int err;
+ 	u8 *data;
+@@ -2274,7 +2274,7 @@ int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen
+ 	if (in_compat_syscall())
+ 		return -EOPNOTSUPP;
  
-@@ -491,14 +490,14 @@ nmi_restart:
+-	if (!optval && !optlen) {
++	if (sockptr_is_null(optval) && !optlen) {
+ 		xfrm_sk_policy_insert(sk, XFRM_POLICY_IN, NULL);
+ 		xfrm_sk_policy_insert(sk, XFRM_POLICY_OUT, NULL);
+ 		__sk_dst_reset(sk);
+@@ -2284,7 +2284,7 @@ int xfrm_user_policy(struct sock *sk, int optname, u8 __user *optval, int optlen
+ 	if (optlen <= 0 || optlen > PAGE_SIZE)
+ 		return -EMSGSIZE;
  
- 	this_cpu_write(nmi_dr7, local_db_save());
+-	data = memdup_user(optval, optlen);
++	data = memdup_sockptr(optval, optlen);
+ 	if (IS_ERR(data))
+ 		return PTR_ERR(data);
  
--	nmi_enter();
-+	irq_state = idtentry_enter_nmi(regs);
- 
- 	inc_irq_stat(__nmi_count);
- 
- 	if (!ignore_nmis)
- 		default_do_nmi(regs);
- 
--	nmi_exit();
-+	idtentry_exit_nmi(regs, irq_state);
- 
- 	local_db_restore(this_cpu_read(nmi_dr7));
- 
-diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
-index 4627f82..cdd7382 100644
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -403,7 +403,7 @@ DEFINE_IDTENTRY_DF(exc_double_fault)
- 	}
- #endif
- 
--	nmi_enter();
-+	idtentry_enter_nmi(regs);
- 	instrumentation_begin();
- 	notify_die(DIE_TRAP, str, regs, error_code, X86_TRAP_DF, SIGSEGV);
- 
-@@ -649,15 +649,12 @@ DEFINE_IDTENTRY_RAW(exc_int3)
- 		instrumentation_end();
- 		idtentry_exit_user(regs);
- 	} else {
--		nmi_enter();
-+		bool irq_state = idtentry_enter_nmi(regs);
- 		instrumentation_begin();
--		trace_hardirqs_off_finish();
- 		if (!do_int3(regs))
- 			die("int3", regs, 0);
--		if (regs->flags & X86_EFLAGS_IF)
--			trace_hardirqs_on_prepare();
- 		instrumentation_end();
--		nmi_exit();
-+		idtentry_exit_nmi(regs, irq_state);
- 	}
- }
- 
-@@ -865,9 +862,8 @@ out:
- static __always_inline void exc_debug_kernel(struct pt_regs *regs,
- 					     unsigned long dr6)
- {
--	nmi_enter();
-+	bool irq_state = idtentry_enter_nmi(regs);
- 	instrumentation_begin();
--	trace_hardirqs_off_finish();
- 
- 	/*
- 	 * If something gets miswired and we end up here for a user mode
-@@ -884,10 +880,8 @@ static __always_inline void exc_debug_kernel(struct pt_regs *regs,
- 
- 	handle_debug(regs, dr6, false);
- 
--	if (regs->flags & X86_EFLAGS_IF)
--		trace_hardirqs_on_prepare();
- 	instrumentation_end();
--	nmi_exit();
-+	idtentry_exit_nmi(regs, irq_state);
- }
- 
- static __always_inline void exc_debug_user(struct pt_regs *regs,
-@@ -903,6 +897,7 @@ static __always_inline void exc_debug_user(struct pt_regs *regs,
- 	instrumentation_begin();
- 
- 	handle_debug(regs, dr6, true);
-+
- 	instrumentation_end();
- 	idtentry_exit_user(regs);
- }
-diff --git a/include/linux/hardirq.h b/include/linux/hardirq.h
-index 03c9fec..754f67a 100644
---- a/include/linux/hardirq.h
-+++ b/include/linux/hardirq.h
-@@ -111,32 +111,42 @@ extern void rcu_nmi_exit(void);
- /*
-  * nmi_enter() can nest up to 15 times; see NMI_BITS.
-  */
--#define nmi_enter()						\
-+#define __nmi_enter()						\
- 	do {							\
-+		lockdep_off();					\
- 		arch_nmi_enter();				\
- 		printk_nmi_enter();				\
--		lockdep_off();					\
- 		BUG_ON(in_nmi() == NMI_MASK);			\
- 		__preempt_count_add(NMI_OFFSET + HARDIRQ_OFFSET);	\
--		rcu_nmi_enter();				\
-+	} while (0)
-+
-+#define nmi_enter()						\
-+	do {							\
-+		__nmi_enter();					\
- 		lockdep_hardirq_enter();			\
-+		rcu_nmi_enter();				\
- 		instrumentation_begin();			\
- 		ftrace_nmi_enter();				\
- 		instrumentation_end();				\
- 	} while (0)
- 
-+#define __nmi_exit()						\
-+	do {							\
-+		BUG_ON(!in_nmi());				\
-+		__preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);	\
-+		printk_nmi_exit();				\
-+		arch_nmi_exit();				\
-+		lockdep_on();					\
-+	} while (0)
-+
- #define nmi_exit()						\
- 	do {							\
- 		instrumentation_begin();			\
- 		ftrace_nmi_exit();				\
- 		instrumentation_end();				\
--		lockdep_hardirq_exit();				\
- 		rcu_nmi_exit();					\
--		BUG_ON(!in_nmi());				\
--		__preempt_count_sub(NMI_OFFSET + HARDIRQ_OFFSET);	\
--		lockdep_on();					\
--		printk_nmi_exit();				\
--		arch_nmi_exit();				\
-+		lockdep_hardirq_exit();				\
-+		__nmi_exit();					\
- 	} while (0)
- 
- #endif /* LINUX_HARDIRQ_H */
+-- 
+2.27.0
