@@ -1,72 +1,137 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55084 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726347AbgGCNV1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 09:21:27 -0400
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 4/7] scsi: docs: remove invalid link and update text for zfcp kernel config
-Date: Fri,  3 Jul 2020 15:20:00 +0200
-Message-Id: <96069b9f4c4f056a515b37e89b2bdfccc282e3d3.1593780621.git.bblock@linux.ibm.com>
-In-Reply-To: <cover.1593780621.git.bblock@linux.ibm.com>
-References: <cover.1593780621.git.bblock@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:35726 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726109AbgGWMbG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 08:31:06 -0400
+Date: Thu, 23 Jul 2020 14:30:15 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH 1/3] s390x: Add custom pgm cleanup
+ function
+Message-ID: <20200723143015.5b4a027f.cohuck@redhat.com>
+In-Reply-To: <8a7c9e38-8d92-0353-b883-368c2dcdec04@linux.ibm.com>
+References: <20200717145813.62573-1-frankja@linux.ibm.com>
+        <20200717145813.62573-2-frankja@linux.ibm.com>
+        <20200723140112.6525ddba.cohuck@redhat.com>
+        <8a7c9e38-8d92-0353-b883-368c2dcdec04@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="Sig_/JnLfsJX0zJJ=2KtzFF3XR2C";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com
 
-IBM decided to retire a lot of the content that was previously hosted on
-"developerworks", and so some of the links we've used for documentation
-are now dead or redirect to some general landing page with no correlation
-to what the links were meant to provide.
+--Sig_/JnLfsJX0zJJ=2KtzFF3XR2C
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Change the provided link in the Kconfig file for zfcp to rather refer to
-our device drivers book that we regularly update and publish for free,
-and whose name hasn't been changed since it was first published.
+On Thu, 23 Jul 2020 14:23:48 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Our hardware is also not called "IBM eServer zSeries" anymore - in fact,
-it hasn't been called like that since 2006. Use a broader term that
-covers different server names over time.
+> On 7/23/20 2:01 PM, Cornelia Huck wrote:
+> > On Fri, 17 Jul 2020 10:58:11 -0400
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >  =20
+> >> Sometimes we need to do cleanup which we don't necessarily want to add
+> >> to interrupt.c, so lets add a way to register a cleanup function. =20
+> >=20
+> > s/lets/let's/ :)
+> >  =20
+> >>
+> >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> >> ---
+> >>  lib/s390x/asm/interrupt.h | 1 +
+> >>  lib/s390x/interrupt.c     | 9 +++++++++
+> >>  2 files changed, 10 insertions(+)
+> >>
+> >> diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
+> >> index 4cfade9..b2a7c83 100644
+> >> --- a/lib/s390x/asm/interrupt.h
+> >> +++ b/lib/s390x/asm/interrupt.h
+> >> @@ -15,6 +15,7 @@
+> >>  #define EXT_IRQ_EXTERNAL_CALL=090x1202
+> >>  #define EXT_IRQ_SERVICE_SIG=090x2401
+> >> =20
+> >> +void register_pgm_int_func(void (*f)(void));
+> >>  void handle_pgm_int(void);
+> >>  void handle_ext_int(void);
+> >>  void handle_mcck_int(void);
+> >> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+> >> index 243b9c2..36ba720 100644
+> >> --- a/lib/s390x/interrupt.c
+> >> +++ b/lib/s390x/interrupt.c
+> >> @@ -16,6 +16,7 @@
+> >> =20
+> >>  static bool pgm_int_expected;
+> >>  static bool ext_int_expected;
+> >> +static void (*pgm_int_func)(void);
+> >>  static struct lowcore *lc;
+> >> =20
+> >>  void expect_pgm_int(void)
+> >> @@ -51,8 +52,16 @@ void check_pgm_int_code(uint16_t code)
+> >>  =09       lc->pgm_int_code);
+> >>  }
+> >> =20
+> >> +void register_pgm_int_func(void (*f)(void))
+> >> +{
+> >> +=09pgm_int_func =3D f;
+> >> +}
+> >> +
+> >>  static void fixup_pgm_int(void)
+> >>  {
+> >> +=09if (pgm_int_func)
+> >> +=09=09return (*pgm_int_func)();
+> >> + =20
+> >=20
+> > Maybe rather call this function, if set, instead of fixup_pgm_int() in
+> > handle_pgm_int()? Feels a bit cleaner to me. =20
+>=20
+> Well it's currently a cleanup function so it should be in
+> fixup_pgm_int() because it fixes up.
+>=20
+> I don't need a handler here like Pierre with his IO changes.
+>=20
+> So it might more sense to change the name of the function ptr and
+> registration function:
+>=20
+> register_pgm_cleanup_func()
+> static void (*pgm_cleanup_func)(void);
 
-Lastly, add a short paragraph about how our HBAs are typically named, to
-have some more tangible references.
+Sounds good.
 
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
----
- drivers/scsi/Kconfig | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+But doesn't that cleanup func run instead of the 'normal' cleanup func?
+I think making that distinction in handle_pgm_int() is clearer.
 
-diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
-index e9ff4cd5fbe9..571473a58f98 100644
---- a/drivers/scsi/Kconfig
-+++ b/drivers/scsi/Kconfig
-@@ -1469,14 +1469,19 @@ config SCSI_SUNESP
- 	  module will be called sun_esp.
- 
- config ZFCP
--	tristate "FCP host bus adapter driver for IBM eServer zSeries"
-+	tristate "FCP host bus adapter driver for IBM mainframes"
- 	depends on S390 && QDIO && SCSI
- 	depends on SCSI_FC_ATTRS
- 	help
--          If you want to access SCSI devices attached to your IBM eServer
--          zSeries by means of Fibre Channel interfaces say Y.
--          For details please refer to the documentation provided by IBM at
--          <http://oss.software.ibm.com/developerworks/opensource/linux390>
-+	  If you want to access SCSI devices attached to your IBM mainframe by
-+	  means of Fibre Channel Protocol host bus adapters say Y.
-+
-+	  Supported HBAs include different models of the FICON Express and FCP
-+	  Express I/O cards.
-+
-+	  For a more complete list, and for more details about setup and
-+	  operation refer to the IBM publication "Device Drivers, Features, and
-+	  Commands", SC33-8411.
- 
-           This driver is also available as a module. This module will be
-           called zfcp. If you want to compile it as a module, say M here
--- 
-2.26.2
+>=20
+> > =09=09 =20
+> >>  =09switch (lc->pgm_int_code) {
+> >>  =09case PGM_INT_CODE_PRIVILEGED_OPERATION:
+> >>  =09=09/* Normal operation is in supervisor state, so this exception =
+=20
+> >  =20
+>=20
+>=20
+
+
+--Sig_/JnLfsJX0zJJ=2KtzFF3XR2C
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEw9DWbcNiT/aowBjO3s9rk8bwL68FAl8ZgtcACgkQ3s9rk8bw
+L69zzw//ZornbWhNu6SEmXBSwgq2SjQGwPsTWAQDiyFStirF59a89s9VLLvxclxM
+loYg0H8mR3AjQWt4scIoVROqzXyDpxW5/JzqTmKgHZXmTEQBvd/peH2uykEPRTxZ
+T9BwtE0yp9mHAqORWHinPSoTfFT1IUQsx6x2jkmfd3+oy09Xesupz7guyEAp0q7Y
+sxfVuVZaeBRyM58e58flg7E7NQM1CU87bmx6UNWc9jsw3FlcH7YZ4ttOVBqA3eZX
+pp92CiSMWnn9eYWu2qUinG9tIxQ4fNYTzevk9EEuhteGXb4Wr7yQ/4+jVQmYJAoq
+IZrQZvvrE7tH2F88rfkG42FmPJaSlR38rxn/Lv3U4DbBpaABPHVwZrd6gThzB3I+
+/bqE/k8meEYbP1rpppNeh8gsLPLOJ14gtWfgK6/IArcSx5wJwfygxhV6kDQSUyoO
+O2j5iksKFYIGJf2CItO4DkT8Lw+SInv/Ln89rfSXZ2RCsJmvKsa+IjS/QZFJrnmV
+WxCdFuKuRL8MGVJsF0l+mBUoWnb104DxmTusPS6syWJBnhQDd0vy0IWYrsxdD3te
+342NmJ8qVH1uXVHObc/irMmB5VwEJROSfxp78VbZOhbWjNL4DvCEb2sUpjkGIc/b
+1cFY2Q5SAPzgonUMloMF/JL65ZfJ0EyQtbOgebEbsGjAgeLdxjs=
+=XrEj
+-----END PGP SIGNATURE-----
+
+--Sig_/JnLfsJX0zJJ=2KtzFF3XR2C--
