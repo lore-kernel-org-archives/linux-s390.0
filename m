@@ -1,268 +1,272 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36034 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729081AbgGPPiI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jul 2020 11:38:08 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 06/10] net/smc: move add link processing for new device into llc layer
-Date: Thu, 16 Jul 2020 17:37:42 +0200
-Message-Id: <20200716153746.77303-7-kgraul@linux.ibm.com>
-In-Reply-To: <20200716153746.77303-1-kgraul@linux.ibm.com>
-References: <20200716153746.77303-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56500 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726649AbgGWGJp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:45 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 16/26] net/ipv4: switch do_ip_setsockopt to sockptr_t
+Date: Thu, 23 Jul 2020 08:08:58 +0200
+Message-Id: <20200723060908.50081-17-hch@lst.de>
+In-Reply-To: <20200723060908.50081-1-hch@lst.de>
+References: <20200723060908.50081-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-When a new ib device is up smc will send an add link invitation to the
-peer if needed. This is currently done with rudimentary flow control.
-Under high workload these add link invitations can disturb other llc
-flows because they arrive unexpected. Fix this by integrating the
-invitations into the normal llc event flow and handle them as a flow.
-While at it, check for already assigned requests in the flow before
-the new add link request is assigned.
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Fixes: 1f90a05d9ff9 ("net/smc: add smcr_port_add() and smcr_link_up() processing")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/smc/smc_core.c | 80 ++++------------------------------------------
- net/smc/smc_llc.c  | 56 ++++++++++++++++++++++++++++----
- net/smc/smc_llc.h  |  2 +-
- 3 files changed, 58 insertions(+), 80 deletions(-)
+ net/ipv4/ip_sockglue.c | 68 ++++++++++++++++++++----------------------
+ 1 file changed, 33 insertions(+), 35 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index e286b3c8c962..2e965de7412d 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -45,18 +45,10 @@ static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
- static atomic_t lgr_cnt = ATOMIC_INIT(0); /* number of existing link groups */
- static DECLARE_WAIT_QUEUE_HEAD(lgrs_deleted);
- 
--struct smc_ib_up_work {
--	struct work_struct	work;
--	struct smc_link_group	*lgr;
--	struct smc_ib_device	*smcibdev;
--	u8			ibport;
--};
--
- static void smc_buf_free(struct smc_link_group *lgr, bool is_rmb,
- 			 struct smc_buf_desc *buf_desc);
- static void __smc_lgr_terminate(struct smc_link_group *lgr, bool soft);
- 
--static void smc_link_up_work(struct work_struct *work);
- static void smc_link_down_work(struct work_struct *work);
- 
- /* return head of link group list and its lock for a given link group */
-@@ -1106,67 +1098,23 @@ static void smc_conn_abort_work(struct work_struct *work)
- 	sock_put(&smc->sk); /* sock_hold done by schedulers of abort_work */
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index b12f39b52008a3..f7f1507b89fe24 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -683,15 +683,15 @@ static int set_mcast_msfilter(struct sock *sk, int ifindex,
+ 	return -EADDRNOTAVAIL;
  }
  
--/* link is up - establish alternate link if applicable */
--static void smcr_link_up(struct smc_link_group *lgr,
--			 struct smc_ib_device *smcibdev, u8 ibport)
--{
--	struct smc_link *link = NULL;
--
--	if (list_empty(&lgr->list) ||
--	    lgr->type == SMC_LGR_SYMMETRIC ||
--	    lgr->type == SMC_LGR_ASYMMETRIC_PEER)
--		return;
--
--	if (lgr->role == SMC_SERV) {
--		/* trigger local add link processing */
--		link = smc_llc_usable_link(lgr);
--		if (!link)
--			return;
--		smc_llc_srv_add_link_local(link);
--	} else {
--		/* invite server to start add link processing */
--		u8 gid[SMC_GID_SIZE];
--
--		if (smc_ib_determine_gid(smcibdev, ibport, lgr->vlan_id, gid,
--					 NULL))
--			return;
--		if (lgr->llc_flow_lcl.type != SMC_LLC_FLOW_NONE) {
--			/* some other llc task is ongoing */
--			wait_event_timeout(lgr->llc_flow_waiter,
--				(list_empty(&lgr->list) ||
--				 lgr->llc_flow_lcl.type == SMC_LLC_FLOW_NONE),
--				SMC_LLC_WAIT_TIME);
--		}
--		/* lgr or device no longer active? */
--		if (!list_empty(&lgr->list) &&
--		    smc_ib_port_active(smcibdev, ibport))
--			link = smc_llc_usable_link(lgr);
--		if (link)
--			smc_llc_send_add_link(link, smcibdev->mac[ibport - 1],
--					      gid, NULL, SMC_LLC_REQ);
--		wake_up(&lgr->llc_flow_waiter);	/* wake up next waiter */
--	}
--}
--
- void smcr_port_add(struct smc_ib_device *smcibdev, u8 ibport)
+-static int copy_group_source_from_user(struct group_source_req *greqs,
+-		void __user *optval, int optlen)
++static int copy_group_source_from_sockptr(struct group_source_req *greqs,
++		sockptr_t optval, int optlen)
  {
--	struct smc_ib_up_work *ib_work;
- 	struct smc_link_group *lgr, *n;
+ 	if (in_compat_syscall()) {
+ 		struct compat_group_source_req gr32;
  
- 	list_for_each_entry_safe(lgr, n, &smc_lgr_list.list, list) {
-+		struct smc_link *link;
-+
- 		if (strncmp(smcibdev->pnetid[ibport - 1], lgr->pnet_id,
- 			    SMC_MAX_PNETID_LEN) ||
- 		    lgr->type == SMC_LGR_SYMMETRIC ||
- 		    lgr->type == SMC_LGR_ASYMMETRIC_PEER)
- 			continue;
--		ib_work = kmalloc(sizeof(*ib_work), GFP_KERNEL);
--		if (!ib_work)
--			continue;
--		INIT_WORK(&ib_work->work, smc_link_up_work);
--		ib_work->lgr = lgr;
--		ib_work->smcibdev = smcibdev;
--		ib_work->ibport = ibport;
--		schedule_work(&ib_work->work);
-+
-+		/* trigger local add link processing */
-+		link = smc_llc_usable_link(lgr);
-+		if (link)
-+			smc_llc_add_link_local(link);
+ 		if (optlen != sizeof(gr32))
+ 			return -EINVAL;
+-		if (copy_from_user(&gr32, optval, sizeof(gr32)))
++		if (copy_from_sockptr(&gr32, optval, sizeof(gr32)))
+ 			return -EFAULT;
+ 		greqs->gsr_interface = gr32.gsr_interface;
+ 		greqs->gsr_group = gr32.gsr_group;
+@@ -699,7 +699,7 @@ static int copy_group_source_from_user(struct group_source_req *greqs,
+ 	} else {
+ 		if (optlen != sizeof(*greqs))
+ 			return -EINVAL;
+-		if (copy_from_user(greqs, optval, sizeof(*greqs)))
++		if (copy_from_sockptr(greqs, optval, sizeof(*greqs)))
+ 			return -EFAULT;
  	}
+ 
+@@ -707,14 +707,14 @@ static int copy_group_source_from_user(struct group_source_req *greqs,
  }
  
-@@ -1249,20 +1197,6 @@ void smcr_port_err(struct smc_ib_device *smcibdev, u8 ibport)
- 	}
- }
- 
--static void smc_link_up_work(struct work_struct *work)
--{
--	struct smc_ib_up_work *ib_work = container_of(work,
--						      struct smc_ib_up_work,
--						      work);
--	struct smc_link_group *lgr = ib_work->lgr;
--
--	if (list_empty(&lgr->list))
--		goto out;
--	smcr_link_up(lgr, ib_work->smcibdev, ib_work->ibport);
--out:
--	kfree(ib_work);
--}
--
- static void smc_link_down_work(struct work_struct *work)
+ static int do_mcast_group_source(struct sock *sk, int optname,
+-		void __user *optval, int optlen)
++		sockptr_t optval, int optlen)
  {
- 	struct smc_link *link = container_of(work, struct smc_link,
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 78704f03e72a..30da040ab5b6 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -895,6 +895,36 @@ int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry)
- 	return rc;
+ 	struct group_source_req greqs;
+ 	struct ip_mreq_source mreqs;
+ 	struct sockaddr_in *psin;
+ 	int omode, add, err;
+ 
+-	err = copy_group_source_from_user(&greqs, optval, optlen);
++	err = copy_group_source_from_sockptr(&greqs, optval, optlen);
+ 	if (err)
+ 		return err;
+ 
+@@ -754,8 +754,7 @@ static int do_mcast_group_source(struct sock *sk, int optname,
+ 	return ip_mc_source(add, omode, sk, &mreqs, greqs.gsr_interface);
  }
  
-+/* as an SMC client, invite server to start the add_link processing */
-+static void smc_llc_cli_add_link_invite(struct smc_link *link,
-+					struct smc_llc_qentry *qentry)
-+{
-+	struct smc_link_group *lgr = smc_get_lgr(link);
-+	struct smc_init_info ini;
-+
-+	if (lgr->type == SMC_LGR_SYMMETRIC ||
-+	    lgr->type == SMC_LGR_ASYMMETRIC_PEER)
-+		goto out;
-+
-+	ini.vlan_id = lgr->vlan_id;
-+	smc_pnet_find_alt_roce(lgr, &ini, link->smcibdev);
-+	if (!ini.ib_dev)
-+		goto out;
-+
-+	smc_llc_send_add_link(link, ini.ib_dev->mac[ini.ib_port - 1],
-+			      ini.ib_gid, NULL, SMC_LLC_REQ);
-+out:
-+	kfree(qentry);
-+}
-+
-+static bool smc_llc_is_local_add_link(union smc_llc_msg *llc)
-+{
-+	if (llc->raw.hdr.common.type == SMC_LLC_ADD_LINK &&
-+	    !llc->add_link.qp_mtu && !llc->add_link.link_num)
-+		return true;
-+	return false;
-+}
-+
- static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
+-static int ip_set_mcast_msfilter(struct sock *sk, void __user *optval,
+-		int optlen)
++static int ip_set_mcast_msfilter(struct sock *sk, sockptr_t optval, int optlen)
  {
- 	struct smc_llc_qentry *qentry;
-@@ -902,7 +932,10 @@ static void smc_llc_process_cli_add_link(struct smc_link_group *lgr)
- 	qentry = smc_llc_flow_qentry_clr(&lgr->llc_flow_lcl);
+ 	struct group_filter *gsf = NULL;
+ 	int err;
+@@ -765,7 +764,7 @@ static int ip_set_mcast_msfilter(struct sock *sk, void __user *optval,
+ 	if (optlen > sysctl_optmem_max)
+ 		return -ENOBUFS;
  
- 	mutex_lock(&lgr->llc_conf_mutex);
--	smc_llc_cli_add_link(qentry->link, qentry);
-+	if (smc_llc_is_local_add_link(&qentry->msg))
-+		smc_llc_cli_add_link_invite(qentry->link, qentry);
-+	else
-+		smc_llc_cli_add_link(qentry->link, qentry);
- 	mutex_unlock(&lgr->llc_conf_mutex);
+-	gsf = memdup_user(optval, optlen);
++	gsf = memdup_sockptr(optval, optlen);
+ 	if (IS_ERR(gsf))
+ 		return PTR_ERR(gsf);
+ 
+@@ -786,7 +785,7 @@ static int ip_set_mcast_msfilter(struct sock *sk, void __user *optval,
+ 	return err;
  }
  
-@@ -1160,14 +1193,14 @@ static void smc_llc_process_srv_add_link(struct smc_link_group *lgr)
- 	mutex_unlock(&lgr->llc_conf_mutex);
- }
- 
--/* enqueue a local add_link req to trigger a new add_link flow, only as SERV */
--void smc_llc_srv_add_link_local(struct smc_link *link)
-+/* enqueue a local add_link req to trigger a new add_link flow */
-+void smc_llc_add_link_local(struct smc_link *link)
+-static int compat_ip_set_mcast_msfilter(struct sock *sk, void __user *optval,
++static int compat_ip_set_mcast_msfilter(struct sock *sk, sockptr_t optval,
+ 		int optlen)
  {
- 	struct smc_llc_msg_add_link add_llc = {0};
+ 	const int size0 = offsetof(struct compat_group_filter, gf_slist);
+@@ -806,7 +805,7 @@ static int compat_ip_set_mcast_msfilter(struct sock *sk, void __user *optval,
+ 	gf32 = p + 4; /* we want ->gf_group and ->gf_slist aligned */
  
- 	add_llc.hd.length = sizeof(add_llc);
- 	add_llc.hd.common.type = SMC_LLC_ADD_LINK;
--	/* no dev and port needed, we as server ignore client data anyway */
-+	/* no dev and port needed */
- 	smc_llc_enqueue(link, (union smc_llc_msg *)&add_llc);
+ 	err = -EFAULT;
+-	if (copy_from_user(gf32, optval, optlen))
++	if (copy_from_sockptr(gf32, optval, optlen))
+ 		goto out_free_gsf;
+ 
+ 	/* numsrc >= (4G-140)/128 overflow in 32 bits */
+@@ -831,7 +830,7 @@ static int compat_ip_set_mcast_msfilter(struct sock *sk, void __user *optval,
  }
  
-@@ -1347,7 +1380,7 @@ static void smc_llc_process_srv_delete_link(struct smc_link_group *lgr)
+ static int ip_mcast_join_leave(struct sock *sk, int optname,
+-		void __user *optval, int optlen)
++		sockptr_t optval, int optlen)
+ {
+ 	struct ip_mreqn mreq = { };
+ 	struct sockaddr_in *psin;
+@@ -839,7 +838,7 @@ static int ip_mcast_join_leave(struct sock *sk, int optname,
  
- 	if (lgr->type == SMC_LGR_SINGLE && !list_empty(&lgr->list)) {
- 		/* trigger setup of asymm alt link */
--		smc_llc_srv_add_link_local(lnk);
-+		smc_llc_add_link_local(lnk);
- 	}
- out:
- 	mutex_unlock(&lgr->llc_conf_mutex);
-@@ -1476,7 +1509,18 @@ static void smc_llc_event_handler(struct smc_llc_qentry *qentry)
- 		if (list_empty(&lgr->list))
- 			goto out;	/* lgr is terminating */
- 		if (lgr->role == SMC_CLNT) {
--			if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK) {
-+			if (smc_llc_is_local_add_link(llc)) {
-+				if (lgr->llc_flow_lcl.type ==
-+				    SMC_LLC_FLOW_ADD_LINK)
-+					break;	/* add_link in progress */
-+				if (smc_llc_flow_start(&lgr->llc_flow_lcl,
-+						       qentry)) {
-+					schedule_work(&lgr->llc_add_link_work);
-+				}
-+				return;
-+			}
-+			if (lgr->llc_flow_lcl.type == SMC_LLC_FLOW_ADD_LINK &&
-+			    !lgr->llc_flow_lcl.qentry) {
- 				/* a flow is waiting for this message */
- 				smc_llc_flow_qentry_set(&lgr->llc_flow_lcl,
- 							qentry);
-diff --git a/net/smc/smc_llc.h b/net/smc/smc_llc.h
-index a5d2fe3eea61..cc00a2ec4e92 100644
---- a/net/smc/smc_llc.h
-+++ b/net/smc/smc_llc.h
-@@ -103,7 +103,7 @@ void smc_llc_send_link_delete_all(struct smc_link_group *lgr, bool ord,
- 				  u32 rsn);
- int smc_llc_cli_add_link(struct smc_link *link, struct smc_llc_qentry *qentry);
- int smc_llc_srv_add_link(struct smc_link *link);
--void smc_llc_srv_add_link_local(struct smc_link *link);
-+void smc_llc_add_link_local(struct smc_link *link);
- int smc_llc_init(void) __init;
+ 	if (optlen < sizeof(struct group_req))
+ 		return -EINVAL;
+-	if (copy_from_user(&greq, optval, sizeof(greq)))
++	if (copy_from_sockptr(&greq, optval, sizeof(greq)))
+ 		return -EFAULT;
  
- #endif /* SMC_LLC_H */
+ 	psin = (struct sockaddr_in *)&greq.gr_group;
+@@ -853,7 +852,7 @@ static int ip_mcast_join_leave(struct sock *sk, int optname,
+ }
+ 
+ static int compat_ip_mcast_join_leave(struct sock *sk, int optname,
+-		void __user *optval, int optlen)
++		sockptr_t optval, int optlen)
+ {
+ 	struct compat_group_req greq;
+ 	struct ip_mreqn mreq = { };
+@@ -861,7 +860,7 @@ static int compat_ip_mcast_join_leave(struct sock *sk, int optname,
+ 
+ 	if (optlen < sizeof(struct compat_group_req))
+ 		return -EINVAL;
+-	if (copy_from_user(&greq, optval, sizeof(greq)))
++	if (copy_from_sockptr(&greq, optval, sizeof(greq)))
+ 		return -EFAULT;
+ 
+ 	psin = (struct sockaddr_in *)&greq.gr_group;
+@@ -875,8 +874,8 @@ static int compat_ip_mcast_join_leave(struct sock *sk, int optname,
+ 	return ip_mc_leave_group(sk, &mreq);
+ }
+ 
+-static int do_ip_setsockopt(struct sock *sk, int level,
+-			    int optname, char __user *optval, unsigned int optlen)
++static int do_ip_setsockopt(struct sock *sk, int level, int optname,
++		sockptr_t optval, unsigned int optlen)
+ {
+ 	struct inet_sock *inet = inet_sk(sk);
+ 	struct net *net = sock_net(sk);
+@@ -910,12 +909,12 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 	case IP_RECVFRAGSIZE:
+ 	case IP_RECVERR_RFC4884:
+ 		if (optlen >= sizeof(int)) {
+-			if (get_user(val, (int __user *) optval))
++			if (copy_from_sockptr(&val, optval, sizeof(val)))
+ 				return -EFAULT;
+ 		} else if (optlen >= sizeof(char)) {
+ 			unsigned char ucval;
+ 
+-			if (get_user(ucval, (unsigned char __user *) optval))
++			if (copy_from_sockptr(&ucval, optval, sizeof(ucval)))
+ 				return -EFAULT;
+ 			val = (int) ucval;
+ 		}
+@@ -926,8 +925,7 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 	if (optname == IP_ROUTER_ALERT)
+ 		return ip_ra_control(sk, val ? 1 : 0, NULL);
+ 	if (ip_mroute_opt(optname))
+-		return ip_mroute_setsockopt(sk, optname, USER_SOCKPTR(optval),
+-					    optlen);
++		return ip_mroute_setsockopt(sk, optname, optval, optlen);
+ 
+ 	err = 0;
+ 	if (needs_rtnl)
+@@ -941,8 +939,7 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 
+ 		if (optlen > 40)
+ 			goto e_inval;
+-		err = ip_options_get(sock_net(sk), &opt, USER_SOCKPTR(optval),
+-					      optlen);
++		err = ip_options_get(sock_net(sk), &opt, optval, optlen);
+ 		if (err)
+ 			break;
+ 		old = rcu_dereference_protected(inet->inet_opt,
+@@ -1140,17 +1137,17 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 
+ 		err = -EFAULT;
+ 		if (optlen >= sizeof(struct ip_mreqn)) {
+-			if (copy_from_user(&mreq, optval, sizeof(mreq)))
++			if (copy_from_sockptr(&mreq, optval, sizeof(mreq)))
+ 				break;
+ 		} else {
+ 			memset(&mreq, 0, sizeof(mreq));
+ 			if (optlen >= sizeof(struct ip_mreq)) {
+-				if (copy_from_user(&mreq, optval,
+-						   sizeof(struct ip_mreq)))
++				if (copy_from_sockptr(&mreq, optval,
++						      sizeof(struct ip_mreq)))
+ 					break;
+ 			} else if (optlen >= sizeof(struct in_addr)) {
+-				if (copy_from_user(&mreq.imr_address, optval,
+-						   sizeof(struct in_addr)))
++				if (copy_from_sockptr(&mreq.imr_address, optval,
++						      sizeof(struct in_addr)))
+ 					break;
+ 			}
+ 		}
+@@ -1202,11 +1199,12 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 			goto e_inval;
+ 		err = -EFAULT;
+ 		if (optlen >= sizeof(struct ip_mreqn)) {
+-			if (copy_from_user(&mreq, optval, sizeof(mreq)))
++			if (copy_from_sockptr(&mreq, optval, sizeof(mreq)))
+ 				break;
+ 		} else {
+ 			memset(&mreq, 0, sizeof(mreq));
+-			if (copy_from_user(&mreq, optval, sizeof(struct ip_mreq)))
++			if (copy_from_sockptr(&mreq, optval,
++					      sizeof(struct ip_mreq)))
+ 				break;
+ 		}
+ 
+@@ -1226,7 +1224,7 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 			err = -ENOBUFS;
+ 			break;
+ 		}
+-		msf = memdup_user(optval, optlen);
++		msf = memdup_sockptr(optval, optlen);
+ 		if (IS_ERR(msf)) {
+ 			err = PTR_ERR(msf);
+ 			break;
+@@ -1257,7 +1255,7 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 
+ 		if (optlen != sizeof(struct ip_mreq_source))
+ 			goto e_inval;
+-		if (copy_from_user(&mreqs, optval, sizeof(mreqs))) {
++		if (copy_from_sockptr(&mreqs, optval, sizeof(mreqs))) {
+ 			err = -EFAULT;
+ 			break;
+ 		}
+@@ -1324,8 +1322,7 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 		err = -EPERM;
+ 		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
+ 			break;
+-		err = xfrm_user_policy(sk, optname, USER_SOCKPTR(optval),
+-				       optlen);
++		err = xfrm_user_policy(sk, optname, optval, optlen);
+ 		break;
+ 
+ 	case IP_TRANSPARENT:
+@@ -1412,7 +1409,8 @@ int ip_setsockopt(struct sock *sk, int level,
+ 	if (level != SOL_IP)
+ 		return -ENOPROTOOPT;
+ 
+-	err = do_ip_setsockopt(sk, level, optname, optval, optlen);
++	err = do_ip_setsockopt(sk, level, optname, USER_SOCKPTR(optval),
++			       optlen);
+ #if IS_ENABLED(CONFIG_BPFILTER_UMH)
+ 	if (optname >= BPFILTER_IPT_SO_SET_REPLACE &&
+ 	    optname < BPFILTER_IPT_SET_MAX)
 -- 
-2.17.1
+2.27.0
