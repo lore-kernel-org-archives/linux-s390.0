@@ -1,466 +1,193 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2604 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726823AbgGNLQS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 07:16:18 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v12 6/9] s390x: Library resources for CSS tests
-Date: Tue, 14 Jul 2020 13:15:45 +0200
-Message-Id: <1594725348-10034-7-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 20/26] net/ipv6: factor out a ipv6_set_opt_hdr helper
+Date: Thu, 23 Jul 2020 08:09:02 +0200
+Message-Id: <20200723060908.50081-21-hch@lst.de>
+In-Reply-To: <20200723060908.50081-1-hch@lst.de>
+References: <20200723060908.50081-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-Provide some definitions and library routines that can be used by
-tests targeting the channel subsystem.
+Factour out a helper to set the IPv6 option headers from
+do_ipv6_setsockopt.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Janosch Frank <frankja@de.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- lib/s390x/css.h      | 256 +++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/css_dump.c | 152 +++++++++++++++++++++++++
- s390x/Makefile       |   1 +
- 3 files changed, 409 insertions(+)
- create mode 100644 lib/s390x/css.h
- create mode 100644 lib/s390x/css_dump.c
+ net/ipv6/ipv6_sockglue.c | 150 +++++++++++++++++++--------------------
+ 1 file changed, 75 insertions(+), 75 deletions(-)
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-new file mode 100644
-index 0000000..0ddceb1
---- /dev/null
-+++ b/lib/s390x/css.h
-@@ -0,0 +1,256 @@
-+/*
-+ * CSS definitions
-+ *
-+ * Copyright IBM, Corp. 2020
-+ * Author: Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+
-+#ifndef CSS_H
-+#define CSS_H
-+
-+/* subchannel ID bit 16 must always be one */
-+#define SCHID_ONE	0x00010000
-+
-+#define CCW_F_CD	0x80
-+#define CCW_F_CC	0x40
-+#define CCW_F_SLI	0x20
-+#define CCW_F_SKP	0x10
-+#define CCW_F_PCI	0x08
-+#define CCW_F_IDA	0x04
-+#define CCW_F_S		0x02
-+#define CCW_F_MIDA	0x01
-+
-+#define CCW_C_NOP	0x03
-+#define CCW_C_TIC	0x08
-+
-+struct ccw1 {
-+	uint8_t code;
-+	uint8_t flags;
-+	uint16_t count;
-+	uint32_t data_address;
-+} __attribute__ ((aligned(8)));
-+
-+#define ORB_CTRL_KEY	0xf0000000
-+#define ORB_CTRL_SPND	0x08000000
-+#define ORB_CTRL_STR	0x04000000
-+#define ORB_CTRL_MOD	0x02000000
-+#define ORB_CTRL_SYNC	0x01000000
-+#define ORB_CTRL_FMT	0x00800000
-+#define ORB_CTRL_PFCH	0x00400000
-+#define ORB_CTRL_ISIC	0x00200000
-+#define ORB_CTRL_ALCC	0x00100000
-+#define ORB_CTRL_SSIC	0x00080000
-+#define ORB_CTRL_CPTC	0x00040000
-+#define ORB_CTRL_C64	0x00020000
-+#define ORB_CTRL_I2K	0x00010000
-+#define ORB_CTRL_LPM	0x0000ff00
-+#define ORB_CTRL_ILS	0x00000080
-+#define ORB_CTRL_MIDAW	0x00000040
-+#define ORB_CTRL_ORBX	0x00000001
-+
-+#define ORB_LPM_DFLT	0x00008000
-+
-+struct orb {
-+	uint32_t intparm;
-+	uint32_t ctrl;
-+	uint32_t cpa;
-+	uint32_t prio;
-+	uint32_t reserved[4];
-+} __attribute__ ((aligned(4)));
-+
-+struct scsw {
-+	uint32_t ctrl;
-+	uint32_t ccw_addr;
-+	uint8_t  dev_stat;
-+	uint8_t  sch_stat;
-+	uint16_t count;
-+};
-+
-+struct pmcw {
-+	uint32_t intparm;
-+#define PMCW_DNV        0x0001
-+#define PMCW_ENABLE     0x0080
-+	uint16_t flags;
-+	uint16_t devnum;
-+	uint8_t  lpm;
-+	uint8_t  pnom;
-+	uint8_t  lpum;
-+	uint8_t  pim;
-+	uint16_t mbi;
-+	uint8_t  pom;
-+	uint8_t  pam;
-+	uint8_t  chpid[8];
-+	uint32_t flags2;
-+};
-+#define PMCW_CHANNEL_TYPE(pmcw) (pmcw->flags2 >> 21)
-+
-+struct schib {
-+	struct pmcw pmcw;
-+	struct scsw scsw;
-+	uint8_t  md[12];
-+} __attribute__ ((aligned(4)));
-+
-+struct irb {
-+	struct scsw scsw;
-+	uint32_t esw[5];
-+	uint32_t ecw[8];
-+	uint32_t emw[8];
-+} __attribute__ ((aligned(4)));
-+
-+/* CSS low level access functions */
-+
-+static inline int ssch(unsigned long schid, struct orb *addr)
+diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
+index 3897fb55372d38..90442c8366dff2 100644
+--- a/net/ipv6/ipv6_sockglue.c
++++ b/net/ipv6/ipv6_sockglue.c
+@@ -315,6 +315,80 @@ static int compat_ipv6_mcast_join_leave(struct sock *sk, int optname,
+ 	return ipv6_sock_mc_drop(sk, gr32.gr_interface, &psin6->sin6_addr);
+ }
+ 
++static int ipv6_set_opt_hdr(struct sock *sk, int optname, void __user *optval,
++		int optlen)
 +{
-+	register long long reg1 asm("1") = schid;
-+	int cc;
++	struct ipv6_pinfo *np = inet6_sk(sk);
++	struct ipv6_opt_hdr *new = NULL;
++	struct net *net = sock_net(sk);
++	struct ipv6_txoptions *opt;
++	int err;
 +
-+	asm volatile(
-+		"	ssch	0(%2)\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28\n"
-+		: "=d" (cc)
-+		: "d" (reg1), "a" (addr), "m" (*addr)
-+		: "cc", "memory");
-+	return cc;
-+}
++	/* hop-by-hop / destination options are privileged option */
++	if (optname != IPV6_RTHDR && !ns_capable(net->user_ns, CAP_NET_RAW))
++		return -EPERM;
 +
-+static inline int stsch(unsigned long schid, struct schib *addr)
-+{
-+	register unsigned long reg1 asm ("1") = schid;
-+	int cc;
++	/* remove any sticky options header with a zero option
++	 * length, per RFC3542.
++	 */
++	if (optlen > 0) {
++		if (!optval)
++			return -EINVAL;
++		if (optlen < sizeof(struct ipv6_opt_hdr) ||
++		    optlen & 0x7 ||
++		    optlen > 8 * 255)
++			return -EINVAL;
 +
-+	asm volatile(
-+		"	stsch	0(%3)\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28"
-+		: "=d" (cc), "=m" (*addr)
-+		: "d" (reg1), "a" (addr)
-+		: "cc");
-+	return cc;
-+}
++		new = memdup_user(optval, optlen);
++		if (IS_ERR(new))
++			return PTR_ERR(new);
++		if (unlikely(ipv6_optlen(new) > optlen)) {
++			kfree(new);
++			return -EINVAL;
++		}
++	}
 +
-+static inline int msch(unsigned long schid, struct schib *addr)
-+{
-+	register unsigned long reg1 asm ("1") = schid;
-+	int cc;
++	opt = rcu_dereference_protected(np->opt, lockdep_sock_is_held(sk));
++	opt = ipv6_renew_options(sk, opt, optname, new);
++	kfree(new);
++	if (IS_ERR(opt))
++		return PTR_ERR(opt);
 +
-+	asm volatile(
-+		"	msch	0(%3)\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28"
-+		: "=d" (cc)
-+		: "d" (reg1), "m" (*addr), "a" (addr)
-+		: "cc");
-+	return cc;
-+}
-+
-+static inline int tsch(unsigned long schid, struct irb *addr)
-+{
-+	register unsigned long reg1 asm ("1") = schid;
-+	int cc;
-+
-+	asm volatile(
-+		"	tsch	0(%3)\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28"
-+		: "=d" (cc), "=m" (*addr)
-+		: "d" (reg1), "a" (addr)
-+		: "cc");
-+	return cc;
-+}
-+
-+static inline int hsch(unsigned long schid)
-+{
-+	register unsigned long reg1 asm("1") = schid;
-+	int cc;
-+
-+	asm volatile(
-+		"	hsch\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28"
-+		: "=d" (cc)
-+		: "d" (reg1)
-+		: "cc");
-+	return cc;
-+}
-+
-+static inline int xsch(unsigned long schid)
-+{
-+	register unsigned long reg1 asm("1") = schid;
-+	int cc;
-+
-+	asm volatile(
-+		"	xsch\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28"
-+		: "=d" (cc)
-+		: "d" (reg1)
-+		: "cc");
-+	return cc;
-+}
-+
-+static inline int csch(unsigned long schid)
-+{
-+	register unsigned long reg1 asm("1") = schid;
-+	int cc;
-+
-+	asm volatile(
-+		"	csch\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28"
-+		: "=d" (cc)
-+		: "d" (reg1)
-+		: "cc");
-+	return cc;
-+}
-+
-+static inline int rsch(unsigned long schid)
-+{
-+	register unsigned long reg1 asm("1") = schid;
-+	int cc;
-+
-+	asm volatile(
-+		"	rsch\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28"
-+		: "=d" (cc)
-+		: "d" (reg1)
-+		: "cc");
-+	return cc;
-+}
-+
-+static inline int rchp(unsigned long chpid)
-+{
-+	register unsigned long reg1 asm("1") = chpid;
-+	int cc;
-+
-+	asm volatile(
-+		"	rchp\n"
-+		"	ipm	%0\n"
-+		"	srl	%0,28"
-+		: "=d" (cc)
-+		: "d" (reg1)
-+		: "cc");
-+	return cc;
-+}
-+
-+/* Debug functions */
-+char *dump_pmcw_flags(uint16_t f);
-+char *dump_scsw_flags(uint32_t f);
-+
-+void dump_scsw(struct scsw *scsw);
-+void dump_irb(struct irb *irbp);
-+void dump_schib(struct schib *sch);
-+struct ccw1 *dump_ccw(struct ccw1 *cp);
-+void dump_irb(struct irb *irbp);
-+void dump_pmcw(struct pmcw *p);
-+void dump_orb(struct orb *op);
-+
-+int css_enumerate(void);
-+#define MAX_ENABLE_RETRIES      5
-+int css_enable(int schid);
-+
++	/* routing header option needs extra check */
++	err = -EINVAL;
++	if (optname == IPV6_RTHDR && opt && opt->srcrt) {
++		struct ipv6_rt_hdr *rthdr = opt->srcrt;
++		switch (rthdr->type) {
++#if IS_ENABLED(CONFIG_IPV6_MIP6)
++		case IPV6_SRCRT_TYPE_2:
++			if (rthdr->hdrlen != 2 || rthdr->segments_left != 1)
++				goto sticky_done;
++			break;
 +#endif
-diff --git a/lib/s390x/css_dump.c b/lib/s390x/css_dump.c
-new file mode 100644
-index 0000000..1266f04
---- /dev/null
-+++ b/lib/s390x/css_dump.c
-@@ -0,0 +1,152 @@
-+/*
-+ * Channel subsystem structures dumping
-+ *
-+ * Copyright (c) 2020 IBM Corp.
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ *
-+ * Description:
-+ * Provides the dumping functions for various structures used by subchannels:
-+ * - ORB  : Operation request block, describes the I/O operation and points to
-+ *          a CCW chain
-+ * - CCW  : Channel Command Word, describes the command, data and flow control
-+ * - IRB  : Interuption response Block, describes the result of an operation;
-+ *          holds a SCSW and model-dependent data.
-+ * - SCHIB: SubCHannel Information Block composed of:
-+ *   - SCSW: SubChannel Status Word, status of the channel.
-+ *   - PMCW: Path Management Control Word
-+ * You need the QEMU ccw-pong device in QEMU to answer the I/O transfers.
-+ */
++		case IPV6_SRCRT_TYPE_4:
++		{
++			struct ipv6_sr_hdr *srh =
++				(struct ipv6_sr_hdr *)opt->srcrt;
 +
-+#include <libcflat.h>
-+#include <stdint.h>
-+#include <string.h>
-+
-+#include <css.h>
-+
-+/*
-+ * Try to have a more human representation of the SCSW flags:
-+ * each letter in the two strings represents the first
-+ * letter of the associated bit in the flag fields.
-+ */
-+static const char *scsw_str = "kkkkslccfpixuzen";
-+static const char *scsw_str2 = "1SHCrshcsdsAIPSs";
-+static char scsw_line[64] = {};
-+
-+char *dump_scsw_flags(uint32_t f)
-+{
-+	int i;
-+
-+	for (i = 0; i < 16; i++) {
-+		if ((f << i) & 0x80000000)
-+			scsw_line[i] = scsw_str[i];
-+		else
-+			scsw_line[i] = '_';
++			if (!seg6_validate_srh(srh, optlen, false))
++				goto sticky_done;
++			break;
++		}
++		default:
++			goto sticky_done;
++		}
 +	}
-+	scsw_line[i] = ' ';
-+	for (; i < 32; i++) {
-+		if ((f << i) & 0x80000000)
-+			scsw_line[i + 1] = scsw_str2[i - 16];
-+		else
-+			scsw_line[i + 1] = '_';
++
++	err = 0;
++	opt = ipv6_update_options(sk, opt);
++sticky_done:
++	if (opt) {
++		atomic_sub(opt->tot_len, &sk->sk_omem_alloc);
++		txopt_put(opt);
 +	}
-+	return scsw_line;
++	return err;
 +}
 +
-+/*
-+ * Try to have a more human representation of the PMCW flags
-+ * each letter in the string represents the first
-+ * letter of the associated bit in the flag fields.
-+ */
-+static const char *pmcw_str = "11iii111ellmmdtv";
-+static char pcmw_line[32] = {};
-+char *dump_pmcw_flags(uint16_t f)
-+{
-+	int i;
-+
-+	for (i = 0; i < 16; i++) {
-+		if ((f << i) & 0x8000)
-+			pcmw_line[i] = pmcw_str[i];
-+		else
-+			pcmw_line[i] = '_';
-+	}
-+	return pcmw_line;
-+}
-+
-+void dump_scsw(struct scsw *s)
-+{
-+	dump_scsw_flags(s->ctrl);
-+	printf("scsw->flags: %s\n", scsw_line);
-+	printf("scsw->addr : %08x\n", s->ccw_addr);
-+	printf("scsw->devs : %02x\n", s->dev_stat);
-+	printf("scsw->schs : %02x\n", s->sch_stat);
-+	printf("scsw->count: %04x\n", s->count);
-+}
-+
-+void dump_irb(struct irb *irbp)
-+{
-+	int i;
-+	uint32_t *p = (uint32_t *)irbp;
-+
-+	dump_scsw(&irbp->scsw);
-+	for (i = 0; i < sizeof(*irbp)/sizeof(*p); i++, p++)
-+		printf("irb[%02x] : %08x\n", i, *p);
-+}
-+
-+void dump_pmcw(struct pmcw *p)
-+{
-+	int i;
-+
-+	printf("pmcw->intparm  : %08x\n", p->intparm);
-+	printf("pmcw->flags    : %04x\n", p->flags);
-+	dump_pmcw_flags(p->flags);
-+	printf("pmcw->devnum   : %04x\n", p->devnum);
-+	printf("pmcw->lpm      : %02x\n", p->lpm);
-+	printf("pmcw->pnom     : %02x\n", p->pnom);
-+	printf("pmcw->lpum     : %02x\n", p->lpum);
-+	printf("pmcw->pim      : %02x\n", p->pim);
-+	printf("pmcw->mbi      : %04x\n", p->mbi);
-+	printf("pmcw->pom      : %02x\n", p->pom);
-+	printf("pmcw->pam      : %02x\n", p->pam);
-+	printf("pmcw->mbi      : %04x\n", p->mbi);
-+	for (i = 0; i < 8; i++)
-+		printf("pmcw->chpid[%d]: %02x\n", i, p->chpid[i]);
-+	printf("pmcw->flags2  : %08x\n", p->flags2);
-+}
-+
-+void dump_schib(struct schib *sch)
-+{
-+	struct pmcw *p = &sch->pmcw;
-+	struct scsw *s = &sch->scsw;
-+
-+	printf("--SCHIB--\n");
-+	dump_pmcw(p);
-+	dump_scsw(s);
-+}
-+
-+struct ccw1 *dump_ccw(struct ccw1 *cp)
-+{
-+	printf("CCW: code: %02x flags: %02x count: %04x data: %08x\n", cp->code,
-+	    cp->flags, cp->count, cp->data_address);
-+
-+	if (cp->code == CCW_C_TIC)
-+		return (struct ccw1 *)(long)cp->data_address;
-+
-+	return (cp->flags & CCW_F_CC) ? cp + 1 : NULL;
-+}
-+
-+void dump_orb(struct orb *op)
-+{
-+	struct ccw1 *cp;
-+
-+	printf("ORB: intparm : %08x\n", op->intparm);
-+	printf("ORB: ctrl    : %08x\n", op->ctrl);
-+	printf("ORB: prio    : %08x\n", op->prio);
-+	cp = (struct ccw1 *)(long) (op->cpa);
-+	while (cp)
-+		cp = dump_ccw(cp);
-+}
-diff --git a/s390x/Makefile b/s390x/Makefile
-index ddb4b48..050c40b 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -51,6 +51,7 @@ cflatobjs += lib/s390x/sclp-console.o
- cflatobjs += lib/s390x/interrupt.o
- cflatobjs += lib/s390x/mmu.o
- cflatobjs += lib/s390x/smp.o
-+cflatobjs += lib/s390x/css_dump.o
+ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 		    char __user *optval, unsigned int optlen)
+ {
+@@ -580,82 +654,8 @@ static int do_ipv6_setsockopt(struct sock *sk, int level, int optname,
+ 	case IPV6_RTHDRDSTOPTS:
+ 	case IPV6_RTHDR:
+ 	case IPV6_DSTOPTS:
+-	{
+-		struct ipv6_txoptions *opt;
+-		struct ipv6_opt_hdr *new = NULL;
+-
+-		/* hop-by-hop / destination options are privileged option */
+-		retv = -EPERM;
+-		if (optname != IPV6_RTHDR && !ns_capable(net->user_ns, CAP_NET_RAW))
+-			break;
+-
+-		/* remove any sticky options header with a zero option
+-		 * length, per RFC3542.
+-		 */
+-		if (optlen == 0)
+-			optval = NULL;
+-		else if (!optval)
+-			goto e_inval;
+-		else if (optlen < sizeof(struct ipv6_opt_hdr) ||
+-			 optlen & 0x7 || optlen > 8 * 255)
+-			goto e_inval;
+-		else {
+-			new = memdup_user(optval, optlen);
+-			if (IS_ERR(new)) {
+-				retv = PTR_ERR(new);
+-				break;
+-			}
+-			if (unlikely(ipv6_optlen(new) > optlen)) {
+-				kfree(new);
+-				goto e_inval;
+-			}
+-		}
+-
+-		opt = rcu_dereference_protected(np->opt,
+-						lockdep_sock_is_held(sk));
+-		opt = ipv6_renew_options(sk, opt, optname, new);
+-		kfree(new);
+-		if (IS_ERR(opt)) {
+-			retv = PTR_ERR(opt);
+-			break;
+-		}
+-
+-		/* routing header option needs extra check */
+-		retv = -EINVAL;
+-		if (optname == IPV6_RTHDR && opt && opt->srcrt) {
+-			struct ipv6_rt_hdr *rthdr = opt->srcrt;
+-			switch (rthdr->type) {
+-#if IS_ENABLED(CONFIG_IPV6_MIP6)
+-			case IPV6_SRCRT_TYPE_2:
+-				if (rthdr->hdrlen != 2 ||
+-				    rthdr->segments_left != 1)
+-					goto sticky_done;
+-
+-				break;
+-#endif
+-			case IPV6_SRCRT_TYPE_4:
+-			{
+-				struct ipv6_sr_hdr *srh = (struct ipv6_sr_hdr *)
+-							  opt->srcrt;
+-
+-				if (!seg6_validate_srh(srh, optlen, false))
+-					goto sticky_done;
+-				break;
+-			}
+-			default:
+-				goto sticky_done;
+-			}
+-		}
+-
+-		retv = 0;
+-		opt = ipv6_update_options(sk, opt);
+-sticky_done:
+-		if (opt) {
+-			atomic_sub(opt->tot_len, &sk->sk_omem_alloc);
+-			txopt_put(opt);
+-		}
++		retv = ipv6_set_opt_hdr(sk, optname, optval, optlen);
+ 		break;
+-	}
  
- OBJDIRS += lib/s390x
- 
+ 	case IPV6_PKTINFO:
+ 	{
 -- 
-2.25.1
+2.27.0
