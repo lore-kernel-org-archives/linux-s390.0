@@ -1,33 +1,49 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH v6 1/5] KVM: s390: clean up redundant 'kvm_run' parameters
-References: <20200623131418.31473-1-tianjia.zhang@linux.alibaba.com>
- <20200623131418.31473-2-tianjia.zhang@linux.alibaba.com>
- <c49f8814-c7ea-6884-91c5-3dcd40c6509f@de.ibm.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <2e986527-1585-e1b4-1251-ef36ac3bd233@redhat.com>
-Date: Fri, 10 Jul 2020 09:48:31 +0200
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51484 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727996AbgGWIkB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 04:40:01 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0660EC0619E5
+        for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2020 01:40:01 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id gg18so2097699ejb.6
+        for <linux-s390@vger.kernel.org>; Thu, 23 Jul 2020 01:40:00 -0700 (PDT)
+Subject: Re: [MPTCP] [PATCH 25/26] net: pass a sockptr_t into ->setsockopt
+References: <20200723060908.50081-1-hch@lst.de>
+ <20200723060908.50081-26-hch@lst.de>
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
+Message-ID: <1056b902-fd25-1c13-758d-cd4341dd403b@tessares.net>
+Date: Thu, 23 Jul 2020 10:39:57 +0200
 MIME-Version: 1.0
-In-Reply-To: <c49f8814-c7ea-6884-91c5-3dcd40c6509f@de.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+In-Reply-To: <20200723060908.50081-26-hch@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Tianjia Zhang <tianjia.zhang@linux.alibaba.com>, tsbogend@alpha.franken.de, paulus@ozlabs.org, mpe@ellerman.id.au, benh@kernel.crashing.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com, sean.j.christopherson@intel.com, vkuznets@redhat.com, wanpengli@tencent.com, jmattson@google.com, joro@8bytes.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, maz@kernel.org, james.morse@arm.com, julien.thierry.kdev@gmail.com, suzuki.poulose@arm.com, christoffer.dall@arm.com, peterx@redhat.com, thuth@redhat.com, chenhuacai@gmail.com
-Cc: kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org, Stefan Schmidt <stefan@datenfreihafen.org>
 
-On 23/06/20 17:31, Christian Borntraeger wrote:
+Hi Christoph,
+
+On 23/07/2020 08:09, Christoph Hellwig wrote:
+> Rework the remaining setsockopt code to pass a sockptr_t instead of a
+> plain user pointer.  This removes the last remaining set_fs(KERNEL_DS)
+> outside of architecture specific code.
 > 
-> I have trouble seeing value in this particular patch. We add LOCs
-> without providing any noticable benefit. All other patches in this series at
-> least reduce the amount of code. So I would defer this to Paolo if he prefers
-> to have this way across all architectures. 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: Stefan Schmidt <stefan@datenfreihafen.org> [ieee802154]
+> ---
+>   net/mptcp/protocol.c                      | 12 +++----
 
-Yes, it adds lines of code but they're just
+Thank you for the v2!
 
-+	struct kvm_run *kvm_run = vcpu->run;
+For MPTCP-related code:
 
-You could avoid the LoC increase by repeating vcpu->run over and over,
-but I think the code overall is clearer.
+Acked-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 
-Paolo
+Cheers,
+Matt
+-- 
+Tessares | Belgium | Hybrid Access Solutions
+www.tessares.net
