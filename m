@@ -1,60 +1,141 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:33909 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1731673AbgGVJqX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 22 Jul 2020 05:46:23 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 5/9] s390/vmemmap: take the vmem_mutex when populating/freeing
-Date: Wed, 22 Jul 2020 11:45:54 +0200
-Message-Id: <20200722094558.9828-6-david@redhat.com>
-In-Reply-To: <20200722094558.9828-1-david@redhat.com>
-References: <20200722094558.9828-1-david@redhat.com>
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 26/26] net: optimize the sockptr_t for unified kernel/user address spaces
+Date: Thu, 23 Jul 2020 08:09:08 +0200
+Message-Id: <20200723060908.50081-27-hch@lst.de>
+In-Reply-To: <20200723060908.50081-1-hch@lst.de>
+References: <20200723060908.50081-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-Let's synchronize all accesses to the 1:1 and vmemmap mappings. This will
-be especially relevant when wanting to cleanup empty page tables that could
-be shared by both. Avoid races when removing tables that might be just
-about to get reused.
+For architectures like x86 and arm64 we don't need the separate bit to
+indicate that a pointer is a kernel pointer as the address spaces are
+unified.  That way the sockptr_t can be reduced to a union of two
+pointers, which leads to nicer calling conventions.
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+The only caveat is that we need to check that users don't pass in kernel
+address and thus gain access to kernel memory.  Thus the USER_SOCKPTR
+helper is replaced with a init_user_sockptr function that does this check
+and returns an error if it fails.
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/mm/vmem.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/sockptr.h     | 32 ++++++++++++++++++++++++++++++--
+ net/ipv4/bpfilter/sockopt.c | 14 ++++++++------
+ net/socket.c                |  6 +++++-
+ 3 files changed, 43 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index be32a38bb91fd..a2b79681df69d 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -334,17 +334,21 @@ int __meminit vmemmap_populate(unsigned long start, unsigned long end, int node,
- {
- 	int ret;
+diff --git a/include/linux/sockptr.h b/include/linux/sockptr.h
+index 700856e13ea0c4..7d5cdb2b30b5f0 100644
+--- a/include/linux/sockptr.h
++++ b/include/linux/sockptr.h
+@@ -8,9 +8,34 @@
+ #ifndef _LINUX_SOCKPTR_H
+ #define _LINUX_SOCKPTR_H
  
-+	mutex_lock(&vmem_mutex);
- 	/* We don't care about the node, just use NUMA_NO_NODE on allocations */
- 	ret = add_pagetable(start, end, false);
- 	if (ret)
- 		remove_pagetable(start, end, false);
-+	mutex_unlock(&vmem_mutex);
- 	return ret;
++#include <linux/compiler.h>
+ #include <linux/slab.h>
+ #include <linux/uaccess.h>
+ 
++#ifdef CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE
++typedef union {
++	void		*kernel;
++	void __user	*user;
++} sockptr_t;
++
++static inline bool sockptr_is_kernel(sockptr_t sockptr)
++{
++	return (unsigned long)sockptr.kernel >= TASK_SIZE;
++}
++
++static inline sockptr_t KERNEL_SOCKPTR(void *p)
++{
++	return (sockptr_t) { .kernel = p };
++}
++
++static inline int __must_check init_user_sockptr(sockptr_t *sp, void __user *p)
++{
++	if ((unsigned long)p >= TASK_SIZE)
++		return -EFAULT;
++	sp->user = p;
++	return 0;
++}
++#else /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
+ typedef struct {
+ 	union {
+ 		void		*kernel;
+@@ -29,10 +54,13 @@ static inline sockptr_t KERNEL_SOCKPTR(void *p)
+ 	return (sockptr_t) { .kernel = p, .is_kernel = true };
  }
  
- void vmemmap_free(unsigned long start, unsigned long end,
- 		struct vmem_altmap *altmap)
+-static inline sockptr_t USER_SOCKPTR(void __user *p)
++static inline int __must_check init_user_sockptr(sockptr_t *sp, void __user *p)
  {
-+	mutex_lock(&vmem_mutex);
- 	remove_pagetable(start, end, false);
-+	mutex_unlock(&vmem_mutex);
+-	return (sockptr_t) { .user = p };
++	sp->user = p;
++	sp->is_kernel = false;
++	return 0;
+ }
++#endif /* CONFIG_ARCH_HAS_NON_OVERLAPPING_ADDRESS_SPACE */
+ 
+ static inline bool sockptr_is_null(sockptr_t sockptr)
+ {
+diff --git a/net/ipv4/bpfilter/sockopt.c b/net/ipv4/bpfilter/sockopt.c
+index 1b34cb9a7708ec..94f18d2352d007 100644
+--- a/net/ipv4/bpfilter/sockopt.c
++++ b/net/ipv4/bpfilter/sockopt.c
+@@ -57,16 +57,18 @@ int bpfilter_ip_set_sockopt(struct sock *sk, int optname, sockptr_t optval,
+ 	return bpfilter_mbox_request(sk, optname, optval, optlen, true);
  }
  
- void vmem_remove_mapping(unsigned long start, unsigned long size)
+-int bpfilter_ip_get_sockopt(struct sock *sk, int optname, char __user *optval,
+-			    int __user *optlen)
++int bpfilter_ip_get_sockopt(struct sock *sk, int optname,
++			    char __user *user_optval, int __user *optlen)
+ {
+-	int len;
++	sockptr_t optval;
++	int err, len;
+ 
+ 	if (get_user(len, optlen))
+ 		return -EFAULT;
+-
+-	return bpfilter_mbox_request(sk, optname, USER_SOCKPTR(optval), len,
+-				     false);
++	err = init_user_sockptr(&optval, user_optval);
++	if (err)
++		return err;
++	return bpfilter_mbox_request(sk, optname, optval, len, false);
+ }
+ 
+ static int __init bpfilter_sockopt_init(void)
+diff --git a/net/socket.c b/net/socket.c
+index e44b8ac47f6f46..94ca4547cd7c53 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -2097,7 +2097,7 @@ static bool sock_use_custom_sol_socket(const struct socket *sock)
+ int __sys_setsockopt(int fd, int level, int optname, char __user *user_optval,
+ 		int optlen)
+ {
+-	sockptr_t optval = USER_SOCKPTR(user_optval);
++	sockptr_t optval;
+ 	char *kernel_optval = NULL;
+ 	int err, fput_needed;
+ 	struct socket *sock;
+@@ -2105,6 +2105,10 @@ int __sys_setsockopt(int fd, int level, int optname, char __user *user_optval,
+ 	if (optlen < 0)
+ 		return -EINVAL;
+ 
++	err = init_user_sockptr(&optval, user_optval);
++	if (err)
++		return err;
++
+ 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
+ 	if (!sock)
+ 		return err;
 -- 
-2.26.2
+2.27.0
