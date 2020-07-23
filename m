@@ -1,317 +1,137 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23764 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726124AbgGIIH4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 9 Jul 2020 04:07:56 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v11 0/9] s390x: Testing the Channel Subsystem I/O
-Date: Thu,  9 Jul 2020 10:07:39 +0200
-Message-Id: <1594282068-11054-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <bpf-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 15/26] net/ipv4: merge ip_options_get and ip_options_get_from_user
+Date: Thu, 23 Jul 2020 08:08:57 +0200
+Message-Id: <20200723060908.50081-16-hch@lst.de>
+In-Reply-To: <20200723060908.50081-1-hch@lst.de>
+References: <20200723060908.50081-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: bpf-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-Hi All,
+Use the sockptr_t type to merge the versions.
 
-This new respin of the series add modifications to
-- patches 8: s390x: css: msch, enable test
-- and mostly to patch 9: s390x: css: ssch/tsch with sense and interrupt
-Other patches did not change.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/net/ip.h       |  5 ++---
+ net/ipv4/ip_options.c  | 43 +++++++++++-------------------------------
+ net/ipv4/ip_sockglue.c |  7 ++++---
+ 3 files changed, 17 insertions(+), 38 deletions(-)
 
-Recall:
-
-Goal of the series is to have a framework to test Channel-Subsystem I/O with
-QEMU/KVM.
-  
-To be able to support interrupt for CSS I/O and for SCLP we need to modify
-the interrupt framework to allow re-entrant interruptions.
-  
-We add a registration for IRQ callbacks to the test program to define its own
-interrupt handler. We need to do special work under interrupt like acknowledging
-the interrupt.
-  
-This series presents three tests:
-- Enumeration:
-        The CSS is enumerated using the STSCH instruction recursively on all
-        potentially existing channels.
-        Keeping the first channel found as a reference for future use.
-        Checks STSCH
+diff --git a/include/net/ip.h b/include/net/ip.h
+index 3d34acc95ca825..d66ad3a9522081 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -23,6 +23,7 @@
+ #include <linux/in.h>
+ #include <linux/skbuff.h>
+ #include <linux/jhash.h>
++#include <linux/sockptr.h>
  
-- Enable:
-        If the enumeration succeeded the tests enables the reference
-        channel with MSCH and verifies with STSCH that the channel is
-        effectively enabled, retrying a predefined count on failure
-	to enable the channel
-        Checks MSCH       
+ #include <net/inet_sock.h>
+ #include <net/route.h>
+@@ -707,9 +708,7 @@ int __ip_options_compile(struct net *net, struct ip_options *opt,
+ int ip_options_compile(struct net *net, struct ip_options *opt,
+ 		       struct sk_buff *skb);
+ int ip_options_get(struct net *net, struct ip_options_rcu **optp,
+-		   unsigned char *data, int optlen);
+-int ip_options_get_from_user(struct net *net, struct ip_options_rcu **optp,
+-			     unsigned char __user *data, int optlen);
++		   sockptr_t data, int optlen);
+ void ip_options_undo(struct ip_options *opt);
+ void ip_forward_options(struct sk_buff *skb);
+ int ip_options_rcv_srr(struct sk_buff *skb, struct net_device *dev);
+diff --git a/net/ipv4/ip_options.c b/net/ipv4/ip_options.c
+index ddaa01ec2bce82..948747aac4e2d0 100644
+--- a/net/ipv4/ip_options.c
++++ b/net/ipv4/ip_options.c
+@@ -519,15 +519,20 @@ void ip_options_undo(struct ip_options *opt)
+ 	}
+ }
  
-- Sense:
-        If the channel is enabled this test sends a SENSE_ID command
-        to the reference channel, analyzing the answer and expecting
-        the Control unit type being 0x3832, a.k.a. virtio-ccw.
-        Checks SSCH(READ) and IO-IRQ
-
-Note:
-- The following 5 patches are general usage and may be pulled first:
-  s390x: saving regs for interrupts
-  s390x: I/O interrupt registration
-  s390x: export the clock get_clock_ms() utility
-  s390x: clock and delays calculations
-  s390x: define function to wait for interrupt
-
-- These 4 patches are really I/O oriented:
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: css: ssch/tsch with sense and interrupt
-
-Regards,
-Pierre
-
-Pierre Morel (9):
-  s390x: saving regs for interrupts
-  s390x: I/O interrupt registration
-  s390x: export the clock get_clock_ms() utility
-  s390x: clock and delays calculations
-  s390x: define function to wait for interrupt
-  s390x: Library resources for CSS tests
-  s390x: css: stsch, enumeration test
-  s390x: css: msch, enable test
-  s390x: css: ssch/tsch with sense and interrupt
-
- lib/s390x/asm/arch_def.h |  14 ++
- lib/s390x/asm/time.h     |  50 ++++++
- lib/s390x/css.h          | 293 +++++++++++++++++++++++++++++++++++
- lib/s390x/css_dump.c     | 152 ++++++++++++++++++
- lib/s390x/css_lib.c      | 325 +++++++++++++++++++++++++++++++++++++++
- lib/s390x/interrupt.c    |  23 ++-
- lib/s390x/interrupt.h    |   8 +
- s390x/Makefile           |   3 +
- s390x/css.c              | 150 ++++++++++++++++++
- s390x/cstart64.S         |  41 ++++-
- s390x/intercept.c        |  11 +-
- s390x/unittests.cfg      |   4 +
- 12 files changed, 1061 insertions(+), 13 deletions(-)
- create mode 100644 lib/s390x/asm/time.h
- create mode 100644 lib/s390x/css.h
- create mode 100644 lib/s390x/css_dump.c
- create mode 100644 lib/s390x/css_lib.c
- create mode 100644 lib/s390x/interrupt.h
- create mode 100644 s390x/css.c
-
+-static struct ip_options_rcu *ip_options_get_alloc(const int optlen)
++int ip_options_get(struct net *net, struct ip_options_rcu **optp,
++		   sockptr_t data, int optlen)
+ {
+-	return kzalloc(sizeof(struct ip_options_rcu) + ((optlen + 3) & ~3),
++	struct ip_options_rcu *opt;
++
++	opt = kzalloc(sizeof(struct ip_options_rcu) + ((optlen + 3) & ~3),
+ 		       GFP_KERNEL);
+-}
++	if (!opt)
++		return -ENOMEM;
++	if (optlen && copy_from_sockptr(opt->opt.__data, data, optlen)) {
++		kfree(opt);
++		return -EFAULT;
++	}
+ 
+-static int ip_options_get_finish(struct net *net, struct ip_options_rcu **optp,
+-				 struct ip_options_rcu *opt, int optlen)
+-{
+ 	while (optlen & 3)
+ 		opt->opt.__data[optlen++] = IPOPT_END;
+ 	opt->opt.optlen = optlen;
+@@ -540,32 +545,6 @@ static int ip_options_get_finish(struct net *net, struct ip_options_rcu **optp,
+ 	return 0;
+ }
+ 
+-int ip_options_get_from_user(struct net *net, struct ip_options_rcu **optp,
+-			     unsigned char __user *data, int optlen)
+-{
+-	struct ip_options_rcu *opt = ip_options_get_alloc(optlen);
+-
+-	if (!opt)
+-		return -ENOMEM;
+-	if (optlen && copy_from_user(opt->opt.__data, data, optlen)) {
+-		kfree(opt);
+-		return -EFAULT;
+-	}
+-	return ip_options_get_finish(net, optp, opt, optlen);
+-}
+-
+-int ip_options_get(struct net *net, struct ip_options_rcu **optp,
+-		   unsigned char *data, int optlen)
+-{
+-	struct ip_options_rcu *opt = ip_options_get_alloc(optlen);
+-
+-	if (!opt)
+-		return -ENOMEM;
+-	if (optlen)
+-		memcpy(opt->opt.__data, data, optlen);
+-	return ip_options_get_finish(net, optp, opt, optlen);
+-}
+-
+ void ip_forward_options(struct sk_buff *skb)
+ {
+ 	struct   ip_options *opt	= &(IPCB(skb)->opt);
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index ac495b0cff8ffb..b12f39b52008a3 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -280,7 +280,8 @@ int ip_cmsg_send(struct sock *sk, struct msghdr *msg, struct ipcm_cookie *ipc,
+ 			err = cmsg->cmsg_len - sizeof(struct cmsghdr);
+ 
+ 			/* Our caller is responsible for freeing ipc->opt */
+-			err = ip_options_get(net, &ipc->opt, CMSG_DATA(cmsg),
++			err = ip_options_get(net, &ipc->opt,
++					     KERNEL_SOCKPTR(CMSG_DATA(cmsg)),
+ 					     err < 40 ? err : 40);
+ 			if (err)
+ 				return err;
+@@ -940,8 +941,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
+ 
+ 		if (optlen > 40)
+ 			goto e_inval;
+-		err = ip_options_get_from_user(sock_net(sk), &opt,
+-					       optval, optlen);
++		err = ip_options_get(sock_net(sk), &opt, USER_SOCKPTR(optval),
++					      optlen);
+ 		if (err)
+ 			break;
+ 		old = rcu_dereference_protected(inet->inet_opt,
 -- 
-2.25.1
-
-from v10 to v11:
-
-- p8: added ISC to css_enable()
-  (Connie)
-
-- p9: rework css_residual_count()
-  suppress report_info, change label
-  (Connie)
-
-- p9: added wait_and_check_io_completion()
-  (after comment from Connie to test for completion)
-
-- p9: reworked the reports, mostly keeping the sentenses
-  but better use of report_prefix_...()
-
-from v9 to v10:
-
-- postpone and removed from series 
-  - s390x: Use PSW bits definitions in cstart
-  - s390x: Move control register bit definitions and add AFP to them
-  reason: gcc compiler for RedHat-7 does not allow UL suffix for
-          macro declarations.
-  (Thomas)
-
-- postpone and removed from series 
-  -s390x-retrieve-decimal-and-hexadecimal-kernel-par.patch
-  reason: must be reworked and since we can do without an argument
-          I prefer to separate it from this series.
-  (Janosch, Andrew)
-
-- several word spelling, better comments
-  (Connie, Thomas)
-
-- Extensively reworked ssch/tsch with sense and interrupt
-  - added a dedicated ISC to the channel subsystem test
-    when enabling a channel
-  - reworked the ISC enabling in CR6
-  - reworked the test on residual count
-  - moved the IRQ handler and the start function inside the
-    library to share with following CSS tests.
-  - added more report_info to the IRQ handler
-  - rename some functions, start_single_ccw, css_irq_io,
-    css_residual_count
-  (Connie, Pierre)
-
-from v8 to v9:
-
-- rename PSW_EXCEPTION_MASK to PSW_MASK_ON_EXCEPTION
-  (Thomas)
-
-- changed false max microseconds in delay calculation
-  (Thomas)
-
-- fix bug in decimal parameter calculation
-  (Thomas)
-
-- fix bug in msch inline assembly
-  (Thomas)
-
-- add report_abort() for unprobable result of tsch
-  in I/O IRQ
-  (Thomas)
-
-- use of existing lctlg() wrapper instead of new function
-  (Thomas)
-
-from v7 to v8
-
-* Suppress ccw-pong specific remote device
-  (Thomas, Janosch)
-
-* use virtio-net-ccw as device instead of a specific
-  device: no more need for QEMU patch
-  (Connie)
-
-* Add kernel parameter to access a different device.
-  (Connie)
-
-* Add tests on subschannel reading, length, garbage.
-  (Connie)
-
-* Several naming changes and reorganizations of definitions.
-  (Connie)
-
-* Take wrapping into account for delay calculation
-
-* Align CCW1 on 8 bytes boundary
-
-* Reorganize the first three patches
-  (Janosch)
-
-from v6 to v7
-
-* s390x: saving regs for interrupts
-- macro name modificatio for SAVE_REGS_STACK
-  (David)
-- saving the FPC
-  (David)
-
-* s390x: Use PSW bits definitions in cstart
-- suppress definition for PSW_RESET_MASK
-  use PSW_EXCEPTION_MASK | PSW_MASK_SHORT_PSW
-  (David)
-
-* s390x: Library resources for CSS tests
-* s390x: css: stsch, enumeration test
-  move library definitions from stsch patche
-  to the Library patch
-  add the library to the s390 Makefile here
-  (Janosch)
-  
-* s390x: css: msch, enable test
-  Add retries when enable fails
-  (Connie)
-  Re-introduce the patches for delay implementation
-  to add a delay between retries
-
-* s390x: define function to wait for interrupt
-  Changed name from wfi to wait_for_interrupt
-  (Janosch)
-
-* s390x: css: ssch/tsch with sense and interrupt
-  add a flag parameter to ssch and use it to add
-  SLI (Suppress Length Indication) flag for SENSE_ID
-  (Connie)
-
-
-from v5 to v6
-- Added comments for IRQ handling in
-  s390x: saving regs for interrupts
-  (Janosch) 
-
-- fixed BUG on reset_psw, added PSW_MASK_PSW_SHORT
-  and PSW_RESET_MASK
-
-- fixed several lines over 80 chars
-
-- fixed licenses, use GPL V2 (no more LGPL)
-
-- replacing delay() with wfi() (Wait For Interrupt)
-  during the css tests
-  (suggested by Connie's comments)
-
-- suppressing delay() induces suppressing the patch
-  "s390x: export the clock get_clock_ms() utility"
-  which is already reviewed but can be picked from
-  the v5 series.
-
-- changed the logic of the tests, the 4 css tests
-  are always run one after the other so no need to 
-  re-run enumeration and enabling at the begining
-  of each tests, it has alredy been done.
-  This makes code simpler.
-
-from v4 to v5
-- add a patch to explicitely define the initial_cr0
-  value
-  (Janosch)
-- add RB from Janosh on interrupt registration
-- several formating, typo correction and removing
-  unnecessary initialization in "linrary resources..."
-  (Janosch)
-- several formating and typo corrections on
-  "stsch enumeration test"
-  (Connie)
-- reworking the msch test
-  (Connie)
-- reworking of ssch test, pack the sense-id structure
-  (Connie)
-
-from v3 to v4
-- add RB from David and Thomas for patchs 
-  (3) irq registration and (4) clock export
-- rework the PSW bit definitions
-  (Thomas)
-- Suppress undef DEBUG from css_dump
-  (Thomas)
-- rework report() functions using new scheme
-  (Thomas)
-- suppress un-necessary report_info()
-- more spelling corrections
-- add a loop around enable bit testing
-  (Connie)
-- rework IRQ testing
-  (Connie)
-- Test data addresses to be under 2G
-  (Connie)
-
-from v2 to v3:
-- Rework spelling
-  (Connie)
-- More descriptions
-  (Connie)
-- use __ASSEMBLER__ preprocessing to keep
-  bits definitions and C structures in the same file
-  (David)
-- rename the new file clock.h as time.h
-  (Janosch, David?)
-- use registration for the IO interruption
-  (David, Thomas)
-- test the SCHIB to verify it has really be modified
-  (Connie)
-- Lot of simplifications in the tests
-  (Connie)
-
-from v1 to v2:
-- saving floating point registers (David, Janosh)
-- suppress unused PSW bits defintions (Janosh)
-- added Thomas reviewed-by
-- style and comments modifications (Connie, Janosh)
-- moved get_clock_ms() into headers and use it (Thomas)
-- separate header and library utility from tests
-- Suppress traces, separate tests, make better usage of reports
+2.27.0
