@@ -1,50 +1,30 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29712 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728682AbgGPPiE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 16 Jul 2020 11:38:04 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 02/10] net/smc: clear link during SMC client link down processing
-Date: Thu, 16 Jul 2020 17:37:38 +0200
-Message-Id: <20200716153746.77303-3-kgraul@linux.ibm.com>
-In-Reply-To: <20200716153746.77303-1-kgraul@linux.ibm.com>
-References: <20200716153746.77303-1-kgraul@linux.ibm.com>
+Received: from verein.lst.de ([213.95.11.211]:59827 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726109AbgGWLpE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 23 Jul 2020 07:45:04 -0400
+Date: Thu, 23 Jul 2020 13:44:58 +0200
+From: 'Christoph Hellwig' <hch@lst.de>
+Subject: Re: [PATCH 13/26] bpfilter: switch bpfilter_ip_set_sockopt to
+ sockptr_t
+Message-ID: <20200723114458.GA31363@lst.de>
+References: <20200723060908.50081-1-hch@lst.de> <20200723060908.50081-14-hch@lst.de> <621e193e4af74d8198ed87d6a9ce8260@AcuMS.aculab.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <621e193e4af74d8198ed87d6a9ce8260@AcuMS.aculab.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: David Laight <David.Laight@ACULAB.COM>
+Cc: 'Christoph Hellwig' <hch@lst.de>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netfilter-devel@vger.kernel.org" <netfilter-devel@vger.kernel.org>, "coreteam@netfilter.org" <coreteam@netfilter.org>, "linux-sctp@vger.kernel.org" <linux-sctp@vger.kernel.org>, "linux-hams@vger.kernel.org" <linux-hams@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>, "bridge@lists.linux-foundation.org" <bridge@lists.linux-foundation.org>, "linux-can@vger.kernel.org" <linux-can@vger.kernel.org>, "dccp@vger.kernel.org" <dccp@vger.kernel.org>, "linux-decnet-user@lists.sourceforge.net" <linux-decnet-user@lists.sourceforge.net>, "linux-wpan@vger.kernel.org" <linux-wpan@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "mptcp@lists.01.org" <mptcp@lists.01.org>, "lvs-devel@vger.kernel.org" <lvs-devel@vger.kernel.org>, "rds-devel@oss.oracle.com" <rds-devel@oss.oracle.com>, "linux-afs@lists.infradead.org" <linux-afs@lists.infradead.org>, "tipc-discussion@lists.sourceforge.net" <tipc-discussion@lists.sourceforge.net>, "linux-x25@vger.kernel.org" <linux-x25@vger.kernel.org>
 
-In a link-down condition we notify the SMC server and expect that the
-server will finally trigger the link clear processing on the client
-side. This could fail when anything along this notification path goes
-wrong. Clear the link as part of SMC client link-down processing to
-prevent dangling links.
+On Thu, Jul 23, 2020 at 11:16:16AM +0000, David Laight wrote:
+> From: Christoph Hellwig
+> > Sent: 23 July 2020 07:09
+> > 
+> > This is mostly to prepare for cleaning up the callers, as bpfilter by
+> > design can't handle kernel pointers.
+> 
+> You've failed to fix the sense of the above...
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Fixes: 541afa10c126 ("net/smc: add smcr_port_err() and smcr_link_down() processing")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index f69d205b3e11..e286b3c8c962 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1204,10 +1204,12 @@ static void smcr_link_down(struct smc_link *lnk)
- 				SMC_LLC_WAIT_TIME);
- 			mutex_lock(&lgr->llc_conf_mutex);
- 		}
--		if (!list_empty(&lgr->list))
-+		if (!list_empty(&lgr->list)) {
- 			smc_llc_send_delete_link(to_lnk, del_link_id,
- 						 SMC_LLC_REQ, true,
- 						 SMC_LLC_DEL_LOST_PATH);
-+			smcr_link_clear(lnk, true);
-+		}
- 		wake_up(&lgr->llc_flow_waiter);	/* wake up next waiter */
- 	}
- }
--- 
-2.17.1
+The sense still is correct.
