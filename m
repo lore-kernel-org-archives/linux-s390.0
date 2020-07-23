@@ -1,172 +1,213 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31162 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725876AbgGNOXW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 10:23:22 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 09/10] s390/qeth: unify RX-mode hashtables
-Date: Tue, 14 Jul 2020 16:23:04 +0200
-Message-Id: <20200714142305.29297-10-jwi@linux.ibm.com>
-In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
-References: <20200714142305.29297-1-jwi@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56470 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726852AbgGWGJi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:38 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 11/26] netfilter: switch xt_copy_counters to sockptr_t
+Date: Thu, 23 Jul 2020 08:08:53 +0200
+Message-Id: <20200723060908.50081-12-hch@lst.de>
+In-Reply-To: <20200723060908.50081-1-hch@lst.de>
+References: <20200723060908.50081-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-To keep track of the addresses programmed from an RX modeset, we have
-two separate hashtables (L2: mac_htable, L3: ip_mc_htable).
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-These are never used at the same time, so unify them into a single
-rx_mode_addrs hashtable.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/net/qeth_core.h      |  3 +--
- drivers/s390/net/qeth_core_main.c |  1 +
- drivers/s390/net/qeth_l2_main.c   |  9 ++++-----
- drivers/s390/net/qeth_l3_main.c   | 13 ++++++-------
- 4 files changed, 12 insertions(+), 14 deletions(-)
+ include/linux/netfilter/x_tables.h |  4 ++--
+ net/ipv4/netfilter/arp_tables.c    |  7 +++----
+ net/ipv4/netfilter/ip_tables.c     |  7 +++----
+ net/ipv6/netfilter/ip6_tables.c    |  6 +++---
+ net/netfilter/x_tables.c           | 20 ++++++++++----------
+ 5 files changed, 21 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index c77a87105ea8..3d54c8bbfa86 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -803,14 +803,13 @@ struct qeth_card {
- 	struct workqueue_struct *event_wq;
- 	struct workqueue_struct *cmd_wq;
- 	wait_queue_head_t wait_q;
--	DECLARE_HASHTABLE(mac_htable, 4);
- 	DECLARE_HASHTABLE(ip_htable, 4);
- 	DECLARE_HASHTABLE(local_addrs4, 4);
- 	DECLARE_HASHTABLE(local_addrs6, 4);
- 	spinlock_t local_addrs4_lock;
- 	spinlock_t local_addrs6_lock;
- 	struct mutex ip_lock;
--	DECLARE_HASHTABLE(ip_mc_htable, 4);
-+	DECLARE_HASHTABLE(rx_mode_addrs, 4);
- 	struct work_struct rx_mode_work;
- 	struct work_struct kernel_thread_starter;
- 	spinlock_t thread_mask_lock;
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 053a25e34e4b..01a280b5e8d2 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1647,6 +1647,7 @@ static void qeth_setup_card(struct qeth_card *card)
- 	qeth_init_qdio_info(card);
- 	INIT_DELAYED_WORK(&card->buffer_reclaim_work, qeth_buffer_reclaim_work);
- 	INIT_WORK(&card->close_dev_work, qeth_close_dev_handler);
-+	hash_init(card->rx_mode_addrs);
- 	hash_init(card->local_addrs4);
- 	hash_init(card->local_addrs6);
- 	spin_lock_init(&card->local_addrs4_lock);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 2d3bca3c0141..ef7a2db7a724 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -156,7 +156,7 @@ static void qeth_l2_drain_rx_mode_cache(struct qeth_card *card)
- 	struct hlist_node *tmp;
- 	int i;
+diff --git a/include/linux/netfilter/x_tables.h b/include/linux/netfilter/x_tables.h
+index b8b943ee7b8b66..5deb099d156dcb 100644
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -301,8 +301,8 @@ int xt_target_to_user(const struct xt_entry_target *t,
+ int xt_data_to_user(void __user *dst, const void *src,
+ 		    int usersize, int size, int aligned_size);
  
--	hash_for_each_safe(card->mac_htable, i, tmp, mac, hnode) {
-+	hash_for_each_safe(card->rx_mode_addrs, i, tmp, mac, hnode) {
- 		hash_del(&mac->hnode);
- 		kfree(mac);
- 	}
-@@ -438,7 +438,7 @@ static void qeth_l2_add_mac(struct qeth_card *card, struct netdev_hw_addr *ha)
- 	u32 mac_hash = get_unaligned((u32 *)(&ha->addr[2]));
- 	struct qeth_mac *mac;
+-void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+-				 struct xt_counters_info *info);
++void *xt_copy_counters(sockptr_t arg, unsigned int len,
++		       struct xt_counters_info *info);
+ struct xt_counters *xt_counters_alloc(unsigned int counters);
  
--	hash_for_each_possible(card->mac_htable, mac, hnode, mac_hash) {
-+	hash_for_each_possible(card->rx_mode_addrs, mac, hnode, mac_hash) {
- 		if (ether_addr_equal_64bits(ha->addr, mac->mac_addr)) {
- 			mac->disp_flag = QETH_DISP_ADDR_DO_NOTHING;
- 			return;
-@@ -452,7 +452,7 @@ static void qeth_l2_add_mac(struct qeth_card *card, struct netdev_hw_addr *ha)
- 	ether_addr_copy(mac->mac_addr, ha->addr);
- 	mac->disp_flag = QETH_DISP_ADDR_ADD;
- 
--	hash_add(card->mac_htable, &mac->hnode, mac_hash);
-+	hash_add(card->rx_mode_addrs, &mac->hnode, mac_hash);
+ struct xt_table *xt_register_table(struct net *net,
+diff --git a/net/ipv4/netfilter/arp_tables.c b/net/ipv4/netfilter/arp_tables.c
+index 2c8a4dad39d748..6d24b686c7f00a 100644
+--- a/net/ipv4/netfilter/arp_tables.c
++++ b/net/ipv4/netfilter/arp_tables.c
+@@ -996,8 +996,7 @@ static int do_replace(struct net *net, const void __user *user,
+ 	return ret;
  }
  
- static void qeth_l2_rx_mode_work(struct work_struct *work)
-@@ -475,7 +475,7 @@ static void qeth_l2_rx_mode_work(struct work_struct *work)
- 		qeth_l2_add_mac(card, ha);
- 	netif_addr_unlock_bh(dev);
+-static int do_add_counters(struct net *net, const void __user *user,
+-			   unsigned int len)
++static int do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
+ {
+ 	unsigned int i;
+ 	struct xt_counters_info tmp;
+@@ -1008,7 +1007,7 @@ static int do_add_counters(struct net *net, const void __user *user,
+ 	struct arpt_entry *iter;
+ 	unsigned int addend;
  
--	hash_for_each_safe(card->mac_htable, i, tmp, mac, hnode) {
-+	hash_for_each_safe(card->rx_mode_addrs, i, tmp, mac, hnode) {
- 		switch (mac->disp_flag) {
- 		case QETH_DISP_ADDR_DELETE:
- 			qeth_l2_remove_mac(card, mac->mac_addr);
-@@ -601,7 +601,6 @@ static int qeth_l2_probe_device(struct ccwgroup_device *gdev)
- 			return rc;
- 	}
+-	paddc = xt_copy_counters_from_user(user, len, &tmp);
++	paddc = xt_copy_counters(arg, len, &tmp);
+ 	if (IS_ERR(paddc))
+ 		return PTR_ERR(paddc);
  
--	hash_init(card->mac_htable);
- 	INIT_WORK(&card->rx_mode_work, qeth_l2_rx_mode_work);
- 	return 0;
+@@ -1420,7 +1419,7 @@ static int do_arpt_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned
+ 		break;
+ 
+ 	case ARPT_SO_SET_ADD_COUNTERS:
+-		ret = do_add_counters(sock_net(sk), user, len);
++		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
+ 		break;
+ 
+ 	default:
+diff --git a/net/ipv4/netfilter/ip_tables.c b/net/ipv4/netfilter/ip_tables.c
+index 161901dd1cae7f..4697d09c98dc3e 100644
+--- a/net/ipv4/netfilter/ip_tables.c
++++ b/net/ipv4/netfilter/ip_tables.c
+@@ -1151,8 +1151,7 @@ do_replace(struct net *net, const void __user *user, unsigned int len)
  }
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index d4ce653ff111..15a12487ff7a 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -58,7 +58,7 @@ static struct qeth_ipaddr *qeth_l3_find_addr_by_ip(struct qeth_card *card,
- 	struct qeth_ipaddr *addr;
  
- 	if (query->is_multicast) {
--		hash_for_each_possible(card->ip_mc_htable, addr, hnode, key)
-+		hash_for_each_possible(card->rx_mode_addrs, addr, hnode, key)
- 			if (qeth_l3_addr_match_ip(addr, query))
- 				return addr;
- 	} else {
-@@ -239,7 +239,7 @@ static void qeth_l3_drain_rx_mode_cache(struct qeth_card *card)
- 	struct hlist_node *tmp;
- 	int i;
+ static int
+-do_add_counters(struct net *net, const void __user *user,
+-		unsigned int len)
++do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
+ {
+ 	unsigned int i;
+ 	struct xt_counters_info tmp;
+@@ -1163,7 +1162,7 @@ do_add_counters(struct net *net, const void __user *user,
+ 	struct ipt_entry *iter;
+ 	unsigned int addend;
  
--	hash_for_each_safe(card->ip_mc_htable, i, tmp, addr, hnode) {
-+	hash_for_each_safe(card->rx_mode_addrs, i, tmp, addr, hnode) {
- 		hash_del(&addr->hnode);
- 		kfree(addr);
- 	}
-@@ -1093,7 +1093,7 @@ static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
- 		if (!ipm)
- 			continue;
+-	paddc = xt_copy_counters_from_user(user, len, &tmp);
++	paddc = xt_copy_counters(arg, len, &tmp);
+ 	if (IS_ERR(paddc))
+ 		return PTR_ERR(paddc);
  
--		hash_add(card->ip_mc_htable, &ipm->hnode,
-+		hash_add(card->rx_mode_addrs, &ipm->hnode,
- 			 qeth_l3_ipaddr_hash(ipm));
- 	}
+@@ -1629,7 +1628,7 @@ do_ipt_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
+ 		break;
  
-@@ -1124,8 +1124,8 @@ static int qeth_l3_add_mcast_rtnl(struct net_device *dev, int vid, void *arg)
- 		if (!ipm)
- 			continue;
+ 	case IPT_SO_SET_ADD_COUNTERS:
+-		ret = do_add_counters(sock_net(sk), user, len);
++		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
+ 		break;
  
--		hash_add(card->ip_mc_htable,
--				&ipm->hnode, qeth_l3_ipaddr_hash(ipm));
-+		hash_add(card->rx_mode_addrs, &ipm->hnode,
-+			 qeth_l3_ipaddr_hash(ipm));
- 
- 	}
- 	read_unlock_bh(&in6_dev->lock);
-@@ -1219,7 +1219,7 @@ static void qeth_l3_rx_mode_work(struct work_struct *work)
- 			vlan_for_each(card->dev, qeth_l3_add_mcast_rtnl, card);
- 		rtnl_unlock();
- 
--		hash_for_each_safe(card->ip_mc_htable, i, tmp, addr, hnode) {
-+		hash_for_each_safe(card->rx_mode_addrs, i, tmp, addr, hnode) {
- 			switch (addr->disp_flag) {
- 			case QETH_DISP_ADDR_DELETE:
- 				rc = qeth_l3_deregister_addr_entry(card, addr);
-@@ -1998,7 +1998,6 @@ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
- 		}
- 	}
- 
--	hash_init(card->ip_mc_htable);
- 	INIT_WORK(&card->rx_mode_work, qeth_l3_rx_mode_work);
- 	return 0;
+ 	default:
+diff --git a/net/ipv6/netfilter/ip6_tables.c b/net/ipv6/netfilter/ip6_tables.c
+index fd1f8f93123188..a787aba30e2db7 100644
+--- a/net/ipv6/netfilter/ip6_tables.c
++++ b/net/ipv6/netfilter/ip6_tables.c
+@@ -1168,7 +1168,7 @@ do_replace(struct net *net, const void __user *user, unsigned int len)
  }
+ 
+ static int
+-do_add_counters(struct net *net, const void __user *user, unsigned int len)
++do_add_counters(struct net *net, sockptr_t arg, unsigned int len)
+ {
+ 	unsigned int i;
+ 	struct xt_counters_info tmp;
+@@ -1179,7 +1179,7 @@ do_add_counters(struct net *net, const void __user *user, unsigned int len)
+ 	struct ip6t_entry *iter;
+ 	unsigned int addend;
+ 
+-	paddc = xt_copy_counters_from_user(user, len, &tmp);
++	paddc = xt_copy_counters(arg, len, &tmp);
+ 	if (IS_ERR(paddc))
+ 		return PTR_ERR(paddc);
+ 	t = xt_find_table_lock(net, AF_INET6, tmp.name);
+@@ -1637,7 +1637,7 @@ do_ip6t_set_ctl(struct sock *sk, int cmd, void __user *user, unsigned int len)
+ 		break;
+ 
+ 	case IP6T_SO_SET_ADD_COUNTERS:
+-		ret = do_add_counters(sock_net(sk), user, len);
++		ret = do_add_counters(sock_net(sk), USER_SOCKPTR(user), len);
+ 		break;
+ 
+ 	default:
+diff --git a/net/netfilter/x_tables.c b/net/netfilter/x_tables.c
+index 32bab45af7e415..b97eb4b538fd4e 100644
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1028,9 +1028,9 @@ int xt_check_target(struct xt_tgchk_param *par,
+ EXPORT_SYMBOL_GPL(xt_check_target);
+ 
+ /**
+- * xt_copy_counters_from_user - copy counters and metadata from userspace
++ * xt_copy_counters - copy counters and metadata from a sockptr_t
+  *
+- * @user: src pointer to userspace memory
++ * @arg: src sockptr
+  * @len: alleged size of userspace memory
+  * @info: where to store the xt_counters_info metadata
+  *
+@@ -1047,8 +1047,8 @@ EXPORT_SYMBOL_GPL(xt_check_target);
+  * Return: returns pointer that caller has to test via IS_ERR().
+  * If IS_ERR is false, caller has to vfree the pointer.
+  */
+-void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+-				 struct xt_counters_info *info)
++void *xt_copy_counters(sockptr_t arg, unsigned int len,
++		       struct xt_counters_info *info)
+ {
+ 	void *mem;
+ 	u64 size;
+@@ -1062,12 +1062,12 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+ 			return ERR_PTR(-EINVAL);
+ 
+ 		len -= sizeof(compat_tmp);
+-		if (copy_from_user(&compat_tmp, user, sizeof(compat_tmp)) != 0)
++		if (copy_from_sockptr(&compat_tmp, arg, sizeof(compat_tmp)) != 0)
+ 			return ERR_PTR(-EFAULT);
+ 
+ 		memcpy(info->name, compat_tmp.name, sizeof(info->name) - 1);
+ 		info->num_counters = compat_tmp.num_counters;
+-		user += sizeof(compat_tmp);
++		sockptr_advance(arg, sizeof(compat_tmp));
+ 	} else
+ #endif
+ 	{
+@@ -1075,10 +1075,10 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+ 			return ERR_PTR(-EINVAL);
+ 
+ 		len -= sizeof(*info);
+-		if (copy_from_user(info, user, sizeof(*info)) != 0)
++		if (copy_from_sockptr(info, arg, sizeof(*info)) != 0)
+ 			return ERR_PTR(-EFAULT);
+ 
+-		user += sizeof(*info);
++		sockptr_advance(arg, sizeof(*info));
+ 	}
+ 	info->name[sizeof(info->name) - 1] = '\0';
+ 
+@@ -1092,13 +1092,13 @@ void *xt_copy_counters_from_user(const void __user *user, unsigned int len,
+ 	if (!mem)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	if (copy_from_user(mem, user, len) == 0)
++	if (copy_from_sockptr(mem, arg, len) == 0)
+ 		return mem;
+ 
+ 	vfree(mem);
+ 	return ERR_PTR(-EFAULT);
+ }
+-EXPORT_SYMBOL_GPL(xt_copy_counters_from_user);
++EXPORT_SYMBOL_GPL(xt_copy_counters);
+ 
+ #ifdef CONFIG_COMPAT
+ int xt_compat_target_offset(const struct xt_target *target)
 -- 
-2.17.1
+2.27.0
