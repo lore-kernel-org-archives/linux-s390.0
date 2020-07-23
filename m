@@ -1,44 +1,89 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:58921 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726129AbgGCJxI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 3 Jul 2020 05:53:08 -0400
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: [PULL 1/1] vfio-ccw: Fix a build error due to missing include of linux/slab.h
-Date: Fri,  3 Jul 2020 11:52:53 +0200
-Message-Id: <20200703095253.620719-2-cohuck@redhat.com>
-In-Reply-To: <20200703095253.620719-1-cohuck@redhat.com>
-References: <20200703095253.620719-1-cohuck@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56540 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727779AbgGWGJy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:54 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 22/26] net/udp: switch udp_lib_setsockopt to sockptr_t
+Date: Thu, 23 Jul 2020 08:09:04 +0200
+Message-Id: <20200723060908.50081-23-hch@lst.de>
+In-Reply-To: <20200723060908.50081-1-hch@lst.de>
+References: <20200723060908.50081-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Eric Farman <farman@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, Cornelia Huck <cohuck@redhat.com>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-Include linux/slab.h to fix a build error due to kfree() being undefined.
-
-Fixes: 3f02cb2fd9d2 ("vfio-ccw: Wire up the CRW irq and CRW region")
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Message-Id: <20200703022628.6036-1-sean.j.christopherson@intel.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/s390/cio/vfio_ccw_chp.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/udp.h | 2 +-
+ net/ipv4/udp.c    | 7 ++++---
+ net/ipv6/udp.c    | 3 ++-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_chp.c b/drivers/s390/cio/vfio_ccw_chp.c
-index a646fc81c872..13b26a1c7988 100644
---- a/drivers/s390/cio/vfio_ccw_chp.c
-+++ b/drivers/s390/cio/vfio_ccw_chp.c
-@@ -8,6 +8,7 @@
-  *            Eric Farman <farman@linux.ibm.com>
+diff --git a/include/net/udp.h b/include/net/udp.h
+index 17a9e86a807638..295d52a7359827 100644
+--- a/include/net/udp.h
++++ b/include/net/udp.h
+@@ -306,7 +306,7 @@ struct sk_buff *skb_udp_tunnel_segment(struct sk_buff *skb,
+ int udp_lib_getsockopt(struct sock *sk, int level, int optname,
+ 		       char __user *optval, int __user *optlen);
+ int udp_lib_setsockopt(struct sock *sk, int level, int optname,
+-		       char __user *optval, unsigned int optlen,
++		       sockptr_t optval, unsigned int optlen,
+ 		       int (*push_pending_frames)(struct sock *));
+ struct sock *udp4_lib_lookup(struct net *net, __be32 saddr, __be16 sport,
+ 			     __be32 daddr, __be16 dport, int dif);
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index bb95cddcb040a6..c6cb2d09dbc75e 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -2588,7 +2588,7 @@ void udp_destroy_sock(struct sock *sk)
+  *	Socket option code for UDP
   */
+ int udp_lib_setsockopt(struct sock *sk, int level, int optname,
+-		       char __user *optval, unsigned int optlen,
++		       sockptr_t optval, unsigned int optlen,
+ 		       int (*push_pending_frames)(struct sock *))
+ {
+ 	struct udp_sock *up = udp_sk(sk);
+@@ -2599,7 +2599,7 @@ int udp_lib_setsockopt(struct sock *sk, int level, int optname,
+ 	if (optlen < sizeof(int))
+ 		return -EINVAL;
  
-+#include <linux/slab.h>
- #include <linux/vfio.h>
- #include "vfio_ccw_private.h"
+-	if (get_user(val, (int __user *)optval))
++	if (copy_from_sockptr(&val, optval, sizeof(val)))
+ 		return -EFAULT;
  
+ 	valbool = val ? 1 : 0;
+@@ -2707,7 +2707,8 @@ int udp_setsockopt(struct sock *sk, int level, int optname,
+ 		   char __user *optval, unsigned int optlen)
+ {
+ 	if (level == SOL_UDP  ||  level == SOL_UDPLITE)
+-		return udp_lib_setsockopt(sk, level, optname, optval, optlen,
++		return udp_lib_setsockopt(sk, level, optname,
++					  USER_SOCKPTR(optval), optlen,
+ 					  udp_push_pending_frames);
+ 	return ip_setsockopt(sk, level, optname, optval, optlen);
+ }
+diff --git a/net/ipv6/udp.c b/net/ipv6/udp.c
+index 7c1143feb2bf7e..2df1e6c9d7cbf6 100644
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1622,7 +1622,8 @@ int udpv6_setsockopt(struct sock *sk, int level, int optname,
+ 		     char __user *optval, unsigned int optlen)
+ {
+ 	if (level == SOL_UDP  ||  level == SOL_UDPLITE)
+-		return udp_lib_setsockopt(sk, level, optname, optval, optlen,
++		return udp_lib_setsockopt(sk, level, optname,
++					  USER_SOCKPTR(optval), optlen,
+ 					  udp_v6_push_pending_frames);
+ 	return ipv6_setsockopt(sk, level, optname, optval, optlen);
+ }
 -- 
-2.25.4
+2.27.0
