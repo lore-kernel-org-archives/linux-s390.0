@@ -1,79 +1,150 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from helcar.hmeau.com ([216.24.177.18]:55898 "EHLO fornost.hmeau.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727077AbgGGDnG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 6 Jul 2020 23:43:06 -0400
-Date: Tue, 7 Jul 2020 13:42:04 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH RESEND] lockdep: Move list.h inclusion into lockdep.h
-Message-ID: <20200707034204.GA13225@gondor.apana.org.au>
-References: <20200617071524.GA3055@gondor.apana.org.au>
- <E1jlSJz-0003hE-8g@fornost.hmeau.com>
- <20200617082459.GC2531@hirez.programming.kicks-ass.net>
- <20200617122449.GX31238@alley>
- <20200618143735.GJ576905@hirez.programming.kicks-ass.net>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56546 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727808AbgGWGJz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:55 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 24/26] net/tcp: switch do_tcp_setsockopt to sockptr_t
+Date: Thu, 23 Jul 2020 08:09:06 +0200
+Message-Id: <20200723060908.50081-25-hch@lst.de>
+In-Reply-To: <20200723060908.50081-1-hch@lst.de>
+References: <20200723060908.50081-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200618143735.GJ576905@hirez.programming.kicks-ass.net>
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>, Sergey Senozhatsky <sergey.senozhatsky@gmail.com>, Steven Rostedt <rostedt@goodmis.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, Andy Shevchenko <andy.shevchenko@gmail.com>
+To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
+Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-On Thu, Jun 18, 2020 at 04:37:35PM +0200, Peter Zijlstra wrote:
->
-> OK, done. tip/locking/header should contain just this patch, and that
-> branch also got merged into tip/locking/core.
+Pass a sockptr_t to prepare for set_fs-less handling of the kernel
+pointer from bpf-cgroup.
 
-Hi Peter:
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ net/ipv4/tcp.c | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
-Could you please apply this patch on top as there is still a header
-loop otherwise? Thanks!
-
----8<---
-Currently lockdep_types.h includes list.h without actually using any
-of its macros or functions.  All it needs are the type definitions
-which were moved into types.h long ago.  This potentially causes
-inclusion loops because both are included by many core header
-files.
-
-This patch moves the list.h inclusion into lockdep.h.  Note that
-we could probably remove it completely but that could potentially
-result in compile failures should any end users not include list.h
-directly and also be unlucky enough to not get list.h via some other
-header file.
-
-Reported-by: Petr Mladek <pmladek@suse.com>
-Tested-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
-index 3b73cf84f77d..b1ad5c045353 100644
---- a/include/linux/lockdep.h
-+++ b/include/linux/lockdep.h
-@@ -21,6 +21,7 @@ extern int lock_stat;
- #ifdef CONFIG_LOCKDEP
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 49bf15c27deac7..71cbc61c335f71 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -2764,7 +2764,7 @@ static inline bool tcp_can_repair_sock(const struct sock *sk)
+ 		(sk->sk_state != TCP_LISTEN);
+ }
  
- #include <linux/linkage.h>
-+#include <linux/list.h>
- #include <linux/debug_locks.h>
- #include <linux/stacktrace.h>
+-static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int len)
++static int tcp_repair_set_window(struct tcp_sock *tp, sockptr_t optbuf, int len)
+ {
+ 	struct tcp_repair_window opt;
  
-diff --git a/include/linux/lockdep_types.h b/include/linux/lockdep_types.h
-index 7b9350624577..bb35b449f533 100644
---- a/include/linux/lockdep_types.h
-+++ b/include/linux/lockdep_types.h
-@@ -32,8 +32,6 @@ enum lockdep_wait_type {
+@@ -2774,7 +2774,7 @@ static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int l
+ 	if (len != sizeof(opt))
+ 		return -EINVAL;
  
- #ifdef CONFIG_LOCKDEP
+-	if (copy_from_user(&opt, optbuf, sizeof(opt)))
++	if (copy_from_sockptr(&opt, optbuf, sizeof(opt)))
+ 		return -EFAULT;
  
--#include <linux/list.h>
--
+ 	if (opt.max_window < opt.snd_wnd)
+@@ -2796,17 +2796,17 @@ static int tcp_repair_set_window(struct tcp_sock *tp, char __user *optbuf, int l
+ 	return 0;
+ }
+ 
+-static int tcp_repair_options_est(struct sock *sk,
+-		struct tcp_repair_opt __user *optbuf, unsigned int len)
++static int tcp_repair_options_est(struct sock *sk, sockptr_t optbuf,
++		unsigned int len)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct tcp_repair_opt opt;
+ 
+ 	while (len >= sizeof(opt)) {
+-		if (copy_from_user(&opt, optbuf, sizeof(opt)))
++		if (copy_from_sockptr(&opt, optbuf, sizeof(opt)))
+ 			return -EFAULT;
+ 
+-		optbuf++;
++		sockptr_advance(optbuf, sizeof(opt));
+ 		len -= sizeof(opt);
+ 
+ 		switch (opt.opt_code) {
+@@ -3020,8 +3020,8 @@ EXPORT_SYMBOL(tcp_sock_set_keepcnt);
  /*
-  * We'd rather not expose kernel/lockdep_states.h this wide, but we do need
-  * the total number of states... :-(
+  *	Socket option code for TCP.
+  */
+-static int do_tcp_setsockopt(struct sock *sk, int level,
+-		int optname, char __user *optval, unsigned int optlen)
++static int do_tcp_setsockopt(struct sock *sk, int level, int optname,
++		sockptr_t optval, unsigned int optlen)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct inet_connection_sock *icsk = inet_csk(sk);
+@@ -3037,7 +3037,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 		if (optlen < 1)
+ 			return -EINVAL;
+ 
+-		val = strncpy_from_user(name, optval,
++		val = strncpy_from_sockptr(name, optval,
+ 					min_t(long, TCP_CA_NAME_MAX-1, optlen));
+ 		if (val < 0)
+ 			return -EFAULT;
+@@ -3056,7 +3056,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 		if (optlen < 1)
+ 			return -EINVAL;
+ 
+-		val = strncpy_from_user(name, optval,
++		val = strncpy_from_sockptr(name, optval,
+ 					min_t(long, TCP_ULP_NAME_MAX - 1,
+ 					      optlen));
+ 		if (val < 0)
+@@ -3079,7 +3079,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 		    optlen != TCP_FASTOPEN_KEY_BUF_LENGTH)
+ 			return -EINVAL;
+ 
+-		if (copy_from_user(key, optval, optlen))
++		if (copy_from_sockptr(key, optval, optlen))
+ 			return -EFAULT;
+ 
+ 		if (optlen == TCP_FASTOPEN_KEY_BUF_LENGTH)
+@@ -3095,7 +3095,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 	if (optlen < sizeof(int))
+ 		return -EINVAL;
+ 
+-	if (get_user(val, (int __user *)optval))
++	if (copy_from_sockptr(&val, optval, sizeof(val)))
+ 		return -EFAULT;
+ 
+ 	lock_sock(sk);
+@@ -3174,9 +3174,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ 		if (!tp->repair)
+ 			err = -EINVAL;
+ 		else if (sk->sk_state == TCP_ESTABLISHED)
+-			err = tcp_repair_options_est(sk,
+-					(struct tcp_repair_opt __user *)optval,
+-					optlen);
++			err = tcp_repair_options_est(sk, optval, optlen);
+ 		else
+ 			err = -EPERM;
+ 		break;
+@@ -3249,8 +3247,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+ #ifdef CONFIG_TCP_MD5SIG
+ 	case TCP_MD5SIG:
+ 	case TCP_MD5SIG_EXT:
+-		err = tp->af_specific->md5_parse(sk, optname,
+-						 USER_SOCKPTR(optval), optlen);
++		err = tp->af_specific->md5_parse(sk, optname, optval, optlen);
+ 		break;
+ #endif
+ 	case TCP_USER_TIMEOUT:
+@@ -3334,7 +3331,8 @@ int tcp_setsockopt(struct sock *sk, int level, int optname, char __user *optval,
+ 	if (level != SOL_TCP)
+ 		return icsk->icsk_af_ops->setsockopt(sk, level, optname,
+ 						     optval, optlen);
+-	return do_tcp_setsockopt(sk, level, optname, optval, optlen);
++	return do_tcp_setsockopt(sk, level, optname, USER_SOCKPTR(optval),
++				 optlen);
+ }
+ EXPORT_SYMBOL(tcp_setsockopt);
+ 
 -- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+2.27.0
