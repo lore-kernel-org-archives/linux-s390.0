@@ -1,420 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:37608 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728463AbgGMDY3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 12 Jul 2020 23:24:29 -0400
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V5 3/4] mm/debug_vm_pgtable: Add debug prints for individual tests
-Date: Mon, 13 Jul 2020 08:53:06 +0530
-Message-Id: <1594610587-4172-4-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1594610587-4172-1-git-send-email-anshuman.khandual@arm.com>
-References: <1594610587-4172-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27332 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726081AbgGZSe4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 26 Jul 2020 14:34:56 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 2/2] net/smc: unique reason code for exceeded max dmb count
+Date: Sun, 26 Jul 2020 20:34:28 +0200
+Message-Id: <20200726183428.3284-3-kgraul@linux.ibm.com>
+In-Reply-To: <20200726183428.3284-1-kgraul@linux.ibm.com>
+References: <20200726183428.3284-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org
-Cc: agordeev@linux.ibm.com, ziy@nvidia.com, gerald.schaefer@de.ibm.com, christophe.leroy@c-s.fr, christophe.leroy@csgroup.eu, aneesh.kumar@linux.ibm.com, rppt@kernel.org, cai@lca.pw, Anshuman Khandual <anshuman.khandual@arm.com>, Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@linux.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, "Kirill A . Shutemov" <kirill@shutemov.name>, Paul Walmsley <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>, linux-snps-arc@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-riscv@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-This adds debug print information that enlists all tests getting executed
-on a given platform. With dynamic debug enabled, the following information
-will be splashed during boot. For compactness purpose, dropped both time
-stamp and prefix (i.e debug_vm_pgtable) from this sample output.
+When the maximum dmb buffer limit for an ism device is reached no more
+dmb buffers can be registered. When this happens the reason code is set
+to SMC_CLC_DECL_MEM indicating out-of-memory. This is the same reason
+code that is used when no memory could be allocated for the new dmb
+buffer.
+This is confusing for users when they see this error but there is more
+memory available. To solve this set a separate new reason code when the
+maximum dmb limit exceeded.
 
-[debug_vm_pgtable      ]: Validating architecture page table helpers
-[pte_basic_tests       ]: Validating PTE basic
-[pmd_basic_tests       ]: Validating PMD basic
-[p4d_basic_tests       ]: Validating P4D basic
-[pgd_basic_tests       ]: Validating PGD basic
-[pte_clear_tests       ]: Validating PTE clear
-[pmd_clear_tests       ]: Validating PMD clear
-[pte_advanced_tests    ]: Validating PTE advanced
-[pmd_advanced_tests    ]: Validating PMD advanced
-[hugetlb_advanced_tests]: Validating HugeTLB advanced
-[pmd_leaf_tests        ]: Validating PMD leaf
-[pmd_huge_tests        ]: Validating PMD huge
-[pte_savedwrite_tests  ]: Validating PTE saved write
-[pmd_savedwrite_tests  ]: Validating PMD saved write
-[pmd_populate_tests    ]: Validating PMD populate
-[pte_special_tests     ]: Validating PTE special
-[pte_protnone_tests    ]: Validating PTE protnone
-[pmd_protnone_tests    ]: Validating PMD protnone
-[pte_devmap_tests      ]: Validating PTE devmap
-[pmd_devmap_tests      ]: Validating PMD devmap
-[pte_swap_tests        ]: Validating PTE swap
-[swap_migration_tests  ]: Validating swap migration
-[hugetlb_basic_tests   ]: Validating HugeTLB basic
-[pmd_thp_tests         ]: Validating PMD based THP
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Cc: linux-riscv@lists.infradead.org
-Cc: x86@kernel.org
-Cc: linux-mm@kvack.org
-Cc: linux-arch@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Tested-by: Vineet Gupta <vgupta@synopsys.com>	#arc
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- mm/debug_vm_pgtable.c | 46 ++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 45 insertions(+), 1 deletion(-)
+ net/smc/af_smc.c   | 13 +++++++++----
+ net/smc/smc_clc.h  |  1 +
+ net/smc/smc_core.c |  4 ++--
+ 3 files changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 9c7c11eecf17..0db4390435be 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -8,7 +8,7 @@
-  *
-  * Author: Anshuman Khandual <anshuman.khandual@arm.com>
-  */
--#define pr_fmt(fmt) "debug_vm_pgtable: %s: " fmt, __func__
-+#define pr_fmt(fmt) "debug_vm_pgtable: [%-25s]: " fmt, __func__
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 832e36269b10..e7649bbc2b87 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -719,8 +719,11 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 	}
  
- #include <linux/gfp.h>
- #include <linux/highmem.h>
-@@ -48,6 +48,7 @@ static void __init pte_basic_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pte_t pte = pfn_pte(pfn, prot);
+ 	/* Create send and receive buffers */
+-	if (smc_buf_create(smc, true))
+-		return smc_connect_abort(smc, SMC_CLC_DECL_MEM,
++	rc = smc_buf_create(smc, true);
++	if (rc)
++		return smc_connect_abort(smc, (rc == -ENOSPC) ?
++					      SMC_CLC_DECL_MAX_DMB :
++					      SMC_CLC_DECL_MEM,
+ 					 ini->cln_first_contact);
  
-+	pr_debug("Validating PTE basic\n");
- 	WARN_ON(!pte_same(pte, pte));
- 	WARN_ON(!pte_young(pte_mkyoung(pte_mkold(pte))));
- 	WARN_ON(!pte_dirty(pte_mkdirty(pte_mkclean(pte))));
-@@ -64,6 +65,7 @@ static void __init pte_advanced_tests(struct mm_struct *mm,
- {
- 	pte_t pte = pfn_pte(pfn, prot);
+ 	smc_conn_save_peer_info(smc, aclc);
+@@ -1200,12 +1203,14 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
+ 	}
  
-+	pr_debug("Validating PTE advanced\n");
- 	pte = pfn_pte(pfn, prot);
- 	set_pte_at(mm, vaddr, ptep, pte);
- 	ptep_set_wrprotect(mm, vaddr, ptep);
-@@ -103,6 +105,7 @@ static void __init pte_savedwrite_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pte_t pte = pfn_pte(pfn, prot);
+ 	/* Create send and receive buffers */
+-	if (smc_buf_create(new_smc, true)) {
++	rc = smc_buf_create(new_smc, true);
++	if (rc) {
+ 		if (ini->cln_first_contact == SMC_FIRST_CONTACT)
+ 			smc_lgr_cleanup_early(&new_smc->conn);
+ 		else
+ 			smc_conn_free(&new_smc->conn);
+-		return SMC_CLC_DECL_MEM;
++		return (rc == -ENOSPC) ? SMC_CLC_DECL_MAX_DMB :
++					 SMC_CLC_DECL_MEM;
+ 	}
  
-+	pr_debug("Validating PTE saved write\n");
- 	WARN_ON(!pte_savedwrite(pte_mk_savedwrite(pte_clear_savedwrite(pte))));
- 	WARN_ON(pte_savedwrite(pte_clear_savedwrite(pte_mk_savedwrite(pte))));
- }
-@@ -114,6 +117,7 @@ static void __init pmd_basic_tests(unsigned long pfn, pgprot_t prot)
- 	if (!has_transparent_hugepage())
- 		return;
+ 	return 0;
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 76c2b150d040..cf7b45306f4e 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -48,6 +48,7 @@
+ #define SMC_CLC_DECL_NOACTLINK	0x030a0000  /* no active smc-r link in lgr    */
+ #define SMC_CLC_DECL_NOSRVLINK	0x030b0000  /* SMC-R link from srv not found  */
+ #define SMC_CLC_DECL_VERSMISMAT	0x030c0000  /* SMC version mismatch	      */
++#define SMC_CLC_DECL_MAX_DMB	0x030d0000  /* SMC-D DMB limit exceeded       */
+ #define SMC_CLC_DECL_SYNCERR	0x04000000  /* synchronization error          */
+ #define SMC_CLC_DECL_PEERDECL	0x05000000  /* peer declined during handshake */
+ #define SMC_CLC_DECL_INTERR	0x09990000  /* internal error		      */
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index f82a2e599917..b42fa3b00d00 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1614,7 +1614,7 @@ static struct smc_buf_desc *smcd_new_buf_create(struct smc_link_group *lgr,
+ 		rc = smc_ism_register_dmb(lgr, bufsize, buf_desc);
+ 		if (rc) {
+ 			kfree(buf_desc);
+-			return ERR_PTR(-EAGAIN);
++			return (rc == -ENOMEM) ? ERR_PTR(-EAGAIN) : ERR_PTR(rc);
+ 		}
+ 		buf_desc->pages = virt_to_page(buf_desc->cpu_addr);
+ 		/* CDC header stored in buf. So, pretend it was smaller */
+@@ -1688,7 +1688,7 @@ static int __smc_buf_create(struct smc_sock *smc, bool is_smcd, bool is_rmb)
+ 	}
  
-+	pr_debug("Validating PMD basic\n");
- 	WARN_ON(!pmd_same(pmd, pmd));
- 	WARN_ON(!pmd_young(pmd_mkyoung(pmd_mkold(pmd))));
- 	WARN_ON(!pmd_dirty(pmd_mkdirty(pmd_mkclean(pmd))));
-@@ -138,6 +142,7 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
- 	if (!has_transparent_hugepage())
- 		return;
+ 	if (IS_ERR(buf_desc))
+-		return -ENOMEM;
++		return PTR_ERR(buf_desc);
  
-+	pr_debug("Validating PMD advanced\n");
- 	/* Align the address wrt HPAGE_PMD_SIZE */
- 	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
- 
-@@ -180,6 +185,7 @@ static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pmd_t pmd = pfn_pmd(pfn, prot);
- 
-+	pr_debug("Validating PMD leaf\n");
- 	/*
- 	 * PMD based THP is a leaf entry.
- 	 */
-@@ -193,6 +199,8 @@ static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
- 
- 	if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
- 		return;
-+
-+	pr_debug("Validating PMD huge\n");
- 	/*
- 	 * X86 defined pmd_set_huge() verifies that the given
- 	 * PMD is not a populated non-leaf entry.
-@@ -208,6 +216,7 @@ static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pmd_t pmd = pfn_pmd(pfn, prot);
- 
-+	pr_debug("Validating PMD saved write\n");
- 	WARN_ON(!pmd_savedwrite(pmd_mk_savedwrite(pmd_clear_savedwrite(pmd))));
- 	WARN_ON(pmd_savedwrite(pmd_clear_savedwrite(pmd_mk_savedwrite(pmd))));
- }
-@@ -220,6 +229,7 @@ static void __init pud_basic_tests(unsigned long pfn, pgprot_t prot)
- 	if (!has_transparent_hugepage())
- 		return;
- 
-+	pr_debug("Validating PUD basic\n");
- 	WARN_ON(!pud_same(pud, pud));
- 	WARN_ON(!pud_young(pud_mkyoung(pud_mkold(pud))));
- 	WARN_ON(!pud_write(pud_mkwrite(pud_wrprotect(pud))));
-@@ -246,6 +256,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
- 	if (!has_transparent_hugepage())
- 		return;
- 
-+	pr_debug("Validating PUD advanced\n");
- 	/* Align the address wrt HPAGE_PUD_SIZE */
- 	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
- 
-@@ -288,6 +299,7 @@ static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pud_t pud = pfn_pud(pfn, prot);
- 
-+	pr_debug("Validating PUD leaf\n");
- 	/*
- 	 * PUD based THP is a leaf entry.
- 	 */
-@@ -301,6 +313,8 @@ static void __init pud_huge_tests(pud_t *pudp, unsigned long pfn, pgprot_t prot)
- 
- 	if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
- 		return;
-+
-+	pr_debug("Validating PUD huge\n");
- 	/*
- 	 * X86 defined pud_set_huge() verifies that the given
- 	 * PUD is not a populated non-leaf entry.
-@@ -354,6 +368,7 @@ static void __init p4d_basic_tests(unsigned long pfn, pgprot_t prot)
- {
- 	p4d_t p4d;
- 
-+	pr_debug("Validating P4D basic\n");
- 	memset(&p4d, RANDOM_NZVALUE, sizeof(p4d_t));
- 	WARN_ON(!p4d_same(p4d, p4d));
- }
-@@ -362,6 +377,7 @@ static void __init pgd_basic_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pgd_t pgd;
- 
-+	pr_debug("Validating PGD basic\n");
- 	memset(&pgd, RANDOM_NZVALUE, sizeof(pgd_t));
- 	WARN_ON(!pgd_same(pgd, pgd));
- }
-@@ -374,6 +390,7 @@ static void __init pud_clear_tests(struct mm_struct *mm, pud_t *pudp)
- 	if (mm_pmd_folded(mm))
- 		return;
- 
-+	pr_debug("Validating PUD clear\n");
- 	pud = __pud(pud_val(pud) | RANDOM_ORVALUE);
- 	WRITE_ONCE(*pudp, pud);
- 	pud_clear(pudp);
-@@ -388,6 +405,8 @@ static void __init pud_populate_tests(struct mm_struct *mm, pud_t *pudp,
- 
- 	if (mm_pmd_folded(mm))
- 		return;
-+
-+	pr_debug("Validating PUD populate\n");
- 	/*
- 	 * This entry points to next level page table page.
- 	 * Hence this must not qualify as pud_bad().
-@@ -414,6 +433,7 @@ static void __init p4d_clear_tests(struct mm_struct *mm, p4d_t *p4dp)
- 	if (mm_pud_folded(mm))
- 		return;
- 
-+	pr_debug("Validating P4D clear\n");
- 	p4d = __p4d(p4d_val(p4d) | RANDOM_ORVALUE);
- 	WRITE_ONCE(*p4dp, p4d);
- 	p4d_clear(p4dp);
-@@ -429,6 +449,7 @@ static void __init p4d_populate_tests(struct mm_struct *mm, p4d_t *p4dp,
- 	if (mm_pud_folded(mm))
- 		return;
- 
-+	pr_debug("Validating P4D populate\n");
- 	/*
- 	 * This entry points to next level page table page.
- 	 * Hence this must not qualify as p4d_bad().
-@@ -447,6 +468,7 @@ static void __init pgd_clear_tests(struct mm_struct *mm, pgd_t *pgdp)
- 	if (mm_p4d_folded(mm))
- 		return;
- 
-+	pr_debug("Validating PGD clear\n");
- 	pgd = __pgd(pgd_val(pgd) | RANDOM_ORVALUE);
- 	WRITE_ONCE(*pgdp, pgd);
- 	pgd_clear(pgdp);
-@@ -462,6 +484,7 @@ static void __init pgd_populate_tests(struct mm_struct *mm, pgd_t *pgdp,
- 	if (mm_p4d_folded(mm))
- 		return;
- 
-+	pr_debug("Validating PGD populate\n");
- 	/*
- 	 * This entry points to next level page table page.
- 	 * Hence this must not qualify as pgd_bad().
-@@ -490,6 +513,7 @@ static void __init pte_clear_tests(struct mm_struct *mm, pte_t *ptep,
- {
- 	pte_t pte = ptep_get(ptep);
- 
-+	pr_debug("Validating PTE clear\n");
- 	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
- 	set_pte_at(mm, vaddr, ptep, pte);
- 	barrier();
-@@ -502,6 +526,7 @@ static void __init pmd_clear_tests(struct mm_struct *mm, pmd_t *pmdp)
- {
- 	pmd_t pmd = READ_ONCE(*pmdp);
- 
-+	pr_debug("Validating PMD clear\n");
- 	pmd = __pmd(pmd_val(pmd) | RANDOM_ORVALUE);
- 	WRITE_ONCE(*pmdp, pmd);
- 	pmd_clear(pmdp);
-@@ -514,6 +539,7 @@ static void __init pmd_populate_tests(struct mm_struct *mm, pmd_t *pmdp,
- {
- 	pmd_t pmd;
- 
-+	pr_debug("Validating PMD populate\n");
- 	/*
- 	 * This entry points to next level page table page.
- 	 * Hence this must not qualify as pmd_bad().
-@@ -531,6 +557,7 @@ static void __init pte_special_tests(unsigned long pfn, pgprot_t prot)
- 	if (!IS_ENABLED(CONFIG_ARCH_HAS_PTE_SPECIAL))
- 		return;
- 
-+	pr_debug("Validating PTE special\n");
- 	WARN_ON(!pte_special(pte_mkspecial(pte)));
- }
- 
-@@ -541,6 +568,7 @@ static void __init pte_protnone_tests(unsigned long pfn, pgprot_t prot)
- 	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
- 		return;
- 
-+	pr_debug("Validating PTE protnone\n");
- 	WARN_ON(!pte_protnone(pte));
- 	WARN_ON(!pte_present(pte));
- }
-@@ -553,6 +581,7 @@ static void __init pmd_protnone_tests(unsigned long pfn, pgprot_t prot)
- 	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
- 		return;
- 
-+	pr_debug("Validating PMD protnone\n");
- 	WARN_ON(!pmd_protnone(pmd));
- 	WARN_ON(!pmd_present(pmd));
- }
-@@ -565,6 +594,7 @@ static void __init pte_devmap_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pte_t pte = pfn_pte(pfn, prot);
- 
-+	pr_debug("Validating PTE devmap\n");
- 	WARN_ON(!pte_devmap(pte_mkdevmap(pte)));
- }
- 
-@@ -573,6 +603,7 @@ static void __init pmd_devmap_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pmd_t pmd = pfn_pmd(pfn, prot);
- 
-+	pr_debug("Validating PMD devmap\n");
- 	WARN_ON(!pmd_devmap(pmd_mkdevmap(pmd)));
- }
- 
-@@ -581,6 +612,7 @@ static void __init pud_devmap_tests(unsigned long pfn, pgprot_t prot)
- {
- 	pud_t pud = pfn_pud(pfn, prot);
- 
-+	pr_debug("Validating PUD devmap\n");
- 	WARN_ON(!pud_devmap(pud_mkdevmap(pud)));
- }
- #else  /* !CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
-@@ -603,6 +635,7 @@ static void __init pte_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
- 		return;
- 
-+	pr_debug("Validating PTE soft dirty\n");
- 	WARN_ON(!pte_soft_dirty(pte_mksoft_dirty(pte)));
- 	WARN_ON(pte_soft_dirty(pte_clear_soft_dirty(pte)));
- }
-@@ -614,6 +647,7 @@ static void __init pte_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
- 		return;
- 
-+	pr_debug("Validating PTE swap soft dirty\n");
- 	WARN_ON(!pte_swp_soft_dirty(pte_swp_mksoft_dirty(pte)));
- 	WARN_ON(pte_swp_soft_dirty(pte_swp_clear_soft_dirty(pte)));
- }
-@@ -626,6 +660,7 @@ static void __init pmd_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
- 		return;
- 
-+	pr_debug("Validating PMD soft dirty\n");
- 	WARN_ON(!pmd_soft_dirty(pmd_mksoft_dirty(pmd)));
- 	WARN_ON(pmd_soft_dirty(pmd_clear_soft_dirty(pmd)));
- }
-@@ -638,6 +673,7 @@ static void __init pmd_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- 		!IS_ENABLED(CONFIG_ARCH_ENABLE_THP_MIGRATION))
- 		return;
- 
-+	pr_debug("Validating PMD swap soft dirty\n");
- 	WARN_ON(!pmd_swp_soft_dirty(pmd_swp_mksoft_dirty(pmd)));
- 	WARN_ON(pmd_swp_soft_dirty(pmd_swp_clear_soft_dirty(pmd)));
- }
-@@ -653,6 +689,7 @@ static void __init pte_swap_tests(unsigned long pfn, pgprot_t prot)
- 	swp_entry_t swp;
- 	pte_t pte;
- 
-+	pr_debug("Validating PTE swap\n");
- 	pte = pfn_pte(pfn, prot);
- 	swp = __pte_to_swp_entry(pte);
- 	pte = __swp_entry_to_pte(swp);
-@@ -665,6 +702,7 @@ static void __init pmd_swap_tests(unsigned long pfn, pgprot_t prot)
- 	swp_entry_t swp;
- 	pmd_t pmd;
- 
-+	pr_debug("Validating PMD swap\n");
- 	pmd = pfn_pmd(pfn, prot);
- 	swp = __pmd_to_swp_entry(pmd);
- 	pmd = __swp_entry_to_pmd(swp);
-@@ -681,6 +719,8 @@ static void __init swap_migration_tests(void)
- 
- 	if (!IS_ENABLED(CONFIG_MIGRATION))
- 		return;
-+
-+	pr_debug("Validating swap migration\n");
- 	/*
- 	 * swap_migration_tests() requires a dedicated page as it needs to
- 	 * be locked before creating a migration entry from it. Locking the
-@@ -720,6 +760,7 @@ static void __init hugetlb_basic_tests(unsigned long pfn, pgprot_t prot)
- 	struct page *page;
- 	pte_t pte;
- 
-+	pr_debug("Validating HugeTLB basic\n");
- 	/*
- 	 * Accessing the page associated with the pfn is safe here,
- 	 * as it was previously derived from a real kernel symbol.
-@@ -747,6 +788,7 @@ static void __init hugetlb_advanced_tests(struct mm_struct *mm,
- 	pte_t pte = ptep_get(ptep);
- 	unsigned long paddr = __pfn_to_phys(pfn) & PMD_MASK;
- 
-+	pr_debug("Validating HugeTLB advanced\n");
- 	pte = pte_mkhuge(mk_pte(pfn_to_page(PHYS_PFN(paddr)), prot));
- 	set_huge_pte_at(mm, vaddr, ptep, pte);
- 	barrier();
-@@ -797,6 +839,7 @@ static void __init pmd_thp_tests(unsigned long pfn, pgprot_t prot)
- 	if (!has_transparent_hugepage())
- 		return;
- 
-+	pr_debug("Validating PMD based THP\n");
- 	/*
- 	 * pmd_trans_huge() and pmd_present() must return positive after
- 	 * MMU invalidation with pmd_mkinvalid(). This behavior is an
-@@ -825,6 +868,7 @@ static void __init pud_thp_tests(unsigned long pfn, pgprot_t prot)
- 	if (!has_transparent_hugepage())
- 		return;
- 
-+	pr_debug("Validating PUD based THP\n");
- 	pud = pfn_pud(pfn, prot);
- 	WARN_ON(!pud_trans_huge(pud_mkhuge(pud)));
- 
+ 	if (!is_smcd) {
+ 		if (smcr_buf_map_usable_links(lgr, buf_desc, is_rmb)) {
 -- 
-2.20.1
+2.17.1
