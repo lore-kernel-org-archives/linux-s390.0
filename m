@@ -1,78 +1,48 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net v2 05/10] net/smc: drop out-of-flow llc response messages
-Date: Sat, 18 Jul 2020 15:06:13 +0200
-Message-Id: <20200718130618.16724-6-kgraul@linux.ibm.com>
-In-Reply-To: <20200718130618.16724-1-kgraul@linux.ibm.com>
-References: <20200718130618.16724-1-kgraul@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from wnew2-smtp.messagingengine.com ([64.147.123.27]:46683 "EHLO
+        wnew2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729205AbgG0SXH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 27 Jul 2020 14:23:07 -0400
+Date: Mon, 27 Jul 2020 21:22:59 +0300
+From: Ido Schimmel <idosch@idosch.org>
+Subject: Re: [PATCH 19/26] net/ipv6: switch ipv6_flowlabel_opt to sockptr_t
+Message-ID: <20200727182259.GA1931870@shredder>
+References: <20200723060908.50081-1-hch@lst.de>
+ <20200723060908.50081-20-hch@lst.de>
+ <20200727121505.GA1804864@shredder>
+ <20200727130029.GA26393@lst.de>
+ <20200727133331.GA1851348@shredder>
+ <20200727161555.GA7817@lst.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200727161555.GA7817@lst.de>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
 
-To be save from unexpected or late llc response messages check if the
-arrived message fits to the current flow type and drop out-of-flow
-messages. And drop it when there is already a response assigned to
-the flow.
+On Mon, Jul 27, 2020 at 06:15:55PM +0200, Christoph Hellwig wrote:
+> I have to admit I didn't spot the difference between the good and the
+> bad output even after trying hard..
+> 
+> But can you try the patch below?
+> 
+> ---
+> From cce2d2e1b43ecee5f4af7cf116808b74b330080f Mon Sep 17 00:00:00 2001
+> From: Christoph Hellwig <hch@lst.de>
+> Date: Mon, 27 Jul 2020 17:42:27 +0200
+> Subject: net: remove sockptr_advance
+> 
+> sockptr_advance never properly worked.  Replace it with _offset variants
+> of copy_from_sockptr and copy_to_sockptr.
+> 
+> Fixes: ba423fdaa589 ("net: add a new sockptr_t type")
+> Reported-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> Reported-by: Ido Schimmel <idosch@idosch.org>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Reviewed-by: Ursula Braun <ubraun@linux.ibm.com>
-Fixes: ef79d439cd12 ("net/smc: process llc responses in tasklet context")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_llc.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+Tested-by: Ido Schimmel <idosch@mellanox.com>
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 58f4da2e0cc7..78704f03e72a 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -1587,6 +1587,8 @@ static void smc_llc_event_work(struct work_struct *work)
- static void smc_llc_rx_response(struct smc_link *link,
- 				struct smc_llc_qentry *qentry)
- {
-+	enum smc_llc_flowtype flowtype = link->lgr->llc_flow_lcl.type;
-+	struct smc_llc_flow *flow = &link->lgr->llc_flow_lcl;
- 	u8 llc_type = qentry->msg.raw.hdr.common.type;
- 
- 	switch (llc_type) {
-@@ -1595,15 +1597,20 @@ static void smc_llc_rx_response(struct smc_link *link,
- 			complete(&link->llc_testlink_resp);
- 		break;
- 	case SMC_LLC_ADD_LINK:
--	case SMC_LLC_DELETE_LINK:
--	case SMC_LLC_CONFIRM_LINK:
- 	case SMC_LLC_ADD_LINK_CONT:
-+	case SMC_LLC_CONFIRM_LINK:
-+		if (flowtype != SMC_LLC_FLOW_ADD_LINK || flow->qentry)
-+			break;	/* drop out-of-flow response */
-+		goto assign;
-+	case SMC_LLC_DELETE_LINK:
-+		if (flowtype != SMC_LLC_FLOW_DEL_LINK || flow->qentry)
-+			break;	/* drop out-of-flow response */
-+		goto assign;
- 	case SMC_LLC_CONFIRM_RKEY:
- 	case SMC_LLC_DELETE_RKEY:
--		/* assign responses to the local flow, we requested them */
--		smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
--		wake_up(&link->lgr->llc_msg_waiter);
--		return;
-+		if (flowtype != SMC_LLC_FLOW_RKEY || flow->qentry)
-+			break;	/* drop out-of-flow response */
-+		goto assign;
- 	case SMC_LLC_CONFIRM_RKEY_CONT:
- 		/* not used because max links is 3 */
- 		break;
-@@ -1612,6 +1619,11 @@ static void smc_llc_rx_response(struct smc_link *link,
- 		break;
- 	}
- 	kfree(qentry);
-+	return;
-+assign:
-+	/* assign responses to the local flow, we requested them */
-+	smc_llc_flow_qentry_set(&link->lgr->llc_flow_lcl, qentry);
-+	wake_up(&link->lgr->llc_msg_waiter);
- }
- 
- static void smc_llc_enqueue(struct smc_link *link, union smc_llc_msg *llc)
--- 
-2.17.1
+Thanks!
