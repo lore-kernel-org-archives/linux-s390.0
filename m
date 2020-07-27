@@ -1,18 +1,23 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61600 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726555AbgG0NmP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 27 Jul 2020 09:42:15 -0400
 Subject: Re: [PATCH v9 02/15] s390/vfio-ap: use new AP bus interface to search
  for queue devices
 References: <20200720150344.24488-1-akrowiak@linux.ibm.com>
  <20200720150344.24488-3-akrowiak@linux.ibm.com>
  <a946e992-ff36-ca45-1811-7c6b0aaa161f@linux.ibm.com>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <4b0bd2a8-4c28-7daa-8ea4-397926c9054b@linux.ibm.com>
-Date: Mon, 27 Jul 2020 10:09:57 -0400
+Message-ID: <34208b94-8f37-e46b-3783-9a788c93fb02@linux.ibm.com>
+Date: Mon, 27 Jul 2020 09:42:03 -0400
 MIME-Version: 1.0
 In-Reply-To: <a946e992-ff36-ca45-1811-7c6b0aaa161f@linux.ibm.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Pierre Morel <pmorel@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, kernel test robot <lkp@intel.com>
@@ -32,6 +37,9 @@ On 7/24/20 4:38 AM, Pierre Morel wrote:
 >> magnitude.
 >
 > The patch does much more than modifying this line. ;)
+
+Yes it does, I'll be sure to include the additional details.
+
 >
 >>
 >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
@@ -152,9 +160,6 @@ On 7/24/20 4:38 AM, Pierre Morel wrote:
 >
 > this function changed a lot too, you should explain the goal in the 
 > patch comment.
-
-This is precisely what the current patch comment describes.
-
 >
 > ...snip...
 >
