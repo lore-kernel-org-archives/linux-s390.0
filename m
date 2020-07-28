@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 0/9] s390: implement and optimize vmemmap_free()
-Date: Fri,  3 Jul 2020 15:39:08 +0200
-Message-Id: <20200703133917.39045-1-david@redhat.com>
+Date: Tue, 28 Jul 2020 08:50:29 -0000
+From: "tip-bot2 for Herbert Xu" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: locking/header] lockdep: Move list.h inclusion into lockdep.h
+In-Reply-To: <20200716063649.GA23065@gondor.apana.org.au>
+References: <20200716063649.GA23065@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <159592622946.4006.7922093273246703940.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Petr Mladek <pmladek@suse.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Peter Zijlstra (Intel)" <peterz@infradead.org>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-This series is based on the latest s390/features branch [1]. It implements
-vmemmap_free(), consolidating it with vmem_add_range(), and optimizes it by
-- Freeing empty page tables (now also done for idendity mapping).
-- Handling cases where the vmemmap of a section does not fill huge pages
-  completely.
+The following commit has been merged into the locking/header branch of tip:
 
-vmemmap_free() is currently never used, unless adiing standby memory fails
-(unlikely). This is relevant for virtio-mem, which adds/removes memory
-in memory block/section granularity (always removes memory in the same
-granularity it added it).
+Commit-ID:     e885d5d94793ef342e49d55672baabbc16e32bb1
+Gitweb:        https://git.kernel.org/tip/e885d5d94793ef342e49d55672baabbc16e32bb1
+Author:        Herbert Xu <herbert@gondor.apana.org.au>
+AuthorDate:    Thu, 16 Jul 2020 16:36:50 +10:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Tue, 28 Jul 2020 10:45:46 +02:00
 
-I gave this a proper test with my virtio-mem prototype (which I will share
-once the basic QEMU implementation is upstream), both with 56 byte memmap
-per page and 64 byte memmap per page, with and without huge page support.
-In both cases, removing memory (routed through arch_remove_memory()) will
-result in
-- all populated vmemmap pages to get removed/freed
-- all applicable page tables for the vmemmap getting removed/freed
-- all applicable page tables for the idendity mapping getting removed/freed
-Unfortunately, I don't have access to bigger and z/VM (esp. dcss)
-environments.
+lockdep: Move list.h inclusion into lockdep.h
 
-This is the basis for real memory hotunplug support for s390x and should
-complete my journey to s390x vmem/vmemmap code for now :)
+Currently lockdep_types.h includes list.h without actually using any
+of its macros or functions.  All it needs are the type definitions
+which were moved into types.h long ago.  This potentially causes
+inclusion loops because both are included by many core header
+files.
 
-What needs double-checking is tlb flushing. AFAIKS, as there are no valid
-accesses, doing a single range flush at the end is sufficient, both when
-removing vmemmap pages and the idendity mapping.
+This patch moves the list.h inclusion into lockdep.h.  Note that
+we could probably remove it completely but that could potentially
+result in compile failures should any end users not include list.h
+directly and also be unlucky enough to not get list.h via some other
+header file.
 
-Along, some minor cleanups.
+Reported-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Petr Mladek <pmladek@suse.com>
+Link: https://lkml.kernel.org/r/20200716063649.GA23065@gondor.apana.org.au
+---
+ include/linux/lockdep.h       | 1 +
+ include/linux/lockdep_types.h | 2 --
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git/commit/?h=features
-
-David Hildenbrand (9):
-  s390/vmem: rename vmem_add_mem() to vmem_add_range()
-  s390/vmem: recursive implementation of vmem_remove_range()
-  s390/vmemmap: implement vmemmap_free()
-  s390/vmemmap: cleanup when vmemmap_populate() fails
-  s390/vmemmap: take the vmem_mutex when populating/freeing
-  s390/vmem: cleanup empty page tables
-  s390/vmemmap: fallback to PTEs if mapping large PMD fails
-  s390/vmemmap: remember unused sub-pmd ranges
-  s390/vmemmap: avoid memset(PAGE_UNUSED) when adding consecutive
-    sections
-
- arch/s390/mm/vmem.c | 400 +++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 338 insertions(+), 62 deletions(-)
-
--- 
-2.26.2
+diff --git a/include/linux/lockdep.h b/include/linux/lockdep.h
+index 3b73cf8..b1ad5c0 100644
+--- a/include/linux/lockdep.h
++++ b/include/linux/lockdep.h
+@@ -21,6 +21,7 @@ extern int lock_stat;
+ #ifdef CONFIG_LOCKDEP
+ 
+ #include <linux/linkage.h>
++#include <linux/list.h>
+ #include <linux/debug_locks.h>
+ #include <linux/stacktrace.h>
+ 
+diff --git a/include/linux/lockdep_types.h b/include/linux/lockdep_types.h
+index 7b93506..bb35b44 100644
+--- a/include/linux/lockdep_types.h
++++ b/include/linux/lockdep_types.h
+@@ -32,8 +32,6 @@ enum lockdep_wait_type {
+ 
+ #ifdef CONFIG_LOCKDEP
+ 
+-#include <linux/list.h>
+-
+ /*
+  * We'd rather not expose kernel/lockdep_states.h this wide, but we do need
+  * the total number of states... :-(
