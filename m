@@ -1,427 +1,77 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13694 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727829AbgGNLQY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 07:16:24 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v12 9/9] s390x: css: ssch/tsch with sense and interrupt
-Date: Tue, 14 Jul 2020 13:15:48 +0200
-Message-Id: <1594725348-10034-10-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 28 Jul 2020 22:23:48 +0800
+From: Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH 14/15] x86/numa: remove redundant iteration over
+ memblock.reserved
+Message-ID: <20200728142348.GE10792@MiWiFi-R3L-srv>
+References: <20200728051153.1590-1-rppt@kernel.org>
+ <20200728051153.1590-15-rppt@kernel.org>
+ <20200728110254.GA14854@MiWiFi-R3L-srv>
+ <20200728141504.GC3655207@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200728141504.GC3655207@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-After a channel is enabled we start a SENSE_ID command using
-the SSCH instruction to recognize the control unit and device.
+On 07/28/20 at 05:15pm, Mike Rapoport wrote:
+> On Tue, Jul 28, 2020 at 07:02:54PM +0800, Baoquan He wrote:
+> > On 07/28/20 at 08:11am, Mike Rapoport wrote:
+> > > From: Mike Rapoport <rppt@linux.ibm.com>
+> > > 
+> > > numa_clear_kernel_node_hotplug() function first traverses numa_meminfo
+> > > regions to set node ID in memblock.reserved and than traverses
+> > > memblock.reserved to update reserved_nodemask to include node IDs that were
+> > > set in the first loop.
+> > > 
+> > > Remove redundant traversal over memblock.reserved and update
+> > > reserved_nodemask while iterating over numa_meminfo.
+> > > 
+> > > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > > ---
+> > >  arch/x86/mm/numa.c | 26 ++++++++++----------------
+> > >  1 file changed, 10 insertions(+), 16 deletions(-)
+> > > 
+> > > diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
+> > > index 8ee952038c80..4078abd33938 100644
+> > > --- a/arch/x86/mm/numa.c
+> > > +++ b/arch/x86/mm/numa.c
+> > > @@ -498,31 +498,25 @@ static void __init numa_clear_kernel_node_hotplug(void)
+> > >  	 * and use those ranges to set the nid in memblock.reserved.
+> > >  	 * This will split up the memblock regions along node
+> > >  	 * boundaries and will set the node IDs as well.
+> > > +	 *
+> > > +	 * The nid will also be set in reserved_nodemask which is later
+> > > +	 * used to clear MEMBLOCK_HOTPLUG flag.
+> > > +	 *
+> > > +	 * [ Note, when booting with mem=nn[kMG] or in a kdump kernel,
+> > > +	 *   numa_meminfo might not include all memblock.reserved
+> > > +	 *   memory ranges, because quirks such as trim_snb_memory()
+> > > +	 *   reserve specific pages for Sandy Bridge graphics.
+> > > +	 *   These ranges will remain with nid == MAX_NUMNODES. ]
+> > >  	 */
+> > >  	for (i = 0; i < numa_meminfo.nr_blks; i++) {
+> > >  		struct numa_memblk *mb = numa_meminfo.blk + i;
+> > >  		int ret;
+> > >  
+> > >  		ret = memblock_set_node(mb->start, mb->end - mb->start, &memblock.reserved, mb->nid);
+> > > +		node_set(mb->nid, reserved_nodemask);
+> > 
+> > Really? This will set all node id into reserved_nodemask. But in the
+> > current code, it's setting nid into memblock reserved region which
+> > interleaves with numa_memoinfo, then get those nid and set it in
+> > reserved_nodemask. This is so different, with my understanding. Please
+> > correct me if I am wrong.
+> 
+> You are right, I've missed the intersections of numa_meminfo with
+> memblock.reserved.
+> 
+> x86 interaction with membock is so, hmm, interesting...
 
-This tests the success of SSCH, the I/O interruption and the TSCH
-instructions.
-
-The SENSE_ID command response is tested to report 0xff inside
-its reserved field and to report the same control unit type
-as the cu_type kernel argument.
-
-Without the cu_type kernel argument, the test expects a device
-with a default control unit type of 0x3832, a.k.a virtio-net-ccw.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/asm/arch_def.h |   1 +
- lib/s390x/css.h          |  35 ++++++++
- lib/s390x/css_lib.c      | 180 +++++++++++++++++++++++++++++++++++++++
- s390x/css.c              |  80 +++++++++++++++++
- 4 files changed, 296 insertions(+)
-
-diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
-index 022a564..edc06ef 100644
---- a/lib/s390x/asm/arch_def.h
-+++ b/lib/s390x/asm/arch_def.h
-@@ -16,6 +16,7 @@ struct psw {
- };
- 
- #define PSW_MASK_EXT			0x0100000000000000UL
-+#define PSW_MASK_IO			0x0200000000000000UL
- #define PSW_MASK_DAT			0x0400000000000000UL
- #define PSW_MASK_WAIT			0x0002000000000000UL
- #define PSW_MASK_PSTATE			0x0001000000000000UL
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index 63a70f1..e309dac 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -11,6 +11,8 @@
- #ifndef CSS_H
- #define CSS_H
- 
-+#define lowcore_ptr ((struct lowcore *)0x0)
-+
- /* subchannel ID bit 16 must always be one */
- #define SCHID_ONE	0x00010000
- 
-@@ -62,9 +64,18 @@ struct orb {
- } __attribute__ ((aligned(4)));
- 
- struct scsw {
-+#define SCSW_SC_PENDING		0x00000001
-+#define SCSW_SC_SECONDARY	0x00000002
-+#define SCSW_SC_PRIMARY		0x00000004
-+#define SCSW_SC_INTERMEDIATE	0x00000008
-+#define SCSW_SC_ALERT		0x00000010
- 	uint32_t ctrl;
- 	uint32_t ccw_addr;
-+#define SCSW_DEVS_DEV_END	0x04
-+#define SCSW_DEVS_SCH_END	0x08
- 	uint8_t  dev_stat;
-+#define SCSW_SCHS_PCI	0x80
-+#define SCSW_SCHS_IL	0x40
- 	uint8_t  sch_stat;
- 	uint16_t count;
- };
-@@ -102,6 +113,19 @@ struct irb {
- 	uint32_t emw[8];
- } __attribute__ ((aligned(4)));
- 
-+#define CCW_CMD_SENSE_ID	0xe4
-+#define CSS_SENSEID_COMMON_LEN	8
-+struct senseid {
-+	/* common part */
-+	uint8_t reserved;        /* always 0x'FF' */
-+	uint16_t cu_type;        /* control unit type */
-+	uint8_t cu_model;        /* control unit model */
-+	uint16_t dev_type;       /* device type */
-+	uint8_t dev_model;       /* device model */
-+	uint8_t unused;          /* padding byte */
-+	uint8_t padding[256 - 10]; /* Extra padding for CCW */
-+} __attribute__ ((aligned(4))) __attribute__ ((packed));
-+
- /* CSS low level access functions */
- 
- static inline int ssch(unsigned long schid, struct orb *addr)
-@@ -256,4 +280,15 @@ int css_enumerate(void);
- 
- #define IO_SCH_ISC      3
- int css_enable(int schid, int isc);
-+
-+/* Library functions */
-+int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
-+int start_single_ccw(unsigned int sid, int code, void *data, int count,
-+		     unsigned char flags);
-+void css_irq_io(void);
-+int css_residual_count(unsigned int schid);
-+
-+void enable_io_isc(uint8_t isc);
-+int wait_and_check_io_completion(int schid);
-+
- #endif
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index e47a945..274c293 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -16,6 +16,7 @@
- #include <interrupt.h>
- #include <asm/arch_def.h>
- #include <asm/time.h>
-+#include <asm/arch_def.h>
- 
- #include <css.h>
- 
-@@ -141,3 +142,182 @@ retry:
- 		    schid, retry_count, pmcw->flags);
- 	return -1;
- }
-+
-+static struct irb irb;
-+
-+void css_irq_io(void)
-+{
-+	int ret = 0;
-+	char *flags;
-+	int sid;
-+
-+	report_prefix_push("Interrupt");
-+	sid = lowcore_ptr->subsys_id_word;
-+	/* Lowlevel set the SID as interrupt parameter. */
-+	if (lowcore_ptr->io_int_param != sid) {
-+		report(0,
-+		       "io_int_param: %x differs from subsys_id_word: %x",
-+		       lowcore_ptr->io_int_param, sid);
-+		goto pop;
-+	}
-+	report_info("subsys_id_word: %08x io_int_param %08x io_int_word %08x",
-+			lowcore_ptr->subsys_id_word,
-+			lowcore_ptr->io_int_param,
-+			lowcore_ptr->io_int_word);
-+	report_prefix_pop();
-+
-+	report_prefix_push("tsch");
-+	ret = tsch(sid, &irb);
-+	switch (ret) {
-+	case 1:
-+		dump_irb(&irb);
-+		flags = dump_scsw_flags(irb.scsw.ctrl);
-+		report(0,
-+		       "I/O interrupt, but tsch returns CC 1 for subchannel %08x. SCSW flags: %s",
-+		       sid, flags);
-+		break;
-+	case 2:
-+		report(0, "tsch returns unexpected CC 2");
-+		break;
-+	case 3:
-+		report(0, "tsch reporting sch %08x as not operational", sid);
-+		break;
-+	case 0:
-+		/* Stay humble on success */
-+		break;
-+	}
-+pop:
-+	report_prefix_pop();
-+	lowcore_ptr->io_old_psw.mask &= ~PSW_MASK_WAIT;
-+}
-+
-+int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
-+{
-+	struct orb orb = {
-+		.intparm = sid,
-+		.ctrl = ORB_CTRL_ISIC|ORB_CTRL_FMT|ORB_LPM_DFLT,
-+		.cpa = (unsigned int) (unsigned long)ccw,
-+	};
-+
-+	return ssch(sid, &orb);
-+}
-+
-+/*
-+ * In the future, we want to implement support for CCW chains;
-+ * for that, we will need to work with ccw1 pointers.
-+ */
-+static struct ccw1 unique_ccw;
-+
-+int start_single_ccw(unsigned int sid, int code, void *data, int count,
-+		     unsigned char flags)
-+{
-+	int cc;
-+	struct ccw1 *ccw = &unique_ccw;
-+
-+	report_prefix_push("start_subchannel");
-+	/* Build the CCW chain with a single CCW */
-+	ccw->code = code;
-+	ccw->flags = flags;
-+	ccw->count = count;
-+	ccw->data_address = (int)(unsigned long)data;
-+
-+	cc = start_ccw1_chain(sid, ccw);
-+	if (cc) {
-+		report(0, "cc = %d", cc);
-+		report_prefix_pop();
-+		return cc;
-+	}
-+	report_prefix_pop();
-+	return 0;
-+}
-+
-+/* wait_and_check_io_completion:
-+ * @schid: the subchannel ID
-+ *
-+ * Makes the most common check to validate a successful I/O
-+ * completion.
-+ * Only report failures.
-+ */
-+int wait_and_check_io_completion(int schid)
-+{
-+	int ret = 0;
-+
-+	wait_for_interrupt(PSW_MASK_IO);
-+
-+	report_prefix_push("check I/O completion");
-+
-+	if (lowcore_ptr->io_int_param != schid) {
-+		report(0, "interrupt parameter: expected %08x got %08x",
-+		       schid, lowcore_ptr->io_int_param);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+	/* Verify that device status is valid */
-+	if (!(irb.scsw.ctrl & SCSW_SC_PENDING)) {
-+		report(0, "No status pending after interrupt. Subch Ctrl: %08x",
-+		       irb.scsw.ctrl);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+	if (!(irb.scsw.ctrl & (SCSW_SC_SECONDARY | SCSW_SC_PRIMARY))) {
-+		report(0, "Primary or secondary status missing. Subch Ctrl: %08x",
-+		       irb.scsw.ctrl);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+	if (!(irb.scsw.dev_stat & (SCSW_DEVS_DEV_END | SCSW_DEVS_SCH_END))) {
-+		report(0, "No device end or sch end. Dev. status: %02x",
-+		       irb.scsw.dev_stat);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+	if (irb.scsw.sch_stat & ~SCSW_SCHS_IL) {
-+		report_info("Unexpected Subch. status %02x", irb.scsw.sch_stat);
-+		ret = -1;
-+		goto end;
-+	}
-+
-+end:
-+	report_prefix_pop();
-+	return ret;
-+}
-+
-+/*
-+ * css_residual_count
-+ * Return the residual count, if it is valid.
-+ *
-+ * Return value:
-+ * Success: the residual count
-+ * Not meaningful: -1 (-1 can not be a valid count)
-+ */
-+int css_residual_count(unsigned int schid)
-+{
-+
-+	if (!(irb.scsw.ctrl & (SCSW_SC_PENDING | SCSW_SC_PRIMARY)))
-+		goto invalid;
-+
-+	if (irb.scsw.dev_stat)
-+		if (irb.scsw.sch_stat & ~(SCSW_SCHS_PCI | SCSW_SCHS_IL))
-+			goto invalid;
-+
-+	return irb.scsw.count;
-+
-+invalid:
-+	return -1;
-+}
-+
-+/*
-+ * enable_io_isc: setup ISC in Control Register 6
-+ * @isc: The interruption Sub Class as a bitfield
-+ */
-+void enable_io_isc(uint8_t isc)
-+{
-+	uint64_t value;
-+
-+	value = (uint64_t)isc << 24;
-+	lctlg(6, value);
-+}
-diff --git a/s390x/css.c b/s390x/css.c
-index f314a0c..ee3bc83 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -19,7 +19,11 @@
- 
- #include <css.h>
- 
-+#define DEFAULT_CU_TYPE		0x3832 /* virtio-ccw */
-+static unsigned long cu_type = DEFAULT_CU_TYPE;
-+
- static int test_device_sid;
-+static struct senseid senseid;
- 
- static void test_enumerate(void)
- {
-@@ -45,12 +49,87 @@ static void test_enable(void)
- 	report(cc == 0, "Enable subchannel %08x", test_device_sid);
- }
- 
-+/*
-+ * test_sense
-+ * Pre-requisites:
-+ * - We need the test device as the first recognized
-+ *   device by the enumeration.
-+ */
-+static void test_sense(void)
-+{
-+	int ret;
-+	int len;
-+
-+	if (!test_device_sid) {
-+		report_skip("No device");
-+		return;
-+	}
-+
-+	ret = css_enable(test_device_sid, IO_SCH_ISC);
-+	if (ret) {
-+		report(0, "Could not enable the subchannel: %08x",
-+		       test_device_sid);
-+		return;
-+	}
-+
-+	ret = register_io_int_func(css_irq_io);
-+	if (ret) {
-+		report(0, "Could not register IRQ handler");
-+		return;
-+	}
-+
-+	lowcore_ptr->io_int_param = 0;
-+
-+	memset(&senseid, 0, sizeof(senseid));
-+	ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
-+			       &senseid, sizeof(senseid), CCW_F_SLI);
-+	if (ret)
-+		goto error;
-+
-+	if (wait_and_check_io_completion(test_device_sid) < 0)
-+		goto error;
-+
-+	/* Test transfer completion */
-+	report_prefix_push("ssch transfer completion");
-+
-+	ret = css_residual_count(test_device_sid);
-+
-+	if (ret < 0) {
-+		report_info("no valid residual count");
-+	} else if (ret != 0) {
-+		len = sizeof(senseid) - ret;
-+		if (ret && len < CSS_SENSEID_COMMON_LEN) {
-+			report(0, "transferred a too short length: %d", ret);
-+			goto error;
-+		} else if (ret && len)
-+			report_info("transferred a shorter length: %d", len);
-+	}
-+
-+	if (senseid.reserved != 0xff) {
-+		report(0, "transferred garbage: 0x%02x", senseid.reserved);
-+		goto error;
-+	}
-+
-+	report_prefix_pop();
-+
-+	report_info("reserved 0x%02x cu_type 0x%04x cu_model 0x%02x dev_type 0x%04x dev_model 0x%02x",
-+		    senseid.reserved, senseid.cu_type, senseid.cu_model,
-+		    senseid.dev_type, senseid.dev_model);
-+
-+	report(senseid.cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
-+	       (uint16_t) cu_type, senseid.cu_type);
-+
-+error:
-+	unregister_io_int_func(css_irq_io);
-+}
-+
- static struct {
- 	const char *name;
- 	void (*func)(void);
- } tests[] = {
- 	{ "enumerate (stsch)", test_enumerate },
- 	{ "enable (msch)", test_enable },
-+	{ "sense (ssch/tsch)", test_sense },
- 	{ NULL, NULL }
- };
- 
-@@ -59,6 +138,7 @@ int main(int argc, char *argv[])
- 	int i;
- 
- 	report_prefix_push("Channel Subsystem");
-+	enable_io_isc(0x80 >> IO_SCH_ISC);
- 	for (i = 0; tests[i].name; i++) {
- 		report_prefix_push(tests[i].name);
- 		tests[i].func();
--- 
-2.25.1
+Yeah, numa_clear_kernel_node_hotplug() intends to find out any memory node
+which has reserved memory, then make it as unmovable. Setting all node
+id into reserved_nodemask will break the use case of hot removing hotpluggable
+boot memory after system bootup.
