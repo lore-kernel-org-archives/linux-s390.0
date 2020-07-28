@@ -1,188 +1,69 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 10/10] s390/qeth: constify the MPC initialization data
-Date: Tue, 14 Jul 2020 16:23:05 +0200
-Message-Id: <20200714142305.29297-11-jwi@linux.ibm.com>
-In-Reply-To: <20200714142305.29297-1-jwi@linux.ibm.com>
-References: <20200714142305.29297-1-jwi@linux.ibm.com>
-Sender: netdev-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:35888 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726251AbgG1FNd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 28 Jul 2020 01:13:33 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH 08/15] mircoblaze: drop unneeded NUMA and sparsemem initializations
+Date: Tue, 28 Jul 2020 08:11:46 +0300
+Message-Id: <20200728051153.1590-9-rppt@kernel.org>
+In-Reply-To: <20200728051153.1590-1-rppt@kernel.org>
+References: <20200728051153.1590-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-We're not modifying these data blobs, so mark them as constant.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+microblaze does not support neither NUMA not SPARSMEM, so there is no point
+to call memblock_set_node() and sparse_memory_present_with_active_regions()
+functions during microblaze memory initialization.
+
+Remove these calls and the surrounding code.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core_main.c |  2 +-
- drivers/s390/net/qeth_core_mpc.c  | 16 ++++++++--------
- drivers/s390/net/qeth_core_mpc.h  | 17 ++++++++---------
- 3 files changed, 17 insertions(+), 18 deletions(-)
+ arch/microblaze/mm/init.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 01a280b5e8d2..8a76022fceda 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -2026,7 +2026,7 @@ static bool qeth_mpc_match_reply(struct qeth_cmd_buffer *iob,
+diff --git a/arch/microblaze/mm/init.c b/arch/microblaze/mm/init.c
+index 521b59ba716c..49e0c241f9b1 100644
+--- a/arch/microblaze/mm/init.c
++++ b/arch/microblaze/mm/init.c
+@@ -105,9 +105,8 @@ static void __init paging_init(void)
+ 
+ void __init setup_memory(void)
+ {
+-	struct memblock_region *reg;
+-
+ #ifndef CONFIG_MMU
++	struct memblock_region *reg;
+ 	u32 kernel_align_start, kernel_align_size;
+ 
+ 	/* Find main memory where is the kernel */
+@@ -161,20 +160,6 @@ void __init setup_memory(void)
+ 	pr_info("%s: max_low_pfn: %#lx\n", __func__, max_low_pfn);
+ 	pr_info("%s: max_pfn: %#lx\n", __func__, max_pfn);
+ 
+-	/* Add active regions with valid PFNs */
+-	for_each_memblock(memory, reg) {
+-		unsigned long start_pfn, end_pfn;
+-
+-		start_pfn = memblock_region_memory_base_pfn(reg);
+-		end_pfn = memblock_region_memory_end_pfn(reg);
+-		memblock_set_node(start_pfn << PAGE_SHIFT,
+-				  (end_pfn - start_pfn) << PAGE_SHIFT,
+-				  &memblock.memory, 0);
+-	}
+-
+-	/* XXX need to clip this if using highmem? */
+-	sparse_memory_present_with_active_regions(0);
+-
+ 	paging_init();
  }
  
- static struct qeth_cmd_buffer *qeth_mpc_alloc_cmd(struct qeth_card *card,
--						  void *data,
-+						  const void *data,
- 						  unsigned int data_length)
- {
- 	struct qeth_cmd_buffer *iob;
-diff --git a/drivers/s390/net/qeth_core_mpc.c b/drivers/s390/net/qeth_core_mpc.c
-index e3f4866c158e..68c2588b9dcc 100644
---- a/drivers/s390/net/qeth_core_mpc.c
-+++ b/drivers/s390/net/qeth_core_mpc.c
-@@ -10,7 +10,7 @@
- #include <asm/cio.h>
- #include "qeth_core_mpc.h"
- 
--unsigned char IDX_ACTIVATE_READ[] = {
-+const unsigned char IDX_ACTIVATE_READ[] = {
- 	0x00, 0x00, 0x80, 0x00,  0x00, 0x00, 0x00, 0x00,
- 	0x19, 0x01, 0x01, 0x80,  0x00, 0x00, 0x00, 0x00,
- 	0x00, 0x00, 0x00, 0x00,  0x00, 0x00, 0xc8, 0xc1,
-@@ -18,7 +18,7 @@ unsigned char IDX_ACTIVATE_READ[] = {
- 	0x00, 0x00
- };
- 
--unsigned char IDX_ACTIVATE_WRITE[] = {
-+const unsigned char IDX_ACTIVATE_WRITE[] = {
- 	0x00, 0x00, 0x80, 0x00,  0x00, 0x00, 0x00, 0x00,
- 	0x15, 0x01, 0x01, 0x80,  0x00, 0x00, 0x00, 0x00,
- 	0xff, 0xff, 0x00, 0x00,  0x00, 0x00, 0xc8, 0xc1,
-@@ -26,7 +26,7 @@ unsigned char IDX_ACTIVATE_WRITE[] = {
- 	0x00, 0x00
- };
- 
--unsigned char CM_ENABLE[] = {
-+const unsigned char CM_ENABLE[] = {
- 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x01,
- 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x63,
- 	0x10, 0x00, 0x00, 0x01,
-@@ -45,7 +45,7 @@ unsigned char CM_ENABLE[] = {
- 	0xff, 0xff, 0xff
- };
- 
--unsigned char CM_SETUP[] = {
-+const unsigned char CM_SETUP[] = {
- 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x02,
- 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x64,
- 	0x10, 0x00, 0x00, 0x01,
-@@ -65,7 +65,7 @@ unsigned char CM_SETUP[] = {
- 	0x04, 0x06, 0xc8, 0x00
- };
- 
--unsigned char ULP_ENABLE[] = {
-+const unsigned char ULP_ENABLE[] = {
- 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x03,
- 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x6b,
- 	0x10, 0x00, 0x00, 0x01,
-@@ -85,7 +85,7 @@ unsigned char ULP_ENABLE[] = {
- 	0xf1, 0x00, 0x00
- };
- 
--unsigned char ULP_SETUP[] = {
-+const unsigned char ULP_SETUP[] = {
- 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x04,
- 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x6c,
- 	0x10, 0x00, 0x00, 0x01,
-@@ -107,7 +107,7 @@ unsigned char ULP_SETUP[] = {
- 	0x00, 0x00, 0x00, 0x00
- };
- 
--unsigned char DM_ACT[] = {
-+const unsigned char DM_ACT[] = {
- 	0x00, 0xe0, 0x00, 0x00,  0x00, 0x00, 0x00, 0x05,
- 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x55,
- 	0x10, 0x00, 0x00, 0x01,
-@@ -123,7 +123,7 @@ unsigned char DM_ACT[] = {
- 	0x05, 0x40, 0x01, 0x01,  0x00
- };
- 
--unsigned char IPA_PDU_HEADER[] = {
-+const unsigned char IPA_PDU_HEADER[] = {
- 	0x00, 0xe0, 0x00, 0x00,  0x77, 0x77, 0x77, 0x77,
- 	0x00, 0x00, 0x00, 0x14,  0x00, 0x00, 0x00, 0x00,
- 	0x10, 0x00, 0x00, 0x01,  0x00, 0x00, 0x00, 0x00,
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index 9d6f39d8f9ab..b459def0fb26 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -13,13 +13,13 @@
- #include <uapi/linux/if_ether.h>
- #include <uapi/linux/in6.h>
- 
-+extern const unsigned char IPA_PDU_HEADER[];
- #define IPA_PDU_HEADER_SIZE	0x40
- #define QETH_IPA_PDU_LEN_TOTAL(buffer) (buffer + 0x0e)
- #define QETH_IPA_PDU_LEN_PDU1(buffer) (buffer + 0x26)
- #define QETH_IPA_PDU_LEN_PDU2(buffer) (buffer + 0x29)
- #define QETH_IPA_PDU_LEN_PDU3(buffer) (buffer + 0x3a)
- 
--extern unsigned char IPA_PDU_HEADER[];
- #define QETH_IPA_CMD_DEST_ADDR(buffer) (buffer + 0x2c)
- 
- #define QETH_SEQ_NO_LENGTH	4
-@@ -858,7 +858,7 @@ extern const char *qeth_get_ipa_cmd_name(enum qeth_ipa_cmds cmd);
- /* END OF   IP Assist related definitions                                    */
- /*****************************************************************************/
- 
--extern unsigned char CM_ENABLE[];
-+extern const unsigned char CM_ENABLE[];
- #define CM_ENABLE_SIZE 0x63
- #define QETH_CM_ENABLE_ISSUER_RM_TOKEN(buffer) (buffer + 0x2c)
- #define QETH_CM_ENABLE_FILTER_TOKEN(buffer) (buffer + 0x53)
-@@ -868,7 +868,7 @@ extern unsigned char CM_ENABLE[];
- 		(PDU_ENCAPSULATION(buffer) + 0x13)
- 
- 
--extern unsigned char CM_SETUP[];
-+extern const unsigned char CM_SETUP[];
- #define CM_SETUP_SIZE 0x64
- #define QETH_CM_SETUP_DEST_ADDR(buffer) (buffer + 0x2c)
- #define QETH_CM_SETUP_CONNECTION_TOKEN(buffer) (buffer + 0x51)
-@@ -877,7 +877,7 @@ extern unsigned char CM_SETUP[];
- #define QETH_CM_SETUP_RESP_DEST_ADDR(buffer) \
- 		(PDU_ENCAPSULATION(buffer) + 0x1a)
- 
--extern unsigned char ULP_ENABLE[];
-+extern const unsigned char ULP_ENABLE[];
- #define ULP_ENABLE_SIZE 0x6b
- #define QETH_ULP_ENABLE_LINKNUM(buffer) (buffer + 0x61)
- #define QETH_ULP_ENABLE_DEST_ADDR(buffer) (buffer + 0x2c)
-@@ -898,7 +898,7 @@ extern unsigned char ULP_ENABLE[];
- #define QETH_ULP_ENABLE_PROT_TYPE(buffer) (buffer + 0x50)
- #define QETH_IPA_CMD_PROT_TYPE(buffer) (buffer + 0x19)
- 
--extern unsigned char ULP_SETUP[];
-+extern const unsigned char ULP_SETUP[];
- #define ULP_SETUP_SIZE 0x6c
- #define QETH_ULP_SETUP_DEST_ADDR(buffer) (buffer + 0x2c)
- #define QETH_ULP_SETUP_CONNECTION_TOKEN(buffer) (buffer + 0x51)
-@@ -910,7 +910,7 @@ extern unsigned char ULP_SETUP[];
- 		(PDU_ENCAPSULATION(buffer) + 0x1a)
- 
- 
--extern unsigned char DM_ACT[];
-+extern const unsigned char DM_ACT[];
- #define DM_ACT_SIZE 0x55
- #define QETH_DM_ACT_DEST_ADDR(buffer) (buffer + 0x2c)
- #define QETH_DM_ACT_CONNECTION_TOKEN(buffer) (buffer + 0x51)
-@@ -921,9 +921,8 @@ extern unsigned char DM_ACT[];
- #define QETH_PDU_HEADER_SEQ_NO(buffer) (buffer + 0x1c)
- #define QETH_PDU_HEADER_ACK_SEQ_NO(buffer) (buffer + 0x20)
- 
--extern unsigned char IDX_ACTIVATE_READ[];
--extern unsigned char IDX_ACTIVATE_WRITE[];
--
-+extern const unsigned char IDX_ACTIVATE_READ[];
-+extern const unsigned char IDX_ACTIVATE_WRITE[];
- #define IDX_ACTIVATE_SIZE	0x22
- #define QETH_IDX_ACT_PNO(buffer) (buffer+0x0b)
- #define QETH_IDX_ACT_ISSUER_RM_TOKEN(buffer) (buffer + 0x0c)
 -- 
-2.17.1
+2.26.2
