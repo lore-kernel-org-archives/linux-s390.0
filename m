@@ -1,35 +1,64 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-Date: Thu, 16 Jul 2020 10:23:06 -0500
-From: seth.forshee@canonical.com
-Subject: test_bpf regressions on s390 since 5.4
-Message-ID: <20200716152306.GH3644@ubuntu-x1>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: [PATCH 18/24] s390: use asm-generic/mmu_context.h for no-op implementations
+Date: Tue, 28 Jul 2020 13:33:59 +1000
+Message-Id: <20200728033405.78469-19-npiggin@gmail.com>
+In-Reply-To: <20200728033405.78469-1-npiggin@gmail.com>
+References: <20200728033405.78469-1-npiggin@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: bpf-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
-Cc: netdev@vger.kernel.org, bpf@vger.kernel.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-arch@vger.kernel.org
+Cc: Nicholas Piggin <npiggin@gmail.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-The tests in lib/test_bpf.c were all passing in 5.4 when using the JIT,
-but some are failing in 5.7/5.8. Some of the failures are due to the
-removal of BPF_SIZE_MAX causing some expected failures to pass, which I
-have already send a patch for [1]. The remaining failures appear to be
-regressions. I haven't tried 5.5 or 5.6, so I'm not sure exactly when
-they first appeared.
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+---
+ arch/s390/include/asm/mmu_context.h | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-These are the tests which currently fail:
-
- test_bpf: #37 INT: MUL_X jited:1 ret -1 != 1 FAIL (1 times)
- test_bpf: #42 INT: SUB jited:1 ret -55 != 11 FAIL (1 times)
- test_bpf: #44 INT: MUL jited:1 ret 439084800 != 903446258 FAIL (1 times)
- test_bpf: #49 INT: shifts by register jited:1 ret -617 != -1 FAIL (1 times)
- test_bpf: #371 JNE signed compare, test 1 jited:1 ret 2 != 1 FAIL (1 times)
- test_bpf: #372 JNE signed compare, test 2 jited:1 ret 2 != 1 FAIL (1 times)
- test_bpf: #374 JNE signed compare, test 4 jited:1 ret 1 != 2 FAIL (1 times)
- test_bpf: #375 JNE signed compare, test 5 jited:1 ret 2 != 1 FAIL (1 times)
-
-Thanks,
-Seth
-
-[1] https://lore.kernel.org/lkml/20200716143931.330122-1-seth.forshee@canonical.com/
+diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
+index c9f3d8a52756..66f9cf0a07e3 100644
+--- a/arch/s390/include/asm/mmu_context.h
++++ b/arch/s390/include/asm/mmu_context.h
+@@ -15,6 +15,7 @@
+ #include <asm/ctl_reg.h>
+ #include <asm-generic/mm_hooks.h>
+ 
++#define init_new_context init_new_context
+ static inline int init_new_context(struct task_struct *tsk,
+ 				   struct mm_struct *mm)
+ {
+@@ -69,8 +70,6 @@ static inline int init_new_context(struct task_struct *tsk,
+ 	return 0;
+ }
+ 
+-#define destroy_context(mm)             do { } while (0)
+-
+ static inline void set_user_asce(struct mm_struct *mm)
+ {
+ 	S390_lowcore.user_asce = mm->context.asce;
+@@ -125,9 +124,7 @@ static inline void finish_arch_post_lock_switch(void)
+ 	set_fs(current->thread.mm_segment);
+ }
+ 
+-#define enter_lazy_tlb(mm,tsk)	do { } while (0)
+-#define deactivate_mm(tsk,mm)	do { } while (0)
+-
++#define activate_mm activate_mm
+ static inline void activate_mm(struct mm_struct *prev,
+                                struct mm_struct *next)
+ {
+@@ -136,4 +133,6 @@ static inline void activate_mm(struct mm_struct *prev,
+ 	set_user_asce(next);
+ }
+ 
++#include <asm-generic/mmu_context.h>
++
+ #endif /* __S390_MMU_CONTEXT_H */
+-- 
+2.23.0
