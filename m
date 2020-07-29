@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 10/17] s390/kasan: fix early pgm check handler execution
-Date: Wed,  1 Jul 2020 21:26:42 -0400
-Message-Id: <20200702012649.2701799-10-sashal@kernel.org>
-In-Reply-To: <20200702012649.2701799-1-sashal@kernel.org>
-References: <20200702012649.2701799-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
-List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Alexander Egorenkov <egorenar@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2474 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726054AbgG2Nvc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 29 Jul 2020 09:51:32 -0400
+Date: Wed, 29 Jul 2020 15:51:22 +0200
 From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: linux plumbers + clang + s390 virtualized testing
+Message-ID: <your-ad-here.call-01596030682-ext-1369@work.hours>
+References: <CAKwvOdn-2E=v_7Uie71pz2jjYCKnk98K1Ly8EkpxzvC6M5pXFA@mail.gmail.com>
+ <20200716112840.GC8484@osiris>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200716112840.GC8484@osiris>
+Sender: linux-s390-owner@vger.kernel.org
+List-ID: <linux-s390.vger.kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, clang-built-linux <clang-built-linux@googlegroups.com>, LKML <linux-kernel@vger.kernel.org>
 
-[ Upstream commit 998f5bbe3dbdab81c1cfb1aef7c3892f5d24f6c7 ]
+On Thu, Jul 16, 2020 at 01:28:40PM +0200, Heiko Carstens wrote:
+> Hi Nick,
+> 
+> > We were very excited to see your patches going by for enabling Clang
+> > support for s390.  Since then, we've added s390 builds to our
+> > continuous integration setup.
+> > 
+> > We've been running into a few issues with doing virtualized boot tests
+> > of our kernels on s390.
+> > 
+> > I was curious if you'll both be attending Linux plumbers conf?  If we
+> > carve out time for an s390+clang talk, would this be of interest to
+> > you to attend?
+> 
+> I will not attend, however cannot speak for Vasily. He will have to
+> answer as soon as he returns - besides that enabling Clang support for
+> s390 was done by Vasily anyway :)
 
-Currently if early_pgm_check_handler is called it ends up in pgm check
-loop. The problem is that early_pgm_check_handler is instrumented by
-KASAN but executed without DAT flag enabled which leads to addressing
-exception when KASAN checks try to access shadow memory.
+I will attend and it would surely be interesting to me and other
+s390 folks. Your efforts are greatly appreciated!
 
-Fix that by executing early handlers with DAT flag on under KASAN as
-expected.
+BTW I believe basic Clang support for s390 came earlier in 5.2 with
+a lot of efforts from Arnd Bergmann.
 
-Reported-and-tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/early.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/arch/s390/kernel/early.c b/arch/s390/kernel/early.c
-index 4ba5ad44a21a2..73045142febf0 100644
---- a/arch/s390/kernel/early.c
-+++ b/arch/s390/kernel/early.c
-@@ -317,6 +317,8 @@ static noinline __init void setup_lowcore_early(void)
- 	psw_t psw;
- 
- 	psw.mask = PSW_MASK_BASE | PSW_DEFAULT_KEY | PSW_MASK_EA | PSW_MASK_BA;
-+	if (IS_ENABLED(CONFIG_KASAN))
-+		psw.mask |= PSW_MASK_DAT;
- 	psw.addr = (unsigned long) s390_base_ext_handler;
- 	S390_lowcore.external_new_psw = psw;
- 	psw.addr = (unsigned long) s390_base_pgm_handler;
--- 
-2.25.1
+My part was fixing recent breakages and bugging our s390 clang team
+(which did all the great work) to get kernel specific features support
+in clang 10 and 11 to reach features parity with gcc. And eventually
+doing few adjustments so that features which came with clang 10 and
+11 are working smoothly. That is s390 "asm goto" support and specific
+compiler flags for ftrace support and stack packing.
