@@ -1,209 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15770 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727822AbgGNLQV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 14 Jul 2020 07:16:21 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v12 7/9] s390x: css: stsch, enumeration test
-Date: Tue, 14 Jul 2020 13:15:46 +0200
-Message-Id: <1594725348-10034-8-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
-References: <1594725348-10034-1-git-send-email-pmorel@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:60882 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728309AbgG3Bwl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 29 Jul 2020 21:52:41 -0400
+Date: Thu, 30 Jul 2020 09:52:21 +0800
+From: Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH 09/15] memblock: make for_each_memblock_type() iterator
+ private
+Message-ID: <20200730015221.GI14854@MiWiFi-R3L-srv>
+References: <20200728051153.1590-1-rppt@kernel.org>
+ <20200728051153.1590-10-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200728051153.1590-10-rppt@kernel.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, drjones@redhat.com
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-First step for testing the channel subsystem is to enumerate the css and
-retrieve the css devices.
+On 07/28/20 at 08:11am, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> for_each_memblock_type() is not used outside mm/memblock.c, move it there
+> from include/linux/memblock.h
+> 
+> ---
+>  include/linux/memblock.h | 5 -----
+>  mm/memblock.c            | 5 +++++
+>  2 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+> index 017fae833d4a..220b5f0dad42 100644
+> --- a/include/linux/memblock.h
+> +++ b/include/linux/memblock.h
+> @@ -532,11 +532,6 @@ static inline unsigned long memblock_region_reserved_end_pfn(const struct memblo
+>  	     region < (memblock.memblock_type.regions + memblock.memblock_type.cnt);	\
+>  	     region++)
+>  
+> -#define for_each_memblock_type(i, memblock_type, rgn)			\
+> -	for (i = 0, rgn = &memblock_type->regions[0];			\
+> -	     i < memblock_type->cnt;					\
+> -	     i++, rgn = &memblock_type->regions[i])
+> -
+>  extern void *alloc_large_system_hash(const char *tablename,
+>  				     unsigned long bucketsize,
+>  				     unsigned long numentries,
+> diff --git a/mm/memblock.c b/mm/memblock.c
+> index 39aceafc57f6..a5b9b3df81fc 100644
+> --- a/mm/memblock.c
+> +++ b/mm/memblock.c
+> @@ -129,6 +129,11 @@ struct memblock memblock __initdata_memblock = {
+>  	.current_limit		= MEMBLOCK_ALLOC_ANYWHERE,
+>  };
+>  
+> +#define for_each_memblock_type(i, memblock_type, rgn)			\
+> +	for (i = 0, rgn = &memblock_type->regions[0];			\
+> +	     i < memblock_type->cnt;					\
+> +	     i++, rgn = &memblock_type->regions[i])
+> +
 
-We currently don't enable multiple subchannel sets and therefore only
-look in subchannel set 0
-
-This tests the success of STSCH I/O instruction, we do not test the
-reaction of the VM for an instruction with wrong parameters.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- lib/s390x/css_lib.c | 70 +++++++++++++++++++++++++++++++++++++++++++++
- s390x/Makefile      |  2 ++
- s390x/css.c         | 55 +++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |  4 +++
- 4 files changed, 131 insertions(+)
- create mode 100644 lib/s390x/css_lib.c
- create mode 100644 s390x/css.c
-
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-new file mode 100644
-index 0000000..fd087ce
---- /dev/null
-+++ b/lib/s390x/css_lib.c
-@@ -0,0 +1,70 @@
-+/*
-+ * Channel Subsystem tests library
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+#include <libcflat.h>
-+#include <alloc_phys.h>
-+#include <asm/page.h>
-+#include <string.h>
-+#include <interrupt.h>
-+#include <asm/arch_def.h>
-+
-+#include <css.h>
-+
-+static struct schib schib;
-+
-+/*
-+ * css_enumerate:
-+ * On success return the first subchannel ID found.
-+ * On error return an invalid subchannel ID containing cc
-+ */
-+int css_enumerate(void)
-+{
-+	struct pmcw *pmcw = &schib.pmcw;
-+	int scn_found = 0;
-+	int dev_found = 0;
-+	int schid = 0;
-+	int cc;
-+	int scn;
-+
-+	for (scn = 0; scn < 0xffff; scn++) {
-+		cc = stsch(scn | SCHID_ONE, &schib);
-+		switch (cc) {
-+		case 0:		/* 0 means SCHIB stored */
-+			break;
-+		case 3:		/* 3 means no more channels */
-+			goto out;
-+		default:	/* 1 or 2 should never happen for STSCH */
-+			report_abort("Unexpected error %d on subchannel %08x",
-+				     cc, scn | SCHID_ONE);
-+			return cc;
-+		}
-+
-+		/* We currently only support type 0, a.k.a. I/O channels */
-+		if (PMCW_CHANNEL_TYPE(pmcw) != 0)
-+			continue;
-+
-+		/* We ignore I/O channels without valid devices */
-+		scn_found++;
-+		if (!(pmcw->flags & PMCW_DNV))
-+			continue;
-+
-+		/* We keep track of the first device as our test device */
-+		if (!schid)
-+			schid = scn | SCHID_ONE;
-+		report_info("Found subchannel %08x", scn | SCHID_ONE);
-+		dev_found++;
-+	}
-+
-+out:
-+	report_info("Tested subchannels: %d, I/O subchannels: %d, I/O devices: %d",
-+		    scn, scn_found, dev_found);
-+	return schid;
-+}
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 050c40b..166cb5c 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -17,6 +17,7 @@ tests += $(TEST_DIR)/stsi.elf
- tests += $(TEST_DIR)/skrf.elf
- tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
-+tests += $(TEST_DIR)/css.elf
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- 
- all: directories test_cases test_cases_binary
-@@ -52,6 +53,7 @@ cflatobjs += lib/s390x/interrupt.o
- cflatobjs += lib/s390x/mmu.o
- cflatobjs += lib/s390x/smp.o
- cflatobjs += lib/s390x/css_dump.o
-+cflatobjs += lib/s390x/css_lib.o
- 
- OBJDIRS += lib/s390x
- 
-diff --git a/s390x/css.c b/s390x/css.c
-new file mode 100644
-index 0000000..e19ffc8
---- /dev/null
-+++ b/s390x/css.c
-@@ -0,0 +1,55 @@
-+/*
-+ * Channel Subsystem tests
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+
-+#include <libcflat.h>
-+#include <alloc_phys.h>
-+#include <asm/page.h>
-+#include <string.h>
-+#include <interrupt.h>
-+#include <asm/arch_def.h>
-+
-+#include <css.h>
-+
-+static int test_device_sid;
-+
-+static void test_enumerate(void)
-+{
-+	test_device_sid = css_enumerate();
-+	if (test_device_sid & SCHID_ONE) {
-+		report(1, "Schid of first I/O device: 0x%08x", test_device_sid);
-+		return;
-+	}
-+	report(0, "No I/O device found");
-+}
-+
-+static struct {
-+	const char *name;
-+	void (*func)(void);
-+} tests[] = {
-+	{ "enumerate (stsch)", test_enumerate },
-+	{ NULL, NULL }
-+};
-+
-+int main(int argc, char *argv[])
-+{
-+	int i;
-+
-+	report_prefix_push("Channel Subsystem");
-+	for (i = 0; tests[i].name; i++) {
-+		report_prefix_push(tests[i].name);
-+		tests[i].func();
-+		report_prefix_pop();
-+	}
-+	report_prefix_pop();
-+
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index b307329..0f156af 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -84,3 +84,7 @@ extra_params = -m 1G
- [sclp-3g]
- file = sclp.elf
- extra_params = -m 3G
-+
-+[css]
-+file = css.elf
-+extra_params = -device virtio-net-ccw
--- 
-2.25.1
+Reviewed-by: Baoquan He <bhe@redhat.com>
