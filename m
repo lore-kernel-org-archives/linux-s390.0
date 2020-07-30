@@ -1,40 +1,34 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40494 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728639AbgGTMsJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 08:48:09 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 02/24] bpfilter: fix up a sparse annotation
-Date: Mon, 20 Jul 2020 14:47:15 +0200
-Message-Id: <20200720124737.118617-3-hch@lst.de>
-In-Reply-To: <20200720124737.118617-1-hch@lst.de>
-References: <20200720124737.118617-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:56376 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726581AbgG3MD6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 30 Jul 2020 08:03:58 -0400
+Date: Thu, 30 Jul 2020 13:03:50 +0100
+From: Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PATCH 04/15] arm64: numa: simplify dummy_numa_init()
+Message-ID: <20200730120349.GL25149@gaia>
+References: <20200728051153.1590-1-rppt@kernel.org>
+ <20200728051153.1590-5-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200728051153.1590-5-rppt@kernel.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-The __user doesn't make sense when casting to an integer type.
+On Tue, Jul 28, 2020 at 08:11:42AM +0300, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> dummy_numa_init() loops over memblock.memory and passes nid=0 to
+> numa_add_memblk() which essentially wraps memblock_set_node(). However,
+> memblock_set_node() can cope with entire memory span itself, so the loop
+> over memblock.memory regions is redundant.
+> 
+> Replace the loop with a single call to memblock_set_node() to the entire
+> memory.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- net/bpfilter/bpfilter_kern.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/bpfilter/bpfilter_kern.c b/net/bpfilter/bpfilter_kern.c
-index 977e9dad72ca4f..713b4b3d02005d 100644
---- a/net/bpfilter/bpfilter_kern.c
-+++ b/net/bpfilter/bpfilter_kern.c
-@@ -49,7 +49,7 @@ static int __bpfilter_process_sockopt(struct sock *sk, int optname,
- 	req.is_set = is_set;
- 	req.pid = current->pid;
- 	req.cmd = optname;
--	req.addr = (long __force __user)optval;
-+	req.addr = (__force long)optval;
- 	req.len = optlen;
- 	if (!bpfilter_ops.info.tgid)
- 		goto out;
--- 
-2.27.0
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
