@@ -1,71 +1,122 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47508 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3160 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729532AbgG3JtJ (ORCPT
+        by vger.kernel.org with ESMTP id S1726615AbgG3LcV (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Jul 2020 05:49:09 -0400
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/2] s390/setup: diag 318: refactor struct
-Date: Thu, 30 Jul 2020 11:48:56 +0200
-Message-Id: <20200730094857.175501-2-borntraeger@de.ibm.com>
-In-Reply-To: <20200730094857.175501-1-borntraeger@de.ibm.com>
-References: <20200730094857.175501-1-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
+        Thu, 30 Jul 2020 07:32:21 -0400
+Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
+ <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
+ <20200715054807-mutt-send-email-mst@kernel.org>
+ <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
+ <20200715074917-mutt-send-email-mst@kernel.org>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <e41d039c-5fe2-b9db-093b-c0dddcc2ad4f@linux.ibm.com>
+Date: Thu, 30 Jul 2020 13:31:20 +0200
 MIME-Version: 1.0
+In-Reply-To: <20200715074917-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Collin Walling <walling@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Thomas Huth <thuth@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-From: Collin Walling <walling@linux.ibm.com>
 
-The diag 318 struct introduced in include/asm/diag.h can be
-reused in KVM, so let's condense the version code fields in the
-diag318_info struct for easier usage and simplify it until we
-can determine how the data should be formatted.
+gentle ping.
 
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200622154636.5499-2-walling@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- arch/s390/include/asm/diag.h | 6 ++----
- arch/s390/kernel/setup.c     | 3 +--
- 2 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/include/asm/diag.h b/arch/s390/include/asm/diag.h
-index 0036eab14391..ca8f85b53a90 100644
---- a/arch/s390/include/asm/diag.h
-+++ b/arch/s390/include/asm/diag.h
-@@ -298,10 +298,8 @@ struct diag26c_mac_resp {
- union diag318_info {
- 	unsigned long val;
- 	struct {
--		unsigned int cpnc : 8;
--		unsigned int cpvc_linux : 24;
--		unsigned char cpvc_distro[3];
--		unsigned char zero;
-+		unsigned long cpnc : 8;
-+		unsigned long cpvc : 56;
- 	};
- };
- 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 5853c9872dfe..878cacfc9c3e 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -1021,8 +1021,7 @@ static void __init setup_control_program_code(void)
- {
- 	union diag318_info diag318_info = {
- 		.cpnc = CPNC_LINUX,
--		.cpvc_linux = 0,
--		.cpvc_distro = {0},
-+		.cpvc = 0,
- 	};
- 
- 	if (!sclp.has_diag318)
+On 2020-07-15 13:51, Michael S. Tsirkin wrote:
+> On Wed, Jul 15, 2020 at 06:16:59PM +0800, Jason Wang wrote:
+>>
+>> On 2020/7/15 下午5:50, Michael S. Tsirkin wrote:
+>>> On Wed, Jul 15, 2020 at 10:31:09AM +0200, Pierre Morel wrote:
+>>>> If protected virtualization is active on s390, the virtio queues are
+>>>> not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
+>>>> negotiated. Use the new arch_validate_virtio_features() interface to
+>>>> fail probe if that's not the case, preventing a host error on access
+>>>> attempt.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>>>> Acked-by: Halil Pasic <pasic@linux.ibm.com>
+>>>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> ---
+>>>>    arch/s390/mm/init.c | 28 ++++++++++++++++++++++++++++
+>>>>    1 file changed, 28 insertions(+)
+>>>>
+>>>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+>>>> index 6dc7c3b60ef6..d39af6554d4f 100644
+>>>> --- a/arch/s390/mm/init.c
+>>>> +++ b/arch/s390/mm/init.c
+>>>> @@ -45,6 +45,7 @@
+>>>>    #include <asm/kasan.h>
+>>>>    #include <asm/dma-mapping.h>
+>>>>    #include <asm/uv.h>
+>>>> +#include <linux/virtio_config.h>
+>>>>    pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+>>>> @@ -161,6 +162,33 @@ bool force_dma_unencrypted(struct device *dev)
+>>>>    	return is_prot_virt_guest();
+>>>>    }
+>>>> +/*
+>>>> + * arch_validate_virtio_features
+>>>> + * @dev: the VIRTIO device being added
+>>>> + *
+>>>> + * Return an error if required features are missing on a guest running
+>>>> + * with protected virtualization.
+>>>> + */
+>>>> +int arch_validate_virtio_features(struct virtio_device *dev)
+>>>> +{
+>>>> +	if (!is_prot_virt_guest())
+>>>> +		return 0;
+>>>> +
+>>>> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+>>>> +		dev_warn(&dev->dev,
+>>>> +			 "legacy virtio not supported with protected virtualization\n");
+>>>> +		return -ENODEV;
+>>>> +	}
+>>>> +
+>>>> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+>>>> +		dev_warn(&dev->dev,
+>>>> +			 "support for limited memory access required for protected virtualization\n");
+>>>> +		return -ENODEV;
+>>>> +	}
+>>>> +
+>>>> +	return 0;
+>>>> +}
+>>>> +
+>>>>    /* protected virtualization */
+>>>>    static void pv_init(void)
+>>>>    {
+>>> What bothers me here is that arch code depends on virtio now.
+>>> It works even with a modular virtio when functions are inline,
+>>> but it seems fragile: e.g. it breaks virtio as an out of tree module,
+>>> since layout of struct virtio_device can change.
+>>
+>>
+>> The code was only called from virtio.c so it should be fine.
+>>
+>> And my understanding is that we don't need to care about the kABI issue
+>> during upstream development?
+>>
+>> Thanks
+> 
+> No, but so far it has been convenient at least for me, for development,
+> to just be able to unload all of virtio and load a different version.
+> 
+> 
+>>
+>>>
+>>> I'm not sure what to do with this yet, will try to think about it
+>>> over the weekend. Thanks!
+>>>
+>>>
+>>>> -- 
+>>>> 2.25.1
+> 
+
 -- 
-2.25.4
+Pierre Morel
+IBM Lab Boeblingen
