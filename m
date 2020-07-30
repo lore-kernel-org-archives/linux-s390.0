@@ -1,305 +1,184 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37836 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729040AbgGTPEw (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25620 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726832AbgG3JtF (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 20 Jul 2020 11:04:52 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v9 13/15] s390/vfio-ap: handle host AP config change notification
-Date: Mon, 20 Jul 2020 11:03:42 -0400
-Message-Id: <20200720150344.24488-14-akrowiak@linux.ibm.com>
-In-Reply-To: <20200720150344.24488-1-akrowiak@linux.ibm.com>
-References: <20200720150344.24488-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
+        Thu, 30 Jul 2020 05:49:05 -0400
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/2] s390/kvm: diagnose 0x318 sync and reset
+Date: Thu, 30 Jul 2020 11:48:57 +0200
+Message-Id: <20200730094857.175501-3-borntraeger@de.ibm.com>
+In-Reply-To: <20200730094857.175501-1-borntraeger@de.ibm.com>
+References: <20200730094857.175501-1-borntraeger@de.ibm.com>
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>, kernel test robot <lkp@intel.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Collin Walling <walling@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
 
-Implements the driver callback invoked by the AP bus when the host
-AP configuration has changed. Since this callback is invoked prior to
-unbinding a device from its device driver, the vfio_ap driver will
-respond by unplugging the AP adapters, domains and control domains
-removed from the host's AP configuration from the guests using them.
+From: Collin Walling <walling@linux.ibm.com>
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reported-by: kernel test robot <lkp@intel.com>
+DIAGNOSE 0x318 (diag318) sets information regarding the environment
+the VM is running in (Linux, z/VM, etc) and is observed via
+firmware/service events.
+
+This is a privileged s390x instruction that must be intercepted by
+SIE. Userspace handles the instruction as well as migration. Data
+is communicated via VCPU register synchronization.
+
+The Control Program Name Code (CPNC) is stored in the SIE block. The
+CPNC along with the Control Program Version Code (CPVC) are stored
+in the kvm_vcpu_arch struct.
+
+This data is reset on load normal and clear resets.
+
+Signed-off-by: Collin Walling <walling@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20200622154636.5499-3-walling@linux.ibm.com
+[borntraeger@de.ibm.com: fix sync_reg position]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |   5 +-
- drivers/s390/crypto/vfio_ap_ops.c     | 147 ++++++++++++++++++++++++--
- drivers/s390/crypto/vfio_ap_private.h |   7 +-
- 3 files changed, 146 insertions(+), 13 deletions(-)
+ arch/s390/include/asm/kvm_host.h |  4 +++-
+ arch/s390/include/uapi/asm/kvm.h |  7 +++++--
+ arch/s390/kvm/kvm-s390.c         | 11 ++++++++++-
+ arch/s390/kvm/vsie.c             |  1 +
+ include/uapi/linux/kvm.h         |  1 +
+ 5 files changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index aae5b3d8e3fa..ea0a7603e886 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -115,9 +115,11 @@ static int vfio_ap_matrix_dev_create(void)
- 
- 	/* Fill in config info via PQAP(QCI), if available */
- 	if (test_facility(12)) {
--		ret = ap_qci(&matrix_dev->info);
-+		ret = ap_qci(&matrix_dev->config_info);
- 		if (ret)
- 			goto matrix_alloc_err;
-+		memcpy(&matrix_dev->config_info_prev, &matrix_dev->config_info,
-+		       sizeof(struct ap_config_info));
- 	}
- 
- 	mutex_init(&matrix_dev->lock);
-@@ -177,6 +179,7 @@ static int __init vfio_ap_init(void)
- 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
- 	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
-+	vfio_ap_drv.on_config_changed = vfio_ap_on_cfg_changed;
- 
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
- 	if (ret) {
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 2b01a8eb6ee7..e002d556abab 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -347,7 +347,9 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 	}
- 
- 	matrix_mdev->mdev = mdev;
--	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
-+	vfio_ap_matrix_init(&matrix_dev->config_info, &matrix_mdev->matrix);
-+	vfio_ap_matrix_init(&matrix_dev->config_info,
-+			    &matrix_mdev->shadow_apcb);
- 	hash_init(matrix_mdev->qtable);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook.hook = handle_pqap;
-@@ -526,8 +528,8 @@ static int vfio_ap_mdev_filter_matrix(struct ap_matrix_mdev *matrix_mdev,
- 		 * If the APID is not assigned to the host AP configuration,
- 		 * we can not assign it to the guest's AP configuration
- 		 */
--		if (!test_bit_inv(apid,
--				  (unsigned long *)matrix_dev->info.apm)) {
-+		if (!test_bit_inv(apid, (unsigned long *)
-+				  matrix_dev->config_info.apm)) {
- 			clear_bit_inv(apid, shadow_apcb->apm);
- 			continue;
- 		}
-@@ -540,7 +542,7 @@ static int vfio_ap_mdev_filter_matrix(struct ap_matrix_mdev *matrix_mdev,
- 			 * guest's AP configuration
- 			 */
- 			if (!test_bit_inv(apqi, (unsigned long *)
--					  matrix_dev->info.aqm)) {
-+					  matrix_dev->config_info.aqm)) {
- 				clear_bit_inv(apqi, shadow_apcb->aqm);
- 				continue;
- 			}
-@@ -594,7 +596,7 @@ static bool vfio_ap_mdev_config_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
- 	int napm, naqm;
- 	struct ap_matrix shadow_apcb;
- 
--	vfio_ap_matrix_init(&matrix_dev->info, &shadow_apcb);
-+	vfio_ap_matrix_init(&matrix_dev->config_info, &shadow_apcb);
- 	napm = bitmap_weight(matrix_mdev->matrix.apm, AP_DEVICES);
- 	naqm = bitmap_weight(matrix_mdev->matrix.aqm, AP_DOMAINS);
- 
-@@ -741,7 +743,7 @@ static bool vfio_ap_mdev_assign_apqis_4_apid(struct ap_matrix_mdev *matrix_mdev,
- 
- 	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, AP_DOMAINS) {
- 		if (!test_bit_inv(apqi,
--				  (unsigned long *) matrix_dev->info.aqm))
-+				  (unsigned long *)matrix_dev->config_info.aqm))
- 			clear_bit_inv(apqi, aqm);
- 
- 		apqn = AP_MKQID(apid, apqi);
-@@ -764,7 +766,7 @@ static bool vfio_ap_mdev_assign_guest_apid(struct ap_matrix_mdev *matrix_mdev,
- 	unsigned long apqi, apqn;
- 
- 	if (!vfio_ap_mdev_has_crycb(matrix_mdev) ||
--	    !test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm))
-+	    !test_bit_inv(apid, (unsigned long *)matrix_dev->config_info.apm))
- 		return false;
- 
- 	if (bitmap_empty(matrix_mdev->shadow_apcb.aqm, AP_DOMAINS))
-@@ -931,8 +933,8 @@ static bool vfio_ap_mdev_assign_apids_4_apqi(struct ap_matrix_mdev *matrix_mdev,
- 	bitmap_copy(apm, matrix_mdev->matrix.apm, AP_DEVICES);
- 
- 	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
--		if (!test_bit_inv(apid,
--				  (unsigned long *) matrix_dev->info.apm))
-+		if (!test_bit_inv(apid, (unsigned long *)
-+				  matrix_dev->config_info.apm))
- 			clear_bit_inv(apqi, apm);
- 
- 		apqn = AP_MKQID(apid, apqi);
-@@ -955,7 +957,7 @@ static bool vfio_ap_mdev_assign_guest_apqi(struct ap_matrix_mdev *matrix_mdev,
- 	unsigned long apid, apqn;
- 
- 	if (!vfio_ap_mdev_has_crycb(matrix_mdev) ||
--	    !test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm))
-+	    !test_bit_inv(apqi, (unsigned long *)matrix_dev->config_info.aqm))
- 		return false;
- 
- 	if (bitmap_empty(matrix_mdev->shadow_apcb.apm, AP_DEVICES))
-@@ -1702,7 +1704,7 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- {
- 	struct vfio_ap_queue *q;
--	int apid, apqi;
-+	unsigned long apid, apqi;
- 
- 	mutex_lock(&matrix_dev->lock);
- 	q = dev_get_drvdata(&queue->ap_dev.device);
-@@ -1727,3 +1729,126 @@ bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
- 
- 	return in_use;
- }
-+
-+/**
-+ * vfio_ap_mdev_unassign_apids
-+ *
-+ * @matrix_mdev: The matrix mediated device
-+ *
-+ * @aqm: A bitmap with 256 bits. Each bit in the map represents an APID from 0
-+ *	 to 255 (with the leftmost bit corresponding to APID 0).
-+ *
-+ * Unassigns each APID specified in @aqm that is assigned to the shadow CRYCB
-+ * of @matrix_mdev. Returns true if at least one APID is unassigned; otherwise,
-+ * returns false.
-+ */
-+static bool vfio_ap_mdev_unassign_apids(struct ap_matrix_mdev *matrix_mdev,
-+					unsigned long *apm_unassign)
-+{
-+	unsigned long apid;
-+	bool unassigned = false;
-+
-+	/*
-+	 * If the matrix mdev is not in use by a KVM guest, return indicating
-+	 * that no APIDs have been unassigned.
-+	 */
-+	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
-+		return false;
-+
-+	for_each_set_bit_inv(apid, apm_unassign, AP_DEVICES) {
-+		unassigned |= vfio_ap_mdev_unassign_guest_apid(matrix_mdev,
-+							       apid);
-+	}
-+
-+	return unassigned;
-+}
-+
-+/**
-+ * vfio_ap_mdev_unassign_apqis
-+ *
-+ * @matrix_mdev: The matrix mediated device
-+ *
-+ * @aqm: A bitmap with 256 bits. Each bit in the map represents an APQI from 0
-+ *	 to 255 (with the leftmost bit corresponding to APQI 0).
-+ *
-+ * Unassigns each APQI specified in @aqm that is assigned to the shadow CRYCB
-+ * of @matrix_mdev. Returns true if at least one APQI is unassigned; otherwise,
-+ * returns false.
-+ */
-+static bool vfio_ap_mdev_unassign_apqis(struct ap_matrix_mdev *matrix_mdev,
-+					unsigned long *aqm_unassign)
-+{
-+	unsigned long apqi;
-+	bool unassigned = false;
-+
-+	/*
-+	 * If the matrix mdev is not in use by a KVM guest, return indicating
-+	 * that no APQIs have been unassigned.
-+	 */
-+	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
-+		return false;
-+
-+	for_each_set_bit_inv(apqi, aqm_unassign, AP_DOMAINS) {
-+		unassigned |= vfio_ap_mdev_unassign_guest_apqi(matrix_mdev,
-+							       apqi);
-+	}
-+
-+	return unassigned;
-+}
-+
-+void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
-+			    struct ap_config_info *old_config_info)
-+{
-+	bool unassigned;
-+	int ap_remove, aq_remove;
-+	struct ap_matrix_mdev *matrix_mdev;
-+	DECLARE_BITMAP(apm_unassign, AP_DEVICES);
-+	DECLARE_BITMAP(aqm_unassign, AP_DOMAINS);
-+
-+	unsigned long *cur_apm, *cur_aqm, *prev_apm, *prev_aqm;
-+
-+	if (matrix_dev->flags & AP_MATRIX_CFG_CHG) {
-+		WARN_ONCE(1, "AP host configuration change already reported");
-+		return;
-+	}
-+
-+	memcpy(&matrix_dev->config_info, new_config_info,
-+	       sizeof(struct ap_config_info));
-+	memcpy(&matrix_dev->config_info_prev, old_config_info,
-+	       sizeof(struct ap_config_info));
-+
-+	cur_apm = (unsigned long *)matrix_dev->config_info.apm;
-+	cur_aqm = (unsigned long *)matrix_dev->config_info.aqm;
-+	prev_apm = (unsigned long *)matrix_dev->config_info_prev.apm;
-+	prev_aqm = (unsigned long *)matrix_dev->config_info_prev.aqm;
-+
-+	ap_remove = bitmap_andnot(apm_unassign, prev_apm, cur_apm, AP_DEVICES);
-+	aq_remove = bitmap_andnot(aqm_unassign, prev_aqm, cur_aqm, AP_DOMAINS);
-+
-+	mutex_lock(&matrix_dev->lock);
-+	matrix_dev->flags |= AP_MATRIX_CFG_CHG;
-+
-+	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		if (!vfio_ap_mdev_has_crycb(matrix_mdev))
-+			continue;
-+
-+		unassigned = false;
-+
-+		if (ap_remove)
-+			if (bitmap_intersects(matrix_mdev->shadow_apcb.apm,
-+					      apm_unassign, AP_DEVICES))
-+				if (vfio_ap_mdev_unassign_apids(matrix_mdev,
-+								apm_unassign))
-+					unassigned = true;
-+		if (aq_remove)
-+			if (bitmap_intersects(matrix_mdev->shadow_apcb.aqm,
-+					      aqm_unassign, AP_DOMAINS))
-+				if (vfio_ap_mdev_unassign_apqis(matrix_mdev,
-+								aqm_unassign))
-+					unassigned = true;
-+
-+		if (unassigned)
-+			vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
-+	}
-+	mutex_unlock(&matrix_dev->lock);
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 055bce6d45db..fc8629e28ad3 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -40,10 +40,13 @@
- struct ap_matrix_dev {
- 	struct device device;
- 	atomic_t available_instances;
--	struct ap_config_info info;
-+	struct ap_config_info config_info;
-+	struct ap_config_info config_info_prev;
- 	struct list_head mdev_list;
- 	struct mutex lock;
- 	struct ap_driver  *vfio_ap_drv;
-+	#define AP_MATRIX_CFG_CHG (1UL << 0)
-+	unsigned long flags;
+diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+index cee3cb6455a2..371ec6beb618 100644
+--- a/arch/s390/include/asm/kvm_host.h
++++ b/arch/s390/include/asm/kvm_host.h
+@@ -260,7 +260,8 @@ struct kvm_s390_sie_block {
+ 	__u32	scaol;			/* 0x0064 */
+ 	__u8	sdf;			/* 0x0068 */
+ 	__u8    epdx;			/* 0x0069 */
+-	__u8    reserved6a[2];		/* 0x006a */
++	__u8	cpnc;			/* 0x006a */
++	__u8	reserved6b;		/* 0x006b */
+ 	__u32	todpr;			/* 0x006c */
+ #define GISA_FORMAT1 0x00000001
+ 	__u32	gd;			/* 0x0070 */
+@@ -745,6 +746,7 @@ struct kvm_vcpu_arch {
+ 	bool gs_enabled;
+ 	bool skey_enabled;
+ 	struct kvm_s390_pv_vcpu pv;
++	union diag318_info diag318_info;
  };
  
- extern struct ap_matrix_dev *matrix_dev;
-@@ -108,5 +111,7 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
+ struct kvm_vm_stat {
+diff --git a/arch/s390/include/uapi/asm/kvm.h b/arch/s390/include/uapi/asm/kvm.h
+index 436ec7636927..7a6b14874d65 100644
+--- a/arch/s390/include/uapi/asm/kvm.h
++++ b/arch/s390/include/uapi/asm/kvm.h
+@@ -231,11 +231,13 @@ struct kvm_guest_debug_arch {
+ #define KVM_SYNC_GSCB   (1UL << 9)
+ #define KVM_SYNC_BPBC   (1UL << 10)
+ #define KVM_SYNC_ETOKEN (1UL << 11)
++#define KVM_SYNC_DIAG318 (1UL << 12)
  
- bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
-+void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
-+			    struct ap_config_info *old_config_info);
+ #define KVM_SYNC_S390_VALID_FIELDS \
+ 	(KVM_SYNC_PREFIX | KVM_SYNC_GPRS | KVM_SYNC_ACRS | KVM_SYNC_CRS | \
+ 	 KVM_SYNC_ARCH0 | KVM_SYNC_PFAULT | KVM_SYNC_VRS | KVM_SYNC_RICCB | \
+-	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN)
++	 KVM_SYNC_FPRS | KVM_SYNC_GSCB | KVM_SYNC_BPBC | KVM_SYNC_ETOKEN | \
++	 KVM_SYNC_DIAG318)
  
- #endif /* _VFIO_AP_PRIVATE_H_ */
+ /* length and alignment of the sdnx as a power of two */
+ #define SDNXC 8
+@@ -264,7 +266,8 @@ struct kvm_sync_regs {
+ 	__u8 reserved2 : 7;
+ 	__u8 padding1[51];	/* riccb needs to be 64byte aligned */
+ 	__u8 riccb[64];		/* runtime instrumentation controls block */
+-	__u8 padding2[192];	/* sdnx needs to be 256byte aligned */
++	__u64 diag318;		/* diagnose 0x318 info */
++	__u8 padding2[184];	/* sdnx needs to be 256byte aligned */
+ 	union {
+ 		__u8 sdnx[SDNXL];  /* state description annex */
+ 		struct {
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index d47c19718615..08e6cf6cb454 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -545,6 +545,7 @@ int kvm_vm_ioctl_check_extension(struct kvm *kvm, long ext)
+ 	case KVM_CAP_S390_AIS_MIGRATION:
+ 	case KVM_CAP_S390_VCPU_RESETS:
+ 	case KVM_CAP_SET_GUEST_DEBUG:
++	case KVM_CAP_S390_DIAG318:
+ 		r = 1;
+ 		break;
+ 	case KVM_CAP_S390_HPAGE_1M:
+@@ -3267,7 +3268,8 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
+ 				    KVM_SYNC_ACRS |
+ 				    KVM_SYNC_CRS |
+ 				    KVM_SYNC_ARCH0 |
+-				    KVM_SYNC_PFAULT;
++				    KVM_SYNC_PFAULT |
++				    KVM_SYNC_DIAG318;
+ 	kvm_s390_set_prefix(vcpu, 0);
+ 	if (test_kvm_facility(vcpu->kvm, 64))
+ 		vcpu->run->kvm_valid_regs |= KVM_SYNC_RICCB;
+@@ -3562,6 +3564,7 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.sie_block->pp = 0;
+ 		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+ 		vcpu->arch.sie_block->todpr = 0;
++		vcpu->arch.sie_block->cpnc = 0;
+ 	}
+ }
+ 
+@@ -3579,6 +3582,7 @@ static void kvm_arch_vcpu_ioctl_clear_reset(struct kvm_vcpu *vcpu)
+ 
+ 	regs->etoken = 0;
+ 	regs->etoken_extension = 0;
++	regs->diag318 = 0;
+ }
+ 
+ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
+@@ -4196,6 +4200,10 @@ static void sync_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 		if (vcpu->arch.pfault_token == KVM_S390_PFAULT_TOKEN_INVALID)
+ 			kvm_clear_async_pf_completion_queue(vcpu);
+ 	}
++	if (kvm_run->kvm_dirty_regs & KVM_SYNC_DIAG318) {
++		vcpu->arch.diag318_info.val = kvm_run->s.regs.diag318;
++		vcpu->arch.sie_block->cpnc = vcpu->arch.diag318_info.cpnc;
++	}
+ 	/*
+ 	 * If userspace sets the riccb (e.g. after migration) to a valid state,
+ 	 * we should enable RI here instead of doing the lazy enablement.
+@@ -4297,6 +4305,7 @@ static void store_regs_fmt2(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run)
+ 	kvm_run->s.regs.pp = vcpu->arch.sie_block->pp;
+ 	kvm_run->s.regs.gbea = vcpu->arch.sie_block->gbea;
+ 	kvm_run->s.regs.bpbc = (vcpu->arch.sie_block->fpf & FPF_BPBC) == FPF_BPBC;
++	kvm_run->s.regs.diag318 = vcpu->arch.diag318_info.val;
+ 	if (MACHINE_HAS_GS) {
+ 		__ctl_set_bit(2, 4);
+ 		if (vcpu->arch.gs_enabled)
+diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
+index 9e9056cebfcf..4f3cbf6003a9 100644
+--- a/arch/s390/kvm/vsie.c
++++ b/arch/s390/kvm/vsie.c
+@@ -548,6 +548,7 @@ static int shadow_scb(struct kvm_vcpu *vcpu, struct vsie_page *vsie_page)
+ 		scb_s->ecd |= scb_o->ecd & ECD_ETOKENF;
+ 
+ 	scb_s->hpid = HPID_VSIE;
++	scb_s->cpnc = scb_o->cpnc;
+ 
+ 	prepare_ibc(vcpu, vsie_page);
+ 	rc = shadow_crycb(vcpu, vsie_page);
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index 4fdf30316582..35cdb4307904 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1031,6 +1031,7 @@ struct kvm_ppc_resize_hpt {
+ #define KVM_CAP_PPC_SECURE_GUEST 181
+ #define KVM_CAP_HALT_POLL 182
+ #define KVM_CAP_ASYNC_PF_INT 183
++#define KVM_CAP_S390_DIAG318 184
+ 
+ #ifdef KVM_CAP_IRQ_ROUTING
+ 
 -- 
-2.21.1
+2.25.4
