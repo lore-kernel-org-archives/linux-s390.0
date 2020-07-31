@@ -1,139 +1,150 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56434 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726304AbgGWGJa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 23 Jul 2020 02:09:30 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/26] net: add a new sockptr_t type
-Date: Thu, 23 Jul 2020 08:08:46 +0200
-Message-Id: <20200723060908.50081-5-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:48160 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731964AbgGaJVm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 31 Jul 2020 05:21:42 -0400
+Date: Fri, 31 Jul 2020 11:21:22 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v2 3/3] s390x: Ultravisor guest API test
+Message-ID: <20200731112122.1db14419.cohuck@redhat.com>
+In-Reply-To: <16eee269-d773-26df-a517-08f2265318c4@linux.ibm.com>
+References: <20200727095415.494318-1-frankja@linux.ibm.com>
+        <20200727095415.494318-4-frankja@linux.ibm.com>
+        <20200730131617.7f7d5e5f.cohuck@redhat.com>
+        <1a407971-0b43-879e-0aac-65c7f9e29606@redhat.com>
+        <d9333547-b93e-629b-e004-53f1b581914f@linux.ibm.com>
+        <20200731104205.37add810.cohuck@redhat.com>
+        <16eee269-d773-26df-a517-08f2265318c4@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="Sig_/85AWDb/urtlSoUNPc2_4Ym3";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com
 
-Add a uptr_t type that can hold a pointer to either a user or kernel
-memory region, and simply helpers to copy to and from it.
+--Sig_/85AWDb/urtlSoUNPc2_4Ym3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/sockptr.h | 104 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 104 insertions(+)
- create mode 100644 include/linux/sockptr.h
+On Fri, 31 Jul 2020 11:06:25 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-diff --git a/include/linux/sockptr.h b/include/linux/sockptr.h
-new file mode 100644
-index 00000000000000..700856e13ea0c4
---- /dev/null
-+++ b/include/linux/sockptr.h
-@@ -0,0 +1,104 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * Copyright (c) 2020 Christoph Hellwig.
-+ *
-+ * Support for "universal" pointers that can point to either kernel or userspace
-+ * memory.
-+ */
-+#ifndef _LINUX_SOCKPTR_H
-+#define _LINUX_SOCKPTR_H
-+
-+#include <linux/slab.h>
-+#include <linux/uaccess.h>
-+
-+typedef struct {
-+	union {
-+		void		*kernel;
-+		void __user	*user;
-+	};
-+	bool		is_kernel : 1;
-+} sockptr_t;
-+
-+static inline bool sockptr_is_kernel(sockptr_t sockptr)
-+{
-+	return sockptr.is_kernel;
-+}
-+
-+static inline sockptr_t KERNEL_SOCKPTR(void *p)
-+{
-+	return (sockptr_t) { .kernel = p, .is_kernel = true };
-+}
-+
-+static inline sockptr_t USER_SOCKPTR(void __user *p)
-+{
-+	return (sockptr_t) { .user = p };
-+}
-+
-+static inline bool sockptr_is_null(sockptr_t sockptr)
-+{
-+	return !sockptr.user && !sockptr.kernel;
-+}
-+
-+static inline int copy_from_sockptr(void *dst, sockptr_t src, size_t size)
-+{
-+	if (!sockptr_is_kernel(src))
-+		return copy_from_user(dst, src.user, size);
-+	memcpy(dst, src.kernel, size);
-+	return 0;
-+}
-+
-+static inline int copy_to_sockptr(sockptr_t dst, const void *src, size_t size)
-+{
-+	if (!sockptr_is_kernel(dst))
-+		return copy_to_user(dst.user, src, size);
-+	memcpy(dst.kernel, src, size);
-+	return 0;
-+}
-+
-+static inline void *memdup_sockptr(sockptr_t src, size_t len)
-+{
-+	void *p = kmalloc_track_caller(len, GFP_USER | __GFP_NOWARN);
-+
-+	if (!p)
-+		return ERR_PTR(-ENOMEM);
-+	if (copy_from_sockptr(p, src, len)) {
-+		kfree(p);
-+		return ERR_PTR(-EFAULT);
-+	}
-+	return p;
-+}
-+
-+static inline void *memdup_sockptr_nul(sockptr_t src, size_t len)
-+{
-+	char *p = kmalloc_track_caller(len + 1, GFP_KERNEL);
-+
-+	if (!p)
-+		return ERR_PTR(-ENOMEM);
-+	if (copy_from_sockptr(p, src, len)) {
-+		kfree(p);
-+		return ERR_PTR(-EFAULT);
-+	}
-+	p[len] = '\0';
-+	return p;
-+}
-+
-+static inline void sockptr_advance(sockptr_t sockptr, size_t len)
-+{
-+	if (sockptr_is_kernel(sockptr))
-+		sockptr.kernel += len;
-+	else
-+		sockptr.user += len;
-+}
-+
-+static inline long strncpy_from_sockptr(char *dst, sockptr_t src, size_t count)
-+{
-+	if (sockptr_is_kernel(src)) {
-+		size_t len = min(strnlen(src.kernel, count - 1) + 1, count);
-+
-+		memcpy(dst, src.kernel, len);
-+		return len;
-+	}
-+	return strncpy_from_user(dst, src.user, count);
-+}
-+
-+#endif /* _LINUX_SOCKPTR_H */
--- 
-2.27.0
+> On 7/31/20 10:42 AM, Cornelia Huck wrote:
+> > On Fri, 31 Jul 2020 09:34:41 +0200
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >  =20
+> >> On 7/30/20 5:58 PM, Thomas Huth wrote: =20
+> >>> On 30/07/2020 13.16, Cornelia Huck wrote:   =20
+> >>>> On Mon, 27 Jul 2020 05:54:15 -0400
+> >>>> Janosch Frank <frankja@linux.ibm.com> wrote:
+> >>>>   =20
+> >>>>> Test the error conditions of guest 2 Ultravisor calls, namely:
+> >>>>>      * Query Ultravisor information
+> >>>>>      * Set shared access
+> >>>>>      * Remove shared access
+> >>>>>
+> >>>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> >>>>> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> >>>>> ---
+> >>>>>  lib/s390x/asm/uv.h  |  68 +++++++++++++++++++
+> >>>>>  s390x/Makefile      |   1 +
+> >>>>>  s390x/unittests.cfg |   3 +
+> >>>>>  s390x/uv-guest.c    | 159 ++++++++++++++++++++++++++++++++++++++++=
+++++
+> >>>>>  4 files changed, 231 insertions(+)
+> >>>>>  create mode 100644 lib/s390x/asm/uv.h
+> >>>>>  create mode 100644 s390x/uv-guest.c
+> >>>>>   =20
+> >>>>
+> >>>> (...)
+> >>>>   =20
+> >>>>> +static inline int uv_call(unsigned long r1, unsigned long r2)
+> >>>>> +{
+> >>>>> +=09int cc;
+> >>>>> +
+> >>>>> +=09asm volatile(
+> >>>>> +=09=09"0:=09.insn rrf,0xB9A40000,%[r1],%[r2],0,0\n"
+> >>>>> +=09=09"=09=09brc=093,0b\n"
+> >>>>> +=09=09"=09=09ipm=09%[cc]\n"
+> >>>>> +=09=09"=09=09srl=09%[cc],28\n"
+> >>>>> +=09=09: [cc] "=3Dd" (cc)
+> >>>>> +=09=09: [r1] "a" (r1), [r2] "a" (r2)
+> >>>>> +=09=09: "memory", "cc");
+> >>>>> +=09return cc;
+> >>>>> +}   =20
+> >>>>
+> >>>> This returns the condition code, but no caller seems to check it
+> >>>> (instead, they look at header.rc, which is presumably only set if th=
+e
+> >>>> instruction executed successfully in some way?)
+> >>>>
+> >>>> Looking at the kernel, it retries for cc > 1 (presumably busy
+> >>>> conditions), and cc !=3D 0 seems to be considered a failure. Do we w=
+ant
+> >>>> to look at the cc here as well?   =20
+> >>>
+> >>> It's there - but here it's in the assembly code, the "brc 3,0b".   =
+=20
+> >=20
+> > Ah yes, I missed that.
+> >  =20
+> >>
+> >> Yes, we needed to factor that out in KVM because we sometimes need to
+> >> schedule and then it looks nicer handling that in C code. The branch o=
+n
+> >> condition will jump back for cc 2 and 3. cc 0 and 1 are success and
+> >> error respectively and only then the rc and rrc in the UV header are s=
+et. =20
+> >=20
+> > Yeah, it's a bit surprising that rc/rrc are also set with cc 1. =20
+>=20
+> Is it?
+> The (r)rc *only* contain meaningful information on CC 1.
+> On CC 0 they will simply say everything is fine which CC 0 states
+> already anyway.
+
+I would consider "things worked" to actually be meaningful :)
+
+(I've seen other instructions indicating different kinds of success.)
+
+>=20
+> >=20
+> > (Can you add a comment? Just so that it is clear that callers never
+> > need to check the cc, as rc/rrc already contain more information than
+> > that.) =20
+>=20
+> I'd rather fix my test code and also check the CC.
+> I did check it for my other UV tests so I've no idea why I didn't do it
+> here...
+>=20
+>=20
+> How about adding a comment for the cc 2/3 case?
+> "The brc instruction will take care of the cc 2/3 case where we need to
+> continue the execution because we were interrupted.
+> The inline assembly will only return on success/error i.e. cc 0/1."
+
+Sounds good.
+
+--Sig_/85AWDb/urtlSoUNPc2_4Ym3
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEw9DWbcNiT/aowBjO3s9rk8bwL68FAl8j4pIACgkQ3s9rk8bw
+L6+I0RAAmoCKVRrXzu8om3hAovHTbKnIf7+8PPW5tKHGnQZNaHVeo3jmioJBU6Ur
+NYuMapYIwMxiBkOXkBpm/WFhLMZunWCKMmjrwZNGZGtp/sFHFvDTUAan2A1eCfZ4
+23o4wHpQnMCHR3LkRgaHOvVbKrGwDwMr4n7K0btmsOQWQHFS0Ot2xEIHVwXrJj+k
+xWPFVs66ylYwMPNifrtwHSejWtBvlN8QM0GvA9MDAYZCyQExRNfSyS9Ebx41+jg6
+TGR3eUWrKoewmtv6JozCaCEiv3kIaRMCJkTR26FiCgUb0ZuiqtRBeMan9uxm5Yji
+S+5u2Gty+yJSC6bKdhvITpDQ92mjMbVApQF6Hq4FGUY0APKXQa9+TL7CDX4ySBam
+YNOVDn7gWnuzLE7pP+uRHWznYEj2SCvolDmU3zKSnYMVhKLvTqUdr/6/dwVCwq8A
+JEnc8R3sXjhA3PhYaf2i4EpfPcivEBH1yuVYHtZh4t2V1+JQ2Uz7EfpAil63ACpH
+dbOJj5hIYO8wBsS0e3KoNpXVPTyEmmKX1UuOqdumZzS7YUoAPZ2mGMG3Pb2ABCQW
+nc9hdK31I4UGG8LDYy+nkWDpqcSA/ns0W+Cf0nW1IoyPVmiBvdWSNQZPfguNZlKJ
+KSEhdsq1u0l8SllxLNWUYAbK0p0ws31p5+OiNa+IelnMJH2ry8I=
+=Ib/4
+-----END PGP SIGNATURE-----
+
+--Sig_/85AWDb/urtlSoUNPc2_4Ym3--
