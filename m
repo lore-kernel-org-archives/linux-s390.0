@@ -1,66 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33874 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726251AbgG1FMY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Jul 2020 01:12:24 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH 01/15] KVM: PPC: Book3S HV: simplify kvm_cma_reserve()
-Date: Tue, 28 Jul 2020 08:11:39 +0300
-Message-Id: <20200728051153.1590-2-rppt@kernel.org>
-In-Reply-To: <20200728051153.1590-1-rppt@kernel.org>
-References: <20200728051153.1590-1-rppt@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17416 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732297AbgGaJq1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 31 Jul 2020 05:46:27 -0400
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 04/11] s390x: export the clock get_clock_ms() utility
+Date: Fri, 31 Jul 2020 11:46:00 +0200
+Message-Id: <20200731094607.15204-5-frankja@linux.ibm.com>
+In-Reply-To: <20200731094607.15204-1-frankja@linux.ibm.com>
+References: <20200731094607.15204-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
 
-The memory size calculation in kvm_cma_reserve() traverses memblock.memory
-rather than simply call memblock_phys_mem_size(). The comment in that
-function suggests that at some point there should have been call to
-memblock_analyze() before memblock_phys_mem_size() could be used.
-As of now, there is no memblock_analyze() at all and
-memblock_phys_mem_size() can be used as soon as cold-plug memory is
-registerd with memblock.
+To serve multiple times, the function get_clock_ms() is moved
+from intercept.c test to the new file asm/time.h.
 
-Replace loop over memblock.memory with a call to memblock_phys_mem_size().
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <1594887809-10521-4-git-send-email-pmorel@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/powerpc/kvm/book3s_hv_builtin.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ lib/s390x/asm/time.h | 26 ++++++++++++++++++++++++++
+ s390x/intercept.c    | 11 +----------
+ 2 files changed, 27 insertions(+), 10 deletions(-)
+ create mode 100644 lib/s390x/asm/time.h
 
-diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
-index 7cd3cf3d366b..56ab0d28de2a 100644
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -95,22 +95,15 @@ EXPORT_SYMBOL_GPL(kvm_free_hpt_cma);
- void __init kvm_cma_reserve(void)
- {
- 	unsigned long align_size;
--	struct memblock_region *reg;
--	phys_addr_t selected_size = 0;
-+	phys_addr_t selected_size;
+diff --git a/lib/s390x/asm/time.h b/lib/s390x/asm/time.h
+new file mode 100644
+index 0000000..1791380
+--- /dev/null
++++ b/lib/s390x/asm/time.h
+@@ -0,0 +1,26 @@
++/*
++ * Clock utilities for s390
++ *
++ * Authors:
++ *  Thomas Huth <thuth@redhat.com>
++ *
++ * Copied from the s390/intercept test by:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++#ifndef ASM_S390X_TIME_H
++#define ASM_S390X_TIME_H
++
++static inline uint64_t get_clock_ms(void)
++{
++	uint64_t clk;
++
++	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
++
++	/* Bit 51 is incrememented each microsecond */
++	return (clk >> (63 - 51)) / 1000;
++}
++
++#endif
+diff --git a/s390x/intercept.c b/s390x/intercept.c
+index 5f46b82..2e38257 100644
+--- a/s390x/intercept.c
++++ b/s390x/intercept.c
+@@ -14,6 +14,7 @@
+ #include <asm/interrupt.h>
+ #include <asm/page.h>
+ #include <asm/facility.h>
++#include <asm/time.h>
  
- 	/*
- 	 * We need CMA reservation only when we are in HV mode
- 	 */
- 	if (!cpu_has_feature(CPU_FTR_HVMODE))
- 		return;
--	/*
--	 * We cannot use memblock_phys_mem_size() here, because
--	 * memblock_analyze() has not been called yet.
--	 */
--	for_each_memblock(memory, reg)
--		selected_size += memblock_region_memory_end_pfn(reg) -
--				 memblock_region_memory_base_pfn(reg);
+ static uint8_t pagebuf[PAGE_SIZE * 2] __attribute__((aligned(PAGE_SIZE * 2)));
  
-+	selected_size = PHYS_PFN(memblock_phys_mem_size());
- 	selected_size = (selected_size * kvm_cma_resv_ratio / 100) << PAGE_SHIFT;
- 	if (selected_size) {
- 		pr_debug("%s: reserving %ld MiB for global area\n", __func__,
+@@ -153,16 +154,6 @@ static void test_testblock(void)
+ 	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+ }
+ 
+-static uint64_t get_clock_ms(void)
+-{
+-	uint64_t clk;
+-
+-	asm volatile(" stck %0 " : : "Q"(clk) : "memory");
+-
+-	/* Bit 51 is incrememented each microsecond */
+-	return (clk >> (63 - 51)) / 1000;
+-}
+-
+ struct {
+ 	const char *name;
+ 	void (*func)(void);
 -- 
-2.26.2
+2.25.4
