@@ -1,137 +1,45 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 14/26] net/ipv4: switch ip_mroute_setsockopt to sockptr_t
-Date: Thu, 23 Jul 2020 08:08:56 +0200
-Message-Id: <20200723060908.50081-15-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29620 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731702AbgGaHuw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 31 Jul 2020 03:50:52 -0400
+Subject: Re: [PATCH net-next 4/4] s390/qeth: use all configured RX buffers
+References: <20200730150121.18005-1-jwi@linux.ibm.com>
+ <20200730150121.18005-5-jwi@linux.ibm.com>
+ <20200730163714.7d6a5017@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Message-ID: <dcc95391-0dea-e7d4-1901-25c00c7a3c60@linux.ibm.com>
+Date: Fri, 31 Jul 2020 09:50:43 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200730163714.7d6a5017@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: David Miller <davem@davemloft.net>, netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>
 
-Pass a sockptr_t to prepare for set_fs-less handling of the kernel
-pointer from bpf-cgroup.
+On 31.07.20 01:37, Jakub Kicinski wrote:
+> On Thu, 30 Jul 2020 17:01:21 +0200 Julian Wiedmann wrote:
+>> The (misplaced) comment doesn't make any sense, enforcing an
+>> uninitialized RX buffer won't help with IRQ reduction.
+>>
+>> So make the best use of all available RX buffers.
+> 
+> Often one entry in the ring is left free to make it easy to
+> differentiate between empty and full conditions. 
+> 
+> Is this not the reason here?
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/mroute.h |  5 +++--
- net/ipv4/ip_sockglue.c |  3 ++-
- net/ipv4/ipmr.c        | 14 +++++++-------
- 3 files changed, 12 insertions(+), 10 deletions(-)
+Hmm no, the HW architecture works slightly different.
 
-diff --git a/include/linux/mroute.h b/include/linux/mroute.h
-index 9a36fad9e068f6..6cbbfe94348cee 100644
---- a/include/linux/mroute.h
-+++ b/include/linux/mroute.h
-@@ -8,6 +8,7 @@
- #include <net/fib_notifier.h>
- #include <uapi/linux/mroute.h>
- #include <linux/mroute_base.h>
-+#include <linux/sockptr.h>
- 
- #ifdef CONFIG_IP_MROUTE
- static inline int ip_mroute_opt(int opt)
-@@ -15,7 +16,7 @@ static inline int ip_mroute_opt(int opt)
- 	return opt >= MRT_BASE && opt <= MRT_MAX;
- }
- 
--int ip_mroute_setsockopt(struct sock *, int, char __user *, unsigned int);
-+int ip_mroute_setsockopt(struct sock *, int, sockptr_t, unsigned int);
- int ip_mroute_getsockopt(struct sock *, int, char __user *, int __user *);
- int ipmr_ioctl(struct sock *sk, int cmd, void __user *arg);
- int ipmr_compat_ioctl(struct sock *sk, unsigned int cmd, void __user *arg);
-@@ -23,7 +24,7 @@ int ip_mr_init(void);
- bool ipmr_rule_default(const struct fib_rule *rule);
- #else
- static inline int ip_mroute_setsockopt(struct sock *sock, int optname,
--				       char __user *optval, unsigned int optlen)
-+				       sockptr_t optval, unsigned int optlen)
- {
- 	return -ENOPROTOOPT;
- }
-diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
-index 36f746e01741f6..ac495b0cff8ffb 100644
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -925,7 +925,8 @@ static int do_ip_setsockopt(struct sock *sk, int level,
- 	if (optname == IP_ROUTER_ALERT)
- 		return ip_ra_control(sk, val ? 1 : 0, NULL);
- 	if (ip_mroute_opt(optname))
--		return ip_mroute_setsockopt(sk, optname, optval, optlen);
-+		return ip_mroute_setsockopt(sk, optname, USER_SOCKPTR(optval),
-+					    optlen);
- 
- 	err = 0;
- 	if (needs_rtnl)
-diff --git a/net/ipv4/ipmr.c b/net/ipv4/ipmr.c
-index 678639c01e4882..cdf3a40f9ff5fc 100644
---- a/net/ipv4/ipmr.c
-+++ b/net/ipv4/ipmr.c
-@@ -1341,7 +1341,7 @@ static void mrtsock_destruct(struct sock *sk)
-  * MOSPF/PIM router set up we can clean this up.
-  */
- 
--int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
-+int ip_mroute_setsockopt(struct sock *sk, int optname, sockptr_t optval,
- 			 unsigned int optlen)
- {
- 	struct net *net = sock_net(sk);
-@@ -1413,7 +1413,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (copy_from_user(&vif, optval, sizeof(vif))) {
-+		if (copy_from_sockptr(&vif, optval, sizeof(vif))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1441,7 +1441,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (copy_from_user(&mfc, optval, sizeof(mfc))) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1459,7 +1459,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1471,7 +1471,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1486,7 +1486,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(val, (int __user *)optval)) {
-+		if (copy_from_sockptr(&val, optval, sizeof(val))) {
- 			ret = -EFAULT;
- 			break;
- 		}
-@@ -1508,7 +1508,7 @@ int ip_mroute_setsockopt(struct sock *sk, int optname, char __user *optval,
- 			ret = -EINVAL;
- 			break;
- 		}
--		if (get_user(uval, (u32 __user *)optval)) {
-+		if (copy_from_sockptr(&uval, optval, sizeof(uval))) {
- 			ret = -EFAULT;
- 			break;
- 		}
--- 
-2.27.0
+There's no index register that we could query for HW progress,
+each ring entry has an associated state byte that needs to be
+inspected and indicates HW progress (among other things).
+
+So this was more likely just a mis-interpretation of how the
+(quirky) IRQ reduction mechanism works in HW, or maybe part of
+a code path that got removed during the NAPI conversion.
