@@ -1,52 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:33454 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731802AbgGVJq3 (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35456 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732296AbgGaJq1 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 22 Jul 2020 05:46:29 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 7/9] s390/vmemmap: fallback to PTEs if mapping large PMD fails
-Date: Wed, 22 Jul 2020 11:45:56 +0200
-Message-Id: <20200722094558.9828-8-david@redhat.com>
-In-Reply-To: <20200722094558.9828-1-david@redhat.com>
-References: <20200722094558.9828-1-david@redhat.com>
+        Fri, 31 Jul 2020 05:46:27 -0400
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 02/11] s390x: saving regs for interrupts
+Date: Fri, 31 Jul 2020 11:45:58 +0200
+Message-Id: <20200731094607.15204-3-frankja@linux.ibm.com>
+In-Reply-To: <20200731094607.15204-1-frankja@linux.ibm.com>
+References: <20200731094607.15204-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Gerald Schaefer <gerald.schaefer@de.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Let's fallback to single pages if short on huge pages. No need to stop
-memory hotplug.
+From: Pierre Morel <pmorel@linux.ibm.com>
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+If we use multiple source of interrupts, for example, using SCLP
+console to print information while using I/O interrupts, we need
+to have a re-entrant register saving interruption handling.
+
+Instead of saving at a static memory address, let's save the base
+registers, the floating point registers and the floating point
+control register on the stack in case of I/O interrupts
+
+Note that we keep the static register saving to recover from the
+RESET tests.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <1594887809-10521-2-git-send-email-pmorel@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/mm/vmem.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ s390x/cstart64.S | 41 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index b831f9f9130aa..e82a63de19db2 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -180,10 +180,10 @@ static int __ref modify_pmd_table(pud_t *pud, unsigned long addr,
- 				 */
- 				new_page = vmemmap_alloc_block(PMD_SIZE,
- 							       NUMA_NO_NODE);
--				if (!new_page)
--					goto out;
--				pmd_val(*pmd) = __pa(new_page) | prot;
--				continue;
-+				if (new_page) {
-+					pmd_val(*pmd) = __pa(new_page) | prot;
-+					continue;
-+				}
- 			}
- 			pte = vmem_pte_alloc();
- 			if (!pte)
+diff --git a/s390x/cstart64.S b/s390x/cstart64.S
+index e084f13..4e51150 100644
+--- a/s390x/cstart64.S
++++ b/s390x/cstart64.S
+@@ -118,6 +118,43 @@ memsetxc:
+ 	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+ 	.endm
+ 
++/* Save registers on the stack (r15), so we can have stacked interrupts. */
++	.macro SAVE_REGS_STACK
++	/* Allocate a stack frame for 15 general registers */
++	slgfi   %r15, 15 * 8
++	/* Store registers r0 to r14 on the stack */
++	stmg    %r0, %r14, 0(%r15)
++	/* Allocate a stack frame for 16 floating point registers */
++	/* The size of a FP register is the size of an double word */
++	slgfi   %r15, 16 * 8
++	/* Save fp register on stack: offset to SP is multiple of reg number */
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	std	\i, \i * 8(%r15)
++	.endr
++	/* Save fpc, but keep stack aligned on 64bits */
++	slgfi   %r15, 8
++	efpc	%r0
++	stg	%r0, 0(%r15)
++	.endm
++
++/* Restore the register in reverse order */
++	.macro RESTORE_REGS_STACK
++	/* Restore fpc */
++	lfpc	0(%r15)
++	algfi	%r15, 8
++	/* Restore fp register from stack: SP still where it was left */
++	/* and offset to SP is a multiple of reg number */
++	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
++	ld	\i, \i * 8(%r15)
++	.endr
++	/* Now that we're done, rewind the stack pointer by 16 double word */
++	algfi   %r15, 16 * 8
++	/* Load the registers from stack */
++	lmg     %r0, %r14, 0(%r15)
++	/* Rewind the stack by 15 double word */
++	algfi   %r15, 15 * 8
++	.endm
++
+ .section .text
+ /*
+  * load_reset calling convention:
+@@ -185,9 +222,9 @@ mcck_int:
+ 	lpswe	GEN_LC_MCCK_OLD_PSW
+ 
+ io_int:
+-	SAVE_REGS
++	SAVE_REGS_STACK
+ 	brasl	%r14, handle_io_int
+-	RESTORE_REGS
++	RESTORE_REGS_STACK
+ 	lpswe	GEN_LC_IO_OLD_PSW
+ 
+ svc_int:
 -- 
-2.26.2
+2.25.4
