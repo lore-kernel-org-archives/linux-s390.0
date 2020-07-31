@@ -1,55 +1,215 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/26] netfilter: remove the unused user argument to do_update_counters
-Date: Thu, 23 Jul 2020 08:08:52 +0200
-Message-Id: <20200723060908.50081-11-hch@lst.de>
-In-Reply-To: <20200723060908.50081-1-hch@lst.de>
-References: <20200723060908.50081-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49100 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732374AbgGaJqa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 31 Jul 2020 05:46:30 -0400
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 08/11] s390x: css: stsch, enumeration test
+Date: Fri, 31 Jul 2020 11:46:04 +0200
+Message-Id: <20200731094607.15204-9-frankja@linux.ibm.com>
+In-Reply-To: <20200731094607.15204-1-frankja@linux.ibm.com>
+References: <20200731094607.15204-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: bpf-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+From: Pierre Morel <pmorel@linux.ibm.com>
+
+First step for testing the channel subsystem is to enumerate the css and
+retrieve the css devices.
+
+We currently don't enable multiple subchannel sets and therefore only
+look in subchannel set 0
+
+This tests the success of STSCH I/O instruction, we do not test the
+reaction of the VM for an instruction with wrong parameters.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <1594904550-32273-2-git-send-email-pmorel@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- net/bridge/netfilter/ebtables.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ lib/s390x/css_lib.c | 70 +++++++++++++++++++++++++++++++++++++++++++++
+ s390x/Makefile      |  2 ++
+ s390x/css.c         | 55 +++++++++++++++++++++++++++++++++++
+ s390x/unittests.cfg |  4 +++
+ 4 files changed, 131 insertions(+)
+ create mode 100644 lib/s390x/css_lib.c
+ create mode 100644 s390x/css.c
 
-diff --git a/net/bridge/netfilter/ebtables.c b/net/bridge/netfilter/ebtables.c
-index fe13108af1f542..12f8929667bf43 100644
---- a/net/bridge/netfilter/ebtables.c
-+++ b/net/bridge/netfilter/ebtables.c
-@@ -1242,9 +1242,8 @@ void ebt_unregister_table(struct net *net, struct ebt_table *table,
+diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
+new file mode 100644
+index 0000000..fd087ce
+--- /dev/null
++++ b/lib/s390x/css_lib.c
+@@ -0,0 +1,70 @@
++/*
++ * Channel Subsystem tests library
++ *
++ * Copyright (c) 2020 IBM Corp
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++#include <libcflat.h>
++#include <alloc_phys.h>
++#include <asm/page.h>
++#include <string.h>
++#include <interrupt.h>
++#include <asm/arch_def.h>
++
++#include <css.h>
++
++static struct schib schib;
++
++/*
++ * css_enumerate:
++ * On success return the first subchannel ID found.
++ * On error return an invalid subchannel ID containing cc
++ */
++int css_enumerate(void)
++{
++	struct pmcw *pmcw = &schib.pmcw;
++	int scn_found = 0;
++	int dev_found = 0;
++	int schid = 0;
++	int cc;
++	int scn;
++
++	for (scn = 0; scn < 0xffff; scn++) {
++		cc = stsch(scn | SCHID_ONE, &schib);
++		switch (cc) {
++		case 0:		/* 0 means SCHIB stored */
++			break;
++		case 3:		/* 3 means no more channels */
++			goto out;
++		default:	/* 1 or 2 should never happen for STSCH */
++			report_abort("Unexpected error %d on subchannel %08x",
++				     cc, scn | SCHID_ONE);
++			return cc;
++		}
++
++		/* We currently only support type 0, a.k.a. I/O channels */
++		if (PMCW_CHANNEL_TYPE(pmcw) != 0)
++			continue;
++
++		/* We ignore I/O channels without valid devices */
++		scn_found++;
++		if (!(pmcw->flags & PMCW_DNV))
++			continue;
++
++		/* We keep track of the first device as our test device */
++		if (!schid)
++			schid = scn | SCHID_ONE;
++		report_info("Found subchannel %08x", scn | SCHID_ONE);
++		dev_found++;
++	}
++
++out:
++	report_info("Tested subchannels: %d, I/O subchannels: %d, I/O devices: %d",
++		    scn, scn_found, dev_found);
++	return schid;
++}
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 07d3c4b..0f54bf4 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -17,6 +17,7 @@ tests += $(TEST_DIR)/stsi.elf
+ tests += $(TEST_DIR)/skrf.elf
+ tests += $(TEST_DIR)/smp.elf
+ tests += $(TEST_DIR)/sclp.elf
++tests += $(TEST_DIR)/css.elf
+ tests_binary = $(patsubst %.elf,%.bin,$(tests))
  
- /* userspace just supplied us with counters */
- static int do_update_counters(struct net *net, const char *name,
--				struct ebt_counter __user *counters,
--				unsigned int num_counters,
--				const void __user *user, unsigned int len)
-+			      struct ebt_counter __user *counters,
-+			      unsigned int num_counters, unsigned int len)
- {
- 	int i, ret;
- 	struct ebt_counter *tmp;
-@@ -1299,7 +1298,7 @@ static int update_counters(struct net *net, const void __user *user,
- 		return -EINVAL;
+ all: directories test_cases test_cases_binary
+@@ -53,6 +54,7 @@ cflatobjs += lib/s390x/mmu.o
+ cflatobjs += lib/s390x/smp.o
+ cflatobjs += lib/s390x/vm.o
+ cflatobjs += lib/s390x/css_dump.o
++cflatobjs += lib/s390x/css_lib.o
  
- 	return do_update_counters(net, hlp.name, hlp.counters,
--				hlp.num_counters, user, len);
-+				  hlp.num_counters, len);
- }
+ OBJDIRS += lib/s390x
  
- static inline int ebt_obj_to_user(char __user *um, const char *_name,
-@@ -2231,7 +2230,7 @@ static int compat_update_counters(struct net *net, void __user *user,
- 		return update_counters(net, user, len);
- 
- 	return do_update_counters(net, hlp.name, compat_ptr(hlp.counters),
--					hlp.num_counters, user, len);
-+				  hlp.num_counters, len);
- }
- 
- static int compat_do_ebt_get_ctl(struct sock *sk, int cmd,
+diff --git a/s390x/css.c b/s390x/css.c
+new file mode 100644
+index 0000000..e19ffc8
+--- /dev/null
++++ b/s390x/css.c
+@@ -0,0 +1,55 @@
++/*
++ * Channel Subsystem tests
++ *
++ * Copyright (c) 2020 IBM Corp
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++
++#include <libcflat.h>
++#include <alloc_phys.h>
++#include <asm/page.h>
++#include <string.h>
++#include <interrupt.h>
++#include <asm/arch_def.h>
++
++#include <css.h>
++
++static int test_device_sid;
++
++static void test_enumerate(void)
++{
++	test_device_sid = css_enumerate();
++	if (test_device_sid & SCHID_ONE) {
++		report(1, "Schid of first I/O device: 0x%08x", test_device_sid);
++		return;
++	}
++	report(0, "No I/O device found");
++}
++
++static struct {
++	const char *name;
++	void (*func)(void);
++} tests[] = {
++	{ "enumerate (stsch)", test_enumerate },
++	{ NULL, NULL }
++};
++
++int main(int argc, char *argv[])
++{
++	int i;
++
++	report_prefix_push("Channel Subsystem");
++	for (i = 0; tests[i].name; i++) {
++		report_prefix_push(tests[i].name);
++		tests[i].func();
++		report_prefix_pop();
++	}
++	report_prefix_pop();
++
++	return report_summary();
++}
+diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
+index b307329..0f156af 100644
+--- a/s390x/unittests.cfg
++++ b/s390x/unittests.cfg
+@@ -84,3 +84,7 @@ extra_params = -m 1G
+ [sclp-3g]
+ file = sclp.elf
+ extra_params = -m 3G
++
++[css]
++file = css.elf
++extra_params = -device virtio-net-ccw
 -- 
-2.27.0
+2.25.4
