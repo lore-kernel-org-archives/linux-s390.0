@@ -1,144 +1,98 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40554 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728971AbgGTMs1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 20 Jul 2020 08:48:27 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 12/24] bpfilter: switch bpfilter_ip_set_sockopt to sockptr_t
-Date: Mon, 20 Jul 2020 14:47:25 +0200
-Message-Id: <20200720124737.118617-13-hch@lst.de>
-In-Reply-To: <20200720124737.118617-1-hch@lst.de>
-References: <20200720124737.118617-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40930 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1733237AbgGaMbb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 31 Jul 2020 08:31:31 -0400
+Subject: Re: [kvm-unit-tests GIT PULL 00/11] s390x patches
+References: <20200731094607.15204-1-frankja@linux.ibm.com>
+ <dfce14f4-5e7b-9060-6520-06e7dd69cfa4@redhat.com>
+ <524d5b00-94ec-da47-601a-a5909e3ed63e@linux.ibm.com>
+ <00cc99d2-6020-3111-38a4-232991ffcf0d@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <31ec90d3-1544-eb38-536e-33f39e060a41@linux.ibm.com>
+Date: Fri, 31 Jul 2020 14:31:22 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <00cc99d2-6020-3111-38a4-232991ffcf0d@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="fhN9CTEG2DAnrIodH8gVbQnWBBpXCm6pL"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>, Eric Dumazet <edumazet@google.com>
-Cc: linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, bpf@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, linux-hams@vger.kernel.org, linux-bluetooth@vger.kernel.org, bridge@lists.linux-foundation.org, linux-can@vger.kernel.org, dccp@vger.kernel.org, linux-decnet-user@lists.sourceforge.net, linux-wpan@vger.kernel.org, linux-s390@vger.kernel.org, mptcp@lists.01.org, lvs-devel@vger.kernel.org, rds-devel@oss.oracle.com, linux-afs@lists.infradead.org, tipc-discussion@lists.sourceforge.net, linux-x25@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-This is mostly to prepare for cleaning up the callers, as bpfilter by
-design can't handle kernel pointers.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--fhN9CTEG2DAnrIodH8gVbQnWBBpXCm6pL
+Content-Type: multipart/mixed; boundary="sA81tUxVgk4uonqrQ41gPFOXfXtOpD0pT"
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- include/linux/bpfilter.h     | 6 +++---
- net/bpfilter/bpfilter_kern.c | 8 ++++----
- net/ipv4/bpfilter/sockopt.c  | 8 ++++----
- net/ipv4/ip_sockglue.c       | 3 ++-
- 4 files changed, 13 insertions(+), 12 deletions(-)
+--sA81tUxVgk4uonqrQ41gPFOXfXtOpD0pT
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/include/linux/bpfilter.h b/include/linux/bpfilter.h
-index 9b114c718a7617..2ae3c8e1d83c43 100644
---- a/include/linux/bpfilter.h
-+++ b/include/linux/bpfilter.h
-@@ -4,9 +4,10 @@
- 
- #include <uapi/linux/bpfilter.h>
- #include <linux/usermode_driver.h>
-+#include <linux/sockptr.h>
- 
- struct sock;
--int bpfilter_ip_set_sockopt(struct sock *sk, int optname, char __user *optval,
-+int bpfilter_ip_set_sockopt(struct sock *sk, int optname, sockptr_t optval,
- 			    unsigned int optlen);
- int bpfilter_ip_get_sockopt(struct sock *sk, int optname, char __user *optval,
- 			    int __user *optlen);
-@@ -16,8 +17,7 @@ struct bpfilter_umh_ops {
- 	struct umd_info info;
- 	/* since ip_getsockopt() can run in parallel, serialize access to umh */
- 	struct mutex lock;
--	int (*sockopt)(struct sock *sk, int optname,
--		       char __user *optval,
-+	int (*sockopt)(struct sock *sk, int optname, sockptr_t optval,
- 		       unsigned int optlen, bool is_set);
- 	int (*start)(void);
- };
-diff --git a/net/bpfilter/bpfilter_kern.c b/net/bpfilter/bpfilter_kern.c
-index 713b4b3d02005d..52f8d0bc3f6b29 100644
---- a/net/bpfilter/bpfilter_kern.c
-+++ b/net/bpfilter/bpfilter_kern.c
-@@ -32,7 +32,7 @@ static void __stop_umh(void)
- }
- 
- static int __bpfilter_process_sockopt(struct sock *sk, int optname,
--				      char __user *optval,
-+				      sockptr_t optval,
- 				      unsigned int optlen, bool is_set)
- {
- 	struct mbox_request req;
-@@ -41,7 +41,7 @@ static int __bpfilter_process_sockopt(struct sock *sk, int optname,
- 	ssize_t n;
- 	int ret = -EFAULT;
- 
--	if (uaccess_kernel()) {
-+	if (uaccess_kernel() || sockptr_is_kernel(optval)) {
- 		pr_err("kernel access not supported\n");
- 		return -EFAULT;
- 	}
-@@ -49,7 +49,7 @@ static int __bpfilter_process_sockopt(struct sock *sk, int optname,
- 	req.is_set = is_set;
- 	req.pid = current->pid;
- 	req.cmd = optname;
--	req.addr = (__force long)optval;
-+	req.addr = (__force long)optval.user;
- 	req.len = optlen;
- 	if (!bpfilter_ops.info.tgid)
- 		goto out;
-@@ -87,7 +87,7 @@ static int start_umh(void)
- 	pr_info("Loaded bpfilter_umh pid %d\n", pid_nr(bpfilter_ops.info.tgid));
- 
- 	/* health check that usermode process started correctly */
--	if (__bpfilter_process_sockopt(NULL, 0, NULL, 0, 0) != 0) {
-+	if (__bpfilter_process_sockopt(NULL, 0, USER_SOCKPTR(NULL), 0, 0)) {
- 		shutdown_umh();
- 		return -EFAULT;
- 	}
-diff --git a/net/ipv4/bpfilter/sockopt.c b/net/ipv4/bpfilter/sockopt.c
-index 9063c6767d3410..1b34cb9a7708ec 100644
---- a/net/ipv4/bpfilter/sockopt.c
-+++ b/net/ipv4/bpfilter/sockopt.c
-@@ -21,8 +21,7 @@ void bpfilter_umh_cleanup(struct umd_info *info)
- }
- EXPORT_SYMBOL_GPL(bpfilter_umh_cleanup);
- 
--static int bpfilter_mbox_request(struct sock *sk, int optname,
--				 char __user *optval,
-+static int bpfilter_mbox_request(struct sock *sk, int optname, sockptr_t optval,
- 				 unsigned int optlen, bool is_set)
- {
- 	int err;
-@@ -52,7 +51,7 @@ static int bpfilter_mbox_request(struct sock *sk, int optname,
- 	return err;
- }
- 
--int bpfilter_ip_set_sockopt(struct sock *sk, int optname, char __user *optval,
-+int bpfilter_ip_set_sockopt(struct sock *sk, int optname, sockptr_t optval,
- 			    unsigned int optlen)
- {
- 	return bpfilter_mbox_request(sk, optname, optval, optlen, true);
-@@ -66,7 +65,8 @@ int bpfilter_ip_get_sockopt(struct sock *sk, int optname, char __user *optval,
- 	if (get_user(len, optlen))
- 		return -EFAULT;
- 
--	return bpfilter_mbox_request(sk, optname, optval, len, false);
-+	return bpfilter_mbox_request(sk, optname, USER_SOCKPTR(optval), len,
-+				     false);
- }
- 
- static int __init bpfilter_sockopt_init(void)
-diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
-index 42befbf12846c0..36f746e01741f6 100644
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -1414,7 +1414,8 @@ int ip_setsockopt(struct sock *sk, int level,
- #if IS_ENABLED(CONFIG_BPFILTER_UMH)
- 	if (optname >= BPFILTER_IPT_SO_SET_REPLACE &&
- 	    optname < BPFILTER_IPT_SET_MAX)
--		err = bpfilter_ip_set_sockopt(sk, optname, optval, optlen);
-+		err = bpfilter_ip_set_sockopt(sk, optname, USER_SOCKPTR(optval),
-+					      optlen);
- #endif
- #ifdef CONFIG_NETFILTER
- 	/* we need to exclude all possible ENOPROTOOPTs except default case */
--- 
-2.27.0
+On 7/31/20 2:09 PM, Thomas Huth wrote:
+> On 31/07/2020 13.31, Janosch Frank wrote:
+>> On 7/31/20 12:31 PM, Paolo Bonzini wrote:
+>>> On 31/07/20 11:45, Janosch Frank wrote:
+>>>>   https://github.com/frankjaa/kvm-unit-tests.git tags/s390x-2020-31-=
+07
+>>>
+>>> Pulled, thanks.  FWIW you may want to gitlab in order to get the CI.
+>>>
+>>> Paolo
+>>>
+>>
+>> Hey Paolo, that repository is hooked up to travis already:
+>> https://travis-ci.com/github/frankjaa/kvm-unit-tests/builds/177931162
+>>
+>> I'll consider it if it has any benefit.
+>> @Thomas: Are there differences in the CI?
+>=20
+> Not that much, you get a good build test coverage with both. Travis use=
+s
+> real (nested) KVM tests, but the compiler and QEMU versions are a littl=
+e
+> bit backlevel (still using Ubuntu bionic). Gitlab-CI uses newer version=
+s
+> (thanks to Fedora 32), but there is no KVM support here, so the tests
+> run with TCG only (I'm thinking of adding the cirrus-run script to the
+> Gitlab-CI, maybe we could get some KVM-coverage that way there, too, bu=
+t
+> that will certainly take some time to figure it out).
+>=20
+>  Thomas
+>=20
+
+Thanks for the answer!
+
+For now I'll stay with github/travis until I have a real reason to move
+over. Maybe if the qemu CI run doesn't take ~2h on gitlab I'll start
+considering moving.
+
+
+--sA81tUxVgk4uonqrQ41gPFOXfXtOpD0pT--
+
+--fhN9CTEG2DAnrIodH8gVbQnWBBpXCm6pL
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl8kDxoACgkQ41TmuOI4
+ufiXGQ/+KvPwwK+au4V2vlSexDOAnkm8wU/NiV8K/icGkl4ZPWmD+DcWVn0JU9v8
+jMuJs9OLGpqQ1KlZCwVi2mYiiUm0G5RCPHQfabfWUhItIIzAq2ht3qmd1KLrSSvt
+Onp+XHBrhXw0NSEZmEGyebQjCDnQ5Zkj3oiR8xvPhVUZ2tyjHoy0gh34csIfkW5j
+khBZl0ANNlPDnSC0lURK+oKXXR6jAmlTFbnK9+qQr7/U3g7YLfVzNV5InNLgx6zz
+0Y+kdmi9EgABcIAsqBecR+w+jfWOqRTIH+5r1hy/74oPm+GRdeOBKDzprJp1qOgw
+EbFE8rk74+Ji4RXgmfTz0gT7D9E294DRG+qzO3Ha7r5x6jYsyel4Ivz26oC+KUMe
+sjvr3swe8HzGKiS1W1+bpRZetKa8ulfJRxnDGb1RvqUZdKjAEFcqn/m7uA7C79+5
+GQcNP8UG3OKXRzUo6fafaZIgsoJxvm15adctqj3yheycYAw+4F2DrZ+rURlxvSCI
+b8vcTY54O06IZig/9APFHYJP/XGW/ubkesHIWpzDdaGxqFYmXHtO07u0tl5M9ESg
+IRUoz2+ev42lIljNg56DM2rPzlLc5MyZFJ8ShuvqWNwWa1TkDh1UVA5mcvwirmRR
+WfibpvrDzA2Y/UZu5ABpokHPvB9EXuoGHgOP4mNWAyxCOC0qcT0=
+=oVbK
+-----END PGP SIGNATURE-----
+
+--fhN9CTEG2DAnrIodH8gVbQnWBBpXCm6pL--
