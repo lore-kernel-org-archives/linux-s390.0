@@ -1,42 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12820 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726275AbgG3PBa (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44760 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732374AbgGaJq3 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 30 Jul 2020 11:01:30 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 0/4] s390/qeth: updates 2020-07-30
-Date: Thu, 30 Jul 2020 17:01:17 +0200
-Message-Id: <20200730150121.18005-1-jwi@linux.ibm.com>
+        Fri, 31 Jul 2020 05:46:29 -0400
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 06/11] s390x: define function to wait for interrupt
+Date: Fri, 31 Jul 2020 11:46:02 +0200
+Message-Id: <20200731094607.15204-7-frankja@linux.ibm.com>
+In-Reply-To: <20200731094607.15204-1-frankja@linux.ibm.com>
+References: <20200731094607.15204-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Hi Dave & Jakub,
+From: Pierre Morel <pmorel@linux.ibm.com>
 
-please apply the following patch series for qeth to netdev's net-next tree.
+Allow the program to wait for an interrupt.
 
-This primarily brings some modernization to the RX path, laying the
-groundwork for smarter RX refill policies.
-Some of the patches are tagged as fixes, but really target only rare /
-theoretical issues. So given where we are in the release cycle and that we
-touch the main RX path, taking them through net-next seems more appropriate.
+The interrupt handler is in charge to remove the WAIT bit
+when it finished handling the interrupt.
 
-Thanks,
-Julian
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Message-Id: <1594887809-10521-6-git-send-email-pmorel@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ lib/s390x/asm/arch_def.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-Julian Wiedmann (4):
-  s390/qeth: tolerate pre-filled RX buffer
-  s390/qeth: integrate RX refill worker with NAPI
-  s390/qeth: don't process empty bridge port events
-  s390/qeth: use all configured RX buffers
-
- drivers/s390/net/qeth_core.h      |  2 +-
- drivers/s390/net/qeth_core_main.c | 76 +++++++++++++++++--------------
- drivers/s390/net/qeth_l2_main.c   |  5 +-
- drivers/s390/net/qeth_l3_main.c   |  1 -
- 4 files changed, 48 insertions(+), 36 deletions(-)
-
+diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+index 1b3bb0c..022a564 100644
+--- a/lib/s390x/asm/arch_def.h
++++ b/lib/s390x/asm/arch_def.h
+@@ -17,6 +17,7 @@ struct psw {
+ 
+ #define PSW_MASK_EXT			0x0100000000000000UL
+ #define PSW_MASK_DAT			0x0400000000000000UL
++#define PSW_MASK_WAIT			0x0002000000000000UL
+ #define PSW_MASK_PSTATE			0x0001000000000000UL
+ 
+ #define CR0_EXTM_SCLP			0x0000000000000200UL
+@@ -246,6 +247,18 @@ static inline void load_psw_mask(uint64_t mask)
+ 		: "+r" (tmp) :  "a" (&psw) : "memory", "cc" );
+ }
+ 
++static inline void wait_for_interrupt(uint64_t irq_mask)
++{
++	uint64_t psw_mask = extract_psw_mask();
++
++	load_psw_mask(psw_mask | irq_mask | PSW_MASK_WAIT);
++	/*
++	 * After being woken and having processed the interrupt, let's restore
++	 * the PSW mask.
++	 */
++	load_psw_mask(psw_mask);
++}
++
+ static inline void enter_pstate(void)
+ {
+ 	uint64_t mask;
 -- 
-2.17.1
+2.25.4
