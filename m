@@ -1,124 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36520 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726873AbgG1FNx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 28 Jul 2020 01:13:53 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH 10/15] memblock: make memblock_debug and related functionality private
-Date: Tue, 28 Jul 2020 08:11:48 +0300
-Message-Id: <20200728051153.1590-11-rppt@kernel.org>
-In-Reply-To: <20200728051153.1590-1-rppt@kernel.org>
-References: <20200728051153.1590-1-rppt@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37504 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732300AbgGaJq1 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 31 Jul 2020 05:46:27 -0400
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 03/11] s390x: I/O interrupt registration
+Date: Fri, 31 Jul 2020 11:45:59 +0200
+Message-Id: <20200731094607.15204-4-frankja@linux.ibm.com>
+In-Reply-To: <20200731094607.15204-1-frankja@linux.ibm.com>
+References: <20200731094607.15204-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Ingo Molnar <mingo@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, thuth@redhat.com, pmorel@linux.ibm.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
 
-The only user of memblock_dbg() outside memblock was s390 setup code and it
-is converted to use pr_debug() instead.
-This allows to stop exposing memblock_debug and memblock_dbg() to the rest
-of the kernel.
+Let's make it possible to add and remove a custom io interrupt handler,
+that can be used instead of the normal one.
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Message-Id: <1594887809-10521-3-git-send-email-pmorel@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/kernel/setup.c |  4 ++--
- include/linux/memblock.h | 12 +-----------
- mm/memblock.c            | 13 +++++++++++--
- 3 files changed, 14 insertions(+), 15 deletions(-)
+ lib/s390x/interrupt.c | 23 ++++++++++++++++++++++-
+ lib/s390x/interrupt.h |  8 ++++++++
+ 2 files changed, 30 insertions(+), 1 deletion(-)
+ create mode 100644 lib/s390x/interrupt.h
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 07aa15ba43b3..8b284cf6e199 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -776,8 +776,8 @@ static void __init memblock_add_mem_detect_info(void)
- 	unsigned long start, end;
- 	int i;
+diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+index 3a40cac..243b9c2 100644
+--- a/lib/s390x/interrupt.c
++++ b/lib/s390x/interrupt.c
+@@ -10,9 +10,9 @@
+  * under the terms of the GNU Library General Public License version 2.
+  */
+ #include <libcflat.h>
+-#include <asm/interrupt.h>
+ #include <asm/barrier.h>
+ #include <sclp.h>
++#include <interrupt.h>
  
--	memblock_dbg("physmem info source: %s (%hhd)\n",
--		     get_mem_info_source(), mem_detect.info_source);
-+	pr_debug("physmem info source: %s (%hhd)\n",
-+		 get_mem_info_source(), mem_detect.info_source);
- 	/* keep memblock lists close to the kernel */
- 	memblock_set_bottom_up(true);
- 	for_each_mem_detect_block(i, &start, &end) {
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 220b5f0dad42..e6a23b3db696 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -90,7 +90,6 @@ struct memblock {
- };
+ static bool pgm_int_expected;
+ static bool ext_int_expected;
+@@ -144,12 +144,33 @@ void handle_mcck_int(void)
+ 		     stap(), lc->mcck_old_psw.addr);
+ }
  
- extern struct memblock memblock;
--extern int memblock_debug;
- 
- #ifndef CONFIG_ARCH_KEEP_MEMBLOCK
- #define __init_memblock __meminit
-@@ -102,9 +101,6 @@ void memblock_discard(void);
- static inline void memblock_discard(void) {}
- #endif
- 
--#define memblock_dbg(fmt, ...) \
--	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
--
- phys_addr_t memblock_find_in_range(phys_addr_t start, phys_addr_t end,
- 				   phys_addr_t size, phys_addr_t align);
- void memblock_allow_resize(void);
-@@ -456,13 +452,7 @@ bool memblock_is_region_memory(phys_addr_t base, phys_addr_t size);
- bool memblock_is_reserved(phys_addr_t addr);
- bool memblock_is_region_reserved(phys_addr_t base, phys_addr_t size);
- 
--extern void __memblock_dump_all(void);
--
--static inline void memblock_dump_all(void)
--{
--	if (memblock_debug)
--		__memblock_dump_all();
--}
-+void memblock_dump_all(void);
- 
- /**
-  * memblock_set_current_limit - Set the current allocation limit to allow
-diff --git a/mm/memblock.c b/mm/memblock.c
-index a5b9b3df81fc..824938849f6d 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -134,7 +134,10 @@ struct memblock memblock __initdata_memblock = {
- 	     i < memblock_type->cnt;					\
- 	     i++, rgn = &memblock_type->regions[i])
- 
--int memblock_debug __initdata_memblock;
-+#define memblock_dbg(fmt, ...) \
-+	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
++static void (*io_int_func)(void);
 +
-+static int memblock_debug __initdata_memblock;
- static bool system_has_some_mirror __initdata_memblock = false;
- static int memblock_can_resize __initdata_memblock;
- static int memblock_memory_in_slab __initdata_memblock = 0;
-@@ -1919,7 +1922,7 @@ static void __init_memblock memblock_dump(struct memblock_type *type)
- 	}
- }
- 
--void __init_memblock __memblock_dump_all(void)
-+static void __init_memblock __memblock_dump_all(void)
+ void handle_io_int(void)
  {
- 	pr_info("MEMBLOCK configuration:\n");
- 	pr_info(" memory size = %pa reserved size = %pa\n",
-@@ -1933,6 +1936,12 @@ void __init_memblock __memblock_dump_all(void)
- #endif
++	if (io_int_func)
++		return io_int_func();
++
+ 	report_abort("Unexpected io interrupt: on cpu %d at %#lx",
+ 		     stap(), lc->io_old_psw.addr);
  }
  
-+void __init_memblock memblock_dump_all(void)
++int register_io_int_func(void (*f)(void))
 +{
-+	if (memblock_debug)
-+		__memblock_dump_all();
++	if (io_int_func)
++		return -1;
++	io_int_func = f;
++	return 0;
 +}
 +
- void __init memblock_allow_resize(void)
++int unregister_io_int_func(void (*f)(void))
++{
++	if (io_int_func != f)
++		return -1;
++	io_int_func = NULL;
++	return 0;
++}
++
+ void handle_svc_int(void)
  {
- 	memblock_can_resize = 1;
+ 	report_abort("Unexpected supervisor call interrupt: on cpu %d at %#lx",
+diff --git a/lib/s390x/interrupt.h b/lib/s390x/interrupt.h
+new file mode 100644
+index 0000000..1973d26
+--- /dev/null
++++ b/lib/s390x/interrupt.h
+@@ -0,0 +1,8 @@
++#ifndef INTERRUPT_H
++#define INTERRUPT_H
++#include <asm/interrupt.h>
++
++int register_io_int_func(void (*f)(void));
++int unregister_io_int_func(void (*f)(void));
++
++#endif /* INTERRUPT_H */
 -- 
-2.26.2
+2.25.4
