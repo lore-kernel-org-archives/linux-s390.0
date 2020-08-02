@@ -1,122 +1,60 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28458 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728165AbgHaJKG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 Aug 2020 05:10:06 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v10 0/2] s390: virtio: let arch validate VIRTIO features
-Date: Mon, 31 Aug 2020 11:09:44 +0200
-Message-Id: <1598864986-13875-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 08/17] memblock: make for_each_memblock_type() iterator private
+Date: Sun,  2 Aug 2020 19:35:52 +0300
+Message-Id: <20200802163601.8189-9-rppt@kernel.org>
+In-Reply-To: <20200802163601.8189-1-rppt@kernel.org>
+References: <20200802163601.8189-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-Hi all,
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-The goal of the series is to give a chance to the architecture
-to validate VIRTIO device features.
+for_each_memblock_type() is not used outside mm/memblock.c, move it there
+from include/linux/memblock.h
 
-The tests are back to virtio_finalize_features.
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Baoquan He <bhe@redhat.com>
+---
+ include/linux/memblock.h | 5 -----
+ mm/memblock.c            | 5 +++++
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
-No more argument for the architecture callback which only reports
-if the architecture needs guest memory access restrictions for
-VIRTIO.
-
-
-I renamed the callback to arch_has_restricted_virtio_memory_access,
-and the config option to ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS.
-
-Regards,
-Pierre
-
-Pierre Morel (2):
-  virtio: let arch advertise guest's memory access restrictions
-  s390: virtio: PV needs VIRTIO I/O device protection
-
- arch/s390/Kconfig             |  1 +
- arch/s390/mm/init.c           | 10 ++++++++++
- drivers/virtio/Kconfig        |  6 ++++++
- drivers/virtio/virtio.c       | 15 +++++++++++++++
- include/linux/virtio_config.h |  9 +++++++++
- 5 files changed, 41 insertions(+)
-
+diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+index 017fae833d4a..220b5f0dad42 100644
+--- a/include/linux/memblock.h
++++ b/include/linux/memblock.h
+@@ -532,11 +532,6 @@ static inline unsigned long memblock_region_reserved_end_pfn(const struct memblo
+ 	     region < (memblock.memblock_type.regions + memblock.memblock_type.cnt);	\
+ 	     region++)
+ 
+-#define for_each_memblock_type(i, memblock_type, rgn)			\
+-	for (i = 0, rgn = &memblock_type->regions[0];			\
+-	     i < memblock_type->cnt;					\
+-	     i++, rgn = &memblock_type->regions[i])
+-
+ extern void *alloc_large_system_hash(const char *tablename,
+ 				     unsigned long bucketsize,
+ 				     unsigned long numentries,
+diff --git a/mm/memblock.c b/mm/memblock.c
+index 39aceafc57f6..a5b9b3df81fc 100644
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -129,6 +129,11 @@ struct memblock memblock __initdata_memblock = {
+ 	.current_limit		= MEMBLOCK_ALLOC_ANYWHERE,
+ };
+ 
++#define for_each_memblock_type(i, memblock_type, rgn)			\
++	for (i = 0, rgn = &memblock_type->regions[0];			\
++	     i < memblock_type->cnt;					\
++	     i++, rgn = &memblock_type->regions[i])
++
+ int memblock_debug __initdata_memblock;
+ static bool system_has_some_mirror __initdata_memblock = false;
+ static int memblock_can_resize __initdata_memblock;
 -- 
-2.25.1
-
-Changelog
-
-to v10:
-- removed virtio_config.h unnecessary include
-- wording
-  (Connie)
-
-to v9:
-
-- move virtio tests back to virtio_finalize_features
-  (Connie)
-
-- remove virtio device argument
-
-to v8:
-
-- refactoring by using an optional callback
-  (Connie)
-
-to v7:
-
-- typo in warning message
-  (Connie)
-to v6:
-
-- rewording warning messages
-  (Connie, Halil)
-
-to v5:
-
-- return directly from S390 arch_validate_virtio_features()
-  when the guest is not protected.
-  (Connie)
-
-- Somme rewording
-  (Connie, Michael)
-
-- moved back code from arch/s390/ ...kernel/uv.c to ...mm/init.c
-  (Christian)
-
-to v4:
-
-- separate virtio and arch code
-  (Pierre)
-
-- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
-  (as interpreted from Heiko's comment)
-
-- moved validation inside the arch code
-  (Connie)
-
-- moved the call to arch validation before VIRTIO_F_1 test
-  (Michael)
-
-to v3:
-
-- add warning
-  (Connie, Christian)
-
-- add comment
-  (Connie)
-
-- change hook name
-  (Halil, Connie)
-
-to v2:
-
-- put the test in virtio_finalize_features()
-  (Connie)
-
-- put the test inside VIRTIO core
-  (Jason)
-
-- pass a virtio device as parameter
-  (Halil)
+2.26.2
