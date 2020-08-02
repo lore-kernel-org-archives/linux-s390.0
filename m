@@ -1,49 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:38704 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728192AbgHBLPj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 2 Aug 2020 07:15:39 -0400
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Subject: [PATCH] s390/pkey: Remove redundant variable initialization
-Date: Sun,  2 Aug 2020 19:15:26 +0800
-Message-Id: <20200802111526.4883-1-tianjia.zhang@linux.alibaba.com>
+Received: from mail.kernel.org ([198.145.29.99]:46334 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725768AbgHBQhL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 2 Aug 2020 12:37:11 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 05/17] h8300, nds32, openrisc: simplify detection of memory extents
+Date: Sun,  2 Aug 2020 19:35:49 +0300
+Message-Id: <20200802163601.8189-6-rppt@kernel.org>
+In-Reply-To: <20200802163601.8189-1-rppt@kernel.org>
+References: <20200802163601.8189-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: freude@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, ifranzki@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, tianjia.zhang@alibaba.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-In the first place, the initialization value of `rc` is wrong.
-It is unnecessary to initialize `rc` variables, so remove their
-initialization operation.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Fixes: f2bbc96e7cfad ("s390/pkey: add CCA AES cipher key support")
-Cc: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Instead of traversing memblock.memory regions to find memory_start and
+memory_end, simply query memblock_{start,end}_of_DRAM().
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Acked-by: Stafford Horne <shorne@gmail.com>
 ---
- drivers/s390/crypto/pkey_api.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/h8300/kernel/setup.c    | 8 +++-----
+ arch/nds32/kernel/setup.c    | 8 ++------
+ arch/openrisc/kernel/setup.c | 9 ++-------
+ 3 files changed, 7 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-index 74e63ec49068..58140506a8e7 100644
---- a/drivers/s390/crypto/pkey_api.c
-+++ b/drivers/s390/crypto/pkey_api.c
-@@ -818,7 +818,7 @@ static int pkey_keyblob2pkey2(const struct pkey_apqn *apqns, size_t nr_apqns,
- static int pkey_apqns4key(const u8 *key, size_t keylen, u32 flags,
- 			  struct pkey_apqn *apqns, size_t *nr_apqns)
- {
--	int rc = EINVAL;
-+	int rc;
- 	u32 _nr_apqns, *_apqns = NULL;
- 	struct keytoken_header *hdr = (struct keytoken_header *)key;
+diff --git a/arch/h8300/kernel/setup.c b/arch/h8300/kernel/setup.c
+index 28ac88358a89..0281f92eea3d 100644
+--- a/arch/h8300/kernel/setup.c
++++ b/arch/h8300/kernel/setup.c
+@@ -74,17 +74,15 @@ static void __init bootmem_init(void)
+ 	memory_end = memory_start = 0;
  
-@@ -886,7 +886,7 @@ static int pkey_apqns4keytype(enum pkey_key_type ktype,
- 			      u8 cur_mkvp[32], u8 alt_mkvp[32], u32 flags,
- 			      struct pkey_apqn *apqns, size_t *nr_apqns)
- {
--	int rc = -EINVAL;
-+	int rc;
- 	u32 _nr_apqns, *_apqns = NULL;
+ 	/* Find main memory where is the kernel */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
  
- 	if (ktype == PKEY_TYPE_CCA_DATA || ktype == PKEY_TYPE_CCA_CIPHER) {
+ 	if (!memory_end)
+ 		panic("No memory!");
+ 
+ 	/* setup bootmem globals (we use no_bootmem, but mm still depends on this) */
+ 	min_low_pfn = PFN_UP(memory_start);
+-	max_low_pfn = PFN_DOWN(memblock_end_of_DRAM());
++	max_low_pfn = PFN_DOWN(memory_end);
+ 	max_pfn = max_low_pfn;
+ 
+ 	memblock_reserve(__pa(_stext), _end - _stext);
+diff --git a/arch/nds32/kernel/setup.c b/arch/nds32/kernel/setup.c
+index a066efbe53c0..c356e484dcab 100644
+--- a/arch/nds32/kernel/setup.c
++++ b/arch/nds32/kernel/setup.c
+@@ -249,12 +249,8 @@ static void __init setup_memory(void)
+ 	memory_end = memory_start = 0;
+ 
+ 	/* Find main memory where is the kernel */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-		pr_info("%s: Memory: 0x%x-0x%x\n", __func__,
+-			memory_start, memory_end);
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
+ 
+ 	if (!memory_end) {
+ 		panic("No memory!");
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 8aa438e1f51f..c5706153d3b6 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -48,17 +48,12 @@ static void __init setup_memory(void)
+ 	unsigned long ram_start_pfn;
+ 	unsigned long ram_end_pfn;
+ 	phys_addr_t memory_start, memory_end;
+-	struct memblock_region *region;
+ 
+ 	memory_end = memory_start = 0;
+ 
+ 	/* Find main memory where is the kernel, we assume its the only one */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
+-		       memory_start, memory_end);
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
+ 
+ 	if (!memory_end) {
+ 		panic("No memory!");
 -- 
 2.26.2
