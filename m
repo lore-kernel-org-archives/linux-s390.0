@@ -1,132 +1,125 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725768AbgHBQhz (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 2 Aug 2020 12:37:55 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 09/17] memblock: make memblock_debug and related functionality private
+Date: Sun,  2 Aug 2020 19:35:53 +0300
+Message-Id: <20200802163601.8189-10-rppt@kernel.org>
+In-Reply-To: <20200802163601.8189-1-rppt@kernel.org>
+References: <20200802163601.8189-1-rppt@kernel.org>
 MIME-Version: 1.0
-Date: Sun, 02 Aug 2020 11:26:19 -0700
-Message-ID: <00000000000084b59f05abe928ee@google.com>
-Subject: INFO: task hung in pipe_release (2)
-From: syzbot <syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, viro@zeniv.linux.org.uk
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-Hello,
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-syzbot found the following issue on:
+The only user of memblock_dbg() outside memblock was s390 setup code and it
+is converted to use pr_debug() instead.
+This allows to stop exposing memblock_debug and memblock_dbg() to the rest
+of the kernel.
 
-HEAD commit:    6ba1b005 Merge tag 'asm-generic-fixes-5.8' of git://git.ke..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=16a5a3b0900000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=84f076779e989e69
-dashboard link: https://syzkaller.appspot.com/bug?extid=61acc40a49a3e46e25ea
-compiler:       gcc (GCC) 10.1.0-syz 20200507
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=142ae224900000
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+61acc40a49a3e46e25ea@syzkaller.appspotmail.com
-
-INFO: task syz-executor.0:7075 blocked for more than 143 seconds.
-      Not tainted 5.8.0-rc7-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-syz-executor.0  D28288  7075   6828 0x00000004
-Call Trace:
- context_switch kernel/sched/core.c:3458 [inline]
- __schedule+0x8ea/0x2210 kernel/sched/core.c:4219
- schedule+0xd0/0x2a0 kernel/sched/core.c:4294
- schedule_preempt_disabled+0xf/0x20 kernel/sched/core.c:4353
- __mutex_lock_common kernel/locking/mutex.c:1033 [inline]
- __mutex_lock+0x3e2/0x10d0 kernel/locking/mutex.c:1103
- __pipe_lock fs/pipe.c:87 [inline]
- pipe_release+0x49/0x320 fs/pipe.c:722
- __fput+0x33c/0x880 fs/file_table.c:281
- task_work_run+0xdd/0x190 kernel/task_work.c:135
- tracehook_notify_resume include/linux/tracehook.h:188 [inline]
- exit_to_usermode_loop arch/x86/entry/common.c:239 [inline]
- __prepare_exit_to_usermode+0x1e9/0x1f0 arch/x86/entry/common.c:269
- do_syscall_64+0x6c/0xe0 arch/x86/entry/common.c:393
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x415ee1
-Code: Bad RIP value.
-RSP: 002b:00007ffd249bc0c0 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
-RAX: 0000000000000000 RBX: 0000000000000007 RCX: 0000000000415ee1
-RDX: 0000000000000000 RSI: 00000000007904d0 RDI: 0000000000000006
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000000
-R10: 00007ffd249bc1b0 R11: 0000000000000293 R12: 00000000007905a8
-R13: 00000000000ffc79 R14: ffffffffffffffff R15: 000000000078bfac
-
-Showing all locks held in the system:
-1 lock held by khungtaskd/1153:
- #0: ffffffff89bc11c0 (rcu_read_lock){....}-{1:2}, at: debug_show_all_locks+0x53/0x260 kernel/locking/lockdep.c:5779
-1 lock held by in:imklog/6695:
- #0: ffff8880979b6670 (&f->f_pos_lock){+.+.}-{3:3}, at: __fdget_pos+0xe9/0x100 fs/file.c:826
-1 lock held by syz-executor.0/7075:
- #0: ffff8880a8e02068 (&pipe->mutex/1){+.+.}-{3:3}, at: __pipe_lock fs/pipe.c:87 [inline]
- #0: ffff8880a8e02068 (&pipe->mutex/1){+.+.}-{3:3}, at: pipe_release+0x49/0x320 fs/pipe.c:722
-2 locks held by syz-executor.0/7077:
-
-=============================================
-
-NMI backtrace for cpu 0
-CPU: 0 PID: 1153 Comm: khungtaskd Not tainted 5.8.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x18f/0x20d lib/dump_stack.c:118
- nmi_cpu_backtrace.cold+0x70/0xb1 lib/nmi_backtrace.c:101
- nmi_trigger_cpumask_backtrace+0x1b3/0x223 lib/nmi_backtrace.c:62
- trigger_all_cpu_backtrace include/linux/nmi.h:146 [inline]
- check_hung_uninterruptible_tasks kernel/hung_task.c:209 [inline]
- watchdog+0xd7d/0x1000 kernel/hung_task.c:295
- kthread+0x3b5/0x4a0 kernel/kthread.c:291
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:293
-Sending NMI from CPU 0 to CPUs 1:
-NMI backtrace for cpu 1
-CPU: 1 PID: 7077 Comm: syz-executor.0 Not tainted 5.8.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:iov_iter_alignment+0x39e/0x850 lib/iov_iter.c:1236
-Code: 48 8b 44 24 18 80 38 00 0f 85 f4 03 00 00 4d 8b 7d 18 44 89 e3 48 89 d8 48 c1 e0 04 4c 01 f8 48 8d 78 0c 48 89 fa 48 c1 ea 03 <42> 0f b6 0c 32 48 89 fa 83 e2 07 83 c2 03 38 ca 7c 08 84 c9 0f 85
-RSP: 0018:ffffc9000206f868 EFLAGS: 00000a07
-RAX: ffff8880a8124c00 RBX: 0000000000000000 RCX: ffffffff8395bf6f
-RDX: 1ffff11015024981 RSI: ffffffff8395be14 RDI: ffff8880a8124c0c
-RBP: 0000000000000000 R08: 0000000000000000 R09: ffff8880994e63c7
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: ffffc9000206fc68 R14: dffffc0000000000 R15: ffff8880a8124c00
-FS:  00007fba306d0700(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f9573761000 CR3: 0000000091a0d000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- ext4_unaligned_io fs/ext4/file.c:175 [inline]
- ext4_dio_write_iter fs/ext4/file.c:465 [inline]
- ext4_file_write_iter+0x345/0x13d0 fs/ext4/file.c:653
- call_write_iter include/linux/fs.h:1908 [inline]
- do_iter_readv_writev+0x567/0x780 fs/read_write.c:713
- do_iter_write+0x188/0x5f0 fs/read_write.c:1018
- vfs_iter_write+0x70/0xa0 fs/read_write.c:1059
- iter_file_splice_write+0x721/0xbe0 fs/splice.c:750
- do_splice_from fs/splice.c:846 [inline]
- do_splice+0xbcd/0x1820 fs/splice.c:1144
- __do_sys_splice fs/splice.c:1419 [inline]
- __se_sys_splice fs/splice.c:1401 [inline]
- __x64_sys_splice+0x198/0x250 fs/splice.c:1401
- do_syscall_64+0x60/0xe0 arch/x86/entry/common.c:384
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x45c369
-Code: 8d b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 5b b6 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fba306cfc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000113
-RAX: ffffffffffffffda RBX: 0000000000032240 RCX: 000000000045c369
-RDX: 0000000000000003 RSI: 0000000000000000 RDI: 0000000000000005
-RBP: 000000000078bff8 R08: 000000000000ffe0 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000078bfac
-R13: 00007ffd249bc04f R14: 00007fba306d09c0 R15: 000000000078bfac
-
-
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Baoquan He <bhe@redhat.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ arch/s390/kernel/setup.c |  4 ++--
+ include/linux/memblock.h | 12 +-----------
+ mm/memblock.c            | 13 +++++++++++--
+ 3 files changed, 14 insertions(+), 15 deletions(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this issue, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 07aa15ba43b3..8b284cf6e199 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -776,8 +776,8 @@ static void __init memblock_add_mem_detect_info(void)
+ 	unsigned long start, end;
+ 	int i;
+ 
+-	memblock_dbg("physmem info source: %s (%hhd)\n",
+-		     get_mem_info_source(), mem_detect.info_source);
++	pr_debug("physmem info source: %s (%hhd)\n",
++		 get_mem_info_source(), mem_detect.info_source);
+ 	/* keep memblock lists close to the kernel */
+ 	memblock_set_bottom_up(true);
+ 	for_each_mem_detect_block(i, &start, &end) {
+diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+index 220b5f0dad42..e6a23b3db696 100644
+--- a/include/linux/memblock.h
++++ b/include/linux/memblock.h
+@@ -90,7 +90,6 @@ struct memblock {
+ };
+ 
+ extern struct memblock memblock;
+-extern int memblock_debug;
+ 
+ #ifndef CONFIG_ARCH_KEEP_MEMBLOCK
+ #define __init_memblock __meminit
+@@ -102,9 +101,6 @@ void memblock_discard(void);
+ static inline void memblock_discard(void) {}
+ #endif
+ 
+-#define memblock_dbg(fmt, ...) \
+-	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+-
+ phys_addr_t memblock_find_in_range(phys_addr_t start, phys_addr_t end,
+ 				   phys_addr_t size, phys_addr_t align);
+ void memblock_allow_resize(void);
+@@ -456,13 +452,7 @@ bool memblock_is_region_memory(phys_addr_t base, phys_addr_t size);
+ bool memblock_is_reserved(phys_addr_t addr);
+ bool memblock_is_region_reserved(phys_addr_t base, phys_addr_t size);
+ 
+-extern void __memblock_dump_all(void);
+-
+-static inline void memblock_dump_all(void)
+-{
+-	if (memblock_debug)
+-		__memblock_dump_all();
+-}
++void memblock_dump_all(void);
+ 
+ /**
+  * memblock_set_current_limit - Set the current allocation limit to allow
+diff --git a/mm/memblock.c b/mm/memblock.c
+index a5b9b3df81fc..824938849f6d 100644
+--- a/mm/memblock.c
++++ b/mm/memblock.c
+@@ -134,7 +134,10 @@ struct memblock memblock __initdata_memblock = {
+ 	     i < memblock_type->cnt;					\
+ 	     i++, rgn = &memblock_type->regions[i])
+ 
+-int memblock_debug __initdata_memblock;
++#define memblock_dbg(fmt, ...) \
++	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
++
++static int memblock_debug __initdata_memblock;
+ static bool system_has_some_mirror __initdata_memblock = false;
+ static int memblock_can_resize __initdata_memblock;
+ static int memblock_memory_in_slab __initdata_memblock = 0;
+@@ -1919,7 +1922,7 @@ static void __init_memblock memblock_dump(struct memblock_type *type)
+ 	}
+ }
+ 
+-void __init_memblock __memblock_dump_all(void)
++static void __init_memblock __memblock_dump_all(void)
+ {
+ 	pr_info("MEMBLOCK configuration:\n");
+ 	pr_info(" memory size = %pa reserved size = %pa\n",
+@@ -1933,6 +1936,12 @@ void __init_memblock __memblock_dump_all(void)
+ #endif
+ }
+ 
++void __init_memblock memblock_dump_all(void)
++{
++	if (memblock_debug)
++		__memblock_dump_all();
++}
++
+ void __init memblock_allow_resize(void)
+ {
+ 	memblock_can_resize = 1;
+-- 
+2.26.2
