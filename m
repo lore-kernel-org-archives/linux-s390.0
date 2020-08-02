@@ -1,55 +1,113 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:47194 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728586AbgHXQjX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Aug 2020 12:39:23 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 06/11] s390/cio: add cond_resched() in the slow_eval_known_fn() loop
-Date: Mon, 24 Aug 2020 12:39:09 -0400
-Message-Id: <20200824163914.607152-6-sashal@kernel.org>
-In-Reply-To: <20200824163914.607152-1-sashal@kernel.org>
-References: <20200824163914.607152-1-sashal@kernel.org>
+        id S1725768AbgHBQhA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 2 Aug 2020 12:37:00 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 04/17] arm64: numa: simplify dummy_numa_init()
+Date: Sun,  2 Aug 2020 19:35:48 +0300
+Message-Id: <20200802163601.8189-5-rppt@kernel.org>
+In-Reply-To: <20200802163601.8189-1-rppt@kernel.org>
+References: <20200802163601.8189-1-rppt@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org, Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-[ Upstream commit 0b8eb2ee9da1e8c9b8082f404f3948aa82a057b2 ]
+dummy_numa_init() loops over memblock.memory and passes nid=0 to
+numa_add_memblk() which essentially wraps memblock_set_node(). However,
+memblock_set_node() can cope with entire memory span itself, so the loop
+over memblock.memory regions is redundant.
 
-The scanning through subchannels during the time of an event could
-take significant amount of time in case of platforms with lots of
-known subchannels. This might result in higher scheduling latencies
-for other tasks especially on systems with a single CPU. Add
-cond_resched() call, as the loop in slow_eval_known_fn() can be
-executed for a longer duration.
+Using a single call to memblock_set_node() rather than a loop also fixes an
+issue with a buggy ACPI firmware in which the SRAT table covers some but
+not all of the memory in the EFI memory map.
 
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Jonathan Cameron says:
+
+  This issue can be easily triggered by having an SRAT table which fails
+  to cover all elements of the EFI memory map.
+
+  This firmware error is detected and a warning printed. e.g.
+  "NUMA: Warning: invalid memblk node 64 [mem 0x240000000-0x27fffffff]"
+  At that point we fall back to dummy_numa_init().
+
+  However, the failed ACPI init has left us with our memblocks all broken
+  up as we split them when trying to assign them to NUMA nodes.
+
+  We then iterate over the memblocks and add them to node 0.
+
+  numa_add_memblk() calls memblock_set_node() which merges regions that
+  were previously split up during the earlier attempt to add them to different
+  nodes during parsing of SRAT.
+
+  This means elements are moved in the memblock array and we can end up
+  in a different memblock after the call to numa_add_memblk().
+  Result is:
+
+  Unable to handle kernel paging request at virtual address 0000000000003a40
+  Mem abort info:
+    ESR = 0x96000004
+    EC = 0x25: DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000004
+    CM = 0, WnR = 0
+  [0000000000003a40] user address but active_mm is swapper
+  Internal error: Oops: 96000004 [#1] PREEMPT SMP
+
+  ...
+
+  Call trace:
+    sparse_init_nid+0x5c/0x2b0
+    sparse_init+0x138/0x170
+    bootmem_init+0x80/0xe0
+    setup_arch+0x2a0/0x5fc
+    start_kernel+0x8c/0x648
+
+Replace the loop with a single call to memblock_set_node() to the entire
+memory.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
- drivers/s390/cio/css.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/mm/numa.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index dadff1838fec1..e2026d54dd375 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -581,6 +581,11 @@ static int slow_eval_known_fn(struct subchannel *sch, void *data)
- 		rc = css_evaluate_known_subchannel(sch, 1);
- 		if (rc == -EAGAIN)
- 			css_schedule_eval(sch->schid);
-+		/*
-+		 * The loop might take long time for platforms with lots of
-+		 * known devices. Allow scheduling here.
-+		 */
-+		cond_resched();
+diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+index aafcee3e3f7e..0cbdbcc885fb 100644
+--- a/arch/arm64/mm/numa.c
++++ b/arch/arm64/mm/numa.c
+@@ -423,19 +423,16 @@ static int __init numa_init(int (*init_func)(void))
+  */
+ static int __init dummy_numa_init(void)
+ {
++	phys_addr_t start = memblock_start_of_DRAM();
++	phys_addr_t end = memblock_end_of_DRAM();
+ 	int ret;
+-	struct memblock_region *mblk;
+ 
+ 	if (numa_off)
+ 		pr_info("NUMA disabled\n"); /* Forced off on command line. */
+-	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n",
+-		memblock_start_of_DRAM(), memblock_end_of_DRAM() - 1);
+-
+-	for_each_memblock(memory, mblk) {
+-		ret = numa_add_memblk(0, mblk->base, mblk->base + mblk->size);
+-		if (!ret)
+-			continue;
++	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n", start, end - 1);
+ 
++	ret = numa_add_memblk(0, start, end);
++	if (ret) {
+ 		pr_err("NUMA init failed\n");
+ 		return ret;
  	}
- 	return 0;
- }
 -- 
-2.25.1
+2.26.2
