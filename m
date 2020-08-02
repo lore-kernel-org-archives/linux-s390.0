@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
- protection
-From: Pierre Morel <pmorel@linux.ibm.com>
-References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
- <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
- <20200715054807-mutt-send-email-mst@kernel.org>
- <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
- <20200715074917-mutt-send-email-mst@kernel.org>
- <e41d039c-5fe2-b9db-093b-c0dddcc2ad4f@linux.ibm.com>
-Message-ID: <ef819e0e-85c3-0b14-4f8e-0d2a6c452355@linux.ibm.com>
-Date: Thu, 6 Aug 2020 16:19:23 +0200
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 06/17] riscv: drop unneeded node initialization
+Date: Sun,  2 Aug 2020 19:35:50 +0300
+Message-Id: <20200802163601.8189-7-rppt@kernel.org>
+In-Reply-To: <20200802163601.8189-1-rppt@kernel.org>
+References: <20200802163601.8189-1-rppt@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <e41d039c-5fe2-b9db-093b-c0dddcc2ad4f@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
+From: Mike Rapoport <rppt@linux.ibm.com>
 
+RISC-V does not (yet) support NUMA  and for UMA architectures node 0 is
+used implicitly during early memory initialization.
 
-On 2020-07-30 13:31, Pierre Morel wrote:
-...snip...
->>>> What bothers me here is that arch code depends on virtio now.
->>>> It works even with a modular virtio when functions are inline,
->>>> but it seems fragile: e.g. it breaks virtio as an out of tree module,
->>>> since layout of struct virtio_device can change.
->>>
->>>
->>> The code was only called from virtio.c so it should be fine.
->>>
->>> And my understanding is that we don't need to care about the kABI issue
->>> during upstream development?
->>>
->>> Thanks
->>
->> No, but so far it has been convenient at least for me, for development,
->> to just be able to unload all of virtio and load a different version.
->>
->>
->>>
->>>>
->>>> I'm not sure what to do with this yet, will try to think about it
->>>> over the weekend. Thanks!
+There is no need to call memblock_set_node(), remove this call and the
+surrounding code.
 
-After reflection, I am not sure that this problem must be treated on the 
-architecture level or inside the VIRTIO transport.
-Consequently, I will propose another patch series based on CCW transport.
-This also should be more convenient for core development.
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/riscv/mm/init.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-Regards,
-Pierre
-
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 79e9d55bdf1a..7440ba2cdaaa 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -191,15 +191,6 @@ void __init setup_bootmem(void)
+ 	early_init_fdt_scan_reserved_mem();
+ 	memblock_allow_resize();
+ 	memblock_dump_all();
+-
+-	for_each_memblock(memory, reg) {
+-		unsigned long start_pfn = memblock_region_memory_base_pfn(reg);
+-		unsigned long end_pfn = memblock_region_memory_end_pfn(reg);
+-
+-		memblock_set_node(PFN_PHYS(start_pfn),
+-				  PFN_PHYS(end_pfn - start_pfn),
+-				  &memblock.memory, 0);
+-	}
+ }
+ 
+ #ifdef CONFIG_MMU
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+2.26.2
