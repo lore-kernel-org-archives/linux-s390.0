@@ -1,49 +1,79 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: [PATCH v3 03/13] mm/debug_vm_pgtable/ppc64: Avoid setting top bits in radom value
-Date: Thu, 27 Aug 2020 13:34:28 +0530
-Message-Id: <20200827080438.315345-4-aneesh.kumar@linux.ibm.com>
-In-Reply-To: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
-References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60586 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728028AbgHDLrB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Aug 2020 07:47:01 -0400
+From: Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH 1/3] vdso: allow to add architecture-specific vdso data
+References: <20200804093607.69841-1-svens@linux.ibm.com>
+        <20200804093607.69841-2-svens@linux.ibm.com>
+Date: Tue, 04 Aug 2020 13:46:50 +0200
+In-Reply-To: <20200804093607.69841-2-svens@linux.ibm.com> (Sven Schnelle's
+        message of "Tue, 4 Aug 2020 11:36:05 +0200")
+Message-ID: <yt9dk0yed45x.fsf@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Content-Type: text/plain
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, Anshuman Khandual <anshuman.khandual@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com
 
-ppc64 use bit 62 to indicate a pte entry (_PAGE_PTE). Avoid setting that bit in
-random value.
+Hi,
 
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
----
- mm/debug_vm_pgtable.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+Sven Schnelle <svens@linux.ibm.com> writes:
 
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 086309fb9b6f..bbf9df0e64c6 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -44,10 +44,17 @@
-  * entry type. But these bits might affect the ability to clear entries with
-  * pxx_clear() because of how dynamic page table folding works on s390. So
-  * while loading up the entries do not change the lower 4 bits. It does not
-- * have affect any other platform.
-+ * have affect any other platform. Also avoid the 62nd bit on ppc64 that is
-+ * used to mark a pte entry.
-  */
--#define S390_MASK_BITS	4
--#define RANDOM_ORVALUE	GENMASK(BITS_PER_LONG - 1, S390_MASK_BITS)
-+#define S390_SKIP_MASK		GENMASK(3, 0)
-+#ifdef CONFIG_PPC_BOOK3S_64
-+#define PPC64_SKIP_MASK		GENMASK(62, 62)
-+#else
-+#define PPC64_SKIP_MASK		0x0
-+#endif
-+#define ARCH_SKIP_MASK (S390_SKIP_MASK | PPC64_SKIP_MASK)
-+#define RANDOM_ORVALUE (GENMASK(BITS_PER_LONG - 1, 0) & ~ARCH_SKIP_MASK)
- #define RANDOM_NZVALUE	GENMASK(7, 0)
- 
- static void __init pte_basic_tests(unsigned long pfn, pgprot_t prot)
--- 
-2.26.2
+> Add the possibility to add architecture specific vDSO
+> data to struct vdso_data. This is useful if the arch specific
+> user space VDSO code needs additional data during execution.
+> If CONFIG_ARCH_HAS_VDSO_DATA is defined, the generic code will
+> include asm/vdso/data.h which should contain 'struct arch_vdso_data'.
+> This structure will be embedded in the generic vDSO data.
+>
+> Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+> ---
+>  arch/Kconfig            | 3 +++
+>  include/vdso/datapage.h | 7 +++++++
+>  2 files changed, 10 insertions(+)
+>
+> diff --git a/arch/Kconfig b/arch/Kconfig
+> index 8cc35dc556c7..e1017ce979e2 100644
+> --- a/arch/Kconfig
+> +++ b/arch/Kconfig
+> @@ -979,6 +979,9 @@ config HAVE_SPARSE_SYSCALL_NR
+>  	  entries at 4000, 5000 and 6000 locations. This option turns on syscall
+>  	  related optimizations for a given architecture.
+>  
+> +config ARCH_HAS_VDSO_DATA
+> +	bool
+> +
+>  source "kernel/gcov/Kconfig"
+>  
+>  source "scripts/gcc-plugins/Kconfig"
+> diff --git a/include/vdso/datapage.h b/include/vdso/datapage.h
+> index 7955c56d6b3c..74e730238ce6 100644
+> --- a/include/vdso/datapage.h
+> +++ b/include/vdso/datapage.h
+> @@ -19,6 +19,10 @@
+>  #include <vdso/time32.h>
+>  #include <vdso/time64.h>
+>  
+> +#ifdef CONFIG_ARCH_HAS_VDSO_DATA
+> +#include <asm/vdso/data.h>
+> +#endif
+> +
+>  #define VDSO_BASES	(CLOCK_TAI + 1)
+>  #define VDSO_HRES	(BIT(CLOCK_REALTIME)		| \
+>  			 BIT(CLOCK_MONOTONIC)		| \
+> @@ -97,6 +101,9 @@ struct vdso_data {
+>  	s32			tz_dsttime;
+>  	u32			hrtimer_res;
+>  	u32			__unused;
+> +#ifdef CONFIG_ARCH_HAS_VDSO_DATA
+> +	struct arch_vdso_data arch;
+> +#endif
+>  };
+>  
+>  /*
+
+I've sent the wrong version of this patch. I'll send a revised version
+with the requested changes later.
