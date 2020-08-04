@@ -1,29 +1,20 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 06 Aug 2020 17:10:01 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: timers/urgent] timekeeping/vsyscall: Provide vdso_update_begin/end()
-In-Reply-To: <20200804150124.41692-3-svens@linux.ibm.com>
-References: <20200804150124.41692-3-svens@linux.ibm.com>
-MIME-Version: 1.0
-Message-ID: <159673380118.3192.11120762582178305899.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26181 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729519AbgHDPBo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Aug 2020 11:01:44 -0400
+From: Sven Schnelle <svens@linux.ibm.com>
+Subject: [PATCH v3 2/3] timekeeping/vsyscall: Provide vdso_update_begin/end()
+Date: Tue,  4 Aug 2020 17:01:23 +0200
+Message-Id: <20200804150124.41692-3-svens@linux.ibm.com>
+In-Reply-To: <20200804150124.41692-1-svens@linux.ibm.com>
+References: <20200804150124.41692-1-svens@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Sven Schnelle <svens@linux.ibm.com>, x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
+To: Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>
 
-The following commit has been merged into the timers/urgent branch of tip:
-
-Commit-ID:     19d0070a2792181f79df01277fe00b83b9f7eda7
-Gitweb:        https://git.kernel.org/tip/19d0070a2792181f79df01277fe00b83b9f7eda7
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Tue, 04 Aug 2020 17:01:23 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 06 Aug 2020 10:57:30 +02:00
-
-timekeeping/vsyscall: Provide vdso_update_begin/end()
+From: Thomas Gleixner <tglx@linutronix.de>
 
 Architectures can have the requirement to add additional architecture
 specific data to the VDSO data page which needs to be updated independent
@@ -38,22 +29,17 @@ count to signal data inconsistency to concurrent readers. vdso_update_end()
 makes the sequence count even again to signal data consistency and drops
 the timekeeper lock.
 
-[ Sven: Add interrupt disable handling to the functions ]
-
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20200804150124.41692-3-svens@linux.ibm.com
-
 ---
- include/vdso/vsyscall.h            |  3 ++-
+ include/vdso/vsyscall.h            |  3 +++
  kernel/time/timekeeping.c          |  2 +-
- kernel/time/timekeeping_internal.h | 11 +++++---
- kernel/time/vsyscall.c             | 41 +++++++++++++++++++++++++++++-
- 4 files changed, 53 insertions(+), 4 deletions(-)
+ kernel/time/timekeeping_internal.h | 11 +++++++---
+ kernel/time/vsyscall.c             | 32 ++++++++++++++++++++++++++++++
+ 4 files changed, 44 insertions(+), 4 deletions(-)
 
 diff --git a/include/vdso/vsyscall.h b/include/vdso/vsyscall.h
-index 2c6134e..b0fdc9c 100644
+index 2c6134e0c23d..b0fdc9c6bf43 100644
 --- a/include/vdso/vsyscall.h
 +++ b/include/vdso/vsyscall.h
 @@ -6,6 +6,9 @@
@@ -67,7 +53,7 @@ index 2c6134e..b0fdc9c 100644
  
  #endif /* __VDSO_VSYSCALL_H */
 diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index 63a632f..4c7212f 100644
+index d20d489841c8..8459aa87986f 100644
 --- a/kernel/time/timekeeping.c
 +++ b/kernel/time/timekeeping.c
 @@ -50,7 +50,7 @@ static struct {
@@ -80,7 +66,7 @@ index 63a632f..4c7212f 100644
  
  /**
 diff --git a/kernel/time/timekeeping_internal.h b/kernel/time/timekeeping_internal.h
-index bcbb52d..4ca2787 100644
+index bcbb52db2256..4ca2787d1642 100644
 --- a/kernel/time/timekeeping_internal.h
 +++ b/kernel/time/timekeeping_internal.h
 @@ -1,12 +1,14 @@
@@ -110,7 +96,7 @@ index bcbb52d..4ca2787 100644
 +
  #endif /* _TIMEKEEPING_INTERNAL_H */
 diff --git a/kernel/time/vsyscall.c b/kernel/time/vsyscall.c
-index 54ce6eb..88e6b8e 100644
+index 54ce6eb2ca36..e8806eda6874 100644
 --- a/kernel/time/vsyscall.c
 +++ b/kernel/time/vsyscall.c
 @@ -13,6 +13,8 @@
@@ -122,7 +108,7 @@ index 54ce6eb..88e6b8e 100644
  static inline void update_vdso_data(struct vdso_data *vdata,
  				    struct timekeeper *tk)
  {
-@@ -127,3 +129,42 @@ void update_vsyscall_tz(void)
+@@ -127,3 +129,33 @@ void update_vsyscall_tz(void)
  
  	__arch_sync_vdso_data(vdata);
  }
@@ -131,13 +117,7 @@ index 54ce6eb..88e6b8e 100644
 + * vdso_update_begin - Start of a VDSO update section
 + *
 + * Allows architecture code to safely update the architecture specific VDSO
-+ * data. Disables interrupts, acquires timekeeper lock to serialize against
-+ * concurrent updates from timekeeping and invalidates the VDSO data
-+ * sequence counter to prevent concurrent readers from accessing
-+ * inconsistent data.
-+ *
-+ * Returns: Saved interrupt flags which need to be handed in to
-+ * vdso_update_end().
++ * data.
 + */
 +unsigned long vdso_update_begin(void)
 +{
@@ -151,11 +131,8 @@ index 54ce6eb..88e6b8e 100644
 +
 +/**
 + * vdso_update_end - End of a VDSO update section
-+ * @flags:	Interrupt flags as returned from vdso_update_begin()
 + *
-+ * Pairs with vdso_update_begin(). Marks vdso data consistent, invokes data
-+ * synchronization if the architecture requires it, drops timekeeper lock
-+ * and restores interrupt flags.
++ * Pairs with vdso_update_begin().
 + */
 +void vdso_update_end(unsigned long flags)
 +{
@@ -165,3 +142,5 @@ index 54ce6eb..88e6b8e 100644
 +	__arch_sync_vdso_data(vdata);
 +	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
 +}
+-- 
+2.17.1
