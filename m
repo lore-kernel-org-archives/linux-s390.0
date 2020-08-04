@@ -1,14 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30032 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17702 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729242AbgHJPkE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 10 Aug 2020 11:40:04 -0400
+        by vger.kernel.org with ESMTP id S1729028AbgHDO2g (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Aug 2020 10:28:36 -0400
 Subject: Re: [PATCH v9 00/15] s390/vfio-ap: dynamic configuration support
 References: <20200720150344.24488-1-akrowiak@linux.ibm.com>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <d99e13e1-d2e9-6ceb-c2ba-128971b0703d@linux.ibm.com>
-Date: Mon, 10 Aug 2020 11:39:56 -0400
+Message-ID: <21bf3576-cb40-d02b-2245-e140a6edd15e@linux.ibm.com>
+Date: Tue, 4 Aug 2020 10:28:27 -0400
 MIME-Version: 1.0
 In-Reply-To: <20200720150344.24488-1-akrowiak@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -19,7 +18,7 @@ List-ID: <linux-s390.vger.kernel.org>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
 Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com
 
-PING, PING
+PING!
 
 On 7/20/20 11:03 AM, Tony Krowiak wrote:
 > The current design for AP pass-through does not support making dynamic
