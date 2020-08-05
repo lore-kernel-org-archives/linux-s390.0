@@ -1,94 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26044 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727771AbgHLJ1V (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Aug 2020 05:27:21 -0400
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [kvm-unit-tests RFC v2 3/4] run_tests/mkstandalone: add arch dependent function to `for_each_unittest`
-Date: Wed, 12 Aug 2020 11:27:04 +0200
-Message-Id: <20200812092705.17774-4-mhartmay@linux.ibm.com>
-In-Reply-To: <20200812092705.17774-1-mhartmay@linux.ibm.com>
-References: <20200812092705.17774-1-mhartmay@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:52876 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725372AbgHEF7Y (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 5 Aug 2020 01:59:24 -0400
+Date: Wed, 5 Aug 2020 08:59:09 +0300
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH v2 13/17] x86/setup: simplify initrd relocation and
+ reservation
+Message-ID: <20200805055909.GD8243@kernel.org>
+References: <20200802163601.8189-1-rppt@kernel.org>
+ <20200802163601.8189-14-rppt@kernel.org>
+ <20200805042024.GT10792@MiWiFi-R3L-srv>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200805042024.GT10792@MiWiFi-R3L-srv>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Baoquan He <bhe@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-This allows us, for example, to auto generate a new test case based on
-an existing test case.
+On Wed, Aug 05, 2020 at 12:20:24PM +0800, Baoquan He wrote:
+> On 08/02/20 at 07:35pm, Mike Rapoport wrote:
+> > From: Mike Rapoport <rppt@linux.ibm.com>
+> > 
+> > Currently, initrd image is reserved very early during setup and then it
+> > might be relocated and re-reserved after the initial physical memory
+> > mapping is created. The "late" reservation of memblock verifies that mapped
+> > memory size exceeds the size of initrd, the checks whether the relocation
+>                                           ~ then?
 
-Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
----
- run_tests.sh            |  2 +-
- scripts/common.bash     | 13 +++++++++++++
- scripts/mkstandalone.sh |  2 +-
- 3 files changed, 15 insertions(+), 2 deletions(-)
+Right, thanks!
 
-diff --git a/run_tests.sh b/run_tests.sh
-index 24aba9cc3a98..23658392c488 100755
---- a/run_tests.sh
-+++ b/run_tests.sh
-@@ -160,7 +160,7 @@ trap "wait; exit 130" SIGINT
-    # preserve stdout so that process_test_output output can write TAP to it
-    exec 3>&1
-    test "$tap_output" == "yes" && exec > /dev/null
--   for_each_unittest $config run_task
-+   for_each_unittest $config run_task arch_cmd
- ) | postprocess_suite_output
- 
- # wait until all tasks finish
-diff --git a/scripts/common.bash b/scripts/common.bash
-index f9c15fd304bd..62931a40b79a 100644
---- a/scripts/common.bash
-+++ b/scripts/common.bash
-@@ -1,8 +1,15 @@
-+function arch_cmd()
-+{
-+	# Dummy function, can be overwritten by architecture dependent
-+	# code
-+	return
-+}
- 
- function for_each_unittest()
- {
- 	local unittests="$1"
- 	local cmd="$2"
-+	local arch_cmd="${3-}"
- 	local testname
- 	local smp
- 	local kernel
-@@ -19,6 +26,9 @@ function for_each_unittest()
- 		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
- 			if [ -n "${testname}" ]; then
- 				"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+				if [ "${arch_cmd}" ]; then
-+					"${arch_cmd}" "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+				fi
- 			fi
- 			testname=${BASH_REMATCH[1]}
- 			smp=1
-@@ -49,6 +59,9 @@ function for_each_unittest()
- 	done
- 	if [ -n "${testname}" ]; then
- 		"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+		if [ "${arch_cmd}" ]; then
-+			"${arch_cmd}" "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+		fi
- 	fi
- 	exec {fd}<&-
- }
-diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
-index cefdec30cb33..3b18c0cf090b 100755
---- a/scripts/mkstandalone.sh
-+++ b/scripts/mkstandalone.sh
-@@ -128,4 +128,4 @@ fi
- 
- mkdir -p tests
- 
--for_each_unittest $cfg mkstandalone
-+for_each_unittest $cfg mkstandalone arch_cmd
--- 
-2.25.4
+> > required and, if yes, relocates inirtd to a new memory allocated from
+> > memblock and frees the old location.
