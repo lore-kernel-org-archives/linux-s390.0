@@ -1,63 +1,142 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29050 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60984 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726395AbgH0IFO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Aug 2020 04:05:14 -0400
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: [PATCH v3 00/13] mm/debug_vm_pgtable fixes
-Date: Thu, 27 Aug 2020 13:34:25 +0530
-Message-Id: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1725904AbgHEGdl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Aug 2020 02:33:41 -0400
+From: Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v3 3/3] s390: convert to GENERIC_VDSO
+References: <20200804150124.41692-1-svens@linux.ibm.com>
+        <20200804150124.41692-4-svens@linux.ibm.com>
+        <87tuxikuub.fsf@nanos.tec.linutronix.de>
+Date: Wed, 05 Aug 2020 08:33:31 +0200
+In-Reply-To: <87tuxikuub.fsf@nanos.tec.linutronix.de> (Thomas Gleixner's
+        message of "Tue, 04 Aug 2020 22:41:00 +0200")
+Message-ID: <yt9d8setsitg.fsf@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, Anshuman Khandual <anshuman.khandual@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com
 
-This patch series includes fixes for debug_vm_pgtable test code so that
-they follow page table updates rules correctly. The first two patches introduce
-changes w.r.t ppc64. The patches are included in this series for completeness. We can
-merge them via ppc64 tree if required.
+Hi Thomas,
 
-Hugetlb test is disabled on ppc64 because that needs larger change to satisfy
-page table update rules.
+Thomas Gleixner <tglx@linutronix.de> writes:
 
-The patches are on top of 15bc20c6af4ceee97a1f90b43c0e386643c071b4 (linus/master)
+> Sven Schnelle <svens@linux.ibm.com> writes:
+>> --- /dev/null
+>> +++ b/arch/s390/include/asm/vdso/data.h
+>> @@ -0,0 +1,13 @@
+>> +/* SPDX-License-Identifier: GPL-2.0 */
+>> +#ifndef __S390_ASM_VDSO_DATA_H
+>> +#define __S390_ASM_VDSO_DATA_H
+>> +
+>> +#include <linux/types.h>
+>> +#include <vdso/datapage.h>
+>
+> I don't think this header needs vdso/datapage.h
 
-Changes from v2:
-* Fix build failure with different configs and architecture.
+Agreed.
 
-Changes from v1:
-* Address review feedback
-* drop test specific pfn_pte and pfn_pmd.
-* Update ppc64 page table helper to add _PAGE_PTE 
+>> +struct arch_vdso_data {
+>> +	__u64 tod_steering_delta;
+>> +	__u64 tod_steering_end;
+>> +};
+>> +
+>> +#endif /* __S390_ASM_VDSO_DATA_H */
+>
+>> --- /dev/null
+>> +++ b/arch/s390/include/asm/vdso/gettimeofday.h
+>
+>> +static inline u64 __arch_get_hw_counter(s32 clock_mode)
+>> +{
+>> +	const struct vdso_data *vdso = __arch_get_vdso_data();
+>
+> If you go and implement time namespace support for VDSO then this
+> becomes a problem. See do_hres_timens().
+>
+> As we did not expect that this function needs vdso_data we should just
+> add a vdso_data pointer argument to __arch_get_hw_counter(). And while
+> looking at it you're not the first one. MIPS already uses it and because
+> it does not support time namespaces so far nobody noticed yet.
+>
+> That's fine for all others because the compiler will optimize it
+> out when it's unused. If the compiler fails to do so, then this is the
+> least of our worries :)
+>
+> As there is no new VDSO conversion pending in next, I can just queue
+> that (see below) along with #1 and #2 of this series and send it to
+> Linus by end of the week.
 
+Fine with me.
 
-Aneesh Kumar K.V (13):
-  powerpc/mm: Add DEBUG_VM WARN for pmd_clear
-  powerpc/mm: Move setting pte specific flags to pfn_pte
-  mm/debug_vm_pgtable/ppc64: Avoid setting top bits in radom value
-  mm/debug_vm_pgtables/hugevmap: Use the arch helper to identify huge
-    vmap support.
-  mm/debug_vm_pgtable/savedwrite: Enable savedwrite test with
-    CONFIG_NUMA_BALANCING
-  mm/debug_vm_pgtable/THP: Mark the pte entry huge before using
-    set_pmd/pud_at
-  mm/debug_vm_pgtable/set_pte/pmd/pud: Don't use set_*_at to update an
-    existing pte entry
-  mm/debug_vm_pgtable/thp: Use page table depost/withdraw with THP
-  mm/debug_vm_pgtable/locks: Move non page table modifying test together
-  mm/debug_vm_pgtable/locks: Take correct page table lock
-  mm/debug_vm_pgtable/pmd_clear: Don't use pmd/pud_clear on pte entries
-  mm/debug_vm_pgtable/hugetlb: Disable hugetlb test on ppc64
-  mm/debug_vm_pgtable: populate a pte entry before fetching it
+>> +	u64 adj, now;
+>> +
+>> +	now = get_tod_clock();
+>> +	adj = vdso->arch.tod_steering_end - now;
+>> +	if (unlikely((s64) adj > 0))
+>> +		now += (vdso->arch.tod_steering_delta < 0) ? (adj >> 15) : -(adj >> 15);
+>> +	return now;
+>> +}
+>
+>
+>> --- /dev/null
+>> +++ b/arch/s390/include/asm/vdso/processor.h
+>> @@ -0,0 +1,5 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-only */
+>> +#ifndef __ASM_VDSO_PROCESSOR_H
+>> +#define __ASM_VDSO_PROCESSOR_H
+>> +
+>> +#endif /* __ASM_VDSO_PROCESSOR_H */
+>
+> The idea of this file was to provide cpu_relax() self contained without
+> pulling in tons of other things from asm/processor.h.
 
- arch/powerpc/include/asm/book3s/64/pgtable.h |  29 +++-
- arch/powerpc/include/asm/nohash/pgtable.h    |   5 -
- arch/powerpc/mm/pgtable.c                    |   5 -
- mm/debug_vm_pgtable.c                        | 170 ++++++++++++-------
- 4 files changed, 131 insertions(+), 78 deletions(-)
+Thanks, i'll add that.
 
--- 
-2.26.2
+>> diff --git a/arch/s390/include/asm/vdso/vdso.h b/arch/s390/include/asm/vdso/vdso.h
+>> new file mode 100644
+>> index 000000000000..e69de29bb2d1
+>> diff --git a/arch/s390/include/asm/vdso/vsyscall.h b/arch/s390/include/asm/vdso/vsyscall.h
+>> new file mode 100644
+>> index 000000000000..6c67c08cefdd
+>> --- /dev/null
+>> +++ b/arch/s390/include/asm/vdso/vsyscall.h
+>> @@ -0,0 +1,26 @@
+>> +/* SPDX-License-Identifier: GPL-2.0 */
+>> +#ifndef __ASM_VDSO_VSYSCALL_H
+>> +#define __ASM_VDSO_VSYSCALL_H
+>> +
+>> +#ifndef __ASSEMBLY__
+>> +
+>> +#include <linux/hrtimer.h>
+>> +#include <linux/timekeeper_internal.h>
+>
+> I know you copied that from x86 or some other architecture, but thinking
+> about the above these two includes are not required for building VDSO
+> itself. Only the kernel update side needs them and they are included
+> already there. I'm going to remove them from x86 as well.
+
+Thanks, i removed them from my patch.
+
+>> @@ -443,9 +396,8 @@ static void clock_sync_global(unsigned long long delta)
+>>  		panic("TOD clock sync offset %lli is too large to drift\n",
+>>  		      tod_steering_delta);
+>>  	tod_steering_end = now + (abs(tod_steering_delta) << 15);
+>> -	vdso_data->ts_dir = (tod_steering_delta < 0) ? 0 : 1;
+>> -	vdso_data->ts_end = tod_steering_end;
+>> -	vdso_data->tb_update_count++;
+>> +	vdso_data->arch.tod_steering_end = tod_steering_end;
+>
+> Leftover from the previous version. Should be arch_data.tod....
+
+Oops, indeed.
+
+> Heiko, do you consider this 5.9 material or am I right to assume that
+> this targets 5.10?
+
+I talked to Heiko yesterday and we agreed that it's to late for 5.9, so
+we target 5.10.
+
+Thanks,
+Sven
