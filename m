@@ -1,137 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36722 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728361AbgHSMuJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 Aug 2020 08:50:09 -0400
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH v2 2/3] arm64: stacktrace: Make stack walk callback consistent with generic code
-Date: Wed, 19 Aug 2020 13:49:12 +0100
-Message-Id: <20200819124913.37261-3-broonie@kernel.org>
-In-Reply-To: <20200819124913.37261-1-broonie@kernel.org>
-References: <20200819124913.37261-1-broonie@kernel.org>
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:58218 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727930AbgHEI3r (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Aug 2020 04:29:47 -0400
+Date: Wed, 5 Aug 2020 16:29:24 +0800
+From: Baoquan He <bhe@redhat.com>
+Subject: Re: [PATCH v2 15/17] memblock: remove unused memblock_mem_size()
+Message-ID: <20200805082924.GV10792@MiWiFi-R3L-srv>
+References: <20200802163601.8189-1-rppt@kernel.org>
+ <20200802163601.8189-16-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200802163601.8189-16-rppt@kernel.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>, Mark Brown <broonie@kernel.org>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-As with the generic arch_stack_walk() code the arm64 stack walk code takes
-a callback that is called per stack frame. Currently the arm64 code always
-passes a struct stackframe to the callback and the generic code just passes
-the pc, however none of the users ever reference anything in the struct
-other than the pc value. The arm64 code also uses a return type of int
-while the generic code uses a return type of bool though in both cases the
-return value is a boolean value.
+On 08/02/20 at 07:35pm, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> The only user of memblock_mem_size() was x86 setup code, it is gone now and
+> memblock_mem_size() funciton can be removed.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  include/linux/memblock.h |  1 -
+>  mm/memblock.c            | 15 ---------------
+>  2 files changed, 16 deletions(-)
+> 
+> diff --git a/include/linux/memblock.h b/include/linux/memblock.h
+> index d70c2835e913..ec2fd8f32a19 100644
+> --- a/include/linux/memblock.h
+> +++ b/include/linux/memblock.h
+> @@ -450,7 +450,6 @@ static inline bool memblock_bottom_up(void)
+>  
+>  phys_addr_t memblock_phys_mem_size(void);
+>  phys_addr_t memblock_reserved_size(void);
+> -phys_addr_t memblock_mem_size(unsigned long limit_pfn);
+>  phys_addr_t memblock_start_of_DRAM(void);
+>  phys_addr_t memblock_end_of_DRAM(void);
+>  void memblock_enforce_memory_limit(phys_addr_t memory_limit);
+> diff --git a/mm/memblock.c b/mm/memblock.c
+> index c1a4c8798973..48d614352b25 100644
+> --- a/mm/memblock.c
+> +++ b/mm/memblock.c
+> @@ -1656,21 +1656,6 @@ phys_addr_t __init_memblock memblock_reserved_size(void)
+>  	return memblock.reserved.total_size;
+>  }
+>  
+> -phys_addr_t __init memblock_mem_size(unsigned long limit_pfn)
+> -{
+> -	unsigned long pages = 0;
+> -	unsigned long start_pfn, end_pfn;
+> -	int i;
+> -
+> -	for_each_mem_pfn_range(i, MAX_NUMNODES, &start_pfn, &end_pfn, NULL) {
+> -		start_pfn = min_t(unsigned long, start_pfn, limit_pfn);
+> -		end_pfn = min_t(unsigned long, end_pfn, limit_pfn);
+> -		pages += end_pfn - start_pfn;
+> -	}
+> -
+> -	return PFN_PHYS(pages);
+> -}
 
-In order to reduce code duplication when arm64 is converted to use
-arch_stack_walk() change the signature of the arm64 specific callback to
-match that of the generic code.
-
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- arch/arm64/include/asm/stacktrace.h |  2 +-
- arch/arm64/kernel/perf_callchain.c  |  6 +++---
- arch/arm64/kernel/return_address.c  |  8 ++++----
- arch/arm64/kernel/stacktrace.c      | 11 +++++------
- 4 files changed, 13 insertions(+), 14 deletions(-)
-
-diff --git a/arch/arm64/include/asm/stacktrace.h b/arch/arm64/include/asm/stacktrace.h
-index fc7613023c19..eb29b1fe8255 100644
---- a/arch/arm64/include/asm/stacktrace.h
-+++ b/arch/arm64/include/asm/stacktrace.h
-@@ -63,7 +63,7 @@ struct stackframe {
- 
- extern int unwind_frame(struct task_struct *tsk, struct stackframe *frame);
- extern void walk_stackframe(struct task_struct *tsk, struct stackframe *frame,
--			    int (*fn)(struct stackframe *, void *), void *data);
-+			    bool (*fn)(void *, unsigned long), void *data);
- extern void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk,
- 			   const char *loglvl);
- 
-diff --git a/arch/arm64/kernel/perf_callchain.c b/arch/arm64/kernel/perf_callchain.c
-index b0e03e052dd1..bd2a91bd9e9e 100644
---- a/arch/arm64/kernel/perf_callchain.c
-+++ b/arch/arm64/kernel/perf_callchain.c
-@@ -137,11 +137,11 @@ void perf_callchain_user(struct perf_callchain_entry_ctx *entry,
-  * whist unwinding the stackframe and is like a subroutine return so we use
-  * the PC.
-  */
--static int callchain_trace(struct stackframe *frame, void *data)
-+static bool callchain_trace(void *data, unsigned long pc)
- {
- 	struct perf_callchain_entry_ctx *entry = data;
--	perf_callchain_store(entry, frame->pc);
--	return 0;
-+	perf_callchain_store(entry, pc);
-+	return false;
- }
- 
- void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
-diff --git a/arch/arm64/kernel/return_address.c b/arch/arm64/kernel/return_address.c
-index a5e8b3b9d798..6434427a827a 100644
---- a/arch/arm64/kernel/return_address.c
-+++ b/arch/arm64/kernel/return_address.c
-@@ -18,16 +18,16 @@ struct return_address_data {
- 	void *addr;
- };
- 
--static int save_return_addr(struct stackframe *frame, void *d)
-+static bool save_return_addr(void *d, unsigned long pc)
- {
- 	struct return_address_data *data = d;
- 
- 	if (!data->level) {
--		data->addr = (void *)frame->pc;
--		return 1;
-+		data->addr = (void *)pc;
-+		return true;
- 	} else {
- 		--data->level;
--		return 0;
-+		return false;
- 	}
- }
- NOKPROBE_SYMBOL(save_return_addr);
-diff --git a/arch/arm64/kernel/stacktrace.c b/arch/arm64/kernel/stacktrace.c
-index 2dd8e3b8b94b..743cf11fbfca 100644
---- a/arch/arm64/kernel/stacktrace.c
-+++ b/arch/arm64/kernel/stacktrace.c
-@@ -118,12 +118,12 @@ int notrace unwind_frame(struct task_struct *tsk, struct stackframe *frame)
- NOKPROBE_SYMBOL(unwind_frame);
- 
- void notrace walk_stackframe(struct task_struct *tsk, struct stackframe *frame,
--		     int (*fn)(struct stackframe *, void *), void *data)
-+			     bool (*fn)(void *, unsigned long), void *data)
- {
- 	while (1) {
- 		int ret;
- 
--		if (fn(frame, data))
-+		if (fn(data, frame->pc))
- 			break;
- 		ret = unwind_frame(tsk, frame);
- 		if (ret < 0)
-@@ -139,17 +139,16 @@ struct stack_trace_data {
- 	unsigned int skip;
- };
- 
--static int save_trace(struct stackframe *frame, void *d)
-+static bool save_trace(void *d, unsigned long addr)
- {
- 	struct stack_trace_data *data = d;
- 	struct stack_trace *trace = data->trace;
--	unsigned long addr = frame->pc;
- 
- 	if (data->no_sched_functions && in_sched_functions(addr))
--		return 0;
-+		return false;
- 	if (data->skip) {
- 		data->skip--;
--		return 0;
-+		return false;
- 	}
- 
- 	trace->entries[trace->nr_entries++] = addr;
--- 
-2.20.1
+Reviewed-by: Baoquan He <bhe@redhat.com>
