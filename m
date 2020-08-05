@@ -1,47 +1,44 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr140070.outbound.protection.outlook.com ([40.107.14.70]:64918
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726970AbgHGQWR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 7 Aug 2020 12:22:17 -0400
-From: Andrei Botila <andrei.botila@oss.nxp.com>
-Subject: [PATCH 12/22] crypto: bcm - add check for xts input length equal to zero
-Date: Fri,  7 Aug 2020 19:20:00 +0300
-Message-Id: <20200807162010.18979-13-andrei.botila@oss.nxp.com>
-In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-Content-Type: text/plain
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 5 Aug 2020 13:00:35 +0200
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH v2 12/17] arch, drivers: replace for_each_membock() with
+ for_each_mem_range()
+Message-ID: <20200805110035.GB11658@alpha.franken.de>
+References: <20200802163601.8189-1-rppt@kernel.org>
+ <20200802163601.8189-13-rppt@kernel.org>
 MIME-Version: 1.0
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200802163601.8189-13-rppt@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Zhang Shengju <zhangshengju@cmss.chinamobile.com>, Tang Bin <tangbin@cmss.chinamobile.com>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-From: Andrei Botila <andrei.botila@nxp.com>
+On Sun, Aug 02, 2020 at 07:35:56PM +0300, Mike Rapoport wrote:
+> From: Mike Rapoport <rppt@linux.ibm.com>
+> 
+> There are several occurrences of the following pattern:
+> 
+> 	for_each_memblock(memory, reg) {
+> 		start = __pfn_to_phys(memblock_region_memory_base_pfn(reg);
+> 		end = __pfn_to_phys(memblock_region_memory_end_pfn(reg));
+> 
+> 		/* do something with start and end */
+> 	}
+> 
+> Using for_each_mem_range() iterator is more appropriate in such cases and
+> allows simpler and cleaner code.
+> 
+> Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> ---
+>  arch/mips/cavium-octeon/dma-octeon.c     | 12 +++---
+>  arch/mips/kernel/setup.c                 | 31 +++++++--------
 
-Standardize the way input lengths equal to 0 are handled in all skcipher
-algorithms. All the algorithms return 0 for input lengths equal to zero.
+Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 
-Cc: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
-Cc: Tang Bin <tangbin@cmss.chinamobile.com>
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
----
- drivers/crypto/bcm/cipher.c | 3 +++
- 1 file changed, 3 insertions(+)
+Thomas.
 
-diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
-index 8a7fa1ae1ade..8a6f225f4db7 100644
---- a/drivers/crypto/bcm/cipher.c
-+++ b/drivers/crypto/bcm/cipher.c
-@@ -1754,6 +1754,9 @@ static int skcipher_enqueue(struct skcipher_request *req, bool encrypt)
- 	    crypto_skcipher_ctx(crypto_skcipher_reqtfm(req));
- 	int err;
- 
-+	if (!req->cryptlen && ctx->cipher.mode == CIPHER_MODE_XTS)
-+		return 0;
-+
- 	flow_log("%s() enc:%u\n", __func__, encrypt);
- 
- 	rctx->gfp = (req->base.flags & (CRYPTO_TFM_REQ_MAY_BACKLOG |
 -- 
-2.17.1
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
