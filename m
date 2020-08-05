@@ -1,54 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr140070.outbound.protection.outlook.com ([40.107.14.70]:64918
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726996AbgHGQWW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 7 Aug 2020 12:22:22 -0400
-From: Andrei Botila <andrei.botila@oss.nxp.com>
-Subject: [PATCH 14/22] crypto: cavium/nitrox - add check for xts input length equal to zero
-Date: Fri,  7 Aug 2020 19:20:02 +0300
-Message-Id: <20200807162010.18979-15-andrei.botila@oss.nxp.com>
-In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-Content-Type: text/plain
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50728 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728205AbgHERLn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Aug 2020 13:11:43 -0400
 MIME-Version: 1.0
+References: <20200802163601.8189-1-rppt@kernel.org> <20200802163601.8189-17-rppt@kernel.org>
+In-Reply-To: <20200802163601.8189-17-rppt@kernel.org>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date: Wed, 5 Aug 2020 19:11:30 +0200
+Message-ID: <CANiq72k-hZwbnttADQhi3+NrHkLDVe95jxLAPvLbvSOW41+HaQ@mail.gmail.com>
+Subject: Re: [PATCH v2 16/17] memblock: implement for_each_reserved_mem_region()
+ using __next_mem_region()
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Srikanth Jampala <jsrikanth@marvell.com>, Nagadheeraj Rottela <rnagadheeraj@marvell.com>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux <clang-built-linux@googlegroups.com>, iommu@lists.linux-foundation.org, linux-arch <linux-arch@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-c6x-dev@linux-c6x.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-mips@vger.kernel.org, Linux-MM <linux-mm@kvack.org>, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>
 
-From: Andrei Botila <andrei.botila@nxp.com>
+On Sun, Aug 2, 2020 at 6:40 PM Mike Rapoport <rppt@kernel.org> wrote:
+>
+>  .clang-format                    |  2 +-
 
-Standardize the way input lengths equal to 0 are handled in all skcipher
-algorithms. All the algorithms return 0 for input lengths equal to zero.
+The .clang-format bit:
 
-Cc: Srikanth Jampala <jsrikanth@marvell.com>
-Cc: Nagadheeraj Rottela <rnagadheeraj@marvell.com>
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
----
- drivers/crypto/cavium/nitrox/nitrox_skcipher.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Acked-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 
-diff --git a/drivers/crypto/cavium/nitrox/nitrox_skcipher.c b/drivers/crypto/cavium/nitrox/nitrox_skcipher.c
-index a553ac65f324..d76589ebe354 100644
---- a/drivers/crypto/cavium/nitrox/nitrox_skcipher.c
-+++ b/drivers/crypto/cavium/nitrox/nitrox_skcipher.c
-@@ -249,10 +249,16 @@ static int nitrox_skcipher_crypt(struct skcipher_request *skreq, bool enc)
- 	struct crypto_skcipher *cipher = crypto_skcipher_reqtfm(skreq);
- 	struct nitrox_crypto_ctx *nctx = crypto_skcipher_ctx(cipher);
- 	struct nitrox_kcrypt_request *nkreq = skcipher_request_ctx(skreq);
-+	struct crypto_tfm *tfm = crypto_skcipher_tfm(cipher);
- 	int ivsize = crypto_skcipher_ivsize(cipher);
- 	struct se_crypto_request *creq;
-+	const char *name;
- 	int ret;
- 
-+	name = crypto_tfm_alg_name(tfm);
-+	if (!skreq->cryptlen && flexi_cipher_type(name) == CIPHER_AES_XTS)
-+		return 0;
-+
- 	creq = &nkreq->creq;
- 	creq->flags = skreq->base.flags;
- 	creq->gfp = (skreq->base.flags & CRYPTO_TFM_REQ_MAY_SLEEP) ?
--- 
-2.17.1
+Cheers,
+Miguel
