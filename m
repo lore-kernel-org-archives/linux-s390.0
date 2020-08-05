@@ -1,88 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60820 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726297AbgHQJQy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:16:54 -0400
-From: Allen Pais <allen.cryptic@gmail.com>
-Subject: [PATCH] block: convert tasklets to use new tasklet_setup() API
-Date: Mon, 17 Aug 2020 14:45:56 +0530
-Message-Id: <20200817091617.28119-2-allen.cryptic@gmail.com>
-In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
-References: <20200817091617.28119-1-allen.cryptic@gmail.com>
+        with ESMTP id S1728587AbgHERKf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 5 Aug 2020 13:10:35 -0400
+MIME-Version: 1.0
+References: <20200802163601.8189-1-rppt@kernel.org> <20200802163601.8189-18-rppt@kernel.org>
+In-Reply-To: <20200802163601.8189-18-rppt@kernel.org>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Date: Wed, 5 Aug 2020 19:10:04 +0200
+Message-ID: <CANiq72kaw7EMePMbgYyKMCkBC+7CgERq4FV2Lp-fH+ea3H12vg@mail.gmail.com>
+Subject: Re: [PATCH v2 17/17] memblock: use separate iterators for memory and
+ reserved regions
+Content-Type: text/plain; charset="UTF-8"
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
-Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux <clang-built-linux@googlegroups.com>, iommu@lists.linux-foundation.org, linux-arch <linux-arch@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-c6x-dev@linux-c6x.org, linux-kernel <linux-kernel@vger.kernel.org>, linux-mips@vger.kernel.org, Linux-MM <linux-mm@kvack.org>, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>
 
-From: Allen Pais <allen.lkml@gmail.com>
+On Sun, Aug 2, 2020 at 6:41 PM Mike Rapoport <rppt@kernel.org> wrote:
+>
+>  .clang-format                  |  3 ++-
 
-In preparation for unconditionally passing the
-struct tasklet_struct pointer to all tasklet
-callbacks, switch to using the new tasklet_setup()
-and from_tasklet() to pass the tasklet pointer explicitly.
+The .clang-format bit:
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
-Signed-off-by: Allen Pais <allen.lkml@gmail.com>
----
- drivers/block/umem.c    | 6 +++---
- drivers/block/xsysace.c | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+Acked-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 
-diff --git a/drivers/block/umem.c b/drivers/block/umem.c
-index 2b95d7b33b91..320781d5d156 100644
---- a/drivers/block/umem.c
-+++ b/drivers/block/umem.c
-@@ -405,7 +405,7 @@ static int add_bio(struct cardinfo *card)
- 	return 1;
- }
- 
--static void process_page(unsigned long data)
-+static void process_page(struct tasklet_struct *t)
- {
- 	/* check if any of the requests in the page are DMA_COMPLETE,
- 	 * and deal with them appropriately.
-@@ -415,7 +415,7 @@ static void process_page(unsigned long data)
- 	 */
- 	struct mm_page *page;
- 	struct bio *return_bio = NULL;
--	struct cardinfo *card = (struct cardinfo *)data;
-+	struct cardinfo *card = from_tasklet(card, t, tasklet);
- 	unsigned int dma_status = card->dma_status;
- 
- 	spin_lock(&card->lock);
-@@ -891,7 +891,7 @@ static int mm_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
- 	if (!card->queue)
- 		goto failed_alloc;
- 
--	tasklet_init(&card->tasklet, process_page, (unsigned long)card);
-+	tasklet_setup(&card->tasklet, process_page);
- 
- 	card->check_batteries = 0;
- 
-diff --git a/drivers/block/xsysace.c b/drivers/block/xsysace.c
-index 5d8e0ab3f054..bdd50a87d10f 100644
---- a/drivers/block/xsysace.c
-+++ b/drivers/block/xsysace.c
-@@ -762,9 +762,9 @@ static void ace_fsm_dostate(struct ace_device *ace)
- 	}
- }
- 
--static void ace_fsm_tasklet(unsigned long data)
-+static void ace_fsm_tasklet(struct tasklet_struct *t)
- {
--	struct ace_device *ace = (void *)data;
-+	struct ace_device *ace = from_tasklet(ace, t, fsm_tasklet);
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&ace->lock, flags);
-@@ -1001,7 +1001,7 @@ static int ace_setup(struct ace_device *ace)
- 	/*
- 	 * Initialize the state machine tasklet and stall timer
- 	 */
--	tasklet_init(&ace->fsm_tasklet, ace_fsm_tasklet, (unsigned long)ace);
-+	tasklet_setup(&ace->fsm_tasklet, ace_fsm_tasklet);
- 	timer_setup(&ace->stall_timer, ace_stall_timer, 0);
- 
- 	/*
--- 
-2.17.1
+Cheers,
+Miguel
