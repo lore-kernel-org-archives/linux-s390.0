@@ -1,46 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr140057.outbound.protection.outlook.com ([40.107.14.57]:4231
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726061AbgHGQVr (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 7 Aug 2020 12:21:47 -0400
-From: Andrei Botila <andrei.botila@oss.nxp.com>
-Subject: [PATCH 02/22] crypto: arm/aes-neonbs - add check for xts input length equal to zero
-Date: Fri,  7 Aug 2020 19:19:50 +0300
-Message-Id: <20200807162010.18979-3-andrei.botila@oss.nxp.com>
-In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-Content-Type: text/plain
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34762 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727006AbgHFLPl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 6 Aug 2020 07:15:41 -0400
+Date: Thu, 6 Aug 2020 13:00:09 +0200
+From: Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH] s390/Kconfig: add missing ZCRYPT dependency to VFIO_AP
+Message-ID: <20200806110009.GA68234@osiris>
+References: <20200805155053.3739-1-krzk@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200805155053.3739-1-krzk@kernel.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Russell King <linux@armlinux.org.uk>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Joerg Roedel <jroedel@suse.de>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Andrei Botila <andrei.botila@nxp.com>
+On Wed, Aug 05, 2020 at 05:50:53PM +0200, Krzysztof Kozlowski wrote:
+> The VFIO_AP uses ap_driver_register() (and deregister) functions
+> implemented in ap_bus.c (compiled into ap.o).  However the ap.o will be
+> built only if CONFIG_ZCRYPT is selected.
+> 
+> This was not visible before commit e93a1695d7fb ("iommu: Enable compile
+> testing for some of drivers") because the CONFIG_VFIO_AP depends on
+> CONFIG_S390_AP_IOMMU which depends on the missing CONFIG_ZCRYPT.  After
+> adding COMPILE_TEST, it is possible to select a configuration with
+> VFIO_AP and S390_AP_IOMMU but without the ZCRYPT.
+> 
+> Add proper dependency to the VFIO_AP to fix build errors:
+> 
+> ERROR: modpost: "ap_driver_register" [drivers/s390/crypto/vfio_ap.ko] undefined!
+> ERROR: modpost: "ap_driver_unregister" [drivers/s390/crypto/vfio_ap.ko] undefined!
+> 
+> Reported-by: kernel test robot <lkp@intel.com>
+> Fixes: e93a1695d7fb ("iommu: Enable compile testing for some of drivers")
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>  arch/s390/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 
-Standardize the way input lengths equal to 0 are handled in all skcipher
-algorithms. All the algorithms return 0 for input lengths equal to zero.
-
-Cc: Russell King <linux@armlinux.org.uk>
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
----
- arch/arm/crypto/aes-neonbs-glue.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/arch/arm/crypto/aes-neonbs-glue.c b/arch/arm/crypto/aes-neonbs-glue.c
-index e6fd32919c81..98ca6e6cca90 100644
---- a/arch/arm/crypto/aes-neonbs-glue.c
-+++ b/arch/arm/crypto/aes-neonbs-glue.c
-@@ -339,6 +339,9 @@ static int __xts_crypt(struct skcipher_request *req, bool encrypt,
- 	struct skcipher_walk walk;
- 	int err;
- 
-+	if (!req->cryptlen)
-+		return 0;
-+
- 	if (req->cryptlen < AES_BLOCK_SIZE)
- 		return -EINVAL;
- 
--- 
-2.17.1
+Applied, thanks.
