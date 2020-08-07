@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 21/38] s390/cio: add cond_resched() in the slow_eval_known_fn() loop
-Date: Mon, 24 Aug 2020 12:37:33 -0400
-Message-Id: <20200824163751.606577-21-sashal@kernel.org>
-In-Reply-To: <20200824163751.606577-1-sashal@kernel.org>
-References: <20200824163751.606577-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-eopbgr140070.outbound.protection.outlook.com ([40.107.14.70]:64918
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726970AbgHGQWR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 7 Aug 2020 12:22:17 -0400
+From: Andrei Botila <andrei.botila@oss.nxp.com>
+Subject: [PATCH 12/22] crypto: bcm - add check for xts input length equal to zero
+Date: Fri,  7 Aug 2020 19:20:00 +0300
+Message-Id: <20200807162010.18979-13-andrei.botila@oss.nxp.com>
+In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
+References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
+Content-Type: text/plain
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
+Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Zhang Shengju <zhangshengju@cmss.chinamobile.com>, Tang Bin <tangbin@cmss.chinamobile.com>
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Andrei Botila <andrei.botila@nxp.com>
 
-[ Upstream commit 0b8eb2ee9da1e8c9b8082f404f3948aa82a057b2 ]
+Standardize the way input lengths equal to 0 are handled in all skcipher
+algorithms. All the algorithms return 0 for input lengths equal to zero.
 
-The scanning through subchannels during the time of an event could
-take significant amount of time in case of platforms with lots of
-known subchannels. This might result in higher scheduling latencies
-for other tasks especially on systems with a single CPU. Add
-cond_resched() call, as the loop in slow_eval_known_fn() can be
-executed for a longer duration.
-
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Zhang Shengju <zhangshengju@cmss.chinamobile.com>
+Cc: Tang Bin <tangbin@cmss.chinamobile.com>
+Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
 ---
- drivers/s390/cio/css.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/crypto/bcm/cipher.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index 831850435c23b..5734a78dbb8e6 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -677,6 +677,11 @@ static int slow_eval_known_fn(struct subchannel *sch, void *data)
- 		rc = css_evaluate_known_subchannel(sch, 1);
- 		if (rc == -EAGAIN)
- 			css_schedule_eval(sch->schid);
-+		/*
-+		 * The loop might take long time for platforms with lots of
-+		 * known devices. Allow scheduling here.
-+		 */
-+		cond_resched();
- 	}
- 	return 0;
- }
+diff --git a/drivers/crypto/bcm/cipher.c b/drivers/crypto/bcm/cipher.c
+index 8a7fa1ae1ade..8a6f225f4db7 100644
+--- a/drivers/crypto/bcm/cipher.c
++++ b/drivers/crypto/bcm/cipher.c
+@@ -1754,6 +1754,9 @@ static int skcipher_enqueue(struct skcipher_request *req, bool encrypt)
+ 	    crypto_skcipher_ctx(crypto_skcipher_reqtfm(req));
+ 	int err;
+ 
++	if (!req->cryptlen && ctx->cipher.mode == CIPHER_MODE_XTS)
++		return 0;
++
+ 	flow_log("%s() enc:%u\n", __func__, encrypt);
+ 
+ 	rctx->gfp = (req->base.flags & (CRYPTO_TFM_REQ_MAY_BACKLOG |
 -- 
-2.25.1
+2.17.1
