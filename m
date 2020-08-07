@@ -1,94 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25280 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727961AbgH0IRS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Aug 2020 04:17:18 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 7/8] s390/qeth: unify structs for bridge port state
-Date: Thu, 27 Aug 2020 10:17:04 +0200
-Message-Id: <20200827081705.21922-8-jwi@linux.ibm.com>
-In-Reply-To: <20200827081705.21922-1-jwi@linux.ibm.com>
-References: <20200827081705.21922-1-jwi@linux.ibm.com>
+Received: from mail-eopbgr140057.outbound.protection.outlook.com ([40.107.14.57]:4231
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725900AbgHGQV4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 7 Aug 2020 12:21:56 -0400
+From: Andrei Botila <andrei.botila@oss.nxp.com>
+Subject: [PATCH 05/22] crypto: powerpc/aes-spe - add check for xts input length equal to zero
+Date: Fri,  7 Aug 2020 19:19:53 +0300
+Message-Id: <20200807162010.18979-6-andrei.botila@oss.nxp.com>
+In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
+References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
+Content-Type: text/plain
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
+Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>
 
-The data returned from IPA_SBP_QUERY_BRIDGE_PORTS and
-IPA_SBP_BRIDGE_PORT_STATE_CHANGE has the same format. Use a single
-struct definition for it.
+From: Andrei Botila <andrei.botila@nxp.com>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Standardize the way input lengths equal to 0 are handled in all skcipher
+algorithms. All the algorithms return 0 for input lengths equal to zero.
+
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
 ---
- drivers/s390/net/qeth_core_mpc.h | 14 +++-----------
- drivers/s390/net/qeth_l2_main.c  |  6 +++---
- 2 files changed, 6 insertions(+), 14 deletions(-)
+ arch/powerpc/crypto/aes-spe-glue.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index b459def0fb26..6541bab96822 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -719,15 +719,8 @@ struct qeth_sbp_port_entry {
- 		struct net_if_token token;
- } __packed;
+diff --git a/arch/powerpc/crypto/aes-spe-glue.c b/arch/powerpc/crypto/aes-spe-glue.c
+index c2b23b69d7b1..f37d8bef322b 100644
+--- a/arch/powerpc/crypto/aes-spe-glue.c
++++ b/arch/powerpc/crypto/aes-spe-glue.c
+@@ -327,6 +327,9 @@ static int ppc_xts_encrypt(struct skcipher_request *req)
+ 	u8 b[2][AES_BLOCK_SIZE];
+ 	int err;
  
--struct qeth_sbp_query_ports {
--	__u8 primary_bp_supported;
--	__u8 secondary_bp_supported;
--	__u8 num_entries;
--	__u8 entry_length;
--	struct qeth_sbp_port_entry entry[];
--} __packed;
--
--struct qeth_sbp_state_change {
-+/* For IPA_SBP_QUERY_BRIDGE_PORTS, IPA_SBP_BRIDGE_PORT_STATE_CHANGE */
-+struct qeth_sbp_port_data {
- 	__u8 primary_bp_supported;
- 	__u8 secondary_bp_supported;
- 	__u8 num_entries;
-@@ -741,8 +734,7 @@ struct qeth_ipacmd_setbridgeport {
- 	union {
- 		struct qeth_sbp_query_cmds_supp query_cmds_supp;
- 		struct qeth_sbp_set_primary set_primary;
--		struct qeth_sbp_query_ports query_ports;
--		struct qeth_sbp_state_change state_change;
-+		struct qeth_sbp_port_data port_data;
- 	} data;
- } __packed;
- 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index d96636369b4c..1e3d64ab5e46 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -1125,8 +1125,7 @@ static void qeth_bridge_state_change_worker(struct work_struct *work)
- static void qeth_bridge_state_change(struct qeth_card *card,
- 					struct qeth_ipa_cmd *cmd)
- {
--	struct qeth_sbp_state_change *qports =
--		 &cmd->data.sbp.data.state_change;
-+	struct qeth_sbp_port_data *qports = &cmd->data.sbp.data.port_data;
- 	struct qeth_bridge_state_data *data;
- 
- 	QETH_CARD_TEXT(card, 2, "brstchng");
-@@ -1409,8 +1408,8 @@ static int qeth_bridgeport_query_ports_cb(struct qeth_card *card,
- 	struct qeth_reply *reply, unsigned long data)
- {
- 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
--	struct qeth_sbp_query_ports *qports = &cmd->data.sbp.data.query_ports;
- 	struct _qeth_sbp_cbctl *cbctl = (struct _qeth_sbp_cbctl *)reply->param;
-+	struct qeth_sbp_port_data *qports;
- 	int rc;
- 
- 	QETH_CARD_TEXT(card, 2, "brqprtcb");
-@@ -1418,6 +1417,7 @@ static int qeth_bridgeport_query_ports_cb(struct qeth_card *card,
- 	if (rc)
- 		return rc;
- 
-+	qports = &cmd->data.sbp.data.port_data;
- 	if (qports->entry_length != sizeof(struct qeth_sbp_port_entry)) {
- 		QETH_CARD_TEXT_(card, 2, "SBPs%04x", qports->entry_length);
++	if (!req->cryptlen)
++		return 0;
++
+ 	if (req->cryptlen < AES_BLOCK_SIZE)
  		return -EINVAL;
+ 
+@@ -366,6 +369,9 @@ static int ppc_xts_decrypt(struct skcipher_request *req)
+ 	le128 twk;
+ 	int err;
+ 
++	if (!req->cryptlen)
++		return 0;
++
+ 	if (req->cryptlen < AES_BLOCK_SIZE)
+ 		return -EINVAL;
+ 
 -- 
 2.17.1
