@@ -1,52 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56468 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726735AbgHRGE1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Aug 2020 02:04:27 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 620AAC06134B
-        for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2020 23:04:26 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id f10so8707999plj.8
-        for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2020 23:04:26 -0700 (PDT)
-From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH V2 2/2] Handle init_iova_flush_queue failure in dma-iommu path
-Date: Tue, 18 Aug 2020 07:04:14 +0100
-Message-Id: <20200818060415.19522-2-murphyt7@tcd.ie>
-In-Reply-To: <20200818060415.19522-1-murphyt7@tcd.ie>
-References: <20200818060415.19522-1-murphyt7@tcd.ie>
-MIME-Version: 1.0
+Received: from mail-eopbgr140057.outbound.protection.outlook.com ([40.107.14.57]:4231
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726996AbgHGQWf (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 7 Aug 2020 12:22:35 -0400
+From: Andrei Botila <andrei.botila@oss.nxp.com>
+Subject: [PATCH 22/22] crypto: vmx - add check for xts input length equal to zero
+Date: Fri,  7 Aug 2020 19:20:10 +0300
+Message-Id: <20200807162010.18979-23-andrei.botila@oss.nxp.com>
+In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
+References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: iommu@lists.linux-foundation.org
-Cc: Tom Murphy <murphyt7@tcd.ie>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Matthew Rosato <mjrosato@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
+Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, =?UTF-8?q?Breno=20Leit=C3=A3o?= <leitao@debian.org>, Nayna Jain <nayna@linux.ibm.com>, Paulo Flabiano Smorigo <pfsmorigo@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>
 
-init_iova_flush_queue can fail if we run out of memory. Fall back to no
-flush queue if it fails.
+From: Andrei Botila <andrei.botila@nxp.com>
 
-Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
+Standardize the way input lengths equal to 0 are handled in all skcipher
+algorithms. All the algorithms return 0 for input lengths equal to zero.
+
+Cc: "Breno Leitão" <leitao@debian.org>
+Cc: Nayna Jain <nayna@linux.ibm.com>
+Cc: Paulo Flabiano Smorigo <pfsmorigo@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
 ---
- drivers/iommu/dma-iommu.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/crypto/vmx/aes_xts.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 7433f74d921a..5445e2be08b5 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -356,9 +356,11 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
+diff --git a/drivers/crypto/vmx/aes_xts.c b/drivers/crypto/vmx/aes_xts.c
+index 9fee1b1532a4..33107c9e2656 100644
+--- a/drivers/crypto/vmx/aes_xts.c
++++ b/drivers/crypto/vmx/aes_xts.c
+@@ -84,6 +84,9 @@ static int p8_aes_xts_crypt(struct skcipher_request *req, int enc)
+ 	u8 tweak[AES_BLOCK_SIZE];
+ 	int ret;
  
- 	if (!cookie->fq_domain && !iommu_domain_get_attr(domain,
- 			DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE, &attr) && attr) {
--		cookie->fq_domain = domain;
--		init_iova_flush_queue(iovad, iommu_dma_flush_iotlb_all,
--				iommu_dma_entry_dtor);
-+		if (init_iova_flush_queue(iovad, iommu_dma_flush_iotlb_all,
-+				iommu_dma_entry_dtor))
-+			pr_warn("iova flush queue initialization failed\n");
-+		else
-+			cookie->fq_domain = domain;
- 	}
++	if (!req->cryptlen)
++		return 0;
++
+ 	if (req->cryptlen < AES_BLOCK_SIZE)
+ 		return -EINVAL;
  
- 	if (!dev)
 -- 
-2.20.1
+2.17.1
