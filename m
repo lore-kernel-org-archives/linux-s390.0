@@ -1,58 +1,78 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56786 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727007AbgHQIvo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 04:51:44 -0400
-From: Allen Pais <allen.cryptic@gmail.com>
-Subject: [PATCH 2/8] net: ipv4: convert tasklets to use new tasklet_setup() API
-Date: Mon, 17 Aug 2020 14:21:14 +0530
-Message-Id: <20200817085120.24894-2-allen.cryptic@gmail.com>
-In-Reply-To: <20200817085120.24894-1-allen.cryptic@gmail.com>
-References: <20200817085120.24894-1-allen.cryptic@gmail.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+References: <20200807162010.18979-1-andrei.botila@oss.nxp.com> <20200807162010.18979-17-andrei.botila@oss.nxp.com>
+In-Reply-To: <20200807162010.18979-17-andrei.botila@oss.nxp.com>
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+Date: Sat, 8 Aug 2020 15:10:33 +0300
+Message-ID: <CAOtvUMero-gF5ZE1unnD_wcDnzZX_SL0tQ2yJNqzc3rg5RhuDA@mail.gmail.com>
+Subject: Re: [PATCH 16/22] crypto: ccree - add check for xts input length
+ equal to zero
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: gerrit@erg.abdn.ac.uk, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, johannes@sipsolutions.net, alex.aring@gmail.com, stefan@datenfreihafen.org, santosh.shilimkar@oracle.com, jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us
-Cc: keescook@chromium.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
+To: Andrei Botila <andrei.botila@oss.nxp.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, Linux Crypto Mailing List <linux-crypto@vger.kernel.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>
 
-From: Allen Pais <allen.lkml@gmail.com>
+On Fri, Aug 7, 2020 at 7:22 PM Andrei Botila <andrei.botila@oss.nxp.com> wr=
+ote:
+>
+> From: Andrei Botila <andrei.botila@nxp.com>
+>
+> Standardize the way input lengths equal to 0 are handled in all skcipher
+> algorithms. All the algorithms return 0 for input lengths equal to zero.
+> This change has implications not only for xts(aes) but also for cts(cbc(a=
+es))
+> and cts(cbc(paes)).
+>
+> Cc: Gilad Ben-Yossef <gilad@benyossef.com>
+> Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+> ---
+>  drivers/crypto/ccree/cc_cipher.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/crypto/ccree/cc_cipher.c b/drivers/crypto/ccree/cc_c=
+ipher.c
+> index 076669dc1035..112bb8b4dce6 100644
+> --- a/drivers/crypto/ccree/cc_cipher.c
+> +++ b/drivers/crypto/ccree/cc_cipher.c
+> @@ -912,17 +912,18 @@ static int cc_cipher_process(struct skcipher_reques=
+t *req,
+>
+>         /* STAT_PHASE_0: Init and sanity checks */
+>
+> -       if (validate_data_size(ctx_p, nbytes)) {
+> -               dev_dbg(dev, "Unsupported data size %d.\n", nbytes);
+> -               rc =3D -EINVAL;
+> -               goto exit_process;
+> -       }
+>         if (nbytes =3D=3D 0) {
+>                 /* No data to process is valid */
+>                 rc =3D 0;
+>                 goto exit_process;
+>         }
+>
+> +       if (validate_data_size(ctx_p, nbytes)) {
+> +               dev_dbg(dev, "Unsupported data size %d.\n", nbytes);
+> +               rc =3D -EINVAL;
+> +               goto exit_process;
+> +       }
+> +
+>         if (ctx_p->fallback_on) {
+>                 struct skcipher_request *subreq =3D skcipher_request_ctx(=
+req);
+>
+> --
+> 2.17.1
+>
 
-In preparation for unconditionally passing the
-struct tasklet_struct pointer to all tasklet
-callbacks, switch to using the new tasklet_setup()
-and from_tasklet() to pass the tasklet pointer explicitly.
+Acked-by: Gilad Ben-Yossef <gilad@benyossef.com>
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
-Signed-off-by: Allen Pais <allen.lkml@gmail.com>
----
- net/ipv4/tcp_output.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+Thanks,
+Gilad
 
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 85ff417bda7f..6afad9b407a1 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -883,9 +883,9 @@ static void tcp_tsq_handler(struct sock *sk)
-  * transferring tsq->head because tcp_wfree() might
-  * interrupt us (non NAPI drivers)
-  */
--static void tcp_tasklet_func(unsigned long data)
-+static void tcp_tasklet_func(struct tasklet_struct *t)
- {
--	struct tsq_tasklet *tsq = (struct tsq_tasklet *)data;
-+	struct tsq_tasklet *tsq = from_tasklet(tsq,  t, tasklet);
- 	LIST_HEAD(list);
- 	unsigned long flags;
- 	struct list_head *q, *n;
-@@ -970,9 +970,7 @@ void __init tcp_tasklet_init(void)
- 		struct tsq_tasklet *tsq = &per_cpu(tsq_tasklet, i);
- 
- 		INIT_LIST_HEAD(&tsq->head);
--		tasklet_init(&tsq->tasklet,
--			     tcp_tasklet_func,
--			     (unsigned long)tsq);
-+		tasklet_setup(&tsq->tasklet, tcp_tasklet_func);
- 	}
- }
- 
--- 
-2.17.1
+--=20
+Gilad Ben-Yossef
+Chief Coffee Drinker
+
+values of =CE=B2 will give rise to dom!
