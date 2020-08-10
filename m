@@ -1,76 +1,47 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Van Leeuwen, Pascal" <pvanleeuwen@rambus.com>
-Subject: RE: [PATCH 19/22] crypto: inside-secure - add check for xts input
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:35738 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726910AbgHJRDH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 10 Aug 2020 13:03:07 -0400
+Date: Mon, 10 Aug 2020 10:03:05 -0700
+From: Eric Biggers <ebiggers@kernel.org>
+Subject: Re: [PATCH 19/22] crypto: inside-secure - add check for xts input
  length equal to zero
-Date: Mon, 10 Aug 2020 21:37:50 +0000
-Message-ID: <CY4PR0401MB36527830624AD214E801BE53C3440@CY4PR0401MB3652.namprd04.prod.outlook.com>
+Message-ID: <20200810170305.GA3352718@gmail.com>
 References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
  <20200807162010.18979-20-andrei.botila@oss.nxp.com>
  <CY4PR0401MB36528610C3ABF802F8CBF35FC3440@CY4PR0401MB3652.namprd04.prod.outlook.com>
  <20200810134500.GA22914@gondor.apana.org.au>
  <fd3e5862-3357-7dfc-6c75-30086ab19f82@nxp.com>
-In-Reply-To: <fd3e5862-3357-7dfc-6c75-30086ab19f82@nxp.com>
-Content-Language: en-US
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fd3e5862-3357-7dfc-6c75-30086ab19f82@nxp.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: =?utf-8?B?SG9yaWEgR2VhbnTEgw==?= <horia.geanta@nxp.com>, Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Andrei Botila (OSS)" <andrei.botila@oss.nxp.com>, "David S. Miller" <davem@davemloft.net>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-arm-kernel@axis.com" <linux-arm-kernel@axis.com>, Andrei Botila <andrei.botila@nxp.com>, Antoine Tenart <antoine.tenart@bootlin.com>
+To: Horia =?utf-8?Q?Geant=C4=83?= <horia.geanta@nxp.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Van Leeuwen, Pascal" <pvanleeuwen@rambus.com>, "Andrei Botila (OSS)" <andrei.botila@oss.nxp.com>, "David S. Miller" <davem@davemloft.net>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "x86@kernel.org" <x86@kernel.org>, "linux-arm-kernel@axis.com" <linux-arm-kernel@axis.com>, Andrei Botila <andrei.botila@nxp.com>, Antoine Tenart <antoine.tenart@bootlin.com>
 
-PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBIb3JpYSBHZWFudMSDIDxob3Jp
-YS5nZWFudGFAbnhwLmNvbT4NCj4gU2VudDogTW9uZGF5LCBBdWd1c3QgMTAsIDIwMjAgNDozNCBQ
-TQ0KPiBUbzogSGVyYmVydCBYdSA8aGVyYmVydEBnb25kb3IuYXBhbmEub3JnLmF1PjsgVmFuIExl
-ZXV3ZW4sIFBhc2NhbCA8cHZhbmxlZXV3ZW5AcmFtYnVzLmNvbT4NCj4gQ2M6IEFuZHJlaSBCb3Rp
-bGEgKE9TUykgPGFuZHJlaS5ib3RpbGFAb3NzLm54cC5jb20+OyBEYXZpZCBTLiBNaWxsZXIgPGRh
-dmVtQGRhdmVtbG9mdC5uZXQ+OyBsaW51eC1jcnlwdG9Admdlci5rZXJuZWwub3JnOyBsaW51eC0N
-Cj4gYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJu
-ZWwub3JnOyBsaW51eHBwYy1kZXZAbGlzdHMub3psYWJzLm9yZzsgbGludXgtczM5MEB2Z2VyLmtl
-cm5lbC5vcmc7DQo+IHg4NkBrZXJuZWwub3JnOyBsaW51eC1hcm0ta2VybmVsQGF4aXMuY29tOyBB
-bmRyZWkgQm90aWxhIDxhbmRyZWkuYm90aWxhQG54cC5jb20+OyBBbnRvaW5lIFRlbmFydCA8YW50
-b2luZS50ZW5hcnRAYm9vdGxpbi5jb20+DQo+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMTkvMjJdIGNy
-eXB0bzogaW5zaWRlLXNlY3VyZSAtIGFkZCBjaGVjayBmb3IgeHRzIGlucHV0IGxlbmd0aCBlcXVh
-bCB0byB6ZXJvDQo+DQo+IDw8PCBFeHRlcm5hbCBFbWFpbCA+Pj4NCj4gT24gOC8xMC8yMDIwIDQ6
-NDUgUE0sIEhlcmJlcnQgWHUgd3JvdGU6DQo+ID4gT24gTW9uLCBBdWcgMTAsIDIwMjAgYXQgMTA6
-MjA6MjBBTSArMDAwMCwgVmFuIExlZXV3ZW4sIFBhc2NhbCB3cm90ZToNCj4gPj4NCj4gPj4gV2l0
-aCBhbGwgZHVlIHJlc3BlY3QsIGJ1dCB0aGlzIG1ha2VzIG5vIHNlbnNlLg0KPiA+DQo+ID4gSSBh
-Z3JlZS4gIFRoaXMgaXMgYSBsb3Qgb2YgY2h1cm4gZm9yIG5vIGdhaW4uDQo+ID4NCj4gSSB3b3Vs
-ZCBzYXkgdGhlIGdhaW4gaXMgdGhhdCBhbGwgc2tjaXBoZXIgYWxnb3JpdGhtcyB3b3VsZCBiZWhh
-dmUgdGhlIHNhbWUNCj4gd2hlbiBpbnB1dCBsZW5ndGggZXF1YWxzIHplcm8gLSBpLmUuIHRyZWF0
-IHRoZSByZXF1ZXN0IGFzIGEgbm8tb3AuDQo+DQpYVFMgYWxyZWFkeSBiZWhhdmVzIGRpZmZlcmVu
-dGx5IGJlY2F1c2UgaXQgY2FuIGFjY2VwdCBhbnkgYnl0ZSBhbW91bnQgYXMgbG9uZw0KYXMgaXQg
-aXMgbm90IGluIHRoZSByYW5nZSAwIC0xNi4gU28gZmFyLCB5b3UgZ290IGFuIEVJTlZBTCBlcnJv
-ciBmb3IgbGVuZ3RocyA8IDE2Lg0KVGhlIHNwZWNpYWwgZXhjZXB0aW9uIG9uIHRvcCBvZiB0aGF0
-IGZvciBsZW5ndGggMCBkb2VzIG5vdCBpbXByb3ZlIGFueXRoaW5nLg0KDQpUcmVhdGluZyBhIHJl
-cXVlc3Qgb2YgbGVuZ3RoIDAgYXMgYSBuby1vcCBpcyBub3QgYSB1c2VmdWwgZmVhdHVyZSBoZXJl
-LCBhcyB0aGVyZQ0KaXMgbm8gdXNlIGNhc2Ugd2hlcmUgdGhhdCB3b3VsZCBtYWtlIHNlbnNlLiBY
-VFMgZW5jcnlwdHMgYmxvY2tzICh1c3VhbGx5IGRpc2sNCnNlY3RvcnMpLCBhbmQgY2Fubm90IGJl
-IGNoYWluZWQuIFNvIGFuIGF0dGVtcHQgdG8gZW5jcnlwdCBhIHplcm8gbGVuZ3RoIGJsb2NrDQpp
-cyBtb3N0IGNlcnRhaW5seSBzb21lIGtpbmQgb2YgZXJyb3IgKGUuZy4gdHJ5aW5nIHRvIHVzZSBY
-VFMgZm9yIHNvbWV0aGluZyBpdA0Kd2FzIG5vdCBkZXNpZ25lZCB0byBkbyAtIGJpZyBzZWN1cml0
-eSBtaXN0YWtlISkuDQoNCj4gV2UgY2FuJ3Qgc2F5ICJubyBpbnB1dCIgaGFzIGFueSBtZWFuaW5n
-IHRvIHRoZSBvdGhlciBza2NpcGhlciBhbGdvcml0aG1zLA0KPiBidXQgdGhlIGNvbnZlbnRpb24g
-aXMgdG8gYWNjZXB0IHRoaXMgY2FzZSBhbmQganVzdCByZXR1cm4gMC4NCj4gSSBkb24ndCBzZWUg
-d2h5IFhUUyBoYXMgdG8gYmUgaGFuZGxlZCBkaWZmZXJlbnRseS4NCj4NCkkgZG9uJ3Qgc2VlIHdo
-eSB5b3Ugd291bGQgYmxpbmRseSBmb2xsb3cgc29tZSBoaXN0b3JpY2FsIGNvbnZlbnRpb24gLi4u
-DQp1bmxlc3MgbWF5YmUgdGhlcmUgd2FzIHNvbWUgZXhpc3RpbmcgcmVhbCB1c2UgY2FzZSB0aGF0
-IHdvdWxkIGJlbmVmaXQ/DQoNCkJUVzogZm9yIGdlbmVyaWMgY2lwaGVycyBJIGNvdWxkIHRoaW5r
-IG9mIHNvbWUgdXNlIGNhc2VzIHdoZXJlIHRoZSB6ZXJvDQpsZW5ndGggcmVxdWVzdCBiZWluZyBh
-IG5vLW9wIG1ha2VzIHNlbnNlIGlmIHRoZSBhcHBsaWNhdGlvbiBkb2VzIG5vdA0KYm90aGVyIHRv
-IGNoZWNrIGhvdyBtdWNoIGRhdGEgaXQgaGFzIGdhdGhlcmVkIHRvIHByb2Nlc3MgKHdoaWNoIG1h
-eSBiZQ0Kbm90aGluZyksIGJ1dCBJIGNhbid0IHNlZSBob3cgdGhpcyBjb3VsZCBhcHBseSB0byBY
-VFMsIGJlaW5nIGJsb2NrLWJhc2VkLg0KDQo+IFRoYW5rcywNCj4gSG9yaWENCg0KUmVnYXJkcywN
-ClBhc2NhbCB2YW4gTGVldXdlbg0KU2lsaWNvbiBJUCBBcmNoaXRlY3QgTXVsdGktUHJvdG9jb2wg
-RW5naW5lcywgUmFtYnVzIFNlY3VyaXR5DQpSYW1idXMgUk9UVyBIb2xkaW5nIEJWDQorMzEtNzMg
-NjU4MTk1Mw0KDQpOb3RlOiBUaGUgSW5zaWRlIFNlY3VyZS9WZXJpbWF0cml4IFNpbGljb24gSVAg
-dGVhbSB3YXMgcmVjZW50bHkgYWNxdWlyZWQgYnkgUmFtYnVzLg0KUGxlYXNlIGJlIHNvIGtpbmQg
-dG8gdXBkYXRlIHlvdXIgZS1tYWlsIGFkZHJlc3MgYm9vayB3aXRoIG15IG5ldyBlLW1haWwgYWRk
-cmVzcy4NCg0KDQoqKiBUaGlzIG1lc3NhZ2UgYW5kIGFueSBhdHRhY2htZW50cyBhcmUgZm9yIHRo
-ZSBzb2xlIHVzZSBvZiB0aGUgaW50ZW5kZWQgcmVjaXBpZW50KHMpLiBJdCBtYXkgY29udGFpbiBp
-bmZvcm1hdGlvbiB0aGF0IGlzIGNvbmZpZGVudGlhbCBhbmQgcHJpdmlsZWdlZC4gSWYgeW91IGFy
-ZSBub3QgdGhlIGludGVuZGVkIHJlY2lwaWVudCBvZiB0aGlzIG1lc3NhZ2UsIHlvdSBhcmUgcHJv
-aGliaXRlZCBmcm9tIHByaW50aW5nLCBjb3B5aW5nLCBmb3J3YXJkaW5nIG9yIHNhdmluZyBpdC4g
-UGxlYXNlIGRlbGV0ZSB0aGUgbWVzc2FnZSBhbmQgYXR0YWNobWVudHMgYW5kIG5vdGlmeSB0aGUg
-c2VuZGVyIGltbWVkaWF0ZWx5LiAqKg0KDQpSYW1idXMgSW5jLjxodHRwOi8vd3d3LnJhbWJ1cy5j
-b20+DQo=
+On Mon, Aug 10, 2020 at 05:33:39PM +0300, Horia Geantă wrote:
+> On 8/10/2020 4:45 PM, Herbert Xu wrote:
+> > On Mon, Aug 10, 2020 at 10:20:20AM +0000, Van Leeuwen, Pascal wrote:
+> >>
+> >> With all due respect, but this makes no sense.
+> > 
+> > I agree.  This is a lot of churn for no gain.
+> > 
+> I would say the gain is that all skcipher algorithms would behave the same
+> when input length equals zero - i.e. treat the request as a no-op.
+> 
+> We can't say "no input" has any meaning to the other skcipher algorithms,
+> but the convention is to accept this case and just return 0.
+> I don't see why XTS has to be handled differently.
+> 
+
+CTS also rejects empty inputs.
+
+The rule it follows is just that all input lengths >= blocksize are allowed.
+Input lengths < blocksize aren't allowed.
+
+- Eric
