@@ -1,53 +1,33 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 11 Aug 2020 14:33:13 -0700
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH 0/3] Modernize tasklet callback API
-Message-ID: <202008111427.D00FCCF@keescook>
-References: <20200716030847.1564131-1-keescook@chromium.org>
- <87h7tpa3hg.fsf@nanos.tec.linutronix.de>
- <202007301113.45D24C9D@keescook>
- <CAOMdWSJQKHAWY1P297b9koOLd8sVtezEYEyWGtymN1YeY27M6A@mail.gmail.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58564 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728556AbgHKMQm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 11 Aug 2020 08:16:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20200716030847.1564131-1-keescook@chromium.org>
+ <87h7tpa3hg.fsf@nanos.tec.linutronix.de> <202007301113.45D24C9D@keescook> <CAOMdWSJQKHAWY1P297b9koOLd8sVtezEYEyWGtymN1YeY27M6A@mail.gmail.com>
 In-Reply-To: <CAOMdWSJQKHAWY1P297b9koOLd8sVtezEYEyWGtymN1YeY27M6A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+From: Allen <allen.lkml@gmail.com>
+Date: Tue, 11 Aug 2020 17:46:29 +0530
+Message-ID: <CAOMdWSLef4Vy=k-Kfp8RJ++=SsMwCQTU4+hEueK_APDGvJ-PaA@mail.gmail.com>
+Subject: Re: [PATCH 0/3] Modernize tasklet callback API
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Allen <allen.lkml@gmail.com>
+To: Kees Cook <keescook@chromium.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Oscar Carter <oscar.carter@gmx.com>, Romain Perier <romain.perier@gmail.com>, "David S. Miller" <davem@davemloft.net>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org, kgdb-bugreport@lists.sourceforge.net, alsa-devel@alsa-project.org, Kernel Hardening <kernel-hardening@lists.openwall.com>
 
-On Mon, Aug 03, 2020 at 02:16:15PM +0530, Allen wrote:
+Kees,
+
+> >
+>
 > Here's the series re-based on top of 5.8
 > https://github.com/allenpais/tasklets/tree/V3
-
-Great!
-
+>
 > Let me know how you would want these to be reviewed.
+>
 
-Was a Coccinelle script used for any of these conversions? I wonder if
-it'd be easier to do a single treewide patch for the more mechanical
-changes.
+  I see the first set of infrastructure patches for tasklets have
+landed in Linus's tree. Good time to send out the ~200 patches?
 
-And, actually, I still think the "prepare" patches should just be
-collapsed into the actual "covert" patches -- there are only a few.
-
-After those, yeah, I think getting these sent to their respective
-maintainers is the next step.
-
-> Also, I was thinking if removing tasklets completely could be a task
-> on KSPP wiki. If yes, I did like to take ownership of that task. I have a
-> couple of ideas in mind, which could be discussed in a separate email.
-
-Sure! I will add it to the tracker. Here's for the refactoring:
-https://github.com/KSPP/linux/issues/30
-
-and here's for the removal:
-https://github.com/KSPP/linux/issues/94
-
-if you can added details/examples of how they should be removed, that'd
-help other folks too, if they wanted to jump in. :)
-
--Kees
-
--- 
-Kees Cook
+- Allen
