@@ -1,48 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr140057.outbound.protection.outlook.com ([40.107.14.57]:4231
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726891AbgHGQWE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 7 Aug 2020 12:22:04 -0400
-From: Andrei Botila <andrei.botila@oss.nxp.com>
-Subject: [PATCH 07/22] crypto: s390/paes - add check for xts input length equal to zero
-Date: Fri,  7 Aug 2020 19:19:55 +0300
-Message-Id: <20200807162010.18979-8-andrei.botila@oss.nxp.com>
-In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-Content-Type: text/plain
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11124 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726595AbgHLJ1U (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 12 Aug 2020 05:27:20 -0400
+From: Marc Hartmayer <mhartmay@linux.ibm.com>
+Subject: [kvm-unit-tests RFC v2 0/4] s390x: Add Protected VM support
+Date: Wed, 12 Aug 2020 11:27:01 +0200
+Message-Id: <20200812092705.17774-1-mhartmay@linux.ibm.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: kvm@vger.kernel.org
+Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-From: Andrei Botila <andrei.botila@nxp.com>
+Add support for Protected Virtual Machine (PVM) tests. For starting a
+PVM guest we must be able to generate a PVM image by using the
+`genprotimg` tool from the s390-tools collection. This requires the
+ability to pass a machine-specific host-key document, so the option
+`--host-key-document` is added to the configure script.
 
-Standardize the way input lengths equal to 0 are handled in all skcipher
-algorithms. All the algorithms return 0 for input lengths equal to zero.
+Sorry it took so long to send the second version :/
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
----
- arch/s390/crypto/paes_s390.c | 3 +++
- 1 file changed, 3 insertions(+)
+For everybody's convenience there is a branch:
+https://gitlab.com/mhartmay/kvm-unit-tests/-/tree/test_alternative
 
-diff --git a/arch/s390/crypto/paes_s390.c b/arch/s390/crypto/paes_s390.c
-index f3caeb17c85b..7f0861c6f019 100644
---- a/arch/s390/crypto/paes_s390.c
-+++ b/arch/s390/crypto/paes_s390.c
-@@ -494,6 +494,9 @@ static int xts_paes_crypt(struct skcipher_request *req, unsigned long modifier)
- 		u8 init[16];
- 	} xts_param;
- 
-+	if (!req->cryptlen)
-+		return 0;
-+
- 	ret = skcipher_walk_virt(&walk, req, false);
- 	if (ret)
- 		return ret;
+Changelog:
+ RFC v1 -> RFC v2:
+  + Remove `pv_support` option (Janosch, David)
+  + Add some preliminary patches:
+    - move "testname guard"
+    - add support for architecture dependent functions
+  + Add support for specifying a parmline file for the PV image
+    generation. This is necessary for the `selftest` because the
+    kernel cmdline set on the QEMU command line is ignored for PV
+    guests
+
+Marc Hartmayer (4):
+  common.bash: run `cmd` only if a test case was found
+  scripts: add support for architecture dependent functions
+  run_tests/mkstandalone: add arch dependent function to
+    `for_each_unittest`
+  s390x: add Protected VM support
+
+ README.md               |  3 ++-
+ configure               |  8 ++++++++
+ run_tests.sh            |  5 +----
+ s390x/Makefile          | 17 +++++++++++++++--
+ s390x/selftest.parmfile |  1 +
+ s390x/unittests.cfg     |  1 +
+ scripts/common.bash     | 26 ++++++++++++++++++++++++--
+ scripts/mkstandalone.sh |  6 +-----
+ scripts/s390x/func.bash | 18 ++++++++++++++++++
+ 9 files changed, 71 insertions(+), 14 deletions(-)
+ create mode 100644 s390x/selftest.parmfile
+ create mode 100644 scripts/s390x/func.bash
+
 -- 
-2.17.1
+2.25.4
