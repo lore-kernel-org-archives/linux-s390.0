@@ -1,32 +1,66 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH v6 5/5] KVM: MIPS: clean up redundant kvm_run parameters
- in assembly
-References: <20200623131418.31473-1-tianjia.zhang@linux.alibaba.com>
- <20200623131418.31473-6-tianjia.zhang@linux.alibaba.com>
- <e447bb5c-8b83-dfb1-a293-f2e9e586c2ec@flygoat.com>
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Message-ID: <fdc4635f-7e44-3227-ea65-db28abde42d6@linux.alibaba.com>
-Date: Thu, 27 Aug 2020 20:51:22 +0800
-MIME-Version: 1.0
-In-Reply-To: <e447bb5c-8b83-dfb1-a293-f2e9e586c2ec@flygoat.com>
-Content-Type: text/plain; charset="gbk"; format="flowed"
-Content-Transfer-Encoding: base64
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60028 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726131AbgHMPk6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 13 Aug 2020 11:40:58 -0400
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: [PATCH v3] PCI: Identifying detached virtual functions
+Date: Thu, 13 Aug 2020 11:40:42 -0400
+Message-Id: <1597333243-29483-1-git-send-email-mjrosato@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>, chenhuacai@gmail.com
+To: alex.williamson@redhat.com, bhelgaas@google.com
+Cc: schnelle@linux.ibm.com, pmorel@linux.ibm.com, mpe@ellerman.id.au, oohall@gmail.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org
 
-SGksIFBhb2xvCgoKRG8geW91IG5lZWQgYW55IG90aGVyIGNvbW1lbnRzIG9uIHRoaXMgcGF0Y2g/
-CgoKVGhhbmtzLAoKVGlhbmppYQoKCk9uIDcvMTYvMjAgMTA6MTAgQU0sIEppYXh1biBZYW5nIHdy
-b3RlOgo+Cj4KPiDvv73vv70gMjAyMC82LzIzIDIxOjE0LCBUaWFuamlhIFpoYW5nINC077+977+9
-Ogo+PiBJbiB0aGUgY3VycmVudCBrdm0gdmVyc2lvbiwgJ2t2bV9ydW4nIGhhcyBiZWVuIGluY2x1
-ZGVkIGluIHRoZSAKPj4gJ2t2bV92Y3B1Jwo+PiBzdHJ1Y3R1cmUuIEZvciBoaXN0b3JpY2FsIHJl
-YXNvbnMsIG1hbnkga3ZtLXJlbGF0ZWQgZnVuY3Rpb24gcGFyYW1ldGVycwo+PiByZXRhaW4gdGhl
-ICdrdm1fcnVuJyBhbmQgJ2t2bV92Y3B1JyBwYXJhbWV0ZXJzIGF0IHRoZSBzYW1lIHRpbWUuIFRo
-aXMKPj4gcGF0Y2ggZG9lcyBhIHVuaWZpZWQgY2xlYW51cCBvZiB0aGVzZSByZW1haW5pbmcgcmVk
-dW5kYW50IHBhcmFtZXRlcnMuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IFRpYW5qaWEgWmhhbmcgPHRp
-YW5qaWEuemhhbmdAbGludXguYWxpYmFiYS5jb20+Cj4+IFJldmlld2VkLWJ5OiBIdWFjYWkgQ2hl
-biA8Y2hlbmhjQGxlbW90ZS5jb20+Cj4KPiBUZXN0ZWQtYnk6IEppYXh1biBZYW5nIDxqaWF4dW4u
-eWFuZ0BmbHlnb2F0LmNvbT4KPgo+IENhbiBjb25maXJtIGl0IHdvcmtzIG9uIExvb25nc29uLTNB
-NDAwMC4KPgo+IFRoYW5rcyEKPgo+PiAtLS0KPgo=
+Changes for v3:
+- Moved detached_vf setting to pcibios_bus_add_device
+- Extended the change in vfio_config_init to be generic (include 
+  vendor / device ID / INTx emulation)
+- Added a dev_is_vf macro in the same style as dev_is_pf to
+  encapsualate the checking of is_virtfn || detached_vf
+
+Changes for v2:
+- Added code to vfio_basic_config_read() and vfio_config_init() to
+  extend emulation to userspace
+- Added detached_vf check to vfio_bar_restore()
+- @Niklas/@Pierre, I removed your review tags since I made changes,
+  please have another look
+
+
+As discussed previously in a qemu-devel thread:
+
+https://www.mail-archive.com/qemu-devel@nongnu.org/msg725141.html
+
+s390x has the notion of unlinked VFs being available at the LPAR-level
+(Virtual Functions where the kernel does not have access to the associated
+Physical Function).  These devices are currently not marked as is_virtfn.
+There seems to be some precedent (ex: in powerpc, eeh_debugfs_break_device())
+where pdev->is_virtfn && pdev->physfn == 0 is used to detect these sort of
+detached VFs.  We toyed with the idea of doing this but it causes additional
+fallout as various other areas of kernel code have an expectation that
+is_virtfn=1 implies there is a linked PF available to the kernel. 
+
+In the s390x case, the firmware layer underneath handles the VF emulation
+as it still has access to the PF that the LPAR (and thus the kernel) cannot
+see.  But one thing this firmware layer does not do is emulate the
+PCI_COMMAND_MEMORY bit, which was OK until vfio-pci started enforcing it
+via abafbc55.  The vfio-pci check is waived for VFs as of ebfa440c, but
+vfio-pci can't actually tell that these particular devices are VFs.
+
+The proposed patch attempts to identify these detached VFs and subsequently
+provide this information to vfio-pci so that it knows to also accept the
+lack of PCI_COMMAND_MEMORY for these sorts of devices.  For now the bit is
+only set for s390x but other architectures could opt in to it as well if
+needed.
+
+Matthew Rosato (1):
+  PCI: Introduce flag for detached virtual functions
+
+ arch/s390/pci/pci_bus.c            | 13 +++++++++++++
+ drivers/vfio/pci/vfio_pci_config.c |  8 ++++----
+ include/linux/pci.h                |  4 ++++
+ 3 files changed, 21 insertions(+), 4 deletions(-)
+
+-- 
+1.8.3.1
