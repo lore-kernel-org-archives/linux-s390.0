@@ -1,114 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v9 0/2] s390: virtio: let arch validate VIRTIO features
-Date: Wed, 19 Aug 2020 18:23:16 +0200
-Message-Id: <1597854198-2871-1-git-send-email-pmorel@linux.ibm.com>
+Subject: Re: [PATCH v2] PCI: Introduce flag for detached virtual functions
+References: <1597260071-2219-1-git-send-email-mjrosato@linux.ibm.com>
+ <1597260071-2219-2-git-send-email-mjrosato@linux.ibm.com>
+ <CAOSf1CFjaVoeTyk=cLmWhBB6YQrHQkcD8Aj=ZYrB4kYc-rqLiw@mail.gmail.com>
+ <2a862199-16c8-2141-d27f-79761c1b1b25@linux.ibm.com>
+ <CAOSf1CE6UyL9P31S=rAG=VZKs-JL4Kbq3VMZNhyojHbkPHSw0Q@mail.gmail.com>
+ <dc79c8a9-1bbc-380f-741f-bca270a34483@linux.ibm.com>
+ <17be8c41-8989-f1da-a843-30f0761f42de@linux.ibm.com>
+ <6ffa5f39-3607-88c7-81f9-dc97d12d09df@linux.ibm.com>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Message-ID: <f862f188-1f4d-d83d-452e-7fbda55426c7@linux.ibm.com>
+Date: Thu, 13 Aug 2020 15:28:51 +0200
+MIME-Version: 1.0
+In-Reply-To: <6ffa5f39-3607-88c7-81f9-dc97d12d09df@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
-
-Hi all,
-
-The goal of the series is to give a chance to the architecture
-to validate VIRTIO device features.
-
-in this respin:
-
-The tests are back to virtio_finalize_features.
-
-No more argument for the architecture callback which only reports
-if the architecture needs guest memory access restrictions for
-VIRTIO.
+To: Matthew Rosato <mjrosato@linux.ibm.com>, Oliver O'Halloran <oohall@gmail.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>, Bjorn Helgaas <bhelgaas@google.com>, pmorel@linux.ibm.com, Michael Ellerman <mpe@ellerman.id.au>, linux-s390@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, linux-pci <linux-pci@vger.kernel.org>, Alexey Kardashevskiy <aik@ozlabs.ru>
 
 
-I renamed the callback to arch_has_restricted_virtio_memory_access,
-and the config option to ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS.
 
-Regards,
-Pierre
-
-Pierre Morel (2):
-  virtio: let arch advertise guest's memory access restrictions
-  s390: virtio: PV needs VIRTIO I/O device protection
-
- arch/s390/Kconfig             |  1 +
- arch/s390/mm/init.c           | 11 +++++++++++
- drivers/virtio/Kconfig        |  6 ++++++
- drivers/virtio/virtio.c       | 15 +++++++++++++++
- include/linux/virtio_config.h |  9 +++++++++
- 5 files changed, 42 insertions(+)
-
--- 
-2.25.1
-
-Changelog
-
-to v9:
-
-- move virtio tests back to virtio_finalize_features
-  (Connie)
-
-- remove virtio device argument
-
-to v8:
-
-- refactoring by using an optional callback
-  (Connie)
-
-to v7:
-
-- typo in warning message
-  (Connie)
-to v6:
-
-- rewording warning messages
-  (Connie, Halil)
-
-to v5:
-
-- return directly from S390 arch_validate_virtio_features()
-  when the guest is not protected.
-  (Connie)
-
-- Somme rewording
-  (Connie, Michael)
-
-- moved back code from arch/s390/ ...kernel/uv.c to ...mm/init.c
-  (Christian)
-
-to v4:
-
-- separate virtio and arch code
-  (Pierre)
-
-- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
-  (as interpreted from Heiko's comment)
-
-- moved validation inside the arch code
-  (Connie)
-
-- moved the call to arch validation before VIRTIO_F_1 test
-  (Michael)
-
-to v3:
-
-- add warning
-  (Connie, Christian)
-
-- add comment
-  (Connie)
-
-- change hook name
-  (Halil, Connie)
-
-to v2:
-
-- put the test in virtio_finalize_features()
-  (Connie)
-
-- put the test inside VIRTIO core
-  (Jason)
-
-- pass a virtio device as parameter
-  (Halil)
+On 8/13/20 3:11 PM, Matthew Rosato wrote:
+> On 8/13/20 8:34 AM, Niklas Schnelle wrote:
+>>
+>>
+>> On 8/13/20 12:40 PM, Niklas Schnelle wrote:
+>>>
+>>>
+>>> On 8/13/20 11:59 AM, Oliver O'Halloran wrote:
+>>>> On Thu, Aug 13, 2020 at 7:00 PM Niklas Schnelle <schnelle@linux.ibm.com> wrote:
+>>>>>
+>>>>>
+>>>>> On 8/13/20 3:55 AM, Oliver O'Halloran wrote:
+>>>>>> On Thu, Aug 13, 2020 at 5:21 AM Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+>>>>>>> *snip*
+>>>>>>> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
+>>>>>>> index 3902c9f..04ac76d 100644
+>>>>>>> --- a/arch/s390/pci/pci.c
+>>>>>>> +++ b/arch/s390/pci/pci.c
+>>>>>>> @@ -581,6 +581,14 @@ int pcibios_enable_device(struct pci_dev *pdev, int mask)
+>>>>>>>   {
+>>>>>>>          struct zpci_dev *zdev = to_zpci(pdev);
+>>>>>>>
+>>>>>>> +       /*
+>>>>>>> +        * If we have a VF on a non-multifunction bus, it must be a VF that is
+>>>>>>> +        * detached from its parent PF.  We rely on firmware emulation to
+>>>>>>> +        * provide underlying PF details.
+>>>>>>> +        */
+>>>>>>> +       if (zdev->vfn && !zdev->zbus->multifunction)
+>>>>>>> +               pdev->detached_vf = 1;
+>>>>>>
+>>>>>> The enable hook seems like it's a bit too late for this sort of
+>>>>>> screwing around with the pci_dev. Anything in the setup path that
+>>>>>> looks at ->detached_vf would see it cleared while anything that looks
+>>>>>> after the device is enabled will see it set. Can this go into
+>>>>>> pcibios_add_device() or a fixup instead?
+>>>>>>
+>>>>>
+>>>>> This particular check could go into pcibios_add_device() yes.
+>>>>> We're also currently working on a slight rework of how
+>>>>> we establish the VF to parent PF linking including the sysfs
+>>>>> part of that. The latter sadly can only go after the sysfs
+>>>>> for the virtfn has been created and that only happens
+>>>>> after all fixups. We would like to do both together because
+>>>>> the latter sets pdev->is_virtfn which I think is closely related.
+>>>>>
+>>>>> I was thinking of starting another discussion
+>>>>> about adding a hook that is executed just after the sysfs entries
+>>>>> for the PCI device are created but haven't yet.
+>>>>
+>>>> if all you need is sysfs then pcibios_bus_add_device() or a bus
+>>>> notifier should work
+>>>
+>>> So this might go a bit off track but the problem is that
+>>> on s390 a VF can be disabled and reenabled with disable_slot()/enable_slot().
+>>> In this case pcibios_bus_add_device() is not called again but
+>>> the PF/VF link needs to be reestablished.
+>>
+>> Scratch that I must have made some stupid mistake last time I tried
+>> this, with your suggestion I tried again and it works perfectly
+>> moving the setup into pcibios_bus_add_device().
+>> Thank you, this is actually much nicer!
+>>
+> 
+> OK, and I can likewise relocate the setting of detached_vf to pcibios_bus_add_device().
+> 
+Yes and I would suggest we add it in arch/s390/pci_bus.c just
+after the the setup_virtfn stuff, then that can stay static
+and the fix minimal.
+I'll send a new version of my patches internally later, still
+running it on the different configurations.
