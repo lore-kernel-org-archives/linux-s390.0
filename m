@@ -1,91 +1,96 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18832 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726142AbgHMNLd (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:35326 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726102AbgHMNJ5 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 13 Aug 2020 09:11:33 -0400
+        Thu, 13 Aug 2020 09:09:57 -0400
 Subject: Re: [PATCH v2] PCI: Introduce flag for detached virtual functions
 References: <1597260071-2219-1-git-send-email-mjrosato@linux.ibm.com>
  <1597260071-2219-2-git-send-email-mjrosato@linux.ibm.com>
- <CAOSf1CFjaVoeTyk=cLmWhBB6YQrHQkcD8Aj=ZYrB4kYc-rqLiw@mail.gmail.com>
- <2a862199-16c8-2141-d27f-79761c1b1b25@linux.ibm.com>
- <CAOSf1CE6UyL9P31S=rAG=VZKs-JL4Kbq3VMZNhyojHbkPHSw0Q@mail.gmail.com>
- <dc79c8a9-1bbc-380f-741f-bca270a34483@linux.ibm.com>
- <17be8c41-8989-f1da-a843-30f0761f42de@linux.ibm.com>
+ <20200812143254.2f080c38@x1.home>
 From: Matthew Rosato <mjrosato@linux.ibm.com>
-Message-ID: <6ffa5f39-3607-88c7-81f9-dc97d12d09df@linux.ibm.com>
-Date: Thu, 13 Aug 2020 09:11:20 -0400
+Message-ID: <d2237715-298c-30a9-a05d-2b1c72476441@linux.ibm.com>
+Date: Thu, 13 Aug 2020 09:09:45 -0400
 MIME-Version: 1.0
-In-Reply-To: <17be8c41-8989-f1da-a843-30f0761f42de@linux.ibm.com>
+In-Reply-To: <20200812143254.2f080c38@x1.home>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Niklas Schnelle <schnelle@linux.ibm.com>, Oliver O'Halloran <oohall@gmail.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>, Bjorn Helgaas <bhelgaas@google.com>, pmorel@linux.ibm.com, Michael Ellerman <mpe@ellerman.id.au>, linux-s390@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, linux-pci <linux-pci@vger.kernel.org>, Alexey Kardashevskiy <aik@ozlabs.ru>
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: bhelgaas@google.com, schnelle@linux.ibm.com, pmorel@linux.ibm.com, mpe@ellerman.id.au, oohall@gmail.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org
 
-On 8/13/20 8:34 AM, Niklas Schnelle wrote:
+On 8/12/20 4:32 PM, Alex Williamson wrote:
+> On Wed, 12 Aug 2020 15:21:11 -0400
+> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 > 
-> 
-> On 8/13/20 12:40 PM, Niklas Schnelle wrote:
+>> s390x has the notion of providing VFs to the kernel in a manner
+>> where the associated PF is inaccessible other than via firmware.
+>> These are not treated as typical VFs and access to them is emulated
+>> by underlying firmware which can still access the PF.  After
+>> abafbc55 however these detached VFs were no longer able to work
+>> with vfio-pci as the firmware does not provide emulation of the
+>> PCI_COMMAND_MEMORY bit.  In this case, let's explicitly recognize
+>> these detached VFs so that vfio-pci can allow memory access to
+>> them again.
 >>
->>
->> On 8/13/20 11:59 AM, Oliver O'Halloran wrote:
->>> On Thu, Aug 13, 2020 at 7:00 PM Niklas Schnelle <schnelle@linux.ibm.com> wrote:
->>>>
->>>>
->>>> On 8/13/20 3:55 AM, Oliver O'Halloran wrote:
->>>>> On Thu, Aug 13, 2020 at 5:21 AM Matthew Rosato <mjrosato@linux.ibm.com> wrote:
->>>>>> *snip*
->>>>>> diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
->>>>>> index 3902c9f..04ac76d 100644
->>>>>> --- a/arch/s390/pci/pci.c
->>>>>> +++ b/arch/s390/pci/pci.c
->>>>>> @@ -581,6 +581,14 @@ int pcibios_enable_device(struct pci_dev *pdev, int mask)
->>>>>>   {
->>>>>>          struct zpci_dev *zdev = to_zpci(pdev);
->>>>>>
->>>>>> +       /*
->>>>>> +        * If we have a VF on a non-multifunction bus, it must be a VF that is
->>>>>> +        * detached from its parent PF.  We rely on firmware emulation to
->>>>>> +        * provide underlying PF details.
->>>>>> +        */
->>>>>> +       if (zdev->vfn && !zdev->zbus->multifunction)
->>>>>> +               pdev->detached_vf = 1;
->>>>>
->>>>> The enable hook seems like it's a bit too late for this sort of
->>>>> screwing around with the pci_dev. Anything in the setup path that
->>>>> looks at ->detached_vf would see it cleared while anything that looks
->>>>> after the device is enabled will see it set. Can this go into
->>>>> pcibios_add_device() or a fixup instead?
->>>>>
->>>>
->>>> This particular check could go into pcibios_add_device() yes.
->>>> We're also currently working on a slight rework of how
->>>> we establish the VF to parent PF linking including the sysfs
->>>> part of that. The latter sadly can only go after the sysfs
->>>> for the virtfn has been created and that only happens
->>>> after all fixups. We would like to do both together because
->>>> the latter sets pdev->is_virtfn which I think is closely related.
->>>>
->>>> I was thinking of starting another discussion
->>>> about adding a hook that is executed just after the sysfs entries
->>>> for the PCI device are created but haven't yet.
->>>
->>> if all you need is sysfs then pcibios_bus_add_device() or a bus
->>> notifier should work
->>
->> So this might go a bit off track but the problem is that
->> on s390 a VF can be disabled and reenabled with disable_slot()/enable_slot().
->> In this case pcibios_bus_add_device() is not called again but
->> the PF/VF link needs to be reestablished.
 > 
-> Scratch that I must have made some stupid mistake last time I tried
-> this, with your suggestion I tried again and it works perfectly
-> moving the setup into pcibios_bus_add_device().
-> Thank you, this is actually much nicer!
+> Might as well include a fixes tag too.
 > 
+> Fixes: abafbc551fdd ("vfio-pci: Invalidate mmaps and block MMIO access on disabled memory")
+> 
+> You might also extend the sha1 in the log to 12 chars as well, or
+> replace it with a reference to the fixes tag.
+> 
+Sure.
 
-OK, and I can likewise relocate the setting of detached_vf to 
-pcibios_bus_add_device().
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+..snip..
+>> diff --git a/include/linux/pci.h b/include/linux/pci.h
+>> index 8355306..23a6972 100644
+>> --- a/include/linux/pci.h
+>> +++ b/include/linux/pci.h
+>> @@ -445,6 +445,7 @@ struct pci_dev {
+>>   	unsigned int	is_probed:1;		/* Device probing in progress */
+>>   	unsigned int	link_active_reporting:1;/* Device capable of reporting link active */
+>>   	unsigned int	no_vf_scan:1;		/* Don't scan for VFs after IOV enablement */
+>> +	unsigned int	detached_vf:1;		/* VF without local PF access */
+> 
+> Is there too much implicit knowledge in defining a "detached VF"?  For
+> example, why do we know that we can skip the portion of
+> vfio_config_init() that copies the vendor and device IDs from the
+> struct pci_dev into the virtual config space?  It's true on s390x, but
+> I think that's because we know that firmware emulates those registers
+> for us.  We also skip the INTx pin register sanity checking.  Do we do
+> that because we haven't installed the broken device into an s390x
+> system?  Because we know firmware manages that for us too?  Or simply
+> because s390x doesn't support INTx anyway, and therefore it's another
+> architecture implicit decision?
+
+That's a fair point.  This was also discussed (overnight for me) in 
+another thread that this patch is very s390-specific.  It doesn't have 
+to be, we could also emulate these additional pieces to make things more 
+general-purpose here.
+
+> 
+> If detached_vf is really equivalent to is_virtfn for all cases that
+> don't care about referencing physfn on the pci_dev, then we should
+> probably have a macro to that effect.  Otherwise, if we're just trying
+> to describe that the memory bit of the command register is
+> unimplemented but always enabled, like a VF, should we specifically
+> describe that attribute instead?  If so, should we instead do that with
+> pci_dev_flags_t?  Thanks,
+
+Well, that's the particular issue that got us looking at this but I'm 
+not so sure we wouldn't find further oddities later, hence the desire 
+for a more general-purpose bit.
+
+> 
+> Alex
+> 
+>>   	pci_dev_flags_t dev_flags;
+>>   	atomic_t	enable_cnt;	/* pci_enable_device has been called */
+>>   
+> 
