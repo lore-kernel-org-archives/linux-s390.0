@@ -1,49 +1,41 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 06/17] riscv: drop unneeded node initialization
-Date: Tue, 18 Aug 2020 18:16:23 +0300
-Message-Id: <20200818151634.14343-7-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728139AbgHQJUP (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:20:15 -0400
+From: Allen Pais <allen.cryptic@gmail.com>
+Subject: [PATCH] net: atm: convert tasklets callbacks to use from_tasklet()
+Date: Mon, 17 Aug 2020 14:46:11 +0530
+Message-Id: <20200817091617.28119-17-allen.cryptic@gmail.com>
+In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
+References: <20200817091617.28119-1-allen.cryptic@gmail.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
+Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Allen Pais <allen.lkml@gmail.com>
 
-RISC-V does not (yet) support NUMA  and for UMA architectures node 0 is
-used implicitly during early memory initialization.
+Update all the callbacks of all tasklets by using
+from_tasklet() and remove .data field.
 
-There is no need to call memblock_set_node(), remove this call and the
-surrounding code.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Allen Pais <allen.lkml@gmail.com>
 ---
- arch/riscv/mm/init.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ net/atm/pppoatm.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 787c75f751a5..0485cfaacc72 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -191,15 +191,6 @@ void __init setup_bootmem(void)
- 	early_init_fdt_scan_reserved_mem();
- 	memblock_allow_resize();
- 	memblock_dump_all();
--
--	for_each_memblock(memory, reg) {
--		unsigned long start_pfn = memblock_region_memory_base_pfn(reg);
--		unsigned long end_pfn = memblock_region_memory_end_pfn(reg);
--
--		memblock_set_node(PFN_PHYS(start_pfn),
--				  PFN_PHYS(end_pfn - start_pfn),
--				  &memblock.memory, 0);
--	}
- }
- 
- #ifdef CONFIG_MMU
+diff --git a/net/atm/pppoatm.c b/net/atm/pppoatm.c
+index 579b66da1d95..3803be8470f7 100644
+--- a/net/atm/pppoatm.c
++++ b/net/atm/pppoatm.c
+@@ -416,7 +416,6 @@ static int pppoatm_assign_vcc(struct atm_vcc *atmvcc, void __user *arg)
+ 	pvcc->chan.mtu = atmvcc->qos.txtp.max_sdu - PPP_HDRLEN -
+ 	    (be.encaps == e_vc ? 0 : LLC_LEN);
+ 	pvcc->wakeup_tasklet = tasklet_proto;
+-	pvcc->wakeup_tasklet.data = (unsigned long) &pvcc->chan;
+ 	err = ppp_register_channel(&pvcc->chan);
+ 	if (err != 0) {
+ 		kfree(pvcc);
 -- 
-2.26.2
+2.17.1
