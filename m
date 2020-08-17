@@ -1,161 +1,54 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27860 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727899AbgHLJ1W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Aug 2020 05:27:22 -0400
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [kvm-unit-tests RFC v2 4/4] s390x: add Protected VM support
-Date: Wed, 12 Aug 2020 11:27:05 +0200
-Message-Id: <20200812092705.17774-5-mhartmay@linux.ibm.com>
-In-Reply-To: <20200812092705.17774-1-mhartmay@linux.ibm.com>
-References: <20200812092705.17774-1-mhartmay@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Allen Pais <allen.cryptic@gmail.com>
+Subject: [PATCH] platform: goldfish: convert tasklets to use new tasklet_setup() API
+Date: Mon, 17 Aug 2020 14:46:12 +0530
+Message-Id: <20200817091617.28119-18-allen.cryptic@gmail.com>
+In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
+References: <20200817091617.28119-1-allen.cryptic@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
+Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-Add support for Protected Virtual Machine (PVM) tests. For starting a
-PVM guest we must be able to generate a PVM image by using the
-`genprotimg` tool from the s390-tools collection. This requires the
-ability to pass a machine-specific host-key document, so the option
-`--host-key-document` is added to the configure script.
+From: Allen Pais <allen.lkml@gmail.com>
 
-Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+In preparation for unconditionally passing the
+struct tasklet_struct pointer to all tasklet
+callbacks, switch to using the new tasklet_setup()
+and from_tasklet() to pass the tasklet pointer explicitly.
+
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Allen Pais <allen.lkml@gmail.com>
 ---
- configure               |  8 ++++++++
- s390x/Makefile          | 17 +++++++++++++++--
- s390x/selftest.parmfile |  1 +
- s390x/unittests.cfg     |  1 +
- scripts/s390x/func.bash | 18 ++++++++++++++++++
- 5 files changed, 43 insertions(+), 2 deletions(-)
- create mode 100644 s390x/selftest.parmfile
- create mode 100644 scripts/s390x/func.bash
+ drivers/platform/goldfish/goldfish_pipe.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/configure b/configure
-index f9d030fd2f03..aa528af72534 100755
---- a/configure
-+++ b/configure
-@@ -18,6 +18,7 @@ u32_long=
- vmm="qemu"
- errata_force=0
- erratatxt="$srcdir/errata.txt"
-+host_key_document=
- 
- usage() {
-     cat <<-EOF
-@@ -40,6 +41,8 @@ usage() {
- 	                           no environ is provided by the user (enabled by default)
- 	    --erratatxt=FILE       specify a file to use instead of errata.txt. Use
- 	                           '--erratatxt=' to ensure no file is used.
-+	    --host-key-document=HOST_KEY_DOCUMENT
-+	                           host-key-document to use (s390x only)
- EOF
-     exit 1
+diff --git a/drivers/platform/goldfish/goldfish_pipe.c b/drivers/platform/goldfish/goldfish_pipe.c
+index 1ab207ec9c94..b9bead07760c 100644
+--- a/drivers/platform/goldfish/goldfish_pipe.c
++++ b/drivers/platform/goldfish/goldfish_pipe.c
+@@ -577,10 +577,10 @@ static struct goldfish_pipe *signalled_pipes_pop_front(
+ 	return pipe;
  }
-@@ -92,6 +95,9 @@ while [[ "$1" = -* ]]; do
- 	    erratatxt=
- 	    [ "$arg" ] && erratatxt=$(eval realpath "$arg")
- 	    ;;
-+	--host-key-document)
-+	    host_key_document="$arg"
-+	    ;;
- 	--help)
- 	    usage
- 	    ;;
-@@ -205,6 +211,8 @@ PRETTY_PRINT_STACKS=$pretty_print_stacks
- ENVIRON_DEFAULT=$environ_default
- ERRATATXT=$erratatxt
- U32_LONG_FMT=$u32_long
-+GENPROTIMG=${GENPROTIMG-genprotimg}
-+HOST_KEY_DOCUMENT=$host_key_document
- EOF
  
- cat <<EOF > lib/config.h
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 0f54bf43bfb7..cd4e270952ec 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -18,12 +18,19 @@ tests += $(TEST_DIR)/skrf.elf
- tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
- tests += $(TEST_DIR)/css.elf
--tests_binary = $(patsubst %.elf,%.bin,$(tests))
+-static void goldfish_interrupt_task(unsigned long dev_addr)
++static void goldfish_interrupt_task(struct tasklet_struct *t)
+ {
+ 	/* Iterate over the signalled pipes and wake them one by one */
+-	struct goldfish_pipe_dev *dev = (struct goldfish_pipe_dev *)dev_addr;
++	struct goldfish_pipe_dev *dev = from_tasklet(dev, t, irq_tasklet);
+ 	struct goldfish_pipe *pipe;
+ 	int wakes;
  
--all: directories test_cases test_cases_binary
-+tests_binary = $(patsubst %.elf,%.bin,$(tests))
-+ifneq ($(HOST_KEY_DOCUMENT),)
-+tests_pv_binary = $(patsubst %.bin,%.pv.bin,$(tests_binary))
-+else
-+tests_pv_binary =
-+endif
-+
-+all: directories test_cases test_cases_binary test_cases_pv
+@@ -811,8 +811,7 @@ static int goldfish_pipe_device_init(struct platform_device *pdev,
+ {
+ 	int err;
  
- test_cases: $(tests)
- test_cases_binary: $(tests_binary)
-+test_cases_pv: $(tests_pv_binary)
+-	tasklet_init(&dev->irq_tasklet, &goldfish_interrupt_task,
+-		     (unsigned long)dev);
++	tasklet_setup(&dev->irq_tasklet, &goldfish_interrupt_task);
  
- CFLAGS += -std=gnu99
- CFLAGS += -ffreestanding
-@@ -72,6 +79,12 @@ FLATLIBS = $(libcflat)
- %.bin: %.elf
- 	$(OBJCOPY) -O binary  $< $@
- 
-+%selftest.pv.bin: %selftest.bin $(HOST_KEY_DOCUMENT) $(patsubst %.pv.bin,%.parmfile,$@)
-+	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --parmfile $(patsubst %.pv.bin,%.parmfile,$@) --no-verify --image $< -o $@
-+
-+%.pv.bin: %.bin $(HOST_KEY_DOCUMENT)
-+	$(GENPROTIMG) --host-key-document $(HOST_KEY_DOCUMENT) --no-verify --image $< -o $@
-+
- arch_clean: asm_offsets_clean
- 	$(RM) $(TEST_DIR)/*.{o,elf,bin} $(TEST_DIR)/.*.d lib/s390x/.*.d
- 
-diff --git a/s390x/selftest.parmfile b/s390x/selftest.parmfile
-new file mode 100644
-index 000000000000..5613931aa5c6
---- /dev/null
-+++ b/s390x/selftest.parmfile
-@@ -0,0 +1 @@
-+test 123
-\ No newline at end of file
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 0f156afbe741..12f6fb613995 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -21,6 +21,7 @@
- [selftest-setup]
- file = selftest.elf
- groups = selftest
-+# please keep the kernel cmdline in sync with $(TEST_DIR)/selftest.parmfile
- extra_params = -append 'test 123'
- 
- [intercept]
-diff --git a/scripts/s390x/func.bash b/scripts/s390x/func.bash
-new file mode 100644
-index 000000000000..5c682cb47f73
---- /dev/null
-+++ b/scripts/s390x/func.bash
-@@ -0,0 +1,18 @@
-+# Run Protected VM test
-+function arch_cmd()
-+{
-+	local cmd=$1
-+	local testname=$2
-+	local groups=$3
-+	local smp=$4
-+	local kernel=$5
-+	local opts=$6
-+	local arch=$7
-+	local check=$8
-+	local accel=$9
-+	local timeout=${10}
-+
-+	kernel=${kernel%.elf}.pv.bin
-+	# do not run PV test cases by default
-+	"$cmd" "${testname}_PV" "$groups pv nodefault" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+}
+ 	err = devm_request_irq(&pdev->dev, dev->irq,
+ 			       goldfish_pipe_interrupt,
 -- 
-2.25.4
+2.17.1
