@@ -1,48 +1,110 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr140057.outbound.protection.outlook.com ([40.107.14.57]:4231
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726061AbgHGQWA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 7 Aug 2020 12:22:00 -0400
-From: Andrei Botila <andrei.botila@oss.nxp.com>
-Subject: [PATCH 06/22] crypto: s390/aes - add check for xts input length equal to zero
-Date: Fri,  7 Aug 2020 19:19:54 +0300
-Message-Id: <20200807162010.18979-7-andrei.botila@oss.nxp.com>
-In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-Content-Type: text/plain
-MIME-Version: 1.0
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60894 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726297AbgHQJRV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:17:21 -0400
+From: Allen Pais <allen.cryptic@gmail.com>
+Subject: [PATCH] driver: hv: convert tasklets to use new tasklet_setup() API
+Date: Mon, 17 Aug 2020 14:45:58 +0530
+Message-Id: <20200817091617.28119-4-allen.cryptic@gmail.com>
+In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
+References: <20200817091617.28119-1-allen.cryptic@gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
+Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-From: Andrei Botila <andrei.botila@nxp.com>
+From: Allen Pais <allen.lkml@gmail.com>
 
-Standardize the way input lengths equal to 0 are handled in all skcipher
-algorithms. All the algorithms return 0 for input lengths equal to zero.
+In preparation for unconditionally passing the
+struct tasklet_struct pointer to all tasklet
+callbacks, switch to using the new tasklet_setup()
+and from_tasklet() to pass the tasklet pointer explicitly.
 
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Allen Pais <allen.lkml@gmail.com>
 ---
- arch/s390/crypto/aes_s390.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hv/channel_mgmt.c | 3 +--
+ drivers/hv/connection.c   | 4 ++--
+ drivers/hv/hv.c           | 3 +--
+ drivers/hv/hyperv_vmbus.h | 4 ++--
+ drivers/hv/vmbus_drv.c    | 4 ++--
+ 5 files changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/crypto/aes_s390.c b/arch/s390/crypto/aes_s390.c
-index 73044634d342..bc8855f4b7d1 100644
---- a/arch/s390/crypto/aes_s390.c
-+++ b/arch/s390/crypto/aes_s390.c
-@@ -437,6 +437,9 @@ static int xts_aes_crypt(struct skcipher_request *req, unsigned long modifier)
- 		u8 init[16];
- 	} xts_param;
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index 591106cf58fc..640fc1688d49 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -321,8 +321,7 @@ static struct vmbus_channel *alloc_channel(void)
  
-+	if (!req->cryptlen)
-+		return 0;
-+
- 	if (req->cryptlen < AES_BLOCK_SIZE)
- 		return -EINVAL;
+ 	INIT_LIST_HEAD(&channel->sc_list);
  
+-	tasklet_init(&channel->callback_event,
+-		     vmbus_on_event, (unsigned long)channel);
++	tasklet_setup(&channel->callback_event, vmbus_on_event);
+ 
+ 	hv_ringbuffer_pre_init(channel);
+ 
+diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
+index 11170d9a2e1a..23e10ebecf5c 100644
+--- a/drivers/hv/connection.c
++++ b/drivers/hv/connection.c
+@@ -322,9 +322,9 @@ struct vmbus_channel *relid2channel(u32 relid)
+  *    If this tasklet has been running for a long time
+  *    then reschedule ourselves.
+  */
+-void vmbus_on_event(unsigned long data)
++void vmbus_on_event(struct tasklet_struct *t)
+ {
+-	struct vmbus_channel *channel = (void *) data;
++	struct vmbus_channel *channel = from_tasklet(channel, t, callback_event);
+ 	unsigned long time_limit = jiffies + 2;
+ 
+ 	trace_vmbus_on_event(channel);
+diff --git a/drivers/hv/hv.c b/drivers/hv/hv.c
+index da69338f92f5..91a0582387d6 100644
+--- a/drivers/hv/hv.c
++++ b/drivers/hv/hv.c
+@@ -96,8 +96,7 @@ int hv_synic_alloc(void)
+ 	for_each_present_cpu(cpu) {
+ 		hv_cpu = per_cpu_ptr(hv_context.cpu_context, cpu);
+ 
+-		tasklet_init(&hv_cpu->msg_dpc,
+-			     vmbus_on_msg_dpc, (unsigned long) hv_cpu);
++		tasklet_setup(&hv_cpu->msg_dpc, vmbus_on_msg_dpc);
+ 
+ 		hv_cpu->synic_message_page =
+ 			(void *)get_zeroed_page(GFP_ATOMIC);
+diff --git a/drivers/hv/hyperv_vmbus.h b/drivers/hv/hyperv_vmbus.h
+index 40e2b9f91163..36199d8ea8c3 100644
+--- a/drivers/hv/hyperv_vmbus.h
++++ b/drivers/hv/hyperv_vmbus.h
+@@ -351,8 +351,8 @@ void vmbus_disconnect(void);
+ 
+ int vmbus_post_msg(void *buffer, size_t buflen, bool can_sleep);
+ 
+-void vmbus_on_event(unsigned long data);
+-void vmbus_on_msg_dpc(unsigned long data);
++void vmbus_on_event(struct tasklet_struct *t);
++void vmbus_on_msg_dpc(struct tasklet_struct *t);
+ 
+ int hv_kvp_init(struct hv_util_service *srv);
+ void hv_kvp_deinit(void);
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index 910b6e90866c..6b7987dac97a 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -1043,9 +1043,9 @@ static void vmbus_onmessage_work(struct work_struct *work)
+ 	kfree(ctx);
+ }
+ 
+-void vmbus_on_msg_dpc(unsigned long data)
++void vmbus_on_msg_dpc(struct tasklet_struct *t)
+ {
+-	struct hv_per_cpu_context *hv_cpu = (void *)data;
++	struct hv_per_cpu_context *hv_cpu = from_tasklet(hv_cpu, t, msg_dpc);
+ 	void *page_addr = hv_cpu->synic_message_page;
+ 	struct hv_message *msg = (struct hv_message *)page_addr +
+ 				  VMBUS_MESSAGE_SINT;
 -- 
 2.17.1
