@@ -1,57 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47216 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728965AbgHaUit (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Aug 2020 16:38:49 -0400
-From: Nicolin Chen <nicoleotsuka@gmail.com>
-Subject: [RESEND][PATCH 4/7] s390/pci_dma: Avoid overflow at boundary_size
-Date: Mon, 31 Aug 2020 13:38:08 -0700
-Message-Id: <20200831203811.8494-5-nicoleotsuka@gmail.com>
-In-Reply-To: <20200831203811.8494-1-nicoleotsuka@gmail.com>
-References: <20200831203811.8494-1-nicoleotsuka@gmail.com>
+        with ESMTP id S1726458AbgHQJUB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:20:01 -0400
+From: Allen Pais <allen.cryptic@gmail.com>
+Subject: [PATCH 1/2] misc: ibmvmc: convert tasklets to use new tasklet_setup() API
+Date: Mon, 17 Aug 2020 14:46:10 +0530
+Message-Id: <20200817091617.28119-16-allen.cryptic@gmail.com>
+In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
+References: <20200817091617.28119-1-allen.cryptic@gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de
-Cc: sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
+To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
+Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-The boundary_size might be as large as ULONG_MAX, which means
-that a device has no specific boundary limit. So either "+ 1"
-or passing it to ALIGN() would potentially overflow.
+From: Allen Pais <allen.lkml@gmail.com>
 
-According to kernel defines:
-    #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
-    #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
+In preparation for unconditionally passing the
+struct tasklet_struct pointer to all tasklet
+callbacks, switch to using the new tasklet_setup()
+and from_tasklet() to pass the tasklet pointer explicitly.
 
-We can simplify the logic here:
-  ALIGN(boundary + 1, 1 << shift) >> shift
-= ALIGN_MASK(b + 1, (1 << s) - 1) >> s
-= {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
-= [b + 1 + (1 << s) - 1] >> s
-= [b + (1 << s)] >> s
-= (b >> s) + 1
-
-So fixing a potential overflow with the safer shortcut.
-
-Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Allen Pais <allen.lkml@gmail.com>
 ---
- arch/s390/pci/pci_dma.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/ibmvmc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/pci/pci_dma.c b/arch/s390/pci/pci_dma.c
-index 64b1399a73f0..ecb067acc6d5 100644
---- a/arch/s390/pci/pci_dma.c
-+++ b/arch/s390/pci/pci_dma.c
-@@ -263,8 +263,8 @@ static unsigned long __dma_alloc_iommu(struct device *dev,
- 	struct zpci_dev *zdev = to_zpci(to_pci_dev(dev));
- 	unsigned long boundary_size;
+diff --git a/drivers/misc/ibmvmc.c b/drivers/misc/ibmvmc.c
+index 2d778d0f011e..347278c1a5e4 100644
+--- a/drivers/misc/ibmvmc.c
++++ b/drivers/misc/ibmvmc.c
+@@ -2064,10 +2064,10 @@ static void ibmvmc_handle_crq(struct ibmvmc_crq_msg *crq,
+ 	}
+ }
  
--	boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
--			      PAGE_SIZE) >> PAGE_SHIFT;
-+	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
-+	boundary_size = (dma_get_seg_boundary(dev) >> PAGE_SHIFT) + 1;
- 	return iommu_area_alloc(zdev->iommu_bitmap, zdev->iommu_pages,
- 				start, size, zdev->start_dma >> PAGE_SHIFT,
- 				boundary_size, 0);
+-static void ibmvmc_task(unsigned long data)
++static void ibmvmc_task(struct tasklet_struct *t)
+ {
+-	struct crq_server_adapter *adapter =
+-		(struct crq_server_adapter *)data;
++	struct crq_server_adapter *adapter = from_tasklet(adapter, t,
++							  work_task);
+ 	struct vio_dev *vdev = to_vio_dev(adapter->dev);
+ 	struct ibmvmc_crq_msg *crq;
+ 	int done = 0;
+@@ -2150,7 +2150,7 @@ static int ibmvmc_init_crq_queue(struct crq_server_adapter *adapter)
+ 	queue->cur = 0;
+ 	spin_lock_init(&queue->lock);
+ 
+-	tasklet_init(&adapter->work_task, ibmvmc_task, (unsigned long)adapter);
++	tasklet_setup(&adapter->work_task, ibmvmc_task);
+ 
+ 	if (request_irq(vdev->irq,
+ 			ibmvmc_handle_event,
 -- 
 2.17.1
