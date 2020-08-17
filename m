@@ -1,72 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47192 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726023AbgHaUio (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Aug 2020 16:38:44 -0400
-From: Nicolin Chen <nicoleotsuka@gmail.com>
-Subject: [RESEND][PATCH 0/7] Avoid overflow at boundary_size
-Date: Mon, 31 Aug 2020 13:38:04 -0700
-Message-Id: <20200831203811.8494-1-nicoleotsuka@gmail.com>
+        with ESMTP id S1726676AbgHQJTR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:19:17 -0400
+From: Allen Pais <allen.cryptic@gmail.com>
+Subject: [PATCH] input: serio: convert tasklets to use new tasklet_setup() API
+Date: Mon, 17 Aug 2020 14:46:07 +0530
+Message-Id: <20200817091617.28119-13-allen.cryptic@gmail.com>
+In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
+References: <20200817091617.28119-1-allen.cryptic@gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de
-Cc: sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
+To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
+Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-==== For this resend ====
-The original series have not been acked at any patch. So I am
-resending them, being suggested by Niklas.
+From: Allen Pais <allen.lkml@gmail.com>
 
-==== Coverletter ====
-We are expending the default DMA segmentation boundary to its
-possible maximum value (ULONG_MAX) to indicate that a device
-doesn't specify a boundary limit. So all dma_get_seg_boundary
-callers should take a precaution with the return values since
-it would easily get overflowed.
+In preparation for unconditionally passing the
+struct tasklet_struct pointer to all tasklet
+callbacks, switch to using the new tasklet_setup()
+and from_tasklet() to pass the tasklet pointer explicitly.
 
-I scanned the entire kernel tree for all the existing callers
-and found that most of callers may get overflowed in two ways:
-either "+ 1" or passing it to ALIGN() that does "+ mask".
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Allen Pais <allen.lkml@gmail.com>
+---
+ drivers/input/serio/hp_sdc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-According to kernel defines:
-    #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
-    #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
-
-We can simplify the logic here:
-  ALIGN(boundary + 1, 1 << shift) >> shift
-= ALIGN_MASK(b + 1, (1 << s) - 1) >> s
-= {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
-= [b + 1 + (1 << s) - 1] >> s
-= [b + (1 << s)] >> s
-= (b >> s) + 1
-
-So this series of patches fix the potential overflow with this
-overflow-free shortcut.
-
-As I don't have these platforms, testings/comments are welcome.
-
-Thanks
-Nic
-
-Nicolin Chen (7):
-  powerpc/iommu: Avoid overflow at boundary_size
-  alpha: Avoid overflow at boundary_size
-  ia64/sba_iommu: Avoid overflow at boundary_size
-  s390/pci_dma: Avoid overflow at boundary_size
-  sparc: Avoid overflow at boundary_size
-  x86/amd_gart: Avoid overflow at boundary_size
-  parisc: Avoid overflow at boundary_size
-
- arch/alpha/kernel/pci_iommu.c    | 10 ++++------
- arch/ia64/hp/common/sba_iommu.c  |  4 ++--
- arch/powerpc/kernel/iommu.c      | 11 +++++------
- arch/s390/pci/pci_dma.c          |  4 ++--
- arch/sparc/kernel/iommu-common.c |  9 +++------
- arch/sparc/kernel/iommu.c        |  4 ++--
- arch/sparc/kernel/pci_sun4v.c    |  4 ++--
- arch/x86/kernel/amd_gart_64.c    |  4 ++--
- drivers/parisc/ccio-dma.c        |  4 ++--
- drivers/parisc/sba_iommu.c       |  4 ++--
- 10 files changed, 26 insertions(+), 32 deletions(-)
-
+diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
+index 13eacf6ab431..91f8253ac66a 100644
+--- a/drivers/input/serio/hp_sdc.c
++++ b/drivers/input/serio/hp_sdc.c
+@@ -301,7 +301,7 @@ static irqreturn_t hp_sdc_nmisr(int irq, void *dev_id)
+ 
+ unsigned long hp_sdc_put(void);
+ 
+-static void hp_sdc_tasklet(unsigned long foo)
++static void hp_sdc_tasklet(struct tasklet_struct *unused)
+ {
+ 	write_lock_irq(&hp_sdc.rtq_lock);
+ 
+@@ -890,7 +890,7 @@ static int __init hp_sdc_init(void)
+ 	hp_sdc_status_in8();
+ 	hp_sdc_data_in8();
+ 
+-	tasklet_init(&hp_sdc.task, hp_sdc_tasklet, 0);
++	tasklet_setup(&hp_sdc.task, hp_sdc_tasklet, 0);
+ 
+ 	/* Sync the output buffer registers, thus scheduling hp_sdc_tasklet. */
+ 	t_sync.actidx	= 0;
 -- 
 2.17.1
