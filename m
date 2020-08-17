@@ -1,55 +1,65 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: [PATCH v3 13/13] mm/debug_vm_pgtable: populate a pte entry before fetching it
-Date: Thu, 27 Aug 2020 13:34:38 +0530
-Message-Id: <20200827080438.315345-14-aneesh.kumar@linux.ibm.com>
-In-Reply-To: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
-References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56770 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726779AbgHQIvh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 04:51:37 -0400
+From: Allen Pais <allen.cryptic@gmail.com>
+Subject: [PATCH 1/8] net: dccp: convert tasklets to use new tasklet_setup() API
+Date: Mon, 17 Aug 2020 14:21:13 +0530
+Message-Id: <20200817085120.24894-1-allen.cryptic@gmail.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, Anshuman Khandual <anshuman.khandual@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+To: gerrit@erg.abdn.ac.uk, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, johannes@sipsolutions.net, alex.aring@gmail.com, stefan@datenfreihafen.org, santosh.shilimkar@oracle.com, jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us
+Cc: keescook@chromium.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-pte_clear_tests operate on an existing pte entry. Make sure that is not a none
-pte entry.
+From: Allen Pais <allen.lkml@gmail.com>
 
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+In preparation for unconditionally passing the
+struct tasklet_struct pointer to all tasklet
+callbacks, switch to using the new tasklet_setup()
+and from_tasklet() to pass the tasklet pointer explicitly.
+
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Allen Pais <allen.lkml@gmail.com>
 ---
- mm/debug_vm_pgtable.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/dccp/timer.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 21329c7d672f..8527ebb75f2c 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -546,7 +546,7 @@ static void __init pgd_populate_tests(struct mm_struct *mm, pgd_t *pgdp,
- static void __init pte_clear_tests(struct mm_struct *mm, pte_t *ptep,
- 				   unsigned long vaddr)
+diff --git a/net/dccp/timer.c b/net/dccp/timer.c
+index 0e06dfc32273..f174ecb2fb4e 100644
+--- a/net/dccp/timer.c
++++ b/net/dccp/timer.c
+@@ -220,9 +220,10 @@ static void dccp_delack_timer(struct timer_list *t)
+  *
+  * See the comments above %ccid_dequeueing_decision for supported modes.
+  */
+-static void dccp_write_xmitlet(unsigned long data)
++static void dccp_write_xmitlet(struct tasklet_struct *t)
  {
--	pte_t pte = ptep_get(ptep);
-+	pte_t pte =  ptep_get_and_clear(mm, vaddr, ptep);
+-	struct sock *sk = (struct sock *)data;
++	struct dccp_sock *dp = from_tasklet(dp, t, dccps_xmitlet);
++	struct sock *sk = &dp->dccps_inet_connection.icsk_inet.sk;
  
- 	pr_debug("Validating PTE clear\n");
- 	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
-@@ -944,7 +944,7 @@ static int __init debug_vm_pgtable(void)
- 	p4d_t *p4dp, *saved_p4dp;
- 	pud_t *pudp, *saved_pudp;
- 	pmd_t *pmdp, *saved_pmdp, pmd;
--	pte_t *ptep;
-+	pte_t *ptep, pte;
- 	pgtable_t saved_ptep;
- 	pgprot_t prot, protnone;
- 	phys_addr_t paddr;
-@@ -1049,6 +1049,8 @@ static int __init debug_vm_pgtable(void)
- 	 */
+ 	bh_lock_sock(sk);
+ 	if (sock_owned_by_user(sk))
+@@ -236,16 +237,15 @@ static void dccp_write_xmitlet(unsigned long data)
+ static void dccp_write_xmit_timer(struct timer_list *t)
+ {
+ 	struct dccp_sock *dp = from_timer(dp, t, dccps_xmit_timer);
+-	struct sock *sk = &dp->dccps_inet_connection.icsk_inet.sk;
  
- 	ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
-+	pte = pfn_pte(pte_aligned, prot);
-+	set_pte_at(mm, vaddr, ptep, pte);
- 	pte_clear_tests(mm, ptep, vaddr);
- 	pte_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
- 	pte_unmap_unlock(ptep, ptl);
+-	dccp_write_xmitlet((unsigned long)sk);
++	dccp_write_xmitlet(&dp->dccps_xmitlet);
+ }
+ 
+ void dccp_init_xmit_timers(struct sock *sk)
+ {
+ 	struct dccp_sock *dp = dccp_sk(sk);
+ 
+-	tasklet_init(&dp->dccps_xmitlet, dccp_write_xmitlet, (unsigned long)sk);
++	tasklet_setup(&dp->dccps_xmitlet, dccp_write_xmitlet);
+ 	timer_setup(&dp->dccps_xmit_timer, dccp_write_xmit_timer, 0);
+ 	inet_csk_init_xmit_timers(sk, &dccp_write_timer, &dccp_delack_timer,
+ 				  &dccp_keepalive_timer);
 -- 
-2.26.2
+2.17.1
