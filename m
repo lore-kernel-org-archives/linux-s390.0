@@ -1,67 +1,68 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727942AbgHRPRA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Aug 2020 11:17:00 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 01/17] KVM: PPC: Book3S HV: simplify kvm_cma_reserve()
-Date: Tue, 18 Aug 2020 18:16:18 +0300
-Message-Id: <20200818151634.14343-2-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
+Return-Path: <netdev-owner@vger.kernel.org>
+Subject: Re: [PATCH 4/8] net: mac802154: convert tasklets to use new
+ tasklet_setup() API
+References: <20200817085120.24894-1-allen.cryptic@gmail.com>
+ <20200817085120.24894-4-allen.cryptic@gmail.com>
+From: Stefan Schmidt <stefan@datenfreihafen.org>
+Message-ID: <5309b90a-1caa-ec22-ddb9-49eca3581957@datenfreihafen.org>
+Date: Mon, 17 Aug 2020 14:19:39 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20200817085120.24894-4-allen.cryptic@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: Allen Pais <allen.cryptic@gmail.com>, gerrit@erg.abdn.ac.uk, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, johannes@sipsolutions.net, alex.aring@gmail.com, santosh.shilimkar@oracle.com, jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us
+Cc: keescook@chromium.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+Hello.
 
-The memory size calculation in kvm_cma_reserve() traverses memblock.memory
-rather than simply call memblock_phys_mem_size(). The comment in that
-function suggests that at some point there should have been call to
-memblock_analyze() before memblock_phys_mem_size() could be used.
-As of now, there is no memblock_analyze() at all and
-memblock_phys_mem_size() can be used as soon as cold-plug memory is
-registerd with memblock.
+On 17.08.20 10:51, Allen Pais wrote:
+> From: Allen Pais <allen.lkml@gmail.com>
+> 
+> In preparation for unconditionally passing the
+> struct tasklet_struct pointer to all tasklet
+> callbacks, switch to using the new tasklet_setup()
+> and from_tasklet() to pass the tasklet pointer explicitly.
+> 
+> Signed-off-by: Romain Perier <romain.perier@gmail.com>
+> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
+> ---
+>   net/mac802154/main.c | 8 +++-----
+>   1 file changed, 3 insertions(+), 5 deletions(-)
+> 
+> diff --git a/net/mac802154/main.c b/net/mac802154/main.c
+> index 06ea0f8bfd5c..520cedc594e1 100644
+> --- a/net/mac802154/main.c
+> +++ b/net/mac802154/main.c
+> @@ -20,9 +20,9 @@
+>   #include "ieee802154_i.h"
+>   #include "cfg.h"
+>   
+> -static void ieee802154_tasklet_handler(unsigned long data)
+> +static void ieee802154_tasklet_handler(struct tasklet_struct *t)
+>   {
+> -	struct ieee802154_local *local = (struct ieee802154_local *)data;
+> +	struct ieee802154_local *local = from_tasklet(local, t, tasklet);
+>   	struct sk_buff *skb;
+>   
+>   	while ((skb = skb_dequeue(&local->skb_queue))) {
+> @@ -91,9 +91,7 @@ ieee802154_alloc_hw(size_t priv_data_len, const struct ieee802154_ops *ops)
+>   	INIT_LIST_HEAD(&local->interfaces);
+>   	mutex_init(&local->iflist_mtx);
+>   
+> -	tasklet_init(&local->tasklet,
+> -		     ieee802154_tasklet_handler,
+> -		     (unsigned long)local);
+> +	tasklet_setup(&local->tasklet, ieee802154_tasklet_handler);
+>   
+>   	skb_queue_head_init(&local->skb_queue);
+>   
+> 
 
-Replace loop over memblock.memory with a call to memblock_phys_mem_size().
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- arch/powerpc/kvm/book3s_hv_builtin.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+Acked-by: Stefan Schmidt <stefan@datenfreihafen.org>
 
-diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
-index 073617ce83e0..8f58dd20b362 100644
---- a/arch/powerpc/kvm/book3s_hv_builtin.c
-+++ b/arch/powerpc/kvm/book3s_hv_builtin.c
-@@ -95,23 +95,15 @@ EXPORT_SYMBOL_GPL(kvm_free_hpt_cma);
- void __init kvm_cma_reserve(void)
- {
- 	unsigned long align_size;
--	struct memblock_region *reg;
--	phys_addr_t selected_size = 0;
-+	phys_addr_t selected_size;
- 
- 	/*
- 	 * We need CMA reservation only when we are in HV mode
- 	 */
- 	if (!cpu_has_feature(CPU_FTR_HVMODE))
- 		return;
--	/*
--	 * We cannot use memblock_phys_mem_size() here, because
--	 * memblock_analyze() has not been called yet.
--	 */
--	for_each_memblock(memory, reg)
--		selected_size += memblock_region_memory_end_pfn(reg) -
--				 memblock_region_memory_base_pfn(reg);
- 
--	selected_size = (selected_size * kvm_cma_resv_ratio / 100) << PAGE_SHIFT;
-+	selected_size = PAGE_ALIGN(memblock_phys_mem_size() * kvm_cma_resv_ratio / 100);
- 	if (selected_size) {
- 		pr_info("%s: reserving %ld MiB for global area\n", __func__,
- 			 (unsigned long)selected_size / SZ_1M);
--- 
-2.26.2
+regards
+Stefan Schmidt
