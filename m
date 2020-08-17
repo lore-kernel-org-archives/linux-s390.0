@@ -1,17 +1,17 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56442 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726343AbgHRGEY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 18 Aug 2020 02:04:24 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2957CC061389
-        for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2020 23:04:24 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id i10so3721186pgk.1
-        for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2020 23:04:24 -0700 (PDT)
+        with ESMTP id S1728167AbgHQVT7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 17:19:59 -0400
+Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 066C1C061343
+        for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2020 14:19:58 -0700 (PDT)
+Received: by mail-pf1-x441.google.com with SMTP id 74so8845799pfx.13
+        for <linux-s390@vger.kernel.org>; Mon, 17 Aug 2020 14:19:58 -0700 (PDT)
 From: Tom Murphy <murphyt7@tcd.ie>
-Subject: [PATCH V2 1/2] Add new flush_iotlb_range and handle freelists when using iommu_unmap_fast
-Date: Tue, 18 Aug 2020 07:04:13 +0100
-Message-Id: <20200818060415.19522-1-murphyt7@tcd.ie>
+Subject: [PATCH 1/2] Add new flush_iotlb_range and handle freelists when using iommu_unmap_fast
+Date: Mon, 17 Aug 2020 22:19:49 +0100
+Message-Id: <20200817211951.14794-1-murphyt7@tcd.ie>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
@@ -30,10 +30,6 @@ driver) which need to wait for the ioTLB to be flushed before newly
 free/unmapped page table pages can be freed. This way we can still batch
 ioTLB free operations and handle the freelists.
 
-Change-log:
-V2:
--fix missing parameter in mtk_iommu_v1.c
-
 Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
 ---
  drivers/iommu/amd/iommu.c       | 14 ++++++++-
@@ -46,7 +42,6 @@ Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
  drivers/iommu/ipmmu-vmsa.c      |  3 +-
  drivers/iommu/msm_iommu.c       |  3 +-
  drivers/iommu/mtk_iommu.c       |  3 +-
- drivers/iommu/mtk_iommu_v1.c    |  3 +-
  drivers/iommu/omap-iommu.c      |  3 +-
  drivers/iommu/qcom_iommu.c      |  3 +-
  drivers/iommu/rockchip-iommu.c  |  3 +-
@@ -57,7 +52,7 @@ Signed-off-by: Tom Murphy <murphyt7@tcd.ie>
  drivers/iommu/virtio-iommu.c    |  3 +-
  drivers/vfio/vfio_iommu_type1.c |  2 +-
  include/linux/iommu.h           | 21 +++++++++++--
- 21 files changed, 150 insertions(+), 56 deletions(-)
+ 20 files changed, 148 insertions(+), 55 deletions(-)
 
 diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
 index 2f22326ee4df..25fbacab23c3 100644
@@ -500,20 +495,6 @@ index 2be96f1cdbd2..b97d35a7d817 100644
  {
  	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
  
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index c9d79cff4d17..ac44498183b7 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -325,7 +325,8 @@ static int mtk_iommu_map(struct iommu_domain *domain, unsigned long iova,
- 
- static size_t mtk_iommu_unmap(struct iommu_domain *domain,
- 			      unsigned long iova, size_t size,
--			      struct iommu_iotlb_gather *gather)
-+			      struct iommu_iotlb_gather *gather,
-+			      struct page **freelist)
- {
- 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
- 	unsigned long flags;
 diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
 index c8282cc212cb..17d3cfcb8cd3 100644
 --- a/drivers/iommu/omap-iommu.c
