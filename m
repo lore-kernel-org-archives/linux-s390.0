@@ -1,203 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:10604 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726887AbgHUT4n (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Aug 2020 15:56:43 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v10 05/16] s390/vfio-ap: implement in-use callback for vfio_ap driver
-Date: Fri, 21 Aug 2020 15:56:05 -0400
-Message-Id: <20200821195616.13554-6-akrowiak@linux.ibm.com>
-In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33062 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726161AbgHQJTp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:19:45 -0400
+From: Allen Pais <allen.cryptic@gmail.com>
+Subject: [PATCH 1/2] memstick: jmb38x: convert tasklets to use new tasklet_setup() API
+Date: Mon, 17 Aug 2020 14:46:09 +0530
+Message-Id: <20200817091617.28119-15-allen.cryptic@gmail.com>
+In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
+References: <20200817091617.28119-1-allen.cryptic@gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
+Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-Let's implement the callback to indicate when an APQN
-is in use by the vfio_ap device driver. The callback is
-invoked whenever a change to the apmask or aqmask would
-result in one or more queue devices being removed from the driver. The
-vfio_ap device driver will indicate a resource is in use
-if the APQN of any of the queue devices to be removed are assigned to
-any of the matrix mdevs under the driver's control.
+From: Allen Pais <allen.lkml@gmail.com>
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+In preparation for unconditionally passing the
+struct tasklet_struct pointer to all tasklet
+callbacks, switch to using the new tasklet_setup()
+and from_tasklet() to pass the tasklet pointer explicitly.
+
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Allen Pais <allen.lkml@gmail.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |  1 +
- drivers/s390/crypto/vfio_ap_ops.c     | 68 ++++++++++++++++++++-------
- drivers/s390/crypto/vfio_ap_private.h |  2 +
- 3 files changed, 53 insertions(+), 18 deletions(-)
+ drivers/memstick/host/jmb38x_ms.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 24cdef60039a..aae5b3d8e3fa 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -175,6 +175,7 @@ static int __init vfio_ap_init(void)
- 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
- 	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
- 	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-+	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
- 
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 2e37ee82e422..fc1aa6f947eb 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -515,18 +515,36 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
- 	return 0;
+diff --git a/drivers/memstick/host/jmb38x_ms.c b/drivers/memstick/host/jmb38x_ms.c
+index 4a6b866b0291..2bcf5ce113bd 100644
+--- a/drivers/memstick/host/jmb38x_ms.c
++++ b/drivers/memstick/host/jmb38x_ms.c
+@@ -603,10 +603,10 @@ static void jmb38x_ms_abort(struct timer_list *t)
+ 	spin_unlock_irqrestore(&host->lock, flags);
  }
  
-+#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
-+			 "already assigned to %s"
-+
-+static void vfio_ap_mdev_log_sharing_err(const char *mdev_name,
-+					 unsigned long *apm,
-+					 unsigned long *aqm)
-+{
-+	unsigned long apid, apqi;
-+
-+	for_each_set_bit_inv(apid, apm, AP_DEVICES)
-+		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
-+			pr_err(MDEV_SHARING_ERR, apid, apqi, mdev_name);
-+}
-+
- /**
-  * vfio_ap_mdev_verify_no_sharing
-  *
-  * Verifies that the APQNs derived from the cross product of the AP adapter IDs
-- * and AP queue indexes comprising the AP matrix are not configured for another
-+ * and AP queue indexes comprising an AP matrix are not assigned to another
-  * mediated device. AP queue sharing is not allowed.
-  *
-  * @matrix_mdev: the mediated matrix device
-+ * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
-+ * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
-  *
-  * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
-  */
--static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
-+static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
-+					  unsigned long *mdev_apm,
-+					  unsigned long *mdev_aqm)
+-static void jmb38x_ms_req_tasklet(unsigned long data)
++static void jmb38x_ms_req_tasklet(struct tasklet_struct *t)
  {
- 	struct ap_matrix_mdev *lstdev;
- 	DECLARE_BITMAP(apm, AP_DEVICES);
-@@ -543,14 +561,15 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
- 		 * We work on full longs, as we can only exclude the leftover
- 		 * bits in non-inverse order. The leftover is all zeros.
- 		 */
--		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
--				lstdev->matrix.apm, AP_DEVICES))
-+		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
- 			continue;
+-	struct memstick_host *msh = (struct memstick_host *)data;
+-	struct jmb38x_ms_host *host = memstick_priv(msh);
++	struct jmb38x_ms_host *host = from_tasklet(host, t, notify);
++	struct memstick_host *msh = host->msh;
+ 	unsigned long flags;
+ 	int rc;
  
--		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
--				lstdev->matrix.aqm, AP_DOMAINS))
-+		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
- 			continue;
+@@ -868,7 +868,7 @@ static struct memstick_host *jmb38x_ms_alloc_host(struct jmb38x_ms *jm, int cnt)
+ 	host->irq = jm->pdev->irq;
+ 	host->timeout_jiffies = msecs_to_jiffies(1000);
  
-+		vfio_ap_mdev_log_sharing_err(dev_name(mdev_dev(lstdev->mdev)),
-+					     apm, aqm);
-+
- 		return -EADDRINUSE;
- 	}
+-	tasklet_init(&host->notify, jmb38x_ms_req_tasklet, (unsigned long)msh);
++	tasklet_setup(&host->notify, jmb38x_ms_req_tasklet);
+ 	msh->request = jmb38x_ms_submit_req;
+ 	msh->set_param = jmb38x_ms_set_param;
  
-@@ -676,6 +695,7 @@ static ssize_t assign_adapter_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apid;
-+	DECLARE_BITMAP(apm, AP_DEVICES);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
-@@ -701,18 +721,18 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (ret)
- 		goto done;
- 
--	set_bit_inv(apid, matrix_mdev->matrix.apm);
-+	memset(apm, 0, sizeof(apm));
-+	set_bit_inv(apid, apm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
-+	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
-+					     matrix_mdev->matrix.aqm);
- 	if (ret)
--		goto share_err;
-+		goto done;
- 
-+	set_bit_inv(apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
- 	ret = count;
--	goto done;
- 
--share_err:
--	clear_bit_inv(apid, matrix_mdev->matrix.apm);
- done:
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -824,6 +844,7 @@ static ssize_t assign_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apqi;
-+	DECLARE_BITMAP(aqm, AP_DOMAINS);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
-@@ -844,18 +865,18 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (ret)
- 		goto done;
- 
--	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
-+	memset(aqm, 0, sizeof(aqm));
-+	set_bit_inv(apqi, aqm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
-+	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
-+					     matrix_mdev->matrix.apm, aqm);
- 	if (ret)
--		goto share_err;
-+		goto done;
- 
-+	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
- 	ret = count;
--	goto done;
- 
--share_err:
--	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
- done:
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -1434,3 +1455,14 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
-+
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
-+{
-+	bool in_use;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	in_use = !!vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return in_use;
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 57da703b549a..0c796ef11426 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -105,4 +105,6 @@ struct vfio_ap_queue {
- int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
- 
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
 -- 
-2.21.1
+2.17.1
