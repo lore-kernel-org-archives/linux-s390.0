@@ -1,60 +1,35 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 08/17] memblock: make for_each_memblock_type() iterator private
-Date: Tue, 18 Aug 2020 18:16:25 +0300
-Message-Id: <20200818151634.14343-9-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <d4de00a939be7b2b37ac1eb84c48777b73614dce.camel@sipsolutions.net>
+Subject: Re: [PATCH 3/8] net: mac80211: convert tasklets to use new
+ tasklet_setup() API
+From: Johannes Berg <johannes@sipsolutions.net>
+Date: Mon, 17 Aug 2020 10:56:06 +0200
+In-Reply-To: <20200817085120.24894-3-allen.cryptic@gmail.com> (sfid-20200817_105156_998114_A405125C)
+References: <20200817085120.24894-1-allen.cryptic@gmail.com>
+         <20200817085120.24894-3-allen.cryptic@gmail.com>
+         (sfid-20200817_105156_998114_A405125C)
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: Allen Pais <allen.cryptic@gmail.com>, gerrit@erg.abdn.ac.uk, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, alex.aring@gmail.com, stefan@datenfreihafen.org, santosh.shilimkar@oracle.com, jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us
+Cc: keescook@chromium.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On Mon, 2020-08-17 at 14:21 +0530, Allen Pais wrote:
+> 
+> -static void ieee80211_tasklet_handler(unsigned long data)
+> +static void ieee80211_tasklet_handler(struct tasklet_struct *t)
+>  {
+> -	struct ieee80211_local *local = (struct ieee80211_local *) data;
+> +	struct ieee80211_local *local = from_tasklet(local, t, tasklet);
 
-for_each_memblock_type() is not used outside mm/memblock.c, move it there
-from include/linux/memblock.h
+Yay, thank you!
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
----
- include/linux/memblock.h | 5 -----
- mm/memblock.c            | 5 +++++
- 2 files changed, 5 insertions(+), 5 deletions(-)
+Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
 
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 9d925db0d355..550faf69fc1c 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -552,11 +552,6 @@ static inline unsigned long memblock_region_reserved_end_pfn(const struct memblo
- 	     region < (memblock.memblock_type.regions + memblock.memblock_type.cnt);	\
- 	     region++)
- 
--#define for_each_memblock_type(i, memblock_type, rgn)			\
--	for (i = 0, rgn = &memblock_type->regions[0];			\
--	     i < memblock_type->cnt;					\
--	     i++, rgn = &memblock_type->regions[i])
--
- extern void *alloc_large_system_hash(const char *tablename,
- 				     unsigned long bucketsize,
- 				     unsigned long numentries,
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 45f198750be9..59f3998ae5db 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -132,6 +132,11 @@ struct memblock_type physmem = {
- };
- #endif
- 
-+#define for_each_memblock_type(i, memblock_type, rgn)			\
-+	for (i = 0, rgn = &memblock_type->regions[0];			\
-+	     i < memblock_type->cnt;					\
-+	     i++, rgn = &memblock_type->regions[i])
-+
- int memblock_debug __initdata_memblock;
- static bool system_has_some_mirror __initdata_memblock = false;
- static int memblock_can_resize __initdata_memblock;
--- 
-2.26.2
+
+Dave, if you want to take this patch, I have no objections - I have
+nothing in my mac80211-next tree (yet).
+
+johannes
