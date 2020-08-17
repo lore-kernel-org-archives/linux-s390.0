@@ -1,126 +1,56 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:43812 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728133AbgHRPTX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Aug 2020 11:19:23 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 14/17] x86/setup: simplify reserve_crashkernel()
-Date: Tue, 18 Aug 2020 18:16:31 +0300
-Message-Id: <20200818151634.14343-15-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726676AbgHQJTa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:19:30 -0400
+From: Allen Pais <allen.cryptic@gmail.com>
+Subject: [PATCH 1/2] mailbox: bcm: convert tasklets to use new tasklet_setup() API
+Date: Mon, 17 Aug 2020 14:46:08 +0530
+Message-Id: <20200817091617.28119-14-allen.cryptic@gmail.com>
+In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
+References: <20200817091617.28119-1-allen.cryptic@gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org, Ingo Molnar <mingo@kernel.org>
+To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
+Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Allen Pais <allen.lkml@gmail.com>
 
-* Replace magic numbers with defines
-* Replace memblock_find_in_range() + memblock_reserve() with
-  memblock_phys_alloc_range()
-* Stop checking for low memory size in reserve_crashkernel_low(). The
-  allocation from limited range will anyway fail if there is no enough
-  memory, so there is no need for extra traversal of memblock.memory
+In preparation for unconditionally passing the
+struct tasklet_struct pointer to all tasklet
+callbacks, switch to using the new tasklet_setup()
+and from_tasklet() to pass the tasklet pointer explicitly.
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Romain Perier <romain.perier@gmail.com>
+Signed-off-by: Allen Pais <allen.lkml@gmail.com>
 ---
- arch/x86/kernel/setup.c | 40 ++++++++++++++--------------------------
- 1 file changed, 14 insertions(+), 26 deletions(-)
+ drivers/mailbox/bcm-pdc-mailbox.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 2cac39ade2e3..52e83ba607b3 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -420,13 +420,13 @@ static int __init reserve_crashkernel_low(void)
+diff --git a/drivers/mailbox/bcm-pdc-mailbox.c b/drivers/mailbox/bcm-pdc-mailbox.c
+index 53945ca5d785..5b375985f7b8 100644
+--- a/drivers/mailbox/bcm-pdc-mailbox.c
++++ b/drivers/mailbox/bcm-pdc-mailbox.c
+@@ -962,9 +962,9 @@ static irqreturn_t pdc_irq_handler(int irq, void *data)
+  * a DMA receive interrupt. Reenables the receive interrupt.
+  * @data: PDC state structure
+  */
+-static void pdc_tasklet_cb(unsigned long data)
++static void pdc_tasklet_cb(struct tasklet_struct *t)
  {
- #ifdef CONFIG_X86_64
- 	unsigned long long base, low_base = 0, low_size = 0;
--	unsigned long total_low_mem;
-+	unsigned long low_mem_limit;
- 	int ret;
+-	struct pdc_state *pdcs = (struct pdc_state *)data;
++	struct pdc_state *pdcs = from_tasklet(pdcs, t, rx_tasklet);
  
--	total_low_mem = memblock_mem_size(1UL << (32 - PAGE_SHIFT));
-+	low_mem_limit = min(memblock_phys_mem_size(), CRASH_ADDR_LOW_MAX);
+ 	pdc_receive(pdcs);
  
- 	/* crashkernel=Y,low */
--	ret = parse_crashkernel_low(boot_command_line, total_low_mem, &low_size, &base);
-+	ret = parse_crashkernel_low(boot_command_line, low_mem_limit, &low_size, &base);
- 	if (ret) {
- 		/*
- 		 * two parts from kernel/dma/swiotlb.c:
-@@ -444,23 +444,17 @@ static int __init reserve_crashkernel_low(void)
- 			return 0;
- 	}
+@@ -1589,7 +1589,7 @@ static int pdc_probe(struct platform_device *pdev)
+ 	pdc_hw_init(pdcs);
  
--	low_base = memblock_find_in_range(0, 1ULL << 32, low_size, CRASH_ALIGN);
-+	low_base = memblock_phys_alloc_range(low_size, CRASH_ALIGN, 0, CRASH_ADDR_LOW_MAX);
- 	if (!low_base) {
- 		pr_err("Cannot reserve %ldMB crashkernel low memory, please try smaller size.\n",
- 		       (unsigned long)(low_size >> 20));
- 		return -ENOMEM;
- 	}
+ 	/* Init tasklet for deferred DMA rx processing */
+-	tasklet_init(&pdcs->rx_tasklet, pdc_tasklet_cb, (unsigned long)pdcs);
++	tasklet_setup(&pdcs->rx_tasklet, pdc_tasklet_cb);
  
--	ret = memblock_reserve(low_base, low_size);
--	if (ret) {
--		pr_err("%s: Error reserving crashkernel low memblock.\n", __func__);
--		return ret;
--	}
--
--	pr_info("Reserving %ldMB of low memory at %ldMB for crashkernel (System low RAM: %ldMB)\n",
-+	pr_info("Reserving %ldMB of low memory at %ldMB for crashkernel (low RAM limit: %ldMB)\n",
- 		(unsigned long)(low_size >> 20),
- 		(unsigned long)(low_base >> 20),
--		(unsigned long)(total_low_mem >> 20));
-+		(unsigned long)(low_mem_limit >> 20));
- 
- 	crashk_low_res.start = low_base;
- 	crashk_low_res.end   = low_base + low_size - 1;
-@@ -504,13 +498,13 @@ static void __init reserve_crashkernel(void)
- 		 * unless "crashkernel=size[KMG],high" is specified.
- 		 */
- 		if (!high)
--			crash_base = memblock_find_in_range(CRASH_ALIGN,
--						CRASH_ADDR_LOW_MAX,
--						crash_size, CRASH_ALIGN);
-+			crash_base = memblock_phys_alloc_range(crash_size,
-+						CRASH_ALIGN, CRASH_ALIGN,
-+						CRASH_ADDR_LOW_MAX);
- 		if (!crash_base)
--			crash_base = memblock_find_in_range(CRASH_ALIGN,
--						CRASH_ADDR_HIGH_MAX,
--						crash_size, CRASH_ALIGN);
-+			crash_base = memblock_phys_alloc_range(crash_size,
-+						CRASH_ALIGN, CRASH_ALIGN,
-+						CRASH_ADDR_HIGH_MAX);
- 		if (!crash_base) {
- 			pr_info("crashkernel reservation failed - No suitable area found.\n");
- 			return;
-@@ -518,19 +512,13 @@ static void __init reserve_crashkernel(void)
- 	} else {
- 		unsigned long long start;
- 
--		start = memblock_find_in_range(crash_base,
--					       crash_base + crash_size,
--					       crash_size, 1 << 20);
-+		start = memblock_phys_alloc_range(crash_size, SZ_1M, crash_base,
-+						  crash_base + crash_size);
- 		if (start != crash_base) {
- 			pr_info("crashkernel reservation failed - memory is in use.\n");
- 			return;
- 		}
- 	}
--	ret = memblock_reserve(crash_base, crash_size);
--	if (ret) {
--		pr_err("%s: Error reserving crashkernel memblock.\n", __func__);
--		return;
--	}
- 
- 	if (crash_base >= (1ULL << 32) && reserve_crashkernel_low()) {
- 		memblock_free(crash_base, crash_size);
+ 	err = pdc_interrupts_init(pdcs);
+ 	if (err)
 -- 
-2.26.2
+2.17.1
