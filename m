@@ -1,72 +1,90 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19984 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726204AbgHaMFl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 Aug 2020 08:05:41 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v1 1/3] s390x: pv: implement routine to share/unshare memory
-Date: Mon, 31 Aug 2020 14:05:31 +0200
-Message-Id: <1598875533-19947-2-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
-References: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v3 13/17] x86/setup: simplify initrd relocation and reservation
+Date: Tue, 18 Aug 2020 18:16:30 +0300
+Message-Id: <20200818151634.14343-14-rppt@kernel.org>
+In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
+References: <20200818151634.14343-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org, Ingo Molnar <mingo@kernel.org>
 
-When communicating with the host we need to share part of
-the memory.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Let's implement the ultravisor calls for this.
+Currently, initrd image is reserved very early during setup and then it
+might be relocated and re-reserved after the initial physical memory
+mapping is created. The "late" reservation of memblock verifies that mapped
+memory size exceeds the size of initrd, then checks whether the relocation
+required and, if yes, relocates inirtd to a new memory allocated from
+memblock and frees the old location.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Suggested-by: Janosch Frank <frankja@linux.ibm.com>
+The check for memory size is excessive as memblock allocation will anyway
+fail if there is not enough memory. Besides, there is no point to allocate
+memory from memblock using memblock_find_in_range() + memblock_reserve()
+when there exists memblock_phys_alloc_range() with required functionality.
+
+Remove the redundant check and simplify memblock allocation.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Acked-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Baoquan He <bhe@redhat.com>
 ---
- lib/s390x/asm/uv.h | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ arch/x86/kernel/setup.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index 4c2fc48..19019e4 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -71,4 +71,37 @@ static inline int uv_call(unsigned long r1, unsigned long r2)
- 	return cc;
- }
+diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
+index 3511736fbc74..2cac39ade2e3 100644
+--- a/arch/x86/kernel/setup.c
++++ b/arch/x86/kernel/setup.c
+@@ -263,16 +263,12 @@ static void __init relocate_initrd(void)
+ 	u64 area_size     = PAGE_ALIGN(ramdisk_size);
  
-+static inline int share(unsigned long addr, u16 cmd)
-+{
-+	struct uv_cb_share uvcb = {
-+		.header.cmd = cmd,
-+		.header.len = sizeof(uvcb),
-+		.paddr = addr
-+	};
+ 	/* We need to move the initrd down into directly mapped mem */
+-	relocated_ramdisk = memblock_find_in_range(0, PFN_PHYS(max_pfn_mapped),
+-						   area_size, PAGE_SIZE);
+-
++	relocated_ramdisk = memblock_phys_alloc_range(area_size, PAGE_SIZE, 0,
++						      PFN_PHYS(max_pfn_mapped));
+ 	if (!relocated_ramdisk)
+ 		panic("Cannot find place for new RAMDISK of size %lld\n",
+ 		      ramdisk_size);
+ 
+-	/* Note: this includes all the mem currently occupied by
+-	   the initrd, we rely on that fact to keep the data intact. */
+-	memblock_reserve(relocated_ramdisk, area_size);
+ 	initrd_start = relocated_ramdisk + PAGE_OFFSET;
+ 	initrd_end   = initrd_start + ramdisk_size;
+ 	printk(KERN_INFO "Allocated new RAMDISK: [mem %#010llx-%#010llx]\n",
+@@ -299,13 +295,13 @@ static void __init early_reserve_initrd(void)
+ 
+ 	memblock_reserve(ramdisk_image, ramdisk_end - ramdisk_image);
+ }
 +
-+	uv_call(0, (u64)&uvcb);
-+	return uvcb.header.rc;
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page shared with the
-+ * hypervisor for IO.
-+ *
-+ * @addr: Real or absolute address of the page to be shared
-+ */
-+static inline int uv_set_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_SET_SHARED_ACCESS);
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page unshared.
-+ *
-+ * @addr: Real or absolute address of the page to be unshared
-+ */
-+static inline int uv_remove_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
-+}
-+
- #endif
+ static void __init reserve_initrd(void)
+ {
+ 	/* Assume only end is not page aligned */
+ 	u64 ramdisk_image = get_ramdisk_image();
+ 	u64 ramdisk_size  = get_ramdisk_size();
+ 	u64 ramdisk_end   = PAGE_ALIGN(ramdisk_image + ramdisk_size);
+-	u64 mapped_size;
+ 
+ 	if (!boot_params.hdr.type_of_loader ||
+ 	    !ramdisk_image || !ramdisk_size)
+@@ -313,12 +309,6 @@ static void __init reserve_initrd(void)
+ 
+ 	initrd_start = 0;
+ 
+-	mapped_size = memblock_mem_size(max_pfn_mapped);
+-	if (ramdisk_size >= (mapped_size>>1))
+-		panic("initrd too large to handle, "
+-		       "disabling initrd (%lld needed, %lld available)\n",
+-		       ramdisk_size, mapped_size>>1);
+-
+ 	printk(KERN_INFO "RAMDISK: [mem %#010llx-%#010llx]\n", ramdisk_image,
+ 			ramdisk_end - 1);
+ 
 -- 
-2.25.1
+2.26.2
