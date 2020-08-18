@@ -1,56 +1,97 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Subject: [PATCH v3 01/13] powerpc/mm: Add DEBUG_VM WARN for pmd_clear
-Date: Thu, 27 Aug 2020 13:34:26 +0530
-Message-Id: <20200827080438.315345-2-aneesh.kumar@linux.ibm.com>
-In-Reply-To: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
-References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v3 05/17] h8300, nds32, openrisc: simplify detection of memory extents
+Date: Tue, 18 Aug 2020 18:16:22 +0300
+Message-Id: <20200818151634.14343-6-rppt@kernel.org>
+In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
+References: <20200818151634.14343-1-rppt@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, Anshuman Khandual <anshuman.khandual@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-With the hash page table, the kernel should not use pmd_clear for clearing
-huge pte entries. Add a DEBUG_VM WARN to catch the wrong usage.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Instead of traversing memblock.memory regions to find memory_start and
+memory_end, simply query memblock_{start,end}_of_DRAM().
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Acked-by: Stafford Horne <shorne@gmail.com>
 ---
- arch/powerpc/include/asm/book3s/64/pgtable.h | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/h8300/kernel/setup.c    | 8 +++-----
+ arch/nds32/kernel/setup.c    | 8 ++------
+ arch/openrisc/kernel/setup.c | 9 ++-------
+ 3 files changed, 7 insertions(+), 18 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
-index 6de56c3b33c4..079211968987 100644
---- a/arch/powerpc/include/asm/book3s/64/pgtable.h
-+++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
-@@ -868,6 +868,13 @@ static inline bool pte_ci(pte_t pte)
+diff --git a/arch/h8300/kernel/setup.c b/arch/h8300/kernel/setup.c
+index 28ac88358a89..0281f92eea3d 100644
+--- a/arch/h8300/kernel/setup.c
++++ b/arch/h8300/kernel/setup.c
+@@ -74,17 +74,15 @@ static void __init bootmem_init(void)
+ 	memory_end = memory_start = 0;
  
- static inline void pmd_clear(pmd_t *pmdp)
- {
-+	if (IS_ENABLED(CONFIG_DEBUG_VM) && !radix_enabled()) {
-+		/*
-+		 * Don't use this if we can possibly have a hash page table
-+		 * entry mapping this.
-+		 */
-+		WARN_ON((pmd_val(*pmdp) & (H_PAGE_HASHPTE | _PAGE_PTE)) == (H_PAGE_HASHPTE | _PAGE_PTE));
-+	}
- 	*pmdp = __pmd(0);
- }
+ 	/* Find main memory where is the kernel */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
  
-@@ -916,6 +923,13 @@ static inline int pmd_bad(pmd_t pmd)
+ 	if (!memory_end)
+ 		panic("No memory!");
  
- static inline void pud_clear(pud_t *pudp)
- {
-+	if (IS_ENABLED(CONFIG_DEBUG_VM) && !radix_enabled()) {
-+		/*
-+		 * Don't use this if we can possibly have a hash page table
-+		 * entry mapping this.
-+		 */
-+		WARN_ON((pud_val(*pudp) & (H_PAGE_HASHPTE | _PAGE_PTE)) == (H_PAGE_HASHPTE | _PAGE_PTE));
-+	}
- 	*pudp = __pud(0);
- }
+ 	/* setup bootmem globals (we use no_bootmem, but mm still depends on this) */
+ 	min_low_pfn = PFN_UP(memory_start);
+-	max_low_pfn = PFN_DOWN(memblock_end_of_DRAM());
++	max_low_pfn = PFN_DOWN(memory_end);
+ 	max_pfn = max_low_pfn;
  
+ 	memblock_reserve(__pa(_stext), _end - _stext);
+diff --git a/arch/nds32/kernel/setup.c b/arch/nds32/kernel/setup.c
+index a066efbe53c0..c356e484dcab 100644
+--- a/arch/nds32/kernel/setup.c
++++ b/arch/nds32/kernel/setup.c
+@@ -249,12 +249,8 @@ static void __init setup_memory(void)
+ 	memory_end = memory_start = 0;
+ 
+ 	/* Find main memory where is the kernel */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-		pr_info("%s: Memory: 0x%x-0x%x\n", __func__,
+-			memory_start, memory_end);
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
+ 
+ 	if (!memory_end) {
+ 		panic("No memory!");
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index b18e775f8be3..5a5940f7ebb1 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -48,17 +48,12 @@ static void __init setup_memory(void)
+ 	unsigned long ram_start_pfn;
+ 	unsigned long ram_end_pfn;
+ 	phys_addr_t memory_start, memory_end;
+-	struct memblock_region *region;
+ 
+ 	memory_end = memory_start = 0;
+ 
+ 	/* Find main memory where is the kernel, we assume its the only one */
+-	for_each_memblock(memory, region) {
+-		memory_start = region->base;
+-		memory_end = region->base + region->size;
+-		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
+-		       memory_start, memory_end);
+-	}
++	memory_start = memblock_start_of_DRAM();
++	memory_end = memblock_end_of_DRAM();
+ 
+ 	if (!memory_end) {
+ 		panic("No memory!");
 -- 
 2.26.2
