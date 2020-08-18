@@ -1,58 +1,193 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr140057.outbound.protection.outlook.com ([40.107.14.57]:4231
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725900AbgHGQV4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 7 Aug 2020 12:21:56 -0400
-From: Andrei Botila <andrei.botila@oss.nxp.com>
-Subject: [PATCH 05/22] crypto: powerpc/aes-spe - add check for xts input length equal to zero
-Date: Fri,  7 Aug 2020 19:19:53 +0300
-Message-Id: <20200807162010.18979-6-andrei.botila@oss.nxp.com>
-In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-Content-Type: text/plain
+Received: from mail.kernel.org ([198.145.29.99]:40828 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727981AbgHRPRW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 18 Aug 2020 11:17:22 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v3 03/17] arm, xtensa: simplify initialization of high memory pages
+Date: Tue, 18 Aug 2020 18:16:20 +0300
+Message-Id: <20200818151634.14343-4-rppt@kernel.org>
+In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
+References: <20200818151634.14343-1-rppt@kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-From: Andrei Botila <andrei.botila@nxp.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Standardize the way input lengths equal to 0 are handled in all skcipher
-algorithms. All the algorithms return 0 for input lengths equal to zero.
+The function free_highpages() in both arm and xtensa essentially open-code
+for_each_free_mem_range() loop to detect high memory pages that were not
+reserved and that should be initialized and passed to the buddy allocator.
 
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+Replace open-coded implementation of for_each_free_mem_range() with usage
+of memblock API to simplify the code.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: Max Filippov <jcmvbkbc@gmail.com>		# xtensa
+Tested-by: Max Filippov <jcmvbkbc@gmail.com>		# xtensa
 ---
- arch/powerpc/crypto/aes-spe-glue.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/mm/init.c    | 48 +++++++------------------------------
+ arch/xtensa/mm/init.c | 55 ++++++++-----------------------------------
+ 2 files changed, 18 insertions(+), 85 deletions(-)
 
-diff --git a/arch/powerpc/crypto/aes-spe-glue.c b/arch/powerpc/crypto/aes-spe-glue.c
-index c2b23b69d7b1..f37d8bef322b 100644
---- a/arch/powerpc/crypto/aes-spe-glue.c
-+++ b/arch/powerpc/crypto/aes-spe-glue.c
-@@ -327,6 +327,9 @@ static int ppc_xts_encrypt(struct skcipher_request *req)
- 	u8 b[2][AES_BLOCK_SIZE];
- 	int err;
+diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
+index 000c1b48e973..50a5a30a78ff 100644
+--- a/arch/arm/mm/init.c
++++ b/arch/arm/mm/init.c
+@@ -347,61 +347,29 @@ static void __init free_unused_memmap(void)
+ #endif
+ }
  
-+	if (!req->cryptlen)
-+		return 0;
-+
- 	if (req->cryptlen < AES_BLOCK_SIZE)
- 		return -EINVAL;
+-#ifdef CONFIG_HIGHMEM
+-static inline void free_area_high(unsigned long pfn, unsigned long end)
+-{
+-	for (; pfn < end; pfn++)
+-		free_highmem_page(pfn_to_page(pfn));
+-}
+-#endif
+-
+ static void __init free_highpages(void)
+ {
+ #ifdef CONFIG_HIGHMEM
+ 	unsigned long max_low = max_low_pfn;
+-	struct memblock_region *mem, *res;
++	phys_addr_t range_start, range_end;
++	u64 i;
  
-@@ -366,6 +369,9 @@ static int ppc_xts_decrypt(struct skcipher_request *req)
- 	le128 twk;
- 	int err;
+ 	/* set highmem page free */
+-	for_each_memblock(memory, mem) {
+-		unsigned long start = memblock_region_memory_base_pfn(mem);
+-		unsigned long end = memblock_region_memory_end_pfn(mem);
++	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
++				&range_start, &range_end, NULL) {
++		unsigned long start = PHYS_PFN(range_start);
++		unsigned long end = PHYS_PFN(range_end);
  
-+	if (!req->cryptlen)
-+		return 0;
-+
- 	if (req->cryptlen < AES_BLOCK_SIZE)
- 		return -EINVAL;
+ 		/* Ignore complete lowmem entries */
+ 		if (end <= max_low)
+ 			continue;
  
+-		if (memblock_is_nomap(mem))
+-			continue;
+-
+ 		/* Truncate partial highmem entries */
+ 		if (start < max_low)
+ 			start = max_low;
+ 
+-		/* Find and exclude any reserved regions */
+-		for_each_memblock(reserved, res) {
+-			unsigned long res_start, res_end;
+-
+-			res_start = memblock_region_reserved_base_pfn(res);
+-			res_end = memblock_region_reserved_end_pfn(res);
+-
+-			if (res_end < start)
+-				continue;
+-			if (res_start < start)
+-				res_start = start;
+-			if (res_start > end)
+-				res_start = end;
+-			if (res_end > end)
+-				res_end = end;
+-			if (res_start != start)
+-				free_area_high(start, res_start);
+-			start = res_end;
+-			if (start == end)
+-				break;
+-		}
+-
+-		/* And now free anything which remains */
+-		if (start < end)
+-			free_area_high(start, end);
++		for (; start < end; start++)
++			free_highmem_page(pfn_to_page(start));
+ 	}
+ #endif
+ }
+diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
+index a05b306cf371..ad9d59d93f39 100644
+--- a/arch/xtensa/mm/init.c
++++ b/arch/xtensa/mm/init.c
+@@ -79,67 +79,32 @@ void __init zones_init(void)
+ 	free_area_init(max_zone_pfn);
+ }
+ 
+-#ifdef CONFIG_HIGHMEM
+-static void __init free_area_high(unsigned long pfn, unsigned long end)
+-{
+-	for (; pfn < end; pfn++)
+-		free_highmem_page(pfn_to_page(pfn));
+-}
+-
+ static void __init free_highpages(void)
+ {
++#ifdef CONFIG_HIGHMEM
+ 	unsigned long max_low = max_low_pfn;
+-	struct memblock_region *mem, *res;
++	phys_addr_t range_start, range_end;
++	u64 i;
+ 
+-	reset_all_zones_managed_pages();
+ 	/* set highmem page free */
+-	for_each_memblock(memory, mem) {
+-		unsigned long start = memblock_region_memory_base_pfn(mem);
+-		unsigned long end = memblock_region_memory_end_pfn(mem);
++	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
++				&range_start, &range_end, NULL) {
++		unsigned long start = PHYS_PFN(range_start);
++		unsigned long end = PHYS_PFN(range_end);
+ 
+ 		/* Ignore complete lowmem entries */
+ 		if (end <= max_low)
+ 			continue;
+ 
+-		if (memblock_is_nomap(mem))
+-			continue;
+-
+ 		/* Truncate partial highmem entries */
+ 		if (start < max_low)
+ 			start = max_low;
+ 
+-		/* Find and exclude any reserved regions */
+-		for_each_memblock(reserved, res) {
+-			unsigned long res_start, res_end;
+-
+-			res_start = memblock_region_reserved_base_pfn(res);
+-			res_end = memblock_region_reserved_end_pfn(res);
+-
+-			if (res_end < start)
+-				continue;
+-			if (res_start < start)
+-				res_start = start;
+-			if (res_start > end)
+-				res_start = end;
+-			if (res_end > end)
+-				res_end = end;
+-			if (res_start != start)
+-				free_area_high(start, res_start);
+-			start = res_end;
+-			if (start == end)
+-				break;
+-		}
+-
+-		/* And now free anything which remains */
+-		if (start < end)
+-			free_area_high(start, end);
++		for (; start < end; start++)
++			free_highmem_page(pfn_to_page(start));
+ 	}
+-}
+-#else
+-static void __init free_highpages(void)
+-{
+-}
+ #endif
++}
+ 
+ /*
+  * Initialize memory pages.
 -- 
-2.17.1
+2.26.2
