@@ -1,86 +1,49 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48194 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726962AbgHLJ1U (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Aug 2020 05:27:20 -0400
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [kvm-unit-tests RFC v2 1/4] common.bash: run `cmd` only if a test case was found
-Date: Wed, 12 Aug 2020 11:27:02 +0200
-Message-Id: <20200812092705.17774-2-mhartmay@linux.ibm.com>
-In-Reply-To: <20200812092705.17774-1-mhartmay@linux.ibm.com>
-References: <20200812092705.17774-1-mhartmay@linux.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v3 06/17] riscv: drop unneeded node initialization
+Date: Tue, 18 Aug 2020 18:16:23 +0300
+Message-Id: <20200818151634.14343-7-rppt@kernel.org>
+In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
+References: <20200818151634.14343-1-rppt@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-It's only useful to run `cmd` in `for_each_unittest` if a test case
-was found. This change allows us to remove the guards from the
-functions `run_task` and `mkstandalone`.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+RISC-V does not (yet) support NUMA  and for UMA architectures node 0 is
+used implicitly during early memory initialization.
+
+There is no need to call memblock_set_node(), remove this call and the
+surrounding code.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- run_tests.sh            | 3 ---
- scripts/common.bash     | 8 ++++++--
- scripts/mkstandalone.sh | 4 ----
- 3 files changed, 6 insertions(+), 9 deletions(-)
+ arch/riscv/mm/init.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/run_tests.sh b/run_tests.sh
-index 01e36dcfa06e..24aba9cc3a98 100755
---- a/run_tests.sh
-+++ b/run_tests.sh
-@@ -126,9 +126,6 @@ RUNTIME_log_stdout () {
- function run_task()
- {
- 	local testname="$1"
--	if [ -z "$testname" ]; then
--		return
--	fi
- 
- 	while (( $(jobs | wc -l) == $unittest_run_queues )); do
- 		# wait for any background test to finish
-diff --git a/scripts/common.bash b/scripts/common.bash
-index 9a6ebbd7f287..96655c9ffd1f 100644
---- a/scripts/common.bash
-+++ b/scripts/common.bash
-@@ -17,7 +17,9 @@ function for_each_unittest()
- 
- 	while read -r -u $fd line; do
- 		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
--			"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+			if [ -n "${testname}" ]; then
-+				"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+			fi
- 			testname=${BASH_REMATCH[1]}
- 			smp=1
- 			kernel=""
-@@ -45,6 +47,8 @@ function for_each_unittest()
- 			timeout=${BASH_REMATCH[1]}
- 		fi
- 	done
--	"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+	if [ -n "${testname}" ]; then
-+		"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+	fi
- 	exec {fd}<&-
- }
-diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
-index 9d506cc95072..cefdec30cb33 100755
---- a/scripts/mkstandalone.sh
-+++ b/scripts/mkstandalone.sh
-@@ -83,10 +83,6 @@ function mkstandalone()
- {
- 	local testname="$1"
- 
--	if [ -z "$testname" ]; then
--		return
--	fi
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 787c75f751a5..0485cfaacc72 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -191,15 +191,6 @@ void __init setup_bootmem(void)
+ 	early_init_fdt_scan_reserved_mem();
+ 	memblock_allow_resize();
+ 	memblock_dump_all();
 -
- 	if [ -n "$one_testname" ] && [ "$testname" != "$one_testname" ]; then
- 		return
- 	fi
+-	for_each_memblock(memory, reg) {
+-		unsigned long start_pfn = memblock_region_memory_base_pfn(reg);
+-		unsigned long end_pfn = memblock_region_memory_end_pfn(reg);
+-
+-		memblock_set_node(PFN_PHYS(start_pfn),
+-				  PFN_PHYS(end_pfn - start_pfn),
+-				  &memblock.memory, 0);
+-	}
+ }
+ 
+ #ifdef CONFIG_MMU
 -- 
-2.25.4
+2.26.2
