@@ -1,56 +1,116 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726676AbgHQJTa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:19:30 -0400
-From: Allen Pais <allen.cryptic@gmail.com>
-Subject: [PATCH 1/2] mailbox: bcm: convert tasklets to use new tasklet_setup() API
-Date: Mon, 17 Aug 2020 14:46:08 +0530
-Message-Id: <20200817091617.28119-14-allen.cryptic@gmail.com>
-In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
-References: <20200817091617.28119-1-allen.cryptic@gmail.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v3 00/17] memblock: seasonal cleaning^w cleanup
+Date: Tue, 18 Aug 2020 18:16:17 +0300
+Message-Id: <20200818151634.14343-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
-Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-From: Allen Pais <allen.lkml@gmail.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-In preparation for unconditionally passing the
-struct tasklet_struct pointer to all tasklet
-callbacks, switch to using the new tasklet_setup()
-and from_tasklet() to pass the tasklet pointer explicitly.
+Hi,
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
-Signed-off-by: Allen Pais <allen.lkml@gmail.com>
----
- drivers/mailbox/bcm-pdc-mailbox.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+These patches simplify several uses of memblock iterators and hide some of
+the memblock implementation details from the rest of the system.
 
-diff --git a/drivers/mailbox/bcm-pdc-mailbox.c b/drivers/mailbox/bcm-pdc-mailbox.c
-index 53945ca5d785..5b375985f7b8 100644
---- a/drivers/mailbox/bcm-pdc-mailbox.c
-+++ b/drivers/mailbox/bcm-pdc-mailbox.c
-@@ -962,9 +962,9 @@ static irqreturn_t pdc_irq_handler(int irq, void *data)
-  * a DMA receive interrupt. Reenables the receive interrupt.
-  * @data: PDC state structure
-  */
--static void pdc_tasklet_cb(unsigned long data)
-+static void pdc_tasklet_cb(struct tasklet_struct *t)
- {
--	struct pdc_state *pdcs = (struct pdc_state *)data;
-+	struct pdc_state *pdcs = from_tasklet(pdcs, t, rx_tasklet);
- 
- 	pdc_receive(pdcs);
- 
-@@ -1589,7 +1589,7 @@ static int pdc_probe(struct platform_device *pdev)
- 	pdc_hw_init(pdcs);
- 
- 	/* Init tasklet for deferred DMA rx processing */
--	tasklet_init(&pdcs->rx_tasklet, pdc_tasklet_cb, (unsigned long)pdcs);
-+	tasklet_setup(&pdcs->rx_tasklet, pdc_tasklet_cb);
- 
- 	err = pdc_interrupts_init(pdcs);
- 	if (err)
+The patches are on top of v5.9-rc1
+
+v3 changes:
+* rebase on v5.9-rc1, as the result this required some non-trivial changes
+  in patches 10 and 16. I didn't add Baoquan's Reviewed-by to theses
+  patches, but I keept Thomas and Miguel
+* Add Acked-by from Thomas and Miguel as there were changes in MIPS and
+  only trivial changes in .clang-format
+* Added Reviewed-by from Baoquan except for the patches 10 and 16
+* Fixed misc build errors and warnings reported by kbuild bot
+* Updated PowerPC KVM reservation size (patch 2), as per Daniel's comment
+
+v2 changes:
+* replace for_each_memblock() with two versions, one for memblock.memory
+  and another one for memblock.reserved
+* fix overzealous cleanup of powerpc fadamp: keep the traversal over the
+  memblocks, but use better suited iterators
+* don't remove traversal over memblock.reserved in x86 numa cleanup but
+  replace for_each_memblock() with new for_each_reserved_mem_region()
+* simplify ramdisk and crash kernel allocations on x86
+* drop more redundant and unused code: __next_reserved_mem_region() and
+  memblock_mem_size()
+* add description of numa initialization fix on arm64 (thanks Jonathan)
+* add Acked and Reviewed tags
+
+Mike Rapoport (17):
+  KVM: PPC: Book3S HV: simplify kvm_cma_reserve()
+  dma-contiguous: simplify cma_early_percent_memory()
+  arm, xtensa: simplify initialization of high memory pages
+  arm64: numa: simplify dummy_numa_init()
+  h8300, nds32, openrisc: simplify detection of memory extents
+  riscv: drop unneeded node initialization
+  mircoblaze: drop unneeded NUMA and sparsemem initializations
+  memblock: make for_each_memblock_type() iterator private
+  memblock: make memblock_debug and related functionality private
+  memblock: reduce number of parameters in for_each_mem_range()
+  arch, mm: replace for_each_memblock() with for_each_mem_pfn_range()
+  arch, drivers: replace for_each_membock() with for_each_mem_range()
+  x86/setup: simplify initrd relocation and reservation
+  x86/setup: simplify reserve_crashkernel()
+  memblock: remove unused memblock_mem_size()
+  memblock: implement for_each_reserved_mem_region() using
+    __next_mem_region()
+  memblock: use separate iterators for memory and reserved regions
+
+ .clang-format                            |  5 +-
+ arch/arm/kernel/setup.c                  | 18 +++--
+ arch/arm/mm/init.c                       | 59 +++------------
+ arch/arm/mm/mmu.c                        | 39 ++++------
+ arch/arm/mm/pmsa-v7.c                    | 23 +++---
+ arch/arm/mm/pmsa-v8.c                    | 17 ++---
+ arch/arm/xen/mm.c                        |  7 +-
+ arch/arm64/kernel/machine_kexec_file.c   |  6 +-
+ arch/arm64/kernel/setup.c                |  4 +-
+ arch/arm64/mm/init.c                     | 11 +--
+ arch/arm64/mm/kasan_init.c               | 10 +--
+ arch/arm64/mm/mmu.c                      | 11 +--
+ arch/arm64/mm/numa.c                     | 15 ++--
+ arch/c6x/kernel/setup.c                  |  9 ++-
+ arch/h8300/kernel/setup.c                |  8 +-
+ arch/microblaze/mm/init.c                | 21 ++----
+ arch/mips/cavium-octeon/dma-octeon.c     | 12 +--
+ arch/mips/kernel/setup.c                 | 31 ++++----
+ arch/mips/netlogic/xlp/setup.c           |  2 +-
+ arch/nds32/kernel/setup.c                |  8 +-
+ arch/openrisc/kernel/setup.c             |  9 +--
+ arch/openrisc/mm/init.c                  |  8 +-
+ arch/powerpc/kernel/fadump.c             | 57 +++++++-------
+ arch/powerpc/kexec/file_load_64.c        | 16 ++--
+ arch/powerpc/kvm/book3s_hv_builtin.c     | 12 +--
+ arch/powerpc/mm/book3s64/hash_utils.c    | 16 ++--
+ arch/powerpc/mm/book3s64/radix_pgtable.c | 10 +--
+ arch/powerpc/mm/kasan/kasan_init_32.c    |  8 +-
+ arch/powerpc/mm/mem.c                    | 33 ++++----
+ arch/powerpc/mm/numa.c                   |  7 +-
+ arch/powerpc/mm/pgtable_32.c             |  8 +-
+ arch/riscv/mm/init.c                     | 36 +++------
+ arch/riscv/mm/kasan_init.c               | 10 +--
+ arch/s390/kernel/setup.c                 | 27 ++++---
+ arch/s390/mm/page-states.c               |  6 +-
+ arch/s390/mm/vmem.c                      |  7 +-
+ arch/sh/mm/init.c                        |  9 +--
+ arch/sparc/mm/init_64.c                  | 12 +--
+ arch/x86/kernel/setup.c                  | 56 +++++---------
+ arch/x86/mm/numa.c                       |  2 +-
+ arch/xtensa/mm/init.c                    | 55 +++-----------
+ drivers/bus/mvebu-mbus.c                 | 12 +--
+ drivers/irqchip/irq-gic-v3-its.c         |  2 +-
+ include/linux/memblock.h                 | 88 +++++++++++++---------
+ kernel/dma/contiguous.c                  | 11 +--
+ mm/memblock.c                            | 95 ++++++++++--------------
+ mm/page_alloc.c                          | 11 ++-
+ mm/sparse.c                              | 10 +--
+ 48 files changed, 387 insertions(+), 562 deletions(-)
+
 -- 
-2.17.1
+2.26.2
