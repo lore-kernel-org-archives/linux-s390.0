@@ -1,61 +1,111 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:11124 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48395 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726595AbgHLJ1U (ORCPT
+        by vger.kernel.org with ESMTP id S1726651AbgHRPA6 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Aug 2020 05:27:20 -0400
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [kvm-unit-tests RFC v2 0/4] s390x: Add Protected VM support
-Date: Wed, 12 Aug 2020 11:27:01 +0200
-Message-Id: <20200812092705.17774-1-mhartmay@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Tue, 18 Aug 2020 11:00:58 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v8 0/2] s390: virtio: let arch validate VIRTIO features
+Date: Tue, 18 Aug 2020 16:58:29 +0200
+Message-Id: <1597762711-3550-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Add support for Protected Virtual Machine (PVM) tests. For starting a
-PVM guest we must be able to generate a PVM image by using the
-`genprotimg` tool from the s390-tools collection. This requires the
-ability to pass a machine-specific host-key document, so the option
-`--host-key-document` is added to the configure script.
+Hi all,
 
-Sorry it took so long to send the second version :/
+The goal of the series is to give a chance to the architecture
+to validate VIRTIO device features.
 
-For everybody's convenience there is a branch:
-https://gitlab.com/mhartmay/kvm-unit-tests/-/tree/test_alternative
+in this respin:
 
-Changelog:
- RFC v1 -> RFC v2:
-  + Remove `pv_support` option (Janosch, David)
-  + Add some preliminary patches:
-    - move "testname guard"
-    - add support for architecture dependent functions
-  + Add support for specifying a parmline file for the PV image
-    generation. This is necessary for the `selftest` because the
-    kernel cmdline set on the QEMU command line is ignored for PV
-    guests
+I use the original idea from Connie for an optional
+arch_has_restricted_memory_access.
 
-Marc Hartmayer (4):
-  common.bash: run `cmd` only if a test case was found
-  scripts: add support for architecture dependent functions
-  run_tests/mkstandalone: add arch dependent function to
-    `for_each_unittest`
-  s390x: add Protected VM support
+I renamed the callback accordingly, added the definition of
+ARCH_HAS_RESTRICTED_MEMORY_ACCESS inside the VIRTIO Kconfig
+and the selection in the PROTECTED_VIRTUALIZATION_GUEST
+config entry.
 
- README.md               |  3 ++-
- configure               |  8 ++++++++
- run_tests.sh            |  5 +----
- s390x/Makefile          | 17 +++++++++++++++--
- s390x/selftest.parmfile |  1 +
- s390x/unittests.cfg     |  1 +
- scripts/common.bash     | 26 ++++++++++++++++++++++++--
- scripts/mkstandalone.sh |  6 +-----
- scripts/s390x/func.bash | 18 ++++++++++++++++++
- 9 files changed, 71 insertions(+), 14 deletions(-)
- create mode 100644 s390x/selftest.parmfile
- create mode 100644 scripts/s390x/func.bash
+
+Regards,
+Pierre
+
+Pierre Morel (2):
+  virtio: let arch validate VIRTIO features
+  s390: virtio: PV needs VIRTIO I/O device protection
+
+ arch/s390/Kconfig             |  1 +
+ arch/s390/mm/init.c           | 30 ++++++++++++++++++++++++++++++
+ drivers/virtio/Kconfig        |  6 ++++++
+ drivers/virtio/virtio.c       |  4 ++++
+ include/linux/virtio_config.h |  9 +++++++++
+ 5 files changed, 50 insertions(+)
 
 -- 
-2.25.4
+2.25.1
+
+Changelog
+
+to v8:
+
+- refactoring by using an optional callback
+  (Connie)
+
+to v7:
+
+- typo in warning message
+  (Connie)
+to v6:
+
+- rewording warning messages
+  (Connie, Halil)
+
+to v5:
+
+- return directly from S390 arch_validate_virtio_features()
+  when the guest is not protected.
+  (Connie)
+
+- Somme rewording
+  (Connie, Michael)
+
+- moved back code from arch/s390/ ...kernel/uv.c to ...mm/init.c
+  (Christian)
+
+to v4:
+
+- separate virtio and arch code
+  (Pierre)
+
+- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
+  (as interpreted from Heiko's comment)
+
+- moved validation inside the arch code
+  (Connie)
+
+- moved the call to arch validation before VIRTIO_F_1 test
+  (Michael)
+
+to v3:
+
+- add warning
+  (Connie, Christian)
+
+- add comment
+  (Connie)
+
+- change hook name
+  (Halil, Connie)
+
+to v2:
+
+- put the test in virtio_finalize_features()
+  (Connie)
+
+- put the test inside VIRTIO core
+  (Jason)
+
+- pass a virtio device as parameter
+  (Halil)
