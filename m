@@ -1,80 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3082 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726226AbgHGLQG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 7 Aug 2020 07:16:06 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 1/3] s390x: Add custom pgm cleanup function
-Date: Fri,  7 Aug 2020 07:15:53 -0400
-Message-Id: <20200807111555.11169-2-frankja@linux.ibm.com>
-In-Reply-To: <20200807111555.11169-1-frankja@linux.ibm.com>
-References: <20200807111555.11169-1-frankja@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:40296 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727942AbgHRPRA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 18 Aug 2020 11:17:00 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v3 01/17] KVM: PPC: Book3S HV: simplify kvm_cma_reserve()
+Date: Tue, 18 Aug 2020 18:16:18 +0300
+Message-Id: <20200818151634.14343-2-rppt@kernel.org>
+In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
+References: <20200818151634.14343-1-rppt@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-Sometimes we need to do cleanup which we don't necessarily want to add
-to interrupt.c, so let's add a way to register a cleanup function.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
+The memory size calculation in kvm_cma_reserve() traverses memblock.memory
+rather than simply call memblock_phys_mem_size(). The comment in that
+function suggests that at some point there should have been call to
+memblock_analyze() before memblock_phys_mem_size() could be used.
+As of now, there is no memblock_analyze() at all and
+memblock_phys_mem_size() can be used as soon as cold-plug memory is
+registerd with memblock.
+
+Replace loop over memblock.memory with a call to memblock_phys_mem_size().
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- lib/s390x/asm/interrupt.h |  1 +
- lib/s390x/interrupt.c     | 12 +++++++++++-
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/book3s_hv_builtin.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/lib/s390x/asm/interrupt.h b/lib/s390x/asm/interrupt.h
-index 4cfade9..2772e6b 100644
---- a/lib/s390x/asm/interrupt.h
-+++ b/lib/s390x/asm/interrupt.h
-@@ -15,6 +15,7 @@
- #define EXT_IRQ_EXTERNAL_CALL	0x1202
- #define EXT_IRQ_SERVICE_SIG	0x2401
- 
-+void register_pgm_cleanup_func(void (*f)(void));
- void handle_pgm_int(void);
- void handle_ext_int(void);
- void handle_mcck_int(void);
-diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
-index 243b9c2..a074505 100644
---- a/lib/s390x/interrupt.c
-+++ b/lib/s390x/interrupt.c
-@@ -16,6 +16,7 @@
- 
- static bool pgm_int_expected;
- static bool ext_int_expected;
-+static void (*pgm_cleanup_func)(void);
- static struct lowcore *lc;
- 
- void expect_pgm_int(void)
-@@ -51,6 +52,11 @@ void check_pgm_int_code(uint16_t code)
- 	       lc->pgm_int_code);
- }
- 
-+void register_pgm_cleanup_func(void (*f)(void))
-+{
-+	pgm_cleanup_func = f;
-+}
-+
- static void fixup_pgm_int(void)
+diff --git a/arch/powerpc/kvm/book3s_hv_builtin.c b/arch/powerpc/kvm/book3s_hv_builtin.c
+index 073617ce83e0..8f58dd20b362 100644
+--- a/arch/powerpc/kvm/book3s_hv_builtin.c
++++ b/arch/powerpc/kvm/book3s_hv_builtin.c
+@@ -95,23 +95,15 @@ EXPORT_SYMBOL_GPL(kvm_free_hpt_cma);
+ void __init kvm_cma_reserve(void)
  {
- 	switch (lc->pgm_int_code) {
-@@ -115,7 +121,11 @@ void handle_pgm_int(void)
- 	}
+ 	unsigned long align_size;
+-	struct memblock_region *reg;
+-	phys_addr_t selected_size = 0;
++	phys_addr_t selected_size;
  
- 	pgm_int_expected = false;
--	fixup_pgm_int();
-+
-+	if (pgm_cleanup_func)
-+		(*pgm_cleanup_func)();
-+	else
-+		fixup_pgm_int();
- }
+ 	/*
+ 	 * We need CMA reservation only when we are in HV mode
+ 	 */
+ 	if (!cpu_has_feature(CPU_FTR_HVMODE))
+ 		return;
+-	/*
+-	 * We cannot use memblock_phys_mem_size() here, because
+-	 * memblock_analyze() has not been called yet.
+-	 */
+-	for_each_memblock(memory, reg)
+-		selected_size += memblock_region_memory_end_pfn(reg) -
+-				 memblock_region_memory_base_pfn(reg);
  
- void handle_ext_int(void)
+-	selected_size = (selected_size * kvm_cma_resv_ratio / 100) << PAGE_SHIFT;
++	selected_size = PAGE_ALIGN(memblock_phys_mem_size() * kvm_cma_resv_ratio / 100);
+ 	if (selected_size) {
+ 		pr_info("%s: reserving %ld MiB for global area\n", __func__,
+ 			 (unsigned long)selected_size / SZ_1M);
 -- 
-2.25.1
+2.26.2
