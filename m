@@ -1,62 +1,74 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 6 Aug 2020 17:47:44 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v1 0/1] s390: virtio-ccw: PV needs VIRTIO I/O device
- protection
-Message-ID: <20200806174744.595b9c8c.cohuck@redhat.com>
-In-Reply-To: <1596723782-12798-1-git-send-email-pmorel@linux.ibm.com>
-References: <1596723782-12798-1-git-send-email-pmorel@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:26106 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727896AbgHSKje (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 Aug 2020 06:39:34 -0400
+Subject: Re: [kvm-unit-tests PATCH 3/4] run_tests/mkstandalone: add arch_cmd
+ hook
+References: <20200818130424.20522-1-mhartmay@linux.ibm.com>
+ <20200818130424.20522-4-mhartmay@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <61b2aa71-6b2d-acbf-204d-e3d9909fe30b@redhat.com>
+Date: Wed, 19 Aug 2020 12:39:27 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200818130424.20522-4-mhartmay@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Marc Hartmayer <mhartmay@linux.ibm.com>, kvm@vger.kernel.org
+Cc: Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-On Thu,  6 Aug 2020 16:23:01 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+On 18.08.20 15:04, Marc Hartmayer wrote:
+> This allows us, for example, to auto generate a new test case based on
+> an existing test case.
 
-> Hi all,
-> 
-> In another series I proposed to add an architecture specific
-> callback to fail feature negociation on architecture need.
-> 
-> In VIRTIO, we already have an entry to reject the features on the
-> transport basis.
-> 
-> Transport is not architecture so I send a separate series in which
-> we fail the feature negociation inside virtio_ccw_finalize_features,
-> the virtio_config_ops.finalize_features for S390 CCW transport,
-> when the device do not propose the VIRTIO_F_IOMMU_PLATFORM.
-> 
-> This solves the problem of crashing QEMU when this one is not using
-> a CCW device with iommu_platform=on in S390.
-
-This does work, and I'm tempted to queue this patch, but I'm wondering
-whether we need to give up on a cross-architecture solution already
-(especially keeping in mind that ccw is the only transport that is
-really architecture-specific).
-
-I know that we've gone through a few rounds already, and I'm not sure
-whether we've been there already, but:
-
-Could virtio_finalize_features() call an optional
-arch_has_restricted_memory_access() function and do the enforcing of
-IOMMU_PLATFORM? That would catch all transports, and things should work
-once an architecture opts in. That direction also shouldn't be a
-problem if virtio is a module.
+An example would have been nice :)
 
 > 
-> Regards,
-> Pierre
+> Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+> ---
+>  scripts/common.bash | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
 > 
-> Regards,
-> Pierre
+> diff --git a/scripts/common.bash b/scripts/common.bash
+> index c7acdf14a835..a6044b7c6c35 100644
+> --- a/scripts/common.bash
+> +++ b/scripts/common.bash
+> @@ -19,7 +19,7 @@ function for_each_unittest()
+>  	while read -r -u $fd line; do
+>  		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
+>  			if [ -n "${testname}" ]; then
+> -				"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
+> +				$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
+>  			fi
+>  			testname=${BASH_REMATCH[1]}
+>  			smp=1
+> @@ -49,11 +49,16 @@ function for_each_unittest()
+>  		fi
+>  	done
+>  	if [ -n "${testname}" ]; then
+> -		"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
+> +		$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
+>  	fi
+>  	exec {fd}<&-
+>  }
+>  
+> +function arch_cmd()
+> +{
+> +	[ "${ARCH_CMD}" ] && echo "${ARCH_CMD}"
+> +}
+> +
+>  # The current file has to be the only file sourcing the arch helper
+>  # file
+>  ARCH_FUNC=scripts/${ARCH}/func.bash
 > 
-> Pierre Morel (1):
->   s390: virtio-ccw: PV needs VIRTIO I/O device protection
-> 
->  drivers/s390/virtio/virtio_ccw.c | 24 +++++++++++++++++++-----
->  1 file changed, 19 insertions(+), 5 deletions(-)
-> 
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
