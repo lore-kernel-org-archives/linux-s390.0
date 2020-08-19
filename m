@@ -1,57 +1,92 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728989AbgHaUiw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Aug 2020 16:38:52 -0400
-From: Nicolin Chen <nicoleotsuka@gmail.com>
-Subject: [RESEND][PATCH 6/7] x86/amd_gart: Avoid overflow at boundary_size
-Date: Mon, 31 Aug 2020 13:38:10 -0700
-Message-Id: <20200831203811.8494-7-nicoleotsuka@gmail.com>
-In-Reply-To: <20200831203811.8494-1-nicoleotsuka@gmail.com>
-References: <20200831203811.8494-1-nicoleotsuka@gmail.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Wed, 19 Aug 2020 23:48:48 +0300
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH v3 09/17] memblock: make memblock_debug and related
+ functionality private
+Message-ID: <20200819204848.GX752365@kernel.org>
+References: <20200818151634.14343-1-rppt@kernel.org>
+ <20200818151634.14343-10-rppt@kernel.org>
+ <20200819122405.88e9719e86ac7c3c44b4db32@linux-foundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200819122405.88e9719e86ac7c3c44b4db32@linux-foundation.org>
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de
-Cc: sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
 
-The boundary_size might be as large as ULONG_MAX, which means
-that a device has no specific boundary limit. So either "+ 1"
-or passing it to ALIGN() would potentially overflow.
+On Wed, Aug 19, 2020 at 12:24:05PM -0700, Andrew Morton wrote:
+> On Tue, 18 Aug 2020 18:16:26 +0300 Mike Rapoport <rppt@kernel.org> wrote:
+> 
+> > From: Mike Rapoport <rppt@linux.ibm.com>
+> > 
+> > The only user of memblock_dbg() outside memblock was s390 setup code and it
+> > is converted to use pr_debug() instead.
+> > This allows to stop exposing memblock_debug and memblock_dbg() to the rest
+> > of the kernel.
+> > 
+> > --- a/mm/memblock.c
+> > +++ b/mm/memblock.c
+> > @@ -137,7 +137,10 @@ struct memblock_type physmem = {
+> >  	     i < memblock_type->cnt;					\
+> >  	     i++, rgn = &memblock_type->regions[i])
+> >  
+> > -int memblock_debug __initdata_memblock;
+> > +#define memblock_dbg(fmt, ...) \
+> > +	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+> > +
+> 
+> checkpatch doesn't like this much.
+> 
+> ERROR: Macros starting with if should be enclosed by a do - while loop to avoid possible if/else logic defects
+> #101: FILE: mm/memblock.c:140:
+> +#define memblock_dbg(fmt, ...) \
+> +	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+> 
+> WARNING: Prefer [subsystem eg: netdev]_info([subsystem]dev, ... then dev_info(dev, ... then pr_info(...  to printk(KERN_INFO ...
+> #102: FILE: mm/memblock.c:141:
+> +	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+> 
+> ERROR: trailing statements should be on next line
+> #102: FILE: mm/memblock.c:141:
+> +	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+> 
+> 
+> The first one is significant:
+> 
+> 	if (foo)
+> 		memblock_dbg(...);
+> 	else
+> 		save_the_world();
+> 
+> could end up inadvertently destroying the planet.
 
-According to kernel defines:
-    #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
-    #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
+Well, it didn't till now ;-)
 
-We can simplify the logic here:
-  ALIGN(boundary + 1, 1 << shift) >> shift
-= ALIGN_MASK(b + 1, (1 << s) - 1) >> s
-= {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
-= [b + 1 + (1 << s) - 1] >> s
-= [b + (1 << s)] >> s
-= (b >> s) + 1
+> This?
+> 
+> --- a/mm/memblock.c~memblock-make-memblock_debug-and-related-functionality-private-fix
+> +++ a/mm/memblock.c
+> @@ -137,8 +137,11 @@ struct memblock_type physmem = {
+>  	     i < memblock_type->cnt;					\
+>  	     i++, rgn = &memblock_type->regions[i])
+>  
+> -#define memblock_dbg(fmt, ...) \
+> -	if (memblock_debug) printk(KERN_INFO pr_fmt(fmt), ##__VA_ARGS__)
+> +#define memblock_dbg(fmt, ...)						\
+> +	do {								\
+> +		if (memblock_debug)					\
+> +			pr_info(fmt, ##__VA_ARGS__);			\
+> +	} while (0)
 
-So fixing a potential overflow with the safer shortcut.
+Sure, thanks!
 
-Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
----
- arch/x86/kernel/amd_gart_64.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+>  static int memblock_debug __initdata_memblock;
+>  static bool system_has_some_mirror __initdata_memblock = false;
+> _
+> 
 
-diff --git a/arch/x86/kernel/amd_gart_64.c b/arch/x86/kernel/amd_gart_64.c
-index e89031e9c847..7fa0bb490065 100644
---- a/arch/x86/kernel/amd_gart_64.c
-+++ b/arch/x86/kernel/amd_gart_64.c
-@@ -96,8 +96,8 @@ static unsigned long alloc_iommu(struct device *dev, int size,
- 
- 	base_index = ALIGN(iommu_bus_base & dma_get_seg_boundary(dev),
- 			   PAGE_SIZE) >> PAGE_SHIFT;
--	boundary_size = ALIGN((u64)dma_get_seg_boundary(dev) + 1,
--			      PAGE_SIZE) >> PAGE_SHIFT;
-+	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
-+	boundary_size = (dma_get_seg_boundary(dev) >> PAGE_SHIFT) + 1;
- 
- 	spin_lock_irqsave(&iommu_bitmap_lock, flags);
- 	offset = iommu_area_alloc(iommu_gart_bitmap, iommu_pages, next_bit,
 -- 
-2.17.1
+Sincerely yours,
+Mike.
