@@ -1,122 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44164 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725912AbgHWJK7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Aug 2020 05:10:59 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 3/3] nvme: don't call revalidate_disk from nvme_set_queue_dying
-Date: Sun, 23 Aug 2020 11:10:43 +0200
-Message-Id: <20200823091043.2600261-4-hch@lst.de>
-In-Reply-To: <20200823091043.2600261-1-hch@lst.de>
-References: <20200823091043.2600261-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27892 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727030AbgHSIvs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 Aug 2020 04:51:48 -0400
+Subject: Re: [PATCH v8 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+References: <1597762711-3550-1-git-send-email-pmorel@linux.ibm.com>
+ <1597762711-3550-3-git-send-email-pmorel@linux.ibm.com>
+ <20200818192233.6c80798e.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <2a0e6ac5-1238-fd7b-f39f-6fad767b1493@linux.ibm.com>
+Date: Wed, 19 Aug 2020 10:51:32 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200818192233.6c80798e.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Justin Sanders <justin@coraid.com>, Josef Bacik <josef@toxicpanda.com>, Xianting Tian <xianting_tian@126.com>, linux-block@vger.kernel.org, dm-devel@redhat.com, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-In nvme_set_queue_dying we really just want to ensure the disk and bdev
-sizes are set to zero.  Going through revalidate_disk leads to a somewhat
-arcance and complex callchain relying on special behavior in a few
-places.  Instead just lift the set_capacity directly to
-nvme_set_queue_dying, and rename and move the nvme_mpath_update_disk_size
-helper so that we can use it in nvme_set_queue_dying to propagate the
-size to the bdev without detours.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/nvme/host/core.c | 33 +++++++++++++++++++++++----------
- drivers/nvme/host/nvme.h | 13 -------------
- 2 files changed, 23 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 88cff309d8e4f0..12dea15527f61a 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -94,21 +94,34 @@ static void nvme_put_subsystem(struct nvme_subsystem *subsys);
- static void nvme_remove_invalid_namespaces(struct nvme_ctrl *ctrl,
- 					   unsigned nsid);
- 
-+static void nvme_update_bdev_size(struct gendisk *disk)
-+{
-+	struct block_device *bdev = bdget_disk(disk, 0);
-+
-+	if (bdev) {
-+		bd_set_nr_sectors(bdev, get_capacity(disk));
-+		bdput(bdev);
-+	}
-+}
-+
-+/*
-+ * Prepare a queue for teardown.
-+ *
-+ * This must forcibly unquiesce queues to avoid blocking dispatch, and only set
-+ * the capacity to 0 after that to avoid blocking dispatchers that may be
-+ * holding bd_butex.  This will end buffered writers dirtying pages that can't
-+ * be synced.
-+ */
- static void nvme_set_queue_dying(struct nvme_ns *ns)
- {
--	/*
--	 * Revalidating a dead namespace sets capacity to 0. This will end
--	 * buffered writers dirtying pages that can't be synced.
--	 */
- 	if (test_and_set_bit(NVME_NS_DEAD, &ns->flags))
- 		return;
-+
- 	blk_set_queue_dying(ns->queue);
--	/* Forcibly unquiesce queues to avoid blocking dispatch */
- 	blk_mq_unquiesce_queue(ns->queue);
--	/*
--	 * Revalidate after unblocking dispatchers that may be holding bd_butex
--	 */
--	revalidate_disk(ns->disk);
-+
-+	set_capacity(ns->disk, 0);
-+	nvme_update_bdev_size(ns->disk);
- }
- 
- static void nvme_queue_scan(struct nvme_ctrl *ctrl)
-@@ -2083,7 +2096,7 @@ static int __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
- 		nvme_update_disk_info(ns->head->disk, ns, id);
- 		blk_stack_limits(&ns->head->disk->queue->limits,
- 				 &ns->queue->limits, 0);
--		nvme_mpath_update_disk_size(ns->head->disk);
-+		nvme_update_bdev_size(ns->head->disk);
- 	}
- #endif
- 	return 0;
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index ae5cad5a08f411..4cadaea9034ae4 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -659,16 +659,6 @@ static inline void nvme_trace_bio_complete(struct request *req,
- 		trace_block_bio_complete(ns->head->disk->queue, req->bio);
- }
- 
--static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
--{
--	struct block_device *bdev = bdget_disk(disk, 0);
--
--	if (bdev) {
--		bd_set_nr_sectors(bdev, get_capacity(disk));
--		bdput(bdev);
--	}
--}
--
- extern struct device_attribute dev_attr_ana_grpid;
- extern struct device_attribute dev_attr_ana_state;
- extern struct device_attribute subsys_attr_iopolicy;
-@@ -744,9 +734,6 @@ static inline void nvme_mpath_wait_freeze(struct nvme_subsystem *subsys)
- static inline void nvme_mpath_start_freeze(struct nvme_subsystem *subsys)
- {
- }
--static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
--{
--}
- #endif /* CONFIG_NVME_MULTIPATH */
- 
- #ifdef CONFIG_BLK_DEV_ZONED
+On 2020-08-18 19:22, Cornelia Huck wrote:
+
+>> + */
+>> +int arch_has_restricted_memory_access(struct virtio_device *dev)
+>> +{
+>> +	if (!is_prot_virt_guest())
+>> +		return 0;
+> 
+> If you just did a
+> 
+> return is_prot_virt_guest();
+> 
+> and did the virtio feature stuff in the virtio core, this function
+> would be short and sweet :)
+
+
+yes, the smaller the better, thanks
+
+Pierre
+
 -- 
-2.28.0
+Pierre Morel
+IBM Lab Boeblingen
