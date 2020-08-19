@@ -1,49 +1,140 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr140057.outbound.protection.outlook.com ([40.107.14.57]:4231
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726929AbgHGQWI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 7 Aug 2020 12:22:08 -0400
-From: Andrei Botila <andrei.botila@oss.nxp.com>
-Subject: [PATCH 08/22] crypto: x86/glue_helper - add check for xts input length equal to zero
-Date: Fri,  7 Aug 2020 19:19:56 +0300
-Message-Id: <20200807162010.18979-9-andrei.botila@oss.nxp.com>
-In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-Content-Type: text/plain
+Received: from mail.kernel.org ([198.145.29.99]:36874 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727903AbgHSMuL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 19 Aug 2020 08:50:11 -0400
+From: Mark Brown <broonie@kernel.org>
+Subject: [PATCH v2 3/3] arm64: stacktrace: Convert to ARCH_STACKWALK
+Date: Wed, 19 Aug 2020 13:49:13 +0100
+Message-Id: <20200819124913.37261-4-broonie@kernel.org>
+In-Reply-To: <20200819124913.37261-1-broonie@kernel.org>
+References: <20200819124913.37261-1-broonie@kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>
+To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>, Mark Brown <broonie@kernel.org>
 
-From: Andrei Botila <andrei.botila@nxp.com>
+Historically architectures have had duplicated code in their stack trace
+implementations for filtering what gets traced. In order to avoid this
+duplication some generic code has been provided using a new interface
+arch_stack_walk(), enabled by selecting ARCH_STACKWALK in Kconfig, which
+factors all this out into the generic stack trace code. Convert arm64
+to use this common infrastructure.
 
-Standardize the way input lengths equal to 0 are handled in all skcipher
-algorithms. All the algorithms return 0 for input lengths equal to zero.
-
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- arch/x86/crypto/glue_helper.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/Kconfig             |  1 +
+ arch/arm64/kernel/stacktrace.c | 79 ++++------------------------------
+ 2 files changed, 9 insertions(+), 71 deletions(-)
 
-diff --git a/arch/x86/crypto/glue_helper.c b/arch/x86/crypto/glue_helper.c
-index d3d91a0abf88..cc5042c72910 100644
---- a/arch/x86/crypto/glue_helper.c
-+++ b/arch/x86/crypto/glue_helper.c
-@@ -275,6 +275,9 @@ int glue_xts_req_128bit(const struct common_glue_ctx *gctx,
- 	unsigned int nbytes, tail;
- 	int err;
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 6d232837cbee..d1ba52e4b976 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -29,6 +29,7 @@ config ARM64
+ 	select ARCH_HAS_SETUP_DMA_OPS
+ 	select ARCH_HAS_SET_DIRECT_MAP
+ 	select ARCH_HAS_SET_MEMORY
++	select ARCH_STACKWALK
+ 	select ARCH_HAS_STRICT_KERNEL_RWX
+ 	select ARCH_HAS_STRICT_MODULE_RWX
+ 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
+diff --git a/arch/arm64/kernel/stacktrace.c b/arch/arm64/kernel/stacktrace.c
+index 743cf11fbfca..a33fba048954 100644
+--- a/arch/arm64/kernel/stacktrace.c
++++ b/arch/arm64/kernel/stacktrace.c
+@@ -133,82 +133,19 @@ void notrace walk_stackframe(struct task_struct *tsk, struct stackframe *frame,
+ NOKPROBE_SYMBOL(walk_stackframe);
  
-+	if (!req->cryptlen)
-+		return 0;
-+
- 	if (req->cryptlen < XTS_BLOCK_SIZE)
- 		return -EINVAL;
+ #ifdef CONFIG_STACKTRACE
+-struct stack_trace_data {
+-	struct stack_trace *trace;
+-	unsigned int no_sched_functions;
+-	unsigned int skip;
+-};
  
+-static bool save_trace(void *d, unsigned long addr)
++void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
++		     struct task_struct *task, struct pt_regs *regs)
+ {
+-	struct stack_trace_data *data = d;
+-	struct stack_trace *trace = data->trace;
+-
+-	if (data->no_sched_functions && in_sched_functions(addr))
+-		return false;
+-	if (data->skip) {
+-		data->skip--;
+-		return false;
+-	}
+-
+-	trace->entries[trace->nr_entries++] = addr;
+-
+-	return trace->nr_entries >= trace->max_entries;
+-}
+-
+-void save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
+-{
+-	struct stack_trace_data data;
+-	struct stackframe frame;
+-
+-	data.trace = trace;
+-	data.skip = trace->skip;
+-	data.no_sched_functions = 0;
+-
+-	start_backtrace(&frame, regs->regs[29], regs->pc);
+-	walk_stackframe(current, &frame, save_trace, &data);
+-}
+-EXPORT_SYMBOL_GPL(save_stack_trace_regs);
+-
+-static noinline void __save_stack_trace(struct task_struct *tsk,
+-	struct stack_trace *trace, unsigned int nosched)
+-{
+-	struct stack_trace_data data;
+ 	struct stackframe frame;
+ 
+-	if (!try_get_task_stack(tsk))
+-		return;
++	if (regs)
++		start_backtrace(&frame, regs->regs[29], regs->pc);
++	else
++		start_backtrace(&frame, thread_saved_fp(task),
++				thread_saved_pc(task));
+ 
+-	data.trace = trace;
+-	data.skip = trace->skip;
+-	data.no_sched_functions = nosched;
+-
+-	if (tsk != current) {
+-		start_backtrace(&frame, thread_saved_fp(tsk),
+-				thread_saved_pc(tsk));
+-	} else {
+-		/* We don't want this function nor the caller */
+-		data.skip += 2;
+-		start_backtrace(&frame,
+-				(unsigned long)__builtin_frame_address(0),
+-				(unsigned long)__save_stack_trace);
+-	}
+-
+-	walk_stackframe(tsk, &frame, save_trace, &data);
+-
+-	put_task_stack(tsk);
+-}
+-
+-void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
+-{
+-	__save_stack_trace(tsk, trace, 1);
+-}
+-EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
+-
+-void save_stack_trace(struct stack_trace *trace)
+-{
+-	__save_stack_trace(current, trace, 0);
++	walk_stackframe(task, &frame, consume_entry, cookie);
+ }
+ 
+-EXPORT_SYMBOL_GPL(save_stack_trace);
+ #endif
 -- 
-2.17.1
+2.20.1
