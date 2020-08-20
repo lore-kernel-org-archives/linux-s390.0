@@ -1,70 +1,40 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:44088 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726630AbgHRPTe (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Aug 2020 11:19:34 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 15/17] memblock: remove unused memblock_mem_size()
-Date: Tue, 18 Aug 2020 18:16:32 +0300
-Message-Id: <20200818151634.14343-16-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33788 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725823AbgHTTJl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Aug 2020 15:09:41 -0400
+Date: Thu, 20 Aug 2020 12:09:40 -0700 (PDT)
+Message-Id: <20200820.120940.1305816593609644793.davem@davemloft.net>
+Subject: Re: [PATCH net 1/1] net/smc: Prevent kernel-infoleak in
+ __smc_diag_dump()
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200820143052.99114-1-ubraun@linux.ibm.com>
+References: <20200820143052.99114-1-ubraun@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: ubraun@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, kgraul@linux.ibm.com, raspl@linux.ibm.com, yepeilin.cs@gmail.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Date: Thu, 20 Aug 2020 16:30:52 +0200
 
-The only user of memblock_mem_size() was x86 setup code, it is gone now and
-memblock_mem_size() funciton can be removed.
+> From: Peilin Ye <yepeilin.cs@gmail.com>
+> 
+> __smc_diag_dump() is potentially copying uninitialized kernel stack memory
+> into socket buffers, since the compiler may leave a 4-byte hole near the
+> beginning of `struct smcd_diag_dmbinfo`. Fix it by initializing `dinfo`
+> with memset().
+> 
+> Cc: stable@vger.kernel.org
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
----
- include/linux/memblock.h |  1 -
- mm/memblock.c            | 15 ---------------
- 2 files changed, 16 deletions(-)
+Please do not CC: stable for networking patches as per the netdev FAQ.
 
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 27c3b84d1615..15ed119701c1 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -481,7 +481,6 @@ static inline bool memblock_bottom_up(void)
- 
- phys_addr_t memblock_phys_mem_size(void);
- phys_addr_t memblock_reserved_size(void);
--phys_addr_t memblock_mem_size(unsigned long limit_pfn);
- phys_addr_t memblock_start_of_DRAM(void);
- phys_addr_t memblock_end_of_DRAM(void);
- void memblock_enforce_memory_limit(phys_addr_t memory_limit);
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 567e454ce0a1..eb4f866bea34 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1657,21 +1657,6 @@ phys_addr_t __init_memblock memblock_reserved_size(void)
- 	return memblock.reserved.total_size;
- }
- 
--phys_addr_t __init memblock_mem_size(unsigned long limit_pfn)
--{
--	unsigned long pages = 0;
--	unsigned long start_pfn, end_pfn;
--	int i;
--
--	for_each_mem_pfn_range(i, MAX_NUMNODES, &start_pfn, &end_pfn, NULL) {
--		start_pfn = min_t(unsigned long, start_pfn, limit_pfn);
--		end_pfn = min_t(unsigned long, end_pfn, limit_pfn);
--		pages += end_pfn - start_pfn;
--	}
--
--	return PFN_PHYS(pages);
--}
--
- /* lowest address */
- phys_addr_t __init_memblock memblock_start_of_DRAM(void)
- {
--- 
-2.26.2
+> Fixes: 4b1b7d3b30a6 ("net/smc: add SMC-D diag support")
+> Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+
+Applied and queued up for -stable, thank you.
