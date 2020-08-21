@@ -1,95 +1,74 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47224 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728971AbgHaUiv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Aug 2020 16:38:51 -0400
-From: Nicolin Chen <nicoleotsuka@gmail.com>
-Subject: [RESEND][PATCH 5/7] sparc: Avoid overflow at boundary_size
-Date: Mon, 31 Aug 2020 13:38:09 -0700
-Message-Id: <20200831203811.8494-6-nicoleotsuka@gmail.com>
-In-Reply-To: <20200831203811.8494-1-nicoleotsuka@gmail.com>
-References: <20200831203811.8494-1-nicoleotsuka@gmail.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v9 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+References: <1597854198-2871-1-git-send-email-pmorel@linux.ibm.com>
+ <1597854198-2871-3-git-send-email-pmorel@linux.ibm.com>
+ <20200821140510.3849410c.cohuck@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <19f742f8-8cc2-8f5a-90b0-c33e7b6a45b9@linux.ibm.com>
+Date: Fri, 21 Aug 2020 15:06:59 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200821140510.3849410c.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de
-Cc: sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-The boundary_size might be as large as ULONG_MAX, which means
-that a device has no specific boundary limit. So either "+ 1"
-or passing it to ALIGN() would potentially overflow.
 
-According to kernel defines:
-    #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
-    #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
 
-We can simplify the logic here:
-  ALIGN(boundary + 1, 1 << shift) >> shift
-= ALIGN_MASK(b + 1, (1 << s) - 1) >> s
-= {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
-= [b + 1 + (1 << s) - 1] >> s
-= [b + (1 << s)] >> s
-= (b >> s) + 1
+On 2020-08-21 14:05, Cornelia Huck wrote:
+> On Wed, 19 Aug 2020 18:23:18 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> If protected virtualization is active on s390, VIRTIO has retricted
+> 
+> s/retricted/only restricted/
+> 
+>> access to the guest memory.
+>> Define CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS and export
+>> arch_has_restricted_virtio_memory_access to advertize VIRTIO if that's
+>> the case, preventing a host error on access attempt.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   arch/s390/Kconfig   |  1 +
+>>   arch/s390/mm/init.c | 11 +++++++++++
+>>   2 files changed, 12 insertions(+)
+> 
+> (...)
+> 
+>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+>> index 6dc7c3b60ef6..8febd73ed6ca 100644
+>> --- a/arch/s390/mm/init.c
+>> +++ b/arch/s390/mm/init.c
+>> @@ -45,6 +45,7 @@
+>>   #include <asm/kasan.h>
+>>   #include <asm/dma-mapping.h>
+>>   #include <asm/uv.h>
+>> +#include <linux/virtio_config.h>
+> 
+> I don't think you need this include anymore.
 
-So fixing a potential overflow with the safer shortcut.
+right,
+> 
+>>   
+>>   pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+>>   
+> 
+> (...)
+> 
+> With the nit fixed,
+> 
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> 
 
-Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Cc: Christoph Hellwig <hch@lst.de>
----
- arch/sparc/kernel/iommu-common.c | 9 +++------
- arch/sparc/kernel/iommu.c        | 4 ++--
- arch/sparc/kernel/pci_sun4v.c    | 4 ++--
- 3 files changed, 7 insertions(+), 10 deletions(-)
+Thanks,
 
-diff --git a/arch/sparc/kernel/iommu-common.c b/arch/sparc/kernel/iommu-common.c
-index 59cb16691322..843e71894d04 100644
---- a/arch/sparc/kernel/iommu-common.c
-+++ b/arch/sparc/kernel/iommu-common.c
-@@ -166,13 +166,10 @@ unsigned long iommu_tbl_range_alloc(struct device *dev,
- 		}
- 	}
- 
--	if (dev)
--		boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
--				      1 << iommu->table_shift);
--	else
--		boundary_size = ALIGN(1ULL << 32, 1 << iommu->table_shift);
-+	boundary_size = dev ? dma_get_seg_boundary(dev) : U32_MAX;
- 
--	boundary_size = boundary_size >> iommu->table_shift;
-+	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
-+	boundary_size = (boundary_size >> iommu->table_shift) + 1;
- 	/*
- 	 * if the skip_span_boundary_check had been set during init, we set
- 	 * things up so that iommu_is_span_boundary() merely checks if the
-diff --git a/arch/sparc/kernel/iommu.c b/arch/sparc/kernel/iommu.c
-index 4ae7388b1bff..d981c37305ae 100644
---- a/arch/sparc/kernel/iommu.c
-+++ b/arch/sparc/kernel/iommu.c
-@@ -472,8 +472,8 @@ static int dma_4u_map_sg(struct device *dev, struct scatterlist *sglist,
- 	outs->dma_length = 0;
- 
- 	max_seg_size = dma_get_max_seg_size(dev);
--	seg_boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
--				  IO_PAGE_SIZE) >> IO_PAGE_SHIFT;
-+	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
-+	seg_boundary_size = (dma_get_seg_boundary(dev) >> IO_PAGE_SHIFT) + 1;
- 	base_shift = iommu->tbl.table_map_base >> IO_PAGE_SHIFT;
- 	for_each_sg(sglist, s, nelems, i) {
- 		unsigned long paddr, npages, entry, out_entry = 0, slen;
-diff --git a/arch/sparc/kernel/pci_sun4v.c b/arch/sparc/kernel/pci_sun4v.c
-index 14b93c5564e3..233fe8a20cec 100644
---- a/arch/sparc/kernel/pci_sun4v.c
-+++ b/arch/sparc/kernel/pci_sun4v.c
-@@ -508,8 +508,8 @@ static int dma_4v_map_sg(struct device *dev, struct scatterlist *sglist,
- 	iommu_batch_start(dev, prot, ~0UL);
- 
- 	max_seg_size = dma_get_max_seg_size(dev);
--	seg_boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
--				  IO_PAGE_SIZE) >> IO_PAGE_SHIFT;
-+	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
-+	seg_boundary_size = (dma_get_seg_boundary(dev) >> IO_PAGE_SHIFT) + 1;
- 
- 	mask = *dev->dma_mask;
- 	if (!iommu_use_atu(iommu, mask))
+Pierre
+
 -- 
-2.17.1
+Pierre Morel
+IBM Lab Boeblingen
