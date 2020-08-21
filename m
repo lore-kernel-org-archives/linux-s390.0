@@ -1,193 +1,113 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:40828 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727981AbgHRPRW (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Aug 2020 11:17:22 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 03/17] arm, xtensa: simplify initialization of high memory pages
-Date: Tue, 18 Aug 2020 18:16:20 +0300
-Message-Id: <20200818151634.14343-4-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6268 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727018AbgHUT4m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Aug 2020 15:56:42 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v10 07/16] s390/vfio-ap: sysfs attribute to display the guest's matrix
+Date: Fri, 21 Aug 2020 15:56:07 -0400
+Message-Id: <20200821195616.13554-8-akrowiak@linux.ibm.com>
+In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+The matrix of adapters and domains configured in a guest's CRYCB may
+differ from the matrix of adapters and domains assigned to the matrix mdev,
+so this patch introduces a sysfs attribute to display the matrix of a guest
+using the matrix mdev. For a matrix mdev denoted by $uuid, the crycb for a
+guest using the matrix mdev can be displayed as follows:
 
-The function free_highpages() in both arm and xtensa essentially open-code
-for_each_free_mem_range() loop to detect high memory pages that were not
-reserved and that should be initialized and passed to the buddy allocator.
+   cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
 
-Replace open-coded implementation of for_each_free_mem_range() with usage
-of memblock API to simplify the code.
+If a guest is not using the matrix mdev at the time the crycb is displayed,
+an error (ENODEV) will be returned.
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Max Filippov <jcmvbkbc@gmail.com>		# xtensa
-Tested-by: Max Filippov <jcmvbkbc@gmail.com>		# xtensa
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- arch/arm/mm/init.c    | 48 +++++++------------------------------
- arch/xtensa/mm/init.c | 55 ++++++++-----------------------------------
- 2 files changed, 18 insertions(+), 85 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 58 +++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
-diff --git a/arch/arm/mm/init.c b/arch/arm/mm/init.c
-index 000c1b48e973..50a5a30a78ff 100644
---- a/arch/arm/mm/init.c
-+++ b/arch/arm/mm/init.c
-@@ -347,61 +347,29 @@ static void __init free_unused_memmap(void)
- #endif
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index efb229033f9e..30bf23734af6 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1119,6 +1119,63 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
  }
+ static DEVICE_ATTR_RO(matrix);
  
--#ifdef CONFIG_HIGHMEM
--static inline void free_area_high(unsigned long pfn, unsigned long end)
--{
--	for (; pfn < end; pfn++)
--		free_highmem_page(pfn_to_page(pfn));
--}
--#endif
--
- static void __init free_highpages(void)
- {
- #ifdef CONFIG_HIGHMEM
- 	unsigned long max_low = max_low_pfn;
--	struct memblock_region *mem, *res;
-+	phys_addr_t range_start, range_end;
-+	u64 i;
- 
- 	/* set highmem page free */
--	for_each_memblock(memory, mem) {
--		unsigned long start = memblock_region_memory_base_pfn(mem);
--		unsigned long end = memblock_region_memory_end_pfn(mem);
-+	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
-+				&range_start, &range_end, NULL) {
-+		unsigned long start = PHYS_PFN(range_start);
-+		unsigned long end = PHYS_PFN(range_end);
- 
- 		/* Ignore complete lowmem entries */
- 		if (end <= max_low)
- 			continue;
- 
--		if (memblock_is_nomap(mem))
--			continue;
--
- 		/* Truncate partial highmem entries */
- 		if (start < max_low)
- 			start = max_low;
- 
--		/* Find and exclude any reserved regions */
--		for_each_memblock(reserved, res) {
--			unsigned long res_start, res_end;
--
--			res_start = memblock_region_reserved_base_pfn(res);
--			res_end = memblock_region_reserved_end_pfn(res);
--
--			if (res_end < start)
--				continue;
--			if (res_start < start)
--				res_start = start;
--			if (res_start > end)
--				res_start = end;
--			if (res_end > end)
--				res_end = end;
--			if (res_start != start)
--				free_area_high(start, res_start);
--			start = res_end;
--			if (start == end)
--				break;
--		}
--
--		/* And now free anything which remains */
--		if (start < end)
--			free_area_high(start, end);
-+		for (; start < end; start++)
-+			free_highmem_page(pfn_to_page(start));
- 	}
- #endif
- }
-diff --git a/arch/xtensa/mm/init.c b/arch/xtensa/mm/init.c
-index a05b306cf371..ad9d59d93f39 100644
---- a/arch/xtensa/mm/init.c
-+++ b/arch/xtensa/mm/init.c
-@@ -79,67 +79,32 @@ void __init zones_init(void)
- 	free_area_init(max_zone_pfn);
- }
- 
--#ifdef CONFIG_HIGHMEM
--static void __init free_area_high(unsigned long pfn, unsigned long end)
--{
--	for (; pfn < end; pfn++)
--		free_highmem_page(pfn_to_page(pfn));
--}
--
- static void __init free_highpages(void)
- {
-+#ifdef CONFIG_HIGHMEM
- 	unsigned long max_low = max_low_pfn;
--	struct memblock_region *mem, *res;
-+	phys_addr_t range_start, range_end;
-+	u64 i;
- 
--	reset_all_zones_managed_pages();
- 	/* set highmem page free */
--	for_each_memblock(memory, mem) {
--		unsigned long start = memblock_region_memory_base_pfn(mem);
--		unsigned long end = memblock_region_memory_end_pfn(mem);
-+	for_each_free_mem_range(i, NUMA_NO_NODE, MEMBLOCK_NONE,
-+				&range_start, &range_end, NULL) {
-+		unsigned long start = PHYS_PFN(range_start);
-+		unsigned long end = PHYS_PFN(range_end);
- 
- 		/* Ignore complete lowmem entries */
- 		if (end <= max_low)
- 			continue;
- 
--		if (memblock_is_nomap(mem))
--			continue;
--
- 		/* Truncate partial highmem entries */
- 		if (start < max_low)
- 			start = max_low;
- 
--		/* Find and exclude any reserved regions */
--		for_each_memblock(reserved, res) {
--			unsigned long res_start, res_end;
--
--			res_start = memblock_region_reserved_base_pfn(res);
--			res_end = memblock_region_reserved_end_pfn(res);
--
--			if (res_end < start)
--				continue;
--			if (res_start < start)
--				res_start = start;
--			if (res_start > end)
--				res_start = end;
--			if (res_end > end)
--				res_end = end;
--			if (res_start != start)
--				free_area_high(start, res_start);
--			start = res_end;
--			if (start == end)
--				break;
--		}
--
--		/* And now free anything which remains */
--		if (start < end)
--			free_area_high(start, end);
-+		for (; start < end; start++)
-+			free_highmem_page(pfn_to_page(start));
- 	}
--}
--#else
--static void __init free_highpages(void)
--{
--}
- #endif
++static ssize_t guest_matrix_show(struct device *dev,
++				 struct device_attribute *attr, char *buf)
++{
++	struct mdev_device *mdev = mdev_from_dev(dev);
++	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	char *bufpos = buf;
++	unsigned long apid;
++	unsigned long apqi;
++	unsigned long apid1;
++	unsigned long apqi1;
++	unsigned long napm_bits = matrix_mdev->shadow_apcb.apm_max + 1;
++	unsigned long naqm_bits = matrix_mdev->shadow_apcb.aqm_max + 1;
++	int nchars = 0;
++	int n;
++
++	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
++		return -ENODEV;
++
++	apid1 = find_first_bit_inv(matrix_mdev->shadow_apcb.apm, napm_bits);
++	apqi1 = find_first_bit_inv(matrix_mdev->shadow_apcb.aqm, naqm_bits);
++
++	mutex_lock(&matrix_dev->lock);
++
++	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
++		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
++				     napm_bits) {
++			for_each_set_bit_inv(apqi,
++					     matrix_mdev->shadow_apcb.aqm,
++					     naqm_bits) {
++				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
++					    apqi);
++				bufpos += n;
++				nchars += n;
++			}
++		}
++	} else if (apid1 < napm_bits) {
++		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
++				     napm_bits) {
++			n = sprintf(bufpos, "%02lx.\n", apid);
++			bufpos += n;
++			nchars += n;
++		}
++	} else if (apqi1 < naqm_bits) {
++		for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm,
++				     naqm_bits) {
++			n = sprintf(bufpos, ".%04lx\n", apqi);
++			bufpos += n;
++			nchars += n;
++		}
++	}
++
++	mutex_unlock(&matrix_dev->lock);
++
++	return nchars;
 +}
++static DEVICE_ATTR_RO(guest_matrix);
++
+ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_assign_adapter.attr,
+ 	&dev_attr_unassign_adapter.attr,
+@@ -1128,6 +1185,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
+ 	&dev_attr_unassign_control_domain.attr,
+ 	&dev_attr_control_domains.attr,
+ 	&dev_attr_matrix.attr,
++	&dev_attr_guest_matrix.attr,
+ 	NULL,
+ };
  
- /*
-  * Initialize memory pages.
 -- 
-2.26.2
+2.21.1
