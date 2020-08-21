@@ -1,224 +1,264 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:44572 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728140AbgHRPT6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Aug 2020 11:19:58 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 17/17] memblock: use separate iterators for memory and reserved regions
-Date: Tue, 18 Aug 2020 18:16:34 +0300
-Message-Id: <20200818151634.14343-18-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v10 04/16] s390/zcrypt: driver callback to indicate resource in use
+Date: Fri, 21 Aug 2020 15:56:04 -0400
+Message-Id: <20200821195616.13554-5-akrowiak@linux.ibm.com>
+In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org, Ingo Molnar <mingo@kernel.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>, kernel test robot <lkp@intel.com>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+Introduces a new driver callback to prevent a root user from unbinding
+an AP queue from its device driver if the queue is in use. The intent of
+this callback is to provide a driver with the means to prevent a root user
+from inadvertently taking a queue away from a matrix mdev and giving it to
+the host while it is assigned to the matrix mdev. The callback will
+be invoked whenever a change to the AP bus's sysfs apmask or aqmask
+attributes would result in one or more AP queues being removed from its
+driver. If the callback responds in the affirmative for any driver
+queried, the change to the apmask or aqmask will be rejected with a device
+in use error.
 
-for_each_memblock() is used to iterate over memblock.memory in
-a few places that use data from memblock_region rather than the memory
-ranges.
+For this patch, only non-default drivers will be queried. Currently,
+there is only one non-default driver, the vfio_ap device driver. The
+vfio_ap device driver facilitates pass-through of an AP queue to a
+guest. The idea here is that a guest may be administered by a different
+sysadmin than the host and we don't want AP resources to unexpectedly
+disappear from a guest's AP configuration (i.e., adapters, domains and
+control domains assigned to the matrix mdev). This will enforce the proper
+procedure for removing AP resources intended for guest usage which is to
+first unassign them from the matrix mdev, then unbind them from the
+vfio_ap device driver.
 
-Introduce separate for_each_mem_region() and for_each_reserved_mem_region()
-to improve encapsulation of memblock internals from its users.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Acked-by: Ingo Molnar <mingo@kernel.org>		   # x86
-Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>  # MIPS
-Acked-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>   # .clang-format
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reported-by: kernel test robot <lkp@intel.com>
 ---
- .clang-format                  |  3 ++-
- arch/arm64/kernel/setup.c      |  2 +-
- arch/arm64/mm/numa.c           |  2 +-
- arch/mips/netlogic/xlp/setup.c |  2 +-
- arch/riscv/mm/init.c           |  2 +-
- arch/x86/mm/numa.c             |  2 +-
- include/linux/memblock.h       | 19 ++++++++++++++++---
- mm/memblock.c                  |  4 ++--
- mm/page_alloc.c                |  8 ++++----
- 9 files changed, 29 insertions(+), 15 deletions(-)
+ drivers/s390/crypto/ap_bus.c | 148 ++++++++++++++++++++++++++++++++---
+ drivers/s390/crypto/ap_bus.h |   4 +
+ 2 files changed, 142 insertions(+), 10 deletions(-)
 
-diff --git a/.clang-format b/.clang-format
-index 2b77cc419b97..a118fdde25c1 100644
---- a/.clang-format
-+++ b/.clang-format
-@@ -201,7 +201,7 @@ ForEachMacros:
-   - 'for_each_matching_node'
-   - 'for_each_matching_node_and_match'
-   - 'for_each_member'
--  - 'for_each_memblock'
-+  - 'for_each_mem_region'
-   - 'for_each_memblock_type'
-   - 'for_each_memcg_cache_index'
-   - 'for_each_mem_pfn_range'
-@@ -268,6 +268,7 @@ ForEachMacros:
-   - 'for_each_property_of_node'
-   - 'for_each_registered_fb'
-   - 'for_each_reserved_mem_range'
-+  - 'for_each_reserved_mem_region'
-   - 'for_each_rtd_codec_dais'
-   - 'for_each_rtd_codec_dais_rollback'
-   - 'for_each_rtd_components'
-diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index a986c6f8ab42..dcce72ac072b 100644
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -217,7 +217,7 @@ static void __init request_standard_resources(void)
- 	if (!standard_resources)
- 		panic("%s: Failed to allocate %zu bytes\n", __func__, res_size);
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 24a1940b829e..db27bd931308 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -35,6 +35,7 @@
+ #include <linux/mod_devicetable.h>
+ #include <linux/debugfs.h>
+ #include <linux/ctype.h>
++#include <linux/module.h>
  
--	for_each_memblock(memory, region) {
-+	for_each_mem_region(region) {
- 		res = &standard_resources[i++];
- 		if (memblock_is_nomap(region)) {
- 			res->name  = "reserved";
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index 8a97cd3d2dfe..5efdbd01a59c 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -350,7 +350,7 @@ static int __init numa_register_nodes(void)
- 	struct memblock_region *mblk;
- 
- 	/* Check that valid nid is set to memblks */
--	for_each_memblock(memory, mblk) {
-+	for_each_mem_region(mblk) {
- 		int mblk_nid = memblock_get_region_node(mblk);
- 
- 		if (mblk_nid == NUMA_NO_NODE || mblk_nid >= MAX_NUMNODES) {
-diff --git a/arch/mips/netlogic/xlp/setup.c b/arch/mips/netlogic/xlp/setup.c
-index 1a0fc5b62ba4..6e3102bcd2f1 100644
---- a/arch/mips/netlogic/xlp/setup.c
-+++ b/arch/mips/netlogic/xlp/setup.c
-@@ -70,7 +70,7 @@ static void nlm_fixup_mem(void)
- 	const int pref_backup = 512;
- 	struct memblock_region *mem;
- 
--	for_each_memblock(memory, mem) {
-+	for_each_mem_region(mem) {
- 		memblock_remove(mem->base + mem->size - pref_backup,
- 			pref_backup);
- 	}
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 06355716d19a..1fb6a826c2fd 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -531,7 +531,7 @@ static void __init resource_init(void)
- {
- 	struct memblock_region *region;
- 
--	for_each_memblock(memory, region) {
-+	for_each_mem_region(region) {
- 		struct resource *res;
- 
- 		res = memblock_alloc(sizeof(struct resource), SMP_CACHE_BYTES);
-diff --git a/arch/x86/mm/numa.c b/arch/x86/mm/numa.c
-index aa76ec2d359b..b6246768479d 100644
---- a/arch/x86/mm/numa.c
-+++ b/arch/x86/mm/numa.c
-@@ -516,7 +516,7 @@ static void __init numa_clear_kernel_node_hotplug(void)
- 	 *   memory ranges, because quirks such as trim_snb_memory()
- 	 *   reserve specific pages for Sandy Bridge graphics. ]
- 	 */
--	for_each_memblock(reserved, mb_region) {
-+	for_each_reserved_mem_region(mb_region) {
- 		int nid = memblock_get_region_node(mb_region);
- 
- 		if (nid != MAX_NUMNODES)
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index 354078713cd1..ef131255cedc 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -553,9 +553,22 @@ static inline unsigned long memblock_region_reserved_end_pfn(const struct memblo
- 	return PFN_UP(reg->base + reg->size);
+ #include "ap_bus.h"
+ #include "ap_debug.h"
+@@ -889,6 +890,23 @@ static int modify_bitmap(const char *str, unsigned long *bitmap, int bits)
+ 	return 0;
  }
  
--#define for_each_memblock(memblock_type, region)					\
--	for (region = memblock.memblock_type.regions;					\
--	     region < (memblock.memblock_type.regions + memblock.memblock_type.cnt);	\
-+/**
-+ * for_each_mem_region - itereate over memory regions
-+ * @region: loop variable
-+ */
-+#define for_each_mem_region(region)					\
-+	for (region = memblock.memory.regions;				\
-+	     region < (memblock.memory.regions + memblock.memory.cnt);	\
-+	     region++)
++static int ap_parse_bitmap_str(const char *str, unsigned long *bitmap, int bits,
++			       unsigned long *newmap)
++{
++	unsigned long size;
++	int rc;
 +
-+/**
-+ * for_each_reserved_mem_region - itereate over reserved memory regions
-+ * @region: loop variable
-+ */
-+#define for_each_reserved_mem_region(region)				\
-+	for (region = memblock.reserved.regions;			\
-+	     region < (memblock.reserved.regions + memblock.reserved.cnt); \
- 	     region++)
++	size = BITS_TO_LONGS(bits)*sizeof(unsigned long);
++	if (*str == '+' || *str == '-') {
++		memcpy(newmap, bitmap, size);
++		rc = modify_bitmap(str, newmap, bits);
++	} else {
++		memset(newmap, 0, size);
++		rc = hex2bitmap(str, newmap, bits);
++	}
++	return rc;
++}
++
+ int ap_parse_mask_str(const char *str,
+ 		      unsigned long *bitmap, int bits,
+ 		      struct mutex *lock)
+@@ -908,14 +926,7 @@ int ap_parse_mask_str(const char *str,
+ 		kfree(newmap);
+ 		return -ERESTARTSYS;
+ 	}
+-
+-	if (*str == '+' || *str == '-') {
+-		memcpy(newmap, bitmap, size);
+-		rc = modify_bitmap(str, newmap, bits);
+-	} else {
+-		memset(newmap, 0, size);
+-		rc = hex2bitmap(str, newmap, bits);
+-	}
++	rc = ap_parse_bitmap_str(str, bitmap, bits, newmap);
+ 	if (rc == 0)
+ 		memcpy(bitmap, newmap, size);
+ 	mutex_unlock(lock);
+@@ -1107,12 +1118,70 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
+ 	return rc;
+ }
  
- extern void *alloc_large_system_hash(const char *tablename,
-diff --git a/mm/memblock.c b/mm/memblock.c
-index d0be57acccf2..4eacfed872c4 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1664,7 +1664,7 @@ static phys_addr_t __init_memblock __find_max_addr(phys_addr_t limit)
- 	 * the memory memblock regions, if the @limit exceeds the total size
- 	 * of those regions, max_addr will keep original value PHYS_ADDR_MAX
- 	 */
--	for_each_memblock(memory, r) {
-+	for_each_mem_region(r) {
- 		if (limit <= r->size) {
- 			max_addr = r->base + limit;
- 			break;
-@@ -1834,7 +1834,7 @@ void __init_memblock memblock_trim_memory(phys_addr_t align)
- 	phys_addr_t start, end, orig_start, orig_end;
- 	struct memblock_region *r;
++static int __verify_card_reservations(struct device_driver *drv, void *data)
++{
++	int rc = 0;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++	unsigned long *newapm = (unsigned long *)data;
++
++	/*
++	 * No need to verify whether the driver is using the queues if it is the
++	 * default driver.
++	 */
++	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
++		return 0;
++
++	/* The non-default driver's module must be loaded */
++	if (!try_module_get(drv->owner))
++		return 0;
++
++	if (ap_drv->in_use)
++		if (ap_drv->in_use(newapm, ap_perms.aqm))
++			rc = -EADDRINUSE;
++
++	module_put(drv->owner);
++
++	return rc;
++}
++
++static int apmask_commit(unsigned long *newapm)
++{
++	int rc;
++	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
++
++	/*
++	 * Check if any bits in the apmask have been set which will
++	 * result in queues being removed from non-default drivers
++	 */
++	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
++		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
++				      __verify_card_reservations);
++		if (rc)
++			return rc;
++	}
++
++	memcpy(ap_perms.apm, newapm, APMASKSIZE);
++
++	return 0;
++}
++
+ static ssize_t apmask_store(struct bus_type *bus, const char *buf,
+ 			    size_t count)
+ {
+ 	int rc;
++	DECLARE_BITMAP(newapm, AP_DEVICES);
++
++	if (mutex_lock_interruptible(&ap_perms_mutex))
++		return -ERESTARTSYS;
++
++	rc = ap_parse_bitmap_str(buf, ap_perms.apm, AP_DEVICES, newapm);
++	if (rc)
++		goto done;
  
--	for_each_memblock(memory, r) {
-+	for_each_mem_region(r) {
- 		orig_start = r->base;
- 		orig_end = r->base + r->size;
- 		start = round_up(orig_start, align);
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 12da56b1cf39..366982d1a1c2 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5950,7 +5950,7 @@ overlap_memmap_init(unsigned long zone, unsigned long *pfn)
+-	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
++	rc = apmask_commit(newapm);
++
++done:
++	mutex_unlock(&ap_perms_mutex);
+ 	if (rc)
+ 		return rc;
  
- 	if (mirrored_kernelcore && zone == ZONE_MOVABLE) {
- 		if (!r || *pfn >= memblock_region_memory_end_pfn(r)) {
--			for_each_memblock(memory, r) {
-+			for_each_mem_region(r) {
- 				if (*pfn < memblock_region_memory_end_pfn(r))
- 					break;
- 			}
-@@ -6535,7 +6535,7 @@ static unsigned long __init zone_absent_pages_in_node(int nid,
- 		unsigned long start_pfn, end_pfn;
- 		struct memblock_region *r;
+@@ -1138,12 +1207,71 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
+ 	return rc;
+ }
  
--		for_each_memblock(memory, r) {
-+		for_each_mem_region(r) {
- 			start_pfn = clamp(memblock_region_memory_base_pfn(r),
- 					  zone_start_pfn, zone_end_pfn);
- 			end_pfn = clamp(memblock_region_memory_end_pfn(r),
-@@ -7129,7 +7129,7 @@ static void __init find_zone_movable_pfns_for_nodes(void)
- 	 * options.
- 	 */
- 	if (movable_node_is_enabled()) {
--		for_each_memblock(memory, r) {
-+		for_each_mem_region(r) {
- 			if (!memblock_is_hotpluggable(r))
- 				continue;
++static int __verify_queue_reservations(struct device_driver *drv, void *data)
++{
++	int rc = 0;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++	unsigned long *newaqm = (unsigned long *)data;
++
++	/*
++	 * If the reserved bits do not identify queues reserved for use by the
++	 * non-default driver, there is no need to verify the driver is using
++	 * the queues.
++	 */
++	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
++		return 0;
++
++	/* The non-default driver's module must be loaded */
++	if (!try_module_get(drv->owner))
++		return 0;
++
++	if (ap_drv->in_use)
++		if (ap_drv->in_use(ap_perms.apm, newaqm))
++			rc = -EADDRINUSE;
++
++	module_put(drv->owner);
++
++	return rc;
++}
++
++static int aqmask_commit(unsigned long *newaqm)
++{
++	int rc;
++	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
++
++	/*
++	 * Check if any bits in the aqmask have been set which will
++	 * result in queues being removed from non-default drivers
++	 */
++	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
++		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
++				      __verify_queue_reservations);
++		if (rc)
++			return rc;
++	}
++
++	memcpy(ap_perms.aqm, newaqm, AQMASKSIZE);
++
++	return 0;
++}
++
+ static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
+ 			    size_t count)
+ {
+ 	int rc;
++	DECLARE_BITMAP(newaqm, AP_DOMAINS);
  
-@@ -7150,7 +7150,7 @@ static void __init find_zone_movable_pfns_for_nodes(void)
- 	if (mirrored_kernelcore) {
- 		bool mem_below_4gb_not_mirrored = false;
+-	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
++	if (mutex_lock_interruptible(&ap_perms_mutex))
++		return -ERESTARTSYS;
++
++	rc = ap_parse_bitmap_str(buf, ap_perms.aqm, AP_DOMAINS, newaqm);
++	if (rc)
++		goto done;
++
++	rc = aqmask_commit(newaqm);
++
++done:
++	mutex_unlock(&ap_perms_mutex);
+ 	if (rc)
+ 		return rc;
  
--		for_each_memblock(memory, r) {
-+		for_each_mem_region(r) {
- 			if (memblock_is_mirror(r))
- 				continue;
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 1ea046324e8f..48c57b3d53a0 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -136,6 +136,7 @@ struct ap_driver {
  
+ 	int (*probe)(struct ap_device *);
+ 	void (*remove)(struct ap_device *);
++	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
+ };
+ 
+ #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
+@@ -255,6 +256,9 @@ void ap_queue_init_state(struct ap_queue *aq);
+ struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
+ 			       int comp_device_type, unsigned int functions);
+ 
++#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
++#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
++
+ struct ap_perms {
+ 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
+ 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
 -- 
-2.26.2
+2.21.1
