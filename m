@@ -1,264 +1,248 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63820 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725834AbgHUT4a (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Aug 2020 15:56:30 -0400
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v10 04/16] s390/zcrypt: driver callback to indicate resource in use
-Date: Fri, 21 Aug 2020 15:56:04 -0400
-Message-Id: <20200821195616.13554-5-akrowiak@linux.ibm.com>
-In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+Subject: [PATCH v10 00/16]  s390/vfio-ap: dynamic configuration support
+Date: Fri, 21 Aug 2020 15:56:00 -0400
+Message-Id: <20200821195616.13554-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>, kernel test robot <lkp@intel.com>
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Introduces a new driver callback to prevent a root user from unbinding
-an AP queue from its device driver if the queue is in use. The intent of
-this callback is to provide a driver with the means to prevent a root user
-from inadvertently taking a queue away from a matrix mdev and giving it to
-the host while it is assigned to the matrix mdev. The callback will
-be invoked whenever a change to the AP bus's sysfs apmask or aqmask
-attributes would result in one or more AP queues being removed from its
-driver. If the callback responds in the affirmative for any driver
-queried, the change to the apmask or aqmask will be rejected with a device
-in use error.
+The current design for AP pass-through does not support making dynamic
+changes to the AP matrix of a running guest resulting in a few 
+deficiencies this patch series is intended to mitigate:
 
-For this patch, only non-default drivers will be queried. Currently,
-there is only one non-default driver, the vfio_ap device driver. The
-vfio_ap device driver facilitates pass-through of an AP queue to a
-guest. The idea here is that a guest may be administered by a different
-sysadmin than the host and we don't want AP resources to unexpectedly
-disappear from a guest's AP configuration (i.e., adapters, domains and
-control domains assigned to the matrix mdev). This will enforce the proper
-procedure for removing AP resources intended for guest usage which is to
-first unassign them from the matrix mdev, then unbind them from the
-vfio_ap device driver.
+1. Adapters, domains and control domains can not be added to or removed
+   from a running guest. In order to modify a guest's AP configuration,
+   the guest must be terminated; only then can AP resources be assigned
+   to or unassigned from the guest's matrix mdev. The new AP 
+   configuration becomes available to the guest when it is subsequently
+   restarted.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reported-by: kernel test robot <lkp@intel.com>
----
- drivers/s390/crypto/ap_bus.c | 148 ++++++++++++++++++++++++++++++++---
- drivers/s390/crypto/ap_bus.h |   4 +
- 2 files changed, 142 insertions(+), 10 deletions(-)
+2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
+   be modified by a root user without any restrictions. A change to
+   either mask can result in AP queue devices being unbound from the
+   vfio_ap device driver and bound to a zcrypt device driver even if a
+   guest is using the queues, thus giving the host access to the guest's
+   private crypto data and vice versa.
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 24a1940b829e..db27bd931308 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -35,6 +35,7 @@
- #include <linux/mod_devicetable.h>
- #include <linux/debugfs.h>
- #include <linux/ctype.h>
-+#include <linux/module.h>
- 
- #include "ap_bus.h"
- #include "ap_debug.h"
-@@ -889,6 +890,23 @@ static int modify_bitmap(const char *str, unsigned long *bitmap, int bits)
- 	return 0;
- }
- 
-+static int ap_parse_bitmap_str(const char *str, unsigned long *bitmap, int bits,
-+			       unsigned long *newmap)
-+{
-+	unsigned long size;
-+	int rc;
-+
-+	size = BITS_TO_LONGS(bits)*sizeof(unsigned long);
-+	if (*str == '+' || *str == '-') {
-+		memcpy(newmap, bitmap, size);
-+		rc = modify_bitmap(str, newmap, bits);
-+	} else {
-+		memset(newmap, 0, size);
-+		rc = hex2bitmap(str, newmap, bits);
-+	}
-+	return rc;
-+}
-+
- int ap_parse_mask_str(const char *str,
- 		      unsigned long *bitmap, int bits,
- 		      struct mutex *lock)
-@@ -908,14 +926,7 @@ int ap_parse_mask_str(const char *str,
- 		kfree(newmap);
- 		return -ERESTARTSYS;
- 	}
--
--	if (*str == '+' || *str == '-') {
--		memcpy(newmap, bitmap, size);
--		rc = modify_bitmap(str, newmap, bits);
--	} else {
--		memset(newmap, 0, size);
--		rc = hex2bitmap(str, newmap, bits);
--	}
-+	rc = ap_parse_bitmap_str(str, bitmap, bits, newmap);
- 	if (rc == 0)
- 		memcpy(bitmap, newmap, size);
- 	mutex_unlock(lock);
-@@ -1107,12 +1118,70 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
- 
-+static int __verify_card_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newapm = (unsigned long *)data;
-+
-+	/*
-+	 * No need to verify whether the driver is using the queues if it is the
-+	 * default driver.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/* The non-default driver's module must be loaded */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use)
-+		if (ap_drv->in_use(newapm, ap_perms.aqm))
-+			rc = -EADDRINUSE;
-+
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int apmask_commit(unsigned long *newapm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	/*
-+	 * Check if any bits in the apmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
-+		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				      __verify_card_reservations);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.apm, newapm, APMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t apmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	DECLARE_BITMAP(newapm, AP_DEVICES);
-+
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
-+
-+	rc = ap_parse_bitmap_str(buf, ap_perms.apm, AP_DEVICES, newapm);
-+	if (rc)
-+		goto done;
- 
--	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
-+	rc = apmask_commit(newapm);
-+
-+done:
-+	mutex_unlock(&ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-@@ -1138,12 +1207,71 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
- 
-+static int __verify_queue_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newaqm = (unsigned long *)data;
-+
-+	/*
-+	 * If the reserved bits do not identify queues reserved for use by the
-+	 * non-default driver, there is no need to verify the driver is using
-+	 * the queues.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/* The non-default driver's module must be loaded */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use)
-+		if (ap_drv->in_use(ap_perms.apm, newaqm))
-+			rc = -EADDRINUSE;
-+
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int aqmask_commit(unsigned long *newaqm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
-+
-+	/*
-+	 * Check if any bits in the aqmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
-+		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				      __verify_queue_reservations);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.aqm, newaqm, AQMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	DECLARE_BITMAP(newaqm, AP_DOMAINS);
- 
--	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
-+
-+	rc = ap_parse_bitmap_str(buf, ap_perms.aqm, AP_DOMAINS, newaqm);
-+	if (rc)
-+		goto done;
-+
-+	rc = aqmask_commit(newaqm);
-+
-+done:
-+	mutex_unlock(&ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 1ea046324e8f..48c57b3d53a0 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -136,6 +136,7 @@ struct ap_driver {
- 
- 	int (*probe)(struct ap_device *);
- 	void (*remove)(struct ap_device *);
-+	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
- };
- 
- #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
-@@ -255,6 +256,9 @@ void ap_queue_init_state(struct ap_queue *aq);
- struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
- 			       int comp_device_type, unsigned int functions);
- 
-+#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
-+#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
-+
- struct ap_perms {
- 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
- 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
+3. The APQNs derived from the Cartesian product of the APIDs of the
+   adapters and APQIs of the domains assigned to a matrix mdev must
+   reference an AP queue device bound to the vfio_ap device driver. The
+   AP architecture allows assignment of AP resources that are not
+   available to the system, so this artificial restriction is not 
+   compliant with the architecture.
+
+4. The AP configuration profile can be dynamically changed for the linux
+   host after a KVM guest is started. For example, a new domain can be
+   dynamically added to the configuration profile via the SE or an HMC
+   connected to a DPM enabled lpar. Likewise, AP adapters can be 
+   dynamically configured (online state) and deconfigured (standby state)
+   using the SE, an SCLP command or an HMC connected to a DPM enabled
+   lpar. This can result in inadvertent sharing of AP queues between the
+   guest and host.
+
+5. A root user can manually unbind an AP queue device representing a 
+   queue in use by a KVM guest via the vfio_ap device driver's sysfs 
+   unbind attribute. In this case, the guest will be using a queue that
+   is not bound to the driver which violates the device model.
+
+This patch series introduces the following changes to the current design
+to alleviate the shortcomings described above as well as to implement
+more of the AP architecture:
+
+1. A root user will be prevented from making changes to the AP bus's
+   /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the ownership of an APQN
+   changes from the vfio_ap device driver to a zcrypt driver when the
+   APQN is assigned to a matrix mdev.
+
+2. Allow a root user to hot plug/unplug AP adapters, domains and control
+   domains using the matrix mdev's assign/unassign attributes.
+
+4. Allow assignment of an AP adapter or domain to a matrix mdev even if
+   it results in assignment of an APQN that does not reference an AP
+   queue device bound to the vfio_ap device driver, as long as the APQN
+   is not reserved for use by the default zcrypt drivers (also known as
+   over-provisioning of AP resources). Allowing over-provisioning of AP
+   resources better models the architecture which does not preclude
+   assigning AP resources that are not yet available in the system. Such
+   APQNs, however, will not be assigned to the guest using the matrix
+   mdev; only APQNs referencing AP queue devices bound to the vfio_ap
+   device driver will actually get assigned to the guest.
+
+5. Handle dynamic changes to the AP device model. 
+
+1. Rationale for changes to AP bus's apmask/aqmask interfaces:
+----------------------------------------------------------
+Due to the extremely sensitive nature of cryptographic data, it is
+imperative that great care be taken to ensure that such data is secured.
+Allowing a root user, either inadvertently or maliciously, to configure
+these masks such that a queue is shared between the host and a guest is
+not only avoidable, it is advisable. It was suggested that this scenario
+is better handled in user space with management software, but that does
+not preclude a malicious administrator from using the sysfs interfaces
+to gain access to a guest's crypto data. It was also suggested that this
+scenario could be avoided by taking access to the adapter away from the
+guest and zeroing out the queues prior to the vfio_ap driver releasing the
+device; however, stealing an adapter in use from a guest as a by-product
+of an operation is bad and will likely cause problems for the guest
+unnecessarily. It was decided that the most effective solution with the
+least number of negative side effects is to prevent the situation at the
+source.
+
+2. Rationale for hot plug/unplug using matrix mdev sysfs interfaces:
+----------------------------------------------------------------
+Allowing a user to hot plug/unplug AP resources using the matrix mdev
+sysfs interfaces circumvents the need to terminate the guest in order to
+modify its AP configuration. Allowing dynamic configuration makes 
+reconfiguring a guest's AP matrix much less disruptive.
+
+3. Rationale for allowing over-provisioning of AP resources:
+----------------------------------------------------------- 
+Allowing assignment of AP resources to a matrix mdev and ultimately to a
+guest better models the AP architecture. The architecture does not
+preclude assignment of unavailable AP resources. If a queue subsequently
+becomes available while a guest using the matrix mdev to which its APQN
+is assigned, the guest will be given access to it. If an APQN
+is dynamically unassigned from the underlying host system, it will 
+automatically become unavailable to the guest.
+
+Change log v9-v10:
+-----------------
+* Updated the documentation in vfio-ap.rst to include information about the
+  AP dynamic configuration support
+
+Change log v8-v9:
+----------------
+* Fixed errors flagged by the kernel test robot
+
+* Fixed issue with guest losing queues when a new queue is probed due to
+  manual bind operation.
+
+Change log v7-v8:
+----------------
+* Now logging a message when an attempt to reserve APQNs for the zcrypt
+  drivers will result in taking a queue away from a KVM guest to provide
+  the sysadmin a way to ascertain why the sysfs operation failed.
+
+* Created locked and unlocked versions of the ap_parse_mask_str() function.
+
+* Now using new interface provided by an AP bus patch -
+  s390/ap: introduce new ap function ap_get_qdev() - to retrieve
+  struct ap_queue representing an AP queue device. This patch is not a
+  part of this series but is a prerequisite for this series. 
+
+Change log v6-v7:
+----------------
+* Added callbacks to AP bus:
+  - on_config_changed: Notifies implementing drivers that
+    the AP configuration has changed since last AP device scan.
+  - on_scan_complete: Notifies implementing drivers that the device scan
+    has completed.
+  - implemented on_config_changed and on_scan_complete callbacks for
+    vfio_ap device driver.
+  - updated vfio_ap device driver's probe and remove callbacks to handle
+    dynamic changes to the AP device model. 
+* Added code to filter APQNs when assigning AP resources to a KVM guest's
+  CRYCB
+
+Change log v5-v6:
+----------------
+* Fixed a bug in ap_bus.c introduced with patch 2/7 of the v5 
+  series. Harald Freudenberer pointed out that the mutex lock
+  for ap_perms_mutex in the apmask_store and aqmask_store functions
+  was not being freed. 
+
+* Removed patch 6/7 which added logging to the vfio_ap driver
+  to expedite acceptance of this series. The logging will be introduced
+  with a separate patch series to allow more time to explore options
+  such as DBF logging vs. tracepoints.
+
+* Added 3 patches related to ensuring that APQNs that do not reference
+  AP queue devices bound to the vfio_ap device driver are not assigned
+  to the guest CRYCB:
+
+  Patch 4: Filter CRYCB bits for unavailable queue devices
+  Patch 5: sysfs attribute to display the guest CRYCB
+  Patch 6: update guest CRYCB in vfio_ap probe and remove callbacks
+
+* Added a patch (Patch 9) to version the vfio_ap module.
+
+* Reshuffled patches to allow the in_use callback implementation to
+  invoke the vfio_ap_mdev_verify_no_sharing() function introduced in
+  patch 2. 
+
+Change log v4-v5:
+----------------
+* Added a patch to provide kernel s390dbf debug logs for VFIO AP
+
+Change log v3->v4:
+-----------------
+* Restored patches preventing root user from changing ownership of
+  APQNs from zcrypt drivers to the vfio_ap driver if the APQN is
+  assigned to an mdev.
+
+* No longer enforcing requirement restricting guest access to
+  queues represented by a queue device bound to the vfio_ap
+  device driver.
+
+* Removed shadow CRYCB and now directly updating the guest CRYCB
+  from the matrix mdev's matrix.
+
+* Rebased the patch series on top of 'vfio: ap: AP Queue Interrupt
+  Control' patches.
+
+* Disabled bind/unbind sysfs interfaces for vfio_ap driver
+
+Change log v2->v3:
+-----------------
+* Allow guest access to an AP queue only if the queue is bound to
+  the vfio_ap device driver.
+
+* Removed the patch to test CRYCB masks before taking the vCPUs
+  out of SIE. Now checking the shadow CRYCB in the vfio_ap driver.
+
+Change log v1->v2:
+-----------------
+* Removed patches preventing root user from unbinding AP queues from 
+  the vfio_ap device driver
+* Introduced a shadow CRYCB in the vfio_ap driver to manage dynamic 
+  changes to the AP guest configuration due to root user interventions
+  or hardware anomalies.
+
+Tony Krowiak (16):
+  s390/vfio-ap: add version vfio_ap module
+  s390/vfio-ap: use new AP bus interface to search for queue devices
+  s390/vfio-ap: manage link between queue struct and matrix mdev
+  s390/zcrypt: driver callback to indicate resource in use
+  s390/vfio-ap: implement in-use callback for vfio_ap driver
+  s390/vfio-ap: introduce shadow APCB
+  s390/vfio-ap: sysfs attribute to display the guest's matrix
+  s390/vfio-ap: filter matrix for unavailable queue devices
+  s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
+  s390/vfio-ap: allow configuration of matrix mdev in use by a KVM guest
+  s390/vfio-ap: allow hot plug/unplug of AP resources using mdev device
+  s390/zcrypt: Notify driver on config changed and scan complete
+    callbacks
+  s390/vfio-ap: handle host AP config change notification
+  s390/vfio-ap: handle AP bus scan completed notification
+  s390/vfio-ap: handle probe/remove not due to host AP config changes
+  s390/vfio-ap: update docs to include dynamic config support
+
+ Documentation/s390/vfio-ap.rst        |  362 ++++++--
+ drivers/s390/crypto/ap_bus.c          |  233 ++++-
+ drivers/s390/crypto/ap_bus.h          |   16 +
+ drivers/s390/crypto/vfio_ap_drv.c     |   36 +-
+ drivers/s390/crypto/vfio_ap_ops.c     | 1216 ++++++++++++++++++++-----
+ drivers/s390/crypto/vfio_ap_private.h |   23 +-
+ 6 files changed, 1533 insertions(+), 353 deletions(-)
+
 -- 
 2.21.1
