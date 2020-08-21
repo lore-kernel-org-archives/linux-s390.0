@@ -1,110 +1,201 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42188 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726456AbgHLTVY (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58800 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727120AbgHUT4z (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 12 Aug 2020 15:21:24 -0400
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH v2] PCI: Introduce flag for detached virtual functions
-Date: Wed, 12 Aug 2020 15:21:11 -0400
-Message-Id: <1597260071-2219-2-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1597260071-2219-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1597260071-2219-1-git-send-email-mjrosato@linux.ibm.com>
+        Fri, 21 Aug 2020 15:56:55 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v10 15/16] s390/vfio-ap: handle probe/remove not due to host AP config changes
+Date: Fri, 21 Aug 2020 15:56:15 -0400
+Message-Id: <20200821195616.13554-16-akrowiak@linux.ibm.com>
+In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, bhelgaas@google.com
-Cc: schnelle@linux.ibm.com, pmorel@linux.ibm.com, mpe@ellerman.id.au, oohall@gmail.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-s390x has the notion of providing VFs to the kernel in a manner
-where the associated PF is inaccessible other than via firmware.
-These are not treated as typical VFs and access to them is emulated
-by underlying firmware which can still access the PF.  After
-abafbc55 however these detached VFs were no longer able to work
-with vfio-pci as the firmware does not provide emulation of the
-PCI_COMMAND_MEMORY bit.  In this case, let's explicitly recognize
-these detached VFs so that vfio-pci can allow memory access to
-them again.
+AP queue devices are probed or removed for reasons other than changes
+to the host AP configuration. For example:
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+* The state of an AP adapter can be dynamically changed from standby to
+  online via the SE or by execution of the SCLP Configure AP command. When
+  the state changes, each queue device associated with the card device
+  representing the adapter will get created and probed.
+
+* The state of an AP adapter can be dynamically changed from online to
+  standby via the SE or by execution of the SCLP Deconfigure AP command.
+  When the state changes, each queue device associated with the card device
+  representing the adapter will get removed.
+
+* Each queue device associated with a card device will get removed
+  when the type of the AP adapter represented by the card device
+  dynamically changes.
+
+* Each queue device associated with a card device will get removed
+  when the status of the queue represented by the queue device changes
+  from operating to check stop.
+
+* AP queue devices can be manually bound to or unbound from the vfio_ap
+  device driver by a root user via the sysfs bind/unbind attributes of the
+  driver.
+
+In response to a queue device probe or remove that is not the result of a
+change to the host's AP configuration, if a KVM guest is using the matrix
+mdev to which the APQN of the queue device is assigned, the vfio_ap device
+driver must respond accordingly. In an ideal world, the queue device being
+probed would be hot plugged into the guest. Likewise, the queue
+corresponding to the queue device being removed would
+be hot unplugged from the guest. Unfortunately, the AP architecture
+precludes plugging or unplugging individual queues, so let's handle
+the probe or remove of an AP queue device as follows:
+
+Handling Probe
+--------------
+There are two requirements that must be met in order to give a
+guest access to the queue corresponding to the queue device being probed:
+
+* Each APQN derived from the APID of the queue device and the APQIs of the
+  domains already assigned to the guest's AP configuration must reference
+  a queue device bound to the vfio_ap device driver.
+
+* Each APQN derived from the APQI of the queue device and the APIDs of the
+  adapters assigned to the guest's AP configuration must reference a queue
+  device bound to the vfio_ap device driver.
+
+If the above conditions are met, the APQN will be assigned to the guest's
+AP configuration and the guest will be given access to the queue.
+
+Handling Remove
+---------------
+Since the AP architecture precludes us from taking access to an individual
+queue from a guest, we are left with the choice of taking access away from
+either the adapter or the domain to which the queue is connected. Access to
+the adapter will be taken away because it is likely that most of the time,
+the remove callback will be invoked because the adapter state has
+transitioned from online to standby. In such a case, no queue connected
+to the adapter will be available to access.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- arch/s390/pci/pci.c                |  8 ++++++++
- drivers/vfio/pci/vfio_pci_config.c | 11 +++++++----
- include/linux/pci.h                |  1 +
- 3 files changed, 16 insertions(+), 4 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 84 +++++++++++++++++++++++++++++++
+ 1 file changed, 84 insertions(+)
 
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index 3902c9f..04ac76d 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -581,6 +581,14 @@ int pcibios_enable_device(struct pci_dev *pdev, int mask)
- {
- 	struct zpci_dev *zdev = to_zpci(pdev);
- 
-+	/*
-+	 * If we have a VF on a non-multifunction bus, it must be a VF that is
-+	 * detached from its parent PF.  We rely on firmware emulation to
-+	 * provide underlying PF details.
-+	 */
-+	if (zdev->vfn && !zdev->zbus->multifunction)
-+		pdev->detached_vf = 1;
-+
- 	zpci_debug_init_device(zdev, dev_name(&pdev->dev));
- 	zpci_fmb_enable_device(zdev);
- 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index d98843f..ee45216 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -406,7 +406,8 @@ bool __vfio_pci_memory_enabled(struct vfio_pci_device *vdev)
- 	 * PF SR-IOV capability, there's therefore no need to trigger
- 	 * faults based on the virtual value.
- 	 */
--	return pdev->is_virtfn || (cmd & PCI_COMMAND_MEMORY);
-+	return pdev->is_virtfn || pdev->detached_vf ||
-+	       (cmd & PCI_COMMAND_MEMORY);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index e6480f31a42b..b6a1e280991d 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1682,6 +1682,61 @@ static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
+ 	}
  }
  
- /*
-@@ -420,7 +421,7 @@ static void vfio_bar_restore(struct vfio_pci_device *vdev)
- 	u16 cmd;
- 	int i;
- 
--	if (pdev->is_virtfn)
-+	if (pdev->is_virtfn || pdev->detached_vf)
- 		return;
- 
- 	pci_info(pdev, "%s: reset recovery - restoring BARs\n", __func__);
-@@ -521,7 +522,8 @@ static int vfio_basic_config_read(struct vfio_pci_device *vdev, int pos,
- 	count = vfio_default_config_read(vdev, pos, count, perm, offset, val);
- 
- 	/* Mask in virtual memory enable for SR-IOV devices */
--	if (offset == PCI_COMMAND && vdev->pdev->is_virtfn) {
-+	if ((offset == PCI_COMMAND) &&
-+	    (vdev->pdev->is_virtfn || vdev->pdev->detached_vf)) {
- 		u16 cmd = le16_to_cpu(*(__le16 *)&vdev->vconfig[PCI_COMMAND]);
- 		u32 tmp_val = le32_to_cpu(*val);
- 
-@@ -1734,7 +1736,8 @@ int vfio_config_init(struct vfio_pci_device *vdev)
- 				 vconfig[PCI_INTERRUPT_PIN]);
- 
- 		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
--
++static bool vfio_ap_mdev_assign_shadow_apid(struct ap_matrix_mdev *matrix_mdev,
++					    unsigned long apid)
++{
++	unsigned long apqi;
++
++	for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm,
++			     matrix_mdev->shadow_apcb.aqm_max + 1) {
++		if (!vfio_ap_get_queue(AP_MKQID(apid, apqi)))
++			return false;
 +	}
-+	if (pdev->is_virtfn || pdev->detached_vf) {
- 		/*
- 		 * VFs do no implement the memory enable bit of the COMMAND
- 		 * register therefore we'll not have it set in our initial
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 8355306..23a6972 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -445,6 +445,7 @@ struct pci_dev {
- 	unsigned int	is_probed:1;		/* Device probing in progress */
- 	unsigned int	link_active_reporting:1;/* Device capable of reporting link active */
- 	unsigned int	no_vf_scan:1;		/* Don't scan for VFs after IOV enablement */
-+	unsigned int	detached_vf:1;		/* VF without local PF access */
- 	pci_dev_flags_t dev_flags;
- 	atomic_t	enable_cnt;	/* pci_enable_device has been called */
++
++	set_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
++
++	return true;
++}
++
++static bool vfio_ap_mdev_assign_shadow_apqi(struct ap_matrix_mdev *matrix_mdev,
++					    unsigned long apqi)
++{
++	unsigned long apid;
++
++	for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
++			     matrix_mdev->shadow_apcb.apm_max + 1) {
++		if (!vfio_ap_get_queue(AP_MKQID(apid, apqi)))
++			return false;
++	}
++
++	set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
++
++	return true;
++}
++
++static void vfio_ap_mdev_hot_plug_queue(struct vfio_ap_queue *q)
++{
++	bool commit = false;
++	unsigned long apid = AP_QID_CARD(q->apqn);
++	unsigned long apqi = AP_QID_QUEUE(q->apqn);
++
++	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
++		return;
++
++	if (!test_bit_inv(apid, q->matrix_mdev->matrix.apm) ||
++	    !test_bit_inv(apqi, q->matrix_mdev->matrix.aqm))
++		return;
++
++	if (!test_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm))
++		commit |= vfio_ap_mdev_assign_shadow_apid(q->matrix_mdev, apid);
++
++	if (!test_bit_inv(apqi, q->matrix_mdev->shadow_apcb.aqm))
++		commit |= vfio_ap_mdev_assign_shadow_apqi(q->matrix_mdev, apqi);
++
++	if (commit)
++		vfio_ap_mdev_commit_shadow_apcb(q->matrix_mdev);
++}
++
+ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
+ {
+ 	struct vfio_ap_queue *q;
+@@ -1695,11 +1750,35 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
+ 	q->apqn = queue->qid;
+ 	q->saved_isc = VFIO_AP_ISC_INVALID;
+ 	vfio_ap_queue_link_mdev(q);
++	/* Make sure we're not in the middle of an AP configuration change. */
++	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
++		vfio_ap_mdev_hot_plug_queue(q);
+ 	mutex_unlock(&matrix_dev->lock);
  
+ 	return 0;
+ }
+ 
++void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
++{
++	unsigned long apid = AP_QID_CARD(q->apqn);
++	unsigned long apqi = AP_QID_QUEUE(q->apqn);
++
++	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
++		return;
++
++	/*
++	 * If the APQN is assigned to the guest, then let's
++	 * go ahead and unplug the adapter since the
++	 * architecture does not provide a means to unplug
++	 * an individual queue.
++	 */
++	if (test_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm) &&
++	    test_bit_inv(apqi, q->matrix_mdev->shadow_apcb.aqm)) {
++		if (vfio_ap_mdev_unassign_guest_apid(q->matrix_mdev, apid))
++			vfio_ap_mdev_commit_shadow_apcb(q->matrix_mdev);
++	}
++}
++
+ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
+ {
+ 	struct vfio_ap_queue *q;
+@@ -1707,6 +1786,11 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
+ 
+ 	mutex_lock(&matrix_dev->lock);
+ 	q = dev_get_drvdata(&queue->ap_dev.device);
++
++	/* Make sure we're not in the middle of an AP configuration change. */
++	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
++		vfio_ap_mdev_hot_unplug_queue(q);
++
+ 	dev_set_drvdata(&queue->ap_dev.device, NULL);
+ 	apid = AP_QID_CARD(q->apqn);
+ 	apqi = AP_QID_QUEUE(q->apqn);
 -- 
-1.8.3.1
+2.21.1
