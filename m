@@ -1,214 +1,324 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44162 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725905AbgHWJK7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Aug 2020 05:10:59 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 2/3] block: fix locking for struct block_device size updates
-Date: Sun, 23 Aug 2020 11:10:42 +0200
-Message-Id: <20200823091043.2600261-3-hch@lst.de>
-In-Reply-To: <20200823091043.2600261-1-hch@lst.de>
-References: <20200823091043.2600261-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46522 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727069AbgHUT4q (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 21 Aug 2020 15:56:46 -0400
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v10 09/16] s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
+Date: Fri, 21 Aug 2020 15:56:09 -0400
+Message-Id: <20200821195616.13554-10-akrowiak@linux.ibm.com>
+In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Justin Sanders <justin@coraid.com>, Josef Bacik <josef@toxicpanda.com>, Xianting Tian <xianting_tian@126.com>, linux-block@vger.kernel.org, dm-devel@redhat.com, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Two different callers use two different mutexes for updating the
-block device size, which obviously doesn't help to actually protect
-against concurrent updates from the different callers.  In addition
-one of the locks, bd_mutex is rather prone to deadlocks with other
-parts of the block stack that use it for high level synchronization.
+The current implementation does not allow assignment of an AP adapter or
+domain to an mdev device if the APQNs resulting from the assignment
+do not reference AP queue devices that are bound to the vfio_ap device
+driver. This patch allows assignment of AP resources to the matrix mdev as
+long as the APQNs resulting from the assignment:
+   1. Are not reserved by the AP BUS for use by the zcrypt device drivers.
+   2. Are not assigned to another matrix mdev.
 
-Switch to using a new spinlock protecting just the size updates, as
-that is all we need, and make sure everyone does the update through
-the proper helper.
+The rationale behind this is twofold:
+   1. The AP architecture does not preclude assignment of APQNs to an AP
+      configuration that are not available to the system.
+   2. APQNs that do not reference a queue device bound to the vfio_ap
+      device driver will not be assigned to the guest's CRYCB, so the
+      guest will not get access to queues not bound to the vfio_ap driver.
 
-This fixes a bug reported with the nvme revalidating disks during a
-hot removal operation, which can currently deadlock on bd_mutex.
-
-Reported-by: Xianting Tian <xianting_tian@126.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- block/partitions/core.c         |  4 ++--
- drivers/block/aoe/aoecmd.c      |  4 +---
- drivers/md/dm.c                 | 15 ++-------------
- drivers/s390/block/dasd_ioctl.c |  9 ++-------
- fs/block_dev.c                  | 25 ++++++++++++++-----------
- include/linux/blk_types.h       |  1 +
- 6 files changed, 22 insertions(+), 36 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 212 +++++-------------------------
+ 1 file changed, 35 insertions(+), 177 deletions(-)
 
-diff --git a/block/partitions/core.c b/block/partitions/core.c
-index e62a98a8eeb750..328a2cb7875ba1 100644
---- a/block/partitions/core.c
-+++ b/block/partitions/core.c
-@@ -585,8 +585,8 @@ int bdev_resize_partition(struct block_device *bdev, int partno,
- 	if (partition_overlaps(bdev->bd_disk, start, length, partno))
- 		goto out_unlock;
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index eaf4e9eab6cb..24fd47e43b80 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1,4 +1,3 @@
+-// SPDX-License-Identifier: GPL-2.0+
+ /*
+  * Adjunct processor matrix VFIO device driver callbacks.
+  *
+@@ -420,122 +419,6 @@ static struct attribute_group *vfio_ap_mdev_type_groups[] = {
+ 	NULL,
+ };
  
--	part_nr_sects_write(part, (sector_t)length);
--	i_size_write(bdevp->bd_inode, length << SECTOR_SHIFT);
-+	part_nr_sects_write(part, length);
-+	bd_set_nr_sectors(bdevp, length);
- 
- 	ret = 0;
- out_unlock:
-diff --git a/drivers/block/aoe/aoecmd.c b/drivers/block/aoe/aoecmd.c
-index 3cf9bc5d8d9599..6ad73fe730bede 100644
---- a/drivers/block/aoe/aoecmd.c
-+++ b/drivers/block/aoe/aoecmd.c
-@@ -900,9 +900,7 @@ aoecmd_sleepwork(struct work_struct *work)
- 		ssize = get_capacity(d->gd);
- 		bd = bdget_disk(d->gd, 0);
- 		if (bd) {
--			inode_lock(bd->bd_inode);
--			i_size_write(bd->bd_inode, (loff_t)ssize<<9);
--			inode_unlock(bd->bd_inode);
-+			bd_set_nr_sectors(bd, ssize);
- 			bdput(bd);
- 		}
- 		spin_lock_irq(&d->lock);
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 32fa6499739fb9..6b21e5104e3e08 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -2097,18 +2097,6 @@ static void event_callback(void *context)
- 	dm_issue_global_event();
- }
- 
--/*
-- * Protected by md->suspend_lock obtained by dm_swap_table().
+-struct vfio_ap_queue_reserved {
+-	unsigned long *apid;
+-	unsigned long *apqi;
+-	bool reserved;
+-};
+-
+-/**
+- * vfio_ap_has_queue
+- *
+- * @dev: an AP queue device
+- * @data: a struct vfio_ap_queue_reserved reference
+- *
+- * Flags whether the AP queue device (@dev) has a queue ID containing the APQN,
+- * apid or apqi specified in @data:
+- *
+- * - If @data contains both an apid and apqi value, then @data will be flagged
+- *   as reserved if the APID and APQI fields for the AP queue device matches
+- *
+- * - If @data contains only an apid value, @data will be flagged as
+- *   reserved if the APID field in the AP queue device matches
+- *
+- * - If @data contains only an apqi value, @data will be flagged as
+- *   reserved if the APQI field in the AP queue device matches
+- *
+- * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
+- * @data does not contain either an apid or apqi.
 - */
--static void __set_size(struct mapped_device *md, sector_t size)
+-static int vfio_ap_has_queue(struct device *dev, void *data)
 -{
--	lockdep_assert_held(&md->suspend_lock);
+-	struct vfio_ap_queue_reserved *qres = data;
+-	struct ap_queue *ap_queue = to_ap_queue(dev);
+-	ap_qid_t qid;
+-	unsigned long id;
 -
--	set_capacity(md->disk, size);
+-	if (qres->apid && qres->apqi) {
+-		qid = AP_MKQID(*qres->apid, *qres->apqi);
+-		if (qid == ap_queue->qid)
+-			qres->reserved = true;
+-	} else if (qres->apid && !qres->apqi) {
+-		id = AP_QID_CARD(ap_queue->qid);
+-		if (id == *qres->apid)
+-			qres->reserved = true;
+-	} else if (!qres->apid && qres->apqi) {
+-		id = AP_QID_QUEUE(ap_queue->qid);
+-		if (id == *qres->apqi)
+-			qres->reserved = true;
+-	} else {
+-		return -EINVAL;
+-	}
 -
--	i_size_write(md->bdev->bd_inode, (loff_t)size << SECTOR_SHIFT);
+-	return 0;
 -}
 -
- /*
-  * Returns old map, which caller must destroy.
-  */
-@@ -2131,7 +2119,8 @@ static struct dm_table *__bind(struct mapped_device *md, struct dm_table *t,
- 	if (size != dm_get_size(md))
- 		memset(&md->geometry, 0, sizeof(md->geometry));
- 
--	__set_size(md, size);
-+	set_capacity(md->disk, size);
-+	bd_set_nr_sectors(md->bdev, size);
- 
- 	dm_table_event_callback(t, event_callback, md);
- 
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index 777734d1b4e58c..faaf5596e31c12 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -55,10 +55,7 @@ dasd_ioctl_enable(struct block_device *bdev)
- 
- 	dasd_enable_device(base);
- 	/* Formatting the dasd device can change the capacity. */
--	mutex_lock(&bdev->bd_mutex);
--	i_size_write(bdev->bd_inode,
--		     (loff_t)get_capacity(base->block->gdp) << 9);
--	mutex_unlock(&bdev->bd_mutex);
-+	bd_set_nr_sectors(bdev, get_capacity(base->block->gdp));
- 	dasd_put_device(base);
- 	return 0;
- }
-@@ -91,9 +88,7 @@ dasd_ioctl_disable(struct block_device *bdev)
- 	 * Set i_size to zero, since read, write, etc. check against this
- 	 * value.
- 	 */
--	mutex_lock(&bdev->bd_mutex);
--	i_size_write(bdev->bd_inode, 0);
--	mutex_unlock(&bdev->bd_mutex);
-+	bd_set_nr_sectors(bdev, 0);
- 	dasd_put_device(base);
- 	return 0;
- }
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index f52597172c8b79..08158bb2e76c85 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -876,6 +876,7 @@ struct block_device *bdget(dev_t dev)
- 	bdev = &BDEV_I(inode)->bdev;
- 
- 	if (inode->i_state & I_NEW) {
-+		spin_lock_init(&bdev->bd_size_lock);
- 		bdev->bd_contains = NULL;
- 		bdev->bd_super = NULL;
- 		bdev->bd_inode = inode;
-@@ -1290,6 +1291,7 @@ static void check_disk_size_change(struct gendisk *disk,
- {
- 	loff_t disk_size, bdev_size;
- 
-+	spin_lock(&bdev->bd_size_lock);
- 	disk_size = (loff_t)get_capacity(disk) << 9;
- 	bdev_size = i_size_read(bdev->bd_inode);
- 	if (disk_size != bdev_size) {
-@@ -1299,11 +1301,15 @@ static void check_disk_size_change(struct gendisk *disk,
- 			       disk->disk_name, bdev_size, disk_size);
- 		}
- 		i_size_write(bdev->bd_inode, disk_size);
--		if (bdev_size > disk_size && __invalidate_device(bdev, false))
-+	}
-+	bdev->bd_invalidated = 0;
-+	spin_unlock(&bdev->bd_size_lock);
-+
-+	if (bdev_size > disk_size) {
-+		if (__invalidate_device(bdev, false))
- 			pr_warn("VFS: busy inodes on resized disk %s\n",
- 				disk->disk_name);
- 	}
--	bdev->bd_invalidated = 0;
- }
- 
- /**
-@@ -1328,13 +1334,10 @@ int revalidate_disk(struct gendisk *disk)
- 	if (!(disk->flags & GENHD_FL_HIDDEN)) {
- 		struct block_device *bdev = bdget_disk(disk, 0);
- 
--		if (!bdev)
--			return ret;
+-/**
+- * vfio_ap_verify_queue_reserved
+- *
+- * @matrix_dev: a mediated matrix device
+- * @apid: an AP adapter ID
+- * @apqi: an AP queue index
+- *
+- * Verifies that the AP queue with @apid/@apqi is reserved by the VFIO AP device
+- * driver according to the following rules:
+- *
+- * - If both @apid and @apqi are not NULL, then there must be an AP queue
+- *   device bound to the vfio_ap driver with the APQN identified by @apid and
+- *   @apqi
+- *
+- * - If only @apid is not NULL, then there must be an AP queue device bound
+- *   to the vfio_ap driver with an APQN containing @apid
+- *
+- * - If only @apqi is not NULL, then there must be an AP queue device bound
+- *   to the vfio_ap driver with an APQN containing @apqi
+- *
+- * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
+- */
+-static int vfio_ap_verify_queue_reserved(unsigned long *apid,
+-					 unsigned long *apqi)
+-{
+-	int ret;
+-	struct vfio_ap_queue_reserved qres;
 -
--		mutex_lock(&bdev->bd_mutex);
--		check_disk_size_change(disk, bdev, ret == 0);
--		mutex_unlock(&bdev->bd_mutex);
--		bdput(bdev);
-+		if (bdev) {
-+			check_disk_size_change(disk, bdev, ret == 0);
-+			bdput(bdev);
-+		}
- 	}
- 	return ret;
+-	qres.apid = apid;
+-	qres.apqi = apqi;
+-	qres.reserved = false;
+-
+-	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+-				     &qres, vfio_ap_has_queue);
+-	if (ret)
+-		return ret;
+-
+-	if (qres.reserved)
+-		return 0;
+-
+-	return -EADDRNOTAVAIL;
+-}
+-
+-static int
+-vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
+-					     unsigned long apid)
+-{
+-	int ret;
+-	unsigned long apqi;
+-	unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
+-
+-	if (find_first_bit_inv(matrix_mdev->matrix.aqm, nbits) >= nbits)
+-		return vfio_ap_verify_queue_reserved(&apid, NULL);
+-
+-	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
+-		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
+-		if (ret)
+-			return ret;
+-	}
+-
+-	return 0;
+-}
+-
+ #define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
+ 			 "already assigned to %s"
+ 
+@@ -572,6 +455,11 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
+ 	DECLARE_BITMAP(aqm, AP_DOMAINS);
+ 
+ 	list_for_each_entry(lstdev, &matrix_dev->mdev_list, node) {
++		/*
++		 * If either of the input masks belongs to the mdev to which an
++		 * AP resource is being assigned, then we don't need to verify
++		 * that mdev's masks.
++		 */
+ 		if (matrix_mdev == lstdev)
+ 			continue;
+ 
+@@ -597,6 +485,20 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
+ 	return 0;
  }
-@@ -1373,9 +1376,9 @@ EXPORT_SYMBOL(check_disk_change);
  
- void bd_set_nr_sectors(struct block_device *bdev, sector_t sectors)
- {
--	inode_lock(bdev->bd_inode);
-+	spin_lock(&bdev->bd_size_lock);
- 	i_size_write(bdev->bd_inode, (loff_t)sectors << SECTOR_SHIFT);
--	inode_unlock(bdev->bd_inode);
-+	spin_unlock(&bdev->bd_size_lock);
++static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev,
++				       unsigned long *mdev_apm,
++				       unsigned long *mdev_aqm)
++{
++	DECLARE_BITMAP(apm, AP_DEVICES);
++	DECLARE_BITMAP(aqm, AP_DOMAINS);
++
++	if (bitmap_and(apm, mdev_apm, ap_perms.apm, AP_DEVICES) &&
++	    bitmap_and(aqm, mdev_aqm, ap_perms.aqm, AP_DOMAINS))
++		return -EADDRNOTAVAIL;
++
++	return vfio_ap_mdev_verify_no_sharing(matrix_mdev, mdev_apm, mdev_aqm);
++}
++
+ /**
+  * vfio_ap_mdev_filter_matrix
+  *
+@@ -882,33 +784,21 @@ static ssize_t assign_adapter_store(struct device *dev,
+ 	if (apid > matrix_mdev->matrix.apm_max)
+ 		return -ENODEV;
+ 
+-	/*
+-	 * Set the bit in the AP mask (APM) corresponding to the AP adapter
+-	 * number (APID). The bits in the mask, from most significant to least
+-	 * significant bit, correspond to APIDs 0-255.
+-	 */
+-	mutex_lock(&matrix_dev->lock);
+-
+-	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
+-	if (ret)
+-		goto done;
+-
+ 	memset(apm, 0, sizeof(apm));
+ 	set_bit_inv(apid, apm);
+ 
+-	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
+-					     matrix_mdev->matrix.aqm);
+-	if (ret)
+-		goto done;
+-
++	mutex_lock(&matrix_dev->lock);
++	ret = vfio_ap_mdev_validate_masks(matrix_mdev, apm,
++					  matrix_mdev->matrix.aqm);
++	if (ret) {
++		mutex_unlock(&matrix_dev->lock);
++		return ret;
++	}
+ 	set_bit_inv(apid, matrix_mdev->matrix.apm);
+ 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
+-	ret = count;
+-
+-done:
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+-	return ret;
++	return count;
  }
- EXPORT_SYMBOL(bd_set_nr_sectors);
+ static DEVICE_ATTR_WO(assign_adapter);
  
-diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
-index 4ecf4fed171f0d..5accc2549d2259 100644
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -38,6 +38,7 @@ struct block_device {
- 	/* number of times partitions within this device have been opened. */
- 	unsigned		bd_part_count;
- 	int			bd_invalidated;
-+	spinlock_t		bd_size_lock; /* for bd_inode->i_size updates */
- 	struct gendisk *	bd_disk;
- 	struct backing_dev_info *bd_bdi;
+@@ -958,26 +848,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
+ }
+ static DEVICE_ATTR_WO(unassign_adapter);
  
+-static int
+-vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
+-					     unsigned long apqi)
+-{
+-	int ret;
+-	unsigned long apid;
+-	unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
+-
+-	if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
+-		return vfio_ap_verify_queue_reserved(NULL, &apqi);
+-
+-	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
+-		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
+-		if (ret)
+-			return ret;
+-	}
+-
+-	return 0;
+-}
+-
+ /**
+  * assign_domain_store
+  *
+@@ -1031,28 +901,21 @@ static ssize_t assign_domain_store(struct device *dev,
+ 	if (apqi > max_apqi)
+ 		return -ENODEV;
+ 
+-	mutex_lock(&matrix_dev->lock);
+-
+-	ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
+-	if (ret)
+-		goto done;
+-
+ 	memset(aqm, 0, sizeof(aqm));
+ 	set_bit_inv(apqi, aqm);
+ 
+-	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
+-					     matrix_mdev->matrix.apm, aqm);
+-	if (ret)
+-		goto done;
+-
++	mutex_lock(&matrix_dev->lock);
++	ret = vfio_ap_mdev_validate_masks(matrix_mdev, matrix_mdev->matrix.apm,
++					  aqm);
++	if (ret) {
++		mutex_unlock(&matrix_dev->lock);
++		return ret;
++	}
+ 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
+ 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
+-	ret = count;
+-
+-done:
+ 	mutex_unlock(&matrix_dev->lock);
+ 
+-	return ret;
++	return count;
+ }
+ static DEVICE_ATTR_WO(assign_domain);
+ 
+@@ -1139,11 +1002,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
+ 	if (id > matrix_mdev->matrix.adm_max)
+ 		return -ENODEV;
+ 
+-	/* Set the bit in the ADM (bitmask) corresponding to the AP control
+-	 * domain number (id). The bits in the mask, from most significant to
+-	 * least significant, correspond to IDs 0 up to the one less than the
+-	 * number of control domains that can be assigned.
+-	 */
+ 	mutex_lock(&matrix_dev->lock);
+ 	set_bit_inv(id, matrix_mdev->matrix.adm);
+ 	mutex_unlock(&matrix_dev->lock);
 -- 
-2.28.0
+2.21.1
