@@ -1,50 +1,122 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49982 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726635AbgHXHh6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 24 Aug 2020 03:37:58 -0400
-Subject: Re: [PATCH 3/3] nvme: don't call revalidate_disk from
- nvme_set_queue_dying
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725912AbgHWJK7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 23 Aug 2020 05:10:59 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 3/3] nvme: don't call revalidate_disk from nvme_set_queue_dying
+Date: Sun, 23 Aug 2020 11:10:43 +0200
+Message-Id: <20200823091043.2600261-4-hch@lst.de>
+In-Reply-To: <20200823091043.2600261-1-hch@lst.de>
 References: <20200823091043.2600261-1-hch@lst.de>
- <20200823091043.2600261-4-hch@lst.de>
-From: Hannes Reinecke <hare@suse.de>
-Message-ID: <bec1889c-5e0f-cd33-f74a-a7d44161a0ee@suse.de>
-Date: Mon, 24 Aug 2020 09:37:56 +0200
 MIME-Version: 1.0
-In-Reply-To: <20200823091043.2600261-4-hch@lst.de>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+To: Jens Axboe <axboe@kernel.dk>
 Cc: Justin Sanders <justin@coraid.com>, Josef Bacik <josef@toxicpanda.com>, Xianting Tian <xianting_tian@126.com>, linux-block@vger.kernel.org, dm-devel@redhat.com, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-On 8/23/20 11:10 AM, Christoph Hellwig wrote:
-> In nvme_set_queue_dying we really just want to ensure the disk and bdev
-> sizes are set to zero.  Going through revalidate_disk leads to a somewhat
-> arcance and complex callchain relying on special behavior in a few
-> places.  Instead just lift the set_capacity directly to
-> nvme_set_queue_dying, and rename and move the nvme_mpath_update_disk_size
-> helper so that we can use it in nvme_set_queue_dying to propagate the
-> size to the bdev without detours.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/nvme/host/core.c | 33 +++++++++++++++++++++++----------
->  drivers/nvme/host/nvme.h | 13 -------------
->  2 files changed, 23 insertions(+), 23 deletions(-)
-> 
-YES!
-I've been bitten by this far too often.
+In nvme_set_queue_dying we really just want to ensure the disk and bdev
+sizes are set to zero.  Going through revalidate_disk leads to a somewhat
+arcance and complex callchain relying on special behavior in a few
+places.  Instead just lift the set_capacity directly to
+nvme_set_queue_dying, and rename and move the nvme_mpath_update_disk_size
+helper so that we can use it in nvme_set_queue_dying to propagate the
+size to the bdev without detours.
 
-Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/nvme/host/core.c | 33 +++++++++++++++++++++++----------
+ drivers/nvme/host/nvme.h | 13 -------------
+ 2 files changed, 23 insertions(+), 23 deletions(-)
 
-Cheers,
-
-Hannes
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 88cff309d8e4f0..12dea15527f61a 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -94,21 +94,34 @@ static void nvme_put_subsystem(struct nvme_subsystem *subsys);
+ static void nvme_remove_invalid_namespaces(struct nvme_ctrl *ctrl,
+ 					   unsigned nsid);
+ 
++static void nvme_update_bdev_size(struct gendisk *disk)
++{
++	struct block_device *bdev = bdget_disk(disk, 0);
++
++	if (bdev) {
++		bd_set_nr_sectors(bdev, get_capacity(disk));
++		bdput(bdev);
++	}
++}
++
++/*
++ * Prepare a queue for teardown.
++ *
++ * This must forcibly unquiesce queues to avoid blocking dispatch, and only set
++ * the capacity to 0 after that to avoid blocking dispatchers that may be
++ * holding bd_butex.  This will end buffered writers dirtying pages that can't
++ * be synced.
++ */
+ static void nvme_set_queue_dying(struct nvme_ns *ns)
+ {
+-	/*
+-	 * Revalidating a dead namespace sets capacity to 0. This will end
+-	 * buffered writers dirtying pages that can't be synced.
+-	 */
+ 	if (test_and_set_bit(NVME_NS_DEAD, &ns->flags))
+ 		return;
++
+ 	blk_set_queue_dying(ns->queue);
+-	/* Forcibly unquiesce queues to avoid blocking dispatch */
+ 	blk_mq_unquiesce_queue(ns->queue);
+-	/*
+-	 * Revalidate after unblocking dispatchers that may be holding bd_butex
+-	 */
+-	revalidate_disk(ns->disk);
++
++	set_capacity(ns->disk, 0);
++	nvme_update_bdev_size(ns->disk);
+ }
+ 
+ static void nvme_queue_scan(struct nvme_ctrl *ctrl)
+@@ -2083,7 +2096,7 @@ static int __nvme_revalidate_disk(struct gendisk *disk, struct nvme_id_ns *id)
+ 		nvme_update_disk_info(ns->head->disk, ns, id);
+ 		blk_stack_limits(&ns->head->disk->queue->limits,
+ 				 &ns->queue->limits, 0);
+-		nvme_mpath_update_disk_size(ns->head->disk);
++		nvme_update_bdev_size(ns->head->disk);
+ 	}
+ #endif
+ 	return 0;
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index ae5cad5a08f411..4cadaea9034ae4 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -659,16 +659,6 @@ static inline void nvme_trace_bio_complete(struct request *req,
+ 		trace_block_bio_complete(ns->head->disk->queue, req->bio);
+ }
+ 
+-static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
+-{
+-	struct block_device *bdev = bdget_disk(disk, 0);
+-
+-	if (bdev) {
+-		bd_set_nr_sectors(bdev, get_capacity(disk));
+-		bdput(bdev);
+-	}
+-}
+-
+ extern struct device_attribute dev_attr_ana_grpid;
+ extern struct device_attribute dev_attr_ana_state;
+ extern struct device_attribute subsys_attr_iopolicy;
+@@ -744,9 +734,6 @@ static inline void nvme_mpath_wait_freeze(struct nvme_subsystem *subsys)
+ static inline void nvme_mpath_start_freeze(struct nvme_subsystem *subsys)
+ {
+ }
+-static inline void nvme_mpath_update_disk_size(struct gendisk *disk)
+-{
+-}
+ #endif /* CONFIG_NVME_MULTIPATH */
+ 
+ #ifdef CONFIG_BLK_DEV_ZONED
 -- 
-Dr. Hannes Reinecke		           Kernel Storage Architect
-hare@suse.de			                  +49 911 74053 688
-SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
-HRB 36809 (AG Nürnberg), GF: Felix Imendörffer
+2.28.0
