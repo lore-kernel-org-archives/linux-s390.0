@@ -1,23 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-pg1-f169.google.com ([209.85.215.169]:33315 "EHLO
-        mail-pg1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725968AbgHXI0N (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 24 Aug 2020 04:26:13 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49982 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726635AbgHXHh6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 24 Aug 2020 03:37:58 -0400
 Subject: Re: [PATCH 3/3] nvme: don't call revalidate_disk from
  nvme_set_queue_dying
 References: <20200823091043.2600261-1-hch@lst.de>
  <20200823091043.2600261-4-hch@lst.de>
-From: Sagi Grimberg <sagi@grimberg.me>
-Message-ID: <b5422c22-7f68-e2a5-ec53-e1457d11f3ad@grimberg.me>
-Date: Mon, 24 Aug 2020 01:26:10 -0700
+From: Hannes Reinecke <hare@suse.de>
+Message-ID: <bec1889c-5e0f-cd33-f74a-a7d44161a0ee@suse.de>
+Date: Mon, 24 Aug 2020 09:37:56 +0200
 MIME-Version: 1.0
 In-Reply-To: <20200823091043.2600261-4-hch@lst.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc: linux-s390@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, Justin Sanders <justin@coraid.com>, linux-nvme@lists.infradead.org, Josef Bacik <josef@toxicpanda.com>, Xianting Tian <xianting_tian@126.com>, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, dm-devel@redhat.com, Stefan Haberland <sth@linux.ibm.com>, nbd@other.debian.org
+Cc: Justin Sanders <justin@coraid.com>, Josef Bacik <josef@toxicpanda.com>, Xianting Tian <xianting_tian@126.com>, linux-block@vger.kernel.org, dm-devel@redhat.com, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-nvme@lists.infradead.org, linux-s390@vger.kernel.org
 
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+On 8/23/20 11:10 AM, Christoph Hellwig wrote:
+> In nvme_set_queue_dying we really just want to ensure the disk and bdev
+> sizes are set to zero.  Going through revalidate_disk leads to a somewhat
+> arcance and complex callchain relying on special behavior in a few
+> places.  Instead just lift the set_capacity directly to
+> nvme_set_queue_dying, and rename and move the nvme_mpath_update_disk_size
+> helper so that we can use it in nvme_set_queue_dying to propagate the
+> size to the bdev without detours.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/nvme/host/core.c | 33 +++++++++++++++++++++++----------
+>  drivers/nvme/host/nvme.h | 13 -------------
+>  2 files changed, 23 insertions(+), 23 deletions(-)
+> 
+YES!
+I've been bitten by this far too often.
+
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+
+Cheers,
+
+Hannes
+-- 
+Dr. Hannes Reinecke		           Kernel Storage Architect
+hare@suse.de			                  +49 911 74053 688
+SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 36809 (AG Nürnberg), GF: Felix Imendörffer
