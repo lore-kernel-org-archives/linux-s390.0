@@ -1,95 +1,76 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32908 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727773AbgHQJSv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 05:18:51 -0400
-From: Allen Pais <allen.cryptic@gmail.com>
-Subject: [PATCH] firewire: ohci: convert tasklets to use new tasklet_setup() API
-Date: Mon, 17 Aug 2020 14:46:05 +0530
-Message-Id: <20200817091617.28119-11-allen.cryptic@gmail.com>
-In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
-References: <20200817091617.28119-1-allen.cryptic@gmail.com>
+        with ESMTP id S1726483AbgHYXTN (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 25 Aug 2020 19:19:13 -0400
+Date: Tue, 25 Aug 2020 16:19:00 -0700
+From: Nicolin Chen <nicoleotsuka@gmail.com>
+Subject: Re: [RFT][PATCH 0/7] Avoid overflow at boundary_size
+Message-ID: <20200825231900.GA4726@Asurada-Nvidia>
+References: <20200820231923.23678-1-nicoleotsuka@gmail.com>
+ <4321af30-9554-6897-5281-05afd88f2631@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4321af30-9554-6897-5281-05afd88f2631@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
-Cc: keescook@chromium.org, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
 
-From: Allen Pais <allen.lkml@gmail.com>
+Hi Niklas,
 
-In preparation for unconditionally passing the
-struct tasklet_struct pointer to all tasklet
-callbacks, switch to using the new tasklet_setup()
-and from_tasklet() to pass the tasklet pointer explicitly.
+On Tue, Aug 25, 2020 at 12:16:27PM +0200, Niklas Schnelle wrote:
+> On 8/21/20 1:19 AM, Nicolin Chen wrote:
+> > We are expending the default DMA segmentation boundary to its
+> > possible maximum value (ULONG_MAX) to indicate that a device
+> > doesn't specify a boundary limit. So all dma_get_seg_boundary
+> > callers should take a precaution with the return values since
+> > it would easily get overflowed.
+> > 
+> > I scanned the entire kernel tree for all the existing callers
+> > and found that most of callers may get overflowed in two ways:
+> > either "+ 1" or passing it to ALIGN() that does "+ mask".
+> > 
+> > According to kernel defines:
+> >     #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
+> >     #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
+> > 
+> > We can simplify the logic here:
+> >   ALIGN(boundary + 1, 1 << shift) >> shift
+> > = ALIGN_MASK(b + 1, (1 << s) - 1) >> s
+> > = {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
+> > = [b + 1 + (1 << s) - 1] >> s
+> > = [b + (1 << s)] >> s
+> > = (b >> s) + 1
+> > 
+> > So this series of patches fix the potential overflow with this
+> > overflow-free shortcut.
+ 
+> haven't seen any other feedback from other maintainers,
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
-Signed-off-by: Allen Pais <allen.lkml@gmail.com>
----
- drivers/firewire/ohci.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+I am wondering this too...whether I sent correctly or not.
 
-diff --git a/drivers/firewire/ohci.c b/drivers/firewire/ohci.c
-index 7dde21b18b04..6298ff03796e 100644
---- a/drivers/firewire/ohci.c
-+++ b/drivers/firewire/ohci.c
-@@ -921,9 +921,9 @@ static void ar_recycle_buffers(struct ar_context *ctx, unsigned int end_buffer)
- 	}
- }
- 
--static void ar_context_tasklet(unsigned long data)
-+static void ar_context_tasklet(struct tasklet_struct *t)
- {
--	struct ar_context *ctx = (struct ar_context *)data;
-+	struct ar_context *ctx = from_tasklet(ctx, t, tasklet);
- 	unsigned int end_buffer_index, end_buffer_offset;
- 	void *p, *end;
- 
-@@ -977,7 +977,7 @@ static int ar_context_init(struct ar_context *ctx, struct fw_ohci *ohci,
- 
- 	ctx->regs        = regs;
- 	ctx->ohci        = ohci;
--	tasklet_init(&ctx->tasklet, ar_context_tasklet, (unsigned long)ctx);
-+	tasklet_setup(&ctx->tasklet, ar_context_tasklet);
- 
- 	for (i = 0; i < AR_BUFFERS; i++) {
- 		ctx->pages[i] = alloc_page(GFP_KERNEL | GFP_DMA32);
-@@ -1049,9 +1049,9 @@ static struct descriptor *find_branch_descriptor(struct descriptor *d, int z)
- 		return d + z - 1;
- }
- 
--static void context_tasklet(unsigned long data)
-+static void context_tasklet(struct tasklet_struct *t)
- {
--	struct context *ctx = (struct context *) data;
-+	struct context *ctx = from_tasklet(ctx, t, tasklet);
- 	struct descriptor *d, *last;
- 	u32 address;
- 	int z;
-@@ -1145,7 +1145,7 @@ static int context_init(struct context *ctx, struct fw_ohci *ohci,
- 	ctx->buffer_tail = list_entry(ctx->buffer_list.next,
- 			struct descriptor_buffer, list);
- 
--	tasklet_init(&ctx->tasklet, context_tasklet, (unsigned long)ctx);
-+	tasklet_setup(&ctx->tasklet, context_tasklet);
- 	ctx->callback = callback;
- 
- 	/*
-@@ -1420,7 +1420,7 @@ static void at_context_flush(struct context *ctx)
- 	tasklet_disable(&ctx->tasklet);
- 
- 	ctx->flushing = true;
--	context_tasklet((unsigned long)ctx);
-+	context_tasklet(&ctx->tasklet);
- 	ctx->flushing = false;
- 
- 	tasklet_enable(&ctx->tasklet);
-@@ -3472,7 +3472,7 @@ static int ohci_flush_iso_completions(struct fw_iso_context *base)
- 	tasklet_disable(&ctx->context.tasklet);
- 
- 	if (!test_and_set_bit_lock(0, &ctx->flushing_completions)) {
--		context_tasklet((unsigned long)&ctx->context);
-+		context_tasklet(&ctx->context.tasklet);
- 
- 		switch (base->type) {
- 		case FW_ISO_CONTEXT_TRANSMIT:
--- 
-2.17.1
+> so I guess you will resend this?
+
+Do I need to? Though I won't mind doing so if it's necessary..
+
+> On first glance it seems to make sense.
+> I'm a little confused why it is only a "potential overflow"
+> while this part
+> 
+> "We are expending the default DMA segmentation boundary to its
+>  possible maximum value (ULONG_MAX) to indicate that a device
+>  doesn't specify a boundary limit"
+> 
+> sounds to me like ULONG_MAX is actually used, does that
+> mean there are currently no devices which do not specify a
+> boundary limit?
+
+Sorry for the confusion. We actually applied ULONG_MAX change
+last week but reverted it right after, due to a bug report at
+one of these "potential" overflows. So at this moment the top
+of the tree doesn't set default boundary to ULONG_MAX yet.
+
+Thanks
+Nic
