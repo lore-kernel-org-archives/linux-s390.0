@@ -1,116 +1,64 @@
 Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 00/17] memblock: seasonal cleaning^w cleanup
-Date: Tue, 18 Aug 2020 18:16:17 +0300
-Message-Id: <20200818151634.14343-1-rppt@kernel.org>
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: [PATCH v2 18/23] s390: use asm-generic/mmu_context.h for no-op implementations
+Date: Thu, 27 Aug 2020 00:52:44 +1000
+Message-Id: <20200826145249.745432-19-npiggin@gmail.com>
+In-Reply-To: <20200826145249.745432-1-npiggin@gmail.com>
+References: <20200826145249.745432-1-npiggin@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: linux-arch@vger.kernel.org
+Cc: Nicholas Piggin <npiggin@gmail.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, Arnd Bergmann <arnd@arndb.de>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+---
+ arch/s390/include/asm/mmu_context.h | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-Hi,
-
-These patches simplify several uses of memblock iterators and hide some of
-the memblock implementation details from the rest of the system.
-
-The patches are on top of v5.9-rc1
-
-v3 changes:
-* rebase on v5.9-rc1, as the result this required some non-trivial changes
-  in patches 10 and 16. I didn't add Baoquan's Reviewed-by to theses
-  patches, but I keept Thomas and Miguel
-* Add Acked-by from Thomas and Miguel as there were changes in MIPS and
-  only trivial changes in .clang-format
-* Added Reviewed-by from Baoquan except for the patches 10 and 16
-* Fixed misc build errors and warnings reported by kbuild bot
-* Updated PowerPC KVM reservation size (patch 2), as per Daniel's comment
-
-v2 changes:
-* replace for_each_memblock() with two versions, one for memblock.memory
-  and another one for memblock.reserved
-* fix overzealous cleanup of powerpc fadamp: keep the traversal over the
-  memblocks, but use better suited iterators
-* don't remove traversal over memblock.reserved in x86 numa cleanup but
-  replace for_each_memblock() with new for_each_reserved_mem_region()
-* simplify ramdisk and crash kernel allocations on x86
-* drop more redundant and unused code: __next_reserved_mem_region() and
-  memblock_mem_size()
-* add description of numa initialization fix on arm64 (thanks Jonathan)
-* add Acked and Reviewed tags
-
-Mike Rapoport (17):
-  KVM: PPC: Book3S HV: simplify kvm_cma_reserve()
-  dma-contiguous: simplify cma_early_percent_memory()
-  arm, xtensa: simplify initialization of high memory pages
-  arm64: numa: simplify dummy_numa_init()
-  h8300, nds32, openrisc: simplify detection of memory extents
-  riscv: drop unneeded node initialization
-  mircoblaze: drop unneeded NUMA and sparsemem initializations
-  memblock: make for_each_memblock_type() iterator private
-  memblock: make memblock_debug and related functionality private
-  memblock: reduce number of parameters in for_each_mem_range()
-  arch, mm: replace for_each_memblock() with for_each_mem_pfn_range()
-  arch, drivers: replace for_each_membock() with for_each_mem_range()
-  x86/setup: simplify initrd relocation and reservation
-  x86/setup: simplify reserve_crashkernel()
-  memblock: remove unused memblock_mem_size()
-  memblock: implement for_each_reserved_mem_region() using
-    __next_mem_region()
-  memblock: use separate iterators for memory and reserved regions
-
- .clang-format                            |  5 +-
- arch/arm/kernel/setup.c                  | 18 +++--
- arch/arm/mm/init.c                       | 59 +++------------
- arch/arm/mm/mmu.c                        | 39 ++++------
- arch/arm/mm/pmsa-v7.c                    | 23 +++---
- arch/arm/mm/pmsa-v8.c                    | 17 ++---
- arch/arm/xen/mm.c                        |  7 +-
- arch/arm64/kernel/machine_kexec_file.c   |  6 +-
- arch/arm64/kernel/setup.c                |  4 +-
- arch/arm64/mm/init.c                     | 11 +--
- arch/arm64/mm/kasan_init.c               | 10 +--
- arch/arm64/mm/mmu.c                      | 11 +--
- arch/arm64/mm/numa.c                     | 15 ++--
- arch/c6x/kernel/setup.c                  |  9 ++-
- arch/h8300/kernel/setup.c                |  8 +-
- arch/microblaze/mm/init.c                | 21 ++----
- arch/mips/cavium-octeon/dma-octeon.c     | 12 +--
- arch/mips/kernel/setup.c                 | 31 ++++----
- arch/mips/netlogic/xlp/setup.c           |  2 +-
- arch/nds32/kernel/setup.c                |  8 +-
- arch/openrisc/kernel/setup.c             |  9 +--
- arch/openrisc/mm/init.c                  |  8 +-
- arch/powerpc/kernel/fadump.c             | 57 +++++++-------
- arch/powerpc/kexec/file_load_64.c        | 16 ++--
- arch/powerpc/kvm/book3s_hv_builtin.c     | 12 +--
- arch/powerpc/mm/book3s64/hash_utils.c    | 16 ++--
- arch/powerpc/mm/book3s64/radix_pgtable.c | 10 +--
- arch/powerpc/mm/kasan/kasan_init_32.c    |  8 +-
- arch/powerpc/mm/mem.c                    | 33 ++++----
- arch/powerpc/mm/numa.c                   |  7 +-
- arch/powerpc/mm/pgtable_32.c             |  8 +-
- arch/riscv/mm/init.c                     | 36 +++------
- arch/riscv/mm/kasan_init.c               | 10 +--
- arch/s390/kernel/setup.c                 | 27 ++++---
- arch/s390/mm/page-states.c               |  6 +-
- arch/s390/mm/vmem.c                      |  7 +-
- arch/sh/mm/init.c                        |  9 +--
- arch/sparc/mm/init_64.c                  | 12 +--
- arch/x86/kernel/setup.c                  | 56 +++++---------
- arch/x86/mm/numa.c                       |  2 +-
- arch/xtensa/mm/init.c                    | 55 +++-----------
- drivers/bus/mvebu-mbus.c                 | 12 +--
- drivers/irqchip/irq-gic-v3-its.c         |  2 +-
- include/linux/memblock.h                 | 88 +++++++++++++---------
- kernel/dma/contiguous.c                  | 11 +--
- mm/memblock.c                            | 95 ++++++++++--------------
- mm/page_alloc.c                          | 11 ++-
- mm/sparse.c                              | 10 +--
- 48 files changed, 387 insertions(+), 562 deletions(-)
-
+diff --git a/arch/s390/include/asm/mmu_context.h b/arch/s390/include/asm/mmu_context.h
+index c9f3d8a52756..66f9cf0a07e3 100644
+--- a/arch/s390/include/asm/mmu_context.h
++++ b/arch/s390/include/asm/mmu_context.h
+@@ -15,6 +15,7 @@
+ #include <asm/ctl_reg.h>
+ #include <asm-generic/mm_hooks.h>
+ 
++#define init_new_context init_new_context
+ static inline int init_new_context(struct task_struct *tsk,
+ 				   struct mm_struct *mm)
+ {
+@@ -69,8 +70,6 @@ static inline int init_new_context(struct task_struct *tsk,
+ 	return 0;
+ }
+ 
+-#define destroy_context(mm)             do { } while (0)
+-
+ static inline void set_user_asce(struct mm_struct *mm)
+ {
+ 	S390_lowcore.user_asce = mm->context.asce;
+@@ -125,9 +124,7 @@ static inline void finish_arch_post_lock_switch(void)
+ 	set_fs(current->thread.mm_segment);
+ }
+ 
+-#define enter_lazy_tlb(mm,tsk)	do { } while (0)
+-#define deactivate_mm(tsk,mm)	do { } while (0)
+-
++#define activate_mm activate_mm
+ static inline void activate_mm(struct mm_struct *prev,
+                                struct mm_struct *next)
+ {
+@@ -136,4 +133,6 @@ static inline void activate_mm(struct mm_struct *prev,
+ 	set_user_asce(next);
+ }
+ 
++#include <asm-generic/mmu_context.h>
++
+ #endif /* __S390_MMU_CONTEXT_H */
 -- 
-2.26.2
+2.23.0
