@@ -1,77 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Thu, 27 Aug 2020 13:20:40 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-Subject: Re: [patch V2 34/46] PCI/MSI: Make arch_.*_msi_irq[s] fallbacks
- selectable
-Message-ID: <20200827182040.GA2049623@bjorn-Precision-5520>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch V2 34/46] PCI/MSI: Make arch_.*_msi_irq[s] fallbacks selectable
+In-Reply-To: <8736492jot.wl-maz@kernel.org>
+References: <20200826111628.794979401@linutronix.de> <20200826112333.992429909@linutronix.de> <8736492jot.wl-maz@kernel.org>
+Date: Wed, 26 Aug 2020 23:27:41 +0200
+Message-ID: <87lfi1t7w2.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200826112333.992429909@linutronix.de>
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Jon Derrick <jonathan.derrick@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, Wei Liu <wei.liu@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>, Russ Anderson <rja@hpe.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Marc Zyngier <maz@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Megha Dey <megha.dey@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, Dave Jiang <dave.jiang@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Jacob Pan <jacob.jun.pan@intel.com>, Baolu Lu <baolu.lu@intel.com>, Kevin Tian <kevin.tian@intel.com>, Dan Williams <dan.j.williams@intel.com>, Rob Herring <robh@kernel.org>
+To: Marc Zyngier <maz@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Jon Derrick <jonathan.derrick@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, Wei Liu <wei.liu@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>, Russ Anderson <rja@hpe.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Megha Dey <megha.dey@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, Dave Jiang <dave.jiang@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Jacob Pan <jacob.jun.pan@intel.com>, Baolu Lu <baolu.lu@intel.com>, Kevin Tian <kevin.tian@intel.com>, Dan Williams <dan.j.williams@intel.com>
 
-[+cc Rob,
-cover https://lore.kernel.org/r/20200826111628.794979401@linutronix.de/
-this  https://lore.kernel.org/r/20200826112333.992429909@linutronix.de/]
+On Wed, Aug 26 2020 at 22:14, Marc Zyngier wrote:
+> On Wed, 26 Aug 2020 12:17:02 +0100,
+> Thomas Gleixner <tglx@linutronix.de> wrote:
+>> @@ -103,6 +105,7 @@ config PCIE_XILINX_CPM
+>>  	bool "Xilinx Versal CPM host bridge support"
+>>  	depends on ARCH_ZYNQMP || COMPILE_TEST
+>>  	select PCI_HOST_COMMON
+>> +	select PCI_MSI_ARCH_FALLBACKS
+>
+> This guy actually doesn't implement MSIs at all (it seems to delegate
+> them to an ITS present in the system, if I read the DT binding
+> correctly). However its older brother from the same silicon dealer
+> seems to need it. The patchlet below should fix it.
 
-On Wed, Aug 26, 2020 at 01:17:02PM +0200, Thomas Gleixner wrote:
-> From: Thomas Gleixner <tglx@linutronix.de>
-> 
-> The arch_.*_msi_irq[s] fallbacks are compiled in whether an architecture
-> requires them or not. Architectures which are fully utilizing hierarchical
-> irq domains should never call into that code.
-> 
-> It's not only architectures which depend on that by implementing one or
-> more of the weak functions, there is also a bunch of drivers which relies
-> on the weak functions which invoke msi_controller::setup_irq[s] and
-> msi_controller::teardown_irq.
-> 
-> Make the architectures and drivers which rely on them select them in Kconfig
-> and if not selected replace them by stub functions which emit a warning and
-> fail the PCI/MSI interrupt allocation.
-
-Sorry, I really don't understand this, so these are probably stupid
-questions.
-
-If CONFIG_PCI_MSI_ARCH_FALLBACKS is defined, we will supply
-implementations of:
-
-  arch_setup_msi_irq
-  arch_teardown_msi_irq
-  arch_setup_msi_irqs
-  arch_teardown_msi_irqs
-  default_teardown_msi_irqs    # non-weak
-
-You select CONFIG_PCI_MSI_ARCH_FALLBACKS for ia64, mips, powerpc,
-s390, sparc, and x86.  I see that all of those arches implement at
-least one of the functions above.  But x86 doesn't and I can't figure
-out why it needs to select CONFIG_PCI_MSI_ARCH_FALLBACKS.
-
-I assume there's a way to convert these arches to hierarchical irq
-domains so they wouldn't need this at all?  Is there a sample
-conversion to look at?
-
-And I can't figure out what's special about tegra, rcar, and xilinx
-that makes them need it as well.  Is there something I could grep for
-to identify them?  Is there a way to convert them so they don't need
-it?
-
-> --- a/include/linux/msi.h
-> +++ b/include/linux/msi.h
-> @@ -193,17 +193,38 @@ void pci_msi_mask_irq(struct irq_data *d
->  void pci_msi_unmask_irq(struct irq_data *data);
->  
->  /*
-> - * The arch hooks to setup up msi irqs. Those functions are
-> - * implemented as weak symbols so that they /can/ be overriden by
-> - * architecture specific code if needed.
-> + * The arch hooks to setup up msi irqs. Default functions are implemented
-
-s/msi/MSI/ to match the one below.
-
-> + * as weak symbols so that they /can/ be overriden by architecture specific
-> + * code if needed. These hooks must be enabled by the architecture or by
-> + * drivers which depend on them via msi_controller based MSI handling.
+Gah, at some point my eyes went squared and I lost track..
