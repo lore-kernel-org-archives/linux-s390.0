@@ -1,72 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58462 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726973AbgHSQXm (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25280 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727961AbgH0IRS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 Aug 2020 12:23:42 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v9 2/2] s390: virtio: PV needs VIRTIO I/O device protection
-Date: Wed, 19 Aug 2020 18:23:18 +0200
-Message-Id: <1597854198-2871-3-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1597854198-2871-1-git-send-email-pmorel@linux.ibm.com>
-References: <1597854198-2871-1-git-send-email-pmorel@linux.ibm.com>
+        Thu, 27 Aug 2020 04:17:18 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 7/8] s390/qeth: unify structs for bridge port state
+Date: Thu, 27 Aug 2020 10:17:04 +0200
+Message-Id: <20200827081705.21922-8-jwi@linux.ibm.com>
+In-Reply-To: <20200827081705.21922-1-jwi@linux.ibm.com>
+References: <20200827081705.21922-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-If protected virtualization is active on s390, VIRTIO has retricted
-access to the guest memory.
-Define CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS and export
-arch_has_restricted_virtio_memory_access to advertize VIRTIO if that's
-the case, preventing a host error on access attempt.
+The data returned from IPA_SBP_QUERY_BRIDGE_PORTS and
+IPA_SBP_BRIDGE_PORT_STATE_CHANGE has the same format. Use a single
+struct definition for it.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- arch/s390/Kconfig   |  1 +
- arch/s390/mm/init.c | 11 +++++++++++
- 2 files changed, 12 insertions(+)
+ drivers/s390/net/qeth_core_mpc.h | 14 +++-----------
+ drivers/s390/net/qeth_l2_main.c  |  6 +++---
+ 2 files changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 9cfd8de907cb..c12422c26389 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -820,6 +820,7 @@ menu "Virtualization"
- config PROTECTED_VIRTUALIZATION_GUEST
- 	def_bool n
- 	prompt "Protected virtualization guest support"
-+	select ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
- 	help
- 	  Select this option, if you want to be able to run this
- 	  kernel as a protected virtualization KVM guest.
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 6dc7c3b60ef6..8febd73ed6ca 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -45,6 +45,7 @@
- #include <asm/kasan.h>
- #include <asm/dma-mapping.h>
- #include <asm/uv.h>
-+#include <linux/virtio_config.h>
+diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
+index b459def0fb26..6541bab96822 100644
+--- a/drivers/s390/net/qeth_core_mpc.h
++++ b/drivers/s390/net/qeth_core_mpc.h
+@@ -719,15 +719,8 @@ struct qeth_sbp_port_entry {
+ 		struct net_if_token token;
+ } __packed;
  
- pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+-struct qeth_sbp_query_ports {
+-	__u8 primary_bp_supported;
+-	__u8 secondary_bp_supported;
+-	__u8 num_entries;
+-	__u8 entry_length;
+-	struct qeth_sbp_port_entry entry[];
+-} __packed;
+-
+-struct qeth_sbp_state_change {
++/* For IPA_SBP_QUERY_BRIDGE_PORTS, IPA_SBP_BRIDGE_PORT_STATE_CHANGE */
++struct qeth_sbp_port_data {
+ 	__u8 primary_bp_supported;
+ 	__u8 secondary_bp_supported;
+ 	__u8 num_entries;
+@@ -741,8 +734,7 @@ struct qeth_ipacmd_setbridgeport {
+ 	union {
+ 		struct qeth_sbp_query_cmds_supp query_cmds_supp;
+ 		struct qeth_sbp_set_primary set_primary;
+-		struct qeth_sbp_query_ports query_ports;
+-		struct qeth_sbp_state_change state_change;
++		struct qeth_sbp_port_data port_data;
+ 	} data;
+ } __packed;
  
-@@ -161,6 +162,16 @@ bool force_dma_unencrypted(struct device *dev)
- 	return is_prot_virt_guest();
- }
- 
-+#ifdef CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
-+
-+int arch_has_restricted_virtio_memory_access(void)
-+{
-+	return is_prot_virt_guest();
-+}
-+EXPORT_SYMBOL(arch_has_restricted_virtio_memory_access);
-+
-+#endif
-+
- /* protected virtualization */
- static void pv_init(void)
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index d96636369b4c..1e3d64ab5e46 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1125,8 +1125,7 @@ static void qeth_bridge_state_change_worker(struct work_struct *work)
+ static void qeth_bridge_state_change(struct qeth_card *card,
+ 					struct qeth_ipa_cmd *cmd)
  {
+-	struct qeth_sbp_state_change *qports =
+-		 &cmd->data.sbp.data.state_change;
++	struct qeth_sbp_port_data *qports = &cmd->data.sbp.data.port_data;
+ 	struct qeth_bridge_state_data *data;
+ 
+ 	QETH_CARD_TEXT(card, 2, "brstchng");
+@@ -1409,8 +1408,8 @@ static int qeth_bridgeport_query_ports_cb(struct qeth_card *card,
+ 	struct qeth_reply *reply, unsigned long data)
+ {
+ 	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *) data;
+-	struct qeth_sbp_query_ports *qports = &cmd->data.sbp.data.query_ports;
+ 	struct _qeth_sbp_cbctl *cbctl = (struct _qeth_sbp_cbctl *)reply->param;
++	struct qeth_sbp_port_data *qports;
+ 	int rc;
+ 
+ 	QETH_CARD_TEXT(card, 2, "brqprtcb");
+@@ -1418,6 +1417,7 @@ static int qeth_bridgeport_query_ports_cb(struct qeth_card *card,
+ 	if (rc)
+ 		return rc;
+ 
++	qports = &cmd->data.sbp.data.port_data;
+ 	if (qports->entry_length != sizeof(struct qeth_sbp_port_entry)) {
+ 		QETH_CARD_TEXT_(card, 2, "SBPs%04x", qports->entry_length);
+ 		return -EINVAL;
 -- 
-2.25.1
+2.17.1
