@@ -1,73 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6328 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726145AbgHRNEz (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47218 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727969AbgH0IRS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Aug 2020 09:04:55 -0400
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 0/4] s390x: Add Protected VM support
-Date: Tue, 18 Aug 2020 15:04:20 +0200
-Message-Id: <20200818130424.20522-1-mhartmay@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Thu, 27 Aug 2020 04:17:18 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 5/8] s390/qeth: don't let HW override the configured port role
+Date: Thu, 27 Aug 2020 10:17:02 +0200
+Message-Id: <20200827081705.21922-6-jwi@linux.ibm.com>
+In-Reply-To: <20200827081705.21922-1-jwi@linux.ibm.com>
+References: <20200827081705.21922-1-jwi@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Add support for Protected Virtual Machine (PVM) tests. For starting a
-PVM guest we must be able to generate a PVM image by using the
-`genprotimg` tool from the s390-tools collection. This requires the
-ability to pass a machine-specific host-key document, so the option
-`--host-key-document` is added to the configure script.
+The only time that our Bridgeport role should change is when we change
+the configuration ourselves. In which case we also adjust our internal
+state tracking, no need to do it again when we receive the corresponding
+event.
 
-For everybody's convenience there is a branch:
-https://gitlab.com/mhartmay/kvm-unit-tests/-/tree/pv_v1
+Removing the locked section helps a subsequent patch that needs to flush
+the workqueue while under sbp_lock.
 
-Changelog:
- RFC v2 -> v1:
-  + Rebased
-  + patch 1:
-    - add r-b from Andrew
-  + patch 2:
-    - add explicit dependency on config.mak (Andrew)
-    - add comment about the order of sourcing (Andrew)
-  + patch 3:
-    - drop dummy function (Andrew)
-    - add arch_cmd hook function (Andrew)
-  + patch 4:
-    - rephrased the documentation of the configure option (Conny)
-    - Skip test case if a PVM image wasn't built or the host-key document wasn't set (Conny)
-    - Run PV tests by default
-    
- RFC v1 -> RFC v2:
-  + Remove `pv_support` option (Janosch, David)
-  + Add some preliminary patches:
-    - move "testname guard"
-    - add support for architecture dependent functions
-  + Add support for specifying a parmline file for the PV image
-    generation. This is necessary for the `selftest` because the
-    kernel cmdline set on the QEMU command line is ignored for PV
-    guests
+It would be nice to raise a warning here in case HW does weird things
+after all, but this could end up generating false-positives when we
+change the configuration ourselves.
 
-Marc Hartmayer (4):
-  common.bash: run `cmd` only if a test case was found
-  scripts: add support for architecture dependent functions
-  run_tests/mkstandalone: add arch_cmd hook
-  s390x: add Protected VM support
+Suggested-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+---
+ drivers/s390/net/qeth_l2_main.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
- README.md               |  3 ++-
- configure               |  9 +++++++++
- run_tests.sh            |  3 ---
- s390x/Makefile          | 17 +++++++++++++++--
- s390x/selftest.parmfile |  1 +
- s390x/unittests.cfg     |  1 +
- scripts/common.bash     | 21 +++++++++++++++++++--
- scripts/mkstandalone.sh |  4 ----
- scripts/s390x/func.bash | 35 +++++++++++++++++++++++++++++++++++
- 9 files changed, 82 insertions(+), 12 deletions(-)
- create mode 100644 s390x/selftest.parmfile
- create mode 100644 scripts/s390x/func.bash
-
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index ea966713ce7e..5a023fc499eb 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1107,12 +1107,6 @@ static void qeth_bridge_state_change_worker(struct work_struct *work)
+ 		NULL
+ 	};
+ 
+-	/* Role should not change by itself, but if it did, */
+-	/* information from the hardware is authoritative.  */
+-	mutex_lock(&data->card->sbp_lock);
+-	data->card->options.sbp.role = entry->role;
+-	mutex_unlock(&data->card->sbp_lock);
+-
+ 	snprintf(env_locrem, sizeof(env_locrem), "BRIDGEPORT=statechange");
+ 	snprintf(env_role, sizeof(env_role), "ROLE=%s",
+ 		(entry->role == QETH_SBP_ROLE_NONE) ? "none" :
 -- 
-2.25.4
+2.17.1
