@@ -1,147 +1,103 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 17/23] s390: don't trace preemption in percpu macros
-Date: Mon, 31 Aug 2020 11:30:33 -0400
-Message-Id: <20200831153039.1024302-17-sashal@kernel.org>
-In-Reply-To: <20200831153039.1024302-1-sashal@kernel.org>
-References: <20200831153039.1024302-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:60344 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727030AbgH0ISS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 27 Aug 2020 04:18:18 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 6/8] s390/qeth: copy less data from bridge state events
+Date: Thu, 27 Aug 2020 10:17:03 +0200
+Message-Id: <20200827081705.21922-7-jwi@linux.ibm.com>
+In-Reply-To: <20200827081705.21922-1-jwi@linux.ibm.com>
+References: <20200827081705.21922-1-jwi@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Sven Schnelle <svens@linux.ibm.com>
+Current code copies _all_ entries from the event into a worker, when we
+later only need specific data from the first entry.
 
-[ Upstream commit 1196f12a2c960951d02262af25af0bb1775ebcc2 ]
-
-Since commit a21ee6055c30 ("lockdep: Change hardirq{s_enabled,_context}
-to per-cpu variables") the lockdep code itself uses percpu variables. This
-leads to recursions because the percpu macros are calling preempt_enable()
-which might call trace_preempt_on().
-
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- arch/s390/include/asm/percpu.h | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 50b4ce8cddfdc..918f0ba4f4d20 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -29,7 +29,7 @@
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ old__, new__, prev__;				\
- 	pcp_op_T__ *ptr__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	prev__ = *ptr__;						\
- 	do {								\
-@@ -37,7 +37,7 @@
- 		new__ = old__ op (val);					\
- 		prev__ = cmpxchg(ptr__, old__, new__);			\
- 	} while (prev__ != old__);					\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	new__;								\
- })
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 5a023fc499eb..d96636369b4c 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -1088,15 +1088,14 @@ static void qeth_bridge_emit_host_event(struct qeth_card *card,
+ struct qeth_bridge_state_data {
+ 	struct work_struct worker;
+ 	struct qeth_card *card;
+-	struct qeth_sbp_state_change qports;
++	u8 role;
++	u8 state;
+ };
  
-@@ -68,7 +68,7 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp)); 				\
- 	if (__builtin_constant_p(val__) &&				\
- 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {		\
-@@ -84,7 +84,7 @@
- 			: [val__] "d" (val__)				\
- 			: "cc");					\
- 	}								\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
+ static void qeth_bridge_state_change_worker(struct work_struct *work)
+ {
+ 	struct qeth_bridge_state_data *data =
+ 		container_of(work, struct qeth_bridge_state_data, worker);
+-	/* We are only interested in the first entry - local port */
+-	struct qeth_sbp_port_entry *entry = &data->qports.entry[0];
+ 	char env_locrem[32];
+ 	char env_role[32];
+ 	char env_state[32];
+@@ -1109,14 +1108,14 @@ static void qeth_bridge_state_change_worker(struct work_struct *work)
+ 
+ 	snprintf(env_locrem, sizeof(env_locrem), "BRIDGEPORT=statechange");
+ 	snprintf(env_role, sizeof(env_role), "ROLE=%s",
+-		(entry->role == QETH_SBP_ROLE_NONE) ? "none" :
+-		(entry->role == QETH_SBP_ROLE_PRIMARY) ? "primary" :
+-		(entry->role == QETH_SBP_ROLE_SECONDARY) ? "secondary" :
++		(data->role == QETH_SBP_ROLE_NONE) ? "none" :
++		(data->role == QETH_SBP_ROLE_PRIMARY) ? "primary" :
++		(data->role == QETH_SBP_ROLE_SECONDARY) ? "secondary" :
+ 		"<INVALID>");
+ 	snprintf(env_state, sizeof(env_state), "STATE=%s",
+-		(entry->state == QETH_SBP_STATE_INACTIVE) ? "inactive" :
+-		(entry->state == QETH_SBP_STATE_STANDBY) ? "standby" :
+-		(entry->state == QETH_SBP_STATE_ACTIVE) ? "active" :
++		(data->state == QETH_SBP_STATE_INACTIVE) ? "inactive" :
++		(data->state == QETH_SBP_STATE_STANDBY) ? "standby" :
++		(data->state == QETH_SBP_STATE_ACTIVE) ? "active" :
+ 		"<INVALID>");
+ 	kobject_uevent_env(&data->card->gdev->dev.kobj,
+ 				KOBJ_CHANGE, env);
+@@ -1129,7 +1128,6 @@ static void qeth_bridge_state_change(struct qeth_card *card,
+ 	struct qeth_sbp_state_change *qports =
+ 		 &cmd->data.sbp.data.state_change;
+ 	struct qeth_bridge_state_data *data;
+-	int extrasize;
+ 
+ 	QETH_CARD_TEXT(card, 2, "brstchng");
+ 	if (qports->num_entries == 0) {
+@@ -1140,17 +1138,18 @@ static void qeth_bridge_state_change(struct qeth_card *card,
+ 		QETH_CARD_TEXT_(card, 2, "BPsz%04x", qports->entry_length);
+ 		return;
+ 	}
+-	extrasize = sizeof(struct qeth_sbp_port_entry) * qports->num_entries;
+-	data = kzalloc(sizeof(struct qeth_bridge_state_data) + extrasize,
+-		GFP_ATOMIC);
++
++	data = kzalloc(sizeof(*data), GFP_ATOMIC);
+ 	if (!data) {
+ 		QETH_CARD_TEXT(card, 2, "BPSalloc");
+ 		return;
+ 	}
+ 	INIT_WORK(&data->worker, qeth_bridge_state_change_worker);
+ 	data->card = card;
+-	memcpy(&data->qports, qports,
+-			sizeof(struct qeth_sbp_state_change) + extrasize);
++	/* Information for the local port: */
++	data->role = qports->entry[0].role;
++	data->state = qports->entry[0].state;
++
+ 	queue_work(card->event_wq, &data->worker);
  }
- 
- #define this_cpu_add_4(pcp, val) arch_this_cpu_add(pcp, val, "laa", "asi", int)
-@@ -95,14 +95,14 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
- 	asm volatile(							\
- 		op "    %[old__],%[val__],%[ptr__]\n"			\
- 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
- 		: [val__] "d" (val__)					\
- 		: "cc");						\
--	preempt_enable();						\
-+	preempt_enable_notrace();						\
- 	old__ + val__;							\
- })
- 
-@@ -114,14 +114,14 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
- 	asm volatile(							\
- 		op "    %[old__],%[val__],%[ptr__]\n"			\
- 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
- 		: [val__] "d" (val__)					\
- 		: "cc");						\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- }
- 
- #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
-@@ -136,10 +136,10 @@
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ ret__;						\
- 	pcp_op_T__ *ptr__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	ret__ = cmpxchg(ptr__, oval, nval);				\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-@@ -152,10 +152,10 @@
- ({									\
- 	typeof(pcp) *ptr__;						\
- 	typeof(pcp) ret__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	ret__ = xchg(ptr__, nval);					\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-@@ -171,11 +171,11 @@
- 	typeof(pcp1) *p1__;						\
- 	typeof(pcp2) *p2__;						\
- 	int ret__;							\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	p1__ = raw_cpu_ptr(&(pcp1));					\
- 	p2__ = raw_cpu_ptr(&(pcp2));					\
- 	ret__ = __cmpxchg_double(p1__, p2__, o1__, o2__, n1__, n2__);	\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
  
 -- 
-2.25.1
+2.17.1
