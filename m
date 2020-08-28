@@ -1,71 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 28 Aug 2020 09:19:44 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
+Date: Fri, 28 Aug 2020 12:21:42 +0100
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Subject: Re: [patch V2 34/46] PCI/MSI: Make arch_.*_msi_irq[s] fallbacks
  selectable
-Message-ID: <20200828121944.GQ1152540@nvidia.com>
+Message-ID: <20200828112142.GA14208@e121166-lin.cambridge.arm.com>
 References: <20200826112333.992429909@linutronix.de>
  <20200827182040.GA2049623@bjorn-Precision-5520>
- <20200828112142.GA14208@e121166-lin.cambridge.arm.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20200828112142.GA14208@e121166-lin.cambridge.arm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200827182040.GA2049623@bjorn-Precision-5520>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Bjorn Helgaas <helgaas@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Jon Derrick <jonathan.derrick@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, Wei Liu <wei.liu@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>, Russ Anderson <rja@hpe.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Marc Zyngier <maz@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Megha Dey <megha.dey@intel.com>, Dave Jiang <dave.jiang@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Jacob Pan <jacob.jun.pan@intel.com>, Baolu Lu <baolu.lu@intel.com>, Kevin Tian <kevin.tian@intel.com>, Dan Williams <dan.j.williams@intel.com>, Rob Herring <robh@kernel.org>
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Jon Derrick <jonathan.derrick@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, Wei Liu <wei.liu@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>, Russ Anderson <rja@hpe.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Marc Zyngier <maz@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Megha Dey <megha.dey@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, Dave Jiang <dave.jiang@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Jacob Pan <jacob.jun.pan@intel.com>, Baolu Lu <baolu.lu@intel.com>, Kevin Tian <kevin.tian@intel.com>, Dan Williams <dan.j.williams@intel.com>, Rob Herring <robh@kernel.org>
 
-On Fri, Aug 28, 2020 at 12:21:42PM +0100, Lorenzo Pieralisi wrote:
-> On Thu, Aug 27, 2020 at 01:20:40PM -0500, Bjorn Helgaas wrote:
+On Thu, Aug 27, 2020 at 01:20:40PM -0500, Bjorn Helgaas wrote:
+
+[...]
+
+> And I can't figure out what's special about tegra, rcar, and xilinx
+> that makes them need it as well.  Is there something I could grep for
+> to identify them?  Is there a way to convert them so they don't need
+> it?
+
+I think DT binding and related firmware support are needed to setup the
+MSI IRQ domains correctly, there is nothing special about tegra, rcar
+and xilinx AFAIK (well, all native host controllers MSI handling is
+*special* just to be polite but let's gloss over this for the time
+being).
+
+struct msi_controller, to answer the first question.
+
+I have doubts about pci_mvebu too, they do allocate an msi_controller
+but without methods so it looks pretty much useless.
+
+Hyper-V code too seems questionable, maybe there is room for more
+clean-ups.
+
+Lorenzo
+
+> > --- a/include/linux/msi.h
+> > +++ b/include/linux/msi.h
+> > @@ -193,17 +193,38 @@ void pci_msi_mask_irq(struct irq_data *d
+> >  void pci_msi_unmask_irq(struct irq_data *data);
+> >  
+> >  /*
+> > - * The arch hooks to setup up msi irqs. Those functions are
+> > - * implemented as weak symbols so that they /can/ be overriden by
+> > - * architecture specific code if needed.
+> > + * The arch hooks to setup up msi irqs. Default functions are implemented
 > 
-> [...]
+> s/msi/MSI/ to match the one below.
 > 
-> > And I can't figure out what's special about tegra, rcar, and xilinx
-> > that makes them need it as well.  Is there something I could grep for
-> > to identify them?  Is there a way to convert them so they don't need
-> > it?
-> 
-> I think DT binding and related firmware support are needed to setup the
-> MSI IRQ domains correctly, there is nothing special about tegra, rcar
-> and xilinx AFAIK (well, all native host controllers MSI handling is
-> *special* just to be polite but let's gloss over this for the time
-> being).
-> 
-> struct msi_controller, to answer the first question.
-> 
-> I have doubts about pci_mvebu too, they do allocate an msi_controller
-> but without methods so it looks pretty much useless.
-
-Oh, I did once know things about mvebu.. 
-
-I suspect the msi controller pointer assignment is dead code at this
-point. The only implementation of MSI with that PCI root port is
-drivers/irqchip/irq-armada-370-xp.c which looks like it uses
-irq_domain.
-
-Actually looks like things are very close to eliminating
-msi_controller.
-
-This is dead code, can't find a setter for hw_pci->msi_ctrl:
-
-arch/arm/include/asm/mach/pci.h:        struct msi_controller *msi_ctrl;
-arch/arm/kernel/bios32.c:                               bridge->msi = hw->msi_ctrl;
-
-This is probably just copying NULL from one place to another:
-
-drivers/pci/controller/pci-mvebu.c:     struct msi_controller *msi;
-
-These need conversion to irq_domain (right?):
-
-drivers/pci/controller/pci-hyperv.c:    struct msi_controller msi_chip;
-drivers/pci/controller/pci-tegra.c:     struct msi_controller chip;
-drivers/pci/controller/pcie-rcar-host.c:        struct msi_controller chip;
-drivers/pci/controller/pcie-xilinx.c:static struct msi_controller xilinx_pcie_msi_chip = {
-
-Then the stuff in drivers/pci/msi.c can go away.
-
-So the arch_setup_msi_irq/etc is not really an arch hook, but some
-infrastructure to support those 4 PCI root port drivers.
-
-Jason
+> > + * as weak symbols so that they /can/ be overriden by architecture specific
+> > + * code if needed. These hooks must be enabled by the architecture or by
+> > + * drivers which depend on them via msi_controller based MSI handling.
