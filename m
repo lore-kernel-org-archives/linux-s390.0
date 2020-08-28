@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:62528 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726236AbgH1OEB (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26586 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726101AbgH1OD6 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 28 Aug 2020 10:04:01 -0400
+        Fri, 28 Aug 2020 10:03:58 -0400
 From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: [RFC PATCH 1/2] mm/gup: fix gup_fast with dynamic page table folding
-Date: Fri, 28 Aug 2020 16:03:13 +0200
-Message-Id: <20200828140314.8556-2-gerald.schaefer@linux.ibm.com>
+Subject: [RFC PATCH 2/2] mm/gup: fix gup_fast with dynamic page table folding
+Date: Fri, 28 Aug 2020 16:03:14 +0200
+Message-Id: <20200828140314.8556-3-gerald.schaefer@linux.ibm.com>
 In-Reply-To: <20200828140314.8556-1-gerald.schaefer@linux.ibm.com>
 References: <20200828140314.8556-1-gerald.schaefer@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
@@ -15,7 +15,7 @@ List-ID: <linux-s390.vger.kernel.org>
 To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
 Cc: linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
 Commit 1a42010cdc26 ("s390/mm: convert to the generic get_user_pages_fast
 code") introduced a subtle but severe bug on s390 with gup_fast, due to
@@ -85,184 +85,149 @@ for gup_fast, we will end up (silently) getting references on the wrong
 pages and also add the wrong pages to the **pages result array. This
 can cause data corruption.
 
-Fix this with an approach that has already been discussed in
-https://lkml.kernel.org/r/20190418100218.0a4afd51@mschwideX1
-It will additionally pass along pXd pointers in gup_pXd_range, and
-also introduce pXd_offset_orig for s390, which takes an additional
-pXd entry value parameter. This allows returning correct pointers
-while still preseving the READ_ONCE logic for gup_fast. No change
-for other architectures introduced.
+Fix this by introducing new gup_pXd_addr_end helpers, which take an
+additional pXd entry value parameter, that can be used on s390
+to determine the correct page table level and return corresponding
+end / boundary. With that, the pointer iteration will always
+happen in gup_pgd_range for s390. No change for other architectures
+introduced.
 
 Cc: <stable@vger.kernel.org> # 5.2+
 Fixes: 1a42010cdc26 ("s390/mm: convert to the generic get_user_pages_fast code")
 Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 42 +++++++++++++++++++++++----------
- include/linux/pgtable.h         | 10 ++++++++
- mm/gup.c                        | 18 +++++++-------
- 3 files changed, 49 insertions(+), 21 deletions(-)
+ arch/s390/include/asm/pgtable.h | 49 +++++++++++++++++++++++++++++++++
+ include/linux/pgtable.h         | 16 +++++++++++
+ mm/gup.c                        |  8 +++---
+ 3 files changed, 69 insertions(+), 4 deletions(-)
 
 diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 7eb01a5459cd..69a92e39d7b8 100644
+index 7eb01a5459cd..1b8f461f5783 100644
 --- a/arch/s390/include/asm/pgtable.h
 +++ b/arch/s390/include/asm/pgtable.h
-@@ -1260,26 +1260,44 @@ static inline pgd_t *pgd_offset_raw(pgd_t *pgd, unsigned long address)
- 
- #define pgd_offset(mm, address) pgd_offset_raw(READ_ONCE((mm)->pgd), address)
- 
--static inline p4d_t *p4d_offset(pgd_t *pgd, unsigned long address)
-+static inline p4d_t *p4d_offset_orig(pgd_t *pgdp, pgd_t pgd, unsigned long address)
- {
--	if ((pgd_val(*pgd) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R1)
--		return (p4d_t *) pgd_deref(*pgd) + p4d_index(address);
--	return (p4d_t *) pgd;
-+	if ((pgd_val(pgd) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R1)
-+		return (p4d_t *) pgd_deref(pgd) + p4d_index(address);
-+	return (p4d_t *) pgdp;
+@@ -512,6 +512,55 @@ static inline bool mm_pmd_folded(struct mm_struct *mm)
  }
-+#define p4d_offset_orig p4d_offset_orig
+ #define mm_pmd_folded(mm) mm_pmd_folded(mm)
  
--static inline pud_t *pud_offset(p4d_t *p4d, unsigned long address)
-+static inline p4d_t *p4d_offset(pgd_t *pgdp, unsigned long address)
- {
--	if ((p4d_val(*p4d) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R2)
--		return (pud_t *) p4d_deref(*p4d) + pud_index(address);
--	return (pud_t *) p4d;
-+	return p4d_offset_orig(pgdp, *pgdp, address);
++static inline unsigned long gup_folded_addr_end(unsigned long rste,
++						unsigned long addr, unsigned long end)
++{
++	unsigned int type = rste & _REGION_ENTRY_TYPE_MASK;
++	unsigned long size, mask, boundary;
++
++	switch (type) {
++	case _REGION_ENTRY_TYPE_R1:
++		size = PGDIR_SIZE;
++		mask = PGDIR_MASK;
++		break;
++	case _REGION_ENTRY_TYPE_R2:
++		size = P4D_SIZE;
++		mask = P4D_MASK;
++		break;
++	case _REGION_ENTRY_TYPE_R3:
++		size = PUD_SIZE;
++		mask = PUD_MASK;
++		break;
++	default:
++		BUG();
++	};
++
++	boundary = (addr + size) & mask;
++
++	return (boundary - 1) < (end - 1) ? boundary : end;
 +}
 +
-+static inline pud_t *pud_offset_orig(p4d_t *p4dp, p4d_t p4d, unsigned long address)
++#define gup_pgd_addr_end gup_pgd_addr_end
++static inline unsigned long gup_pgd_addr_end(pgd_t pgd,
++					     unsigned long addr, unsigned long end)
 +{
-+	if ((p4d_val(p4d) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R2)
-+		return (pud_t *) p4d_deref(p4d) + pud_index(address);
-+	return (pud_t *) p4dp;
++	return gup_folded_addr_end(pgd_val(pgd), addr, end);
 +}
-+#define pud_offset_orig pud_offset_orig
 +
-+static inline pud_t *pud_offset(p4d_t *p4dp, unsigned long address)
++#define gup_p4d_addr_end gup_p4d_addr_end
++static inline unsigned long gup_p4d_addr_end(p4d_t p4d,
++					     unsigned long addr, unsigned long end)
 +{
-+	return pud_offset_orig(p4dp, *p4dp, address);
- }
- #define pud_offset pud_offset
- 
--static inline pmd_t *pmd_offset(pud_t *pud, unsigned long address)
-+static inline pmd_t *pmd_offset_orig(pud_t *pudp, pud_t pud, unsigned long address)
-+{
-+	if ((pud_val(pud) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R3)
-+		return (pmd_t *) pud_deref(pud) + pmd_index(address);
-+	return (pmd_t *) pudp;
++	return gup_folded_addr_end(p4d_val(p4d), addr, end);
 +}
-+#define pmd_offset_orig pmd_offset_orig
 +
-+static inline pmd_t *pmd_offset(pud_t *pudp, unsigned long address)
++#define gup_pud_addr_end gup_pud_addr_end
++static inline unsigned long gup_pud_addr_end(pud_t pud,
++					     unsigned long addr, unsigned long end)
++{
++	return gup_folded_addr_end(pud_val(pud), addr, end);
++}
++
+ static inline int mm_has_pgste(struct mm_struct *mm)
  {
--	if ((pud_val(*pud) & _REGION_ENTRY_TYPE_MASK) >= _REGION_ENTRY_TYPE_R3)
--		return (pmd_t *) pud_deref(*pud) + pmd_index(address);
--	return (pmd_t *) pud;
-+	return pmd_offset_orig(pudp, *pudp, address);
- }
- #define pmd_offset pmd_offset
- 
+ #ifdef CONFIG_PGSTE
 diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index a124c21e3204..02f93358126e 100644
+index e8cbc2e795d5..620a83c774c7 100644
 --- a/include/linux/pgtable.h
 +++ b/include/linux/pgtable.h
-@@ -1425,6 +1425,16 @@ typedef unsigned int pgtbl_mod_mask;
- #define mm_pmd_folded(mm)	__is_defined(__PAGETABLE_PMD_FOLDED)
+@@ -681,6 +681,22 @@ static inline int arch_unmap_one(struct mm_struct *mm,
+ })
  #endif
  
-+#ifndef p4d_offset_orig
-+#define p4d_offset_orig(pgdp, pgd, address) p4d_offset(&pgd, address)
++#ifndef gup_pgd_addr_end
++#define gup_pgd_addr_end(pgd, addr, end)	pgd_addr_end(addr, end)
 +#endif
-+#ifndef pud_offset_orig
-+#define pud_offset_orig(p4dp, p4d, address) pud_offset(&p4d, address)
++
++#ifndef gup_p4d_addr_end
++#define gup_p4d_addr_end(p4d, addr, end)	p4d_addr_end(addr, end)
 +#endif
-+#ifndef pmd_offset_orig
-+#define pmd_offset_orig(pudp, pud, address) pmd_offset(&pud, address)
++
++#ifndef gup_pud_addr_end
++#define gup_pud_addr_end(pud, addr, end)	pud_addr_end(addr, end)
++#endif
++
++#ifndef gup_pmd_addr_end
++#define gup_pmd_addr_end(pmd, addr, end)	pmd_addr_end(addr, end)
 +#endif
 +
  /*
-  * p?d_leaf() - true if this entry is a final mapping to a physical address.
-  * This differs from p?d_huge() by the fact that they are always available (if
+  * When walking page tables, we usually want to skip any p?d_none entries;
+  * and any p?d_bad entries - reporting the error before resetting to none.
 diff --git a/mm/gup.c b/mm/gup.c
-index ae096ea7583f..fbdd9f0bf219 100644
+index ae096ea7583f..149ef3d71457 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
-@@ -2500,13 +2500,13 @@ static int gup_huge_pgd(pgd_t orig, pgd_t *pgdp, unsigned long addr,
- 	return 1;
- }
- 
--static int gup_pmd_range(pud_t pud, unsigned long addr, unsigned long end,
-+static int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr, unsigned long end,
- 		unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	pmd_t *pmdp;
- 
--	pmdp = pmd_offset(&pud, addr);
-+	pmdp = pmd_offset_orig(pudp, pud, addr);
+@@ -2510,7 +2510,7 @@ static int gup_pmd_range(pud_t pud, unsigned long addr, unsigned long end,
  	do {
  		pmd_t pmd = READ_ONCE(*pmdp);
  
-@@ -2543,13 +2543,13 @@ static int gup_pmd_range(pud_t pud, unsigned long addr, unsigned long end,
- 	return 1;
- }
+-		next = pmd_addr_end(addr, end);
++		next = gup_pmd_addr_end(pmd, addr, end);
+ 		if (!pmd_present(pmd))
+ 			return 0;
  
--static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
-+static int gup_pud_range(p4d_t *p4dp, p4d_t p4d, unsigned long addr, unsigned long end,
- 			 unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	pud_t *pudp;
- 
--	pudp = pud_offset(&p4d, addr);
-+	pudp = pud_offset_orig(p4dp, p4d, addr);
+@@ -2553,7 +2553,7 @@ static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
  	do {
  		pud_t pud = READ_ONCE(*pudp);
  
-@@ -2564,20 +2564,20 @@ static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
- 			if (!gup_huge_pd(__hugepd(pud_val(pud)), addr,
- 					 PUD_SHIFT, next, flags, pages, nr))
- 				return 0;
--		} else if (!gup_pmd_range(pud, addr, next, flags, pages, nr))
-+		} else if (!gup_pmd_range(pudp, pud, addr, next, flags, pages, nr))
+-		next = pud_addr_end(addr, end);
++		next = gup_pud_addr_end(pud, addr, end);
+ 		if (unlikely(!pud_present(pud)))
  			return 0;
- 	} while (pudp++, addr = next, addr != end);
- 
- 	return 1;
- }
- 
--static int gup_p4d_range(pgd_t pgd, unsigned long addr, unsigned long end,
-+static int gup_p4d_range(pgd_t *pgdp, pgd_t pgd, unsigned long addr, unsigned long end,
- 			 unsigned int flags, struct page **pages, int *nr)
- {
- 	unsigned long next;
- 	p4d_t *p4dp;
- 
--	p4dp = p4d_offset(&pgd, addr);
-+	p4dp = p4d_offset_orig(pgdp, pgd, addr);
+ 		if (unlikely(pud_huge(pud))) {
+@@ -2581,7 +2581,7 @@ static int gup_p4d_range(pgd_t pgd, unsigned long addr, unsigned long end,
  	do {
  		p4d_t p4d = READ_ONCE(*p4dp);
  
-@@ -2589,7 +2589,7 @@ static int gup_p4d_range(pgd_t pgd, unsigned long addr, unsigned long end,
- 			if (!gup_huge_pd(__hugepd(p4d_val(p4d)), addr,
- 					 P4D_SHIFT, next, flags, pages, nr))
- 				return 0;
--		} else if (!gup_pud_range(p4d, addr, next, flags, pages, nr))
-+		} else if (!gup_pud_range(p4dp, p4d, addr, next, flags, pages, nr))
+-		next = p4d_addr_end(addr, end);
++		next = gup_p4d_addr_end(p4d, addr, end);
+ 		if (p4d_none(p4d))
  			return 0;
- 	} while (p4dp++, addr = next, addr != end);
+ 		BUILD_BUG_ON(p4d_huge(p4d));
+@@ -2606,7 +2606,7 @@ static void gup_pgd_range(unsigned long addr, unsigned long end,
+ 	do {
+ 		pgd_t pgd = READ_ONCE(*pgdp);
  
-@@ -2617,7 +2617,7 @@ static void gup_pgd_range(unsigned long addr, unsigned long end,
- 			if (!gup_huge_pd(__hugepd(pgd_val(pgd)), addr,
- 					 PGDIR_SHIFT, next, flags, pages, nr))
- 				return;
--		} else if (!gup_p4d_range(pgd, addr, next, flags, pages, nr))
-+		} else if (!gup_p4d_range(pgdp, pgd, addr, next, flags, pages, nr))
+-		next = pgd_addr_end(addr, end);
++		next = gup_pgd_addr_end(pgd, addr, end);
+ 		if (pgd_none(pgd))
  			return;
- 	} while (pgdp++, addr = next, addr != end);
- }
+ 		if (unlikely(pgd_huge(pgd))) {
 -- 
 2.17.1
