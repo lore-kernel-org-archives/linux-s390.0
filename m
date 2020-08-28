@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch V2 34/46] PCI/MSI: Make arch_.*_msi_irq[s] fallbacks selectable
-In-Reply-To: <20200827182040.GA2049623@bjorn-Precision-5520>
-References: <20200827182040.GA2049623@bjorn-Precision-5520>
-Date: Fri, 28 Aug 2020 20:29:57 +0200
-Message-ID: <873646lj2y.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Date: Fri, 28 Aug 2020 14:52:56 +0100
+From: Marc Zyngier <maz@kernel.org>
+Subject: Re: [patch V2 34/46] PCI/MSI: Make arch_.*_msi_irq[s] fallbacks
+ selectable
+In-Reply-To: <20200828125403.GR1152540@nvidia.com>
+References: <20200826112333.992429909@linutronix.de>
+ <20200827182040.GA2049623@bjorn-Precision-5520>
+ <20200828112142.GA14208@e121166-lin.cambridge.arm.com>
+ <20200828121944.GQ1152540@nvidia.com>
+ <0cc8bfd9258dfc507585fd0f19a945e3@kernel.org>
+ <20200828125403.GR1152540@nvidia.com>
+Message-ID: <9346b8358726185a31f50b0fac257129@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Jon Derrick <jonathan.derrick@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, Wei Liu <wei.liu@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>, Russ Anderson <rja@hpe.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Marc Zyngier <maz@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Megha Dey <megha.dey@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, Dave Jiang <dave.jiang@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Jacob Pan <jacob.jun.pan@intel.com>, Baolu Lu <baolu.lu@intel.com>, Kevin Tian <kevin.tian@intel.com>, Dan Williams <dan.j.williams@intel.com>, Rob Herring <robh@kernel.org>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Bjorn Helgaas <helgaas@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Jon Derrick <jonathan.derrick@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, Wei Liu <wei.liu@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>, Russ Anderson <rja@hpe.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Megha Dey <megha.dey@intel.com>, Dave Jiang <dave.jiang@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Jacob Pan <jacob.jun.pan@intel.com>, Baolu Lu <baolu.lu@intel.com>, Kevin Tian <kevin.tian@intel.com>, Dan Williams <dan.j.williams@intel.com>, Rob Herring <robh@kernel.org>
 
-On Thu, Aug 27 2020 at 13:20, Bjorn Helgaas wrote:
-> On Wed, Aug 26, 2020 at 01:17:02PM +0200, Thomas Gleixner wrote:
->> Make the architectures and drivers which rely on them select them in Kconfig
->> and if not selected replace them by stub functions which emit a warning and
->> fail the PCI/MSI interrupt allocation.
->
-> Sorry, I really don't understand this, so these are probably stupid
-> questions.
->
-> If CONFIG_PCI_MSI_ARCH_FALLBACKS is defined, we will supply
-> implementations of:
->
->   arch_setup_msi_irq
->   arch_teardown_msi_irq
->   arch_setup_msi_irqs
->   arch_teardown_msi_irqs
->   default_teardown_msi_irqs    # non-weak
->
-> You select CONFIG_PCI_MSI_ARCH_FALLBACKS for ia64, mips, powerpc,
-> s390, sparc, and x86.  I see that all of those arches implement at
-> least one of the functions above.  But x86 doesn't and I can't figure
-> out why it needs to select CONFIG_PCI_MSI_ARCH_FALLBACKS.
+On 2020-08-28 13:54, Jason Gunthorpe wrote:
+> On Fri, Aug 28, 2020 at 01:47:59PM +0100, Marc Zyngier wrote:
+> 
+>> > So the arch_setup_msi_irq/etc is not really an arch hook, but some
+>> > infrastructure to support those 4 PCI root port drivers.
+>> 
+>> I happen to have a *really old* patch addressing Tegra [1], which
+>> I was never able to test (no HW). Rebasing it shouldn't be too hard,
+>> and maybe you can find someone internally willing to give it a spin?
+> 
+> Sure, that helps a bunch, I will ask internally if someone in that BU
+> can take a look.
 
-X86 still has them at that point in the series and the next patch
-removes them. I wanted to have the warnings in place before doing so.
-
-> I assume there's a way to convert these arches to hierarchical irq
-> domains so they wouldn't need this at all?  Is there a sample
-> conversion to look at?
-
-For a quick and dirty step it's pretty much the wrapper I used for XEN
-and then make sure that the msi_domain pointer is populated is
-pci_device::device.
-
-> And I can't figure out what's special about tegra, rcar, and xilinx
-> that makes them need it as well.
-
-Those are old drivers from the time where ARM did not use hierarchical
-irq domains and nobody cared to fix them up.
-
-> Is there something I could grep for
-> to identify them?
-
-git grep arch_setup_msi_irq
-git grep arch_teardown_msi_irq
-
-> Is there a way to convert them so they don't need it?
-
-Sure, it just needs some work and probably hardware to test.
+I just rebased[1] the patch onto -rc2, and provided a TODO list in the
+commit message.
 
 Thanks,
 
-        tglx
+         M.
+
+[1] 
+https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms.git/log/?h=irq/tegra-msi
+-- 
+Jazz is not dead. It just smells funny...
