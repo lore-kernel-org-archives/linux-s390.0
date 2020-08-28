@@ -1,154 +1,162 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36622 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728165AbgHSMuG (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 19 Aug 2020 08:50:06 -0400
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH v2 1/3] stacktrace: Remove reliable argument from arch_stack_walk() callback
-Date: Wed, 19 Aug 2020 13:49:11 +0100
-Message-Id: <20200819124913.37261-2-broonie@kernel.org>
-In-Reply-To: <20200819124913.37261-1-broonie@kernel.org>
-References: <20200819124913.37261-1-broonie@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23580 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726536AbgH1XFj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 28 Aug 2020 19:05:39 -0400
+Subject: Re: [PATCH v10 03/16] s390/vfio-ap: manage link between queue struct
+ and matrix mdev
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+ <20200821195616.13554-4-akrowiak@linux.ibm.com>
+ <20200825122501.624474df.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <88f4061c-e609-38ee-a8c5-1f608d642158@linux.ibm.com>
+Date: Fri, 28 Aug 2020 19:05:31 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200825122501.624474df.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>, Mark Brown <broonie@kernel.org>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Currently the callback passed to arch_stack_walk() has an argument called
-reliable passed to it to indicate if the stack entry is reliable, a comment
-says that this is used by some printk() consumers. However in the current
-kernel none of the arch_stack_walk() implementations ever set this flag to
-true and the only callback implementation we have is in the generic
-stacktrace code which ignores the flag. It therefore appears that this
-flag is redundant so we can simplify and clarify things by removing it.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- arch/s390/kernel/stacktrace.c |  4 ++--
- arch/x86/kernel/stacktrace.c  | 10 +++++-----
- include/linux/stacktrace.h    |  5 +----
- kernel/stacktrace.c           |  8 +++-----
- 4 files changed, 11 insertions(+), 16 deletions(-)
 
-diff --git a/arch/s390/kernel/stacktrace.c b/arch/s390/kernel/stacktrace.c
-index fc5419ac64c8..7f1266c24f6b 100644
---- a/arch/s390/kernel/stacktrace.c
-+++ b/arch/s390/kernel/stacktrace.c
-@@ -19,7 +19,7 @@ void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
- 
- 	unwind_for_each_frame(&state, task, regs, 0) {
- 		addr = unwind_get_return_address(&state);
--		if (!addr || !consume_entry(cookie, addr, false))
-+		if (!addr || !consume_entry(cookie, addr))
- 			break;
- 	}
- }
-@@ -56,7 +56,7 @@ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
- 			return -EINVAL;
- #endif
- 
--		if (!consume_entry(cookie, addr, false))
-+		if (!consume_entry(cookie, addr))
- 			return -EINVAL;
- 	}
- 
-diff --git a/arch/x86/kernel/stacktrace.c b/arch/x86/kernel/stacktrace.c
-index 2fd698e28e4d..8627fda8d993 100644
---- a/arch/x86/kernel/stacktrace.c
-+++ b/arch/x86/kernel/stacktrace.c
-@@ -18,13 +18,13 @@ void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
- 	struct unwind_state state;
- 	unsigned long addr;
- 
--	if (regs && !consume_entry(cookie, regs->ip, false))
-+	if (regs && !consume_entry(cookie, regs->ip))
- 		return;
- 
- 	for (unwind_start(&state, task, regs, NULL); !unwind_done(&state);
- 	     unwind_next_frame(&state)) {
- 		addr = unwind_get_return_address(&state);
--		if (!addr || !consume_entry(cookie, addr, false))
-+		if (!addr || !consume_entry(cookie, addr))
- 			break;
- 	}
- }
-@@ -72,7 +72,7 @@ int arch_stack_walk_reliable(stack_trace_consume_fn consume_entry,
- 		if (!addr)
- 			return -EINVAL;
- 
--		if (!consume_entry(cookie, addr, false))
-+		if (!consume_entry(cookie, addr))
- 			return -EINVAL;
- 	}
- 
-@@ -114,7 +114,7 @@ void arch_stack_walk_user(stack_trace_consume_fn consume_entry, void *cookie,
- {
- 	const void __user *fp = (const void __user *)regs->bp;
- 
--	if (!consume_entry(cookie, regs->ip, false))
-+	if (!consume_entry(cookie, regs->ip))
- 		return;
- 
- 	while (1) {
-@@ -128,7 +128,7 @@ void arch_stack_walk_user(stack_trace_consume_fn consume_entry, void *cookie,
- 			break;
- 		if (!frame.ret_addr)
- 			break;
--		if (!consume_entry(cookie, frame.ret_addr, false))
-+		if (!consume_entry(cookie, frame.ret_addr))
- 			break;
- 		fp = frame.next_fp;
- 	}
-diff --git a/include/linux/stacktrace.h b/include/linux/stacktrace.h
-index b7af8cc13eda..50e2df30b0aa 100644
---- a/include/linux/stacktrace.h
-+++ b/include/linux/stacktrace.h
-@@ -29,14 +29,11 @@ unsigned int stack_trace_save_user(unsigned long *store, unsigned int size);
-  * stack_trace_consume_fn - Callback for arch_stack_walk()
-  * @cookie:	Caller supplied pointer handed back by arch_stack_walk()
-  * @addr:	The stack entry address to consume
-- * @reliable:	True when the stack entry is reliable. Required by
-- *		some printk based consumers.
-  *
-  * Return:	True, if the entry was consumed or skipped
-  *		False, if there is no space left to store
-  */
--typedef bool (*stack_trace_consume_fn)(void *cookie, unsigned long addr,
--				       bool reliable);
-+typedef bool (*stack_trace_consume_fn)(void *cookie, unsigned long addr);
- /**
-  * arch_stack_walk - Architecture specific function to walk the stack
-  * @consume_entry:	Callback which is invoked by the architecture code for
-diff --git a/kernel/stacktrace.c b/kernel/stacktrace.c
-index 946f44a9e86a..9f8117c7cfdd 100644
---- a/kernel/stacktrace.c
-+++ b/kernel/stacktrace.c
-@@ -78,8 +78,7 @@ struct stacktrace_cookie {
- 	unsigned int	len;
- };
- 
--static bool stack_trace_consume_entry(void *cookie, unsigned long addr,
--				      bool reliable)
-+static bool stack_trace_consume_entry(void *cookie, unsigned long addr)
- {
- 	struct stacktrace_cookie *c = cookie;
- 
-@@ -94,12 +93,11 @@ static bool stack_trace_consume_entry(void *cookie, unsigned long addr,
- 	return c->len < c->size;
- }
- 
--static bool stack_trace_consume_entry_nosched(void *cookie, unsigned long addr,
--					      bool reliable)
-+static bool stack_trace_consume_entry_nosched(void *cookie, unsigned long addr)
- {
- 	if (in_sched_functions(addr))
- 		return true;
--	return stack_trace_consume_entry(cookie, addr, reliable);
-+	return stack_trace_consume_entry(cookie, addr);
- }
- 
- /**
--- 
-2.20.1
+On 8/25/20 6:25 AM, Cornelia Huck wrote:
+> On Fri, 21 Aug 2020 15:56:03 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> Let's create links between each queue device bound to the vfio_ap device
+>> driver and the matrix mdev to which the queue is assigned. The idea is to
+>> facilitate efficient retrieval of the objects representing the queue
+>> devices and matrix mdevs as well as to verify that a queue assigned to
+>> a matrix mdev is bound to the driver.
+>>
+>> The links will be created as follows:
+>>
+>>     * When the queue device is probed, if its APQN is assigned to a matrix
+>>       mdev, the structures representing the queue device and the matrix mdev
+>>       will be linked.
+>>
+>>     * When an adapter or domain is assigned to a matrix mdev, for each new
+>>       APQN assigned that references a queue device bound to the vfio_ap
+>>       device driver, the structures representing the queue device and the
+>>       matrix mdev will be linked.
+>>
+>> The links will be removed as follows:
+>>
+>>     * When the queue device is removed, if its APQN is assigned to a matrix
+>>       mdev, the structures representing the queue device and the matrix mdev
+>>       will be unlinked.
+>>
+>>     * When an adapter or domain is unassigned from a matrix mdev, for each
+>>       APQN unassigned that references a queue device bound to the vfio_ap
+>>       device driver, the structures representing the queue device and the
+>>       matrix mdev will be unlinked.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c     | 132 +++++++++++++++++++++++++-
+>>   drivers/s390/crypto/vfio_ap_private.h |   2 +
+>>   2 files changed, 129 insertions(+), 5 deletions(-)
+>>
+> (...)
+>
+>> @@ -548,6 +557,87 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+>>   	return 0;
+>>   }
+>>   
+>> +enum qlink_type {
+> <bikeshed>I think this is less of a type, and more of an action, so
+> maybe call this 'qlink_action' (and the function parameter below
+> 'action'?)</bikeshed>
+
+Sure, but what is this <bikeshed> tag?
+
+>
+>> +	LINK_APID,
+>> +	LINK_APQI,
+>> +	UNLINK_APID,
+>> +	UNLINK_APQI,
+>> +};
+>> +
+>> +static void vfio_ap_mdev_link_queue(struct ap_matrix_mdev *matrix_mdev,
+>> +				    unsigned long apid, unsigned long apqi)
+>> +{
+>> +	struct vfio_ap_queue *q;
+>> +
+>> +	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
+>> +	if (q) {
+>> +		q->matrix_mdev = matrix_mdev;
+>> +		hash_add(matrix_mdev->qtable,
+>> +			 &q->mdev_qnode, q->apqn);
+>> +	}
+>> +}
+>> +
+>> +static void vfio_ap_mdev_unlink_queue(unsigned long apid, unsigned long apqi)
+>> +{
+>> +	struct vfio_ap_queue *q;
+>> +
+>> +	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
+>> +	if (q) {
+>> +		q->matrix_mdev = NULL;
+>> +		hash_del(&q->mdev_qnode);
+>> +	}
+>> +}
+>> +
+>> +/**
+>> + * vfio_ap_mdev_link_queues
+>> + *
+>> + * @matrix_mdev: The matrix mdev to link.
+>> + * @type:	 The type of @qlink_id.
+>> + * @qlink_id:	 The APID or APQI of the queues to link.
+>> + *
+>> + * Sets or clears the links between the queues with the specified @qlink_id
+>> + * and the @matrix_mdev:
+>> + *     @type == LINK_APID: Set the links between the @matrix_mdev and the
+>> + *                         queues with the specified @qlink_id (APID)
+>> + *     @type == LINK_APQI: Set the links between the @matrix_mdev and the
+>> + *                         queues with the specified @qlink_id (APQI)
+>> + *     @type == UNLINK_APID: Clear the links between the @matrix_mdev and the
+>> + *                           queues with the specified @qlink_id (APID)
+>> + *     @type == UNLINK_APQI: Clear the links between the @matrix_mdev and the
+>> + *                           queues with the specified @qlink_id (APQI)
+>> + */
+>> +static void vfio_ap_mdev_link_queues(struct ap_matrix_mdev *matrix_mdev,
+>> +				     enum qlink_type type,
+>> +				     unsigned long qlink_id)
+>> +{
+>> +	unsigned long id;
+>> +
+>> +	switch (type) {
+>> +	case LINK_APID:
+>> +		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
+>> +				     matrix_mdev->matrix.aqm_max + 1)
+>> +			vfio_ap_mdev_link_queue(matrix_mdev, qlink_id, id);
+>> +		break;
+>> +	case UNLINK_APID:
+>> +		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
+>> +				     matrix_mdev->matrix.aqm_max + 1)
+>> +			vfio_ap_mdev_unlink_queue(qlink_id, id);
+>> +		break;
+>> +	case LINK_APQI:
+>> +		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
+>> +				     matrix_mdev->matrix.apm_max + 1)
+>> +			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
+>> +		break;
+>> +	case UNLINK_APQI:
+>> +		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
+>> +				     matrix_mdev->matrix.apm_max + 1)
+>> +			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
+>> +		break;
+>> +	default:
+>> +		WARN_ON_ONCE(1);
+>> +	}
+>> +}
+>> +
+> (...)
+>
+> I have not reviewed this deeply, but at a glance, it seems fine.
+>
