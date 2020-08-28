@@ -1,182 +1,67 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41602 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728015AbgH2Kv2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 29 Aug 2020 06:51:28 -0400
-Date: Sat, 29 Aug 2020 12:51:15 +0200
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.9-rc3
-Message-ID: <your-ad-here.call-01598698275-ext-0854@work.hours>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch V2 34/46] PCI/MSI: Make arch_.*_msi_irq[s] fallbacks selectable
+In-Reply-To: <20200827182040.GA2049623@bjorn-Precision-5520>
+References: <20200827182040.GA2049623@bjorn-Precision-5520>
+Date: Fri, 28 Aug 2020 20:29:57 +0200
+Message-ID: <873646lj2y.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain
+Sender: linux-kernel-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Bjorn Helgaas <helgaas@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>, Jon Derrick <jonathan.derrick@intel.com>, Lu Baolu <baolu.lu@linux.intel.com>, Wei Liu <wei.liu@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Steve Wahl <steve.wahl@hpe.com>, Dimitri Sivanich <sivanich@hpe.com>, Russ Anderson <rja@hpe.com>, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, xen-devel@lists.xenproject.org, Juergen Gross <jgross@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Marc Zyngier <maz@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Megha Dey <megha.dey@intel.com>, Jason Gunthorpe <jgg@mellanox.com>, Dave Jiang <dave.jiang@intel.com>, Alex Williamson <alex.williamson@redhat.com>, Jacob Pan <jacob.jun.pan@intel.com>, Baolu Lu <baolu.lu@intel.com>, Kevin Tian <kevin.tian@intel.com>, Dan Williams <dan.j.williams@intel.com>, Rob Herring <robh@kernel.org>
 
-Hello Linus,
+On Thu, Aug 27 2020 at 13:20, Bjorn Helgaas wrote:
+> On Wed, Aug 26, 2020 at 01:17:02PM +0200, Thomas Gleixner wrote:
+>> Make the architectures and drivers which rely on them select them in Kconfig
+>> and if not selected replace them by stub functions which emit a warning and
+>> fail the PCI/MSI interrupt allocation.
+>
+> Sorry, I really don't understand this, so these are probably stupid
+> questions.
+>
+> If CONFIG_PCI_MSI_ARCH_FALLBACKS is defined, we will supply
+> implementations of:
+>
+>   arch_setup_msi_irq
+>   arch_teardown_msi_irq
+>   arch_setup_msi_irqs
+>   arch_teardown_msi_irqs
+>   default_teardown_msi_irqs    # non-weak
+>
+> You select CONFIG_PCI_MSI_ARCH_FALLBACKS for ia64, mips, powerpc,
+> s390, sparc, and x86.  I see that all of those arches implement at
+> least one of the functions above.  But x86 doesn't and I can't figure
+> out why it needs to select CONFIG_PCI_MSI_ARCH_FALLBACKS.
 
-please pull s390 changes for 5.9-rc3.
+X86 still has them at that point in the series and the next patch
+removes them. I wanted to have the warnings in place before doing so.
 
-Thank you,
-Vasily
+> I assume there's a way to convert these arches to hierarchical irq
+> domains so they wouldn't need this at all?  Is there a sample
+> conversion to look at?
 
-The following changes since commit d012a7190fc1fd72ed48911e77ca97ba4521bccd:
+For a quick and dirty step it's pretty much the wrapper I used for XEN
+and then make sure that the msi_domain pointer is populated is
+pci_device::device.
 
-  Linux 5.9-rc2 (2020-08-23 14:08:43 -0700)
+> And I can't figure out what's special about tegra, rcar, and xilinx
+> that makes them need it as well.
 
-are available in the Git repository at:
+Those are old drivers from the time where ARM did not use hierarchical
+irq domains and nobody cared to fix them up.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.9-4
+> Is there something I could grep for
+> to identify them?
 
-for you to fetch changes up to bffc2f7aa96343f91931272d7a8a2d8d925e1ab2:
+git grep arch_setup_msi_irq
+git grep arch_teardown_msi_irq
 
-  s390/vmem: fix vmem_add_range for 4-level paging (2020-08-26 18:07:05 +0200)
+> Is there a way to convert them so they don't need it?
 
-----------------------------------------------------------------
-s390 fixes for 5.9-rc3
+Sure, it just needs some work and probably hardware to test.
 
-- Disable preemption trace in percpu macros since the lockdep code itself
-  uses percpu variables now and it causes recursions.
+Thanks,
 
-- Fix kernel space 4-level paging broken by recent vmem rework.
-
-----------------------------------------------------------------
-Sven Schnelle (1):
-      s390: don't trace preemption in percpu macros
-
-Vasily Gorbik (1):
-      s390/vmem: fix vmem_add_range for 4-level paging
-
- arch/s390/include/asm/percpu.h | 28 ++++++++++++++--------------
- arch/s390/mm/vmem.c            |  1 +
- 2 files changed, 15 insertions(+), 14 deletions(-)
-
-diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
-index 50b4ce8cddfd..918f0ba4f4d2 100644
---- a/arch/s390/include/asm/percpu.h
-+++ b/arch/s390/include/asm/percpu.h
-@@ -29,7 +29,7 @@
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ old__, new__, prev__;				\
- 	pcp_op_T__ *ptr__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	prev__ = *ptr__;						\
- 	do {								\
-@@ -37,7 +37,7 @@
- 		new__ = old__ op (val);					\
- 		prev__ = cmpxchg(ptr__, old__, new__);			\
- 	} while (prev__ != old__);					\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	new__;								\
- })
- 
-@@ -68,7 +68,7 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp)); 				\
- 	if (__builtin_constant_p(val__) &&				\
- 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {		\
-@@ -84,7 +84,7 @@
- 			: [val__] "d" (val__)				\
- 			: "cc");					\
- 	}								\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- }
- 
- #define this_cpu_add_4(pcp, val) arch_this_cpu_add(pcp, val, "laa", "asi", int)
-@@ -95,14 +95,14 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
- 	asm volatile(							\
- 		op "    %[old__],%[val__],%[ptr__]\n"			\
- 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
- 		: [val__] "d" (val__)					\
- 		: "cc");						\
--	preempt_enable();						\
-+	preempt_enable_notrace();						\
- 	old__ + val__;							\
- })
- 
-@@ -114,14 +114,14 @@
- 	typedef typeof(pcp) pcp_op_T__; 				\
- 	pcp_op_T__ val__ = (val);					\
- 	pcp_op_T__ old__, *ptr__;					\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
- 	asm volatile(							\
- 		op "    %[old__],%[val__],%[ptr__]\n"			\
- 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
- 		: [val__] "d" (val__)					\
- 		: "cc");						\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- }
- 
- #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
-@@ -136,10 +136,10 @@
- 	typedef typeof(pcp) pcp_op_T__;					\
- 	pcp_op_T__ ret__;						\
- 	pcp_op_T__ *ptr__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	ret__ = cmpxchg(ptr__, oval, nval);				\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-@@ -152,10 +152,10 @@
- ({									\
- 	typeof(pcp) *ptr__;						\
- 	typeof(pcp) ret__;						\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	ptr__ = raw_cpu_ptr(&(pcp));					\
- 	ret__ = xchg(ptr__, nval);					\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-@@ -171,11 +171,11 @@
- 	typeof(pcp1) *p1__;						\
- 	typeof(pcp2) *p2__;						\
- 	int ret__;							\
--	preempt_disable();						\
-+	preempt_disable_notrace();					\
- 	p1__ = raw_cpu_ptr(&(pcp1));					\
- 	p2__ = raw_cpu_ptr(&(pcp2));					\
- 	ret__ = __cmpxchg_double(p1__, p2__, o1__, o2__, n1__, n2__);	\
--	preempt_enable();						\
-+	preempt_enable_notrace();					\
- 	ret__;								\
- })
- 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 1aed1a4dfc2d..eddf71c22875 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -402,6 +402,7 @@ static int modify_p4d_table(pgd_t *pgd, unsigned long addr, unsigned long end,
- 			pud = vmem_crst_alloc(_REGION3_ENTRY_EMPTY);
- 			if (!pud)
- 				goto out;
-+			p4d_populate(&init_mm, p4d, pud);
- 		}
- 		ret = modify_pud_table(p4d, addr, next, add, direct);
- 		if (ret)
+        tglx
