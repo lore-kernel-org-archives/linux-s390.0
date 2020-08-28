@@ -1,40 +1,107 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 19/29] s390/tty3270: Avoid comma separated statements
-Date: Mon, 24 Aug 2020 21:56:16 -0700
-Message-Id: <9988babd9cca4ac841961d9f0bbf5e49caa87659.1598331149.git.joe@perches.com>
-In-Reply-To: <cover.1598331148.git.joe@perches.com>
-References: <cover.1598331148.git.joe@perches.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60622 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726321AbgH1PKt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 28 Aug 2020 11:10:49 -0400
+Subject: Re: [PATCH v10 02/16] s390/vfio-ap: use new AP bus interface to
+ search for queue devices
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+ <20200821195616.13554-3-akrowiak@linux.ibm.com>
+ <20200825121334.0ff35d7a.cohuck@redhat.com>
+ <b1c6bad8-3ec6-183c-3e35-9962e9c721c7@linux.ibm.com>
+ <20200828101357.2ccbc39a.cohuck@redhat.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <d4faf910-ea86-bcda-13e1-544243477568@linux.ibm.com>
+Date: Fri, 28 Aug 2020 11:10:40 -0400
 MIME-Version: 1.0
+In-Reply-To: <20200828101357.2ccbc39a.cohuck@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Language: en-US
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jiri Kosina <trivial@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, kernel test robot <lkp@intel.com>
 
-Use semicolons and braces.
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/s390/char/tty3270.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/char/tty3270.c b/drivers/s390/char/tty3270.c
-index aec996de44d9..6acce975df26 100644
---- a/drivers/s390/char/tty3270.c
-+++ b/drivers/s390/char/tty3270.c
-@@ -424,8 +424,10 @@ tty3270_update(struct timer_list *t)
- 			 * last output position matches the start address
- 			 * of this line.
- 			 */
--			if (s->string[1] == sba[0] && s->string[2] == sba[1])
--				str += 3, len -= 3;
-+			if (s->string[1] == sba[0] && s->string[2] == sba[1]) {
-+				str += 3;
-+				len -= 3;
-+			}
- 			if (raw3270_request_add_data(wrq, str, len) != 0)
- 				break;
- 			list_del_init(&s->update);
--- 
-2.26.0
+On 8/28/20 4:13 AM, Cornelia Huck wrote:
+> On Thu, 27 Aug 2020 10:24:07 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> On 8/25/20 6:13 AM, Cornelia Huck wrote:
+>>> On Fri, 21 Aug 2020 15:56:02 -0400
+>>> Tony Krowiak<akrowiak@linux.ibm.com>  wrote:
+>>>>    /**
+>>>> - * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
+>>>> - * @matrix_mdev: the associated mediated matrix
+>>>> + * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
+>>>>     * @apqn: The queue APQN
+>>>>     *
+>>>> - * Retrieve a queue with a specific APQN from the list of the
+>>>> - * devices of the vfio_ap_drv.
+>>>> - * Verify that the APID and the APQI are set in the matrix.
+>>>> + * Retrieve a queue with a specific APQN from the AP queue devices attached to
+>>>> + * the AP bus.
+>>>>     *
+>>>> - * Returns the pointer to the associated vfio_ap_queue
+>>>> + * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
+>>>>     */
+>>>> -static struct vfio_ap_queue *vfio_ap_get_queue(
+>>>> -					struct ap_matrix_mdev *matrix_mdev,
+>>>> -					int apqn)
+>>>> +static struct vfio_ap_queue *vfio_ap_get_queue(unsigned long apqn)
+>>>>    {
+>>>> +	struct ap_queue *queue;
+>>>>    	struct vfio_ap_queue *q;
+>>>> -	struct device *dev;
+>>>>    
+>>>> -	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
+>>>> -		return NULL;
+>>>> -	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
+>>> I think you should add some explanation to the patch description why
+>>> testing the matrix bitmasks is not needed anymore.
+>> As a result of this comment, I took a closer look at the code to
+>> determine the reason for eliminating the matrix_mdev
+>> parameter. The reason is because the code below (i.e., find the device
+>> and get the driver data) was also repeated in the vfio_ap_irq_disable_apqn()
+>> function, so I replaced it with a call to the function above; however, the
+>> vfio_ap_irq_disable_apqn() function  does not have a reference to the
+>> matrix_mdev, so I eliminated the matrix_mdev parameter. Note that the
+>> vfio_ap_irq_disable_apqn() is called for each APQN assigned to a matrix
+>> mdev, so there is no need to test the bitmasks there.
+>>
+>> The other place from which the function above is called is
+>> the handle_pqap() function which does have a reference to the
+>> matrix_mdev. In order to ensure the integrity of the instruction
+>> being intercepted - i.e., PQAP(AQIC) enable/disable IRQ for aN
+>> AP queue - the testing of the matrix bitmasks probably ought to
+>> be performed, so it will be done there instead of in the
+>> vfio_ap_get_queue() function above.
+> Should you add a comment that vfio_ap_get_queue() assumes that the
+> caller makes sure that this is only called for APQNs that are assigned
+> to a matrix?
+
+I suppose it wouldn't hurt.
+
+>
+>>
+>>> +	queue = ap_get_qdev(apqn);
+>>> +	if (!queue)
+>>>    		return NULL;
+>>>    
+>>> -	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+>>> -				 &apqn, match_apqn);
+>>> -	if (!dev)
+>>> -		return NULL;
+>>> -	q = dev_get_drvdata(dev);
+>>> -	q->matrix_mdev = matrix_mdev;
+>>> -	put_device(dev);
+>>> +	q = dev_get_drvdata(&queue->ap_dev.device);
+>>> +	put_device(&queue->ap_dev.device);
+>>>    
+>>>    	return q;
+>>>    }
+>>> (...)
+>>>   
