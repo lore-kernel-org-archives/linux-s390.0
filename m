@@ -1,90 +1,109 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 13/17] x86/setup: simplify initrd relocation and reservation
-Date: Tue, 18 Aug 2020 18:16:30 +0300
-Message-Id: <20200818151634.14343-14-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:50552 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726023AbgH3Pwq (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 30 Aug 2020 11:52:46 -0400
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF2D52087D
+        for <linux-s390@vger.kernel.org>; Sun, 30 Aug 2020 15:52:45 +0000 (UTC)
+Received: by mail-wm1-f49.google.com with SMTP id x9so3199494wmi.2
+        for <linux-s390@vger.kernel.org>; Sun, 30 Aug 2020 08:52:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+References: <CALCETrWXvAMA7tQ3XZdAk2FixKfzQ_0fBmyNVyyPHVAomLvrWQ@mail.gmail.com>
+ <CAMzpN2hmR+0-Yse1csbiVOiqgZ0e+VRkCBBXUKoPSTSMOOOFAQ@mail.gmail.com>
+In-Reply-To: <CAMzpN2hmR+0-Yse1csbiVOiqgZ0e+VRkCBBXUKoPSTSMOOOFAQ@mail.gmail.com>
+From: Andy Lutomirski <luto@kernel.org>
+Date: Sun, 30 Aug 2020 08:52:33 -0700
+Message-ID: <CALCETrXY1x0MReMoTOG2awcZvr4c7gp99JVNthK37vUUk-kyew@mail.gmail.com>
+Subject: Re: ptrace_syscall_32 is failing
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org, Ingo Molnar <mingo@kernel.org>
+To: Brian Gerst <brgerst@gmail.com>
+Cc: Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Catalin Marinas <catalin.marinas@arm.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On Sat, Aug 29, 2020 at 9:40 PM Brian Gerst <brgerst@gmail.com> wrote:
+>
+> On Sat, Aug 29, 2020 at 12:52 PM Andy Lutomirski <luto@kernel.org> wrote:
+> >
+> > Seems to be a recent regression, maybe related to entry/exit work changes.
+> >
+> > # ./tools/testing/selftests/x86/ptrace_syscall_32
+> > [RUN]    Check int80 return regs
+> > [OK]    getpid() preserves regs
+> > [OK]    kill(getpid(), SIGUSR1) preserves regs
+> > [RUN]    Check AT_SYSINFO return regs
+> > [OK]    getpid() preserves regs
+> > [OK]    kill(getpid(), SIGUSR1) preserves regs
+> > [RUN]    ptrace-induced syscall restart
+> >     Child will make one syscall
+> > [RUN]    SYSEMU
+> > [FAIL]    Initial args are wrong (nr=224, args=10 11 12 13 14 4289172732)
+> > [RUN]    Restart the syscall (ip = 0xf7f3b549)
+> > [OK]    Restarted nr and args are correct
+> > [RUN]    Change nr and args and restart the syscall (ip = 0xf7f3b549)
+> > [OK]    Replacement nr and args are correct
+> > [OK]    Child exited cleanly
+> > [RUN]    kernel syscall restart under ptrace
+> >     Child will take a nap until signaled
+> > [RUN]    SYSCALL
+> > [FAIL]    Initial args are wrong (nr=29, args=0 0 0 0 0 4289172732)
+> > [RUN]    SYSCALL
+> > [OK]    Args after SIGUSR1 are correct (ax = -514)
+> > [OK]    Child got SIGUSR1
+> > [RUN]    Step again
+> > [OK]    pause(2) restarted correctly
+>
+> Bisected to commit 0b085e68f407 ("x86/entry: Consolidate 32/64 bit
+> syscall entry").
+> It looks like it is because syscall_enter_from_user_mode() is called
+> before reading the 6th argument from the user stack.
 
-Currently, initrd image is reserved very early during setup and then it
-might be relocated and re-reserved after the initial physical memory
-mapping is created. The "late" reservation of memblock verifies that mapped
-memory size exceeds the size of initrd, then checks whether the relocation
-required and, if yes, relocates inirtd to a new memory allocated from
-memblock and frees the old location.
+Ugh.  I caught, in review, a potential related issue with exit (not a
+problem in current kernels), but I missed the entry version.
 
-The check for memory size is excessive as memblock allocation will anyway
-fail if there is not enough memory. Besides, there is no point to allocate
-memory from memblock using memblock_find_in_range() + memblock_reserve()
-when there exists memblock_phys_alloc_range() with required functionality.
+Thomas, can we revert the syscall_enter() and syscall_exit() part of
+the series?  I think that they almost work for x86, but not quite as
+indicated by this bug.  Even if we imagine we can somehow hack around
+this bug, I imagine we're going to find other problems with this
+model, e.g. the potential upcoming exit problem I noted in my review.
 
-Remove the redundant check and simplify memblock allocation.
+I really think the model should be:
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Baoquan He <bhe@redhat.com>
----
- arch/x86/kernel/setup.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+void do_syscall_whatever(...)
+{
+  irqentry_enter(...);
+  instrumentation_begin();
 
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index 3511736fbc74..2cac39ade2e3 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -263,16 +263,12 @@ static void __init relocate_initrd(void)
- 	u64 area_size     = PAGE_ALIGN(ramdisk_size);
- 
- 	/* We need to move the initrd down into directly mapped mem */
--	relocated_ramdisk = memblock_find_in_range(0, PFN_PHYS(max_pfn_mapped),
--						   area_size, PAGE_SIZE);
--
-+	relocated_ramdisk = memblock_phys_alloc_range(area_size, PAGE_SIZE, 0,
-+						      PFN_PHYS(max_pfn_mapped));
- 	if (!relocated_ramdisk)
- 		panic("Cannot find place for new RAMDISK of size %lld\n",
- 		      ramdisk_size);
- 
--	/* Note: this includes all the mem currently occupied by
--	   the initrd, we rely on that fact to keep the data intact. */
--	memblock_reserve(relocated_ramdisk, area_size);
- 	initrd_start = relocated_ramdisk + PAGE_OFFSET;
- 	initrd_end   = initrd_start + ramdisk_size;
- 	printk(KERN_INFO "Allocated new RAMDISK: [mem %#010llx-%#010llx]\n",
-@@ -299,13 +295,13 @@ static void __init early_reserve_initrd(void)
- 
- 	memblock_reserve(ramdisk_image, ramdisk_end - ramdisk_image);
- }
-+
- static void __init reserve_initrd(void)
- {
- 	/* Assume only end is not page aligned */
- 	u64 ramdisk_image = get_ramdisk_image();
- 	u64 ramdisk_size  = get_ramdisk_size();
- 	u64 ramdisk_end   = PAGE_ALIGN(ramdisk_image + ramdisk_size);
--	u64 mapped_size;
- 
- 	if (!boot_params.hdr.type_of_loader ||
- 	    !ramdisk_image || !ramdisk_size)
-@@ -313,12 +309,6 @@ static void __init reserve_initrd(void)
- 
- 	initrd_start = 0;
- 
--	mapped_size = memblock_mem_size(max_pfn_mapped);
--	if (ramdisk_size >= (mapped_size>>1))
--		panic("initrd too large to handle, "
--		       "disabling initrd (%lld needed, %lld available)\n",
--		       ramdisk_size, mapped_size>>1);
--
- 	printk(KERN_INFO "RAMDISK: [mem %#010llx-%#010llx]\n", ramdisk_image,
- 			ramdisk_end - 1);
- 
--- 
-2.26.2
+  /* Do whatever arch ABI oddities are needed on entry. */
+
+  Then either:
+  syscall_begin(arch, nr, regs);
+  dispatch the syscall;
+  syscall_end(arch, nr, regs);
+
+  Or just:
+  generic_do_syscall(arch, nr, regs);
+
+  /* Do whatever arch ABI oddities are needed on exit from the syscall. */
+
+  instrumentation_end();
+  irqentry_exit(...);
+}
+
+x86 has an ABI oddity needed on entry: this fast syscall argument
+fixup.  We also might end up with ABI oddities on exit if we ever try
+to make single-stepping of syscalls work fully correctly.  x86 sort of
+gets away without specifying arch because the arch helpers that get
+called for audit, etc can deduce the arch, but this is kind of gross.
+I suppose we could omit arch as an explicit parameter.
+
+Or I suppose we could try to rejigger the API in time for 5.9.
+Fortunately only x86 uses the new APIs so far.  I cc'd a bunch of
+other arch maintainers to see if other architectures fit well in the
+new syscall_enter() model, but I feel like the fact that x86 is
+already broken indicates that we messed it up a bit.
+
+--Andy
