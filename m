@@ -1,101 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:46334 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725768AbgHBQhL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 2 Aug 2020 12:37:11 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v2 05/17] h8300, nds32, openrisc: simplify detection of memory extents
-Date: Sun,  2 Aug 2020 19:35:49 +0300
-Message-Id: <20200802163601.8189-6-rppt@kernel.org>
-In-Reply-To: <20200802163601.8189-1-rppt@kernel.org>
-References: <20200802163601.8189-1-rppt@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728893AbgHaUip (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Aug 2020 16:38:45 -0400
+From: Nicolin Chen <nicoleotsuka@gmail.com>
+Subject: [RESEND][PATCH 1/7] powerpc/iommu: Avoid overflow at boundary_size
+Date: Mon, 31 Aug 2020 13:38:05 -0700
+Message-Id: <20200831203811.8494-2-nicoleotsuka@gmail.com>
+In-Reply-To: <20200831203811.8494-1-nicoleotsuka@gmail.com>
+References: <20200831203811.8494-1-nicoleotsuka@gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de
+Cc: sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+The boundary_size might be as large as ULONG_MAX, which means
+that a device has no specific boundary limit. So either "+ 1"
+or passing it to ALIGN() would potentially overflow.
 
-Instead of traversing memblock.memory regions to find memory_start and
-memory_end, simply query memblock_{start,end}_of_DRAM().
+According to kernel defines:
+    #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
+    #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Stafford Horne <shorne@gmail.com>
+We can simplify the logic here:
+  ALIGN(boundary + 1, 1 << shift) >> shift
+= ALIGN_MASK(b + 1, (1 << s) - 1) >> s
+= {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
+= [b + 1 + (1 << s) - 1] >> s
+= [b + (1 << s)] >> s
+= (b >> s) + 1
+
+So fixing a potential overflow with the safer shortcut.
+
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>
 ---
- arch/h8300/kernel/setup.c    | 8 +++-----
- arch/nds32/kernel/setup.c    | 8 ++------
- arch/openrisc/kernel/setup.c | 9 ++-------
- 3 files changed, 7 insertions(+), 18 deletions(-)
+ arch/powerpc/kernel/iommu.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/h8300/kernel/setup.c b/arch/h8300/kernel/setup.c
-index 28ac88358a89..0281f92eea3d 100644
---- a/arch/h8300/kernel/setup.c
-+++ b/arch/h8300/kernel/setup.c
-@@ -74,17 +74,15 @@ static void __init bootmem_init(void)
- 	memory_end = memory_start = 0;
+diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
+index 9704f3f76e63..c01ccbf8afdd 100644
+--- a/arch/powerpc/kernel/iommu.c
++++ b/arch/powerpc/kernel/iommu.c
+@@ -236,15 +236,14 @@ static unsigned long iommu_range_alloc(struct device *dev,
+ 		}
+ 	}
  
- 	/* Find main memory where is the kernel */
--	for_each_memblock(memory, region) {
--		memory_start = region->base;
--		memory_end = region->base + region->size;
--	}
-+	memory_start = memblock_start_of_DRAM();
-+	memory_end = memblock_end_of_DRAM();
+-	if (dev)
+-		boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
+-				      1 << tbl->it_page_shift);
+-	else
+-		boundary_size = ALIGN(1UL << 32, 1 << tbl->it_page_shift);
+ 	/* 4GB boundary for iseries_hv_alloc and iseries_hv_map */
++	boundary_size = dev ? dma_get_seg_boundary(dev) : U32_MAX;
++
++	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
++	boundary_size = (boundary_size >> tbl->it_page_shift) + 1;
  
- 	if (!memory_end)
- 		panic("No memory!");
- 
- 	/* setup bootmem globals (we use no_bootmem, but mm still depends on this) */
- 	min_low_pfn = PFN_UP(memory_start);
--	max_low_pfn = PFN_DOWN(memblock_end_of_DRAM());
-+	max_low_pfn = PFN_DOWN(memory_end);
- 	max_pfn = max_low_pfn;
- 
- 	memblock_reserve(__pa(_stext), _end - _stext);
-diff --git a/arch/nds32/kernel/setup.c b/arch/nds32/kernel/setup.c
-index a066efbe53c0..c356e484dcab 100644
---- a/arch/nds32/kernel/setup.c
-+++ b/arch/nds32/kernel/setup.c
-@@ -249,12 +249,8 @@ static void __init setup_memory(void)
- 	memory_end = memory_start = 0;
- 
- 	/* Find main memory where is the kernel */
--	for_each_memblock(memory, region) {
--		memory_start = region->base;
--		memory_end = region->base + region->size;
--		pr_info("%s: Memory: 0x%x-0x%x\n", __func__,
--			memory_start, memory_end);
--	}
-+	memory_start = memblock_start_of_DRAM();
-+	memory_end = memblock_end_of_DRAM();
- 
- 	if (!memory_end) {
- 		panic("No memory!");
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index 8aa438e1f51f..c5706153d3b6 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -48,17 +48,12 @@ static void __init setup_memory(void)
- 	unsigned long ram_start_pfn;
- 	unsigned long ram_end_pfn;
- 	phys_addr_t memory_start, memory_end;
--	struct memblock_region *region;
- 
- 	memory_end = memory_start = 0;
- 
- 	/* Find main memory where is the kernel, we assume its the only one */
--	for_each_memblock(memory, region) {
--		memory_start = region->base;
--		memory_end = region->base + region->size;
--		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
--		       memory_start, memory_end);
--	}
-+	memory_start = memblock_start_of_DRAM();
-+	memory_end = memblock_end_of_DRAM();
- 
- 	if (!memory_end) {
- 		panic("No memory!");
+ 	n = iommu_area_alloc(tbl->it_map, limit, start, npages, tbl->it_offset,
+-			     boundary_size >> tbl->it_page_shift, align_mask);
++			     boundary_size, align_mask);
+ 	if (n == -1) {
+ 		if (likely(pass == 0)) {
+ 			/* First try the pool from the start */
 -- 
-2.26.2
+2.17.1
