@@ -1,60 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64804 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19984 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726435AbgHRNE4 (ORCPT
+        by vger.kernel.org with ESMTP id S1726204AbgHaMFl (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Aug 2020 09:04:56 -0400
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 3/4] run_tests/mkstandalone: add arch_cmd hook
-Date: Tue, 18 Aug 2020 15:04:23 +0200
-Message-Id: <20200818130424.20522-4-mhartmay@linux.ibm.com>
-In-Reply-To: <20200818130424.20522-1-mhartmay@linux.ibm.com>
-References: <20200818130424.20522-1-mhartmay@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Mon, 31 Aug 2020 08:05:41 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v1 1/3] s390x: pv: implement routine to share/unshare memory
+Date: Mon, 31 Aug 2020 14:05:31 +0200
+Message-Id: <1598875533-19947-2-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
+References: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-This allows us, for example, to auto generate a new test case based on
-an existing test case.
+When communicating with the host we need to share part of
+the memory.
 
-Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Let's implement the ultravisor calls for this.
+
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Suggested-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- scripts/common.bash | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ lib/s390x/asm/uv.h | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/scripts/common.bash b/scripts/common.bash
-index c7acdf14a835..a6044b7c6c35 100644
---- a/scripts/common.bash
-+++ b/scripts/common.bash
-@@ -19,7 +19,7 @@ function for_each_unittest()
- 	while read -r -u $fd line; do
- 		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
- 			if [ -n "${testname}" ]; then
--				"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+				$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
- 			fi
- 			testname=${BASH_REMATCH[1]}
- 			smp=1
-@@ -49,11 +49,16 @@ function for_each_unittest()
- 		fi
- 	done
- 	if [ -n "${testname}" ]; then
--		"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
-+		$(arch_cmd) "$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
- 	fi
- 	exec {fd}<&-
+diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
+index 4c2fc48..19019e4 100644
+--- a/lib/s390x/asm/uv.h
++++ b/lib/s390x/asm/uv.h
+@@ -71,4 +71,37 @@ static inline int uv_call(unsigned long r1, unsigned long r2)
+ 	return cc;
  }
  
-+function arch_cmd()
++static inline int share(unsigned long addr, u16 cmd)
 +{
-+	[ "${ARCH_CMD}" ] && echo "${ARCH_CMD}"
++	struct uv_cb_share uvcb = {
++		.header.cmd = cmd,
++		.header.len = sizeof(uvcb),
++		.paddr = addr
++	};
++
++	uv_call(0, (u64)&uvcb);
++	return uvcb.header.rc;
 +}
 +
- # The current file has to be the only file sourcing the arch helper
- # file
- ARCH_FUNC=scripts/${ARCH}/func.bash
++/*
++ * Guest 2 request to the Ultravisor to make a page shared with the
++ * hypervisor for IO.
++ *
++ * @addr: Real or absolute address of the page to be shared
++ */
++static inline int uv_set_shared(unsigned long addr)
++{
++	return share(addr, UVC_CMD_SET_SHARED_ACCESS);
++}
++
++/*
++ * Guest 2 request to the Ultravisor to make a page unshared.
++ *
++ * @addr: Real or absolute address of the page to be unshared
++ */
++static inline int uv_remove_shared(unsigned long addr)
++{
++	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
++}
++
+ #endif
 -- 
-2.25.4
+2.25.1
