@@ -1,201 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58800 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727120AbgHUT4z (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28722 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728184AbgHaJKG (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Aug 2020 15:56:55 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v10 15/16] s390/vfio-ap: handle probe/remove not due to host AP config changes
-Date: Fri, 21 Aug 2020 15:56:15 -0400
-Message-Id: <20200821195616.13554-16-akrowiak@linux.ibm.com>
-In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Mon, 31 Aug 2020 05:10:06 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v10 1/2] virtio: let arch advertise guest's memory access restrictions
+Date: Mon, 31 Aug 2020 11:09:45 +0200
+Message-Id: <1598864986-13875-2-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1598864986-13875-1-git-send-email-pmorel@linux.ibm.com>
+References: <1598864986-13875-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-AP queue devices are probed or removed for reasons other than changes
-to the host AP configuration. For example:
+An architecture may restrict host access to guest memory,
+e.g. IBM s390 Secure Execution or AMD SEV.
 
-* The state of an AP adapter can be dynamically changed from standby to
-  online via the SE or by execution of the SCLP Configure AP command. When
-  the state changes, each queue device associated with the card device
-  representing the adapter will get created and probed.
+Provide a new Kconfig entry the architecture can select,
+CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS, when it provides
+the arch_has_restricted_virtio_memory_access callback to advertise
+to VIRTIO common code when the architecture restricts memory access
+from the host.
 
-* The state of an AP adapter can be dynamically changed from online to
-  standby via the SE or by execution of the SCLP Deconfigure AP command.
-  When the state changes, each queue device associated with the card device
-  representing the adapter will get removed.
+The common code can then fail the probe for any device where
+VIRTIO_F_IOMMU_PLATFORM is required, but not set.
 
-* Each queue device associated with a card device will get removed
-  when the type of the AP adapter represented by the card device
-  dynamically changes.
-
-* Each queue device associated with a card device will get removed
-  when the status of the queue represented by the queue device changes
-  from operating to check stop.
-
-* AP queue devices can be manually bound to or unbound from the vfio_ap
-  device driver by a root user via the sysfs bind/unbind attributes of the
-  driver.
-
-In response to a queue device probe or remove that is not the result of a
-change to the host's AP configuration, if a KVM guest is using the matrix
-mdev to which the APQN of the queue device is assigned, the vfio_ap device
-driver must respond accordingly. In an ideal world, the queue device being
-probed would be hot plugged into the guest. Likewise, the queue
-corresponding to the queue device being removed would
-be hot unplugged from the guest. Unfortunately, the AP architecture
-precludes plugging or unplugging individual queues, so let's handle
-the probe or remove of an AP queue device as follows:
-
-Handling Probe
---------------
-There are two requirements that must be met in order to give a
-guest access to the queue corresponding to the queue device being probed:
-
-* Each APQN derived from the APID of the queue device and the APQIs of the
-  domains already assigned to the guest's AP configuration must reference
-  a queue device bound to the vfio_ap device driver.
-
-* Each APQN derived from the APQI of the queue device and the APIDs of the
-  adapters assigned to the guest's AP configuration must reference a queue
-  device bound to the vfio_ap device driver.
-
-If the above conditions are met, the APQN will be assigned to the guest's
-AP configuration and the guest will be given access to the queue.
-
-Handling Remove
----------------
-Since the AP architecture precludes us from taking access to an individual
-queue from a guest, we are left with the choice of taking access away from
-either the adapter or the domain to which the queue is connected. Access to
-the adapter will be taken away because it is likely that most of the time,
-the remove callback will be invoked because the adapter state has
-transitioned from online to standby. In such a case, no queue connected
-to the adapter will be available to access.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 84 +++++++++++++++++++++++++++++++
- 1 file changed, 84 insertions(+)
+ drivers/virtio/Kconfig        |  6 ++++++
+ drivers/virtio/virtio.c       | 15 +++++++++++++++
+ include/linux/virtio_config.h |  9 +++++++++
+ 3 files changed, 30 insertions(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e6480f31a42b..b6a1e280991d 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1682,6 +1682,61 @@ static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
- 	}
- }
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 5809e5f5b157..9cd1c267c143 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -6,6 +6,12 @@ config VIRTIO
+ 	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_RPMSG
+ 	  or CONFIG_S390_GUEST.
  
-+static bool vfio_ap_mdev_assign_shadow_apid(struct ap_matrix_mdev *matrix_mdev,
-+					    unsigned long apid)
-+{
-+	unsigned long apqi;
++config ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
++	bool
++	help
++	  This option is selected if the architecture may need to enforce
++	  VIRTIO_F_IOMMU_PLATFORM.
 +
-+	for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm,
-+			     matrix_mdev->shadow_apcb.aqm_max + 1) {
-+		if (!vfio_ap_get_queue(AP_MKQID(apid, apqi)))
-+			return false;
+ menuconfig VIRTIO_MENU
+ 	bool "Virtio drivers"
+ 	default y
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index a977e32a88f2..57ca41d77b09 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -176,6 +176,21 @@ int virtio_finalize_features(struct virtio_device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = arch_has_restricted_virtio_memory_access();
++	if (ret) {
++		if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
++			dev_warn(&dev->dev,
++				 "device must provide VIRTIO_F_VERSION_1\n");
++			return -ENODEV;
++		}
++
++		if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
++			dev_warn(&dev->dev,
++				 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
++			return -ENODEV;
++		}
 +	}
 +
-+	set_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
-+
-+	return true;
-+}
-+
-+static bool vfio_ap_mdev_assign_shadow_apqi(struct ap_matrix_mdev *matrix_mdev,
-+					    unsigned long apqi)
-+{
-+	unsigned long apid;
-+
-+	for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
-+			     matrix_mdev->shadow_apcb.apm_max + 1) {
-+		if (!vfio_ap_get_queue(AP_MKQID(apid, apqi)))
-+			return false;
-+	}
-+
-+	set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
-+
-+	return true;
-+}
-+
-+static void vfio_ap_mdev_hot_plug_queue(struct vfio_ap_queue *q)
-+{
-+	bool commit = false;
-+	unsigned long apid = AP_QID_CARD(q->apqn);
-+	unsigned long apqi = AP_QID_QUEUE(q->apqn);
-+
-+	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
-+		return;
-+
-+	if (!test_bit_inv(apid, q->matrix_mdev->matrix.apm) ||
-+	    !test_bit_inv(apqi, q->matrix_mdev->matrix.aqm))
-+		return;
-+
-+	if (!test_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm))
-+		commit |= vfio_ap_mdev_assign_shadow_apid(q->matrix_mdev, apid);
-+
-+	if (!test_bit_inv(apqi, q->matrix_mdev->shadow_apcb.aqm))
-+		commit |= vfio_ap_mdev_assign_shadow_apqi(q->matrix_mdev, apqi);
-+
-+	if (commit)
-+		vfio_ap_mdev_commit_shadow_apcb(q->matrix_mdev);
-+}
-+
- int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
- {
- 	struct vfio_ap_queue *q;
-@@ -1695,11 +1750,35 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
- 	q->apqn = queue->qid;
- 	q->saved_isc = VFIO_AP_ISC_INVALID;
- 	vfio_ap_queue_link_mdev(q);
-+	/* Make sure we're not in the middle of an AP configuration change. */
-+	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
-+		vfio_ap_mdev_hot_plug_queue(q);
- 	mutex_unlock(&matrix_dev->lock);
+ 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+ 		return 0;
  
- 	return 0;
- }
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index bb4cc4910750..e380664642b4 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -459,4 +459,13 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
+ 		_r;							\
+ 	})
  
-+void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
++#ifdef CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
++int arch_has_restricted_virtio_memory_access(void);
++#else
++static inline int arch_has_restricted_virtio_memory_access(void)
 +{
-+	unsigned long apid = AP_QID_CARD(q->apqn);
-+	unsigned long apqi = AP_QID_QUEUE(q->apqn);
-+
-+	if ((q->matrix_mdev == NULL) || !vfio_ap_mdev_has_crycb(q->matrix_mdev))
-+		return;
-+
-+	/*
-+	 * If the APQN is assigned to the guest, then let's
-+	 * go ahead and unplug the adapter since the
-+	 * architecture does not provide a means to unplug
-+	 * an individual queue.
-+	 */
-+	if (test_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm) &&
-+	    test_bit_inv(apqi, q->matrix_mdev->shadow_apcb.aqm)) {
-+		if (vfio_ap_mdev_unassign_guest_apid(q->matrix_mdev, apid))
-+			vfio_ap_mdev_commit_shadow_apcb(q->matrix_mdev);
-+	}
++	return 0;
 +}
++#endif /* CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS */
 +
- void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- {
- 	struct vfio_ap_queue *q;
-@@ -1707,6 +1786,11 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
- 
- 	mutex_lock(&matrix_dev->lock);
- 	q = dev_get_drvdata(&queue->ap_dev.device);
-+
-+	/* Make sure we're not in the middle of an AP configuration change. */
-+	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
-+		vfio_ap_mdev_hot_unplug_queue(q);
-+
- 	dev_set_drvdata(&queue->ap_dev.device, NULL);
- 	apid = AP_QID_CARD(q->apqn);
- 	apqi = AP_QID_QUEUE(q->apqn);
+ #endif /* _LINUX_VIRTIO_CONFIG_H */
 -- 
-2.21.1
+2.25.1
