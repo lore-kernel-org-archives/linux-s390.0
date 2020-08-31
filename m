@@ -1,47 +1,106 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3948 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726306AbgHUT4c (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Aug 2020 15:56:32 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v10 01/16] s390/vfio-ap: add version vfio_ap module
-Date: Fri, 21 Aug 2020 15:56:01 -0400
-Message-Id: <20200821195616.13554-2-akrowiak@linux.ibm.com>
-In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-kbuild-owner@vger.kernel.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH] arch: vdso: add vdso linker script to 'targets' instead of extra-y
+Date: Tue,  1 Sep 2020 03:22:39 +0900
+Message-Id: <20200831182239.480317-1-masahiroy@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Sender: linux-kbuild-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-kbuild@vger.kernel.org
+Cc: Masahiro Yamada <masahiroy@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Greentime Hu <green.hu@gmail.com>, Heiko Carstens <hca@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, Nick Hu <nickhu@andestech.com>, Paul Mackerras <paulus@samba.org>, Vasily Gorbik <gor@linux.ibm.com>, Vincent Chen <deanbo422@gmail.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 
-Let's set a version for the vfio_ap module so that automated regression
-tests can determine whether dynamic configuration tests can be run or
-not.
+The vdso linker script is preprocessed on demand.
+Adding it to 'targets' is enough to include the .cmd file.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 ---
- drivers/s390/crypto/vfio_ap_drv.c | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index be2520cc010b..f4ceb380dd61 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -17,10 +17,12 @@
+ arch/arm64/kernel/vdso/Makefile     | 2 +-
+ arch/arm64/kernel/vdso32/Makefile   | 2 +-
+ arch/nds32/kernel/vdso/Makefile     | 2 +-
+ arch/powerpc/kernel/vdso32/Makefile | 2 +-
+ arch/powerpc/kernel/vdso64/Makefile | 2 +-
+ arch/s390/kernel/vdso64/Makefile    | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
+index 45d5cfe46429..7cd8aafbe96e 100644
+--- a/arch/arm64/kernel/vdso/Makefile
++++ b/arch/arm64/kernel/vdso/Makefile
+@@ -54,7 +54,7 @@ endif
+ GCOV_PROFILE := n
  
- #define VFIO_AP_ROOT_NAME "vfio_ap"
- #define VFIO_AP_DEV_NAME "matrix"
-+#define VFIO_AP_MODULE_VERSION "1.2.0"
+ obj-y += vdso.o
+-extra-y += vdso.lds
++targets += vdso.lds
+ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
  
- MODULE_AUTHOR("IBM Corporation");
- MODULE_DESCRIPTION("VFIO AP device driver, Copyright IBM Corp. 2018");
- MODULE_LICENSE("GPL v2");
-+MODULE_VERSION(VFIO_AP_MODULE_VERSION);
+ # Force dependency (incbin is bad)
+diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
+index d6adb4677c25..572475b7b7ed 100644
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -155,7 +155,7 @@ asm-obj-vdso := $(addprefix $(obj)/, $(asm-obj-vdso))
+ obj-vdso := $(c-obj-vdso) $(c-obj-vdso-gettimeofday) $(asm-obj-vdso)
  
- static struct ap_driver vfio_ap_drv;
+ obj-y += vdso.o
+-extra-y += vdso.lds
++targets += vdso.lds
+ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
  
+ # Force dependency (vdso.s includes vdso.so through incbin)
+diff --git a/arch/nds32/kernel/vdso/Makefile b/arch/nds32/kernel/vdso/Makefile
+index 7c3c1ccb196e..55df25ef0057 100644
+--- a/arch/nds32/kernel/vdso/Makefile
++++ b/arch/nds32/kernel/vdso/Makefile
+@@ -20,7 +20,7 @@ GCOV_PROFILE := n
+ 
+ 
+ obj-y += vdso.o
+-extra-y += vdso.lds
++targets += vdso.lds
+ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
+ 
+ # Force dependency
+diff --git a/arch/powerpc/kernel/vdso32/Makefile b/arch/powerpc/kernel/vdso32/Makefile
+index 87ab1152d5ce..fd5072a4c73c 100644
+--- a/arch/powerpc/kernel/vdso32/Makefile
++++ b/arch/powerpc/kernel/vdso32/Makefile
+@@ -29,7 +29,7 @@ ccflags-y := -shared -fno-common -fno-builtin -nostdlib \
+ asflags-y := -D__VDSO32__ -s
+ 
+ obj-y += vdso32_wrapper.o
+-extra-y += vdso32.lds
++targets += vdso32.lds
+ CPPFLAGS_vdso32.lds += -P -C -Upowerpc
+ 
+ # Force dependency (incbin is bad)
+diff --git a/arch/powerpc/kernel/vdso64/Makefile b/arch/powerpc/kernel/vdso64/Makefile
+index 38c317f25141..c737b3ea3207 100644
+--- a/arch/powerpc/kernel/vdso64/Makefile
++++ b/arch/powerpc/kernel/vdso64/Makefile
+@@ -17,7 +17,7 @@ ccflags-y := -shared -fno-common -fno-builtin -nostdlib \
+ asflags-y := -D__VDSO64__ -s
+ 
+ obj-y += vdso64_wrapper.o
+-extra-y += vdso64.lds
++targets += vdso64.lds
+ CPPFLAGS_vdso64.lds += -P -C -U$(ARCH)
+ 
+ # Force dependency (incbin is bad)
+diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
+index 4a66a1cb919b..d0d406cfffa9 100644
+--- a/arch/s390/kernel/vdso64/Makefile
++++ b/arch/s390/kernel/vdso64/Makefile
+@@ -25,7 +25,7 @@ $(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_64)
+ $(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_64)
+ 
+ obj-y += vdso64_wrapper.o
+-extra-y += vdso64.lds
++targets += vdso64.lds
+ CPPFLAGS_vdso64.lds += -P -C -U$(ARCH)
+ 
+ # Disable gcov profiling, ubsan and kasan for VDSO code
 -- 
-2.21.1
+2.25.1
