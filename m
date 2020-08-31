@@ -1,220 +1,189 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59152 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51810 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727903AbgH0IRR (ORCPT
+        by vger.kernel.org with ESMTP id S1726521AbgHaMFm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 27 Aug 2020 04:17:17 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 8/8] s390/qeth: strictly order bridge address events
-Date: Thu, 27 Aug 2020 10:17:05 +0200
-Message-Id: <20200827081705.21922-9-jwi@linux.ibm.com>
-In-Reply-To: <20200827081705.21922-1-jwi@linux.ibm.com>
-References: <20200827081705.21922-1-jwi@linux.ibm.com>
+        Mon, 31 Aug 2020 08:05:42 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v1 3/3] s390x: css: pv: css test adaptation for PV
+Date: Mon, 31 Aug 2020 14:05:33 +0200
+Message-Id: <1598875533-19947-4-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
+References: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-The current code for bridge address events has two shortcomings in its
-control sequence:
+We want the tests to automatically work with or without protected
+virtualisation.
+To do this we need to share the I/O memory with the host.
 
-1. after disabling address events via PNSO, we don't flush the remaining
-   events from the event_wq. So if the feature is re-enabled fast
-   enough, stale events could leak over.
-2. PNSO and the events' arrival via the READ ccw device are unordered.
-   So even if we flushed the workqueue, it's difficult to say whether
-   the READ device might produce more events onto the workqueue
-   afterwards.
+Let's replace all static allocations with dynamic allocations
+to clearly separate shared and private memory.
 
-Fix this by
-1. explicitly fencing off the events when we no longer care, in the
-   READ device's event handler. This ensures that once we flush the
-   workqueue, it doesn't get additional address events.
-2. Flush the workqueue after disabling the events & fencing them off.
-   As the code that triggers the flush will typically hold the sbp_lock,
-   we need to rework the worker code to avoid a deadlock here in case
-   of a 'notifications-stopped' event. In case of lock contention,
-   requeue such an event with a delay. We'll eventually aquire the lock,
-   or spot that the feature has been disabled and the event can thus be
-   discarded.
-
-This leaves the theoretical race that a stale event could arrive
-_after_ we re-enabled ourselves to receive events again. Such an event
-would be impossible to distinguish from a 'good' event, nothing we can
-do about it.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h    |  6 ++++
- drivers/s390/net/qeth_l2_main.c | 53 ++++++++++++++++++++++++++++-----
- drivers/s390/net/qeth_l2_sys.c  |  1 +
- 3 files changed, 52 insertions(+), 8 deletions(-)
+ lib/s390x/css.h     |  3 +--
+ lib/s390x/css_lib.c | 28 ++++++++--------------------
+ s390x/css.c         | 35 ++++++++++++++++++++++++-----------
+ 3 files changed, 33 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 00ed58428163..da46af682af8 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -674,6 +674,11 @@ struct qeth_card_blkt {
- 	int inter_packet_jumbo;
- };
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+index 221b67c..e3dee9f 100644
+--- a/lib/s390x/css.h
++++ b/lib/s390x/css.h
+@@ -283,8 +283,7 @@ int css_enable(int schid, int isc);
  
-+enum qeth_pnso_mode {
-+	QETH_PNSO_NONE,
-+	QETH_PNSO_BRIDGEPORT,
-+};
-+
- #define QETH_BROADCAST_WITH_ECHO    0x01
- #define QETH_BROADCAST_WITHOUT_ECHO 0x02
- struct qeth_card_info {
-@@ -690,6 +695,7 @@ struct qeth_card_info {
- 	/* no bitfield, we take a pointer on these two: */
- 	u8 has_lp2lp_cso_v6;
- 	u8 has_lp2lp_cso_v4;
-+	enum qeth_pnso_mode pnso_mode;
- 	enum qeth_card_types type;
- 	enum qeth_link_types link_type;
- 	int broadcast_capable;
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 1e3d64ab5e46..b5bef5345dd6 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -273,6 +273,17 @@ static int qeth_l2_vlan_rx_kill_vid(struct net_device *dev,
- 	return qeth_l2_send_setdelvlan(card, vid, IPA_CMD_DELVLAN);
+ /* Library functions */
+ int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
+-int start_single_ccw(unsigned int sid, int code, void *data, int count,
+-		     unsigned char flags);
++struct ccw1 *ccw_alloc(int code, void *data, int count, unsigned char flags);
+ void css_irq_io(void);
+ int css_residual_count(unsigned int schid);
+ 
+diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
+index 8e02371..6a0a0ec 100644
+--- a/lib/s390x/css_lib.c
++++ b/lib/s390x/css_lib.c
+@@ -18,6 +18,7 @@
+ #include <asm/time.h>
+ #include <asm/arch_def.h>
+ 
++#include <malloc_io.h>
+ #include <css.h>
+ 
+ static struct schib schib;
+@@ -202,33 +203,20 @@ int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
+ 	return ssch(sid, &orb);
  }
  
-+static void qeth_l2_set_pnso_mode(struct qeth_card *card,
-+				  enum qeth_pnso_mode mode)
-+{
-+	spin_lock_irq(get_ccwdev_lock(CARD_RDEV(card)));
-+	WRITE_ONCE(card->info.pnso_mode, mode);
-+	spin_unlock_irq(get_ccwdev_lock(CARD_RDEV(card)));
-+
-+	if (mode == QETH_PNSO_NONE)
-+		drain_workqueue(card->event_wq);
-+}
-+
- static void qeth_l2_stop_card(struct qeth_card *card)
+-/*
+- * In the future, we want to implement support for CCW chains;
+- * for that, we will need to work with ccw1 pointers.
+- */
+-static struct ccw1 unique_ccw;
+-
+-int start_single_ccw(unsigned int sid, int code, void *data, int count,
+-		     unsigned char flags)
++struct ccw1 *ccw_alloc(int code, void *data, int count, unsigned char flags)
  {
- 	QETH_CARD_TEXT(card, 2, "stopcard");
-@@ -290,7 +301,7 @@ static void qeth_l2_stop_card(struct qeth_card *card)
+-	int cc;
+-	struct ccw1 *ccw = &unique_ccw;
++	struct ccw1 *ccw;
++
++	ccw = alloc_io_page(sizeof(*ccw));
++	if (!ccw)
++		return NULL;
  
- 	qeth_qdio_clear_card(card, 0);
- 	qeth_clear_working_pool_list(card);
--	flush_workqueue(card->event_wq);
-+	qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
- 	qeth_flush_local_addrs(card);
- 	card->info.promisc_mode = 0;
+-	report_prefix_push("start_subchannel");
+-	/* Build the CCW chain with a single CCW */
+ 	ccw->code = code;
+ 	ccw->flags = flags;
+ 	ccw->count = count;
+ 	ccw->data_address = (int)(unsigned long)data;
+ 
+-	cc = start_ccw1_chain(sid, ccw);
+-	if (cc) {
+-		report(0, "cc = %d", cc);
+-		report_prefix_pop();
+-		return cc;
+-	}
+-	report_prefix_pop();
+-	return 0;
++	return ccw;
  }
-@@ -1153,19 +1164,34 @@ static void qeth_bridge_state_change(struct qeth_card *card,
- }
  
- struct qeth_addr_change_data {
--	struct work_struct worker;
-+	struct delayed_work dwork;
- 	struct qeth_card *card;
- 	struct qeth_ipacmd_addr_change ac_event;
- };
+ /* wait_and_check_io_completion:
+diff --git a/s390x/css.c b/s390x/css.c
+index ee3bc83..4b0b6b1 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -17,13 +17,15 @@
+ #include <interrupt.h>
+ #include <asm/arch_def.h>
  
- static void qeth_addr_change_event_worker(struct work_struct *work)
++#include <malloc_io.h>
+ #include <css.h>
++#include <asm/barrier.h>
+ 
+ #define DEFAULT_CU_TYPE		0x3832 /* virtio-ccw */
+ static unsigned long cu_type = DEFAULT_CU_TYPE;
+ 
+ static int test_device_sid;
+-static struct senseid senseid;
++static struct senseid *senseid;
+ 
+ static void test_enumerate(void)
  {
--	struct qeth_addr_change_data *data =
--		container_of(work, struct qeth_addr_change_data, worker);
-+	struct delayed_work *dwork = to_delayed_work(work);
-+	struct qeth_addr_change_data *data;
-+	struct qeth_card *card;
- 	int i;
+@@ -57,6 +59,7 @@ static void test_enable(void)
+  */
+ static void test_sense(void)
+ {
++	struct ccw1 *ccw;
+ 	int ret;
+ 	int len;
  
-+	data = container_of(dwork, struct qeth_addr_change_data, dwork);
-+	card = data->card;
-+
- 	QETH_CARD_TEXT(data->card, 4, "adrchgew");
-+
-+	if (READ_ONCE(card->info.pnso_mode) == QETH_PNSO_NONE)
-+		goto free;
-+
- 	if (data->ac_event.lost_event_mask) {
-+		/* Potential re-config in progress, try again later: */
-+		if (!mutex_trylock(&card->sbp_lock)) {
-+			queue_delayed_work(card->event_wq, dwork,
-+					   msecs_to_jiffies(100));
-+			return;
-+		}
-+
- 		dev_info(&data->card->gdev->dev,
- 			 "Address change notification stopped on %s (%s)\n",
- 			 data->card->dev->name,
-@@ -1174,8 +1200,9 @@ static void qeth_addr_change_event_worker(struct work_struct *work)
- 			: (data->ac_event.lost_event_mask == 0x02)
- 			? "Bridge port state change"
- 			: "Unknown reason");
--		mutex_lock(&data->card->sbp_lock);
-+
- 		data->card->options.sbp.hostnotification = 0;
-+		card->info.pnso_mode = QETH_PNSO_NONE;
- 		mutex_unlock(&data->card->sbp_lock);
- 		qeth_bridge_emit_host_event(data->card, anev_abort,
- 					    0, NULL, NULL);
-@@ -1189,6 +1216,8 @@ static void qeth_addr_change_event_worker(struct work_struct *work)
- 						    &entry->token,
- 						    &entry->addr_lnid);
- 		}
-+
-+free:
- 	kfree(data);
- }
+@@ -80,9 +83,15 @@ static void test_sense(void)
  
-@@ -1200,6 +1229,9 @@ static void qeth_addr_change_event(struct qeth_card *card,
- 	struct qeth_addr_change_data *data;
- 	int extrasize;
+ 	lowcore_ptr->io_int_param = 0;
  
-+	if (card->info.pnso_mode == QETH_PNSO_NONE)
-+		return;
+-	memset(&senseid, 0, sizeof(senseid));
+-	ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
+-			       &senseid, sizeof(senseid), CCW_F_SLI);
++	senseid = alloc_io_page(sizeof(*senseid));
++	if (!senseid)
++		goto error_senseid;
 +
- 	QETH_CARD_TEXT(card, 4, "adrchgev");
- 	if (cmd->hdr.return_code != 0x0000) {
- 		if (cmd->hdr.return_code == 0x0010) {
-@@ -1219,11 +1251,11 @@ static void qeth_addr_change_event(struct qeth_card *card,
- 		QETH_CARD_TEXT(card, 2, "ACNalloc");
- 		return;
++	ccw = ccw_alloc(CCW_CMD_SENSE_ID, senseid, sizeof(*senseid), CCW_F_SLI);
++	if (!ccw)
++		goto error_ccw;
++
++	ret = start_ccw1_chain(test_device_sid, ccw);
+ 	if (ret)
+ 		goto error;
+ 
+@@ -97,7 +106,7 @@ static void test_sense(void)
+ 	if (ret < 0) {
+ 		report_info("no valid residual count");
+ 	} else if (ret != 0) {
+-		len = sizeof(senseid) - ret;
++		len = sizeof(*senseid) - ret;
+ 		if (ret && len < CSS_SENSEID_COMMON_LEN) {
+ 			report(0, "transferred a too short length: %d", ret);
+ 			goto error;
+@@ -105,21 +114,25 @@ static void test_sense(void)
+ 			report_info("transferred a shorter length: %d", len);
  	}
--	INIT_WORK(&data->worker, qeth_addr_change_event_worker);
-+	INIT_DELAYED_WORK(&data->dwork, qeth_addr_change_event_worker);
- 	data->card = card;
- 	memcpy(&data->ac_event, hostevs,
- 			sizeof(struct qeth_ipacmd_addr_change) + extrasize);
--	queue_work(card->event_wq, &data->worker);
-+	queue_delayed_work(card->event_wq, &data->dwork, 0);
+ 
+-	if (senseid.reserved != 0xff) {
+-		report(0, "transferred garbage: 0x%02x", senseid.reserved);
++	if (senseid->reserved != 0xff) {
++		report(0, "transferred garbage: 0x%02x", senseid->reserved);
+ 		goto error;
+ 	}
+ 
+ 	report_prefix_pop();
+ 
+ 	report_info("reserved 0x%02x cu_type 0x%04x cu_model 0x%02x dev_type 0x%04x dev_model 0x%02x",
+-		    senseid.reserved, senseid.cu_type, senseid.cu_model,
+-		    senseid.dev_type, senseid.dev_model);
++		    senseid->reserved, senseid->cu_type, senseid->cu_model,
++		    senseid->dev_type, senseid->dev_model);
+ 
+-	report(senseid.cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
+-	       (uint16_t) cu_type, senseid.cu_type);
++	report(senseid->cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
++	       (uint16_t) cu_type, senseid->cu_type);
+ 
+ error:
++	free_io_page(ccw);
++error_ccw:
++	free_io_page(senseid);
++error_senseid:
+ 	unregister_io_int_func(css_irq_io);
  }
  
- /* SETBRIDGEPORT support; sending commands */
-@@ -1545,9 +1577,14 @@ int qeth_bridgeport_an_set(struct qeth_card *card, int enable)
- 
- 	if (enable) {
- 		qeth_bridge_emit_host_event(card, anev_reset, 0, NULL, NULL);
-+		qeth_l2_set_pnso_mode(card, QETH_PNSO_BRIDGEPORT);
- 		rc = qeth_l2_pnso(card, 1, qeth_bridgeport_an_set_cb, card);
--	} else
-+		if (rc)
-+			qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+	} else {
- 		rc = qeth_l2_pnso(card, 0, NULL, NULL);
-+		qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+	}
- 	return rc;
- }
- 
-diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
-index 86bcae992f72..4695d25e54f2 100644
---- a/drivers/s390/net/qeth_l2_sys.c
-+++ b/drivers/s390/net/qeth_l2_sys.c
-@@ -157,6 +157,7 @@ static ssize_t qeth_bridgeport_hostnotification_store(struct device *dev,
- 		rc = -EBUSY;
- 	else if (qeth_card_hw_is_reachable(card)) {
- 		rc = qeth_bridgeport_an_set(card, enable);
-+		/* sbp_lock ensures ordering vs notifications-stopped events */
- 		if (!rc)
- 			card->options.sbp.hostnotification = enable;
- 	} else
 -- 
-2.17.1
+2.25.1
