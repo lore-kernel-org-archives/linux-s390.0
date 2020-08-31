@@ -1,118 +1,151 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:50214 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726799AbgHUT4k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 21 Aug 2020 15:56:40 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v10 06/16] s390/vfio-ap: introduce shadow APCB
-Date: Fri, 21 Aug 2020 15:56:06 -0400
-Message-Id: <20200821195616.13554-7-akrowiak@linux.ibm.com>
-In-Reply-To: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:42524 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728912AbgHaPbd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:33 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 10/11] s390: don't trace preemption in percpu macros
+Date: Mon, 31 Aug 2020 11:31:16 -0400
+Message-Id: <20200831153117.1024537-10-sashal@kernel.org>
+In-Reply-To: <20200831153117.1024537-1-sashal@kernel.org>
+References: <20200831153117.1024537-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-The APCB is a field within the CRYCB that provides the AP configuration
-to a KVM guest. Let's introduce a shadow copy of the KVM guest's APCB and
-maintain it for the lifespan of the guest.
+From: Sven Schnelle <svens@linux.ibm.com>
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+[ Upstream commit 1196f12a2c960951d02262af25af0bb1775ebcc2 ]
+
+Since commit a21ee6055c30 ("lockdep: Change hardirq{s_enabled,_context}
+to per-cpu variables") the lockdep code itself uses percpu variables. This
+leads to recursions because the percpu macros are calling preempt_enable()
+which might call trace_preempt_on().
+
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 32 ++++++++++++++++++++++-----
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- 2 files changed, 29 insertions(+), 5 deletions(-)
+ arch/s390/include/asm/percpu.h | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index fc1aa6f947eb..efb229033f9e 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -305,14 +305,35 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
- 	return 0;
+diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
+index 0095ddb58ff69..50f6661ba5664 100644
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -29,7 +29,7 @@
+ 	typedef typeof(pcp) pcp_op_T__;					\
+ 	pcp_op_T__ old__, new__, prev__;				\
+ 	pcp_op_T__ *ptr__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	prev__ = *ptr__;						\
+ 	do {								\
+@@ -37,7 +37,7 @@
+ 		new__ = old__ op (val);					\
+ 		prev__ = cmpxchg(ptr__, old__, new__);			\
+ 	} while (prev__ != old__);					\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	new__;								\
+ })
+ 
+@@ -68,7 +68,7 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp)); 				\
+ 	if (__builtin_constant_p(val__) &&				\
+ 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {		\
+@@ -84,7 +84,7 @@
+ 			: [val__] "d" (val__)				\
+ 			: "cc");					\
+ 	}								\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
  }
  
-+static void vfio_ap_matrix_clear_masks(struct ap_matrix *matrix)
-+{
-+	bitmap_clear(matrix->apm, 0, AP_DEVICES);
-+	bitmap_clear(matrix->aqm, 0, AP_DOMAINS);
-+	bitmap_clear(matrix->adm, 0, AP_DOMAINS);
-+}
-+
- static void vfio_ap_matrix_init(struct ap_config_info *info,
- 				struct ap_matrix *matrix)
- {
-+	vfio_ap_matrix_clear_masks(matrix);
- 	matrix->apm_max = info->apxa ? info->Na : 63;
- 	matrix->aqm_max = info->apxa ? info->Nd : 15;
- 	matrix->adm_max = info->apxa ? info->Nd : 15;
+ #define this_cpu_add_4(pcp, val) arch_this_cpu_add(pcp, val, "laa", "asi", int)
+@@ -95,14 +95,14 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
+ 	asm volatile(							\
+ 		op "    %[old__],%[val__],%[ptr__]\n"			\
+ 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
+ 		: [val__] "d" (val__)					\
+ 		: "cc");						\
+-	preempt_enable();						\
++	preempt_enable_notrace();						\
+ 	old__ + val__;							\
+ })
+ 
+@@ -114,14 +114,14 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
+ 	asm volatile(							\
+ 		op "    %[old__],%[val__],%[ptr__]\n"			\
+ 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
+ 		: [val__] "d" (val__)					\
+ 		: "cc");						\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
  }
  
-+static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
-+}
-+
-+static void vfio_ap_mdev_commit_crycb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	kvm_arch_crypto_set_masks(matrix_mdev->kvm,
-+				  matrix_mdev->shadow_apcb.apm,
-+				  matrix_mdev->shadow_apcb.aqm,
-+				  matrix_mdev->shadow_apcb.adm);
-+}
-+
- static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -1202,13 +1223,12 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	if (ret)
- 		return NOTIFY_DONE;
+ #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
+@@ -136,10 +136,10 @@
+ 	typedef typeof(pcp) pcp_op_T__;					\
+ 	pcp_op_T__ ret__;						\
+ 	pcp_op_T__ *ptr__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	ret__ = cmpxchg(ptr__, oval, nval);				\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
  
--	/* If there is no CRYCB pointer, then we can't copy the masks */
--	if (!matrix_mdev->kvm->arch.crypto.crycbd)
-+	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
- 		return NOTIFY_DONE;
+@@ -152,10 +152,10 @@
+ ({									\
+ 	typeof(pcp) *ptr__;						\
+ 	typeof(pcp) ret__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	ret__ = xchg(ptr__, nval);					\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
  
--	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
--				  matrix_mdev->matrix.aqm,
--				  matrix_mdev->matrix.adm);
-+	memcpy(&matrix_mdev->shadow_apcb, &matrix_mdev->matrix,
-+	       sizeof(matrix_mdev->shadow_apcb));
-+	vfio_ap_mdev_commit_crycb(matrix_mdev);
+@@ -171,11 +171,11 @@
+ 	typeof(pcp1) *p1__;						\
+ 	typeof(pcp2) *p2__;						\
+ 	int ret__;							\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	p1__ = raw_cpu_ptr(&(pcp1));					\
+ 	p2__ = raw_cpu_ptr(&(pcp2));					\
+ 	ret__ = __cmpxchg_double(p1__, p2__, o1__, o2__, n1__, n2__);	\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
  
- 	return NOTIFY_OK;
- }
-@@ -1323,6 +1343,8 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 		kvm_put_kvm(matrix_mdev->kvm);
- 		matrix_mdev->kvm = NULL;
- 	}
-+
-+	vfio_ap_matrix_clear_masks(&matrix_mdev->shadow_apcb);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 0c796ef11426..055bce6d45db 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -75,6 +75,7 @@ struct ap_matrix {
-  * @list:	allows the ap_matrix_mdev struct to be added to a list
-  * @matrix:	the adapters, usage domains and control domains assigned to the
-  *		mediated matrix device.
-+ * @shadow_apcb:    the shadow copy of the APCB field of the KVM guest's CRYCB
-  * @group_notifier: notifier block used for specifying callback function for
-  *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
-  * @kvm:	the struct holding guest's state
-@@ -82,6 +83,7 @@ struct ap_matrix {
- struct ap_matrix_mdev {
- 	struct list_head node;
- 	struct ap_matrix matrix;
-+	struct ap_matrix shadow_apcb;
- 	struct notifier_block group_notifier;
- 	struct notifier_block iommu_notifier;
- 	struct kvm *kvm;
 -- 
-2.21.1
+2.25.1
