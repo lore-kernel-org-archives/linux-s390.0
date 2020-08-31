@@ -1,47 +1,151 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48770 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726144AbgHaMFl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 Aug 2020 08:05:41 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v1 0/3] s390x: css: adapting the I/O tests for PV
-Date: Mon, 31 Aug 2020 14:05:30 +0200
-Message-Id: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:43302 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729005AbgHaPb7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 Aug 2020 11:31:59 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 5/6] s390: don't trace preemption in percpu macros
+Date: Mon, 31 Aug 2020 11:31:48 -0400
+Message-Id: <20200831153150.1024799-5-sashal@kernel.org>
+In-Reply-To: <20200831153150.1024799-1-sashal@kernel.org>
+References: <20200831153150.1024799-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-To adapt the test for PV we need to share the I/O memory with the host.
+From: Sven Schnelle <svens@linux.ibm.com>
 
-To do so we:
-- implement the share/unshare ultravisor code.
-- implement dedicated allocation routine which make sure that
-  - the I/O memory is on dedicated pages
-  - the I/O memory is shared if the guest is run under PV
-- replace the start_single_ccw() by ccw_alloc() and start the
-  start_ccw1_chain() directly from the test function.
-  This allows to correctly free the I/O memory after the interruption.
+[ Upstream commit 1196f12a2c960951d02262af25af0bb1775ebcc2 ]
 
-Best regards,
-Pierre
+Since commit a21ee6055c30 ("lockdep: Change hardirq{s_enabled,_context}
+to per-cpu variables") the lockdep code itself uses percpu variables. This
+leads to recursions because the percpu macros are calling preempt_enable()
+which might call trace_preempt_on().
 
-Pierre Morel (3):
-  s390x: pv: implement routine to share/unshare memory
-  s390: define UV compatible I/O allocation
-  s390x: css: pv: css test adaptation for PV
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/include/asm/percpu.h | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
- lib/s390x/asm/uv.h    | 33 +++++++++++++++++++++++++++
- lib/s390x/css.h       |  3 +--
- lib/s390x/css_lib.c   | 28 +++++++----------------
- lib/s390x/malloc_io.c | 53 +++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/malloc_io.h | 14 ++++++++++++
- s390x/Makefile        |  1 +
- s390x/css.c           | 35 +++++++++++++++++++---------
- 7 files changed, 134 insertions(+), 33 deletions(-)
- create mode 100644 lib/s390x/malloc_io.c
- create mode 100644 lib/s390x/malloc_io.h
-
+diff --git a/arch/s390/include/asm/percpu.h b/arch/s390/include/asm/percpu.h
+index 90240dfef76a1..5889c1ed84c46 100644
+--- a/arch/s390/include/asm/percpu.h
++++ b/arch/s390/include/asm/percpu.h
+@@ -28,7 +28,7 @@
+ 	typedef typeof(pcp) pcp_op_T__;					\
+ 	pcp_op_T__ old__, new__, prev__;				\
+ 	pcp_op_T__ *ptr__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	prev__ = *ptr__;						\
+ 	do {								\
+@@ -36,7 +36,7 @@
+ 		new__ = old__ op (val);					\
+ 		prev__ = cmpxchg(ptr__, old__, new__);			\
+ 	} while (prev__ != old__);					\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	new__;								\
+ })
+ 
+@@ -67,7 +67,7 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp)); 				\
+ 	if (__builtin_constant_p(val__) &&				\
+ 	    ((szcast)val__ > -129) && ((szcast)val__ < 128)) {		\
+@@ -83,7 +83,7 @@
+ 			: [val__] "d" (val__)				\
+ 			: "cc");					\
+ 	}								\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ }
+ 
+ #define this_cpu_add_4(pcp, val) arch_this_cpu_add(pcp, val, "laa", "asi", int)
+@@ -94,14 +94,14 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
+ 	asm volatile(							\
+ 		op "    %[old__],%[val__],%[ptr__]\n"			\
+ 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
+ 		: [val__] "d" (val__)					\
+ 		: "cc");						\
+-	preempt_enable();						\
++	preempt_enable_notrace();						\
+ 	old__ + val__;							\
+ })
+ 
+@@ -113,14 +113,14 @@
+ 	typedef typeof(pcp) pcp_op_T__; 				\
+ 	pcp_op_T__ val__ = (val);					\
+ 	pcp_op_T__ old__, *ptr__;					\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));	 				\
+ 	asm volatile(							\
+ 		op "    %[old__],%[val__],%[ptr__]\n"			\
+ 		: [old__] "=d" (old__), [ptr__] "+Q" (*ptr__)		\
+ 		: [val__] "d" (val__)					\
+ 		: "cc");						\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ }
+ 
+ #define this_cpu_and_4(pcp, val)	arch_this_cpu_to_op(pcp, val, "lan")
+@@ -135,10 +135,10 @@
+ 	typedef typeof(pcp) pcp_op_T__;					\
+ 	pcp_op_T__ ret__;						\
+ 	pcp_op_T__ *ptr__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	ret__ = cmpxchg(ptr__, oval, nval);				\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
+ 
+@@ -151,10 +151,10 @@
+ ({									\
+ 	typeof(pcp) *ptr__;						\
+ 	typeof(pcp) ret__;						\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	ptr__ = raw_cpu_ptr(&(pcp));					\
+ 	ret__ = xchg(ptr__, nval);					\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
+ 
+@@ -170,11 +170,11 @@
+ 	typeof(pcp1) *p1__;						\
+ 	typeof(pcp2) *p2__;						\
+ 	int ret__;							\
+-	preempt_disable();						\
++	preempt_disable_notrace();					\
+ 	p1__ = raw_cpu_ptr(&(pcp1));					\
+ 	p2__ = raw_cpu_ptr(&(pcp2));					\
+ 	ret__ = __cmpxchg_double(p1__, p2__, o1__, o2__, n1__, n2__);	\
+-	preempt_enable();						\
++	preempt_enable_notrace();					\
+ 	ret__;								\
+ })
+ 
 -- 
 2.25.1
