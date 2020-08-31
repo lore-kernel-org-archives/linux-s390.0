@@ -1,146 +1,122 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26181 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729519AbgHDPBo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 4 Aug 2020 11:01:44 -0400
-From: Sven Schnelle <svens@linux.ibm.com>
-Subject: [PATCH v3 2/3] timekeeping/vsyscall: Provide vdso_update_begin/end()
-Date: Tue,  4 Aug 2020 17:01:23 +0200
-Message-Id: <20200804150124.41692-3-svens@linux.ibm.com>
-In-Reply-To: <20200804150124.41692-1-svens@linux.ibm.com>
-References: <20200804150124.41692-1-svens@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28458 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728165AbgHaJKG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 Aug 2020 05:10:06 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v10 0/2] s390: virtio: let arch validate VIRTIO features
+Date: Mon, 31 Aug 2020 11:09:44 +0200
+Message-Id: <1598864986-13875-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, Sven Schnelle <svens@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-From: Thomas Gleixner <tglx@linutronix.de>
+Hi all,
 
-Architectures can have the requirement to add additional architecture
-specific data to the VDSO data page which needs to be updated independent
-of the timekeeper updates.
+The goal of the series is to give a chance to the architecture
+to validate VIRTIO device features.
 
-To protect these updates vs. concurrent readers and a conflicting update
-through timekeeping, provide helper functions to make such updates safe.
+The tests are back to virtio_finalize_features.
 
-vdso_update_begin() takes the timekeeper_lock to protect against a
-potential update from timekeeper code and increments the VDSO sequence
-count to signal data inconsistency to concurrent readers. vdso_update_end()
-makes the sequence count even again to signal data consistency and drops
-the timekeeper lock.
+No more argument for the architecture callback which only reports
+if the architecture needs guest memory access restrictions for
+VIRTIO.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
----
- include/vdso/vsyscall.h            |  3 +++
- kernel/time/timekeeping.c          |  2 +-
- kernel/time/timekeeping_internal.h | 11 +++++++---
- kernel/time/vsyscall.c             | 32 ++++++++++++++++++++++++++++++
- 4 files changed, 44 insertions(+), 4 deletions(-)
 
-diff --git a/include/vdso/vsyscall.h b/include/vdso/vsyscall.h
-index 2c6134e0c23d..b0fdc9c6bf43 100644
---- a/include/vdso/vsyscall.h
-+++ b/include/vdso/vsyscall.h
-@@ -6,6 +6,9 @@
- 
- #include <asm/vdso/vsyscall.h>
- 
-+unsigned long vdso_update_begin(void);
-+void vdso_update_end(unsigned long flags);
-+
- #endif /* !__ASSEMBLY__ */
- 
- #endif /* __VDSO_VSYSCALL_H */
-diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-index d20d489841c8..8459aa87986f 100644
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -50,7 +50,7 @@ static struct {
- 	.seq = SEQCNT_ZERO(tk_core.seq),
- };
- 
--static DEFINE_RAW_SPINLOCK(timekeeper_lock);
-+DEFINE_RAW_SPINLOCK(timekeeper_lock);
- static struct timekeeper shadow_timekeeper;
- 
- /**
-diff --git a/kernel/time/timekeeping_internal.h b/kernel/time/timekeeping_internal.h
-index bcbb52db2256..4ca2787d1642 100644
---- a/kernel/time/timekeeping_internal.h
-+++ b/kernel/time/timekeeping_internal.h
-@@ -1,12 +1,14 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- #ifndef _TIMEKEEPING_INTERNAL_H
- #define _TIMEKEEPING_INTERNAL_H
--/*
-- * timekeeping debug functions
-- */
-+
- #include <linux/clocksource.h>
-+#include <linux/spinlock.h>
- #include <linux/time.h>
- 
-+/*
-+ * timekeeping debug functions
-+ */
- #ifdef CONFIG_DEBUG_FS
- extern void tk_debug_account_sleep_time(const struct timespec64 *t);
- #else
-@@ -31,4 +33,7 @@ static inline u64 clocksource_delta(u64 now, u64 last, u64 mask)
- }
- #endif
- 
-+/* Semi public for serialization of non timekeeper VDSO updates. */
-+extern raw_spinlock_t timekeeper_lock;
-+
- #endif /* _TIMEKEEPING_INTERNAL_H */
-diff --git a/kernel/time/vsyscall.c b/kernel/time/vsyscall.c
-index 54ce6eb2ca36..e8806eda6874 100644
---- a/kernel/time/vsyscall.c
-+++ b/kernel/time/vsyscall.c
-@@ -13,6 +13,8 @@
- #include <vdso/helpers.h>
- #include <vdso/vsyscall.h>
- 
-+#include "timekeeping_internal.h"
-+
- static inline void update_vdso_data(struct vdso_data *vdata,
- 				    struct timekeeper *tk)
- {
-@@ -127,3 +129,33 @@ void update_vsyscall_tz(void)
- 
- 	__arch_sync_vdso_data(vdata);
- }
-+
-+/**
-+ * vdso_update_begin - Start of a VDSO update section
-+ *
-+ * Allows architecture code to safely update the architecture specific VDSO
-+ * data.
-+ */
-+unsigned long vdso_update_begin(void)
-+{
-+	struct vdso_data *vdata = __arch_get_k_vdso_data();
-+	unsigned long flags;
-+
-+	raw_spin_lock_irqsave(&timekeeper_lock, flags);
-+	vdso_write_begin(vdata);
-+	return flags;
-+}
-+
-+/**
-+ * vdso_update_end - End of a VDSO update section
-+ *
-+ * Pairs with vdso_update_begin().
-+ */
-+void vdso_update_end(unsigned long flags)
-+{
-+	struct vdso_data *vdata = __arch_get_k_vdso_data();
-+
-+	vdso_write_end(vdata);
-+	__arch_sync_vdso_data(vdata);
-+	raw_spin_unlock_irqrestore(&timekeeper_lock, flags);
-+}
+I renamed the callback to arch_has_restricted_virtio_memory_access,
+and the config option to ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS.
+
+Regards,
+Pierre
+
+Pierre Morel (2):
+  virtio: let arch advertise guest's memory access restrictions
+  s390: virtio: PV needs VIRTIO I/O device protection
+
+ arch/s390/Kconfig             |  1 +
+ arch/s390/mm/init.c           | 10 ++++++++++
+ drivers/virtio/Kconfig        |  6 ++++++
+ drivers/virtio/virtio.c       | 15 +++++++++++++++
+ include/linux/virtio_config.h |  9 +++++++++
+ 5 files changed, 41 insertions(+)
+
 -- 
-2.17.1
+2.25.1
+
+Changelog
+
+to v10:
+- removed virtio_config.h unnecessary include
+- wording
+  (Connie)
+
+to v9:
+
+- move virtio tests back to virtio_finalize_features
+  (Connie)
+
+- remove virtio device argument
+
+to v8:
+
+- refactoring by using an optional callback
+  (Connie)
+
+to v7:
+
+- typo in warning message
+  (Connie)
+to v6:
+
+- rewording warning messages
+  (Connie, Halil)
+
+to v5:
+
+- return directly from S390 arch_validate_virtio_features()
+  when the guest is not protected.
+  (Connie)
+
+- Somme rewording
+  (Connie, Michael)
+
+- moved back code from arch/s390/ ...kernel/uv.c to ...mm/init.c
+  (Christian)
+
+to v4:
+
+- separate virtio and arch code
+  (Pierre)
+
+- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
+  (as interpreted from Heiko's comment)
+
+- moved validation inside the arch code
+  (Connie)
+
+- moved the call to arch validation before VIRTIO_F_1 test
+  (Michael)
+
+to v3:
+
+- add warning
+  (Connie, Christian)
+
+- add comment
+  (Connie)
+
+- change hook name
+  (Halil, Connie)
+
+to v2:
+
+- put the test in virtio_finalize_features()
+  (Connie)
+
+- put the test inside VIRTIO core
+  (Jason)
+
+- pass a virtio device as parameter
+  (Halil)
