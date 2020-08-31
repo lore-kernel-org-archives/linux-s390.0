@@ -1,51 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr140070.outbound.protection.outlook.com ([40.107.14.70]:64918
-        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727033AbgHGQW1 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 7 Aug 2020 12:22:27 -0400
-From: Andrei Botila <andrei.botila@oss.nxp.com>
-Subject: [PATCH 17/22] crypto: chelsio - add check for xts input length equal to zero
-Date: Fri,  7 Aug 2020 19:20:05 +0300
-Message-Id: <20200807162010.18979-18-andrei.botila@oss.nxp.com>
-In-Reply-To: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-References: <20200807162010.18979-1-andrei.botila@oss.nxp.com>
-Content-Type: text/plain
-MIME-Version: 1.0
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47232 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729028AbgHaUiy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 31 Aug 2020 16:38:54 -0400
+From: Nicolin Chen <nicoleotsuka@gmail.com>
+Subject: [RESEND][PATCH 7/7] parisc: Avoid overflow at boundary_size
+Date: Mon, 31 Aug 2020 13:38:11 -0700
+Message-Id: <20200831203811.8494-8-nicoleotsuka@gmail.com>
+In-Reply-To: <20200831203811.8494-1-nicoleotsuka@gmail.com>
+References: <20200831203811.8494-1-nicoleotsuka@gmail.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, x86@kernel.org, linux-arm-kernel@axis.com, Andrei Botila <andrei.botila@nxp.com>, Ayush Sawal <ayush.sawal@chelsio.com>, Vinay Kumar Yadav <vinay.yadav@chelsio.com>, Rohit Maheshwari <rohitm@chelsio.com>
+To: mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de
+Cc: sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
 
-From: Andrei Botila <andrei.botila@nxp.com>
+The boundary_size might be as large as ULONG_MAX, which means
+that a device has no specific boundary limit. So either "+ 1"
+or passing it to ALIGN() would potentially overflow.
 
-Standardize the way input lengths equal to 0 are handled in all skcipher
-algorithms. All the algorithms return 0 for input lengths equal to zero.
+According to kernel defines:
+    #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
+    #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
 
-Cc: Ayush Sawal <ayush.sawal@chelsio.com>
-Cc: Vinay Kumar Yadav <vinay.yadav@chelsio.com>
-Cc: Rohit Maheshwari <rohitm@chelsio.com>
-Signed-off-by: Andrei Botila <andrei.botila@nxp.com>
+We can simplify the logic here:
+  ALIGN(boundary + 1, 1 << shift) >> shift
+= ALIGN_MASK(b + 1, (1 << s) - 1) >> s
+= {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
+= [b + 1 + (1 << s) - 1] >> s
+= [b + (1 << s)] >> s
+= (b >> s) + 1
+
+So fixing a potential overflow with the safer shortcut.
+
+Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>
 ---
- drivers/crypto/chelsio/chcr_algo.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/parisc/ccio-dma.c  | 4 ++--
+ drivers/parisc/sba_iommu.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/chelsio/chcr_algo.c b/drivers/crypto/chelsio/chcr_algo.c
-index 13b908ea4873..e9746580870a 100644
---- a/drivers/crypto/chelsio/chcr_algo.c
-+++ b/drivers/crypto/chelsio/chcr_algo.c
-@@ -1372,8 +1372,12 @@ static int chcr_aes_encrypt(struct skcipher_request *req)
- 	int err;
- 	struct uld_ctx *u_ctx = ULD_CTX(c_ctx(tfm));
- 	struct chcr_context *ctx = c_ctx(tfm);
-+	int subtype = get_cryptoalg_subtype(tfm);
- 	unsigned int cpu;
+diff --git a/drivers/parisc/ccio-dma.c b/drivers/parisc/ccio-dma.c
+index a5507f75b524..c667d6aba764 100644
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -356,8 +356,8 @@ ccio_alloc_range(struct ioc *ioc, struct device *dev, size_t size)
+ 	** ggg sacrifices another 710 to the computer gods.
+ 	*/
  
-+	if (!req->cryptlen && subtype == CRYPTO_ALG_SUB_TYPE_XTS)
-+		return 0;
-+
- 	cpu = get_cpu();
- 	reqctx->txqidx = cpu % ctx->ntxq;
- 	reqctx->rxqidx = cpu % ctx->nrxq;
+-	boundary_size = ALIGN((unsigned long long)dma_get_seg_boundary(dev) + 1,
+-			      1ULL << IOVP_SHIFT) >> IOVP_SHIFT;
++	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
++	boundary_size = (dma_get_seg_boundary(dev) >> IOVP_SHIFT) + 1;
+ 
+ 	if (pages_needed <= 8) {
+ 		/*
+diff --git a/drivers/parisc/sba_iommu.c b/drivers/parisc/sba_iommu.c
+index d4314fba0269..96bc2c617cbd 100644
+--- a/drivers/parisc/sba_iommu.c
++++ b/drivers/parisc/sba_iommu.c
+@@ -342,8 +342,8 @@ sba_search_bitmap(struct ioc *ioc, struct device *dev,
+ 	unsigned long shift;
+ 	int ret;
+ 
+-	boundary_size = ALIGN((unsigned long long)dma_get_seg_boundary(dev) + 1,
+-			      1ULL << IOVP_SHIFT) >> IOVP_SHIFT;
++	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
++	boundary_size = (dma_get_seg_boundary(dev) >> IOVP_SHIFT) + 1;
+ 
+ #if defined(ZX1_SUPPORT)
+ 	BUG_ON(ioc->ibase & ~IOVP_MASK);
 -- 
 2.17.1
