@@ -1,189 +1,47 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51810 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726521AbgHaMFm (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48770 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726144AbgHaMFl (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 31 Aug 2020 08:05:42 -0400
+        Mon, 31 Aug 2020 08:05:41 -0400
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v1 3/3] s390x: css: pv: css test adaptation for PV
-Date: Mon, 31 Aug 2020 14:05:33 +0200
-Message-Id: <1598875533-19947-4-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
-References: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v1 0/3] s390x: css: adapting the I/O tests for PV
+Date: Mon, 31 Aug 2020 14:05:30 +0200
+Message-Id: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
 Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-We want the tests to automatically work with or without protected
-virtualisation.
-To do this we need to share the I/O memory with the host.
+To adapt the test for PV we need to share the I/O memory with the host.
 
-Let's replace all static allocations with dynamic allocations
-to clearly separate shared and private memory.
+To do so we:
+- implement the share/unshare ultravisor code.
+- implement dedicated allocation routine which make sure that
+  - the I/O memory is on dedicated pages
+  - the I/O memory is shared if the guest is run under PV
+- replace the start_single_ccw() by ccw_alloc() and start the
+  start_ccw1_chain() directly from the test function.
+  This allows to correctly free the I/O memory after the interruption.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/css.h     |  3 +--
- lib/s390x/css_lib.c | 28 ++++++++--------------------
- s390x/css.c         | 35 ++++++++++++++++++++++++-----------
- 3 files changed, 33 insertions(+), 33 deletions(-)
+Best regards,
+Pierre
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index 221b67c..e3dee9f 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -283,8 +283,7 @@ int css_enable(int schid, int isc);
- 
- /* Library functions */
- int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
--int start_single_ccw(unsigned int sid, int code, void *data, int count,
--		     unsigned char flags);
-+struct ccw1 *ccw_alloc(int code, void *data, int count, unsigned char flags);
- void css_irq_io(void);
- int css_residual_count(unsigned int schid);
- 
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index 8e02371..6a0a0ec 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -18,6 +18,7 @@
- #include <asm/time.h>
- #include <asm/arch_def.h>
- 
-+#include <malloc_io.h>
- #include <css.h>
- 
- static struct schib schib;
-@@ -202,33 +203,20 @@ int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
- 	return ssch(sid, &orb);
- }
- 
--/*
-- * In the future, we want to implement support for CCW chains;
-- * for that, we will need to work with ccw1 pointers.
-- */
--static struct ccw1 unique_ccw;
--
--int start_single_ccw(unsigned int sid, int code, void *data, int count,
--		     unsigned char flags)
-+struct ccw1 *ccw_alloc(int code, void *data, int count, unsigned char flags)
- {
--	int cc;
--	struct ccw1 *ccw = &unique_ccw;
-+	struct ccw1 *ccw;
-+
-+	ccw = alloc_io_page(sizeof(*ccw));
-+	if (!ccw)
-+		return NULL;
- 
--	report_prefix_push("start_subchannel");
--	/* Build the CCW chain with a single CCW */
- 	ccw->code = code;
- 	ccw->flags = flags;
- 	ccw->count = count;
- 	ccw->data_address = (int)(unsigned long)data;
- 
--	cc = start_ccw1_chain(sid, ccw);
--	if (cc) {
--		report(0, "cc = %d", cc);
--		report_prefix_pop();
--		return cc;
--	}
--	report_prefix_pop();
--	return 0;
-+	return ccw;
- }
- 
- /* wait_and_check_io_completion:
-diff --git a/s390x/css.c b/s390x/css.c
-index ee3bc83..4b0b6b1 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -17,13 +17,15 @@
- #include <interrupt.h>
- #include <asm/arch_def.h>
- 
-+#include <malloc_io.h>
- #include <css.h>
-+#include <asm/barrier.h>
- 
- #define DEFAULT_CU_TYPE		0x3832 /* virtio-ccw */
- static unsigned long cu_type = DEFAULT_CU_TYPE;
- 
- static int test_device_sid;
--static struct senseid senseid;
-+static struct senseid *senseid;
- 
- static void test_enumerate(void)
- {
-@@ -57,6 +59,7 @@ static void test_enable(void)
-  */
- static void test_sense(void)
- {
-+	struct ccw1 *ccw;
- 	int ret;
- 	int len;
- 
-@@ -80,9 +83,15 @@ static void test_sense(void)
- 
- 	lowcore_ptr->io_int_param = 0;
- 
--	memset(&senseid, 0, sizeof(senseid));
--	ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
--			       &senseid, sizeof(senseid), CCW_F_SLI);
-+	senseid = alloc_io_page(sizeof(*senseid));
-+	if (!senseid)
-+		goto error_senseid;
-+
-+	ccw = ccw_alloc(CCW_CMD_SENSE_ID, senseid, sizeof(*senseid), CCW_F_SLI);
-+	if (!ccw)
-+		goto error_ccw;
-+
-+	ret = start_ccw1_chain(test_device_sid, ccw);
- 	if (ret)
- 		goto error;
- 
-@@ -97,7 +106,7 @@ static void test_sense(void)
- 	if (ret < 0) {
- 		report_info("no valid residual count");
- 	} else if (ret != 0) {
--		len = sizeof(senseid) - ret;
-+		len = sizeof(*senseid) - ret;
- 		if (ret && len < CSS_SENSEID_COMMON_LEN) {
- 			report(0, "transferred a too short length: %d", ret);
- 			goto error;
-@@ -105,21 +114,25 @@ static void test_sense(void)
- 			report_info("transferred a shorter length: %d", len);
- 	}
- 
--	if (senseid.reserved != 0xff) {
--		report(0, "transferred garbage: 0x%02x", senseid.reserved);
-+	if (senseid->reserved != 0xff) {
-+		report(0, "transferred garbage: 0x%02x", senseid->reserved);
- 		goto error;
- 	}
- 
- 	report_prefix_pop();
- 
- 	report_info("reserved 0x%02x cu_type 0x%04x cu_model 0x%02x dev_type 0x%04x dev_model 0x%02x",
--		    senseid.reserved, senseid.cu_type, senseid.cu_model,
--		    senseid.dev_type, senseid.dev_model);
-+		    senseid->reserved, senseid->cu_type, senseid->cu_model,
-+		    senseid->dev_type, senseid->dev_model);
- 
--	report(senseid.cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
--	       (uint16_t) cu_type, senseid.cu_type);
-+	report(senseid->cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
-+	       (uint16_t) cu_type, senseid->cu_type);
- 
- error:
-+	free_io_page(ccw);
-+error_ccw:
-+	free_io_page(senseid);
-+error_senseid:
- 	unregister_io_int_func(css_irq_io);
- }
- 
+Pierre Morel (3):
+  s390x: pv: implement routine to share/unshare memory
+  s390: define UV compatible I/O allocation
+  s390x: css: pv: css test adaptation for PV
+
+ lib/s390x/asm/uv.h    | 33 +++++++++++++++++++++++++++
+ lib/s390x/css.h       |  3 +--
+ lib/s390x/css_lib.c   | 28 +++++++----------------
+ lib/s390x/malloc_io.c | 53 +++++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/malloc_io.h | 14 ++++++++++++
+ s390x/Makefile        |  1 +
+ s390x/css.c           | 35 +++++++++++++++++++---------
+ 7 files changed, 134 insertions(+), 33 deletions(-)
+ create mode 100644 lib/s390x/malloc_io.c
+ create mode 100644 lib/s390x/malloc_io.h
+
 -- 
 2.25.1
