@@ -1,198 +1,124 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49202 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725820AbgHBQjM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 2 Aug 2020 12:39:12 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v2 16/17] memblock: implement for_each_reserved_mem_region() using __next_mem_region()
-Date: Sun,  2 Aug 2020 19:36:00 +0300
-Message-Id: <20200802163601.8189-17-rppt@kernel.org>
-In-Reply-To: <20200802163601.8189-1-rppt@kernel.org>
-References: <20200802163601.8189-1-rppt@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33038 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726249AbgHaMFm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 Aug 2020 08:05:42 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v1 2/3] s390: define UV compatible I/O allocation
+Date: Mon, 31 Aug 2020 14:05:32 +0200
+Message-Id: <1598875533-19947-3-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
+References: <1598875533-19947-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+To centralize the memory allocation for I/O we define
+the alloc/free_io_page() functions which share the I/O
+memory with the host in case the guest runs with
+protected virtualization.
 
-Iteration over memblock.reserved with for_each_reserved_mem_region() used
-__next_reserved_mem_region() that implemented a subset of
-__next_mem_region().
-
-Use __for_each_mem_range() and, essentially, __next_mem_region() with
-appropriate parameters to reduce code duplication.
-
-While on it, rename for_each_reserved_mem_region() to
-for_each_reserved_mem_range() for consistency.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
- .clang-format                    |  2 +-
- arch/arm64/kernel/setup.c        |  2 +-
- drivers/irqchip/irq-gic-v3-its.c |  2 +-
- include/linux/memblock.h         | 12 +++------
- mm/memblock.c                    | 46 +++++++-------------------------
- 5 files changed, 17 insertions(+), 47 deletions(-)
+ lib/s390x/malloc_io.c | 53 +++++++++++++++++++++++++++++++++++++++++++
+ lib/s390x/malloc_io.h | 14 ++++++++++++
+ s390x/Makefile        |  1 +
+ 3 files changed, 68 insertions(+)
+ create mode 100644 lib/s390x/malloc_io.c
+ create mode 100644 lib/s390x/malloc_io.h
 
-diff --git a/.clang-format b/.clang-format
-index 52ededab25ce..e28a849a1c58 100644
---- a/.clang-format
-+++ b/.clang-format
-@@ -266,7 +266,7 @@ ForEachMacros:
-   - 'for_each_process_thread'
-   - 'for_each_property_of_node'
-   - 'for_each_registered_fb'
--  - 'for_each_reserved_mem_region'
-+  - 'for_each_reserved_mem_range'
-   - 'for_each_rtd_codec_dais'
-   - 'for_each_rtd_codec_dais_rollback'
-   - 'for_each_rtd_components'
-diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index 93b3844cf442..f3aec7244aab 100644
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -257,7 +257,7 @@ static int __init reserve_memblock_reserved_regions(void)
- 		if (!memblock_is_region_reserved(mem->start, mem_size))
- 			continue;
- 
--		for_each_reserved_mem_region(j, &r_start, &r_end) {
-+		for_each_reserved_mem_range(j, &r_start, &r_end) {
- 			resource_size_t start, end;
- 
- 			start = max(PFN_PHYS(PFN_DOWN(r_start)), mem->start);
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index beac4caefad9..9971fd8cf6b6 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -2192,7 +2192,7 @@ static bool gic_check_reserved_range(phys_addr_t addr, unsigned long size)
- 
- 	addr_end = addr + size - 1;
- 
--	for_each_reserved_mem_region(i, &start, &end) {
-+	for_each_reserved_mem_range(i, &start, &end) {
- 		if (addr >= start && addr_end <= end)
- 			return true;
- 	}
-diff --git a/include/linux/memblock.h b/include/linux/memblock.h
-index ec2fd8f32a19..9e51b3fd4134 100644
---- a/include/linux/memblock.h
-+++ b/include/linux/memblock.h
-@@ -136,9 +136,6 @@ void __next_mem_range_rev(u64 *idx, int nid, enum memblock_flags flags,
- 			  struct memblock_type *type_b, phys_addr_t *out_start,
- 			  phys_addr_t *out_end, int *out_nid);
- 
--void __next_reserved_mem_region(u64 *idx, phys_addr_t *out_start,
--				phys_addr_t *out_end);
--
- void __memblock_free_late(phys_addr_t base, phys_addr_t size);
- 
- /**
-@@ -193,7 +190,7 @@ void __memblock_free_late(phys_addr_t base, phys_addr_t size);
- 			     MEMBLOCK_NONE, p_start, p_end, NULL)
- 
- /**
-- * for_each_reserved_mem_region - iterate over all reserved memblock areas
-+ * for_each_reserved_mem_range - iterate over all reserved memblock areas
-  * @i: u64 used as loop variable
-  * @p_start: ptr to phys_addr_t for start address of the range, can be %NULL
-  * @p_end: ptr to phys_addr_t for end address of the range, can be %NULL
-@@ -201,10 +198,9 @@ void __memblock_free_late(phys_addr_t base, phys_addr_t size);
-  * Walks over reserved areas of memblock. Available as soon as memblock
-  * is initialized.
-  */
--#define for_each_reserved_mem_region(i, p_start, p_end)			\
--	for (i = 0UL, __next_reserved_mem_region(&i, p_start, p_end);	\
--	     i != (u64)ULLONG_MAX;					\
--	     __next_reserved_mem_region(&i, p_start, p_end))
-+#define for_each_reserved_mem_range(i, p_start, p_end)			\
-+	__for_each_mem_range(i, &memblock.reserved, NULL, NUMA_NO_NODE,	\
-+			     MEMBLOCK_NONE, p_start, p_end, NULL)
- 
- static inline bool memblock_is_hotpluggable(struct memblock_region *m)
- {
-diff --git a/mm/memblock.c b/mm/memblock.c
-index 48d614352b25..dadf579f7c53 100644
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -946,42 +946,16 @@ int __init_memblock memblock_clear_nomap(phys_addr_t base, phys_addr_t size)
- 	return memblock_setclr_flag(base, size, 0, MEMBLOCK_NOMAP);
- }
- 
--/**
-- * __next_reserved_mem_region - next function for for_each_reserved_region()
-- * @idx: pointer to u64 loop variable
-- * @out_start: ptr to phys_addr_t for start address of the region, can be %NULL
-- * @out_end: ptr to phys_addr_t for end address of the region, can be %NULL
-- *
-- * Iterate over all reserved memory regions.
-- */
--void __init_memblock __next_reserved_mem_region(u64 *idx,
--					   phys_addr_t *out_start,
--					   phys_addr_t *out_end)
--{
--	struct memblock_type *type = &memblock.reserved;
--
--	if (*idx < type->cnt) {
--		struct memblock_region *r = &type->regions[*idx];
--		phys_addr_t base = r->base;
--		phys_addr_t size = r->size;
--
--		if (out_start)
--			*out_start = base;
--		if (out_end)
--			*out_end = base + size - 1;
--
--		*idx += 1;
--		return;
--	}
--
--	/* signal end of iteration */
--	*idx = ULLONG_MAX;
--}
--
--static bool should_skip_region(struct memblock_region *m, int nid, int flags)
-+static bool __init_memblock should_skip_region(struct memblock_type *type,
-+					       struct memblock_region *m,
-+					       int nid, int flags)
- {
- 	int m_nid = memblock_get_region_node(m);
- 
-+	/* we never skip regions when iterating memblock.reserved */
-+	if (type == &memblock.reserved)
-+		return false;
+diff --git a/lib/s390x/malloc_io.c b/lib/s390x/malloc_io.c
+new file mode 100644
+index 0000000..0e67aab
+--- /dev/null
++++ b/lib/s390x/malloc_io.c
+@@ -0,0 +1,53 @@
++/*
++ * I/O page allocation
++ *
++ * Copyright (c) 2020 IBM Corp
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ *
++ * Using this interface provide host access to the allocated pages in
++ * case the guest is a secure guest.
++ * This is needed for I/O buffers.
++ *
++ */
 +
- 	/* only memory regions are associated with nodes, check it */
- 	if (nid != NUMA_NO_NODE && nid != m_nid)
- 		return true;
-@@ -1048,7 +1022,7 @@ void __init_memblock __next_mem_range(u64 *idx, int nid,
- 		phys_addr_t m_end = m->base + m->size;
- 		int	    m_nid = memblock_get_region_node(m);
++#include <libcflat.h>
++#include <alloc_page.h>
++#include <asm/page.h>
++#include <asm/uv.h>
++#include <malloc_io.h>
++#include <asm/facility.h>
++
++
++void *alloc_io_page(int size)
++{
++	void *p;
++
++	assert(size <= PAGE_SIZE);
++	p = alloc_page();
++	if (!p) {
++		report(0, "Memory allocation");
++		return NULL;
++	}
++
++	if (!test_facility(158))
++		return p;
++
++	if (!uv_set_shared((unsigned long)p)) {
++		report(0, "Sharing memory");
++		return NULL;
++	}
++
++	return p;
++}
++
++void free_io_page(void *p)
++{
++	if (test_facility(158) && !uv_remove_shared((unsigned long)p))
++		report(0, "Unsharing memory");
++	free_page(p);
++}
+diff --git a/lib/s390x/malloc_io.h b/lib/s390x/malloc_io.h
+new file mode 100644
+index 0000000..6916f55
+--- /dev/null
++++ b/lib/s390x/malloc_io.h
+@@ -0,0 +1,14 @@
++/*
++ * I/O allocations
++ *
++ * Copyright (c) 2020 IBM Corp
++ *
++ * Authors:
++ *  Pierre Morel <pmorel@linux.ibm.com>
++ *
++ * This code is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2.
++ */
++
++void *alloc_io_page(int size);
++void free_io_page(void *p);
+diff --git a/s390x/Makefile b/s390x/Makefile
+index 9144d57..f545597 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -62,6 +62,7 @@ cflatobjs += lib/s390x/smp.o
+ cflatobjs += lib/s390x/vm.o
+ cflatobjs += lib/s390x/css_dump.o
+ cflatobjs += lib/s390x/css_lib.o
++cflatobjs += lib/s390x/malloc_io.o
  
--		if (should_skip_region(m, nid, flags))
-+		if (should_skip_region(type_a, m, nid, flags))
- 			continue;
+ OBJDIRS += lib/s390x
  
- 		if (!type_b) {
-@@ -1152,7 +1126,7 @@ void __init_memblock __next_mem_range_rev(u64 *idx, int nid,
- 		phys_addr_t m_end = m->base + m->size;
- 		int m_nid = memblock_get_region_node(m);
- 
--		if (should_skip_region(m, nid, flags))
-+		if (should_skip_region(type_a, m, nid, flags))
- 			continue;
- 
- 		if (!type_b) {
-@@ -1977,7 +1951,7 @@ static unsigned long __init free_low_memory_core_early(void)
- 
- 	memblock_clear_hotplug(0, -1);
- 
--	for_each_reserved_mem_region(i, &start, &end)
-+	for_each_reserved_mem_range(i, &start, &end)
- 		reserve_bootmem_region(start, end);
- 
- 	/*
 -- 
-2.26.2
+2.25.1
