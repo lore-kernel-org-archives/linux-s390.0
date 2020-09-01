@@ -1,56 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:47832 "EHLO mail.kernel.org"
+Received: from foss.arm.com ([217.140.110.172]:44880 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726310AbgIBRip (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 2 Sep 2020 13:38:45 -0400
-Date: Wed, 2 Sep 2020 18:38:03 +0100
-From: Mark Brown <broonie@kernel.org>
+        id S1731549AbgIAQGc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Sep 2020 12:06:32 -0400
+Date: Tue, 1 Sep 2020 17:06:26 +0100
+From: Mark Rutland <mark.rutland@arm.com>
 Subject: Re: [PATCH v2 0/3] arm64: Convert to ARCH_STACKWALK
-Message-ID: <20200902173803.GE6162@sirena.org.uk>
+Message-ID: <20200901160626.GE95447@C02TD0UTHF1T.local>
 References: <20200819124913.37261-1-broonie@kernel.org>
- <20200901160626.GE95447@C02TD0UTHF1T.local>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="jTMWTj4UTAEmbWeb"
+Content-Type: text/plain; charset="utf-8"
 Content-Disposition: inline
-In-Reply-To: <20200901160626.GE95447@C02TD0UTHF1T.local>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200819124913.37261-1-broonie@kernel.org>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Mark Rutland <mark.rutland@arm.com>
+To: Mark Brown <broonie@kernel.org>
 Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
 
+Hi,
 
---jTMWTj4UTAEmbWeb
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Aug 19, 2020 at 01:49:10PM +0100, Mark Brown wrote:
+> This series updates the arm64 stacktrace code to use the newer and much
+> simpler arch_stack_walk() interface, the main benefit being a single
+> entry point to the arch code with no need for the arch code to worry
+> about skipping frames. Along the way I noticed that the reliable
+> parameter to the arch_stack_walk() callback appears to be redundant
+> so there's also a patch here removing that from the existing code to
+> simplify the interface.
+> 
+> This is preparatory work for implementing reliable stack trace for
+> arm64.
 
-On Tue, Sep 01, 2020 at 05:06:26PM +0100, Mark Rutland wrote:
+This all looks pretty nice!
 
-> Just to check, has the skipping logic been tested to work equivalently
-> to what we had before? By inspection I think it should, but since it
-> relies on function call boundaries it always strikes me as fragile.
+Just to check, has the skipping logic been tested to work equivalently
+to what we had before? By inspection I think it should, but since it
+relies on function call boundaries it always strikes me as fragile.
 
-> If you could confirm that (e.g. with LKDTM perhaps?)=A0that'd be great.
-> Assuming that looks right, for the series:
+If you could confirm that (e.g. with LKDTM perhaps?) that'd be great.
+Assuming that looks right, for the series:
 
-I've tested this with LKDTM and otherwise and didn't spot any issues
-(and just did a bit of retesting) but it is a pretty manual process so
-it's possible I missed something.
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 
---jTMWTj4UTAEmbWeb
-Content-Type: application/pgp-signature; name="signature.asc"
+Mark.
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl9P2HoACgkQJNaLcl1U
-h9BFyAf/WmL+czCJwJk4VCBeI8Qs2/FFr8HfxOjvcihHhHLoo47xrAWoGVeJcoGB
-B0KxiGvi/sgW230Q8vgawFwzN5pte2FFt8RoXRKNste1aMWTVp2d66nHXg4T3Xa+
-1tzhUh1MBWkQCDW2lKroA6RFs4UIX8b0ulYz26VFwpE/is4vcAv77AnCYNIMfqa1
-cC/FbZO4VJfSu5vgdtrMSmt0NAczKRI5OpO056olErHtnSmBxagekOrMyDofUwjz
-TKcOHNMwH/BdiQFL7BjqDZykxwV1MKNcaXSEd/HTsnCurMbMTCfAsakolqbDDDiL
-DG06jT7beQldWH9+cTAb45lPf08ifQ==
-=knFg
------END PGP SIGNATURE-----
-
---jTMWTj4UTAEmbWeb--
+> 
+> v2: Rebase onto v5.9-rc1.
+> 
+> Mark Brown (3):
+>   stacktrace: Remove reliable argument from arch_stack_walk() callback
+>   arm64: stacktrace: Make stack walk callback consistent with generic
+>     code
+>   arm64: stacktrace: Convert to ARCH_STACKWALK
+> 
+>  arch/arm64/Kconfig                  |  1 +
+>  arch/arm64/include/asm/stacktrace.h |  2 +-
+>  arch/arm64/kernel/perf_callchain.c  |  6 +--
+>  arch/arm64/kernel/return_address.c  |  8 +--
+>  arch/arm64/kernel/stacktrace.c      | 84 ++++-------------------------
+>  arch/s390/kernel/stacktrace.c       |  4 +-
+>  arch/x86/kernel/stacktrace.c        | 10 ++--
+>  include/linux/stacktrace.h          |  5 +-
+>  kernel/stacktrace.c                 |  8 ++-
+>  9 files changed, 30 insertions(+), 98 deletions(-)
+> 
+> -- 
+> 2.20.1
+> 
