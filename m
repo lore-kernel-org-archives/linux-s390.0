@@ -1,58 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56840 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727007AbgHQIwD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 17 Aug 2020 04:52:03 -0400
-From: Allen Pais <allen.cryptic@gmail.com>
-Subject: [PATCH 4/8] net: mac802154: convert tasklets to use new tasklet_setup() API
-Date: Mon, 17 Aug 2020 14:21:16 +0530
-Message-Id: <20200817085120.24894-4-allen.cryptic@gmail.com>
-In-Reply-To: <20200817085120.24894-1-allen.cryptic@gmail.com>
-References: <20200817085120.24894-1-allen.cryptic@gmail.com>
+Received: from foss.arm.com ([217.140.110.172]:36256 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725987AbgIADpP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 Aug 2020 23:45:15 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH v3 10/13] mm/debug_vm_pgtable/locks: Take correct page
+ table lock
+References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+ <20200827080438.315345-11-aneesh.kumar@linux.ibm.com>
+Message-ID: <7da0de4c-8fc8-7e40-c9f7-a8f2d875e364@arm.com>
+Date: Tue, 1 Sep 2020 09:14:37 +0530
+MIME-Version: 1.0
+In-Reply-To: <20200827080438.315345-11-aneesh.kumar@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: gerrit@erg.abdn.ac.uk, davem@davemloft.net, kuba@kernel.org, edumazet@google.com, kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org, johannes@sipsolutions.net, alex.aring@gmail.com, stefan@datenfreihafen.org, santosh.shilimkar@oracle.com, jhs@mojatatu.com, xiyou.wangcong@gmail.com, jiri@resnulli.us
-Cc: keescook@chromium.org, netdev@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org, linux-wpan@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
+To: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>
 
-From: Allen Pais <allen.lkml@gmail.com>
 
-In preparation for unconditionally passing the
-struct tasklet_struct pointer to all tasklet
-callbacks, switch to using the new tasklet_setup()
-and from_tasklet() to pass the tasklet pointer explicitly.
 
-Signed-off-by: Romain Perier <romain.perier@gmail.com>
-Signed-off-by: Allen Pais <allen.lkml@gmail.com>
----
- net/mac802154/main.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+On 08/27/2020 01:34 PM, Aneesh Kumar K.V wrote:
+> Make sure we call pte accessors with correct lock held.
+> 
+> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+> ---
+>  mm/debug_vm_pgtable.c | 34 ++++++++++++++++++++--------------
+>  1 file changed, 20 insertions(+), 14 deletions(-)
+> 
+> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+> index 78c8af3445ac..0a6e771ebd13 100644
+> --- a/mm/debug_vm_pgtable.c
+> +++ b/mm/debug_vm_pgtable.c
+> @@ -1039,33 +1039,39 @@ static int __init debug_vm_pgtable(void)
+>  	pmd_thp_tests(pmd_aligned, prot);
+>  	pud_thp_tests(pud_aligned, prot);
+>  
+> +	hugetlb_basic_tests(pte_aligned, prot);
+> +
 
-diff --git a/net/mac802154/main.c b/net/mac802154/main.c
-index 06ea0f8bfd5c..520cedc594e1 100644
---- a/net/mac802154/main.c
-+++ b/net/mac802154/main.c
-@@ -20,9 +20,9 @@
- #include "ieee802154_i.h"
- #include "cfg.h"
- 
--static void ieee802154_tasklet_handler(unsigned long data)
-+static void ieee802154_tasklet_handler(struct tasklet_struct *t)
- {
--	struct ieee802154_local *local = (struct ieee802154_local *)data;
-+	struct ieee802154_local *local = from_tasklet(local, t, tasklet);
- 	struct sk_buff *skb;
- 
- 	while ((skb = skb_dequeue(&local->skb_queue))) {
-@@ -91,9 +91,7 @@ ieee802154_alloc_hw(size_t priv_data_len, const struct ieee802154_ops *ops)
- 	INIT_LIST_HEAD(&local->interfaces);
- 	mutex_init(&local->iflist_mtx);
- 
--	tasklet_init(&local->tasklet,
--		     ieee802154_tasklet_handler,
--		     (unsigned long)local);
-+	tasklet_setup(&local->tasklet, ieee802154_tasklet_handler);
- 
- 	skb_queue_head_init(&local->skb_queue);
- 
--- 
-2.17.1
+This moved back again. As pointed out earlier, there will be a bisect
+problem and so this patch must be folded back with the previous one.
+
+>  	/*
+>  	 * Page table modifying tests
+>  	 */
+> -	pte_clear_tests(mm, ptep, vaddr);
+> -	pmd_clear_tests(mm, pmdp);
+> -	pud_clear_tests(mm, pudp);
+> -	p4d_clear_tests(mm, p4dp);
+> -	pgd_clear_tests(mm, pgdp);
+>  
+>  	ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
+> +	pte_clear_tests(mm, ptep, vaddr);
+>  	pte_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
+> -	pmd_advanced_tests(mm, vma, pmdp, pmd_aligned, vaddr, prot, saved_ptep);
+> -	pud_advanced_tests(mm, vma, pudp, pud_aligned, vaddr, prot);
+> -	hugetlb_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
+> -
+> +	pte_unmap_unlock(ptep, ptl);
+>  
+> +	ptl = pmd_lock(mm, pmdp);
+> +	pmd_clear_tests(mm, pmdp);
+> +	pmd_advanced_tests(mm, vma, pmdp, pmd_aligned, vaddr, prot, saved_ptep);
+>  	pmd_huge_tests(pmdp, pmd_aligned, prot);
+> +	pmd_populate_tests(mm, pmdp, saved_ptep);
+> +	spin_unlock(ptl);
+> +
+> +	ptl = pud_lock(mm, pudp);
+> +	pud_clear_tests(mm, pudp);
+> +	pud_advanced_tests(mm, vma, pudp, pud_aligned, vaddr, prot);
+>  	pud_huge_tests(pudp, pud_aligned, prot);
+> +	pud_populate_tests(mm, pudp, saved_pmdp);
+> +	spin_unlock(ptl);
+>  
+> -	pte_unmap_unlock(ptep, ptl);
+> +	hugetlb_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
+>  
+> -	pmd_populate_tests(mm, pmdp, saved_ptep);
+> -	pud_populate_tests(mm, pudp, saved_pmdp);
+> +	spin_lock(&mm->page_table_lock);
+> +	p4d_clear_tests(mm, p4dp);
+> +	pgd_clear_tests(mm, pgdp);
+>  	p4d_populate_tests(mm, p4dp, saved_pudp);
+>  	pgd_populate_tests(mm, pgdp, saved_p4dp);
+> -
+> -	hugetlb_basic_tests(pte_aligned, prot);
+> +	spin_unlock(&mm->page_table_lock);
+>  
+>  	p4d_free(mm, saved_p4dp);
+>  	pud_free(mm, saved_pudp);
+> 
+
+Overall, grouping together dynamic tests at various page table levels and
+taking a corresponding lock, makes sense. Commit message for the resultant
+patch should include (a) Test classification (b) Grouping by function for
+the static tests, by page table level for the dynamic tests (c) Locking
+requirement for the dynamic tests each level etc.
