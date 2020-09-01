@@ -1,94 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from aserp2120.oracle.com ([141.146.126.78]:43174 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727804AbgIICMS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 22:12:18 -0400
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH 00/29] treewide: Convert comma separated statements
-Date: Tue,  8 Sep 2020 22:09:14 -0400
-Message-Id: <159961731707.5787.13988542229153933257.b4-ty@oracle.com>
-In-Reply-To: <cover.1598331148.git.joe@perches.com>
-References: <cover.1598331148.git.joe@perches.com>
+Received: from foss.arm.com ([217.140.110.172]:38950 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726044AbgIAJMd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Sep 2020 05:12:33 -0400
+Subject: Re: [PATCH v2 00/13] mm/debug_vm_pgtable fixes
+References: <20200819130107.478414-1-aneesh.kumar@linux.ibm.com>
+ <52e9743e-fa2f-3fd2-f50e-2c6c38464b96@arm.com>
+ <c0de2c68-826b-bf0f-dc2c-a501fa7bef38@csgroup.eu>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <74db4583-36a3-629b-9423-4e4961a91ea6@arm.com>
+Date: Tue, 1 Sep 2020 14:41:55 +0530
 MIME-Version: 1.0
+In-Reply-To: <c0de2c68-826b-bf0f-dc2c-a501fa7bef38@csgroup.eu>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linuxppc-dev@lists.ozlabs.org, linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-hwmon@vger.kernel.org, Joe Perches <joe@perches.com>, oprofile-list@lists.sf.net, linux-fsdevel@vger.kernel.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, drbd-dev@tron.linbit.com, intel-gfx@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-nfs@vger.kernel.org, netdev@vger.kernel.org, reiserfs-devel@vger.kernel.org, linux-bcache@vger.kernel.org, Jiri Kosina <trivial@kernel.org>
-Cc: "Martin K . Petersen" <martin.petersen@oracle.com>, sparclinux@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org, linux-doc@vger.kernel.org, linux-block@vger.kernel.org, linux-ia64@vger.kernel.org, linux-pm@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-fbdev@vger.kernel.org, devel@driverdev.osuosl.org, linux-scsi@vger.kernel.org, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, Linux ARM <linux-arm-kernel@lists.infradead.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-snps-arc@lists.infradead.org" <linux-snps-arc@lists.infradead.org>, Linux-Arch <linux-arch@vger.kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>, "x86@kernel.org" <x86@kernel.org>
 
-On Mon, 24 Aug 2020 21:55:57 -0700, Joe Perches wrote:
 
-> There are many comma separated statements in the kernel.
-> See:https://lore.kernel.org/lkml/alpine.DEB.2.22.394.2008201856110.2524@hadrien/
+
+On 09/01/2020 01:33 PM, Christophe Leroy wrote:
 > 
-> Convert the comma separated statements that are in if/do/while blocks
-> to use braces and semicolons.
 > 
-> Many comma separated statements still exist but those are changes for
-> another day.
+> Le 21/08/2020 à 10:51, Anshuman Khandual a écrit :
+>>
+>> On 08/19/2020 06:30 PM, Aneesh Kumar K.V wrote:
+>>> This patch series includes fixes for debug_vm_pgtable test code so that
+>>> they follow page table updates rules correctly. The first two patches introduce
+>>> changes w.r.t ppc64. The patches are included in this series for completeness. We can
+>>> merge them via ppc64 tree if required.
+>>>
+>>> Hugetlb test is disabled on ppc64 because that needs larger change to satisfy
+>>> page table update rules.
+>>>
 > 
-> [...]
+>>
+>> Changes proposed here will impact other enabled platforms as well.
+>> Adding the following folks and mailing lists, and hoping to get a
+>> broader review and test coverage. Please do include them in the
+>> next iteration as well.
+>>
+>> + linux-arm-kernel@lists.infradead.org
+>> + linux-s390@vger.kernel.org
+>> + linux-snps-arc@lists.infradead.org
+>> + x86@kernel.org
+>> + linux-arch@vger.kernel.org
+>>
+>> + Gerald Schaefer <gerald.schaefer@de.ibm.com>
+>> + Christophe Leroy <christophe.leroy@c-s.fr>
+> 
+> Please don't use anymore the above address. Only use the one below.
+> 
+>> + Christophe Leroy <christophe.leroy@csgroup.eu>
 
-Applied to 5.10/scsi-queue, thanks!
+Sure, noted.
 
-[01/29] coding-style.rst: Avoid comma statements
-        (no commit info)
-[02/29] alpha: Avoid comma separated statements
-        (no commit info)
-[03/29] ia64: Avoid comma separated statements
-        (no commit info)
-[04/29] sparc: Avoid comma separated statements
-        (no commit info)
-[05/29] ata: Avoid comma separated statements
-        (no commit info)
-[06/29] drbd: Avoid comma separated statements
-        (no commit info)
-[07/29] lp: Avoid comma separated statements
-        (no commit info)
-[08/29] dma-buf: Avoid comma separated statements
-        (no commit info)
-[09/29] drm/gma500: Avoid comma separated statements
-        (no commit info)
-[10/29] drm/i915: Avoid comma separated statements
-        (no commit info)
-[11/29] hwmon: (scmi-hwmon): Avoid comma separated statements
-        (no commit info)
-[12/29] Input: MT - Avoid comma separated statements
-        (no commit info)
-[13/29] bcache: Avoid comma separated statements
-        (no commit info)
-[14/29] media: Avoid comma separated statements
-        (no commit info)
-[15/29] mtd: Avoid comma separated statements
-        (no commit info)
-[16/29] 8390: Avoid comma separated statements
-        (no commit info)
-[17/29] fs_enet: Avoid comma separated statements
-        (no commit info)
-[18/29] wan: sbni: Avoid comma separated statements
-        (no commit info)
-[19/29] s390/tty3270: Avoid comma separated statements
-        (no commit info)
-[20/29] scsi: arm: Avoid comma separated statements
-        https://git.kernel.org/mkp/scsi/c/a08a07326510
-[21/29] media: atomisp: Avoid comma separated statements
-        (no commit info)
-[22/29] video: fbdev: Avoid comma separated statements
-        (no commit info)
-[23/29] fuse: Avoid comma separated statements
-        (no commit info)
-[24/29] reiserfs: Avoid comma separated statements
-        (no commit info)
-[25/29] lib/zlib: Avoid comma separated statements
-        (no commit info)
-[26/29] lib: zstd: Avoid comma separated statements
-        (no commit info)
-[27/29] ipv6: fib6: Avoid comma separated statements
-        (no commit info)
-[28/29] sunrpc: Avoid comma separated statements
-        (no commit info)
-[29/29] tools: Avoid comma separated statements
-        (no commit info)
-
--- 
-Martin K. Petersen	Oracle Linux Engineering
+>> + Vineet Gupta <vgupta@synopsys.com>
+>> + Mike Rapoport <rppt@linux.ibm.com>
+>> + Qian Cai <cai@lca.pw>
+>>
+> 
+> Thanks
+> Christophe
+> 
+>
