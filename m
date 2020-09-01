@@ -1,69 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:60836 "EHLO mail.kernel.org"
+Received: from mga01.intel.com ([192.55.52.88]:45983 "EHLO mga01.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728235AbgIRCJH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 17 Sep 2020 22:09:07 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 054/206] s390/cpum_sf: Use kzalloc and minor changes
-Date: Thu, 17 Sep 2020 22:05:30 -0400
-Message-Id: <20200918020802.2065198-54-sashal@kernel.org>
-In-Reply-To: <20200918020802.2065198-1-sashal@kernel.org>
-References: <20200918020802.2065198-1-sashal@kernel.org>
+        id S1725848AbgIAJsd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Sep 2020 05:48:33 -0400
+From: "Tian, Kevin" <kevin.tian@intel.com>
+Subject: RE: [PATCH v3] PCI: Introduce flag for detached virtual functions
+Date: Tue, 1 Sep 2020 09:45:29 +0000
+Message-ID: <MWHPR11MB16451C94F2A2E7D57AEFE6E68C2E0@MWHPR11MB1645.namprd11.prod.outlook.com>
+References: <20200827203335.GA2101829@bjorn-Precision-5520>
+ <babde252-4909-9d3b-e5dc-bae4e6a20cd1@linux.ibm.com>
+In-Reply-To: <babde252-4909-9d3b-e5dc-bae4e6a20cd1@linux.ibm.com>
+Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Niklas Schnelle <schnelle@linux.ibm.com>, Bjorn Helgaas <helgaas@kernel.org>, Alex Williamson <alex.williamson@redhat.com>
+Cc: Matthew Rosato <mjrosato@linux.ibm.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "pmorel@linux.ibm.com" <pmorel@linux.ibm.com>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "oohall@gmail.com" <oohall@gmail.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "Raj, Ashok" <ashok.raj@intel.com>, "Pan, Jacob jun" <jacob.jun.pan@intel.com>, "Liu, Yi L" <yi.l.liu@intel.com>
 
-From: Thomas Richter <tmricht@linux.ibm.com>
-
-[ Upstream commit 32dab6828c42f087439d3e2617dc7283546bd8f7 ]
-
-Use kzalloc() to allocate auxiliary buffer structure initialized
-with all zeroes to avoid random value in trace output.
-
-Avoid double access to SBD hardware flags.
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/perf_cpum_sf.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 74a296cea21cc..0e6d01225a670 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -1377,8 +1377,8 @@ static int aux_output_begin(struct perf_output_handle *handle,
- 		idx = aux->empty_mark + 1;
- 		for (i = 0; i < range_scan; i++, idx++) {
- 			te = aux_sdb_trailer(aux, idx);
--			te->flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
--			te->flags = te->flags & ~SDB_TE_ALERT_REQ_MASK;
-+			te->flags &= ~(SDB_TE_BUFFER_FULL_MASK |
-+				       SDB_TE_ALERT_REQ_MASK);
- 			te->overflow = 0;
- 		}
- 		/* Save the position of empty SDBs */
-@@ -1425,8 +1425,7 @@ static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
- 	te = aux_sdb_trailer(aux, alert_index);
- 	do {
- 		orig_flags = te->flags;
--		orig_overflow = te->overflow;
--		*overflow = orig_overflow;
-+		*overflow = orig_overflow = te->overflow;
- 		if (orig_flags & SDB_TE_BUFFER_FULL_MASK) {
- 			/*
- 			 * SDB is already set by hardware.
-@@ -1660,7 +1659,7 @@ static void *aux_buffer_setup(struct perf_event *event, void **pages,
- 	}
- 
- 	/* Allocate aux_buffer struct for the event */
--	aux = kmalloc(sizeof(struct aux_buffer), GFP_KERNEL);
-+	aux = kzalloc(sizeof(struct aux_buffer), GFP_KERNEL);
- 	if (!aux)
- 		goto no_aux;
- 	sfb = &aux->sfb;
--- 
-2.25.1
+PiBGcm9tOiBrdm0tb3duZXJAdmdlci5rZXJuZWwub3JnIDxrdm0tb3duZXJAdmdlci5rZXJuZWwu
+b3JnPiBPbiBCZWhhbGYNCj4gT2YgTmlrbGFzIFNjaG5lbGxlDQo+IFNlbnQ6IEZyaWRheSwgQXVn
+dXN0IDI4LCAyMDIwIDU6MTAgUE0NCj4gVG86IEJqb3JuIEhlbGdhYXMgPGhlbGdhYXNAa2VybmVs
+Lm9yZz47IEFsZXggV2lsbGlhbXNvbg0KPiA8YWxleC53aWxsaWFtc29uQHJlZGhhdC5jb20+DQo+
+IA0KWy4uLl0NCj4gPj4NCj4gPj4gRldJVywgcGNpX3BoeXNmbigpIG5ldmVyIHJldHVybnMgTlVM
+TCwgaXQgcmV0dXJucyB0aGUgcHJvdmlkZWQgcGRldiBpZg0KPiA+PiBpc192aXJ0Zm4gaXMgbm90
+IHNldC4gIFRoaXMgcHJvcG9zYWwgd291bGRuJ3QgY2hhbmdlIHRoYXQgcmV0dXJuIHZhbHVlLg0K
+PiA+PiBBSVVJIHBjaV9waHlzZm4oKSwgdGhlIGNhbGxlciBuZWVkcyB0byB0ZXN0IHRoYXQgdGhl
+IHJldHVybmVkIGRldmljZSBpcw0KPiA+PiBkaWZmZXJlbnQgZnJvbSB0aGUgcHJvdmlkZWQgZGV2
+aWNlIGlmIHRoZXJlJ3MgcmVhbGx5IGNvZGUgdGhhdCB3YW50cyB0bw0KPiA+PiB0cmF2ZXJzZSB0
+byB0aGUgUEYuDQo+ID4NCj4gPiBPaCwgc28gdGhpcyBWRiBoYXMgaXNfdmlydGZuPT0wLiAgVGhh
+dCBzZWVtcyB3ZWlyZC4gIFRoZXJlIGFyZSBsb3RzIG9mDQo+ID4gb3RoZXIgd2F5cyB0aGF0IGEg
+VkYgaXMgZGlmZmVyZW50OiBWZW5kb3IvRGV2aWNlIElEcyBhcmUgMHhmZmZmLCBCQVJzDQo+ID4g
+YXJlIHplcm9lcywgZXRjLg0KPiA+DQo+ID4gSXQgc291bmRzIGxpa2UgeW91J3JlIHN3ZWVwaW5n
+IHRob3NlIHVuZGVyIHRoZSBydWcgYnkgYXZvaWRpbmcgdGhlDQo+ID4gbm9ybWFsIGVudW1lcmF0
+aW9uIHBhdGggKGUuZy4sIHlvdSBkb24ndCBoYXZlIHRvIHNpemUgdGhlIEJBUnMpLCBidXQNCj4g
+PiBpZiBpdCBhY3R1YWxseSBpcyBhIFZGLCBpdCBzZWVtcyBsaWtlIHRoZXJlIG1pZ2h0IGJlIGZl
+d2VyIHN1cnByaXNlcw0KPiA+IGlmIHdlIHRyZWF0IGl0IGFzIG9uZS4NCj4gPg0KPiA+IFdoeSBk
+b24ndCB5b3UganVzdCBzZXQgaXNfdmlydGZuPTEgc2luY2UgaXQgKmlzKiBhIFZGLCBhbmQgdGhl
+biBkZWFsDQo+ID4gd2l0aCB0aGUgc3BlY2lhbCBjYXNlcyB3aGVyZSB5b3Ugd2FudCB0byB0b3Vj
+aCB0aGUgUEY/DQo+ID4NCj4gPiBCam9ybg0KPiA+DQo+IA0KPiBBcyB3ZSBhcmUgYWx3YXlzIHJ1
+bm5pbmcgdW5kZXIgYXQgbGVhc3QgYSBtYWNoaW5lIGxldmVsIGh5cGVydmlzb3INCj4gd2UncmUg
+c29tZXdoYXQgaW4gdGhlIHNhbWUgc2l0dWF0aW9uIGFzIGUuZy4gYSBLVk0gZ3Vlc3QgaW4NCj4g
+dGhhdCB0aGUgVkZzIHdlIHNlZSBoYXZlIHNvbWUgZW11bGF0aW9uIHRoYXQgbWFrZXMgdGhlbSBh
+Y3QgbW9yZSBsaWtlDQo+IG5vcm1hbCBQQ0kgZnVuY3Rpb25zLiBJdCBqdXN0IHNvIGhhcHBlbnMg
+dGhhdCB0aGUgbWFjaGluZSBsZXZlbCBoeXBlcnZpc29yDQo+IGRvZXMgbm90IGVtdWxhdGUgdGhl
+IFBDSV9DT01NQU5EX01FTU9SWSwgaXQgZG9lcyBlbXVsYXRlIEJBUnMgYW5kDQo+IFZlbmRvci9E
+ZXZpY2UgSURzDQo+IHRob3VnaC4NCj4gU28gaXNfdmlydGZuIGlzIDAgZm9yIHNvbWUgVkYgZm9y
+IHRoZSBzYW1lIHJlYXNvbiBpdCBpcyAwIG9uDQo+IEtWTS9FU1hpL0h5cGVyVi9KYWlsaG91c2Xi
+gKYNCj4gZ3Vlc3RzIG9uIG90aGVyIGFyY2hpdGVjdHVyZXMuDQoNCkkgd29uZGVyIHdoZXRoZXIg
+aXQncyBhIGdvb2QgaWRlYSB0byBhbHNvIGZpbmQgYSB3YXkgdG8gc2V0IGlzX3ZpcnRmbg0KZm9y
+IG5vcm1hbCBLVk0gZ3Vlc3Qgd2hpY2ggZ2V0IGEgdmYgYXNzaWduZWQuIFRoZXJlIGFyZSBvdGhl
+ciBjYXNlcyANCndoZXJlIGZhaXRoZnVsIGVtdWxhdGlvbiBvZiBjZXJ0YWluIFBDSSBjYXBhYmls
+aXRpZXMgaXMgZGlmZmljdWx0LCBlLmcuIA0Kd2hlbiBlbmFibGluZyBndWVzdCBTVkEgcmVsYXRl
+ZCBmZWF0dXJlcyAoUEFTSUQvQVRTL1BSUykuIFBlciBQQ0llIA0Kc3BlYywgc29tZSBvciBhbGwg
+ZmllbGRzIG9mIHRob3NlIGNhcGFiaWxpdGllcyBhcmUgc2hhcmVkIGJldHdlZW4gUEYgDQphbmQg
+VkYuIEFtb25nIHRoZW06DQoNCjEpIFNvbWUgY291bGQgYmUgZW11bGF0ZWQgcHJvcGVybHkgYW5k
+IGluZGlyZWN0bHkgcmVmbGVjdGVkIGluIGhhcmR3YXJlLCANCmUuZy4gSW50ZWwgVlQtZCBhbGxv
+d3MgYWRkaXRpb25hbCBjb250cm9sIHBlciBWRiBhYm91dCB3aGV0aGVyIHRvIGFjY2VwdCANCnBh
+Z2UgcmVxdWVzdCwgZXhlY3V0ZS9wcml2aWxlZ2VkIHBlcm1pc3Npb24sIGV0Yy4gdGh1cyBhbGxv
+d2luZyBWRi1zcGVjaWZpYyANCmNvbnRyb2wgZXZlbiB3aGVuIGRldmljZS1zaWRlIHNldHRpbmcg
+aXMgc2hhcmVkOw0KCQ0KMikgU29tZSBjb3VsZCBiZSBwdXJlbHkgZW11bGF0ZWQgaW4gc29mdHdh
+cmUgYW5kIGl0J3MgaGFybWxlc3MgdG8gbGVhdmUNCnRoZSBoYXJkd2FyZSBmb2xsb3dpbmcgUEYg
+c2V0dGluZywgZS5nLiBBVFMgZW5hYmxlLCBTVFUoPyksIG91dHN0YW5kaW5nDQpwYWdlIHJlcXVl
+c3QgYWxsb2NhdGlvbiwgZXRjLjsNCg0KMykgSG93ZXZlciwgSSBkaWRu4oCZdCBzZWUgYSBjbGVh
+biB3YXkgb2YgZW11bGF0aW5nIHBhZ2VfcmVxdWVzdF9jdHJsLnJlc2V0DQphbmQgcGFnZV9yZXF1
+ZXN0X3N0YXR1cy5zdG9wcGVkLiBUaG9zZSB0d28gaGF2ZSBjbGVhciBkZWZpbml0aW9uIGFib3V0
+DQpvdXRzdGFuZGluZyBwYWdlIHJlcXVlc3RzLiBUaGV5IGFyZSBzaGFyZWQgdGh1cyB3ZSBjYW5u
+b3QgaXNzdWUgcGh5c2ljYWwNCmFjdGlvbiBqdXN0IGR1ZSB0byByZXF1ZXN0IG9uIG9uZSBWRiwg
+d2hpbGUgcHVyZSBzb2Z0d2FyZSBlbXVsYXRpb24gDQpjYW5ub3QgZ3VhcmFudGVlIHRoZSBkZXNp
+cmVkIGV4cGVjdGF0aW9uLiBPZiBjb3Vyc2UgdGhpcyBpc3N1ZSBhbHNvIGV4aXN0cw0KZXZlbiBv
+biBiYXJlIG1ldGFsIC0gcGNpX2VuYWJsZS9kaXNhYmxlL3Jlc2V0X3ByaSBqdXN0IGRvIG5vdGhp
+bmcgZm9yDQp2Zi4gQnV0IHRoZXJlIGlzIGNoYW5jZSB0byBtaXRpZ2F0ZSAoZS5nLiB0aW1lb3V0
+KSwgYnV0IG5vdCBwb3NzaWJsZSBpbiBndWVzdA0KaWYgdGhlIGd1ZXN0IGRvZXNuJ3Qga25vdyBp
+dCdzIGFjdHVhbGx5IGEgVkYuDQoNClNldHRpbmcgaXNfdmlydGZuPTEgYWxsb3dzIGd1ZXN0IHRv
+IGJlIGNvb3BlcmF0aXZlIGxpa2UgcnVubmluZyB0b2dldGhlcg0Kd2l0aCBQRiBkcml2ZXIuIEJ1
+dCB0aGVyZSBpcyBhbiBvcmRlcmluZyBpc3N1ZS4gVGhlIGd1ZXN0IGtub3dzIHdoZXRoZXINCmEg
+ZGV2aWNlIGlzIFZGIG9ubHkgd2hlbiB0aGUgVkYgZHJpdmVyIGlzIGxvYWRlZCAoYmFzZWQgb24g
+UENJX0lEKSwgYnV0DQpyZWxhdGVkIGNhcGFiaWxpdGllcyBtaWdodCBiZSBhbHJlYWR5IGVuYWJs
+ZWQgd2hlbiBhdHRhY2hpbmcgdGhlIGRldmljZQ0KdG8gSU9NTVUgKGF0IGxlYXN0IGZvciBpbnRl
+bF9pb21tdSkuIEJ1dCBzdXBwb3NlIGl0J3Mgbm90IGEgaGFyZCBmaXguDQpMYXN0LCBkZXRhY2hl
+ZCB2ZiBpcyBub3QgYSBQQ0lTSUcgZGVmaW5pdGlvbi4gU28gdGhlIGhvc3Qgc3RpbGwgbmVlZHMg
+dG8NCmRvIHByb3BlciBlbXVsYXRpb24gKGV2ZW4gbm90IGZhaXRoZnVsKSBvZiB0aG9zZSBjYXBh
+YmlsaXRpZXMgZm9yIGd1ZXN0cyANCndobyBkb24ndCByZWNvZ25pemUgZGV0YWNoZWQgdmYuDQoN
+ClRob3VnaHRzPw0KDQpUaGFua3MNCktldmluDQo=
