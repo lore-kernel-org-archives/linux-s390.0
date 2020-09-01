@@ -1,107 +1,102 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:26990 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730116AbgIJJOW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 05:14:22 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v3 2/7] kernel/resource: move and rename IORESOURCE_MEM_DRIVER_MANAGED
-Date: Thu, 10 Sep 2020 11:13:35 +0200
-Message-Id: <20200910091340.8654-3-david@redhat.com>
-In-Reply-To: <20200910091340.8654-1-david@redhat.com>
-References: <20200910091340.8654-1-david@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47892 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726091AbgIAUyX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Sep 2020 16:54:23 -0400
+Date: Tue, 1 Sep 2020 13:53:47 -0700
+From: Nicolin Chen <nicoleotsuka@gmail.com>
+Subject: Re: [RESEND][PATCH 1/7] powerpc/iommu: Avoid overflow at
+ boundary_size
+Message-ID: <20200901205346.GA17362@Asurada-Nvidia>
+References: <20200831203811.8494-1-nicoleotsuka@gmail.com>
+ <20200831203811.8494-2-nicoleotsuka@gmail.com>
+ <87lfht1vav.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87lfht1vav.fsf@mpe.ellerman.id.au>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Ard Biesheuvel <ardb@kernel.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>, Eric Biederman <ebiederm@xmission.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kexec@lists.infradead.org
+To: Michael Ellerman <mpe@ellerman.id.au>
+Cc: benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
 
-IORESOURCE_MEM_DRIVER_MANAGED currently uses an unused PnP bit, which is
-always set to 0 by hardware. This is far from beautiful (and confusing),
-and the bit only applies to SYSRAM. So let's move it out of the
-bus-specific (PnP) defined bits.
+On Tue, Sep 01, 2020 at 11:27:36PM +1000, Michael Ellerman wrote:
+> Nicolin Chen <nicoleotsuka@gmail.com> writes:
+> > The boundary_size might be as large as ULONG_MAX, which means
+> > that a device has no specific boundary limit. So either "+ 1"
+> > or passing it to ALIGN() would potentially overflow.
+> >
+> > According to kernel defines:
+> >     #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
+> >     #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
+> >
+> > We can simplify the logic here:
+> >   ALIGN(boundary + 1, 1 << shift) >> shift
+> > = ALIGN_MASK(b + 1, (1 << s) - 1) >> s
+> > = {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
+> > = [b + 1 + (1 << s) - 1] >> s
+> > = [b + (1 << s)] >> s
+> > = (b >> s) + 1
+> >
+> > So fixing a potential overflow with the safer shortcut.
+> >
+> > Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+> > Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
+> > Cc: Christoph Hellwig <hch@lst.de>
+> > ---
+> >  arch/powerpc/kernel/iommu.c | 11 +++++------
+> >  1 file changed, 5 insertions(+), 6 deletions(-)
+> 
+> Are you asking for acks, or for maintainers to merge the patches
+> individually?
 
-We'll add another SYSRAM specific bit soon. If we ever need more bits for
-other purposes, we can steal some from "desc", or reshuffle/regroup what we
-have.
+I was expecting that but Christoph just suggested me to squash them
+into one so he would merge it: https://lkml.org/lkml/2020/9/1/159
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: kexec@lists.infradead.org
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- include/linux/ioport.h | 4 +++-
- kernel/kexec_file.c    | 2 +-
- mm/memory_hotplug.c    | 4 ++--
- 3 files changed, 6 insertions(+), 4 deletions(-)
+Though I feel it'd be nice to get maintainers' acks before merging.
 
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 52a91f5fa1a36..d7620d7c941a0 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -58,6 +58,9 @@ struct resource {
- #define IORESOURCE_EXT_TYPE_BITS 0x01000000	/* Resource extended types */
- #define IORESOURCE_SYSRAM	0x01000000	/* System RAM (modifier) */
- 
-+/* IORESOURCE_SYSRAM specific bits. */
-+#define IORESOURCE_SYSRAM_DRIVER_MANAGED	0x02000000 /* Always detected via a driver. */
-+
- #define IORESOURCE_EXCLUSIVE	0x08000000	/* Userland may not map this resource */
- 
- #define IORESOURCE_DISABLED	0x10000000
-@@ -103,7 +106,6 @@ struct resource {
- #define IORESOURCE_MEM_32BIT		(3<<3)
- #define IORESOURCE_MEM_SHADOWABLE	(1<<5)	/* dup: IORESOURCE_SHADOWABLE */
- #define IORESOURCE_MEM_EXPANSIONROM	(1<<6)
--#define IORESOURCE_MEM_DRIVER_MANAGED	(1<<7)
- 
- /* PnP I/O specific bits (IORESOURCE_BITS) */
- #define IORESOURCE_IO_16BIT_ADDR	(1<<0)
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index ca40bef75a616..dfeeed1aed084 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -520,7 +520,7 @@ static int locate_mem_hole_callback(struct resource *res, void *arg)
- 	/* Returning 0 will take to next memory range */
- 
- 	/* Don't use memory that will be detected and handled by a driver. */
--	if (res->flags & IORESOURCE_MEM_DRIVER_MANAGED)
-+	if (res->flags & IORESOURCE_SYSRAM_DRIVER_MANAGED)
- 		return 0;
- 
- 	if (sz < kbuf->memsz)
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 4c47b68a9f4b5..8e1cd18b5cf14 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -105,7 +105,7 @@ static struct resource *register_memory_resource(u64 start, u64 size,
- 	unsigned long flags =  IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
- 
- 	if (strcmp(resource_name, "System RAM"))
--		flags |= IORESOURCE_MEM_DRIVER_MANAGED;
-+		flags |= IORESOURCE_SYSRAM_DRIVER_MANAGED;
- 
- 	/*
- 	 * Make sure value parsed from 'mem=' only restricts memory adding
-@@ -1160,7 +1160,7 @@ EXPORT_SYMBOL_GPL(add_memory);
-  *
-  * For this memory, no entries in /sys/firmware/memmap ("raw firmware-provided
-  * memory map") are created. Also, the created memory resource is flagged
-- * with IORESOURCE_MEM_DRIVER_MANAGED, so in-kernel users can special-case
-+ * with IORESOURCE_SYSRAM_DRIVER_MANAGED, so in-kernel users can special-case
-  * this memory as well (esp., not place kexec images onto it).
-  *
-  * The resource_name (visible via /proc/iomem) has to have the format
--- 
-2.26.2
+> > diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
+> > index 9704f3f76e63..c01ccbf8afdd 100644
+> > --- a/arch/powerpc/kernel/iommu.c
+> > +++ b/arch/powerpc/kernel/iommu.c
+> > @@ -236,15 +236,14 @@ static unsigned long iommu_range_alloc(struct device *dev,
+> >  		}
+> >  	}
+> >  
+> > -	if (dev)
+> > -		boundary_size = ALIGN(dma_get_seg_boundary(dev) + 1,
+> > -				      1 << tbl->it_page_shift);
+> > -	else
+> > -		boundary_size = ALIGN(1UL << 32, 1 << tbl->it_page_shift);
+> >  	/* 4GB boundary for iseries_hv_alloc and iseries_hv_map */
+> > +	boundary_size = dev ? dma_get_seg_boundary(dev) : U32_MAX;
+> 
+> Is there any path that passes a NULL dev anymore?
+> 
+> Both iseries_hv_alloc() and iseries_hv_map() were removed years ago.
+> See:
+>   8ee3e0d69623 ("powerpc: Remove the main legacy iSerie platform code")
+> 
+> 
+> So maybe we should do a lead-up patch that drops the NULL dev support,
+> which will then make this patch simpler.
+
+The next version of this change will follow Christoph's suggestion
+by having a helper function that takes care of !dev internally.
+
+Thanks
+Nic
+
+> 
+> 
+> > +	/* Overflow-free shortcut for: ALIGN(b + 1, 1 << s) >> s */
+> > +	boundary_size = (boundary_size >> tbl->it_page_shift) + 1;
+> >  
+> >  	n = iommu_area_alloc(tbl->it_map, limit, start, npages, tbl->it_offset,
+> > -			     boundary_size >> tbl->it_page_shift, align_mask);
+> > +			     boundary_size, align_mask);
+> >  	if (n == -1) {
+> >  		if (likely(pass == 0)) {
+> >  			/* First try the pool from the start */
+> > -- 
+> > 2.17.1
