@@ -1,113 +1,185 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:41106 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728002AbgHRPRd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 18 Aug 2020 11:17:33 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 04/17] arm64: numa: simplify dummy_numa_init()
-Date: Tue, 18 Aug 2020 18:16:21 +0300
-Message-Id: <20200818151634.14343-5-rppt@kernel.org>
-In-Reply-To: <20200818151634.14343-1-rppt@kernel.org>
-References: <20200818151634.14343-1-rppt@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61174 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726006AbgIAGjJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Sep 2020 02:39:09 -0400
+Subject: Re: [PATCH v3 09/13] mm/debug_vm_pgtable/locks: Move non page table
+ modifying test together
+References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+ <20200827080438.315345-10-aneesh.kumar@linux.ibm.com>
+ <d0a0a50c-702b-c63a-edf2-263e4e7bd4a5@arm.com>
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Message-ID: <b6240372-4554-8c17-186a-cdc0b0a9089c@linux.ibm.com>
+Date: Tue, 1 Sep 2020 12:08:43 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <d0a0a50c-702b-c63a-edf2-263e4e7bd4a5@arm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christoph Hellwig <hch@lst.de>, Daniel Axtens <dja@axtens.net>, Dave Hansen <dave.hansen@linux.intel.com>, Emil Renner Berthing <kernel@esmil.dk>, Ingo Molnar <mingo@redhat.com>, Hari Bathini <hbathini@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>, Michal Simek <monstr@monstr.eu>, Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Peter Zijlstra <peterz@infradead.org>, Russell King <linux@armlinux.org.uk>, Stafford Horne <shorne@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, clang-built-linux@googlegroups.com, iommu@lists.linux-foundation.org, linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-mm@kvack.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, sparclinux@vger.kernel.org, uclinux-h8-devel@lists.sourceforge.jp, x86@kernel.org, Jonathan Cameron <Jonathan.Cameron@huawei.com>
+To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On 9/1/20 9:11 AM, Anshuman Khandual wrote:
+> 
+> 
+> On 08/27/2020 01:34 PM, Aneesh Kumar K.V wrote:
+>> This will help in adding proper locks in a later patch
+> 
+> It really makes sense to classify these tests here as static and dynamic.
+> Static are the ones that test via page table entry values modification
+> without changing anything on the actual page table itself. Where as the
+> dynamic tests do change the page table. Static tests would probably never
+> require any lock synchronization but the dynamic ones will do.
+> 
+>>
+>> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+>> ---
+>>   mm/debug_vm_pgtable.c | 52 ++++++++++++++++++++++++-------------------
+>>   1 file changed, 29 insertions(+), 23 deletions(-)
+>>
+>> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+>> index 0ce5c6a24c5b..78c8af3445ac 100644
+>> --- a/mm/debug_vm_pgtable.c
+>> +++ b/mm/debug_vm_pgtable.c
+>> @@ -992,7 +992,7 @@ static int __init debug_vm_pgtable(void)
+>>   	p4dp = p4d_alloc(mm, pgdp, vaddr);
+>>   	pudp = pud_alloc(mm, p4dp, vaddr);
+>>   	pmdp = pmd_alloc(mm, pudp, vaddr);
+>> -	ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
+>> +	ptep = pte_alloc_map(mm, pmdp, vaddr);
+>>   
+>>   	/*
+>>   	 * Save all the page table page addresses as the page table
+>> @@ -1012,33 +1012,12 @@ static int __init debug_vm_pgtable(void)
+>>   	p4d_basic_tests(p4d_aligned, prot);
+>>   	pgd_basic_tests(pgd_aligned, prot);
+>>   
+>> -	pte_clear_tests(mm, ptep, vaddr);
+>> -	pmd_clear_tests(mm, pmdp);
+>> -	pud_clear_tests(mm, pudp);
+>> -	p4d_clear_tests(mm, p4dp);
+>> -	pgd_clear_tests(mm, pgdp);
+>> -
+>> -	pte_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
+>> -	pmd_advanced_tests(mm, vma, pmdp, pmd_aligned, vaddr, prot, saved_ptep);
+>> -	pud_advanced_tests(mm, vma, pudp, pud_aligned, vaddr, prot);
+>> -	hugetlb_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
+>> -
+>>   	pmd_leaf_tests(pmd_aligned, prot);
+>>   	pud_leaf_tests(pud_aligned, prot);
+>>   
+>> -	pmd_huge_tests(pmdp, pmd_aligned, prot);
+>> -	pud_huge_tests(pudp, pud_aligned, prot);
+>> -
+>>   	pte_savedwrite_tests(pte_aligned, protnone);
+>>   	pmd_savedwrite_tests(pmd_aligned, protnone);
+>>   
+>> -	pte_unmap_unlock(ptep, ptl);
+>> -
+>> -	pmd_populate_tests(mm, pmdp, saved_ptep);
+>> -	pud_populate_tests(mm, pudp, saved_pmdp);
+>> -	p4d_populate_tests(mm, p4dp, saved_pudp);
+>> -	pgd_populate_tests(mm, pgdp, saved_p4dp);
+>> -
+>>   	pte_special_tests(pte_aligned, prot);
+>>   	pte_protnone_tests(pte_aligned, protnone);
+>>   	pmd_protnone_tests(pmd_aligned, protnone);
+>> @@ -1056,11 +1035,38 @@ static int __init debug_vm_pgtable(void)
+>>   	pmd_swap_tests(pmd_aligned, prot);
+>>   
+>>   	swap_migration_tests();
+>> -	hugetlb_basic_tests(pte_aligned, prot);
+>>   
+>>   	pmd_thp_tests(pmd_aligned, prot);
+>>   	pud_thp_tests(pud_aligned, prot);
+>>   
+>> +	/*
+>> +	 * Page table modifying tests
+>> +	 */
+> 
+> In this comment, please do add some more details about how these tests
+> need proper locking mechanism unlike the previous static ones. Also add
+> a similar comment section for the static tests that dont really change
+> page table and need not require corresponding locking mechanism. Both
+> comment sections will make this classification clear.
+> 
+>> +	pte_clear_tests(mm, ptep, vaddr);
+>> +	pmd_clear_tests(mm, pmdp);
+>> +	pud_clear_tests(mm, pudp);
+>> +	p4d_clear_tests(mm, p4dp);
+>> +	pgd_clear_tests(mm, pgdp);
+>> +
+>> +	ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
+>> +	pte_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
+>> +	pmd_advanced_tests(mm, vma, pmdp, pmd_aligned, vaddr, prot, saved_ptep);
+>> +	pud_advanced_tests(mm, vma, pudp, pud_aligned, vaddr, prot);
+>> +	hugetlb_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
+>> +
+>> +
+>> +	pmd_huge_tests(pmdp, pmd_aligned, prot);
+>> +	pud_huge_tests(pudp, pud_aligned, prot);
+>> +
+>> +	pte_unmap_unlock(ptep, ptl);
+>> +
+>> +	pmd_populate_tests(mm, pmdp, saved_ptep);
+>> +	pud_populate_tests(mm, pudp, saved_pmdp);
+>> +	p4d_populate_tests(mm, p4dp, saved_pudp);
+>> +	pgd_populate_tests(mm, pgdp, saved_p4dp);
+>> +
+>> +	hugetlb_basic_tests(pte_aligned, prot);
+> 
+> hugetlb_basic_tests() is a non page table modifying static test and
+> should be classified accordingly.
+> 
+>> +
+>>   	p4d_free(mm, saved_p4dp);
+>>   	pud_free(mm, saved_pudp);
+>>   	pmd_free(mm, saved_pmdp);
+>>
+> 
+> Changes till this patch fails to boot on arm64 platform. This should be
+> folded with the next patch.
+> 
+> [   17.080644] ------------[ cut here ]------------
+> [   17.081342] kernel BUG at mm/pgtable-generic.c:164!
+> [   17.082091] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+> [   17.082977] Modules linked in:
+> [   17.083481] CPU: 79 PID: 1 Comm: swapper/0 Tainted: G        W         5.9.0-rc2-00105-g740e72cd6717 #14
+> [   17.084998] Hardware name: linux,dummy-virt (DT)
+> [   17.085745] pstate: 60400005 (nZCv daif +PAN -UAO BTYPE=--)
+> [   17.086645] pc : pgtable_trans_huge_deposit+0x58/0x60
+> [   17.087462] lr : debug_vm_pgtable+0x4dc/0x8f0
+> [   17.088168] sp : ffff80001219bcf0
+> [   17.088710] x29: ffff80001219bcf0 x28: ffff8000114ac000
+> [   17.089574] x27: ffff8000114ac000 x26: 0020000000000fd3
+> [   17.090431] x25: 0020000081400fd3 x24: fffffe00175c12c0
+> [   17.091286] x23: ffff0005df04d1a8 x22: 0000f18d6e035000
+> [   17.092143] x21: ffff0005dd790000 x20: ffff0005df18e1a8
+> [   17.093003] x19: ffff0005df04cb80 x18: 0000000000000014
+> [   17.093859] x17: 00000000b76667d0 x16: 00000000fd4e6611
+> [   17.094716] x15: 0000000000000001 x14: 0000000000000002
+> [   17.095572] x13: 000000000055d966 x12: fffffe001755e400
+> [   17.096429] x11: 0000000000000008 x10: ffff0005fcb6e210
+> [   17.097292] x9 : ffff0005fcb6e210 x8 : 0020000081590fd3
+> [   17.098149] x7 : ffff0005dd71e0c0 x6 : ffff0005df18e1a8
+> [   17.099006] x5 : 0020000081590fd3 x4 : 0020000081590fd3
+> [   17.099862] x3 : ffff0005df18e1a8 x2 : fffffe00175c12c0
+> [   17.100718] x1 : fffffe00175c1300 x0 : 0000000000000000
+> [   17.101583] Call trace:
+> [   17.101993]  pgtable_trans_huge_deposit+0x58/0x60
+> [   17.102754]  do_one_initcall+0x74/0x1cc
+> [   17.103381]  kernel_init_freeable+0x1d0/0x238
+> [   17.104089]  kernel_init+0x14/0x118
+> [   17.104658]  ret_from_fork+0x10/0x34
+> [   17.105251] Code: f9000443 f9000843 f9000822 d65f03c0 (d4210000)
+> [   17.106303] ---[ end trace e63471e00f8c147f ]---
+> 
 
-dummy_numa_init() loops over memblock.memory and passes nid=0 to
-numa_add_memblk() which essentially wraps memblock_set_node(). However,
-memblock_set_node() can cope with entire memory span itself, so the loop
-over memblock.memory regions is redundant.
+IIUC, this should happen even without the series right? This is
 
-Using a single call to memblock_set_node() rather than a loop also fixes an
-issue with a buggy ACPI firmware in which the SRAT table covers some but
-not all of the memory in the EFI memory map.
+	assert_spin_locked(pmd_lockptr(mm, pmdp));
 
-Jonathan Cameron says:
 
-  This issue can be easily triggered by having an SRAT table which fails
-  to cover all elements of the EFI memory map.
-
-  This firmware error is detected and a warning printed. e.g.
-  "NUMA: Warning: invalid memblk node 64 [mem 0x240000000-0x27fffffff]"
-  At that point we fall back to dummy_numa_init().
-
-  However, the failed ACPI init has left us with our memblocks all broken
-  up as we split them when trying to assign them to NUMA nodes.
-
-  We then iterate over the memblocks and add them to node 0.
-
-  numa_add_memblk() calls memblock_set_node() which merges regions that
-  were previously split up during the earlier attempt to add them to different
-  nodes during parsing of SRAT.
-
-  This means elements are moved in the memblock array and we can end up
-  in a different memblock after the call to numa_add_memblk().
-  Result is:
-
-  Unable to handle kernel paging request at virtual address 0000000000003a40
-  Mem abort info:
-    ESR = 0x96000004
-    EC = 0x25: DABT (current EL), IL = 32 bits
-    SET = 0, FnV = 0
-    EA = 0, S1PTW = 0
-  Data abort info:
-    ISV = 0, ISS = 0x00000004
-    CM = 0, WnR = 0
-  [0000000000003a40] user address but active_mm is swapper
-  Internal error: Oops: 96000004 [#1] PREEMPT SMP
-
-  ...
-
-  Call trace:
-    sparse_init_nid+0x5c/0x2b0
-    sparse_init+0x138/0x170
-    bootmem_init+0x80/0xe0
-    setup_arch+0x2a0/0x5fc
-    start_kernel+0x8c/0x648
-
-Replace the loop with a single call to memblock_set_node() to the entire
-memory.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
----
- arch/arm64/mm/numa.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
-
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index 73f8b49d485c..8a97cd3d2dfe 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -423,19 +423,16 @@ static int __init numa_init(int (*init_func)(void))
-  */
- static int __init dummy_numa_init(void)
- {
-+	phys_addr_t start = memblock_start_of_DRAM();
-+	phys_addr_t end = memblock_end_of_DRAM();
- 	int ret;
--	struct memblock_region *mblk;
- 
- 	if (numa_off)
- 		pr_info("NUMA disabled\n"); /* Forced off on command line. */
--	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n",
--		memblock_start_of_DRAM(), memblock_end_of_DRAM() - 1);
--
--	for_each_memblock(memory, mblk) {
--		ret = numa_add_memblk(0, mblk->base, mblk->base + mblk->size);
--		if (!ret)
--			continue;
-+	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n", start, end - 1);
- 
-+	ret = numa_add_memblk(0, start, end);
-+	if (ret) {
- 		pr_err("NUMA init failed\n");
- 		return ret;
- 	}
--- 
-2.26.2
+-aneesh
