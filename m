@@ -1,67 +1,130 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44340 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728554AbgHTXTz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 20 Aug 2020 19:19:55 -0400
-From: Nicolin Chen <nicoleotsuka@gmail.com>
-Subject: [RFT][PATCH 0/7] Avoid overflow at boundary_size
-Date: Thu, 20 Aug 2020 16:19:23 -0700
-Message-Id: <20200820231923.23678-1-nicoleotsuka@gmail.com>
+Received: from foss.arm.com ([217.140.110.172]:35748 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726020AbgIADOF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 31 Aug 2020 23:14:05 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH v3 02/13] powerpc/mm: Move setting pte specific flags to
+ pfn_pte
+References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+ <20200827080438.315345-3-aneesh.kumar@linux.ibm.com>
+Message-ID: <5b3f0db6-09f6-3f40-c9fc-911814d691bb@arm.com>
+Date: Tue, 1 Sep 2020 08:43:28 +0530
+MIME-Version: 1.0
+In-Reply-To: <20200827080438.315345-3-aneesh.kumar@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, tony.luck@intel.com, fenghua.yu@intel.com, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, davem@davemloft.net, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de
-Cc: sfr@canb.auug.org.au, hch@lst.de, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-parisc@vger.kernel.org
+To: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>
 
-We are expending the default DMA segmentation boundary to its
-possible maximum value (ULONG_MAX) to indicate that a device
-doesn't specify a boundary limit. So all dma_get_seg_boundary
-callers should take a precaution with the return values since
-it would easily get overflowed.
 
-I scanned the entire kernel tree for all the existing callers
-and found that most of callers may get overflowed in two ways:
-either "+ 1" or passing it to ALIGN() that does "+ mask".
 
-According to kernel defines:
-    #define ALIGN_MASK(x, mask) (((x) + (mask)) & ~(mask))
-    #define ALIGN(x, a)	ALIGN_MASK(x, (typeof(x))(a) - 1)
+On 08/27/2020 01:34 PM, Aneesh Kumar K.V wrote:
+> powerpc used to set the pte specific flags in set_pte_at(). This is different
+> from other architectures. To be consistent with other architecture update
+> pfn_pte to set _PAGE_PTE on ppc64. Also, drop now unused pte_mkpte.
+> 
+> We add a VM_WARN_ON() to catch the usage of calling set_pte_at() without setting
+> _PAGE_PTE bit. We will remove that after a few releases.
+> 
+> With respect to huge pmd entries, pmd_mkhuge() takes care of adding the
+> _PAGE_PTE bit.
+> 
+> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+> ---
+>  arch/powerpc/include/asm/book3s/64/pgtable.h | 15 +++++++++------
+>  arch/powerpc/include/asm/nohash/pgtable.h    |  5 -----
+>  arch/powerpc/mm/pgtable.c                    |  5 -----
+>  3 files changed, 9 insertions(+), 16 deletions(-)
+> 
+> diff --git a/arch/powerpc/include/asm/book3s/64/pgtable.h b/arch/powerpc/include/asm/book3s/64/pgtable.h
+> index 079211968987..2382fd516f6b 100644
+> --- a/arch/powerpc/include/asm/book3s/64/pgtable.h
+> +++ b/arch/powerpc/include/asm/book3s/64/pgtable.h
+> @@ -619,7 +619,7 @@ static inline pte_t pfn_pte(unsigned long pfn, pgprot_t pgprot)
+>  	VM_BUG_ON(pfn >> (64 - PAGE_SHIFT));
+>  	VM_BUG_ON((pfn << PAGE_SHIFT) & ~PTE_RPN_MASK);
+>  
+> -	return __pte(((pte_basic_t)pfn << PAGE_SHIFT) | pgprot_val(pgprot));
+> +	return __pte(((pte_basic_t)pfn << PAGE_SHIFT) | pgprot_val(pgprot) | _PAGE_PTE);
+>  }
+>  
+>  static inline unsigned long pte_pfn(pte_t pte)
+> @@ -655,11 +655,6 @@ static inline pte_t pte_mkexec(pte_t pte)
+>  	return __pte_raw(pte_raw(pte) | cpu_to_be64(_PAGE_EXEC));
+>  }
+>  
+> -static inline pte_t pte_mkpte(pte_t pte)
+> -{
+> -	return __pte_raw(pte_raw(pte) | cpu_to_be64(_PAGE_PTE));
+> -}
+> -
+>  static inline pte_t pte_mkwrite(pte_t pte)
+>  {
+>  	/*
+> @@ -823,6 +818,14 @@ static inline int pte_none(pte_t pte)
+>  static inline void __set_pte_at(struct mm_struct *mm, unsigned long addr,
+>  				pte_t *ptep, pte_t pte, int percpu)
+>  {
+> +
+> +	VM_WARN_ON(!(pte_raw(pte) & cpu_to_be64(_PAGE_PTE)));
+> +	/*
+> +	 * Keep the _PAGE_PTE added till we are sure we handle _PAGE_PTE
+> +	 * in all the callers.
+> +	 */
+> +	 pte = __pte_raw(pte_raw(pte) | cpu_to_be64(_PAGE_PTE));
+> +
+>  	if (radix_enabled())
+>  		return radix__set_pte_at(mm, addr, ptep, pte, percpu);
+>  	return hash__set_pte_at(mm, addr, ptep, pte, percpu);
+> diff --git a/arch/powerpc/include/asm/nohash/pgtable.h b/arch/powerpc/include/asm/nohash/pgtable.h
+> index 4b7c3472eab1..6277e7596ae5 100644
+> --- a/arch/powerpc/include/asm/nohash/pgtable.h
+> +++ b/arch/powerpc/include/asm/nohash/pgtable.h
+> @@ -140,11 +140,6 @@ static inline pte_t pte_mkold(pte_t pte)
+>  	return __pte(pte_val(pte) & ~_PAGE_ACCESSED);
+>  }
+>  
+> -static inline pte_t pte_mkpte(pte_t pte)
+> -{
+> -	return pte;
+> -}
+> -
+>  static inline pte_t pte_mkspecial(pte_t pte)
+>  {
+>  	return __pte(pte_val(pte) | _PAGE_SPECIAL);
+> diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
+> index 9c0547d77af3..ab57b07ef39a 100644
+> --- a/arch/powerpc/mm/pgtable.c
+> +++ b/arch/powerpc/mm/pgtable.c
+> @@ -184,9 +184,6 @@ void set_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep,
+>  	 */
+>  	VM_WARN_ON(pte_hw_valid(*ptep) && !pte_protnone(*ptep));
+>  
+> -	/* Add the pte bit when trying to set a pte */
+> -	pte = pte_mkpte(pte);
+> -
+>  	/* Note: mm->context.id might not yet have been assigned as
+>  	 * this context might not have been activated yet when this
+>  	 * is called.
+> @@ -275,8 +272,6 @@ void set_huge_pte_at(struct mm_struct *mm, unsigned long addr, pte_t *ptep, pte_
+>  	 */
+>  	VM_WARN_ON(pte_hw_valid(*ptep) && !pte_protnone(*ptep));
+>  
+> -	pte = pte_mkpte(pte);
+> -
+>  	pte = set_pte_filter(pte);
+>  
+>  	val = pte_val(pte);
+> 
 
-We can simplify the logic here:
-  ALIGN(boundary + 1, 1 << shift) >> shift
-= ALIGN_MASK(b + 1, (1 << s) - 1) >> s
-= {[b + 1 + (1 << s) - 1] & ~[(1 << s) - 1]} >> s
-= [b + 1 + (1 << s) - 1] >> s
-= [b + (1 << s)] >> s
-= (b >> s) + 1
+There is one checkpatch.pl warning for this patch.
 
-So this series of patches fix the potential overflow with this
-overflow-free shortcut.
+WARNING: Possible unwrapped commit description (prefer a maximum 75 chars per line)
+#6: 
+powerpc used to set the pte specific flags in set_pte_at(). This is different
 
-As I don't think that I have these platforms, marking RFT.
-
-Thanks
-Nic
-
-Nicolin Chen (7):
-  powerpc/iommu: Avoid overflow at boundary_size
-  alpha: Avoid overflow at boundary_size
-  ia64/sba_iommu: Avoid overflow at boundary_size
-  s390/pci_dma: Avoid overflow at boundary_size
-  sparc: Avoid overflow at boundary_size
-  x86/amd_gart: Avoid overflow at boundary_size
-  parisc: Avoid overflow at boundary_size
-
- arch/alpha/kernel/pci_iommu.c    | 10 ++++------
- arch/ia64/hp/common/sba_iommu.c  |  4 ++--
- arch/powerpc/kernel/iommu.c      | 11 +++++------
- arch/s390/pci/pci_dma.c          |  4 ++--
- arch/sparc/kernel/iommu-common.c |  9 +++------
- arch/sparc/kernel/iommu.c        |  4 ++--
- arch/sparc/kernel/pci_sun4v.c    |  4 ++--
- arch/x86/kernel/amd_gart_64.c    |  4 ++--
- drivers/parisc/ccio-dma.c        |  4 ++--
- drivers/parisc/sba_iommu.c       |  4 ++--
- 10 files changed, 26 insertions(+), 32 deletions(-)
-
--- 
-2.17.1
+total: 0 errors, 1 warnings, 61 lines checked
