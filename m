@@ -1,119 +1,148 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9250 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729172AbgICTxk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 15:53:40 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 3/4] net/smc: reset sndbuf_desc if freed
-Date: Thu,  3 Sep 2020 21:53:17 +0200
-Message-Id: <20200903195318.39288-4-kgraul@linux.ibm.com>
-In-Reply-To: <20200903195318.39288-1-kgraul@linux.ibm.com>
-References: <20200903195318.39288-1-kgraul@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45120 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726144AbgIBEjw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Sep 2020 00:39:52 -0400
+Subject: Re: [PATCH v3 13/13] mm/debug_vm_pgtable: populate a pte entry before
+ fetching it
+References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+ <20200827080438.315345-14-aneesh.kumar@linux.ibm.com>
+ <edc68223-7f8a-13df-68eb-9682f585adb8@arm.com>
+ <abef1791-8779-6b34-3178-3bf3ab36d42b@linux.ibm.com>
+ <e3140b44-993e-aa4b-130d-ee2230eff2b5@arm.com>
+ <7ef7c302-e7e6-570e-3100-5dd1bf9551be@linux.ibm.com>
+ <4ba15b8f-ac90-17ec-9b95-0451e2a38e98@arm.com>
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Message-ID: <7de344c3-26ea-be34-4435-8842360ed565@linux.ibm.com>
+Date: Wed, 2 Sep 2020 09:28:08 +0530
+MIME-Version: 1.0
+In-Reply-To: <4ba15b8f-ac90-17ec-9b95-0451e2a38e98@arm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+On 9/2/20 9:19 AM, Anshuman Khandual wrote:
+> 
+> 
+> On 09/01/2020 03:28 PM, Aneesh Kumar K.V wrote:
+>> On 9/1/20 1:08 PM, Anshuman Khandual wrote:
+>>>
+>>>
+>>> On 09/01/2020 12:07 PM, Aneesh Kumar K.V wrote:
+>>>> On 9/1/20 8:55 AM, Anshuman Khandual wrote:
+>>>>>
+>>>>>
+>>>>> On 08/27/2020 01:34 PM, Aneesh Kumar K.V wrote:
+>>>>>> pte_clear_tests operate on an existing pte entry. Make sure that is not a none
+>>>>>> pte entry.
+>>>>>>
+>>>>>> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+>>>>>> ---
+>>>>>>     mm/debug_vm_pgtable.c | 6 ++++--
+>>>>>>     1 file changed, 4 insertions(+), 2 deletions(-)
+>>>>>>
+>>>>>> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+>>>>>> index 21329c7d672f..8527ebb75f2c 100644
+>>>>>> --- a/mm/debug_vm_pgtable.c
+>>>>>> +++ b/mm/debug_vm_pgtable.c
+>>>>>> @@ -546,7 +546,7 @@ static void __init pgd_populate_tests(struct mm_struct *mm, pgd_t *pgdp,
+>>>>>>     static void __init pte_clear_tests(struct mm_struct *mm, pte_t *ptep,
+>>>>>>                        unsigned long vaddr)
+>>>>>>     {
+>>>>>> -    pte_t pte = ptep_get(ptep);
+>>>>>> +    pte_t pte =  ptep_get_and_clear(mm, vaddr, ptep);
+>>>>>
+>>>>> Seems like ptep_get_and_clear() here just clears the entry in preparation
+>>>>> for a following set_pte_at() which otherwise would have been a problem on
+>>>>> ppc64 as you had pointed out earlier i.e set_pte_at() should not update an
+>>>>> existing valid entry. So the commit message here is bit misleading.
+>>>>>
+>>>>
+>>>> and also fetch the pte value which is used further.
+>>>>
+>>>>
+>>>>>>           pr_debug("Validating PTE clear\n");
+>>>>>>         pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
+>>>>>> @@ -944,7 +944,7 @@ static int __init debug_vm_pgtable(void)
+>>>>>>         p4d_t *p4dp, *saved_p4dp;
+>>>>>>         pud_t *pudp, *saved_pudp;
+>>>>>>         pmd_t *pmdp, *saved_pmdp, pmd;
+>>>>>> -    pte_t *ptep;
+>>>>>> +    pte_t *ptep, pte;
+>>>>>>         pgtable_t saved_ptep;
+>>>>>>         pgprot_t prot, protnone;
+>>>>>>         phys_addr_t paddr;
+>>>>>> @@ -1049,6 +1049,8 @@ static int __init debug_vm_pgtable(void)
+>>>>>>          */
+>>>>>>           ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
+>>>>>> +    pte = pfn_pte(pte_aligned, prot);
+>>>>>> +    set_pte_at(mm, vaddr, ptep, pte);
+>>>>>
+>>>>> Not here, creating and populating an entry must be done in respective
+>>>>> test functions itself. Besides, this seems bit redundant as well. The
+>>>>> test pte_clear_tests() with the above change added, already
+>>>>>
+>>>>> - Clears the PTEP entry with ptep_get_and_clear()
+>>>>
+>>>> and fetch the old value set previously.
+>>>
+>>> In that case, please move above two lines i.e
+>>>
+>>> pte = pfn_pte(pte_aligned, prot);
+>>> set_pte_at(mm, vaddr, ptep, pte);
+>>>
+>>> from debug_vm_pgtable() to pte_clear_tests() and update it's arguments
+>>> as required.
+>>>
+>>
+>> Frankly, I don't understand what these tests are testing. It all looks like some random clear and set.
+> 
+> The idea here is to have some value with some randomness preferably, in
+> a given PTEP before attempting to clear the entry, in order to make sure
+> that pte_clear() is indeed clearing something of non-zero value.
+> 
+>>
+>> static void __init pte_clear_tests(struct mm_struct *mm, pte_t *ptep,
+>>                     unsigned long vaddr, unsigned long pfn,
+>>                     pgprot_t prot)
+>> {
+>>
+>>      pte_t pte = pfn_pte(pfn, prot);
+>>      set_pte_at(mm, vaddr, ptep, pte);
+>>
+>>      pte =  ptep_get_and_clear(mm, vaddr, ptep);
+> 
+> Looking at this again, this preceding pfn_pte() followed by set_pte_at()
+> is not really required. Its reasonable to start with what ever was there
+> in the PTEP as a seed value which anyway gets added with RANDOM_ORVALUE.
+> s/ptep_get/ptep_get_and_clear is sufficient to take care of the powerpc
+> set_pte_at() constraint.
+> 
 
-When an SMC connection is created, and there is a problem to
-create an RMB or DMB, the previously created send buffer is
-thrown away as well including buffer descriptor freeing.
-Make sure the connection no longer references the freed
-buffer descriptor, otherwise bugs like this are possible:
+But the way test is written we had none pte before. That is why I added 
+that set_pte_at to put something there. With none pte the below sequence 
+fails.
 
-[71556.835148] =============================================================================
-[71556.835168] BUG kmalloc-128 (Tainted: G    B      OE    ): Poison overwritten
-[71556.835172] -----------------------------------------------------------------------------
+	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
+	set_pte_at(mm, vaddr, ptep, pte);
 
-[71556.835179] INFO: 0x00000000d20894be-0x00000000aaef63e9 @offset=2724. First byte 0x0 instead of 0x6b
-[71556.835215] INFO: Allocated in __smc_buf_create+0x184/0x578 [smc] age=0 cpu=5 pid=46726
-[71556.835234]     ___slab_alloc+0x5a4/0x690
-[71556.835239]     __slab_alloc.constprop.0+0x70/0xb0
-[71556.835243]     kmem_cache_alloc_trace+0x38e/0x3f8
-[71556.835250]     __smc_buf_create+0x184/0x578 [smc]
-[71556.835257]     smc_buf_create+0x2e/0xe8 [smc]
-[71556.835264]     smc_listen_work+0x516/0x6a0 [smc]
-[71556.835275]     process_one_work+0x280/0x478
-[71556.835280]     worker_thread+0x66/0x368
-[71556.835287]     kthread+0x17a/0x1a0
-[71556.835294]     ret_from_fork+0x28/0x2c
-[71556.835301] INFO: Freed in smc_buf_create+0xd8/0xe8 [smc] age=0 cpu=5 pid=46726
-[71556.835307]     __slab_free+0x246/0x560
-[71556.835311]     kfree+0x398/0x3f8
-[71556.835318]     smc_buf_create+0xd8/0xe8 [smc]
-[71556.835324]     smc_listen_work+0x516/0x6a0 [smc]
-[71556.835328]     process_one_work+0x280/0x478
-[71556.835332]     worker_thread+0x66/0x368
-[71556.835337]     kthread+0x17a/0x1a0
-[71556.835344]     ret_from_fork+0x28/0x2c
-[71556.835348] INFO: Slab 0x00000000a0744551 objects=51 used=51 fp=0x0000000000000000 flags=0x1ffff00000010200
-[71556.835352] INFO: Object 0x00000000563480a1 @offset=2688 fp=0x00000000289567b2
 
-[71556.835359] Redzone 000000006783cde2: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-[71556.835363] Redzone 00000000e35b876e: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-[71556.835367] Redzone 0000000023074562: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-[71556.835372] Redzone 00000000b9564b8c: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-[71556.835376] Redzone 00000000810c6362: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-[71556.835380] Redzone 0000000065ef52c3: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-[71556.835384] Redzone 00000000c5dd6984: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-[71556.835388] Redzone 000000004c480f8f: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
-[71556.835392] Object 00000000563480a1: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-[71556.835397] Object 000000009c479d06: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-[71556.835401] Object 000000006e1dce92: 6b 6b 6b 6b 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b  kkkk....kkkkkkkk
-[71556.835405] Object 00000000227f7cf8: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-[71556.835410] Object 000000009a701215: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-[71556.835414] Object 000000003731ce76: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-[71556.835418] Object 00000000f7085967: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
-[71556.835422] Object 0000000007f99927: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5  kkkkkkkkkkkkkkk.
-[71556.835427] Redzone 00000000579c4913: bb bb bb bb bb bb bb bb                          ........
-[71556.835431] Padding 00000000305aef82: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
-[71556.835435] Padding 00000000b1cdd722: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
-[71556.835438] Padding 00000000c7568199: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
-[71556.835442] Padding 00000000fad4c4d4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
-[71556.835451] CPU: 0 PID: 47939 Comm: kworker/0:15 Tainted: G    B      OE     5.9.0-rc1uschi+ #54
-[71556.835456] Hardware name: IBM 3906 M03 703 (LPAR)
-[71556.835464] Workqueue: events smc_listen_work [smc]
-[71556.835470] Call Trace:
-[71556.835478]  [<00000000d5eaeb10>] show_stack+0x90/0xf8
-[71556.835493]  [<00000000d66fc0f8>] dump_stack+0xa8/0xe8
-[71556.835499]  [<00000000d61a511c>] check_bytes_and_report+0x104/0x130
-[71556.835504]  [<00000000d61a57b2>] check_object+0x26a/0x2e0
-[71556.835509]  [<00000000d61a59bc>] alloc_debug_processing+0x194/0x238
-[71556.835514]  [<00000000d61a8c14>] ___slab_alloc+0x5a4/0x690
-[71556.835519]  [<00000000d61a9170>] __slab_alloc.constprop.0+0x70/0xb0
-[71556.835524]  [<00000000d61aaf66>] kmem_cache_alloc_trace+0x38e/0x3f8
-[71556.835530]  [<000003ff80549bbc>] __smc_buf_create+0x184/0x578 [smc]
-[71556.835538]  [<000003ff8054a396>] smc_buf_create+0x2e/0xe8 [smc]
-[71556.835545]  [<000003ff80540c16>] smc_listen_work+0x516/0x6a0 [smc]
-[71556.835549]  [<00000000d5f0f448>] process_one_work+0x280/0x478
-[71556.835554]  [<00000000d5f0f6a6>] worker_thread+0x66/0x368
-[71556.835559]  [<00000000d5f18692>] kthread+0x17a/0x1a0
-[71556.835563]  [<00000000d6abf3b8>] ret_from_fork+0x28/0x2c
-[71556.835569] INFO: lockdep is turned off.
-[71556.835573] FIX kmalloc-128: Restoring 0x00000000d20894be-0x00000000aaef63e9=0x6b
+because nobody is marking a _PAGE_PTE there.
 
-[71556.835577] FIX kmalloc-128: Marking all objects used
+	pte_t pte = pfn_pte(pfn, prot);
 
-Fixes: fd7f3a746582 ("net/smc: remove freed buffer from list")
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 1 +
- 1 file changed, 1 insertion(+)
+	pr_debug("Validating PTE clear\n");
+	pte = __pte(pte_val(pte) | RANDOM_ORVALUE);
+	set_pte_at(mm, vaddr, ptep, pte);
+	barrier();
+	pte_clear(mm, vaddr, ptep);
+	pte = ptep_get(ptep);
+	WARN_ON(!pte_none(pte));
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index a6ac0eb20c99..a406627b1d55 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1779,6 +1779,7 @@ int smc_buf_create(struct smc_sock *smc, bool is_smcd)
- 		list_del(&smc->conn.sndbuf_desc->list);
- 		mutex_unlock(&smc->conn.lgr->sndbufs_lock);
- 		smc_buf_free(smc->conn.lgr, false, smc->conn.sndbuf_desc);
-+		smc->conn.sndbuf_desc = NULL;
- 	}
- 	return rc;
- }
--- 
-2.17.1
+will that work for you?
+
+-aneesh
