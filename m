@@ -1,60 +1,38 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59398 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726547AbgIUHUR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 03:20:17 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 14/14] block: mark blkdev_get static
-Date: Mon, 21 Sep 2020 09:19:58 +0200
-Message-Id: <20200921071958.307589-15-hch@lst.de>
-In-Reply-To: <20200921071958.307589-1-hch@lst.de>
-References: <20200921071958.307589-1-hch@lst.de>
+Received: from mx2.suse.de ([195.135.220.15]:60722 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726140AbgIBJ05 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 2 Sep 2020 05:26:57 -0400
+Date: Wed, 2 Sep 2020 11:26:55 +0200 (CEST)
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: Re: [PATCH v2 2/3] arm64: stacktrace: Make stack walk callback
+ consistent with generic code
+In-Reply-To: <20200819124913.37261-3-broonie@kernel.org>
+Message-ID: <alpine.LSU.2.21.2009021126360.23200@pobox.suse.cz>
+References: <20200819124913.37261-1-broonie@kernel.org> <20200819124913.37261-3-broonie@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-There are no users outside the core block code left now.
+On Wed, 19 Aug 2020, Mark Brown wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/block_dev.c         | 3 +--
- include/linux/blkdev.h | 1 -
- 2 files changed, 1 insertion(+), 3 deletions(-)
+> As with the generic arch_stack_walk() code the arm64 stack walk code takes
+> a callback that is called per stack frame. Currently the arm64 code always
+> passes a struct stackframe to the callback and the generic code just passes
+> the pc, however none of the users ever reference anything in the struct
+> other than the pc value. The arm64 code also uses a return type of int
+> while the generic code uses a return type of bool though in both cases the
+> return value is a boolean value.
+> 
+> In order to reduce code duplication when arm64 is converted to use
+> arch_stack_walk() change the signature of the arm64 specific callback to
+> match that of the generic code.
+> 
+> Signed-off-by: Mark Brown <broonie@kernel.org>
 
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 2898d69be6b3e4..6b9d19ffa5af7b 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1616,7 +1616,7 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, void *holder,
-  * RETURNS:
-  * 0 on success, -errno on failure.
-  */
--int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder)
-+static int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder)
- {
- 	int ret, perm = 0;
- 
-@@ -1637,7 +1637,6 @@ int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder)
- 	bdput(bdev);
- 	return ret;
- }
--EXPORT_SYMBOL(blkdev_get);
- 
- /**
-  * blkdev_get_by_path - open a block device by name
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 5bd96fbab9b4c8..14117995091224 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1975,7 +1975,6 @@ void blkdev_show(struct seq_file *seqf, off_t offset);
- #define BLKDEV_MAJOR_MAX	0
- #endif
- 
--int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder);
- struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
- 		void *holder);
- struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode, void *holder);
--- 
-2.28.0
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+
+M
