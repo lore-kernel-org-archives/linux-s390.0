@@ -1,86 +1,47 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:45983 "EHLO mga01.intel.com"
+Received: from foss.arm.com ([217.140.110.172]:44940 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725848AbgIAJsd (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 1 Sep 2020 05:48:33 -0400
-From: "Tian, Kevin" <kevin.tian@intel.com>
-Subject: RE: [PATCH v3] PCI: Introduce flag for detached virtual functions
-Date: Tue, 1 Sep 2020 09:45:29 +0000
-Message-ID: <MWHPR11MB16451C94F2A2E7D57AEFE6E68C2E0@MWHPR11MB1645.namprd11.prod.outlook.com>
-References: <20200827203335.GA2101829@bjorn-Precision-5520>
- <babde252-4909-9d3b-e5dc-bae4e6a20cd1@linux.ibm.com>
-In-Reply-To: <babde252-4909-9d3b-e5dc-bae4e6a20cd1@linux.ibm.com>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726124AbgIBTDS (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 2 Sep 2020 15:03:18 -0400
+Date: Wed, 2 Sep 2020 20:03:06 +0100
+From: Mark Rutland <mark.rutland@arm.com>
+Subject: Re: [PATCH v2 0/3] arm64: Convert to ARCH_STACKWALK
+Message-ID: <20200902190306.GB5875@C02TD0UTHF1T.local>
+References: <20200819124913.37261-1-broonie@kernel.org>
+ <20200901160626.GE95447@C02TD0UTHF1T.local>
+ <20200902173803.GE6162@sirena.org.uk>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200902173803.GE6162@sirena.org.uk>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Niklas Schnelle <schnelle@linux.ibm.com>, Bjorn Helgaas <helgaas@kernel.org>, Alex Williamson <alex.williamson@redhat.com>
-Cc: Matthew Rosato <mjrosato@linux.ibm.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "pmorel@linux.ibm.com" <pmorel@linux.ibm.com>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "oohall@gmail.com" <oohall@gmail.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "Raj, Ashok" <ashok.raj@intel.com>, "Pan, Jacob jun" <jacob.jun.pan@intel.com>, "Liu, Yi L" <yi.l.liu@intel.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>
 
-PiBGcm9tOiBrdm0tb3duZXJAdmdlci5rZXJuZWwub3JnIDxrdm0tb3duZXJAdmdlci5rZXJuZWwu
-b3JnPiBPbiBCZWhhbGYNCj4gT2YgTmlrbGFzIFNjaG5lbGxlDQo+IFNlbnQ6IEZyaWRheSwgQXVn
-dXN0IDI4LCAyMDIwIDU6MTAgUE0NCj4gVG86IEJqb3JuIEhlbGdhYXMgPGhlbGdhYXNAa2VybmVs
-Lm9yZz47IEFsZXggV2lsbGlhbXNvbg0KPiA8YWxleC53aWxsaWFtc29uQHJlZGhhdC5jb20+DQo+
-IA0KWy4uLl0NCj4gPj4NCj4gPj4gRldJVywgcGNpX3BoeXNmbigpIG5ldmVyIHJldHVybnMgTlVM
-TCwgaXQgcmV0dXJucyB0aGUgcHJvdmlkZWQgcGRldiBpZg0KPiA+PiBpc192aXJ0Zm4gaXMgbm90
-IHNldC4gIFRoaXMgcHJvcG9zYWwgd291bGRuJ3QgY2hhbmdlIHRoYXQgcmV0dXJuIHZhbHVlLg0K
-PiA+PiBBSVVJIHBjaV9waHlzZm4oKSwgdGhlIGNhbGxlciBuZWVkcyB0byB0ZXN0IHRoYXQgdGhl
-IHJldHVybmVkIGRldmljZSBpcw0KPiA+PiBkaWZmZXJlbnQgZnJvbSB0aGUgcHJvdmlkZWQgZGV2
-aWNlIGlmIHRoZXJlJ3MgcmVhbGx5IGNvZGUgdGhhdCB3YW50cyB0bw0KPiA+PiB0cmF2ZXJzZSB0
-byB0aGUgUEYuDQo+ID4NCj4gPiBPaCwgc28gdGhpcyBWRiBoYXMgaXNfdmlydGZuPT0wLiAgVGhh
-dCBzZWVtcyB3ZWlyZC4gIFRoZXJlIGFyZSBsb3RzIG9mDQo+ID4gb3RoZXIgd2F5cyB0aGF0IGEg
-VkYgaXMgZGlmZmVyZW50OiBWZW5kb3IvRGV2aWNlIElEcyBhcmUgMHhmZmZmLCBCQVJzDQo+ID4g
-YXJlIHplcm9lcywgZXRjLg0KPiA+DQo+ID4gSXQgc291bmRzIGxpa2UgeW91J3JlIHN3ZWVwaW5n
-IHRob3NlIHVuZGVyIHRoZSBydWcgYnkgYXZvaWRpbmcgdGhlDQo+ID4gbm9ybWFsIGVudW1lcmF0
-aW9uIHBhdGggKGUuZy4sIHlvdSBkb24ndCBoYXZlIHRvIHNpemUgdGhlIEJBUnMpLCBidXQNCj4g
-PiBpZiBpdCBhY3R1YWxseSBpcyBhIFZGLCBpdCBzZWVtcyBsaWtlIHRoZXJlIG1pZ2h0IGJlIGZl
-d2VyIHN1cnByaXNlcw0KPiA+IGlmIHdlIHRyZWF0IGl0IGFzIG9uZS4NCj4gPg0KPiA+IFdoeSBk
-b24ndCB5b3UganVzdCBzZXQgaXNfdmlydGZuPTEgc2luY2UgaXQgKmlzKiBhIFZGLCBhbmQgdGhl
-biBkZWFsDQo+ID4gd2l0aCB0aGUgc3BlY2lhbCBjYXNlcyB3aGVyZSB5b3Ugd2FudCB0byB0b3Vj
-aCB0aGUgUEY/DQo+ID4NCj4gPiBCam9ybg0KPiA+DQo+IA0KPiBBcyB3ZSBhcmUgYWx3YXlzIHJ1
-bm5pbmcgdW5kZXIgYXQgbGVhc3QgYSBtYWNoaW5lIGxldmVsIGh5cGVydmlzb3INCj4gd2UncmUg
-c29tZXdoYXQgaW4gdGhlIHNhbWUgc2l0dWF0aW9uIGFzIGUuZy4gYSBLVk0gZ3Vlc3QgaW4NCj4g
-dGhhdCB0aGUgVkZzIHdlIHNlZSBoYXZlIHNvbWUgZW11bGF0aW9uIHRoYXQgbWFrZXMgdGhlbSBh
-Y3QgbW9yZSBsaWtlDQo+IG5vcm1hbCBQQ0kgZnVuY3Rpb25zLiBJdCBqdXN0IHNvIGhhcHBlbnMg
-dGhhdCB0aGUgbWFjaGluZSBsZXZlbCBoeXBlcnZpc29yDQo+IGRvZXMgbm90IGVtdWxhdGUgdGhl
-IFBDSV9DT01NQU5EX01FTU9SWSwgaXQgZG9lcyBlbXVsYXRlIEJBUnMgYW5kDQo+IFZlbmRvci9E
-ZXZpY2UgSURzDQo+IHRob3VnaC4NCj4gU28gaXNfdmlydGZuIGlzIDAgZm9yIHNvbWUgVkYgZm9y
-IHRoZSBzYW1lIHJlYXNvbiBpdCBpcyAwIG9uDQo+IEtWTS9FU1hpL0h5cGVyVi9KYWlsaG91c2Xi
-gKYNCj4gZ3Vlc3RzIG9uIG90aGVyIGFyY2hpdGVjdHVyZXMuDQoNCkkgd29uZGVyIHdoZXRoZXIg
-aXQncyBhIGdvb2QgaWRlYSB0byBhbHNvIGZpbmQgYSB3YXkgdG8gc2V0IGlzX3ZpcnRmbg0KZm9y
-IG5vcm1hbCBLVk0gZ3Vlc3Qgd2hpY2ggZ2V0IGEgdmYgYXNzaWduZWQuIFRoZXJlIGFyZSBvdGhl
-ciBjYXNlcyANCndoZXJlIGZhaXRoZnVsIGVtdWxhdGlvbiBvZiBjZXJ0YWluIFBDSSBjYXBhYmls
-aXRpZXMgaXMgZGlmZmljdWx0LCBlLmcuIA0Kd2hlbiBlbmFibGluZyBndWVzdCBTVkEgcmVsYXRl
-ZCBmZWF0dXJlcyAoUEFTSUQvQVRTL1BSUykuIFBlciBQQ0llIA0Kc3BlYywgc29tZSBvciBhbGwg
-ZmllbGRzIG9mIHRob3NlIGNhcGFiaWxpdGllcyBhcmUgc2hhcmVkIGJldHdlZW4gUEYgDQphbmQg
-VkYuIEFtb25nIHRoZW06DQoNCjEpIFNvbWUgY291bGQgYmUgZW11bGF0ZWQgcHJvcGVybHkgYW5k
-IGluZGlyZWN0bHkgcmVmbGVjdGVkIGluIGhhcmR3YXJlLCANCmUuZy4gSW50ZWwgVlQtZCBhbGxv
-d3MgYWRkaXRpb25hbCBjb250cm9sIHBlciBWRiBhYm91dCB3aGV0aGVyIHRvIGFjY2VwdCANCnBh
-Z2UgcmVxdWVzdCwgZXhlY3V0ZS9wcml2aWxlZ2VkIHBlcm1pc3Npb24sIGV0Yy4gdGh1cyBhbGxv
-d2luZyBWRi1zcGVjaWZpYyANCmNvbnRyb2wgZXZlbiB3aGVuIGRldmljZS1zaWRlIHNldHRpbmcg
-aXMgc2hhcmVkOw0KCQ0KMikgU29tZSBjb3VsZCBiZSBwdXJlbHkgZW11bGF0ZWQgaW4gc29mdHdh
-cmUgYW5kIGl0J3MgaGFybWxlc3MgdG8gbGVhdmUNCnRoZSBoYXJkd2FyZSBmb2xsb3dpbmcgUEYg
-c2V0dGluZywgZS5nLiBBVFMgZW5hYmxlLCBTVFUoPyksIG91dHN0YW5kaW5nDQpwYWdlIHJlcXVl
-c3QgYWxsb2NhdGlvbiwgZXRjLjsNCg0KMykgSG93ZXZlciwgSSBkaWRu4oCZdCBzZWUgYSBjbGVh
-biB3YXkgb2YgZW11bGF0aW5nIHBhZ2VfcmVxdWVzdF9jdHJsLnJlc2V0DQphbmQgcGFnZV9yZXF1
-ZXN0X3N0YXR1cy5zdG9wcGVkLiBUaG9zZSB0d28gaGF2ZSBjbGVhciBkZWZpbml0aW9uIGFib3V0
-DQpvdXRzdGFuZGluZyBwYWdlIHJlcXVlc3RzLiBUaGV5IGFyZSBzaGFyZWQgdGh1cyB3ZSBjYW5u
-b3QgaXNzdWUgcGh5c2ljYWwNCmFjdGlvbiBqdXN0IGR1ZSB0byByZXF1ZXN0IG9uIG9uZSBWRiwg
-d2hpbGUgcHVyZSBzb2Z0d2FyZSBlbXVsYXRpb24gDQpjYW5ub3QgZ3VhcmFudGVlIHRoZSBkZXNp
-cmVkIGV4cGVjdGF0aW9uLiBPZiBjb3Vyc2UgdGhpcyBpc3N1ZSBhbHNvIGV4aXN0cw0KZXZlbiBv
-biBiYXJlIG1ldGFsIC0gcGNpX2VuYWJsZS9kaXNhYmxlL3Jlc2V0X3ByaSBqdXN0IGRvIG5vdGhp
-bmcgZm9yDQp2Zi4gQnV0IHRoZXJlIGlzIGNoYW5jZSB0byBtaXRpZ2F0ZSAoZS5nLiB0aW1lb3V0
-KSwgYnV0IG5vdCBwb3NzaWJsZSBpbiBndWVzdA0KaWYgdGhlIGd1ZXN0IGRvZXNuJ3Qga25vdyBp
-dCdzIGFjdHVhbGx5IGEgVkYuDQoNClNldHRpbmcgaXNfdmlydGZuPTEgYWxsb3dzIGd1ZXN0IHRv
-IGJlIGNvb3BlcmF0aXZlIGxpa2UgcnVubmluZyB0b2dldGhlcg0Kd2l0aCBQRiBkcml2ZXIuIEJ1
-dCB0aGVyZSBpcyBhbiBvcmRlcmluZyBpc3N1ZS4gVGhlIGd1ZXN0IGtub3dzIHdoZXRoZXINCmEg
-ZGV2aWNlIGlzIFZGIG9ubHkgd2hlbiB0aGUgVkYgZHJpdmVyIGlzIGxvYWRlZCAoYmFzZWQgb24g
-UENJX0lEKSwgYnV0DQpyZWxhdGVkIGNhcGFiaWxpdGllcyBtaWdodCBiZSBhbHJlYWR5IGVuYWJs
-ZWQgd2hlbiBhdHRhY2hpbmcgdGhlIGRldmljZQ0KdG8gSU9NTVUgKGF0IGxlYXN0IGZvciBpbnRl
-bF9pb21tdSkuIEJ1dCBzdXBwb3NlIGl0J3Mgbm90IGEgaGFyZCBmaXguDQpMYXN0LCBkZXRhY2hl
-ZCB2ZiBpcyBub3QgYSBQQ0lTSUcgZGVmaW5pdGlvbi4gU28gdGhlIGhvc3Qgc3RpbGwgbmVlZHMg
-dG8NCmRvIHByb3BlciBlbXVsYXRpb24gKGV2ZW4gbm90IGZhaXRoZnVsKSBvZiB0aG9zZSBjYXBh
-YmlsaXRpZXMgZm9yIGd1ZXN0cyANCndobyBkb24ndCByZWNvZ25pemUgZGV0YWNoZWQgdmYuDQoN
-ClRob3VnaHRzPw0KDQpUaGFua3MNCktldmluDQo=
+On Wed, Sep 02, 2020 at 06:38:03PM +0100, Mark Brown wrote:
+> On Tue, Sep 01, 2020 at 05:06:26PM +0100, Mark Rutland wrote:
+> 
+> > Just to check, has the skipping logic been tested to work equivalently
+> > to what we had before? By inspection I think it should, but since it
+> > relies on function call boundaries it always strikes me as fragile.
+> 
+> > If you could confirm that (e.g. with LKDTM perhaps?) that'd be great.
+> > Assuming that looks right, for the series:
+> 
+> I've tested this with LKDTM and otherwise and didn't spot any issues
+> (and just did a bit of retesting) but it is a pretty manual process so
+> it's possible I missed something.
+
+It looks like the case Mirolav pointed out (self-bactrace with NULL
+regs) isn't triggered by LKDTM (since it always causes a backtrace from
+an exception with non-NULL regs), but we do rely on that elsewhere in
+the kernel.
+
+It might be worth adding an LKDTM test to trigger that.
+
+I'll wait for a respin that handles that -- please drop the ack for now.
+
+Thanks,
+Mark.
