@@ -1,229 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2642 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727025AbgIJRYL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 13:24:11 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 8/8] s390/qeth: implement ndo_bridge_setlink for learning_sync
-Date: Thu, 10 Sep 2020 19:23:51 +0200
-Message-Id: <20200910172351.5622-9-jwi@linux.ibm.com>
-In-Reply-To: <20200910172351.5622-1-jwi@linux.ibm.com>
-References: <20200910172351.5622-1-jwi@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:56714 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726140AbgIBDp7 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Sep 2020 23:45:59 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH v3 03/13] mm/debug_vm_pgtable/ppc64: Avoid setting top
+ bits in radom value
+References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+ <20200827080438.315345-4-aneesh.kumar@linux.ibm.com>
+ <3a0b0101-e6ec-26c5-e104-5b0bb95c3e51@arm.com>
+ <1a8abe92-032b-f60f-1df1-52bb409b35a3@linux.ibm.com>
+ <75771782-734b-69f6-4a07-2d3542458319@arm.com>
+ <e5d32d12-d904-ed8c-8963-d43d2c3744d9@linux.ibm.com>
+ <c371e316-7533-62c7-a1c6-9b6745d8d1ea@arm.com>
+ <3f20130a-f9fc-db9d-50a9-76aca5a1a6d7@linux.ibm.com>
+Message-ID: <2f6f2e26-5c77-d9cb-667c-0f7d35923e31@arm.com>
+Date: Wed, 2 Sep 2020 09:15:12 +0530
+MIME-Version: 1.0
+In-Reply-To: <3f20130a-f9fc-db9d-50a9-76aca5a1a6d7@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>
+To: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>
 
-From: Alexandra Winter <wintera@linux.ibm.com>
 
-Documentation/networking/switchdev.txt and 'man bridge' indicate that the
-learning_sync bridge attribute is used to control whether a given
-device will sync MAC addresses learned on its device port to a master
-bridge FDB, where they will show up as 'extern_learn offload'. So we map
-qeth_l2_dev2br_an_set() to the learning_sync bridge link attribute.
 
-Turning off learning_sync will flush all extern_learn entries from the
-bridge fdb and all pending events from the card's work queue.
-
-When the hardware interface goes offline with learning_sync on
-(e.g. for HW recovery), all extern_learn entries will be flushed from the
-bridge fdb and all pending events from the card's work queue. When the
-interface goes online again, it will send new notifications for all then
-valid MACs. learning_sync attribute can not be modified while interface is
-offline. See
-'commit e6e771b3d897 ("s390/qeth: detach netdevice while card is offline")'
-
-An alternative implementation would be to always offload the 'learning'
-attribute of a software bridge to the hardware interface attached to it
-and thus implicitly enable fdb notification. This was not chosen for 2
-reasons:
-1) In our case the software bridge is NOT a representation of a hardware
-switch. It is just connected to a smart NIC that is able to inform
-about the addresses attached to it. It is not necessarily using source
-MAC learning for this and other bridgeports can be attached to other
-NICs with different properties.
-2) We want a means to enable this notification explicitly. There may be
-cases where a bridgeport is set to 'learning', but we do not want to
-enable the notification.
-
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_l2_main.c | 125 ++++++++++++++++++++++++++++++++
- 1 file changed, 125 insertions(+)
-
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 338bc62556cf..54e02518ce08 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -306,6 +306,8 @@ static void qeth_l2_dev2br_fdb_flush(struct qeth_card *card)
- 
- static void qeth_l2_stop_card(struct qeth_card *card)
- {
-+	struct qeth_priv *priv = netdev_priv(card->dev);
-+
- 	QETH_CARD_TEXT(card, 2, "stopcard");
- 
- 	qeth_set_allowed_threads(card, 0, 1);
-@@ -324,6 +326,12 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 	qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
- 	qeth_flush_local_addrs(card);
- 	card->info.promisc_mode = 0;
-+
-+	if (priv->brport_features & BR_LEARNING_SYNC) {
-+		rtnl_lock();
-+		qeth_l2_dev2br_fdb_flush(card);
-+		rtnl_unlock();
-+	}
- }
- 
- static int qeth_l2_request_initial_mac(struct qeth_card *card)
-@@ -856,6 +864,89 @@ static int qeth_l2_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
- 				       nlflags, filter_mask, NULL);
- }
- 
-+static const struct nla_policy qeth_brport_policy[IFLA_BRPORT_MAX + 1] = {
-+	[IFLA_BRPORT_LEARNING_SYNC]	= { .type = NLA_U8 },
-+};
-+
-+/**
-+ *	qeth_l2_bridge_setlink() - set bridgeport attributes
-+ *	@dev: netdevice
-+ *	@nlh: netlink message header
-+ *	@flags: bridge flags (here: BRIDGE_FLAGS_SELF)
-+ *	@extack: extended ACK report struct
-+ *
-+ *	Called under rtnl_lock
-+ */
-+static int qeth_l2_bridge_setlink(struct net_device *dev, struct nlmsghdr *nlh,
-+				  u16 flags, struct netlink_ext_ack *extack)
-+{
-+	struct qeth_priv *priv = netdev_priv(dev);
-+	struct nlattr *bp_tb[IFLA_BRPORT_MAX + 1];
-+	struct qeth_card *card = dev->ml_priv;
-+	struct nlattr *attr, *nested_attr;
-+	bool enable, has_protinfo = false;
-+	int rem1, rem2;
-+	int rc;
-+
-+	if (!netif_device_present(dev))
-+		return -ENODEV;
-+	if (!(priv->brport_hw_features))
-+		return -EOPNOTSUPP;
-+
-+	nlmsg_for_each_attr(attr, nlh, sizeof(struct ifinfomsg), rem1) {
-+		if (nla_type(attr) == IFLA_PROTINFO) {
-+			rc = nla_parse_nested(bp_tb, IFLA_BRPORT_MAX, attr,
-+					      qeth_brport_policy, extack);
-+			if (rc)
-+				return rc;
-+			has_protinfo = true;
-+		} else if (nla_type(attr) == IFLA_AF_SPEC) {
-+			nla_for_each_nested(nested_attr, attr, rem2) {
-+				if (nla_type(nested_attr) == IFLA_BRIDGE_FLAGS)
-+					continue;
-+				NL_SET_ERR_MSG_ATTR(extack, nested_attr,
-+						    "Unsupported attribute");
-+				return -EINVAL;
-+			}
-+		} else {
-+			NL_SET_ERR_MSG_ATTR(extack, attr, "Unsupported attribute");
-+			return -EINVAL;
-+		}
-+	}
-+	if (!has_protinfo)
-+		return 0;
-+	if (!bp_tb[IFLA_BRPORT_LEARNING_SYNC])
-+		return -EINVAL;
-+	enable = !!nla_get_u8(bp_tb[IFLA_BRPORT_LEARNING_SYNC]);
-+
-+	if (enable == !!(priv->brport_features & BR_LEARNING_SYNC))
-+		return 0;
-+
-+	mutex_lock(&card->sbp_lock);
-+	/* do not change anything if BridgePort is enabled */
-+	if (qeth_bridgeport_is_in_use(card)) {
-+		NL_SET_ERR_MSG(extack, "n/a (BridgePort)");
-+		rc = -EBUSY;
-+	} else if (enable) {
-+		qeth_l2_set_pnso_mode(card, QETH_PNSO_ADDR_INFO);
-+		rc = qeth_l2_dev2br_an_set(card, true);
-+		if (rc)
-+			qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+		else
-+			priv->brport_features |= BR_LEARNING_SYNC;
-+	} else {
-+		rc = qeth_l2_dev2br_an_set(card, false);
-+		if (!rc) {
-+			qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+			priv->brport_features ^= BR_LEARNING_SYNC;
-+			qeth_l2_dev2br_fdb_flush(card);
-+		}
-+	}
-+	mutex_unlock(&card->sbp_lock);
-+
-+	return rc;
-+}
-+
- static const struct net_device_ops qeth_l2_netdev_ops = {
- 	.ndo_open		= qeth_open,
- 	.ndo_stop		= qeth_stop,
-@@ -873,6 +964,7 @@ static const struct net_device_ops qeth_l2_netdev_ops = {
- 	.ndo_fix_features	= qeth_fix_features,
- 	.ndo_set_features	= qeth_set_features,
- 	.ndo_bridge_getlink	= qeth_l2_bridge_getlink,
-+	.ndo_bridge_setlink	= qeth_l2_bridge_setlink,
- };
- 
- static const struct net_device_ops qeth_osn_netdev_ops = {
-@@ -1016,6 +1108,38 @@ static void qeth_l2_detect_dev2br_support(struct qeth_card *card)
- 		priv->brport_hw_features &= ~BR_LEARNING_SYNC;
- }
- 
-+static void qeth_l2_enable_brport_features(struct qeth_card *card)
-+{
-+	struct qeth_priv *priv = netdev_priv(card->dev);
-+	int rc;
-+
-+	if (priv->brport_features & BR_LEARNING_SYNC) {
-+		if (priv->brport_hw_features & BR_LEARNING_SYNC) {
-+			qeth_l2_set_pnso_mode(card, QETH_PNSO_ADDR_INFO);
-+			rc = qeth_l2_dev2br_an_set(card, true);
-+			if (rc == -EAGAIN) {
-+				/* Recoverable error, retry once */
-+				qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+				qeth_l2_dev2br_fdb_flush(card);
-+				qeth_l2_set_pnso_mode(card, QETH_PNSO_ADDR_INFO);
-+				rc = qeth_l2_dev2br_an_set(card, true);
-+			}
-+			if (rc) {
-+				netdev_err(card->dev,
-+					   "failed to enable bridge learning_sync: %d\n",
-+					   rc);
-+				qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+				qeth_l2_dev2br_fdb_flush(card);
-+				priv->brport_features ^= BR_LEARNING_SYNC;
-+			}
-+		} else {
-+			dev_warn(&card->gdev->dev,
-+				"bridge learning_sync not supported\n");
-+			priv->brport_features ^= BR_LEARNING_SYNC;
-+		}
-+	}
-+}
-+
- static int qeth_l2_set_online(struct qeth_card *card)
- {
- 	struct ccwgroup_device *gdev = card->gdev;
-@@ -1075,6 +1199,7 @@ static int qeth_l2_set_online(struct qeth_card *card)
- 
- 		netif_device_attach(dev);
- 		qeth_enable_hw_features(dev);
-+		qeth_l2_enable_brport_features(card);
- 
- 		if (card->info.open_when_online) {
- 			card->info.open_when_online = 0;
--- 
-2.17.1
+On 09/01/2020 01:25 PM, Aneesh Kumar K.V wrote:
+> On 9/1/20 1:16 PM, Anshuman Khandual wrote:
+>>
+>>
+>> On 09/01/2020 01:06 PM, Aneesh Kumar K.V wrote:
+>>> On 9/1/20 1:02 PM, Anshuman Khandual wrote:
+>>>>
+>>>>
+>>>> On 09/01/2020 11:51 AM, Aneesh Kumar K.V wrote:
+>>>>> On 9/1/20 8:45 AM, Anshuman Khandual wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 08/27/2020 01:34 PM, Aneesh Kumar K.V wrote:
+>>>>>>> ppc64 use bit 62 to indicate a pte entry (_PAGE_PTE). Avoid setting that bit in
+>>>>>>> random value.
+>>>>>>>
+>>>>>>> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+>>>>>>> ---
+>>>>>>>     mm/debug_vm_pgtable.c | 13 ++++++++++---
+>>>>>>>     1 file changed, 10 insertions(+), 3 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+>>>>>>> index 086309fb9b6f..bbf9df0e64c6 100644
+>>>>>>> --- a/mm/debug_vm_pgtable.c
+>>>>>>> +++ b/mm/debug_vm_pgtable.c
+>>>>>>> @@ -44,10 +44,17 @@
+>>>>>>>      * entry type. But these bits might affect the ability to clear entries with
+>>>>>>>      * pxx_clear() because of how dynamic page table folding works on s390. So
+>>>>>>>      * while loading up the entries do not change the lower 4 bits. It does not
+>>>>>>> - * have affect any other platform.
+>>>>>>> + * have affect any other platform. Also avoid the 62nd bit on ppc64 that is
+>>>>>>> + * used to mark a pte entry.
+>>>>>>>      */
+>>>>>>> -#define S390_MASK_BITS    4
+>>>>>>> -#define RANDOM_ORVALUE    GENMASK(BITS_PER_LONG - 1, S390_MASK_BITS)
+>>>>>>> +#define S390_SKIP_MASK        GENMASK(3, 0)
+>>>>>>> +#ifdef CONFIG_PPC_BOOK3S_64
+>>>>>>> +#define PPC64_SKIP_MASK        GENMASK(62, 62)
+>>>>>>> +#else
+>>>>>>> +#define PPC64_SKIP_MASK        0x0
+>>>>>>> +#endif
+>>>>>>
+>>>>>> Please drop the #ifdef CONFIG_PPC_BOOK3S_64 here. We already accommodate skip
+>>>>>> bits for a s390 platform requirement and can also do so for ppc64 as well. As
+>>>>>> mentioned before, please avoid adding any platform specific constructs in the
+>>>>>> test.
+>>>>>>
+>>>>>
+>>>>>
+>>>>> that is needed so that it can be built on 32 bit architectures.I did face build errors with arch-linux
+>>>>
+>>>> Could not (#if __BITS_PER_LONG == 32) be used instead or something like
+>>>> that. But should be a generic conditional check identifying 32 bit arch
+>>>> not anything platform specific.
+>>>>
+>>>
+>>> that _PAGE_PTE bit is pretty much specific to PPC BOOK3S_64.  Not sure why other architectures need to bothered about ignoring bit 62.
+>>
+>> Thats okay as long it does not adversely affect other architectures, ignoring
+>> some more bits is acceptable. Like existing S390_MASK_BITS gets ignored on all
+>> other platforms even if it is a s390 specific constraint. Not having platform
+>> specific #ifdef here, is essential.
+>>
+> 
+> Why is it essential?
+IIRC, I might have already replied on this couple of times. But let me try once more.
+It is a generic test aimed at finding inconsistencies between different architectures
+in terms of the page table helper semantics. Any platform specific construct here, to
+'make things work' has the potential to hide such inconsistencies and defeat the very
+purpose. The test/file here follows this rule consistently i.e there is not a single
+platform specific #ifdef right now and would really like to continue maintaining this
+property, unless until absolutely necessary. Current situation here wrt 32 bit archs
+can easily be accommodated with a generic check such as __BITS_PER_LONG.
