@@ -1,83 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33284 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727872AbgIOR1H (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Sep 2020 13:27:07 -0400
-Date: Tue, 15 Sep 2020 18:49:09 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: [PATCH 4/4] s390/uaccess: remove set_fs() interface
-Message-ID: <20200915164909.GB11180@osiris>
-References: <20200915154340.4215-1-hca@linux.ibm.com>
- <20200915154340.4215-5-hca@linux.ibm.com>
- <20200915160243.GB22056@lst.de>
+Received: from foss.arm.com ([217.140.110.172]:56748 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726140AbgIBDqn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Sep 2020 23:46:43 -0400
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [PATCH v3 08/13] mm/debug_vm_pgtable/thp: Use page table
+ depost/withdraw with THP
+References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
+ <20200827080438.315345-9-aneesh.kumar@linux.ibm.com>
+ <e7877a8d-b433-0cb4-50a7-631de0022c24@arm.com>
+ <9beaaf93-b2dd-6d56-7737-9f022760f246@linux.ibm.com>
+ <d80a91c3-0edf-7e2f-8101-2d37a371f4bd@csgroup.eu>
+ <2fb4ac88-d417-2bdd-3c56-a816c356636a@linux.ibm.com>
+ <5d25b02a-887a-432e-7ecd-cc5cbcea9b02@csgroup.eu>
+Message-ID: <ffdc1dfb-4ed3-f1d6-5d90-9e2ed7637a97@arm.com>
+Date: Wed, 2 Sep 2020 09:15:58 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200915160243.GB22056@lst.de>
+In-Reply-To: <5d25b02a-887a-432e-7ecd-cc5cbcea9b02@csgroup.eu>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org
+To: Christophe Leroy <christophe.leroy@csgroup.eu>, "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>
 
-On Tue, Sep 15, 2020 at 06:02:43PM +0200, Christoph Hellwig wrote:
-> >  	int oldval = 0, newval, ret;
-> > -	mm_segment_t old_fs;
-> > +	bool old;
-> >  
-> > -	old_fs = enable_sacf_uaccess();
-> > +	old = enable_sacf_uaccess();
-> >  	switch (op) {
-> >  	case FUTEX_OP_SET:
-> >  		__futex_atomic_op("lr %2,%5\n",
-> > @@ -53,7 +53,7 @@ static inline int arch_futex_atomic_op_inuser(int op, int oparg, int *oval,
-> >  	default:
-> >  		ret = -ENOSYS;
-> >  	}
-> > -	disable_sacf_uaccess(old_fs);
-> > +	disable_sacf_uaccess(old);
+
+
+On 09/01/2020 01:21 PM, Christophe Leroy wrote:
 > 
-> Do we need to return the old value here?  The way I understand it
-> this is context switched with the thread, and given that only small
-> isolated code bases now use it, sacf use can't nest, can it?
-
-Right, that should not happen. I think I'll change both functions to
-void and add a WARN_ON_ONCE() to both of them, so that nested calls
-will be catched.
-
-> > @@ -116,7 +114,7 @@ struct thread_struct {
-> >  	unsigned long hardirq_timer;	/* task cputime in hardirq context */
-> >  	unsigned long softirq_timer;	/* task cputime in softirq context */
-> >  	unsigned long sys_call_table;	/* system call table address */
-> > -	mm_segment_t mm_segment;
-> > +	bool sacf_uaccess;		/* uaccess with sacf enabled */
 > 
-> Isn't there a flags field somewhere where this could be folded into?
-
-Hmm, a TIF flag will probably do.
-
-> > -void set_fs_fixup(void)
-> > -{
-> > -	struct pt_regs *regs = current_pt_regs();
-> > -	static bool warned;
-> > -
-> > -	set_fs(USER_DS);
-> > -	if (warned)
-> > -		return;
-> > -	WARN(1, "Unbalanced set_fs - int code: 0x%x\n", regs->int_code);
-> > -	show_registers(regs);
-> > -	warned = true;
+> Le 01/09/2020 à 09:40, Aneesh Kumar K.V a écrit :
+>> On 9/1/20 12:20 PM, Christophe Leroy wrote:
+>>>
+>>>
+>>> Le 01/09/2020 à 08:25, Aneesh Kumar K.V a écrit :
+>>>> On 9/1/20 8:52 AM, Anshuman Khandual wrote:
+>>>>>
+>>>>>
+>>>>>
+>>>>> There is a checkpatch.pl warning here.
+>>>>>
+>>>>> WARNING: Possible unwrapped commit description (prefer a maximum 75 chars per line)
+>>>>> #7:
+>>>>> Architectures like ppc64 use deposited page table while updating the huge pte
+>>>>>
+>>>>> total: 0 errors, 1 warnings, 40 lines checked
+>>>>>
+>>>>
+>>>> I will ignore all these, because they are not really important IMHO.
+>>>>
+>>>
+>>> When doing a git log in a 80 chars terminal window, having wrapping lines is not really convenient. It should be easy to avoid it.
+>>>
+>>
+>> We have been ignoring that for a long time  isn't it?
+>>
+>> For example ppc64 checkpatch already had
+>> --max-line-length=90
+>>
+>>
+>> There was also recent discussion whether 80 character limit is valid any more. But I do keep it restricted to 80 character where ever it is easy/make sense.
+>>
 > 
-> Would a warning about an unbalanced sacf flag still make sense?  Or
-> just objtool for compile time checks similar to the unsafe uaccess
-> routines on x86?
-
-Yes, I was not sure to keep it or drop it. But now that you ask for
-it, I'll add it back. FWIW, there is no objtool for s390 (yet).
-
-> >  EXPORT_SYMBOL(enable_sacf_uaccess);
+> Here we are not talking about the code, but the commit log.
 > 
-> Neither enable_sacf_uaccess nor disable_sacf_uaccess appear to be
-> used in modular code, so these exports can probably be dropped.
+> As far as I know, the discussions about 80 character lines, 90 lines in powerpc etc ... is for the code.
+> 
+> We still aim at keeping lines not longer than 75 chars in the commit log.
 
-Ah, I wanted to check, and forgot that.
+Agreed.
