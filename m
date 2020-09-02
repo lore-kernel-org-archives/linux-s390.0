@@ -1,50 +1,34 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga07-in.huawei.com ([45.249.212.35]:58392 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726397AbgIPC2C (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Sep 2020 22:28:02 -0400
-From: Liu Shixin <liushixin2@huawei.com>
-Subject: [PATCH -next] s390/diag: convert to use DEFINE_SEQ_ATTRIBUTE macro
-Date: Wed, 16 Sep 2020 10:50:29 +0800
-Message-ID: <20200916025029.3992939-1-liushixin2@huawei.com>
+Received: from mx2.suse.de ([195.135.220.15]:60546 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726140AbgIBJ0e (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 2 Sep 2020 05:26:34 -0400
+Date: Wed, 2 Sep 2020 11:26:30 +0200 (CEST)
+From: Miroslav Benes <mbenes@suse.cz>
+Subject: Re: [PATCH v2 1/3] stacktrace: Remove reliable argument from
+ arch_stack_walk() callback
+In-Reply-To: <20200819124913.37261-2-broonie@kernel.org>
+Message-ID: <alpine.LSU.2.21.2009021126070.23200@pobox.suse.cz>
+References: <20200819124913.37261-1-broonie@kernel.org> <20200819124913.37261-2-broonie@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
 Content-Type: text/plain; charset=US-ASCII
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Use DEFINE_SEQ_ATTRIBUTE macro to simplify the code.
+On Wed, 19 Aug 2020, Mark Brown wrote:
 
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
----
- arch/s390/kernel/diag.c | 13 +------------
- 1 file changed, 1 insertion(+), 12 deletions(-)
+> Currently the callback passed to arch_stack_walk() has an argument called
+> reliable passed to it to indicate if the stack entry is reliable, a comment
+> says that this is used by some printk() consumers. However in the current
+> kernel none of the arch_stack_walk() implementations ever set this flag to
+> true and the only callback implementation we have is in the generic
+> stacktrace code which ignores the flag. It therefore appears that this
+> flag is redundant so we can simplify and clarify things by removing it.
+> 
+> Signed-off-by: Mark Brown <broonie@kernel.org>
 
-diff --git a/arch/s390/kernel/diag.c b/arch/s390/kernel/diag.c
-index ccba63aaeb47..b8b0cd7b008f 100644
---- a/arch/s390/kernel/diag.c
-+++ b/arch/s390/kernel/diag.c
-@@ -104,18 +104,7 @@ static const struct seq_operations show_diag_stat_sops = {
- 	.show	= show_diag_stat,
- };
- 
--static int show_diag_stat_open(struct inode *inode, struct file *file)
--{
--	return seq_open(file, &show_diag_stat_sops);
--}
--
--static const struct file_operations show_diag_stat_fops = {
--	.open		= show_diag_stat_open,
--	.read		= seq_read,
--	.llseek		= seq_lseek,
--	.release	= seq_release,
--};
--
-+DEFINE_SEQ_ATTRIBUTE(show_diag_stat);
- 
- static int __init show_diag_stat_init(void)
- {
--- 
-2.25.1
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+
+M
