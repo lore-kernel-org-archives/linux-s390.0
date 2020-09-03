@@ -1,72 +1,36 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH 7/8] selftests/vm: run_vmtest.sh: update and clean up gup_test invocation
-Date: Sun, 27 Sep 2020 23:21:58 -0700
-Message-ID: <20200928062159.923212-8-jhubbard@nvidia.com>
-In-Reply-To: <20200928062159.923212-1-jhubbard@nvidia.com>
-References: <20200928062159.923212-1-jhubbard@nvidia.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:21452 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729212AbgICOOQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 10:14:16 -0400
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH 0/2] s390x: pv: Fixes and improvements
+Date: Thu,  3 Sep 2020 09:14:33 -0400
+Message-Id: <20200903131435.2535-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
+To: linux-s390@vger.kernel.org
+Cc: borntraeger@de.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, david@redhat.com
 
-Run benchmarks on the _fast variants of gup and pup, as originally
-intended.
+Using the destroy call instead of the export on a VM shutdown, we can
+clear out a protected guest much faster.
 
-Run the new gup_test sub-test: dump pages. In addition to exercising the
-dump_page() call, it also demonstrates the various options you can use
-to specify which pages to dump, and how.
+The 3f exception can in fact be triggered by userspace and therefore
+should not panic the whole system, but send a SIGSEGV to the culprit
+process.
 
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
----
- tools/testing/selftests/vm/run_vmtest.sh | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+Janosch Frank (2):
+  s390x: uv: Add destroy page call
+  s390x: Add 3f program exception handler
 
-diff --git a/tools/testing/selftests/vm/run_vmtest.sh b/tools/testing/selft=
-ests/vm/run_vmtest.sh
-index d1843d5f3c30..e3a8b14d9df6 100755
---- a/tools/testing/selftests/vm/run_vmtest.sh
-+++ b/tools/testing/selftests/vm/run_vmtest.sh
-@@ -124,9 +124,9 @@ else
- fi
-=20
- echo "--------------------------------------------"
--echo "running 'gup_test -U' (normal/slow gup)"
-+echo "running 'gup_test -u' (fast gup benchmark)"
- echo "--------------------------------------------"
--./gup_test -U
-+./gup_test -u
- if [ $? -ne 0 ]; then
- 	echo "[FAIL]"
- 	exitcode=3D1
-@@ -134,10 +134,22 @@ else
- 	echo "[PASS]"
- fi
-=20
--echo "------------------------------------------"
--echo "running gup_test -b (pin_user_pages)"
--echo "------------------------------------------"
--./gup_test -b
-+echo "---------------------------------------------------"
-+echo "running gup_test -a (pin_user_pages_fast benchmark)"
-+echo "---------------------------------------------------"
-+./gup_test -a
-+if [ $? -ne 0 ]; then
-+	echo "[FAIL]"
-+	exitcode=3D1
-+else
-+	echo "[PASS]"
-+fi
-+
-+echo "--------------------------------------------------------------"
-+echo "running gup_test -ct -F 0x1 0 19 0x1000"
-+echo "   Dumps pages 0, 19, and 4096, using pin_user_pages (-F 0x1)"
-+echo "--------------------------------------------------------------"
-+./gup_test -ct -F 0x1 0 19 0x1000
- if [ $? -ne 0 ]; then
- 	echo "[FAIL]"
- 	exitcode=3D1
---=20
-2.28.0
+ arch/s390/include/asm/uv.h   |  7 +++++++
+ arch/s390/kernel/pgm_check.S |  2 +-
+ arch/s390/kernel/uv.c        | 21 +++++++++++++++++++++
+ arch/s390/mm/fault.c         | 23 +++++++++++++++++++++++
+ arch/s390/mm/gmap.c          |  2 +-
+ 5 files changed, 53 insertions(+), 2 deletions(-)
+
+-- 
+2.25.1
