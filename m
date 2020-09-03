@@ -1,207 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52298 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726116AbgIARkc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Sep 2020 13:40:32 -0400
-Date: Tue, 1 Sep 2020 19:40:20 +0200
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: Re: [RFC PATCH 0/2] mm/gup: fix gup_fast with dynamic page table
- folding
-Message-ID: <20200901194020.418da486@thinkpad>
-In-Reply-To: <20200831121553.8be5dcdbdbc5256846ac513e@linux-foundation.org>
-References: <20200828140314.8556-1-gerald.schaefer@linux.ibm.com>
-        <9071c9fa-ba6a-90dc-2d7a-8b155141d890@de.ibm.com>
-        <20200831121553.8be5dcdbdbc5256846ac513e@linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9250 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729172AbgICTxk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 15:53:40 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 3/4] net/smc: reset sndbuf_desc if freed
+Date: Thu,  3 Sep 2020 21:53:17 +0200
+Message-Id: <20200903195318.39288-4-kgraul@linux.ibm.com>
+In-Reply-To: <20200903195318.39288-1-kgraul@linux.ibm.com>
+References: <20200903195318.39288-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, John Hubbard <jhubbard@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-On Mon, 31 Aug 2020 12:15:53 -0700
-Andrew Morton <akpm@linux-foundation.org> wrote:
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-> On Mon, 31 Aug 2020 13:53:36 +0200 Christian Borntraeger <borntraeger@de.ibm.com> wrote:
-> 
-> > 
-> > 
-> > On 28.08.20 16:03, Gerald Schaefer wrote:
-> > have some feedback soon if option 1 or option 2 would be acceptable 
-> > from a common code perspective. Andrew, who of the mm people would 
-> > be the right one to decide?
-> 
-> Jason and John Hubbard are doing most of the work in there at present,
-> 
-> Both patches look OK to me from a non-s390 perspective.  Unless we plan
-> to implement Jason's more-general approach this time, I'd be inclined
-> to defer to the s390 people as to the preferred implementation.
+When an SMC connection is created, and there is a problem to
+create an RMB or DMB, the previously created send buffer is
+thrown away as well including buffer descriptor freeing.
+Make sure the connection no longer references the freed
+buffer descriptor, otherwise bugs like this are possible:
 
-My gut feeling would say that the gup_pXd_addr_end approach makes
-us behave more like other archs, at least for gup_fast, which cannot
-be so bad.
+[71556.835148] =============================================================================
+[71556.835168] BUG kmalloc-128 (Tainted: G    B      OE    ): Poison overwritten
+[71556.835172] -----------------------------------------------------------------------------
 
-Regarding generalization, both approaches would introduce some specific
-helpers for this "page table walking w/o lock using READ_ONCE", currently
-only used by gup_fast. What we initially had in mind wrt generalization
-was replacing e.g. the pXd_addr_end() completely, with the new version that
-takes the additional pXd value parameter. That would of course be quite
-intrusive, also affecting other arch code, so it is probably not what we
-want to do in the first step.
+[71556.835179] INFO: 0x00000000d20894be-0x00000000aaef63e9 @offset=2724. First byte 0x0 instead of 0x6b
+[71556.835215] INFO: Allocated in __smc_buf_create+0x184/0x578 [smc] age=0 cpu=5 pid=46726
+[71556.835234]     ___slab_alloc+0x5a4/0x690
+[71556.835239]     __slab_alloc.constprop.0+0x70/0xb0
+[71556.835243]     kmem_cache_alloc_trace+0x38e/0x3f8
+[71556.835250]     __smc_buf_create+0x184/0x578 [smc]
+[71556.835257]     smc_buf_create+0x2e/0xe8 [smc]
+[71556.835264]     smc_listen_work+0x516/0x6a0 [smc]
+[71556.835275]     process_one_work+0x280/0x478
+[71556.835280]     worker_thread+0x66/0x368
+[71556.835287]     kthread+0x17a/0x1a0
+[71556.835294]     ret_from_fork+0x28/0x2c
+[71556.835301] INFO: Freed in smc_buf_create+0xd8/0xe8 [smc] age=0 cpu=5 pid=46726
+[71556.835307]     __slab_free+0x246/0x560
+[71556.835311]     kfree+0x398/0x3f8
+[71556.835318]     smc_buf_create+0xd8/0xe8 [smc]
+[71556.835324]     smc_listen_work+0x516/0x6a0 [smc]
+[71556.835328]     process_one_work+0x280/0x478
+[71556.835332]     worker_thread+0x66/0x368
+[71556.835337]     kthread+0x17a/0x1a0
+[71556.835344]     ret_from_fork+0x28/0x2c
+[71556.835348] INFO: Slab 0x00000000a0744551 objects=51 used=51 fp=0x0000000000000000 flags=0x1ffff00000010200
+[71556.835352] INFO: Object 0x00000000563480a1 @offset=2688 fp=0x00000000289567b2
 
-To make it a bit more generic and also usable for future paths in
-mm/pagewalk.c for example, we could however at least name the new helpers
-differently, e.g. pXd_addr_end_folded instead of gup_pXd_addr_end, and
-also add some comment on why / where they should be used, like this
-(will send again as proper patch with description if agreed):
+[71556.835359] Redzone 000000006783cde2: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+[71556.835363] Redzone 00000000e35b876e: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+[71556.835367] Redzone 0000000023074562: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+[71556.835372] Redzone 00000000b9564b8c: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+[71556.835376] Redzone 00000000810c6362: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+[71556.835380] Redzone 0000000065ef52c3: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+[71556.835384] Redzone 00000000c5dd6984: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+[71556.835388] Redzone 000000004c480f8f: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb  ................
+[71556.835392] Object 00000000563480a1: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+[71556.835397] Object 000000009c479d06: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+[71556.835401] Object 000000006e1dce92: 6b 6b 6b 6b 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b  kkkk....kkkkkkkk
+[71556.835405] Object 00000000227f7cf8: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+[71556.835410] Object 000000009a701215: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+[71556.835414] Object 000000003731ce76: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+[71556.835418] Object 00000000f7085967: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+[71556.835422] Object 0000000007f99927: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5  kkkkkkkkkkkkkkk.
+[71556.835427] Redzone 00000000579c4913: bb bb bb bb bb bb bb bb                          ........
+[71556.835431] Padding 00000000305aef82: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+[71556.835435] Padding 00000000b1cdd722: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+[71556.835438] Padding 00000000c7568199: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+[71556.835442] Padding 00000000fad4c4d4: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a  ZZZZZZZZZZZZZZZZ
+[71556.835451] CPU: 0 PID: 47939 Comm: kworker/0:15 Tainted: G    B      OE     5.9.0-rc1uschi+ #54
+[71556.835456] Hardware name: IBM 3906 M03 703 (LPAR)
+[71556.835464] Workqueue: events smc_listen_work [smc]
+[71556.835470] Call Trace:
+[71556.835478]  [<00000000d5eaeb10>] show_stack+0x90/0xf8
+[71556.835493]  [<00000000d66fc0f8>] dump_stack+0xa8/0xe8
+[71556.835499]  [<00000000d61a511c>] check_bytes_and_report+0x104/0x130
+[71556.835504]  [<00000000d61a57b2>] check_object+0x26a/0x2e0
+[71556.835509]  [<00000000d61a59bc>] alloc_debug_processing+0x194/0x238
+[71556.835514]  [<00000000d61a8c14>] ___slab_alloc+0x5a4/0x690
+[71556.835519]  [<00000000d61a9170>] __slab_alloc.constprop.0+0x70/0xb0
+[71556.835524]  [<00000000d61aaf66>] kmem_cache_alloc_trace+0x38e/0x3f8
+[71556.835530]  [<000003ff80549bbc>] __smc_buf_create+0x184/0x578 [smc]
+[71556.835538]  [<000003ff8054a396>] smc_buf_create+0x2e/0xe8 [smc]
+[71556.835545]  [<000003ff80540c16>] smc_listen_work+0x516/0x6a0 [smc]
+[71556.835549]  [<00000000d5f0f448>] process_one_work+0x280/0x478
+[71556.835554]  [<00000000d5f0f6a6>] worker_thread+0x66/0x368
+[71556.835559]  [<00000000d5f18692>] kthread+0x17a/0x1a0
+[71556.835563]  [<00000000d6abf3b8>] ret_from_fork+0x28/0x2c
+[71556.835569] INFO: lockdep is turned off.
+[71556.835573] FIX kmalloc-128: Restoring 0x00000000d20894be-0x00000000aaef63e9=0x6b
 
+[71556.835577] FIX kmalloc-128: Marking all objects used
+
+Fixes: fd7f3a746582 ("net/smc: remove freed buffer from list")
+Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/s390/include/asm/pgtable.h | 49 +++++++++++++++++++++++++++++++++
- include/linux/pgtable.h         | 32 +++++++++++++++++++++
- mm/gup.c                        |  8 +++---
- 3 files changed, 85 insertions(+), 4 deletions(-)
+ net/smc/smc_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/include/asm/pgtable.h b/arch/s390/include/asm/pgtable.h
-index 7eb01a5459cd..d74257f2cb5b 100644
---- a/arch/s390/include/asm/pgtable.h
-+++ b/arch/s390/include/asm/pgtable.h
-@@ -512,6 +512,55 @@ static inline bool mm_pmd_folded(struct mm_struct *mm)
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index a6ac0eb20c99..a406627b1d55 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1779,6 +1779,7 @@ int smc_buf_create(struct smc_sock *smc, bool is_smcd)
+ 		list_del(&smc->conn.sndbuf_desc->list);
+ 		mutex_unlock(&smc->conn.lgr->sndbufs_lock);
+ 		smc_buf_free(smc->conn.lgr, false, smc->conn.sndbuf_desc);
++		smc->conn.sndbuf_desc = NULL;
+ 	}
+ 	return rc;
  }
- #define mm_pmd_folded(mm) mm_pmd_folded(mm)
- 
-+static inline unsigned long rste_addr_end_folded(unsigned long rste,
-+						unsigned long addr, unsigned long end)
-+{
-+	unsigned int type = rste & _REGION_ENTRY_TYPE_MASK;
-+	unsigned long size, mask, boundary;
-+
-+	switch (type) {
-+	case _REGION_ENTRY_TYPE_R1:
-+		size = PGDIR_SIZE;
-+		mask = PGDIR_MASK;
-+		break;
-+	case _REGION_ENTRY_TYPE_R2:
-+		size = P4D_SIZE;
-+		mask = P4D_MASK;
-+		break;
-+	case _REGION_ENTRY_TYPE_R3:
-+		size = PUD_SIZE;
-+		mask = PUD_MASK;
-+		break;
-+	default:
-+		BUG();
-+	};
-+
-+	boundary = (addr + size) & mask;
-+
-+	return (boundary - 1) < (end - 1) ? boundary : end;
-+}
-+
-+#define pgd_addr_end_folded pgd_addr_end_folded
-+static inline unsigned long pgd_addr_end_folded(pgd_t pgd, unsigned long addr,
-+						unsigned long end)
-+{
-+	return rste_addr_end_folded(pgd_val(pgd), addr, end);
-+}
-+
-+#define p4d_addr_end_folded p4d_addr_end_folded
-+static inline unsigned long p4d_addr_end_folded(p4d_t p4d, unsigned long addr,
-+						unsigned long end)
-+{
-+	return rste_addr_end_folded(p4d_val(p4d), addr, end);
-+}
-+
-+#define pud_addr_end_folded pud_addr_end_folded
-+static inline unsigned long pud_addr_end_folded(pud_t pud, unsigned long addr,
-+						unsigned long end)
-+{
-+	return rste_addr_end_folded(pud_val(pud), addr, end);
-+}
-+
- static inline int mm_has_pgste(struct mm_struct *mm)
- {
- #ifdef CONFIG_PGSTE
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index e8cbc2e795d5..43dacbce823f 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -681,6 +681,38 @@ static inline int arch_unmap_one(struct mm_struct *mm,
- })
- #endif
- 
-+/*
-+ * With dynamic page table levels on s390, the static pXd_addr_end() functions
-+ * will not return corresponding dynamic boundaries. This is no problem as long
-+ * as only pXd pointers are passed down during page table walk, because
-+ * pXd_offset() will simply return the given pointer for folded levels, and the
-+ * pointer iteration over a range simply happens at the correct page table
-+ * level.
-+ * It is however a problem with gup_fast, or other places walking the page
-+ * tables w/o locks using READ_ONCE(), and passing down the pXd values instead
-+ * of pointers. In this case, the pointer given to pXd_offset() is a pointer to
-+ * a stack variable, which cannot be used for pointer iteration at the correct
-+ * level. Instead, the iteration then has to happen by going up to pgd level
-+ * again. To allow this, provide pXd_addr_end_folded() functions with an
-+ * additional pXd value parameter, which can be used on s390 to determine the
-+ * folding level and return the corresponding boundary.
-+ */
-+#ifndef pgd_addr_end_folded
-+#define pgd_addr_end_folded(pgd, addr, end)	pgd_addr_end(addr, end)
-+#endif
-+
-+#ifndef p4d_addr_end_folded
-+#define p4d_addr_end_folded(p4d, addr, end)	p4d_addr_end(addr, end)
-+#endif
-+
-+#ifndef pud_addr_end_folded
-+#define pud_addr_end_folded(pud, addr, end)	pud_addr_end(addr, end)
-+#endif
-+
-+#ifndef pmd_addr_end_folded
-+#define pmd_addr_end_folded(pmd, addr, end)	pmd_addr_end(addr, end)
-+#endif
-+
- /*
-  * When walking page tables, we usually want to skip any p?d_none entries;
-  * and any p?d_bad entries - reporting the error before resetting to none.
-diff --git a/mm/gup.c b/mm/gup.c
-index ae096ea7583f..3157bc5ede24 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -2510,7 +2510,7 @@ static int gup_pmd_range(pud_t pud, unsigned long addr, unsigned long end,
- 	do {
- 		pmd_t pmd = READ_ONCE(*pmdp);
- 
--		next = pmd_addr_end(addr, end);
-+		next = pmd_addr_end_folded(pmd, addr, end);
- 		if (!pmd_present(pmd))
- 			return 0;
- 
-@@ -2553,7 +2553,7 @@ static int gup_pud_range(p4d_t p4d, unsigned long addr, unsigned long end,
- 	do {
- 		pud_t pud = READ_ONCE(*pudp);
- 
--		next = pud_addr_end(addr, end);
-+		next = pud_addr_end_folded(pud, addr, end);
- 		if (unlikely(!pud_present(pud)))
- 			return 0;
- 		if (unlikely(pud_huge(pud))) {
-@@ -2581,7 +2581,7 @@ static int gup_p4d_range(pgd_t pgd, unsigned long addr, unsigned long end,
- 	do {
- 		p4d_t p4d = READ_ONCE(*p4dp);
- 
--		next = p4d_addr_end(addr, end);
-+		next = p4d_addr_end_folded(p4d, addr, end);
- 		if (p4d_none(p4d))
- 			return 0;
- 		BUILD_BUG_ON(p4d_huge(p4d));
-@@ -2606,7 +2606,7 @@ static void gup_pgd_range(unsigned long addr, unsigned long end,
- 	do {
- 		pgd_t pgd = READ_ONCE(*pgdp);
- 
--		next = pgd_addr_end(addr, end);
-+		next = pgd_addr_end_folded(pgd, addr, end);
- 		if (pgd_none(pgd))
- 			return;
- 		if (unlikely(pgd_huge(pgd))) {
+-- 
+2.17.1
