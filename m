@@ -1,68 +1,40 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: Re: [PATCH v3 03/13] mm/debug_vm_pgtable/ppc64: Avoid setting top
- bits in radom value
-References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
- <20200827080438.315345-4-aneesh.kumar@linux.ibm.com>
- <3a0b0101-e6ec-26c5-e104-5b0bb95c3e51@arm.com>
- <1a8abe92-032b-f60f-1df1-52bb409b35a3@linux.ibm.com>
-Message-ID: <75771782-734b-69f6-4a07-2d3542458319@arm.com>
-Date: Tue, 1 Sep 2020 13:02:04 +0530
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728054AbgICFlS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 01:41:18 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 8/9] block: use bd_partno in bdevname
+Date: Thu,  3 Sep 2020 07:41:03 +0200
+Message-Id: <20200903054104.228829-9-hch@lst.de>
+In-Reply-To: <20200903054104.228829-1-hch@lst.de>
+References: <20200903054104.228829-1-hch@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <1a8abe92-032b-f60f-1df1-52bb409b35a3@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, drbd-dev@lists.linbit.com, linux-ide@vger.kernel.org, linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org
 
+No need to go through the hd_struct to find the partition number.
 
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ block/genhd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On 09/01/2020 11:51 AM, Aneesh Kumar K.V wrote:
-> On 9/1/20 8:45 AM, Anshuman Khandual wrote:
->>
->>
->> On 08/27/2020 01:34 PM, Aneesh Kumar K.V wrote:
->>> ppc64 use bit 62 to indicate a pte entry (_PAGE_PTE). Avoid setting that bit in
->>> random value.
->>>
->>> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
->>> ---
->>>   mm/debug_vm_pgtable.c | 13 ++++++++++---
->>>   1 file changed, 10 insertions(+), 3 deletions(-)
->>>
->>> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
->>> index 086309fb9b6f..bbf9df0e64c6 100644
->>> --- a/mm/debug_vm_pgtable.c
->>> +++ b/mm/debug_vm_pgtable.c
->>> @@ -44,10 +44,17 @@
->>>    * entry type. But these bits might affect the ability to clear entries with
->>>    * pxx_clear() because of how dynamic page table folding works on s390. So
->>>    * while loading up the entries do not change the lower 4 bits. It does not
->>> - * have affect any other platform.
->>> + * have affect any other platform. Also avoid the 62nd bit on ppc64 that is
->>> + * used to mark a pte entry.
->>>    */
->>> -#define S390_MASK_BITS    4
->>> -#define RANDOM_ORVALUE    GENMASK(BITS_PER_LONG - 1, S390_MASK_BITS)
->>> +#define S390_SKIP_MASK        GENMASK(3, 0)
->>> +#ifdef CONFIG_PPC_BOOK3S_64
->>> +#define PPC64_SKIP_MASK        GENMASK(62, 62)
->>> +#else
->>> +#define PPC64_SKIP_MASK        0x0
->>> +#endif
->>
->> Please drop the #ifdef CONFIG_PPC_BOOK3S_64 here. We already accommodate skip
->> bits for a s390 platform requirement and can also do so for ppc64 as well. As
->> mentioned before, please avoid adding any platform specific constructs in the
->> test.
->>
-> 
-> 
-> that is needed so that it can be built on 32 bit architectures.I did face build errors with arch-linux
-
-Could not (#if __BITS_PER_LONG == 32) be used instead or something like
-that. But should be a generic conditional check identifying 32 bit arch
-not anything platform specific.
+diff --git a/block/genhd.c b/block/genhd.c
+index 081f1039d9367f..771aa56b1a8c3d 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -85,7 +85,7 @@ char *disk_name(struct gendisk *hd, int partno, char *buf)
+ 
+ const char *bdevname(struct block_device *bdev, char *buf)
+ {
+-	return disk_name(bdev->bd_disk, bdev->bd_part->partno, buf);
++	return disk_name(bdev->bd_disk, bdev->bd_partno, buf);
+ }
+ EXPORT_SYMBOL(bdevname);
+ 
+-- 
+2.28.0
