@@ -1,184 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:39326 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725848AbgIAJeB (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 1 Sep 2020 05:34:01 -0400
-Subject: Re: [PATCH v3 09/13] mm/debug_vm_pgtable/locks: Move non page table
- modifying test together
-References: <20200827080438.315345-1-aneesh.kumar@linux.ibm.com>
- <20200827080438.315345-10-aneesh.kumar@linux.ibm.com>
- <d0a0a50c-702b-c63a-edf2-263e4e7bd4a5@arm.com>
- <b6240372-4554-8c17-186a-cdc0b0a9089c@linux.ibm.com>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Message-ID: <9b75b175-f319-d40e-a95e-b323b3db654a@arm.com>
-Date: Tue, 1 Sep 2020 15:03:23 +0530
-MIME-Version: 1.0
-In-Reply-To: <b6240372-4554-8c17-186a-cdc0b0a9089c@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8682 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729167AbgICTxk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 15:53:40 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 4/4] net/smc: fix sock refcounting in case of termination
+Date: Thu,  3 Sep 2020 21:53:18 +0200
+Message-Id: <20200903195318.39288-5-kgraul@linux.ibm.com>
+In-Reply-To: <20200903195318.39288-1-kgraul@linux.ibm.com>
+References: <20200903195318.39288-1-kgraul@linux.ibm.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: mpe@ellerman.id.au, linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-snps-arc@lists.infradead.org, x86@kernel.org, linux-arch@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Christophe Leroy <christophe.leroy@c-s.fr>, Vineet Gupta <vgupta@synopsys.com>, Mike Rapoport <rppt@linux.ibm.com>, Qian Cai <cai@lca.pw>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
+From: Ursula Braun <ubraun@linux.ibm.com>
 
+When an ISM device is removed, all its linkgroups are terminated,
+i.e. all the corresponding connections are killed.
+Connection killing invokes smc_close_active_abort(), which decreases
+the sock refcount for certain states to simulate passive closing.
+And it cancels the close worker and has to give up the sock lock for
+this timeframe. This opens the door for a passive close worker or a
+socket close to run in between. In this case smc_close_active_abort() and
+passive close worker resp. smc_release() might do a sock_put for passive
+closing. This causes:
 
-On 09/01/2020 12:08 PM, Aneesh Kumar K.V wrote:
-> On 9/1/20 9:11 AM, Anshuman Khandual wrote:
->>
->>
->> On 08/27/2020 01:34 PM, Aneesh Kumar K.V wrote:
->>> This will help in adding proper locks in a later patch
->>
->> It really makes sense to classify these tests here as static and dynamic.
->> Static are the ones that test via page table entry values modification
->> without changing anything on the actual page table itself. Where as the
->> dynamic tests do change the page table. Static tests would probably never
->> require any lock synchronization but the dynamic ones will do.
->>
->>>
->>> Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
->>> ---
->>>   mm/debug_vm_pgtable.c | 52 ++++++++++++++++++++++++-------------------
->>>   1 file changed, 29 insertions(+), 23 deletions(-)
->>>
->>> diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
->>> index 0ce5c6a24c5b..78c8af3445ac 100644
->>> --- a/mm/debug_vm_pgtable.c
->>> +++ b/mm/debug_vm_pgtable.c
->>> @@ -992,7 +992,7 @@ static int __init debug_vm_pgtable(void)
->>>       p4dp = p4d_alloc(mm, pgdp, vaddr);
->>>       pudp = pud_alloc(mm, p4dp, vaddr);
->>>       pmdp = pmd_alloc(mm, pudp, vaddr);
->>> -    ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
->>> +    ptep = pte_alloc_map(mm, pmdp, vaddr);
->>>         /*
->>>        * Save all the page table page addresses as the page table
->>> @@ -1012,33 +1012,12 @@ static int __init debug_vm_pgtable(void)
->>>       p4d_basic_tests(p4d_aligned, prot);
->>>       pgd_basic_tests(pgd_aligned, prot);
->>>   -    pte_clear_tests(mm, ptep, vaddr);
->>> -    pmd_clear_tests(mm, pmdp);
->>> -    pud_clear_tests(mm, pudp);
->>> -    p4d_clear_tests(mm, p4dp);
->>> -    pgd_clear_tests(mm, pgdp);
->>> -
->>> -    pte_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
->>> -    pmd_advanced_tests(mm, vma, pmdp, pmd_aligned, vaddr, prot, saved_ptep);
->>> -    pud_advanced_tests(mm, vma, pudp, pud_aligned, vaddr, prot);
->>> -    hugetlb_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
->>> -
->>>       pmd_leaf_tests(pmd_aligned, prot);
->>>       pud_leaf_tests(pud_aligned, prot);
->>>   -    pmd_huge_tests(pmdp, pmd_aligned, prot);
->>> -    pud_huge_tests(pudp, pud_aligned, prot);
->>> -
->>>       pte_savedwrite_tests(pte_aligned, protnone);
->>>       pmd_savedwrite_tests(pmd_aligned, protnone);
->>>   -    pte_unmap_unlock(ptep, ptl);
->>> -
->>> -    pmd_populate_tests(mm, pmdp, saved_ptep);
->>> -    pud_populate_tests(mm, pudp, saved_pmdp);
->>> -    p4d_populate_tests(mm, p4dp, saved_pudp);
->>> -    pgd_populate_tests(mm, pgdp, saved_p4dp);
->>> -
->>>       pte_special_tests(pte_aligned, prot);
->>>       pte_protnone_tests(pte_aligned, protnone);
->>>       pmd_protnone_tests(pmd_aligned, protnone);
->>> @@ -1056,11 +1035,38 @@ static int __init debug_vm_pgtable(void)
->>>       pmd_swap_tests(pmd_aligned, prot);
->>>         swap_migration_tests();
->>> -    hugetlb_basic_tests(pte_aligned, prot);
->>>         pmd_thp_tests(pmd_aligned, prot);
->>>       pud_thp_tests(pud_aligned, prot);
->>>   +    /*
->>> +     * Page table modifying tests
->>> +     */
->>
->> In this comment, please do add some more details about how these tests
->> need proper locking mechanism unlike the previous static ones. Also add
->> a similar comment section for the static tests that dont really change
->> page table and need not require corresponding locking mechanism. Both
->> comment sections will make this classification clear.
->>
->>> +    pte_clear_tests(mm, ptep, vaddr);
->>> +    pmd_clear_tests(mm, pmdp);
->>> +    pud_clear_tests(mm, pudp);
->>> +    p4d_clear_tests(mm, p4dp);
->>> +    pgd_clear_tests(mm, pgdp);
->>> +
->>> +    ptep = pte_alloc_map_lock(mm, pmdp, vaddr, &ptl);
->>> +    pte_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
->>> +    pmd_advanced_tests(mm, vma, pmdp, pmd_aligned, vaddr, prot, saved_ptep);
->>> +    pud_advanced_tests(mm, vma, pudp, pud_aligned, vaddr, prot);
->>> +    hugetlb_advanced_tests(mm, vma, ptep, pte_aligned, vaddr, prot);
->>> +
->>> +
->>> +    pmd_huge_tests(pmdp, pmd_aligned, prot);
->>> +    pud_huge_tests(pudp, pud_aligned, prot);
->>> +
->>> +    pte_unmap_unlock(ptep, ptl);
->>> +
->>> +    pmd_populate_tests(mm, pmdp, saved_ptep);
->>> +    pud_populate_tests(mm, pudp, saved_pmdp);
->>> +    p4d_populate_tests(mm, p4dp, saved_pudp);
->>> +    pgd_populate_tests(mm, pgdp, saved_p4dp);
->>> +
->>> +    hugetlb_basic_tests(pte_aligned, prot);
->>
->> hugetlb_basic_tests() is a non page table modifying static test and
->> should be classified accordingly.
->>
->>> +
->>>       p4d_free(mm, saved_p4dp);
->>>       pud_free(mm, saved_pudp);
->>>       pmd_free(mm, saved_pmdp);
->>>
->>
->> Changes till this patch fails to boot on arm64 platform. This should be
->> folded with the next patch.
->>
->> [   17.080644] ------------[ cut here ]------------
->> [   17.081342] kernel BUG at mm/pgtable-generic.c:164!
->> [   17.082091] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
->> [   17.082977] Modules linked in:
->> [   17.083481] CPU: 79 PID: 1 Comm: swapper/0 Tainted: G        W         5.9.0-rc2-00105-g740e72cd6717 #14
->> [   17.084998] Hardware name: linux,dummy-virt (DT)
->> [   17.085745] pstate: 60400005 (nZCv daif +PAN -UAO BTYPE=--)
->> [   17.086645] pc : pgtable_trans_huge_deposit+0x58/0x60
->> [   17.087462] lr : debug_vm_pgtable+0x4dc/0x8f0
->> [   17.088168] sp : ffff80001219bcf0
->> [   17.088710] x29: ffff80001219bcf0 x28: ffff8000114ac000
->> [   17.089574] x27: ffff8000114ac000 x26: 0020000000000fd3
->> [   17.090431] x25: 0020000081400fd3 x24: fffffe00175c12c0
->> [   17.091286] x23: ffff0005df04d1a8 x22: 0000f18d6e035000
->> [   17.092143] x21: ffff0005dd790000 x20: ffff0005df18e1a8
->> [   17.093003] x19: ffff0005df04cb80 x18: 0000000000000014
->> [   17.093859] x17: 00000000b76667d0 x16: 00000000fd4e6611
->> [   17.094716] x15: 0000000000000001 x14: 0000000000000002
->> [   17.095572] x13: 000000000055d966 x12: fffffe001755e400
->> [   17.096429] x11: 0000000000000008 x10: ffff0005fcb6e210
->> [   17.097292] x9 : ffff0005fcb6e210 x8 : 0020000081590fd3
->> [   17.098149] x7 : ffff0005dd71e0c0 x6 : ffff0005df18e1a8
->> [   17.099006] x5 : 0020000081590fd3 x4 : 0020000081590fd3
->> [   17.099862] x3 : ffff0005df18e1a8 x2 : fffffe00175c12c0
->> [   17.100718] x1 : fffffe00175c1300 x0 : 0000000000000000
->> [   17.101583] Call trace:
->> [   17.101993]  pgtable_trans_huge_deposit+0x58/0x60
->> [   17.102754]  do_one_initcall+0x74/0x1cc
->> [   17.103381]  kernel_init_freeable+0x1d0/0x238
->> [   17.104089]  kernel_init+0x14/0x118
->> [   17.104658]  ret_from_fork+0x10/0x34
->> [   17.105251] Code: f9000443 f9000843 f9000822 d65f03c0 (d4210000)
->> [   17.106303] ---[ end trace e63471e00f8c147f ]---
->>
-> 
-> IIUC, this should happen even without the series right? This is
-> 
->     assert_spin_locked(pmd_lockptr(mm, pmdp));
+[ 1323.315943] refcount_t: underflow; use-after-free.
+[ 1323.316055] WARNING: CPU: 3 PID: 54469 at lib/refcount.c:28 refcount_warn_saturate+0xe8/0x130
+[ 1323.316069] Kernel panic - not syncing: panic_on_warn set ...
+[ 1323.316084] CPU: 3 PID: 54469 Comm: uperf Not tainted 5.9.0-20200826.rc2.git0.46328853ed20.300.fc32.s390x+debug #1
+[ 1323.316096] Hardware name: IBM 2964 NC9 702 (z/VM 6.4.0)
+[ 1323.316108] Call Trace:
+[ 1323.316125]  [<00000000c0d4aae8>] show_stack+0x90/0xf8
+[ 1323.316143]  [<00000000c15989b0>] dump_stack+0xa8/0xe8
+[ 1323.316158]  [<00000000c0d8344e>] panic+0x11e/0x288
+[ 1323.316173]  [<00000000c0d83144>] __warn+0xac/0x158
+[ 1323.316187]  [<00000000c1597a7a>] report_bug+0xb2/0x130
+[ 1323.316201]  [<00000000c0d36424>] monitor_event_exception+0x44/0xc0
+[ 1323.316219]  [<00000000c195c716>] pgm_check_handler+0x1da/0x238
+[ 1323.316234]  [<00000000c151844c>] refcount_warn_saturate+0xec/0x130
+[ 1323.316280] ([<00000000c1518448>] refcount_warn_saturate+0xe8/0x130)
+[ 1323.316310]  [<000003ff801f2e2a>] smc_release+0x192/0x1c8 [smc]
+[ 1323.316323]  [<00000000c169f1fa>] __sock_release+0x5a/0xe0
+[ 1323.316334]  [<00000000c169f2ac>] sock_close+0x2c/0x40
+[ 1323.316350]  [<00000000c1086de0>] __fput+0xb8/0x278
+[ 1323.316362]  [<00000000c0db1e0e>] task_work_run+0x76/0xb8
+[ 1323.316393]  [<00000000c0d8ab84>] do_exit+0x26c/0x520
+[ 1323.316408]  [<00000000c0d8af08>] do_group_exit+0x48/0xc0
+[ 1323.316421]  [<00000000c0d8afa8>] __s390x_sys_exit_group+0x28/0x38
+[ 1323.316433]  [<00000000c195c32c>] system_call+0xe0/0x2b4
+[ 1323.316446] 1 lock held by uperf/54469:
+[ 1323.316456]  #0: 0000000044125e60 (&sb->s_type->i_mutex_key#9){+.+.}-{3:3}, at: __sock_release+0x44/0xe0
 
-Crash does not happen without this series. A previous patch [PATCH v3 08/13]
-added pgtable_trans_huge_deposit/withdraw() in pmd_advanced_tests(). arm64
-does not define __HAVE_ARCH_PGTABLE_DEPOSIT and hence falls back on generic
-pgtable_trans_huge_deposit() which the asserts the lock.
+The patch rechecks sock state in smc_close_active_abort() after
+smc_close_cancel_work() to avoid duplicate decrease of sock
+refcount for the same purpose.
+
+Fixes: 611b63a12732 ("net/smc: cancel tx worker in case of socket aborts")
+Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/smc_close.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 290270c821ca..35e30d39510d 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -116,7 +116,6 @@ static void smc_close_cancel_work(struct smc_sock *smc)
+ 	cancel_work_sync(&smc->conn.close_work);
+ 	cancel_delayed_work_sync(&smc->conn.tx_work);
+ 	lock_sock(sk);
+-	sk->sk_state = SMC_CLOSED;
+ }
+ 
+ /* terminate smc socket abnormally - active abort
+@@ -134,22 +133,22 @@ void smc_close_active_abort(struct smc_sock *smc)
+ 	}
+ 	switch (sk->sk_state) {
+ 	case SMC_ACTIVE:
+-		sk->sk_state = SMC_PEERABORTWAIT;
+-		smc_close_cancel_work(smc);
+-		sk->sk_state = SMC_CLOSED;
+-		sock_put(sk); /* passive closing */
+-		break;
+ 	case SMC_APPCLOSEWAIT1:
+ 	case SMC_APPCLOSEWAIT2:
++		sk->sk_state = SMC_PEERABORTWAIT;
+ 		smc_close_cancel_work(smc);
++		if (sk->sk_state != SMC_PEERABORTWAIT)
++			break;
+ 		sk->sk_state = SMC_CLOSED;
+-		sock_put(sk); /* postponed passive closing */
++		sock_put(sk); /* (postponed) passive closing */
+ 		break;
+ 	case SMC_PEERCLOSEWAIT1:
+ 	case SMC_PEERCLOSEWAIT2:
+ 	case SMC_PEERFINCLOSEWAIT:
+ 		sk->sk_state = SMC_PEERABORTWAIT;
+ 		smc_close_cancel_work(smc);
++		if (sk->sk_state != SMC_PEERABORTWAIT)
++			break;
+ 		sk->sk_state = SMC_CLOSED;
+ 		smc_conn_free(&smc->conn);
+ 		release_clcsock = true;
+@@ -159,6 +158,8 @@ void smc_close_active_abort(struct smc_sock *smc)
+ 	case SMC_APPFINCLOSEWAIT:
+ 		sk->sk_state = SMC_PEERABORTWAIT;
+ 		smc_close_cancel_work(smc);
++		if (sk->sk_state != SMC_PEERABORTWAIT)
++			break;
+ 		sk->sk_state = SMC_CLOSED;
+ 		smc_conn_free(&smc->conn);
+ 		release_clcsock = true;
+-- 
+2.17.1
