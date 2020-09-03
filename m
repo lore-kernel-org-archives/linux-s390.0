@@ -1,24 +1,27 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42560 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730115AbgIDKfw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Sep 2020 06:35:52 -0400
-Date: Fri, 4 Sep 2020 12:35:43 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42638 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729272AbgICOUv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 10:20:51 -0400
 Subject: Re: [PATCH 2/2] s390x: Add 3f program exception handler
-Message-ID: <20200904103543.GD6075@osiris>
 References: <20200903131435.2535-1-frankja@linux.ibm.com>
  <20200903131435.2535-3-frankja@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <f5b8e157-4d27-591a-781c-febd606e65a8@de.ibm.com>
+Date: Thu, 3 Sep 2020 16:20:42 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20200903131435.2535-3-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, borntraeger@de.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, david@redhat.com
+To: Janosch Frank <frankja@linux.ibm.com>, linux-s390@vger.kernel.org
+Cc: gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, david@redhat.com
 
-On Thu, Sep 03, 2020 at 09:14:35AM -0400, Janosch Frank wrote:
+
+
+On 03.09.20 15:14, Janosch Frank wrote:
 > Program exception 3f (secure storage violation) can only be detected
 > when the CPU is running in SIE with a format 4 state description,
 > e.g. running a protected guest. Because of this and because user
@@ -30,6 +33,12 @@ On Thu, Sep 03, 2020 at 09:14:35AM -0400, Janosch Frank wrote:
 > CC: <stable@vger.kernel.org> # 5.7+
 > Fixes: 084ea4d611a3 ("s390/mm: add (non)secure page access exceptions handlers")
 > Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+I guess we will pick this up via the s390 tree?
+
+ 
 > ---
 >  arch/s390/kernel/pgm_check.S |  2 +-
 >  arch/s390/mm/fault.c         | 23 +++++++++++++++++++++++
@@ -70,13 +79,21 @@ On Thu, Sep 03, 2020 at 09:14:35AM -0400, Janosch Frank wrote:
 > +	printk_ratelimited(KERN_WARNING
 > +			   "Secure storage violation in task: %s, pid %d\n",
 > +			   get_task_comm(buf, current), task_pid_nr(current));
-
-Why get_task_comm() and task_pid_nr() instead of simply current->comm
-and current->pid?
-Also: is the dmesg message of any value?
-
 > +	send_sig(SIGSEGV, current, 0);
 > +}
 > +NOKPROBE_SYMBOL(do_secure_storage_violation);
-
-Why is this NOKPROBE? Can this deadlock?
+> +
+>  #else
+>  void do_secure_storage_access(struct pt_regs *regs)
+>  {
+> @@ -869,4 +887,9 @@ void do_non_secure_storage_access(struct pt_regs *regs)
+>  {
+>  	default_trap_handler(regs);
+>  }
+> +
+> +void do_secure_storage_violation(struct pt_regs *regs)
+> +{
+> +	default_trap_handler(regs);
+> +}
+>  #endif
+> 
