@@ -1,57 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33040 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726126AbgIRRCn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 18 Sep 2020 13:02:43 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH] s390/vfio-ap: fix unregister GISC when KVM is already gone results in OOPS
-Date: Fri, 18 Sep 2020 13:02:34 -0400
-Message-Id: <20200918170234.5807-1-akrowiak@linux.ibm.com>
+Received: from pegase1.c-s.fr ([93.17.236.30]:45298 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726327AbgICR7I (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 3 Sep 2020 13:59:08 -0400
+Subject: Re: [PATCH 1/2] dma-mapping: introduce
+ dma_get_seg_boundary_nr_pages()
+References: <20200901221646.26491-1-nicoleotsuka@gmail.com>
+ <20200901221646.26491-2-nicoleotsuka@gmail.com>
+ <CAHp75VcVJBSnPQ6NfdF8FdEDfM+oQ=Sr+cH5VGX4SrAqrgpf-g@mail.gmail.com>
+ <20200903161252.GA24841@lst.de>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <7e1c3632-0917-0892-c1ca-8048674a3b05@csgroup.eu>
+Date: Thu, 3 Sep 2020 19:53:07 +0200
 MIME-Version: 1.0
+In-Reply-To: <20200903161252.GA24841@lst.de>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: fr
 Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, kwankhede@nvidia.com, borntraeger@de.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Christoph Hellwig <hch@lst.de>, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: linux-ia64@vger.kernel.org, James Bottomley <James.Bottomley@hansenpartnership.com>, Paul Mackerras <paulus@samba.org>, "H. Peter Anvin" <hpa@zytor.com>, sparclinux@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, Helge Deller <deller@gmx.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Matt Turner <mattst88@gmail.com>, Fenghua Yu <fenghua.yu@intel.com>, Vasily Gorbik <gor@linux.ibm.com>, schnelle@linux.ibm.com, hca@linux.ibm.com, Nicolin Chen <nicoleotsuka@gmail.com>, ink@jurassic.park.msu.ru, Thomas Gleixner <tglx@linutronix.de>, gerald.schaefer@linux.ibm.com, rth@twiddle.net, Tony Luck <tony.luck@intel.com>, linux-parisc@vger.kernel.org, linux-s390@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-alpha@vger.kernel.org, Borislav Petkov <bp@alien8.de>, "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" <linuxppc-dev@lists.ozlabs.org>, "David S. Miller" <davem@davemloft.net>
 
-Attempting to unregister Guest Interruption Subclass (GISC) when the
-link between the matrix mdev and KVM has been removed results in the
-following:
 
-   "Kernel panic -not syncing: Fatal exception: panic_on_oops"
 
-This patch fixes this bug by verifying the matrix mdev and KVM are still
-linked prior to unregistering the GISC.
+Le 03/09/2020 à 18:12, Christoph Hellwig a écrit :
+> On Thu, Sep 03, 2020 at 01:57:39PM +0300, Andy Shevchenko wrote:
+>>> +{
+>>> +       if (!dev)
+>>> +               return (U32_MAX >> page_shift) + 1;
+>>> +       return (dma_get_seg_boundary(dev) >> page_shift) + 1;
+>>
+>> Can it be better to do something like
+>>    unsigned long boundary = dev ? dma_get_seg_boundary(dev) : U32_MAX;
+>>
+>>    return (boundary >> page_shift) + 1;
+>>
+>> ?
+> 
+> I don't really see what that would buy us.
+> 
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+I guess it would avoid the duplication of    >> page_shift) + 1
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e0bde8518745..847a88642644 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -119,11 +119,15 @@ static void vfio_ap_wait_for_irqclear(int apqn)
-  */
- static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
- {
--	if (q->saved_isc != VFIO_AP_ISC_INVALID && q->matrix_mdev)
--		kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
--	if (q->saved_pfn && q->matrix_mdev)
--		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
--				 &q->saved_pfn, 1);
-+	if (q->matrix_mdev) {
-+		if (q->saved_isc != VFIO_AP_ISC_INVALID && q->matrix_mdev->kvm)
-+			kvm_s390_gisc_unregister(q->matrix_mdev->kvm,
-+						 q->saved_isc);
-+		if (q->saved_pfn)
-+			vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
-+					 &q->saved_pfn, 1);
-+	}
-+
- 	q->saved_pfn = 0;
- 	q->saved_isc = VFIO_AP_ISC_INVALID;
- }
--- 
-2.21.1
+Christophe
