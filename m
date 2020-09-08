@@ -1,162 +1,91 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47758 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726526AbgI1OXp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 28 Sep 2020 10:23:45 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 1/4] memory: allocation in low memory
-Date: Mon, 28 Sep 2020 16:23:34 +0200
-Message-Id: <1601303017-8176-2-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1601303017-8176-1-git-send-email-pmorel@linux.ibm.com>
-References: <1601303017-8176-1-git-send-email-pmorel@linux.ibm.com>
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28908 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730523AbgIHULY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 16:11:24 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v2 5/7] virtio-mem: try to merge system ram resources
+Date: Tue,  8 Sep 2020 22:10:10 +0200
+Message-Id: <20200908201012.44168-6-david@redhat.com>
+In-Reply-To: <20200908201012.44168-1-david@redhat.com>
+References: <20200908201012.44168-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-Some architectures need allocations to be done under a
-specific address limit to allow DMA from I/O.
+virtio-mem adds memory in memory block granularity, to be able to
+remove it in the same granularity again later, and to grow slowly on
+demand. This, however, results in quite a lot of resources when
+adding a lot of memory. Resources are effectively stored in a list-based
+tree. Having a lot of resources not only wastes memory, it also makes
+traversing that tree more expensive, and makes /proc/iomem explode in
+size (e.g., requiring kexec-tools to manually merge resources later
+when e.g., trying to create a kdump header).
 
-We propose here a very simple page allocator to get
-pages allocated under this specific limit.
+Before this patch, we get (/proc/iomem) when hotplugging 2G via virtio-mem
+on x86-64:
+        [...]
+        100000000-13fffffff : System RAM
+        140000000-33fffffff : virtio0
+          140000000-147ffffff : System RAM (virtio_mem)
+          148000000-14fffffff : System RAM (virtio_mem)
+          150000000-157ffffff : System RAM (virtio_mem)
+          158000000-15fffffff : System RAM (virtio_mem)
+          160000000-167ffffff : System RAM (virtio_mem)
+          168000000-16fffffff : System RAM (virtio_mem)
+          170000000-177ffffff : System RAM (virtio_mem)
+          178000000-17fffffff : System RAM (virtio_mem)
+          180000000-187ffffff : System RAM (virtio_mem)
+          188000000-18fffffff : System RAM (virtio_mem)
+          190000000-197ffffff : System RAM (virtio_mem)
+          198000000-19fffffff : System RAM (virtio_mem)
+          1a0000000-1a7ffffff : System RAM (virtio_mem)
+          1a8000000-1afffffff : System RAM (virtio_mem)
+          1b0000000-1b7ffffff : System RAM (virtio_mem)
+          1b8000000-1bfffffff : System RAM (virtio_mem)
+        3280000000-32ffffffff : PCI Bus 0000:00
 
-The DMA page allocator will only use part of the available memory
-under the DMA address limit to let room for the standard allocator.
+With this patch, we get (/proc/iomem):
+        [...]
+        fffc0000-ffffffff : Reserved
+        100000000-13fffffff : System RAM
+        140000000-33fffffff : virtio0
+          140000000-1bfffffff : System RAM (virtio_mem)
+        3280000000-32ffffffff : PCI Bus 0000:00
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Of course, with more hotplugged memory, it gets worse. When unplugging
+memory blocks again, try_remove_memory() (via
+offline_and_remove_memory()) will properly split the resource up again.
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- lib/alloc_dma_page.c | 57 ++++++++++++++++++++++++++++++++++++++++++++
- lib/alloc_dma_page.h | 24 +++++++++++++++++++
- lib/s390x/sclp.c     |  2 ++
- s390x/Makefile       |  1 +
- 4 files changed, 84 insertions(+)
- create mode 100644 lib/alloc_dma_page.c
- create mode 100644 lib/alloc_dma_page.h
+ drivers/virtio/virtio_mem.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/lib/alloc_dma_page.c b/lib/alloc_dma_page.c
-new file mode 100644
-index 0000000..6a16e38
---- /dev/null
-+++ b/lib/alloc_dma_page.c
-@@ -0,0 +1,57 @@
-+/*
-+ * Page allocator for DMA
-+ *
-+ * Copyright (c) IBM, Corp. 2020
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU Library General Public License version 2.
-+ */
-+#include <libcflat.h>
-+#include <asm/spinlock.h>
-+#include <alloc_dma_page.h>
-+
-+static struct spinlock lock;
-+static void *dma_freelist = 0;
-+
-+void put_dma_page(void *dma_page)
-+{
-+	spin_lock(&lock);
-+	*(void **)dma_page = dma_freelist;
-+	dma_freelist = dma_page;
-+	spin_unlock(&lock);
-+}
-+
-+void *get_dma_page(void)
-+{
-+	void *p = NULL;
-+
-+	spin_lock(&lock);
-+	if (!dma_freelist)
-+		goto end_unlock;
-+
-+	p = dma_freelist;
-+	dma_freelist = *(void **)dma_freelist;
-+
-+end_unlock:
-+	spin_unlock(&lock);
-+	return p;
-+}
-+
-+phys_addr_t dma_page_alloc_init(phys_addr_t start, phys_addr_t end)
-+{
-+	int start_pfn = start >> PAGE_SHIFT;
-+	int nb_pfn = ((end - start) >> PAGE_SHIFT) - 1;
-+	int max, pfn;
-+
-+	max = start_pfn + nb_pfn / DMA_ALLOC_RATIO;
-+	if (max > DMA_MAX_PFN)
-+		max = DMA_MAX_PFN;
-+
-+	for (pfn = start_pfn; pfn < max; pfn++)
-+		put_dma_page((void *)((unsigned long) pfn << PAGE_SHIFT));
-+
-+	return (phys_addr_t)pfn << PAGE_SHIFT;
-+}
-diff --git a/lib/alloc_dma_page.h b/lib/alloc_dma_page.h
-new file mode 100644
-index 0000000..85e1d2f
---- /dev/null
-+++ b/lib/alloc_dma_page.h
-@@ -0,0 +1,24 @@
-+/*
-+ * Page allocator for DMA definitions
-+ *
-+ * Copyright (c) IBM, Corp. 2020
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU Library General Public License version 2.
-+ */
-+#ifndef _ALLOC_DMA_PAGE_H_
-+#define _ALLOC_DMA_PAGE_H_
-+
-+#include <asm/page.h>
-+
-+void put_dma_page(void *dma_page);
-+void *get_dma_page(void);
-+phys_addr_t dma_page_alloc_init(phys_addr_t start_pfn, phys_addr_t nb_pages);
-+
-+#define DMA_MAX_PFN	(0x80000000 >> PAGE_SHIFT)
-+#define DMA_ALLOC_RATIO	8
-+
-+#endif /* _ALLOC_DMA_PAGE_H_ */
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 4054d0e..9c95ca5 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -19,6 +19,7 @@
- #include "sclp.h"
- #include <alloc_phys.h>
- #include <alloc_page.h>
-+#include <alloc_dma_page.h>
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 314ab753139d1..ba4de598f6636 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -424,7 +424,8 @@ static int virtio_mem_mb_add(struct virtio_mem *vm, unsigned long mb_id)
  
- extern unsigned long stacktop;
+ 	dev_dbg(&vm->vdev->dev, "adding memory block: %lu\n", mb_id);
+ 	return add_memory_driver_managed(nid, addr, memory_block_size_bytes(),
+-					 vm->resource_name, 0);
++					 vm->resource_name,
++					 MEMHP_MERGE_RESOURCE);
+ }
  
-@@ -35,6 +36,7 @@ static void mem_init(phys_addr_t mem_end)
- 	phys_addr_t freemem_start = (phys_addr_t)&stacktop;
- 	phys_addr_t base, top;
- 
-+	freemem_start = dma_page_alloc_init(freemem_start, mem_end);
- 	phys_alloc_init(freemem_start, mem_end - freemem_start);
- 	phys_alloc_get_unused(&base, &top);
- 	base = (base + PAGE_SIZE - 1) & -PAGE_SIZE;
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 9144d57..109ef9f 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -52,6 +52,7 @@ cflatobjs += lib/alloc_phys.o
- cflatobjs += lib/alloc_page.o
- cflatobjs += lib/vmalloc.o
- cflatobjs += lib/alloc_phys.o
-+cflatobjs += lib/alloc_dma_page.o
- cflatobjs += lib/s390x/io.o
- cflatobjs += lib/s390x/stack.o
- cflatobjs += lib/s390x/sclp.o
+ /*
 -- 
-2.25.1
+2.26.2
