@@ -1,93 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:33600 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725963AbgIKKgE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Sep 2020 06:36:04 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v4 6/8] virtio-mem: try to merge system ram resources
-Date: Fri, 11 Sep 2020 12:34:57 +0200
-Message-Id: <20200911103459.10306-7-david@redhat.com>
-In-Reply-To: <20200911103459.10306-1-david@redhat.com>
-References: <20200911103459.10306-1-david@redhat.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49038 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730833AbgIHPvu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 11:51:50 -0400
+Date: Tue, 8 Sep 2020 17:48:59 +0200
+From: Alexander Gordeev <agordeev@linux.ibm.com>
+Subject: Re: [RFC PATCH v2 3/3] mm: make generic pXd_addr_end() macros inline
+ functions
+Message-ID: <20200908154859.GA11583@oc3871087118.ibm.com>
+References: <20200907180058.64880-1-gerald.schaefer@linux.ibm.com>
+ <20200907180058.64880-4-gerald.schaefer@linux.ibm.com>
+ <4c101685-5b29-dace-9dd2-b6f0ae193a9c@csgroup.eu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4c101685-5b29-dace-9dd2-b6f0ae193a9c@csgroup.eu>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
+To: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, Peter Zijlstra <peterz@infradead.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-mm <linux-mm@kvack.org>, Paul Mackerras <paulus@samba.org>, linux-sparc <sparclinux@vger.kernel.org>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Richard Weinberger <richard@nod.at>, linux-x86 <x86@kernel.org>, Russell King <linux@armlinux.org.uk>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Heiko Carstens <hca@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, Jeff Dike <jdike@addtoit.com>, linux-um <linux-um@lists.infradead.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm <linux-arm-kernel@lists.infradead.org>, linux-power <linuxppc-dev@lists.ozlabs.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>
 
-virtio-mem adds memory in memory block granularity, to be able to
-remove it in the same granularity again later, and to grow slowly on
-demand. This, however, results in quite a lot of resources when
-adding a lot of memory. Resources are effectively stored in a list-based
-tree. Having a lot of resources not only wastes memory, it also makes
-traversing that tree more expensive, and makes /proc/iomem explode in
-size (e.g., requiring kexec-tools to manually merge resources later
-when e.g., trying to create a kdump header).
+On Tue, Sep 08, 2020 at 07:19:38AM +0200, Christophe Leroy wrote:
 
-Before this patch, we get (/proc/iomem) when hotplugging 2G via virtio-mem
-on x86-64:
-        [...]
-        100000000-13fffffff : System RAM
-        140000000-33fffffff : virtio0
-          140000000-147ffffff : System RAM (virtio_mem)
-          148000000-14fffffff : System RAM (virtio_mem)
-          150000000-157ffffff : System RAM (virtio_mem)
-          158000000-15fffffff : System RAM (virtio_mem)
-          160000000-167ffffff : System RAM (virtio_mem)
-          168000000-16fffffff : System RAM (virtio_mem)
-          170000000-177ffffff : System RAM (virtio_mem)
-          178000000-17fffffff : System RAM (virtio_mem)
-          180000000-187ffffff : System RAM (virtio_mem)
-          188000000-18fffffff : System RAM (virtio_mem)
-          190000000-197ffffff : System RAM (virtio_mem)
-          198000000-19fffffff : System RAM (virtio_mem)
-          1a0000000-1a7ffffff : System RAM (virtio_mem)
-          1a8000000-1afffffff : System RAM (virtio_mem)
-          1b0000000-1b7ffffff : System RAM (virtio_mem)
-          1b8000000-1bfffffff : System RAM (virtio_mem)
-        3280000000-32ffffffff : PCI Bus 0000:00
+[...]
 
-With this patch, we get (/proc/iomem):
-        [...]
-        fffc0000-ffffffff : Reserved
-        100000000-13fffffff : System RAM
-        140000000-33fffffff : virtio0
-          140000000-1bfffffff : System RAM (virtio_mem)
-        3280000000-32ffffffff : PCI Bus 0000:00
+> >diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+> >index 67ebc22cf83d..d9e7d16c2263 100644
+> >--- a/include/linux/pgtable.h
+> >+++ b/include/linux/pgtable.h
+> >@@ -656,31 +656,35 @@ static inline int arch_unmap_one(struct mm_struct *mm,
+> >   */
+> >  #ifndef pgd_addr_end
+> >-#define pgd_addr_end(pgd, addr, end)					\
+> >-({	unsigned long __boundary = ((addr) + PGDIR_SIZE) & PGDIR_MASK;	\
+> >-	(__boundary - 1 < (end) - 1)? __boundary: (end);		\
+> >-})
+> >+#define pgd_addr_end pgd_addr_end
+> 
+> I think that #define is pointless, usually there is no such #define
+> for the default case.
 
-Of course, with more hotplugged memory, it gets worse. When unplugging
-memory blocks again, try_remove_memory() (via
-offline_and_remove_memory()) will properly split the resource up again.
+Default pgd_addr_end() gets overriden on s390 (arch/s390/include/asm/pgtable.h):
 
-Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_mem.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+#define pgd_addr_end pgd_addr_end
+static inline unsigned long pgd_addr_end(pgd_t pgd, unsigned long addr, unsigned long end)
+{
+	return rste_addr_end_folded(pgd_val(pgd), addr, end);
+}
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index ed99e43354010..ba4de598f6636 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -424,7 +424,8 @@ static int virtio_mem_mb_add(struct virtio_mem *vm, unsigned long mb_id)
- 
- 	dev_dbg(&vm->vdev->dev, "adding memory block: %lu\n", mb_id);
- 	return add_memory_driver_managed(nid, addr, memory_block_size_bytes(),
--					 vm->resource_name, MHP_NONE);
-+					 vm->resource_name,
-+					 MEMHP_MERGE_RESOURCE);
- }
- 
- /*
--- 
-2.26.2
+> >+static inline unsigned long pgd_addr_end(pgd_t pgd, unsigned long addr, unsigned long end)
+> >+{	unsigned long __boundary = (addr + PGDIR_SIZE) & PGDIR_MASK;
+> >+	return (__boundary - 1 < end - 1) ? __boundary : end;
+> >+}
