@@ -1,53 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727929AbgICFlL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 01:41:11 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 3/9] md: compare bd_disk instead of bd_contains
-Date: Thu,  3 Sep 2020 07:40:58 +0200
-Message-Id: <20200903054104.228829-4-hch@lst.de>
-In-Reply-To: <20200903054104.228829-1-hch@lst.de>
-References: <20200903054104.228829-1-hch@lst.de>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:31274 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730118AbgIHIfj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 04:35:39 -0400
+Received: by mail-wr1-f70.google.com with SMTP id v12so6714557wrm.9
+        for <linux-s390@vger.kernel.org>; Tue, 08 Sep 2020 01:35:34 -0700 (PDT)
+Date: Tue, 8 Sep 2020 04:35:25 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v11 0/2] s390: virtio: let arch validate VIRTIO features
+Message-ID: <20200908043503-mutt-send-email-mst@kernel.org>
+References: <1599471547-28631-1-git-send-email-pmorel@linux.ibm.com>
+ <20200908003951.233e47f3.pasic@linux.ibm.com>
+ <20200908085521.4db22680.cohuck@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200908085521.4db22680.cohuck@redhat.com>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, drbd-dev@lists.linbit.com, linux-ide@vger.kernel.org, linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-To check for partitions of the same disk bd_contains works as well, but
-bd_disk is way more obvious.
+On Tue, Sep 08, 2020 at 08:55:21AM +0200, Cornelia Huck wrote:
+> On Tue, 8 Sep 2020 00:39:51 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+> > On Mon,  7 Sep 2020 11:39:05 +0200
+> > Pierre Morel <pmorel@linux.ibm.com> wrote:
+> > 
+> > > Hi all,
+> > > 
+> > > The goal of the series is to give a chance to the architecture
+> > > to validate VIRTIO device features.  
+> > 
+> > Michael, is this going in via your tree?
+> > 
+> 
+> I believe Michael's tree is the right place for this, but I can also
+> queue it if I get an ack on patch 1.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/md/md.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+I think Halil pointed out some minor issues, so a new version is in
+order.
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 9562ef598ae1f4..3f33562d10d6f5 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -2322,8 +2322,7 @@ static int match_mddev_units(struct mddev *mddev1, struct mddev *mddev2)
- 			    test_bit(Journal, &rdev2->flags) ||
- 			    rdev2->raid_disk == -1)
- 				continue;
--			if (rdev->bdev->bd_contains ==
--			    rdev2->bdev->bd_contains) {
-+			if (rdev->bdev->bd_disk == rdev2->bdev->bd_disk) {
- 				rcu_read_unlock();
- 				return 1;
- 			}
-@@ -5944,8 +5943,8 @@ int md_run(struct mddev *mddev)
- 		rdev_for_each(rdev, mddev)
- 			rdev_for_each(rdev2, mddev) {
- 				if (rdev < rdev2 &&
--				    rdev->bdev->bd_contains ==
--				    rdev2->bdev->bd_contains) {
-+				    rdev->bdev->bd_disk ==
-+				    rdev2->bdev->bd_disk) {
- 					pr_warn("%s: WARNING: %s appears to be on the same physical disk as %s.\n",
- 						mdname(mddev),
- 						bdevname(rdev->bdev,b),
 -- 
-2.28.0
+MST
