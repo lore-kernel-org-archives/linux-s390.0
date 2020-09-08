@@ -1,206 +1,149 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH v2 8/8] selftests/vm: hmm-tests: remove the libhugetlbfs dependency
-Date: Tue, 29 Sep 2020 14:27:47 -0700
-Message-ID: <20200929212747.251804-9-jhubbard@nvidia.com>
-In-Reply-To: <20200929212747.251804-1-jhubbard@nvidia.com>
-References: <20200929212747.251804-1-jhubbard@nvidia.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31792 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727995AbgIHJSK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 05:18:10 -0400
+Subject: Re: [PATCH v2] KVM: s390: Introduce storage key removal facility
+References: <b34e559a-8292-873f-8d33-1e7ce819f4d5@de.ibm.com>
+ <20200907143352.96618-1-frankja@linux.ibm.com>
+ <20200907183030.07333af7.cohuck@redhat.com>
+ <cd3ce2d9-99a5-5bb5-9b13-62d378274265@linux.ibm.com>
+ <20200908103650.0c8cf352.cohuck@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <185f1fb3-66a5-587e-470c-d228ffd77c2e@de.ibm.com>
+Date: Tue, 8 Sep 2020 11:18:02 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
+In-Reply-To: <20200908103650.0c8cf352.cohuck@redhat.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
+To: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, imbrenda@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org
 
-HMM selftests are incredibly useful, but they are only effective if
-people actually build and run them. All the other tests in selftests/vm
-can be built with very standard, always-available libraries: libpthread,
-librt. The hmm-tests.c program, on the other hand, requires something
-that is (much) less readily available: libhugetlbfs. And so the build
-will typically fail for many developers.
 
-A simple attempt to install libhugetlbfs will also run into
-complications on some common distros these days: Fedora and Arch Linux
-(yes, Arch AUR has it, but that's fragile, as always with AUR). The
-library is not maintained actively enough at the moment, for distros to
-deal with it. I had to build it from source, for Fedora, and that didn't
-go too smoothly either.
 
-It turns out that, out of 21 tests in hmm-tests.c, only 2 actually
-require functionality from libhugetlbfs. Therefore, if libhugetlbfs is
-missing, simply ifdef those two tests out and allow the developer to at
-least have the other 19 tests, if they don't want to pause to work
-through the above issues. Also issue a warning, so that it's clear that
-there is an imperfection in the build.
+On 08.09.20 10:36, Cornelia Huck wrote:
+> On Tue, 8 Sep 2020 09:52:48 +0200
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> On 9/7/20 6:30 PM, Cornelia Huck wrote:
+>>> On Mon,  7 Sep 2020 10:33:52 -0400
+>>> Janosch Frank <frankja@linux.ibm.com> wrote:
+>>>   
+>>>> The storage key removal facility makes skey related instructions
+>>>> result in special operation program exceptions. It is based on the
+>>>> Keyless Subset Facility.
+>>>>
+>>>> The usual suspects are iske, sske, rrbe and their respective
+>>>> variants. lpsw(e), pfmf and tprot can also specify a key and essa with
+>>>> an ORC of 4 will consult the change bit, hence they all result in
+>>>> exceptions.
+>>>>
+>>>> Unfortunately storage keys were so essential to the architecture, that
+>>>> there is no facility bit that we could deactivate. That's why the
+>>>> removal facility (bit 169) was introduced which makes it necessary,
+>>>> that, if active, the skey related facilities 10, 14, 66, 145 and 149
+>>>> are zero. Managing this requirement and migratability has to be done
+>>>> in userspace, as KVM does not check the facilities it receives to be
+>>>> able to easily implement userspace emulation.
+>>>>
+>>>> Removing storage key support allows us to circumvent complicated
+>>>> emulation code and makes huge page support tremendously easier.
+>>>>
+>>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>>> ---
+>>>>
+>>>> v2:
+>>>> 	* Removed the likely
+>>>> 	* Updated and re-shuffeled the comments which had the wrong information
+>>>>
+>>>> ---
+>>>>  arch/s390/kvm/intercept.c | 40 ++++++++++++++++++++++++++++++++++++++-
+>>>>  arch/s390/kvm/kvm-s390.c  |  5 +++++
+>>>>  arch/s390/kvm/priv.c      | 26 ++++++++++++++++++++++---
+>>>>  3 files changed, 67 insertions(+), 4 deletions(-)
+>>>>
+>>>> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+>>>> index e7a7c499a73f..983647ea2abe 100644
+>>>> --- a/arch/s390/kvm/intercept.c
+>>>> +++ b/arch/s390/kvm/intercept.c
+>>>> @@ -33,6 +33,7 @@ u8 kvm_s390_get_ilen(struct kvm_vcpu *vcpu)
+>>>>  	case ICPT_OPEREXC:
+>>>>  	case ICPT_PARTEXEC:
+>>>>  	case ICPT_IOINST:
+>>>> +	case ICPT_KSS:
+>>>>  		/* instruction only stored for these icptcodes */
+>>>>  		ilen = insn_length(vcpu->arch.sie_block->ipa >> 8);
+>>>>  		/* Use the length of the EXECUTE instruction if necessary */
+>>>> @@ -565,7 +566,44 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+>>>>  		rc = handle_partial_execution(vcpu);
+>>>>  		break;
+>>>>  	case ICPT_KSS:
+>>>> -		rc = kvm_s390_skey_check_enable(vcpu);
+>>>> +		if (!test_kvm_facility(vcpu->kvm, 169)) {
+>>>> +			rc = kvm_s390_skey_check_enable(vcpu);
+>>>> +		} else {  
+>>>
+>>> <bikeshed>Introduce a helper function? This is getting a bit hard to
+>>> read.</bikeshed>
+>>>   
+>>>> +			/*
+>>>> +			 * Storage key removal facility emulation.
+>>>> +			 *
+>>>> +			 * KSS is the same priority as an instruction
+>>>> +			 * interception. Hence we need handling here
+>>>> +			 * and in the instruction emulation code.
+>>>> +			 *
+>>>> +			 * KSS is nullifying (no psw forward), SKRF
+>>>> +			 * issues suppressing SPECIAL OPS, so we need
+>>>> +			 * to forward by hand.
+>>>> +			 */
+>>>> +			switch (vcpu->arch.sie_block->ipa) {
+>>>> +			case 0xb2b2:
+>>>> +				kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
+>>>> +				rc = kvm_s390_handle_b2(vcpu);
+>>>> +				break;
+>>>> +			case 0x8200:  
+>>>
+>>> Can we have speaking names? I can only guess that this is an lpsw...  
+>>
+>> You can only guess from the kvm_s390_handle_lpsw() call below? ;-)
+>>
+>> I'd be happy to put this into an own function and add some comments to
+>> the cases where we lack them. However, I don't really want to define
+>> constants for speaking names.
+> 
+> Well, I can guess the lpsw here :) but not the b2b2 above. Maybe add a
+> comment like /* handle lpsw/lpswe */?
 
-In order to do that, a tiny shell script (check_config.sh) runs a quick
-compile (not link, that's too prone to false failures with library
-paths), and basically, if the compiler doesn't find hugetlbfs.h in its
-standard locations, then the script concludes that libhugetlbfs is not
-available. The output is in two files, one for inclusion in hmm-test.c
-(local_config.h), and one for inclusion in the Makefile
-(local_config.mk).
-
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
----
- tools/testing/selftests/vm/.gitignore      |  1 +
- tools/testing/selftests/vm/Makefile        | 24 +++++++++++++++--
- tools/testing/selftests/vm/check_config.sh | 31 ++++++++++++++++++++++
- tools/testing/selftests/vm/hmm-tests.c     | 10 ++++++-
- 4 files changed, 63 insertions(+), 3 deletions(-)
- create mode 100755 tools/testing/selftests/vm/check_config.sh
-
-diff --git a/tools/testing/selftests/vm/.gitignore b/tools/testing/selftest=
-s/vm/.gitignore
-index 2c8ddcf41c0e..e90d28bcd518 100644
---- a/tools/testing/selftests/vm/.gitignore
-+++ b/tools/testing/selftests/vm/.gitignore
-@@ -20,3 +20,4 @@ va_128TBswitch
- map_fixed_noreplace
- write_to_hugetlbfs
- hmm-tests
-+local_config.*
-diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/=
-vm/Makefile
-index 2579242386ac..019cbb7f3cf8 100644
---- a/tools/testing/selftests/vm/Makefile
-+++ b/tools/testing/selftests/vm/Makefile
-@@ -1,5 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- # Makefile for vm selftests
-+
-+include local_config.mk
-+
- uname_M :=3D $(shell uname -m 2>/dev/null || echo not)
- MACHINE ?=3D $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/')
-=20
-@@ -76,8 +79,6 @@ TEST_FILES :=3D test_vmalloc.sh
- KSFT_KHDR_INSTALL :=3D 1
- include ../lib.mk
-=20
--$(OUTPUT)/hmm-tests: LDLIBS +=3D -lhugetlbfs
--
- ifeq ($(ARCH),x86_64)
- BINARIES_32 :=3D $(patsubst %,$(OUTPUT)/%,$(BINARIES_32))
- BINARIES_64 :=3D $(patsubst %,$(OUTPUT)/%,$(BINARIES_64))
-@@ -130,3 +131,22 @@ endif
- $(OUTPUT)/mlock-random-test: LDLIBS +=3D -lcap
-=20
- $(OUTPUT)/gup_test: ../../../../mm/gup_test.h
-+
-+$(OUTPUT)/hmm-tests: local_config.h
-+
-+# HMM_EXTRA_LIBS may get set in local_config.mk, or it may be left empty.
-+$(OUTPUT)/hmm-tests: LDLIBS +=3D $(HMM_EXTRA_LIBS)
-+
-+local_config.mk local_config.h: check_config.sh
-+	./check_config.sh $(CC)
-+
-+EXTRA_CLEAN +=3D local_config.mk local_config.h
-+
-+ifeq ($(HMM_EXTRA_LIBS),)
-+all: warn_missing_hugelibs
-+
-+warn_missing_hugelibs:
-+	@echo ; \
-+	echo "Warning: missing libhugetlbfs support. Some HMM tests will be skipp=
-ed." ; \
-+	echo
-+endif
-diff --git a/tools/testing/selftests/vm/check_config.sh b/tools/testing/sel=
-ftests/vm/check_config.sh
-new file mode 100755
-index 000000000000..079c8a40b85d
---- /dev/null
-+++ b/tools/testing/selftests/vm/check_config.sh
-@@ -0,0 +1,31 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0
-+#
-+# Probe for libraries and create header files to record the results. Both =
-C
-+# header files and Makefile include fragments are created.
-+
-+OUTPUT_H_FILE=3Dlocal_config.h
-+OUTPUT_MKFILE=3Dlocal_config.mk
-+
-+# libhugetlbfs
-+tmpname=3D$(mktemp)
-+tmpfile_c=3D${tmpname}.c
-+tmpfile_o=3D${tmpname}.o
-+
-+echo "#include <sys/types.h>"        > $tmpfile_c
-+echo "#include <hugetlbfs.h>"       >> $tmpfile_c
-+echo "int func(void) { return 0; }" >> $tmpfile_c
-+
-+CC=3D${1:?"Usage: $0 <compiler> # example compiler: gcc"}
-+$CC -c $tmpfile_c -o $tmpfile_o >/dev/null 2>&1
-+
-+if [ -f $tmpfile_o ]; then
-+    echo "#define LOCAL_CONFIG_HAVE_LIBHUGETLBFS 1" > $OUTPUT_H_FILE
-+    echo "HMM_EXTRA_LIBS =3D -lhugetlbfs"             > $OUTPUT_MKFILE
-+else
-+    echo "// No libhugetlbfs support found"      > $OUTPUT_H_FILE
-+    echo "# No libhugetlbfs support found, so:"  > $OUTPUT_MKFILE
-+    echo "HMM_EXTRA_LIBS =3D "                    >> $OUTPUT_MKFILE
-+fi
-+
-+rm ${tmpname}.*
-diff --git a/tools/testing/selftests/vm/hmm-tests.c b/tools/testing/selftes=
-ts/vm/hmm-tests.c
-index 0a28a6a29581..6b79723d7dc6 100644
---- a/tools/testing/selftests/vm/hmm-tests.c
-+++ b/tools/testing/selftests/vm/hmm-tests.c
-@@ -21,12 +21,16 @@
- #include <strings.h>
- #include <time.h>
- #include <pthread.h>
--#include <hugetlbfs.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <sys/mman.h>
- #include <sys/ioctl.h>
-=20
-+#include "./local_config.h"
-+#ifdef LOCAL_CONFIG_HAVE_LIBHUGETLBFS
-+#include <hugetlbfs.h>
-+#endif
-+
- /*
-  * This is a private UAPI to the kernel test module so it isn't exported
-  * in the usual include/uapi/... directory.
-@@ -662,6 +666,7 @@ TEST_F(hmm, anon_write_huge)
- 	hmm_buffer_free(buffer);
- }
-=20
-+#ifdef LOCAL_CONFIG_HAVE_LIBHUGETLBFS
- /*
-  * Write huge TLBFS page.
-  */
-@@ -720,6 +725,7 @@ TEST_F(hmm, anon_write_hugetlbfs)
- 	buffer->ptr =3D NULL;
- 	hmm_buffer_free(buffer);
- }
-+#endif /* LOCAL_CONFIG_HAVE_LIBHUGETLBFS */
-=20
- /*
-  * Read mmap'ed file memory.
-@@ -1336,6 +1342,7 @@ TEST_F(hmm2, snapshot)
- 	hmm_buffer_free(buffer);
- }
-=20
-+#ifdef LOCAL_CONFIG_HAVE_LIBHUGETLBFS
- /*
-  * Test the hmm_range_fault() HMM_PFN_PMD flag for large pages that
-  * should be mapped by a large page table entry.
-@@ -1411,6 +1418,7 @@ TEST_F(hmm, compound)
- 	buffer->ptr =3D NULL;
- 	hmm_buffer_free(buffer);
- }
-+#endif /* LOCAL_CONFIG_HAVE_LIBHUGETLBFS */
-=20
- /*
-  * Test two devices reading the same memory (double mapped).
---=20
-2.28.0
+I think we can remove these 2 case statements and rely on the default case anyway.
+> 
+>>
+>>>   
+>>>> +				kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
+>>>> +				rc = kvm_s390_handle_lpsw(vcpu);
+>>>> +				break;
+>>>> +			case 0:
+>>>> +				/*
+>>>> +				 * Interception caused by a key in a
+>>>> +				 * exception new PSW mask. The guest
+>>>> +				 * PSW has already been updated to the
+>>>> +				 * non-valid PSW so we only need to
+>>>> +				 * inject a PGM.
+>>>> +				 */
+>>>> +				rc = kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+>>>> +				break;
+>>>> +			default:
+>>>> +				kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
+>>>> +				rc = kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
+>>>> +			}
+>>>> +		}
+>>>>  		break;
+>>>>  	case ICPT_MCHKREQ:
+>>>>  	case ICPT_INT_ENABLE:  
+>>>   
+>>
+>>
+> 
