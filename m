@@ -1,149 +1,175 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31792 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727995AbgIHJSK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 05:18:10 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:21866 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729564AbgIHIhX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 04:37:23 -0400
+Date: Tue, 8 Sep 2020 10:36:50 +0200
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH v2] KVM: s390: Introduce storage key removal facility
+Message-ID: <20200908103650.0c8cf352.cohuck@redhat.com>
+In-Reply-To: <cd3ce2d9-99a5-5bb5-9b13-62d378274265@linux.ibm.com>
 References: <b34e559a-8292-873f-8d33-1e7ce819f4d5@de.ibm.com>
- <20200907143352.96618-1-frankja@linux.ibm.com>
- <20200907183030.07333af7.cohuck@redhat.com>
- <cd3ce2d9-99a5-5bb5-9b13-62d378274265@linux.ibm.com>
- <20200908103650.0c8cf352.cohuck@redhat.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <185f1fb3-66a5-587e-470c-d228ffd77c2e@de.ibm.com>
-Date: Tue, 8 Sep 2020 11:18:02 +0200
+        <20200907143352.96618-1-frankja@linux.ibm.com>
+        <20200907183030.07333af7.cohuck@redhat.com>
+        <cd3ce2d9-99a5-5bb5-9b13-62d378274265@linux.ibm.com>
 MIME-Version: 1.0
-In-Reply-To: <20200908103650.0c8cf352.cohuck@redhat.com>
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; boundary="Sig_/TTGqsGHzVXO8j5+YVamdOf4";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, imbrenda@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org
+
+--Sig_/TTGqsGHzVXO8j5+YVamdOf4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 8 Sep 2020 09:52:48 +0200
+Janosch Frank <frankja@linux.ibm.com> wrote:
+
+> On 9/7/20 6:30 PM, Cornelia Huck wrote:
+> > On Mon,  7 Sep 2020 10:33:52 -0400
+> > Janosch Frank <frankja@linux.ibm.com> wrote:
+> >  =20
+> >> The storage key removal facility makes skey related instructions
+> >> result in special operation program exceptions. It is based on the
+> >> Keyless Subset Facility.
+> >>
+> >> The usual suspects are iske, sske, rrbe and their respective
+> >> variants. lpsw(e), pfmf and tprot can also specify a key and essa with
+> >> an ORC of 4 will consult the change bit, hence they all result in
+> >> exceptions.
+> >>
+> >> Unfortunately storage keys were so essential to the architecture, that
+> >> there is no facility bit that we could deactivate. That's why the
+> >> removal facility (bit 169) was introduced which makes it necessary,
+> >> that, if active, the skey related facilities 10, 14, 66, 145 and 149
+> >> are zero. Managing this requirement and migratability has to be done
+> >> in userspace, as KVM does not check the facilities it receives to be
+> >> able to easily implement userspace emulation.
+> >>
+> >> Removing storage key support allows us to circumvent complicated
+> >> emulation code and makes huge page support tremendously easier.
+> >>
+> >> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> >> ---
+> >>
+> >> v2:
+> >> =09* Removed the likely
+> >> =09* Updated and re-shuffeled the comments which had the wrong informa=
+tion
+> >>
+> >> ---
+> >>  arch/s390/kvm/intercept.c | 40 ++++++++++++++++++++++++++++++++++++++=
+-
+> >>  arch/s390/kvm/kvm-s390.c  |  5 +++++
+> >>  arch/s390/kvm/priv.c      | 26 ++++++++++++++++++++++---
+> >>  3 files changed, 67 insertions(+), 4 deletions(-)
+> >>
+> >> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
+> >> index e7a7c499a73f..983647ea2abe 100644
+> >> --- a/arch/s390/kvm/intercept.c
+> >> +++ b/arch/s390/kvm/intercept.c
+> >> @@ -33,6 +33,7 @@ u8 kvm_s390_get_ilen(struct kvm_vcpu *vcpu)
+> >>  =09case ICPT_OPEREXC:
+> >>  =09case ICPT_PARTEXEC:
+> >>  =09case ICPT_IOINST:
+> >> +=09case ICPT_KSS:
+> >>  =09=09/* instruction only stored for these icptcodes */
+> >>  =09=09ilen =3D insn_length(vcpu->arch.sie_block->ipa >> 8);
+> >>  =09=09/* Use the length of the EXECUTE instruction if necessary */
+> >> @@ -565,7 +566,44 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcp=
+u)
+> >>  =09=09rc =3D handle_partial_execution(vcpu);
+> >>  =09=09break;
+> >>  =09case ICPT_KSS:
+> >> -=09=09rc =3D kvm_s390_skey_check_enable(vcpu);
+> >> +=09=09if (!test_kvm_facility(vcpu->kvm, 169)) {
+> >> +=09=09=09rc =3D kvm_s390_skey_check_enable(vcpu);
+> >> +=09=09} else { =20
+> >=20
+> > <bikeshed>Introduce a helper function? This is getting a bit hard to
+> > read.</bikeshed>
+> >  =20
+> >> +=09=09=09/*
+> >> +=09=09=09 * Storage key removal facility emulation.
+> >> +=09=09=09 *
+> >> +=09=09=09 * KSS is the same priority as an instruction
+> >> +=09=09=09 * interception. Hence we need handling here
+> >> +=09=09=09 * and in the instruction emulation code.
+> >> +=09=09=09 *
+> >> +=09=09=09 * KSS is nullifying (no psw forward), SKRF
+> >> +=09=09=09 * issues suppressing SPECIAL OPS, so we need
+> >> +=09=09=09 * to forward by hand.
+> >> +=09=09=09 */
+> >> +=09=09=09switch (vcpu->arch.sie_block->ipa) {
+> >> +=09=09=09case 0xb2b2:
+> >> +=09=09=09=09kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
+> >> +=09=09=09=09rc =3D kvm_s390_handle_b2(vcpu);
+> >> +=09=09=09=09break;
+> >> +=09=09=09case 0x8200: =20
+> >=20
+> > Can we have speaking names? I can only guess that this is an lpsw... =
+=20
+>=20
+> You can only guess from the kvm_s390_handle_lpsw() call below? ;-)
+>=20
+> I'd be happy to put this into an own function and add some comments to
+> the cases where we lack them. However, I don't really want to define
+> constants for speaking names.
+
+Well, I can guess the lpsw here :) but not the b2b2 above. Maybe add a
+comment like /* handle lpsw/lpswe */?
+
+>=20
+> >  =20
+> >> +=09=09=09=09kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
+> >> +=09=09=09=09rc =3D kvm_s390_handle_lpsw(vcpu);
+> >> +=09=09=09=09break;
+> >> +=09=09=09case 0:
+> >> +=09=09=09=09/*
+> >> +=09=09=09=09 * Interception caused by a key in a
+> >> +=09=09=09=09 * exception new PSW mask. The guest
+> >> +=09=09=09=09 * PSW has already been updated to the
+> >> +=09=09=09=09 * non-valid PSW so we only need to
+> >> +=09=09=09=09 * inject a PGM.
+> >> +=09=09=09=09 */
+> >> +=09=09=09=09rc =3D kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATIO=
+N);
+> >> +=09=09=09=09break;
+> >> +=09=09=09default:
+> >> +=09=09=09=09kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
+> >> +=09=09=09=09rc =3D kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPER=
+ATION);
+> >> +=09=09=09}
+> >> +=09=09}
+> >>  =09=09break;
+> >>  =09case ICPT_MCHKREQ:
+> >>  =09case ICPT_INT_ENABLE: =20
+> >  =20
+>=20
+>=20
 
 
+--Sig_/TTGqsGHzVXO8j5+YVamdOf4
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
-On 08.09.20 10:36, Cornelia Huck wrote:
-> On Tue, 8 Sep 2020 09:52:48 +0200
-> Janosch Frank <frankja@linux.ibm.com> wrote:
-> 
->> On 9/7/20 6:30 PM, Cornelia Huck wrote:
->>> On Mon,  7 Sep 2020 10:33:52 -0400
->>> Janosch Frank <frankja@linux.ibm.com> wrote:
->>>   
->>>> The storage key removal facility makes skey related instructions
->>>> result in special operation program exceptions. It is based on the
->>>> Keyless Subset Facility.
->>>>
->>>> The usual suspects are iske, sske, rrbe and their respective
->>>> variants. lpsw(e), pfmf and tprot can also specify a key and essa with
->>>> an ORC of 4 will consult the change bit, hence they all result in
->>>> exceptions.
->>>>
->>>> Unfortunately storage keys were so essential to the architecture, that
->>>> there is no facility bit that we could deactivate. That's why the
->>>> removal facility (bit 169) was introduced which makes it necessary,
->>>> that, if active, the skey related facilities 10, 14, 66, 145 and 149
->>>> are zero. Managing this requirement and migratability has to be done
->>>> in userspace, as KVM does not check the facilities it receives to be
->>>> able to easily implement userspace emulation.
->>>>
->>>> Removing storage key support allows us to circumvent complicated
->>>> emulation code and makes huge page support tremendously easier.
->>>>
->>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
->>>> ---
->>>>
->>>> v2:
->>>> 	* Removed the likely
->>>> 	* Updated and re-shuffeled the comments which had the wrong information
->>>>
->>>> ---
->>>>  arch/s390/kvm/intercept.c | 40 ++++++++++++++++++++++++++++++++++++++-
->>>>  arch/s390/kvm/kvm-s390.c  |  5 +++++
->>>>  arch/s390/kvm/priv.c      | 26 ++++++++++++++++++++++---
->>>>  3 files changed, 67 insertions(+), 4 deletions(-)
->>>>
->>>> diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
->>>> index e7a7c499a73f..983647ea2abe 100644
->>>> --- a/arch/s390/kvm/intercept.c
->>>> +++ b/arch/s390/kvm/intercept.c
->>>> @@ -33,6 +33,7 @@ u8 kvm_s390_get_ilen(struct kvm_vcpu *vcpu)
->>>>  	case ICPT_OPEREXC:
->>>>  	case ICPT_PARTEXEC:
->>>>  	case ICPT_IOINST:
->>>> +	case ICPT_KSS:
->>>>  		/* instruction only stored for these icptcodes */
->>>>  		ilen = insn_length(vcpu->arch.sie_block->ipa >> 8);
->>>>  		/* Use the length of the EXECUTE instruction if necessary */
->>>> @@ -565,7 +566,44 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
->>>>  		rc = handle_partial_execution(vcpu);
->>>>  		break;
->>>>  	case ICPT_KSS:
->>>> -		rc = kvm_s390_skey_check_enable(vcpu);
->>>> +		if (!test_kvm_facility(vcpu->kvm, 169)) {
->>>> +			rc = kvm_s390_skey_check_enable(vcpu);
->>>> +		} else {  
->>>
->>> <bikeshed>Introduce a helper function? This is getting a bit hard to
->>> read.</bikeshed>
->>>   
->>>> +			/*
->>>> +			 * Storage key removal facility emulation.
->>>> +			 *
->>>> +			 * KSS is the same priority as an instruction
->>>> +			 * interception. Hence we need handling here
->>>> +			 * and in the instruction emulation code.
->>>> +			 *
->>>> +			 * KSS is nullifying (no psw forward), SKRF
->>>> +			 * issues suppressing SPECIAL OPS, so we need
->>>> +			 * to forward by hand.
->>>> +			 */
->>>> +			switch (vcpu->arch.sie_block->ipa) {
->>>> +			case 0xb2b2:
->>>> +				kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
->>>> +				rc = kvm_s390_handle_b2(vcpu);
->>>> +				break;
->>>> +			case 0x8200:  
->>>
->>> Can we have speaking names? I can only guess that this is an lpsw...  
->>
->> You can only guess from the kvm_s390_handle_lpsw() call below? ;-)
->>
->> I'd be happy to put this into an own function and add some comments to
->> the cases where we lack them. However, I don't really want to define
->> constants for speaking names.
-> 
-> Well, I can guess the lpsw here :) but not the b2b2 above. Maybe add a
-> comment like /* handle lpsw/lpswe */?
+-----BEGIN PGP SIGNATURE-----
 
-I think we can remove these 2 case statements and rely on the default case anyway.
-> 
->>
->>>   
->>>> +				kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
->>>> +				rc = kvm_s390_handle_lpsw(vcpu);
->>>> +				break;
->>>> +			case 0:
->>>> +				/*
->>>> +				 * Interception caused by a key in a
->>>> +				 * exception new PSW mask. The guest
->>>> +				 * PSW has already been updated to the
->>>> +				 * non-valid PSW so we only need to
->>>> +				 * inject a PGM.
->>>> +				 */
->>>> +				rc = kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
->>>> +				break;
->>>> +			default:
->>>> +				kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
->>>> +				rc = kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
->>>> +			}
->>>> +		}
->>>>  		break;
->>>>  	case ICPT_MCHKREQ:
->>>>  	case ICPT_INT_ENABLE:  
->>>   
->>
->>
-> 
+iQIzBAEBCAAdFiEEw9DWbcNiT/aowBjO3s9rk8bwL68FAl9XQqIACgkQ3s9rk8bw
+L69eKg/7Bl30IMFTiXaiYS0kULqKKgFw0wJh97qaZQIO1e/J26IXcwdzq8yy2Di0
+HQ/UzClK+vMv9/pL0xfrXrZGjErDp1cCq6ZPDoqqk/CSbmoAsK6mz4rZ8PwVUFm7
+85B2kRBbFBMhNxxfPNMhcA66KPNXj+POVs5plZ1eK2L2hR4vgveOfBEPoAfIwb1Y
+lVgpn6g+kRzLO53QTar94NH/tmYkMG6aDDuQYMvFhYBEuGlbpl4O9lsEc86snWLM
+DXzWXyZCjysEP/MXAVzDcQpY3QBqwGU1Ru7ha76vDgG/KjKWLyFsXlPotIL/HhIG
+r66bPRlxY9xcEVZkz/lnEXFTTgjsfZ9D4384MR2KP26/pu/D5NhzKWwKtOXdIKW6
+Q3xaadWy1dpiC7gcfsJ3PANs3QUPJTkXP7R/gWu4l5XN8xJMevriUYXCe4enNZRA
+kKQ+N6kYBL5++HJJcdnU/d0HT1sbv1p5NcOwuA2R0NRpNknKNL7OuqqaUySbc66V
+BisRE9qmy1MCWJnHPLnxEF6Ue5rKoAhOCUSS6Uye/MGoRm+7v3fmw7TTYn0yxcrp
+PnHlXKd5si1xFOxxDO9tdL3Ig8qTdIYgYeKl/NKQpbYsiJLJ/O5Y+4KtOPEc06/V
+AmEXxZ/e49+BbnLUdR9PzmdeAVlcZG5ge4Vp3TmLm2drFswhD1c=
+=C02h
+-----END PGP SIGNATURE-----
+
+--Sig_/TTGqsGHzVXO8j5+YVamdOf4--
