@@ -1,25 +1,24 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:57347 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729210AbgIHLBb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 07:01:31 -0400
-Date: Tue, 8 Sep 2020 13:01:17 +0200
-From: Cornelia Huck <cohuck@redhat.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:41924 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729031AbgIHKQx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 06:16:53 -0400
 Subject: Re: [PATCH v3] KVM: s390: Introduce storage key removal facility
-Message-ID: <20200908130117.1a8fd4ea.cohuck@redhat.com>
-In-Reply-To: <20200908100249.23150-1-frankja@linux.ibm.com>
 References: <20200908100249.23150-1-frankja@linux.ibm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <c926c50b-f161-03b0-18f5-ac3f01b7f9d9@redhat.com>
+Date: Tue, 8 Sep 2020 12:16:41 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20200908100249.23150-1-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>
-Cc: kvm@vger.kernel.org, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, imbrenda@linux.ibm.com, linux-s390@vger.kernel.org
 
-On Tue,  8 Sep 2020 06:02:49 -0400
-Janosch Frank <frankja@linux.ibm.com> wrote:
-
+On 08.09.20 12:02, Janosch Frank wrote:
 > The storage key removal facility makes skey related instructions
 > result in special operation program exceptions. It is based on the
 > Keyless Subset Facility.
@@ -83,12 +82,6 @@ Janosch Frank <frankja@linux.ibm.com> wrote:
 > +	 *
 > +	 * KSS is the same priority as an instruction
 > +	 * interception. Hence we need handling here
-
-s/here/both here/ ?
-
-(I think you can also format this slightly wider, now that indentation
-is not so deep anymore.)
-
 > +	 * and in the instruction emulation code.
 > +	 *
 > +	 * KSS is nullifying (no psw forward), SKRF
@@ -122,9 +115,40 @@ is not so deep anymore.)
 >  		break;
 >  	case ICPT_MCHKREQ:
 >  	case ICPT_INT_ENABLE:
-
-(...)
-
+> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+> index 6b74b92c1a58..85647f19311d 100644
+> --- a/arch/s390/kvm/kvm-s390.c
+> +++ b/arch/s390/kvm/kvm-s390.c
+> @@ -2692,6 +2692,11 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
+>  	/* we emulate STHYI in kvm */
+>  	set_kvm_facility(kvm->arch.model.fac_mask, 74);
+>  	set_kvm_facility(kvm->arch.model.fac_list, 74);
+> +	/* we emulate the storage key removal facility only with kss */
+> +	if (sclp.has_kss) {
+> +		set_kvm_facility(kvm->arch.model.fac_mask, 169);
+> +		set_kvm_facility(kvm->arch.model.fac_list, 169);
+> +	}
+>  	if (MACHINE_HAS_TLB_GUEST) {
+>  		set_kvm_facility(kvm->arch.model.fac_mask, 147);
+>  		set_kvm_facility(kvm->arch.model.fac_list, 147);
+> diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
+> index cd74989ce0b0..5e3583b8b5e3 100644
+> --- a/arch/s390/kvm/priv.c
+> +++ b/arch/s390/kvm/priv.c
+> @@ -207,6 +207,13 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
+>  	int rc;
+>  
+>  	trace_kvm_s390_skey_related_inst(vcpu);
+> +
+> +	if (test_kvm_facility(vcpu->kvm, 169)) {
+> +		rc = kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
+> +		if (!rc)
+> +			return -EOPNOTSUPP;
+> +	}
+> +
+>  	/* Already enabled? */
+>  	if (vcpu->arch.skey_enabled)
+>  		return 0;
 > @@ -257,7 +264,7 @@ static int handle_iske(struct kvm_vcpu *vcpu)
 >  
 >  	rc = try_handle_skey(vcpu);
@@ -132,10 +156,102 @@ is not so deep anymore.)
 > -		return rc != -EAGAIN ? rc : 0;
 > +		return (rc != -EAGAIN || rc != -EOPNOTSUPP) ? rc : 0;
 
-As noticed by David, this probably needs to be &&, or maybe flipped to
+If rc == -EAGAIN you used to return 0.
 
-		return (rc == -EAGAIN || rc == -EOPNOTSUPP) ? 0 : rc;
+Now, "-EAGAIN != -EAGAIN || -EAGAIN != -EOPNOTSUPP"
+
+evaluates to "false || true == true"
+
+so you would return rc == -EAGAIN - is that what you really want?
+
+(I've been on vacation for two weeks, my mind might not be fully back :D )
 
 >  
 >  	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
 >  
+> @@ -304,7 +311,7 @@ static int handle_rrbe(struct kvm_vcpu *vcpu)
+>  
+>  	rc = try_handle_skey(vcpu);
+>  	if (rc)
+> -		return rc != -EAGAIN ? rc : 0;
+> +		return (rc != -EAGAIN || rc != -EOPNOTSUPP) ? rc : 0;
+>  
+>  	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
+>  
+> @@ -355,7 +362,7 @@ static int handle_sske(struct kvm_vcpu *vcpu)
+>  
+>  	rc = try_handle_skey(vcpu);
+>  	if (rc)
+> -		return rc != -EAGAIN ? rc : 0;
+> +		return (rc != -EAGAIN || rc != -EOPNOTSUPP) ? rc : 0;
+>  
+>  	if (!test_kvm_facility(vcpu->kvm, 8))
+>  		m3 &= ~SSKE_MB;
+> @@ -745,6 +752,8 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
+>  		return kvm_s390_inject_prog_cond(vcpu, rc);
+>  	if (!(new_psw.mask & PSW32_MASK_BASE))
+>  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> +	if (new_psw.mask & PSW32_MASK_KEY && test_kvm_facility(vcpu->kvm, 169))
+> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
+
+You don't use parentheses around & here ...
+
+>  	gpsw->mask = (new_psw.mask & ~PSW32_MASK_BASE) << 32;
+>  	gpsw->mask |= new_psw.addr & PSW32_ADDR_AMODE;
+>  	gpsw->addr = new_psw.addr & ~PSW32_ADDR_AMODE;
+> @@ -771,6 +780,8 @@ static int handle_lpswe(struct kvm_vcpu *vcpu)
+>  	rc = read_guest(vcpu, addr, ar, &new_psw, sizeof(new_psw));
+>  	if (rc)
+>  		return kvm_s390_inject_prog_cond(vcpu, rc);
+> +	if ((new_psw.mask & PSW_MASK_KEY) && test_kvm_facility(vcpu->kvm, 169))
+> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
+>  	vcpu->arch.sie_block->gpsw = new_psw;
+>  	if (!is_valid_psw(&vcpu->arch.sie_block->gpsw))
+>  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+> @@ -1025,6 +1036,10 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
+>  	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
+>  		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>  
+> +	if (vcpu->run->s.regs.gprs[reg1] & PFMF_SK &&
+
+... and here ...
+
+> +	    test_kvm_facility(vcpu->kvm, 169))
+> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
+> +
+>  	if (vcpu->run->s.regs.gprs[reg1] & PFMF_RESERVED)
+>  		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
+>  
+> @@ -1203,6 +1218,8 @@ static int handle_essa(struct kvm_vcpu *vcpu)
+>  		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
+>  	/* Check for invalid operation request code */
+>  	orc = (vcpu->arch.sie_block->ipb & 0xf0000000) >> 28;
+> +	if (orc == ESSA_SET_POT_VOLATILE && test_kvm_facility(vcpu->kvm, 169))
+> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
+>  	/* ORCs 0-6 are always valid */
+>  	if (orc > (test_kvm_facility(vcpu->kvm, 147) ? ESSA_SET_STABLE_NODAT
+>  						: ESSA_SET_STABLE_IF_RESIDENT))
+> @@ -1451,6 +1468,9 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
+>  
+>  	kvm_s390_get_base_disp_sse(vcpu, &address1, &address2, &ar, NULL);
+>  
+> +	if ((address2 & 0xf0) && test_kvm_facility(vcpu->kvm, 169))
+> +		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
+> +
+
+... but you do here
+
+>  	/* we only handle the Linux memory detection case:
+>  	 * access key == 0
+>  	 * everything else goes to userspace. */
+> 
+
+
+Do we have to are about vsie? If the g2 CPU does not have storage keys,
+also g3 should not. I can spot KSS handling in vsie code - is that
+sufficient?
+
+-- 
+Thanks,
+
+David / dhildenb
