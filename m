@@ -1,42 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:26950 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730624AbgIIQUJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 9 Sep 2020 12:20:09 -0400
-Subject: Re: [RFC PATCH v2 1/3] mm/gup: fix gup_fast with dynamic page table
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64112 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730885AbgIIQN0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Sep 2020 12:13:26 -0400
+Date: Wed, 9 Sep 2020 18:12:11 +0200
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: Re: [RFC PATCH v2 0/3] mm/gup: fix gup_fast with dynamic page table
  folding
+Message-ID: <20200909181211.1cad8d28@thinkpad>
+In-Reply-To: <20200908193650.1c1511d0@thinkpad>
 References: <20200907180058.64880-1-gerald.schaefer@linux.ibm.com>
- <20200907180058.64880-2-gerald.schaefer@linux.ibm.com>
- <0dbc6ec8-45ea-0853-4856-2bc1e661a5a5@intel.com>
- <20200909142904.00b72921@thinkpad>
-From: Dave Hansen <dave.hansen@intel.com>
-Message-ID: <aacad1b7-f121-44a5-f01d-385cb0f6351e@intel.com>
-Date: Wed, 9 Sep 2020 09:18:46 -0700
+        <20200907201256.GC1976319@kernel.org>
+        <9bde9857-fdfd-e384-ea27-a14e5a06f1e6@csgroup.eu>
+        <20200908193650.1c1511d0@thinkpad>
 MIME-Version: 1.0
-In-Reply-To: <20200909142904.00b72921@thinkpad>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>, John Hubbard <jhubbard@nvidia.com>, LKML <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>, linux-arch <linux-arch@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Mike Rapoport <rppt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Arnd Bergmann <arnd@arndb.de>, Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-x86 <x86@kernel.org>, linux-arm <linux-arm-kernel@lists.infradead.org>, linux-power <linuxppc-dev@lists.ozlabs.org>, linux-sparc <sparclinux@vger.kernel.org>, linux-um <linux-um@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: Mike Rapoport <rppt@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-mm <linux-mm@kvack.org>, Paul Mackerras <paulus@samba.org>, linux-sparc <sparclinux@vger.kernel.org>, Alexander Gordeev <agordeev@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arch <linux-arch@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Richard Weinberger <richard@nod.at>, linux-x86 <x86@kernel.org>, Russell King <linux@armlinux.org.uk>, Jason Gunthorpe <jgg@ziepe.ca>, Ingo Molnar <mingo@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, Heiko Carstens <hca@linux.ibm.com>, Arnd Bergmann <arnd@arndb.de>, John Hubbard <jhubbard@nvidia.com>, Jeff Dike <jdike@addtoit.com>, linux-um <linux-um@lists.infradead.org>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, linux-arm <linux-arm-kernel@lists.infradead.org>, linux-power <linuxppc-dev@lists.ozlabs.org>, LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 
-On 9/9/20 5:29 AM, Gerald Schaefer wrote:
-> This only works well as long there are real pagetable pointers involved,
-> that can also be used for iteration. For gup_fast, or any other future
-> pagetable walkers using the READ_ONCE logic w/o lock, that is not true.
-> There are pointers involved to local pXd values on the stack, because of
-> the READ_ONCE logic, and our middle-level iteration will suddenly iterate
-> over such stack pointers instead of pagetable pointers.
+On Tue, 8 Sep 2020 19:36:50 +0200
+Gerald Schaefer <gerald.schaefer@linux.ibm.com> wrote:
 
-By "There are pointers involved to local pXd values on the stack", did
-you mean "locate" instead of "local"?  That sentence confused me.
+[..]
+> 
+> It seems now that the generalization is very well accepted so far,
+> apart from some apparent issues on arm. Also, merging 2 + 3 and
+> putting them first seems to be acceptable, so we could do that for
+> v3, if there are no objections.
+> 
+> Of course, we first need to address the few remaining issues for
+> arm(32?), which do look quite confusing to me so far. BTW, sorry for
+> the compile error with patch 3, I guess we did the cross-compile only
+> for 1 + 2 applied, to see the bloat-o-meter changes. But I guess
+> patch 3 already proved its usefulness by that :-)
 
-Which code is it, exactly that allocates these troublesome on-stack pXd
-values, btw?
+Umm, replace "arm" with "power", sorry. No issues on arm so far, but
+also no ack I think.
 
-> This will be addressed by making the pXd_addr_end() dynamic, for which
-> we need to see the pXd value in order to determine its level / type.
-
-Thanks for the explanation!
+Thanks to Christophe for the power change, and to Mike for volunteering
+for some cross compilation and cross-arch testing. Will send v3 with
+merged and re-ordered patches after some more testing.
