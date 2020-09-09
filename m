@@ -1,40 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:47600 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727065AbgICTxi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 15:53:38 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 0/4] net/smc: fixes 2020-09-03
-Date: Thu,  3 Sep 2020 21:53:14 +0200
-Message-Id: <20200903195318.39288-1-kgraul@linux.ibm.com>
+Received: from mx2.suse.de ([195.135.220.15]:49176 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725772AbgIIFTC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 9 Sep 2020 01:19:02 -0400
+Subject: Re: [PATCH v2 6/7] xen/balloon: try to merge system ram resources
+References: <20200908201012.44168-1-david@redhat.com>
+ <20200908201012.44168-7-david@redhat.com>
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Message-ID: <64d7a2ce-e3b5-3525-d977-76a4bb06e52d@suse.com>
+Date: Wed, 9 Sep 2020 07:18:59 +0200
+MIME-Version: 1.0
+In-Reply-To: <20200908201012.44168-7-david@redhat.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>, Julien Grall <julien@xen.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-Please apply the following patch series for smc to netdev's net tree.
+On 08.09.20 22:10, David Hildenbrand wrote:
+> Let's try to merge system ram resources we add, to minimize the number
+> of resources in /proc/iomem. We don't care about the boundaries of
+> individual chunks we added.
+> 
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+> Cc: Juergen Gross <jgross@suse.com>
+> Cc: Stefano Stabellini <sstabellini@kernel.org>
+> Cc: Roger Pau Monné <roger.pau@citrix.com>
+> Cc: Julien Grall <julien@xen.org>
+> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+> Cc: Baoquan He <bhe@redhat.com>
+> Cc: Wei Yang <richardw.yang@linux.intel.com>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
-Patch 1 fixes the toleration of older SMC implementations. Patch 2
-takes care of a problem that happens when SMCR is used after SMCD
-initialization failed. Patch 3 fixes a problem with freed send buffers,
-and patch 4 corrects refcounting when SMC terminates due to device
-removal.
+Reviewed-by: Juergen Gross <jgross@suse.com>
 
-Thanks,
-Karsten
+Juergen
 
-Karsten Graul (1):
-  net/smc: fix toleration of fake add_link messages
-
-Ursula Braun (3):
-  net/smc: set rx_off for SMCR explicitly
-  net/smc: reset sndbuf_desc if freed
-  net/smc: fix sock refcounting in case of termination
-
- net/smc/smc_close.c | 15 ++++++++-------
- net/smc/smc_core.c  |  3 +++
- net/smc/smc_llc.c   | 15 ++++++++++++++-
- 3 files changed, 25 insertions(+), 8 deletions(-)
-
--- 
-2.17.1
+> ---
+>   drivers/xen/balloon.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+> index 7bac38764513d..b57b2067ecbfb 100644
+> --- a/drivers/xen/balloon.c
+> +++ b/drivers/xen/balloon.c
+> @@ -331,7 +331,7 @@ static enum bp_state reserve_additional_memory(void)
+>   	mutex_unlock(&balloon_mutex);
+>   	/* add_memory_resource() requires the device_hotplug lock */
+>   	lock_device_hotplug();
+> -	rc = add_memory_resource(nid, resource, 0);
+> +	rc = add_memory_resource(nid, resource, MEMHP_MERGE_RESOURCE);
+>   	unlock_device_hotplug();
+>   	mutex_lock(&balloon_mutex);
+>   
+> 
