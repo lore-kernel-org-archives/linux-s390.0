@@ -1,289 +1,129 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42216 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727453AbgIUOek (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 10:34:40 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 07/11] fs: remove various compat readv/writev helpers
-Date: Mon, 21 Sep 2020 16:34:30 +0200
-Message-Id: <20200921143434.707844-8-hch@lst.de>
-In-Reply-To: <20200921143434.707844-1-hch@lst.de>
-References: <20200921143434.707844-1-hch@lst.de>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:53754 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730684AbgIJCIi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Sep 2020 22:08:38 -0400
+Date: Wed, 9 Sep 2020 17:07:46 -0600
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [PATCH v4 1/3] PCI/IOV: Mark VFs as not implementing MSE bit
+Message-ID: <20200909170746.2286b83a@w520.home>
+In-Reply-To: <38f95349-237e-34e2-66ef-e626cd4aec25@linux.ibm.com>
+References: <20200903164117.GA312152@bjorn-Precision-5520>
+        <38f95349-237e-34e2-66ef-e626cd4aec25@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
+To: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: Bjorn Helgaas <helgaas@kernel.org>, bhelgaas@google.com, schnelle@linux.ibm.com, pmorel@linux.ibm.com, mpe@ellerman.id.au, oohall@gmail.com, cohuck@redhat.com, kevin.tian@intel.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org
 
-Now that import_iovec handles compat iovecs as well, all the duplicated
-code in the compat readv/writev helpers is not needed.  Remove them
-and switch the compat syscall handlers to use the native helpers.
+On Thu, 3 Sep 2020 13:10:02 -0400
+Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- fs/read_write.c | 179 ++++++++----------------------------------------
- 1 file changed, 30 insertions(+), 149 deletions(-)
+> On 9/3/20 12:41 PM, Bjorn Helgaas wrote:
+> > On Wed, Sep 02, 2020 at 03:46:34PM -0400, Matthew Rosato wrote:  
+> >> Per the PCIe spec, VFs cannot implement the MSE bit
+> >> AKA PCI_COMMAND_MEMORY, and it must be hard-wired to 0.
+> >> Use a dev_flags bit to signify this requirement.  
+> > 
+> > This approach seems sensible to me, but
+> > 
+> >    - This is confusing because while the spec does not use "MSE" to
+> >      refer to the Command Register "Memory Space Enable" bit
+> >      (PCI_COMMAND_MEMORY), it *does* use "MSE" in the context of the
+> >      "VF MSE" bit, which is in the PF SR-IOV Capability.  But of
+> >      course, you're not talking about that here.  Maybe something like
+> >      this?
+> > 
+> >        For VFs, the Memory Space Enable bit in the Command Register is
+> >        hard-wired to 0.
+> > 
+> >        Add a dev_flags bit to signify devices where the Command
+> >        Register Memory Space Enable bit does not control the device's
+> >        response to MMIO accesses.  
+> 
+> Will do.  I'll change the usage of the MSE acronym in the other patches 
+> as well.
+> 
+> > 
+> >    - "PCI_DEV_FLAGS_FORCE_COMMAND_MEM" says something about how you
+> >      plan to *use* this, but I'd rather use a term that describes the
+> >      hardware, e.g., "PCI_DEV_FLAGS_NO_COMMAND_MEMORY".  
+> 
+> Sure, I will change.
+> 
+> > 
+> >    - How do we decide whether to use dev_flags vs a bitfield like
+> >      dev->is_virtfn?  The latter seems simpler unless there's a reason
+> >      to use dev_flags.  If there's a reason, maybe we could add a
+> >      comment at pci_dev_flags for future reference.
+> >   
+> 
+> Something like:
+> 
+> /*
+>   * Device does not implement PCI_COMMAND_MEMORY - this is true for any
+>   * device marked is_virtfn, but is also true for any VF passed-through
+>   * a lower-level hypervisor where emulation of the Memory Space Enable
+>   * bit was not provided.
+>   */
+> PCI_DEV_FLAGS_NO_COMMAND_MEMORY = (__force pci_dev_flags_t) (1 << 12),
+> 
+> ?
+> 
+> >    - Wrap the commit log to fill a 75-char line.  It's arbitrary, but
+> >      that's what I use for consistency.  
+> 
+> Sure, will do.  I'll roll up a new version once I have feedback from 
+> Alex on the vfio changes.
 
-diff --git a/fs/read_write.c b/fs/read_write.c
-index 0a68037580b455..eab427b7cc0a3f 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -1068,226 +1068,107 @@ SYSCALL_DEFINE6(pwritev2, unsigned long, fd, const struct iovec __user *, vec,
- 	return do_pwritev(fd, vec, vlen, pos, flags);
- }
- 
-+/*
-+ * Various compat syscalls.  Note that they all pretend to take a native
-+ * iovec - import_iovec will properly treat those as compat_iovecs based on
-+ * in_compat_syscall().
-+ */
- #ifdef CONFIG_COMPAT
--static size_t compat_readv(struct file *file,
--			   const struct compat_iovec __user *vec,
--			   unsigned long vlen, loff_t *pos, rwf_t flags)
--{
--	struct iovec iovstack[UIO_FASTIOV];
--	struct iovec *iov = iovstack;
--	struct iov_iter iter;
--	ssize_t ret;
--
--	ret = import_iovec(READ, (const struct iovec __user *)vec, vlen,
--			   UIO_FASTIOV, &iov, &iter);
--	if (ret >= 0) {
--		ret = do_iter_read(file, &iter, pos, flags);
--		kfree(iov);
--	}
--	if (ret > 0)
--		add_rchar(current, ret);
--	inc_syscr(current);
--	return ret;
--}
--
--static size_t do_compat_readv(compat_ulong_t fd,
--				 const struct compat_iovec __user *vec,
--				 compat_ulong_t vlen, rwf_t flags)
--{
--	struct fd f = fdget_pos(fd);
--	ssize_t ret;
--	loff_t pos;
--
--	if (!f.file)
--		return -EBADF;
--	pos = f.file->f_pos;
--	ret = compat_readv(f.file, vec, vlen, &pos, flags);
--	if (ret >= 0)
--		f.file->f_pos = pos;
--	fdput_pos(f);
--	return ret;
--
--}
--
- COMPAT_SYSCALL_DEFINE3(readv, compat_ulong_t, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *, vec,
- 		compat_ulong_t, vlen)
- {
--	return do_compat_readv(fd, vec, vlen, 0);
--}
--
--static long do_compat_preadv64(unsigned long fd,
--				  const struct compat_iovec __user *vec,
--				  unsigned long vlen, loff_t pos, rwf_t flags)
--{
--	struct fd f;
--	ssize_t ret;
--
--	if (pos < 0)
--		return -EINVAL;
--	f = fdget(fd);
--	if (!f.file)
--		return -EBADF;
--	ret = -ESPIPE;
--	if (f.file->f_mode & FMODE_PREAD)
--		ret = compat_readv(f.file, vec, vlen, &pos, flags);
--	fdput(f);
--	return ret;
-+	return do_readv(fd, vec, vlen, 0);
- }
- 
- #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64
- COMPAT_SYSCALL_DEFINE4(preadv64, unsigned long, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *, vec,
- 		unsigned long, vlen, loff_t, pos)
- {
--	return do_compat_preadv64(fd, vec, vlen, pos, 0);
-+	return do_preadv(fd, vec, vlen, pos, 0);
- }
- #endif
- 
- COMPAT_SYSCALL_DEFINE5(preadv, compat_ulong_t, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *, vec,
- 		compat_ulong_t, vlen, u32, pos_low, u32, pos_high)
- {
- 	loff_t pos = ((loff_t)pos_high << 32) | pos_low;
- 
--	return do_compat_preadv64(fd, vec, vlen, pos, 0);
-+	return do_preadv(fd, vec, vlen, pos, 0);
- }
- 
- #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64V2
- COMPAT_SYSCALL_DEFINE5(preadv64v2, unsigned long, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *, vec,
- 		unsigned long, vlen, loff_t, pos, rwf_t, flags)
- {
- 	if (pos == -1)
--		return do_compat_readv(fd, vec, vlen, flags);
--
--	return do_compat_preadv64(fd, vec, vlen, pos, flags);
-+		return do_readv(fd, vec, vlen, flags);
-+	return do_preadv(fd, vec, vlen, pos, flags);
- }
- #endif
- 
- COMPAT_SYSCALL_DEFINE6(preadv2, compat_ulong_t, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *, vec,
- 		compat_ulong_t, vlen, u32, pos_low, u32, pos_high,
- 		rwf_t, flags)
- {
- 	loff_t pos = ((loff_t)pos_high << 32) | pos_low;
- 
- 	if (pos == -1)
--		return do_compat_readv(fd, vec, vlen, flags);
--
--	return do_compat_preadv64(fd, vec, vlen, pos, flags);
--}
--
--static size_t compat_writev(struct file *file,
--			    const struct compat_iovec __user *vec,
--			    unsigned long vlen, loff_t *pos, rwf_t flags)
--{
--	struct iovec iovstack[UIO_FASTIOV];
--	struct iovec *iov = iovstack;
--	struct iov_iter iter;
--	ssize_t ret;
--
--	ret = import_iovec(WRITE, (const struct iovec __user *)vec, vlen,
--			   UIO_FASTIOV, &iov, &iter);
--	if (ret >= 0) {
--		file_start_write(file);
--		ret = do_iter_write(file, &iter, pos, flags);
--		file_end_write(file);
--		kfree(iov);
--	}
--	if (ret > 0)
--		add_wchar(current, ret);
--	inc_syscw(current);
--	return ret;
--}
--
--static size_t do_compat_writev(compat_ulong_t fd,
--				  const struct compat_iovec __user* vec,
--				  compat_ulong_t vlen, rwf_t flags)
--{
--	struct fd f = fdget_pos(fd);
--	ssize_t ret;
--	loff_t pos;
--
--	if (!f.file)
--		return -EBADF;
--	pos = f.file->f_pos;
--	ret = compat_writev(f.file, vec, vlen, &pos, flags);
--	if (ret >= 0)
--		f.file->f_pos = pos;
--	fdput_pos(f);
--	return ret;
-+		return do_readv(fd, vec, vlen, flags);
-+	return do_preadv(fd, vec, vlen, pos, flags);
- }
- 
- COMPAT_SYSCALL_DEFINE3(writev, compat_ulong_t, fd,
--		const struct compat_iovec __user *, vec,
-+		const struct iovec __user *, vec,
- 		compat_ulong_t, vlen)
- {
--	return do_compat_writev(fd, vec, vlen, 0);
--}
--
--static long do_compat_pwritev64(unsigned long fd,
--				   const struct compat_iovec __user *vec,
--				   unsigned long vlen, loff_t pos, rwf_t flags)
--{
--	struct fd f;
--	ssize_t ret;
--
--	if (pos < 0)
--		return -EINVAL;
--	f = fdget(fd);
--	if (!f.file)
--		return -EBADF;
--	ret = -ESPIPE;
--	if (f.file->f_mode & FMODE_PWRITE)
--		ret = compat_writev(f.file, vec, vlen, &pos, flags);
--	fdput(f);
--	return ret;
-+	return do_writev(fd, vec, vlen, 0);
- }
- 
- #ifdef __ARCH_WANT_COMPAT_SYS_PWRITEV64
- COMPAT_SYSCALL_DEFINE4(pwritev64, unsigned long, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *, vec,
- 		unsigned long, vlen, loff_t, pos)
- {
--	return do_compat_pwritev64(fd, vec, vlen, pos, 0);
-+	return do_pwritev(fd, vec, vlen, pos, 0);
- }
- #endif
- 
- COMPAT_SYSCALL_DEFINE5(pwritev, compat_ulong_t, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *,vec,
- 		compat_ulong_t, vlen, u32, pos_low, u32, pos_high)
- {
- 	loff_t pos = ((loff_t)pos_high << 32) | pos_low;
- 
--	return do_compat_pwritev64(fd, vec, vlen, pos, 0);
-+	return do_pwritev(fd, vec, vlen, pos, 0);
- }
- 
- #ifdef __ARCH_WANT_COMPAT_SYS_PWRITEV64V2
- COMPAT_SYSCALL_DEFINE5(pwritev64v2, unsigned long, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *, vec,
- 		unsigned long, vlen, loff_t, pos, rwf_t, flags)
- {
- 	if (pos == -1)
--		return do_compat_writev(fd, vec, vlen, flags);
--
--	return do_compat_pwritev64(fd, vec, vlen, pos, flags);
-+		return do_writev(fd, vec, vlen, flags);
-+	return do_pwritev(fd, vec, vlen, pos, flags);
- }
- #endif
- 
- COMPAT_SYSCALL_DEFINE6(pwritev2, compat_ulong_t, fd,
--		const struct compat_iovec __user *,vec,
-+		const struct iovec __user *,vec,
- 		compat_ulong_t, vlen, u32, pos_low, u32, pos_high, rwf_t, flags)
- {
- 	loff_t pos = ((loff_t)pos_high << 32) | pos_low;
- 
- 	if (pos == -1)
--		return do_compat_writev(fd, vec, vlen, flags);
--
--	return do_compat_pwritev64(fd, vec, vlen, pos, flags);
-+		return do_writev(fd, vec, vlen, flags);
-+	return do_pwritev(fd, vec, vlen, pos, flags);
- }
--
--#endif
-+#endif /* CONFIG_COMPAT */
- 
- static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
- 		  	   size_t count, loff_t max)
--- 
-2.28.0
+The usage of MSE threw me a bit too, as Bjorn notes that's specific to
+the SR-IOV capability.  I think this also uncovers a latent bug in our
+calling of vfio_bar_restore(), it really doesn't do a good job of
+determining whether an enable bit is implemented, regardless of whether
+it's a VF or the device simply doesn't use that address space.  For
+example I imagine you could reproduce triggering a reset recovery on
+s390 by trying to write the VF command register to 1 with setpci from a
+guest (since you won't have is_virtfn to bail out of the recovery
+function).  I think we'll still need this dev_flag to differentiate
+unimplmented and enabled versus simply unimplemented to resolve that
+though, so the change looks ok to me. Thanks,
+
+Alex
+
+> >> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> >> ---
+> >>   drivers/pci/iov.c   | 1 +
+> >>   include/linux/pci.h | 2 ++
+> >>   2 files changed, 3 insertions(+)
+> >>
+> >> diff --git a/drivers/pci/iov.c b/drivers/pci/iov.c
+> >> index b37e08c..2bec77c 100644
+> >> --- a/drivers/pci/iov.c
+> >> +++ b/drivers/pci/iov.c
+> >> @@ -180,6 +180,7 @@ int pci_iov_add_virtfn(struct pci_dev *dev, int id)
+> >>   	virtfn->device = iov->vf_device;
+> >>   	virtfn->is_virtfn = 1;
+> >>   	virtfn->physfn = pci_dev_get(dev);
+> >> +	virtfn->dev_flags |= PCI_DEV_FLAGS_FORCE_COMMAND_MEM;
+> >>   
+> >>   	if (id == 0)
+> >>   		pci_read_vf_config_common(virtfn);
+> >> diff --git a/include/linux/pci.h b/include/linux/pci.h
+> >> index 8355306..9316cce 100644
+> >> --- a/include/linux/pci.h
+> >> +++ b/include/linux/pci.h
+> >> @@ -227,6 +227,8 @@ enum pci_dev_flags {
+> >>   	PCI_DEV_FLAGS_NO_FLR_RESET = (__force pci_dev_flags_t) (1 << 10),
+> >>   	/* Don't use Relaxed Ordering for TLPs directed at this device */
+> >>   	PCI_DEV_FLAGS_NO_RELAXED_ORDERING = (__force pci_dev_flags_t) (1 << 11),
+> >> +	/* Device does not implement PCI_COMMAND_MEMORY (e.g. a VF) */
+> >> +	PCI_DEV_FLAGS_FORCE_COMMAND_MEM = (__force pci_dev_flags_t) (1 << 12),
+> >>   };
+> >>   
+> >>   enum pci_irq_reroute_variant {
+> >> -- 
+> >> 1.8.3.1
+> >>  
+> 
