@@ -1,56 +1,50 @@
-Return-Path: <bpf-owner@vger.kernel.org>
-Date: Thu, 10 Sep 2020 08:28:12 +0200
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from smtprelay0192.hostedemail.com ([216.40.44.192]:41384 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729413AbgIJCYQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Sep 2020 22:24:16 -0400
+Message-ID: <b3d6f71aea87f4bb88554f1a3fdaee0b2feb158c.camel@perches.com>
 Subject: Re: [trivial PATCH] treewide: Convert switch/case fallthrough; to
  break;
-Message-ID: <20200910082812.057a04e6@coco.lan>
-In-Reply-To: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
+From: Joe Perches <joe@perches.com>
+Date: Wed, 09 Sep 2020 15:47:24 -0700
+In-Reply-To: <20200909223602.GJ87483@ziepe.ca>
 References: <e6387578c75736d61b2fe70d9783d91329a97eb4.camel@perches.com>
+         <20200909223602.GJ87483@ziepe.ca>
+Content-Type: text/plain; charset="ISO-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Sender: bpf-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Joe Perches <joe@perches.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
 Cc: LKML <linux-kernel@vger.kernel.org>, Jiri Kosina <trivial@kernel.org>, Kees Cook <kees.cook@canonical.com>, Nick Desaulniers <ndesaulniers@google.com>, linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu, linux-mips@vger.kernel.org, linux-s390@vger.kernel.org, linux-crypto@vger.kernel.org, linux-ide@vger.kernel.org, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-rdma@vger.kernel.org, iommu@lists.linux-foundation.org, dm-devel@redhat.com, linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org, intel-wired-lan@lists.osuosl.org, oss-drivers@netronome.com, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-nvme@lists.infradead.org, linux-pm@vger.kernel.org, linux-rtc@vger.kernel.org, linux-scsi@vger.kernel.org, storagedev@microchip.com, sparclinux@vger.kernel.org, linux-serial@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-parisc@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-afs@lists.infradead.org, ceph-devel@vger.kernel.org, linux-nfs@vger.kernel.org, bpf@vger.kernel.org, dccp@vger.kernel.org, netfilter-devel@vger.kernel.org, coreteam@netfilter.org, linux-sctp@vger.kernel.org, alsa-devel <alsa-devel@alsa-project.org>
 
-Em Wed, 09 Sep 2020 13:06:39 -0700
-Joe Perches <joe@perches.com> escreveu:
+On Wed, 2020-09-09 at 19:36 -0300, Jason Gunthorpe wrote:
+> On Wed, Sep 09, 2020 at 01:06:39PM -0700, Joe Perches wrote:
+> > fallthrough to a separate case/default label break; isn't very readable.
+> > 
+> > Convert pseudo-keyword fallthrough; statements to a simple break; when
+> > the next label is case or default and the only statement in the next
+> > label block is break;
+> > 
+> > Found using:
+> > 
+> > $ grep-2.5.4 -rP --include=*.[ch] -n "fallthrough;(\s*(case\s+\w+|default)\s*:\s*){1,7}break;" *
+> > 
+> > Miscellanea:
+> > 
+> > o Move or coalesce a couple label blocks above a default: block.
+> > 
+> > Signed-off-by: Joe Perches <joe@perches.com>
+> > ---
+> > 
+> > Compiled allyesconfig x86-64 only.
+> > A few files for other arches were not compiled.
+> 
+> IB part looks OK, I prefer it like this
+> 
+> You could do the same for continue as well, I saw a few of those..
 
-> fallthrough to a separate case/default label break; isn't very readable.
-> 
-> Convert pseudo-keyword fallthrough; statements to a simple break; when
-> the next label is case or default and the only statement in the next
-> label block is break;
-> 
-> Found using:
-> 
-> $ grep-2.5.4 -rP --include=*.[ch] -n "fallthrough;(\s*(case\s+\w+|default)\s*:\s*){1,7}break;" *
-> 
-> Miscellanea:
-> 
-> o Move or coalesce a couple label blocks above a default: block.
-> 
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
-> 
-> Compiled allyesconfig x86-64 only.
-> A few files for other arches were not compiled.
-> 
-
-
->  drivers/media/dvb-frontends/drxd_hard.c                   |  2 +-
->  drivers/media/i2c/ov5640.c                                |  2 +-
->  drivers/media/i2c/ov6650.c                                |  5 ++---
->  drivers/media/i2c/smiapp/smiapp-core.c                    |  2 +-
->  drivers/media/i2c/tvp5150.c                               |  2 +-
->  drivers/media/pci/ddbridge/ddbridge-core.c                |  2 +-
->  drivers/media/usb/cpia2/cpia2_core.c                      |  2 +-
-
-For media drivers:
-
-Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
-
-Thanks,
-Mauro
+I saw some continue uses as well but wasn't sure
+and didn't look to see if the switch/case with
+continue was in a for/while loop.
