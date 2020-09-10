@@ -1,105 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14288 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726537AbgIWIhQ (ORCPT
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52755 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730269AbgIJJOu (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Sep 2020 04:37:16 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 6/9] s390/qeth: cancel cmds earlier during teardown
-Date: Wed, 23 Sep 2020 10:36:57 +0200
-Message-Id: <20200923083700.44624-7-jwi@linux.ibm.com>
-In-Reply-To: <20200923083700.44624-1-jwi@linux.ibm.com>
-References: <20200923083700.44624-1-jwi@linux.ibm.com>
+        Thu, 10 Sep 2020 05:14:50 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v3 6/7] xen/balloon: try to merge system ram resources
+Date: Thu, 10 Sep 2020 11:13:39 +0200
+Message-Id: <20200910091340.8654-7-david@redhat.com>
+In-Reply-To: <20200910091340.8654-1-david@redhat.com>
+References: <20200910091340.8654-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Juergen Gross <jgross@suse.com>, Andrew Morton <akpmt@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>, Julien Grall <julien@xen.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-Originators of cmd IO typically hold the rtnl or conf_mutex to protect
-against a concurrent teardown.
-Since qeth_set_offline() already holds the conf_mutex, the main reason
-why we still care about cancelling pending cmds is so that they release
-the rtnl when we need it ourselves.
+Let's try to merge system ram resources we add, to minimize the number
+of resources in /proc/iomem. We don't care about the boundaries of
+individual chunks we added.
 
-So move this step a little earlier into the teardown sequence.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: Andrew Morton <akpmt@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Roger Pau Monné <roger.pau@citrix.com>
+Cc: Julien Grall <julien@xen.org>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/s390/net/qeth_core.h      | 1 -
- drivers/s390/net/qeth_core_main.c | 6 ++++--
- drivers/s390/net/qeth_l2_main.c   | 4 +---
- drivers/s390/net/qeth_l3_main.c   | 1 -
- 4 files changed, 5 insertions(+), 7 deletions(-)
+ drivers/xen/balloon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index f931b764d6a4..711ab5097bd1 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -1067,7 +1067,6 @@ void qeth_put_cmd(struct qeth_cmd_buffer *iob);
- int qeth_schedule_recovery(struct qeth_card *card);
- void qeth_flush_local_addrs(struct qeth_card *card);
- int qeth_poll(struct napi_struct *napi, int budget);
--void qeth_clear_ipacmd_list(struct qeth_card *);
- int qeth_qdio_clear_card(struct qeth_card *, int);
- void qeth_clear_working_pool_list(struct qeth_card *);
- void qeth_drain_output_queues(struct qeth_card *card);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 7cd0cbf8a4f0..286787845cae 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -965,7 +965,7 @@ static struct qeth_ipa_cmd *qeth_check_ipa_data(struct qeth_card *card,
- 	}
- }
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 9f40a294d398d..b57b2067ecbfb 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -331,7 +331,7 @@ static enum bp_state reserve_additional_memory(void)
+ 	mutex_unlock(&balloon_mutex);
+ 	/* add_memory_resource() requires the device_hotplug lock */
+ 	lock_device_hotplug();
+-	rc = add_memory_resource(nid, resource, MHP_NONE);
++	rc = add_memory_resource(nid, resource, MEMHP_MERGE_RESOURCE);
+ 	unlock_device_hotplug();
+ 	mutex_lock(&balloon_mutex);
  
--void qeth_clear_ipacmd_list(struct qeth_card *card)
-+static void qeth_clear_ipacmd_list(struct qeth_card *card)
- {
- 	struct qeth_cmd_buffer *iob;
- 	unsigned long flags;
-@@ -977,7 +977,6 @@ void qeth_clear_ipacmd_list(struct qeth_card *card)
- 		qeth_notify_cmd(iob, -ECANCELED);
- 	spin_unlock_irqrestore(&card->lock, flags);
- }
--EXPORT_SYMBOL_GPL(qeth_clear_ipacmd_list);
- 
- static int qeth_check_idx_response(struct qeth_card *card,
- 	unsigned char *buffer)
-@@ -5334,6 +5333,9 @@ int qeth_set_offline(struct qeth_card *card, bool resetting)
- 		card->info.hwtrap = 1;
- 	}
- 
-+	/* cancel any stalled cmd that might block the rtnl: */
-+	qeth_clear_ipacmd_list(card);
-+
- 	rtnl_lock();
- 	card->info.open_when_online = card->dev->flags & IFF_UP;
- 	dev_close(card->dev);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index e12ac32b8b47..cbd1ab71e785 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -315,10 +315,8 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 	cancel_work_sync(&card->rx_mode_work);
- 	qeth_l2_drain_rx_mode_cache(card);
- 
--	if (card->state == CARD_STATE_SOFTSETUP) {
--		qeth_clear_ipacmd_list(card);
-+	if (card->state == CARD_STATE_SOFTSETUP)
- 		card->state = CARD_STATE_DOWN;
--	}
- 
- 	qeth_qdio_clear_card(card, 0);
- 	qeth_drain_output_queues(card);
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 0815b64c9797..410c35ca8f4a 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1158,7 +1158,6 @@ static void qeth_l3_stop_card(struct qeth_card *card)
- 	if (card->state == CARD_STATE_SOFTSETUP) {
- 		card->state = CARD_STATE_DOWN;
- 		qeth_l3_clear_ip_htable(card, 1);
--		qeth_clear_ipacmd_list(card);
- 	}
- 
- 	qeth_qdio_clear_card(card, 0);
 -- 
-2.17.1
+2.26.2
