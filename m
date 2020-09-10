@@ -1,66 +1,78 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:50732 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728032AbgIUOlZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:25 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 5/9] s390/init: add missing __init annotations
-Date: Mon, 21 Sep 2020 10:41:10 -0400
-Message-Id: <20200921144114.2135773-5-sashal@kernel.org>
-In-Reply-To: <20200921144114.2135773-1-sashal@kernel.org>
-References: <20200921144114.2135773-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:30508 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726951AbgIJQtV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Sep 2020 12:49:21 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 06/10] net/smc: reduce smc_listen_decline() calls
+Date: Thu, 10 Sep 2020 18:48:25 +0200
+Message-Id: <20200910164829.65426-7-kgraul@linux.ibm.com>
+In-Reply-To: <20200910164829.65426-1-kgraul@linux.ibm.com>
+References: <20200910164829.65426-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-[ Upstream commit fcb2b70cdb194157678fb1a75f9ff499aeba3d2a ]
+smc_listen_work() contains already an smc_listen_decline() exit.
+Use this exit for smc_listen_rdma_finish() problems as well.
 
-Add __init to reserve_memory_end, reserve_oldmem and remove_oldmem.
-Sometimes these functions are not inlined, and then the build
-complains about section mismatch.
-
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/s390/kernel/setup.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/smc/af_smc.c | 22 ++++++----------------
+ 1 file changed, 6 insertions(+), 16 deletions(-)
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 5f85e0dfa66d1..4bda9055daefa 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -537,7 +537,7 @@ static struct notifier_block kdump_mem_nb = {
- /*
-  * Make sure that the area behind memory_end is protected
-  */
--static void reserve_memory_end(void)
-+static void __init reserve_memory_end(void)
- {
- #ifdef CONFIG_CRASH_DUMP
- 	if (ipl_info.type == IPL_TYPE_FCP_DUMP &&
-@@ -555,7 +555,7 @@ static void reserve_memory_end(void)
- /*
-  * Make sure that oldmem, where the dump is stored, is protected
-  */
--static void reserve_oldmem(void)
-+static void __init reserve_oldmem(void)
- {
- #ifdef CONFIG_CRASH_DUMP
- 	if (OLDMEM_BASE)
-@@ -567,7 +567,7 @@ static void reserve_oldmem(void)
- /*
-  * Make sure that oldmem, where the dump is stored, is protected
-  */
--static void remove_oldmem(void)
-+static void __init remove_oldmem(void)
- {
- #ifdef CONFIG_CRASH_DUMP
- 	if (OLDMEM_BASE)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index f27a596b2624..9f3e148c60c5 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1233,27 +1233,17 @@ static int smc_listen_rdma_finish(struct smc_sock *new_smc,
+ 	if (local_first)
+ 		smc_link_save_peer_info(link, cclc);
+ 
+-	if (smc_rmb_rtoken_handling(&new_smc->conn, link, cclc)) {
+-		reason_code = SMC_CLC_DECL_ERR_RTOK;
+-		goto decline;
+-	}
++	if (smc_rmb_rtoken_handling(&new_smc->conn, link, cclc))
++		return SMC_CLC_DECL_ERR_RTOK;
+ 
+ 	if (local_first) {
+-		if (smc_ib_ready_link(link)) {
+-			reason_code = SMC_CLC_DECL_ERR_RDYLNK;
+-			goto decline;
+-		}
++		if (smc_ib_ready_link(link))
++			return SMC_CLC_DECL_ERR_RDYLNK;
+ 		/* QP confirmation over RoCE fabric */
+ 		smc_llc_flow_initiate(link->lgr, SMC_LLC_FLOW_ADD_LINK);
+ 		reason_code = smcr_serv_conf_first_link(new_smc);
+ 		smc_llc_flow_stop(link->lgr, &link->lgr->llc_flow_lcl);
+-		if (reason_code)
+-			goto decline;
+ 	}
+-	return 0;
+-
+-decline:
+-	smc_listen_decline(new_smc, reason_code, local_first);
+ 	return reason_code;
+ }
+ 
+@@ -1382,9 +1372,9 @@ static void smc_listen_work(struct work_struct *work)
+ 	if (!ism_supported) {
+ 		rc = smc_listen_rdma_finish(new_smc, &cclc,
+ 					    ini.first_contact_local);
+-		mutex_unlock(&smc_server_lgr_pending);
+ 		if (rc)
+-			return;
++			goto out_unlock;
++		mutex_unlock(&smc_server_lgr_pending);
+ 	}
+ 	smc_conn_save_peer_info(new_smc, &cclc);
+ 	smc_listen_out_connected(new_smc);
 -- 
-2.25.1
+2.17.1
