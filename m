@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Sender: "vipinsh via sendgmr" <vipinsh@vipinsh.kir.corp.google.com>
-Date: Mon, 21 Sep 2020 17:40:22 -0700
-Message-Id: <20200922004024.3699923-1-vipinsh@google.com>
-Mime-Version: 1.0
-Subject: [RFC Patch 0/2] KVM: SVM: Cgroup support for SVM SEV ASIDs
-From: Vipin Sharma <vipinsh@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5760 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726760AbgIJTta (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Sep 2020 15:49:30 -0400
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 1/2] zfcp: use list_first_entry_or_null() in zfcp_erp_thread()
+Date: Thu, 10 Sep 2020 21:49:15 +0200
+Message-Id: <ed669555c73aab95b29444c10066f492c0c43391.1599765652.git.bblock@linux.ibm.com>
+In-Reply-To: <cover.1599765652.git.bblock@linux.ibm.com>
+References: <cover.1599765652.git.bblock@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: thomas.lendacky@amd.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, tj@kernel.org, lizefan@huawei.com
-Cc: joro@8bytes.org, corbet@lwn.net, brijesh.singh@amd.com, jon.grimm@amd.com, eric.vantassell@amd.com, gingell@google.com, rientjes@google.com, kvm@vger.kernel.org, x86@kernel.org, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vipin Sharma <vipinsh@google.com>
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-Hello,
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-This patch series adds a new SEV controller for tracking and limiting
-the usage of SEV ASIDs on the AMD SVM platform.
+Use the right helper to avoid poking around in the list's internals.
 
-SEV ASIDs are used in creating encrypted VM and lightweight sandboxes
-but this resource is in very limited quantity on a host.
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Steffen Maier <maier@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+---
+ drivers/s390/scsi/zfcp_erp.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-This limited quantity creates issues like SEV ASID starvation and
-unoptimized scheduling in the cloud infrastructure.
-
-SEV controller provides SEV ASID tracking and resource control
-mechanisms.
-
-Patch 1 - Overview, motivation, and implementation details of the SEV
-          controller.
-Patch 2 - Kernel documentation of the SEV controller for both
-	  cgroup v1 and v2.
-
-Thanks
-
-Vipin Sharma (2):
-  KVM: SVM: Create SEV cgroup controller.
-  KVM: SVM: SEV cgroup controller documentation
-
- Documentation/admin-guide/cgroup-v1/sev.rst |  94 +++++
- Documentation/admin-guide/cgroup-v2.rst     |  56 ++-
- arch/x86/kvm/Makefile                       |   1 +
- arch/x86/kvm/svm/sev.c                      |  16 +-
- arch/x86/kvm/svm/sev_cgroup.c               | 414 ++++++++++++++++++++
- arch/x86/kvm/svm/sev_cgroup.h               |  40 ++
- include/linux/cgroup_subsys.h               |   3 +
- init/Kconfig                                |  14 +
- 8 files changed, 634 insertions(+), 4 deletions(-)
- create mode 100644 Documentation/admin-guide/cgroup-v1/sev.rst
- create mode 100644 arch/x86/kvm/svm/sev_cgroup.c
- create mode 100644 arch/x86/kvm/svm/sev_cgroup.h
-
+diff --git a/drivers/s390/scsi/zfcp_erp.c b/drivers/s390/scsi/zfcp_erp.c
+index 59e662df5774..78d52a4c55f5 100644
+--- a/drivers/s390/scsi/zfcp_erp.c
++++ b/drivers/s390/scsi/zfcp_erp.c
+@@ -1607,7 +1607,6 @@ static enum zfcp_erp_act_result zfcp_erp_strategy(
+ static int zfcp_erp_thread(void *data)
+ {
+ 	struct zfcp_adapter *adapter = (struct zfcp_adapter *) data;
+-	struct list_head *next;
+ 	struct zfcp_erp_action *act;
+ 	unsigned long flags;
+ 
+@@ -1620,12 +1619,11 @@ static int zfcp_erp_thread(void *data)
+ 			break;
+ 
+ 		write_lock_irqsave(&adapter->erp_lock, flags);
+-		next = adapter->erp_ready_head.next;
++		act = list_first_entry_or_null(&adapter->erp_ready_head,
++					       struct zfcp_erp_action, list);
+ 		write_unlock_irqrestore(&adapter->erp_lock, flags);
+ 
+-		if (next != &adapter->erp_ready_head) {
+-			act = list_entry(next, struct zfcp_erp_action, list);
+-
++		if (act) {
+ 			/* there is more to come after dismission, no notify */
+ 			if (zfcp_erp_strategy(act) != ZFCP_ERP_DISMISSED)
+ 				zfcp_erp_wakeup(adapter);
 -- 
-2.28.0.681.g6f77f65b4e-goog
+2.26.2
