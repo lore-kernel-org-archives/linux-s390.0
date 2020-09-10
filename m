@@ -1,88 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4636 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728910AbgICOO2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 10:14:28 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH 2/2] s390x: Add 3f program exception handler
-Date: Thu,  3 Sep 2020 09:14:35 -0400
-Message-Id: <20200903131435.2535-3-frankja@linux.ibm.com>
-In-Reply-To: <20200903131435.2535-1-frankja@linux.ibm.com>
-References: <20200903131435.2535-1-frankja@linux.ibm.com>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:51398 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730293AbgIJJOx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Sep 2020 05:14:53 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v3 7/7] hv_balloon: try to merge system ram resources
+Date: Thu, 10 Sep 2020 11:13:40 +0200
+Message-Id: <20200910091340.8654-8-david@redhat.com>
+In-Reply-To: <20200910091340.8654-1-david@redhat.com>
+References: <20200910091340.8654-1-david@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: borntraeger@de.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, david@redhat.com
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Wei Liu <wei.liu@kernel.org>, Michal Hocko <mhocko@suse.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-Program exception 3f (secure storage violation) can only be detected
-when the CPU is running in SIE with a format 4 state description,
-e.g. running a protected guest. Because of this and because user
-space partly controls the guest memory mapping and can trigger this
-exception, we want to send a SIGSEGV to the process running the guest
-and not panic the kernel.
+Let's try to merge system ram resources we add, to minimize the number
+of resources in /proc/iomem. We don't care about the boundaries of
+individual chunks we added.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-CC: <stable@vger.kernel.org> # 5.7+
-Fixes: 084ea4d611a3 ("s390/mm: add (non)secure page access exceptions handlers")
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/s390/kernel/pgm_check.S |  2 +-
- arch/s390/mm/fault.c         | 23 +++++++++++++++++++++++
- 2 files changed, 24 insertions(+), 1 deletion(-)
+ drivers/hv/hv_balloon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/pgm_check.S b/arch/s390/kernel/pgm_check.S
-index 2c27907a5ffc..9a92638360ee 100644
---- a/arch/s390/kernel/pgm_check.S
-+++ b/arch/s390/kernel/pgm_check.S
-@@ -80,7 +80,7 @@ PGM_CHECK(do_dat_exception)		/* 3b */
- PGM_CHECK_DEFAULT			/* 3c */
- PGM_CHECK(do_secure_storage_access)	/* 3d */
- PGM_CHECK(do_non_secure_storage_access)	/* 3e */
--PGM_CHECK_DEFAULT			/* 3f */
-+PGM_CHECK(do_secure_storage_violation)	/* 3f */
- PGM_CHECK(monitor_event_exception)	/* 40 */
- PGM_CHECK_DEFAULT			/* 41 */
- PGM_CHECK_DEFAULT			/* 42 */
-diff --git a/arch/s390/mm/fault.c b/arch/s390/mm/fault.c
-index 4c8c063bce5b..20abb7c5c540 100644
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -859,6 +859,24 @@ void do_non_secure_storage_access(struct pt_regs *regs)
- }
- NOKPROBE_SYMBOL(do_non_secure_storage_access);
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 3c0d52e244520..b64d2efbefe71 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -726,7 +726,7 @@ static void hv_mem_hot_add(unsigned long start, unsigned long size,
  
-+void do_secure_storage_violation(struct pt_regs *regs)
-+{
-+	char buf[TASK_COMM_LEN];
-+
-+	/*
-+	 * Either KVM messed up the secure guest mapping or the same
-+	 * page is mapped into multiple secure guests.
-+	 *
-+	 * This exception is only triggered when a guest 2 is running
-+	 * and can therefore never occur in kernel context.
-+	 */
-+	printk_ratelimited(KERN_WARNING
-+			   "Secure storage violation in task: %s, pid %d\n",
-+			   get_task_comm(buf, current), task_pid_nr(current));
-+	send_sig(SIGSEGV, current, 0);
-+}
-+NOKPROBE_SYMBOL(do_secure_storage_violation);
-+
- #else
- void do_secure_storage_access(struct pt_regs *regs)
- {
-@@ -869,4 +887,9 @@ void do_non_secure_storage_access(struct pt_regs *regs)
- {
- 	default_trap_handler(regs);
- }
-+
-+void do_secure_storage_violation(struct pt_regs *regs)
-+{
-+	default_trap_handler(regs);
-+}
- #endif
+ 		nid = memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
+ 		ret = add_memory(nid, PFN_PHYS((start_pfn)),
+-				(HA_CHUNK << PAGE_SHIFT), MHP_NONE);
++				(HA_CHUNK << PAGE_SHIFT), MEMHP_MERGE_RESOURCE);
+ 
+ 		if (ret) {
+ 			pr_err("hot_add memory failed error is %d\n", ret);
 -- 
-2.25.1
+2.26.2
