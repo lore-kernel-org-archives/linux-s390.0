@@ -1,296 +1,417 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6388 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727017AbgIZKo4 (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40148 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726109AbgIJQtW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 26 Sep 2020 06:44:56 -0400
+        Thu, 10 Sep 2020 12:49:22 -0400
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 08/14] net/smc: introduce list of pnetids for Ethernet devices
-Date: Sat, 26 Sep 2020 12:44:26 +0200
-Message-Id: <20200926104432.74293-9-kgraul@linux.ibm.com>
-In-Reply-To: <20200926104432.74293-1-kgraul@linux.ibm.com>
-References: <20200926104432.74293-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next 04/10] net/smc: common routine for CLC accept and confirm
+Date: Thu, 10 Sep 2020 18:48:23 +0200
+Message-Id: <20200910164829.65426-5-kgraul@linux.ibm.com>
+In-Reply-To: <20200910164829.65426-1-kgraul@linux.ibm.com>
+References: <20200910164829.65426-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
 From: Ursula Braun <ubraun@linux.ibm.com>
 
-SMCD version 2 allows usage of ISM devices with hardware PNETID
-only, if an Ethernet net_device exists with the same hardware PNETID.
-This requires to maintain a list of pnetids belonging to
-Ethernet net_devices, which is covered by this patch.
+smc_clc_send_accept() and smc_clc_send_confirm() are quite similar.
+Move common code into a separate function smc_clc_send_confirm_accept().
+And introduce separate SMCD and SMCR struct definitions for CLC accept
+resp. confirm.
+No functional change.
 
 Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/smc/smc_netns.h |   1 +
- net/smc/smc_pnet.c  | 145 +++++++++++++++++++++++++++++++++++++++++---
- net/smc/smc_pnet.h  |  14 +++++
- 3 files changed, 153 insertions(+), 7 deletions(-)
+ net/smc/af_smc.c   |  36 +++++------
+ net/smc/smc_clc.c  | 147 ++++++++++++++++++---------------------------
+ net/smc/smc_clc.h  |  74 ++++++++++++-----------
+ net/smc/smc_core.c |   4 +-
+ 4 files changed, 118 insertions(+), 143 deletions(-)
 
-diff --git a/net/smc/smc_netns.h b/net/smc/smc_netns.h
-index e7a8fc4ae02f..0f4f35aa43ad 100644
---- a/net/smc/smc_netns.h
-+++ b/net/smc/smc_netns.h
-@@ -16,5 +16,6 @@ extern unsigned int smc_net_id;
- /* per-network namespace private data */
- struct smc_net {
- 	struct smc_pnettable pnettable;
-+	struct smc_pnetids_ndev pnetids_ndev;
- };
- #endif
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 0b0f2704026f..8a91ca22712f 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -29,6 +29,7 @@
- #include "smc_ism.h"
- #include "smc_core.h"
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 00e2a4ce0131..fa97144690e0 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -436,10 +436,10 @@ static int smcr_clnt_conf_first_link(struct smc_sock *smc)
+ static void smcr_conn_save_peer_info(struct smc_sock *smc,
+ 				     struct smc_clc_msg_accept_confirm *clc)
+ {
+-	int bufsize = smc_uncompress_bufsize(clc->rmbe_size);
++	int bufsize = smc_uncompress_bufsize(clc->r0.rmbe_size);
  
-+static struct net_device *__pnet_find_base_ndev(struct net_device *ndev);
- static struct net_device *pnet_find_base_ndev(struct net_device *ndev);
+-	smc->conn.peer_rmbe_idx = clc->rmbe_idx;
+-	smc->conn.local_tx_ctrl.token = ntohl(clc->rmbe_alert_token);
++	smc->conn.peer_rmbe_idx = clc->r0.rmbe_idx;
++	smc->conn.local_tx_ctrl.token = ntohl(clc->r0.rmbe_alert_token);
+ 	smc->conn.peer_rmbe_size = bufsize;
+ 	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
+ 	smc->conn.tx_off = bufsize * (smc->conn.peer_rmbe_idx - 1);
+@@ -448,10 +448,10 @@ static void smcr_conn_save_peer_info(struct smc_sock *smc,
+ static void smcd_conn_save_peer_info(struct smc_sock *smc,
+ 				     struct smc_clc_msg_accept_confirm *clc)
+ {
+-	int bufsize = smc_uncompress_bufsize(clc->dmbe_size);
++	int bufsize = smc_uncompress_bufsize(clc->d0.dmbe_size);
  
- static const struct nla_policy smc_pnet_policy[SMC_PNETID_MAX + 1] = {
-@@ -712,10 +713,115 @@ static struct genl_family smc_pnet_nl_family __ro_after_init = {
- 	.n_ops =  ARRAY_SIZE(smc_pnet_ops)
- };
+-	smc->conn.peer_rmbe_idx = clc->dmbe_idx;
+-	smc->conn.peer_token = clc->token;
++	smc->conn.peer_rmbe_idx = clc->d0.dmbe_idx;
++	smc->conn.peer_token = clc->d0.token;
+ 	/* msg header takes up space in the buffer */
+ 	smc->conn.peer_rmbe_size = bufsize - sizeof(struct smcd_cdc_msg);
+ 	atomic_set(&smc->conn.peer_rmbe_space, smc->conn.peer_rmbe_size);
+@@ -470,11 +470,11 @@ static void smc_conn_save_peer_info(struct smc_sock *smc,
+ static void smc_link_save_peer_info(struct smc_link *link,
+ 				    struct smc_clc_msg_accept_confirm *clc)
+ {
+-	link->peer_qpn = ntoh24(clc->qpn);
+-	memcpy(link->peer_gid, clc->lcl.gid, SMC_GID_SIZE);
+-	memcpy(link->peer_mac, clc->lcl.mac, sizeof(link->peer_mac));
+-	link->peer_psn = ntoh24(clc->psn);
+-	link->peer_mtu = clc->qp_mtu;
++	link->peer_qpn = ntoh24(clc->r0.qpn);
++	memcpy(link->peer_gid, clc->r0.lcl.gid, SMC_GID_SIZE);
++	memcpy(link->peer_mac, clc->r0.lcl.mac, sizeof(link->peer_mac));
++	link->peer_psn = ntoh24(clc->r0.psn);
++	link->peer_mtu = clc->r0.qp_mtu;
+ }
  
-+bool smc_pnet_is_ndev_pnetid(struct net *net, u8 *pnetid)
-+{
-+	struct smc_net *sn = net_generic(net, smc_net_id);
-+	struct smc_pnetids_ndev_entry *pe;
-+	bool rc = false;
+ static void smc_switch_to_fallback(struct smc_sock *smc)
+@@ -613,8 +613,8 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 	struct smc_link *link;
+ 
+ 	ini->is_smcd = false;
+-	ini->ib_lcl = &aclc->lcl;
+-	ini->ib_clcqpn = ntoh24(aclc->qpn);
++	ini->ib_lcl = &aclc->r0.lcl;
++	ini->ib_clcqpn = ntoh24(aclc->r0.qpn);
+ 	ini->first_contact_peer = aclc->hdr.flag;
+ 
+ 	mutex_lock(&smc_client_lgr_pending);
+@@ -634,9 +634,11 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
+ 			struct smc_link *l = &smc->conn.lgr->lnk[i];
+ 
+-			if (l->peer_qpn == ntoh24(aclc->qpn) &&
+-			    !memcmp(l->peer_gid, &aclc->lcl.gid, SMC_GID_SIZE) &&
+-			    !memcmp(l->peer_mac, &aclc->lcl.mac, sizeof(l->peer_mac))) {
++			if (l->peer_qpn == ntoh24(aclc->r0.qpn) &&
++			    !memcmp(l->peer_gid, &aclc->r0.lcl.gid,
++				    SMC_GID_SIZE) &&
++			    !memcmp(l->peer_mac, &aclc->r0.lcl.mac,
++				    sizeof(l->peer_mac))) {
+ 				link = l;
+ 				break;
+ 			}
+@@ -707,7 +709,7 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 	int rc = 0;
+ 
+ 	ini->is_smcd = true;
+-	ini->ism_peer_gid = aclc->gid;
++	ini->ism_peer_gid = aclc->d0.gid;
+ 	ini->first_contact_peer = aclc->hdr.flag;
+ 
+ 	/* there is only one lgr role for SMC-D; use server lock */
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 0c8e74faf5ca..bd116e1949b9 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -497,65 +497,85 @@ int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
+ 	return reason_code;
+ }
+ 
+-/* send CLC CONFIRM message across internal TCP socket */
+-int smc_clc_send_confirm(struct smc_sock *smc)
++/* build and send CLC CONFIRM / ACCEPT message */
++static int smc_clc_send_confirm_accept(struct smc_sock *smc,
++				       struct smc_clc_msg_accept_confirm *clc,
++				       int first_contact)
+ {
+ 	struct smc_connection *conn = &smc->conn;
+-	struct smc_clc_msg_accept_confirm cclc;
+-	struct smc_link *link;
+-	int reason_code = 0;
+ 	struct msghdr msg;
+ 	struct kvec vec;
+-	int len;
+ 
+ 	/* send SMC Confirm CLC msg */
+-	memset(&cclc, 0, sizeof(cclc));
+-	cclc.hdr.type = SMC_CLC_CONFIRM;
+-	cclc.hdr.version = SMC_V1;		/* SMC version */
++	clc->hdr.version = SMC_V1;		/* SMC version */
++	if (first_contact)
++		clc->hdr.flag = 1;
+ 	if (conn->lgr->is_smcd) {
+ 		/* SMC-D specific settings */
+-		memcpy(cclc.hdr.eyecatcher, SMCD_EYECATCHER,
++		memcpy(clc->hdr.eyecatcher, SMCD_EYECATCHER,
+ 		       sizeof(SMCD_EYECATCHER));
+-		cclc.hdr.path = SMC_TYPE_D;
+-		cclc.hdr.length = htons(SMCD_CLC_ACCEPT_CONFIRM_LEN);
+-		cclc.gid = conn->lgr->smcd->local_gid;
+-		cclc.token = conn->rmb_desc->token;
+-		cclc.dmbe_size = conn->rmbe_size_short;
+-		cclc.dmbe_idx = 0;
+-		memcpy(&cclc.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
+-		memcpy(cclc.smcd_trl.eyecatcher, SMCD_EYECATCHER,
++		clc->hdr.path = SMC_TYPE_D;
++		clc->hdr.length = htons(SMCD_CLC_ACCEPT_CONFIRM_LEN);
++		clc->d0.gid = conn->lgr->smcd->local_gid;
++		clc->d0.token = conn->rmb_desc->token;
++		clc->d0.dmbe_size = conn->rmbe_size_short;
++		clc->d0.dmbe_idx = 0;
++		memcpy(&clc->d0.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
++		memcpy(clc->d0.smcd_trl.eyecatcher, SMCD_EYECATCHER,
+ 		       sizeof(SMCD_EYECATCHER));
+ 	} else {
++		struct smc_link *link = conn->lnk;
 +
-+	read_lock(&sn->pnetids_ndev.lock);
-+	list_for_each_entry(pe, &sn->pnetids_ndev.list, list) {
-+		if (smc_pnet_match(pnetid, pe->pnetid)) {
-+			rc = true;
-+			goto unlock;
-+		}
-+	}
-+
-+unlock:
-+	read_unlock(&sn->pnetids_ndev.lock);
-+	return rc;
-+}
-+
-+static int smc_pnet_add_pnetid(struct net *net, u8 *pnetid)
-+{
-+	struct smc_net *sn = net_generic(net, smc_net_id);
-+	struct smc_pnetids_ndev_entry *pe, *pi;
-+
-+	pe = kzalloc(sizeof(*pe), GFP_KERNEL);
-+	if (!pe)
-+		return -ENOMEM;
-+
-+	write_lock(&sn->pnetids_ndev.lock);
-+	list_for_each_entry(pi, &sn->pnetids_ndev.list, list) {
-+		if (smc_pnet_match(pnetid, pe->pnetid)) {
-+			refcount_inc(&pi->refcnt);
-+			kfree(pe);
-+			goto unlock;
-+		}
-+	}
-+	refcount_set(&pe->refcnt, 1);
-+	memcpy(pe->pnetid, pnetid, SMC_MAX_PNETID_LEN);
-+	list_add_tail(&pe->list, &sn->pnetids_ndev.list);
-+
-+unlock:
-+	write_unlock(&sn->pnetids_ndev.lock);
-+	return 0;
-+}
-+
-+static void smc_pnet_remove_pnetid(struct net *net, u8 *pnetid)
-+{
-+	struct smc_net *sn = net_generic(net, smc_net_id);
-+	struct smc_pnetids_ndev_entry *pe, *pe2;
-+
-+	write_lock(&sn->pnetids_ndev.lock);
-+	list_for_each_entry_safe(pe, pe2, &sn->pnetids_ndev.list, list) {
-+		if (smc_pnet_match(pnetid, pe->pnetid)) {
-+			if (refcount_dec_and_test(&pe->refcnt)) {
-+				list_del(&pe->list);
-+				kfree(pe);
-+			}
+ 		/* SMC-R specific settings */
+ 		link = conn->lnk;
+-		memcpy(cclc.hdr.eyecatcher, SMC_EYECATCHER,
++		memcpy(clc->hdr.eyecatcher, SMC_EYECATCHER,
+ 		       sizeof(SMC_EYECATCHER));
+-		cclc.hdr.path = SMC_TYPE_R;
+-		cclc.hdr.length = htons(SMCR_CLC_ACCEPT_CONFIRM_LEN);
+-		memcpy(cclc.lcl.id_for_peer, local_systemid,
++		clc->hdr.path = SMC_TYPE_R;
++		clc->hdr.length = htons(SMCR_CLC_ACCEPT_CONFIRM_LEN);
++		memcpy(clc->r0.lcl.id_for_peer, local_systemid,
+ 		       sizeof(local_systemid));
+-		memcpy(&cclc.lcl.gid, link->gid, SMC_GID_SIZE);
+-		memcpy(&cclc.lcl.mac, &link->smcibdev->mac[link->ibport - 1],
++		memcpy(&clc->r0.lcl.gid, link->gid, SMC_GID_SIZE);
++		memcpy(&clc->r0.lcl.mac, &link->smcibdev->mac[link->ibport - 1],
+ 		       ETH_ALEN);
+-		hton24(cclc.qpn, link->roce_qp->qp_num);
+-		cclc.rmb_rkey =
++		hton24(clc->r0.qpn, link->roce_qp->qp_num);
++		clc->r0.rmb_rkey =
+ 			htonl(conn->rmb_desc->mr_rx[link->link_idx]->rkey);
+-		cclc.rmbe_idx = 1; /* for now: 1 RMB = 1 RMBE */
+-		cclc.rmbe_alert_token = htonl(conn->alert_token_local);
+-		cclc.qp_mtu = min(link->path_mtu, link->peer_mtu);
+-		cclc.rmbe_size = conn->rmbe_size_short;
+-		cclc.rmb_dma_addr = cpu_to_be64((u64)sg_dma_address
++		clc->r0.rmbe_idx = 1; /* for now: 1 RMB = 1 RMBE */
++		clc->r0.rmbe_alert_token = htonl(conn->alert_token_local);
++		switch (clc->hdr.type) {
++		case SMC_CLC_ACCEPT:
++			clc->r0.qp_mtu = link->path_mtu;
++			break;
++		case SMC_CLC_CONFIRM:
++			clc->r0.qp_mtu = min(link->path_mtu, link->peer_mtu);
 +			break;
 +		}
-+	}
-+	write_unlock(&sn->pnetids_ndev.lock);
-+}
-+
-+static void smc_pnet_add_base_pnetid(struct net *net, struct net_device *dev,
-+				     u8 *ndev_pnetid)
-+{
-+	struct net_device *base_dev;
-+
-+	base_dev = __pnet_find_base_ndev(dev);
-+	if (base_dev->flags & IFF_UP &&
-+	    !smc_pnetid_by_dev_port(base_dev->dev.parent, base_dev->dev_port,
-+				    ndev_pnetid)) {
-+		/* add to PNETIDs list */
-+		smc_pnet_add_pnetid(net, ndev_pnetid);
-+	}
-+}
-+
-+/* create initial list of netdevice pnetids */
-+static void smc_pnet_create_pnetids_list(struct net *net)
-+{
-+	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
-+	struct net_device *dev;
-+
-+	rtnl_lock();
-+	for_each_netdev(net, dev)
-+		smc_pnet_add_base_pnetid(net, dev, ndev_pnetid);
-+	rtnl_unlock();
-+}
-+
-+/* clean up list of netdevice pnetids */
-+static void smc_pnet_destroy_pnetids_list(struct net *net)
-+{
-+	struct smc_net *sn = net_generic(net, smc_net_id);
-+	struct smc_pnetids_ndev_entry *pe, *temp_pe;
-+
-+	write_lock(&sn->pnetids_ndev.lock);
-+	list_for_each_entry_safe(pe, temp_pe, &sn->pnetids_ndev.list, list) {
-+		list_del(&pe->list);
-+		kfree(pe);
-+	}
-+	write_unlock(&sn->pnetids_ndev.lock);
-+}
-+
- static int smc_pnet_netdev_event(struct notifier_block *this,
- 				 unsigned long event, void *ptr)
- {
- 	struct net_device *event_dev = netdev_notifier_info_to_dev(ptr);
-+	struct net *net = dev_net(event_dev);
-+	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
- 
- 	switch (event) {
- 	case NETDEV_REBOOT:
-@@ -725,6 +831,17 @@ static int smc_pnet_netdev_event(struct notifier_block *this,
- 	case NETDEV_REGISTER:
- 		smc_pnet_add_by_ndev(event_dev);
- 		return NOTIFY_OK;
-+	case NETDEV_UP:
-+		smc_pnet_add_base_pnetid(net, event_dev, ndev_pnetid);
-+		return NOTIFY_OK;
-+	case NETDEV_DOWN:
-+		event_dev = __pnet_find_base_ndev(event_dev);
-+		if (!smc_pnetid_by_dev_port(event_dev->dev.parent,
-+					    event_dev->dev_port, ndev_pnetid)) {
-+			/* remove from PNETIDs list */
-+			smc_pnet_remove_pnetid(net, ndev_pnetid);
-+		}
-+		return NOTIFY_OK;
- 	default:
- 		return NOTIFY_DONE;
++		clc->r0.rmbe_size = conn->rmbe_size_short;
++		clc->r0.rmb_dma_addr = cpu_to_be64((u64)sg_dma_address
+ 				(conn->rmb_desc->sgt[link->link_idx].sgl));
+-		hton24(cclc.psn, link->psn_initial);
+-		memcpy(cclc.smcr_trl.eyecatcher, SMC_EYECATCHER,
++		hton24(clc->r0.psn, link->psn_initial);
++		memcpy(clc->r0.smcr_trl.eyecatcher, SMC_EYECATCHER,
+ 		       sizeof(SMC_EYECATCHER));
  	}
-@@ -739,9 +856,14 @@ int smc_pnet_net_init(struct net *net)
- {
- 	struct smc_net *sn = net_generic(net, smc_net_id);
- 	struct smc_pnettable *pnettable = &sn->pnettable;
-+	struct smc_pnetids_ndev *pnetids_ndev = &sn->pnetids_ndev;
  
- 	INIT_LIST_HEAD(&pnettable->pnetlist);
- 	rwlock_init(&pnettable->lock);
-+	INIT_LIST_HEAD(&pnetids_ndev->list);
-+	rwlock_init(&pnetids_ndev->lock);
-+
-+	smc_pnet_create_pnetids_list(net);
- 
- 	return 0;
- }
-@@ -756,6 +878,7 @@ int __init smc_pnet_init(void)
- 	rc = register_netdevice_notifier(&smc_netdev_notifier);
- 	if (rc)
- 		genl_unregister_family(&smc_pnet_nl_family);
-+
- 	return rc;
- }
- 
-@@ -764,6 +887,7 @@ void smc_pnet_net_exit(struct net *net)
- {
- 	/* flush pnet table */
- 	smc_pnet_remove_by_pnetid(net, NULL);
-+	smc_pnet_destroy_pnetids_list(net);
- }
- 
- void smc_pnet_exit(void)
-@@ -772,16 +896,11 @@ void smc_pnet_exit(void)
- 	genl_unregister_family(&smc_pnet_nl_family);
- }
- 
--/* Determine one base device for stacked net devices.
-- * If the lower device level contains more than one devices
-- * (for instance with bonding slaves), just the first device
-- * is used to reach a base device.
-- */
--static struct net_device *pnet_find_base_ndev(struct net_device *ndev)
-+static struct net_device *__pnet_find_base_ndev(struct net_device *ndev)
- {
- 	int i, nest_lvl;
- 
--	rtnl_lock();
-+	ASSERT_RTNL();
- 	nest_lvl = ndev->lower_level;
- 	for (i = 0; i < nest_lvl; i++) {
- 		struct list_head *lower = &ndev->adj_list.lower;
-@@ -791,6 +910,18 @@ static struct net_device *pnet_find_base_ndev(struct net_device *ndev)
- 		lower = lower->next;
- 		ndev = netdev_lower_get_next(ndev, &lower);
- 	}
-+	return ndev;
+ 	memset(&msg, 0, sizeof(msg));
+-	vec.iov_base = &cclc;
+-	vec.iov_len = ntohs(cclc.hdr.length);
+-	len = kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
+-			     ntohs(cclc.hdr.length));
++	vec.iov_base = clc;
++	vec.iov_len = ntohs(clc->hdr.length);
++	return kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
++			      ntohs(clc->hdr.length));
 +}
 +
-+/* Determine one base device for stacked net devices.
-+ * If the lower device level contains more than one devices
-+ * (for instance with bonding slaves), just the first device
-+ * is used to reach a base device.
-+ */
-+static struct net_device *pnet_find_base_ndev(struct net_device *ndev)
++/* send CLC CONFIRM message across internal TCP socket */
++int smc_clc_send_confirm(struct smc_sock *smc)
 +{
-+	rtnl_lock();
-+	ndev = __pnet_find_base_ndev(ndev);
- 	rtnl_unlock();
- 	return ndev;
- }
-diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
-index 811a65986691..677a47ac158e 100644
---- a/net/smc/smc_pnet.h
-+++ b/net/smc/smc_pnet.h
-@@ -12,6 +12,8 @@
- #ifndef _SMC_PNET_H
- #define _SMC_PNET_H
- 
-+#include <net/smc.h>
++	struct smc_clc_msg_accept_confirm cclc;
++	int reason_code = 0;
++	int len;
 +
- #if IS_ENABLED(CONFIG_HAVE_PNETID)
- #include <asm/pnet.h>
- #endif
-@@ -31,6 +33,17 @@ struct smc_pnettable {
- 	struct list_head pnetlist;
++	/* send SMC Confirm CLC msg */
++	memset(&cclc, 0, sizeof(cclc));
++	cclc.hdr.type = SMC_CLC_CONFIRM;
++	len = smc_clc_send_confirm_accept(smc, &cclc, 0);
+ 	if (len < ntohs(cclc.hdr.length)) {
+ 		if (len >= 0) {
+ 			reason_code = -ENETUNREACH;
+@@ -571,63 +591,12 @@ int smc_clc_send_confirm(struct smc_sock *smc)
+ /* send CLC ACCEPT message across internal TCP socket */
+ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact)
+ {
+-	struct smc_connection *conn = &new_smc->conn;
+ 	struct smc_clc_msg_accept_confirm aclc;
+-	struct smc_link *link;
+-	struct msghdr msg;
+-	struct kvec vec;
+ 	int len;
+ 
+ 	memset(&aclc, 0, sizeof(aclc));
+ 	aclc.hdr.type = SMC_CLC_ACCEPT;
+-	aclc.hdr.version = SMC_V1;		/* SMC version */
+-	if (srv_first_contact)
+-		aclc.hdr.flag = 1;
+-
+-	if (conn->lgr->is_smcd) {
+-		/* SMC-D specific settings */
+-		aclc.hdr.length = htons(SMCD_CLC_ACCEPT_CONFIRM_LEN);
+-		memcpy(aclc.hdr.eyecatcher, SMCD_EYECATCHER,
+-		       sizeof(SMCD_EYECATCHER));
+-		aclc.hdr.path = SMC_TYPE_D;
+-		aclc.gid = conn->lgr->smcd->local_gid;
+-		aclc.token = conn->rmb_desc->token;
+-		aclc.dmbe_size = conn->rmbe_size_short;
+-		aclc.dmbe_idx = 0;
+-		memcpy(&aclc.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
+-		memcpy(aclc.smcd_trl.eyecatcher, SMCD_EYECATCHER,
+-		       sizeof(SMCD_EYECATCHER));
+-	} else {
+-		/* SMC-R specific settings */
+-		aclc.hdr.length = htons(SMCR_CLC_ACCEPT_CONFIRM_LEN);
+-		memcpy(aclc.hdr.eyecatcher, SMC_EYECATCHER,
+-		       sizeof(SMC_EYECATCHER));
+-		aclc.hdr.path = SMC_TYPE_R;
+-		link = conn->lnk;
+-		memcpy(aclc.lcl.id_for_peer, local_systemid,
+-		       sizeof(local_systemid));
+-		memcpy(&aclc.lcl.gid, link->gid, SMC_GID_SIZE);
+-		memcpy(&aclc.lcl.mac, link->smcibdev->mac[link->ibport - 1],
+-		       ETH_ALEN);
+-		hton24(aclc.qpn, link->roce_qp->qp_num);
+-		aclc.rmb_rkey =
+-			htonl(conn->rmb_desc->mr_rx[link->link_idx]->rkey);
+-		aclc.rmbe_idx = 1;		/* as long as 1 RMB = 1 RMBE */
+-		aclc.rmbe_alert_token = htonl(conn->alert_token_local);
+-		aclc.qp_mtu = link->path_mtu;
+-		aclc.rmbe_size = conn->rmbe_size_short,
+-		aclc.rmb_dma_addr = cpu_to_be64((u64)sg_dma_address
+-				(conn->rmb_desc->sgt[link->link_idx].sgl));
+-		hton24(aclc.psn, link->psn_initial);
+-		memcpy(aclc.smcr_trl.eyecatcher, SMC_EYECATCHER,
+-		       sizeof(SMC_EYECATCHER));
+-	}
+-
+-	memset(&msg, 0, sizeof(msg));
+-	vec.iov_base = &aclc;
+-	vec.iov_len = ntohs(aclc.hdr.length);
+-	len = kernel_sendmsg(new_smc->clcsock, &msg, &vec, 1,
+-			     ntohs(aclc.hdr.length));
++	len = smc_clc_send_confirm_accept(new_smc, &aclc, srv_first_contact);
+ 	if (len < ntohs(aclc.hdr.length))
+ 		len = len >= 0 ? -EPROTO : -new_smc->clcsock->sk->sk_err;
+ 
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 7f7c55ff0476..fda474e91f95 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -118,46 +118,50 @@ struct smc_clc_msg_proposal_area {
+ 	struct smc_clc_msg_trail		pclc_trl;
  };
  
-+struct smc_pnetids_ndev {	/* list of pnetids for net devices in UP state*/
-+	struct list_head	list;
-+	rwlock_t		lock;
-+};
-+
-+struct smc_pnetids_ndev_entry {
-+	struct list_head	list;
-+	u8			pnetid[SMC_MAX_PNETID_LEN];
-+	refcount_t		refcnt;
-+};
-+
- static inline int smc_pnetid_by_dev_port(struct device *dev,
- 					 unsigned short port, u8 *pnetid)
- {
-@@ -52,4 +65,5 @@ int smc_pnetid_by_table_smcd(struct smcd_dev *smcd);
- void smc_pnet_find_alt_roce(struct smc_link_group *lgr,
- 			    struct smc_init_info *ini,
- 			    struct smc_ib_device *known_dev);
-+bool smc_pnet_is_ndev_pnetid(struct net *net, u8 *pnetid);
+-struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
+-	struct smc_clc_msg_hdr hdr;
+-	union {
+-		struct { /* SMC-R */
+-			struct smc_clc_msg_local lcl;
+-			u8 qpn[3];		/* QP number */
+-			__be32 rmb_rkey;	/* RMB rkey */
+-			u8 rmbe_idx;		/* Index of RMBE in RMB */
+-			__be32 rmbe_alert_token;/* unique connection id */
+-#if defined(__BIG_ENDIAN_BITFIELD)
+-			u8 rmbe_size : 4,	/* buf size (compressed) */
+-			   qp_mtu   : 4;	/* QP mtu */
++struct smcr_clc_msg_accept_confirm {	/* SMCR accept/confirm */
++	struct smc_clc_msg_local lcl;
++	u8 qpn[3];			/* QP number */
++	__be32 rmb_rkey;		/* RMB rkey */
++	u8 rmbe_idx;			/* Index of RMBE in RMB */
++	__be32 rmbe_alert_token;	/* unique connection id */
++ #if defined(__BIG_ENDIAN_BITFIELD)
++	u8 rmbe_size : 4,		/* buf size (compressed) */
++	   qp_mtu   : 4;		/* QP mtu */
+ #elif defined(__LITTLE_ENDIAN_BITFIELD)
+-			u8 qp_mtu   : 4,
+-			   rmbe_size : 4;
++	u8 qp_mtu   : 4,
++	   rmbe_size : 4;
  #endif
+-			u8 reserved;
+-			__be64 rmb_dma_addr;	/* RMB virtual address */
+-			u8 reserved2;
+-			u8 psn[3];		/* packet sequence number */
+-			struct smc_clc_msg_trail smcr_trl;
+-						/* eye catcher "SMCR" EBCDIC */
+-		} __packed;
+-		struct { /* SMC-D */
+-			u64 gid;		/* Sender GID */
+-			u64 token;		/* DMB token */
+-			u8 dmbe_idx;		/* DMBE index */
++	u8 reserved;
++	__be64 rmb_dma_addr;	/* RMB virtual address */
++	u8 reserved2;
++	u8 psn[3];		/* packet sequence number */
++	struct smc_clc_msg_trail smcr_trl;
++				/* eye catcher "SMCR" EBCDIC */
++} __packed;
++
++struct smcd_clc_msg_accept_confirm {	/* SMCD accept/confirm */
++	u64 gid;		/* Sender GID */
++	u64 token;		/* DMB token */
++	u8 dmbe_idx;		/* DMBE index */
+ #if defined(__BIG_ENDIAN_BITFIELD)
+-			u8 dmbe_size : 4,	/* buf size (compressed) */
+-			   reserved3 : 4;
++	u8 dmbe_size : 4,	/* buf size (compressed) */
++	   reserved3 : 4;
+ #elif defined(__LITTLE_ENDIAN_BITFIELD)
+-			u8 reserved3 : 4,
+-			   dmbe_size : 4;
++	u8 reserved3 : 4,
++	   dmbe_size : 4;
+ #endif
+-			u16 reserved4;
+-			u32 linkid;		/* Link identifier */
+-			u32 reserved5[3];
+-			struct smc_clc_msg_trail smcd_trl;
+-						/* eye catcher "SMCD" EBCDIC */
+-		} __packed;
++	u16 reserved4;
++	u32 linkid;		/* Link identifier */
++	u32 reserved5[3];
++	struct smc_clc_msg_trail smcd_trl;
++				/* eye catcher "SMCD" EBCDIC */
++} __packed;
++
++struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
++	struct smc_clc_msg_hdr hdr;
++	union {
++		struct smcr_clc_msg_accept_confirm r0; /* SMC-R */
++		struct smcd_clc_msg_accept_confirm d0; /* SMC-D */
+ 	};
+ } __packed;			/* format defined in RFC7609 */
+ 
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index c02e58002782..0c6dfca7f0c7 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1892,8 +1892,8 @@ int smc_rmb_rtoken_handling(struct smc_connection *conn,
+ 			    struct smc_link *lnk,
+ 			    struct smc_clc_msg_accept_confirm *clc)
+ {
+-	conn->rtoken_idx = smc_rtoken_add(lnk, clc->rmb_dma_addr,
+-					  clc->rmb_rkey);
++	conn->rtoken_idx = smc_rtoken_add(lnk, clc->r0.rmb_dma_addr,
++					  clc->r0.rmb_rkey);
+ 	if (conn->rtoken_idx < 0)
+ 		return conn->rtoken_idx;
+ 	return 0;
 -- 
 2.17.1
