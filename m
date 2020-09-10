@@ -1,45 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54940 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728793AbgIQREK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 13:04:10 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 02/14] block: switch register_disk to use blkdev_get_by_dev
-Date: Thu, 17 Sep 2020 18:57:08 +0200
-Message-Id: <20200917165720.3285256-3-hch@lst.de>
-In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
-References: <20200917165720.3285256-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        with ESMTP id S1725294AbgIJWYr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Sep 2020 18:24:47 -0400
+Date: Thu, 10 Sep 2020 15:24:44 -0700 (PDT)
+Message-Id: <20200910.152444.1800275701910693047.davem@davemloft.net>
+Subject: Re: [PATCH net-next 00/10] net/smc: updates 2020-09-10
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200910164829.65426-1-kgraul@linux.ibm.com>
+References: <20200910164829.65426-1-kgraul@linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: kgraul@linux.ibm.com
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Use blkdev_get_by_dev instead of open coding it using bdget_disk +
-blkdev_get.
+From: Karsten Graul <kgraul@linux.ibm.com>
+Date: Thu, 10 Sep 2020 18:48:19 +0200
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/genhd.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+> Please apply the following patch series for smc to netdev's net-next tree.
+> 
+> This patch series is a mix of various improvements and cleanups.
+> The patches 1 and 10 improve the handling of large parallel workloads.
+> Patch 8 corrects a kernel config default for config CCWGROUP on s390.
+> Patch 9 allows userspace tools to retrieve socket information for more
+> sockets.
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 7b56203c90a303..f778716fac6cde 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -732,10 +732,9 @@ static void register_disk(struct device *parent, struct gendisk *disk,
- 		goto exit;
- 
- 	set_bit(GD_NEED_PART_SCAN, &disk->state);
--	err = blkdev_get(bdev, FMODE_READ, NULL);
--	if (err < 0)
--		goto exit;
--	blkdev_put(bdev, FMODE_READ);
-+	bdev = blkdev_get_by_dev(disk_devt(disk), FMODE_READ, NULL);
-+	if (!IS_ERR(bdev))
-+		blkdev_put(bdev, FMODE_READ);
- 
- exit:
- 	/* announce disk after possible partitions are created */
--- 
-2.28.0
+Series applied, thank you.
