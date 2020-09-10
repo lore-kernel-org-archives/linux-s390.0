@@ -1,196 +1,156 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 12/14] mm: split swap_type_of
-Date: Thu, 17 Sep 2020 18:57:18 +0200
-Message-Id: <20200917165720.3285256-13-hch@lst.de>
-In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
-References: <20200917165720.3285256-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59370 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726801AbgIJQtV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Sep 2020 12:49:21 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 01/10] net/smc: reduce active tcp_listen workers
+Date: Thu, 10 Sep 2020 18:48:20 +0200
+Message-Id: <20200910164829.65426-2-kgraul@linux.ibm.com>
+In-Reply-To: <20200910164829.65426-1-kgraul@linux.ibm.com>
+References: <20200910164829.65426-1-kgraul@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-swap_type_of is used for two entirely different purposes:
+From: Ursula Braun <ubraun@linux.ibm.com>
 
- (1) check what swap type a given device/offset corresponds to
- (2) find the first available swap device that can be written to
+SMC starts a separate tcp_listen worker for every SMC socket in
+state SMC_LISTEN, and can accept an incoming connection request only,
+if this worker is really running and waiting in kernel_accept(). But
+the number of running workers is limited.
+This patch reworks the listening SMC code and starts a tcp_listen worker
+after the SYN-ACK handshake on the internal clc-socket only.
 
-Mixing both in a single function creates an unreadable mess.  Create two
-separate functions instead, and switch both to pass a dev_t instead of
-a struct block_device to further simplify the code.
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Suggested-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Reviewed-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- include/linux/swap.h |  3 ++-
- kernel/power/swap.c  | 17 ++++++++---------
- kernel/power/user.c  | 16 ++++------------
- mm/swapfile.c        | 39 +++++++++++++++++++++------------------
- 4 files changed, 35 insertions(+), 40 deletions(-)
+ net/smc/af_smc.c    | 38 +++++++++++++++++++++++++++++++-------
+ net/smc/smc.h       |  2 ++
+ net/smc/smc_close.c |  7 +++----
+ 3 files changed, 36 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/swap.h b/include/linux/swap.h
-index 661046994db4b9..4340a7b6e7a1dc 100644
---- a/include/linux/swap.h
-+++ b/include/linux/swap.h
-@@ -467,7 +467,8 @@ extern int swapcache_prepare(swp_entry_t);
- extern void swap_free(swp_entry_t);
- extern void swapcache_free_entries(swp_entry_t *entries, int n);
- extern int free_swap_and_cache(swp_entry_t);
--extern int swap_type_of(dev_t, sector_t, struct block_device **);
-+int swap_type_of(dev_t device, sector_t offset);
-+int find_first_swap(dev_t *device);
- extern unsigned int count_swap_pages(int, int);
- extern sector_t map_swap_page(struct page *, struct block_device **);
- extern sector_t swapdev_block(int, pgoff_t);
-diff --git a/kernel/power/swap.c b/kernel/power/swap.c
-index 01e2858b5fe367..9d3ffbfe08dbf6 100644
---- a/kernel/power/swap.c
-+++ b/kernel/power/swap.c
-@@ -335,12 +335,17 @@ static int swsusp_swap_check(void)
- {
- 	int res;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index e7649bbc2b87..7212de4da71d 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -940,10 +940,10 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
  
--	res = swap_type_of(swsusp_resume_device, swsusp_resume_block,
--			&hib_resume_bdev);
-+	if (swsusp_resume_device)
-+		res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
-+	else
-+		res = find_first_swap(&swsusp_resume_device);
- 	if (res < 0)
- 		return res;
--
- 	root_swap = res;
-+
-+	hib_resume_bdev = bdget(swsusp_resume_device);
-+	if (!hib_resume_bdev)
-+		return -ENOMEM;
- 	res = blkdev_get(hib_resume_bdev, FMODE_WRITE, NULL);
- 	if (res)
- 		return res;
-@@ -349,12 +354,6 @@ static int swsusp_swap_check(void)
- 	if (res < 0)
- 		blkdev_put(hib_resume_bdev, FMODE_WRITE);
- 
--	/*
--	 * Update the resume device to the one actually used,
--	 * so the test_resume mode can use it in case it is
--	 * invoked from hibernate() to test the snapshot.
--	 */
--	swsusp_resume_device = hib_resume_bdev->bd_dev;
- 	return res;
- }
- 
-diff --git a/kernel/power/user.c b/kernel/power/user.c
-index b5815685b944fe..6510a8f7687f42 100644
---- a/kernel/power/user.c
-+++ b/kernel/power/user.c
-@@ -69,8 +69,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
- 	memset(&data->handle, 0, sizeof(struct snapshot_handle));
- 	if ((filp->f_flags & O_ACCMODE) == O_RDONLY) {
- 		/* Hibernating.  The image device should be accessible. */
--		data->swap = swsusp_resume_device ?
--			swap_type_of(swsusp_resume_device, 0, NULL) : -1;
-+		data->swap = swap_type_of(swsusp_resume_device, 0);
- 		data->mode = O_RDONLY;
- 		data->free_bitmaps = false;
- 		error = __pm_notifier_call_chain(PM_HIBERNATION_PREPARE, -1, &nr_calls);
-@@ -210,7 +209,6 @@ struct compat_resume_swap_area {
- static int snapshot_set_swap_area(struct snapshot_data *data,
- 		void __user *argp)
- {
--	struct block_device *bdev;
- 	sector_t offset;
- 	dev_t swdev;
- 
-@@ -237,16 +235,10 @@ static int snapshot_set_swap_area(struct snapshot_data *data,
- 	 * User space encodes device types as two-byte values,
- 	 * so we need to recode them
- 	 */
--	if (!swdev) {
--		data->swap = -1;
--		return -EINVAL;
--	}
--	data->swap = swap_type_of(swdev, offset, &bdev);
-+	data->swap = swap_type_of(swdev, offset);
- 	if (data->swap < 0)
--		return -ENODEV;
--
--	data->dev = bdev->bd_dev;
--	bdput(bdev);
-+		return swdev ? -ENODEV : -EINVAL;
-+	data->dev = swdev;
- 	return 0;
- }
- 
-diff --git a/mm/swapfile.c b/mm/swapfile.c
-index 7438c4affc75fa..b90f8692074397 100644
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1801,13 +1801,12 @@ int free_swap_and_cache(swp_entry_t entry)
-  *
-  * This is needed for the suspend to disk (aka swsusp).
-  */
--int swap_type_of(dev_t device, sector_t offset, struct block_device **bdev_p)
-+int swap_type_of(dev_t device, sector_t offset)
- {
--	struct block_device *bdev = NULL;
- 	int type;
- 
--	if (device)
--		bdev = bdget(device);
-+	if (!device)
-+		return -1;
- 
- 	spin_lock(&swap_lock);
- 	for (type = 0; type < nr_swapfiles; type++) {
-@@ -1816,30 +1815,34 @@ int swap_type_of(dev_t device, sector_t offset, struct block_device **bdev_p)
- 		if (!(sis->flags & SWP_WRITEOK))
- 			continue;
- 
--		if (!bdev) {
--			if (bdev_p)
--				*bdev_p = bdgrab(sis->bdev);
--
--			spin_unlock(&swap_lock);
--			return type;
--		}
--		if (bdev == sis->bdev) {
-+		if (device == sis->bdev->bd_dev) {
- 			struct swap_extent *se = first_se(sis);
- 
- 			if (se->start_block == offset) {
--				if (bdev_p)
--					*bdev_p = bdgrab(sis->bdev);
--
- 				spin_unlock(&swap_lock);
--				bdput(bdev);
- 				return type;
- 			}
- 		}
+ 	mutex_lock(&lsmc->clcsock_release_lock);
+ 	if (lsmc->clcsock)
+-		rc = kernel_accept(lsmc->clcsock, &new_clcsock, 0);
++		rc = kernel_accept(lsmc->clcsock, &new_clcsock, SOCK_NONBLOCK);
+ 	mutex_unlock(&lsmc->clcsock_release_lock);
+ 	lock_sock(lsk);
+-	if  (rc < 0)
++	if  (rc < 0 && rc != -EAGAIN)
+ 		lsk->sk_err = -rc;
+ 	if (rc < 0 || lsk->sk_state == SMC_CLOSED) {
+ 		new_sk->sk_prot->unhash(new_sk);
+@@ -956,6 +956,10 @@ static int smc_clcsock_accept(struct smc_sock *lsmc, struct smc_sock **new_smc)
+ 		goto out;
  	}
- 	spin_unlock(&swap_lock);
--	if (bdev)
--		bdput(bdev);
-+	return -ENODEV;
-+}
  
-+int find_first_swap(dev_t *device)
++	/* new clcsock has inherited the smc listen-specific sk_data_ready
++	 * function; switch it back to the original sk_data_ready function
++	 */
++	new_clcsock->sk->sk_data_ready = lsmc->clcsk_data_ready;
+ 	(*new_smc)->clcsock = new_clcsock;
+ out:
+ 	return rc;
+@@ -1406,7 +1410,7 @@ static void smc_tcp_listen_work(struct work_struct *work)
+ 	lock_sock(lsk);
+ 	while (lsk->sk_state == SMC_LISTEN) {
+ 		rc = smc_clcsock_accept(lsmc, &new_smc);
+-		if (rc)
++		if (rc) /* clcsock accept queue empty or error */
+ 			goto out;
+ 		if (!new_smc)
+ 			continue;
+@@ -1426,7 +1430,23 @@ static void smc_tcp_listen_work(struct work_struct *work)
+ 
+ out:
+ 	release_sock(lsk);
+-	sock_put(&lsmc->sk); /* sock_hold in smc_listen */
++	sock_put(&lsmc->sk); /* sock_hold in smc_clcsock_data_ready() */
++}
++
++static void smc_clcsock_data_ready(struct sock *listen_clcsock)
 +{
-+	int type;
++	struct smc_sock *lsmc;
 +
-+	spin_lock(&swap_lock);
-+	for (type = 0; type < nr_swapfiles; type++) {
-+		struct swap_info_struct *sis = swap_info[type];
-+
-+		if (!(sis->flags & SWP_WRITEOK))
-+			continue;
-+		*device = sis->bdev->bd_dev;
-+		spin_unlock(&swap_lock);
-+		return type;
++	lsmc = (struct smc_sock *)
++	       ((uintptr_t)listen_clcsock->sk_user_data & ~SK_USER_DATA_NOCOPY);
++	if (!lsmc)
++		return;
++	lsmc->clcsk_data_ready(listen_clcsock);
++	if (lsmc->sk.sk_state == SMC_LISTEN) {
++		sock_hold(&lsmc->sk); /* sock_put in smc_tcp_listen_work() */
++		if (!schedule_work(&lsmc->tcp_listen_work))
++			sock_put(&lsmc->sk);
 +	}
-+	spin_unlock(&swap_lock);
- 	return -ENODEV;
  }
  
+ static int smc_listen(struct socket *sock, int backlog)
+@@ -1455,15 +1475,19 @@ static int smc_listen(struct socket *sock, int backlog)
+ 	if (!smc->use_fallback)
+ 		tcp_sk(smc->clcsock->sk)->syn_smc = 1;
+ 
++	/* save original sk_data_ready function and establish
++	 * smc-specific sk_data_ready function
++	 */
++	smc->clcsk_data_ready = smc->clcsock->sk->sk_data_ready;
++	smc->clcsock->sk->sk_data_ready = smc_clcsock_data_ready;
++	smc->clcsock->sk->sk_user_data =
++		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
+ 	rc = kernel_listen(smc->clcsock, backlog);
+ 	if (rc)
+ 		goto out;
+ 	sk->sk_max_ack_backlog = backlog;
+ 	sk->sk_ack_backlog = 0;
+ 	sk->sk_state = SMC_LISTEN;
+-	sock_hold(sk); /* sock_hold in tcp_listen_worker */
+-	if (!schedule_work(&smc->tcp_listen_work))
+-		sock_put(sk);
+ 
+ out:
+ 	release_sock(sk);
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 6f1c42da7a4c..f38144f83f54 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -201,6 +201,8 @@ struct smc_connection {
+ struct smc_sock {				/* smc sock container */
+ 	struct sock		sk;
+ 	struct socket		*clcsock;	/* internal tcp socket */
++	void			(*clcsk_data_ready)(struct sock *sk);
++						/* original data_ready fct. **/
+ 	struct smc_connection	conn;		/* smc connection */
+ 	struct smc_sock		*listen_smc;	/* listen parent */
+ 	struct work_struct	connect_work;	/* handle non-blocking connect*/
+diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
+index 0e7409e469c0..10d05a6d34fc 100644
+--- a/net/smc/smc_close.c
++++ b/net/smc/smc_close.c
+@@ -208,12 +208,11 @@ int smc_close_active(struct smc_sock *smc)
+ 		break;
+ 	case SMC_LISTEN:
+ 		sk->sk_state = SMC_CLOSED;
++		smc->clcsock->sk->sk_data_ready = smc->clcsk_data_ready;
++		smc->clcsock->sk->sk_user_data = NULL;
+ 		sk->sk_state_change(sk); /* wake up accept */
+-		if (smc->clcsock && smc->clcsock->sk) {
++		if (smc->clcsock && smc->clcsock->sk)
+ 			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
+-			/* wake up kernel_accept of smc_tcp_listen_worker */
+-			smc->clcsock->sk->sk_data_ready(smc->clcsock->sk);
+-		}
+ 		smc_close_cleanup_listen(sk);
+ 		release_sock(sk);
+ 		flush_work(&smc->tcp_listen_work);
 -- 
-2.28.0
+2.17.1
