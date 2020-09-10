@@ -1,40 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60686 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726050AbgIAWRX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Sep 2020 18:17:23 -0400
-From: Nicolin Chen <nicoleotsuka@gmail.com>
-Subject: [PATCH 0/2] dma-mapping: update default segment_boundary_mask
-Date: Tue,  1 Sep 2020 15:16:44 -0700
-Message-Id: <20200901221646.26491-1-nicoleotsuka@gmail.com>
+Received: from mail.kernel.org ([198.145.29.99]:47352 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726996AbgIJRfC (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 10 Sep 2020 13:35:02 -0400
+Date: Thu, 10 Sep 2020 18:34:14 +0100
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v2 3/3] arm64: stacktrace: Convert to ARCH_STACKWALK
+Message-ID: <20200910173414.GD4898@sirena.org.uk>
+References: <20200819124913.37261-1-broonie@kernel.org>
+ <20200819124913.37261-4-broonie@kernel.org>
+ <alpine.LSU.2.21.2009021128500.23200@pobox.suse.cz>
+ <20200902184935.GA5875@C02TD0UTHF1T.local>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="pQhZXvAqiZgbeUkD"
+Content-Disposition: inline
+In-Reply-To: <20200902184935.GA5875@C02TD0UTHF1T.local>
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: hch@lst.de
-Cc: sfr@canb.auug.org.au, mpe@ellerman.id.au, benh@kernel.crashing.org, paulus@samba.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, rth@twiddle.net, ink@jurassic.park.msu.ru, mattst88@gmail.com, linux-alpha@vger.kernel.org, tony.luck@intel.com, fenghua.yu@intel.com, linux-ia64@vger.kernel.org, schnelle@linux.ibm.com, gerald.schaefer@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, davem@davemloft.net, sparclinux@vger.kernel.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, linux-parisc@vger.kernel.org
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: Miroslav Benes <mbenes@suse.cz>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-These two patches are to update default segment_boundary_mask.
 
-PATCH-1 fixes overflow issues in callers of dma_get_seg_boundary.
-Previous version was a series: https://lkml.org/lkml/2020/8/31/1026
+--pQhZXvAqiZgbeUkD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Then PATCH-2 sets default segment_boundary_mask to ULONG_MAX.
+On Wed, Sep 02, 2020 at 07:50:27PM +0100, Mark Rutland wrote:
+> On Wed, Sep 02, 2020 at 11:32:13AM +0200, Miroslav Benes wrote:
 
-Nicolin Chen (2):
-  dma-mapping: introduce dma_get_seg_boundary_nr_pages()
-  dma-mapping: set default segment_boundary_mask to ULONG_MAX
+> > > -		start_backtrace(&frame,
+> > > -				(unsigned long)__builtin_frame_address(0),
+> > > -				(unsigned long)__save_stack_trace);
 
- arch/alpha/kernel/pci_iommu.c    |  7 +------
- arch/ia64/hp/common/sba_iommu.c  |  3 +--
- arch/powerpc/kernel/iommu.c      |  9 ++-------
- arch/s390/pci/pci_dma.c          |  6 ++----
- arch/sparc/kernel/iommu-common.c | 10 +++-------
- arch/sparc/kernel/iommu.c        |  3 +--
- arch/sparc/kernel/pci_sun4v.c    |  3 +--
- arch/x86/kernel/amd_gart_64.c    |  3 +--
- drivers/parisc/ccio-dma.c        |  3 +--
- drivers/parisc/sba_iommu.c       |  3 +--
- include/linux/dma-mapping.h      | 21 ++++++++++++++++++++-
- 11 files changed, 34 insertions(+), 37 deletions(-)
+> Oh whoops; I'm annoyed I didn't spot that.
 
--- 
-2.17.1
+> With that gone this cannot work for (task == current && regs == NULL), as
+> we'll erroneously use stale values from the task struct.
+
+I remember somehow convincing myself at the time I originally did this
+that doing the above was redundant with the new interface but that was
+quite some time ago and I can't reconstruct my reasoning any more, I'm
+pretty sure I was just mistaken.  I've added it back in, thanks for
+spotting this.
+
+> It looks like the LKDTM tests only trigger cases with non-NULL regs, but
+> IIUC this should show up with show_stack(NULL, NULL, KERN_INFO), as
+> drivers/tty/sysrq.c does for other cpus.
+
+show_stack() doesn't go through this bit of the stacktrace code, it goes
+through dump_backtrace() in traps.c which used the underlying arch
+specific unwinder directly so is unaffected by arch_stack_walk().
+Actually now I look at LKDTM it's ending up using show_stack() mostly
+if not entirely so my testing with it was not exercising this change
+as much as might be expected anyway (the modified code was getting hit
+by other things like /proc/N/stack).
+
+--pQhZXvAqiZgbeUkD
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl9aY5YACgkQJNaLcl1U
+h9AoNgf/bxtql5YMDWhCmeDMNhMAagB2dVCtaee/UDna+zUsH1N44ptx9JFeXcW/
+f9sDitnklB+I+tyAlXTeej76l/ohXZL6jkVGL1SYOQZZDgGw+bUkf9KsZLYjrtK/
+TY4aybyOzZdHrwtImEb9GlLPZ65UWrzsUdDgnWOmWy0sBgsoa2g0YwkrM5EhbS/5
+WHttMds5ootnjvB6znsKHoLOvi84gnIEAZf1F+gYDshZFdpeDVK7Zk4E7t+ZRpeE
+wE1kUJd2UKJhZsyaqE2ewXL+0N9wIJgQ1F17aOqcRfHcWBrsyzyZzJSib6ygUfax
+pWT5j9mXTEP/L6TiDwy/FIsH1+X2ZA==
+=Vsd/
+-----END PGP SIGNATURE-----
+
+--pQhZXvAqiZgbeUkD--
