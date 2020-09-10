@@ -1,74 +1,60 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:14255 "EHLO
-        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728254AbgIJVWw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Sep 2020 17:22:52 -0400
-Subject: Re: [RFC PATCH v2 1/3] mm/gup: fix gup_fast with dynamic page table
- folding
-References: <20200907180058.64880-1-gerald.schaefer@linux.ibm.com>
- <20200907180058.64880-2-gerald.schaefer@linux.ibm.com>
- <0dbc6ec8-45ea-0853-4856-2bc1e661a5a5@intel.com>
- <20200909142904.00b72921@thinkpad>
- <aacad1b7-f121-44a5-f01d-385cb0f6351e@intel.com>
- <20200909192534.442f8984@thinkpad> <20200909180324.GI87483@ziepe.ca>
- <20200910093925.GB29166@oc3871087118.ibm.com>
- <CAHk-=wh4SuNvThq1nBiqk0N-fW6NsY5w=VawC=rJs7ekmjAhjA@mail.gmail.com>
- <20200910181319.GO87483@ziepe.ca>
-From: John Hubbard <jhubbard@nvidia.com>
-Message-ID: <0c9bcb54-914b-e582-dd6d-3861267b6c94@nvidia.com>
-Date: Thu, 10 Sep 2020 14:22:37 -0700
+Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20200910181319.GO87483@ziepe.ca>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+References: <20200907180058.64880-1-gerald.schaefer@linux.ibm.com>
+ <20200907180058.64880-2-gerald.schaefer@linux.ibm.com> <0dbc6ec8-45ea-0853-4856-2bc1e661a5a5@intel.com>
+ <20200909142904.00b72921@thinkpad> <aacad1b7-f121-44a5-f01d-385cb0f6351e@intel.com>
+ <20200909192534.442f8984@thinkpad> <20200909180324.GI87483@ziepe.ca>
+ <20200910093925.GB29166@oc3871087118.ibm.com> <CAHk-=wh4SuNvThq1nBiqk0N-fW6NsY5w=VawC=rJs7ekmjAhjA@mail.gmail.com>
+ <20200910181319.GO87483@ziepe.ca> <CAHk-=wh3SjOE2r4WCfagL5Zq4Oj4Jsu1=1jTTi2GxGDTxP-J0Q@mail.gmail.com>
+ <20200910211010.46d064a7@thinkpad>
+In-Reply-To: <20200910211010.46d064a7@thinkpad>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 10 Sep 2020 12:32:05 -0700
+Message-ID: <CAHk-=wg3ggXU98Mnv-ss-hEcvUNc9vCtgSRc7GpcGfvyOw_h3g@mail.gmail.com>
+Subject: Re: [RFC PATCH v2 1/3] mm/gup: fix gup_fast with dynamic page table folding
+Content-Type: text/plain; charset="UTF-8"
+Sender: linux-arch-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Dave Hansen <dave.hansen@intel.com>, LKML <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>, linux-arch <linux-arch@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Mike Rapoport <rppt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Arnd Bergmann <arnd@arndb.de>, Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-x86 <x86@kernel.org>, linux-arm <linux-arm-kernel@lists.infradead.org>, linux-power <linuxppc-dev@lists.ozlabs.org>, linux-sparc <sparclinux@vger.kernel.org>, linux-um <linux-um@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Alexander Gordeev <agordeev@linux.ibm.com>, Dave Hansen <dave.hansen@intel.com>, John Hubbard <jhubbard@nvidia.com>, LKML <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>, linux-arch <linux-arch@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Russell King <linux@armlinux.org.uk>, Mike Rapoport <rppt@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Dave Hansen <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Arnd Bergmann <arnd@arndb.de>, Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-x86 <x86@kernel.org>, linux-arm <linux-arm-kernel@lists.infradead.org>, linux-power <linuxppc-dev@lists.ozlabs.org>, linux-sparc <sparclinux@vger.kernel.org>, linux-um <linux-um@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-On 9/10/20 11:13 AM, Jason Gunthorpe wrote:
-> On Thu, Sep 10, 2020 at 10:35:38AM -0700, Linus Torvalds wrote:
->> On Thu, Sep 10, 2020 at 2:40 AM Alexander Gordeev
->> <agordeev@linux.ibm.com> wrote:
->>>
->>> It is only gup_fast case that exposes the issue. It hits because
->>> pointers to stack copies are passed to gup_pXd_range iterators, not
->>> pointers to real page tables itself.
->>
->> Can we possibly change fast-gup to not do the stack copies?
->>
->> I'd actually rather do something like that, than the "addr_end" thing.
-> 
->> As you say, none of the other page table walking code does what the
->> GUP code does, and I don't think it's required.
-> 
-> As I understand it, the requirement is because fast-gup walks without
-> the page table spinlock, or mmap_sem held so it must READ_ONCE the
-> *pXX.
-> 
-> It then checks that it is a valid page table pointer, then calls
-> pXX_offset().
-> 
-> The arch implementation of pXX_offset() derefs again the passed pXX
-> pointer. So it defeats the READ_ONCE and the 2nd load could observe
-> something that is no longer a page table pointer and crash.
+On Thu, Sep 10, 2020 at 12:11 PM Gerald Schaefer
+<gerald.schaefer@linux.ibm.com> wrote:
+>
+> That sounds a lot like the pXd_offset_orig() from Martins first approach
+> in this thread:
+> https://lore.kernel.org/linuxppc-dev/20190418100218.0a4afd51@mschwideX1/
 
-Just to be clear, though, that makes it sound a little wilder and
-reckless than it really is, right?
+I have to admit to finding that name horrible, but aside from that, yes.
 
-Because actually, the page tables cannot be freed while gup_fast is
-walking them, due to either IPI blocking during the walk, or the moral
-equivalent (MMU_GATHER_RCU_TABLE_FREE) for non-IPI architectures. So the
-pages tables can *change* underneath gup_fast, and for example pages can
-be unmapped. But they remain valid page tables, it's just that their
-contents are unstable. Even if pXd_none()==true.
+I don't think "pXd_offset_orig()" makes any sense as a name. Yes,
+"orig" may make sense as the variable name (as in "this was the
+original value we read"), but a function name should describe what it
+*does*, not what the arguments are.
 
-Or am I way off here, and it really is possible (aside from the current
-s390 situation) to observe something that "is no longer a page table"?
+Plus "original" doesn't make sense to me anyway, since we're not
+modifying it. To me, "original" means that there's a final version
+too, which this interface in no way implies. It's just "this is the
+value we already read".
 
+("orig" does make some sense in that fault path - because by
+definition we *are* going to modify the page table entry, that's the
+whole point of the fault - we need to do something to not keep
+faulting. But here, we're not at all necessarily modifying the page
+table contents, we're just following them and readign the values once)
 
-thanks,
--- 
-John Hubbard
-NVIDIA
+Of course, I don't know what a better name would be to describe what
+is actually going on, I'm just explaining why I hate that naming.
+
+*Maybe* something like just "pXd_offset_value()" together with a
+comment explaining that it's given the upper pXd pointer _and_ the
+value behind it, and it needs to return the next level offset? I
+dunno. "value" doesn't really seem horribly descriptive either, but at
+least it doesn't feel actively misleading to me.
+
+Yeah, I get hung up on naming sometimes. I don't tend to care much
+about private local variables ("i" is a perfectly fine variable name),
+but these kinds of somewhat subtle cross-architecture definitions I
+feel matter.
+
+               Linus
