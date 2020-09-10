@@ -1,58 +1,222 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:55494 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725907AbgIMByT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 12 Sep 2020 21:54:19 -0400
-Message-ID: <a46e9bbef2ed4e17778f5615e818526ef848d791.camel@redhat.com>
-Subject: BUG: Bad page state in process dirtyc0w_child
-From: Qian Cai <cai@redhat.com>
-Date: Sat, 12 Sep 2020 21:54:12 -0400
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 4/8] s390/qeth: Translate address events into switchdev notifiers
+Date: Thu, 10 Sep 2020 19:23:47 +0200
+Message-Id: <20200910172351.5622-5-jwi@linux.ibm.com>
+In-Reply-To: <20200910172351.5622-1-jwi@linux.ibm.com>
+References: <20200910172351.5622-1-jwi@linux.ibm.com>
+Sender: netdev-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>
 
-Occasionally, running this LTP test will trigger an error below on
-s390:
-https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/security/dirtyc0w/dirtyc0w.c
-https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/security/dirtyc0w/dirtyc0w_child.c
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-this .config:
-https://gitlab.com/cailca/linux-mm/-/blob/master/s390.config
+A qeth-l2 HiperSockets card can show switch-ish behaviour in the sense,
+that it can report all MACs that are reachable via this interface. Just
+like a switch device, it can notify the software bridge about changes
+to its fdb. This patch exploits this device-to-bridge-notification and
+extracts the relevant information from the hardware events to generate
+notifications to an attached software bridge.
 
-[ 6970.253173] LTP: starting dirtyc0w
-[ 6971.599102] BUG: Bad page state in process dirtyc0w_child  pfn:8865d
-[ 6971.599867] page:000000001a8328d7 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x8865d
-[ 6971.599876] flags: 0x400000000008000e(referenced|uptodate|dirty|swapbacked)
-[ 6971.599886] raw: 400000000008000e 0000000000000100 0000000000000122 0000000000000000
-[ 6971.599893] raw: 0000000000000000 0000000000000000 ffffffff00000000 0000000000000000
-[ 6971.599900] page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
-[ 6971.599906] Modules linked in: loop kvm ip_tables x_tables dm_mirror dm_region_hash dm_log dm_mod [last unloaded: dummy_del_mod]
-[ 6971.599952] CPU: 1 PID: 65238 Comm: dirtyc0w_child Tainted: G           O      5.9.0-rc4-next-20200909 #1
-[ 6971.599959] Hardware name: IBM 2964 N96 400 (z/VM 6.4.0)
-[ 6971.599964] Call Trace:
-[ 6971.599979]  [<0000000073aec038>] show_stack+0x158/0x1f0 
-[ 6971.599986]  [<0000000073af724a>] dump_stack+0x1f2/0x238 
-[ 6971.599994]  [<0000000072ed086a>] bad_page+0x1ba/0x1c0 
-[ 6971.600000]  [<0000000072ed20c4>] free_pcp_prepare+0x4fc/0x658 
-[ 6971.600006]  [<0000000072ed96a6>] free_unref_page+0xae/0x158 
-[ 6971.600013]  [<0000000072e8286a>] unmap_page_range+0xb62/0x1df8 
-[ 6971.600019]  [<0000000072e83bbc>] unmap_single_vma+0xbc/0x1c8 
-[ 6971.600025]  [<0000000072e8418e>] zap_page_range+0x176/0x230 
-[ 6971.600033]  [<0000000072eece8e>] do_madvise+0xfde/0x1270 
-[ 6971.600039]  [<0000000072eed50a>] __s390x_sys_madvise+0x72/0x98 
-[ 6971.600047]  [<0000000073b1cce4>] system_call+0xdc/0x278 
-[ 6971.600053] 2 locks held by dirtyc0w_child/65238:
-[ 6971.600058]  #0: 000000013442fa18 (&mm->mmap_lock){++++}-{3:3}, at: do_madvise+0x17a/0x1270
-[ 6971.600432]  #1: 00000001343f9060 (ptlock_ptr(page)#2){+.+.}-{2:2}, at: unmap_page_range+0x640/0x1df8
-[ 6971.600487] Disabling lock debugging due to kernel taint
+There are 2 sources for this information:
+1) The reply message of Perform-Network-Subchannel-Operations (PNSO)
+(operation code ADDR_INFO) reports all addresses that are currently
+reachable (implemented in a later patch).
+2) As long as device-to-bridge-notification is enabled, hardware will
+generate address change notification events, whenever the content of
+the hardware fdb changes (this patch).
 
-Once it happens, running it again will trigger in on another PFN.
+The bridge_hostnotify feature (PNSO operation code BRIDGE_INFO) uses
+the same address change notification events. We need to distinguish
+between qeth_pnso_mode QETH_PNSO_BRIDGEPORT and QETH_PNSO_ADDR_INFO
+and call a different handler. In both cases deadlocks must be
+prevented, if the workqueue is drained under lock and QETH_PNSO_NONE,
+when notification is disabled.
 
-[39717.085115] BUG: Bad page state in process dirtyc0w_child  pfn:af065 
+bridge_hostnotify generates udev events, there is no intend to do the same
+for dev2br. Instead this patch will generate SWITCHDEV_FDB_ADD_TO_BRIDGE
+and SWITCHDEV_FDB_DEL_TO_BRIDGE notifications, that will cause the
+software bridge to add (or delete) entries to its fdb as 'extern_learn
+offload'.
 
-Any thoughts?
+Documentation/networking/switchdev.txt proposes to add
+"depends NET_SWITCHDEV" to driver's Kconfig. This is not done here,
+so even in absence of the NET_SWITCHDEV module, the QETH_L2 module will
+still be built, but then the switchdev notifiers will have no effect.
+
+No VLAN filtering is done on the entries and VLAN information is not
+passed on to the bridge fdb entries. This could be added later.
+For now VLAN interfaces can be defined on the upper bridge interface.
+
+Multicast entries are not passed on to the bridge fdb.
+This could be added later. For now mcast flooding can be used in the
+bridge.
+
+The card reports all MACs that are in its FDB, but we must not pass on
+MACs that are registered for this interface.
+
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_core.h    |   1 +
+ drivers/s390/net/qeth_l2_main.c | 110 +++++++++++++++++++++++++++++++-
+ 2 files changed, 110 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 14c583b5ea11..4c8134a953c9 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -677,6 +677,7 @@ struct qeth_card_blkt {
+ enum qeth_pnso_mode {
+ 	QETH_PNSO_NONE,
+ 	QETH_PNSO_BRIDGEPORT,
++	QETH_PNSO_ADDR_INFO,
+ };
+ 
+ #define QETH_BROADCAST_WITH_ECHO    0x01
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 7cba3d0035bf..fffbc50cadc6 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -21,6 +21,7 @@
+ #include <linux/list.h>
+ #include <linux/hash.h>
+ #include <linux/hashtable.h>
++#include <net/switchdev.h>
+ #include <asm/chsc.h>
+ #include <asm/css_chars.h>
+ #include <asm/setup.h>
+@@ -709,6 +710,68 @@ static int qeth_l2_pnso(struct qeth_card *card, u8 oc, int cnc,
+ 	return rc;
+ }
+ 
++static bool qeth_is_my_net_if_token(struct qeth_card *card,
++				    struct net_if_token *token)
++{
++	return ((card->info.ddev_devno == token->devnum) &&
++		(card->info.cssid == token->cssid) &&
++		(card->info.iid == token->iid) &&
++		(card->info.ssid == token->ssid) &&
++		(card->info.chpid == token->chpid) &&
++		(card->info.chid == token->chid));
++}
++
++/**
++ *	qeth_l2_dev2br_fdb_notify() - update fdb of master bridge
++ *	@card:	qeth_card structure pointer
++ *	@code:	event bitmask: high order bit 0x80 set to
++ *				1 - removal of an object
++ *				0 - addition of an object
++ *			       Object type(s):
++ *				0x01 - VLAN, 0x02 - MAC, 0x03 - VLAN and MAC
++ *	@token: "network token" structure identifying 'physical' location
++ *		of the target
++ *	@addr_lnid: structure with MAC address and VLAN ID of the target
++ */
++static void qeth_l2_dev2br_fdb_notify(struct qeth_card *card, u8 code,
++				      struct net_if_token *token,
++				      struct mac_addr_lnid *addr_lnid)
++{
++	struct switchdev_notifier_fdb_info info;
++	u8 ntfy_mac[ETH_ALEN];
++
++	ether_addr_copy(ntfy_mac, addr_lnid->mac);
++	/* Ignore VLAN only changes */
++	if (!(code & IPA_ADDR_CHANGE_CODE_MACADDR))
++		return;
++	/* Ignore mcast entries */
++	if (is_multicast_ether_addr(ntfy_mac))
++		return;
++	/* Ignore my own addresses */
++	if (qeth_is_my_net_if_token(card, token))
++		return;
++
++	info.addr = ntfy_mac;
++	/* don't report VLAN IDs */
++	info.vid = 0;
++	info.added_by_user = false;
++	info.offloaded = true;
++
++	if (code & IPA_ADDR_CHANGE_CODE_REMOVAL) {
++		call_switchdev_notifiers(SWITCHDEV_FDB_DEL_TO_BRIDGE,
++					 card->dev, &info.info, NULL);
++		QETH_CARD_TEXT(card, 4, "andelmac");
++		QETH_CARD_TEXT_(card, 4,
++				"mc%012lx", ether_addr_to_u64(ntfy_mac));
++	} else {
++		call_switchdev_notifiers(SWITCHDEV_FDB_ADD_TO_BRIDGE,
++					 card->dev, &info.info, NULL);
++		QETH_CARD_TEXT(card, 4, "anaddmac");
++		QETH_CARD_TEXT_(card, 4,
++				"mc%012lx", ether_addr_to_u64(ntfy_mac));
++	}
++}
++
+ static const struct net_device_ops qeth_l2_netdev_ops = {
+ 	.ndo_open		= qeth_open,
+ 	.ndo_stop		= qeth_stop,
+@@ -1216,6 +1279,48 @@ struct qeth_addr_change_data {
+ 	struct qeth_ipacmd_addr_change ac_event;
+ };
+ 
++static void qeth_l2_dev2br_worker(struct work_struct *work)
++{
++	struct delayed_work *dwork = to_delayed_work(work);
++	struct qeth_addr_change_data *data;
++	struct qeth_card *card;
++	unsigned int i;
++
++	data = container_of(dwork, struct qeth_addr_change_data, dwork);
++	card = data->card;
++
++	QETH_CARD_TEXT(card, 4, "dev2brew");
++
++	if (READ_ONCE(card->info.pnso_mode) == QETH_PNSO_NONE)
++		goto free;
++
++	/* Potential re-config in progress, try again later: */
++	if (!rtnl_trylock()) {
++		queue_delayed_work(card->event_wq, dwork,
++				   msecs_to_jiffies(100));
++		return;
++	}
++
++	if (data->ac_event.lost_event_mask) {
++		QETH_DBF_MESSAGE(3,
++				 "Address change notification overflow on device %x\n",
++				 CARD_DEVID(card));
++	} else {
++		for (i = 0; i < data->ac_event.num_entries; i++) {
++			struct qeth_ipacmd_addr_change_entry *entry =
++					&data->ac_event.entry[i];
++			qeth_l2_dev2br_fdb_notify(card,
++						  entry->change_code,
++						  &entry->token,
++						  &entry->addr_lnid);
++		}
++	}
++	rtnl_unlock();
++
++free:
++	kfree(data);
++}
++
+ static void qeth_addr_change_event_worker(struct work_struct *work)
+ {
+ 	struct delayed_work *dwork = to_delayed_work(work);
+@@ -1298,7 +1403,10 @@ static void qeth_addr_change_event(struct qeth_card *card,
+ 		QETH_CARD_TEXT(card, 2, "ACNalloc");
+ 		return;
+ 	}
+-	INIT_DELAYED_WORK(&data->dwork, qeth_addr_change_event_worker);
++	if (card->info.pnso_mode == QETH_PNSO_BRIDGEPORT)
++		INIT_DELAYED_WORK(&data->dwork, qeth_addr_change_event_worker);
++	else
++		INIT_DELAYED_WORK(&data->dwork, qeth_l2_dev2br_worker);
+ 	data->card = card;
+ 	memcpy(&data->ac_event, hostevs,
+ 			sizeof(struct qeth_ipacmd_addr_change) + extrasize);
+-- 
+2.17.1
