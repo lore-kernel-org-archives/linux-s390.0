@@ -1,82 +1,107 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH 0/8] selftests/vm: gup_test, hmm-tests, assorted improvements
-Date: Sun, 27 Sep 2020 23:21:51 -0700
-Message-ID: <20200928062159.923212-1-jhubbard@nvidia.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:24160 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725883AbgIKKfi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 11 Sep 2020 06:35:38 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v4 2/8] kernel/resource: move and rename IORESOURCE_MEM_DRIVER_MANAGED
+Date: Fri, 11 Sep 2020 12:34:53 +0200
+Message-Id: <20200911103459.10306-3-david@redhat.com>
+In-Reply-To: <20200911103459.10306-1-david@redhat.com>
+References: <20200911103459.10306-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Ard Biesheuvel <ardb@kernel.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>, Eric Biederman <ebiederm@xmission.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kexec@lists.infradead.org
 
-This is based on the latest mmotm.
+IORESOURCE_MEM_DRIVER_MANAGED currently uses an unused PnP bit, which is
+always set to 0 by hardware. This is far from beautiful (and confusing),
+and the bit only applies to SYSRAM. So let's move it out of the
+bus-specific (PnP) defined bits.
 
-Summary: This series provides two main things, and a number of smaller
-supporting goodies. The two main points are:
+We'll add another SYSRAM specific bit soon. If we ever need more bits for
+other purposes, we can steal some from "desc", or reshuffle/regroup what we
+have.
 
-1) Add a new sub-test to gup_test, which in turn is a renamed version of
-gup_benchmark. This sub-test allows nicer testing of dump_pages(), at
-least on user-space pages.
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: kexec@lists.infradead.org
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ include/linux/ioport.h | 4 +++-
+ kernel/kexec_file.c    | 2 +-
+ mm/memory_hotplug.c    | 4 ++--
+ 3 files changed, 6 insertions(+), 4 deletions(-)
 
-For quite a while, I was doing a quick hack to gup_test.c whenever I
-wanted to try out changes to dump_page(). Then Matthew Wilcox asked me
-what I meant when I said "I used my dump_page() unit test", and I
-realized that it might be nice to check in a polished up version of
-that.
-
-Details about how it works and how to use it are in the commit
-description for patch #6.
-
-2) Fixes a limitation of hmm-tests: these tests are incredibly useful,
-but only if people actually build and run them. And it turns out that
-libhugetlbfs is a little too effective at throwing a wrench in the
-works, there. So I've added a little configuration check that removes
-just two of the 21 hmm-tests, if libhugetlbfs is not available.
-
-Further details in the commit description of patch #8.
-
-Other smaller things that this series does:
-
-a) Remove code duplication by creating gup_test.h.
-
-b) Clear up the sub-test organization, and their invocation within
-run_vmtests.sh.
-
-c) Other minor assorted improvements.
-
-John Hubbard (8):
-  mm/gup_benchmark: rename to mm/gup_test
-  selftests/vm: use a common gup_test.h
-  selftests/vm: rename run_vmtests --> run_vmtests.sh
-  selftests/vm: minor cleanup: Makefile and gup_test.c
-  selftests/vm: only some gup_test items are really benchmarks
-  selftests/vm: gup_test: introduce the dump_pages() sub-test
-  selftests/vm: run_vmtest.sh: update and clean up gup_test invocation
-  selftests/vm: hmm-tests: remove the libhugetlbfs dependency
-
- Documentation/core-api/pin_user_pages.rst     |   6 +-
- arch/s390/configs/debug_defconfig             |   2 +-
- arch/s390/configs/defconfig                   |   2 +-
- mm/Kconfig                                    |  21 +-
- mm/Makefile                                   |   2 +-
- mm/{gup_benchmark.c =3D> gup_test.c}            | 109 ++++++----
- mm/gup_test.h                                 |  32 +++
- tools/testing/selftests/vm/.gitignore         |   3 +-
- tools/testing/selftests/vm/Makefile           |  38 +++-
- tools/testing/selftests/vm/check_config.sh    |  30 +++
- tools/testing/selftests/vm/config             |   2 +-
- tools/testing/selftests/vm/gup_benchmark.c    | 137 -------------
- tools/testing/selftests/vm/gup_test.c         | 188 ++++++++++++++++++
- tools/testing/selftests/vm/hmm-tests.c        |  10 +-
- .../vm/{run_vmtests =3D> run_vmtest.sh}         |  24 ++-
- 15 files changed, 403 insertions(+), 203 deletions(-)
- rename mm/{gup_benchmark.c =3D> gup_test.c} (59%)
- create mode 100644 mm/gup_test.h
- create mode 100755 tools/testing/selftests/vm/check_config.sh
- delete mode 100644 tools/testing/selftests/vm/gup_benchmark.c
- create mode 100644 tools/testing/selftests/vm/gup_test.c
- rename tools/testing/selftests/vm/{run_vmtests =3D> run_vmtest.sh} (91%)
-
---=20
-2.28.0
+diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+index 52a91f5fa1a36..d7620d7c941a0 100644
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -58,6 +58,9 @@ struct resource {
+ #define IORESOURCE_EXT_TYPE_BITS 0x01000000	/* Resource extended types */
+ #define IORESOURCE_SYSRAM	0x01000000	/* System RAM (modifier) */
+ 
++/* IORESOURCE_SYSRAM specific bits. */
++#define IORESOURCE_SYSRAM_DRIVER_MANAGED	0x02000000 /* Always detected via a driver. */
++
+ #define IORESOURCE_EXCLUSIVE	0x08000000	/* Userland may not map this resource */
+ 
+ #define IORESOURCE_DISABLED	0x10000000
+@@ -103,7 +106,6 @@ struct resource {
+ #define IORESOURCE_MEM_32BIT		(3<<3)
+ #define IORESOURCE_MEM_SHADOWABLE	(1<<5)	/* dup: IORESOURCE_SHADOWABLE */
+ #define IORESOURCE_MEM_EXPANSIONROM	(1<<6)
+-#define IORESOURCE_MEM_DRIVER_MANAGED	(1<<7)
+ 
+ /* PnP I/O specific bits (IORESOURCE_BITS) */
+ #define IORESOURCE_IO_16BIT_ADDR	(1<<0)
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index ca40bef75a616..dfeeed1aed084 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -520,7 +520,7 @@ static int locate_mem_hole_callback(struct resource *res, void *arg)
+ 	/* Returning 0 will take to next memory range */
+ 
+ 	/* Don't use memory that will be detected and handled by a driver. */
+-	if (res->flags & IORESOURCE_MEM_DRIVER_MANAGED)
++	if (res->flags & IORESOURCE_SYSRAM_DRIVER_MANAGED)
+ 		return 0;
+ 
+ 	if (sz < kbuf->memsz)
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 4c47b68a9f4b5..8e1cd18b5cf14 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -105,7 +105,7 @@ static struct resource *register_memory_resource(u64 start, u64 size,
+ 	unsigned long flags =  IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
+ 
+ 	if (strcmp(resource_name, "System RAM"))
+-		flags |= IORESOURCE_MEM_DRIVER_MANAGED;
++		flags |= IORESOURCE_SYSRAM_DRIVER_MANAGED;
+ 
+ 	/*
+ 	 * Make sure value parsed from 'mem=' only restricts memory adding
+@@ -1160,7 +1160,7 @@ EXPORT_SYMBOL_GPL(add_memory);
+  *
+  * For this memory, no entries in /sys/firmware/memmap ("raw firmware-provided
+  * memory map") are created. Also, the created memory resource is flagged
+- * with IORESOURCE_MEM_DRIVER_MANAGED, so in-kernel users can special-case
++ * with IORESOURCE_SYSRAM_DRIVER_MANAGED, so in-kernel users can special-case
+  * this memory as well (esp., not place kexec images onto it).
+  *
+  * The resource_name (visible via /proc/iomem) has to have the format
+-- 
+2.26.2
