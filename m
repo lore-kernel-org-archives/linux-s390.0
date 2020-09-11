@@ -1,106 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10298 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727026AbgIJQtV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 12:49:21 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 09/10] net/smc: use the retry mechanism for netlink messages
-Date: Thu, 10 Sep 2020 18:48:28 +0200
-Message-Id: <20200910164829.65426-10-kgraul@linux.ibm.com>
-In-Reply-To: <20200910164829.65426-1-kgraul@linux.ibm.com>
-References: <20200910164829.65426-1-kgraul@linux.ibm.com>
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36686 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725868AbgIKKgI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Sep 2020 06:36:08 -0400
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v4 7/8] xen/balloon: try to merge system ram resources
+Date: Fri, 11 Sep 2020 12:34:58 +0200
+Message-Id: <20200911103459.10306-8-david@redhat.com>
+In-Reply-To: <20200911103459.10306-1-david@redhat.com>
+References: <20200911103459.10306-1-david@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Juergen Gross <jgross@suse.com>, Andrew Morton <akpmt@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>, Julien Grall <julien@xen.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Let's try to merge system ram resources we add, to minimize the number
+of resources in /proc/iomem. We don't care about the boundaries of
+individual chunks we added.
 
-When the netlink messages to be sent to the userspace
-are too big for a single netlink message, send them in
-chunks using the netlink_dump infrastructure. Modify the
-smc diag dump code so that it can signal to the netlink_dump
-infrastructure that it needs to send more data.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: Andrew Morton <akpmt@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Roger Pau Monné <roger.pau@citrix.com>
+Cc: Julien Grall <julien@xen.org>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- net/smc/smc_diag.c | 30 +++++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
+ drivers/xen/balloon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index da9ba6d1679b..f15fca59b4b2 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -22,6 +22,15 @@
- #include "smc.h"
- #include "smc_core.h"
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 9f40a294d398d..b57b2067ecbfb 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -331,7 +331,7 @@ static enum bp_state reserve_additional_memory(void)
+ 	mutex_unlock(&balloon_mutex);
+ 	/* add_memory_resource() requires the device_hotplug lock */
+ 	lock_device_hotplug();
+-	rc = add_memory_resource(nid, resource, MHP_NONE);
++	rc = add_memory_resource(nid, resource, MEMHP_MERGE_RESOURCE);
+ 	unlock_device_hotplug();
+ 	mutex_lock(&balloon_mutex);
  
-+struct smc_diag_dump_ctx {
-+	int pos[2];
-+};
-+
-+static struct smc_diag_dump_ctx *smc_dump_context(struct netlink_callback *cb)
-+{
-+	return (struct smc_diag_dump_ctx *)cb->ctx;
-+}
-+
- static void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
- {
- 	sprintf(buf, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
-@@ -193,13 +202,15 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- }
- 
- static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
--			       struct netlink_callback *cb)
-+			       struct netlink_callback *cb, int p_type)
- {
-+	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
- 	struct net *net = sock_net(skb->sk);
-+	int snum = cb_ctx->pos[p_type];
- 	struct nlattr *bc = NULL;
- 	struct hlist_head *head;
-+	int rc = 0, num = 0;
- 	struct sock *sk;
--	int rc = 0;
- 
- 	read_lock(&prot->h.smc_hash->lock);
- 	head = &prot->h.smc_hash->ht;
-@@ -209,13 +220,18 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
- 	sk_for_each(sk, head) {
- 		if (!net_eq(sock_net(sk), net))
- 			continue;
-+		if (num < snum)
-+			goto next;
- 		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
--		if (rc)
--			break;
-+		if (rc < 0)
-+			goto out;
-+next:
-+		num++;
- 	}
- 
- out:
- 	read_unlock(&prot->h.smc_hash->lock);
-+	cb_ctx->pos[p_type] = num;
- 	return rc;
- }
- 
-@@ -223,10 +239,10 @@ static int smc_diag_dump(struct sk_buff *skb, struct netlink_callback *cb)
- {
- 	int rc = 0;
- 
--	rc = smc_diag_dump_proto(&smc_proto, skb, cb);
-+	rc = smc_diag_dump_proto(&smc_proto, skb, cb, SMCPROTO_SMC);
- 	if (!rc)
--		rc = smc_diag_dump_proto(&smc_proto6, skb, cb);
--	return rc;
-+		smc_diag_dump_proto(&smc_proto6, skb, cb, SMCPROTO_SMC6);
-+	return skb->len;
- }
- 
- static int smc_diag_handler_dump(struct sk_buff *skb, struct nlmsghdr *h)
 -- 
-2.17.1
+2.26.2
