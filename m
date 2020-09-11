@@ -1,44 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59352 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726486AbgIUHUH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 03:20:07 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/14] zram: cleanup backing_dev_store
-Date: Mon, 21 Sep 2020 09:19:50 +0200
-Message-Id: <20200921071958.307589-7-hch@lst.de>
-In-Reply-To: <20200921071958.307589-1-hch@lst.de>
-References: <20200921071958.307589-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7474 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726573AbgIKPoo (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 11 Sep 2020 11:44:44 -0400
+Subject: Re: s390 PCI dma ops
+References: <20200911072734.GA23043@lst.de>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <73550e74-1fda-cc34-0e14-54e2b7e76e99@linux.ibm.com>
+Date: Fri, 11 Sep 2020 10:39:02 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200911072734.GA23043@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
 
-Use blkdev_get_by_dev instead of bdgrab + blkdev_get.
+On 9/11/20 3:27 AM, Christoph Hellwig wrote:
+> Hi S/390 PCI and IOMMU maintainers,
+> 
+> We've recently tried to convert all implementations of the IOMMU API to
+> use drivers/iommu/dma-iommu.c instead of their local IOMMU ops.  I've
+> looked at S/390 and while some comments mention things about the iommu
+> API the implementation looks quite separate.  Do arch/s390/pci/pci_dma.c
+> and drivers/iommu/s390-iommu.c driver the same hardware?  If so would a
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/zram/zram_drv.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Yes, these drivers are dealing with the same hardware.
 
-diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
-index a356275605b104..91ccfe444525b4 100644
---- a/drivers/block/zram/zram_drv.c
-+++ b/drivers/block/zram/zram_drv.c
-@@ -491,9 +491,10 @@ static ssize_t backing_dev_store(struct device *dev,
- 		goto out;
- 	}
- 
--	bdev = bdgrab(I_BDEV(inode));
--	err = blkdev_get(bdev, FMODE_READ | FMODE_WRITE | FMODE_EXCL, zram);
--	if (err < 0) {
-+	bdev = blkdev_get_by_dev(inode->i_rdev,
-+			FMODE_READ | FMODE_WRITE | FMODE_EXCL, zram);
-+	if (IS_ERR(bdev)) {
-+		err = PTR_ERR(bdev);
- 		bdev = NULL;
- 		goto out;
- 	}
--- 
-2.28.0
+> switch to drivers/iommu/dma-iommu.c be feasibel?
+> 
+
+Hmm...  s390 does some particular things that are arch-specific, largely 
+as forms of optimization.  One such example is a case where we avoid 
+reusing IO TLB Page Table Entries until we have to do a global flush.
+
+I'd need to take a closer look at what AMD did / what intel is doing. 
+Fundamentally we are open to the idea as the maintenance benefit is 
+clear, but I don't think it's a trivial swap - I think we would need 
+extensions to dma-iommu to accommodate some of our special cases / 
+optimizations.
