@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 14 Sep 2020 17:31:49 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v10 05/16] s390/vfio-ap: implement in-use callback for
- vfio_ap driver
-Message-ID: <20200914173149.70fa59d9.cohuck@redhat.com>
-In-Reply-To: <20200821195616.13554-6-akrowiak@linux.ibm.com>
-References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-        <20200821195616.13554-6-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:14916 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726139AbgINIWX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 14 Sep 2020 04:22:23 -0400
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 1/1] docs: kvm: add documentation for KVM_CAP_S390_DIAG318
+Date: Mon, 14 Sep 2020 10:22:15 +0200
+Message-Id: <20200914082215.6143-2-borntraeger@de.ibm.com>
+In-Reply-To: <20200914082215.6143-1-borntraeger@de.ibm.com>
+References: <20200914082215.6143-1-borntraeger@de.ibm.com>
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Collin Walling <walling@linux.ibm.com>
 
-On Fri, 21 Aug 2020 15:56:05 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+From: Collin Walling <walling@linux.ibm.com>
 
-> Let's implement the callback to indicate when an APQN
-> is in use by the vfio_ap device driver. The callback is
-> invoked whenever a change to the apmask or aqmask would
-> result in one or more queue devices being removed from the driver. The
-> vfio_ap device driver will indicate a resource is in use
-> if the APQN of any of the queue devices to be removed are assigned to
-> any of the matrix mdevs under the driver's control.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_drv.c     |  1 +
->  drivers/s390/crypto/vfio_ap_ops.c     | 68 ++++++++++++++++++++-------
->  drivers/s390/crypto/vfio_ap_private.h |  2 +
->  3 files changed, 53 insertions(+), 18 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index 24cdef60039a..aae5b3d8e3fa 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -175,6 +175,7 @@ static int __init vfio_ap_init(void)
->  	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
->  	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
->  	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-> +	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
->  	vfio_ap_drv.ids = ap_queue_ids;
->  
->  	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 2e37ee82e422..fc1aa6f947eb 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -515,18 +515,36 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
->  	return 0;
->  }
->  
-> +#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
-> +			 "already assigned to %s"
+Documentation for the s390 DIAGNOSE 0x318 instruction handling.
 
-Ah, I spoke too soon; this is what I had been looking for :)
+Signed-off-by: Collin Walling <walling@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/kvm/20200625150724.10021-2-walling@linux.ibm.com/
+Message-Id: <20200625150724.10021-2-walling@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ Documentation/virt/kvm/api.rst | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index d2b733dc7892..51191b56e61c 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -6173,3 +6173,23 @@ specific interfaces must be consistent, i.e. if one says the feature
+ is supported, than the other should as well and vice versa.  For arm64
+ see Documentation/virt/kvm/devices/vcpu.rst "KVM_ARM_VCPU_PVTIME_CTRL".
+ For x86 see Documentation/virt/kvm/msr.rst "MSR_KVM_STEAL_TIME".
++
++8.25 KVM_CAP_S390_DIAG318
++-------------------------
++
++:Architectures: s390
++
++This capability enables a guest to set information about its control program
++(i.e. guest kernel type and version). The information is helpful during
++system/firmware service events, providing additional data about the guest
++environments running on the machine.
++
++The information is associated with the DIAGNOSE 0x318 instruction, which sets
++an 8-byte value consisting of a one-byte Control Program Name Code (CPNC) and
++a 7-byte Control Program Version Code (CPVC). The CPNC determines what
++environment the control program is running in (e.g. Linux, z/VM...), and the
++CPVC is used for information specific to OS (e.g. Linux version, Linux
++distribution...)
++
++If this capability is available, then the CPNC and CPVC can be synchronized
++between KVM and userspace via the sync regs mechanism (KVM_SYNC_DIAG318).
+-- 
+2.25.4
