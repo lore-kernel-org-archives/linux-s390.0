@@ -1,282 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61888 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726308AbgIWIhQ (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3874 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726180AbgINMRQ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Sep 2020 04:37:16 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 4/9] s390/qeth: replace deprecated simple_stroul()
-Date: Wed, 23 Sep 2020 10:36:55 +0200
-Message-Id: <20200923083700.44624-5-jwi@linux.ibm.com>
-In-Reply-To: <20200923083700.44624-1-jwi@linux.ibm.com>
-References: <20200923083700.44624-1-jwi@linux.ibm.com>
+        Mon, 14 Sep 2020 08:17:16 -0400
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 1/1] s390/dasd: Fix zero write for FBA devices
+Date: Mon, 14 Sep 2020 13:56:47 +0200
+Message-Id: <20200914115647.94062-2-sth@linux.ibm.com>
+In-Reply-To: <20200914115647.94062-1-sth@linux.ibm.com>
+References: <20200914115647.94062-1-sth@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: axboe@kernel.dk
+Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-Convert the remaining occurences in sysfs code to kstrtouint().
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-While at it move some input parsing out of locked sections, replace an
-open-coded clamp() and remove some unnecessary run-time checks for
-ipatoe->mask_bits that are already enforced when creating the object.
+A discard request that writes zeros using the global kernel internal
+ZERO_PAGE will fail for machines with more than 2GB of memory due to the
+location of the ZERO_PAGE.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Fix this by using a driver owned global zero page allocated with GFP_DMA
+flag set.
+
+Fixes: 28b841b3a7cb ("s390/dasd: Add discard support for FBA devices")
+Cc: <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h     |  4 +-
- drivers/s390/net/qeth_core_sys.c | 65 +++++++++++++++++---------------
- drivers/s390/net/qeth_l3.h       |  4 +-
- drivers/s390/net/qeth_l3_main.c  |  8 ++--
- drivers/s390/net/qeth_l3_sys.c   | 21 +++++------
- 5 files changed, 51 insertions(+), 51 deletions(-)
+ drivers/s390/block/dasd_fba.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 1b3fe384dcc9..f931b764d6a4 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -195,8 +195,8 @@ struct qeth_vnicc_info {
- #define QETH_IN_BUF_SIZE_DEFAULT 65536
- #define QETH_IN_BUF_COUNT_DEFAULT 64
- #define QETH_IN_BUF_COUNT_HSDEFAULT 128
--#define QETH_IN_BUF_COUNT_MIN 8
--#define QETH_IN_BUF_COUNT_MAX 128
-+#define QETH_IN_BUF_COUNT_MIN	8U
-+#define QETH_IN_BUF_COUNT_MAX	128U
- #define QETH_MAX_BUFFER_ELEMENTS(card) ((card)->qdio.in_buf_size >> 12)
- #define QETH_IN_BUF_REQUEUE_THRESHOLD(card) \
- 		 ((card)->qdio.in_buf_pool.buf_count / 2)
-diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
-index 8def82336f53..74c70364edc1 100644
---- a/drivers/s390/net/qeth_core_sys.c
-+++ b/drivers/s390/net/qeth_core_sys.c
-@@ -103,21 +103,21 @@ static ssize_t qeth_dev_portno_store(struct device *dev,
- 		struct device_attribute *attr, const char *buf, size_t count)
- {
- 	struct qeth_card *card = dev_get_drvdata(dev);
--	char *tmp;
- 	unsigned int portno, limit;
- 	int rc = 0;
+diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
+index cbb770824226..1a44e321b54e 100644
+--- a/drivers/s390/block/dasd_fba.c
++++ b/drivers/s390/block/dasd_fba.c
+@@ -40,6 +40,7 @@
+ MODULE_LICENSE("GPL");
  
-+	rc = kstrtouint(buf, 16, &portno);
-+	if (rc)
-+		return rc;
-+	if (portno > QETH_MAX_PORTNO)
-+		return -EINVAL;
-+
- 	mutex_lock(&card->conf_mutex);
- 	if (card->state != CARD_STATE_DOWN) {
- 		rc = -EPERM;
- 		goto out;
- 	}
+ static struct dasd_discipline dasd_fba_discipline;
++static void *dasd_fba_zero_page;
  
--	portno = simple_strtoul(buf, &tmp, 16);
--	if (portno > QETH_MAX_PORTNO) {
--		rc = -EINVAL;
--		goto out;
--	}
- 	limit = (card->ssqd.pcnt ? card->ssqd.pcnt - 1 : card->ssqd.pcnt);
- 	if (portno > limit) {
- 		rc = -EINVAL;
-@@ -248,19 +248,19 @@ static ssize_t qeth_dev_bufcnt_store(struct device *dev,
- {
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 	unsigned int cnt;
--	char *tmp;
- 	int rc = 0;
- 
-+	rc = kstrtouint(buf, 10, &cnt);
-+	if (rc)
-+		return rc;
-+
- 	mutex_lock(&card->conf_mutex);
- 	if (card->state != CARD_STATE_DOWN) {
- 		rc = -EPERM;
- 		goto out;
- 	}
- 
--	cnt = simple_strtoul(buf, &tmp, 10);
--	cnt = (cnt < QETH_IN_BUF_COUNT_MIN) ? QETH_IN_BUF_COUNT_MIN :
--		((cnt > QETH_IN_BUF_COUNT_MAX) ? QETH_IN_BUF_COUNT_MAX : cnt);
--
-+	cnt = clamp(cnt, QETH_IN_BUF_COUNT_MIN, QETH_IN_BUF_COUNT_MAX);
- 	rc = qeth_resize_buffer_pool(card, cnt);
- 
- out:
-@@ -341,18 +341,15 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
- {
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 	struct net_device *ndev;
--	char *tmp;
--	int i, rc = 0;
- 	enum qeth_discipline_id newdis;
-+	unsigned int input;
-+	int rc;
- 
--	mutex_lock(&card->discipline_mutex);
--	if (card->state != CARD_STATE_DOWN) {
--		rc = -EPERM;
--		goto out;
--	}
-+	rc = kstrtouint(buf, 16, &input);
-+	if (rc)
-+		return rc;
- 
--	i = simple_strtoul(buf, &tmp, 16);
--	switch (i) {
-+	switch (input) {
- 	case 0:
- 		newdis = QETH_DISCIPLINE_LAYER3;
- 		break;
-@@ -360,7 +357,12 @@ static ssize_t qeth_dev_layer2_store(struct device *dev,
- 		newdis = QETH_DISCIPLINE_LAYER2;
- 		break;
- 	default:
--		rc = -EINVAL;
-+		return -EINVAL;
-+	}
-+
-+	mutex_lock(&card->discipline_mutex);
-+	if (card->state != CARD_STATE_DOWN) {
-+		rc = -EPERM;
- 		goto out;
- 	}
- 
-@@ -551,20 +553,21 @@ static DEVICE_ATTR(hw_trap, 0644, qeth_hw_trap_show,
- static ssize_t qeth_dev_blkt_store(struct qeth_card *card,
- 		const char *buf, size_t count, int *value, int max_value)
- {
--	char *tmp;
--	int i, rc = 0;
-+	unsigned int input;
-+	int rc;
-+
-+	rc = kstrtouint(buf, 10, &input);
-+	if (rc)
-+		return rc;
-+
-+	if (input > max_value)
-+		return -EINVAL;
- 
- 	mutex_lock(&card->conf_mutex);
--	if (card->state != CARD_STATE_DOWN) {
-+	if (card->state != CARD_STATE_DOWN)
- 		rc = -EPERM;
--		goto out;
--	}
--	i = simple_strtoul(buf, &tmp, 10);
--	if (i <= max_value)
--		*value = i;
- 	else
--		rc = -EINVAL;
--out:
-+		*value = input;
- 	mutex_unlock(&card->conf_mutex);
- 	return rc ? rc : count;
- }
-diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
-index 6ccfe2121095..acd130cfbab3 100644
---- a/drivers/s390/net/qeth_l3.h
-+++ b/drivers/s390/net/qeth_l3.h
-@@ -96,7 +96,7 @@ struct qeth_ipato_entry {
- 	struct list_head entry;
- 	enum qeth_prot_versions proto;
- 	char addr[16];
--	int mask_bits;
-+	unsigned int mask_bits;
- };
- 
- extern const struct attribute_group *qeth_l3_attr_groups[];
-@@ -110,7 +110,7 @@ int qeth_l3_setrouting_v6(struct qeth_card *);
- int qeth_l3_add_ipato_entry(struct qeth_card *, struct qeth_ipato_entry *);
- int qeth_l3_del_ipato_entry(struct qeth_card *card,
- 			    enum qeth_prot_versions proto, u8 *addr,
--			    int mask_bits);
-+			    unsigned int mask_bits);
- void qeth_l3_update_ipato(struct qeth_card *card);
- int qeth_l3_modify_hsuid(struct qeth_card *card, bool add);
- int qeth_l3_modify_rxip_vipa(struct qeth_card *card, bool add, const u8 *ip,
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 810d65fd48b4..876a21d451f5 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -105,11 +105,9 @@ static bool qeth_l3_is_addr_covered_by_ipato(struct qeth_card *card,
- 					  (ipatoe->proto == QETH_PROT_IPV4) ?
- 					  4 : 16);
- 		if (addr->proto == QETH_PROT_IPV4)
--			rc = !memcmp(addr_bits, ipatoe_bits,
--				     min(32, ipatoe->mask_bits));
-+			rc = !memcmp(addr_bits, ipatoe_bits, ipatoe->mask_bits);
- 		else
--			rc = !memcmp(addr_bits, ipatoe_bits,
--				     min(128, ipatoe->mask_bits));
-+			rc = !memcmp(addr_bits, ipatoe_bits, ipatoe->mask_bits);
- 		if (rc)
- 			break;
- 	}
-@@ -561,7 +559,7 @@ int qeth_l3_add_ipato_entry(struct qeth_card *card,
- 
- int qeth_l3_del_ipato_entry(struct qeth_card *card,
- 			    enum qeth_prot_versions proto, u8 *addr,
--			    int mask_bits)
-+			    unsigned int mask_bits)
- {
- 	struct qeth_ipato_entry *ipatoe, *tmp;
- 	int rc = -ENOENT;
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index 05fa986e30fc..351763ae9b9c 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -407,10 +407,9 @@ static ssize_t qeth_l3_dev_ipato_add4_show(struct device *dev,
+ struct dasd_fba_private {
+ 	struct dasd_fba_characteristics rdc_data;
+@@ -270,7 +271,7 @@ static void ccw_write_zero(struct ccw1 *ccw, int count)
+ 	ccw->cmd_code = DASD_FBA_CCW_WRITE;
+ 	ccw->flags |= CCW_FLAG_SLI;
+ 	ccw->count = count;
+-	ccw->cda = (__u32) (addr_t) page_to_phys(ZERO_PAGE(0));
++	ccw->cda = (__u32) (addr_t) dasd_fba_zero_page;
  }
  
- static int qeth_l3_parse_ipatoe(const char *buf, enum qeth_prot_versions proto,
--		  u8 *addr, int *mask_bits)
-+				u8 *addr, unsigned int *mask_bits)
+ /*
+@@ -830,6 +831,11 @@ dasd_fba_init(void)
+ 	int ret;
+ 
+ 	ASCEBC(dasd_fba_discipline.ebcname, 4);
++
++	dasd_fba_zero_page = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
++	if (!dasd_fba_zero_page)
++		return -ENOMEM;
++
+ 	ret = ccw_driver_register(&dasd_fba_driver);
+ 	if (!ret)
+ 		wait_for_device_probe();
+@@ -841,6 +847,7 @@ static void __exit
+ dasd_fba_cleanup(void)
  {
--	const char *start;
--	char *sep, *tmp;
-+	char *sep;
- 	int rc;
- 
- 	/* Expected input pattern: %addr/%mask */
-@@ -424,13 +423,13 @@ static int qeth_l3_parse_ipatoe(const char *buf, enum qeth_prot_versions proto,
- 	if (rc)
- 		return rc;
- 
--	start = sep + 1;
--	*mask_bits = simple_strtoul(start, &tmp, 10);
--	if (!strlen(start) ||
--	    (tmp == start) ||
--	    (*mask_bits > ((proto == QETH_PROT_IPV4) ? 32 : 128))) {
-+	rc = kstrtouint(sep + 1, 10, mask_bits);
-+	if (rc)
-+		return rc;
-+
-+	if (*mask_bits > ((proto == QETH_PROT_IPV4) ? 32 : 128))
- 		return -EINVAL;
--	}
-+
- 	return 0;
+ 	ccw_driver_unregister(&dasd_fba_driver);
++	free_page((unsigned long)dasd_fba_zero_page);
  }
  
-@@ -438,8 +437,8 @@ static ssize_t qeth_l3_dev_ipato_add_store(const char *buf, size_t count,
- 			 struct qeth_card *card, enum qeth_prot_versions proto)
- {
- 	struct qeth_ipato_entry *ipatoe;
-+	unsigned int mask_bits;
- 	u8 addr[16];
--	int mask_bits;
- 	int rc = 0;
- 
- 	rc = qeth_l3_parse_ipatoe(buf, proto, addr, &mask_bits);
-@@ -476,8 +475,8 @@ static QETH_DEVICE_ATTR(ipato_add4, add4, 0644,
- static ssize_t qeth_l3_dev_ipato_del_store(const char *buf, size_t count,
- 			 struct qeth_card *card, enum qeth_prot_versions proto)
- {
-+	unsigned int mask_bits;
- 	u8 addr[16];
--	int mask_bits;
- 	int rc = 0;
- 
- 	rc = qeth_l3_parse_ipatoe(buf, proto, addr, &mask_bits);
+ module_init(dasd_fba_init);
 -- 
 2.17.1
