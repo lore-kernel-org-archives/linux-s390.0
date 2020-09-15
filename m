@@ -1,13 +1,13 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27028 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728014AbgIOTiI (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:33284 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727872AbgIOR1H (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Sep 2020 15:38:08 -0400
-Date: Tue, 15 Sep 2020 21:37:55 +0200
+        Tue, 15 Sep 2020 13:27:07 -0400
+Date: Tue, 15 Sep 2020 18:49:09 +0200
 From: Heiko Carstens <hca@linux.ibm.com>
 Subject: Re: [PATCH 4/4] s390/uaccess: remove set_fs() interface
-Message-ID: <20200915193755.GA8528@osiris>
+Message-ID: <20200915164909.GB11180@osiris>
 References: <20200915154340.4215-1-hca@linux.ibm.com>
  <20200915154340.4215-5-hca@linux.ibm.com>
  <20200915160243.GB22056@lst.de>
@@ -21,16 +21,6 @@ To: Christoph Hellwig <hch@lst.de>
 Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org
 
 On Tue, Sep 15, 2020 at 06:02:43PM +0200, Christoph Hellwig wrote:
-> On Tue, Sep 15, 2020 at 05:43:40PM +0200, Heiko Carstens wrote:
-> > Address spaces still have to switched/changed for machines without the
-> > mvcos instructions and especially for instructions like e.g. compare
-> > and swap (-> futex) which must be executed in kernel address space but
-> > access user address space. For such instructions enable_sacf_uaccess()
-> > and disable_sacf_uaccess() must be used like before.
-> 
-> That logic always confused me and still keeps confusing me,
-> dumb questions below:
-> 
 > >  	int oldval = 0, newval, ret;
 > > -	mm_segment_t old_fs;
 > > +	bool old;
@@ -51,14 +41,43 @@ On Tue, Sep 15, 2020 at 06:02:43PM +0200, Christoph Hellwig wrote:
 > this is context switched with the thread, and given that only small
 > isolated code bases now use it, sacf use can't nest, can it?
 
-I just realized that this is broken for uaccess in irq context
-(e.g. copy_from_user_nofault()). With set_fs() removal the calls to
-force_uaccess_begin()/end() will do nothing, while before
-set_fs(USER_DS) actually enforced that control registers on s390 were
-setup correctly.
-This wouldn't be the case anymore now. If e.g. a code sequence within
-enable_sacf_uaccess() would be interrupted, and from within interrupt
-context copy_from_user_nofault() would be executed, this would read
-from kernel space instead from user space.
+Right, that should not happen. I think I'll change both functions to
+void and add a WARN_ON_ONCE() to both of them, so that nested calls
+will be catched.
 
-Needs fix.
+> > @@ -116,7 +114,7 @@ struct thread_struct {
+> >  	unsigned long hardirq_timer;	/* task cputime in hardirq context */
+> >  	unsigned long softirq_timer;	/* task cputime in softirq context */
+> >  	unsigned long sys_call_table;	/* system call table address */
+> > -	mm_segment_t mm_segment;
+> > +	bool sacf_uaccess;		/* uaccess with sacf enabled */
+> 
+> Isn't there a flags field somewhere where this could be folded into?
+
+Hmm, a TIF flag will probably do.
+
+> > -void set_fs_fixup(void)
+> > -{
+> > -	struct pt_regs *regs = current_pt_regs();
+> > -	static bool warned;
+> > -
+> > -	set_fs(USER_DS);
+> > -	if (warned)
+> > -		return;
+> > -	WARN(1, "Unbalanced set_fs - int code: 0x%x\n", regs->int_code);
+> > -	show_registers(regs);
+> > -	warned = true;
+> 
+> Would a warning about an unbalanced sacf flag still make sense?  Or
+> just objtool for compile time checks similar to the unsafe uaccess
+> routines on x86?
+
+Yes, I was not sure to keep it or drop it. But now that you ask for
+it, I'll add it back. FWIW, there is no objtool for s390 (yet).
+
+> >  EXPORT_SYMBOL(enable_sacf_uaccess);
+> 
+> Neither enable_sacf_uaccess nor disable_sacf_uaccess appear to be
+> used in modular code, so these exports can probably be dropped.
+
+Ah, I wanted to check, and forgot that.
