@@ -1,79 +1,144 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55962 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726540AbgIWNsP (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61062 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727476AbgIOPny (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Sep 2020 09:48:15 -0400
-From: Marc Hartmayer <mhartmay@linux.ibm.com>
-Subject: [PATCH kvm-unit-tests v2 0/4] s390x: Add Protected VM support
-Date: Wed, 23 Sep 2020 15:47:54 +0200
-Message-Id: <20200923134758.19354-1-mhartmay@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Tue, 15 Sep 2020 11:43:54 -0400
+From: Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 3/4] s390/uaccess: implement HAVE_GET_KERNEL_NOFAULT support
+Date: Tue, 15 Sep 2020 17:43:39 +0200
+Message-Id: <20200915154340.4215-4-hca@linux.ibm.com>
+In-Reply-To: <20200915154340.4215-1-hca@linux.ibm.com>
+References: <20200915154340.4215-1-hca@linux.ibm.com>
+Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org
 
-Add support for Protected Virtual Machine (PVM) tests. For starting a
-PVM guest we must be able to generate a PVM image by using the
-`genprotimg` tool from the s390-tools collection. This requires the
-ability to pass a machine-specific host-key document, so the option
-`--host-key-document` is added to the configure script.
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+---
+ arch/s390/include/asm/uaccess.h | 111 ++++++++++++++++++++++++++++++++
+ 1 file changed, 111 insertions(+)
 
-For everybody's convenience there is a branch:
-https://gitlab.com/mhartmay/kvm-unit-tests/-/tree/pv_v2
-
-Changelog:
- v1 -> v2:
-   + rebased
-   + patches 1-3:
-     - add r-b from Conny, Andrew, and David
-   + patch 4:
-     - add r-b from Janosch
-     - renamed ${testname} to $testname (David)
-     - fix `print_result` function calls and the arguments used
- RFC v2 -> v1:
-  + Rebased
-  + patch 1:
-    - add r-b from Andrew
-  + patch 2:
-    - add explicit dependency on config.mak (Andrew)
-    - add comment about the order of sourcing (Andrew)
-  + patch 3:
-    - drop dummy function (Andrew)
-    - add arch_cmd hook function (Andrew)
-  + patch 4:
-    - rephrased the documentation of the configure option (Conny)
-    - Skip test case if a PVM image wasn't built or the host-key document wasn't set (Conny)
-    - Run PV tests by default
- RFC v1 -> RFC v2:
-  + Remove `pv_support` option (Janosch, David)
-  + Add some preliminary patches:
-    - move "testname guard"
-    - add support for architecture dependent functions
-  + Add support for specifying a parmline file for the PV image
-    generation. This is necessary for the `selftest` because the
-    kernel cmdline set on the QEMU command line is ignored for PV
-    guests
-
-Marc Hartmayer (4):
-  common.bash: run `cmd` only if a test case was found
-  scripts: add support for architecture dependent functions
-  run_tests/mkstandalone: add arch_cmd hook
-  s390x: add Protected VM support
-
- README.md               |  3 ++-
- configure               |  9 +++++++++
- run_tests.sh            |  3 ---
- s390x/Makefile          | 17 +++++++++++++++--
- s390x/selftest.parmfile |  1 +
- s390x/unittests.cfg     |  1 +
- scripts/common.bash     | 21 +++++++++++++++++++--
- scripts/mkstandalone.sh |  4 ----
- scripts/s390x/func.bash | 36 ++++++++++++++++++++++++++++++++++++
- 9 files changed, 83 insertions(+), 12 deletions(-)
- create mode 100644 s390x/selftest.parmfile
- create mode 100644 scripts/s390x/func.bash
-
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index f09444d6aeab..3ef424bca082 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -278,4 +278,115 @@ static inline unsigned long __must_check clear_user(void __user *to, unsigned lo
+ int copy_to_user_real(void __user *dest, void *src, unsigned long count);
+ void *s390_kernel_write(void *dst, const void *src, size_t size);
+ 
++#define HAVE_GET_KERNEL_NOFAULT
++
++int __put_kernel_bad(void) __attribute__((noreturn));
++
++#define __put_kernel_asm(val, to, insn)					\
++({									\
++	int __rc;							\
++									\
++	asm volatile(							\
++		"0:   " insn "  %2,%1\n"				\
++		"1:	xr	%0,%0\n"				\
++		"2:\n"							\
++		".pushsection .fixup, \"ax\"\n"				\
++		"3:	lhi	%0,%3\n"				\
++		"	jg	2b\n"					\
++		".popsection\n"						\
++		EX_TABLE(0b,3b) EX_TABLE(1b,3b)				\
++		: "=d" (__rc), "+Q" (*(to))				\
++		: "d" (val), "K" (-EFAULT)				\
++		: "cc");						\
++	__rc;								\
++})
++
++#define __put_kernel_nofault(dst, src, type, err_label)                 \
++do {                                                                    \
++	u64 __x = (u64)(*((type *)(src)));				\
++	int __pk_err;							\
++									\
++	switch (sizeof(type)) {						\
++	case 1:								\
++		__pk_err = __put_kernel_asm(__x, (type *)(dst), "stc"); \
++		break;							\
++	case 2:								\
++		__pk_err = __put_kernel_asm(__x, (type *)(dst), "sth"); \
++		break;							\
++	case 4:								\
++		__pk_err = __put_kernel_asm(__x, (type *)(dst), "st");	\
++		break;							\
++	case 8:								\
++		__pk_err = __put_kernel_asm(__x, (type *)(dst), "stg"); \
++		break;							\
++	default:							\
++		__pk_err = __put_kernel_bad();				\
++		break;							\
++	}								\
++	if (unlikely(__pk_err))						\
++		goto err_label;						\
++} while (0)
++
++int __get_kernel_bad(void) __attribute__((noreturn));
++
++#define __get_kernel_asm(val, from, insn)				\
++({									\
++	int __rc;							\
++									\
++	asm volatile(							\
++		"0:   " insn "  %1,%2\n"				\
++		"1:	xr	%0,%0\n"				\
++		"2:\n"							\
++		".pushsection .fixup, \"ax\"\n"				\
++		"3:	lhi	%0,%3\n"				\
++		"	jg	2b\n"					\
++		".popsection\n"						\
++		EX_TABLE(0b,3b) EX_TABLE(1b,3b)				\
++		: "=d" (__rc), "+d" (val)				\
++		: "Q" (*(from)), "K" (-EFAULT)				\
++		: "cc");						\
++	__rc;								\
++})
++
++#define __get_kernel_nofault(dst, src, type, err_label)                 \
++do {                                                                    \
++	int __gk_err = -EFAULT;						\
++									\
++	switch (sizeof(type)) {						\
++	case 1: {							\
++		u8 __x = 0;						\
++									\
++		__gk_err = __get_kernel_asm(__x, (type *)(src), "ic");	\
++		*((type *)(dst)) = (type)__x;				\
++		break;							\
++	};								\
++	case 2: {							\
++		u16 __x = 0;						\
++									\
++		__gk_err = __get_kernel_asm(__x, (type *)(src), "lh");	\
++		*((type *)(dst)) = (type)__x;				\
++		break;							\
++	};								\
++	case 4: {							\
++		u32 __x = 0;						\
++									\
++		__gk_err = __get_kernel_asm(__x, (type *)(src), "l");	\
++		*((type *)(dst)) = (type)__x;				\
++		break;							\
++	};								\
++	case 8: {							\
++		u64 __x = 0;						\
++									\
++		__gk_err = __get_kernel_asm(__x, (type *)(src), "lg");	\
++		*((type *)(dst)) = (type)__x;				\
++		break;							\
++	};								\
++	default:							\
++		__gk_err = __get_kernel_bad();				\
++		break;							\
++	}								\
++	if (unlikely(__gk_err))						\
++		goto err_label;						\
++} while (0)
++
+ #endif /* __S390_UACCESS_H */
 -- 
-2.25.4
+2.17.1
