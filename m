@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from out30-130.freemail.mail.aliyun.com ([115.124.30.130]:43652 "EHLO
-        out30-130.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726034AbgIOCKS (ORCPT
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:54597 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726019AbgIOCHZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Sep 2020 22:10:18 -0400
-Date: Tue, 15 Sep 2020 10:10:12 +0800
+        Mon, 14 Sep 2020 22:07:25 -0400
+Date: Tue, 15 Sep 2020 10:07:18 +0800
 From: Wei Yang <richard.weiyang@linux.alibaba.com>
 Subject: Re: [PATCH v2 1/7] kernel/resource: make
  release_mem_region_adjustable() never fail
-Message-ID: <20200915021012.GC2007@L-31X9LVDL-1304.local>
+Message-ID: <20200915020718.GB2007@L-31X9LVDL-1304.local>
 Reply-To: Wei Yang <richard.weiyang@linux.alibaba.com>
 References: <20200908201012.44168-1-david@redhat.com>
  <20200908201012.44168-2-david@redhat.com>
@@ -105,6 +105,9 @@ On Tue, Sep 08, 2020 at 10:10:06PM +0200, David Hildenbrand wrote:
 >+retry:
 >+	new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
 > 
+
+It looks like a bold change, while I don't find a reason to object it.
+
 > 	p = &parent->child;
 > 	write_lock(&resource_lock);
 >@@ -1298,7 +1305,6 @@ int release_mem_region_adjustable(struct resource *parent,
@@ -205,11 +208,6 @@ On Tue, Sep 08, 2020 at 10:10:06PM +0200, David Hildenbrand wrote:
 >-	__release_memory_resource(start, size);
 >+	release_mem_region_adjustable(&iomem_resource, start, size);
 > 
-
-Seems the only user of release_mem_region_adjustable() is here, can we move
-iomem_resource into the function body? Actually, we don't iterate the resource
-tree from any level. We always start from the root.
-
 > 	try_offline_node(nid);
 > 
 >-- 
