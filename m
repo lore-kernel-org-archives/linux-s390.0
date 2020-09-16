@@ -1,137 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49316 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726463AbgINPjx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Sep 2020 11:39:53 -0400
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH v3 2/3] arm64: stacktrace: Make stack walk callback consistent with generic code
-Date: Mon, 14 Sep 2020 16:34:08 +0100
-Message-Id: <20200914153409.25097-3-broonie@kernel.org>
-In-Reply-To: <20200914153409.25097-1-broonie@kernel.org>
-References: <20200914153409.25097-1-broonie@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40124 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726334AbgIPPzt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 16 Sep 2020 11:55:49 -0400
+Subject: Re: [bug report] net/smc: dynamic allocation of CLC proposal buffer
+References: <20200916144349.GA766931@mwanda>
+From: Ursula Braun <ubraun@linux.ibm.com>
+Message-ID: <486c8ade-033e-ca2e-4ec7-122e295392cf@linux.ibm.com>
+Date: Wed, 16 Sep 2020 17:55:28 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200916144349.GA766931@mwanda>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, Miroslav Benes <mbenes@suse.cz>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: linux-s390@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>
 
-As with the generic arch_stack_walk() code the arm64 stack walk code takes
-a callback that is called per stack frame. Currently the arm64 code always
-passes a struct stackframe to the callback and the generic code just passes
-the pc, however none of the users ever reference anything in the struct
-other than the pc value. The arm64 code also uses a return type of int
-while the generic code uses a return type of bool though in both cases the
-return value is a boolean value and the sense is inverted between the two.
 
-In order to reduce code duplication when arm64 is converted to use
-arch_stack_walk() change the signature and return sense of the arm64
-specific callback to match that of the generic code.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
+On 9/16/20 4:43 PM, Dan Carpenter wrote:
+> Hello Ursula Braun,
+> 
+> The patch 6bb14e48ee8d: "net/smc: dynamic allocation of CLC proposal
+> buffer" from Sep 10, 2020, leads to the following static checker
+> warning:
+> 
+> 	net/smc/af_smc.c:1390 smc_listen_work()
+> 	warn: 'buf' was already freed.
+> 
+> net/smc/af_smc.c
+>   1363  
+>   1364          /* receive SMC Confirm CLC message */
+>   1365          rc = smc_clc_wait_msg(new_smc, &cclc, sizeof(cclc),
+>   1366                                SMC_CLC_CONFIRM, CLC_WAIT_TIME);
+>   1367          if (rc) {
+>   1368                  if (!ism_supported)
+>   1369                          goto out_unlock;
+>   1370                  goto out_decl;
+>   1371          }
+>   1372  
+>   1373          /* finish worker */
+>   1374          kfree(buf);
+>                 ^^^^^^^^^^
+> freed.
+> 
+>   1375          if (!ism_supported) {
+>   1376                  rc = smc_listen_rdma_finish(new_smc, &cclc,
+>   1377                                              ini.first_contact_local);
+>   1378                  if (rc)
+>   1379                          goto out_unlock;
+>                                 ^^^^^^^^^^^^^^^
+> 
+>   1380                  mutex_unlock(&smc_server_lgr_pending);
+>   1381          }
+>   1382          smc_conn_save_peer_info(new_smc, &cclc);
+>   1383          smc_listen_out_connected(new_smc);
+>   1384          return;
+>   1385  
+>   1386  out_unlock:
+>   1387          mutex_unlock(&smc_server_lgr_pending);
+>   1388  out_decl:
+>   1389          smc_listen_decline(new_smc, rc, ini.first_contact_local);
+>   1390          kfree(buf);
+>                 ^^^^^^^^^^
+> Double free.
+> 
+>   1391  }
+> 
+> regards,
+> dan carpenter
+> 
+
+Thanks Dan for reporting this issue in the net-next kernel!
+
+Our plan is to come up with this follow-on patch:
+
+
+net/smc: fix double kfree in smc_listen_work()
+
+If smc_listen_rmda_finish() returns with an error, the storage
+addressed by "buf" is freed a second time.
+Move freeing in case of success after the smc_listen_rdma_finish()
+call.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 6bb14e48ee8d ("net/smc: dynamic allocation of CLC proposal buffer")
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
 ---
- arch/arm64/include/asm/stacktrace.h |  2 +-
- arch/arm64/kernel/perf_callchain.c  |  6 +++---
- arch/arm64/kernel/return_address.c  |  8 ++++----
- arch/arm64/kernel/stacktrace.c      | 11 +++++------
- 4 files changed, 13 insertions(+), 14 deletions(-)
+ net/smc/af_smc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/stacktrace.h b/arch/arm64/include/asm/stacktrace.h
-index fc7613023c19..eb29b1fe8255 100644
---- a/arch/arm64/include/asm/stacktrace.h
-+++ b/arch/arm64/include/asm/stacktrace.h
-@@ -63,7 +63,7 @@ struct stackframe {
- 
- extern int unwind_frame(struct task_struct *tsk, struct stackframe *frame);
- extern void walk_stackframe(struct task_struct *tsk, struct stackframe *frame,
--			    int (*fn)(struct stackframe *, void *), void *data);
-+			    bool (*fn)(void *, unsigned long), void *data);
- extern void dump_backtrace(struct pt_regs *regs, struct task_struct *tsk,
- 			   const char *loglvl);
- 
-diff --git a/arch/arm64/kernel/perf_callchain.c b/arch/arm64/kernel/perf_callchain.c
-index b0e03e052dd1..88ff471b0bce 100644
---- a/arch/arm64/kernel/perf_callchain.c
-+++ b/arch/arm64/kernel/perf_callchain.c
-@@ -137,11 +137,11 @@ void perf_callchain_user(struct perf_callchain_entry_ctx *entry,
-  * whist unwinding the stackframe and is like a subroutine return so we use
-  * the PC.
-  */
--static int callchain_trace(struct stackframe *frame, void *data)
-+static bool callchain_trace(void *data, unsigned long pc)
- {
- 	struct perf_callchain_entry_ctx *entry = data;
--	perf_callchain_store(entry, frame->pc);
--	return 0;
-+	perf_callchain_store(entry, pc);
-+	return true;
- }
- 
- void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
-diff --git a/arch/arm64/kernel/return_address.c b/arch/arm64/kernel/return_address.c
-index a5e8b3b9d798..a6d18755652f 100644
---- a/arch/arm64/kernel/return_address.c
-+++ b/arch/arm64/kernel/return_address.c
-@@ -18,16 +18,16 @@ struct return_address_data {
- 	void *addr;
- };
- 
--static int save_return_addr(struct stackframe *frame, void *d)
-+static bool save_return_addr(void *d, unsigned long pc)
- {
- 	struct return_address_data *data = d;
- 
- 	if (!data->level) {
--		data->addr = (void *)frame->pc;
--		return 1;
-+		data->addr = (void *)pc;
-+		return false;
- 	} else {
- 		--data->level;
--		return 0;
-+		return true;
- 	}
- }
- NOKPROBE_SYMBOL(save_return_addr);
-diff --git a/arch/arm64/kernel/stacktrace.c b/arch/arm64/kernel/stacktrace.c
-index 2dd8e3b8b94b..05eaba21fd46 100644
---- a/arch/arm64/kernel/stacktrace.c
-+++ b/arch/arm64/kernel/stacktrace.c
-@@ -118,12 +118,12 @@ int notrace unwind_frame(struct task_struct *tsk, struct stackframe *frame)
- NOKPROBE_SYMBOL(unwind_frame);
- 
- void notrace walk_stackframe(struct task_struct *tsk, struct stackframe *frame,
--		     int (*fn)(struct stackframe *, void *), void *data)
-+			     bool (*fn)(void *, unsigned long), void *data)
- {
- 	while (1) {
- 		int ret;
- 
--		if (fn(frame, data))
-+		if (!fn(data, frame->pc))
- 			break;
- 		ret = unwind_frame(tsk, frame);
- 		if (ret < 0)
-@@ -139,17 +139,16 @@ struct stack_trace_data {
- 	unsigned int skip;
- };
- 
--static int save_trace(struct stackframe *frame, void *d)
-+static bool save_trace(void *d, unsigned long addr)
- {
- 	struct stack_trace_data *data = d;
- 	struct stack_trace *trace = data->trace;
--	unsigned long addr = frame->pc;
- 
- 	if (data->no_sched_functions && in_sched_functions(addr))
--		return 0;
-+		return false;
- 	if (data->skip) {
- 		data->skip--;
--		return 0;
-+		return false;
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1371,7 +1371,6 @@ static void smc_listen_work(struct work_
  	}
  
- 	trace->entries[trace->nr_entries++] = addr;
--- 
-2.20.1
+ 	/* finish worker */
+-	kfree(buf);
+ 	if (!ism_supported) {
+ 		rc = smc_listen_rdma_finish(new_smc, &cclc,
+ 					    ini.first_contact_local);
+@@ -1380,6 +1379,7 @@ static void smc_listen_work(struct work_
+ 		mutex_unlock(&smc_server_lgr_pending);
+ 	}
+ 	smc_conn_save_peer_info(new_smc, &cclc);
++	kfree(buf);
+ 	smc_listen_out_connected(new_smc);
+ 	return;
+
+
+Regards, Ursula Braun
