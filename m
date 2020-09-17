@@ -1,199 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:41412 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725959AbgIKKgC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Sep 2020 06:36:02 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v4 5/8] mm/memory_hotplug: MEMHP_MERGE_RESOURCE to specify merging of System RAM resources
-Date: Fri, 11 Sep 2020 12:34:56 +0200
-Message-Id: <20200911103459.10306-6-david@redhat.com>
-In-Reply-To: <20200911103459.10306-1-david@redhat.com>
-References: <20200911103459.10306-1-david@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57664 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726234AbgIQRVc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 13:21:32 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 10/14] mm: cleanup claim_swapfile
+Date: Thu, 17 Sep 2020 18:57:16 +0200
+Message-Id: <20200917165720.3285256-11-hch@lst.de>
+In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
+References: <20200917165720.3285256-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Ard Biesheuvel <ardb@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>, Julien Grall <julien@xen.org>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
 
-Some add_memory*() users add memory in small, contiguous memory blocks.
-Examples include virtio-mem, hyper-v balloon, and the XEN balloon.
+Use blkdev_get_by_dev instead of bdgrab + blkdev_get.
 
-This can quickly result in a lot of memory resources, whereby the actual
-resource boundaries are not of interest (e.g., it might be relevant for
-DIMMs, exposed via /proc/iomem to user space). We really want to merge
-added resources in this scenario where possible.
-
-Let's provide a flag (MEMHP_MERGE_RESOURCE) to specify that a resource
-either created within add_memory*() or passed via add_memory_resource()
-shall be marked mergeable and merged with applicable siblings.
-
-To implement that, we need a kernel/resource interface to mark selected
-System RAM resources mergeable (IORESOURCE_SYSRAM_MERGEABLE) and trigger
-merging.
-
-Note: We really want to merge after the whole operation succeeded, not
-directly when adding a resource to the resource tree (it would break
-add_memory_resource() and require splitting resources again when the
-operation failed - e.g., due to -ENOMEM).
-
-Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Cc: Roger Pau Monné <roger.pau@citrix.com>
-Cc: Julien Grall <julien@xen.org>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/ioport.h         |  4 +++
- include/linux/memory_hotplug.h |  7 ++++
- kernel/resource.c              | 60 ++++++++++++++++++++++++++++++++++
- mm/memory_hotplug.c            |  7 ++++
- 4 files changed, 78 insertions(+)
+ mm/swapfile.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index d7620d7c941a0..7e61389dcb017 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -60,6 +60,7 @@ struct resource {
+diff --git a/mm/swapfile.c b/mm/swapfile.c
+index 12f59e641b5e29..7438c4affc75fa 100644
+--- a/mm/swapfile.c
++++ b/mm/swapfile.c
+@@ -2920,10 +2920,10 @@ static int claim_swapfile(struct swap_info_struct *p, struct inode *inode)
+ 	int error;
  
- /* IORESOURCE_SYSRAM specific bits. */
- #define IORESOURCE_SYSRAM_DRIVER_MANAGED	0x02000000 /* Always detected via a driver. */
-+#define IORESOURCE_SYSRAM_MERGEABLE		0x04000000 /* Resource can be merged. */
- 
- #define IORESOURCE_EXCLUSIVE	0x08000000	/* Userland may not map this resource */
- 
-@@ -253,6 +254,9 @@ extern void __release_region(struct resource *, resource_size_t,
- extern void release_mem_region_adjustable(struct resource *, resource_size_t,
- 					  resource_size_t);
- #endif
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+extern void merge_system_ram_resource(struct resource *res);
-+#endif
- 
- /* Wrappers for managed devices */
- struct device;
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 33eb80fdba22f..d65c6fdc5cfc3 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -62,6 +62,13 @@ typedef int __bitwise mhp_t;
- 
- /* No special request */
- #define MHP_NONE		((__force mhp_t)0)
-+/*
-+ * Allow merging of the added System RAM resource with adjacent,
-+ * mergeable resources. After a successful call to add_memory_resource()
-+ * with this flag set, the resource pointer must no longer be used as it
-+ * might be stale, or the resource might have changed.
-+ */
-+#define MEMHP_MERGE_RESOURCE	((__force mhp_t)BIT(0))
- 
- /*
-  * Extended parameters for memory hotplug:
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 36b3552210120..7a91b935f4c20 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -1363,6 +1363,66 @@ void release_mem_region_adjustable(struct resource *parent,
- }
- #endif	/* CONFIG_MEMORY_HOTREMOVE */
- 
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+static bool system_ram_resources_mergeable(struct resource *r1,
-+					   struct resource *r2)
-+{
-+	/* We assume either r1 or r2 is IORESOURCE_SYSRAM_MERGEABLE. */
-+	return r1->flags == r2->flags && r1->end + 1 == r2->start &&
-+	       r1->name == r2->name && r1->desc == r2->desc &&
-+	       !r1->child && !r2->child;
-+}
-+
-+/*
-+ * merge_system_ram_resource - mark the System RAM resource mergeable and try to
-+ * merge it with adjacent, mergeable resources
-+ * @res: resource descriptor
-+ *
-+ * This interface is intended for memory hotplug, whereby lots of contiguous
-+ * system ram resources are added (e.g., via add_memory*()) by a driver, and
-+ * the actual resource boundaries are not of interest (e.g., it might be
-+ * relevant for DIMMs). Only resources that are marked mergeable, that have the
-+ * same parent, and that don't have any children are considered. All mergeable
-+ * resources must be immutable during the request.
-+ *
-+ * Note:
-+ * - The caller has to make sure that no pointers to resources that are
-+ *   marked mergeable are used anymore after this call - the resource might
-+ *   be freed and the pointer might be stale!
-+ * - release_mem_region_adjustable() will split on demand on memory hotunplug
-+ */
-+void merge_system_ram_resource(struct resource *res)
-+{
-+	const unsigned long flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
-+	struct resource *cur;
-+
-+	if (WARN_ON_ONCE((res->flags & flags) != flags))
-+		return;
-+
-+	write_lock(&resource_lock);
-+	res->flags |= IORESOURCE_SYSRAM_MERGEABLE;
-+
-+	/* Try to merge with next item in the list. */
-+	cur = res->sibling;
-+	if (cur && system_ram_resources_mergeable(res, cur)) {
-+		res->end = cur->end;
-+		res->sibling = cur->sibling;
-+		free_resource(cur);
-+	}
-+
-+	/* Try to merge with previous item in the list. */
-+	cur = res->parent->child;
-+	while (cur && cur->sibling != res)
-+		cur = cur->sibling;
-+	if (cur && system_ram_resources_mergeable(cur, res)) {
-+		cur->end = res->end;
-+		cur->sibling = res->sibling;
-+		free_resource(res);
-+	}
-+	write_unlock(&resource_lock);
-+}
-+#endif	/* CONFIG_MEMORY_HOTPLUG */
-+
- /*
-  * Managed region resource
-  */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 8f0bd7c9a63a5..553c718226b3e 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1102,6 +1102,13 @@ int __ref add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
- 	/* device_online() will take the lock when calling online_pages() */
- 	mem_hotplug_done();
- 
-+	/*
-+	 * In case we're allowed to merge the resource, flag it and trigger
-+	 * merging now that adding succeeded.
-+	 */
-+	if (mhp_flags & MEMHP_MERGE_RESOURCE)
-+		merge_system_ram_resource(res);
-+
- 	/* online pages if requested */
- 	if (memhp_default_online_type != MMOP_OFFLINE)
- 		walk_memory_blocks(start, size, NULL, online_memory_block);
+ 	if (S_ISBLK(inode->i_mode)) {
+-		p->bdev = bdgrab(I_BDEV(inode));
+-		error = blkdev_get(p->bdev,
++		p->bdev = blkdev_get_by_dev(inode->i_rdev,
+ 				   FMODE_READ | FMODE_WRITE | FMODE_EXCL, p);
+-		if (error < 0) {
++		if (IS_ERR(p->bdev)) {
++			error = PTR_ERR(p->bdev);
+ 			p->bdev = NULL;
+ 			return error;
+ 		}
 -- 
-2.26.2
+2.28.0
