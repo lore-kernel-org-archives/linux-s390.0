@@ -1,98 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34830 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727065AbgICU1K (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 16:27:10 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D1F7C061244
-        for <linux-s390@vger.kernel.org>; Thu,  3 Sep 2020 13:27:09 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id z25so4775214iol.10
-        for <linux-s390@vger.kernel.org>; Thu, 03 Sep 2020 13:27:09 -0700 (PDT)
+        with ESMTP id S1726952AbgIQRKl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 13:10:41 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 05/14] pktcdvd: use blkdev_get_by_dev instead of open coding it
+Date: Thu, 17 Sep 2020 18:57:11 +0200
+Message-Id: <20200917165720.3285256-6-hch@lst.de>
+In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
+References: <20200917165720.3285256-1-hch@lst.de>
 MIME-Version: 1.0
-References: <20191221150402.13868-1-murphyt7@tcd.ie> <465815ae-9292-f37a-59b9-03949cb68460@deltatee.com>
- <20200529124523.GA11817@infradead.org> <CGME20200529190523eucas1p2c086133e707257c0cdc002f502d4f51d@eucas1p2.samsung.com>
- <33137cfb-603c-86e8-1091-f36117ecfaf3@deltatee.com> <ef2150d5-7b6a-df25-c10d-e43316fe7812@samsung.com>
- <b9140772-0370-a858-578c-af503a06d8e9@deltatee.com> <CALQxJuutRaeX89k2o4ffTKYRMizmMu0XbRnzpFuSSrkQR02jKg@mail.gmail.com>
- <766525c3-4da9-6db7-cd90-fb4b82cd8083@deltatee.com> <CALQxJuuS8KKUX_eWWSE81gsq5ePAETB-FoqRUSWFfqgr+B13gg@mail.gmail.com>
-In-Reply-To: <CALQxJuuS8KKUX_eWWSE81gsq5ePAETB-FoqRUSWFfqgr+B13gg@mail.gmail.com>
-From: Tom Murphy <murphyt7@tcd.ie>
-Date: Thu, 3 Sep 2020 21:26:57 +0100
-Message-ID: <CALQxJuuk0YR9dZWkqSmLU-kUKoOuuNj-kSikvQGq0wekijycLA@mail.gmail.com>
-Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the dma-iommu api
-Content-Type: text/plain; charset="UTF-8"
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Logan Gunthorpe <logang@deltatee.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Christoph Hellwig <hch@infradead.org>, iommu@lists.linux-foundation.org, kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Julien Grall <julien.grall@arm.com>, Thierry Reding <thierry.reding@gmail.com>, Will Deacon <will@kernel.org>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, Alex Williamson <alex.williamson@redhat.com>, linux-mediatek@lists.infradead.org, Rodrigo Vivi <rodrigo.vivi@intel.com>, linux-tegra@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, linux-arm-kernel@lists.infradead.org, Robin Murphy <robin.murphy@arm.com>, Cornelia Huck <cohuck@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Kukjin Kim <kgene@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
 
-On Fri, 28 Aug 2020 at 00:34, Tom Murphy <murphyt7@tcd.ie> wrote:
->
-> On Thu, 27 Aug 2020 at 22:36, Logan Gunthorpe <logang@deltatee.com> wrote:
-> >
-> >
-> >
-> > On 2020-08-23 6:04 p.m., Tom Murphy wrote:
-> > > I have added a check for the sg_dma_len == 0 :
-> > > """
-> > >  } __sgt_iter(struct scatterlist *sgl, bool dma) {
-> > >         struct sgt_iter s = { .sgp = sgl };
-> > >
-> > > +       if (sgl && sg_dma_len(sgl) == 0)
-> > > +           s.sgp = NULL;
-> > >
-> > >         if (s.sgp) {
-> > >             .....
-> > > """
-> > > at location [1].
-> > > but it doens't fix the problem.
-> >
-> > Based on my read of the code, it looks like we also need to change usage
-> > of sgl->length... Something like the rough patch below, maybe?
-> >
-> > Also, Tom, do you have an updated version of the patchset to convert the
-> > Intel IOMMU to dma-iommu available? The last one I've found doesn't
-> > apply cleanly (I'm assuming parts of it have been merged in slightly
-> > modified forms).
-> >
->
-> I'll try and post one in the next 24hours
+Replace bdget + blkdev_get by blkdev_get_by_dev.
 
-I have just posted this now:
-The subject of the cover letter is:
-"[PATCH V2 0/5] Convert the intel iommu driver to the dma-iommu api"
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/block/pktcdvd.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
->
-> > Thanks,
-> >
-> > Logan
-> >
-> > --
-> >
-> > diff --git a/drivers/gpu/drm/i915/i915_scatterlist.h
-> > b/drivers/gpu/drm/i915/i915
-> > index b7b59328cb76..9367ac801f0c 100644
-> > --- a/drivers/gpu/drm/i915/i915_scatterlist.h
-> > +++ b/drivers/gpu/drm/i915/i915_scatterlist.h
-> > @@ -27,13 +27,19 @@ static __always_inline struct sgt_iter {
-> >  } __sgt_iter(struct scatterlist *sgl, bool dma) {
-> >         struct sgt_iter s = { .sgp = sgl };
-> >
-> > +       if (sgl && !sg_dma_len(s.sgp))
-> > +               s.sgp = NULL;
-> > +
-> >         if (s.sgp) {
-> >                 s.max = s.curr = s.sgp->offset;
-> > -               s.max += s.sgp->length;
-> > -               if (dma)
-> > +
-> > +               if (dma) {
-> > +                       s.max += sg_dma_len(s.sgp);
-> >                         s.dma = sg_dma_address(s.sgp);
-> > -               else
-> > +               } else {
-> > +                       s.max += s.sgp->length;
-> >                         s.pfn = page_to_pfn(sg_page(s.sgp));
-> > +               }
-> >         }
-> >
-> >         return s;
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index bc870a5f15f77b..467dbd06b7cdb1 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -2110,16 +2110,18 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
+ 	int ret;
+ 	long lba;
+ 	struct request_queue *q;
++	struct block_device *bdev;
+ 
+ 	/*
+ 	 * We need to re-open the cdrom device without O_NONBLOCK to be able
+ 	 * to read/write from/to it. It is already opened in O_NONBLOCK mode
+-	 * so bdget() can't fail.
++	 * so open should not fail.
+ 	 */
+-	bdget(pd->bdev->bd_dev);
+-	ret = blkdev_get(pd->bdev, FMODE_READ | FMODE_EXCL, pd);
+-	if (ret)
++	bdev = blkdev_get_by_dev(pd->bdev->bd_dev, FMODE_READ | FMODE_EXCL, pd);
++	if (IS_ERR(bdev)) {
++		ret = PTR_ERR(bdev);
+ 		goto out;
++	}
+ 
+ 	ret = pkt_get_last_written(pd, &lba);
+ 	if (ret) {
+@@ -2163,7 +2165,7 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
+ 	return 0;
+ 
+ out_putdev:
+-	blkdev_put(pd->bdev, FMODE_READ | FMODE_EXCL);
++	blkdev_put(bdev, FMODE_READ | FMODE_EXCL);
+ out:
+ 	return ret;
+ }
+@@ -2500,7 +2502,6 @@ static int pkt_seq_show(struct seq_file *m, void *p)
+ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ {
+ 	int i;
+-	int ret = 0;
+ 	char b[BDEVNAME_SIZE];
+ 	struct block_device *bdev;
+ 
+@@ -2523,12 +2524,9 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 		}
+ 	}
+ 
+-	bdev = bdget(dev);
+-	if (!bdev)
+-		return -ENOMEM;
+-	ret = blkdev_get(bdev, FMODE_READ | FMODE_NDELAY, NULL);
+-	if (ret)
+-		return ret;
++	bdev = blkdev_get_by_dev(dev, FMODE_READ | FMODE_NDELAY, NULL);
++	if (IS_ERR(bdev))
++		return PTR_ERR(bdev);
+ 	if (!blk_queue_scsi_passthrough(bdev_get_queue(bdev))) {
+ 		blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
+ 		return -EINVAL;
+@@ -2546,7 +2544,6 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", pd->name);
+ 	if (IS_ERR(pd->cdrw.thread)) {
+ 		pkt_err(pd, "can't start kernel thread\n");
+-		ret = -ENOMEM;
+ 		goto out_mem;
+ 	}
+ 
+@@ -2558,7 +2555,7 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 	blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
+ 	/* This is safe: open() is still holding a reference. */
+ 	module_put(THIS_MODULE);
+-	return ret;
++	return -ENOMEM;
+ }
+ 
+ static int pkt_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
+-- 
+2.28.0
