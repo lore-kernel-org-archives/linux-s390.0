@@ -1,111 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59344 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726244AbgIUHUF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 03:20:05 -0400
+        with ESMTP id S1728789AbgIQQ7r (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 12:59:47 -0400
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/14] pktcdvd: remove the if 0'ed pkt_start_recovery function
-Date: Mon, 21 Sep 2020 09:19:48 +0200
-Message-Id: <20200921071958.307589-5-hch@lst.de>
-In-Reply-To: <20200921071958.307589-1-hch@lst.de>
-References: <20200921071958.307589-1-hch@lst.de>
+Subject: remove blkdev_get as a public API
+Date: Thu, 17 Sep 2020 18:57:06 +0200
+Message-Id: <20200917165720.3285256-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: Jens Axboe <axboe@kernel.dk>
 Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
 
-Remove code which has been dead since the initial commit.
+Hi Jens,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/pktcdvd.c | 67 ++---------------------------------------
- 1 file changed, 2 insertions(+), 65 deletions(-)
+this series removes blkdev_get as a public API, leaving it as just an
+implementation detail of blkdev_get_by_path and blkdev_get_by_dev.  The
+reason for that is that blkdev_get is a very confusing API that requires
+a struct block_device to be fed in, but then actually consumes the
+reference.  And it turns out just using the two above mentioned APIs
+actually significantly simplifies the code as well.
 
-diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
-index 17f2e6ff122314..bc870a5f15f77b 100644
---- a/drivers/block/pktcdvd.c
-+++ b/drivers/block/pktcdvd.c
-@@ -1082,65 +1082,6 @@ static void pkt_put_packet_data(struct pktcdvd_device *pd, struct packet_data *p
- 	}
- }
- 
--/*
-- * recover a failed write, query for relocation if possible
-- *
-- * returns 1 if recovery is possible, or 0 if not
-- *
-- */
--static int pkt_start_recovery(struct packet_data *pkt)
--{
--	/*
--	 * FIXME. We need help from the file system to implement
--	 * recovery handling.
--	 */
--	return 0;
--#if 0
--	struct request *rq = pkt->rq;
--	struct pktcdvd_device *pd = rq->rq_disk->private_data;
--	struct block_device *pkt_bdev;
--	struct super_block *sb = NULL;
--	unsigned long old_block, new_block;
--	sector_t new_sector;
--
--	pkt_bdev = bdget(kdev_t_to_nr(pd->pkt_dev));
--	if (pkt_bdev) {
--		sb = get_super(pkt_bdev);
--		bdput(pkt_bdev);
--	}
--
--	if (!sb)
--		return 0;
--
--	if (!sb->s_op->relocate_blocks)
--		goto out;
--
--	old_block = pkt->sector / (CD_FRAMESIZE >> 9);
--	if (sb->s_op->relocate_blocks(sb, old_block, &new_block))
--		goto out;
--
--	new_sector = new_block * (CD_FRAMESIZE >> 9);
--	pkt->sector = new_sector;
--
--	bio_reset(pkt->bio);
--	bio_set_dev(pkt->bio, pd->bdev);
--	bio_set_op_attrs(pkt->bio, REQ_OP_WRITE, 0);
--	pkt->bio->bi_iter.bi_sector = new_sector;
--	pkt->bio->bi_iter.bi_size = pkt->frames * CD_FRAMESIZE;
--	pkt->bio->bi_vcnt = pkt->frames;
--
--	pkt->bio->bi_end_io = pkt_end_io_packet_write;
--	pkt->bio->bi_private = pkt;
--
--	drop_super(sb);
--	return 1;
--
--out:
--	drop_super(sb);
--	return 0;
--#endif
--}
--
- static inline void pkt_set_state(struct packet_data *pkt, enum packet_data_state state)
- {
- #if PACKET_DEBUG > 1
-@@ -1357,12 +1298,8 @@ static void pkt_run_state_machine(struct pktcdvd_device *pd, struct packet_data
- 			break;
- 
- 		case PACKET_RECOVERY_STATE:
--			if (pkt_start_recovery(pkt)) {
--				pkt_start_write(pd, pkt);
--			} else {
--				pkt_dbg(2, pd, "No recovery possible\n");
--				pkt_set_state(pkt, PACKET_FINISHED_STATE);
--			}
-+			pkt_dbg(2, pd, "No recovery possible\n");
-+			pkt_set_state(pkt, PACKET_FINISHED_STATE);
- 			break;
- 
- 		case PACKET_FINISHED_STATE:
--- 
-2.28.0
+Diffstat:
+ block/genhd.c                   |   11 ++--
+ block/ioctl.c                   |   13 ++---
+ drivers/block/nbd.c             |    8 +--
+ drivers/block/pktcdvd.c         |   92 +++++-----------------------------------
+ drivers/block/zram/zram_drv.c   |    7 +--
+ drivers/char/raw.c              |   51 ++++++++--------------
+ drivers/ide/ide-gd.c            |    2 
+ drivers/s390/block/dasd_genhd.c |   13 +----
+ fs/block_dev.c                  |   12 ++---
+ fs/ocfs2/cluster/heartbeat.c    |   28 ++++--------
+ include/linux/blk_types.h       |    4 -
+ include/linux/blkdev.h          |    1 
+ include/linux/genhd.h           |    2 
+ include/linux/suspend.h         |    4 -
+ include/linux/swap.h            |    3 -
+ kernel/power/swap.c             |   21 +++------
+ kernel/power/user.c             |   26 +++--------
+ mm/swapfile.c                   |   45 ++++++++++---------
+ 18 files changed, 119 insertions(+), 224 deletions(-)
