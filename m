@@ -1,67 +1,111 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from userp2130.oracle.com ([156.151.31.86]:53290 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727830AbgIPSnL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 16 Sep 2020 14:43:11 -0400
-Date: Wed, 16 Sep 2020 17:43:49 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [bug report] net/smc: dynamic allocation of CLC proposal buffer
-Message-ID: <20200916144349.GA766931@mwanda>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55640 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727110AbgIQRIZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 13:08:25 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 04/14] pktcdvd: remove the if 0'ed pkt_start_recovery function
+Date: Thu, 17 Sep 2020 18:57:10 +0200
+Message-Id: <20200917165720.3285256-5-hch@lst.de>
+In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
+References: <20200917165720.3285256-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: ubraun@linux.ibm.com
-Cc: linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
 
-Hello Ursula Braun,
+Remove code which has been dead since the initial commit.
 
-The patch 6bb14e48ee8d: "net/smc: dynamic allocation of CLC proposal
-buffer" from Sep 10, 2020, leads to the following static checker
-warning:
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/block/pktcdvd.c | 67 ++---------------------------------------
+ 1 file changed, 2 insertions(+), 65 deletions(-)
 
-	net/smc/af_smc.c:1390 smc_listen_work()
-	warn: 'buf' was already freed.
-
-net/smc/af_smc.c
-  1363  
-  1364          /* receive SMC Confirm CLC message */
-  1365          rc = smc_clc_wait_msg(new_smc, &cclc, sizeof(cclc),
-  1366                                SMC_CLC_CONFIRM, CLC_WAIT_TIME);
-  1367          if (rc) {
-  1368                  if (!ism_supported)
-  1369                          goto out_unlock;
-  1370                  goto out_decl;
-  1371          }
-  1372  
-  1373          /* finish worker */
-  1374          kfree(buf);
-                ^^^^^^^^^^
-freed.
-
-  1375          if (!ism_supported) {
-  1376                  rc = smc_listen_rdma_finish(new_smc, &cclc,
-  1377                                              ini.first_contact_local);
-  1378                  if (rc)
-  1379                          goto out_unlock;
-                                ^^^^^^^^^^^^^^^
-
-  1380                  mutex_unlock(&smc_server_lgr_pending);
-  1381          }
-  1382          smc_conn_save_peer_info(new_smc, &cclc);
-  1383          smc_listen_out_connected(new_smc);
-  1384          return;
-  1385  
-  1386  out_unlock:
-  1387          mutex_unlock(&smc_server_lgr_pending);
-  1388  out_decl:
-  1389          smc_listen_decline(new_smc, rc, ini.first_contact_local);
-  1390          kfree(buf);
-                ^^^^^^^^^^
-Double free.
-
-  1391  }
-
-regards,
-dan carpenter
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index 17f2e6ff122314..bc870a5f15f77b 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -1082,65 +1082,6 @@ static void pkt_put_packet_data(struct pktcdvd_device *pd, struct packet_data *p
+ 	}
+ }
+ 
+-/*
+- * recover a failed write, query for relocation if possible
+- *
+- * returns 1 if recovery is possible, or 0 if not
+- *
+- */
+-static int pkt_start_recovery(struct packet_data *pkt)
+-{
+-	/*
+-	 * FIXME. We need help from the file system to implement
+-	 * recovery handling.
+-	 */
+-	return 0;
+-#if 0
+-	struct request *rq = pkt->rq;
+-	struct pktcdvd_device *pd = rq->rq_disk->private_data;
+-	struct block_device *pkt_bdev;
+-	struct super_block *sb = NULL;
+-	unsigned long old_block, new_block;
+-	sector_t new_sector;
+-
+-	pkt_bdev = bdget(kdev_t_to_nr(pd->pkt_dev));
+-	if (pkt_bdev) {
+-		sb = get_super(pkt_bdev);
+-		bdput(pkt_bdev);
+-	}
+-
+-	if (!sb)
+-		return 0;
+-
+-	if (!sb->s_op->relocate_blocks)
+-		goto out;
+-
+-	old_block = pkt->sector / (CD_FRAMESIZE >> 9);
+-	if (sb->s_op->relocate_blocks(sb, old_block, &new_block))
+-		goto out;
+-
+-	new_sector = new_block * (CD_FRAMESIZE >> 9);
+-	pkt->sector = new_sector;
+-
+-	bio_reset(pkt->bio);
+-	bio_set_dev(pkt->bio, pd->bdev);
+-	bio_set_op_attrs(pkt->bio, REQ_OP_WRITE, 0);
+-	pkt->bio->bi_iter.bi_sector = new_sector;
+-	pkt->bio->bi_iter.bi_size = pkt->frames * CD_FRAMESIZE;
+-	pkt->bio->bi_vcnt = pkt->frames;
+-
+-	pkt->bio->bi_end_io = pkt_end_io_packet_write;
+-	pkt->bio->bi_private = pkt;
+-
+-	drop_super(sb);
+-	return 1;
+-
+-out:
+-	drop_super(sb);
+-	return 0;
+-#endif
+-}
+-
+ static inline void pkt_set_state(struct packet_data *pkt, enum packet_data_state state)
+ {
+ #if PACKET_DEBUG > 1
+@@ -1357,12 +1298,8 @@ static void pkt_run_state_machine(struct pktcdvd_device *pd, struct packet_data
+ 			break;
+ 
+ 		case PACKET_RECOVERY_STATE:
+-			if (pkt_start_recovery(pkt)) {
+-				pkt_start_write(pd, pkt);
+-			} else {
+-				pkt_dbg(2, pd, "No recovery possible\n");
+-				pkt_set_state(pkt, PACKET_FINISHED_STATE);
+-			}
++			pkt_dbg(2, pd, "No recovery possible\n");
++			pkt_set_state(pkt, PACKET_FINISHED_STATE);
+ 			break;
+ 
+ 		case PACKET_FINISHED_STATE:
+-- 
+2.28.0
