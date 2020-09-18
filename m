@@ -1,101 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from hqnvemgate25.nvidia.com ([216.228.121.64]:2548 "EHLO
-        hqnvemgate25.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726516AbgI1GWC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Sep 2020 02:22:02 -0400
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH 4/8] selftests/vm: minor cleanup: Makefile and gup_test.c
-Date: Sun, 27 Sep 2020 23:21:55 -0700
-Message-ID: <20200928062159.923212-5-jhubbard@nvidia.com>
-In-Reply-To: <20200928062159.923212-1-jhubbard@nvidia.com>
-References: <20200928062159.923212-1-jhubbard@nvidia.com>
+Received: from mail.kernel.org ([198.145.29.99]:59338 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726200AbgIRQRa (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 18 Sep 2020 12:17:30 -0400
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH v3 0/3] arm64: Convert to ARCH_STACKWALK
+Date: Fri, 18 Sep 2020 17:17:14 +0100
+Message-Id: <160043545717.3786361.8451395410243102783.b4-ty@kernel.org>
+In-Reply-To: <20200914153409.25097-1-broonie@kernel.org>
+References: <20200914153409.25097-1-broonie@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
+To: Mark Brown <broonie@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>
+Cc: kernel-team@android.com, Will Deacon <will@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, x86@kernel.org, "H . Peter Anvin" <hpa@zytor.com>, Borislav Petkov <bp@alien8.de>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>, Thomas Gleixner <tglx@linutronix.de>, Jiri Slaby <jirislaby@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>
 
-A few cleanups that don't deserve separate patches, but that
-also should not clutter up other functional changes:
+On Mon, 14 Sep 2020 16:34:06 +0100, Mark Brown wrote:
+> This series updates the arm64 stacktrace code to use the newer and much
+> simpler arch_stack_walk() interface, the main benefit being a single
+> entry point to the arch code with no need for the arch code to worry
+> about skipping frames. Along the way I noticed that the reliable
+> parameter to the arch_stack_walk() callback appears to be redundant
+> so there's also a patch here removing that from the existing code to
+> simplify the interface.
+> 
+> [...]
 
-1. Remove an unnecessary #include <prctl.h>
+Applied to arm64 (for-next/stacktrace), thanks!
 
-2. Restore the sorted order of TEST_GEN_FILES.
+[1/3] stacktrace: Remove reliable argument from arch_stack_walk() callback
+      https://git.kernel.org/arm64/c/264c03a245de
+[2/3] arm64: stacktrace: Make stack walk callback consistent with generic code
+      https://git.kernel.org/arm64/c/baa2cd417053
+[3/3] arm64: stacktrace: Convert to ARCH_STACKWALK
+      https://git.kernel.org/arm64/c/5fc57df2f6fd
 
-3. Add -lpthread to the common LDLIBS, as it is harmless and several
-   tests use it. Including, soon, gup_test.c. This gets rid of one
-   special rule already.
+Cheers,
+-- 
+Will
 
-Signed-off-by: John Hubbard <jhubbard@nvidia.com>
----
- tools/testing/selftests/vm/Makefile   | 10 ++++------
- tools/testing/selftests/vm/gup_test.c |  1 -
- 2 files changed, 4 insertions(+), 7 deletions(-)
-
-diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/=
-vm/Makefile
-index 5a3bd0c497b6..2579242386ac 100644
---- a/tools/testing/selftests/vm/Makefile
-+++ b/tools/testing/selftests/vm/Makefile
-@@ -21,14 +21,15 @@ MACHINE ?=3D $(shell echo $(uname_M) | sed -e 's/aarch6=
-4.*/arm64/')
- MAKEFLAGS +=3D --no-builtin-rules
-=20
- CFLAGS =3D -Wall -I ../../../../usr/include $(EXTRA_CFLAGS)
--LDLIBS =3D -lrt
-+LDLIBS =3D -lrt -lpthread
- TEST_GEN_FILES =3D compaction_test
- TEST_GEN_FILES +=3D gup_test
- TEST_GEN_FILES +=3D hmm-tests
- TEST_GEN_FILES +=3D hugepage-mmap
- TEST_GEN_FILES +=3D hugepage-shm
--TEST_GEN_FILES +=3D map_hugetlb
-+TEST_GEN_FILES +=3D khugepaged
- TEST_GEN_FILES +=3D map_fixed_noreplace
-+TEST_GEN_FILES +=3D map_hugetlb
- TEST_GEN_FILES +=3D map_populate
- TEST_GEN_FILES +=3D mlock-random-test
- TEST_GEN_FILES +=3D mlock2-tests
-@@ -37,7 +38,6 @@ TEST_GEN_FILES +=3D on-fault-limit
- TEST_GEN_FILES +=3D thuge-gen
- TEST_GEN_FILES +=3D transhuge-stress
- TEST_GEN_FILES +=3D userfaultfd
--TEST_GEN_FILES +=3D khugepaged
-=20
- ifeq ($(ARCH),x86_64)
- CAN_BUILD_I386 :=3D $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_32bi=
-t_program.c -m32)
-@@ -76,7 +76,7 @@ TEST_FILES :=3D test_vmalloc.sh
- KSFT_KHDR_INSTALL :=3D 1
- include ../lib.mk
-=20
--$(OUTPUT)/hmm-tests: LDLIBS +=3D -lhugetlbfs -lpthread
-+$(OUTPUT)/hmm-tests: LDLIBS +=3D -lhugetlbfs
-=20
- ifeq ($(ARCH),x86_64)
- BINARIES_32 :=3D $(patsubst %,$(OUTPUT)/%,$(BINARIES_32))
-@@ -127,8 +127,6 @@ warn_32bit_failure:
- endif
- endif
-=20
--$(OUTPUT)/userfaultfd: LDLIBS +=3D -lpthread
--
- $(OUTPUT)/mlock-random-test: LDLIBS +=3D -lcap
-=20
- $(OUTPUT)/gup_test: ../../../../mm/gup_test.h
-diff --git a/tools/testing/selftests/vm/gup_test.c b/tools/testing/selftest=
-s/vm/gup_test.c
-index 70db259582c3..4e9f5d0ed0fc 100644
---- a/tools/testing/selftests/vm/gup_test.c
-+++ b/tools/testing/selftests/vm/gup_test.c
-@@ -4,7 +4,6 @@
- #include <unistd.h>
- #include <sys/ioctl.h>
- #include <sys/mman.h>
--#include <sys/prctl.h>
- #include <sys/stat.h>
- #include <sys/types.h>
- #include "../../../../mm/gup_test.h"
---=20
-2.28.0
+https://fixes.arm64.dev
+https://next.arm64.dev
+https://will.arm64.dev
