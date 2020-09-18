@@ -1,28 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41488 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726064AbgIRM4S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Sep 2020 08:56:18 -0400
-Date: Fri, 18 Sep 2020 13:56:11 +0100
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH 3/9] fs: explicitly check for CHECK_IOVEC_ONLY in
- rw_copy_check_uvector
-Message-ID: <20200918125611.GE32101@casper.infradead.org>
+        with ESMTP id S1726714AbgIRMpt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Sep 2020 08:45:49 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 3/9] fs: explicitly check for CHECK_IOVEC_ONLY in rw_copy_check_uvector
+Date: Fri, 18 Sep 2020 14:45:27 +0200
+Message-Id: <20200918124533.3487701-4-hch@lst.de>
+In-Reply-To: <20200918124533.3487701-1-hch@lst.de>
 References: <20200918124533.3487701-1-hch@lst.de>
- <20200918124533.3487701-4-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200918124533.3487701-4-hch@lst.de>
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
 
-On Fri, Sep 18, 2020 at 02:45:27PM +0200, Christoph Hellwig wrote:
->  		}
-> -		if (type >= 0
-> -		    && unlikely(!access_ok(buf, len))) {
-> +		if (type != CHECK_IOVEC_ONLY && unlikely(!access_ok(buf, len))) {
+Explicitly check for the magic value insted of implicitly relying on
+its number representation.
 
-drop the unlikely() at the same time?  if it's really advantageous,
-that should be embedded in the access_ok macro.
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ fs/read_write.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 5db58b8c78d0dd..f153116bc5399b 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -840,8 +840,7 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
+ 			ret = -EINVAL;
+ 			goto out;
+ 		}
+-		if (type >= 0
+-		    && unlikely(!access_ok(buf, len))) {
++		if (type != CHECK_IOVEC_ONLY && unlikely(!access_ok(buf, len))) {
+ 			ret = -EFAULT;
+ 			goto out;
+ 		}
+@@ -911,7 +910,7 @@ ssize_t compat_rw_copy_check_uvector(int type,
+ 		}
+ 		if (len < 0)	/* size_t not fitting in compat_ssize_t .. */
+ 			goto out;
+-		if (type >= 0 &&
++		if (type != CHECK_IOVEC_ONLY &&
+ 		    !access_ok(compat_ptr(buf), len)) {
+ 			ret = -EFAULT;
+ 			goto out;
+-- 
+2.28.0
