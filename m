@@ -1,140 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56648 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726350AbgIQRPB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 13:15:01 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 07/14] raw: don't keep unopened block device around
-Date: Thu, 17 Sep 2020 18:57:13 +0200
-Message-Id: <20200917165720.3285256-8-hch@lst.de>
-In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
-References: <20200917165720.3285256-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:47702 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726767AbgIRCCb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:02:31 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 067/330] s390: avoid misusing CALL_ON_STACK for task stack setup
+Date: Thu, 17 Sep 2020 21:56:47 -0400
+Message-Id: <20200918020110.2063155-67-sashal@kernel.org>
+In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
+References: <20200918020110.2063155-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Turn binding into a normal dev_t as the struct block device doesn't
-buy us anything and use blkdev_open_by_dev to actually open it.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+[ Upstream commit 7bcaad1f9fac889f5fcd1a383acf7e00d006da41 ]
+
+CALL_ON_STACK is intended to be used for temporary stack switching with
+potential return to the caller.
+
+When CALL_ON_STACK is misused to switch from nodat stack to task stack
+back_chain information would later lead stack unwinder from task stack into
+(per cpu) nodat stack which is reused for other purposes. This would
+yield confusing unwinding result or errors.
+
+To avoid that introduce CALL_ON_STACK_NORETURN to be used instead. It
+makes sure that back_chain is zeroed and unwinder finishes gracefully
+ending up at task pt_regs.
+
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/raw.c | 51 +++++++++++++++++-----------------------------
- 1 file changed, 19 insertions(+), 32 deletions(-)
+ arch/s390/include/asm/stacktrace.h | 11 +++++++++++
+ arch/s390/kernel/setup.c           |  9 +--------
+ arch/s390/kernel/smp.c             |  2 +-
+ 3 files changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/char/raw.c b/drivers/char/raw.c
-index ccf5bd528642da..5d52a1f4738c76 100644
---- a/drivers/char/raw.c
-+++ b/drivers/char/raw.c
-@@ -28,7 +28,8 @@
- #include <linux/uaccess.h>
+diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
+index 0ae4bbf7779c8..3679d224fd3c5 100644
+--- a/arch/s390/include/asm/stacktrace.h
++++ b/arch/s390/include/asm/stacktrace.h
+@@ -111,4 +111,15 @@ struct stack_frame {
+ 	r2;								\
+ })
  
- struct raw_device_data {
--	struct block_device *binding;
-+	dev_t binding;
-+	struct block_device *bdev;
- 	int inuse;
- };
- 
-@@ -73,14 +74,15 @@ static int raw_open(struct inode *inode, struct file *filp)
- 	/*
- 	 * All we need to do on open is check that the device is bound.
- 	 */
--	bdev = raw_devices[minor].binding;
- 	err = -ENODEV;
--	if (!bdev)
-+	if (!raw_devices[minor].binding)
- 		goto out;
--	bdgrab(bdev);
--	err = blkdev_get(bdev, filp->f_mode | FMODE_EXCL, raw_open);
--	if (err)
-+	bdev = blkdev_get_by_dev(raw_devices[minor].binding,
-+				 filp->f_mode | FMODE_EXCL, raw_open);
-+	if (IS_ERR(bdev)) {
-+		err = PTR_ERR(bdev);
- 		goto out;
-+	}
- 	err = set_blocksize(bdev, bdev_logical_block_size(bdev));
- 	if (err)
- 		goto out1;
-@@ -90,6 +92,7 @@ static int raw_open(struct inode *inode, struct file *filp)
- 		file_inode(filp)->i_mapping =
- 			bdev->bd_inode->i_mapping;
- 	filp->private_data = bdev;
-+	raw_devices[minor].bdev = bdev;
- 	mutex_unlock(&raw_mutex);
- 	return 0;
- 
-@@ -110,7 +113,7 @@ static int raw_release(struct inode *inode, struct file *filp)
- 	struct block_device *bdev;
- 
- 	mutex_lock(&raw_mutex);
--	bdev = raw_devices[minor].binding;
-+	bdev = raw_devices[minor].bdev;
- 	if (--raw_devices[minor].inuse == 0)
- 		/* Here  inode->i_mapping == bdev->bd_inode->i_mapping  */
- 		inode->i_mapping = &inode->i_data;
-@@ -133,6 +136,7 @@ raw_ioctl(struct file *filp, unsigned int command, unsigned long arg)
- static int bind_set(int number, u64 major, u64 minor)
- {
- 	dev_t dev = MKDEV(major, minor);
-+	dev_t raw = MKDEV(RAW_MAJOR, number);
- 	struct raw_device_data *rawdev;
- 	int err = 0;
- 
-@@ -166,25 +170,17 @@ static int bind_set(int number, u64 major, u64 minor)
- 		mutex_unlock(&raw_mutex);
- 		return -EBUSY;
- 	}
--	if (rawdev->binding) {
--		bdput(rawdev->binding);
-+	if (rawdev->binding)
- 		module_put(THIS_MODULE);
--	}
++#define CALL_ON_STACK_NORETURN(fn, stack)				\
++({									\
++	asm volatile(							\
++		"	la	15,0(%[_stack])\n"			\
++		"	xc	%[_bc](8,15),%[_bc](15)\n"		\
++		"	brasl	14,%[_fn]\n"				\
++		::[_bc] "i" (offsetof(struct stack_frame, back_chain)),	\
++		  [_stack] "a" (stack), [_fn] "X" (fn));		\
++	BUG();								\
++})
 +
-+	rawdev->binding = dev;
- 	if (!dev) {
- 		/* unbind */
--		rawdev->binding = NULL;
--		device_destroy(raw_class, MKDEV(RAW_MAJOR, number));
-+		device_destroy(raw_class, raw);
- 	} else {
--		rawdev->binding = bdget(dev);
--		if (rawdev->binding == NULL) {
--			err = -ENOMEM;
--		} else {
--			dev_t raw = MKDEV(RAW_MAJOR, number);
--			__module_get(THIS_MODULE);
--			device_destroy(raw_class, raw);
--			device_create(raw_class, NULL, raw, NULL,
--				      "raw%d", number);
--		}
-+		__module_get(THIS_MODULE);
-+		device_destroy(raw_class, raw);
-+		device_create(raw_class, NULL, raw, NULL, "raw%d", number);
- 	}
- 	mutex_unlock(&raw_mutex);
- 	return err;
-@@ -192,18 +188,9 @@ static int bind_set(int number, u64 major, u64 minor)
+ #endif /* _ASM_S390_STACKTRACE_H */
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 07b2b61a0289f..82ef081e7448e 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -356,7 +356,6 @@ early_initcall(async_stack_realloc);
  
- static int bind_get(int number, dev_t *dev)
+ void __init arch_call_rest_init(void)
  {
--	struct raw_device_data *rawdev;
--	struct block_device *bdev;
--
- 	if (number <= 0 || number >= max_raw_minors)
- 		return -EINVAL;
--
--	rawdev = &raw_devices[number];
--
--	mutex_lock(&raw_mutex);
--	bdev = rawdev->binding;
--	*dev = bdev ? bdev->bd_dev : 0;
--	mutex_unlock(&raw_mutex);
-+	*dev = raw_devices[number].binding;
- 	return 0;
+-	struct stack_frame *frame;
+ 	unsigned long stack;
+ 
+ 	stack = stack_alloc();
+@@ -369,13 +368,7 @@ void __init arch_call_rest_init(void)
+ 	set_task_stack_end_magic(current);
+ 	stack += STACK_INIT_OFFSET;
+ 	S390_lowcore.kernel_stack = stack;
+-	frame = (struct stack_frame *) stack;
+-	memset(frame, 0, sizeof(*frame));
+-	/* Branch to rest_init on the new stack, never returns */
+-	asm volatile(
+-		"	la	15,0(%[_frame])\n"
+-		"	jg	rest_init\n"
+-		: : [_frame] "a" (frame));
++	CALL_ON_STACK_NORETURN(rest_init, stack);
  }
  
+ static void __init setup_lowcore_dat_off(void)
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index 66bf050d785cf..ad426cc656e56 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -878,7 +878,7 @@ static void __no_sanitize_address smp_start_secondary(void *cpuvoid)
+ 	S390_lowcore.restart_source = -1UL;
+ 	__ctl_load(S390_lowcore.cregs_save_area, 0, 15);
+ 	__load_psw_mask(PSW_KERNEL_BITS | PSW_MASK_DAT);
+-	CALL_ON_STACK(smp_init_secondary, S390_lowcore.kernel_stack, 0);
++	CALL_ON_STACK_NORETURN(smp_init_secondary, S390_lowcore.kernel_stack);
+ }
+ 
+ /* Upping and downing of CPUs */
 -- 
-2.28.0
+2.25.1
