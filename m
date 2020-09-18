@@ -1,71 +1,39 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23160 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728148AbgIYQDO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Sep 2020 12:03:14 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v1 2/4] s390x: pv: implement routine to share/unshare memory
-Date: Fri, 25 Sep 2020 18:02:42 +0200
-Message-Id: <1601049764-11784-3-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1601049764-11784-1-git-send-email-pmorel@linux.ibm.com>
-References: <1601049764-11784-1-git-send-email-pmorel@linux.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+MIME-Version: 1.0
+References: <20200918124533.3487701-1-hch@lst.de> <20200918124533.3487701-9-hch@lst.de>
+In-Reply-To: <20200918124533.3487701-9-hch@lst.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 18 Sep 2020 15:48:35 +0200
+Message-ID: <CAK8P3a07PbzpGfnVew7VAq2=iD418V-ryvOC94qAQzW0nQAbAA@mail.gmail.com>
+Subject: Re: [PATCH 8/9] mm: remove compat_process_vm_{readv,writev}
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, David Howells <dhowells@redhat.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, the arch/x86 maintainers <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, linux-block <linux-block@vger.kernel.org>, linux-scsi <linux-scsi@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, linux-aio <linux-aio@kvack.org>, io-uring@vger.kernel.org, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Networking <netdev@vger.kernel.org>, keyrings@vger.kernel.org, LSM List <linux-security-module@vger.kernel.org>
 
-When communicating with the host we need to share part of
-the memory.
+On Fri, Sep 18, 2020 at 2:45 PM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Now that import_iovec handles compat iovecs, the native syscalls
+> can be used for the compat case as well.
+>
+> diff --git a/arch/x86/entry/syscall_x32.c b/arch/x86/entry/syscall_x32.c
+> index a4840b9d50ad14..f2fe0a33bcfdd5 100644
+> --- a/arch/x86/entry/syscall_x32.c
+> +++ b/arch/x86/entry/syscall_x32.c
+> @@ -17,6 +17,8 @@
+>  #define __x32_sys_getsockopt   __x64_sys_getsockopt
+>  #define __x32_sys_setsockopt   __x64_sys_setsockopt
+>  #define __x32_sys_vmsplice     __x64_sys_vmsplice
+> +#define __x32_sys_process_vm_readv     __x64_sys_process_vm_readv
+> +#define __x32_sys_process_vm_writev    __x64_sys_process_vm_writev
+>
+>  #define __SYSCALL_64(nr, sym)
+>
 
-Let's implement the ultravisor calls for this.
+I forgot this hack existed, and just sent a patch with subject "x86: add
+__X32_COND_SYSCALL() macro" instead.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Suggested-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/asm/uv.h | 33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+If I understand this right, the macros above should no longer be needed
+once my patch gets merged.
 
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index 4c2fc48..19019e4 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -71,4 +71,37 @@ static inline int uv_call(unsigned long r1, unsigned long r2)
- 	return cc;
- }
- 
-+static inline int share(unsigned long addr, u16 cmd)
-+{
-+	struct uv_cb_share uvcb = {
-+		.header.cmd = cmd,
-+		.header.len = sizeof(uvcb),
-+		.paddr = addr
-+	};
-+
-+	uv_call(0, (u64)&uvcb);
-+	return uvcb.header.rc;
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page shared with the
-+ * hypervisor for IO.
-+ *
-+ * @addr: Real or absolute address of the page to be shared
-+ */
-+static inline int uv_set_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_SET_SHARED_ACCESS);
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page unshared.
-+ *
-+ * @addr: Real or absolute address of the page to be unshared
-+ */
-+static inline int uv_remove_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
-+}
-+
- #endif
--- 
-2.25.1
+        Arnd
