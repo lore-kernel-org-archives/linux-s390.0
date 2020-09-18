@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 19 Sep 2020 11:06:58 +0200
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH 13/14] PM: mm: cleanup swsusp_swap_check
-Message-ID: <20200919090658.GB12294@duo.ucw.cz>
-References: <20200917165720.3285256-1-hch@lst.de>
- <20200917165720.3285256-14-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:33602 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726115AbgIRQCL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Sep 2020 12:02:11 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="SkvwRMAIpAhPCcCJ"
-Content-Disposition: inline
+References: <20200917165720.3285256-1-hch@lst.de> <20200917165720.3285256-14-hch@lst.de>
 In-Reply-To: <20200917165720.3285256-14-hch@lst.de>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Fri, 18 Sep 2020 18:01:59 +0200
+Message-ID: <CAJZ5v0jAQnEHedZs7kQmfHx4KTw9G1wrObuEpid_m5uVk5qoJQ@mail.gmail.com>
+Subject: Re: [PATCH 13/14] PM: mm: cleanup swsusp_swap_check
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
 To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, nbd@other.debian.org, "open list:LIBATA SUBSYSTEM (Serial and Parallel ATA drivers)" <linux-ide@vger.kernel.org>, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, Linux PM <linux-pm@vger.kernel.org>, Linux Memory Management List <linux-mm@kvack.org>, linux-block@vger.kernel.org
 
-
---SkvwRMAIpAhPCcCJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu 2020-09-17 18:57:19, Christoph Hellwig wrote:
+On Thu, Sep 17, 2020 at 7:39 PM Christoph Hellwig <hch@lst.de> wrote:
+>
 > Use blkdev_get_by_dev instead of bdget + blkdev_get.
->=20
+>
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Acked-by: Pavel Machek <pavel@ucw.cz>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---SkvwRMAIpAhPCcCJ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCX2XKMgAKCRAw5/Bqldv6
-8jnIAJ9gnRBuWwSimm3SXF7hOAxcdZjhvgCfSC/nzlC9BvYn3OzlsY0Fu9KJK58=
-=7alK
------END PGP SIGNATURE-----
-
---SkvwRMAIpAhPCcCJ--
+> ---
+>  kernel/power/swap.c | 10 ++++------
+>  1 file changed, 4 insertions(+), 6 deletions(-)
+>
+> diff --git a/kernel/power/swap.c b/kernel/power/swap.c
+> index 9d3ffbfe08dbf6..71385bedcc3a49 100644
+> --- a/kernel/power/swap.c
+> +++ b/kernel/power/swap.c
+> @@ -343,12 +343,10 @@ static int swsusp_swap_check(void)
+>                 return res;
+>         root_swap = res;
+>
+> -       hib_resume_bdev = bdget(swsusp_resume_device);
+> -       if (!hib_resume_bdev)
+> -               return -ENOMEM;
+> -       res = blkdev_get(hib_resume_bdev, FMODE_WRITE, NULL);
+> -       if (res)
+> -               return res;
+> +       hib_resume_bdev = blkdev_get_by_dev(swsusp_resume_device, FMODE_WRITE,
+> +                       NULL);
+> +       if (IS_ERR(hib_resume_bdev))
+> +               return PTR_ERR(hib_resume_bdev);
+>
+>         res = set_blocksize(hib_resume_bdev, PAGE_SIZE);
+>         if (res < 0)
+> --
+> 2.28.0
+>
