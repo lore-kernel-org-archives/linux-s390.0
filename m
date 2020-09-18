@@ -1,80 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50446 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726847AbgIJTta (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 15:49:30 -0400
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 2/2] zfcp: clarify access to erp_action in zfcp_fsf_req_complete()
-Date: Thu, 10 Sep 2020 21:49:16 +0200
-Message-Id: <c500eac301fcbba5af942bbd200f2d6b14e46994.1599765652.git.bblock@linux.ibm.com>
-In-Reply-To: <cover.1599765652.git.bblock@linux.ibm.com>
-References: <cover.1599765652.git.bblock@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:49140 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726989AbgIRCDL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Sep 2020 22:03:11 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 099/330] s390/cpum_sf: Use kzalloc and minor changes
+Date: Thu, 17 Sep 2020 21:57:19 -0400
+Message-Id: <20200918020110.2063155-99-sashal@kernel.org>
+In-Reply-To: <20200918020110.2063155-1-sashal@kernel.org>
+References: <20200918020110.2063155-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Thomas Richter <tmricht@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-While reviewing
-commit 936e6b85da04 ("scsi: zfcp: Fix panic on ERP timeout for previously
-dismissed ERP action"),
-I stumbled over zfcp_fsf_req_complete() and wondered whether it has
-similar issues wrt concurrent modification of req->erp_action
-by zfcp_erp_strategy_check_fsfreq().
+[ Upstream commit 32dab6828c42f087439d3e2617dc7283546bd8f7 ]
 
-But a closer look shows that both its two callers
-[zfcp_fsf_reqid_check(), zfcp_fsf_req_dismiss_all()] remove the request
-from the adapter's req_list under the req_list's lock.
-Hence we can trust that if zfcp_erp_strategy_check_fsfreq() concurrently
-looks up the corresponding req_id, it won't find this request and is thus
-unable to modify it while it's being processed by zfcp_fsf_req_complete().
+Use kzalloc() to allocate auxiliary buffer structure initialized
+with all zeroes to avoid random value in trace output.
 
-Add a code comment that hopefully makes this easier for future readers,
-and condense the two accesses to ->erp_action that made me trip over
-this code path in the first place.
+Avoid double access to SBD hardware flags.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/s390/kernel/perf_cpum_sf.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index c795f22249d8..d9de26157da2 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -426,9 +426,14 @@ static void zfcp_fsf_protstatus_eval(struct zfcp_fsf_req *req)
-  * or it has been dismissed due to a queue shutdown, this function
-  * is called to process the completion status and trigger further
-  * events related to the FSF request.
-+ * Caller must ensure that the request has been removed from
-+ * adapter->req_list, to protect against concurrent modification
-+ * by zfcp_erp_strategy_check_fsfreq().
-  */
- static void zfcp_fsf_req_complete(struct zfcp_fsf_req *req)
- {
-+	struct zfcp_erp_action *erp_action;
-+
- 	if (unlikely(zfcp_fsf_req_is_status_read_buffer(req))) {
- 		zfcp_fsf_status_read_handler(req);
- 		return;
-@@ -439,8 +444,9 @@ static void zfcp_fsf_req_complete(struct zfcp_fsf_req *req)
- 	zfcp_fsf_fsfstatus_eval(req);
- 	req->handler(req);
+diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
+index 229e1e2f8253a..996e447ead3a6 100644
+--- a/arch/s390/kernel/perf_cpum_sf.c
++++ b/arch/s390/kernel/perf_cpum_sf.c
+@@ -1429,8 +1429,8 @@ static int aux_output_begin(struct perf_output_handle *handle,
+ 		idx = aux->empty_mark + 1;
+ 		for (i = 0; i < range_scan; i++, idx++) {
+ 			te = aux_sdb_trailer(aux, idx);
+-			te->flags = te->flags & ~SDB_TE_BUFFER_FULL_MASK;
+-			te->flags = te->flags & ~SDB_TE_ALERT_REQ_MASK;
++			te->flags &= ~(SDB_TE_BUFFER_FULL_MASK |
++				       SDB_TE_ALERT_REQ_MASK);
+ 			te->overflow = 0;
+ 		}
+ 		/* Save the position of empty SDBs */
+@@ -1477,8 +1477,7 @@ static bool aux_set_alert(struct aux_buffer *aux, unsigned long alert_index,
+ 	te = aux_sdb_trailer(aux, alert_index);
+ 	do {
+ 		orig_flags = te->flags;
+-		orig_overflow = te->overflow;
+-		*overflow = orig_overflow;
++		*overflow = orig_overflow = te->overflow;
+ 		if (orig_flags & SDB_TE_BUFFER_FULL_MASK) {
+ 			/*
+ 			 * SDB is already set by hardware.
+@@ -1712,7 +1711,7 @@ static void *aux_buffer_setup(struct perf_event *event, void **pages,
+ 	}
  
--	if (req->erp_action)
--		zfcp_erp_notify(req->erp_action, 0);
-+	erp_action = req->erp_action;
-+	if (erp_action)
-+		zfcp_erp_notify(erp_action, 0);
- 
- 	if (likely(req->status & ZFCP_STATUS_FSFREQ_CLEANUP))
- 		zfcp_fsf_req_free(req);
+ 	/* Allocate aux_buffer struct for the event */
+-	aux = kmalloc(sizeof(struct aux_buffer), GFP_KERNEL);
++	aux = kzalloc(sizeof(struct aux_buffer), GFP_KERNEL);
+ 	if (!aux)
+ 		goto no_aux;
+ 	sfb = &aux->sfb;
 -- 
-2.26.2
+2.25.1
