@@ -1,43 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726449AbgISQV6 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 19 Sep 2020 12:21:58 -0400
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EA6823600
-        for <linux-s390@vger.kernel.org>; Sat, 19 Sep 2020 16:21:57 +0000 (UTC)
-Received: by mail-wr1-f49.google.com with SMTP id w5so8556453wrp.8
-        for <linux-s390@vger.kernel.org>; Sat, 19 Sep 2020 09:21:57 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200918124533.3487701-1-hch@lst.de> <20200918124533.3487701-2-hch@lst.de>
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:38129 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726511AbgISOyR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 19 Sep 2020 10:54:17 -0400
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH 1/9] kernel: add a PF_FORCE_COMPAT flag
+Date: Sat, 19 Sep 2020 14:53:08 +0000
+Message-ID: <6d064d8688324279af89152a8da22d69@AcuMS.aculab.com>
+References: <20200918124533.3487701-1-hch@lst.de>
+ <20200918124533.3487701-2-hch@lst.de>
  <20200918134012.GY3421308@ZenIV.linux.org.uk> <20200918134406.GA17064@lst.de>
- <20200918135822.GZ3421308@ZenIV.linux.org.uk> <20200918151615.GA23432@lst.de>
-In-Reply-To: <20200918151615.GA23432@lst.de>
-From: Andy Lutomirski <luto@kernel.org>
-Date: Sat, 19 Sep 2020 09:21:44 -0700
-Message-ID: <CALCETrW=BzodXeTAjSvpCoUQoL+MKaKPEeSTRWnB=-C9jMotbQ@mail.gmail.com>
-Subject: Re: [PATCH 1/9] kernel: add a PF_FORCE_COMPAT flag
-Content-Type: text/plain; charset="UTF-8"
+ <20200918135822.GZ3421308@ZenIV.linux.org.uk>
+In-Reply-To: <20200918135822.GZ3421308@ZenIV.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, X86 ML <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>, "open list:MIPS" <linux-mips@vger.kernel.org>, Parisc List <linux-parisc@vger.kernel.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, linux-block <linux-block@vger.kernel.org>, Linux SCSI List <linux-scsi@vger.kernel.org>, Linux FS Devel <linux-fsdevel@vger.kernel.org>, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch <linux-arch@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Network Development <netdev@vger.kernel.org>, keyrings@vger.kernel.org, LSM List <linux-security-module@vger.kernel.org>
+To: 'Al Viro' <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>, "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>, "linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>
 
-On Fri, Sep 18, 2020 at 8:16 AM Christoph Hellwig <hch@lst.de> wrote:
->
-> On Fri, Sep 18, 2020 at 02:58:22PM +0100, Al Viro wrote:
-> > Said that, why not provide a variant that would take an explicit
-> > "is it compat" argument and use it there?  And have the normal
-> > one pass in_compat_syscall() to that...
->
-> That would help to not introduce a regression with this series yes.
-> But it wouldn't fix existing bugs when io_uring is used to access
-> read or write methods that use in_compat_syscall().  One example that
-> I recently ran into is drivers/scsi/sg.c.
+From: Al Viro
+> Sent: 18 September 2020 14:58
+> 
+> On Fri, Sep 18, 2020 at 03:44:06PM +0200, Christoph Hellwig wrote:
+> > On Fri, Sep 18, 2020 at 02:40:12PM +0100, Al Viro wrote:
+> > > >  	/* Vector 0x110 is LINUX_32BIT_SYSCALL_TRAP */
+> > > > -	return pt_regs_trap_type(current_pt_regs()) == 0x110;
+> > > > +	return pt_regs_trap_type(current_pt_regs()) == 0x110 ||
+> > > > +		(current->flags & PF_FORCE_COMPAT);
+> > >
+> > > Can't say I like that approach ;-/  Reasoning about the behaviour is much
+> > > harder when it's controlled like that - witness set_fs() shite...
+> >
+> > I don't particularly like it either.  But do you have a better idea
+> > how to deal with io_uring vs compat tasks?
+> 
+> <wry> git rm fs/io_uring.c would make a good starting point </wry>
+> Yes, I know it's not going to happen, but one can dream...
 
-Aside from the potentially nasty use of per-task variables, one thing
-I don't like about PF_FORCE_COMPAT is that it's one-way.  If we're
-going to have a generic mechanism for this, shouldn't we allow a full
-override of the syscall arch instead of just allowing forcing compat
-so that a compat syscall can do a non-compat operation?
+Maybe the io_uring code needs some changes to make it vaguely safe.
+- No support for 32-bit compat mixed working (or at all?).
+  Plausibly a special worker could do 32bit work.
+- ring structure (I'm assuming mapped by mmap()) never mapped
+  in more than one process (not cloned by fork()).
+- No implicit handover of files to another process.
+  Would need an munmap, handover, mmap sequence.
+
+In any case the io_ring rather abuses the import_iovec() interface.
+
+The canonical sequence is (types from memory):
+	struct iovec cache[8], *iov = cache;
+	struct iter iter;
+	...
+	rval = import_iovec(..., &iov, 8, &iter);
+	// Do read/write user using 'iter'
+	free(iov);
+
+I don't think there is any strict requirement that iter.iov
+is set to either 'cache' or 'iov' (it probably must point
+into one of them.)
+But the io_uring code will make that assumption because the
+actual copies can be done much later and it doesn't save 'iter'.
+It gets itself in a right mess because it doesn't separate
+the 'address I need to free' from 'the iov[] for any transfers'.
+
+io_uring is also the only code that relies on import_iovec()
+returning the iter.count on success.
+It would be much better to have:
+	iov = import_iovec(..., &cache, ...);
+	free(iov);
+and use ERR_PTR() et al for error detectoion.
+
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
