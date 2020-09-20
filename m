@@ -1,107 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:24160 "EHLO
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:23179 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725883AbgIKKfi (ORCPT
+        by vger.kernel.org with ESMTP id S1726321AbgITNQV (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Sep 2020 06:35:38 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v4 2/8] kernel/resource: move and rename IORESOURCE_MEM_DRIVER_MANAGED
-Date: Fri, 11 Sep 2020 12:34:53 +0200
-Message-Id: <20200911103459.10306-3-david@redhat.com>
-In-Reply-To: <20200911103459.10306-1-david@redhat.com>
-References: <20200911103459.10306-1-david@redhat.com>
+        Sun, 20 Sep 2020 09:16:21 -0400
+Received: by mail-wm1-f72.google.com with SMTP id t8so2008131wmj.6
+        for <linux-s390@vger.kernel.org>; Sun, 20 Sep 2020 06:16:17 -0700 (PDT)
+Subject: Re: [kvm-unit-tests GIT PULL 0/3] s390x skrf and ultravisor patches
+References: <20200901091823.14477-1-frankja@linux.ibm.com>
+ <34c80837-208f-bb29-cb0b-b9029fdad29d@redhat.com>
+ <71b38000-70ee-f45a-b80d-95f42dbcc497@redhat.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <0c48075c-a922-6155-ff59-8ffa100cd209@redhat.com>
+Date: Sun, 20 Sep 2020 15:16:15 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <71b38000-70ee-f45a-b80d-95f42dbcc497@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Ard Biesheuvel <ardb@kernel.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>, Eric Biederman <ebiederm@xmission.com>, Thomas Gleixner <tglx@linutronix.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, kexec@lists.infradead.org
+To: Thomas Huth <thuth@redhat.com>, Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, frankja@linux.vnet.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-IORESOURCE_MEM_DRIVER_MANAGED currently uses an unused PnP bit, which is
-always set to 0 by hardware. This is far from beautiful (and confusing),
-and the bit only applies to SYSRAM. So let's move it out of the
-bus-specific (PnP) defined bits.
+On 14/09/20 18:24, Thomas Huth wrote:
+> On 02/09/2020 19.41, Paolo Bonzini wrote:
+>> On 01/09/20 11:18, Janosch Frank wrote:
+>>>   git@gitlab.com:frankja/kvm-unit-tests.git tags/s390x-2020-01-09
+>>
+>> Pulled, thanks.
+>>
+>> (Yes, I am alive).
+> 
+>  Hi Paolo,
+> 
+> I don't see the patches in the master branch - could you please push
+> them to the repo?
 
-We'll add another SYSRAM specific bit soon. If we ever need more bits for
-other purposes, we can steal some from "desc", or reshuffle/regroup what we
-have.
+Oops, pulling had failed because Janosch used an ssh reference to the
+repo.  Fixed and pushed.
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: kexec@lists.infradead.org
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- include/linux/ioport.h | 4 +++-
- kernel/kexec_file.c    | 2 +-
- mm/memory_hotplug.c    | 4 ++--
- 3 files changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 52a91f5fa1a36..d7620d7c941a0 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -58,6 +58,9 @@ struct resource {
- #define IORESOURCE_EXT_TYPE_BITS 0x01000000	/* Resource extended types */
- #define IORESOURCE_SYSRAM	0x01000000	/* System RAM (modifier) */
- 
-+/* IORESOURCE_SYSRAM specific bits. */
-+#define IORESOURCE_SYSRAM_DRIVER_MANAGED	0x02000000 /* Always detected via a driver. */
-+
- #define IORESOURCE_EXCLUSIVE	0x08000000	/* Userland may not map this resource */
- 
- #define IORESOURCE_DISABLED	0x10000000
-@@ -103,7 +106,6 @@ struct resource {
- #define IORESOURCE_MEM_32BIT		(3<<3)
- #define IORESOURCE_MEM_SHADOWABLE	(1<<5)	/* dup: IORESOURCE_SHADOWABLE */
- #define IORESOURCE_MEM_EXPANSIONROM	(1<<6)
--#define IORESOURCE_MEM_DRIVER_MANAGED	(1<<7)
- 
- /* PnP I/O specific bits (IORESOURCE_BITS) */
- #define IORESOURCE_IO_16BIT_ADDR	(1<<0)
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index ca40bef75a616..dfeeed1aed084 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -520,7 +520,7 @@ static int locate_mem_hole_callback(struct resource *res, void *arg)
- 	/* Returning 0 will take to next memory range */
- 
- 	/* Don't use memory that will be detected and handled by a driver. */
--	if (res->flags & IORESOURCE_MEM_DRIVER_MANAGED)
-+	if (res->flags & IORESOURCE_SYSRAM_DRIVER_MANAGED)
- 		return 0;
- 
- 	if (sz < kbuf->memsz)
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 4c47b68a9f4b5..8e1cd18b5cf14 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -105,7 +105,7 @@ static struct resource *register_memory_resource(u64 start, u64 size,
- 	unsigned long flags =  IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
- 
- 	if (strcmp(resource_name, "System RAM"))
--		flags |= IORESOURCE_MEM_DRIVER_MANAGED;
-+		flags |= IORESOURCE_SYSRAM_DRIVER_MANAGED;
- 
- 	/*
- 	 * Make sure value parsed from 'mem=' only restricts memory adding
-@@ -1160,7 +1160,7 @@ EXPORT_SYMBOL_GPL(add_memory);
-  *
-  * For this memory, no entries in /sys/firmware/memmap ("raw firmware-provided
-  * memory map") are created. Also, the created memory resource is flagged
-- * with IORESOURCE_MEM_DRIVER_MANAGED, so in-kernel users can special-case
-+ * with IORESOURCE_SYSRAM_DRIVER_MANAGED, so in-kernel users can special-case
-  * this memory as well (esp., not place kexec images onto it).
-  *
-  * The resource_name (visible via /proc/iomem) has to have the format
--- 
-2.26.2
+Paolo
