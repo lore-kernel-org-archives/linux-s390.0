@@ -1,52 +1,29 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56986 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726599AbgIQRSG (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 13:18:06 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 08/14] dasd: cleanup dasd_scan_partitions
-Date: Thu, 17 Sep 2020 18:57:14 +0200
-Message-Id: <20200917165720.3285256-9-hch@lst.de>
-In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
-References: <20200917165720.3285256-1-hch@lst.de>
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:37707 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726321AbgITNP3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 20 Sep 2020 09:15:29 -0400
+Received: by mail-wr1-f69.google.com with SMTP id a10so4549366wrw.22
+        for <linux-s390@vger.kernel.org>; Sun, 20 Sep 2020 06:14:22 -0700 (PDT)
+Subject: Re: [GIT PULL 0/1] KVM: s390: add documentation for
+ KVM_CAP_S390_DIAG318 (5.9)
+References: <20200914082215.6143-1-borntraeger@de.ibm.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <ae636410-520c-2426-7269-67d78c4a8e7a@redhat.com>
+Date: Sun, 20 Sep 2020 15:14:19 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200914082215.6143-1-borntraeger@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Claudio Imbrenda <imbrenda@linux.ibm.com>, Collin Walling <walling@linux.ibm.com>
 
-Use blkdev_get_by_dev instead of bdget_disk + blkdev_get.
+On 14/09/20 10:22, Christian Borntraeger wrote:
+>   git://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git  tags/kvm-s390-master-5.9-1
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/s390/block/dasd_genhd.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+Pulled, thanks.
 
-diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
-index af5b0ecb8f8923..70c09a46d22806 100644
---- a/drivers/s390/block/dasd_genhd.c
-+++ b/drivers/s390/block/dasd_genhd.c
-@@ -101,18 +101,11 @@ int dasd_scan_partitions(struct dasd_block *block)
- 	struct block_device *bdev;
- 	int rc;
- 
--	bdev = bdget_disk(block->gdp, 0);
--	if (!bdev) {
--		DBF_DEV_EVENT(DBF_ERR, block->base, "%s",
--			      "scan partitions error, bdget returned NULL");
--		return -ENODEV;
--	}
--
--	rc = blkdev_get(bdev, FMODE_READ, NULL);
--	if (rc < 0) {
-+	bdev = blkdev_get_by_dev(disk_devt(block->gdp), FMODE_READ, NULL);
-+	if (IS_ERR(bdev)) {
- 		DBF_DEV_EVENT(DBF_ERR, block->base,
- 			      "scan partitions error, blkdev_get returned %d",
--			      rc);
-+			      IS_ERR(bdev));
- 		return -ENODEV;
- 	}
- 
--- 
-2.28.0
+Paolo
