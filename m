@@ -1,12 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:51118 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728092AbgIUOlj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:39 -0400
+        id S1727928AbgIUOlF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:05 -0400
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4] s390/init: add missing __init annotations
-Date: Mon, 21 Sep 2020 10:41:36 -0400
-Message-Id: <20200921144136.2136046-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 08/15] s390/init: add missing __init annotations
+Date: Mon, 21 Sep 2020 10:40:47 -0400
+Message-Id: <20200921144054.2135602-8-sashal@kernel.org>
+In-Reply-To: <20200921144054.2135602-1-sashal@kernel.org>
+References: <20200921144054.2135602-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
@@ -30,19 +32,19 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 47692c78d09c5..fdc5e76e1f6b0 100644
+index 07b2b61a0289f..cc7726e962639 100644
 --- a/arch/s390/kernel/setup.c
 +++ b/arch/s390/kernel/setup.c
-@@ -513,7 +513,7 @@ static struct notifier_block kdump_mem_nb = {
+@@ -634,7 +634,7 @@ static struct notifier_block kdump_mem_nb = {
  /*
   * Make sure that the area behind memory_end is protected
   */
 -static void reserve_memory_end(void)
 +static void __init reserve_memory_end(void)
  {
- #ifdef CONFIG_CRASH_DUMP
- 	if (ipl_info.type == IPL_TYPE_FCP_DUMP &&
-@@ -531,7 +531,7 @@ static void reserve_memory_end(void)
+ 	if (memory_end_set)
+ 		memblock_reserve(memory_end, ULONG_MAX);
+@@ -643,7 +643,7 @@ static void reserve_memory_end(void)
  /*
   * Make sure that oldmem, where the dump is stored, is protected
   */
@@ -51,7 +53,7 @@ index 47692c78d09c5..fdc5e76e1f6b0 100644
  {
  #ifdef CONFIG_CRASH_DUMP
  	if (OLDMEM_BASE)
-@@ -543,7 +543,7 @@ static void reserve_oldmem(void)
+@@ -655,7 +655,7 @@ static void reserve_oldmem(void)
  /*
   * Make sure that oldmem, where the dump is stored, is protected
   */
