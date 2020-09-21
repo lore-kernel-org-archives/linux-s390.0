@@ -1,199 +1,58 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:28860 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729779AbgIJJOn (ORCPT
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:20085 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726855AbgIUP0l (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 05:14:43 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v3 4/7] mm/memory_hotplug: MEMHP_MERGE_RESOURCE to specify merging of System RAM resources
-Date: Thu, 10 Sep 2020 11:13:37 +0200
-Message-Id: <20200910091340.8654-5-david@redhat.com>
-In-Reply-To: <20200910091340.8654-1-david@redhat.com>
-References: <20200910091340.8654-1-david@redhat.com>
+        Mon, 21 Sep 2020 11:26:41 -0400
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH 04/11] iov_iter: explicitly check for CHECK_IOVEC_ONLY in
+ rw_copy_check_uvector
+Date: Mon, 21 Sep 2020 15:26:35 +0000
+Message-ID: <99515e866c3e4e9c8140795352a62704@AcuMS.aculab.com>
+References: <20200921143434.707844-1-hch@lst.de>
+ <20200921143434.707844-5-hch@lst.de>
+ <7336624280b8444fb4cb00407317741b@AcuMS.aculab.com>
+ <20200921151119.GU3421308@ZenIV.linux.org.uk>
+In-Reply-To: <20200921151119.GU3421308@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Ard Biesheuvel <ardb@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>, Julien Grall <julien@xen.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
+To: 'Al Viro' <viro@zeniv.linux.org.uk>
+Cc: 'Christoph Hellwig' <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>, "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>, "linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>
 
-Some add_memory*() users add memory in small, contiguous memory blocks.
-Examples include virtio-mem, hyper-v balloon, and the XEN balloon.
+From: Al Viro
+> Sent: 21 September 2020 16:11
+> On Mon, Sep 21, 2020 at 03:05:32PM +0000, David Laight wrote:
+> 
+> > I've actually no idea:
+> > 1) Why there is an access_ok() check here.
+> >    It will be repeated by the user copy functions.
+> 
+> Early sanity check.
+> 
+> > 2) Why it isn't done when called from mm/process_vm_access.c.
+> >    Ok, the addresses refer to a different process, but they
+> >    must still be valid user addresses.
+> >
+> > Is 2 a legacy from when access_ok() actually checked that the
+> > addresses were mapped into the process's address space?
+> 
+> It never did.  2 is for the situation when a 32bit process
+> accesses 64bit one; addresses that are perfectly legitimate
+> for 64bit userland (and fitting into the first 4Gb of address
+> space, so they can be represented by 32bit pointers just fine)
+> might be rejected by access_ok() if the caller is 32bit.
 
-This can quickly result in a lot of memory resources, whereby the actual
-resource boundaries are not of interest (e.g., it might be relevant for
-DIMMs, exposed via /proc/iomem to user space). We really want to merge
-added resources in this scenario where possible.
+Can't 32 bit processes on a 64bit system access all the way to 4GB?
+Mapping things by default above 3GB will probably break things.
+But there is no reason to disallow explicit maps.
+And in any case access_ok() can use the same limit as it does for
+64bit processes - the page fault handler will sort it all out.
 
-Let's provide a flag (MEMHP_MERGE_RESOURCE) to specify that a resource
-either created within add_memory*() or passed via add_memory_resource()
-shall be marked mergeable and merged with applicable siblings.
+	David
 
-To implement that, we need a kernel/resource interface to mark selected
-System RAM resources mergeable (IORESOURCE_SYSRAM_MERGEABLE) and trigger
-merging.
-
-Note: We really want to merge after the whole operation succeeded, not
-directly when adding a resource to the resource tree (it would break
-add_memory_resource() and require splitting resources again when the
-operation failed - e.g., due to -ENOMEM).
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: "K. Y. Srinivasan" <kys@microsoft.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Cc: Roger Pau Monné <roger.pau@citrix.com>
-Cc: Julien Grall <julien@xen.org>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- include/linux/ioport.h         |  4 +++
- include/linux/memory_hotplug.h |  7 ++++
- kernel/resource.c              | 60 ++++++++++++++++++++++++++++++++++
- mm/memory_hotplug.c            |  7 ++++
- 4 files changed, 78 insertions(+)
-
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index d7620d7c941a0..7e61389dcb017 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -60,6 +60,7 @@ struct resource {
- 
- /* IORESOURCE_SYSRAM specific bits. */
- #define IORESOURCE_SYSRAM_DRIVER_MANAGED	0x02000000 /* Always detected via a driver. */
-+#define IORESOURCE_SYSRAM_MERGEABLE		0x04000000 /* Resource can be merged. */
- 
- #define IORESOURCE_EXCLUSIVE	0x08000000	/* Userland may not map this resource */
- 
-@@ -253,6 +254,9 @@ extern void __release_region(struct resource *, resource_size_t,
- extern void release_mem_region_adjustable(struct resource *, resource_size_t,
- 					  resource_size_t);
- #endif
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+extern void merge_system_ram_resource(struct resource *res);
-+#endif
- 
- /* Wrappers for managed devices */
- struct device;
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index e53d1058f3443..869a59006cd8e 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -62,6 +62,13 @@ typedef int __bitwise mhp_t;
- 
- /* No special request */
- #define MHP_NONE		((__force mhp_t)0)
-+/*
-+ * Allow merging of the added System RAM resource with adjacent,
-+ * mergeable resources. After a successful call to add_memory_resource()
-+ * with this flag set, the resource pointer must no longer be used as it
-+ * might be stale, or the resource might have changed.
-+ */
-+#define MEMHP_MERGE_RESOURCE	((__force mhp_t)BIT(0))
- 
- /*
-  * Extended parameters for memory hotplug:
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 36b3552210120..7a91b935f4c20 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -1363,6 +1363,66 @@ void release_mem_region_adjustable(struct resource *parent,
- }
- #endif	/* CONFIG_MEMORY_HOTREMOVE */
- 
-+#ifdef CONFIG_MEMORY_HOTPLUG
-+static bool system_ram_resources_mergeable(struct resource *r1,
-+					   struct resource *r2)
-+{
-+	/* We assume either r1 or r2 is IORESOURCE_SYSRAM_MERGEABLE. */
-+	return r1->flags == r2->flags && r1->end + 1 == r2->start &&
-+	       r1->name == r2->name && r1->desc == r2->desc &&
-+	       !r1->child && !r2->child;
-+}
-+
-+/*
-+ * merge_system_ram_resource - mark the System RAM resource mergeable and try to
-+ * merge it with adjacent, mergeable resources
-+ * @res: resource descriptor
-+ *
-+ * This interface is intended for memory hotplug, whereby lots of contiguous
-+ * system ram resources are added (e.g., via add_memory*()) by a driver, and
-+ * the actual resource boundaries are not of interest (e.g., it might be
-+ * relevant for DIMMs). Only resources that are marked mergeable, that have the
-+ * same parent, and that don't have any children are considered. All mergeable
-+ * resources must be immutable during the request.
-+ *
-+ * Note:
-+ * - The caller has to make sure that no pointers to resources that are
-+ *   marked mergeable are used anymore after this call - the resource might
-+ *   be freed and the pointer might be stale!
-+ * - release_mem_region_adjustable() will split on demand on memory hotunplug
-+ */
-+void merge_system_ram_resource(struct resource *res)
-+{
-+	const unsigned long flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
-+	struct resource *cur;
-+
-+	if (WARN_ON_ONCE((res->flags & flags) != flags))
-+		return;
-+
-+	write_lock(&resource_lock);
-+	res->flags |= IORESOURCE_SYSRAM_MERGEABLE;
-+
-+	/* Try to merge with next item in the list. */
-+	cur = res->sibling;
-+	if (cur && system_ram_resources_mergeable(res, cur)) {
-+		res->end = cur->end;
-+		res->sibling = cur->sibling;
-+		free_resource(cur);
-+	}
-+
-+	/* Try to merge with previous item in the list. */
-+	cur = res->parent->child;
-+	while (cur && cur->sibling != res)
-+		cur = cur->sibling;
-+	if (cur && system_ram_resources_mergeable(cur, res)) {
-+		cur->end = res->end;
-+		cur->sibling = res->sibling;
-+		free_resource(res);
-+	}
-+	write_unlock(&resource_lock);
-+}
-+#endif	/* CONFIG_MEMORY_HOTPLUG */
-+
- /*
-  * Managed region resource
-  */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 8f0bd7c9a63a5..553c718226b3e 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1102,6 +1102,13 @@ int __ref add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
- 	/* device_online() will take the lock when calling online_pages() */
- 	mem_hotplug_done();
- 
-+	/*
-+	 * In case we're allowed to merge the resource, flag it and trigger
-+	 * merging now that adding succeeded.
-+	 */
-+	if (mhp_flags & MEMHP_MERGE_RESOURCE)
-+		merge_system_ram_resource(res);
-+
- 	/* online pages if requested */
- 	if (memhp_default_online_type != MMOP_OFFLINE)
- 		walk_memory_blocks(start, size, NULL, online_memory_block);
--- 
-2.26.2
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
