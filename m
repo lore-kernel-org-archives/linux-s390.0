@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:50874 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728046AbgIUOl3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:41:29 -0400
+        id S1728092AbgIUOlj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:39 -0400
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 1/3] s390/init: add missing __init annotations
-Date: Mon, 21 Sep 2020 10:41:25 -0400
-Message-Id: <20200921144127.2135896-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4] s390/init: add missing __init annotations
+Date: Mon, 21 Sep 2020 10:41:36 -0400
+Message-Id: <20200921144136.2136046-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
@@ -30,10 +30,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 5c2558cc6977a..42025e33a4e07 100644
+index 47692c78d09c5..fdc5e76e1f6b0 100644
 --- a/arch/s390/kernel/setup.c
 +++ b/arch/s390/kernel/setup.c
-@@ -540,7 +540,7 @@ static struct notifier_block kdump_mem_nb = {
+@@ -513,7 +513,7 @@ static struct notifier_block kdump_mem_nb = {
  /*
   * Make sure that the area behind memory_end is protected
   */
@@ -42,7 +42,7 @@ index 5c2558cc6977a..42025e33a4e07 100644
  {
  #ifdef CONFIG_CRASH_DUMP
  	if (ipl_info.type == IPL_TYPE_FCP_DUMP &&
-@@ -558,7 +558,7 @@ static void reserve_memory_end(void)
+@@ -531,7 +531,7 @@ static void reserve_memory_end(void)
  /*
   * Make sure that oldmem, where the dump is stored, is protected
   */
@@ -51,7 +51,7 @@ index 5c2558cc6977a..42025e33a4e07 100644
  {
  #ifdef CONFIG_CRASH_DUMP
  	if (OLDMEM_BASE)
-@@ -570,7 +570,7 @@ static void reserve_oldmem(void)
+@@ -543,7 +543,7 @@ static void reserve_oldmem(void)
  /*
   * Make sure that oldmem, where the dump is stored, is protected
   */
