@@ -1,25 +1,36 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:35852 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725535AbgIKH1g (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Sep 2020 03:27:36 -0400
-Date: Fri, 11 Sep 2020 09:27:34 +0200
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: s390 PCI dma ops
-Message-ID: <20200911072734.GA23043@lst.de>
+Subject: [PATCH 01/11] compat.h: fix a spelling error in <linux/compat.h>
+Date: Mon, 21 Sep 2020 16:34:24 +0200
+Message-Id: <20200921143434.707844-2-hch@lst.de>
+In-Reply-To: <20200921143434.707844-1-hch@lst.de>
+References: <20200921143434.707844-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Sender: linux-s390-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Matthew Rosato <mjrosato@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
 
-Hi S/390 PCI and IOMMU maintainers,
+There is no compat_sys_readv64v2 syscall, only a compat_sys_preadv64v2
+one.
 
-We've recently tried to convert all implementations of the IOMMU API to
-use drivers/iommu/dma-iommu.c instead of their local IOMMU ops.  I've
-looked at S/390 and while some comments mention things about the iommu
-API the implementation looks quite separate.  Do arch/s390/pci/pci_dma.c
-and drivers/iommu/s390-iommu.c driver the same hardware?  If so would a
-switch to drivers/iommu/dma-iommu.c be feasibel?
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ include/linux/compat.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/linux/compat.h b/include/linux/compat.h
+index b354ce58966e2d..654c1ec36671a4 100644
+--- a/include/linux/compat.h
++++ b/include/linux/compat.h
+@@ -812,7 +812,7 @@ asmlinkage ssize_t compat_sys_pwritev2(compat_ulong_t fd,
+ 		const struct compat_iovec __user *vec,
+ 		compat_ulong_t vlen, u32 pos_low, u32 pos_high, rwf_t flags);
+ #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64V2
+-asmlinkage long  compat_sys_readv64v2(unsigned long fd,
++asmlinkage long  compat_sys_preadv64v2(unsigned long fd,
+ 		const struct compat_iovec __user *vec,
+ 		unsigned long vlen, loff_t pos, rwf_t flags);
+ #endif
+-- 
+2.28.0
