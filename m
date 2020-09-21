@@ -1,142 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49414 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726028AbgINPjx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Sep 2020 11:39:53 -0400
-From: Mark Brown <broonie@kernel.org>
-Subject: [PATCH v3 3/3] arm64: stacktrace: Convert to ARCH_STACKWALK
-Date: Mon, 14 Sep 2020 16:34:09 +0100
-Message-Id: <20200914153409.25097-4-broonie@kernel.org>
-In-Reply-To: <20200914153409.25097-1-broonie@kernel.org>
-References: <20200914153409.25097-1-broonie@kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59398 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726547AbgIUHUR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 03:20:17 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 14/14] block: mark blkdev_get static
+Date: Mon, 21 Sep 2020 09:19:58 +0200
+Message-Id: <20200921071958.307589-15-hch@lst.de>
+In-Reply-To: <20200921071958.307589-1-hch@lst.de>
+References: <20200921071958.307589-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H . Peter Anvin" <hpa@zytor.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, Miroslav Benes <mbenes@suse.cz>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@kernel.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
 
-Historically architectures have had duplicated code in their stack trace
-implementations for filtering what gets traced. In order to avoid this
-duplication some generic code has been provided using a new interface
-arch_stack_walk(), enabled by selecting ARCH_STACKWALK in Kconfig, which
-factors all this out into the generic stack trace code. Convert arm64
-to use this common infrastructure.
+There are no users outside the core block code left now.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arm64/Kconfig             |  1 +
- arch/arm64/kernel/stacktrace.c | 79 +++++-----------------------------
- 2 files changed, 11 insertions(+), 69 deletions(-)
+ fs/block_dev.c         | 3 +--
+ include/linux/blkdev.h | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 6d232837cbee..d1ba52e4b976 100644
---- a/arch/arm64/Kconfig
-+++ b/arch/arm64/Kconfig
-@@ -29,6 +29,7 @@ config ARM64
- 	select ARCH_HAS_SETUP_DMA_OPS
- 	select ARCH_HAS_SET_DIRECT_MAP
- 	select ARCH_HAS_SET_MEMORY
-+	select ARCH_STACKWALK
- 	select ARCH_HAS_STRICT_KERNEL_RWX
- 	select ARCH_HAS_STRICT_MODULE_RWX
- 	select ARCH_HAS_SYNC_DMA_FOR_DEVICE
-diff --git a/arch/arm64/kernel/stacktrace.c b/arch/arm64/kernel/stacktrace.c
-index 05eaba21fd46..804d076b02cb 100644
---- a/arch/arm64/kernel/stacktrace.c
-+++ b/arch/arm64/kernel/stacktrace.c
-@@ -133,82 +133,23 @@ void notrace walk_stackframe(struct task_struct *tsk, struct stackframe *frame,
- NOKPROBE_SYMBOL(walk_stackframe);
- 
- #ifdef CONFIG_STACKTRACE
--struct stack_trace_data {
--	struct stack_trace *trace;
--	unsigned int no_sched_functions;
--	unsigned int skip;
--};
- 
--static bool save_trace(void *d, unsigned long addr)
-+void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
-+		     struct task_struct *task, struct pt_regs *regs)
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 2898d69be6b3e4..6b9d19ffa5af7b 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1616,7 +1616,7 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, void *holder,
+  * RETURNS:
+  * 0 on success, -errno on failure.
+  */
+-int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder)
++static int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder)
  {
--	struct stack_trace_data *data = d;
--	struct stack_trace *trace = data->trace;
--
--	if (data->no_sched_functions && in_sched_functions(addr))
--		return false;
--	if (data->skip) {
--		data->skip--;
--		return false;
--	}
--
--	trace->entries[trace->nr_entries++] = addr;
--
--	return trace->nr_entries >= trace->max_entries;
--}
--
--void save_stack_trace_regs(struct pt_regs *regs, struct stack_trace *trace)
--{
--	struct stack_trace_data data;
--	struct stackframe frame;
--
--	data.trace = trace;
--	data.skip = trace->skip;
--	data.no_sched_functions = 0;
--
--	start_backtrace(&frame, regs->regs[29], regs->pc);
--	walk_stackframe(current, &frame, save_trace, &data);
--}
--EXPORT_SYMBOL_GPL(save_stack_trace_regs);
--
--static noinline void __save_stack_trace(struct task_struct *tsk,
--	struct stack_trace *trace, unsigned int nosched)
--{
--	struct stack_trace_data data;
- 	struct stackframe frame;
+ 	int ret, perm = 0;
  
--	if (!try_get_task_stack(tsk))
--		return;
--
--	data.trace = trace;
--	data.skip = trace->skip;
--	data.no_sched_functions = nosched;
--
--	if (tsk != current) {
--		start_backtrace(&frame, thread_saved_fp(tsk),
--				thread_saved_pc(tsk));
--	} else {
--		/* We don't want this function nor the caller */
--		data.skip += 2;
-+	if (regs)
-+		start_backtrace(&frame, regs->regs[29], regs->pc);
-+	else if (task == current)
- 		start_backtrace(&frame,
- 				(unsigned long)__builtin_frame_address(0),
--				(unsigned long)__save_stack_trace);
--	}
--
--	walk_stackframe(tsk, &frame, save_trace, &data);
-+				(unsigned long)arch_stack_walk);
-+	else
-+		start_backtrace(&frame, thread_saved_fp(task),
-+				thread_saved_pc(task));
- 
--	put_task_stack(tsk);
--}
--
--void save_stack_trace_tsk(struct task_struct *tsk, struct stack_trace *trace)
--{
--	__save_stack_trace(tsk, trace, 1);
--}
--EXPORT_SYMBOL_GPL(save_stack_trace_tsk);
--
--void save_stack_trace(struct stack_trace *trace)
--{
--	__save_stack_trace(current, trace, 0);
-+	walk_stackframe(task, &frame, consume_entry, cookie);
+@@ -1637,7 +1637,6 @@ int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder)
+ 	bdput(bdev);
+ 	return ret;
  }
+-EXPORT_SYMBOL(blkdev_get);
  
--EXPORT_SYMBOL_GPL(save_stack_trace);
+ /**
+  * blkdev_get_by_path - open a block device by name
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 5bd96fbab9b4c8..14117995091224 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1975,7 +1975,6 @@ void blkdev_show(struct seq_file *seqf, off_t offset);
+ #define BLKDEV_MAJOR_MAX	0
  #endif
+ 
+-int blkdev_get(struct block_device *bdev, fmode_t mode, void *holder);
+ struct block_device *blkdev_get_by_path(const char *path, fmode_t mode,
+ 		void *holder);
+ struct block_device *blkdev_get_by_dev(dev_t dev, fmode_t mode, void *holder);
 -- 
-2.20.1
+2.28.0
