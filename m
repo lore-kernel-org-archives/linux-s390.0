@@ -1,188 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11958 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728365AbgIYQO0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Sep 2020 12:14:26 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v1 4/4] s390x: css: pv: css test adaptation for PV
-Date: Fri, 25 Sep 2020 18:02:44 +0200
-Message-Id: <1601049764-11784-5-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1601049764-11784-1-git-send-email-pmorel@linux.ibm.com>
-References: <1601049764-11784-1-git-send-email-pmorel@linux.ibm.com>
+Received: from jabberwock.ucw.cz ([46.255.230.98]:51596 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726452AbgIUVqf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 17:46:35 -0400
+Date: Mon, 21 Sep 2020 23:46:32 +0200
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 11/14] PM: rewrite is_hibernate_resume_dev to not require
+ an inode
+Message-ID: <20200921214632.GA11006@amd>
+References: <20200921071958.307589-1-hch@lst.de>
+ <20200921071958.307589-12-hch@lst.de>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+In-Reply-To: <20200921071958.307589-12-hch@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
 
-We want the tests to automatically work with or without protected
-virtualisation.
-To do this we need to share the I/O memory with the host.
 
-Let's replace all static allocations with dynamic allocations
-to clearly separate shared and private memory.
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/css.h     |  3 +--
- lib/s390x/css_lib.c | 28 ++++++++--------------------
- s390x/css.c         | 35 ++++++++++++++++++++++++-----------
- 3 files changed, 33 insertions(+), 33 deletions(-)
+On Mon 2020-09-21 09:19:55, Christoph Hellwig wrote:
+> Just check the dev_t to help simplifying the code.
+>=20
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-diff --git a/lib/s390x/css.h b/lib/s390x/css.h
-index 221b67c..e3dee9f 100644
---- a/lib/s390x/css.h
-+++ b/lib/s390x/css.h
-@@ -283,8 +283,7 @@ int css_enable(int schid, int isc);
- 
- /* Library functions */
- int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
--int start_single_ccw(unsigned int sid, int code, void *data, int count,
--		     unsigned char flags);
-+struct ccw1 *ccw_alloc(int code, void *data, int count, unsigned char flags);
- void css_irq_io(void);
- int css_residual_count(unsigned int schid);
- 
-diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
-index 8e02371..6a0a0ec 100644
---- a/lib/s390x/css_lib.c
-+++ b/lib/s390x/css_lib.c
-@@ -18,6 +18,7 @@
- #include <asm/time.h>
- #include <asm/arch_def.h>
- 
-+#include <malloc_io.h>
- #include <css.h>
- 
- static struct schib schib;
-@@ -202,33 +203,20 @@ int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
- 	return ssch(sid, &orb);
- }
- 
--/*
-- * In the future, we want to implement support for CCW chains;
-- * for that, we will need to work with ccw1 pointers.
-- */
--static struct ccw1 unique_ccw;
--
--int start_single_ccw(unsigned int sid, int code, void *data, int count,
--		     unsigned char flags)
-+struct ccw1 *ccw_alloc(int code, void *data, int count, unsigned char flags)
- {
--	int cc;
--	struct ccw1 *ccw = &unique_ccw;
-+	struct ccw1 *ccw;
-+
-+	ccw = alloc_io_page(sizeof(*ccw));
-+	if (!ccw)
-+		return NULL;
- 
--	report_prefix_push("start_subchannel");
--	/* Build the CCW chain with a single CCW */
- 	ccw->code = code;
- 	ccw->flags = flags;
- 	ccw->count = count;
- 	ccw->data_address = (int)(unsigned long)data;
- 
--	cc = start_ccw1_chain(sid, ccw);
--	if (cc) {
--		report(0, "cc = %d", cc);
--		report_prefix_pop();
--		return cc;
--	}
--	report_prefix_pop();
--	return 0;
-+	return ccw;
- }
- 
- /* wait_and_check_io_completion:
-diff --git a/s390x/css.c b/s390x/css.c
-index ee3bc83..4b0b6b1 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -17,13 +17,15 @@
- #include <interrupt.h>
- #include <asm/arch_def.h>
- 
-+#include <malloc_io.h>
- #include <css.h>
-+#include <asm/barrier.h>
- 
- #define DEFAULT_CU_TYPE		0x3832 /* virtio-ccw */
- static unsigned long cu_type = DEFAULT_CU_TYPE;
- 
- static int test_device_sid;
--static struct senseid senseid;
-+static struct senseid *senseid;
- 
- static void test_enumerate(void)
- {
-@@ -57,6 +59,7 @@ static void test_enable(void)
-  */
- static void test_sense(void)
- {
-+	struct ccw1 *ccw;
- 	int ret;
- 	int len;
- 
-@@ -80,9 +83,15 @@ static void test_sense(void)
- 
- 	lowcore_ptr->io_int_param = 0;
- 
--	memset(&senseid, 0, sizeof(senseid));
--	ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
--			       &senseid, sizeof(senseid), CCW_F_SLI);
-+	senseid = alloc_io_page(sizeof(*senseid));
-+	if (!senseid)
-+		goto error_senseid;
-+
-+	ccw = ccw_alloc(CCW_CMD_SENSE_ID, senseid, sizeof(*senseid), CCW_F_SLI);
-+	if (!ccw)
-+		goto error_ccw;
-+
-+	ret = start_ccw1_chain(test_device_sid, ccw);
- 	if (ret)
- 		goto error;
- 
-@@ -97,7 +106,7 @@ static void test_sense(void)
- 	if (ret < 0) {
- 		report_info("no valid residual count");
- 	} else if (ret != 0) {
--		len = sizeof(senseid) - ret;
-+		len = sizeof(*senseid) - ret;
- 		if (ret && len < CSS_SENSEID_COMMON_LEN) {
- 			report(0, "transferred a too short length: %d", ret);
- 			goto error;
-@@ -105,21 +114,25 @@ static void test_sense(void)
- 			report_info("transferred a shorter length: %d", len);
- 	}
- 
--	if (senseid.reserved != 0xff) {
--		report(0, "transferred garbage: 0x%02x", senseid.reserved);
-+	if (senseid->reserved != 0xff) {
-+		report(0, "transferred garbage: 0x%02x", senseid->reserved);
- 		goto error;
- 	}
- 
- 	report_prefix_pop();
- 
- 	report_info("reserved 0x%02x cu_type 0x%04x cu_model 0x%02x dev_type 0x%04x dev_model 0x%02x",
--		    senseid.reserved, senseid.cu_type, senseid.cu_model,
--		    senseid.dev_type, senseid.dev_model);
-+		    senseid->reserved, senseid->cu_type, senseid->cu_model,
-+		    senseid->dev_type, senseid->dev_model);
- 
--	report(senseid.cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
--	       (uint16_t) cu_type, senseid.cu_type);
-+	report(senseid->cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
-+	       (uint16_t) cu_type, senseid->cu_type);
- 
- error:
-+	free_io_page(ccw);
-+error_ccw:
-+	free_io_page(senseid);
-+error_senseid:
- 	unregister_io_int_func(css_irq_io);
- }
- 
--- 
-2.25.1
+Acked-by: Pavel Machek <pavel@ucw.cz>
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl9pHzgACgkQMOfwapXb+vLjrwCgkqX/NkSqeB9h9XmupMxguXKk
+HU8An2MYofOY5WFBUrwRO2mqpLwzFEzu
+=u07+
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--
