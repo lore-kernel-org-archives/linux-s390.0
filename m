@@ -1,8 +1,12 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:50874 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728046AbgIUOl3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:41:29 -0400
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 1/3] s390/init: add missing __init annotations
-Date: Mon, 21 Sep 2020 10:41:29 -0400
-Message-Id: <20200921144132.2135971-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 1/3] s390/init: add missing __init annotations
+Date: Mon, 21 Sep 2020 10:41:25 -0400
+Message-Id: <20200921144127.2135896-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
@@ -26,10 +30,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index a559908d180ec..ce49c2b9db7ee 100644
+index 5c2558cc6977a..42025e33a4e07 100644
 --- a/arch/s390/kernel/setup.c
 +++ b/arch/s390/kernel/setup.c
-@@ -529,7 +529,7 @@ static struct notifier_block kdump_mem_nb = {
+@@ -540,7 +540,7 @@ static struct notifier_block kdump_mem_nb = {
  /*
   * Make sure that the area behind memory_end is protected
   */
@@ -38,7 +42,7 @@ index a559908d180ec..ce49c2b9db7ee 100644
  {
  #ifdef CONFIG_CRASH_DUMP
  	if (ipl_info.type == IPL_TYPE_FCP_DUMP &&
-@@ -547,7 +547,7 @@ static void reserve_memory_end(void)
+@@ -558,7 +558,7 @@ static void reserve_memory_end(void)
  /*
   * Make sure that oldmem, where the dump is stored, is protected
   */
@@ -47,7 +51,7 @@ index a559908d180ec..ce49c2b9db7ee 100644
  {
  #ifdef CONFIG_CRASH_DUMP
  	if (OLDMEM_BASE)
-@@ -559,7 +559,7 @@ static void reserve_oldmem(void)
+@@ -570,7 +570,7 @@ static void reserve_oldmem(void)
  /*
   * Make sure that oldmem, where the dump is stored, is protected
   */
