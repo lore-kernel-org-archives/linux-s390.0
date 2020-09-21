@@ -1,103 +1,103 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29975 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725921AbgIKKfk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Sep 2020 06:35:40 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v4 3/8] mm/memory_hotplug: guard more declarations by CONFIG_MEMORY_HOTPLUG
-Date: Fri, 11 Sep 2020 12:34:54 +0200
-Message-Id: <20200911103459.10306-4-david@redhat.com>
-In-Reply-To: <20200911103459.10306-1-david@redhat.com>
-References: <20200911103459.10306-1-david@redhat.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726489AbgIUHUH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 03:20:07 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 05/14] pktcdvd: use blkdev_get_by_dev instead of open coding it
+Date: Mon, 21 Sep 2020 09:19:49 +0200
+Message-Id: <20200921071958.307589-6-hch@lst.de>
+In-Reply-To: <20200921071958.307589-1-hch@lst.de>
+References: <20200921071958.307589-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
 
-We soon want to pass flags via a new type to add_memory() and friends.
-That revealed that we currently don't guard some declarations by
-CONFIG_MEMORY_HOTPLUG.
+Replace bdget + blkdev_get by blkdev_get_by_dev.
 
-While some definitions could be moved to different places, let's keep it
-minimal for now and use CONFIG_MEMORY_HOTPLUG for all functions only
-compiled with CONFIG_MEMORY_HOTPLUG.
-
-Wrap sparse_decode_mem_map() into CONFIG_MEMORY_HOTPLUG, it's only
-called from CONFIG_MEMORY_HOTPLUG code.
-
-While at it, remove allow_online_pfn_range(), which is no longer around,
-and mhp_notimplemented(), which is unused.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/memory_hotplug.h | 12 +++---------
- mm/sparse.c                    |  2 ++
- 2 files changed, 5 insertions(+), 9 deletions(-)
+ drivers/block/pktcdvd.c | 25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 51a877fec8da8..1504b4d5ae6ce 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -247,13 +247,6 @@ static inline void zone_span_writelock(struct zone *zone) {}
- static inline void zone_span_writeunlock(struct zone *zone) {}
- static inline void zone_seqlock_init(struct zone *zone) {}
+diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
+index bc870a5f15f77b..467dbd06b7cdb1 100644
+--- a/drivers/block/pktcdvd.c
++++ b/drivers/block/pktcdvd.c
+@@ -2110,16 +2110,18 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
+ 	int ret;
+ 	long lba;
+ 	struct request_queue *q;
++	struct block_device *bdev;
  
--static inline int mhp_notimplemented(const char *func)
--{
--	printk(KERN_WARNING "%s() called, with CONFIG_MEMORY_HOTPLUG disabled\n", func);
--	dump_stack();
--	return -ENOSYS;
--}
--
- static inline void register_page_bootmem_info_node(struct pglist_data *pgdat)
+ 	/*
+ 	 * We need to re-open the cdrom device without O_NONBLOCK to be able
+ 	 * to read/write from/to it. It is already opened in O_NONBLOCK mode
+-	 * so bdget() can't fail.
++	 * so open should not fail.
+ 	 */
+-	bdget(pd->bdev->bd_dev);
+-	ret = blkdev_get(pd->bdev, FMODE_READ | FMODE_EXCL, pd);
+-	if (ret)
++	bdev = blkdev_get_by_dev(pd->bdev->bd_dev, FMODE_READ | FMODE_EXCL, pd);
++	if (IS_ERR(bdev)) {
++		ret = PTR_ERR(bdev);
+ 		goto out;
++	}
+ 
+ 	ret = pkt_get_last_written(pd, &lba);
+ 	if (ret) {
+@@ -2163,7 +2165,7 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
+ 	return 0;
+ 
+ out_putdev:
+-	blkdev_put(pd->bdev, FMODE_READ | FMODE_EXCL);
++	blkdev_put(bdev, FMODE_READ | FMODE_EXCL);
+ out:
+ 	return ret;
+ }
+@@ -2500,7 +2502,6 @@ static int pkt_seq_show(struct seq_file *m, void *p)
+ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
  {
- }
-@@ -344,6 +337,7 @@ static inline void __remove_memory(int nid, u64 start, u64 size) {}
- extern void set_zone_contiguous(struct zone *zone);
- extern void clear_zone_contiguous(struct zone *zone);
+ 	int i;
+-	int ret = 0;
+ 	char b[BDEVNAME_SIZE];
+ 	struct block_device *bdev;
  
-+#ifdef CONFIG_MEMORY_HOTPLUG
- extern void __ref free_area_init_core_hotplug(int nid);
- extern int __add_memory(int nid, u64 start, u64 size);
- extern int add_memory(int nid, u64 start, u64 size);
-@@ -364,8 +358,8 @@ extern void sparse_remove_section(struct mem_section *ms,
- 		unsigned long map_offset, struct vmem_altmap *altmap);
- extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
- 					  unsigned long pnum);
--extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_pages,
--		int online_type);
- extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
- 		unsigned long nr_pages);
-+#endif /* CONFIG_MEMORY_HOTPLUG */
-+
- #endif /* __LINUX_MEMORY_HOTPLUG_H */
-diff --git a/mm/sparse.c b/mm/sparse.c
-index b25ad8e648392..7bd23f9d6cef6 100644
---- a/mm/sparse.c
-+++ b/mm/sparse.c
-@@ -312,6 +312,7 @@ static unsigned long sparse_encode_mem_map(struct page *mem_map, unsigned long p
- 	return coded_mem_map;
+@@ -2523,12 +2524,9 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 		}
+ 	}
+ 
+-	bdev = bdget(dev);
+-	if (!bdev)
+-		return -ENOMEM;
+-	ret = blkdev_get(bdev, FMODE_READ | FMODE_NDELAY, NULL);
+-	if (ret)
+-		return ret;
++	bdev = blkdev_get_by_dev(dev, FMODE_READ | FMODE_NDELAY, NULL);
++	if (IS_ERR(bdev))
++		return PTR_ERR(bdev);
+ 	if (!blk_queue_scsi_passthrough(bdev_get_queue(bdev))) {
+ 		blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
+ 		return -EINVAL;
+@@ -2546,7 +2544,6 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", pd->name);
+ 	if (IS_ERR(pd->cdrw.thread)) {
+ 		pkt_err(pd, "can't start kernel thread\n");
+-		ret = -ENOMEM;
+ 		goto out_mem;
+ 	}
+ 
+@@ -2558,7 +2555,7 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
+ 	blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
+ 	/* This is safe: open() is still holding a reference. */
+ 	module_put(THIS_MODULE);
+-	return ret;
++	return -ENOMEM;
  }
  
-+#ifdef CONFIG_MEMORY_HOTPLUG
- /*
-  * Decode mem_map from the coded memmap
-  */
-@@ -321,6 +322,7 @@ struct page *sparse_decode_mem_map(unsigned long coded_mem_map, unsigned long pn
- 	coded_mem_map &= SECTION_MAP_MASK;
- 	return ((struct page *)coded_mem_map) + section_nr_to_pfn(pnum);
- }
-+#endif /* CONFIG_MEMORY_HOTPLUG */
- 
- static void __meminit sparse_init_one_section(struct mem_section *ms,
- 		unsigned long pnum, struct page *mem_map,
+ static int pkt_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
 -- 
-2.26.2
+2.28.0
