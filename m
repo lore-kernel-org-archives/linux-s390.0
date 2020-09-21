@@ -1,48 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52476 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726559AbgIBTq5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Sep 2020 15:46:57 -0400
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH v4 2/3] s390/pci: Mark all VFs as not implementing MSE bit
-Date: Wed,  2 Sep 2020 15:46:35 -0400
-Message-Id: <1599075996-9826-3-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1599075996-9826-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1599075996-9826-1-git-send-email-mjrosato@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42230 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727495AbgIUOen (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 10:34:43 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 11/11] security/keys: remove compat_keyctl_instantiate_key_iov
+Date: Mon, 21 Sep 2020 16:34:34 +0200
+Message-Id: <20200921143434.707844-12-hch@lst.de>
+In-Reply-To: <20200921143434.707844-1-hch@lst.de>
+References: <20200921143434.707844-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, bhelgaas@google.com
-Cc: schnelle@linux.ibm.com, pmorel@linux.ibm.com, mpe@ellerman.id.au, oohall@gmail.com, cohuck@redhat.com, kevin.tian@intel.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
 
-For s390 we can have VFs that are passed-through without
-the associated PF.  Firmware provides an emulation layer
-to allow these devices to operate independently, but is
-missing emulation of the MSE bit.  For these as well as
-linked VFs, mark a dev_flags bit that specifies these
-devices do not implement the MSE bit.
+Now that import_iovec handles compat iovecs, the native version of
+keyctl_instantiate_key_iov can be used for the compat case as well.
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/pci/pci_bus.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ security/keys/compat.c   | 36 ++----------------------------------
+ security/keys/internal.h |  5 -----
+ security/keys/keyctl.c   |  2 +-
+ 3 files changed, 3 insertions(+), 40 deletions(-)
 
-diff --git a/arch/s390/pci/pci_bus.c b/arch/s390/pci/pci_bus.c
-index 5967f30..73789a7 100644
---- a/arch/s390/pci/pci_bus.c
-+++ b/arch/s390/pci/pci_bus.c
-@@ -197,9 +197,10 @@ void pcibios_bus_add_device(struct pci_dev *pdev)
- 	 * With pdev->no_vf_scan the common PCI probing code does not
- 	 * perform PF/VF linking.
- 	 */
--	if (zdev->vfn)
-+	if (zdev->vfn) {
- 		zpci_bus_setup_virtfn(zdev->zbus, pdev, zdev->vfn);
--
-+		pdev->dev_flags |= PCI_DEV_FLAGS_FORCE_COMMAND_MEM;
-+	}
- }
+diff --git a/security/keys/compat.c b/security/keys/compat.c
+index 7ae531db031cf8..1545efdca56227 100644
+--- a/security/keys/compat.c
++++ b/security/keys/compat.c
+@@ -11,38 +11,6 @@
+ #include <linux/slab.h>
+ #include "internal.h"
  
- static int zpci_bus_add_device(struct zpci_bus *zbus, struct zpci_dev *zdev)
+-/*
+- * Instantiate a key with the specified compatibility multipart payload and
+- * link the key into the destination keyring if one is given.
+- *
+- * The caller must have the appropriate instantiation permit set for this to
+- * work (see keyctl_assume_authority).  No other permissions are required.
+- *
+- * If successful, 0 will be returned.
+- */
+-static long compat_keyctl_instantiate_key_iov(
+-	key_serial_t id,
+-	const struct compat_iovec __user *_payload_iov,
+-	unsigned ioc,
+-	key_serial_t ringid)
+-{
+-	struct iovec iovstack[UIO_FASTIOV], *iov = iovstack;
+-	struct iov_iter from;
+-	long ret;
+-
+-	if (!_payload_iov)
+-		ioc = 0;
+-
+-	ret = import_iovec(WRITE, (const struct iovec __user *)_payload_iov,
+-			   ioc, ARRAY_SIZE(iovstack), &iov, &from);
+-	if (ret < 0)
+-		return ret;
+-
+-	ret = keyctl_instantiate_key_common(id, &from, ringid);
+-	kfree(iov);
+-	return ret;
+-}
+-
+ /*
+  * The key control system call, 32-bit compatibility version for 64-bit archs
+  */
+@@ -113,8 +81,8 @@ COMPAT_SYSCALL_DEFINE5(keyctl, u32, option,
+ 		return keyctl_reject_key(arg2, arg3, arg4, arg5);
+ 
+ 	case KEYCTL_INSTANTIATE_IOV:
+-		return compat_keyctl_instantiate_key_iov(
+-			arg2, compat_ptr(arg3), arg4, arg5);
++		return keyctl_instantiate_key_iov(arg2, compat_ptr(arg3), arg4,
++						  arg5);
+ 
+ 	case KEYCTL_INVALIDATE:
+ 		return keyctl_invalidate_key(arg2);
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index 338a526cbfa516..9b9cf3b6fcbb4d 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -262,11 +262,6 @@ extern long keyctl_instantiate_key_iov(key_serial_t,
+ 				       const struct iovec __user *,
+ 				       unsigned, key_serial_t);
+ extern long keyctl_invalidate_key(key_serial_t);
+-
+-struct iov_iter;
+-extern long keyctl_instantiate_key_common(key_serial_t,
+-					  struct iov_iter *,
+-					  key_serial_t);
+ extern long keyctl_restrict_keyring(key_serial_t id,
+ 				    const char __user *_type,
+ 				    const char __user *_restriction);
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index 9febd37a168fd0..e26bbccda7ccee 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -1164,7 +1164,7 @@ static int keyctl_change_reqkey_auth(struct key *key)
+  *
+  * If successful, 0 will be returned.
+  */
+-long keyctl_instantiate_key_common(key_serial_t id,
++static long keyctl_instantiate_key_common(key_serial_t id,
+ 				   struct iov_iter *from,
+ 				   key_serial_t ringid)
+ {
 -- 
-1.8.3.1
+2.28.0
