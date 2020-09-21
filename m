@@ -1,175 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54600 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728852AbgIQRB4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 13:01:56 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 01/14] block: move the NEED_PART_SCAN flag to struct gendisk
-Date: Thu, 17 Sep 2020 18:57:07 +0200
-Message-Id: <20200917165720.3285256-2-hch@lst.de>
-In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
-References: <20200917165720.3285256-1-hch@lst.de>
+        with ESMTP id S1726644AbgIUPUI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 11:20:08 -0400
+Date: Mon, 21 Sep 2020 16:20:02 +0100
+From: Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH 06/11] iov_iter: handle the compat case in import_iovec
+Message-ID: <20200921152002.GW3421308@ZenIV.linux.org.uk>
+References: <20200921143434.707844-1-hch@lst.de>
+ <20200921143434.707844-7-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200921143434.707844-7-hch@lst.de>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
 
-We can only scan for partitions on the whole disk, so move the flag
-from struct block_device to struct gendisk.
+On Mon, Sep 21, 2020 at 04:34:29PM +0200, Christoph Hellwig wrote:
+> Use in compat_syscall to import either native or the compat iovecs, and
+> remove the now superflous compat_import_iovec, which removes the need for
+> special compat logic in most callers.  Only io_uring needs special
+> treatment given that it can call import_iovec from kernel threads acting
+> on behalf of native or compat syscalls.  Expose the low-level
+> __import_iovec helper and use it in io_uring to explicitly pick a iovec
+> layout.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/genhd.c             | 4 ++--
- drivers/block/nbd.c       | 8 ++++----
- drivers/ide/ide-gd.c      | 2 +-
- fs/block_dev.c            | 7 +++----
- include/linux/blk_types.h | 4 +---
- include/linux/genhd.h     | 2 ++
- 6 files changed, 13 insertions(+), 14 deletions(-)
+fs/aio.c part is not obvious...  Might be better to use __import_iovec()
+there as well and leave the rest of aio.c changes to followup.
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 9d060e79eb31d8..7b56203c90a303 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -731,7 +731,7 @@ static void register_disk(struct device *parent, struct gendisk *disk,
- 	if (!bdev)
- 		goto exit;
- 
--	set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
-+	set_bit(GD_NEED_PART_SCAN, &disk->state);
- 	err = blkdev_get(bdev, FMODE_READ, NULL);
- 	if (err < 0)
- 		goto exit;
-@@ -2112,7 +2112,7 @@ bool bdev_check_media_change(struct block_device *bdev)
- 	if (__invalidate_device(bdev, true))
- 		pr_warn("VFS: busy inodes on changed media %s\n",
- 			bdev->bd_disk->disk_name);
--	set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
-+	set_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
- 	return true;
- }
- EXPORT_SYMBOL(bdev_check_media_change);
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 15eed210feeff4..2dca0aab0a9a25 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -315,7 +315,7 @@ static void nbd_size_update(struct nbd_device *nbd)
- 			bd_set_nr_sectors(bdev, nr_sectors);
- 			set_blocksize(bdev, config->blksize);
- 		} else
--			set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
-+			set_bit(GD_NEED_PART_SCAN, &nbd->disk->state);
- 		bdput(bdev);
- 	}
- 	kobject_uevent(&nbd_to_dev(nbd)->kobj, KOBJ_CHANGE);
-@@ -1322,7 +1322,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
- 		return ret;
- 
- 	if (max_part)
--		set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
-+		set_bit(GD_NEED_PART_SCAN, &nbd->disk->state);
- 	mutex_unlock(&nbd->config_lock);
- 	ret = wait_event_interruptible(config->recv_wq,
- 					 atomic_read(&config->recv_threads) == 0);
-@@ -1500,9 +1500,9 @@ static int nbd_open(struct block_device *bdev, fmode_t mode)
- 		refcount_set(&nbd->config_refs, 1);
- 		refcount_inc(&nbd->refs);
- 		mutex_unlock(&nbd->config_lock);
--		set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
-+		set_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
- 	} else if (nbd_disconnected(nbd->config)) {
--		set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
-+		set_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
- 	}
- out:
- 	mutex_unlock(&nbd_index_mutex);
-diff --git a/drivers/ide/ide-gd.c b/drivers/ide/ide-gd.c
-index 661e2aa9c96784..e2b6c82586ce8b 100644
---- a/drivers/ide/ide-gd.c
-+++ b/drivers/ide/ide-gd.c
-@@ -230,7 +230,7 @@ static int ide_gd_open(struct block_device *bdev, fmode_t mode)
- 				bdev->bd_disk->disk_name);
- 		drive->disk_ops->get_capacity(drive);
- 		set_capacity(disk, ide_gd_capacity(drive));
--		set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
-+		set_bit(GD_NEED_PART_SCAN, &disk->state);
- 	} else if (drive->dev_flags & IDE_DFLAG_FORMAT_IN_PROGRESS) {
- 		ret = -EBUSY;
- 		goto out_put_idkp;
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 0b34955b9e360f..1a9325f4315769 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -910,7 +910,6 @@ struct block_device *bdget(dev_t dev)
- 		bdev->bd_super = NULL;
- 		bdev->bd_inode = inode;
- 		bdev->bd_part_count = 0;
--		bdev->bd_flags = 0;
- 		inode->i_mode = S_IFBLK;
- 		inode->i_rdev = dev;
- 		inode->i_bdev = bdev;
-@@ -1385,7 +1384,7 @@ int bdev_disk_changed(struct block_device *bdev, bool invalidate)
- 
- 	lockdep_assert_held(&bdev->bd_mutex);
- 
--	clear_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
-+	clear_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
- 
- rescan:
- 	ret = blk_drop_partitions(bdev);
-@@ -1509,7 +1508,7 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, void *holder,
- 			 * The latter is necessary to prevent ghost
- 			 * partitions on a removed medium.
- 			 */
--			if (test_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags) &&
-+			if (test_bit(GD_NEED_PART_SCAN, &disk->state) &&
- 			    (!ret || ret == -ENOMEDIUM))
- 				bdev_disk_changed(bdev, ret == -ENOMEDIUM);
- 
-@@ -1539,7 +1538,7 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, void *holder,
- 			if (bdev->bd_disk->fops->open)
- 				ret = bdev->bd_disk->fops->open(bdev, mode);
- 			/* the same as first opener case, read comment there */
--			if (test_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags) &&
-+			if (test_bit(GD_NEED_PART_SCAN, &disk->state) &&
- 			    (!ret || ret == -ENOMEDIUM))
- 				bdev_disk_changed(bdev, ret == -ENOMEDIUM);
- 			if (ret)
-diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
-index 6ffa783e16335e..eb20e28184ab19 100644
---- a/include/linux/blk_types.h
-+++ b/include/linux/blk_types.h
-@@ -19,8 +19,6 @@ struct cgroup_subsys_state;
- typedef void (bio_end_io_t) (struct bio *);
- struct bio_crypt_ctx;
- 
--#define BDEV_NEED_PART_SCAN		0
--
- struct block_device {
- 	dev_t			bd_dev;
- 	int			bd_openers;
-@@ -39,7 +37,7 @@ struct block_device {
- 	struct hd_struct *	bd_part;
- 	/* number of times partitions within this device have been opened. */
- 	unsigned		bd_part_count;
--	unsigned long		bd_flags;
-+
- 	spinlock_t		bd_size_lock; /* for bd_inode->i_size updates */
- 	struct gendisk *	bd_disk;
- 	struct backing_dev_info *bd_bdi;
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 1c97cf84f011a7..38f23d75701379 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -191,6 +191,8 @@ struct gendisk {
- 	void *private_data;
- 
- 	int flags;
-+	unsigned long state;
-+#define GD_NEED_PART_SCAN		0
- 	struct rw_semaphore lookup_sem;
- 	struct kobject *slave_dir;
- 
--- 
-2.28.0
+> --- a/lib/iov_iter.c
+> +++ b/lib/iov_iter.c
+> @@ -1683,7 +1683,7 @@ static int compat_copy_iovecs_from_user(struct iovec *iov,
+>  	return ret;
+>  }
+>  
+> -static ssize_t __import_iovec(int type, const struct iovec __user *uvector,
+> +ssize_t __import_iovec(int type, const struct iovec __user *uvector,
+>  		unsigned nr_segs, unsigned fast_segs, struct iovec **iovp,
+>  		struct iov_iter *i, bool compat)
+>  {
+
+Don't make it static in the first place, perhaps?
