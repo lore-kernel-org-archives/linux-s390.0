@@ -1,49 +1,54 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19812 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728975AbgICTxi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 15:53:38 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 2/4] net/smc: set rx_off for SMCR explicitly
-Date: Thu,  3 Sep 2020 21:53:16 +0200
-Message-Id: <20200903195318.39288-3-kgraul@linux.ibm.com>
-In-Reply-To: <20200903195318.39288-1-kgraul@linux.ibm.com>
-References: <20200903195318.39288-1-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Christoph Hellwig <hch@lst.de>
+Subject: let import_iovec deal with compat_iovecs as well v2
+Date: Mon, 21 Sep 2020 16:34:23 +0200
+Message-Id: <20200921143434.707844-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+Hi Al,
 
-SMC tries to make use of SMCD first. If a problem shows up,
-it tries to switch to SMCR. If the SMCD initializing problem shows
-up after the SMCD connection has already been initialized, field
-rx_off keeps the wrong SMCD value for SMCR, which results in corrupted
-data at the receiver.
-This patch adds an explicit (re-)setting of field rx_off to zero if the
-connection uses SMCR.
+this series changes import_iovec to transparently deal with comat iovec
+structures, and then cleanups up a lot of code dupliation.
 
-Fixes: be244f28d22f ("net/smc: add SMC-D support in data transfer")
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+Changes since v1:
+ - improve a commit message
+ - drop a pointless unlikely
+ - drop the PF_FORCE_COMPAT flag
+ - add a few more cleanups (including two from David Laight)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index b42fa3b00d00..a6ac0eb20c99 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1356,6 +1356,8 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 	if (ini->is_smcd) {
- 		conn->rx_off = sizeof(struct smcd_cdc_msg);
- 		smcd_cdc_rx_init(conn); /* init tasklet for this conn */
-+	} else {
-+		conn->rx_off = 0;
- 	}
- #ifndef KERNEL_HAS_ATOMIC64
- 	spin_lock_init(&conn->acurs_lock);
--- 
-2.17.1
+Diffstat:
+ arch/arm64/include/asm/unistd32.h                  |   10 
+ arch/mips/kernel/syscalls/syscall_n32.tbl          |   10 
+ arch/mips/kernel/syscalls/syscall_o32.tbl          |   10 
+ arch/parisc/kernel/syscalls/syscall.tbl            |   10 
+ arch/powerpc/kernel/syscalls/syscall.tbl           |   10 
+ arch/s390/kernel/syscalls/syscall.tbl              |   10 
+ arch/sparc/kernel/syscalls/syscall.tbl             |   10 
+ arch/x86/entry/syscall_x32.c                       |    5 
+ arch/x86/entry/syscalls/syscall_32.tbl             |   10 
+ arch/x86/entry/syscalls/syscall_64.tbl             |   10 
+ block/scsi_ioctl.c                                 |   12 
+ drivers/scsi/sg.c                                  |    9 
+ fs/aio.c                                           |   38 --
+ fs/io_uring.c                                      |   20 -
+ fs/read_write.c                                    |  362 +--------------------
+ fs/splice.c                                        |   57 ---
+ include/linux/compat.h                             |   24 -
+ include/linux/fs.h                                 |   11 
+ include/linux/uio.h                                |   10 
+ include/uapi/asm-generic/unistd.h                  |   12 
+ lib/iov_iter.c                                     |  161 +++++++--
+ mm/process_vm_access.c                             |   85 ----
+ net/compat.c                                       |    4 
+ security/keys/compat.c                             |   37 --
+ security/keys/internal.h                           |    5 
+ security/keys/keyctl.c                             |    2 
+ tools/include/uapi/asm-generic/unistd.h            |   12 
+ tools/perf/arch/powerpc/entry/syscalls/syscall.tbl |   10 
+ tools/perf/arch/s390/entry/syscalls/syscall.tbl    |   10 
+ tools/perf/arch/x86/entry/syscalls/syscall_64.tbl  |   10 
+ 30 files changed, 280 insertions(+), 706 deletions(-)
