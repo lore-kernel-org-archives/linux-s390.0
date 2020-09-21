@@ -1,403 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7540 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727321AbgIZKoz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 26 Sep 2020 06:44:55 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 09/14] net/smc: determine proposed ISM devices
-Date: Sat, 26 Sep 2020 12:44:27 +0200
-Message-Id: <20200926104432.74293-10-kgraul@linux.ibm.com>
-In-Reply-To: <20200926104432.74293-1-kgraul@linux.ibm.com>
-References: <20200926104432.74293-1-kgraul@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:49296 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727847AbgIUOkk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Sep 2020 10:40:40 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 09/20] s390/init: add missing __init annotations
+Date: Mon, 21 Sep 2020 10:40:16 -0400
+Message-Id: <20200921144027.2135390-9-sashal@kernel.org>
+In-Reply-To: <20200921144027.2135390-1-sashal@kernel.org>
+References: <20200921144027.2135390-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-SMCD Version 2 allows to propose up to 8 additional ISM devices
-offered to the peer as candidates for SMCD communication.
-This patch covers determination of the ISM devices to be proposed.
-ISM devices without PNETID are preferred, since ISM devices with
-PNETID are a V1 leftover and will disappear over the time.
+[ Upstream commit fcb2b70cdb194157678fb1a75f9ff499aeba3d2a ]
 
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Add __init to reserve_memory_end, reserve_oldmem and remove_oldmem.
+Sometimes these functions are not inlined, and then the build
+complains about section mismatch.
+
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c   | 165 ++++++++++++++++++++++++++++++++-------------
- net/smc/smc.h      |   1 +
- net/smc/smc_clc.c  |  11 ++-
- net/smc/smc_clc.h  |   3 +-
- net/smc/smc_core.h |   4 ++
- net/smc/smc_ism.c  |   6 +-
- net/smc/smc_pnet.c |   2 +-
- net/smc/smc_pnet.h |   1 +
- 8 files changed, 135 insertions(+), 58 deletions(-)
+ arch/s390/kernel/setup.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index f02ed74a28e6..1d01a01c7fd5 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -571,6 +571,41 @@ static int smc_find_ism_device(struct smc_sock *smc, struct smc_init_info *ini)
- 	return 0;
- }
- 
-+/* determine possible V2 ISM devices (either without PNETID or with PNETID plus
-+ * PNETID matching net_device)
-+ */
-+static int smc_find_ism_v2_device_clnt(struct smc_sock *smc,
-+				       struct smc_init_info *ini)
-+{
-+	int rc = SMC_CLC_DECL_NOSMCDDEV;
-+	struct smcd_dev *smcd;
-+	int i = 1;
-+
-+	if (smcd_indicated(ini->smc_type_v1))
-+		rc = 0;		/* already initialized for V1 */
-+	mutex_lock(&smcd_dev_list.mutex);
-+	list_for_each_entry(smcd, &smcd_dev_list.list, list) {
-+		if (smcd->going_away || smcd == ini->ism_dev[0])
-+			continue;
-+		if (!smc_pnet_is_pnetid_set(smcd->pnetid) ||
-+		    smc_pnet_is_ndev_pnetid(sock_net(&smc->sk), smcd->pnetid)) {
-+			ini->ism_dev[i] = smcd;
-+			ini->ism_chid[i] = smc_ism_get_chid(ini->ism_dev[i]);
-+			ini->is_smcd = true;
-+			rc = 0;
-+			i++;
-+			if (i > SMC_MAX_ISM_DEVS)
-+				break;
-+		}
-+	}
-+	mutex_unlock(&smcd_dev_list.mutex);
-+	ini->ism_offered_cnt = i - 1;
-+	if (!ini->ism_dev[0] && !ini->ism_dev[1])
-+		ini->smcd_version = 0;
-+
-+	return rc;
-+}
-+
- /* Check for VLAN ID and register it on ISM device just for CLC handshake */
- static int smc_connect_ism_vlan_setup(struct smc_sock *smc,
- 				      struct smc_init_info *ini)
-@@ -580,13 +615,45 @@ static int smc_connect_ism_vlan_setup(struct smc_sock *smc,
- 	return 0;
- }
- 
-+static int smc_find_proposal_devices(struct smc_sock *smc,
-+				     struct smc_init_info *ini)
-+{
-+	int rc = 0;
-+
-+	/* check if there is an ism device available */
-+	if (ini->smcd_version & SMC_V1) {
-+		if (smc_find_ism_device(smc, ini) ||
-+		    smc_connect_ism_vlan_setup(smc, ini)) {
-+			if (ini->smc_type_v1 == SMC_TYPE_B)
-+				ini->smc_type_v1 = SMC_TYPE_R;
-+			else
-+				ini->smc_type_v1 = SMC_TYPE_N;
-+		} /* else ISM V1 is supported for this connection */
-+		if (smc_find_rdma_device(smc, ini)) {
-+			if (ini->smc_type_v1 == SMC_TYPE_B)
-+				ini->smc_type_v1 = SMC_TYPE_D;
-+			else
-+				ini->smc_type_v1 = SMC_TYPE_N;
-+		} /* else RDMA is supported for this connection */
-+	}
-+	if (smc_ism_v2_capable && smc_find_ism_v2_device_clnt(smc, ini))
-+		ini->smc_type_v2 = SMC_TYPE_N;
-+
-+	/* if neither ISM nor RDMA are supported, fallback */
-+	if (!smcr_indicated(ini->smc_type_v1) &&
-+	    ini->smc_type_v1 == SMC_TYPE_N && ini->smc_type_v2 == SMC_TYPE_N)
-+		rc = SMC_CLC_DECL_NOSMCDEV;
-+
-+	return rc;
-+}
-+
- /* cleanup temporary VLAN ID registration used for CLC handshake. If ISM is
-  * used, the VLAN ID will be registered again during the connection setup.
+diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
+index 07aa15ba43b3e..faf30f37c6361 100644
+--- a/arch/s390/kernel/setup.c
++++ b/arch/s390/kernel/setup.c
+@@ -619,7 +619,7 @@ static struct notifier_block kdump_mem_nb = {
+ /*
+  * Make sure that the area behind memory_end is protected
   */
--static int smc_connect_ism_vlan_cleanup(struct smc_sock *smc, bool is_smcd,
-+static int smc_connect_ism_vlan_cleanup(struct smc_sock *smc,
- 					struct smc_init_info *ini)
+-static void reserve_memory_end(void)
++static void __init reserve_memory_end(void)
  {
--	if (!is_smcd)
-+	if (!smcd_indicated(ini->smc_type_v1))
- 		return 0;
- 	if (ini->vlan_id && smc_ism_put_vlan(ini->ism_dev[0], ini->vlan_id))
- 		return SMC_CLC_DECL_CNFERR;
-@@ -594,14 +661,14 @@ static int smc_connect_ism_vlan_cleanup(struct smc_sock *smc, bool is_smcd,
- }
- 
- /* CLC handshake during connect */
--static int smc_connect_clc(struct smc_sock *smc, int smc_type,
-+static int smc_connect_clc(struct smc_sock *smc,
- 			   struct smc_clc_msg_accept_confirm *aclc,
- 			   struct smc_init_info *ini)
+ 	if (memory_end_set)
+ 		memblock_reserve(memory_end, ULONG_MAX);
+@@ -628,7 +628,7 @@ static void reserve_memory_end(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void reserve_oldmem(void)
++static void __init reserve_oldmem(void)
  {
- 	int rc = 0;
- 
- 	/* do inband token exchange */
--	rc = smc_clc_send_proposal(smc, smc_type, ini);
-+	rc = smc_clc_send_proposal(smc, ini);
- 	if (rc)
- 		return rc;
- 	/* receive SMC Accept CLC message */
-@@ -751,13 +818,24 @@ static int smc_connect_ism(struct smc_sock *smc,
- 	return 0;
- }
- 
-+/* check if received accept type and version matches a proposed one */
-+static int smc_connect_check_aclc(struct smc_init_info *ini,
-+				  struct smc_clc_msg_accept_confirm *aclc)
-+{
-+	if ((aclc->hdr.typev1 == SMC_TYPE_R &&
-+	     !smcr_indicated(ini->smc_type_v1)) ||
-+	    (aclc->hdr.typev1 == SMC_TYPE_D &&
-+	     !smcd_indicated(ini->smc_type_v1)))
-+		return SMC_CLC_DECL_MODEUNSUPP;
-+
-+	return 0;
-+}
-+
- /* perform steps before actually connecting */
- static int __smc_connect(struct smc_sock *smc)
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
+@@ -640,7 +640,7 @@ static void reserve_oldmem(void)
+ /*
+  * Make sure that oldmem, where the dump is stored, is protected
+  */
+-static void remove_oldmem(void)
++static void __init remove_oldmem(void)
  {
--	bool ism_supported = false, rdma_supported = false;
- 	struct smc_clc_msg_accept_confirm aclc;
- 	struct smc_init_info *ini = NULL;
--	int smc_type;
- 	int rc = 0;
- 
- 	if (smc->use_fallback)
-@@ -775,61 +853,52 @@ static int __smc_connect(struct smc_sock *smc)
- 	if (!ini)
- 		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_MEM);
- 
-+	ini->smcd_version = SMC_V1;
-+	ini->smcd_version |= smc_ism_v2_capable ? SMC_V2 : 0;
-+	ini->smc_type_v1 = SMC_TYPE_B;
-+	ini->smc_type_v2 = smc_ism_v2_capable ? SMC_TYPE_D : SMC_TYPE_N;
-+
- 	/* get vlan id from IP device */
- 	if (smc_vlan_by_tcpsk(smc->clcsock, ini)) {
--		kfree(ini);
--		return smc_connect_decline_fallback(smc,
--						    SMC_CLC_DECL_GETVLANERR);
--	}
--
--	/* check if there is an ism device available */
--	if (!smc_find_ism_device(smc, ini) &&
--	    !smc_connect_ism_vlan_setup(smc, ini)) {
--		/* ISM is supported for this connection */
--		ism_supported = true;
--		smc_type = SMC_TYPE_D;
--	}
--
--	/* check if there is a rdma device available */
--	if (!smc_find_rdma_device(smc, ini)) {
--		/* RDMA is supported for this connection */
--		rdma_supported = true;
--		if (ism_supported)
--			smc_type = SMC_TYPE_B; /* both */
--		else
--			smc_type = SMC_TYPE_R; /* only RDMA */
-+		ini->smcd_version &= ~SMC_V1;
-+		ini->smc_type_v1 = SMC_TYPE_N;
-+		if (!ini->smcd_version) {
-+			rc = SMC_CLC_DECL_GETVLANERR;
-+			goto fallback;
-+		}
- 	}
- 
--	/* if neither ISM nor RDMA are supported, fallback */
--	if (!rdma_supported && !ism_supported) {
--		kfree(ini);
--		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_NOSMCDEV);
--	}
-+	rc = smc_find_proposal_devices(smc, ini);
-+	if (rc)
-+		goto fallback;
- 
- 	/* perform CLC handshake */
--	rc = smc_connect_clc(smc, smc_type, &aclc, ini);
--	if (rc) {
--		smc_connect_ism_vlan_cleanup(smc, ism_supported, ini);
--		kfree(ini);
--		return smc_connect_decline_fallback(smc, rc);
--	}
-+	rc = smc_connect_clc(smc, &aclc, ini);
-+	if (rc)
-+		goto vlan_cleanup;
-+
-+	/* check if smc modes and versions of CLC proposal and accept match */
-+	rc = smc_connect_check_aclc(ini, &aclc);
-+	if (rc)
-+		goto vlan_cleanup;
- 
- 	/* depending on previous steps, connect using rdma or ism */
--	if (rdma_supported && aclc.hdr.typev1 == SMC_TYPE_R)
-+	if (aclc.hdr.typev1 == SMC_TYPE_R)
- 		rc = smc_connect_rdma(smc, &aclc, ini);
--	else if (ism_supported && aclc.hdr.typev1 == SMC_TYPE_D)
-+	else if (aclc.hdr.typev1 == SMC_TYPE_D)
- 		rc = smc_connect_ism(smc, &aclc, ini);
--	else
--		rc = SMC_CLC_DECL_MODEUNSUPP;
--	if (rc) {
--		smc_connect_ism_vlan_cleanup(smc, ism_supported, ini);
--		kfree(ini);
--		return smc_connect_decline_fallback(smc, rc);
--	}
-+	if (rc)
-+		goto vlan_cleanup;
- 
--	smc_connect_ism_vlan_cleanup(smc, ism_supported, ini);
-+	smc_connect_ism_vlan_cleanup(smc, ini);
- 	kfree(ini);
- 	return 0;
-+
-+vlan_cleanup:
-+	smc_connect_ism_vlan_cleanup(smc, ini);
-+fallback:
-+	kfree(ini);
-+	return smc_connect_decline_fallback(smc, rc);
- }
- 
- static void smc_connect_work(struct work_struct *work)
-diff --git a/net/smc/smc.h b/net/smc/smc.h
-index 6c89cb80860b..0b9c904e2282 100644
---- a/net/smc/smc.h
-+++ b/net/smc/smc.h
-@@ -19,6 +19,7 @@
- #include "smc_ib.h"
- 
- #define SMC_V1		1		/* SMC version V1 */
-+#define SMC_V2		2		/* SMC version V2 */
- 
- #define SMCPROTO_SMC		0	/* SMC protocol, IPv4 */
- #define SMCPROTO_SMC6		1	/* SMC protocol, IPv6 */
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index fca718836ec1..26f1cdd35cb1 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -410,8 +410,7 @@ int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info)
- }
- 
- /* send CLC PROPOSAL message across internal TCP socket */
--int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
--			  struct smc_init_info *ini)
-+int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini)
- {
- 	struct smc_clc_msg_proposal_prefix *pclc_prfx;
- 	struct smc_clc_msg_proposal *pclc_base;
-@@ -449,8 +448,8 @@ int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
- 	       sizeof(SMC_EYECATCHER));
- 	pclc_base->hdr.type = SMC_CLC_PROPOSAL;
- 	pclc_base->hdr.version = SMC_V1;		/* SMC version */
--	pclc_base->hdr.typev1 = smc_type;
--	if (smcr_indicated(smc_type)) {
-+	pclc_base->hdr.typev1 = ini->smc_type_v1;
-+	if (smcr_indicated(ini->smc_type_v1)) {
- 		/* add SMC-R specifics */
- 		memcpy(pclc_base->lcl.id_for_peer, local_systemid,
- 		       sizeof(local_systemid));
-@@ -459,7 +458,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
- 		       ETH_ALEN);
- 		pclc_base->iparea_offset = htons(0);
- 	}
--	if (smcd_indicated(smc_type)) {
-+	if (smcd_indicated(ini->smc_type_v1)) {
- 		/* add SMC-D specifics */
- 		plen += sizeof(*pclc_smcd);
- 		pclc_base->iparea_offset = htons(sizeof(*pclc_smcd));
-@@ -472,7 +471,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
- 	i = 0;
- 	vec[i].iov_base = pclc_base;
- 	vec[i++].iov_len = sizeof(*pclc_base);
--	if (smcd_indicated(smc_type)) {
-+	if (smcd_indicated(ini->smc_type_v1)) {
- 		vec[i].iov_base = pclc_smcd;
- 		vec[i++].iov_len = sizeof(*pclc_smcd);
- 	}
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index c4644d14beae..a3aa90bf4ad7 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -205,8 +205,7 @@ int smc_clc_prfx_match(struct socket *clcsock,
- int smc_clc_wait_msg(struct smc_sock *smc, void *buf, int buflen,
- 		     u8 expected_type, unsigned long timeout);
- int smc_clc_send_decline(struct smc_sock *smc, u32 peer_diag_info);
--int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
--			  struct smc_init_info *ini);
-+int smc_clc_send_proposal(struct smc_sock *smc, struct smc_init_info *ini);
- int smc_clc_send_confirm(struct smc_sock *smc);
- int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact);
- 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index d33bcbc3238f..39a5e2156694 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -291,6 +291,8 @@ struct smc_clc_msg_local;
- 
- struct smc_init_info {
- 	u8			is_smcd;
-+	u8			smc_type_v1;
-+	u8			smc_type_v2;
- 	u8			first_contact_peer;
- 	u8			first_contact_local;
- 	unsigned short		vlan_id;
-@@ -304,6 +306,8 @@ struct smc_init_info {
- 	u64			ism_peer_gid[SMC_MAX_ISM_DEVS + 1];
- 	struct smcd_dev		*ism_dev[SMC_MAX_ISM_DEVS + 1];
- 	u16			ism_chid[SMC_MAX_ISM_DEVS + 1];
-+	u8			ism_offered_cnt; /* # of ISM devices offered */
-+	u8			smcd_version;
- };
- 
- /* Find the connection associated with the given alert token in the link group.
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index c5a5b70251b6..e9a6487a42cb 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -338,7 +338,11 @@ int smcd_register_dev(struct smcd_dev *smcd)
- 		if ((*system_eid) + 24 != '0' || (*system_eid) + 28 != '0')
- 			smc_ism_v2_capable = true;
- 	}
--	list_add_tail(&smcd->list, &smcd_dev_list.list);
-+	/* sort list: devices without pnetid before devices with pnetid */
-+	if (smcd->pnetid[0])
-+		list_add_tail(&smcd->list, &smcd_dev_list.list);
-+	else
-+		list_add(&smcd->list, &smcd_dev_list.list);
- 	mutex_unlock(&smcd_dev_list.mutex);
- 
- 	pr_warn_ratelimited("smc: adding smcd device %s with pnetid %.16s%s\n",
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index 8a91ca22712f..9df82ed3bb06 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -73,7 +73,7 @@ struct smc_pnetentry {
- };
- 
- /* Check if the pnetid is set */
--static bool smc_pnet_is_pnetid_set(u8 *pnetid)
-+bool smc_pnet_is_pnetid_set(u8 *pnetid)
- {
- 	if (pnetid[0] == 0 || pnetid[0] == _S)
- 		return false;
-diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
-index 677a47ac158e..14039272f7e4 100644
---- a/net/smc/smc_pnet.h
-+++ b/net/smc/smc_pnet.h
-@@ -66,4 +66,5 @@ void smc_pnet_find_alt_roce(struct smc_link_group *lgr,
- 			    struct smc_init_info *ini,
- 			    struct smc_ib_device *known_dev);
- bool smc_pnet_is_ndev_pnetid(struct net *net, u8 *pnetid);
-+bool smc_pnet_is_pnetid_set(u8 *pnetid);
- #endif
+ #ifdef CONFIG_CRASH_DUMP
+ 	if (OLDMEM_BASE)
 -- 
-2.17.1
+2.25.1
