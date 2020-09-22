@@ -1,30 +1,23 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59250 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726130AbgIWIvx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Sep 2020 04:51:53 -0400
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 Subject: Re: [PATCH v5 3/3] vfio/pci: Decouple PCI_COMMAND_MEMORY bit checks
  from is_virtfn
 References: <1599749997-30489-1-git-send-email-mjrosato@linux.ibm.com>
  <1599749997-30489-4-git-send-email-mjrosato@linux.ibm.com>
  <08afc6b2-7549-5440-a947-af0b598288c2@linux.ibm.com>
  <20200922104030.07e0dfd9@x1.home>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <f11cfdd7-c743-b26d-2843-0cb74ef2643e@linux.ibm.com>
-Date: Wed, 23 Sep 2020 10:51:36 +0200
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <852ca3a6-6521-a3c4-c70d-383be3c2dc2d@linux.ibm.com>
+Date: Tue, 22 Sep 2020 12:57:37 -0400
 MIME-Version: 1.0
 In-Reply-To: <20200922104030.07e0dfd9@x1.home>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Alex Williamson <alex.williamson@redhat.com>, Matthew Rosato <mjrosato@linux.ibm.com>
-Cc: bhelgaas@google.com, schnelle@linux.ibm.com, mpe@ellerman.id.au, oohall@gmail.com, cohuck@redhat.com, kevin.tian@intel.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: bhelgaas@google.com, schnelle@linux.ibm.com, pmorel@linux.ibm.com, mpe@ellerman.id.au, oohall@gmail.com, cohuck@redhat.com, kevin.tian@intel.com, hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-pci@vger.kernel.org
 
-
-
-On 2020-09-22 18:40, Alex Williamson wrote:
+On 9/22/20 12:40 PM, Alex Williamson wrote:
 > On Mon, 21 Sep 2020 08:43:29 -0400
 > Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 > 
@@ -54,14 +47,5 @@ On 2020-09-22 18:40, Alex Williamson wrote:
 > fixes tag to all three patches, otherwise I could see that the PCI/VF
 > change might get picked as a dependency, but not the s390 specific one.
 > Does this sound correct to everyone?  Thanks,
-> 
-> Alex
-> 
-sound correct for me.
-Thanks.
 
-Pierre
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+Sounds good to me.  Thanks!
