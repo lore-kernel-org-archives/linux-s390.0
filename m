@@ -1,41 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728020AbgICFlP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 01:41:15 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 6/9] drbd: don't set ->bd_contains
-Date: Thu,  3 Sep 2020 07:41:01 +0200
-Message-Id: <20200903054104.228829-7-hch@lst.de>
-In-Reply-To: <20200903054104.228829-1-hch@lst.de>
-References: <20200903054104.228829-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7725 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726643AbgIVPUb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 22 Sep 2020 11:20:31 -0400
+Subject: Re: [PATCH 08/14] dasd: cleanup dasd_scan_partitions
+References: <20200921071958.307589-1-hch@lst.de>
+ <20200921071958.307589-9-hch@lst.de>
+From: Stefan Haberland <sth@linux.ibm.com>
+Message-ID: <88ca251c-c417-cd92-3d47-653dff346d7c@linux.ibm.com>
+Date: Tue, 22 Sep 2020 17:18:59 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20200921071958.307589-9-hch@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, drbd-dev@lists.linbit.com, linux-ide@vger.kernel.org, linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
 
-The ->bd_contains field is set by __blkdev_get and drivers have no
-business manipulating it.
+Am 21.09.20 um 09:19 schrieb Christoph Hellwig:
+> Use blkdev_get_by_dev instead of bdget_disk + blkdev_get.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/drbd/drbd_main.c | 2 --
- 1 file changed, 2 deletions(-)
+Beside what Sergei mentioned...
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 04b6bde9419d2a..bd8b129196d49a 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -2766,8 +2766,6 @@ enum drbd_ret_code drbd_create_device(struct drbd_config_context *adm_ctx, unsig
- 	disk->private_data = device;
- 
- 	device->this_bdev = bdget(MKDEV(DRBD_MAJOR, minor));
--	/* we have no partitions. we contain only ourselves. */
--	device->this_bdev->bd_contains = device->this_bdev;
- 
- 	blk_queue_write_cache(q, true, true);
- 	/* Setting the max_hw_sectors to an odd value of 8kibyte here
--- 
-2.28.0
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+
+
+> ---
+>  drivers/s390/block/dasd_genhd.c | 15 ++++-----------
+>  1 file changed, 4 insertions(+), 11 deletions(-)
+>
+> diff --git a/drivers/s390/block/dasd_genhd.c b/drivers/s390/block/dasd_genhd.c
+> index af5b0ecb8f8923..a9698fba9b76ce 100644
+> --- a/drivers/s390/block/dasd_genhd.c
+> +++ b/drivers/s390/block/dasd_genhd.c
+> @@ -101,18 +101,11 @@ int dasd_scan_partitions(struct dasd_block *block)
+>  	struct block_device *bdev;
+>  	int rc;
+>  
+> -	bdev = bdget_disk(block->gdp, 0);
+> -	if (!bdev) {
+> -		DBF_DEV_EVENT(DBF_ERR, block->base, "%s",
+> -			      "scan partitions error, bdget returned NULL");
+> -		return -ENODEV;
+> -	}
+> -
+> -	rc = blkdev_get(bdev, FMODE_READ, NULL);
+> -	if (rc < 0) {
+> +	bdev = blkdev_get_by_dev(disk_devt(block->gdp), FMODE_READ, NULL);
+> +	if (IS_ERR(bdev)) {
+>  		DBF_DEV_EVENT(DBF_ERR, block->base,
+> -			      "scan partitions error, blkdev_get returned %d",
+> -			      rc);
+> +			      "scan partitions error, blkdev_get returned %ld",
+> +			      PTR_ERR(bdev));
+>  		return -ENODEV;
+>  	}
+>  
