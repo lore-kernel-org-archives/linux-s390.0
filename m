@@ -1,41 +1,121 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:34788 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726173AbgIBJcP (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 2 Sep 2020 05:32:15 -0400
-Date: Wed, 2 Sep 2020 11:32:13 +0200 (CEST)
-From: Miroslav Benes <mbenes@suse.cz>
-Subject: Re: [PATCH v2 3/3] arm64: stacktrace: Convert to ARCH_STACKWALK
-In-Reply-To: <20200819124913.37261-4-broonie@kernel.org>
-Message-ID: <alpine.LSU.2.21.2009021128500.23200@pobox.suse.cz>
-References: <20200819124913.37261-1-broonie@kernel.org> <20200819124913.37261-4-broonie@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:30422 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726507AbgIVOCn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 22 Sep 2020 10:02:43 -0400
+Subject: Re: [PATCH 4/4] vfio-pci/zdev: use a device region to retrieve zPCI
+ information
+References: <1600529318-8996-1-git-send-email-mjrosato@linux.ibm.com>
+ <1600529318-8996-5-git-send-email-mjrosato@linux.ibm.com>
+ <20200922132239.4be1e749.cohuck@redhat.com>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <4c339a61-8013-f380-e608-1d81ebdfc0d0@linux.ibm.com>
+Date: Tue, 22 Sep 2020 10:02:36 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <20200922132239.4be1e749.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Mark Brown <broonie@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Vasily Gorbik <gor@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Ingo Molnar <mingo@kernel.org>, Jiri Slaby <jirislaby@kernel.org>, x86@kernel.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: alex.williamson@redhat.com, schnelle@linux.ibm.com, pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+On 9/22/20 7:22 AM, Cornelia Huck wrote:
+> On Sat, 19 Sep 2020 11:28:38 -0400
+> Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+> 
+>> Define a new configuration entry VFIO_PCI_ZDEV for VFIO/PCI.
+>>
+>> When this s390-only feature is configured we initialize a new device
+>> region, VFIO_REGION_SUBTYPE_IBM_ZPCI_CLP, to hold information provided
+>> by the underlying hardware.
+>>
+>> This patch is based on work previously done by Pierre Morel.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   drivers/vfio/pci/Kconfig            |  13 ++
+>>   drivers/vfio/pci/Makefile           |   1 +
+>>   drivers/vfio/pci/vfio_pci.c         |   8 ++
+>>   drivers/vfio/pci/vfio_pci_private.h |  10 ++
+>>   drivers/vfio/pci/vfio_pci_zdev.c    | 242 ++++++++++++++++++++++++++++++++++++
+> 
+> Maybe you want to add yourself to MAINTAINERS for the zdev-specific
+> files? You're probably better suited to review changes to the
+> zpci-specific code :)
 
-it could be a silly question, but better to ask...
+Of course, will do.  Looking at how we split vfio-ap and vfio-ccw, I'll 
+add an S390 VFIO-PCI DRIVER category and point to the new .h and .c file 
+for now.
 
-> +	if (regs)
-> +		start_backtrace(&frame, regs->regs[29], regs->pc);
-> +	else
-> +		start_backtrace(&frame, thread_saved_fp(task),
-> +				thread_saved_pc(task));
+> 
+>>   5 files changed, 274 insertions(+)
+>>   create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
+> 
+> (...)
+> 
+>> +int vfio_pci_zdev_init(struct vfio_pci_device *vdev)
+>> +{
+>> +	struct vfio_region_zpci_info *region;
+>> +	struct zpci_dev *zdev;
+>> +	size_t clp_offset;
+>> +	int size;
+>> +	int ret;
+>> +
+>> +	if (!vdev->pdev->bus)
+>> +		return -ENODEV;
+>> +
+>> +	zdev = to_zpci(vdev->pdev);
+>> +	if (!zdev)
+>> +		return -ENODEV;
+>> +
+>> +	/* Calculate size needed for all supported CLP features  */
+>> +	size = sizeof(*region) +
+>> +	       sizeof(struct vfio_region_zpci_info_qpci) +
+>> +	       sizeof(struct vfio_region_zpci_info_qpcifg) +
+>> +	       (sizeof(struct vfio_region_zpci_info_util) + CLP_UTIL_STR_LEN) +
+>> +	       (sizeof(struct vfio_region_zpci_info_pfip) +
+>> +		CLP_PFIP_NR_SEGMENTS);
+>> +
+>> +	region = kmalloc(size, GFP_KERNEL);
+>> +	if (!region)
+>> +		return -ENOMEM;
+>> +
+>> +	/* Fill in header */
+>> +	region->argsz = size;
+>> +	clp_offset = region->offset = sizeof(struct vfio_region_zpci_info);
+>> +
+>> +	/* Fill the supported CLP features */
+>> +	clp_offset = vfio_pci_zdev_add_qpci(zdev, region, clp_offset);
+>> +	clp_offset = vfio_pci_zdev_add_qpcifg(zdev, region, clp_offset);
+>> +	clp_offset = vfio_pci_zdev_add_util(zdev, region, clp_offset);
+>> +	clp_offset = vfio_pci_zdev_add_pfip(zdev, region, clp_offset);
+> 
+> So, the regions are populated once. Can any of the values in the
+> hardware structures be modified by a guest? Or changed from the
+> hardware side?
+> 
 
-Would this also work for task == current? Given that the original code had
+The region is created read-only (vfio_pci_zdev_rw returns -EINVAL on 
+writes), so no guest modification.  The expectation is the guest can 
+read the region and take what it wants / ignore what it doesn't.
 
-> -		start_backtrace(&frame,
-> -				(unsigned long)__builtin_frame_address(0),
-> -				(unsigned long)__save_stack_trace);
+The CLPs covered by this region are not intended to change once the 
+device is up.
 
-for the case, which seems correct (but I don't know much about arm64 arch 
-in the kernel).
+If we end up needing either of the above for a different CLP, I would 
+think an additional/different region would be appropriate.
 
-Otherwise, I did not spot anything suspicious or wrong.
 
-Regards
-Miroslav
+>> +
+>> +	ret = vfio_pci_register_dev_region(vdev,
+>> +		PCI_VENDOR_ID_IBM | VFIO_REGION_TYPE_PCI_VENDOR_TYPE,
+>> +		VFIO_REGION_SUBTYPE_IBM_ZPCI_CLP, &vfio_pci_zdev_regops,
+>> +		size, VFIO_REGION_INFO_FLAG_READ, region);
+>> +	if (ret)
+>> +		kfree(region);
+>> +
+>> +	return ret;
+>> +}
+> 
