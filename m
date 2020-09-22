@@ -1,103 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59356 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726489AbgIUHUH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 03:20:07 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 05/14] pktcdvd: use blkdev_get_by_dev instead of open coding it
-Date: Mon, 21 Sep 2020 09:19:49 +0200
-Message-Id: <20200921071958.307589-6-hch@lst.de>
-In-Reply-To: <20200921071958.307589-1-hch@lst.de>
-References: <20200921071958.307589-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20080 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726473AbgIVOGS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 22 Sep 2020 10:06:18 -0400
+Subject: Re: [PATCH 2/4] s390/pci: track whether util_str is valid in the
+ zpci_dev
+References: <1600529318-8996-1-git-send-email-mjrosato@linux.ibm.com>
+ <1600529318-8996-3-git-send-email-mjrosato@linux.ibm.com>
+ <d1bc0e6b-2a9b-3de0-4dd6-59e26d6c1da4@linux.ibm.com>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <5ef66994-e085-7d7d-141f-7a68e3915fe3@linux.ibm.com>
+Date: Tue, 22 Sep 2020 10:06:10 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <d1bc0e6b-2a9b-3de0-4dd6-59e26d6c1da4@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: Niklas Schnelle <schnelle@linux.ibm.com>, alex.williamson@redhat.com, cohuck@redhat.com
+Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Replace bdget + blkdev_get by blkdev_get_by_dev.
+On 9/21/20 5:41 AM, Niklas Schnelle wrote:
+> Hi Matthew,
+> 
+> On 9/19/20 5:28 PM, Matthew Rosato wrote:
+>> We'll need to keep track of whether or not the byte string in util_str is
+>> valid and thus needs to be passed to a vfio-pci passthrough device.
+>>
+>> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+>> ---
+>>   arch/s390/include/asm/pci.h | 3 ++-
+>>   arch/s390/pci/pci_clp.c     | 1 +
+>>   2 files changed, 3 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
+>> index 882e233..32eb975 100644
+>> --- a/arch/s390/include/asm/pci.h
+>> +++ b/arch/s390/include/asm/pci.h
+>> @@ -132,7 +132,8 @@ struct zpci_dev {
+>>   	u8		rid_available	: 1;
+>>   	u8		has_hp_slot	: 1;
+>>   	u8		is_physfn	: 1;
+>> -	u8		reserved	: 5;
+>> +	u8		util_avail	: 1;
+> 
+> Any reason you're not matching the util_str_avail name in the response struct? > I think this is currently always an EBCDIC encoded string so the 
+information that
+> even if it looks like binary for anyone with a non-mainframe background
+> it is in fact a string seems quite helpful.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/pktcdvd.c | 25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
+Frankly, the dropping of 'str_' was arbitrary on my part -- I'll go 
+ahead and rename it to util_str_avail with v2.
 
-diff --git a/drivers/block/pktcdvd.c b/drivers/block/pktcdvd.c
-index bc870a5f15f77b..467dbd06b7cdb1 100644
---- a/drivers/block/pktcdvd.c
-+++ b/drivers/block/pktcdvd.c
-@@ -2110,16 +2110,18 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
- 	int ret;
- 	long lba;
- 	struct request_queue *q;
-+	struct block_device *bdev;
- 
- 	/*
- 	 * We need to re-open the cdrom device without O_NONBLOCK to be able
- 	 * to read/write from/to it. It is already opened in O_NONBLOCK mode
--	 * so bdget() can't fail.
-+	 * so open should not fail.
- 	 */
--	bdget(pd->bdev->bd_dev);
--	ret = blkdev_get(pd->bdev, FMODE_READ | FMODE_EXCL, pd);
--	if (ret)
-+	bdev = blkdev_get_by_dev(pd->bdev->bd_dev, FMODE_READ | FMODE_EXCL, pd);
-+	if (IS_ERR(bdev)) {
-+		ret = PTR_ERR(bdev);
- 		goto out;
-+	}
- 
- 	ret = pkt_get_last_written(pd, &lba);
- 	if (ret) {
-@@ -2163,7 +2165,7 @@ static int pkt_open_dev(struct pktcdvd_device *pd, fmode_t write)
- 	return 0;
- 
- out_putdev:
--	blkdev_put(pd->bdev, FMODE_READ | FMODE_EXCL);
-+	blkdev_put(bdev, FMODE_READ | FMODE_EXCL);
- out:
- 	return ret;
- }
-@@ -2500,7 +2502,6 @@ static int pkt_seq_show(struct seq_file *m, void *p)
- static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
- {
- 	int i;
--	int ret = 0;
- 	char b[BDEVNAME_SIZE];
- 	struct block_device *bdev;
- 
-@@ -2523,12 +2524,9 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
- 		}
- 	}
- 
--	bdev = bdget(dev);
--	if (!bdev)
--		return -ENOMEM;
--	ret = blkdev_get(bdev, FMODE_READ | FMODE_NDELAY, NULL);
--	if (ret)
--		return ret;
-+	bdev = blkdev_get_by_dev(dev, FMODE_READ | FMODE_NDELAY, NULL);
-+	if (IS_ERR(bdev))
-+		return PTR_ERR(bdev);
- 	if (!blk_queue_scsi_passthrough(bdev_get_queue(bdev))) {
- 		blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
- 		return -EINVAL;
-@@ -2546,7 +2544,6 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
- 	pd->cdrw.thread = kthread_run(kcdrwd, pd, "%s", pd->name);
- 	if (IS_ERR(pd->cdrw.thread)) {
- 		pkt_err(pd, "can't start kernel thread\n");
--		ret = -ENOMEM;
- 		goto out_mem;
- 	}
- 
-@@ -2558,7 +2555,7 @@ static int pkt_new_dev(struct pktcdvd_device *pd, dev_t dev)
- 	blkdev_put(bdev, FMODE_READ | FMODE_NDELAY);
- 	/* This is safe: open() is still holding a reference. */
- 	module_put(THIS_MODULE);
--	return ret;
-+	return -ENOMEM;
- }
- 
- static int pkt_ioctl(struct block_device *bdev, fmode_t mode, unsigned int cmd, unsigned long arg)
--- 
-2.28.0
+> Other than that
+> 
+> Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
+> 
+
+Thanks!
+
+>> +	u8		reserved	: 4;
+>>   	unsigned int	devfn;		/* DEVFN part of the RID*/
+>>   
+>>   	struct mutex lock;
+>> diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
+>> index 48bf316..d011134 100644
+>> --- a/arch/s390/pci/pci_clp.c
+>> +++ b/arch/s390/pci/pci_clp.c
+>> @@ -168,6 +168,7 @@ static int clp_store_query_pci_fn(struct zpci_dev *zdev,
+>>   	if (response->util_str_avail) {
+>>   		memcpy(zdev->util_str, response->util_str,
+>>   		       sizeof(zdev->util_str));
+>> +		zdev->util_avail = 1;
+>>   	}
+>>   	zdev->mio_capable = response->mio_addr_avail;
+>>   	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+>>
