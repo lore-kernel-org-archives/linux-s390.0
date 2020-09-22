@@ -1,206 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:29143 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730176AbgIJJOP (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64822 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726341AbgIVKFm (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 05:14:15 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v3 1/7] kernel/resource: make release_mem_region_adjustable() never fail
-Date: Thu, 10 Sep 2020 11:13:34 +0200
-Message-Id: <20200910091340.8654-2-david@redhat.com>
-In-Reply-To: <20200910091340.8654-1-david@redhat.com>
-References: <20200910091340.8654-1-david@redhat.com>
+        Tue, 22 Sep 2020 06:05:42 -0400
+Date: Tue, 22 Sep 2020 12:05:31 +0200
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: Re: [PATCH 0/2] zfcp: small changes for 5.10
+Message-ID: <20200922100531.GA6903@t480-pf1aa2c2>
+References: <cover.1599765652.git.bblock@linux.ibm.com>
+ <160074695008.411.13328105917017372358.b4-ty@oracle.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <160074695008.411.13328105917017372358.b4-ty@oracle.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Dan Williams <dan.j.williams@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Ard Biesheuvel <ardb@kernel.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
+To: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>, linux-scsi@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>, linux-s390@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-Let's make sure splitting a resource on memory hotunplug will never fail.
-This will become more relevant once we merge selected System RAM
-resources - then, we'll trigger that case more often on memory hotunplug.
+On Mon, Sep 21, 2020 at 11:56:45PM -0400, Martin K. Petersen wrote:
+> On Thu, 10 Sep 2020 21:49:14 +0200, Benjamin Block wrote:
+>=20
+> > here are some small changes for zfcp I'd like to include in 5.10 if
+> > possible. They apply cleanly on Martin's `scsi-queue`, and James' `misc`
+> > branches.
+> >=20
+> > Both patches make the driver a bit cleaner, and hopefully easier to
+> > maintain.
+> >=20
+> > [...]
+>=20
+> Applied to 5.10/scsi-queue, thanks!
+>=20
+> [1/2] scsi: zfcp: Use list_first_entry_or_null() in zfcp_erp_thread()
+>       https://git.kernel.org/mkp/scsi/c/addf13729615
+> [2/2] scsi: zfcp: Clarify access to erp_action in zfcp_fsf_req_complete()
+>       https://git.kernel.org/mkp/scsi/c/d251193d1732
+>=20
 
-In general, this function is already unlikely to fail. When we remove
-memory, we free up quite a lot of metadata (memmap, page tables, memory
-block device, etc.). The only reason it could really fail would be when
-injecting allocation errors.
+Thanks Martin!
 
-All other error cases inside release_mem_region_adjustable() seem to be
-sanity checks if the function would be abused in different context -
-let's add WARN_ON_ONCE() in these cases so we can catch them.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- include/linux/ioport.h |  4 ++--
- kernel/resource.c      | 49 ++++++++++++++++++++++++------------------
- mm/memory_hotplug.c    | 22 +------------------
- 3 files changed, 31 insertions(+), 44 deletions(-)
-
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 6c2b06fe8beb7..52a91f5fa1a36 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -248,8 +248,8 @@ extern struct resource * __request_region(struct resource *,
- extern void __release_region(struct resource *, resource_size_t,
- 				resource_size_t);
- #ifdef CONFIG_MEMORY_HOTREMOVE
--extern int release_mem_region_adjustable(struct resource *, resource_size_t,
--				resource_size_t);
-+extern void release_mem_region_adjustable(struct resource *, resource_size_t,
-+					  resource_size_t);
- #endif
- 
- /* Wrappers for managed devices */
-diff --git a/kernel/resource.c b/kernel/resource.c
-index f1175ce93a1d5..36b3552210120 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -1258,21 +1258,28 @@ EXPORT_SYMBOL(__release_region);
-  *   assumes that all children remain in the lower address entry for
-  *   simplicity.  Enhance this logic when necessary.
-  */
--int release_mem_region_adjustable(struct resource *parent,
--				  resource_size_t start, resource_size_t size)
-+void release_mem_region_adjustable(struct resource *parent,
-+				   resource_size_t start, resource_size_t size)
- {
-+	struct resource *new_res = NULL;
-+	bool alloc_nofail = false;
- 	struct resource **p;
- 	struct resource *res;
--	struct resource *new_res;
- 	resource_size_t end;
--	int ret = -EINVAL;
- 
- 	end = start + size - 1;
--	if ((start < parent->start) || (end > parent->end))
--		return ret;
-+	if (WARN_ON_ONCE((start < parent->start) || (end > parent->end)))
-+		return;
- 
--	/* The alloc_resource() result gets checked later */
--	new_res = alloc_resource(GFP_KERNEL);
-+	/*
-+	 * We free up quite a lot of memory on memory hotunplug (esp., memap),
-+	 * just before releasing the region. This is highly unlikely to
-+	 * fail - let's play save and make it never fail as the caller cannot
-+	 * perform any error handling (e.g., trying to re-add memory will fail
-+	 * similarly).
-+	 */
-+retry:
-+	new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
- 
- 	p = &parent->child;
- 	write_lock(&resource_lock);
-@@ -1298,7 +1305,6 @@ int release_mem_region_adjustable(struct resource *parent,
- 		 * so if we are dealing with them, let us just back off here.
- 		 */
- 		if (!(res->flags & IORESOURCE_SYSRAM)) {
--			ret = 0;
- 			break;
- 		}
- 
-@@ -1315,20 +1321,23 @@ int release_mem_region_adjustable(struct resource *parent,
- 			/* free the whole entry */
- 			*p = res->sibling;
- 			free_resource(res);
--			ret = 0;
- 		} else if (res->start == start && res->end != end) {
- 			/* adjust the start */
--			ret = __adjust_resource(res, end + 1,
--						res->end - end);
-+			WARN_ON_ONCE(__adjust_resource(res, end + 1,
-+						       res->end - end));
- 		} else if (res->start != start && res->end == end) {
- 			/* adjust the end */
--			ret = __adjust_resource(res, res->start,
--						start - res->start);
-+			WARN_ON_ONCE(__adjust_resource(res, res->start,
-+						       start - res->start));
- 		} else {
--			/* split into two entries */
-+			/* split into two entries - we need a new resource */
- 			if (!new_res) {
--				ret = -ENOMEM;
--				break;
-+				new_res = alloc_resource(GFP_ATOMIC);
-+				if (!new_res) {
-+					alloc_nofail = true;
-+					write_unlock(&resource_lock);
-+					goto retry;
-+				}
- 			}
- 			new_res->name = res->name;
- 			new_res->start = end + 1;
-@@ -1339,9 +1348,8 @@ int release_mem_region_adjustable(struct resource *parent,
- 			new_res->sibling = res->sibling;
- 			new_res->child = NULL;
- 
--			ret = __adjust_resource(res, res->start,
--						start - res->start);
--			if (ret)
-+			if (WARN_ON_ONCE(__adjust_resource(res, res->start,
-+							   start - res->start)))
- 				break;
- 			res->sibling = new_res;
- 			new_res = NULL;
-@@ -1352,7 +1360,6 @@ int release_mem_region_adjustable(struct resource *parent,
- 
- 	write_unlock(&resource_lock);
- 	free_resource(new_res);
--	return ret;
- }
- #endif	/* CONFIG_MEMORY_HOTREMOVE */
- 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index baded53b9ff92..4c47b68a9f4b5 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1724,26 +1724,6 @@ void try_offline_node(int nid)
- }
- EXPORT_SYMBOL(try_offline_node);
- 
--static void __release_memory_resource(resource_size_t start,
--				      resource_size_t size)
--{
--	int ret;
--
--	/*
--	 * When removing memory in the same granularity as it was added,
--	 * this function never fails. It might only fail if resources
--	 * have to be adjusted or split. We'll ignore the error, as
--	 * removing of memory cannot fail.
--	 */
--	ret = release_mem_region_adjustable(&iomem_resource, start, size);
--	if (ret) {
--		resource_size_t endres = start + size - 1;
--
--		pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
--			&start, &endres, ret);
--	}
--}
--
- static int __ref try_remove_memory(int nid, u64 start, u64 size)
- {
- 	int rc = 0;
-@@ -1777,7 +1757,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
- 		memblock_remove(start, size);
- 	}
- 
--	__release_memory_resource(start, size);
-+	release_mem_region_adjustable(&iomem_resource, start, size);
- 
- 	try_offline_node(nid);
- 
--- 
-2.26.2
+--=20
+Best Regards, Benjamin Block  / Linux on IBM Z Kernel Development / IBM Sys=
+tems
+IBM Deutschland Research & Development GmbH    /    https://www.ibm.com/pri=
+vacy
+Vorsitz. AufsR.: Gregor Pillen         /        Gesch=EF=BF=BDftsf=EF=BF=BD=
+hrung: Dirk Wittkopp
+Sitz der Gesellschaft: B=EF=BF=BDblingen / Registergericht: AmtsG Stuttgart=
+, HRB 243294
