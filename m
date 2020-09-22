@@ -1,40 +1,24 @@
-Return-Path: <linux-kbuild-owner@vger.kernel.org>
-MIME-Version: 1.0
-References: <20200922232140.1994390-1-morbo@google.com>
-In-Reply-To: <20200922232140.1994390-1-morbo@google.com>
-From: Masahiro Yamada <masahiroy@kernel.org>
-Date: Fri, 25 Sep 2020 01:03:19 +0900
-Message-ID: <CAK7LNATjf+bVqkkoZgwu9sr-A+VXxEnW_R8nEwmH=aDEU6NAQw@mail.gmail.com>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+Date: Tue, 22 Sep 2020 16:50:30 -0700 (PDT)
+Message-Id: <20200922.165030.2291105439162323404.davem@davemloft.net>
 Subject: Re: [PATCH] kbuild: explicitly specify the build id style
-Content-Type: text/plain; charset="UTF-8"
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20200922232140.1994390-1-morbo@google.com>
+References: <20200922232140.1994390-1-morbo@google.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Bill Wendling <morbo@google.com>
-Cc: Linux Kbuild mailing list <linux-kbuild@vger.kernel.org>, Andy Lutomirski <luto@kernel.org>, Michal Marek <michal.lkml@markovi.net>, Catalin Marinas <catalin.marinas@arm.com>, "David S . Miller" <davem@davemloft.net>, Will Deacon <will@kernel.org>, "H . Peter Anvin" <hpa@zytor.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-mips@vger.kernel.org, "open list:SIFIVE DRIVERS" <linux-riscv@lists.infradead.org>, linux-s390 <linux-s390@vger.kernel.org>, sparclinux <sparclinux@vger.kernel.org>, bpf <bpf@vger.kernel.org>, "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>, Networking <netdev@vger.kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Nathan Chancellor <natechancellor@gmail.com>
+To: morbo@google.com
+Cc: linux-kbuild@vger.kernel.org, yamada.masahiro@socionext.com, luto@kernel.org, michal.lkml@markovi.net, catalin.marinas@arm.com, will@kernel.org, hpa@zytor.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, bpf@vger.kernel.org, linux-kselftest@vger.kernel.org, netdev@vger.kernel.org, tglx@linutronix.de, natechancellor@gmail.com
 
-On Wed, Sep 23, 2020 at 8:21 AM Bill Wendling <morbo@google.com> wrote:
->
+From: Bill Wendling <morbo@google.com>
+Date: Tue, 22 Sep 2020 16:21:40 -0700
+
 > ld's --build-id defaults to "sha1" style, while lld defaults to "fast".
 > The build IDs are very different between the two, which may confuse
 > programs that reference them.
->
+> 
 > Signed-off-by: Bill Wendling <morbo@google.com>
-> ---
->  Makefile                             | 4 ++--
->  arch/arm/vdso/Makefile               | 2 +-
->  arch/arm64/kernel/vdso/Makefile      | 2 +-
->  arch/arm64/kernel/vdso32/Makefile    | 2 +-
->  arch/mips/vdso/Makefile              | 2 +-
->  arch/riscv/kernel/vdso/Makefile      | 2 +-
->  arch/s390/kernel/vdso64/Makefile     | 2 +-
->  arch/sparc/vdso/Makefile             | 2 +-
->  arch/x86/entry/vdso/Makefile         | 2 +-
->  tools/testing/selftests/bpf/Makefile | 2 +-
->  10 files changed, 11 insertions(+), 11 deletions(-)
 
-
-Applied to linux-kbuild.
-Thanks.
-
--- 
-Best Regards
-Masahiro Yamada
+Acked-by: David S. Miller <davem@davemloft.net>
