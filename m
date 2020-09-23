@@ -1,86 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:34988 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725208AbgIXCGb (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6278 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726199AbgIWWCi (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Sep 2020 22:06:31 -0400
-Message-ID: <76fef5dfd8efdb4130e41d1811b2a78ce39c8b0d.camel@redhat.com>
+        Wed, 23 Sep 2020 18:02:38 -0400
+Date: Thu, 24 Sep 2020 00:02:26 +0200
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 Subject: Re: BUG: Bad page state in process dirtyc0w_child
-From: Qian Cai <cai@redhat.com>
-Date: Wed, 23 Sep 2020 22:06:19 -0400
-In-Reply-To: <20200923153938.5be5dd2c@thinkpad>
+Message-ID: <20200924000226.06298978@thinkpad>
+In-Reply-To: <CAHk-=wgbfGCKKn=RTX9gF9Q+FYOGn2kD1OLnQuJSD+A0Rvg9Pw@mail.gmail.com>
 References: <a46e9bbef2ed4e17778f5615e818526ef848d791.camel@redhat.com>
-         <20200916142806.GD7076@osiris> <20200922190350.7a0e0ca5@thinkpad>
-         <20200923153938.5be5dd2c@thinkpad>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+        <20200916142806.GD7076@osiris>
+        <20200922190350.7a0e0ca5@thinkpad>
+        <20200923153938.5be5dd2c@thinkpad>
+        <CAHk-=wiMJu0_sLO78+nLoe=pxC-p=sSpC3moq0p5RyJc9KXC4Q@mail.gmail.com>
+        <20200923233306.7c5666de@thinkpad>
+        <CAHk-=wgbfGCKKn=RTX9gF9Q+FYOGn2kD1OLnQuJSD+A0Rvg9Pw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Linus Torvalds <torvalds@linux-foundation.org>, Peter Xu <peterx@redhat.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, Alex Shi <alex.shi@linux.alibaba.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Xu <peterx@redhat.com>, Heiko Carstens <hca@linux.ibm.com>, Qian Cai <cai@redhat.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Wed, 2020-09-23 at 15:39 +0200, Gerald Schaefer wrote:
-> OK, I can now reproduce this, and unfortunately also with the gup_fast
-> fix, so it is something different. Bisecting is a bit hard, as it will
-> not always show immediately, sometimes takes up to an hour.
-> 
-> Still, I think I found the culprit, merge commit b25d1dc9474e "Merge
-> branch 'simplify-do_wp_page'". Without those 4 patches, it works fine,
-> running over night.
-> 
-> Not sure why this only shows on s390, should not be architecture-specific,
-> but we do often see subtle races earlier than others due to hypervisor
-> impact.
+On Wed, 23 Sep 2020 14:50:36 -0700
+Linus Torvalds <torvalds@linux-foundation.org> wrote:
 
-Apparently, someone can reproduce something similar on x86 as well:
+> On Wed, Sep 23, 2020 at 2:33 PM Gerald Schaefer
+> <gerald.schaefer@linux.ibm.com> wrote:
+> >
+> > Thanks, very nice walk-through, need some time to digest this. The TLB
+> > aspect is interesting, and we do have our own __tlb_remove_page_size(),
+> > which directly calls free_page_and_swap_cache() instead of the generic
+> > batched approach.
+> 
+> So I don't think it's the free_page_and_swap_cache() itself that is the problem.
+> 
+> As mentioned, the actual pages themselves should be handled by the
+> reference counting being atomic.
+> 
+> The interrupt disable is really about just the page *tables* being
+> free'd - not the final page level.
+> 
+> So the issue is that at least on x86-64, we have the serialization
+> that we will only free the page tables after a cross-CPU IPI has
+> flushed the TLB.
+> 
+> I think s390 just RCU-free's the page tables instead, which should fix it.
+> 
+> So I think this is special, and s390 is very different from x86, but I
+> don't think it's the problem.
+> 
+> In fact, I think you pinpointed the real issue:
+> 
+> > Meanwhile, out of curiosity, while I still fail to comprehend commit
+> > 09854ba94c6a ("mm: do_wp_page() simplification") in its entirety, there
+> > is one detail that I find most confusing: the unlock_page() has moved
+> > behind the wp_page_reuse(), while it was the other way round before.
+> 
+> You know what? That was just a mistake, and I think you may actually
+> have hit the real cause of the problem.
+> 
+> It means that we keep the page locked until after we do the
+> pte_unmap_unlock(), so now we have no guarantees that we hold the page
+> referecne.
+> 
+> And then we unlock it - while somebody else might be freeing it.
+> 
+> So somebody is freeing a locked page just as we're unlocking it, and
+> that matches the problem you see exactly: the debug thing will hit
+> because the last free happened while locked, and then by the time the
+> printout happens it has become unlocked so it doesn't show any more.
+> 
+> Duh.
+> 
+> Would you mind testing just moving the unlock_page() back to before
+> the wp_page_reuse()?
 
-https://lore.kernel.org/linux-mm/c41149a8-211e-390b-af1d-d5eee690fecb@linux.alibaba.com/
-
-Probably, Alex could revert the bad commits and confirm it there.
-
-> 
-> The first commit 09854ba94c6a ("mm: do_wp_page() simplification") already
-> introduces this error. The dirtyc0w_child test seems to play with cow
-> and racing madvise(MADV_DONTNEED), but I have not yet fully understood
-> it and also not the changes from commit 09854ba94c6a. As Linus already
-> mentioned in the merge commit message, this is some bad timing for such
-> a change, so I don't want to delay this further with trying to understand
-> it better before reporting. Maybe Peter or Linus can spot some obvious
-> issue.
-> 
-> One thing that seems strange to me is that the page flags from the
-> bad page state output are (uptodate|swapbacked), see below, or
-> (referenced|uptodate|dirty|swapbacked) in the original report. But IIUC,
-> that should not qualify for the "PAGE_FLAGS_CHECK_AT_FREE flag(s) set"
-> reason. So it seems that the flags have changed between check_free_page()
-> and __dump_page(), which would be very odd. Or maybe some issue with
-> compound pages, because __dump_page() looks at head->flags.
-> 
-> [ 1863.237707] BUG: Bad page state in process dirtyc0w_child  pfn:58527d
-> [ 1863.237721] page:000000008866956b refcount:0 mapcount:0
-> mapping:0000000000000000 index:0x0 pfn:0x58527d
-> [ 1863.237727] flags: 0x3ffff00000080004(uptodate|swapbacked)
-> [ 1863.237734] raw: 3ffff00000080004 0000000000000100 0000000000000122
-> 0000000000000000
-> [ 1863.237738] raw: 0000000000000000 0000000000000000 ffffffff00000000
-> 0000000000000000
-> [ 1863.237742] page dumped because: PAGE_FLAGS_CHECK_AT_FREE flag(s) set
-> [ 1863.237745] Modules linked in:
-> [ 1863.237752] CPU: 16 PID: 9074 Comm: dirtyc0w_child Tainted:
-> G    B             5.9.0-rc6-00020-geff48ddeab78-dirty #104
-> [ 1863.237756] Hardware name: IBM 3906 M03 703 (LPAR)
-> [ 1863.237759] Call Trace:
-> [ 1863.237768]  [<0000000000115f28>] show_stack+0x100/0x158 
-> [ 1863.237775]  [<000000000096b41a>] dump_stack+0xa2/0xd8 
-> [ 1863.237781]  [<00000000003d497c>] bad_page+0xdc/0x140 
-> [ 1863.237785]  [<00000000003d5b62>] free_pcp_prepare+0x31a/0x360 
-> [ 1863.237789]  [<00000000003d906a>] free_unref_page+0x32/0xb8 
-> [ 1863.237794]  [<00000000003b05f4>] zap_p4d_range+0x64c/0xcf8 
-> [ 1863.237797]  [<00000000003b0e7a>] unmap_page_range+0x9a/0x110 
-> [ 1863.237801]  [<00000000003b0f84>] unmap_single_vma+0x94/0x100 
-> [ 1863.237805]  [<00000000003b14c2>] zap_page_range+0x14a/0x1f0 
-> [ 1863.237809]  [<00000000003e3a24>] do_madvise+0x75c/0x918 
-> [ 1863.237812]  [<00000000003e3c06>] __s390x_sys_madvise+0x26/0x38 
-> [ 1863.237817]  [<0000000000d280d4>] system_call+0xe0/0x2c0 
-> [ 1863.237820] INFO: lockdep is turned off.
-> 
+Sure, I'll give it a try running over the night again.
