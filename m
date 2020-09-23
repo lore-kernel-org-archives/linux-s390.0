@@ -1,80 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3874 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726180AbgINMRQ (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14288 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726537AbgIWIhQ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Sep 2020 08:17:16 -0400
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 1/1] s390/dasd: Fix zero write for FBA devices
-Date: Mon, 14 Sep 2020 13:56:47 +0200
-Message-Id: <20200914115647.94062-2-sth@linux.ibm.com>
-In-Reply-To: <20200914115647.94062-1-sth@linux.ibm.com>
-References: <20200914115647.94062-1-sth@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+        Wed, 23 Sep 2020 04:37:16 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 6/9] s390/qeth: cancel cmds earlier during teardown
+Date: Wed, 23 Sep 2020 10:36:57 +0200
+Message-Id: <20200923083700.44624-7-jwi@linux.ibm.com>
+In-Reply-To: <20200923083700.44624-1-jwi@linux.ibm.com>
+References: <20200923083700.44624-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: axboe@kernel.dk
-Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+Originators of cmd IO typically hold the rtnl or conf_mutex to protect
+against a concurrent teardown.
+Since qeth_set_offline() already holds the conf_mutex, the main reason
+why we still care about cancelling pending cmds is so that they release
+the rtnl when we need it ourselves.
 
-A discard request that writes zeros using the global kernel internal
-ZERO_PAGE will fail for machines with more than 2GB of memory due to the
-location of the ZERO_PAGE.
+So move this step a little earlier into the teardown sequence.
 
-Fix this by using a driver owned global zero page allocated with GFP_DMA
-flag set.
-
-Fixes: 28b841b3a7cb ("s390/dasd: Add discard support for FBA devices")
-Cc: <stable@vger.kernel.org> # 4.14+
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/block/dasd_fba.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/s390/net/qeth_core.h      | 1 -
+ drivers/s390/net/qeth_core_main.c | 6 ++++--
+ drivers/s390/net/qeth_l2_main.c   | 4 +---
+ drivers/s390/net/qeth_l3_main.c   | 1 -
+ 4 files changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
-index cbb770824226..1a44e321b54e 100644
---- a/drivers/s390/block/dasd_fba.c
-+++ b/drivers/s390/block/dasd_fba.c
-@@ -40,6 +40,7 @@
- MODULE_LICENSE("GPL");
- 
- static struct dasd_discipline dasd_fba_discipline;
-+static void *dasd_fba_zero_page;
- 
- struct dasd_fba_private {
- 	struct dasd_fba_characteristics rdc_data;
-@@ -270,7 +271,7 @@ static void ccw_write_zero(struct ccw1 *ccw, int count)
- 	ccw->cmd_code = DASD_FBA_CCW_WRITE;
- 	ccw->flags |= CCW_FLAG_SLI;
- 	ccw->count = count;
--	ccw->cda = (__u32) (addr_t) page_to_phys(ZERO_PAGE(0));
-+	ccw->cda = (__u32) (addr_t) dasd_fba_zero_page;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index f931b764d6a4..711ab5097bd1 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -1067,7 +1067,6 @@ void qeth_put_cmd(struct qeth_cmd_buffer *iob);
+ int qeth_schedule_recovery(struct qeth_card *card);
+ void qeth_flush_local_addrs(struct qeth_card *card);
+ int qeth_poll(struct napi_struct *napi, int budget);
+-void qeth_clear_ipacmd_list(struct qeth_card *);
+ int qeth_qdio_clear_card(struct qeth_card *, int);
+ void qeth_clear_working_pool_list(struct qeth_card *);
+ void qeth_drain_output_queues(struct qeth_card *card);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 7cd0cbf8a4f0..286787845cae 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -965,7 +965,7 @@ static struct qeth_ipa_cmd *qeth_check_ipa_data(struct qeth_card *card,
+ 	}
  }
  
- /*
-@@ -830,6 +831,11 @@ dasd_fba_init(void)
- 	int ret;
- 
- 	ASCEBC(dasd_fba_discipline.ebcname, 4);
-+
-+	dasd_fba_zero_page = (void *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	if (!dasd_fba_zero_page)
-+		return -ENOMEM;
-+
- 	ret = ccw_driver_register(&dasd_fba_driver);
- 	if (!ret)
- 		wait_for_device_probe();
-@@ -841,6 +847,7 @@ static void __exit
- dasd_fba_cleanup(void)
+-void qeth_clear_ipacmd_list(struct qeth_card *card)
++static void qeth_clear_ipacmd_list(struct qeth_card *card)
  {
- 	ccw_driver_unregister(&dasd_fba_driver);
-+	free_page((unsigned long)dasd_fba_zero_page);
+ 	struct qeth_cmd_buffer *iob;
+ 	unsigned long flags;
+@@ -977,7 +977,6 @@ void qeth_clear_ipacmd_list(struct qeth_card *card)
+ 		qeth_notify_cmd(iob, -ECANCELED);
+ 	spin_unlock_irqrestore(&card->lock, flags);
  }
+-EXPORT_SYMBOL_GPL(qeth_clear_ipacmd_list);
  
- module_init(dasd_fba_init);
+ static int qeth_check_idx_response(struct qeth_card *card,
+ 	unsigned char *buffer)
+@@ -5334,6 +5333,9 @@ int qeth_set_offline(struct qeth_card *card, bool resetting)
+ 		card->info.hwtrap = 1;
+ 	}
+ 
++	/* cancel any stalled cmd that might block the rtnl: */
++	qeth_clear_ipacmd_list(card);
++
+ 	rtnl_lock();
+ 	card->info.open_when_online = card->dev->flags & IFF_UP;
+ 	dev_close(card->dev);
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index e12ac32b8b47..cbd1ab71e785 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -315,10 +315,8 @@ static void qeth_l2_stop_card(struct qeth_card *card)
+ 	cancel_work_sync(&card->rx_mode_work);
+ 	qeth_l2_drain_rx_mode_cache(card);
+ 
+-	if (card->state == CARD_STATE_SOFTSETUP) {
+-		qeth_clear_ipacmd_list(card);
++	if (card->state == CARD_STATE_SOFTSETUP)
+ 		card->state = CARD_STATE_DOWN;
+-	}
+ 
+ 	qeth_qdio_clear_card(card, 0);
+ 	qeth_drain_output_queues(card);
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 0815b64c9797..410c35ca8f4a 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1158,7 +1158,6 @@ static void qeth_l3_stop_card(struct qeth_card *card)
+ 	if (card->state == CARD_STATE_SOFTSETUP) {
+ 		card->state = CARD_STATE_DOWN;
+ 		qeth_l3_clear_ip_htable(card, 1);
+-		qeth_clear_ipacmd_list(card);
+ 	}
+ 
+ 	qeth_qdio_clear_card(card, 0);
 -- 
 2.17.1
