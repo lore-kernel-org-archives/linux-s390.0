@@ -1,140 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39500 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725984AbgICFlJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Sep 2020 01:41:09 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 1/9] Documentation/hdio: fix up obscure bd_contains references
-Date: Thu,  3 Sep 2020 07:40:56 +0200
-Message-Id: <20200903054104.228829-2-hch@lst.de>
-In-Reply-To: <20200903054104.228829-1-hch@lst.de>
-References: <20200903054104.228829-1-hch@lst.de>
+        with ESMTP id S1726572AbgIWOtZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Sep 2020 10:49:25 -0400
+Date: Wed, 23 Sep 2020 15:49:17 +0100
+From: Al Viro <viro@zeniv.linux.org.uk>
+Subject: Re: [PATCH 3/9] iov_iter: refactor rw_copy_check_uvector and
+ import_iovec
+Message-ID: <20200923144917.GM3421308@ZenIV.linux.org.uk>
+References: <20200923060547.16903-1-hch@lst.de>
+ <20200923060547.16903-4-hch@lst.de>
+ <20200923141654.GJ3421308@ZenIV.linux.org.uk>
+ <200cf2b9ce5e408f8838948fda7ce9a0@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200cf2b9ce5e408f8838948fda7ce9a0@AcuMS.aculab.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, drbd-dev@lists.linbit.com, linux-ide@vger.kernel.org, linux-raid@vger.kernel.org, linux-mmc@vger.kernel.org, linux-s390@vger.kernel.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org
+To: David Laight <David.Laight@aculab.com>
+Cc: Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>, "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>, "linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>
 
-bd_contains is an implementation detail and should not be mentioned in
-a userspace API documentation.
+On Wed, Sep 23, 2020 at 02:38:24PM +0000, David Laight wrote:
+> From: Al Viro
+> > Sent: 23 September 2020 15:17
+> > 
+> > On Wed, Sep 23, 2020 at 08:05:41AM +0200, Christoph Hellwig wrote:
+> > 
+> > > +struct iovec *iovec_from_user(const struct iovec __user *uvec,
+> > > +		unsigned long nr_segs, unsigned long fast_segs,
+> > 
+> > Hmm...  For fast_segs unsigned long had always been ridiculous
+> > (4G struct iovec on caller stack frame?), but that got me wondering about
+> > nr_segs and I wish I'd thought of that when introducing import_iovec().
+> > 
+> > The thing is, import_iovec() takes unsigned int there.  Which is fine
+> > (hell, the maximal value that can be accepted in 1024), except that
+> > we do pass unsigned long syscall argument to it in some places.
+> 
+> It will make diddly-squit difference.
+> The parameters end up in registers on most calling conventions.
+> Plausibly you get an extra 'REX' byte on x86 for the 64bit value.
+> What you want to avoid is explicit sign/zero extension and value
+> masking after arithmetic.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- Documentation/userspace-api/ioctl/hdio.rst | 24 +++++++++++-----------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+Don't tell me what I want; your telepathic abilities are consistently sucky.
 
-diff --git a/Documentation/userspace-api/ioctl/hdio.rst b/Documentation/userspace-api/ioctl/hdio.rst
-index e822e3dff1769b..817371bf94e948 100644
---- a/Documentation/userspace-api/ioctl/hdio.rst
-+++ b/Documentation/userspace-api/ioctl/hdio.rst
-@@ -181,7 +181,7 @@ HDIO_SET_UNMASKINTR
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 1]
- 	  - EBUSY	Controller busy
-@@ -231,7 +231,7 @@ HDIO_SET_MULTCOUNT
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range supported by disk.
- 	  - EBUSY	Controller busy or blockmode already set.
-@@ -295,7 +295,7 @@ HDIO_GET_IDENTITY
- 		the ATA specification.
- 
- 	error returns:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - ENOMSG	IDENTIFY DEVICE information not available
- 
- 	notes:
-@@ -355,7 +355,7 @@ HDIO_SET_KEEPSETTINGS
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 1]
- 	  - EBUSY		Controller busy
-@@ -1055,7 +1055,7 @@ HDIO_SET_32BIT
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 3]
- 	  - EBUSY	Controller busy
-@@ -1085,7 +1085,7 @@ HDIO_SET_NOWERR
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 1]
- 	  - EBUSY		Controller busy
-@@ -1113,7 +1113,7 @@ HDIO_SET_DMA
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 1]
- 	  - EBUSY	Controller busy
-@@ -1141,7 +1141,7 @@ HDIO_SET_PIO_MODE
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 255]
- 	  - EBUSY	Controller busy
-@@ -1237,7 +1237,7 @@ HDIO_SET_WCACHE
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 1]
- 	  - EBUSY	Controller busy
-@@ -1265,7 +1265,7 @@ HDIO_SET_ACOUSTIC
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 254]
- 	  - EBUSY	Controller busy
-@@ -1305,7 +1305,7 @@ HDIO_SET_ADDRESS
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 2]
- 	  - EBUSY		Controller busy
-@@ -1331,7 +1331,7 @@ HDIO_SET_IDE_SCSI
- 
- 
- 	error return:
--	  - EINVAL	(bdev != bdev->bd_contains) (not sure what this means)
-+	  - EINVAL	Called on a partition instead of the whole disk device
- 	  - EACCES	Access denied:  requires CAP_SYS_ADMIN
- 	  - EINVAL	value out of range [0 1]
- 	  - EBUSY	Controller busy
--- 
-2.28.0
+I am *NOT* talking about microoptimization here.  I have described
+the behaviour change of syscall caused by commit 5 years ago.  Which is
+generally considered a problem.  Then I asked whether that behaviour
+change would fall under the "if nobody noticed, it's not a userland ABI
+breakage" exception.
+
+Could you show me the point where I have expressed concerns about
+the quality of amd64 code generated for that thing, before or after
+the change in question?
