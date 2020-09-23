@@ -1,110 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27602 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729238AbgIGMr3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Sep 2020 08:47:29 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v2 1/2] s390x: uv: Add destroy page call
-Date: Mon,  7 Sep 2020 08:46:59 -0400
-Message-Id: <20200907124700.10374-2-frankja@linux.ibm.com>
-In-Reply-To: <20200907124700.10374-1-frankja@linux.ibm.com>
-References: <20200907124700.10374-1-frankja@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40830 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726753AbgIWGGM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Sep 2020 02:06:12 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 9/9] security/keys: remove compat_keyctl_instantiate_key_iov
+Date: Wed, 23 Sep 2020 08:05:47 +0200
+Message-Id: <20200923060547.16903-10-hch@lst.de>
+In-Reply-To: <20200923060547.16903-1-hch@lst.de>
+References: <20200923060547.16903-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: borntraeger@de.ibm.com, gor@linux.ibm.com, imbrenda@linux.ibm.com, kvm@vger.kernel.org, david@redhat.com, hca@linux.ibm.com
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
 
-We don't need to export pages if we destroy the VM configuration
-afterwards anyway. Instead we can destroy the page which will zero it
-and then make it accessible to the host.
+Now that import_iovec handles compat iovecs, the native version of
+keyctl_instantiate_key_iov can be used for the compat case as well.
 
-Destroying is about twice as fast as the export.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/s390/include/asm/uv.h |  7 +++++++
- arch/s390/kernel/uv.c      | 20 ++++++++++++++++++++
- arch/s390/mm/gmap.c        |  2 +-
- 3 files changed, 28 insertions(+), 1 deletion(-)
+ security/keys/compat.c   | 36 ++----------------------------------
+ security/keys/internal.h |  5 -----
+ security/keys/keyctl.c   |  2 +-
+ 3 files changed, 3 insertions(+), 40 deletions(-)
 
-diff --git a/arch/s390/include/asm/uv.h b/arch/s390/include/asm/uv.h
-index cff4b4c99b75..0325fc0469b7 100644
---- a/arch/s390/include/asm/uv.h
-+++ b/arch/s390/include/asm/uv.h
-@@ -33,6 +33,7 @@
- #define UVC_CMD_DESTROY_SEC_CPU		0x0121
- #define UVC_CMD_CONV_TO_SEC_STOR	0x0200
- #define UVC_CMD_CONV_FROM_SEC_STOR	0x0201
-+#define UVC_CMD_DESTR_SEC_STOR		0x0202
- #define UVC_CMD_SET_SEC_CONF_PARAMS	0x0300
- #define UVC_CMD_UNPACK_IMG		0x0301
- #define UVC_CMD_VERIFY_IMG		0x0302
-@@ -344,6 +345,7 @@ static inline int is_prot_virt_host(void)
- }
+diff --git a/security/keys/compat.c b/security/keys/compat.c
+index 7ae531db031cf8..1545efdca56227 100644
+--- a/security/keys/compat.c
++++ b/security/keys/compat.c
+@@ -11,38 +11,6 @@
+ #include <linux/slab.h>
+ #include "internal.h"
  
- int gmap_make_secure(struct gmap *gmap, unsigned long gaddr, void *uvcb);
-+int uv_destroy_page(unsigned long paddr);
- int uv_convert_from_secure(unsigned long paddr);
- int gmap_convert_to_secure(struct gmap *gmap, unsigned long gaddr);
- 
-@@ -354,6 +356,11 @@ void adjust_to_uv_max(unsigned long *vmax);
- static inline void setup_uv(void) {}
- static inline void adjust_to_uv_max(unsigned long *vmax) {}
- 
-+static inline int uv_destroy_page(unsigned long paddr)
-+{
-+	return 0;
-+}
-+
- static inline int uv_convert_from_secure(unsigned long paddr)
- {
- 	return 0;
-diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
-index c296e5c8dbf9..d3399b8a9b23 100644
---- a/arch/s390/kernel/uv.c
-+++ b/arch/s390/kernel/uv.c
-@@ -118,6 +118,26 @@ static int uv_pin_shared(unsigned long paddr)
- 	return 0;
- }
- 
-+/*
-+ * Requests the Ultravisor to destroy a guest page and make it
-+ * accessible to the host. The destroy clears the page instead of
-+ * exporting.
-+ *
-+ * @paddr: Absolute host address of page to be destroyed
-+ */
-+int uv_destroy_page(unsigned long paddr)
-+{
-+	struct uv_cb_cfs uvcb = {
-+		.header.cmd = UVC_CMD_DESTR_SEC_STOR,
-+		.header.len = sizeof(uvcb),
-+		.paddr = paddr
-+	};
-+
-+	if (uv_call(0, (u64)&uvcb))
-+		return -EINVAL;
-+	return 0;
-+}
-+
+-/*
+- * Instantiate a key with the specified compatibility multipart payload and
+- * link the key into the destination keyring if one is given.
+- *
+- * The caller must have the appropriate instantiation permit set for this to
+- * work (see keyctl_assume_authority).  No other permissions are required.
+- *
+- * If successful, 0 will be returned.
+- */
+-static long compat_keyctl_instantiate_key_iov(
+-	key_serial_t id,
+-	const struct compat_iovec __user *_payload_iov,
+-	unsigned ioc,
+-	key_serial_t ringid)
+-{
+-	struct iovec iovstack[UIO_FASTIOV], *iov = iovstack;
+-	struct iov_iter from;
+-	long ret;
+-
+-	if (!_payload_iov)
+-		ioc = 0;
+-
+-	ret = import_iovec(WRITE, (const struct iovec __user *)_payload_iov,
+-			   ioc, ARRAY_SIZE(iovstack), &iov, &from);
+-	if (ret < 0)
+-		return ret;
+-
+-	ret = keyctl_instantiate_key_common(id, &from, ringid);
+-	kfree(iov);
+-	return ret;
+-}
+-
  /*
-  * Requests the Ultravisor to encrypt a guest page and make it
-  * accessible to the host for paging (export).
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index 373542ca1113..cfb0017f33a7 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2679,7 +2679,7 @@ static int __s390_reset_acc(pte_t *ptep, unsigned long addr,
- 	pte_t pte = READ_ONCE(*ptep);
+  * The key control system call, 32-bit compatibility version for 64-bit archs
+  */
+@@ -113,8 +81,8 @@ COMPAT_SYSCALL_DEFINE5(keyctl, u32, option,
+ 		return keyctl_reject_key(arg2, arg3, arg4, arg5);
  
- 	if (pte_present(pte))
--		WARN_ON_ONCE(uv_convert_from_secure(pte_val(pte) & PAGE_MASK));
-+		WARN_ON_ONCE(uv_destroy_page(pte_val(pte) & PAGE_MASK));
- 	return 0;
- }
+ 	case KEYCTL_INSTANTIATE_IOV:
+-		return compat_keyctl_instantiate_key_iov(
+-			arg2, compat_ptr(arg3), arg4, arg5);
++		return keyctl_instantiate_key_iov(arg2, compat_ptr(arg3), arg4,
++						  arg5);
  
+ 	case KEYCTL_INVALIDATE:
+ 		return keyctl_invalidate_key(arg2);
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index 338a526cbfa516..9b9cf3b6fcbb4d 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -262,11 +262,6 @@ extern long keyctl_instantiate_key_iov(key_serial_t,
+ 				       const struct iovec __user *,
+ 				       unsigned, key_serial_t);
+ extern long keyctl_invalidate_key(key_serial_t);
+-
+-struct iov_iter;
+-extern long keyctl_instantiate_key_common(key_serial_t,
+-					  struct iov_iter *,
+-					  key_serial_t);
+ extern long keyctl_restrict_keyring(key_serial_t id,
+ 				    const char __user *_type,
+ 				    const char __user *_restriction);
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index 9febd37a168fd0..e26bbccda7ccee 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -1164,7 +1164,7 @@ static int keyctl_change_reqkey_auth(struct key *key)
+  *
+  * If successful, 0 will be returned.
+  */
+-long keyctl_instantiate_key_common(key_serial_t id,
++static long keyctl_instantiate_key_common(key_serial_t id,
+ 				   struct iov_iter *from,
+ 				   key_serial_t ringid)
+ {
 -- 
-2.25.1
+2.28.0
