@@ -1,88 +1,88 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4348 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726424AbgI1OXq (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7640 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726504AbgIWNsO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 28 Sep 2020 10:23:46 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 2/4] s390x: pv: implement routine to share/unshare memory
-Date: Mon, 28 Sep 2020 16:23:35 +0200
-Message-Id: <1601303017-8176-3-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1601303017-8176-1-git-send-email-pmorel@linux.ibm.com>
-References: <1601303017-8176-1-git-send-email-pmorel@linux.ibm.com>
+        Wed, 23 Sep 2020 09:48:14 -0400
+From: Marc Hartmayer <mhartmay@linux.ibm.com>
+Subject: [PATCH kvm-unit-tests v2 1/4] common.bash: run `cmd` only if a test case was found
+Date: Wed, 23 Sep 2020 15:47:55 +0200
+Message-Id: <20200923134758.19354-2-mhartmay@linux.ibm.com>
+In-Reply-To: <20200923134758.19354-1-mhartmay@linux.ibm.com>
+References: <20200923134758.19354-1-mhartmay@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+Cc: Thomas Huth <thuth@redhat.com>, David Hildenbrand <david@redhat.com>, Janosch Frank <frankja@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Andrew Jones <drjones@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, linux-s390@vger.kernel.org
 
-When communicating with the host we need to share part of
-the memory.
+It's only useful to run `cmd` in `for_each_unittest` if a test case
+was found. This change allows us to remove the guards from the
+functions `run_task` and `mkstandalone`.
 
-Let's implement the ultravisor calls for this.
-
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Suggested-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Andrew Jones <drjones@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Marc Hartmayer <mhartmay@linux.ibm.com>
 ---
- lib/s390x/asm/uv.h | 50 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 50 insertions(+)
+ run_tests.sh            | 3 ---
+ scripts/common.bash     | 8 ++++++--
+ scripts/mkstandalone.sh | 4 ----
+ 3 files changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index 4c2fc48..f7690a2 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -71,4 +71,54 @@ static inline int uv_call(unsigned long r1, unsigned long r2)
- 	return cc;
- }
+diff --git a/run_tests.sh b/run_tests.sh
+index fc4b3c23d886..12b63954721d 100755
+--- a/run_tests.sh
++++ b/run_tests.sh
+@@ -133,9 +133,6 @@ RUNTIME_log_stdout () {
+ function run_task()
+ {
+ 	local testname="$1"
+-	if [ -z "$testname" ]; then
+-		return
+-	fi
  
-+static inline int share(unsigned long addr, u16 cmd)
-+{
-+	struct uv_cb_share uvcb = {
-+		.header.cmd = cmd,
-+		.header.len = sizeof(uvcb),
-+		.paddr = addr
-+	};
-+	int cc;
-+
-+	cc = uv_call(0, (u64)&uvcb);
-+	if (!cc && (uvcb.header.rc == 0x0001))
-+		return 0;
-+
-+	report(0, "cc %d response code: %04x", cc, uvcb.header.rc);
-+	return -1;
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page shared with the
-+ * hypervisor for IO.
-+ *
-+ * @addr: Real or absolute address of the page to be shared
-+ */
-+static inline int uv_set_shared(unsigned long addr)
-+{
-+	int ret;
-+
-+	report_prefix_push("PV Set Shared access");
-+	ret = share(addr, UVC_CMD_SET_SHARED_ACCESS);
-+	report_prefix_pop();
-+
-+	return ret;
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page unshared.
-+ *
-+ * @addr: Real or absolute address of the page to be unshared
-+ */
-+static inline int uv_remove_shared(unsigned long addr)
-+{
-+	int ret;
-+
-+	report_prefix_push("PV Remove Shared access");
-+	ret = share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
-+	report_prefix_pop();
-+
-+	return ret;
-+}
-+
- #endif
+ 	while (( $(jobs | wc -l) == $unittest_run_queues )); do
+ 		# wait for any background test to finish
+diff --git a/scripts/common.bash b/scripts/common.bash
+index 9a6ebbd7f287..96655c9ffd1f 100644
+--- a/scripts/common.bash
++++ b/scripts/common.bash
+@@ -17,7 +17,9 @@ function for_each_unittest()
+ 
+ 	while read -r -u $fd line; do
+ 		if [[ "$line" =~ ^\[(.*)\]$ ]]; then
+-			"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
++			if [ -n "${testname}" ]; then
++				"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
++			fi
+ 			testname=${BASH_REMATCH[1]}
+ 			smp=1
+ 			kernel=""
+@@ -45,6 +47,8 @@ function for_each_unittest()
+ 			timeout=${BASH_REMATCH[1]}
+ 		fi
+ 	done
+-	"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
++	if [ -n "${testname}" ]; then
++		"$cmd" "$testname" "$groups" "$smp" "$kernel" "$opts" "$arch" "$check" "$accel" "$timeout"
++	fi
+ 	exec {fd}<&-
+ }
+diff --git a/scripts/mkstandalone.sh b/scripts/mkstandalone.sh
+index 9d506cc95072..cefdec30cb33 100755
+--- a/scripts/mkstandalone.sh
++++ b/scripts/mkstandalone.sh
+@@ -83,10 +83,6 @@ function mkstandalone()
+ {
+ 	local testname="$1"
+ 
+-	if [ -z "$testname" ]; then
+-		return
+-	fi
+-
+ 	if [ -n "$one_testname" ] && [ "$testname" != "$one_testname" ]; then
+ 		return
+ 	fi
 -- 
-2.25.1
+2.25.4
