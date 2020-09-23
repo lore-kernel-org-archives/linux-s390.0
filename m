@@ -1,124 +1,110 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43550 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729125AbgIYQjB (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54604 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726130AbgIWKnS (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 25 Sep 2020 12:39:01 -0400
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v1 3/4] s390: define UV compatible I/O allocation
-Date: Fri, 25 Sep 2020 18:02:43 +0200
-Message-Id: <1601049764-11784-4-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1601049764-11784-1-git-send-email-pmorel@linux.ibm.com>
-References: <1601049764-11784-1-git-send-email-pmorel@linux.ibm.com>
+        Wed, 23 Sep 2020 06:43:18 -0400
+Subject: Re: [PATCH net-next 3/9] s390/qeth: clean up string ops in
+ qeth_l3_parse_ipatoe()
+References: <20200923083700.44624-1-jwi@linux.ibm.com>
+ <20200923083700.44624-4-jwi@linux.ibm.com>
+ <2e439abb31e942e2a441f28439d287fa@AcuMS.aculab.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Message-ID: <32389826-0c77-cade-5105-a5b710276e42@linux.ibm.com>
+Date: Wed, 23 Sep 2020 13:43:04 +0300
+MIME-Version: 1.0
+In-Reply-To: <2e439abb31e942e2a441f28439d287fa@AcuMS.aculab.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com
+To: David Laight <David.Laight@ACULAB.COM>, David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>
 
-To centralize the memory allocation for I/O we define
-the alloc/free_io_page() functions which share the I/O
-memory with the host in case the guest runs with
-protected virtualization.
+On 23.09.20 12:55, David Laight wrote:
+> From: Julian Wiedmann
+>> Sent: 23 September 2020 09:37
+>>
+>> Indicate the max number of to-be-parsed characters, and avoid copying
+>> the address sub-string.
+>>
+>> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+>> ---
+>>  drivers/s390/net/qeth_l3_sys.c | 27 ++++++++++++++-------------
+>>  1 file changed, 14 insertions(+), 13 deletions(-)
+>>
+>> diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+>> index ca9c95b6bf35..05fa986e30fc 100644
+>> --- a/drivers/s390/net/qeth_l3_sys.c
+>> +++ b/drivers/s390/net/qeth_l3_sys.c
+>> @@ -409,21 +409,22 @@ static ssize_t qeth_l3_dev_ipato_add4_show(struct device *dev,
+>>  static int qeth_l3_parse_ipatoe(const char *buf, enum qeth_prot_versions proto,
+>>  		  u8 *addr, int *mask_bits)
+>>  {
+>> -	const char *start, *end;
+>> -	char *tmp;
+>> -	char buffer[40] = {0, };
+>> +	const char *start;
+>> +	char *sep, *tmp;
+>> +	int rc;
+>>
+>> -	start = buf;
+>> -	/* get address string */
+>> -	end = strchr(start, '/');
+>> -	if (!end || (end - start >= 40)) {
+>> +	/* Expected input pattern: %addr/%mask */
+>> +	sep = strnchr(buf, 40, '/');
+>> +	if (!sep)
+>>  		return -EINVAL;
+>> -	}
+>> -	strncpy(buffer, start, end - start);
+>> -	if (qeth_l3_string_to_ipaddr(buffer, proto, addr)) {
+>> -		return -EINVAL;
+>> -	}
+>> -	start = end + 1;
+>> +
+>> +	/* Terminate the %addr sub-string, and parse it: */
+>> +	*sep = '\0';
+> 
+> Is it valid to write into the input buffer here?
+> 
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/malloc_io.c | 50 +++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/malloc_io.h | 18 ++++++++++++++++
- s390x/Makefile        |  1 +
- 3 files changed, 69 insertions(+)
- create mode 100644 lib/s390x/malloc_io.c
- create mode 100644 lib/s390x/malloc_io.h
+It's a private buffer that was handed to us by the kernfs write code.
 
-diff --git a/lib/s390x/malloc_io.c b/lib/s390x/malloc_io.c
-new file mode 100644
-index 0000000..b84a06a
---- /dev/null
-+++ b/lib/s390x/malloc_io.c
-@@ -0,0 +1,50 @@
-+/*
-+ * I/O page allocation
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ *
-+ * Using this interface provide host access to the allocated pages in
-+ * case the guest is a secure guest.
-+ * This is needed for I/O buffers.
-+ *
-+ */
-+#include <libcflat.h>
-+#include <alloc_dma_page.h>
-+#include <asm/uv.h>
-+#include <malloc_io.h>
-+#include <asm/facility.h>
-+
-+void *alloc_io_page(int size)
-+{
-+	void *p;
-+
-+	assert(size <= PAGE_SIZE);
-+	p = get_dma_page();
-+	if (!p) {
-+		report(0, "Memory allocation");
-+		return NULL;
-+	}
-+
-+	if (!test_facility(158))
-+		return p;
-+
-+	if (!uv_set_shared((unsigned long)p)) {
-+		report(0, "Sharing memory");
-+		return NULL;
-+	}
-+
-+	return p;
-+}
-+
-+void free_io_page(void *p)
-+{
-+	if (test_facility(158) && !uv_remove_shared((unsigned long)p))
-+		report(0, "Unsharing memory");
-+	put_dma_page(p);
-+}
-diff --git a/lib/s390x/malloc_io.h b/lib/s390x/malloc_io.h
-new file mode 100644
-index 0000000..c6ed481
---- /dev/null
-+++ b/lib/s390x/malloc_io.h
-@@ -0,0 +1,18 @@
-+/*
-+ * I/O allocations
-+ *
-+ * Copyright (c) 2020 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * This code is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2.
-+ */
-+#ifndef _S390X_MALLOC_IO_H_
-+#define _S390X_MALLOC_IO_H_
-+
-+void *alloc_io_page(int size);
-+void free_io_page(void *p);
-+
-+#endif /* _S390X_MALLOC_IO_H_ */
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 109ef9f..1b1dc9f 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -63,6 +63,7 @@ cflatobjs += lib/s390x/smp.o
- cflatobjs += lib/s390x/vm.o
- cflatobjs += lib/s390x/css_dump.o
- cflatobjs += lib/s390x/css_lib.o
-+cflatobjs += lib/s390x/malloc_io.o
- 
- OBJDIRS += lib/s390x
- 
--- 
-2.25.1
+>> +	rc = qeth_l3_string_to_ipaddr(buf, proto, addr);
+>> +	if (rc)
+>> +		return rc;
+>> +
+>> +	start = sep + 1;
+>>  	*mask_bits = simple_strtoul(start, &tmp, 10);
+> 
+> The use of strnchr() rather implies that the input
+> buffer may not be '\0' terminated.
+
+It's a kernfs write buffer, so guaranteed to be terminated.
+
+> If that is true then you've just run off the end of the
+> input buffer.
+> 
+>>  	if (!strlen(start) ||
+>>  	    (tmp == start) ||
+> 
+> Hmmm... delete the strlen() clause.
+> It ought to test start[0], but the 'tmp == start' test
+> covers that case.
+> 
+
+See the next patch in this series, all this goes away.
+
+> I don't understand why simple_strtoul() is deprecated.
+> I don't recall any of the replacements returning the
+> address of the terminating character.
+> 
+> 	David
+> 
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
+> 
+
+b
