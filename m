@@ -1,124 +1,312 @@
-Return-Path: <netdev-owner@vger.kernel.org>
+Return-Path: <linux-arch-owner@vger.kernel.org>
 From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 1/9] kernel: add a PF_FORCE_COMPAT flag
-Date: Fri, 18 Sep 2020 14:45:25 +0200
-Message-Id: <20200918124533.3487701-2-hch@lst.de>
-In-Reply-To: <20200918124533.3487701-1-hch@lst.de>
-References: <20200918124533.3487701-1-hch@lst.de>
+Subject: [PATCH 6/9] fs: remove the compat readv/writev syscalls
+Date: Wed, 23 Sep 2020 08:05:44 +0200
+Message-Id: <20200923060547.16903-7-hch@lst.de>
+In-Reply-To: <20200923060547.16903-1-hch@lst.de>
+References: <20200923060547.16903-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, linux-arm-kernel@lists.infradead.org, x86@kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
 
-Add a flag to force processing a syscall as a compat syscall.  This is
-required so that in_compat_syscall() works for I/O submitted by io_uring
-helper threads on behalf of compat syscalls.
+Now that import_iovec handles compat iovecs, the native readv and writev
+syscalls can be used for the compat case as well.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/sparc/include/asm/compat.h | 3 ++-
- arch/x86/include/asm/compat.h   | 2 +-
- fs/io_uring.c                   | 9 +++++++++
- include/linux/compat.h          | 5 ++++-
- include/linux/sched.h           | 1 +
- 5 files changed, 17 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/unistd32.h                  |  4 ++--
+ arch/mips/kernel/syscalls/syscall_n32.tbl          |  4 ++--
+ arch/mips/kernel/syscalls/syscall_o32.tbl          |  4 ++--
+ arch/parisc/kernel/syscalls/syscall.tbl            |  4 ++--
+ arch/powerpc/kernel/syscalls/syscall.tbl           |  4 ++--
+ arch/s390/kernel/syscalls/syscall.tbl              |  4 ++--
+ arch/sparc/kernel/syscalls/syscall.tbl             |  4 ++--
+ arch/x86/entry/syscall_x32.c                       |  2 ++
+ arch/x86/entry/syscalls/syscall_32.tbl             |  4 ++--
+ arch/x86/entry/syscalls/syscall_64.tbl             |  4 ++--
+ fs/read_write.c                                    | 14 --------------
+ include/linux/compat.h                             |  4 ----
+ include/uapi/asm-generic/unistd.h                  |  4 ++--
+ tools/include/uapi/asm-generic/unistd.h            |  4 ++--
+ tools/perf/arch/powerpc/entry/syscalls/syscall.tbl |  4 ++--
+ tools/perf/arch/s390/entry/syscalls/syscall.tbl    |  4 ++--
+ tools/perf/arch/x86/entry/syscalls/syscall_64.tbl  |  4 ++--
+ 17 files changed, 30 insertions(+), 46 deletions(-)
 
-diff --git a/arch/sparc/include/asm/compat.h b/arch/sparc/include/asm/compat.h
-index 40a267b3bd5208..fee6c51d36e869 100644
---- a/arch/sparc/include/asm/compat.h
-+++ b/arch/sparc/include/asm/compat.h
-@@ -211,7 +211,8 @@ static inline int is_compat_task(void)
- static inline bool in_compat_syscall(void)
- {
- 	/* Vector 0x110 is LINUX_32BIT_SYSCALL_TRAP */
--	return pt_regs_trap_type(current_pt_regs()) == 0x110;
-+	return pt_regs_trap_type(current_pt_regs()) == 0x110 ||
-+		(current->flags & PF_FORCE_COMPAT);
- }
- #define in_compat_syscall in_compat_syscall
- #endif
-diff --git a/arch/x86/include/asm/compat.h b/arch/x86/include/asm/compat.h
-index d4edf281fff49d..fbab072d4e5b31 100644
---- a/arch/x86/include/asm/compat.h
-+++ b/arch/x86/include/asm/compat.h
-@@ -208,7 +208,7 @@ static inline bool in_32bit_syscall(void)
+diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
+index 734860ac7cf9d5..4a236493dca5b9 100644
+--- a/arch/arm64/include/asm/unistd32.h
++++ b/arch/arm64/include/asm/unistd32.h
+@@ -301,9 +301,9 @@ __SYSCALL(__NR_flock, sys_flock)
+ #define __NR_msync 144
+ __SYSCALL(__NR_msync, sys_msync)
+ #define __NR_readv 145
+-__SYSCALL(__NR_readv, compat_sys_readv)
++__SYSCALL(__NR_readv, sys_readv)
+ #define __NR_writev 146
+-__SYSCALL(__NR_writev, compat_sys_writev)
++__SYSCALL(__NR_writev, sys_writev)
+ #define __NR_getsid 147
+ __SYSCALL(__NR_getsid, sys_getsid)
+ #define __NR_fdatasync 148
+diff --git a/arch/mips/kernel/syscalls/syscall_n32.tbl b/arch/mips/kernel/syscalls/syscall_n32.tbl
+index f9df9edb67a407..c99a92646f8ee9 100644
+--- a/arch/mips/kernel/syscalls/syscall_n32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_n32.tbl
+@@ -25,8 +25,8 @@
+ 15	n32	ioctl				compat_sys_ioctl
+ 16	n32	pread64				sys_pread64
+ 17	n32	pwrite64			sys_pwrite64
+-18	n32	readv				compat_sys_readv
+-19	n32	writev				compat_sys_writev
++18	n32	readv				sys_readv
++19	n32	writev				sys_writev
+ 20	n32	access				sys_access
+ 21	n32	pipe				sysm_pipe
+ 22	n32	_newselect			compat_sys_select
+diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
+index 195b43cf27c848..075064d10661bf 100644
+--- a/arch/mips/kernel/syscalls/syscall_o32.tbl
++++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
+@@ -156,8 +156,8 @@
+ 142	o32	_newselect			sys_select			compat_sys_select
+ 143	o32	flock				sys_flock
+ 144	o32	msync				sys_msync
+-145	o32	readv				sys_readv			compat_sys_readv
+-146	o32	writev				sys_writev			compat_sys_writev
++145	o32	readv				sys_readv
++146	o32	writev				sys_writev
+ 147	o32	cacheflush			sys_cacheflush
+ 148	o32	cachectl			sys_cachectl
+ 149	o32	sysmips				__sys_sysmips
+diff --git a/arch/parisc/kernel/syscalls/syscall.tbl b/arch/parisc/kernel/syscalls/syscall.tbl
+index def64d221cd4fb..192abde0001d9d 100644
+--- a/arch/parisc/kernel/syscalls/syscall.tbl
++++ b/arch/parisc/kernel/syscalls/syscall.tbl
+@@ -159,8 +159,8 @@
+ 142	common	_newselect		sys_select			compat_sys_select
+ 143	common	flock			sys_flock
+ 144	common	msync			sys_msync
+-145	common	readv			sys_readv			compat_sys_readv
+-146	common	writev			sys_writev			compat_sys_writev
++145	common	readv			sys_readv
++146	common	writev			sys_writev
+ 147	common	getsid			sys_getsid
+ 148	common	fdatasync		sys_fdatasync
+ 149	common	_sysctl			sys_ni_syscall
+diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
+index c2d737ff2e7bec..6f1e2ecf0edad9 100644
+--- a/arch/powerpc/kernel/syscalls/syscall.tbl
++++ b/arch/powerpc/kernel/syscalls/syscall.tbl
+@@ -193,8 +193,8 @@
+ 142	common	_newselect			sys_select			compat_sys_select
+ 143	common	flock				sys_flock
+ 144	common	msync				sys_msync
+-145	common	readv				sys_readv			compat_sys_readv
+-146	common	writev				sys_writev			compat_sys_writev
++145	common	readv				sys_readv
++146	common	writev				sys_writev
+ 147	common	getsid				sys_getsid
+ 148	common	fdatasync			sys_fdatasync
+ 149	nospu	_sysctl				sys_ni_syscall
+diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
+index 10456bc936fb09..6101cf2e004cb4 100644
+--- a/arch/s390/kernel/syscalls/syscall.tbl
++++ b/arch/s390/kernel/syscalls/syscall.tbl
+@@ -134,8 +134,8 @@
+ 142  64		select			sys_select			-
+ 143  common	flock			sys_flock			sys_flock
+ 144  common	msync			sys_msync			sys_msync
+-145  common	readv			sys_readv			compat_sys_readv
+-146  common	writev			sys_writev			compat_sys_writev
++145  common	readv			sys_readv			sys_readv
++146  common	writev			sys_writev			sys_writev
+ 147  common	getsid			sys_getsid			sys_getsid
+ 148  common	fdatasync		sys_fdatasync			sys_fdatasync
+ 149  common	_sysctl			-				-
+diff --git a/arch/sparc/kernel/syscalls/syscall.tbl b/arch/sparc/kernel/syscalls/syscall.tbl
+index 4af114e84f2022..a87ddb282ab16f 100644
+--- a/arch/sparc/kernel/syscalls/syscall.tbl
++++ b/arch/sparc/kernel/syscalls/syscall.tbl
+@@ -149,8 +149,8 @@
+ 117	common	getrusage		sys_getrusage			compat_sys_getrusage
+ 118	common	getsockopt		sys_getsockopt			sys_getsockopt
+ 119	common	getcwd			sys_getcwd
+-120	common	readv			sys_readv			compat_sys_readv
+-121	common	writev			sys_writev			compat_sys_writev
++120	common	readv			sys_readv
++121	common	writev			sys_writev
+ 122	common	settimeofday		sys_settimeofday		compat_sys_settimeofday
+ 123	32	fchown			sys_fchown16
+ 123	64	fchown			sys_fchown
+diff --git a/arch/x86/entry/syscall_x32.c b/arch/x86/entry/syscall_x32.c
+index 1583831f61a9df..aa321444a41f63 100644
+--- a/arch/x86/entry/syscall_x32.c
++++ b/arch/x86/entry/syscall_x32.c
+@@ -12,6 +12,8 @@
+  * Reuse the 64-bit entry points for the x32 versions that occupy different
+  * slots in the syscall table.
+  */
++#define __x32_sys_readv		__x64_sys_readv
++#define __x32_sys_writev	__x64_sys_writev
+ #define __x32_sys_getsockopt	__x64_sys_getsockopt
+ #define __x32_sys_setsockopt	__x64_sys_setsockopt
+ 
+diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
+index 9d11028736661b..54ab4beb517f25 100644
+--- a/arch/x86/entry/syscalls/syscall_32.tbl
++++ b/arch/x86/entry/syscalls/syscall_32.tbl
+@@ -156,8 +156,8 @@
+ 142	i386	_newselect		sys_select			compat_sys_select
+ 143	i386	flock			sys_flock
+ 144	i386	msync			sys_msync
+-145	i386	readv			sys_readv			compat_sys_readv
+-146	i386	writev			sys_writev			compat_sys_writev
++145	i386	readv			sys_readv
++146	i386	writev			sys_writev
+ 147	i386	getsid			sys_getsid
+ 148	i386	fdatasync		sys_fdatasync
+ 149	i386	_sysctl			sys_ni_syscall
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index f30d6ae9a6883c..b1e59957c5c51c 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -371,8 +371,8 @@
+ 512	x32	rt_sigaction		compat_sys_rt_sigaction
+ 513	x32	rt_sigreturn		compat_sys_x32_rt_sigreturn
+ 514	x32	ioctl			compat_sys_ioctl
+-515	x32	readv			compat_sys_readv
+-516	x32	writev			compat_sys_writev
++515	x32	readv			sys_readv
++516	x32	writev			sys_writev
+ 517	x32	recvfrom		compat_sys_recvfrom
+ 518	x32	sendmsg			compat_sys_sendmsg
+ 519	x32	recvmsg			compat_sys_recvmsg
+diff --git a/fs/read_write.c b/fs/read_write.c
+index eab427b7cc0a3f..6c13f744c34a38 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -1074,13 +1074,6 @@ SYSCALL_DEFINE6(pwritev2, unsigned long, fd, const struct iovec __user *, vec,
+  * in_compat_syscall().
+  */
  #ifdef CONFIG_COMPAT
- static inline bool in_compat_syscall(void)
- {
--	return in_32bit_syscall();
-+	return in_32bit_syscall() || (current->flags & PF_FORCE_COMPAT);
- }
- #define in_compat_syscall in_compat_syscall	/* override the generic impl */
- #endif
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 3790c7fe9fee22..5755d557c3f7bc 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -5449,6 +5449,9 @@ static int io_req_defer_prep(struct io_kiocb *req,
- 	if (unlikely(ret))
- 		return ret;
- 
-+	if (req->ctx->compat)
-+		current->flags |= PF_FORCE_COMPAT;
-+
- 	switch (req->opcode) {
- 	case IORING_OP_NOP:
- 		break;
-@@ -5546,6 +5549,7 @@ static int io_req_defer_prep(struct io_kiocb *req,
- 		break;
- 	}
- 
-+	current->flags &= ~PF_FORCE_COMPAT;
- 	return ret;
+-COMPAT_SYSCALL_DEFINE3(readv, compat_ulong_t, fd,
+-		const struct iovec __user *, vec,
+-		compat_ulong_t, vlen)
+-{
+-	return do_readv(fd, vec, vlen, 0);
+-}
+-
+ #ifdef __ARCH_WANT_COMPAT_SYS_PREADV64
+ COMPAT_SYSCALL_DEFINE4(preadv64, unsigned long, fd,
+ 		const struct iovec __user *, vec,
+@@ -1122,13 +1115,6 @@ COMPAT_SYSCALL_DEFINE6(preadv2, compat_ulong_t, fd,
+ 	return do_preadv(fd, vec, vlen, pos, flags);
  }
  
-@@ -5669,6 +5673,9 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 	struct io_ring_ctx *ctx = req->ctx;
- 	int ret;
- 
-+	if (ctx->compat)
-+		current->flags |= PF_FORCE_COMPAT;
-+
- 	switch (req->opcode) {
- 	case IORING_OP_NOP:
- 		ret = io_nop(req, cs);
-@@ -5898,6 +5905,8 @@ static int io_issue_sqe(struct io_kiocb *req, const struct io_uring_sqe *sqe,
- 		break;
- 	}
- 
-+	current->flags &= ~PF_FORCE_COMPAT;
-+
- 	if (ret)
- 		return ret;
- 
+-COMPAT_SYSCALL_DEFINE3(writev, compat_ulong_t, fd,
+-		const struct iovec __user *, vec,
+-		compat_ulong_t, vlen)
+-{
+-	return do_writev(fd, vec, vlen, 0);
+-}
+-
+ #ifdef __ARCH_WANT_COMPAT_SYS_PWRITEV64
+ COMPAT_SYSCALL_DEFINE4(pwritev64, unsigned long, fd,
+ 		const struct iovec __user *, vec,
 diff --git a/include/linux/compat.h b/include/linux/compat.h
-index b354ce58966e2d..685066f7ad325f 100644
+index b930de791ff16b..fa39b7a5488d70 100644
 --- a/include/linux/compat.h
 +++ b/include/linux/compat.h
-@@ -891,7 +891,10 @@ asmlinkage long compat_sys_socketcall(int call, u32 __user *args);
-  */
+@@ -545,10 +545,6 @@ asmlinkage long compat_sys_getdents(unsigned int fd,
  
- #ifndef in_compat_syscall
--static inline bool in_compat_syscall(void) { return is_compat_task(); }
-+static inline bool in_compat_syscall(void)
-+{
-+	return is_compat_task() || (current->flags & PF_FORCE_COMPAT);
-+}
- #endif
- 
- /**
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index afe01e232935fa..c8b183b5655a1e 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1491,6 +1491,7 @@ extern struct pid *cad_pid;
-  */
- #define PF_IDLE			0x00000002	/* I am an IDLE thread */
- #define PF_EXITING		0x00000004	/* Getting shut down */
-+#define PF_FORCE_COMPAT		0x00000008	/* acting as compat task */
- #define PF_VCPU			0x00000010	/* I'm a virtual CPU */
- #define PF_WQ_WORKER		0x00000020	/* I'm a workqueue worker */
- #define PF_FORKNOEXEC		0x00000040	/* Forked but didn't exec */
+ /* fs/read_write.c */
+ asmlinkage long compat_sys_lseek(unsigned int, compat_off_t, unsigned int);
+-asmlinkage ssize_t compat_sys_readv(compat_ulong_t fd,
+-		const struct compat_iovec __user *vec, compat_ulong_t vlen);
+-asmlinkage ssize_t compat_sys_writev(compat_ulong_t fd,
+-		const struct compat_iovec __user *vec, compat_ulong_t vlen);
+ /* No generic prototype for pread64 and pwrite64 */
+ asmlinkage ssize_t compat_sys_preadv(compat_ulong_t fd,
+ 		const struct compat_iovec __user *vec,
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 995b36c2ea7d8a..211c9eacbda6eb 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -207,9 +207,9 @@ __SYSCALL(__NR_read, sys_read)
+ #define __NR_write 64
+ __SYSCALL(__NR_write, sys_write)
+ #define __NR_readv 65
+-__SC_COMP(__NR_readv, sys_readv, compat_sys_readv)
++__SC_COMP(__NR_readv, sys_readv, sys_readv)
+ #define __NR_writev 66
+-__SC_COMP(__NR_writev, sys_writev, compat_sys_writev)
++__SC_COMP(__NR_writev, sys_writev, sys_writev)
+ #define __NR_pread64 67
+ __SC_COMP(__NR_pread64, sys_pread64, compat_sys_pread64)
+ #define __NR_pwrite64 68
+diff --git a/tools/include/uapi/asm-generic/unistd.h b/tools/include/uapi/asm-generic/unistd.h
+index 995b36c2ea7d8a..211c9eacbda6eb 100644
+--- a/tools/include/uapi/asm-generic/unistd.h
++++ b/tools/include/uapi/asm-generic/unistd.h
+@@ -207,9 +207,9 @@ __SYSCALL(__NR_read, sys_read)
+ #define __NR_write 64
+ __SYSCALL(__NR_write, sys_write)
+ #define __NR_readv 65
+-__SC_COMP(__NR_readv, sys_readv, compat_sys_readv)
++__SC_COMP(__NR_readv, sys_readv, sys_readv)
+ #define __NR_writev 66
+-__SC_COMP(__NR_writev, sys_writev, compat_sys_writev)
++__SC_COMP(__NR_writev, sys_writev, sys_writev)
+ #define __NR_pread64 67
+ __SC_COMP(__NR_pread64, sys_pread64, compat_sys_pread64)
+ #define __NR_pwrite64 68
+diff --git a/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl b/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
+index 3ca6fe057a0b1f..46be68029587f9 100644
+--- a/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
++++ b/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
+@@ -189,8 +189,8 @@
+ 142	common	_newselect			sys_select			compat_sys_select
+ 143	common	flock				sys_flock
+ 144	common	msync				sys_msync
+-145	common	readv				sys_readv			compat_sys_readv
+-146	common	writev				sys_writev			compat_sys_writev
++145	common	readv				sys_readv
++146	common	writev				sys_writev
+ 147	common	getsid				sys_getsid
+ 148	common	fdatasync			sys_fdatasync
+ 149	nospu	_sysctl				sys_ni_syscall
+diff --git a/tools/perf/arch/s390/entry/syscalls/syscall.tbl b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
+index 6a0bbea225db0d..fb5e61ce9d5838 100644
+--- a/tools/perf/arch/s390/entry/syscalls/syscall.tbl
++++ b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
+@@ -134,8 +134,8 @@
+ 142  64		select			sys_select			-
+ 143  common	flock			sys_flock			sys_flock
+ 144  common	msync			sys_msync			compat_sys_msync
+-145  common	readv			sys_readv			compat_sys_readv
+-146  common	writev			sys_writev			compat_sys_writev
++145  common	readv			sys_readv
++146  common	writev			sys_writev
+ 147  common	getsid			sys_getsid			sys_getsid
+ 148  common	fdatasync		sys_fdatasync			sys_fdatasync
+ 149  common	_sysctl			-				-
+diff --git a/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl b/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
+index f30d6ae9a6883c..b1e59957c5c51c 100644
+--- a/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -371,8 +371,8 @@
+ 512	x32	rt_sigaction		compat_sys_rt_sigaction
+ 513	x32	rt_sigreturn		compat_sys_x32_rt_sigreturn
+ 514	x32	ioctl			compat_sys_ioctl
+-515	x32	readv			compat_sys_readv
+-516	x32	writev			compat_sys_writev
++515	x32	readv			sys_readv
++516	x32	writev			sys_writev
+ 517	x32	recvfrom		compat_sys_recvfrom
+ 518	x32	sendmsg			compat_sys_sendmsg
+ 519	x32	recvmsg			compat_sys_recvmsg
 -- 
 2.28.0
