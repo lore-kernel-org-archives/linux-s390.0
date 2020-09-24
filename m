@@ -1,342 +1,190 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 7/9] fs: remove compat_sys_vmsplice
-Date: Wed, 23 Sep 2020 08:05:45 +0200
-Message-Id: <20200923060547.16903-8-hch@lst.de>
-In-Reply-To: <20200923060547.16903-1-hch@lst.de>
-References: <20200923060547.16903-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:55300 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727898AbgIXNkl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 24 Sep 2020 09:40:41 -0400
+Date: Thu, 24 Sep 2020 10:56:33 +0200
+From: Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH 01/14] block: move the NEED_PART_SCAN flag to struct
+ gendisk
+Message-ID: <20200924085633.GD27019@quack2.suse.cz>
+References: <20200917165720.3285256-1-hch@lst.de>
+ <20200917165720.3285256-2-hch@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200917165720.3285256-2-hch@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
-To: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
 
-Now that import_iovec handles compat iovecs, the native vmsplice syscall
-can be used for the compat case as well.
+On Thu 17-09-20 18:57:07, Christoph Hellwig wrote:
+> We can only scan for partitions on the whole disk, so move the flag
+> from struct block_device to struct gendisk.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- arch/arm64/include/asm/unistd32.h             |  2 +-
- arch/mips/kernel/syscalls/syscall_n32.tbl     |  2 +-
- arch/mips/kernel/syscalls/syscall_o32.tbl     |  2 +-
- arch/parisc/kernel/syscalls/syscall.tbl       |  2 +-
- arch/powerpc/kernel/syscalls/syscall.tbl      |  2 +-
- arch/s390/kernel/syscalls/syscall.tbl         |  2 +-
- arch/sparc/kernel/syscalls/syscall.tbl        |  2 +-
- arch/x86/entry/syscall_x32.c                  |  1 +
- arch/x86/entry/syscalls/syscall_32.tbl        |  2 +-
- arch/x86/entry/syscalls/syscall_64.tbl        |  2 +-
- fs/splice.c                                   | 57 +++++--------------
- include/linux/compat.h                        |  4 --
- include/uapi/asm-generic/unistd.h             |  2 +-
- tools/include/uapi/asm-generic/unistd.h       |  2 +-
- .../arch/powerpc/entry/syscalls/syscall.tbl   |  2 +-
- .../perf/arch/s390/entry/syscalls/syscall.tbl |  2 +-
- .../arch/x86/entry/syscalls/syscall_64.tbl    |  2 +-
- 17 files changed, 28 insertions(+), 62 deletions(-)
+Makes sense. You can add:
 
-diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
-index 4a236493dca5b9..11dfae3a8563bd 100644
---- a/arch/arm64/include/asm/unistd32.h
-+++ b/arch/arm64/include/asm/unistd32.h
-@@ -697,7 +697,7 @@ __SYSCALL(__NR_sync_file_range2, compat_sys_aarch32_sync_file_range2)
- #define __NR_tee 342
- __SYSCALL(__NR_tee, sys_tee)
- #define __NR_vmsplice 343
--__SYSCALL(__NR_vmsplice, compat_sys_vmsplice)
-+__SYSCALL(__NR_vmsplice, sys_vmsplice)
- #define __NR_move_pages 344
- __SYSCALL(__NR_move_pages, compat_sys_move_pages)
- #define __NR_getcpu 345
-diff --git a/arch/mips/kernel/syscalls/syscall_n32.tbl b/arch/mips/kernel/syscalls/syscall_n32.tbl
-index c99a92646f8ee9..5a39d4de0ac85b 100644
---- a/arch/mips/kernel/syscalls/syscall_n32.tbl
-+++ b/arch/mips/kernel/syscalls/syscall_n32.tbl
-@@ -278,7 +278,7 @@
- 267	n32	splice				sys_splice
- 268	n32	sync_file_range			sys_sync_file_range
- 269	n32	tee				sys_tee
--270	n32	vmsplice			compat_sys_vmsplice
-+270	n32	vmsplice			sys_vmsplice
- 271	n32	move_pages			compat_sys_move_pages
- 272	n32	set_robust_list			compat_sys_set_robust_list
- 273	n32	get_robust_list			compat_sys_get_robust_list
-diff --git a/arch/mips/kernel/syscalls/syscall_o32.tbl b/arch/mips/kernel/syscalls/syscall_o32.tbl
-index 075064d10661bf..136efc6b8c5444 100644
---- a/arch/mips/kernel/syscalls/syscall_o32.tbl
-+++ b/arch/mips/kernel/syscalls/syscall_o32.tbl
-@@ -318,7 +318,7 @@
- 304	o32	splice				sys_splice
- 305	o32	sync_file_range			sys_sync_file_range		sys32_sync_file_range
- 306	o32	tee				sys_tee
--307	o32	vmsplice			sys_vmsplice			compat_sys_vmsplice
-+307	o32	vmsplice			sys_vmsplice
- 308	o32	move_pages			sys_move_pages			compat_sys_move_pages
- 309	o32	set_robust_list			sys_set_robust_list		compat_sys_set_robust_list
- 310	o32	get_robust_list			sys_get_robust_list		compat_sys_get_robust_list
-diff --git a/arch/parisc/kernel/syscalls/syscall.tbl b/arch/parisc/kernel/syscalls/syscall.tbl
-index 192abde0001d9d..a9e184192caedd 100644
---- a/arch/parisc/kernel/syscalls/syscall.tbl
-+++ b/arch/parisc/kernel/syscalls/syscall.tbl
-@@ -330,7 +330,7 @@
- 292	32	sync_file_range		parisc_sync_file_range
- 292	64	sync_file_range		sys_sync_file_range
- 293	common	tee			sys_tee
--294	common	vmsplice		sys_vmsplice			compat_sys_vmsplice
-+294	common	vmsplice		sys_vmsplice
- 295	common	move_pages		sys_move_pages			compat_sys_move_pages
- 296	common	getcpu			sys_getcpu
- 297	common	epoll_pwait		sys_epoll_pwait			compat_sys_epoll_pwait
-diff --git a/arch/powerpc/kernel/syscalls/syscall.tbl b/arch/powerpc/kernel/syscalls/syscall.tbl
-index 6f1e2ecf0edad9..0d4985919ca34d 100644
---- a/arch/powerpc/kernel/syscalls/syscall.tbl
-+++ b/arch/powerpc/kernel/syscalls/syscall.tbl
-@@ -369,7 +369,7 @@
- 282	common	unshare				sys_unshare
- 283	common	splice				sys_splice
- 284	common	tee				sys_tee
--285	common	vmsplice			sys_vmsplice			compat_sys_vmsplice
-+285	common	vmsplice			sys_vmsplice
- 286	common	openat				sys_openat			compat_sys_openat
- 287	common	mkdirat				sys_mkdirat
- 288	common	mknodat				sys_mknodat
-diff --git a/arch/s390/kernel/syscalls/syscall.tbl b/arch/s390/kernel/syscalls/syscall.tbl
-index 6101cf2e004cb4..b5495a42814bd1 100644
---- a/arch/s390/kernel/syscalls/syscall.tbl
-+++ b/arch/s390/kernel/syscalls/syscall.tbl
-@@ -316,7 +316,7 @@
- 306  common	splice			sys_splice			sys_splice
- 307  common	sync_file_range		sys_sync_file_range		compat_sys_s390_sync_file_range
- 308  common	tee			sys_tee				sys_tee
--309  common	vmsplice		sys_vmsplice			compat_sys_vmsplice
-+309  common	vmsplice		sys_vmsplice			sys_vmsplice
- 310  common	move_pages		sys_move_pages			compat_sys_move_pages
- 311  common	getcpu			sys_getcpu			sys_getcpu
- 312  common	epoll_pwait		sys_epoll_pwait			compat_sys_epoll_pwait
-diff --git a/arch/sparc/kernel/syscalls/syscall.tbl b/arch/sparc/kernel/syscalls/syscall.tbl
-index a87ddb282ab16f..f1810c1a35caa5 100644
---- a/arch/sparc/kernel/syscalls/syscall.tbl
-+++ b/arch/sparc/kernel/syscalls/syscall.tbl
-@@ -38,7 +38,7 @@
- 23	64    	setuid			sys_setuid
- 24	32	getuid			sys_getuid16
- 24	64   	getuid			sys_getuid
--25	common	vmsplice		sys_vmsplice			compat_sys_vmsplice
-+25	common	vmsplice		sys_vmsplice
- 26	common	ptrace			sys_ptrace			compat_sys_ptrace
- 27	common	alarm			sys_alarm
- 28	common	sigaltstack		sys_sigaltstack			compat_sys_sigaltstack
-diff --git a/arch/x86/entry/syscall_x32.c b/arch/x86/entry/syscall_x32.c
-index aa321444a41f63..a4840b9d50ad14 100644
---- a/arch/x86/entry/syscall_x32.c
-+++ b/arch/x86/entry/syscall_x32.c
-@@ -16,6 +16,7 @@
- #define __x32_sys_writev	__x64_sys_writev
- #define __x32_sys_getsockopt	__x64_sys_getsockopt
- #define __x32_sys_setsockopt	__x64_sys_setsockopt
-+#define __x32_sys_vmsplice	__x64_sys_vmsplice
- 
- #define __SYSCALL_64(nr, sym)
- 
-diff --git a/arch/x86/entry/syscalls/syscall_32.tbl b/arch/x86/entry/syscalls/syscall_32.tbl
-index 54ab4beb517f25..0fb2f172581e51 100644
---- a/arch/x86/entry/syscalls/syscall_32.tbl
-+++ b/arch/x86/entry/syscalls/syscall_32.tbl
-@@ -327,7 +327,7 @@
- 313	i386	splice			sys_splice
- 314	i386	sync_file_range		sys_ia32_sync_file_range
- 315	i386	tee			sys_tee
--316	i386	vmsplice		sys_vmsplice			compat_sys_vmsplice
-+316	i386	vmsplice		sys_vmsplice
- 317	i386	move_pages		sys_move_pages			compat_sys_move_pages
- 318	i386	getcpu			sys_getcpu
- 319	i386	epoll_pwait		sys_epoll_pwait
-diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
-index b1e59957c5c51c..642af919183de4 100644
---- a/arch/x86/entry/syscalls/syscall_64.tbl
-+++ b/arch/x86/entry/syscalls/syscall_64.tbl
-@@ -388,7 +388,7 @@
- 529	x32	waitid			compat_sys_waitid
- 530	x32	set_robust_list		compat_sys_set_robust_list
- 531	x32	get_robust_list		compat_sys_get_robust_list
--532	x32	vmsplice		compat_sys_vmsplice
-+532	x32	vmsplice		sys_vmsplice
- 533	x32	move_pages		compat_sys_move_pages
- 534	x32	preadv			compat_sys_preadv64
- 535	x32	pwritev			compat_sys_pwritev64
-diff --git a/fs/splice.c b/fs/splice.c
-index 132d42b9871f9b..18d84544030b39 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -33,7 +33,6 @@
- #include <linux/security.h>
- #include <linux/gfp.h>
- #include <linux/socket.h>
--#include <linux/compat.h>
- #include <linux/sched/signal.h>
- 
- #include "internal.h"
-@@ -1332,20 +1331,6 @@ static int vmsplice_type(struct fd f, int *type)
-  * Currently we punt and implement it as a normal copy, see pipe_to_user().
-  *
-  */
--static long do_vmsplice(struct file *f, struct iov_iter *iter, unsigned int flags)
--{
--	if (unlikely(flags & ~SPLICE_F_ALL))
--		return -EINVAL;
--
--	if (!iov_iter_count(iter))
--		return 0;
--
--	if (iov_iter_rw(iter) == WRITE)
--		return vmsplice_to_pipe(f, iter, flags);
--	else
--		return vmsplice_to_user(f, iter, flags);
--}
--
- SYSCALL_DEFINE4(vmsplice, int, fd, const struct iovec __user *, uiov,
- 		unsigned long, nr_segs, unsigned int, flags)
- {
-@@ -1356,6 +1341,9 @@ SYSCALL_DEFINE4(vmsplice, int, fd, const struct iovec __user *, uiov,
- 	struct fd f;
- 	int type;
- 
-+	if (unlikely(flags & ~SPLICE_F_ALL))
-+		return -EINVAL;
-+
- 	f = fdget(fd);
- 	error = vmsplice_type(f, &type);
- 	if (error)
-@@ -1363,40 +1351,21 @@ SYSCALL_DEFINE4(vmsplice, int, fd, const struct iovec __user *, uiov,
- 
- 	error = import_iovec(type, uiov, nr_segs,
- 			     ARRAY_SIZE(iovstack), &iov, &iter);
--	if (error >= 0) {
--		error = do_vmsplice(f.file, &iter, flags);
--		kfree(iov);
--	}
--	fdput(f);
--	return error;
--}
-+	if (error < 0)
-+		goto out_fdput;
- 
--#ifdef CONFIG_COMPAT
--COMPAT_SYSCALL_DEFINE4(vmsplice, int, fd, const struct compat_iovec __user *, iov32,
--		    unsigned int, nr_segs, unsigned int, flags)
--{
--	struct iovec iovstack[UIO_FASTIOV];
--	struct iovec *iov = iovstack;
--	struct iov_iter iter;
--	ssize_t error;
--	struct fd f;
--	int type;
--
--	f = fdget(fd);
--	error = vmsplice_type(f, &type);
--	if (error)
--		return error;
-+	if (!iov_iter_count(&iter))
-+		error = 0;
-+	else if (iov_iter_rw(&iter) == WRITE)
-+		error = vmsplice_to_pipe(f.file, &iter, flags);
-+	else
-+		error = vmsplice_to_user(f.file, &iter, flags);
- 
--	error = import_iovec(type, (struct iovec __user *)iov32, nr_segs,
--			     ARRAY_SIZE(iovstack), &iov, &iter);
--	if (error >= 0) {
--		error = do_vmsplice(f.file, &iter, flags);
--		kfree(iov);
--	}
-+	kfree(iov);
-+out_fdput:
- 	fdput(f);
- 	return error;
- }
--#endif
- 
- SYSCALL_DEFINE6(splice, int, fd_in, loff_t __user *, off_in,
- 		int, fd_out, loff_t __user *, off_out,
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index fa39b7a5488d70..14d8bf412bd02e 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -597,10 +597,6 @@ asmlinkage long compat_sys_signalfd4(int ufd,
- 				     const compat_sigset_t __user *sigmask,
- 				     compat_size_t sigsetsize, int flags);
- 
--/* fs/splice.c */
--asmlinkage long compat_sys_vmsplice(int fd, const struct compat_iovec __user *,
--				    unsigned int nr_segs, unsigned int flags);
--
- /* fs/stat.c */
- asmlinkage long compat_sys_newfstatat(unsigned int dfd,
- 				      const char __user *filename,
-diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
-index 211c9eacbda6eb..f2dcb0d5703014 100644
---- a/include/uapi/asm-generic/unistd.h
-+++ b/include/uapi/asm-generic/unistd.h
-@@ -237,7 +237,7 @@ __SC_COMP(__NR_signalfd4, sys_signalfd4, compat_sys_signalfd4)
- 
- /* fs/splice.c */
- #define __NR_vmsplice 75
--__SC_COMP(__NR_vmsplice, sys_vmsplice, compat_sys_vmsplice)
-+__SYSCALL(__NR_vmsplice, sys_vmsplice)
- #define __NR_splice 76
- __SYSCALL(__NR_splice, sys_splice)
- #define __NR_tee 77
-diff --git a/tools/include/uapi/asm-generic/unistd.h b/tools/include/uapi/asm-generic/unistd.h
-index 211c9eacbda6eb..f2dcb0d5703014 100644
---- a/tools/include/uapi/asm-generic/unistd.h
-+++ b/tools/include/uapi/asm-generic/unistd.h
-@@ -237,7 +237,7 @@ __SC_COMP(__NR_signalfd4, sys_signalfd4, compat_sys_signalfd4)
- 
- /* fs/splice.c */
- #define __NR_vmsplice 75
--__SC_COMP(__NR_vmsplice, sys_vmsplice, compat_sys_vmsplice)
-+__SYSCALL(__NR_vmsplice, sys_vmsplice)
- #define __NR_splice 76
- __SYSCALL(__NR_splice, sys_splice)
- #define __NR_tee 77
-diff --git a/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl b/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-index 46be68029587f9..26f0347c15118b 100644
---- a/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-+++ b/tools/perf/arch/powerpc/entry/syscalls/syscall.tbl
-@@ -363,7 +363,7 @@
- 282	common	unshare				sys_unshare
- 283	common	splice				sys_splice
- 284	common	tee				sys_tee
--285	common	vmsplice			sys_vmsplice			compat_sys_vmsplice
-+285	common	vmsplice			sys_vmsplice
- 286	common	openat				sys_openat			compat_sys_openat
- 287	common	mkdirat				sys_mkdirat
- 288	common	mknodat				sys_mknodat
-diff --git a/tools/perf/arch/s390/entry/syscalls/syscall.tbl b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-index fb5e61ce9d5838..02ad81f69bb7e3 100644
---- a/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-+++ b/tools/perf/arch/s390/entry/syscalls/syscall.tbl
-@@ -316,7 +316,7 @@
- 306  common	splice			sys_splice			compat_sys_splice
- 307  common	sync_file_range		sys_sync_file_range		compat_sys_s390_sync_file_range
- 308  common	tee			sys_tee				compat_sys_tee
--309  common	vmsplice		sys_vmsplice			compat_sys_vmsplice
-+309  common	vmsplice		sys_vmsplice			sys_vmsplice
- 310  common	move_pages		sys_move_pages			compat_sys_move_pages
- 311  common	getcpu			sys_getcpu			compat_sys_getcpu
- 312  common	epoll_pwait		sys_epoll_pwait			compat_sys_epoll_pwait
-diff --git a/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl b/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-index b1e59957c5c51c..642af919183de4 100644
---- a/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-+++ b/tools/perf/arch/x86/entry/syscalls/syscall_64.tbl
-@@ -388,7 +388,7 @@
- 529	x32	waitid			compat_sys_waitid
- 530	x32	set_robust_list		compat_sys_set_robust_list
- 531	x32	get_robust_list		compat_sys_get_robust_list
--532	x32	vmsplice		compat_sys_vmsplice
-+532	x32	vmsplice		sys_vmsplice
- 533	x32	move_pages		compat_sys_move_pages
- 534	x32	preadv			compat_sys_preadv64
- 535	x32	pwritev			compat_sys_pwritev64
+Reviewed-by: Jan Kara <jack@suse.cz>
+
+								Honza
+
+> ---
+>  block/genhd.c             | 4 ++--
+>  drivers/block/nbd.c       | 8 ++++----
+>  drivers/ide/ide-gd.c      | 2 +-
+>  fs/block_dev.c            | 7 +++----
+>  include/linux/blk_types.h | 4 +---
+>  include/linux/genhd.h     | 2 ++
+>  6 files changed, 13 insertions(+), 14 deletions(-)
+> 
+> diff --git a/block/genhd.c b/block/genhd.c
+> index 9d060e79eb31d8..7b56203c90a303 100644
+> --- a/block/genhd.c
+> +++ b/block/genhd.c
+> @@ -731,7 +731,7 @@ static void register_disk(struct device *parent, struct gendisk *disk,
+>  	if (!bdev)
+>  		goto exit;
+>  
+> -	set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
+> +	set_bit(GD_NEED_PART_SCAN, &disk->state);
+>  	err = blkdev_get(bdev, FMODE_READ, NULL);
+>  	if (err < 0)
+>  		goto exit;
+> @@ -2112,7 +2112,7 @@ bool bdev_check_media_change(struct block_device *bdev)
+>  	if (__invalidate_device(bdev, true))
+>  		pr_warn("VFS: busy inodes on changed media %s\n",
+>  			bdev->bd_disk->disk_name);
+> -	set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
+> +	set_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
+>  	return true;
+>  }
+>  EXPORT_SYMBOL(bdev_check_media_change);
+> diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+> index 15eed210feeff4..2dca0aab0a9a25 100644
+> --- a/drivers/block/nbd.c
+> +++ b/drivers/block/nbd.c
+> @@ -315,7 +315,7 @@ static void nbd_size_update(struct nbd_device *nbd)
+>  			bd_set_nr_sectors(bdev, nr_sectors);
+>  			set_blocksize(bdev, config->blksize);
+>  		} else
+> -			set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
+> +			set_bit(GD_NEED_PART_SCAN, &nbd->disk->state);
+>  		bdput(bdev);
+>  	}
+>  	kobject_uevent(&nbd_to_dev(nbd)->kobj, KOBJ_CHANGE);
+> @@ -1322,7 +1322,7 @@ static int nbd_start_device_ioctl(struct nbd_device *nbd, struct block_device *b
+>  		return ret;
+>  
+>  	if (max_part)
+> -		set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
+> +		set_bit(GD_NEED_PART_SCAN, &nbd->disk->state);
+>  	mutex_unlock(&nbd->config_lock);
+>  	ret = wait_event_interruptible(config->recv_wq,
+>  					 atomic_read(&config->recv_threads) == 0);
+> @@ -1500,9 +1500,9 @@ static int nbd_open(struct block_device *bdev, fmode_t mode)
+>  		refcount_set(&nbd->config_refs, 1);
+>  		refcount_inc(&nbd->refs);
+>  		mutex_unlock(&nbd->config_lock);
+> -		set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
+> +		set_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
+>  	} else if (nbd_disconnected(nbd->config)) {
+> -		set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
+> +		set_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
+>  	}
+>  out:
+>  	mutex_unlock(&nbd_index_mutex);
+> diff --git a/drivers/ide/ide-gd.c b/drivers/ide/ide-gd.c
+> index 661e2aa9c96784..e2b6c82586ce8b 100644
+> --- a/drivers/ide/ide-gd.c
+> +++ b/drivers/ide/ide-gd.c
+> @@ -230,7 +230,7 @@ static int ide_gd_open(struct block_device *bdev, fmode_t mode)
+>  				bdev->bd_disk->disk_name);
+>  		drive->disk_ops->get_capacity(drive);
+>  		set_capacity(disk, ide_gd_capacity(drive));
+> -		set_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
+> +		set_bit(GD_NEED_PART_SCAN, &disk->state);
+>  	} else if (drive->dev_flags & IDE_DFLAG_FORMAT_IN_PROGRESS) {
+>  		ret = -EBUSY;
+>  		goto out_put_idkp;
+> diff --git a/fs/block_dev.c b/fs/block_dev.c
+> index 0b34955b9e360f..1a9325f4315769 100644
+> --- a/fs/block_dev.c
+> +++ b/fs/block_dev.c
+> @@ -910,7 +910,6 @@ struct block_device *bdget(dev_t dev)
+>  		bdev->bd_super = NULL;
+>  		bdev->bd_inode = inode;
+>  		bdev->bd_part_count = 0;
+> -		bdev->bd_flags = 0;
+>  		inode->i_mode = S_IFBLK;
+>  		inode->i_rdev = dev;
+>  		inode->i_bdev = bdev;
+> @@ -1385,7 +1384,7 @@ int bdev_disk_changed(struct block_device *bdev, bool invalidate)
+>  
+>  	lockdep_assert_held(&bdev->bd_mutex);
+>  
+> -	clear_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags);
+> +	clear_bit(GD_NEED_PART_SCAN, &bdev->bd_disk->state);
+>  
+>  rescan:
+>  	ret = blk_drop_partitions(bdev);
+> @@ -1509,7 +1508,7 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, void *holder,
+>  			 * The latter is necessary to prevent ghost
+>  			 * partitions on a removed medium.
+>  			 */
+> -			if (test_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags) &&
+> +			if (test_bit(GD_NEED_PART_SCAN, &disk->state) &&
+>  			    (!ret || ret == -ENOMEDIUM))
+>  				bdev_disk_changed(bdev, ret == -ENOMEDIUM);
+>  
+> @@ -1539,7 +1538,7 @@ static int __blkdev_get(struct block_device *bdev, fmode_t mode, void *holder,
+>  			if (bdev->bd_disk->fops->open)
+>  				ret = bdev->bd_disk->fops->open(bdev, mode);
+>  			/* the same as first opener case, read comment there */
+> -			if (test_bit(BDEV_NEED_PART_SCAN, &bdev->bd_flags) &&
+> +			if (test_bit(GD_NEED_PART_SCAN, &disk->state) &&
+>  			    (!ret || ret == -ENOMEDIUM))
+>  				bdev_disk_changed(bdev, ret == -ENOMEDIUM);
+>  			if (ret)
+> diff --git a/include/linux/blk_types.h b/include/linux/blk_types.h
+> index 6ffa783e16335e..eb20e28184ab19 100644
+> --- a/include/linux/blk_types.h
+> +++ b/include/linux/blk_types.h
+> @@ -19,8 +19,6 @@ struct cgroup_subsys_state;
+>  typedef void (bio_end_io_t) (struct bio *);
+>  struct bio_crypt_ctx;
+>  
+> -#define BDEV_NEED_PART_SCAN		0
+> -
+>  struct block_device {
+>  	dev_t			bd_dev;
+>  	int			bd_openers;
+> @@ -39,7 +37,7 @@ struct block_device {
+>  	struct hd_struct *	bd_part;
+>  	/* number of times partitions within this device have been opened. */
+>  	unsigned		bd_part_count;
+> -	unsigned long		bd_flags;
+> +
+>  	spinlock_t		bd_size_lock; /* for bd_inode->i_size updates */
+>  	struct gendisk *	bd_disk;
+>  	struct backing_dev_info *bd_bdi;
+> diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+> index 1c97cf84f011a7..38f23d75701379 100644
+> --- a/include/linux/genhd.h
+> +++ b/include/linux/genhd.h
+> @@ -191,6 +191,8 @@ struct gendisk {
+>  	void *private_data;
+>  
+>  	int flags;
+> +	unsigned long state;
+> +#define GD_NEED_PART_SCAN		0
+>  	struct rw_semaphore lookup_sem;
+>  	struct kobject *slave_dir;
+>  
+> -- 
+> 2.28.0
+> 
 -- 
-2.28.0
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
