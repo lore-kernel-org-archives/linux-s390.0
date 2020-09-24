@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: let import_iovec deal with compat_iovecs as well v2
-Date: Mon, 21 Sep 2020 16:34:23 +0200
-Message-Id: <20200921143434.707844-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43506 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728343AbgIXP6h (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 24 Sep 2020 11:58:37 -0400
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C692C0613CE
+        for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2020 08:58:37 -0700 (PDT)
+Received: by mail-lj1-x230.google.com with SMTP id a15so3225527ljk.2
+        for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2020 08:58:37 -0700 (PDT)
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com. [209.85.167.54])
+        by smtp.gmail.com with ESMTPSA id j23sm2002431ljh.96.2020.09.24.08.58.33
+        for <linux-s390@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 24 Sep 2020 08:58:33 -0700 (PDT)
+Received: by mail-lf1-f54.google.com with SMTP id q8so4500826lfb.6
+        for <linux-s390@vger.kernel.org>; Thu, 24 Sep 2020 08:58:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <a46e9bbef2ed4e17778f5615e818526ef848d791.camel@redhat.com>
+ <20200916142806.GD7076@osiris> <20200922190350.7a0e0ca5@thinkpad>
+ <20200923153938.5be5dd2c@thinkpad> <CAHk-=wiMJu0_sLO78+nLoe=pxC-p=sSpC3moq0p5RyJc9KXC4Q@mail.gmail.com>
+ <20200923233306.7c5666de@thinkpad> <CAHk-=wgbfGCKKn=RTX9gF9Q+FYOGn2kD1OLnQuJSD+A0Rvg9Pw@mail.gmail.com>
+ <20200924000226.06298978@thinkpad> <20200924140638.7bcb7765@thinkpad>
+In-Reply-To: <20200924140638.7bcb7765@thinkpad>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Date: Thu, 24 Sep 2020 08:58:15 -0700
+Message-ID: <CAHk-=wjTKXJH1teKV3-tu1+qABMq0_tpdM9K4hYwbGCt7vwx7Q@mail.gmail.com>
+Subject: Re: BUG: Bad page state in process dirtyc0w_child
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
+To: Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Peter Xu <peterx@redhat.com>, Heiko Carstens <hca@linux.ibm.com>, Qian Cai <cai@redhat.com>, Alexander Gordeev <agordeev@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390 <linux-s390@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-Hi Al,
+On Thu, Sep 24, 2020 at 5:06 AM Gerald Schaefer
+<gerald.schaefer@linux.ibm.com> wrote:
+>
+> It's all good now, no more occurrences with unlock_page() before
+> wp_page_reuse().
 
-this series changes import_iovec to transparently deal with comat iovec
-structures, and then cleanups up a lot of code dupliation.
+Thanks for the confirmation. When you pointed at that unlock_page()
+change, I was pretty sure that was it ("D'oh!"), but it's always good
+to have that verification.
 
-Changes since v1:
- - improve a commit message
- - drop a pointless unlikely
- - drop the PF_FORCE_COMPAT flag
- - add a few more cleanups (including two from David Laight)
+Committed,
 
-Diffstat:
- arch/arm64/include/asm/unistd32.h                  |   10 
- arch/mips/kernel/syscalls/syscall_n32.tbl          |   10 
- arch/mips/kernel/syscalls/syscall_o32.tbl          |   10 
- arch/parisc/kernel/syscalls/syscall.tbl            |   10 
- arch/powerpc/kernel/syscalls/syscall.tbl           |   10 
- arch/s390/kernel/syscalls/syscall.tbl              |   10 
- arch/sparc/kernel/syscalls/syscall.tbl             |   10 
- arch/x86/entry/syscall_x32.c                       |    5 
- arch/x86/entry/syscalls/syscall_32.tbl             |   10 
- arch/x86/entry/syscalls/syscall_64.tbl             |   10 
- block/scsi_ioctl.c                                 |   12 
- drivers/scsi/sg.c                                  |    9 
- fs/aio.c                                           |   38 --
- fs/io_uring.c                                      |   20 -
- fs/read_write.c                                    |  362 +--------------------
- fs/splice.c                                        |   57 ---
- include/linux/compat.h                             |   24 -
- include/linux/fs.h                                 |   11 
- include/linux/uio.h                                |   10 
- include/uapi/asm-generic/unistd.h                  |   12 
- lib/iov_iter.c                                     |  161 +++++++--
- mm/process_vm_access.c                             |   85 ----
- net/compat.c                                       |    4 
- security/keys/compat.c                             |   37 --
- security/keys/internal.h                           |    5 
- security/keys/keyctl.c                             |    2 
- tools/include/uapi/asm-generic/unistd.h            |   12 
- tools/perf/arch/powerpc/entry/syscalls/syscall.tbl |   10 
- tools/perf/arch/s390/entry/syscalls/syscall.tbl    |   10 
- tools/perf/arch/x86/entry/syscalls/syscall_64.tbl  |   10 
- 30 files changed, 280 insertions(+), 706 deletions(-)
+              Linus
