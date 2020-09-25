@@ -1,106 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31606 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727001AbgIZKoz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 26 Sep 2020 06:44:55 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 04/14] net/smc: split CLC confirm/accept data to be sent
-Date: Sat, 26 Sep 2020 12:44:22 +0200
-Message-Id: <20200926104432.74293-5-kgraul@linux.ibm.com>
-In-Reply-To: <20200926104432.74293-1-kgraul@linux.ibm.com>
-References: <20200926104432.74293-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727204AbgIYEwF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 25 Sep 2020 00:52:05 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 9/9] security/keys: remove compat_keyctl_instantiate_key_iov
+Date: Fri, 25 Sep 2020 06:51:46 +0200
+Message-Id: <20200925045146.1283714-10-hch@lst.de>
+In-Reply-To: <20200925045146.1283714-1-hch@lst.de>
+References: <20200925045146.1283714-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+Now that import_iovec handles compat iovecs, the native version of
+keyctl_instantiate_key_iov can be used for the compat case as well.
 
-When sending CLC confirm and CLC accept, separate the trailing
-part of the message from the initial part (to be prepared for
-future first contact extension).
-
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/smc/smc_clc.c | 21 ++++++++++++++-------
- net/smc/smc_clc.h |  6 +-----
- 2 files changed, 15 insertions(+), 12 deletions(-)
+ security/keys/compat.c   | 36 ++----------------------------------
+ security/keys/internal.h |  5 -----
+ security/keys/keyctl.c   |  2 +-
+ 3 files changed, 3 insertions(+), 40 deletions(-)
 
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 85b41c125368..8ad0bbaac846 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -505,8 +505,10 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
- 				       int first_contact)
+diff --git a/security/keys/compat.c b/security/keys/compat.c
+index 7ae531db031cf8..1545efdca56227 100644
+--- a/security/keys/compat.c
++++ b/security/keys/compat.c
+@@ -11,38 +11,6 @@
+ #include <linux/slab.h>
+ #include "internal.h"
+ 
+-/*
+- * Instantiate a key with the specified compatibility multipart payload and
+- * link the key into the destination keyring if one is given.
+- *
+- * The caller must have the appropriate instantiation permit set for this to
+- * work (see keyctl_assume_authority).  No other permissions are required.
+- *
+- * If successful, 0 will be returned.
+- */
+-static long compat_keyctl_instantiate_key_iov(
+-	key_serial_t id,
+-	const struct compat_iovec __user *_payload_iov,
+-	unsigned ioc,
+-	key_serial_t ringid)
+-{
+-	struct iovec iovstack[UIO_FASTIOV], *iov = iovstack;
+-	struct iov_iter from;
+-	long ret;
+-
+-	if (!_payload_iov)
+-		ioc = 0;
+-
+-	ret = import_iovec(WRITE, (const struct iovec __user *)_payload_iov,
+-			   ioc, ARRAY_SIZE(iovstack), &iov, &from);
+-	if (ret < 0)
+-		return ret;
+-
+-	ret = keyctl_instantiate_key_common(id, &from, ringid);
+-	kfree(iov);
+-	return ret;
+-}
+-
+ /*
+  * The key control system call, 32-bit compatibility version for 64-bit archs
+  */
+@@ -113,8 +81,8 @@ COMPAT_SYSCALL_DEFINE5(keyctl, u32, option,
+ 		return keyctl_reject_key(arg2, arg3, arg4, arg5);
+ 
+ 	case KEYCTL_INSTANTIATE_IOV:
+-		return compat_keyctl_instantiate_key_iov(
+-			arg2, compat_ptr(arg3), arg4, arg5);
++		return keyctl_instantiate_key_iov(arg2, compat_ptr(arg3), arg4,
++						  arg5);
+ 
+ 	case KEYCTL_INVALIDATE:
+ 		return keyctl_invalidate_key(arg2);
+diff --git a/security/keys/internal.h b/security/keys/internal.h
+index 338a526cbfa516..9b9cf3b6fcbb4d 100644
+--- a/security/keys/internal.h
++++ b/security/keys/internal.h
+@@ -262,11 +262,6 @@ extern long keyctl_instantiate_key_iov(key_serial_t,
+ 				       const struct iovec __user *,
+ 				       unsigned, key_serial_t);
+ extern long keyctl_invalidate_key(key_serial_t);
+-
+-struct iov_iter;
+-extern long keyctl_instantiate_key_common(key_serial_t,
+-					  struct iov_iter *,
+-					  key_serial_t);
+ extern long keyctl_restrict_keyring(key_serial_t id,
+ 				    const char __user *_type,
+ 				    const char __user *_restriction);
+diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
+index 9febd37a168fd0..e26bbccda7ccee 100644
+--- a/security/keys/keyctl.c
++++ b/security/keys/keyctl.c
+@@ -1164,7 +1164,7 @@ static int keyctl_change_reqkey_auth(struct key *key)
+  *
+  * If successful, 0 will be returned.
+  */
+-long keyctl_instantiate_key_common(key_serial_t id,
++static long keyctl_instantiate_key_common(key_serial_t id,
+ 				   struct iov_iter *from,
+ 				   key_serial_t ringid)
  {
- 	struct smc_connection *conn = &smc->conn;
-+	struct smc_clc_msg_trail trl;
-+	struct kvec vec[2];
- 	struct msghdr msg;
--	struct kvec vec;
-+	int i;
- 
- 	/* send SMC Confirm CLC msg */
- 	clc->hdr.version = SMC_V1;		/* SMC version */
-@@ -523,7 +525,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
- 		clc->d0.dmbe_size = conn->rmbe_size_short;
- 		clc->d0.dmbe_idx = 0;
- 		memcpy(&clc->d0.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
--		memcpy(clc->d0.smcd_trl.eyecatcher, SMCD_EYECATCHER,
-+		memcpy(trl.eyecatcher, SMCD_EYECATCHER,
- 		       sizeof(SMCD_EYECATCHER));
- 	} else {
- 		struct smc_link *link = conn->lnk;
-@@ -556,14 +558,19 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
- 		clc->r0.rmb_dma_addr = cpu_to_be64((u64)sg_dma_address
- 				(conn->rmb_desc->sgt[link->link_idx].sgl));
- 		hton24(clc->r0.psn, link->psn_initial);
--		memcpy(clc->r0.smcr_trl.eyecatcher, SMC_EYECATCHER,
--		       sizeof(SMC_EYECATCHER));
-+		memcpy(trl.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
- 	}
- 
- 	memset(&msg, 0, sizeof(msg));
--	vec.iov_base = clc;
--	vec.iov_len = ntohs(clc->hdr.length);
--	return kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
-+	i = 0;
-+	vec[i].iov_base = clc;
-+	vec[i++].iov_len = (clc->hdr.typev1 == SMC_TYPE_D ?
-+			    SMCD_CLC_ACCEPT_CONFIRM_LEN :
-+			    SMCR_CLC_ACCEPT_CONFIRM_LEN) -
-+			   sizeof(trl);
-+	vec[i].iov_base = &trl;
-+	vec[i++].iov_len = sizeof(trl);
-+	return kernel_sendmsg(smc->clcsock, &msg, vec, 1,
- 			      ntohs(clc->hdr.length));
- }
- 
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 5f9fda15f7ff..c4644d14beae 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -134,8 +134,6 @@ struct smcr_clc_msg_accept_confirm {	/* SMCR accept/confirm */
- 	__be64 rmb_dma_addr;	/* RMB virtual address */
- 	u8 reserved2;
- 	u8 psn[3];		/* packet sequence number */
--	struct smc_clc_msg_trail smcr_trl;
--				/* eye catcher "SMCR" EBCDIC */
- } __packed;
- 
- struct smcd_clc_msg_accept_confirm {	/* SMCD accept/confirm */
-@@ -150,10 +148,8 @@ struct smcd_clc_msg_accept_confirm {	/* SMCD accept/confirm */
- 	   dmbe_size : 4;
- #endif
- 	u16 reserved4;
--	u32 linkid;		/* Link identifier */
-+	__be32 linkid;		/* Link identifier */
- 	u32 reserved5[3];
--	struct smc_clc_msg_trail smcd_trl;
--				/* eye catcher "SMCD" EBCDIC */
- } __packed;
- 
- struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
 -- 
-2.17.1
+2.28.0
