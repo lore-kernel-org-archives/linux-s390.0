@@ -1,35 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:17062 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730607AbgIHQJr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 12:09:47 -0400
-Date: Tue, 8 Sep 2020 15:41:44 +0200
-From: Heiko Carstens <hca@linux.ibm.com>
-Subject: Re: [PATCH] s390/idle: Fix suspicious RCU usage
-Message-ID: <20200908134144.GH14136@osiris>
-References: <20200908133031.GT1362448@hirez.programming.kicks-ass.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200908133031.GT1362448@hirez.programming.kicks-ass.net>
-Sender: linux-s390-owner@vger.kernel.org
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64876 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728306AbgIYQht (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 25 Sep 2020 12:37:49 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v1 0/4] s390x: css: pv: css test adaptation for PV
+Date: Fri, 25 Sep 2020 18:02:40 +0200
+Message-Id: <1601049764-11784-1-git-send-email-pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: peterz@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, rafael.j.wysocki@intel.com, svens@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com
 
-On Tue, Sep 08, 2020 at 03:30:31PM +0200, peterz@infradead.org wrote:
-> 
-> After commit eb1f00237aca ("lockdep,trace: Expose tracepoints") the
-> lock tracepoints are visible to lockdep and RCU-lockdep is finding a
-> bunch more RCU violations that were previously hidden.
-> 
-> Switch the idle->seqcount over to using raw_write_*() to avoid the
-> lockdep annotation and thus the lock tracepoints.
-> 
-> Reported-by: Guenter Roeck <linux@roeck-us.net>
-> Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> ---
->  arch/s390/kernel/idle.c |    5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+Hi all,
 
-Applied, thank you!
+To adapt the CSS I/O tests to protected virtualisation we need
+utilities to:
+
+1- allocate the I/O buffers in a private page (patch 3)
+   It must be in a dedicated page to avoid exporting code or
+   guest private data to the host.
+
+2- share  the I/O buffer with the host (patch 2)
+
+3- be sure to allocate memory under 2Gb (patch 1)
+
+The 3 first patches are the implementation of the tools,
+patch 4 is the modification of the css.c test for PV.
+
+regards,
+Pierre
+
+Pierre Morel (4):
+  memory: allocation in low memory
+  s390x: pv: implement routine to share/unshare memory
+  s390: define UV compatible I/O allocation
+  s390x: css: pv: css test adaptation for PV
+
+ lib/alloc_dma_page.c  | 57 +++++++++++++++++++++++++++++++++++++++++++
+ lib/alloc_dma_page.h  | 24 ++++++++++++++++++
+ lib/s390x/asm/uv.h    | 33 +++++++++++++++++++++++++
+ lib/s390x/css.h       |  3 +--
+ lib/s390x/css_lib.c   | 28 ++++++---------------
+ lib/s390x/malloc_io.c | 50 +++++++++++++++++++++++++++++++++++++
+ lib/s390x/malloc_io.h | 18 ++++++++++++++
+ lib/s390x/sclp.c      |  2 ++
+ s390x/Makefile        |  2 ++
+ s390x/css.c           | 35 +++++++++++++++++---------
+ 10 files changed, 219 insertions(+), 33 deletions(-)
+ create mode 100644 lib/alloc_dma_page.c
+ create mode 100644 lib/alloc_dma_page.h
+ create mode 100644 lib/s390x/malloc_io.c
+ create mode 100644 lib/s390x/malloc_io.h
+
+-- 
+2.25.1
