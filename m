@@ -1,240 +1,331 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:50216 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727027AbgIJRYM (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31716 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727238AbgIYH7E (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 13:24:12 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 1/8] s390/cio: Add new Operation Code OC3 to PNSO
-Date: Thu, 10 Sep 2020 19:23:44 +0200
-Message-Id: <20200910172351.5622-2-jwi@linux.ibm.com>
-In-Reply-To: <20200910172351.5622-1-jwi@linux.ibm.com>
-References: <20200910172351.5622-1-jwi@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+        Fri, 25 Sep 2020 03:59:04 -0400
+Date: Fri, 25 Sep 2020 09:58:54 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v10 03/16] s390/vfio-ap: manage link between queue
+ struct and matrix mdev
+Message-ID: <20200925095854.41eb1c05.pasic@linux.ibm.com>
+In-Reply-To: <20200821195616.13554-4-akrowiak@linux.ibm.com>
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+        <20200821195616.13554-4-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Roopa Prabhu <roopa@nvidia.com>, Nikolay Aleksandrov <nikolay@nvidia.com>, Jiri Pirko <jiri@resnulli.us>, Ivan Vecera <ivecera@redhat.com>
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-From: Alexandra Winter <wintera@linux.ibm.com>
+On Fri, 21 Aug 2020 15:56:03 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-Add support for operation code 3 (OC3) of the
-Perform-Network-Subchannel-Operations (PNSO) function
-of the Channel-Subsystem-Call (CHSC) instruction.
+> Let's create links between each queue device bound to the vfio_ap device
 
-PNSO provides 2 operation codes:
-OC0 - BRIDGE_INFO
-OC3 - ADDR_INFO (new)
+How about: Let us establish a bidirectional link...
 
-Extend the function calls to *pnso* to pass the OC and
-add new response code 0108.
+we kind of had a shaky queue --> matrix_mdev link prior to this patch,
+you are making this one solid and you are adding the matrix_mdev -->
+queue link.
 
-Support for OC3 is indicated by a flag in the css_general_characteristics.
+> driver and the matrix mdev to which the queue is assigned. The idea is to
+> facilitate efficient retrieval of the objects representing the queue
+> devices and matrix mdevs as well as to verify that a queue assigned to
+> a matrix mdev is bound to the driver.
+> 
 
-Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
----
- arch/s390/include/asm/ccwdev.h    |  5 ++---
- arch/s390/include/asm/chsc.h      |  7 +++++++
- arch/s390/include/asm/css_chars.h |  4 +++-
- drivers/s390/cio/chsc.c           | 11 ++++++-----
- drivers/s390/cio/chsc.h           |  6 ++----
- drivers/s390/cio/device_ops.c     |  8 ++++----
- drivers/s390/net/qeth_l2_main.c   | 13 ++++++++-----
- 7 files changed, 32 insertions(+), 22 deletions(-)
+I will have to look at the rest of the series to figure the usage out.
+One thought in the back of my head is that if vfio_ap_get_queue(apqn) is
+already O(1) the there is not much efficiency to gain by adding another
+hashtable whose keys are apqns and values queues.
 
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index 3cfe1eb89838..9739a00e2190 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -238,7 +238,6 @@ extern void ccw_device_get_schid(struct ccw_device *, struct subchannel_id *);
- struct channel_path_desc_fmt0 *ccw_device_get_chp_desc(struct ccw_device *, int);
- u8 *ccw_device_get_util_str(struct ccw_device *cdev, int chp_idx);
- int ccw_device_pnso(struct ccw_device *cdev,
--		    struct chsc_pnso_area *pnso_area,
--		    struct chsc_pnso_resume_token resume_token,
--		    int cnc);
-+		    struct chsc_pnso_area *pnso_area, u8 oc,
-+		    struct chsc_pnso_resume_token resume_token, int cnc);
- #endif /* _S390_CCWDEV_H_ */
-diff --git a/arch/s390/include/asm/chsc.h b/arch/s390/include/asm/chsc.h
-index 36ce2d25a5fc..ae4d2549cd67 100644
---- a/arch/s390/include/asm/chsc.h
-+++ b/arch/s390/include/asm/chsc.h
-@@ -11,6 +11,13 @@
- 
- #include <uapi/asm/chsc.h>
- 
-+/**
-+ * Operation codes for CHSC PNSO:
-+ *    PNSO_OC_NET_BRIDGE_INFO - only addresses that are visible to a bridgeport
-+ *    PNSO_OC_NET_ADDR_INFO   - all addresses
-+ */
-+#define PNSO_OC_NET_BRIDGE_INFO		0
-+#define PNSO_OC_NET_ADDR_INFO		3
- /**
-  * struct chsc_pnso_naid_l2 - network address information descriptor
-  * @nit:  Network interface token
-diff --git a/arch/s390/include/asm/css_chars.h b/arch/s390/include/asm/css_chars.h
-index 480bb02ccacd..638137d46c85 100644
---- a/arch/s390/include/asm/css_chars.h
-+++ b/arch/s390/include/asm/css_chars.h
-@@ -36,7 +36,9 @@ struct css_general_char {
- 	u64 alt_ssi : 1; /* bit 108 */
- 	u64 : 1;
- 	u64 narf : 1;	 /* bit 110 */
--	u64 : 12;
-+	u64 : 5;
-+	u64 enarf: 1;	 /* bit 116 */
-+	u64 : 6;
- 	u64 util_str : 1;/* bit 123 */
- } __packed;
- 
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index c314e9495c1b..8f764a295a51 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -65,6 +65,8 @@ int chsc_error_from_response(int response)
- 	case 0x0100:
- 	case 0x0102:
- 		return -ENOMEM;
-+	case 0x0108:		/* "HW limit exceeded" for the op 0x003d */
-+		return -EUSERS;
- 	default:
- 		return -EIO;
- 	}
-@@ -1340,6 +1342,7 @@ EXPORT_SYMBOL_GPL(chsc_scm_info);
-  * chsc_pnso() - Perform Network-Subchannel Operation
-  * @schid:		id of the subchannel on which PNSO is performed
-  * @pnso_area:		request and response block for the operation
-+ * @oc:			Operation Code
-  * @resume_token:	resume token for multiblock response
-  * @cnc:		Boolean change-notification control
-  *
-@@ -1347,10 +1350,8 @@ EXPORT_SYMBOL_GPL(chsc_scm_info);
-  *
-  * Returns 0 on success.
-  */
--int chsc_pnso(struct subchannel_id schid,
--	      struct chsc_pnso_area *pnso_area,
--	      struct chsc_pnso_resume_token resume_token,
--	      int cnc)
-+int chsc_pnso(struct subchannel_id schid, struct chsc_pnso_area *pnso_area,
-+	      u8 oc, struct chsc_pnso_resume_token resume_token, int cnc)
- {
- 	memset(pnso_area, 0, sizeof(*pnso_area));
- 	pnso_area->request.length = 0x0030;
-@@ -1359,7 +1360,7 @@ int chsc_pnso(struct subchannel_id schid,
- 	pnso_area->ssid  = schid.ssid;
- 	pnso_area->sch	 = schid.sch_no;
- 	pnso_area->cssid = schid.cssid;
--	pnso_area->oc	 = 0; /* Store-network-bridging-information list */
-+	pnso_area->oc	 = oc;
- 	pnso_area->resume_token = resume_token;
- 	pnso_area->n	   = (cnc != 0);
- 	if (chsc(pnso_area))
-diff --git a/drivers/s390/cio/chsc.h b/drivers/s390/cio/chsc.h
-index 7ecf7e4c402e..7416957ba9f4 100644
---- a/drivers/s390/cio/chsc.h
-+++ b/drivers/s390/cio/chsc.h
-@@ -205,10 +205,8 @@ struct chsc_scm_info {
- 
- int chsc_scm_info(struct chsc_scm_info *scm_area, u64 token);
- 
--int chsc_pnso(struct subchannel_id schid,
--	      struct chsc_pnso_area *pnso_area,
--	      struct chsc_pnso_resume_token resume_token,
--	      int cnc);
-+int chsc_pnso(struct subchannel_id schid, struct chsc_pnso_area *pnso_area,
-+	      u8 oc, struct chsc_pnso_resume_token resume_token, int cnc);
- 
- int __init chsc_get_cssid(int idx);
- 
-diff --git a/drivers/s390/cio/device_ops.c b/drivers/s390/cio/device_ops.c
-index 963fcc9054c6..cdf44f398957 100644
---- a/drivers/s390/cio/device_ops.c
-+++ b/drivers/s390/cio/device_ops.c
-@@ -714,6 +714,7 @@ EXPORT_SYMBOL_GPL(ccw_device_get_schid);
-  * ccw_device_pnso() - Perform Network-Subchannel Operation
-  * @cdev:		device on which PNSO is performed
-  * @pnso_area:		request and response block for the operation
-+ * @oc:			Operation Code
-  * @resume_token:	resume token for multiblock response
-  * @cnc:		Boolean change-notification control
-  *
-@@ -722,14 +723,13 @@ EXPORT_SYMBOL_GPL(ccw_device_get_schid);
-  * Returns 0 on success.
-  */
- int ccw_device_pnso(struct ccw_device *cdev,
--		    struct chsc_pnso_area *pnso_area,
--		    struct chsc_pnso_resume_token resume_token,
--		    int cnc)
-+		    struct chsc_pnso_area *pnso_area, u8 oc,
-+		    struct chsc_pnso_resume_token resume_token, int cnc)
- {
- 	struct subchannel_id schid;
- 
- 	ccw_device_get_schid(cdev, &schid);
--	return chsc_pnso(schid, pnso_area, resume_token, cnc);
-+	return chsc_pnso(schid, pnso_area, oc, resume_token, cnc);
- }
- EXPORT_SYMBOL_GPL(ccw_device_pnso);
- 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 491578009f12..2ab130d5c42d 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -642,6 +642,7 @@ static void qeth_l2_set_rx_mode(struct net_device *dev)
- /**
-  *	qeth_l2_pnso() - perform network subchannel operation
-  *	@card: qeth_card structure pointer
-+ *	@oc: Operation Code
-  *	@cnc: Boolean Change-Notification Control
-  *	@cb: Callback function will be executed for each element
-  *		of the address list
-@@ -652,7 +653,7 @@ static void qeth_l2_set_rx_mode(struct net_device *dev)
-  *	control" is set, further changes in the address list will be reported
-  *	via the IPA command.
-  */
--static int qeth_l2_pnso(struct qeth_card *card, int cnc,
-+static int qeth_l2_pnso(struct qeth_card *card, u8 oc, int cnc,
- 			void (*cb)(void *priv, struct chsc_pnso_naid_l2 *entry),
- 			void *priv)
- {
-@@ -663,13 +664,14 @@ static int qeth_l2_pnso(struct qeth_card *card, int cnc,
- 	int i, size, elems;
- 	int rc;
- 
--	QETH_CARD_TEXT(card, 2, "PNSO");
- 	rr = (struct chsc_pnso_area *)get_zeroed_page(GFP_KERNEL);
- 	if (rr == NULL)
- 		return -ENOMEM;
- 	do {
-+		QETH_CARD_TEXT(card, 2, "PNSO");
- 		/* on the first iteration, naihdr.resume_token will be zero */
--		rc = ccw_device_pnso(ddev, rr, rr->naihdr.resume_token, cnc);
-+		rc = ccw_device_pnso(ddev, rr, oc, rr->naihdr.resume_token,
-+				     cnc);
- 		if (rc)
- 			continue;
- 		if (cb == NULL)
-@@ -1578,11 +1580,12 @@ int qeth_bridgeport_an_set(struct qeth_card *card, int enable)
- 	if (enable) {
- 		qeth_bridge_emit_host_event(card, anev_reset, 0, NULL, NULL);
- 		qeth_l2_set_pnso_mode(card, QETH_PNSO_BRIDGEPORT);
--		rc = qeth_l2_pnso(card, 1, qeth_bridgeport_an_set_cb, card);
-+		rc = qeth_l2_pnso(card, PNSO_OC_NET_BRIDGE_INFO, 1,
-+				  qeth_bridgeport_an_set_cb, card);
- 		if (rc)
- 			qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
- 	} else {
--		rc = qeth_l2_pnso(card, 0, NULL, NULL);
-+		rc = qeth_l2_pnso(card, PNSO_OC_NET_BRIDGE_INFO, 0, NULL, NULL);
- 		qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
- 	}
- 	return rc;
--- 
-2.17.1
+But I don't want to hang up myself on this.
+
+> The links will be created as follows:
+> 
+>    * When the queue device is probed, if its APQN is assigned to a matrix
+>      mdev, the structures representing the queue device and the matrix mdev
+>      will be linked.
+> 
+>    * When an adapter or domain is assigned to a matrix mdev, for each new
+>      APQN assigned that references a queue device bound to the vfio_ap
+>      device driver, the structures representing the queue device and the
+>      matrix mdev will be linked.
+> 
+> The links will be removed as follows:
+> 
+>    * When the queue device is removed, if its APQN is assigned to a matrix
+>      mdev, the structures representing the queue device and the matrix mdev
+>      will be unlinked.
+> 
+>    * When an adapter or domain is unassigned from a matrix mdev, for each
+>      APQN unassigned that references a queue device bound to the vfio_ap
+>      device driver, the structures representing the queue device and the
+>      matrix mdev will be unlinked.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+
+Except for the things pointed out by Connie and Christian, LGTM.
+
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c     | 132 +++++++++++++++++++++++++-
+>  drivers/s390/crypto/vfio_ap_private.h |   2 +
+>  2 files changed, 129 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index ad3925f04f61..2e37ee82e422 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -50,6 +50,19 @@ static struct vfio_ap_queue *vfio_ap_get_queue(unsigned long apqn)
+>  	return q;
+>  }
+>  
+> +static struct vfio_ap_queue *vfio_ap_get_mdev_queue(struct ap_matrix_mdev *matrix_mdev,
+> +						    unsigned long apqn)
+> +{
+> +	struct vfio_ap_queue *q;
+> +
+> +	hash_for_each_possible(matrix_mdev->qtable, q, mdev_qnode, apqn) {
+> +		if (q && (q->apqn == apqn))
+> +			return q;
+> +	}
+> +
+> +	return NULL;
+> +}
+> +
+>  /**
+>   * vfio_ap_wait_for_irqclear
+>   * @apqn: The AP Queue number
+> @@ -160,7 +173,6 @@ static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
+>  		  status.response_code);
+>  end_free:
+>  	vfio_ap_free_aqic_resources(q);
+> -	q->matrix_mdev = NULL;
+>  	return status;
+>  }
+>  
+> @@ -262,7 +274,6 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+>  	struct vfio_ap_queue *q;
+>  	struct ap_queue_status qstatus = {
+>  			       .response_code = AP_RESPONSE_Q_NOT_AVAIL, };
+> -	struct ap_matrix_mdev *matrix_mdev;
+>  
+>  	/* If we do not use the AIV facility just go to userland */
+>  	if (!(vcpu->arch.sie_block->eca & ECA_AIV))
+> @@ -273,14 +284,11 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+>  
+>  	if (!vcpu->kvm->arch.crypto.pqap_hook)
+>  		goto out_unlock;
+> -	matrix_mdev = container_of(vcpu->kvm->arch.crypto.pqap_hook,
+> -				   struct ap_matrix_mdev, pqap_hook);
+>  
+>  	q = vfio_ap_get_queue(apqn);
+>  	if (!q)
+>  		goto out_unlock;
+>  
+> -	q->matrix_mdev = matrix_mdev;
+>  	status = vcpu->run->s.regs.gprs[1];
+>  
+>  	/* If IR bit(16) is set we enable the interrupt */
+> @@ -320,6 +328,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+>  
+>  	matrix_mdev->mdev = mdev;
+>  	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
+> +	hash_init(matrix_mdev->qtable);
+>  	mdev_set_drvdata(mdev, matrix_mdev);
+>  	matrix_mdev->pqap_hook.hook = handle_pqap;
+>  	matrix_mdev->pqap_hook.owner = THIS_MODULE;
+> @@ -548,6 +557,87 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
+>  	return 0;
+>  }
+>  
+> +enum qlink_type {
+> +	LINK_APID,
+> +	LINK_APQI,
+> +	UNLINK_APID,
+> +	UNLINK_APQI,
+> +};
+> +
+> +static void vfio_ap_mdev_link_queue(struct ap_matrix_mdev *matrix_mdev,
+> +				    unsigned long apid, unsigned long apqi)
+> +{
+> +	struct vfio_ap_queue *q;
+> +
+> +	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
+> +	if (q) {
+> +		q->matrix_mdev = matrix_mdev;
+> +		hash_add(matrix_mdev->qtable,
+> +			 &q->mdev_qnode, q->apqn);
+> +	}
+> +}
+> +
+> +static void vfio_ap_mdev_unlink_queue(unsigned long apid, unsigned long apqi)
+> +{
+> +	struct vfio_ap_queue *q;
+> +
+> +	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
+> +	if (q) {
+> +		q->matrix_mdev = NULL;
+> +		hash_del(&q->mdev_qnode);
+> +	}
+> +}
+> +
+> +/**
+> + * vfio_ap_mdev_link_queues
+> + *
+> + * @matrix_mdev: The matrix mdev to link.
+> + * @type:	 The type of @qlink_id.
+> + * @qlink_id:	 The APID or APQI of the queues to link.
+> + *
+> + * Sets or clears the links between the queues with the specified @qlink_id
+> + * and the @matrix_mdev:
+> + *     @type == LINK_APID: Set the links between the @matrix_mdev and the
+> + *                         queues with the specified @qlink_id (APID)
+> + *     @type == LINK_APQI: Set the links between the @matrix_mdev and the
+> + *                         queues with the specified @qlink_id (APQI)
+> + *     @type == UNLINK_APID: Clear the links between the @matrix_mdev and the
+> + *                           queues with the specified @qlink_id (APID)
+> + *     @type == UNLINK_APQI: Clear the links between the @matrix_mdev and the
+> + *                           queues with the specified @qlink_id (APQI)
+> + */
+> +static void vfio_ap_mdev_link_queues(struct ap_matrix_mdev *matrix_mdev,
+> +				     enum qlink_type type,
+> +				     unsigned long qlink_id)
+> +{
+> +	unsigned long id;
+> +
+> +	switch (type) {
+> +	case LINK_APID:
+> +		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
+> +				     matrix_mdev->matrix.aqm_max + 1)
+> +			vfio_ap_mdev_link_queue(matrix_mdev, qlink_id, id);
+> +		break;
+> +	case UNLINK_APID:
+> +		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
+> +				     matrix_mdev->matrix.aqm_max + 1)
+> +			vfio_ap_mdev_unlink_queue(qlink_id, id);
+> +		break;
+> +	case LINK_APQI:
+> +		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
+> +				     matrix_mdev->matrix.apm_max + 1)
+> +			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
+> +		break;
+> +	case UNLINK_APQI:
+> +		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
+> +				     matrix_mdev->matrix.apm_max + 1)
+> +			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
+> +		break;
+> +	default:
+> +		WARN_ON_ONCE(1);
+> +	}
+> +}
+> +
+>  /**
+>   * assign_adapter_store
+>   *
+> @@ -617,6 +707,7 @@ static ssize_t assign_adapter_store(struct device *dev,
+>  	if (ret)
+>  		goto share_err;
+>  
+> +	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
+>  	ret = count;
+>  	goto done;
+>  
+> @@ -668,6 +759,7 @@ static ssize_t unassign_adapter_store(struct device *dev,
+>  
+>  	mutex_lock(&matrix_dev->lock);
+>  	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
+> +	vfio_ap_mdev_link_queues(matrix_mdev, UNLINK_APID, apid);
+>  	mutex_unlock(&matrix_dev->lock);
+>  
+>  	return count;
+> @@ -758,6 +850,7 @@ static ssize_t assign_domain_store(struct device *dev,
+>  	if (ret)
+>  		goto share_err;
+>  
+> +	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
+>  	ret = count;
+>  	goto done;
+>  
+> @@ -810,6 +903,7 @@ static ssize_t unassign_domain_store(struct device *dev,
+>  
+>  	mutex_lock(&matrix_dev->lock);
+>  	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
+> +	vfio_ap_mdev_link_queues(matrix_mdev, UNLINK_APQI, apqi);
+>  	mutex_unlock(&matrix_dev->lock);
+>  
+>  	return count;
+> @@ -1282,6 +1376,29 @@ void vfio_ap_mdev_unregister(void)
+>  	mdev_unregister_device(&matrix_dev->device);
+>  }
+>  
+> +/**
+> + * vfio_ap_queue_link_mdev
+> + *
+> + * @q: The queue to link with the matrix mdev.
+> + *
+> + * Links @q with the matrix mdev to which the queue's APQN is assigned.
+> + */
+> +static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
+> +{
+> +	unsigned long apid = AP_QID_CARD(q->apqn);
+> +	unsigned long apqi = AP_QID_QUEUE(q->apqn);
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +
+> +	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+> +		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
+> +		    test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
+> +			q->matrix_mdev = matrix_mdev;
+> +			hash_add(matrix_mdev->qtable, &q->mdev_qnode, q->apqn);
+> +			break;
+> +		}
+> +	}
+> +}
+> +
+>  int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
+>  {
+>  	struct vfio_ap_queue *q;
+> @@ -1290,9 +1407,12 @@ int vfio_ap_mdev_probe_queue(struct ap_queue *queue)
+>  	if (!q)
+>  		return -ENOMEM;
+>  
+> +	mutex_lock(&matrix_dev->lock);
+>  	dev_set_drvdata(&queue->ap_dev.device, q);
+>  	q->apqn = queue->qid;
+>  	q->saved_isc = VFIO_AP_ISC_INVALID;
+> +	vfio_ap_queue_link_mdev(q);
+> +	mutex_unlock(&matrix_dev->lock);
+>  
+>  	return 0;
+>  }
+> @@ -1309,6 +1429,8 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue)
+>  	apqi = AP_QID_QUEUE(q->apqn);
+>  	vfio_ap_mdev_reset_queue(apid, apqi, 1);
+>  	vfio_ap_irq_disable(q);
+> +	if (q->matrix_mdev)
+> +		hash_del(&q->mdev_qnode);
+>  	kfree(q);
+>  	mutex_unlock(&matrix_dev->lock);
+>  }
+> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> index a2aa05bec718..57da703b549a 100644
+> --- a/drivers/s390/crypto/vfio_ap_private.h
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -87,6 +87,7 @@ struct ap_matrix_mdev {
+>  	struct kvm *kvm;
+>  	struct kvm_s390_module_hook pqap_hook;
+>  	struct mdev_device *mdev;
+> +	DECLARE_HASHTABLE(qtable, 8);
+>  };
+>  
+>  extern int vfio_ap_mdev_register(void);
+> @@ -98,6 +99,7 @@ struct vfio_ap_queue {
+>  	int	apqn;
+>  #define VFIO_AP_ISC_INVALID 0xff
+>  	unsigned char saved_isc;
+> +	struct hlist_node mdev_qnode;
+>  };
+>  
+>  int vfio_ap_mdev_probe_queue(struct ap_queue *queue);
