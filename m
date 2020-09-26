@@ -1,28 +1,265 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32366 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34496 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728013AbgIOU6E (ORCPT
+        by vger.kernel.org with ESMTP id S1726935AbgIZKoy (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Sep 2020 16:58:04 -0400
+        Sat, 26 Sep 2020 06:44:54 -0400
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 0/1] net/smc: fix 2020-09-15
-Date: Tue, 15 Sep 2020 22:57:08 +0200
-Message-Id: <20200915205709.50325-1-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Subject: [PATCH net-next 03/14] net/smc: separate find device functions
+Date: Sat, 26 Sep 2020 12:44:21 +0200
+Message-Id: <20200926104432.74293-4-kgraul@linux.ibm.com>
+In-Reply-To: <20200926104432.74293-1-kgraul@linux.ibm.com>
+References: <20200926104432.74293-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net
 Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Please apply the following patch for smc to netdev's net-next tree.
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-The patch fixes a problem that was revealed by a smatch warning. Because the
-fixed patch is still only in net-next tree I am sending this fix to net-next.
+This patch provides better separation of device determinations
+in function smc_listen_work(). No functional change.
 
-Karsten Graul (1):
-  net/smc: check variable before dereferencing in smc_close.c
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/af_smc.c  | 111 ++++++++++++++++++++++++++++------------------
+ net/smc/smc_clc.c |   6 +--
+ net/smc/smc_clc.h |  13 +++++-
+ 3 files changed, 84 insertions(+), 46 deletions(-)
 
- net/smc/smc_close.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 1a02d3665c46..911482741224 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1188,7 +1188,6 @@ static int smc_listen_rdma_init(struct smc_sock *new_smc,
+ 
+ /* listen worker: initialize connection and buffers for SMC-D */
+ static int smc_listen_ism_init(struct smc_sock *new_smc,
+-			       struct smc_clc_msg_proposal *pclc,
+ 			       struct smc_init_info *ini)
+ {
+ 	int rc;
+@@ -1211,6 +1210,26 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
+ 	return 0;
+ }
+ 
++static void smc_find_ism_device_serv(struct smc_sock *new_smc,
++				     struct smc_clc_msg_proposal *pclc,
++				     struct smc_init_info *ini)
++{
++	struct smc_clc_msg_smcd *pclc_smcd = smc_get_clc_msg_smcd(pclc);
++
++	if (!smcd_indicated(pclc->hdr.typev1))
++		goto not_found;
++	ini->is_smcd = true; /* prepare ISM check */
++	ini->ism_peer_gid = pclc_smcd->gid;
++	if (smc_find_ism_device(new_smc, ini))
++		goto not_found;
++	if (!smc_listen_ism_init(new_smc, ini))
++		return;		/* ISM device found */
++
++not_found:
++	ini->ism_dev = NULL;
++	ini->is_smcd = false;
++}
++
+ /* listen worker: register buffers */
+ static int smc_listen_rdma_reg(struct smc_sock *new_smc, bool local_first)
+ {
+@@ -1225,6 +1244,47 @@ static int smc_listen_rdma_reg(struct smc_sock *new_smc, bool local_first)
+ 	return 0;
+ }
+ 
++static int smc_find_rdma_device_serv(struct smc_sock *new_smc,
++				     struct smc_clc_msg_proposal *pclc,
++				     struct smc_init_info *ini)
++{
++	int rc;
++
++	if (!smcr_indicated(pclc->hdr.typev1))
++		return SMC_CLC_DECL_NOSMCDEV;
++
++	/* prepare RDMA check */
++	ini->ib_lcl = &pclc->lcl;
++	rc = smc_find_rdma_device(new_smc, ini);
++	if (rc) {
++		/* no RDMA device found */
++		if (pclc->hdr.typev1 == SMC_TYPE_B)
++			/* neither ISM nor RDMA device found */
++			rc = SMC_CLC_DECL_NOSMCDEV;
++		return rc;
++	}
++	rc = smc_listen_rdma_init(new_smc, ini);
++	if (rc)
++		return rc;
++	return smc_listen_rdma_reg(new_smc, ini->first_contact_local);
++}
++
++/* determine the local device matching to proposal */
++static int smc_listen_find_device(struct smc_sock *new_smc,
++				  struct smc_clc_msg_proposal *pclc,
++				  struct smc_init_info *ini)
++{
++	/* check if ISM is available */
++	smc_find_ism_device_serv(new_smc, pclc, ini);
++	if (ini->is_smcd)
++		return 0;
++	if (pclc->hdr.typev1 == SMC_TYPE_D)
++		return SMC_CLC_DECL_NOSMCDDEV; /* skip RDMA and decline */
++
++	/* check if RDMA is available */
++	return smc_find_rdma_device_serv(new_smc, pclc, ini);
++}
++
+ /* listen worker: finish RDMA setup */
+ static int smc_listen_rdma_finish(struct smc_sock *new_smc,
+ 				  struct smc_clc_msg_accept_confirm *cclc,
+@@ -1250,7 +1310,7 @@ static int smc_listen_rdma_finish(struct smc_sock *new_smc,
+ 	return reason_code;
+ }
+ 
+-/* setup for RDMA connection of server */
++/* setup for connection of server */
+ static void smc_listen_work(struct work_struct *work)
+ {
+ 	struct smc_sock *new_smc = container_of(work, struct smc_sock,
+@@ -1260,7 +1320,6 @@ static void smc_listen_work(struct work_struct *work)
+ 	struct smc_clc_msg_proposal_area *buf;
+ 	struct smc_clc_msg_proposal *pclc;
+ 	struct smc_init_info ini = {0};
+-	bool ism_supported = false;
+ 	int rc = 0;
+ 
+ 	if (new_smc->listen_smc->sk.sk_state != SMC_LISTEN)
+@@ -1315,42 +1374,10 @@ static void smc_listen_work(struct work_struct *work)
+ 	smc_rx_init(new_smc);
+ 	smc_tx_init(new_smc);
+ 
+-	/* check if ISM is available */
+-	if (pclc->hdr.typev1 == SMC_TYPE_D || pclc->hdr.typev1 == SMC_TYPE_B) {
+-		struct smc_clc_msg_smcd *pclc_smcd = smc_get_clc_msg_smcd(pclc);
+-
+-		ini.is_smcd = true; /* prepare ISM check */
+-		ini.ism_peer_gid = pclc_smcd->gid;
+-		rc = smc_find_ism_device(new_smc, &ini);
+-		if (!rc)
+-			rc = smc_listen_ism_init(new_smc, pclc, &ini);
+-		if (!rc)
+-			ism_supported = true;
+-		else if (pclc->hdr.typev1 == SMC_TYPE_D)
+-			goto out_unlock; /* skip RDMA and decline */
+-	}
+-
+-	/* check if RDMA is available */
+-	if (!ism_supported) { /* SMC_TYPE_R or SMC_TYPE_B */
+-		/* prepare RDMA check */
+-		ini.is_smcd = false;
+-		ini.ism_dev = NULL;
+-		ini.ib_lcl = &pclc->lcl;
+-		rc = smc_find_rdma_device(new_smc, &ini);
+-		if (rc) {
+-			/* no RDMA device found */
+-			if (pclc->hdr.typev1 == SMC_TYPE_B)
+-				/* neither ISM nor RDMA device found */
+-				rc = SMC_CLC_DECL_NOSMCDEV;
+-			goto out_unlock;
+-		}
+-		rc = smc_listen_rdma_init(new_smc, &ini);
+-		if (rc)
+-			goto out_unlock;
+-		rc = smc_listen_rdma_reg(new_smc, ini.first_contact_local);
+-		if (rc)
+-			goto out_unlock;
+-	}
++	/* determine ISM or RoCE device used for connection */
++	rc = smc_listen_find_device(new_smc, pclc, &ini);
++	if (rc)
++		goto out_unlock;
+ 
+ 	/* send SMC Accept CLC message */
+ 	rc = smc_clc_send_accept(new_smc, ini.first_contact_local);
+@@ -1358,20 +1385,20 @@ static void smc_listen_work(struct work_struct *work)
+ 		goto out_unlock;
+ 
+ 	/* SMC-D does not need this lock any more */
+-	if (ism_supported)
++	if (ini.is_smcd)
+ 		mutex_unlock(&smc_server_lgr_pending);
+ 
+ 	/* receive SMC Confirm CLC message */
+ 	rc = smc_clc_wait_msg(new_smc, &cclc, sizeof(cclc),
+ 			      SMC_CLC_CONFIRM, CLC_WAIT_TIME);
+ 	if (rc) {
+-		if (!ism_supported)
++		if (!ini.is_smcd)
+ 			goto out_unlock;
+ 		goto out_decl;
+ 	}
+ 
+ 	/* finish worker */
+-	if (!ism_supported) {
++	if (!ini.is_smcd) {
+ 		rc = smc_listen_rdma_finish(new_smc, &cclc,
+ 					    ini.first_contact_local);
+ 		if (rc)
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 524d2b225640..85b41c125368 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -450,7 +450,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
+ 	pclc_base->hdr.type = SMC_CLC_PROPOSAL;
+ 	pclc_base->hdr.version = SMC_V1;		/* SMC version */
+ 	pclc_base->hdr.typev1 = smc_type;
+-	if (smc_type == SMC_TYPE_R || smc_type == SMC_TYPE_B) {
++	if (smcr_indicated(smc_type)) {
+ 		/* add SMC-R specifics */
+ 		memcpy(pclc_base->lcl.id_for_peer, local_systemid,
+ 		       sizeof(local_systemid));
+@@ -459,7 +459,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
+ 		       ETH_ALEN);
+ 		pclc_base->iparea_offset = htons(0);
+ 	}
+-	if (smc_type == SMC_TYPE_D || smc_type == SMC_TYPE_B) {
++	if (smcd_indicated(smc_type)) {
+ 		/* add SMC-D specifics */
+ 		plen += sizeof(*pclc_smcd);
+ 		pclc_base->iparea_offset = htons(sizeof(*pclc_smcd));
+@@ -472,7 +472,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
+ 	i = 0;
+ 	vec[i].iov_base = pclc_base;
+ 	vec[i++].iov_len = sizeof(*pclc_base);
+-	if (smc_type == SMC_TYPE_D || smc_type == SMC_TYPE_B) {
++	if (smcd_indicated(smc_type)) {
+ 		vec[i].iov_base = pclc_smcd;
+ 		vec[i++].iov_len = sizeof(*pclc_smcd);
+ 	}
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 5b2d0582886e..5f9fda15f7ff 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -180,11 +180,22 @@ smc_clc_proposal_get_prefix(struct smc_clc_msg_proposal *pclc)
+ 	       ((u8 *)pclc + sizeof(*pclc) + ntohs(pclc->iparea_offset));
+ }
+ 
++static inline bool smcr_indicated(int smc_type)
++{
++	return smc_type == SMC_TYPE_R || smc_type == SMC_TYPE_B;
++}
++
++static inline bool smcd_indicated(int smc_type)
++{
++	return smc_type == SMC_TYPE_D || smc_type == SMC_TYPE_B;
++}
++
+ /* get SMC-D info from proposal message */
+ static inline struct smc_clc_msg_smcd *
+ smc_get_clc_msg_smcd(struct smc_clc_msg_proposal *prop)
+ {
+-	if (ntohs(prop->iparea_offset) != sizeof(struct smc_clc_msg_smcd))
++	if (smcd_indicated(prop->hdr.type) &&
++	    ntohs(prop->iparea_offset) != sizeof(struct smc_clc_msg_smcd))
+ 		return NULL;
+ 
+ 	return (struct smc_clc_msg_smcd *)(prop + 1);
 -- 
 2.17.1
