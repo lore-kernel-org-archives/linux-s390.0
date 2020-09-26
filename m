@@ -1,175 +1,296 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48460 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726178AbgIWIhL (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6388 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727017AbgIZKo4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Sep 2020 04:37:11 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 2/9] s390/qeth: relax locking for ipato config data
-Date: Wed, 23 Sep 2020 10:36:53 +0200
-Message-Id: <20200923083700.44624-3-jwi@linux.ibm.com>
-In-Reply-To: <20200923083700.44624-1-jwi@linux.ibm.com>
-References: <20200923083700.44624-1-jwi@linux.ibm.com>
+        Sat, 26 Sep 2020 06:44:56 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 08/14] net/smc: introduce list of pnetids for Ethernet devices
+Date: Sat, 26 Sep 2020 12:44:26 +0200
+Message-Id: <20200926104432.74293-9-kgraul@linux.ibm.com>
+In-Reply-To: <20200926104432.74293-1-kgraul@linux.ibm.com>
+References: <20200926104432.74293-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-card->ipato is currently protected by the conf_mutex. But most users
-also hold the ip_lock - in particular qeth_l3_add_ip().
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-So slightly expand the sections under ip_lock in a few places (to
-effectively cover a few error & no-op cases), and then drop the
-conf_mutex where it's no longer needed.
+SMCD version 2 allows usage of ISM devices with hardware PNETID
+only, if an Ethernet net_device exists with the same hardware PNETID.
+This requires to maintain a list of pnetids belonging to
+Ethernet net_devices, which is covered by this patch.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h    |  7 +++++--
- drivers/s390/net/qeth_l3_main.c |  4 ----
- drivers/s390/net/qeth_l3_sys.c  | 22 +++++++++++-----------
- 3 files changed, 16 insertions(+), 17 deletions(-)
+ net/smc/smc_netns.h |   1 +
+ net/smc/smc_pnet.c  | 145 +++++++++++++++++++++++++++++++++++++++++---
+ net/smc/smc_pnet.h  |  14 +++++
+ 3 files changed, 153 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 2c14012ca35d..1b3fe384dcc9 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -814,12 +814,16 @@ struct qeth_card {
- 	struct workqueue_struct *event_wq;
- 	struct workqueue_struct *cmd_wq;
- 	wait_queue_head_t wait_q;
+diff --git a/net/smc/smc_netns.h b/net/smc/smc_netns.h
+index e7a8fc4ae02f..0f4f35aa43ad 100644
+--- a/net/smc/smc_netns.h
++++ b/net/smc/smc_netns.h
+@@ -16,5 +16,6 @@ extern unsigned int smc_net_id;
+ /* per-network namespace private data */
+ struct smc_net {
+ 	struct smc_pnettable pnettable;
++	struct smc_pnetids_ndev pnetids_ndev;
+ };
+ #endif
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 0b0f2704026f..8a91ca22712f 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -29,6 +29,7 @@
+ #include "smc_ism.h"
+ #include "smc_core.h"
+ 
++static struct net_device *__pnet_find_base_ndev(struct net_device *ndev);
+ static struct net_device *pnet_find_base_ndev(struct net_device *ndev);
+ 
+ static const struct nla_policy smc_pnet_policy[SMC_PNETID_MAX + 1] = {
+@@ -712,10 +713,115 @@ static struct genl_family smc_pnet_nl_family __ro_after_init = {
+ 	.n_ops =  ARRAY_SIZE(smc_pnet_ops)
+ };
+ 
++bool smc_pnet_is_ndev_pnetid(struct net *net, u8 *pnetid)
++{
++	struct smc_net *sn = net_generic(net, smc_net_id);
++	struct smc_pnetids_ndev_entry *pe;
++	bool rc = false;
 +
-+	struct mutex ip_lock;
-+	/* protected by ip_lock: */
- 	DECLARE_HASHTABLE(ip_htable, 4);
-+	struct qeth_ipato ipato;
++	read_lock(&sn->pnetids_ndev.lock);
++	list_for_each_entry(pe, &sn->pnetids_ndev.list, list) {
++		if (smc_pnet_match(pnetid, pe->pnetid)) {
++			rc = true;
++			goto unlock;
++		}
++	}
 +
- 	DECLARE_HASHTABLE(local_addrs4, 4);
- 	DECLARE_HASHTABLE(local_addrs6, 4);
- 	spinlock_t local_addrs4_lock;
- 	spinlock_t local_addrs6_lock;
--	struct mutex ip_lock;
- 	DECLARE_HASHTABLE(rx_mode_addrs, 4);
- 	struct work_struct rx_mode_work;
- 	struct work_struct kernel_thread_starter;
-@@ -827,7 +831,6 @@ struct qeth_card {
- 	unsigned long thread_start_mask;
- 	unsigned long thread_allowed_mask;
- 	unsigned long thread_running_mask;
--	struct qeth_ipato ipato;
- 	struct list_head cmd_waiter_list;
- 	/* QDIO buffer handling */
- 	struct qeth_qdio_info qdio;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 903d7b6f511f..810d65fd48b4 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -536,7 +536,6 @@ int qeth_l3_add_ipato_entry(struct qeth_card *card,
++unlock:
++	read_unlock(&sn->pnetids_ndev.lock);
++	return rc;
++}
++
++static int smc_pnet_add_pnetid(struct net *net, u8 *pnetid)
++{
++	struct smc_net *sn = net_generic(net, smc_net_id);
++	struct smc_pnetids_ndev_entry *pe, *pi;
++
++	pe = kzalloc(sizeof(*pe), GFP_KERNEL);
++	if (!pe)
++		return -ENOMEM;
++
++	write_lock(&sn->pnetids_ndev.lock);
++	list_for_each_entry(pi, &sn->pnetids_ndev.list, list) {
++		if (smc_pnet_match(pnetid, pe->pnetid)) {
++			refcount_inc(&pi->refcnt);
++			kfree(pe);
++			goto unlock;
++		}
++	}
++	refcount_set(&pe->refcnt, 1);
++	memcpy(pe->pnetid, pnetid, SMC_MAX_PNETID_LEN);
++	list_add_tail(&pe->list, &sn->pnetids_ndev.list);
++
++unlock:
++	write_unlock(&sn->pnetids_ndev.lock);
++	return 0;
++}
++
++static void smc_pnet_remove_pnetid(struct net *net, u8 *pnetid)
++{
++	struct smc_net *sn = net_generic(net, smc_net_id);
++	struct smc_pnetids_ndev_entry *pe, *pe2;
++
++	write_lock(&sn->pnetids_ndev.lock);
++	list_for_each_entry_safe(pe, pe2, &sn->pnetids_ndev.list, list) {
++		if (smc_pnet_match(pnetid, pe->pnetid)) {
++			if (refcount_dec_and_test(&pe->refcnt)) {
++				list_del(&pe->list);
++				kfree(pe);
++			}
++			break;
++		}
++	}
++	write_unlock(&sn->pnetids_ndev.lock);
++}
++
++static void smc_pnet_add_base_pnetid(struct net *net, struct net_device *dev,
++				     u8 *ndev_pnetid)
++{
++	struct net_device *base_dev;
++
++	base_dev = __pnet_find_base_ndev(dev);
++	if (base_dev->flags & IFF_UP &&
++	    !smc_pnetid_by_dev_port(base_dev->dev.parent, base_dev->dev_port,
++				    ndev_pnetid)) {
++		/* add to PNETIDs list */
++		smc_pnet_add_pnetid(net, ndev_pnetid);
++	}
++}
++
++/* create initial list of netdevice pnetids */
++static void smc_pnet_create_pnetids_list(struct net *net)
++{
++	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
++	struct net_device *dev;
++
++	rtnl_lock();
++	for_each_netdev(net, dev)
++		smc_pnet_add_base_pnetid(net, dev, ndev_pnetid);
++	rtnl_unlock();
++}
++
++/* clean up list of netdevice pnetids */
++static void smc_pnet_destroy_pnetids_list(struct net *net)
++{
++	struct smc_net *sn = net_generic(net, smc_net_id);
++	struct smc_pnetids_ndev_entry *pe, *temp_pe;
++
++	write_lock(&sn->pnetids_ndev.lock);
++	list_for_each_entry_safe(pe, temp_pe, &sn->pnetids_ndev.list, list) {
++		list_del(&pe->list);
++		kfree(pe);
++	}
++	write_unlock(&sn->pnetids_ndev.lock);
++}
++
+ static int smc_pnet_netdev_event(struct notifier_block *this,
+ 				 unsigned long event, void *ptr)
+ {
+ 	struct net_device *event_dev = netdev_notifier_info_to_dev(ptr);
++	struct net *net = dev_net(event_dev);
++	u8 ndev_pnetid[SMC_MAX_PNETID_LEN];
  
- 	QETH_CARD_TEXT(card, 2, "addipato");
- 
--	mutex_lock(&card->conf_mutex);
- 	mutex_lock(&card->ip_lock);
- 
- 	list_for_each_entry(ipatoe, &card->ipato.entries, entry) {
-@@ -556,7 +555,6 @@ int qeth_l3_add_ipato_entry(struct qeth_card *card,
+ 	switch (event) {
+ 	case NETDEV_REBOOT:
+@@ -725,6 +831,17 @@ static int smc_pnet_netdev_event(struct notifier_block *this,
+ 	case NETDEV_REGISTER:
+ 		smc_pnet_add_by_ndev(event_dev);
+ 		return NOTIFY_OK;
++	case NETDEV_UP:
++		smc_pnet_add_base_pnetid(net, event_dev, ndev_pnetid);
++		return NOTIFY_OK;
++	case NETDEV_DOWN:
++		event_dev = __pnet_find_base_ndev(event_dev);
++		if (!smc_pnetid_by_dev_port(event_dev->dev.parent,
++					    event_dev->dev_port, ndev_pnetid)) {
++			/* remove from PNETIDs list */
++			smc_pnet_remove_pnetid(net, ndev_pnetid);
++		}
++		return NOTIFY_OK;
+ 	default:
+ 		return NOTIFY_DONE;
  	}
+@@ -739,9 +856,14 @@ int smc_pnet_net_init(struct net *net)
+ {
+ 	struct smc_net *sn = net_generic(net, smc_net_id);
+ 	struct smc_pnettable *pnettable = &sn->pnettable;
++	struct smc_pnetids_ndev *pnetids_ndev = &sn->pnetids_ndev;
  
- 	mutex_unlock(&card->ip_lock);
--	mutex_unlock(&card->conf_mutex);
+ 	INIT_LIST_HEAD(&pnettable->pnetlist);
+ 	rwlock_init(&pnettable->lock);
++	INIT_LIST_HEAD(&pnetids_ndev->list);
++	rwlock_init(&pnetids_ndev->lock);
++
++	smc_pnet_create_pnetids_list(net);
  
+ 	return 0;
+ }
+@@ -756,6 +878,7 @@ int __init smc_pnet_init(void)
+ 	rc = register_netdevice_notifier(&smc_netdev_notifier);
+ 	if (rc)
+ 		genl_unregister_family(&smc_pnet_nl_family);
++
  	return rc;
  }
-@@ -570,7 +568,6 @@ int qeth_l3_del_ipato_entry(struct qeth_card *card,
  
- 	QETH_CARD_TEXT(card, 2, "delipato");
- 
--	mutex_lock(&card->conf_mutex);
- 	mutex_lock(&card->ip_lock);
- 
- 	list_for_each_entry_safe(ipatoe, tmp, &card->ipato.entries, entry) {
-@@ -587,7 +584,6 @@ int qeth_l3_del_ipato_entry(struct qeth_card *card,
- 	}
- 
- 	mutex_unlock(&card->ip_lock);
--	mutex_unlock(&card->conf_mutex);
- 
- 	return rc;
- }
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index dd0b39082534..ca9c95b6bf35 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -301,19 +301,21 @@ static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
- 		goto out;
- 	}
- 
-+	mutex_lock(&card->ip_lock);
- 	if (sysfs_streq(buf, "toggle")) {
- 		enable = !card->ipato.enabled;
- 	} else if (kstrtobool(buf, &enable)) {
- 		rc = -EINVAL;
--		goto out;
-+		goto unlock_ip;
- 	}
- 
- 	if (card->ipato.enabled != enable) {
- 		card->ipato.enabled = enable;
--		mutex_lock(&card->ip_lock);
- 		qeth_l3_update_ipato(card);
--		mutex_unlock(&card->ip_lock);
- 	}
-+
-+unlock_ip:
-+	mutex_unlock(&card->ip_lock);
- out:
- 	mutex_unlock(&card->conf_mutex);
- 	return rc ? rc : count;
-@@ -339,7 +341,7 @@ static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
- 	bool invert;
- 	int rc = 0;
- 
--	mutex_lock(&card->conf_mutex);
-+	mutex_lock(&card->ip_lock);
- 	if (sysfs_streq(buf, "toggle")) {
- 		invert = !card->ipato.invert4;
- 	} else if (kstrtobool(buf, &invert)) {
-@@ -349,12 +351,11 @@ static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
- 
- 	if (card->ipato.invert4 != invert) {
- 		card->ipato.invert4 = invert;
--		mutex_lock(&card->ip_lock);
- 		qeth_l3_update_ipato(card);
--		mutex_unlock(&card->ip_lock);
- 	}
-+
- out:
--	mutex_unlock(&card->conf_mutex);
-+	mutex_unlock(&card->ip_lock);
- 	return rc ? rc : count;
+@@ -764,6 +887,7 @@ void smc_pnet_net_exit(struct net *net)
+ {
+ 	/* flush pnet table */
+ 	smc_pnet_remove_by_pnetid(net, NULL);
++	smc_pnet_destroy_pnetids_list(net);
  }
  
-@@ -510,7 +511,7 @@ static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
- 	bool invert;
- 	int rc = 0;
- 
--	mutex_lock(&card->conf_mutex);
-+	mutex_lock(&card->ip_lock);
- 	if (sysfs_streq(buf, "toggle")) {
- 		invert = !card->ipato.invert6;
- 	} else if (kstrtobool(buf, &invert)) {
-@@ -520,12 +521,11 @@ static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
- 
- 	if (card->ipato.invert6 != invert) {
- 		card->ipato.invert6 = invert;
--		mutex_lock(&card->ip_lock);
- 		qeth_l3_update_ipato(card);
--		mutex_unlock(&card->ip_lock);
- 	}
-+
- out:
--	mutex_unlock(&card->conf_mutex);
-+	mutex_unlock(&card->ip_lock);
- 	return rc ? rc : count;
+ void smc_pnet_exit(void)
+@@ -772,16 +896,11 @@ void smc_pnet_exit(void)
+ 	genl_unregister_family(&smc_pnet_nl_family);
  }
  
+-/* Determine one base device for stacked net devices.
+- * If the lower device level contains more than one devices
+- * (for instance with bonding slaves), just the first device
+- * is used to reach a base device.
+- */
+-static struct net_device *pnet_find_base_ndev(struct net_device *ndev)
++static struct net_device *__pnet_find_base_ndev(struct net_device *ndev)
+ {
+ 	int i, nest_lvl;
+ 
+-	rtnl_lock();
++	ASSERT_RTNL();
+ 	nest_lvl = ndev->lower_level;
+ 	for (i = 0; i < nest_lvl; i++) {
+ 		struct list_head *lower = &ndev->adj_list.lower;
+@@ -791,6 +910,18 @@ static struct net_device *pnet_find_base_ndev(struct net_device *ndev)
+ 		lower = lower->next;
+ 		ndev = netdev_lower_get_next(ndev, &lower);
+ 	}
++	return ndev;
++}
++
++/* Determine one base device for stacked net devices.
++ * If the lower device level contains more than one devices
++ * (for instance with bonding slaves), just the first device
++ * is used to reach a base device.
++ */
++static struct net_device *pnet_find_base_ndev(struct net_device *ndev)
++{
++	rtnl_lock();
++	ndev = __pnet_find_base_ndev(ndev);
+ 	rtnl_unlock();
+ 	return ndev;
+ }
+diff --git a/net/smc/smc_pnet.h b/net/smc/smc_pnet.h
+index 811a65986691..677a47ac158e 100644
+--- a/net/smc/smc_pnet.h
++++ b/net/smc/smc_pnet.h
+@@ -12,6 +12,8 @@
+ #ifndef _SMC_PNET_H
+ #define _SMC_PNET_H
+ 
++#include <net/smc.h>
++
+ #if IS_ENABLED(CONFIG_HAVE_PNETID)
+ #include <asm/pnet.h>
+ #endif
+@@ -31,6 +33,17 @@ struct smc_pnettable {
+ 	struct list_head pnetlist;
+ };
+ 
++struct smc_pnetids_ndev {	/* list of pnetids for net devices in UP state*/
++	struct list_head	list;
++	rwlock_t		lock;
++};
++
++struct smc_pnetids_ndev_entry {
++	struct list_head	list;
++	u8			pnetid[SMC_MAX_PNETID_LEN];
++	refcount_t		refcnt;
++};
++
+ static inline int smc_pnetid_by_dev_port(struct device *dev,
+ 					 unsigned short port, u8 *pnetid)
+ {
+@@ -52,4 +65,5 @@ int smc_pnetid_by_table_smcd(struct smcd_dev *smcd);
+ void smc_pnet_find_alt_roce(struct smc_link_group *lgr,
+ 			    struct smc_init_info *ini,
+ 			    struct smc_ib_device *known_dev);
++bool smc_pnet_is_ndev_pnetid(struct net *net, u8 *pnetid);
+ #endif
 -- 
 2.17.1
