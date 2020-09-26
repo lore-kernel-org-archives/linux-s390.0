@@ -1,541 +1,385 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 3/9] iov_iter: refactor rw_copy_check_uvector and import_iovec
-Date: Wed, 23 Sep 2020 08:05:41 +0200
-Message-Id: <20200923060547.16903-4-hch@lst.de>
-In-Reply-To: <20200923060547.16903-1-hch@lst.de>
-References: <20200923060547.16903-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20909 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727072AbgIZKo4 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 26 Sep 2020 06:44:56 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 05/14] net/smc: prepare for more proposed ISM devices
+Date: Sat, 26 Sep 2020 12:44:23 +0200
+Message-Id: <20200926104432.74293-6-kgraul@linux.ibm.com>
+In-Reply-To: <20200926104432.74293-1-kgraul@linux.ibm.com>
+References: <20200926104432.74293-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Split rw_copy_check_uvector into two new helpers with more sensible
-calling conventions:
+From: Ursula Braun <ubraun@linux.ibm.com>
 
- - iovec_from_user copies a iovec from userspace either into the provided
-   stack buffer if it fits, or allocates a new buffer for it.  Returns
-   the actually used iovec.  It also verifies that iov_len does fit a
-   signed type, and handles compat iovecs if the compat flag is set.
- - __import_iovec consolidates the native and compat versions of
-   import_iovec. It calls iovec_from_user, then validates each iovec
-   actually points to user addresses, and ensures the total length
-   doesn't overflow.
+SMCD Version 2 allows proposing of up to 8 ISM devices in addition
+to the native ISM device of SMCD Version 1.
+This patch prepares the struct smc_init_info to deal with these
+additional 8 ISM devices.
 
-This has two major implications:
-
- - the access_process_vm case loses the total lenght checking, which
-   wasn't required anyway, given that each call receives two iovecs
-   for the local and remote side of the operation, and it verifies
-   the total length on the local side already.
- - instead of a single loop there now are two loops over the iovecs.
-   Given that the iovecs are cache hot this doesn't make a major
-   difference
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- include/linux/compat.h |   6 -
- include/linux/fs.h     |  13 --
- include/linux/uio.h    |  12 +-
- lib/iov_iter.c         | 300 ++++++++++++++++-------------------------
- mm/process_vm_access.c |  34 +++--
- 5 files changed, 138 insertions(+), 227 deletions(-)
+ net/smc/af_smc.c   | 72 +++++++++++++++++++++++++++++-----------------
+ net/smc/smc.h      |  4 +++
+ net/smc/smc_clc.c  |  2 +-
+ net/smc/smc_core.c | 23 ++++++++-------
+ net/smc/smc_core.h |  4 +--
+ net/smc/smc_pnet.c |  8 +++---
+ 6 files changed, 69 insertions(+), 44 deletions(-)
 
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 654c1ec36671a4..b930de791ff16b 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -451,12 +451,6 @@ extern long compat_arch_ptrace(struct task_struct *child, compat_long_t request,
- 
- struct epoll_event;	/* fortunately, this one is fixed-layout */
- 
--extern ssize_t compat_rw_copy_check_uvector(int type,
--		const struct compat_iovec __user *uvector,
--		unsigned long nr_segs,
--		unsigned long fast_segs, struct iovec *fast_pointer,
--		struct iovec **ret_pointer);
--
- extern void __user *compat_alloc_user_space(unsigned long len);
- 
- int compat_restore_altstack(const compat_stack_t __user *uss);
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 7519ae003a082c..e69b45b6cc7b5f 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -178,14 +178,6 @@ typedef int (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
- /* File supports async buffered reads */
- #define FMODE_BUF_RASYNC	((__force fmode_t)0x40000000)
- 
--/*
-- * Flag for rw_copy_check_uvector and compat_rw_copy_check_uvector
-- * that indicates that they should check the contents of the iovec are
-- * valid, but not check the memory that the iovec elements
-- * points too.
-- */
--#define CHECK_IOVEC_ONLY -1
--
- /*
-  * Attribute flags.  These should be or-ed together to figure out what
-  * has been changed!
-@@ -1887,11 +1879,6 @@ static inline int call_mmap(struct file *file, struct vm_area_struct *vma)
- 	return file->f_op->mmap(file, vma);
- }
- 
--ssize_t rw_copy_check_uvector(int type, const struct iovec __user * uvector,
--			      unsigned long nr_segs, unsigned long fast_segs,
--			      struct iovec *fast_pointer,
--			      struct iovec **ret_pointer);
--
- extern ssize_t vfs_read(struct file *, char __user *, size_t, loff_t *);
- extern ssize_t vfs_write(struct file *, const char __user *, size_t, loff_t *);
- extern ssize_t vfs_readv(struct file *, const struct iovec __user *,
-diff --git a/include/linux/uio.h b/include/linux/uio.h
-index 3835a8a8e9eae0..92c11fe41c6228 100644
---- a/include/linux/uio.h
-+++ b/include/linux/uio.h
-@@ -266,9 +266,15 @@ bool csum_and_copy_from_iter_full(void *addr, size_t bytes, __wsum *csum, struct
- size_t hash_and_copy_to_iter(const void *addr, size_t bytes, void *hashp,
- 		struct iov_iter *i);
- 
--ssize_t import_iovec(int type, const struct iovec __user * uvector,
--		 unsigned nr_segs, unsigned fast_segs,
--		 struct iovec **iov, struct iov_iter *i);
-+struct iovec *iovec_from_user(const struct iovec __user *uvector,
-+		unsigned long nr_segs, unsigned long fast_segs,
-+		struct iovec *fast_iov, bool compat);
-+ssize_t import_iovec(int type, const struct iovec __user *uvec,
-+		 unsigned nr_segs, unsigned fast_segs, struct iovec **iovp,
-+		 struct iov_iter *i);
-+ssize_t __import_iovec(int type, const struct iovec __user *uvec,
-+		 unsigned nr_segs, unsigned fast_segs, struct iovec **iovp,
-+		 struct iov_iter *i, bool compat);
- 
- #ifdef CONFIG_COMPAT
- struct compat_iovec;
-diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-index ccea9db3f72be8..d5d8afe31fca16 100644
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -7,6 +7,7 @@
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <linux/splice.h>
-+#include <linux/compat.h>
- #include <net/checksum.h>
- #include <linux/scatterlist.h>
- #include <linux/instrumented.h>
-@@ -1650,107 +1651,133 @@ const void *dup_iter(struct iov_iter *new, struct iov_iter *old, gfp_t flags)
- }
- EXPORT_SYMBOL(dup_iter);
- 
--/**
-- * rw_copy_check_uvector() - Copy an array of &struct iovec from userspace
-- *     into the kernel and check that it is valid.
-- *
-- * @type: One of %CHECK_IOVEC_ONLY, %READ, or %WRITE.
-- * @uvector: Pointer to the userspace array.
-- * @nr_segs: Number of elements in userspace array.
-- * @fast_segs: Number of elements in @fast_pointer.
-- * @fast_pointer: Pointer to (usually small on-stack) kernel array.
-- * @ret_pointer: (output parameter) Pointer to a variable that will point to
-- *     either @fast_pointer, a newly allocated kernel array, or NULL,
-- *     depending on which array was used.
-- *
-- * This function copies an array of &struct iovec of @nr_segs from
-- * userspace into the kernel and checks that each element is valid (e.g.
-- * it does not point to a kernel address or cause overflow by being too
-- * large, etc.).
-- *
-- * As an optimization, the caller may provide a pointer to a small
-- * on-stack array in @fast_pointer, typically %UIO_FASTIOV elements long
-- * (the size of this array, or 0 if unused, should be given in @fast_segs).
-- *
-- * @ret_pointer will always point to the array that was used, so the
-- * caller must take care not to call kfree() on it e.g. in case the
-- * @fast_pointer array was used and it was allocated on the stack.
-- *
-- * Return: The total number of bytes covered by the iovec array on success
-- *   or a negative error code on error.
-- */
--ssize_t rw_copy_check_uvector(int type, const struct iovec __user *uvector,
--		unsigned long nr_segs, unsigned long fast_segs,
--		struct iovec *fast_pointer, struct iovec **ret_pointer)
-+static int copy_compat_iovec_from_user(struct iovec *iov,
-+		const struct iovec __user *uvec, unsigned long nr_segs)
-+{
-+	const struct compat_iovec __user *uiov =
-+		(const struct compat_iovec __user *)uvec;
-+	int ret = -EFAULT, i;
-+
-+	if (!user_access_begin(uvec, nr_segs * sizeof(*uvec)))
-+		return -EFAULT;
-+
-+	for (i = 0; i < nr_segs; i++) {
-+		compat_uptr_t buf;
-+		compat_ssize_t len;
-+
-+		unsafe_get_user(len, &uiov[i].iov_len, uaccess_end);
-+		unsafe_get_user(buf, &uiov[i].iov_base, uaccess_end);
-+
-+		/* check for compat_size_t not fitting in compat_ssize_t .. */
-+		if (len < 0) {
-+			ret = -EINVAL;
-+			goto uaccess_end;
-+		}
-+		iov[i].iov_base = compat_ptr(buf);
-+		iov[i].iov_len = len;
-+	}
-+
-+	ret = 0;
-+uaccess_end:
-+	user_access_end();
-+	return ret;
-+}
-+		
-+static int copy_iovec_from_user(struct iovec *iov,
-+		const struct iovec __user *uvec, unsigned long nr_segs)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 911482741224..dc0049b25bd9 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -564,7 +564,7 @@ static int smc_find_ism_device(struct smc_sock *smc, struct smc_init_info *ini)
  {
- 	unsigned long seg;
--	ssize_t ret;
--	struct iovec *iov = fast_pointer;
+ 	/* Find ISM device with same PNETID as connecting interface  */
+ 	smc_pnet_find_ism_resource(smc->clcsock->sk, ini);
+-	if (!ini->ism_dev)
++	if (!ini->ism_dev[0])
+ 		return SMC_CLC_DECL_NOSMCDDEV;
+ 	return 0;
+ }
+@@ -573,7 +573,7 @@ static int smc_find_ism_device(struct smc_sock *smc, struct smc_init_info *ini)
+ static int smc_connect_ism_vlan_setup(struct smc_sock *smc,
+ 				      struct smc_init_info *ini)
+ {
+-	if (ini->vlan_id && smc_ism_get_vlan(ini->ism_dev, ini->vlan_id))
++	if (ini->vlan_id && smc_ism_get_vlan(ini->ism_dev[0], ini->vlan_id))
+ 		return SMC_CLC_DECL_ISMVLANERR;
+ 	return 0;
+ }
+@@ -586,7 +586,7 @@ static int smc_connect_ism_vlan_cleanup(struct smc_sock *smc, bool is_smcd,
+ {
+ 	if (!is_smcd)
+ 		return 0;
+-	if (ini->vlan_id && smc_ism_put_vlan(ini->ism_dev, ini->vlan_id))
++	if (ini->vlan_id && smc_ism_put_vlan(ini->ism_dev[0], ini->vlan_id))
+ 		return SMC_CLC_DECL_CNFERR;
+ 	return 0;
+ }
+@@ -712,7 +712,7 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 	int rc = 0;
  
--	/*
--	 * SuS says "The readv() function *may* fail if the iovcnt argument
--	 * was less than or equal to 0, or greater than {IOV_MAX}.  Linux has
--	 * traditionally returned zero for zero segments, so...
--	 */
--	if (nr_segs == 0) {
--		ret = 0;
--		goto out;
-+	if (copy_from_user(iov, uvec, nr_segs * sizeof(*uvec)))
-+		return -EFAULT;
-+	for (seg = 0; seg < nr_segs; seg++) {
-+		if ((ssize_t)iov[seg].iov_len < 0)
-+			return -EINVAL;
+ 	ini->is_smcd = true;
+-	ini->ism_peer_gid = aclc->d0.gid;
++	ini->ism_peer_gid[0] = aclc->d0.gid;
+ 	ini->first_contact_peer = aclc->hdr.typev2 & SMC_FIRST_CONTACT_MASK;
+ 
+ 	/* there is only one lgr role for SMC-D; use server lock */
+@@ -754,7 +754,7 @@ static int __smc_connect(struct smc_sock *smc)
+ {
+ 	bool ism_supported = false, rdma_supported = false;
+ 	struct smc_clc_msg_accept_confirm aclc;
+-	struct smc_init_info ini = {0};
++	struct smc_init_info *ini = NULL;
+ 	int smc_type;
+ 	int rc = 0;
+ 
+@@ -769,21 +769,27 @@ static int __smc_connect(struct smc_sock *smc)
+ 	if (using_ipsec(smc))
+ 		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_IPSEC);
+ 
++	ini = kzalloc(sizeof(*ini), GFP_KERNEL);
++	if (!ini)
++		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_MEM);
++
+ 	/* get vlan id from IP device */
+-	if (smc_vlan_by_tcpsk(smc->clcsock, &ini))
++	if (smc_vlan_by_tcpsk(smc->clcsock, ini)) {
++		kfree(ini);
+ 		return smc_connect_decline_fallback(smc,
+ 						    SMC_CLC_DECL_GETVLANERR);
++	}
+ 
+ 	/* check if there is an ism device available */
+-	if (!smc_find_ism_device(smc, &ini) &&
+-	    !smc_connect_ism_vlan_setup(smc, &ini)) {
++	if (!smc_find_ism_device(smc, ini) &&
++	    !smc_connect_ism_vlan_setup(smc, ini)) {
+ 		/* ISM is supported for this connection */
+ 		ism_supported = true;
+ 		smc_type = SMC_TYPE_D;
  	}
  
-+	return 0;
-+}
-+
-+struct iovec *iovec_from_user(const struct iovec __user *uvec,
-+		unsigned long nr_segs, unsigned long fast_segs,
-+		struct iovec *fast_iov, bool compat)
-+{
-+	struct iovec *iov = fast_iov;
-+	int ret;
-+
- 	/*
--	 * First get the "struct iovec" from user memory and
--	 * verify all the pointers
-+	 * SuS says "The readv() function *may* fail if the iovcnt argument was
-+	 * less than or equal to 0, or greater than {IOV_MAX}.  Linux has
-+	 * traditionally returned zero for zero segments, so...
- 	 */
--	if (nr_segs > UIO_MAXIOV) {
--		ret = -EINVAL;
--		goto out;
--	}
-+	if (nr_segs == 0)
-+		return iov;
-+	if (nr_segs > UIO_MAXIOV)
-+		return ERR_PTR(-EINVAL);
- 	if (nr_segs > fast_segs) {
- 		iov = kmalloc_array(nr_segs, sizeof(struct iovec), GFP_KERNEL);
--		if (iov == NULL) {
--			ret = -ENOMEM;
--			goto out;
--		}
-+		if (!iov)
-+			return ERR_PTR(-ENOMEM);
+ 	/* check if there is a rdma device available */
+-	if (!smc_find_rdma_device(smc, &ini)) {
++	if (!smc_find_rdma_device(smc, ini)) {
+ 		/* RDMA is supported for this connection */
+ 		rdma_supported = true;
+ 		if (ism_supported)
+@@ -793,29 +799,34 @@ static int __smc_connect(struct smc_sock *smc)
  	}
--	if (copy_from_user(iov, uvector, nr_segs*sizeof(*uvector))) {
--		ret = -EFAULT;
--		goto out;
-+
-+	if (compat)
-+		ret = copy_compat_iovec_from_user(iov, uvec, nr_segs);
-+	else
-+		ret = copy_iovec_from_user(iov, uvec, nr_segs);
-+	if (ret) {
-+		if (iov != fast_iov)
-+			kfree(iov);
-+		return ERR_PTR(ret);
+ 
+ 	/* if neither ISM nor RDMA are supported, fallback */
+-	if (!rdma_supported && !ism_supported)
++	if (!rdma_supported && !ism_supported) {
++		kfree(ini);
+ 		return smc_connect_decline_fallback(smc, SMC_CLC_DECL_NOSMCDEV);
++	}
+ 
+ 	/* perform CLC handshake */
+-	rc = smc_connect_clc(smc, smc_type, &aclc, &ini);
++	rc = smc_connect_clc(smc, smc_type, &aclc, ini);
+ 	if (rc) {
+-		smc_connect_ism_vlan_cleanup(smc, ism_supported, &ini);
++		smc_connect_ism_vlan_cleanup(smc, ism_supported, ini);
++		kfree(ini);
+ 		return smc_connect_decline_fallback(smc, rc);
+ 	}
+ 
+ 	/* depending on previous steps, connect using rdma or ism */
+ 	if (rdma_supported && aclc.hdr.typev1 == SMC_TYPE_R)
+-		rc = smc_connect_rdma(smc, &aclc, &ini);
++		rc = smc_connect_rdma(smc, &aclc, ini);
+ 	else if (ism_supported && aclc.hdr.typev1 == SMC_TYPE_D)
+-		rc = smc_connect_ism(smc, &aclc, &ini);
++		rc = smc_connect_ism(smc, &aclc, ini);
+ 	else
+ 		rc = SMC_CLC_DECL_MODEUNSUPP;
+ 	if (rc) {
+-		smc_connect_ism_vlan_cleanup(smc, ism_supported, &ini);
++		smc_connect_ism_vlan_cleanup(smc, ism_supported, ini);
++		kfree(ini);
+ 		return smc_connect_decline_fallback(smc, rc);
+ 	}
+ 
+-	smc_connect_ism_vlan_cleanup(smc, ism_supported, &ini);
++	smc_connect_ism_vlan_cleanup(smc, ism_supported, ini);
++	kfree(ini);
+ 	return 0;
+ }
+ 
+@@ -1219,14 +1230,14 @@ static void smc_find_ism_device_serv(struct smc_sock *new_smc,
+ 	if (!smcd_indicated(pclc->hdr.typev1))
+ 		goto not_found;
+ 	ini->is_smcd = true; /* prepare ISM check */
+-	ini->ism_peer_gid = pclc_smcd->gid;
++	ini->ism_peer_gid[0] = pclc_smcd->gid;
+ 	if (smc_find_ism_device(new_smc, ini))
+ 		goto not_found;
+ 	if (!smc_listen_ism_init(new_smc, ini))
+ 		return;		/* ISM device found */
+ 
+ not_found:
+-	ini->ism_dev = NULL;
++	ini->ism_dev[0] = NULL;
+ 	ini->is_smcd = false;
+ }
+ 
+@@ -1319,7 +1330,7 @@ static void smc_listen_work(struct work_struct *work)
+ 	struct smc_clc_msg_accept_confirm cclc;
+ 	struct smc_clc_msg_proposal_area *buf;
+ 	struct smc_clc_msg_proposal *pclc;
+-	struct smc_init_info ini = {0};
++	struct smc_init_info *ini = NULL;
+ 	int rc = 0;
+ 
+ 	if (new_smc->listen_smc->sk.sk_state != SMC_LISTEN)
+@@ -1363,8 +1374,14 @@ static void smc_listen_work(struct work_struct *work)
+ 	if (rc)
+ 		goto out_decl;
+ 
++	ini = kzalloc(sizeof(*ini), GFP_KERNEL);
++	if (!ini) {
++		rc = SMC_CLC_DECL_MEM;
++		goto out_decl;
 +	}
 +
-+	return iov;
-+}
-+
-+ssize_t __import_iovec(int type, const struct iovec __user *uvec,
-+		 unsigned nr_segs, unsigned fast_segs, struct iovec **iovp,
-+		 struct iov_iter *i, bool compat)
-+{
-+	ssize_t total_len = 0;
-+	unsigned long seg;
-+	struct iovec *iov;
-+
-+	iov = iovec_from_user(uvec, nr_segs, fast_segs, *iovp, compat);
-+	if (IS_ERR(iov)) {
-+		*iovp = NULL;
-+		return PTR_ERR(iov);
+ 	/* get vlan id from IP device */
+-	if (smc_vlan_by_tcpsk(new_smc->clcsock, &ini)) {
++	if (smc_vlan_by_tcpsk(new_smc->clcsock, ini)) {
+ 		rc = SMC_CLC_DECL_GETVLANERR;
+ 		goto out_decl;
+ 	}
+@@ -1375,32 +1392,32 @@ static void smc_listen_work(struct work_struct *work)
+ 	smc_tx_init(new_smc);
+ 
+ 	/* determine ISM or RoCE device used for connection */
+-	rc = smc_listen_find_device(new_smc, pclc, &ini);
++	rc = smc_listen_find_device(new_smc, pclc, ini);
+ 	if (rc)
+ 		goto out_unlock;
+ 
+ 	/* send SMC Accept CLC message */
+-	rc = smc_clc_send_accept(new_smc, ini.first_contact_local);
++	rc = smc_clc_send_accept(new_smc, ini->first_contact_local);
+ 	if (rc)
+ 		goto out_unlock;
+ 
+ 	/* SMC-D does not need this lock any more */
+-	if (ini.is_smcd)
++	if (ini->is_smcd)
+ 		mutex_unlock(&smc_server_lgr_pending);
+ 
+ 	/* receive SMC Confirm CLC message */
+ 	rc = smc_clc_wait_msg(new_smc, &cclc, sizeof(cclc),
+ 			      SMC_CLC_CONFIRM, CLC_WAIT_TIME);
+ 	if (rc) {
+-		if (!ini.is_smcd)
++		if (!ini->is_smcd)
+ 			goto out_unlock;
+ 		goto out_decl;
  	}
  
- 	/*
--	 * According to the Single Unix Specification we should return EINVAL
--	 * if an element length is < 0 when cast to ssize_t or if the
--	 * total length would overflow the ssize_t return value of the
--	 * system call.
-+	 * According to the Single Unix Specification we should return EINVAL if
-+	 * an element length is < 0 when cast to ssize_t or if the total length
-+	 * would overflow the ssize_t return value of the system call.
- 	 *
- 	 * Linux caps all read/write calls to MAX_RW_COUNT, and avoids the
- 	 * overflow case.
- 	 */
--	ret = 0;
- 	for (seg = 0; seg < nr_segs; seg++) {
--		void __user *buf = iov[seg].iov_base;
- 		ssize_t len = (ssize_t)iov[seg].iov_len;
+ 	/* finish worker */
+-	if (!ini.is_smcd) {
++	if (!ini->is_smcd) {
+ 		rc = smc_listen_rdma_finish(new_smc, &cclc,
+-					    ini.first_contact_local);
++					    ini->first_contact_local);
+ 		if (rc)
+ 			goto out_unlock;
+ 		mutex_unlock(&smc_server_lgr_pending);
+@@ -1412,8 +1429,9 @@ static void smc_listen_work(struct work_struct *work)
+ out_unlock:
+ 	mutex_unlock(&smc_server_lgr_pending);
+ out_decl:
+-	smc_listen_decline(new_smc, rc, ini.first_contact_local);
++	smc_listen_decline(new_smc, rc, ini ? ini->first_contact_local : 0);
+ out_free:
++	kfree(ini);
+ 	kfree(buf);
+ }
  
--		/* see if we we're about to use an invalid len or if
--		 * it's about to overflow ssize_t */
--		if (len < 0) {
--			ret = -EINVAL;
--			goto out;
-+		if (!access_ok(iov[seg].iov_base, len)) {
-+			if (iov != *iovp)
-+				kfree(iov);
-+			*iovp = NULL;
-+			return -EFAULT;
+diff --git a/net/smc/smc.h b/net/smc/smc.h
+index 2bd57e57b7e7..6c89cb80860b 100644
+--- a/net/smc/smc.h
++++ b/net/smc/smc.h
+@@ -23,6 +23,10 @@
+ #define SMCPROTO_SMC		0	/* SMC protocol, IPv4 */
+ #define SMCPROTO_SMC6		1	/* SMC protocol, IPv6 */
+ 
++#define SMC_MAX_ISM_DEVS	8	/* max # of proposed non-native ISM
++					 * devices
++					 */
++
+ extern struct proto smc_proto;
+ extern struct proto smc_proto6;
+ 
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 8ad0bbaac846..fca718836ec1 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -463,7 +463,7 @@ int smc_clc_send_proposal(struct smc_sock *smc, int smc_type,
+ 		/* add SMC-D specifics */
+ 		plen += sizeof(*pclc_smcd);
+ 		pclc_base->iparea_offset = htons(sizeof(*pclc_smcd));
+-		pclc_smcd->gid = ini->ism_dev->local_gid;
++		pclc_smcd->gid = ini->ism_dev[0]->local_gid;
+ 	}
+ 	pclc_base->hdr.length = htons(plen);
+ 
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index c811ae1a8add..26db5ef01842 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -375,7 +375,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	int i;
+ 
+ 	if (ini->is_smcd && ini->vlan_id) {
+-		if (smc_ism_get_vlan(ini->ism_dev, ini->vlan_id)) {
++		if (smc_ism_get_vlan(ini->ism_dev[0], ini->vlan_id)) {
+ 			rc = SMC_CLC_DECL_ISMVLANERR;
+ 			goto out;
  		}
--		if (type >= 0
--		    && unlikely(!access_ok(buf, len))) {
--			ret = -EFAULT;
--			goto out;
--		}
--		if (len > MAX_RW_COUNT - ret) {
--			len = MAX_RW_COUNT - ret;
-+
-+		if (len > MAX_RW_COUNT - total_len) {
-+			len = MAX_RW_COUNT - total_len;
- 			iov[seg].iov_len = len;
+@@ -412,13 +412,13 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	lgr->conns_all = RB_ROOT;
+ 	if (ini->is_smcd) {
+ 		/* SMC-D specific settings */
+-		get_device(&ini->ism_dev->dev);
+-		lgr->peer_gid = ini->ism_peer_gid;
+-		lgr->smcd = ini->ism_dev;
+-		lgr_list = &ini->ism_dev->lgr_list;
++		get_device(&ini->ism_dev[0]->dev);
++		lgr->peer_gid = ini->ism_peer_gid[0];
++		lgr->smcd = ini->ism_dev[0];
++		lgr_list = &ini->ism_dev[0]->lgr_list;
+ 		lgr_lock = &lgr->smcd->lgr_lock;
+ 		lgr->peer_shutdown = 0;
+-		atomic_inc(&ini->ism_dev->lgr_cnt);
++		atomic_inc(&ini->ism_dev[0]->lgr_cnt);
+ 	} else {
+ 		/* SMC-R specific settings */
+ 		lgr->role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
+@@ -449,7 +449,7 @@ static int smc_lgr_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	kfree(lgr);
+ ism_put_vlan:
+ 	if (ini->is_smcd && ini->vlan_id)
+-		smc_ism_put_vlan(ini->ism_dev, ini->vlan_id);
++		smc_ism_put_vlan(ini->ism_dev[0], ini->vlan_id);
+ out:
+ 	if (rc < 0) {
+ 		if (rc == -ENOMEM)
+@@ -1288,8 +1288,10 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	spinlock_t *lgr_lock;
+ 	int rc = 0;
+ 
+-	lgr_list = ini->is_smcd ? &ini->ism_dev->lgr_list : &smc_lgr_list.list;
+-	lgr_lock = ini->is_smcd ? &ini->ism_dev->lgr_lock : &smc_lgr_list.lock;
++	lgr_list = ini->is_smcd ? &ini->ism_dev[0]->lgr_list :
++				  &smc_lgr_list.list;
++	lgr_lock = ini->is_smcd ? &ini->ism_dev[0]->lgr_lock :
++				  &smc_lgr_list.lock;
+ 	ini->first_contact_local = 1;
+ 	role = smc->listen_smc ? SMC_SERV : SMC_CLNT;
+ 	if (role == SMC_CLNT && ini->first_contact_peer)
+@@ -1301,7 +1303,8 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
+ 	list_for_each_entry(lgr, lgr_list, list) {
+ 		write_lock_bh(&lgr->conns_lock);
+ 		if ((ini->is_smcd ?
+-		     smcd_lgr_match(lgr, ini->ism_dev, ini->ism_peer_gid) :
++		     smcd_lgr_match(lgr, ini->ism_dev[0],
++				    ini->ism_peer_gid[0]) :
+ 		     smcr_lgr_match(lgr, ini->ib_lcl, role, ini->ib_clcqpn)) &&
+ 		    !lgr->sync_err &&
+ 		    lgr->vlan_id == ini->vlan_id &&
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 37a5903789b0..ec86084b0dfd 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -301,8 +301,8 @@ struct smc_init_info {
+ 	u8			ib_port;
+ 	u32			ib_clcqpn;
+ 	/* SMC-D */
+-	u64			ism_peer_gid;
+-	struct smcd_dev		*ism_dev;
++	u64			ism_peer_gid[SMC_MAX_ISM_DEVS + 1];
++	struct smcd_dev		*ism_dev[SMC_MAX_ISM_DEVS + 1];
+ };
+ 
+ /* Find the connection associated with the given alert token in the link group.
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index 0af5b4acca30..0b0f2704026f 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -933,10 +933,10 @@ static void smc_pnet_find_ism_by_pnetid(struct net_device *ndev,
+ 	list_for_each_entry(ismdev, &smcd_dev_list.list, list) {
+ 		if (smc_pnet_match(ismdev->pnetid, ndev_pnetid) &&
+ 		    !ismdev->going_away &&
+-		    (!ini->ism_peer_gid ||
+-		     !smc_ism_cantalk(ini->ism_peer_gid, ini->vlan_id,
++		    (!ini->ism_peer_gid[0] ||
++		     !smc_ism_cantalk(ini->ism_peer_gid[0], ini->vlan_id,
+ 				      ismdev))) {
+-			ini->ism_dev = ismdev;
++			ini->ism_dev[0] = ismdev;
+ 			break;
  		}
--		ret += len;
-+		total_len += len;
  	}
--out:
--	*ret_pointer = iov;
--	return ret;
-+
-+	iov_iter_init(i, type, iov, nr_segs, total_len);
-+	if (iov == *iovp)
-+		*iovp = NULL;
-+	else
-+		*iovp = iov;
-+	return total_len;
- }
- 
- /**
-@@ -1759,10 +1786,10 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user *uvector,
-  *     &struct iov_iter iterator to access it.
-  *
-  * @type: One of %READ or %WRITE.
-- * @uvector: Pointer to the userspace array.
-+ * @uvec: Pointer to the userspace array.
-  * @nr_segs: Number of elements in userspace array.
-  * @fast_segs: Number of elements in @iov.
-- * @iov: (input and output parameter) Pointer to pointer to (usually small
-+ * @iovp: (input and output parameter) Pointer to pointer to (usually small
-  *     on-stack) kernel array.
-  * @i: Pointer to iterator that will be initialized on success.
-  *
-@@ -1775,120 +1802,21 @@ ssize_t rw_copy_check_uvector(int type, const struct iovec __user *uvector,
-  *
-  * Return: Negative error code on error, bytes imported on success
-  */
--ssize_t import_iovec(int type, const struct iovec __user * uvector,
-+ssize_t import_iovec(int type, const struct iovec __user *uvec,
- 		 unsigned nr_segs, unsigned fast_segs,
--		 struct iovec **iov, struct iov_iter *i)
-+		 struct iovec **iovp, struct iov_iter *i)
+@@ -970,7 +970,7 @@ void smc_pnet_find_ism_resource(struct sock *sk, struct smc_init_info *ini)
  {
--	ssize_t n;
--	struct iovec *p;
--	n = rw_copy_check_uvector(type, uvector, nr_segs, fast_segs,
--				  *iov, &p);
--	if (n < 0) {
--		if (p != *iov)
--			kfree(p);
--		*iov = NULL;
--		return n;
--	}
--	iov_iter_init(i, type, p, nr_segs, n);
--	*iov = p == *iov ? NULL : p;
--	return n;
-+	return __import_iovec(type, uvec, nr_segs, fast_segs, iovp, i, false);
- }
- EXPORT_SYMBOL(import_iovec);
+ 	struct dst_entry *dst = sk_dst_get(sk);
  
- #ifdef CONFIG_COMPAT
--#include <linux/compat.h>
--
--ssize_t compat_rw_copy_check_uvector(int type,
--		const struct compat_iovec __user *uvector,
--		unsigned long nr_segs, unsigned long fast_segs,
--		struct iovec *fast_pointer, struct iovec **ret_pointer)
--{
--	compat_ssize_t tot_len;
--	struct iovec *iov = *ret_pointer = fast_pointer;
--	ssize_t ret = 0;
--	int seg;
--
--	/*
--	 * SuS says "The readv() function *may* fail if the iovcnt argument
--	 * was less than or equal to 0, or greater than {IOV_MAX}.  Linux has
--	 * traditionally returned zero for zero segments, so...
--	 */
--	if (nr_segs == 0)
--		goto out;
--
--	ret = -EINVAL;
--	if (nr_segs > UIO_MAXIOV)
--		goto out;
--	if (nr_segs > fast_segs) {
--		ret = -ENOMEM;
--		iov = kmalloc_array(nr_segs, sizeof(struct iovec), GFP_KERNEL);
--		if (iov == NULL)
--			goto out;
--	}
--	*ret_pointer = iov;
--
--	ret = -EFAULT;
--	if (!access_ok(uvector, nr_segs*sizeof(*uvector)))
--		goto out;
--
--	/*
--	 * Single unix specification:
--	 * We should -EINVAL if an element length is not >= 0 and fitting an
--	 * ssize_t.
--	 *
--	 * In Linux, the total length is limited to MAX_RW_COUNT, there is
--	 * no overflow possibility.
--	 */
--	tot_len = 0;
--	ret = -EINVAL;
--	for (seg = 0; seg < nr_segs; seg++) {
--		compat_uptr_t buf;
--		compat_ssize_t len;
--
--		if (__get_user(len, &uvector->iov_len) ||
--		   __get_user(buf, &uvector->iov_base)) {
--			ret = -EFAULT;
--			goto out;
--		}
--		if (len < 0)	/* size_t not fitting in compat_ssize_t .. */
--			goto out;
--		if (type >= 0 &&
--		    !access_ok(compat_ptr(buf), len)) {
--			ret = -EFAULT;
--			goto out;
--		}
--		if (len > MAX_RW_COUNT - tot_len)
--			len = MAX_RW_COUNT - tot_len;
--		tot_len += len;
--		iov->iov_base = compat_ptr(buf);
--		iov->iov_len = (compat_size_t) len;
--		uvector++;
--		iov++;
--	}
--	ret = tot_len;
--
--out:
--	return ret;
--}
--
--ssize_t compat_import_iovec(int type,
--		const struct compat_iovec __user * uvector,
--		unsigned nr_segs, unsigned fast_segs,
--		struct iovec **iov, struct iov_iter *i)
-+ssize_t compat_import_iovec(int type, const struct compat_iovec __user *uvec,
-+		unsigned nr_segs, unsigned fast_segs, struct iovec **iovp,
-+		struct iov_iter *i)
- {
--	ssize_t n;
--	struct iovec *p;
--	n = compat_rw_copy_check_uvector(type, uvector, nr_segs, fast_segs,
--				  *iov, &p);
--	if (n < 0) {
--		if (p != *iov)
--			kfree(p);
--		*iov = NULL;
--		return n;
--	}
--	iov_iter_init(i, type, p, nr_segs, n);
--	*iov = p == *iov ? NULL : p;
--	return n;
-+	return __import_iovec(type, (const struct iovec __user *)uvec, nr_segs,
-+			     fast_segs, iovp, i, true);
- }
- EXPORT_SYMBOL(compat_import_iovec);
- #endif
-diff --git a/mm/process_vm_access.c b/mm/process_vm_access.c
-index 29c052099affdc..5e728c20c2bead 100644
---- a/mm/process_vm_access.c
-+++ b/mm/process_vm_access.c
-@@ -276,20 +276,17 @@ static ssize_t process_vm_rw(pid_t pid,
- 	if (rc < 0)
- 		return rc;
- 	if (!iov_iter_count(&iter))
--		goto free_iovecs;
--
--	rc = rw_copy_check_uvector(CHECK_IOVEC_ONLY, rvec, riovcnt, UIO_FASTIOV,
--				   iovstack_r, &iov_r);
--	if (rc <= 0)
--		goto free_iovecs;
--
-+		goto free_iov_l;
-+	iov_r = iovec_from_user(rvec, riovcnt, UIO_FASTIOV, iovstack_r, false);
-+	if (IS_ERR(iov_r)) {
-+		rc = PTR_ERR(iov_r);
-+		goto free_iov_l;
-+	}
- 	rc = process_vm_rw_core(pid, &iter, iov_r, riovcnt, flags, vm_write);
--
--free_iovecs:
- 	if (iov_r != iovstack_r)
- 		kfree(iov_r);
-+free_iov_l:
- 	kfree(iov_l);
--
- 	return rc;
- }
- 
-@@ -333,18 +330,17 @@ compat_process_vm_rw(compat_pid_t pid,
- 	if (rc < 0)
- 		return rc;
- 	if (!iov_iter_count(&iter))
--		goto free_iovecs;
--	rc = compat_rw_copy_check_uvector(CHECK_IOVEC_ONLY, rvec, riovcnt,
--					  UIO_FASTIOV, iovstack_r,
--					  &iov_r);
--	if (rc <= 0)
--		goto free_iovecs;
--
-+		goto free_iov_l;
-+	iov_r = iovec_from_user((const struct iovec __user *)rvec, riovcnt,
-+				UIO_FASTIOV, iovstack_r, true);
-+	if (IS_ERR(iov_r)) {
-+		rc = PTR_ERR(iov_r);
-+		goto free_iov_l;
-+	}
- 	rc = process_vm_rw_core(pid, &iter, iov_r, riovcnt, flags, vm_write);
--
--free_iovecs:
- 	if (iov_r != iovstack_r)
- 		kfree(iov_r);
-+free_iov_l:
- 	kfree(iov_l);
- 	return rc;
- }
+-	ini->ism_dev = NULL;
++	ini->ism_dev[0] = NULL;
+ 	if (!dst)
+ 		goto out;
+ 	if (!dst->dev)
 -- 
-2.28.0
+2.17.1
