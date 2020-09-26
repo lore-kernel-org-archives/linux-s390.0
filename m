@@ -1,39 +1,106 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:12724 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726393AbgIPGVA (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 16 Sep 2020 02:21:00 -0400
-From: Qinglang Miao <miaoqinglang@huawei.com>
-Subject: [PATCH -next] s390/ap: remove unnecessary spin_lock_init()
-Date: Wed, 16 Sep 2020 14:21:30 +0800
-Message-ID: <20200916062130.190910-1-miaoqinglang@huawei.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-Sender: linux-s390-owner@vger.kernel.org
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31606 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727001AbgIZKoz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 26 Sep 2020 06:44:55 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 04/14] net/smc: split CLC confirm/accept data to be sent
+Date: Sat, 26 Sep 2020 12:44:22 +0200
+Message-Id: <20200926104432.74293-5-kgraul@linux.ibm.com>
+In-Reply-To: <20200926104432.74293-1-kgraul@linux.ibm.com>
+References: <20200926104432.74293-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-The spinlock ap_poll_timer_lock is initialized statically. It is
-unnecessary to initialize by spin_lock_init().
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+When sending CLC confirm and CLC accept, separate the trailing
+part of the message from the initial part (to be prepared for
+future first contact extension).
+
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/crypto/ap_bus.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/smc/smc_clc.c | 21 ++++++++++++++-------
+ net/smc/smc_clc.h |  6 +-----
+ 2 files changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 24a1940b8..231a98c91 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -1575,7 +1575,6 @@ static int __init ap_module_init(void)
- 	 */
- 	if (MACHINE_IS_VM)
- 		poll_timeout = 1500000;
--	spin_lock_init(&ap_poll_timer_lock);
- 	hrtimer_init(&ap_poll_timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
- 	ap_poll_timer.function = ap_poll_timeout;
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 85b41c125368..8ad0bbaac846 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -505,8 +505,10 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 				       int first_contact)
+ {
+ 	struct smc_connection *conn = &smc->conn;
++	struct smc_clc_msg_trail trl;
++	struct kvec vec[2];
+ 	struct msghdr msg;
+-	struct kvec vec;
++	int i;
  
+ 	/* send SMC Confirm CLC msg */
+ 	clc->hdr.version = SMC_V1;		/* SMC version */
+@@ -523,7 +525,7 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 		clc->d0.dmbe_size = conn->rmbe_size_short;
+ 		clc->d0.dmbe_idx = 0;
+ 		memcpy(&clc->d0.linkid, conn->lgr->id, SMC_LGR_ID_SIZE);
+-		memcpy(clc->d0.smcd_trl.eyecatcher, SMCD_EYECATCHER,
++		memcpy(trl.eyecatcher, SMCD_EYECATCHER,
+ 		       sizeof(SMCD_EYECATCHER));
+ 	} else {
+ 		struct smc_link *link = conn->lnk;
+@@ -556,14 +558,19 @@ static int smc_clc_send_confirm_accept(struct smc_sock *smc,
+ 		clc->r0.rmb_dma_addr = cpu_to_be64((u64)sg_dma_address
+ 				(conn->rmb_desc->sgt[link->link_idx].sgl));
+ 		hton24(clc->r0.psn, link->psn_initial);
+-		memcpy(clc->r0.smcr_trl.eyecatcher, SMC_EYECATCHER,
+-		       sizeof(SMC_EYECATCHER));
++		memcpy(trl.eyecatcher, SMC_EYECATCHER, sizeof(SMC_EYECATCHER));
+ 	}
+ 
+ 	memset(&msg, 0, sizeof(msg));
+-	vec.iov_base = clc;
+-	vec.iov_len = ntohs(clc->hdr.length);
+-	return kernel_sendmsg(smc->clcsock, &msg, &vec, 1,
++	i = 0;
++	vec[i].iov_base = clc;
++	vec[i++].iov_len = (clc->hdr.typev1 == SMC_TYPE_D ?
++			    SMCD_CLC_ACCEPT_CONFIRM_LEN :
++			    SMCR_CLC_ACCEPT_CONFIRM_LEN) -
++			   sizeof(trl);
++	vec[i].iov_base = &trl;
++	vec[i++].iov_len = sizeof(trl);
++	return kernel_sendmsg(smc->clcsock, &msg, vec, 1,
+ 			      ntohs(clc->hdr.length));
+ }
+ 
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index 5f9fda15f7ff..c4644d14beae 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -134,8 +134,6 @@ struct smcr_clc_msg_accept_confirm {	/* SMCR accept/confirm */
+ 	__be64 rmb_dma_addr;	/* RMB virtual address */
+ 	u8 reserved2;
+ 	u8 psn[3];		/* packet sequence number */
+-	struct smc_clc_msg_trail smcr_trl;
+-				/* eye catcher "SMCR" EBCDIC */
+ } __packed;
+ 
+ struct smcd_clc_msg_accept_confirm {	/* SMCD accept/confirm */
+@@ -150,10 +148,8 @@ struct smcd_clc_msg_accept_confirm {	/* SMCD accept/confirm */
+ 	   dmbe_size : 4;
+ #endif
+ 	u16 reserved4;
+-	u32 linkid;		/* Link identifier */
++	__be32 linkid;		/* Link identifier */
+ 	u32 reserved5[3];
+-	struct smc_clc_msg_trail smcd_trl;
+-				/* eye catcher "SMCD" EBCDIC */
+ } __packed;
+ 
+ struct smc_clc_msg_accept_confirm {	/* clc accept / confirm message */
 -- 
-2.23.0
+2.17.1
