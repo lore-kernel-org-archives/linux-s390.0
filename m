@@ -1,273 +1,234 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4/9] iov_iter: transparently handle compat iovecs in import_iovec
-Date: Fri, 25 Sep 2020 06:51:41 +0200
-Message-Id: <20200925045146.1283714-5-hch@lst.de>
-In-Reply-To: <20200925045146.1283714-1-hch@lst.de>
-References: <20200925045146.1283714-1-hch@lst.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12846 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726380AbgI1CMB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 27 Sep 2020 22:12:01 -0400
+Date: Mon, 28 Sep 2020 04:11:00 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v10 14/16] s390/vfio-ap: handle AP bus scan completed
+ notification
+Message-ID: <20200928041100.14626565.pasic@linux.ibm.com>
+In-Reply-To: <20200821195616.13554-15-akrowiak@linux.ibm.com>
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+        <20200821195616.13554-15-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, David Laight <David.Laight@aculab.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Use in compat_syscall to import either native or the compat iovecs, and
-remove the now superflous compat_import_iovec.
+On Fri, 21 Aug 2020 15:56:14 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-This removes the need for special compat logic in most callers, and
-the remaining ones can still be simplified by using __import_iovec
-with a bool compat parameter.
+> Implements the driver callback invoked by the AP bus when the AP bus
+> scan has completed. Since this callback is invoked after binding the newly
+> added devices to their respective device drivers, the vfio_ap driver will
+> attempt to plug the adapters, domains and control domains into each guest
+> using a matrix mdev to which they are assigned. Keep in mind that an
+> adapter or domain can be plugged in only if each APQN with the APID of the
+> adapter or the APQI of the domain references a queue device bound to the
+> vfio_ap device driver. Consequently, not all newly added adapters and
+> domains will necessarily get hot plugged.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/vfio_ap_drv.c     |   1 +
+>  drivers/s390/crypto/vfio_ap_ops.c     | 110 +++++++++++++++++++++++++-
+>  drivers/s390/crypto/vfio_ap_private.h |   2 +
+>  3 files changed, 110 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+> index ea0a7603e886..21bfae928be5 100644
+> --- a/drivers/s390/crypto/vfio_ap_drv.c
+> +++ b/drivers/s390/crypto/vfio_ap_drv.c
+> @@ -180,6 +180,7 @@ static int __init vfio_ap_init(void)
+>  	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
+>  	vfio_ap_drv.ids = ap_queue_ids;
+>  	vfio_ap_drv.on_config_changed = vfio_ap_on_cfg_changed;
+> +	vfio_ap_drv.on_scan_complete = vfio_ap_on_scan_complete;
+>  
+>  	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
+>  	if (ret) {
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index e002d556abab..e6480f31a42b 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -616,14 +616,13 @@ static bool vfio_ap_mdev_config_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
+>  		 * CRYCB after filtering, then try filtering the APQIs.
+>  		 */
+>  		if (napm == 0) {
+> -			naqm = vfio_ap_mdev_filter_matrix(matrix_mdev,
+> -							  &shadow_apcb, false);
+> -
+>  			/*
+>  			 * If there are no APQNs that can be assigned to the
+>  			 * matrix mdev after filtering the APQIs, then no APQNs
+>  			 * shall be assigned to the guest's CRYCB.
+>  			 */
+> +			naqm = vfio_ap_mdev_filter_matrix(matrix_mdev,
+> +							  &shadow_apcb, false);
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/scsi_ioctl.c     | 12 ++----------
- drivers/scsi/sg.c      |  9 +--------
- fs/aio.c               |  8 ++------
- fs/io_uring.c          | 20 ++++++++------------
- fs/read_write.c        |  6 ++++--
- fs/splice.c            |  2 +-
- include/linux/uio.h    |  8 --------
- lib/iov_iter.c         | 14 ++------------
- mm/process_vm_access.c |  3 ++-
- net/compat.c           |  4 ++--
- security/keys/compat.c |  5 ++---
- 11 files changed, 26 insertions(+), 65 deletions(-)
+Here you just moved the thing around the comment, or?
 
-diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
-index ef722f04f88a93..e08df86866ee5d 100644
---- a/block/scsi_ioctl.c
-+++ b/block/scsi_ioctl.c
-@@ -333,16 +333,8 @@ static int sg_io(struct request_queue *q, struct gendisk *bd_disk,
- 		struct iov_iter i;
- 		struct iovec *iov = NULL;
- 
--#ifdef CONFIG_COMPAT
--		if (in_compat_syscall())
--			ret = compat_import_iovec(rq_data_dir(rq),
--				   hdr->dxferp, hdr->iovec_count,
--				   0, &iov, &i);
--		else
--#endif
--			ret = import_iovec(rq_data_dir(rq),
--				   hdr->dxferp, hdr->iovec_count,
--				   0, &iov, &i);
-+		ret = import_iovec(rq_data_dir(rq), hdr->dxferp,
-+				   hdr->iovec_count, 0, &iov, &i);
- 		if (ret < 0)
- 			goto out_free_cdb;
- 
-diff --git a/drivers/scsi/sg.c b/drivers/scsi/sg.c
-index 20472aaaf630a4..bfa8d77322d732 100644
---- a/drivers/scsi/sg.c
-+++ b/drivers/scsi/sg.c
-@@ -1820,14 +1820,7 @@ sg_start_req(Sg_request *srp, unsigned char *cmd)
- 		struct iovec *iov = NULL;
- 		struct iov_iter i;
- 
--#ifdef CONFIG_COMPAT
--		if (in_compat_syscall())
--			res = compat_import_iovec(rw, hp->dxferp, iov_count,
--						  0, &iov, &i);
--		else
--#endif
--			res = import_iovec(rw, hp->dxferp, iov_count,
--					   0, &iov, &i);
-+		res = import_iovec(rw, hp->dxferp, iov_count, 0, &iov, &i);
- 		if (res < 0)
- 			return res;
- 
-diff --git a/fs/aio.c b/fs/aio.c
-index d5ec303855669d..c45c20d875388c 100644
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -1489,12 +1489,8 @@ static ssize_t aio_setup_rw(int rw, const struct iocb *iocb,
- 		*iovec = NULL;
- 		return ret;
- 	}
--#ifdef CONFIG_COMPAT
--	if (compat)
--		return compat_import_iovec(rw, buf, len, UIO_FASTIOV, iovec,
--				iter);
--#endif
--	return import_iovec(rw, buf, len, UIO_FASTIOV, iovec, iter);
-+
-+	return __import_iovec(rw, buf, len, UIO_FASTIOV, iovec, iter, compat);
- }
- 
- static inline void aio_rw_done(struct kiocb *req, ssize_t ret)
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 8b426aa29668cb..8c27dc28da182a 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2852,13 +2852,8 @@ static ssize_t __io_import_iovec(int rw, struct io_kiocb *req,
- 		return ret;
- 	}
- 
--#ifdef CONFIG_COMPAT
--	if (req->ctx->compat)
--		return compat_import_iovec(rw, buf, sqe_len, UIO_FASTIOV,
--						iovec, iter);
--#endif
--
--	return import_iovec(rw, buf, sqe_len, UIO_FASTIOV, iovec, iter);
-+	return __import_iovec(rw, buf, sqe_len, UIO_FASTIOV, iovec, iter,
-+			      req->ctx->compat);
- }
- 
- static ssize_t io_import_iovec(int rw, struct io_kiocb *req,
-@@ -4200,8 +4195,9 @@ static int __io_recvmsg_copy_hdr(struct io_kiocb *req,
- 				sr->len);
- 		iomsg->iov = NULL;
- 	} else {
--		ret = import_iovec(READ, uiov, iov_len, UIO_FASTIOV,
--					&iomsg->iov, &iomsg->msg.msg_iter);
-+		ret = __import_iovec(READ, uiov, iov_len, UIO_FASTIOV,
-+				     &iomsg->iov, &iomsg->msg.msg_iter,
-+				     false);
- 		if (ret > 0)
- 			ret = 0;
- 	}
-@@ -4241,9 +4237,9 @@ static int __io_compat_recvmsg_copy_hdr(struct io_kiocb *req,
- 		sr->len = iomsg->iov[0].iov_len;
- 		iomsg->iov = NULL;
- 	} else {
--		ret = compat_import_iovec(READ, uiov, len, UIO_FASTIOV,
--						&iomsg->iov,
--						&iomsg->msg.msg_iter);
-+		ret = __import_iovec(READ, (struct iovec __user *)uiov, len,
-+				   UIO_FASTIOV, &iomsg->iov,
-+				   &iomsg->msg.msg_iter, true);
- 		if (ret < 0)
- 			return ret;
- 	}
-diff --git a/fs/read_write.c b/fs/read_write.c
-index e5e891a88442ef..0a68037580b455 100644
---- a/fs/read_write.c
-+++ b/fs/read_write.c
-@@ -1078,7 +1078,8 @@ static size_t compat_readv(struct file *file,
- 	struct iov_iter iter;
- 	ssize_t ret;
- 
--	ret = compat_import_iovec(READ, vec, vlen, UIO_FASTIOV, &iov, &iter);
-+	ret = import_iovec(READ, (const struct iovec __user *)vec, vlen,
-+			   UIO_FASTIOV, &iov, &iter);
- 	if (ret >= 0) {
- 		ret = do_iter_read(file, &iter, pos, flags);
- 		kfree(iov);
-@@ -1186,7 +1187,8 @@ static size_t compat_writev(struct file *file,
- 	struct iov_iter iter;
- 	ssize_t ret;
- 
--	ret = compat_import_iovec(WRITE, vec, vlen, UIO_FASTIOV, &iov, &iter);
-+	ret = import_iovec(WRITE, (const struct iovec __user *)vec, vlen,
-+			   UIO_FASTIOV, &iov, &iter);
- 	if (ret >= 0) {
- 		file_start_write(file);
- 		ret = do_iter_write(file, &iter, pos, flags);
-diff --git a/fs/splice.c b/fs/splice.c
-index d7c8a7c4db07ff..132d42b9871f9b 100644
---- a/fs/splice.c
-+++ b/fs/splice.c
-@@ -1387,7 +1387,7 @@ COMPAT_SYSCALL_DEFINE4(vmsplice, int, fd, const struct compat_iovec __user *, io
- 	if (error)
- 		return error;
- 
--	error = compat_import_iovec(type, iov32, nr_segs,
-+	error = import_iovec(type, (struct iovec __user *)iov32, nr_segs,
- 			     ARRAY_SIZE(iovstack), &iov, &iter);
- 	if (error >= 0) {
- 		error = do_vmsplice(f.file, &iter, flags);
-diff --git a/include/linux/uio.h b/include/linux/uio.h
-index 92c11fe41c6228..daedc61ad3706e 100644
---- a/include/linux/uio.h
-+++ b/include/linux/uio.h
-@@ -275,14 +275,6 @@ ssize_t import_iovec(int type, const struct iovec __user *uvec,
- ssize_t __import_iovec(int type, const struct iovec __user *uvec,
- 		 unsigned nr_segs, unsigned fast_segs, struct iovec **iovp,
- 		 struct iov_iter *i, bool compat);
--
--#ifdef CONFIG_COMPAT
--struct compat_iovec;
--ssize_t compat_import_iovec(int type, const struct compat_iovec __user * uvector,
--		 unsigned nr_segs, unsigned fast_segs,
--		 struct iovec **iov, struct iov_iter *i);
--#endif
--
- int import_single_range(int type, void __user *buf, size_t len,
- 		 struct iovec *iov, struct iov_iter *i);
- 
-diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-index d5d8afe31fca16..8c51e1b03814a3 100644
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -1806,21 +1806,11 @@ ssize_t import_iovec(int type, const struct iovec __user *uvec,
- 		 unsigned nr_segs, unsigned fast_segs,
- 		 struct iovec **iovp, struct iov_iter *i)
- {
--	return __import_iovec(type, uvec, nr_segs, fast_segs, iovp, i, false);
-+	return __import_iovec(type, uvec, nr_segs, fast_segs, iovp, i,
-+			      in_compat_syscall());
- }
- EXPORT_SYMBOL(import_iovec);
- 
--#ifdef CONFIG_COMPAT
--ssize_t compat_import_iovec(int type, const struct compat_iovec __user *uvec,
--		unsigned nr_segs, unsigned fast_segs, struct iovec **iovp,
--		struct iov_iter *i)
--{
--	return __import_iovec(type, (const struct iovec __user *)uvec, nr_segs,
--			     fast_segs, iovp, i, true);
--}
--EXPORT_SYMBOL(compat_import_iovec);
--#endif
--
- int import_single_range(int rw, void __user *buf, size_t len,
- 		 struct iovec *iov, struct iov_iter *i)
- {
-diff --git a/mm/process_vm_access.c b/mm/process_vm_access.c
-index 5e728c20c2bead..3f2156aab44263 100644
---- a/mm/process_vm_access.c
-+++ b/mm/process_vm_access.c
-@@ -326,7 +326,8 @@ compat_process_vm_rw(compat_pid_t pid,
- 	if (flags != 0)
- 		return -EINVAL;
- 
--	rc = compat_import_iovec(dir, lvec, liovcnt, UIO_FASTIOV, &iov_l, &iter);
-+	rc = import_iovec(dir, (const struct iovec __user *)lvec, liovcnt,
-+			  UIO_FASTIOV, &iov_l, &iter);
- 	if (rc < 0)
- 		return rc;
- 	if (!iov_iter_count(&iter))
-diff --git a/net/compat.c b/net/compat.c
-index 95ce707a30a31d..ddd15af3a2837b 100644
---- a/net/compat.c
-+++ b/net/compat.c
-@@ -98,8 +98,8 @@ int get_compat_msghdr(struct msghdr *kmsg,
- 	if (err)
- 		return err;
- 
--	err = compat_import_iovec(save_addr ? READ : WRITE, compat_ptr(ptr),
--				   len, UIO_FASTIOV, iov, &kmsg->msg_iter);
-+	err = import_iovec(save_addr ? READ : WRITE, compat_ptr(ptr), len,
-+			   UIO_FASTIOV, iov, &kmsg->msg_iter);
- 	return err < 0 ? err : 0;
- }
- 
-diff --git a/security/keys/compat.c b/security/keys/compat.c
-index 6ee9d8f6a4a5bb..7ae531db031cf8 100644
---- a/security/keys/compat.c
-+++ b/security/keys/compat.c
-@@ -33,9 +33,8 @@ static long compat_keyctl_instantiate_key_iov(
- 	if (!_payload_iov)
- 		ioc = 0;
- 
--	ret = compat_import_iovec(WRITE, _payload_iov, ioc,
--				  ARRAY_SIZE(iovstack), &iov,
--				  &from);
-+	ret = import_iovec(WRITE, (const struct iovec __user *)_payload_iov,
-+			   ioc, ARRAY_SIZE(iovstack), &iov, &from);
- 	if (ret < 0)
- 		return ret;
- 
--- 
-2.28.0
+>  			if (naqm == 0) {
+>  				bitmap_clear(shadow_apcb.apm, 0, AP_DEVICES);
+>  				bitmap_clear(shadow_apcb.aqm, 0, AP_DOMAINS);
+> @@ -1758,6 +1757,16 @@ static bool vfio_ap_mdev_unassign_apids(struct ap_matrix_mdev *matrix_mdev,
+>  	for_each_set_bit_inv(apid, apm_unassign, AP_DEVICES) {
+>  		unassigned |= vfio_ap_mdev_unassign_guest_apid(matrix_mdev,
+>  							       apid);
+> +		/*
+> +		 * If the APID is not assigned to the matrix mdev's shadow
+> +		 * CRYCB, continue with the next APID.
+> +		 */
+> +		if (!test_bit_inv(apid, matrix_mdev->shadow_apcb.apm))
+> +			continue;
+> +
+> +		/* Unassign the APID from the matrix mdev's shadow CRYCB */
+> +		clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
+> +		unassigned = true;
+
+I don't understand this at all. This patch is supposed to be about
+assign and not unassign, or?
+
+>  	}
+>  
+>  	return unassigned;
+> @@ -1791,6 +1800,17 @@ static bool vfio_ap_mdev_unassign_apqis(struct ap_matrix_mdev *matrix_mdev,
+>  	for_each_set_bit_inv(apqi, aqm_unassign, AP_DOMAINS) {
+>  		unassigned |= vfio_ap_mdev_unassign_guest_apqi(matrix_mdev,
+>  							       apqi);
+> +
+> +		/*
+> +		 * If the APQI is not assigned to the matrix mdev's shadow
+> +		 * CRYCB, continue with the next APQI
+> +		 */
+> +		if (!test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
+> +			continue;
+> +
+> +		/* Unassign the APQI from the matrix mdev's shadow CRYCB */
+> +		clear_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
+> +		unassigned = true;
+>  	}
+>  
+>  	return unassigned;
+> @@ -1852,3 +1872,87 @@ void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
+>  	}
+>  	mutex_unlock(&matrix_dev->lock);
+>  }
+> +
+> +bool vfio_ap_mdev_assign_apids(struct ap_matrix_mdev *matrix_mdev,
+> +			       unsigned long *apm_assign)
+> +{
+> +	unsigned long apid;
+> +	bool assigned = false;
+> +
+> +	for_each_set_bit_inv(apid, apm_assign, AP_DEVICES)
+> +		if (test_bit_inv(apid, matrix_mdev->matrix.apm))
+> +			if (vfio_ap_mdev_assign_guest_apid(matrix_mdev, apid))
+> +				assigned = true;
+> +
+> +	return assigned;
+> +}
+> +
+> +bool vfio_ap_mdev_assign_apqis(struct ap_matrix_mdev *matrix_mdev,
+> +			       unsigned long *aqm_assign)
+> +{
+> +	unsigned long apqi;
+> +	bool assigned = false;
+> +
+> +	for_each_set_bit_inv(apqi, aqm_assign, AP_DOMAINS)
+> +		if (test_bit_inv(apqi, matrix_mdev->matrix.aqm))
+> +			if (vfio_ap_mdev_assign_guest_apqi(matrix_mdev, apqi))
+> +				assigned = true;
+> +
+> +	return assigned;
+> +}
+> +
+> +void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
+> +			      struct ap_config_info *old_config_info)
+> +{
+> +	struct ap_matrix_mdev *matrix_mdev;
+> +	DECLARE_BITMAP(apm_assign, AP_DEVICES);
+> +	DECLARE_BITMAP(aqm_assign, AP_DOMAINS);
+> +	int ap_add, aq_add;
+> +	bool assign;
+> +	unsigned long *cur_apm, *cur_aqm, *prev_apm, *prev_aqm;
+> +
+> +	/*
+> +	 * If we are not in the middle of a host configuration change scan it is
+> +	 * likely that the vfio_ap driver was loaded mid-scan, so let's handle
+> +	 * this scenario by calling the vfio_ap_on_cfg_changed function which
+> +	 * gets called at the start of an AP bus scan when the host AP
+> +	 * configuration has changed.
+> +	 */
+> +	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
+> +		vfio_ap_on_cfg_changed(new_config_info, old_config_info);
+
+Or we could just let the not-optimized variant handle it. Patch 15 has
+to take care of single queues anyway, and 13 and 14 are about avoiding
+having a bunch of updates to the CRYCB in short succession. But if we
+just loaded the module in a middle of a config changing scan, then I
+guess having a bunch of populated mdevs attached to guests is not very
+likely.
+
+> +
+> +	cur_apm = (unsigned long *)matrix_dev->config_info.apm;
+> +	cur_aqm = (unsigned long *)matrix_dev->config_info.aqm;
+> +
+> +	prev_apm = (unsigned long *)matrix_dev->config_info_prev.apm;
+> +	prev_aqm = (unsigned long *)matrix_dev->config_info_prev.aqm;
+> +
+> +	ap_add = bitmap_andnot(apm_assign, cur_apm, prev_apm, AP_DEVICES);
+> +	aq_add = bitmap_andnot(aqm_assign, cur_aqm, prev_aqm, AP_DOMAINS);
+> +
+> +	mutex_lock(&matrix_dev->lock);
+> +	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+> +		if (!vfio_ap_mdev_has_crycb(matrix_mdev))
+> +			continue;
+> +
+> +		assign = false;
+> +
+> +		if (ap_add)
+> +			if (bitmap_intersects(matrix_mdev->matrix.apm,
+> +					      apm_assign, AP_DEVICES))
+> +				assign |= vfio_ap_mdev_assign_apids(matrix_mdev,
+> +								    apm_assign);
+> +
+> +		if (aq_add)
+> +			if (bitmap_intersects(matrix_mdev->matrix.aqm,
+> +					      aqm_assign, AP_DOMAINS))
+> +				assign |= vfio_ap_mdev_assign_apqis(matrix_mdev,
+> +								    aqm_assign);
+> +
+> +		if (assign)
+> +			vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
+> +	}
+> +
+> +	matrix_dev->flags &= ~AP_MATRIX_CFG_CHG;
+> +	mutex_unlock(&matrix_dev->lock);
+> +}
+
+
+There may be a simpler and more concise way to accomplish this logic,
+but at this point I don't want to think about that. We can do
+refactoring any time we want. I'm more worried about the points I
+addressed in reference to the previous patches.
+
+Regards,
+Halil
+
+> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+> index fc8629e28ad3..da1754fd4f66 100644
+> --- a/drivers/s390/crypto/vfio_ap_private.h
+> +++ b/drivers/s390/crypto/vfio_ap_private.h
+> @@ -113,5 +113,7 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
+>  bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
+>  void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
+>  			    struct ap_config_info *old_config_info);
+> +void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
+> +			      struct ap_config_info *old_config_info);
+>  
+>  #endif /* _VFIO_AP_PRIVATE_H_ */
