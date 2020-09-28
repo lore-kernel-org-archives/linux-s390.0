@@ -1,223 +1,188 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59726 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20044 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729248AbgIHKDQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Sep 2020 06:03:16 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH v3] KVM: s390: Introduce storage key removal facility
-Date: Tue,  8 Sep 2020 06:02:49 -0400
-Message-Id: <20200908100249.23150-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+        by vger.kernel.org with ESMTP id S1726526AbgI1OXs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 28 Sep 2020 10:23:48 -0400
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 4/4] s390x: css: pv: css test adaptation for PV
+Date: Mon, 28 Sep 2020 16:23:37 +0200
+Message-Id: <1601303017-8176-5-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1601303017-8176-1-git-send-email-pmorel@linux.ibm.com>
+References: <1601303017-8176-1-git-send-email-pmorel@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: borntraeger@de.ibm.com, imbrenda@linux.ibm.com, david@redhat.com, linux-s390@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com
 
-The storage key removal facility makes skey related instructions
-result in special operation program exceptions. It is based on the
-Keyless Subset Facility.
+We want the tests to automatically work with or without protected
+virtualisation.
+To do this we need to share the I/O memory with the host.
 
-The usual suspects are iske, sske, rrbe and their respective
-variants. lpsw(e), pfmf and tprot can also specify a key and essa with
-an ORC of 4 will consult the change bit, hence they all result in
-exceptions.
+Let's replace all static allocations with dynamic allocations
+to clearly separate shared and private memory.
 
-Unfortunately storage keys were so essential to the architecture, that
-there is no facility bit that we could deactivate. That's why the
-removal facility (bit 169) was introduced which makes it necessary,
-that, if active, the skey related facilities 10, 14, 66, 145 and 149
-are zero. Managing this requirement and migratability has to be done
-in userspace, as KVM does not check the facilities it receives to be
-able to easily implement userspace emulation.
-
-Removing storage key support allows us to circumvent complicated
-emulation code and makes huge page support tremendously easier.
-
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 ---
+ lib/s390x/css.h     |  3 +--
+ lib/s390x/css_lib.c | 28 ++++++++--------------------
+ s390x/css.c         | 35 ++++++++++++++++++++++++-----------
+ 3 files changed, 33 insertions(+), 33 deletions(-)
 
-v3:
-	* Put kss handling into own function
-	* Removed some unneeded catch statements and converted others to ifs
-
-v2:
-	* Removed the likely
-	* Updated and re-shuffeled the comments which had the wrong information
-
----
- arch/s390/kvm/intercept.c | 34 +++++++++++++++++++++++++++++++++-
- arch/s390/kvm/kvm-s390.c  |  5 +++++
- arch/s390/kvm/priv.c      | 26 +++++++++++++++++++++++---
- 3 files changed, 61 insertions(+), 4 deletions(-)
-
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index e7a7c499a73f..9c699c3fcf84 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -33,6 +33,7 @@ u8 kvm_s390_get_ilen(struct kvm_vcpu *vcpu)
- 	case ICPT_OPEREXC:
- 	case ICPT_PARTEXEC:
- 	case ICPT_IOINST:
-+	case ICPT_KSS:
- 		/* instruction only stored for these icptcodes */
- 		ilen = insn_length(vcpu->arch.sie_block->ipa >> 8);
- 		/* Use the length of the EXECUTE instruction if necessary */
-@@ -531,6 +532,37 @@ static int handle_pv_notification(struct kvm_vcpu *vcpu)
- 	return handle_instruction(vcpu);
+diff --git a/lib/s390x/css.h b/lib/s390x/css.h
+index 221b67c..e3dee9f 100644
+--- a/lib/s390x/css.h
++++ b/lib/s390x/css.h
+@@ -283,8 +283,7 @@ int css_enable(int schid, int isc);
+ 
+ /* Library functions */
+ int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw);
+-int start_single_ccw(unsigned int sid, int code, void *data, int count,
+-		     unsigned char flags);
++struct ccw1 *ccw_alloc(int code, void *data, int count, unsigned char flags);
+ void css_irq_io(void);
+ int css_residual_count(unsigned int schid);
+ 
+diff --git a/lib/s390x/css_lib.c b/lib/s390x/css_lib.c
+index 8e02371..6a0a0ec 100644
+--- a/lib/s390x/css_lib.c
++++ b/lib/s390x/css_lib.c
+@@ -18,6 +18,7 @@
+ #include <asm/time.h>
+ #include <asm/arch_def.h>
+ 
++#include <malloc_io.h>
+ #include <css.h>
+ 
+ static struct schib schib;
+@@ -202,33 +203,20 @@ int start_ccw1_chain(unsigned int sid, struct ccw1 *ccw)
+ 	return ssch(sid, &orb);
  }
  
-+static int handle_kss(struct kvm_vcpu *vcpu)
-+{
-+	if (!test_kvm_facility(vcpu->kvm, 169))
-+		return kvm_s390_skey_check_enable(vcpu);
-+
-+	/*
-+	 * Storage key removal facility emulation.
-+	 *
-+	 * KSS is the same priority as an instruction
-+	 * interception. Hence we need handling here
-+	 * and in the instruction emulation code.
-+	 *
-+	 * KSS is nullifying (no psw forward), SKRF
-+	 * issues suppressing SPECIAL OPS, so we need
-+	 * to forward by hand.
-+	 */
-+	if  (vcpu->arch.sie_block->ipa == 0) {
-+		/*
-+		 * Interception caused by a key in a
-+		 * exception new PSW mask. The guest
-+		 * PSW has already been updated to the
-+		 * non-valid PSW so we only need to
-+		 * inject a PGM.
-+		 */
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+	}
-+
-+	kvm_s390_forward_psw(vcpu, kvm_s390_get_ilen(vcpu));
-+	return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
-+}
-+
- int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
+-/*
+- * In the future, we want to implement support for CCW chains;
+- * for that, we will need to work with ccw1 pointers.
+- */
+-static struct ccw1 unique_ccw;
+-
+-int start_single_ccw(unsigned int sid, int code, void *data, int count,
+-		     unsigned char flags)
++struct ccw1 *ccw_alloc(int code, void *data, int count, unsigned char flags)
  {
- 	int rc, per_rc = 0;
-@@ -565,7 +597,7 @@ int kvm_handle_sie_intercept(struct kvm_vcpu *vcpu)
- 		rc = handle_partial_execution(vcpu);
- 		break;
- 	case ICPT_KSS:
--		rc = kvm_s390_skey_check_enable(vcpu);
-+		rc = handle_kss(vcpu);
- 		break;
- 	case ICPT_MCHKREQ:
- 	case ICPT_INT_ENABLE:
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6b74b92c1a58..85647f19311d 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2692,6 +2692,11 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 	/* we emulate STHYI in kvm */
- 	set_kvm_facility(kvm->arch.model.fac_mask, 74);
- 	set_kvm_facility(kvm->arch.model.fac_list, 74);
-+	/* we emulate the storage key removal facility only with kss */
-+	if (sclp.has_kss) {
-+		set_kvm_facility(kvm->arch.model.fac_mask, 169);
-+		set_kvm_facility(kvm->arch.model.fac_list, 169);
-+	}
- 	if (MACHINE_HAS_TLB_GUEST) {
- 		set_kvm_facility(kvm->arch.model.fac_mask, 147);
- 		set_kvm_facility(kvm->arch.model.fac_list, 147);
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index cd74989ce0b0..5e3583b8b5e3 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -207,6 +207,13 @@ int kvm_s390_skey_check_enable(struct kvm_vcpu *vcpu)
- 	int rc;
- 
- 	trace_kvm_s390_skey_related_inst(vcpu);
+-	int cc;
+-	struct ccw1 *ccw = &unique_ccw;
++	struct ccw1 *ccw;
 +
-+	if (test_kvm_facility(vcpu->kvm, 169)) {
-+		rc = kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
-+		if (!rc)
-+			return -EOPNOTSUPP;
-+	}
++	ccw = alloc_io_page(sizeof(*ccw));
++	if (!ccw)
++		return NULL;
+ 
+-	report_prefix_push("start_subchannel");
+-	/* Build the CCW chain with a single CCW */
+ 	ccw->code = code;
+ 	ccw->flags = flags;
+ 	ccw->count = count;
+ 	ccw->data_address = (int)(unsigned long)data;
+ 
+-	cc = start_ccw1_chain(sid, ccw);
+-	if (cc) {
+-		report(0, "cc = %d", cc);
+-		report_prefix_pop();
+-		return cc;
+-	}
+-	report_prefix_pop();
+-	return 0;
++	return ccw;
+ }
+ 
+ /* wait_and_check_io_completion:
+diff --git a/s390x/css.c b/s390x/css.c
+index ee3bc83..4b0b6b1 100644
+--- a/s390x/css.c
++++ b/s390x/css.c
+@@ -17,13 +17,15 @@
+ #include <interrupt.h>
+ #include <asm/arch_def.h>
+ 
++#include <malloc_io.h>
+ #include <css.h>
++#include <asm/barrier.h>
+ 
+ #define DEFAULT_CU_TYPE		0x3832 /* virtio-ccw */
+ static unsigned long cu_type = DEFAULT_CU_TYPE;
+ 
+ static int test_device_sid;
+-static struct senseid senseid;
++static struct senseid *senseid;
+ 
+ static void test_enumerate(void)
+ {
+@@ -57,6 +59,7 @@ static void test_enable(void)
+  */
+ static void test_sense(void)
+ {
++	struct ccw1 *ccw;
+ 	int ret;
+ 	int len;
+ 
+@@ -80,9 +83,15 @@ static void test_sense(void)
+ 
+ 	lowcore_ptr->io_int_param = 0;
+ 
+-	memset(&senseid, 0, sizeof(senseid));
+-	ret = start_single_ccw(test_device_sid, CCW_CMD_SENSE_ID,
+-			       &senseid, sizeof(senseid), CCW_F_SLI);
++	senseid = alloc_io_page(sizeof(*senseid));
++	if (!senseid)
++		goto error_senseid;
 +
- 	/* Already enabled? */
- 	if (vcpu->arch.skey_enabled)
- 		return 0;
-@@ -257,7 +264,7 @@ static int handle_iske(struct kvm_vcpu *vcpu)
- 
- 	rc = try_handle_skey(vcpu);
- 	if (rc)
--		return rc != -EAGAIN ? rc : 0;
-+		return (rc != -EAGAIN || rc != -EOPNOTSUPP) ? rc : 0;
- 
- 	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
- 
-@@ -304,7 +311,7 @@ static int handle_rrbe(struct kvm_vcpu *vcpu)
- 
- 	rc = try_handle_skey(vcpu);
- 	if (rc)
--		return rc != -EAGAIN ? rc : 0;
-+		return (rc != -EAGAIN || rc != -EOPNOTSUPP) ? rc : 0;
- 
- 	kvm_s390_get_regs_rre(vcpu, &reg1, &reg2);
- 
-@@ -355,7 +362,7 @@ static int handle_sske(struct kvm_vcpu *vcpu)
- 
- 	rc = try_handle_skey(vcpu);
- 	if (rc)
--		return rc != -EAGAIN ? rc : 0;
-+		return (rc != -EAGAIN || rc != -EOPNOTSUPP) ? rc : 0;
- 
- 	if (!test_kvm_facility(vcpu->kvm, 8))
- 		m3 &= ~SSKE_MB;
-@@ -745,6 +752,8 @@ int kvm_s390_handle_lpsw(struct kvm_vcpu *vcpu)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
- 	if (!(new_psw.mask & PSW32_MASK_BASE))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-+	if (new_psw.mask & PSW32_MASK_KEY && test_kvm_facility(vcpu->kvm, 169))
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
- 	gpsw->mask = (new_psw.mask & ~PSW32_MASK_BASE) << 32;
- 	gpsw->mask |= new_psw.addr & PSW32_ADDR_AMODE;
- 	gpsw->addr = new_psw.addr & ~PSW32_ADDR_AMODE;
-@@ -771,6 +780,8 @@ static int handle_lpswe(struct kvm_vcpu *vcpu)
- 	rc = read_guest(vcpu, addr, ar, &new_psw, sizeof(new_psw));
- 	if (rc)
- 		return kvm_s390_inject_prog_cond(vcpu, rc);
-+	if ((new_psw.mask & PSW_MASK_KEY) && test_kvm_facility(vcpu->kvm, 169))
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
- 	vcpu->arch.sie_block->gpsw = new_psw;
- 	if (!is_valid_psw(&vcpu->arch.sie_block->gpsw))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
-@@ -1025,6 +1036,10 @@ static int handle_pfmf(struct kvm_vcpu *vcpu)
- 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_PSTATE)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 
-+	if (vcpu->run->s.regs.gprs[reg1] & PFMF_SK &&
-+	    test_kvm_facility(vcpu->kvm, 169))
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
++	ccw = ccw_alloc(CCW_CMD_SENSE_ID, senseid, sizeof(*senseid), CCW_F_SLI);
++	if (!ccw)
++		goto error_ccw;
 +
- 	if (vcpu->run->s.regs.gprs[reg1] & PFMF_RESERVED)
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
++	ret = start_ccw1_chain(test_device_sid, ccw);
+ 	if (ret)
+ 		goto error;
  
-@@ -1203,6 +1218,8 @@ static int handle_essa(struct kvm_vcpu *vcpu)
- 		return kvm_s390_inject_program_int(vcpu, PGM_PRIVILEGED_OP);
- 	/* Check for invalid operation request code */
- 	orc = (vcpu->arch.sie_block->ipb & 0xf0000000) >> 28;
-+	if (orc == ESSA_SET_POT_VOLATILE && test_kvm_facility(vcpu->kvm, 169))
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
- 	/* ORCs 0-6 are always valid */
- 	if (orc > (test_kvm_facility(vcpu->kvm, 147) ? ESSA_SET_STABLE_NODAT
- 						: ESSA_SET_STABLE_IF_RESIDENT))
-@@ -1451,6 +1468,9 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
+@@ -97,7 +106,7 @@ static void test_sense(void)
+ 	if (ret < 0) {
+ 		report_info("no valid residual count");
+ 	} else if (ret != 0) {
+-		len = sizeof(senseid) - ret;
++		len = sizeof(*senseid) - ret;
+ 		if (ret && len < CSS_SENSEID_COMMON_LEN) {
+ 			report(0, "transferred a too short length: %d", ret);
+ 			goto error;
+@@ -105,21 +114,25 @@ static void test_sense(void)
+ 			report_info("transferred a shorter length: %d", len);
+ 	}
  
- 	kvm_s390_get_base_disp_sse(vcpu, &address1, &address2, &ar, NULL);
+-	if (senseid.reserved != 0xff) {
+-		report(0, "transferred garbage: 0x%02x", senseid.reserved);
++	if (senseid->reserved != 0xff) {
++		report(0, "transferred garbage: 0x%02x", senseid->reserved);
+ 		goto error;
+ 	}
  
-+	if ((address2 & 0xf0) && test_kvm_facility(vcpu->kvm, 169))
-+		return kvm_s390_inject_program_int(vcpu, PGM_SPECIAL_OPERATION);
-+
- 	/* we only handle the Linux memory detection case:
- 	 * access key == 0
- 	 * everything else goes to userspace. */
+ 	report_prefix_pop();
+ 
+ 	report_info("reserved 0x%02x cu_type 0x%04x cu_model 0x%02x dev_type 0x%04x dev_model 0x%02x",
+-		    senseid.reserved, senseid.cu_type, senseid.cu_model,
+-		    senseid.dev_type, senseid.dev_model);
++		    senseid->reserved, senseid->cu_type, senseid->cu_model,
++		    senseid->dev_type, senseid->dev_model);
+ 
+-	report(senseid.cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
+-	       (uint16_t) cu_type, senseid.cu_type);
++	report(senseid->cu_type == cu_type, "cu_type expected 0x%04x got 0x%04x",
++	       (uint16_t) cu_type, senseid->cu_type);
+ 
+ error:
++	free_io_page(ccw);
++error_ccw:
++	free_io_page(senseid);
++error_senseid:
+ 	unregister_io_int_func(css_irq_io);
+ }
+ 
 -- 
 2.25.1
