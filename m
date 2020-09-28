@@ -1,62 +1,83 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:3433 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726328AbgI1US4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Sep 2020 16:18:56 -0400
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+Date: Mon, 28 Sep 2020 10:02:45 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
 Subject: Re: [PATCH 8/8] selftests/vm: hmm-tests: remove the libhugetlbfs
  dependency
+Message-ID: <20200928130245.GQ9916@ziepe.ca>
 References: <20200928062159.923212-1-jhubbard@nvidia.com>
  <20200928062159.923212-9-jhubbard@nvidia.com>
- <20200928130245.GQ9916@ziepe.ca>
-From: John Hubbard <jhubbard@nvidia.com>
-Message-ID: <982fd9bf-64cb-00e9-f092-13849c7cf7d9@nvidia.com>
-Date: Mon, 28 Sep 2020 13:18:55 -0700
 MIME-Version: 1.0
-In-Reply-To: <20200928130245.GQ9916@ziepe.ca>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200928062159.923212-9-jhubbard@nvidia.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org
+To: John Hubbard <jhubbard@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>, =?utf-8?B?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org
 
-On 9/28/20 6:02 AM, Jason Gunthorpe wrote:
-> On Sun, Sep 27, 2020 at 11:21:59PM -0700, John Hubbard wrote:
-...
->> +gcc -c $tmpfile_c -o $tmpfile_o >/dev/null 2>&1
-> 
-> This gcc has to come from some makefile variable
+On Sun, Sep 27, 2020 at 11:21:59PM -0700, John Hubbard wrote:
 
-ahem, yes, that really should have just been $(CC), will change to that.
+> @@ -76,8 +79,6 @@ TEST_FILES := test_vmalloc.sh
+>  KSFT_KHDR_INSTALL := 1
+>  include ../lib.mk
+>  
+> -$(OUTPUT)/hmm-tests: LDLIBS += -lhugetlbfs
+> -
+>  ifeq ($(ARCH),x86_64)
+>  BINARIES_32 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_32))
+>  BINARIES_64 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_64))
+> @@ -130,3 +131,22 @@ endif
+>  $(OUTPUT)/mlock-random-test: LDLIBS += -lcap
+>  
+>  $(OUTPUT)/gup_test: ../../../../mm/gup_test.h
+> +
+> +$(OUTPUT)/hmm-tests: local_config.h
+> +
+> +# HMM_EXTRA_LIBS may get set in local_config.mk, or it may be left empty.
+> +$(OUTPUT)/hmm-tests: LDLIBS += $(HMM_EXTRA_LIBS)
+> +
+> +local_config.mk local_config.h: check_config.sh
+> +	./check_config.sh
+> +
+> +EXTRA_CLEAN += local_config.mk local_config.h
+> +
+> +ifeq ($(HMM_EXTRA_LIBS),)
+> +all: warn_missing_hugelibs
+> +
+> +warn_missing_hugelibs:
+> +	@echo ; \
+> +	echo "Warning: missing libhugetlbfs support. Some HMM tests will be skipped." ; \
+> +	echo
+> +endif
+> diff --git a/tools/testing/selftests/vm/check_config.sh b/tools/testing/selftests/vm/check_config.sh
+> new file mode 100755
+> index 000000000000..651a4b192479
+> +++ b/tools/testing/selftests/vm/check_config.sh
+> @@ -0,0 +1,30 @@
+> +#!/bin/sh
+> +# SPDX-License-Identifier: GPL-2.0
+> +#
+> +# Probe for libraries and create header files to record the results. Both C
+> +# header files and Makefile include fragments are created.
+> +
+> +OUTPUT_H_FILE=local_config.h
+> +OUTPUT_MKFILE=local_config.mk
+> +
+> +# libhugetlbfs
+> +tmpname=$(mktemp)
+> +tmpfile_c=${tmpname}.c
+> +tmpfile_o=${tmpname}.o
+> +
+> +echo "#include <sys/types.h>"        > $tmpfile_c
+> +echo "#include <hugetlbfs.h>"       >> $tmpfile_c
+> +echo "int func(void) { return 0; }" >> $tmpfile_c
+> +
+> +gcc -c $tmpfile_c -o $tmpfile_o >/dev/null 2>&1
 
-> 
-> This is kind of janky :\
-> 
-> Could we just not use libhugetlbfs? Doesn't it all just boil down to
-> creating a file in /dev/huge? Eg look at tools/testing/selftests/vm/hugepage-mmap.c
-> 
+This gcc has to come from some makefile variable
 
-Well, the situation is a lot worse than that, because hmm-tests.c is using a few
-helper functions that end up pulling in more and more.
+This is kind of janky :\
 
-My first attempt was actually in your direction: just grab a bit of code from the
-library and drop it in. But that ended up turning into several pages of code from
-quite a few functions and definitions, and it was looking maybe excessive. (I
-can look at it again, though. Maybe it feels less excessive if there are no other
-acceptible alternatives.)
+Could we just not use libhugetlbfs? Doesn't it all just boil down to
+creating a file in /dev/huge? Eg look at tools/testing/selftests/vm/hugepage-mmap.c
 
-So then I thought, why not just *delete* those two routines from hmm-tests.c? But
-Ralph didn't like that because he notes that hmm_range_fault() loses some useful
-test coverage by being exercised with hugetlbfs.
-
-So finally I landed here, which is so far, the smallest change that would be
-potentially acceptible: a couple dozen lines, in order to selectively disable the
-problematic routines.
-
-Anyway, thoughts? I like the current approach but am open to anything that makes
-hmm-test Just Work for more people, on the *first* try.
-
-thanks,
--- 
-John Hubbard
-NVIDIA
+Jason
