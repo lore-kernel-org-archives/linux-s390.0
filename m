@@ -1,140 +1,82 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59354 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726487AbgIUHUH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 03:20:07 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 07/14] raw: don't keep unopened block device around
-Date: Mon, 21 Sep 2020 09:19:51 +0200
-Message-Id: <20200921071958.307589-8-hch@lst.de>
-In-Reply-To: <20200921071958.307589-1-hch@lst.de>
-References: <20200921071958.307589-1-hch@lst.de>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: John Hubbard <jhubbard@nvidia.com>
+Subject: [PATCH 0/8] selftests/vm: gup_test, hmm-tests, assorted improvements
+Date: Sun, 27 Sep 2020 23:21:51 -0700
+Message-ID: <20200928062159.923212-1-jhubbard@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
 
-Turn binding into a normal dev_t as the struct block device doesn't
-buy us anything and use blkdev_open_by_dev to actually open it.
+This is based on the latest mmotm.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/char/raw.c | 51 +++++++++++++++++-----------------------------
- 1 file changed, 19 insertions(+), 32 deletions(-)
+Summary: This series provides two main things, and a number of smaller
+supporting goodies. The two main points are:
 
-diff --git a/drivers/char/raw.c b/drivers/char/raw.c
-index ccf5bd528642da..5d52a1f4738c76 100644
---- a/drivers/char/raw.c
-+++ b/drivers/char/raw.c
-@@ -28,7 +28,8 @@
- #include <linux/uaccess.h>
- 
- struct raw_device_data {
--	struct block_device *binding;
-+	dev_t binding;
-+	struct block_device *bdev;
- 	int inuse;
- };
- 
-@@ -73,14 +74,15 @@ static int raw_open(struct inode *inode, struct file *filp)
- 	/*
- 	 * All we need to do on open is check that the device is bound.
- 	 */
--	bdev = raw_devices[minor].binding;
- 	err = -ENODEV;
--	if (!bdev)
-+	if (!raw_devices[minor].binding)
- 		goto out;
--	bdgrab(bdev);
--	err = blkdev_get(bdev, filp->f_mode | FMODE_EXCL, raw_open);
--	if (err)
-+	bdev = blkdev_get_by_dev(raw_devices[minor].binding,
-+				 filp->f_mode | FMODE_EXCL, raw_open);
-+	if (IS_ERR(bdev)) {
-+		err = PTR_ERR(bdev);
- 		goto out;
-+	}
- 	err = set_blocksize(bdev, bdev_logical_block_size(bdev));
- 	if (err)
- 		goto out1;
-@@ -90,6 +92,7 @@ static int raw_open(struct inode *inode, struct file *filp)
- 		file_inode(filp)->i_mapping =
- 			bdev->bd_inode->i_mapping;
- 	filp->private_data = bdev;
-+	raw_devices[minor].bdev = bdev;
- 	mutex_unlock(&raw_mutex);
- 	return 0;
- 
-@@ -110,7 +113,7 @@ static int raw_release(struct inode *inode, struct file *filp)
- 	struct block_device *bdev;
- 
- 	mutex_lock(&raw_mutex);
--	bdev = raw_devices[minor].binding;
-+	bdev = raw_devices[minor].bdev;
- 	if (--raw_devices[minor].inuse == 0)
- 		/* Here  inode->i_mapping == bdev->bd_inode->i_mapping  */
- 		inode->i_mapping = &inode->i_data;
-@@ -133,6 +136,7 @@ raw_ioctl(struct file *filp, unsigned int command, unsigned long arg)
- static int bind_set(int number, u64 major, u64 minor)
- {
- 	dev_t dev = MKDEV(major, minor);
-+	dev_t raw = MKDEV(RAW_MAJOR, number);
- 	struct raw_device_data *rawdev;
- 	int err = 0;
- 
-@@ -166,25 +170,17 @@ static int bind_set(int number, u64 major, u64 minor)
- 		mutex_unlock(&raw_mutex);
- 		return -EBUSY;
- 	}
--	if (rawdev->binding) {
--		bdput(rawdev->binding);
-+	if (rawdev->binding)
- 		module_put(THIS_MODULE);
--	}
-+
-+	rawdev->binding = dev;
- 	if (!dev) {
- 		/* unbind */
--		rawdev->binding = NULL;
--		device_destroy(raw_class, MKDEV(RAW_MAJOR, number));
-+		device_destroy(raw_class, raw);
- 	} else {
--		rawdev->binding = bdget(dev);
--		if (rawdev->binding == NULL) {
--			err = -ENOMEM;
--		} else {
--			dev_t raw = MKDEV(RAW_MAJOR, number);
--			__module_get(THIS_MODULE);
--			device_destroy(raw_class, raw);
--			device_create(raw_class, NULL, raw, NULL,
--				      "raw%d", number);
--		}
-+		__module_get(THIS_MODULE);
-+		device_destroy(raw_class, raw);
-+		device_create(raw_class, NULL, raw, NULL, "raw%d", number);
- 	}
- 	mutex_unlock(&raw_mutex);
- 	return err;
-@@ -192,18 +188,9 @@ static int bind_set(int number, u64 major, u64 minor)
- 
- static int bind_get(int number, dev_t *dev)
- {
--	struct raw_device_data *rawdev;
--	struct block_device *bdev;
--
- 	if (number <= 0 || number >= max_raw_minors)
- 		return -EINVAL;
--
--	rawdev = &raw_devices[number];
--
--	mutex_lock(&raw_mutex);
--	bdev = rawdev->binding;
--	*dev = bdev ? bdev->bd_dev : 0;
--	mutex_unlock(&raw_mutex);
-+	*dev = raw_devices[number].binding;
- 	return 0;
- }
- 
--- 
+1) Add a new sub-test to gup_test, which in turn is a renamed version of
+gup_benchmark. This sub-test allows nicer testing of dump_pages(), at
+least on user-space pages.
+
+For quite a while, I was doing a quick hack to gup_test.c whenever I
+wanted to try out changes to dump_page(). Then Matthew Wilcox asked me
+what I meant when I said "I used my dump_page() unit test", and I
+realized that it might be nice to check in a polished up version of
+that.
+
+Details about how it works and how to use it are in the commit
+description for patch #6.
+
+2) Fixes a limitation of hmm-tests: these tests are incredibly useful,
+but only if people actually build and run them. And it turns out that
+libhugetlbfs is a little too effective at throwing a wrench in the
+works, there. So I've added a little configuration check that removes
+just two of the 21 hmm-tests, if libhugetlbfs is not available.
+
+Further details in the commit description of patch #8.
+
+Other smaller things that this series does:
+
+a) Remove code duplication by creating gup_test.h.
+
+b) Clear up the sub-test organization, and their invocation within
+run_vmtests.sh.
+
+c) Other minor assorted improvements.
+
+John Hubbard (8):
+  mm/gup_benchmark: rename to mm/gup_test
+  selftests/vm: use a common gup_test.h
+  selftests/vm: rename run_vmtests --> run_vmtests.sh
+  selftests/vm: minor cleanup: Makefile and gup_test.c
+  selftests/vm: only some gup_test items are really benchmarks
+  selftests/vm: gup_test: introduce the dump_pages() sub-test
+  selftests/vm: run_vmtest.sh: update and clean up gup_test invocation
+  selftests/vm: hmm-tests: remove the libhugetlbfs dependency
+
+ Documentation/core-api/pin_user_pages.rst     |   6 +-
+ arch/s390/configs/debug_defconfig             |   2 +-
+ arch/s390/configs/defconfig                   |   2 +-
+ mm/Kconfig                                    |  21 +-
+ mm/Makefile                                   |   2 +-
+ mm/{gup_benchmark.c =3D> gup_test.c}            | 109 ++++++----
+ mm/gup_test.h                                 |  32 +++
+ tools/testing/selftests/vm/.gitignore         |   3 +-
+ tools/testing/selftests/vm/Makefile           |  38 +++-
+ tools/testing/selftests/vm/check_config.sh    |  30 +++
+ tools/testing/selftests/vm/config             |   2 +-
+ tools/testing/selftests/vm/gup_benchmark.c    | 137 -------------
+ tools/testing/selftests/vm/gup_test.c         | 188 ++++++++++++++++++
+ tools/testing/selftests/vm/hmm-tests.c        |  10 +-
+ .../vm/{run_vmtests =3D> run_vmtest.sh}         |  24 ++-
+ 15 files changed, 403 insertions(+), 203 deletions(-)
+ rename mm/{gup_benchmark.c =3D> gup_test.c} (59%)
+ create mode 100644 mm/gup_test.h
+ create mode 100755 tools/testing/selftests/vm/check_config.sh
+ delete mode 100644 tools/testing/selftests/vm/gup_benchmark.c
+ create mode 100644 tools/testing/selftests/vm/gup_test.c
+ rename tools/testing/selftests/vm/{run_vmtests =3D> run_vmtest.sh} (91%)
+
+--=20
 2.28.0
