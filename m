@@ -1,104 +1,233 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58004 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726401AbgIQRXn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Sep 2020 13:23:43 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 11/14] PM: rewrite is_hibernate_resume_dev to not require an inode
-Date: Thu, 17 Sep 2020 18:57:17 +0200
-Message-Id: <20200917165720.3285256-12-hch@lst.de>
-In-Reply-To: <20200917165720.3285256-1-hch@lst.de>
-References: <20200917165720.3285256-1-hch@lst.de>
+Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:4305 "EHLO
+        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726621AbgI1GWD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 28 Sep 2020 02:22:03 -0400
+From: John Hubbard <jhubbard@nvidia.com>
+Subject: [PATCH 5/8] selftests/vm: only some gup_test items are really benchmarks
+Date: Sun, 27 Sep 2020 23:21:56 -0700
+Message-ID: <20200928062159.923212-6-jhubbard@nvidia.com>
+In-Reply-To: <20200928062159.923212-1-jhubbard@nvidia.com>
+References: <20200928062159.923212-1-jhubbard@nvidia.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
 
-Just check the dev_t to help simplifying the code.
+Therefore, some minor cleanup and improvements are in order:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+1. Rename the other items appropriately.
+
+2. Stop reporting timing information on the non-benchmark items. It's
+   still being recorded and is available, but there's no point in
+   cluttering up the report with data that no one reasonably needs to
+   check.
+
+3. Don't do iterations, for non-benchmark items.
+
+4. Print out a shorter, more appropriate report for the non-benchmark
+   tests.
+
+5. Add the command that was run, to the report. This really helps, as
+   there are quite a lot of options now.
+
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
 ---
- fs/block_dev.c          |  2 +-
- include/linux/suspend.h |  4 ++--
- kernel/power/user.c     | 12 ++++++------
- 3 files changed, 9 insertions(+), 9 deletions(-)
+ Documentation/core-api/pin_user_pages.rst |  2 +-
+ mm/gup_test.c                             | 14 +++----
+ mm/gup_test.h                             |  8 ++--
+ tools/testing/selftests/vm/gup_test.c     | 47 +++++++++++++++++++----
+ 4 files changed, 51 insertions(+), 20 deletions(-)
 
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 1a9325f4315769..2898d69be6b3e4 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1885,7 +1885,7 @@ ssize_t blkdev_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	if (bdev_read_only(I_BDEV(bd_inode)))
- 		return -EPERM;
- 
--	if (IS_SWAPFILE(bd_inode) && !is_hibernate_resume_dev(bd_inode))
-+	if (IS_SWAPFILE(bd_inode) && !is_hibernate_resume_dev(bd_inode->i_rdev))
- 		return -ETXTBSY;
- 
- 	if (!iov_iter_count(from))
-diff --git a/include/linux/suspend.h b/include/linux/suspend.h
-index cb9afad82a90c8..8af13ba60c7e45 100644
---- a/include/linux/suspend.h
-+++ b/include/linux/suspend.h
-@@ -473,9 +473,9 @@ static inline int hibernate_quiet_exec(int (*func)(void *data), void *data) {
- #endif /* CONFIG_HIBERNATION */
- 
- #ifdef CONFIG_HIBERNATION_SNAPSHOT_DEV
--int is_hibernate_resume_dev(const struct inode *);
-+int is_hibernate_resume_dev(dev_t dev);
- #else
--static inline int is_hibernate_resume_dev(const struct inode *i) { return 0; }
-+static inline int is_hibernate_resume_dev(dev_t dev) { return 0; }
- #endif
- 
- /* Hibernation and suspend events */
-diff --git a/kernel/power/user.c b/kernel/power/user.c
-index d5eedc2baa2a10..b5815685b944fe 100644
---- a/kernel/power/user.c
-+++ b/kernel/power/user.c
-@@ -35,12 +35,12 @@ static struct snapshot_data {
- 	bool ready;
- 	bool platform_support;
- 	bool free_bitmaps;
--	struct inode *bd_inode;
-+	dev_t dev;
- } snapshot_state;
- 
--int is_hibernate_resume_dev(const struct inode *bd_inode)
-+int is_hibernate_resume_dev(dev_t dev)
+diff --git a/Documentation/core-api/pin_user_pages.rst b/Documentation/core=
+-api/pin_user_pages.rst
+index eae972b23224..fcf605be43d0 100644
+--- a/Documentation/core-api/pin_user_pages.rst
++++ b/Documentation/core-api/pin_user_pages.rst
+@@ -226,7 +226,7 @@ This file::
+ has the following new calls to exercise the new pin*() wrapper functions:
+=20
+ * PIN_FAST_BENCHMARK (./gup_test -a)
+-* PIN_BENCHMARK (./gup_test -b)
++* PIN_BASIC_TEST (./gup_test -b)
+=20
+ You can monitor how many total dma-pinned pages have been acquired and rel=
+eased
+ since the system was booted, via two new /proc/vmstat entries: ::
+diff --git a/mm/gup_test.c b/mm/gup_test.c
+index a3c86d0fdff7..a980c4a194f0 100644
+--- a/mm/gup_test.c
++++ b/mm/gup_test.c
+@@ -13,13 +13,13 @@ static void put_back_pages(unsigned int cmd, struct pag=
+e **pages,
+=20
+ 	switch (cmd) {
+ 	case GUP_FAST_BENCHMARK:
+-	case GUP_BENCHMARK:
++	case GUP_BASIC_TEST:
+ 		for (i =3D 0; i < nr_pages; i++)
+ 			put_page(pages[i]);
+ 		break;
+=20
+ 	case PIN_FAST_BENCHMARK:
+-	case PIN_BENCHMARK:
++	case PIN_BASIC_TEST:
+ 	case PIN_LONGTERM_BENCHMARK:
+ 		unpin_user_pages(pages, nr_pages);
+ 		break;
+@@ -34,7 +34,7 @@ static void verify_dma_pinned(unsigned int cmd, struct pa=
+ge **pages,
+=20
+ 	switch (cmd) {
+ 	case PIN_FAST_BENCHMARK:
+-	case PIN_BENCHMARK:
++	case PIN_BASIC_TEST:
+ 	case PIN_LONGTERM_BENCHMARK:
+ 		for (i =3D 0; i < nr_pages; i++) {
+ 			page =3D pages[i];
+@@ -87,7 +87,7 @@ static int __gup_test_ioctl(unsigned int cmd,
+ 			nr =3D get_user_pages_fast(addr, nr, gup->flags,
+ 						 pages + i);
+ 			break;
+-		case GUP_BENCHMARK:
++		case GUP_BASIC_TEST:
+ 			nr =3D get_user_pages(addr, nr, gup->flags, pages + i,
+ 					    NULL);
+ 			break;
+@@ -95,7 +95,7 @@ static int __gup_test_ioctl(unsigned int cmd,
+ 			nr =3D pin_user_pages_fast(addr, nr, gup->flags,
+ 						 pages + i);
+ 			break;
+-		case PIN_BENCHMARK:
++		case PIN_BASIC_TEST:
+ 			nr =3D pin_user_pages(addr, nr, gup->flags, pages + i,
+ 					    NULL);
+ 			break;
+@@ -148,10 +148,10 @@ static long gup_test_ioctl(struct file *filep, unsign=
+ed int cmd,
+=20
+ 	switch (cmd) {
+ 	case GUP_FAST_BENCHMARK:
+-	case GUP_BENCHMARK:
+ 	case PIN_FAST_BENCHMARK:
+-	case PIN_BENCHMARK:
+ 	case PIN_LONGTERM_BENCHMARK:
++	case GUP_BASIC_TEST:
++	case PIN_BASIC_TEST:
+ 		break;
+ 	default:
+ 		return -EINVAL;
+diff --git a/mm/gup_test.h b/mm/gup_test.h
+index 931c2f3f477a..921b4caad8ef 100644
+--- a/mm/gup_test.h
++++ b/mm/gup_test.h
+@@ -5,10 +5,10 @@
+ #include <linux/types.h>
+=20
+ #define GUP_FAST_BENCHMARK	_IOWR('g', 1, struct gup_test)
+-#define GUP_BENCHMARK		_IOWR('g', 2, struct gup_test)
+-#define PIN_FAST_BENCHMARK	_IOWR('g', 3, struct gup_test)
+-#define PIN_BENCHMARK		_IOWR('g', 4, struct gup_test)
+-#define PIN_LONGTERM_BENCHMARK	_IOWR('g', 5, struct gup_test)
++#define PIN_FAST_BENCHMARK	_IOWR('g', 2, struct gup_test)
++#define PIN_LONGTERM_BENCHMARK	_IOWR('g', 3, struct gup_test)
++#define GUP_BASIC_TEST		_IOWR('g', 4, struct gup_test)
++#define PIN_BASIC_TEST		_IOWR('g', 5, struct gup_test)
+=20
+ struct gup_test {
+ 	__u64 get_delta_usec;
+diff --git a/tools/testing/selftests/vm/gup_test.c b/tools/testing/selftest=
+s/vm/gup_test.c
+index 4e9f5d0ed0fc..67d57a1cc8b6 100644
+--- a/tools/testing/selftests/vm/gup_test.c
++++ b/tools/testing/selftests/vm/gup_test.c
+@@ -14,12 +14,30 @@
+ /* Just the flags we need, copied from mm.h: */
+ #define FOLL_WRITE	0x01	/* check pte is writable */
+=20
++static char *cmd_to_str(unsigned long cmd)
++{
++	switch (cmd) {
++	case GUP_FAST_BENCHMARK:
++		return "GUP_FAST_BENCHMARK";
++	case PIN_FAST_BENCHMARK:
++		return "PIN_FAST_BENCHMARK";
++	case PIN_LONGTERM_BENCHMARK:
++		return "PIN_LONGTERM_BENCHMARK";
++	case GUP_BASIC_TEST:
++		return "GUP_BASIC_TEST";
++	case PIN_BASIC_TEST:
++		return "PIN_BASIC_TEST";
++	}
++	return "Unknown command";
++}
++
+ int main(int argc, char **argv)
  {
--	return hibernation_available() && snapshot_state.bd_inode == bd_inode;
-+	return hibernation_available() && snapshot_state.dev == dev;
- }
- 
- static int snapshot_open(struct inode *inode, struct file *filp)
-@@ -101,7 +101,7 @@ static int snapshot_open(struct inode *inode, struct file *filp)
- 	data->frozen = false;
- 	data->ready = false;
- 	data->platform_support = false;
--	data->bd_inode = NULL;
-+	data->dev = 0;
- 
-  Unlock:
- 	unlock_system_sleep();
-@@ -117,7 +117,7 @@ static int snapshot_release(struct inode *inode, struct file *filp)
- 
- 	swsusp_free();
- 	data = filp->private_data;
--	data->bd_inode = NULL;
-+	data->dev = 0;
- 	free_all_swap_pages(data->swap);
- 	if (data->frozen) {
- 		pm_restore_gfp_mask();
-@@ -245,7 +245,7 @@ static int snapshot_set_swap_area(struct snapshot_data *data,
- 	if (data->swap < 0)
- 		return -ENODEV;
- 
--	data->bd_inode = bdev->bd_inode;
-+	data->dev = bdev->bd_dev;
- 	bdput(bdev);
+ 	struct gup_test gup;
+ 	unsigned long size =3D 128 * MB;
+ 	int i, fd, filed, opt, nr_pages =3D 1, thp =3D -1, repeats =3D 1, write =
+=3D 0;
+-	int cmd =3D GUP_FAST_BENCHMARK, flags =3D MAP_PRIVATE;
++	int cmd =3D GUP_FAST_BENCHMARK;
++	int flags =3D MAP_PRIVATE;
+ 	char *file =3D "/dev/zero";
+ 	char *p;
+=20
+@@ -29,7 +47,7 @@ int main(int argc, char **argv)
+ 			cmd =3D PIN_FAST_BENCHMARK;
+ 			break;
+ 		case 'b':
+-			cmd =3D PIN_BENCHMARK;
++			cmd =3D PIN_BASIC_TEST;
+ 			break;
+ 		case 'L':
+ 			cmd =3D PIN_LONGTERM_BENCHMARK;
+@@ -50,7 +68,7 @@ int main(int argc, char **argv)
+ 			thp =3D 0;
+ 			break;
+ 		case 'U':
+-			cmd =3D GUP_BENCHMARK;
++			cmd =3D GUP_BASIC_TEST;
+ 			break;
+ 		case 'u':
+ 			cmd =3D GUP_FAST_BENCHMARK;
+@@ -100,16 +118,29 @@ int main(int argc, char **argv)
+ 	for (; (unsigned long)p < gup.addr + size; p +=3D PAGE_SIZE)
+ 		p[0] =3D 0;
+=20
+-	for (i =3D 0; i < repeats; i++) {
++	/* Only report timing information on the *_BENCHMARK commands: */
++	if ((cmd =3D=3D PIN_FAST_BENCHMARK) || (cmd =3D=3D GUP_FAST_BENCHMARK) ||
++	     (cmd =3D=3D PIN_LONGTERM_BENCHMARK)) {
++		for (i =3D 0; i < repeats; i++) {
++			gup.size =3D size;
++			if (ioctl(fd, cmd, &gup))
++				perror("ioctl"), exit(1);
++
++			printf("%s: Time: get:%lld put:%lld us",
++			       cmd_to_str(cmd), gup.get_delta_usec,
++			       gup.put_delta_usec);
++			if (gup.size !=3D size)
++				printf(", truncated (size: %lld)", gup.size);
++			printf("\n");
++		}
++	} else {
+ 		gup.size =3D size;
+ 		if (ioctl(fd, cmd, &gup))
+ 			perror("ioctl"), exit(1);
+=20
+-		printf("Time: get:%lld put:%lld us", gup.get_delta_usec,
+-			gup.put_delta_usec);
++		printf("%s: done\n", cmd_to_str(cmd));
+ 		if (gup.size !=3D size)
+-			printf(", truncated (size: %lld)", gup.size);
+-		printf("\n");
++			printf("Truncated (size: %lld)\n", gup.size);
+ 	}
+=20
  	return 0;
- }
--- 
+--=20
 2.28.0
