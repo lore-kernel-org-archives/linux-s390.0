@@ -1,66 +1,130 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49296 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727847AbgIUOkk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Sep 2020 10:40:40 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 09/20] s390/init: add missing __init annotations
-Date: Mon, 21 Sep 2020 10:40:16 -0400
-Message-Id: <20200921144027.2135390-9-sashal@kernel.org>
-In-Reply-To: <20200921144027.2135390-1-sashal@kernel.org>
-References: <20200921144027.2135390-1-sashal@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v10 07/16] s390/vfio-ap: sysfs attribute to display the
+ guest's matrix
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+ <20200821195616.13554-8-akrowiak@linux.ibm.com>
+ <20200917163448.4db80db3.cohuck@redhat.com>
+ <d2e623f3-65fa-e764-61ce-b7e8c35fd399@linux.ibm.com>
+ <20200926091609.29565e87.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <b3678017-456f-013e-6f85-91891d1825e0@linux.ibm.com>
+Date: Tue, 29 Sep 2020 17:00:05 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200926091609.29565e87.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
 
-[ Upstream commit fcb2b70cdb194157678fb1a75f9ff499aeba3d2a ]
 
-Add __init to reserve_memory_end, reserve_oldmem and remove_oldmem.
-Sometimes these functions are not inlined, and then the build
-complains about section mismatch.
+On 9/26/20 3:16 AM, Halil Pasic wrote:
+> On Fri, 18 Sep 2020 13:09:25 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>>
+>> On 9/17/20 10:34 AM, Cornelia Huck wrote:
+>>> On Fri, 21 Aug 2020 15:56:07 -0400
+>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>
+>>>> The matrix of adapters and domains configured in a guest's CRYCB may
+>>>> differ from the matrix of adapters and domains assigned to the matrix mdev,
+>>>> so this patch introduces a sysfs attribute to display the matrix of a guest
+>>>> using the matrix mdev. For a matrix mdev denoted by $uuid, the crycb for a
+>>>> guest using the matrix mdev can be displayed as follows:
+>>>>
+>>>>      cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
+>>>>
+>>>> If a guest is not using the matrix mdev at the time the crycb is displayed,
+>>>> an error (ENODEV) will be returned.
+>>>>
+>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>>>> ---
+>>>>    drivers/s390/crypto/vfio_ap_ops.c | 58 +++++++++++++++++++++++++++++++
+>>>>    1 file changed, 58 insertions(+)
+>>>>
+>>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> index efb229033f9e..30bf23734af6 100644
+>>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> @@ -1119,6 +1119,63 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
+>>>>    }
+>>>>    static DEVICE_ATTR_RO(matrix);
+>>>>    
+>>>> +static ssize_t guest_matrix_show(struct device *dev,
+>>>> +				 struct device_attribute *attr, char *buf)
+>>>> +{
+>>>> +	struct mdev_device *mdev = mdev_from_dev(dev);
+>>>> +	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>>>> +	char *bufpos = buf;
+>>>> +	unsigned long apid;
+>>>> +	unsigned long apqi;
+>>>> +	unsigned long apid1;
+>>>> +	unsigned long apqi1;
+>>>> +	unsigned long napm_bits = matrix_mdev->shadow_apcb.apm_max + 1;
+>>>> +	unsigned long naqm_bits = matrix_mdev->shadow_apcb.aqm_max + 1;
+>>>> +	int nchars = 0;
+>>>> +	int n;
+>>>> +
+>>>> +	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
+>>>> +		return -ENODEV;
+>>>> +
+>>>> +	apid1 = find_first_bit_inv(matrix_mdev->shadow_apcb.apm, napm_bits);
+>>>> +	apqi1 = find_first_bit_inv(matrix_mdev->shadow_apcb.aqm, naqm_bits);
+>>>> +
+>>>> +	mutex_lock(&matrix_dev->lock);
+>>>> +
+>>>> +	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
+>>>> +		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
+>>>> +				     napm_bits) {
+>>>> +			for_each_set_bit_inv(apqi,
+>>>> +					     matrix_mdev->shadow_apcb.aqm,
+>>>> +					     naqm_bits) {
+>>>> +				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
+>>>> +					    apqi);
+>>>> +				bufpos += n;
+>>>> +				nchars += n;
+>>>> +			}
+>>>> +		}
+>>>> +	} else if (apid1 < napm_bits) {
+>>>> +		for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm,
+>>>> +				     napm_bits) {
+>>>> +			n = sprintf(bufpos, "%02lx.\n", apid);
+>>>> +			bufpos += n;
+>>>> +			nchars += n;
+>>>> +		}
+>>>> +	} else if (apqi1 < naqm_bits) {
+>>>> +		for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm,
+>>>> +				     naqm_bits) {
+>>>> +			n = sprintf(bufpos, ".%04lx\n", apqi);
+>>>> +			bufpos += n;
+>>>> +			nchars += n;
+>>>> +		}
+>>>> +	}
+>>>> +
+>>>> +	mutex_unlock(&matrix_dev->lock);
+>>>> +
+>>>> +	return nchars;
+>>>> +}
+>>> This basically looks like a version of matrix_show() operating on the
+>>> shadow apcb. I'm wondering if we could consolidate these two functions
+>>> by passing in the structure to operate on as a parameter? Might not be
+>>> worth the effort, though.
+>> We still need the two functions because they back the mdev's
+>> sysfs matrix and guest_matrix attributes, but we could call a function.
+>> I'm not sure it buys us much though.
+> The logic seems identical with the exception that the guest variant
+> checks if vfio_ap_mdev_has_crycb(matrix_mdev). I'm not a big fan of
+> duplicated code, and especially not in such close proximity. I'm voting
+> for factoring out the common logic.
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kernel/setup.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Not a problem, will do.
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 07aa15ba43b3e..faf30f37c6361 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -619,7 +619,7 @@ static struct notifier_block kdump_mem_nb = {
- /*
-  * Make sure that the area behind memory_end is protected
-  */
--static void reserve_memory_end(void)
-+static void __init reserve_memory_end(void)
- {
- 	if (memory_end_set)
- 		memblock_reserve(memory_end, ULONG_MAX);
-@@ -628,7 +628,7 @@ static void reserve_memory_end(void)
- /*
-  * Make sure that oldmem, where the dump is stored, is protected
-  */
--static void reserve_oldmem(void)
-+static void __init reserve_oldmem(void)
- {
- #ifdef CONFIG_CRASH_DUMP
- 	if (OLDMEM_BASE)
-@@ -640,7 +640,7 @@ static void reserve_oldmem(void)
- /*
-  * Make sure that oldmem, where the dump is stored, is protected
-  */
--static void remove_oldmem(void)
-+static void __init remove_oldmem(void)
- {
- #ifdef CONFIG_CRASH_DUMP
- 	if (OLDMEM_BASE)
--- 
-2.25.1
+>
+> Otherwise looks OK.
+>
+> Regards,
+> Halil
+>
