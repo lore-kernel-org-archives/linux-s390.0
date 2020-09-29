@@ -1,119 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61704 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726242AbgI0AD0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 26 Sep 2020 20:03:26 -0400
-Date: Sun, 27 Sep 2020 02:03:16 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v10 10/16] s390/vfio-ap: allow configuration of matrix
- mdev in use by a KVM guest
-Message-ID: <20200927020316.38bf3fa1.pasic@linux.ibm.com>
-In-Reply-To: <20200821195616.13554-11-akrowiak@linux.ibm.com>
-References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-        <20200821195616.13554-11-akrowiak@linux.ibm.com>
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:9200 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729453AbgI2V1u (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Sep 2020 17:27:50 -0400
+From: John Hubbard <jhubbard@nvidia.com>
+Subject: [PATCH v2 4/8] selftests/vm: minor cleanup: Makefile and gup_test.c
+Date: Tue, 29 Sep 2020 14:27:43 -0700
+Message-ID: <20200929212747.251804-5-jhubbard@nvidia.com>
+In-Reply-To: <20200929212747.251804-1-jhubbard@nvidia.com>
+References: <20200929212747.251804-1-jhubbard@nvidia.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
 
-On Fri, 21 Aug 2020 15:56:10 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+A few cleanups that don't deserve separate patches, but that
+also should not clutter up other functional changes:
 
-> The current support for pass-through crypto adapters does not allow
-> configuration of a matrix mdev when it is in use by a KVM guest. Let's
-> allow AP resources - i.e., adapters, domains and control domains - to be
-> assigned to or unassigned from a matrix mdev while it is in use by a guest.
-> This is in preparation for the introduction of support for dynamic
-> configuration of the AP matrix for a running KVM guest.
+1. Remove an unnecessary #include <prctl.h>
 
-AFAIU this will let the user do the assign, which will however only take
-effect if the same mdev is re-used with a freshly constructed VM, or?
+2. Restore the sorted order of TEST_GEN_FILES.
 
-This is however supposed to change real soon (in patch 11). From the
-perspective of bisectability we would end up with a single commit that
-acts funny.
+3. Add -lpthread to the common LDLIBS, as it is harmless and several
+   tests use it. This gets rid of one special rule already.
 
-How about switching up patches 10 and 11. This way the changes you have
-in the current 11 would remain dormant until the changes in the current
-10 enable the complete new feature (hotplug)?
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+---
+ tools/testing/selftests/vm/Makefile   | 10 ++++------
+ tools/testing/selftests/vm/gup_test.c |  1 -
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
-
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 24 ------------------------
->  1 file changed, 24 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index 24fd47e43b80..cf3321eb239b 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -773,10 +773,6 @@ static ssize_t assign_adapter_store(struct device *dev,
->  	struct mdev_device *mdev = mdev_from_dev(dev);
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->  
-> -	/* If the guest is running, disallow assignment of adapter */
-> -	if (matrix_mdev->kvm)
-> -		return -EBUSY;
-> -
->  	ret = kstrtoul(buf, 0, &apid);
->  	if (ret)
->  		return ret;
-> @@ -828,10 +824,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
->  	struct mdev_device *mdev = mdev_from_dev(dev);
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->  
-> -	/* If the guest is running, disallow un-assignment of adapter */
-> -	if (matrix_mdev->kvm)
-> -		return -EBUSY;
-> -
->  	ret = kstrtoul(buf, 0, &apid);
->  	if (ret)
->  		return ret;
-> @@ -891,10 +883,6 @@ static ssize_t assign_domain_store(struct device *dev,
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->  	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
->  
-> -	/* If the guest is running, disallow assignment of domain */
-> -	if (matrix_mdev->kvm)
-> -		return -EBUSY;
-> -
->  	ret = kstrtoul(buf, 0, &apqi);
->  	if (ret)
->  		return ret;
-> @@ -946,10 +934,6 @@ static ssize_t unassign_domain_store(struct device *dev,
->  	struct mdev_device *mdev = mdev_from_dev(dev);
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->  
-> -	/* If the guest is running, disallow un-assignment of domain */
-> -	if (matrix_mdev->kvm)
-> -		return -EBUSY;
-> -
->  	ret = kstrtoul(buf, 0, &apqi);
->  	if (ret)
->  		return ret;
-> @@ -991,10 +975,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
->  	struct mdev_device *mdev = mdev_from_dev(dev);
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->  
-> -	/* If the guest is running, disallow assignment of control domain */
-> -	if (matrix_mdev->kvm)
-> -		return -EBUSY;
-> -
->  	ret = kstrtoul(buf, 0, &id);
->  	if (ret)
->  		return ret;
-> @@ -1036,10 +1016,6 @@ static ssize_t unassign_control_domain_store(struct device *dev,
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->  	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
->  
-> -	/* If the guest is running, disallow un-assignment of control domain */
-> -	if (matrix_mdev->kvm)
-> -		return -EBUSY;
-> -
->  	ret = kstrtoul(buf, 0, &domid);
->  	if (ret)
->  		return ret;
+diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/=
+vm/Makefile
+index 5a3bd0c497b6..2579242386ac 100644
+--- a/tools/testing/selftests/vm/Makefile
++++ b/tools/testing/selftests/vm/Makefile
+@@ -21,14 +21,15 @@ MACHINE ?=3D $(shell echo $(uname_M) | sed -e 's/aarch6=
+4.*/arm64/')
+ MAKEFLAGS +=3D --no-builtin-rules
+=20
+ CFLAGS =3D -Wall -I ../../../../usr/include $(EXTRA_CFLAGS)
+-LDLIBS =3D -lrt
++LDLIBS =3D -lrt -lpthread
+ TEST_GEN_FILES =3D compaction_test
+ TEST_GEN_FILES +=3D gup_test
+ TEST_GEN_FILES +=3D hmm-tests
+ TEST_GEN_FILES +=3D hugepage-mmap
+ TEST_GEN_FILES +=3D hugepage-shm
+-TEST_GEN_FILES +=3D map_hugetlb
++TEST_GEN_FILES +=3D khugepaged
+ TEST_GEN_FILES +=3D map_fixed_noreplace
++TEST_GEN_FILES +=3D map_hugetlb
+ TEST_GEN_FILES +=3D map_populate
+ TEST_GEN_FILES +=3D mlock-random-test
+ TEST_GEN_FILES +=3D mlock2-tests
+@@ -37,7 +38,6 @@ TEST_GEN_FILES +=3D on-fault-limit
+ TEST_GEN_FILES +=3D thuge-gen
+ TEST_GEN_FILES +=3D transhuge-stress
+ TEST_GEN_FILES +=3D userfaultfd
+-TEST_GEN_FILES +=3D khugepaged
+=20
+ ifeq ($(ARCH),x86_64)
+ CAN_BUILD_I386 :=3D $(shell ./../x86/check_cc.sh $(CC) ../x86/trivial_32bi=
+t_program.c -m32)
+@@ -76,7 +76,7 @@ TEST_FILES :=3D test_vmalloc.sh
+ KSFT_KHDR_INSTALL :=3D 1
+ include ../lib.mk
+=20
+-$(OUTPUT)/hmm-tests: LDLIBS +=3D -lhugetlbfs -lpthread
++$(OUTPUT)/hmm-tests: LDLIBS +=3D -lhugetlbfs
+=20
+ ifeq ($(ARCH),x86_64)
+ BINARIES_32 :=3D $(patsubst %,$(OUTPUT)/%,$(BINARIES_32))
+@@ -127,8 +127,6 @@ warn_32bit_failure:
+ endif
+ endif
+=20
+-$(OUTPUT)/userfaultfd: LDLIBS +=3D -lpthread
+-
+ $(OUTPUT)/mlock-random-test: LDLIBS +=3D -lcap
+=20
+ $(OUTPUT)/gup_test: ../../../../mm/gup_test.h
+diff --git a/tools/testing/selftests/vm/gup_test.c b/tools/testing/selftest=
+s/vm/gup_test.c
+index 70db259582c3..4e9f5d0ed0fc 100644
+--- a/tools/testing/selftests/vm/gup_test.c
++++ b/tools/testing/selftests/vm/gup_test.c
+@@ -4,7 +4,6 @@
+ #include <unistd.h>
+ #include <sys/ioctl.h>
+ #include <sys/mman.h>
+-#include <sys/prctl.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include "../../../../mm/gup_test.h"
+--=20
+2.28.0
