@@ -1,88 +1,110 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59388 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726531AbgIUHUQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 21 Sep 2020 03:20:16 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 09/14] ocfs2: cleanup o2hb_region_dev_store
-Date: Mon, 21 Sep 2020 09:19:53 +0200
-Message-Id: <20200921071958.307589-10-hch@lst.de>
-In-Reply-To: <20200921071958.307589-1-hch@lst.de>
-References: <20200921071958.307589-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38962 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726643AbgI2U5l (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 29 Sep 2020 16:57:41 -0400
+Subject: Re: [PATCH v10 02/16] s390/vfio-ap: use new AP bus interface to
+ search for queue devices
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+ <20200821195616.13554-3-akrowiak@linux.ibm.com>
+ <20200925042729.3b9d5704.pasic@linux.ibm.com>
+ <ed021f29-927d-5bd6-4f2c-466f502f49f4@linux.ibm.com>
+ <20200929153755.20bdd94f.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <020af9d9-33d7-2e32-5253-74aa7a36f3ed@linux.ibm.com>
+Date: Tue, 29 Sep 2020 16:57:33 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200929153755.20bdd94f.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Josef Bacik <josef@toxicpanda.com>, Minchan Kim <minchan@kernel.org>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, Joseph Qi <joseph.qi@linux.alibaba.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, nbd@other.debian.org, linux-ide@vger.kernel.org, linux-s390@vger.kernel.org, linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com, linux-pm@vger.kernel.org, linux-mm@kvack.org, linux-block@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, kernel test robot <lkp@intel.com>
 
-Use blkdev_get_by_dev instead of igrab (aka open coded bdgrab) +
-blkdev_get.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
----
- fs/ocfs2/cluster/heartbeat.c | 28 ++++++++++------------------
- 1 file changed, 10 insertions(+), 18 deletions(-)
 
-diff --git a/fs/ocfs2/cluster/heartbeat.c b/fs/ocfs2/cluster/heartbeat.c
-index 89d13e0705fe7b..0179a73a3fa2c4 100644
---- a/fs/ocfs2/cluster/heartbeat.c
-+++ b/fs/ocfs2/cluster/heartbeat.c
-@@ -1766,7 +1766,6 @@ static ssize_t o2hb_region_dev_store(struct config_item *item,
- 	int sectsize;
- 	char *p = (char *)page;
- 	struct fd f;
--	struct inode *inode;
- 	ssize_t ret = -EINVAL;
- 	int live_threshold;
- 
-@@ -1793,20 +1792,16 @@ static ssize_t o2hb_region_dev_store(struct config_item *item,
- 	    reg->hr_block_bytes == 0)
- 		goto out2;
- 
--	inode = igrab(f.file->f_mapping->host);
--	if (inode == NULL)
-+	if (!S_ISBLK(f.file->f_mapping->host->i_mode))
- 		goto out2;
- 
--	if (!S_ISBLK(inode->i_mode))
--		goto out3;
--
--	reg->hr_bdev = I_BDEV(f.file->f_mapping->host);
--	ret = blkdev_get(reg->hr_bdev, FMODE_WRITE | FMODE_READ, NULL);
--	if (ret) {
-+	reg->hr_bdev = blkdev_get_by_dev(f.file->f_mapping->host->i_rdev,
-+					 FMODE_WRITE | FMODE_READ, NULL);
-+	if (IS_ERR(reg->hr_bdev)) {
-+		ret = PTR_ERR(reg->hr_bdev);
- 		reg->hr_bdev = NULL;
--		goto out3;
-+		goto out2;
- 	}
--	inode = NULL;
- 
- 	bdevname(reg->hr_bdev, reg->hr_dev_name);
- 
-@@ -1909,16 +1904,13 @@ static ssize_t o2hb_region_dev_store(struct config_item *item,
- 		       config_item_name(&reg->hr_item), reg->hr_dev_name);
- 
- out3:
--	iput(inode);
-+	if (ret < 0) {
-+		blkdev_put(reg->hr_bdev, FMODE_READ | FMODE_WRITE);
-+		reg->hr_bdev = NULL;
-+	}
- out2:
- 	fdput(f);
- out:
--	if (ret < 0) {
--		if (reg->hr_bdev) {
--			blkdev_put(reg->hr_bdev, FMODE_READ|FMODE_WRITE);
--			reg->hr_bdev = NULL;
--		}
--	}
- 	return ret;
- }
- 
--- 
-2.28.0
+On 9/29/20 9:37 AM, Halil Pasic wrote:
+> On Tue, 29 Sep 2020 09:07:40 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>>
+>> On 9/24/20 10:27 PM, Halil Pasic wrote:
+>>> On Fri, 21 Aug 2020 15:56:02 -0400
+>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>
+>>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> @@ -26,43 +26,26 @@
+>>>>    
+>>>>    static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+>>>>    
+>>>> -static int match_apqn(struct device *dev, const void *data)
+>>>> -{
+>>>> -	struct vfio_ap_queue *q = dev_get_drvdata(dev);
+>>>> -
+>>>> -	return (q->apqn == *(int *)(data)) ? 1 : 0;
+>>>> -}
+>>>> -
+>>>>    /**
+>>>> - * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
+>>>> - * @matrix_mdev: the associated mediated matrix
+>>>> + * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
+>>>>     * @apqn: The queue APQN
+>>>>     *
+>>>> - * Retrieve a queue with a specific APQN from the list of the
+>>>> - * devices of the vfio_ap_drv.
+>>>> - * Verify that the APID and the APQI are set in the matrix.
+>>>> + * Retrieve a queue with a specific APQN from the AP queue devices attached to
+>>>> + * the AP bus.
+>>>>     *
+>>>> - * Returns the pointer to the associated vfio_ap_queue
+>>>> + * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
+>>>>     */
+>>>> -static struct vfio_ap_queue *vfio_ap_get_queue(
+>>>> -					struct ap_matrix_mdev *matrix_mdev,
+>>>> -					int apqn)
+>>>> +static struct vfio_ap_queue *vfio_ap_get_queue(unsigned long apqn)
+>>>>    {
+>>>> +	struct ap_queue *queue;
+>>>>    	struct vfio_ap_queue *q;
+>>>> -	struct device *dev;
+>>>>    
+>>>> -	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
+>>>> -		return NULL;
+>>>> -	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
+>>>> +	queue = ap_get_qdev(apqn);
+>>>> +	if (!queue)
+>>>>    		return NULL;
+>>>>    
+>>>> -	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+>>>> -				 &apqn, match_apqn);
+>>>> -	if (!dev)
+>>>> -		return NULL;
+>>>> -	q = dev_get_drvdata(dev);
+>>>> -	q->matrix_mdev = matrix_mdev;
+>>>> -	put_device(dev);
+>>>> +	q = dev_get_drvdata(&queue->ap_dev.device);
+>>> Is this cast here safe? (I don't think it is.)
+>> In the probe, we execute:
+>> dev_set_drvdata(&queue->ap_dev.device, q);
+>>
+>> I don't get any compile nor execution errors. Why wouldn't it be safe?
+>>
+> Because the queue may or may not be bound to the vfio_ap driver. AFAICT
+> this function can be called with an arbitrary APQN.
+>
+> If it is bound to another driver then drvdata is not likely to hold a
+> struct vfio_ap_queue.
+
+Then the function will return NULL. All callers must check for
+NULL before using it which is the case in all places where this
+function is called.
+
+>
+>
+>>>> +	put_device(&queue->ap_dev.device);
+>>>>    
+>>>>    	return q;
+>>>>    }
