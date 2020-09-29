@@ -1,234 +1,368 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12846 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726380AbgI1CMB (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23154 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727740AbgI2V7x (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 27 Sep 2020 22:12:01 -0400
-Date: Mon, 28 Sep 2020 04:11:00 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v10 14/16] s390/vfio-ap: handle AP bus scan completed
- notification
-Message-ID: <20200928041100.14626565.pasic@linux.ibm.com>
-In-Reply-To: <20200821195616.13554-15-akrowiak@linux.ibm.com>
+        Tue, 29 Sep 2020 17:59:53 -0400
+Subject: Re: [PATCH v10 08/16] s390/vfio-ap: filter matrix for unavailable
+ queue devices
 References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
-        <20200821195616.13554-15-akrowiak@linux.ibm.com>
+ <20200821195616.13554-9-akrowiak@linux.ibm.com>
+ <20200926102409.7884bdd1.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <e057f2e4-70d6-5078-62c5-748bfe16d865@linux.ibm.com>
+Date: Tue, 29 Sep 2020 17:59:42 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20200926102409.7884bdd1.pasic@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-On Fri, 21 Aug 2020 15:56:14 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-
-> Implements the driver callback invoked by the AP bus when the AP bus
-> scan has completed. Since this callback is invoked after binding the newly
-> added devices to their respective device drivers, the vfio_ap driver will
-> attempt to plug the adapters, domains and control domains into each guest
-> using a matrix mdev to which they are assigned. Keep in mind that an
-> adapter or domain can be plugged in only if each APQN with the APID of the
-> adapter or the APQI of the domain references a queue device bound to the
-> vfio_ap device driver. Consequently, not all newly added adapters and
-> domains will necessarily get hot plugged.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_drv.c     |   1 +
->  drivers/s390/crypto/vfio_ap_ops.c     | 110 +++++++++++++++++++++++++-
->  drivers/s390/crypto/vfio_ap_private.h |   2 +
->  3 files changed, 110 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index ea0a7603e886..21bfae928be5 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -180,6 +180,7 @@ static int __init vfio_ap_init(void)
->  	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
->  	vfio_ap_drv.ids = ap_queue_ids;
->  	vfio_ap_drv.on_config_changed = vfio_ap_on_cfg_changed;
-> +	vfio_ap_drv.on_scan_complete = vfio_ap_on_scan_complete;
->  
->  	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
->  	if (ret) {
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index e002d556abab..e6480f31a42b 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -616,14 +616,13 @@ static bool vfio_ap_mdev_config_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
->  		 * CRYCB after filtering, then try filtering the APQIs.
->  		 */
->  		if (napm == 0) {
-> -			naqm = vfio_ap_mdev_filter_matrix(matrix_mdev,
-> -							  &shadow_apcb, false);
-> -
->  			/*
->  			 * If there are no APQNs that can be assigned to the
->  			 * matrix mdev after filtering the APQIs, then no APQNs
->  			 * shall be assigned to the guest's CRYCB.
->  			 */
-> +			naqm = vfio_ap_mdev_filter_matrix(matrix_mdev,
-> +							  &shadow_apcb, false);
-
-Here you just moved the thing around the comment, or?
-
->  			if (naqm == 0) {
->  				bitmap_clear(shadow_apcb.apm, 0, AP_DEVICES);
->  				bitmap_clear(shadow_apcb.aqm, 0, AP_DOMAINS);
-> @@ -1758,6 +1757,16 @@ static bool vfio_ap_mdev_unassign_apids(struct ap_matrix_mdev *matrix_mdev,
->  	for_each_set_bit_inv(apid, apm_unassign, AP_DEVICES) {
->  		unassigned |= vfio_ap_mdev_unassign_guest_apid(matrix_mdev,
->  							       apid);
-> +		/*
-> +		 * If the APID is not assigned to the matrix mdev's shadow
-> +		 * CRYCB, continue with the next APID.
-> +		 */
-> +		if (!test_bit_inv(apid, matrix_mdev->shadow_apcb.apm))
-> +			continue;
-> +
-> +		/* Unassign the APID from the matrix mdev's shadow CRYCB */
-> +		clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
-> +		unassigned = true;
-
-I don't understand this at all. This patch is supposed to be about
-assign and not unassign, or?
-
->  	}
->  
->  	return unassigned;
-> @@ -1791,6 +1800,17 @@ static bool vfio_ap_mdev_unassign_apqis(struct ap_matrix_mdev *matrix_mdev,
->  	for_each_set_bit_inv(apqi, aqm_unassign, AP_DOMAINS) {
->  		unassigned |= vfio_ap_mdev_unassign_guest_apqi(matrix_mdev,
->  							       apqi);
-> +
-> +		/*
-> +		 * If the APQI is not assigned to the matrix mdev's shadow
-> +		 * CRYCB, continue with the next APQI
-> +		 */
-> +		if (!test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm))
-> +			continue;
-> +
-> +		/* Unassign the APQI from the matrix mdev's shadow CRYCB */
-> +		clear_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
-> +		unassigned = true;
->  	}
->  
->  	return unassigned;
-> @@ -1852,3 +1872,87 @@ void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
->  	}
->  	mutex_unlock(&matrix_dev->lock);
->  }
-> +
-> +bool vfio_ap_mdev_assign_apids(struct ap_matrix_mdev *matrix_mdev,
-> +			       unsigned long *apm_assign)
-> +{
-> +	unsigned long apid;
-> +	bool assigned = false;
-> +
-> +	for_each_set_bit_inv(apid, apm_assign, AP_DEVICES)
-> +		if (test_bit_inv(apid, matrix_mdev->matrix.apm))
-> +			if (vfio_ap_mdev_assign_guest_apid(matrix_mdev, apid))
-> +				assigned = true;
-> +
-> +	return assigned;
-> +}
-> +
-> +bool vfio_ap_mdev_assign_apqis(struct ap_matrix_mdev *matrix_mdev,
-> +			       unsigned long *aqm_assign)
-> +{
-> +	unsigned long apqi;
-> +	bool assigned = false;
-> +
-> +	for_each_set_bit_inv(apqi, aqm_assign, AP_DOMAINS)
-> +		if (test_bit_inv(apqi, matrix_mdev->matrix.aqm))
-> +			if (vfio_ap_mdev_assign_guest_apqi(matrix_mdev, apqi))
-> +				assigned = true;
-> +
-> +	return assigned;
-> +}
-> +
-> +void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-> +			      struct ap_config_info *old_config_info)
-> +{
-> +	struct ap_matrix_mdev *matrix_mdev;
-> +	DECLARE_BITMAP(apm_assign, AP_DEVICES);
-> +	DECLARE_BITMAP(aqm_assign, AP_DOMAINS);
-> +	int ap_add, aq_add;
-> +	bool assign;
-> +	unsigned long *cur_apm, *cur_aqm, *prev_apm, *prev_aqm;
-> +
-> +	/*
-> +	 * If we are not in the middle of a host configuration change scan it is
-> +	 * likely that the vfio_ap driver was loaded mid-scan, so let's handle
-> +	 * this scenario by calling the vfio_ap_on_cfg_changed function which
-> +	 * gets called at the start of an AP bus scan when the host AP
-> +	 * configuration has changed.
-> +	 */
-> +	if (!(matrix_dev->flags & AP_MATRIX_CFG_CHG))
-> +		vfio_ap_on_cfg_changed(new_config_info, old_config_info);
-
-Or we could just let the not-optimized variant handle it. Patch 15 has
-to take care of single queues anyway, and 13 and 14 are about avoiding
-having a bunch of updates to the CRYCB in short succession. But if we
-just loaded the module in a middle of a config changing scan, then I
-guess having a bunch of populated mdevs attached to guests is not very
-likely.
-
-> +
-> +	cur_apm = (unsigned long *)matrix_dev->config_info.apm;
-> +	cur_aqm = (unsigned long *)matrix_dev->config_info.aqm;
-> +
-> +	prev_apm = (unsigned long *)matrix_dev->config_info_prev.apm;
-> +	prev_aqm = (unsigned long *)matrix_dev->config_info_prev.aqm;
-> +
-> +	ap_add = bitmap_andnot(apm_assign, cur_apm, prev_apm, AP_DEVICES);
-> +	aq_add = bitmap_andnot(aqm_assign, cur_aqm, prev_aqm, AP_DOMAINS);
-> +
-> +	mutex_lock(&matrix_dev->lock);
-> +	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-> +		if (!vfio_ap_mdev_has_crycb(matrix_mdev))
-> +			continue;
-> +
-> +		assign = false;
-> +
-> +		if (ap_add)
-> +			if (bitmap_intersects(matrix_mdev->matrix.apm,
-> +					      apm_assign, AP_DEVICES))
-> +				assign |= vfio_ap_mdev_assign_apids(matrix_mdev,
-> +								    apm_assign);
-> +
-> +		if (aq_add)
-> +			if (bitmap_intersects(matrix_mdev->matrix.aqm,
-> +					      aqm_assign, AP_DOMAINS))
-> +				assign |= vfio_ap_mdev_assign_apqis(matrix_mdev,
-> +								    aqm_assign);
-> +
-> +		if (assign)
-> +			vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
-> +	}
-> +
-> +	matrix_dev->flags &= ~AP_MATRIX_CFG_CHG;
-> +	mutex_unlock(&matrix_dev->lock);
-> +}
 
 
-There may be a simpler and more concise way to accomplish this logic,
-but at this point I don't want to think about that. We can do
-refactoring any time we want. I'm more worried about the points I
-addressed in reference to the previous patches.
+On 9/26/20 4:24 AM, Halil Pasic wrote:
+> On Fri, 21 Aug 2020 15:56:08 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> Even though APQNs for queues that are not in the host's AP configuration
+>> may be assigned to a matrix mdev, we do not want to set bits in the guest's
+>> APCB for APQNs that do not reference AP queue devices bound to the vfio_ap
+>> device driver. Ideally, it would be great if such APQNs could be filtered
+>> out before setting the bits in the guest's APCB; however, the architecture
+>> precludes filtering individual APQNs. Consequently, either the APID or APQI
+>> must be filtered.
+>>
+>> This patch introduces code to filter the APIDs or APQIs assigned to the
+>> matrix mdev's AP configuration before assigning them to the guest's AP
+>> configuration (i.e., APCB). We'll start by filtering the APIDs:
+>>
+>>     If an APQN assigned to the matrix mdev's AP configuration does not
+>>     reference a queue device bound to the vfio_ap device driver, the APID
+>>     will be filtered out (i.e., not assigned to the guest's APCB).
+>>
+>> If every APID assigned to the matrix mdev is filtered out, then we'll try
+>> filtering the APQI's:
+>>
+>>     If an APQN assigned to the matrix mdev's AP configuration does not
+>>     reference a queue device bound to the vfio_ap device driver, the APQI
+>>     will be filtered out (i.e., not assigned to the guest's APCB).
+>>
+>> In any case, if after filtering either the APIDs or APQIs there are any
+>> APQNs that can be assigned to the guest's APCB, they will be assigned and
+>> the CRYCB will be hot plugged into the guest.
+>>
+>> Example
+>> =======
+>>
+>> APQNs bound to vfio_ap device driver:
+>>     04.0004
+>>     04.0047
+>>     04.0054
+>>
+>>     05.0005
+>>     05.0047
+>>     05.0054
+>>
+>> Assignments to matrix mdev:
+>>     APIDs  APQIs  -> APQNs
+>>     04     0004      04.0004
+>>     05     0005      04.0005
+>>            0047      04.0047
+>>            0054      04.0054
+>>                      05.0004
+>>                      05.0005
+>>                      05.0047
+>>                      04.0054
+>>
+>> Filter APIDs:
+>>     APID 04 will be filtered because APQN 04.0005 is not bound.
+>>     APID 05 will be filtered because APQN 05.0004 is not bound.
+>>     APQNs remaining: None
+>>
+>> Filter APQIs:
+>>     APQI 04 will be filtered because APQN 05.0004 is not bound.
+>>     APQI 05 will be filtered because APQN 04.0005 is not bound.
+>>     APQNs remaining: 04.0047, 04.0054, 05.0047, 05.0054
+>>
+>> APQNs 04.0047, 04.0054, 05.0047, 05.0054 will be assigned to the CRYCB and
+>> hot plugged into the KVM guest.
+>>
+> I find this logic where we first do one strategy, and if nothing remains
+> do the other strategy a little confusing. I will ramble on about it some
+> more in the code.
+>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 159 +++++++++++++++++++++++++++++-
+>>   1 file changed, 155 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 30bf23734af6..eaf4e9eab6cb 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -326,7 +326,7 @@ static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
+>>   	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
+>>   }
+>>   
+>> -static void vfio_ap_mdev_commit_crycb(struct ap_matrix_mdev *matrix_mdev)
+>> +static void vfio_ap_mdev_commit_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
+>>   {
+>>   	kvm_arch_crypto_set_masks(matrix_mdev->kvm,
+>>   				  matrix_mdev->shadow_apcb.apm,
+>> @@ -597,6 +597,157 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
+>>   	return 0;
+>>   }
+>>   
+>> +/**
+>> + * vfio_ap_mdev_filter_matrix
+>> + *
+>> + * Filter APQNs assigned to the matrix mdev that do not reference an AP queue
+>> + * device bound to the vfio_ap device driver.
+>> + *
+>> + * @matrix_mdev:  the matrix mdev whose AP configuration is to be filtered
+>> + * @shadow_apcb:  the shadow of the KVM guest's APCB (contains AP configuration
+>> + *		  for guest)
+>> + * @filter_apids: boolean value indicating whether the APQNs shall be filtered
+>> + *		  by APID (true) or by APQI (false).
+>> + *
+>> + * Returns the number of APQNs remaining after filtering is complete.
+>> + */
+>> +static int vfio_ap_mdev_filter_matrix(struct ap_matrix_mdev *matrix_mdev,
+>> +				      struct ap_matrix *shadow_apcb,
+>> +				      bool filter_apids)
+>> +{
+>> +	unsigned long apid, apqi, apqn;
+>> +
+>> +	memcpy(shadow_apcb, &matrix_mdev->matrix, sizeof(*shadow_apcb));
+>> +
+>> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
+>> +		/*
+>> +		 * If the APID is not assigned to the host AP configuration,
+>> +		 * we can not assign it to the guest's AP configuration
+>> +		 */
+>> +		if (!test_bit_inv(apid,
+>> +				  (unsigned long *)matrix_dev->info.apm)) {
+> The patch description and the code seem to be out of sync. Here you do
+> some filtering based on the host's  AP config info read at module read at
+> module initialization time.
+>
+>> +			clear_bit_inv(apid, shadow_apcb->apm);
+>> +			continue;
+>> +		}
+>> +
+>> +		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
+>> +				     AP_DOMAINS) {
+>> +			/*
+>> +			 * If the APQI is not assigned to the host AP
+>> +			 * configuration, then it can not be assigned to the
+>> +			 * guest's AP configuration
+>> +			 */
+>> +			if (!test_bit_inv(apqi, (unsigned long *)
+>> +					  matrix_dev->info.aqm)) {
+>> +				clear_bit_inv(apqi, shadow_apcb->aqm);
+>> +				continue;
+>> +			}
+>> +
+>> +			/*
+>> +			 * If the APQN is not bound to the vfio_ap device
+>> +			 * driver, then we can't assign it to the guest's
+>> +			 * AP configuration. The AP architecture won't
+>> +			 * allow filtering of a single APQN, so if we're
+>> +			 * filtering APIDs, then filter the APID; otherwise,
+>> +			 * filter the APQI.
+>> +			 */
+>> +			apqn = AP_MKQID(apid, apqi);
+>> +			if (!vfio_ap_get_queue(apqn)) {
+> Is this really gonna give NULL if the queue is not bound to vfio-ap? I
+> don't think so. This will get NULL if the queue is not known to the AP
+> bus, or has no driver-data assigned. In the current state it should give
+> you non-NULL if another driver has the queue, and maintains it's own
+> driver specific data in drvdata.
 
-Regards,
-Halil
+It will not give you a NULL if the zcrypt driver has the queue because
+no zcrypt driver sets any drvdata. You do bring up a good point though
+because there is no guarantee that another driver will never set
+the driver data for a queue device. Consequently, I will be changing the
+vfio_ap_get_queue(apqn) function to check the driver associated with
+the device and return NULL if it is not the vfio_ap driver.
 
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index fc8629e28ad3..da1754fd4f66 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -113,5 +113,7 @@ void vfio_ap_mdev_remove_queue(struct ap_queue *queue);
->  bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
->  void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
->  			    struct ap_config_info *old_config_info);
-> +void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
-> +			      struct ap_config_info *old_config_info);
->  
->  #endif /* _VFIO_AP_PRIVATE_H_ */
+>
+>> +				if (filter_apids)
+>> +					clear_bit_inv(apid, shadow_apcb->apm);
+>> +				else
+>> +					clear_bit_inv(apqi, shadow_apcb->aqm);
+>> +				break;
+>> +			}
+>> +		}
+>> +
+>> +		/*
+>> +		 * If we're filtering APQIs and all of them have been filtered,
+>> +		 * there's no need to continue filtering.
+>> +		 */
+>> +		if (!filter_apids)
+>> +			if (bitmap_empty(shadow_apcb->aqm, AP_DOMAINS))
+>> +				break;
+>> +	}
+>> +
+>> +	return bitmap_weight(shadow_apcb->apm, AP_DEVICES) *
+>> +	       bitmap_weight(shadow_apcb->aqm, AP_DOMAINS);
+>> +}
+>> +
+>> +/**
+>> + * vfio_ap_mdev_config_shadow_apcb
+>> + *
+>> + * Configure the shadow of a KVM guest's APCB specifying the adapters, domains
+>> + * and control domains to be assigned to the guest. The shadow APCB will be
+>> + * configured after filtering the APQNs assigned to the matrix mdev that do not
+>> + * reference a queue device bound to the vfio_ap device driver.
+>> + *
+>> + * @matrix_mdev: the matrix mdev whose shadow APCB is to be configured.
+>> + *
+>> + * Returns true if the shadow APCB contents have been changed; otherwise,
+>> + * returns false.
+>> + */
+>> +static bool vfio_ap_mdev_config_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
+>> +{
+>> +	int napm, naqm;
+>> +	struct ap_matrix shadow_apcb;
+>> +
+>> +	vfio_ap_matrix_init(&matrix_dev->info, &shadow_apcb);
+>> +	napm = bitmap_weight(matrix_mdev->matrix.apm, AP_DEVICES);
+>> +	naqm = bitmap_weight(matrix_mdev->matrix.aqm, AP_DOMAINS);
+>> +
+>> +	/*
+>> +	 * If there are no APIDs or no APQIs assigned to the matrix mdev,
+>> +	 * then no APQNs shall be assigned to the guest CRYCB.
+>> +	 */
+>> +	if ((napm != 0) || (naqm != 0)) {
+>> +		/*
+>> +		 * Filter the APIDs assigned to the matrix mdev for APQNs that
+>> +		 * do not reference an AP queue device bound to the driver.
+>> +		 */
+>> +		napm = vfio_ap_mdev_filter_matrix(matrix_mdev, &shadow_apcb,
+>> +						  true);
+>> +		/*
+>> +		 * If there are no APQNs that can be assigned to the guest's
+>> +		 * CRYCB after filtering, then try filtering the APQIs.
+>> +		 */
+>> +		if (napm == 0) {
+> When do we expect this to happen? Currently we don't assign queues that
+> are not bound to us, and we have ->in_use() that inhibits disappearance
+> of queues due to re-partitioning.
+
+This will happen when domains are over-provisioned for a matrix
+mdev. Suppose the following APQNs are assigned to the matrix
+mdev:
+
+00.0000
+00.0004
+00.0047
+
+If queue 00.0047 is not bound to the vfio_ap device driver, then
+the filtering code will filter APID 00.
+
+Is your objection that this patch occurs prior to the
+patch that implements over-provisioning? I guess your confusion
+makes sense given over-provisioning is not introduced until after
+this patch. Maybe I should re-order these to patches.
+
+>
+> So what we are left with is queue becomes unavailable to the host
+> because of a config change, and maybe manual unbind -- not sure about
+> that.
+
+A queue can be removed from the vfio_ap device driver for the
+following reasons:
+
+1. The apmask or aqmask change can result in a queue device
+     being unbound from vfio_ap.
+
+2. A queue device can be manually unbound from vfio_ap.
+
+3. A queue device can be unbound due to dynamic deconfiguration of
+     the adapter via the SE or SCLP Deconfigure Adjunct Processor
+     command (i.e., a configuration change)
+
+>
+> Now if matrix_dev->info was to reflect the config the bus acts by, which
+> seems to the idea behind patch 12 we could react accordingly (if the
+> domain is gone filter aqm).
+
+That is handled in patch 13 which is the callback that handles the
+notification introduced in patch 12. That patch does not use this
+filtering code, however.
+
+>
+> I mean, the purpose of this callback seems to be getting us out of
+> trouble when domains are missing across all cards (i.e. some domains
+> were assigned away from us on the lower level).
+>
+> Or am I missing something?
+
+I think you are missing the fact that there are other reasons
+why a queue device may not be bound to vfio_ap (see reasons
+above).
+
+>
+>> +			naqm = vfio_ap_mdev_filter_matrix(matrix_mdev,
+>> +							  &shadow_apcb, false);
+>> +
+>> +			/*
+>> +			 * If there are no APQNs that can be assigned to the
+>> +			 * matrix mdev after filtering the APQIs, then no APQNs
+>> +			 * shall be assigned to the guest's CRYCB.
+>> +			 */
+>> +			if (naqm == 0) {
+>> +				bitmap_clear(shadow_apcb.apm, 0, AP_DEVICES);
+>> +				bitmap_clear(shadow_apcb.aqm, 0, AP_DOMAINS);
+>> +			}
+>> +		}
+>> +	}
+>> +
+>> +	/*
+>> +	 * If the guest's AP configuration has not changed, then return
+>> +	 * indicating such.
+>> +	 */
+>> +	if (bitmap_equal(matrix_mdev->shadow_apcb.apm, shadow_apcb.apm,
+>> +			 AP_DEVICES) &&
+>> +	    bitmap_equal(matrix_mdev->shadow_apcb.aqm, shadow_apcb.aqm,
+>> +			 AP_DOMAINS) &&
+>> +	    bitmap_equal(matrix_mdev->shadow_apcb.adm, shadow_apcb.adm,
+>> +			 AP_DOMAINS))
+>> +		return false;
+>> +
+>> +	/*
+>> +	 * Copy the changes to the guest's CRYCB, then return indicating that
+>> +	 * the guest's AP configuration has changed.
+>> +	 */
+>> +	memcpy(&matrix_mdev->shadow_apcb, &shadow_apcb, sizeof(shadow_apcb));
+>> +
+>> +	return true;
+>> +}
+>> +
+>>   enum qlink_type {
+>>   	LINK_APID,
+>>   	LINK_APQI,
+>> @@ -1284,9 +1435,8 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+>>   	if (!vfio_ap_mdev_has_crycb(matrix_mdev))
+>>   		return NOTIFY_DONE;
+>>   
+>> -	memcpy(&matrix_mdev->shadow_apcb, &matrix_mdev->matrix,
+>> -	       sizeof(matrix_mdev->shadow_apcb));
+>> -	vfio_ap_mdev_commit_crycb(matrix_mdev);
+>> +	if (vfio_ap_mdev_config_shadow_apcb(matrix_mdev))
+>> +		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
+>>   
+>>   	return NOTIFY_OK;
+>>   }
+>> @@ -1396,6 +1546,7 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+>>   	mutex_lock(&matrix_dev->lock);
+>>   	if (matrix_mdev->kvm) {
+>>   		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+>> +		vfio_ap_matrix_clear_masks(&matrix_mdev->shadow_apcb);
+>>   		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+>>   		vfio_ap_mdev_reset_queues(mdev);
+>>   		kvm_put_kvm(matrix_mdev->kvm);
