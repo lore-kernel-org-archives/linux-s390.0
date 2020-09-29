@@ -1,66 +1,98 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41592 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726130AbgIWIhL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 23 Sep 2020 04:37:11 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/9] s390/qeth: clean up string ops in qeth_l3_parse_ipatoe()
-Date: Wed, 23 Sep 2020 10:36:54 +0200
-Message-Id: <20200923083700.44624-4-jwi@linux.ibm.com>
-In-Reply-To: <20200923083700.44624-1-jwi@linux.ibm.com>
-References: <20200923083700.44624-1-jwi@linux.ibm.com>
+Return-Path: <linux-kselftest-owner@vger.kernel.org>
+From: John Hubbard <jhubbard@nvidia.com>
+Subject: [PATCH v2 0/8] selftests/vm: gup_test, hmm-tests, assorted improvements
+Date: Tue, 29 Sep 2020 14:27:39 -0700
+Message-ID: <20200929212747.251804-1-jhubbard@nvidia.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
 
-Indicate the max number of to-be-parsed characters, and avoid copying
-the address sub-string.
+Changes since v1:
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_l3_sys.c | 27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+* check_config.sh now invokes the compiler via the Makefile's ($CC),
+thanks to Jason Gunthorpe for calling that out.
 
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index ca9c95b6bf35..05fa986e30fc 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -409,21 +409,22 @@ static ssize_t qeth_l3_dev_ipato_add4_show(struct device *dev,
- static int qeth_l3_parse_ipatoe(const char *buf, enum qeth_prot_versions proto,
- 		  u8 *addr, int *mask_bits)
- {
--	const char *start, *end;
--	char *tmp;
--	char buffer[40] = {0, };
-+	const char *start;
-+	char *sep, *tmp;
-+	int rc;
- 
--	start = buf;
--	/* get address string */
--	end = strchr(start, '/');
--	if (!end || (end - start >= 40)) {
-+	/* Expected input pattern: %addr/%mask */
-+	sep = strnchr(buf, 40, '/');
-+	if (!sep)
- 		return -EINVAL;
--	}
--	strncpy(buffer, start, end - start);
--	if (qeth_l3_string_to_ipaddr(buffer, proto, addr)) {
--		return -EINVAL;
--	}
--	start = end + 1;
-+
-+	/* Terminate the %addr sub-string, and parse it: */
-+	*sep = '\0';
-+	rc = qeth_l3_string_to_ipaddr(buf, proto, addr);
-+	if (rc)
-+		return rc;
-+
-+	start = sep + 1;
- 	*mask_bits = simple_strtoul(start, &tmp, 10);
- 	if (!strlen(start) ||
- 	    (tmp == start) ||
--- 
-2.17.1
+* Removed a misleading sentence from patch #6, as identified by Ira
+Weiny.
+
+* Removed a forward-looking sentence, about using -lpthread in
+gup_test.c soon, from the commit message in patch #4, since I'm not yet
+sure if my local pthread-based stress tests are actually worthwhile or
+not.
+
+Original cover letter, still accurate at this point:
+
+This is based on the latest mmotm.
+
+Summary: This series provides two main things, and a number of smaller
+supporting goodies. The two main points are:
+
+1) Add a new sub-test to gup_test, which in turn is a renamed version of
+gup_benchmark. This sub-test allows nicer testing of dump_pages(), at
+least on user-space pages.
+
+For quite a while, I was doing a quick hack to gup_test.c whenever I
+wanted to try out changes to dump_page(). Then Matthew Wilcox asked me
+what I meant when I said "I used my dump_page() unit test", and I
+realized that it might be nice to check in a polished up version of
+that.
+
+Details about how it works and how to use it are in the commit
+description for patch #6.
+
+2) Fixes a limitation of hmm-tests: these tests are incredibly useful,
+but only if people actually build and run them. And it turns out that
+libhugetlbfs is a little too effective at throwing a wrench in the
+works, there. So I've added a little configuration check that removes
+just two of the 21 hmm-tests, if libhugetlbfs is not available.
+
+Further details in the commit description of patch #8.
+
+Other smaller things that this series does:
+
+a) Remove code duplication by creating gup_test.h.
+
+b) Clear up the sub-test organization, and their invocation within
+run_vmtests.sh.
+
+c) Other minor assorted improvements.
+
+
+John Hubbard (8):
+  mm/gup_benchmark: rename to mm/gup_test
+  selftests/vm: use a common gup_test.h
+  selftests/vm: rename run_vmtests --> run_vmtests.sh
+  selftests/vm: minor cleanup: Makefile and gup_test.c
+  selftests/vm: only some gup_test items are really benchmarks
+  selftests/vm: gup_test: introduce the dump_pages() sub-test
+  selftests/vm: run_vmtest.sh: update and clean up gup_test invocation
+  selftests/vm: hmm-tests: remove the libhugetlbfs dependency
+
+ Documentation/core-api/pin_user_pages.rst     |   6 +-
+ arch/s390/configs/debug_defconfig             |   2 +-
+ arch/s390/configs/defconfig                   |   2 +-
+ mm/Kconfig                                    |  21 +-
+ mm/Makefile                                   |   2 +-
+ mm/{gup_benchmark.c =3D> gup_test.c}            | 109 ++++++----
+ mm/gup_test.h                                 |  32 +++
+ tools/testing/selftests/vm/.gitignore         |   3 +-
+ tools/testing/selftests/vm/Makefile           |  38 +++-
+ tools/testing/selftests/vm/check_config.sh    |  31 +++
+ tools/testing/selftests/vm/config             |   2 +-
+ tools/testing/selftests/vm/gup_benchmark.c    | 137 -------------
+ tools/testing/selftests/vm/gup_test.c         | 188 ++++++++++++++++++
+ tools/testing/selftests/vm/hmm-tests.c        |  10 +-
+ .../vm/{run_vmtests =3D> run_vmtest.sh}         |  24 ++-
+ 15 files changed, 404 insertions(+), 203 deletions(-)
+ rename mm/{gup_benchmark.c =3D> gup_test.c} (59%)
+ create mode 100644 mm/gup_test.h
+ create mode 100755 tools/testing/selftests/vm/check_config.sh
+ delete mode 100644 tools/testing/selftests/vm/gup_benchmark.c
+ create mode 100644 tools/testing/selftests/vm/gup_test.c
+ rename tools/testing/selftests/vm/{run_vmtests =3D> run_vmtest.sh} (91%)
+
+--=20
+2.28.0
