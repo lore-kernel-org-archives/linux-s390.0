@@ -1,32 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54398 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726183AbgINMg5 (ORCPT
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:24074 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728254AbgI2Kvb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Sep 2020 08:36:57 -0400
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 0/1] DASD: fix discard for FBA devices
-Date: Mon, 14 Sep 2020 13:56:46 +0200
-Message-Id: <20200914115647.94062-1-sth@linux.ibm.com>
+        Tue, 29 Sep 2020 06:51:31 -0400
+Date: Tue, 29 Sep 2020 12:51:18 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v2 2/4] s390x: pv: implement routine to
+ share/unshare memory
+Message-ID: <20200929125118.26566182.cohuck@redhat.com>
+In-Reply-To: <1601303017-8176-3-git-send-email-pmorel@linux.ibm.com>
+References: <1601303017-8176-1-git-send-email-pmorel@linux.ibm.com>
+        <1601303017-8176-3-git-send-email-pmorel@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: axboe@kernel.dk
-Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com
 
-Hi Jens,
+On Mon, 28 Sep 2020 16:23:35 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-please see the following patch that fixes zero writes for DASD FBA devices under certain conditions.
+> When communicating with the host we need to share part of
+> the memory.
+> 
+> Let's implement the ultravisor calls for this.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Suggested-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/asm/uv.h | 50 ++++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 50 insertions(+)
 
-Do you mind to take this for 5.9?
-
-Jan Höppner (1):
-  s390/dasd: Fix zero write for FBA devices
-
- drivers/s390/block/dasd_fba.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
--- 
-2.17.1
+Acked-by: Cornelia Huck <cohuck@redhat.com>
