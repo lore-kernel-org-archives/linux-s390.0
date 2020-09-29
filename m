@@ -1,55 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52755 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730269AbgIJJOu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 05:14:50 -0400
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v3 6/7] xen/balloon: try to merge system ram resources
-Date: Thu, 10 Sep 2020 11:13:39 +0200
-Message-Id: <20200910091340.8654-7-david@redhat.com>
-In-Reply-To: <20200910091340.8654-1-david@redhat.com>
-References: <20200910091340.8654-1-david@redhat.com>
+Received: from hqnvemgate26.nvidia.com ([216.228.121.65]:2631 "EHLO
+        hqnvemgate26.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729557AbgI2Ugc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 29 Sep 2020 16:36:32 -0400
+Subject: Re: [PATCH 2/8] selftests/vm: use a common gup_test.h
+References: <20200928062159.923212-1-jhubbard@nvidia.com>
+ <20200928062159.923212-3-jhubbard@nvidia.com>
+ <20200928125739.GP9916@ziepe.ca>
+ <6481e78f-c70d-133a-ff4a-325b5cd8fd5d@nvidia.com>
+ <20200929163507.GV9916@ziepe.ca>
+ <aab477bf-4353-5e6b-4cc9-9872c9376ed2@nvidia.com>
+ <20200929175524.GX9916@ziepe.ca>
+ <715c49ec-d2a8-45cb-8ace-c6b1b4b8f978@nvidia.com>
+ <20200929190816.GY9916@ziepe.ca>
+ <3022912c-f11b-f564-3a8a-f516ca259a37@nvidia.com>
+ <20200929195356.GZ9916@ziepe.ca>
+ <64bb5ba7-77f7-2f09-44f0-29ee9329b183@linuxfoundation.org>
+ <554699c6-cc01-4c3c-3ed5-26d22ac3bac0@nvidia.com>
+ <9372727e-1a79-913b-5391-e0c4a85bf5a7@linuxfoundation.org>
+From: John Hubbard <jhubbard@nvidia.com>
+Message-ID: <da9047fa-d1f8-9710-04a3-0308606bb1e9@nvidia.com>
+Date: Tue, 29 Sep 2020 13:36:31 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Sender: linux-s390-owner@vger.kernel.org
+In-Reply-To: <9372727e-1a79-913b-5391-e0c4a85bf5a7@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-hyperv@vger.kernel.org, xen-devel@lists.xenproject.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@redhat.com>, Juergen Gross <jgross@suse.com>, Andrew Morton <akpmt@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>, Julien Grall <julien@xen.org>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Baoquan He <bhe@redhat.com>, Wei Yang <richardw.yang@linux.intel.com>
+To: Shuah Khan <skhan@linuxfoundation.org>, Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jonathan Corbet <corbet@lwn.net>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org
 
-Let's try to merge system ram resources we add, to minimize the number
-of resources in /proc/iomem. We don't care about the boundaries of
-individual chunks we added.
+On 9/29/20 1:20 PM, Shuah Khan wrote:
+> On 9/29/20 2:11 PM, John Hubbard wrote:
+...
+>> Do you have a link or two for that? Especially about the pushback, and
+>> conclusions reached, if any.
+>>
+> 
+> Unfortunately no. A I recall it was workflow related issues and ease of
+> running individual subsystem tests and backwards compatibility with
+> stables.
+> 
+> Let's start a new discussion and see where we land.
+> 
+OK, sure. I can take a quick pass at converting just the selftests/vm
+directory to kbuild, and post that as an RFC to start the discussion.
 
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Cc: Andrew Morton <akpmt@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Cc: Roger Pau Monné <roger.pau@citrix.com>
-Cc: Julien Grall <julien@xen.org>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/xen/balloon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
-index 9f40a294d398d..b57b2067ecbfb 100644
---- a/drivers/xen/balloon.c
-+++ b/drivers/xen/balloon.c
-@@ -331,7 +331,7 @@ static enum bp_state reserve_additional_memory(void)
- 	mutex_unlock(&balloon_mutex);
- 	/* add_memory_resource() requires the device_hotplug lock */
- 	lock_device_hotplug();
--	rc = add_memory_resource(nid, resource, MHP_NONE);
-+	rc = add_memory_resource(nid, resource, MEMHP_MERGE_RESOURCE);
- 	unlock_device_hotplug();
- 	mutex_lock(&balloon_mutex);
- 
+thanks,
 -- 
-2.26.2
+John Hubbard
+NVIDIA
