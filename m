@@ -1,10 +1,10 @@
 Return-Path: <linux-kselftest-owner@vger.kernel.org>
 From: John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH 3/8] selftests/vm: rename run_vmtests --> run_vmtests.sh
-Date: Sun, 27 Sep 2020 23:21:54 -0700
-Message-ID: <20200928062159.923212-4-jhubbard@nvidia.com>
-In-Reply-To: <20200928062159.923212-1-jhubbard@nvidia.com>
-References: <20200928062159.923212-1-jhubbard@nvidia.com>
+Subject: [PATCH v2 3/8] selftests/vm: rename run_vmtests --> run_vmtests.sh
+Date: Tue, 29 Sep 2020 14:27:42 -0700
+Message-ID: <20200929212747.251804-4-jhubbard@nvidia.com>
+In-Reply-To: <20200929212747.251804-1-jhubbard@nvidia.com>
+References: <20200929212747.251804-1-jhubbard@nvidia.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain
