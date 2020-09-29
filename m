@@ -1,56 +1,320 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57258 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726794AbgIJQtV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Sep 2020 12:49:21 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 00/10] net/smc: updates 2020-09-10
-Date: Thu, 10 Sep 2020 18:48:19 +0200
-Message-Id: <20200910164829.65426-1-kgraul@linux.ibm.com>
-Sender: linux-s390-owner@vger.kernel.org
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v10 04/16] s390/zcrypt: driver callback to indicate
+ resource in use
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+ <20200821195616.13554-5-akrowiak@linux.ibm.com>
+ <20200925112410.4134faae.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <054d609b-1c90-96c0-2e42-777edfa45f4b@linux.ibm.com>
+Date: Tue, 29 Sep 2020 09:59:04 -0400
+MIME-Version: 1.0
+In-Reply-To: <20200925112410.4134faae.pasic@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Please apply the following patch series for smc to netdev's net-next tree.
 
-This patch series is a mix of various improvements and cleanups.
-The patches 1 and 10 improve the handling of large parallel workloads.
-Patch 8 corrects a kernel config default for config CCWGROUP on s390.
-Patch 9 allows userspace tools to retrieve socket information for more
-sockets.
 
-Guvenc Gulce (2):
-  s390/net: Add SMC config as one of the defaults of CCWGROUP
-  net/smc: Use the retry mechanism for netlink messages
+On 9/25/20 5:24 AM, Halil Pasic wrote:
+> On Fri, 21 Aug 2020 15:56:04 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> Introduces a new driver callback to prevent a root user from unbinding
+>> an AP queue from its device driver if the queue is in use. The intent of
+>> this callback is to provide a driver with the means to prevent a root user
+>> from inadvertently taking a queue away from a matrix mdev and giving it to
+>> the host while it is assigned to the matrix mdev. The callback will
+>> be invoked whenever a change to the AP bus's sysfs apmask or aqmask
+>> attributes would result in one or more AP queues being removed from its
+>> driver. If the callback responds in the affirmative for any driver
+>> queried, the change to the apmask or aqmask will be rejected with a device
+>> in use error.
+>>
+>> For this patch, only non-default drivers will be queried. Currently,
+>> there is only one non-default driver, the vfio_ap device driver. The
+>> vfio_ap device driver facilitates pass-through of an AP queue to a
+>> guest. The idea here is that a guest may be administered by a different
+>> sysadmin than the host and we don't want AP resources to unexpectedly
+>> disappear from a guest's AP configuration (i.e., adapters, domains and
+>> control domains assigned to the matrix mdev). This will enforce the proper
+>> procedure for removing AP resources intended for guest usage which is to
+>> first unassign them from the matrix mdev, then unbind them from the
+>> vfio_ap device driver.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> Reported-by: kernel test robot <lkp@intel.com>
+>> ---
+>>   drivers/s390/crypto/ap_bus.c | 148 ++++++++++++++++++++++++++++++++---
+>>   drivers/s390/crypto/ap_bus.h |   4 +
+>>   2 files changed, 142 insertions(+), 10 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+>> index 24a1940b829e..db27bd931308 100644
+>> --- a/drivers/s390/crypto/ap_bus.c
+>> +++ b/drivers/s390/crypto/ap_bus.c
+>> @@ -35,6 +35,7 @@
+>>   #include <linux/mod_devicetable.h>
+>>   #include <linux/debugfs.h>
+>>   #include <linux/ctype.h>
+>> +#include <linux/module.h>
+>>   
+>>   #include "ap_bus.h"
+>>   #include "ap_debug.h"
+>> @@ -889,6 +890,23 @@ static int modify_bitmap(const char *str, unsigned long *bitmap, int bits)
+>>   	return 0;
+>>   }
+>>   
+>> +static int ap_parse_bitmap_str(const char *str, unsigned long *bitmap, int bits,
+>> +			       unsigned long *newmap)
+>> +{
+>> +	unsigned long size;
+>> +	int rc;
+>> +
+>> +	size = BITS_TO_LONGS(bits)*sizeof(unsigned long);
+>> +	if (*str == '+' || *str == '-') {
+>> +		memcpy(newmap, bitmap, size);
+>> +		rc = modify_bitmap(str, newmap, bits);
+>> +	} else {
+>> +		memset(newmap, 0, size);
+>> +		rc = hex2bitmap(str, newmap, bits);
+>> +	}
+>> +	return rc;
+>> +}
+>> +
+>>   int ap_parse_mask_str(const char *str,
+>>   		      unsigned long *bitmap, int bits,
+>>   		      struct mutex *lock)
+>> @@ -908,14 +926,7 @@ int ap_parse_mask_str(const char *str,
+>>   		kfree(newmap);
+>>   		return -ERESTARTSYS;
+>>   	}
+>> -
+>> -	if (*str == '+' || *str == '-') {
+>> -		memcpy(newmap, bitmap, size);
+>> -		rc = modify_bitmap(str, newmap, bits);
+>> -	} else {
+>> -		memset(newmap, 0, size);
+>> -		rc = hex2bitmap(str, newmap, bits);
+>> -	}
+>> +	rc = ap_parse_bitmap_str(str, bitmap, bits, newmap);
+>>   	if (rc == 0)
+>>   		memcpy(bitmap, newmap, size);
+>>   	mutex_unlock(lock);
+>> @@ -1107,12 +1118,70 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
+>>   	return rc;
+>>   }
+>>   
+>> +static int __verify_card_reservations(struct device_driver *drv, void *data)
+>> +{
+>> +	int rc = 0;
+>> +	struct ap_driver *ap_drv = to_ap_drv(drv);
+>> +	unsigned long *newapm = (unsigned long *)data;
+>> +
+>> +	/*
+>> +	 * No need to verify whether the driver is using the queues if it is the
+>> +	 * default driver.
+>> +	 */
+>> +	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
+>> +		return 0;
+>> +
+>> +	/* The non-default driver's module must be loaded */
+>> +	if (!try_module_get(drv->owner))
+>> +		return 0;
+>> +
+>> +	if (ap_drv->in_use)
+>> +		if (ap_drv->in_use(newapm, ap_perms.aqm))
+>> +			rc = -EADDRINUSE;
+>> +
+>> +	module_put(drv->owner);
+>> +
+>> +	return rc;
+>> +}
+>> +
+>> +static int apmask_commit(unsigned long *newapm)
+>> +{
+>> +	int rc;
+>> +	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
+>> +
+>> +	/*
+>> +	 * Check if any bits in the apmask have been set which will
+>> +	 * result in queues being removed from non-default drivers
+>> +	 */
+>> +	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
+>> +		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
+>> +				      __verify_card_reservations);
+>> +		if (rc)
+>> +			return rc;
+>> +	}
+> I understand the above asks all the non-default drivers if some of the
+> queues are 'used'. But AFAIU this reflects the truth ap_drv->in_use()
+> is only telling us something about a given moment...
+>
+>> +
+>> +	memcpy(ap_perms.apm, newapm, APMASKSIZE);
+> ... So I fail to understand what will prevent us from performing a
+> successful commit if some of the resources become 'used' between
+> the call to the in_use() callback and the memcpy.
 
-Karsten Graul (1):
-  net/smc: use separate work queues for different worker types
+So, the scenario you describe would go something like this:
+1. User changes apmask or aqmask attempting to take
+     queue xx.yyyy away from the vfio_ap driver.
+2. The in_use callback does not detect the affected
+     queues to be in use (i.e., it is not assigned to an mdev).
+3. Another user assigns queue xx.yyyy to an mdev
+4. The memcpy is performed and ownership of xx.yyyy is
+     transferred to the host.
+5. Afterward, the queues are reprobed which results in the
+     remove callback on the vfio_ap driver for xx.yyyy and the
+     probe callback on the cex4queue driver for xx.yyyy.
 
-Ursula Braun (7):
-  net/smc: reduce active tcp_listen workers
-  net/smc: introduce better field names
-  net/smc: dynamic allocation of CLC proposal buffer
-  net/smc: common routine for CLC accept and confirm
-  net/smc: improve server ISM device determination
-  net/smc: reduce smc_listen_decline() calls
-  net/smc: immediate freeing in smc_lgr_cleanup_early()
+You are correct, there is nothing preventing a resource from becoming
+'used' between the in_use callback and the memcpy. While the
+above scenario could be considered a circumvention of the
+intent of this design, the result would be no different than if
+the in_use callback was not implemented at all. When the
+remove callback is invoked for xx.yyyy on the vfio_ap driver
+due to the reprobe, the queue will be released.
 
- drivers/s390/net/Kconfig |   2 +-
- net/smc/af_smc.c         | 216 +++++++++++++++++++---------------
- net/smc/smc.h            |   7 ++
- net/smc/smc_cdc.c        |   4 +-
- net/smc/smc_clc.c        | 243 ++++++++++++++++++---------------------
- net/smc/smc_clc.h        |  93 +++++++--------
- net/smc/smc_close.c      |   7 +-
- net/smc/smc_core.c       |  56 ++++-----
- net/smc/smc_core.h       |  11 +-
- net/smc/smc_diag.c       |  30 +++--
- net/smc/smc_llc.c        |   2 +-
- net/smc/smc_pnet.c       |   5 +-
- net/smc/smc_tx.c         |  10 +-
- 13 files changed, 357 insertions(+), 329 deletions(-)
+The chances of this scenario occurring are probably quite tiny
+given the timing of two root users almost simultaneously
+taking the required actions in the time it takes the verification
+loop to complete and the mask to be copied. I suppose this
+could happen if there are a great number of mdevs or a very large
+number of queues bound to the vfio_ap driver, but this scenario
+seems very unlikely.
 
--- 
-2.17.1
+>
+> Of course I might be wrong.
+>
+> BTW I was never a fan of this mechanism, so I don't mind if it
+> does not work perfectly, and this should catch most of the cases. Just
+> want to make sure we don't introduce more confusion than necessary.
+>
+>> +
+>> +	return 0;
+>> +}
+>> +
+>>   static ssize_t apmask_store(struct bus_type *bus, const char *buf,
+>>   			    size_t count)
+>>   {
+>>   	int rc;
+>> +	DECLARE_BITMAP(newapm, AP_DEVICES);
+>> +
+>> +	if (mutex_lock_interruptible(&ap_perms_mutex))
+>> +		return -ERESTARTSYS;
+>> +
+>> +	rc = ap_parse_bitmap_str(buf, ap_perms.apm, AP_DEVICES, newapm);
+>> +	if (rc)
+>> +		goto done;
+>>   
+>> -	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
+>> +	rc = apmask_commit(newapm);
+>> +
+>> +done:
+>> +	mutex_unlock(&ap_perms_mutex);
+>>   	if (rc)
+>>   		return rc;
+>>   
+>> @@ -1138,12 +1207,71 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
+>>   	return rc;
+>>   }
+>>   
+>> +static int __verify_queue_reservations(struct device_driver *drv, void *data)
+>> +{
+>> +	int rc = 0;
+>> +	struct ap_driver *ap_drv = to_ap_drv(drv);
+>> +	unsigned long *newaqm = (unsigned long *)data;
+>> +
+>> +	/*
+>> +	 * If the reserved bits do not identify queues reserved for use by the
+>> +	 * non-default driver, there is no need to verify the driver is using
+>> +	 * the queues.
+>> +	 */
+>> +	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
+>> +		return 0;
+>> +
+>> +	/* The non-default driver's module must be loaded */
+>> +	if (!try_module_get(drv->owner))
+>> +		return 0;
+>> +
+>> +	if (ap_drv->in_use)
+>> +		if (ap_drv->in_use(ap_perms.apm, newaqm))
+>> +			rc = -EADDRINUSE;
+>> +
+>> +	module_put(drv->owner);
+>> +
+>> +	return rc;
+>> +}
+>> +
+>> +static int aqmask_commit(unsigned long *newaqm)
+>> +{
+>> +	int rc;
+>> +	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
+>> +
+>> +	/*
+>> +	 * Check if any bits in the aqmask have been set which will
+>> +	 * result in queues being removed from non-default drivers
+>> +	 */
+>> +	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
+>> +		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
+>> +				      __verify_queue_reservations);
+>> +		if (rc)
+>> +			return rc;
+>> +	}
+>> +
+>> +	memcpy(ap_perms.aqm, newaqm, AQMASKSIZE);
+>> +
+> Same here.
+>
+> Regards,
+> Halil
+>
+>> +	return 0;
+>> +}
+>> +
+>>   static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
+>>   			    size_t count)
+>>   {
+>>   	int rc;
+>> +	DECLARE_BITMAP(newaqm, AP_DOMAINS);
+>>   
+>> -	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
+>> +	if (mutex_lock_interruptible(&ap_perms_mutex))
+>> +		return -ERESTARTSYS;
+>> +
+>> +	rc = ap_parse_bitmap_str(buf, ap_perms.aqm, AP_DOMAINS, newaqm);
+>> +	if (rc)
+>> +		goto done;
+>> +
+>> +	rc = aqmask_commit(newaqm);
+>> +
+>> +done:
+>> +	mutex_unlock(&ap_perms_mutex);
+>>   	if (rc)
+>>   		return rc;
+>>   
+>> diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+>> index 1ea046324e8f..48c57b3d53a0 100644
+>> --- a/drivers/s390/crypto/ap_bus.h
+>> +++ b/drivers/s390/crypto/ap_bus.h
+>> @@ -136,6 +136,7 @@ struct ap_driver {
+>>   
+>>   	int (*probe)(struct ap_device *);
+>>   	void (*remove)(struct ap_device *);
+>> +	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
+>>   };
+>>   
+>>   #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
+>> @@ -255,6 +256,9 @@ void ap_queue_init_state(struct ap_queue *aq);
+>>   struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
+>>   			       int comp_device_type, unsigned int functions);
+>>   
+>> +#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
+>> +#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
+>> +
+>>   struct ap_perms {
+>>   	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
+>>   	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
