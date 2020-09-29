@@ -1,98 +1,130 @@
-Return-Path: <linux-kselftest-owner@vger.kernel.org>
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH v2 0/8] selftests/vm: gup_test, hmm-tests, assorted improvements
-Date: Tue, 29 Sep 2020 14:27:39 -0700
-Message-ID: <20200929212747.251804-1-jhubbard@nvidia.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18354 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725306AbgI2HUB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 29 Sep 2020 03:20:01 -0400
+Subject: Re: [kvm-unit-tests PATCH v2 1/4] memory: allocation in low memory
+References: <1601303017-8176-1-git-send-email-pmorel@linux.ibm.com>
+ <1601303017-8176-2-git-send-email-pmorel@linux.ibm.com>
+ <20200928173147.750e7358.cohuck@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <136e1860-ddbc-edc0-7e67-fdbd8112a01e@linux.ibm.com>
+Date: Tue, 29 Sep 2020 09:19:53 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain
+In-Reply-To: <20200928173147.750e7358.cohuck@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="iiiQSkrXsPKYyn6hwcsD5QoaBubDcAav7"
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jonathan Corbet <corbet@lwn.net>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Ralph Campbell <rcampbell@nvidia.com>, Shuah Khan <shuah@kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>
+To: Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
+Cc: kvm@vger.kernel.org, linux-s390@vger.kernel.org, david@redhat.com, thuth@redhat.com, imbrenda@linux.ibm.com
 
-Changes since v1:
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--iiiQSkrXsPKYyn6hwcsD5QoaBubDcAav7
+Content-Type: multipart/mixed; boundary="Lfgq9VU12Zqw1KZol0kYxaePWe3xduDxo"
 
-* check_config.sh now invokes the compiler via the Makefile's ($CC),
-thanks to Jason Gunthorpe for calling that out.
+--Lfgq9VU12Zqw1KZol0kYxaePWe3xduDxo
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-* Removed a misleading sentence from patch #6, as identified by Ira
-Weiny.
+On 9/28/20 5:31 PM, Cornelia Huck wrote:
+> On Mon, 28 Sep 2020 16:23:34 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>=20
+>> Some architectures need allocations to be done under a
+>> specific address limit to allow DMA from I/O.
+>>
+>> We propose here a very simple page allocator to get
+>> pages allocated under this specific limit.
+>>
+>> The DMA page allocator will only use part of the available memory
+>> under the DMA address limit to let room for the standard allocator.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>  lib/alloc_dma_page.c | 57 +++++++++++++++++++++++++++++++++++++++++++=
++
+>>  lib/alloc_dma_page.h | 24 +++++++++++++++++++
+>>  lib/s390x/sclp.c     |  2 ++
+>>  s390x/Makefile       |  1 +
+>>  4 files changed, 84 insertions(+)
+>>  create mode 100644 lib/alloc_dma_page.c
+>>  create mode 100644 lib/alloc_dma_page.h
+>=20
+> (...)
+>=20
+>> diff --git a/lib/alloc_dma_page.h b/lib/alloc_dma_page.h
+>> new file mode 100644
+>> index 0000000..85e1d2f
+>> --- /dev/null
+>> +++ b/lib/alloc_dma_page.h
+>> @@ -0,0 +1,24 @@
+>> +/*
+>> + * Page allocator for DMA definitions
+>> + *
+>> + * Copyright (c) IBM, Corp. 2020
+>> + *
+>> + * Authors:
+>> + *  Pierre Morel <pmorel@linux.ibm.com>
+>> + *
+>> + * This code is free software; you can redistribute it and/or modify =
+it
+>> + * under the terms of the GNU Library General Public License version =
+2.
+>> + */
+>> +#ifndef _ALLOC_DMA_PAGE_H_
+>> +#define _ALLOC_DMA_PAGE_H_
+>> +
+>> +#include <asm/page.h>
+>> +
+>> +void put_dma_page(void *dma_page);
+>> +void *get_dma_page(void);
+>> +phys_addr_t dma_page_alloc_init(phys_addr_t start_pfn, phys_addr_t nb=
+_pages);
+>> +
+>> +#define DMA_MAX_PFN	(0x80000000 >> PAGE_SHIFT)
+>> +#define DMA_ALLOC_RATIO	8
+>=20
+> Hm, shouldn't the architecture be able to decide where a dma page can
+> be located? Or am I misunderstanding?
 
-* Removed a forward-looking sentence, about using -lpthread in
-gup_test.c soon, from the commit message in patch #4, since I'm not yet
-sure if my local pthread-based stress tests are actually worthwhile or
-not.
+Before we start any other discussion on this patch we should clear up if
+this is still necessary after Claudio's alloc revamp.
 
-Original cover letter, still accurate at this point:
+I think he added options to request special types of memory.
 
-This is based on the latest mmotm.
-
-Summary: This series provides two main things, and a number of smaller
-supporting goodies. The two main points are:
-
-1) Add a new sub-test to gup_test, which in turn is a renamed version of
-gup_benchmark. This sub-test allows nicer testing of dump_pages(), at
-least on user-space pages.
-
-For quite a while, I was doing a quick hack to gup_test.c whenever I
-wanted to try out changes to dump_page(). Then Matthew Wilcox asked me
-what I meant when I said "I used my dump_page() unit test", and I
-realized that it might be nice to check in a polished up version of
-that.
-
-Details about how it works and how to use it are in the commit
-description for patch #6.
-
-2) Fixes a limitation of hmm-tests: these tests are incredibly useful,
-but only if people actually build and run them. And it turns out that
-libhugetlbfs is a little too effective at throwing a wrench in the
-works, there. So I've added a little configuration check that removes
-just two of the 21 hmm-tests, if libhugetlbfs is not available.
-
-Further details in the commit description of patch #8.
-
-Other smaller things that this series does:
-
-a) Remove code duplication by creating gup_test.h.
-
-b) Clear up the sub-test organization, and their invocation within
-run_vmtests.sh.
-
-c) Other minor assorted improvements.
+>=20
+>> +
+>> +#endif /* _ALLOC_DMA_PAGE_H_ */
+> (...)
+>=20
 
 
-John Hubbard (8):
-  mm/gup_benchmark: rename to mm/gup_test
-  selftests/vm: use a common gup_test.h
-  selftests/vm: rename run_vmtests --> run_vmtests.sh
-  selftests/vm: minor cleanup: Makefile and gup_test.c
-  selftests/vm: only some gup_test items are really benchmarks
-  selftests/vm: gup_test: introduce the dump_pages() sub-test
-  selftests/vm: run_vmtest.sh: update and clean up gup_test invocation
-  selftests/vm: hmm-tests: remove the libhugetlbfs dependency
 
- Documentation/core-api/pin_user_pages.rst     |   6 +-
- arch/s390/configs/debug_defconfig             |   2 +-
- arch/s390/configs/defconfig                   |   2 +-
- mm/Kconfig                                    |  21 +-
- mm/Makefile                                   |   2 +-
- mm/{gup_benchmark.c =3D> gup_test.c}            | 109 ++++++----
- mm/gup_test.h                                 |  32 +++
- tools/testing/selftests/vm/.gitignore         |   3 +-
- tools/testing/selftests/vm/Makefile           |  38 +++-
- tools/testing/selftests/vm/check_config.sh    |  31 +++
- tools/testing/selftests/vm/config             |   2 +-
- tools/testing/selftests/vm/gup_benchmark.c    | 137 -------------
- tools/testing/selftests/vm/gup_test.c         | 188 ++++++++++++++++++
- tools/testing/selftests/vm/hmm-tests.c        |  10 +-
- .../vm/{run_vmtests =3D> run_vmtest.sh}         |  24 ++-
- 15 files changed, 404 insertions(+), 203 deletions(-)
- rename mm/{gup_benchmark.c =3D> gup_test.c} (59%)
- create mode 100644 mm/gup_test.h
- create mode 100755 tools/testing/selftests/vm/check_config.sh
- delete mode 100644 tools/testing/selftests/vm/gup_benchmark.c
- create mode 100644 tools/testing/selftests/vm/gup_test.c
- rename tools/testing/selftests/vm/{run_vmtests =3D> run_vmtest.sh} (91%)
+--Lfgq9VU12Zqw1KZol0kYxaePWe3xduDxo--
 
---=20
-2.28.0
+--iiiQSkrXsPKYyn6hwcsD5QoaBubDcAav7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEwGNS88vfc9+v45Yq41TmuOI4ufgFAl9y4BkACgkQ41TmuOI4
+ufj/2w//ZOQr/ojVVCunhMxmxNclgvBMh7EJdZJWaeNygf1W9mdbh16F+bBxmkPA
+Ac0JF4anHo/AlhHJHx/9bgyibPIS5b2guazvRKYnmZZe6Uqv4gBT1a/hB5AIZbH/
+Y9CjPdz82kh1J/YLjrUajpNSrG8yi+QYUD51UuKPKM/ougGkOFm7Ih0ZajsFh8iI
+gotO5hsE07aBbIm/6rG0wHWd+1qCKAca2frdqjLzpQ9tX/huykj11euA5DMB3pf0
+lvb9K2ie1NpBjeLjKRQRnucMELkQjBv8LZH5w/xG9oXi2auBqnhlAhAqz2aJHCTh
+01koHPNTct1POCTy8IUnnfSAF4MegaXWqRHxbb6A3N/qUT5F/DQqZ7JA3wwQZSom
+dq+kc++A/YNdRXXJbeeQYJFtwKCiuYxUi0Bk4aw56YlsjDReqFtWsm49T4zXt7M7
+eZAi2b63cjtGtjJ4590XJRbHL9YRnU3Avq8w7BrfyAtSN0fxf36pq2ewtPXIXuQE
+ODDKuFFz1JjhtKbG4AKyj/hfuMJfmd/E7PkVaj+Pa1YS8UtwLDMXReskb1RiOQ9e
+GjQwL+6udgJN3Oq3aDlbjiiiPFcDJMUihzsVYd3WyqMsO1dwL/+U2cgdPxQwVZdA
+eVASMSfmsAvNSfxiJ6duLr7FWzChpedcg9M7p48Ipk2AIXOROYQ=
+=9AWW
+-----END PGP SIGNATURE-----
+
+--iiiQSkrXsPKYyn6hwcsD5QoaBubDcAav7--
