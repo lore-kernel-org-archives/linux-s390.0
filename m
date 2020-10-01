@@ -1,271 +1,153 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48998 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732213AbgJARLx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Oct 2020 13:11:53 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24450 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732609AbgJARLv (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Oct 2020 13:11:51 -0400
 From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 6/7] s390/qeth: static checker cleanups
-Date: Thu,  1 Oct 2020 19:11:35 +0200
-Message-Id: <20201001171136.46830-7-jwi@linux.ibm.com>
+Subject: [PATCH net-next 2/7] s390/qeth: de-magic the QIB parm area
+Date: Thu,  1 Oct 2020 19:11:31 +0200
+Message-Id: <20201001171136.46830-3-jwi@linux.ibm.com>
 In-Reply-To: <20201001171136.46830-1-jwi@linux.ibm.com>
 References: <20201001171136.46830-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
 Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-- Add/delete some blanks, white spaces and braces.
-- Fix misindentations.
-- Adjust a deprecated header include, and htons() conversion.
-- Remove extra 'return' statements.
+Use a proper struct, and only program the QIB extensions for devices
+where they are supported.
 
 Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |  7 ++++---
- drivers/s390/net/qeth_core_main.c | 18 +++++++++---------
- drivers/s390/net/qeth_l2_main.c   |  5 ++---
- drivers/s390/net/qeth_l3_main.c   |  7 +++----
- drivers/s390/net/qeth_l3_sys.c    |  8 ++++----
- 5 files changed, 22 insertions(+), 23 deletions(-)
+ drivers/s390/net/qeth_core.h      | 11 ++++++
+ drivers/s390/net/qeth_core_main.c | 65 ++++++++++++++-----------------
+ 2 files changed, 41 insertions(+), 35 deletions(-)
 
 diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 39d17ea2eb78..f73b4756ed5e 100644
+index f1c9a694873e..1e1e7104dade 100644
 --- a/drivers/s390/net/qeth_core.h
 +++ b/drivers/s390/net/qeth_core.h
-@@ -177,8 +177,8 @@ struct qeth_vnicc_info {
- /**
-  * some more defs
-  */
--#define QETH_TX_TIMEOUT		100 * HZ
--#define QETH_RCD_TIMEOUT	60 * HZ
-+#define QETH_TX_TIMEOUT		(100 * HZ)
-+#define QETH_RCD_TIMEOUT	(60 * HZ)
- #define QETH_RECLAIM_WORK_TIME	HZ
- #define QETH_MAX_PORTNO		15
+@@ -278,6 +278,17 @@ struct qeth_hdr {
+ 	} hdr;
+ } __attribute__ ((packed));
  
-@@ -1069,7 +1069,8 @@ extern struct qeth_dbf_info qeth_dbf[QETH_DBF_INFOS];
- 
- struct net_device *qeth_clone_netdev(struct net_device *orig);
- struct qeth_card *qeth_get_card_by_busid(char *bus_id);
--void qeth_set_allowed_threads(struct qeth_card *, unsigned long , int);
-+void qeth_set_allowed_threads(struct qeth_card *card, unsigned long threads,
-+			      int clear_start_mask);
- int qeth_threads_running(struct qeth_card *, unsigned long);
- int qeth_set_offline(struct qeth_card *card, bool resetting);
- 
++struct qeth_qib_parms {
++	char pcit_magic[4];
++	u32 pcit_a;
++	u32 pcit_b;
++	u32 pcit_c;
++	char blkt_magic[4];
++	u32 blkt_total;
++	u32 blkt_inter_packet;
++	u32 blkt_inter_packet_jumbo;
++};
++
+ /*TCP Segmentation Offload header*/
+ struct qeth_hdr_ext_tso {
+ 	__u16 hdr_tot_len;
 diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 5fd614278f30..93c9b30ab17a 100644
+index b61078b27562..81f02a70680e 100644
 --- a/drivers/s390/net/qeth_core_main.c
 +++ b/drivers/s390/net/qeth_core_main.c
-@@ -17,6 +17,7 @@
- #include <linux/errno.h>
- #include <linux/kernel.h>
- #include <linux/log2.h>
-+#include <linux/io.h>
- #include <linux/ip.h>
- #include <linux/tcp.h>
- #include <linux/mii.h>
-@@ -35,7 +36,6 @@
+@@ -2743,30 +2743,26 @@ static void qeth_free_qdio_queues(struct qeth_card *card)
+ 	}
+ }
  
- #include <asm/ebcdic.h>
- #include <asm/chpid.h>
--#include <asm/io.h>
- #include <asm/sysinfo.h>
- #include <asm/diag.h>
- #include <asm/cio.h>
-@@ -209,9 +209,8 @@ static void qeth_clear_working_pool_list(struct qeth_card *card)
+-static void qeth_create_qib_param_field(struct qeth_card *card,
+-		char *param_field)
+-{
+-
+-	param_field[0] = _ascebc['P'];
+-	param_field[1] = _ascebc['C'];
+-	param_field[2] = _ascebc['I'];
+-	param_field[3] = _ascebc['T'];
+-	*((unsigned int *) (&param_field[4])) = QETH_PCI_THRESHOLD_A(card);
+-	*((unsigned int *) (&param_field[8])) = QETH_PCI_THRESHOLD_B(card);
+-	*((unsigned int *) (&param_field[12])) = QETH_PCI_TIMER_VALUE(card);
+-}
+-
+-static void qeth_create_qib_param_field_blkt(struct qeth_card *card,
+-		char *param_field)
+-{
+-	param_field[16] = _ascebc['B'];
+-	param_field[17] = _ascebc['L'];
+-	param_field[18] = _ascebc['K'];
+-	param_field[19] = _ascebc['T'];
+-	*((unsigned int *) (&param_field[20])) = card->info.blkt.time_total;
+-	*((unsigned int *) (&param_field[24])) = card->info.blkt.inter_packet;
+-	*((unsigned int *) (&param_field[28])) =
+-		card->info.blkt.inter_packet_jumbo;
++static void qeth_fill_qib_parms(struct qeth_card *card,
++				struct qeth_qib_parms *parms)
++{
++	parms->pcit_magic[0] = 'P';
++	parms->pcit_magic[1] = 'C';
++	parms->pcit_magic[2] = 'I';
++	parms->pcit_magic[3] = 'T';
++	ASCEBC(parms->pcit_magic, sizeof(parms->pcit_magic));
++	parms->pcit_a = QETH_PCI_THRESHOLD_A(card);
++	parms->pcit_b = QETH_PCI_THRESHOLD_B(card);
++	parms->pcit_c = QETH_PCI_TIMER_VALUE(card);
++
++	parms->blkt_magic[0] = 'B';
++	parms->blkt_magic[1] = 'L';
++	parms->blkt_magic[2] = 'K';
++	parms->blkt_magic[3] = 'T';
++	ASCEBC(parms->blkt_magic, sizeof(parms->blkt_magic));
++	parms->blkt_total = card->info.blkt.time_total;
++	parms->blkt_inter_packet = card->info.blkt.inter_packet;
++	parms->blkt_inter_packet_jumbo = card->info.blkt.inter_packet_jumbo;
+ }
  
- 	QETH_CARD_TEXT(card, 5, "clwrklst");
- 	list_for_each_entry_safe(pool_entry, tmp,
--			    &card->qdio.in_buf_pool.entry_list, list){
--			list_del(&pool_entry->list);
+ static int qeth_qdio_activate(struct qeth_card *card)
+@@ -5022,21 +5018,20 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ {
+ 	struct qdio_buffer **out_sbal_ptrs[QETH_MAX_OUT_QUEUES];
+ 	struct qdio_buffer **in_sbal_ptrs[QETH_MAX_IN_QUEUES];
++	struct qeth_qib_parms *qib_parms = NULL;
+ 	struct qdio_initialize init_data;
+-	char *qib_param_field;
+ 	unsigned int i;
+ 	int rc = 0;
+ 
+ 	QETH_CARD_TEXT(card, 2, "qdioest");
+ 
+-	qib_param_field = kzalloc(sizeof_field(struct qib, parm), GFP_KERNEL);
+-	if (!qib_param_field) {
+-		rc =  -ENOMEM;
+-		goto out_free_nothing;
 -	}
-+				 &card->qdio.in_buf_pool.entry_list, list)
-+		list_del(&pool_entry->list);
++	if (!IS_IQD(card) && !IS_VM_NIC(card)) {
++		qib_parms = kzalloc(sizeof_field(struct qib, parm), GFP_KERNEL);
++		if (!qib_parms)
++			return -ENOMEM;
  
- 	for (i = 0; i < ARRAY_SIZE(queue->bufs); i++)
- 		queue->bufs[i].pool_entry = NULL;
-@@ -481,6 +480,7 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
- 			    atomic_read(&c->state) ==
- 			      QETH_QDIO_BUF_HANDLED_DELAYED) {
- 				struct qeth_qdio_out_buffer *f = c;
+-	qeth_create_qib_param_field(card, qib_param_field);
+-	qeth_create_qib_param_field_blkt(card, qib_param_field);
++		qeth_fill_qib_parms(card, qib_parms);
++	}
+ 
+ 	in_sbal_ptrs[0] = card->qdio.in_q->qdio_bufs;
+ 	if (card->options.cq == QETH_CQ_ENABLED)
+@@ -5049,7 +5044,7 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ 	init_data.q_format		 = IS_IQD(card) ? QDIO_IQDIO_QFMT :
+ 							  QDIO_QETH_QFMT;
+ 	init_data.qib_param_field_format = 0;
+-	init_data.qib_param_field        = qib_param_field;
++	init_data.qib_param_field	 = (void *)qib_parms;
+ 	init_data.no_input_qs            = card->qdio.no_in_queues;
+ 	init_data.no_output_qs           = card->qdio.no_out_queues;
+ 	init_data.input_handler		 = qeth_qdio_input_handler;
+@@ -5086,9 +5081,9 @@ static int qeth_qdio_establish(struct qeth_card *card)
+ 	default:
+ 		break;
+ 	}
 +
- 				QETH_CARD_TEXT(f->q->card, 5, "fp");
- 				QETH_CARD_TEXT_(f->q->card, 5, "%lx", (long) f);
- 				/* release here to avoid interleaving between
-@@ -507,7 +507,6 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
- 	}
+ out:
+-	kfree(qib_param_field);
+-out_free_nothing:
++	kfree(qib_parms);
+ 	return rc;
  }
  
--
- static void qeth_qdio_handle_aob(struct qeth_card *card,
- 				 unsigned long phys_aob_addr)
- {
-@@ -884,6 +883,7 @@ static void qeth_issue_ipa_msg(struct qeth_ipa_cmd *cmd, int rc,
- {
- 	const char *ipa_name;
- 	int com = cmd->hdr.command;
-+
- 	ipa_name = qeth_get_ipa_cmd_name(com);
- 
- 	if (rc)
-@@ -1253,7 +1253,7 @@ static int qeth_get_problem(struct qeth_card *card, struct ccw_device *cdev,
- 			return 0;
- 		}
- 		QETH_CARD_TEXT(card, 2, "DGENCHK");
--			return -EIO;
-+		return -EIO;
- 	}
- 	return 0;
- }
-@@ -1600,7 +1600,7 @@ static void qeth_start_kernel_thread(struct work_struct *work)
- 	struct task_struct *ts;
- 	struct qeth_card *card = container_of(work, struct qeth_card,
- 					kernel_thread_starter);
--	QETH_CARD_TEXT(card , 2, "strthrd");
-+	QETH_CARD_TEXT(card, 2, "strthrd");
- 
- 	if (card->read.state != CH_STATE_UP &&
- 	    card->write.state != CH_STATE_UP)
-@@ -3416,7 +3416,6 @@ static void qeth_get_trap_id(struct qeth_card *card, struct qeth_trap_id *tid)
- 		memcpy(tid->vmname, info322->vm[0].name, sizeof(tid->vmname));
- 	}
- 	free_page(info);
--	return;
- }
- 
- static int qeth_hw_trap_cb(struct qeth_card *card,
-@@ -4998,7 +4997,6 @@ static void qeth_determine_capabilities(struct qeth_card *card)
- 		card->options.cq = QETH_CQ_NOTAVAILABLE;
- 	}
- 
--
- out_offline:
- 	if (ddev_offline == 1)
- 		qeth_stop_channel(channel);
-@@ -6050,6 +6048,7 @@ EXPORT_SYMBOL_GPL(qeth_send_simple_setassparms_prot);
- static void qeth_unregister_dbf_views(void)
- {
- 	int x;
-+
- 	for (x = 0; x < QETH_DBF_INFOS; x++) {
- 		debug_unregister(qeth_dbf[x].id);
- 		qeth_dbf[x].id = NULL;
-@@ -6413,6 +6412,7 @@ static int qeth_core_set_offline(struct ccwgroup_device *gdev)
- static void qeth_core_shutdown(struct ccwgroup_device *gdev)
- {
- 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
-+
- 	qeth_set_allowed_threads(card, 0, 1);
- 	if ((gdev->state == CCWGROUP_ONLINE) && card->info.hwtrap)
- 		qeth_hw_trap(card, QETH_DIAGS_TRAP_DISARM);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index a88d0a01e9a5..28f6dda95736 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -183,7 +183,7 @@ static void qeth_l2_fill_header(struct qeth_qdio_out_q *queue,
- 	/* VSWITCH relies on the VLAN
- 	 * information to be present in
- 	 * the QDIO header */
--	if (veth->h_vlan_proto == __constant_htons(ETH_P_8021Q)) {
-+	if (veth->h_vlan_proto == htons(ETH_P_8021Q)) {
- 		hdr->hdr.l2.flags[2] |= QETH_LAYER2_FLAG_VLAN;
- 		hdr->hdr.l2.vlan_id = ntohs(veth->h_vlan_TCI);
- 	}
-@@ -877,7 +877,7 @@ static const struct net_device_ops qeth_l2_netdev_ops = {
- 	.ndo_set_mac_address    = qeth_l2_set_mac_address,
- 	.ndo_vlan_rx_add_vid	= qeth_l2_vlan_rx_add_vid,
- 	.ndo_vlan_rx_kill_vid   = qeth_l2_vlan_rx_kill_vid,
--	.ndo_tx_timeout	   	= qeth_tx_timeout,
-+	.ndo_tx_timeout		= qeth_tx_timeout,
- 	.ndo_fix_features	= qeth_fix_features,
- 	.ndo_set_features	= qeth_set_features,
- 	.ndo_bridge_getlink	= qeth_l2_bridge_getlink,
-@@ -1125,7 +1125,6 @@ void qeth_osn_deregister(struct net_device *dev)
- 	QETH_CARD_TEXT(card, 2, "osndereg");
- 	card->osn_info.assist_cb = NULL;
- 	card->osn_info.data_cb = NULL;
--	return;
- }
- EXPORT_SYMBOL(qeth_osn_deregister);
- #endif
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index e7244aa4d191..b1c1d2510d55 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -97,7 +97,7 @@ static bool qeth_l3_is_addr_covered_by_ipato(struct qeth_card *card,
- 		return false;
- 
- 	qeth_l3_convert_addr_to_bits((u8 *) &addr->u, addr_bits,
--				  (addr->proto == QETH_PROT_IPV4)? 4:16);
-+				     (addr->proto == QETH_PROT_IPV4) ? 4 : 16);
- 	list_for_each_entry(ipatoe, &card->ipato.entries, entry) {
- 		if (addr->proto != ipatoe->proto)
- 			continue;
-@@ -540,7 +540,7 @@ int qeth_l3_add_ipato_entry(struct qeth_card *card,
- 		if (ipatoe->proto != new->proto)
- 			continue;
- 		if (!memcmp(ipatoe->addr, new->addr,
--			    (ipatoe->proto == QETH_PROT_IPV4)? 4:16) &&
-+			    (ipatoe->proto == QETH_PROT_IPV4) ? 4 : 16) &&
- 		    (ipatoe->mask_bits == new->mask_bits)) {
- 			rc = -EEXIST;
- 			break;
-@@ -572,7 +572,7 @@ int qeth_l3_del_ipato_entry(struct qeth_card *card,
- 		if (ipatoe->proto != proto)
- 			continue;
- 		if (!memcmp(ipatoe->addr, addr,
--			    (proto == QETH_PROT_IPV4)? 4:16) &&
-+			    (proto == QETH_PROT_IPV4) ? 4 : 16) &&
- 		    (ipatoe->mask_bits == mask_bits)) {
- 			list_del(&ipatoe->entry);
- 			qeth_l3_update_ipato(card);
-@@ -2139,7 +2139,6 @@ static struct qeth_card *qeth_l3_get_card_from_dev(struct net_device *dev)
- static int qeth_l3_ip_event(struct notifier_block *this,
- 			    unsigned long event, void *ptr)
- {
--
- 	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
- 	struct net_device *dev = ifa->ifa_dev->dev;
- 	struct qeth_ipaddr addr;
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index 351763ae9b9c..997fbb7006a7 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -285,7 +285,7 @@ static ssize_t qeth_l3_dev_ipato_enable_show(struct device *dev,
- {
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 
--	return sprintf(buf, "%i\n", card->ipato.enabled? 1:0);
-+	return sprintf(buf, "%u\n", card->ipato.enabled ? 1 : 0);
- }
- 
- static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
-@@ -330,7 +330,7 @@ static ssize_t qeth_l3_dev_ipato_invert4_show(struct device *dev,
- {
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 
--	return sprintf(buf, "%i\n", card->ipato.invert4? 1:0);
-+	return sprintf(buf, "%u\n", card->ipato.invert4 ? 1 : 0);
- }
- 
- static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
-@@ -450,7 +450,7 @@ static ssize_t qeth_l3_dev_ipato_add_store(const char *buf, size_t count,
- 		return -ENOMEM;
- 
- 	ipatoe->proto = proto;
--	memcpy(ipatoe->addr, addr, (proto == QETH_PROT_IPV4)? 4:16);
-+	memcpy(ipatoe->addr, addr, (proto == QETH_PROT_IPV4) ? 4 : 16);
- 	ipatoe->mask_bits = mask_bits;
- 
- 	rc = qeth_l3_add_ipato_entry(card, ipatoe);
-@@ -501,7 +501,7 @@ static ssize_t qeth_l3_dev_ipato_invert6_show(struct device *dev,
- {
- 	struct qeth_card *card = dev_get_drvdata(dev);
- 
--	return sprintf(buf, "%i\n", card->ipato.invert6? 1:0);
-+	return sprintf(buf, "%u\n", card->ipato.invert6 ? 1 : 0);
- }
- 
- static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
 -- 
 2.17.1
