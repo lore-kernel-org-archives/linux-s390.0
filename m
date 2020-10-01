@@ -1,341 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:54075 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1772840AbgJZK6s (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:48 -0400
-Received: by mail-wm1-f68.google.com with SMTP id d78so11148259wmd.3
-        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:45 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v4 13/15] resource: Move devmem revoke code to resource framework
-Date: Mon, 26 Oct 2020 11:58:16 +0100
-Message-Id: <20201026105818.2585306-14-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47600 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1732867AbgJARL7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Oct 2020 13:11:59 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 4/7] s390/qeth: constify the disciplines
+Date: Thu,  1 Oct 2020 19:11:33 +0200
+Message-Id: <20201001171136.46830-5-jwi@linux.ibm.com>
+In-Reply-To: <20201001171136.46830-1-jwi@linux.ibm.com>
+References: <20201001171136.46830-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Arnd Bergmann <arnd@arndb.de>, David Hildenbrand <david@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-We want all iomem mmaps to consistently revoke ptes when the kernel
-takes over and CONFIG_IO_STRICT_DEVMEM is enabled. This includes the
-pci bar mmaps available through procfs and sysfs, which currently do
-not revoke mappings.
+The discipline struct is a fixed group of function pointers.
+So declare the L2 and L3 disciplines as constant.
 
-To prepare for this, move the code from the /dev/kmem driver to
-kernel/resource.c.
-
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
---
-v3:
-- add barrier for consistency and document why we don't have to check
-  for NULL (Jason)
-v4
-- Adjust comments to reflect the general nature of this iomem revoke
-  code now (Dan)
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/char/mem.c     |  85 +---------------------------------
- include/linux/ioport.h |   6 +--
- kernel/resource.c      | 101 ++++++++++++++++++++++++++++++++++++++++-
- 3 files changed, 102 insertions(+), 90 deletions(-)
+ drivers/s390/net/qeth_core.h    | 6 +++---
+ drivers/s390/net/qeth_l2_main.c | 2 +-
+ drivers/s390/net/qeth_l3_main.c | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-index 5502f56f3655..53338aad8d28 100644
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -31,9 +31,6 @@
- #include <linux/uio.h>
- #include <linux/uaccess.h>
- #include <linux/security.h>
--#include <linux/pseudo_fs.h>
--#include <uapi/linux/magic.h>
--#include <linux/mount.h>
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 707a1634f621..e5f47a823a11 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -858,7 +858,7 @@ struct qeth_card {
+ 	struct qeth_qdio_info qdio;
+ 	int read_or_write_problem;
+ 	struct qeth_osn_info osn_info;
+-	struct qeth_discipline *discipline;
++	const struct qeth_discipline *discipline;
+ 	atomic_t force_alloc_skb;
+ 	struct service_level qeth_service_level;
+ 	struct qdio_ssqd_desc ssqd;
+@@ -1051,8 +1051,8 @@ static inline int qeth_send_simple_setassparms_v6(struct qeth_card *card,
  
- #ifdef CONFIG_IA64
- # include <linux/efi.h>
-@@ -809,42 +806,6 @@ static loff_t memory_lseek(struct file *file, loff_t offset, int orig)
- 	return ret;
+ int qeth_get_priority_queue(struct qeth_card *card, struct sk_buff *skb);
+ 
+-extern struct qeth_discipline qeth_l2_discipline;
+-extern struct qeth_discipline qeth_l3_discipline;
++extern const struct qeth_discipline qeth_l2_discipline;
++extern const struct qeth_discipline qeth_l3_discipline;
+ extern const struct ethtool_ops qeth_ethtool_ops;
+ extern const struct ethtool_ops qeth_osn_ethtool_ops;
+ extern const struct attribute_group *qeth_generic_attr_groups[];
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index c0ceeddd1549..2e9d3fea60e6 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2340,7 +2340,7 @@ static int qeth_l2_control_event(struct qeth_card *card,
+ 	}
  }
  
--static struct inode *devmem_inode;
--
--#ifdef CONFIG_IO_STRICT_DEVMEM
--void revoke_devmem(struct resource *res)
--{
--	/* pairs with smp_store_release() in devmem_init_inode() */
--	struct inode *inode = smp_load_acquire(&devmem_inode);
--
--	/*
--	 * Check that the initialization has completed. Losing the race
--	 * is ok because it means drivers are claiming resources before
--	 * the fs_initcall level of init and prevent /dev/mem from
--	 * establishing mappings.
--	 */
--	if (!inode)
--		return;
--
--	/*
--	 * The expectation is that the driver has successfully marked
--	 * the resource busy by this point, so devmem_is_allowed()
--	 * should start returning false, however for performance this
--	 * does not iterate the entire resource range.
--	 */
--	if (devmem_is_allowed(PHYS_PFN(res->start)) &&
--	    devmem_is_allowed(PHYS_PFN(res->end))) {
--		/*
--		 * *cringe* iomem=relaxed says "go ahead, what's the
--		 * worst that can happen?"
--		 */
--		return;
--	}
--
--	unmap_mapping_range(inode->i_mapping, res->start, resource_size(res), 1);
--}
--#endif
--
- static int open_port(struct inode *inode, struct file *filp)
- {
- 	int rc;
-@@ -864,7 +825,7 @@ static int open_port(struct inode *inode, struct file *filp)
- 	 * revocations when drivers want to take over a /dev/mem mapped
- 	 * range.
- 	 */
--	filp->f_mapping = inode->i_mapping;
-+	filp->f_mapping = iomem_get_mapping();
- 
- 	return 0;
- }
-@@ -995,48 +956,6 @@ static char *mem_devnode(struct device *dev, umode_t *mode)
- 
- static struct class *mem_class;
- 
--static int devmem_fs_init_fs_context(struct fs_context *fc)
--{
--	return init_pseudo(fc, DEVMEM_MAGIC) ? 0 : -ENOMEM;
--}
--
--static struct file_system_type devmem_fs_type = {
--	.name		= "devmem",
--	.owner		= THIS_MODULE,
--	.init_fs_context = devmem_fs_init_fs_context,
--	.kill_sb	= kill_anon_super,
--};
--
--static int devmem_init_inode(void)
--{
--	static struct vfsmount *devmem_vfs_mount;
--	static int devmem_fs_cnt;
--	struct inode *inode;
--	int rc;
--
--	rc = simple_pin_fs(&devmem_fs_type, &devmem_vfs_mount, &devmem_fs_cnt);
--	if (rc < 0) {
--		pr_err("Cannot mount /dev/mem pseudo filesystem: %d\n", rc);
--		return rc;
--	}
--
--	inode = alloc_anon_inode(devmem_vfs_mount->mnt_sb);
--	if (IS_ERR(inode)) {
--		rc = PTR_ERR(inode);
--		pr_err("Cannot allocate inode for /dev/mem: %d\n", rc);
--		simple_release_fs(&devmem_vfs_mount, &devmem_fs_cnt);
--		return rc;
--	}
--
--	/*
--	 * Publish /dev/mem initialized.
--	 * Pairs with smp_load_acquire() in revoke_devmem().
--	 */
--	smp_store_release(&devmem_inode, inode);
--
--	return 0;
--}
--
- static int __init chr_dev_init(void)
- {
- 	int minor;
-@@ -1058,8 +977,6 @@ static int __init chr_dev_init(void)
- 		 */
- 		if ((minor == DEVPORT_MINOR) && !arch_has_dev_port())
- 			continue;
--		if ((minor == DEVMEM_MINOR) && devmem_init_inode() != 0)
--			continue;
- 
- 		device_create(mem_class, NULL, MKDEV(MEM_MAJOR, minor),
- 			      NULL, devlist[minor].name);
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 6c2b06fe8beb..8ffb61b36606 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -302,11 +302,7 @@ struct resource *devm_request_free_mem_region(struct device *dev,
- struct resource *request_free_mem_region(struct resource *base,
- 		unsigned long size, const char *name);
- 
--#ifdef CONFIG_IO_STRICT_DEVMEM
--void revoke_devmem(struct resource *res);
--#else
--static inline void revoke_devmem(struct resource *res) { };
--#endif
-+extern struct address_space *iomem_get_mapping(void);
- 
- #endif /* __ASSEMBLY__ */
- #endif	/* _LINUX_IOPORT_H */
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 841737bbda9e..a800acbc578c 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -18,12 +18,15 @@
- #include <linux/spinlock.h>
- #include <linux/fs.h>
- #include <linux/proc_fs.h>
-+#include <linux/pseudo_fs.h>
- #include <linux/sched.h>
- #include <linux/seq_file.h>
- #include <linux/device.h>
- #include <linux/pfn.h>
- #include <linux/mm.h>
-+#include <linux/mount.h>
- #include <linux/resource_ext.h>
-+#include <uapi/linux/magic.h>
- #include <asm/io.h>
- 
- 
-@@ -1112,6 +1115,58 @@ resource_size_t resource_alignment(struct resource *res)
- 
- static DECLARE_WAIT_QUEUE_HEAD(muxed_resource_wait);
- 
-+static struct inode *iomem_inode;
-+
-+#ifdef CONFIG_IO_STRICT_DEVMEM
-+static void revoke_iomem(struct resource *res)
-+{
-+	/* pairs with smp_store_release() in iomem_init_inode() */
-+	struct inode *inode = smp_load_acquire(&iomem_inode);
-+
-+	/*
-+	 * Check that the initialization has completed. Losing the race
-+	 * is ok because it means drivers are claiming resources before
-+	 * the fs_initcall level of init and prevent iomem_get_mapping users
-+	 * from establishing mappings.
-+	 */
-+	if (!inode)
-+		return;
-+
-+	/*
-+	 * The expectation is that the driver has successfully marked
-+	 * the resource busy by this point, so devmem_is_allowed()
-+	 * should start returning false, however for performance this
-+	 * does not iterate the entire resource range.
-+	 */
-+	if (devmem_is_allowed(PHYS_PFN(res->start)) &&
-+	    devmem_is_allowed(PHYS_PFN(res->end))) {
-+		/*
-+		 * *cringe* iomem=relaxed says "go ahead, what's the
-+		 * worst that can happen?"
-+		 */
-+		return;
-+	}
-+
-+	unmap_mapping_range(inode->i_mapping, res->start, resource_size(res), 1);
-+}
-+struct address_space *iomem_get_mapping(void)
-+{
-+	/*
-+	 * This function is only called from file open paths, hence guaranteed
-+	 * that fs_initcalls have completed and no need to check for NULL. But
-+	 * since revoke_iomem can be called before the initcall we still need
-+	 * the barrier to appease checkers.
-+	 */
-+	return smp_load_acquire(&iomem_inode)->i_mapping;
-+}
-+#else
-+static void revoke_iomem(struct resource *res) {}
-+struct address_space *iomem_get_mapping(void)
-+{
-+	return NULL;
-+}
-+#endif
-+
- /**
-  * __request_region - create a new busy resource region
-  * @parent: parent resource descriptor
-@@ -1179,7 +1234,7 @@ struct resource * __request_region(struct resource *parent,
- 	write_unlock(&resource_lock);
- 
- 	if (res && orig_parent == &iomem_resource)
--		revoke_devmem(res);
-+		revoke_iomem(res);
- 
- 	return res;
- }
-@@ -1713,4 +1768,48 @@ static int __init strict_iomem(char *str)
+-struct qeth_discipline qeth_l2_discipline = {
++const struct qeth_discipline qeth_l2_discipline = {
+ 	.devtype = &qeth_l2_devtype,
+ 	.setup = qeth_l2_probe_device,
+ 	.remove = qeth_l2_remove_device,
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 803ccbcf3511..4db7ded88fc8 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2073,7 +2073,7 @@ static int qeth_l3_control_event(struct qeth_card *card,
  	return 1;
  }
  
-+static int iomem_fs_init_fs_context(struct fs_context *fc)
-+{
-+	return init_pseudo(fc, DEVMEM_MAGIC) ? 0 : -ENOMEM;
-+}
-+
-+static struct file_system_type iomem_fs_type = {
-+	.name		= "iomem",
-+	.owner		= THIS_MODULE,
-+	.init_fs_context = iomem_fs_init_fs_context,
-+	.kill_sb	= kill_anon_super,
-+};
-+
-+static int __init iomem_init_inode(void)
-+{
-+	static struct vfsmount *iomem_vfs_mount;
-+	static int iomem_fs_cnt;
-+	struct inode *inode;
-+	int rc;
-+
-+	rc = simple_pin_fs(&iomem_fs_type, &iomem_vfs_mount, &iomem_fs_cnt);
-+	if (rc < 0) {
-+		pr_err("Cannot mount iomem pseudo filesystem: %d\n", rc);
-+		return rc;
-+	}
-+
-+	inode = alloc_anon_inode(iomem_vfs_mount->mnt_sb);
-+	if (IS_ERR(inode)) {
-+		rc = PTR_ERR(inode);
-+		pr_err("Cannot allocate inode for iomem: %d\n", rc);
-+		simple_release_fs(&iomem_vfs_mount, &iomem_fs_cnt);
-+		return rc;
-+	}
-+
-+	/*
-+	 * Publish iomem revocation inode initialized.
-+	 * Pairs with smp_load_acquire() in revoke_iomem().
-+	 */
-+	smp_store_release(&iomem_inode, inode);
-+
-+	return 0;
-+}
-+
-+fs_initcall(iomem_init_inode);
-+
- __setup("iomem=", strict_iomem);
+-struct qeth_discipline qeth_l3_discipline = {
++const struct qeth_discipline qeth_l3_discipline = {
+ 	.devtype = &qeth_l3_devtype,
+ 	.setup = qeth_l3_probe_device,
+ 	.remove = qeth_l3_remove_device,
 -- 
-2.28.0
+2.17.1
