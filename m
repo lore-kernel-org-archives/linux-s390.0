@@ -1,114 +1,271 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:54882 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1772853AbgJZK6t (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:49 -0400
-Received: by mail-wm1-f66.google.com with SMTP id w23so10050864wmi.4
-        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:46 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v4 14/15] sysfs: Support zapping of binary attr mmaps
-Date: Mon, 26 Oct 2020 11:58:17 +0100
-Message-Id: <20201026105818.2585306-15-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48998 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732213AbgJARLx (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Oct 2020 13:11:53 -0400
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 6/7] s390/qeth: static checker cleanups
+Date: Thu,  1 Oct 2020 19:11:35 +0200
+Message-Id: <20201001171136.46830-7-jwi@linux.ibm.com>
+In-Reply-To: <20201001171136.46830-1-jwi@linux.ibm.com>
+References: <20201001171136.46830-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>, Christian Brauner <christian.brauner@ubuntu.com>, "David S. Miller" <davem@davemloft.net>, Michael Ellerman <mpe@ellerman.id.au>, Sourabh Jain <sourabhjain@linux.ibm.com>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Nayna Jain <nayna@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-We want to be able to revoke pci mmaps so that the same access rules
-applies as for /dev/kmem. Revoke support for devmem was added in
-3234ac664a87 ("/dev/mem: Revoke mappings when a driver claims the
-region").
+- Add/delete some blanks, white spaces and braces.
+- Fix misindentations.
+- Adjust a deprecated header include, and htons() conversion.
+- Remove extra 'return' statements.
 
-The simplest way to achieve this is by having the same filp->f_mapping
-for all mappings, so that unmap_mapping_range can find them all, no
-matter through which file they've been created. Since this must be set
-at open time we need sysfs support for this.
-
-Add an optional mapping parameter bin_attr, which is only consulted
-when there's also an mmap callback, since without mmap support
-allowing to adjust the ->f_mapping makes no sense.
-
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Sourabh Jain <sourabhjain@linux.ibm.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc: Nayna Jain <nayna@linux.ibm.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- fs/sysfs/file.c       | 11 +++++++++++
- include/linux/sysfs.h |  2 ++
- 2 files changed, 13 insertions(+)
+ drivers/s390/net/qeth_core.h      |  7 ++++---
+ drivers/s390/net/qeth_core_main.c | 18 +++++++++---------
+ drivers/s390/net/qeth_l2_main.c   |  5 ++---
+ drivers/s390/net/qeth_l3_main.c   |  7 +++----
+ drivers/s390/net/qeth_l3_sys.c    |  8 ++++----
+ 5 files changed, 22 insertions(+), 23 deletions(-)
 
-diff --git a/fs/sysfs/file.c b/fs/sysfs/file.c
-index eb6897ab78e7..9d8ccdb000e3 100644
---- a/fs/sysfs/file.c
-+++ b/fs/sysfs/file.c
-@@ -169,6 +169,16 @@ static int sysfs_kf_bin_mmap(struct kernfs_open_file *of,
- 	return battr->mmap(of->file, kobj, battr, vma);
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 39d17ea2eb78..f73b4756ed5e 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -177,8 +177,8 @@ struct qeth_vnicc_info {
+ /**
+  * some more defs
+  */
+-#define QETH_TX_TIMEOUT		100 * HZ
+-#define QETH_RCD_TIMEOUT	60 * HZ
++#define QETH_TX_TIMEOUT		(100 * HZ)
++#define QETH_RCD_TIMEOUT	(60 * HZ)
+ #define QETH_RECLAIM_WORK_TIME	HZ
+ #define QETH_MAX_PORTNO		15
+ 
+@@ -1069,7 +1069,8 @@ extern struct qeth_dbf_info qeth_dbf[QETH_DBF_INFOS];
+ 
+ struct net_device *qeth_clone_netdev(struct net_device *orig);
+ struct qeth_card *qeth_get_card_by_busid(char *bus_id);
+-void qeth_set_allowed_threads(struct qeth_card *, unsigned long , int);
++void qeth_set_allowed_threads(struct qeth_card *card, unsigned long threads,
++			      int clear_start_mask);
+ int qeth_threads_running(struct qeth_card *, unsigned long);
+ int qeth_set_offline(struct qeth_card *card, bool resetting);
+ 
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 5fd614278f30..93c9b30ab17a 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -17,6 +17,7 @@
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/log2.h>
++#include <linux/io.h>
+ #include <linux/ip.h>
+ #include <linux/tcp.h>
+ #include <linux/mii.h>
+@@ -35,7 +36,6 @@
+ 
+ #include <asm/ebcdic.h>
+ #include <asm/chpid.h>
+-#include <asm/io.h>
+ #include <asm/sysinfo.h>
+ #include <asm/diag.h>
+ #include <asm/cio.h>
+@@ -209,9 +209,8 @@ static void qeth_clear_working_pool_list(struct qeth_card *card)
+ 
+ 	QETH_CARD_TEXT(card, 5, "clwrklst");
+ 	list_for_each_entry_safe(pool_entry, tmp,
+-			    &card->qdio.in_buf_pool.entry_list, list){
+-			list_del(&pool_entry->list);
+-	}
++				 &card->qdio.in_buf_pool.entry_list, list)
++		list_del(&pool_entry->list);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(queue->bufs); i++)
+ 		queue->bufs[i].pool_entry = NULL;
+@@ -481,6 +480,7 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
+ 			    atomic_read(&c->state) ==
+ 			      QETH_QDIO_BUF_HANDLED_DELAYED) {
+ 				struct qeth_qdio_out_buffer *f = c;
++
+ 				QETH_CARD_TEXT(f->q->card, 5, "fp");
+ 				QETH_CARD_TEXT_(f->q->card, 5, "%lx", (long) f);
+ 				/* release here to avoid interleaving between
+@@ -507,7 +507,6 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
+ 	}
  }
  
-+static int sysfs_kf_bin_open(struct kernfs_open_file *of)
-+{
-+	struct bin_attribute *battr = of->kn->priv;
-+
-+	if (battr->mapping)
-+		of->file->f_mapping = battr->mapping;
-+
-+	return 0;
-+}
-+
- void sysfs_notify(struct kobject *kobj, const char *dir, const char *attr)
+-
+ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 				 unsigned long phys_aob_addr)
  {
- 	struct kernfs_node *kn = kobj->sd, *tmp;
-@@ -240,6 +250,7 @@ static const struct kernfs_ops sysfs_bin_kfops_mmap = {
- 	.read		= sysfs_kf_bin_read,
- 	.write		= sysfs_kf_bin_write,
- 	.mmap		= sysfs_kf_bin_mmap,
-+	.open		= sysfs_kf_bin_open,
- };
+@@ -884,6 +883,7 @@ static void qeth_issue_ipa_msg(struct qeth_ipa_cmd *cmd, int rc,
+ {
+ 	const char *ipa_name;
+ 	int com = cmd->hdr.command;
++
+ 	ipa_name = qeth_get_ipa_cmd_name(com);
  
- int sysfs_add_file_mode_ns(struct kernfs_node *parent,
-diff --git a/include/linux/sysfs.h b/include/linux/sysfs.h
-index 34e84122f635..a17a474d1601 100644
---- a/include/linux/sysfs.h
-+++ b/include/linux/sysfs.h
-@@ -164,11 +164,13 @@ __ATTRIBUTE_GROUPS(_name)
+ 	if (rc)
+@@ -1253,7 +1253,7 @@ static int qeth_get_problem(struct qeth_card *card, struct ccw_device *cdev,
+ 			return 0;
+ 		}
+ 		QETH_CARD_TEXT(card, 2, "DGENCHK");
+-			return -EIO;
++		return -EIO;
+ 	}
+ 	return 0;
+ }
+@@ -1600,7 +1600,7 @@ static void qeth_start_kernel_thread(struct work_struct *work)
+ 	struct task_struct *ts;
+ 	struct qeth_card *card = container_of(work, struct qeth_card,
+ 					kernel_thread_starter);
+-	QETH_CARD_TEXT(card , 2, "strthrd");
++	QETH_CARD_TEXT(card, 2, "strthrd");
  
- struct file;
- struct vm_area_struct;
-+struct address_space;
+ 	if (card->read.state != CH_STATE_UP &&
+ 	    card->write.state != CH_STATE_UP)
+@@ -3416,7 +3416,6 @@ static void qeth_get_trap_id(struct qeth_card *card, struct qeth_trap_id *tid)
+ 		memcpy(tid->vmname, info322->vm[0].name, sizeof(tid->vmname));
+ 	}
+ 	free_page(info);
+-	return;
+ }
  
- struct bin_attribute {
- 	struct attribute	attr;
- 	size_t			size;
- 	void			*private;
-+	struct address_space	*mapping;
- 	ssize_t (*read)(struct file *, struct kobject *, struct bin_attribute *,
- 			char *, loff_t, size_t);
- 	ssize_t (*write)(struct file *, struct kobject *, struct bin_attribute *,
+ static int qeth_hw_trap_cb(struct qeth_card *card,
+@@ -4998,7 +4997,6 @@ static void qeth_determine_capabilities(struct qeth_card *card)
+ 		card->options.cq = QETH_CQ_NOTAVAILABLE;
+ 	}
+ 
+-
+ out_offline:
+ 	if (ddev_offline == 1)
+ 		qeth_stop_channel(channel);
+@@ -6050,6 +6048,7 @@ EXPORT_SYMBOL_GPL(qeth_send_simple_setassparms_prot);
+ static void qeth_unregister_dbf_views(void)
+ {
+ 	int x;
++
+ 	for (x = 0; x < QETH_DBF_INFOS; x++) {
+ 		debug_unregister(qeth_dbf[x].id);
+ 		qeth_dbf[x].id = NULL;
+@@ -6413,6 +6412,7 @@ static int qeth_core_set_offline(struct ccwgroup_device *gdev)
+ static void qeth_core_shutdown(struct ccwgroup_device *gdev)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
++
+ 	qeth_set_allowed_threads(card, 0, 1);
+ 	if ((gdev->state == CCWGROUP_ONLINE) && card->info.hwtrap)
+ 		qeth_hw_trap(card, QETH_DIAGS_TRAP_DISARM);
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index a88d0a01e9a5..28f6dda95736 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -183,7 +183,7 @@ static void qeth_l2_fill_header(struct qeth_qdio_out_q *queue,
+ 	/* VSWITCH relies on the VLAN
+ 	 * information to be present in
+ 	 * the QDIO header */
+-	if (veth->h_vlan_proto == __constant_htons(ETH_P_8021Q)) {
++	if (veth->h_vlan_proto == htons(ETH_P_8021Q)) {
+ 		hdr->hdr.l2.flags[2] |= QETH_LAYER2_FLAG_VLAN;
+ 		hdr->hdr.l2.vlan_id = ntohs(veth->h_vlan_TCI);
+ 	}
+@@ -877,7 +877,7 @@ static const struct net_device_ops qeth_l2_netdev_ops = {
+ 	.ndo_set_mac_address    = qeth_l2_set_mac_address,
+ 	.ndo_vlan_rx_add_vid	= qeth_l2_vlan_rx_add_vid,
+ 	.ndo_vlan_rx_kill_vid   = qeth_l2_vlan_rx_kill_vid,
+-	.ndo_tx_timeout	   	= qeth_tx_timeout,
++	.ndo_tx_timeout		= qeth_tx_timeout,
+ 	.ndo_fix_features	= qeth_fix_features,
+ 	.ndo_set_features	= qeth_set_features,
+ 	.ndo_bridge_getlink	= qeth_l2_bridge_getlink,
+@@ -1125,7 +1125,6 @@ void qeth_osn_deregister(struct net_device *dev)
+ 	QETH_CARD_TEXT(card, 2, "osndereg");
+ 	card->osn_info.assist_cb = NULL;
+ 	card->osn_info.data_cb = NULL;
+-	return;
+ }
+ EXPORT_SYMBOL(qeth_osn_deregister);
+ #endif
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index e7244aa4d191..b1c1d2510d55 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -97,7 +97,7 @@ static bool qeth_l3_is_addr_covered_by_ipato(struct qeth_card *card,
+ 		return false;
+ 
+ 	qeth_l3_convert_addr_to_bits((u8 *) &addr->u, addr_bits,
+-				  (addr->proto == QETH_PROT_IPV4)? 4:16);
++				     (addr->proto == QETH_PROT_IPV4) ? 4 : 16);
+ 	list_for_each_entry(ipatoe, &card->ipato.entries, entry) {
+ 		if (addr->proto != ipatoe->proto)
+ 			continue;
+@@ -540,7 +540,7 @@ int qeth_l3_add_ipato_entry(struct qeth_card *card,
+ 		if (ipatoe->proto != new->proto)
+ 			continue;
+ 		if (!memcmp(ipatoe->addr, new->addr,
+-			    (ipatoe->proto == QETH_PROT_IPV4)? 4:16) &&
++			    (ipatoe->proto == QETH_PROT_IPV4) ? 4 : 16) &&
+ 		    (ipatoe->mask_bits == new->mask_bits)) {
+ 			rc = -EEXIST;
+ 			break;
+@@ -572,7 +572,7 @@ int qeth_l3_del_ipato_entry(struct qeth_card *card,
+ 		if (ipatoe->proto != proto)
+ 			continue;
+ 		if (!memcmp(ipatoe->addr, addr,
+-			    (proto == QETH_PROT_IPV4)? 4:16) &&
++			    (proto == QETH_PROT_IPV4) ? 4 : 16) &&
+ 		    (ipatoe->mask_bits == mask_bits)) {
+ 			list_del(&ipatoe->entry);
+ 			qeth_l3_update_ipato(card);
+@@ -2139,7 +2139,6 @@ static struct qeth_card *qeth_l3_get_card_from_dev(struct net_device *dev)
+ static int qeth_l3_ip_event(struct notifier_block *this,
+ 			    unsigned long event, void *ptr)
+ {
+-
+ 	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
+ 	struct net_device *dev = ifa->ifa_dev->dev;
+ 	struct qeth_ipaddr addr;
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index 351763ae9b9c..997fbb7006a7 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -285,7 +285,7 @@ static ssize_t qeth_l3_dev_ipato_enable_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->ipato.enabled? 1:0);
++	return sprintf(buf, "%u\n", card->ipato.enabled ? 1 : 0);
+ }
+ 
+ static ssize_t qeth_l3_dev_ipato_enable_store(struct device *dev,
+@@ -330,7 +330,7 @@ static ssize_t qeth_l3_dev_ipato_invert4_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->ipato.invert4? 1:0);
++	return sprintf(buf, "%u\n", card->ipato.invert4 ? 1 : 0);
+ }
+ 
+ static ssize_t qeth_l3_dev_ipato_invert4_store(struct device *dev,
+@@ -450,7 +450,7 @@ static ssize_t qeth_l3_dev_ipato_add_store(const char *buf, size_t count,
+ 		return -ENOMEM;
+ 
+ 	ipatoe->proto = proto;
+-	memcpy(ipatoe->addr, addr, (proto == QETH_PROT_IPV4)? 4:16);
++	memcpy(ipatoe->addr, addr, (proto == QETH_PROT_IPV4) ? 4 : 16);
+ 	ipatoe->mask_bits = mask_bits;
+ 
+ 	rc = qeth_l3_add_ipato_entry(card, ipatoe);
+@@ -501,7 +501,7 @@ static ssize_t qeth_l3_dev_ipato_invert6_show(struct device *dev,
+ {
+ 	struct qeth_card *card = dev_get_drvdata(dev);
+ 
+-	return sprintf(buf, "%i\n", card->ipato.invert6? 1:0);
++	return sprintf(buf, "%u\n", card->ipato.invert6 ? 1 : 0);
+ }
+ 
+ static ssize_t qeth_l3_dev_ipato_invert6_store(struct device *dev,
 -- 
-2.28.0
+2.17.1
