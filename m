@@ -1,125 +1,122 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:42500 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725764AbgJ2QTv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 29 Oct 2020 12:19:51 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v2 2/4] PM: hibernate: make direct map manipulations more explicit
-Date: Thu, 29 Oct 2020 18:19:00 +0200
-Message-Id: <20201029161902.19272-3-rppt@kernel.org>
-In-Reply-To: <20201029161902.19272-1-rppt@kernel.org>
-References: <20201029161902.19272-1-rppt@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27168 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388387AbgJBTjs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 15:39:48 -0400
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 05/10] s390/dasd: Move duplicate code to separate function
+Date: Fri,  2 Oct 2020 21:39:35 +0200
+Message-Id: <20201002193940.24012-6-sth@linux.ibm.com>
+In-Reply-To: <20201002193940.24012-1-sth@linux.ibm.com>
+References: <20201002193940.24012-1-sth@linux.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+To: axboe@kernel.dk
+Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-When DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP is enabled a page may be
-not present in the direct map and has to be explicitly mapped before it
-could be copied.
+For storing retrieved path information both the if and else block in
+dasd_eckd_read_conf() use the same code. To avoid duplicate code this
+should be done after the if/else block. To further increase readability,
+move the code to a new function, dasd_eckd_store_conf_data().
 
-On arm64 it is possible that a page would be removed from the direct map
-using set_direct_map_invalid_noflush() but __kernel_map_pages() will refuse
-to map this page back if DEBUG_PAGEALLOC is disabled.
-
-Introduce hibernate_map_page() that will explicitly use
-set_direct_map_{default,invalid}_noflush() for ARCH_HAS_SET_DIRECT_MAP case
-and debug_pagealloc_map_pages() for DEBUG_PAGEALLOC case.
-
-The remapping of the pages in safe_copy_page() presumes that it only
-changes protection bits in an existing PTE and so it is safe to ignore
-return value of set_direct_map_{default,invalid}_noflush().
-
-Still, add a WARN_ON() so that future changes in set_memory APIs will not
-silently break hibernation.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reference-ID: IO1812
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- include/linux/mm.h      | 12 ------------
- kernel/power/snapshot.c | 30 ++++++++++++++++++++++++++++--
- 2 files changed, 28 insertions(+), 14 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 42 ++++++++++++++++------------------
+ 1 file changed, 20 insertions(+), 22 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 1fc0609056dc..14e397f3752c 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2927,16 +2927,6 @@ static inline bool debug_pagealloc_enabled_static(void)
- #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
- extern void __kernel_map_pages(struct page *page, int numpages, int enable);
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 2b39d2a5965f..497aa81778b6 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1000,6 +1000,22 @@ static unsigned char dasd_eckd_path_access(void *conf_data, int conf_len)
+ 		return 0;
+ }
  
--/*
-- * When called in DEBUG_PAGEALLOC context, the call should most likely be
-- * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
-- */
--static inline void
--kernel_map_pages(struct page *page, int numpages, int enable)
--{
--	__kernel_map_pages(page, numpages, enable);
--}
--
- static inline void debug_pagealloc_map_pages(struct page *page,
- 					     int numpages, int enable)
- {
-@@ -2948,8 +2938,6 @@ static inline void debug_pagealloc_map_pages(struct page *page,
- extern bool kernel_page_present(struct page *page);
- #endif	/* CONFIG_HIBERNATION */
- #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
--static inline void
--kernel_map_pages(struct page *page, int numpages, int enable) {}
- static inline void debug_pagealloc_map_pages(struct page *page,
- 					     int numpages, int enable) {}
- #ifdef CONFIG_HIBERNATION
-diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
-index 46b1804c1ddf..054c8cce4236 100644
---- a/kernel/power/snapshot.c
-+++ b/kernel/power/snapshot.c
-@@ -76,6 +76,32 @@ static inline void hibernate_restore_protect_page(void *page_address) {}
- static inline void hibernate_restore_unprotect_page(void *page_address) {}
- #endif /* CONFIG_STRICT_KERNEL_RWX  && CONFIG_ARCH_HAS_SET_MEMORY */
- 
-+static inline void hibernate_map_page(struct page *page, int enable)
++static void dasd_eckd_store_conf_data(struct dasd_device *device,
++				      struct dasd_conf_data *conf_data, int chp)
 +{
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
-+		unsigned long addr = (unsigned long)page_address(page);
-+		int ret;
++	struct channel_path_desc_fmt0 *chp_desc;
++	struct subchannel_id sch_id;
 +
-+		/*
-+		 * This should not fail because remapping a page here means
-+		 * that we only update protection bits in an existing PTE.
-+		 * It is still worth to have WARN_ON() here if something
-+		 * changes and this will no longer be the case.
-+		 */
-+		if (enable)
-+			ret = set_direct_map_default_noflush(page);
-+		else
-+			ret = set_direct_map_invalid_noflush(page);
-+
-+		if (WARN_ON(ret))
-+			return;
-+
-+		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
-+	} else {
-+		debug_pagealloc_map_pages(page, 1, enable);
-+	}
++	ccw_device_get_schid(device->cdev, &sch_id);
++	device->path[chp].conf_data = conf_data;
++	device->path[chp].cssid = sch_id.cssid;
++	device->path[chp].ssid = sch_id.ssid;
++	chp_desc = ccw_device_get_chp_desc(device->cdev, chp);
++	if (chp_desc)
++		device->path[chp].chpid = chp_desc->chpid;
++	kfree(chp_desc);
 +}
 +
- static int swsusp_page_is_free(struct page *);
- static void swsusp_set_page_forbidden(struct page *);
- static void swsusp_unset_page_forbidden(struct page *);
-@@ -1355,9 +1381,9 @@ static void safe_copy_page(void *dst, struct page *s_page)
- 	if (kernel_page_present(s_page)) {
- 		do_copy_page(dst, page_address(s_page));
- 	} else {
--		kernel_map_pages(s_page, 1, 1);
-+		hibernate_map_page(s_page, 1);
- 		do_copy_page(dst, page_address(s_page));
--		kernel_map_pages(s_page, 1, 0);
-+		hibernate_map_page(s_page, 0);
+ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
+ {
+ 	struct dasd_eckd_private *private = device->private;
+@@ -1016,7 +1032,6 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
  	}
  }
  
+-
+ static int dasd_eckd_read_conf(struct dasd_device *device)
+ {
+ 	void *conf_data;
+@@ -1026,12 +1041,9 @@ static int dasd_eckd_read_conf(struct dasd_device *device)
+ 	struct dasd_eckd_private *private, path_private;
+ 	struct dasd_uid *uid;
+ 	char print_path_uid[60], print_device_uid[60];
+-	struct channel_path_desc_fmt0 *chp_desc;
+-	struct subchannel_id sch_id;
+ 
+ 	private = device->private;
+ 	opm = ccw_device_get_path_mask(device->cdev);
+-	ccw_device_get_schid(device->cdev, &sch_id);
+ 	conf_data_saved = 0;
+ 	path_err = 0;
+ 	/* get configuration data per operational path */
+@@ -1066,15 +1078,6 @@ static int dasd_eckd_read_conf(struct dasd_device *device)
+ 				kfree(conf_data);
+ 				continue;
+ 			}
+-			pos = pathmask_to_pos(lpm);
+-			/* store per path conf_data */
+-			device->path[pos].conf_data = conf_data;
+-			device->path[pos].cssid = sch_id.cssid;
+-			device->path[pos].ssid = sch_id.ssid;
+-			chp_desc = ccw_device_get_chp_desc(device->cdev, pos);
+-			if (chp_desc)
+-				device->path[pos].chpid = chp_desc->chpid;
+-			kfree(chp_desc);
+ 			/*
+ 			 * build device UID that other path data
+ 			 * can be compared to it
+@@ -1132,18 +1135,13 @@ static int dasd_eckd_read_conf(struct dasd_device *device)
+ 				dasd_path_add_cablepm(device, lpm);
+ 				continue;
+ 			}
+-			pos = pathmask_to_pos(lpm);
+-			/* store per path conf_data */
+-			device->path[pos].conf_data = conf_data;
+-			device->path[pos].cssid = sch_id.cssid;
+-			device->path[pos].ssid = sch_id.ssid;
+-			chp_desc = ccw_device_get_chp_desc(device->cdev, pos);
+-			if (chp_desc)
+-				device->path[pos].chpid = chp_desc->chpid;
+-			kfree(chp_desc);
+ 			path_private.conf_data = NULL;
+ 			path_private.conf_len = 0;
+ 		}
++
++		pos = pathmask_to_pos(lpm);
++		dasd_eckd_store_conf_data(device, conf_data, pos);
++
+ 		switch (dasd_eckd_path_access(conf_data, conf_len)) {
+ 		case 0x02:
+ 			dasd_path_add_nppm(device, lpm);
 -- 
-2.28.0
+2.17.1
