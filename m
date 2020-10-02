@@ -1,89 +1,62 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v4 09/15] media/videbuf1|2: Mark follow_pfn usage as unsafe
-Date: Mon, 26 Oct 2020 11:58:12 +0100
-Message-Id: <20201026105818.2585306-10-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44460 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725283AbgJBTyy (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 15:54:54 -0400
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 07/10] s390/dasd: Fix operational path inconsistency
+Date: Fri,  2 Oct 2020 21:39:37 +0200
+Message-Id: <20201002193940.24012-8-sth@linux.ibm.com>
+In-Reply-To: <20201002193940.24012-1-sth@linux.ibm.com>
+References: <20201002193940.24012-1-sth@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Laurent Dufour <ldufour@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Daniel Jordan <daniel.m.jordan@oracle.com>, Michel Lespinasse <walken@google.com>
+To: axboe@kernel.dk
+Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-The media model assumes that buffers are all preallocated, so that
-when a media pipeline is running we never miss a deadline because the
-buffers aren't allocated or available.
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-This means we cannot fix the v4l follow_pfn usage through
-mmu_notifier, without breaking how this all works. The only real fix
-is to deprecate userptr support for VM_IO | VM_PFNMAP mappings and
-tell everyone to cut over to dma-buf memory sharing for zerocopy.
+During online processing and setting up a DASD device, the configuration
+data for operational paths is read and validated two times
+(dasd_eckd_read_conf()). The first time to provide information that are
+necessary for the LCU setup. A second time after the LCU setup as a
+device might report different configuration data then.
 
-userptr for normal memory will keep working as-is, this only affects
-the zerocopy userptr usage enabled in 50ac952d2263 ("[media]
-videobuf2-dma-sg: Support io userptr operations on io memory").
+When the configuration setup for each operational path is being
+validated, an initial call to dasd_eckd_clear_conf_data() is issued.
+This call wipes all previously available configuration data and path
+information for each path.
+However, the operational path mask is not updated during this process.
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Pawel Osciak <pawel@osciak.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Tomasz Figa <tfiga@chromium.org>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Michel Lespinasse <walken@google.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
---
-v3:
-- Reference the commit that enabled the zerocopy userptr use case to
-  make it abundandtly clear that this patch only affects that, and not
-  normal memory userptr. The old commit message already explained that
-  normal memory userptr is unaffected, but I guess that was not clear
-  enough.
+As a result, the stored operational path mask might no longer correspond
+to the operational paths mask reported by the CIO layer, as several
+paths might be gone between the two dasd_eckd_read_conf() calls.
+
+This inconsistency leads to more severe issues in later path handling
+changes. Fix this by removing the channel paths from the operational
+path mask during the dasd_eckd_clear_conf_data() call.
+
+Reference-ID: IO1812
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/media/common/videobuf2/frame_vector.c | 2 +-
- drivers/media/v4l2-core/videobuf-dma-contig.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/block/dasd_eckd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/common/videobuf2/frame_vector.c b/drivers/media/common/videobuf2/frame_vector.c
-index 6590987c14bd..e630494da65c 100644
---- a/drivers/media/common/videobuf2/frame_vector.c
-+++ b/drivers/media/common/videobuf2/frame_vector.c
-@@ -69,7 +69,7 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
- 			break;
- 
- 		while (ret < nr_frames && start + PAGE_SIZE <= vma->vm_end) {
--			err = follow_pfn(vma, start, &nums[ret]);
-+			err = unsafe_follow_pfn(vma, start, &nums[ret]);
- 			if (err) {
- 				if (ret == 0)
- 					ret = err;
-diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/media/v4l2-core/videobuf-dma-contig.c
-index 52312ce2ba05..821c4a76ab96 100644
---- a/drivers/media/v4l2-core/videobuf-dma-contig.c
-+++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
-@@ -183,7 +183,7 @@ static int videobuf_dma_contig_user_get(struct videobuf_dma_contig_memory *mem,
- 	user_address = untagged_baddr;
- 
- 	while (pages_done < (mem->size >> PAGE_SHIFT)) {
--		ret = follow_pfn(vma, user_address, &this_pfn);
-+		ret = unsafe_follow_pfn(vma, user_address, &this_pfn);
- 		if (ret)
- 			break;
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 274f79869b7c..271768e4606c 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1029,6 +1029,7 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
+ 		device->path[i].cssid = 0;
+ 		device->path[i].ssid = 0;
+ 		device->path[i].chpid = 0;
++		dasd_path_notoper(device, i);
+ 	}
+ }
  
 -- 
-2.28.0
+2.17.1
