@@ -1,55 +1,69 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v2 13/17] /dev/mem: Only set filp->f_mapping
-Date: Fri,  9 Oct 2020 09:59:30 +0200
-Message-Id: <20201009075934.3509076-14-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
-References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60984 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725536AbgJBUS3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 16:18:29 -0400
+Subject: Re: [PATCH v2 0/5] Pass zPCI hardware information via VFIO
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+References: <1601668844-5798-1-git-send-email-mjrosato@linux.ibm.com>
+Message-ID: <28d77f9a-0f73-82a8-7dc8-61451f13f375@linux.ibm.com>
+Date: Fri, 2 Oct 2020 16:18:22 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <1601668844-5798-1-git-send-email-mjrosato@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>
+To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
+Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-When we care about pagecache maintenance, we need to make sure that
-both f_mapping and i_mapping point at the right mapping.
+On 10/2/20 4:00 PM, Matthew Rosato wrote:
+> This patchset provides a means by which hardware information about the
+> underlying PCI device can be passed up to userspace (ie, QEMU) so that
+> this hardware information can be used rather than previously hard-coded
+> assumptions. A new VFIO region type is defined which holds this
+> information.
+> 
+> A form of these patches saw some rounds last year but has been back-
+> tabled for a while.  The original work for this feature was done by Pierre
+> Morel. I'd like to refresh the discussion on this and get this finished up
+> so that we can move forward with better-supporting additional types of
+> PCI-attached devices.  The proposal here presents a completely different
+> region mapping vs the prior approach, taking inspiration from vfio info
+> capability chains to provide device CLP information in a way that allows
+> for future expansion (new CLP features).
+> 
+> This feature is toggled via the CONFIG_VFIO_PCI_ZDEV configuration entry.
+> 
+> Changes from v1:
+> - Added ACKs (thanks!)
+> - Patch 2: Minor change:s/util_avail/util_str_avail/ per Niklas
+> - Patch 3: removed __packed
+> - Patch 3: rework various descriptions / comment blocks
+> - New patch: MAINTAINERS hit to cover new files.
+> 
 
-But for iomem mappings we only care about the virtual/pte side of
-things, so f_mapping is enough. Also setting inode->i_mapping was
-confusing me as a driver maintainer, since in e.g. drivers/gpu we
-don't do that. Per Dan this seems to be copypasta from places which do
-care about pagecache consistency, but not needed. Hence remove it for
-slightly less confusion.
+Link to latest QEMU patchset:
+https://lists.gnu.org/archive/html/qemu-devel/2020-10/msg00673.html
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
----
- drivers/char/mem.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-index abd4ffdc8cde..5502f56f3655 100644
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -864,7 +864,6 @@ static int open_port(struct inode *inode, struct file *filp)
- 	 * revocations when drivers want to take over a /dev/mem mapped
- 	 * range.
- 	 */
--	inode->i_mapping = devmem_inode->i_mapping;
- 	filp->f_mapping = inode->i_mapping;
- 
- 	return 0;
--- 
-2.28.0
+> Matthew Rosato (5):
+>    s390/pci: stash version in the zpci_dev
+>    s390/pci: track whether util_str is valid in the zpci_dev
+>    vfio-pci/zdev: define the vfio_zdev header
+>    vfio-pci/zdev: use a device region to retrieve zPCI information
+>    MAINTAINERS: Add entry for s390 vfio-pci
+> 
+>   MAINTAINERS                         |   8 ++
+>   arch/s390/include/asm/pci.h         |   4 +-
+>   arch/s390/pci/pci_clp.c             |   2 +
+>   drivers/vfio/pci/Kconfig            |  13 ++
+>   drivers/vfio/pci/Makefile           |   1 +
+>   drivers/vfio/pci/vfio_pci.c         |   8 ++
+>   drivers/vfio/pci/vfio_pci_private.h |  10 ++
+>   drivers/vfio/pci/vfio_pci_zdev.c    | 242 ++++++++++++++++++++++++++++++++++++
+>   include/uapi/linux/vfio.h           |   5 +
+>   include/uapi/linux/vfio_zdev.h      | 118 ++++++++++++++++++
+>   10 files changed, 410 insertions(+), 1 deletion(-)
+>   create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
+>   create mode 100644 include/uapi/linux/vfio_zdev.h
+> 
