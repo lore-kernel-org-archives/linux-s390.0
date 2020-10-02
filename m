@@ -1,112 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55030 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20476 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726226AbgJ1Vm2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Oct 2020 17:42:28 -0400
-From: Benjamin Block <bblock@linux.ibm.com>
-Subject: [PATCH 4/5] zfcp: process Version Change events
-Date: Wed, 28 Oct 2020 19:30:51 +0100
-Message-Id: <d2c7bc57c6cf1b65eabbf7a5d0e3927b9f65647f.1603908167.git.bblock@linux.ibm.com>
-In-Reply-To: <cover.1603908167.git.bblock@linux.ibm.com>
-References: <cover.1603908167.git.bblock@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S2388358AbgJBTjr (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 15:39:47 -0400
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 06/10] s390/dasd: Store path configuration data during path handling
+Date: Fri,  2 Oct 2020 21:39:36 +0200
+Message-Id: <20201002193940.24012-7-sth@linux.ibm.com>
+In-Reply-To: <20201002193940.24012-1-sth@linux.ibm.com>
+References: <20201002193940.24012-1-sth@linux.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Sender: Benjamin Block <bblock@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
+To: axboe@kernel.dk
+Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-Handle notifications for a concurrent change of the FCP Channel
-firmware.
-Update the relevant user-visible fields to provide accurate data.
+Currently, the configuration data for a path is retrieved during a path
+verification and used only temporarily. If a path is newly added to the
+I/O setup after a boot, no configuration data will be stored for this
+particular path.
+However, this data is required for later use and should be present for
+a valid I/O path anyway. Store this data during the path verification so
+that newly added paths can provide all information necessary.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Steffen Maier <maier@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
+Reference-ID: IO1812
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- drivers/s390/scsi/zfcp_fsf.c | 16 ++++++++++++++++
- drivers/s390/scsi/zfcp_fsf.h | 10 ++++++++++
- 2 files changed, 26 insertions(+)
+ drivers/s390/block/dasd_eckd.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
-index 6cb963a06777..afa95e04eceb 100644
---- a/drivers/s390/scsi/zfcp_fsf.c
-+++ b/drivers/s390/scsi/zfcp_fsf.c
-@@ -242,6 +242,19 @@ static void zfcp_fsf_status_read_link_down(struct zfcp_fsf_req *req)
- 	}
- }
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 497aa81778b6..274f79869b7c 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -1263,9 +1263,10 @@ static void do_path_verification_work(struct work_struct *work)
+ 	struct dasd_uid *uid;
+ 	__u8 path_rcd_buf[DASD_ECKD_RCD_DATA_SIZE];
+ 	__u8 lpm, opm, npm, ppm, epm, hpfpm, cablepm;
++	struct dasd_conf_data *conf_data;
+ 	unsigned long flags;
+ 	char print_uid[60];
+-	int rc;
++	int rc, pos;
  
-+static void
-+zfcp_fsf_status_read_version_change(struct zfcp_adapter *adapter,
-+				    struct fsf_status_read_buffer *sr_buf)
-+{
-+	if (sr_buf->status_subtype == FSF_STATUS_READ_SUB_LIC_CHANGE) {
-+		u32 version = sr_buf->payload.version_change.current_version;
+ 	data = container_of(work, struct path_verification_work_data, worker);
+ 	device = data->device;
+@@ -1395,6 +1396,14 @@ static void do_path_verification_work(struct work_struct *work)
+ 			}
+ 		}
+ 
++		conf_data = kzalloc(DASD_ECKD_RCD_DATA_SIZE, GFP_KERNEL);
++		if (conf_data) {
++			memcpy(conf_data, data->rcd_buffer,
++			       DASD_ECKD_RCD_DATA_SIZE);
++		}
++		pos = pathmask_to_pos(lpm);
++		dasd_eckd_store_conf_data(device, conf_data, pos);
 +
-+		WRITE_ONCE(adapter->fsf_lic_version, version);
-+		snprintf(fc_host_firmware_version(adapter->scsi_host),
-+			 FC_VERSION_STRING_SIZE, "%#08x", version);
-+	}
-+}
-+
- static void zfcp_fsf_status_read_handler(struct zfcp_fsf_req *req)
- {
- 	struct zfcp_adapter *adapter = req->adapter;
-@@ -300,6 +313,9 @@ static void zfcp_fsf_status_read_handler(struct zfcp_fsf_req *req)
- 	case FSF_STATUS_READ_FEATURE_UPDATE_ALERT:
- 		adapter->adapter_features = sr_buf->payload.word[0];
- 		break;
-+	case FSF_STATUS_READ_VERSION_CHANGE:
-+		zfcp_fsf_status_read_version_change(adapter, sr_buf);
-+		break;
- 	}
- 
- 	mempool_free(virt_to_page(sr_buf), adapter->pool.sr_data);
-diff --git a/drivers/s390/scsi/zfcp_fsf.h b/drivers/s390/scsi/zfcp_fsf.h
-index 09d73d0061ef..26ad7a0c5ce3 100644
---- a/drivers/s390/scsi/zfcp_fsf.h
-+++ b/drivers/s390/scsi/zfcp_fsf.h
-@@ -134,6 +134,7 @@
- #define FSF_STATUS_READ_LINK_UP          	0x00000006
- #define FSF_STATUS_READ_NOTIFICATION_LOST	0x00000009
- #define FSF_STATUS_READ_FEATURE_UPDATE_ALERT	0x0000000C
-+#define FSF_STATUS_READ_VERSION_CHANGE		0x0000000D
- 
- /* status subtypes for link down */
- #define FSF_STATUS_READ_SUB_NO_PHYSICAL_LINK	0x00000000
-@@ -143,6 +144,9 @@
- /* status subtypes for unsolicited status notification lost */
- #define FSF_STATUS_READ_SUB_INCOMING_ELS	0x00000001
- 
-+/* status subtypes for version change */
-+#define FSF_STATUS_READ_SUB_LIC_CHANGE		0x00000001
-+
- /* topologie that is detected by the adapter */
- #define FSF_TOPO_P2P				0x00000001
- #define FSF_TOPO_FABRIC				0x00000002
-@@ -226,6 +230,11 @@ struct fsf_link_down_info {
- 	u8 vendor_specific_code;
- } __attribute__ ((packed));
- 
-+struct fsf_version_change {
-+	u32 current_version;
-+	u32 previous_version;
-+} __packed;
-+
- struct fsf_status_read_buffer {
- 	u32 status_type;
- 	u32 status_subtype;
-@@ -242,6 +251,7 @@ struct fsf_status_read_buffer {
- 		u32 word[FSF_STATUS_READ_PAYLOAD_SIZE/sizeof(u32)];
- 		struct fsf_link_down_info link_down_info;
- 		struct fsf_bit_error_payload bit_error;
-+		struct fsf_version_change version_change;
- 	} payload;
- } __attribute__ ((packed));
- 
+ 		/*
+ 		 * There is a small chance that a path is lost again between
+ 		 * above path verification and the following modification of
 -- 
-2.26.2
+2.17.1
