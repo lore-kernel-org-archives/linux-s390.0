@@ -1,31 +1,28 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:46683 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2394905AbgJZWz1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 18:55:27 -0400
-Received: by mail-ed1-f66.google.com with SMTP id 33so11431096edq.13
-        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 15:55:25 -0700 (PDT)
-MIME-Version: 1.0
-From: Kyle Huey <me@kylehuey.com>
-Date: Mon, 26 Oct 2020 15:55:13 -0700
-Message-ID: <CAP045Aqrsb=CXHDHx4nS-pgg+MUDj14r-kN8_Jcbn-NAUziVag@mail.gmail.com>
-Subject: [REGRESSION] mm: process_vm_readv testcase no longer works after
- compat_prcoess_vm_readv removed
-Content-Type: text/plain; charset="UTF-8"
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29490 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388226AbgJBPJn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 11:09:43 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 0/2] net/smc: updates 2020-10-02
+Date: Fri,  2 Oct 2020 17:09:25 +0200
+Message-Id: <20201002150927.72261-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: open list <linux-kernel@vger.kernel.org>, Christoph Hellwig <hch@lst.de>
-Cc: Robert O'Callahan <robert@ocallahan.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, sparclinux@vger.kernel.org, linux-block@vger.kernel.org, linux-scsi@vger.kernel.org, "open list:FILESYSTEMS (VFS and infrastructure)" <linux-fsdevel@vger.kernel.org>, linux-aio@kvack.org, io-uring@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org, netdev@vger.kernel.org, keyrings@vger.kernel.org, linux-security-module@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-A test program from the rr[0] test suite, vm_readv_writev[1], no
-longer works on 5.10-rc1 when compiled as a 32 bit binary and executed
-on a 64 bit kernel. The first process_vm_readv call (on line 35) now
-fails with EFAULT. I have bisected this to
-c3973b401ef2b0b8005f8074a10e96e3ea093823.
+Please apply the following patch series for smc to netdev's net-next tree.
 
-It should be fairly straightforward to extract the test case from our
-repository into a standalone program.
+Patch 1 improves the ISM device payload of a CLC porposal message, patch 2
+adds to use an array to access the system EID fields.
 
-- Kyle
+Karsten Graul (2):
+  net/smc: send ISM devices with unique chid in CLC proposal
+  net/smc: use an array to check fields in system EID
 
-[0] https://rr-project.org/
-[1] https://github.com/mozilla/rr/blob/master/src/test/vm_readv_writev.c
+ net/smc/af_smc.c  | 18 +++++++++++++++++-
+ net/smc/smc_ism.c |  2 +-
+ 2 files changed, 18 insertions(+), 2 deletions(-)
+
+-- 
+2.17.1
