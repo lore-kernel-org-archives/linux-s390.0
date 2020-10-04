@@ -1,72 +1,36 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-References: <20200922004024.3699923-1-vipinsh@google.com> <20200922014836.GA26507@linux.intel.com>
- <20200922211404.GA4141897@google.com> <20200924192116.GC9649@linux.intel.com> <cb592c59-a50e-5901-71fe-19e43bc9e37e@amd.com>
-In-Reply-To: <cb592c59-a50e-5901-71fe-19e43bc9e37e@amd.com>
-From: Peter Gonda <pgonda@google.com>
-Date: Thu, 1 Oct 2020 12:08:55 -0600
-Message-ID: <CAMkAt6oX+18cZy_t3hm0zo-sLmTGeGs5H9YAWvj7WBU7_uwU5Q@mail.gmail.com>
-Subject: Re: [RFC Patch 0/2] KVM: SVM: Cgroup support for SVM SEV ASIDs
-Content-Type: text/plain; charset="UTF-8"
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:64900 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725977AbgJDNOA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 4 Oct 2020 09:14:00 -0400
+Date: Sun, 4 Oct 2020 15:14:00 +0200
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: Re: [PATCH net-next 1/2] net/smc: send ISM devices with unique chid
+ in CLC proposal
+Message-Id: <20201004151400.bb5b1aa84b08e45ea79b54e9@linux.ibm.com>
+In-Reply-To: <20201003.170538.1607088552412478587.davem@davemloft.net>
+References: <20201002150927.72261-1-kgraul@linux.ibm.com>
+        <20201002150927.72261-2-kgraul@linux.ibm.com>
+        <20201003.170538.1607088552412478587.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Sean Christopherson <sean.j.christopherson@intel.com>, Vipin Sharma <vipinsh@google.com>, Paolo Bonzini <pbonzini@redhat.com>, tj@kernel.org, lizefan@huawei.com, Joerg Roedel <joro@8bytes.org>, corbet@lwn.net, "Singh, Brijesh" <brijesh.singh@amd.com>, "Grimm, Jon" <jon.grimm@amd.com>, eric.vantassell@amd.com, Matt Gingell <gingell@google.com>, David Rientjes <rientjes@google.com>, kvm list <kvm@vger.kernel.org>, x86@kernel.org, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-On Thu, Sep 24, 2020 at 1:55 PM Tom Lendacky <thomas.lendacky@amd.com> wrote:
->
-> On 9/24/20 2:21 PM, Sean Christopherson wrote:
-> > On Tue, Sep 22, 2020 at 02:14:04PM -0700, Vipin Sharma wrote:
-> >> On Mon, Sep 21, 2020 at 06:48:38PM -0700, Sean Christopherson wrote:
-> >>> On Mon, Sep 21, 2020 at 05:40:22PM -0700, Vipin Sharma wrote:
-> >>>> Hello,
-> >>>>
-> >>>> This patch series adds a new SEV controller for tracking and limiting
-> >>>> the usage of SEV ASIDs on the AMD SVM platform.
-> >>>>
-> >>>> SEV ASIDs are used in creating encrypted VM and lightweight sandboxes
-> >>>> but this resource is in very limited quantity on a host.
-> >>>>
-> >>>> This limited quantity creates issues like SEV ASID starvation and
-> >>>> unoptimized scheduling in the cloud infrastructure.
-> >>>>
-> >>>> SEV controller provides SEV ASID tracking and resource control
-> >>>> mechanisms.
-> >>>
-> >>> This should be genericized to not be SEV specific.  TDX has a similar
-> >>> scarcity issue in the form of key IDs, which IIUC are analogous to SEV ASIDs
-> >>> (gave myself a quick crash course on SEV ASIDs).  Functionally, I doubt it
-> >>> would change anything, I think it'd just be a bunch of renaming.  The hardest
-> >>> part would probably be figuring out a name :-).
-> >>>
-> >>> Another idea would be to go even more generic and implement a KVM cgroup
-> >>> that accounts the number of VMs of a particular type, e.g. legacy, SEV,
-> >>> SEV-ES?, and TDX.  That has potential future problems though as it falls
-> >>> apart if hardware every supports 1:MANY VMs:KEYS, or if there is a need to
-> >>> account keys outside of KVM, e.g. if MKTME for non-KVM cases ever sees the
-> >>> light of day.
-> >>
-> >> I read about the TDX and its use of the KeyID for encrypting VMs. TDX
-> >> has two kinds of KeyIDs private and shared.
-> >
-> > To clarify, "shared" KeyIDs are simply legacy MKTME KeyIDs.  This is relevant
-> > because those KeyIDs can be used without TDX or KVM in the picture.
-> >
-> >> On AMD platform there are two types of ASIDs for encryption.
-> >> 1. SEV ASID - Normal runtime guest memory encryption.
-> >> 2. SEV-ES ASID - Extends SEV ASID by adding register state encryption with
-> >>               integrity.
-> >>
-> >> Both types of ASIDs have their own maximum value which is provisioned in
-> >> the firmware
-> >
-> > Ugh, I missed that detail in the SEV-ES RFC.  Does SNP add another ASID type,
-> > or does it reuse SEV-ES ASIDs?  If it does add another type, is that trend
-> > expected to continue, i.e. will SEV end up with SEV, SEV-ES, SEV-ES-SNP,
-> > SEV-ES-SNP-X, SEV-ES-SNP-X-Y, etc...?
->
-> SEV-SNP and SEV-ES share the same ASID range.
+On Sat, 03 Oct 2020 17:05:38 -0700 (PDT)
+David Miller <davem@davemloft.net> wrote:
 
-Where is this documented? From the SEV-SNP FW ABI Spec 0.8 "The
-firmware checks that ASID is an encryption capable ASID. If not, the
-firmware returns INVALID_ASID." that doesn't seem clear that an SEV-ES
-ASID is required. Should this document be more clear?
+> Series applied, but could you send a proper patch series in the future
+> with a "[PATCH 0/N] ..." header posting?  It must explain what the
+> patch series does at a high level, how it is doing it, and why it is
+> doing it that way.
+> 
+> Thank you.
+
+Hi Dave, not sure what went wrong but I sent the header posting along with
+the patches, see https://lists.openwall.net/netdev/2020/10/02/197
+
+-- 
+Karsten Graul <kgraul@linux.ibm.com>
