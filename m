@@ -1,8 +1,8 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49628 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726006AbgJEXFT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Oct 2020 19:05:19 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12408 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726813AbgJEVtA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Oct 2020 17:49:00 -0400
 Subject: Re: [PATCH v10 11/16] s390/vfio-ap: allow hot plug/unplug of AP
  resources using mdev device
 References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
@@ -11,8 +11,8 @@ References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
  <d6ba4248-77da-4963-5653-1548ced10712@linux.ibm.com>
  <20201005203003.5db3b1eb.pasic@linux.ibm.com>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <bbbd941f-16fa-5276-093e-22d1dad42593@linux.ibm.com>
-Date: Mon, 5 Oct 2020 19:05:08 -0400
+Message-ID: <75a3779d-f690-caad-cebd-467d1b4c2ff7@linux.ibm.com>
+Date: Mon, 5 Oct 2020 17:48:53 -0400
 MIME-Version: 1.0
 In-Reply-To: <20201005203003.5db3b1eb.pasic@linux.ibm.com>
 Content-Type: text/plain; charset="utf-8"; format="flowed"
@@ -22,133 +22,7 @@ List-ID: <linux-s390.vger.kernel.org>
 To: Halil Pasic <pasic@linux.ibm.com>
 Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-I proposed two algorithms in my last response. The following summarizes the
-results from executing your scenario:
 
-bound queues:
-0.0
-0.1
-
-1.0
-
-2.0
-2.1
-
-algorithm: use filtering on assign/unassign
-scenario:
-echo 0 > assign_domain
-echo 1 > assign_domain
-echo 1 > assign_adapter
-
-matrix:
-1.0
-1.1
-guest_matrix:
-1.0
-
-echo 0 > assign_adapter
-
-matrix:
-0.0
-0.1
-1.0
-1.1
-guest_matrix:
-0.0
-0.1
-
-echo 1 > unassign_adapter
-0.0
-0.1
-guest_matrix:
-0.0
-0.1
-
-echo 2 > assign_adapter
-
-matrix:
-0.0
-0.1
-2.0
-2.1
-guest_matrix:
-0.0
-0.1
-2.0
-2.1
-
-echo 1 > assign_adapter
-
-matrix:
-0.0
-0.1
-1.0
-1.1
-2.0
-2.1
-guest_matrix:
-0.0
-0.1
-2.0
-2.1
-
-algorithm: do not plug adapter if all assigned APQNs are not bound
-scenario:
-echo 0 > assign_domain
-echo 1 > assign_domain
-echo 1 > assign_adapter
-
-matrix:
-1.0
-1.1
-guest_matrix:
-no bits set
-
-echo 0 > assign_adapter
-
-matrix:
-0.0
-0.1
-1.0
-1.1
-guest_matrix:
-0.0
-0.1
-
-echo 1 > unassign_adapter
-0.0
-0.1
-guest_matrix:
-0.0
-0.1
-
-echo 2 > assign_adapter
-
-matrix:
-0.0
-0.1
-2.0
-2.1
-guest_matrix:
-0.0
-0.1
-2.0
-2.1
-
-echo 1 > assign_adapter
-
-matrix:
-0.0
-0.1
-1.0
-1.1
-2.0
-2.1
-guest_matrix:
-0.0
-0.1
-2.0
-2.1
 
 On 10/5/20 2:30 PM, Halil Pasic wrote:
 > On Mon, 5 Oct 2020 12:24:39 -0400
@@ -209,6 +83,26 @@ On 10/5/20 2:30 PM, Halil Pasic wrote:
 >
 > If this is indeed just about that edge case, maybe we can live with a
 > simpler algorithm than this one.
+
+The simplest algorithm is:
+* Forego hot plug of an adapter if any APQN derived from the adapter's
+    APID and the APQIs of the domains assigned to the matrix mdev 
+references a
+    queue device not bound to the vfio_ap device driver. In your 
+scenario, this
+    would result in no queues for the guest at 3) despite the fact that 
+1.0 is bound
+    to the vfio_ap dd.
+
+As you stated, this is an edge case, so maybe this would be sufficient. 
+Do you
+have any alternative algorithm that makes sense?
+
+Also, keep in mind that one of my goals with this design was to avoid 
+leaving
+the guest without any queues if possible. Maybe that is not a critical 
+requirement.
+
 >
 >
 >>> Let's suppose we started with the matix containing only adapter
@@ -243,6 +137,17 @@ On 10/5/20 2:30 PM, Halil Pasic wrote:
 > past we always had an error. So if a full sequence of assignments could
 > be performed without an error, than any permutation would be performed
 > with the exact same result.
+
+I'm not sure that the exact same result can be achieved regardless
+of the order of assignments - other than possibly the simple algorithm
+I suggested above - it is something I would have to think about some
+more.
+
+Another option is to call the filtering mechanism introduced
+in patch 8/16 in which case the results will be consistent with the
+configuration of the shadow_apcb. This would be the same
+configuration as if the guest were started after the assignment.
+
 >
 > I'm all for only allowing guest access to queues represented by queue
 > devices bound to the vfio_ap device driver. I'm concerned with the
