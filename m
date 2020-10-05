@@ -1,122 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27168 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388387AbgJBTjs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 15:39:48 -0400
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 05/10] s390/dasd: Move duplicate code to separate function
-Date: Fri,  2 Oct 2020 21:39:35 +0200
-Message-Id: <20201002193940.24012-6-sth@linux.ibm.com>
-In-Reply-To: <20201002193940.24012-1-sth@linux.ibm.com>
-References: <20201002193940.24012-1-sth@linux.ibm.com>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:54037 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728798AbgJEQ2l (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Oct 2020 12:28:41 -0400
+Date: Mon, 5 Oct 2020 18:28:11 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 3/5] vfio-pci/zdev: define the vfio_zdev header
+Message-ID: <20201005182811.6c17ed6b.cohuck@redhat.com>
+In-Reply-To: <e0688173-8c5a-1797-8398-235c5e406bc1@linux.ibm.com>
+References: <1601668844-5798-1-git-send-email-mjrosato@linux.ibm.com>
+        <1601668844-5798-4-git-send-email-mjrosato@linux.ibm.com>
+        <20201002154417.20c2a7ef@x1.home>
+        <8a71af3b-f8fc-48b2-45c6-51222fd2455b@linux.ibm.com>
+        <20201005180107.5d027441.cohuck@redhat.com>
+        <e0688173-8c5a-1797-8398-235c5e406bc1@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: axboe@kernel.dk
-Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
+To: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>, schnelle@linux.ibm.com, pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+On Mon, 5 Oct 2020 12:16:10 -0400
+Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-For storing retrieved path information both the if and else block in
-dasd_eckd_read_conf() use the same code. To avoid duplicate code this
-should be done after the if/else block. To further increase readability,
-move the code to a new function, dasd_eckd_store_conf_data().
+> On 10/5/20 12:01 PM, Cornelia Huck wrote:
+> > On Mon, 5 Oct 2020 09:52:25 -0400
+> > Matthew Rosato <mjrosato@linux.ibm.com> wrote:
+> >   
+> >> On 10/2/20 5:44 PM, Alex Williamson wrote:  
+> >   
+> >>> Can you discuss why a region with embedded capability chain is a better
+> >>> solution than extending the VFIO_DEVICE_GET_INFO ioctl to support a
+> >>> capability chain and providing this info there?  This all appears to be
+> >>> read-only info, so what's the benefit of duplicating yet another  
+> >>
+> >> It is indeed read-only info, and the device region was defined as such.
+> >>
+> >> I would not necessarily be opposed to extending VFIO_DEVICE_GET_INFO
+> >> with these defined as capabilities; I'd say a primary motivating factor
+> >> to putting these in their own region was to avoid stuffing a bunch of
+> >> s390-specific capabilities into a general-purpose ioctl response.  
+> > 
+> > Can't you make the zdev code register the capabilities? That would put
+> > them nicely into their own configurable part.
+> >   
+> 
+> I can still keep the code that adds these capabilities in the zdev .c 
+> file, thus meaning they will only be added for s390 zpci devices -- but 
+> the actual definition of them should probably instead be in vfio.h, no? 
+> (maybe that's what you mean, but let's lay it out just in case)
+> 
+> The capability IDs would be shared with any other potential user of 
+> VFIO_DEVICE_GET_INFO (I guess there is precedent for this already, 
+> nvlink2 does this for vfio_region_info, see 
+> VFIO_REGION_INFO_CAP_NVLINK2_SSATGT as an example).
+> 
+> Today, ZPCI would be the only users of VFIO_DEVICE_GET_INFO capability 
+> chains.  Tomorrow, some other type might use them too.  Unless we want 
+> to put a stake in the ground that says there will never be a case for a 
+> capability that all devices share on VFIO_DEVICE_GET_INFO, I think we 
+> should keep the IDs unique and define the capabilities in vfio.h but do 
+> the corresponding add_capability() calls from a zdev-specific file.
 
-Reference-ID: IO1812
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
----
- drivers/s390/block/dasd_eckd.c | 42 ++++++++++++++++------------------
- 1 file changed, 20 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 2b39d2a5965f..497aa81778b6 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1000,6 +1000,22 @@ static unsigned char dasd_eckd_path_access(void *conf_data, int conf_len)
- 		return 0;
- }
- 
-+static void dasd_eckd_store_conf_data(struct dasd_device *device,
-+				      struct dasd_conf_data *conf_data, int chp)
-+{
-+	struct channel_path_desc_fmt0 *chp_desc;
-+	struct subchannel_id sch_id;
-+
-+	ccw_device_get_schid(device->cdev, &sch_id);
-+	device->path[chp].conf_data = conf_data;
-+	device->path[chp].cssid = sch_id.cssid;
-+	device->path[chp].ssid = sch_id.ssid;
-+	chp_desc = ccw_device_get_chp_desc(device->cdev, chp);
-+	if (chp_desc)
-+		device->path[chp].chpid = chp_desc->chpid;
-+	kfree(chp_desc);
-+}
-+
- static void dasd_eckd_clear_conf_data(struct dasd_device *device)
- {
- 	struct dasd_eckd_private *private = device->private;
-@@ -1016,7 +1032,6 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
- 	}
- }
- 
--
- static int dasd_eckd_read_conf(struct dasd_device *device)
- {
- 	void *conf_data;
-@@ -1026,12 +1041,9 @@ static int dasd_eckd_read_conf(struct dasd_device *device)
- 	struct dasd_eckd_private *private, path_private;
- 	struct dasd_uid *uid;
- 	char print_path_uid[60], print_device_uid[60];
--	struct channel_path_desc_fmt0 *chp_desc;
--	struct subchannel_id sch_id;
- 
- 	private = device->private;
- 	opm = ccw_device_get_path_mask(device->cdev);
--	ccw_device_get_schid(device->cdev, &sch_id);
- 	conf_data_saved = 0;
- 	path_err = 0;
- 	/* get configuration data per operational path */
-@@ -1066,15 +1078,6 @@ static int dasd_eckd_read_conf(struct dasd_device *device)
- 				kfree(conf_data);
- 				continue;
- 			}
--			pos = pathmask_to_pos(lpm);
--			/* store per path conf_data */
--			device->path[pos].conf_data = conf_data;
--			device->path[pos].cssid = sch_id.cssid;
--			device->path[pos].ssid = sch_id.ssid;
--			chp_desc = ccw_device_get_chp_desc(device->cdev, pos);
--			if (chp_desc)
--				device->path[pos].chpid = chp_desc->chpid;
--			kfree(chp_desc);
- 			/*
- 			 * build device UID that other path data
- 			 * can be compared to it
-@@ -1132,18 +1135,13 @@ static int dasd_eckd_read_conf(struct dasd_device *device)
- 				dasd_path_add_cablepm(device, lpm);
- 				continue;
- 			}
--			pos = pathmask_to_pos(lpm);
--			/* store per path conf_data */
--			device->path[pos].conf_data = conf_data;
--			device->path[pos].cssid = sch_id.cssid;
--			device->path[pos].ssid = sch_id.ssid;
--			chp_desc = ccw_device_get_chp_desc(device->cdev, pos);
--			if (chp_desc)
--				device->path[pos].chpid = chp_desc->chpid;
--			kfree(chp_desc);
- 			path_private.conf_data = NULL;
- 			path_private.conf_len = 0;
- 		}
-+
-+		pos = pathmask_to_pos(lpm);
-+		dasd_eckd_store_conf_data(device, conf_data, pos);
-+
- 		switch (dasd_eckd_path_access(conf_data, conf_len)) {
- 		case 0x02:
- 			dasd_path_add_nppm(device, lpm);
--- 
-2.17.1
+Agreed. We should have enough space for multiple users, and I do not
+consider reserving the IDs cluttering.
