@@ -1,77 +1,365 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:47600 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1732867AbgJARL7 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 1 Oct 2020 13:11:59 -0400
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 4/7] s390/qeth: constify the disciplines
-Date: Thu,  1 Oct 2020 19:11:33 +0200
-Message-Id: <20201001171136.46830-5-jwi@linux.ibm.com>
-In-Reply-To: <20201001171136.46830-1-jwi@linux.ibm.com>
-References: <20201001171136.46830-1-jwi@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49628 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726006AbgJEXFT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Oct 2020 19:05:19 -0400
+Subject: Re: [PATCH v10 11/16] s390/vfio-ap: allow hot plug/unplug of AP
+ resources using mdev device
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+ <20200821195616.13554-12-akrowiak@linux.ibm.com>
+ <20200928030147.7ee6f494.pasic@linux.ibm.com>
+ <d6ba4248-77da-4963-5653-1548ced10712@linux.ibm.com>
+ <20201005203003.5db3b1eb.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <bbbd941f-16fa-5276-093e-22d1dad42593@linux.ibm.com>
+Date: Mon, 5 Oct 2020 19:05:08 -0400
+MIME-Version: 1.0
+In-Reply-To: <20201005203003.5db3b1eb.pasic@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-The discipline struct is a fixed group of function pointers.
-So declare the L2 and L3 disciplines as constant.
+I proposed two algorithms in my last response. The following summarizes the
+results from executing your scenario:
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h    | 6 +++---
- drivers/s390/net/qeth_l2_main.c | 2 +-
- drivers/s390/net/qeth_l3_main.c | 2 +-
- 3 files changed, 5 insertions(+), 5 deletions(-)
+bound queues:
+0.0
+0.1
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 707a1634f621..e5f47a823a11 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -858,7 +858,7 @@ struct qeth_card {
- 	struct qeth_qdio_info qdio;
- 	int read_or_write_problem;
- 	struct qeth_osn_info osn_info;
--	struct qeth_discipline *discipline;
-+	const struct qeth_discipline *discipline;
- 	atomic_t force_alloc_skb;
- 	struct service_level qeth_service_level;
- 	struct qdio_ssqd_desc ssqd;
-@@ -1051,8 +1051,8 @@ static inline int qeth_send_simple_setassparms_v6(struct qeth_card *card,
- 
- int qeth_get_priority_queue(struct qeth_card *card, struct sk_buff *skb);
- 
--extern struct qeth_discipline qeth_l2_discipline;
--extern struct qeth_discipline qeth_l3_discipline;
-+extern const struct qeth_discipline qeth_l2_discipline;
-+extern const struct qeth_discipline qeth_l3_discipline;
- extern const struct ethtool_ops qeth_ethtool_ops;
- extern const struct ethtool_ops qeth_osn_ethtool_ops;
- extern const struct attribute_group *qeth_generic_attr_groups[];
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index c0ceeddd1549..2e9d3fea60e6 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2340,7 +2340,7 @@ static int qeth_l2_control_event(struct qeth_card *card,
- 	}
- }
- 
--struct qeth_discipline qeth_l2_discipline = {
-+const struct qeth_discipline qeth_l2_discipline = {
- 	.devtype = &qeth_l2_devtype,
- 	.setup = qeth_l2_probe_device,
- 	.remove = qeth_l2_remove_device,
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 803ccbcf3511..4db7ded88fc8 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -2073,7 +2073,7 @@ static int qeth_l3_control_event(struct qeth_card *card,
- 	return 1;
- }
- 
--struct qeth_discipline qeth_l3_discipline = {
-+const struct qeth_discipline qeth_l3_discipline = {
- 	.devtype = &qeth_l3_devtype,
- 	.setup = qeth_l3_probe_device,
- 	.remove = qeth_l3_remove_device,
--- 
-2.17.1
+1.0
+
+2.0
+2.1
+
+algorithm: use filtering on assign/unassign
+scenario:
+echo 0 > assign_domain
+echo 1 > assign_domain
+echo 1 > assign_adapter
+
+matrix:
+1.0
+1.1
+guest_matrix:
+1.0
+
+echo 0 > assign_adapter
+
+matrix:
+0.0
+0.1
+1.0
+1.1
+guest_matrix:
+0.0
+0.1
+
+echo 1 > unassign_adapter
+0.0
+0.1
+guest_matrix:
+0.0
+0.1
+
+echo 2 > assign_adapter
+
+matrix:
+0.0
+0.1
+2.0
+2.1
+guest_matrix:
+0.0
+0.1
+2.0
+2.1
+
+echo 1 > assign_adapter
+
+matrix:
+0.0
+0.1
+1.0
+1.1
+2.0
+2.1
+guest_matrix:
+0.0
+0.1
+2.0
+2.1
+
+algorithm: do not plug adapter if all assigned APQNs are not bound
+scenario:
+echo 0 > assign_domain
+echo 1 > assign_domain
+echo 1 > assign_adapter
+
+matrix:
+1.0
+1.1
+guest_matrix:
+no bits set
+
+echo 0 > assign_adapter
+
+matrix:
+0.0
+0.1
+1.0
+1.1
+guest_matrix:
+0.0
+0.1
+
+echo 1 > unassign_adapter
+0.0
+0.1
+guest_matrix:
+0.0
+0.1
+
+echo 2 > assign_adapter
+
+matrix:
+0.0
+0.1
+2.0
+2.1
+guest_matrix:
+0.0
+0.1
+2.0
+2.1
+
+echo 1 > assign_adapter
+
+matrix:
+0.0
+0.1
+1.0
+1.1
+2.0
+2.1
+guest_matrix:
+0.0
+0.1
+2.0
+2.1
+
+On 10/5/20 2:30 PM, Halil Pasic wrote:
+> On Mon, 5 Oct 2020 12:24:39 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>>
+>> On 9/27/20 9:01 PM, Halil Pasic wrote:
+>>> On Fri, 21 Aug 2020 15:56:11 -0400
+>>> Tony Krowiak<akrowiak@linux.ibm.com>  wrote:
+>>>
+>>>> Let's hot plug/unplug adapters, domains and control domains assigned to or
+>>>> unassigned from an AP matrix mdev device while it is in use by a guest per
+>>>> the following:
+>>>>
+>>>> * When the APID of an adapter is assigned to a matrix mdev in use by a KVM
+>>>>     guest, the adapter will be hot plugged into the KVM guest as long as each
+>>>>     APQN derived from the Cartesian product of the APID being assigned and
+>>>>     the APQIs already assigned to the guest's CRYCB references a queue device
+>>>>     bound to the vfio_ap device driver.
+>>>>
+>>>> * When the APID of an adapter is unassigned from a matrix mdev in use by a
+>>>>     KVM guest, the adapter will be hot unplugged from the KVM guest.
+>>>>
+>>>> * When the APQI of a domain is assigned to a matrix mdev in use by a KVM
+>>>>     guest, the domain will be hot plugged into the KVM guest as long as each
+>>>>     APQN derived from the Cartesian product of the APQI being assigned and
+>>>>     the APIDs already assigned to the guest's CRYCB references a queue device
+>>>>     bound to the vfio_ap device driver.
+>>>>
+>>>> * When the APQI of a domain is unassigned from a matrix mdev in use by a
+>>>>     KVM guest, the domain will be hot unplugged from the KVM guest
+>>> Hm, I suppose this means that what your guest effectively gets may depend
+>>> on whether assign_domain or assign_adapter is done first.
+>>>
+>>> Suppose we have the queues
+>>> 0.0 0.1
+>>> 1.0
+>>> bound to vfio_ap, i.e. 1.1 is missing for a reason different than
+>>> belonging to the default drivers (for what exact reason no idea).
+>> I'm not quite sure what you mean be "we have queue". I will
+>> assume you mean those queues are bound to the vfio_ap
+>> device driver.
+> Yes, this is exactly what I've meant.
+>
+>
+>> The only way this could happen is if somebody
+>> manually unbinds queue 1.1.
+>>
+> Assuming that:
+> 1) every time we observe ap_perm the ap subsystem in in a settled state
+> (i.e. not in a middle of pushing things left and right
+> because of an ap_perm change,
+> 2) the only non-default driver is vfio_ap, and that
+> 3) queues handle non-operational states by other means than dissapearing
+> (should be the case with the latest reworks)
+> I agree what is left is manual unbind, which I lean towards considering
+> an edge case.
+>
+> If this is indeed just about that edge case, maybe we can live with a
+> simpler algorithm than this one.
+>
+>
+>>> Let's suppose we started with the matix containing only adapter
+>>> 0 (0.) and domain 0 (.0).
+>>>
+>>> After echo 1 > assign_adapter && echo 1 > assign_domain we end up with
+>>> matrix:
+>>> 0.0 0.1
+>>> 1.0 1.1
+>>> guest_matrix:
+>>> 0.0 0.1
+>>> while after echo 1 > assign_domain && echo 1 > assign_adapter we end up
+>>> with:
+>>> matrix:
+>>> 0.0 0.1
+>>> 1.0 1.1
+>>> guest_matrix:
+>>> 0.0
+>>> 0.1
+>>>
+>>> That means, the set of bound queues and the set of assigned resources do
+>>> not fully determine the set of resources passed through to the guest.
+>>>
+>>> Is that a deliberate design choice?
+>> Yes, it is a deliberate choice to only allow guest access to queues
+>> represented by queue devices bound to the vfio_ap device driver.
+>> The idea here is to adhere to the linux device model.
+>>
+> This is not what I've asked. My question was about he fact that
+> reordering assignments gives different results. Well this was kind
+> of the case before as well, with the notable difference, that in a
+> past we always had an error. So if a full sequence of assignments could
+> be performed without an error, than any permutation would be performed
+> with the exact same result.
+>
+> I'm all for only allowing guest access to queues represented by queue
+> devices bound to the vfio_ap device driver. I'm concerned with the
+> permutation (and calculus).
+>
+>>>> * When the domain number of a control domain is assigned to a matrix mdev
+>>>>     in use by a KVM guest, the control domain will be hot plugged into the
+>>>>     KVM guest.
+>>>>
+>>>> * When the domain number of a control domain is unassigned from a matrix
+>>>>     mdev in use by a KVM guest, the control domain will be hot unplugged
+>>>>     from the KVM guest.
+>>>>
+>>>> Signed-off-by: Tony Krowiak<akrowiak@linux.ibm.com>
+>>>> ---
+> [..]
+>
+>>>> +static bool vfio_ap_mdev_assign_guest_apid(struct ap_matrix_mdev *matrix_mdev,
+>>>> +					   unsigned long apid)
+>>>> +{
+>>>> +	unsigned long apqi, apqn;
+>>>> +
+>>>> +	if (!vfio_ap_mdev_has_crycb(matrix_mdev) ||
+>>>> +	    !test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm))
+>>>> +		return false;
+>>>> +
+>>>> +	if (bitmap_empty(matrix_mdev->shadow_apcb.aqm, AP_DOMAINS))
+>>>> +		return vfio_ap_mdev_assign_apqis_4_apid(matrix_mdev, apid);
+>>> Hm. Let's say we have the same situation regarding the bound queues as
+>>> above but we start with the empty matrix, and do all the assignments
+>>> while the guest is running.
+>>>
+>>> Consider the following sequence of actions.
+>>>
+>>> 1) echo 0 > assign_domain
+>> matrix:            .0
+>> guest_matrix: no APQNs
+>>
+>>> 2) echo 1 > assign_domain
+>> matrix:            .0, .1
+>> guest_matrix: no APQNs
+>>
+>>> 3) echo 1 > assign_adapter
+>> matrix:           1.0, 1.1
+>> guest_matrix: 1.0
+>>
+>>> 4) echo 0 > assign_adapter
+>> matrix:           0.0, 0.1, 1.0, 1.1
+>> guest_matrix: 0.0, 1.0
+>>> 5) echo 1 > unassign_adapter
+>> matrix:           0.0, 0.1
+>> guest_matrix: 0.0
+>>
+>>> I understand that at 3), because
+>>> bitmap_empty(matrix_mdev->shadow_apcb.aqm)we would end up with a shadow
+>>> aqm containing just domain 0, as queue 1.1 ain't bound to us.
+>> True
+>>
+>>> Thus at the end we would have
+>>> matrix:
+>>> 0.0 0.1
+>>> guest_matrix:
+>>> 0.0
+>> At the end I had:
+>> matrix:            0.0, 0.1
+>> guest_matrix: 0.0
+>>
+>>> And if we add in an adapter 2. into the mix with the queues 2.0 and 2.1
+>>> then after
+>>> 6) echo 2 > assign_adapter
+>>> we get
+>>> Thus at the end we would have
+>>> matrix:
+>>> 0.0 0.1
+>>> 2.0 2.1
+>>> guest_matrix:
+>>> 0.0
+>>> 2.0
+>>>
+>>> This looks very quirky to me. Did I read the code wrong? Opinions?
+>> You read the code correctly and I agree, this is a bit quirky. I would say
+>> that after adding adapter 2, we should end up with guest matrix:
+>> 0.0, 0.1
+>> 2.0, 2.1
+>>
+>> If you agree, I'll make the adjustment.
+>>
+> I do agree, but maybe we should discuss what adjustments do you have in
+> mind.
+>
+> [..]
+>
+>>>> +static bool vfio_ap_mdev_unassign_guest_apid(struct ap_matrix_mdev *matrix_mdev,
+>>>> +					     unsigned long apid)
+>>>> +{
+>>>> +	if (vfio_ap_mdev_has_crycb(matrix_mdev)) {
+>>>> +		if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm)) {
+>>>> +			clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
+>>>> +
+>>>> +			/*
+>>>> +			 * If there are no APIDs assigned to the guest, then
+>>>> +			 * the guest will not have access to any queues, so
+>>>> +			 * let's also go ahead and unassign the APQIs. Keeping
+>>>> +			 * them around may yield unpredictable results during
+>>>> +			 * a probe that is not related to a host AP
+>>>> +			 * configuration change (i.e., an AP adapter is
+>>>> +			 * configured online).
+>>>> +			 */
+>>> I don't quite understand this comment. Clearing out the other mask when
+>>> the other one becomes empty, does allow us to recover the full possible guest
+>>> matrix in the scenario described above. I don't see any shadow
+>>> manipulation in the probe handler at this stage. Are we maybe
+>>> talking about the same effect as I described for assign?
+>> Patch 15/16 is for the probe.
+>>
+> I still don't understand the logic, but I guess we want to make
+> adjustments anyways, so maybe I don't have to.
+>
+> Regards,
+> Halil
