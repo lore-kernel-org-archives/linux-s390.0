@@ -1,174 +1,111 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49472 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732686AbgJIIAM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Oct 2020 04:00:12 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81F55C0613DE
-        for <linux-s390@vger.kernel.org>; Fri,  9 Oct 2020 00:59:57 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id e23so1832222wme.2
-        for <linux-s390@vger.kernel.org>; Fri, 09 Oct 2020 00:59:57 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v2 03/17] misc/habana: Stop using frame_vector helpers
-Date: Fri,  9 Oct 2020 09:59:20 +0200
-Message-Id: <20201009075934.3509076-4-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
-References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:49562 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725970AbgJFOhT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Oct 2020 10:37:19 -0400
+Date: Tue, 6 Oct 2020 16:37:07 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 01/10] s390/cio: Export information about
+ Endpoint-Security Capability
+Message-ID: <20201006163707.0bd1b90a.cohuck@redhat.com>
+In-Reply-To: <153dde83-0f87-69d4-df65-a43342f5fc8e@linux.ibm.com>
+References: <20201002193940.24012-1-sth@linux.ibm.com>
+        <20201002193940.24012-2-sth@linux.ibm.com>
+        <20201006114656.6b1a97b1.cohuck@redhat.com>
+        <153dde83-0f87-69d4-df65-a43342f5fc8e@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Oded Gabbay <oded.gabbay@gmail.com>, Omer Shpigelman <oshpigelman@habana.ai>, Ofir Bitton <obitton@habana.ai>, Tomer Tayar <ttayar@habana.ai>, Moti Haimovski <mhaimovski@habana.ai>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Pawel Piskorski <ppiskorski@habana.ai>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, vneethv@linux.vnet.ibm.com
 
-All we need are a pages array, pin_user_pages_fast can give us that
-directly. Plus this avoids the entire raw pfn side of get_vaddr_frames.
+On Tue, 6 Oct 2020 16:23:36 +0200
+Stefan Haberland <sth@linux.ibm.com> wrote:
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Oded Gabbay <oded.gabbay@gmail.com>
-Cc: Omer Shpigelman <oshpigelman@habana.ai>
-Cc: Ofir Bitton <obitton@habana.ai>
-Cc: Tomer Tayar <ttayar@habana.ai>
-Cc: Moti Haimovski <mhaimovski@habana.ai>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Pawel Piskorski <ppiskorski@habana.ai>
---
-v2: Use unpin_user_pages_dirty_lock (John)
----
- drivers/misc/habanalabs/Kconfig             |  1 -
- drivers/misc/habanalabs/common/habanalabs.h |  3 +-
- drivers/misc/habanalabs/common/memory.c     | 49 ++++++++-------------
- 3 files changed, 20 insertions(+), 33 deletions(-)
+> Hi,
+>=20
+> talked to Vineeth, here is his answer...
+>=20
+> Am 06.10.20 um 11:46 schrieb Cornelia Huck:
+> > On Fri,  2 Oct 2020 21:39:31 +0200
+> > Stefan Haberland <sth@linux.ibm.com> wrote:
+> > =20
+> >> From: Sebastian Ott <sebott@linux.ibm.com>
+> >>
+> >> Add a new sysfs attribute 'esc' per chpid. This new attribute exports
+> >> the Endpoint-Security-Capability byte of channel-path description bloc=
+k,
+> >> which could be 0-None, 1-Authentication, 2 and 3-Encryption.
+> >>
+> >> For example:
+> >> $ cat /sys/devices/css0/chp0.34/esc
+> >> 0
+> >>
+> >> Reference-ID: IO1812
+> >> Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
+> >> [vneethv@linux.ibm.com: cleaned-up & modified description]
+> >> Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+> >> Reviewed-by: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
+> >> Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+> >> Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+> >> Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+> >> ---
+> >>  drivers/s390/cio/chp.c  | 15 +++++++++++++++
+> >>  drivers/s390/cio/chsc.h |  3 ++-
+> >>  2 files changed, 17 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/s390/cio/chp.c b/drivers/s390/cio/chp.c
+> >> index dfcbe54591fb..8d0de6adcad0 100644
+> >> --- a/drivers/s390/cio/chp.c
+> >> +++ b/drivers/s390/cio/chp.c
+> >> @@ -384,6 +384,20 @@ static ssize_t chp_chid_external_show(struct devi=
+ce *dev,
+> >>  }
+> >>  static DEVICE_ATTR(chid_external, 0444, chp_chid_external_show, NULL);
+> >> =20
+> >> +static ssize_t chp_esc_show(struct device *dev,
+> >> +			    struct device_attribute *attr, char *buf)
+> >> +{
+> >> +	struct channel_path *chp =3D to_channelpath(dev);
+> >> +	ssize_t rc;
+> >> +
+> >> +	mutex_lock(&chp->lock);
+> >> +	rc =3D sprintf(buf, "%x\n", chp->desc_fmt1.esc); =20
+> > I'm wondering: Do we need to distinguish between '0' =3D=3D 'no esc, and
+> > the hardware says so' and '0' =3D=3D 'the chsc to get that information =
+is
+> > not supported'? I see that for the chid the code checks for a flag in
+> > desc_fmt1, and I indeed see that nothing is displayed for
+> > chid/chid_external when I run under QEMU. =20
+>=20
+> ESC=3D=3D0 due to 'missing support for the required CHSC information' is
+> just another symptom of "unsupported" because the CSS firmware code
+> doesn't bring the required support.
+> Also, not sure if there is any flag/value which provide this
+> distinction. So we think having 2 different values "Unknown" and
+> "Unsupported" is not required in this scenario.
+>=20
+> So, we kept a single "ESC=3D=3D0" which indicates "Unsupported", but as y=
+ou
+> mentioned, in different levels.
 
-diff --git a/drivers/misc/habanalabs/Kconfig b/drivers/misc/habanalabs/Kconfig
-index 8eb5d38c618e..2f04187f7167 100644
---- a/drivers/misc/habanalabs/Kconfig
-+++ b/drivers/misc/habanalabs/Kconfig
-@@ -6,7 +6,6 @@
- config HABANA_AI
- 	tristate "HabanaAI accelerators (habanalabs)"
- 	depends on PCI && HAS_IOMEM
--	select FRAME_VECTOR
- 	select DMA_SHARED_BUFFER
- 	select GENERIC_ALLOCATOR
- 	select HWMON
-diff --git a/drivers/misc/habanalabs/common/habanalabs.h b/drivers/misc/habanalabs/common/habanalabs.h
-index edbd627b29d2..c1b3ad613b15 100644
---- a/drivers/misc/habanalabs/common/habanalabs.h
-+++ b/drivers/misc/habanalabs/common/habanalabs.h
-@@ -881,7 +881,8 @@ struct hl_ctx_mgr {
- struct hl_userptr {
- 	enum vm_type_t		vm_type; /* must be first */
- 	struct list_head	job_node;
--	struct frame_vector	*vec;
-+	struct page		**pages;
-+	unsigned int		npages;
- 	struct sg_table		*sgt;
- 	enum dma_data_direction dir;
- 	struct list_head	debugfs_list;
-diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
-index 5ff4688683fd..327b64479f97 100644
---- a/drivers/misc/habanalabs/common/memory.c
-+++ b/drivers/misc/habanalabs/common/memory.c
-@@ -1281,45 +1281,41 @@ static int get_user_memory(struct hl_device *hdev, u64 addr, u64 size,
- 		return -EFAULT;
- 	}
- 
--	userptr->vec = frame_vector_create(npages);
--	if (!userptr->vec) {
-+	userptr->pages = kvmalloc_array(npages, sizeof(*userptr->pages),
-+					GFP_KERNEL);
-+	if (!userptr->pages) {
- 		dev_err(hdev->dev, "Failed to create frame vector\n");
- 		return -ENOMEM;
- 	}
- 
--	rc = get_vaddr_frames(start, npages, FOLL_FORCE | FOLL_WRITE,
--				userptr->vec);
-+	rc = pin_user_pages_fast(start, npages, FOLL_FORCE | FOLL_WRITE,
-+				 userptr->pages);
- 
- 	if (rc != npages) {
- 		dev_err(hdev->dev,
- 			"Failed to map host memory, user ptr probably wrong\n");
- 		if (rc < 0)
--			goto destroy_framevec;
-+			goto destroy_pages;
-+		npages = rc;
- 		rc = -EFAULT;
--		goto put_framevec;
--	}
--
--	if (frame_vector_to_pages(userptr->vec) < 0) {
--		dev_err(hdev->dev,
--			"Failed to translate frame vector to pages\n");
--		rc = -EFAULT;
--		goto put_framevec;
-+		goto put_pages;
- 	}
-+	userptr->npages = npages;
- 
- 	rc = sg_alloc_table_from_pages(userptr->sgt,
--					frame_vector_pages(userptr->vec),
--					npages, offset, size, GFP_ATOMIC);
-+				       userptr->pages,
-+				       npages, offset, size, GFP_ATOMIC);
- 	if (rc < 0) {
- 		dev_err(hdev->dev, "failed to create SG table from pages\n");
--		goto put_framevec;
-+		goto put_pages;
- 	}
- 
- 	return 0;
- 
--put_framevec:
--	put_vaddr_frames(userptr->vec);
--destroy_framevec:
--	frame_vector_destroy(userptr->vec);
-+put_pages:
-+	unpin_user_pages(userptr->pages, npages);
-+destroy_pages:
-+	kvfree(userptr->pages);
- 	return rc;
- }
- 
-@@ -1405,8 +1401,6 @@ int hl_pin_host_memory(struct hl_device *hdev, u64 addr, u64 size,
-  */
- void hl_unpin_host_memory(struct hl_device *hdev, struct hl_userptr *userptr)
- {
--	struct page **pages;
--
- 	hl_debugfs_remove_userptr(hdev, userptr);
- 
- 	if (userptr->dma_mapped)
-@@ -1414,15 +1408,8 @@ void hl_unpin_host_memory(struct hl_device *hdev, struct hl_userptr *userptr)
- 							userptr->sgt->nents,
- 							userptr->dir);
- 
--	pages = frame_vector_pages(userptr->vec);
--	if (!IS_ERR(pages)) {
--		int i;
--
--		for (i = 0; i < frame_vector_count(userptr->vec); i++)
--			set_page_dirty_lock(pages[i]);
--	}
--	put_vaddr_frames(userptr->vec);
--	frame_vector_destroy(userptr->vec);
-+	unpin_user_pages_dirty_lock(userptr->pages, userptr->npages, true);
-+	kvfree(userptr->pages);
- 
- 	list_del(&userptr->job_node);
- 
--- 
-2.28.0
+Ok, that makes sense, also considering how this is used later on.
+
+>=20
+> >> +	mutex_unlock(&chp->lock);
+> >> +
+> >> +	return rc;
+> >> +}
+> >> +static DEVICE_ATTR(esc, 0444, chp_esc_show, NULL);
+> >> +
+> >>  static ssize_t util_string_read(struct file *filp, struct kobject *ko=
+bj,
+> >>  				struct bin_attribute *attr, char *buf,
+> >>  				loff_t off, size_t count) =20
+> > (...)
+> > =20
+>=20
+>=20
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
