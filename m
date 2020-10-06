@@ -1,71 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37052 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726421AbgJaJCn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 31 Oct 2020 05:02:43 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 01/11] mtd_blkdevs: don't override BLKFLSBUF
-Date: Sat, 31 Oct 2020 09:58:00 +0100
-Message-Id: <20201031085810.450489-2-hch@lst.de>
-In-Reply-To: <20201031085810.450489-1-hch@lst.de>
-References: <20201031085810.450489-1-hch@lst.de>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:21784 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726127AbgJFP2c (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 6 Oct 2020 11:28:32 -0400
+Date: Tue, 6 Oct 2020 17:27:18 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 5/5] MAINTAINERS: Add entry for s390 vfio-pci
+Message-ID: <20201006172718.121d2a26.cohuck@redhat.com>
+In-Reply-To: <1601668844-5798-6-git-send-email-mjrosato@linux.ibm.com>
+References: <1601668844-5798-1-git-send-email-mjrosato@linux.ibm.com>
+        <1601668844-5798-6-git-send-email-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: alex.williamson@redhat.com, schnelle@linux.ibm.com, pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-BLKFLSBUF does not actually send a flush command to the device, but
-teard down buffer cache structures.  Remove the mtd_blkdevs
-implementation and just use the default semantics instead.
+On Fri,  2 Oct 2020 16:00:44 -0400
+Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/mtd/mtd_blkdevs.c | 28 ----------------------------
- 1 file changed, 28 deletions(-)
+> Add myself to cover s390-specific items related to vfio-pci.
+> 
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>  MAINTAINERS | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 190c7fa..389c4ad 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -15162,6 +15162,14 @@ F:	Documentation/s390/vfio-ccw.rst
+>  F:	drivers/s390/cio/vfio_ccw*
+>  F:	include/uapi/linux/vfio_ccw.h
+>  
+> +S390 VFIO-PCI DRIVER
+> +M:	Matthew Rosato <mjrosato@linux.ibm.com>
+> +L:	linux-s390@vger.kernel.org
+> +L:	kvm@vger.kernel.org
+> +S:	Supported
+> +F:	drivers/vfio/pci/vfio_pci_zdev.c
+> +F:	include/uapi/linux/vfio_zdev.h
+> +
+>  S390 ZCRYPT DRIVER
+>  M:	Harald Freudenberger <freude@linux.ibm.com>
+>  L:	linux-s390@vger.kernel.org
 
-diff --git a/drivers/mtd/mtd_blkdevs.c b/drivers/mtd/mtd_blkdevs.c
-index 0c05f77f9b216e..fb8e12d590a13a 100644
---- a/drivers/mtd/mtd_blkdevs.c
-+++ b/drivers/mtd/mtd_blkdevs.c
-@@ -298,38 +298,10 @@ static int blktrans_getgeo(struct block_device *bdev, struct hd_geometry *geo)
- 	return ret;
- }
- 
--static int blktrans_ioctl(struct block_device *bdev, fmode_t mode,
--			      unsigned int cmd, unsigned long arg)
--{
--	struct mtd_blktrans_dev *dev = blktrans_dev_get(bdev->bd_disk);
--	int ret = -ENXIO;
--
--	if (!dev)
--		return ret;
--
--	mutex_lock(&dev->lock);
--
--	if (!dev->mtd)
--		goto unlock;
--
--	switch (cmd) {
--	case BLKFLSBUF:
--		ret = dev->tr->flush ? dev->tr->flush(dev) : 0;
--		break;
--	default:
--		ret = -ENOTTY;
--	}
--unlock:
--	mutex_unlock(&dev->lock);
--	blktrans_dev_put(dev);
--	return ret;
--}
--
- static const struct block_device_operations mtd_block_ops = {
- 	.owner		= THIS_MODULE,
- 	.open		= blktrans_open,
- 	.release	= blktrans_release,
--	.ioctl		= blktrans_ioctl,
- 	.getgeo		= blktrans_getgeo,
- };
- 
--- 
-2.28.0
+Acked-by: Cornelia Huck <cohuck@redhat.com>
