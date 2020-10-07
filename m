@@ -1,226 +1,79 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28972 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726778AbgJ1Vfv (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Oct 2020 17:35:51 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next] net/smc: improve return codes for SMC-Dv2
-Date: Wed, 28 Oct 2020 12:00:39 +0100
-Message-Id: <20201028110039.33645-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 12/13] media/videbuf1|2: Mark follow_pfn usage as unsafe
+Date: Wed,  7 Oct 2020 18:44:25 +0200
+Message-Id: <20201007164426.1812530-13-daniel.vetter@ffwll.ch>
+In-Reply-To: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Laurent Dufour <ldufour@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Daniel Jordan <daniel.m.jordan@oracle.com>, Michel Lespinasse <walken@google.com>
 
-To allow better problem diagnosis the return codes for SMC-Dv2 are
-improved by this patch. A few more CLC DECLINE codes are defined and
-sent to the peer when an SMC connection cannot be established.
-There are now multiple SMC variations that are offered by the client and
-the server may encounter problems to initialize all of them.
-Because only one diagnosis code can be sent to the client the decision
-was made to send the first code that was encountered. Because the server
-tries the variations in the order of importance (SMC-Dv2, SMC-D, SMC-R)
-this makes sure that the diagnosis code of the most important variation
-is sent.
+The media model assumes that buffers are all preallocated, so that
+when a media pipeline is running we never miss a deadline because the
+buffers aren't allocated or available.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+This means we cannot fix the v4l follow_pfn usage through
+mmu_notifier, without breaking how this all works. The only real fix
+is to deprecate userptr support for VM_IO | VM_PFNMAP mappings and
+tell everyone to cut over to dma-buf memory sharing for zerocopy.
+
+userptr for normal memory will keep working as-is.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: linux-mm@kvack.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: Pawel Osciak <pawel@osciak.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Tomasz Figa <tfiga@chromium.org>
+Cc: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Michel Lespinasse <walken@google.com>
 ---
- net/smc/af_smc.c   | 61 +++++++++++++++++++++++++++++++---------------
- net/smc/smc_clc.h  |  5 ++++
- net/smc/smc_core.h |  1 +
- 3 files changed, 47 insertions(+), 20 deletions(-)
+ drivers/media/common/videobuf2/frame_vector.c | 2 +-
+ drivers/media/v4l2-core/videobuf-dma-contig.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 82be0bd0f6e8..5414704f4cac 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1346,6 +1346,7 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
- {
- 	struct smc_clc_smcd_v2_extension *pclc_smcd_v2_ext;
- 	struct smc_clc_v2_extension *pclc_v2_ext;
-+	int rc;
+diff --git a/drivers/media/common/videobuf2/frame_vector.c b/drivers/media/common/videobuf2/frame_vector.c
+index b95f4f371681..d56eb6258f09 100644
+--- a/drivers/media/common/videobuf2/frame_vector.c
++++ b/drivers/media/common/videobuf2/frame_vector.c
+@@ -71,7 +71,7 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
+ 		unsigned long *nums = frame_vector_pfns(vec);
  
- 	ini->smc_type_v1 = pclc->hdr.typev1;
- 	ini->smc_type_v2 = pclc->hdr.typev2;
-@@ -1353,29 +1354,30 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
- 	if (pclc->hdr.version > SMC_V1)
- 		ini->smcd_version |=
- 				ini->smc_type_v2 != SMC_TYPE_N ? SMC_V2 : 0;
-+	if (!(ini->smcd_version & SMC_V2)) {
-+		rc = SMC_CLC_DECL_PEERNOSMC;
-+		goto out;
-+	}
- 	if (!smc_ism_v2_capable) {
- 		ini->smcd_version &= ~SMC_V2;
-+		rc = SMC_CLC_DECL_NOISM2SUPP;
- 		goto out;
- 	}
- 	pclc_v2_ext = smc_get_clc_v2_ext(pclc);
- 	if (!pclc_v2_ext) {
- 		ini->smcd_version &= ~SMC_V2;
-+		rc = SMC_CLC_DECL_NOV2EXT;
- 		goto out;
- 	}
- 	pclc_smcd_v2_ext = smc_get_clc_smcd_v2_ext(pclc_v2_ext);
--	if (!pclc_smcd_v2_ext)
-+	if (!pclc_smcd_v2_ext) {
- 		ini->smcd_version &= ~SMC_V2;
-+		rc = SMC_CLC_DECL_NOV2DEXT;
-+	}
+ 		while (ret < nr_frames && start + PAGE_SIZE <= vma->vm_end) {
+-			err = follow_pfn(vma, start, &nums[ret]);
++			err = unsafe_follow_pfn(vma, start, &nums[ret]);
+ 			if (err) {
+ 				if (ret == 0)
+ 					ret = err;
+diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/media/v4l2-core/videobuf-dma-contig.c
+index 52312ce2ba05..821c4a76ab96 100644
+--- a/drivers/media/v4l2-core/videobuf-dma-contig.c
++++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
+@@ -183,7 +183,7 @@ static int videobuf_dma_contig_user_get(struct videobuf_dma_contig_memory *mem,
+ 	user_address = untagged_baddr;
  
- out:
--	if (!ini->smcd_version) {
--		if (pclc->hdr.typev1 == SMC_TYPE_B ||
--		    pclc->hdr.typev2 == SMC_TYPE_B)
--			return SMC_CLC_DECL_NOSMCDEV;
--		if (pclc->hdr.typev1 == SMC_TYPE_D ||
--		    pclc->hdr.typev2 == SMC_TYPE_D)
--			return SMC_CLC_DECL_NOSMCDDEV;
--		return SMC_CLC_DECL_NOSMCRDEV;
--	}
-+	if (!ini->smcd_version)
-+		return rc;
+ 	while (pages_done < (mem->size >> PAGE_SHIFT)) {
+-		ret = follow_pfn(vma, user_address, &this_pfn);
++		ret = unsafe_follow_pfn(vma, user_address, &this_pfn);
+ 		if (ret)
+ 			break;
  
- 	return 0;
- }
-@@ -1473,6 +1475,12 @@ static void smc_check_ism_v2_match(struct smc_init_info *ini,
- 	}
- }
- 
-+static void smc_find_ism_store_rc(u32 rc, struct smc_init_info *ini)
-+{
-+	if (!ini->rc)
-+		ini->rc = rc;
-+}
-+
- static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
- 					struct smc_clc_msg_proposal *pclc,
- 					struct smc_init_info *ini)
-@@ -1483,7 +1491,7 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
- 	unsigned int matches = 0;
- 	u8 smcd_version;
- 	u8 *eid = NULL;
--	int i;
-+	int i, rc;
- 
- 	if (!(ini->smcd_version & SMC_V2) || !smcd_indicated(ini->smc_type_v2))
- 		goto not_found;
-@@ -1492,8 +1500,10 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
- 	smc_v2_ext = smc_get_clc_v2_ext(pclc);
- 	smcd_v2_ext = smc_get_clc_smcd_v2_ext(smc_v2_ext);
- 	if (!smcd_v2_ext ||
--	    !smc_v2_ext->hdr.flag.seid) /* no system EID support for SMCD */
-+	    !smc_v2_ext->hdr.flag.seid) { /* no system EID support for SMCD */
-+		smc_find_ism_store_rc(SMC_CLC_DECL_NOSEID, ini);
- 		goto not_found;
-+	}
- 
- 	mutex_lock(&smcd_dev_list.mutex);
- 	if (pclc_smcd->ism.chid)
-@@ -1525,9 +1535,12 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
- 		ini->smcd_version = SMC_V2;
- 		ini->is_smcd = true;
- 		ini->ism_selected = i;
--		if (smc_listen_ism_init(new_smc, ini))
-+		rc = smc_listen_ism_init(new_smc, ini);
-+		if (rc) {
-+			smc_find_ism_store_rc(rc, ini);
- 			/* try next active ISM device */
- 			continue;
-+		}
- 		return; /* matching and usable V2 ISM device found */
- 	}
- 	/* no V2 ISM device could be initialized */
-@@ -1544,19 +1557,23 @@ static void smc_find_ism_v1_device_serv(struct smc_sock *new_smc,
- 					struct smc_init_info *ini)
- {
- 	struct smc_clc_msg_smcd *pclc_smcd = smc_get_clc_msg_smcd(pclc);
-+	int rc = 0;
- 
- 	/* check if ISM V1 is available */
- 	if (!(ini->smcd_version & SMC_V1) || !smcd_indicated(ini->smc_type_v1))
- 		goto not_found;
- 	ini->is_smcd = true; /* prepare ISM check */
- 	ini->ism_peer_gid[0] = ntohll(pclc_smcd->ism.gid);
--	if (smc_find_ism_device(new_smc, ini))
-+	rc = smc_find_ism_device(new_smc, ini);
-+	if (rc)
- 		goto not_found;
- 	ini->ism_selected = 0;
--	if (!smc_listen_ism_init(new_smc, ini))
-+	rc = smc_listen_ism_init(new_smc, ini);
-+	if (!rc)
- 		return;		/* V1 ISM device found */
- 
- not_found:
-+	smc_find_ism_store_rc(rc, ini);
- 	ini->ism_dev[0] = NULL;
- 	ini->is_smcd = false;
- }
-@@ -1613,16 +1630,16 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
- 		return 0;
- 
- 	if (!(ini->smcd_version & SMC_V1))
--		return SMC_CLC_DECL_NOSMCDEV;
-+		return ini->rc ?: SMC_CLC_DECL_NOSMCD2DEV;
- 
- 	/* check for matching IP prefix and subnet length */
- 	rc = smc_listen_prfx_check(new_smc, pclc);
- 	if (rc)
--		return rc;
-+		return ini->rc ?: rc;
- 
- 	/* get vlan id from IP device */
- 	if (smc_vlan_by_tcpsk(new_smc->clcsock, ini))
--		return SMC_CLC_DECL_GETVLANERR;
-+		return ini->rc ?: SMC_CLC_DECL_GETVLANERR;
- 
- 	/* check for ISM device matching V1 proposed device */
- 	smc_find_ism_v1_device_serv(new_smc, pclc, ini);
-@@ -1630,10 +1647,14 @@ static int smc_listen_find_device(struct smc_sock *new_smc,
- 		return 0;
- 
- 	if (pclc->hdr.typev1 == SMC_TYPE_D)
--		return SMC_CLC_DECL_NOSMCDDEV; /* skip RDMA and decline */
-+		/* skip RDMA and decline */
-+		return ini->rc ?: SMC_CLC_DECL_NOSMCDDEV;
- 
- 	/* check if RDMA is available */
--	return smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
-+	rc = smc_find_rdma_v1_device_serv(new_smc, pclc, ini);
-+	smc_find_ism_store_rc(rc, ini);
-+
-+	return (!rc) ? 0 : ini->rc;
- }
- 
- /* listen worker: finish RDMA setup */
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index b3f46ab79e47..e7ab05683bc9 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -37,6 +37,11 @@
- #define SMC_CLC_DECL_NOSMCDEV	0x03030000  /* no SMC device found (R or D)   */
- #define SMC_CLC_DECL_NOSMCDDEV	0x03030001  /* no SMC-D device found	      */
- #define SMC_CLC_DECL_NOSMCRDEV	0x03030002  /* no SMC-R device found	      */
-+#define SMC_CLC_DECL_NOISM2SUPP	0x03030003  /* hardware has no ISMv2 support  */
-+#define SMC_CLC_DECL_NOV2EXT	0x03030004  /* peer sent no clc v2 extension  */
-+#define SMC_CLC_DECL_NOV2DEXT	0x03030005  /* peer sent no clc SMC-Dv2 ext.  */
-+#define SMC_CLC_DECL_NOSEID	0x03030006  /* peer sent no SEID	      */
-+#define SMC_CLC_DECL_NOSMCD2DEV	0x03030007  /* no SMC-Dv2 device found	      */
- #define SMC_CLC_DECL_MODEUNSUPP	0x03040000  /* smc modes do not match (R or D)*/
- #define SMC_CLC_DECL_RMBE_EC	0x03050000  /* peer has eyecatcher in RMBE    */
- #define SMC_CLC_DECL_OPTUNSUPP	0x03060000  /* fastopen sockopt not supported */
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index f1e867ce2e63..9aee54a6bcba 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -301,6 +301,7 @@ struct smc_init_info {
- 	u8			first_contact_peer;
- 	u8			first_contact_local;
- 	unsigned short		vlan_id;
-+	u32			rc;
- 	/* SMC-R */
- 	struct smc_clc_msg_local *ib_lcl;
- 	struct smc_ib_device	*ib_dev;
 -- 
-2.17.1
+2.28.0
