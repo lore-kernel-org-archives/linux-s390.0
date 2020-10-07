@@ -1,186 +1,91 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40372 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728307AbgJGU57 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 16:57:59 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 1/3] net/smc: consolidate unlocking in same function
-Date: Wed,  7 Oct 2020 22:57:41 +0200
-Message-Id: <20201007205743.83535-2-kgraul@linux.ibm.com>
-In-Reply-To: <20201007205743.83535-1-kgraul@linux.ibm.com>
-References: <20201007205743.83535-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52668 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727908AbgJGQoe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 12:44:34 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A74FC0613D2
+        for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2020 09:44:34 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id z1so2978183wrt.3
+        for <linux-s390@vger.kernel.org>; Wed, 07 Oct 2020 09:44:34 -0700 (PDT)
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 00/13] follow_pfn and other iomap races
+Date: Wed,  7 Oct 2020 18:44:13 +0200
+Message-Id: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>
 
-Static code checkers warn of inconsistent returns because the lgr mutex
-is locked in one function and unlocked in a function called by the
-locking function:
-net/smc/af_smc.c:823 smc_connect_rdma() warn: inconsistent returns 'smc_client_lgr_pending'.
-net/smc/af_smc.c:897 smc_connect_ism() warn: inconsistent returns 'smc_server_lgr_pending'.
+Hi all,
 
-Make the code consistent by doing the unlock in the same function that
-fetches the lock. No functional changes.
+This developed from a discussion with Jason, starting with some patches
+touching get_vaddr_frame that I typed up.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/af_smc.c | 77 +++++++++++++++++++++++++-----------------------
- 1 file changed, 40 insertions(+), 37 deletions(-)
+The problem is that way back VM_IO | VM_PFNMAP mappings were pretty
+static, and so just following the ptes to derive a pfn and then use that
+somewhere else was ok.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 670e802a73cb..fbe98bb20299 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -553,23 +553,12 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
- }
- 
- /* abort connecting */
--static int smc_connect_abort(struct smc_sock *smc, int reason_code,
--			     int local_first)
-+static void smc_connect_abort(struct smc_sock *smc, int local_first)
- {
--	bool is_smcd = smc->conn.lgr->is_smcd;
--
- 	if (local_first)
- 		smc_lgr_cleanup_early(&smc->conn);
- 	else
- 		smc_conn_free(&smc->conn);
--	if (is_smcd)
--		/* there is only one lgr role for SMC-D; use server lock */
--		mutex_unlock(&smc_server_lgr_pending);
--	else
--		mutex_unlock(&smc_client_lgr_pending);
--
--	smc->connect_nonblock = 0;
--	return reason_code;
- }
- 
- /* check if there is a rdma device available for this connection. */
-@@ -764,43 +753,47 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 				break;
- 			}
- 		}
--		if (!link)
--			return smc_connect_abort(smc, SMC_CLC_DECL_NOSRVLINK,
--						 ini->first_contact_local);
-+		if (!link) {
-+			reason_code = SMC_CLC_DECL_NOSRVLINK;
-+			goto connect_abort;
-+		}
- 		smc->conn.lnk = link;
- 	}
- 
- 	/* create send buffer and rmb */
--	if (smc_buf_create(smc, false))
--		return smc_connect_abort(smc, SMC_CLC_DECL_MEM,
--					 ini->first_contact_local);
-+	if (smc_buf_create(smc, false)) {
-+		reason_code = SMC_CLC_DECL_MEM;
-+		goto connect_abort;
-+	}
- 
- 	if (ini->first_contact_local)
- 		smc_link_save_peer_info(link, aclc);
- 
--	if (smc_rmb_rtoken_handling(&smc->conn, link, aclc))
--		return smc_connect_abort(smc, SMC_CLC_DECL_ERR_RTOK,
--					 ini->first_contact_local);
-+	if (smc_rmb_rtoken_handling(&smc->conn, link, aclc)) {
-+		reason_code = SMC_CLC_DECL_ERR_RTOK;
-+		goto connect_abort;
-+	}
- 
- 	smc_close_init(smc);
- 	smc_rx_init(smc);
- 
- 	if (ini->first_contact_local) {
--		if (smc_ib_ready_link(link))
--			return smc_connect_abort(smc, SMC_CLC_DECL_ERR_RDYLNK,
--						 ini->first_contact_local);
-+		if (smc_ib_ready_link(link)) {
-+			reason_code = SMC_CLC_DECL_ERR_RDYLNK;
-+			goto connect_abort;
-+		}
- 	} else {
--		if (smcr_lgr_reg_rmbs(link, smc->conn.rmb_desc))
--			return smc_connect_abort(smc, SMC_CLC_DECL_ERR_REGRMB,
--						 ini->first_contact_local);
-+		if (smcr_lgr_reg_rmbs(link, smc->conn.rmb_desc)) {
-+			reason_code = SMC_CLC_DECL_ERR_REGRMB;
-+			goto connect_abort;
-+		}
- 	}
- 	smc_rmb_sync_sg_for_device(&smc->conn);
- 
- 	reason_code = smc_clc_send_confirm(smc, ini->first_contact_local,
- 					   SMC_V1);
- 	if (reason_code)
--		return smc_connect_abort(smc, reason_code,
--					 ini->first_contact_local);
-+		goto connect_abort;
- 
- 	smc_tx_init(smc);
- 
-@@ -810,8 +803,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 		reason_code = smcr_clnt_conf_first_link(smc);
- 		smc_llc_flow_stop(link->lgr, &link->lgr->llc_flow_lcl);
- 		if (reason_code)
--			return smc_connect_abort(smc, reason_code,
--						 ini->first_contact_local);
-+			goto connect_abort;
- 	}
- 	mutex_unlock(&smc_client_lgr_pending);
- 
-@@ -821,6 +813,12 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 		smc->sk.sk_state = SMC_ACTIVE;
- 
- 	return 0;
-+connect_abort:
-+	smc_connect_abort(smc, ini->first_contact_local);
-+	mutex_unlock(&smc_client_lgr_pending);
-+	smc->connect_nonblock = 0;
-+
-+	return reason_code;
- }
- 
- /* The server has chosen one of the proposed ISM devices for the communication.
-@@ -872,11 +870,10 @@ static int smc_connect_ism(struct smc_sock *smc,
- 
- 	/* Create send and receive buffers */
- 	rc = smc_buf_create(smc, true);
--	if (rc)
--		return smc_connect_abort(smc, (rc == -ENOSPC) ?
--					      SMC_CLC_DECL_MAX_DMB :
--					      SMC_CLC_DECL_MEM,
--					 ini->first_contact_local);
-+	if (rc) {
-+		rc = (rc == -ENOSPC) ? SMC_CLC_DECL_MAX_DMB : SMC_CLC_DECL_MEM;
-+		goto connect_abort;
-+	}
- 
- 	smc_conn_save_peer_info(smc, aclc);
- 	smc_close_init(smc);
-@@ -886,7 +883,7 @@ static int smc_connect_ism(struct smc_sock *smc,
- 	rc = smc_clc_send_confirm(smc, ini->first_contact_local,
- 				  aclc->hdr.version);
- 	if (rc)
--		return smc_connect_abort(smc, rc, ini->first_contact_local);
-+		goto connect_abort;
- 	mutex_unlock(&smc_server_lgr_pending);
- 
- 	smc_copy_sock_settings_to_clc(smc);
-@@ -895,6 +892,12 @@ static int smc_connect_ism(struct smc_sock *smc,
- 		smc->sk.sk_state = SMC_ACTIVE;
- 
- 	return 0;
-+connect_abort:
-+	smc_connect_abort(smc, ini->first_contact_local);
-+	mutex_unlock(&smc_server_lgr_pending);
-+	smc->connect_nonblock = 0;
-+
-+	return rc;
- }
- 
- /* check if received accept type and version matches a proposed one */
+But we're no longer in such a world, there's tons of little races and some
+fundamental problems.
+
+This series here is an attempt to at least scope the problem, it's all the
+issues I've found with quite some code reading all over the tree:
+- first part tries to move mm/frame-vector.c away, it's fundamentally an
+  unsafe thing
+- two patches to close follow_pfn races by holding pt locks
+- two pci patches where I spotted inconsinstencies between the 3 different
+  ways userspace can map pci bars
+- and finally some patches to mark up the remaining issue
+
+No testing beyond "it compiles", this is very much an rfc to figure out
+whether this makes sense, whether it's a real thing, and how to fix this
+up properly.
+
+Cheers, Daniel
+
+Daniel Vetter (13):
+  drm/exynos: Stop using frame_vector helpers
+  drm/exynos: Use FOLL_LONGTERM for g2d cmdlists
+  misc/habana: Stop using frame_vector helpers
+  misc/habana: Use FOLL_LONGTERM for userptr
+  mm/frame-vector: Use FOLL_LONGTERM
+  media: videobuf2: Move frame_vector into media subsystem
+  mm: close race in generic_access_phys
+  s390/pci: Remove races against pte updates
+  PCI: obey iomem restrictions for procfs mmap
+  PCI: revoke mappings like devmem
+  mm: add unsafe_follow_pfn
+  media/videbuf1|2: Mark follow_pfn usage as unsafe
+  vfio/type1: Mark follow_pfn as unsafe
+
+ arch/s390/pci/pci_mmio.c                      | 98 +++++++++++--------
+ drivers/char/mem.c                            | 16 ++-
+ drivers/gpu/drm/exynos/Kconfig                |  1 -
+ drivers/gpu/drm/exynos/exynos_drm_g2d.c       | 49 +++++-----
+ drivers/media/common/videobuf2/Kconfig        |  1 -
+ drivers/media/common/videobuf2/Makefile       |  1 +
+ .../media/common/videobuf2}/frame_vector.c    | 40 +++-----
+ drivers/media/platform/omap/Kconfig           |  1 -
+ drivers/media/v4l2-core/videobuf-dma-contig.c |  2 +-
+ drivers/misc/habanalabs/Kconfig               |  1 -
+ drivers/misc/habanalabs/common/habanalabs.h   |  3 +-
+ drivers/misc/habanalabs/common/memory.c       | 52 +++++-----
+ drivers/pci/mmap.c                            |  3 +
+ drivers/pci/proc.c                            |  5 +
+ drivers/vfio/vfio_iommu_type1.c               |  4 +-
+ include/linux/ioport.h                        |  2 +
+ include/linux/mm.h                            | 47 +--------
+ include/media/videobuf2-core.h                | 42 ++++++++
+ mm/Kconfig                                    |  3 -
+ mm/Makefile                                   |  1 -
+ mm/memory.c                                   | 76 +++++++++++++-
+ mm/nommu.c                                    | 17 ++++
+ security/Kconfig                              | 13 +++
+ 23 files changed, 296 insertions(+), 182 deletions(-)
+ rename {mm => drivers/media/common/videobuf2}/frame_vector.c (90%)
+
 -- 
-2.17.1
+2.28.0
