@@ -1,39 +1,97 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43690 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727647AbgJGSrI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 14:47:08 -0400
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C796C0613D4
-        for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2020 11:47:08 -0700 (PDT)
-Received: by mail-qk1-x742.google.com with SMTP id s7so4049969qkh.11
-        for <linux-s390@vger.kernel.org>; Wed, 07 Oct 2020 11:47:08 -0700 (PDT)
-Date: Wed, 7 Oct 2020 15:47:05 -0300
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH 13/13] vfio/type1: Mark follow_pfn as unsafe
-Message-ID: <20201007184705.GY5177@ziepe.ca>
-References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
- <20201007164426.1812530-14-daniel.vetter@ffwll.ch>
- <20201007173911.GX5177@ziepe.ca>
- <CAKMK7uEbAAJPPmv1yM_-V24Xg=S=NWxs2Yhi51kb-4AZLbFTTg@mail.gmail.com>
+        with ESMTP id S1727789AbgJGSOS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 14:14:18 -0400
+Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91B18C0613D2
+        for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2020 11:14:17 -0700 (PDT)
+Received: by mail-oo1-xc44.google.com with SMTP id f2so132470ooj.2
+        for <linux-s390@vger.kernel.org>; Wed, 07 Oct 2020 11:14:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKMK7uEbAAJPPmv1yM_-V24Xg=S=NWxs2Yhi51kb-4AZLbFTTg@mail.gmail.com>
+References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+ <20201007164426.1812530-14-daniel.vetter@ffwll.ch> <20201007173911.GX5177@ziepe.ca>
+In-Reply-To: <20201007173911.GX5177@ziepe.ca>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date: Wed, 7 Oct 2020 20:14:06 +0200
+Message-ID: <CAKMK7uEbAAJPPmv1yM_-V24Xg=S=NWxs2Yhi51kb-4AZLbFTTg@mail.gmail.com>
+Subject: Re: [PATCH 13/13] vfio/type1: Mark follow_pfn as unsafe
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, Linux MM <linux-mm@kvack.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?utf-8?B?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, Linux MM <linux-mm@kvack.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>
 
-On Wed, Oct 07, 2020 at 08:14:06PM +0200, Daniel Vetter wrote:
+On Wed, Oct 7, 2020 at 7:39 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
+>
+> On Wed, Oct 07, 2020 at 06:44:26PM +0200, Daniel Vetter wrote:
+> > The code seems to stuff these pfns into iommu pts (or something like
+> > that, I didn't follow), but there's no mmu_notifier to ensure that
+> > access is synchronized with pte updates.
+> >
+> > Hence mark these as unsafe. This means that with
+> > CONFIG_STRICT_FOLLOW_PFN, these will be rejected.
+> >
+> > Real fix is to wire up an mmu_notifier ... somehow. Probably means any
+> > invalidate is a fatal fault for this vfio device, but then this
+> > shouldn't ever happen if userspace is reasonable.
+> >
+> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> > Cc: Kees Cook <keescook@chromium.org>
+> > Cc: Dan Williams <dan.j.williams@intel.com>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: John Hubbard <jhubbard@nvidia.com>
+> > Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+> > Cc: Jan Kara <jack@suse.cz>
+> > Cc: Dan Williams <dan.j.williams@intel.com>
+> > Cc: linux-mm@kvack.org
+> > Cc: linux-arm-kernel@lists.infradead.org
+> > Cc: linux-samsung-soc@vger.kernel.org
+> > Cc: linux-media@vger.kernel.org
+> > Cc: Alex Williamson <alex.williamson@redhat.com>
+> > Cc: Cornelia Huck <cohuck@redhat.com>
+> > Cc: kvm@vger.kernel.org
+> > ---
+> >  drivers/vfio/vfio_iommu_type1.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_=
+type1.c
+> > index 5fbf0c1f7433..a4d53f3d0a35 100644
+> > --- a/drivers/vfio/vfio_iommu_type1.c
+> > +++ b/drivers/vfio/vfio_iommu_type1.c
+> > @@ -421,7 +421,7 @@ static int follow_fault_pfn(struct vm_area_struct *=
+vma, struct mm_struct *mm,
+> >  {
+> >       int ret;
+> >
+> > -     ret =3D follow_pfn(vma, vaddr, pfn);
+> > +     ret =3D unsafe_follow_pfn(vma, vaddr, pfn);
+> >       if (ret) {
+> >               bool unlocked =3D false;
+> >
+> > @@ -435,7 +435,7 @@ static int follow_fault_pfn(struct vm_area_struct *=
+vma, struct mm_struct *mm,
+> >               if (ret)
+> >                       return ret;
+> >
+> > -             ret =3D follow_pfn(vma, vaddr, pfn);
+> > +             ret =3D unsafe_follow_pfn(vma, vaddr, pfn);
+> >       }
+>
+> This is actually being commonly used, so it needs fixing.
+>
+> When I talked to Alex about this last we had worked out a patch series
+> that adds a test on vm_ops that the vma came from vfio in the first
+> place. The VMA's created by VFIO are 'safe' as the PTEs are never changed=
+.
 
-> Hm, but wouldn't need that the semi-nasty vma_open trick to make sure
-> that vma doesn't untimely disappear? Or is the idea to look up the
-> underlying vfio object, and refcount that directly?
-
-Ah, the patches Alex was working on had the refcount I think, it does
-need co-ordination across multiple VFIO instances IIRC.
-
-At least a simple check would guarentee we only have exposed PCI BAR
-pages which is not as bad security wise as the other stuff.
-
-Jason
+Hm, but wouldn't need that the semi-nasty vma_open trick to make sure
+that vma doesn't untimely disappear? Or is the idea to look up the
+underlying vfio object, and refcount that directly?
+-Daniel
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
