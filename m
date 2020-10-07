@@ -1,154 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v3 07/16] mm: Close race in generic_access_phys
-Date: Wed, 21 Oct 2020 10:56:46 +0200
-Message-Id: <20201021085655.1192025-8-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
-References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+ <20201007164426.1812530-12-daniel.vetter@ffwll.ch> <20201007173647.GW5177@ziepe.ca>
+ <CAKMK7uE9sbK_tGhJbsnHgD9rOnx-dr=2xmpMw7RvvvpPLnjVVA@mail.gmail.com> <20201007190023.GA5177@ziepe.ca>
+In-Reply-To: <20201007190023.GA5177@ziepe.ca>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date: Wed, 7 Oct 2020 21:38:42 +0200
+Message-ID: <CAKMK7uHNV7di+J10_JyLY6ctdsAGNnGhF7qrFzRCWFnXsQSEwQ@mail.gmail.com>
+Subject: Re: [PATCH 11/13] mm: add unsafe_follow_pfn
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Benjamin Herrensmidt <benh@kernel.crashing.org>, Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Daniel Vetter <daniel.vetter@ffwll.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, Linux MM <linux-mm@kvack.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>
 
-Way back it was a reasonable assumptions that iomem mappings never
-change the pfn range they point at. But this has changed:
+On Wed, Oct 7, 2020 at 9:00 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
+>
+> On Wed, Oct 07, 2020 at 08:10:34PM +0200, Daniel Vetter wrote:
+> > On Wed, Oct 7, 2020 at 7:36 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
+> > >
+> > > On Wed, Oct 07, 2020 at 06:44:24PM +0200, Daniel Vetter wrote:
+> > > > Way back it was a reasonable assumptions that iomem mappings never
+> > > > change the pfn range they point at. But this has changed:
+> > > >
+> > > > - gpu drivers dynamically manage their memory nowadays, invalidatin=
+g
+> > > > ptes with unmap_mapping_range when buffers get moved
+> > > >
+> > > > - contiguous dma allocations have moved from dedicated carvetouts t=
+o
+> > > > cma regions. This means if we miss the unmap the pfn might contain
+> > > > pagecache or anon memory (well anything allocated with GFP_MOVEABLE=
+)
+> > > >
+> > > > - even /dev/mem now invalidates mappings when the kernel requests t=
+hat
+> > > > iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
+> > > > ("/dev/mem: Revoke mappings when a driver claims the region")
+> > > >
+> > > > Accessing pfns obtained from ptes without holding all the locks is
+> > > > therefore no longer a good idea.
+> > > >
+> > > > Unfortunately there's some users where this is not fixable (like v4=
+l
+> > > > userptr of iomem mappings) or involves a pile of work (vfio type1
+> > > > iommu). For now annotate these as unsafe and splat appropriately.
+> > > >
+> > > > This patch adds an unsafe_follow_pfn, which later patches will then
+> > > > roll out to all appropriate places.
+> > > >
+> > > > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > > > Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> > > > Cc: Kees Cook <keescook@chromium.org>
+> > > > Cc: Dan Williams <dan.j.williams@intel.com>
+> > > > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > > > Cc: John Hubbard <jhubbard@nvidia.com>
+> > > > Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+> > > > Cc: Jan Kara <jack@suse.cz>
+> > > > Cc: Dan Williams <dan.j.williams@intel.com>
+> > > > Cc: linux-mm@kvack.org
+> > > > Cc: linux-arm-kernel@lists.infradead.org
+> > > > Cc: linux-samsung-soc@vger.kernel.org
+> > > > Cc: linux-media@vger.kernel.org
+> > > > Cc: kvm@vger.kernel.org
+> > > >  include/linux/mm.h |  2 ++
+> > > >  mm/memory.c        | 32 +++++++++++++++++++++++++++++++-
+> > > >  mm/nommu.c         | 17 +++++++++++++++++
+> > > >  security/Kconfig   | 13 +++++++++++++
+> > > >  4 files changed, 63 insertions(+), 1 deletion(-)
+> > >
+> > > Makes sense to me.
+> > >
+> > > I wonder if we could change the original follow_pfn to require the
+> > > ptep and then lockdep_assert_held() it against the page table lock?
+> >
+> > The safe variant with the pagetable lock is follow_pte_pmd. The only
+> > way to make follow_pfn safe is if you have an mmu notifier and
+> > corresponding retry logic. That is not covered by lockdep (it would
+> > splat if we annotate the retry side), so I'm not sure how you'd check
+> > for that?
+>
+> Right OK.
+>
+> > Checking for ptep lock doesn't work here, since the one leftover safe
+> > user of this (kvm) doesn't need that at all, because it has the mmu
+> > notifier.
+>
+> Ah, so a better name and/or function kdoc for follow_pfn is probably a
+> good iead in this patch as well.
 
-- gpu drivers dynamically manage their memory nowadays, invalidating
-  ptes with unmap_mapping_range when buffers get moved
+I did change that already to mention that you need an mmu notifier,
+and that follow_pte_pmd respectively unsafe_follow_pfn are the
+alternatives. Do you want more or something else here?
 
-- contiguous dma allocations have moved from dedicated carvetouts to
-  cma regions. This means if we miss the unmap the pfn might contain
-  pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
+Note that I left the kerneldoc for the nommu.c case unchanged, since
+without an mmu all bets are off anyway.
 
-- even /dev/mem now invalidates mappings when the kernel requests that
-  iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
-  ("/dev/mem: Revoke mappings when a driver claims the region")
+> > So I think we're as good as it gets, since I really have no idea how
+> > to make sure follow_pfn callers do have an mmu notifier registered.
+>
+> Yah, can't be done. Most mmu notifier users should be using
+> hmm_range_fault anyhow, kvm is really very special here.
 
-Accessing pfns obtained from ptes without holding all the locks is
-therefore no longer a good idea. Fix this.
+We could pass an mmu notifier to follow_pfn and check that it has a
+registration for vma->vm_mm, but that feels like overkill when kvm is
+the only legit user for this.
 
-Since ioremap might need to manipulate pagetables too we need to drop
-the pt lock and have a retry loop if we raced.
+> > I've followed the few other CONFIG_STRICT_FOO I've seen, which are all
+> > explicit enables and default to "do not break uapi, damn the
+> > (security) bugs". Which is I think how this should be done. It is in
+> > the security section though, so hopefully competent distros will
+> > enable this all.
+>
+> I thought the strict ones were more general and less clear security
+> worries, not bugs like this.
+>
+> This is "allow a user triggerable use after free bug to exist in the
+> kernel"
 
-While at it, also add kerneldoc and improve the comment for the
-vma_ops->access function. It's for accessing, not for moving the
-memory from iomem to system memory, as the old comment seemed to
-suggest.
-
-References: 28b2ee20c7cb ("access_process_vm device memory infrastructure")
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Benjamin Herrensmidt <benh@kernel.crashing.org>
-Cc: Dave Airlie <airlied@linux.ie>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.com>
---
-v2: Fix inversion in the retry check (John).
----
- include/linux/mm.h |  3 ++-
- mm/memory.c        | 44 ++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 44 insertions(+), 3 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index acd60fbf1a5a..2a16631c1fda 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -566,7 +566,8 @@ struct vm_operations_struct {
- 	vm_fault_t (*pfn_mkwrite)(struct vm_fault *vmf);
- 
- 	/* called by access_process_vm when get_user_pages() fails, typically
--	 * for use by special VMAs that can switch between memory and hardware
-+	 * for use by special VMAs. See also generic_access_phys() for a generic
-+	 * implementation useful for any iomem mapping.
- 	 */
- 	int (*access)(struct vm_area_struct *vma, unsigned long addr,
- 		      void *buf, int len, int write);
-diff --git a/mm/memory.c b/mm/memory.c
-index eeae590e526a..fff817608eb4 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4840,28 +4840,68 @@ int follow_phys(struct vm_area_struct *vma,
- 	return ret;
- }
- 
-+/**
-+ * generic_access_phys - generic implementation for iomem mmap access
-+ * @vma: the vma to access
-+ * @addr: userspace addres, not relative offset within @vma
-+ * @buf: buffer to read/write
-+ * @len: length of transfer
-+ * @write: set to FOLL_WRITE when writing, otherwise reading
-+ *
-+ * This is a generic implementation for &vm_operations_struct.access for an
-+ * iomem mapping. This callback is used by access_process_vm() when the @vma is
-+ * not page based.
-+ */
- int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
- 			void *buf, int len, int write)
- {
- 	resource_size_t phys_addr;
- 	unsigned long prot = 0;
- 	void __iomem *maddr;
-+	pte_t *ptep, pte;
-+	spinlock_t *ptl;
- 	int offset = addr & (PAGE_SIZE-1);
-+	int ret = -EINVAL;
-+
-+	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-+		return -EINVAL;
-+
-+retry:
-+	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
-+		return -EINVAL;
-+	pte = *ptep;
-+	pte_unmap_unlock(ptep, ptl);
- 
--	if (follow_phys(vma, addr, write, &prot, &phys_addr))
-+	prot = pgprot_val(pte_pgprot(pte));
-+	phys_addr = (resource_size_t)pte_pfn(pte) << PAGE_SHIFT;
-+
-+	if ((write & FOLL_WRITE) && !pte_write(pte))
- 		return -EINVAL;
- 
- 	maddr = ioremap_prot(phys_addr, PAGE_ALIGN(len + offset), prot);
- 	if (!maddr)
- 		return -ENOMEM;
- 
-+	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
-+		goto out_unmap;
-+
-+	if (!pte_same(pte, *ptep)) {
-+		pte_unmap_unlock(ptep, ptl);
-+		iounmap(maddr);
-+
-+		goto retry;
-+	}
-+
- 	if (write)
- 		memcpy_toio(maddr + offset, buf, len);
- 	else
- 		memcpy_fromio(buf, maddr + offset, len);
-+	ret = len;
-+	pte_unmap_unlock(ptep, ptl);
-+out_unmap:
- 	iounmap(maddr);
- 
--	return len;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(generic_access_phys);
- #endif
--- 
-2.28.0
+Since at most you get at GFP_MOVEABLE stuff I'm not sure you can use
+this to pull the kernel over the table. Maybe best way is if you get a
+gpu pagetable somehow into your pfn and then use that to access
+abitrary stuff, but there's still an iommu. I think leveraging this is
+going to be very tricky, and pretty much has to be device or driver
+specific somehow.
+-Daniel
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
