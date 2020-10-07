@@ -1,91 +1,71 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52668 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727908AbgJGQoe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 12:44:34 -0400
-Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A74FC0613D2
-        for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2020 09:44:34 -0700 (PDT)
-Received: by mail-wr1-x442.google.com with SMTP id z1so2978183wrt.3
-        for <linux-s390@vger.kernel.org>; Wed, 07 Oct 2020 09:44:34 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 00/13] follow_pfn and other iomap races
-Date: Wed,  7 Oct 2020 18:44:13 +0200
-Message-Id: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 7 Oct 2020 13:46:34 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+Subject: Re: [PATCH 09/13] PCI: obey iomem restrictions for procfs mmap
+Message-ID: <20201007184634.GA3259641@bjorn-Precision-5520>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201007164426.1812530-10-daniel.vetter@ffwll.ch>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org
 
-Hi all,
+On Wed, Oct 07, 2020 at 06:44:22PM +0200, Daniel Vetter wrote:
+> There's three ways to access pci bars from userspace: /dev/mem, sysfs
+> files, and the old proc interface. Two check against
+> iomem_is_exclusive, proc never did. And with CONFIG_IO_STRICT_DEVMEM,
+> this starts to matter, since we don't want random userspace having
+> access to pci bars while a driver is loaded and using it.
+>=20
+> Fix this.
 
-This developed from a discussion with Jason, starting with some patches
-touching get_vaddr_frame that I typed up.
+Please mention *how* you're fixing this.  I know you can sort of
+deduce it from the first paragraph, but it's easy to save readers the
+trouble.
 
-The problem is that way back VM_IO | VM_PFNMAP mappings were pretty
-static, and so just following the ptes to derive a pfn and then use that
-somewhere else was ok.
+s/pci/PCI/
+s/bars/BARs/
+Capitalize subject to match other patches.
 
-But we're no longer in such a world, there's tons of little races and some
-fundamental problems.
-
-This series here is an attempt to at least scope the problem, it's all the
-issues I've found with quite some code reading all over the tree:
-- first part tries to move mm/frame-vector.c away, it's fundamentally an
-  unsafe thing
-- two patches to close follow_pfn races by holding pt locks
-- two pci patches where I spotted inconsinstencies between the 3 different
-  ways userspace can map pci bars
-- and finally some patches to mark up the remaining issue
-
-No testing beyond "it compiles", this is very much an rfc to figure out
-whether this makes sense, whether it's a real thing, and how to fix this
-up properly.
-
-Cheers, Daniel
-
-Daniel Vetter (13):
-  drm/exynos: Stop using frame_vector helpers
-  drm/exynos: Use FOLL_LONGTERM for g2d cmdlists
-  misc/habana: Stop using frame_vector helpers
-  misc/habana: Use FOLL_LONGTERM for userptr
-  mm/frame-vector: Use FOLL_LONGTERM
-  media: videobuf2: Move frame_vector into media subsystem
-  mm: close race in generic_access_phys
-  s390/pci: Remove races against pte updates
-  PCI: obey iomem restrictions for procfs mmap
-  PCI: revoke mappings like devmem
-  mm: add unsafe_follow_pfn
-  media/videbuf1|2: Mark follow_pfn usage as unsafe
-  vfio/type1: Mark follow_pfn as unsafe
-
- arch/s390/pci/pci_mmio.c                      | 98 +++++++++++--------
- drivers/char/mem.c                            | 16 ++-
- drivers/gpu/drm/exynos/Kconfig                |  1 -
- drivers/gpu/drm/exynos/exynos_drm_g2d.c       | 49 +++++-----
- drivers/media/common/videobuf2/Kconfig        |  1 -
- drivers/media/common/videobuf2/Makefile       |  1 +
- .../media/common/videobuf2}/frame_vector.c    | 40 +++-----
- drivers/media/platform/omap/Kconfig           |  1 -
- drivers/media/v4l2-core/videobuf-dma-contig.c |  2 +-
- drivers/misc/habanalabs/Kconfig               |  1 -
- drivers/misc/habanalabs/common/habanalabs.h   |  3 +-
- drivers/misc/habanalabs/common/memory.c       | 52 +++++-----
- drivers/pci/mmap.c                            |  3 +
- drivers/pci/proc.c                            |  5 +
- drivers/vfio/vfio_iommu_type1.c               |  4 +-
- include/linux/ioport.h                        |  2 +
- include/linux/mm.h                            | 47 +--------
- include/media/videobuf2-core.h                | 42 ++++++++
- mm/Kconfig                                    |  3 -
- mm/Makefile                                   |  1 -
- mm/memory.c                                   | 76 +++++++++++++-
- mm/nommu.c                                    | 17 ++++
- security/Kconfig                              | 13 +++
- 23 files changed, 296 insertions(+), 182 deletions(-)
- rename {mm => drivers/media/common/videobuf2}/frame_vector.c (90%)
-
--- 
-2.28.0
+> References: 90a545e98126 ("restrict /dev/mem to idle io memory ranges")
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: John Hubbard <jhubbard@nvidia.com>
+> Cc: J=EF=BF=BDr=EF=BF=BDme Glisse <jglisse@redhat.com>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: linux-mm@kvack.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-samsung-soc@vger.kernel.org
+> Cc: linux-media@vger.kernel.org
+> Cc: Bjorn Helgaas <bhelgaas@google.com>
+> Cc: linux-pci@vger.kernel.org
+> ---
+>  drivers/pci/proc.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>=20
+> diff --git a/drivers/pci/proc.c b/drivers/pci/proc.c
+> index d35186b01d98..3a2f90beb4cb 100644
+> --- a/drivers/pci/proc.c
+> +++ b/drivers/pci/proc.c
+> @@ -274,6 +274,11 @@ static int proc_bus_pci_mmap(struct file *file, stru=
+ct vm_area_struct *vma)
+>  		else
+>  			return -EINVAL;
+>  	}
+> +
+> +	if (dev->resource[i].flags & IORESOURCE_MEM &&
+> +	    iomem_is_exclusive(dev->resource[i].start))
+> +		return -EINVAL;
+> +
+>  	ret =3D pci_mmap_page_range(dev, i, vma,
+>  				  fpriv->mmap_state, write_combine);
+>  	if (ret < 0)
+> --=20
+> 2.28.0
+>=20
