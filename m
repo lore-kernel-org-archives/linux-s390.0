@@ -1,108 +1,47 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from hqnvemgate24.nvidia.com ([216.228.121.143]:1211 "EHLO
-        hqnvemgate24.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728023AbgJHAow (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 20:44:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57882 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728135AbgJGXVV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 19:21:21 -0400
+Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08307C0613D3
+        for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2020 16:21:19 -0700 (PDT)
+Received: by mail-qt1-x843.google.com with SMTP id h12so2023303qtu.1
+        for <linux-s390@vger.kernel.org>; Wed, 07 Oct 2020 16:21:19 -0700 (PDT)
+Date: Wed, 7 Oct 2020 20:21:17 -0300
+From: Jason Gunthorpe <jgg@ziepe.ca>
 Subject: Re: [PATCH 07/13] mm: close race in generic_access_phys
+Message-ID: <20201007232117.GB5177@ziepe.ca>
 References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
  <20201007164426.1812530-8-daniel.vetter@ffwll.ch>
-From: John Hubbard <jhubbard@nvidia.com>
-Message-ID: <852a74ec-339b-4c7f-9e29-b9736111849a@nvidia.com>
-Date: Wed, 7 Oct 2020 17:44:46 -0700
+ <20201007172746.GU5177@ziepe.ca>
+ <CAKMK7uH3P-6zs5MVceFD7872owqtcktqsTaQAOKNyaBg4_w=aA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20201007164426.1812530-8-daniel.vetter@ffwll.ch>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKMK7uH3P-6zs5MVceFD7872owqtcktqsTaQAOKNyaBg4_w=aA@mail.gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Rik van Riel <riel@redhat.com>, Benjamin Herrensmidt <benh@kernel.crashing.org>, Dave Airlie <airlied@linux.ie>, Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@linux-foundation.org>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Daniel Vetter <daniel.vetter@intel.com>
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, Linux MM <linux-mm@kvack.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, linux-s390@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Rik van Riel <riel@redhat.com>, Benjamin Herrensmidt <benh@kernel.crashing.org>, Dave Airlie <airlied@linux.ie>, Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?utf-8?B?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Daniel Vetter <daniel.vetter@intel.com>
 
-On 10/7/20 9:44 AM, Daniel Vetter wrote:
-> Way back it was a reasonable assumptions that iomem mappings never
-> change the pfn range they point at. But this has changed:
+On Wed, Oct 07, 2020 at 08:01:42PM +0200, Daniel Vetter wrote:
+> I think it'd fix the bug, until someone wires ->access up for
+> drivers/gpu, or the next subsystem. This is also just for ptrace, so
+> we really don't care when we stall the vm badly and other silly
+> things. So I figured the somewhat ugly, but full generic solution is
+> the better one, so that people who want to be able to ptrace
+> read/write their iomem mmaps can just sprinkle this wherever they feel
+> like.
 > 
-> - gpu drivers dynamically manage their memory nowadays, invalidating
->    ptes with unmap_mapping_range when buffers get moved
-> 
-> - contiguous dma allocations have moved from dedicated carvetouts to
+> But yeah if we go with most minimal fix, i.e. only trying to fix the
+> current users, then your thing should work and is simpler. But it
+> leaves the door open for future problems.
 
-s/carvetouts/carveouts/
+The only other idea I had was to fully make the 'vma of __iomem
+memory' some generic utility, completely take over the vm_ops.
 
->    cma regions. This means if we miss the unmap the pfn might contain
->    pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
-> 
-> - even /dev/mem now invalidates mappings when the kernel requests that
->    iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
->    ("/dev/mem: Revoke mappings when a driver claims the region")
+We did something like this in RDMA, what I found was even just
+implementing mmap() using the kernel helpers turned out to be pretty
+tricky, many drivers did it wrong in small ways.
 
-Thanks for putting these references into the log, it's very helpful.
-...
-> diff --git a/mm/memory.c b/mm/memory.c
-> index fcfc4ca36eba..8d467e23b44e 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -4873,28 +4873,68 @@ int follow_phys(struct vm_area_struct *vma,
->   	return ret;
->   }
->   
-> +/**
-> + * generic_access_phys - generic implementation for iomem mmap access
-> + * @vma: the vma to access
-> + * @addr: userspace addres, not relative offset within @vma
-> + * @buf: buffer to read/write
-> + * @len: length of transfer
-> + * @write: set to FOLL_WRITE when writing, otherwise reading
-> + *
-> + * This is a generic implementation for &vm_operations_struct.access for an
-> + * iomem mapping. This callback is used by access_process_vm() when the @vma is
-> + * not page based.
-> + */
->   int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
->   			void *buf, int len, int write)
->   {
->   	resource_size_t phys_addr;
->   	unsigned long prot = 0;
->   	void __iomem *maddr;
-> +	pte_t *ptep, pte;
-> +	spinlock_t *ptl;
->   	int offset = addr & (PAGE_SIZE-1);
-> +	int ret = -EINVAL;
-> +
-> +	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-> +		return -EINVAL;
-> +
-> +retry:
-> +	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
-> +		return -EINVAL;
-> +	pte = *ptep;
-> +	pte_unmap_unlock(ptep, ptl);
->   
-> -	if (follow_phys(vma, addr, write, &prot, &phys_addr))
-> +	prot = pgprot_val(pte_pgprot(pte));
-> +	phys_addr = (resource_size_t)pte_pfn(pte) << PAGE_SHIFT;
-> +
-> +	if ((write & FOLL_WRITE) && !pte_write(pte))
->   		return -EINVAL;
->   
->   	maddr = ioremap_prot(phys_addr, PAGE_ALIGN(len + offset), prot);
->   	if (!maddr)
->   		return -ENOMEM;
->   
-> +	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
-> +		goto out_unmap;
-> +
-> +	if (pte_same(pte, *ptep)) {
-
-
-The ioremap area is something I'm sorta new to, so a newbie question:
-is it possible for the same pte to already be there, ever? If so, we
-be stuck in an infinite loop here.  I'm sure that's not the case, but
-it's not yet obvious to me why it's impossible. Resource reservations
-maybe?
-
-
-thanks,
--- 
-John Hubbard
-NVIDIA
+Jason
