@@ -1,61 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49578 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729806AbgJHNNn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 09:13:43 -0400
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH v2 07/10] s390/dasd: Fix operational path inconsistency
-Date: Thu,  8 Oct 2020 15:13:33 +0200
-Message-Id: <20201008131336.61100-8-sth@linux.ibm.com>
-In-Reply-To: <20201008131336.61100-1-sth@linux.ibm.com>
-References: <20201008131336.61100-1-sth@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40898 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728336AbgJGS4m (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 14:56:42 -0400
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: [PATCH v3 5/5] MAINTAINERS: Add entry for s390 vfio-pci
+Date: Wed,  7 Oct 2020 14:56:24 -0400
+Message-Id: <1602096984-13703-6-git-send-email-mjrosato@linux.ibm.com>
+In-Reply-To: <1602096984-13703-1-git-send-email-mjrosato@linux.ibm.com>
+References: <1602096984-13703-1-git-send-email-mjrosato@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
+Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+Add myself to cover s390-specific items related to vfio-pci.
 
-During online processing and setting up a DASD device, the configuration
-data for operational paths is read and validated two times
-(dasd_eckd_read_conf()). The first time to provide information that are
-necessary for the LCU setup. A second time after the LCU setup as a
-device might report different configuration data then.
-
-When the configuration setup for each operational path is being
-validated, an initial call to dasd_eckd_clear_conf_data() is issued.
-This call wipes all previously available configuration data and path
-information for each path.
-However, the operational path mask is not updated during this process.
-
-As a result, the stored operational path mask might no longer correspond
-to the operational paths mask reported by the CIO layer, as several
-paths might be gone between the two dasd_eckd_read_conf() calls.
-
-This inconsistency leads to more severe issues in later path handling
-changes. Fix this by removing the channel paths from the operational
-path mask during the dasd_eckd_clear_conf_data() call.
-
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
 ---
- drivers/s390/block/dasd_eckd.c | 1 +
- 1 file changed, 1 insertion(+)
+ MAINTAINERS | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 3ff7b532a5bf..3273b26b25b0 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1034,6 +1034,7 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
- 		device->path[i].cssid = 0;
- 		device->path[i].ssid = 0;
- 		device->path[i].chpid = 0;
-+		dasd_path_notoper(device, i);
- 	}
- }
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9a54806..a0e8d14 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -15170,6 +15170,14 @@ F:	Documentation/s390/vfio-ccw.rst
+ F:	drivers/s390/cio/vfio_ccw*
+ F:	include/uapi/linux/vfio_ccw.h
  
++S390 VFIO-PCI DRIVER
++M:	Matthew Rosato <mjrosato@linux.ibm.com>
++L:	linux-s390@vger.kernel.org
++L:	kvm@vger.kernel.org
++S:	Supported
++F:	drivers/vfio/pci/vfio_pci_zdev.c
++F:	include/uapi/linux/vfio_zdev.h
++
+ S390 ZCRYPT DRIVER
+ M:	Harald Freudenberger <freude@linux.ibm.com>
+ L:	linux-s390@vger.kernel.org
 -- 
-2.17.1
+1.8.3.1
