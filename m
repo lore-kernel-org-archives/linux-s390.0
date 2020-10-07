@@ -1,71 +1,64 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40068 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726424AbgJaJWW (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 31 Oct 2020 05:22:22 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 10/11] block: remove set_device_ro
-Date: Sat, 31 Oct 2020 09:58:09 +0100
-Message-Id: <20201031085810.450489-11-hch@lst.de>
-In-Reply-To: <20201031085810.450489-1-hch@lst.de>
-References: <20201031085810.450489-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58704 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728613AbgJGU6A (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 16:58:00 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 3/3] net/smc: restore smcd_version when all ISM V2 devices failed to init
+Date: Wed,  7 Oct 2020 22:57:43 +0200
+Message-Id: <20201007205743.83535-4-kgraul@linux.ibm.com>
+In-Reply-To: <20201007205743.83535-1-kgraul@linux.ibm.com>
+References: <20201007205743.83535-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Fold set_device_ro into its only remaining caller.
+Field ini->smcd_version is set to SMC_V2 before calling
+smc_listen_ism_init(). This clears the V1 bit that may be set. When all
+matching ISM V2 devices fail to initialize then the smcd_version field
+needs to get restored to allow any possible V1 devices to initialize.
+And be consistent, always go to the not_found label when no device was
+found.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- block/genhd.c         | 7 -------
- block/ioctl.c         | 2 +-
- include/linux/genhd.h | 1 -
- 3 files changed, 1 insertion(+), 9 deletions(-)
+ net/smc/af_smc.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 0a273211fec283..a487590b365e89 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -1843,13 +1843,6 @@ static void set_disk_ro_uevent(struct gendisk *gd, int ro)
- 	kobject_uevent_env(&disk_to_dev(gd)->kobj, KOBJ_CHANGE, envp);
- }
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index f481f0ed2b78..82be0bd0f6e8 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1481,11 +1481,12 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
+ 	struct smc_clc_v2_extension *smc_v2_ext;
+ 	struct smc_clc_msg_smcd *pclc_smcd;
+ 	unsigned int matches = 0;
++	u8 smcd_version;
+ 	u8 *eid = NULL;
+ 	int i;
  
--void set_device_ro(struct block_device *bdev, int flag)
--{
--	bdev->bd_part->policy = flag;
--}
--
--EXPORT_SYMBOL(set_device_ro);
--
- void set_disk_ro(struct gendisk *disk, int flag)
- {
- 	struct disk_part_iter piter;
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 96cb4544736468..04255dc5f3bff3 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -371,7 +371,7 @@ static int blkdev_roset(struct block_device *bdev, fmode_t mode,
- 		if (ret)
- 			return ret;
+ 	if (!(ini->smcd_version & SMC_V2) || !smcd_indicated(ini->smc_type_v2))
+-		return;
++		goto not_found;
+ 
+ 	pclc_smcd = smc_get_clc_msg_smcd(pclc);
+ 	smc_v2_ext = smc_get_clc_v2_ext(pclc);
+@@ -1519,6 +1520,7 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
  	}
--	set_device_ro(bdev, n);
-+	bdev->bd_part->policy = n;
- 	return 0;
- }
  
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 38f23d75701379..f232f26d7c777b 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -304,7 +304,6 @@ extern void del_gendisk(struct gendisk *gp);
- extern struct gendisk *get_gendisk(dev_t dev, int *partno);
- extern struct block_device *bdget_disk(struct gendisk *disk, int partno);
+ 	/* separate - outside the smcd_dev_list.lock */
++	smcd_version = ini->smcd_version;
+ 	for (i = 0; i < matches; i++) {
+ 		ini->smcd_version = SMC_V2;
+ 		ini->is_smcd = true;
+@@ -1528,6 +1530,8 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
+ 			continue;
+ 		return; /* matching and usable V2 ISM device found */
+ 	}
++	/* no V2 ISM device could be initialized */
++	ini->smcd_version = smcd_version;	/* restore original value */
  
--extern void set_device_ro(struct block_device *bdev, int flag);
- extern void set_disk_ro(struct gendisk *disk, int flag);
- 
- static inline int get_disk_ro(struct gendisk *disk)
+ not_found:
+ 	ini->smcd_version &= ~SMC_V2;
 -- 
-2.28.0
+2.17.1
