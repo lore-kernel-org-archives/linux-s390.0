@@ -1,232 +1,202 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52672 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728310AbgJGQoq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 12:44:46 -0400
-Received: from mail-wm1-x344.google.com (mail-wm1-x344.google.com [IPv6:2a00:1450:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E8FC0613E1
-        for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2020 09:44:46 -0700 (PDT)
-Received: by mail-wm1-x344.google.com with SMTP id e2so3154130wme.1
-        for <linux-s390@vger.kernel.org>; Wed, 07 Oct 2020 09:44:45 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 08/13] s390/pci: Remove races against pte updates
-Date: Wed,  7 Oct 2020 18:44:21 +0200
-Message-Id: <20201007164426.1812530-9-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
-References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52526 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729799AbgJHNNn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 09:13:43 -0400
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH v2 03/10] s390/cio: Add support for FCES status notification
+Date: Thu,  8 Oct 2020 15:13:29 +0200
+Message-Id: <20201008131336.61100-4-sth@linux.ibm.com>
+In-Reply-To: <20201008131336.61100-1-sth@linux.ibm.com>
+References: <20201008131336.61100-1-sth@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Niklas Schnelle <schnelle@linux.ibm.com>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-Way back it was a reasonable assumptions that iomem mappings never
-change the pfn range they point at. But this has changed:
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-- gpu drivers dynamically manage their memory nowadays, invalidating
-ptes with unmap_mapping_range when buffers get moved
+Fibre Channel Endpoint-Security event is received as an sei:nt0 type
+in the CIO layer. This information needs to be shared with the
+CCW device drivers using the path_events callback.
 
-- contiguous dma allocations have moved from dedicated carvetouts to
-cma regions. This means if we miss the unmap the pfn might contain
-pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
-
-- even /dev/mem now invalidates mappings when the kernel requests that
-iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
-("/dev/mem: Revoke mappings when a driver claims the region")
-
-Accessing pfns obtained from ptes without holding all the locks is
-therefore no longer a good idea. Fix this.
-
-Since zpci_memcpy_from|toio seems to not do anything nefarious with
-locks we just need to open code get_pfn and follow_pfn and make sure
-we drop the locks only after we've done. The write function also needs
-the copy_from_user move, since we can't take userspace faults while
-holding the mmap sem.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Co-developed-by: Sebastian Ott <sebott@linux.ibm.com>
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- arch/s390/pci/pci_mmio.c | 98 +++++++++++++++++++++++-----------------
- 1 file changed, 57 insertions(+), 41 deletions(-)
+ arch/s390/include/asm/ccwdev.h |  2 ++
+ drivers/s390/cio/chp.h         |  1 +
+ drivers/s390/cio/chsc.c        | 62 +++++++++++++++++++++++++++++-----
+ drivers/s390/cio/device.c      | 15 +++++++-
+ 4 files changed, 70 insertions(+), 10 deletions(-)
 
-diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
-index 401cf670a243..4d194cb09372 100644
---- a/arch/s390/pci/pci_mmio.c
-+++ b/arch/s390/pci/pci_mmio.c
-@@ -119,33 +119,15 @@ static inline int __memcpy_toio_inuser(void __iomem *dst,
- 	return rc;
+diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
+index 3cfe1eb89838..14e1bbfd969e 100644
+--- a/arch/s390/include/asm/ccwdev.h
++++ b/arch/s390/include/asm/ccwdev.h
+@@ -104,6 +104,8 @@ struct ccw_device {
+ 					       was successfully verified. */
+ #define PE_PATHGROUP_ESTABLISHED	0x4 /* A pathgroup was reset and had
+ 					       to be established again. */
++#define PE_PATH_FCES_EVENT		0x8 /* The FCES Status of a path has
++					     * changed. */
+ 
+ /*
+  * Possible CIO actions triggered by the unit check handler.
+diff --git a/drivers/s390/cio/chp.h b/drivers/s390/cio/chp.h
+index 20259f3fbf45..7ee9eba0abcb 100644
+--- a/drivers/s390/cio/chp.h
++++ b/drivers/s390/cio/chp.h
+@@ -23,6 +23,7 @@
+ #define CHP_OFFLINE 1
+ #define CHP_VARY_ON 2
+ #define CHP_VARY_OFF 3
++#define CHP_FCES_EVENT 4
+ 
+ struct chp_link {
+ 	struct chp_id chpid;
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index 513fc5748d6e..04fbcfcf9e42 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -37,6 +37,9 @@ static void *sei_page;
+ static void *chsc_page;
+ static DEFINE_SPINLOCK(chsc_page_lock);
+ 
++#define SEI_VF_FLA	0xc0 /* VF flag for Full Link Address */
++#define SEI_RS_CHPID	0x4  /* 4 in RS field indicates CHPID */
++
+ /**
+  * chsc_error_from_response() - convert a chsc response to an error
+  * @response: chsc response code
+@@ -285,6 +288,15 @@ static void s390_process_res_acc(struct chp_link *link)
+ 	css_schedule_reprobe();
  }
  
--static long get_pfn(unsigned long user_addr, unsigned long access,
--		    unsigned long *pfn)
--{
--	struct vm_area_struct *vma;
--	long ret;
--
--	mmap_read_lock(current->mm);
--	ret = -EINVAL;
--	vma = find_vma(current->mm, user_addr);
--	if (!vma)
--		goto out;
--	ret = -EACCES;
--	if (!(vma->vm_flags & access))
--		goto out;
--	ret = follow_pfn(vma, user_addr, pfn);
--out:
--	mmap_read_unlock(current->mm);
--	return ret;
--}
--
- SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
- 		const void __user *, user_buffer, size_t, length)
++static int process_fces_event(struct subchannel *sch, void *data)
++{
++	spin_lock_irq(sch->lock);
++	if (sch->driver && sch->driver->chp_event)
++		sch->driver->chp_event(sch, data, CHP_FCES_EVENT);
++	spin_unlock_irq(sch->lock);
++	return 0;
++}
++
+ struct chsc_sei_nt0_area {
+ 	u8  flags;
+ 	u8  vf;				/* validity flags */
+@@ -362,6 +374,16 @@ static char *store_ebcdic(char *dest, const char *src, unsigned long len,
+ 	return dest + len;
+ }
+ 
++static void chsc_link_from_sei(struct chp_link *link,
++				struct chsc_sei_nt0_area *sei_area)
++{
++	if ((sei_area->vf & SEI_VF_FLA) != 0) {
++		link->fla	= sei_area->fla;
++		link->fla_mask	= ((sei_area->vf & SEI_VF_FLA) == SEI_VF_FLA) ?
++							0xffff : 0xff00;
++	}
++}
++
+ /* Format node ID and parameters for output in LIR log message. */
+ static void format_node_data(char *params, char *id, struct node_descriptor *nd)
  {
- 	u8 local_buf[64];
- 	void __iomem *io_addr;
- 	void *buf;
--	unsigned long pfn;
-+	struct vm_area_struct *vma;
-+	pte_t *ptep;
-+	spinlock_t *ptl;
- 	long ret;
- 
- 	if (!zpci_is_enabled())
-@@ -158,7 +140,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
- 	 * We only support write access to MIO capable devices if we are on
- 	 * a MIO enabled system. Otherwise we would have to check for every
- 	 * address if it is a special ZPCI_ADDR and would have to do
--	 * a get_pfn() which we don't need for MIO capable devices.  Currently
-+	 * a pfn lookup which we don't need for MIO capable devices.  Currently
- 	 * ISM devices are the only devices without MIO support and there is no
- 	 * known need for accessing these from userspace.
- 	 */
-@@ -176,21 +158,37 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
- 	} else
- 		buf = local_buf;
- 
--	ret = get_pfn(mmio_addr, VM_WRITE, &pfn);
-+	ret = -EFAULT;
-+	if (copy_from_user(buf, user_buffer, length))
-+		goto out_free;
-+
-+	mmap_read_lock(current->mm);
-+	ret = -EINVAL;
-+	vma = find_vma(current->mm, mmio_addr);
-+	if (!vma)
-+		goto out_unlock_mmap;
-+	ret = -EACCES;
-+	if (!(vma->vm_flags & VM_WRITE))
-+		goto out_unlock_mmap;
-+	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-+		goto out_unlock_mmap;
-+
-+	ret = follow_pte_pmd(vma->vm_mm, mmio_addr, NULL, &ptep, NULL, &ptl);
- 	if (ret)
--		goto out;
--	io_addr = (void __iomem *)((pfn << PAGE_SHIFT) |
-+		goto out_unlock_mmap;
-+
-+	io_addr = (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
- 			(mmio_addr & ~PAGE_MASK));
- 
--	ret = -EFAULT;
- 	if ((unsigned long) io_addr < ZPCI_IOMAP_ADDR_BASE)
--		goto out;
--
--	if (copy_from_user(buf, user_buffer, length))
--		goto out;
-+		goto out_unlock_pt;
- 
- 	ret = zpci_memcpy_toio(io_addr, buf, length);
--out:
-+out_unlock_pt:
-+	pte_unmap_unlock(ptep, ptl);
-+out_unlock_mmap:
-+	mmap_read_unlock(current->mm);
-+out_free:
- 	if (buf != local_buf)
- 		kfree(buf);
- 	return ret;
-@@ -274,7 +272,9 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
- 	u8 local_buf[64];
- 	void __iomem *io_addr;
- 	void *buf;
--	unsigned long pfn;
-+	struct vm_area_struct *vma;
-+	pte_t *ptep;
-+	spinlock_t *ptl;
- 	long ret;
- 
- 	if (!zpci_is_enabled())
-@@ -287,7 +287,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
- 	 * We only support read access to MIO capable devices if we are on
- 	 * a MIO enabled system. Otherwise we would have to check for every
- 	 * address if it is a special ZPCI_ADDR and would have to do
--	 * a get_pfn() which we don't need for MIO capable devices.  Currently
-+	 * a pfn lookup which we don't need for MIO capable devices.  Currently
- 	 * ISM devices are the only devices without MIO support and there is no
- 	 * known need for accessing these from userspace.
- 	 */
-@@ -306,22 +306,38 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
- 		buf = local_buf;
+@@ -451,15 +473,7 @@ static void chsc_process_sei_res_acc(struct chsc_sei_nt0_area *sei_area)
  	}
+ 	memset(&link, 0, sizeof(struct chp_link));
+ 	link.chpid = chpid;
+-	if ((sei_area->vf & 0xc0) != 0) {
+-		link.fla = sei_area->fla;
+-		if ((sei_area->vf & 0xc0) == 0xc0)
+-			/* full link address */
+-			link.fla_mask = 0xffff;
+-		else
+-			/* link address */
+-			link.fla_mask = 0xff00;
+-	}
++	chsc_link_from_sei(&link, sei_area);
+ 	s390_process_res_acc(&link);
+ }
  
--	ret = get_pfn(mmio_addr, VM_READ, &pfn);
-+	mmap_read_lock(current->mm);
-+	ret = -EINVAL;
-+	vma = find_vma(current->mm, mmio_addr);
-+	if (!vma)
-+		goto out_unlock_mmap;
-+	ret = -EACCES;
-+	if (!(vma->vm_flags & VM_WRITE))
-+		goto out_unlock_mmap;
-+	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-+		goto out_unlock_mmap;
-+
-+	ret = follow_pte_pmd(vma->vm_mm, mmio_addr, NULL, &ptep, NULL, &ptl);
- 	if (ret)
--		goto out;
--	io_addr = (void __iomem *)((pfn << PAGE_SHIFT) | (mmio_addr & ~PAGE_MASK));
-+		goto out_unlock_mmap;
-+
-+	io_addr = (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
-+			(mmio_addr & ~PAGE_MASK));
+@@ -568,6 +582,33 @@ static void chsc_process_sei_ap_cfg_chg(struct chsc_sei_nt0_area *sei_area)
+ 	ap_bus_cfg_chg();
+ }
  
- 	if ((unsigned long) io_addr < ZPCI_IOMAP_ADDR_BASE) {
- 		ret = -EFAULT;
--		goto out;
-+		goto out_unlock_pt;
++static void chsc_process_sei_fces_event(struct chsc_sei_nt0_area *sei_area)
++{
++	struct chp_link link;
++	struct chp_id chpid;
++	struct channel_path *chp;
++
++	CIO_CRW_EVENT(4,
++	"chsc: FCES status notification (rs=%02x, rs_id=%04x, FCES-status=%x)\n",
++		sei_area->rs, sei_area->rsid, sei_area->ccdf[0]);
++
++	if (sei_area->rs != SEI_RS_CHPID)
++		return;
++	chp_id_init(&chpid);
++	chpid.id = sei_area->rsid;
++
++	/* Ignore the event on unknown/invalid chp */
++	chp = chpid_to_chp(chpid);
++	if (!chp)
++		return;
++
++	memset(&link, 0, sizeof(struct chp_link));
++	link.chpid = chpid;
++	chsc_link_from_sei(&link, sei_area);
++
++	for_each_subchannel_staged(process_fces_event, NULL, &link);
++}
++
+ static void chsc_process_sei_nt2(struct chsc_sei_nt2_area *sei_area)
+ {
+ 	switch (sei_area->cc) {
+@@ -609,6 +650,9 @@ static void chsc_process_sei_nt0(struct chsc_sei_nt0_area *sei_area)
+ 	case 14: /* scm available notification */
+ 		chsc_process_sei_scm_avail(sei_area);
+ 		break;
++	case 15: /* FCES event notification */
++		chsc_process_sei_fces_event(sei_area);
++		break;
+ 	default: /* other stuff */
+ 		CIO_CRW_EVENT(2, "chsc: sei nt0 unhandled cc=%d\n",
+ 			      sei_area->cc);
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index b29fe8d50baf..aab13c78db9f 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -1170,7 +1170,8 @@ static int io_subchannel_chp_event(struct subchannel *sch,
+ 				   struct chp_link *link, int event)
+ {
+ 	struct ccw_device *cdev = sch_get_cdev(sch);
+-	int mask;
++	int mask, chpid, valid_bit;
++	int path_event[8];
+ 
+ 	mask = chp_ssd_get_mask(&sch->ssd_info, link);
+ 	if (!mask)
+@@ -1205,6 +1206,18 @@ static int io_subchannel_chp_event(struct subchannel *sch,
+ 			cdev->private->path_new_mask |= mask;
+ 		io_subchannel_verify(sch);
+ 		break;
++	case CHP_FCES_EVENT:
++		/* Forward Endpoint Security event */
++		for (chpid = 0, valid_bit = 0x80; chpid < 8; chpid++,
++				valid_bit >>= 1) {
++			if (mask & valid_bit)
++				path_event[chpid] = PE_PATH_FCES_EVENT;
++			else
++				path_event[chpid] = PE_NONE;
++		}
++		if (cdev)
++			cdev->drv->path_event(cdev, path_event);
++		break;
  	}
- 	ret = zpci_memcpy_fromio(buf, io_addr, length);
--	if (ret)
--		goto out;
--	if (copy_to_user(user_buffer, buf, length))
-+
-+out_unlock_pt:
-+	pte_unmap_unlock(ptep, ptl);
-+out_unlock_mmap:
-+	mmap_read_unlock(current->mm);
-+
-+	if (!ret && copy_to_user(user_buffer, buf, length))
- 		ret = -EFAULT;
- 
--out:
- 	if (buf != local_buf)
- 		kfree(buf);
- 	return ret;
+ 	return 0;
+ }
 -- 
-2.28.0
+2.17.1
