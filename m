@@ -1,28 +1,28 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51258 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728083AbgJHHuH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 03:50:07 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D6CBC0613D2
-        for <linux-s390@vger.kernel.org>; Thu,  8 Oct 2020 00:50:07 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id i5so4843383edr.5
-        for <linux-s390@vger.kernel.org>; Thu, 08 Oct 2020 00:50:07 -0700 (PDT)
+        with ESMTP id S1726684AbgJHHbu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 03:31:50 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8319C0613D6
+        for <linux-s390@vger.kernel.org>; Thu,  8 Oct 2020 00:31:49 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id m7so5399203oie.0
+        for <linux-s390@vger.kernel.org>; Thu, 08 Oct 2020 00:31:49 -0700 (PDT)
 MIME-Version: 1.0
 References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
  <20201007164426.1812530-11-daniel.vetter@ffwll.ch> <CAPcyv4hBL68A7CZa+YnooufDH2tevoxrx32DTJMQ6OHRnec7QQ@mail.gmail.com>
  <20201007232448.GC5177@ziepe.ca>
 In-Reply-To: <20201007232448.GC5177@ziepe.ca>
-From: Dan Williams <dan.j.williams@intel.com>
-Date: Thu, 8 Oct 2020 00:49:54 -0700
-Message-ID: <CAPcyv4jA9fe40r_2SfrCtOaeE85V88TA3NNQZOmQMNj=MdsPyw@mail.gmail.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date: Thu, 8 Oct 2020 09:31:37 +0200
+Message-ID: <CAKMK7uF6pdQScwcihBq+9BZ7bSrNXimi-ddN8w7zg2ANhSduWw@mail.gmail.com>
 Subject: Re: [PATCH 10/13] PCI: revoke mappings like devmem
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
 To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Daniel Vetter <daniel.vetter@intel.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Bjorn Helgaas <bhelgaas@google.com>, Linux PCI <linux-pci@vger.kernel.org>
+Cc: Dan Williams <dan.j.williams@intel.com>, DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Daniel Vetter <daniel.vetter@intel.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Bjorn Helgaas <bhelgaas@google.com>, Linux PCI <linux-pci@vger.kernel.org>
 
-On Wed, Oct 7, 2020 at 4:25 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
+On Thu, Oct 8, 2020 at 1:24 AM Jason Gunthorpe <jgg@ziepe.ca> wrote:
 >
 > On Wed, Oct 07, 2020 at 12:33:06PM -0700, Dan Williams wrote:
 > > On Wed, Oct 7, 2020 at 11:11 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
@@ -53,23 +53,18 @@ On Wed, Oct 7, 2020 at 4:25 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
 >
 > The inode does not come from the filesystem char/mem.c creates a
 > singular anon inode in devmem_init_inode()
-
-That's not quite right, An inode does come from the filesystem I just
-arranged for that inode's i_mapping to be set to a common instance.
-
+>
 > Seems OK to use this more widely, but it feels a bit weird to live in
 > char/memory.c.
-
-Sure, now that more users have arrived it should move somewhere common.
-
+>
 > This is what got me thinking maybe this needs to be a bit bigger
 > generic infrastructure - eg enter this scheme from fops mmap and
 > everything else is in mm/user_iomem.c
 
-It still requires every file that can map physical memory to have its
-->open fop do
-
-       inode->i_mapping = devmem_inode->i_mapping;
-       filp->f_mapping = inode->i_mapping;
-
-I don't see how you can centralize that part.
+Yeah moving it to iomem and renaming it to have an iomem_prefix
+instead of devmem sounds like a good idea.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
