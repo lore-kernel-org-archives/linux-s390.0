@@ -1,37 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55738 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726249AbgJRVuO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 18 Oct 2020 17:50:14 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53236 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726005AbgJHI6Y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 04:58:24 -0400
+From: Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH] s390/idle: Fix suspicious RCU usage
+References: <20200908133031.GT1362448@hirez.programming.kicks-ass.net>
+        <yt9dimbm79qi.fsf@linux.ibm.com>
+        <20201007100551.GC2628@hirez.programming.kicks-ass.net>
+        <20201007125625.GK2651@hirez.programming.kicks-ass.net>
+Date: Thu, 08 Oct 2020 10:58:05 +0200
+In-Reply-To: <20201007125625.GK2651@hirez.programming.kicks-ass.net> (Peter
+        Zijlstra's message of "Wed, 7 Oct 2020 14:56:25 +0200")
+Message-ID: <yt9dy2khrt5u.fsf@linux.ibm.com>
 MIME-Version: 1.0
-References: <20200817091617.28119-1-allen.cryptic@gmail.com>
-In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
-From: Richard Weinberger <richard.weinberger@gmail.com>
-Date: Sun, 18 Oct 2020 23:50:00 +0200
-Message-ID: <CAFLxGvxsHD6zvTJSHeo2gaoRQfjUPZ6M=5BirOObHFjGqnzfew@mail.gmail.com>
-Subject: Re: [PATCH] arch: um: convert tasklets to use new tasklet_setup() API
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: Allen Pais <allen.cryptic@gmail.com>
-Cc: Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, 3chas3@gmail.com, Jens Axboe <axboe@kernel.dk>, stefanr@s5r6.in-berlin.de, Dave Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Sebastian Reichel <sre@kernel.org>, James Bottomley <James.Bottomley@hansenpartnership.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Helge Deller <deller@gmx.de>, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, Maxim Levitsky <maximlevitsky@gmail.com>, Alex Dubov <oakad@yahoo.com>, Ulf Hansson <ulf.hansson@linaro.org>, mporter@kernel.crashing.org, alex.bou9@gmail.com, Mark Brown <broonie@kernel.org>, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, "David S. Miller" <davem@davemloft.net>, kuba@kernel.org, Kees Cook <keescook@chromium.org>, linux-um <linux-um@lists.infradead.org>, LKML <linux-kernel@vger.kernel.org>, linux-atm-general@lists.sourceforge.net, netdev@vger.kernel.org, linux-block@vger.kernel.org, linux-arm-kernel@lists.infradead.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, DRI mailing list <dri-devel@lists.freedesktop.org>, linux-hyperv@vger.kernel.org, linux-parisc@vger.kernel.org, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, linux-ntb@googlegroups.com, linux-s390@vger.kernel.org, "open list:SPI SUBSYSTEM" <linux-spi@vger.kernel.org>, devel@driverdev.osuosl.org, Allen Pais <allen.lkml@gmail.com>, Romain Perier <romain.perier@gmail.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: hca@linux.ibm.com, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, rafael.j.wysocki@intel.com
 
-On Mon, Aug 17, 2020 at 11:17 AM Allen Pais <allen.cryptic@gmail.com> wrote:
->
-> From: Allen Pais <allen.lkml@gmail.com>
->
-> In preparation for unconditionally passing the
-> struct tasklet_struct pointer to all tasklet
-> callbacks, switch to using the new tasklet_setup()
-> and from_tasklet() to pass the tasklet pointer explicitly.
->
-> Signed-off-by: Romain Perier <romain.perier@gmail.com>
-> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
-> ---
->  arch/um/drivers/vector_kern.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+Hi Peter,
 
-Anton, can you please review this patch?
+Peter Zijlstra <peterz@infradead.org> writes:
 
--- 
-Thanks,
-//richard
+> On Wed, Oct 07, 2020 at 12:05:51PM +0200, Peter Zijlstra wrote:
+>> On Wed, Oct 07, 2020 at 09:53:25AM +0200, Sven Schnelle wrote:
+>> > Hi Peter,
+>> > 
+>> > peterz@infradead.org writes:
+>> > 
+>> > > After commit eb1f00237aca ("lockdep,trace: Expose tracepoints") the
+>> > > lock tracepoints are visible to lockdep and RCU-lockdep is finding a
+>> > > bunch more RCU violations that were previously hidden.
+>> > >
+>> > > Switch the idle->seqcount over to using raw_write_*() to avoid the
+>> > > lockdep annotation and thus the lock tracepoints.
+>> > >
+>> > > Reported-by: Guenter Roeck <linux@roeck-us.net>
+>> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+>> > > [..]
+>> > 
+>> > I'm still seeing the splat below on s390 when irq tracing is enabled:
+>> 
+>> Damn... :/
+>> 
+>> This one is tricky, trouble seems to be that arch_cpu_idle() is defined
+>> to enable interrupts (no doubt because ot x86 :/), but we call it before
+>> rcu_exit_idle().
+>> 
+>> What a mess... let me rummage around the various archs to see what makes
+>> most sense here.
+>
+> Maybe something like so, I've not yet tested it. I need to figure out
+> how to force x86 into this path.
+
+I've gave this patch a quick test on linux-next from today and haven't
+seen the splat again. However it wasn't happening all the time, so will
+test it a bit longer. I haven't looked into the tracing code in detail,
+but i guess it was only happening when the lock was contented.
+
+The only thing with this patch is that rcu complains that it gets called
+with interrupts enabled on s390 when rcu_irq_enter() is called. But a
+few trace_hardirqs_{on,off} at the beginning and end of the IRQ handlers
+are fixing this. Will check why this worked in the past.
+
+Sven
