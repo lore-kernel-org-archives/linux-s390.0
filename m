@@ -1,140 +1,55 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH v3 3/5] vfio: Introduce capability definitions for VFIO_DEVICE_GET_INFO
-Date: Wed,  7 Oct 2020 14:56:22 -0400
-Message-Id: <1602096984-13703-4-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1602096984-13703-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1602096984-13703-1-git-send-email-mjrosato@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3112 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725890AbgJHIee (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 04:34:34 -0400
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0988WJ36132995
+        for <linux-s390@vger.kernel.org>; Thu, 8 Oct 2020 04:34:33 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 341y3rrf1q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 08 Oct 2020 04:34:33 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0988Wp4s028058
+        for <linux-s390@vger.kernel.org>; Thu, 8 Oct 2020 08:34:31 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma06ams.nl.ibm.com with ESMTP id 33xgjh540a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Thu, 08 Oct 2020 08:34:31 +0000
+Date: Thu, 8 Oct 2020 10:34:26 +0200
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [s390:features 73/81] drivers/s390/crypto/ap_queue.c:201:18:
+ warning: format specifies type 'unsigned char' but the argument has type
+ 'int'
+Message-ID: <your-ad-here.call-01602146066-ext-5611@work.hours>
+References: <202010080727.HGqasHVn-lkp@intel.com>
+ <60ba86ba-8912-1c67-8390-10ebcdee2f19@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <60ba86ba-8912-1c67-8390-10ebcdee2f19@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Harald Freudenberger <freude@linux.ibm.com>
+Cc: linux-s390 <linux-s390@vger.kernel.org>
 
-Allow the VFIO_DEVICE_GET_INFO ioctl to include a capability chain.
-Add a flag indicating capability chain support, and introduce the
-definitions for the first set of capabilities which are specified to
-s390 zPCI devices.
+On Thu, Oct 08, 2020 at 09:00:00AM +0200, Harald Freudenberger wrote:
+> 
+> On 08.10.20 01:41, kernel test robot wrote:
+> > 2ea2a6099ae3d1708f90f43c81a98cba3d4bb74c [73/81] s390/ap: add error response code field for ap queue devices
+> 
+> Fixed ... but why do these warnings not appear with normal build or with C=1 build ?
+> 
+> Maybe there is some pragma needed somewhere at where the debug feature printfs expand to ?
+> 
+> drivers/s390/crypto/ap_debug.h:26:47: note: expanded from macro 'AP_DBF_WARN'
+>            debug_sprintf_event(ap_dbf_info, DBF_WARN, ##__VA_ARGS__)
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- include/uapi/linux/vfio.h      | 11 ++++++
- include/uapi/linux/vfio_zdev.h | 78 ++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 89 insertions(+)
- create mode 100644 include/uapi/linux/vfio_zdev.h
+It seems to be the same for printk as well.
 
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 9204705..836a25b 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -201,8 +201,10 @@ struct vfio_device_info {
- #define VFIO_DEVICE_FLAGS_AMBA  (1 << 3)	/* vfio-amba device */
- #define VFIO_DEVICE_FLAGS_CCW	(1 << 4)	/* vfio-ccw device */
- #define VFIO_DEVICE_FLAGS_AP	(1 << 5)	/* vfio-ap device */
-+#define VFIO_DEVICE_FLAGS_CAPS	(1 << 6)	/* Info supports caps */
- 	__u32	num_regions;	/* Max region index + 1 */
- 	__u32	num_irqs;	/* Max IRQ index + 1 */
-+	__u32   cap_offset;	/* Offset within info struct of first cap */
- };
- #define VFIO_DEVICE_GET_INFO		_IO(VFIO_TYPE, VFIO_BASE + 7)
- 
-@@ -218,6 +220,15 @@ struct vfio_device_info {
- #define VFIO_DEVICE_API_CCW_STRING		"vfio-ccw"
- #define VFIO_DEVICE_API_AP_STRING		"vfio-ap"
- 
-+/*
-+ * The following capabilities are unique to s390 zPCI devices.  Their contents
-+ * are further-defined in vfio_zdev.h
-+ */
-+#define VFIO_DEVICE_INFO_CAP_ZPCI_BASE		1
-+#define VFIO_DEVICE_INFO_CAP_ZPCI_GROUP		2
-+#define VFIO_DEVICE_INFO_CAP_ZPCI_UTIL		3
-+#define VFIO_DEVICE_INFO_CAP_ZPCI_PFIP		4
-+
- /**
-  * VFIO_DEVICE_GET_REGION_INFO - _IOWR(VFIO_TYPE, VFIO_BASE + 8,
-  *				       struct vfio_region_info)
-diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
-new file mode 100644
-index 0000000..b430939
---- /dev/null
-+++ b/include/uapi/linux/vfio_zdev.h
-@@ -0,0 +1,78 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-+/*
-+ * VFIO Region definitions for ZPCI devices
-+ *
-+ * Copyright IBM Corp. 2020
-+ *
-+ * Author(s): Pierre Morel <pmorel@linux.ibm.com>
-+ *            Matthew Rosato <mjrosato@linux.ibm.com>
-+ */
-+
-+#ifndef _VFIO_ZDEV_H_
-+#define _VFIO_ZDEV_H_
-+
-+#include <linux/types.h>
-+#include <linux/vfio.h>
-+
-+/**
-+ * VFIO_DEVICE_INFO_CAP_ZPCI_BASE - Base PCI Function information
-+ *
-+ * This capability provides a set of descriptive information about the
-+ * associated PCI function.
-+ */
-+struct vfio_device_info_cap_zpci_base {
-+	struct vfio_info_cap_header header;
-+	__u64 start_dma;	/* Start of available DMA addresses */
-+	__u64 end_dma;		/* End of available DMA addresses */
-+	__u16 pchid;		/* Physical Channel ID */
-+	__u16 vfn;		/* Virtual function number */
-+	__u16 fmb_length;	/* Measurement Block Length (in bytes) */
-+	__u8 pft;		/* PCI Function Type */
-+	__u8 gid;		/* PCI function group ID */
-+};
-+
-+/**
-+ * VFIO_DEVICE_INFO_CAP_ZPCI_GROUP - Base PCI Function Group information
-+ *
-+ * This capability provides a set of descriptive information about the group of
-+ * PCI functions that the associated device belongs to.
-+ */
-+struct vfio_device_info_cap_zpci_group {
-+	struct vfio_info_cap_header header;
-+	__u64 dasm;		/* DMA Address space mask */
-+	__u64 msi_addr;		/* MSI address */
-+	__u64 flags;
-+#define VFIO_DEVICE_INFO_ZPCI_FLAG_REFRESH 1 /* Program-specified TLB refresh */
-+	__u16 mui;		/* Measurement Block Update Interval */
-+	__u16 noi;		/* Maximum number of MSIs */
-+	__u16 maxstbl;		/* Maximum Store Block Length */
-+	__u8 version;		/* Supported PCI Version */
-+};
-+
-+/**
-+ * VFIO_DEVICE_INFO_CAP_ZPCI_UTIL - Utility String
-+ *
-+ * This capability provides the utility string for the associated device, which
-+ * is a device identifier string made up of EBCDID characters.  'size' specifies
-+ * the length of 'util_str'.
-+ */
-+struct vfio_device_info_cap_zpci_util {
-+	struct vfio_info_cap_header header;
-+	__u32 size;
-+	__u8 util_str[];
-+};
-+
-+/**
-+ * VFIO_DEVICE_INFO_CAP_ZPCI_PFIP - PCI Function Path
-+ *
-+ * This capability provides the PCI function path string, which is an identifier
-+ * that describes the internal hardware path of the device. 'size' specifies
-+ * the length of 'pfip'.
-+ */
-+struct vfio_device_info_cap_zpci_pfip {
-+	struct vfio_info_cap_header header;
-+	__u32 size;
-+	__u8 pfip[];
-+};
-+
-+#endif
--- 
-1.8.3.1
+Variable function arguments which are passed via ... and of smaller
+sizes then int are promoted to ints. It's called "default argument
+promotion". So, its not like your code would crash or print garbage
+if you use "%hhu" format and pass int or use "%d" and pass unsigned
+char. It looks like gcc simply does not complain about such things,
+while clang does.
