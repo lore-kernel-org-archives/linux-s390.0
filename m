@@ -1,96 +1,38 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38392 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726487AbgJaJL0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 31 Oct 2020 05:11:26 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 05/11] rbd: implement ->set_read_only to hook into BLKROSET processing
-Date: Sat, 31 Oct 2020 09:58:04 +0100
-Message-Id: <20201031085810.450489-6-hch@lst.de>
-In-Reply-To: <20201031085810.450489-1-hch@lst.de>
-References: <20201031085810.450489-1-hch@lst.de>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:31976 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729992AbgJHOQt (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 10:16:49 -0400
+Date: Thu, 8 Oct 2020 16:16:37 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v2 05/10] s390/dasd: Move duplicate code to separate
+ function
+Message-ID: <20201008161637.2dbb321c.cohuck@redhat.com>
+In-Reply-To: <20201008131336.61100-6-sth@linux.ibm.com>
+References: <20201008131336.61100-1-sth@linux.ibm.com>
+        <20201008131336.61100-6-sth@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-Implement the ->set_read_only method instead of parsing the actual
-ioctl command.
+On Thu,  8 Oct 2020 15:13:31 +0200
+Stefan Haberland <sth@linux.ibm.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/rbd.c | 41 ++++-------------------------------------
- 1 file changed, 4 insertions(+), 37 deletions(-)
+> From: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
+>=20
+> For storing retrieved path information both the if and else block in
+> dasd_eckd_read_conf() use the same code. To avoid duplicate code this
+> should be done after the if/else block. To further increase readability,
+> move the code to a new function, dasd_eckd_store_conf_data().
+>=20
+> Signed-off-by: Jan H=C3=B6ppner <hoeppner@linux.ibm.com>
+> Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+> Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+> ---
+>  drivers/s390/block/dasd_eckd.c | 42 ++++++++++++++++------------------
+>  1 file changed, 20 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-index f84128abade319..37f8fc28004acb 100644
---- a/drivers/block/rbd.c
-+++ b/drivers/block/rbd.c
-@@ -692,12 +692,9 @@ static void rbd_release(struct gendisk *disk, fmode_t mode)
- 	put_device(&rbd_dev->dev);
- }
- 
--static int rbd_ioctl_set_ro(struct rbd_device *rbd_dev, unsigned long arg)
-+static int rbd_set_read_only(struct block_device *bdev, bool ro)
- {
--	int ro;
--
--	if (get_user(ro, (int __user *)arg))
--		return -EFAULT;
-+	struct rbd_device *rbd_dev = bdev->bd_disk->private_data;
- 
- 	/*
- 	 * Both images mapped read-only and snapshots can't be marked
-@@ -706,47 +703,17 @@ static int rbd_ioctl_set_ro(struct rbd_device *rbd_dev, unsigned long arg)
- 	if (!ro) {
- 		if (rbd_is_ro(rbd_dev))
- 			return -EROFS;
--
- 		rbd_assert(!rbd_is_snap(rbd_dev));
- 	}
- 
--	/* Let blkdev_roset() handle it */
--	return -ENOTTY;
--}
--
--static int rbd_ioctl(struct block_device *bdev, fmode_t mode,
--			unsigned int cmd, unsigned long arg)
--{
--	struct rbd_device *rbd_dev = bdev->bd_disk->private_data;
--	int ret;
--
--	switch (cmd) {
--	case BLKROSET:
--		ret = rbd_ioctl_set_ro(rbd_dev, arg);
--		break;
--	default:
--		ret = -ENOTTY;
--	}
--
--	return ret;
--}
--
--#ifdef CONFIG_COMPAT
--static int rbd_compat_ioctl(struct block_device *bdev, fmode_t mode,
--				unsigned int cmd, unsigned long arg)
--{
--	return rbd_ioctl(bdev, mode, cmd, arg);
-+	return 0;
- }
--#endif /* CONFIG_COMPAT */
- 
- static const struct block_device_operations rbd_bd_ops = {
- 	.owner			= THIS_MODULE,
- 	.open			= rbd_open,
- 	.release		= rbd_release,
--	.ioctl			= rbd_ioctl,
--#ifdef CONFIG_COMPAT
--	.compat_ioctl		= rbd_compat_ioctl,
--#endif
-+	.set_read_only		= rbd_set_read_only,
- };
- 
- /*
--- 
-2.28.0
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
