@@ -1,176 +1,130 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v2 09/17] mm: Add unsafe_follow_pfn
-Date: Fri,  9 Oct 2020 09:59:26 +0200
-Message-Id: <20201009075934.3509076-10-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
-References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:45036 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725852AbgJHLE6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 07:04:58 -0400
+Subject: Re: [PATCH 08/10] s390/dasd: Display FC Endpoint Security information
+ via sysfs
+References: <20201002193940.24012-1-sth@linux.ibm.com>
+ <20201002193940.24012-9-sth@linux.ibm.com>
+ <20201006122632.098149ba.cohuck@redhat.com>
+ <d88b8230-993e-d63d-394a-efcaf60f813d@linux.ibm.com>
+ <20201007114928.6a088a7d.cohuck@redhat.com>
+ <243fe10e-ce80-57de-a92c-3a6457cde40a@linux.ibm.com>
+ <20201007184011.6dece07f.cohuck@redhat.com>
+ <702cf75e-5193-92d3-79a7-182ac86df16e@linux.ibm.com>
+ <20201008090319.4161c220.cohuck@redhat.com>
+From: Stefan Haberland <sth@linux.ibm.com>
+Message-ID: <98443e35-081f-12cf-9dd1-3078dcc1d015@linux.ibm.com>
+Date: Thu, 8 Oct 2020 13:04:49 +0200
 MIME-Version: 1.0
+In-Reply-To: <20201008090319.4161c220.cohuck@redhat.com>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>
+To: Cornelia Huck <cohuck@redhat.com>, =?UTF-8?Q?Jan_H=c3=b6ppner?= <hoeppner@linux.ibm.com>
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
 
-Way back it was a reasonable assumptions that iomem mappings never
-change the pfn range they point at. But this has changed:
+Am 08.10.20 um 09:03 schrieb Cornelia Huck:
+> On Wed, 7 Oct 2020 22:10:11 +0200
+> Jan Höppner <hoeppner@linux.ibm.com> wrote:
+>
+>> On 10/7/20 6:40 PM, Cornelia Huck wrote:
+>>> On Wed, 7 Oct 2020 16:33:37 +0200
+>>> Jan Höppner <hoeppner@linux.ibm.com> wrote:
+>>>   
+>>>>>>>> +static inline void dasd_path_release(struct kobject *kobj)
+>>>>>>>> +{
+>>>>>>>> +/* Memory for the dasd_path kobject is freed when dasd_free_device() is called */
+>>>>>>>> +}
+>>>>>>>> +      
+>>>>>>> As already said, I don't think that's a correct way to implement this.
+>>>>>>>       
+>>>>>> As you correctly pointed out, our release function doesn't do anything.
+>>>>>> This is because our path data is a (static) part of our device.
+>>>>>> This data is critical to keep our devices operational.
+>>>>>> We can't simply rely on allocated memory if systems are under stress.     
+>>>>> Yes, avoiding freeing and reallocating memory certainly makes sense.
+>>>>>     
+>>>>>> Having this data dynamically allocated involves a lot of rework of our
+>>>>>> path handling as well. There are a few things that are subject to improvement
+>>>>>> and evaluating whether our dasd_path structures can be dynamic is one of
+>>>>>> these things. However, even then, the above concern persists and I
+>>>>>> highly doubt that dynamic dasd_paths objects are doable for us at this
+>>>>>> moment.
+>>>>>>
+>>>>>> I do understand the concerns, however, we release the memory for dasd_path
+>>>>>> structures eventually when dasd_free_device() is called. Until that point,
+>>>>>> the data has to be kept alive. The rest is taking care of by the kobject
+>>>>>> library.    
+>>>>> Yes, there doesn't seem to be any memory leakage.
+>>>>>     
+>>>>>> In our path handling we also make sure that we can always verify/validate
+>>>>>> paths information even if a system is under high memory pressure. Another
+>>>>>> reason why it would contradictory for dasd_path objects to be dynamic.
+>>>>>>
+>>>>>> I hope this explains the reasoning behind the release function.    
+>>>>> I understand where you're coming from.
+>>>>>
+>>>>> However, "static" kobjects (in the sense of "we may re-register the
+>>>>> same kobject") are still problematic. Is there any way to simply
+>>>>> "disappear" path objects that are not valid at the moment, or mark them
+>>>>> as not valid?    
+>>>> You could use kobject_del(), but it is rather intended to be used for
+>>>> a two-stage removal of the kobject.
+>>>>  
+>>>>> Also, the simple act of registering/unregistering a kobject already
+>>>>> creates stress from its sysfs interactions... it seems you should try
+>>>>> to avoid that as well?
+>>>>>     
+>>>> We don't re-register kobjects over and over again. The kobjects are
+>>>> infact initialized and created only _once_. This is done either during
+>>>> device initialization (after dasd_eckd_read_conf() in
+>>>> dasd_eckd_check_characteristics()) or when a path is newly added
+>>>> (in the path event handler).
+>>>> The kobject will stay until the memory for the whole device is being
+>>>> freed. This is also the reason why the kobject can stay initialized and
+>>>> we track ourselves whether we did the initialization/creation already
+>>>> (which we check e.g. when a path is removed and added again).
+>>>> So, instead of the release function freeing the kobject data,
+>>>> it is done by our dasd_free_device() (same thing, different function IMHO).
+>>>>
+>>>> I think the concerns would be more worrisome if we'd remove/add
+>>>> the kobjects every time. And then I agree, we'd run into trouble.
+>>>>  
+>>> The thing that tripped me is
+>>>
+>>> +void dasd_path_remove_kobj(struct dasd_device *device, int chp)
+>>> +{
+>>> +	if (device->path[chp].in_sysfs) {
+>>> +		kobject_put(&device->path[chp].kobj);
+>>> +		device->path[chp].in_sysfs = false;
+>>> +	}
+>>> +}
+>>>
+>>> As an exported function, it is not clear where this may be called from.
+>>> Given your explanation above (and some more code reading on my side),
+>>> the code looks ok in its current incarnation (but non-idiomatic).
+>>>
+>>> Is there a way to check that indeed nobody re-adds a previously removed
+>>> path object due to a (future) programming error? And maybe add a
+>>> comment that you must never re-register a path? "The path is gone,
+>>> let's remove the object" looks quite tempting.
+>>>   
+>> A comment is the minimum I can think of at the moment and
+>> I'll prepare a fixup patch or a new version of this patch that adds
+>> a proper comment for this function.
+>> Other ways to protect the usage must be investigated. 
+>> I have to discuss with Stefan what the best approach would be as the patchset
+>> is supposed to be ready for upstream integration.
+>>
+>> I'd prefer a fixup patch that we could send with at least one more fixup patch
+>> that we have in the pipe already. Let's see. I hope that's fine with you
+>> (and Jens obviously) so far.
+> Fine with me. I don't really have a horse in that race; I just wanted
+> to look at this from a vfio-ccw perspective and then stumbled over the
+> kobject handling...
+>
 
-- gpu drivers dynamically manage their memory nowadays, invalidating
-ptes with unmap_mapping_range when buffers get moved
-
-- contiguous dma allocations have moved from dedicated carvetouts to
-cma regions. This means if we miss the unmap the pfn might contain
-pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
-
-- even /dev/mem now invalidates mappings when the kernel requests that
-iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
-("/dev/mem: Revoke mappings when a driver claims the region")
-
-Accessing pfns obtained from ptes without holding all the locks is
-therefore no longer a good idea.
-
-Unfortunately there's some users where this is not fixable (like v4l
-userptr of iomem mappings) or involves a pile of work (vfio type1
-iommu). For now annotate these as unsafe and splat appropriately.
-
-This patch adds an unsafe_follow_pfn, which later patches will then
-roll out to all appropriate places.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: kvm@vger.kernel.org
----
- include/linux/mm.h |  2 ++
- mm/memory.c        | 32 +++++++++++++++++++++++++++++++-
- mm/nommu.c         | 17 +++++++++++++++++
- security/Kconfig   | 13 +++++++++++++
- 4 files changed, 63 insertions(+), 1 deletion(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 2a16631c1fda..ec8c90928fc9 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1653,6 +1653,8 @@ int follow_pte_pmd(struct mm_struct *mm, unsigned long address,
- 		   pte_t **ptepp, pmd_t **pmdpp, spinlock_t **ptlp);
- int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- 	unsigned long *pfn);
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+		      unsigned long *pfn);
- int follow_phys(struct vm_area_struct *vma, unsigned long address,
- 		unsigned int flags, unsigned long *prot, resource_size_t *phys);
- int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
-diff --git a/mm/memory.c b/mm/memory.c
-index f7cbc4dde0ef..7c7b234ffb24 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4821,7 +4821,12 @@ EXPORT_SYMBOL(follow_pte_pmd);
-  * @address: user virtual address
-  * @pfn: location to store found PFN
-  *
-- * Only IO mappings and raw PFN mappings are allowed.
-+ * Only IO mappings and raw PFN mappings are allowed. Note that callers must
-+ * ensure coherency with pte updates by using a &mmu_notifier to follow updates.
-+ * If this is not feasible, or the access to the @pfn is only very short term,
-+ * use follow_pte_pmd() instead and hold the pagetable lock for the duration of
-+ * the access instead. Any caller not following these requirements must use
-+ * unsafe_follow_pfn() instead.
-  *
-  * Return: zero and the pfn at @pfn on success, -ve otherwise.
-  */
-@@ -4844,6 +4849,31 @@ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- }
- EXPORT_SYMBOL(follow_pfn);
- 
-+/**
-+ * unsafe_follow_pfn - look up PFN at a user virtual address
-+ * @vma: memory mapping
-+ * @address: user virtual address
-+ * @pfn: location to store found PFN
-+ *
-+ * Only IO mappings and raw PFN mappings are allowed.
-+ *
-+ * Returns zero and the pfn at @pfn on success, -ve otherwise.
-+ */
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+	unsigned long *pfn)
-+{
-+#ifdef CONFIG_STRICT_FOLLOW_PFN
-+	pr_info("unsafe follow_pfn usage rejected, see CONFIG_STRICT_FOLLOW_PFN\n");
-+	return -EINVAL;
-+#else
-+	WARN_ONCE(1, "unsafe follow_pfn usage\n");
-+	add_taint(TAINT_USER, LOCKDEP_STILL_OK);
-+
-+	return follow_pfn(vma, address, pfn);
-+#endif
-+}
-+EXPORT_SYMBOL(unsafe_follow_pfn);
-+
- #ifdef CONFIG_HAVE_IOREMAP_PROT
- int follow_phys(struct vm_area_struct *vma,
- 		unsigned long address, unsigned int flags,
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 75a327149af1..3db2910f0d64 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -132,6 +132,23 @@ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- }
- EXPORT_SYMBOL(follow_pfn);
- 
-+/**
-+ * unsafe_follow_pfn - look up PFN at a user virtual address
-+ * @vma: memory mapping
-+ * @address: user virtual address
-+ * @pfn: location to store found PFN
-+ *
-+ * Only IO mappings and raw PFN mappings are allowed.
-+ *
-+ * Returns zero and the pfn at @pfn on success, -ve otherwise.
-+ */
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+	unsigned long *pfn)
-+{
-+	return follow_pfn(vma, address, pfn);
-+}
-+EXPORT_SYMBOL(unsafe_follow_pfn);
-+
- LIST_HEAD(vmap_area_list);
- 
- void vfree(const void *addr)
-diff --git a/security/Kconfig b/security/Kconfig
-index 7561f6f99f1d..48945402e103 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -230,6 +230,19 @@ config STATIC_USERMODEHELPER_PATH
- 	  If you wish for all usermode helper programs to be disabled,
- 	  specify an empty string here (i.e. "").
- 
-+config STRICT_FOLLOW_PFN
-+	bool "Disable unsafe use of follow_pfn"
-+	depends on MMU
-+	help
-+	  Some functionality in the kernel follows userspace mappings to iomem
-+	  ranges in an unsafe matter. Examples include v4l userptr for zero-copy
-+	  buffers sharing.
-+
-+	  If this option is switched on, such access is rejected. Only enable
-+	  this option when you must run userspace which requires this.
-+
-+	  If in doubt, say Y.
-+
- source "security/selinux/Kconfig"
- source "security/smack/Kconfig"
- source "security/tomoyo/Kconfig"
--- 
-2.28.0
+Thanks for this. I will send a v2 shortly.
