@@ -1,53 +1,137 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH v3 05/56] s390: fix kernel-doc markups
-Date: Fri, 23 Oct 2020 18:32:52 +0200
-Message-Id: <c4bf95fbd9c33a92eb60ef3d696d4cbe27882079.1603469755.git.mchehab+huawei@kernel.org>
-In-Reply-To: <cover.1603469755.git.mchehab+huawei@kernel.org>
-References: <cover.1603469755.git.mchehab+huawei@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:33796 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729810AbgJHNNn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 09:13:43 -0400
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH v2 02/10] s390/cio: Provide Endpoint-Security Mode per CU
+Date: Thu,  8 Oct 2020 15:13:28 +0200
+Message-Id: <20201008131336.61100-3-sth@linux.ibm.com>
+In-Reply-To: <20201008131336.61100-1-sth@linux.ibm.com>
+References: <20201008131336.61100-1-sth@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, "David S. Miller" <davem@davemloft.net>, Jonathan Corbet <corbet@lwn.net>, Alexander Egorenkov <egorenar@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-fix one typo:
-	ccw driver -> ccw_driver
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-and one function rename.
+Add an interface in the CIO layer to retrieve the information about the
+Endpoint-Security Mode (ESM) of the specified CU. The ESM values are
+defined as 0-None, 1-Authenticated or 2, 3-Encrypted.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
+[vneethv@linux.ibm.com: cleaned-up and modified description]
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Acked-by: Vasily Gorbik <gor@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
 ---
- arch/s390/include/asm/ccwdev.h | 2 +-
- arch/s390/include/asm/cio.h    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/cio.h |  1 +
+ drivers/s390/cio/chsc.c     | 83 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 84 insertions(+)
 
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index c0be5fe1ddba..069709b8e9e7 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -115,7 +115,7 @@ enum uc_todo {
- };
- 
- /**
-- * struct ccw driver - device driver for channel attached devices
-+ * struct ccw_driver - device driver for channel attached devices
-  * @ids: ids supported by this driver
-  * @probe: function called on probe
-  * @remove: function called on remove
 diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index 5c58756d6476..23dceb8d0453 100644
+index b5bfb3123cb1..66e06d0efb72 100644
 --- a/arch/s390/include/asm/cio.h
 +++ b/arch/s390/include/asm/cio.h
-@@ -329,7 +329,7 @@ struct ccw_dev_id {
- };
+@@ -373,5 +373,6 @@ struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
+ int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
+ int chsc_sstpi(void *page, void *result, size_t size);
+ int chsc_sgib(u32 origin);
++int chsc_scud(u16 cu, u64 *esm, u8 *esm_valid);
  
- /**
-- * ccw_device_id_is_equal() - compare two ccw_dev_ids
-+ * ccw_dev_id_is_equal() - compare two ccw_dev_ids
-  * @dev_id1: a ccw_dev_id
-  * @dev_id2: another ccw_dev_id
-  * Returns:
+ #endif
+diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
+index c314e9495c1b..513fc5748d6e 100644
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -1403,3 +1403,86 @@ int chsc_sgib(u32 origin)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(chsc_sgib);
++
++#define SCUD_REQ_LEN	0x10 /* SCUD request block length */
++#define SCUD_REQ_CMD	0x4b /* SCUD Command Code */
++
++struct chse_cudb {
++	u16 flags:8;
++	u16 chp_valid:8;
++	u16 cu;
++	u32 esm_valid:8;
++	u32:24;
++	u8 chpid[8];
++	u32:32;
++	u32:32;
++	u8 esm[8];
++	u32 efla[8];
++} __packed;
++
++struct chsc_scud {
++	struct chsc_header request;
++	u16:4;
++	u16 fmt:4;
++	u16 cssid:8;
++	u16 first_cu;
++	u16:16;
++	u16 last_cu;
++	u32:32;
++	struct chsc_header response;
++	u16:4;
++	u16 fmt_resp:4;
++	u32:24;
++	struct chse_cudb cudb[];
++} __packed;
++
++/**
++ * chsc_scud() - Store control-unit description.
++ * @cu:		number of the control-unit
++ * @esm:	8 1-byte endpoint security mode values
++ * @esm_valid:	validity mask for @esm
++ *
++ * Interface to retrieve information about the endpoint security
++ * modes for up to 8 paths of a control unit.
++ *
++ * Returns 0 on success.
++ */
++int chsc_scud(u16 cu, u64 *esm, u8 *esm_valid)
++{
++	struct chsc_scud *scud = chsc_page;
++	int ret;
++
++	spin_lock_irq(&chsc_page_lock);
++	memset(chsc_page, 0, PAGE_SIZE);
++	scud->request.length = SCUD_REQ_LEN;
++	scud->request.code = SCUD_REQ_CMD;
++	scud->fmt = 0;
++	scud->cssid = 0;
++	scud->first_cu = cu;
++	scud->last_cu = cu;
++
++	ret = chsc(scud);
++	if (!ret)
++		ret = chsc_error_from_response(scud->response.code);
++
++	if (!ret && (scud->response.length <= 8 || scud->fmt_resp != 0
++			|| !(scud->cudb[0].flags & 0x80)
++			|| scud->cudb[0].cu != cu)) {
++
++		CIO_MSG_EVENT(2, "chsc: scud failed rc=%04x, L2=%04x "
++			"FMT=%04x, cudb.flags=%02x, cudb.cu=%04x",
++			scud->response.code, scud->response.length,
++			scud->fmt_resp, scud->cudb[0].flags, scud->cudb[0].cu);
++		ret = -EINVAL;
++	}
++
++	if (ret)
++		goto out;
++
++	memcpy(esm, scud->cudb[0].esm, sizeof(*esm));
++	*esm_valid = scud->cudb[0].esm_valid;
++out:
++	spin_unlock_irq(&chsc_page_lock);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(chsc_scud);
 -- 
-2.26.2
+2.17.1
