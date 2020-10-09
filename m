@@ -1,47 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37720 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726424AbgJaJHE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 31 Oct 2020 05:07:04 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 03/11] block: don't call into the driver for BLKFLSBUF
-Date: Sat, 31 Oct 2020 09:58:02 +0100
-Message-Id: <20201031085810.450489-4-hch@lst.de>
-In-Reply-To: <20201031085810.450489-1-hch@lst.de>
-References: <20201031085810.450489-1-hch@lst.de>
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:52897 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726501AbgJIJok (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Oct 2020 05:44:40 -0400
+Date: Fri, 9 Oct 2020 11:44:27 +0200
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v3 4/5] vfio-pci/zdev: Add zPCI capabilities to
+ VFIO_DEVICE_GET_INFO
+Message-ID: <20201009114427.41f96cc6.cohuck@redhat.com>
+In-Reply-To: <1602096984-13703-5-git-send-email-mjrosato@linux.ibm.com>
+References: <1602096984-13703-1-git-send-email-mjrosato@linux.ibm.com>
+        <1602096984-13703-5-git-send-email-mjrosato@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: Matthew Rosato <mjrosato@linux.ibm.com>
+Cc: alex.williamson@redhat.com, schnelle@linux.ibm.com, pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-BLKFLSBUF is entirely contained in the block core, and there is no
-good reason to give the driver a hook into processing it.
+On Wed,  7 Oct 2020 14:56:23 -0400
+Matthew Rosato <mjrosato@linux.ibm.com> wrote:
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/ioctl.c | 7 -------
- 1 file changed, 7 deletions(-)
+> Define a new configuration entry VFIO_PCI_ZDEV for VFIO/PCI.
+> 
+> When this s390-only feature is configured we add capabilities to the
+> VFIO_DEVICE_GET_INFO ioctl that describe features of the associated
+> zPCI device and its underlying hardware.
+> 
+> This patch is based on work previously done by Pierre Morel.
+> 
+> Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+> ---
+>  drivers/vfio/pci/Kconfig            |  13 ++++
+>  drivers/vfio/pci/Makefile           |   1 +
+>  drivers/vfio/pci/vfio_pci.c         |  37 ++++++++++
+>  drivers/vfio/pci/vfio_pci_private.h |  12 +++
+>  drivers/vfio/pci/vfio_pci_zdev.c    | 143 ++++++++++++++++++++++++++++++++++++
+>  5 files changed, 206 insertions(+)
+>  create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
 
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 3fbc382eb926d4..c6d8863f040945 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -369,15 +369,8 @@ static inline int is_unrecognized_ioctl(int ret)
- static int blkdev_flushbuf(struct block_device *bdev, fmode_t mode,
- 		unsigned cmd, unsigned long arg)
- {
--	int ret;
--
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--
--	ret = __blkdev_driver_ioctl(bdev, mode, cmd, arg);
--	if (!is_unrecognized_ioctl(ret))
--		return ret;
--
- 	fsync_bdev(bdev);
- 	invalidate_bdev(bdev);
- 	return 0;
--- 
-2.28.0
+With the compilation fix,
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
