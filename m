@@ -1,226 +1,277 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:34874 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729752AbgJRTWO (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 18 Oct 2020 15:22:14 -0400
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.8 088/101] s390/qeth: strictly order bridge address events
-Date: Sun, 18 Oct 2020 15:20:13 -0400
-Message-Id: <20201018192026.4053674-88-sashal@kernel.org>
-In-Reply-To: <20201018192026.4053674-1-sashal@kernel.org>
-References: <20201018192026.4053674-1-sashal@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 9 Oct 2020 18:57:40 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2 06/17] media: videobuf2: Move frame_vector into media
+ subsystem
+Message-ID: <20201009165740.GP438822@phenom.ffwll.local>
+References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+ <20201009075934.3509076-7-daniel.vetter@ffwll.ch>
+ <20201009121417.115db7d9@coco.lan>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201009121417.115db7d9@coco.lan>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, John Hubbard <jhubbard@nvidia.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+On Fri, Oct 09, 2020 at 12:14:17PM +0200, Mauro Carvalho Chehab wrote:
+> Em Fri,  9 Oct 2020 09:59:23 +0200
+> Daniel Vetter <daniel.vetter@ffwll.ch> escreveu:
+>=20
+> > It's the only user. This also garbage collects the CONFIG_FRAME_VECTOR
+> > symbol from all over the tree (well just one place, somehow omap media
+> > driver still had this in its Kconfig, despite not using it).
+> >=20
+> > Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> > Cc: Pawel Osciak <pawel@osciak.com>
+> > Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+> > Cc: Kyungmin Park <kyungmin.park@samsung.com>
+> > Cc: Tomasz Figa <tfiga@chromium.org>
+> > Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: John Hubbard <jhubbard@nvidia.com>
+> > Cc: J=EF=BF=BDr=EF=BF=BDme Glisse <jglisse@redhat.com>
+> > Cc: Jan Kara <jack@suse.cz>
+> > Cc: Dan Williams <dan.j.williams@intel.com>
+> > Cc: linux-mm@kvack.org
+> > Cc: linux-arm-kernel@lists.infradead.org
+> > Cc: linux-samsung-soc@vger.kernel.org
+> > Cc: linux-media@vger.kernel.org
+> > Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> > ---
+> >  drivers/media/common/videobuf2/Kconfig        |  1 -
+> >  drivers/media/common/videobuf2/Makefile       |  1 +
+> >  .../media/common/videobuf2}/frame_vector.c    |  2 +
+> >  drivers/media/platform/omap/Kconfig           |  1 -
+> >  include/linux/mm.h                            | 42 -------------------
+> >  include/media/videobuf2-core.h                | 42 +++++++++++++++++++
+> >  mm/Kconfig                                    |  3 --
+> >  mm/Makefile                                   |  1 -
+> >  8 files changed, 45 insertions(+), 48 deletions(-)
+> >  rename {mm =3D> drivers/media/common/videobuf2}/frame_vector.c (99%)
+> >=20
+> > diff --git a/drivers/media/common/videobuf2/Kconfig b/drivers/media/com=
+mon/videobuf2/Kconfig
+> > index edbc99ebba87..d2223a12c95f 100644
+> > --- a/drivers/media/common/videobuf2/Kconfig
+> > +++ b/drivers/media/common/videobuf2/Kconfig
+> > @@ -9,7 +9,6 @@ config VIDEOBUF2_V4L2
+> > =20
+> >  config VIDEOBUF2_MEMOPS
+> >  	tristate
+> > -	select FRAME_VECTOR
+> > =20
+> >  config VIDEOBUF2_DMA_CONTIG
+> >  	tristate
+> > diff --git a/drivers/media/common/videobuf2/Makefile b/drivers/media/co=
+mmon/videobuf2/Makefile
+> > index 77bebe8b202f..54306f8d096c 100644
+> > --- a/drivers/media/common/videobuf2/Makefile
+> > +++ b/drivers/media/common/videobuf2/Makefile
+> > @@ -1,5 +1,6 @@
+> >  # SPDX-License-Identifier: GPL-2.0
+> >  videobuf2-common-objs :=3D videobuf2-core.o
+> > +videobuf2-common-objs +=3D frame_vector.o
+> > =20
+> >  ifeq ($(CONFIG_TRACEPOINTS),y)
+> >    videobuf2-common-objs +=3D vb2-trace.o
+> > diff --git a/mm/frame_vector.c b/drivers/media/common/videobuf2/frame_v=
+ector.c
+> > similarity index 99%
+> > rename from mm/frame_vector.c
+> > rename to drivers/media/common/videobuf2/frame_vector.c
+> > index d44779e56313..2b0b97761d15 100644
+> > --- a/mm/frame_vector.c
+> > +++ b/drivers/media/common/videobuf2/frame_vector.c
+> > @@ -8,6 +8,8 @@
+> >  #include <linux/pagemap.h>
+> >  #include <linux/sched.h>
+> > =20
+> > +#include <media/videobuf2-core.h>
+> > +
+>=20
+> See my comment below...
+>=20
+> >  /**
+> >   * get_vaddr_frames() - map virtual addresses to pfns
+> >   * @start:	starting user address
+> > diff --git a/drivers/media/platform/omap/Kconfig b/drivers/media/platfo=
+rm/omap/Kconfig
+> > index f73b5893220d..de16de46c0f4 100644
+> > --- a/drivers/media/platform/omap/Kconfig
+> > +++ b/drivers/media/platform/omap/Kconfig
+> > @@ -12,6 +12,5 @@ config VIDEO_OMAP2_VOUT
+> >  	depends on VIDEO_V4L2
+> >  	select VIDEOBUF2_DMA_CONTIG
+> >  	select OMAP2_VRFB if ARCH_OMAP2 || ARCH_OMAP3
+> > -	select FRAME_VECTOR
+> >  	help
+> >  	  V4L2 Display driver support for OMAP2/3 based boards.
+> > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > index 16b799a0522c..acd60fbf1a5a 100644
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -1743,48 +1743,6 @@ int account_locked_vm(struct mm_struct *mm, unsi=
+gned long pages, bool inc);
+> >  int __account_locked_vm(struct mm_struct *mm, unsigned long pages, boo=
+l inc,
+> >  			struct task_struct *task, bool bypass_rlim);
+> > =20
+> > -/* Container for pinned pfns / pages */
+> > -struct frame_vector {
+> > -	unsigned int nr_allocated;	/* Number of frames we have space for */
+> > -	unsigned int nr_frames;	/* Number of frames stored in ptrs array */
+> > -	bool got_ref;		/* Did we pin pages by getting page ref? */
+> > -	bool is_pfns;		/* Does array contain pages or pfns? */
+> > -	void *ptrs[];		/* Array of pinned pfns / pages. Use
+> > -				 * pfns_vector_pages() or pfns_vector_pfns()
+> > -				 * for access */
+> > -};
+> > -
+> > -struct frame_vector *frame_vector_create(unsigned int nr_frames);
+> > -void frame_vector_destroy(struct frame_vector *vec);
+> > -int get_vaddr_frames(unsigned long start, unsigned int nr_pfns,
+> > -		     unsigned int gup_flags, struct frame_vector *vec);
+> > -void put_vaddr_frames(struct frame_vector *vec);
+> > -int frame_vector_to_pages(struct frame_vector *vec);
+> > -void frame_vector_to_pfns(struct frame_vector *vec);
+> > -
+> > -static inline unsigned int frame_vector_count(struct frame_vector *vec)
+> > -{
+> > -	return vec->nr_frames;
+> > -}
+> > -
+> > -static inline struct page **frame_vector_pages(struct frame_vector *ve=
+c)
+> > -{
+> > -	if (vec->is_pfns) {
+> > -		int err =3D frame_vector_to_pages(vec);
+> > -
+> > -		if (err)
+> > -			return ERR_PTR(err);
+> > -	}
+> > -	return (struct page **)(vec->ptrs);
+> > -}
+> > -
+> > -static inline unsigned long *frame_vector_pfns(struct frame_vector *ve=
+c)
+> > -{
+> > -	if (!vec->is_pfns)
+> > -		frame_vector_to_pfns(vec);
+> > -	return (unsigned long *)(vec->ptrs);
+> > -}
+> > -
+> >  struct kvec;
+> >  int get_kernel_pages(const struct kvec *iov, int nr_pages, int write,
+> >  			struct page **pages);
+> > diff --git a/include/media/videobuf2-core.h b/include/media/videobuf2-c=
+ore.h
+> > index bbb3f26fbde9..a2e75ca0334f 100644
+> > --- a/include/media/videobuf2-core.h
+> > +++ b/include/media/videobuf2-core.h
+> > @@ -1254,4 +1254,46 @@ bool vb2_request_object_is_buffer(struct media_r=
+equest_object *obj);
+> >   */
+> >  unsigned int vb2_request_buffer_cnt(struct media_request *req);
+> > =20
+> > +/* Container for pinned pfns / pages in frame_vector.c */
+> > +struct frame_vector {
+> > +	unsigned int nr_allocated;	/* Number of frames we have space for */
+> > +	unsigned int nr_frames;	/* Number of frames stored in ptrs array */
+> > +	bool got_ref;		/* Did we pin pages by getting page ref? */
+> > +	bool is_pfns;		/* Does array contain pages or pfns? */
+> > +	void *ptrs[];		/* Array of pinned pfns / pages. Use
+> > +				 * pfns_vector_pages() or pfns_vector_pfns()
+> > +				 * for access */
+> > +};
+> > +
+> > +struct frame_vector *frame_vector_create(unsigned int nr_frames);
+> > +void frame_vector_destroy(struct frame_vector *vec);
+> > +int get_vaddr_frames(unsigned long start, unsigned int nr_pfns,
+> > +		     unsigned int gup_flags, struct frame_vector *vec);
+> > +void put_vaddr_frames(struct frame_vector *vec);
+> > +int frame_vector_to_pages(struct frame_vector *vec);
+> > +void frame_vector_to_pfns(struct frame_vector *vec);
+> > +
+> > +static inline unsigned int frame_vector_count(struct frame_vector *vec)
+> > +{
+> > +	return vec->nr_frames;
+> > +}
+> > +
+> > +static inline struct page **frame_vector_pages(struct frame_vector *ve=
+c)
+> > +{
+> > +	if (vec->is_pfns) {
+> > +		int err =3D frame_vector_to_pages(vec);
+> > +
+> > +		if (err)
+> > +			return ERR_PTR(err);
+> > +	}
+> > +	return (struct page **)(vec->ptrs);
+> > +}
+> > +
+> > +static inline unsigned long *frame_vector_pfns(struct frame_vector *ve=
+c)
+> > +{
+> > +	if (!vec->is_pfns)
+> > +		frame_vector_to_pfns(vec);
+> > +	return (unsigned long *)(vec->ptrs);
+> > +}
+> > +
+> >  #endif /* _MEDIA_VIDEOBUF2_CORE_H */
+>=20
+> Please place those into a include/media/frame_vector.h file, instead of
+> merging it directly at vb2 core header.
+>=20
+> Then include the new header at videobuf2-core.h and at frame_vector.c.
 
-[ Upstream commit 9d6a569a4cbab5a8b4c959d4e312daeecb7c9f09 ]
+Makes sense, I'll do that for v3.
 
-The current code for bridge address events has two shortcomings in its
-control sequence:
+> With such changes:
+>=20
+> Acked-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-1. after disabling address events via PNSO, we don't flush the remaining
-   events from the event_wq. So if the feature is re-enabled fast
-   enough, stale events could leak over.
-2. PNSO and the events' arrival via the READ ccw device are unordered.
-   So even if we flushed the workqueue, it's difficult to say whether
-   the READ device might produce more events onto the workqueue
-   afterwards.
+Thanks for taking a look.
+-Daniel
 
-Fix this by
-1. explicitly fencing off the events when we no longer care, in the
-   READ device's event handler. This ensures that once we flush the
-   workqueue, it doesn't get additional address events.
-2. Flush the workqueue after disabling the events & fencing them off.
-   As the code that triggers the flush will typically hold the sbp_lock,
-   we need to rework the worker code to avoid a deadlock here in case
-   of a 'notifications-stopped' event. In case of lock contention,
-   requeue such an event with a delay. We'll eventually aquire the lock,
-   or spot that the feature has been disabled and the event can thus be
-   discarded.
+>=20
+> > diff --git a/mm/Kconfig b/mm/Kconfig
+> > index 6c974888f86f..da6c943fe9f1 100644
+> > --- a/mm/Kconfig
+> > +++ b/mm/Kconfig
+> > @@ -815,9 +815,6 @@ config DEVICE_PRIVATE
+> >  	  memory; i.e., memory that is only accessible from the device (or
+> >  	  group of devices). You likely also want to select HMM_MIRROR.
+> > =20
+> > -config FRAME_VECTOR
+> > -	bool
+> > -
+> >  config ARCH_USES_HIGH_VMA_FLAGS
+> >  	bool
+> >  config ARCH_HAS_PKEYS
+> > diff --git a/mm/Makefile b/mm/Makefile
+> > index d5649f1c12c0..a025fd6c6afd 100644
+> > --- a/mm/Makefile
+> > +++ b/mm/Makefile
+> > @@ -111,7 +111,6 @@ obj-$(CONFIG_PAGE_EXTENSION) +=3D page_ext.o
+> >  obj-$(CONFIG_CMA_DEBUGFS) +=3D cma_debug.o
+> >  obj-$(CONFIG_USERFAULTFD) +=3D userfaultfd.o
+> >  obj-$(CONFIG_IDLE_PAGE_TRACKING) +=3D page_idle.o
+> > -obj-$(CONFIG_FRAME_VECTOR) +=3D frame_vector.o
+> >  obj-$(CONFIG_DEBUG_PAGE_REF) +=3D debug_page_ref.o
+> >  obj-$(CONFIG_HARDENED_USERCOPY) +=3D usercopy.o
+> >  obj-$(CONFIG_PERCPU_STATS) +=3D percpu-stats.o
+>=20
+>=20
+>=20
+> Thanks,
+> Mauro
 
-This leaves the theoretical race that a stale event could arrive
-_after_ we re-enabled ourselves to receive events again. Such an event
-would be impossible to distinguish from a 'good' event, nothing we can
-do about it.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/s390/net/qeth_core.h    |  6 ++++
- drivers/s390/net/qeth_l2_main.c | 53 ++++++++++++++++++++++++++++-----
- drivers/s390/net/qeth_l2_sys.c  |  1 +
- 3 files changed, 52 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 51ea56b73a97d..4e30047d76c46 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -680,6 +680,11 @@ struct qeth_card_blkt {
- 	int inter_packet_jumbo;
- };
- 
-+enum qeth_pnso_mode {
-+	QETH_PNSO_NONE,
-+	QETH_PNSO_BRIDGEPORT,
-+};
-+
- #define QETH_BROADCAST_WITH_ECHO    0x01
- #define QETH_BROADCAST_WITHOUT_ECHO 0x02
- struct qeth_card_info {
-@@ -696,6 +701,7 @@ struct qeth_card_info {
- 	/* no bitfield, we take a pointer on these two: */
- 	u8 has_lp2lp_cso_v6;
- 	u8 has_lp2lp_cso_v4;
-+	enum qeth_pnso_mode pnso_mode;
- 	enum qeth_card_types type;
- 	enum qeth_link_types link_type;
- 	int broadcast_capable;
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index b4e06aeb6dc1c..0384b45a72658 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -273,6 +273,17 @@ static int qeth_l2_vlan_rx_kill_vid(struct net_device *dev,
- 	return qeth_l2_send_setdelvlan(card, vid, IPA_CMD_DELVLAN);
- }
- 
-+static void qeth_l2_set_pnso_mode(struct qeth_card *card,
-+				  enum qeth_pnso_mode mode)
-+{
-+	spin_lock_irq(get_ccwdev_lock(CARD_RDEV(card)));
-+	WRITE_ONCE(card->info.pnso_mode, mode);
-+	spin_unlock_irq(get_ccwdev_lock(CARD_RDEV(card)));
-+
-+	if (mode == QETH_PNSO_NONE)
-+		drain_workqueue(card->event_wq);
-+}
-+
- static void qeth_l2_stop_card(struct qeth_card *card)
- {
- 	QETH_CARD_TEXT(card, 2, "stopcard");
-@@ -291,7 +302,7 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 
- 	qeth_qdio_clear_card(card, 0);
- 	qeth_clear_working_pool_list(card);
--	flush_workqueue(card->event_wq);
-+	qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
- 	qeth_flush_local_addrs(card);
- 	card->info.promisc_mode = 0;
- }
-@@ -1165,19 +1176,34 @@ static void qeth_bridge_state_change(struct qeth_card *card,
- }
- 
- struct qeth_addr_change_data {
--	struct work_struct worker;
-+	struct delayed_work dwork;
- 	struct qeth_card *card;
- 	struct qeth_ipacmd_addr_change ac_event;
- };
- 
- static void qeth_addr_change_event_worker(struct work_struct *work)
- {
--	struct qeth_addr_change_data *data =
--		container_of(work, struct qeth_addr_change_data, worker);
-+	struct delayed_work *dwork = to_delayed_work(work);
-+	struct qeth_addr_change_data *data;
-+	struct qeth_card *card;
- 	int i;
- 
-+	data = container_of(dwork, struct qeth_addr_change_data, dwork);
-+	card = data->card;
-+
- 	QETH_CARD_TEXT(data->card, 4, "adrchgew");
-+
-+	if (READ_ONCE(card->info.pnso_mode) == QETH_PNSO_NONE)
-+		goto free;
-+
- 	if (data->ac_event.lost_event_mask) {
-+		/* Potential re-config in progress, try again later: */
-+		if (!mutex_trylock(&card->sbp_lock)) {
-+			queue_delayed_work(card->event_wq, dwork,
-+					   msecs_to_jiffies(100));
-+			return;
-+		}
-+
- 		dev_info(&data->card->gdev->dev,
- 			 "Address change notification stopped on %s (%s)\n",
- 			 data->card->dev->name,
-@@ -1186,8 +1212,9 @@ static void qeth_addr_change_event_worker(struct work_struct *work)
- 			: (data->ac_event.lost_event_mask == 0x02)
- 			? "Bridge port state change"
- 			: "Unknown reason");
--		mutex_lock(&data->card->sbp_lock);
-+
- 		data->card->options.sbp.hostnotification = 0;
-+		card->info.pnso_mode = QETH_PNSO_NONE;
- 		mutex_unlock(&data->card->sbp_lock);
- 		qeth_bridge_emit_host_event(data->card, anev_abort,
- 					    0, NULL, NULL);
-@@ -1201,6 +1228,8 @@ static void qeth_addr_change_event_worker(struct work_struct *work)
- 						    &entry->token,
- 						    &entry->addr_lnid);
- 		}
-+
-+free:
- 	kfree(data);
- }
- 
-@@ -1212,6 +1241,9 @@ static void qeth_addr_change_event(struct qeth_card *card,
- 	struct qeth_addr_change_data *data;
- 	int extrasize;
- 
-+	if (card->info.pnso_mode == QETH_PNSO_NONE)
-+		return;
-+
- 	QETH_CARD_TEXT(card, 4, "adrchgev");
- 	if (cmd->hdr.return_code != 0x0000) {
- 		if (cmd->hdr.return_code == 0x0010) {
-@@ -1231,11 +1263,11 @@ static void qeth_addr_change_event(struct qeth_card *card,
- 		QETH_CARD_TEXT(card, 2, "ACNalloc");
- 		return;
- 	}
--	INIT_WORK(&data->worker, qeth_addr_change_event_worker);
-+	INIT_DELAYED_WORK(&data->dwork, qeth_addr_change_event_worker);
- 	data->card = card;
- 	memcpy(&data->ac_event, hostevs,
- 			sizeof(struct qeth_ipacmd_addr_change) + extrasize);
--	queue_work(card->event_wq, &data->worker);
-+	queue_delayed_work(card->event_wq, &data->dwork, 0);
- }
- 
- /* SETBRIDGEPORT support; sending commands */
-@@ -1556,9 +1588,14 @@ int qeth_bridgeport_an_set(struct qeth_card *card, int enable)
- 
- 	if (enable) {
- 		qeth_bridge_emit_host_event(card, anev_reset, 0, NULL, NULL);
-+		qeth_l2_set_pnso_mode(card, QETH_PNSO_BRIDGEPORT);
- 		rc = qeth_l2_pnso(card, 1, qeth_bridgeport_an_set_cb, card);
--	} else
-+		if (rc)
-+			qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+	} else {
- 		rc = qeth_l2_pnso(card, 0, NULL, NULL);
-+		qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+	}
- 	return rc;
- }
- 
-diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
-index 86bcae992f725..4695d25e54f24 100644
---- a/drivers/s390/net/qeth_l2_sys.c
-+++ b/drivers/s390/net/qeth_l2_sys.c
-@@ -157,6 +157,7 @@ static ssize_t qeth_bridgeport_hostnotification_store(struct device *dev,
- 		rc = -EBUSY;
- 	else if (qeth_card_hw_is_reachable(card)) {
- 		rc = qeth_bridgeport_an_set(card, enable);
-+		/* sbp_lock ensures ordering vs notifications-stopped events */
- 		if (!rc)
- 			card->options.sbp.hostnotification = enable;
- 	} else
--- 
-2.25.1
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
