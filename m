@@ -1,64 +1,127 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 26 Oct 2020 13:49:08 +0100
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 1/1] s390: correct __bootdata / __bootdata_preserved macros
-Message-ID: <patch-1.thread-96dc81.git-96dc8112cea9.your-ad-here.call-01603716370-ext-5478@work.hours>
-References: <20201026104811.22ta4pby2chmz4pv@lion.mk-sys.cz>
- <cover.thread-96dc81.your-ad-here.call-01603716370-ext-5478@work.hours>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49568 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732702AbgJIIAR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Oct 2020 04:00:17 -0400
+Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B020DC0613D2
+        for <linux-s390@vger.kernel.org>; Fri,  9 Oct 2020 01:00:16 -0700 (PDT)
+Received: by mail-wr1-x441.google.com with SMTP id w5so9235261wrp.8
+        for <linux-s390@vger.kernel.org>; Fri, 09 Oct 2020 01:00:16 -0700 (PDT)
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v2 16/17] PCI: Revoke mappings like devmem
+Date: Fri,  9 Oct 2020 09:59:33 +0200
+Message-Id: <20201009075934.3509076-17-daniel.vetter@ffwll.ch>
+In-Reply-To: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <cover.thread-96dc81.your-ad-here.call-01603716370-ext-5478@work.hours>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Michal Kubecek <mkubecek@suse.cz>
-Cc: linux-s390@vger.kernel.org, Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org
 
-Currently s390 build is broken.
+Since 3234ac664a87 ("/dev/mem: Revoke mappings when a driver claims
+the region") /dev/kmem zaps ptes when the kernel requests exclusive
+acccess to an iomem region. And with CONFIG_IO_STRICT_DEVMEM, this is
+the default for all driver uses.
 
-  SECTCMP .boot.data
-error: section .boot.data differs between vmlinux and arch/s390/boot/compressed/vmlinux
-make[2]: *** [arch/s390/boot/section_cmp.boot.data] Error 1
-  SECTCMP .boot.preserved.data
-error: section .boot.preserved.data differs between vmlinux and arch/s390/boot/compressed/vmlinux
-make[2]: *** [arch/s390/boot/section_cmp.boot.preserved.data] Error 1
-make[1]: *** [bzImage] Error 2
+Except there's two more ways to access PCI BARs: sysfs and proc mmap
+support. Let's plug that hole.
 
-Commit 33def8498fdd ("treewide: Convert macro and uses of __section(foo)
-to __section("foo")") converted all __section(foo) to __section("foo").
-This is wrong for __bootdata / __bootdata_preserved macros which want
-variable names to be a part of intermediate section names .boot.data.<var
-name> and .boot.preserved.data.<var name>. Those sections are later
-sorted by alignment + name and merged together into final .boot.data
-/ .boot.preserved.data sections. Those sections must be identical in
-the decompressor and the decompressed kernel (that is checked during
-the build).
+For revoke_devmem() to work we need to link our vma into the same
+address_space, with consistent vma->vm_pgoff. ->pgoff is already
+adjusted, because that's how (io_)remap_pfn_range works, but for the
+mapping we need to adjust vma->vm_file->f_mapping. The cleanest way is
+to adjust this at at ->open time:
 
-Fixes: 33def8498fdd ("treewide: Convert macro and uses of __section(foo) to __section("foo")")
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+- for sysfs this is easy, now that binary attributes support this. We
+  just set bin_attr->mapping when mmap is supported
+- for procfs it's a bit more tricky, since procfs pci access has only
+  one file per device, and access to a specific resources first needs
+  to be set up with some ioctl calls. But mmap is only supported for
+  the same resources as sysfs exposes with mmap support, and otherwise
+  rejected, so we can set the mapping unconditionally at open time
+  without harm.
+
+A special consideration is for arch_can_pci_mmap_io() - we need to
+make sure that the ->f_mapping doesn't alias between ioport and iomem
+space. There's only 2 ways in-tree to support mmap of ioports: generic
+pci mmap (ARCH_GENERIC_PCI_MMAP_RESOURCE), and sparc as the single
+architecture hand-rolling. Both approach support ioport mmap through a
+special pfn range and not through magic pte attributes. Aliasing is
+therefore not a problem.
+
+The only difference in access checks left is that sysfs PCI mmap does
+not check for CAP_RAWIO. I'm not really sure whether that should be
+added or not.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: linux-mm@kvack.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org
+--
+v2:
+- Totally new approach: Adjust filp->f_mapping at open time. Note that
+  this now works on all architectures, not just those support
+  ARCH_GENERIC_PCI_MMAP_RESOURCE
 ---
- arch/s390/include/asm/sections.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/pci-sysfs.c | 4 ++++
+ drivers/pci/proc.c      | 1 +
+ 2 files changed, 5 insertions(+)
 
-diff --git a/arch/s390/include/asm/sections.h b/arch/s390/include/asm/sections.h
-index a996d3990a02..0c2151451ba5 100644
---- a/arch/s390/include/asm/sections.h
-+++ b/arch/s390/include/asm/sections.h
-@@ -26,14 +26,14 @@ static inline int arch_is_kernel_initmem_freed(unsigned long addr)
-  * final .boot.data section, which should be identical in the decompressor and
-  * the decompressed kernel (that is checked during the build).
-  */
--#define __bootdata(var) __section(".boot.data.var") var
-+#define __bootdata(var) __section(".boot.data." #var) var
+diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
+index 6d78df981d41..cee38fcb4a86 100644
+--- a/drivers/pci/pci-sysfs.c
++++ b/drivers/pci/pci-sysfs.c
+@@ -928,6 +928,7 @@ void pci_create_legacy_files(struct pci_bus *b)
+ 	b->legacy_io->read = pci_read_legacy_io;
+ 	b->legacy_io->write = pci_write_legacy_io;
+ 	b->legacy_io->mmap = pci_mmap_legacy_io;
++	b->legacy_io->mapping = iomem_get_mapping();
+ 	pci_adjust_legacy_attr(b, pci_mmap_io);
+ 	error = device_create_bin_file(&b->dev, b->legacy_io);
+ 	if (error)
+@@ -940,6 +941,7 @@ void pci_create_legacy_files(struct pci_bus *b)
+ 	b->legacy_mem->size = 1024*1024;
+ 	b->legacy_mem->attr.mode = 0600;
+ 	b->legacy_mem->mmap = pci_mmap_legacy_mem;
++	b->legacy_io->mapping = iomem_get_mapping();
+ 	pci_adjust_legacy_attr(b, pci_mmap_mem);
+ 	error = device_create_bin_file(&b->dev, b->legacy_mem);
+ 	if (error)
+@@ -1155,6 +1157,8 @@ static int pci_create_attr(struct pci_dev *pdev, int num, int write_combine)
+ 			res_attr->mmap = pci_mmap_resource_uc;
+ 		}
+ 	}
++	if (res_attr->mmap)
++		res_attr->mapping = iomem_get_mapping();
+ 	res_attr->attr.name = res_attr_name;
+ 	res_attr->attr.mode = 0600;
+ 	res_attr->size = pci_resource_len(pdev, num);
+diff --git a/drivers/pci/proc.c b/drivers/pci/proc.c
+index 3a2f90beb4cb..9bab07302bbf 100644
+--- a/drivers/pci/proc.c
++++ b/drivers/pci/proc.c
+@@ -298,6 +298,7 @@ static int proc_bus_pci_open(struct inode *inode, struct file *file)
+ 	fpriv->write_combine = 0;
  
- /*
-  * .boot.preserved.data is similar to .boot.data, but it is not part of the
-  * .init section and thus will be preserved for later use in the decompressed
-  * kernel.
-  */
--#define __bootdata_preserved(var) __section(".boot.preserved.data.var") var
-+#define __bootdata_preserved(var) __section(".boot.preserved.data." #var) var
+ 	file->private_data = fpriv;
++	file->f_mapping = iomem_get_mapping();
  
- extern unsigned long __sdma, __edma;
- extern unsigned long __stext_dma, __etext_dma;
+ 	return 0;
+ }
 -- 
-2.25.4
+2.28.0
