@@ -3,122 +3,70 @@ MIME-Version: 1.0
 References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
  <20201009075934.3509076-10-daniel.vetter@ffwll.ch> <20201009123421.67a80d72@coco.lan>
  <20201009122111.GN5177@ziepe.ca> <20201009143723.45609bfb@coco.lan>
-In-Reply-To: <20201009143723.45609bfb@coco.lan>
-From: Tomasz Figa <tfiga@chromium.org>
-Date: Sat, 10 Oct 2020 19:30:59 +0200
-Message-ID: <CAAFQd5CVqa4o0W32FE_NsSheN906uE7uA5gctHr=Z-PeU=1wuw@mail.gmail.com>
+ <20201009124850.GP5177@ziepe.ca> <CAKMK7uF-hrSwzFQkp6qEP88hM1Qg8TMQOunuRHh=f2+D8MaMRg@mail.gmail.com>
+ <20201009180145.GB5177@ziepe.ca>
+In-Reply-To: <20201009180145.GB5177@ziepe.ca>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date: Fri, 9 Oct 2020 21:31:21 +0200
+Message-ID: <CAKMK7uGnKX-n+4eoa+tStJxsBzuPq1HF5tDjo8ph4PXqFKQ0pg@mail.gmail.com>
 Subject: Re: [PATCH v2 09/17] mm: Add unsafe_follow_pfn
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>, Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm <kvm@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, "list@263.net:IOMMU DRIVERS <iommu@lists.linux-foundation.org>, Joerg
-        Roedel <joro@8bytes.org>," <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Daniel Vetter <daniel.vetter@intel.com>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Daniel Vetter <daniel.vetter@intel.com>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Linus Torvalds <torvalds@linux-foundation.org>
 
-Hi Mauro,
-
-On Fri, Oct 9, 2020 at 2:37 PM Mauro Carvalho Chehab
-<mchehab+huawei@kernel.org> wrote:
+On Fri, Oct 9, 2020 at 8:01 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
 >
-> Em Fri, 9 Oct 2020 09:21:11 -0300
-> Jason Gunthorpe <jgg@ziepe.ca> escreveu:
+> On Fri, Oct 09, 2020 at 07:52:05PM +0200, Daniel Vetter wrote:
 >
-> > On Fri, Oct 09, 2020 at 12:34:21PM +0200, Mauro Carvalho Chehab wrote:
-> > > Hi,
+> > > > If this is the case, the proper fix seems to have a GFP_NOT_MOVABLE
+> > > > flag that it would be denying the core mm code to set __GFP_MOVABLE.
 > > >
-> > > Em Fri,  9 Oct 2020 09:59:26 +0200
-> > > Daniel Vetter <daniel.vetter@ffwll.ch> escreveu:
+> > > We can't tell from the VMA these kinds of details..
 > > >
-> > > > Way back it was a reasonable assumptions that iomem mappings never
-> > > > change the pfn range they point at. But this has changed:
-> > > >
-> > > > - gpu drivers dynamically manage their memory nowadays, invalidating
-> > > > ptes with unmap_mapping_range when buffers get moved
-> > > >
-> > > > - contiguous dma allocations have moved from dedicated carvetouts to
-> > > > cma regions. This means if we miss the unmap the pfn might contain
-> > > > pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
-> > > >
-> > > > - even /dev/mem now invalidates mappings when the kernel requests that
-> > > > iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
-> > > > ("/dev/mem: Revoke mappings when a driver claims the region")
-> > > >
-> > > > Accessing pfns obtained from ptes without holding all the locks is
-> > > > therefore no longer a good idea.
-> > > >
-> > > > Unfortunately there's some users where this is not fixable (like v4l
-> > > > userptr of iomem mappings) or involves a pile of work (vfio type1
-> > > > iommu). For now annotate these as unsafe and splat appropriately.
-> > > >
-> > > > This patch adds an unsafe_follow_pfn, which later patches will then
-> > > > roll out to all appropriate places.
-> > >
-> > > NACK, as this breaks an existing userspace API on media.
+> > > It has to go the other direction, evey mmap that might be used as a
+> > > userptr here has to be found and the VMA specially created to allow
+> > > its use. At least that is a kernel only change, but will need people
+> > > with the HW to do this work.
 > >
-> > It doesn't break it. You get a big warning the thing is broken and it
-> > keeps working.
-> >
-> > We can't leave such a huge security hole open - it impacts other
-> > subsystems, distros need to be able to run in a secure mode.
+> > I think the only reasonable way to keep this working is:
+> > - add a struct dma_buf *vma_tryget_dma_buf(struct vm_area_struct *vma);
+> > - add dma-buf export support to fbdev and v4l
+> > - roll this out everywhere we still need it.
 >
-> Well, if distros disable it, then apps will break.
+> It seems to me there is a technical way forward to restore user
+> compat, so it is really no different than RDMA/DRM pain we both
+> suffered before.
 >
+> Thus no justification to NAK it. If media wants things to keep working
+> they have to do the technical path like you outline above.
+>
+> > Realistically this just isn't going to happen.
+>
+> If your series goes ahead it will get solved. Someone will take on the
+> huge project to either add DMA buf to the drivers people still care
+> about, or do the work above to transparently handle in kernel.
+>
+> If we allow things to keep working without consequence then nobody
+> will do it.
+>
+> The only reason we did the 4 years of work in RDMA was because Linus
+> went in and broke the uABI for a security fix. It was hundreds of
+> patches to fix it, so I don't have much sympathy for "it is too hard"
+> here.
 
-Do we have any information on userspace that actually needs this functionality?
+Oh fully agreeing with you here, I just wanted to lay out that a)
+there is a solid plan to fix it and b) it's way too much work for me
+to just type it as a part of a "learn me some core mm semantics"
+project :-)
 
-Note that we're _not_ talking here about the complete USERPTR
-functionality, but rather just the very corner case of carveout memory
-not backed by struct pages.
-
-Given that the current in-tree ways of reserving carveout memory, such
-as shared-dma-pool, actually give memory backed by struct pages, do we
-even have a source of such legacy memory in the kernel today?
-
-I think that given that this is a very niche functionality, we could
-have it disabled by default for security reasons and if someone
-_really_ (i.e. there is no replacement) needs it, they probably need
-to use a custom kernel build anyway for their exotic hardware setup
-(with PFN-backed carveout memory), so they can enable it.
-
-> > > While I agree that using the userptr on media is something that
-> > > new drivers may not support, as DMABUF is a better way of
-> > > handling it, changing this for existing ones is a big no,
-> > > as it may break usersapace.
-> >
-> > media community needs to work to fix this, not pretend it is OK to
-> > keep going as-is.
->
-> > Dealing with security issues is the one case where an uABI break might
-> > be acceptable.
-> >
-> > If you want to NAK it then you need to come up with the work to do
-> > something here correctly that will support the old drivers without the
-> > kernel taint.
-> >
-> > Unfortunately making things uncomfortable for the subsystem is the big
-> > hammer the core kernel needs to use to actually get this security work
-> > done by those responsible.
->
->
-> I'm not pretending that this is ok. Just pointing that the approach
-> taken is NOT OK.
->
-> I'm not a mm/ expert, but, from what I understood from Daniel's patch
-> description is that this is unsafe *only if*  __GFP_MOVABLE is used.
->
-> Well, no drivers inside the media subsystem uses such flag, although
-> they may rely on some infrastructure that could be using it behind
-> the bars.
->
-> If this is the case, the proper fix seems to have a GFP_NOT_MOVABLE
-> flag that it would be denying the core mm code to set __GFP_MOVABLE.
->
-> Please let address the issue on this way, instead of broken an
-> userspace API that it is there since 1991.
-
-Note that USERPTR as a whole generally has been considered deprecated
-in V4L2 for many years and people have been actively discouraged to
-use it. And, still, we're just talking here about the very rare corner
-case, not the whole USERPTR API.
-
-Best regards,
-Tomasz
+I was hoping that we could get away with a special marker for
+problematic vma, and filter those out. But after all the digging I've
+noticed that on anything remotely modern, there's just nothing left.
+Device memory management has become massively more dynamic in the past
+10 years.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
