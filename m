@@ -1,60 +1,154 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28148 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725300AbgJBUAy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 16:00:54 -0400
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH v2 0/5] Pass zPCI hardware information via VFIO
-Date: Fri,  2 Oct 2020 16:00:39 -0400
-Message-Id: <1601668844-5798-1-git-send-email-mjrosato@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v2 07/17] mm: Close race in generic_access_phys
+Date: Fri,  9 Oct 2020 09:59:24 +0200
+Message-Id: <20201009075934.3509076-8-daniel.vetter@ffwll.ch>
+In-Reply-To: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Rik van Riel <riel@redhat.com>, Benjamin Herrensmidt <benh@kernel.crashing.org>, Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Daniel Vetter <daniel.vetter@intel.com>
 
-This patchset provides a means by which hardware information about the
-underlying PCI device can be passed up to userspace (ie, QEMU) so that
-this hardware information can be used rather than previously hard-coded
-assumptions. A new VFIO region type is defined which holds this
-information. 
+Way back it was a reasonable assumptions that iomem mappings never
+change the pfn range they point at. But this has changed:
 
-A form of these patches saw some rounds last year but has been back-
-tabled for a while.  The original work for this feature was done by Pierre
-Morel. I'd like to refresh the discussion on this and get this finished up
-so that we can move forward with better-supporting additional types of
-PCI-attached devices.  The proposal here presents a completely different
-region mapping vs the prior approach, taking inspiration from vfio info
-capability chains to provide device CLP information in a way that allows 
-for future expansion (new CLP features).
+- gpu drivers dynamically manage their memory nowadays, invalidating
+  ptes with unmap_mapping_range when buffers get moved
 
-This feature is toggled via the CONFIG_VFIO_PCI_ZDEV configuration entry. 
+- contiguous dma allocations have moved from dedicated carvetouts to
+  cma regions. This means if we miss the unmap the pfn might contain
+  pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
 
-Changes from v1:
-- Added ACKs (thanks!)
-- Patch 2: Minor change:s/util_avail/util_str_avail/ per Niklas
-- Patch 3: removed __packed
-- Patch 3: rework various descriptions / comment blocks
-- New patch: MAINTAINERS hit to cover new files.
+- even /dev/mem now invalidates mappings when the kernel requests that
+  iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
+  ("/dev/mem: Revoke mappings when a driver claims the region")
 
-Matthew Rosato (5):
-  s390/pci: stash version in the zpci_dev
-  s390/pci: track whether util_str is valid in the zpci_dev
-  vfio-pci/zdev: define the vfio_zdev header
-  vfio-pci/zdev: use a device region to retrieve zPCI information
-  MAINTAINERS: Add entry for s390 vfio-pci
+Accessing pfns obtained from ptes without holding all the locks is
+therefore no longer a good idea. Fix this.
 
- MAINTAINERS                         |   8 ++
- arch/s390/include/asm/pci.h         |   4 +-
- arch/s390/pci/pci_clp.c             |   2 +
- drivers/vfio/pci/Kconfig            |  13 ++
- drivers/vfio/pci/Makefile           |   1 +
- drivers/vfio/pci/vfio_pci.c         |   8 ++
- drivers/vfio/pci/vfio_pci_private.h |  10 ++
- drivers/vfio/pci/vfio_pci_zdev.c    | 242 ++++++++++++++++++++++++++++++++++++
- include/uapi/linux/vfio.h           |   5 +
- include/uapi/linux/vfio_zdev.h      | 118 ++++++++++++++++++
- 10 files changed, 410 insertions(+), 1 deletion(-)
- create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
- create mode 100644 include/uapi/linux/vfio_zdev.h
+Since ioremap might need to manipulate pagetables too we need to drop
+the pt lock and have a retry loop if we raced.
 
+While at it, also add kerneldoc and improve the comment for the
+vma_ops->access function. It's for accessing, not for moving the
+memory from iomem to system memory, as the old comment seemed to
+suggest.
+
+References: 28b2ee20c7cb ("access_process_vm device memory infrastructure")
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Benjamin Herrensmidt <benh@kernel.crashing.org>
+Cc: Dave Airlie <airlied@linux.ie>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: linux-mm@kvack.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+--
+v2: Fix inversion in the retry check (John).
+---
+ include/linux/mm.h |  3 ++-
+ mm/memory.c        | 44 ++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 44 insertions(+), 3 deletions(-)
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index acd60fbf1a5a..2a16631c1fda 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -566,7 +566,8 @@ struct vm_operations_struct {
+ 	vm_fault_t (*pfn_mkwrite)(struct vm_fault *vmf);
+ 
+ 	/* called by access_process_vm when get_user_pages() fails, typically
+-	 * for use by special VMAs that can switch between memory and hardware
++	 * for use by special VMAs. See also generic_access_phys() for a generic
++	 * implementation useful for any iomem mapping.
+ 	 */
+ 	int (*access)(struct vm_area_struct *vma, unsigned long addr,
+ 		      void *buf, int len, int write);
+diff --git a/mm/memory.c b/mm/memory.c
+index fcfc4ca36eba..f7cbc4dde0ef 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4873,28 +4873,68 @@ int follow_phys(struct vm_area_struct *vma,
+ 	return ret;
+ }
+ 
++/**
++ * generic_access_phys - generic implementation for iomem mmap access
++ * @vma: the vma to access
++ * @addr: userspace addres, not relative offset within @vma
++ * @buf: buffer to read/write
++ * @len: length of transfer
++ * @write: set to FOLL_WRITE when writing, otherwise reading
++ *
++ * This is a generic implementation for &vm_operations_struct.access for an
++ * iomem mapping. This callback is used by access_process_vm() when the @vma is
++ * not page based.
++ */
+ int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
+ 			void *buf, int len, int write)
+ {
+ 	resource_size_t phys_addr;
+ 	unsigned long prot = 0;
+ 	void __iomem *maddr;
++	pte_t *ptep, pte;
++	spinlock_t *ptl;
+ 	int offset = addr & (PAGE_SIZE-1);
++	int ret = -EINVAL;
++
++	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
++		return -EINVAL;
++
++retry:
++	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
++		return -EINVAL;
++	pte = *ptep;
++	pte_unmap_unlock(ptep, ptl);
+ 
+-	if (follow_phys(vma, addr, write, &prot, &phys_addr))
++	prot = pgprot_val(pte_pgprot(pte));
++	phys_addr = (resource_size_t)pte_pfn(pte) << PAGE_SHIFT;
++
++	if ((write & FOLL_WRITE) && !pte_write(pte))
+ 		return -EINVAL;
+ 
+ 	maddr = ioremap_prot(phys_addr, PAGE_ALIGN(len + offset), prot);
+ 	if (!maddr)
+ 		return -ENOMEM;
+ 
++	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
++		goto out_unmap;
++
++	if (!pte_same(pte, *ptep)) {
++		pte_unmap_unlock(ptep, ptl);
++		iounmap(maddr);
++
++		goto retry;
++	}
++
+ 	if (write)
+ 		memcpy_toio(maddr + offset, buf, len);
+ 	else
+ 		memcpy_fromio(buf, maddr + offset, len);
++	ret = len;
++	pte_unmap_unlock(ptep, ptl);
++out_unmap:
+ 	iounmap(maddr);
+ 
+-	return len;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(generic_access_phys);
+ #endif
 -- 
-1.8.3.1
+2.28.0
