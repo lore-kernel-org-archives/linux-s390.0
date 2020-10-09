@@ -1,78 +1,150 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49028 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726754AbgJ3OB4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 30 Oct 2020 10:01:56 -0400
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH] kvm: s390: pv: Mark mm as protected after the set secure parameters and improve cleanup
-Date: Fri, 30 Oct 2020 10:01:41 -0400
-Message-Id: <20201030140141.106641-1-frankja@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51720 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388686AbgJIOTF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Oct 2020 10:19:05 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C2A4C0613D5
+        for <linux-s390@vger.kernel.org>; Fri,  9 Oct 2020 07:19:05 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id o8so9142010otl.4
+        for <linux-s390@vger.kernel.org>; Fri, 09 Oct 2020 07:19:05 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+ <20201009075934.3509076-18-daniel.vetter@ffwll.ch> <20201009094750.GQ6112@intel.com>
+ <CAKMK7uH3o3hnRkTDqr93PR=wuRejpty+AbyMacoEFDDb6OgJeQ@mail.gmail.com> <20201009104154.GR6112@intel.com>
+In-Reply-To: <20201009104154.GR6112@intel.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date: Fri, 9 Oct 2020 16:18:53 +0200
+Message-ID: <CAKMK7uEp71+B3EVTezog8U3VY=DUYAbe1QeqZH9NEG8T37M_Cw@mail.gmail.com>
+Subject: Re: [PATCH v2 17/17] drm/i915: Properly request PCI BARs
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: david@redhat.com, thuth@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org, borntraeger@de.ibm.com, imbrenda@linux.ibm.com
+To: =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>, KVM list <kvm@vger.kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>, Linux PCI <linux-pci@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, John Hubbard <jhubbard@nvidia.com>, Bjorn Helgaas <bhelgaas@google.com>, Daniel Vetter <daniel.vetter@intel.com>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>
 
-We can only have protected guest pages after a successful set secure
-parameters call as only then the UV allows imports and unpacks.
+On Fri, Oct 9, 2020 at 12:42 PM Ville Syrj=C3=A4l=C3=A4
+<ville.syrjala@linux.intel.com> wrote:
+>
+> On Fri, Oct 09, 2020 at 12:01:39PM +0200, Daniel Vetter wrote:
+> > On Fri, Oct 9, 2020 at 11:47 AM Ville Syrj=C3=A4l=C3=A4
+> > <ville.syrjala@linux.intel.com> wrote:
+> > >
+> > > On Fri, Oct 09, 2020 at 09:59:34AM +0200, Daniel Vetter wrote:
+> > > > When trying to test my CONFIG_IO_STRICT_DEVMEM changes I realized t=
+hey
+> > > > do nothing for i915. Because i915 doesn't request any regions, like
+> > > > pretty much all drm pci drivers. I guess this is some very old
+> > > > remnants from the userspace modesetting days, when we wanted to
+> > > > co-exist with the fbdev driver. Which usually requested these
+> > > > resources.
+> > > >
+> > > > But makes me wonder why the pci subsystem doesn't just request
+> > > > resource automatically when we map a bar and a pci driver is bound?
+> > > >
+> > > > Knowledge about which pci bars we need kludged together from
+> > > > intel_uncore.c and intel_gtt.c from i915 and intel-gtt.c over in th=
+e
+> > > > fake agp driver.
+> > > >
+> > > > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > > > Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> > > > Cc: Kees Cook <keescook@chromium.org>
+> > > > Cc: Dan Williams <dan.j.williams@intel.com>
+> > > > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > > > Cc: John Hubbard <jhubbard@nvidia.com>
+> > > > Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+> > > > Cc: Jan Kara <jack@suse.cz>
+> > > > Cc: Dan Williams <dan.j.williams@intel.com>
+> > > > Cc: linux-mm@kvack.org
+> > > > Cc: linux-arm-kernel@lists.infradead.org
+> > > > Cc: linux-samsung-soc@vger.kernel.org
+> > > > Cc: linux-media@vger.kernel.org
+> > > > Cc: Bjorn Helgaas <bhelgaas@google.com>
+> > > > Cc: linux-pci@vger.kernel.org
+> > > > ---
+> > > >  drivers/gpu/drm/i915/intel_uncore.c | 25 +++++++++++++++++++++++--
+> > > >  1 file changed, 23 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/gpu/drm/i915/intel_uncore.c b/drivers/gpu/drm/=
+i915/intel_uncore.c
+> > > > index 54e201fdeba4..ce39049d8919 100644
+> > > > --- a/drivers/gpu/drm/i915/intel_uncore.c
+> > > > +++ b/drivers/gpu/drm/i915/intel_uncore.c
+> > > > @@ -1692,10 +1692,13 @@ static int uncore_mmio_setup(struct intel_u=
+ncore *uncore)
+> > > >       struct pci_dev *pdev =3D i915->drm.pdev;
+> > > >       int mmio_bar;
+> > > >       int mmio_size;
+> > > > +     int bar_selection;
+> > >
+> > > Signed bitmasks always make me uneasy. But looks like
+> > > that's what it is in the pci api. So meh.
+> >
+> > Yeah it's surprising.
+> >
+> > > > +     int ret;
+> > > >
+> > > >       mmio_bar =3D IS_GEN(i915, 2) ? 1 : 0;
+> > > > +     bar_selection =3D BIT (2) | BIT(mmio_bar);
+> > >                            ^
+> > > spurious space
+> > >
+> > > That's also not correct for gen2 I think.
+> > >
+> > > gen2:
+> > > 0 =3D GMADR
+> > > 1 =3D MMADR
+> > > 2 =3D IOBAR
+> > >
+> > > gen3:
+> > > 0 =3D MMADR
+> > > 1 =3D IOBAR
+> > > 2 =3D GMADR
+> > > 3 =3D GTTADR
+> > >
+> > > gen4+:
+> > > 0+1 =3D GTTMMADR
+> > > 2+3 =3D GMADR
+> > > 4 =3D IOBAR
+> > >
+> > > Maybe we should just have an explicit list of bars like that in a
+> > > comment?
+> > >
+> > > I'd also suggest sucking this bitmask calculation into a small helper
+> > > so you can reuse it for the release.
+> >
+> > tbh I just hacked this up for testing. Given how almost no other drm
+> > driver does this, I'm wondering whether we should or not.
+> >
+> > Also the only reason why I didn't just use the pci_request_regions
+> > helper is to avoid the vga ioport range, since that's managed by
+> > vgaarbiter.
+>
+> VGA io range isn't part of any bar. Or do you mean just the io decode
+> enable bit in the pci command register? That should be just a matter
+> or pci_enable_device() vs. pci_enable_device_mem() I think. So nothing
+> to do with which bars we've requested IIRC.
+>
+> >
+> > So I think if we go for this for real we should:
+> > - register the vga ioport range in the vgaarbiter
+> > - have a pci_request_iomem_regions helper that grabs all mem bars
+> > - roll that out to all drm pci drivers
+> >
+> > Or something like that. The other complication is when we resize the
+> > iobar. So not really sure what to do here.
+>
+> We resize it?
 
-By moving the test we can now also check for it in s390_reset_acc()
-and do an early return if it is 0.
+By default I thought firmware puts everything (well, squeezes) into
+the lower 32bit. Maybe they stopped doing that. So when we want the
+full bar (for discrete at least) we need to resize it and put it
+somewhere in the 64bit range above end of system memory.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/kvm/kvm-s390.c | 2 +-
- arch/s390/kvm/pv.c       | 3 ++-
- arch/s390/mm/gmap.c      | 2 ++
- 3 files changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6b74b92c1a58..08ea6c4735cd 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2312,7 +2312,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		struct kvm_s390_pv_unp unp = {};
- 
- 		r = -EINVAL;
--		if (!kvm_s390_pv_is_protected(kvm))
-+		if (!kvm_s390_pv_is_protected(kvm) || !mm_is_protected(kvm->mm))
- 			break;
- 
- 		r = -EFAULT;
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index eb99e2f95ebe..f5847f9dec7c 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -208,7 +208,6 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 		return -EIO;
- 	}
- 	kvm->arch.gmap->guest_handle = uvcb.guest_handle;
--	atomic_set(&kvm->mm->context.is_protected, 1);
- 	return 0;
- }
- 
-@@ -228,6 +227,8 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
- 	*rrc = uvcb.header.rrc;
- 	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
- 		     *rc, *rrc);
-+	if (!cc)
-+		atomic_set(&kvm->mm->context.is_protected, 1);
- 	return cc ? -EINVAL : 0;
- }
- 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index cfb0017f33a7..64795d034926 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2690,6 +2690,8 @@ static const struct mm_walk_ops reset_acc_walk_ops = {
- #include <linux/sched/mm.h>
- void s390_reset_acc(struct mm_struct *mm)
- {
-+	if (!mm_is_protected(mm))
-+		return;
- 	/*
- 	 * we might be called during
- 	 * reset:                             we walk the pages and clear
--- 
-2.25.1
+So I guess correct phrasing is "we will resize it" :-)
+-Daniel
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
