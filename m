@@ -1,251 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v4 06/15] media: videobuf2: Move frame_vector into media subsystem
-Date: Mon, 26 Oct 2020 11:58:09 +0100
-Message-Id: <20201026105818.2585306-7-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
+Date: Fri, 9 Oct 2020 17:24:33 +0800
+From: Wei Yang <richard.weiyang@linux.alibaba.com>
+Subject: Re: [PATCH] kernel/resource: Fix use of ternary condition in
+ release_mem_region_adjustable
+Message-ID: <20201009092433.GA56924@L-31X9LVDL-1304.local>
+Reply-To: Wei Yang <richard.weiyang@linux.alibaba.com>
+References: <20200911103459.10306-2-david@redhat.com>
+ <20200922060748.2452056-1-natechancellor@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200922060748.2452056-1-natechancellor@gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, John Hubbard <jhubbard@nvidia.com>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>
+To: Nathan Chancellor <natechancellor@gmail.com>
+Cc: david@redhat.com, akpm@linux-foundation.org, ardb@kernel.org, bhe@redhat.com, dan.j.williams@intel.com, jgg@ziepe.ca, keescook@chromium.org, linux-acpi@vger.kernel.org, linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, mhocko@suse.com, pankaj.gupta.linux@gmail.com, richardw.yang@linux.intel.com, virtualization@lists.linux-foundation.org, xen-devel@lists.xenproject.org, clang-built-linux@googlegroups.com
 
-It's the only user. This also garbage collects the CONFIG_FRAME_VECTOR
-symbol from all over the tree (well just one place, somehow omap media
-driver still had this in its Kconfig, despite not using it).
+On Mon, Sep 21, 2020 at 11:07:48PM -0700, Nathan Chancellor wrote:
+>Clang warns:
+>
+>kernel/resource.c:1281:53: warning: operator '?:' has lower precedence
+>than '|'; '|' will be evaluated first
+>[-Wbitwise-conditional-parentheses]
+>        new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
+>                                 ~~~~~~~~~~~~~~~~~~~~~~~~~ ^
+>kernel/resource.c:1281:53: note: place parentheses around the '|'
+>expression to silence this warning
+>        new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
+>                                 ~~~~~~~~~~~~~~~~~~~~~~~~~ ^
+>kernel/resource.c:1281:53: note: place parentheses around the '?:'
+>expression to evaluate it first
+>        new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
+>                                                           ^
+>                                              (                              )
+>1 warning generated.
+>
+>Add the parentheses as it was clearly intended for the ternary condition
+>to be evaluated first.
+>
+>Fixes: 5fd23bd0d739 ("kernel/resource: make release_mem_region_adjustable() never fail")
+>Link: https://github.com/ClangBuiltLinux/linux/issues/1159
+>Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
 
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Acked-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Pawel Osciak <pawel@osciak.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Tomasz Figa <tfiga@chromium.org>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
---
-v3:
-- Create a new frame_vector.h header for this (Mauro)
----
- drivers/media/common/videobuf2/Kconfig        |  1 -
- drivers/media/common/videobuf2/Makefile       |  1 +
- .../media/common/videobuf2}/frame_vector.c    |  2 +
- drivers/media/platform/omap/Kconfig           |  1 -
- include/linux/mm.h                            | 42 -----------------
- include/media/frame_vector.h                  | 47 +++++++++++++++++++
- include/media/videobuf2-core.h                |  1 +
- mm/Kconfig                                    |  3 --
- mm/Makefile                                   |  1 -
- 9 files changed, 51 insertions(+), 48 deletions(-)
- rename {mm => drivers/media/common/videobuf2}/frame_vector.c (99%)
- create mode 100644 include/media/frame_vector.h
+Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
 
-diff --git a/drivers/media/common/videobuf2/Kconfig b/drivers/media/common/videobuf2/Kconfig
-index edbc99ebba87..d2223a12c95f 100644
---- a/drivers/media/common/videobuf2/Kconfig
-+++ b/drivers/media/common/videobuf2/Kconfig
-@@ -9,7 +9,6 @@ config VIDEOBUF2_V4L2
- 
- config VIDEOBUF2_MEMOPS
- 	tristate
--	select FRAME_VECTOR
- 
- config VIDEOBUF2_DMA_CONTIG
- 	tristate
-diff --git a/drivers/media/common/videobuf2/Makefile b/drivers/media/common/videobuf2/Makefile
-index 77bebe8b202f..54306f8d096c 100644
---- a/drivers/media/common/videobuf2/Makefile
-+++ b/drivers/media/common/videobuf2/Makefile
-@@ -1,5 +1,6 @@
- # SPDX-License-Identifier: GPL-2.0
- videobuf2-common-objs := videobuf2-core.o
-+videobuf2-common-objs += frame_vector.o
- 
- ifeq ($(CONFIG_TRACEPOINTS),y)
-   videobuf2-common-objs += vb2-trace.o
-diff --git a/mm/frame_vector.c b/drivers/media/common/videobuf2/frame_vector.c
-similarity index 99%
-rename from mm/frame_vector.c
-rename to drivers/media/common/videobuf2/frame_vector.c
-index d44779e56313..6590987c14bd 100644
---- a/mm/frame_vector.c
-+++ b/drivers/media/common/videobuf2/frame_vector.c
-@@ -8,6 +8,8 @@
- #include <linux/pagemap.h>
- #include <linux/sched.h>
- 
-+#include <media/frame_vector.h>
-+
- /**
-  * get_vaddr_frames() - map virtual addresses to pfns
-  * @start:	starting user address
-diff --git a/drivers/media/platform/omap/Kconfig b/drivers/media/platform/omap/Kconfig
-index f73b5893220d..de16de46c0f4 100644
---- a/drivers/media/platform/omap/Kconfig
-+++ b/drivers/media/platform/omap/Kconfig
-@@ -12,6 +12,5 @@ config VIDEO_OMAP2_VOUT
- 	depends on VIDEO_V4L2
- 	select VIDEOBUF2_DMA_CONTIG
- 	select OMAP2_VRFB if ARCH_OMAP2 || ARCH_OMAP3
--	select FRAME_VECTOR
- 	help
- 	  V4L2 Display driver support for OMAP2/3 based boards.
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 16b799a0522c..acd60fbf1a5a 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1743,48 +1743,6 @@ int account_locked_vm(struct mm_struct *mm, unsigned long pages, bool inc);
- int __account_locked_vm(struct mm_struct *mm, unsigned long pages, bool inc,
- 			struct task_struct *task, bool bypass_rlim);
- 
--/* Container for pinned pfns / pages */
--struct frame_vector {
--	unsigned int nr_allocated;	/* Number of frames we have space for */
--	unsigned int nr_frames;	/* Number of frames stored in ptrs array */
--	bool got_ref;		/* Did we pin pages by getting page ref? */
--	bool is_pfns;		/* Does array contain pages or pfns? */
--	void *ptrs[];		/* Array of pinned pfns / pages. Use
--				 * pfns_vector_pages() or pfns_vector_pfns()
--				 * for access */
--};
--
--struct frame_vector *frame_vector_create(unsigned int nr_frames);
--void frame_vector_destroy(struct frame_vector *vec);
--int get_vaddr_frames(unsigned long start, unsigned int nr_pfns,
--		     unsigned int gup_flags, struct frame_vector *vec);
--void put_vaddr_frames(struct frame_vector *vec);
--int frame_vector_to_pages(struct frame_vector *vec);
--void frame_vector_to_pfns(struct frame_vector *vec);
--
--static inline unsigned int frame_vector_count(struct frame_vector *vec)
--{
--	return vec->nr_frames;
--}
--
--static inline struct page **frame_vector_pages(struct frame_vector *vec)
--{
--	if (vec->is_pfns) {
--		int err = frame_vector_to_pages(vec);
--
--		if (err)
--			return ERR_PTR(err);
--	}
--	return (struct page **)(vec->ptrs);
--}
--
--static inline unsigned long *frame_vector_pfns(struct frame_vector *vec)
--{
--	if (!vec->is_pfns)
--		frame_vector_to_pfns(vec);
--	return (unsigned long *)(vec->ptrs);
--}
--
- struct kvec;
- int get_kernel_pages(const struct kvec *iov, int nr_pages, int write,
- 			struct page **pages);
-diff --git a/include/media/frame_vector.h b/include/media/frame_vector.h
-new file mode 100644
-index 000000000000..1ed0cd64510d
---- /dev/null
-+++ b/include/media/frame_vector.h
-@@ -0,0 +1,47 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#ifndef _MEDIA_FRAME_VECTOR_H
-+#define _MEDIA_FRAME_VECTOR_H
-+
-+/* Container for pinned pfns / pages in frame_vector.c */
-+struct frame_vector {
-+	unsigned int nr_allocated;	/* Number of frames we have space for */
-+	unsigned int nr_frames;	/* Number of frames stored in ptrs array */
-+	bool got_ref;		/* Did we pin pages by getting page ref? */
-+	bool is_pfns;		/* Does array contain pages or pfns? */
-+	void *ptrs[];		/* Array of pinned pfns / pages. Use
-+				 * pfns_vector_pages() or pfns_vector_pfns()
-+				 * for access */
-+};
-+
-+struct frame_vector *frame_vector_create(unsigned int nr_frames);
-+void frame_vector_destroy(struct frame_vector *vec);
-+int get_vaddr_frames(unsigned long start, unsigned int nr_pfns,
-+		     unsigned int gup_flags, struct frame_vector *vec);
-+void put_vaddr_frames(struct frame_vector *vec);
-+int frame_vector_to_pages(struct frame_vector *vec);
-+void frame_vector_to_pfns(struct frame_vector *vec);
-+
-+static inline unsigned int frame_vector_count(struct frame_vector *vec)
-+{
-+	return vec->nr_frames;
-+}
-+
-+static inline struct page **frame_vector_pages(struct frame_vector *vec)
-+{
-+	if (vec->is_pfns) {
-+		int err = frame_vector_to_pages(vec);
-+
-+		if (err)
-+			return ERR_PTR(err);
-+	}
-+	return (struct page **)(vec->ptrs);
-+}
-+
-+static inline unsigned long *frame_vector_pfns(struct frame_vector *vec)
-+{
-+	if (!vec->is_pfns)
-+		frame_vector_to_pfns(vec);
-+	return (unsigned long *)(vec->ptrs);
-+}
-+
-+#endif /* _MEDIA_FRAME_VECTOR_H */
-diff --git a/include/media/videobuf2-core.h b/include/media/videobuf2-core.h
-index bbb3f26fbde9..d045e3a5a1d8 100644
---- a/include/media/videobuf2-core.h
-+++ b/include/media/videobuf2-core.h
-@@ -18,6 +18,7 @@
- #include <linux/dma-buf.h>
- #include <linux/bitops.h>
- #include <media/media-request.h>
-+#include <media/frame_vector.h>
- 
- #define VB2_MAX_FRAME	(32)
- #define VB2_MAX_PLANES	(8)
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 6c974888f86f..da6c943fe9f1 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -815,9 +815,6 @@ config DEVICE_PRIVATE
- 	  memory; i.e., memory that is only accessible from the device (or
- 	  group of devices). You likely also want to select HMM_MIRROR.
- 
--config FRAME_VECTOR
--	bool
--
- config ARCH_USES_HIGH_VMA_FLAGS
- 	bool
- config ARCH_HAS_PKEYS
-diff --git a/mm/Makefile b/mm/Makefile
-index d5649f1c12c0..a025fd6c6afd 100644
---- a/mm/Makefile
-+++ b/mm/Makefile
-@@ -111,7 +111,6 @@ obj-$(CONFIG_PAGE_EXTENSION) += page_ext.o
- obj-$(CONFIG_CMA_DEBUGFS) += cma_debug.o
- obj-$(CONFIG_USERFAULTFD) += userfaultfd.o
- obj-$(CONFIG_IDLE_PAGE_TRACKING) += page_idle.o
--obj-$(CONFIG_FRAME_VECTOR) += frame_vector.o
- obj-$(CONFIG_DEBUG_PAGE_REF) += debug_page_ref.o
- obj-$(CONFIG_HARDENED_USERCOPY) += usercopy.o
- obj-$(CONFIG_PERCPU_STATS) += percpu-stats.o
+>---
+>
+>Presumably, this will be squashed but I included a fixes tag
+>nonetheless. Apologies if this has already been noticed and fixed
+>already, I did not find anything on LKML.
+>
+> kernel/resource.c | 2 +-
+> 1 file changed, 1 insertion(+), 1 deletion(-)
+>
+>diff --git a/kernel/resource.c b/kernel/resource.c
+>index ca2a666e4317..3ae2f56cc79d 100644
+>--- a/kernel/resource.c
+>+++ b/kernel/resource.c
+>@@ -1278,7 +1278,7 @@ void release_mem_region_adjustable(resource_size_t start, resource_size_t size)
+> 	 * similarly).
+> 	 */
+> retry:
+>-	new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
+>+	new_res = alloc_resource(GFP_KERNEL | (alloc_nofail ? __GFP_NOFAIL : 0));
+> 
+> 	p = &parent->child;
+> 	write_lock(&resource_lock);
+>
+>base-commit: 40ee82f47bf297e31d0c47547cd8f24ede52415a
+>-- 
+>2.28.0
+
 -- 
-2.28.0
+Wei Yang
+Help you, Help me
