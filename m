@@ -1,137 +1,100 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25624 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2388367AbgJBTjr (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 15:39:47 -0400
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 02/10] s390/cio: Provide Endpoint-Security Mode per CU
-Date: Fri,  2 Oct 2020 21:39:32 +0200
-Message-Id: <20201002193940.24012-3-sth@linux.ibm.com>
-In-Reply-To: <20201002193940.24012-1-sth@linux.ibm.com>
-References: <20201002193940.24012-1-sth@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 10 Oct 2020 11:24:16 +0200
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: Re: [PATCH v2 10/17] media/videbuf1|2: Mark follow_pfn usage as
+ unsafe
+Message-ID: <20201010112416.4259249a@coco.lan>
+In-Reply-To: <20201009075934.3509076-11-daniel.vetter@ffwll.ch>
+References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+        <20201009075934.3509076-11-daniel.vetter@ffwll.ch>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: axboe@kernel.dk
-Cc: linux-block@vger.kernel.org, hoeppner@linux.ibm.com, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
+To: Daniel Vetter <daniel.vetter@ffwll.ch>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Laurent Dufour <ldufour@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Daniel Jordan <daniel.m.jordan@oracle.com>, Michel Lespinasse <walken@google.com>
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+Em Fri,  9 Oct 2020 09:59:27 +0200
+Daniel Vetter <daniel.vetter@ffwll.ch> escreveu:
 
-Add an interface in the CIO layer to retrieve the information about the
-Endpoint-Security Mode (ESM) of the specified CU. The ESM values are
-defined as 0-None, 1-Authenticated or 2, 3-Encrypted.
+> The media model assumes that buffers are all preallocated, so that
+> when a media pipeline is running we never miss a deadline because the
+> buffers aren't allocated or available.
+>=20
+> This means we cannot fix the v4l follow_pfn usage through
+> mmu_notifier, without breaking how this all works. The only real fix
+> is to deprecate userptr support for VM_IO | VM_PFNMAP mappings and
+> tell everyone to cut over to dma-buf memory sharing for zerocopy.
+>=20
+> userptr for normal memory will keep working as-is.
 
-Reference-ID: IO1812
-Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
-[vneethv@linux.ibm.com: cleaned-up and modified description]
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Acked-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
----
- arch/s390/include/asm/cio.h |  1 +
- drivers/s390/cio/chsc.c     | 83 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 84 insertions(+)
+I won't repeat here the discussions for patch 09/17, but
+just to be clear about this one:
 
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index b5bfb3123cb1..66e06d0efb72 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -373,5 +373,6 @@ struct gen_pool *cio_gp_dma_create(struct device *dma_dev, int nr_pages);
- int chsc_sstpc(void *page, unsigned int op, u16 ctrl, u64 *clock_delta);
- int chsc_sstpi(void *page, void *result, size_t size);
- int chsc_sgib(u32 origin);
-+int chsc_scud(u16 cu, u64 *esm, u8 *esm_valid);
- 
- #endif
-diff --git a/drivers/s390/cio/chsc.c b/drivers/s390/cio/chsc.c
-index c314e9495c1b..513fc5748d6e 100644
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -1403,3 +1403,86 @@ int chsc_sgib(u32 origin)
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(chsc_sgib);
-+
-+#define SCUD_REQ_LEN	0x10 /* SCUD request block length */
-+#define SCUD_REQ_CMD	0x4b /* SCUD Command Code */
-+
-+struct chse_cudb {
-+	u16 flags:8;
-+	u16 chp_valid:8;
-+	u16 cu;
-+	u32 esm_valid:8;
-+	u32:24;
-+	u8 chpid[8];
-+	u32:32;
-+	u32:32;
-+	u8 esm[8];
-+	u32 efla[8];
-+} __packed;
-+
-+struct chsc_scud {
-+	struct chsc_header request;
-+	u16:4;
-+	u16 fmt:4;
-+	u16 cssid:8;
-+	u16 first_cu;
-+	u16:16;
-+	u16 last_cu;
-+	u32:32;
-+	struct chsc_header response;
-+	u16:4;
-+	u16 fmt_resp:4;
-+	u32:24;
-+	struct chse_cudb cudb[];
-+} __packed;
-+
-+/**
-+ * chsc_scud() - Store control-unit description.
-+ * @cu:		number of the control-unit
-+ * @esm:	8 1-byte endpoint security mode values
-+ * @esm_valid:	validity mask for @esm
-+ *
-+ * Interface to retrieve information about the endpoint security
-+ * modes for up to 8 paths of a control unit.
-+ *
-+ * Returns 0 on success.
-+ */
-+int chsc_scud(u16 cu, u64 *esm, u8 *esm_valid)
-+{
-+	struct chsc_scud *scud = chsc_page;
-+	int ret;
-+
-+	spin_lock_irq(&chsc_page_lock);
-+	memset(chsc_page, 0, PAGE_SIZE);
-+	scud->request.length = SCUD_REQ_LEN;
-+	scud->request.code = SCUD_REQ_CMD;
-+	scud->fmt = 0;
-+	scud->cssid = 0;
-+	scud->first_cu = cu;
-+	scud->last_cu = cu;
-+
-+	ret = chsc(scud);
-+	if (!ret)
-+		ret = chsc_error_from_response(scud->response.code);
-+
-+	if (!ret && (scud->response.length <= 8 || scud->fmt_resp != 0
-+			|| !(scud->cudb[0].flags & 0x80)
-+			|| scud->cudb[0].cu != cu)) {
-+
-+		CIO_MSG_EVENT(2, "chsc: scud failed rc=%04x, L2=%04x "
-+			"FMT=%04x, cudb.flags=%02x, cudb.cu=%04x",
-+			scud->response.code, scud->response.length,
-+			scud->fmt_resp, scud->cudb[0].flags, scud->cudb[0].cu);
-+		ret = -EINVAL;
-+	}
-+
-+	if (ret)
-+		goto out;
-+
-+	memcpy(esm, scud->cudb[0].esm, sizeof(*esm));
-+	*esm_valid = scud->cudb[0].esm_valid;
-+out:
-+	spin_unlock_irq(&chsc_page_lock);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(chsc_scud);
--- 
-2.17.1
+NACK.
+
+We need a better alternative to avoid breaking existing
+media applications.
+
+>=20
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: John Hubbard <jhubbard@nvidia.com>
+> Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: linux-mm@kvack.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-samsung-soc@vger.kernel.org
+> Cc: linux-media@vger.kernel.org
+> Cc: Pawel Osciak <pawel@osciak.com>
+> Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+> Cc: Kyungmin Park <kyungmin.park@samsung.com>
+> Cc: Tomasz Figa <tfiga@chromium.org>
+> Cc: Laurent Dufour <ldufour@linux.ibm.com>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+> Cc: Michel Lespinasse <walken@google.com>
+> ---
+>  drivers/media/common/videobuf2/frame_vector.c | 2 +-
+>  drivers/media/v4l2-core/videobuf-dma-contig.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/media/common/videobuf2/frame_vector.c b/drivers/medi=
+a/common/videobuf2/frame_vector.c
+> index 2b0b97761d15..a1b85fe9e7c1 100644
+> --- a/drivers/media/common/videobuf2/frame_vector.c
+> +++ b/drivers/media/common/videobuf2/frame_vector.c
+> @@ -69,7 +69,7 @@ int get_vaddr_frames(unsigned long start, unsigned int =
+nr_frames,
+>  			break;
+> =20
+>  		while (ret < nr_frames && start + PAGE_SIZE <=3D vma->vm_end) {
+> -			err =3D follow_pfn(vma, start, &nums[ret]);
+> +			err =3D unsafe_follow_pfn(vma, start, &nums[ret]);
+>  			if (err) {
+>  				if (ret =3D=3D 0)
+>  					ret =3D err;
+> diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/medi=
+a/v4l2-core/videobuf-dma-contig.c
+> index 52312ce2ba05..821c4a76ab96 100644
+> --- a/drivers/media/v4l2-core/videobuf-dma-contig.c
+> +++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
+> @@ -183,7 +183,7 @@ static int videobuf_dma_contig_user_get(struct videob=
+uf_dma_contig_memory *mem,
+>  	user_address =3D untagged_baddr;
+> =20
+>  	while (pages_done < (mem->size >> PAGE_SHIFT)) {
+> -		ret =3D follow_pfn(vma, user_address, &this_pfn);
+> +		ret =3D unsafe_follow_pfn(vma, user_address, &this_pfn);
+>  		if (ret)
+>  			break;
+> =20
+
+
+
+Thanks,
+Mauro
