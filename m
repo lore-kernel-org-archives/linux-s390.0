@@ -1,50 +1,92 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mailout2.w1.samsung.com ([210.118.77.12]:37755 "EHLO
-        mailout2.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387558AbgJLKq6 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 12 Oct 2020 06:46:58 -0400
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-        by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20201012104646euoutp02ed115f1785fb69709f9bdc8ccc0e6767~9OObcuYHB1970119701euoutp02Z
-        for <linux-s390@vger.kernel.org>; Mon, 12 Oct 2020 10:46:46 +0000 (GMT)
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sun, 11 Oct 2020 08:27:41 +0200
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Subject: Re: [PATCH v2 09/17] mm: Add unsafe_follow_pfn
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Message-ID: <ed68968b-27bc-d776-8da8-ef21d6b3c378@samsung.com>
-Date: Mon, 12 Oct 2020 12:46:39 +0200
-MIME-Version: 1.0
-In-Reply-To: <20201009124850.GP5177@ziepe.ca>
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
+Message-ID: <20201011082741.6bed4d71@coco.lan>
+In-Reply-To: <CAKMK7uGhq+BiaJ5jD+bkO4VOaCPuUZ_empA3Ojr1AsvwNef6QQ@mail.gmail.com>
 References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
         <20201009075934.3509076-10-daniel.vetter@ffwll.ch>
-        <20201009123421.67a80d72@coco.lan> <20201009122111.GN5177@ziepe.ca>
+        <20201009123421.67a80d72@coco.lan>
+        <20201009122111.GN5177@ziepe.ca>
         <20201009143723.45609bfb@coco.lan>
-        <CGME20201009124900eucas1p26c93caa29c9925f1eef9be9ff7c6c65c@eucas1p2.samsung.com>
         <20201009124850.GP5177@ziepe.ca>
+        <CAKMK7uF-hrSwzFQkp6qEP88hM1Qg8TMQOunuRHh=f2+D8MaMRg@mail.gmail.com>
+        <CAAFQd5CTT0re4ssj9NNTxhejFX_v_rCjy6=mX7C+dc=Lw9GOHw@mail.gmail.com>
+        <20201010213554.GD3939@pendragon.ideasonboard.com>
+        <CAKMK7uGhq+BiaJ5jD+bkO4VOaCPuUZ_empA3Ojr1AsvwNef6QQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jason Gunthorpe <jgg@ziepe.ca>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, Tomasz Figa <tfiga@chromium.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>, KVM list <kvm@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, John Hubbard <jhubbard@nvidia.com>, LKML <linux-kernel@vger.kernel.org>, DRI Development <dri-devel@lists.freedesktop.org>, Jason Gunthorpe <jgg@ziepe.ca>, =?UTF-8?B?SsOpcsO0bWU=?= Glisse <jglisse@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, Hans Verkuil <hverkuil@xs4all.nl>, "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
 
-Hi Jason,
+Em Sat, 10 Oct 2020 23:50:27 +0200
+Daniel Vetter <daniel.vetter@ffwll.ch> escreveu:
 
-On 09.10.2020 14:48, Jason Gunthorpe wrote:
-> On Fri, Oct 09, 2020 at 02:37:23PM +0200, Mauro Carvalho Chehab wrote:
->
->> I'm not a mm/ expert, but, from what I understood from Daniel's patch
->> description is that this is unsafe *only if*  __GFP_MOVABLE is used.
-> No, it is unconditionally unsafe. The CMA movable mappings are
-> specific VMAs that will have bad issues here, but there are other
-> types too.
+> On Sat, Oct 10, 2020 at 11:36 PM Laurent Pinchart
+> <laurent.pinchart@ideasonboard.com> wrote:
+> >
 
-I'm trying to follow this thread, but I really wonder what do you mean 
-by CMA movable mappings? If a buffer has been allocated from CMA and 
-used for DMA, it won't be moved in the memory. It will stay at the same 
-physical memory address all the time until freed by the owner. It just a 
-matter of proper usage count tracking to delay freeing if it is still 
-used somewhere.
+> > > We probably still have a few legacy drivers using videobuf (non-2),
+> > > but IMHO those should be safe to put behind some disabled-by-default
+> > > Kconfig symbol or even completely drop, as the legacy framework has
+> > > been deprecated for many years already.  
+> >
+> > There's 8 drivers left, and they support a very large number of devices.
+> > I expect unhappy users distros stop shipping them. On the other hand,
+> > videobuf has been deprecated for a loooooooong time, so there has been
+> > plenty of time to convert the remaining drivers to videobuf2. If nobody
+> > can do it, then we'll have to drop support for these devices given the
+> > security issues.  
+> 
+> Again, the issue here is _only_ with follow_pfn. For videobuf1 this
+> means videbuf-dma-contig.c userptr support is broken. Unlike videobuf2
+> it means it's broken for all usage (not just zero-copy userptr),
+> because videbuf-dma-contig.c lacks the pin_user_pages path.
 
-Best regards
+Well, follow_pfn() is used only by videbuf-dma-contig.c. If this is 
+the only part of VB1 that will have userptr broken, then there's
+just one driver that might be affected: davinci.
 
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Yet, taking a deeper look:
+
+	$ git grep include drivers/media/platform/davinci/|grep -i videobuf
+	drivers/media/platform/davinci/vpif_capture.h:#include <media/videobuf2-dma-contig.h>
+	drivers/media/platform/davinci/vpif_display.h:#include <media/videobuf2-dma-contig.h>
+
+It sounds to me that it was already converted to VB2, but some VB1
+symbols were not converted at its Kconfig.
+
+It sounds to me that there are other drivers with some VB1 left overs
+at Kconfig, as those are the only ones using VB1 those days:
+
+	$ for i in $(git grep media/videobuf drivers |grep -v videobuf2 |grep -v v4l2-core|cut -d: -f1); do dirname $i; done|sort|uniq
+	drivers/media/pci/bt8xx
+	drivers/media/pci/cx18
+	drivers/media/platform
+	drivers/media/usb/tm6000
+	drivers/media/usb/zr364xx
+	drivers/staging/media/atomisp/pci
+
+> But that
+> would be easy to add if this poses a  problem I think - we just need
+> to carry over the pin_user_pages_fast logic from videbuf2, no driver
+> changes required. But of course I don't think we should do that before
+> someone reports the regression, since videobuf1 userptr is doubly
+> deprecated :-)
+
+I think otherwise. Keeping a broken component at the Kernel is 
+a bad idea. 
+
+Yet, from my quick search above, it sounds to me that it is time for 
+us to retire the VB1 DMA contig support as a hole, as there's no client 
+for it anymore.
+
+I'll work on some patches cleaning up the VB1 left overs at
+Kconfig and removing videbuf-dma-contig.c for good, if there's
+no hidden dependency on it.
+
+
+Thanks,
+Mauro
