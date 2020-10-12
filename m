@@ -1,17 +1,17 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2274 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55890 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726348AbgJLV1w (ORCPT
+        by vger.kernel.org with ESMTP id S1726510AbgJLUxU (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 12 Oct 2020 17:27:52 -0400
+        Mon, 12 Oct 2020 16:53:20 -0400
 Subject: Re: [PATCH v10 13/16] s390/vfio-ap: handle host AP config change
  notification
 References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
  <20200821195616.13554-14-akrowiak@linux.ibm.com>
  <20200928033817.20b95549.pasic@linux.ibm.com>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <e5ddd1ae-0c35-0089-1d40-30157065dece@linux.ibm.com>
-Date: Mon, 12 Oct 2020 17:27:43 -0400
+Message-ID: <9fa63ecd-4dd4-d13d-4805-91fc4c322b7c@linux.ibm.com>
+Date: Mon, 12 Oct 2020 16:53:10 -0400
 MIME-Version: 1.0
 In-Reply-To: <20200928033817.20b95549.pasic@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -40,23 +40,6 @@ On 9/27/20 9:38 PM, Halil Pasic wrote:
 >
 > I mean if the removal is for a reason different that host config change,
 > we wont update the guest_matrix or?
-
-This patch specifically handles AP configuration change notification.
-The idea behind this notification is that if a configuration change results
-in one or more queues getting removed from the guest, it can be done
-in bulk before each of the queues is unbound by the AP bus. That way
-any cleanup (e.g., resets etc.) can be performed before the bus gets
-control.
-
-Also, keep in mind that an unbind can take place for reasons other than
-an AP configuration change:
-1. Manual unbind of a queue
-2. Deconfiguration of an adapter
-3. Adapter is broken (e.g., CHECKSTOP)
-If the queue is being unbound as a result of an AP configuration
-change, the vfio_ap_remove_queue() function will ignore the
-unbind because it has already been handled by this on_config_changed
-callback prior to the unbind operation (see patch 15/16).
 >
 >> ---
 >>   drivers/s390/crypto/vfio_ap_drv.c     |   5 +-
@@ -222,9 +205,6 @@ Yes, I'll remove it.
 > I guess, we could accomplish the unassign with operations operating on
 > full bitmaps (without looping over bits), but I have no strong opinion
 > here.
-
-Yes we can and will.
-
 >
 >> +
 >> +	return unassigned;
@@ -318,9 +298,6 @@ Yes we can and will.
 > 	D;
 > and your wouldn't end up that deep indentation. It is a style thing,
 > so unless regulated by the official coding style, it is up to you :)
-
-I will simplify it.
-
 >
 >
 >> +					unassigned = true;
