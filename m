@@ -1,64 +1,48 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58704 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728613AbgJGU6A (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 16:58:00 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 3/3] net/smc: restore smcd_version when all ISM V2 devices failed to init
-Date: Wed,  7 Oct 2020 22:57:43 +0200
-Message-Id: <20201007205743.83535-4-kgraul@linux.ibm.com>
-In-Reply-To: <20201007205743.83535-1-kgraul@linux.ibm.com>
-References: <20201007205743.83535-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+MIME-Version: 1.0
+References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+ <20201009075934.3509076-10-daniel.vetter@ffwll.ch> <20201009123421.67a80d72@coco.lan>
+ <20201009122111.GN5177@ziepe.ca> <20201009143723.45609bfb@coco.lan>
+ <CGME20201009124900eucas1p26c93caa29c9925f1eef9be9ff7c6c65c@eucas1p2.samsung.com>
+ <20201009124850.GP5177@ziepe.ca> <ed68968b-27bc-d776-8da8-ef21d6b3c378@samsung.com>
+In-Reply-To: <ed68968b-27bc-d776-8da8-ef21d6b3c378@samsung.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date: Mon, 12 Oct 2020 15:49:07 +0200
+Message-ID: <CAKMK7uGLOubJrr9A=usxkoVx+nXDW3bxhykfeU-TYXTUZyBoeQ@mail.gmail.com>
+Subject: Re: [PATCH v2 09/17] mm: Add unsafe_follow_pfn
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Jan Kara <jack@suse.cz>, Kees Cook <keescook@chromium.org>, KVM list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, DRI Development <dri-devel@lists.freedesktop.org>, Linux MM <linux-mm@kvack.org>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, John Hubbard <jhubbard@nvidia.com>, Daniel Vetter <daniel.vetter@intel.com>, Dan Williams <dan.j.williams@intel.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>
 
-Field ini->smcd_version is set to SMC_V2 before calling
-smc_listen_ism_init(). This clears the V1 bit that may be set. When all
-matching ISM V2 devices fail to initialize then the smcd_version field
-needs to get restored to allow any possible V1 devices to initialize.
-And be consistent, always go to the not_found label when no device was
-found.
+On Mon, Oct 12, 2020 at 12:47 PM Marek Szyprowski
+<m.szyprowski@samsung.com> wrote:
+>
+> Hi Jason,
+>
+> On 09.10.2020 14:48, Jason Gunthorpe wrote:
+> > On Fri, Oct 09, 2020 at 02:37:23PM +0200, Mauro Carvalho Chehab wrote:
+> >
+> >> I'm not a mm/ expert, but, from what I understood from Daniel's patch
+> >> description is that this is unsafe *only if*  __GFP_MOVABLE is used.
+> > No, it is unconditionally unsafe. The CMA movable mappings are
+> > specific VMAs that will have bad issues here, but there are other
+> > types too.
+>
+> I'm trying to follow this thread, but I really wonder what do you mean
+> by CMA movable mappings? If a buffer has been allocated from CMA and
+> used for DMA, it won't be moved in the memory. It will stay at the same
+> physical memory address all the time until freed by the owner. It just a
+> matter of proper usage count tracking to delay freeing if it is still
+> used somewhere.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/af_smc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index f481f0ed2b78..82be0bd0f6e8 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1481,11 +1481,12 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
- 	struct smc_clc_v2_extension *smc_v2_ext;
- 	struct smc_clc_msg_smcd *pclc_smcd;
- 	unsigned int matches = 0;
-+	u8 smcd_version;
- 	u8 *eid = NULL;
- 	int i;
- 
- 	if (!(ini->smcd_version & SMC_V2) || !smcd_indicated(ini->smc_type_v2))
--		return;
-+		goto not_found;
- 
- 	pclc_smcd = smc_get_clc_msg_smcd(pclc);
- 	smc_v2_ext = smc_get_clc_v2_ext(pclc);
-@@ -1519,6 +1520,7 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
- 	}
- 
- 	/* separate - outside the smcd_dev_list.lock */
-+	smcd_version = ini->smcd_version;
- 	for (i = 0; i < matches; i++) {
- 		ini->smcd_version = SMC_V2;
- 		ini->is_smcd = true;
-@@ -1528,6 +1530,8 @@ static void smc_find_ism_v2_device_serv(struct smc_sock *new_smc,
- 			continue;
- 		return; /* matching and usable V2 ISM device found */
- 	}
-+	/* no V2 ISM device could be initialized */
-+	ini->smcd_version = smcd_version;	/* restore original value */
- 
- not_found:
- 	ini->smcd_version &= ~SMC_V2;
+ Yup. The problem is that this usage count tracking doesn't exist. And
+drivers could at least in theory treat CMA like vram and swap buffers
+in&out of it, so just refcounting the userspace vma isn't enough. In
+practice, right now, it might be enough for CMA drivers though (but
+there's more that's possible here).
+-Daniel
 -- 
-2.17.1
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
