@@ -1,12 +1,17 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8442 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388957AbgJLOlj (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 12 Oct 2020 10:41:39 -0400
 Subject: Re: [PATCH v2 08/17] s390/pci: Remove races against pte updates
 References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
  <20201009075934.3509076-9-daniel.vetter@ffwll.ch>
  <6deb08dd-46f3-bf26-5362-fdc696f6fd74@linux.ibm.com>
  <20201012141906.GX438822@phenom.ffwll.local>
 From: Niklas Schnelle <schnelle@linux.ibm.com>
-Message-ID: <3594c115-541f-806a-ee33-e99a2d1d31e8@linux.ibm.com>
-Date: Wed, 21 Oct 2020 09:55:57 +0200
+Message-ID: <3c28a96a-6bb5-f581-4671-5c87161238f7@linux.ibm.com>
+Date: Mon, 12 Oct 2020 16:39:30 +0200
 MIME-Version: 1.0
 In-Reply-To: <20201012141906.GX438822@phenom.ffwll.local>
 Content-Type: text/plain; charset="utf-8"
@@ -15,34 +20,7 @@ Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>
 
-Hi Daniel,
-
-friendly ping. I haven't seen a new version of this patch series,
-as I said I think your change for s390/pci is generally useful so
-I'm curious, are you planning on sending a new version soon?
-If you want you can also just sent this patch with the last few
-nitpicks (primarily the mail address) fixed and I'll happily apply.
-
-Best regards,
-Niklas Schnelle
-
-On 10/12/20 4:19 PM, Daniel Vetter wrote:
-> On Mon, Oct 12, 2020 at 04:03:28PM +0200, Niklas Schnelle wrote:
-... snip ....
->>> Cc: Jason Gunthorpe <jgg@ziepe.ca>
->>> Cc: Dan Williams <dan.j.williams@intel.com>
->>> Cc: Kees Cook <keescook@chromium.org>
->>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>> Cc: John Hubbard <jhubbard@nvidia.com>
->>> Cc: Jérôme Glisse <jglisse@redhat.com>
->>> Cc: Jan Kara <jack@suse.cz>
->>> Cc: Dan Williams <dan.j.williams@intel.com>
->>
->> The above Cc: line for Dan Williams is a duplicate
->>
->>> Cc: linux-mm@kvack.org
->>> Cc: linux-arm-kernel@lists.infradead.org
->>> Cc: linux-samsung-soc@vger.kernel.org
+... snip ...
 >>> Cc: linux-media@vger.kernel.org
 >>> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
 >>> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
@@ -55,6 +33,11 @@ On 10/12/20 4:19 PM, Daniel Vetter wrote:
 > 
 > This is a per-subsystem bikeshed :-) drivers/gpu definitely wants it
 > above, but most core subsystems want it below. I'll move it.
+
+Today I learned, thanks! That said I think most of the time I've
+actually not seen version change information in the commit message itself
+only in the cover letters. I really don't care just looked odd to me.
+
 > 
 >>> ---
 >>>  arch/s390/pci/pci_mmio.c | 98 +++++++++++++++++++++++-----------------
@@ -107,8 +90,17 @@ On 10/12/20 4:19 PM, Daniel Vetter wrote:
 > I think this is a falls positive, checkpatch doesn't realize that
 > SYSCALL_DEFINE3 is a function, not a structure. And in a structure I'd
 > have added the kerneldoc or comment.
+
+Interesting, your theory sounds convincing, I too thought this
+was a bit too pedantic.
+
 > 
 > I'll fix up all the nits you've found for the next round. Thanks for
 > taking a look.
+
+You're welcome hope I didn't sound pedantic. I think you've a lot
+more experience actually and this can indeed turn into bikeshedding
+but since I was answering anyway and most of this was checkpatch…
+
 > -Daniel
 > 
