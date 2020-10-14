@@ -1,68 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39394 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726499AbgJaJSA (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 31 Oct 2020 05:18:00 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 08/11] block: don't call into the driver for BLKROSET
-Date: Sat, 31 Oct 2020 09:58:07 +0100
-Message-Id: <20201031085810.450489-9-hch@lst.de>
-In-Reply-To: <20201031085810.450489-1-hch@lst.de>
-References: <20201031085810.450489-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20736 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727391AbgJNRnz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Oct 2020 13:43:55 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 2/3] net/smc: fix valid DMBE buffer sizes
+Date: Wed, 14 Oct 2020 19:43:28 +0200
+Message-Id: <20201014174329.35791-3-kgraul@linux.ibm.com>
+In-Reply-To: <20201014174329.35791-1-kgraul@linux.ibm.com>
+References: <20201014174329.35791-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-Now that all drivers that want to hook into setting or clearing the
-read-only flag use the set_read_only method this code can be removed.
+The SMCD_DMBE_SIZES should include all valid DMBE buffer sizes, so the
+correct value is 6 which means 1MB. With 7 the registration of an ISM
+buffer would always fail because of the invalid size requested.
+Fix that and set the value to 6.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: c6ba7c9ba43d ("net/smc: add base infrastructure for SMC-D and ISM")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- block/ioctl.c | 23 -----------------------
- 1 file changed, 23 deletions(-)
+ net/smc/smc_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/ioctl.c b/block/ioctl.c
-index a6fa16b9770593..96cb4544736468 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -346,26 +346,6 @@ static int blkdev_pr_clear(struct block_device *bdev,
- 	return ops->pr_clear(bdev, c.key);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index f1dbb5025c0b..5de637472a11 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1596,7 +1596,7 @@ static int smcr_buf_map_usable_links(struct smc_link_group *lgr,
+ 	return rc;
  }
  
--/*
-- * Is it an unrecognized ioctl? The correct returns are either
-- * ENOTTY (final) or ENOIOCTLCMD ("I don't know this one, try a
-- * fallback"). ENOIOCTLCMD gets turned into ENOTTY by the ioctl
-- * code before returning.
-- *
-- * Confused drivers sometimes return EINVAL, which is wrong. It
-- * means "I understood the ioctl command, but the parameters to
-- * it were wrong".
-- *
-- * We should aim to just fix the broken drivers, the EINVAL case
-- * should go away.
-- */
--static inline int is_unrecognized_ioctl(int ret)
--{
--	return	ret == -EINVAL ||
--		ret == -ENOTTY ||
--		ret == -ENOIOCTLCMD;
--}
--
- static int blkdev_flushbuf(struct block_device *bdev, fmode_t mode,
- 		unsigned cmd, unsigned long arg)
- {
-@@ -384,9 +364,6 @@ static int blkdev_roset(struct block_device *bdev, fmode_t mode,
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
+-#define SMCD_DMBE_SIZES		7 /* 0 -> 16KB, 1 -> 32KB, .. 6 -> 1MB */
++#define SMCD_DMBE_SIZES		6 /* 0 -> 16KB, 1 -> 32KB, .. 6 -> 1MB */
  
--	ret = __blkdev_driver_ioctl(bdev, mode, cmd, arg);
--	if (!is_unrecognized_ioctl(ret))
--		return ret;
- 	if (get_user(n, (int __user *)arg))
- 		return -EFAULT;
- 	if (bdev->bd_disk->fops->set_read_only) {
+ static struct smc_buf_desc *smcd_new_buf_create(struct smc_link_group *lgr,
+ 						bool is_dmb, int bufsize)
 -- 
-2.28.0
+2.17.1
