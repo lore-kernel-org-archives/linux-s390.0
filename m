@@ -1,65 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41430 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502378AbgJUI5Y (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Oct 2020 04:57:24 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99354C0613E4
-        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 01:57:22 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id h7so2131374wre.4
-        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 01:57:22 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v3 13/16] /dev/mem: Only set filp->f_mapping
-Date: Wed, 21 Oct 2020 10:56:52 +0200
-Message-Id: <20201021085655.1192025-14-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
-References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14000 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726903AbgJNRny (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 14 Oct 2020 13:43:54 -0400
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 3/3] net/smc: fix invalid return code in smcd_new_buf_create()
+Date: Wed, 14 Oct 2020 19:43:29 +0200
+Message-Id: <20201014174329.35791-4-kgraul@linux.ibm.com>
+In-Reply-To: <20201014174329.35791-1-kgraul@linux.ibm.com>
+References: <20201014174329.35791-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Daniel Vetter <daniel.vetter@ffwll.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-When we care about pagecache maintenance, we need to make sure that
-both f_mapping and i_mapping point at the right mapping.
+smc_ism_register_dmb() returns error codes set by the ISM driver which
+are not guaranteed to be negative or in the errno range. Such values
+would not be handled by ERR_PTR() and finally the return code will be
+used as a memory address.
+Fix that by using a valid negative errno value with ERR_PTR().
 
-But for iomem mappings we only care about the virtual/pte side of
-things, so f_mapping is enough. Also setting inode->i_mapping was
-confusing me as a driver maintainer, since in e.g. drivers/gpu we
-don't do that. Per Dan this seems to be copypasta from places which do
-care about pagecache consistency, but not needed. Hence remove it for
-slightly less confusion.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.com>
+Fixes: 72b7f6c48708 ("net/smc: unique reason code for exceeded max dmb count")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/char/mem.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/smc/smc_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-index abd4ffdc8cde..5502f56f3655 100644
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -864,7 +864,6 @@ static int open_port(struct inode *inode, struct file *filp)
- 	 * revocations when drivers want to take over a /dev/mem mapped
- 	 * range.
- 	 */
--	inode->i_mapping = devmem_inode->i_mapping;
- 	filp->f_mapping = inode->i_mapping;
- 
- 	return 0;
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 5de637472a11..d790c43c473f 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -1615,7 +1615,8 @@ static struct smc_buf_desc *smcd_new_buf_create(struct smc_link_group *lgr,
+ 		rc = smc_ism_register_dmb(lgr, bufsize, buf_desc);
+ 		if (rc) {
+ 			kfree(buf_desc);
+-			return (rc == -ENOMEM) ? ERR_PTR(-EAGAIN) : ERR_PTR(rc);
++			return (rc == -ENOMEM) ? ERR_PTR(-EAGAIN) :
++						 ERR_PTR(-EIO);
+ 		}
+ 		buf_desc->pages = virt_to_page(buf_desc->cpu_addr);
+ 		/* CDC header stored in buf. So, pretend it was smaller */
 -- 
-2.28.0
+2.17.1
