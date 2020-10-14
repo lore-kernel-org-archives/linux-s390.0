@@ -1,73 +1,64 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41470 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502370AbgJUI5W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Oct 2020 04:57:22 -0400
-Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46153C0613DA
-        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 01:57:21 -0700 (PDT)
-Received: by mail-wr1-x444.google.com with SMTP id b8so2198748wrn.0
-        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 01:57:21 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v3 12/16] PCI: Obey iomem restrictions for procfs mmap
-Date: Wed, 21 Oct 2020 10:56:51 +0200
-Message-Id: <20201021085655.1192025-13-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
-References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 1/3] net/smc: fix use-after-free of delayed events
+Date: Wed, 14 Oct 2020 19:43:27 +0200
+Message-Id: <20201014174329.35791-2-kgraul@linux.ibm.com>
+In-Reply-To: <20201014174329.35791-1-kgraul@linux.ibm.com>
+References: <20201014174329.35791-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-There's three ways to access PCI BARs from userspace: /dev/mem, sysfs
-files, and the old proc interface. Two check against
-iomem_is_exclusive, proc never did. And with CONFIG_IO_STRICT_DEVMEM,
-this starts to matter, since we don't want random userspace having
-access to PCI BARs while a driver is loaded and using it.
+When a delayed event is enqueued then the event worker will send this
+event the next time it is running and no other flow is currently
+active. The event handler is called for the delayed event, and the
+pointer to the event keeps set in lgr->delayed_event. This pointer is
+cleared later in the processing by smc_llc_flow_start().
+This can lead to a use-after-free condition when the processing does not
+reach smc_llc_flow_start(), but frees the event because of an error
+situation. Then the delayed_event pointer is still set but the event is
+freed.
+Fix this by always clearing the delayed event pointer when the event is
+provided to the event handler for processing, and remove the code to
+clear it in smc_llc_flow_start().
 
-Fix this by adding the same iomem_is_exclusive() check we already have
-on the sysfs side in pci_mmap_resource().
-
-References: 90a545e98126 ("restrict /dev/mem to idle io memory ranges")
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.com>
---
-v2: Improve commit message (Bjorn)
+Fixes: 555da9af827d ("net/smc: add event-based llc_flow framework")
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/pci/proc.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/smc/smc_llc.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/pci/proc.c b/drivers/pci/proc.c
-index d35186b01d98..3a2f90beb4cb 100644
---- a/drivers/pci/proc.c
-+++ b/drivers/pci/proc.c
-@@ -274,6 +274,11 @@ static int proc_bus_pci_mmap(struct file *file, struct vm_area_struct *vma)
- 		else
- 			return -EINVAL;
+diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
+index 2db967f2fb50..39039a82f24f 100644
+--- a/net/smc/smc_llc.c
++++ b/net/smc/smc_llc.c
+@@ -233,8 +233,6 @@ static bool smc_llc_flow_start(struct smc_llc_flow *flow,
+ 	default:
+ 		flow->type = SMC_LLC_FLOW_NONE;
  	}
-+
-+	if (dev->resource[i].flags & IORESOURCE_MEM &&
-+	    iomem_is_exclusive(dev->resource[i].start))
-+		return -EINVAL;
-+
- 	ret = pci_mmap_page_range(dev, i, vma,
- 				  fpriv->mmap_state, write_combine);
- 	if (ret < 0)
+-	if (qentry == lgr->delayed_event)
+-		lgr->delayed_event = NULL;
+ 	smc_llc_flow_qentry_set(flow, qentry);
+ 	spin_unlock_bh(&lgr->llc_flow_lock);
+ 	return true;
+@@ -1603,13 +1601,12 @@ static void smc_llc_event_work(struct work_struct *work)
+ 	struct smc_llc_qentry *qentry;
+ 
+ 	if (!lgr->llc_flow_lcl.type && lgr->delayed_event) {
+-		if (smc_link_usable(lgr->delayed_event->link)) {
+-			smc_llc_event_handler(lgr->delayed_event);
+-		} else {
+-			qentry = lgr->delayed_event;
+-			lgr->delayed_event = NULL;
++		qentry = lgr->delayed_event;
++		lgr->delayed_event = NULL;
++		if (smc_link_usable(qentry->link))
++			smc_llc_event_handler(qentry);
++		else
+ 			kfree(qentry);
+-		}
+ 	}
+ 
+ again:
 -- 
-2.28.0
+2.17.1
