@@ -1,75 +1,27 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Fri, 9 Oct 2020 17:24:33 +0800
-From: Wei Yang <richard.weiyang@linux.alibaba.com>
-Subject: Re: [PATCH] kernel/resource: Fix use of ternary condition in
- release_mem_region_adjustable
-Message-ID: <20201009092433.GA56924@L-31X9LVDL-1304.local>
-Reply-To: Wei Yang <richard.weiyang@linux.alibaba.com>
-References: <20200911103459.10306-2-david@redhat.com>
- <20200922060748.2452056-1-natechancellor@gmail.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:35966 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388946AbgJOQ7h (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 15 Oct 2020 12:59:37 -0400
+Date: Thu, 15 Oct 2020 09:59:34 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH net 0/3] net/smc: fixes 2020-10-14
+Message-ID: <20201015095934.72b09e9e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20201014174329.35791-1-kgraul@linux.ibm.com>
+References: <20201014174329.35791-1-kgraul@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200922060748.2452056-1-natechancellor@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Nathan Chancellor <natechancellor@gmail.com>
-Cc: david@redhat.com, akpm@linux-foundation.org, ardb@kernel.org, bhe@redhat.com, dan.j.williams@intel.com, jgg@ziepe.ca, keescook@chromium.org, linux-acpi@vger.kernel.org, linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-nvdimm@lists.01.org, linux-s390@vger.kernel.org, mhocko@suse.com, pankaj.gupta.linux@gmail.com, richardw.yang@linux.intel.com, virtualization@lists.linux-foundation.org, xen-devel@lists.xenproject.org, clang-built-linux@googlegroups.com
+To: Karsten Graul <kgraul@linux.ibm.com>
+Cc: davem@davemloft.net, netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
 
-On Mon, Sep 21, 2020 at 11:07:48PM -0700, Nathan Chancellor wrote:
->Clang warns:
->
->kernel/resource.c:1281:53: warning: operator '?:' has lower precedence
->than '|'; '|' will be evaluated first
->[-Wbitwise-conditional-parentheses]
->        new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
->                                 ~~~~~~~~~~~~~~~~~~~~~~~~~ ^
->kernel/resource.c:1281:53: note: place parentheses around the '|'
->expression to silence this warning
->        new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
->                                 ~~~~~~~~~~~~~~~~~~~~~~~~~ ^
->kernel/resource.c:1281:53: note: place parentheses around the '?:'
->expression to evaluate it first
->        new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
->                                                           ^
->                                              (                              )
->1 warning generated.
->
->Add the parentheses as it was clearly intended for the ternary condition
->to be evaluated first.
->
->Fixes: 5fd23bd0d739 ("kernel/resource: make release_mem_region_adjustable() never fail")
->Link: https://github.com/ClangBuiltLinux/linux/issues/1159
->Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-
-Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
-
->---
->
->Presumably, this will be squashed but I included a fixes tag
->nonetheless. Apologies if this has already been noticed and fixed
->already, I did not find anything on LKML.
->
-> kernel/resource.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->
->diff --git a/kernel/resource.c b/kernel/resource.c
->index ca2a666e4317..3ae2f56cc79d 100644
->--- a/kernel/resource.c
->+++ b/kernel/resource.c
->@@ -1278,7 +1278,7 @@ void release_mem_region_adjustable(resource_size_t start, resource_size_t size)
-> 	 * similarly).
-> 	 */
-> retry:
->-	new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
->+	new_res = alloc_resource(GFP_KERNEL | (alloc_nofail ? __GFP_NOFAIL : 0));
+On Wed, 14 Oct 2020 19:43:26 +0200 Karsten Graul wrote:
+> Please apply the following patch series for smc to netdev's net tree.
 > 
-> 	p = &parent->child;
-> 	write_lock(&resource_lock);
->
->base-commit: 40ee82f47bf297e31d0c47547cd8f24ede52415a
->-- 
->2.28.0
+> The first patch fixes a possible use-after-free of delayed llc events.
+> Patch 2 corrects the number of DMB buffer sizes. And patch 3 ensures
+> a correctly formatted return code when smc_ism_register_dmb() fails to
+> create a new DMB.
 
--- 
-Wei Yang
-Help you, Help me
+Applied and queued for stable, thanks!
