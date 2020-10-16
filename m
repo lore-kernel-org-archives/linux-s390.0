@@ -1,57 +1,162 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38056 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726633AbgJaJJQ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 31 Oct 2020 05:09:16 -0400
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 04/11] block: add a new set_read_only method
-Date: Sat, 31 Oct 2020 09:58:03 +0100
-Message-Id: <20201031085810.450489-5-hch@lst.de>
-In-Reply-To: <20201031085810.450489-1-hch@lst.de>
-References: <20201031085810.450489-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36698 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2390548AbgJPU71 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 16 Oct 2020 16:59:27 -0400
+Subject: Re: [PATCH v10 02/16] s390/vfio-ap: use new AP bus interface to
+ search for queue devices
+References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
+ <20200821195616.13554-3-akrowiak@linux.ibm.com>
+ <20200825121334.0ff35d7a.cohuck@redhat.com>
+ <b1c6bad8-3ec6-183c-3e35-9962e9c721c7@linux.ibm.com>
+ <20200925041152.12f52141.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <ed00b2b8-2663-82f2-7a65-ed8c28125b2b@linux.ibm.com>
+Date: Fri, 16 Oct 2020 16:59:21 -0400
 MIME-Version: 1.0
+In-Reply-To: <20200925041152.12f52141.pasic@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Add a new method to allow driver-specific callout when setting or
-clearing the block device read-only state.  This allow to replace the
-cumbersome and error prone override of the whole ioctl implementation.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/ioctl.c          | 5 +++++
- include/linux/blkdev.h | 1 +
- 2 files changed, 6 insertions(+)
 
-diff --git a/block/ioctl.c b/block/ioctl.c
-index c6d8863f040945..a6fa16b9770593 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -389,6 +389,11 @@ static int blkdev_roset(struct block_device *bdev, fmode_t mode,
- 		return ret;
- 	if (get_user(n, (int __user *)arg))
- 		return -EFAULT;
-+	if (bdev->bd_disk->fops->set_read_only) {
-+		ret = bdev->bd_disk->fops->set_read_only(bdev, n);
-+		if (ret)
-+			return ret;
-+	}
- 	set_device_ro(bdev, n);
- 	return 0;
- }
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index 639cae2c158b59..5c1ba8a8d2bc7e 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1850,6 +1850,7 @@ struct block_device_operations {
- 	void (*unlock_native_capacity) (struct gendisk *);
- 	int (*revalidate_disk) (struct gendisk *);
- 	int (*getgeo)(struct block_device *, struct hd_geometry *);
-+	int (*set_read_only)(struct block_device *bdev, bool ro);
- 	/* this callback is with swap_lock and sometimes page table lock held */
- 	void (*swap_slot_free_notify) (struct block_device *, unsigned long);
- 	int (*report_zones)(struct gendisk *, sector_t sector,
--- 
-2.28.0
+On 9/24/20 10:11 PM, Halil Pasic wrote:
+> On Thu, 27 Aug 2020 10:24:07 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>>
+>> On 8/25/20 6:13 AM, Cornelia Huck wrote:
+>>> On Fri, 21 Aug 2020 15:56:02 -0400
+>>> Tony Krowiak<akrowiak@linux.ibm.com>  wrote:
+>>>
+>>>> This patch refactor's the vfio_ap device driver to use the AP bus's
+>>> s/refactor's/refactors/
+>> Of course, what was I thinking?:)
+>>
+>>>> ap_get_qdev() function to retrieve the vfio_ap_queue struct containing
+>>>> information about a queue that is bound to the vfio_ap device driver.
+>>>> The bus's ap_get_qdev() function retrieves the queue device from a
+>>>> hashtable keyed by APQN. This is much more efficient than looping over
+>>>> the list of devices attached to the AP bus by several orders of
+>>>> magnitude.
+>>>>
+>>>> Signed-off-by: Tony Krowiak<akrowiak@linux.ibm.com>
+>>>> Reported-by: kernel test robot<lkp@intel.com>
+>>>> ---
+>>>>    drivers/s390/crypto/vfio_ap_drv.c     | 27 ++-------
+>>>>    drivers/s390/crypto/vfio_ap_ops.c     | 86 +++++++++++++++------------
+>>>>    drivers/s390/crypto/vfio_ap_private.h |  8 ++-
+>>>>    3 files changed, 59 insertions(+), 62 deletions(-)
+>>>>
+>>> (...)
+>>>
+>>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> index e0bde8518745..ad3925f04f61 100644
+>>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> @@ -26,43 +26,26 @@vfio_ap_get_queue()
+>>>>    
+>>>>    static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+>>>>    
+>>>> -static int match_apqn(struct device *dev, const void *data)
+>>>> -{
+>>>> -	struct vfio_ap_queue *q = dev_get_drvdata(dev);
+>>>> -
+>>>> -	return (q->apqn == *(int *)(data)) ? 1 : 0;
+>>>> -}
+>>>> -
+>>>>    /**
+>>>> - * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
+>>>> - * @matrix_mdev: the associated mediated matrix
+>>>> + * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
+>>>>     * @apqn: The queue APQN
+>>>>     *
+>>>> - * Retrieve a queue with a specific APQN from the list of the
+>>>> - * devices of the vfio_ap_drv.
+>>>> - * Verify that the APID and the APQI are set in the matrix.
+>>>> + * Retrieve a queue with a specific APQN from the AP queue devices attached to
+>>>> + * the AP bus.
+>>>>     *
+>>>> - * Returns the pointer to the associated vfio_ap_queue
+>>>> + * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
+>>>>     */
+>>>> -static struct vfio_ap_queue *vfio_ap_get_queue(
+>>>> -					struct ap_matrix_mdev *matrix_mdev,
+>>>> -					int apqn)
+>>>> +static struct vfio_ap_queue *vfio_ap_get_queue(unsigned long apqn)
+>>>>    {
+>>>> +	struct ap_queue *queue;
+>>>>    	struct vfio_ap_queue *q;
+>>>> -	struct device *dev;
+>>>>    
+>>>> -	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
+>>>> -		return NULL;
+>>>> -	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
+>>> I think you should add some explanation to the patch description why
+>>> testing the matrix bitmasks is not needed anymore.
+>> As a result of this comment, I took a closer look at the code to
+>> determine the reason for eliminating the matrix_mdev
+>> parameter. The reason is because the code below (i.e., find the device
+>> and get the driver data) was also repeated in the vfio_ap_irq_disable_apqn()
+>> function, so I replaced it with a call to the function above; however, the
+>> vfio_ap_irq_disable_apqn() function  does not have a reference to the
+>> matrix_mdev, so I eliminated the matrix_mdev parameter. Note that the
+>> vfio_ap_irq_disable_apqn() is called for each APQN assigned to a matrix
+>> mdev, so there is no need to test the bitmasks there.
+>>
+>> The other place from which the function above is called is
+>> the handle_pqap() function which does have a reference to the
+>> matrix_mdev. In order to ensure the integrity of the instruction
+>> being intercepted - i.e., PQAP(AQIC) enable/disable IRQ for aN
+>> AP queue - the testing of the matrix bitmasks probably ought to
+>> be performed, so it will be done there instead of in the
+>> vfio_ap_get_queue() function above.
+> I'm a little confused. I do agree that in handle_pqap() we do want to
+> make sure that we only operate on queues that belong to the given guest
+> that issued the PQAP instruction.
+>
+> AFAICT with this patch set applied, this is not the case any more. Does
+> that 'will be done there instead' refer to v11?
+
+I understand your confusion, so here is what I'm going to do
+to clear things up. I will leave the signature of the vfio_ap_get_queue()
+function the same and leave in the bitmap checking. As per your
+comment below, in patch 3 I will replace the call to
+vfio_ap_get_queue() with a call to vfio_ap_get_mdev_queue().
+Since the vfio_ap_get_mdev_queue() function is mdev-specific,
+I can then remove the mdev parameter from the
+vfio_ap_get_queue() function since it will no longer be needed.
+
+> Another question is, can we use vfio_ap_get_mdev_queue() in
+> handle_pqap() (instead of vfio_ap_get_queue())?
+
+Yes, we can and should do that as it will eliminate both the need to
+test the matrix bitmasks and several lines of code; however, that
+function is not available until patch 3/16, so that change will be
+made there.
+
+>   
+>>
+>>> +	queue = ap_get_qdev(apqn);
+>>> +	if (!queue)
+>>>    		return NULL;
+>>>    
+>>> -	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+>>> -				 &apqn, match_apqn);
+>>> -	if (!dev)
+>>> -		return NULL;
+>>> -	q = dev_get_drvdata(dev);
+>>> -	q->matrix_mdev = matrix_mdev;
+>>> -	put_device(dev);
+>>> +	q = dev_get_drvdata(&queue->ap_dev.device);
+>>> +	put_device(&queue->ap_dev.device);
+>>>    
+>>>    	return q;
+>>>    }
+>>> (...)
+>>>
