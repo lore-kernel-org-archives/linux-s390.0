@@ -1,84 +1,366 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 17 Oct 2020 08:44:42 +0200
-From: Willy Tarreau <w@1wt.eu>
-Subject: Re: [PATCH] drivers/virt: vmgenid: add vm generation id driver
-Message-ID: <20201017064442.GA14117@1wt.eu>
-References: <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com>
- <CAG48ez0EanBvDyfthe+hAP0OC8iGLNSq2e5wJVz-=ENNGF97_w@mail.gmail.com>
- <20201017033606.GA14014@1wt.eu>
- <CAG48ez0x2S9XuCrANAQbXNi8Jjwm822-fnQSmr-Zr07JgrEs1g@mail.gmail.com>
- <6CC3DB03-27BA-4F5E-8ADA-BE605D83A85C@amazon.com>
- <CAG48ez1ZtvjOs2CEq8-EMosPCd_o7WQ3Mz_+1mDe7OrH2arxFA@mail.gmail.com>
- <20201017053712.GA14105@1wt.eu>
- <CAG48ez1h0ynXfGap_KiHiPVTfcB8NBQJ-2dnj08ZNfuhrW0jWA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAG48ez1h0ynXfGap_KiHiPVTfcB8NBQJ-2dnj08ZNfuhrW0jWA@mail.gmail.com>
+References: <AQHWo8lIfZnFKGe8nkGmhTCXwq5R3w==> <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com>
+In-Reply-To: <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com>
+From: Jann Horn <jannh@google.com>
+Date: Sat, 17 Oct 2020 03:40:08 +0200
+Message-ID: <CAG48ez0EanBvDyfthe+hAP0OC8iGLNSq2e5wJVz-=ENNGF97_w@mail.gmail.com>
+Subject: Re: [PATCH] drivers/virt: vmgenid: add vm generation id driver
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: Jann Horn <jannh@google.com>
-Cc: Colm MacCarthaigh <colmmacc@amazon.com>, "Catangiu, Adrian Costin" <acatan@amazon.com>, Andy Lutomirski <luto@kernel.org>, Jason Donenfeld <Jason@zx2c4.com>, "Theodore Y. Ts'o" <tytso@mit.edu>, Eric Biggers <ebiggers@kernel.org>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, kernel list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, "Graf (AWS), Alexander" <graf@amazon.de>, "Woodhouse, David" <dwmw@amazon.co.uk>, bonzini@gnu.org, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, oridgar@gmail.com, ghammer@redhat.com, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>, Qemu Developers <qemu-devel@nongnu.org>, KVM list <kvm@vger.kernel.org>, Michal Hocko <mhocko@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Pavel Machek <pavel@ucw.cz>, Linux API <linux-api@vger.kernel.org>
+To: "Catangiu, Adrian Costin" <acatan@amazon.com>, Andy Lutomirski <luto@kernel.org>, Jason Donenfeld <Jason@zx2c4.com>, "Theodore Y. Ts'o" <tytso@mit.edu>, Willy Tarreau <w@1wt.eu>, Eric Biggers <ebiggers@kernel.org>
+Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Graf (AWS), Alexander" <graf@amazon.de>, "MacCarthaigh, Colm" <colmmacc@amazon.com>, "Woodhouse, David" <dwmw@amazon.co.uk>, "bonzini@gnu.org" <bonzini@gnu.org>, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, "oridgar@gmail.com" <oridgar@gmail.com>, "ghammer@redhat.com" <ghammer@redhat.com>, "corbet@lwn.net" <corbet@lwn.net>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "mst@redhat.com" <mst@redhat.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, KVM list <kvm@vger.kernel.org>, Michal Hocko <mhocko@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Pavel Machek <pavel@ucw.cz>, Linux API <linux-api@vger.kernel.org>
 
-On Sat, Oct 17, 2020 at 07:52:48AM +0200, Jann Horn wrote:
-> On Sat, Oct 17, 2020 at 7:37 AM Willy Tarreau <w@1wt.eu> wrote:
-> > On Sat, Oct 17, 2020 at 07:01:31AM +0200, Jann Horn wrote:
-> > > Microsoft's documentation
-> > > (http://go.microsoft.com/fwlink/?LinkId=260709) says that the VM
-> > > Generation ID that we get after a fork "is a 128-bit,
-> > > cryptographically random integer value". If multiple people use the
-> > > same image, it guarantees that each use of the image gets its own,
-> > > fresh ID:
-> >
-> > No. It cannot be more unique than the source that feeds that cryptographic
-> > transformation. All it guarantees is that the entropy source is protected
-> > from being guessed based on the output. Applying cryptography on a simple
-> > counter provides apparently random numbers that will be unique for a long
-> > period for the same source, but as soon as you duplicate that code between
-> > users and they start from the same counter they'll get the same IDs.
-> >
-> > This is why I think that using a counter is better if you really need something
-> > unique. Randoms only reduce predictability which helps avoiding collisions.
-> 
-> Microsoft's spec tells us that they're giving us cryptographically
-> random numbers. Where they're getting those from is not our problem.
-> (And if even the hypervisor is not able to collect enough entropy to
-> securely generate random numbers, worrying about RNG reseeding in the
-> guest would be kinda pointless, we'd be fairly screwed anyway.)
+[adding some more people who are interested in RNG stuff: Andy, Jason,
+Theodore, Willy Tarreau, Eric Biggers. also linux-api@, because this
+concerns some pretty fundamental API stuff related to RNG usage]
 
-Sorry if I sound annoying, but it's a matter of terminology and needs.
+On Fri, Oct 16, 2020 at 4:33 PM Catangiu, Adrian Costin
+<acatan@amazon.com> wrote:
+> - Background
+>
+> The VM Generation ID is a feature defined by Microsoft (paper:
+> http://go.microsoft.com/fwlink/?LinkId=260709) and supported by
+> multiple hypervisor vendors.
+>
+> The feature is required in virtualized environments by apps that work
+> with local copies/caches of world-unique data such as random values,
+> uuids, monotonically increasing counters, etc.
+> Such apps can be negatively affected by VM snapshotting when the VM
+> is either cloned or returned to an earlier point in time.
+>
+> The VM Generation ID is a simple concept meant to alleviate the issue
+> by providing a unique ID that changes each time the VM is restored
+> from a snapshot. The hw provided UUID value can be used to
+> differentiate between VMs or different generations of the same VM.
+>
+> - Problem
+>
+> The VM Generation ID is exposed through an ACPI device by multiple
+> hypervisor vendors but neither the vendors or upstream Linux have no
+> default driver for it leaving users to fend for themselves.
+>
+> Furthermore, simply finding out about a VM generation change is only
+> the starting point of a process to renew internal states of possibly
+> multiple applications across the system. This process could benefit
+> from a driver that provides an interface through which orchestration
+> can be easily done.
+>
+> - Solution
+>
+> This patch is a driver which exposes the Virtual Machine Generation ID
+> via a char-dev FS interface that provides ID update sync and async
+> notification, retrieval and confirmation mechanisms:
+>
+> When the device is 'open()'ed a copy of the current vm UUID is
+> associated with the file handle. 'read()' operations block until the
+> associated UUID is no longer up to date - until HW vm gen id changes -
+> at which point the new UUID is provided/returned. Nonblocking 'read()'
+> uses EWOULDBLOCK to signal that there is no _new_ UUID available.
+>
+> 'poll()' is implemented to allow polling for UUID updates. Such
+> updates result in 'EPOLLIN' events.
+>
+> Subsequent read()s following a UUID update no longer block, but return
+> the updated UUID. The application needs to acknowledge the UUID update
+> by confirming it through a 'write()'.
+> Only on writing back to the driver the right/latest UUID, will the
+> driver mark this "watcher" as up to date and remove EPOLLIN status.
+>
+> 'mmap()' support allows mapping a single read-only shared page which
+> will always contain the latest UUID value at offset 0.
 
-Cryptograhically random means safe for use with cryptography in that it
-is unguessable enough so that you can use it for encryption keys that
-nobody will be able to guess. It in no ways guarantees uniqueness, just
-like you don't really care if the symmetric crypto key of you VPN has
-already been used once somewhere else as long as there's no way to know.
-However with the good enough distribution that a CSPRNG provides,
-collisions within a *same* generator are bound to a very low, predictable
-rate which is by generally considered as acceptable for all use cases.
+It would be nicer if that page just contained an incrementing counter,
+instead of a UUID. It's not like the application cares *what* the UUID
+changed to, just that it *did* change and all RNGs state now needs to
+be reseeded from the kernel, right? And an application can't reliably
+read the entire UUID from the memory mapping anyway, because the VM
+might be forked in the middle.
 
-Something random (cryptographically or not) *cannot* be unique by
-definition, otherwise it's not random anymore, since each draw has an
-influence on the remaining list of possible draws, which is contrary to
-randomness. And conversely something unique cannot be completely random
-because if you know it's unique, you can already rule out all other known
-values from the candidates, thus it's more predictable than random.
+So I think your kernel driver should detect UUID changes and then turn
+those into a monotonically incrementing counter. (Probably 64 bits
+wide?) (That's probably also a little bit faster than comparing an
+entire UUID.)
 
-With this in mind, picking randoms from a same RNG is often highly
-sufficient to consider they're highly likely unique within a long
-period. But it's not a guarantee. And it's even less one between two
-RNGs (e.g. if uniqueness is required between multiple hypervisors in
-case VMs are migrated or centrally managed, which I don't know).
+An option might be to put that counter into the vDSO, instead of a
+separate VMA; but I don't know how the other folks feel about that.
+Andy, do you have opinions on this? That way, normal userspace code
+that uses this infrastructure wouldn't have to mess around with a
+special device at all. And it'd be usable in seccomp sandboxes and so
+on without needing special plumbing. And libraries wouldn't have to
+call open() and mess with file descriptor numbers.
 
-If what is sought here is a strong guarantee of uniqueness, using a
-counter as you first suggested is better. If what is sought is pure
-randomness (in the sense that it's unpredictable, which I don't think
-is needed here), then randoms are better. If both are required, just
-concatenate a counter and a random. And if you need them to be spatially
-unique, just include a node identifier.
+> The driver also adds support for tracking count of open file handles
+> that haven't acknowledged an UUID update. This is exposed through
+> two IOCTLs:
+>  * VMGENID_GET_OUTDATED_WATCHERS: immediately returns the number of
+>    _outdated_ watchers - number of file handles that were open during
+>    a VM generation change, and which have not yet confirmed the new
+>    Vm-Gen-Id.
+>  * VMGENID_WAIT_WATCHERS: blocks until there are no more _outdated_
+>    watchers, or if a 'timeout' argument is provided, until the timeout
+>    expires.
 
-Now the initial needs in the forwarded message are not entirely clear
-to me but I wanted to rule out the apparent mismatch between the expressed
-needs for uniqueness and the proposed solutions solely based on randomness.
+Does this mean that code that uses the memory mapping to detect
+changes is still supposed to confirm generation IDs? What about
+multithreaded processes, especially ones that use libraries - if a
+library opens a single file descriptor that is used from multiple
+threads, is the library required to synchronize all its threads before
+confirming the change? That seems like it could get messy. And it
+again means that this interface can't easily be used from inside
+seccomp sandboxes.
 
-Cheers,
-Willy
+[...]
+> diff --git a/Documentation/virt/vmgenid.rst b/Documentation/virt/vmgenid.rst
+[...]
+> +``close()``:
+> +  Removes the file handle as a Vm-Gen-Id watcher.
+
+(Linux doesn't have "file handles". Technically close() just closes a
+file descriptor, and if that file descriptor points to the same file
+description object (aka struct file) as another file descriptor,
+nothing happens.)
+
+> +Example application workflows
+> +-----------------------------
+> +
+> +1) Watchdog thread simplified example::
+> +
+> +       void watchdog_thread_handler(int *thread_active)
+> +       {
+> +               uuid_t uuid;
+> +               int fd = open("/dev/vmgenid", O_RDWR, S_IRUSR | S_IWUSR);
+
+In case we actually keep this API, you should use O_CLOEXEC here.
+
+> +
+> +               do {
+> +                       // read new UUID - blocks until VM generation changes
+> +                       read(fd, &uuid, sizeof(uuid));
+> +
+> +                       // because of VM generation change, we need to rebuild world
+> +                       reseed_app_env();
+> +
+> +                       // confirm we're done handling UUID update
+> +                       write(fd, &uuid, sizeof(uuid));
+> +               } while (atomic_read(thread_active));
+> +
+> +               close(fd);
+> +       }
+[...]
+> +3) Mapped memory polling simplified example::
+> +
+> +       /*
+> +        * app/library function that provides cached secrets
+> +        */
+> +       char * safe_cached_secret(app_data_t *app)
+> +       {
+> +               char *secret;
+> +               volatile uuid_t *const uuid_ptr = get_vmgenid_mapping(app);
+> +       again:
+> +               secret = __cached_secret(app);
+> +
+> +               if (unlikely(*uuid_ptr != app->cached_uuid)) {
+> +                       app->cached_uuid = *uuid_ptr;
+> +
+> +                       // rebuild world then confirm the uuid update (thru write)
+> +                       rebuild_caches(app);
+> +                       ack_vmgenid_update(app);
+> +
+> +                       goto again;
+> +               }
+> +
+> +               return secret;
+> +       }
+> +
+> +4) Orchestrator simplified example::
+> +
+> +       /*
+> +        * orchestrator - manages multiple apps and libraries used by a service
+> +        * and tries to make sure all sensitive components gracefully handle
+> +        * VM generation changes.
+> +        * Following function is called on detection of a VM generation change.
+> +        */
+> +       int handle_vmgen_update(int vmgenfd, uuid_t new_uuid)
+> +       {
+> +               // pause until all components have handled event
+> +               pause_service();
+> +
+> +               // confirm *this* watcher as up-to-date
+> +               write(fd, &new_uuid, sizeof(uuid_t));
+> +
+> +               // wait for all *others*
+> +               ioctl(fd, VMGENID_WAIT_WATCHERS, NULL);
+> +
+> +               // all apps on the system have rebuilt worlds
+> +               resume_service();
+> +       }
+
+Can you describe what value such an "Orchestrator" would add? Because
+it seems to me like this will just unnecessarily complicate things.
+
+[...]
+> diff --git a/drivers/virt/Makefile b/drivers/virt/Makefile
+> index fd33124..a1f8dcc 100644
+> --- a/drivers/virt/Makefile
+> +++ b/drivers/virt/Makefile
+> @@ -4,4 +4,5 @@
+>  #
+>
+>  obj-$(CONFIG_FSL_HV_MANAGER)   += fsl_hypervisor.o
+> +obj-$(CONFIG_VMGENID)          += vmgenid.o
+>  obj-y                          += vboxguest/
+> diff --git a/drivers/virt/vmgenid.c b/drivers/virt/vmgenid.c
+[...]
+> +static int vmgenid_close(struct inode *inode, struct file *file)
+> +{
+> +       struct file_data *file_data = (struct file_data *) file->private_data;
+> +       struct dev_data *priv = file_data->dev_data;
+> +
+> +       if (!vmgenid_uuid_matches(priv, &file_data->acked_uuid))
+> +               vmgenid_put_outdated_watchers(priv);
+> +       atomic_dec(&priv->watchers);
+
+What happens if the UUID changes between the previous two calls? Then
+the outdated watcher count will go out of sync, right?
+
+(But as I've said, I think that maybe the outdated watcher counting is
+a bad idea in general, and we should just get rid of it.)
+
+> +       kfree(file->private_data);
+> +
+> +       return 0;
+> +}
+> +
+> +static ssize_t
+> +vmgenid_read(struct file *file, char __user *ubuf, size_t nbytes, loff_t *ppos)
+> +{
+> +       struct file_data *file_data =
+> +               (struct file_data *) file->private_data;
+> +       struct dev_data *priv = file_data->dev_data;
+> +       ssize_t ret;
+> +
+> +       if (nbytes == 0)
+> +               return 0;
+> +       /* disallow partial UUID reads */
+> +       if (nbytes < sizeof(uuid_t))
+> +               return -EINVAL;
+> +       nbytes = sizeof(uuid_t);
+> +
+> +       if (vmgenid_uuid_matches(priv, &file_data->acked_uuid)) {
+> +               if (file->f_flags & O_NONBLOCK)
+> +                       return -EAGAIN;
+> +               ret = wait_event_interruptible(
+> +                       priv->read_wait,
+> +                       !vmgenid_uuid_matches(priv, &file_data->acked_uuid)
+> +               );
+> +               if (ret)
+> +                       return ret;
+> +       }
+> +
+> +       ret = copy_to_user(ubuf, &priv->uuid, nbytes);
+
+If the VM is again forked in the middle of this, will userspace see a
+torn UUID (consisting of half old and half new value)?
+
+> +       if (ret)
+> +               return -EFAULT;
+> +
+> +       return nbytes;
+> +}
+[...]
+> +static vm_fault_t vmgenid_vm_fault(struct vm_fault *vmf)
+> +{
+> +       struct page *page;
+> +       struct file_data *file_data =
+> +                       (struct file_data *) vmf->vma->vm_private_data;
+> +       struct dev_data *priv = file_data->dev_data;
+> +
+> +       if (priv->map_buf) {
+> +               page = virt_to_page(priv->map_buf);
+> +               get_page(page);
+> +               vmf->page = page;
+> +       }
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct vm_operations_struct vmgenid_vm_ops = {
+> +       .fault = vmgenid_vm_fault,
+> +};
+> +
+> +static int vmgenid_mmap(struct file *file, struct vm_area_struct *vma)
+> +{
+> +       if (vma->vm_pgoff != 0 || vma_pages(vma) > 1)
+> +               return -EINVAL;
+> +
+> +       if ((vma->vm_flags & VM_WRITE) != 0)
+> +               return -EPERM;
+
+This doesn't work, you also need to clear VM_MAYWRITE. See e.g. binder_mmap().
+
+Also, I think mmap handlers for special mappings like this usually
+directly install the page inside the mmap handler, using something
+like vm_insert_page(). And then they don't need a ->fault handler.
+
+(But if we decide to put this into the vDSO, the whole memory mapping
+thing would become unnecessary anyway.)
+
+> +       vma->vm_ops = &vmgenid_vm_ops;
+> +       vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
+> +       vma->vm_private_data = file->private_data;
+> +
+> +       return 0;
+> +}
+> +
+> +static const struct file_operations fops = {
+> +       .owner          = THIS_MODULE,
+> +       .mmap           = vmgenid_mmap,
+> +       .open           = vmgenid_open,
+> +       .release        = vmgenid_close,
+> +       .read           = vmgenid_read,
+> +       .write          = vmgenid_write,
+> +       .poll           = vmgenid_poll,
+> +       .compat_ioctl   = vmgenid_ioctl,
+
+You don't need to define a compat_ioctl if the normal ioctl handler is the same.
+
+> +       .unlocked_ioctl = vmgenid_ioctl,
+> +};
+[...]
+> +static void vmgenid_acpi_notify(struct acpi_device *device, u32 event)
+> +{
+> +       uuid_t old_uuid;
+> +       struct dev_data *priv;
+> +
+> +       pr_debug("VMGENID notified, event %u", event);
+> +
+> +       if (!device || !acpi_driver_data(device)) {
+> +               pr_err("VMGENID notify with NULL private data");
+> +               return;
+> +       }
+> +       priv = acpi_driver_data(device);
+> +
+> +       /* update VM Generation UUID */
+> +       old_uuid = priv->uuid;
+> +       memcpy_fromio(&priv->uuid, priv->uuid_iomap, sizeof(uuid_t));
+> +
+> +       if (!vmgenid_uuid_matches(priv, &old_uuid)) {
+> +               /* HW uuid updated */
+> +               memcpy((void *) priv->map_buf, &priv->uuid, sizeof(uuid_t));
+> +               atomic_set(&priv->outdated_watchers,
+> +                        atomic_read(&priv->watchers));
+> +               wake_up_interruptible(&priv->read_wait);
+> +       }
+> +}
+
+If we know that the VM just got forked, we should probably also make
+sure that we reseed the kernel's internal RNG before we tell userspace
+to fetch new RNG seeds from the kernel? Otherwise this is kinda
+pointless. Or are we already taking care of that elsewhere? If not, we
+should probably mix the UUID into the entropy pool (at least
+`write_pool(&input_pool, uuid, sizeof(uuid_t))`, although technically
+it would be better to do it in a way that ensures that userspace can't
+write the same value into the RNG - maybe we should introduce type
+prefixes into write_pool()?) and then trigger a reseed of everything
+else (`crng_reseed(&primary_crng, &input_pool)`).
