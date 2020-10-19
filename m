@@ -1,127 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 19 Oct 2020 13:15:02 -0400 (EDT)
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Message-ID: <476895871.28084.1603127702969.JavaMail.zimbra@efficios.com>
-In-Reply-To: <CALCETrViTg_BWvRa+nfDWq=_B_ithzL-anVJNpsgHaXe9VgCNQ@mail.gmail.com>
-References: <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com> <CAG48ez0EanBvDyfthe+hAP0OC8iGLNSq2e5wJVz-=ENNGF97_w@mail.gmail.com> <CALCETrViTg_BWvRa+nfDWq=_B_ithzL-anVJNpsgHaXe9VgCNQ@mail.gmail.com>
+Date: Mon, 19 Oct 2020 11:00:45 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH] drivers/virt: vmgenid: add vm generation id driver
+Message-ID: <20201019105118-mutt-send-email-mst@kernel.org>
+References: <CAG48ez1ZtvjOs2CEq8-EMosPCd_o7WQ3Mz_+1mDe7OrH2arxFA@mail.gmail.com>
+ <20201017053712.GA14105@1wt.eu>
+ <CAG48ez1h0ynXfGap_KiHiPVTfcB8NBQJ-2dnj08ZNfuhrW0jWA@mail.gmail.com>
+ <20201017064442.GA14117@1wt.eu>
+ <CAG48ez3pXLC+eqAXDCniM0a+5yP2XJODDkZqiUTZUOttCE_LbA@mail.gmail.com>
+ <CAHmME9qHGSF8w3DoyCP+ud_N0MAJ5_8zsUWx=rxQB1mFnGcu9w@mail.gmail.com>
+ <20201018114625-mutt-send-email-mst@kernel.org>
+ <CALCETrXBJZnKXo2QLKVWSgAhSMdwEVHeut6pRw4P92CR_5A-fQ@mail.gmail.com>
+ <20201018115524-mutt-send-email-mst@kernel.org>
+ <CALCETrUeRAhmEFR6EFXz8HzDYd2doZ2TMyZmu1pU_-yAPA6KDw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALCETrUeRAhmEFR6EFXz8HzDYd2doZ2TMyZmu1pU_-yAPA6KDw@mail.gmail.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: Andy Lutomirski <luto@kernel.org>
-Cc: Jann Horn <jannh@google.com>, "Catangiu, Adrian Costin" <acatan@amazon.com>, Jason Donenfeld <Jason@zx2c4.com>, Theodore Tso <tytso@mit.edu>, Willy Tarreau <w@1wt.eu>, Eric Biggers <ebiggers@kernel.org>, "open list, DOCUMENTATION" <linux-doc@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, "Graf (AWS), Alexander" <graf@amazon.de>, "MacCarthaigh, Colm" <colmmacc@amazon.com>, "Woodhouse, David" <dwmw@amazon.co.uk>, bonzini@gnu.org, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, oridgar@gmail.com, ghammer@redhat.com, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, mst@redhat.com, qemu-devel@nongnu.org, KVM list <kvm@vger.kernel.org>, Michal Hocko <mhocko@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Pavel Machek <pavel@ucw.cz>, linux-api <linux-api@vger.kernel.org>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>, Jann Horn <jannh@google.com>, Willy Tarreau <w@1wt.eu>, Colm MacCarthaigh <colmmacc@amazon.com>, "Catangiu, Adrian Costin" <acatan@amazon.com>, "Theodore Y. Ts'o" <tytso@mit.edu>, Eric Biggers <ebiggers@kernel.org>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, kernel list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, "Graf (AWS), Alexander" <graf@amazon.de>, "Woodhouse, David" <dwmw@amazon.co.uk>, bonzini@gnu.org, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, oridgar@gmail.com, ghammer@redhat.com, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Qemu Developers <qemu-devel@nongnu.org>, KVM list <kvm@vger.kernel.org>, Michal Hocko <mhocko@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Pavel Machek <pavel@ucw.cz>, Linux API <linux-api@vger.kernel.org>
 
------ On Oct 17, 2020, at 2:10 PM, Andy Lutomirski luto@kernel.org wrote:
-
-> On Fri, Oct 16, 2020 at 6:40 PM Jann Horn <jannh@google.com> wrote:
->>
->> [adding some more people who are interested in RNG stuff: Andy, Jason,
->> Theodore, Willy Tarreau, Eric Biggers. also linux-api@, because this
->> concerns some pretty fundamental API stuff related to RNG usage]
->>
->> On Fri, Oct 16, 2020 at 4:33 PM Catangiu, Adrian Costin
->> <acatan@amazon.com> wrote:
->> > - Background
->> >
->> > The VM Generation ID is a feature defined by Microsoft (paper:
->> > http://go.microsoft.com/fwlink/?LinkId=260709) and supported by
->> > multiple hypervisor vendors.
->> >
->> > The feature is required in virtualized environments by apps that work
->> > with local copies/caches of world-unique data such as random values,
->> > uuids, monotonically increasing counters, etc.
->> > Such apps can be negatively affected by VM snapshotting when the VM
->> > is either cloned or returned to an earlier point in time.
->> >
->> > The VM Generation ID is a simple concept meant to alleviate the issue
->> > by providing a unique ID that changes each time the VM is restored
->> > from a snapshot. The hw provided UUID value can be used to
->> > differentiate between VMs or different generations of the same VM.
->> >
->> > - Problem
->> >
->> > The VM Generation ID is exposed through an ACPI device by multiple
->> > hypervisor vendors but neither the vendors or upstream Linux have no
->> > default driver for it leaving users to fend for themselves.
->> >
->> > Furthermore, simply finding out about a VM generation change is only
->> > the starting point of a process to renew internal states of possibly
->> > multiple applications across the system. This process could benefit
->> > from a driver that provides an interface through which orchestration
->> > can be easily done.
->> >
->> > - Solution
->> >
->> > This patch is a driver which exposes the Virtual Machine Generation ID
->> > via a char-dev FS interface that provides ID update sync and async
->> > notification, retrieval and confirmation mechanisms:
->> >
->> > When the device is 'open()'ed a copy of the current vm UUID is
->> > associated with the file handle. 'read()' operations block until the
->> > associated UUID is no longer up to date - until HW vm gen id changes -
->> > at which point the new UUID is provided/returned. Nonblocking 'read()'
->> > uses EWOULDBLOCK to signal that there is no _new_ UUID available.
->> >
->> > 'poll()' is implemented to allow polling for UUID updates. Such
->> > updates result in 'EPOLLIN' events.
->> >
->> > Subsequent read()s following a UUID update no longer block, but return
->> > the updated UUID. The application needs to acknowledge the UUID update
->> > by confirming it through a 'write()'.
->> > Only on writing back to the driver the right/latest UUID, will the
->> > driver mark this "watcher" as up to date and remove EPOLLIN status.
->> >
->> > 'mmap()' support allows mapping a single read-only shared page which
->> > will always contain the latest UUID value at offset 0.
->>
->> It would be nicer if that page just contained an incrementing counter,
->> instead of a UUID. It's not like the application cares *what* the UUID
->> changed to, just that it *did* change and all RNGs state now needs to
->> be reseeded from the kernel, right? And an application can't reliably
->> read the entire UUID from the memory mapping anyway, because the VM
->> might be forked in the middle.
->>
->> So I think your kernel driver should detect UUID changes and then turn
->> those into a monotonically incrementing counter. (Probably 64 bits
->> wide?) (That's probably also a little bit faster than comparing an
->> entire UUID.)
->>
->> An option might be to put that counter into the vDSO, instead of a
->> separate VMA; but I don't know how the other folks feel about that.
->> Andy, do you have opinions on this? That way, normal userspace code
->> that uses this infrastructure wouldn't have to mess around with a
->> special device at all. And it'd be usable in seccomp sandboxes and so
->> on without needing special plumbing. And libraries wouldn't have to
->> call open() and mess with file descriptor numbers.
+On Sun, Oct 18, 2020 at 09:14:00AM -0700, Andy Lutomirski wrote:
+> On Sun, Oct 18, 2020 at 8:59 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Sun, Oct 18, 2020 at 08:54:36AM -0700, Andy Lutomirski wrote:
+> > > On Sun, Oct 18, 2020 at 8:52 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Sat, Oct 17, 2020 at 03:24:08PM +0200, Jason A. Donenfeld wrote:
+> > > > > 4c. The guest kernel maintains an array of physical addresses that are
+> > > > > MADV_WIPEONFORK. The hypervisor knows about this array and its
+> > > > > location through whatever protocol, and before resuming a
+> > > > > moved/snapshotted/duplicated VM, it takes the responsibility for
+> > > > > memzeroing this memory. The huge pro here would be that this
+> > > > > eliminates all races, and reduces complexity quite a bit, because the
+> > > > > hypervisor can perfectly synchronize its bringup (and SMP bringup)
+> > > > > with this, and it can even optimize things like on-disk memory
+> > > > > snapshots to simply not write out those pages to disk.
+> > > > >
+> > > > > A 4c-like approach seems like it'd be a lot of bang for the buck -- we
+> > > > > reuse the existing mechanism (MADV_WIPEONFORK), so there's no new
+> > > > > userspace API to deal with, and it'd be race free, and eliminate a lot
+> > > > > of kernel complexity.
+> > > >
+> > > > Clearly this has a chance to break applications, right?
+> > > > If there's an app that uses this as a non-system-calls way
+> > > > to find out whether there was a fork, it will break
+> > > > when wipe triggers without a fork ...
+> > > > For example, imagine:
+> > > >
+> > > > MADV_WIPEONFORK
+> > > > copy secret data to MADV_DONTFORK
+> > > > fork
+> > > >
+> > > >
+> > > > used to work, with this change it gets 0s instead of the secret data.
+> > > >
+> > > >
+> > > > I am also not sure it's wise to expose each guest process
+> > > > to the hypervisor like this. E.g. each process needs a
+> > > > guest physical address of its own then. This is a finite resource.
+> > > >
+> > > >
+> > > > The mmap interface proposed here is somewhat baroque, but it is
+> > > > certainly simple to implement ...
+> > >
+> > > Wipe of fork/vmgenid/whatever could end up being much more problematic
+> > > than it naively appears -- it could be wiped in the middle of a read.
+> > > Either the API needs to handle this cleanly, or we need something more
+> > > aggressive like signal-on-fork.
+> > >
+> > > --Andy
+> >
+> >
+> > Right, it's not on fork, it's actually when process is snapshotted.
+> >
+> > If we assume it's CRIU we care about, then I
+> > wonder what's wrong with something like
+> > MADV_CHANGEONPTRACE_SEIZE
+> > and basically say it's X bytes which change the value...
 > 
-> The vDSO might be annoyingly slow for this.  Something like the rseq
-> page might make sense.  It could be a generic indication of "system
-> went through some form of suspend".
+> I feel like we may be approaching this from the wrong end.  Rather
+> than saying "what data structure can the kernel expose that might
+> plausibly be useful", how about we try identifying some specific
+> userspace needs and see what a good solution could look like.  I can
+> identify two major cryptographic use cases:
 
-This might indeed fit nicely as an extension of my KTLS prototype (extensible rseq):
+Well, I'm aware of a non-cryptographic use-case:
+https://bugzilla.redhat.com/show_bug.cgi?id=1118834
 
-https://lore.kernel.org/lkml/20200925181518.4141-1-mathieu.desnoyers@efficios.com/
+this seems to just ask for the guest to have a way to detect that
+a VM cloning triggered.
 
-There are a few ways we could wire things up. One might be to add the
-UUID field into the extended KTLS structure (so it's always updated after it
-changes on next return to user-space). For this I assume that the Linux scheduler
-within the guest VM always preempts all threads before a VM is suspended (is that
-indeed true ?).
-
-This leads to one important question though: how is the UUID check vs commit operation
-made atomic with respect to suspend ? Unless we use rseq critical sections in assembly,
-where the kernel will abort the rseq critical section on preemption, I don't see how we
-can ensure that the UUID value does not change right after it has been checked, before
-the "commit" side-effect. And what is the expected "commit" side-effect ? Is it a store
-to a variable in user-space memory, or is it issuing a system call which sends a packet over
-the network ?
-
-Thanks,
-
-Mathieu
 
 -- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+MST
