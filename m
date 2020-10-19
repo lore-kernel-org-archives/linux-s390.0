@@ -1,95 +1,64 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28978 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2506063AbgJVRMa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Oct 2020 13:12:30 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v11 02/14] 390/vfio-ap: use new AP bus interface to search for queue devices
-Date: Thu, 22 Oct 2020 13:11:57 -0400
-Message-Id: <20201022171209.19494-3-akrowiak@linux.ibm.com>
-In-Reply-To: <20201022171209.19494-1-akrowiak@linux.ibm.com>
-References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH] arch: um: convert tasklets to use new tasklet_setup() API
+References: <20200817091617.28119-1-allen.cryptic@gmail.com>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Message-ID: <3359192b-8f02-feb4-a9a7-a13b5d876998@cambridgegreys.com>
+Date: Mon, 19 Oct 2020 08:39:05 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200817091617.28119-1-allen.cryptic@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Allen Pais <allen.cryptic@gmail.com>, jdike@addtoit.com, richard@nod.at, 3chas3@gmail.com, axboe@kernel.dk, stefanr@s5r6.in-berlin.de, airlied@linux.ie, daniel@ffwll.ch, sre@kernel.org, James.Bottomley@HansenPartnership.com, kys@microsoft.com, deller@gmx.de, dmitry.torokhov@gmail.com, jassisinghbrar@gmail.com, shawnguo@kernel.org, s.hauer@pengutronix.de, maximlevitsky@gmail.com, oakad@yahoo.com, ulf.hansson@linaro.org, mporter@kernel.crashing.org, alex.bou9@gmail.com, broonie@kernel.org, martyn@welchs.me.uk, manohar.vanga@gmail.com, mitch@sfgoth.com, davem@davemloft.net, kuba@kernel.org
+Cc: devel@driverdev.osuosl.org, linux-s390@vger.kernel.org, linux-hyperv@vger.kernel.org, Romain Perier <romain.perier@gmail.com>, keescook@chromium.org, linux-parisc@vger.kernel.org, linux-ntb@googlegroups.com, netdev@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-atm-general@lists.sourceforge.net, linux-um@lists.infradead.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-spi@vger.kernel.org, linux-block@vger.kernel.org, Allen Pais <allen.lkml@gmail.com>, linux-input@vger.kernel.org, linux-mmc@vger.kernel.org, openipmi-developer@lists.sourceforge.net, linux1394-devel@lists.sourceforge.net, linux-arm-kernel@lists.infradead.org
 
-This patch refactors the vfio_ap device driver to use the AP bus's
-ap_get_qdev() function to retrieve the vfio_ap_queue struct containing
-information about a queue that is bound to the vfio_ap device driver.
-The bus's ap_get_qdev() function retrieves the queue device from a
-hashtable keyed by APQN. This is much more efficient than looping over
-the list of devices attached to the AP bus by several orders of
-magnitude.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 35 +++++++++++++------------------
- 1 file changed, 14 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index c471832f0a30..049b97d7444c 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -26,43 +26,36 @@
- 
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
- 
--static int match_apqn(struct device *dev, const void *data)
--{
--	struct vfio_ap_queue *q = dev_get_drvdata(dev);
--
--	return (q->apqn == *(int *)(data)) ? 1 : 0;
--}
--
- /**
-- * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
-+ * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
-  * @matrix_mdev: the associated mediated matrix
-  * @apqn: The queue APQN
-  *
-- * Retrieve a queue with a specific APQN from the list of the
-- * devices of the vfio_ap_drv.
-- * Verify that the APID and the APQI are set in the matrix.
-+ * Retrieve a queue with a specific APQN from the AP queue devices attached to
-+ * the AP bus.
-  *
-- * Returns the pointer to the associated vfio_ap_queue
-+ * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
-  */
- static struct vfio_ap_queue *vfio_ap_get_queue(
- 					struct ap_matrix_mdev *matrix_mdev,
--					int apqn)
-+					unsigned long apqn)
- {
--	struct vfio_ap_queue *q;
--	struct device *dev;
-+	struct ap_queue *queue;
-+	struct vfio_ap_queue *q = NULL;
- 
- 	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
- 		return NULL;
- 	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
- 		return NULL;
- 
--	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				 &apqn, match_apqn);
--	if (!dev)
-+	queue = ap_get_qdev(apqn);
-+	if (!queue)
- 		return NULL;
--	q = dev_get_drvdata(dev);
--	q->matrix_mdev = matrix_mdev;
--	put_device(dev);
-+
-+	if (queue->ap_dev.device.driver == &matrix_dev->vfio_ap_drv->driver)
-+		q = dev_get_drvdata(&queue->ap_dev.device);
-+
-+	put_device(&queue->ap_dev.device);
- 
- 	return q;
- }
+On 17/08/2020 10:15, Allen Pais wrote:
+> From: Allen Pais <allen.lkml@gmail.com>
+> 
+> In preparation for unconditionally passing the
+> struct tasklet_struct pointer to all tasklet
+> callbacks, switch to using the new tasklet_setup()
+> and from_tasklet() to pass the tasklet pointer explicitly.
+> 
+> Signed-off-by: Romain Perier <romain.perier@gmail.com>
+> Signed-off-by: Allen Pais <allen.lkml@gmail.com>
+> ---
+>   arch/um/drivers/vector_kern.c | 6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/um/drivers/vector_kern.c b/arch/um/drivers/vector_kern.c
+> index 8735c468230a..06980870ae23 100644
+> --- a/arch/um/drivers/vector_kern.c
+> +++ b/arch/um/drivers/vector_kern.c
+> @@ -1196,9 +1196,9 @@ static int vector_net_close(struct net_device *dev)
+>   
+>   /* TX tasklet */
+>   
+> -static void vector_tx_poll(unsigned long data)
+> +static void vector_tx_poll(struct tasklet_struct *t)
+>   {
+> -	struct vector_private *vp = (struct vector_private *)data;
+> +	struct vector_private *vp = from_tasklet(vp, t, tx_poll);
+>   
+>   	vp->estats.tx_kicks++;
+>   	vector_send(vp->tx_queue);
+> @@ -1629,7 +1629,7 @@ static void vector_eth_configure(
+>   	});
+>   
+>   	dev->features = dev->hw_features = (NETIF_F_SG | NETIF_F_FRAGLIST);
+> -	tasklet_init(&vp->tx_poll, vector_tx_poll, (unsigned long)vp);
+> +	tasklet_setup(&vp->tx_poll, vector_tx_poll);
+>   	INIT_WORK(&vp->reset_tx, vector_reset_tx);
+>   
+>   	timer_setup(&vp->tl, vector_timer_expire, 0);
+> 
+
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+
 -- 
-2.21.1
+Anton R. Ivanov
+Cambridgegreys Limited. Registered in England. Company Number 10273661
+https://www.cambridgegreys.com/
