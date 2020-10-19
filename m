@@ -1,28 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62252 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2391646AbgJTFgD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 20 Oct 2020 01:36:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387747AbgJSWDX (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 19 Oct 2020 18:03:23 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22348C0613CE
+        for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2020 15:03:23 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id q136so1761662oic.8
+        for <linux-s390@vger.kernel.org>; Mon, 19 Oct 2020 15:03:23 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
 Subject: Re: s390 - buildroot + qemu
 References: <CAKwvOd=0nOhK4KoLb1_Jni5u3ENDx10QeAxfYcSbtFQs77FxAw@mail.gmail.com>
  <30b7bea6-1135-609b-f1e5-a4f243e1dcc1@roeck-us.net>
  <CAKwvOdmnr0qqJTg+cU5KJ2-nJQgTY-8AraZQHXZUw0KNZKE4fg@mail.gmail.com>
  <c461496a-1ea4-4d44-4913-950cabcd3e31@de.ibm.com>
  <CAKwvOdnn=i_Jg4B5o4sh2mRNGY9aH1piXoBYwEB4E3PpWZM5bw@mail.gmail.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <001202c8-7fe1-1861-bf5f-ed475bde23db@de.ibm.com>
-Date: Tue, 20 Oct 2020 07:34:04 +0200
+From: Guenter Roeck <linux@roeck-us.net>
+Message-ID: <f21e2581-a115-d958-5d83-fe094d92c292@roeck-us.net>
+Date: Mon, 19 Oct 2020 15:03:18 -0700
+MIME-Version: 1.0
 In-Reply-To: <CAKwvOdnn=i_Jg4B5o4sh2mRNGY9aH1piXoBYwEB4E3PpWZM5bw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, egorenar@linux.ibm.com, Vasily Gorbik <gor@linux.ibm.com>, Joel Stanley <joel@jms.id.au>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, clang-built-linux <clang-built-linux@googlegroups.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>
+To: Nick Desaulniers <ndesaulniers@google.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: egorenar@linux.ibm.com, Vasily Gorbik <gor@linux.ibm.com>, Joel Stanley <joel@jms.id.au>, Ulrich Weigand <Ulrich.Weigand@de.ibm.com>, clang-built-linux <clang-built-linux@googlegroups.com>, Nathan Chancellor <natechancellor@gmail.com>, linux-s390 <linux-s390@vger.kernel.org>
 
-On 19.10.20 23:36, Nick Desaulniers wrote:
+On 10/19/20 2:36 PM, Nick Desaulniers wrote:
 > On Mon, Oct 19, 2020 at 3:55 AM Christian Borntraeger
 > <borntraeger@de.ibm.com> wrote:
 >>
@@ -57,25 +62,25 @@ On 19.10.20 23:36, Nick Desaulniers wrote:
 >> [...]
 > 
 > Is PSW the program counter?
-
-program counter (the 64bit on the right hand side), flags, interrupt controls
-and many other things
-
-
 > /me skims https://www.kernel.org/doc/Documentation/s390/Debugging390.txt *woah*
 > Is there something more specific I should be running than:
 > $ s390x-linux-gnu-objdump -Dr vmlinux | grep 179fe
 > because I get lots of hits for that, but not 0x179fe.
-
-You probably have to look at the instruction before as many faults on s390 are suppressing
-(the instruction effects are suppressed, but the PSW moves forward). 
-
-With ilc=2 (instruction length code)
 > 
 > In fact, the first symbol starts at 0x100000. Unless this is a failure
 > in the image decompressor?
+> 
+>>
+>>> Hopefully qemu supports something newer than Z900?  Or can we change
+>>> arch/s390/Kconfig:255 to use a different arch? Is arch9 == z900???:
+>>
+>> Newer QEMUs do support up to z13, so I think this is not an issue as long
+>> as you have an uptodate qemu.
+> 
+> $ qemu-system-s390x --version
+> QEMU emulator version 5.1.0 (Debian 1:5.1+dfsg-4)
+> 
+I found that you have to run "qemu-system-s390x -cpu qemu ...". I was able
+to boot s390 defconfig without changes after doing that.
 
-I guess so.
-Maybe llvm does something that qemu does not handle in the compressor
-can you try with
-objdump -d arch/s390/boot/compressed/vmlinux
+Guenter
