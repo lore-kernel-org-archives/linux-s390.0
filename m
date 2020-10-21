@@ -1,233 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:60502 "EHLO mail.kernel.org"
+Received: from nat-hk.nvidia.com ([203.18.50.4]:32157 "EHLO nat-hk.nvidia.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731732AbgJ1WRo (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:17:44 -0400
-Message-ID: <20201028115613.140212174@goodmis.org>
-Date: Wed, 28 Oct 2020 07:52:49 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5/9] kprobes/ftrace: Add recursion protection to the ftrace callback
-References: <20201028115244.995788961@goodmis.org>
+        id S2442652AbgJUMva (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 21 Oct 2020 08:51:30 -0400
+Date: Wed, 21 Oct 2020 09:51:24 -0300
+From: Jason Gunthorpe <jgg@nvidia.com>
+Subject: Re: [PATCH v3 00/16] follow_pfn and other iomap races
+Message-ID: <20201021125124.GA827089@nvidia.com>
+References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Guo Ren <guoren@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+On Wed, Oct 21, 2020 at 10:56:39AM +0200, Daniel Vetter wrote:
+> Hi all,
+> 
+> Round 3 of my patch series to clamp down a bunch of races and gaps
+> around follow_pfn and other access to iomem mmaps. Previous version:
+> 
+> v1: https://lore.kernel.org/dri-devel/20201007164426.1812530-1-daniel.vetter@ffwll.ch/
+> v2: https://lore.kernel.org/dri-devel/20201009075934.3509076-1-daniel.vetter@ffwll.ch
+> 
+> And the discussion that sparked this journey:
+> 
+> https://lore.kernel.org/dri-devel/20201007164426.1812530-1-daniel.vetter@ffwll.ch/
+> 
+> I was waiting for the testing result for habanalabs from Oded, but I guess
+> Oded was waiting for my v3.
+> 
+> Changes in v3:
+> - Bunch of polish all over, no functional changes aside from one barrier
+>   in the resource code, for consistency.
+> - A few more r-b tags.
+> 
+> Changes in v2:
+> - tons of small polish&fixes all over, thanks to all the reviewers who
+>   spotted issues
+> - I managed to test at least the generic_access_phys and pci mmap revoke
+>   stuff with a few gdb sessions using our i915 debug tools (hence now also
+>   the drm/i915 patch to properly request all the pci bar regions)
+> - reworked approach for the pci mmap revoke: Infrastructure moved into
+>   kernel/resource.c, address_space mapping is now set up at open time for
+>   everyone (which required some sysfs changes). Does indeed look a lot
+>   cleaner and a lot less invasive than I feared at first.
+> 
+> The big thing I can't test are all the frame_vector changes in habanalbas,
+> exynos and media. Gerald has given the s390 patch a spin already.
+> 
+> Review, testing, feedback all very much welcome.
+> 
+> Daniel Vetter (16):
+>   drm/exynos: Stop using frame_vector helpers
+>   drm/exynos: Use FOLL_LONGTERM for g2d cmdlists
+>   misc/habana: Stop using frame_vector helpers
+>   misc/habana: Use FOLL_LONGTERM for userptr
+>   mm/frame-vector: Use FOLL_LONGTERM
+>   media: videobuf2: Move frame_vector into media subsystem
+>   mm: Close race in generic_access_phys
+>   s390/pci: Remove races against pte updates
+>   mm: Add unsafe_follow_pfn
+>   media/videbuf1|2: Mark follow_pfn usage as unsafe
+>   vfio/type1: Mark follow_pfn as unsafe
+>   PCI: Obey iomem restrictions for procfs mmap
+>   /dev/mem: Only set filp->f_mapping
+>   resource: Move devmem revoke code to resource framework
+>   sysfs: Support zapping of binary attr mmaps
+>   PCI: Revoke mappings like devmem
 
-If a ftrace callback does not supply its own recursion protection and
-does not set the RECURSION_SAFE flag in its ftrace_ops, then ftrace will
-make a helper trampoline to do so before calling the callback instead of
-just calling the callback directly.
+The whole thing looks like a great improvement!
 
-The default for ftrace_ops is going to assume recursion protection unless
-otherwise specified.
-
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Guo Ren <guoren@kernel.org>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux-csky@vger.kernel.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
----
- arch/csky/kernel/probes/ftrace.c     | 12 ++++++++++--
- arch/parisc/kernel/ftrace.c          | 13 +++++++++++--
- arch/powerpc/kernel/kprobes-ftrace.c | 11 ++++++++++-
- arch/s390/kernel/ftrace.c            | 13 +++++++++++--
- arch/x86/kernel/kprobes/ftrace.c     | 12 ++++++++++--
- 5 files changed, 52 insertions(+), 9 deletions(-)
-
-diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
-index 5264763d05be..5eb2604fdf71 100644
---- a/arch/csky/kernel/probes/ftrace.c
-+++ b/arch/csky/kernel/probes/ftrace.c
-@@ -13,16 +13,21 @@ int arch_check_ftrace_location(struct kprobe *p)
- void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 			   struct ftrace_ops *ops, struct pt_regs *regs)
- {
-+	int bit;
- 	bool lr_saver = false;
- 	struct kprobe *p;
- 	struct kprobe_ctlblk *kcb;
- 
--	/* Preempt is disabled by ftrace */
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
-+		return;
-+
-+	preempt_disable_notrace();
- 	p = get_kprobe((kprobe_opcode_t *)ip);
- 	if (!p) {
- 		p = get_kprobe((kprobe_opcode_t *)(ip - MCOUNT_INSN_SIZE));
- 		if (unlikely(!p) || kprobe_disabled(p))
--			return;
-+			goto out;
- 		lr_saver = true;
- 	}
- 
-@@ -56,6 +61,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		 */
- 		__this_cpu_write(current_kprobe, NULL);
- 	}
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
-diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
-index 4bab21c71055..5f7742b225a5 100644
---- a/arch/parisc/kernel/ftrace.c
-+++ b/arch/parisc/kernel/ftrace.c
-@@ -208,13 +208,19 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- {
- 	struct kprobe_ctlblk *kcb;
- 	struct kprobe *p = get_kprobe((kprobe_opcode_t *)ip);
-+	int bit;
- 
--	if (unlikely(!p) || kprobe_disabled(p))
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
- 		return;
- 
-+	preempt_disable_notrace();
-+	if (unlikely(!p) || kprobe_disabled(p))
-+		goto out;
-+
- 	if (kprobe_running()) {
- 		kprobes_inc_nmissed_count(p);
--		return;
-+		goto out;
- 	}
- 
- 	__this_cpu_write(current_kprobe, p);
-@@ -235,6 +241,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		}
- 	}
- 	__this_cpu_write(current_kprobe, NULL);
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
-diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
-index 972cb28174b2..5df8d50c65ae 100644
---- a/arch/powerpc/kernel/kprobes-ftrace.c
-+++ b/arch/powerpc/kernel/kprobes-ftrace.c
-@@ -18,10 +18,16 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
- {
- 	struct kprobe *p;
- 	struct kprobe_ctlblk *kcb;
-+	int bit;
- 
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
-+		return;
-+
-+	preempt_disable_notrace();
- 	p = get_kprobe((kprobe_opcode_t *)nip);
- 	if (unlikely(!p) || kprobe_disabled(p))
--		return;
-+		goto out;
- 
- 	kcb = get_kprobe_ctlblk();
- 	if (kprobe_running()) {
-@@ -52,6 +58,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
- 		 */
- 		__this_cpu_write(current_kprobe, NULL);
- 	}
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
-diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-index b388e87a08bf..88466d7fb6b2 100644
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -202,13 +202,19 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- {
- 	struct kprobe_ctlblk *kcb;
- 	struct kprobe *p = get_kprobe((kprobe_opcode_t *)ip);
-+	int bit;
- 
--	if (unlikely(!p) || kprobe_disabled(p))
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
- 		return;
- 
-+	preempt_disable_notrace();
-+	if (unlikely(!p) || kprobe_disabled(p))
-+		goto out;
-+
- 	if (kprobe_running()) {
- 		kprobes_inc_nmissed_count(p);
--		return;
-+		goto out;
- 	}
- 
- 	__this_cpu_write(current_kprobe, p);
-@@ -228,6 +234,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		}
- 	}
- 	__this_cpu_write(current_kprobe, NULL);
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
-diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
-index 681a4b36e9bb..a40a6cdfcca3 100644
---- a/arch/x86/kernel/kprobes/ftrace.c
-+++ b/arch/x86/kernel/kprobes/ftrace.c
-@@ -18,11 +18,16 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- {
- 	struct kprobe *p;
- 	struct kprobe_ctlblk *kcb;
-+	int bit;
- 
--	/* Preempt is disabled by ftrace */
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
-+		return;
-+
-+	preempt_disable_notrace();
- 	p = get_kprobe((kprobe_opcode_t *)ip);
- 	if (unlikely(!p) || kprobe_disabled(p))
--		return;
-+		goto out;
- 
- 	kcb = get_kprobe_ctlblk();
- 	if (kprobe_running()) {
-@@ -52,6 +57,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		 */
- 		__this_cpu_write(current_kprobe, NULL);
- 	}
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
--- 
-2.28.0
+Thanks,
+Jason
