@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v3 05/16] mm/frame-vector: Use FOLL_LONGTERM
-Date: Wed, 21 Oct 2020 10:56:44 +0200
-Message-Id: <20201021085655.1192025-6-daniel.vetter@ffwll.ch>
+Subject: [PATCH v3 10/16] media/videbuf1|2: Mark follow_pfn usage as unsafe
+Date: Wed, 21 Oct 2020 10:56:49 +0200
+Message-Id: <20201021085655.1192025-11-daniel.vetter@ffwll.ch>
 In-Reply-To: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
 References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
@@ -10,26 +10,25 @@ Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Daniel Vetter <daniel.vetter@ffwll.com>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Laurent Dufour <ldufour@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Daniel Jordan <daniel.m.jordan@oracle.com>, Michel Lespinasse <walken@google.com>, Daniel Vetter <daniel.vetter@ffwll.com>
 
-This is used by media/videbuf2 for persistent dma mappings, not just
-for a single dma operation and then freed again, so needs
-FOLL_LONGTERM.
+The media model assumes that buffers are all preallocated, so that
+when a media pipeline is running we never miss a deadline because the
+buffers aren't allocated or available.
 
-Unfortunately current pup_locked doesn't support FOLL_LONGTERM due to
-locking issues. Rework the code to pull the pup path out from the
-mmap_sem critical section as suggested by Jason.
+This means we cannot fix the v4l follow_pfn usage through
+mmu_notifier, without breaking how this all works. The only real fix
+is to deprecate userptr support for VM_IO | VM_PFNMAP mappings and
+tell everyone to cut over to dma-buf memory sharing for zerocopy.
 
-By relying entirely on the vma checks in pin_user_pages and follow_pfn
-(for vm_flags and vma_is_fsdax) we can also streamline the code a lot.
+userptr for normal memory will keep working as-is, this only affects
+the zerocopy userptr usage enabled in 50ac952d2263 ("[media]
+videobuf2-dma-sg: Support io userptr operations on io memory").
 
 Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
 Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Pawel Osciak <pawel@osciak.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Tomasz Figa <tfiga@chromium.org>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: John Hubbard <jhubbard@nvidia.com>
 Cc: Jérôme Glisse <jglisse@redhat.com>
@@ -39,98 +38,52 @@ Cc: linux-mm@kvack.org
 Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-samsung-soc@vger.kernel.org
 Cc: linux-media@vger.kernel.org
+Cc: Pawel Osciak <pawel@osciak.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Tomasz Figa <tfiga@chromium.org>
+Cc: Laurent Dufour <ldufour@linux.ibm.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc: Michel Lespinasse <walken@google.com>
 Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.com>
 --
-v2: Streamline the code and further simplify the loop checks (Jason)
+v3:
+- Reference the commit that enabled the zerocopy userptr use case to
+  make it abundandtly clear that this patch only affects that, and not
+  normal memory userptr. The old commit message already explained that
+  normal memory userptr is unaffected, but I guess that was not clear
+  enough.
 ---
- mm/frame_vector.c | 50 ++++++++++++++---------------------------------
- 1 file changed, 15 insertions(+), 35 deletions(-)
+ drivers/media/common/videobuf2/frame_vector.c | 2 +-
+ drivers/media/v4l2-core/videobuf-dma-contig.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/frame_vector.c b/mm/frame_vector.c
-index 10f82d5643b6..d44779e56313 100644
---- a/mm/frame_vector.c
-+++ b/mm/frame_vector.c
-@@ -38,7 +38,6 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
- 	struct vm_area_struct *vma;
- 	int ret = 0;
- 	int err;
--	int locked;
- 
- 	if (nr_frames == 0)
- 		return 0;
-@@ -48,40 +47,25 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
- 
- 	start = untagged_addr(start);
- 
--	mmap_read_lock(mm);
--	locked = 1;
--	vma = find_vma_intersection(mm, start, start + 1);
--	if (!vma) {
--		ret = -EFAULT;
--		goto out;
--	}
--
--	/*
--	 * While get_vaddr_frames() could be used for transient (kernel
--	 * controlled lifetime) pinning of memory pages all current
--	 * users establish long term (userspace controlled lifetime)
--	 * page pinning. Treat get_vaddr_frames() like
--	 * get_user_pages_longterm() and disallow it for filesystem-dax
--	 * mappings.
--	 */
--	if (vma_is_fsdax(vma)) {
--		ret = -EOPNOTSUPP;
--		goto out;
--	}
--
--	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP))) {
-+	ret = pin_user_pages_fast(start, nr_frames,
-+				  FOLL_FORCE | FOLL_WRITE | FOLL_LONGTERM,
-+				  (struct page **)(vec->ptrs));
-+	if (ret > 0) {
- 		vec->got_ref = true;
- 		vec->is_pfns = false;
--		ret = pin_user_pages_locked(start, nr_frames,
--			gup_flags, (struct page **)(vec->ptrs), &locked);
--		goto out;
-+		goto out_unlocked;
- 	}
- 
-+	mmap_read_lock(mm);
- 	vec->got_ref = false;
- 	vec->is_pfns = true;
- 	do {
- 		unsigned long *nums = frame_vector_pfns(vec);
- 
-+		vma = find_vma_intersection(mm, start, start + 1);
-+		if (!vma)
-+			break;
-+
- 		while (ret < nr_frames && start + PAGE_SIZE <= vma->vm_end) {
- 			err = follow_pfn(vma, start, &nums[ret]);
- 			if (err) {
-@@ -92,17 +76,13 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
- 			start += PAGE_SIZE;
- 			ret++;
- 		}
--		/*
--		 * We stop if we have enough pages or if VMA doesn't completely
--		 * cover the tail page.
--		 */
--		if (ret >= nr_frames || start < vma->vm_end)
-+		/* Bail out if VMA doesn't completely cover the tail page. */
-+		if (start < vma->vm_end)
+diff --git a/drivers/media/common/videobuf2/frame_vector.c b/drivers/media/common/videobuf2/frame_vector.c
+index 6590987c14bd..e630494da65c 100644
+--- a/drivers/media/common/videobuf2/frame_vector.c
++++ b/drivers/media/common/videobuf2/frame_vector.c
+@@ -69,7 +69,7 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
  			break;
--		vma = find_vma_intersection(mm, start, start + 1);
--	} while (vma && vma->vm_flags & (VM_IO | VM_PFNMAP));
-+	} while (ret < nr_frames);
- out:
--	if (locked)
--		mmap_read_unlock(mm);
-+	mmap_read_unlock(mm);
-+out_unlocked:
- 	if (!ret)
- 		ret = -EFAULT;
- 	if (ret > 0)
+ 
+ 		while (ret < nr_frames && start + PAGE_SIZE <= vma->vm_end) {
+-			err = follow_pfn(vma, start, &nums[ret]);
++			err = unsafe_follow_pfn(vma, start, &nums[ret]);
+ 			if (err) {
+ 				if (ret == 0)
+ 					ret = err;
+diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/media/v4l2-core/videobuf-dma-contig.c
+index 52312ce2ba05..821c4a76ab96 100644
+--- a/drivers/media/v4l2-core/videobuf-dma-contig.c
++++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
+@@ -183,7 +183,7 @@ static int videobuf_dma_contig_user_get(struct videobuf_dma_contig_memory *mem,
+ 	user_address = untagged_baddr;
+ 
+ 	while (pages_done < (mem->size >> PAGE_SHIFT)) {
+-		ret = follow_pfn(vma, user_address, &this_pfn);
++		ret = unsafe_follow_pfn(vma, user_address, &this_pfn);
+ 		if (ret)
+ 			break;
+ 
 -- 
 2.28.0
