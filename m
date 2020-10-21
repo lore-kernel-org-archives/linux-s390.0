@@ -1,209 +1,136 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2294 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2902367AbgJVRMj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Oct 2020 13:12:39 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v11 05/14] s390/vfio-ap: implement in-use callback for vfio_ap driver
-Date: Thu, 22 Oct 2020 13:12:00 -0400
-Message-Id: <20201022171209.19494-6-akrowiak@linux.ibm.com>
-In-Reply-To: <20201022171209.19494-1-akrowiak@linux.ibm.com>
-References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v3 05/16] mm/frame-vector: Use FOLL_LONGTERM
+Date: Wed, 21 Oct 2020 10:56:44 +0200
+Message-Id: <20201021085655.1192025-6-daniel.vetter@ffwll.ch>
+In-Reply-To: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
+References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Daniel Vetter <daniel.vetter@ffwll.com>
 
-Let's implement the callback to indicate when an APQN
-is in use by the vfio_ap device driver. The callback is
-invoked whenever a change to the apmask or aqmask would
-result in one or more queue devices being removed from the driver. The
-vfio_ap device driver will indicate a resource is in use
-if the APQN of any of the queue devices to be removed are assigned to
-any of the matrix mdevs under the driver's control.
+This is used by media/videbuf2 for persistent dma mappings, not just
+for a single dma operation and then freed again, so needs
+FOLL_LONGTERM.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Unfortunately current pup_locked doesn't support FOLL_LONGTERM due to
+locking issues. Rework the code to pull the pup path out from the
+mmap_sem critical section as suggested by Jason.
+
+By relying entirely on the vma checks in pin_user_pages and follow_pfn
+(for vm_flags and vma_is_fsdax) we can also streamline the code a lot.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Pawel Osciak <pawel@osciak.com>
+Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Tomasz Figa <tfiga@chromium.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: linux-mm@kvack.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.com>
+--
+v2: Streamline the code and further simplify the loop checks (Jason)
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |  1 +
- drivers/s390/crypto/vfio_ap_ops.c     | 78 +++++++++++++++++++--------
- drivers/s390/crypto/vfio_ap_private.h |  2 +
- 3 files changed, 60 insertions(+), 21 deletions(-)
+ mm/frame_vector.c | 50 ++++++++++++++---------------------------------
+ 1 file changed, 15 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 73bd073fd5d3..8934471b7944 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -147,6 +147,7 @@ static int __init vfio_ap_init(void)
- 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
- 	vfio_ap_drv.probe = vfio_ap_mdev_probe_queue;
- 	vfio_ap_drv.remove = vfio_ap_mdev_remove_queue;
-+	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
+diff --git a/mm/frame_vector.c b/mm/frame_vector.c
+index 10f82d5643b6..d44779e56313 100644
+--- a/mm/frame_vector.c
++++ b/mm/frame_vector.c
+@@ -38,7 +38,6 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
+ 	struct vm_area_struct *vma;
+ 	int ret = 0;
+ 	int err;
+-	int locked;
  
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 1357f8f8b7e4..9e9fad560859 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -522,18 +522,40 @@ vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
- 	return 0;
- }
+ 	if (nr_frames == 0)
+ 		return 0;
+@@ -48,40 +47,25 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
  
-+#define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
-+			 "already assigned to %s"
-+
-+static void vfio_ap_mdev_log_sharing_err(const char *mdev_name,
-+					 unsigned long *apm,
-+					 unsigned long *aqm)
-+{
-+	unsigned long apid, apqi;
-+
-+	for_each_set_bit_inv(apid, apm, AP_DEVICES)
-+		for_each_set_bit_inv(apqi, aqm, AP_DOMAINS)
-+			pr_err(MDEV_SHARING_ERR, apid, apqi, mdev_name);
-+}
-+
- /**
-  * vfio_ap_mdev_verify_no_sharing
-  *
-- * Verifies that the APQNs derived from the cross product of the AP adapter IDs
-- * and AP queue indexes comprising the AP matrix are not configured for another
-+ * Verifies that each APQN derived from the cross product of the AP adapter IDs
-+ * and AP queue indexes comprising an AP matrix is not assigned to a
-  * mediated device. AP queue sharing is not allowed.
-  *
-- * @matrix_mdev: the mediated matrix device
-+ * @matrix_mdev: the mediated matrix device to which the APQNs being verified
-+ *		 are assigned. If the value is not NULL, then verification will
-+ *		 proceed for all other matrix mediated devices; otherwise, all
-+ *		 matrix mediated devices will be verified.
-+ * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
-+ * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
-  *
-- * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
-+ * Returns 0 if no APQNs are not shared, otherwise; returns -EADDRINUSE if one
-+ * or more APQNs are shared.
-  */
--static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
-+static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
-+					  unsigned long *mdev_apm,
-+					  unsigned long *mdev_aqm)
- {
- 	struct ap_matrix_mdev *lstdev;
- 	DECLARE_BITMAP(apm, AP_DEVICES);
-@@ -550,14 +572,15 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
- 		 * We work on full longs, as we can only exclude the leftover
- 		 * bits in non-inverse order. The leftover is all zeros.
- 		 */
--		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
--				lstdev->matrix.apm, AP_DEVICES))
-+		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
- 			continue;
+ 	start = untagged_addr(start);
  
--		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
--				lstdev->matrix.aqm, AP_DOMAINS))
-+		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
- 			continue;
- 
-+		vfio_ap_mdev_log_sharing_err(dev_name(mdev_dev(lstdev->mdev)),
-+					     apm, aqm);
-+
- 		return -EADDRINUSE;
+-	mmap_read_lock(mm);
+-	locked = 1;
+-	vma = find_vma_intersection(mm, start, start + 1);
+-	if (!vma) {
+-		ret = -EFAULT;
+-		goto out;
+-	}
+-
+-	/*
+-	 * While get_vaddr_frames() could be used for transient (kernel
+-	 * controlled lifetime) pinning of memory pages all current
+-	 * users establish long term (userspace controlled lifetime)
+-	 * page pinning. Treat get_vaddr_frames() like
+-	 * get_user_pages_longterm() and disallow it for filesystem-dax
+-	 * mappings.
+-	 */
+-	if (vma_is_fsdax(vma)) {
+-		ret = -EOPNOTSUPP;
+-		goto out;
+-	}
+-
+-	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP))) {
++	ret = pin_user_pages_fast(start, nr_frames,
++				  FOLL_FORCE | FOLL_WRITE | FOLL_LONGTERM,
++				  (struct page **)(vec->ptrs));
++	if (ret > 0) {
+ 		vec->got_ref = true;
+ 		vec->is_pfns = false;
+-		ret = pin_user_pages_locked(start, nr_frames,
+-			gup_flags, (struct page **)(vec->ptrs), &locked);
+-		goto out;
++		goto out_unlocked;
  	}
  
-@@ -683,6 +706,7 @@ static ssize_t assign_adapter_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apid;
-+	DECLARE_BITMAP(apm, AP_DEVICES);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
++	mmap_read_lock(mm);
+ 	vec->got_ref = false;
+ 	vec->is_pfns = true;
+ 	do {
+ 		unsigned long *nums = frame_vector_pfns(vec);
  
-@@ -708,18 +732,18 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (ret)
- 		goto done;
- 
--	set_bit_inv(apid, matrix_mdev->matrix.apm);
-+	memset(apm, 0, sizeof(apm));
-+	set_bit_inv(apid, apm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
-+	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
-+					     matrix_mdev->matrix.aqm);
- 	if (ret)
--		goto share_err;
-+		goto done;
- 
-+	set_bit_inv(apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
- 	ret = count;
--	goto done;
- 
--share_err:
--	clear_bit_inv(apid, matrix_mdev->matrix.apm);
- done:
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -831,6 +855,7 @@ static ssize_t assign_domain_store(struct device *dev,
- {
- 	int ret;
- 	unsigned long apqi;
-+	DECLARE_BITMAP(aqm, AP_DOMAINS);
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
-@@ -851,18 +876,18 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (ret)
- 		goto done;
- 
--	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
-+	memset(aqm, 0, sizeof(aqm));
-+	set_bit_inv(apqi, aqm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev);
-+	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
-+					     matrix_mdev->matrix.apm, aqm);
- 	if (ret)
--		goto share_err;
-+		goto done;
- 
-+	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
- 	ret = count;
--	goto done;
- 
--share_err:
--	clear_bit_inv(apqi, matrix_mdev->matrix.aqm);
- done:
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -1442,3 +1467,14 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
++		vma = find_vma_intersection(mm, start, start + 1);
++		if (!vma)
++			break;
 +
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
-+{
-+	bool in_use;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	in_use = !!vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return in_use;
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 4e5cc72fc0db..c1d8b5507610 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -105,4 +105,6 @@ struct vfio_ap_queue {
- int vfio_ap_mdev_probe_queue(struct ap_device *queue);
- void vfio_ap_mdev_remove_queue(struct ap_device *queue);
- 
-+bool vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
+ 		while (ret < nr_frames && start + PAGE_SIZE <= vma->vm_end) {
+ 			err = follow_pfn(vma, start, &nums[ret]);
+ 			if (err) {
+@@ -92,17 +76,13 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
+ 			start += PAGE_SIZE;
+ 			ret++;
+ 		}
+-		/*
+-		 * We stop if we have enough pages or if VMA doesn't completely
+-		 * cover the tail page.
+-		 */
+-		if (ret >= nr_frames || start < vma->vm_end)
++		/* Bail out if VMA doesn't completely cover the tail page. */
++		if (start < vma->vm_end)
+ 			break;
+-		vma = find_vma_intersection(mm, start, start + 1);
+-	} while (vma && vma->vm_flags & (VM_IO | VM_PFNMAP));
++	} while (ret < nr_frames);
+ out:
+-	if (locked)
+-		mmap_read_unlock(mm);
++	mmap_read_unlock(mm);
++out_unlocked:
+ 	if (!ret)
+ 		ret = -EFAULT;
+ 	if (ret > 0)
 -- 
-2.21.1
+2.28.0
