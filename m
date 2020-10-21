@@ -1,290 +1,382 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17932 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2902409AbgJVRMo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Oct 2020 13:12:44 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v11 09/14] s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
-Date: Thu, 22 Oct 2020 13:12:04 -0400
-Message-Id: <20201022171209.19494-10-akrowiak@linux.ibm.com>
-In-Reply-To: <20201022171209.19494-1-akrowiak@linux.ibm.com>
-References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54764 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2441997AbgJUT0D (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Oct 2020 15:26:03 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89C8FC0613CF
+        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 12:26:03 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id j7so3264286oie.12
+        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 12:26:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
+ <20201021085655.1192025-15-daniel.vetter@ffwll.ch> <CAPcyv4gj=+SkL9LKPf1XixQkNmygp3X45n-QpxajZyM8TqKv1w@mail.gmail.com>
+In-Reply-To: <CAPcyv4gj=+SkL9LKPf1XixQkNmygp3X45n-QpxajZyM8TqKv1w@mail.gmail.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Date: Wed, 21 Oct 2020 21:25:52 +0200
+Message-ID: <CAKMK7uH5EJtAGcTsi=a84dkQdFNcy9DxHTUS6Dd=bCxwi4XQXw@mail.gmail.com>
+Subject: Re: [PATCH v3 14/16] resource: Move devmem revoke code to resource framework
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, "Linux-media@vger.kernel.org" <linux-media@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Arnd Bergmann <arnd@arndb.de>, David Hildenbrand <david@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Daniel Vetter <daniel.vetter@ffwll.com>
 
-The current implementation does not allow assignment of an AP adapter or
-domain to an mdev device if each APQN resulting from the assignment
-does not reference an AP queue device that is bound to the vfio_ap device
-driver. This patch allows assignment of AP resources to the matrix mdev as
-long as the APQNs resulting from the assignment:
-   1. Are not reserved by the AP BUS for use by the zcrypt device drivers.
-   2. Are not assigned to another matrix mdev.
+On Wed, Oct 21, 2020 at 8:59 PM Dan Williams <dan.j.williams@intel.com> wro=
+te:
+>
+> On Wed, Oct 21, 2020 at 1:57 AM Daniel Vetter <daniel.vetter@ffwll.ch> wr=
+ote:
+> >
+> > We want all iomem mmaps to consistently revoke ptes when the kernel
+> > takes over and CONFIG_IO_STRICT_DEVMEM is enabled. This includes the
+> > pci bar mmaps available through procfs and sysfs, which currently do
+> > not revoke mappings.
+> >
+> > To prepare for this, move the code from the /dev/kmem driver to
+> > kernel/resource.c.
+> >
+> > Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> > Cc: Kees Cook <keescook@chromium.org>
+> > Cc: Dan Williams <dan.j.williams@intel.com>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: John Hubbard <jhubbard@nvidia.com>
+> > Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+> > Cc: Jan Kara <jack@suse.cz>
+> > Cc: Dan Williams <dan.j.williams@intel.com>
+> > Cc: linux-mm@kvack.org
+> > Cc: linux-arm-kernel@lists.infradead.org
+> > Cc: linux-samsung-soc@vger.kernel.org
+> > Cc: linux-media@vger.kernel.org
+> > Cc: Arnd Bergmann <arnd@arndb.de>
+> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> > Cc: David Hildenbrand <david@redhat.com>
+> > Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+> > Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.com>
+> > --
+> > v3:
+> > - add barrier for consistency and document why we don't have to check
+> >   for NULL (Jason)
+> > ---
+> >  drivers/char/mem.c     |  85 +---------------------------------
+> >  include/linux/ioport.h |   6 +--
+> >  kernel/resource.c      | 101 ++++++++++++++++++++++++++++++++++++++++-
+> >  3 files changed, 102 insertions(+), 90 deletions(-)
+> >
+> > diff --git a/drivers/char/mem.c b/drivers/char/mem.c
+> > index 5502f56f3655..53338aad8d28 100644
+> > --- a/drivers/char/mem.c
+> > +++ b/drivers/char/mem.c
+> > @@ -31,9 +31,6 @@
+> >  #include <linux/uio.h>
+> >  #include <linux/uaccess.h>
+> >  #include <linux/security.h>
+> > -#include <linux/pseudo_fs.h>
+> > -#include <uapi/linux/magic.h>
+> > -#include <linux/mount.h>
+> >
+> >  #ifdef CONFIG_IA64
+> >  # include <linux/efi.h>
+> > @@ -809,42 +806,6 @@ static loff_t memory_lseek(struct file *file, loff=
+_t offset, int orig)
+> >         return ret;
+> >  }
+> >
+> > -static struct inode *devmem_inode;
+> > -
+> > -#ifdef CONFIG_IO_STRICT_DEVMEM
+> > -void revoke_devmem(struct resource *res)
+> > -{
+> > -       /* pairs with smp_store_release() in devmem_init_inode() */
+> > -       struct inode *inode =3D smp_load_acquire(&devmem_inode);
+> > -
+> > -       /*
+> > -        * Check that the initialization has completed. Losing the race
+> > -        * is ok because it means drivers are claiming resources before
+> > -        * the fs_initcall level of init and prevent /dev/mem from
+> > -        * establishing mappings.
+> > -        */
+> > -       if (!inode)
+> > -               return;
+> > -
+> > -       /*
+> > -        * The expectation is that the driver has successfully marked
+> > -        * the resource busy by this point, so devmem_is_allowed()
+> > -        * should start returning false, however for performance this
+> > -        * does not iterate the entire resource range.
+> > -        */
+> > -       if (devmem_is_allowed(PHYS_PFN(res->start)) &&
+> > -           devmem_is_allowed(PHYS_PFN(res->end))) {
+> > -               /*
+> > -                * *cringe* iomem=3Drelaxed says "go ahead, what's the
+> > -                * worst that can happen?"
+> > -                */
+> > -               return;
+> > -       }
+> > -
+> > -       unmap_mapping_range(inode->i_mapping, res->start, resource_size=
+(res), 1);
+> > -}
+> > -#endif
+> > -
+> >  static int open_port(struct inode *inode, struct file *filp)
+> >  {
+> >         int rc;
+> > @@ -864,7 +825,7 @@ static int open_port(struct inode *inode, struct fi=
+le *filp)
+> >          * revocations when drivers want to take over a /dev/mem mapped
+> >          * range.
+> >          */
+> > -       filp->f_mapping =3D inode->i_mapping;
+> > +       filp->f_mapping =3D iomem_get_mapping();
+> >
+> >         return 0;
+> >  }
+> > @@ -995,48 +956,6 @@ static char *mem_devnode(struct device *dev, umode=
+_t *mode)
+> >
+> >  static struct class *mem_class;
+> >
+> > -static int devmem_fs_init_fs_context(struct fs_context *fc)
+> > -{
+> > -       return init_pseudo(fc, DEVMEM_MAGIC) ? 0 : -ENOMEM;
+> > -}
+> > -
+> > -static struct file_system_type devmem_fs_type =3D {
+> > -       .name           =3D "devmem",
+> > -       .owner          =3D THIS_MODULE,
+> > -       .init_fs_context =3D devmem_fs_init_fs_context,
+> > -       .kill_sb        =3D kill_anon_super,
+> > -};
+> > -
+> > -static int devmem_init_inode(void)
+> > -{
+> > -       static struct vfsmount *devmem_vfs_mount;
+> > -       static int devmem_fs_cnt;
+> > -       struct inode *inode;
+> > -       int rc;
+> > -
+> > -       rc =3D simple_pin_fs(&devmem_fs_type, &devmem_vfs_mount, &devme=
+m_fs_cnt);
+> > -       if (rc < 0) {
+> > -               pr_err("Cannot mount /dev/mem pseudo filesystem: %d\n",=
+ rc);
+> > -               return rc;
+> > -       }
+> > -
+> > -       inode =3D alloc_anon_inode(devmem_vfs_mount->mnt_sb);
+> > -       if (IS_ERR(inode)) {
+> > -               rc =3D PTR_ERR(inode);
+> > -               pr_err("Cannot allocate inode for /dev/mem: %d\n", rc);
+> > -               simple_release_fs(&devmem_vfs_mount, &devmem_fs_cnt);
+> > -               return rc;
+> > -       }
+> > -
+> > -       /*
+> > -        * Publish /dev/mem initialized.
+> > -        * Pairs with smp_load_acquire() in revoke_devmem().
+> > -        */
+> > -       smp_store_release(&devmem_inode, inode);
+> > -
+> > -       return 0;
+> > -}
+> > -
+> >  static int __init chr_dev_init(void)
+> >  {
+> >         int minor;
+> > @@ -1058,8 +977,6 @@ static int __init chr_dev_init(void)
+> >                  */
+> >                 if ((minor =3D=3D DEVPORT_MINOR) && !arch_has_dev_port(=
+))
+> >                         continue;
+> > -               if ((minor =3D=3D DEVMEM_MINOR) && devmem_init_inode() =
+!=3D 0)
+> > -                       continue;
+> >
+> >                 device_create(mem_class, NULL, MKDEV(MEM_MAJOR, minor),
+> >                               NULL, devlist[minor].name);
+> > diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+> > index 6c2b06fe8beb..8ffb61b36606 100644
+> > --- a/include/linux/ioport.h
+> > +++ b/include/linux/ioport.h
+> > @@ -302,11 +302,7 @@ struct resource *devm_request_free_mem_region(stru=
+ct device *dev,
+> >  struct resource *request_free_mem_region(struct resource *base,
+> >                 unsigned long size, const char *name);
+> >
+> > -#ifdef CONFIG_IO_STRICT_DEVMEM
+> > -void revoke_devmem(struct resource *res);
+> > -#else
+> > -static inline void revoke_devmem(struct resource *res) { };
+> > -#endif
+> > +extern struct address_space *iomem_get_mapping(void);
+> >
+> >  #endif /* __ASSEMBLY__ */
+> >  #endif /* _LINUX_IOPORT_H */
+> > diff --git a/kernel/resource.c b/kernel/resource.c
+> > index 841737bbda9e..a92fed5b9997 100644
+> > --- a/kernel/resource.c
+> > +++ b/kernel/resource.c
+> > @@ -18,12 +18,15 @@
+> >  #include <linux/spinlock.h>
+> >  #include <linux/fs.h>
+> >  #include <linux/proc_fs.h>
+> > +#include <linux/pseudo_fs.h>
+> >  #include <linux/sched.h>
+> >  #include <linux/seq_file.h>
+> >  #include <linux/device.h>
+> >  #include <linux/pfn.h>
+> >  #include <linux/mm.h>
+> > +#include <linux/mount.h>
+> >  #include <linux/resource_ext.h>
+> > +#include <uapi/linux/magic.h>
+> >  #include <asm/io.h>
+> >
+> >
+> > @@ -1112,6 +1115,58 @@ resource_size_t resource_alignment(struct resour=
+ce *res)
+> >
+> >  static DECLARE_WAIT_QUEUE_HEAD(muxed_resource_wait);
+> >
+> > +static struct inode *iomem_inode;
+> > +
+> > +#ifdef CONFIG_IO_STRICT_DEVMEM
+> > +static void revoke_iomem(struct resource *res)
+> > +{
+> > +       /* pairs with smp_store_release() in iomem_init_inode() */
+> > +       struct inode *inode =3D smp_load_acquire(&iomem_inode);
+> > +
+> > +       /*
+> > +        * Check that the initialization has completed. Losing the race
+> > +        * is ok because it means drivers are claiming resources before
+> > +        * the fs_initcall level of init and prevent /dev/mem from
+>
+> How about:
+>
+> s,/dev/mem,iomem_get_mapping() users,
+>
+> ...now that this facility is generalized?
+>
+> > +        * establishing mappings.
+> > +        */
+> > +       if (!inode)
+> > +               return;
+> > +
+> > +       /*
+> > +        * The expectation is that the driver has successfully marked
+> > +        * the resource busy by this point, so devmem_is_allowed()
+> > +        * should start returning false, however for performance this
+> > +        * does not iterate the entire resource range.
+> > +        */
+> > +       if (devmem_is_allowed(PHYS_PFN(res->start)) &&
+> > +           devmem_is_allowed(PHYS_PFN(res->end))) {
+> > +               /*
+> > +                * *cringe* iomem=3Drelaxed says "go ahead, what's the
+> > +                * worst that can happen?"
+> > +                */
+> > +               return;
+> > +       }
+> > +
+> > +       unmap_mapping_range(inode->i_mapping, res->start, resource_size=
+(res), 1);
+> > +}
+> > +struct address_space *iomem_get_mapping(void)
+> > +{
+> > +       /*
+> > +        * This function is only called from file open paths, hence gua=
+ranteed
+> > +        * that fs_initcalls have completed and no need to check for NU=
+LL. But
+> > +        * since revoke_iomem can be called before the initcall we stil=
+l need
+> > +        * the barrier to appease checkers.
+> > +        */
+> > +       return smp_load_acquire(&iomem_inode)->i_mapping;
+> > +}
+> > +#else
+> > +static void revoke_iomem(struct resource *res) {}
+> > +struct address_space *iomem_get_mapping(void)
+> > +{
+> > +       return NULL;
+> > +}
+> > +#endif
+> > +
+> >  /**
+> >   * __request_region - create a new busy resource region
+> >   * @parent: parent resource descriptor
+> > @@ -1179,7 +1234,7 @@ struct resource * __request_region(struct resourc=
+e *parent,
+> >         write_unlock(&resource_lock);
+> >
+> >         if (res && orig_parent =3D=3D &iomem_resource)
+> > -               revoke_devmem(res);
+> > +               revoke_iomem(res);
+> >
+> >         return res;
+> >  }
+> > @@ -1713,4 +1768,48 @@ static int __init strict_iomem(char *str)
+> >         return 1;
+> >  }
+> >
+> > +static int iomem_fs_init_fs_context(struct fs_context *fc)
+> > +{
+> > +       return init_pseudo(fc, DEVMEM_MAGIC) ? 0 : -ENOMEM;
+> > +}
+> > +
+> > +static struct file_system_type iomem_fs_type =3D {
+> > +       .name           =3D "iomem",
+> > +       .owner          =3D THIS_MODULE,
+> > +       .init_fs_context =3D iomem_fs_init_fs_context,
+> > +       .kill_sb        =3D kill_anon_super,
+> > +};
+> > +
+> > +static int __init iomem_init_inode(void)
+> > +{
+> > +       static struct vfsmount *iomem_vfs_mount;
+> > +       static int iomem_fs_cnt;
+> > +       struct inode *inode;
+> > +       int rc;
+> > +
+> > +       rc =3D simple_pin_fs(&iomem_fs_type, &iomem_vfs_mount, &iomem_f=
+s_cnt);
+> > +       if (rc < 0) {
+> > +               pr_err("Cannot mount iomem pseudo filesystem: %d\n", rc=
+);
+> > +               return rc;
+> > +       }
+> > +
+> > +       inode =3D alloc_anon_inode(iomem_vfs_mount->mnt_sb);
+> > +       if (IS_ERR(inode)) {
+> > +               rc =3D PTR_ERR(inode);
+> > +               pr_err("Cannot allocate inode for iomem: %d\n", rc);
+> > +               simple_release_fs(&iomem_vfs_mount, &iomem_fs_cnt);
+> > +               return rc;
+> > +       }
+> > +
+> > +       /*
+> > +        * Publish /dev/mem initialized.
+>
+> Similar potential fixup:
+>
+> "Publish iomem revocation inode initialized"
 
-The rationale behind this is twofold:
-   1. The AP architecture does not preclude assignment of APQNs to an AP
-      configuration that are not available to the system.
-   2. APQNs that do not reference a queue device bound to the vfio_ap
-      device driver will not be assigned to the guest's CRYCB, so the
-      guest will not get access to queues not bound to the vfio_ap driver.
+Yeah makes sense I fix up the comments, I'll do that in v4. Need to
+fix up my mangeld sob line anyway :-)
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 197 ++++--------------------------
- 1 file changed, 26 insertions(+), 171 deletions(-)
+Thanks for taking a careful look at this!
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 5b34bc8fca31..c2c6dcec8829 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -427,122 +427,6 @@ static struct attribute_group *vfio_ap_mdev_type_groups[] = {
- 	NULL,
- };
- 
--struct vfio_ap_queue_reserved {
--	unsigned long *apid;
--	unsigned long *apqi;
--	bool reserved;
--};
--
--/**
-- * vfio_ap_has_queue
-- *
-- * @dev: an AP queue device
-- * @data: a struct vfio_ap_queue_reserved reference
-- *
-- * Flags whether the AP queue device (@dev) has a queue ID containing the APQN,
-- * apid or apqi specified in @data:
-- *
-- * - If @data contains both an apid and apqi value, then @data will be flagged
-- *   as reserved if the APID and APQI fields for the AP queue device matches
-- *
-- * - If @data contains only an apid value, @data will be flagged as
-- *   reserved if the APID field in the AP queue device matches
-- *
-- * - If @data contains only an apqi value, @data will be flagged as
-- *   reserved if the APQI field in the AP queue device matches
-- *
-- * Returns 0 to indicate the input to function succeeded. Returns -EINVAL if
-- * @data does not contain either an apid or apqi.
-- */
--static int vfio_ap_has_queue(struct device *dev, void *data)
--{
--	struct vfio_ap_queue_reserved *qres = data;
--	struct ap_queue *ap_queue = to_ap_queue(dev);
--	ap_qid_t qid;
--	unsigned long id;
--
--	if (qres->apid && qres->apqi) {
--		qid = AP_MKQID(*qres->apid, *qres->apqi);
--		if (qid == ap_queue->qid)
--			qres->reserved = true;
--	} else if (qres->apid && !qres->apqi) {
--		id = AP_QID_CARD(ap_queue->qid);
--		if (id == *qres->apid)
--			qres->reserved = true;
--	} else if (!qres->apid && qres->apqi) {
--		id = AP_QID_QUEUE(ap_queue->qid);
--		if (id == *qres->apqi)
--			qres->reserved = true;
--	} else {
--		return -EINVAL;
--	}
--
--	return 0;
--}
--
--/**
-- * vfio_ap_verify_queue_reserved
-- *
-- * @matrix_dev: a mediated matrix device
-- * @apid: an AP adapter ID
-- * @apqi: an AP queue index
-- *
-- * Verifies that the AP queue with @apid/@apqi is reserved by the VFIO AP device
-- * driver according to the following rules:
-- *
-- * - If both @apid and @apqi are not NULL, then there must be an AP queue
-- *   device bound to the vfio_ap driver with the APQN identified by @apid and
-- *   @apqi
-- *
-- * - If only @apid is not NULL, then there must be an AP queue device bound
-- *   to the vfio_ap driver with an APQN containing @apid
-- *
-- * - If only @apqi is not NULL, then there must be an AP queue device bound
-- *   to the vfio_ap driver with an APQN containing @apqi
-- *
-- * Returns 0 if the AP queue is reserved; otherwise, returns -EADDRNOTAVAIL.
-- */
--static int vfio_ap_verify_queue_reserved(unsigned long *apid,
--					 unsigned long *apqi)
--{
--	int ret;
--	struct vfio_ap_queue_reserved qres;
--
--	qres.apid = apid;
--	qres.apqi = apqi;
--	qres.reserved = false;
--
--	ret = driver_for_each_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				     &qres, vfio_ap_has_queue);
--	if (ret)
--		return ret;
--
--	if (qres.reserved)
--		return 0;
--
--	return -EADDRNOTAVAIL;
--}
--
--static int
--vfio_ap_mdev_verify_queues_reserved_for_apid(struct ap_matrix_mdev *matrix_mdev,
--					     unsigned long apid)
--{
--	int ret;
--	unsigned long apqi;
--	unsigned long nbits = matrix_mdev->matrix.aqm_max + 1;
--
--	if (find_first_bit_inv(matrix_mdev->matrix.aqm, nbits) >= nbits)
--		return vfio_ap_verify_queue_reserved(&apid, NULL);
--
--	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, nbits) {
--		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
--		if (ret)
--			return ret;
--	}
--
--	return 0;
--}
--
- #define MDEV_SHARING_ERR "Userspace may not re-assign queue %02lx.%04lx " \
- 			 "already assigned to %s"
- 
-@@ -608,6 +492,16 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
- 	return 0;
- }
- 
-+static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev,
-+				       unsigned long *mdev_apm,
-+				       unsigned long *mdev_aqm)
-+{
-+	if (ap_apqn_in_matrix_owned_by_def_drv(mdev_apm, mdev_aqm))
-+		return -EADDRNOTAVAIL;
-+
-+	return vfio_ap_mdev_verify_no_sharing(matrix_mdev, mdev_apm, mdev_aqm);
-+}
-+
- static bool vfio_ap_mdev_matrixes_equal(struct ap_matrix *matrix1,
- 					struct ap_matrix *matrix2)
- {
-@@ -840,33 +734,21 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (apid > matrix_mdev->matrix.apm_max)
- 		return -ENODEV;
- 
--	/*
--	 * Set the bit in the AP mask (APM) corresponding to the AP adapter
--	 * number (APID). The bits in the mask, from most significant to least
--	 * significant bit, correspond to APIDs 0-255.
--	 */
--	mutex_lock(&matrix_dev->lock);
--
--	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
--	if (ret)
--		goto done;
--
- 	memset(apm, 0, sizeof(apm));
- 	set_bit_inv(apid, apm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
--					     matrix_mdev->matrix.aqm);
--	if (ret)
--		goto done;
--
-+	mutex_lock(&matrix_dev->lock);
-+	ret = vfio_ap_mdev_validate_masks(matrix_mdev, apm,
-+					  matrix_mdev->matrix.aqm);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->lock);
-+		return ret;
-+	}
- 	set_bit_inv(apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
--	ret = count;
--
--done:
- 	mutex_unlock(&matrix_dev->lock);
- 
--	return ret;
-+	return count;
- }
- static DEVICE_ATTR_WO(assign_adapter);
- 
-@@ -916,26 +798,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
- }
- static DEVICE_ATTR_WO(unassign_adapter);
- 
--static int
--vfio_ap_mdev_verify_queues_reserved_for_apqi(struct ap_matrix_mdev *matrix_mdev,
--					     unsigned long apqi)
--{
--	int ret;
--	unsigned long apid;
--	unsigned long nbits = matrix_mdev->matrix.apm_max + 1;
--
--	if (find_first_bit_inv(matrix_mdev->matrix.apm, nbits) >= nbits)
--		return vfio_ap_verify_queue_reserved(NULL, &apqi);
--
--	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, nbits) {
--		ret = vfio_ap_verify_queue_reserved(&apid, &apqi);
--		if (ret)
--			return ret;
--	}
--
--	return 0;
--}
--
- /**
-  * assign_domain_store
-  *
-@@ -989,28 +851,21 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (apqi > max_apqi)
- 		return -ENODEV;
- 
--	mutex_lock(&matrix_dev->lock);
--
--	ret = vfio_ap_mdev_verify_queues_reserved_for_apqi(matrix_mdev, apqi);
--	if (ret)
--		goto done;
--
- 	memset(aqm, 0, sizeof(aqm));
- 	set_bit_inv(apqi, aqm);
- 
--	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev,
--					     matrix_mdev->matrix.apm, aqm);
--	if (ret)
--		goto done;
--
-+	mutex_lock(&matrix_dev->lock);
-+	ret = vfio_ap_mdev_validate_masks(matrix_mdev, matrix_mdev->matrix.apm,
-+					  aqm);
-+	if (ret) {
-+		mutex_unlock(&matrix_dev->lock);
-+		return ret;
-+	}
- 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
--	ret = count;
--
--done:
- 	mutex_unlock(&matrix_dev->lock);
- 
--	return ret;
-+	return count;
- }
- static DEVICE_ATTR_WO(assign_domain);
- 
--- 
-2.21.1
+Cheers, Daniel
+
+> Other than that:
+>
+> Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+
+
+
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
