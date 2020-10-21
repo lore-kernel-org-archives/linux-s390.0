@@ -1,222 +1,187 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 094/111] s390/qeth: strictly order bridge address events
-Date: Sun, 18 Oct 2020 15:17:50 -0400
-Message-Id: <20201018191807.4052726-94-sashal@kernel.org>
-In-Reply-To: <20201018191807.4052726-1-sashal@kernel.org>
-References: <20201018191807.4052726-1-sashal@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2502290AbgJUI5I (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Oct 2020 04:57:08 -0400
+Received: from mail-wr1-x444.google.com (mail-wr1-x444.google.com [IPv6:2a00:1450:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0F61C0613D9
+        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 01:57:07 -0700 (PDT)
+Received: by mail-wr1-x444.google.com with SMTP id j7so2057671wrt.9
+        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 01:57:07 -0700 (PDT)
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v3 03/16] misc/habana: Stop using frame_vector helpers
+Date: Wed, 21 Oct 2020 10:56:42 +0200
+Message-Id: <20201021085655.1192025-4-daniel.vetter@ffwll.ch>
+In-Reply-To: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
+References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, "David S . Miller" <davem@davemloft.net>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, John Hubbard <jhubbard@nvidia.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Andrew Morton <akpm@linux-foundation.org>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Oded Gabbay <oded.gabbay@gmail.com>, Omer Shpigelman <oshpigelman@habana.ai>, Ofir Bitton <obitton@habana.ai>, Tomer Tayar <ttayar@habana.ai>, Moti Haimovski <mhaimovski@habana.ai>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Pawel Piskorski <ppiskorski@habana.ai>, Daniel Vetter <daniel.vetter@ffwll.com>
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+All we need are a pages array, pin_user_pages_fast can give us that
+directly. Plus this avoids the entire raw pfn side of get_vaddr_frames.
 
-[ Upstream commit 9d6a569a4cbab5a8b4c959d4e312daeecb7c9f09 ]
-
-The current code for bridge address events has two shortcomings in its
-control sequence:
-
-1. after disabling address events via PNSO, we don't flush the remaining
-   events from the event_wq. So if the feature is re-enabled fast
-   enough, stale events could leak over.
-2. PNSO and the events' arrival via the READ ccw device are unordered.
-   So even if we flushed the workqueue, it's difficult to say whether
-   the READ device might produce more events onto the workqueue
-   afterwards.
-
-Fix this by
-1. explicitly fencing off the events when we no longer care, in the
-   READ device's event handler. This ensures that once we flush the
-   workqueue, it doesn't get additional address events.
-2. Flush the workqueue after disabling the events & fencing them off.
-   As the code that triggers the flush will typically hold the sbp_lock,
-   we need to rework the worker code to avoid a deadlock here in case
-   of a 'notifications-stopped' event. In case of lock contention,
-   requeue such an event with a delay. We'll eventually aquire the lock,
-   or spot that the feature has been disabled and the event can thus be
-   discarded.
-
-This leaves the theoretical race that a stale event could arrive
-_after_ we re-enabled ourselves to receive events again. Such an event
-would be impossible to distinguish from a 'good' event, nothing we can
-do about it.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: linux-mm@kvack.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: Oded Gabbay <oded.gabbay@gmail.com>
+Cc: Omer Shpigelman <oshpigelman@habana.ai>
+Cc: Ofir Bitton <obitton@habana.ai>
+Cc: Tomer Tayar <ttayar@habana.ai>
+Cc: Moti Haimovski <mhaimovski@habana.ai>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Pawel Piskorski <ppiskorski@habana.ai>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.com>
+--
+v2: Use unpin_user_pages_dirty_lock (John)
+v3: Update kerneldoc (Oded)
 ---
- drivers/s390/net/qeth_core.h    |  6 ++++
- drivers/s390/net/qeth_l2_main.c | 53 ++++++++++++++++++++++++++++-----
- drivers/s390/net/qeth_l2_sys.c  |  1 +
- 3 files changed, 52 insertions(+), 8 deletions(-)
+ drivers/misc/habanalabs/Kconfig             |  1 -
+ drivers/misc/habanalabs/common/habanalabs.h |  6 ++-
+ drivers/misc/habanalabs/common/memory.c     | 49 ++++++++-------------
+ 3 files changed, 22 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index ecfd6d152e862..6b5cf9ba03e5b 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -680,6 +680,11 @@ struct qeth_card_blkt {
- 	int inter_packet_jumbo;
- };
- 
-+enum qeth_pnso_mode {
-+	QETH_PNSO_NONE,
-+	QETH_PNSO_BRIDGEPORT,
-+};
-+
- #define QETH_BROADCAST_WITH_ECHO    0x01
- #define QETH_BROADCAST_WITHOUT_ECHO 0x02
- struct qeth_card_info {
-@@ -696,6 +701,7 @@ struct qeth_card_info {
- 	/* no bitfield, we take a pointer on these two: */
- 	u8 has_lp2lp_cso_v6;
- 	u8 has_lp2lp_cso_v4;
-+	enum qeth_pnso_mode pnso_mode;
- 	enum qeth_card_types type;
- 	enum qeth_link_types link_type;
- 	int broadcast_capable;
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 6384f7adba660..9866d01b40fe7 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -273,6 +273,17 @@ static int qeth_l2_vlan_rx_kill_vid(struct net_device *dev,
- 	return qeth_l2_send_setdelvlan(card, vid, IPA_CMD_DELVLAN);
- }
- 
-+static void qeth_l2_set_pnso_mode(struct qeth_card *card,
-+				  enum qeth_pnso_mode mode)
-+{
-+	spin_lock_irq(get_ccwdev_lock(CARD_RDEV(card)));
-+	WRITE_ONCE(card->info.pnso_mode, mode);
-+	spin_unlock_irq(get_ccwdev_lock(CARD_RDEV(card)));
-+
-+	if (mode == QETH_PNSO_NONE)
-+		drain_workqueue(card->event_wq);
-+}
-+
- static void qeth_l2_stop_card(struct qeth_card *card)
- {
- 	QETH_CARD_TEXT(card, 2, "stopcard");
-@@ -290,7 +301,7 @@ static void qeth_l2_stop_card(struct qeth_card *card)
- 	qeth_qdio_clear_card(card, 0);
- 	qeth_drain_output_queues(card);
- 	qeth_clear_working_pool_list(card);
--	flush_workqueue(card->event_wq);
-+	qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
- 	qeth_flush_local_addrs(card);
- 	card->info.promisc_mode = 0;
- }
-@@ -1163,19 +1174,34 @@ static void qeth_bridge_state_change(struct qeth_card *card,
- }
- 
- struct qeth_addr_change_data {
--	struct work_struct worker;
-+	struct delayed_work dwork;
- 	struct qeth_card *card;
- 	struct qeth_ipacmd_addr_change ac_event;
- };
- 
- static void qeth_addr_change_event_worker(struct work_struct *work)
- {
--	struct qeth_addr_change_data *data =
--		container_of(work, struct qeth_addr_change_data, worker);
-+	struct delayed_work *dwork = to_delayed_work(work);
-+	struct qeth_addr_change_data *data;
-+	struct qeth_card *card;
- 	int i;
- 
-+	data = container_of(dwork, struct qeth_addr_change_data, dwork);
-+	card = data->card;
-+
- 	QETH_CARD_TEXT(data->card, 4, "adrchgew");
-+
-+	if (READ_ONCE(card->info.pnso_mode) == QETH_PNSO_NONE)
-+		goto free;
-+
- 	if (data->ac_event.lost_event_mask) {
-+		/* Potential re-config in progress, try again later: */
-+		if (!mutex_trylock(&card->sbp_lock)) {
-+			queue_delayed_work(card->event_wq, dwork,
-+					   msecs_to_jiffies(100));
-+			return;
-+		}
-+
- 		dev_info(&data->card->gdev->dev,
- 			 "Address change notification stopped on %s (%s)\n",
- 			 data->card->dev->name,
-@@ -1184,8 +1210,9 @@ static void qeth_addr_change_event_worker(struct work_struct *work)
- 			: (data->ac_event.lost_event_mask == 0x02)
- 			? "Bridge port state change"
- 			: "Unknown reason");
--		mutex_lock(&data->card->sbp_lock);
-+
- 		data->card->options.sbp.hostnotification = 0;
-+		card->info.pnso_mode = QETH_PNSO_NONE;
- 		mutex_unlock(&data->card->sbp_lock);
- 		qeth_bridge_emit_host_event(data->card, anev_abort,
- 					    0, NULL, NULL);
-@@ -1199,6 +1226,8 @@ static void qeth_addr_change_event_worker(struct work_struct *work)
- 						    &entry->token,
- 						    &entry->addr_lnid);
- 		}
-+
-+free:
- 	kfree(data);
- }
- 
-@@ -1210,6 +1239,9 @@ static void qeth_addr_change_event(struct qeth_card *card,
- 	struct qeth_addr_change_data *data;
- 	int extrasize;
- 
-+	if (card->info.pnso_mode == QETH_PNSO_NONE)
-+		return;
-+
- 	QETH_CARD_TEXT(card, 4, "adrchgev");
- 	if (cmd->hdr.return_code != 0x0000) {
- 		if (cmd->hdr.return_code == 0x0010) {
-@@ -1229,11 +1261,11 @@ static void qeth_addr_change_event(struct qeth_card *card,
- 		QETH_CARD_TEXT(card, 2, "ACNalloc");
- 		return;
+diff --git a/drivers/misc/habanalabs/Kconfig b/drivers/misc/habanalabs/Kconfig
+index 8eb5d38c618e..2f04187f7167 100644
+--- a/drivers/misc/habanalabs/Kconfig
++++ b/drivers/misc/habanalabs/Kconfig
+@@ -6,7 +6,6 @@
+ config HABANA_AI
+ 	tristate "HabanaAI accelerators (habanalabs)"
+ 	depends on PCI && HAS_IOMEM
+-	select FRAME_VECTOR
+ 	select DMA_SHARED_BUFFER
+ 	select GENERIC_ALLOCATOR
+ 	select HWMON
+diff --git a/drivers/misc/habanalabs/common/habanalabs.h b/drivers/misc/habanalabs/common/habanalabs.h
+index edbd627b29d2..41af090b3e6a 100644
+--- a/drivers/misc/habanalabs/common/habanalabs.h
++++ b/drivers/misc/habanalabs/common/habanalabs.h
+@@ -870,7 +870,8 @@ struct hl_ctx_mgr {
+  * struct hl_userptr - memory mapping chunk information
+  * @vm_type: type of the VM.
+  * @job_node: linked-list node for hanging the object on the Job's list.
+- * @vec: pointer to the frame vector.
++ * @pages: pointer to struct page array
++ * @npages: size of @pages array
+  * @sgt: pointer to the scatter-gather table that holds the pages.
+  * @dir: for DMA unmapping, the direction must be supplied, so save it.
+  * @debugfs_list: node in debugfs list of command submissions.
+@@ -881,7 +882,8 @@ struct hl_ctx_mgr {
+ struct hl_userptr {
+ 	enum vm_type_t		vm_type; /* must be first */
+ 	struct list_head	job_node;
+-	struct frame_vector	*vec;
++	struct page		**pages;
++	unsigned int		npages;
+ 	struct sg_table		*sgt;
+ 	enum dma_data_direction dir;
+ 	struct list_head	debugfs_list;
+diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
+index 5ff4688683fd..327b64479f97 100644
+--- a/drivers/misc/habanalabs/common/memory.c
++++ b/drivers/misc/habanalabs/common/memory.c
+@@ -1281,45 +1281,41 @@ static int get_user_memory(struct hl_device *hdev, u64 addr, u64 size,
+ 		return -EFAULT;
  	}
--	INIT_WORK(&data->worker, qeth_addr_change_event_worker);
-+	INIT_DELAYED_WORK(&data->dwork, qeth_addr_change_event_worker);
- 	data->card = card;
- 	memcpy(&data->ac_event, hostevs,
- 			sizeof(struct qeth_ipacmd_addr_change) + extrasize);
--	queue_work(card->event_wq, &data->worker);
-+	queue_delayed_work(card->event_wq, &data->dwork, 0);
- }
  
- /* SETBRIDGEPORT support; sending commands */
-@@ -1554,9 +1586,14 @@ int qeth_bridgeport_an_set(struct qeth_card *card, int enable)
+-	userptr->vec = frame_vector_create(npages);
+-	if (!userptr->vec) {
++	userptr->pages = kvmalloc_array(npages, sizeof(*userptr->pages),
++					GFP_KERNEL);
++	if (!userptr->pages) {
+ 		dev_err(hdev->dev, "Failed to create frame vector\n");
+ 		return -ENOMEM;
+ 	}
  
- 	if (enable) {
- 		qeth_bridge_emit_host_event(card, anev_reset, 0, NULL, NULL);
-+		qeth_l2_set_pnso_mode(card, QETH_PNSO_BRIDGEPORT);
- 		rc = qeth_l2_pnso(card, 1, qeth_bridgeport_an_set_cb, card);
--	} else
-+		if (rc)
-+			qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+	} else {
- 		rc = qeth_l2_pnso(card, 0, NULL, NULL);
-+		qeth_l2_set_pnso_mode(card, QETH_PNSO_NONE);
-+	}
+-	rc = get_vaddr_frames(start, npages, FOLL_FORCE | FOLL_WRITE,
+-				userptr->vec);
++	rc = pin_user_pages_fast(start, npages, FOLL_FORCE | FOLL_WRITE,
++				 userptr->pages);
+ 
+ 	if (rc != npages) {
+ 		dev_err(hdev->dev,
+ 			"Failed to map host memory, user ptr probably wrong\n");
+ 		if (rc < 0)
+-			goto destroy_framevec;
++			goto destroy_pages;
++		npages = rc;
+ 		rc = -EFAULT;
+-		goto put_framevec;
+-	}
+-
+-	if (frame_vector_to_pages(userptr->vec) < 0) {
+-		dev_err(hdev->dev,
+-			"Failed to translate frame vector to pages\n");
+-		rc = -EFAULT;
+-		goto put_framevec;
++		goto put_pages;
+ 	}
++	userptr->npages = npages;
+ 
+ 	rc = sg_alloc_table_from_pages(userptr->sgt,
+-					frame_vector_pages(userptr->vec),
+-					npages, offset, size, GFP_ATOMIC);
++				       userptr->pages,
++				       npages, offset, size, GFP_ATOMIC);
+ 	if (rc < 0) {
+ 		dev_err(hdev->dev, "failed to create SG table from pages\n");
+-		goto put_framevec;
++		goto put_pages;
+ 	}
+ 
+ 	return 0;
+ 
+-put_framevec:
+-	put_vaddr_frames(userptr->vec);
+-destroy_framevec:
+-	frame_vector_destroy(userptr->vec);
++put_pages:
++	unpin_user_pages(userptr->pages, npages);
++destroy_pages:
++	kvfree(userptr->pages);
  	return rc;
  }
  
-diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
-index 86bcae992f725..4695d25e54f24 100644
---- a/drivers/s390/net/qeth_l2_sys.c
-+++ b/drivers/s390/net/qeth_l2_sys.c
-@@ -157,6 +157,7 @@ static ssize_t qeth_bridgeport_hostnotification_store(struct device *dev,
- 		rc = -EBUSY;
- 	else if (qeth_card_hw_is_reachable(card)) {
- 		rc = qeth_bridgeport_an_set(card, enable);
-+		/* sbp_lock ensures ordering vs notifications-stopped events */
- 		if (!rc)
- 			card->options.sbp.hostnotification = enable;
- 	} else
+@@ -1405,8 +1401,6 @@ int hl_pin_host_memory(struct hl_device *hdev, u64 addr, u64 size,
+  */
+ void hl_unpin_host_memory(struct hl_device *hdev, struct hl_userptr *userptr)
+ {
+-	struct page **pages;
+-
+ 	hl_debugfs_remove_userptr(hdev, userptr);
+ 
+ 	if (userptr->dma_mapped)
+@@ -1414,15 +1408,8 @@ void hl_unpin_host_memory(struct hl_device *hdev, struct hl_userptr *userptr)
+ 							userptr->sgt->nents,
+ 							userptr->dir);
+ 
+-	pages = frame_vector_pages(userptr->vec);
+-	if (!IS_ERR(pages)) {
+-		int i;
+-
+-		for (i = 0; i < frame_vector_count(userptr->vec); i++)
+-			set_page_dirty_lock(pages[i]);
+-	}
+-	put_vaddr_frames(userptr->vec);
+-	frame_vector_destroy(userptr->vec);
++	unpin_user_pages_dirty_lock(userptr->pages, userptr->npages, true);
++	kvfree(userptr->pages);
+ 
+ 	list_del(&userptr->job_node);
+ 
 -- 
-2.25.1
+2.28.0
