@@ -1,91 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:52482 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1415116AbgJYKQt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 25 Oct 2020 06:16:49 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH 2/4] PM: hibernate: improve robustness of mapping pages in the direct map
-Date: Sun, 25 Oct 2020 12:15:53 +0200
-Message-Id: <20201025101555.3057-3-rppt@kernel.org>
-In-Reply-To: <20201025101555.3057-1-rppt@kernel.org>
-References: <20201025101555.3057-1-rppt@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56706 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731418AbgJUPq5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 21 Oct 2020 11:46:57 -0400
+Subject: Re: [PATCH] s390/vfio-ap: fix unregister GISC when KVM is already
+ gone results in OOPS
+References: <20200918170234.5807-1-akrowiak@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <f3d21bbf-4d25-eac8-cc88-c654b8406316@linux.ibm.com>
+Date: Wed, 21 Oct 2020 11:46:49 -0400
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200918170234.5807-1-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: pmorel@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, cohuck@redhat.com, kwankhede@nvidia.com, borntraeger@de.ibm.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+In trying to recreate this problem in order to get a stack trace, I 
+discovered that
+it only occurs within a local repository that has several new patches 
+applied,
+so the problem is not part of the base code and will be fixed via this 
+new set
+of patches forthcoming.
 
-When DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP is enabled a page may be
-not present in the direct map and has to be explicitly mapped before it
-could be copied.
-
-On arm64 it is possible that a page would be removed from the direct map
-using set_direct_map_invalid_noflush() but __kernel_map_pages() will refuse
-to map this page back if DEBUG_PAGEALLOC is disabled.
-
-Explicitly use set_direct_map_{default,invalid}_noflush() for
-ARCH_HAS_SET_DIRECT_MAP case and debug_pagealloc_map_pages() for
-DEBUG_PAGEALLOC case.
-
-While on that, rename kernel_map_pages() to hibernate_map_page() and drop
-numpages parameter.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
----
- kernel/power/snapshot.c | 29 +++++++++++++++++++----------
- 1 file changed, 19 insertions(+), 10 deletions(-)
-
-diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
-index fa499466f645..ecb7b32ce77c 100644
---- a/kernel/power/snapshot.c
-+++ b/kernel/power/snapshot.c
-@@ -76,16 +76,25 @@ static inline void hibernate_restore_protect_page(void *page_address) {}
- static inline void hibernate_restore_unprotect_page(void *page_address) {}
- #endif /* CONFIG_STRICT_KERNEL_RWX  && CONFIG_ARCH_HAS_SET_MEMORY */
- 
--#if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
--static inline void
--kernel_map_pages(struct page *page, int numpages, int enable)
-+static inline void hibernate_map_page(struct page *page, int enable)
- {
--	__kernel_map_pages(page, numpages, enable);
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
-+		unsigned long addr = (unsigned long)page_address(page);
-+		int ret;
-+
-+		if (enable)
-+			ret = set_direct_map_default_noflush(page);
-+		else
-+			ret = set_direct_map_invalid_noflush(page);
-+
-+		if (WARN_ON(ret))
-+			return;
-+
-+		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
-+	} else {
-+		debug_pagealloc_map_pages(page, 1, enable);
-+	}
- }
--#else
--static inline void
--kernel_map_pages(struct page *page, int numpages, int enable) {}
--#endif
- 
- static int swsusp_page_is_free(struct page *);
- static void swsusp_set_page_forbidden(struct page *);
-@@ -1366,9 +1375,9 @@ static void safe_copy_page(void *dst, struct page *s_page)
- 	if (kernel_page_present(s_page)) {
- 		do_copy_page(dst, page_address(s_page));
- 	} else {
--		kernel_map_pages(s_page, 1, 1);
-+		hibernate_map_page(s_page, 1);
- 		do_copy_page(dst, page_address(s_page));
--		kernel_map_pages(s_page, 1, 0);
-+		hibernate_map_page(s_page, 0);
- 	}
- }
- 
--- 
-2.28.0
+On 9/18/20 1:02 PM, Tony Krowiak wrote:
+> Attempting to unregister Guest Interruption Subclass (GISC) when the
+> link between the matrix mdev and KVM has been removed results in the
+> following:
+>
+>     "Kernel panic -not syncing: Fatal exception: panic_on_oops"
+>
+> This patch fixes this bug by verifying the matrix mdev and KVM are still
+> linked prior to unregistering the GISC.
+>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>   drivers/s390/crypto/vfio_ap_ops.c | 14 +++++++++-----
+>   1 file changed, 9 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index e0bde8518745..847a88642644 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -119,11 +119,15 @@ static void vfio_ap_wait_for_irqclear(int apqn)
+>    */
+>   static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
+>   {
+> -	if (q->saved_isc != VFIO_AP_ISC_INVALID && q->matrix_mdev)
+> -		kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
+> -	if (q->saved_pfn && q->matrix_mdev)
+> -		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
+> -				 &q->saved_pfn, 1);
+> +	if (q->matrix_mdev) {
+> +		if (q->saved_isc != VFIO_AP_ISC_INVALID && q->matrix_mdev->kvm)
+> +			kvm_s390_gisc_unregister(q->matrix_mdev->kvm,
+> +						 q->saved_isc);
+> +		if (q->saved_pfn)
+> +			vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
+> +					 &q->saved_pfn, 1);
+> +	}
+> +
+>   	q->saved_pfn = 0;
+>   	q->saved_isc = VFIO_AP_ISC_INVALID;
+>   }
