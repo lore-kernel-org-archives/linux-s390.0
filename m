@@ -1,14 +1,11 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57888 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2502779AbgJVUJV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Oct 2020 16:09:21 -0400
-Date: Thu, 22 Oct 2020 21:09:14 +0100
+Return-Path: <linux-arch-owner@vger.kernel.org>
+Date: Thu, 22 Oct 2020 21:06:29 +0100
 From: Al Viro <viro@zeniv.linux.org.uk>
 Subject: Re: Buggy commit tracked to: "Re: [PATCH 2/9] iov_iter: move
  rw_copy_check_uvector() into lib/iov_iter.c"
-Message-ID: <20201022200914.GY3576660@ZenIV.linux.org.uk>
-References: <a1533569-948a-1d5b-e231-5531aa988047@redhat.com>
+Message-ID: <20201022200629.GX3576660@ZenIV.linux.org.uk>
+References: <e04d0c5d-e834-a15b-7844-44dcc82785cc@redhat.com>
+ <a1533569-948a-1d5b-e231-5531aa988047@redhat.com>
  <bc0a091865f34700b9df332c6e9dcdfd@AcuMS.aculab.com>
  <5fd6003b-55a6-2c3c-9a28-8fd3a575ca78@redhat.com>
  <20201022132342.GB8781@lst.de>
@@ -17,29 +14,36 @@ References: <a1533569-948a-1d5b-e231-5531aa988047@redhat.com>
  <CAK8P3a3LjG+ZvmQrkb9zpgov8xBkQQWrkHBPgjfYSqBKGrwT4w@mail.gmail.com>
  <CAKwvOdnhONvrHLAuz_BrAuEpnF5mD9p0YPGJs=NZZ0EZNo7dFQ@mail.gmail.com>
  <20201022192458.GV3576660@ZenIV.linux.org.uk>
- <20201022200629.GX3576660@ZenIV.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20201022200629.GX3576660@ZenIV.linux.org.uk>
+In-Reply-To: <20201022192458.GV3576660@ZenIV.linux.org.uk>
 Sender: Al Viro <viro@ftp.linux.org.uk>
 List-ID: <linux-s390.vger.kernel.org>
 To: Nick Desaulniers <ndesaulniers@google.com>
 Cc: Arnd Bergmann <arnd@arndb.de>, David Laight <David.Laight@aculab.com>, Christoph Hellwig <hch@lst.de>, David Hildenbrand <david@redhat.com>, Greg KH <gregkh@linuxfoundation.org>, "kernel-team@android.com" <kernel-team@android.com>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, David Howells <dhowells@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>, "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>, "linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>
 
-On Thu, Oct 22, 2020 at 09:06:29PM +0100, Al Viro wrote:
-> On Thu, Oct 22, 2020 at 08:24:58PM +0100, Al Viro wrote:
-> 
-> > Depending upon the calling conventions, compiler might do truncation in caller or
-> > in a callee, but it must be done _somewhere_.
-> 
-> Unless I'm misreading AAPCS64,
-> 	"Unlike in the 32-bit AAPCS, named integral values must be narrowed by the callee
-> 	 rather than the caller"
-> in 6.4.2 means that callee must not _not_ expect the upper 32 bits of %x0..%x7 to contain
+On Thu, Oct 22, 2020 at 08:24:58PM +0100, Al Viro wrote:
 
-Sorry, artefact of editing - that's
+> Depending upon the calling conventions, compiler might do truncation in caller or
+> in a callee, but it must be done _somewhere_.
 
-"in 6.4.2 means that callee must _not_ expect the upper 32 bits of %x0..%x7 to contain"
+Unless I'm misreading AAPCS64,
+	"Unlike in the 32-bit AAPCS, named integral values must be narrowed by the callee
+	 rather than the caller"
+in 6.4.2 means that callee must not _not_ expect the upper 32 bits of %x0..%x7 to contain
+anything valid for 32bit arguments and it must zero-extend %w0..%w7 when passing that to
+something that expects a 64bit argument.  On inlining it should be the same situation as
+storing unsigned int argument into unsigned long local variable and working with that - if
 
-obviously.
+void f(unsigned int w)
+{
+	unsigned long x = w;
+	printf("%lx\n", x);
+}
+
+ends up passing %x0 to printf, it's an obvious bug - it must do something like
+	uxtw x0, w0
+first.
+
+What am I missing here?
