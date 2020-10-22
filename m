@@ -1,185 +1,262 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52758 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728523AbgJGQou (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 12:44:50 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36694C0613DE
-        for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2020 09:44:50 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id w5so2973766wrp.8
-        for <linux-s390@vger.kernel.org>; Wed, 07 Oct 2020 09:44:50 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 11/13] mm: add unsafe_follow_pfn
-Date: Wed,  7 Oct 2020 18:44:24 +0200
-Message-Id: <20201007164426.1812530-12-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
-References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v11 00/14] s390/vfio-ap: dynamic configuration support
+Date: Thu, 22 Oct 2020 13:11:55 -0400
+Message-Id: <20201022171209.19494-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Way back it was a reasonable assumptions that iomem mappings never
-change the pfn range they point at. But this has changed:
+The current design for AP pass-through does not support making dynamic
+changes to the AP matrix of a running guest resulting in a few 
+deficiencies this patch series is intended to mitigate:
 
-- gpu drivers dynamically manage their memory nowadays, invalidating
-ptes with unmap_mapping_range when buffers get moved
+1. Adapters, domains and control domains can not be added to or removed
+   from a running guest. In order to modify a guest's AP configuration,
+   the guest must be terminated; only then can AP resources be assigned
+   to or unassigned from the guest's matrix mdev. The new AP 
+   configuration becomes available to the guest when it is subsequently
+   restarted.
 
-- contiguous dma allocations have moved from dedicated carvetouts to
-cma regions. This means if we miss the unmap the pfn might contain
-pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
+2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
+   be modified by a root user without any restrictions. A change to
+   either mask can result in AP queue devices being unbound from the
+   vfio_ap device driver and bound to a zcrypt device driver even if a
+   guest is using the queues, thus giving the host access to the guest's
+   private crypto data and vice versa.
 
-- even /dev/mem now invalidates mappings when the kernel requests that
-iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
-("/dev/mem: Revoke mappings when a driver claims the region")
+3. The APQNs derived from the Cartesian product of the APIDs of the
+   adapters and APQIs of the domains assigned to a matrix mdev must
+   reference an AP queue device bound to the vfio_ap device driver. The
+   AP architecture allows assignment of AP resources that are not
+   available to the system, so this artificial restriction is not 
+   compliant with the architecture.
 
-Accessing pfns obtained from ptes without holding all the locks is
-therefore no longer a good idea.
+4. The AP configuration profile can be dynamically changed for the linux
+   host after a KVM guest is started. For example, a new domain can be
+   dynamically added to the configuration profile via the SE or an HMC
+   connected to a DPM enabled lpar. Likewise, AP adapters can be 
+   dynamically configured (online state) and deconfigured (standby state)
+   using the SE, an SCLP command or an HMC connected to a DPM enabled
+   lpar. This can result in inadvertent sharing of AP queues between the
+   guest and host.
 
-Unfortunately there's some users where this is not fixable (like v4l
-userptr of iomem mappings) or involves a pile of work (vfio type1
-iommu). For now annotate these as unsafe and splat appropriately.
+5. A root user can manually unbind an AP queue device representing a 
+   queue in use by a KVM guest via the vfio_ap device driver's sysfs 
+   unbind attribute. In this case, the guest will be using a queue that
+   is not bound to the driver which violates the device model.
 
-This patch adds an unsafe_follow_pfn, which later patches will then
-roll out to all appropriate places.
+This patch series introduces the following changes to the current design
+to alleviate the shortcomings described above as well as to implement
+more of the AP architecture:
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: kvm@vger.kernel.org
----
- include/linux/mm.h |  2 ++
- mm/memory.c        | 32 +++++++++++++++++++++++++++++++-
- mm/nommu.c         | 17 +++++++++++++++++
- security/Kconfig   | 13 +++++++++++++
- 4 files changed, 63 insertions(+), 1 deletion(-)
+1. A root user will be prevented from making edits to the AP bus's
+   /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the change would transfer
+   ownership of an APQN from the vfio_ap device driver to a zcrypt driver
+   while the APQN is assigned to a matrix mdev.
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 2a16631c1fda..ec8c90928fc9 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1653,6 +1653,8 @@ int follow_pte_pmd(struct mm_struct *mm, unsigned long address,
- 		   pte_t **ptepp, pmd_t **pmdpp, spinlock_t **ptlp);
- int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- 	unsigned long *pfn);
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+		      unsigned long *pfn);
- int follow_phys(struct vm_area_struct *vma, unsigned long address,
- 		unsigned int flags, unsigned long *prot, resource_size_t *phys);
- int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
-diff --git a/mm/memory.c b/mm/memory.c
-index 8d467e23b44e..8db7ad1c261c 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4821,7 +4821,12 @@ EXPORT_SYMBOL(follow_pte_pmd);
-  * @address: user virtual address
-  * @pfn: location to store found PFN
-  *
-- * Only IO mappings and raw PFN mappings are allowed.
-+ * Only IO mappings and raw PFN mappings are allowed. Note that callers must
-+ * ensure coherency with pte updates by using a &mmu_notifier to follow updates.
-+ * If this is not feasible, or the access to the @pfn is only very short term,
-+ * use follow_pte_pmd() instead and hold the pagetable lock for the duration of
-+ * the access instead. Any caller not following these requirements must use
-+ * unsafe_follow_pfn() instead.
-  *
-  * Return: zero and the pfn at @pfn on success, -ve otherwise.
-  */
-@@ -4844,6 +4849,31 @@ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- }
- EXPORT_SYMBOL(follow_pfn);
- 
-+/**
-+ * unsafe_follow_pfn - look up PFN at a user virtual address
-+ * @vma: memory mapping
-+ * @address: user virtual address
-+ * @pfn: location to store found PFN
-+ *
-+ * Only IO mappings and raw PFN mappings are allowed.
-+ *
-+ * Returns zero and the pfn at @pfn on success, -ve otherwise.
-+ */
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+	unsigned long *pfn)
-+{
-+#ifdef CONFIG_STRICT_FOLLOW_PFN
-+	pr_info("unsafe follow_pfn usage rejected, see CONFIG_STRICT_FOLLOW_PFN\n");
-+	return -EINVAL;
-+#else
-+	WARN_ONCE(1, "unsafe follow_pfn usage\n");
-+	add_taint(TAINT_USER, LOCKDEP_STILL_OK);
-+
-+	return follow_pfn(vma, address, pfn);
-+#endif
-+}
-+EXPORT_SYMBOL(unsafe_follow_pfn);
-+
- #ifdef CONFIG_HAVE_IOREMAP_PROT
- int follow_phys(struct vm_area_struct *vma,
- 		unsigned long address, unsigned int flags,
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 75a327149af1..3db2910f0d64 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -132,6 +132,23 @@ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- }
- EXPORT_SYMBOL(follow_pfn);
- 
-+/**
-+ * unsafe_follow_pfn - look up PFN at a user virtual address
-+ * @vma: memory mapping
-+ * @address: user virtual address
-+ * @pfn: location to store found PFN
-+ *
-+ * Only IO mappings and raw PFN mappings are allowed.
-+ *
-+ * Returns zero and the pfn at @pfn on success, -ve otherwise.
-+ */
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+	unsigned long *pfn)
-+{
-+	return follow_pfn(vma, address, pfn);
-+}
-+EXPORT_SYMBOL(unsafe_follow_pfn);
-+
- LIST_HEAD(vmap_area_list);
- 
- void vfree(const void *addr)
-diff --git a/security/Kconfig b/security/Kconfig
-index 7561f6f99f1d..48945402e103 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -230,6 +230,19 @@ config STATIC_USERMODEHELPER_PATH
- 	  If you wish for all usermode helper programs to be disabled,
- 	  specify an empty string here (i.e. "").
- 
-+config STRICT_FOLLOW_PFN
-+	bool "Disable unsafe use of follow_pfn"
-+	depends on MMU
-+	help
-+	  Some functionality in the kernel follows userspace mappings to iomem
-+	  ranges in an unsafe matter. Examples include v4l userptr for zero-copy
-+	  buffers sharing.
-+
-+	  If this option is switched on, such access is rejected. Only enable
-+	  this option when you must run userspace which requires this.
-+
-+	  If in doubt, say Y.
-+
- source "security/selinux/Kconfig"
- source "security/smack/Kconfig"
- source "security/tomoyo/Kconfig"
+2. Allow a root user to hot plug/unplug AP adapters, domains and control
+   domains for a KVM guest using the matrix mdev via its sysfs
+   assign/unassign attributes.
+
+4. Allow assignment of an AP adapter or domain to a matrix mdev even if
+   it results in assignment of an APQN that does not reference an AP
+   queue device bound to the vfio_ap device driver, as long as the APQN
+   is not reserved for use by the default zcrypt drivers (also known as
+   over-provisioning of AP resources). Allowing over-provisioning of AP
+   resources better models the architecture which does not preclude
+   assigning AP resources that are not yet available in the system. Such
+   APQNs, however, will not be assigned to the guest using the matrix
+   mdev; only APQNs referencing AP queue devices bound to the vfio_ap
+   device driver will actually get assigned to the guest.
+
+5. Handle dynamic changes to the AP device model. 
+
+1. Rationale for changes to AP bus's apmask/aqmask interfaces:
+----------------------------------------------------------
+Due to the extremely sensitive nature of cryptographic data, it is
+imperative that great care be taken to ensure that such data is secured.
+Allowing a root user, either inadvertently or maliciously, to configure
+these masks such that a queue is shared between the host and a guest is
+not only avoidable, it is advisable. It was suggested that this scenario
+is better handled in user space with management software, but that does
+not preclude a malicious administrator from using the sysfs interfaces
+to gain access to a guest's crypto data. It was also suggested that this
+scenario could be avoided by taking access to the adapter away from the
+guest and zeroing out the queues prior to the vfio_ap driver releasing the
+device; however, stealing an adapter in use from a guest as a by-product
+of an operation is bad and will likely cause problems for the guest
+unnecessarily. It was decided that the most effective solution with the
+least number of negative side effects is to prevent the situation at the
+source.
+
+2. Rationale for hot plug/unplug using matrix mdev sysfs interfaces:
+----------------------------------------------------------------
+Allowing a user to hot plug/unplug AP resources using the matrix mdev
+sysfs interfaces circumvents the need to terminate the guest in order to
+modify its AP configuration. Allowing dynamic configuration makes 
+reconfiguring a guest's AP matrix much less disruptive.
+
+3. Rationale for allowing over-provisioning of AP resources:
+----------------------------------------------------------- 
+Allowing assignment of AP resources to a matrix mdev and ultimately to a
+guest better models the AP architecture. The architecture does not
+preclude assignment of unavailable AP resources. If a queue subsequently
+becomes available while a guest using the matrix mdev to which its APQN
+is assigned, the guest will be given access to it. If an APQN
+is dynamically unassigned from the underlying host system, it will 
+automatically become unavailable to the guest.
+
+Change log v10-v11:
+------------------
+* The matrix mdev's configuration is not filtered by APID so that if any
+  APQN assigned to the mdev is not bound to the vfio_ap device driver,
+  the adapter will not get plugged into the KVM guest on startup, or when
+  a new adapter is assigned to the mdev.
+
+* Replaced patch 8 by squashing patches 8 (filtering patch) and 15 (handle 
+  probe/remove).
+
+* Added a patch 1 to remove disable IRQ after a reset because the reset
+  already disables a queue.
+
+* Now using filtering code to update the KVM guest's matrix when
+  notified that AP bus scan has completed.
+
+* Fixed issue with probe/remove not inititiated by a configuration change
+  occurring within a config change.
+
+
+Change log v9-v10:
+-----------------
+* Updated the documentation in vfio-ap.rst to include information about the
+  AP dynamic configuration support
+
+Change log v8-v9:
+----------------
+* Fixed errors flagged by the kernel test robot
+
+* Fixed issue with guest losing queues when a new queue is probed due to
+  manual bind operation.
+
+Change log v7-v8:
+----------------
+* Now logging a message when an attempt to reserve APQNs for the zcrypt
+  drivers will result in taking a queue away from a KVM guest to provide
+  the sysadmin a way to ascertain why the sysfs operation failed.
+
+* Created locked and unlocked versions of the ap_parse_mask_str() function.
+
+* Now using new interface provided by an AP bus patch -
+  s390/ap: introduce new ap function ap_get_qdev() - to retrieve
+  struct ap_queue representing an AP queue device. This patch is not a
+  part of this series but is a prerequisite for this series. 
+
+Change log v6-v7:
+----------------
+* Added callbacks to AP bus:
+  - on_config_changed: Notifies implementing drivers that
+    the AP configuration has changed since last AP device scan.
+  - on_scan_complete: Notifies implementing drivers that the device scan
+    has completed.
+  - implemented on_config_changed and on_scan_complete callbacks for
+    vfio_ap device driver.
+  - updated vfio_ap device driver's probe and remove callbacks to handle
+    dynamic changes to the AP device model. 
+* Added code to filter APQNs when assigning AP resources to a KVM guest's
+  CRYCB
+
+Change log v5-v6:
+----------------
+* Fixed a bug in ap_bus.c introduced with patch 2/7 of the v5 
+  series. Harald Freudenberer pointed out that the mutex lock
+  for ap_perms_mutex in the apmask_store and aqmask_store functions
+  was not being freed. 
+
+* Removed patch 6/7 which added logging to the vfio_ap driver
+  to expedite acceptance of this series. The logging will be introduced
+  with a separate patch series to allow more time to explore options
+  such as DBF logging vs. tracepoints.
+
+* Added 3 patches related to ensuring that APQNs that do not reference
+  AP queue devices bound to the vfio_ap device driver are not assigned
+  to the guest CRYCB:
+
+  Patch 4: Filter CRYCB bits for unavailable queue devices
+  Patch 5: sysfs attribute to display the guest CRYCB
+  Patch 6: update guest CRYCB in vfio_ap probe and remove callbacks
+
+* Added a patch (Patch 9) to version the vfio_ap module.
+
+* Reshuffled patches to allow the in_use callback implementation to
+  invoke the vfio_ap_mdev_verify_no_sharing() function introduced in
+  patch 2. 
+
+Change log v4-v5:
+----------------
+* Added a patch to provide kernel s390dbf debug logs for VFIO AP
+
+Change log v3->v4:
+-----------------
+* Restored patches preventing root user from changing ownership of
+  APQNs from zcrypt drivers to the vfio_ap driver if the APQN is
+  assigned to an mdev.
+
+* No longer enforcing requirement restricting guest access to
+  queues represented by a queue device bound to the vfio_ap
+  device driver.
+
+* Removed shadow CRYCB and now directly updating the guest CRYCB
+  from the matrix mdev's matrix.
+
+* Rebased the patch series on top of 'vfio: ap: AP Queue Interrupt
+  Control' patches.
+
+* Disabled bind/unbind sysfs interfaces for vfio_ap driver
+
+Change log v2->v3:
+-----------------
+* Allow guest access to an AP queue only if the queue is bound to
+  the vfio_ap device driver.
+
+* Removed the patch to test CRYCB masks before taking the vCPUs
+  out of SIE. Now checking the shadow CRYCB in the vfio_ap driver.
+
+Change log v1->v2:
+-----------------
+* Removed patches preventing root user from unbinding AP queues from 
+  the vfio_ap device driver
+* Introduced a shadow CRYCB in the vfio_ap driver to manage dynamic 
+  changes to the AP guest configuration due to root user interventions
+  or hardware anomalies.
+
+
+Tony Krowiak (14):
+  s390/vfio-ap: No need to disable IRQ after queue reset
+  390/vfio-ap: use new AP bus interface to search for queue devices
+  s390/vfio-ap: manage link between queue struct and matrix mdev
+  s390/zcrypt: driver callback to indicate resource in use
+  s390/vfio-ap: implement in-use callback for vfio_ap driver
+  s390/vfio-ap: introduce shadow APCB
+  s390/vfio-ap: sysfs attribute to display the guest's matrix
+  s390/vfio-ap: hot plug/unplug queues on bind/unbind of queue device
+  s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
+  s390/vfio-ap: allow hot plug/unplug of AP resources using mdev device
+  s390/zcrypt: Notify driver on config changed and scan complete
+    callbacks
+  s390/vfio-ap: handle host AP config change notification
+  s390/vfio-ap: handle AP bus scan completed notification
+  s390/vfio-ap: update docs to include dynamic config support
+
+ Documentation/s390/vfio-ap.rst        |  362 ++++++--
+ drivers/s390/crypto/ap_bus.c          |  236 +++++-
+ drivers/s390/crypto/ap_bus.h          |   16 +
+ drivers/s390/crypto/vfio_ap_drv.c     |   52 +-
+ drivers/s390/crypto/vfio_ap_ops.c     | 1091 +++++++++++++++++++------
+ drivers/s390/crypto/vfio_ap_private.h |   29 +-
+ 6 files changed, 1384 insertions(+), 402 deletions(-)
+
 -- 
-2.28.0
+2.21.1
