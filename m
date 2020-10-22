@@ -1,184 +1,145 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:37619 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1772427AbgJZK6b (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:31 -0400
-Received: by mail-wr1-f66.google.com with SMTP id h7so11902653wre.4
-        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:30 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v4 03/15] misc/habana: Stop using frame_vector helpers
-Date: Mon, 26 Oct 2020 11:58:06 +0100
-Message-Id: <20201026105818.2585306-4-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54656 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2506719AbgJVHjs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 22 Oct 2020 03:39:48 -0400
+Received: from mail-wr1-x442.google.com (mail-wr1-x442.google.com [IPv6:2a00:1450:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADC60C0613CE
+        for <linux-s390@vger.kernel.org>; Thu, 22 Oct 2020 00:39:47 -0700 (PDT)
+Received: by mail-wr1-x442.google.com with SMTP id h7so875672wre.4
+        for <linux-s390@vger.kernel.org>; Thu, 22 Oct 2020 00:39:47 -0700 (PDT)
+Date: Thu, 22 Oct 2020 09:39:43 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v2 08/17] s390/pci: Remove races against pte updates
+Message-ID: <20201022073943.GS401619@phenom.ffwll.local>
+References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+ <20201009075934.3509076-9-daniel.vetter@ffwll.ch>
+ <6deb08dd-46f3-bf26-5362-fdc696f6fd74@linux.ibm.com>
+ <20201012141906.GX438822@phenom.ffwll.local>
+ <3594c115-541f-806a-ee33-e99a2d1d31e8@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <3594c115-541f-806a-ee33-e99a2d1d31e8@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, John Hubbard <jhubbard@nvidia.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Andrew Morton <akpm@linux-foundation.org>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Oded Gabbay <oded.gabbay@gmail.com>, Omer Shpigelman <oshpigelman@habana.ai>, Ofir Bitton <obitton@habana.ai>, Tomer Tayar <ttayar@habana.ai>, Moti Haimovski <mhaimovski@habana.ai>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Pawel Piskorski <ppiskorski@habana.ai>
+To: Niklas Schnelle <schnelle@linux.ibm.com>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>
 
-All we need are a pages array, pin_user_pages_fast can give us that
-directly. Plus this avoids the entire raw pfn side of get_vaddr_frames.
+On Wed, Oct 21, 2020 at 09:55:57AM +0200, Niklas Schnelle wrote:
+> Hi Daniel,
+>=20
+> friendly ping. I haven't seen a new version of this patch series,
+> as I said I think your change for s390/pci is generally useful so
+> I'm curious, are you planning on sending a new version soon?
+> If you want you can also just sent this patch with the last few
+> nitpicks (primarily the mail address) fixed and I'll happily apply.
 
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Oded Gabbay <oded.gabbay@gmail.com>
-Cc: Omer Shpigelman <oshpigelman@habana.ai>
-Cc: Ofir Bitton <obitton@habana.ai>
-Cc: Tomer Tayar <ttayar@habana.ai>
-Cc: Moti Haimovski <mhaimovski@habana.ai>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Pawel Piskorski <ppiskorski@habana.ai>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+(I think this was stuck somewhere in moderation, only showed up just now)
+
+I was waiting for the testing result for the habana driver from Oded, but
+I guess Oded was waiting for v3. Hence the delay.
+
+Cheers, Daniel
+
+>=20
+> Best regards,
+> Niklas Schnelle
+>=20
+> On 10/12/20 4:19 PM, Daniel Vetter wrote:
+> > On Mon, Oct 12, 2020 at 04:03:28PM +0200, Niklas Schnelle wrote:
+> ... snip ....
+> >>> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> >>> Cc: Dan Williams <dan.j.williams@intel.com>
+> >>> Cc: Kees Cook <keescook@chromium.org>
+> >>> Cc: Andrew Morton <akpm@linux-foundation.org>
+> >>> Cc: John Hubbard <jhubbard@nvidia.com>
+> >>> Cc: J=EF=BF=BDr=EF=BF=BDme Glisse <jglisse@redhat.com>
+> >>> Cc: Jan Kara <jack@suse.cz>
+> >>> Cc: Dan Williams <dan.j.williams@intel.com>
+> >>
+> >> The above Cc: line for Dan Williams is a duplicate
+> >>
+> >>> Cc: linux-mm@kvack.org
+> >>> Cc: linux-arm-kernel@lists.infradead.org
+> >>> Cc: linux-samsung-soc@vger.kernel.org
+> >>> Cc: linux-media@vger.kernel.org
+> >>> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> >>> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> >>> Cc: linux-s390@vger.kernel.org
+> >>> --
+> >>> v2: Move VM_IO | VM_PFNMAP checks around so they keep returning EINVAL
+> >>> like before (Gerard)
+> >>
+> >> I think the above should go before the CC/Signed-off/Reviewev block.
+> >=20
+> > This is a per-subsystem bikeshed :-) drivers/gpu definitely wants it
+> > above, but most core subsystems want it below. I'll move it.
+> >=20
+> >>> ---
+> >>>  arch/s390/pci/pci_mmio.c | 98 +++++++++++++++++++++++---------------=
 --
-v2: Use unpin_user_pages_dirty_lock (John)
-v3: Update kerneldoc (Oded)
----
- drivers/misc/habanalabs/Kconfig             |  1 -
- drivers/misc/habanalabs/common/habanalabs.h |  6 ++-
- drivers/misc/habanalabs/common/memory.c     | 49 ++++++++-------------
- 3 files changed, 22 insertions(+), 34 deletions(-)
+> >>>  1 file changed, 57 insertions(+), 41 deletions(-)
+> >>>
+> >>> diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
+> >>> index 401cf670a243..1a6adbc68ee8 100644
+> >>> --- a/arch/s390/pci/pci_mmio.c
+> >>> +++ b/arch/s390/pci/pci_mmio.c
+> >>> @@ -119,33 +119,15 @@ static inline int __memcpy_toio_inuser(void __i=
+omem *dst,
+> >>>  	return rc;
+> >>>  }
+> >>> =20
+> >>> -static long get_pfn(unsigned long user_addr, unsigned long access,
+> >>> -		    unsigned long *pfn)
+> >>> -{
+> >>> -	struct vm_area_struct *vma;
+> >>> -	long ret;
+> >>> -
+> >>> -	mmap_read_lock(current->mm);
+> >>> -	ret =3D -EINVAL;
+> >>> -	vma =3D find_vma(current->mm, user_addr);
+> >>> -	if (!vma)
+> >>> -		goto out;
+> >>> -	ret =3D -EACCES;
+> >>> -	if (!(vma->vm_flags & access))
+> >>> -		goto out;
+> >>> -	ret =3D follow_pfn(vma, user_addr, pfn);
+> >>> -out:
+> >>> -	mmap_read_unlock(current->mm);
+> >>> -	return ret;
+> >>> -}
+> >>> -
+> >>>  SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
+> >>>  		const void __user *, user_buffer, size_t, length)
+> >>>  {
+> >>>  	u8 local_buf[64];
+> >>>  	void __iomem *io_addr;
+> >>>  	void *buf;
+> >>> -	unsigned long pfn;
+> >>> +	struct vm_area_struct *vma;
+> >>> +	pte_t *ptep;
+> >>> +	spinlock_t *ptl;
+> >>
+> >> With checkpatch.pl --strict the above yields a complained
+> >> "CHECK: spinlock_t definition without comment" but I think
+> >> that's really okay since your commit description is very clear.
+> >> Same oin line 277.
+> >=20
+> > I think this is a falls positive, checkpatch doesn't realize that
+> > SYSCALL_DEFINE3 is a function, not a structure. And in a structure I'd
+> > have added the kerneldoc or comment.
+> >=20
+> > I'll fix up all the nits you've found for the next round. Thanks for
+> > taking a look.
+> > -Daniel
+> >=20
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
-diff --git a/drivers/misc/habanalabs/Kconfig b/drivers/misc/habanalabs/Kconfig
-index 8eb5d38c618e..2f04187f7167 100644
---- a/drivers/misc/habanalabs/Kconfig
-+++ b/drivers/misc/habanalabs/Kconfig
-@@ -6,7 +6,6 @@
- config HABANA_AI
- 	tristate "HabanaAI accelerators (habanalabs)"
- 	depends on PCI && HAS_IOMEM
--	select FRAME_VECTOR
- 	select DMA_SHARED_BUFFER
- 	select GENERIC_ALLOCATOR
- 	select HWMON
-diff --git a/drivers/misc/habanalabs/common/habanalabs.h b/drivers/misc/habanalabs/common/habanalabs.h
-index edbd627b29d2..41af090b3e6a 100644
---- a/drivers/misc/habanalabs/common/habanalabs.h
-+++ b/drivers/misc/habanalabs/common/habanalabs.h
-@@ -870,7 +870,8 @@ struct hl_ctx_mgr {
-  * struct hl_userptr - memory mapping chunk information
-  * @vm_type: type of the VM.
-  * @job_node: linked-list node for hanging the object on the Job's list.
-- * @vec: pointer to the frame vector.
-+ * @pages: pointer to struct page array
-+ * @npages: size of @pages array
-  * @sgt: pointer to the scatter-gather table that holds the pages.
-  * @dir: for DMA unmapping, the direction must be supplied, so save it.
-  * @debugfs_list: node in debugfs list of command submissions.
-@@ -881,7 +882,8 @@ struct hl_ctx_mgr {
- struct hl_userptr {
- 	enum vm_type_t		vm_type; /* must be first */
- 	struct list_head	job_node;
--	struct frame_vector	*vec;
-+	struct page		**pages;
-+	unsigned int		npages;
- 	struct sg_table		*sgt;
- 	enum dma_data_direction dir;
- 	struct list_head	debugfs_list;
-diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
-index 5ff4688683fd..327b64479f97 100644
---- a/drivers/misc/habanalabs/common/memory.c
-+++ b/drivers/misc/habanalabs/common/memory.c
-@@ -1281,45 +1281,41 @@ static int get_user_memory(struct hl_device *hdev, u64 addr, u64 size,
- 		return -EFAULT;
- 	}
- 
--	userptr->vec = frame_vector_create(npages);
--	if (!userptr->vec) {
-+	userptr->pages = kvmalloc_array(npages, sizeof(*userptr->pages),
-+					GFP_KERNEL);
-+	if (!userptr->pages) {
- 		dev_err(hdev->dev, "Failed to create frame vector\n");
- 		return -ENOMEM;
- 	}
- 
--	rc = get_vaddr_frames(start, npages, FOLL_FORCE | FOLL_WRITE,
--				userptr->vec);
-+	rc = pin_user_pages_fast(start, npages, FOLL_FORCE | FOLL_WRITE,
-+				 userptr->pages);
- 
- 	if (rc != npages) {
- 		dev_err(hdev->dev,
- 			"Failed to map host memory, user ptr probably wrong\n");
- 		if (rc < 0)
--			goto destroy_framevec;
-+			goto destroy_pages;
-+		npages = rc;
- 		rc = -EFAULT;
--		goto put_framevec;
--	}
--
--	if (frame_vector_to_pages(userptr->vec) < 0) {
--		dev_err(hdev->dev,
--			"Failed to translate frame vector to pages\n");
--		rc = -EFAULT;
--		goto put_framevec;
-+		goto put_pages;
- 	}
-+	userptr->npages = npages;
- 
- 	rc = sg_alloc_table_from_pages(userptr->sgt,
--					frame_vector_pages(userptr->vec),
--					npages, offset, size, GFP_ATOMIC);
-+				       userptr->pages,
-+				       npages, offset, size, GFP_ATOMIC);
- 	if (rc < 0) {
- 		dev_err(hdev->dev, "failed to create SG table from pages\n");
--		goto put_framevec;
-+		goto put_pages;
- 	}
- 
- 	return 0;
- 
--put_framevec:
--	put_vaddr_frames(userptr->vec);
--destroy_framevec:
--	frame_vector_destroy(userptr->vec);
-+put_pages:
-+	unpin_user_pages(userptr->pages, npages);
-+destroy_pages:
-+	kvfree(userptr->pages);
- 	return rc;
- }
- 
-@@ -1405,8 +1401,6 @@ int hl_pin_host_memory(struct hl_device *hdev, u64 addr, u64 size,
-  */
- void hl_unpin_host_memory(struct hl_device *hdev, struct hl_userptr *userptr)
- {
--	struct page **pages;
--
- 	hl_debugfs_remove_userptr(hdev, userptr);
- 
- 	if (userptr->dma_mapped)
-@@ -1414,15 +1408,8 @@ void hl_unpin_host_memory(struct hl_device *hdev, struct hl_userptr *userptr)
- 							userptr->sgt->nents,
- 							userptr->dir);
- 
--	pages = frame_vector_pages(userptr->vec);
--	if (!IS_ERR(pages)) {
--		int i;
--
--		for (i = 0; i < frame_vector_count(userptr->vec); i++)
--			set_page_dirty_lock(pages[i]);
--	}
--	put_vaddr_frames(userptr->vec);
--	frame_vector_destroy(userptr->vec);
-+	unpin_user_pages_dirty_lock(userptr->pages, userptr->npages, true);
-+	kvfree(userptr->pages);
- 
- 	list_del(&userptr->job_node);
- 
--- 
-2.28.0
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
