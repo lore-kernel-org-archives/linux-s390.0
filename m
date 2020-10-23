@@ -1,97 +1,263 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:58452 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729503AbgJ1WDP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Oct 2020 18:03:15 -0400
-Received: by mail-wr1-f69.google.com with SMTP id q15so143363wrw.8
-        for <linux-s390@vger.kernel.org>; Wed, 28 Oct 2020 11:01:18 -0700 (PDT)
-Date: Wed, 28 Oct 2020 14:01:11 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is
- protected
-Message-ID: <20201028135103-mutt-send-email-mst@kernel.org>
-References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <20200220160606.53156-3-pasic@linux.ibm.com>
- <20200220161309.GB12709@lst.de>
- <20200221153340.4cdcde81.pasic@linux.ibm.com>
- <20200222140408-mutt-send-email-mst@kernel.org>
- <20200224171657.GB7278@lst.de>
- <691d8c8e-665c-b05f-383f-78377fcf6741@amazon.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38542 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2505954AbgJWM0G (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 23 Oct 2020 08:26:06 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A230C0613CE
+        for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2020 05:26:06 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id l15so1309611wmi.3
+        for <linux-s390@vger.kernel.org>; Fri, 23 Oct 2020 05:26:06 -0700 (PDT)
+Date: Fri, 23 Oct 2020 14:26:02 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 29/65] s390/pci: Remove races against pte updates
+Message-ID: <20201023122602.GB401619@phenom.ffwll.local>
+References: <20201021163242.1458885-1-daniel.vetter@ffwll.ch>
+ <20201023122216.2373294-1-daniel.vetter@ffwll.ch>
+ <20201023122216.2373294-29-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <691d8c8e-665c-b05f-383f-78377fcf6741@amazon.com>
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201023122216.2373294-29-daniel.vetter@ffwll.ch>
 List-ID: <linux-s390.vger.kernel.org>
-To: Alexander Graf <graf@amazon.com>
-Cc: Christoph Hellwig <hch@lst.de>, Halil Pasic <pasic@linux.ibm.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Daniel Vetter <daniel.vetter@ffwll.ch>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, Niklas Schnelle <schnelle@linux.ibm.com>, linux-s390@vger.kernel.org
 
-On Wed, Oct 28, 2020 at 03:24:03PM +0100, Alexander Graf wrote:
-> On 24.02.20 18:16, Christoph Hellwig wrote:
-> > On Sat, Feb 22, 2020 at 02:07:58PM -0500, Michael S. Tsirkin wrote:
-> > > On Fri, Feb 21, 2020 at 03:33:40PM +0100, Halil Pasic wrote:
-> > > > AFAIU you have a positive attitude towards the idea, that
-> > > > !F_VIRTIO_PLATFORM implies 'no DMA API is used by virtio'
-> > > > should be scrapped.
-> > > > 
-> > > > I would like to accomplish that without adverse effects to virtio-ccw
-> > > > (because caring for virtio-ccw is a part of job description).
-> > > > 
-> > > > Regards,
-> > > > Halil
-> > > 
-> > > It is possible, in theory. IIRC the main challenge is that DMA API
-> > > has overhead of indirect function calls even when all it
-> > > does it return back the PA without changes.
-> > 
-> > That overhead is gone now, the DMA direct calls are direct calls these
-> > days.
-> 
-> Michael, would that mitigate your concerns to just always use the DMA API?
-> If not, wouldn't it make sense to benchmark and pinpoint Christoph to paths
-> that do slow things down, so we can finally move virtio into a world where
-> it doesn't bypass the kernel DMA infrastructure.
-> 
-> 
-> Alex
+On Fri, Oct 23, 2020 at 02:21:40PM +0200, Daniel Vetter wrote:
+> Way back it was a reasonable assumptions that iomem mappings never
+> change the pfn range they point at. But this has changed:
+>=20
+> - gpu drivers dynamically manage their memory nowadays, invalidating
+> ptes with unmap_mapping_range when buffers get moved
+>=20
+> - contiguous dma allocations have moved from dedicated carvetouts to
+> cma regions. This means if we miss the unmap the pfn might contain
+> pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
+>=20
+> - even /dev/mem now invalidates mappings when the kernel requests that
+> iomem region when CONFIG_IO_STRICT_DEVMEM is set, see commit
+> 3234ac664a87 ("/dev/mem: Revoke mappings when a driver claims the
+> region")
+>=20
+> Accessing pfns obtained from ptes without holding all the locks is
+> therefore no longer a good idea. Fix this.
+>=20
+> Since zpci_memcpy_from|toio seems to not do anything nefarious with
+> locks we just need to open code get_pfn and follow_pfn and make sure
+> we drop the locks only after we're done. The write function also needs
+> the copy_from_user move, since we can't take userspace faults while
+> holding the mmap sem.
+>=20
+> v2: Move VM_IO | VM_PFNMAP checks around so they keep returning EINVAL
+> like before (Gerard)
+>=20
+> v3: Polish commit message (Niklas)
+>=20
+> Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: John Hubbard <jhubbard@nvidia.com>
+> Cc: J=EF=BF=BDr=EF=BF=BDme Glisse <jglisse@redhat.com>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: linux-mm@kvack.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-samsung-soc@vger.kernel.org
+> Cc: linux-media@vger.kernel.org
+> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Cc: Niklas Schnelle <schnelle@linux.ibm.com>
+> Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
+Apologies for this random patch bomb, typoed git send-email command :-/
 
-There's no specific concern really. One can in theory move the code
-handling !VIRTIO_F_ACCESS_PLATFORM such that instead of having a branch
-in virtio code, you instead override platform DMA API and then use DMA
-API unconditionally.
+v4 of this will come properly on Monday or so.
+-Daniel
 
-The gain from that will probably be marginal, but maybe I'm wrong.
-Let's see the patches.
+> ---
+>  arch/s390/pci/pci_mmio.c | 98 +++++++++++++++++++++++-----------------
+>  1 file changed, 57 insertions(+), 41 deletions(-)
+>=20
+> diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
+> index 401cf670a243..1a6adbc68ee8 100644
+> --- a/arch/s390/pci/pci_mmio.c
+> +++ b/arch/s390/pci/pci_mmio.c
+> @@ -119,33 +119,15 @@ static inline int __memcpy_toio_inuser(void __iomem=
+ *dst,
+>  	return rc;
+>  }
+> =20
+> -static long get_pfn(unsigned long user_addr, unsigned long access,
+> -		    unsigned long *pfn)
+> -{
+> -	struct vm_area_struct *vma;
+> -	long ret;
+> -
+> -	mmap_read_lock(current->mm);
+> -	ret =3D -EINVAL;
+> -	vma =3D find_vma(current->mm, user_addr);
+> -	if (!vma)
+> -		goto out;
+> -	ret =3D -EACCES;
+> -	if (!(vma->vm_flags & access))
+> -		goto out;
+> -	ret =3D follow_pfn(vma, user_addr, pfn);
+> -out:
+> -	mmap_read_unlock(current->mm);
+> -	return ret;
+> -}
+> -
+>  SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
+>  		const void __user *, user_buffer, size_t, length)
+>  {
+>  	u8 local_buf[64];
+>  	void __iomem *io_addr;
+>  	void *buf;
+> -	unsigned long pfn;
+> +	struct vm_area_struct *vma;
+> +	pte_t *ptep;
+> +	spinlock_t *ptl;
+>  	long ret;
+> =20
+>  	if (!zpci_is_enabled())
+> @@ -158,7 +140,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, m=
+mio_addr,
+>  	 * We only support write access to MIO capable devices if we are on
+>  	 * a MIO enabled system. Otherwise we would have to check for every
+>  	 * address if it is a special ZPCI_ADDR and would have to do
+> -	 * a get_pfn() which we don't need for MIO capable devices.  Currently
+> +	 * a pfn lookup which we don't need for MIO capable devices.  Currently
+>  	 * ISM devices are the only devices without MIO support and there is no
+>  	 * known need for accessing these from userspace.
+>  	 */
+> @@ -176,21 +158,37 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long,=
+ mmio_addr,
+>  	} else
+>  		buf =3D local_buf;
+> =20
+> -	ret =3D get_pfn(mmio_addr, VM_WRITE, &pfn);
+> +	ret =3D -EFAULT;
+> +	if (copy_from_user(buf, user_buffer, length))
+> +		goto out_free;
+> +
+> +	mmap_read_lock(current->mm);
+> +	ret =3D -EINVAL;
+> +	vma =3D find_vma(current->mm, mmio_addr);
+> +	if (!vma)
+> +		goto out_unlock_mmap;
+> +	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
+> +		goto out_unlock_mmap;
+> +	ret =3D -EACCES;
+> +	if (!(vma->vm_flags & VM_WRITE))
+> +		goto out_unlock_mmap;
+> +
+> +	ret =3D follow_pte_pmd(vma->vm_mm, mmio_addr, NULL, &ptep, NULL, &ptl);
+>  	if (ret)
+> -		goto out;
+> -	io_addr =3D (void __iomem *)((pfn << PAGE_SHIFT) |
+> +		goto out_unlock_mmap;
+> +
+> +	io_addr =3D (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
+>  			(mmio_addr & ~PAGE_MASK));
+> =20
+> -	ret =3D -EFAULT;
+>  	if ((unsigned long) io_addr < ZPCI_IOMAP_ADDR_BASE)
+> -		goto out;
+> -
+> -	if (copy_from_user(buf, user_buffer, length))
+> -		goto out;
+> +		goto out_unlock_pt;
+> =20
+>  	ret =3D zpci_memcpy_toio(io_addr, buf, length);
+> -out:
+> +out_unlock_pt:
+> +	pte_unmap_unlock(ptep, ptl);
+> +out_unlock_mmap:
+> +	mmap_read_unlock(current->mm);
+> +out_free:
+>  	if (buf !=3D local_buf)
+>  		kfree(buf);
+>  	return ret;
+> @@ -274,7 +272,9 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mm=
+io_addr,
+>  	u8 local_buf[64];
+>  	void __iomem *io_addr;
+>  	void *buf;
+> -	unsigned long pfn;
+> +	struct vm_area_struct *vma;
+> +	pte_t *ptep;
+> +	spinlock_t *ptl;
+>  	long ret;
+> =20
+>  	if (!zpci_is_enabled())
+> @@ -287,7 +287,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mm=
+io_addr,
+>  	 * We only support read access to MIO capable devices if we are on
+>  	 * a MIO enabled system. Otherwise we would have to check for every
+>  	 * address if it is a special ZPCI_ADDR and would have to do
+> -	 * a get_pfn() which we don't need for MIO capable devices.  Currently
+> +	 * a pfn lookup which we don't need for MIO capable devices.  Currently
+>  	 * ISM devices are the only devices without MIO support and there is no
+>  	 * known need for accessing these from userspace.
+>  	 */
+> @@ -306,22 +306,38 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, =
+mmio_addr,
+>  		buf =3D local_buf;
+>  	}
+> =20
+> -	ret =3D get_pfn(mmio_addr, VM_READ, &pfn);
+> +	mmap_read_lock(current->mm);
+> +	ret =3D -EINVAL;
+> +	vma =3D find_vma(current->mm, mmio_addr);
+> +	if (!vma)
+> +		goto out_unlock_mmap;
+> +	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
+> +		goto out_unlock_mmap;
+> +	ret =3D -EACCES;
+> +	if (!(vma->vm_flags & VM_WRITE))
+> +		goto out_unlock_mmap;
+> +
+> +	ret =3D follow_pte_pmd(vma->vm_mm, mmio_addr, NULL, &ptep, NULL, &ptl);
+>  	if (ret)
+> -		goto out;
+> -	io_addr =3D (void __iomem *)((pfn << PAGE_SHIFT) | (mmio_addr & ~PAGE_M=
+ASK));
+> +		goto out_unlock_mmap;
+> +
+> +	io_addr =3D (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
+> +			(mmio_addr & ~PAGE_MASK));
+> =20
+>  	if ((unsigned long) io_addr < ZPCI_IOMAP_ADDR_BASE) {
+>  		ret =3D -EFAULT;
+> -		goto out;
+> +		goto out_unlock_pt;
+>  	}
+>  	ret =3D zpci_memcpy_fromio(buf, io_addr, length);
+> -	if (ret)
+> -		goto out;
+> -	if (copy_to_user(user_buffer, buf, length))
+> +
+> +out_unlock_pt:
+> +	pte_unmap_unlock(ptep, ptl);
+> +out_unlock_mmap:
+> +	mmap_read_unlock(current->mm);
+> +
+> +	if (!ret && copy_to_user(user_buffer, buf, length))
+>  		ret =3D -EFAULT;
+> =20
+> -out:
+>  	if (buf !=3D local_buf)
+>  		kfree(buf);
+>  	return ret;
+> --=20
+> 2.28.0
+>=20
 
-We still need to do the override when !VIRTIO_F_ACCESS_PLATFORM,
-according to spec. Encrypted hypervisors still need to set
-VIRTIO_F_ACCESS_PLATFORM.
-
-
-Is VIRTIO_F_ACCESS_PLATFORM a good default? Need to support
-legacy guests does not allow that at the qemu level, we
-need to be conservative there. But yes, if you have a very
-modern guest then it might be a good idea to just always
-enable VIRTIO_F_ACCESS_PLATFORM. I say might since unfortunately
-most people only use VIRTIO_F_ACCESS_PLATFORM with
-vIOMMU, using it without VIRTIO_F_ACCESS_PLATFORM is supported
-but is a path less well trodden. Benchmarking that,
-fixing issues that surface if any would be imho effort
-well spent, and would be a prerequisite to making it
-a default in a production system.
-
-
-> 
-> 
-> 
-> 
-> Amazon Development Center Germany GmbH
-> Krausenstr. 38
-> 10117 Berlin
-> Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
-> Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
-> Sitz: Berlin
-> Ust-ID: DE 289 237 879
-> 
-> 
+--=20
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
