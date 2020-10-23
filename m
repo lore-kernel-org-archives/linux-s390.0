@@ -1,69 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 013/147] s390/startup: avoid save_area_sync overflow
-Date: Mon, 26 Oct 2020 19:46:51 -0400
-Message-Id: <20201026234905.1022767-13-sashal@kernel.org>
-In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
-References: <20201026234905.1022767-1-sashal@kernel.org>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH v3 05/56] s390: fix kernel-doc markups
+Date: Fri, 23 Oct 2020 18:32:52 +0200
+Message-Id: <c4bf95fbd9c33a92eb60ef3d696d4cbe27882079.1603469755.git.mchehab+huawei@kernel.org>
+In-Reply-To: <cover.1603469755.git.mchehab+huawei@kernel.org>
+References: <cover.1603469755.git.mchehab+huawei@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, "David S. Miller" <davem@davemloft.net>, Jonathan Corbet <corbet@lwn.net>, Alexander Egorenkov <egorenar@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+fix one typo:
+	ccw driver -> ccw_driver
 
-[ Upstream commit 2835c2ea95d50625108e47a459e1a47f6be836ce ]
+and one function rename.
 
-Currently we overflow save_area_sync and write over
-save_area_async. Although this is not a real problem make
-startup_pgm_check_handler consistent with late pgm check handler and
-store [%r0,%r7] directly into gpregs_save_area.
-
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 ---
- arch/s390/boot/head.S | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ arch/s390/include/asm/ccwdev.h | 2 +-
+ arch/s390/include/asm/cio.h    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/boot/head.S b/arch/s390/boot/head.S
-index dae10961d0724..1a2c2b1ed9649 100644
---- a/arch/s390/boot/head.S
-+++ b/arch/s390/boot/head.S
-@@ -360,22 +360,23 @@ ENTRY(startup_kdump)
- # the save area and does disabled wait with a faulty address.
- #
- ENTRY(startup_pgm_check_handler)
--	stmg	%r0,%r15,__LC_SAVE_AREA_SYNC
--	la	%r1,4095
--	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r1)
--	mvc	__LC_GPREGS_SAVE_AREA-4095(128,%r1),__LC_SAVE_AREA_SYNC
--	mvc	__LC_PSW_SAVE_AREA-4095(16,%r1),__LC_PGM_OLD_PSW
-+	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
-+	la	%r8,4095
-+	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r8)
-+	stmg	%r0,%r7,__LC_GPREGS_SAVE_AREA-4095(%r8)
-+	mvc	__LC_GPREGS_SAVE_AREA-4095+64(64,%r8),__LC_SAVE_AREA_SYNC
-+	mvc	__LC_PSW_SAVE_AREA-4095(16,%r8),__LC_PGM_OLD_PSW
- 	mvc	__LC_RETURN_PSW(16),__LC_PGM_OLD_PSW
- 	ni	__LC_RETURN_PSW,0xfc	# remove IO and EX bits
- 	ni	__LC_RETURN_PSW+1,0xfb	# remove MCHK bit
- 	oi	__LC_RETURN_PSW+1,0x2	# set wait state bit
--	larl	%r2,.Lold_psw_disabled_wait
--	stg	%r2,__LC_PGM_NEW_PSW+8
--	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r2)
-+	larl	%r9,.Lold_psw_disabled_wait
-+	stg	%r9,__LC_PGM_NEW_PSW+8
-+	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r9)
- 	brasl	%r14,print_pgm_check_info
- .Lold_psw_disabled_wait:
--	la	%r1,4095
--	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)
-+	la	%r8,4095
-+	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r8)
- 	lpswe	__LC_RETURN_PSW		# disabled wait
- .Ldump_info_stack:
- 	.long	0x5000 + PAGE_SIZE - STACK_FRAME_OVERHEAD
+diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
+index c0be5fe1ddba..069709b8e9e7 100644
+--- a/arch/s390/include/asm/ccwdev.h
++++ b/arch/s390/include/asm/ccwdev.h
+@@ -115,7 +115,7 @@ enum uc_todo {
+ };
+ 
+ /**
+- * struct ccw driver - device driver for channel attached devices
++ * struct ccw_driver - device driver for channel attached devices
+  * @ids: ids supported by this driver
+  * @probe: function called on probe
+  * @remove: function called on remove
+diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+index 5c58756d6476..23dceb8d0453 100644
+--- a/arch/s390/include/asm/cio.h
++++ b/arch/s390/include/asm/cio.h
+@@ -329,7 +329,7 @@ struct ccw_dev_id {
+ };
+ 
+ /**
+- * ccw_device_id_is_equal() - compare two ccw_dev_ids
++ * ccw_dev_id_is_equal() - compare two ccw_dev_ids
+  * @dev_id1: a ccw_dev_id
+  * @dev_id2: another ccw_dev_id
+  * Returns:
 -- 
-2.25.1
+2.26.2
