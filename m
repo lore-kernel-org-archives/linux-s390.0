@@ -1,14 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:33840 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750690AbgJWOj3 (ORCPT
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:23331 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750611AbgJWOdT (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 23 Oct 2020 10:39:29 -0400
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: Buggy commit tracked to: "Re: [PATCH 2/9] iov_iter: move
+        Fri, 23 Oct 2020 10:33:19 -0400
+Subject: Re: Buggy commit tracked to: "Re: [PATCH 2/9] iov_iter: move
  rw_copy_check_uvector() into lib/iov_iter.c"
-Date: Fri, 23 Oct 2020 14:39:24 +0000
-Message-ID: <35d0ec90ef4f4a35a75b9df7d791f719@AcuMS.aculab.com>
+From: David Hildenbrand <david@redhat.com>
 References: <df2e0758-b8ed-5aec-6adc-a18f499c0179@redhat.com>
  <20201022090155.GA1483166@kroah.com>
  <e04d0c5d-e834-a15b-7844-44dcc82785cc@redhat.com>
@@ -20,24 +18,65 @@ References: <df2e0758-b8ed-5aec-6adc-a18f499c0179@redhat.com>
  <20201022125759.GA1685526@kroah.com> <20201022135036.GA1787470@kroah.com>
  <134f162d711d466ebbd88906fae35b33@AcuMS.aculab.com>
  <935f7168-c2f5-dd14-7124-412b284693a2@redhat.com>
- <999e2926-9a75-72fd-007a-1de0af341292@redhat.com>
-In-Reply-To: <999e2926-9a75-72fd-007a-1de0af341292@redhat.com>
+Message-ID: <999e2926-9a75-72fd-007a-1de0af341292@redhat.com>
+Date: Fri, 23 Oct 2020 16:33:03 +0200
 MIME-Version: 1.0
+In-Reply-To: <935f7168-c2f5-dd14-7124-412b284693a2@redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: 'David Hildenbrand' <david@redhat.com>, 'Greg KH' <gregkh@linuxfoundation.org>
+To: David Laight <David.Laight@ACULAB.COM>, 'Greg KH' <gregkh@linuxfoundation.org>
 Cc: Al Viro <viro@zeniv.linux.org.uk>, Nick Desaulniers <ndesaulniers@google.com>, Christoph Hellwig <hch@lst.de>, "kernel-team@android.com" <kernel-team@android.com>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Arnd Bergmann <arnd@arndb.de>, David Howells <dhowells@redhat.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-aio@kvack.org" <linux-aio@kvack.org>, "io-uring@vger.kernel.org" <io-uring@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>, "linux-security-module@vger.kernel.org" <linux-security-module@vger.kernel.org>
 
-RnJvbTogRGF2aWQgSGlsZGVuYnJhbmQNCj4gU2VudDogMjMgT2N0b2JlciAyMDIwIDE1OjMzDQou
-Li4NCj4gSSBqdXN0IGNoZWNrZWQgYWdhaW5zdCB1cHN0cmVhbSBjb2RlIGdlbmVyYXRlZCBieSBj
-bGFuZyAxMCBhbmQgaXQNCj4gcHJvcGVybHkgZGlzY2FyZHMgdGhlIHVwcGVyIDMyYml0IHZpYSBh
-IG1vdiB3MjMgdzIuDQo+IA0KPiBTbyBhdCBsZWFzdCBjbGFuZyAxMCBpbmRlZWQgcHJvcGVybHkg
-YXNzdW1lcyB3ZSBjb3VsZCBoYXZlIGdhcmJhZ2UgYW5kDQo+IG1hc2tzIGl0IG9mZi4NCj4gDQo+
-IE1heWJlIHRoZSBpc3N1ZSBpcyBzb21ld2hlcmUgZWxzZSwgdW5yZWxhdGVkIHRvIG5yX3BhZ2Vz
-IC4uLiBvciBjbGFuZyAxMQ0KPiBiZWhhdmVzIGRpZmZlcmVudGx5Lg0KDQpXZSdsbCBuZWVkIHRo
-ZSBkaXNhc3NlbWJseSBmcm9tIGEgZmFpbGluZyBrZXJuZWwgaW1hZ2UuDQpJdCBpc24ndCB0aGF0
-IGJpZyB0byBoYW5kIGFubm90YXRlLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNz
-IExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAx
-UFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
+On 23.10.20 15:09, David Hildenbrand wrote:
+> On 23.10.20 14:46, David Laight wrote:
+>> From: Greg KH <gregkh@linuxfoundation.org>
+>>> Sent: 22 October 2020 14:51
+>>
+>> I've rammed the code into godbolt.
+>>
+>> https://godbolt.org/z/9v5PPW
+>>
+>> Definitely a clang bug.
+>>
+>> Search for [wx]24 in the clang output.
+>> nr_segs comes in as w2 and the initial bound checks are done on w2.
+>> w24 is loaded from w2 - I don't believe this changes the high bits.
+>> There are no references to w24, just x24.
+>> So the kmalloc_array() is passed 'huge' and will fail.
+>> The iov_iter_init also gets the 64bit value.
+>>
+>> Note that the gcc code has a sign-extend copy of w2.
+> 
+> Do we have a result from using "unsigned long" in the base function and
+> explicitly masking of the high bits? That should definitely work.
+> 
+> Now, I am not a compiler expert, but as I already cited, at least on
+> x86-64 clang expects that the high bits were cleared by the caller - in
+> contrast to gcc. I suspect it's the same on arm64, but again, I am no
+> compiler expert.
+> 
+> If what I said and cites for x86-64 is correct, if the function expects
+> an "unsigned int", it will happily use 64bit operations without further
+> checks where valid when assuming high bits are zero. That's why even
+> converting everything to "unsigned int" as proposed by me won't work on
+> clang - it assumes high bits are zero (as indicated by Nick).
+> 
+> As I am neither a compiler experts (did I mention that already? ;) ) nor
+> an arm64 experts, I can't tell if this is a compiler BUG or not.
+> 
+
+I just checked against upstream code generated by clang 10 and it
+properly discards the upper 32bit via a mov w23 w2.
+
+So at least clang 10 indeed properly assumes we could have garbage and
+masks it off.
+
+Maybe the issue is somewhere else, unrelated to nr_pages ... or clang 11
+behaves differently.
+
+-- 
+Thanks,
+
+David / dhildenb
