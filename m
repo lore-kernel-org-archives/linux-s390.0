@@ -1,43 +1,169 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:8152 "EHLO mga02.intel.com"
+Received: from mail.kernel.org ([198.145.29.99]:52846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1420944AbgJZAyY (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 25 Oct 2020 20:54:24 -0400
-From: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
-Subject: Re: [PATCH 4/4] arch, mm: make kernel_page_present() always available
-Date: Mon, 26 Oct 2020 00:54:01 +0000
-Message-ID: <979889bf987fdc7268a973fe7398198bfad1644f.camel@intel.com>
+        id S1415025AbgJYKRI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 25 Oct 2020 06:17:08 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH 4/4] arch, mm: make kernel_page_present() always available
+Date: Sun, 25 Oct 2020 12:15:55 +0200
+Message-Id: <20201025101555.3057-5-rppt@kernel.org>
+In-Reply-To: <20201025101555.3057-1-rppt@kernel.org>
 References: <20201025101555.3057-1-rppt@kernel.org>
-         <20201025101555.3057-5-rppt@kernel.org>
-In-Reply-To: <20201025101555.3057-5-rppt@kernel.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <3D4CB5DDF3DD214BA434D481A4E9F078@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: base64
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: "rppt@kernel.org" <rppt@kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
-Cc: "david@redhat.com" <david@redhat.com>, "cl@linux.com" <cl@linux.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org" <peterz@infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "will@kernel.org" <will@kernel.org>, "penberg@kernel.org" <penberg@kernel.org>, "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "kirill@shutemov.name" <kirill@shutemov.name>, "rientjes@google.com" <rientjes@google.com>, "rppt@linux.ibm.com" <rppt@linux.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "hca@linux.ibm.com" <hca@linux.ibm.com>, "pavel@ucw.cz" <pavel@ucw.cz>, "bp@alien8.de" <bp@alien8.de>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "luto@kernel.org" <luto@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "tglx@linutronix.de" <tglx@linutronix.de>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "x86@kernel.org" <x86@kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "palmer@dabbelt.com" <palmer@dabbelt.com>, "Brown, Len" <len.brown@intel.com>, "mingo@redhat.com" <mingo@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-T24gU3VuLCAyMDIwLTEwLTI1IGF0IDEyOjE1ICswMjAwLCBNaWtlIFJhcG9wb3J0IHdyb3RlOg0K
-PiBpbmRleCA3ZjI0OGZjNDUzMTcuLjE2Zjg3OGMyNjY2NyAxMDA2NDQNCj4gLS0tIGEvYXJjaC94
-ODYvbW0vcGF0L3NldF9tZW1vcnkuYw0KPiArKysgYi9hcmNoL3g4Ni9tbS9wYXQvc2V0X21lbW9y
-eS5jDQo+IEBAIC0yMjI4LDcgKzIyMjgsNiBAQCB2b2lkIF9fa2VybmVsX21hcF9wYWdlcyhzdHJ1
-Y3QgcGFnZSAqcGFnZSwgaW50DQo+IG51bXBhZ2VzLCBpbnQgZW5hYmxlKQ0KPiAgfQ0KPiAgI2Vu
-ZGlmIC8qIENPTkZJR19ERUJVR19QQUdFQUxMT0MgKi8NCj4gIA0KPiAtI2lmZGVmIENPTkZJR19I
-SUJFUk5BVElPTg0KPiAgYm9vbCBrZXJuZWxfcGFnZV9wcmVzZW50KHN0cnVjdCBwYWdlICpwYWdl
-KQ0KPiAgew0KPiAgICAgICAgIHVuc2lnbmVkIGludCBsZXZlbDsNCj4gQEAgLTIyNDAsNyArMjIz
-OSw2IEBAIGJvb2wga2VybmVsX3BhZ2VfcHJlc2VudChzdHJ1Y3QgcGFnZSAqcGFnZSkNCj4gICAg
-ICAgICBwdGUgPSBsb29rdXBfYWRkcmVzcygodW5zaWduZWQgbG9uZylwYWdlX2FkZHJlc3MocGFn
-ZSksDQo+ICZsZXZlbCk7DQo+ICAgICAgICAgcmV0dXJuIChwdGVfdmFsKCpwdGUpICYgX1BBR0Vf
-UFJFU0VOVCk7DQo+ICB9DQo+IC0jZW5kaWYgLyogQ09ORklHX0hJQkVSTkFUSU9OICovDQoNClRo
-aXMgaXMgb25seSB1c2VkIGJ5IGhpYmVybmF0ZSB0b2RheSByaWdodD8gTWFrZXMgc2Vuc2UgdGhh
-dCBpdCBzaG91bGQNCnJldHVybiBhIGNvcnJlY3QgYW5zd2VyIGlmIHNvbWVvbmUgc3RhcnRzIHRv
-IHVzZSBpdCB3aXRob3V0IGxvb2tpbmcgdG9vDQpjbG9zZWx5IGF0IHRoZSBoZWFkZXIuIEJ1dCBj
-b3VsZCB3ZSBqdXN0IHJlbW92ZSB0aGUgZGVmYXVsdCBzdGF0aWMNCmlubGluZSByZXR1cm4gdHJ1
-ZSBpbXBsZW1lbnRhdGlvbiBhbmQgbGV0IHRoZSBsaW5rZXIgZmFpbCBpZiBzb21lb25lDQpzdGFy
-dHMgdG8gdXNlIGl0IG91dHNpZGUgaGliZXJuYXRlPyBUaGVuIHdlIGNvdWxkIGxlYXZlIGl0IGNv
-bXBpbGVkIG91dA0KdW50aWwgdGhlbi4NCg0KQWxzbyBpdCBsb29rcyBsaWtlIHJpc2N2IGRvZXMg
-bm90IGhhdmUgQVJDSF9ISUJFUk5BVElPTl9QT1NTSUJMRSBzbyB0aGUNCm5ldyBmdW5jdGlvbiBh
-ZGRlZCBoZXJlIGNvdWxkbid0IGJlIHVzZWQgeWV0LiBZb3UgY291bGQgYWxzbyBqdXN0IGxldA0K
-dGhlIGxpbmtlciBjYXRjaCBpdCBpZiByaXNjdiBldmVyIGVuYWJsZXMgaGliZXJuYXRlPw0K
+From: Mike Rapoport <rppt@linux.ibm.com>
+
+For architectures that enable ARCH_HAS_SET_MEMORY having the ability to
+verify that a page is mapped in the kernel direct map can be useful
+regardless of hibernation.
+
+Add RISC-V implementation of kernel_page_present() and update its forward
+declarations and stubs to be a part of set_memory API.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/arm64/include/asm/cacheflush.h |  1 +
+ arch/riscv/include/asm/set_memory.h |  1 +
+ arch/riscv/mm/pageattr.c            | 29 +++++++++++++++++++++++++++++
+ arch/x86/include/asm/set_memory.h   |  1 +
+ arch/x86/mm/pat/set_memory.c        |  2 --
+ include/linux/mm.h                  |  7 -------
+ include/linux/set_memory.h          |  5 +++++
+ 7 files changed, 37 insertions(+), 9 deletions(-)
+
+diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
+index 9384fd8fc13c..45217f21f1fe 100644
+--- a/arch/arm64/include/asm/cacheflush.h
++++ b/arch/arm64/include/asm/cacheflush.h
+@@ -140,6 +140,7 @@ int set_memory_valid(unsigned long addr, int numpages, int enable);
+ 
+ int set_direct_map_invalid_noflush(struct page *page);
+ int set_direct_map_default_noflush(struct page *page);
++bool kernel_page_present(struct page *page);
+ 
+ #include <asm-generic/cacheflush.h>
+ 
+diff --git a/arch/riscv/include/asm/set_memory.h b/arch/riscv/include/asm/set_memory.h
+index 4c5bae7ca01c..d690b08dff2a 100644
+--- a/arch/riscv/include/asm/set_memory.h
++++ b/arch/riscv/include/asm/set_memory.h
+@@ -24,6 +24,7 @@ static inline int set_memory_nx(unsigned long addr, int numpages) { return 0; }
+ 
+ int set_direct_map_invalid_noflush(struct page *page);
+ int set_direct_map_default_noflush(struct page *page);
++bool kernel_page_present(struct page *page);
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+diff --git a/arch/riscv/mm/pageattr.c b/arch/riscv/mm/pageattr.c
+index 321b09d2e2ea..87ba5a68bbb8 100644
+--- a/arch/riscv/mm/pageattr.c
++++ b/arch/riscv/mm/pageattr.c
+@@ -198,3 +198,32 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ 			     __pgprot(0), __pgprot(_PAGE_PRESENT));
+ }
+ #endif
++
++bool kernel_page_present(struct page *page)
++{
++	unsigned long addr = (unsigned long)page_address(page);
++	pgd_t *pgd;
++	pud_t *pud;
++	p4d_t *p4d;
++	pmd_t *pmd;
++	pte_t *pte;
++
++	pgd = pgd_offset_k(addr);
++	if (!pgd_present(*pgd))
++		return false;
++
++	p4d = p4d_offset(pgd, addr);
++	if (!p4d_present(*p4d))
++		return false;
++
++	pud = pud_offset(p4d, addr);
++	if (!pud_present(*pud))
++		return false;
++
++	pmd = pmd_offset(pud, addr);
++	if (!pmd_present(*pmd))
++		return false;
++
++	pte = pte_offset_kernel(pmd, addr);
++	return pte_present(*pte);
++}
+diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
+index 5948218f35c5..4352f08bfbb5 100644
+--- a/arch/x86/include/asm/set_memory.h
++++ b/arch/x86/include/asm/set_memory.h
+@@ -82,6 +82,7 @@ int set_pages_rw(struct page *page, int numpages);
+ 
+ int set_direct_map_invalid_noflush(struct page *page);
+ int set_direct_map_default_noflush(struct page *page);
++bool kernel_page_present(struct page *page);
+ 
+ extern int kernel_set_to_readonly;
+ 
+diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+index 7f248fc45317..16f878c26667 100644
+--- a/arch/x86/mm/pat/set_memory.c
++++ b/arch/x86/mm/pat/set_memory.c
+@@ -2228,7 +2228,6 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ }
+ #endif /* CONFIG_DEBUG_PAGEALLOC */
+ 
+-#ifdef CONFIG_HIBERNATION
+ bool kernel_page_present(struct page *page)
+ {
+ 	unsigned int level;
+@@ -2240,7 +2239,6 @@ bool kernel_page_present(struct page *page)
+ 	pte = lookup_address((unsigned long)page_address(page), &level);
+ 	return (pte_val(*pte) & _PAGE_PRESENT);
+ }
+-#endif /* CONFIG_HIBERNATION */
+ 
+ int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
+ 				   unsigned numpages, unsigned long page_flags)
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ab0ef6bd351d..44b82f22e76a 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2937,16 +2937,9 @@ static inline void debug_pagealloc_map_pages(struct page *page,
+ 	if (debug_pagealloc_enabled_static())
+ 		__kernel_map_pages(page, numpages, enable);
+ }
+-
+-#ifdef CONFIG_HIBERNATION
+-extern bool kernel_page_present(struct page *page);
+-#endif	/* CONFIG_HIBERNATION */
+ #else	/* CONFIG_DEBUG_PAGEALLOC */
+ static inline void debug_pagealloc_map_pages(struct page *page,
+ 					     int numpages, int enable) {}
+-#ifdef CONFIG_HIBERNATION
+-static inline bool kernel_page_present(struct page *page) { return true; }
+-#endif	/* CONFIG_HIBERNATION */
+ #endif	/* CONFIG_DEBUG_PAGEALLOC */
+ 
+ #ifdef __HAVE_ARCH_GATE_AREA
+diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
+index 860e0f843c12..fe1aa4e54680 100644
+--- a/include/linux/set_memory.h
++++ b/include/linux/set_memory.h
+@@ -23,6 +23,11 @@ static inline int set_direct_map_default_noflush(struct page *page)
+ {
+ 	return 0;
+ }
++
++static inline bool kernel_page_present(struct page *page)
++{
++	return true;
++}
+ #endif
+ 
+ #ifndef set_mce_nospec
+-- 
+2.28.0
