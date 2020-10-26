@@ -1,154 +1,143 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from aserp2120.oracle.com ([141.146.126.78]:43772 "EHLO
-        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726007AbgJ1VdU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 28 Oct 2020 17:33:20 -0400
-Date: Wed, 28 Oct 2020 14:25:59 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [bug report] net/smc: CLC accept / confirm V2
-Message-ID: <20201028112539.GA1155565@mwanda>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57990 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1733033AbgJZRVw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Oct 2020 13:21:52 -0400
+Subject: Re: [PATCH v11 12/14] s390/vfio-ap: handle host AP config change
+ notification
+References: <20201022171209.19494-13-akrowiak@linux.ibm.com>
+ <202010230508.bSSV3BvM-lkp@intel.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <a902bb74-fc43-8d1d-9a18-779ef3608ccf@linux.ibm.com>
+Date: Mon, 26 Oct 2020 13:21:45 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <202010230508.bSSV3BvM-lkp@intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: ubraun@linux.ibm.com
-Cc: linux-s390@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: kbuild-all@lists.01.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com
 
-Hello Ursula Braun,
 
-The patch a7c9c5f4af7f: "net/smc: CLC accept / confirm V2" from Sep
-26, 2020, leads to the following static checker warning:
 
-	net/smc/af_smc.c:1771 smc_listen_work()
-	error: we previously assumed 'ini' could be null (see line 1715)
+On 10/22/20 5:17 PM, kernel test robot wrote:
+> Hi Tony,
+>
+> I love your patch! Perhaps something to improve:
+>
+> [auto build test WARNING on s390/features]
+> [also build test WARNING on linus/master next-20201022]
+> [cannot apply to kvms390/next linux/master v5.9]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch]
+>
+> url:    https://github.com/0day-ci/linux/commits/Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20201023-011543
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+> config: s390-allyesconfig (attached as .config)
+> compiler: s390-linux-gcc (GCC) 9.3.0
+> reproduce (this is a W=1 build):
+>          wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>          chmod +x ~/bin/make.cross
+>          # https://github.com/0day-ci/linux/commit/32786ef6d4ba3703d993a8894ea1d763785fd3a4
+>          git remote add linux-review https://github.com/0day-ci/linux
+>          git fetch --no-tags linux-review Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20201023-011543
+>          git checkout 32786ef6d4ba3703d993a8894ea1d763785fd3a4
+>          # save the attached .config to linux build tree
+>          COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=s390
+>
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+>
+> All warnings (new ones prefixed by >>):
+>
+>     drivers/s390/crypto/vfio_ap_ops.c:1316:5: warning: no previous prototype for 'vfio_ap_mdev_reset_queue' [-Wmissing-prototypes]
+>      1316 | int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+>           |     ^~~~~~~~~~~~~~~~~~~~~~~~
+>     drivers/s390/crypto/vfio_ap_ops.c:1568:6: warning: no previous prototype for 'vfio_ap_mdev_hot_unplug_queue' [-Wmissing-prototypes]
+>      1568 | void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
+>           |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>     drivers/s390/crypto/vfio_ap_ops.c: In function 'vfio_ap_mdev_on_cfg_remove':
+>>> drivers/s390/crypto/vfio_ap_ops.c:1777:7: warning: variable 'unassigned' set but not used [-Wunused-but-set-variable]
+>      1777 |  bool unassigned = false;
+>           |       ^~~~~~~~~~
+>     drivers/s390/crypto/vfio_ap_ops.c: At top level:
+>>> drivers/s390/crypto/vfio_ap_ops.c:1813:6: warning: no previous prototype for 'vfio_ap_mdev_on_cfg_add' [-Wmissing-prototypes]
+>      1813 | void vfio_ap_mdev_on_cfg_add(void)
+>           |      ^~~~~~~~~~~~~~~~~~~~~~~
 
-net/smc/af_smc.c
-  1665  static void smc_listen_work(struct work_struct *work)
-  1666  {
-  1667          struct smc_sock *new_smc = container_of(work, struct smc_sock,
-  1668                                                  smc_listen_work);
-  1669          u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
-  1670          struct socket *newclcsock = new_smc->clcsock;
-  1671          struct smc_clc_msg_accept_confirm *cclc;
-  1672          struct smc_clc_msg_proposal_area *buf;
-  1673          struct smc_clc_msg_proposal *pclc;
-  1674          struct smc_init_info *ini = NULL;
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Needs to be static, will fix.
 
-  1675          int rc = 0;
-  1676  
-  1677          if (new_smc->listen_smc->sk.sk_state != SMC_LISTEN)
-  1678                  return smc_listen_out_err(new_smc);
-  1679  
-  1680          if (new_smc->use_fallback) {
-  1681                  smc_listen_out_connected(new_smc);
-  1682                  return;
-  1683          }
-  1684  
-  1685          /* check if peer is smc capable */
-  1686          if (!tcp_sk(newclcsock->sk)->syn_smc) {
-  1687                  smc_switch_to_fallback(new_smc);
-  1688                  new_smc->fallback_rsn = SMC_CLC_DECL_PEERNOSMC;
-  1689                  smc_listen_out_connected(new_smc);
-  1690                  return;
-  1691          }
-  1692  
-  1693          /* do inband token exchange -
-  1694           * wait for and receive SMC Proposal CLC message
-  1695           */
-  1696          buf = kzalloc(sizeof(*buf), GFP_KERNEL);
-  1697          if (!buf) {
-  1698                  rc = SMC_CLC_DECL_MEM;
-  1699                  goto out_decl;
-                        ^^^^^^^^^^^^^^
-There are several paths where "ini" is NULL leading to an Oops in the
-error handling.
+>     In file included from drivers/s390/crypto/vfio_ap_ops.c:11:
+>     In function 'memcpy',
+>         inlined from 'vfio_ap_mdev_unassign_apids' at drivers/s390/crypto/vfio_ap_ops.c:1655:3,
+>         inlined from 'vfio_ap_mdev_on_cfg_remove' at drivers/s390/crypto/vfio_ap_ops.c:1800:8,
+>         inlined from 'vfio_ap_on_cfg_changed' at drivers/s390/crypto/vfio_ap_ops.c:1836:2:
+>     include/linux/string.h:402:4: error: call to '__read_overflow2' declared with attribute error: detected read beyond size of object passed as 2nd parameter
+>       402 |    __read_overflow2();
+>           |    ^~~~~~~~~~~~~~~~~~
 
-  1700          }
-  1701          pclc = (struct smc_clc_msg_proposal *)buf;
-  1702          rc = smc_clc_wait_msg(new_smc, pclc, sizeof(*buf),
-  1703                                SMC_CLC_PROPOSAL, CLC_WAIT_TIME);
-  1704          if (rc)
-  1705                  goto out_decl;
-                        ^^^^^^^^^^^^^
+Will replace memcpy with bitmap_copy.
 
-  1706          version = pclc->hdr.version == SMC_V1 ? SMC_V1 : version;
-  1707  
-  1708          /* IPSec connections opt out of SMC optimizations */
-  1709          if (using_ipsec(new_smc)) {
-  1710                  rc = SMC_CLC_DECL_IPSEC;
-  1711                  goto out_decl;
-                        ^^^^^^^^^^^^^
-
-  1712          }
-  1713  
-  1714          ini = kzalloc(sizeof(*ini), GFP_KERNEL);
-  1715          if (!ini) {
-  1716                  rc = SMC_CLC_DECL_MEM;
-  1717                  goto out_decl;
-                        ^^^^^^^^^^^^^
-
-  1718          }
-  1719  
-  1720          /* initial version checking */
-  1721          rc = smc_listen_v2_check(new_smc, pclc, ini);
-  1722          if (rc)
-  1723                  goto out_decl;
-  1724  
-  1725          mutex_lock(&smc_server_lgr_pending);
-  1726          smc_close_init(new_smc);
-  1727          smc_rx_init(new_smc);
-  1728          smc_tx_init(new_smc);
-  1729  
-  1730          /* determine ISM or RoCE device used for connection */
-  1731          rc = smc_listen_find_device(new_smc, pclc, ini);
-  1732          if (rc)
-  1733                  goto out_unlock;
-  1734  
-  1735          /* send SMC Accept CLC message */
-  1736          rc = smc_clc_send_accept(new_smc, ini->first_contact_local,
-  1737                                   ini->smcd_version == SMC_V2 ? SMC_V2 : SMC_V1);
-  1738          if (rc)
-  1739                  goto out_unlock;
-  1740  
-  1741          /* SMC-D does not need this lock any more */
-  1742          if (ini->is_smcd)
-  1743                  mutex_unlock(&smc_server_lgr_pending);
-  1744  
-  1745          /* receive SMC Confirm CLC message */
-  1746          memset(buf, 0, sizeof(*buf));
-  1747          cclc = (struct smc_clc_msg_accept_confirm *)buf;
-  1748          rc = smc_clc_wait_msg(new_smc, cclc, sizeof(*buf),
-  1749                                SMC_CLC_CONFIRM, CLC_WAIT_TIME);
-  1750          if (rc) {
-  1751                  if (!ini->is_smcd)
-  1752                          goto out_unlock;
-  1753                  goto out_decl;
-  1754          }
-  1755  
-  1756          /* finish worker */
-  1757          if (!ini->is_smcd) {
-  1758                  rc = smc_listen_rdma_finish(new_smc, cclc,
-  1759                                              ini->first_contact_local);
-  1760                  if (rc)
-  1761                          goto out_unlock;
-  1762                  mutex_unlock(&smc_server_lgr_pending);
-  1763          }
-  1764          smc_conn_save_peer_info(new_smc, cclc);
-  1765          smc_listen_out_connected(new_smc);
-  1766          goto out_free;
-  1767  
-  1768  out_unlock:
-  1769          mutex_unlock(&smc_server_lgr_pending);
-  1770  out_decl:
-  1771          smc_listen_decline(new_smc, rc, ini, version);
-                                                ^^^
-If "ini" is NULL then this will Oops.
-
-  1772  out_free:
-  1773          kfree(ini);
-  1774          kfree(buf);
-  1775  }
-
-regards,
-dan carpenter
+>
+> vim +/unassigned +1777 drivers/s390/crypto/vfio_ap_ops.c
+>
+>    1774	
+>    1775	static void vfio_ap_mdev_on_cfg_remove(void)
+>    1776	{
+>> 1777		bool unassigned = false;
+>    1778		int ap_remove, aq_remove;
+>    1779		struct ap_matrix_mdev *matrix_mdev;
+>    1780		DECLARE_BITMAP(apid_rem, AP_DEVICES);
+>    1781		DECLARE_BITMAP(apqi_rem, AP_DOMAINS);
+>    1782		unsigned long *cur_apm, *cur_aqm, *prev_apm, *prev_aqm;
+>    1783	
+>    1784		cur_apm = (unsigned long *)matrix_dev->config_info.apm;
+>    1785		cur_aqm = (unsigned long *)matrix_dev->config_info.aqm;
+>    1786		prev_apm = (unsigned long *)matrix_dev->config_info_prev.apm;
+>    1787		prev_aqm = (unsigned long *)matrix_dev->config_info_prev.aqm;
+>    1788	
+>    1789		ap_remove = bitmap_andnot(apid_rem, prev_apm, cur_apm, AP_DEVICES);
+>    1790		aq_remove = bitmap_andnot(apqi_rem, prev_aqm, cur_aqm, AP_DOMAINS);
+>    1791	
+>    1792		if (!ap_remove && !aq_remove)
+>    1793			return;
+>    1794	
+>    1795		list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
+>    1796			if (!vfio_ap_mdev_has_crycb(matrix_mdev))
+>    1797				continue;
+>    1798	
+>    1799			if (ap_remove) {
+>    1800				if (vfio_ap_mdev_unassign_apids(matrix_mdev, apid_rem))
+>    1801					unassigned = true;
+>    1802				vfio_ap_mdev_unlink_apids(matrix_mdev, apid_rem);
+>    1803			}
+>    1804	
+>    1805			if (aq_remove) {
+>    1806				if (vfio_ap_mdev_unassign_apqis(matrix_mdev, apqi_rem))
+>    1807					unassigned = true;
+>    1808				vfio_ap_mdev_unlink_apqis(matrix_mdev, apqi_rem);
+>    1809			}
+>    1810		}
+>    1811	}
+>    1812	
+>> 1813	void vfio_ap_mdev_on_cfg_add(void)
+>    1814	{
+>    1815		unsigned long *cur_apm, *cur_aqm, *prev_apm, *prev_aqm;
+>    1816	
+>    1817		cur_apm = (unsigned long *)matrix_dev->config_info.apm;
+>    1818		cur_aqm = (unsigned long *)matrix_dev->config_info.aqm;
+>    1819	
+>    1820		prev_apm = (unsigned long *)matrix_dev->config_info_prev.apm;
+>    1821		prev_aqm = (unsigned long *)matrix_dev->config_info_prev.aqm;
+>    1822	
+>    1823		bitmap_andnot(matrix_dev->ap_add, cur_apm, prev_apm, AP_DEVICES);
+>    1824		bitmap_andnot(matrix_dev->aq_add, cur_aqm, prev_aqm, AP_DOMAINS);
+>    1825	}
+>    1826	
+>
+> ---
+> 0-DAY CI Kernel Test Service, Intel Corporation
+> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
