@@ -1,170 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2004 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31864 "EHLO
         mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725833AbgJBUBM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 16:01:12 -0400
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH v2 3/5] vfio-pci/zdev: define the vfio_zdev header
-Date: Fri,  2 Oct 2020 16:00:42 -0400
-Message-Id: <1601668844-5798-4-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1601668844-5798-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1601668844-5798-1-git-send-email-mjrosato@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1768773AbgJZMtQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Oct 2020 08:49:16 -0400
+Date: Mon, 26 Oct 2020 13:49:05 +0100
+From: Vasily Gorbik <gor@linux.ibm.com>
+Subject: Re: [Regression] s390x build broken with 5.10-rc1 (bisected)
+Message-ID: <cover.thread-96dc81.your-ad-here.call-01603716370-ext-5478@work.hours>
+References: <20201026104811.22ta4pby2chmz4pv@lion.mk-sys.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20201026104811.22ta4pby2chmz4pv@lion.mk-sys.cz>
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Michal Kubecek <mkubecek@suse.cz>
+Cc: linux-s390@vger.kernel.org, Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
 
-We define a new device region in vfio.h to be able to get the ZPCI CLP
-information by reading this region from userspace.
+On Mon, Oct 26, 2020 at 11:48:11AM +0100, Michal Kubecek wrote:
+> Hello,
+> 
+> 5.10-rc1 builds on s390x fail with
+> 
+>   make -f ./scripts/Makefile.build obj=arch/s390/boot arch/s390/boot/bzImage
+>   make -f ./scripts/Makefile.modpost
+>   make -f ./scripts/Makefile.modfinal
+>   make -f ./scripts/Makefile.build obj=arch/s390/boot/compressed arch/s390/boot/compressed/vmlinux
+>           s1=`s390x-suse-linux-objdump -t -j ".boot.data" "vmlinux" | sort | sed -n "/0000000000000000/! s/.*\s.boot.data\s\+//p" | sha256sum`; s2=`s390x-suse-linux-objdump -t -j ".boot.data" "arch/s390/boot/compressed/vmlinux" | sort | sed -n "/0000000000000000/! s/.*\s.boot.data\s\+//p" | sha256sum`; if [ "$s1" != "$s2" ]; then echo "error: section .boot.data differs between vmlinux and arch/s390/boot/compressed/vmlinux" >&2; exit 1; fi; touch arch/s390/boot/section_cmp.boot.data
+>           s1=`s390x-suse-linux-objdump -t -j ".boot.preserved.data" "vmlinux" | sort | sed -n "/0000000000000000/! s/.*\s.boot.preserved.data\s\+//p" | sha256sum`; s2=`s390x-suse-linux-objdump -t -j ".boot.preserved.data" "arch/s390/boot/compressed/vmlinux" | sort | sed -n "/0000000000000000/! s/.*\s.boot.preserved.data\s\+//p" | sha256sum`; if [ "$s1" != "$s2" ]; then echo "error: section .boot.preserved.data differs between vmlinux and arch/s390/boot/compressed/vmlinux" >&2; exit 1; fi; touch arch/s390/boot/section_cmp.boot.preserved.data
+>   error: section .boot.data differs between vmlinux and arch/s390/boot/compressed/vmlinux
+>   make[1]: *** [arch/s390/boot/Makefile:65: arch/s390/boot/section_cmp.boot.data] Error 1
+>   make[1]: *** Waiting for unfinished jobs....
+>   error: section .boot.preserved.data differs between vmlinux and arch/s390/boot/compressed/vmlinux
+>   make[1]: *** [arch/s390/boot/Makefile:65: arch/s390/boot/section_cmp.boot.preserved.data] Error 1
+>   make: *** [arch/s390/Makefile:153: bzImage] Error 2
+>   make: *** Waiting for unfinished jobs....
+> 
+> Bisect identified commit 33def8498fdd ("treewide: Convert macro and uses
+> of __section(foo) to __section("foo")"), i.e. the very last commit
+> before tagging v5.10-rc1.
+> 
+> I can reproduce this with e.g. defconfig and both native s390x build and
+> build on x86_64 using cross compiler. I used gcc 10.2.1 and binutils 2.34.
+> 
+> Michal
 
-We create a new file, vfio_zdev.h to define the structure of the new
-region defined in vfio.h
+Hello Michal,
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
----
- include/uapi/linux/vfio.h      |   5 ++
- include/uapi/linux/vfio_zdev.h | 118 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 123 insertions(+)
- create mode 100644 include/uapi/linux/vfio_zdev.h
+I've already fixed that. The fix will appear shortly on s390/fixes
+Thank you for reporting!
 
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 9204705..65eb367 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -326,6 +326,11 @@ struct vfio_region_info_cap_type {
-  * to do TLB invalidation on a GPU.
-  */
- #define VFIO_REGION_SUBTYPE_IBM_NVLINK2_ATSD	(1)
-+/*
-+ * IBM zPCI specific hardware feature information for a devcie.  The contents
-+ * of this region are mapped by struct vfio_region_zpci_info.
-+ */
-+#define VFIO_REGION_SUBTYPE_IBM_ZPCI_CLP	(2)
- 
- /* sub-types for VFIO_REGION_TYPE_GFX */
- #define VFIO_REGION_SUBTYPE_GFX_EDID            (1)
-diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
-new file mode 100644
-index 0000000..1c8fb62
---- /dev/null
-+++ b/include/uapi/linux/vfio_zdev.h
-@@ -0,0 +1,118 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-+/*
-+ * Region definition for ZPCI devices
-+ *
-+ * Copyright IBM Corp. 2020
-+ *
-+ * Author(s): Pierre Morel <pmorel@linux.ibm.com>
-+ *            Matthew Rosato <mjrosato@linux.ibm.com>
-+ */
-+
-+#ifndef _VFIO_ZDEV_H_
-+#define _VFIO_ZDEV_H_
-+
-+#include <linux/types.h>
-+
-+/**
-+ * struct vfio_region_zpci_info - ZPCI information
-+ *
-+ * This region provides zPCI specific hardware feature information for a
-+ * device.
-+ *
-+ * The ZPCI information structure is presented as a chain of CLP features
-+ * defined below. argsz provides the size of the entire region, and offset
-+ * provides the location of the first CLP feature in the chain.
-+ *
-+ */
-+struct vfio_region_zpci_info {
-+	__u32 argsz;		/* Size of entire payload */
-+	__u32 offset;		/* Location of first entry */
-+};
-+
-+/**
-+ * struct vfio_region_zpci_info_hdr - ZPCI header information
-+ *
-+ * This structure is included at the top of each CLP feature to define what
-+ * type of CLP feature is presented / the structure version. The next value
-+ * defines the offset of the next CLP feature, and is an offset from the very
-+ * beginning of the region (vfio_region_zpci_info).
-+ *
-+ * Each CLP feature must have it's own unique 'id'.
-+ */
-+struct vfio_region_zpci_info_hdr {
-+	__u16 id;		/* Identifies the CLP type */
-+	__u16	version;	/* version of the CLP data */
-+	__u32 next;		/* Offset of next entry */
-+};
-+
-+/**
-+ * struct vfio_region_zpci_info_pci - Base PCI Function information
-+ *
-+ * This region provides a set of descriptive information about the associated
-+ * PCI function.
-+ */
-+#define VFIO_REGION_ZPCI_INFO_BASE	1
-+
-+struct vfio_region_zpci_info_base {
-+	struct vfio_region_zpci_info_hdr hdr;
-+	__u64 start_dma;	/* Start of available DMA addresses */
-+	__u64 end_dma;		/* End of available DMA addresses */
-+	__u16 pchid;		/* Physical Channel ID */
-+	__u16 vfn;		/* Virtual function number */
-+	__u16 fmb_length;	/* Measurement Block Length (in bytes) */
-+	__u8 pft;		/* PCI Function Type */
-+	__u8 gid;		/* PCI function group ID */
-+};
-+
-+
-+/**
-+ * struct vfio_region_zpci_info_group - Base PCI Function Group information
-+ *
-+ * This region provides a set of descriptive information about the group of PCI
-+ * functions that the associated device belongs to.
-+ */
-+#define VFIO_REGION_ZPCI_INFO_GROUP	2
-+
-+struct vfio_region_zpci_info_group {
-+	struct vfio_region_zpci_info_hdr hdr;
-+	__u64 dasm;		/* DMA Address space mask */
-+	__u64 msi_addr;		/* MSI address */
-+	__u64 flags;
-+#define VFIO_PCI_ZDEV_FLAGS_REFRESH 1 /* Use program-specified TLB refresh */
-+	__u16 mui;		/* Measurement Block Update Interval */
-+	__u16 noi;		/* Maximum number of MSIs */
-+	__u16 maxstbl;		/* Maximum Store Block Length */
-+	__u8 version;		/* Supported PCI Version */
-+};
-+
-+/**
-+ * struct vfio_region_zpci_info_util - Utility String
-+ *
-+ * This region provides the utility string for the associated device, which is
-+ * a device identifier string made up of EBCDID characters.  'size' specifies
-+ * the length of 'util_str'.
-+ */
-+#define VFIO_REGION_ZPCI_INFO_UTIL	3
-+
-+struct vfio_region_zpci_info_util {
-+	struct vfio_region_zpci_info_hdr hdr;
-+	__u32 size;
-+	__u8 util_str[];
-+};
-+
-+/**
-+ * struct vfio_region_zpci_info_pfip - PCI Function Path
-+ *
-+ * This region provides the PCI function path string, which is an identifier
-+ * that describes the internal hardware path of the device. 'size' specifies
-+ * the length of 'pfip'.
-+ */
-+#define VFIO_REGION_ZPCI_INFO_PFIP	4
-+
-+struct vfio_region_zpci_info_pfip {
-+struct vfio_region_zpci_info_hdr hdr;
-+	__u32 size;
-+	__u8 pfip[];
-+};
-+
-+#endif
+Vasily Gorbik (1):
+  s390: correct __bootdata / __bootdata_preserved macros
+
+ arch/s390/include/asm/sections.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
 -- 
-1.8.3.1
+2.25.4
