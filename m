@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:54050 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1772791AbgJZK6k (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:40 -0400
-Received: by mail-wm1-f66.google.com with SMTP id d78so11147864wmd.3
-        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:37 -0700 (PDT)
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:37619 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1772427AbgJZK6b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:31 -0400
+Received: by mail-wr1-f66.google.com with SMTP id h7so11902653wre.4
+        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:30 -0700 (PDT)
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v4 08/15] mm: Add unsafe_follow_pfn
-Date: Mon, 26 Oct 2020 11:58:11 +0100
-Message-Id: <20201026105818.2585306-9-daniel.vetter@ffwll.ch>
+Subject: [PATCH v4 03/15] misc/habana: Stop using frame_vector helpers
+Date: Mon, 26 Oct 2020 11:58:06 +0100
+Message-Id: <20201026105818.2585306-4-daniel.vetter@ffwll.ch>
 In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
 References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
@@ -16,36 +16,14 @@ Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, John Hubbard <jhubbard@nvidia.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Andrew Morton <akpm@linux-foundation.org>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Oded Gabbay <oded.gabbay@gmail.com>, Omer Shpigelman <oshpigelman@habana.ai>, Ofir Bitton <obitton@habana.ai>, Tomer Tayar <ttayar@habana.ai>, Moti Haimovski <mhaimovski@habana.ai>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Pawel Piskorski <ppiskorski@habana.ai>
 
-Way back it was a reasonable assumptions that iomem mappings never
-change the pfn range they point at. But this has changed:
+All we need are a pages array, pin_user_pages_fast can give us that
+directly. Plus this avoids the entire raw pfn side of get_vaddr_frames.
 
-- gpu drivers dynamically manage their memory nowadays, invalidating
-ptes with unmap_mapping_range when buffers get moved
-
-- contiguous dma allocations have moved from dedicated carvetouts to
-cma regions. This means if we miss the unmap the pfn might contain
-pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
-
-- even /dev/mem now invalidates mappings when the kernel requests that
-iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
-("/dev/mem: Revoke mappings when a driver claims the region")
-
-Accessing pfns obtained from ptes without holding all the locks is
-therefore no longer a good idea.
-
-Unfortunately there's some users where this is not fixable (like v4l
-userptr of iomem mappings) or involves a pile of work (vfio type1
-iommu). For now annotate these as unsafe and splat appropriately.
-
-This patch adds an unsafe_follow_pfn, which later patches will then
-roll out to all appropriate places.
-
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
 Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: John Hubbard <jhubbard@nvidia.com>
 Cc: Jérôme Glisse <jglisse@redhat.com>
@@ -55,129 +33,152 @@ Cc: linux-mm@kvack.org
 Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-samsung-soc@vger.kernel.org
 Cc: linux-media@vger.kernel.org
-Cc: kvm@vger.kernel.org
+Cc: Oded Gabbay <oded.gabbay@gmail.com>
+Cc: Omer Shpigelman <oshpigelman@habana.ai>
+Cc: Ofir Bitton <obitton@habana.ai>
+Cc: Tomer Tayar <ttayar@habana.ai>
+Cc: Moti Haimovski <mhaimovski@habana.ai>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Pawel Piskorski <ppiskorski@habana.ai>
 Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+--
+v2: Use unpin_user_pages_dirty_lock (John)
+v3: Update kerneldoc (Oded)
 ---
- include/linux/mm.h |  2 ++
- mm/memory.c        | 32 +++++++++++++++++++++++++++++++-
- mm/nommu.c         | 17 +++++++++++++++++
- security/Kconfig   | 13 +++++++++++++
- 4 files changed, 63 insertions(+), 1 deletion(-)
+ drivers/misc/habanalabs/Kconfig             |  1 -
+ drivers/misc/habanalabs/common/habanalabs.h |  6 ++-
+ drivers/misc/habanalabs/common/memory.c     | 49 ++++++++-------------
+ 3 files changed, 22 insertions(+), 34 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 2a16631c1fda..ec8c90928fc9 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1653,6 +1653,8 @@ int follow_pte_pmd(struct mm_struct *mm, unsigned long address,
- 		   pte_t **ptepp, pmd_t **pmdpp, spinlock_t **ptlp);
- int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- 	unsigned long *pfn);
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+		      unsigned long *pfn);
- int follow_phys(struct vm_area_struct *vma, unsigned long address,
- 		unsigned int flags, unsigned long *prot, resource_size_t *phys);
- int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
-diff --git a/mm/memory.c b/mm/memory.c
-index 1b46eae3b703..9a2ec07ff20b 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4788,7 +4788,12 @@ EXPORT_SYMBOL(follow_pte_pmd);
-  * @address: user virtual address
-  * @pfn: location to store found PFN
-  *
-- * Only IO mappings and raw PFN mappings are allowed.
-+ * Only IO mappings and raw PFN mappings are allowed. Note that callers must
-+ * ensure coherency with pte updates by using a &mmu_notifier to follow updates.
-+ * If this is not feasible, or the access to the @pfn is only very short term,
-+ * use follow_pte_pmd() instead and hold the pagetable lock for the duration of
-+ * the access instead. Any caller not following these requirements must use
-+ * unsafe_follow_pfn() instead.
-  *
-  * Return: zero and the pfn at @pfn on success, -ve otherwise.
+diff --git a/drivers/misc/habanalabs/Kconfig b/drivers/misc/habanalabs/Kconfig
+index 8eb5d38c618e..2f04187f7167 100644
+--- a/drivers/misc/habanalabs/Kconfig
++++ b/drivers/misc/habanalabs/Kconfig
+@@ -6,7 +6,6 @@
+ config HABANA_AI
+ 	tristate "HabanaAI accelerators (habanalabs)"
+ 	depends on PCI && HAS_IOMEM
+-	select FRAME_VECTOR
+ 	select DMA_SHARED_BUFFER
+ 	select GENERIC_ALLOCATOR
+ 	select HWMON
+diff --git a/drivers/misc/habanalabs/common/habanalabs.h b/drivers/misc/habanalabs/common/habanalabs.h
+index edbd627b29d2..41af090b3e6a 100644
+--- a/drivers/misc/habanalabs/common/habanalabs.h
++++ b/drivers/misc/habanalabs/common/habanalabs.h
+@@ -870,7 +870,8 @@ struct hl_ctx_mgr {
+  * struct hl_userptr - memory mapping chunk information
+  * @vm_type: type of the VM.
+  * @job_node: linked-list node for hanging the object on the Job's list.
+- * @vec: pointer to the frame vector.
++ * @pages: pointer to struct page array
++ * @npages: size of @pages array
+  * @sgt: pointer to the scatter-gather table that holds the pages.
+  * @dir: for DMA unmapping, the direction must be supplied, so save it.
+  * @debugfs_list: node in debugfs list of command submissions.
+@@ -881,7 +882,8 @@ struct hl_ctx_mgr {
+ struct hl_userptr {
+ 	enum vm_type_t		vm_type; /* must be first */
+ 	struct list_head	job_node;
+-	struct frame_vector	*vec;
++	struct page		**pages;
++	unsigned int		npages;
+ 	struct sg_table		*sgt;
+ 	enum dma_data_direction dir;
+ 	struct list_head	debugfs_list;
+diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
+index 5ff4688683fd..327b64479f97 100644
+--- a/drivers/misc/habanalabs/common/memory.c
++++ b/drivers/misc/habanalabs/common/memory.c
+@@ -1281,45 +1281,41 @@ static int get_user_memory(struct hl_device *hdev, u64 addr, u64 size,
+ 		return -EFAULT;
+ 	}
+ 
+-	userptr->vec = frame_vector_create(npages);
+-	if (!userptr->vec) {
++	userptr->pages = kvmalloc_array(npages, sizeof(*userptr->pages),
++					GFP_KERNEL);
++	if (!userptr->pages) {
+ 		dev_err(hdev->dev, "Failed to create frame vector\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	rc = get_vaddr_frames(start, npages, FOLL_FORCE | FOLL_WRITE,
+-				userptr->vec);
++	rc = pin_user_pages_fast(start, npages, FOLL_FORCE | FOLL_WRITE,
++				 userptr->pages);
+ 
+ 	if (rc != npages) {
+ 		dev_err(hdev->dev,
+ 			"Failed to map host memory, user ptr probably wrong\n");
+ 		if (rc < 0)
+-			goto destroy_framevec;
++			goto destroy_pages;
++		npages = rc;
+ 		rc = -EFAULT;
+-		goto put_framevec;
+-	}
+-
+-	if (frame_vector_to_pages(userptr->vec) < 0) {
+-		dev_err(hdev->dev,
+-			"Failed to translate frame vector to pages\n");
+-		rc = -EFAULT;
+-		goto put_framevec;
++		goto put_pages;
+ 	}
++	userptr->npages = npages;
+ 
+ 	rc = sg_alloc_table_from_pages(userptr->sgt,
+-					frame_vector_pages(userptr->vec),
+-					npages, offset, size, GFP_ATOMIC);
++				       userptr->pages,
++				       npages, offset, size, GFP_ATOMIC);
+ 	if (rc < 0) {
+ 		dev_err(hdev->dev, "failed to create SG table from pages\n");
+-		goto put_framevec;
++		goto put_pages;
+ 	}
+ 
+ 	return 0;
+ 
+-put_framevec:
+-	put_vaddr_frames(userptr->vec);
+-destroy_framevec:
+-	frame_vector_destroy(userptr->vec);
++put_pages:
++	unpin_user_pages(userptr->pages, npages);
++destroy_pages:
++	kvfree(userptr->pages);
+ 	return rc;
+ }
+ 
+@@ -1405,8 +1401,6 @@ int hl_pin_host_memory(struct hl_device *hdev, u64 addr, u64 size,
   */
-@@ -4811,6 +4816,31 @@ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- }
- EXPORT_SYMBOL(follow_pfn);
+ void hl_unpin_host_memory(struct hl_device *hdev, struct hl_userptr *userptr)
+ {
+-	struct page **pages;
+-
+ 	hl_debugfs_remove_userptr(hdev, userptr);
  
-+/**
-+ * unsafe_follow_pfn - look up PFN at a user virtual address
-+ * @vma: memory mapping
-+ * @address: user virtual address
-+ * @pfn: location to store found PFN
-+ *
-+ * Only IO mappings and raw PFN mappings are allowed.
-+ *
-+ * Returns zero and the pfn at @pfn on success, -ve otherwise.
-+ */
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+	unsigned long *pfn)
-+{
-+#ifdef CONFIG_STRICT_FOLLOW_PFN
-+	pr_info("unsafe follow_pfn usage rejected, see CONFIG_STRICT_FOLLOW_PFN\n");
-+	return -EINVAL;
-+#else
-+	WARN_ONCE(1, "unsafe follow_pfn usage\n");
-+	add_taint(TAINT_USER, LOCKDEP_STILL_OK);
-+
-+	return follow_pfn(vma, address, pfn);
-+#endif
-+}
-+EXPORT_SYMBOL(unsafe_follow_pfn);
-+
- #ifdef CONFIG_HAVE_IOREMAP_PROT
- int follow_phys(struct vm_area_struct *vma,
- 		unsigned long address, unsigned int flags,
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 75a327149af1..3db2910f0d64 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -132,6 +132,23 @@ int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- }
- EXPORT_SYMBOL(follow_pfn);
+ 	if (userptr->dma_mapped)
+@@ -1414,15 +1408,8 @@ void hl_unpin_host_memory(struct hl_device *hdev, struct hl_userptr *userptr)
+ 							userptr->sgt->nents,
+ 							userptr->dir);
  
-+/**
-+ * unsafe_follow_pfn - look up PFN at a user virtual address
-+ * @vma: memory mapping
-+ * @address: user virtual address
-+ * @pfn: location to store found PFN
-+ *
-+ * Only IO mappings and raw PFN mappings are allowed.
-+ *
-+ * Returns zero and the pfn at @pfn on success, -ve otherwise.
-+ */
-+int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+	unsigned long *pfn)
-+{
-+	return follow_pfn(vma, address, pfn);
-+}
-+EXPORT_SYMBOL(unsafe_follow_pfn);
-+
- LIST_HEAD(vmap_area_list);
+-	pages = frame_vector_pages(userptr->vec);
+-	if (!IS_ERR(pages)) {
+-		int i;
+-
+-		for (i = 0; i < frame_vector_count(userptr->vec); i++)
+-			set_page_dirty_lock(pages[i]);
+-	}
+-	put_vaddr_frames(userptr->vec);
+-	frame_vector_destroy(userptr->vec);
++	unpin_user_pages_dirty_lock(userptr->pages, userptr->npages, true);
++	kvfree(userptr->pages);
  
- void vfree(const void *addr)
-diff --git a/security/Kconfig b/security/Kconfig
-index 7561f6f99f1d..48945402e103 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -230,6 +230,19 @@ config STATIC_USERMODEHELPER_PATH
- 	  If you wish for all usermode helper programs to be disabled,
- 	  specify an empty string here (i.e. "").
+ 	list_del(&userptr->job_node);
  
-+config STRICT_FOLLOW_PFN
-+	bool "Disable unsafe use of follow_pfn"
-+	depends on MMU
-+	help
-+	  Some functionality in the kernel follows userspace mappings to iomem
-+	  ranges in an unsafe matter. Examples include v4l userptr for zero-copy
-+	  buffers sharing.
-+
-+	  If this option is switched on, such access is rejected. Only enable
-+	  this option when you must run userspace which requires this.
-+
-+	  If in doubt, say Y.
-+
- source "security/selinux/Kconfig"
- source "security/smack/Kconfig"
- source "security/tomoyo/Kconfig"
 -- 
 2.28.0
