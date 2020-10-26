@@ -1,147 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52740 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728310AbgJGQot (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 12:44:49 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD578C0613D8
-        for <linux-s390@vger.kernel.org>; Wed,  7 Oct 2020 09:44:48 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id l11so3060660wmh.2
-        for <linux-s390@vger.kernel.org>; Wed, 07 Oct 2020 09:44:48 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 10/13] PCI: revoke mappings like devmem
-Date: Wed,  7 Oct 2020 18:44:23 +0200
-Message-Id: <20201007164426.1812530-11-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
-References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+Received: from mail.kernel.org ([198.145.29.99]:33572 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2410905AbgJZXz2 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:55:28 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 08/80] s390/startup: avoid save_area_sync overflow
+Date: Mon, 26 Oct 2020 19:54:04 -0400
+Message-Id: <20201026235516.1025100-8-sashal@kernel.org>
+In-Reply-To: <20201026235516.1025100-1-sashal@kernel.org>
+References: <20201026235516.1025100-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Since 3234ac664a87 ("/dev/mem: Revoke mappings when a driver claims
-the region") /dev/kmem zaps ptes when the kernel requests exclusive
-acccess to an iomem region. And with CONFIG_IO_STRICT_DEVMEM, this is
-the default for all driver uses.
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Except there's two more ways to access pci bars: sysfs and proc mmap
-support. Let's plug that hole.
+[ Upstream commit 2835c2ea95d50625108e47a459e1a47f6be836ce ]
 
-For revoke_devmem() to work we need to link our vma into the same
-address_space, with consistent vma->vm_pgoff. ->pgoff is already
-adjusted, because that's how (io_)remap_pfn_range works, but for the
-mapping we need to adjust vma->vm_file->f_mapping. Usually that's done
-at ->open time, but that's a bit tricky here with all the entry points
-and arch code. So instead create a fake file and adjust vma->vm_file.
+Currently we overflow save_area_sync and write over
+save_area_async. Although this is not a real problem make
+startup_pgm_check_handler consistent with late pgm check handler and
+store [%r0,%r7] directly into gpregs_save_area.
 
-Note this only works for ARCH_GENERIC_PCI_MMAP_RESOURCE. But that
-seems to be a subset of architectures support STRICT_DEVMEM, so we
-should be good.
-
-The only difference in access checks left is that sysfs pci mmap does
-not check for CAP_RAWIO. But I think that makes some sense compared to
-/dev/mem and proc, where one file gives you access to everything and
-no ownership applies.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/mem.c     | 16 +++++++++++++++-
- drivers/pci/mmap.c     |  3 +++
- include/linux/ioport.h |  2 ++
- 3 files changed, 20 insertions(+), 1 deletion(-)
+ arch/s390/boot/head.S | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/char/mem.c b/drivers/char/mem.c
-index abd4ffdc8cde..5e58a326d4ee 100644
---- a/drivers/char/mem.c
-+++ b/drivers/char/mem.c
-@@ -810,6 +810,7 @@ static loff_t memory_lseek(struct file *file, loff_t offset, int orig)
- }
- 
- static struct inode *devmem_inode;
-+static struct vfsmount *devmem_vfs_mount;
- 
- #ifdef CONFIG_IO_STRICT_DEVMEM
- void revoke_devmem(struct resource *res)
-@@ -843,6 +844,20 @@ void revoke_devmem(struct resource *res)
- 
- 	unmap_mapping_range(inode->i_mapping, res->start, resource_size(res), 1);
- }
-+
-+struct file *devmem_getfile(void)
-+{
-+	struct file *file;
-+
-+	file = alloc_file_pseudo(devmem_inode, devmem_vfs_mount, "devmem",
-+				 O_RDWR, &kmem_fops);
-+	if (IS_ERR(file))
-+		return NULL;
-+
-+	file->f_mapping = devmem_indoe->i_mapping;
-+
-+	return file;
-+}
- #endif
- 
- static int open_port(struct inode *inode, struct file *filp)
-@@ -1010,7 +1025,6 @@ static struct file_system_type devmem_fs_type = {
- 
- static int devmem_init_inode(void)
- {
--	static struct vfsmount *devmem_vfs_mount;
- 	static int devmem_fs_cnt;
- 	struct inode *inode;
- 	int rc;
-diff --git a/drivers/pci/mmap.c b/drivers/pci/mmap.c
-index b8c9011987f4..63786cc9c746 100644
---- a/drivers/pci/mmap.c
-+++ b/drivers/pci/mmap.c
-@@ -7,6 +7,7 @@
-  * Author: David Woodhouse <dwmw2@infradead.org>
-  */
- 
-+#include <linux/file.h>
- #include <linux/kernel.h>
- #include <linux/mm.h>
- #include <linux/pci.h>
-@@ -64,6 +65,8 @@ int pci_mmap_resource_range(struct pci_dev *pdev, int bar,
- 		vma->vm_pgoff += (pci_resource_start(pdev, bar) >> PAGE_SHIFT);
- 
- 	vma->vm_ops = &pci_phys_vm_ops;
-+	fput(vma->vm_file);
-+	vma->vm_file = devmem_getfile();
- 
- 	return io_remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
- 				  vma->vm_end - vma->vm_start,
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 6c2b06fe8beb..83238cba19fe 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -304,8 +304,10 @@ struct resource *request_free_mem_region(struct resource *base,
- 
- #ifdef CONFIG_IO_STRICT_DEVMEM
- void revoke_devmem(struct resource *res);
-+struct file *devm_getfile(void);
- #else
- static inline void revoke_devmem(struct resource *res) { };
-+static inline struct file *devmem_getfile(void) { return NULL; };
- #endif
- 
- #endif /* __ASSEMBLY__ */
+diff --git a/arch/s390/boot/head.S b/arch/s390/boot/head.S
+index 4b86a8d3c1219..e6bf5f40bff34 100644
+--- a/arch/s390/boot/head.S
++++ b/arch/s390/boot/head.S
+@@ -360,22 +360,23 @@ ENTRY(startup_kdump)
+ # the save area and does disabled wait with a faulty address.
+ #
+ ENTRY(startup_pgm_check_handler)
+-	stmg	%r0,%r15,__LC_SAVE_AREA_SYNC
+-	la	%r1,4095
+-	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r1)
+-	mvc	__LC_GPREGS_SAVE_AREA-4095(128,%r1),__LC_SAVE_AREA_SYNC
+-	mvc	__LC_PSW_SAVE_AREA-4095(16,%r1),__LC_PGM_OLD_PSW
++	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
++	la	%r8,4095
++	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r8)
++	stmg	%r0,%r7,__LC_GPREGS_SAVE_AREA-4095(%r8)
++	mvc	__LC_GPREGS_SAVE_AREA-4095+64(64,%r8),__LC_SAVE_AREA_SYNC
++	mvc	__LC_PSW_SAVE_AREA-4095(16,%r8),__LC_PGM_OLD_PSW
+ 	mvc	__LC_RETURN_PSW(16),__LC_PGM_OLD_PSW
+ 	ni	__LC_RETURN_PSW,0xfc	# remove IO and EX bits
+ 	ni	__LC_RETURN_PSW+1,0xfb	# remove MCHK bit
+ 	oi	__LC_RETURN_PSW+1,0x2	# set wait state bit
+-	larl	%r2,.Lold_psw_disabled_wait
+-	stg	%r2,__LC_PGM_NEW_PSW+8
+-	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r2)
++	larl	%r9,.Lold_psw_disabled_wait
++	stg	%r9,__LC_PGM_NEW_PSW+8
++	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r9)
+ 	brasl	%r14,print_pgm_check_info
+ .Lold_psw_disabled_wait:
+-	la	%r1,4095
+-	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)
++	la	%r8,4095
++	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r8)
+ 	lpswe	__LC_RETURN_PSW		# disabled wait
+ .Ldump_info_stack:
+ 	.long	0x5000 + PAGE_SIZE - STACK_FRAME_OVERHEAD
 -- 
-2.28.0
+2.25.1
