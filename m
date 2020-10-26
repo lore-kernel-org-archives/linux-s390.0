@@ -1,464 +1,125 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65392 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726638AbgJEQYs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 5 Oct 2020 12:24:48 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: Re: [PATCH v10 11/16] s390/vfio-ap: allow hot plug/unplug of AP
- resources using mdev device
-References: <20200821195616.13554-1-akrowiak@linux.ibm.com>
- <20200821195616.13554-12-akrowiak@linux.ibm.com>
- <20200928030147.7ee6f494.pasic@linux.ibm.com>
-Message-ID: <d6ba4248-77da-4963-5653-1548ced10712@linux.ibm.com>
-Date: Mon, 5 Oct 2020 12:24:39 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:52362 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391636AbgJZWCL (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 18:02:11 -0400
+Received: by mail-wm1-f65.google.com with SMTP id c194so13164070wme.2
+        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 15:02:09 -0700 (PDT)
+Date: Mon, 26 Oct 2020 22:02:06 +0000
+From: Tomasz Figa <tfiga@chromium.org>
+Subject: Re: [PATCH v4 09/15] media/videbuf1|2: Mark follow_pfn usage as
+ unsafe
+Message-ID: <20201026220206.GA2802004@chromium.org>
+References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
+ <20201026105818.2585306-10-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-In-Reply-To: <20200928030147.7ee6f494.pasic@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201026105818.2585306-10-daniel.vetter@ffwll.ch>
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, imbrenda@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Laurent Dufour <ldufour@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Daniel Jordan <daniel.m.jordan@oracle.com>, Michel Lespinasse <walken@google.com>
 
+Hi Daniel,
 
+On Mon, Oct 26, 2020 at 11:58:12AM +0100, Daniel Vetter wrote:
+> The media model assumes that buffers are all preallocated, so that
+> when a media pipeline is running we never miss a deadline because the
+> buffers aren't allocated or available.
+>=20
+> This means we cannot fix the v4l follow_pfn usage through
+> mmu_notifier, without breaking how this all works. The only real fix
+> is to deprecate userptr support for VM_IO | VM_PFNMAP mappings and
+> tell everyone to cut over to dma-buf memory sharing for zerocopy.
+>=20
+> userptr for normal memory will keep working as-is, this only affects
+> the zerocopy userptr usage enabled in 50ac952d2263 ("[media]
+> videobuf2-dma-sg: Support io userptr operations on io memory").
 
-On 9/27/20 9:01 PM, Halil Pasic wrote:
-> On Fri, 21 Aug 2020 15:56:11 -0400
-> Tony Krowiak<akrowiak@linux.ibm.com>  wrote:
->
->> Let's hot plug/unplug adapters, domains and control domains assigned to or
->> unassigned from an AP matrix mdev device while it is in use by a guest per
->> the following:
->>
->> * When the APID of an adapter is assigned to a matrix mdev in use by a KVM
->>    guest, the adapter will be hot plugged into the KVM guest as long as each
->>    APQN derived from the Cartesian product of the APID being assigned and
->>    the APQIs already assigned to the guest's CRYCB references a queue device
->>    bound to the vfio_ap device driver.
->>
->> * When the APID of an adapter is unassigned from a matrix mdev in use by a
->>    KVM guest, the adapter will be hot unplugged from the KVM guest.
->>
->> * When the APQI of a domain is assigned to a matrix mdev in use by a KVM
->>    guest, the domain will be hot plugged into the KVM guest as long as each
->>    APQN derived from the Cartesian product of the APQI being assigned and
->>    the APIDs already assigned to the guest's CRYCB references a queue device
->>    bound to the vfio_ap device driver.
->>
->> * When the APQI of a domain is unassigned from a matrix mdev in use by a
->>    KVM guest, the domain will be hot unplugged from the KVM guest
-> Hm, I suppose this means that what your guest effectively gets may depend
-> on whether assign_domain or assign_adapter is done first.
->
-> Suppose we have the queues
-> 0.0 0.1
-> 1.0
-> bound to vfio_ap, i.e. 1.1 is missing for a reason different than
-> belonging to the default drivers (for what exact reason no idea).
+Note that this is true only for the videobuf2 change. The videobuf1 code
+was like this all the time and does not support normal memory in the
+dma_contig variant (because normal memory is rarely physically contiguous).
 
-I'm not quite sure what you mean be "we have queue". I will
-assume you mean those queues are bound to the vfio_ap
-device driver. The only way this could happen is if somebody
-manually unbinds queue 1.1.
+If my understanding is correct that the CONFIG_STRICT_FOLLOW_PFN is not
+enabled by default, we stay backwards compatible, with only whoever
+decides to turn it on risking a breakage.
 
-> Let's suppose we started with the matix containing only adapter
-> 0 (0.) and domain 0 (.0).
->
-> After echo 1 > assign_adapter && echo 1 > assign_domain we end up with
-> matrix:
-> 0.0 0.1
-> 1.0 1.1
-> guest_matrix:
-> 0.0 0.1
-> while after echo 1 > assign_domain && echo 1 > assign_adapter we end up
-> with:
-> matrix:
-> 0.0 0.1
-> 1.0 1.1
-> guest_matrix:
-> 0.0
-> 0.1
->
-> That means, the set of bound queues and the set of assigned resources do
-> not fully determine the set of resources passed through to the guest.
->
-> I that a deliberate design choice?
+I agree that this is a good first step towards deprecating this legacy
+code, so:
 
-Yes, it is a deliberate choice to only allow guest access to queues
-represented by queue devices bound to the vfio_ap device driver.
-The idea here is to adhere to the linux device model.
+Acked-by: Tomasz Figa <tfiga@chromium.org>
 
->
->> * When the domain number of a control domain is assigned to a matrix mdev
->>    in use by a KVM guest, the control domain will be hot plugged into the
->>    KVM guest.
->>
->> * When the domain number of a control domain is unassigned from a matrix
->>    mdev in use by a KVM guest, the control domain will be hot unplugged
->>    from the KVM guest.
->>
->> Signed-off-by: Tony Krowiak<akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 196 ++++++++++++++++++++++++++++++
->>   1 file changed, 196 insertions(+)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index cf3321eb239b..2b01a8eb6ee7 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -731,6 +731,56 @@ static void vfio_ap_mdev_link_queues(struct ap_matrix_mdev *matrix_mdev,
->>   	}
->>   }
->>   
->> +static bool vfio_ap_mdev_assign_apqis_4_apid(struct ap_matrix_mdev *matrix_mdev,
->> +					     unsigned long apid)
->> +{
->> +	DECLARE_BITMAP(aqm, AP_DOMAINS);
->> +	unsigned long apqi, apqn;
->> +
->> +	bitmap_copy(aqm, matrix_mdev->matrix.aqm, AP_DOMAINS);
->> +
->> +	for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, AP_DOMAINS) {
->> +		if (!test_bit_inv(apqi,
->> +				  (unsigned long *) matrix_dev->info.aqm))
->> +			clear_bit_inv(apqi, aqm);
->> +
->> +		apqn = AP_MKQID(apid, apqi);
->> +		if (!vfio_ap_get_mdev_queue(matrix_mdev, apqn))
->> +			clear_bit_inv(apqi, aqm);
->> +	}
->> +
->> +	if (bitmap_empty(aqm, AP_DOMAINS))
->> +		return false;
->> +
->> +	set_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
->> +	bitmap_copy(matrix_mdev->shadow_apcb.aqm, aqm, AP_DOMAINS);
->> +
->> +	return true;
->> +}
->> +
->> +static bool vfio_ap_mdev_assign_guest_apid(struct ap_matrix_mdev *matrix_mdev,
->> +					   unsigned long apid)
->> +{
->> +	unsigned long apqi, apqn;
->> +
->> +	if (!vfio_ap_mdev_has_crycb(matrix_mdev) ||
->> +	    !test_bit_inv(apid, (unsigned long *)matrix_dev->info.apm))
->> +		return false;
->> +
->> +	if (bitmap_empty(matrix_mdev->shadow_apcb.aqm, AP_DOMAINS))
->> +		return vfio_ap_mdev_assign_apqis_4_apid(matrix_mdev, apid);
-> Hm. Let's say we have the same situation regarding the bound queues as
-> above but we start with the empty matrix, and do all the assignments
-> while the guest is running.
->
-> Consider the following sequence of actions.
->
-> 1) echo 0 > assign_domain
+Of course the last word goes to Mauro. :)
 
-matrix:            .0
-guest_matrix: no APQNs
+Best regards,
+Tomasz
 
-> 2) echo 1 > assign_domain
-
-matrix:            .0, .1
-guest_matrix: no APQNs
-
-> 3) echo 1 > assign_adapter
-
-matrix:           1.0, 1.1
-guest_matrix: 1.0
-
-> 4) echo 0 > assign_adapter
-
-matrix:           0.0, 0.1, 1.0, 1.1
-guest_matrix: 0.0, 1.0
-> 5) echo 1 > unassign_adapter
-
-matrix:           0.0, 0.1
-guest_matrix: 0.0
-
-> I understand that at 3), because
-> bitmap_empty(matrix_mdev->shadow_apcb.aqm)we would end up with a shadow
-> aqm containing just domain 0, as queue 1.1 ain't bound to us.
-
-True
-
-> Thus at the end we would have
-> matrix:
-> 0.0 0.1
-> guest_matrix:
-> 0.0
-
-At the end I had:
-matrix:            0.0, 0.1
-guest_matrix: 0.0
-
-> And if we add in an adapter 2. into the mix with the queues 2.0 and 2.1
-> then after
-> 6) echo 2 > assign_adapter
-> we get
-> Thus at the end we would have
-> matrix:
-> 0.0 0.1
-> 2.0 2.1
-> guest_matrix:
-> 0.0
-> 2.0
->
-> This looks very quirky to me. Did I read the code wrong? Opinions?
-
-You read the code correctly and I agree, this is a bit quirky. I would say
-that after adding adapter 2, we should end up with guest matrix:
-0.0, 0.1
-2.0, 2.1
-
-If you agree, I'll make the adjustment.
-
->
->> +
->> +	for_each_set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm, AP_DOMAINS) {
->> +		apqn = AP_MKQID(apid, apqi);
->> +		if (!vfio_ap_get_mdev_queue(matrix_mdev, apqn))
->> +			return false;
->> +	}
->> +
->> +	set_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
->> +
->> +	return true;
->> +}
->> +
->>   /**
->>    * assign_adapter_store
->>    *
->> @@ -792,12 +842,42 @@ static ssize_t assign_adapter_store(struct device *dev,
->>   	}
->>   	set_bit_inv(apid, matrix_mdev->matrix.apm);
->>   	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
->> +	if (vfio_ap_mdev_assign_guest_apid(matrix_mdev, apid))
->> +		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
->>   	mutex_unlock(&matrix_dev->lock);
->>   
->>   	return count;
->>   }
->>   static DEVICE_ATTR_WO(assign_adapter);
->>   
->> +static bool vfio_ap_mdev_unassign_guest_apid(struct ap_matrix_mdev *matrix_mdev,
->> +					     unsigned long apid)
->> +{
->> +	if (vfio_ap_mdev_has_crycb(matrix_mdev)) {
->> +		if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm)) {
->> +			clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
->> +
->> +			/*
->> +			 * If there are no APIDs assigned to the guest, then
->> +			 * the guest will not have access to any queues, so
->> +			 * let's also go ahead and unassign the APQIs. Keeping
->> +			 * them around may yield unpredictable results during
->> +			 * a probe that is not related to a host AP
->> +			 * configuration change (i.e., an AP adapter is
->> +			 * configured online).
->> +			 */
-> I don't quite understand this comment. Clearing out the other mask when
-> the one becomes empty, does allow us to recover the full possible guest
-> matrix in the scenario described above. I don't see any shadow
-> manipulation in the probe handler at this stage. Are we maybe
-> talking about the same effect as I described for assign?
-
-Patch 15/16 is for the probe.
-
->
-> Regards,
-> Halil
->
->> +			if (bitmap_empty(matrix_mdev->shadow_apcb.apm,
->> +					 AP_DEVICES))
->> +				bitmap_clear(matrix_mdev->shadow_apcb.aqm, 0,
->> +					     AP_DOMAINS);
->> +
->> +			return true;
->> +		}
->> +	}
->> +
->> +	return false;
->> +}
->> +
->>   /**
->>    * unassign_adapter_store
->>    *
->> @@ -834,12 +914,64 @@ static ssize_t unassign_adapter_store(struct device *dev,
->>   	mutex_lock(&matrix_dev->lock);
->>   	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
->>   	vfio_ap_mdev_link_queues(matrix_mdev, UNLINK_APID, apid);
->> +	if (vfio_ap_mdev_unassign_guest_apid(matrix_mdev, apid))
->> +		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
->>   	mutex_unlock(&matrix_dev->lock);
->>   
->>   	return count;
->>   }
->>   static DEVICE_ATTR_WO(unassign_adapter);
->>   
->> +static bool vfio_ap_mdev_assign_apids_4_apqi(struct ap_matrix_mdev *matrix_mdev,
->> +					     unsigned long apqi)
->> +{
->> +	DECLARE_BITMAP(apm, AP_DEVICES);
->> +	unsigned long apid, apqn;
->> +
->> +	bitmap_copy(apm, matrix_mdev->matrix.apm, AP_DEVICES);
->> +
->> +	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
->> +		if (!test_bit_inv(apid,
->> +				  (unsigned long *) matrix_dev->info.apm))
->> +			clear_bit_inv(apqi, apm);
->> +
->> +		apqn = AP_MKQID(apid, apqi);
->> +		if (!vfio_ap_get_mdev_queue(matrix_mdev, apqn))
->> +			clear_bit_inv(apid, apm);
->> +	}
->> +
->> +	if (bitmap_empty(apm, AP_DEVICES))
->> +		return false;
->> +
->> +	set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
->> +	bitmap_copy(matrix_mdev->shadow_apcb.apm, apm, AP_DEVICES);
->> +
->> +	return true;
->> +}
->> +
->> +static bool vfio_ap_mdev_assign_guest_apqi(struct ap_matrix_mdev *matrix_mdev,
->> +					   unsigned long apqi)
->> +{
->> +	unsigned long apid, apqn;
->> +
->> +	if (!vfio_ap_mdev_has_crycb(matrix_mdev) ||
->> +	    !test_bit_inv(apqi, (unsigned long *)matrix_dev->info.aqm))
->> +		return false;
->> +
->> +	if (bitmap_empty(matrix_mdev->shadow_apcb.apm, AP_DEVICES))
->> +		return vfio_ap_mdev_assign_apids_4_apqi(matrix_mdev, apqi);
->> +
->> +	for_each_set_bit_inv(apid, matrix_mdev->shadow_apcb.apm, AP_DEVICES) {
->> +		apqn = AP_MKQID(apid, apqi);
->> +		if (!vfio_ap_get_mdev_queue(matrix_mdev, apqn))
->> +			return false;
->> +	}
->> +
->> +	set_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
->> +
->> +	return true;
->> +}
->> +
->>   /**
->>    * assign_domain_store
->>    *
->> @@ -901,12 +1033,41 @@ static ssize_t assign_domain_store(struct device *dev,
->>   	}
->>   	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
->>   	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
->> +	if (vfio_ap_mdev_assign_guest_apqi(matrix_mdev, apqi))
->> +		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
->>   	mutex_unlock(&matrix_dev->lock);
->>   
->>   	return count;
->>   }
->>   static DEVICE_ATTR_WO(assign_domain);
->>   
->> +static bool vfio_ap_mdev_unassign_guest_apqi(struct ap_matrix_mdev *matrix_mdev,
->> +					     unsigned long apqi)
->> +{
->> +	if (vfio_ap_mdev_has_crycb(matrix_mdev)) {
->> +		if (test_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm)) {
->> +			clear_bit_inv(apqi, matrix_mdev->shadow_apcb.aqm);
->> +
->> +			/*
->> +			 * If there are no APQIs assigned to the guest, then
->> +			 * the guest will not have access to any queues, so
->> +			 * let's also go ahead and unassign the APIDs. Keeping
->> +			 * them around may yield unpredictable results during
->> +			 * a probe that is not related to a host AP
->> +			 * configuration change (i.e., an AP adapter is
->> +			 * configured online).
->> +			 */
->> +			if (bitmap_empty(matrix_mdev->shadow_apcb.aqm,
->> +					 AP_DOMAINS))
->> +				bitmap_clear(matrix_mdev->shadow_apcb.apm, 0,
->> +					     AP_DEVICES);
->> +
->> +			return true;
->> +		}
->> +	}
->> +
->> +	return false;
->> +}
->>   
->>   /**
->>    * unassign_domain_store
->> @@ -944,12 +1105,28 @@ static ssize_t unassign_domain_store(struct device *dev,
->>   	mutex_lock(&matrix_dev->lock);
->>   	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
->>   	vfio_ap_mdev_link_queues(matrix_mdev, UNLINK_APQI, apqi);
->> +	if (vfio_ap_mdev_unassign_guest_apqi(matrix_mdev, apqi))
->> +		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
->>   	mutex_unlock(&matrix_dev->lock);
->>   
->>   	return count;
->>   }
->>   static DEVICE_ATTR_WO(unassign_domain);
->>   
->> +static bool vfio_ap_mdev_assign_guest_cdom(struct ap_matrix_mdev *matrix_mdev,
->> +					   unsigned long domid)
->> +{
->> +	if (vfio_ap_mdev_has_crycb(matrix_mdev)) {
->> +		if (!test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
->> +			set_bit_inv(domid, matrix_mdev->shadow_apcb.adm);
->> +
->> +			return true;
->> +		}
->> +	}
->> +
->> +	return false;
->> +}
->> +
->>   /**
->>    * assign_control_domain_store
->>    *
->> @@ -984,12 +1161,29 @@ static ssize_t assign_control_domain_store(struct device *dev,
->>   
->>   	mutex_lock(&matrix_dev->lock);
->>   	set_bit_inv(id, matrix_mdev->matrix.adm);
->> +	if (vfio_ap_mdev_assign_guest_cdom(matrix_mdev, id))
->> +		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
->>   	mutex_unlock(&matrix_dev->lock);
->>   
->>   	return count;
->>   }
->>   static DEVICE_ATTR_WO(assign_control_domain);
->>   
->> +static bool
->> +vfio_ap_mdev_unassign_guest_cdom(struct ap_matrix_mdev *matrix_mdev,
->> +				 unsigned long domid)
->> +{
->> +	if (vfio_ap_mdev_has_crycb(matrix_mdev)) {
->> +		if (test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
->> +			clear_bit_inv(domid, matrix_mdev->shadow_apcb.adm);
->> +
->> +			return true;
->> +		}
->> +	}
->> +
->> +	return false;
->> +}
->> +
->>   /**
->>    * unassign_control_domain_store
->>    *
->> @@ -1024,6 +1218,8 @@ static ssize_t unassign_control_domain_store(struct device *dev,
->>   
->>   	mutex_lock(&matrix_dev->lock);
->>   	clear_bit_inv(domid, matrix_mdev->matrix.adm);
->> +	if (vfio_ap_mdev_unassign_guest_cdom(matrix_mdev, domid))
->> +		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
->>   	mutex_unlock(&matrix_dev->lock);
->>   
->>   	return count;
-> u
+>=20
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: John Hubbard <jhubbard@nvidia.com>
+> Cc: J=EF=BF=BDr=EF=BF=BDme Glisse <jglisse@redhat.com>
+> Cc: Jan Kara <jack@suse.cz>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: linux-mm@kvack.org
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-samsung-soc@vger.kernel.org
+> Cc: linux-media@vger.kernel.org
+> Cc: Pawel Osciak <pawel@osciak.com>
+> Cc: Marek Szyprowski <m.szyprowski@samsung.com>
+> Cc: Kyungmin Park <kyungmin.park@samsung.com>
+> Cc: Tomasz Figa <tfiga@chromium.org>
+> Cc: Laurent Dufour <ldufour@linux.ibm.com>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+> Cc: Michel Lespinasse <walken@google.com>
+> Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> --
+> v3:
+> - Reference the commit that enabled the zerocopy userptr use case to
+>   make it abundandtly clear that this patch only affects that, and not
+>   normal memory userptr. The old commit message already explained that
+>   normal memory userptr is unaffected, but I guess that was not clear
+>   enough.
+> ---
+>  drivers/media/common/videobuf2/frame_vector.c | 2 +-
+>  drivers/media/v4l2-core/videobuf-dma-contig.c | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/media/common/videobuf2/frame_vector.c b/drivers/medi=
+a/common/videobuf2/frame_vector.c
+> index 6590987c14bd..e630494da65c 100644
+> --- a/drivers/media/common/videobuf2/frame_vector.c
+> +++ b/drivers/media/common/videobuf2/frame_vector.c
+> @@ -69,7 +69,7 @@ int get_vaddr_frames(unsigned long start, unsigned int =
+nr_frames,
+>  			break;
+> =20
+>  		while (ret < nr_frames && start + PAGE_SIZE <=3D vma->vm_end) {
+> -			err =3D follow_pfn(vma, start, &nums[ret]);
+> +			err =3D unsafe_follow_pfn(vma, start, &nums[ret]);
+>  			if (err) {
+>  				if (ret =3D=3D 0)
+>  					ret =3D err;
+> diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/medi=
+a/v4l2-core/videobuf-dma-contig.c
+> index 52312ce2ba05..821c4a76ab96 100644
+> --- a/drivers/media/v4l2-core/videobuf-dma-contig.c
+> +++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
+> @@ -183,7 +183,7 @@ static int videobuf_dma_contig_user_get(struct videob=
+uf_dma_contig_memory *mem,
+>  	user_address =3D untagged_baddr;
+> =20
+>  	while (pages_done < (mem->size >> PAGE_SHIFT)) {
+> -		ret =3D follow_pfn(vma, user_address, &this_pfn);
+> +		ret =3D unsafe_follow_pfn(vma, user_address, &this_pfn);
+>  		if (ret)
+>  			break;
+> =20
+> --=20
+> 2.28.0
+>=20
