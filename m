@@ -1,345 +1,164 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v11 03/14] s390/vfio-ap: manage link between queue struct and matrix mdev
-Date: Thu, 22 Oct 2020 13:11:58 -0400
-Message-Id: <20201022171209.19494-4-akrowiak@linux.ibm.com>
-In-Reply-To: <20201022171209.19494-1-akrowiak@linux.ibm.com>
-References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:33139 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1772765AbgJZK6j (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:39 -0400
+Received: by mail-wr1-f65.google.com with SMTP id b8so11925203wrn.0
+        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:36 -0700 (PDT)
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v4 07/15] mm: Close race in generic_access_phys
+Date: Mon, 26 Oct 2020 11:58:10 +0100
+Message-Id: <20201026105818.2585306-8-daniel.vetter@ffwll.ch>
+In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
+References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Benjamin Herrensmidt <benh@kernel.crashing.org>, Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Chris Wilson <chris@chris-wilson.co.uk>
 
-Let's create links between each queue device bound to the vfio_ap device
-driver and the matrix mdev to which the queue is assigned. The idea is to
-facilitate efficient retrieval of the objects representing the queue
-devices and matrix mdevs as well as to verify that a queue assigned to
-a matrix mdev is bound to the driver.
+Way back it was a reasonable assumptions that iomem mappings never
+change the pfn range they point at. But this has changed:
 
-The links will be created as follows:
+- gpu drivers dynamically manage their memory nowadays, invalidating
+  ptes with unmap_mapping_range when buffers get moved
 
-   * When the queue device is probed, if its APQN is assigned to a matrix
-     mdev, the structures representing the queue device and the matrix mdev
-     will be linked.
+- contiguous dma allocations have moved from dedicated carvetouts to
+  cma regions. This means if we miss the unmap the pfn might contain
+  pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
 
-   * When an adapter or domain is assigned to a matrix mdev, for each new
-     APQN assigned that references a queue device bound to the vfio_ap
-     device driver, the structures representing the queue device and the
-     matrix mdev will be linked.
+- even /dev/mem now invalidates mappings when the kernel requests that
+  iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
+  ("/dev/mem: Revoke mappings when a driver claims the region")
 
-The links will be removed as follows:
+Accessing pfns obtained from ptes without holding all the locks is
+therefore no longer a good idea. Fix this.
 
-   * When the queue device is removed, if its APQN is assigned to a matrix
-     mdev, the structures representing the queue device and the matrix mdev
-     will be unlinked.
+Since ioremap might need to manipulate pagetables too we need to drop
+the pt lock and have a retry loop if we raced.
 
-   * When an adapter or domain is unassigned from a matrix mdev, for each
-     APQN unassigned that references a queue device bound to the vfio_ap
-     device driver, the structures representing the queue device and the
-     matrix mdev will be unlinked.
+While at it, also add kerneldoc and improve the comment for the
+vma_ops->access function. It's for accessing, not for moving the
+memory from iomem to system memory, as the old comment seemed to
+suggest.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+References: 28b2ee20c7cb ("access_process_vm device memory infrastructure")
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Benjamin Herrensmidt <benh@kernel.crashing.org>
+Cc: Dave Airlie <airlied@linux.ie>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: linux-mm@kvack.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+--
+v2: Fix inversion in the retry check (John).
+
+v4: While at it, use offset_in_page (Chris Wilson)
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 146 +++++++++++++++++++++++---
- drivers/s390/crypto/vfio_ap_private.h |   3 +
- 2 files changed, 135 insertions(+), 14 deletions(-)
+ include/linux/mm.h |  3 ++-
+ mm/memory.c        | 46 +++++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 45 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 049b97d7444c..1357f8f8b7e4 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -28,7 +28,6 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index acd60fbf1a5a..2a16631c1fda 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -566,7 +566,8 @@ struct vm_operations_struct {
+ 	vm_fault_t (*pfn_mkwrite)(struct vm_fault *vmf);
  
- /**
-  * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
-- * @matrix_mdev: the associated mediated matrix
-  * @apqn: The queue APQN
-  *
-  * Retrieve a queue with a specific APQN from the AP queue devices attached to
-@@ -36,18 +35,11 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
-  *
-  * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
-  */
--static struct vfio_ap_queue *vfio_ap_get_queue(
--					struct ap_matrix_mdev *matrix_mdev,
--					unsigned long apqn)
-+static struct vfio_ap_queue *vfio_ap_get_queue(unsigned long apqn)
- {
- 	struct ap_queue *queue;
- 	struct vfio_ap_queue *q = NULL;
- 
--	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
--		return NULL;
--	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
--		return NULL;
--
- 	queue = ap_get_qdev(apqn);
- 	if (!queue)
- 		return NULL;
-@@ -60,6 +52,19 @@ static struct vfio_ap_queue *vfio_ap_get_queue(
- 	return q;
- }
- 
-+static struct vfio_ap_queue *
-+vfio_ap_mdev_get_queue(struct ap_matrix_mdev *matrix_mdev, unsigned long apqn)
-+{
-+	struct vfio_ap_queue *q;
-+
-+	hash_for_each_possible(matrix_mdev->qtable, q, mdev_qnode, apqn) {
-+		if (q && (q->apqn == apqn))
-+			return q;
-+	}
-+
-+	return NULL;
-+}
-+
- /**
-  * vfio_ap_wait_for_irqclear
-  * @apqn: The AP Queue number
-@@ -171,7 +176,6 @@ static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
- 		  status.response_code);
- end_free:
- 	vfio_ap_free_aqic_resources(q);
--	q->matrix_mdev = NULL;
- 	return status;
- }
- 
-@@ -284,14 +288,14 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
- 
- 	if (!vcpu->kvm->arch.crypto.pqap_hook)
- 		goto out_unlock;
-+
- 	matrix_mdev = container_of(vcpu->kvm->arch.crypto.pqap_hook,
- 				   struct ap_matrix_mdev, pqap_hook);
- 
--	q = vfio_ap_get_queue(matrix_mdev, apqn);
-+	q = vfio_ap_mdev_get_queue(matrix_mdev, apqn);
- 	if (!q)
- 		goto out_unlock;
- 
--	q->matrix_mdev = matrix_mdev;
- 	status = vcpu->run->s.regs.gprs[1];
- 
- 	/* If IR bit(16) is set we enable the interrupt */
-@@ -331,6 +335,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 
- 	matrix_mdev->mdev = mdev;
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
-+	hash_init(matrix_mdev->qtable);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook.hook = handle_pqap;
- 	matrix_mdev->pqap_hook.owner = THIS_MODULE;
-@@ -559,6 +564,87 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
- 	return 0;
- }
- 
-+enum qlink_type {
-+	LINK_APID,
-+	LINK_APQI,
-+	UNLINK_APID,
-+	UNLINK_APQI,
-+};
-+
-+static void vfio_ap_mdev_link_queue(struct ap_matrix_mdev *matrix_mdev,
-+				    unsigned long apid, unsigned long apqi)
-+{
-+	struct vfio_ap_queue *q;
-+
-+	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
-+	if (q) {
-+		q->matrix_mdev = matrix_mdev;
-+		hash_add(matrix_mdev->qtable,
-+			 &q->mdev_qnode, q->apqn);
-+	}
-+}
-+
-+static void vfio_ap_mdev_unlink_queue(unsigned long apid, unsigned long apqi)
-+{
-+	struct vfio_ap_queue *q;
-+
-+	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
-+	if (q) {
-+		q->matrix_mdev = NULL;
-+		hash_del(&q->mdev_qnode);
-+	}
-+}
-+
-+/**
-+ * vfio_ap_mdev_link_queues
-+ *
-+ * @matrix_mdev: The matrix mdev to link.
-+ * @type:	 The type of @qlink_id.
-+ * @qlink_id:	 The APID or APQI of the queues to link.
-+ *
-+ * Sets or clears the links between the queues with the specified @qlink_id
-+ * and the @matrix_mdev:
-+ *     @type == LINK_APID: Set the links between the @matrix_mdev and the
-+ *                         queues with the specified @qlink_id (APID)
-+ *     @type == LINK_APQI: Set the links between the @matrix_mdev and the
-+ *                         queues with the specified @qlink_id (APQI)
-+ *     @type == UNLINK_APID: Clear the links between the @matrix_mdev and the
-+ *                           queues with the specified @qlink_id (APID)
-+ *     @type == UNLINK_APQI: Clear the links between the @matrix_mdev and the
-+ *                           queues with the specified @qlink_id (APQI)
-+ */
-+static void vfio_ap_mdev_link_queues(struct ap_matrix_mdev *matrix_mdev,
-+				     enum qlink_type type,
-+				     unsigned long qlink_id)
-+{
-+	unsigned long id;
-+
-+	switch (type) {
-+	case LINK_APID:
-+		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
-+				     matrix_mdev->matrix.aqm_max + 1)
-+			vfio_ap_mdev_link_queue(matrix_mdev, qlink_id, id);
-+		break;
-+	case UNLINK_APID:
-+		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
-+				     matrix_mdev->matrix.aqm_max + 1)
-+			vfio_ap_mdev_unlink_queue(qlink_id, id);
-+		break;
-+	case LINK_APQI:
-+		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
-+				     matrix_mdev->matrix.apm_max + 1)
-+			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
-+		break;
-+	case UNLINK_APQI:
-+		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
-+				     matrix_mdev->matrix.apm_max + 1)
-+			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
-+		break;
-+	default:
-+		WARN_ON_ONCE(1);
-+	}
-+}
-+
- /**
-  * assign_adapter_store
-  *
-@@ -628,6 +714,7 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	if (ret)
- 		goto share_err;
- 
-+	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
- 	ret = count;
- 	goto done;
- 
-@@ -679,6 +766,7 @@ static ssize_t unassign_adapter_store(struct device *dev,
- 
- 	mutex_lock(&matrix_dev->lock);
- 	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
-+	vfio_ap_mdev_link_queues(matrix_mdev, UNLINK_APID, apid);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -769,6 +857,7 @@ static ssize_t assign_domain_store(struct device *dev,
- 	if (ret)
- 		goto share_err;
- 
-+	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APQI, apqi);
- 	ret = count;
- 	goto done;
- 
-@@ -821,6 +910,7 @@ static ssize_t unassign_domain_store(struct device *dev,
- 
- 	mutex_lock(&matrix_dev->lock);
- 	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
-+	vfio_ap_mdev_link_queues(matrix_mdev, UNLINK_APQI, apqi);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -1159,8 +1249,8 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
- 			 */
- 			if (ret)
- 				rc = ret;
--			q = vfio_ap_get_queue(matrix_mdev,
--					      AP_MKQID(apid, apqi));
-+			q = vfio_ap_mdev_get_queue(matrix_mdev,
-+						   AP_MKQID(apid, apqi));
- 			if (q)
- 				vfio_ap_free_aqic_resources(q);
- 		}
-@@ -1288,6 +1378,29 @@ void vfio_ap_mdev_unregister(void)
- 	mdev_unregister_device(&matrix_dev->device);
+ 	/* called by access_process_vm when get_user_pages() fails, typically
+-	 * for use by special VMAs that can switch between memory and hardware
++	 * for use by special VMAs. See also generic_access_phys() for a generic
++	 * implementation useful for any iomem mapping.
+ 	 */
+ 	int (*access)(struct vm_area_struct *vma, unsigned long addr,
+ 		      void *buf, int len, int write);
+diff --git a/mm/memory.c b/mm/memory.c
+index eeae590e526a..1b46eae3b703 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -4840,28 +4840,68 @@ int follow_phys(struct vm_area_struct *vma,
+ 	return ret;
  }
  
 +/**
-+ * vfio_ap_queue_link_mdev
++ * generic_access_phys - generic implementation for iomem mmap access
++ * @vma: the vma to access
++ * @addr: userspace addres, not relative offset within @vma
++ * @buf: buffer to read/write
++ * @len: length of transfer
++ * @write: set to FOLL_WRITE when writing, otherwise reading
 + *
-+ * @q: The queue to link with the matrix mdev.
-+ *
-+ * Links @q with the matrix mdev to which the queue's APQN is assigned.
++ * This is a generic implementation for &vm_operations_struct.access for an
++ * iomem mapping. This callback is used by access_process_vm() when the @vma is
++ * not page based.
 + */
-+static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
-+{
-+	unsigned long apid = AP_QID_CARD(q->apqn);
-+	unsigned long apqi = AP_QID_QUEUE(q->apqn);
-+	struct ap_matrix_mdev *matrix_mdev;
-+
-+	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
-+		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
-+		    test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
-+			q->matrix_mdev = matrix_mdev;
-+			hash_add(matrix_mdev->qtable, &q->mdev_qnode, q->apqn);
-+			break;
-+		}
-+	}
-+}
-+
- int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
+ int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
+ 			void *buf, int len, int write)
  {
- 	struct vfio_ap_queue *q;
-@@ -1299,9 +1412,12 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
- 	if (!q)
+ 	resource_size_t phys_addr;
+ 	unsigned long prot = 0;
+ 	void __iomem *maddr;
+-	int offset = addr & (PAGE_SIZE-1);
++	pte_t *ptep, pte;
++	spinlock_t *ptl;
++	int offset = offset_in_page(addr);
++	int ret = -EINVAL;
++
++	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
++		return -EINVAL;
++
++retry:
++	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
++		return -EINVAL;
++	pte = *ptep;
++	pte_unmap_unlock(ptep, ptl);
+ 
+-	if (follow_phys(vma, addr, write, &prot, &phys_addr))
++	prot = pgprot_val(pte_pgprot(pte));
++	phys_addr = (resource_size_t)pte_pfn(pte) << PAGE_SHIFT;
++
++	if ((write & FOLL_WRITE) && !pte_write(pte))
+ 		return -EINVAL;
+ 
+ 	maddr = ioremap_prot(phys_addr, PAGE_ALIGN(len + offset), prot);
+ 	if (!maddr)
  		return -ENOMEM;
  
-+	mutex_lock(&matrix_dev->lock);
- 	dev_set_drvdata(&queue->ap_dev.device, q);
- 	q->apqn = queue->qid;
- 	q->saved_isc = VFIO_AP_ISC_INVALID;
-+	vfio_ap_queue_link_mdev(q);
-+	mutex_unlock(&matrix_dev->lock);
++	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
++		goto out_unmap;
++
++	if (!pte_same(pte, *ptep)) {
++		pte_unmap_unlock(ptep, ptl);
++		iounmap(maddr);
++
++		goto retry;
++	}
++
+ 	if (write)
+ 		memcpy_toio(maddr + offset, buf, len);
+ 	else
+ 		memcpy_fromio(buf, maddr + offset, len);
++	ret = len;
++	pte_unmap_unlock(ptep, ptl);
++out_unmap:
+ 	iounmap(maddr);
  
- 	return 0;
+-	return len;
++	return ret;
  }
-@@ -1321,6 +1437,8 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- 	apqi = AP_QID_QUEUE(q->apqn);
- 	vfio_ap_mdev_reset_queue(apid, apqi, 1);
- 	vfio_ap_free_aqic_resources(q);
-+	if (q->matrix_mdev)
-+		hash_del(&q->mdev_qnode);
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index d9003de4fbad..4e5cc72fc0db 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/mutex.h>
- #include <linux/kvm_host.h>
-+#include <linux/hashtable.h>
- 
- #include "ap_bus.h"
- 
-@@ -86,6 +87,7 @@ struct ap_matrix_mdev {
- 	struct kvm *kvm;
- 	struct kvm_s390_module_hook pqap_hook;
- 	struct mdev_device *mdev;
-+	DECLARE_HASHTABLE(qtable, 8);
- };
- 
- extern int vfio_ap_mdev_register(void);
-@@ -97,6 +99,7 @@ struct vfio_ap_queue {
- 	int	apqn;
- #define VFIO_AP_ISC_INVALID 0xff
- 	unsigned char saved_isc;
-+	struct hlist_node mdev_qnode;
- };
- 
- int vfio_ap_mdev_probe_queue(struct ap_device *queue);
+ EXPORT_SYMBOL_GPL(generic_access_phys);
+ #endif
 -- 
-2.21.1
+2.28.0
