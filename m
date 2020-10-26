@@ -1,101 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49442 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732488AbgJIH7x (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Oct 2020 03:59:53 -0400
-Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F2AC0613D2
-        for <linux-s390@vger.kernel.org>; Fri,  9 Oct 2020 00:59:53 -0700 (PDT)
-Received: by mail-wm1-x342.google.com with SMTP id d81so8863983wmc.1
-        for <linux-s390@vger.kernel.org>; Fri, 09 Oct 2020 00:59:52 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v2 00/17] follow_pfn and other iomap races
-Date: Fri,  9 Oct 2020 09:59:17 +0200
-Message-Id: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+Received: from mail.kernel.org ([198.145.29.99]:54568 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2409696AbgJZXwU (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 26 Oct 2020 19:52:20 -0400
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.8 012/132] s390/startup: avoid save_area_sync overflow
+Date: Mon, 26 Oct 2020 19:50:04 -0400
+Message-Id: <20201026235205.1023962-12-sashal@kernel.org>
+In-Reply-To: <20201026235205.1023962-1-sashal@kernel.org>
+References: <20201026235205.1023962-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-Hi all,
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Round two of my patch series to clamp down a bunch of races and gaps
-around follow_pfn and other access to iomem mmaps. Previous version:
+[ Upstream commit 2835c2ea95d50625108e47a459e1a47f6be836ce ]
 
-v1: https://lore.kernel.org/dri-devel/20201007164426.1812530-1-daniel.vetter@ffwll.ch/
+Currently we overflow save_area_sync and write over
+save_area_async. Although this is not a real problem make
+startup_pgm_check_handler consistent with late pgm check handler and
+store [%r0,%r7] directly into gpregs_save_area.
 
-And the discussion that sparked this journey:
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/boot/head.S | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-https://lore.kernel.org/dri-devel/20201007164426.1812530-1-daniel.vetter@ffwll.ch/
-
-Changes in v2:
-- tons of small polish&fixes all over, thanks to all the reviewers who
-  spotted issues
-- I managed to test at least the generic_access_phys and pci mmap revoke
-  stuff with a few gdb sessions using our i915 debug tools (hence now also
-  the drm/i915 patch to properly request all the pci bar regions)
-- reworked approach for the pci mmap revoke: Infrastructure moved into
-  kernel/resource.c, address_space mapping is now set up at open time for
-  everyone (which required some sysfs changes). Does indeed look a lot
-  cleaner and a lot less invasive than I feared at first.
-
-The big thing I can't test are all the frame_vector changes in habanalbas,
-exynos and media. Gerald has given the s390 patch a spin already.
-
-Review, testing, feedback all very much welcome.
-
-Cheers, Daniel
-
-Daniel Vetter (17):
-  drm/exynos: Stop using frame_vector helpers
-  drm/exynos: Use FOLL_LONGTERM for g2d cmdlists
-  misc/habana: Stop using frame_vector helpers
-  misc/habana: Use FOLL_LONGTERM for userptr
-  mm/frame-vector: Use FOLL_LONGTERM
-  media: videobuf2: Move frame_vector into media subsystem
-  mm: Close race in generic_access_phys
-  s390/pci: Remove races against pte updates
-  mm: Add unsafe_follow_pfn
-  media/videbuf1|2: Mark follow_pfn usage as unsafe
-  vfio/type1: Mark follow_pfn as unsafe
-  PCI: Obey iomem restrictions for procfs mmap
-  /dev/mem: Only set filp->f_mapping
-  resource: Move devmem revoke code to resource framework
-  sysfs: Support zapping of binary attr mmaps
-  PCI: Revoke mappings like devmem
-  drm/i915: Properly request PCI BARs
-
- arch/s390/pci/pci_mmio.c                      | 98 +++++++++++--------
- drivers/char/mem.c                            | 86 +---------------
- drivers/gpu/drm/exynos/Kconfig                |  1 -
- drivers/gpu/drm/exynos/exynos_drm_g2d.c       | 48 ++++-----
- drivers/gpu/drm/i915/intel_uncore.c           | 25 ++++-
- drivers/media/common/videobuf2/Kconfig        |  1 -
- drivers/media/common/videobuf2/Makefile       |  1 +
- .../media/common/videobuf2}/frame_vector.c    | 54 ++++------
- drivers/media/platform/omap/Kconfig           |  1 -
- drivers/media/v4l2-core/videobuf-dma-contig.c |  2 +-
- drivers/misc/habanalabs/Kconfig               |  1 -
- drivers/misc/habanalabs/common/habanalabs.h   |  3 +-
- drivers/misc/habanalabs/common/memory.c       | 50 ++++------
- drivers/pci/pci-sysfs.c                       |  4 +
- drivers/pci/proc.c                            |  6 ++
- drivers/vfio/vfio_iommu_type1.c               |  4 +-
- fs/sysfs/file.c                               | 11 +++
- include/linux/ioport.h                        |  6 +-
- include/linux/mm.h                            | 47 +--------
- include/linux/sysfs.h                         |  2 +
- include/media/videobuf2-core.h                | 42 ++++++++
- kernel/resource.c                             | 95 +++++++++++++++++-
- mm/Kconfig                                    |  3 -
- mm/Makefile                                   |  1 -
- mm/memory.c                                   | 76 +++++++++++++-
- mm/nommu.c                                    | 17 ++++
- security/Kconfig                              | 13 +++
- 27 files changed, 412 insertions(+), 286 deletions(-)
- rename {mm => drivers/media/common/videobuf2}/frame_vector.c (85%)
-
+diff --git a/arch/s390/boot/head.S b/arch/s390/boot/head.S
+index dae10961d0724..1a2c2b1ed9649 100644
+--- a/arch/s390/boot/head.S
++++ b/arch/s390/boot/head.S
+@@ -360,22 +360,23 @@ ENTRY(startup_kdump)
+ # the save area and does disabled wait with a faulty address.
+ #
+ ENTRY(startup_pgm_check_handler)
+-	stmg	%r0,%r15,__LC_SAVE_AREA_SYNC
+-	la	%r1,4095
+-	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r1)
+-	mvc	__LC_GPREGS_SAVE_AREA-4095(128,%r1),__LC_SAVE_AREA_SYNC
+-	mvc	__LC_PSW_SAVE_AREA-4095(16,%r1),__LC_PGM_OLD_PSW
++	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
++	la	%r8,4095
++	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r8)
++	stmg	%r0,%r7,__LC_GPREGS_SAVE_AREA-4095(%r8)
++	mvc	__LC_GPREGS_SAVE_AREA-4095+64(64,%r8),__LC_SAVE_AREA_SYNC
++	mvc	__LC_PSW_SAVE_AREA-4095(16,%r8),__LC_PGM_OLD_PSW
+ 	mvc	__LC_RETURN_PSW(16),__LC_PGM_OLD_PSW
+ 	ni	__LC_RETURN_PSW,0xfc	# remove IO and EX bits
+ 	ni	__LC_RETURN_PSW+1,0xfb	# remove MCHK bit
+ 	oi	__LC_RETURN_PSW+1,0x2	# set wait state bit
+-	larl	%r2,.Lold_psw_disabled_wait
+-	stg	%r2,__LC_PGM_NEW_PSW+8
+-	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r2)
++	larl	%r9,.Lold_psw_disabled_wait
++	stg	%r9,__LC_PGM_NEW_PSW+8
++	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r9)
+ 	brasl	%r14,print_pgm_check_info
+ .Lold_psw_disabled_wait:
+-	la	%r1,4095
+-	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)
++	la	%r8,4095
++	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r8)
+ 	lpswe	__LC_RETURN_PSW		# disabled wait
+ .Ldump_info_stack:
+ 	.long	0x5000 + PAGE_SIZE - STACK_FRAME_OVERHEAD
 -- 
-2.28.0
+2.25.1
