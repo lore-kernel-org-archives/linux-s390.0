@@ -1,240 +1,167 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41426 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2441169AbgJUI5Q (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 21 Oct 2020 04:57:16 -0400
-Received: from mail-wr1-x441.google.com (mail-wr1-x441.google.com [IPv6:2a00:1450:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B316C0613D4
-        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 01:57:15 -0700 (PDT)
-Received: by mail-wr1-x441.google.com with SMTP id b8so2198337wrn.0
-        for <linux-s390@vger.kernel.org>; Wed, 21 Oct 2020 01:57:15 -0700 (PDT)
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:52067 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1772314AbgJZK63 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:29 -0400
+Received: by mail-wm1-f65.google.com with SMTP id v5so11153451wmh.1
+        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:27 -0700 (PDT)
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v3 08/16] s390/pci: Remove races against pte updates
-Date: Wed, 21 Oct 2020 10:56:47 +0200
-Message-Id: <20201021085655.1192025-9-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
-References: <20201021085655.1192025-1-daniel.vetter@ffwll.ch>
+Subject: [PATCH v4 01/15] drm/exynos: Stop using frame_vector helpers
+Date: Mon, 26 Oct 2020 11:58:04 +0100
+Message-Id: <20201026105818.2585306-2-daniel.vetter@ffwll.ch>
+In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
+References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Gerald Schaefer <gerald.schaefer@linux.ibm.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Niklas Schnelle <schnelle@linux.ibm.com>, Daniel Vetter <daniel.vetter@ffwll.com>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, John Hubbard <jhubbard@nvidia.com>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Inki Dae <inki.dae@samsung.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>
 
-Way back it was a reasonable assumptions that iomem mappings never
-change the pfn range they point at. But this has changed:
+All we need are a pages array, pin_user_pages_fast can give us that
+directly. Plus this avoids the entire raw pfn side of get_vaddr_frames.
 
-- gpu drivers dynamically manage their memory nowadays, invalidating
-ptes with unmap_mapping_range when buffers get moved
-
-- contiguous dma allocations have moved from dedicated carvetouts to
-cma regions. This means if we miss the unmap the pfn might contain
-pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
-
-- even /dev/mem now invalidates mappings when the kernel requests that
-iomem region when CONFIG_IO_STRICT_DEVMEM is set, see commit
-3234ac664a87 ("/dev/mem: Revoke mappings when a driver claims the
-region")
-
-Accessing pfns obtained from ptes without holding all the locks is
-therefore no longer a good idea. Fix this.
-
-Since zpci_memcpy_from|toio seems to not do anything nefarious with
-locks we just need to open code get_pfn and follow_pfn and make sure
-we drop the locks only after we're done. The write function also needs
-the copy_from_user move, since we can't take userspace faults while
-holding the mmap sem.
-
-v2: Move VM_IO | VM_PFNMAP checks around so they keep returning EINVAL
-like before (Gerard)
-
-v3: Polish commit message (Niklas)
-
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
 Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
 Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
+Cc: Inki Dae <inki.dae@samsung.com>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: John Hubbard <jhubbard@nvidia.com>
 Cc: Jérôme Glisse <jglisse@redhat.com>
 Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: linux-mm@kvack.org
 Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-samsung-soc@vger.kernel.org
 Cc: linux-media@vger.kernel.org
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+--
+v2: Use unpin_user_pages_dirty_lock (John)
 ---
- arch/s390/pci/pci_mmio.c | 98 +++++++++++++++++++++++-----------------
- 1 file changed, 57 insertions(+), 41 deletions(-)
+ drivers/gpu/drm/exynos/Kconfig          |  1 -
+ drivers/gpu/drm/exynos/exynos_drm_g2d.c | 47 +++++++++++--------------
+ 2 files changed, 20 insertions(+), 28 deletions(-)
 
-diff --git a/arch/s390/pci/pci_mmio.c b/arch/s390/pci/pci_mmio.c
-index 401cf670a243..1a6adbc68ee8 100644
---- a/arch/s390/pci/pci_mmio.c
-+++ b/arch/s390/pci/pci_mmio.c
-@@ -119,33 +119,15 @@ static inline int __memcpy_toio_inuser(void __iomem *dst,
- 	return rc;
- }
+diff --git a/drivers/gpu/drm/exynos/Kconfig b/drivers/gpu/drm/exynos/Kconfig
+index 6417f374b923..43257ef3c09d 100644
+--- a/drivers/gpu/drm/exynos/Kconfig
++++ b/drivers/gpu/drm/exynos/Kconfig
+@@ -88,7 +88,6 @@ comment "Sub-drivers"
+ config DRM_EXYNOS_G2D
+ 	bool "G2D"
+ 	depends on VIDEO_SAMSUNG_S5P_G2D=n || COMPILE_TEST
+-	select FRAME_VECTOR
+ 	help
+ 	  Choose this option if you want to use Exynos G2D for DRM.
  
--static long get_pfn(unsigned long user_addr, unsigned long access,
--		    unsigned long *pfn)
--{
--	struct vm_area_struct *vma;
--	long ret;
--
--	mmap_read_lock(current->mm);
--	ret = -EINVAL;
--	vma = find_vma(current->mm, user_addr);
--	if (!vma)
--		goto out;
--	ret = -EACCES;
--	if (!(vma->vm_flags & access))
--		goto out;
--	ret = follow_pfn(vma, user_addr, pfn);
--out:
--	mmap_read_unlock(current->mm);
--	return ret;
--}
--
- SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
- 		const void __user *, user_buffer, size_t, length)
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_g2d.c b/drivers/gpu/drm/exynos/exynos_drm_g2d.c
+index 967a5cdc120e..ecede41af9b9 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_g2d.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_g2d.c
+@@ -205,7 +205,8 @@ struct g2d_cmdlist_userptr {
+ 	dma_addr_t		dma_addr;
+ 	unsigned long		userptr;
+ 	unsigned long		size;
+-	struct frame_vector	*vec;
++	struct page		**pages;
++	unsigned int		npages;
+ 	struct sg_table		*sgt;
+ 	atomic_t		refcount;
+ 	bool			in_pool;
+@@ -378,7 +379,6 @@ static void g2d_userptr_put_dma_addr(struct g2d_data *g2d,
+ 					bool force)
  {
- 	u8 local_buf[64];
- 	void __iomem *io_addr;
- 	void *buf;
--	unsigned long pfn;
-+	struct vm_area_struct *vma;
-+	pte_t *ptep;
-+	spinlock_t *ptl;
- 	long ret;
+ 	struct g2d_cmdlist_userptr *g2d_userptr = obj;
+-	struct page **pages;
  
- 	if (!zpci_is_enabled())
-@@ -158,7 +140,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
- 	 * We only support write access to MIO capable devices if we are on
- 	 * a MIO enabled system. Otherwise we would have to check for every
- 	 * address if it is a special ZPCI_ADDR and would have to do
--	 * a get_pfn() which we don't need for MIO capable devices.  Currently
-+	 * a pfn lookup which we don't need for MIO capable devices.  Currently
- 	 * ISM devices are the only devices without MIO support and there is no
- 	 * known need for accessing these from userspace.
- 	 */
-@@ -176,21 +158,37 @@ SYSCALL_DEFINE3(s390_pci_mmio_write, unsigned long, mmio_addr,
- 	} else
- 		buf = local_buf;
+ 	if (!obj)
+ 		return;
+@@ -398,15 +398,9 @@ static void g2d_userptr_put_dma_addr(struct g2d_data *g2d,
+ 	dma_unmap_sgtable(to_dma_dev(g2d->drm_dev), g2d_userptr->sgt,
+ 			  DMA_BIDIRECTIONAL, 0);
  
--	ret = get_pfn(mmio_addr, VM_WRITE, &pfn);
-+	ret = -EFAULT;
-+	if (copy_from_user(buf, user_buffer, length))
-+		goto out_free;
-+
-+	mmap_read_lock(current->mm);
-+	ret = -EINVAL;
-+	vma = find_vma(current->mm, mmio_addr);
-+	if (!vma)
-+		goto out_unlock_mmap;
-+	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-+		goto out_unlock_mmap;
-+	ret = -EACCES;
-+	if (!(vma->vm_flags & VM_WRITE))
-+		goto out_unlock_mmap;
-+
-+	ret = follow_pte_pmd(vma->vm_mm, mmio_addr, NULL, &ptep, NULL, &ptl);
- 	if (ret)
--		goto out;
--	io_addr = (void __iomem *)((pfn << PAGE_SHIFT) |
-+		goto out_unlock_mmap;
-+
-+	io_addr = (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
- 			(mmio_addr & ~PAGE_MASK));
- 
--	ret = -EFAULT;
- 	if ((unsigned long) io_addr < ZPCI_IOMAP_ADDR_BASE)
--		goto out;
+-	pages = frame_vector_pages(g2d_userptr->vec);
+-	if (!IS_ERR(pages)) {
+-		int i;
 -
--	if (copy_from_user(buf, user_buffer, length))
--		goto out;
-+		goto out_unlock_pt;
+-		for (i = 0; i < frame_vector_count(g2d_userptr->vec); i++)
+-			set_page_dirty_lock(pages[i]);
+-	}
+-	put_vaddr_frames(g2d_userptr->vec);
+-	frame_vector_destroy(g2d_userptr->vec);
++	unpin_user_pages_dirty_lock(g2d_userptr->pages, g2d_userptr->npages,
++				    true);
++	kvfree(g2d_userptr->pages);
  
- 	ret = zpci_memcpy_toio(io_addr, buf, length);
--out:
-+out_unlock_pt:
-+	pte_unmap_unlock(ptep, ptl);
-+out_unlock_mmap:
-+	mmap_read_unlock(current->mm);
-+out_free:
- 	if (buf != local_buf)
- 		kfree(buf);
- 	return ret;
-@@ -274,7 +272,9 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
- 	u8 local_buf[64];
- 	void __iomem *io_addr;
- 	void *buf;
--	unsigned long pfn;
-+	struct vm_area_struct *vma;
-+	pte_t *ptep;
-+	spinlock_t *ptl;
- 	long ret;
- 
- 	if (!zpci_is_enabled())
-@@ -287,7 +287,7 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
- 	 * We only support read access to MIO capable devices if we are on
- 	 * a MIO enabled system. Otherwise we would have to check for every
- 	 * address if it is a special ZPCI_ADDR and would have to do
--	 * a get_pfn() which we don't need for MIO capable devices.  Currently
-+	 * a pfn lookup which we don't need for MIO capable devices.  Currently
- 	 * ISM devices are the only devices without MIO support and there is no
- 	 * known need for accessing these from userspace.
- 	 */
-@@ -306,22 +306,38 @@ SYSCALL_DEFINE3(s390_pci_mmio_read, unsigned long, mmio_addr,
- 		buf = local_buf;
+ 	if (!g2d_userptr->out_of_list)
+ 		list_del_init(&g2d_userptr->list);
+@@ -474,35 +468,34 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
+ 	offset = userptr & ~PAGE_MASK;
+ 	end = PAGE_ALIGN(userptr + size);
+ 	npages = (end - start) >> PAGE_SHIFT;
+-	g2d_userptr->vec = frame_vector_create(npages);
+-	if (!g2d_userptr->vec) {
++	g2d_userptr->pages = kvmalloc_array(npages, sizeof(*g2d_userptr->pages),
++					    GFP_KERNEL);
++	if (!g2d_userptr->pages) {
+ 		ret = -ENOMEM;
+ 		goto err_free;
  	}
  
--	ret = get_pfn(mmio_addr, VM_READ, &pfn);
-+	mmap_read_lock(current->mm);
-+	ret = -EINVAL;
-+	vma = find_vma(current->mm, mmio_addr);
-+	if (!vma)
-+		goto out_unlock_mmap;
-+	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-+		goto out_unlock_mmap;
-+	ret = -EACCES;
-+	if (!(vma->vm_flags & VM_WRITE))
-+		goto out_unlock_mmap;
-+
-+	ret = follow_pte_pmd(vma->vm_mm, mmio_addr, NULL, &ptep, NULL, &ptl);
- 	if (ret)
--		goto out;
--	io_addr = (void __iomem *)((pfn << PAGE_SHIFT) | (mmio_addr & ~PAGE_MASK));
-+		goto out_unlock_mmap;
-+
-+	io_addr = (void __iomem *)((pte_pfn(*ptep) << PAGE_SHIFT) |
-+			(mmio_addr & ~PAGE_MASK));
- 
- 	if ((unsigned long) io_addr < ZPCI_IOMAP_ADDR_BASE) {
+-	ret = get_vaddr_frames(start, npages, FOLL_FORCE | FOLL_WRITE,
+-		g2d_userptr->vec);
++	ret = pin_user_pages_fast(start, npages, FOLL_FORCE | FOLL_WRITE,
++				  g2d_userptr->pages);
+ 	if (ret != npages) {
+ 		DRM_DEV_ERROR(g2d->dev,
+ 			      "failed to get user pages from userptr.\n");
+ 		if (ret < 0)
+-			goto err_destroy_framevec;
+-		ret = -EFAULT;
+-		goto err_put_framevec;
+-	}
+-	if (frame_vector_to_pages(g2d_userptr->vec) < 0) {
++			goto err_destroy_pages;
++		npages = ret;
  		ret = -EFAULT;
--		goto out;
-+		goto out_unlock_pt;
+-		goto err_put_framevec;
++		goto err_unpin_pages;
  	}
- 	ret = zpci_memcpy_fromio(buf, io_addr, length);
--	if (ret)
--		goto out;
--	if (copy_to_user(user_buffer, buf, length))
-+
-+out_unlock_pt:
-+	pte_unmap_unlock(ptep, ptl);
-+out_unlock_mmap:
-+	mmap_read_unlock(current->mm);
-+
-+	if (!ret && copy_to_user(user_buffer, buf, length))
- 		ret = -EFAULT;
++	g2d_userptr->npages = npages;
  
--out:
- 	if (buf != local_buf)
- 		kfree(buf);
- 	return ret;
+ 	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
+ 	if (!sgt) {
+ 		ret = -ENOMEM;
+-		goto err_put_framevec;
++		goto err_unpin_pages;
+ 	}
+ 
+ 	ret = sg_alloc_table_from_pages(sgt,
+-					frame_vector_pages(g2d_userptr->vec),
++					g2d_userptr->pages,
+ 					npages, offset, size, GFP_KERNEL);
+ 	if (ret < 0) {
+ 		DRM_DEV_ERROR(g2d->dev, "failed to get sgt from pages.\n");
+@@ -538,11 +531,11 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
+ err_free_sgt:
+ 	kfree(sgt);
+ 
+-err_put_framevec:
+-	put_vaddr_frames(g2d_userptr->vec);
++err_unpin_pages:
++	unpin_user_pages(g2d_userptr->pages, npages);
+ 
+-err_destroy_framevec:
+-	frame_vector_destroy(g2d_userptr->vec);
++err_destroy_pages:
++	kvfree(g2d_userptr->pages);
+ 
+ err_free:
+ 	kfree(g2d_userptr);
 -- 
 2.28.0
