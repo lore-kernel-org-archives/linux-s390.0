@@ -1,14 +1,8 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:34545 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1772560AbgJZK6d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:33 -0400
-Received: by mail-wr1-f68.google.com with SMTP id i1so11894191wro.1
-        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:32 -0700 (PDT)
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v4 04/15] misc/habana: Use FOLL_LONGTERM for userptr
-Date: Mon, 26 Oct 2020 11:58:07 +0100
-Message-Id: <20201026105818.2585306-5-daniel.vetter@ffwll.ch>
+Subject: [PATCH v4 10/15] vfio/type1: Mark follow_pfn as unsafe
+Date: Mon, 26 Oct 2020 11:58:13 +0100
+Message-Id: <20201026105818.2585306-11-daniel.vetter@ffwll.ch>
 In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
 References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
@@ -16,12 +10,23 @@ Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Oded Gabbay <oded.gabbay@gmail.com>, Omer Shpigelman <oshpigelman@habana.ai>, Ofir Bitton <obitton@habana.ai>, Tomer Tayar <ttayar@habana.ai>, Moti Haimovski <mhaimovski@habana.ai>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Pawel Piskorski <ppiskorski@habana.ai>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>
 
-These are persistent, not just for the duration of a dma operation.
+The code seems to stuff these pfns into iommu pts (or something like
+that, I didn't follow), but there's no mmu_notifier to ensure that
+access is synchronized with pte updates.
+
+Hence mark these as unsafe. This means that with
+CONFIG_STRICT_FOLLOW_PFN, these will be rejected.
+
+Real fix is to wire up an mmu_notifier ... somehow. Probably means any
+invalidate is a fatal fault for this vfio device, but then this
+shouldn't ever happen if userspace is reasonable.
 
 Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
 Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Cc: John Hubbard <jhubbard@nvidia.com>
 Cc: Jérôme Glisse <jglisse@redhat.com>
@@ -31,32 +36,35 @@ Cc: linux-mm@kvack.org
 Cc: linux-arm-kernel@lists.infradead.org
 Cc: linux-samsung-soc@vger.kernel.org
 Cc: linux-media@vger.kernel.org
-Cc: Oded Gabbay <oded.gabbay@gmail.com>
-Cc: Omer Shpigelman <oshpigelman@habana.ai>
-Cc: Ofir Bitton <obitton@habana.ai>
-Cc: Tomer Tayar <ttayar@habana.ai>
-Cc: Moti Haimovski <mhaimovski@habana.ai>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Pawel Piskorski <ppiskorski@habana.ai>
+Cc: Alex Williamson <alex.williamson@redhat.com>
+Cc: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org
 Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 ---
- drivers/misc/habanalabs/common/memory.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/vfio/vfio_iommu_type1.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/common/memory.c b/drivers/misc/habanalabs/common/memory.c
-index 327b64479f97..767d3644c033 100644
---- a/drivers/misc/habanalabs/common/memory.c
-+++ b/drivers/misc/habanalabs/common/memory.c
-@@ -1288,7 +1288,8 @@ static int get_user_memory(struct hl_device *hdev, u64 addr, u64 size,
- 		return -ENOMEM;
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index 5fbf0c1f7433..a4d53f3d0a35 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -421,7 +421,7 @@ static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
+ {
+ 	int ret;
+ 
+-	ret = follow_pfn(vma, vaddr, pfn);
++	ret = unsafe_follow_pfn(vma, vaddr, pfn);
+ 	if (ret) {
+ 		bool unlocked = false;
+ 
+@@ -435,7 +435,7 @@ static int follow_fault_pfn(struct vm_area_struct *vma, struct mm_struct *mm,
+ 		if (ret)
+ 			return ret;
+ 
+-		ret = follow_pfn(vma, vaddr, pfn);
++		ret = unsafe_follow_pfn(vma, vaddr, pfn);
  	}
  
--	rc = pin_user_pages_fast(start, npages, FOLL_FORCE | FOLL_WRITE,
-+	rc = pin_user_pages_fast(start, npages,
-+				 FOLL_FORCE | FOLL_WRITE | FOLL_LONGTERM,
- 				 userptr->pages);
- 
- 	if (rc != npages) {
+ 	return ret;
 -- 
 2.28.0
