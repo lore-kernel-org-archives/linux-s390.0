@@ -1,68 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:52044 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1415103AbgJYKQ3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 25 Oct 2020 06:16:29 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH 0/4] arch, mm: improve robustness of direct map manipulation
-Date: Sun, 25 Oct 2020 12:15:51 +0200
-Message-Id: <20201025101555.3057-1-rppt@kernel.org>
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:36367 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1772398AbgJZK6b (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 26 Oct 2020 06:58:31 -0400
+Received: by mail-wr1-f66.google.com with SMTP id x7so11916254wrl.3
+        for <linux-s390@vger.kernel.org>; Mon, 26 Oct 2020 03:58:28 -0700 (PDT)
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH v4 02/15] drm/exynos: Use FOLL_LONGTERM for g2d cmdlists
+Date: Mon, 26 Oct 2020 11:58:05 +0100
+Message-Id: <20201026105818.2585306-3-daniel.vetter@ffwll.ch>
+In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
+References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
+Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Inki Dae <inki.dae@samsung.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+The exynos g2d interface is very unusual, but it looks like the
+userptr objects are persistent. Hence they need FOLL_LONGTERM.
 
-Hi,
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Inki Dae <inki.dae@samsung.com>
+Cc: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Kukjin Kim <kgene@kernel.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Jérôme Glisse <jglisse@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: linux-mm@kvack.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-samsung-soc@vger.kernel.org
+Cc: linux-media@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+---
+ drivers/gpu/drm/exynos/exynos_drm_g2d.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-During recent discussion about KVM protected memory, David raised a concern
-about usage of __kernel_map_pages() outside of DEBUG_PAGEALLOC scope [1].
-
-Indeed, for architectures that define CONFIG_ARCH_HAS_SET_DIRECT_MAP it is
-possible that __kernel_map_pages() would fail, but since this function is
-void, the failure will go unnoticed.
-
-Moreover, there's lack of consistency of __kernel_map_pages() semantics
-across architectures as some guard this function with
-#ifdef DEBUG_PAGEALLOC, some refuse to update the direct map if page
-allocation debugging is disabled at run time and some allow modifying the
-direct map regardless of DEBUG_PAGEALLOC settings.
-
-This set straightens this out by restoring dependency of
-__kernel_map_pages() on DEBUG_PAGEALLOC and updating the call sites
-accordingly. 
-
-[1] https://lore.kernel.org/lkml/2759b4bf-e1e3-d006-7d86-78a40348269d@redhat.com
-
-Mike Rapoport (4):
-  mm: introduce debug_pagealloc_map_pages() helper
-  PM: hibernate: improve robustness of mapping pages in the direct map
-  arch, mm: restore dependency of __kernel_map_pages() of DEBUG_PAGEALLOC
-  arch, mm: make kernel_page_present() always available
-
- arch/Kconfig                        |  3 +++
- arch/arm64/Kconfig                  |  4 +---
- arch/arm64/include/asm/cacheflush.h |  1 +
- arch/arm64/mm/pageattr.c            |  6 +++--
- arch/powerpc/Kconfig                |  5 +----
- arch/riscv/Kconfig                  |  4 +---
- arch/riscv/include/asm/pgtable.h    |  2 --
- arch/riscv/include/asm/set_memory.h |  1 +
- arch/riscv/mm/pageattr.c            | 31 +++++++++++++++++++++++++
- arch/s390/Kconfig                   |  4 +---
- arch/sparc/Kconfig                  |  4 +---
- arch/x86/Kconfig                    |  4 +---
- arch/x86/include/asm/set_memory.h   |  1 +
- arch/x86/mm/pat/set_memory.c        |  4 ++--
- include/linux/mm.h                  | 35 +++++++++++++----------------
- include/linux/set_memory.h          |  5 +++++
- kernel/power/snapshot.c             | 24 ++++++++++++++++++--
- mm/memory_hotplug.c                 |  3 +--
- mm/page_alloc.c                     |  6 ++---
- mm/slab.c                           |  8 +++----
- 20 files changed, 97 insertions(+), 58 deletions(-)
-
+diff --git a/drivers/gpu/drm/exynos/exynos_drm_g2d.c b/drivers/gpu/drm/exynos/exynos_drm_g2d.c
+index ecede41af9b9..1e0c5a7f206e 100644
+--- a/drivers/gpu/drm/exynos/exynos_drm_g2d.c
++++ b/drivers/gpu/drm/exynos/exynos_drm_g2d.c
+@@ -475,7 +475,8 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
+ 		goto err_free;
+ 	}
+ 
+-	ret = pin_user_pages_fast(start, npages, FOLL_FORCE | FOLL_WRITE,
++	ret = pin_user_pages_fast(start, npages,
++				  FOLL_FORCE | FOLL_WRITE | FOLL_LONGTERM,
+ 				  g2d_userptr->pages);
+ 	if (ret != npages) {
+ 		DRM_DEV_ERROR(g2d->dev,
 -- 
 2.28.0
