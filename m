@@ -1,64 +1,69 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 1/3] net/smc: fix use-after-free of delayed events
-Date: Wed, 14 Oct 2020 19:43:27 +0200
-Message-Id: <20201014174329.35791-2-kgraul@linux.ibm.com>
-In-Reply-To: <20201014174329.35791-1-kgraul@linux.ibm.com>
-References: <20201014174329.35791-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 013/147] s390/startup: avoid save_area_sync overflow
+Date: Mon, 26 Oct 2020 19:46:51 -0400
+Message-Id: <20201026234905.1022767-13-sashal@kernel.org>
+In-Reply-To: <20201026234905.1022767-1-sashal@kernel.org>
+References: <20201026234905.1022767-1-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Vasily Gorbik <gor@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-When a delayed event is enqueued then the event worker will send this
-event the next time it is running and no other flow is currently
-active. The event handler is called for the delayed event, and the
-pointer to the event keeps set in lgr->delayed_event. This pointer is
-cleared later in the processing by smc_llc_flow_start().
-This can lead to a use-after-free condition when the processing does not
-reach smc_llc_flow_start(), but frees the event because of an error
-situation. Then the delayed_event pointer is still set but the event is
-freed.
-Fix this by always clearing the delayed event pointer when the event is
-provided to the event handler for processing, and remove the code to
-clear it in smc_llc_flow_start().
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-Fixes: 555da9af827d ("net/smc: add event-based llc_flow framework")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+[ Upstream commit 2835c2ea95d50625108e47a459e1a47f6be836ce ]
+
+Currently we overflow save_area_sync and write over
+save_area_async. Although this is not a real problem make
+startup_pgm_check_handler consistent with late pgm check handler and
+store [%r0,%r7] directly into gpregs_save_area.
+
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_llc.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ arch/s390/boot/head.S | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/smc_llc.c b/net/smc/smc_llc.c
-index 2db967f2fb50..39039a82f24f 100644
---- a/net/smc/smc_llc.c
-+++ b/net/smc/smc_llc.c
-@@ -233,8 +233,6 @@ static bool smc_llc_flow_start(struct smc_llc_flow *flow,
- 	default:
- 		flow->type = SMC_LLC_FLOW_NONE;
- 	}
--	if (qentry == lgr->delayed_event)
--		lgr->delayed_event = NULL;
- 	smc_llc_flow_qentry_set(flow, qentry);
- 	spin_unlock_bh(&lgr->llc_flow_lock);
- 	return true;
-@@ -1603,13 +1601,12 @@ static void smc_llc_event_work(struct work_struct *work)
- 	struct smc_llc_qentry *qentry;
- 
- 	if (!lgr->llc_flow_lcl.type && lgr->delayed_event) {
--		if (smc_link_usable(lgr->delayed_event->link)) {
--			smc_llc_event_handler(lgr->delayed_event);
--		} else {
--			qentry = lgr->delayed_event;
--			lgr->delayed_event = NULL;
-+		qentry = lgr->delayed_event;
-+		lgr->delayed_event = NULL;
-+		if (smc_link_usable(qentry->link))
-+			smc_llc_event_handler(qentry);
-+		else
- 			kfree(qentry);
--		}
- 	}
- 
- again:
+diff --git a/arch/s390/boot/head.S b/arch/s390/boot/head.S
+index dae10961d0724..1a2c2b1ed9649 100644
+--- a/arch/s390/boot/head.S
++++ b/arch/s390/boot/head.S
+@@ -360,22 +360,23 @@ ENTRY(startup_kdump)
+ # the save area and does disabled wait with a faulty address.
+ #
+ ENTRY(startup_pgm_check_handler)
+-	stmg	%r0,%r15,__LC_SAVE_AREA_SYNC
+-	la	%r1,4095
+-	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r1)
+-	mvc	__LC_GPREGS_SAVE_AREA-4095(128,%r1),__LC_SAVE_AREA_SYNC
+-	mvc	__LC_PSW_SAVE_AREA-4095(16,%r1),__LC_PGM_OLD_PSW
++	stmg	%r8,%r15,__LC_SAVE_AREA_SYNC
++	la	%r8,4095
++	stctg	%c0,%c15,__LC_CREGS_SAVE_AREA-4095(%r8)
++	stmg	%r0,%r7,__LC_GPREGS_SAVE_AREA-4095(%r8)
++	mvc	__LC_GPREGS_SAVE_AREA-4095+64(64,%r8),__LC_SAVE_AREA_SYNC
++	mvc	__LC_PSW_SAVE_AREA-4095(16,%r8),__LC_PGM_OLD_PSW
+ 	mvc	__LC_RETURN_PSW(16),__LC_PGM_OLD_PSW
+ 	ni	__LC_RETURN_PSW,0xfc	# remove IO and EX bits
+ 	ni	__LC_RETURN_PSW+1,0xfb	# remove MCHK bit
+ 	oi	__LC_RETURN_PSW+1,0x2	# set wait state bit
+-	larl	%r2,.Lold_psw_disabled_wait
+-	stg	%r2,__LC_PGM_NEW_PSW+8
+-	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r2)
++	larl	%r9,.Lold_psw_disabled_wait
++	stg	%r9,__LC_PGM_NEW_PSW+8
++	l	%r15,.Ldump_info_stack-.Lold_psw_disabled_wait(%r9)
+ 	brasl	%r14,print_pgm_check_info
+ .Lold_psw_disabled_wait:
+-	la	%r1,4095
+-	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r1)
++	la	%r8,4095
++	lmg	%r0,%r15,__LC_GPREGS_SAVE_AREA-4095(%r8)
+ 	lpswe	__LC_RETURN_PSW		# disabled wait
+ .Ldump_info_stack:
+ 	.long	0x5000 + PAGE_SIZE - STACK_FRAME_OVERHEAD
 -- 
-2.17.1
+2.25.1
