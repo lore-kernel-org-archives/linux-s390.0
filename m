@@ -1,323 +1,99 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64696 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729266AbgJ0GtK (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63952 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1786707AbgJZQ5V (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 27 Oct 2020 02:49:10 -0400
-Date: Tue, 27 Oct 2020 07:48:46 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
+        Mon, 26 Oct 2020 12:57:21 -0400
 Subject: Re: [PATCH v11 01/14] s390/vfio-ap: No need to disable IRQ after
  queue reset
-Message-ID: <20201027074846.30ee0ddc.pasic@linux.ibm.com>
-In-Reply-To: <20201022171209.19494-2-akrowiak@linux.ibm.com>
-References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
-        <20201022171209.19494-2-akrowiak@linux.ibm.com>
+References: <20201022171209.19494-2-akrowiak@linux.ibm.com>
+ <202010230305.RyRsFmf9-lkp@intel.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <8aa98c96-9194-504a-8e00-3354b5ca1d6c@linux.ibm.com>
+Date: Mon, 26 Oct 2020 12:57:12 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <202010230305.RyRsFmf9-lkp@intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: kbuild-all@lists.01.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com
 
-On Thu, 22 Oct 2020 13:11:56 -0400
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-> The queues assigned to a matrix mediated device are currently reset when:
-> 
-> * The VFIO_DEVICE_RESET ioctl is invoked
-> * The mdev fd is closed by userspace (QEMU)
-> * The mdev is removed from sysfs.
 
-What about the situation when vfio_ap_mdev_group_notifier() is called to
-tell us that our pointer to KVM is about to become invalid? Do we need to
-clean up the IRQ stuff there?
-
-> 
-> Immediately after the reset of a queue, a call is made to disable
-> interrupts for the queue. This is entirely unnecessary because the reset of
-> a queue disables interrupts, so this will be removed.
-
-Makes sense.
-
-> 
-> Since interrupt processing may have been enabled by the guest, it may also
-> be necessary to clean up the resources used for interrupt processing. Part
-> of the cleanup operation requires a reference to KVM, so a check is also
-> being added to ensure the reference to KVM exists. The reason is because
-> the release callback - invoked when userspace closes the mdev fd - removes
-> the reference to KVM. When the remove callback - called when the mdev is
-> removed from sysfs - is subsequently invoked, there will be no reference to
-> KVM when the cleanup is performed.
-
-Please see below in the code.
-
-> 
-> This patch will also do a bit of refactoring due to the fact that the
-> remove callback, implemented in vfio_ap_drv.c, disables the queue after
-> resetting it. Instead of the remove callback making a call into the
-> vfio_ap_ops.c to clean up the resources used for interrupt processing,
-> let's move the probe and remove callbacks into the vfio_ap_ops.c
-> file keep all code related to managing queues in a single file.
+On 10/22/20 3:44 PM, kernel test robot wrote:
+> Hi Tony,
 >
+> I love your patch! Perhaps something to improve:
+>
+> [auto build test WARNING on s390/features]
+> [also build test WARNING on linus/master kvms390/next linux/master v5.9 next-20201022]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch]
+>
+> url:    https://github.com/0day-ci/linux/commits/Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20201023-011543
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+> config: s390-allyesconfig (attached as .config)
+> compiler: s390-linux-gcc (GCC) 9.3.0
+> reproduce (this is a W=1 build):
+>          wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>          chmod +x ~/bin/make.cross
+>          # https://github.com/0day-ci/linux/commit/572c94c40a76754d49f07e4e383097d2db132f8c
+>          git remote add linux-review https://github.com/0day-ci/linux
+>          git fetch --no-tags linux-review Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20201023-011543
+>          git checkout 572c94c40a76754d49f07e4e383097d2db132f8c
+>          # save the attached .config to linux build tree
+>          COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=s390
+>
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+>
+> All warnings (new ones prefixed by >>):
+>
+>>> drivers/s390/crypto/vfio_ap_ops.c:1119:5: warning: no previous prototype for 'vfio_ap_mdev_reset_queue' [-Wmissing-prototypes]
+>      1119 | int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+>           |     ^~~~~~~~~~~~~~~~~~~~~~~~
 
-It would have been helpful to split out the refactoring as a separate
-patch. This way it is harder to review the code that got moved, because
-it is intermingled with the changes that intend to change behavior.
- 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+This function needs to be made static because it is no longer defined in 
+the header file.
+
+>
+> vim +/vfio_ap_mdev_reset_queue +1119 drivers/s390/crypto/vfio_ap_ops.c
+>
+> 258287c994de8f Tony Krowiak 2018-09-25  1118
+> ec89b55e3bce7c Pierre Morel 2019-05-21 @1119  int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1120  			     unsigned int retry)
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1121  {
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1122  	struct ap_queue_status status;
+> ec89b55e3bce7c Pierre Morel 2019-05-21  1123  	int retry2 = 2;
+> ec89b55e3bce7c Pierre Morel 2019-05-21  1124  	int apqn = AP_MKQID(apid, apqi);
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1125
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1126  	do {
+> ec89b55e3bce7c Pierre Morel 2019-05-21  1127  		status = ap_zapq(apqn);
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1128  		switch (status.response_code) {
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1129  		case AP_RESPONSE_NORMAL:
+> ec89b55e3bce7c Pierre Morel 2019-05-21  1130  			while (!status.queue_empty && retry2--) {
+> ec89b55e3bce7c Pierre Morel 2019-05-21  1131  				msleep(20);
+> ec89b55e3bce7c Pierre Morel 2019-05-21  1132  				status = ap_tapq(apqn, NULL);
+> ec89b55e3bce7c Pierre Morel 2019-05-21  1133  			}
+> 024cdcdbf3cf99 Halil Pasic  2019-09-03  1134  			WARN_ON_ONCE(retry2 <= 0);
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1135  			return 0;
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1136  		case AP_RESPONSE_RESET_IN_PROGRESS:
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1137  		case AP_RESPONSE_BUSY:
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1138  			msleep(20);
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1139  			break;
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1140  		default:
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1141  			/* things are really broken, give up */
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1142  			return -EIO;
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1143  		}
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1144  	} while (retry--);
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1145
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1146  	return -EBUSY;
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1147  }
+> 46a7263d4746a2 Tony Krowiak 2018-09-25  1148
+>
 > ---
->  drivers/s390/crypto/vfio_ap_drv.c     | 45 +------------------
->  drivers/s390/crypto/vfio_ap_ops.c     | 63 +++++++++++++++++++--------
->  drivers/s390/crypto/vfio_ap_private.h |  7 +--
->  3 files changed, 52 insertions(+), 63 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-> index be2520cc010b..73bd073fd5d3 100644
-> --- a/drivers/s390/crypto/vfio_ap_drv.c
-> +++ b/drivers/s390/crypto/vfio_ap_drv.c
-> @@ -43,47 +43,6 @@ static struct ap_device_id ap_queue_ids[] = {
->  
->  MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
->  
-> -/**
-> - * vfio_ap_queue_dev_probe:
-> - *
-> - * Allocate a vfio_ap_queue structure and associate it
-> - * with the device as driver_data.
-> - */
-> -static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
-> -{
-> -	struct vfio_ap_queue *q;
-> -
-> -	q = kzalloc(sizeof(*q), GFP_KERNEL);
-> -	if (!q)
-> -		return -ENOMEM;
-> -	dev_set_drvdata(&apdev->device, q);
-> -	q->apqn = to_ap_queue(&apdev->device)->qid;
-> -	q->saved_isc = VFIO_AP_ISC_INVALID;
-> -	return 0;
-> -}
-> -
-> -/**
-> - * vfio_ap_queue_dev_remove:
-> - *
-> - * Takes the matrix lock to avoid actions on this device while removing
-> - * Free the associated vfio_ap_queue structure
-> - */
-> -static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
-> -{
-> -	struct vfio_ap_queue *q;
-> -	int apid, apqi;
-> -
-> -	mutex_lock(&matrix_dev->lock);
-> -	q = dev_get_drvdata(&apdev->device);
-> -	dev_set_drvdata(&apdev->device, NULL);
-> -	apid = AP_QID_CARD(q->apqn);
-> -	apqi = AP_QID_QUEUE(q->apqn);
-> -	vfio_ap_mdev_reset_queue(apid, apqi, 1);
-> -	vfio_ap_irq_disable(q);
-> -	kfree(q);
-> -	mutex_unlock(&matrix_dev->lock);
-> -}
-> -
->  static void vfio_ap_matrix_dev_release(struct device *dev)
->  {
->  	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
-> @@ -186,8 +145,8 @@ static int __init vfio_ap_init(void)
->  		return ret;
->  
->  	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
-> -	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
-> -	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-> +	vfio_ap_drv.probe = vfio_ap_mdev_probe_queue;
-> +	vfio_ap_drv.remove = vfio_ap_mdev_remove_queue;
->  	vfio_ap_drv.ids = ap_queue_ids;
->  
->  	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index e0bde8518745..c471832f0a30 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -119,7 +119,8 @@ static void vfio_ap_wait_for_irqclear(int apqn)
->   */
->  static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
->  {
-> -	if (q->saved_isc != VFIO_AP_ISC_INVALID && q->matrix_mdev)
-> +	if (q->saved_isc != VFIO_AP_ISC_INVALID && q->matrix_mdev &&
-> +	    q->matrix_mdev->kvm)
-
-Here is the check that the kvm reference exists, you mentioned in the
-cover letter. You make only the gisc_unregister depend on it, because
-that's what is going to explode.
-
-But I'm actually wondering if "KVM is gone but we still haven't cleaned
-up our aqic resources" is valid. I argue that it is not. The two
-resources we manage are the gisc registration and the pinned page. I
-argue that it makes on sense to keep what was the guests page pinned,
-if here is no guest associated (we don't have KVM).
-
-I assume the cleanup is supposed to be atomic from the perspective of
-other threads/contexts, so I expect the cleanup either to be fully done
-or not not entered the critical section.
-
-So !kvm && (q->saved_isc != VFIO_AP_ISC_INVALID || q->saved_pfn) is a
-bug. Isn't it?
-
-In that sense this change would only hide the actual problem.
-
-Is the scenario we are talking about something that can happen, or is
-this just about programming defensively?
-
-In any case, I don't think this is a good idea. We can be defensive
-about it, but we have to do it differently.
-
-
->  		kvm_s390_gisc_unregister(q->matrix_mdev->kvm, q->saved_isc);
->  	if (q->saved_pfn && q->matrix_mdev)
->  		vfio_unpin_pages(mdev_dev(q->matrix_mdev->mdev),
-> @@ -144,7 +145,7 @@ static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
->   * Returns if ap_aqic function failed with invalid, deconfigured or
->   * checkstopped AP.
->   */
-> -struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
-> +static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
->  {
->  	struct ap_qirq_ctrl aqic_gisa = {};
->  	struct ap_queue_status status;
-> @@ -297,6 +298,7 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
->  	if (!q)
->  		goto out_unlock;
->  
-> +	q->matrix_mdev = matrix_mdev;
-
-What is the purpose of this? Doesn't the preceding vfio_ap_get_queue()
-already set q->matrix_mdev?
-
->  	status = vcpu->run->s.regs.gprs[1];
->  
->  	/* If IR bit(16) is set we enable the interrupt */
-> @@ -1114,20 +1116,6 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
->  	return NOTIFY_OK;
->  }
->  
-> -static void vfio_ap_irq_disable_apqn(int apqn)
-> -{
-> -	struct device *dev;
-> -	struct vfio_ap_queue *q;
-> -
-> -	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
-> -				 &apqn, match_apqn);
-> -	if (dev) {
-> -		q = dev_get_drvdata(dev);
-> -		vfio_ap_irq_disable(q);
-> -		put_device(dev);
-> -	}
-> -}
-> -
->  int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
->  			     unsigned int retry)
->  {
-> @@ -1162,6 +1150,7 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
->  {
->  	int ret;
->  	int rc = 0;
-> +	struct vfio_ap_queue *q;
->  	unsigned long apid, apqi;
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->  
-> @@ -1177,7 +1166,10 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
->  			 */
->  			if (ret)
->  				rc = ret;
-> -			vfio_ap_irq_disable_apqn(AP_MKQID(apid, apqi));
-> +			q = vfio_ap_get_queue(matrix_mdev,
-> +					      AP_MKQID(apid, apqi));
-> +			if (q)
-> +				vfio_ap_free_aqic_resources(q);
-
-Is it safe to do vfio_ap_free_aqic_resources() at this point? I don't
-think so. I mean does the current code (and vfio_ap_mdev_reset_queue()
-in particular guarantee that the reset is actually done when we arrive
-here)? BTW, I think we have a similar problem with the current code as
-well.
-
-Under what circumstances do we expect !q? If we don't, then we need to
-complain one way or another.
-
-I believe that each time we call vfio_ap_mdev_reset_queue(), we will
-also want to call vfio_ap_free_aqic_resources(q) to clean up our aqic
-resources associated with the queue -- if any. So I would really prefer
-having a function that does both.
-
->  		}
->  	}
->  
-> @@ -1302,3 +1294,40 @@ void vfio_ap_mdev_unregister(void)
->  {
->  	mdev_unregister_device(&matrix_dev->device);
->  }
-> +
-> +int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
-> +{
-> +	struct vfio_ap_queue *q;
-> +	struct ap_queue *queue;
-> +
-> +	queue = to_ap_queue(&apdev->device);
-> +
-> +	q = kzalloc(sizeof(*q), GFP_KERNEL);
-> +	if (!q)
-> +		return -ENOMEM;
-> +
-> +	dev_set_drvdata(&queue->ap_dev.device, q);
-> +	q->apqn = queue->qid;
-> +	q->saved_isc = VFIO_AP_ISC_INVALID;
-> +
-> +	return 0;
-> +}
-> +
-> +void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
-> +{
-> +	struct vfio_ap_queue *q;
-> +	struct ap_queue *queue;
-> +	int apid, apqi;
-> +
-> +	queue = to_ap_queue(&apdev->device);
-
-What is the benefit of rewriting this? You introduced
-queue just to do queue->ap_dev to get to the apdev you
-have in hand in the first place.
-
-> +
-> +	mutex_lock(&matrix_dev->lock);
-> +	q = dev_get_drvdata(&queue->ap_dev.device);
-> +	dev_set_drvdata(&queue->ap_dev.device, NULL);
-> +	apid = AP_QID_CARD(q->apqn);
-> +	apqi = AP_QID_QUEUE(q->apqn);
-> +	vfio_ap_mdev_reset_queue(apid, apqi, 1);
-> +	vfio_ap_free_aqic_resources(q);
-> +	kfree(q);
-> +	mutex_unlock(&matrix_dev->lock);
-> +}
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index f46dde56b464..d9003de4fbad 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -90,8 +90,6 @@ struct ap_matrix_mdev {
->  
->  extern int vfio_ap_mdev_register(void);
->  extern void vfio_ap_mdev_unregister(void);
-> -int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
-> -			     unsigned int retry);
->  
->  struct vfio_ap_queue {
->  	struct ap_matrix_mdev *matrix_mdev;
-> @@ -100,5 +98,8 @@ struct vfio_ap_queue {
->  #define VFIO_AP_ISC_INVALID 0xff
->  	unsigned char saved_isc;
->  };
-> -struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
-> +
-> +int vfio_ap_mdev_probe_queue(struct ap_device *queue);
-> +void vfio_ap_mdev_remove_queue(struct ap_device *queue);
-> +
->  #endif /* _VFIO_AP_PRIVATE_H_ */
+> 0-DAY CI Kernel Test Service, Intel Corporation
+> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
