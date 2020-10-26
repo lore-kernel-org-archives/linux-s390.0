@@ -1,16 +1,16 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57990 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:38518 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1733033AbgJZRVw (ORCPT
+        by vger.kernel.org with ESMTP id S1787163AbgJZRHb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Oct 2020 13:21:52 -0400
+        Mon, 26 Oct 2020 13:07:31 -0400
 Subject: Re: [PATCH v11 12/14] s390/vfio-ap: handle host AP config change
  notification
 References: <20201022171209.19494-13-akrowiak@linux.ibm.com>
  <202010230508.bSSV3BvM-lkp@intel.com>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <a902bb74-fc43-8d1d-9a18-779ef3608ccf@linux.ibm.com>
-Date: Mon, 26 Oct 2020 13:21:45 -0400
+Message-ID: <7a24ed14-baca-41ea-06ad-681b6da4f405@linux.ibm.com>
+Date: Mon, 26 Oct 2020 13:07:25 -0400
 MIME-Version: 1.0
 In-Reply-To: <202010230508.bSSV3BvM-lkp@intel.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
@@ -56,20 +56,26 @@ On 10/22/20 5:17 PM, kernel test robot wrote:
 >     drivers/s390/crypto/vfio_ap_ops.c:1316:5: warning: no previous prototype for 'vfio_ap_mdev_reset_queue' [-Wmissing-prototypes]
 >      1316 | int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
 >           |     ^~~~~~~~~~~~~~~~~~~~~~~~
+
+This was also reported for patch 01/14 and will be fixed there.
+
 >     drivers/s390/crypto/vfio_ap_ops.c:1568:6: warning: no previous prototype for 'vfio_ap_mdev_hot_unplug_queue' [-Wmissing-prototypes]
 >      1568 | void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
 >           |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This was also reported for patch 08/14 and will be fixed there.
+
 >     drivers/s390/crypto/vfio_ap_ops.c: In function 'vfio_ap_mdev_on_cfg_remove':
 >>> drivers/s390/crypto/vfio_ap_ops.c:1777:7: warning: variable 'unassigned' set but not used [-Wunused-but-set-variable]
 >      1777 |  bool unassigned = false;
 >           |       ^~~~~~~~~~
+
+This will be removed.
+
 >     drivers/s390/crypto/vfio_ap_ops.c: At top level:
 >>> drivers/s390/crypto/vfio_ap_ops.c:1813:6: warning: no previous prototype for 'vfio_ap_mdev_on_cfg_add' [-Wmissing-prototypes]
 >      1813 | void vfio_ap_mdev_on_cfg_add(void)
 >           |      ^~~~~~~~~~~~~~~~~~~~~~~
-
-Needs to be static, will fix.
-
 >     In file included from drivers/s390/crypto/vfio_ap_ops.c:11:
 >     In function 'memcpy',
 >         inlined from 'vfio_ap_mdev_unassign_apids' at drivers/s390/crypto/vfio_ap_ops.c:1655:3,
@@ -78,9 +84,6 @@ Needs to be static, will fix.
 >     include/linux/string.h:402:4: error: call to '__read_overflow2' declared with attribute error: detected read beyond size of object passed as 2nd parameter
 >       402 |    __read_overflow2();
 >           |    ^~~~~~~~~~~~~~~~~~
-
-Will replace memcpy with bitmap_copy.
-
 >
 > vim +/unassigned +1777 drivers/s390/crypto/vfio_ap_ops.c
 >
