@@ -1,60 +1,281 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:55326 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727102AbgJMMxI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 13 Oct 2020 08:53:08 -0400
-Date: Tue, 13 Oct 2020 14:53:03 +0200
-From: Petr Tesarik <ptesarik@suse.cz>
-Subject: Is OS_INFO_VMCOREINFO unimplemented?
-Message-ID: <20201013145303.6f99fe89@ezekiel.suse.cz>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57036 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1813844AbgJ0Qz2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Oct 2020 12:55:28 -0400
+Subject: Re: [PATCH v11 04/14] s390/zcrypt: driver callback to indicate
+ resource in use
+References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+ <20201022171209.19494-5-akrowiak@linux.ibm.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
+Message-ID: <42f3f4f9-6263-cb1e-d882-30b62236a594@linux.ibm.com>
+Date: Tue, 27 Oct 2020 17:55:19 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/W94fo0l0R1KWS0gkWgqtsUr";
- protocol="application/pgp-signature"; micalg=pgp-sha256
+In-Reply-To: <20201022171209.19494-5-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Michael Holzheu <holzheu@linux.vnet.ibm.com>
+To: Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
---Sig_/W94fo0l0R1KWS0gkWgqtsUr
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On 22.10.20 19:11, Tony Krowiak wrote:
+> Introduces a new driver callback to prevent a root user from unbinding
+> an AP queue from its device driver if the queue is in use. The callback
+> will be invoked whenever a change to the AP bus's sysfs apmask or aqmask
+> attributes would result in one or more AP queues being removed from its
+> driver. If the callback responds in the affirmative for any driver
+> queried, the change to the apmask or aqmask will be rejected with a device
+> in use error.
+>
+> For this patch, only non-default drivers will be queried. Currently,
+> there is only one non-default driver, the vfio_ap device driver. The
+> vfio_ap device driver facilitates pass-through of an AP queue to a
+> guest. The idea here is that a guest may be administered by a different
+> sysadmin than the host and we don't want AP resources to unexpectedly
+> disappear from a guest's AP configuration (i.e., adapters and domains
+> assigned to the matrix mdev). This will enforce the proper procedure for
+> removing AP resources intended for guest usage which is to
+> first unassign them from the matrix mdev, then unbind them from the
+> vfio_ap device driver.
+>
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> ---
+>  drivers/s390/crypto/ap_bus.c | 148 ++++++++++++++++++++++++++++++++---
+>  drivers/s390/crypto/ap_bus.h |   4 +
+>  2 files changed, 142 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+> index 485cbfcbf06e..998e61cd86d9 100644
+> --- a/drivers/s390/crypto/ap_bus.c
+> +++ b/drivers/s390/crypto/ap_bus.c
+> @@ -35,6 +35,7 @@
+>  #include <linux/mod_devicetable.h>
+>  #include <linux/debugfs.h>
+>  #include <linux/ctype.h>
+> +#include <linux/module.h>
+>  
+>  #include "ap_bus.h"
+>  #include "ap_debug.h"
+> @@ -893,6 +894,23 @@ static int modify_bitmap(const char *str, unsigned long *bitmap, int bits)
+>  	return 0;
+>  }
+>  
+> +static int ap_parse_bitmap_str(const char *str, unsigned long *bitmap, int bits,
+> +			       unsigned long *newmap)
+> +{
+> +	unsigned long size;
+> +	int rc;
+> +
+> +	size = BITS_TO_LONGS(bits)*sizeof(unsigned long);
+> +	if (*str == '+' || *str == '-') {
+> +		memcpy(newmap, bitmap, size);
+> +		rc = modify_bitmap(str, newmap, bits);
+> +	} else {
+> +		memset(newmap, 0, size);
+> +		rc = hex2bitmap(str, newmap, bits);
+> +	}
+> +	return rc;
+> +}
+> +
+>  int ap_parse_mask_str(const char *str,
+>  		      unsigned long *bitmap, int bits,
+>  		      struct mutex *lock)
+> @@ -912,14 +930,7 @@ int ap_parse_mask_str(const char *str,
+>  		kfree(newmap);
+>  		return -ERESTARTSYS;
+>  	}
+> -
+> -	if (*str == '+' || *str == '-') {
+> -		memcpy(newmap, bitmap, size);
+> -		rc = modify_bitmap(str, newmap, bits);
+> -	} else {
+> -		memset(newmap, 0, size);
+> -		rc = hex2bitmap(str, newmap, bits);
+> -	}
+> +	rc = ap_parse_bitmap_str(str, bitmap, bits, newmap);
+>  	if (rc == 0)
+>  		memcpy(bitmap, newmap, size);
+>  	mutex_unlock(lock);
+> @@ -1111,12 +1122,70 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
+>  	return rc;
+>  }
+>  
+> +static int __verify_card_reservations(struct device_driver *drv, void *data)
+> +{
+> +	int rc = 0;
+> +	struct ap_driver *ap_drv = to_ap_drv(drv);
+> +	unsigned long *newapm = (unsigned long *)data;
+> +
+> +	/*
+> +	 * No need to verify whether the driver is using the queues if it is the
+> +	 * default driver.
+> +	 */
+> +	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
+> +		return 0;
+> +
+> +	/* The non-default driver's module must be loaded */
+Can you please update this comment? It should be something like
+/* increase the driver's module refcounter to be sure it is not
+   going away when we invoke the callback function. */
 
-Hi all,
-
-I've been looking into kernel crash dump analysis for some time now,
-and I've noticed that none of my sample dumps for z/Architecture sets
-OS_INFO_VMCOREINFO.
-
-Commit 4857d4bbe9821c8d732cb84455e18e12b3d79add suggests that the
-"os_info" structure should contain vmcoreinfo, but it seems that the
-corresponding fields are always zero, and a quick grep for
-OS_INFO_VMCOREINFO finds only code that tries to read this entry in the
-panic kernel, but no code that would initialize it in the old (crashed)
-kernel.
-
-In short, the panic kernel always prints an informational message that
-entry 0 is not available and falls back to get_vmcoreinfo_old().
-
-Is this a bug, or is this interface used by a non-Linux operating
-system that I'm not aware of?
-
-TIA,
-Petr Tesarik
-SUSE HW Enablement
-
---Sig_/W94fo0l0R1KWS0gkWgqtsUr
-Content-Type: application/pgp-signature
-Content-Description: =?unknown-8bit?q?Digit=C3=A1ln=C3=AD?= podpis OpenPGP
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEHl2YIZkIo5VO2MxYqlA7ya4PR6cFAl+Foy8ACgkQqlA7ya4P
-R6eu7QgAhvS1Z1GbfPzbEIhK6amfkFEX0hXWFfxS1yx/n/vaLXbGVjHR3jNXjQfD
-DVSe3sz96Jk4/oErCN+icekanjdidleVzcZqgTt++byaECwj0DjgwSFzLWzXQe09
-H8HxXE3SyPgaLEXeLQDQsijTqxdXuSckKedvNadPOw5JtQG6KoJnHKKowVvSCUej
-ApSmJaeAr0OtZQ814XHZT43NtKLUrrxB/DEm0cP0lC1JmyfxgOogvPSrPxlN0aYP
-1NUgI/PWqfzyue/1lLGO+cw+NYNwDmJemLJm85q/G/97a2eROJ0O8oB0Z2Z+/0tZ
-/qQWaFsgf/VZn39TOrADA9X65XZdgQ==
-=7759
------END PGP SIGNATURE-----
-
---Sig_/W94fo0l0R1KWS0gkWgqtsUr--
+> +	if (!try_module_get(drv->owner))
+> +		return 0;
+> +
+> +	if (ap_drv->in_use)
+> +		if (ap_drv->in_use(newapm, ap_perms.aqm))
+> +			rc = -EBUSY;
+> +
+And here: /* release driver's module */ or simmilar
+> +	module_put(drv->owner);
+> +
+> +	return rc;
+> +}
+> +
+> +static int apmask_commit(unsigned long *newapm)
+> +{
+> +	int rc;
+> +	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
+> +
+> +	/*
+> +	 * Check if any bits in the apmask have been set which will
+> +	 * result in queues being removed from non-default drivers
+> +	 */
+> +	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
+> +		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
+> +				      __verify_card_reservations);
+> +		if (rc)
+> +			return rc;
+> +	}
+> +
+> +	memcpy(ap_perms.apm, newapm, APMASKSIZE);
+> +
+> +	return 0;
+> +}
+> +
+>  static ssize_t apmask_store(struct bus_type *bus, const char *buf,
+>  			    size_t count)
+>  {
+>  	int rc;
+> +	DECLARE_BITMAP(newapm, AP_DEVICES);
+> +
+> +	if (mutex_lock_interruptible(&ap_perms_mutex))
+> +		return -ERESTARTSYS;
+> +
+> +	rc = ap_parse_bitmap_str(buf, ap_perms.apm, AP_DEVICES, newapm);
+> +	if (rc)
+> +		goto done;
+>  
+> -	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
+> +	rc = apmask_commit(newapm);
+> +
+> +done:
+> +	mutex_unlock(&ap_perms_mutex);
+>  	if (rc)
+>  		return rc;
+>  
+> @@ -1142,12 +1211,71 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
+>  	return rc;
+>  }
+>  
+> +static int __verify_queue_reservations(struct device_driver *drv, void *data)
+> +{
+> +	int rc = 0;
+> +	struct ap_driver *ap_drv = to_ap_drv(drv);
+> +	unsigned long *newaqm = (unsigned long *)data;
+> +
+> +	/*
+> +	 * If the reserved bits do not identify queues reserved for use by the
+> +	 * non-default driver, there is no need to verify the driver is using
+> +	 * the queues.
+> +	 */
+> +	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
+> +		return 0;
+> +
+> +	/* The non-default driver's module must be loaded */
+Same here.
+> +	if (!try_module_get(drv->owner))
+> +		return 0;
+> +
+> +	if (ap_drv->in_use)
+> +		if (ap_drv->in_use(ap_perms.apm, newaqm))
+> +			rc = -EBUSY;
+> +
+and here
+> +	module_put(drv->owner);
+> +
+> +	return rc;
+> +}
+> +
+> +static int aqmask_commit(unsigned long *newaqm)
+> +{
+> +	int rc;
+> +	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
+> +
+> +	/*
+> +	 * Check if any bits in the aqmask have been set which will
+> +	 * result in queues being removed from non-default drivers
+> +	 */
+> +	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
+> +		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
+> +				      __verify_queue_reservations);
+> +		if (rc)
+> +			return rc;
+> +	}
+> +
+> +	memcpy(ap_perms.aqm, newaqm, AQMASKSIZE);
+> +
+> +	return 0;
+> +}
+> +
+>  static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
+>  			    size_t count)
+>  {
+>  	int rc;
+> +	DECLARE_BITMAP(newaqm, AP_DOMAINS);
+>  
+> -	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
+> +	if (mutex_lock_interruptible(&ap_perms_mutex))
+> +		return -ERESTARTSYS;
+> +
+> +	rc = ap_parse_bitmap_str(buf, ap_perms.aqm, AP_DOMAINS, newaqm);
+> +	if (rc)
+> +		goto done;
+> +
+> +	rc = aqmask_commit(newaqm);
+> +
+> +done:
+> +	mutex_unlock(&ap_perms_mutex);
+>  	if (rc)
+>  		return rc;
+>  
+> diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+> index 5029b80132aa..6ce154d924d3 100644
+> --- a/drivers/s390/crypto/ap_bus.h
+> +++ b/drivers/s390/crypto/ap_bus.h
+> @@ -145,6 +145,7 @@ struct ap_driver {
+>  
+>  	int (*probe)(struct ap_device *);
+>  	void (*remove)(struct ap_device *);
+> +	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
+>  };
+>  
+>  #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
+> @@ -293,6 +294,9 @@ void ap_queue_init_state(struct ap_queue *aq);
+>  struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
+>  			       int comp_device_type, unsigned int functions);
+>  
+> +#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
+> +#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
+> +
+>  struct ap_perms {
+>  	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
+>  	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
+I still don't like this code. That's because of what it is doing - not because of the code quality.
+And Halil, you are right. It is adding more pressure to the mutex used for locking the apmask
+and aqmask stuff (and the zcrypt multiple device drivers support code also).
+I am very concerned about the in_use callback which is called with the ap_perms_mutex
+held AND during bus_for_each_drv (so holding the overall AP BUS mutex) and then diving
+into the vfio_ap ... with yet another mutex to protect the vfio structs.
+Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
