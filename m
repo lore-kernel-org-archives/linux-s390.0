@@ -1,99 +1,164 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:28498 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2436816AbgJ0KfJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 27 Oct 2020 06:35:09 -0400
 Subject: Re: [PATCH 0/4] arch, mm: improve robustness of direct map
  manipulation
-Date: Wed, 28 Oct 2020 21:03:31 +0000
-Message-ID: <9e77d0a939eda3029d6ae89bd14d7f1465b0559d.camel@intel.com>
 References: <20201025101555.3057-1-rppt@kernel.org>
-         <ae82f905a0092adb7e0f0ac206335c1883b3170f.camel@intel.com>
-         <20201026090526.GA1154158@kernel.org>
-         <a0212b073b3b2f62c3dbf1bf398f03fa402997be.camel@intel.com>
-         <20201027083816.GG1154158@kernel.org>
-         <20201028112011.GB27927@willie-the-truck>
-         <20201028113059.GG1428094@kernel.org>
-In-Reply-To: <20201028113059.GG1428094@kernel.org>
-Content-Language: en-US
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <6A57DF794371B74D8EDF50341EA0B257@namprd11.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <ae82f905a0092adb7e0f0ac206335c1883b3170f.camel@intel.com>
+ <20201026090526.GA1154158@kernel.org>
+ <a0212b073b3b2f62c3dbf1bf398f03fa402997be.camel@intel.com>
+ <20201027083816.GG1154158@kernel.org>
+ <e5fc62b6-f644-4ed5-de5b-ffd8337861e4@redhat.com>
+ <20201027094714.GI1154158@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <14aee5c8-09d5-7dc2-7d61-d2d44521c5e3@redhat.com>
+Date: Tue, 27 Oct 2020 11:34:49 +0100
 MIME-Version: 1.0
+In-Reply-To: <20201027094714.GI1154158@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: "will@kernel.org" <will@kernel.org>, "rppt@kernel.org" <rppt@kernel.org>
-Cc: "david@redhat.com" <david@redhat.com>, "cl@linux.com" <cl@linux.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org" <peterz@infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "penberg@kernel.org" <penberg@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "kirill@shutemov.name" <kirill@shutemov.name>, "rientjes@google.com" <rientjes@google.com>, "rppt@linux.ibm.com" <rppt@linux.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "hca@linux.ibm.com" <hca@linux.ibm.com>, "bp@alien8.de" <bp@alien8.de>, "pavel@ucw.cz" <pavel@ucw.cz>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "luto@kernel.org" <luto@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "tglx@linutronix.de" <tglx@linutronix.de>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "palmer@dabbelt.com" <palmer@dabbelt.com>, "Brown, Len" <len.brown@intel.com>, "mingo@redhat.com" <mingo@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>
+To: Mike Rapoport <rppt@kernel.org>
+Cc: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "cl@linux.com" <cl@linux.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org" <peterz@infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "penberg@kernel.org" <penberg@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>, "will@kernel.org" <will@kernel.org>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "kirill@shutemov.name" <kirill@shutemov.name>, "rientjes@google.com" <rientjes@google.com>, "rppt@linux.ibm.com" <rppt@linux.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "hca@linux.ibm.com" <hca@linux.ibm.com>, "bp@alien8.de" <bp@alien8.de>, "pavel@ucw.cz" <pavel@ucw.cz>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "luto@kernel.org" <luto@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "tglx@linutronix.de" <tglx@linutronix.de>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "palmer@dabbelt.com" <palmer@dabbelt.com>, "Brown, Len" <len.brown@intel.com>, "mingo@redhat.com" <mingo@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>
 
-T24gV2VkLCAyMDIwLTEwLTI4IGF0IDEzOjMwICswMjAwLCBNaWtlIFJhcG9wb3J0IHdyb3RlOg0K
-PiBPbiBXZWQsIE9jdCAyOCwgMjAyMCBhdCAxMToyMDoxMkFNICswMDAwLCBXaWxsIERlYWNvbiB3
-cm90ZToNCj4gPiBPbiBUdWUsIE9jdCAyNywgMjAyMCBhdCAxMDozODoxNkFNICswMjAwLCBNaWtl
-IFJhcG9wb3J0IHdyb3RlOg0KPiA+ID4gT24gTW9uLCBPY3QgMjYsIDIwMjAgYXQgMDY6MDU6MzBQ
-TSArMDAwMCwgRWRnZWNvbWJlLCBSaWNrIFANCj4gPiA+IHdyb3RlOg0KPiA+ID4gPiBPbiBNb24s
-IDIwMjAtMTAtMjYgYXQgMTE6MDUgKzAyMDAsIE1pa2UgUmFwb3BvcnQgd3JvdGU6DQo+ID4gPiA+
-ID4gT24gTW9uLCBPY3QgMjYsIDIwMjAgYXQgMDE6MTM6NTJBTSArMDAwMCwgRWRnZWNvbWJlLCBS
-aWNrIFANCj4gPiA+ID4gPiB3cm90ZToNCj4gPiA+ID4gPiA+IE9uIFN1biwgMjAyMC0xMC0yNSBh
-dCAxMjoxNSArMDIwMCwgTWlrZSBSYXBvcG9ydCB3cm90ZToNCj4gPiA+ID4gPiA+ID4gSW5kZWVk
-LCBmb3IgYXJjaGl0ZWN0dXJlcyB0aGF0IGRlZmluZQ0KPiA+ID4gPiA+ID4gPiBDT05GSUdfQVJD
-SF9IQVNfU0VUX0RJUkVDVF9NQVANCj4gPiA+ID4gPiA+ID4gaXQgaXMNCj4gPiA+ID4gPiA+ID4g
-cG9zc2libGUgdGhhdCBfX2tlcm5lbF9tYXBfcGFnZXMoKSB3b3VsZCBmYWlsLCBidXQgc2luY2UN
-Cj4gPiA+ID4gPiA+ID4gdGhpcw0KPiA+ID4gPiA+ID4gPiBmdW5jdGlvbiBpcw0KPiA+ID4gPiA+
-ID4gPiB2b2lkLCB0aGUgZmFpbHVyZSB3aWxsIGdvIHVubm90aWNlZC4NCj4gPiA+ID4gPiA+IA0K
-PiA+ID4gPiA+ID4gQ291bGQgeW91IGVsYWJvcmF0ZSBvbiBob3cgdGhpcyBjb3VsZCBoYXBwZW4/
-IERvIHlvdSBtZWFuDQo+ID4gPiA+ID4gPiBkdXJpbmcNCj4gPiA+ID4gPiA+IHJ1bnRpbWUgdG9k
-YXkgb3IgaWYgc29tZXRoaW5nIG5ldyB3YXMgaW50cm9kdWNlZD8NCj4gPiA+ID4gPiANCj4gPiA+
-ID4gPiBBIGZhaWx1cmUgaW5fX2tlcm5lbF9tYXBfcGFnZXMoKSBtYXkgaGFwcGVuIHRvZGF5LiBG
-b3INCj4gPiA+ID4gPiBpbnN0YW5jZSwgb24NCj4gPiA+ID4gPiB4ODYNCj4gPiA+ID4gPiBpZiB0
-aGUga2VybmVsIGlzIGJ1aWx0IHdpdGggREVCVUdfUEFHRUFMTE9DLg0KPiA+ID4gPiA+IA0KPiA+
-ID4gPiA+ICAgICAgICAgX19rZXJuZWxfbWFwX3BhZ2VzKHBhZ2UsIDEsIDApOw0KPiA+ID4gPiA+
-IA0KPiA+ID4gPiA+IHdpbGwgbmVlZCB0byBzcGxpdCwgc2F5LCAyTSBwYWdlIGFuZCBkdXJpbmcg
-dGhlIHNwbGl0IGFuDQo+ID4gPiA+ID4gYWxsb2NhdGlvbg0KPiA+ID4gPiA+IG9mDQo+ID4gPiA+
-ID4gcGFnZSB0YWJsZSBjb3VsZCBmYWlsLg0KPiA+ID4gPiANCj4gPiA+ID4gT24geDg2IGF0IGxl
-YXN0LCBERUJVR19QQUdFQUxMT0MgZXhwZWN0cyB0byBuZXZlciBoYXZlIHRvIGJyZWFrDQo+ID4g
-PiA+IGEgcGFnZQ0KPiA+ID4gPiBvbiB0aGUgZGlyZWN0IG1hcCBhbmQgZXZlbiBkaXNhYmxlcyBs
-b2NraW5nIGluIGNwYSBiZWNhdXNlIGl0DQo+ID4gPiA+IGFzc3VtZXMNCj4gPiA+ID4gdGhpcy4g
-SWYgdGhpcyBpcyBoYXBwZW5pbmcgc29tZWhvdyBhbnl3YXkgdGhlbiB3ZSBzaG91bGQNCj4gPiA+
-ID4gcHJvYmFibHkgZml4DQo+ID4gPiA+IHRoYXQuIEV2ZW4gaWYgaXQncyBhIGRlYnVnIGZlYXR1
-cmUsIGl0IHdpbGwgbm90IGJlIGFzIHVzZWZ1bCBpZg0KPiA+ID4gPiBpdCBpcw0KPiA+ID4gPiBj
-YXVzaW5nIGl0cyBvd24gY3Jhc2hlcy4NCj4gPiA+ID4gDQo+ID4gPiA+IEknbSBzdGlsbCB3b25k
-ZXJpbmcgaWYgdGhlcmUgaXMgc29tZXRoaW5nIEknbSBtaXNzaW5nIGhlcmUuIEl0DQo+ID4gPiA+
-IHNlZW1zDQo+ID4gPiA+IGxpa2UgeW91IGFyZSBzYXlpbmcgdGhlcmUgaXMgYSBidWcgaW4gc29t
-ZSBhcmNoJ3MsIHNvIGxldCdzIGFkZA0KPiA+ID4gPiBhIFdBUk4NCj4gPiA+ID4gaW4gY3Jvc3Mt
-YXJjaCBjb2RlIHRvIGxvZyBpdCBhcyBpdCBjcmFzaGVzLiBBIHdhcm4gYW5kIG1ha2luZw0KPiA+
-ID4gPiB0aGluZ3MNCj4gPiA+ID4gY2xlYXJlciBzZWVtIGxpa2UgZ29vZCBpZGVhcywgYnV0IGlm
-IHRoZXJlIGlzIGEgYnVnIHdlIHNob3VsZA0KPiA+ID4gPiBmaXggaXQuDQo+ID4gPiA+IFRoZSBj
-b2RlIGFyb3VuZCB0aGUgY2FsbGVycyBzdGlsbCBmdW5jdGlvbmFsbHkgYXNzdW1lIHJlLQ0KPiA+
-ID4gPiBtYXBwaW5nIGNhbid0DQo+ID4gPiA+IGZhaWwuDQo+ID4gPiANCj4gPiA+IE9oLCBJJ3Zl
-IG1lYW50IHg4NiBrZXJuZWwgKndpdGhvdXQqIERFQlVHX1BBR0VBTExPQywgYW5kIGluZGVlZA0K
-PiA+ID4gdGhlIGNhbGwNCj4gPiA+IHRoYXQgdW5tYXBzIHBhZ2VzIGJhY2sgaW4gc2FmZV9jb3B5
-X3BhZ2Ugd2lsbCBqdXN0IHJlc2V0IGEgNEsNCj4gPiA+IHBhZ2UgdG8NCj4gPiA+IE5QIGJlY2F1
-c2Ugd2hhdGV2ZXIgbWFkZSBpdCBOUCBhdCB0aGUgZmlyc3QgcGxhY2UgYWxyZWFkeSBkaWQgdGhl
-DQo+ID4gPiBzcGxpdC4NCj4gPiA+IA0KPiA+ID4gU3RpbGwsIG9uIGFybTY0IHdpdGggREVCVUdf
-UEFHRUFMTE9DPW4gdGhlcmUgaXMgYSBwb3NzaWJpbGl0eSBvZg0KPiA+ID4gYSByYWNlDQo+ID4g
-PiBiZXR3ZWVuIG1hcC91bm1hcCBkYW5jZSBpbiBfX3Z1bm1hcCgpIGFuZCBzYWZlX2NvcHlfcGFn
-ZSgpIHRoYXQNCj4gPiA+IG1heQ0KPiA+ID4gY2F1c2UgYWNjZXNzIHRvIHVubWFwcGVkIG1lbW9y
-eToNCj4gPiA+IA0KPiA+ID4gX192dW5tYXAoKQ0KPiA+ID4gICAgIHZtX3JlbW92ZV9tYXBwaW5n
-cygpDQo+ID4gPiAgICAgICAgIHNldF9kaXJlY3RfbWFwX2ludmFsaWQoKQ0KPiA+ID4gCQkJCQlz
-YWZlX2NvcHlfcGFnZSgpCQ0KPiA+ID4gCQkJCQkgICAgX19rZXJuZWxfbWFwX3BhZ2VzKCkNCj4g
-PiA+IAkJCQkJICAgIAlyZXR1cm4NCj4gPiA+IAkJCQkJICAgIGRvX2NvcHlfcGFnZSgpIC0+IGZh
-dWx0DQo+ID4gPiAJCQkJCSAgIAkNCj4gPiA+IFRoaXMgaXMgYSB0aGVvcmV0aWNhbCBidWcsIGJ1
-dCBpdCBpcyBzdGlsbCBub3QgbmljZSA6KSAJCQ0KPiA+ID4gCQkJCQkNCj4gPiANCj4gPiBKdXN0
-IHRvIGNsYXJpZnk6IHRoaXMgcGF0Y2ggc2VyaWVzIGZpeGVzIHRoaXMgcHJvYmxlbSwgcmlnaHQ/
-DQo+IA0KPiBZZXMuDQo+IA0KDQpXZWxsLCBub3cgSSdtIGNvbmZ1c2VkIGFnYWluLg0KDQpBcyBE
-YXZpZCBwb2ludGVkLCBfX3Z1bm1hcCgpIHNob3VsZCBub3QgYmUgZXhlY3V0aW5nIHNpbXVsdGFu
-ZW91c2x5DQp3aXRoIHRoZSBoaWJlcm5hdGUgb3BlcmF0aW9uIGJlY2F1c2UgaGliZXJuYXRlIGNh
-bid0IHNuYXBzaG90IHdoaWxlDQpkYXRhIGl0IG5lZWRzIHRvIHNhdmUgaXMgc3RpbGwgdXBkYXRp
-bmcuIElmIGEgdGhyZWFkIHdhcyBwYXVzZWQgd2hlbiBhDQpwYWdlIHdhcyBpbiBhbiAiaW52YWxp
-ZCIgc3RhdGUsIGl0IHNob3VsZCBiZSByZW1hcHBlZCBieSBoaWJlcm5hdGUNCmJlZm9yZSB0aGUg
-Y29weS4NCg0KVG8gbGV2ZWwgc2V0LCBiZWZvcmUgcmVhZGluZyB0aGlzIG1haWwsIG15IHRha2Vh
-d2F5cyBmcm9tIHRoZQ0KZGlzY3Vzc2lvbnMgb24gcG90ZW50aWFsIGhpYmVybmF0ZS9kZWJ1ZyBw
-YWdlIGFsbG9jIHByb2JsZW1zIHdlcmU6DQoNClBvdGVudGlhbCBSSVNDLVYgaXNzdWU6DQpEb2Vz
-bid0IGhhdmUgaGliZXJuYXRlIHN1cHBvcnQNCg0KUG90ZW50aWFsIEFSTSBpc3N1ZToNClRoZSBs
-b2dpYyBhcm91bmQgd2hlbiBpdCdzIGNwYSBkZXRlcm1pbmVzIHBhZ2VzIG1pZ2h0IGJlIHVubWFw
-cGVkIGxvb2tzDQpjb3JyZWN0IGZvciBjdXJyZW50IGNhbGxlcnMuDQoNClBvdGVudGlhbCB4ODYg
-cGFnZSBicmVhayBpc3N1ZToNClNlZW1zIHRvIGJlIG9rIGZvciBub3csIGJ1dCBhIG5ldyBzZXRf
-bWVtb3J5X25wKCkgY2FsbGVyIGNvdWxkIHZpb2xhdGUNCmFzc3VtcHRpb25zIGluIGhpYmVybmF0
-ZS4NCg0KTm9uLW9idmlvdXMgdGhvcm55IGxvZ2ljOiANCkdlbmVyYWwgYWdyZWVtZW50IGl0IHdv
-dWxkIGJlIGdvb2QgdG8gc2VwYXJhdGUgZGVwZW5kZW5jaWVzLg0KDQpCZWhhdmlvciBvZiBWMSBv
-ZiB0aGlzIHBhdGNoc2V0Og0KTm8gZnVuY3Rpb25hbCBjaGFuZ2Ugb3RoZXIgdGhhbiBhZGRpdGlv
-biBvZiBhIHdhcm4gaW4gaGliZXJuYXRlLg0KDQoNClNvICJkb2VzIHRoaXMgZml4IHRoZSBwcm9i
-bGVtIiwgInllcyIgbGVhdmVzIG1lIGEgYml0IGNvbmZ1c2VkLi4uIE5vdA0Kc2F5aW5nIHRoZXJl
-IGNvdWxkbid0IGJlIGFueSBwcm9ibGVtcywgZXNwZWNpYWxseSBkdWUgdG8gdGhlIHRob3JuaW5l
-c3MNCmFuZCBjcm9zcyBhcmNoIHN0cmlkZSwgYnV0IHdoYXQgaXMgaXQgZXhhY3RseSBhbmQgaG93
-IGRvZXMgdGhpcyBzZXJpZXMNCmZpeCBpdD8NCg0K
+On 27.10.20 10:47, Mike Rapoport wrote:
+> On Tue, Oct 27, 2020 at 09:46:35AM +0100, David Hildenbrand wrote:
+>> On 27.10.20 09:38, Mike Rapoport wrote:
+>>> On Mon, Oct 26, 2020 at 06:05:30PM +0000, Edgecombe, Rick P wrote:
+>>>> On Mon, 2020-10-26 at 11:05 +0200, Mike Rapoport wrote:
+>>>>> On Mon, Oct 26, 2020 at 01:13:52AM +0000, Edgecombe, Rick P wrote:
+>>>>>> On Sun, 2020-10-25 at 12:15 +0200, Mike Rapoport wrote:
+>>>>>>> Indeed, for architectures that define
+>>>>>>> CONFIG_ARCH_HAS_SET_DIRECT_MAP
+>>>>>>> it is
+>>>>>>> possible that __kernel_map_pages() would fail, but since this
+>>>>>>> function is
+>>>>>>> void, the failure will go unnoticed.
+>>>>>>
+>>>>>> Could you elaborate on how this could happen? Do you mean during
+>>>>>> runtime today or if something new was introduced?
+>>>>>
+>>>>> A failure in__kernel_map_pages() may happen today. For instance, on
+>>>>> x86
+>>>>> if the kernel is built with DEBUG_PAGEALLOC.
+>>>>>
+>>>>>           __kernel_map_pages(page, 1, 0);
+>>>>>
+>>>>> will need to split, say, 2M page and during the split an allocation
+>>>>> of
+>>>>> page table could fail.
+>>>>
+>>>> On x86 at least, DEBUG_PAGEALLOC expects to never have to break a page
+>>>> on the direct map and even disables locking in cpa because it assumes
+>>>> this. If this is happening somehow anyway then we should probably fix
+>>>> that. Even if it's a debug feature, it will not be as useful if it is
+>>>> causing its own crashes.
+>>>>
+>>>> I'm still wondering if there is something I'm missing here. It seems
+>>>> like you are saying there is a bug in some arch's, so let's add a WARN
+>>>> in cross-arch code to log it as it crashes. A warn and making things
+>>>> clearer seem like good ideas, but if there is a bug we should fix it.
+>>>> The code around the callers still functionally assume re-mapping can't
+>>>> fail.
+>>>
+>>> Oh, I've meant x86 kernel *without* DEBUG_PAGEALLOC, and indeed the call
+>>> that unmaps pages back in safe_copy_page will just reset a 4K page to
+>>> NP because whatever made it NP at the first place already did the split.
+>>>
+>>> Still, on arm64 with DEBUG_PAGEALLOC=n there is a possibility of a race
+>>> between map/unmap dance in __vunmap() and safe_copy_page() that may
+>>> cause access to unmapped memory:
+>>>
+>>> __vunmap()
+>>>       vm_remove_mappings()
+>>>           set_direct_map_invalid()
+>>> 					safe_copy_page()	
+>>> 					    __kernel_map_pages()
+>>> 					    	return
+>>> 					    do_copy_page() -> fault
+>>> 					   	
+>>> This is a theoretical bug, but it is still not nice :) 							
+>>>
+>>>>> Currently, the only user of __kernel_map_pages() outside
+>>>>> DEBUG_PAGEALLOC
+>>>>> is hibernation, but I think it would be safer to entirely prevent
+>>>>> usage
+>>>>> of __kernel_map_pages() when DEBUG_PAGEALLOC=n.
+>>>>
+>>>> I totally agree it's error prone FWIW. On x86, my mental model of how
+>>>> it is supposed to work is: If a page is 4k and NP it cannot fail to be
+>>>> remapped. set_direct_map_invalid_noflush() should result in 4k NP
+>>>> pages, and DEBUG_PAGEALLOC should result in all 4k pages on the direct
+>>>> map. Are you seeing this violated or do I have wrong assumptions?
+>>>
+>>> You are right, there is a set of assumptions about the remapping of the
+>>> direct map pages that make it all work, at least on x86.
+>>> But this is very subtle and it's not easy to wrap one's head around
+>>> this.
+>>>
+>>> That's why putting __kernel_map_pages() out of "common" use and
+>>> keep it only for DEBUG_PAGEALLOC would make things clearer.
+>>>
+>>>> Beyond whatever you are seeing, for the latter case of new things
+>>>> getting introduced to an interface with hidden dependencies... Another
+>>>> edge case could be a new caller to set_memory_np() could result in
+>>>> large NP pages. None of the callers today should cause this AFAICT, but
+>>>> it's not great to rely on the callers to know these details.
+>>> A caller of set_memory_*() or set_direct_map_*() should expect a failure
+>>> and be ready for that. So adding a WARN to safe_copy_page() is the first
+>>> step in that direction :)
+>>>
+>>
+>> I am probably missing something important, but why are we saving/restoring
+>> the content of pages that were explicitly removed from the identity mapping
+>> such that nobody will access them?
+>>
+>> Pages that are not allocated should contain garbage or be zero
+>> (init_on_free). That should be easy to handle without ever reading the page
+>> content.
+> 
+> I'm not familiar with hibernation to say anything smart here, but the
+> help text of DEBUG_PAGEALLOC in Kconfig says:
+> 
+> 	... this option cannot be enabled in combination with
+> 	hibernation as that would result in incorrect warnings of memory
+> 	corruption after a resume because free pages are not saved to
+> 	the suspend image.
+> 
+> Probably you are right and free pages need to be handled differently,
+> but it does not seem the case now.
+> 
+>> The other user seems to be vm_remove_mappings(), where we only *temporarily*
+>> remove the mapping - while hibernating, that code shouldn't be active
+>> anymore I guess - or we could protect it from happening.
+> 
+> Hmm, I _think_ vm_remove_mappings() shouldn't be active while
+> hibernating, but I'm not 100% sure.
+> 
+>> As I expressed in another mail, secretmem pages should rather not be saved
+>> when hibernating - hibernation should be rather be disabled.
+> 
+> Agree.
+> 
+>> What am I missing?
+> 
+> I think I miscommunicated the purpose of this set, which was to hide
+> __kernel_map_pages() under DEBUG_PAGEALLOC and make hibernation use
+> set_direct_map_*() explictly without major rework of free pages handling
+> during hibernation.
+> 
+> Does it help?
+> 
+
+Heh, as always, once you touch questionable code, people will beg for 
+proper cleanups instead :)
+
+
+-- 
+Thanks,
+
+David / dhildenb
