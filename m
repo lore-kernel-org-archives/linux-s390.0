@@ -1,144 +1,93 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:42294 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725764AbgJ2QTk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 29 Oct 2020 12:19:40 -0400
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v2 1/4] mm: introduce debug_pagealloc_map_pages() helper
-Date: Thu, 29 Oct 2020 18:18:59 +0200
-Message-Id: <20201029161902.19272-2-rppt@kernel.org>
-In-Reply-To: <20201029161902.19272-1-rppt@kernel.org>
-References: <20201029161902.19272-1-rppt@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 28 Oct 2020 16:03:30 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v11 09/14] s390/vfio-ap: allow assignment of unavailable
+ AP queues to mdev device
+Message-ID: <20201028160330.55df0068.pasic@linux.ibm.com>
+In-Reply-To: <20201022171209.19494-10-akrowiak@linux.ibm.com>
+References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+        <20201022171209.19494-10-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On Thu, 22 Oct 2020 13:12:04 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-When CONFIG_DEBUG_PAGEALLOC is enabled, it unmaps pages from the kernel
-direct mapping after free_pages(). The pages than need to be mapped back
-before they could be used. Theese mapping operations use
-__kernel_map_pages() guarded with with debug_pagealloc_enabled().
+> +static int vfio_ap_mdev_validate_masks(struct ap_matrix_mdev *matrix_mdev,
+> +				       unsigned long *mdev_apm,
+> +				       unsigned long *mdev_aqm)
+> +{
+> +	if (ap_apqn_in_matrix_owned_by_def_drv(mdev_apm, mdev_aqm))
+> +		return -EADDRNOTAVAIL;
+> +
+> +	return vfio_ap_mdev_verify_no_sharing(matrix_mdev, mdev_apm, mdev_aqm);
+> +}
+> +
+>  static bool vfio_ap_mdev_matrixes_equal(struct ap_matrix *matrix1,
+>  					struct ap_matrix *matrix2)
+>  {
+> @@ -840,33 +734,21 @@ static ssize_t assign_adapter_store(struct device *dev,
+>  	if (apid > matrix_mdev->matrix.apm_max)
+>  		return -ENODEV;
+>  
+> -	/*
+> -	 * Set the bit in the AP mask (APM) corresponding to the AP adapter
+> -	 * number (APID). The bits in the mask, from most significant to least
+> -	 * significant bit, correspond to APIDs 0-255.
+> -	 */
+> -	mutex_lock(&matrix_dev->lock);
+> -
+> -	ret = vfio_ap_mdev_verify_queues_reserved_for_apid(matrix_mdev, apid);
+> -	if (ret)
+> -		goto done;
+> -
+>  	memset(apm, 0, sizeof(apm));
+>  	set_bit_inv(apid, apm);
+>  
+> -	ret = vfio_ap_mdev_verify_no_sharing(matrix_mdev, apm,
+> -					     matrix_mdev->matrix.aqm);
+> -	if (ret)
+> -		goto done;
+> -
+> +	mutex_lock(&matrix_dev->lock);
+> +	ret = vfio_ap_mdev_validate_masks(matrix_mdev, apm,
+> +					  matrix_mdev->matrix.aqm);
 
-The only place that calls __kernel_map_pages() without checking whether
-DEBUG_PAGEALLOC is enabled is the hibernation code that presumes
-availability of this function when ARCH_HAS_SET_DIRECT_MAP is set.
-Still, on arm64, __kernel_map_pages() will bail out when DEBUG_PAGEALLOC is
-not enabled but set_direct_map_invalid_noflush() may render some pages not
-present in the direct map and hibernation code won't be able to save such
-pages.
+Is this a potential deadlock?
 
-To make page allocation debugging and hibernation interaction more robust,
-the dependency on DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP has to be made
-more explicit.
+Consider following scenario 
+1) apmask_store() takes ap_perms_mutex
+2) assign_adapter_store() takes matrix_dev->lock
+3) apmask_store() calls vfio_ap_mdev_resource_in_use() which tries
+   to take matrix_dev->lock
+4) assign_adapter_store() calls ap_apqn_in_matrix_owned_by_def_drv
+   which tries to take ap_perms_mutex
 
-Start with combining the guard condition and the call to
-__kernel_map_pages() into a single debug_pagealloc_map_pages() function to
-emphasize that __kernel_map_pages() should not be called without
-DEBUG_PAGEALLOC and use this new function to map/unmap pages when page
-allocation debug is enabled.
+BANG!
 
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
----
- include/linux/mm.h  | 10 ++++++++++
- mm/memory_hotplug.c |  3 +--
- mm/page_alloc.c     |  6 ++----
- mm/slab.c           |  8 +++-----
- 4 files changed, 16 insertions(+), 11 deletions(-)
+I think using mutex_trylock(&matrix_dev->lock) and bailing out with busy
+if we don't manage to acquire the lock would be a good idea anyway, to
+prevent a bunch of mdev management operations piling up on the mutex
+and starving in_use().
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ef360fe70aaf..1fc0609056dc 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2936,12 +2936,22 @@ kernel_map_pages(struct page *page, int numpages, int enable)
- {
- 	__kernel_map_pages(page, numpages, enable);
- }
-+
-+static inline void debug_pagealloc_map_pages(struct page *page,
-+					     int numpages, int enable)
-+{
-+	if (debug_pagealloc_enabled_static())
-+		__kernel_map_pages(page, numpages, enable);
-+}
-+
- #ifdef CONFIG_HIBERNATION
- extern bool kernel_page_present(struct page *page);
- #endif	/* CONFIG_HIBERNATION */
- #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
- static inline void
- kernel_map_pages(struct page *page, int numpages, int enable) {}
-+static inline void debug_pagealloc_map_pages(struct page *page,
-+					     int numpages, int enable) {}
- #ifdef CONFIG_HIBERNATION
- static inline bool kernel_page_present(struct page *page) { return true; }
- #endif	/* CONFIG_HIBERNATION */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b44d4c7ba73b..e2b6043a4428 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -614,8 +614,7 @@ void generic_online_page(struct page *page, unsigned int order)
- 	 * so we should map it first. This is better than introducing a special
- 	 * case in page freeing fast path.
- 	 */
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 1);
-+	debug_pagealloc_map_pages(page, 1 << order, 1);
- 	__free_pages_core(page, order);
- 	totalram_pages_add(1UL << order);
- #ifdef CONFIG_HIGHMEM
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 23f5066bd4a5..9a66a1ff9193 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1272,8 +1272,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
- 	 */
- 	arch_free_page(page, order);
+Regards,
+Halil
+
  
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 0);
-+	debug_pagealloc_map_pages(page, 1 << order, 0);
- 
- 	kasan_free_nondeferred_pages(page, order);
- 
-@@ -2270,8 +2269,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
- 	set_page_refcounted(page);
- 
- 	arch_alloc_page(page, order);
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 1);
-+	debug_pagealloc_map_pages(page, 1 << order, 1);
- 	kasan_alloc_pages(page, order);
- 	kernel_poison_pages(page, 1 << order, 1);
- 	set_page_owner(page, order, gfp_flags);
-diff --git a/mm/slab.c b/mm/slab.c
-index b1113561b98b..340db0ce74c4 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1431,10 +1431,8 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
- #ifdef CONFIG_DEBUG_PAGEALLOC
- static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
- {
--	if (!is_debug_pagealloc_cache(cachep))
--		return;
--
--	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
-+	debug_pagealloc_map_pages(virt_to_page(objp),
-+				  cachep->size / PAGE_SIZE, map);
- }
- 
- #else
-@@ -2062,7 +2060,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
- 
- #if DEBUG
- 	/*
--	 * If we're going to use the generic kernel_map_pages()
-+	 * If we're going to use the generic debug_pagealloc_map_pages()
- 	 * poisoning, then it's going to smash the contents of
- 	 * the redzone and userword anyhow, so switch them off.
- 	 */
--- 
-2.28.0
+> +	if (ret) {
+> +		mutex_unlock(&matrix_dev->lock);
+> +		return ret;
+> +	}
+>  	set_bit_inv(apid, matrix_mdev->matrix.apm);
+>  	vfio_ap_mdev_link_queues(matrix_mdev, LINK_APID, apid);
+> -	ret = count;
+> -
+> -done:
+>  	mutex_unlock(&matrix_dev->lock);
+>  
+> -	return ret;
+> +	return count;
