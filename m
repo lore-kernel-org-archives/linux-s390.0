@@ -1,168 +1,167 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49462 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732656AbgJIH7z (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 9 Oct 2020 03:59:55 -0400
-Received: from mail-wm1-x343.google.com (mail-wm1-x343.google.com [IPv6:2a00:1450:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94168C0613DB
-        for <linux-s390@vger.kernel.org>; Fri,  9 Oct 2020 00:59:54 -0700 (PDT)
-Received: by mail-wm1-x343.google.com with SMTP id z22so8390348wmi.0
-        for <linux-s390@vger.kernel.org>; Fri, 09 Oct 2020 00:59:54 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v2 01/17] drm/exynos: Stop using frame_vector helpers
-Date: Fri,  9 Oct 2020 09:59:18 +0200
-Message-Id: <20201009075934.3509076-2-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
-References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:5888 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728327AbgJ1WBK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 28 Oct 2020 18:01:10 -0400
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: [PATCH 1/5] zfcp: lift Input Queue tasklet from qdio
+Date: Wed, 28 Oct 2020 19:30:48 +0100
+Message-Id: <94a765211c48b74a7b91c5e60b158de01db98d43.1603908167.git.bblock@linux.ibm.com>
+In-Reply-To: <cover.1603908167.git.bblock@linux.ibm.com>
+References: <cover.1603908167.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Sender: Benjamin Block <bblock@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Inki Dae <inki.dae@samsung.com>, Joonyoung Shim <jy0922.shim@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dan Williams <dan.j.williams@intel.com>
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Fedor Loshakov <loshakov@linux.ibm.com>, linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org
 
-All we need are a pages array, pin_user_pages_fast can give us that
-directly. Plus this avoids the entire raw pfn side of get_vaddr_frames.
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Inki Dae <inki.dae@samsung.com>
-Cc: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: Seung-Woo Kim <sw0312.kim@samsung.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Kukjin Kim <kgene@kernel.org>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
---
-v2: Use unpin_user_pages_dirty_lock (John)
+Shift the IRQ tasklet processing from the qdio layer into zfcp.
+This will allow for a good amount of cleanups in qdio, and provides
+future opportunity to improve the IRQ processing inside zfcp.
+
+We continue to use the qdio layer's internal tasklet/timer mechanism
+(ie. scan_threshold etc) to check for Request Queue completions.
+Initially we planned to check for such completions after inspecting
+the Response Queue - this should typically work, but there's a
+theoretical race where the device only presents the Request Queue
+completions _after_ all Response Queue processing has finished.
+If the Request Queue is then also _completely_ full, we could send no
+further IOs and thus get no interrupt that would trigger an inspection
+of the Request Queue.
+So for now stick to the old model, where we can trust that such a race
+would be recovered by qdio's internal timer.
+
+Code-flow wise, this establishes two levels of control:
+1. the qdio layer will only deliver IRQs to the device driver if the
+   QDIO_IRQ_DISABLED flag is cleared. zfcp manages this through
+   qdio_start_irq() / qdio_stop_irq(). The initial state is DISABLED,
+   and zfcp_qdio_open() schedules zfcp's IRQ tasklet once during startup
+   to explicitly enable IRQ delivery.
+2. the zfcp tasklet is initialized with tasklet_disable(), and only gets
+   enabled once we open the qdio device.
+   When closing the qdio device, we must disable the tasklet _before_
+   disabling IRQ delivery (otherwise a concurrently running tasklet
+   could re-enable IRQ delivery after we disabled it).
+
+   A final tasklet_kill() during teardown ensures that no lingering
+   tasklet_schedule() is still accessing the tasklet structure.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Benjamin Block <bblock@linux.ibm.com>
 ---
- drivers/gpu/drm/exynos/Kconfig          |  1 -
- drivers/gpu/drm/exynos/exynos_drm_g2d.c | 47 +++++++++++--------------
- 2 files changed, 20 insertions(+), 28 deletions(-)
+ drivers/s390/scsi/zfcp_qdio.c | 39 +++++++++++++++++++++++++++++++++++
+ drivers/s390/scsi/zfcp_qdio.h |  2 ++
+ 2 files changed, 41 insertions(+)
 
-diff --git a/drivers/gpu/drm/exynos/Kconfig b/drivers/gpu/drm/exynos/Kconfig
-index 6417f374b923..43257ef3c09d 100644
---- a/drivers/gpu/drm/exynos/Kconfig
-+++ b/drivers/gpu/drm/exynos/Kconfig
-@@ -88,7 +88,6 @@ comment "Sub-drivers"
- config DRM_EXYNOS_G2D
- 	bool "G2D"
- 	depends on VIDEO_SAMSUNG_S5P_G2D=n || COMPILE_TEST
--	select FRAME_VECTOR
- 	help
- 	  Choose this option if you want to use Exynos G2D for DRM.
+diff --git a/drivers/s390/scsi/zfcp_qdio.c b/drivers/s390/scsi/zfcp_qdio.c
+index a8a514074084..9fc045ddf66d 100644
+--- a/drivers/s390/scsi/zfcp_qdio.c
++++ b/drivers/s390/scsi/zfcp_qdio.c
+@@ -131,6 +131,33 @@ static void zfcp_qdio_int_resp(struct ccw_device *cdev, unsigned int qdio_err,
+ 		zfcp_erp_adapter_reopen(qdio->adapter, 0, "qdires2");
+ }
  
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_g2d.c b/drivers/gpu/drm/exynos/exynos_drm_g2d.c
-index 967a5cdc120e..ecede41af9b9 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_g2d.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_g2d.c
-@@ -205,7 +205,8 @@ struct g2d_cmdlist_userptr {
- 	dma_addr_t		dma_addr;
- 	unsigned long		userptr;
- 	unsigned long		size;
--	struct frame_vector	*vec;
-+	struct page		**pages;
-+	unsigned int		npages;
- 	struct sg_table		*sgt;
- 	atomic_t		refcount;
- 	bool			in_pool;
-@@ -378,7 +379,6 @@ static void g2d_userptr_put_dma_addr(struct g2d_data *g2d,
- 					bool force)
++static void zfcp_qdio_irq_tasklet(struct tasklet_struct *tasklet)
++{
++	struct zfcp_qdio *qdio = from_tasklet(qdio, tasklet, irq_tasklet);
++	struct ccw_device *cdev = qdio->adapter->ccw_device;
++	unsigned int start, error;
++	int completed;
++
++	/* Check the Response Queue, and kick off the Request Queue tasklet: */
++	completed = qdio_get_next_buffers(cdev, 0, &start, &error);
++	if (completed < 0)
++		return;
++	if (completed > 0)
++		zfcp_qdio_int_resp(cdev, error, 0, start, completed,
++				   (unsigned long) qdio);
++
++	if (qdio_start_irq(cdev))
++		/* More work pending: */
++		tasklet_schedule(&qdio->irq_tasklet);
++}
++
++static void zfcp_qdio_poll(struct ccw_device *cdev, unsigned long data)
++{
++	struct zfcp_qdio *qdio = (struct zfcp_qdio *) data;
++
++	tasklet_schedule(&qdio->irq_tasklet);
++}
++
+ static struct qdio_buffer_element *
+ zfcp_qdio_sbal_chain(struct zfcp_qdio *qdio, struct zfcp_qdio_req *q_req)
  {
- 	struct g2d_cmdlist_userptr *g2d_userptr = obj;
--	struct page **pages;
+@@ -332,6 +359,8 @@ void zfcp_qdio_close(struct zfcp_qdio *qdio)
  
- 	if (!obj)
+ 	wake_up(&qdio->req_q_wq);
+ 
++	tasklet_disable(&qdio->irq_tasklet);
++	qdio_stop_irq(adapter->ccw_device);
+ 	qdio_shutdown(adapter->ccw_device, QDIO_FLAG_CLEANUP_USING_CLEAR);
+ 
+ 	/* cleanup used outbound sbals */
+@@ -387,6 +416,7 @@ int zfcp_qdio_open(struct zfcp_qdio *qdio)
+ 	init_data.no_output_qs = 1;
+ 	init_data.input_handler = zfcp_qdio_int_resp;
+ 	init_data.output_handler = zfcp_qdio_int_req;
++	init_data.irq_poll = zfcp_qdio_poll;
+ 	init_data.int_parm = (unsigned long) qdio;
+ 	init_data.input_sbal_addr_array = input_sbals;
+ 	init_data.output_sbal_addr_array = output_sbals;
+@@ -433,6 +463,11 @@ int zfcp_qdio_open(struct zfcp_qdio *qdio)
+ 	atomic_set(&qdio->req_q_free, QDIO_MAX_BUFFERS_PER_Q);
+ 	atomic_or(ZFCP_STATUS_ADAPTER_QDIOUP, &qdio->adapter->status);
+ 
++	/* Enable processing for QDIO interrupts: */
++	tasklet_enable(&qdio->irq_tasklet);
++	/* This results in a qdio_start_irq(): */
++	tasklet_schedule(&qdio->irq_tasklet);
++
+ 	zfcp_qdio_shost_update(adapter, qdio);
+ 
+ 	return 0;
+@@ -450,6 +485,8 @@ void zfcp_qdio_destroy(struct zfcp_qdio *qdio)
+ 	if (!qdio)
  		return;
-@@ -398,15 +398,9 @@ static void g2d_userptr_put_dma_addr(struct g2d_data *g2d,
- 	dma_unmap_sgtable(to_dma_dev(g2d->drm_dev), g2d_userptr->sgt,
- 			  DMA_BIDIRECTIONAL, 0);
  
--	pages = frame_vector_pages(g2d_userptr->vec);
--	if (!IS_ERR(pages)) {
--		int i;
--
--		for (i = 0; i < frame_vector_count(g2d_userptr->vec); i++)
--			set_page_dirty_lock(pages[i]);
--	}
--	put_vaddr_frames(g2d_userptr->vec);
--	frame_vector_destroy(g2d_userptr->vec);
-+	unpin_user_pages_dirty_lock(g2d_userptr->pages, g2d_userptr->npages,
-+				    true);
-+	kvfree(g2d_userptr->pages);
++	tasklet_kill(&qdio->irq_tasklet);
++
+ 	if (qdio->adapter->ccw_device)
+ 		qdio_free(qdio->adapter->ccw_device);
  
- 	if (!g2d_userptr->out_of_list)
- 		list_del_init(&g2d_userptr->list);
-@@ -474,35 +468,34 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
- 	offset = userptr & ~PAGE_MASK;
- 	end = PAGE_ALIGN(userptr + size);
- 	npages = (end - start) >> PAGE_SHIFT;
--	g2d_userptr->vec = frame_vector_create(npages);
--	if (!g2d_userptr->vec) {
-+	g2d_userptr->pages = kvmalloc_array(npages, sizeof(*g2d_userptr->pages),
-+					    GFP_KERNEL);
-+	if (!g2d_userptr->pages) {
- 		ret = -ENOMEM;
- 		goto err_free;
- 	}
+@@ -475,6 +512,8 @@ int zfcp_qdio_setup(struct zfcp_adapter *adapter)
  
--	ret = get_vaddr_frames(start, npages, FOLL_FORCE | FOLL_WRITE,
--		g2d_userptr->vec);
-+	ret = pin_user_pages_fast(start, npages, FOLL_FORCE | FOLL_WRITE,
-+				  g2d_userptr->pages);
- 	if (ret != npages) {
- 		DRM_DEV_ERROR(g2d->dev,
- 			      "failed to get user pages from userptr.\n");
- 		if (ret < 0)
--			goto err_destroy_framevec;
--		ret = -EFAULT;
--		goto err_put_framevec;
--	}
--	if (frame_vector_to_pages(g2d_userptr->vec) < 0) {
-+			goto err_destroy_pages;
-+		npages = ret;
- 		ret = -EFAULT;
--		goto err_put_framevec;
-+		goto err_unpin_pages;
- 	}
-+	g2d_userptr->npages = npages;
+ 	spin_lock_init(&qdio->req_q_lock);
+ 	spin_lock_init(&qdio->stat_lock);
++	tasklet_setup(&qdio->irq_tasklet, zfcp_qdio_irq_tasklet);
++	tasklet_disable(&qdio->irq_tasklet);
  
- 	sgt = kzalloc(sizeof(*sgt), GFP_KERNEL);
- 	if (!sgt) {
- 		ret = -ENOMEM;
--		goto err_put_framevec;
-+		goto err_unpin_pages;
- 	}
+ 	adapter->qdio = qdio;
+ 	return 0;
+diff --git a/drivers/s390/scsi/zfcp_qdio.h b/drivers/s390/scsi/zfcp_qdio.h
+index 6b43d6b254be..9c1f310db155 100644
+--- a/drivers/s390/scsi/zfcp_qdio.h
++++ b/drivers/s390/scsi/zfcp_qdio.h
+@@ -10,6 +10,7 @@
+ #ifndef ZFCP_QDIO_H
+ #define ZFCP_QDIO_H
  
- 	ret = sg_alloc_table_from_pages(sgt,
--					frame_vector_pages(g2d_userptr->vec),
-+					g2d_userptr->pages,
- 					npages, offset, size, GFP_KERNEL);
- 	if (ret < 0) {
- 		DRM_DEV_ERROR(g2d->dev, "failed to get sgt from pages.\n");
-@@ -538,11 +531,11 @@ static dma_addr_t *g2d_userptr_get_dma_addr(struct g2d_data *g2d,
- err_free_sgt:
- 	kfree(sgt);
++#include <linux/interrupt.h>
+ #include <asm/qdio.h>
  
--err_put_framevec:
--	put_vaddr_frames(g2d_userptr->vec);
-+err_unpin_pages:
-+	unpin_user_pages(g2d_userptr->pages, npages);
- 
--err_destroy_framevec:
--	frame_vector_destroy(g2d_userptr->vec);
-+err_destroy_pages:
-+	kvfree(g2d_userptr->pages);
- 
- err_free:
- 	kfree(g2d_userptr);
+ #define ZFCP_QDIO_SBALE_LEN	PAGE_SIZE
+@@ -44,6 +45,7 @@ struct zfcp_qdio {
+ 	u64			req_q_util;
+ 	atomic_t		req_q_full;
+ 	wait_queue_head_t	req_q_wq;
++	struct tasklet_struct	irq_tasklet;
+ 	struct zfcp_adapter	*adapter;
+ 	u16			max_sbale_per_sbal;
+ 	u16			max_sbale_per_req;
 -- 
-2.28.0
+2.26.2
