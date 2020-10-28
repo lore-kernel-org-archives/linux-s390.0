@@ -1,68 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Wed, 28 Oct 2020 13:30:59 +0200
+From: Mike Rapoport <rppt@kernel.org>
 Subject: Re: [PATCH 0/4] arch, mm: improve robustness of direct map
  manipulation
+Message-ID: <20201028113059.GG1428094@kernel.org>
 References: <20201025101555.3057-1-rppt@kernel.org>
  <ae82f905a0092adb7e0f0ac206335c1883b3170f.camel@intel.com>
  <20201026090526.GA1154158@kernel.org>
  <a0212b073b3b2f62c3dbf1bf398f03fa402997be.camel@intel.com>
  <20201027083816.GG1154158@kernel.org>
- <e5fc62b6-f644-4ed5-de5b-ffd8337861e4@redhat.com>
- <20201028110945.GE1428094@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <5805fdd9-14e5-141c-773b-c46d2da57258@redhat.com>
-Date: Wed, 28 Oct 2020 12:17:35 +0100
+ <20201028112011.GB27927@willie-the-truck>
 MIME-Version: 1.0
-In-Reply-To: <20201028110945.GE1428094@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201028112011.GB27927@willie-the-truck>
 List-ID: <linux-s390.vger.kernel.org>
-To: Mike Rapoport <rppt@kernel.org>
-Cc: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "cl@linux.com" <cl@linux.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org" <peterz@infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "penberg@kernel.org" <penberg@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>, "will@kernel.org" <will@kernel.org>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "kirill@shutemov.name" <kirill@shutemov.name>, "rientjes@google.com" <rientjes@google.com>, "rppt@linux.ibm.com" <rppt@linux.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "hca@linux.ibm.com" <hca@linux.ibm.com>, "bp@alien8.de" <bp@alien8.de>, "pavel@ucw.cz" <pavel@ucw.cz>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "luto@kernel.org" <luto@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "tglx@linutronix.de" <tglx@linutronix.de>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "palmer@dabbelt.com" <palmer@dabbelt.com>, "Brown, Len" <len.brown@intel.com>, "mingo@redhat.com" <mingo@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>
+To: Will Deacon <will@kernel.org>
+Cc: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "david@redhat.com" <david@redhat.com>, "cl@linux.com" <cl@linux.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org" <peterz@infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "penberg@kernel.org" <penberg@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "kirill@shutemov.name" <kirill@shutemov.name>, "rientjes@google.com" <rientjes@google.com>, "rppt@linux.ibm.com" <rppt@linux.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "hca@linux.ibm.com" <hca@linux.ibm.com>, "bp@alien8.de" <bp@alien8.de>, "pavel@ucw.cz" <pavel@ucw.cz>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "luto@kernel.org" <luto@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "tglx@linutronix.de" <tglx@linutronix.de>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "palmer@dabbelt.com" <palmer@dabbelt.com>, "Brown, Len" <len.brown@intel.com>, "mingo@redhat.com" <mingo@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>
 
-On 28.10.20 12:09, Mike Rapoport wrote:
-> On Tue, Oct 27, 2020 at 09:46:35AM +0100, David Hildenbrand wrote:
->> On 27.10.20 09:38, Mike Rapoport wrote:
->>> On Mon, Oct 26, 2020 at 06:05:30PM +0000, Edgecombe, Rick P wrote:
->>>
->>>> Beyond whatever you are seeing, for the latter case of new things
->>>> getting introduced to an interface with hidden dependencies... Another
->>>> edge case could be a new caller to set_memory_np() could result in
->>>> large NP pages. None of the callers today should cause this AFAICT, but
->>>> it's not great to rely on the callers to know these details.
+On Wed, Oct 28, 2020 at 11:20:12AM +0000, Will Deacon wrote:
+> On Tue, Oct 27, 2020 at 10:38:16AM +0200, Mike Rapoport wrote:
+> > On Mon, Oct 26, 2020 at 06:05:30PM +0000, Edgecombe, Rick P wrote:
+> > > On Mon, 2020-10-26 at 11:05 +0200, Mike Rapoport wrote:
+> > > > On Mon, Oct 26, 2020 at 01:13:52AM +0000, Edgecombe, Rick P wrote:
+> > > > > On Sun, 2020-10-25 at 12:15 +0200, Mike Rapoport wrote:
+> > > > > > Indeed, for architectures that define
+> > > > > > CONFIG_ARCH_HAS_SET_DIRECT_MAP
+> > > > > > it is
+> > > > > > possible that __kernel_map_pages() would fail, but since this
+> > > > > > function is
+> > > > > > void, the failure will go unnoticed.
+> > > > > 
+> > > > > Could you elaborate on how this could happen? Do you mean during
+> > > > > runtime today or if something new was introduced?
+> > > > 
+> > > > A failure in__kernel_map_pages() may happen today. For instance, on
+> > > > x86
+> > > > if the kernel is built with DEBUG_PAGEALLOC.
+> > > > 
+> > > >         __kernel_map_pages(page, 1, 0);
+> > > > 
+> > > > will need to split, say, 2M page and during the split an allocation
+> > > > of
+> > > > page table could fail.
+> > > 
+> > > On x86 at least, DEBUG_PAGEALLOC expects to never have to break a page
+> > > on the direct map and even disables locking in cpa because it assumes
+> > > this. If this is happening somehow anyway then we should probably fix
+> > > that. Even if it's a debug feature, it will not be as useful if it is
+> > > causing its own crashes.
+> > > 
+> > > I'm still wondering if there is something I'm missing here. It seems
+> > > like you are saying there is a bug in some arch's, so let's add a WARN
+> > > in cross-arch code to log it as it crashes. A warn and making things
+> > > clearer seem like good ideas, but if there is a bug we should fix it.
+> > > The code around the callers still functionally assume re-mapping can't
+> > > fail.
+> > 
+> > Oh, I've meant x86 kernel *without* DEBUG_PAGEALLOC, and indeed the call
+> > that unmaps pages back in safe_copy_page will just reset a 4K page to
+> > NP because whatever made it NP at the first place already did the split.
+> > 
+> > Still, on arm64 with DEBUG_PAGEALLOC=n there is a possibility of a race
+> > between map/unmap dance in __vunmap() and safe_copy_page() that may
+> > cause access to unmapped memory:
+> > 
+> > __vunmap()
+> >     vm_remove_mappings()
+> >         set_direct_map_invalid()
+> > 					safe_copy_page()	
+> > 					    __kernel_map_pages()
+> > 					    	return
+> > 					    do_copy_page() -> fault
+> > 					   	
+> > This is a theoretical bug, but it is still not nice :) 							
 > 
->>> A caller of set_memory_*() or set_direct_map_*() should expect a failure
->>> and be ready for that. So adding a WARN to safe_copy_page() is the first
->>> step in that direction :)
->>>
->>
->> I am probably missing something important, but why are we saving/restoring
->> the content of pages that were explicitly removed from the identity mapping
->> such that nobody will access them?
-> 
-> Actually, we should not be saving/restoring free pages during
-> hibernation as there are several calls to mark_free_pages() that should
-> exclude the free pages from the snapshot. I've tried to find why the fix
-> that maps/unmaps a page to save it was required at the first place, but
-> I could not find bug reports.
-> 
-> The closest I've got is an email from Rafael that asked to update
-> "hibernate: handle DEBUG_PAGEALLOC" patch:
-> 
-> https://lore.kernel.org/linux-pm/200802200133.44098.rjw@sisk.pl/
-> 
-> Could it be that safe_copy_page() tries to workaround a non-existent
-> problem?
-> 
+> Just to clarify: this patch series fixes this problem, right?
 
-Clould be! Also see
+Yes.
 
-https://lkml.kernel.org/r/38de5bb0-5559-d069-0ce0-daec66ef2746@suse.cz
-
-which restores free page content based on more kernel parameters, not 
-based on the original content.
+> Will
 
 -- 
-Thanks,
-
-David / dhildenb
+Sincerely yours,
+Mike.
