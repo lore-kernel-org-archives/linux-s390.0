@@ -1,82 +1,123 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:35474 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726952AbgJ1VhZ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 28 Oct 2020 17:37:25 -0400
-Date: Wed, 28 Oct 2020 14:01:07 -0700
-From: "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH] s390/smp: Move rcu_cpu_starting() earlier
-Message-ID: <20201028210107.GH3249@paulmck-ThinkPad-P72>
-Reply-To: paulmck@kernel.org
-References: <20201028182742.13773-1-cai@redhat.com>
+        id S1725601AbgJ2NkI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Oct 2020 09:40:08 -0400
+Date: Thu, 29 Oct 2020 09:40:01 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH 5/9] kprobes/ftrace: Add recursion protection to the
+ ftrace callback
+Message-ID: <20201029094001.0cfab7aa@gandalf.local.home>
+In-Reply-To: <20201029165803.5f6b401e5bccca4e57c70181@kernel.org>
+References: <20201028115244.995788961@goodmis.org>
+        <20201028115613.140212174@goodmis.org>
+        <20201029165803.5f6b401e5bccca4e57c70181@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201028182742.13773-1-cai@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Qian Cai <cai@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Guo Ren <guoren@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
 
-On Wed, Oct 28, 2020 at 02:27:42PM -0400, Qian Cai wrote:
-> The call to rcu_cpu_starting() in smp_init_secondary() is not early
-> enough in the CPU-hotplug onlining process, which results in lockdep
-> splats as follows:
-> 
->  WARNING: suspicious RCU usage
->  -----------------------------
->  kernel/locking/lockdep.c:3497 RCU-list traversed in non-reader section!!
-> 
->  other info that might help us debug this:
-> 
->  RCU used illegally from offline CPU!
->  rcu_scheduler_active = 1, debug_locks = 1
->  no locks held by swapper/1/0.
-> 
->  Call Trace:
->  show_stack+0x158/0x1f0
->  dump_stack+0x1f2/0x238
->  __lock_acquire+0x2640/0x4dd0
->  lock_acquire+0x3a8/0xd08
->  _raw_spin_lock_irqsave+0xc0/0xf0
->  clockevents_register_device+0xa8/0x528
->  init_cpu_timer+0x33e/0x468
->  smp_init_secondary+0x11a/0x328
->  smp_start_secondary+0x82/0x88
-> 
-> This is avoided by moving the call to rcu_cpu_starting up near the
-> beginning of the smp_init_secondary() function. Note that the
-> raw_smp_processor_id() is required in order to avoid calling into
-> lockdep before RCU has declared the CPU to be watched for readers.
-> 
-> Link: https://lore.kernel.org/lkml/160223032121.7002.1269740091547117869.tip-bot2@tip-bot2/
-> Signed-off-by: Qian Cai <cai@redhat.com>
+On Thu, 29 Oct 2020 16:58:03 +0900
+Masami Hiramatsu <mhiramat@kernel.org> wrote:
 
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
+> Hi Steve,
+> 
+> On Wed, 28 Oct 2020 07:52:49 -0400
+> Steven Rostedt <rostedt@goodmis.org> wrote:
+> 
+> > From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+> > 
+> > If a ftrace callback does not supply its own recursion protection and
+> > does not set the RECURSION_SAFE flag in its ftrace_ops, then ftrace will
+> > make a helper trampoline to do so before calling the callback instead of
+> > just calling the callback directly.  
+> 
+> So in that case the handlers will be called without preempt disabled?
+> 
+> 
+> > The default for ftrace_ops is going to assume recursion protection unless
+> > otherwise specified.  
+> 
+> This seems to skip entier handler if ftrace finds recursion.
+> I would like to increment the missed counter even in that case.
 
-> ---
->  arch/s390/kernel/smp.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+Note, this code does not change the functionality at this point, because
+without having the FL_RECURSION flag set (which kprobes does not even in
+this patch), it always gets called from the helper function that does this:
+
+	bit = trace_test_and_set_recursion(TRACE_LIST_START, TRACE_LIST_MAX);
+	if (bit < 0)
+		return;
+
+	preempt_disable_notrace();
+
+	op->func(ip, parent_ip, op, regs);
+
+	preempt_enable_notrace();
+	trace_clear_recursion(bit);
+
+Where this function gets called by op->func().
+
+In other words, you don't get that count anyway, and I don't think you want
+it. Because it means you traced something that your callback calls.
+
+That bit check is basically a nop, because the last patch in this series
+will make the default that everything has recursion protection, but at this
+patch the test does this:
+
+	/* A previous recursion check was made */
+	if ((val & TRACE_CONTEXT_MASK) > max)
+		return 0;
+
+Which would always return true, because this function is called via the
+helper that already did the trace_test_and_set_recursion() which, if it
+made it this far, the val would always be greater than max.
+
 > 
-> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-> index ebfe86d097f0..390d97daa2b3 100644
-> --- a/arch/s390/kernel/smp.c
-> +++ b/arch/s390/kernel/smp.c
-> @@ -855,13 +855,14 @@ void __init smp_detect_cpus(void)
->  
->  static void smp_init_secondary(void)
->  {
-> -	int cpu = smp_processor_id();
-> +	int cpu = raw_smp_processor_id();
->  
->  	S390_lowcore.last_update_clock = get_tod_clock();
->  	restore_access_regs(S390_lowcore.access_regs_save_area);
->  	set_cpu_flag(CIF_ASCE_PRIMARY);
->  	set_cpu_flag(CIF_ASCE_SECONDARY);
->  	cpu_init();
-> +	rcu_cpu_starting(cpu);
->  	preempt_disable();
->  	init_cpu_timer();
->  	vtime_init();
-> -- 
-> 2.28.0
+> [...]
+> e.g.
 > 
+> > diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
+> > index 5264763d05be..5eb2604fdf71 100644
+> > --- a/arch/csky/kernel/probes/ftrace.c
+> > +++ b/arch/csky/kernel/probes/ftrace.c
+> > @@ -13,16 +13,21 @@ int arch_check_ftrace_location(struct kprobe *p)
+> >  void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+> >  			   struct ftrace_ops *ops, struct pt_regs *regs)
+> >  {
+> > +	int bit;
+> >  	bool lr_saver = false;
+> >  	struct kprobe *p;
+> >  	struct kprobe_ctlblk *kcb;
+> >  
+> > -	/* Preempt is disabled by ftrace */
+> > +	bit = ftrace_test_recursion_trylock();  
+> 
+> > +
+> > +	preempt_disable_notrace();
+> >  	p = get_kprobe((kprobe_opcode_t *)ip);
+> >  	if (!p) {
+> >  		p = get_kprobe((kprobe_opcode_t *)(ip - MCOUNT_INSN_SIZE));
+> >  		if (unlikely(!p) || kprobe_disabled(p))
+> > -			return;
+> > +			goto out;
+> >  		lr_saver = true;
+> >  	}  
+> 
+> 	if (bit < 0) {
+> 		kprobes_inc_nmissed_count(p);
+> 		goto out;
+> 	}
+
+If anything called in get_kprobe() or kprobes_inc_nmissed_count() gets
+traced here, you have zero recursion protection, and this will crash the
+machine with a likely reboot (triple fault).
+
+Note, the recursion handles interrupts and wont stop them. bit < 0 only
+happens if you recurse because this function called something that ends up
+calling itself. Really, why would you care about missing a kprobe on the
+same kprobe?
+
+-- Steve
