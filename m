@@ -1,378 +1,167 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37004 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729815AbgJHNNn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 8 Oct 2020 09:13:43 -0400
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH v2 08/10] s390/dasd: Display FC Endpoint Security information via sysfs
-Date: Thu,  8 Oct 2020 15:13:34 +0200
-Message-Id: <20201008131336.61100-9-sth@linux.ibm.com>
-In-Reply-To: <20201008131336.61100-1-sth@linux.ibm.com>
-References: <20201008131336.61100-1-sth@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 4/4] arch, mm: make kernel_page_present() always available
+Date: Thu, 29 Oct 2020 18:19:02 +0200
+Message-Id: <20201029161902.19272-5-rppt@kernel.org>
+In-Reply-To: <20201029161902.19272-1-rppt@kernel.org>
+References: <20201029161902.19272-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Add a new sysfs attribute (fc_security) per device and per operational
-channel path. The information of the current FC Endpoint Security state
-is received through the CIO layer.
+For architectures that enable ARCH_HAS_SET_MEMORY having the ability to
+verify that a page is mapped in the kernel direct map can be useful
+regardless of hibernation.
 
-The state of the FC Endpoint Security can be either "Unsupported",
-"Authentication", or "Encryption".
+Add RISC-V implementation of kernel_page_present(), update its forward
+declarations and stubs to be a part of set_memory API and remove ugly
+ifdefery in inlcude/linux/mm.h around current declarations of
+kernel_page_present().
 
-For example:
-$ cat /sys/bus/ccw/devices/0.0.c600/fc_security
-Encryption
-
-If any of the operational paths is in a state different from all
-others, the device sysfs attribute will display the additional state
-"Inconsistent".
-
-The sysfs attributes per paths are organised in a new directory called
-"paths_info" with subdirectories for each path.
-
-/sys/bus/ccw/devices/0.0.c600/paths_info/
-├── 0.38
-│   └── fc_security
-├── 0.39
-│   └── fc_security
-├── 0.3a
-│   └── fc_security
-└── 0.3b
-    └── fc_security
-
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- drivers/s390/block/dasd_devmap.c | 109 +++++++++++++++++++++++++++++++
- drivers/s390/block/dasd_eckd.c   |  30 +++++++++
- drivers/s390/block/dasd_int.h    |  68 +++++++++++++++++++
- 3 files changed, 207 insertions(+)
+ arch/arm64/include/asm/cacheflush.h |  1 +
+ arch/riscv/include/asm/set_memory.h |  1 +
+ arch/riscv/mm/pageattr.c            | 29 +++++++++++++++++++++++++++++
+ arch/x86/include/asm/set_memory.h   |  1 +
+ arch/x86/mm/pat/set_memory.c        |  2 --
+ include/linux/mm.h                  |  7 -------
+ include/linux/set_memory.h          |  5 +++++
+ 7 files changed, 37 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_devmap.c b/drivers/s390/block/dasd_devmap.c
-index 32fc51341d99..16bb135c20aa 100644
---- a/drivers/s390/block/dasd_devmap.c
-+++ b/drivers/s390/block/dasd_devmap.c
-@@ -576,6 +576,11 @@ dasd_create_device(struct ccw_device *cdev)
- 	dev_set_drvdata(&cdev->dev, device);
- 	spin_unlock_irqrestore(get_ccwdev_lock(cdev), flags);
+diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
+index 9384fd8fc13c..45217f21f1fe 100644
+--- a/arch/arm64/include/asm/cacheflush.h
++++ b/arch/arm64/include/asm/cacheflush.h
+@@ -140,6 +140,7 @@ int set_memory_valid(unsigned long addr, int numpages, int enable);
  
-+	device->paths_info = kset_create_and_add("paths_info", NULL,
-+						 &device->cdev->dev.kobj);
-+	if (!device->paths_info)
-+		dev_warn(&cdev->dev, "Could not create paths_info kset\n");
-+
- 	return device;
+ int set_direct_map_invalid_noflush(struct page *page);
+ int set_direct_map_default_noflush(struct page *page);
++bool kernel_page_present(struct page *page);
+ 
+ #include <asm-generic/cacheflush.h>
+ 
+diff --git a/arch/riscv/include/asm/set_memory.h b/arch/riscv/include/asm/set_memory.h
+index 4c5bae7ca01c..d690b08dff2a 100644
+--- a/arch/riscv/include/asm/set_memory.h
++++ b/arch/riscv/include/asm/set_memory.h
+@@ -24,6 +24,7 @@ static inline int set_memory_nx(unsigned long addr, int numpages) { return 0; }
+ 
+ int set_direct_map_invalid_noflush(struct page *page);
+ int set_direct_map_default_noflush(struct page *page);
++bool kernel_page_present(struct page *page);
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+diff --git a/arch/riscv/mm/pageattr.c b/arch/riscv/mm/pageattr.c
+index 321b09d2e2ea..87ba5a68bbb8 100644
+--- a/arch/riscv/mm/pageattr.c
++++ b/arch/riscv/mm/pageattr.c
+@@ -198,3 +198,32 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ 			     __pgprot(0), __pgprot(_PAGE_PRESENT));
  }
- 
-@@ -622,6 +627,9 @@ dasd_delete_device(struct dasd_device *device)
- 	wait_event(dasd_delete_wq, atomic_read(&device->ref_count) == 0);
- 
- 	dasd_generic_free_discipline(device);
+ #endif
 +
-+	kset_unregister(device->paths_info);
-+
- 	/* Disconnect dasd_device structure from ccw_device structure. */
- 	cdev = device->cdev;
- 	device->cdev = NULL;
-@@ -1641,6 +1649,39 @@ dasd_path_interval_store(struct device *dev, struct device_attribute *attr,
- static DEVICE_ATTR(path_interval, 0644, dasd_path_interval_show,
- 		   dasd_path_interval_store);
- 
-+static ssize_t
-+dasd_device_fcs_show(struct device *dev, struct device_attribute *attr,
-+		     char *buf)
++bool kernel_page_present(struct page *page)
 +{
-+	struct dasd_device *device;
-+	int fc_sec;
-+	int rc;
++	unsigned long addr = (unsigned long)page_address(page);
++	pgd_t *pgd;
++	pud_t *pud;
++	p4d_t *p4d;
++	pmd_t *pmd;
++	pte_t *pte;
 +
-+	device = dasd_device_from_cdev(to_ccwdev(dev));
-+	if (IS_ERR(device))
-+		return -ENODEV;
-+	fc_sec = dasd_path_get_fcs_device(device);
-+	if (fc_sec == -EINVAL)
-+		rc = snprintf(buf, PAGE_SIZE, "Inconsistent\n");
-+	else
-+		rc = snprintf(buf, PAGE_SIZE, "%s\n", dasd_path_get_fcs_str(fc_sec));
-+	dasd_put_device(device);
++	pgd = pgd_offset_k(addr);
++	if (!pgd_present(*pgd))
++		return false;
 +
-+	return rc;
++	p4d = p4d_offset(pgd, addr);
++	if (!p4d_present(*p4d))
++		return false;
++
++	pud = pud_offset(p4d, addr);
++	if (!pud_present(*pud))
++		return false;
++
++	pmd = pmd_offset(pud, addr);
++	if (!pmd_present(*pmd))
++		return false;
++
++	pte = pte_offset_kernel(pmd, addr);
++	return pte_present(*pte);
 +}
-+static DEVICE_ATTR(fc_security, 0444, dasd_device_fcs_show, NULL);
-+
-+static ssize_t
-+dasd_path_fcs_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)
-+{
-+	struct dasd_path *path = to_dasd_path(kobj);
-+	unsigned int fc_sec = path->fc_security;
-+
-+	return snprintf(buf, PAGE_SIZE, "%s\n", dasd_path_get_fcs_str(fc_sec));
-+}
-+
-+static struct kobj_attribute path_fcs_attribute =
-+	__ATTR(fc_security, 0444, dasd_path_fcs_show, NULL);
+diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
+index 5948218f35c5..4352f08bfbb5 100644
+--- a/arch/x86/include/asm/set_memory.h
++++ b/arch/x86/include/asm/set_memory.h
+@@ -82,6 +82,7 @@ int set_pages_rw(struct page *page, int numpages);
  
- #define DASD_DEFINE_ATTR(_name, _func)					\
- static ssize_t dasd_##_name##_show(struct device *dev,			\
-@@ -1697,6 +1738,7 @@ static struct attribute * dasd_attrs[] = {
- 	&dev_attr_path_reset.attr,
- 	&dev_attr_hpf.attr,
- 	&dev_attr_ese.attr,
-+	&dev_attr_fc_security.attr,
- 	NULL,
- };
+ int set_direct_map_invalid_noflush(struct page *page);
+ int set_direct_map_default_noflush(struct page *page);
++bool kernel_page_present(struct page *page);
  
-@@ -1777,6 +1819,73 @@ dasd_set_feature(struct ccw_device *cdev, int feature, int flag)
+ extern int kernel_set_to_readonly;
+ 
+diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+index 7f248fc45317..16f878c26667 100644
+--- a/arch/x86/mm/pat/set_memory.c
++++ b/arch/x86/mm/pat/set_memory.c
+@@ -2228,7 +2228,6 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
  }
- EXPORT_SYMBOL(dasd_set_feature);
+ #endif /* CONFIG_DEBUG_PAGEALLOC */
  
-+static struct attribute *paths_info_attrs[] = {
-+	&path_fcs_attribute.attr,
-+	NULL,
-+};
-+
-+static struct kobj_type path_attr_type = {
-+	.release	= dasd_path_release,
-+	.default_attrs	= paths_info_attrs,
-+	.sysfs_ops	= &kobj_sysfs_ops,
-+};
-+
-+static void dasd_path_init_kobj(struct dasd_device *device, int chp)
-+{
-+	device->path[chp].kobj.kset = device->paths_info;
-+	kobject_init(&device->path[chp].kobj, &path_attr_type);
-+}
-+
-+void dasd_path_create_kobj(struct dasd_device *device, int chp)
-+{
-+	int rc;
-+
-+	if (test_bit(DASD_FLAG_OFFLINE, &device->flags))
-+		return;
-+	if (!device->paths_info) {
-+		dev_warn(&device->cdev->dev, "Unable to create paths objects\n");
-+		return;
-+	}
-+	if (device->path[chp].in_sysfs)
-+		return;
-+	if (!device->path[chp].conf_data)
-+		return;
-+
-+	dasd_path_init_kobj(device, chp);
-+
-+	rc = kobject_add(&device->path[chp].kobj, NULL, "%x.%02x",
-+			 device->path[chp].cssid, device->path[chp].chpid);
-+	if (rc)
-+		kobject_put(&device->path[chp].kobj);
-+	device->path[chp].in_sysfs = true;
-+}
-+EXPORT_SYMBOL(dasd_path_create_kobj);
-+
-+void dasd_path_create_kobjects(struct dasd_device *device)
-+{
-+	u8 lpm, opm;
-+
-+	opm = dasd_path_get_opm(device);
-+	for (lpm = 0x80; lpm; lpm >>= 1) {
-+		if (!(lpm & opm))
-+			continue;
-+		dasd_path_create_kobj(device, pathmask_to_pos(lpm));
-+	}
-+}
-+EXPORT_SYMBOL(dasd_path_create_kobjects);
-+
-+/*
-+ * As we keep kobjects for the lifetime of a device, this function must not be
-+ * called anywhere but in the context of offlining a device.
-+ */
-+void dasd_path_remove_kobj(struct dasd_device *device, int chp)
-+{
-+	if (device->path[chp].in_sysfs) {
-+		kobject_put(&device->path[chp].kobj);
-+		device->path[chp].in_sysfs = false;
-+	}
-+}
-+EXPORT_SYMBOL(dasd_path_remove_kobj);
- 
- int dasd_add_sysfs_files(struct ccw_device *cdev)
+-#ifdef CONFIG_HIBERNATION
+ bool kernel_page_present(struct page *page)
  {
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index 3273b26b25b0..cfffab4c627b 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1035,6 +1035,30 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
- 		device->path[i].ssid = 0;
- 		device->path[i].chpid = 0;
- 		dasd_path_notoper(device, i);
-+		dasd_path_remove_kobj(device, i);
-+	}
-+}
-+
-+static void dasd_eckd_read_fc_security(struct dasd_device *device)
-+{
-+	struct dasd_eckd_private *private = device->private;
-+	u8 esm_valid;
-+	u8 esm[8];
-+	int chp;
-+	int rc;
-+
-+	rc = chsc_scud(private->uid.ssid, (u64 *)esm, &esm_valid);
-+	if (rc) {
-+		for (chp = 0; chp < 8; chp++)
-+			device->path[chp].fc_security = 0;
-+		return;
-+	}
-+
-+	for (chp = 0; chp < 8; chp++) {
-+		if (esm_valid & (0x80 >> chp))
-+			device->path[chp].fc_security = esm[chp];
-+		else
-+			device->path[chp].fc_security = 0;
- 	}
+ 	unsigned int level;
+@@ -2240,7 +2239,6 @@ bool kernel_page_present(struct page *page)
+ 	pte = lookup_address((unsigned long)page_address(page), &level);
+ 	return (pte_val(*pte) & _PAGE_PRESENT);
  }
+-#endif /* CONFIG_HIBERNATION */
  
-@@ -1164,6 +1188,8 @@ static int dasd_eckd_read_conf(struct dasd_device *device)
- 		}
- 	}
- 
-+	dasd_eckd_read_fc_security(device);
-+
- 	return path_err;
+ int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
+ 				   unsigned numpages, unsigned long page_flags)
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ab0ef6bd351d..44b82f22e76a 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2937,16 +2937,9 @@ static inline void debug_pagealloc_map_pages(struct page *page,
+ 	if (debug_pagealloc_enabled_static())
+ 		__kernel_map_pages(page, numpages, enable);
  }
+-
+-#ifdef CONFIG_HIBERNATION
+-extern bool kernel_page_present(struct page *page);
+-#endif	/* CONFIG_HIBERNATION */
+ #else	/* CONFIG_DEBUG_PAGEALLOC */
+ static inline void debug_pagealloc_map_pages(struct page *page,
+ 					     int numpages, int enable) {}
+-#ifdef CONFIG_HIBERNATION
+-static inline bool kernel_page_present(struct page *page) { return true; }
+-#endif	/* CONFIG_HIBERNATION */
+ #endif	/* CONFIG_DEBUG_PAGEALLOC */
  
-@@ -1430,6 +1456,8 @@ static void do_path_verification_work(struct work_struct *work)
- 		dasd_path_add_cablepm(device, cablepm);
- 		dasd_path_add_nohpfpm(device, hpfpm);
- 		spin_unlock_irqrestore(get_ccwdev_lock(device->cdev), flags);
-+
-+		dasd_path_create_kobj(device, pos);
- 	}
- 	clear_bit(DASD_FLAG_PATH_VERIFY, &device->flags);
- 	dasd_put_device(device);
-@@ -2069,6 +2097,8 @@ dasd_eckd_check_characteristics(struct dasd_device *device)
- 	if (rc)
- 		goto out_err3;
- 
-+	dasd_path_create_kobjects(device);
-+
- 	/* Read Feature Codes */
- 	dasd_eckd_read_features(device);
- 
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index 6dce9d4c55ce..93d9cc938924 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -426,6 +426,35 @@ extern struct dasd_discipline *dasd_diag_discipline_pointer;
- #define DASD_THRHLD_MAX		4294967295U
- #define DASD_INTERVAL_MAX	4294967295U
- 
-+/* FC Endpoint Security Capabilities */
-+#define DASD_FC_SECURITY_UNSUP		0
-+#define DASD_FC_SECURITY_AUTH		1
-+#define DASD_FC_SECURITY_ENC_FCSP2	2
-+#define DASD_FC_SECURITY_ENC_ERAS	3
-+
-+#define DASD_FC_SECURITY_ENC_STR	"Encryption"
-+static const struct {
-+	u8 value;
-+	char *name;
-+} dasd_path_fcs_mnemonics[] = {
-+	{ DASD_FC_SECURITY_UNSUP,	"Unsupported" },
-+	{ DASD_FC_SECURITY_AUTH,	"Authentication" },
-+	{ DASD_FC_SECURITY_ENC_FCSP2,	DASD_FC_SECURITY_ENC_STR },
-+	{ DASD_FC_SECURITY_ENC_ERAS,	DASD_FC_SECURITY_ENC_STR },
-+};
-+
-+static inline char *dasd_path_get_fcs_str(int val)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(dasd_path_fcs_mnemonics); i++) {
-+		if (dasd_path_fcs_mnemonics[i].value == val)
-+			return dasd_path_fcs_mnemonics[i].name;
-+	}
-+
-+	return dasd_path_fcs_mnemonics[0].name;
-+}
-+
- struct dasd_path {
- 	unsigned long flags;
- 	u8 cssid;
-@@ -434,8 +463,18 @@ struct dasd_path {
- 	struct dasd_conf_data *conf_data;
- 	atomic_t error_count;
- 	unsigned long errorclk;
-+	u8 fc_security;
-+	struct kobject kobj;
-+	bool in_sysfs;
- };
- 
-+#define to_dasd_path(path) container_of(path, struct dasd_path, kobj)
-+
-+static inline void dasd_path_release(struct kobject *kobj)
-+{
-+/* Memory for the dasd_path kobject is freed when dasd_free_device() is called */
-+}
-+
- 
- struct dasd_profile_info {
- 	/* legacy part of profile data, as in dasd_profile_info_t */
-@@ -547,6 +586,7 @@ struct dasd_device {
- 	struct dentry *hosts_dentry;
- 	struct dasd_profile profile;
- 	struct dasd_format_entry format_entry;
-+	struct kset *paths_info;
- };
- 
- struct dasd_block {
-@@ -824,6 +864,9 @@ int dasd_set_feature(struct ccw_device *, int, int);
- 
- int dasd_add_sysfs_files(struct ccw_device *);
- void dasd_remove_sysfs_files(struct ccw_device *);
-+void dasd_path_create_kobj(struct dasd_device *, int);
-+void dasd_path_create_kobjects(struct dasd_device *);
-+void dasd_path_remove_kobj(struct dasd_device *, int);
- 
- struct dasd_device *dasd_device_from_cdev(struct ccw_device *);
- struct dasd_device *dasd_device_from_cdev_locked(struct ccw_device *);
-@@ -1113,6 +1156,31 @@ static inline __u8 dasd_path_get_hpfpm(struct dasd_device *device)
- 	return hpfpm;
+ #ifdef __HAVE_ARCH_GATE_AREA
+diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
+index 860e0f843c12..fe1aa4e54680 100644
+--- a/include/linux/set_memory.h
++++ b/include/linux/set_memory.h
+@@ -23,6 +23,11 @@ static inline int set_direct_map_default_noflush(struct page *page)
+ {
+ 	return 0;
  }
++
++static inline bool kernel_page_present(struct page *page)
++{
++	return true;
++}
+ #endif
  
-+static inline u8 dasd_path_get_fcs_path(struct dasd_device *device, int chp)
-+{
-+	return device->path[chp].fc_security;
-+}
-+
-+static inline int dasd_path_get_fcs_device(struct dasd_device *device)
-+{
-+	u8 fc_sec = 0;
-+	int chp;
-+
-+	for (chp = 0; chp < 8; chp++) {
-+		if (device->opm & (0x80 >> chp)) {
-+			fc_sec = device->path[chp].fc_security;
-+			break;
-+		}
-+	}
-+	for (; chp < 8; chp++) {
-+		if (device->opm & (0x80 >> chp))
-+			if (device->path[chp].fc_security != fc_sec)
-+				return -EINVAL;
-+	}
-+
-+	return fc_sec;
-+}
-+
- /*
-  * add functions for path masks
-  * the existing path mask will be extended by the given path mask
+ #ifndef set_mce_nospec
 -- 
-2.17.1
+2.28.0
