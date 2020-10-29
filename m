@@ -1,55 +1,80 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31178 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726111AbgJGS4d (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 14:56:33 -0400
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH v3 0/5] Pass zPCI hardware information via VFIO
-Date: Wed,  7 Oct 2020 14:56:19 -0400
-Message-Id: <1602096984-13703-1-git-send-email-mjrosato@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:42058 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725764AbgJ2QT3 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Oct 2020 12:19:29 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 0/4] arch, mm: improve robustness of direct map manipulation
+Date: Thu, 29 Oct 2020 18:18:58 +0200
+Message-Id: <20201029161902.19272-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-This patchset provides a means by which hardware information about the
-underlying PCI device can be passed up to userspace (ie, QEMU) so that
-this hardware information can be used rather than previously hard-coded
-assumptions. The VFIO_DEVICE_GET_INFO ioctl is extended to allow capability
-chains and zPCI devices provide the hardware information via capabilities.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-A form of these patches saw some rounds last year but has been back-
-tabled for a while.  The original work for this feature was done by Pierre
-Morel. I'd like to refresh the discussion on this and get this finished up
-so that we can move forward with better-supporting additional types of
-PCI-attached devices.  
+Hi,
 
-This feature is toggled via the CONFIG_VFIO_PCI_ZDEV configuration entry. 
+During recent discussion about KVM protected memory, David raised a concern
+about usage of __kernel_map_pages() outside of DEBUG_PAGEALLOC scope [1].
 
-Changes since v2:
-- Added ACKs (thanks!)
-- Patch 3+4: Re-write to use VFIO_DEVICE_GET_INFO capabilities rather than
-  a vfio device region.
+Indeed, for architectures that define CONFIG_ARCH_HAS_SET_DIRECT_MAP it is
+possible that __kernel_map_pages() would fail, but since this function is
+void, the failure will go unnoticed.
 
-Matthew Rosato (5):
-  s390/pci: stash version in the zpci_dev
-  s390/pci: track whether util_str is valid in the zpci_dev
-  vfio: Introduce capability definitions for VFIO_DEVICE_GET_INFO
-  vfio-pci/zdev: Add zPCI capabilities to VFIO_DEVICE_GET_INFO
-  MAINTAINERS: Add entry for s390 vfio-pci
+Moreover, there's lack of consistency of __kernel_map_pages() semantics
+across architectures as some guard this function with
+#ifdef DEBUG_PAGEALLOC, some refuse to update the direct map if page
+allocation debugging is disabled at run time and some allow modifying the
+direct map regardless of DEBUG_PAGEALLOC settings.
 
- MAINTAINERS                         |   8 ++
- arch/s390/include/asm/pci.h         |   4 +-
- arch/s390/pci/pci_clp.c             |   2 +
- drivers/vfio/pci/Kconfig            |  13 ++++
- drivers/vfio/pci/Makefile           |   1 +
- drivers/vfio/pci/vfio_pci.c         |  37 ++++++++++
- drivers/vfio/pci/vfio_pci_private.h |  12 +++
- drivers/vfio/pci/vfio_pci_zdev.c    | 143 ++++++++++++++++++++++++++++++++++++
- include/uapi/linux/vfio.h           |  11 +++
- include/uapi/linux/vfio_zdev.h      |  78 ++++++++++++++++++++
- 10 files changed, 308 insertions(+), 1 deletion(-)
- create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
- create mode 100644 include/uapi/linux/vfio_zdev.h
+This set straightens this out by restoring dependency of
+__kernel_map_pages() on DEBUG_PAGEALLOC and updating the call sites
+accordingly. 
+
+Since currently the only user of __kernel_map_pages() outside
+DEBUG_PAGEALLOC, it is updated to make direct map accesses there more
+explicit.
+
+[1] https://lore.kernel.org/lkml/2759b4bf-e1e3-d006-7d86-78a40348269d@redhat.com
+
+v2 changes:
+* Rephrase patch 2 changelog to better describe the change intentions and
+implications
+* Move removal of kernel_map_pages() from patch 1 to patch 2, per David
+
+v1:
+https://lore.kernel.org/lkml/20201025101555.3057-1-rppt@kernel.org
+
+Mike Rapoport (4):
+  mm: introduce debug_pagealloc_map_pages() helper
+  PM: hibernate: make direct map manipulations more explicit
+  arch, mm: restore dependency of __kernel_map_pages() of DEBUG_PAGEALLOC
+  arch, mm: make kernel_page_present() always available
+
+ arch/Kconfig                        |  3 +++
+ arch/arm64/Kconfig                  |  4 +---
+ arch/arm64/include/asm/cacheflush.h |  1 +
+ arch/arm64/mm/pageattr.c            |  6 +++--
+ arch/powerpc/Kconfig                |  5 +----
+ arch/riscv/Kconfig                  |  4 +---
+ arch/riscv/include/asm/pgtable.h    |  2 --
+ arch/riscv/include/asm/set_memory.h |  1 +
+ arch/riscv/mm/pageattr.c            | 31 +++++++++++++++++++++++++
+ arch/s390/Kconfig                   |  4 +---
+ arch/sparc/Kconfig                  |  4 +---
+ arch/x86/Kconfig                    |  4 +---
+ arch/x86/include/asm/set_memory.h   |  1 +
+ arch/x86/mm/pat/set_memory.c        |  4 ++--
+ include/linux/mm.h                  | 35 +++++++++++++----------------
+ include/linux/set_memory.h          |  5 +++++
+ kernel/power/snapshot.c             | 30 +++++++++++++++++++++++--
+ mm/memory_hotplug.c                 |  3 +--
+ mm/page_alloc.c                     |  6 ++---
+ mm/slab.c                           |  8 +++----
+ 20 files changed, 103 insertions(+), 58 deletions(-)
 
 -- 
-1.8.3.1
+2.28.0
