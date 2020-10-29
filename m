@@ -1,287 +1,309 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29014 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2902428AbgJVRMs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 22 Oct 2020 13:12:48 -0400
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v11 11/14] s390/zcrypt: Notify driver on config changed and scan complete callbacks
-Date: Thu, 22 Oct 2020 13:12:06 -0400
-Message-Id: <20201022171209.19494-12-akrowiak@linux.ibm.com>
-In-Reply-To: <20201022171209.19494-1-akrowiak@linux.ibm.com>
-References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:42682 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725764AbgJ2QUE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Oct 2020 12:20:04 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 3/4] arch, mm: restore dependency of __kernel_map_pages() of DEBUG_PAGEALLOC
+Date: Thu, 29 Oct 2020 18:19:01 +0200
+Message-Id: <20201029161902.19272-4-rppt@kernel.org>
+In-Reply-To: <20201029161902.19272-1-rppt@kernel.org>
+References: <20201029161902.19272-1-rppt@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-This patch intruduces an extension to the ap bus to notify device drivers
-when the host AP configuration changes - i.e., adapters, domains or
-control domains are added or removed. To that end, two new callbacks are
-introduced for AP device drivers:
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-  void (*on_config_changed)(struct ap_config_info *new_config_info,
-                            struct ap_config_info *old_config_info);
+The design of DEBUG_PAGEALLOC presumes that __kernel_map_pages() must never
+fail. With this assumption is wouldn't be safe to allow general usage of
+this function.
 
-     This callback is invoked at the start of the AP bus scan
-     function when it determines that the host AP configuration information
-     has changed since the previous scan. This is done by storing
-     an old and current QCI info struct and comparing them. If there is any
-     difference, the callback is invoked.
+Moreover, some architectures that implement __kernel_map_pages() have this
+function guarded by #ifdef DEBUG_PAGEALLOC and some refuse to map/unmap
+pages when page allocation debugging is disabled at runtime.
 
-     Note that when the AP bus scan detects that AP adapters, domains or
-     control domains have been removed from the host's AP configuration, it
-     will remove the associated devices from the AP bus subsystem's device
-     model. This callback gives the device driver a chance to respond to
-     the removal of the AP devices from the host configuration prior to
-     calling the device driver's remove callback. The primary purpose of
-     this callback is to allow the vfio_ap driver to do a bulk unplug of
-     all affected adapters, domains and control domains from affected
-     guests rather than unplugging them one at a time when the remove
-     callback is invoked.
+As all the users of __kernel_map_pages() were converted to use
+debug_pagealloc_map_pages() it is safe to make it available only when
+DEBUG_PAGEALLOC is set.
 
-  void (*on_scan_complete)(struct ap_config_info *new_config_info,
-                           struct ap_config_info *old_config_info);
-
-     The on_scan_complete callback is invoked after the ap bus scan is
-     complete if the host AP configuration data has changed.
-
-     Note that when the AP bus scan detects that adapters, domains or
-     control domains have been added to the host's configuration, it will
-     create new devices in the AP bus subsystem's device model. The primary
-     purpose of this callback is to allow the vfio_ap driver to do a bulk
-     plug of all affected adapters, domains and control domains into
-     affected guests rather than plugging them one at a time when the
-     probe callback is invoked.
-
-Please note that changes to the apmask and aqmask do not trigger
-these two callbacks since the bus scan function is not invoked by changes
-to those masks.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
 ---
- drivers/s390/crypto/ap_bus.c          | 88 ++++++++++++++++++++++++++-
- drivers/s390/crypto/ap_bus.h          | 12 ++++
- drivers/s390/crypto/vfio_ap_drv.c     |  2 +-
- drivers/s390/crypto/vfio_ap_ops.c     | 11 ++--
- drivers/s390/crypto/vfio_ap_private.h |  2 +-
- 5 files changed, 106 insertions(+), 9 deletions(-)
+ arch/Kconfig                     |  3 +++
+ arch/arm64/Kconfig               |  4 +---
+ arch/arm64/mm/pageattr.c         |  6 ++++--
+ arch/powerpc/Kconfig             |  5 +----
+ arch/riscv/Kconfig               |  4 +---
+ arch/riscv/include/asm/pgtable.h |  2 --
+ arch/riscv/mm/pageattr.c         |  2 ++
+ arch/s390/Kconfig                |  4 +---
+ arch/sparc/Kconfig               |  4 +---
+ arch/x86/Kconfig                 |  4 +---
+ arch/x86/mm/pat/set_memory.c     |  2 ++
+ include/linux/mm.h               | 10 +++++++---
+ 12 files changed, 24 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 998e61cd86d9..5b94956ef6bc 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -73,8 +73,10 @@ struct ap_perms ap_perms;
- EXPORT_SYMBOL(ap_perms);
- DEFINE_MUTEX(ap_perms_mutex);
- EXPORT_SYMBOL(ap_perms_mutex);
-+DEFINE_MUTEX(ap_config_lock);
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 56b6ccc0e32d..56d4752b6db6 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1028,6 +1028,9 @@ config HAVE_STATIC_CALL_INLINE
+ 	bool
+ 	depends on HAVE_STATIC_CALL
  
- static struct ap_config_info *ap_qci_info;
-+static struct ap_config_info *ap_qci_info_old;
++config ARCH_SUPPORTS_DEBUG_PAGEALLOC
++	bool
++
+ source "kernel/gcov/Kconfig"
  
- /*
-  * AP bus related debug feature things.
-@@ -1420,6 +1422,52 @@ static int __match_queue_device_with_queue_id(struct device *dev, const void *da
- 		&& AP_QID_QUEUE(to_ap_queue(dev)->qid) == (int)(long) data;
+ source "scripts/gcc-plugins/Kconfig"
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index f858c352f72a..5a01dfb77b93 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -71,6 +71,7 @@ config ARM64
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select ARCH_USE_QUEUED_SPINLOCKS
+ 	select ARCH_USE_SYM_ANNOTATIONS
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	select ARCH_SUPPORTS_MEMORY_FAILURE
+ 	select ARCH_SUPPORTS_SHADOW_CALL_STACK if CC_HAVE_SHADOW_CALL_STACK
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+@@ -1005,9 +1006,6 @@ config HOLES_IN_ZONE
+ 
+ source "kernel/Kconfig.hz"
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y
+-
+ config ARCH_SPARSEMEM_ENABLE
+ 	def_bool y
+ 	select SPARSEMEM_VMEMMAP_ENABLE
+diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
+index 1b94f5b82654..18613d8834db 100644
+--- a/arch/arm64/mm/pageattr.c
++++ b/arch/arm64/mm/pageattr.c
+@@ -178,13 +178,15 @@ int set_direct_map_default_noflush(struct page *page)
+ 				   PAGE_SIZE, change_page_range, &data);
  }
  
-+/* Helper function for notify_config_changed */
-+static int __drv_notify_config_changed(struct device_driver *drv, void *data)
-+{
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+
-+	if (try_module_get(drv->owner)) {
-+		if (ap_drv->on_config_changed)
-+			ap_drv->on_config_changed(ap_qci_info,
-+						  ap_qci_info_old);
-+		module_put(drv->owner);
-+	}
-+
-+	return 0;
-+}
-+
-+/* Notify all drivers about an qci config change */
-+static inline void notify_config_changed(void)
-+{
-+	bus_for_each_drv(&ap_bus_type, NULL, NULL,
-+			 __drv_notify_config_changed);
-+}
-+
-+/* Helper function for notify_scan_complete */
-+static int __drv_notify_scan_complete(struct device_driver *drv, void *data)
-+{
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+
-+	if (try_module_get(drv->owner)) {
-+		if (ap_drv->on_scan_complete)
-+			ap_drv->on_scan_complete(ap_qci_info,
-+						 ap_qci_info_old);
-+		module_put(drv->owner);
-+	}
-+
-+	return 0;
-+}
-+
-+/* Notify all drivers about bus scan complete */
-+static inline void notify_scan_complete(void)
-+{
-+	bus_for_each_drv(&ap_bus_type, NULL, NULL,
-+			 __drv_notify_scan_complete);
-+}
-+
-+
-+
- /*
-  * Helper function for ap_scan_bus().
-  * Remove card device and associated queue devices.
-@@ -1696,15 +1744,45 @@ static inline void ap_scan_adapter(int ap)
- 	put_device(&ac->ap_dev.device);
- }
- 
-+static int ap_config_changed(void)
-+{
-+	int cfg_chg = 0;
-+
-+	if (ap_qci_info) {
-+		if (!ap_qci_info_old) {
-+			ap_qci_info_old = kzalloc(sizeof(*ap_qci_info_old),
-+						  GFP_KERNEL);
-+			if (!ap_qci_info_old)
-+				return 0;
-+		} else {
-+			memcpy(ap_qci_info_old, ap_qci_info,
-+			       sizeof(struct ap_config_info));
-+		}
-+		ap_fetch_qci_info(ap_qci_info);
-+		cfg_chg = memcmp(ap_qci_info,
-+				 ap_qci_info_old,
-+				 sizeof(struct ap_config_info)) != 0;
-+	}
-+
-+	return cfg_chg;
-+}
-+
- /**
-  * ap_scan_bus(): Scan the AP bus for new devices
-  * Runs periodically, workqueue timer (ap_config_time)
-  */
- static void ap_scan_bus(struct work_struct *unused)
++#ifdef CONFIG_DEBUG_PAGEALLOC
+ void __kernel_map_pages(struct page *page, int numpages, int enable)
  {
--	int ap;
-+	int ap, config_changed = 0;
-+
-+	mutex_lock(&ap_config_lock);
+-	if (!debug_pagealloc_enabled() && !rodata_full)
++	if (!rodata_full)
+ 		return;
  
--	ap_fetch_qci_info(ap_qci_info);
-+	/* config change notify */
-+	config_changed = ap_config_changed();
-+	if (config_changed)
-+		notify_config_changed();
-+	memcpy(ap_qci_info_old, ap_qci_info,
-+	       sizeof(struct ap_config_info));
- 	ap_select_domain();
+ 	set_memory_valid((unsigned long)page_address(page), numpages, enable);
+ }
++#endif /* CONFIG_DEBUG_PAGEALLOC */
  
- 	AP_DBF_DBG("%s running\n", __func__);
-@@ -1713,6 +1791,12 @@ static void ap_scan_bus(struct work_struct *unused)
- 	for (ap = 0; ap <= ap_max_adapter_id; ap++)
- 		ap_scan_adapter(ap);
+ /*
+  * This function is used to determine if a linear map page has been marked as
+@@ -204,7 +206,7 @@ bool kernel_page_present(struct page *page)
+ 	pte_t *ptep;
+ 	unsigned long addr = (unsigned long)page_address(page);
  
-+	/* scan complete notify */
-+	if (config_changed)
-+		notify_scan_complete();
-+
-+	mutex_unlock(&ap_config_lock);
-+
- 	/* check if there is at least one queue available with default domain */
- 	if (ap_domain_index >= 0) {
- 		struct device *dev =
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 6ce154d924d3..c021ea5121a9 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -146,6 +146,18 @@ struct ap_driver {
- 	int (*probe)(struct ap_device *);
- 	void (*remove)(struct ap_device *);
- 	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
-+	/*
-+	 * Called at the start of the ap bus scan function when
-+	 * the crypto config information (qci) has changed.
-+	 */
-+	void (*on_config_changed)(struct ap_config_info *new_config_info,
-+				  struct ap_config_info *old_config_info);
-+	/*
-+	 * Called at the end of the ap bus scan function when
-+	 * the crypto config information (qci) has changed.
-+	 */
-+	void (*on_scan_complete)(struct ap_config_info *new_config_info,
-+				 struct ap_config_info *old_config_info);
- };
+-	if (!debug_pagealloc_enabled() && !rodata_full)
++	if (!rodata_full)
+ 		return true;
  
- #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 8934471b7944..f06e19754de3 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -87,7 +87,7 @@ static int vfio_ap_matrix_dev_create(void)
+ 	pgdp = pgd_offset_k(addr);
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index e9f13fe08492..ad8a83f3ddca 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -146,6 +146,7 @@ config PPC
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+ 	select ARCH_OPTIONAL_KERNEL_RWX		if ARCH_HAS_STRICT_KERNEL_RWX
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC	if PPC32 || PPC_BOOK3S_64
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
+ 	select ARCH_USE_QUEUED_RWLOCKS		if PPC_QUEUED_SPINLOCKS
+@@ -355,10 +356,6 @@ config PPC_OF_PLATFORM_PCI
+ 	depends on PCI
+ 	depends on PPC64 # not supported on 32 bits yet
  
- 	/* Fill in config info via PQAP(QCI), if available */
- 	if (test_facility(12)) {
--		ret = ap_qci(&matrix_dev->info);
-+		ret = ap_qci(&matrix_dev->config_info);
- 		if (ret)
- 			goto matrix_alloc_err;
- 	}
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index dae1fba41941..c4ea80ec8599 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -354,8 +354,9 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- 	}
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	depends on PPC32 || PPC_BOOK3S_64
+-	def_bool y
+-
+ config ARCH_SUPPORTS_UPROBES
+ 	def_bool y
  
- 	matrix_mdev->mdev = mdev;
--	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
--	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
-+	vfio_ap_matrix_init(&matrix_dev->config_info, &matrix_mdev->matrix);
-+	vfio_ap_matrix_init(&matrix_dev->config_info,
-+			    &matrix_mdev->shadow_apcb);
- 	hash_init(matrix_mdev->qtable);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook.hook = handle_pqap;
-@@ -540,8 +541,8 @@ static int vfio_ap_mdev_filter_guest_matrix(struct ap_matrix_mdev *matrix_mdev,
- 		 * If the APID is not assigned to the host AP configuration,
- 		 * we can not assign it to the guest's AP configuration
- 		 */
--		if (!test_bit_inv(apid,
--				  (unsigned long *)matrix_dev->info.apm)) {
-+		if (!test_bit_inv(apid, (unsigned long *)
-+				  matrix_dev->config_info.apm)) {
- 			clear_bit_inv(apid, shadow_apcb.apm);
- 			continue;
- 		}
-@@ -554,7 +555,7 @@ static int vfio_ap_mdev_filter_guest_matrix(struct ap_matrix_mdev *matrix_mdev,
- 			 * guest's AP configuration
- 			 */
- 			if (!test_bit_inv(apqi, (unsigned long *)
--					  matrix_dev->info.aqm)) {
-+					  matrix_dev->config_info.aqm)) {
- 				clear_bit_inv(apqi, shadow_apcb.aqm);
- 				continue;
- 			}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index fc8634cee485..5065f0367ea2 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -40,7 +40,7 @@
- struct ap_matrix_dev {
- 	struct device device;
- 	atomic_t available_instances;
--	struct ap_config_info info;
-+	struct ap_config_info config_info;
- 	struct list_head mdev_list;
- 	struct mutex lock;
- 	struct ap_driver  *vfio_ap_drv;
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 44377fd7860e..9283c6f9ae2a 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -14,6 +14,7 @@ config RISCV
+ 	def_bool y
+ 	select ARCH_CLOCKSOURCE_INIT
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC if MMU
+ 	select ARCH_HAS_BINFMT_FLAT
+ 	select ARCH_HAS_DEBUG_VM_PGTABLE
+ 	select ARCH_HAS_DEBUG_VIRTUAL if MMU
+@@ -153,9 +154,6 @@ config ARCH_SELECT_MEMORY_MODEL
+ config ARCH_WANT_GENERAL_HUGETLB
+ 	def_bool y
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y
+-
+ config SYS_SUPPORTS_HUGETLBFS
+ 	depends on MMU
+ 	def_bool y
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index 183f1f4b2ae6..41a72861987c 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -461,8 +461,6 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
+ #define VMALLOC_START		0
+ #define VMALLOC_END		TASK_SIZE
+ 
+-static inline void __kernel_map_pages(struct page *page, int numpages, int enable) {}
+-
+ #endif /* !CONFIG_MMU */
+ 
+ #define kern_addr_valid(addr)   (1) /* FIXME */
+diff --git a/arch/riscv/mm/pageattr.c b/arch/riscv/mm/pageattr.c
+index 19fecb362d81..321b09d2e2ea 100644
+--- a/arch/riscv/mm/pageattr.c
++++ b/arch/riscv/mm/pageattr.c
+@@ -184,6 +184,7 @@ int set_direct_map_default_noflush(struct page *page)
+ 	return ret;
+ }
+ 
++#ifdef CONFIG_DEBUG_PAGEALLOC
+ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ {
+ 	if (!debug_pagealloc_enabled())
+@@ -196,3 +197,4 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ 		__set_memory((unsigned long)page_address(page), numpages,
+ 			     __pgprot(0), __pgprot(_PAGE_PRESENT));
+ }
++#endif
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 4a2a12be04c9..991a850a6c0b 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -35,9 +35,6 @@ config GENERIC_LOCKBREAK
+ config PGSTE
+ 	def_bool y if KVM
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y
+-
+ config AUDIT_ARCH
+ 	def_bool y
+ 
+@@ -106,6 +103,7 @@ config S390
+ 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
+ 	select ARCH_STACKWALK
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	select ARCH_SUPPORTS_NUMA_BALANCING
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_CMPXCHG_LOCKREF
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index a6ca135442f9..2c729b8d097a 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -88,6 +88,7 @@ config SPARC64
+ 	select HAVE_C_RECORDMCOUNT
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	select HAVE_NMI
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+ 	select ARCH_USE_QUEUED_RWLOCKS
+@@ -148,9 +149,6 @@ config GENERIC_ISA_DMA
+ 	bool
+ 	default y if SPARC32
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y if SPARC64
+-
+ config PGTABLE_LEVELS
+ 	default 4 if 64BIT
+ 	default 3
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index f6946b81f74a..0db3fb1da70c 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -91,6 +91,7 @@ config X86
+ 	select ARCH_STACKWALK
+ 	select ARCH_SUPPORTS_ACPI
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	select ARCH_SUPPORTS_NUMA_BALANCING	if X86_64
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_QUEUED_RWLOCKS
+@@ -329,9 +330,6 @@ config ZONE_DMA32
+ config AUDIT_ARCH
+ 	def_bool y if X86_64
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y
+-
+ config KASAN_SHADOW_OFFSET
+ 	hex
+ 	depends on KASAN
+diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+index 40baa90e74f4..7f248fc45317 100644
+--- a/arch/x86/mm/pat/set_memory.c
++++ b/arch/x86/mm/pat/set_memory.c
+@@ -2194,6 +2194,7 @@ int set_direct_map_default_noflush(struct page *page)
+ 	return __set_pages_p(page, 1);
+ }
+ 
++#ifdef CONFIG_DEBUG_PAGEALLOC
+ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ {
+ 	if (PageHighMem(page))
+@@ -2225,6 +2226,7 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ 
+ 	arch_flush_lazy_mmu_mode();
+ }
++#endif /* CONFIG_DEBUG_PAGEALLOC */
+ 
+ #ifdef CONFIG_HIBERNATION
+ bool kernel_page_present(struct page *page)
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 14e397f3752c..ab0ef6bd351d 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2924,7 +2924,11 @@ static inline bool debug_pagealloc_enabled_static(void)
+ 	return static_branch_unlikely(&_debug_pagealloc_enabled);
+ }
+ 
+-#if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
++#ifdef CONFIG_DEBUG_PAGEALLOC
++/*
++ * To support DEBUG_PAGEALLOC architecture must ensure that
++ * __kernel_map_pages() never fails
++ */
+ extern void __kernel_map_pages(struct page *page, int numpages, int enable);
+ 
+ static inline void debug_pagealloc_map_pages(struct page *page,
+@@ -2937,13 +2941,13 @@ static inline void debug_pagealloc_map_pages(struct page *page,
+ #ifdef CONFIG_HIBERNATION
+ extern bool kernel_page_present(struct page *page);
+ #endif	/* CONFIG_HIBERNATION */
+-#else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
++#else	/* CONFIG_DEBUG_PAGEALLOC */
+ static inline void debug_pagealloc_map_pages(struct page *page,
+ 					     int numpages, int enable) {}
+ #ifdef CONFIG_HIBERNATION
+ static inline bool kernel_page_present(struct page *page) { return true; }
+ #endif	/* CONFIG_HIBERNATION */
+-#endif	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
++#endif	/* CONFIG_DEBUG_PAGEALLOC */
+ 
+ #ifdef __HAVE_ARCH_GATE_AREA
+ extern struct vm_area_struct *get_gate_vma(struct mm_struct *mm);
 -- 
-2.21.1
+2.28.0
