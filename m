@@ -1,301 +1,144 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23370 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728320AbgJGS4l (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 7 Oct 2020 14:56:41 -0400
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH v3 4/5] vfio-pci/zdev: Add zPCI capabilities to VFIO_DEVICE_GET_INFO
-Date: Wed,  7 Oct 2020 14:56:23 -0400
-Message-Id: <1602096984-13703-5-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1602096984-13703-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1602096984-13703-1-git-send-email-mjrosato@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:42294 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725764AbgJ2QTk (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 29 Oct 2020 12:19:40 -0400
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v2 1/4] mm: introduce debug_pagealloc_map_pages() helper
+Date: Thu, 29 Oct 2020 18:18:59 +0200
+Message-Id: <20201029161902.19272-2-rppt@kernel.org>
+In-Reply-To: <20201029161902.19272-1-rppt@kernel.org>
+References: <20201029161902.19272-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-Define a new configuration entry VFIO_PCI_ZDEV for VFIO/PCI.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-When this s390-only feature is configured we add capabilities to the
-VFIO_DEVICE_GET_INFO ioctl that describe features of the associated
-zPCI device and its underlying hardware.
+When CONFIG_DEBUG_PAGEALLOC is enabled, it unmaps pages from the kernel
+direct mapping after free_pages(). The pages than need to be mapped back
+before they could be used. Theese mapping operations use
+__kernel_map_pages() guarded with with debug_pagealloc_enabled().
 
-This patch is based on work previously done by Pierre Morel.
+The only place that calls __kernel_map_pages() without checking whether
+DEBUG_PAGEALLOC is enabled is the hibernation code that presumes
+availability of this function when ARCH_HAS_SET_DIRECT_MAP is set.
+Still, on arm64, __kernel_map_pages() will bail out when DEBUG_PAGEALLOC is
+not enabled but set_direct_map_invalid_noflush() may render some pages not
+present in the direct map and hibernation code won't be able to save such
+pages.
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+To make page allocation debugging and hibernation interaction more robust,
+the dependency on DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP has to be made
+more explicit.
+
+Start with combining the guard condition and the call to
+__kernel_map_pages() into a single debug_pagealloc_map_pages() function to
+emphasize that __kernel_map_pages() should not be called without
+DEBUG_PAGEALLOC and use this new function to map/unmap pages when page
+allocation debug is enabled.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/vfio/pci/Kconfig            |  13 ++++
- drivers/vfio/pci/Makefile           |   1 +
- drivers/vfio/pci/vfio_pci.c         |  37 ++++++++++
- drivers/vfio/pci/vfio_pci_private.h |  12 +++
- drivers/vfio/pci/vfio_pci_zdev.c    | 143 ++++++++++++++++++++++++++++++++++++
- 5 files changed, 206 insertions(+)
- create mode 100644 drivers/vfio/pci/vfio_pci_zdev.c
+ include/linux/mm.h  | 10 ++++++++++
+ mm/memory_hotplug.c |  3 +--
+ mm/page_alloc.c     |  6 ++----
+ mm/slab.c           |  8 +++-----
+ 4 files changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
-index ac3c1dd..6adf37a 100644
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -45,3 +45,16 @@ config VFIO_PCI_NVLINK2
- 	depends on VFIO_PCI && PPC_POWERNV
- 	help
- 	  VFIO PCI support for P9 Witherspoon machine with NVIDIA V100 GPUs
-+
-+config VFIO_PCI_ZDEV
-+	bool "VFIO PCI ZPCI device CLP support"
-+	depends on VFIO_PCI && S390
-+	default y
-+	help
-+	  Enabling this option exposes VFIO capabilities containing hardware
-+	  configuration for zPCI devices. This enables userspace (e.g. QEMU)
-+	  to supply proper configuration values instead of hard-coded defaults
-+	  for zPCI devices passed through via VFIO on s390.
-+
-+	  Say Y here.
-+
-diff --git a/drivers/vfio/pci/Makefile b/drivers/vfio/pci/Makefile
-index f027f8a..781e080 100644
---- a/drivers/vfio/pci/Makefile
-+++ b/drivers/vfio/pci/Makefile
-@@ -3,5 +3,6 @@
- vfio-pci-y := vfio_pci.o vfio_pci_intrs.o vfio_pci_rdwr.o vfio_pci_config.o
- vfio-pci-$(CONFIG_VFIO_PCI_IGD) += vfio_pci_igd.o
- vfio-pci-$(CONFIG_VFIO_PCI_NVLINK2) += vfio_pci_nvlink2.o
-+vfio-pci-$(CONFIG_VFIO_PCI_ZDEV) += vfio_pci_zdev.o
- 
- obj-$(CONFIG_VFIO_PCI) += vfio-pci.o
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index 1ab1f5c..208dea5 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -807,15 +807,25 @@ static long vfio_pci_ioctl(void *device_data,
- 
- 	if (cmd == VFIO_DEVICE_GET_INFO) {
- 		struct vfio_device_info info;
-+		struct vfio_info_cap caps = { .buf = NULL, .size = 0 };
-+		unsigned long capsz;
- 
- 		minsz = offsetofend(struct vfio_device_info, num_irqs);
- 
-+		/* For backward compatibility, cannot require this */
-+		capsz = offsetofend(struct vfio_iommu_type1_info, cap_offset);
-+
- 		if (copy_from_user(&info, (void __user *)arg, minsz))
- 			return -EFAULT;
- 
- 		if (info.argsz < minsz)
- 			return -EINVAL;
- 
-+		if (info.argsz >= capsz) {
-+			minsz = capsz;
-+			info.cap_offset = 0;
-+		}
-+
- 		info.flags = VFIO_DEVICE_FLAGS_PCI;
- 
- 		if (vdev->reset_works)
-@@ -824,6 +834,33 @@ static long vfio_pci_ioctl(void *device_data,
- 		info.num_regions = VFIO_PCI_NUM_REGIONS + vdev->num_regions;
- 		info.num_irqs = VFIO_PCI_NUM_IRQS;
- 
-+		if (IS_ENABLED(CONFIG_VFIO_PCI_ZDEV)) {
-+			int ret = vfio_pci_info_zdev_add_caps(vdev, &caps);
-+
-+			if (ret && ret != -ENODEV) {
-+				pci_warn(vdev->pdev, "Failed to setup zPCI info capabilities\n");
-+				return ret;
-+			}
-+		}
-+
-+		if (caps.size) {
-+			info.flags |= VFIO_DEVICE_FLAGS_CAPS;
-+			if (info.argsz < sizeof(info) + caps.size) {
-+				info.argsz = sizeof(info) + caps.size;
-+			} else {
-+				vfio_info_cap_shift(&caps, sizeof(info));
-+				if (copy_to_user((void __user *)arg +
-+						  sizeof(info), caps.buf,
-+						  caps.size)) {
-+					kfree(caps.buf);
-+					return -EFAULT;
-+				}
-+				info.cap_offset = sizeof(info);
-+			}
-+
-+			kfree(caps.buf);
-+		}
-+
- 		return copy_to_user((void __user *)arg, &info, minsz) ?
- 			-EFAULT : 0;
- 
-diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
-index 61ca8ab..9d28484 100644
---- a/drivers/vfio/pci/vfio_pci_private.h
-+++ b/drivers/vfio/pci/vfio_pci_private.h
-@@ -213,4 +213,16 @@ static inline int vfio_pci_ibm_npu2_init(struct vfio_pci_device *vdev)
- 	return -ENODEV;
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ef360fe70aaf..1fc0609056dc 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2936,12 +2936,22 @@ kernel_map_pages(struct page *page, int numpages, int enable)
+ {
+ 	__kernel_map_pages(page, numpages, enable);
  }
- #endif
 +
-+#ifdef CONFIG_VFIO_PCI_ZDEV
-+extern int vfio_pci_info_zdev_add_caps(struct vfio_pci_device *vdev,
-+				       struct vfio_info_cap *caps);
-+#else
-+static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_device *vdev,
-+					      struct vfio_info_cap *caps);
++static inline void debug_pagealloc_map_pages(struct page *page,
++					     int numpages, int enable)
 +{
-+	return -ENODEV;
-+}
-+#endif
-+
- #endif /* VFIO_PCI_PRIVATE_H */
-diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-new file mode 100644
-index 0000000..2296856
---- /dev/null
-+++ b/drivers/vfio/pci/vfio_pci_zdev.c
-@@ -0,0 +1,143 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * VFIO ZPCI devices support
-+ *
-+ * Copyright (C) IBM Corp. 2020.  All rights reserved.
-+ *	Author(s): Pierre Morel <pmorel@linux.ibm.com>
-+ *                 Matthew Rosato <mjrosato@linux.ibm.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+#include <linux/io.h>
-+#include <linux/pci.h>
-+#include <linux/uaccess.h>
-+#include <linux/vfio.h>
-+#include <linux/vfio_zdev.h>
-+#include <asm/pci_clp.h>
-+#include <asm/pci_io.h>
-+
-+#include "vfio_pci_private.h"
-+
-+/*
-+ * Add the Base PCI Function information to the device info region.
-+ */
-+static int zpci_base_cap(struct zpci_dev *zdev, struct vfio_pci_device *vdev,
-+			 struct vfio_info_cap *caps)
-+{
-+	struct vfio_device_info_cap_zpci_base cap = {
-+		.header.id = VFIO_DEVICE_INFO_CAP_ZPCI_BASE,
-+		.header.version = 1,
-+		.start_dma = zdev->start_dma,
-+		.end_dma = zdev->end_dma,
-+		.pchid = zdev->pchid,
-+		.vfn = zdev->vfn,
-+		.fmb_length = zdev->fmb_length,
-+		.pft = zdev->pft,
-+		.gid = zdev->pfgid
-+	};
-+
-+	return vfio_info_add_capability(caps, &cap.header, sizeof(cap));
++	if (debug_pagealloc_enabled_static())
++		__kernel_map_pages(page, numpages, enable);
 +}
 +
-+/*
-+ * Add the Base PCI Function Group information to the device info region.
-+ */
-+static int zpci_group_cap(struct zpci_dev *zdev, struct vfio_pci_device *vdev,
-+			  struct vfio_info_cap *caps)
-+{
-+	struct vfio_device_info_cap_zpci_group cap = {
-+		.header.id = VFIO_DEVICE_INFO_CAP_ZPCI_GROUP,
-+		.header.version = 1,
-+		.dasm = zdev->dma_mask,
-+		.msi_addr = zdev->msi_addr,
-+		.flags = VFIO_DEVICE_INFO_ZPCI_FLAG_REFRESH,
-+		.mui = zdev->fmb_update,
-+		.noi = zdev->max_msi,
-+		.maxstbl = ZPCI_MAX_WRITE_SIZE,
-+		.version = zdev->version
-+	};
-+
-+	return vfio_info_add_capability(caps, &cap.header, sizeof(cap));
-+}
-+
-+/*
-+ * Add the device utility string to the device info region.
-+ */
-+static int zpci_util_cap(struct zpci_dev *zdev, struct vfio_pci_device *vdev,
-+			 struct vfio_info_cap *caps)
-+{
-+	struct vfio_device_info_cap_zpci_util *cap;
-+	int cap_size = sizeof(*cap) + CLP_UTIL_STR_LEN;
-+	int ret;
-+
-+	cap = kmalloc(cap_size, GFP_KERNEL);
-+
-+	cap->header.id = VFIO_DEVICE_INFO_CAP_ZPCI_UTIL;
-+	cap->header.version = 1;
-+	cap->size = CLP_UTIL_STR_LEN;
-+	memcpy(cap->util_str, zdev->util_str, cap->size);
-+
-+	ret = vfio_info_add_capability(caps, &cap->header, cap_size);
-+
-+	kfree(cap);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Add the function path string to the device info region.
-+ */
-+static int zpci_pfip_cap(struct zpci_dev *zdev, struct vfio_pci_device *vdev,
-+			 struct vfio_info_cap *caps)
-+{
-+	struct vfio_device_info_cap_zpci_pfip *cap;
-+	int cap_size = sizeof(*cap) + CLP_PFIP_NR_SEGMENTS;
-+	int ret;
-+
-+	cap = kmalloc(cap_size, GFP_KERNEL);
-+
-+	cap->header.id = VFIO_DEVICE_INFO_CAP_ZPCI_PFIP;
-+	cap->header.version = 1;
-+	cap->size = CLP_PFIP_NR_SEGMENTS;
-+	memcpy(cap->pfip, zdev->pfip, cap->size);
-+
-+	ret = vfio_info_add_capability(caps, &cap->header, cap_size);
-+
-+	kfree(cap);
-+
-+	return ret;
-+}
-+
-+/*
-+ * Add all supported capabilities to the VFIO_DEVICE_GET_INFO capability chain.
-+ */
-+int vfio_pci_info_zdev_add_caps(struct vfio_pci_device *vdev,
-+				struct vfio_info_cap *caps)
-+{
-+	struct zpci_dev *zdev = to_zpci(vdev->pdev);
-+	int ret;
-+
-+	if (!zdev)
-+		return -ENODEV;
-+
-+	ret = zpci_base_cap(zdev, vdev, caps);
-+	if (ret)
-+		return ret;
-+
-+	ret = zpci_group_cap(zdev, vdev, caps);
-+	if (ret)
-+		return ret;
-+
-+	if (zdev->util_str_avail) {
-+		ret = zpci_util_cap(zdev, vdev, caps);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	ret = zpci_pfip_cap(zdev, vdev, caps);
-+
-+	return ret;
-+}
+ #ifdef CONFIG_HIBERNATION
+ extern bool kernel_page_present(struct page *page);
+ #endif	/* CONFIG_HIBERNATION */
+ #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable) {}
++static inline void debug_pagealloc_map_pages(struct page *page,
++					     int numpages, int enable) {}
+ #ifdef CONFIG_HIBERNATION
+ static inline bool kernel_page_present(struct page *page) { return true; }
+ #endif	/* CONFIG_HIBERNATION */
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index b44d4c7ba73b..e2b6043a4428 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -614,8 +614,7 @@ void generic_online_page(struct page *page, unsigned int order)
+ 	 * so we should map it first. This is better than introducing a special
+ 	 * case in page freeing fast path.
+ 	 */
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 1);
++	debug_pagealloc_map_pages(page, 1 << order, 1);
+ 	__free_pages_core(page, order);
+ 	totalram_pages_add(1UL << order);
+ #ifdef CONFIG_HIGHMEM
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 23f5066bd4a5..9a66a1ff9193 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1272,8 +1272,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
+ 	 */
+ 	arch_free_page(page, order);
+ 
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 0);
++	debug_pagealloc_map_pages(page, 1 << order, 0);
+ 
+ 	kasan_free_nondeferred_pages(page, order);
+ 
+@@ -2270,8 +2269,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+ 	set_page_refcounted(page);
+ 
+ 	arch_alloc_page(page, order);
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 1);
++	debug_pagealloc_map_pages(page, 1 << order, 1);
+ 	kasan_alloc_pages(page, order);
+ 	kernel_poison_pages(page, 1 << order, 1);
+ 	set_page_owner(page, order, gfp_flags);
+diff --git a/mm/slab.c b/mm/slab.c
+index b1113561b98b..340db0ce74c4 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1431,10 +1431,8 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+ static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
+ {
+-	if (!is_debug_pagealloc_cache(cachep))
+-		return;
+-
+-	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
++	debug_pagealloc_map_pages(virt_to_page(objp),
++				  cachep->size / PAGE_SIZE, map);
+ }
+ 
+ #else
+@@ -2062,7 +2060,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
+ 
+ #if DEBUG
+ 	/*
+-	 * If we're going to use the generic kernel_map_pages()
++	 * If we're going to use the generic debug_pagealloc_map_pages()
+ 	 * poisoning, then it's going to smash the contents of
+ 	 * the redzone and userword anyhow, so switch them off.
+ 	 */
 -- 
-1.8.3.1
+2.28.0
