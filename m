@@ -1,154 +1,98 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v2 07/17] mm: Close race in generic_access_phys
-Date: Fri,  9 Oct 2020 09:59:24 +0200
-Message-Id: <20201009075934.3509076-8-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
-References: <20201009075934.3509076-1-daniel.vetter@ffwll.ch>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:52572 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725975AbgJ3ObJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 30 Oct 2020 10:31:09 -0400
+Subject: Re: [PATCH] kvm: s390: pv: Mark mm as protected after the set secure
+ parameters and improve cleanup
+References: <20201030140141.106641-1-frankja@linux.ibm.com>
+ <7461fd5d-4a44-51ad-bb7b-0bea8737b6e1@de.ibm.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <616a50f1-85f2-3286-7385-ead45256c6b5@linux.ibm.com>
+Date: Fri, 30 Oct 2020 15:31:02 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <7461fd5d-4a44-51ad-bb7b-0bea8737b6e1@de.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Jason Gunthorpe <jgg@ziepe.ca>, Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>, Rik van Riel <riel@redhat.com>, Benjamin Herrensmidt <benh@kernel.crashing.org>, Dave Airlie <airlied@linux.ie>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Daniel Vetter <daniel.vetter@intel.com>
+To: Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
+Cc: david@redhat.com, thuth@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Way back it was a reasonable assumptions that iomem mappings never
-change the pfn range they point at. But this has changed:
+On 10/30/20 3:25 PM, Christian Borntraeger wrote:
+> On 30.10.20 15:01, Janosch Frank wrote:
+>> We can only have protected guest pages after a successful set secure
+>> parameters call as only then the UV allows imports and unpacks.
+>>
+>> By moving the test we can now also check for it in s390_reset_acc()
+>> and do an early return if it is 0.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> 
+> Looks sane.
+> 
+> Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-- gpu drivers dynamically manage their memory nowadays, invalidating
-  ptes with unmap_mapping_range when buffers get moved
+Thanks
 
-- contiguous dma allocations have moved from dedicated carvetouts to
-  cma regions. This means if we miss the unmap the pfn might contain
-  pagecache or anon memory (well anything allocated with GFP_MOVEABLE)
+> 
+> As said in my other mail lets give it some days for the CI to test this.
 
-- even /dev/mem now invalidates mappings when the kernel requests that
-  iomem region when CONFIG_IO_STRICT_DEVMEM is set, see 3234ac664a87
-  ("/dev/mem: Revoke mappings when a driver claims the region")
+Sure, I'll push it in a minute
 
-Accessing pfns obtained from ptes without holding all the locks is
-therefore no longer a good idea. Fix this.
-
-Since ioremap might need to manipulate pagetables too we need to drop
-the pt lock and have a retry loop if we raced.
-
-While at it, also add kerneldoc and improve the comment for the
-vma_ops->access function. It's for accessing, not for moving the
-memory from iomem to system memory, as the old comment seemed to
-suggest.
-
-References: 28b2ee20c7cb ("access_process_vm device memory infrastructure")
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Benjamin Herrensmidt <benh@kernel.crashing.org>
-Cc: Dave Airlie <airlied@linux.ie>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
---
-v2: Fix inversion in the retry check (John).
----
- include/linux/mm.h |  3 ++-
- mm/memory.c        | 44 ++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 44 insertions(+), 3 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index acd60fbf1a5a..2a16631c1fda 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -566,7 +566,8 @@ struct vm_operations_struct {
- 	vm_fault_t (*pfn_mkwrite)(struct vm_fault *vmf);
- 
- 	/* called by access_process_vm when get_user_pages() fails, typically
--	 * for use by special VMAs that can switch between memory and hardware
-+	 * for use by special VMAs. See also generic_access_phys() for a generic
-+	 * implementation useful for any iomem mapping.
- 	 */
- 	int (*access)(struct vm_area_struct *vma, unsigned long addr,
- 		      void *buf, int len, int write);
-diff --git a/mm/memory.c b/mm/memory.c
-index fcfc4ca36eba..f7cbc4dde0ef 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4873,28 +4873,68 @@ int follow_phys(struct vm_area_struct *vma,
- 	return ret;
- }
- 
-+/**
-+ * generic_access_phys - generic implementation for iomem mmap access
-+ * @vma: the vma to access
-+ * @addr: userspace addres, not relative offset within @vma
-+ * @buf: buffer to read/write
-+ * @len: length of transfer
-+ * @write: set to FOLL_WRITE when writing, otherwise reading
-+ *
-+ * This is a generic implementation for &vm_operations_struct.access for an
-+ * iomem mapping. This callback is used by access_process_vm() when the @vma is
-+ * not page based.
-+ */
- int generic_access_phys(struct vm_area_struct *vma, unsigned long addr,
- 			void *buf, int len, int write)
- {
- 	resource_size_t phys_addr;
- 	unsigned long prot = 0;
- 	void __iomem *maddr;
-+	pte_t *ptep, pte;
-+	spinlock_t *ptl;
- 	int offset = addr & (PAGE_SIZE-1);
-+	int ret = -EINVAL;
-+
-+	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-+		return -EINVAL;
-+
-+retry:
-+	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
-+		return -EINVAL;
-+	pte = *ptep;
-+	pte_unmap_unlock(ptep, ptl);
- 
--	if (follow_phys(vma, addr, write, &prot, &phys_addr))
-+	prot = pgprot_val(pte_pgprot(pte));
-+	phys_addr = (resource_size_t)pte_pfn(pte) << PAGE_SHIFT;
-+
-+	if ((write & FOLL_WRITE) && !pte_write(pte))
- 		return -EINVAL;
- 
- 	maddr = ioremap_prot(phys_addr, PAGE_ALIGN(len + offset), prot);
- 	if (!maddr)
- 		return -ENOMEM;
- 
-+	if (follow_pte(vma->vm_mm, addr, &ptep, &ptl))
-+		goto out_unmap;
-+
-+	if (!pte_same(pte, *ptep)) {
-+		pte_unmap_unlock(ptep, ptl);
-+		iounmap(maddr);
-+
-+		goto retry;
-+	}
-+
- 	if (write)
- 		memcpy_toio(maddr + offset, buf, len);
- 	else
- 		memcpy_fromio(buf, maddr + offset, len);
-+	ret = len;
-+	pte_unmap_unlock(ptep, ptl);
-+out_unmap:
- 	iounmap(maddr);
- 
--	return len;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(generic_access_phys);
- #endif
--- 
-2.28.0
+> 
+>> ---
+>>  arch/s390/kvm/kvm-s390.c | 2 +-
+>>  arch/s390/kvm/pv.c       | 3 ++-
+>>  arch/s390/mm/gmap.c      | 2 ++
+>>  3 files changed, 5 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+>> index 6b74b92c1a58..08ea6c4735cd 100644
+>> --- a/arch/s390/kvm/kvm-s390.c
+>> +++ b/arch/s390/kvm/kvm-s390.c
+>> @@ -2312,7 +2312,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
+>>  		struct kvm_s390_pv_unp unp = {};
+>>
+>>  		r = -EINVAL;
+>> -		if (!kvm_s390_pv_is_protected(kvm))
+>> +		if (!kvm_s390_pv_is_protected(kvm) || !mm_is_protected(kvm->mm))
+>>  			break;
+>>
+>>  		r = -EFAULT;
+>> diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
+>> index eb99e2f95ebe..f5847f9dec7c 100644
+>> --- a/arch/s390/kvm/pv.c
+>> +++ b/arch/s390/kvm/pv.c
+>> @@ -208,7 +208,6 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
+>>  		return -EIO;
+>>  	}
+>>  	kvm->arch.gmap->guest_handle = uvcb.guest_handle;
+>> -	atomic_set(&kvm->mm->context.is_protected, 1);
+>>  	return 0;
+>>  }
+>>
+>> @@ -228,6 +227,8 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
+>>  	*rrc = uvcb.header.rrc;
+>>  	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
+>>  		     *rc, *rrc);
+>> +	if (!cc)
+>> +		atomic_set(&kvm->mm->context.is_protected, 1);
+>>  	return cc ? -EINVAL : 0;
+>>  }
+>>
+>> diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+>> index cfb0017f33a7..64795d034926 100644
+>> --- a/arch/s390/mm/gmap.c
+>> +++ b/arch/s390/mm/gmap.c
+>> @@ -2690,6 +2690,8 @@ static const struct mm_walk_ops reset_acc_walk_ops = {
+>>  #include <linux/sched/mm.h>
+>>  void s390_reset_acc(struct mm_struct *mm)
+>>  {
+>> +	if (!mm_is_protected(mm))
+>> +		return;
+>>  	/*
+>>  	 * we might be called during
+>>  	 * reset:                             we walk the pages and clear
+>>
