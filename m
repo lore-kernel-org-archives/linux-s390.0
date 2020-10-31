@@ -1,79 +1,32 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 12/13] media/videbuf1|2: Mark follow_pfn usage as unsafe
-Date: Wed,  7 Oct 2020 18:44:25 +0200
-Message-Id: <20201007164426.1812530-13-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
-References: <20201007164426.1812530-1-daniel.vetter@ffwll.ch>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from smtp.hosts.co.uk ([85.233.160.19]:64548 "EHLO smtp.hosts.co.uk"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726138AbgKAAfM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 31 Oct 2020 20:35:12 -0400
+Subject: Re: [PATCH 01/11] mtd_blkdevs: don't override BLKFLSBUF
+References: <20201031085810.450489-1-hch@lst.de>
+ <20201031085810.450489-2-hch@lst.de>
+From: antlists <antlists@youngman.org.uk>
+Message-ID: <5170a536-09c1-28a7-c2fb-5381598194db@youngman.org.uk>
+Date: Sat, 31 Oct 2020 23:11:14 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201031085810.450489-2-hch@lst.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Pawel Osciak <pawel@osciak.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Tomasz Figa <tfiga@chromium.org>, Laurent Dufour <ldufour@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Daniel Jordan <daniel.m.jordan@oracle.com>, Michel Lespinasse <walken@google.com>
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-The media model assumes that buffers are all preallocated, so that
-when a media pipeline is running we never miss a deadline because the
-buffers aren't allocated or available.
+On 31/10/2020 08:58, Christoph Hellwig wrote:
+> BLKFLSBUF does not actually send a flush command to the device, but
+> teard down buffer cache structures.  Remove the mtd_blkdevs
+   ^^^^^  ?tears?
 
-This means we cannot fix the v4l follow_pfn usage through
-mmu_notifier, without breaking how this all works. The only real fix
-is to deprecate userptr support for VM_IO | VM_PFNMAP mappings and
-tell everyone to cut over to dma-buf memory sharing for zerocopy.
+> implementation and just use the default semantics instead.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
 
-userptr for normal memory will keep working as-is.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Pawel Osciak <pawel@osciak.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Kyungmin Park <kyungmin.park@samsung.com>
-Cc: Tomasz Figa <tfiga@chromium.org>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-Cc: Michel Lespinasse <walken@google.com>
----
- drivers/media/common/videobuf2/frame_vector.c | 2 +-
- drivers/media/v4l2-core/videobuf-dma-contig.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/media/common/videobuf2/frame_vector.c b/drivers/media/common/videobuf2/frame_vector.c
-index b95f4f371681..d56eb6258f09 100644
---- a/drivers/media/common/videobuf2/frame_vector.c
-+++ b/drivers/media/common/videobuf2/frame_vector.c
-@@ -71,7 +71,7 @@ int get_vaddr_frames(unsigned long start, unsigned int nr_frames,
- 		unsigned long *nums = frame_vector_pfns(vec);
- 
- 		while (ret < nr_frames && start + PAGE_SIZE <= vma->vm_end) {
--			err = follow_pfn(vma, start, &nums[ret]);
-+			err = unsafe_follow_pfn(vma, start, &nums[ret]);
- 			if (err) {
- 				if (ret == 0)
- 					ret = err;
-diff --git a/drivers/media/v4l2-core/videobuf-dma-contig.c b/drivers/media/v4l2-core/videobuf-dma-contig.c
-index 52312ce2ba05..821c4a76ab96 100644
---- a/drivers/media/v4l2-core/videobuf-dma-contig.c
-+++ b/drivers/media/v4l2-core/videobuf-dma-contig.c
-@@ -183,7 +183,7 @@ static int videobuf_dma_contig_user_get(struct videobuf_dma_contig_memory *mem,
- 	user_address = untagged_baddr;
- 
- 	while (pages_done < (mem->size >> PAGE_SHIFT)) {
--		ret = follow_pfn(vma, user_address, &this_pfn);
-+		ret = unsafe_follow_pfn(vma, user_address, &this_pfn);
- 		if (ret)
- 			break;
- 
--- 
-2.28.0
+Cheers,
+Wol
