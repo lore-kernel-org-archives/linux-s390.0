@@ -1,119 +1,64 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v4 15/15] PCI: Revoke mappings like devmem
-Date: Mon, 26 Oct 2020 11:58:18 +0100
-Message-Id: <20201026105818.2585306-16-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-References: <20201026105818.2585306-1-daniel.vetter@ffwll.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:56634 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725853AbgJaXjA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 31 Oct 2020 19:39:00 -0400
+Message-ID: <1f0ef4b832c67dcec1bcc793407e62c58a97904e.camel@redhat.com>
+Subject: Re: [PATCH] s390/smp: Move rcu_cpu_starting() earlier
+From: Qian Cai <cai@redhat.com>
+Date: Sat, 31 Oct 2020 19:38:52 -0400
+In-Reply-To: <20201031183725.GA9529@osiris>
+References: <20201028182742.13773-1-cai@redhat.com>
+         <20201031183725.GA9529@osiris>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-s390@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org
+To: Heiko Carstens <hca@linux.ibm.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Since 3234ac664a87 ("/dev/mem: Revoke mappings when a driver claims
-the region") /dev/kmem zaps ptes when the kernel requests exclusive
-acccess to an iomem region. And with CONFIG_IO_STRICT_DEVMEM, this is
-the default for all driver uses.
+On Sat, 2020-10-31 at 19:37 +0100, Heiko Carstens wrote:
+> On Wed, Oct 28, 2020 at 02:27:42PM -0400, Qian Cai wrote:
+> > The call to rcu_cpu_starting() in smp_init_secondary() is not early
+> > enough in the CPU-hotplug onlining process, which results in lockdep
+> > splats as follows:
+> > 
+> >  WARNING: suspicious RCU usage
+> >  -----------------------------
+> >  kernel/locking/lockdep.c:3497 RCU-list traversed in non-reader section!!
+> > 
+> >  other info that might help us debug this:
+> > 
+> >  RCU used illegally from offline CPU!
+> >  rcu_scheduler_active = 1, debug_locks = 1
+> >  no locks held by swapper/1/0.
+> > 
+> >  Call Trace:
+> >  show_stack+0x158/0x1f0
+> >  dump_stack+0x1f2/0x238
+> >  __lock_acquire+0x2640/0x4dd0
+> >  lock_acquire+0x3a8/0xd08
+> >  _raw_spin_lock_irqsave+0xc0/0xf0
+> >  clockevents_register_device+0xa8/0x528
+> >  init_cpu_timer+0x33e/0x468
+> >  smp_init_secondary+0x11a/0x328
+> >  smp_start_secondary+0x82/0x88
+> > 
+> > This is avoided by moving the call to rcu_cpu_starting up near the
+> > beginning of the smp_init_secondary() function. Note that the
+> > raw_smp_processor_id() is required in order to avoid calling into
+> > lockdep before RCU has declared the CPU to be watched for readers.
+> > 
+> > Link: https://lore.kernel.org/lkml/160223032121.7002.1269740091547117869.tip-bot2@tip-bot2/
+> > Signed-off-by: Qian Cai <cai@redhat.com>
+> > ---
+> >  arch/s390/kernel/smp.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> Could you provide the config you used? I'm wondering why I can't
+> reproduce this even though I have lot's of debug options enabled.
+https://cailca.coding.net/public/linux/mm/git/files/master/s390.config
 
-Except there's two more ways to access PCI BARs: sysfs and proc mmap
-support. Let's plug that hole.
-
-For revoke_devmem() to work we need to link our vma into the same
-address_space, with consistent vma->vm_pgoff. ->pgoff is already
-adjusted, because that's how (io_)remap_pfn_range works, but for the
-mapping we need to adjust vma->vm_file->f_mapping. The cleanest way is
-to adjust this at at ->open time:
-
-- for sysfs this is easy, now that binary attributes support this. We
-  just set bin_attr->mapping when mmap is supported
-- for procfs it's a bit more tricky, since procfs pci access has only
-  one file per device, and access to a specific resources first needs
-  to be set up with some ioctl calls. But mmap is only supported for
-  the same resources as sysfs exposes with mmap support, and otherwise
-  rejected, so we can set the mapping unconditionally at open time
-  without harm.
-
-A special consideration is for arch_can_pci_mmap_io() - we need to
-make sure that the ->f_mapping doesn't alias between ioport and iomem
-space. There's only 2 ways in-tree to support mmap of ioports: generic
-pci mmap (ARCH_GENERIC_PCI_MMAP_RESOURCE), and sparc as the single
-architecture hand-rolling. Both approach support ioport mmap through a
-special pfn range and not through magic pte attributes. Aliasing is
-therefore not a problem.
-
-The only difference in access checks left is that sysfs PCI mmap does
-not check for CAP_RAWIO. I'm not really sure whether that should be
-added or not.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
---
-v2:
-- Totally new approach: Adjust filp->f_mapping at open time. Note that
-  this now works on all architectures, not just those support
-  ARCH_GENERIC_PCI_MMAP_RESOURCE
----
- drivers/pci/pci-sysfs.c | 4 ++++
- drivers/pci/proc.c      | 1 +
- 2 files changed, 5 insertions(+)
-
-diff --git a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
-index 6d78df981d41..cee38fcb4a86 100644
---- a/drivers/pci/pci-sysfs.c
-+++ b/drivers/pci/pci-sysfs.c
-@@ -928,6 +928,7 @@ void pci_create_legacy_files(struct pci_bus *b)
- 	b->legacy_io->read = pci_read_legacy_io;
- 	b->legacy_io->write = pci_write_legacy_io;
- 	b->legacy_io->mmap = pci_mmap_legacy_io;
-+	b->legacy_io->mapping = iomem_get_mapping();
- 	pci_adjust_legacy_attr(b, pci_mmap_io);
- 	error = device_create_bin_file(&b->dev, b->legacy_io);
- 	if (error)
-@@ -940,6 +941,7 @@ void pci_create_legacy_files(struct pci_bus *b)
- 	b->legacy_mem->size = 1024*1024;
- 	b->legacy_mem->attr.mode = 0600;
- 	b->legacy_mem->mmap = pci_mmap_legacy_mem;
-+	b->legacy_io->mapping = iomem_get_mapping();
- 	pci_adjust_legacy_attr(b, pci_mmap_mem);
- 	error = device_create_bin_file(&b->dev, b->legacy_mem);
- 	if (error)
-@@ -1155,6 +1157,8 @@ static int pci_create_attr(struct pci_dev *pdev, int num, int write_combine)
- 			res_attr->mmap = pci_mmap_resource_uc;
- 		}
- 	}
-+	if (res_attr->mmap)
-+		res_attr->mapping = iomem_get_mapping();
- 	res_attr->attr.name = res_attr_name;
- 	res_attr->attr.mode = 0600;
- 	res_attr->size = pci_resource_len(pdev, num);
-diff --git a/drivers/pci/proc.c b/drivers/pci/proc.c
-index 3a2f90beb4cb..9bab07302bbf 100644
---- a/drivers/pci/proc.c
-+++ b/drivers/pci/proc.c
-@@ -298,6 +298,7 @@ static int proc_bus_pci_open(struct inode *inode, struct file *file)
- 	fpriv->write_combine = 0;
- 
- 	file->private_data = fpriv;
-+	file->f_mapping = iomem_get_mapping();
- 
- 	return 0;
- }
--- 
-2.28.0
+Essentially, I believe it requires CONFIG_PROVE_RCU_LIST=y. Also, it occurs to
+me that this only starts to happen after the commit mentioned in the above link.
