@@ -1,74 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19216 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387893AbgJBPJl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 2 Oct 2020 11:09:41 -0400
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 1/2] net/smc: send ISM devices with unique chid in CLC proposal
-Date: Fri,  2 Oct 2020 17:09:26 +0200
-Message-Id: <20201002150927.72261-2-kgraul@linux.ibm.com>
-In-Reply-To: <20201002150927.72261-1-kgraul@linux.ibm.com>
-References: <20201002150927.72261-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40068 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726424AbgJaJWW (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 31 Oct 2020 05:22:22 -0400
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 10/11] block: remove set_device_ro
+Date: Sat, 31 Oct 2020 09:58:09 +0100
+Message-Id: <20201031085810.450489-11-hch@lst.de>
+In-Reply-To: <20201031085810.450489-1-hch@lst.de>
+References: <20201031085810.450489-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, heiko.carstens@de.ibm.com, raspl@linux.ibm.com, ubraun@linux.ibm.com
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-When building a CLC proposal message then the list of ISM devices does
-not need to contain multiple devices that have the same chid value,
-all these devices use the same function at the end.
-Improve smc_find_ism_v2_device_clnt() to collect only ISM devices that
-have unique chid values.
+Fold set_device_ro into its only remaining caller.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/smc/af_smc.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ block/genhd.c         | 7 -------
+ block/ioctl.c         | 2 +-
+ include/linux/genhd.h | 1 -
+ 3 files changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e874d0e6267f..670e802a73cb 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -599,6 +599,18 @@ static int smc_find_ism_device(struct smc_sock *smc, struct smc_init_info *ini)
+diff --git a/block/genhd.c b/block/genhd.c
+index 0a273211fec283..a487590b365e89 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -1843,13 +1843,6 @@ static void set_disk_ro_uevent(struct gendisk *gd, int ro)
+ 	kobject_uevent_env(&disk_to_dev(gd)->kobj, KOBJ_CHANGE, envp);
+ }
+ 
+-void set_device_ro(struct block_device *bdev, int flag)
+-{
+-	bdev->bd_part->policy = flag;
+-}
+-
+-EXPORT_SYMBOL(set_device_ro);
+-
+ void set_disk_ro(struct gendisk *disk, int flag)
+ {
+ 	struct disk_part_iter piter;
+diff --git a/block/ioctl.c b/block/ioctl.c
+index 96cb4544736468..04255dc5f3bff3 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -371,7 +371,7 @@ static int blkdev_roset(struct block_device *bdev, fmode_t mode,
+ 		if (ret)
+ 			return ret;
+ 	}
+-	set_device_ro(bdev, n);
++	bdev->bd_part->policy = n;
  	return 0;
  }
  
-+/* is chid unique for the ism devices that are already determined? */
-+static bool smc_find_ism_v2_is_unique_chid(u16 chid, struct smc_init_info *ini,
-+					   int cnt)
-+{
-+	int i = (!ini->ism_dev[0]) ? 1 : 0;
-+
-+	for (; i < cnt; i++)
-+		if (ini->ism_chid[i] == chid)
-+			return false;
-+	return true;
-+}
-+
- /* determine possible V2 ISM devices (either without PNETID or with PNETID plus
-  * PNETID matching net_device)
-  */
-@@ -608,6 +620,7 @@ static int smc_find_ism_v2_device_clnt(struct smc_sock *smc,
- 	int rc = SMC_CLC_DECL_NOSMCDDEV;
- 	struct smcd_dev *smcd;
- 	int i = 1;
-+	u16 chid;
+diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+index 38f23d75701379..f232f26d7c777b 100644
+--- a/include/linux/genhd.h
++++ b/include/linux/genhd.h
+@@ -304,7 +304,6 @@ extern void del_gendisk(struct gendisk *gp);
+ extern struct gendisk *get_gendisk(dev_t dev, int *partno);
+ extern struct block_device *bdget_disk(struct gendisk *disk, int partno);
  
- 	if (smcd_indicated(ini->smc_type_v1))
- 		rc = 0;		/* already initialized for V1 */
-@@ -615,10 +628,13 @@ static int smc_find_ism_v2_device_clnt(struct smc_sock *smc,
- 	list_for_each_entry(smcd, &smcd_dev_list.list, list) {
- 		if (smcd->going_away || smcd == ini->ism_dev[0])
- 			continue;
-+		chid = smc_ism_get_chid(smcd);
-+		if (!smc_find_ism_v2_is_unique_chid(chid, ini, i))
-+			continue;
- 		if (!smc_pnet_is_pnetid_set(smcd->pnetid) ||
- 		    smc_pnet_is_ndev_pnetid(sock_net(&smc->sk), smcd->pnetid)) {
- 			ini->ism_dev[i] = smcd;
--			ini->ism_chid[i] = smc_ism_get_chid(ini->ism_dev[i]);
-+			ini->ism_chid[i] = chid;
- 			ini->is_smcd = true;
- 			rc = 0;
- 			i++;
+-extern void set_device_ro(struct block_device *bdev, int flag);
+ extern void set_disk_ro(struct gendisk *disk, int flag);
+ 
+ static inline int get_disk_ro(struct gendisk *disk)
 -- 
-2.17.1
+2.28.0
