@@ -1,70 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57050 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:15682 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1781103AbgJZOaG (ORCPT
+        by vger.kernel.org with ESMTP id S1725536AbgJaEI7 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 26 Oct 2020 10:30:06 -0400
-Date: Mon, 26 Oct 2020 15:29:56 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-Subject: [GIT PULL] s390 compile fix for 5.10-rc2
-Message-ID: <20201026142956.GA9584@osiris>
+        Sat, 31 Oct 2020 00:08:59 -0400
+Date: Sat, 31 Oct 2020 04:43:29 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v11 01/14] s390/vfio-ap: No need to disable IRQ after
+ queue reset
+Message-ID: <20201031044329.77b5a249.pasic@linux.ibm.com>
+In-Reply-To: <cb40a506-4a17-3562-728c-cbb57cd99817@linux.ibm.com>
+References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+        <20201022171209.19494-2-akrowiak@linux.ibm.com>
+        <20201027074846.30ee0ddc.pasic@linux.ibm.com>
+        <7a2c5930-9c37-8763-7e5d-c08a3638e6a1@linux.ibm.com>
+        <20201030184242.3bceee09.pasic@linux.ibm.com>
+        <cb40a506-4a17-3562-728c-cbb57cd99817@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Joe Perches <joe@perches.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Hi Linus,
+On Fri, 30 Oct 2020 16:37:04 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-please pull a simple fix, so that s390 compiles again after Joe Perches' commit
-33def8498fdd ("treewide: Convert macro and uses of __section(foo) to __section("foo")")
-which went in just before 5.10-rc1.
+> On 10/30/20 1:42 PM, Halil Pasic wrote:
+> > On Thu, 29 Oct 2020 19:29:35 -0400
+> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> >  
+> >>>> @@ -1177,7 +1166,10 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+> >>>>    			 */
+> >>>>    			if (ret)
+> >>>>    				rc = ret;
+> >>>> -			vfio_ap_irq_disable_apqn(AP_MKQID(apid, apqi));
+> >>>> +			q = vfio_ap_get_queue(matrix_mdev,
+> >>>> +					      AP_MKQID(apid, apqi));
+> >>>> +			if (q)
+> >>>> +				vfio_ap_free_aqic_resources(q);  
+> >>> Is it safe to do vfio_ap_free_aqic_resources() at this point? I don't
+> >>> think so. I mean does the current code (and vfio_ap_mdev_reset_queue()
+> >>> in particular guarantee that the reset is actually done when we arrive
+> >>> here)? BTW, I think we have a similar problem with the current code as
+> >>> well.  
+> >> If the return code from the vfio_ap_mdev_reset_queue() function
+> >> is zero, then yes, we are guaranteed the reset was done and the
+> >> queue is empty.  
+> > I've read up on this and I disagree. We should discuss this offline.  
+> 
+> Maybe you are confusing things here; my statement is specific to the return
+> code from the vfio_ap_mdev_reset_queue() function, not the response code
+> from the PQAP(ZAPQ) instruction. The vfio_ap_mdev_reset_queue()
+> function issues the PQAP(ZAPQ) instruction and if the status response code
+> is 0 indicating the reset was successfully initiated, it waits for the
+> queue to empty. When the queue is empty, it returns 0 to indicate
+> the queue is reset. 
+> If the queue does not become empty after a period of 
+> time,
+> it will issue a warning (WARN_ON_ONCE) and return 0. In that case, I suppose
+> there is no guarantee the reset was done, so maybe a change needs to be
+> made there such as a non-zero return code.
+>
 
-Thanks,
-Heiko
+I've overlooked the wait for empty. Maybe that return 0 had a part in
+it. I now remember me insisting on having the wait code added when the
+interrupt support was in the make. Sorry!
 
-The following changes since commit 3650b228f83adda7e5ee532e2b90429c03f7b9ec:
-
-  Linux 5.10-rc1 (2020-10-25 15:14:11 -0700)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.10-2
-
-for you to fetch changes up to 8e90b4b1305a80b1d7712370a163eff269ac1ba2:
-
-  s390: correct __bootdata / __bootdata_preserved macros (2020-10-26 14:18:01 +0100)
-
-----------------------------------------------------------------
-- Fix s390 compile breakage caused by commit 33def8498fdd
-  ("treewide: Convert macro and uses of __section(foo) to __section("foo")")
-
-----------------------------------------------------------------
-Vasily Gorbik (1):
-      s390: correct __bootdata / __bootdata_preserved macros
-
- arch/s390/include/asm/sections.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/s390/include/asm/sections.h b/arch/s390/include/asm/sections.h
-index a996d3990a02..0c2151451ba5 100644
---- a/arch/s390/include/asm/sections.h
-+++ b/arch/s390/include/asm/sections.h
-@@ -26,14 +26,14 @@ static inline int arch_is_kernel_initmem_freed(unsigned long addr)
-  * final .boot.data section, which should be identical in the decompressor and
-  * the decompressed kernel (that is checked during the build).
-  */
--#define __bootdata(var) __section(".boot.data.var") var
-+#define __bootdata(var) __section(".boot.data." #var) var
+If we have given up on out of retries retries, we are in trouble anyway.
  
- /*
-  * .boot.preserved.data is similar to .boot.data, but it is not part of the
-  * .init section and thus will be preserved for later use in the decompressed
-  * kernel.
-  */
--#define __bootdata_preserved(var) __section(".boot.preserved.data.var") var
-+#define __bootdata_preserved(var) __section(".boot.preserved.data." #var) var
- 
- extern unsigned long __sdma, __edma;
- extern unsigned long __stext_dma, __etext_dma;
+> >  
+> >>    The function returns a non-zero return code if
+> >> the reset fails or the queue the reset did not complete within a given
+> >> amount of time, so maybe we shouldn't free AQIC resources when
+> >> we get a non-zero return code from the reset function?
+> >>  
+> > If the queue is gone, or broken, it won't produce interrupts or poke the
+> > notifier bit, and we should clean up the AQIC resources.  
+> 
+> True, which is what the code provided by this patch does; however,
+> the AQIC resources should be cleaned up only if the KVM pointer is
+> not NULL for reasons discussed elsewhere.
+
+Yes, but these should be cleaned up before the KVM pointer becomes
+null. We don't want to keep the page with the notifier byte pinned
+forever, or?
