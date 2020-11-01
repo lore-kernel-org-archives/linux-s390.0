@@ -1,44 +1,72 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19272 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726532AbgKQQPe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 17 Nov 2020 11:15:34 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 0/9] s390/qeth: updates 2020-11-17
-Date: Tue, 17 Nov 2020 17:15:11 +0100
-Message-Id: <20201117161520.1089-1-jwi@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:37840 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726790AbgKARCb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 1 Nov 2020 12:02:31 -0500
+Date: Sun, 1 Nov 2020 19:02:17 +0200
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH 2/4] PM: hibernate: improve robustness of mapping pages
+ in the direct map
+Message-ID: <20201101170217.GD14628@kernel.org>
+References: <20201025101555.3057-1-rppt@kernel.org>
+ <20201025101555.3057-3-rppt@kernel.org>
+ <3b4b2b3559bd3dc68adcddf99415bae57152cb6b.camel@intel.com>
+ <20201029075416.GJ1428094@kernel.org>
+ <604554805defb03d158c09aba4b5cced3416a7fb.camel@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <604554805defb03d158c09aba4b5cced3416a7fb.camel@intel.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
+Cc: "david@redhat.com" <david@redhat.com>, "cl@linux.com" <cl@linux.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org" <peterz@infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "penberg@kernel.org" <penberg@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>, "will@kernel.org" <will@kernel.org>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "kirill@shutemov.name" <kirill@shutemov.name>, "rientjes@google.com" <rientjes@google.com>, "rppt@linux.ibm.com" <rppt@linux.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "hca@linux.ibm.com" <hca@linux.ibm.com>, "bp@alien8.de" <bp@alien8.de>, "pavel@ucw.cz" <pavel@ucw.cz>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "luto@kernel.org" <luto@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "tglx@linutronix.de" <tglx@linutronix.de>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "palmer@dabbelt.com" <palmer@dabbelt.com>, "Brown, Len" <len.brown@intel.com>, "mingo@redhat.com" <mingo@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>
 
-Hi Jakub,
+On Thu, Oct 29, 2020 at 11:19:18PM +0000, Edgecombe, Rick P wrote:
+> On Thu, 2020-10-29 at 09:54 +0200, Mike Rapoport wrote:
+> > __kernel_map_pages() on arm64 will also bail out if rodata_full is
+> > false:
+> > void __kernel_map_pages(struct page *page, int numpages, int enable)
+> > {
+> >         if (!debug_pagealloc_enabled() && !rodata_full)
+> >                 return;
+> > 
+> >         set_memory_valid((unsigned long)page_address(page), numpages,
+> > enable);
+> > }
+> > 
+> > So using set_direct_map() to map back pages removed from the direct
+> > map
+> > with __kernel_map_pages() seems safe to me.
+> 
+> Heh, one of us must have some simple boolean error in our head. I hope
+> its not me! :) I'll try on more time.
 
-please apply the following patch series for qeth to netdev's net-next tree.
+Well, then it's me :)
+You are right, I misread this and I could not understand why
+!rodata_full bothers you.
 
-This brings some cleanups, and a bunch of improvements for our
-.get_link_ksettings() code.
+> __kernel_map_pages() will bail out if rodata_full is false **AND**
+> debug page alloc is off. So it will only bail under conditions where
+> there could be nothing unmapped on the direct map.
+> 
+> Equivalent logic would be:
+> 	if (!(debug_pagealloc_enabled() || rodata_full))
+> 		return;
+> 
+> Or:
+> 	if (debug_pagealloc_enabled() || rodata_full)
+> 		set_memory_valid(blah)
+> 
+> So if either is on, the existing code will try to re-map. But the
+> set_direct_map_()'s will only work if rodata_full is on. So switching
+> hibernate to set_direct_map() will cause the remap to be missed for the
+> debug page alloc case, with !rodata_full.
+> 
+> It also breaks normal debug page alloc usage with !rodata_full for
+> similar reasons after patch 3. The pages would never get unmapped.
 
-Julian Wiedmann (8):
-  s390/qeth: don't call INIT_LIST_HEAD() on iob's list entry
-  s390/qeth: reduce rtnl locking for switchdev events
-  s390/qeth: tolerate error when querying card info
-  s390/qeth: improve QUERY CARD INFO processing
-  s390/qeth: set static link info during initialization
-  s390/qeth: clean up default cases for ethtool link mode
-  s390/qeth: use QUERY OAT for initial link info
-  s390/qeth: improve selection of ethtool link modes
-
-Kaixu Xia (1):
-  s390/qeth: remove useless if/else
-
- drivers/s390/net/qeth_core.h      |  24 ++-
- drivers/s390/net/qeth_core_main.c | 232 ++++++++++++++++++++++++++--
- drivers/s390/net/qeth_core_mpc.h  |  40 ++++-
- drivers/s390/net/qeth_ethtool.c   | 243 +++++++++++-------------------
- drivers/s390/net/qeth_l2_main.c   |  33 ++--
- drivers/s390/net/qeth_l3_main.c   |   5 +-
- 6 files changed, 378 insertions(+), 199 deletions(-)
+I've updated the patches, there should be no regression now.
 
 -- 
-2.17.1
+Sincerely yours,
+Mike.
