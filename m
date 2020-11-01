@@ -1,210 +1,144 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56318 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727012AbgKQQPi (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 17 Nov 2020 11:15:38 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 8/9] s390/qeth: use QUERY OAT for initial link info
-Date: Tue, 17 Nov 2020 17:15:19 +0100
-Message-Id: <20201117161520.1089-9-jwi@linux.ibm.com>
-In-Reply-To: <20201117161520.1089-1-jwi@linux.ibm.com>
-References: <20201117161520.1089-1-jwi@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:41590 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727056AbgKARIj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 1 Nov 2020 12:08:39 -0500
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v3 1/4] mm: introduce debug_pagealloc_map_pages() helper
+Date: Sun,  1 Nov 2020 19:08:12 +0200
+Message-Id: <20201101170815.9795-2-rppt@kernel.org>
+In-Reply-To: <20201101170815.9795-1-rppt@kernel.org>
+References: <20201101170815.9795-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-Improve the initial link info with data obtained from QUERY OAT.
-Doing so _only_ at initialization time avoids
-1. dealing with multi-part replies, and
-2. sifting through all the data that may get returned at runtime.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-This allows us to determine the correct port type for the 1000BT variant
-of recent OSA adapter generations (where the .card_type field in
-QUERY CARD INFO is no longer sufficient).
+When CONFIG_DEBUG_PAGEALLOC is enabled, it unmaps pages from the kernel
+direct mapping after free_pages(). The pages than need to be mapped back
+before they could be used. Theese mapping operations use
+__kernel_map_pages() guarded with with debug_pagealloc_enabled().
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+The only place that calls __kernel_map_pages() without checking whether
+DEBUG_PAGEALLOC is enabled is the hibernation code that presumes
+availability of this function when ARCH_HAS_SET_DIRECT_MAP is set.
+Still, on arm64, __kernel_map_pages() will bail out when DEBUG_PAGEALLOC is
+not enabled but set_direct_map_invalid_noflush() may render some pages not
+present in the direct map and hibernation code won't be able to save such
+pages.
+
+To make page allocation debugging and hibernation interaction more robust,
+the dependency on DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP has to be made
+more explicit.
+
+Start with combining the guard condition and the call to
+__kernel_map_pages() into a single debug_pagealloc_map_pages() function to
+emphasize that __kernel_map_pages() should not be called without
+DEBUG_PAGEALLOC and use this new function to map/unmap pages when page
+allocation debug is enabled.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/s390/net/qeth_core_main.c | 107 ++++++++++++++++++++++++++++++
- drivers/s390/net/qeth_core_mpc.h  |  40 ++++++++++-
- 2 files changed, 145 insertions(+), 2 deletions(-)
+ include/linux/mm.h  | 10 ++++++++++
+ mm/memory_hotplug.c |  3 +--
+ mm/page_alloc.c     |  6 ++----
+ mm/slab.c           |  8 +++-----
+ 4 files changed, 16 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index aac38ade024b..57dad31aab4d 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -4950,6 +4950,86 @@ int qeth_query_card_info(struct qeth_card *card,
- 	return qeth_send_ipa_cmd(card, iob, qeth_query_card_info_cb, link_info);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ef360fe70aaf..1fc0609056dc 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2936,12 +2936,22 @@ kernel_map_pages(struct page *page, int numpages, int enable)
+ {
+ 	__kernel_map_pages(page, numpages, enable);
  }
- 
-+static int qeth_init_link_info_oat_cb(struct qeth_card *card,
-+				      struct qeth_reply *reply_priv,
-+				      unsigned long data)
++
++static inline void debug_pagealloc_map_pages(struct page *page,
++					     int numpages, int enable)
 +{
-+	struct qeth_ipa_cmd *cmd = (struct qeth_ipa_cmd *)data;
-+	struct qeth_link_info *link_info = reply_priv->param;
-+	struct qeth_query_oat_physical_if *phys_if;
-+	struct qeth_query_oat_reply *reply;
-+
-+	if (qeth_setadpparms_inspect_rc(cmd))
-+		return -EIO;
-+
-+	/* Multi-part reply is unexpected, don't bother: */
-+	if (cmd->data.setadapterparms.hdr.used_total > 1)
-+		return -EINVAL;
-+
-+	/* Expect the reply to start with phys_if data: */
-+	reply = &cmd->data.setadapterparms.data.query_oat.reply[0];
-+	if (reply->type != QETH_QOAT_REPLY_TYPE_PHYS_IF ||
-+	    reply->length < sizeof(*reply))
-+		return -EINVAL;
-+
-+	phys_if = &reply->phys_if;
-+
-+	switch (phys_if->speed_duplex) {
-+	case QETH_QOAT_PHYS_SPEED_10M_HALF:
-+		link_info->speed = SPEED_10;
-+		link_info->duplex = DUPLEX_HALF;
-+		break;
-+	case QETH_QOAT_PHYS_SPEED_10M_FULL:
-+		link_info->speed = SPEED_10;
-+		link_info->duplex = DUPLEX_FULL;
-+		break;
-+	case QETH_QOAT_PHYS_SPEED_100M_HALF:
-+		link_info->speed = SPEED_100;
-+		link_info->duplex = DUPLEX_HALF;
-+		break;
-+	case QETH_QOAT_PHYS_SPEED_100M_FULL:
-+		link_info->speed = SPEED_100;
-+		link_info->duplex = DUPLEX_FULL;
-+		break;
-+	case QETH_QOAT_PHYS_SPEED_1000M_HALF:
-+		link_info->speed = SPEED_1000;
-+		link_info->duplex = DUPLEX_HALF;
-+		break;
-+	case QETH_QOAT_PHYS_SPEED_1000M_FULL:
-+		link_info->speed = SPEED_1000;
-+		link_info->duplex = DUPLEX_FULL;
-+		break;
-+	case QETH_QOAT_PHYS_SPEED_10G_FULL:
-+		link_info->speed = SPEED_10000;
-+		link_info->duplex = DUPLEX_FULL;
-+		break;
-+	case QETH_QOAT_PHYS_SPEED_25G_FULL:
-+		link_info->speed = SPEED_25000;
-+		link_info->duplex = DUPLEX_FULL;
-+		break;
-+	case QETH_QOAT_PHYS_SPEED_UNKNOWN:
-+	default:
-+		link_info->speed = SPEED_UNKNOWN;
-+		link_info->duplex = DUPLEX_UNKNOWN;
-+		break;
-+	}
-+
-+	switch (phys_if->media_type) {
-+	case QETH_QOAT_PHYS_MEDIA_COPPER:
-+		link_info->port = PORT_TP;
-+		break;
-+	case QETH_QOAT_PHYS_MEDIA_FIBRE_SHORT:
-+	case QETH_QOAT_PHYS_MEDIA_FIBRE_LONG:
-+		link_info->port = PORT_FIBRE;
-+		break;
-+	default:
-+		link_info->port = PORT_OTHER;
-+		break;
-+	}
-+
-+	return 0;
++	if (debug_pagealloc_enabled_static())
++		__kernel_map_pages(page, numpages, enable);
 +}
 +
- static void qeth_init_link_info(struct qeth_card *card)
+ #ifdef CONFIG_HIBERNATION
+ extern bool kernel_page_present(struct page *page);
+ #endif	/* CONFIG_HIBERNATION */
+ #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable) {}
++static inline void debug_pagealloc_map_pages(struct page *page,
++					     int numpages, int enable) {}
+ #ifdef CONFIG_HIBERNATION
+ static inline bool kernel_page_present(struct page *page) { return true; }
+ #endif	/* CONFIG_HIBERNATION */
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index b44d4c7ba73b..e2b6043a4428 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -614,8 +614,7 @@ void generic_online_page(struct page *page, unsigned int order)
+ 	 * so we should map it first. This is better than introducing a special
+ 	 * case in page freeing fast path.
+ 	 */
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 1);
++	debug_pagealloc_map_pages(page, 1 << order, 1);
+ 	__free_pages_core(page, order);
+ 	totalram_pages_add(1UL << order);
+ #ifdef CONFIG_HIGHMEM
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 23f5066bd4a5..9a66a1ff9193 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1272,8 +1272,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
+ 	 */
+ 	arch_free_page(page, order);
+ 
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 0);
++	debug_pagealloc_map_pages(page, 1 << order, 0);
+ 
+ 	kasan_free_nondeferred_pages(page, order);
+ 
+@@ -2270,8 +2269,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+ 	set_page_refcounted(page);
+ 
+ 	arch_alloc_page(page, order);
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 1);
++	debug_pagealloc_map_pages(page, 1 << order, 1);
+ 	kasan_alloc_pages(page, order);
+ 	kernel_poison_pages(page, 1 << order, 1);
+ 	set_page_owner(page, order, gfp_flags);
+diff --git a/mm/slab.c b/mm/slab.c
+index b1113561b98b..340db0ce74c4 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1431,10 +1431,8 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
+ #ifdef CONFIG_DEBUG_PAGEALLOC
+ static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
  {
- 	card->info.link_info.duplex = DUPLEX_FULL;
-@@ -4984,6 +5064,33 @@ static void qeth_init_link_info(struct qeth_card *card)
- 			card->info.link_info.port = PORT_OTHER;
- 		}
- 	}
-+
-+	/* Get more accurate data via QUERY OAT: */
-+	if (qeth_adp_supported(card, IPA_SETADP_QUERY_OAT)) {
-+		struct qeth_link_info link_info;
-+		struct qeth_cmd_buffer *iob;
-+
-+		iob = qeth_get_adapter_cmd(card, IPA_SETADP_QUERY_OAT,
-+					   SETADP_DATA_SIZEOF(query_oat));
-+		if (iob) {
-+			struct qeth_ipa_cmd *cmd = __ipa_cmd(iob);
-+			struct qeth_query_oat *oat_req;
-+
-+			oat_req = &cmd->data.setadapterparms.data.query_oat;
-+			oat_req->subcmd_code = QETH_QOAT_SCOPE_INTERFACE;
-+
-+			if (!qeth_send_ipa_cmd(card, iob,
-+					       qeth_init_link_info_oat_cb,
-+					       &link_info)) {
-+				if (link_info.speed != SPEED_UNKNOWN)
-+					card->info.link_info.speed = link_info.speed;
-+				if (link_info.duplex != DUPLEX_UNKNOWN)
-+					card->info.link_info.duplex = link_info.duplex;
-+				if (link_info.port != PORT_OTHER)
-+					card->info.link_info.port = link_info.port;
-+			}
-+		}
-+	}
+-	if (!is_debug_pagealloc_cache(cachep))
+-		return;
+-
+-	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
++	debug_pagealloc_map_pages(virt_to_page(objp),
++				  cachep->size / PAGE_SIZE, map);
  }
  
- /**
-diff --git a/drivers/s390/net/qeth_core_mpc.h b/drivers/s390/net/qeth_core_mpc.h
-index 6541bab96822..e4bde7daf083 100644
---- a/drivers/s390/net/qeth_core_mpc.h
-+++ b/drivers/s390/net/qeth_core_mpc.h
-@@ -489,9 +489,45 @@ struct qeth_set_access_ctrl {
- 	__u8 reserved[8];
- } __attribute__((packed));
+ #else
+@@ -2062,7 +2060,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
  
-+#define QETH_QOAT_PHYS_SPEED_UNKNOWN		0x00
-+#define QETH_QOAT_PHYS_SPEED_10M_HALF		0x01
-+#define QETH_QOAT_PHYS_SPEED_10M_FULL		0x02
-+#define QETH_QOAT_PHYS_SPEED_100M_HALF		0x03
-+#define QETH_QOAT_PHYS_SPEED_100M_FULL		0x04
-+#define QETH_QOAT_PHYS_SPEED_1000M_HALF		0x05
-+#define QETH_QOAT_PHYS_SPEED_1000M_FULL		0x06
-+// n/a						0x07
-+#define QETH_QOAT_PHYS_SPEED_10G_FULL		0x08
-+// n/a						0x09
-+#define QETH_QOAT_PHYS_SPEED_25G_FULL		0x0A
-+
-+#define QETH_QOAT_PHYS_MEDIA_COPPER		0x01
-+#define QETH_QOAT_PHYS_MEDIA_FIBRE_SHORT	0x02
-+#define QETH_QOAT_PHYS_MEDIA_FIBRE_LONG		0x04
-+
-+struct qeth_query_oat_physical_if {
-+	u8 res_head[33];
-+	u8 speed_duplex;
-+	u8 media_type;
-+	u8 res_tail[29];
-+};
-+
-+#define QETH_QOAT_REPLY_TYPE_PHYS_IF		0x0004
-+
-+struct qeth_query_oat_reply {
-+	u16 type;
-+	u16 length;
-+	u16 version;
-+	u8 res[10];
-+	struct qeth_query_oat_physical_if phys_if;
-+};
-+
-+#define QETH_QOAT_SCOPE_INTERFACE		0x00000001
-+
- struct qeth_query_oat {
--	__u32 subcmd_code;
--	__u8 reserved[12];
-+	u32 subcmd_code;
-+	u8 reserved[12];
-+	struct qeth_query_oat_reply reply[];
- } __packed;
- 
- struct qeth_qoat_priv {
+ #if DEBUG
+ 	/*
+-	 * If we're going to use the generic kernel_map_pages()
++	 * If we're going to use the generic debug_pagealloc_map_pages()
+ 	 * poisoning, then it's going to smash the contents of
+ 	 * the redzone and userword anyhow, so switch them off.
+ 	 */
 -- 
-2.17.1
+2.28.0
