@@ -1,187 +1,47 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23102 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404091AbgKXRvO (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 12:51:14 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v5 08/14] net/smc: Introduce generic netlink interface for diagnostic purposes
-Date: Tue, 24 Nov 2020 18:50:41 +0100
-Message-Id: <20201124175047.56949-9-kgraul@linux.ibm.com>
-In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
-References: <20201124175047.56949-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46086 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726902AbgKAQp0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 1 Nov 2020 11:45:26 -0500
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F2AC061A49
+        for <linux-s390@vger.kernel.org>; Sun,  1 Nov 2020 08:45:25 -0800 (PST)
+Received: by mail-pf1-x444.google.com with SMTP id 72so2253251pfv.7
+        for <linux-s390@vger.kernel.org>; Sun, 01 Nov 2020 08:45:25 -0800 (PST)
+Subject: Re: [PATCH 02/11] mtip32xx: return -ENOTTY for all unhanled ioctls
+References: <20201031085810.450489-1-hch@lst.de>
+ <20201031085810.450489-3-hch@lst.de>
+ <f128e8bb-7ce4-b8f4-80cb-1afab503887c@kernel.dk>
+ <20201101102735.GA26447@lst.de>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <842f4d23-b8c2-8ade-caf3-50b7cb9542cb@kernel.dk>
+Date: Sun, 1 Nov 2020 09:45:21 -0700
+MIME-Version: 1.0
+In-Reply-To: <20201101102735.GA26447@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+On 11/1/20 3:27 AM, Christoph Hellwig wrote:
+> On Sat, Oct 31, 2020 at 08:58:52AM -0600, Jens Axboe wrote:
+>> On 10/31/20 2:58 AM, Christoph Hellwig wrote:
+>>> -ENOTTY is the convention for "driver does not support this ioctl".
+>>> Use it properly in mtip32xx instead of the bogys -EINVAL.
+>>
+>> While that's certainly true, there is a risk in making a change like this
+>> years after the fact. Not that I expect there are any mtip32xx users
+>> left at this point, but...
+> 
+> -ENOTTY is what most drivers return.  That being said we can keep the
+> old behavior, so if you prepfer that I can respin to do that.
 
-Introduce generic netlink interface infrastructure to expose
-the diagnostic information regarding smc linkgroups, links and devices.
+Yeah I know that -ENOTTY is what they all should use (and most of course
+does), just saying that this change carries some risk. Given that
+mtip32xx can probably be retired in the not-too-distant future, I say we
+just keep the -EINVAL here.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- include/uapi/linux/smc.h | 11 +++++++++
- net/smc/Makefile         |  2 +-
- net/smc/af_smc.c         |  4 ++++
- net/smc/smc_netlink.c    | 51 ++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_netlink.h    | 23 ++++++++++++++++++
- 5 files changed, 90 insertions(+), 1 deletion(-)
- create mode 100644 net/smc/smc_netlink.c
- create mode 100644 net/smc/smc_netlink.h
-
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 0e11ca421ca4..b604d64542e8 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -33,4 +33,15 @@ enum {				/* SMC PNET Table commands */
- #define SMCR_GENL_FAMILY_NAME		"SMC_PNETID"
- #define SMCR_GENL_FAMILY_VERSION	1
- 
-+/* gennetlink interface to access non-socket information from SMC module */
-+#define SMC_GENL_FAMILY_NAME		"SMC_GEN_NETLINK"
-+#define SMC_GENL_FAMILY_VERSION		1
-+
-+/* SMC_GENL_FAMILY top level attributes */
-+enum {
-+	SMC_GEN_UNSPEC,
-+	__SMC_GEN_MAX,
-+	SMC_GEN_MAX = __SMC_GEN_MAX - 1
-+};
-+
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/Makefile b/net/smc/Makefile
-index cb1254541f37..77e54fe42b1c 100644
---- a/net/smc/Makefile
-+++ b/net/smc/Makefile
-@@ -2,4 +2,4 @@
- obj-$(CONFIG_SMC)	+= smc.o
- obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
- smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
--smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o
-+smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index f79b59a972f0..7a76bdab5a28 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -45,6 +45,7 @@
- #include "smc_ib.h"
- #include "smc_ism.h"
- #include "smc_pnet.h"
-+#include "smc_netlink.h"
- #include "smc_tx.h"
- #include "smc_rx.h"
- #include "smc_close.h"
-@@ -2494,6 +2495,7 @@ static int __init smc_init(void)
- 
- 	smc_ism_init();
- 	smc_clc_init();
-+	smc_nl_init();
- 
- 	rc = smc_pnet_init();
- 	if (rc)
-@@ -2570,6 +2572,7 @@ static int __init smc_init(void)
- out_pnet:
- 	smc_pnet_exit();
- out_pernet_subsys:
-+	smc_nl_exit();
- 	unregister_pernet_subsys(&smc_net_ops);
- 
- 	return rc;
-@@ -2586,6 +2589,7 @@ static void __exit smc_exit(void)
- 	proto_unregister(&smc_proto6);
- 	proto_unregister(&smc_proto);
- 	smc_pnet_exit();
-+	smc_nl_exit();
- 	unregister_pernet_subsys(&smc_net_ops);
- 	rcu_barrier();
- }
-diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-new file mode 100644
-index 000000000000..4295723e7843
---- /dev/null
-+++ b/net/smc/smc_netlink.c
-@@ -0,0 +1,51 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ *  Shared Memory Communications over RDMA (SMC-R) and RoCE
-+ *
-+ *  Generic netlink support functions to interact with SMC module
-+ *
-+ *  Copyright IBM Corp. 2020
-+ *
-+ *  Author(s):	Guvenc Gulce <guvenc@linux.ibm.com>
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/list.h>
-+#include <linux/ctype.h>
-+#include <linux/mutex.h>
-+#include <linux/if.h>
-+#include <linux/smc.h>
-+
-+#include "smc_core.h"
-+#include "smc_netlink.h"
-+
-+static const struct nla_policy smc_gen_nl_policy[SMC_GEN_MAX + 1] = {
-+	[SMC_GEN_UNSPEC]	= { .type = NLA_UNSPEC, },
-+};
-+
-+/* SMC_GENL generic netlink operation definition */
-+static const struct genl_ops smc_gen_nl_ops[] = {
-+};
-+
-+/* SMC_GENL family definition */
-+struct genl_family smc_gen_nl_family __ro_after_init = {
-+	.hdrsize = 0,
-+	.name = SMC_GENL_FAMILY_NAME,
-+	.version = SMC_GENL_FAMILY_VERSION,
-+	.maxattr = SMC_GEN_MAX,
-+	.policy = smc_gen_nl_policy,
-+	.netnsok = true,
-+	.module = THIS_MODULE,
-+	.ops = smc_gen_nl_ops,
-+	.n_ops =  ARRAY_SIZE(smc_gen_nl_ops)
-+};
-+
-+int __init smc_nl_init(void)
-+{
-+	return genl_register_family(&smc_gen_nl_family);
-+}
-+
-+void smc_nl_exit(void)
-+{
-+	genl_unregister_family(&smc_gen_nl_family);
-+}
-diff --git a/net/smc/smc_netlink.h b/net/smc/smc_netlink.h
-new file mode 100644
-index 000000000000..0c757232c0d0
---- /dev/null
-+++ b/net/smc/smc_netlink.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Shared Memory Communications over RDMA (SMC-R) and RoCE
-+ *
-+ *  SMC Generic netlink operations
-+ *
-+ *  Copyright IBM Corp. 2020
-+ *
-+ *  Author(s):	Guvenc Gulce <guvenc@linux.ibm.com>
-+ */
-+
-+#ifndef _SMC_NETLINK_H
-+#define _SMC_NETLINK_H
-+
-+#include <net/netlink.h>
-+#include <net/genetlink.h>
-+
-+extern struct genl_family smc_gen_nl_family;
-+
-+int smc_nl_init(void) __init;
-+void smc_nl_exit(void);
-+
-+#endif
 -- 
-2.17.1
+Jens Axboe
