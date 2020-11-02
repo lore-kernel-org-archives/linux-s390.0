@@ -1,91 +1,115 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 17 Nov 2020 19:21:58 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.10-rc5
-Message-ID: <20201117182158.GA4746@osiris>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37314 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725766AbgKBV5S (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 16:57:18 -0500
+Subject: Re: [PATCH v11 02/14] 390/vfio-ap: use new AP bus interface to search
+ for queue devices
+References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
+ <20201022171209.19494-3-akrowiak@linux.ibm.com>
+ <20201027080158.0a4fa6b2.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <c81abca5-9831-0e50-fb29-00e841c843d8@linux.ibm.com>
+Date: Mon, 2 Nov 2020 16:57:08 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <20201027080158.0a4fa6b2.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Hi Linus,
 
-please pull some small s390 updates for 5.10-rc5.
 
-Thanks,
-Heiko
+On 10/27/20 3:01 AM, Halil Pasic wrote:
+> On Thu, 22 Oct 2020 13:11:57 -0400
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> This patch refactors the vfio_ap device driver to use the AP bus's
+>> ap_get_qdev() function to retrieve the vfio_ap_queue struct containing
+>> information about a queue that is bound to the vfio_ap device driver.
+>> The bus's ap_get_qdev() function retrieves the queue device from a
+>> hashtable keyed by APQN. This is much more efficient than looping over
+>> the list of devices attached to the AP bus by several orders of
+>> magnitude.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 
-The following changes since commit f8394f232b1eab649ce2df5c5f15b0e528c92091:
+Thank you for your review.
 
-  Linux 5.10-rc3 (2020-11-08 16:10:16 -0800)
+>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c | 35 +++++++++++++------------------
+>>   1 file changed, 14 insertions(+), 21 deletions(-)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index c471832f0a30..049b97d7444c 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -26,43 +26,36 @@
+>>   
+>>   static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+>>   
+>> -static int match_apqn(struct device *dev, const void *data)
+>> -{
+>> -	struct vfio_ap_queue *q = dev_get_drvdata(dev);
+>> -
+>> -	return (q->apqn == *(int *)(data)) ? 1 : 0;
+>> -}
+>> -
+>>   /**
+>> - * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
+>> + * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
+>>    * @matrix_mdev: the associated mediated matrix
+>>    * @apqn: The queue APQN
+>>    *
+>> - * Retrieve a queue with a specific APQN from the list of the
+>> - * devices of the vfio_ap_drv.
+>> - * Verify that the APID and the APQI are set in the matrix.
+>> + * Retrieve a queue with a specific APQN from the AP queue devices attached to
+>> + * the AP bus.
+>>    *
+>> - * Returns the pointer to the associated vfio_ap_queue
+>> + * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
+>>    */
+>>   static struct vfio_ap_queue *vfio_ap_get_queue(
+>>   					struct ap_matrix_mdev *matrix_mdev,
+>> -					int apqn)
+>> +					unsigned long apqn)
+>>   {
+>> -	struct vfio_ap_queue *q;
+>> -	struct device *dev;
+>> +	struct ap_queue *queue;
+>> +	struct vfio_ap_queue *q = NULL;
+>>   
+>>   	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
+>>   		return NULL;
+>>   	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
+>>   		return NULL;
+>>   
+>> -	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+>> -				 &apqn, match_apqn);
+>> -	if (!dev)
+>> +	queue = ap_get_qdev(apqn);
+>> +	if (!queue)
+>>   		return NULL;
+>> -	q = dev_get_drvdata(dev);
+>> -	q->matrix_mdev = matrix_mdev;
+>> -	put_device(dev);
+>> +
+>> +	if (queue->ap_dev.device.driver == &matrix_dev->vfio_ap_drv->driver)
+>> +		q = dev_get_drvdata(&queue->ap_dev.device);
+>> +
+> Needs to be called with the vfio_ap lock held, right? Otherwise the queue could
+> get unbound while we are working with it as a vfio_ap_queue... Noting
+> new, but might we worth documenting.
 
-are available in the Git repository at:
+This is always called with the vfio_ap lock held.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.10-4
-
-for you to fetch changes up to 78d732e1f326f74f240d416af9484928303d9951:
-
-  s390/cpum_sf.c: fix file permission for cpum_sfb_size (2020-11-12 12:10:36 +0100)
-
-----------------------------------------------------------------
-- fix system call exit path; avoid return to user space with
-  any TIF/CIF/PIF set
-
-- fix file permission for cpum_sfb_size parameter
-
-- another small defconfig update
-
-----------------------------------------------------------------
-Heiko Carstens (2):
-      s390: fix system call exit path
-      s390: update defconfigs
-
-Thomas Richter (1):
-      s390/cpum_sf.c: fix file permission for cpum_sfb_size
-
- arch/s390/configs/debug_defconfig | 1 +
- arch/s390/kernel/entry.S          | 2 ++
- arch/s390/kernel/perf_cpum_sf.c   | 2 +-
- 3 files changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
-index a4d3c578fbd8..fe6f529ac82c 100644
---- a/arch/s390/configs/debug_defconfig
-+++ b/arch/s390/configs/debug_defconfig
-@@ -1,3 +1,4 @@
-+CONFIG_UAPI_HEADER_TEST=y
- CONFIG_SYSVIPC=y
- CONFIG_POSIX_MQUEUE=y
- CONFIG_WATCH_QUEUE=y
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 86235919c2d1..5346545b9860 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -422,6 +422,7 @@ ENTRY(system_call)
- #endif
- 	LOCKDEP_SYS_EXIT
- .Lsysc_tif:
-+	DISABLE_INTS
- 	TSTMSK	__PT_FLAGS(%r11),_PIF_WORK
- 	jnz	.Lsysc_work
- 	TSTMSK	__TI_flags(%r12),_TIF_WORK
-@@ -444,6 +445,7 @@ ENTRY(system_call)
- # One of the work bits is on. Find out which one.
- #
- .Lsysc_work:
-+	ENABLE_INTS
- 	TSTMSK	__TI_flags(%r12),_TIF_NEED_RESCHED
- 	jo	.Lsysc_reschedule
- 	TSTMSK	__PT_FLAGS(%r11),_PIF_SYSCALL_RESTART
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 4f9e4626df55..f100c9209743 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -2228,4 +2228,4 @@ static int __init init_cpum_sampling_pmu(void)
- }
- 
- arch_initcall(init_cpum_sampling_pmu);
--core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0640);
-+core_param(cpum_sfb_size, CPUM_SF_MAX_SDB, sfb_size, 0644);
+>
+>> +	put_device(&queue->ap_dev.device);
+>>   
+>>   	return q;
+>>   }
