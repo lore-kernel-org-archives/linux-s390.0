@@ -1,72 +1,111 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:1682 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730083AbgKIPSY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:18:24 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v4 00/15] net/smc: extend diagnostic netlink interface
-Date: Mon,  9 Nov 2020 16:17:59 +0100
-Message-Id: <20201109151814.15040-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728288AbgKBLaK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 06:30:10 -0500
+MIME-Version: 1.0
+References: <20201031085810.450489-1-hch@lst.de> <20201031085810.450489-6-hch@lst.de>
+In-Reply-To: <20201031085810.450489-6-hch@lst.de>
+From: Ilya Dryomov <idryomov@gmail.com>
+Date: Mon, 2 Nov 2020 12:30:05 +0100
+Message-ID: <CAOi1vP_-GydZpwuR2DWpNmz2N2Wf7MHDbXudLB=t5xuEEq3Y=w@mail.gmail.com>
+Subject: Re: [PATCH 05/11] rbd: implement ->set_read_only to hook into
+ BLKROSET processing
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block <linux-block@vger.kernel.org>, Ceph Development <ceph-devel@vger.kernel.org>, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-Please apply the following patch series for smc to netdev's net-next tree.
+On Sat, Oct 31, 2020 at 10:11 AM Christoph Hellwig <hch@lst.de> wrote:
+>
+> Implement the ->set_read_only method instead of parsing the actual
+> ioctl command.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/block/rbd.c | 41 ++++-------------------------------------
+>  1 file changed, 4 insertions(+), 37 deletions(-)
+>
+> diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
+> index f84128abade319..37f8fc28004acb 100644
+> --- a/drivers/block/rbd.c
+> +++ b/drivers/block/rbd.c
+> @@ -692,12 +692,9 @@ static void rbd_release(struct gendisk *disk, fmode_t mode)
+>         put_device(&rbd_dev->dev);
+>  }
+>
+> -static int rbd_ioctl_set_ro(struct rbd_device *rbd_dev, unsigned long arg)
+> +static int rbd_set_read_only(struct block_device *bdev, bool ro)
+>  {
+> -       int ro;
+> -
+> -       if (get_user(ro, (int __user *)arg))
+> -               return -EFAULT;
+> +       struct rbd_device *rbd_dev = bdev->bd_disk->private_data;
+>
+>         /*
+>          * Both images mapped read-only and snapshots can't be marked
+> @@ -706,47 +703,17 @@ static int rbd_ioctl_set_ro(struct rbd_device *rbd_dev, unsigned long arg)
+>         if (!ro) {
+>                 if (rbd_is_ro(rbd_dev))
+>                         return -EROFS;
+> -
+>                 rbd_assert(!rbd_is_snap(rbd_dev));
 
-This patch series refactors the current netlink API in smc_diag module
-which is used for diagnostic purposes and extends the netlink API in a
-backward compatible way so that the extended API can provide information
-about SMC linkgroups, links and devices (both for SMC-R and SMC-D) and
-can still work with the legacy netlink API.
+If you repost, please leave this empty line.
 
-Please note that patch 9 triggers a checkpatch warning because a comment
-line was added using the style of the already existing comment block.
+>         }
+>
+> -       /* Let blkdev_roset() handle it */
+> -       return -ENOTTY;
+> -}
+> -
+> -static int rbd_ioctl(struct block_device *bdev, fmode_t mode,
+> -                       unsigned int cmd, unsigned long arg)
+> -{
+> -       struct rbd_device *rbd_dev = bdev->bd_disk->private_data;
+> -       int ret;
+> -
+> -       switch (cmd) {
+> -       case BLKROSET:
+> -               ret = rbd_ioctl_set_ro(rbd_dev, arg);
+> -               break;
+> -       default:
+> -               ret = -ENOTTY;
+> -       }
+> -
+> -       return ret;
+> -}
+> -
+> -#ifdef CONFIG_COMPAT
+> -static int rbd_compat_ioctl(struct block_device *bdev, fmode_t mode,
+> -                               unsigned int cmd, unsigned long arg)
+> -{
+> -       return rbd_ioctl(bdev, mode, cmd, arg);
+> +       return 0;
+>  }
+> -#endif /* CONFIG_COMPAT */
+>
+>  static const struct block_device_operations rbd_bd_ops = {
+>         .owner                  = THIS_MODULE,
+>         .open                   = rbd_open,
+>         .release                = rbd_release,
+> -       .ioctl                  = rbd_ioctl,
+> -#ifdef CONFIG_COMPAT
+> -       .compat_ioctl           = rbd_compat_ioctl,
+> -#endif
+> +       .set_read_only          = rbd_set_read_only,
+>  };
+>
+>  /*
+> --
+> 2.28.0
+>
 
-v2: In patch 10, add missing include to uapi header smc_diag.h.
+With that nit,
 
-v3: Apply code style recommendations from review comments.
-    Instead of using EXPORTs to allow the smc_diag module to access
-    data of the smc module, introduce struct smc_diag_ops and let
-    smc_diag access the required data using function pointers.
+Acked-by: Ilya Dryomov <idryomov@gmail.com>
 
-v4: Address checkpatch.pl warnings. Do not use static inline for
-    functions.
+Thanks,
 
-Guvenc Gulce (14):
-  net/smc: Use active link of the connection
-  net/smc: Add connection counters for links
-  net/smc: Add link counters for IB device ports
-  net/smc: Add diagnostic information to smc ib-device
-  net/smc: Add diagnostic information to link structure
-  net/smc: Refactor the netlink reply processing routine
-  net/smc: Add ability to work with extended SMC netlink API
-  net/smc: Introduce SMCR get linkgroup command
-  net/smc: Introduce SMCR get link command
-  net/smc: Add SMC-D Linkgroup diagnostic support
-  net/smc: Add support for obtaining SMCD device list
-  net/smc: Add support for obtaining SMCR device list
-  net/smc: Refactor smc ism v2 capability handling
-  net/smc: Add support for obtaining system information
-
-Karsten Graul (1):
-  net/smc: use helper smc_conn_abort() in listen processing
-
- include/net/smc.h             |   2 +-
- include/uapi/linux/smc.h      |   8 +
- include/uapi/linux/smc_diag.h | 108 +++++
- net/smc/af_smc.c              |  29 +-
- net/smc/smc.h                 |   4 +-
- net/smc/smc_clc.c             |   5 +
- net/smc/smc_clc.h             |   1 +
- net/smc/smc_core.c            |  72 +++-
- net/smc/smc_core.h            |  26 +-
- net/smc/smc_diag.c            | 788 ++++++++++++++++++++++++++++++----
- net/smc/smc_ib.c              |  45 ++
- net/smc/smc_ib.h              |   5 +-
- net/smc/smc_ism.c             |   8 +-
- net/smc/smc_ism.h             |   5 +-
- net/smc/smc_pnet.c            |   3 +
- 15 files changed, 986 insertions(+), 123 deletions(-)
-
--- 
-2.17.1
+                Ilya
