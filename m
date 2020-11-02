@@ -1,188 +1,211 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13974 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732911AbgKXVkg (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 16:40:36 -0500
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v12 01/17] s390/vfio-ap: move probe and remove callbacks to vfio_ap_ops.c
-Date: Tue, 24 Nov 2020 16:40:00 -0500
-Message-Id: <20201124214016.3013-2-akrowiak@linux.ibm.com>
-In-Reply-To: <20201124214016.3013-1-akrowiak@linux.ibm.com>
-References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 15/15] net/smc: Add support for obtaining system information
+Date: Mon,  2 Nov 2020 20:34:09 +0100
+Message-Id: <20201102193409.70901-16-kgraul@linux.ibm.com>
+In-Reply-To: <20201102193409.70901-1-kgraul@linux.ibm.com>
+References: <20201102193409.70901-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-Let's move the probe and remove callbacks into the vfio_ap_ops.c
-file to keep all code related to managing queues in a single file. This
-way, all functions related to queue management can be removed from the
-vfio_ap_private.h header file defining the public interfaces for the
-vfio_ap device driver.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Add new netlink command to obtain system information
+of the smc module.
+
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     | 45 ++-----------------------
- drivers/s390/crypto/vfio_ap_ops.c     | 47 +++++++++++++++++++++++++--
- drivers/s390/crypto/vfio_ap_private.h |  7 ++--
- 3 files changed, 50 insertions(+), 49 deletions(-)
+ include/uapi/linux/smc.h      |  1 +
+ include/uapi/linux/smc_diag.h | 18 ++++++++++
+ net/smc/smc_clc.c             |  6 ++++
+ net/smc/smc_clc.h             |  1 +
+ net/smc/smc_diag.c            | 62 +++++++++++++++++++++++++++++++++++
+ net/smc/smc_ism.c             |  1 +
+ 6 files changed, 89 insertions(+)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index be2520cc010b..73bd073fd5d3 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -43,47 +43,6 @@ static struct ap_device_id ap_queue_ids[] = {
- 
- MODULE_DEVICE_TABLE(vfio_ap, ap_queue_ids);
- 
--/**
-- * vfio_ap_queue_dev_probe:
-- *
-- * Allocate a vfio_ap_queue structure and associate it
-- * with the device as driver_data.
-- */
--static int vfio_ap_queue_dev_probe(struct ap_device *apdev)
--{
--	struct vfio_ap_queue *q;
--
--	q = kzalloc(sizeof(*q), GFP_KERNEL);
--	if (!q)
--		return -ENOMEM;
--	dev_set_drvdata(&apdev->device, q);
--	q->apqn = to_ap_queue(&apdev->device)->qid;
--	q->saved_isc = VFIO_AP_ISC_INVALID;
--	return 0;
--}
--
--/**
-- * vfio_ap_queue_dev_remove:
-- *
-- * Takes the matrix lock to avoid actions on this device while removing
-- * Free the associated vfio_ap_queue structure
-- */
--static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
--{
--	struct vfio_ap_queue *q;
--	int apid, apqi;
--
--	mutex_lock(&matrix_dev->lock);
--	q = dev_get_drvdata(&apdev->device);
--	dev_set_drvdata(&apdev->device, NULL);
--	apid = AP_QID_CARD(q->apqn);
--	apqi = AP_QID_QUEUE(q->apqn);
--	vfio_ap_mdev_reset_queue(apid, apqi, 1);
--	vfio_ap_irq_disable(q);
--	kfree(q);
--	mutex_unlock(&matrix_dev->lock);
--}
--
- static void vfio_ap_matrix_dev_release(struct device *dev)
- {
- 	struct ap_matrix_dev *matrix_dev = dev_get_drvdata(dev);
-@@ -186,8 +145,8 @@ static int __init vfio_ap_init(void)
- 		return ret;
- 
- 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
--	vfio_ap_drv.probe = vfio_ap_queue_dev_probe;
--	vfio_ap_drv.remove = vfio_ap_queue_dev_remove;
-+	vfio_ap_drv.probe = vfio_ap_mdev_probe_queue;
-+	vfio_ap_drv.remove = vfio_ap_mdev_remove_queue;
- 	vfio_ap_drv.ids = ap_queue_ids;
- 
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e0bde8518745..66fd9784a156 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -144,7 +144,7 @@ static void vfio_ap_free_aqic_resources(struct vfio_ap_queue *q)
-  * Returns if ap_aqic function failed with invalid, deconfigured or
-  * checkstopped AP.
-  */
--struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
-+static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
- {
- 	struct ap_qirq_ctrl aqic_gisa = {};
- 	struct ap_queue_status status;
-@@ -1128,8 +1128,8 @@ static void vfio_ap_irq_disable_apqn(int apqn)
- 	}
- }
- 
--int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
--			     unsigned int retry)
-+static int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
-+				    unsigned int retry)
- {
- 	struct ap_queue_status status;
- 	int retry2 = 2;
-@@ -1302,3 +1302,44 @@ void vfio_ap_mdev_unregister(void)
- {
- 	mdev_unregister_device(&matrix_dev->device);
- }
-+
-+/**
-+ * vfio_ap_mdev_probe_queue:
-+ *
-+ * Allocate a vfio_ap_queue structure and associate it
-+ * with the device as driver_data.
-+ */
-+int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
-+{
-+	struct vfio_ap_queue *q;
-+
-+	q = kzalloc(sizeof(*q), GFP_KERNEL);
-+	if (!q)
-+		return -ENOMEM;
-+	dev_set_drvdata(&apdev->device, q);
-+	q->apqn = to_ap_queue(&apdev->device)->qid;
-+	q->saved_isc = VFIO_AP_ISC_INVALID;
-+	return 0;
-+}
-+
-+/**
-+ * vfio_ap_mdev_remove_queue:
-+ *
-+ * Takes the matrix lock to avoid actions on this device while removing
-+ * Free the associated vfio_ap_queue structure
-+ */
-+void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
-+{
-+	struct vfio_ap_queue *q;
-+	int apid, apqi;
-+
-+	mutex_lock(&matrix_dev->lock);
-+	q = dev_get_drvdata(&apdev->device);
-+	dev_set_drvdata(&apdev->device, NULL);
-+	apid = AP_QID_CARD(q->apqn);
-+	apqi = AP_QID_QUEUE(q->apqn);
-+	vfio_ap_mdev_reset_queue(apid, apqi, 1);
-+	vfio_ap_irq_disable(q);
-+	kfree(q);
-+	mutex_unlock(&matrix_dev->lock);
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index f46dde56b464..d9003de4fbad 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -90,8 +90,6 @@ struct ap_matrix_mdev {
- 
- extern int vfio_ap_mdev_register(void);
- extern void vfio_ap_mdev_unregister(void);
--int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
--			     unsigned int retry);
- 
- struct vfio_ap_queue {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -100,5 +98,8 @@ struct vfio_ap_queue {
- #define VFIO_AP_ISC_INVALID 0xff
- 	unsigned char saved_isc;
+diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+index 736e8b98c8a5..04385a98037a 100644
+--- a/include/uapi/linux/smc.h
++++ b/include/uapi/linux/smc.h
+@@ -38,6 +38,7 @@ enum {				/* SMC PNET Table commands */
+ #define SMC_LGR_ID_SIZE			4
+ #define SMC_MAX_HOSTNAME_LEN		32 /* Max length of hostname */
+ #define SMC_MAX_EID_LEN			32 /* Max length of eid */
++#define SMC_MAX_EID			8 /* Max number of eids */
+ #define SMC_MAX_PORTS			2 /* Max # of ports per ib device */
+ #define SMC_PCI_ID_STR_LEN		16 /* Max length of pci id string */
+ #endif /* _UAPI_LINUX_SMC_H */
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index 84c8dfc76080..e1ebeddfb3d7 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -74,6 +74,7 @@ enum {
+ enum {
+ 	SMC_DIAG_GET_LGR_INFO = SMC_DIAG_EXTS_PER_CMD,
+ 	SMC_DIAG_GET_DEV_INFO,
++	SMC_DIAG_GET_SYS_INFO,
+ 	__SMC_DIAG_EXT_MAX,
  };
--struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
+ 
+@@ -90,6 +91,11 @@ enum {
+ 	SMC_DIAG_DEV_INFO_SMCR,
+ };
+ 
++/* SMC_DIAG_GET_SYS_INFO command extensions */
++enum {
++	SMC_DIAG_SYS_INFO = 1,
++};
 +
-+int vfio_ap_mdev_probe_queue(struct ap_device *queue);
-+void vfio_ap_mdev_remove_queue(struct ap_device *queue);
+ #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
+ #define SMC_DIAG_EXT_MAX (__SMC_DIAG_EXT_MAX - 1)
+ 
+@@ -130,6 +136,18 @@ struct smc_diag_v2_lgr_info {
+ 	__u8		peer_hostname[SMC_MAX_HOSTNAME_LEN]; /* Peer host */
+ };
+ 
 +
- #endif /* _VFIO_AP_PRIVATE_H_ */
++struct smc_system_info {
++	__u8		smc_version;		/* SMC Version */
++	__u8		smc_release;		/* SMC Release */
++	__u8		ueid_count;		/* Number of UEIDs */
++	__u8		smc_ism_is_v2;		/* Is ISM SMC v2 capable */
++	__u32		reserved;		/* Reserved for future use */
++	__u8		local_hostname[SMC_MAX_HOSTNAME_LEN]; /* Hostnames */
++	__u8		seid[SMC_MAX_EID_LEN];	/* System EID */
++	__u8		ueid[SMC_MAX_EID][SMC_MAX_EID_LEN]; /* User EIDs */
++};
++
+ /* SMC_DIAG_LINKINFO */
+ 
+ struct smc_diag_linkinfo {
+diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
+index 696d89c2dce4..ca887ee6b249 100644
+--- a/net/smc/smc_clc.c
++++ b/net/smc/smc_clc.c
+@@ -772,6 +772,12 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
+ 	return len > 0 ? 0 : len;
+ }
+ 
++void smc_clc_get_hostname(u8 **host)
++{
++	*host = &smc_hostname[0];
++}
++EXPORT_SYMBOL_GPL(smc_clc_get_hostname);
++
+ void __init smc_clc_init(void)
+ {
+ 	struct new_utsname *u;
+diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
+index e7ab05683bc9..9ed9eb3abe46 100644
+--- a/net/smc/smc_clc.h
++++ b/net/smc/smc_clc.h
+@@ -334,5 +334,6 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
+ int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact,
+ 			u8 version);
+ void smc_clc_init(void) __init;
++void smc_clc_get_hostname(u8 **host);
+ 
+ #endif
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 58bfbe0bef4d..a69a401329ab 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -23,6 +23,7 @@
+ #include "smc_ib.h"
+ #include "smc_ism.h"
+ #include "smc_core.h"
++#include "smc_clc.h"
+ 
+ struct smc_diag_dump_ctx {
+ 	int pos[2];
+@@ -650,6 +651,63 @@ static int smc_diag_prep_smcr_dev(struct smc_ib_devices *dev_list,
+ 	return rc;
+ }
+ 
++static int smc_diag_prep_sys_info(struct smcd_dev_list *dev_list,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
++	struct smc_system_info smc_sys_info;
++	int dummy = 0, rc = 0, num = 0;
++	struct smcd_dev *smcd_dev;
++	int snum = cb_ctx->pos[0];
++	struct nlmsghdr *nlh;
++	u8 *seid = NULL;
++	u8 *host = NULL;
++
++	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
++			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
++	if (!nlh)
++		return -EMSGSIZE;
++
++	if (snum > num)
++		goto errout;
++
++	memset(&smc_sys_info, 0, sizeof(smc_sys_info));
++	smc_sys_info.smc_ism_is_v2 = smc_ism_is_v2_capable();
++	smc_sys_info.smc_version = SMC_V2;
++	smc_sys_info.smc_release = SMC_RELEASE;
++	smc_clc_get_hostname(&host);
++
++	if (host)
++		memcpy(smc_sys_info.local_hostname, host,
++		       sizeof(smc_sys_info.local_hostname));
++	mutex_lock(&dev_list->mutex);
++	smcd_dev = list_first_entry_or_null(&dev_list->list, struct smcd_dev, list);
++	if (smcd_dev)
++		smc_ism_get_system_eid(smcd_dev, &seid);
++	mutex_unlock(&dev_list->mutex);
++
++	if (seid && smc_sys_info.smc_ism_is_v2)
++		memcpy(smc_sys_info.seid, seid, sizeof(smc_sys_info.seid));
++
++	/* Just a command place holder to signal back the command reply type */
++	if (nla_put(skb, SMC_DIAG_GET_SYS_INFO, sizeof(dummy), &dummy) < 0)
++		goto errout;
++
++	if (nla_put(skb, SMC_DIAG_SYS_INFO,
++		    sizeof(smc_sys_info), &smc_sys_info) < 0)
++		goto errout;
++	nlmsg_end(skb, nlh);
++	num++;
++	cb_ctx->pos[0] = num;
++	return rc;
++
++errout:
++	nlmsg_cancel(skb, nlh);
++	return -EMSGSIZE;
++}
++
+ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 			   struct netlink_callback *cb,
+ 			   const struct smc_diag_req *req)
+@@ -758,6 +816,10 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
+ 		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCR - 1))))
+ 			smc_diag_prep_smcr_dev(&smc_ib_devices, skb, cb,
+ 					       req);
++	} else if (req->cmd == SMC_DIAG_GET_SYS_INFO) {
++		if ((req->cmd_ext & (1 << (SMC_DIAG_SYS_INFO - 1))))
++			smc_diag_prep_sys_info(&smcd_dev_list, skb, cb,
++					       req);
+ 	}
+ 
+ 	return skb->len;
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 2a2571637bc6..c3bcca3ca1aa 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -46,6 +46,7 @@ void smc_ism_get_system_eid(struct smcd_dev *smcd, u8 **eid)
+ {
+ 	smcd->ops->get_system_eid(smcd, eid);
+ }
++EXPORT_SYMBOL_GPL(smc_ism_get_system_eid);
+ 
+ u16 smc_ism_get_chid(struct smcd_dev *smcd)
+ {
 -- 
-2.21.1
+2.17.1
