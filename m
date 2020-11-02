@@ -1,56 +1,70 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: YiFei Zhu <zhuyifei1999@gmail.com>
-Subject: [PATCH seccomp 3/8] powerpc: Enable seccomp architecture tracking
-Date: Tue,  3 Nov 2020 07:42:59 -0600
-Message-Id: <4ec2970fcc819eb4d5dac2bd35233ccdadfda845.1604410035.git.yifeifz2@illinois.edu>
-In-Reply-To: <cover.1604410035.git.yifeifz2@illinois.edu>
-References: <cover.1604410035.git.yifeifz2@illinois.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9704 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725809AbgKBTed (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 14:34:33 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 04/15] net/smc: Add link counters for IB device ports
+Date: Mon,  2 Nov 2020 20:33:58 +0100
+Message-Id: <20201102193409.70901-5-kgraul@linux.ibm.com>
+In-Reply-To: <20201102193409.70901-1-kgraul@linux.ibm.com>
+References: <20201102193409.70901-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: containers@lists.linux-foundation.org
-Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-From: YiFei Zhu <yifeifz2@illinois.edu>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-To enable seccomp constant action bitmaps, we need to have a static
-mapping to the audit architecture and system call table size. Add these
-for powerpc.
+Add link counters to the structure of the smc ib device, one counter per
+ib port. Increase/decrease the counters as needed in the corresponding
+routines.
 
-Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/powerpc/include/asm/seccomp.h | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ net/smc/smc_core.c | 3 +++
+ net/smc/smc_ib.h   | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/seccomp.h b/arch/powerpc/include/asm/seccomp.h
-index 51209f6071c5..3efcc83e9cc6 100644
---- a/arch/powerpc/include/asm/seccomp.h
-+++ b/arch/powerpc/include/asm/seccomp.h
-@@ -8,4 +8,25 @@
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 6e2077161267..da94725deb09 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -316,6 +316,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	lnk->link_idx = link_idx;
+ 	lnk->smcibdev = ini->ib_dev;
+ 	lnk->ibport = ini->ib_port;
++	atomic_inc(&ini->ib_dev->lnk_cnt_by_port[ini->ib_port - 1]);
+ 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
+ 	atomic_set(&lnk->conn_cnt, 0);
+ 	smc_llc_link_set_uid(lnk);
+@@ -360,6 +361,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	smc_llc_link_clear(lnk, false);
+ out:
+ 	put_device(&ini->ib_dev->ibdev->dev);
++	atomic_dec(&ini->ib_dev->lnk_cnt_by_port[ini->ib_port - 1]);
+ 	memset(lnk, 0, sizeof(struct smc_link));
+ 	lnk->state = SMC_LNK_UNUSED;
+ 	if (!atomic_dec_return(&ini->ib_dev->lnk_cnt))
+@@ -750,6 +752,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+ 	smc_ib_dealloc_protection_domain(lnk);
+ 	smc_wr_free_link_mem(lnk);
+ 	put_device(&lnk->smcibdev->ibdev->dev);
++	atomic_dec(&lnk->smcibdev->lnk_cnt_by_port[lnk->ibport - 1]);
+ 	smcibdev = lnk->smcibdev;
+ 	memset(lnk, 0, sizeof(struct smc_link));
+ 	lnk->state = SMC_LNK_UNUSED;
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 2ce481187dd0..3e6bfeddd53b 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -53,6 +53,7 @@ struct smc_ib_device {				/* ib-device infos for smc */
+ 	atomic_t		lnk_cnt;	/* number of links on ibdev */
+ 	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all links*/
+ 	struct mutex		mutex;		/* protect dev setup+cleanup */
++	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];/*#lnk per port*/
+ };
  
- #include <asm-generic/seccomp.h>
- 
-+#ifdef __LITTLE_ENDIAN__
-+#define __SECCOMP_ARCH_LE_BIT		__AUDIT_ARCH_LE
-+#else
-+#define __SECCOMP_ARCH_LE_BIT		0
-+#endif
-+
-+#ifdef CONFIG_PPC64
-+# define SECCOMP_ARCH_NATIVE		(AUDIT_ARCH_PPC64 | __SECCOMP_ARCH_LE)
-+# define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+# define SECCOMP_ARCH_NATIVE_NAME	"ppc64"
-+# ifdef CONFIG_COMPAT
-+#  define SECCOMP_ARCH_COMPAT		(AUDIT_ARCH_PPC | __SECCOMP_ARCH_LE)
-+#  define SECCOMP_ARCH_COMPAT_NR	NR_syscalls
-+#  define SECCOMP_ARCH_COMPAT_NAME	"powerpc"
-+# endif
-+#else /* !CONFIG_PPC64 */
-+# define SECCOMP_ARCH_NATIVE		(AUDIT_ARCH_PPC | __SECCOMP_ARCH_LE)
-+# define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+# define SECCOMP_ARCH_NATIVE_NAME	"powerpc"
-+#endif
-+
- #endif	/* _ASM_POWERPC_SECCOMP_H */
+ struct smc_buf_desc;
 -- 
-2.29.2
+2.17.1
