@@ -1,136 +1,307 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v12 13/17] s390/vfio-ap: hot plug/unplug queues on bind/unbind of queue device
-Date: Tue, 24 Nov 2020 16:40:12 -0500
-Message-Id: <20201124214016.3013-14-akrowiak@linux.ibm.com>
-In-Reply-To: <20201124214016.3013-1-akrowiak@linux.ibm.com>
-References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12320 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726732AbgKBTee (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 14:34:34 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 07/15] net/smc: Refactor the netlink reply processing routine
+Date: Mon,  2 Nov 2020 20:34:01 +0100
+Message-Id: <20201102193409.70901-8-kgraul@linux.ibm.com>
+In-Reply-To: <20201102193409.70901-1-kgraul@linux.ibm.com>
+References: <20201102193409.70901-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>, Tony Krowiak <akrowiak@stny.rr.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-In response to the probe or remove of a queue device, if a KVM guest is
-using the matrix mdev to which the APQN of the queue device is assigned,
-the vfio_ap device driver must respond accordingly. In an ideal world, the
-queue corresponding to the queue device being probed would be hot plugged
-into the guest. Likewise, the queue corresponding to the queue device being
-removed would be hot unplugged. Unfortunately, the AP architecture
-precludes plugging or unplugging individual queues. The queues to which a
-guest is granted access are specified as a matrix of adapter and domain
-numbers. The Cartesian product of the adapter and domain numbers assigned
-to this matrix comprise the AP queue numbers (APQN) to which the guest will
-be granted access; therefore, it becomes obvious that assigning a new
-adapter or domain number to the matrix may result in multiple APQNs
-getting assigned. Likewise, unassigning an adapter or domain number from
-the matrix may result in multiple APQNs getting unassigned. Additionally,
-in order to enforce the linux device model requirement that a pass-through
-device must be bound to the driver facilitating its passthrough, each new
-APQN assigned to the guest's matrix must reference a queue device bound to
-the vfio_ap device driver. The following sections articulate the design
-for this patch.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Probing a queue device:
-----------------------
-The goal here is to assign the APQN of the queue being probed to the
-guest's matrix if possible by adhering to a set of rules:
-* The adapter number (APID) will be assigned to the guest matrix iff:
-  1. The adapter is in the host's AP configuration
-  2. The APID is not yet assigned to the guest's matrix
-  3. Each APQN derived from the APID and the domain numbers (APQI) of
-     domains already assigned to the guest's matrix references a queue
-     device bound to the vfio_ap device driver
-* The domain number (APQI) will be assigned to the guest matrix iff:
-  1. The domain is in the host's AP configuration
-  2. The APQI is not yet assigned to the guest's matrix
-  3. Each APQN derived from the APQI and the APIDs of
-     adapters already assigned to the guest's matrix references a queue
-     device bound to the vfio_ap device driver
+Refactor the netlink reply processing routine so that
+it provides sub functions for specific parts of the processing.
 
-Removing a queue device:
------------------------
-Unassigning the adapter number from the guest's matrix will remove access
-to all domains on the adapter from the guest. Unassigning the domain
-number from the guest's matrix will remove access to that domain on all
-adapters assigned to the guest matrix. If both the adapter and domain are
-unassigned from the guest's matrix, That will reduce access to every
-adapter for the guest. Since an AP adapter card is the actual hardware
-device that gets physically plugged/unplugged, unassigning the adapter
-number from the guest's matrix makes the most sense here.
-
-Signed-off-by: Tony Krowiak <akrowiak@stny.rr.com>
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 37 +++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ net/smc/smc_diag.c | 218 +++++++++++++++++++++++++++------------------
+ 1 file changed, 133 insertions(+), 85 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 4f96b7861607..1179c6af59c6 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1508,6 +1508,23 @@ static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index c2225231f679..44be723c97fe 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -69,35 +69,25 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
  	}
  }
  
-+
-+static void vfio_ap_mdev_hot_plug_queue(struct vfio_ap_queue *q)
-+{
-+	bool hot_plug = false;
-+	unsigned long apid = (unsigned long)AP_QID_CARD(q->apqn);
-+	unsigned long apqi = (unsigned long)AP_QID_QUEUE(q->apqn);
-+
-+	if (q->matrix_mdev == NULL)
-+		return;
-+
-+	hot_plug |= vfio_ap_assign_apid_to_apcb(q->matrix_mdev, apid);
-+	hot_plug |= vfio_ap_assign_apqi_to_apcb(q->matrix_mdev, apqi);
-+
-+	if (hot_plug)
-+		vfio_ap_mdev_commit_shadow_apcb(q->matrix_mdev);
-+}
-+
- /**
-  * vfio_ap_mdev_probe_queue:
-  *
-@@ -1526,11 +1543,30 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
- 	q->apqn = to_ap_queue(&apdev->device)->qid;
- 	q->saved_isc = VFIO_AP_ISC_INVALID;
- 	vfio_ap_queue_link_mdev(q);
-+	vfio_ap_mdev_hot_plug_queue(q);
- 	mutex_unlock(&matrix_dev->lock);
+-static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
+-				   struct smc_diag_msg *r,
+-				   struct user_namespace *user_ns)
++static bool smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
++				    struct smc_diag_msg *r,
++				    struct user_namespace *user_ns)
+ {
+-	if (nla_put_u8(skb, SMC_DIAG_SHUTDOWN, sk->sk_shutdown))
+-		return 1;
++	if (nla_put_u8(skb, SMC_DIAG_SHUTDOWN, sk->sk_shutdown) < 0)
++		return false;
  
- 	return 0;
+ 	r->diag_uid = from_kuid_munged(user_ns, sock_i_uid(sk));
+ 	r->diag_inode = sock_i_ino(sk);
+-	return 0;
++	return true;
  }
  
-+static void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
-+{
-+	unsigned long apid;
-+	unsigned long apqi;
-+
-+	if (q->matrix_mdev == NULL)
-+		return;
-+
-+	apid = AP_QID_CARD(q->apqn);
-+	apqi = AP_QID_QUEUE(q->apqn);
-+
-+	if (test_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm) &&
-+	    test_bit_inv(apqi, q->matrix_mdev->shadow_apcb.aqm)) {
-+		clear_bit_inv(apid, q->matrix_mdev->shadow_apcb.apm);
-+		vfio_ap_mdev_commit_shadow_apcb(q->matrix_mdev);
-+	}
+-static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+-			   struct netlink_callback *cb,
+-			   const struct smc_diag_req *req,
+-			   struct nlattr *bc)
++static bool smc_diag_fill_base_struct(struct sock *sk, struct sk_buff *skb,
++				      struct netlink_callback *cb,
++				      struct smc_diag_msg *r)
+ {
+ 	struct smc_sock *smc = smc_sk(sk);
+-	struct smc_diag_fallback fallback;
+ 	struct user_namespace *user_ns;
+-	struct smc_diag_msg *r;
+-	struct nlmsghdr *nlh;
+ 
+-	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
+-			cb->nlh->nlmsg_type, sizeof(*r), NLM_F_MULTI);
+-	if (!nlh)
+-		return -EMSGSIZE;
+-
+-	r = nlmsg_data(nlh);
+ 	smc_diag_msg_common_fill(r, sk);
+ 	r->diag_state = sk->sk_state;
+ 	if (smc->use_fallback)
+@@ -107,89 +97,148 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 	else
+ 		r->diag_mode = SMC_DIAG_MODE_SMCR;
+ 	user_ns = sk_user_ns(NETLINK_CB(cb->skb).sk);
+-	if (smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
+-		goto errout;
++	if (!smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
++		return false;
+ 
++	return true;
 +}
 +
- /**
-  * vfio_ap_mdev_remove_queue:
-  *
-@@ -1544,6 +1580,7 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
++static bool smc_diag_fill_fallback(struct sock *sk, struct sk_buff *skb)
++{
++	struct smc_diag_fallback fallback;
++	struct smc_sock *smc = smc_sk(sk);
++
++	memset(&fallback, 0, sizeof(fallback));
+ 	fallback.reason = smc->fallback_rsn;
+ 	fallback.peer_diagnosis = smc->peer_diagnosis;
+ 	if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
++		return false;
++
++	return true;
++}
++
++static bool smc_diag_fill_conninfo(struct sock *sk, struct sk_buff *skb)
++{
++	struct smc_host_cdc_msg *local_tx, *local_rx;
++	struct smc_diag_conninfo cinfo;
++	struct smc_connection *conn;
++	struct smc_sock *smc;
++
++	smc = smc_sk(sk);
++	conn = &smc->conn;
++	local_tx = &conn->local_tx_ctrl;
++	local_rx = &conn->local_rx_ctrl;
++	memset(&cinfo, 0, sizeof(cinfo));
++	cinfo.token = conn->alert_token_local;
++	cinfo.sndbuf_size = conn->sndbuf_desc ? conn->sndbuf_desc->len : 0;
++	cinfo.rmbe_size = conn->rmb_desc ? conn->rmb_desc->len : 0;
++	cinfo.peer_rmbe_size = conn->peer_rmbe_size;
++
++	cinfo.rx_prod.wrap = local_rx->prod.wrap;
++	cinfo.rx_prod.count = local_rx->prod.count;
++	cinfo.rx_cons.wrap = local_rx->cons.wrap;
++	cinfo.rx_cons.count = local_rx->cons.count;
++
++	cinfo.tx_prod.wrap = local_tx->prod.wrap;
++	cinfo.tx_prod.count = local_tx->prod.count;
++	cinfo.tx_cons.wrap = local_tx->cons.wrap;
++	cinfo.tx_cons.count = local_tx->cons.count;
++
++	cinfo.tx_prod_flags = *(u8 *)&local_tx->prod_flags;
++	cinfo.tx_conn_state_flags = *(u8 *)&local_tx->conn_state_flags;
++	cinfo.rx_prod_flags = *(u8 *)&local_rx->prod_flags;
++	cinfo.rx_conn_state_flags = *(u8 *)&local_rx->conn_state_flags;
++
++	cinfo.tx_prep.wrap = conn->tx_curs_prep.wrap;
++	cinfo.tx_prep.count = conn->tx_curs_prep.count;
++	cinfo.tx_sent.wrap = conn->tx_curs_sent.wrap;
++	cinfo.tx_sent.count = conn->tx_curs_sent.count;
++	cinfo.tx_fin.wrap = conn->tx_curs_fin.wrap;
++	cinfo.tx_fin.count = conn->tx_curs_fin.count;
++
++	if (nla_put(skb, SMC_DIAG_CONNINFO, sizeof(cinfo), &cinfo) < 0)
++		return false;
++
++	return true;
++}
++
++static bool smc_diag_fill_lgrinfo(struct sock *sk, struct sk_buff *skb)
++{
++	struct smc_sock *smc = smc_sk(sk);
++	struct smc_diag_lgrinfo linfo;
++
++	memset(&linfo, 0, sizeof(linfo));
++	linfo.role = smc->conn.lgr->role;
++	linfo.lnk[0].ibport = smc->conn.lnk->ibport;
++	linfo.lnk[0].link_id = smc->conn.lnk->link_id;
++	memcpy(linfo.lnk[0].ibname, smc->conn.lnk->ibname,
++	       sizeof(linfo.lnk[0].ibname));
++	smc_gid_be16_convert(linfo.lnk[0].gid,
++			     smc->conn.lnk->gid);
++	smc_gid_be16_convert(linfo.lnk[0].peer_gid,
++			     smc->conn.lnk->peer_gid);
++
++	if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
++		return false;
++
++	return true;
++}
++
++static bool smc_diag_fill_dmbinfo(struct sock *sk, struct sk_buff *skb)
++{
++	struct smc_sock *smc = smc_sk(sk);
++	struct smcd_diag_dmbinfo dinfo;
++	struct smc_connection *conn;
++
++	memset(&dinfo, 0, sizeof(dinfo));
++	conn = &smc->conn;
++	dinfo.linkid = *((u32 *)conn->lgr->id);
++	dinfo.peer_gid = conn->lgr->peer_gid;
++	dinfo.my_gid = conn->lgr->smcd->local_gid;
++	dinfo.token = conn->rmb_desc->token;
++	dinfo.peer_token = conn->peer_token;
++
++	if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
++		return false;
++	return true;
++}
++
++static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
++			   struct netlink_callback *cb,
++			   const struct smc_diag_req *req)
++{
++	struct smc_sock *smc = smc_sk(sk);
++	struct smc_diag_msg *r;
++	struct nlmsghdr *nlh;
++
++	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
++			cb->nlh->nlmsg_type, sizeof(*r), NLM_F_MULTI);
++	if (!nlh)
++		return -EMSGSIZE;
++
++	r = nlmsg_data(nlh);
++	if (!smc_diag_fill_base_struct(sk, skb, cb, r))
++		goto errout;
++
++	if (!smc_diag_fill_fallback(sk, skb))
+ 		goto errout;
  
- 	mutex_lock(&matrix_dev->lock);
- 	q = dev_get_drvdata(&apdev->device);
-+	vfio_ap_mdev_hot_unplug_queue(q);
- 	dev_set_drvdata(&apdev->device, NULL);
- 	apid = AP_QID_CARD(q->apqn);
- 	apqi = AP_QID_QUEUE(q->apqn);
+ 	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
+ 	    smc->conn.alert_token_local) {
+-		struct smc_connection *conn = &smc->conn;
+-		struct smc_diag_conninfo cinfo = {
+-			.token = conn->alert_token_local,
+-			.sndbuf_size = conn->sndbuf_desc ?
+-				conn->sndbuf_desc->len : 0,
+-			.rmbe_size = conn->rmb_desc ? conn->rmb_desc->len : 0,
+-			.peer_rmbe_size = conn->peer_rmbe_size,
+-
+-			.rx_prod.wrap = conn->local_rx_ctrl.prod.wrap,
+-			.rx_prod.count = conn->local_rx_ctrl.prod.count,
+-			.rx_cons.wrap = conn->local_rx_ctrl.cons.wrap,
+-			.rx_cons.count = conn->local_rx_ctrl.cons.count,
+-
+-			.tx_prod.wrap = conn->local_tx_ctrl.prod.wrap,
+-			.tx_prod.count = conn->local_tx_ctrl.prod.count,
+-			.tx_cons.wrap = conn->local_tx_ctrl.cons.wrap,
+-			.tx_cons.count = conn->local_tx_ctrl.cons.count,
+-
+-			.tx_prod_flags =
+-				*(u8 *)&conn->local_tx_ctrl.prod_flags,
+-			.tx_conn_state_flags =
+-				*(u8 *)&conn->local_tx_ctrl.conn_state_flags,
+-			.rx_prod_flags = *(u8 *)&conn->local_rx_ctrl.prod_flags,
+-			.rx_conn_state_flags =
+-				*(u8 *)&conn->local_rx_ctrl.conn_state_flags,
+-
+-			.tx_prep.wrap = conn->tx_curs_prep.wrap,
+-			.tx_prep.count = conn->tx_curs_prep.count,
+-			.tx_sent.wrap = conn->tx_curs_sent.wrap,
+-			.tx_sent.count = conn->tx_curs_sent.count,
+-			.tx_fin.wrap = conn->tx_curs_fin.wrap,
+-			.tx_fin.count = conn->tx_curs_fin.count,
+-		};
+-
+-		if (nla_put(skb, SMC_DIAG_CONNINFO, sizeof(cinfo), &cinfo) < 0)
++		if (!smc_diag_fill_conninfo(sk, skb))
+ 			goto errout;
+ 	}
+ 
+ 	if (smc->conn.lgr && !smc->conn.lgr->is_smcd &&
+ 	    (req->diag_ext & (1 << (SMC_DIAG_LGRINFO - 1))) &&
+ 	    !list_empty(&smc->conn.lgr->list)) {
+-		struct smc_diag_lgrinfo linfo = {
+-			.role = smc->conn.lgr->role,
+-			.lnk[0].ibport = smc->conn.lnk->ibport,
+-			.lnk[0].link_id = smc->conn.lnk->link_id,
+-		};
+-
+-		memcpy(linfo.lnk[0].ibname,
+-		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
+-		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
+-		smc_gid_be16_convert(linfo.lnk[0].gid,
+-				     smc->conn.lnk->gid);
+-		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
+-				     smc->conn.lnk->peer_gid);
+-
+-		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
++		if (!smc_diag_fill_lgrinfo(sk, skb))
+ 			goto errout;
+ 	}
+ 	if (smc->conn.lgr && smc->conn.lgr->is_smcd &&
+ 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
+ 	    !list_empty(&smc->conn.lgr->list)) {
+-		struct smc_connection *conn = &smc->conn;
+-		struct smcd_diag_dmbinfo dinfo;
+-
+-		memset(&dinfo, 0, sizeof(dinfo));
+-
+-		dinfo.linkid = *((u32 *)conn->lgr->id);
+-		dinfo.peer_gid = conn->lgr->peer_gid;
+-		dinfo.my_gid = conn->lgr->smcd->local_gid;
+-		dinfo.token = conn->rmb_desc->token;
+-		dinfo.peer_token = conn->peer_token;
+-
+-		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
++		if (!smc_diag_fill_dmbinfo(sk, skb))
+ 			goto errout;
+ 	}
+ 
+@@ -207,7 +256,6 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
+ 	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
+ 	struct net *net = sock_net(skb->sk);
+ 	int snum = cb_ctx->pos[p_type];
+-	struct nlattr *bc = NULL;
+ 	struct hlist_head *head;
+ 	int rc = 0, num = 0;
+ 	struct sock *sk;
+@@ -222,7 +270,7 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
+ 			continue;
+ 		if (num < snum)
+ 			goto next;
+-		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
++		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh));
+ 		if (rc < 0)
+ 			goto out;
+ next:
 -- 
-2.21.1
+2.17.1
