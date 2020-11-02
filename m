@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61590 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726742AbgKBTef (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 14:34:35 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44678 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726255AbgKBTjp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 14:39:45 -0500
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 13/15] net/smc: Add support for obtaining SMCR device list
-Date: Mon,  2 Nov 2020 20:34:07 +0100
-Message-Id: <20201102193409.70901-14-kgraul@linux.ibm.com>
+Subject: [PATCH net-next 11/15] net/smc: Add SMC-D Linkgroup diagnostic support
+Date: Mon,  2 Nov 2020 20:34:05 +0100
+Message-Id: <20201102193409.70901-12-kgraul@linux.ibm.com>
 In-Reply-To: <20201102193409.70901-1-kgraul@linux.ibm.com>
 References: <20201102193409.70901-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
@@ -15,181 +15,164 @@ Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl
 
 From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Deliver SMCR device information via netlink based
+Deliver SMCD Linkgroup information via netlink based
 diagnostic interface.
 
 Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- include/uapi/linux/smc_diag.h |   6 ++
- net/smc/smc_diag.c            | 133 ++++++++++++++++++++++++++++++++++
- net/smc/smc_ib.c              |   2 +
- 3 files changed, 141 insertions(+)
+ include/uapi/linux/smc_diag.h |   7 +++
+ net/smc/smc_diag.c            | 108 ++++++++++++++++++++++++++++++++++
+ net/smc/smc_ism.c             |   2 +
+ 3 files changed, 117 insertions(+)
 
 diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
-index b01133eb998c..84c8dfc76080 100644
+index 16b8ea9da3d5..ee9668917aa7 100644
 --- a/include/uapi/linux/smc_diag.h
 +++ b/include/uapi/linux/smc_diag.h
-@@ -87,6 +87,7 @@ enum {
- /* SMC_DIAG_GET_DEV_INFO command extensions */
+@@ -80,6 +80,7 @@ enum {
  enum {
- 	SMC_DIAG_DEV_INFO_SMCD = 1,
-+	SMC_DIAG_DEV_INFO_SMCR,
+ 	SMC_DIAG_LGR_INFO_SMCR = 1,
+ 	SMC_DIAG_LGR_INFO_SMCR_LINK,
++	SMC_DIAG_LGR_INFO_SMCD,
  };
  
  #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
-@@ -181,6 +182,11 @@ struct smc_diag_dev_info {
- 	__u16		pci_vendor;		/* PCI Vendor */
- 	__u16		pci_device;		/* PCI Device Vendor ID */
- 	__u8		pci_id[SMC_PCI_ID_STR_LEN]; /* PCI ID */
-+	__u8		dev_name[IB_DEVICE_NAME_MAX]; /* IB Device name */
-+	__u8		netdev[SMC_MAX_PORTS][IFNAMSIZ]; /* Netdev name(s) */
-+	__u8		port_state[SMC_MAX_PORTS]; /* IB Port State */
-+	__u8		port_valid[SMC_MAX_PORTS]; /* Is IB Port valid */
-+	__u32		lnk_cnt_by_port[SMC_MAX_PORTS]; /* # lnks per port */
+@@ -154,6 +155,12 @@ struct smcd_diag_dmbinfo {		/* SMC-D Socket internals */
+ 	__aligned_u64	my_gid;		/* My GID */
+ 	__aligned_u64	token;		/* Token of DMB */
+ 	__aligned_u64	peer_token;	/* Token of remote DMBE */
++	/* Fields above used by legacy v1 code */
++	__u8		pnet_id[SMC_MAX_PNETID_LEN]; /* Pnet ID */
++	__u32		conns_num;	/* Number of connections */
++	__u16		chid;		/* Linkgroup CHID */
++	__u8		vlan_id;	/* Linkgroup vlan id */
++	struct smc_diag_v2_lgr_info v2_lgr_info; /* SMCv2 info */
  };
  
  struct smc_diag_lgr {
 diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index 252aae0b11d9..58bfbe0bef4d 100644
+index 6885814b6e4f..fcff07a9ea47 100644
 --- a/net/smc/smc_diag.c
 +++ b/net/smc/smc_diag.c
-@@ -365,6 +365,34 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
- 	return rc;
+@@ -21,6 +21,7 @@
+ 
+ #include "smc.h"
+ #include "smc_ib.h"
++#include "smc_ism.h"
+ #include "smc_core.h"
+ 
+ struct smc_diag_dump_ctx {
+@@ -252,6 +253,53 @@ static int smc_diag_fill_lgr_link(struct smc_link_group *lgr,
+ 	return -EMSGSIZE;
  }
  
-+static bool smcr_diag_is_dev_critical(struct smc_lgr_list *smc_lgr,
-+				      struct smc_ib_device *smcibdev)
++static int smc_diag_fill_smcd_lgr(struct smc_link_group *lgr,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
 +{
-+	struct smc_link_group *lgr;
-+	bool rc = false;
-+	int i;
-+
-+	spin_lock_bh(&smc_lgr->lock);
-+	list_for_each_entry(lgr, &smc_lgr->list, list) {
-+		if (lgr->is_smcd)
-+			continue;
-+		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+			if (lgr->lnk[i].state == SMC_LNK_UNUSED)
-+				continue;
-+			if (lgr->lnk[i].smcibdev == smcibdev) {
-+				if (lgr->type == SMC_LGR_SINGLE ||
-+				    lgr->type == SMC_LGR_ASYMMETRIC_LOCAL) {
-+					rc = true;
-+					goto out;
-+				}
-+			}
-+		}
-+	}
-+out:
-+	spin_unlock_bh(&smc_lgr->lock);
-+	return rc;
-+}
-+
- static int smc_diag_fill_lgr_list(struct smc_lgr_list *smc_lgr,
- 				  struct sk_buff *skb,
- 				  struct netlink_callback *cb,
-@@ -520,6 +548,108 @@ static int smc_diag_prep_smcd_dev(struct smcd_dev_list *dev_list,
- 	return rc;
- }
- 
-+static inline void smc_diag_handle_dev_port(struct smc_diag_dev_info *smc_diag_dev,
-+					    struct ib_device *ibdev,
-+					    struct smc_ib_device *smcibdev,
-+					    int port)
-+{
-+	unsigned char port_state;
-+
-+	smc_diag_dev->port_valid[port] = 1;
-+	snprintf((char *)&smc_diag_dev->netdev[port],
-+		 sizeof(smc_diag_dev->netdev[port]),
-+		 "%s", (char *)&smcibdev->netdev[port]);
-+	snprintf((char *)&smc_diag_dev->pnet_id[port],
-+		 sizeof(smc_diag_dev->pnet_id[port]), "%s",
-+		 (char *)&smcibdev->pnetid[port]);
-+	smc_diag_dev->pnetid_by_user[port] = smcibdev->pnetid_by_user[port];
-+	port_state = smc_ib_port_active(smcibdev, port + 1);
-+	smc_diag_dev->port_state[port] = port_state;
-+	smc_diag_dev->lnk_cnt_by_port[port] =
-+			atomic_read(&smcibdev->lnk_cnt_by_port[port]);
-+}
-+
-+static int smc_diag_handle_smcr_dev(struct smc_ib_device *smcibdev,
-+				    struct sk_buff *skb,
-+				    struct netlink_callback *cb,
-+				    struct smc_diag_req_v2 *req)
-+{
-+	struct smc_diag_dev_info smc_dev;
-+	struct smc_pci_dev smc_pci_dev;
-+	struct pci_dev *pci_dev;
-+	unsigned char is_crit;
++	struct smcd_diag_dmbinfo smcd_lgr;
 +	struct nlmsghdr *nlh;
 +	int dummy = 0;
-+	int i, rc = 0;
++	int rc = 0;
 +
 +	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
 +			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
 +	if (!nlh)
 +		return -EMSGSIZE;
 +
-+	memset(&smc_dev, 0, sizeof(smc_dev));
-+	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
-+	for (i = 1; i <= SMC_MAX_PORTS; i++) {
-+		if (rdma_is_port_valid(smcibdev->ibdev, i)) {
-+			smc_diag_handle_dev_port(&smc_dev, smcibdev->ibdev,
-+						 smcibdev, i - 1);
-+		}
-+	}
-+	pci_dev = to_pci_dev(smcibdev->ibdev->dev.parent);
-+	smc_set_pci_values(pci_dev, &smc_pci_dev);
-+	smc_dev.pci_device = smc_pci_dev.pci_device;
-+	smc_dev.pci_fid = smc_pci_dev.pci_fid;
-+	smc_dev.pci_pchid = smc_pci_dev.pci_pchid;
-+	smc_dev.pci_vendor = smc_pci_dev.pci_vendor;
-+	snprintf(smc_dev.pci_id, sizeof(smc_dev.pci_id), "%s",
-+		 smc_pci_dev.pci_id);
-+	snprintf(smc_dev.dev_name, sizeof(smc_dev.dev_name),
-+		 "%s", smcibdev->ibdev->name);
-+	is_crit = smcr_diag_is_dev_critical(&smc_lgr_list, smcibdev);
-+	smc_dev.is_critical = is_crit;
++	memset(&smcd_lgr, 0, sizeof(smcd_lgr));
++	memcpy(&smcd_lgr.linkid, lgr->id, sizeof(lgr->id));
++	smcd_lgr.conns_num = lgr->conns_num;
++	smcd_lgr.vlan_id = lgr->vlan_id;
++	smcd_lgr.peer_gid = lgr->peer_gid;
++	smcd_lgr.my_gid = lgr->smcd->local_gid;
++	smcd_lgr.chid = smc_ism_get_chid(lgr->smcd);
++	memcpy(&smcd_lgr.v2_lgr_info.negotiated_eid, lgr->negotiated_eid,
++	       sizeof(smcd_lgr.v2_lgr_info.negotiated_eid));
++	memcpy(&smcd_lgr.v2_lgr_info.peer_hostname, lgr->peer_hostname,
++	       sizeof(smcd_lgr.v2_lgr_info.peer_hostname));
++	smcd_lgr.v2_lgr_info.peer_os = lgr->peer_os;
++	smcd_lgr.v2_lgr_info.peer_smc_release = lgr->peer_smc_release;
++	smcd_lgr.v2_lgr_info.smc_version = lgr->smc_version;
++	snprintf(smcd_lgr.pnet_id, sizeof(smcd_lgr.pnet_id), "%s",
++		 lgr->smcd->pnetid);
 +
 +	/* Just a command place holder to signal back the command reply type */
-+	if (nla_put(skb, SMC_DIAG_GET_DEV_INFO, sizeof(dummy), &dummy) < 0)
++	if (nla_put(skb, SMC_DIAG_GET_LGR_INFO, sizeof(dummy), &dummy) < 0)
 +		goto errout;
 +
-+	if (nla_put(skb, SMC_DIAG_DEV_INFO_SMCR,
-+		    sizeof(smc_dev), &smc_dev) < 0)
++	if (nla_put(skb, SMC_DIAG_LGR_INFO_SMCD,
++		    sizeof(smcd_lgr), &smcd_lgr) < 0)
 +		goto errout;
 +
 +	nlmsg_end(skb, nlh);
 +	return rc;
-+
 +errout:
 +	nlmsg_cancel(skb, nlh);
 +	return -EMSGSIZE;
 +}
 +
-+static int smc_diag_prep_smcr_dev(struct smc_ib_devices *dev_list,
+ static int smc_diag_fill_lgr(struct smc_link_group *lgr,
+ 			     struct sk_buff *skb,
+ 			     struct netlink_callback *cb,
+@@ -343,6 +391,63 @@ static int smc_diag_fill_lgr_list(struct smc_lgr_list *smc_lgr,
+ 	return rc;
+ }
+ 
++static int smc_diag_handle_smcd_lgr(struct smcd_dev *dev,
++				    struct sk_buff *skb,
++				    struct netlink_callback *cb,
++				    struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
++	struct smc_link_group *lgr;
++	int snum = cb_ctx->pos[1];
++	int rc = 0, num = 0;
++
++	spin_lock_bh(&dev->lgr_lock);
++	list_for_each_entry(lgr, &dev->lgr_list, list) {
++		if (lgr->is_smcd) {
++			if (num < snum)
++				goto next;
++			rc = smc_diag_fill_smcd_lgr(lgr, skb, cb, req);
++			if (rc < 0)
++				goto errout;
++next:
++			num++;
++		}
++	}
++errout:
++	spin_unlock_bh(&dev->lgr_lock);
++	cb_ctx->pos[1] = num;
++	return rc;
++}
++
++static int smc_diag_fill_smcd_dev(struct smcd_dev_list *dev_list,
 +				  struct sk_buff *skb,
 +				  struct netlink_callback *cb,
 +				  struct smc_diag_req_v2 *req)
 +{
 +	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
-+	struct smc_ib_device *smcibdev;
++	struct smcd_dev *smcd_dev;
 +	int snum = cb_ctx->pos[0];
 +	int rc = 0, num = 0;
 +
 +	mutex_lock(&dev_list->mutex);
-+	list_for_each_entry(smcibdev, &dev_list->list, list) {
-+		if (num < snum)
-+			goto next;
-+		rc = smc_diag_handle_smcr_dev(smcibdev, skb, cb, req);
-+		if (rc < 0)
-+			goto out;
++	list_for_each_entry(smcd_dev, &dev_list->list, list) {
++		if (!list_empty(&smcd_dev->lgr_list)) {
++			if (num < snum)
++				goto next;
++			rc = smc_diag_handle_smcd_lgr(smcd_dev, skb,
++						      cb, req);
++			if (rc < 0)
++				goto errout;
 +next:
-+		num++;
++			num++;
++		}
 +	}
-+out:
++errout:
 +	mutex_unlock(&dev_list->mutex);
 +	cb_ctx->pos[0] = num;
 +	return rc;
@@ -198,35 +181,35 @@ index 252aae0b11d9..58bfbe0bef4d 100644
  static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
  			   struct netlink_callback *cb,
  			   const struct smc_diag_req *req)
-@@ -625,6 +755,9 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
- 		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCD - 1))))
- 			smc_diag_prep_smcd_dev(&smcd_dev_list, skb, cb,
+@@ -441,6 +546,9 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
+ 		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCR - 1))))
+ 			smc_diag_fill_lgr_list(&smc_lgr_list, skb, cb,
  					       req);
-+		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCR - 1))))
-+			smc_diag_prep_smcr_dev(&smc_ib_devices, skb, cb,
++		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCD - 1))))
++			smc_diag_fill_smcd_dev(&smcd_dev_list, skb, cb,
 +					       req);
  	}
  
  	return skb->len;
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index c4a04e868bf0..14688aa74d66 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -37,6 +37,7 @@ struct smc_ib_devices smc_ib_devices = {	/* smc-registered ib devices */
- 	.mutex = __MUTEX_INITIALIZER(smc_ib_devices.mutex),
- 	.list = LIST_HEAD_INIT(smc_ib_devices.list),
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 6abbdd09a580..5bb2c7fb4ea8 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -20,6 +20,7 @@ struct smcd_dev_list smcd_dev_list = {
+ 	.list = LIST_HEAD_INIT(smcd_dev_list.list),
+ 	.mutex = __MUTEX_INITIALIZER(smcd_dev_list.mutex)
  };
-+EXPORT_SYMBOL_GPL(smc_ib_devices);
++EXPORT_SYMBOL_GPL(smcd_dev_list);
  
- u8 local_systemid[SMC_SYSTEMID_LEN];		/* unique system identifier */
+ bool smc_ism_v2_capable;
  
-@@ -181,6 +182,7 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
+@@ -50,6 +51,7 @@ u16 smc_ism_get_chid(struct smcd_dev *smcd)
  {
- 	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+ 	return smcd->ops->get_chid(smcd);
  }
-+EXPORT_SYMBOL_GPL(smc_ib_port_active);
++EXPORT_SYMBOL_GPL(smc_ism_get_chid);
  
- /* determine the gid for an ib-device port and vlan id */
- int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+ /* Set a connection using this DMBE. */
+ void smc_ism_set_conn(struct smc_connection *conn)
 -- 
 2.17.1
