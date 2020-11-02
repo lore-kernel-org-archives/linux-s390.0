@@ -1,191 +1,218 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32890 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390984AbgKZUjd (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 26 Nov 2020 15:39:33 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v6 08/14] net/smc: Introduce generic netlink interface for diagnostic purposes
-Date: Thu, 26 Nov 2020 21:39:10 +0100
-Message-Id: <20201126203916.56071-9-kgraul@linux.ibm.com>
-In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
-References: <20201126203916.56071-1-kgraul@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:60002 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725837AbgKBPSp (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 2 Nov 2020 10:18:45 -0500
+Date: Mon, 2 Nov 2020 17:18:29 +0200
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH v3 4/4] arch, mm: make kernel_page_present() always
+ available
+Message-ID: <20201102151829.GC4879@kernel.org>
+References: <20201101170815.9795-1-rppt@kernel.org>
+ <20201101170815.9795-5-rppt@kernel.org>
+ <08db307a-b093-d7aa-7364-045f328ab147@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <08db307a-b093-d7aa-7364-045f328ab147@redhat.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+On Mon, Nov 02, 2020 at 10:28:14AM +0100, David Hildenbrand wrote:
+> On 01.11.20 18:08, Mike Rapoport wrote:
+> > From: Mike Rapoport <rppt@linux.ibm.com>
+> > 
+> > For architectures that enable ARCH_HAS_SET_MEMORY having the ability to
+> > verify that a page is mapped in the kernel direct map can be useful
+> > regardless of hibernation.
+> > 
+> > Add RISC-V implementation of kernel_page_present(), update its forward
+> > declarations and stubs to be a part of set_memory API and remove ugly
+> > ifdefery in inlcude/linux/mm.h around current declarations of
+> > kernel_page_present().
+> > 
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > ---
+> >   arch/arm64/include/asm/cacheflush.h |  1 +
+> >   arch/arm64/mm/pageattr.c            |  4 +---
+> >   arch/riscv/include/asm/set_memory.h |  1 +
+> >   arch/riscv/mm/pageattr.c            | 29 +++++++++++++++++++++++++++++
+> >   arch/x86/include/asm/set_memory.h   |  1 +
+> >   arch/x86/mm/pat/set_memory.c        |  4 +---
+> >   include/linux/mm.h                  |  7 -------
+> >   include/linux/set_memory.h          |  5 +++++
+> >   8 files changed, 39 insertions(+), 13 deletions(-)
+> > 
+> > diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
+> > index 9384fd8fc13c..45217f21f1fe 100644
+> > --- a/arch/arm64/include/asm/cacheflush.h
+> > +++ b/arch/arm64/include/asm/cacheflush.h
+> > @@ -140,6 +140,7 @@ int set_memory_valid(unsigned long addr, int numpages, int enable);
+> >   int set_direct_map_invalid_noflush(struct page *page);
+> >   int set_direct_map_default_noflush(struct page *page);
+> > +bool kernel_page_present(struct page *page);
+> >   #include <asm-generic/cacheflush.h>
+> > diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
+> > index 439325532be1..92eccaf595c8 100644
+> > --- a/arch/arm64/mm/pageattr.c
+> > +++ b/arch/arm64/mm/pageattr.c
+> > @@ -186,8 +186,8 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+> >   	set_memory_valid((unsigned long)page_address(page), numpages, enable);
+> >   }
+> > +#endif /* CONFIG_DEBUG_PAGEALLOC */
+> > -#ifdef CONFIG_HIBERNATION
+> >   /*
+> >    * This function is used to determine if a linear map page has been marked as
+> >    * not-valid. Walk the page table and check the PTE_VALID bit. This is based
+> > @@ -234,5 +234,3 @@ bool kernel_page_present(struct page *page)
+> >   	ptep = pte_offset_kernel(pmdp, addr);
+> >   	return pte_valid(READ_ONCE(*ptep));
+> >   }
+> > -#endif /* CONFIG_HIBERNATION */
+> > -#endif /* CONFIG_DEBUG_PAGEALLOC */
+> > diff --git a/arch/riscv/include/asm/set_memory.h b/arch/riscv/include/asm/set_memory.h
+> > index 4c5bae7ca01c..d690b08dff2a 100644
+> > --- a/arch/riscv/include/asm/set_memory.h
+> > +++ b/arch/riscv/include/asm/set_memory.h
+> > @@ -24,6 +24,7 @@ static inline int set_memory_nx(unsigned long addr, int numpages) { return 0; }
+> >   int set_direct_map_invalid_noflush(struct page *page);
+> >   int set_direct_map_default_noflush(struct page *page);
+> > +bool kernel_page_present(struct page *page);
+> >   #endif /* __ASSEMBLY__ */
+> > diff --git a/arch/riscv/mm/pageattr.c b/arch/riscv/mm/pageattr.c
+> > index 321b09d2e2ea..87ba5a68bbb8 100644
+> > --- a/arch/riscv/mm/pageattr.c
+> > +++ b/arch/riscv/mm/pageattr.c
+> > @@ -198,3 +198,32 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+> >   			     __pgprot(0), __pgprot(_PAGE_PRESENT));
+> >   }
+> >   #endif
+> > +
+> > +bool kernel_page_present(struct page *page)
+> > +{
+> > +	unsigned long addr = (unsigned long)page_address(page);
+> > +	pgd_t *pgd;
+> > +	pud_t *pud;
+> > +	p4d_t *p4d;
+> > +	pmd_t *pmd;
+> > +	pte_t *pte;
+> > +
+> > +	pgd = pgd_offset_k(addr);
+> > +	if (!pgd_present(*pgd))
+> > +		return false;
+> > +
+> > +	p4d = p4d_offset(pgd, addr);
+> > +	if (!p4d_present(*p4d))
+> > +		return false;
+> > +
+> > +	pud = pud_offset(p4d, addr);
+> > +	if (!pud_present(*pud))
+> > +		return false;
+> > +
+> > +	pmd = pmd_offset(pud, addr);
+> > +	if (!pmd_present(*pmd))
+> > +		return false;
+> > +
+> > +	pte = pte_offset_kernel(pmd, addr);
+> > +	return pte_present(*pte);
+> > +}
+> > diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
+> > index 5948218f35c5..4352f08bfbb5 100644
+> > --- a/arch/x86/include/asm/set_memory.h
+> > +++ b/arch/x86/include/asm/set_memory.h
+> > @@ -82,6 +82,7 @@ int set_pages_rw(struct page *page, int numpages);
+> >   int set_direct_map_invalid_noflush(struct page *page);
+> >   int set_direct_map_default_noflush(struct page *page);
+> > +bool kernel_page_present(struct page *page);
+> >   extern int kernel_set_to_readonly;
+> > diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+> > index bc9be96b777f..16f878c26667 100644
+> > --- a/arch/x86/mm/pat/set_memory.c
+> > +++ b/arch/x86/mm/pat/set_memory.c
+> > @@ -2226,8 +2226,8 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+> >   	arch_flush_lazy_mmu_mode();
+> >   }
+> > +#endif /* CONFIG_DEBUG_PAGEALLOC */
+> > -#ifdef CONFIG_HIBERNATION
+> >   bool kernel_page_present(struct page *page)
+> >   {
+> >   	unsigned int level;
+> > @@ -2239,8 +2239,6 @@ bool kernel_page_present(struct page *page)
+> >   	pte = lookup_address((unsigned long)page_address(page), &level);
+> >   	return (pte_val(*pte) & _PAGE_PRESENT);
+> >   }
+> > -#endif /* CONFIG_HIBERNATION */
+> > -#endif /* CONFIG_DEBUG_PAGEALLOC */
+> >   int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
+> >   				   unsigned numpages, unsigned long page_flags)
+> > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > index ab0ef6bd351d..44b82f22e76a 100644
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -2937,16 +2937,9 @@ static inline void debug_pagealloc_map_pages(struct page *page,
+> >   	if (debug_pagealloc_enabled_static())
+> >   		__kernel_map_pages(page, numpages, enable);
+> >   }
+> > -
+> > -#ifdef CONFIG_HIBERNATION
+> > -extern bool kernel_page_present(struct page *page);
+> > -#endif	/* CONFIG_HIBERNATION */
+> >   #else	/* CONFIG_DEBUG_PAGEALLOC */
+> >   static inline void debug_pagealloc_map_pages(struct page *page,
+> >   					     int numpages, int enable) {}
+> > -#ifdef CONFIG_HIBERNATION
+> > -static inline bool kernel_page_present(struct page *page) { return true; }
+> > -#endif	/* CONFIG_HIBERNATION */
+> >   #endif	/* CONFIG_DEBUG_PAGEALLOC */
+> >   #ifdef __HAVE_ARCH_GATE_AREA
+> > diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
+> > index 860e0f843c12..fe1aa4e54680 100644
+> > --- a/include/linux/set_memory.h
+> > +++ b/include/linux/set_memory.h
+> > @@ -23,6 +23,11 @@ static inline int set_direct_map_default_noflush(struct page *page)
+> >   {
+> >   	return 0;
+> >   }
+> > +
+> > +static inline bool kernel_page_present(struct page *page)
+> > +{
+> > +	return true;
+> > +}
+> >   #endif
+> >   #ifndef set_mce_nospec
+> > 
+> 
+> It's somewhat weird to move this to set_memory.h - it's only one possible
+> user. I think include/linux/mm.h is a better fit. Ack to making it
+> independent of CONFIG_HIBERNATION.
 
-Introduce generic netlink interface infrastructure to expose
-the diagnostic information regarding smc linkgroups, links and devices.
+Semantically this is a part of direct map manipulation, that's primarily
+why I put it into set_memory.h
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- include/uapi/linux/smc.h | 11 ++++++++++
- net/smc/Makefile         |  2 +-
- net/smc/af_smc.c         | 10 ++++++++-
- net/smc/smc_netlink.c    | 46 ++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_netlink.h    | 23 ++++++++++++++++++++
- 5 files changed, 90 insertions(+), 2 deletions(-)
- create mode 100644 net/smc/smc_netlink.c
- create mode 100644 net/smc/smc_netlink.h
+> in include/linux/mm.h , I'd prefer:
+> 
+> #if defined(CONFIG_DEBUG_PAGEALLOC) || \
+>     defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 0e11ca421ca4..b604d64542e8 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -33,4 +33,15 @@ enum {				/* SMC PNET Table commands */
- #define SMCR_GENL_FAMILY_NAME		"SMC_PNETID"
- #define SMCR_GENL_FAMILY_VERSION	1
- 
-+/* gennetlink interface to access non-socket information from SMC module */
-+#define SMC_GENL_FAMILY_NAME		"SMC_GEN_NETLINK"
-+#define SMC_GENL_FAMILY_VERSION		1
-+
-+/* SMC_GENL_FAMILY top level attributes */
-+enum {
-+	SMC_GEN_UNSPEC,
-+	__SMC_GEN_MAX,
-+	SMC_GEN_MAX = __SMC_GEN_MAX - 1
-+};
-+
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/Makefile b/net/smc/Makefile
-index cb1254541f37..77e54fe42b1c 100644
---- a/net/smc/Makefile
-+++ b/net/smc/Makefile
-@@ -2,4 +2,4 @@
- obj-$(CONFIG_SMC)	+= smc.o
- obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
- smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
--smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o
-+smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index f79b59a972f0..47340b3b514f 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -45,6 +45,7 @@
- #include "smc_ib.h"
- #include "smc_ism.h"
- #include "smc_pnet.h"
-+#include "smc_netlink.h"
- #include "smc_tx.h"
- #include "smc_rx.h"
- #include "smc_close.h"
-@@ -2495,10 +2496,14 @@ static int __init smc_init(void)
- 	smc_ism_init();
- 	smc_clc_init();
- 
--	rc = smc_pnet_init();
-+	rc = smc_nl_init();
- 	if (rc)
- 		goto out_pernet_subsys;
- 
-+	rc = smc_pnet_init();
-+	if (rc)
-+		goto out_nl;
-+
- 	rc = -ENOMEM;
- 	smc_hs_wq = alloc_workqueue("smc_hs_wq", 0, 0);
- 	if (!smc_hs_wq)
-@@ -2569,6 +2574,8 @@ static int __init smc_init(void)
- 	destroy_workqueue(smc_hs_wq);
- out_pnet:
- 	smc_pnet_exit();
-+out_nl:
-+	smc_nl_exit();
- out_pernet_subsys:
- 	unregister_pernet_subsys(&smc_net_ops);
- 
-@@ -2586,6 +2593,7 @@ static void __exit smc_exit(void)
- 	proto_unregister(&smc_proto6);
- 	proto_unregister(&smc_proto);
- 	smc_pnet_exit();
-+	smc_nl_exit();
- 	unregister_pernet_subsys(&smc_net_ops);
- 	rcu_barrier();
- }
-diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-new file mode 100644
-index 000000000000..e9a56148e71b
---- /dev/null
-+++ b/net/smc/smc_netlink.c
-@@ -0,0 +1,46 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ *  Shared Memory Communications over RDMA (SMC-R) and RoCE
-+ *
-+ *  Generic netlink support functions to interact with SMC module
-+ *
-+ *  Copyright IBM Corp. 2020
-+ *
-+ *  Author(s):	Guvenc Gulce <guvenc@linux.ibm.com>
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/list.h>
-+#include <linux/ctype.h>
-+#include <linux/mutex.h>
-+#include <linux/if.h>
-+#include <linux/smc.h>
-+
-+#include "smc_core.h"
-+#include "smc_netlink.h"
-+
-+/* SMC_GENL generic netlink operation definition */
-+static const struct genl_ops smc_gen_nl_ops[] = {
-+};
-+
-+/* SMC_GENL family definition */
-+struct genl_family smc_gen_nl_family __ro_after_init = {
-+	.hdrsize = 0,
-+	.name = SMC_GENL_FAMILY_NAME,
-+	.version = SMC_GENL_FAMILY_VERSION,
-+	.maxattr = SMC_GEN_MAX,
-+	.netnsok = true,
-+	.module = THIS_MODULE,
-+	.ops = smc_gen_nl_ops,
-+	.n_ops =  ARRAY_SIZE(smc_gen_nl_ops)
-+};
-+
-+int __init smc_nl_init(void)
-+{
-+	return genl_register_family(&smc_gen_nl_family);
-+}
-+
-+void smc_nl_exit(void)
-+{
-+	genl_unregister_family(&smc_gen_nl_family);
-+}
-diff --git a/net/smc/smc_netlink.h b/net/smc/smc_netlink.h
-new file mode 100644
-index 000000000000..0c757232c0d0
---- /dev/null
-+++ b/net/smc/smc_netlink.h
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Shared Memory Communications over RDMA (SMC-R) and RoCE
-+ *
-+ *  SMC Generic netlink operations
-+ *
-+ *  Copyright IBM Corp. 2020
-+ *
-+ *  Author(s):	Guvenc Gulce <guvenc@linux.ibm.com>
-+ */
-+
-+#ifndef _SMC_NETLINK_H
-+#define _SMC_NETLINK_H
-+
-+#include <net/netlink.h>
-+#include <net/genetlink.h>
-+
-+extern struct genl_family smc_gen_nl_family;
-+
-+int smc_nl_init(void) __init;
-+void smc_nl_exit(void);
-+
-+#endif
+The second reason was to avoid this ^
+and the third is -7 lines to include/linux/mm.h :)
+
+> bool kernel_page_present(struct page *page);
+> #else
+> static inline bool kernel_page_present(struct page *page)
+> {
+> 	return true;
+> }
+> #endif
+> 
+> -- 
+> Thanks,
+> 
+> David / dhildenb
+> 
+> 
+
 -- 
-2.17.1
+Sincerely yours,
+Mike.
