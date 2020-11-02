@@ -1,30 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:33632 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725791AbgKBTXX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 2 Nov 2020 14:23:23 -0500
-Date: Mon, 2 Nov 2020 14:23:14 -0500
+        id S1725809AbgKBTPI (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 2 Nov 2020 14:15:08 -0500
+Date: Mon, 2 Nov 2020 14:14:58 -0500
 From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 11/11 v2.2] ftrace: Add recording of functions that caused
+Subject: [PATCH 11/11 v2.1] ftrace: Add recording of functions that caused
  recursion
-Message-ID: <20201102142254.7e148f8a@gandalf.local.home>
-In-Reply-To: <20201102124606.72bd89c5@gandalf.local.home>
+Message-ID: <20201102141458.28c62a16@gandalf.local.home>
+In-Reply-To: <20201102123721.4fcce2cb@gandalf.local.home>
 References: <20201030213142.096102821@goodmis.org>
         <20201030214014.801706340@goodmis.org>
         <20201102164147.GJ20201@alley>
         <20201102123721.4fcce2cb@gandalf.local.home>
-        <20201102124606.72bd89c5@gandalf.local.home>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
 To: Petr Mladek <pmladek@suse.com>
 Cc: linux-kernel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Jonathan Corbet <corbet@lwn.net>, Guo Ren <guoren@kernel.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Kees Cook <keescook@chromium.org>, Anton Vorontsov <anton@enomsg.org>, Colin Cross <ccross@android.com>, Tony Luck <tony.luck@intel.com>, Joe Lawrence <joe.lawrence@redhat.com>, Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-doc@vger.kernel.org, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, live-patching@vger.kernel.org
 
-From c532ff6b048dd4a12943b05c7b8ce30666c587c8 Mon Sep 17 00:00:00 2001
 From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Date: Thu, 29 Oct 2020 15:27:06 -0400
-Subject: [PATCH] ftrace: Add recording of functions that caused recursion
 
 This adds CONFIG_FTRACE_RECORD_RECURSION that will record to a file
 "recursed_functions" all the functions that caused recursion while a
@@ -65,10 +61,6 @@ Cc: linux-s390@vger.kernel.org
 Cc: live-patching@vger.kernel.org
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
-
-Changes since v2.1:
-  Added EXPORT_SYMBOL_GPL() to ftrace_record_recursion() function
-
  Documentation/trace/ftrace-uses.rst   |   6 +-
  arch/csky/kernel/probes/ftrace.c      |   2 +-
  arch/parisc/kernel/ftrace.c           |   2 +-
@@ -85,8 +77,8 @@ Changes since v2.1:
  kernel/trace/trace_functions.c        |   2 +-
  kernel/trace/trace_output.c           |   6 +-
  kernel/trace/trace_output.h           |   1 +
- kernel/trace/trace_recursion_record.c | 236 ++++++++++++++++++++++++++
- 17 files changed, 309 insertions(+), 20 deletions(-)
+ kernel/trace/trace_recursion_record.c | 235 ++++++++++++++++++++++++++
+ 17 files changed, 308 insertions(+), 20 deletions(-)
  create mode 100644 kernel/trace/trace_recursion_record.c
 
 diff --git a/Documentation/trace/ftrace-uses.rst b/Documentation/trace/ftrace-uses.rst
@@ -397,10 +389,10 @@ index 2f742b74e7e6..4c954636caf0 100644
  
 diff --git a/kernel/trace/trace_recursion_record.c b/kernel/trace/trace_recursion_record.c
 new file mode 100644
-index 000000000000..b2edac1fe156
+index 000000000000..a1859843781b
 --- /dev/null
 +++ b/kernel/trace/trace_recursion_record.c
-@@ -0,0 +1,236 @@
+@@ -0,0 +1,235 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
 +#include <linux/seq_file.h>
@@ -516,7 +508,6 @@ index 000000000000..b2edac1fe156
 +	else if (i <= index)
 +		atomic_cmpxchg(&nr_records, i, index + 1);
 +}
-+EXPORT_SYMBOL_GPL(ftrace_record_recursion);
 +
 +static DEFINE_MUTEX(recursed_function_lock);
 +static struct trace_seq *tseq;
