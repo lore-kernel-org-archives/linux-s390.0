@@ -1,70 +1,232 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23486 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728557AbgK3KKs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 30 Nov 2020 05:10:48 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 6/6] s390/ctcm: Use GFP_ATOMIC in ctcmpc_tx().
-Date: Mon, 30 Nov 2020 11:09:50 +0100
-Message-Id: <20201130100950.42051-7-jwi@linux.ibm.com>
-In-Reply-To: <20201130100950.42051-1-jwi@linux.ibm.com>
-References: <20201130100950.42051-1-jwi@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61590 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726742AbgKBTef (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 14:34:35 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next 13/15] net/smc: Add support for obtaining SMCR device list
+Date: Mon,  2 Nov 2020 20:34:07 +0100
+Message-Id: <20201102193409.70901-14-kgraul@linux.ibm.com>
+In-Reply-To: <20201102193409.70901-1-kgraul@linux.ibm.com>
+References: <20201102193409.70901-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-gfp_type() uses in_interrupt() to figure out the correct GFP mask.
+Deliver SMCR device information via netlink based
+diagnostic interface.
 
-The usage of in_interrupt() in drivers is phased out and Linus clearly
-requested that code which changes behaviour depending on context should
-either be separated or the context be conveyed in an argument passed by the
-caller, which usually knows the context.
-
-ctcmpc_tx() is used as net_device_ops::ndo_start_xmit. This callback is
-invoked with disabled bottom halves.
-
-Use GFP_ATOMIC for memory allocation in ctcmpc_tx().
-Remove gfp_type() since the last user is gone.
-
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/net/ctcm_main.c | 2 +-
- drivers/s390/net/ctcm_main.h | 5 -----
- 2 files changed, 1 insertion(+), 6 deletions(-)
+ include/uapi/linux/smc_diag.h |   6 ++
+ net/smc/smc_diag.c            | 133 ++++++++++++++++++++++++++++++++++
+ net/smc/smc_ib.c              |   2 +
+ 3 files changed, 141 insertions(+)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index c446883de5c8..fd705429708e 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -903,7 +903,7 @@ static int ctcmpc_tx(struct sk_buff *skb, struct net_device *dev)
- 		CTCM_D3_DUMP((char *)skb->data, min_t(int, 32, skb->len));
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index b01133eb998c..84c8dfc76080 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -87,6 +87,7 @@ enum {
+ /* SMC_DIAG_GET_DEV_INFO command extensions */
+ enum {
+ 	SMC_DIAG_DEV_INFO_SMCD = 1,
++	SMC_DIAG_DEV_INFO_SMCR,
+ };
  
- 		len =  skb->len + TH_HEADER_LENGTH + PDU_HEADER_LENGTH;
--		newskb = __dev_alloc_skb(len, gfp_type() | GFP_DMA);
-+		newskb = __dev_alloc_skb(len, GFP_ATOMIC | GFP_DMA);
+ #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
+@@ -181,6 +182,11 @@ struct smc_diag_dev_info {
+ 	__u16		pci_vendor;		/* PCI Vendor */
+ 	__u16		pci_device;		/* PCI Device Vendor ID */
+ 	__u8		pci_id[SMC_PCI_ID_STR_LEN]; /* PCI ID */
++	__u8		dev_name[IB_DEVICE_NAME_MAX]; /* IB Device name */
++	__u8		netdev[SMC_MAX_PORTS][IFNAMSIZ]; /* Netdev name(s) */
++	__u8		port_state[SMC_MAX_PORTS]; /* IB Port State */
++	__u8		port_valid[SMC_MAX_PORTS]; /* Is IB Port valid */
++	__u32		lnk_cnt_by_port[SMC_MAX_PORTS]; /* # lnks per port */
+ };
  
- 		if (!newskb) {
- 			CTCM_DBF_TEXT_(MPC_TRACE, CTC_DBF_ERROR,
-diff --git a/drivers/s390/net/ctcm_main.h b/drivers/s390/net/ctcm_main.h
-index 16bdf23ee02b..90bd7b3f80c3 100644
---- a/drivers/s390/net/ctcm_main.h
-+++ b/drivers/s390/net/ctcm_main.h
-@@ -298,11 +298,6 @@ struct mpc_group *ctcmpc_init_mpc_group(struct ctcm_priv *priv);
- /* test if struct ctcm_priv of struct net_device has MPC protocol setting */
- #define IS_MPCDEV(dev) IS_MPC((struct ctcm_priv *)dev->ml_priv)
+ struct smc_diag_lgr {
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 252aae0b11d9..58bfbe0bef4d 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -365,6 +365,34 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
+ 	return rc;
+ }
  
--static inline gfp_t gfp_type(void)
--{
--	return in_interrupt() ? GFP_ATOMIC : GFP_KERNEL;
--}
--
- /*
-  * Definition of our link level header.
-  */
++static bool smcr_diag_is_dev_critical(struct smc_lgr_list *smc_lgr,
++				      struct smc_ib_device *smcibdev)
++{
++	struct smc_link_group *lgr;
++	bool rc = false;
++	int i;
++
++	spin_lock_bh(&smc_lgr->lock);
++	list_for_each_entry(lgr, &smc_lgr->list, list) {
++		if (lgr->is_smcd)
++			continue;
++		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++			if (lgr->lnk[i].state == SMC_LNK_UNUSED)
++				continue;
++			if (lgr->lnk[i].smcibdev == smcibdev) {
++				if (lgr->type == SMC_LGR_SINGLE ||
++				    lgr->type == SMC_LGR_ASYMMETRIC_LOCAL) {
++					rc = true;
++					goto out;
++				}
++			}
++		}
++	}
++out:
++	spin_unlock_bh(&smc_lgr->lock);
++	return rc;
++}
++
+ static int smc_diag_fill_lgr_list(struct smc_lgr_list *smc_lgr,
+ 				  struct sk_buff *skb,
+ 				  struct netlink_callback *cb,
+@@ -520,6 +548,108 @@ static int smc_diag_prep_smcd_dev(struct smcd_dev_list *dev_list,
+ 	return rc;
+ }
+ 
++static inline void smc_diag_handle_dev_port(struct smc_diag_dev_info *smc_diag_dev,
++					    struct ib_device *ibdev,
++					    struct smc_ib_device *smcibdev,
++					    int port)
++{
++	unsigned char port_state;
++
++	smc_diag_dev->port_valid[port] = 1;
++	snprintf((char *)&smc_diag_dev->netdev[port],
++		 sizeof(smc_diag_dev->netdev[port]),
++		 "%s", (char *)&smcibdev->netdev[port]);
++	snprintf((char *)&smc_diag_dev->pnet_id[port],
++		 sizeof(smc_diag_dev->pnet_id[port]), "%s",
++		 (char *)&smcibdev->pnetid[port]);
++	smc_diag_dev->pnetid_by_user[port] = smcibdev->pnetid_by_user[port];
++	port_state = smc_ib_port_active(smcibdev, port + 1);
++	smc_diag_dev->port_state[port] = port_state;
++	smc_diag_dev->lnk_cnt_by_port[port] =
++			atomic_read(&smcibdev->lnk_cnt_by_port[port]);
++}
++
++static int smc_diag_handle_smcr_dev(struct smc_ib_device *smcibdev,
++				    struct sk_buff *skb,
++				    struct netlink_callback *cb,
++				    struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dev_info smc_dev;
++	struct smc_pci_dev smc_pci_dev;
++	struct pci_dev *pci_dev;
++	unsigned char is_crit;
++	struct nlmsghdr *nlh;
++	int dummy = 0;
++	int i, rc = 0;
++
++	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
++			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
++	if (!nlh)
++		return -EMSGSIZE;
++
++	memset(&smc_dev, 0, sizeof(smc_dev));
++	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
++	for (i = 1; i <= SMC_MAX_PORTS; i++) {
++		if (rdma_is_port_valid(smcibdev->ibdev, i)) {
++			smc_diag_handle_dev_port(&smc_dev, smcibdev->ibdev,
++						 smcibdev, i - 1);
++		}
++	}
++	pci_dev = to_pci_dev(smcibdev->ibdev->dev.parent);
++	smc_set_pci_values(pci_dev, &smc_pci_dev);
++	smc_dev.pci_device = smc_pci_dev.pci_device;
++	smc_dev.pci_fid = smc_pci_dev.pci_fid;
++	smc_dev.pci_pchid = smc_pci_dev.pci_pchid;
++	smc_dev.pci_vendor = smc_pci_dev.pci_vendor;
++	snprintf(smc_dev.pci_id, sizeof(smc_dev.pci_id), "%s",
++		 smc_pci_dev.pci_id);
++	snprintf(smc_dev.dev_name, sizeof(smc_dev.dev_name),
++		 "%s", smcibdev->ibdev->name);
++	is_crit = smcr_diag_is_dev_critical(&smc_lgr_list, smcibdev);
++	smc_dev.is_critical = is_crit;
++
++	/* Just a command place holder to signal back the command reply type */
++	if (nla_put(skb, SMC_DIAG_GET_DEV_INFO, sizeof(dummy), &dummy) < 0)
++		goto errout;
++
++	if (nla_put(skb, SMC_DIAG_DEV_INFO_SMCR,
++		    sizeof(smc_dev), &smc_dev) < 0)
++		goto errout;
++
++	nlmsg_end(skb, nlh);
++	return rc;
++
++errout:
++	nlmsg_cancel(skb, nlh);
++	return -EMSGSIZE;
++}
++
++static int smc_diag_prep_smcr_dev(struct smc_ib_devices *dev_list,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
++	struct smc_ib_device *smcibdev;
++	int snum = cb_ctx->pos[0];
++	int rc = 0, num = 0;
++
++	mutex_lock(&dev_list->mutex);
++	list_for_each_entry(smcibdev, &dev_list->list, list) {
++		if (num < snum)
++			goto next;
++		rc = smc_diag_handle_smcr_dev(smcibdev, skb, cb, req);
++		if (rc < 0)
++			goto out;
++next:
++		num++;
++	}
++out:
++	mutex_unlock(&dev_list->mutex);
++	cb_ctx->pos[0] = num;
++	return rc;
++}
++
+ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 			   struct netlink_callback *cb,
+ 			   const struct smc_diag_req *req)
+@@ -625,6 +755,9 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
+ 		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCD - 1))))
+ 			smc_diag_prep_smcd_dev(&smcd_dev_list, skb, cb,
+ 					       req);
++		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCR - 1))))
++			smc_diag_prep_smcr_dev(&smc_ib_devices, skb, cb,
++					       req);
+ 	}
+ 
+ 	return skb->len;
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index c4a04e868bf0..14688aa74d66 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -37,6 +37,7 @@ struct smc_ib_devices smc_ib_devices = {	/* smc-registered ib devices */
+ 	.mutex = __MUTEX_INITIALIZER(smc_ib_devices.mutex),
+ 	.list = LIST_HEAD_INIT(smc_ib_devices.list),
+ };
++EXPORT_SYMBOL_GPL(smc_ib_devices);
+ 
+ u8 local_systemid[SMC_SYSTEMID_LEN];		/* unique system identifier */
+ 
+@@ -181,6 +182,7 @@ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport)
+ {
+ 	return smcibdev->pattr[ibport - 1].state == IB_PORT_ACTIVE;
+ }
++EXPORT_SYMBOL_GPL(smc_ib_port_active);
+ 
+ /* determine the gid for an ib-device port and vlan id */
+ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
 -- 
 2.17.1
