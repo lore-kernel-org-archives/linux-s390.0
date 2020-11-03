@@ -1,134 +1,35 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36758 "EHLO mail.kernel.org"
+Received: from verein.lst.de ([213.95.11.211]:36466 "EHLO verein.lst.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726062AbgKHG6q (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 8 Nov 2020 01:58:46 -0500
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v5 3/5] PM: hibernate: make direct map manipulations more explicit
-Date: Sun,  8 Nov 2020 08:57:56 +0200
-Message-Id: <20201108065758.1815-4-rppt@kernel.org>
-In-Reply-To: <20201108065758.1815-1-rppt@kernel.org>
-References: <20201108065758.1815-1-rppt@kernel.org>
+        id S1725993AbgKCJcv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 3 Nov 2020 04:32:51 -0500
+Date: Tue, 3 Nov 2020 10:32:32 +0100
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 06/11] md: implement ->set_read_only to hook into
+ BLKROSET processing
+Message-ID: <20201103093232.GB17061@lst.de>
+References: <20201031085810.450489-1-hch@lst.de> <20201031085810.450489-7-hch@lst.de> <87y2jjpa09.fsf@canonical.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87y2jjpa09.fsf@canonical.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+To: James Troup <james.troup@canonical.com>
+Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+On Tue, Nov 03, 2020 at 12:19:34AM +0000, James Troup wrote:
+> Christoph Hellwig <hch@lst.de> writes:
+> 
+> > @@ -7809,6 +7778,36 @@ static int md_compat_ioctl(struct block_device *bdev, fmode_t mode,
+> 
+> [...]
+> 
+> > +	 * Transitioning to readauto need only happen for arrays that call
+> > +	 * md_write_start and which are not ready for writes yet.
+> 
+> I realise you're just moving the comment around but perhaps you could
+> s/readauto/readonly/ while you're doing so?
 
-When DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP is enabled a page may be
-not present in the direct map and has to be explicitly mapped before it
-could be copied.
-
-Introduce hibernate_map_page() and hibernation_unmap_page() that will
-explicitly use set_direct_map_{default,invalid}_noflush() for
-ARCH_HAS_SET_DIRECT_MAP case and debug_pagealloc_{map,unmap}_pages() for
-DEBUG_PAGEALLOC case.
-
-The remapping of the pages in safe_copy_page() presumes that it only
-changes protection bits in an existing PTE and so it is safe to ignore
-return value of set_direct_map_{default,invalid}_noflush().
-
-Still, add a pr_warn() so that future changes in set_memory APIs will not
-silently break hibernation.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
----
- include/linux/mm.h      | 12 ------------
- kernel/power/snapshot.c | 38 ++++++++++++++++++++++++++++++++++++--
- 2 files changed, 36 insertions(+), 14 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index bb8c70178f4e..e198b938f5c5 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2927,16 +2927,6 @@ static inline bool debug_pagealloc_enabled_static(void)
- #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
- extern void __kernel_map_pages(struct page *page, int numpages, int enable);
- 
--/*
-- * When called in DEBUG_PAGEALLOC context, the call should most likely be
-- * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
-- */
--static inline void
--kernel_map_pages(struct page *page, int numpages, int enable)
--{
--	__kernel_map_pages(page, numpages, enable);
--}
--
- static inline void debug_pagealloc_map_pages(struct page *page, int numpages)
- {
- 	if (debug_pagealloc_enabled_static())
-@@ -2953,8 +2943,6 @@ static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages)
- extern bool kernel_page_present(struct page *page);
- #endif	/* CONFIG_HIBERNATION */
- #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
--static inline void
--kernel_map_pages(struct page *page, int numpages, int enable) {}
- static inline void debug_pagealloc_map_pages(struct page *page, int numpages) {}
- static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages) {}
- #ifdef CONFIG_HIBERNATION
-diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
-index 46b1804c1ddf..d848377dd8dc 100644
---- a/kernel/power/snapshot.c
-+++ b/kernel/power/snapshot.c
-@@ -76,6 +76,40 @@ static inline void hibernate_restore_protect_page(void *page_address) {}
- static inline void hibernate_restore_unprotect_page(void *page_address) {}
- #endif /* CONFIG_STRICT_KERNEL_RWX  && CONFIG_ARCH_HAS_SET_MEMORY */
- 
-+
-+/*
-+ * The calls to set_direct_map_*() should not fail because remapping a page
-+ * here means that we only update protection bits in an existing PTE.
-+ * It is still worth to have a warning here if something changes and this
-+ * will no longer be the case.
-+ */
-+static inline void hibernate_map_page(struct page *page)
-+{
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
-+		int ret = set_direct_map_default_noflush(page);
-+
-+		if (ret)
-+			pr_warn_once("Failed to remap page\n");
-+	} else {
-+		debug_pagealloc_map_pages(page, 1);
-+	}
-+}
-+
-+static inline void hibernate_unmap_page(struct page *page)
-+{
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
-+		unsigned long addr = (unsigned long)page_address(page);
-+		int ret  = set_direct_map_invalid_noflush(page);
-+
-+		if (ret)
-+			pr_warn_once("Failed to remap page\n");
-+
-+		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
-+	} else {
-+		debug_pagealloc_unmap_pages(page, 1);
-+	}
-+}
-+
- static int swsusp_page_is_free(struct page *);
- static void swsusp_set_page_forbidden(struct page *);
- static void swsusp_unset_page_forbidden(struct page *);
-@@ -1355,9 +1389,9 @@ static void safe_copy_page(void *dst, struct page *s_page)
- 	if (kernel_page_present(s_page)) {
- 		do_copy_page(dst, page_address(s_page));
- 	} else {
--		kernel_map_pages(s_page, 1, 1);
-+		hibernate_map_page(s_page);
- 		do_copy_page(dst, page_address(s_page));
--		kernel_map_pages(s_page, 1, 0);
-+		hibernate_unmap_page(s_page);
- 	}
- }
- 
--- 
-2.28.0
+readonly doesn't make sense here as we transition away from read-only.
+MD seems to have a read-auto mode, although it usually is spelled with
+the dash, so I'll switch this comment to use the more common spelling.
