@@ -1,107 +1,156 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35632 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728066AbgKCKPp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:15:45 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/10] dasd: implement ->set_read_only to hook into BLKROSET processing
-Date: Tue,  3 Nov 2020 11:00:14 +0100
-Message-Id: <20201103100018.683694-7-hch@lst.de>
-In-Reply-To: <20201103100018.683694-1-hch@lst.de>
-References: <20201103100018.683694-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v2 10/15] net/smc: Introduce SMCR get link command
+Date: Tue,  3 Nov 2020 11:25:26 +0100
+Message-Id: <20201103102531.91710-11-kgraul@linux.ibm.com>
+In-Reply-To: <20201103102531.91710-1-kgraul@linux.ibm.com>
+References: <20201103102531.91710-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-Implement the ->set_read_only method instead of parsing the actual
-ioctl command.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Introduce get link command which loops through
+all available links of all available link groups. It
+uses the SMC-R linkgroup list as entry point, not
+the socket list, which makes linkgroup diagnosis
+possible, in case linkgroup does not contain active
+connections anymore.
+
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/block/dasd.c       |  1 +
- drivers/s390/block/dasd_int.h   |  3 ++-
- drivers/s390/block/dasd_ioctl.c | 27 +++++++++------------------
- 3 files changed, 12 insertions(+), 19 deletions(-)
+ include/uapi/linux/smc_diag.h |  8 +++++
+ net/smc/smc_diag.c            | 62 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 69 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index eb17fea8075c6f..db24e04ee9781e 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -3394,6 +3394,7 @@ dasd_device_operations = {
- 	.ioctl		= dasd_ioctl,
- 	.compat_ioctl	= dasd_ioctl,
- 	.getgeo		= dasd_getgeo,
-+	.set_read_only	= dasd_set_read_only,
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index 6ae028344b6d..a57df0296aa4 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -4,6 +4,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/inet_diag.h>
++#include <linux/if.h>
+ #include <linux/smc.h>
+ #include <rdma/ib_user_verbs.h>
+ 
+@@ -79,6 +80,7 @@ enum {
+ /* SMC_DIAG_GET_LGR_INFO command extensions */
+ enum {
+ 	SMC_DIAG_LGR_INFO_SMCR = 1,
++	SMC_DIAG_LGR_INFO_SMCR_LINK,
  };
  
- /*******************************************************************************
-diff --git a/drivers/s390/block/dasd_int.h b/drivers/s390/block/dasd_int.h
-index fa552f9f166671..c59a0d63b506e6 100644
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -844,7 +844,8 @@ int dasd_scan_partitions(struct dasd_block *);
- void dasd_destroy_partitions(struct dasd_block *);
+ #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
+@@ -129,6 +131,12 @@ struct smc_diag_linkinfo {
+ 	__u8 ibport;			/* RDMA device port number */
+ 	__u8 gid[40];			/* local GID */
+ 	__u8 peer_gid[40];		/* peer GID */
++	/* Fields above used by legacy v1 code */
++	__u32 conn_cnt;
++	__u8 netdev[IFNAMSIZ];		/* ethernet device name */
++	__u8 link_uid[4];		/* unique link id */
++	__u8 peer_link_uid[4];		/* unique peer link id */
++	__u32 link_state;		/* link state */
+ };
  
- /* externals in dasd_ioctl.c */
--int  dasd_ioctl(struct block_device *, fmode_t, unsigned int, unsigned long);
-+int dasd_ioctl(struct block_device *, fmode_t, unsigned int, unsigned long);
-+int dasd_set_read_only(struct block_device *bdev, bool ro);
+ struct smc_diag_lgrinfo {
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index c53904b3f350..6885814b6e4f 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -20,6 +20,7 @@
+ #include <net/smc.h>
  
- /* externals in dasd_proc.c */
- int dasd_proc_init(void);
-diff --git a/drivers/s390/block/dasd_ioctl.c b/drivers/s390/block/dasd_ioctl.c
-index cb6427fb9f3d16..3359559517bfcf 100644
---- a/drivers/s390/block/dasd_ioctl.c
-+++ b/drivers/s390/block/dasd_ioctl.c
-@@ -532,28 +532,22 @@ static int dasd_ioctl_information(struct dasd_block *block, void __user *argp,
- /*
-  * Set read only
-  */
--static int
--dasd_ioctl_set_ro(struct block_device *bdev, void __user *argp)
-+int dasd_set_read_only(struct block_device *bdev, bool ro)
- {
- 	struct dasd_device *base;
--	int intval, rc;
-+	int rc;
+ #include "smc.h"
++#include "smc_ib.h"
+ #include "smc_core.h"
  
--	if (!capable(CAP_SYS_ADMIN))
--		return -EACCES;
-+	/* do not manipulate hardware state for partitions */
- 	if (bdev_is_partition(bdev))
--		// ro setting is not allowed for partitions
--		return -EINVAL;
--	if (get_user(intval, (int __user *)argp))
--		return -EFAULT;
-+		return 0;
-+
- 	base = dasd_device_from_gendisk(bdev->bd_disk);
- 	if (!base)
- 		return -ENODEV;
--	if (!intval && test_bit(DASD_FLAG_DEVICE_RO, &base->flags)) {
--		dasd_put_device(base);
--		return -EROFS;
--	}
--	set_disk_ro(bdev->bd_disk, intval);
--	rc = dasd_set_feature(base->cdev, DASD_FEATURE_READONLY, intval);
-+	if (!ro && test_bit(DASD_FLAG_DEVICE_RO, &base->flags))
-+		rc = -EROFS;
-+	else
-+		rc = dasd_set_feature(base->cdev, DASD_FEATURE_READONLY, ro);
- 	dasd_put_device(base);
- 	return rc;
+ struct smc_diag_dump_ctx {
+@@ -203,6 +204,54 @@ static bool smc_diag_fill_dmbinfo(struct sock *sk, struct sk_buff *skb)
+ 	return true;
  }
-@@ -633,9 +627,6 @@ int dasd_ioctl(struct block_device *bdev, fmode_t mode,
- 	case BIODASDPRRST:
- 		rc = dasd_ioctl_reset_profile(block);
- 		break;
--	case BLKROSET:
--		rc = dasd_ioctl_set_ro(bdev, argp);
--		break;
- 	case DASDAPIVER:
- 		rc = dasd_ioctl_api_version(argp);
- 		break;
+ 
++static int smc_diag_fill_lgr_link(struct smc_link_group *lgr,
++				  struct smc_link *link,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_linkinfo link_info;
++	int dummy = 0, rc = 0;
++	struct nlmsghdr *nlh;
++
++	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
++			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
++
++	memset(&link_info, 0, sizeof(link_info));
++	link_info.link_state = link->state;
++	link_info.link_id = link->link_id;
++	link_info.conn_cnt = atomic_read(&link->conn_cnt);
++	link_info.ibport = link->ibport;
++
++	memcpy(link_info.link_uid, link->link_uid,
++	       sizeof(link_info.link_uid));
++	snprintf(link_info.ibname, sizeof(link_info.ibname), "%s",
++		 link->ibname);
++	snprintf(link_info.netdev, sizeof(link_info.netdev), "%s",
++		 link->ndevname);
++	memcpy(link_info.peer_link_uid, link->peer_link_uid,
++	       sizeof(link_info.peer_link_uid));
++
++	smc_gid_be16_convert(link_info.gid,
++			     link->gid);
++	smc_gid_be16_convert(link_info.peer_gid,
++			     link->peer_gid);
++
++	/* Just a command place holder to signal back the command reply type */
++	if (nla_put(skb, SMC_DIAG_GET_LGR_INFO, sizeof(dummy), &dummy) < 0)
++		goto errout;
++	if (nla_put(skb, SMC_DIAG_LGR_INFO_SMCR_LINK,
++		    sizeof(link_info), &link_info) < 0)
++		goto errout;
++
++	nlmsg_end(skb, nlh);
++	return rc;
++
++errout:
++	nlmsg_cancel(skb, nlh);
++	return -EMSGSIZE;
++}
++
+ static int smc_diag_fill_lgr(struct smc_link_group *lgr,
+ 			     struct sk_buff *skb,
+ 			     struct netlink_callback *cb,
+@@ -238,7 +287,7 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
+ 			       struct smc_diag_req_v2 *req)
+ {
+ 	struct nlmsghdr *nlh;
+-	int rc = 0;
++	int i, rc = 0;
+ 
+ 	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
+ 			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
+@@ -250,6 +299,17 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
+ 		goto errout;
+ 
+ 	nlmsg_end(skb, nlh);
++
++	if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCR_LINK - 1)))) {
++		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++			if (!smc_link_usable(&lgr->lnk[i]))
++				continue;
++			rc = smc_diag_fill_lgr_link(lgr, &lgr->lnk[i], skb,
++						    cb, req);
++			if (rc < 0)
++				goto errout;
++		}
++	}
+ 	return rc;
+ 
+ errout:
 -- 
-2.28.0
+2.17.1
