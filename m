@@ -1,311 +1,127 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v6 14/14] net/smc: Add support for obtaining SMCR device list
-Date: Thu, 26 Nov 2020 21:39:16 +0100
-Message-Id: <20201126203916.56071-15-kgraul@linux.ibm.com>
-In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
-References: <20201126203916.56071-1-kgraul@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:49548 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727688AbgKCQVM (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 3 Nov 2020 11:21:12 -0500
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v4 0/4] arch, mm: improve robustness of direct map manipulation
+Date: Tue,  3 Nov 2020 18:20:53 +0200
+Message-Id: <20201103162057.22916-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Deliver SMCR device information via netlink based
-diagnostic interface.
+Hi,
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- include/uapi/linux/smc.h |  13 +++-
- net/smc/smc_core.c       |   2 +-
- net/smc/smc_ib.c         | 156 +++++++++++++++++++++++++++++++++++++++
- net/smc/smc_ib.h         |   2 +
- net/smc/smc_netlink.c    |   6 ++
- 5 files changed, 176 insertions(+), 3 deletions(-)
+During recent discussion about KVM protected memory, David raised a concern
+about usage of __kernel_map_pages() outside of DEBUG_PAGEALLOC scope [1].
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 3cb40ab049d9..3e68da07fba2 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -46,6 +46,7 @@ enum {
- 	SMC_NETLINK_GET_LINK_SMCR,
- 	SMC_NETLINK_GET_LGR_SMCD,
- 	SMC_NETLINK_GET_DEV_SMCD,
-+	SMC_NETLINK_GET_DEV_SMCR,
- };
- 
- /* SMC_GENL_FAMILY top level attributes */
-@@ -56,6 +57,7 @@ enum {
- 	SMC_GEN_LINK_SMCR,		/* nest */
- 	SMC_GEN_LGR_SMCD,		/* nest */
- 	SMC_GEN_DEV_SMCD,		/* nest */
-+	SMC_GEN_DEV_SMCR,		/* nest */
- 	__SMC_GEN_MAX,
- 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
- };
-@@ -127,16 +129,20 @@ enum {
- 	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
- };
- 
--/* SMC_NLA_DEV_PORT attributes */
-+/* SMC_NLA_DEV_PORT nested attributes */
- enum {
- 	SMC_NLA_DEV_PORT_UNSPEC,
- 	SMC_NLA_DEV_PORT_PNET_USR,	/* u8 */
- 	SMC_NLA_DEV_PORT_PNETID,	/* string */
-+	SMC_NLA_DEV_PORT_NETDEV,	/* u32 */
-+	SMC_NLA_DEV_PORT_STATE,		/* u8 */
-+	SMC_NLA_DEV_PORT_VALID,		/* u8 */
-+	SMC_NLA_DEV_PORT_LNK_CNT,	/* u32 */
- 	__SMC_NLA_DEV_PORT_MAX,
- 	SMC_NLA_DEV_PORT_MAX = __SMC_NLA_DEV_PORT_MAX - 1
- };
- 
--/* SMC_GEN_DEV_SMCD attributes */
-+/* SMC_GEN_DEV_SMCD and SMC_GEN_DEV_SMCR attributes */
- enum {
- 	SMC_NLA_DEV_UNSPEC,
- 	SMC_NLA_DEV_USE_CNT,		/* u32 */
-@@ -147,7 +153,10 @@ enum {
- 	SMC_NLA_DEV_PCI_DEVICE,		/* u16 */
- 	SMC_NLA_DEV_PCI_ID,		/* string */
- 	SMC_NLA_DEV_PORT,		/* nest */
-+	SMC_NLA_DEV_PORT2,		/* nest */
-+	SMC_NLA_DEV_IB_NAME,		/* string */
- 	__SMC_NLA_DEV_MAX,
- 	SMC_NLA_DEV_MAX = __SMC_NLA_DEV_MAX - 1
- };
-+
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 501c0aefec7f..a9f5ed16729e 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -38,7 +38,7 @@
- #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
- #define SMC_LGR_FREE_DELAY_CLNT		(SMC_LGR_FREE_DELAY_SERV + 10 * HZ)
- 
--static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
-+struct smc_lgr_list smc_lgr_list = {	/* established link groups */
- 	.lock = __SPIN_LOCK_UNLOCKED(smc_lgr_list.lock),
- 	.list = LIST_HEAD_INIT(smc_lgr_list.list),
- 	.num = 0,
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 61b025c912a9..e0ba3c22107c 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -25,6 +25,7 @@
- #include "smc_core.h"
- #include "smc_wr.h"
- #include "smc.h"
-+#include "smc_netlink.h"
- 
- #define SMC_MAX_CQE 32766	/* max. # of completion queue elements */
- 
-@@ -326,6 +327,161 @@ int smc_ib_create_protection_domain(struct smc_link *lnk)
- 	return rc;
- }
- 
-+static bool smcr_diag_is_dev_critical(struct smc_lgr_list *smc_lgr,
-+				      struct smc_ib_device *smcibdev)
-+{
-+	struct smc_link_group *lgr;
-+	bool rc = false;
-+	int i;
-+
-+	spin_lock_bh(&smc_lgr->lock);
-+	list_for_each_entry(lgr, &smc_lgr->list, list) {
-+		if (lgr->is_smcd)
-+			continue;
-+		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+			if (lgr->lnk[i].state == SMC_LNK_UNUSED ||
-+			    lgr->lnk[i].smcibdev != smcibdev)
-+				continue;
-+			if (lgr->type == SMC_LGR_SINGLE ||
-+			    lgr->type == SMC_LGR_ASYMMETRIC_LOCAL) {
-+				rc = true;
-+				goto out;
-+			}
-+		}
-+	}
-+out:
-+	spin_unlock_bh(&smc_lgr->lock);
-+	return rc;
-+}
-+
-+static int smc_nl_handle_dev_port(struct sk_buff *skb,
-+				  struct ib_device *ibdev,
-+				  struct smc_ib_device *smcibdev,
-+				  int port)
-+{
-+	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
-+	struct nlattr *port_attrs;
-+	unsigned char port_state;
-+	int lnk_count = 0;
-+
-+	port_attrs = nla_nest_start_noflag(skb, SMC_NLA_DEV_PORT + port);
-+	if (!port_attrs)
-+		goto errout;
-+
-+	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR,
-+		       smcibdev->pnetid_by_user[port]))
-+		goto errattr;
-+	snprintf(smc_pnet, sizeof(smc_pnet), "%s",
-+		 (char *)&smcibdev->pnetid[port]);
-+	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet))
-+		goto errattr;
-+	if (nla_put_u32(skb, SMC_NLA_DEV_PORT_NETDEV,
-+			smcibdev->ndev_ifidx[port]))
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_VALID, 1))
-+		goto errattr;
-+	port_state = smc_ib_port_active(smcibdev, port + 1);
-+	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_STATE, port_state))
-+		goto errattr;
-+	lnk_count = atomic_read(&smcibdev->lnk_cnt_by_port[port]);
-+	if (nla_put_u32(skb, SMC_NLA_DEV_PORT_LNK_CNT, lnk_count))
-+		goto errattr;
-+	nla_nest_end(skb, port_attrs);
-+	return 0;
-+errattr:
-+	nla_nest_cancel(skb, port_attrs);
-+errout:
-+	return -EMSGSIZE;
-+}
-+
-+static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb)
-+{
-+	char smc_ibname[IB_DEVICE_NAME_MAX + 1];
-+	struct smc_pci_dev smc_pci_dev;
-+	struct pci_dev *pci_dev;
-+	unsigned char is_crit;
-+	struct nlattr *attrs;
-+	void *nlh;
-+	int i;
-+
-+	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-+			  &smc_gen_nl_family, NLM_F_MULTI,
-+			  SMC_NETLINK_GET_DEV_SMCR);
-+	if (!nlh)
-+		goto errmsg;
-+	attrs = nla_nest_start_noflag(skb, SMC_GEN_DEV_SMCR);
-+	if (!attrs)
-+		goto errout;
-+	is_crit = smcr_diag_is_dev_critical(&smc_lgr_list, smcibdev);
-+	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, is_crit))
-+		goto errattr;
-+	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
-+	pci_dev = to_pci_dev(smcibdev->ibdev->dev.parent);
-+	smc_set_pci_values(pci_dev, &smc_pci_dev);
-+	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_VENDOR, smc_pci_dev.pci_vendor))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_DEVICE, smc_pci_dev.pci_device))
-+		goto errattr;
-+	if (nla_put_string(skb, SMC_NLA_DEV_PCI_ID, smc_pci_dev.pci_id))
-+		goto errattr;
-+	snprintf(smc_ibname, sizeof(smc_ibname), "%s", smcibdev->ibdev->name);
-+	if (nla_put_string(skb, SMC_NLA_DEV_IB_NAME, smc_ibname))
-+		goto errattr;
-+	for (i = 1; i <= SMC_MAX_PORTS; i++) {
-+		if (!rdma_is_port_valid(smcibdev->ibdev, i))
-+			continue;
-+		if (smc_nl_handle_dev_port(skb, smcibdev->ibdev,
-+					   smcibdev, i - 1))
-+			goto errattr;
-+	}
-+
-+	nla_nest_end(skb, attrs);
-+	genlmsg_end(skb, nlh);
-+	return 0;
-+
-+errattr:
-+	nla_nest_cancel(skb, attrs);
-+errout:
-+	genlmsg_cancel(skb, nlh);
-+errmsg:
-+	return -EMSGSIZE;
-+}
-+
-+static void smc_nl_prep_smcr_dev(struct smc_ib_devices *dev_list,
-+				 struct sk_buff *skb,
-+				 struct netlink_callback *cb)
-+{
-+	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-+	struct smc_ib_device *smcibdev;
-+	int snum = cb_ctx->pos[0];
-+	int num = 0;
-+
-+	mutex_lock(&dev_list->mutex);
-+	list_for_each_entry(smcibdev, &dev_list->list, list) {
-+		if (num < snum)
-+			goto next;
-+		if (smc_nl_handle_smcr_dev(smcibdev, skb, cb))
-+			goto errout;
-+next:
-+		num++;
-+	}
-+errout:
-+	mutex_unlock(&dev_list->mutex);
-+	cb_ctx->pos[0] = num;
-+}
-+
-+int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	smc_nl_prep_smcr_dev(&smc_ib_devices, skb, cb);
-+	return skb->len;
-+}
-+
- static void smc_ib_qp_event_handler(struct ib_event *ibevent, void *priv)
- {
- 	struct smc_link *lnk = (struct smc_link *)priv;
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index ab37da341fa8..3085f5180da7 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -30,6 +30,7 @@ struct smc_ib_devices {			/* list of smc ib devices definition */
- };
- 
- extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
-+extern struct smc_lgr_list smc_lgr_list; /* list of linkgroups */
- 
- struct smc_ib_device {				/* ib-device infos for smc */
- 	struct list_head	list;
-@@ -91,4 +92,5 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
- int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
- 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index);
- bool smc_ib_is_valid_local_systemid(void);
-+int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
- #endif
-diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-index bf114e10d332..f5a1e48a258c 100644
---- a/net/smc/smc_netlink.c
-+++ b/net/smc/smc_netlink.c
-@@ -18,6 +18,7 @@
- 
- #include "smc_core.h"
- #include "smc_ism.h"
-+#include "smc_ib.h"
- #include "smc_netlink.h"
- 
- /* SMC_GENL generic netlink operation definition */
-@@ -47,6 +48,11 @@ static const struct genl_ops smc_gen_nl_ops[] = {
- 		/* can be retrieved by unprivileged users */
- 		.dumpit = smcd_nl_get_device,
- 	},
-+	{
-+		.cmd = SMC_NETLINK_GET_DEV_SMCR,
-+		/* can be retrieved by unprivileged users */
-+		.dumpit = smcr_nl_get_device,
-+	},
- };
- 
- /* SMC_GENL family definition */
+Indeed, for architectures that define CONFIG_ARCH_HAS_SET_DIRECT_MAP it is
+possible that __kernel_map_pages() would fail, but since this function is
+void, the failure will go unnoticed.
+
+Moreover, there's lack of consistency of __kernel_map_pages() semantics
+across architectures as some guard this function with
+#ifdef DEBUG_PAGEALLOC, some refuse to update the direct map if page
+allocation debugging is disabled at run time and some allow modifying the
+direct map regardless of DEBUG_PAGEALLOC settings.
+
+This set straightens this out by restoring dependency of
+__kernel_map_pages() on DEBUG_PAGEALLOC and updating the call sites
+accordingly. 
+
+Since currently the only user of __kernel_map_pages() outside
+DEBUG_PAGEALLOC is hibernation, it is updated to make direct map accesses
+there more explicit.
+
+[1] https://lore.kernel.org/lkml/2759b4bf-e1e3-d006-7d86-78a40348269d@redhat.com
+
+v4 changes:
+* s/WARN_ON/pr_warn_once/ per David and Kirill
+* rebase on v5.10-rc2
+* add Acked/Reviewed tags
+
+v3 changes:
+* update arm64 changes to avoid regression, per Rick's comments
+* fix bisectability
+https://lore.kernel.org/lkml/20201101170815.9795-1-rppt@kernel.org
+
+v2 changes:
+* Rephrase patch 2 changelog to better describe the change intentions and
+implications
+* Move removal of kernel_map_pages() from patch 1 to patch 2, per David
+https://lore.kernel.org/lkml/20201029161902.19272-1-rppt@kernel.org
+
+v1:
+https://lore.kernel.org/lkml/20201025101555.3057-1-rppt@kernel.org
+
+Mike Rapoport (4):
+  mm: introduce debug_pagealloc_map_pages() helper
+  PM: hibernate: make direct map manipulations more explicit
+  arch, mm: restore dependency of __kernel_map_pages() of DEBUG_PAGEALLOC
+  arch, mm: make kernel_page_present() always available
+
+ arch/Kconfig                        |  3 +++
+ arch/arm64/Kconfig                  |  4 +---
+ arch/arm64/include/asm/cacheflush.h |  1 +
+ arch/arm64/mm/pageattr.c            |  6 +++--
+ arch/powerpc/Kconfig                |  5 +----
+ arch/riscv/Kconfig                  |  4 +---
+ arch/riscv/include/asm/pgtable.h    |  2 --
+ arch/riscv/include/asm/set_memory.h |  1 +
+ arch/riscv/mm/pageattr.c            | 31 +++++++++++++++++++++++++
+ arch/s390/Kconfig                   |  4 +---
+ arch/sparc/Kconfig                  |  4 +---
+ arch/x86/Kconfig                    |  4 +---
+ arch/x86/include/asm/set_memory.h   |  1 +
+ arch/x86/mm/pat/set_memory.c        |  4 ++--
+ include/linux/mm.h                  | 35 +++++++++++++----------------
+ include/linux/set_memory.h          |  5 +++++
+ kernel/power/snapshot.c             | 30 +++++++++++++++++++++++--
+ mm/memory_hotplug.c                 |  3 +--
+ mm/page_alloc.c                     |  6 ++---
+ mm/slab.c                           |  8 +++----
+ 20 files changed, 103 insertions(+), 58 deletions(-)
+
 -- 
-2.17.1
+2.28.0
+
+*** BLURB HERE ***
+
+Mike Rapoport (4):
+  mm: introduce debug_pagealloc_map_pages() helper
+  PM: hibernate: make direct map manipulations more explicit
+  arch, mm: restore dependency of __kernel_map_pages() of
+    DEBUG_PAGEALLOC
+  arch, mm: make kernel_page_present() always available
+
+ arch/Kconfig                        |  3 +++
+ arch/arm64/Kconfig                  |  4 +---
+ arch/arm64/include/asm/cacheflush.h |  1 +
+ arch/arm64/mm/pageattr.c            |  6 +++--
+ arch/powerpc/Kconfig                |  5 +----
+ arch/riscv/Kconfig                  |  4 +---
+ arch/riscv/include/asm/pgtable.h    |  2 --
+ arch/riscv/include/asm/set_memory.h |  1 +
+ arch/riscv/mm/pageattr.c            | 31 +++++++++++++++++++++++++
+ arch/s390/Kconfig                   |  4 +---
+ arch/sparc/Kconfig                  |  4 +---
+ arch/x86/Kconfig                    |  4 +---
+ arch/x86/include/asm/set_memory.h   |  1 +
+ arch/x86/mm/pat/set_memory.c        |  4 ++--
+ include/linux/mm.h                  | 35 +++++++++++++----------------
+ include/linux/set_memory.h          |  5 +++++
+ kernel/power/snapshot.c             | 32 ++++++++++++++++++++++++--
+ mm/memory_hotplug.c                 |  3 +--
+ mm/page_alloc.c                     |  6 ++---
+ mm/slab.c                           |  8 +++----
+ 20 files changed, 105 insertions(+), 58 deletions(-)
+
+
+base-commit: 3cea11cd5e3b00d91caf0b4730194039b45c5891
+-- 
+2.28.0
