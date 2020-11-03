@@ -1,56 +1,45 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44802 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727320AbgKGNAR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Nov 2020 08:00:17 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v3 02/15] net/smc: Use active link of the connection
-Date: Sat,  7 Nov 2020 13:59:45 +0100
-Message-Id: <20201107125958.16384-3-kgraul@linux.ibm.com>
-In-Reply-To: <20201107125958.16384-1-kgraul@linux.ibm.com>
-References: <20201107125958.16384-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: YiFei Zhu <zhuyifei1999@gmail.com>
+Subject: [PATCH seccomp 6/8] sh: Enable seccomp architecture tracking
+Date: Tue,  3 Nov 2020 07:43:02 -0600
+Message-Id: <46d7f8d02bdaadf364a59db2d60f43466227b3af.1604410035.git.yifeifz2@illinois.edu>
+In-Reply-To: <cover.1604410035.git.yifeifz2@illinois.edu>
+References: <cover.1604410035.git.yifeifz2@illinois.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: containers@lists.linux-foundation.org
+Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+From: YiFei Zhu <yifeifz2@illinois.edu>
 
-Use active link of the connection directly and not
-via linkgroup array structure when obtaining link
-data of the connection.
+To enable seccomp constant action bitmaps, we need to have a static
+mapping to the audit architecture and system call table size. Add these
+for sh.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
 ---
- net/smc/smc_diag.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/sh/include/asm/seccomp.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index f15fca59b4b2..c2225231f679 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -160,17 +160,17 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_diag_lgrinfo linfo = {
- 			.role = smc->conn.lgr->role,
--			.lnk[0].ibport = smc->conn.lgr->lnk[0].ibport,
--			.lnk[0].link_id = smc->conn.lgr->lnk[0].link_id,
-+			.lnk[0].ibport = smc->conn.lnk->ibport,
-+			.lnk[0].link_id = smc->conn.lnk->link_id,
- 		};
+diff --git a/arch/sh/include/asm/seccomp.h b/arch/sh/include/asm/seccomp.h
+index 54111e4d32b8..b8d169292a34 100644
+--- a/arch/sh/include/asm/seccomp.h
++++ b/arch/sh/include/asm/seccomp.h
+@@ -8,4 +8,14 @@
+ #define __NR_seccomp_exit __NR_exit
+ #define __NR_seccomp_sigreturn __NR_rt_sigreturn
  
- 		memcpy(linfo.lnk[0].ibname,
- 		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
--		       sizeof(smc->conn.lgr->lnk[0].smcibdev->ibdev->name));
-+		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
- 		smc_gid_be16_convert(linfo.lnk[0].gid,
--				     smc->conn.lgr->lnk[0].gid);
-+				     smc->conn.lnk->gid);
- 		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
--				     smc->conn.lgr->lnk[0].peer_gid);
-+				     smc->conn.lnk->peer_gid);
- 
- 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
- 			goto errout;
++#ifdef CONFIG_CPU_LITTLE_ENDIAN
++#define __SECCOMP_ARCH_LE_BIT		__AUDIT_ARCH_LE
++#else
++#define __SECCOMP_ARCH_LE_BIT		0
++#endif
++
++#define SECCOMP_ARCH_NATIVE		(AUDIT_ARCH_SH | __SECCOMP_ARCH_LE)
++#define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
++#define SECCOMP_ARCH_NATIVE_NAME	"sh"
++
+ #endif /* __ASM_SECCOMP_H */
 -- 
-2.17.1
+2.29.2
