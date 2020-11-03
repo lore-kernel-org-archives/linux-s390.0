@@ -1,35 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from verein.lst.de ([213.95.11.211]:36466 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725993AbgKCJcv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 3 Nov 2020 04:32:51 -0500
-Date: Tue, 3 Nov 2020 10:32:32 +0100
-From: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 06/11] md: implement ->set_read_only to hook into
- BLKROSET processing
-Message-ID: <20201103093232.GB17061@lst.de>
-References: <20201031085810.450489-1-hch@lst.de> <20201031085810.450489-7-hch@lst.de> <87y2jjpa09.fsf@canonical.com>
+Received: from youngberry.canonical.com ([91.189.89.112]:38785 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726104AbgKCATq (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 19:19:46 -0500
+From: James Troup <james.troup@canonical.com>
+Subject: Re: [PATCH 06/11] md: implement ->set_read_only to hook into BLKROSET processing
+References: <20201031085810.450489-1-hch@lst.de>
+        <20201031085810.450489-7-hch@lst.de>
+Date: Tue, 03 Nov 2020 00:19:34 +0000
+In-Reply-To: <20201031085810.450489-7-hch@lst.de> (Christoph Hellwig's message
+        of "Sat, 31 Oct 2020 09:58:05 +0100")
+Message-ID: <87y2jjpa09.fsf@canonical.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87y2jjpa09.fsf@canonical.com>
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: James Troup <james.troup@canonical.com>
-Cc: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>, Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-On Tue, Nov 03, 2020 at 12:19:34AM +0000, James Troup wrote:
-> Christoph Hellwig <hch@lst.de> writes:
-> 
-> > @@ -7809,6 +7778,36 @@ static int md_compat_ioctl(struct block_device *bdev, fmode_t mode,
-> 
-> [...]
-> 
-> > +	 * Transitioning to readauto need only happen for arrays that call
-> > +	 * md_write_start and which are not ready for writes yet.
-> 
-> I realise you're just moving the comment around but perhaps you could
-> s/readauto/readonly/ while you're doing so?
+Christoph Hellwig <hch@lst.de> writes:
 
-readonly doesn't make sense here as we transition away from read-only.
-MD seems to have a read-auto mode, although it usually is spelled with
-the dash, so I'll switch this comment to use the more common spelling.
+> @@ -7809,6 +7778,36 @@ static int md_compat_ioctl(struct block_device *bdev, fmode_t mode,
+
+[...]
+
+> +	 * Transitioning to readauto need only happen for arrays that call
+> +	 * md_write_start and which are not ready for writes yet.
+
+I realise you're just moving the comment around but perhaps you could
+s/readauto/readonly/ while you're doing so?
+
+-- 
+James
