@@ -1,79 +1,86 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 15/21] s390/smp: move rcu_cpu_starting() earlier
-Date: Mon,  9 Nov 2020 22:55:35 -0500
-Message-Id: <20201110035541.424648-15-sashal@kernel.org>
-In-Reply-To: <20201110035541.424648-1-sashal@kernel.org>
-References: <20201110035541.424648-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v2 08/15] net/smc: Add ability to work with extended SMC netlink API
+Date: Tue,  3 Nov 2020 11:25:24 +0100
+Message-Id: <20201103102531.91710-9-kgraul@linux.ibm.com>
+In-Reply-To: <20201103102531.91710-1-kgraul@linux.ibm.com>
+References: <20201103102531.91710-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Qian Cai <cai@redhat.com>, "Paul E . McKenney" <paulmck@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-From: Qian Cai <cai@redhat.com>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-[ Upstream commit de5d9dae150ca1c1b5c7676711a9ca139d1a8dec ]
+smc_diag module should be able to work with legacy and
+extended netlink api. This is done by using the sequence field
+of the netlink message header. Sequence field is optional and was
+filled with a constant value MAGIC_SEQ in the current
+implementation.
+New constant values MAGIC_SEQ_V2 and MAGIC_SEQ_V2_ACK are used to
+signal the usage of the new Netlink API between userspace and
+kernel.
 
-The call to rcu_cpu_starting() in smp_init_secondary() is not early
-enough in the CPU-hotplug onlining process, which results in lockdep
-splats as follows:
-
- WARNING: suspicious RCU usage
- -----------------------------
- kernel/locking/lockdep.c:3497 RCU-list traversed in non-reader section!!
-
- other info that might help us debug this:
-
- RCU used illegally from offline CPU!
- rcu_scheduler_active = 1, debug_locks = 1
- no locks held by swapper/1/0.
-
- Call Trace:
- show_stack+0x158/0x1f0
- dump_stack+0x1f2/0x238
- __lock_acquire+0x2640/0x4dd0
- lock_acquire+0x3a8/0xd08
- _raw_spin_lock_irqsave+0xc0/0xf0
- clockevents_register_device+0xa8/0x528
- init_cpu_timer+0x33e/0x468
- smp_init_secondary+0x11a/0x328
- smp_start_secondary+0x82/0x88
-
-This is avoided by moving the call to rcu_cpu_starting up near the
-beginning of the smp_init_secondary() function. Note that the
-raw_smp_processor_id() is required in order to avoid calling into
-lockdep before RCU has declared the CPU to be watched for readers.
-
-Link: https://lore.kernel.org/lkml/160223032121.7002.1269740091547117869.tip-bot2@tip-bot2/
-Signed-off-by: Qian Cai <cai@redhat.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/s390/kernel/smp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/uapi/linux/smc_diag.h |  7 +++++++
+ net/smc/smc_diag.c            | 21 +++++++++++++--------
+ 2 files changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 8e31dfd85de32..888f247c9261a 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -831,7 +831,7 @@ void __init smp_detect_cpus(void)
-  */
- static void smp_start_secondary(void *cpuvoid)
- {
--	int cpu = smp_processor_id();
-+	int cpu = raw_smp_processor_id();
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index 8cb3a6fef553..236c1c52d562 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -6,6 +6,13 @@
+ #include <linux/inet_diag.h>
+ #include <rdma/ib_user_verbs.h>
  
- 	S390_lowcore.last_update_clock = get_tod_clock();
- 	S390_lowcore.restart_stack = (unsigned long) restart_stack;
-@@ -844,6 +844,7 @@ static void smp_start_secondary(void *cpuvoid)
- 	set_cpu_flag(CIF_ASCE_PRIMARY);
- 	set_cpu_flag(CIF_ASCE_SECONDARY);
- 	cpu_init();
-+	rcu_cpu_starting(cpu);
- 	preempt_disable();
- 	init_cpu_timer();
- 	vtime_init();
++/* Sequence numbers */
++enum {
++	MAGIC_SEQ = 123456,
++	MAGIC_SEQ_V2,
++	MAGIC_SEQ_V2_ACK,
++};
++
+ /* Request structure */
+ struct smc_diag_req {
+ 	__u8	diag_family;
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 44be723c97fe..bc2b616524ff 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -293,19 +293,24 @@ static int smc_diag_dump(struct sk_buff *skb, struct netlink_callback *cb)
+ 	return skb->len;
+ }
+ 
++static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
++{
++	return skb->len;
++}
++
+ static int smc_diag_handler_dump(struct sk_buff *skb, struct nlmsghdr *h)
+ {
+ 	struct net *net = sock_net(skb->sk);
+-
++	struct netlink_dump_control c = {
++		.min_dump_alloc = SKB_WITH_OVERHEAD(32768),
++	};
+ 	if (h->nlmsg_type == SOCK_DIAG_BY_FAMILY &&
+ 	    h->nlmsg_flags & NLM_F_DUMP) {
+-		{
+-			struct netlink_dump_control c = {
+-				.dump = smc_diag_dump,
+-				.min_dump_alloc = SKB_WITH_OVERHEAD(32768),
+-			};
+-			return netlink_dump_start(net->diag_nlsk, skb, h, &c);
+-		}
++		if (h->nlmsg_seq >= MAGIC_SEQ_V2)
++			c.dump = smc_diag_dump_ext;
++		else
++			c.dump = smc_diag_dump;
++		return netlink_dump_start(net->diag_nlsk, skb, h, &c);
+ 	}
+ 	return 0;
+ }
 -- 
-2.27.0
+2.17.1
