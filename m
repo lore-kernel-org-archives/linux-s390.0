@@ -1,66 +1,57 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net 1/2] net/af_iucv: fix null pointer dereference on shutdown
-Date: Fri,  6 Nov 2020 13:50:07 +0100
-Message-Id: <20201106125008.36478-2-jwi@linux.ibm.com>
-In-Reply-To: <20201106125008.36478-1-jwi@linux.ibm.com>
-References: <20201106125008.36478-1-jwi@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725988AbgKCKJM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:09:12 -0500
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 03/10] block: add a new set_read_only method
+Date: Tue,  3 Nov 2020 11:00:11 +0100
+Message-Id: <20201103100018.683694-4-hch@lst.de>
+In-Reply-To: <20201103100018.683694-1-hch@lst.de>
+References: <20201103100018.683694-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
+Add a new method to allow for driver-specific processing when setting or
+clearing the block device read-only state.  This allows to replace the
+cumbersome and error-prone override of the whole ioctl implementation.
 
-syzbot reported the following KASAN finding:
-
-BUG: KASAN: nullptr-dereference in iucv_send_ctrl+0x390/0x3f0 net/iucv/af_iucv.c:385
-Read of size 2 at addr 000000000000021e by task syz-executor907/519
-
-CPU: 0 PID: 519 Comm: syz-executor907 Not tainted 5.9.0-syzkaller-07043-gbcf9877ad213 #0
-Hardware name: IBM 3906 M04 701 (KVM/Linux)
-Call Trace:
- [<00000000c576af60>] unwind_start arch/s390/include/asm/unwind.h:65 [inline]
- [<00000000c576af60>] show_stack+0x180/0x228 arch/s390/kernel/dumpstack.c:135
- [<00000000c9dcd1f8>] __dump_stack lib/dump_stack.c:77 [inline]
- [<00000000c9dcd1f8>] dump_stack+0x268/0x2f0 lib/dump_stack.c:118
- [<00000000c5fed016>] print_address_description.constprop.0+0x5e/0x218 mm/kasan/report.c:383
- [<00000000c5fec82a>] __kasan_report mm/kasan/report.c:517 [inline]
- [<00000000c5fec82a>] kasan_report+0x11a/0x168 mm/kasan/report.c:534
- [<00000000c98b5b60>] iucv_send_ctrl+0x390/0x3f0 net/iucv/af_iucv.c:385
- [<00000000c98b6262>] iucv_sock_shutdown+0x44a/0x4c0 net/iucv/af_iucv.c:1457
- [<00000000c89d3a54>] __sys_shutdown+0x12c/0x1c8 net/socket.c:2204
- [<00000000c89d3b70>] __do_sys_shutdown net/socket.c:2212 [inline]
- [<00000000c89d3b70>] __s390x_sys_shutdown+0x38/0x48 net/socket.c:2210
- [<00000000c9e36eac>] system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-There is nothing to shutdown if a connection has never been established.
-Besides that iucv->hs_dev is not yet initialized if a socket is in
-IUCV_OPEN state and iucv->path is not yet initialized if socket is in
-IUCV_BOUND state.
-So, just skip the shutdown calls for a socket in these states.
-
-Fixes: eac3731bd04c ("s390: Add AF_IUCV socket support")
-Fixes: 82492a355fac ("af_iucv: add shutdown for HS transport")
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/iucv/af_iucv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ block/ioctl.c          | 5 +++++
+ include/linux/blkdev.h | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index d80572074667..047238f01ba6 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1434,7 +1434,8 @@ static int iucv_sock_shutdown(struct socket *sock, int how)
- 		break;
- 	}
- 
--	if (how == SEND_SHUTDOWN || how == SHUTDOWN_MASK) {
-+	if ((how == SEND_SHUTDOWN || how == SHUTDOWN_MASK) &&
-+	    sk->sk_state == IUCV_CONNECTED) {
- 		if (iucv->transport == AF_IUCV_TRANS_IUCV) {
- 			txmsg.class = 0;
- 			txmsg.tag = 0;
+diff --git a/block/ioctl.c b/block/ioctl.c
+index c6d8863f040945..a6fa16b9770593 100644
+--- a/block/ioctl.c
++++ b/block/ioctl.c
+@@ -389,6 +389,11 @@ static int blkdev_roset(struct block_device *bdev, fmode_t mode,
+ 		return ret;
+ 	if (get_user(n, (int __user *)arg))
+ 		return -EFAULT;
++	if (bdev->bd_disk->fops->set_read_only) {
++		ret = bdev->bd_disk->fops->set_read_only(bdev, n);
++		if (ret)
++			return ret;
++	}
+ 	set_device_ro(bdev, n);
+ 	return 0;
+ }
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 639cae2c158b59..5c1ba8a8d2bc7e 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1850,6 +1850,7 @@ struct block_device_operations {
+ 	void (*unlock_native_capacity) (struct gendisk *);
+ 	int (*revalidate_disk) (struct gendisk *);
+ 	int (*getgeo)(struct block_device *, struct hd_geometry *);
++	int (*set_read_only)(struct block_device *bdev, bool ro);
+ 	/* this callback is with swap_lock and sometimes page table lock held */
+ 	void (*swap_slot_free_notify) (struct block_device *, unsigned long);
+ 	int (*report_zones)(struct gendisk *, sector_t sector,
 -- 
-2.17.1
+2.28.0
