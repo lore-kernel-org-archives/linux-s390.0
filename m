@@ -1,52 +1,72 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 02/15] net/smc: Use active link of the connection
-Date: Tue,  3 Nov 2020 11:25:18 +0100
-Message-Id: <20201103102531.91710-3-kgraul@linux.ibm.com>
-In-Reply-To: <20201103102531.91710-1-kgraul@linux.ibm.com>
-References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33884 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726013AbgKCKEs (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:04:48 -0500
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 01/10] mtd_blkdevs: don't override BLKFLSBUF
+Date: Tue,  3 Nov 2020 11:00:09 +0100
+Message-Id: <20201103100018.683694-2-hch@lst.de>
+In-Reply-To: <20201103100018.683694-1-hch@lst.de>
+References: <20201103100018.683694-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+BLKFLSBUF is not supposed to actually send a flush command to the device,
+but to tear down buffer cache structures.  Remove the mtd_blkdevs
+implementation and just use the default semantics instead.
 
-Use active link of the connection directly and not
-via linkgroup array structure when obtaining link
-data of the connection.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Richard Weinberger <richard@nod.at>
 ---
- net/smc/smc_diag.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/mtd/mtd_blkdevs.c | 28 ----------------------------
+ 1 file changed, 28 deletions(-)
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index f15fca59b4b2..c2225231f679 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -160,17 +160,17 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_diag_lgrinfo linfo = {
- 			.role = smc->conn.lgr->role,
--			.lnk[0].ibport = smc->conn.lgr->lnk[0].ibport,
--			.lnk[0].link_id = smc->conn.lgr->lnk[0].link_id,
-+			.lnk[0].ibport = smc->conn.lnk->ibport,
-+			.lnk[0].link_id = smc->conn.lnk->link_id,
- 		};
+diff --git a/drivers/mtd/mtd_blkdevs.c b/drivers/mtd/mtd_blkdevs.c
+index 0c05f77f9b216e..fb8e12d590a13a 100644
+--- a/drivers/mtd/mtd_blkdevs.c
++++ b/drivers/mtd/mtd_blkdevs.c
+@@ -298,38 +298,10 @@ static int blktrans_getgeo(struct block_device *bdev, struct hd_geometry *geo)
+ 	return ret;
+ }
  
- 		memcpy(linfo.lnk[0].ibname,
- 		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
--		       sizeof(smc->conn.lgr->lnk[0].smcibdev->ibdev->name));
-+		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
- 		smc_gid_be16_convert(linfo.lnk[0].gid,
--				     smc->conn.lgr->lnk[0].gid);
-+				     smc->conn.lnk->gid);
- 		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
--				     smc->conn.lgr->lnk[0].peer_gid);
-+				     smc->conn.lnk->peer_gid);
+-static int blktrans_ioctl(struct block_device *bdev, fmode_t mode,
+-			      unsigned int cmd, unsigned long arg)
+-{
+-	struct mtd_blktrans_dev *dev = blktrans_dev_get(bdev->bd_disk);
+-	int ret = -ENXIO;
+-
+-	if (!dev)
+-		return ret;
+-
+-	mutex_lock(&dev->lock);
+-
+-	if (!dev->mtd)
+-		goto unlock;
+-
+-	switch (cmd) {
+-	case BLKFLSBUF:
+-		ret = dev->tr->flush ? dev->tr->flush(dev) : 0;
+-		break;
+-	default:
+-		ret = -ENOTTY;
+-	}
+-unlock:
+-	mutex_unlock(&dev->lock);
+-	blktrans_dev_put(dev);
+-	return ret;
+-}
+-
+ static const struct block_device_operations mtd_block_ops = {
+ 	.owner		= THIS_MODULE,
+ 	.open		= blktrans_open,
+ 	.release	= blktrans_release,
+-	.ioctl		= blktrans_ioctl,
+ 	.getgeo		= blktrans_getgeo,
+ };
  
- 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
- 			goto errout;
 -- 
-2.17.1
+2.28.0
