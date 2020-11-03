@@ -1,100 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48748 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730682AbgKDCmu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 21:42:50 -0500
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9577C061A4D
-        for <linux-s390@vger.kernel.org>; Tue,  3 Nov 2020 18:42:48 -0800 (PST)
-Received: by mail-ej1-x644.google.com with SMTP id i19so16580707ejx.9
-        for <linux-s390@vger.kernel.org>; Tue, 03 Nov 2020 18:42:48 -0800 (PST)
-MIME-Version: 1.0
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:42644 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727688AbgKCTC3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 14:02:29 -0500
+From: Sven Schnelle <svens@linux.ibm.com>
+Subject: Re: [PATCH v3 1/1] selinux: fix error initialization in
+ inode_doinit_with_dentry()
 References: <CAHC9VhQTp3Rc_7zM661Rzur0XSuWRWKJJg=CwLPAQo5ABRpS-w@mail.gmail.com>
- <20201009013630.6777-1-rentianyue@tj.kylinos.cn> <20201009013630.6777-2-rentianyue@tj.kylinos.cn>
- <CAHC9VhR2KPKN8ot9WrkjZQ08X-VPDGkXro18C5jhDEwcFH6wog@mail.gmail.com>
- <yt9dh7q64m8a.fsf@linux.ibm.com> <CAHC9VhT-dgT8pP7ZfPu+Ssw4RAYUpcwhTWfXXeciVPz0mRcP3A@mail.gmail.com>
- <yt9dpn4u9scs.fsf@linux.ibm.com>
-In-Reply-To: <yt9dpn4u9scs.fsf@linux.ibm.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 3 Nov 2020 21:42:35 -0500
-Message-ID: <CAHC9VhRxm=YR1yBy8fnWPXRZ48pq4MA4b26YAtqAJORJZD61wg@mail.gmail.com>
-Subject: Re: [PATCH v3 1/1] selinux: fix error initialization in inode_doinit_with_dentry()
-Content-Type: multipart/mixed; boundary="00000000000049141305b33eef93"
+        <20201009013630.6777-1-rentianyue@tj.kylinos.cn>
+        <20201009013630.6777-2-rentianyue@tj.kylinos.cn>
+        <CAHC9VhR2KPKN8ot9WrkjZQ08X-VPDGkXro18C5jhDEwcFH6wog@mail.gmail.com>
+        <yt9dh7q64m8a.fsf@linux.ibm.com>
+        <CAHC9VhT-dgT8pP7ZfPu+Ssw4RAYUpcwhTWfXXeciVPz0mRcP3A@mail.gmail.com>
+Date: Tue, 03 Nov 2020 20:02:11 +0100
+In-Reply-To: <CAHC9VhT-dgT8pP7ZfPu+Ssw4RAYUpcwhTWfXXeciVPz0mRcP3A@mail.gmail.com>
+        (Paul Moore's message of "Tue, 3 Nov 2020 12:11:08 -0500")
+Message-ID: <yt9dpn4u9scs.fsf@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: Sven Schnelle <svens@linux.ibm.com>
+To: Paul Moore <paul@paul-moore.com>
 Cc: rentianyue@tj.kylinos.cn, Stephen Smalley <stephen.smalley.work@gmail.com>, Eric Paris <eparis@parisplace.org>, Andreas Gruenbacher <agruenba@redhat.com>, yangzhao@kylinos.cn, selinux@vger.kernel.org, Tianyue Ren <rentianyue@kylinos.cn>, linux-s390@vger.kernel.org, hca@linux.ibm.com, borntraeger@de.ibm.com
 
---00000000000049141305b33eef93
-Content-Type: text/plain; charset="UTF-8"
+Hi Paul,
 
-On Tue, Nov 3, 2020 at 2:02 PM Sven Schnelle <svens@linux.ibm.com> wrote:
-> Thanks for the patch. Unfortunately it doesn't seem to change anything
-> for me. I can take a look into this tomorrow, but i don't know much
-> about the internals of selinux, so i'm not sure whether i'm of much help.
+Paul Moore <paul@paul-moore.com> writes:
 
-I'm sorry that patch didn't work out.  I just spent some more time
-looking at the code+patch and the only other thing that I can see is
-that if we mark the isec invalid, we don't bother setting the
-isec->sid value to whatever default we may have already found.  In a
-perfect world this shouldn't matter, but if for whatever reason the
-kernel can't revalidate the inode's label when it tries later it will
-fallback to that default isec->sid.
+> On Tue, Nov 3, 2020 at 8:14 AM Sven Schnelle <svens@linux.ibm.com> wrote:
+>> Paul Moore <paul@paul-moore.com> writes:
+>>
+>> > On Thu, Oct 8, 2020 at 9:37 PM <rentianyue@tj.kylinos.cn> wrote:
+>> >> From: Tianyue Ren <rentianyue@kylinos.cn>
+>> >>
+>> >> Mark the inode security label as invalid if we cannot find
+>> >> a dentry so that we will retry later rather than marking it
+>> >> initialized with the unlabeled SID.
+>> >>
+>> >> Fixes: 9287aed2ad1f ("selinux: Convert isec->lock into a spinlock")
+>> >> Signed-off-by: Tianyue Ren <rentianyue@kylinos.cn>
+>> >> ---
+>> >>  security/selinux/hooks.c | 19 ++++++++++++++++---
+>> >>  1 file changed, 16 insertions(+), 3 deletions(-)
+>> >
+>> > Merged into selinux/next with some minor tweaks to the comments.
+>> > Thanks for your help!
+>>
+>> This seems to break booting on s390:
+>>
+>> Welcome to Fedora 32 (Thirty Two)!
+>>
+>> [    1.434571] systemd[1]: Set hostname to <xxx.xxx>
+>> [    1.436839] audit: type=1400 audit(1604408868.681:4): avc:  denied  { write } for  pid=1 comm="systemd" dev="cgroup2" ino=2 scontext=system_u:sys
+>> tem_r:init_t:s0 tcontext=system_u:object_r:unlabeled_t:s0 tclass=file permissive=0
+>> [    1.436840] systemd[1]: Failed to create /init.scope control group: Permission denied
+>> [    1.438039] systemd[1]: Failed to allocate manager object: Permission denied
+>> [ [0;1;31m!!!!!! [0m] Failed to allocate manager object.
+>> [    1.438281] systemd[1]: Freezing execution.
+>>
+>> Any ideas? If i revert 83370b31a915493231e5b9addc72e4bef69f8d31 from
+>> linux-next-20201103 it works fine...
+>
+> Thanks for the report.
+>
+> Looking at this again, I'm thinking that setting the isec->initialized
+> field outside of the spinlock is probably a bad idea.  My guess is
+> that your system is racing on inode_doinit_with_dentry() and the
+> initialized field is getting messed up.
+>
+> Any chance you could try the attached (completely untested) patch?
 
-I'm sorry to ask this again, but would you be able to test the attached patch?
+Thanks for the patch. Unfortunately it doesn't seem to change anything
+for me. I can take a look into this tomorrow, but i don't know much
+about the internals of selinux, so i'm not sure whether i'm of much help.
 
--- 
-paul moore
-www.paul-moore.com
-
---00000000000049141305b33eef93
-Content-Type: text/x-patch; charset="US-ASCII"; name="01-selinux-inode_dentry_init_fix.patch"
-Content-Disposition: attachment; 
-	filename="01-selinux-inode_dentry_init_fix.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <f_kh2spx770>
-X-Attachment-Id: f_kh2spx770
-
-c2VsaW51eDogZml4IGlub2RlX2RvaW5pdF93aXRoX2RlbnRyeSgpIGVycm9yIGNhc2UgbG9ja2lu
-ZwoKRnJvbTogUGF1bCBNb29yZSA8cGF1bEBwYXVsLW1vb3JlLmNvbT4KClhYWCAtIHRlc3Rpbmcg
-b25seSBwYXRjaCwgd29yayBpbiBwcm9ncmVzcwoKRml4ZXM6IDgzMzcwYjMxYTkxNSAoInNlbGlu
-dXg6IGZpeCBlcnJvciBpbml0aWFsaXphdGlvbiBpbiBpbm9kZV9kb2luaXRfd2l0aF9kZW50cnko
-KSIpClJlcG9ydGVkLWJ5OiBTdmVuIFNjaG5lbGxlIDxzdmVuc0BsaW51eC5pYm0uY29tPgpTaWdu
-ZWQtb2ZmLWJ5OiBQYXVsIE1vb3JlIDxwYXVsQHBhdWwtbW9vcmUuY29tPgotLS0KIHNlY3VyaXR5
-L3NlbGludXgvaG9va3MuYyB8ICAgMzEgKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLQog
-MSBmaWxlIGNoYW5nZWQsIDEzIGluc2VydGlvbnMoKyksIDE4IGRlbGV0aW9ucygtKQoKZGlmZiAt
-LWdpdCBhL3NlY3VyaXR5L3NlbGludXgvaG9va3MuYyBiL3NlY3VyaXR5L3NlbGludXgvaG9va3Mu
-YwppbmRleCAxNThmYzQ3ZDg2MjAuLmM0NjMxMjcxMGU3MyAxMDA2NDQKLS0tIGEvc2VjdXJpdHkv
-c2VsaW51eC9ob29rcy5jCisrKyBiL3NlY3VyaXR5L3NlbGludXgvaG9va3MuYwpAQCAtMTQ1MSwx
-MyArMTQ1MSw3IEBAIHN0YXRpYyBpbnQgaW5vZGVfZG9pbml0X3dpdGhfZGVudHJ5KHN0cnVjdCBp
-bm9kZSAqaW5vZGUsIHN0cnVjdCBkZW50cnkgKm9wdF9kZW50CiAJCQkgKiBpbm9kZV9kb2luaXQg
-d2l0aCBhIGRlbnRyeSwgYmVmb3JlIHRoZXNlIGlub2RlcyBjb3VsZAogCQkJICogYmUgdXNlZCBh
-Z2FpbiBieSB1c2Vyc3BhY2UuCiAJCQkgKi8KLQkJCWlzZWMtPmluaXRpYWxpemVkID0gTEFCRUxf
-SU5WQUxJRDsKLQkJCS8qCi0JCQkgKiBUaGVyZSBpcyBub3RoaW5nIHVzZWZ1bCB0byBqdW1wIHRv
-IHRoZSAib3V0IgotCQkJICogbGFiZWwsIGV4Y2VwdCBhIG5lZWRsZXNzIHNwaW4gbG9jay91bmxv
-Y2sKLQkJCSAqIGN5Y2xlLgotCQkJICovCi0JCQlyZXR1cm4gMDsKKwkJCWdvdG8gb3V0X2ludmFs
-aWQ7CiAJCX0KIAogCQlyYyA9IGlub2RlX2RvaW5pdF91c2VfeGF0dHIoaW5vZGUsIGRlbnRyeSwg
-c2JzZWMtPmRlZl9zaWQsCkBAIC0xNTEzLDE1ICsxNTA3LDggQEAgc3RhdGljIGludCBpbm9kZV9k
-b2luaXRfd2l0aF9kZW50cnkoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGRlbnRyeSAqb3B0
-X2RlbnQKIAkJCSAqIGlub2RlX2RvaW5pdCgpIHdpdGggYSBkZW50cnksIGJlZm9yZSB0aGVzZSBp
-bm9kZXMKIAkJCSAqIGNvdWxkIGJlIHVzZWQgYWdhaW4gYnkgdXNlcnNwYWNlLgogCQkJICovCi0J
-CQlpZiAoIWRlbnRyeSkgewotCQkJCWlzZWMtPmluaXRpYWxpemVkID0gTEFCRUxfSU5WQUxJRDsK
-LQkJCQkvKgotCQkJCSAqIFRoZXJlIGlzIG5vdGhpbmcgdXNlZnVsIHRvIGp1bXAgdG8gdGhlICJv
-dXQiCi0JCQkJICogbGFiZWwsIGV4Y2VwdCBhIG5lZWRsZXNzIHNwaW4gbG9jay91bmxvY2sKLQkJ
-CQkgKiBjeWNsZS4KLQkJCQkgKi8KLQkJCQlyZXR1cm4gMDsKLQkJCX0KKwkJCWlmICghZGVudHJ5
-KQorCQkJCWdvdG8gb3V0X2ludmFsaWQ7CiAJCQlyYyA9IHNlbGludXhfZ2VuZnNfZ2V0X3NpZChk
-ZW50cnksIHNjbGFzcywKIAkJCQkJCSAgIHNic2VjLT5mbGFncywgJnNpZCk7CiAJCQlpZiAocmMp
-IHsKQEAgLTE1NDYsMTEgKzE1MzMsMTAgQEAgc3RhdGljIGludCBpbm9kZV9kb2luaXRfd2l0aF9k
-ZW50cnkoc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGRlbnRyeSAqb3B0X2RlbnQKIG91dDoK
-IAlzcGluX2xvY2soJmlzZWMtPmxvY2spOwogCWlmIChpc2VjLT5pbml0aWFsaXplZCA9PSBMQUJF
-TF9QRU5ESU5HKSB7Ci0JCWlmICghc2lkIHx8IHJjKSB7CisJCWlmIChyYykgewogCQkJaXNlYy0+
-aW5pdGlhbGl6ZWQgPSBMQUJFTF9JTlZBTElEOwogCQkJZ290byBvdXRfdW5sb2NrOwogCQl9Ci0K
-IAkJaXNlYy0+aW5pdGlhbGl6ZWQgPSBMQUJFTF9JTklUSUFMSVpFRDsKIAkJaXNlYy0+c2lkID0g
-c2lkOwogCX0KQEAgLTE1NTgsNiArMTU0NCwxNSBAQCBzdGF0aWMgaW50IGlub2RlX2RvaW5pdF93
-aXRoX2RlbnRyeShzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZGVudHJ5ICpvcHRfZGVudAog
-b3V0X3VubG9jazoKIAlzcGluX3VubG9jaygmaXNlYy0+bG9jayk7CiAJcmV0dXJuIHJjOworCitv
-dXRfaW52YWxpZDoKKwlzcGluX2xvY2soJmlzZWMtPmxvY2spOworCWlmIChpc2VjLT5pbml0aWFs
-aXplZCA9PSBMQUJFTF9QRU5ESU5HKSB7CisJCWlzZWMtPmluaXRpYWxpemVkID0gTEFCRUxfSU5W
-QUxJRDsKKwkJaXNlYy0+c2lkID0gc2lkOworCX0KKwlzcGluX3VubG9jaygmaXNlYy0+bG9jayk7
-CisJcmV0dXJuIDA7CiB9CiAKIC8qIENvbnZlcnQgYSBMaW51eCBzaWduYWwgdG8gYW4gYWNjZXNz
-IHZlY3Rvci4gKi8K
---00000000000049141305b33eef93--
+Regards
+Sven
