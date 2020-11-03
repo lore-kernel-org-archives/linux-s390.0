@@ -1,27 +1,60 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25516 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731021AbgKPPXy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 16 Nov 2020 10:23:54 -0500
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 0/1] fix null pointer dereference for ERP requests
-Date: Mon, 16 Nov 2020 16:23:46 +0100
-Message-Id: <20201116152347.61093-1-sth@linux.ibm.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v2 00/15] net/smc: extend diagnostic netlink interface
+Date: Tue,  3 Nov 2020 11:25:16 +0100
+Message-Id: <20201103102531.91710-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-Hi Jens,
+Please apply the following patch series for smc to netdev's net-next tree.
 
-pleas apply the following patch that fixes a null pointer derefernce in the
-DASD driver.
+This patch series refactors the current netlink API in smc_diag module
+which is used for diagnostic purposes and extends the netlink API in a
+backward compatible way so that the extended API can provide information
+about SMC linkgroups, links and devices (both for SMC-R and SMC-D) and
+can still work with the legacy netlink API.
 
-Stefan Haberland (1):
-  s390/dasd: fix null pointer dereference for ERP requests
+Please note that patch 9 triggers a checkpatch warning because a comment
+line was added using the style of the already existing comment block.
 
- drivers/s390/block/dasd.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+v2: in patch 10, add missing include to uapi header smc_diag.h
+
+Guvenc Gulce (14):
+  net/smc: Use active link of the connection
+  net/smc: Add connection counters for links
+  net/smc: Add link counters for IB device ports
+  net/smc: Add diagnostic information to smc ib-device
+  net/smc: Add diagnostic information to link structure
+  net/smc: Refactor the netlink reply processing routine
+  net/smc: Add ability to work with extended SMC netlink API
+  net/smc: Introduce SMCR get linkgroup command
+  net/smc: Introduce SMCR get link command
+  net/smc: Add SMC-D Linkgroup diagnostic support
+  net/smc: Add support for obtaining SMCD device list
+  net/smc: Add support for obtaining SMCR device list
+  net/smc: Refactor smc ism v2 capability handling
+  net/smc: Add support for obtaining system information
+
+Karsten Graul (1):
+  net/smc: use helper smc_conn_abort() in listen processing
+
+ include/net/smc.h             |   2 +-
+ include/uapi/linux/smc.h      |   8 +
+ include/uapi/linux/smc_diag.h | 109 +++++
+ net/smc/af_smc.c              |  29 +-
+ net/smc/smc.h                 |   5 +-
+ net/smc/smc_clc.c             |   6 +
+ net/smc/smc_clc.h             |   1 +
+ net/smc/smc_core.c            |  32 +-
+ net/smc/smc_core.h            |  32 +-
+ net/smc/smc_diag.c            | 766 +++++++++++++++++++++++++++++-----
+ net/smc/smc_ib.c              |  49 +++
+ net/smc/smc_ib.h              |   4 +-
+ net/smc/smc_ism.c             |  12 +-
+ net/smc/smc_ism.h             |   5 +-
+ net/smc/smc_pnet.c            |   3 +
+ 15 files changed, 939 insertions(+), 124 deletions(-)
 
 -- 
 2.17.1
