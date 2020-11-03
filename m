@@ -1,121 +1,202 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH v4 04/27] s390: fix kernel-doc markups
-Date: Mon, 16 Nov 2020 11:18:00 +0100
-Message-Id: <4a9df42dfb68aed6b4a4882f6dccabf00ce932cd.1605521731.git.mchehab+huawei@kernel.org>
-In-Reply-To: <cover.1605521731.git.mchehab+huawei@kernel.org>
-References: <cover.1605521731.git.mchehab+huawei@kernel.org>
+From: YiFei Zhu <zhuyifei1999@gmail.com>
+Subject: [PATCH seccomp 8/8] seccomp/cache: Report cache data through /proc/pid/seccomp_cache
+Date: Tue,  3 Nov 2020 07:43:04 -0600
+Message-Id: <6bf174724c135a880fb8cbe602b665f613bab58e.1604410035.git.yifeifz2@illinois.edu>
+In-Reply-To: <cover.1604410035.git.yifeifz2@illinois.edu>
+References: <cover.1604410035.git.yifeifz2@illinois.edu>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Jonathan Corbet <corbet@lwn.net>, Alexander Egorenkov <egorenar@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: containers@lists.linux-foundation.org
+Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
 
-fix one typo:
-	ccw driver -> ccw_driver
+From: YiFei Zhu <yifeifz2@illinois.edu>
 
-and one function rename.
+Currently the kernel does not provide an infrastructure to translate
+architecture numbers to a human-readable name. Translating syscall
+numbers to syscall names is possible through FTRACE_SYSCALL
+infrastructure but it does not provide support for compat syscalls.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This will create a file for each PID as /proc/pid/seccomp_cache.
+The file will be empty when no seccomp filters are loaded, or be
+in the format of:
+<arch name> <decimal syscall number> <ALLOW | FILTER>
+where ALLOW means the cache is guaranteed to allow the syscall,
+and filter means the cache will pass the syscall to the BPF filter.
+
+For the docker default profile on x86_64 it looks like:
+x86_64 0 ALLOW
+x86_64 1 ALLOW
+x86_64 2 ALLOW
+x86_64 3 ALLOW
+[...]
+x86_64 132 ALLOW
+x86_64 133 ALLOW
+x86_64 134 FILTER
+x86_64 135 FILTER
+x86_64 136 FILTER
+x86_64 137 ALLOW
+x86_64 138 ALLOW
+x86_64 139 FILTER
+x86_64 140 ALLOW
+x86_64 141 ALLOW
+[...]
+
+This file is guarded by CONFIG_SECCOMP_CACHE_DEBUG with a default
+of N because I think certain users of seccomp might not want the
+application to know which syscalls are definitely usable. For
+the same reason, it is also guarded by CAP_SYS_ADMIN.
+
+Suggested-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/lkml/CAG48ez3Ofqp4crXGksLmZY6=fGrF_tWyUCg7PBkAetvbbOPeOA@mail.gmail.com/
+Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
 ---
- arch/s390/include/asm/ccwdev.h | 2 +-
- arch/s390/include/asm/cio.h    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/Kconfig            | 15 +++++++++++
+ fs/proc/base.c          |  6 +++++
+ include/linux/seccomp.h |  7 +++++
+ kernel/seccomp.c        | 59 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 87 insertions(+)
 
-diff --git a/arch/s390/include/asm/ccwdev.h b/arch/s390/include/asm/ccwdev.h
-index bf605e1fcf6a..0495ac635ed5 100644
---- a/arch/s390/include/asm/ccwdev.h
-+++ b/arch/s390/include/asm/ccwdev.h
-@@ -100,41 +100,41 @@ struct ccw_device {
-  */
- #define PE_NONE				0x0
- #define PE_PATH_GONE			0x1 /* A path is no longer available. */
- #define PE_PATH_AVAILABLE		0x2 /* A path has become available and
- 					       was successfully verified. */
- #define PE_PATHGROUP_ESTABLISHED	0x4 /* A pathgroup was reset and had
- 					       to be established again. */
- #define PE_PATH_FCES_EVENT		0x8 /* The FCES Status of a path has
- 					     * changed. */
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 56b6ccc0e32d..6e2eb7171da0 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -514,6 +514,21 @@ config SECCOMP_FILTER
  
- /*
-  * Possible CIO actions triggered by the unit check handler.
-  */
- enum uc_todo {
- 	UC_TODO_RETRY,
- 	UC_TODO_RETRY_ON_NEW_PATH,
- 	UC_TODO_STOP
+ 	  See Documentation/userspace-api/seccomp_filter.rst for details.
+ 
++config SECCOMP_CACHE_DEBUG
++	bool "Show seccomp filter cache status in /proc/pid/seccomp_cache"
++	depends on SECCOMP
++	depends on SECCOMP_FILTER && !HAVE_SPARSE_SYSCALL_NR
++	depends on PROC_FS
++	help
++	  This enables the /proc/pid/seccomp_cache interface to monitor
++	  seccomp cache data. The file format is subject to change. Reading
++	  the file requires CAP_SYS_ADMIN.
++
++	  This option is for debugging only. Enabling presents the risk that
++	  an adversary may be able to infer the seccomp filter logic.
++
++	  If unsure, say N.
++
+ config HAVE_ARCH_STACKLEAK
+ 	bool
+ 	help
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 0f707003dda5..d652f9dbaecc 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -3261,6 +3261,9 @@ static const struct pid_entry tgid_base_stuff[] = {
+ #ifdef CONFIG_PROC_PID_ARCH_STATUS
+ 	ONE("arch_status", S_IRUGO, proc_pid_arch_status),
+ #endif
++#ifdef CONFIG_SECCOMP_CACHE_DEBUG
++	ONE("seccomp_cache", S_IRUSR, proc_pid_seccomp_cache),
++#endif
  };
  
- /**
-- * struct ccw driver - device driver for channel attached devices
-+ * struct ccw_driver - device driver for channel attached devices
-  * @ids: ids supported by this driver
-  * @probe: function called on probe
-  * @remove: function called on remove
-  * @set_online: called when setting device online
-  * @set_offline: called when setting device offline
-  * @notify: notify driver of device state changes
-  * @path_event: notify driver of channel path events
-  * @shutdown: called at device shutdown
-  * @prepare: prepare for pm state transition
-  * @complete: undo work done in @prepare
-  * @freeze: callback for freezing during hibernation snapshotting
-  * @thaw: undo work done in @freeze
-  * @restore: callback for restoring after hibernation
-  * @uc_handler: callback for unit check handler
-  * @driver: embedded device driver structure
-  * @int_class: interruption class to use for accounting interrupts
-  */
- struct ccw_driver {
- 	struct ccw_device_id *ids;
- 	int (*probe) (struct ccw_device *);
-diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
-index e36cb67d2441..ac02df906cae 100644
---- a/arch/s390/include/asm/cio.h
-+++ b/arch/s390/include/asm/cio.h
-@@ -312,41 +312,41 @@ struct node_descriptor {
- /* Device did not respond in time. */
- #define CIO_BOXED      0x0010
- 
- /**
-  * struct ccw_dev_id - unique identifier for ccw devices
-  * @ssid: subchannel set id
-  * @devno: device number
-  *
-  * This structure is not directly based on any hardware structure. The
-  * hardware identifies a device by its device number and its subchannel,
-  * which is in turn identified by its id. In order to get a unique identifier
-  * for ccw devices across subchannel sets, @struct ccw_dev_id has been
-  * introduced.
-  */
- struct ccw_dev_id {
- 	u8 ssid;
- 	u16 devno;
+ static int proc_tgid_base_readdir(struct file *file, struct dir_context *ctx)
+@@ -3590,6 +3593,9 @@ static const struct pid_entry tid_base_stuff[] = {
+ #ifdef CONFIG_PROC_PID_ARCH_STATUS
+ 	ONE("arch_status", S_IRUGO, proc_pid_arch_status),
+ #endif
++#ifdef CONFIG_SECCOMP_CACHE_DEBUG
++	ONE("seccomp_cache", S_IRUSR, proc_pid_seccomp_cache),
++#endif
  };
  
- /**
-- * ccw_device_id_is_equal() - compare two ccw_dev_ids
-+ * ccw_dev_id_is_equal() - compare two ccw_dev_ids
-  * @dev_id1: a ccw_dev_id
-  * @dev_id2: another ccw_dev_id
-  * Returns:
-  *  %1 if the two structures are equal field-by-field,
-  *  %0 if not.
-  * Context:
-  *  any
-  */
- static inline int ccw_dev_id_is_equal(struct ccw_dev_id *dev_id1,
- 				      struct ccw_dev_id *dev_id2)
- {
- 	if ((dev_id1->ssid == dev_id2->ssid) &&
- 	    (dev_id1->devno == dev_id2->devno))
- 		return 1;
- 	return 0;
+ static int proc_tid_base_readdir(struct file *file, struct dir_context *ctx)
+diff --git a/include/linux/seccomp.h b/include/linux/seccomp.h
+index 02aef2844c38..76963ec4641a 100644
+--- a/include/linux/seccomp.h
++++ b/include/linux/seccomp.h
+@@ -121,4 +121,11 @@ static inline long seccomp_get_metadata(struct task_struct *task,
+ 	return -EINVAL;
  }
+ #endif /* CONFIG_SECCOMP_FILTER && CONFIG_CHECKPOINT_RESTORE */
++
++#ifdef CONFIG_SECCOMP_CACHE_DEBUG
++struct seq_file;
++
++int proc_pid_seccomp_cache(struct seq_file *m, struct pid_namespace *ns,
++			   struct pid *pid, struct task_struct *task);
++#endif
+ #endif /* _LINUX_SECCOMP_H */
+diff --git a/kernel/seccomp.c b/kernel/seccomp.c
+index d8cf468dbe1e..76f524e320b1 100644
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -553,6 +553,9 @@ void seccomp_filter_release(struct task_struct *tsk)
+ {
+ 	struct seccomp_filter *orig = tsk->seccomp.filter;
  
- /**
-  * pathmask_to_pos() - find the position of the left-most bit in a pathmask
-  * @mask: pathmask with at least one bit set
++	/* We are effectively holding the siglock by not having any sighand. */
++	WARN_ON(tsk->sighand != NULL);
++
+ 	/* Detach task from its filter tree. */
+ 	tsk->seccomp.filter = NULL;
+ 	__seccomp_filter_release(orig);
+@@ -2335,3 +2338,59 @@ static int __init seccomp_sysctl_init(void)
+ device_initcall(seccomp_sysctl_init)
+ 
+ #endif /* CONFIG_SYSCTL */
++
++#ifdef CONFIG_SECCOMP_CACHE_DEBUG
++/* Currently CONFIG_SECCOMP_CACHE_DEBUG implies SECCOMP_ARCH_NATIVE */
++static void proc_pid_seccomp_cache_arch(struct seq_file *m, const char *name,
++					const void *bitmap, size_t bitmap_size)
++{
++	int nr;
++
++	for (nr = 0; nr < bitmap_size; nr++) {
++		bool cached = test_bit(nr, bitmap);
++		char *status = cached ? "ALLOW" : "FILTER";
++
++		seq_printf(m, "%s %d %s\n", name, nr, status);
++	}
++}
++
++int proc_pid_seccomp_cache(struct seq_file *m, struct pid_namespace *ns,
++			   struct pid *pid, struct task_struct *task)
++{
++	struct seccomp_filter *f;
++	unsigned long flags;
++
++	/*
++	 * We don't want some sandboxed process to know what their seccomp
++	 * filters consist of.
++	 */
++	if (!file_ns_capable(m->file, &init_user_ns, CAP_SYS_ADMIN))
++		return -EACCES;
++
++	if (!lock_task_sighand(task, &flags))
++		return -ESRCH;
++
++	f = READ_ONCE(task->seccomp.filter);
++	if (!f) {
++		unlock_task_sighand(task, &flags);
++		return 0;
++	}
++
++	/* prevent filter from being freed while we are printing it */
++	__get_seccomp_filter(f);
++	unlock_task_sighand(task, &flags);
++
++	proc_pid_seccomp_cache_arch(m, SECCOMP_ARCH_NATIVE_NAME,
++				    f->cache.allow_native,
++				    SECCOMP_ARCH_NATIVE_NR);
++
++#ifdef SECCOMP_ARCH_COMPAT
++	proc_pid_seccomp_cache_arch(m, SECCOMP_ARCH_COMPAT_NAME,
++				    f->cache.allow_compat,
++				    SECCOMP_ARCH_COMPAT_NR);
++#endif /* SECCOMP_ARCH_COMPAT */
++
++	__put_seccomp_filter(f);
++	return 0;
++}
++#endif /* CONFIG_SECCOMP_CACHE_DEBUG */
 -- 
-2.28.0
+2.29.2
