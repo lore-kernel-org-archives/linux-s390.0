@@ -1,56 +1,170 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: YiFei Zhu <zhuyifei1999@gmail.com>
-Subject: [PATCH seccomp v2 1/8] csky: Enable seccomp architecture tracking
-Date: Wed, 11 Nov 2020 07:33:47 -0600
-Message-Id: <f9219026d4803b22f3e57e3768b4e42e004ef236.1605101222.git.yifeifz2@illinois.edu>
-In-Reply-To: <cover.1605101222.git.yifeifz2@illinois.edu>
-References: <cover.1605101222.git.yifeifz2@illinois.edu>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:37068 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728157AbgKDBAX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 3 Nov 2020 20:00:23 -0500
+Message-ID: <fdf78f7621a8cff42ccf84cf3deb8d108f03cb3f.camel@kernel.org>
+Subject: Re: [PATCH net-next v2 05/15] net/smc: Add diagnostic information
+ to smc ib-device
+From: Saeed Mahameed <saeed@kernel.org>
+Date: Tue, 03 Nov 2020 17:00:20 -0800
+In-Reply-To: <20201103102531.91710-6-kgraul@linux.ibm.com>
+References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+         <20201103102531.91710-6-kgraul@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: containers@lists.linux-foundation.org
-Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
+To: Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-From: YiFei Zhu <yifeifz2@illinois.edu>
+On Tue, 2020-11-03 at 11:25 +0100, Karsten Graul wrote:
+> From: Guvenc Gulce <guvenc@linux.ibm.com>
+> 
+> During smc ib-device creation, add network device name to smc
+> ib-device structure. Register for netdevice name changes and
+> update ib-device accordingly. This is needed for diagnostic purposes.
+> 
+> Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+> ---
+>  net/smc/smc_ib.c   | 47
+> ++++++++++++++++++++++++++++++++++++++++++++++
+>  net/smc/smc_ib.h   |  2 ++
+>  net/smc/smc_pnet.c |  3 +++
+>  3 files changed, 52 insertions(+)
+> 
+> diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+> index 1c314dbdc7fa..c4a04e868bf0 100644
+> --- a/net/smc/smc_ib.c
+> +++ b/net/smc/smc_ib.c
+> @@ -557,6 +557,52 @@ static void smc_ib_cleanup_per_ibdev(struct
+> smc_ib_device *smcibdev)
+>  
+>  static struct ib_client smc_ib_client;
+>  
+> +static void smc_copy_netdev_name(struct smc_ib_device *smcibdev, int
+> port)
+> +{
+> +	struct ib_device *ibdev = smcibdev->ibdev;
+> +	struct net_device *ndev;
+> +
+> +	if (ibdev->ops.get_netdev) {
 
-To enable seccomp constant action bitmaps, we need to have a static
-mapping to the audit architecture and system call table size. Add these
-for csky.
+early return to avoid multiple indentation to the right .. 
 
-Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
----
- arch/csky/include/asm/Kbuild    |  1 -
- arch/csky/include/asm/seccomp.h | 11 +++++++++++
- 2 files changed, 11 insertions(+), 1 deletion(-)
- create mode 100644 arch/csky/include/asm/seccomp.h
+> +		ndev = ibdev->ops.get_netdev(ibdev, port + 1);
+> +		if (ndev) {
+> +			snprintf((char *)&smcibdev->netdev[port],
+> +				 sizeof(smcibdev->netdev[port]),
+> +				 "%s", ndev->name);
 
-diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
-index 64876e59e2ef..93372255984d 100644
---- a/arch/csky/include/asm/Kbuild
-+++ b/arch/csky/include/asm/Kbuild
-@@ -4,6 +4,5 @@ generic-y += gpio.h
- generic-y += kvm_para.h
- generic-y += local64.h
- generic-y += qrwlock.h
--generic-y += seccomp.h
- generic-y += user.h
- generic-y += vmlinux.lds.h
-diff --git a/arch/csky/include/asm/seccomp.h b/arch/csky/include/asm/seccomp.h
-new file mode 100644
-index 000000000000..d33e758126fb
---- /dev/null
-+++ b/arch/csky/include/asm/seccomp.h
-@@ -0,0 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+#ifndef _ASM_SECCOMP_H
-+#define _ASM_SECCOMP_H
-+
-+#include <asm-generic/seccomp.h>
-+
-+#define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_CSKY
-+#define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+#define SECCOMP_ARCH_NATIVE_NAME	"csky"
-+
-+#endif /* _ASM_SECCOMP_H */
--- 
-2.29.2
+Why do you need typecasting to char* just declare the netdev as char
+array ??
+
+> +			dev_put(ndev);
+> +		}
+> +	}
+> +}
+> +
+> +void smc_ib_ndev_name_change(struct net_device *ndev)
+> +{
+> +	struct smc_ib_device *smcibdev;
+> +	struct ib_device *libdev;
+> +	struct net_device *lndev;
+> +	u8 port_cnt;
+> +	int i;
+> +
+> +	mutex_lock(&smc_ib_devices.mutex);
+> +	list_for_each_entry(smcibdev, &smc_ib_devices.list, list) {
+> +		port_cnt = smcibdev->ibdev->phys_port_cnt;
+> +		for (i = 0;
+> +		     i < min_t(size_t, port_cnt, SMC_MAX_PORTS);
+> +		     i++) {
+
+Unnecessary ugly line breaks.
+
+> +			libdev = smcibdev->ibdev;
+> +			if (libdev->ops.get_netdev) {
+
+early continue 
+
+if (!libdev->ops.get_netdev)
+     continue;
+
+do stuff
+
+> +				lndev = libdev->ops.get_netdev(libdev,
+> i + 1);
+> +				if (lndev)
+> +					dev_put(lndev);
+> +				if (lndev == ndev) {
+
+Same 
+
+if (!lndev || lndev != ndev)
+     continue;
+
+> +					snprintf((char *)&smcibdev-
+> >netdev[i],
+> +						 sizeof(smcibdev-
+> >netdev[i]),
+> +						 "%s", ndev->name);
+> +				}
+> +			}
+> +		}
+> +	}
+> +	mutex_unlock(&smc_ib_devices.mutex);
+> +}
+> +
+>  /* callback function for ib_register_client() */
+>  static int smc_ib_add_dev(struct ib_device *ibdev)
+>  {
+> @@ -596,6 +642,7 @@ static int smc_ib_add_dev(struct ib_device
+> *ibdev)
+>  		if (smc_pnetid_by_dev_port(ibdev->dev.parent, i,
+>  					   smcibdev->pnetid[i]))
+>  			smc_pnetid_by_table_ib(smcibdev, i + 1);
+> +		smc_copy_netdev_name(smcibdev, i);
+>  		pr_warn_ratelimited("smc:    ib device %s port %d has
+> pnetid "
+>  				    "%.16s%s\n",
+>  				    smcibdev->ibdev->name, i + 1,
+> diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+> index 3e6bfeddd53b..b0868146b46b 100644
+> --- a/net/smc/smc_ib.h
+> +++ b/net/smc/smc_ib.h
+> @@ -54,11 +54,13 @@ struct smc_ib_device {				
+> /* ib-device infos for smc */
+>  	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all
+> links*/
+>  	struct mutex		mutex;		/* protect dev
+> setup+cleanup */
+>  	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];/*#lnk per
+> port*/
+> +	u8			netdev[SMC_MAX_PORTS][IFNAMSIZ];/*
+> ndev names */
+>  };
+>  
+>  struct smc_buf_desc;
+>  struct smc_link;
+>  
+> +void smc_ib_ndev_name_change(struct net_device *ndev);
+>  int smc_ib_register_client(void) __init;
+>  void smc_ib_unregister_client(void);
+>  bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport);
+> diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+> index f3c18b991d35..b0f40d73afd6 100644
+> --- a/net/smc/smc_pnet.c
+> +++ b/net/smc/smc_pnet.c
+> @@ -828,6 +828,9 @@ static int smc_pnet_netdev_event(struct
+> notifier_block *this,
+>  	case NETDEV_UNREGISTER:
+>  		smc_pnet_remove_by_ndev(event_dev);
+>  		return NOTIFY_OK;
+> +	case NETDEV_CHANGENAME:
+> +		smc_ib_ndev_name_change(event_dev);
+> +		return NOTIFY_OK;
+>  	case NETDEV_REGISTER:
+>  		smc_pnet_add_by_ndev(event_dev);
+>  		return NOTIFY_OK;
