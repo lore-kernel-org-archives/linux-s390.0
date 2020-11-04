@@ -1,71 +1,120 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36660 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727385AbgKCKWR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:22:17 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 09/10] block: remove set_device_ro
-Date: Tue,  3 Nov 2020 11:00:17 +0100
-Message-Id: <20201103100018.683694-10-hch@lst.de>
-In-Reply-To: <20201103100018.683694-1-hch@lst.de>
-References: <20201103100018.683694-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:53646 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729246AbgKDB0J (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 3 Nov 2020 20:26:09 -0500
+Message-ID: <1c831e09cd2c42d69f5702733e7b083581517e79.camel@kernel.org>
+Subject: Re: [PATCH net-next v2 11/15] net/smc: Add SMC-D Linkgroup
+ diagnostic support
+From: Saeed Mahameed <saeed@kernel.org>
+Date: Tue, 03 Nov 2020 17:26:07 -0800
+In-Reply-To: <20201103102531.91710-12-kgraul@linux.ibm.com>
+References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+         <20201103102531.91710-12-kgraul@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-Fold set_device_ro into its only remaining caller.
+On Tue, 2020-11-03 at 11:25 +0100, Karsten Graul wrote:
+> From: Guvenc Gulce <guvenc@linux.ibm.com>
+> 
+> Deliver SMCD Linkgroup information via netlink based
+> diagnostic interface.
+> 
+> Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+> ---
+>  include/uapi/linux/smc_diag.h |   7 +++
+>  net/smc/smc_diag.c            | 108
+> ++++++++++++++++++++++++++++++++++
+>  net/smc/smc_ism.c             |   2 +
+>  3 files changed, 117 insertions(+)
+> 
+> diff --git a/include/uapi/linux/smc_diag.h
+> b/include/uapi/linux/smc_diag.h
+> index a57df0296aa4..5a80172df757 100644
+> --- a/include/uapi/linux/smc_diag.h
+> +++ b/include/uapi/linux/smc_diag.h
+> @@ -81,6 +81,7 @@ enum {
+>  enum {
+>  	SMC_DIAG_LGR_INFO_SMCR = 1,
+>  	SMC_DIAG_LGR_INFO_SMCR_LINK,
+> +	SMC_DIAG_LGR_INFO_SMCD,
+>  };
+>  
+> 
+> +
+> +static int smc_diag_fill_smcd_dev(struct smcd_dev_list *dev_list,
+> +				  struct sk_buff *skb,
+> +				  struct netlink_callback *cb,
+> +				  struct smc_diag_req_v2 *req)
+> +{
+> +	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
+> +	struct smcd_dev *smcd_dev;
+> +	int snum = cb_ctx->pos[0];
+> +	int rc = 0, num = 0;
+> +
+> +	mutex_lock(&dev_list->mutex);
+> +	list_for_each_entry(smcd_dev, &dev_list->list, list) {
+> +		if (!list_empty(&smcd_dev->lgr_list)) {
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/genhd.c         | 7 -------
- block/ioctl.c         | 2 +-
- include/linux/genhd.h | 1 -
- 3 files changed, 1 insertion(+), 9 deletions(-)
+You could use early continue every where in this patch to avoid
+indentation. 
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 0a273211fec283..a487590b365e89 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -1843,13 +1843,6 @@ static void set_disk_ro_uevent(struct gendisk *gd, int ro)
- 	kobject_uevent_env(&disk_to_dev(gd)->kobj, KOBJ_CHANGE, envp);
- }
- 
--void set_device_ro(struct block_device *bdev, int flag)
--{
--	bdev->bd_part->policy = flag;
--}
--
--EXPORT_SYMBOL(set_device_ro);
--
- void set_disk_ro(struct gendisk *disk, int flag)
- {
- 	struct disk_part_iter piter;
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 96cb4544736468..04255dc5f3bff3 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -371,7 +371,7 @@ static int blkdev_roset(struct block_device *bdev, fmode_t mode,
- 		if (ret)
- 			return ret;
- 	}
--	set_device_ro(bdev, n);
-+	bdev->bd_part->policy = n;
- 	return 0;
- }
- 
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 38f23d75701379..f232f26d7c777b 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -304,7 +304,6 @@ extern void del_gendisk(struct gendisk *gp);
- extern struct gendisk *get_gendisk(dev_t dev, int *partno);
- extern struct block_device *bdget_disk(struct gendisk *disk, int partno);
- 
--extern void set_device_ro(struct block_device *bdev, int flag);
- extern void set_disk_ro(struct gendisk *disk, int flag);
- 
- static inline int get_disk_ro(struct gendisk *disk)
--- 
-2.28.0
+> +			if (num < snum)
+> +				goto next;
+> +			rc = smc_diag_handle_smcd_lgr(smcd_dev, skb,
+> +						      cb, req);
+> +			if (rc < 0)
+> +				goto errout;
+> +next:
+> +			num++;
+> +		}
+> +	}
+> +errout:
+> +	mutex_unlock(&dev_list->mutex);
+> +	cb_ctx->pos[0] = num;
+> +	return rc;
+> +}
+> +
+>  static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+>  			   struct netlink_callback *cb,
+>  			   const struct smc_diag_req *req)
+> @@ -441,6 +546,9 @@ static int smc_diag_dump_ext(struct sk_buff *skb,
+> struct netlink_callback *cb)
+>  		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCR -
+> 1))))
+>  			smc_diag_fill_lgr_list(&smc_lgr_list, skb, cb,
+>  					       req);
+> +		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCD -
+> 1))))
+> +			smc_diag_fill_smcd_dev(&smcd_dev_list, skb, cb,
+> +					       req);
+>  	}
+>  
+>  	return skb->len;
+> diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+> index 6abbdd09a580..5bb2c7fb4ea8 100644
+> --- a/net/smc/smc_ism.c
+> +++ b/net/smc/smc_ism.c
+> @@ -20,6 +20,7 @@ struct smcd_dev_list smcd_dev_list = {
+>  	.list = LIST_HEAD_INIT(smcd_dev_list.list),
+>  	.mutex = __MUTEX_INITIALIZER(smcd_dev_list.mutex)
+>  };
+> +EXPORT_SYMBOL_GPL(smcd_dev_list);
+>  
+>  bool smc_ism_v2_capable;
+>  
+> @@ -50,6 +51,7 @@ u16 smc_ism_get_chid(struct smcd_dev *smcd)
+>  {
+>  	return smcd->ops->get_chid(smcd);
+>  }
+> +EXPORT_SYMBOL_GPL(smc_ism_get_chid);
+>  
+
+This is the 3rd EXPORT SYMBOL until now in this series,
+IMHO it is unhealthy to contaminate the kernel symbol table just for
+device specific diag purposes.
