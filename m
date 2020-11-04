@@ -1,214 +1,94 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH v7 17/17] mm: add mmu_notifier argument to follow_pfn
-Date: Fri, 27 Nov 2020 17:41:31 +0100
-Message-Id: <20201127164131.2244124-18-daniel.vetter@ffwll.ch>
-In-Reply-To: <20201127164131.2244124-1-daniel.vetter@ffwll.ch>
-References: <20201127164131.2244124-1-daniel.vetter@ffwll.ch>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:57556 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727754AbgKDAwR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 3 Nov 2020 19:52:17 -0500
+Message-ID: <14fd3b8357d650c76f00c399bcf08d654524e632.camel@kernel.org>
+Subject: Re: [PATCH net-next v2 04/15] net/smc: Add link counters for IB
+ device ports
+From: Saeed Mahameed <saeed@kernel.org>
+Date: Tue, 03 Nov 2020 16:52:16 -0800
+In-Reply-To: <20201103102531.91710-5-kgraul@linux.ibm.com>
+References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+         <20201103102531.91710-5-kgraul@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: DRI Development <dri-devel@lists.freedesktop.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: kvm@vger.kernel.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Daniel Vetter <daniel.vetter@intel.com>, Christoph Hellwig <hch@infradead.org>, Jason Gunthorpe <jgg@ziepe.ca>, Kees Cook <keescook@chromium.org>, Dan Williams <dan.j.williams@intel.com>, Andrew Morton <akpm@linux-foundation.org>, John Hubbard <jhubbard@nvidia.com>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>
+To: Karsten Graul <kgraul@linux.ibm.com>, davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-The only safe way for non core/arch code to use follow_pfn() is
-together with an mmu_notifier subscription. follow_pfn() is already
-marked as _GPL and the kerneldoc explains this restriction.
+On Tue, 2020-11-03 at 11:25 +0100, Karsten Graul wrote:
+> From: Guvenc Gulce <guvenc@linux.ibm.com>
+> 
+> Add link counters to the structure of the smc ib device, one counter
+> per
+> ib port. Increase/decrease the counters as needed in the
+> corresponding
+> routines.
+> 
+> Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+> ---
+>  net/smc/smc_core.c | 3 +++
+>  net/smc/smc_ib.h   | 1 +
+>  2 files changed, 4 insertions(+)
+> 
+> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+> index 6e2077161267..da94725deb09 100644
+> --- a/net/smc/smc_core.c
+> +++ b/net/smc/smc_core.c
+> @@ -316,6 +316,7 @@ int smcr_link_init(struct smc_link_group *lgr,
+> struct smc_link *lnk,
+>  	lnk->link_idx = link_idx;
+>  	lnk->smcibdev = ini->ib_dev;
+>  	lnk->ibport = ini->ib_port;
+> +	atomic_inc(&ini->ib_dev->lnk_cnt_by_port[ini->ib_port - 1]);
+>  	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port -
+> 1].active_mtu;
+>  	atomic_set(&lnk->conn_cnt, 0);
+>  	smc_llc_link_set_uid(lnk);
+> @@ -360,6 +361,7 @@ int smcr_link_init(struct smc_link_group *lgr,
+> struct smc_link *lnk,
+>  	smc_llc_link_clear(lnk, false);
+>  out:
+>  	put_device(&ini->ib_dev->ibdev->dev);
+> +	atomic_dec(&ini->ib_dev->lnk_cnt_by_port[ini->ib_port - 1]);
+>  	memset(lnk, 0, sizeof(struct smc_link));
+>  	lnk->state = SMC_LNK_UNUSED;
+>  	if (!atomic_dec_return(&ini->ib_dev->lnk_cnt))
+> @@ -750,6 +752,7 @@ void smcr_link_clear(struct smc_link *lnk, bool
+> log)
+>  	smc_ib_dealloc_protection_domain(lnk);
+>  	smc_wr_free_link_mem(lnk);
+>  	put_device(&lnk->smcibdev->ibdev->dev);
+> +	atomic_dec(&lnk->smcibdev->lnk_cnt_by_port[lnk->ibport - 1]);
 
-This patch here enforces all this by adding a mmu_notifier argument
-and verifying that it is registered for the correct mm_struct.
+this repeats 3 times at least in this patch and hard to read, can you
+make a macro or static function to hide the details
 
-Motivated by discussions with Christoph Hellwig and Jason Gunthorpe.
+Maybe: 
+SMC_IBDEV_CNT_{INC/DEC}(lnk->smcibdev);
 
-Since requiring an mmu_notifier makes it very clear that follow_pfn()
-cannot be used on !CONFIG_MMU hardware, remove it from there. The sole
-user kvm not existing on such hardware also supports that.
+>  	smcibdev = lnk->smcibdev;
+>  	memset(lnk, 0, sizeof(struct smc_link));
+>  	lnk->state = SMC_LNK_UNUSED;
+> diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+> index 2ce481187dd0..3e6bfeddd53b 100644
+> --- a/net/smc/smc_ib.h
+> +++ b/net/smc/smc_ib.h
+> @@ -53,6 +53,7 @@ struct smc_ib_device {				
+> /* ib-device infos for smc */
+>  	atomic_t		lnk_cnt;	/* number of links on ibdev
+> */
+>  	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all
+> links*/
+>  	struct mutex		mutex;		/* protect dev
+> setup+cleanup */
+> +	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];/*#lnk per
+> port*/
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Jérôme Glisse <jglisse@redhat.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: linux-mm@kvack.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org
-Cc: linux-media@vger.kernel.org
-Cc: kvm@vger.kernel.org
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
---
-v7: Comments from Jason:
-- ditch follow_pfn from nommu.c
-- simplify mmu_notifer->mm check
----
- include/linux/mm.h  |  3 ++-
- mm/memory.c         | 38 ++++++++++++++++++++++++--------------
- mm/nommu.c          | 27 +++++----------------------
- virt/kvm/kvm_main.c |  4 ++--
- 4 files changed, 33 insertions(+), 39 deletions(-)
+missing spaces around comment text.
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index bb3e926afd91..2a564bfd818c 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1651,6 +1651,7 @@ void unmap_vmas(struct mmu_gather *tlb, struct vm_area_struct *start_vma,
- 		unsigned long start, unsigned long end);
- 
- struct mmu_notifier_range;
-+struct mmu_notifier;
- 
- void free_pgd_range(struct mmu_gather *tlb, unsigned long addr,
- 		unsigned long end, unsigned long floor, unsigned long ceiling);
-@@ -1660,7 +1661,7 @@ int follow_pte_pmd(struct mm_struct *mm, unsigned long address,
- 		   struct mmu_notifier_range *range,
- 		   pte_t **ptepp, pmd_t **pmdpp, spinlock_t **ptlp);
- int follow_pfn(struct vm_area_struct *vma, unsigned long address,
--	unsigned long *pfn);
-+	unsigned long *pfn, struct mmu_notifier *subscription);
- int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
- 		      unsigned long *pfn);
- int follow_phys(struct vm_area_struct *vma, unsigned long address,
-diff --git a/mm/memory.c b/mm/memory.c
-index 0db0c5e233fd..a27b9b9c22c2 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4789,11 +4789,30 @@ int follow_pte_pmd(struct mm_struct *mm, unsigned long address,
- }
- EXPORT_SYMBOL(follow_pte_pmd);
- 
-+static int __follow_pfn(struct vm_area_struct *vma, unsigned long address,
-+			unsigned long *pfn)
-+{
-+	int ret = -EINVAL;
-+	spinlock_t *ptl;
-+	pte_t *ptep;
-+
-+	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-+		return ret;
-+
-+	ret = follow_pte(vma->vm_mm, address, &ptep, &ptl);
-+	if (ret)
-+		return ret;
-+	*pfn = pte_pfn(*ptep);
-+	pte_unmap_unlock(ptep, ptl);
-+	return 0;
-+}
-+
- /**
-  * follow_pfn - look up PFN at a user virtual address
-  * @vma: memory mapping
-  * @address: user virtual address
-  * @pfn: location to store found PFN
-+ * @subscription: mmu_notifier subscription for the mm @vma is part of
-  *
-  * Only IO mappings and raw PFN mappings are allowed. Note that callers must
-  * ensure coherency with pte updates by using a &mmu_notifier to follow updates.
-@@ -4805,21 +4824,12 @@ EXPORT_SYMBOL(follow_pte_pmd);
-  * Return: zero and the pfn at @pfn on success, -ve otherwise.
-  */
- int follow_pfn(struct vm_area_struct *vma, unsigned long address,
--	unsigned long *pfn)
-+	unsigned long *pfn, struct mmu_notifier *subscription)
- {
--	int ret = -EINVAL;
--	spinlock_t *ptl;
--	pte_t *ptep;
--
--	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
--		return ret;
-+	if (WARN_ON(subscription->mm != vma->vm_mm))
-+		return -EINVAL;
- 
--	ret = follow_pte(vma->vm_mm, address, &ptep, &ptl);
--	if (ret)
--		return ret;
--	*pfn = pte_pfn(*ptep);
--	pte_unmap_unlock(ptep, ptl);
--	return 0;
-+	return __follow_pfn(vma, address, pfn);
- }
- EXPORT_SYMBOL_GPL(follow_pfn);
- 
-@@ -4844,7 +4854,7 @@ int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
- 	WARN_ONCE(1, "unsafe follow_pfn usage\n");
- 	add_taint(TAINT_USER, LOCKDEP_STILL_OK);
- 
--	return follow_pfn(vma, address, pfn);
-+	return __follow_pfn(vma, address, pfn);
- }
- EXPORT_SYMBOL(unsafe_follow_pfn);
- 
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 79fc98a6c94a..a1e178401146 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -111,27 +111,6 @@ unsigned int kobjsize(const void *objp)
- 	return page_size(page);
- }
- 
--/**
-- * follow_pfn - look up PFN at a user virtual address
-- * @vma: memory mapping
-- * @address: user virtual address
-- * @pfn: location to store found PFN
-- *
-- * Only IO mappings and raw PFN mappings are allowed.
-- *
-- * Returns zero and the pfn at @pfn on success, -ve otherwise.
-- */
--int follow_pfn(struct vm_area_struct *vma, unsigned long address,
--	unsigned long *pfn)
--{
--	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
--		return -EINVAL;
--
--	*pfn = address >> PAGE_SHIFT;
--	return 0;
--}
--EXPORT_SYMBOL_GPL(follow_pfn);
--
- /**
-  * unsafe_follow_pfn - look up PFN at a user virtual address
-  * @vma: memory mapping
-@@ -153,7 +132,11 @@ int unsafe_follow_pfn(struct vm_area_struct *vma, unsigned long address,
- 	WARN_ONCE(1, "unsafe follow_pfn usage\n");
- 	add_taint(TAINT_USER, LOCKDEP_STILL_OK);
- 
--	return follow_pfn(vma, address, pfn);
-+	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)))
-+		return -EINVAL;
-+
-+	*pfn = address >> PAGE_SHIFT;
-+	return 0;
- }
- EXPORT_SYMBOL(unsafe_follow_pfn);
- 
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 417f3d470c3e..6f6786524eff 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1891,7 +1891,7 @@ static int hva_to_pfn_remapped(struct kvm *kvm, struct vm_area_struct *vma,
- 	unsigned long pfn;
- 	int r;
- 
--	r = follow_pfn(vma, addr, &pfn);
-+	r = follow_pfn(vma, addr, &pfn, &kvm->mmu_notifier);
- 	if (r) {
- 		/*
- 		 * get_user_pages fails for VM_IO and VM_PFNMAP vmas and does
-@@ -1906,7 +1906,7 @@ static int hva_to_pfn_remapped(struct kvm *kvm, struct vm_area_struct *vma,
- 		if (r)
- 			return r;
- 
--		r = follow_pfn(vma, addr, &pfn);
-+		r = follow_pfn(vma, addr, &pfn, &kvm->mmu_notifier);
- 		if (r)
- 			return r;
- 
--- 
-2.29.2
+
+> 
