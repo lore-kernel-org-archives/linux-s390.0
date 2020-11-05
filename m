@@ -1,307 +1,157 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64584 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727881AbgKGNAT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Nov 2020 08:00:19 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v3 07/15] net/smc: Refactor the netlink reply processing routine
-Date: Sat,  7 Nov 2020 13:59:50 +0100
-Message-Id: <20201107125958.16384-8-kgraul@linux.ibm.com>
-In-Reply-To: <20201107125958.16384-1-kgraul@linux.ibm.com>
-References: <20201107125958.16384-1-kgraul@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:53756 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730015AbgKELcR (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 5 Nov 2020 06:32:17 -0500
+Date: Thu, 5 Nov 2020 13:31:54 +0200
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH v4 1/4] mm: introduce debug_pagealloc_map_pages() helper
+Message-ID: <20201105113154.GX4879@kernel.org>
+References: <20201103162057.22916-1-rppt@kernel.org>
+ <20201103162057.22916-2-rppt@kernel.org>
+ <971e9638-2395-daf4-d19e-fe3cf5d34b98@suse.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <971e9638-2395-daf4-d19e-fe3cf5d34b98@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+On Wed, Nov 04, 2020 at 06:35:50PM +0100, Vlastimil Babka wrote:
+> On 11/3/20 5:20 PM, Mike Rapoport wrote:
+> > From: Mike Rapoport <rppt@linux.ibm.com>
+> > 
+> > When CONFIG_DEBUG_PAGEALLOC is enabled, it unmaps pages from the kernel
+> > direct mapping after free_pages(). The pages than need to be mapped back
+> > before they could be used. Theese mapping operations use
+> > __kernel_map_pages() guarded with with debug_pagealloc_enabled().
+> > 
+> > The only place that calls __kernel_map_pages() without checking whether
+> > DEBUG_PAGEALLOC is enabled is the hibernation code that presumes
+> > availability of this function when ARCH_HAS_SET_DIRECT_MAP is set.
+> > Still, on arm64, __kernel_map_pages() will bail out when DEBUG_PAGEALLOC is
+> > not enabled but set_direct_map_invalid_noflush() may render some pages not
+> > present in the direct map and hibernation code won't be able to save such
+> > pages.
+> > 
+> > To make page allocation debugging and hibernation interaction more robust,
+> > the dependency on DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP has to be made
+> > more explicit.
+> > 
+> > Start with combining the guard condition and the call to
+> > __kernel_map_pages() into a single debug_pagealloc_map_pages() function to
+> > emphasize that __kernel_map_pages() should not be called without
+> > DEBUG_PAGEALLOC and use this new function to map/unmap pages when page
+> > allocation debug is enabled.
+> > 
+> > Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+> > Reviewed-by: David Hildenbrand <david@redhat.com>
+> > Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+> 
+> Acked-by: Vlastimil Babka <vbabka@suse.cz>
+> 
+> But, the "enable" param is hideous. I would rather have map and unmap
+> variants (and just did the same split for page poisoning) and this seems to
+> be a good opportunity. If David didn't propose it already, I'm surprised ;)
 
-Refactor the netlink reply processing routine so that
-it provides sub functions for specific parts of the processing.
+I'm ok with map and unmap, and no, David didn't propose it already :)
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_diag.c | 218 +++++++++++++++++++++++++++------------------
- 1 file changed, 133 insertions(+), 85 deletions(-)
+> > ---
+> >   include/linux/mm.h  | 10 ++++++++++
+> >   mm/memory_hotplug.c |  3 +--
+> >   mm/page_alloc.c     |  6 ++----
+> >   mm/slab.c           |  8 +++-----
+> >   4 files changed, 16 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > index ef360fe70aaf..1fc0609056dc 100644
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -2936,12 +2936,22 @@ kernel_map_pages(struct page *page, int numpages, int enable)
+> >   {
+> >   	__kernel_map_pages(page, numpages, enable);
+> >   }
+> > +
+> > +static inline void debug_pagealloc_map_pages(struct page *page,
+> > +					     int numpages, int enable)
+> > +{
+> > +	if (debug_pagealloc_enabled_static())
+> > +		__kernel_map_pages(page, numpages, enable);
+> > +}
+> > +
+> >   #ifdef CONFIG_HIBERNATION
+> >   extern bool kernel_page_present(struct page *page);
+> >   #endif	/* CONFIG_HIBERNATION */
+> >   #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
+> >   static inline void
+> >   kernel_map_pages(struct page *page, int numpages, int enable) {}
+> > +static inline void debug_pagealloc_map_pages(struct page *page,
+> > +					     int numpages, int enable) {}
+> >   #ifdef CONFIG_HIBERNATION
+> >   static inline bool kernel_page_present(struct page *page) { return true; }
+> >   #endif	/* CONFIG_HIBERNATION */
+> > diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> > index b44d4c7ba73b..e2b6043a4428 100644
+> > --- a/mm/memory_hotplug.c
+> > +++ b/mm/memory_hotplug.c
+> > @@ -614,8 +614,7 @@ void generic_online_page(struct page *page, unsigned int order)
+> >   	 * so we should map it first. This is better than introducing a special
+> >   	 * case in page freeing fast path.
+> >   	 */
+> > -	if (debug_pagealloc_enabled_static())
+> > -		kernel_map_pages(page, 1 << order, 1);
+> > +	debug_pagealloc_map_pages(page, 1 << order, 1);
+> >   	__free_pages_core(page, order);
+> >   	totalram_pages_add(1UL << order);
+> >   #ifdef CONFIG_HIGHMEM
+> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > index 23f5066bd4a5..9a66a1ff9193 100644
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -1272,8 +1272,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
+> >   	 */
+> >   	arch_free_page(page, order);
+> > -	if (debug_pagealloc_enabled_static())
+> > -		kernel_map_pages(page, 1 << order, 0);
+> > +	debug_pagealloc_map_pages(page, 1 << order, 0);
+> >   	kasan_free_nondeferred_pages(page, order);
+> > @@ -2270,8 +2269,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+> >   	set_page_refcounted(page);
+> >   	arch_alloc_page(page, order);
+> > -	if (debug_pagealloc_enabled_static())
+> > -		kernel_map_pages(page, 1 << order, 1);
+> > +	debug_pagealloc_map_pages(page, 1 << order, 1);
+> >   	kasan_alloc_pages(page, order);
+> >   	kernel_poison_pages(page, 1 << order, 1);
+> >   	set_page_owner(page, order, gfp_flags);
+> > diff --git a/mm/slab.c b/mm/slab.c
+> > index b1113561b98b..340db0ce74c4 100644
+> > --- a/mm/slab.c
+> > +++ b/mm/slab.c
+> > @@ -1431,10 +1431,8 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
+> >   #ifdef CONFIG_DEBUG_PAGEALLOC
+> >   static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
+> >   {
+> > -	if (!is_debug_pagealloc_cache(cachep))
+> > -		return;
+> > -
+> > -	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
+> > +	debug_pagealloc_map_pages(virt_to_page(objp),
+> > +				  cachep->size / PAGE_SIZE, map);
+> >   }
+> >   #else
+> > @@ -2062,7 +2060,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
+> >   #if DEBUG
+> >   	/*
+> > -	 * If we're going to use the generic kernel_map_pages()
+> > +	 * If we're going to use the generic debug_pagealloc_map_pages()
+> >   	 * poisoning, then it's going to smash the contents of
+> >   	 * the redzone and userword anyhow, so switch them off.
+> >   	 */
+> > 
+> 
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index c2225231f679..44be723c97fe 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -69,35 +69,25 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
- 	}
- }
- 
--static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
--				   struct smc_diag_msg *r,
--				   struct user_namespace *user_ns)
-+static bool smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
-+				    struct smc_diag_msg *r,
-+				    struct user_namespace *user_ns)
- {
--	if (nla_put_u8(skb, SMC_DIAG_SHUTDOWN, sk->sk_shutdown))
--		return 1;
-+	if (nla_put_u8(skb, SMC_DIAG_SHUTDOWN, sk->sk_shutdown) < 0)
-+		return false;
- 
- 	r->diag_uid = from_kuid_munged(user_ns, sock_i_uid(sk));
- 	r->diag_inode = sock_i_ino(sk);
--	return 0;
-+	return true;
- }
- 
--static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
--			   struct netlink_callback *cb,
--			   const struct smc_diag_req *req,
--			   struct nlattr *bc)
-+static bool smc_diag_fill_base_struct(struct sock *sk, struct sk_buff *skb,
-+				      struct netlink_callback *cb,
-+				      struct smc_diag_msg *r)
- {
- 	struct smc_sock *smc = smc_sk(sk);
--	struct smc_diag_fallback fallback;
- 	struct user_namespace *user_ns;
--	struct smc_diag_msg *r;
--	struct nlmsghdr *nlh;
- 
--	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
--			cb->nlh->nlmsg_type, sizeof(*r), NLM_F_MULTI);
--	if (!nlh)
--		return -EMSGSIZE;
--
--	r = nlmsg_data(nlh);
- 	smc_diag_msg_common_fill(r, sk);
- 	r->diag_state = sk->sk_state;
- 	if (smc->use_fallback)
-@@ -107,89 +97,148 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 	else
- 		r->diag_mode = SMC_DIAG_MODE_SMCR;
- 	user_ns = sk_user_ns(NETLINK_CB(cb->skb).sk);
--	if (smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
--		goto errout;
-+	if (!smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
-+		return false;
- 
-+	return true;
-+}
-+
-+static bool smc_diag_fill_fallback(struct sock *sk, struct sk_buff *skb)
-+{
-+	struct smc_diag_fallback fallback;
-+	struct smc_sock *smc = smc_sk(sk);
-+
-+	memset(&fallback, 0, sizeof(fallback));
- 	fallback.reason = smc->fallback_rsn;
- 	fallback.peer_diagnosis = smc->peer_diagnosis;
- 	if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
-+		return false;
-+
-+	return true;
-+}
-+
-+static bool smc_diag_fill_conninfo(struct sock *sk, struct sk_buff *skb)
-+{
-+	struct smc_host_cdc_msg *local_tx, *local_rx;
-+	struct smc_diag_conninfo cinfo;
-+	struct smc_connection *conn;
-+	struct smc_sock *smc;
-+
-+	smc = smc_sk(sk);
-+	conn = &smc->conn;
-+	local_tx = &conn->local_tx_ctrl;
-+	local_rx = &conn->local_rx_ctrl;
-+	memset(&cinfo, 0, sizeof(cinfo));
-+	cinfo.token = conn->alert_token_local;
-+	cinfo.sndbuf_size = conn->sndbuf_desc ? conn->sndbuf_desc->len : 0;
-+	cinfo.rmbe_size = conn->rmb_desc ? conn->rmb_desc->len : 0;
-+	cinfo.peer_rmbe_size = conn->peer_rmbe_size;
-+
-+	cinfo.rx_prod.wrap = local_rx->prod.wrap;
-+	cinfo.rx_prod.count = local_rx->prod.count;
-+	cinfo.rx_cons.wrap = local_rx->cons.wrap;
-+	cinfo.rx_cons.count = local_rx->cons.count;
-+
-+	cinfo.tx_prod.wrap = local_tx->prod.wrap;
-+	cinfo.tx_prod.count = local_tx->prod.count;
-+	cinfo.tx_cons.wrap = local_tx->cons.wrap;
-+	cinfo.tx_cons.count = local_tx->cons.count;
-+
-+	cinfo.tx_prod_flags = *(u8 *)&local_tx->prod_flags;
-+	cinfo.tx_conn_state_flags = *(u8 *)&local_tx->conn_state_flags;
-+	cinfo.rx_prod_flags = *(u8 *)&local_rx->prod_flags;
-+	cinfo.rx_conn_state_flags = *(u8 *)&local_rx->conn_state_flags;
-+
-+	cinfo.tx_prep.wrap = conn->tx_curs_prep.wrap;
-+	cinfo.tx_prep.count = conn->tx_curs_prep.count;
-+	cinfo.tx_sent.wrap = conn->tx_curs_sent.wrap;
-+	cinfo.tx_sent.count = conn->tx_curs_sent.count;
-+	cinfo.tx_fin.wrap = conn->tx_curs_fin.wrap;
-+	cinfo.tx_fin.count = conn->tx_curs_fin.count;
-+
-+	if (nla_put(skb, SMC_DIAG_CONNINFO, sizeof(cinfo), &cinfo) < 0)
-+		return false;
-+
-+	return true;
-+}
-+
-+static bool smc_diag_fill_lgrinfo(struct sock *sk, struct sk_buff *skb)
-+{
-+	struct smc_sock *smc = smc_sk(sk);
-+	struct smc_diag_lgrinfo linfo;
-+
-+	memset(&linfo, 0, sizeof(linfo));
-+	linfo.role = smc->conn.lgr->role;
-+	linfo.lnk[0].ibport = smc->conn.lnk->ibport;
-+	linfo.lnk[0].link_id = smc->conn.lnk->link_id;
-+	memcpy(linfo.lnk[0].ibname, smc->conn.lnk->ibname,
-+	       sizeof(linfo.lnk[0].ibname));
-+	smc_gid_be16_convert(linfo.lnk[0].gid,
-+			     smc->conn.lnk->gid);
-+	smc_gid_be16_convert(linfo.lnk[0].peer_gid,
-+			     smc->conn.lnk->peer_gid);
-+
-+	if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
-+		return false;
-+
-+	return true;
-+}
-+
-+static bool smc_diag_fill_dmbinfo(struct sock *sk, struct sk_buff *skb)
-+{
-+	struct smc_sock *smc = smc_sk(sk);
-+	struct smcd_diag_dmbinfo dinfo;
-+	struct smc_connection *conn;
-+
-+	memset(&dinfo, 0, sizeof(dinfo));
-+	conn = &smc->conn;
-+	dinfo.linkid = *((u32 *)conn->lgr->id);
-+	dinfo.peer_gid = conn->lgr->peer_gid;
-+	dinfo.my_gid = conn->lgr->smcd->local_gid;
-+	dinfo.token = conn->rmb_desc->token;
-+	dinfo.peer_token = conn->peer_token;
-+
-+	if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
-+		return false;
-+	return true;
-+}
-+
-+static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
-+			   struct netlink_callback *cb,
-+			   const struct smc_diag_req *req)
-+{
-+	struct smc_sock *smc = smc_sk(sk);
-+	struct smc_diag_msg *r;
-+	struct nlmsghdr *nlh;
-+
-+	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-+			cb->nlh->nlmsg_type, sizeof(*r), NLM_F_MULTI);
-+	if (!nlh)
-+		return -EMSGSIZE;
-+
-+	r = nlmsg_data(nlh);
-+	if (!smc_diag_fill_base_struct(sk, skb, cb, r))
-+		goto errout;
-+
-+	if (!smc_diag_fill_fallback(sk, skb))
- 		goto errout;
- 
- 	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
- 	    smc->conn.alert_token_local) {
--		struct smc_connection *conn = &smc->conn;
--		struct smc_diag_conninfo cinfo = {
--			.token = conn->alert_token_local,
--			.sndbuf_size = conn->sndbuf_desc ?
--				conn->sndbuf_desc->len : 0,
--			.rmbe_size = conn->rmb_desc ? conn->rmb_desc->len : 0,
--			.peer_rmbe_size = conn->peer_rmbe_size,
--
--			.rx_prod.wrap = conn->local_rx_ctrl.prod.wrap,
--			.rx_prod.count = conn->local_rx_ctrl.prod.count,
--			.rx_cons.wrap = conn->local_rx_ctrl.cons.wrap,
--			.rx_cons.count = conn->local_rx_ctrl.cons.count,
--
--			.tx_prod.wrap = conn->local_tx_ctrl.prod.wrap,
--			.tx_prod.count = conn->local_tx_ctrl.prod.count,
--			.tx_cons.wrap = conn->local_tx_ctrl.cons.wrap,
--			.tx_cons.count = conn->local_tx_ctrl.cons.count,
--
--			.tx_prod_flags =
--				*(u8 *)&conn->local_tx_ctrl.prod_flags,
--			.tx_conn_state_flags =
--				*(u8 *)&conn->local_tx_ctrl.conn_state_flags,
--			.rx_prod_flags = *(u8 *)&conn->local_rx_ctrl.prod_flags,
--			.rx_conn_state_flags =
--				*(u8 *)&conn->local_rx_ctrl.conn_state_flags,
--
--			.tx_prep.wrap = conn->tx_curs_prep.wrap,
--			.tx_prep.count = conn->tx_curs_prep.count,
--			.tx_sent.wrap = conn->tx_curs_sent.wrap,
--			.tx_sent.count = conn->tx_curs_sent.count,
--			.tx_fin.wrap = conn->tx_curs_fin.wrap,
--			.tx_fin.count = conn->tx_curs_fin.count,
--		};
--
--		if (nla_put(skb, SMC_DIAG_CONNINFO, sizeof(cinfo), &cinfo) < 0)
-+		if (!smc_diag_fill_conninfo(sk, skb))
- 			goto errout;
- 	}
- 
- 	if (smc->conn.lgr && !smc->conn.lgr->is_smcd &&
- 	    (req->diag_ext & (1 << (SMC_DIAG_LGRINFO - 1))) &&
- 	    !list_empty(&smc->conn.lgr->list)) {
--		struct smc_diag_lgrinfo linfo = {
--			.role = smc->conn.lgr->role,
--			.lnk[0].ibport = smc->conn.lnk->ibport,
--			.lnk[0].link_id = smc->conn.lnk->link_id,
--		};
--
--		memcpy(linfo.lnk[0].ibname,
--		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
--		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
--		smc_gid_be16_convert(linfo.lnk[0].gid,
--				     smc->conn.lnk->gid);
--		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
--				     smc->conn.lnk->peer_gid);
--
--		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
-+		if (!smc_diag_fill_lgrinfo(sk, skb))
- 			goto errout;
- 	}
- 	if (smc->conn.lgr && smc->conn.lgr->is_smcd &&
- 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
- 	    !list_empty(&smc->conn.lgr->list)) {
--		struct smc_connection *conn = &smc->conn;
--		struct smcd_diag_dmbinfo dinfo;
--
--		memset(&dinfo, 0, sizeof(dinfo));
--
--		dinfo.linkid = *((u32 *)conn->lgr->id);
--		dinfo.peer_gid = conn->lgr->peer_gid;
--		dinfo.my_gid = conn->lgr->smcd->local_gid;
--		dinfo.token = conn->rmb_desc->token;
--		dinfo.peer_token = conn->peer_token;
--
--		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
-+		if (!smc_diag_fill_dmbinfo(sk, skb))
- 			goto errout;
- 	}
- 
-@@ -207,7 +256,6 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
- 	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
- 	struct net *net = sock_net(skb->sk);
- 	int snum = cb_ctx->pos[p_type];
--	struct nlattr *bc = NULL;
- 	struct hlist_head *head;
- 	int rc = 0, num = 0;
- 	struct sock *sk;
-@@ -222,7 +270,7 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
- 			continue;
- 		if (num < snum)
- 			goto next;
--		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
-+		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh));
- 		if (rc < 0)
- 			goto out;
- next:
 -- 
-2.17.1
+Sincerely yours,
+Mike.
