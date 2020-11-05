@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: YiFei Zhu <zhuyifei1999@gmail.com>
-Subject: [PATCH seccomp v2 0/8] seccomp: add bitmap cache support on remaining arches and report cache in procfs
-Date: Wed, 11 Nov 2020 07:33:46 -0600
-Message-Id: <cover.1605101222.git.yifeifz2@illinois.edu>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from aserp2120.oracle.com ([141.146.126.78]:58826 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726225AbgKEEVz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 4 Nov 2020 23:21:55 -0500
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: Re: [PATCH 0/5] zfcp: cleanups, refactorings and features for 5.11
+Date: Wed,  4 Nov 2020 23:21:46 -0500
+Message-Id: <160455005256.26277.4237038702456087390.b4-ty@oracle.com>
+In-Reply-To: <cover.1603908167.git.bblock@linux.ibm.com>
+References: <cover.1603908167.git.bblock@linux.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: containers@lists.linux-foundation.org
-Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
+To: "James E.J. Bottomley" <jejb@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>
+Cc: "Martin K . Petersen" <martin.petersen@oracle.com>, Fedor Loshakov <loshakov@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, linux-scsi@vger.kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>
 
-From: YiFei Zhu <yifeifz2@illinois.edu>
+On Wed, 28 Oct 2020 19:30:47 +0100, Benjamin Block wrote:
 
-This patch series enables bitmap cache for the remaining arches with
-SECCOMP_FILTER, other than MIPS.
+> here is a series of changes for our zfcp driver for 5.11.
+> 
+> Other than 2 smaller cleanups and clarifications for maintainability we
+> have a refactoring of how zfcp uses s390's qdio layer, and we have a
+> small feature improving our handling of out-of-band version changes to our
+> adapters (or firmware).
+> 
+> [...]
 
-I was unable to find any of the arches having subarch-specific NR_syscalls
-macros, so generic NR_syscalls is used. SH's syscall_get_arch seems to
-only have the 32-bit subarch implementation. I'm not sure if this is
-expected.
+Applied to 5.11/scsi-queue, thanks!
 
-This series has not been tested; I have not built all the cross compilers
-necessary to build test, let alone run the kernel or benchmark the
-performance, so help on making sure the bitmap cache works as expected
-(selftests/seccomp/{seccomp_benchmark,seccomp_bpf}) would be appreciated.
-The series applies on top of Kees's for-next/seccomp branch.
+[1/5] scsi: zfcp: Lift Input Queue tasklet from qdio
+      https://git.kernel.org/mkp/scsi/c/0b524abc2dd1
+[2/5] scsi: zfcp: Remove orphaned function declarations
+      https://git.kernel.org/mkp/scsi/c/84e7b4169f94
+[3/5] scsi: zfcp: Clarify & assert the stat_lock locking in zfcp_qdio_send()
+      https://git.kernel.org/mkp/scsi/c/efd321768d2e
+[4/5] scsi: zfcp: Process Version Change events
+      https://git.kernel.org/mkp/scsi/c/a6c37abe6988
+[5/5] scsi: zfcp: Handle event-lost notification for Version Change events
+      https://git.kernel.org/mkp/scsi/c/d90196317484
 
-v1 -> v2:
-* ppc, sh: s/__SECCOMP_ARCH_LE_BIT/__SECCOMP_ARCH_LE/
-* ppc: add "le" suffix to arch name when the arch is little endian.
-* ppc: add explanation of why __LITTLE_ENDIAN__ is used to commit message.
-
-YiFei Zhu (8):
-  csky: Enable seccomp architecture tracking
-  parisc: Enable seccomp architecture tracking
-  powerpc: Enable seccomp architecture tracking
-  riscv: Enable seccomp architecture tracking
-  s390: Enable seccomp architecture tracking
-  sh: Enable seccomp architecture tracking
-  xtensa: Enable seccomp architecture tracking
-  seccomp/cache: Report cache data through /proc/pid/seccomp_cache
-
- arch/Kconfig                       | 15 ++++++++
- arch/csky/include/asm/Kbuild       |  1 -
- arch/csky/include/asm/seccomp.h    | 11 ++++++
- arch/parisc/include/asm/Kbuild     |  1 -
- arch/parisc/include/asm/seccomp.h  | 22 +++++++++++
- arch/powerpc/include/asm/seccomp.h | 23 ++++++++++++
- arch/riscv/include/asm/seccomp.h   | 10 +++++
- arch/s390/include/asm/seccomp.h    |  9 +++++
- arch/sh/include/asm/seccomp.h      | 10 +++++
- arch/xtensa/include/asm/Kbuild     |  1 -
- arch/xtensa/include/asm/seccomp.h  | 11 ++++++
- fs/proc/base.c                     |  6 +++
- include/linux/seccomp.h            |  7 ++++
- kernel/seccomp.c                   | 59 ++++++++++++++++++++++++++++++
- 14 files changed, 183 insertions(+), 3 deletions(-)
- create mode 100644 arch/csky/include/asm/seccomp.h
- create mode 100644 arch/parisc/include/asm/seccomp.h
- create mode 100644 arch/xtensa/include/asm/seccomp.h
-
-
-base-commit: 38c37e8fd3d2590c4234d8cfbc22158362f0eb04
---
-2.29.2
+-- 
+Martin K. Petersen	Oracle Linux Engineering
