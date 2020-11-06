@@ -1,40 +1,89 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Qinglang Miao <miaoqinglang@huawei.com>
-Subject: [PATCH] scsi: zfcp: fix use-after-free in zfcp_unit_remove
-Date: Fri, 20 Nov 2020 15:48:54 +0800
-Message-ID: <20201120074854.31754-1-miaoqinglang@huawei.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:25028 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725837AbgKFGiU (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Nov 2020 01:38:20 -0500
+Subject: Re: [PATCH net-next v2 12/15] net/smc: Add support for obtaining SMCD
+ device list
+References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+ <20201103102531.91710-13-kgraul@linux.ibm.com>
+ <eca09b4aee1d4526e1ee772adbfaafab2afa1f20.camel@kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Message-ID: <0c656b51-cd05-33a0-9bb7-cdfc21131132@linux.ibm.com>
+Date: Fri, 6 Nov 2020 07:38:10 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <eca09b4aee1d4526e1ee772adbfaafab2afa1f20.camel@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Steffen Maier <maier@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
+To: Saeed Mahameed <saeed@kernel.org>, davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com, Guevenc Guelce <guvenc@linux.ibm.com>
 
-kfree(port) is called in put_device(&port->dev) so that following
-use would cause use-after-free bug.
+On 04/11/2020 02:31, Saeed Mahameed wrote:
+> On Tue, 2020-11-03 at 11:25 +0100, Karsten Graul wrote:
+>> From: Guvenc Gulce <guvenc@linux.ibm.com>
+>>
+>> Deliver SMCD device information via netlink based
+>> diagnostic interface.
+>>
+>> Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+>> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+>> ---
+>>  include/uapi/linux/smc.h      |  2 +
+>>  include/uapi/linux/smc_diag.h | 20 +++++++++
+>>  net/smc/smc_core.h            | 27 +++++++++++++
+>>  net/smc/smc_diag.c            | 76
+>> +++++++++++++++++++++++++++++++++++
+>>  net/smc/smc_ib.h              |  1 -
+>>  5 files changed, 125 insertions(+), 1 deletion(-)
+>>
+> 
+>> +
+>> +static int smc_diag_prep_smcd_dev(struct smcd_dev_list *dev_list,
+>> +				  struct sk_buff *skb,
+>> +				  struct netlink_callback *cb,
+>> +				  struct smc_diag_req_v2 *req)
+>> +{
+>> +	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
+>> +	int snum = cb_ctx->pos[0];
+>> +	struct smcd_dev *smcd;
+>> +	int rc = 0, num = 0;
+>> +
+>> +	mutex_lock(&dev_list->mutex);
+>> +	list_for_each_entry(smcd, &dev_list->list, list) {
+>> +		if (num < snum)
+>> +			goto next;
+>> +		rc = smc_diag_handle_smcd_dev(smcd, skb, cb, req);
+>> +		if (rc < 0)
+>> +			goto errout;
+>> +next:
+>> +		num++;
+>> +	}
+>> +errout:
+>> +	mutex_unlock(&dev_list->mutex);
+>> +	cb_ctx->pos[0] = num;
+>> +	return rc;
+>> +}
+>> +
+> 
+> this function pattern repeats at least 4 times in this series and the
+> only difference is the diag handler function, just abstract this
+> function out and pass a function pointer as handler to reduce code
+> repetition. 
+> 
 
-The former put_device is redundant for device_unregister contains
-put_device already. So just remove it to fix this.
+Thank you for your review. We will come up with a v3 to address the comments.
 
-Fixes: 86bdf218a717 ("[SCSI] zfcp: cleanup unit sysfs attribute usage")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
----
- drivers/s390/scsi/zfcp_unit.c | 2 --
- 1 file changed, 2 deletions(-)
+We plan to eliminate additional EXPORTs using an ops array that allows smc_diag to 
+retrieve the needed information from the smc module.
 
-diff --git a/drivers/s390/scsi/zfcp_unit.c b/drivers/s390/scsi/zfcp_unit.c
-index e67bf7388..664b77853 100644
---- a/drivers/s390/scsi/zfcp_unit.c
-+++ b/drivers/s390/scsi/zfcp_unit.c
-@@ -255,8 +255,6 @@ int zfcp_unit_remove(struct zfcp_port *port, u64 fcp_lun)
- 		scsi_device_put(sdev);
- 	}
- 
--	put_device(&unit->dev);
--
- 	device_unregister(&unit->dev);
- 
- 	return 0;
+We discussed the above comment as well, but there is no clean and easy way to change
+it because (nearly) all places iterate over different lists that have different types.
+It might be not a good idea to loose type safety here by calling different handlers 
+with a void pointer as parameter. Additionally some lists require specific locks.
+
 -- 
-2.23.0
+Karsten
+
+(I'm a dude)
