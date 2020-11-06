@@ -1,123 +1,265 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61526 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729680AbgKTSHw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Nov 2020 13:07:52 -0500
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v2 2/2] vfio-ccw: Wire in the request callback
-Date: Fri, 20 Nov 2020 19:07:40 +0100
-Message-Id: <20201120180740.87837-3-farman@linux.ibm.com>
-In-Reply-To: <20201120180740.87837-1-farman@linux.ibm.com>
-References: <20201120180740.87837-1-farman@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 6 Nov 2020 19:25:13 +0900
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Subject: Re: [PATCH 05/11 v3] kprobes/ftrace: Add recursion protection to
+ the ftrace callback
+Message-Id: <20201106192513.80b330351c0cafd03134b0d1@kernel.org>
+In-Reply-To: <20201106023546.944907560@goodmis.org>
+References: <20201106023235.367190737@goodmis.org>
+        <20201106023546.944907560@goodmis.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Kirti Wankhede <kwankhede@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Guo Ren <guoren@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org
 
-The device is being unplugged, so pass the request to userspace to
-ask for a graceful cleanup. This should free up the thread that
-would otherwise loop waiting for the device to be fully released.
+On Thu, 05 Nov 2020 21:32:40 -0500
+Steven Rostedt (VMware) <rostedt@goodmis.org> wrote:
 
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- drivers/s390/cio/vfio_ccw_ops.c     | 26 ++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_private.h |  4 ++++
- include/uapi/linux/vfio.h           |  1 +
- 3 files changed, 31 insertions(+)
+> From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+> 
+> If a ftrace callback does not supply its own recursion protection and
+> does not set the RECURSION_SAFE flag in its ftrace_ops, then ftrace will
+> make a helper trampoline to do so before calling the callback instead of
+> just calling the callback directly.
+> 
+> The default for ftrace_ops is going to change. It will expect that handlers
+> provide their own recursion protection, unless its ftrace_ops states
+> otherwise.
+> 
+> Link: https://lkml.kernel.org/r/20201028115613.140212174@goodmis.org
+> 
 
-diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
-index 8b3ed5b45277..68106be4ba7a 100644
---- a/drivers/s390/cio/vfio_ccw_ops.c
-+++ b/drivers/s390/cio/vfio_ccw_ops.c
-@@ -394,6 +394,7 @@ static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
- 	switch (info->index) {
- 	case VFIO_CCW_IO_IRQ_INDEX:
- 	case VFIO_CCW_CRW_IRQ_INDEX:
-+	case VFIO_CCW_REQ_IRQ_INDEX:
- 		info->count = 1;
- 		info->flags = VFIO_IRQ_INFO_EVENTFD;
- 		break;
-@@ -424,6 +425,9 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
- 	case VFIO_CCW_CRW_IRQ_INDEX:
- 		ctx = &private->crw_trigger;
- 		break;
-+	case VFIO_CCW_REQ_IRQ_INDEX:
-+		ctx = &private->req_trigger;
-+		break;
- 	default:
- 		return -EINVAL;
- 	}
-@@ -607,6 +611,27 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
- 	}
- }
- 
-+/* Request removal of the device*/
-+static void vfio_ccw_mdev_request(struct mdev_device *mdev, unsigned int count)
-+{
-+	struct vfio_ccw_private *private = dev_get_drvdata(mdev_parent_dev(mdev));
-+
-+	if (!private)
-+		return;
-+
-+	if (private->req_trigger) {
-+		if (!(count % 10))
-+			dev_notice_ratelimited(mdev_dev(private->mdev),
-+					       "Relaying device request to user (#%u)\n",
-+					       count);
-+
-+		eventfd_signal(private->req_trigger, 1);
-+	} else if (count == 0) {
-+		dev_notice(mdev_dev(private->mdev),
-+			   "No device request channel registered, blocked until released by user\n");
-+	}
-+}
-+
- static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
- 	.owner			= THIS_MODULE,
- 	.supported_type_groups  = mdev_type_groups,
-@@ -617,6 +642,7 @@ static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
- 	.read			= vfio_ccw_mdev_read,
- 	.write			= vfio_ccw_mdev_write,
- 	.ioctl			= vfio_ccw_mdev_ioctl,
-+	.request		= vfio_ccw_mdev_request,
- };
- 
- int vfio_ccw_mdev_reg(struct subchannel *sch)
-diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
-index 8723156b29ea..b2c762eb42b9 100644
---- a/drivers/s390/cio/vfio_ccw_private.h
-+++ b/drivers/s390/cio/vfio_ccw_private.h
-@@ -84,7 +84,10 @@ struct vfio_ccw_crw {
-  * @irb: irb info received from interrupt
-  * @scsw: scsw info
-  * @io_trigger: eventfd ctx for signaling userspace I/O results
-+ * @crw_trigger: eventfd ctx for signaling userspace CRW information
-+ * @req_trigger: eventfd ctx for signaling userspace to return device
-  * @io_work: work for deferral process of I/O handling
-+ * @crw_work: work for deferral process of CRW handling
-  */
- struct vfio_ccw_private {
- 	struct subchannel	*sch;
-@@ -108,6 +111,7 @@ struct vfio_ccw_private {
- 
- 	struct eventfd_ctx	*io_trigger;
- 	struct eventfd_ctx	*crw_trigger;
-+	struct eventfd_ctx	*req_trigger;
- 	struct work_struct	io_work;
- 	struct work_struct	crw_work;
- } __aligned(8);
-diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
-index 2f313a238a8f..d1812777139f 100644
---- a/include/uapi/linux/vfio.h
-+++ b/include/uapi/linux/vfio.h
-@@ -820,6 +820,7 @@ enum {
- enum {
- 	VFIO_CCW_IO_IRQ_INDEX,
- 	VFIO_CCW_CRW_IRQ_INDEX,
-+	VFIO_CCW_REQ_IRQ_INDEX,
- 	VFIO_CCW_NUM_IRQS
- };
- 
+Looks good to me.
+
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+
+Thank you!
+
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Masami Hiramatsu <mhiramat@kernel.org>
+> Cc: Guo Ren <guoren@kernel.org>
+> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: x86@kernel.org
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
+> Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: linux-csky@vger.kernel.org
+> Cc: linux-parisc@vger.kernel.org
+> Cc: linuxppc-dev@lists.ozlabs.org
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+> ---
+> 
+> Changes since v2:
+> 
+>  - Move get_kprobe() into preempt disabled sections for various archs
+> 
+> 
+>  arch/csky/kernel/probes/ftrace.c     | 12 ++++++++++--
+>  arch/parisc/kernel/ftrace.c          | 16 +++++++++++++---
+>  arch/powerpc/kernel/kprobes-ftrace.c | 11 ++++++++++-
+>  arch/s390/kernel/ftrace.c            | 16 +++++++++++++---
+>  arch/x86/kernel/kprobes/ftrace.c     | 12 ++++++++++--
+>  5 files changed, 56 insertions(+), 11 deletions(-)
+> 
+> diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
+> index 5264763d05be..5eb2604fdf71 100644
+> --- a/arch/csky/kernel/probes/ftrace.c
+> +++ b/arch/csky/kernel/probes/ftrace.c
+> @@ -13,16 +13,21 @@ int arch_check_ftrace_location(struct kprobe *p)
+>  void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>  			   struct ftrace_ops *ops, struct pt_regs *regs)
+>  {
+> +	int bit;
+>  	bool lr_saver = false;
+>  	struct kprobe *p;
+>  	struct kprobe_ctlblk *kcb;
+>  
+> -	/* Preempt is disabled by ftrace */
+> +	bit = ftrace_test_recursion_trylock();
+> +	if (bit < 0)
+> +		return;
+> +
+> +	preempt_disable_notrace();
+>  	p = get_kprobe((kprobe_opcode_t *)ip);
+>  	if (!p) {
+>  		p = get_kprobe((kprobe_opcode_t *)(ip - MCOUNT_INSN_SIZE));
+>  		if (unlikely(!p) || kprobe_disabled(p))
+> -			return;
+> +			goto out;
+>  		lr_saver = true;
+>  	}
+>  
+> @@ -56,6 +61,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>  		 */
+>  		__this_cpu_write(current_kprobe, NULL);
+>  	}
+> +out:
+> +	preempt_enable_notrace();
+> +	ftrace_test_recursion_unlock(bit);
+>  }
+>  NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+>  
+> diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
+> index 63e3ecb9da81..13d85042810a 100644
+> --- a/arch/parisc/kernel/ftrace.c
+> +++ b/arch/parisc/kernel/ftrace.c
+> @@ -207,14 +207,21 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>  			   struct ftrace_ops *ops, struct pt_regs *regs)
+>  {
+>  	struct kprobe_ctlblk *kcb;
+> -	struct kprobe *p = get_kprobe((kprobe_opcode_t *)ip);
+> +	struct kprobe *p;
+> +	int bit;
+>  
+> -	if (unlikely(!p) || kprobe_disabled(p))
+> +	bit = ftrace_test_recursion_trylock();
+> +	if (bit < 0)
+>  		return;
+>  
+> +	preempt_disable_notrace();
+> +	p = get_kprobe((kprobe_opcode_t *)ip);
+> +	if (unlikely(!p) || kprobe_disabled(p))
+> +		goto out;
+> +
+>  	if (kprobe_running()) {
+>  		kprobes_inc_nmissed_count(p);
+> -		return;
+> +		goto out;
+>  	}
+>  
+>  	__this_cpu_write(current_kprobe, p);
+> @@ -235,6 +242,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>  		}
+>  	}
+>  	__this_cpu_write(current_kprobe, NULL);
+> +out:
+> +	preempt_enable_notrace();
+> +	ftrace_test_recursion_unlock(bit);
+>  }
+>  NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+>  
+> diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
+> index 972cb28174b2..5df8d50c65ae 100644
+> --- a/arch/powerpc/kernel/kprobes-ftrace.c
+> +++ b/arch/powerpc/kernel/kprobes-ftrace.c
+> @@ -18,10 +18,16 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
+>  {
+>  	struct kprobe *p;
+>  	struct kprobe_ctlblk *kcb;
+> +	int bit;
+>  
+> +	bit = ftrace_test_recursion_trylock();
+> +	if (bit < 0)
+> +		return;
+> +
+> +	preempt_disable_notrace();
+>  	p = get_kprobe((kprobe_opcode_t *)nip);
+>  	if (unlikely(!p) || kprobe_disabled(p))
+> -		return;
+> +		goto out;
+>  
+>  	kcb = get_kprobe_ctlblk();
+>  	if (kprobe_running()) {
+> @@ -52,6 +58,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
+>  		 */
+>  		__this_cpu_write(current_kprobe, NULL);
+>  	}
+> +out:
+> +	preempt_enable_notrace();
+> +	ftrace_test_recursion_unlock(bit);
+>  }
+>  NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+>  
+> diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+> index b388e87a08bf..8f31c726537a 100644
+> --- a/arch/s390/kernel/ftrace.c
+> +++ b/arch/s390/kernel/ftrace.c
+> @@ -201,14 +201,21 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>  		struct ftrace_ops *ops, struct pt_regs *regs)
+>  {
+>  	struct kprobe_ctlblk *kcb;
+> -	struct kprobe *p = get_kprobe((kprobe_opcode_t *)ip);
+> +	struct kprobe *p;
+> +	int bit;
+>  
+> -	if (unlikely(!p) || kprobe_disabled(p))
+> +	bit = ftrace_test_recursion_trylock();
+> +	if (bit < 0)
+>  		return;
+>  
+> +	preempt_disable_notrace();
+> +	p = get_kprobe((kprobe_opcode_t *)ip);
+> +	if (unlikely(!p) || kprobe_disabled(p))
+> +		goto out;
+> +
+>  	if (kprobe_running()) {
+>  		kprobes_inc_nmissed_count(p);
+> -		return;
+> +		goto out;
+>  	}
+>  
+>  	__this_cpu_write(current_kprobe, p);
+> @@ -228,6 +235,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>  		}
+>  	}
+>  	__this_cpu_write(current_kprobe, NULL);
+> +out:
+> +	preempt_enable_notrace();
+> +	ftrace_test_recursion_unlock(bit);
+>  }
+>  NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+>  
+> diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
+> index 681a4b36e9bb..a40a6cdfcca3 100644
+> --- a/arch/x86/kernel/kprobes/ftrace.c
+> +++ b/arch/x86/kernel/kprobes/ftrace.c
+> @@ -18,11 +18,16 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>  {
+>  	struct kprobe *p;
+>  	struct kprobe_ctlblk *kcb;
+> +	int bit;
+>  
+> -	/* Preempt is disabled by ftrace */
+> +	bit = ftrace_test_recursion_trylock();
+> +	if (bit < 0)
+> +		return;
+> +
+> +	preempt_disable_notrace();
+>  	p = get_kprobe((kprobe_opcode_t *)ip);
+>  	if (unlikely(!p) || kprobe_disabled(p))
+> -		return;
+> +		goto out;
+>  
+>  	kcb = get_kprobe_ctlblk();
+>  	if (kprobe_running()) {
+> @@ -52,6 +57,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+>  		 */
+>  		__this_cpu_write(current_kprobe, NULL);
+>  	}
+> +out:
+> +	preempt_enable_notrace();
+> +	ftrace_test_recursion_unlock(bit);
+>  }
+>  NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+>  
+> -- 
+> 2.28.0
+> 
+> 
+
+
 -- 
-2.17.1
+Masami Hiramatsu <mhiramat@kernel.org>
