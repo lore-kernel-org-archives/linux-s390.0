@@ -1,145 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:49764 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728274AbgKCQVX (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 3 Nov 2020 11:21:23 -0500
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v4 1/4] mm: introduce debug_pagealloc_map_pages() helper
-Date: Tue,  3 Nov 2020 18:20:54 +0200
-Message-Id: <20201103162057.22916-2-rppt@kernel.org>
-In-Reply-To: <20201103162057.22916-1-rppt@kernel.org>
-References: <20201103162057.22916-1-rppt@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:27836 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726010AbgKFQJZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 6 Nov 2020 11:09:25 -0500
+Date: Fri, 6 Nov 2020 17:08:58 +0100
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: Re: [PATCH 06/10] dasd: implement ->set_read_only to hook into
+ BLKROSET processing
+Message-ID: <20201106160858.GA76682@imap.linux.ibm.com>
+References: <20201103100018.683694-1-hch@lst.de>
+ <20201103100018.683694-7-hch@lst.de>
+ <20201105205634.GA78869@imap.linux.ibm.com>
+ <20201106140201.GA23087@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201106140201.GA23087@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+Christoph Hellwig <hch@lst.de> schrieb am Fri, 06. Nov 15:02:
+> On Thu, Nov 05, 2020 at 09:56:47PM +0100, Stefan Haberland wrote:
+> > > +	/* do not manipulate hardware state for partitions */
+> > >  	if (bdev_is_partition(bdev))
+> > > -		// ro setting is not allowed for partitions
+> > > -		return -EINVAL;
+> > > -	if (get_user(intval, (int __user *)argp))
+> > > -		return -EFAULT;
+> > > +		return 0;
+> > > +
+> > >  	base = dasd_device_from_gendisk(bdev->bd_disk);
+> > >  	if (!base)
+> > >  		return -ENODEV;
+> > > -	if (!intval && test_bit(DASD_FLAG_DEVICE_RO, &base->flags)) {
+> > > -		dasd_put_device(base);
+> > > -		return -EROFS;
+> > > -	}
+> > > -	set_disk_ro(bdev->bd_disk, intval);
+> > 
+> > 
+> > While testing this patch I just noticed that when I set a device readonly this is
+> > not going to be passed on to the partitions on this device any longer.
+> > 
+> > This is caused by the removed call to set_disk_ro().
+> > 
+> > Is this intentional or was this removed by accident?
+> 
+> It was unintentionally intentional :)
+> 
+> The generic code used already by almost all drivers in mainline only
+> calls set_device_ro from blkdev_roset, that is it only sets the main
+> device read-only.  dasd was the outlier here, and I didn't notice it
+> actually called set_disk_ro instead of set_device_ro.   That being
+> said I think setting all the partitions read-only as well when the
+> full device is set read-only makes perfect sense.  I'm just a little
+> worried it could cause regressions.  Let me prepare a follow on patch
+> on top of the series that switches to that behavior.
 
-When CONFIG_DEBUG_PAGEALLOC is enabled, it unmaps pages from the kernel
-direct mapping after free_pages(). The pages than need to be mapped back
-before they could be used. Theese mapping operations use
-__kernel_map_pages() guarded with with debug_pagealloc_enabled().
+Makes sense.
+I am fine with that.
 
-The only place that calls __kernel_map_pages() without checking whether
-DEBUG_PAGEALLOC is enabled is the hibernation code that presumes
-availability of this function when ARCH_HAS_SET_DIRECT_MAP is set.
-Still, on arm64, __kernel_map_pages() will bail out when DEBUG_PAGEALLOC is
-not enabled but set_direct_map_invalid_noflush() may render some pages not
-present in the direct map and hibernation code won't be able to save such
-pages.
+With this in mind:
 
-To make page allocation debugging and hibernation interaction more robust,
-the dependency on DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP has to be made
-more explicit.
-
-Start with combining the guard condition and the call to
-__kernel_map_pages() into a single debug_pagealloc_map_pages() function to
-emphasize that __kernel_map_pages() should not be called without
-DEBUG_PAGEALLOC and use this new function to map/unmap pages when page
-allocation debug is enabled.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
----
- include/linux/mm.h  | 10 ++++++++++
- mm/memory_hotplug.c |  3 +--
- mm/page_alloc.c     |  6 ++----
- mm/slab.c           |  8 +++-----
- 4 files changed, 16 insertions(+), 11 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ef360fe70aaf..1fc0609056dc 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2936,12 +2936,22 @@ kernel_map_pages(struct page *page, int numpages, int enable)
- {
- 	__kernel_map_pages(page, numpages, enable);
- }
-+
-+static inline void debug_pagealloc_map_pages(struct page *page,
-+					     int numpages, int enable)
-+{
-+	if (debug_pagealloc_enabled_static())
-+		__kernel_map_pages(page, numpages, enable);
-+}
-+
- #ifdef CONFIG_HIBERNATION
- extern bool kernel_page_present(struct page *page);
- #endif	/* CONFIG_HIBERNATION */
- #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
- static inline void
- kernel_map_pages(struct page *page, int numpages, int enable) {}
-+static inline void debug_pagealloc_map_pages(struct page *page,
-+					     int numpages, int enable) {}
- #ifdef CONFIG_HIBERNATION
- static inline bool kernel_page_present(struct page *page) { return true; }
- #endif	/* CONFIG_HIBERNATION */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b44d4c7ba73b..e2b6043a4428 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -614,8 +614,7 @@ void generic_online_page(struct page *page, unsigned int order)
- 	 * so we should map it first. This is better than introducing a special
- 	 * case in page freeing fast path.
- 	 */
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 1);
-+	debug_pagealloc_map_pages(page, 1 << order, 1);
- 	__free_pages_core(page, order);
- 	totalram_pages_add(1UL << order);
- #ifdef CONFIG_HIGHMEM
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 23f5066bd4a5..9a66a1ff9193 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1272,8 +1272,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
- 	 */
- 	arch_free_page(page, order);
- 
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 0);
-+	debug_pagealloc_map_pages(page, 1 << order, 0);
- 
- 	kasan_free_nondeferred_pages(page, order);
- 
-@@ -2270,8 +2269,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
- 	set_page_refcounted(page);
- 
- 	arch_alloc_page(page, order);
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 1);
-+	debug_pagealloc_map_pages(page, 1 << order, 1);
- 	kasan_alloc_pages(page, order);
- 	kernel_poison_pages(page, 1 << order, 1);
- 	set_page_owner(page, order, gfp_flags);
-diff --git a/mm/slab.c b/mm/slab.c
-index b1113561b98b..340db0ce74c4 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1431,10 +1431,8 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
- #ifdef CONFIG_DEBUG_PAGEALLOC
- static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
- {
--	if (!is_debug_pagealloc_cache(cachep))
--		return;
--
--	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
-+	debug_pagealloc_map_pages(virt_to_page(objp),
-+				  cachep->size / PAGE_SIZE, map);
- }
- 
- #else
-@@ -2062,7 +2060,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
- 
- #if DEBUG
- 	/*
--	 * If we're going to use the generic kernel_map_pages()
-+	 * If we're going to use the generic debug_pagealloc_map_pages()
- 	 * poisoning, then it's going to smash the contents of
- 	 * the redzone and userword anyhow, so switch them off.
- 	 */
--- 
-2.28.0
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
