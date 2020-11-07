@@ -1,340 +1,137 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24998 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726567AbgKMU63 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 13 Nov 2020 15:58:29 -0500
-Subject: Re: [PATCH v11 11/14] s390/zcrypt: Notify driver on config changed
- and scan complete callbacks
-References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
- <20201022171209.19494-12-akrowiak@linux.ibm.com>
- <8b3c6a0a-2411-96a8-11a3-d9bf36d42c82@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <e9336f51-c20c-0143-0db2-e7aa58aca83e@linux.ibm.com>
-Date: Fri, 13 Nov 2020 15:58:18 -0500
-MIME-Version: 1.0
-In-Reply-To: <8b3c6a0a-2411-96a8-11a3-d9bf36d42c82@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4990 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727934AbgKGNAS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Nov 2020 08:00:18 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v3 14/15] net/smc: Refactor smc ism v2 capability handling
+Date: Sat,  7 Nov 2020 13:59:57 +0100
+Message-Id: <20201107125958.16384-15-kgraul@linux.ibm.com>
+In-Reply-To: <20201107125958.16384-1-kgraul@linux.ibm.com>
+References: <20201107125958.16384-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Harald Freudenberger <freude@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
+Encapsulate the smc ism v2 capability boolean value
+in a function for better information hiding.
 
-On 10/27/20 1:28 PM, Harald Freudenberger wrote:
-> On 22.10.20 19:12, Tony Krowiak wrote:
->> This patch intruduces an extension to the ap bus to notify device drivers
->> when the host AP configuration changes - i.e., adapters, domains or
->> control domains are added or removed. To that end, two new callbacks are
->> introduced for AP device drivers:
->>
->>    void (*on_config_changed)(struct ap_config_info *new_config_info,
->>                              struct ap_config_info *old_config_info);
->>
->>       This callback is invoked at the start of the AP bus scan
->>       function when it determines that the host AP configuration information
->>       has changed since the previous scan. This is done by storing
->>       an old and current QCI info struct and comparing them. If there is any
->>       difference, the callback is invoked.
->>
->>       Note that when the AP bus scan detects that AP adapters, domains or
->>       control domains have been removed from the host's AP configuration, it
->>       will remove the associated devices from the AP bus subsystem's device
->>       model. This callback gives the device driver a chance to respond to
->>       the removal of the AP devices from the host configuration prior to
->>       calling the device driver's remove callback. The primary purpose of
->>       this callback is to allow the vfio_ap driver to do a bulk unplug of
->>       all affected adapters, domains and control domains from affected
->>       guests rather than unplugging them one at a time when the remove
->>       callback is invoked.
->>
->>    void (*on_scan_complete)(struct ap_config_info *new_config_info,
->>                             struct ap_config_info *old_config_info);
->>
->>       The on_scan_complete callback is invoked after the ap bus scan is
->>       complete if the host AP configuration data has changed.
->>
->>       Note that when the AP bus scan detects that adapters, domains or
->>       control domains have been added to the host's configuration, it will
->>       create new devices in the AP bus subsystem's device model. The primary
->>       purpose of this callback is to allow the vfio_ap driver to do a bulk
->>       plug of all affected adapters, domains and control domains into
->>       affected guests rather than plugging them one at a time when the
->>       probe callback is invoked.
->>
->> Please note that changes to the apmask and aqmask do not trigger
->> these two callbacks since the bus scan function is not invoked by changes
->> to those masks.
->>
->> Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-> Did I really sign-off this ? I know, I saw this code but ...
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/af_smc.c  | 12 ++++++------
+ net/smc/smc_ism.c |  8 +++++++-
+ net/smc/smc_ism.h |  5 ++---
+ 3 files changed, 15 insertions(+), 10 deletions(-)
 
-Good question, but I would not have introduced this myself. It's been
-so long since this patch was created that I don't recall all of the details,
-but I vaguely remember maybe getting an early version of this code
-from you, although I could be wrong. I recognize the last comment in
-the description as being yours. I will remove the Signed-off-by if you
-prefer.
-
-> First of all, please separate the ap bus changes from the vfio_ap driver changes.
-> This makes backports and code change history much easier.
-
-The problem is if I remove the vfio_ap driver changes, then this patch
-will not build. I've been told in the past that this is a no-no.
-
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
->> ---
->>   drivers/s390/crypto/ap_bus.c          | 88 ++++++++++++++++++++++++++-
->>   drivers/s390/crypto/ap_bus.h          | 12 ++++
->>   drivers/s390/crypto/vfio_ap_drv.c     |  2 +-
->>   drivers/s390/crypto/vfio_ap_ops.c     | 11 ++--
->>   drivers/s390/crypto/vfio_ap_private.h |  2 +-
->>   5 files changed, 106 insertions(+), 9 deletions(-)
->>
->> diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
->> index 998e61cd86d9..5b94956ef6bc 100644
->> --- a/drivers/s390/crypto/ap_bus.c
->> +++ b/drivers/s390/crypto/ap_bus.c
->> @@ -73,8 +73,10 @@ struct ap_perms ap_perms;
->>   EXPORT_SYMBOL(ap_perms);
->>   DEFINE_MUTEX(ap_perms_mutex);
->>   EXPORT_SYMBOL(ap_perms_mutex);
->> +DEFINE_MUTEX(ap_config_lock);
-> This mutes is unnecessary, but see details below.
->>   
->>   static struct ap_config_info *ap_qci_info;
->> +static struct ap_config_info *ap_qci_info_old;
->>   
->>   /*
->>    * AP bus related debug feature things.
->> @@ -1420,6 +1422,52 @@ static int __match_queue_device_with_queue_id(struct device *dev, const void *da
->>   		&& AP_QID_QUEUE(to_ap_queue(dev)->qid) == (int)(long) data;
->>   }
->>   
->> +/* Helper function for notify_config_changed */
->> +static int __drv_notify_config_changed(struct device_driver *drv, void *data)
->> +{
->> +	struct ap_driver *ap_drv = to_ap_drv(drv);
->> +
->> +	if (try_module_get(drv->owner)) {
->> +		if (ap_drv->on_config_changed)
->> +			ap_drv->on_config_changed(ap_qci_info,
->> +						  ap_qci_info_old);
->> +		module_put(drv->owner);
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +/* Notify all drivers about an qci config change */
->> +static inline void notify_config_changed(void)
->> +{
->> +	bus_for_each_drv(&ap_bus_type, NULL, NULL,
->> +			 __drv_notify_config_changed);
->> +}
->> +
->> +/* Helper function for notify_scan_complete */
->> +static int __drv_notify_scan_complete(struct device_driver *drv, void *data)
->> +{
->> +	struct ap_driver *ap_drv = to_ap_drv(drv);
->> +
->> +	if (try_module_get(drv->owner)) {
->> +		if (ap_drv->on_scan_complete)
->> +			ap_drv->on_scan_complete(ap_qci_info,
->> +						 ap_qci_info_old);
->> +		module_put(drv->owner);
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +/* Notify all drivers about bus scan complete */
->> +static inline void notify_scan_complete(void)
->> +{
->> +	bus_for_each_drv(&ap_bus_type, NULL, NULL,
->> +			 __drv_notify_scan_complete);
->> +}
->> +
->> +
->> +
->>   /*
->>    * Helper function for ap_scan_bus().
->>    * Remove card device and associated queue devices.
->> @@ -1696,15 +1744,45 @@ static inline void ap_scan_adapter(int ap)
->>   	put_device(&ac->ap_dev.device);
->>   }
->>   
->> +static int ap_config_changed(void)
-> I don't like the name here. This function is effectively fetching the qci info
-> and then comparing the new with the prev. qci info. So it is the new
-> ap_get_configuration() which returns bool true (config changed) or
-> false (old and current config are the very same).
-
-Okay, so I think what you are saying there is you prefer the name
-ap_get_configuration()?
-
->> +{
->> +	int cfg_chg = 0;
->> +
->> +	if (ap_qci_info) {
->> +		if (!ap_qci_info_old) {
->> +			ap_qci_info_old = kzalloc(sizeof(*ap_qci_info_old),
->> +						  GFP_KERNEL);
->> +			if (!ap_qci_info_old)
->> +				return 0;
->> +		} else {
->> +			memcpy(ap_qci_info_old, ap_qci_info,
->> +			       sizeof(struct ap_config_info));
->> +		}
->> +		ap_fetch_qci_info(ap_qci_info);
->> +		cfg_chg = memcmp(ap_qci_info,
->> +				 ap_qci_info_old,
->> +				 sizeof(struct ap_config_info)) != 0;
->> +	}
->> +
->> +	return cfg_chg;
->> +}
->> +
->>   /**
->>    * ap_scan_bus(): Scan the AP bus for new devices
->>    * Runs periodically, workqueue timer (ap_config_time)
->>    */
->>   static void ap_scan_bus(struct work_struct *unused)
->>   {
->> -	int ap;
->> +	int ap, config_changed = 0;
->> +
->> +	mutex_lock(&ap_config_lock);
-> This mutex is more or less surrrounding the ap_scan_bus function.
-> The ap_scan_bus function is only called via a workqueue which is
-> making sure there is only one invocation at a point in time. So it
-> is not needed.
-
-Makes sense, I'll remove it.
-
->>   
->> -	ap_fetch_qci_info(ap_qci_info);
->> +	/* config change notify */
->> +	config_changed = ap_config_changed();
->> +	if (config_changed)
->> +		notify_config_changed();
->> +	memcpy(ap_qci_info_old, ap_qci_info,
->> +	       sizeof(struct ap_config_info));
->>   	ap_select_domain();
->>   
->>   	AP_DBF_DBG("%s running\n", __func__);
->> @@ -1713,6 +1791,12 @@ static void ap_scan_bus(struct work_struct *unused)
->>   	for (ap = 0; ap <= ap_max_adapter_id; ap++)
->>   		ap_scan_adapter(ap);
->>   
->> +	/* scan complete notify */
->> +	if (config_changed)
->> +		notify_scan_complete();
->> +
->> +	mutex_unlock(&ap_config_lock);
->> +
->>   	/* check if there is at least one queue available with default domain */
->>   	if (ap_domain_index >= 0) {
->>   		struct device *dev =
->> diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
->> index 6ce154d924d3..c021ea5121a9 100644
->> --- a/drivers/s390/crypto/ap_bus.h
->> +++ b/drivers/s390/crypto/ap_bus.h
->> @@ -146,6 +146,18 @@ struct ap_driver {
->>   	int (*probe)(struct ap_device *);
->>   	void (*remove)(struct ap_device *);
->>   	bool (*in_use)(unsigned long *apm, unsigned long *aqm);
->> +	/*
->> +	 * Called at the start of the ap bus scan function when
->> +	 * the crypto config information (qci) has changed.
->> +	 */
->> +	void (*on_config_changed)(struct ap_config_info *new_config_info,
->> +				  struct ap_config_info *old_config_info);
->> +	/*
->> +	 * Called at the end of the ap bus scan function when
->> +	 * the crypto config information (qci) has changed.
->> +	 */
->> +	void (*on_scan_complete)(struct ap_config_info *new_config_info,
->> +				 struct ap_config_info *old_config_info);
->>   };
->>   
->>   #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
-> Rest of this patch is vfio related and should be in a separate patch.
-
-As stated above, if I remove the vfio-related changes then this patch will
-not build which I've been told in the past is a no-no.
-
->
-> Please note: The ap bus scan function does actively destroy card and associated queue
-> devices when the TAPQ invocation tells that the function bits have changed (e.g. from
-> EP11 mode to CCA mode) or the type has changed (e.g. from CEX6 to CEX7).
-> This does not come with an change in the qci apm or adm bitfields !
-
-Yes, I am aware of that and have coded the vfio_ap driver's probe and
-remove functions accordingly.
-
->
->> diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
->> index 8934471b7944..f06e19754de3 100644
->> --- a/drivers/s390/crypto/vfio_ap_drv.c
->> +++ b/drivers/s390/crypto/vfio_ap_drv.c
->> @@ -87,7 +87,7 @@ static int vfio_ap_matrix_dev_create(void)
->>   
->>   	/* Fill in config info via PQAP(QCI), if available */
->>   	if (test_facility(12)) {
->> -		ret = ap_qci(&matrix_dev->info);
->> +		ret = ap_qci(&matrix_dev->config_info);
->>   		if (ret)
->>   			goto matrix_alloc_err;
->>   	}
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index dae1fba41941..c4ea80ec8599 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -354,8 +354,9 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
->>   	}
->>   
->>   	matrix_mdev->mdev = mdev;
->> -	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
->> -	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
->> +	vfio_ap_matrix_init(&matrix_dev->config_info, &matrix_mdev->matrix);
->> +	vfio_ap_matrix_init(&matrix_dev->config_info,
->> +			    &matrix_mdev->shadow_apcb);
->>   	hash_init(matrix_mdev->qtable);
->>   	mdev_set_drvdata(mdev, matrix_mdev);
->>   	matrix_mdev->pqap_hook.hook = handle_pqap;
->> @@ -540,8 +541,8 @@ static int vfio_ap_mdev_filter_guest_matrix(struct ap_matrix_mdev *matrix_mdev,
->>   		 * If the APID is not assigned to the host AP configuration,
->>   		 * we can not assign it to the guest's AP configuration
->>   		 */
->> -		if (!test_bit_inv(apid,
->> -				  (unsigned long *)matrix_dev->info.apm)) {
->> +		if (!test_bit_inv(apid, (unsigned long *)
->> +				  matrix_dev->config_info.apm)) {
->>   			clear_bit_inv(apid, shadow_apcb.apm);
->>   			continue;
->>   		}
->> @@ -554,7 +555,7 @@ static int vfio_ap_mdev_filter_guest_matrix(struct ap_matrix_mdev *matrix_mdev,
->>   			 * guest's AP configuration
->>   			 */
->>   			if (!test_bit_inv(apqi, (unsigned long *)
->> -					  matrix_dev->info.aqm)) {
->> +					  matrix_dev->config_info.aqm)) {
->>   				clear_bit_inv(apqi, shadow_apcb.aqm);
->>   				continue;
->>   			}
->> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
->> index fc8634cee485..5065f0367ea2 100644
->> --- a/drivers/s390/crypto/vfio_ap_private.h
->> +++ b/drivers/s390/crypto/vfio_ap_private.h
->> @@ -40,7 +40,7 @@
->>   struct ap_matrix_dev {
->>   	struct device device;
->>   	atomic_t available_instances;
->> -	struct ap_config_info info;
->> +	struct ap_config_info config_info;
->>   	struct list_head mdev_list;
->>   	struct mutex lock;
->>   	struct ap_driver  *vfio_ap_drv;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index bc3e45289771..850e6df47a59 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -668,7 +668,7 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+ 				ini->smc_type_v1 = SMC_TYPE_N;
+ 		} /* else RDMA is supported for this connection */
+ 	}
+-	if (smc_ism_v2_capable && smc_find_ism_v2_device_clnt(smc, ini))
++	if (smc_ism_is_v2_capable() && smc_find_ism_v2_device_clnt(smc, ini))
+ 		ini->smc_type_v2 = SMC_TYPE_N;
+ 
+ 	/* if neither ISM nor RDMA are supported, fallback */
+@@ -920,7 +920,7 @@ static int smc_connect_check_aclc(struct smc_init_info *ini,
+ /* perform steps before actually connecting */
+ static int __smc_connect(struct smc_sock *smc)
+ {
+-	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
++	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
+ 	struct smc_clc_msg_accept_confirm_v2 *aclc2;
+ 	struct smc_clc_msg_accept_confirm *aclc;
+ 	struct smc_init_info *ini = NULL;
+@@ -945,9 +945,9 @@ static int __smc_connect(struct smc_sock *smc)
+ 						    version);
+ 
+ 	ini->smcd_version = SMC_V1;
+-	ini->smcd_version |= smc_ism_v2_capable ? SMC_V2 : 0;
++	ini->smcd_version |= smc_ism_is_v2_capable() ? SMC_V2 : 0;
+ 	ini->smc_type_v1 = SMC_TYPE_B;
+-	ini->smc_type_v2 = smc_ism_v2_capable ? SMC_TYPE_D : SMC_TYPE_N;
++	ini->smc_type_v2 = smc_ism_is_v2_capable() ? SMC_TYPE_D : SMC_TYPE_N;
+ 
+ 	/* get vlan id from IP device */
+ 	if (smc_vlan_by_tcpsk(smc->clcsock, ini)) {
+@@ -1354,7 +1354,7 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
+ 		rc = SMC_CLC_DECL_PEERNOSMC;
+ 		goto out;
+ 	}
+-	if (!smc_ism_v2_capable) {
++	if (!smc_ism_is_v2_capable()) {
+ 		ini->smcd_version &= ~SMC_V2;
+ 		rc = SMC_CLC_DECL_NOISM2SUPP;
+ 		goto out;
+@@ -1680,7 +1680,7 @@ static void smc_listen_work(struct work_struct *work)
+ {
+ 	struct smc_sock *new_smc = container_of(work, struct smc_sock,
+ 						smc_listen_work);
+-	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
++	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
+ 	struct socket *newclcsock = new_smc->clcsock;
+ 	struct smc_clc_msg_accept_confirm *cclc;
+ 	struct smc_clc_msg_proposal_area *buf;
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 6abbdd09a580..2456ee8228cd 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -21,7 +21,7 @@ struct smcd_dev_list smcd_dev_list = {
+ 	.mutex = __MUTEX_INITIALIZER(smcd_dev_list.mutex)
+ };
+ 
+-bool smc_ism_v2_capable;
++static bool smc_ism_v2_capable;
+ 
+ /* Test if an ISM communication is possible - same CPC */
+ int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *smcd)
+@@ -51,6 +51,12 @@ u16 smc_ism_get_chid(struct smcd_dev *smcd)
+ 	return smcd->ops->get_chid(smcd);
+ }
+ 
++/* HW supports ISM V2 and thus System EID is defined */
++bool smc_ism_is_v2_capable(void)
++{
++	return smc_ism_v2_capable;
++}
++
+ /* Set a connection using this DMBE. */
+ void smc_ism_set_conn(struct smc_connection *conn)
+ {
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index 8048e09ddcf8..481a4b7df30b 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -10,6 +10,7 @@
+ #define SMCD_ISM_H
+ 
+ #include <linux/uio.h>
++#include <linux/types.h>
+ #include <linux/mutex.h>
+ 
+ #include "smc.h"
+@@ -20,9 +21,6 @@ struct smcd_dev_list {	/* List of SMCD devices */
+ };
+ 
+ extern struct smcd_dev_list	smcd_dev_list;	/* list of smcd devices */
+-extern bool	smc_ism_v2_capable;	/* HW supports ISM V2 and thus
+-					 * System EID is defined
+-					 */
+ 
+ struct smc_ism_vlanid {			/* VLAN id set on ISM device */
+ 	struct list_head list;
+@@ -52,5 +50,6 @@ int smc_ism_write(struct smcd_dev *dev, const struct smc_ism_position *pos,
+ int smc_ism_signal_shutdown(struct smc_link_group *lgr);
+ void smc_ism_get_system_eid(struct smcd_dev *dev, u8 **eid);
+ u16 smc_ism_get_chid(struct smcd_dev *dev);
++bool smc_ism_is_v2_capable(void);
+ void smc_ism_init(void);
+ #endif
+-- 
+2.17.1
