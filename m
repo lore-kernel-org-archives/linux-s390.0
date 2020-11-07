@@ -1,115 +1,251 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37314 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725766AbgKBV5S (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 16:57:18 -0500
-Subject: Re: [PATCH v11 02/14] 390/vfio-ap: use new AP bus interface to search
- for queue devices
-References: <20201022171209.19494-1-akrowiak@linux.ibm.com>
- <20201022171209.19494-3-akrowiak@linux.ibm.com>
- <20201027080158.0a4fa6b2.pasic@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <c81abca5-9831-0e50-fb29-00e841c843d8@linux.ibm.com>
-Date: Mon, 2 Nov 2020 16:57:08 -0500
-MIME-Version: 1.0
-In-Reply-To: <20201027080158.0a4fa6b2.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48928 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727494AbgKGNAR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Nov 2020 08:00:17 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v3 13/15] net/smc: Add support for obtaining SMCR device list
+Date: Sat,  7 Nov 2020 13:59:56 +0100
+Message-Id: <20201107125958.16384-14-kgraul@linux.ibm.com>
+In-Reply-To: <20201107125958.16384-1-kgraul@linux.ibm.com>
+References: <20201107125958.16384-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
+Deliver SMCR device information via netlink based
+diagnostic interface.
 
-On 10/27/20 3:01 AM, Halil Pasic wrote:
-> On Thu, 22 Oct 2020 13:11:57 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> This patch refactors the vfio_ap device driver to use the AP bus's
->> ap_get_qdev() function to retrieve the vfio_ap_queue struct containing
->> information about a queue that is bound to the vfio_ap device driver.
->> The bus's ap_get_qdev() function retrieves the queue device from a
->> hashtable keyed by APQN. This is much more efficient than looping over
->> the list of devices attached to the AP bus by several orders of
->> magnitude.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ include/uapi/linux/smc_diag.h |   6 ++
+ net/smc/smc_core.c            |   7 ++
+ net/smc/smc_core.h            |   2 +
+ net/smc/smc_diag.c            | 133 ++++++++++++++++++++++++++++++++++
+ 4 files changed, 148 insertions(+)
 
-Thank you for your review.
-
->
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c | 35 +++++++++++++------------------
->>   1 file changed, 14 insertions(+), 21 deletions(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index c471832f0a30..049b97d7444c 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -26,43 +26,36 @@
->>   
->>   static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
->>   
->> -static int match_apqn(struct device *dev, const void *data)
->> -{
->> -	struct vfio_ap_queue *q = dev_get_drvdata(dev);
->> -
->> -	return (q->apqn == *(int *)(data)) ? 1 : 0;
->> -}
->> -
->>   /**
->> - * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
->> + * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
->>    * @matrix_mdev: the associated mediated matrix
->>    * @apqn: The queue APQN
->>    *
->> - * Retrieve a queue with a specific APQN from the list of the
->> - * devices of the vfio_ap_drv.
->> - * Verify that the APID and the APQI are set in the matrix.
->> + * Retrieve a queue with a specific APQN from the AP queue devices attached to
->> + * the AP bus.
->>    *
->> - * Returns the pointer to the associated vfio_ap_queue
->> + * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
->>    */
->>   static struct vfio_ap_queue *vfio_ap_get_queue(
->>   					struct ap_matrix_mdev *matrix_mdev,
->> -					int apqn)
->> +					unsigned long apqn)
->>   {
->> -	struct vfio_ap_queue *q;
->> -	struct device *dev;
->> +	struct ap_queue *queue;
->> +	struct vfio_ap_queue *q = NULL;
->>   
->>   	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
->>   		return NULL;
->>   	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
->>   		return NULL;
->>   
->> -	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
->> -				 &apqn, match_apqn);
->> -	if (!dev)
->> +	queue = ap_get_qdev(apqn);
->> +	if (!queue)
->>   		return NULL;
->> -	q = dev_get_drvdata(dev);
->> -	q->matrix_mdev = matrix_mdev;
->> -	put_device(dev);
->> +
->> +	if (queue->ap_dev.device.driver == &matrix_dev->vfio_ap_drv->driver)
->> +		q = dev_get_drvdata(&queue->ap_dev.device);
->> +
-> Needs to be called with the vfio_ap lock held, right? Otherwise the queue could
-> get unbound while we are working with it as a vfio_ap_queue... Noting
-> new, but might we worth documenting.
-
-This is always called with the vfio_ap lock held.
-
->
->> +	put_device(&queue->ap_dev.device);
->>   
->>   	return q;
->>   }
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index ab8f76bdd1a4..4c6332785533 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -88,6 +88,7 @@ enum {
+ /* SMC_DIAG_GET_DEV_INFO command extensions */
+ enum {
+ 	SMC_DIAG_DEV_INFO_SMCD = 1,
++	SMC_DIAG_DEV_INFO_SMCR,
+ };
+ 
+ #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
+@@ -182,6 +183,11 @@ struct smc_diag_dev_info {
+ 	__u16		pci_vendor;		/* PCI Vendor */
+ 	__u16		pci_device;		/* PCI Device Vendor ID */
+ 	__u8		pci_id[SMC_PCI_ID_STR_LEN]; /* PCI ID */
++	__u8		dev_name[IB_DEVICE_NAME_MAX]; /* IB Device name */
++	__u8		netdev[SMC_MAX_PORTS][IFNAMSIZ]; /* Netdev name(s) */
++	__u8		port_state[SMC_MAX_PORTS]; /* IB Port State */
++	__u8		port_valid[SMC_MAX_PORTS]; /* Is IB Port valid */
++	__u32		lnk_cnt_by_port[SMC_MAX_PORTS]; /* # lnks per port */
+ };
+ 
+ struct smc_diag_lgr {
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index c711b4967547..d31e00f13473 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -204,6 +204,11 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
+ 	conn->lgr = NULL;
+ }
+ 
++static struct smc_ib_devices *smc_get_smc_ib_devices(void)
++{
++	return &smc_ib_devices;
++}
++
+ static struct smcd_dev_list *smc_get_smcd_dev_list(void)
+ {
+ 	return &smcd_dev_list;
+@@ -218,6 +223,8 @@ static const struct smc_diag_ops smc_diag_ops = {
+ 	.get_lgr_list		= smc_get_lgr_list,
+ 	.get_smcd_devices	= smc_get_smcd_dev_list,
+ 	.get_chid		= smc_ism_get_chid,
++	.get_ib_devices		= smc_get_smc_ib_devices,
++	.is_ib_port_active	= smc_ib_port_active,
+ };
+ 
+ const struct smc_diag_ops *smc_get_diag_ops(void)
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 19680fc6aeeb..0b175f5931ca 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -26,6 +26,8 @@ struct smc_diag_ops {
+ 	struct smc_lgr_list *(*get_lgr_list)(void);
+ 	struct smcd_dev_list *(*get_smcd_devices)(void);
+ 	u16 (*get_chid)(struct smcd_dev *smcd);
++	struct smc_ib_devices *(*get_ib_devices)(void);
++	bool (*is_ib_port_active)(struct smc_ib_device *smcibdev, u8 ibport);
+ };
+ 
+ struct smc_lgr_list {			/* list of link group definition */
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 69e2a6a2b657..725516f8d025 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -367,6 +367,33 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
+ 	return rc;
+ }
+ 
++static bool smcr_diag_is_dev_critical(struct smc_lgr_list *smc_lgr,
++				      struct smc_ib_device *smcibdev)
++{
++	struct smc_link_group *lgr;
++	bool rc = false;
++	int i;
++
++	spin_lock_bh(&smc_lgr->lock);
++	list_for_each_entry(lgr, &smc_lgr->list, list) {
++		if (lgr->is_smcd)
++			continue;
++		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++			if (lgr->lnk[i].state == SMC_LNK_UNUSED ||
++			    lgr->lnk[i].smcibdev != smcibdev)
++				continue;
++			if (lgr->type == SMC_LGR_SINGLE ||
++			    lgr->type == SMC_LGR_ASYMMETRIC_LOCAL) {
++				rc = true;
++				goto out;
++			}
++		}
++	}
++out:
++	spin_unlock_bh(&smc_lgr->lock);
++	return rc;
++}
++
+ static int smc_diag_fill_lgr_list(struct smc_lgr_list *smc_lgr,
+ 				  struct sk_buff *skb,
+ 				  struct netlink_callback *cb,
+@@ -522,6 +549,109 @@ static int smc_diag_prep_smcd_dev(struct smcd_dev_list *dev_list,
+ 	return rc;
+ }
+ 
++static inline void smc_diag_handle_dev_port(struct smc_diag_dev_info *smc_diag_dev,
++					    struct ib_device *ibdev,
++					    struct smc_ib_device *smcibdev,
++					    int port)
++{
++	unsigned char port_state;
++
++	smc_diag_dev->port_valid[port] = 1;
++	snprintf((char *)&smc_diag_dev->netdev[port],
++		 sizeof(smc_diag_dev->netdev[port]),
++		 "%s", (char *)&smcibdev->netdev[port]);
++	snprintf((char *)&smc_diag_dev->pnet_id[port],
++		 sizeof(smc_diag_dev->pnet_id[port]), "%s",
++		 (char *)&smcibdev->pnetid[port]);
++	smc_diag_dev->pnetid_by_user[port] = smcibdev->pnetid_by_user[port];
++	port_state = smc_diag_ops->is_ib_port_active(smcibdev, port + 1);
++	smc_diag_dev->port_state[port] = port_state;
++	smc_diag_dev->lnk_cnt_by_port[port] =
++			atomic_read(&smcibdev->lnk_cnt_by_port[port]);
++}
++
++static int smc_diag_handle_smcr_dev(struct smc_ib_device *smcibdev,
++				    struct sk_buff *skb,
++				    struct netlink_callback *cb,
++				    struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dev_info smc_dev;
++	struct smc_pci_dev smc_pci_dev;
++	struct pci_dev *pci_dev;
++	unsigned char is_crit;
++	struct nlmsghdr *nlh;
++	int dummy = 0;
++	int i, rc = 0;
++
++	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
++			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
++	if (!nlh)
++		return -EMSGSIZE;
++
++	memset(&smc_dev, 0, sizeof(smc_dev));
++	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
++	for (i = 1; i <= SMC_MAX_PORTS; i++) {
++		if (rdma_is_port_valid(smcibdev->ibdev, i)) {
++			smc_diag_handle_dev_port(&smc_dev, smcibdev->ibdev,
++						 smcibdev, i - 1);
++		}
++	}
++	pci_dev = to_pci_dev(smcibdev->ibdev->dev.parent);
++	smc_set_pci_values(pci_dev, &smc_pci_dev);
++	smc_dev.pci_device = smc_pci_dev.pci_device;
++	smc_dev.pci_fid = smc_pci_dev.pci_fid;
++	smc_dev.pci_pchid = smc_pci_dev.pci_pchid;
++	smc_dev.pci_vendor = smc_pci_dev.pci_vendor;
++	snprintf(smc_dev.pci_id, sizeof(smc_dev.pci_id), "%s",
++		 smc_pci_dev.pci_id);
++	snprintf(smc_dev.dev_name, sizeof(smc_dev.dev_name),
++		 "%s", smcibdev->ibdev->name);
++	is_crit = smcr_diag_is_dev_critical(smc_diag_ops->get_lgr_list(),
++					    smcibdev);
++	smc_dev.is_critical = is_crit;
++
++	/* Just a command place holder to signal back the command reply type */
++	if (nla_put(skb, SMC_DIAG_GET_DEV_INFO, sizeof(dummy), &dummy) < 0)
++		goto errout;
++
++	if (nla_put(skb, SMC_DIAG_DEV_INFO_SMCR,
++		    sizeof(smc_dev), &smc_dev) < 0)
++		goto errout;
++
++	nlmsg_end(skb, nlh);
++	return rc;
++
++errout:
++	nlmsg_cancel(skb, nlh);
++	return -EMSGSIZE;
++}
++
++static int smc_diag_prep_smcr_dev(struct smc_ib_devices *dev_list,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
++	struct smc_ib_device *smcibdev;
++	int snum = cb_ctx->pos[0];
++	int rc = 0, num = 0;
++
++	mutex_lock(&dev_list->mutex);
++	list_for_each_entry(smcibdev, &dev_list->list, list) {
++		if (num < snum)
++			goto next;
++		rc = smc_diag_handle_smcr_dev(smcibdev, skb, cb, req);
++		if (rc < 0)
++			goto out;
++next:
++		num++;
++	}
++out:
++	mutex_unlock(&dev_list->mutex);
++	cb_ctx->pos[0] = num;
++	return rc;
++}
++
+ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 			   struct netlink_callback *cb,
+ 			   const struct smc_diag_req *req)
+@@ -627,6 +757,9 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
+ 		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCD - 1))))
+ 			smc_diag_prep_smcd_dev(smc_diag_ops->get_smcd_devices(),
+ 					       skb, cb, req);
++		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCR - 1))))
++			smc_diag_prep_smcr_dev(smc_diag_ops->get_ib_devices(),
++					       skb, cb, req);
+ 	}
+ 
+ 	return skb->len;
+-- 
+2.17.1
