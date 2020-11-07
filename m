@@ -1,262 +1,160 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62784 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729913AbgK0NGq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Nov 2020 08:06:46 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 7/7] s390x: Fix sclp.h style issues
-Date: Fri, 27 Nov 2020 08:06:29 -0500
-Message-Id: <20201127130629.120469-8-frankja@linux.ibm.com>
-In-Reply-To: <20201127130629.120469-1-frankja@linux.ibm.com>
-References: <20201127130629.120469-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:2390 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728026AbgKGNAV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Nov 2020 08:00:21 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v3 10/15] net/smc: Introduce SMCR get link command
+Date: Sat,  7 Nov 2020 13:59:53 +0100
+Message-Id: <20201107125958.16384-11-kgraul@linux.ibm.com>
+In-Reply-To: <20201107125958.16384-1-kgraul@linux.ibm.com>
+References: <20201107125958.16384-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-Fix indentation
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Introduce get link command which loops through
+all available links of all available link groups. It
+uses the SMC-R linkgroup list as entry point, not
+the socket list, which makes linkgroup diagnosis
+possible, in case linkgroup does not contain active
+connections anymore.
+
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- lib/s390x/sclp.h | 172 +++++++++++++++++++++++------------------------
- 1 file changed, 86 insertions(+), 86 deletions(-)
+ include/uapi/linux/smc_diag.h |  8 +++++
+ net/smc/smc_diag.c            | 62 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 69 insertions(+), 1 deletion(-)
 
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 4e564dd..dd01f03 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -82,10 +82,10 @@
- #define SCCB_SIZE 4096
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index 6ae028344b6d..a57df0296aa4 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -4,6 +4,7 @@
  
- typedef struct SCCBHeader {
--    uint16_t length;
--    uint8_t function_code;
--    uint8_t control_mask[3];
--    uint16_t response_code;
-+	uint16_t length;
-+	uint8_t function_code;
-+	uint8_t control_mask[3];
-+	uint16_t response_code;
- } __attribute__((packed)) SCCBHeader;
+ #include <linux/types.h>
+ #include <linux/inet_diag.h>
++#include <linux/if.h>
+ #include <linux/smc.h>
+ #include <rdma/ib_user_verbs.h>
  
- #define SCCB_DATA_LEN (SCCB_SIZE - sizeof(SCCBHeader))
-@@ -93,15 +93,15 @@ typedef struct SCCBHeader {
- 
- /* CPU information */
- typedef struct CPUEntry {
--    uint8_t address;
--    uint8_t reserved0;
--    uint8_t : 4;
--    uint8_t feat_sief2 : 1;
--    uint8_t : 3;
--    uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
--    uint8_t reserved2[6];
--    uint8_t type;
--    uint8_t reserved1;
-+	uint8_t address;
-+	uint8_t reserved0;
-+	uint8_t : 4;
-+	uint8_t feat_sief2 : 1;
-+	uint8_t : 3;
-+	uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
-+	uint8_t reserved2[6];
-+	uint8_t type;
-+	uint8_t reserved1;
- } __attribute__((packed)) CPUEntry;
- 
- extern struct sclp_facilities sclp_facilities;
-@@ -113,77 +113,77 @@ struct sclp_facilities {
+@@ -79,6 +80,7 @@ enum {
+ /* SMC_DIAG_GET_LGR_INFO command extensions */
+ enum {
+ 	SMC_DIAG_LGR_INFO_SMCR = 1,
++	SMC_DIAG_LGR_INFO_SMCR_LINK,
  };
  
- typedef struct ReadInfo {
--    SCCBHeader h;
--    uint16_t rnmax;
--    uint8_t rnsize;
--    uint8_t  _reserved1[16 - 11];       /* 11-15 */
--    uint16_t entries_cpu;               /* 16-17 */
--    uint16_t offset_cpu;                /* 18-19 */
--    uint8_t  _reserved2[24 - 20];       /* 20-23 */
--    uint8_t  loadparm[8];               /* 24-31 */
--    uint8_t  _reserved3[48 - 32];       /* 32-47 */
--    uint64_t facilities;                /* 48-55 */
--    uint8_t  _reserved0[76 - 56];       /* 56-75 */
--    uint32_t ibc_val;
--    uint8_t  conf_char[99 - 80];        /* 80-98 */
--    uint8_t mha_pow;
--    uint32_t rnsize2;
--    uint64_t rnmax2;
--    uint8_t  _reserved6[116 - 112];     /* 112-115 */
--    uint8_t  conf_char_ext[120 - 116];   /* 116-119 */
--    uint16_t highest_cpu;
--    uint8_t  _reserved5[124 - 122];     /* 122-123 */
--    uint32_t hmfai;
--    uint8_t reserved7[134 - 128];
--    uint8_t byte_134_diag318 : 1;
--    uint8_t : 7;
--    struct CPUEntry entries[0];
-+	SCCBHeader h;
-+	uint16_t rnmax;
-+	uint8_t rnsize;
-+	uint8_t  _reserved1[16 - 11];       /* 11-15 */
-+	uint16_t entries_cpu;               /* 16-17 */
-+	uint16_t offset_cpu;                /* 18-19 */
-+	uint8_t  _reserved2[24 - 20];       /* 20-23 */
-+	uint8_t  loadparm[8];               /* 24-31 */
-+	uint8_t  _reserved3[48 - 32];       /* 32-47 */
-+	uint64_t facilities;                /* 48-55 */
-+	uint8_t  _reserved0[76 - 56];       /* 56-75 */
-+	uint32_t ibc_val;
-+	uint8_t  conf_char[99 - 80];        /* 80-98 */
-+	uint8_t mha_pow;
-+	uint32_t rnsize2;
-+	uint64_t rnmax2;
-+	uint8_t  _reserved6[116 - 112];     /* 112-115 */
-+	uint8_t  conf_char_ext[120 - 116];   /* 116-119 */
-+	uint16_t highest_cpu;
-+	uint8_t  _reserved5[124 - 122];     /* 122-123 */
-+	uint32_t hmfai;
-+	uint8_t reserved7[134 - 128];
-+	uint8_t byte_134_diag318 : 1;
-+	uint8_t : 7;
-+	struct CPUEntry entries[0];
- } __attribute__((packed)) ReadInfo;
+ #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
+@@ -129,6 +131,12 @@ struct smc_diag_linkinfo {
+ 	__u8 ibport;			/* RDMA device port number */
+ 	__u8 gid[40];			/* local GID */
+ 	__u8 peer_gid[40];		/* peer GID */
++	/* Fields above used by legacy v1 code */
++	__u32 conn_cnt;
++	__u8 netdev[IFNAMSIZ];		/* ethernet device name */
++	__u8 link_uid[4];		/* unique link id */
++	__u8 peer_link_uid[4];		/* unique peer link id */
++	__u32 link_state;		/* link state */
+ };
  
- typedef struct ReadCpuInfo {
--    SCCBHeader h;
--    uint16_t nr_configured;         /* 8-9 */
--    uint16_t offset_configured;     /* 10-11 */
--    uint16_t nr_standby;            /* 12-13 */
--    uint16_t offset_standby;        /* 14-15 */
--    uint8_t reserved0[24-16];       /* 16-23 */
--    struct CPUEntry entries[0];
-+	SCCBHeader h;
-+	uint16_t nr_configured;         /* 8-9 */
-+	uint16_t offset_configured;     /* 10-11 */
-+	uint16_t nr_standby;            /* 12-13 */
-+	uint16_t offset_standby;        /* 14-15 */
-+	uint8_t reserved0[24-16];       /* 16-23 */
-+	struct CPUEntry entries[0];
- } __attribute__((packed)) ReadCpuInfo;
+ struct smc_diag_lgrinfo {
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index c958b23843e6..9a41548d6263 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -20,6 +20,7 @@
+ #include <net/smc.h>
  
- typedef struct ReadStorageElementInfo {
--    SCCBHeader h;
--    uint16_t max_id;
--    uint16_t assigned;
--    uint16_t standby;
--    uint8_t _reserved0[16 - 14]; /* 14-15 */
--    uint32_t entries[0];
-+	SCCBHeader h;
-+	uint16_t max_id;
-+	uint16_t assigned;
-+	uint16_t standby;
-+	uint8_t _reserved0[16 - 14]; /* 14-15 */
-+	uint32_t entries[0];
- } __attribute__((packed)) ReadStorageElementInfo;
+ #include "smc.h"
++#include "smc_ib.h"
+ #include "smc_core.h"
  
- typedef struct AttachStorageElement {
--    SCCBHeader h;
--    uint8_t _reserved0[10 - 8];  /* 8-9 */
--    uint16_t assigned;
--    uint8_t _reserved1[16 - 12]; /* 12-15 */
--    uint32_t entries[0];
-+	SCCBHeader h;
-+	uint8_t _reserved0[10 - 8];  /* 8-9 */
-+	uint16_t assigned;
-+	uint8_t _reserved1[16 - 12]; /* 12-15 */
-+	uint32_t entries[0];
- } __attribute__((packed)) AttachStorageElement;
+ static const struct smc_diag_ops *smc_diag_ops;
+@@ -205,6 +206,54 @@ static bool smc_diag_fill_dmbinfo(struct sock *sk, struct sk_buff *skb)
+ 	return true;
+ }
  
- typedef struct AssignStorage {
--    SCCBHeader h;
--    uint16_t rn;
-+	SCCBHeader h;
-+	uint16_t rn;
- } __attribute__((packed)) AssignStorage;
++static int smc_diag_fill_lgr_link(struct smc_link_group *lgr,
++				  struct smc_link *link,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_linkinfo link_info;
++	int dummy = 0, rc = 0;
++	struct nlmsghdr *nlh;
++
++	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
++			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
++
++	memset(&link_info, 0, sizeof(link_info));
++	link_info.link_state = link->state;
++	link_info.link_id = link->link_id;
++	link_info.conn_cnt = atomic_read(&link->conn_cnt);
++	link_info.ibport = link->ibport;
++
++	memcpy(link_info.link_uid, link->link_uid,
++	       sizeof(link_info.link_uid));
++	snprintf(link_info.ibname, sizeof(link_info.ibname), "%s",
++		 link->ibname);
++	snprintf(link_info.netdev, sizeof(link_info.netdev), "%s",
++		 link->ndevname);
++	memcpy(link_info.peer_link_uid, link->peer_link_uid,
++	       sizeof(link_info.peer_link_uid));
++
++	smc_gid_be16_convert(link_info.gid,
++			     link->gid);
++	smc_gid_be16_convert(link_info.peer_gid,
++			     link->peer_gid);
++
++	/* Just a command place holder to signal back the command reply type */
++	if (nla_put(skb, SMC_DIAG_GET_LGR_INFO, sizeof(dummy), &dummy) < 0)
++		goto errout;
++	if (nla_put(skb, SMC_DIAG_LGR_INFO_SMCR_LINK,
++		    sizeof(link_info), &link_info) < 0)
++		goto errout;
++
++	nlmsg_end(skb, nlh);
++	return rc;
++
++errout:
++	nlmsg_cancel(skb, nlh);
++	return -EMSGSIZE;
++}
++
+ static int smc_diag_fill_lgr(struct smc_link_group *lgr,
+ 			     struct sk_buff *skb,
+ 			     struct netlink_callback *cb,
+@@ -240,7 +289,7 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
+ 			       struct smc_diag_req_v2 *req)
+ {
+ 	struct nlmsghdr *nlh;
+-	int rc = 0;
++	int i, rc = 0;
  
- typedef struct IoaCfgSccb {
--    SCCBHeader header;
--    uint8_t atype;
--    uint8_t reserved1;
--    uint16_t reserved2;
--    uint32_t aid;
-+	SCCBHeader header;
-+	uint8_t atype;
-+	uint8_t reserved1;
-+	uint16_t reserved2;
-+	uint32_t aid;
- } __attribute__((packed)) IoaCfgSccb;
+ 	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
+ 			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
+@@ -252,6 +301,17 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
+ 		goto errout;
  
- typedef struct SCCB {
--    SCCBHeader h;
--    char data[SCCB_DATA_LEN];
-- } __attribute__((packed)) SCCB;
-+	SCCBHeader h;
-+	char data[SCCB_DATA_LEN];
-+} __attribute__((packed)) SCCB;
+ 	nlmsg_end(skb, nlh);
++
++	if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCR_LINK - 1)))) {
++		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++			if (!smc_link_usable(&lgr->lnk[i]))
++				continue;
++			rc = smc_diag_fill_lgr_link(lgr, &lgr->lnk[i], skb,
++						    cb, req);
++			if (rc < 0)
++				goto errout;
++		}
++	}
+ 	return rc;
  
- /* SCLP event types */
- #define SCLP_EVENT_ASCII_CONSOLE_DATA           0x1a
-@@ -198,13 +198,13 @@ typedef struct SCCB {
- #define SCLP_SELECTIVE_READ                     0x01
- 
- typedef struct WriteEventMask {
--    SCCBHeader h;
--    uint16_t _reserved;
--    uint16_t mask_length;
--    uint32_t cp_receive_mask;
--    uint32_t cp_send_mask;
--    uint32_t send_mask;
--    uint32_t receive_mask;
-+	SCCBHeader h;
-+	uint16_t _reserved;
-+	uint16_t mask_length;
-+	uint32_t cp_receive_mask;
-+	uint32_t cp_send_mask;
-+	uint32_t send_mask;
-+	uint32_t receive_mask;
- } __attribute__((packed)) WriteEventMask;
- 
- #define MDBTYP_GO               0x0001
-@@ -257,25 +257,25 @@ struct mdb {
- } __attribute__((packed));
- 
- typedef struct EventBufferHeader {
--    uint16_t length;
--    uint8_t  type;
--    uint8_t  flags;
--    uint16_t _reserved;
-+	uint16_t length;
-+	uint8_t  type;
-+	uint8_t  flags;
-+	uint16_t _reserved;
- } __attribute__((packed)) EventBufferHeader;
- 
- typedef struct WriteEventData {
--    SCCBHeader h;
--    EventBufferHeader ebh;
--    union {
--	char data[0];
--	struct mdb mdb;
--    } msg;
-+	SCCBHeader h;
-+	EventBufferHeader ebh;
-+	union {
-+		char data[0];
-+		struct mdb mdb;
-+	} msg;
- } __attribute__((packed)) WriteEventData;
- 
- typedef struct ReadEventData {
--    SCCBHeader h;
--    EventBufferHeader ebh;
--    uint32_t mask;
-+	SCCBHeader h;
-+	EventBufferHeader ebh;
-+	uint32_t mask;
- } __attribute__((packed)) ReadEventData;
- 
- extern char _sccb[];
+ errout:
 -- 
-2.25.1
+2.17.1
