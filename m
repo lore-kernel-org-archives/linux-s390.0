@@ -1,67 +1,99 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25568 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729284AbgKTSHu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 20 Nov 2020 13:07:50 -0500
-From: Eric Farman <farman@linux.ibm.com>
-Subject: [PATCH v2 0/2] Connect request callback to mdev and vfio-ccw
-Date: Fri, 20 Nov 2020 19:07:38 +0100
-Message-Id: <20201120180740.87837-1-farman@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:36558 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727452AbgKHG6e (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 8 Nov 2020 01:58:34 -0500
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v5 2/5] slab: debug: split slab_kernel_map() to map and unmap variants
+Date: Sun,  8 Nov 2020 08:57:55 +0200
+Message-Id: <20201108065758.1815-3-rppt@kernel.org>
+In-Reply-To: <20201108065758.1815-1-rppt@kernel.org>
+References: <20201108065758.1815-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Kirti Wankhede <kwankhede@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-There is a situation where removing all the paths from a device
-connected via mdev and vfio-ccw can cause some difficulty.
-Using the "chchp -c 0 xx" command to all paths will cause the
-device to be removed from the configuration, and any guest
-filesystem that is relying on that device will encounter errors.
-Interestingly, the last chchp command will actually fail to
-return to a shell prompt, and subsequent commands (another
-chchp to bring the paths back online, chzdev, etc.) will also
-hang because of the outstanding chchp.
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-The last chchp command drives to vfio_ccw_sch_remove() for every
-affected mediated device, and ultimately enters an infinite loop
-in vfio_del_group_dev(). This loop is broken when the guest goes
-away, which in this case doesn't occur until the guest is shutdown.
-This drives vfio_ccw_mdev_release() and thus vfio_device_release()
-to wake up the vfio_del_group_dev() thread.
+Instead of using slab_kernel_map() with 'map' parameter to remap pages when
+DEBUG_PAGEALLOC is enabled, use dedicated helpers slab_kernel_map() and
+slab_kernel_unmap().
 
-There is also a callback mechanism called "request" to ask a
-driver (and perhaps user) to release the device, but this is not
-implemented for mdev. So this adds one to that point, and then
-wire it to vfio-ccw to pass it along to userspace. This will
-gracefully drive the unplug code, and everything behaves nicely.
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ mm/slab.c | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
 
-Despite the testing that was occurring, this doesn't appear related
-to the vfio-ccw channel path handling code. I can reproduce this with
-an older kernel/QEMU, which makes sense because the above behavior is
-driven from the subchannel event codepaths and not the chpid events.
-Because of that, I didn't flag anything with a Fixes tag, since it's
-seemingly been this way forever.
-
-RFC->V2:
- - Patch 1
-   - Added a message when registering a device without a request callback
-   - Changed the "if(!callback) return" to "if(callback) do" layout
-   - Removed "unlikely" from "if(callback)" logic
-   - Clarified some wording in the device ops struct commentary
- - Patch 2
-   - Added Conny's r-b
-
-Eric Farman (2):
-  vfio-mdev: Wire in a request handler for mdev parent
-  vfio-ccw: Wire in the request callback
-
- drivers/s390/cio/vfio_ccw_ops.c     | 26 ++++++++++++++++++++++++++
- drivers/s390/cio/vfio_ccw_private.h |  4 ++++
- drivers/vfio/mdev/mdev_core.c       |  4 ++++
- drivers/vfio/mdev/vfio_mdev.c       | 10 ++++++++++
- include/linux/mdev.h                |  4 ++++
- include/uapi/linux/vfio.h           |  1 +
- 6 files changed, 49 insertions(+)
-
+diff --git a/mm/slab.c b/mm/slab.c
+index 07317386e150..0719421d69f7 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -1428,17 +1428,21 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
+ 	return false;
+ }
+ 
+-static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
++static void slab_kernel_map(struct kmem_cache *cachep, void *objp)
+ {
+ 	if (!is_debug_pagealloc_cache(cachep))
+ 		return;
+ 
+-	if (map)
+-		debug_pagealloc_map_pages(virt_to_page(objp),
+-					  cachep->size / PAGE_SIZE);
+-	else
+-		debug_pagealloc_unmap_pages(virt_to_page(objp),
+-					    cachep->size / PAGE_SIZE);
++	debug_pagealloc_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE);
++}
++
++static void slab_kernel_unmap(struct kmem_cache *cachep, void *objp)
++{
++	if (!is_debug_pagealloc_cache(cachep))
++		return;
++
++	debug_pagealloc_unmap_pages(virt_to_page(objp),
++				    cachep->size / PAGE_SIZE);
+ }
+ 
+ static void poison_obj(struct kmem_cache *cachep, void *addr, unsigned char val)
+@@ -1585,7 +1589,7 @@ static void slab_destroy_debugcheck(struct kmem_cache *cachep,
+ 
+ 		if (cachep->flags & SLAB_POISON) {
+ 			check_poison_obj(cachep, objp);
+-			slab_kernel_map(cachep, objp, 1);
++			slab_kernel_map(cachep, objp);
+ 		}
+ 		if (cachep->flags & SLAB_RED_ZONE) {
+ 			if (*dbg_redzone1(cachep, objp) != RED_INACTIVE)
+@@ -2360,7 +2364,7 @@ static void cache_init_objs_debug(struct kmem_cache *cachep, struct page *page)
+ 		/* need to poison the objs? */
+ 		if (cachep->flags & SLAB_POISON) {
+ 			poison_obj(cachep, objp, POISON_FREE);
+-			slab_kernel_map(cachep, objp, 0);
++			slab_kernel_unmap(cachep, objp);
+ 		}
+ 	}
+ #endif
+@@ -2728,7 +2732,7 @@ static void *cache_free_debugcheck(struct kmem_cache *cachep, void *objp,
+ 
+ 	if (cachep->flags & SLAB_POISON) {
+ 		poison_obj(cachep, objp, POISON_FREE);
+-		slab_kernel_map(cachep, objp, 0);
++		slab_kernel_unmap(cachep, objp);
+ 	}
+ 	return objp;
+ }
+@@ -2993,7 +2997,7 @@ static void *cache_alloc_debugcheck_after(struct kmem_cache *cachep,
+ 		return objp;
+ 	if (cachep->flags & SLAB_POISON) {
+ 		check_poison_obj(cachep, objp);
+-		slab_kernel_map(cachep, objp, 1);
++		slab_kernel_map(cachep, objp);
+ 		poison_obj(cachep, objp, POISON_INUSE);
+ 	}
+ 	if (cachep->flags & SLAB_STORE_USER)
 -- 
-2.17.1
+2.28.0
