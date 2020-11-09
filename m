@@ -1,146 +1,125 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17880 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1733307AbgKXVko (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 16:40:44 -0500
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v12 10/17] s390/vfio-ap: initialize the guest apcb
-Date: Tue, 24 Nov 2020 16:40:09 -0500
-Message-Id: <20201124214016.3013-11-akrowiak@linux.ibm.com>
-In-Reply-To: <20201124214016.3013-1-akrowiak@linux.ibm.com>
-References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:49614 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729791AbgKIQYl (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Nov 2020 11:24:41 -0500
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v6 1/4] mm: introduce debug_pagealloc_{map,unmap}_pages() helpers
+Date: Mon,  9 Nov 2020 18:24:12 +0200
+Message-Id: <20201109162415.13764-2-rppt@kernel.org>
+In-Reply-To: <20201109162415.13764-1-rppt@kernel.org>
+References: <20201109162415.13764-1-rppt@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-The APCB is a control block containing the masks that specify the adapters,
-domains and control domains to which a KVM guest is granted access. When
-the vfio_ap device driver is notified that the KVM pointer has been set,
-the guest's APCB is initialized from the AP configuration of adapters,
-domains and control domains assigned to the matrix mdev. The linux device
-model, however, precludes passing through to a guest any devices that
-are not bound to the device driver facilitating the pass-through.
-Consequently, APQNs assigned to the matrix mdev that do not reference
-AP queue devices must be filtered before assigning them to the KVM guest's
-APCB; however, the AP architecture precludes filtering individual APQNs, so
-the APQNs will be filtered by APID. That is, if a given APQN does not
-reference a queue device bound to the vfio_ap driver, its APID will not
-get assigned to the guest's APCB. For example:
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Queues bound to vfio_ap:
-04.0004
-04.0022
-04.0035
-05.0004
-05.0022
+When CONFIG_DEBUG_PAGEALLOC is enabled, it unmaps pages from the kernel
+direct mapping after free_pages(). The pages than need to be mapped back
+before they could be used. Theese mapping operations use
+__kernel_map_pages() guarded with with debug_pagealloc_enabled().
 
-Adapters/domains assigned to the matrix mdev:
-04 0004
-   0022
-   0035
-05 0004
-   0022
-   0035
+The only place that calls __kernel_map_pages() without checking whether
+DEBUG_PAGEALLOC is enabled is the hibernation code that presumes
+availability of this function when ARCH_HAS_SET_DIRECT_MAP is set.
+Still, on arm64, __kernel_map_pages() will bail out when DEBUG_PAGEALLOC is
+not enabled but set_direct_map_invalid_noflush() may render some pages not
+present in the direct map and hibernation code won't be able to save such
+pages.
 
-APQNs assigned to APCB:
-04.0004
-04.0022
-04.0035
+To make page allocation debugging and hibernation interaction more robust,
+the dependency on DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP has to be made
+more explicit.
 
-The APID 05 was filtered from the matrix mdev's matrix because
-queue device 05.0035 is not bound to the vfio_ap device driver.
+Start with combining the guard condition and the call to
+__kernel_map_pages() into debug_pagealloc_map_pages() and
+debug_pagealloc_unmap_pages() functions to emphasize that
+__kernel_map_pages() should not be called without DEBUG_PAGEALLOC and use
+these new functions to map/unmap pages when page allocation debugging is
+enabled.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
 ---
- drivers/s390/crypto/vfio_ap_ops.c | 59 +++++++++++++++++++++++++++++--
- 1 file changed, 57 insertions(+), 2 deletions(-)
+ include/linux/mm.h  | 15 +++++++++++++++
+ mm/memory_hotplug.c |  3 +--
+ mm/page_alloc.c     |  6 ++----
+ 3 files changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index a69422d76e7f..633c61995891 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -318,6 +318,13 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
- 	matrix->adm_max = info->apxa ? info->Nd : 15;
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index ef360fe70aaf..bb8c70178f4e 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2936,12 +2936,27 @@ kernel_map_pages(struct page *page, int numpages, int enable)
+ {
+ 	__kernel_map_pages(page, numpages, enable);
  }
- 
-+static void vfio_ap_copy_masks(struct ap_matrix *dst, struct ap_matrix *src)
++
++static inline void debug_pagealloc_map_pages(struct page *page, int numpages)
 +{
-+	bitmap_copy(dst->apm, src->apm, AP_DEVICES);
-+	bitmap_copy(dst->aqm, src->aqm, AP_DOMAINS);
-+	bitmap_copy(dst->adm, src->adm, AP_DOMAINS);
++	if (debug_pagealloc_enabled_static())
++		__kernel_map_pages(page, numpages, 1);
 +}
 +
- static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
- {
- 	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
-@@ -332,6 +339,55 @@ static void vfio_ap_mdev_commit_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
- 					  matrix_mdev->shadow_apcb.adm);
- }
- 
-+static void vfio_ap_mdev_init_apcb(struct ap_matrix_mdev *matrix_mdev)
++static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages)
 +{
-+	unsigned long apid, apqi, apqn;
-+
-+	vfio_ap_copy_masks(&matrix_mdev->shadow_apcb, &matrix_mdev->matrix);
-+
-+	for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, AP_DEVICES) {
-+		/*
-+		 * If the APID is not assigned to the host AP configuration,
-+		 * we can not assign it to the guest's AP configuration
-+		 */
-+		if (!test_bit_inv(apid,
-+				  (unsigned long *)matrix_dev->info.apm)) {
-+			clear_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
-+			continue;
-+		}
-+
-+		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-+				     AP_DOMAINS) {
-+			/*
-+			 * If the APQI is not assigned to the host AP
-+			 * configuration, then it can not be assigned to the
-+			 * guest's AP configuration
-+			 */
-+			if (!test_bit_inv(apqi, (unsigned long *)
-+					  matrix_dev->info.aqm)) {
-+				clear_bit_inv(apqi,
-+					      matrix_mdev->shadow_apcb.aqm);
-+				continue;
-+			}
-+
-+			/*
-+			 * If the APQN is not bound to the vfio_ap device
-+			 * driver, then we can't assign it to the guest's
-+			 * AP configuration. The AP architecture won't
-+			 * allow filtering of a single APQN, so let's filter
-+			 * the APID.
-+			 */
-+			apqn = AP_MKQID(apid, apqi);
-+
-+			if (!vfio_ap_mdev_get_queue(matrix_mdev, apqn)) {
-+				clear_bit_inv(apid,
-+					      matrix_mdev->shadow_apcb.apm);
-+				break;
-+			}
-+		}
-+	}
++	if (debug_pagealloc_enabled_static())
++		__kernel_map_pages(page, numpages, 0);
 +}
 +
- static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -1256,8 +1312,7 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	if (ret)
- 		return NOTIFY_DONE;
+ #ifdef CONFIG_HIBERNATION
+ extern bool kernel_page_present(struct page *page);
+ #endif	/* CONFIG_HIBERNATION */
+ #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable) {}
++static inline void debug_pagealloc_map_pages(struct page *page, int numpages) {}
++static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages) {}
+ #ifdef CONFIG_HIBERNATION
+ static inline bool kernel_page_present(struct page *page) { return true; }
+ #endif	/* CONFIG_HIBERNATION */
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index b44d4c7ba73b..f18f86ba2a68 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -614,8 +614,7 @@ void generic_online_page(struct page *page, unsigned int order)
+ 	 * so we should map it first. This is better than introducing a special
+ 	 * case in page freeing fast path.
+ 	 */
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 1);
++	debug_pagealloc_map_pages(page, 1 << order);
+ 	__free_pages_core(page, order);
+ 	totalram_pages_add(1UL << order);
+ #ifdef CONFIG_HIGHMEM
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 23f5066bd4a5..db1bf70458d0 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1272,8 +1272,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
+ 	 */
+ 	arch_free_page(page, order);
  
--	memcpy(&matrix_mdev->shadow_apcb, &matrix_mdev->matrix,
--	       sizeof(matrix_mdev->shadow_apcb));
-+	vfio_ap_mdev_init_apcb(matrix_mdev);
- 	vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 0);
++	debug_pagealloc_unmap_pages(page, 1 << order);
  
- 	return NOTIFY_OK;
+ 	kasan_free_nondeferred_pages(page, order);
+ 
+@@ -2270,8 +2269,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+ 	set_page_refcounted(page);
+ 
+ 	arch_alloc_page(page, order);
+-	if (debug_pagealloc_enabled_static())
+-		kernel_map_pages(page, 1 << order, 1);
++	debug_pagealloc_map_pages(page, 1 << order);
+ 	kasan_alloc_pages(page, order);
+ 	kernel_poison_pages(page, 1 << order, 1);
+ 	set_page_owner(page, order, gfp_flags);
 -- 
-2.21.1
+2.28.0
