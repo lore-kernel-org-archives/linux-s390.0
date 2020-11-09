@@ -1,376 +1,71 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53274 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387868AbgK3SGL (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 13:06:11 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 2/5] block: simplify and extended the block_bio_merge tracepoint class
-Date: Mon, 30 Nov 2020 18:58:51 +0100
-Message-Id: <20201130175854.982460-3-hch@lst.de>
-In-Reply-To: <20201130175854.982460-1-hch@lst.de>
-References: <20201130175854.982460-1-hch@lst.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40680 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729694AbgKIHxF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 02:53:05 -0500
+Subject: Re: [PATCH net 1/2] net/af_iucv: fix null pointer dereference on
+ shutdown
+References: <20201106125008.36478-1-jwi@linux.ibm.com>
+ <20201106125008.36478-2-jwi@linux.ibm.com>
+ <20201106085928.183e0c77@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Message-ID: <b25101c7-e08d-81b2-a2da-99dfa476f66c@linux.ibm.com>
+Date: Mon, 9 Nov 2020 09:52:48 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201106085928.183e0c77@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org
+To: Jakub Kicinski <kuba@kernel.org>
+Cc: David Miller <davem@davemloft.net>, linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>
 
-The block_bio_merge tracepoint class can be reused for most bio-based
-tracepoints.  For that is just needs to lose the superflous and rq
-parameters.
+On 06.11.20 18:59, Jakub Kicinski wrote:
+> On Fri,  6 Nov 2020 13:50:07 +0100 Julian Wiedmann wrote:
+>> From: Ursula Braun <ubraun@linux.ibm.com>
+>>
+>> syzbot reported the following KASAN finding:
+>>
+>> BUG: KASAN: nullptr-dereference in iucv_send_ctrl+0x390/0x3f0 net/iucv/af_iucv.c:385
+>> Read of size 2 at addr 000000000000021e by task syz-executor907/519
+>>
+>> CPU: 0 PID: 519 Comm: syz-executor907 Not tainted 5.9.0-syzkaller-07043-gbcf9877ad213 #0
+>> Hardware name: IBM 3906 M04 701 (KVM/Linux)
+>> Call Trace:
+>>  [<00000000c576af60>] unwind_start arch/s390/include/asm/unwind.h:65 [inline]
+>>  [<00000000c576af60>] show_stack+0x180/0x228 arch/s390/kernel/dumpstack.c:135
+>>  [<00000000c9dcd1f8>] __dump_stack lib/dump_stack.c:77 [inline]
+>>  [<00000000c9dcd1f8>] dump_stack+0x268/0x2f0 lib/dump_stack.c:118
+>>  [<00000000c5fed016>] print_address_description.constprop.0+0x5e/0x218 mm/kasan/report.c:383
+>>  [<00000000c5fec82a>] __kasan_report mm/kasan/report.c:517 [inline]
+>>  [<00000000c5fec82a>] kasan_report+0x11a/0x168 mm/kasan/report.c:534
+>>  [<00000000c98b5b60>] iucv_send_ctrl+0x390/0x3f0 net/iucv/af_iucv.c:385
+>>  [<00000000c98b6262>] iucv_sock_shutdown+0x44a/0x4c0 net/iucv/af_iucv.c:1457
+>>  [<00000000c89d3a54>] __sys_shutdown+0x12c/0x1c8 net/socket.c:2204
+>>  [<00000000c89d3b70>] __do_sys_shutdown net/socket.c:2212 [inline]
+>>  [<00000000c89d3b70>] __s390x_sys_shutdown+0x38/0x48 net/socket.c:2210
+>>  [<00000000c9e36eac>] system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
+>>
+>> There is nothing to shutdown if a connection has never been established.
+>> Besides that iucv->hs_dev is not yet initialized if a socket is in
+>> IUCV_OPEN state and iucv->path is not yet initialized if socket is in
+>> IUCV_BOUND state.
+>> So, just skip the shutdown calls for a socket in these states.
+>>
+>> Fixes: eac3731bd04c ("s390: Add AF_IUCV socket support")
+>> Fixes: 82492a355fac ("af_iucv: add shutdown for HS transport")
+>> Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
+>> Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+>> Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+> 
+> Fixes tag: Fixes: eac3731bd04c ("s390: Add AF_IUCV socket support")
+> Has these problem(s):
+> 	- Subject does not match target commit subject
+> 	  Just use
+> 		git log -1 --format='Fixes: %h ("%s")'
+> 
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- block/blk-core.c             |   2 +-
- block/blk-merge.c            |   4 +-
- block/blk-mq.c               |   2 +-
- block/bounce.c               |   2 +-
- include/trace/events/block.h | 158 ++++++++---------------------------
- kernel/trace/blktrace.c      |  41 +++------
- 6 files changed, 48 insertions(+), 161 deletions(-)
+sigh... yes, that should have been
+Fixes: eac3731bd04c ("[S390]: Add AF_IUCV socket support")
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index cee568389b7e11..cb24654983e1e4 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -907,7 +907,7 @@ static noinline_for_stack bool submit_bio_checks(struct bio *bio)
- 	blkcg_bio_issue_init(bio);
- 
- 	if (!bio_flagged(bio, BIO_TRACE_COMPLETION)) {
--		trace_block_bio_queue(q, bio);
-+		trace_block_bio_queue(bio);
- 		/* Now that enqueuing has been traced, we need to trace
- 		 * completion as well.
- 		 */
-diff --git a/block/blk-merge.c b/block/blk-merge.c
-index cb351ab9b77dbd..1a46d5bbd399e3 100644
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -922,7 +922,7 @@ static enum bio_merge_status bio_attempt_back_merge(struct request *req,
- 	if (!ll_back_merge_fn(req, bio, nr_segs))
- 		return BIO_MERGE_FAILED;
- 
--	trace_block_bio_backmerge(req->q, req, bio);
-+	trace_block_bio_backmerge(bio);
- 	rq_qos_merge(req->q, req, bio);
- 
- 	if ((req->cmd_flags & REQ_FAILFAST_MASK) != ff)
-@@ -946,7 +946,7 @@ static enum bio_merge_status bio_attempt_front_merge(struct request *req,
- 	if (!ll_front_merge_fn(req, bio, nr_segs))
- 		return BIO_MERGE_FAILED;
- 
--	trace_block_bio_frontmerge(req->q, req, bio);
-+	trace_block_bio_frontmerge(bio);
- 	rq_qos_merge(req->q, req, bio);
- 
- 	if ((req->cmd_flags & REQ_FAILFAST_MASK) != ff)
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index a2593748fa5342..13636458f32f1c 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2183,7 +2183,7 @@ blk_qc_t blk_mq_submit_bio(struct bio *bio)
- 		goto queue_exit;
- 	}
- 
--	trace_block_getrq(q, bio, bio->bi_opf);
-+	trace_block_getrq(bio);
- 
- 	rq_qos_track(q, rq, bio);
- 
-diff --git a/block/bounce.c b/block/bounce.c
-index 162a6eee89996a..d3f51acd6e3b51 100644
---- a/block/bounce.c
-+++ b/block/bounce.c
-@@ -340,7 +340,7 @@ static void __blk_queue_bounce(struct request_queue *q, struct bio **bio_orig,
- 		}
- 	}
- 
--	trace_block_bio_bounce(q, *bio_orig);
-+	trace_block_bio_bounce(*bio_orig);
- 
- 	bio->bi_flags |= (1 << BIO_BOUNCED);
- 
-diff --git a/include/trace/events/block.h b/include/trace/events/block.h
-index 76459cf750e14d..506c29dc7c76fd 100644
---- a/include/trace/events/block.h
-+++ b/include/trace/events/block.h
-@@ -226,45 +226,6 @@ DEFINE_EVENT(block_rq, block_rq_merge,
- 	TP_ARGS(q, rq)
- );
- 
--/**
-- * block_bio_bounce - used bounce buffer when processing block operation
-- * @q: queue holding the block operation
-- * @bio: block operation
-- *
-- * A bounce buffer was used to handle the block operation @bio in @q.
-- * This occurs when hardware limitations prevent a direct transfer of
-- * data between the @bio data memory area and the IO device.  Use of a
-- * bounce buffer requires extra copying of data and decreases
-- * performance.
-- */
--TRACE_EVENT(block_bio_bounce,
--
--	TP_PROTO(struct request_queue *q, struct bio *bio),
--
--	TP_ARGS(q, bio),
--
--	TP_STRUCT__entry(
--		__field( dev_t,		dev			)
--		__field( sector_t,	sector			)
--		__field( unsigned int,	nr_sector		)
--		__array( char,		rwbs,	RWBS_LEN	)
--		__array( char,		comm,	TASK_COMM_LEN	)
--	),
--
--	TP_fast_assign(
--		__entry->dev		= bio_dev(bio);
--		__entry->sector		= bio->bi_iter.bi_sector;
--		__entry->nr_sector	= bio_sectors(bio);
--		blk_fill_rwbs(__entry->rwbs, bio->bi_opf, bio->bi_iter.bi_size);
--		memcpy(__entry->comm, current->comm, TASK_COMM_LEN);
--	),
--
--	TP_printk("%d,%d %s %llu + %u [%s]",
--		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->rwbs,
--		  (unsigned long long)__entry->sector,
--		  __entry->nr_sector, __entry->comm)
--);
--
- /**
-  * block_bio_complete - completed all work on the block operation
-  * @q: queue holding the block operation
-@@ -301,11 +262,11 @@ TRACE_EVENT(block_bio_complete,
- 		  __entry->nr_sector, __entry->error)
- );
- 
--DECLARE_EVENT_CLASS(block_bio_merge,
-+DECLARE_EVENT_CLASS(block_bio,
- 
--	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
-+	TP_PROTO(struct bio *bio),
- 
--	TP_ARGS(q, rq, bio),
-+	TP_ARGS(bio),
- 
- 	TP_STRUCT__entry(
- 		__field( dev_t,		dev			)
-@@ -329,116 +290,63 @@ DECLARE_EVENT_CLASS(block_bio_merge,
- 		  __entry->nr_sector, __entry->comm)
- );
- 
-+/**
-+ * block_bio_bounce - used bounce buffer when processing block operation
-+ * @bio: block operation
-+ *
-+ * A bounce buffer was used to handle the block operation @bio in @q.
-+ * This occurs when hardware limitations prevent a direct transfer of
-+ * data between the @bio data memory area and the IO device.  Use of a
-+ * bounce buffer requires extra copying of data and decreases
-+ * performance.
-+ */
-+DEFINE_EVENT(block_bio, block_bio_bounce,
-+	TP_PROTO(struct bio *bio),
-+	TP_ARGS(bio)
-+);
-+
- /**
-  * block_bio_backmerge - merging block operation to the end of an existing operation
-- * @q: queue holding operation
-- * @rq: request bio is being merged into
-  * @bio: new block operation to merge
-  *
-- * Merging block request @bio to the end of an existing block request
-- * in queue @q.
-+ * Merging block request @bio to the end of an existing block request.
-  */
--DEFINE_EVENT(block_bio_merge, block_bio_backmerge,
--
--	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
--
--	TP_ARGS(q, rq, bio)
-+DEFINE_EVENT(block_bio, block_bio_backmerge,
-+	TP_PROTO(struct bio *bio),
-+	TP_ARGS(bio)
- );
- 
- /**
-  * block_bio_frontmerge - merging block operation to the beginning of an existing operation
-- * @q: queue holding operation
-- * @rq: request bio is being merged into
-  * @bio: new block operation to merge
-  *
-- * Merging block IO operation @bio to the beginning of an existing block
-- * operation in queue @q.
-+ * Merging block IO operation @bio to the beginning of an existing block request.
-  */
--DEFINE_EVENT(block_bio_merge, block_bio_frontmerge,
--
--	TP_PROTO(struct request_queue *q, struct request *rq, struct bio *bio),
--
--	TP_ARGS(q, rq, bio)
-+DEFINE_EVENT(block_bio, block_bio_frontmerge,
-+	TP_PROTO(struct bio *bio),
-+	TP_ARGS(bio)
- );
- 
- /**
-  * block_bio_queue - putting new block IO operation in queue
-- * @q: queue holding operation
-  * @bio: new block operation
-  *
-  * About to place the block IO operation @bio into queue @q.
-  */
--TRACE_EVENT(block_bio_queue,
--
--	TP_PROTO(struct request_queue *q, struct bio *bio),
--
--	TP_ARGS(q, bio),
--
--	TP_STRUCT__entry(
--		__field( dev_t,		dev			)
--		__field( sector_t,	sector			)
--		__field( unsigned int,	nr_sector		)
--		__array( char,		rwbs,	RWBS_LEN	)
--		__array( char,		comm,	TASK_COMM_LEN	)
--	),
--
--	TP_fast_assign(
--		__entry->dev		= bio_dev(bio);
--		__entry->sector		= bio->bi_iter.bi_sector;
--		__entry->nr_sector	= bio_sectors(bio);
--		blk_fill_rwbs(__entry->rwbs, bio->bi_opf, bio->bi_iter.bi_size);
--		memcpy(__entry->comm, current->comm, TASK_COMM_LEN);
--	),
--
--	TP_printk("%d,%d %s %llu + %u [%s]",
--		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->rwbs,
--		  (unsigned long long)__entry->sector,
--		  __entry->nr_sector, __entry->comm)
--);
--
--DECLARE_EVENT_CLASS(block_get_rq,
--
--	TP_PROTO(struct request_queue *q, struct bio *bio, int rw),
--
--	TP_ARGS(q, bio, rw),
--
--	TP_STRUCT__entry(
--		__field( dev_t,		dev			)
--		__field( sector_t,	sector			)
--		__field( unsigned int,	nr_sector		)
--		__array( char,		rwbs,	RWBS_LEN	)
--		__array( char,		comm,	TASK_COMM_LEN	)
--        ),
--
--	TP_fast_assign(
--		__entry->dev		= bio ? bio_dev(bio) : 0;
--		__entry->sector		= bio ? bio->bi_iter.bi_sector : 0;
--		__entry->nr_sector	= bio ? bio_sectors(bio) : 0;
--		blk_fill_rwbs(__entry->rwbs,
--			      bio ? bio->bi_opf : 0, __entry->nr_sector);
--		memcpy(__entry->comm, current->comm, TASK_COMM_LEN);
--        ),
--
--	TP_printk("%d,%d %s %llu + %u [%s]",
--		  MAJOR(__entry->dev), MINOR(__entry->dev), __entry->rwbs,
--		  (unsigned long long)__entry->sector,
--		  __entry->nr_sector, __entry->comm)
-+DEFINE_EVENT(block_bio, block_bio_queue,
-+	TP_PROTO(struct bio *bio),
-+	TP_ARGS(bio)
- );
- 
- /**
-  * block_getrq - get a free request entry in queue for block IO operations
-- * @q: queue for operations
-  * @bio: pending block IO operation (can be %NULL)
-- * @rw: low bit indicates a read (%0) or a write (%1)
-  *
-- * A request struct for queue @q has been allocated to handle the
-- * block IO operation @bio.
-+ * A request struct has been allocated to handle the block IO operation @bio.
-  */
--DEFINE_EVENT(block_get_rq, block_getrq,
--
--	TP_PROTO(struct request_queue *q, struct bio *bio, int rw),
--
--	TP_ARGS(q, bio, rw)
-+DEFINE_EVENT(block_bio, block_getrq,
-+	TP_PROTO(struct bio *bio),
-+	TP_ARGS(bio)
- );
- 
- /**
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index ced589df304b57..7ab88e00c15765 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -906,10 +906,9 @@ static void blk_add_trace_bio(struct request_queue *q, struct bio *bio,
- 	rcu_read_unlock();
- }
- 
--static void blk_add_trace_bio_bounce(void *ignore,
--				     struct request_queue *q, struct bio *bio)
-+static void blk_add_trace_bio_bounce(void *ignore, struct bio *bio)
- {
--	blk_add_trace_bio(q, bio, BLK_TA_BOUNCE, 0);
-+	blk_add_trace_bio(bio->bi_disk->queue, bio, BLK_TA_BOUNCE, 0);
- }
- 
- static void blk_add_trace_bio_complete(void *ignore,
-@@ -919,44 +918,24 @@ static void blk_add_trace_bio_complete(void *ignore,
- 			  blk_status_to_errno(bio->bi_status));
- }
- 
--static void blk_add_trace_bio_backmerge(void *ignore,
--					struct request_queue *q,
--					struct request *rq,
--					struct bio *bio)
-+static void blk_add_trace_bio_backmerge(void *ignore, struct bio *bio)
- {
--	blk_add_trace_bio(q, bio, BLK_TA_BACKMERGE, 0);
-+	blk_add_trace_bio(bio->bi_disk->queue, bio, BLK_TA_BACKMERGE, 0);
- }
- 
--static void blk_add_trace_bio_frontmerge(void *ignore,
--					 struct request_queue *q,
--					 struct request *rq,
--					 struct bio *bio)
-+static void blk_add_trace_bio_frontmerge(void *ignore, struct bio *bio)
- {
--	blk_add_trace_bio(q, bio, BLK_TA_FRONTMERGE, 0);
-+	blk_add_trace_bio(bio->bi_disk->queue, bio, BLK_TA_FRONTMERGE, 0);
- }
- 
--static void blk_add_trace_bio_queue(void *ignore,
--				    struct request_queue *q, struct bio *bio)
-+static void blk_add_trace_bio_queue(void *ignore, struct bio *bio)
- {
--	blk_add_trace_bio(q, bio, BLK_TA_QUEUE, 0);
-+	blk_add_trace_bio(bio->bi_disk->queue, bio, BLK_TA_QUEUE, 0);
- }
- 
--static void blk_add_trace_getrq(void *ignore,
--				struct request_queue *q,
--				struct bio *bio, int rw)
-+static void blk_add_trace_getrq(void *ignore, struct bio *bio)
- {
--	if (bio)
--		blk_add_trace_bio(q, bio, BLK_TA_GETRQ, 0);
--	else {
--		struct blk_trace *bt;
--
--		rcu_read_lock();
--		bt = rcu_dereference(q->blk_trace);
--		if (bt)
--			__blk_add_trace(bt, 0, 0, rw, 0, BLK_TA_GETRQ, 0, 0,
--					NULL, 0);
--		rcu_read_unlock();
--	}
-+	blk_add_trace_bio(bio->bi_disk->queue, bio, BLK_TA_GETRQ, 0);
- }
- 
- static void blk_add_trace_plug(void *ignore, struct request_queue *q)
--- 
-2.29.2
+Thanks. Will fix up and get you a v2 shortly.
