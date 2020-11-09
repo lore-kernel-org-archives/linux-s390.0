@@ -1,174 +1,69 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58989 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726489AbgKQPnE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 17 Nov 2020 10:43:04 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 5/5] s390x: sie: Add first SIE test
-Date: Tue, 17 Nov 2020 10:42:15 -0500
-Message-Id: <20201117154215.45855-6-frankja@linux.ibm.com>
-In-Reply-To: <20201117154215.45855-1-frankja@linux.ibm.com>
-References: <20201117154215.45855-1-frankja@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Mon, 9 Nov 2020 16:41:48 +0200
+From: Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH v5 1/5] mm: introduce debug_pagealloc_{map,unmap}_pages()
+ helpers
+Message-ID: <20201109144148.GE301837@kernel.org>
+References: <20201108065758.1815-1-rppt@kernel.org>
+ <20201108065758.1815-2-rppt@kernel.org>
+ <4bd5ae2b-4fc6-73dc-b83b-e71826990946@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4bd5ae2b-4fc6-73dc-b83b-e71826990946@suse.cz>
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com
+To: Vlastimil Babka <vbabka@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-Let's check if we get the correct interception data on a few
-diags. This commit is more of an addition of boilerplate code than a
-real test.
+On Mon, Nov 09, 2020 at 12:33:46PM +0100, Vlastimil Babka wrote:
+> On 11/8/20 7:57 AM, Mike Rapoport wrote:
+> > --- a/mm/slab.c
+> > +++ b/mm/slab.c
+> > @@ -1428,21 +1428,19 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
+> >   	return false;
+> >   }
+> > -#ifdef CONFIG_DEBUG_PAGEALLOC
+> >   static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
+> >   {
+> >   	if (!is_debug_pagealloc_cache(cachep))
+> >   		return;
+> 
+> Hmm, I didn't notice earlier, sorry.
+> The is_debug_pagealloc_cache() above includes a
+> debug_pagealloc_enabled_static() check, so it should be fine to use
+> __kernel_map_pages() directly below. Otherwise we generate two static key
+> checks for the same key needlessly.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/Makefile |   1 +
- s390x/sie.c    | 125 +++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 126 insertions(+)
- create mode 100644 s390x/sie.c
+Ok, I'll revert slab changes.
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index b079a26..7a95092 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -19,6 +19,7 @@ tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
- tests += $(TEST_DIR)/css.elf
- tests += $(TEST_DIR)/uv-guest.elf
-+tests += $(TEST_DIR)/sie.elf
- 
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- ifneq ($(HOST_KEY_DOCUMENT),)
-diff --git a/s390x/sie.c b/s390x/sie.c
-new file mode 100644
-index 0000000..41b429a
---- /dev/null
-+++ b/s390x/sie.c
-@@ -0,0 +1,125 @@
-+#include <libcflat.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/arch_def.h>
-+#include <asm/interrupt.h>
-+#include <asm/page.h>
-+#include <alloc_page.h>
-+#include <vmalloc.h>
-+#include <asm/facility.h>
-+#include <mmu.h>
-+#include <sclp.h>
-+#include <sie.h>
-+
-+static u8 *guest;
-+static u8 *guest_instr;
-+static struct vm vm;
-+
-+static void handle_validity(struct vm *vm)
-+{
-+	report(0, "VALIDITY: %x", vm->sblk->ipb >> 16);
-+}
-+
-+static void sie(struct vm *vm)
-+{
-+	while (vm->sblk->icptcode == 0) {
-+		sie64a(vm->sblk, &vm->save_area);
-+		if (vm->sblk->icptcode == 32)
-+		    handle_validity(vm);
-+	}
-+	vm->save_area.guest.grs[14] = vm->sblk->gg14;
-+	vm->save_area.guest.grs[15] = vm->sblk->gg15;
-+}
-+
-+static void sblk_cleanup(struct vm *vm)
-+{
-+	vm->sblk->icptcode = 0;
-+}
-+
-+static void intercept_diag_10(void)
-+{
-+	u32 instr = 0x83020010;
-+
-+	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
-+	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
-+
-+	memset(guest_instr, 0, PAGE_SIZE);
-+	memcpy(guest_instr, &instr, 4);
-+	sie(&vm);
-+	report(vm.sblk->icptcode == 4 && vm.sblk->ipa == 0x8302 && vm.sblk->ipb == 0x100000,
-+	       "Diag 10 intercept");
-+	sblk_cleanup(&vm);
-+}
-+
-+static void intercept_diag_44(void)
-+{
-+	u32 instr = 0x83020044;
-+
-+	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
-+	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
-+
-+	memset(guest_instr, 0, PAGE_SIZE);
-+	memcpy(guest_instr, &instr, 4);
-+	sie(&vm);
-+	report(vm.sblk->icptcode == 4 && vm.sblk->ipa == 0x8302 && vm.sblk->ipb == 0x440000,
-+	       "Diag 44 intercept");
-+	sblk_cleanup(&vm);
-+}
-+
-+static void intercept_diag_9c(void)
-+{
-+	u32 instr = 0x8302009c;
-+
-+	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
-+	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
-+
-+	memset(guest_instr, 0, PAGE_SIZE);
-+	memcpy(guest_instr, &instr, 4);
-+	sie(&vm);
-+	report(vm.sblk->icptcode == 4 && vm.sblk->ipa == 0x8302 && vm.sblk->ipb == 0x9c0000,
-+	       "Diag 9c intercept");
-+	sblk_cleanup(&vm);
-+}
-+
-+static void setup_guest(void)
-+{
-+	setup_vm();
-+
-+	/* Allocate 1MB as guest memory */
-+	guest = alloc_pages(8);
-+	/* The first two pages are the lowcore */
-+	guest_instr = guest + PAGE_SIZE * 2;
-+
-+	vm.sblk = alloc_page();
-+
-+	vm.sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
-+	vm.sblk->prefix = 0;
-+	/*
-+	 * Pageable guest with the same ASCE as the test programm, but
-+	 * the guest memory 0x0 is offset to start at the allocated
-+	 * guest pages and end after 1MB.
-+	 *
-+	 * It's not pretty but faster and easier than managing guest ASCEs.
-+	 */
-+	vm.sblk->mso = (u64)guest;
-+	vm.sblk->msl = (u64)guest;
-+	vm.sblk->ihcpu = 0xffff;
-+
-+	vm.sblk->crycbd = (uint64_t)alloc_page();
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("sie");
-+	if (!sclp_facilities.has_sief2) {
-+		report_skip("SIEF2 facility unavailable");
-+		goto done;
-+	}
-+
-+	setup_guest();
-+	intercept_diag_10();
-+	intercept_diag_44();
-+	intercept_diag_9c();
-+done:
-+	report_prefix_pop();
-+	return report_summary();
-+}
+> > -	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
+> > +	if (map)
+> > +		debug_pagealloc_map_pages(virt_to_page(objp),
+> > +					  cachep->size / PAGE_SIZE);
+> > +	else
+> > +		debug_pagealloc_unmap_pages(virt_to_page(objp),
+> > +					    cachep->size / PAGE_SIZE);
+> >   }
+> > -#else
+> > -static inline void slab_kernel_map(struct kmem_cache *cachep, void *objp,
+> > -				int map) {}
+> > -
+> > -#endif
+> > -
+> >   static void poison_obj(struct kmem_cache *cachep, void *addr, unsigned char val)
+> >   {
+> >   	int size = cachep->object_size;
+> > @@ -2062,7 +2060,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
+> >   #if DEBUG
+> >   	/*
+> > -	 * If we're going to use the generic kernel_map_pages()
+> > +	 * If we're going to use the generic debug_pagealloc_map_pages()
+> >   	 * poisoning, then it's going to smash the contents of
+> >   	 * the redzone and userword anyhow, so switch them off.
+> >   	 */
+> > 
+> 
+
 -- 
-2.25.1
+Sincerely yours,
+Mike.
