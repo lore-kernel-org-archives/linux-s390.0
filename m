@@ -1,246 +1,76 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-ID: <20201112003333.887515113@goodmis.org>
-Date: Wed, 11 Nov 2020 19:32:49 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-Subject: [for-next][PATCH 05/17] kprobes/ftrace: Add recursion protection to the ftrace callback
-References: <20201112003244.764326960@goodmis.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v4 06/15] net/smc: Add diagnostic information to link structure
+Date: Mon,  9 Nov 2020 16:18:05 +0100
+Message-Id: <20201109151814.15040-7-kgraul@linux.ibm.com>
+In-Reply-To: <20201109151814.15040-1-kgraul@linux.ibm.com>
+References: <20201109151814.15040-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Guo Ren <guoren@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-If a ftrace callback does not supply its own recursion protection and
-does not set the RECURSION_SAFE flag in its ftrace_ops, then ftrace will
-make a helper trampoline to do so before calling the callback instead of
-just calling the callback directly.
+During link creation add network and ib-device name to
+link structure. This is needed for diagnostic purposes.
 
-The default for ftrace_ops is going to change. It will expect that handlers
-provide their own recursion protection, unless its ftrace_ops states
-otherwise.
+When diagnostic information is gathered, we need to traverse
+device, linkgroup and link structures, to be able to do that
+we need to hold a spinlock for the linkgroup list, without this
+diagnostic information in link structure, another device list
+mutex holding would be necessary to dereference the device
+pointer in the link structure which would be impossible when
+holding a spinlock already.
 
-Link: https://lkml.kernel.org/r/20201028115613.140212174@goodmis.org
-Link: https://lkml.kernel.org/r/20201106023546.944907560@goodmis.org
-
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Josh  Poimboeuf <jpoimboe@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Miroslav Benes <mbenes@suse.cz>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Guo Ren <guoren@kernel.org>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: x86@kernel.org
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux-csky@vger.kernel.org
-Cc: linux-parisc@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-s390@vger.kernel.org
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/csky/kernel/probes/ftrace.c     | 12 ++++++++++--
- arch/parisc/kernel/ftrace.c          | 16 +++++++++++++---
- arch/powerpc/kernel/kprobes-ftrace.c | 11 ++++++++++-
- arch/s390/kernel/ftrace.c            | 16 +++++++++++++---
- arch/x86/kernel/kprobes/ftrace.c     | 12 ++++++++++--
- 5 files changed, 56 insertions(+), 11 deletions(-)
+ net/smc/smc_core.c | 11 +++++++++++
+ net/smc/smc_core.h |  3 +++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
-index 5264763d05be..5eb2604fdf71 100644
---- a/arch/csky/kernel/probes/ftrace.c
-+++ b/arch/csky/kernel/probes/ftrace.c
-@@ -13,16 +13,21 @@ int arch_check_ftrace_location(struct kprobe *p)
- void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 			   struct ftrace_ops *ops, struct pt_regs *regs)
- {
-+	int bit;
- 	bool lr_saver = false;
- 	struct kprobe *p;
- 	struct kprobe_ctlblk *kcb;
- 
--	/* Preempt is disabled by ftrace */
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
-+		return;
-+
-+	preempt_disable_notrace();
- 	p = get_kprobe((kprobe_opcode_t *)ip);
- 	if (!p) {
- 		p = get_kprobe((kprobe_opcode_t *)(ip - MCOUNT_INSN_SIZE));
- 		if (unlikely(!p) || kprobe_disabled(p))
--			return;
-+			goto out;
- 		lr_saver = true;
- 	}
- 
-@@ -56,6 +61,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		 */
- 		__this_cpu_write(current_kprobe, NULL);
- 	}
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 24d55b5b352b..ca8b1644ba85 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -313,6 +313,16 @@ static u8 smcr_next_link_id(struct smc_link_group *lgr)
+ 	return link_id;
  }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
  
-diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
-index 63e3ecb9da81..13d85042810a 100644
---- a/arch/parisc/kernel/ftrace.c
-+++ b/arch/parisc/kernel/ftrace.c
-@@ -207,14 +207,21 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 			   struct ftrace_ops *ops, struct pt_regs *regs)
- {
- 	struct kprobe_ctlblk *kcb;
--	struct kprobe *p = get_kprobe((kprobe_opcode_t *)ip);
-+	struct kprobe *p;
-+	int bit;
- 
--	if (unlikely(!p) || kprobe_disabled(p))
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
- 		return;
- 
-+	preempt_disable_notrace();
-+	p = get_kprobe((kprobe_opcode_t *)ip);
-+	if (unlikely(!p) || kprobe_disabled(p))
-+		goto out;
++static void smcr_copy_dev_info_to_link(struct smc_link *link)
++{
++	struct smc_ib_device *smcibdev = link->smcibdev;
 +
- 	if (kprobe_running()) {
- 		kprobes_inc_nmissed_count(p);
--		return;
-+		goto out;
- 	}
- 
- 	__this_cpu_write(current_kprobe, p);
-@@ -235,6 +242,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		}
- 	}
- 	__this_cpu_write(current_kprobe, NULL);
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
-diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
-index 972cb28174b2..5df8d50c65ae 100644
---- a/arch/powerpc/kernel/kprobes-ftrace.c
-+++ b/arch/powerpc/kernel/kprobes-ftrace.c
-@@ -18,10 +18,16 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
- {
- 	struct kprobe *p;
- 	struct kprobe_ctlblk *kcb;
-+	int bit;
- 
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
-+		return;
++	snprintf(link->ibname, sizeof(link->ibname), "%s",
++		 smcibdev->ibdev->name);
++	snprintf(link->ndevname, sizeof(link->ndevname), "%s",
++		 smcibdev->netdev[link->ibport - 1]);
++}
 +
-+	preempt_disable_notrace();
- 	p = get_kprobe((kprobe_opcode_t *)nip);
- 	if (unlikely(!p) || kprobe_disabled(p))
--		return;
-+		goto out;
- 
- 	kcb = get_kprobe_ctlblk();
- 	if (kprobe_running()) {
-@@ -52,6 +58,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
- 		 */
- 		__this_cpu_write(current_kprobe, NULL);
- 	}
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
-diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
-index b388e87a08bf..8f31c726537a 100644
---- a/arch/s390/kernel/ftrace.c
-+++ b/arch/s390/kernel/ftrace.c
-@@ -201,14 +201,21 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		struct ftrace_ops *ops, struct pt_regs *regs)
+ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 		   u8 link_idx, struct smc_init_info *ini)
  {
- 	struct kprobe_ctlblk *kcb;
--	struct kprobe *p = get_kprobe((kprobe_opcode_t *)ip);
-+	struct kprobe *p;
-+	int bit;
+@@ -327,6 +337,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	lnk->smcibdev = ini->ib_dev;
+ 	lnk->ibport = ini->ib_port;
+ 	smc_ibdev_cnt_inc(lnk);
++	smcr_copy_dev_info_to_link(lnk);
+ 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
+ 	atomic_set(&lnk->conn_cnt, 0);
+ 	smc_llc_link_set_uid(lnk);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 83a88a4635db..ee073a191d40 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -124,6 +124,9 @@ struct smc_link {
+ 	u8			link_is_asym;	/* is link asymmetric? */
+ 	struct smc_link_group	*lgr;		/* parent link group */
+ 	struct work_struct	link_down_wrk;	/* wrk to bring link down */
++	/* Diagnostic relevant link information */
++	char			ibname[IB_DEVICE_NAME_MAX];/* ib device name */
++	char			ndevname[IFNAMSIZ];/* network device name */
  
--	if (unlikely(!p) || kprobe_disabled(p))
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
- 		return;
- 
-+	preempt_disable_notrace();
-+	p = get_kprobe((kprobe_opcode_t *)ip);
-+	if (unlikely(!p) || kprobe_disabled(p))
-+		goto out;
-+
- 	if (kprobe_running()) {
- 		kprobes_inc_nmissed_count(p);
--		return;
-+		goto out;
- 	}
- 
- 	__this_cpu_write(current_kprobe, p);
-@@ -228,6 +235,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		}
- 	}
- 	__this_cpu_write(current_kprobe, NULL);
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
-diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
-index 681a4b36e9bb..a40a6cdfcca3 100644
---- a/arch/x86/kernel/kprobes/ftrace.c
-+++ b/arch/x86/kernel/kprobes/ftrace.c
-@@ -18,11 +18,16 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- {
- 	struct kprobe *p;
- 	struct kprobe_ctlblk *kcb;
-+	int bit;
- 
--	/* Preempt is disabled by ftrace */
-+	bit = ftrace_test_recursion_trylock();
-+	if (bit < 0)
-+		return;
-+
-+	preempt_disable_notrace();
- 	p = get_kprobe((kprobe_opcode_t *)ip);
- 	if (unlikely(!p) || kprobe_disabled(p))
--		return;
-+		goto out;
- 
- 	kcb = get_kprobe_ctlblk();
- 	if (kprobe_running()) {
-@@ -52,6 +57,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
- 		 */
- 		__this_cpu_write(current_kprobe, NULL);
- 	}
-+out:
-+	preempt_enable_notrace();
-+	ftrace_test_recursion_unlock(bit);
- }
- NOKPROBE_SYMBOL(kprobe_ftrace_handler);
- 
+ 	enum smc_link_state	state;		/* state of link */
+ 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
 -- 
-2.28.0
+2.17.1
