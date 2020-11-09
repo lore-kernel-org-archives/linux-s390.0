@@ -1,72 +1,246 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:37840 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726790AbgKARCb (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 1 Nov 2020 12:02:31 -0500
-Date: Sun, 1 Nov 2020 19:02:17 +0200
-From: Mike Rapoport <rppt@kernel.org>
-Subject: Re: [PATCH 2/4] PM: hibernate: improve robustness of mapping pages
- in the direct map
-Message-ID: <20201101170217.GD14628@kernel.org>
-References: <20201025101555.3057-1-rppt@kernel.org>
- <20201025101555.3057-3-rppt@kernel.org>
- <3b4b2b3559bd3dc68adcddf99415bae57152cb6b.camel@intel.com>
- <20201029075416.GJ1428094@kernel.org>
- <604554805defb03d158c09aba4b5cced3416a7fb.camel@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <604554805defb03d158c09aba4b5cced3416a7fb.camel@intel.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31196 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731645AbgKIPSa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:18:30 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v4 12/15] net/smc: Add support for obtaining SMCD device list
+Date: Mon,  9 Nov 2020 16:18:11 +0100
+Message-Id: <20201109151814.15040-13-kgraul@linux.ibm.com>
+In-Reply-To: <20201109151814.15040-1-kgraul@linux.ibm.com>
+References: <20201109151814.15040-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>
-Cc: "david@redhat.com" <david@redhat.com>, "cl@linux.com" <cl@linux.com>, "gor@linux.ibm.com" <gor@linux.ibm.com>, "hpa@zytor.com" <hpa@zytor.com>, "peterz@infradead.org" <peterz@infradead.org>, "catalin.marinas@arm.com" <catalin.marinas@arm.com>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "penberg@kernel.org" <penberg@kernel.org>, "linux-mm@kvack.org" <linux-mm@kvack.org>, "iamjoonsoo.kim@lge.com" <iamjoonsoo.kim@lge.com>, "will@kernel.org" <will@kernel.org>, "aou@eecs.berkeley.edu" <aou@eecs.berkeley.edu>, "kirill@shutemov.name" <kirill@shutemov.name>, "rientjes@google.com" <rientjes@google.com>, "rppt@linux.ibm.com" <rppt@linux.ibm.com>, "paulus@samba.org" <paulus@samba.org>, "hca@linux.ibm.com" <hca@linux.ibm.com>, "bp@alien8.de" <bp@alien8.de>, "pavel@ucw.cz" <pavel@ucw.cz>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "luto@kernel.org" <luto@kernel.org>, "davem@davemloft.net" <davem@davemloft.net>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "benh@kernel.crashing.org" <benh@kernel.crashing.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "rjw@rjwysocki.net" <rjw@rjwysocki.net>, "tglx@linutronix.de" <tglx@linutronix.de>, "linux-riscv@lists.infradead.org" <linux-riscv@lists.infradead.org>, "x86@kernel.org" <x86@kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "palmer@dabbelt.com" <palmer@dabbelt.com>, "Brown, Len" <len.brown@intel.com>, "mingo@redhat.com" <mingo@redhat.com>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "paul.walmsley@sifive.com" <paul.walmsley@sifive.com>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-On Thu, Oct 29, 2020 at 11:19:18PM +0000, Edgecombe, Rick P wrote:
-> On Thu, 2020-10-29 at 09:54 +0200, Mike Rapoport wrote:
-> > __kernel_map_pages() on arm64 will also bail out if rodata_full is
-> > false:
-> > void __kernel_map_pages(struct page *page, int numpages, int enable)
-> > {
-> >         if (!debug_pagealloc_enabled() && !rodata_full)
-> >                 return;
-> > 
-> >         set_memory_valid((unsigned long)page_address(page), numpages,
-> > enable);
-> > }
-> > 
-> > So using set_direct_map() to map back pages removed from the direct
-> > map
-> > with __kernel_map_pages() seems safe to me.
-> 
-> Heh, one of us must have some simple boolean error in our head. I hope
-> its not me! :) I'll try on more time.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Well, then it's me :)
-You are right, I misread this and I could not understand why
-!rodata_full bothers you.
+Deliver SMCD device information via netlink based
+diagnostic interface.
 
-> __kernel_map_pages() will bail out if rodata_full is false **AND**
-> debug page alloc is off. So it will only bail under conditions where
-> there could be nothing unmapped on the direct map.
-> 
-> Equivalent logic would be:
-> 	if (!(debug_pagealloc_enabled() || rodata_full))
-> 		return;
-> 
-> Or:
-> 	if (debug_pagealloc_enabled() || rodata_full)
-> 		set_memory_valid(blah)
-> 
-> So if either is on, the existing code will try to re-map. But the
-> set_direct_map_()'s will only work if rodata_full is on. So switching
-> hibernate to set_direct_map() will cause the remap to be missed for the
-> debug page alloc case, with !rodata_full.
-> 
-> It also breaks normal debug page alloc usage with !rodata_full for
-> similar reasons after patch 3. The pages would never get unmapped.
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ include/uapi/linux/smc.h      |  2 +
+ include/uapi/linux/smc_diag.h | 20 ++++++++
+ net/smc/smc_core.h            |  8 +++
+ net/smc/smc_diag.c            | 95 +++++++++++++++++++++++++++++++++++
+ net/smc/smc_ib.h              |  1 -
+ 5 files changed, 125 insertions(+), 1 deletion(-)
 
-I've updated the patches, there should be no regression now.
-
+diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+index 635e2c2aeac5..736e8b98c8a5 100644
+--- a/include/uapi/linux/smc.h
++++ b/include/uapi/linux/smc.h
+@@ -38,4 +38,6 @@ enum {				/* SMC PNET Table commands */
+ #define SMC_LGR_ID_SIZE			4
+ #define SMC_MAX_HOSTNAME_LEN		32 /* Max length of hostname */
+ #define SMC_MAX_EID_LEN			32 /* Max length of eid */
++#define SMC_MAX_PORTS			2 /* Max # of ports per ib device */
++#define SMC_PCI_ID_STR_LEN		16 /* Max length of pci id string */
+ #endif /* _UAPI_LINUX_SMC_H */
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index 5a80172df757..ab8f76bdd1a4 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -74,6 +74,7 @@ enum {
+ /* V2 Commands */
+ enum {
+ 	SMC_DIAG_GET_LGR_INFO = SMC_DIAG_EXTS_PER_CMD,
++	SMC_DIAG_GET_DEV_INFO,
+ 	__SMC_DIAG_EXT_MAX,
+ };
+ 
+@@ -84,6 +85,11 @@ enum {
+ 	SMC_DIAG_LGR_INFO_SMCD,
+ };
+ 
++/* SMC_DIAG_GET_DEV_INFO command extensions */
++enum {
++	SMC_DIAG_DEV_INFO_SMCD = 1,
++};
++
+ #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
+ #define SMC_DIAG_EXT_MAX (__SMC_DIAG_EXT_MAX - 1)
+ 
+@@ -164,6 +170,20 @@ struct smcd_diag_dmbinfo {		/* SMC-D Socket internals */
+ 	struct smc_diag_v2_lgr_info v2_lgr_info; /* SMCv2 info */
+ };
+ 
++struct smc_diag_dev_info {
++	/* Pnet ID per device port */
++	__u8		pnet_id[SMC_MAX_PORTS][SMC_MAX_PNETID_LEN];
++	/* whether pnetid is set by user */
++	__u8		pnetid_by_user[SMC_MAX_PORTS];
++	__u32		use_cnt;		/* Number of linkgroups */
++	__u8		is_critical;		/* Is device critical */
++	__u32		pci_fid;		/* PCI FID */
++	__u16		pci_pchid;		/* PCI CHID */
++	__u16		pci_vendor;		/* PCI Vendor */
++	__u16		pci_device;		/* PCI Device Vendor ID */
++	__u8		pci_id[SMC_PCI_ID_STR_LEN]; /* PCI ID */
++};
++
+ struct smc_diag_lgr {
+ 	__u8		lgr_id[SMC_LGR_ID_SIZE]; /* Linkgroup identifier */
+ 	__u8		lgr_role;		/* Linkgroup role */
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index fb1f63f5e681..eec19a8e394c 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -373,6 +373,14 @@ static inline bool smc_link_active(struct smc_link *lnk)
+ 	return lnk->state == SMC_LNK_ACTIVE;
+ }
+ 
++struct smc_pci_dev {
++	__u32		pci_fid;
++	__u16		pci_pchid;
++	__u16		pci_vendor;
++	__u16		pci_device;
++	__u8		pci_id[SMC_PCI_ID_STR_LEN];
++};
++
+ struct smc_sock;
+ struct smc_clc_msg_accept_confirm;
+ struct smc_clc_msg_local;
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index a644e2299dbc..6e7798dc57fb 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -13,6 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #include <linux/init.h>
++#include <linux/pci.h>
+ #include <linux/sock_diag.h>
+ #include <linux/inet_diag.h>
+ #include <linux/smc_diag.h>
+@@ -35,6 +36,24 @@ static struct smc_diag_dump_ctx *smc_dump_context(struct netlink_callback *cb)
+ 	return (struct smc_diag_dump_ctx *)cb->ctx;
+ }
+ 
++static void smc_set_pci_values(struct pci_dev *pci_dev,
++			       struct smc_pci_dev *smc_dev)
++{
++	smc_dev->pci_vendor = pci_dev->vendor;
++	smc_dev->pci_device = pci_dev->device;
++	snprintf(smc_dev->pci_id, sizeof(smc_dev->pci_id), "%s",
++		 pci_name(pci_dev));
++#if IS_ENABLED(CONFIG_S390)
++	{ /* Set s390 specific PCI information */
++	struct zpci_dev *zdev;
++
++	zdev = to_zpci(pci_dev);
++	smc_dev->pci_fid = zdev->fid;
++	smc_dev->pci_pchid = zdev->pchid;
++	}
++#endif
++}
++
+ static void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
+ {
+ 	sprintf(buf, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
+@@ -450,6 +469,78 @@ static int smc_diag_fill_smcd_dev(struct smcd_dev_list *dev_list,
+ 	return rc;
+ }
+ 
++static int smc_diag_handle_smcd_dev(struct smcd_dev *smcd,
++				    struct sk_buff *skb,
++				    struct netlink_callback *cb,
++				    struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dev_info smc_diag_dev;
++	struct smc_pci_dev smc_pci_dev;
++	struct nlmsghdr *nlh;
++	int dummy = 0;
++	int rc = 0;
++
++	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
++			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
++	if (!nlh)
++		return -EMSGSIZE;
++
++	memset(&smc_diag_dev, 0, sizeof(smc_diag_dev));
++	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
++	smc_diag_dev.use_cnt = atomic_read(&smcd->lgr_cnt);
++	smc_diag_dev.is_critical = (smc_diag_dev.use_cnt > 0);
++	smc_diag_dev.pnetid_by_user[0] = smcd->pnetid_by_user;
++	smc_set_pci_values(to_pci_dev(smcd->dev.parent), &smc_pci_dev);
++	smc_diag_dev.pci_device = smc_pci_dev.pci_device;
++	smc_diag_dev.pci_fid = smc_pci_dev.pci_fid;
++	smc_diag_dev.pci_pchid = smc_pci_dev.pci_pchid;
++	smc_diag_dev.pci_vendor = smc_pci_dev.pci_vendor;
++	snprintf(smc_diag_dev.pci_id, sizeof(smc_diag_dev.pci_id), "%s",
++		 smc_pci_dev.pci_id);
++	snprintf((char *)&smc_diag_dev.pnet_id[0],
++		 sizeof(smc_diag_dev.pnet_id[0]), "%s", smcd->pnetid);
++	/* Just a command place holder to signal back the command reply type */
++	if (nla_put(skb, SMC_DIAG_GET_DEV_INFO, sizeof(dummy), &dummy) < 0)
++		goto errout;
++
++	if (nla_put(skb, SMC_DIAG_DEV_INFO_SMCD,
++		    sizeof(smc_diag_dev), &smc_diag_dev) < 0)
++		goto errout;
++
++	nlmsg_end(skb, nlh);
++	return rc;
++
++errout:
++	nlmsg_cancel(skb, nlh);
++	return -EMSGSIZE;
++}
++
++static int smc_diag_prep_smcd_dev(struct smcd_dev_list *dev_list,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
++	int snum = cb_ctx->pos[0];
++	struct smcd_dev *smcd;
++	int rc = 0, num = 0;
++
++	mutex_lock(&dev_list->mutex);
++	list_for_each_entry(smcd, &dev_list->list, list) {
++		if (num < snum)
++			goto next;
++		rc = smc_diag_handle_smcd_dev(smcd, skb, cb, req);
++		if (rc < 0)
++			goto errout;
++next:
++		num++;
++	}
++errout:
++	mutex_unlock(&dev_list->mutex);
++	cb_ctx->pos[0] = num;
++	return rc;
++}
++
+ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 			   struct netlink_callback *cb,
+ 			   const struct smc_diag_req *req)
+@@ -551,6 +642,10 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
+ 		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCD - 1))))
+ 			smc_diag_fill_smcd_dev(smc_diag_ops->get_smcd_devices(),
+ 					       skb, cb, req);
++	} else if (req->cmd == SMC_DIAG_GET_DEV_INFO) {
++		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCD - 1))))
++			smc_diag_prep_smcd_dev(smc_diag_ops->get_smcd_devices(),
++					       skb, cb, req);
+ 	}
+ 
+ 	return skb->len;
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 5319496adea0..e36c935bc1ec 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -19,7 +19,6 @@
+ #include <rdma/ib_verbs.h>
+ #include <net/smc.h>
+ 
+-#define SMC_MAX_PORTS			2	/* Max # of ports */
+ #define SMC_GID_SIZE			sizeof(union ib_gid)
+ 
+ #define SMC_IB_MAX_SEND_SGE		2
 -- 
-Sincerely yours,
-Mike.
+2.17.1
