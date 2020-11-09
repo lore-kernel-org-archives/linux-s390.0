@@ -1,234 +1,325 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31686 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731993AbgKIPSb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:18:31 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v4 11/15] net/smc: Add SMC-D Linkgroup diagnostic support
-Date: Mon,  9 Nov 2020 16:18:10 +0100
-Message-Id: <20201109151814.15040-12-kgraul@linux.ibm.com>
-In-Reply-To: <20201109151814.15040-1-kgraul@linux.ibm.com>
-References: <20201109151814.15040-1-kgraul@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:50106 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730313AbgKIQZE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Nov 2020 11:25:04 -0500
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v6 3/4] arch, mm: restore dependency of __kernel_map_pages() on DEBUG_PAGEALLOC
+Date: Mon,  9 Nov 2020 18:24:14 +0200
+Message-Id: <20201109162415.13764-4-rppt@kernel.org>
+In-Reply-To: <20201109162415.13764-1-rppt@kernel.org>
+References: <20201109162415.13764-1-rppt@kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-Deliver SMCD Linkgroup information via netlink based
-diagnostic interface.
+The design of DEBUG_PAGEALLOC presumes that __kernel_map_pages() must never
+fail. With this assumption is wouldn't be safe to allow general usage of
+this function.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Moreover, some architectures that implement __kernel_map_pages() have this
+function guarded by #ifdef DEBUG_PAGEALLOC and some refuse to map/unmap
+pages when page allocation debugging is disabled at runtime.
+
+As all the users of __kernel_map_pages() were converted to use
+debug_pagealloc_map_pages() it is safe to make it available only when
+DEBUG_PAGEALLOC is set.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 ---
- include/uapi/linux/smc_diag.h |   7 +++
- net/smc/smc_core.c            |   7 +++
- net/smc/smc_core.h            |   2 +
- net/smc/smc_diag.c            | 108 ++++++++++++++++++++++++++++++++++
- 4 files changed, 124 insertions(+)
+ arch/Kconfig                     |  3 +++
+ arch/arm64/Kconfig               |  4 +---
+ arch/arm64/mm/pageattr.c         |  8 ++++++--
+ arch/powerpc/Kconfig             |  5 +----
+ arch/riscv/Kconfig               |  4 +---
+ arch/riscv/include/asm/pgtable.h |  2 --
+ arch/riscv/mm/pageattr.c         |  2 ++
+ arch/s390/Kconfig                |  4 +---
+ arch/sparc/Kconfig               |  4 +---
+ arch/x86/Kconfig                 |  4 +---
+ arch/x86/mm/pat/set_memory.c     |  2 ++
+ include/linux/mm.h               | 10 +++++++---
+ 12 files changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
-index a57df0296aa4..5a80172df757 100644
---- a/include/uapi/linux/smc_diag.h
-+++ b/include/uapi/linux/smc_diag.h
-@@ -81,6 +81,7 @@ enum {
- enum {
- 	SMC_DIAG_LGR_INFO_SMCR = 1,
- 	SMC_DIAG_LGR_INFO_SMCR_LINK,
-+	SMC_DIAG_LGR_INFO_SMCD,
- };
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 56b6ccc0e32d..56d4752b6db6 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -1028,6 +1028,9 @@ config HAVE_STATIC_CALL_INLINE
+ 	bool
+ 	depends on HAVE_STATIC_CALL
  
- #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
-@@ -155,6 +156,12 @@ struct smcd_diag_dmbinfo {		/* SMC-D Socket internals */
- 	__aligned_u64	my_gid;		/* My GID */
- 	__aligned_u64	token;		/* Token of DMB */
- 	__aligned_u64	peer_token;	/* Token of remote DMBE */
-+	/* Fields above used by legacy v1 code */
-+	__u8		pnet_id[SMC_MAX_PNETID_LEN]; /* Pnet ID */
-+	__u32		conns_num;	/* Number of connections */
-+	__u16		chid;		/* Linkgroup CHID */
-+	__u8		vlan_id;	/* Linkgroup vlan id */
-+	struct smc_diag_v2_lgr_info v2_lgr_info; /* SMCv2 info */
- };
++config ARCH_SUPPORTS_DEBUG_PAGEALLOC
++	bool
++
+ source "kernel/gcov/Kconfig"
  
- struct smc_diag_lgr {
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2dcb1208f55e..37cc754485f0 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -214,6 +214,11 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
- 	conn->lgr = NULL;
+ source "scripts/gcc-plugins/Kconfig"
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 1d466addb078..a932810cfd90 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -71,6 +71,7 @@ config ARM64
+ 	select ARCH_USE_QUEUED_RWLOCKS
+ 	select ARCH_USE_QUEUED_SPINLOCKS
+ 	select ARCH_USE_SYM_ANNOTATIONS
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	select ARCH_SUPPORTS_MEMORY_FAILURE
+ 	select ARCH_SUPPORTS_SHADOW_CALL_STACK if CC_HAVE_SHADOW_CALL_STACK
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
+@@ -1025,9 +1026,6 @@ config HOLES_IN_ZONE
+ 
+ source "kernel/Kconfig.hz"
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y
+-
+ config ARCH_SPARSEMEM_ENABLE
+ 	def_bool y
+ 	select SPARSEMEM_VMEMMAP_ENABLE
+diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
+index 1b94f5b82654..439325532be1 100644
+--- a/arch/arm64/mm/pageattr.c
++++ b/arch/arm64/mm/pageattr.c
+@@ -155,7 +155,7 @@ int set_direct_map_invalid_noflush(struct page *page)
+ 		.clear_mask = __pgprot(PTE_VALID),
+ 	};
+ 
+-	if (!rodata_full)
++	if (!debug_pagealloc_enabled() && !rodata_full)
+ 		return 0;
+ 
+ 	return apply_to_page_range(&init_mm,
+@@ -170,7 +170,7 @@ int set_direct_map_default_noflush(struct page *page)
+ 		.clear_mask = __pgprot(PTE_RDONLY),
+ 	};
+ 
+-	if (!rodata_full)
++	if (!debug_pagealloc_enabled() && !rodata_full)
+ 		return 0;
+ 
+ 	return apply_to_page_range(&init_mm,
+@@ -178,6 +178,7 @@ int set_direct_map_default_noflush(struct page *page)
+ 				   PAGE_SIZE, change_page_range, &data);
  }
  
-+static struct smcd_dev_list *smc_get_smcd_dev_list(void)
-+{
-+	return &smcd_dev_list;
-+}
-+
- static struct smc_lgr_list *smc_get_lgr_list(void)
++#ifdef CONFIG_DEBUG_PAGEALLOC
+ void __kernel_map_pages(struct page *page, int numpages, int enable)
  {
- 	return &smc_lgr_list;
-@@ -221,6 +226,8 @@ static struct smc_lgr_list *smc_get_lgr_list(void)
- 
- static const struct smc_diag_ops smc_diag_ops = {
- 	.get_lgr_list		= smc_get_lgr_list,
-+	.get_smcd_devices	= smc_get_smcd_dev_list,
-+	.get_chid		= smc_ism_get_chid,
- };
- 
- const struct smc_diag_ops *smc_get_diag_ops(void)
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 09ff2011dd78..fb1f63f5e681 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -23,6 +23,8 @@
- /* Functions which are needed for diagnostic purposes by smc_diag module */
- struct smc_diag_ops {
- 	struct smc_lgr_list *(*get_lgr_list)(void);
-+	struct smcd_dev_list *(*get_smcd_devices)(void);
-+	u16 (*get_chid)(struct smcd_dev *smcd);
- };
- 
- struct smc_lgr_list {			/* list of link group definition */
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index 9a41548d6263..a644e2299dbc 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -21,6 +21,7 @@
- 
- #include "smc.h"
- #include "smc_ib.h"
-+#include "smc_ism.h"
- #include "smc_core.h"
- 
- static const struct smc_diag_ops *smc_diag_ops;
-@@ -254,6 +255,53 @@ static int smc_diag_fill_lgr_link(struct smc_link_group *lgr,
- 	return -EMSGSIZE;
+ 	if (!debug_pagealloc_enabled() && !rodata_full)
+@@ -186,6 +187,7 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ 	set_memory_valid((unsigned long)page_address(page), numpages, enable);
  }
  
-+static int smc_diag_fill_smcd_lgr(struct smc_link_group *lgr,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb,
-+				  struct smc_diag_req_v2 *req)
-+{
-+	struct smcd_diag_dmbinfo smcd_lgr;
-+	struct nlmsghdr *nlh;
-+	int dummy = 0;
-+	int rc = 0;
-+
-+	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
-+			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
-+	if (!nlh)
-+		return -EMSGSIZE;
-+
-+	memset(&smcd_lgr, 0, sizeof(smcd_lgr));
-+	memcpy(&smcd_lgr.linkid, lgr->id, sizeof(lgr->id));
-+	smcd_lgr.conns_num = lgr->conns_num;
-+	smcd_lgr.vlan_id = lgr->vlan_id;
-+	smcd_lgr.peer_gid = lgr->peer_gid;
-+	smcd_lgr.my_gid = lgr->smcd->local_gid;
-+	smcd_lgr.chid = smc_diag_ops->get_chid(lgr->smcd);
-+	memcpy(&smcd_lgr.v2_lgr_info.negotiated_eid, lgr->negotiated_eid,
-+	       sizeof(smcd_lgr.v2_lgr_info.negotiated_eid));
-+	memcpy(&smcd_lgr.v2_lgr_info.peer_hostname, lgr->peer_hostname,
-+	       sizeof(smcd_lgr.v2_lgr_info.peer_hostname));
-+	smcd_lgr.v2_lgr_info.peer_os = lgr->peer_os;
-+	smcd_lgr.v2_lgr_info.peer_smc_release = lgr->peer_smc_release;
-+	smcd_lgr.v2_lgr_info.smc_version = lgr->smc_version;
-+	snprintf(smcd_lgr.pnet_id, sizeof(smcd_lgr.pnet_id), "%s",
-+		 lgr->smcd->pnetid);
-+
-+	/* Just a command place holder to signal back the command reply type */
-+	if (nla_put(skb, SMC_DIAG_GET_LGR_INFO, sizeof(dummy), &dummy) < 0)
-+		goto errout;
-+
-+	if (nla_put(skb, SMC_DIAG_LGR_INFO_SMCD,
-+		    sizeof(smcd_lgr), &smcd_lgr) < 0)
-+		goto errout;
-+
-+	nlmsg_end(skb, nlh);
-+	return rc;
-+errout:
-+	nlmsg_cancel(skb, nlh);
-+	return -EMSGSIZE;
-+}
-+
- static int smc_diag_fill_lgr(struct smc_link_group *lgr,
- 			     struct sk_buff *skb,
- 			     struct netlink_callback *cb,
-@@ -345,6 +393,63 @@ static int smc_diag_fill_lgr_list(struct smc_lgr_list *smc_lgr,
- 	return rc;
++#ifdef CONFIG_HIBERNATION
+ /*
+  * This function is used to determine if a linear map page has been marked as
+  * not-valid. Walk the page table and check the PTE_VALID bit. This is based
+@@ -232,3 +234,5 @@ bool kernel_page_present(struct page *page)
+ 	ptep = pte_offset_kernel(pmdp, addr);
+ 	return pte_valid(READ_ONCE(*ptep));
+ }
++#endif /* CONFIG_HIBERNATION */
++#endif /* CONFIG_DEBUG_PAGEALLOC */
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index e9f13fe08492..ad8a83f3ddca 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -146,6 +146,7 @@ config PPC
+ 	select ARCH_MIGHT_HAVE_PC_SERIO
+ 	select ARCH_OPTIONAL_KERNEL_RWX		if ARCH_HAS_STRICT_KERNEL_RWX
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC	if PPC32 || PPC_BOOK3S_64
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_CMPXCHG_LOCKREF		if PPC64
+ 	select ARCH_USE_QUEUED_RWLOCKS		if PPC_QUEUED_SPINLOCKS
+@@ -355,10 +356,6 @@ config PPC_OF_PLATFORM_PCI
+ 	depends on PCI
+ 	depends on PPC64 # not supported on 32 bits yet
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	depends on PPC32 || PPC_BOOK3S_64
+-	def_bool y
+-
+ config ARCH_SUPPORTS_UPROBES
+ 	def_bool y
+ 
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 44377fd7860e..9283c6f9ae2a 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -14,6 +14,7 @@ config RISCV
+ 	def_bool y
+ 	select ARCH_CLOCKSOURCE_INIT
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC if MMU
+ 	select ARCH_HAS_BINFMT_FLAT
+ 	select ARCH_HAS_DEBUG_VM_PGTABLE
+ 	select ARCH_HAS_DEBUG_VIRTUAL if MMU
+@@ -153,9 +154,6 @@ config ARCH_SELECT_MEMORY_MODEL
+ config ARCH_WANT_GENERAL_HUGETLB
+ 	def_bool y
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y
+-
+ config SYS_SUPPORTS_HUGETLBFS
+ 	depends on MMU
+ 	def_bool y
+diff --git a/arch/riscv/include/asm/pgtable.h b/arch/riscv/include/asm/pgtable.h
+index 183f1f4b2ae6..41a72861987c 100644
+--- a/arch/riscv/include/asm/pgtable.h
++++ b/arch/riscv/include/asm/pgtable.h
+@@ -461,8 +461,6 @@ static inline int ptep_clear_flush_young(struct vm_area_struct *vma,
+ #define VMALLOC_START		0
+ #define VMALLOC_END		TASK_SIZE
+ 
+-static inline void __kernel_map_pages(struct page *page, int numpages, int enable) {}
+-
+ #endif /* !CONFIG_MMU */
+ 
+ #define kern_addr_valid(addr)   (1) /* FIXME */
+diff --git a/arch/riscv/mm/pageattr.c b/arch/riscv/mm/pageattr.c
+index 19fecb362d81..321b09d2e2ea 100644
+--- a/arch/riscv/mm/pageattr.c
++++ b/arch/riscv/mm/pageattr.c
+@@ -184,6 +184,7 @@ int set_direct_map_default_noflush(struct page *page)
+ 	return ret;
  }
  
-+static int smc_diag_handle_smcd_lgr(struct smcd_dev *dev,
-+				    struct sk_buff *skb,
-+				    struct netlink_callback *cb,
-+				    struct smc_diag_req_v2 *req)
-+{
-+	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
-+	struct smc_link_group *lgr;
-+	int snum = cb_ctx->pos[1];
-+	int rc = 0, num = 0;
-+
-+	spin_lock_bh(&dev->lgr_lock);
-+	list_for_each_entry(lgr, &dev->lgr_list, list) {
-+		if (!lgr->is_smcd)
-+			continue;
-+		if (num < snum)
-+			goto next;
-+		rc = smc_diag_fill_smcd_lgr(lgr, skb, cb, req);
-+		if (rc < 0)
-+			goto errout;
-+next:
-+		num++;
-+	}
-+errout:
-+	spin_unlock_bh(&dev->lgr_lock);
-+	cb_ctx->pos[1] = num;
-+	return rc;
-+}
-+
-+static int smc_diag_fill_smcd_dev(struct smcd_dev_list *dev_list,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb,
-+				  struct smc_diag_req_v2 *req)
-+{
-+	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
-+	struct smcd_dev *smcd_dev;
-+	int snum = cb_ctx->pos[0];
-+	int rc = 0, num = 0;
-+
-+	mutex_lock(&dev_list->mutex);
-+	list_for_each_entry(smcd_dev, &dev_list->list, list) {
-+		if (list_empty(&smcd_dev->lgr_list))
-+			continue;
-+		if (num < snum)
-+			goto next;
-+		rc = smc_diag_handle_smcd_lgr(smcd_dev, skb,
-+					      cb, req);
-+		if (rc < 0)
-+			goto errout;
-+next:
-+		num++;
-+	}
-+errout:
-+	mutex_unlock(&dev_list->mutex);
-+	cb_ctx->pos[0] = num;
-+	return rc;
-+}
-+
- static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 			   struct netlink_callback *cb,
- 			   const struct smc_diag_req *req)
-@@ -443,6 +548,9 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
- 		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCR - 1))))
- 			smc_diag_fill_lgr_list(smc_diag_ops->get_lgr_list(),
- 					       skb, cb, req);
-+		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCD - 1))))
-+			smc_diag_fill_smcd_dev(smc_diag_ops->get_smcd_devices(),
-+					       skb, cb, req);
- 	}
++#ifdef CONFIG_DEBUG_PAGEALLOC
+ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ {
+ 	if (!debug_pagealloc_enabled())
+@@ -196,3 +197,4 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ 		__set_memory((unsigned long)page_address(page), numpages,
+ 			     __pgprot(0), __pgprot(_PAGE_PRESENT));
+ }
++#endif
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 4a2a12be04c9..991a850a6c0b 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -35,9 +35,6 @@ config GENERIC_LOCKBREAK
+ config PGSTE
+ 	def_bool y if KVM
  
- 	return skb->len;
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y
+-
+ config AUDIT_ARCH
+ 	def_bool y
+ 
+@@ -106,6 +103,7 @@ config S390
+ 	select ARCH_INLINE_WRITE_UNLOCK_IRQRESTORE
+ 	select ARCH_STACKWALK
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	select ARCH_SUPPORTS_NUMA_BALANCING
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_CMPXCHG_LOCKREF
+diff --git a/arch/sparc/Kconfig b/arch/sparc/Kconfig
+index a6ca135442f9..2c729b8d097a 100644
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -88,6 +88,7 @@ config SPARC64
+ 	select HAVE_C_RECORDMCOUNT
+ 	select HAVE_ARCH_AUDITSYSCALL
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	select HAVE_NMI
+ 	select HAVE_REGS_AND_STACK_ACCESS_API
+ 	select ARCH_USE_QUEUED_RWLOCKS
+@@ -148,9 +149,6 @@ config GENERIC_ISA_DMA
+ 	bool
+ 	default y if SPARC32
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y if SPARC64
+-
+ config PGTABLE_LEVELS
+ 	default 4 if 64BIT
+ 	default 3
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index f6946b81f74a..0db3fb1da70c 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -91,6 +91,7 @@ config X86
+ 	select ARCH_STACKWALK
+ 	select ARCH_SUPPORTS_ACPI
+ 	select ARCH_SUPPORTS_ATOMIC_RMW
++	select ARCH_SUPPORTS_DEBUG_PAGEALLOC
+ 	select ARCH_SUPPORTS_NUMA_BALANCING	if X86_64
+ 	select ARCH_USE_BUILTIN_BSWAP
+ 	select ARCH_USE_QUEUED_RWLOCKS
+@@ -329,9 +330,6 @@ config ZONE_DMA32
+ config AUDIT_ARCH
+ 	def_bool y if X86_64
+ 
+-config ARCH_SUPPORTS_DEBUG_PAGEALLOC
+-	def_bool y
+-
+ config KASAN_SHADOW_OFFSET
+ 	hex
+ 	depends on KASAN
+diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
+index 40baa90e74f4..bc9be96b777f 100644
+--- a/arch/x86/mm/pat/set_memory.c
++++ b/arch/x86/mm/pat/set_memory.c
+@@ -2194,6 +2194,7 @@ int set_direct_map_default_noflush(struct page *page)
+ 	return __set_pages_p(page, 1);
+ }
+ 
++#ifdef CONFIG_DEBUG_PAGEALLOC
+ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ {
+ 	if (PageHighMem(page))
+@@ -2239,6 +2240,7 @@ bool kernel_page_present(struct page *page)
+ 	return (pte_val(*pte) & _PAGE_PRESENT);
+ }
+ #endif /* CONFIG_HIBERNATION */
++#endif /* CONFIG_DEBUG_PAGEALLOC */
+ 
+ int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
+ 				   unsigned numpages, unsigned long page_flags)
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index e198b938f5c5..260113ba660a 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2924,7 +2924,11 @@ static inline bool debug_pagealloc_enabled_static(void)
+ 	return static_branch_unlikely(&_debug_pagealloc_enabled);
+ }
+ 
+-#if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
++#ifdef CONFIG_DEBUG_PAGEALLOC
++/*
++ * To support DEBUG_PAGEALLOC architecture must ensure that
++ * __kernel_map_pages() never fails
++ */
+ extern void __kernel_map_pages(struct page *page, int numpages, int enable);
+ 
+ static inline void debug_pagealloc_map_pages(struct page *page, int numpages)
+@@ -2942,13 +2946,13 @@ static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages)
+ #ifdef CONFIG_HIBERNATION
+ extern bool kernel_page_present(struct page *page);
+ #endif	/* CONFIG_HIBERNATION */
+-#else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
++#else	/* CONFIG_DEBUG_PAGEALLOC */
+ static inline void debug_pagealloc_map_pages(struct page *page, int numpages) {}
+ static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages) {}
+ #ifdef CONFIG_HIBERNATION
+ static inline bool kernel_page_present(struct page *page) { return true; }
+ #endif	/* CONFIG_HIBERNATION */
+-#endif	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
++#endif	/* CONFIG_DEBUG_PAGEALLOC */
+ 
+ #ifdef __HAVE_ARCH_GATE_AREA
+ extern struct vm_area_struct *get_gate_vma(struct mm_struct *mm);
 -- 
-2.17.1
+2.28.0
