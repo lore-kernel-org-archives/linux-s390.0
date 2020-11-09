@@ -1,36 +1,134 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Mon, 2 Nov 2020 18:06:24 -0800
-From: Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: Re: [RFC Patch 0/2] KVM: SVM: Cgroup support for SVM SEV ASIDs
-Message-ID: <20201103020623.GJ21563@linux.intel.com>
-References: <20200922004024.3699923-1-vipinsh@google.com>
- <20200922014836.GA26507@linux.intel.com>
- <20200922211404.GA4141897@google.com>
- <20200924192116.GC9649@linux.intel.com>
- <cb592c59-a50e-5901-71fe-19e43bc9e37e@amd.com>
- <20200925222220.GA977797@google.com>
- <20201002204810.GA3179405@google.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729791AbgKIQYx (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 9 Nov 2020 11:24:53 -0500
+From: Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH v6 2/4] PM: hibernate: make direct map manipulations more explicit
+Date: Mon,  9 Nov 2020 18:24:13 +0200
+Message-Id: <20201109162415.13764-3-rppt@kernel.org>
+In-Reply-To: <20201109162415.13764-1-rppt@kernel.org>
+References: <20201109162415.13764-1-rppt@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201002204810.GA3179405@google.com>
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Vipin Sharma <vipinsh@google.com>
-Cc: thomas.lendacky@amd.com, pbonzini@redhat.com, tj@kernel.org, lizefan@huawei.com, joro@8bytes.org, corbet@lwn.net, brijesh.singh@amd.com, jon.grimm@amd.com, eric.vantassell@amd.com, gingell@google.com, rientjes@google.com, kvm@vger.kernel.org, x86@kernel.org, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
 
-On Fri, Oct 02, 2020 at 01:48:10PM -0700, Vipin Sharma wrote:
-> On Fri, Sep 25, 2020 at 03:22:20PM -0700, Vipin Sharma wrote:
-> > I agree with you that the abstract name is better than the concrete
-> > name, I also feel that we must provide HW extensions. Here is one
-> > approach:
-> > 
-> > Cgroup name: cpu_encryption, encryption_slots, or memcrypt (open to
-> > suggestions)
-> > 
-> > Control files: slots.{max, current, events}
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-I don't particularly like the "slots" name, mostly because it could be confused
-with KVM's memslots.  Maybe encryption_ids.ids.{max, current, events}?  I don't
-love those names either, but "encryption" and "IDs" are the two obvious
-commonalities betwee TDX's encryption key IDs and SEV's encryption address
-space IDs.
+When DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP is enabled a page may be
+not present in the direct map and has to be explicitly mapped before it
+could be copied.
+
+Introduce hibernate_map_page() and hibernation_unmap_page() that will
+explicitly use set_direct_map_{default,invalid}_noflush() for
+ARCH_HAS_SET_DIRECT_MAP case and debug_pagealloc_{map,unmap}_pages() for
+DEBUG_PAGEALLOC case.
+
+The remapping of the pages in safe_copy_page() presumes that it only
+changes protection bits in an existing PTE and so it is safe to ignore
+return value of set_direct_map_{default,invalid}_noflush().
+
+Still, add a pr_warn() so that future changes in set_memory APIs will not
+silently break hibernation.
+
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+---
+ include/linux/mm.h      | 12 ------------
+ kernel/power/snapshot.c | 38 ++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 36 insertions(+), 14 deletions(-)
+
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index bb8c70178f4e..e198b938f5c5 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2927,16 +2927,6 @@ static inline bool debug_pagealloc_enabled_static(void)
+ #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
+ extern void __kernel_map_pages(struct page *page, int numpages, int enable);
+ 
+-/*
+- * When called in DEBUG_PAGEALLOC context, the call should most likely be
+- * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
+- */
+-static inline void
+-kernel_map_pages(struct page *page, int numpages, int enable)
+-{
+-	__kernel_map_pages(page, numpages, enable);
+-}
+-
+ static inline void debug_pagealloc_map_pages(struct page *page, int numpages)
+ {
+ 	if (debug_pagealloc_enabled_static())
+@@ -2953,8 +2943,6 @@ static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages)
+ extern bool kernel_page_present(struct page *page);
+ #endif	/* CONFIG_HIBERNATION */
+ #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
+-static inline void
+-kernel_map_pages(struct page *page, int numpages, int enable) {}
+ static inline void debug_pagealloc_map_pages(struct page *page, int numpages) {}
+ static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages) {}
+ #ifdef CONFIG_HIBERNATION
+diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
+index 46b1804c1ddf..d848377dd8dc 100644
+--- a/kernel/power/snapshot.c
++++ b/kernel/power/snapshot.c
+@@ -76,6 +76,40 @@ static inline void hibernate_restore_protect_page(void *page_address) {}
+ static inline void hibernate_restore_unprotect_page(void *page_address) {}
+ #endif /* CONFIG_STRICT_KERNEL_RWX  && CONFIG_ARCH_HAS_SET_MEMORY */
+ 
++
++/*
++ * The calls to set_direct_map_*() should not fail because remapping a page
++ * here means that we only update protection bits in an existing PTE.
++ * It is still worth to have a warning here if something changes and this
++ * will no longer be the case.
++ */
++static inline void hibernate_map_page(struct page *page)
++{
++	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
++		int ret = set_direct_map_default_noflush(page);
++
++		if (ret)
++			pr_warn_once("Failed to remap page\n");
++	} else {
++		debug_pagealloc_map_pages(page, 1);
++	}
++}
++
++static inline void hibernate_unmap_page(struct page *page)
++{
++	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
++		unsigned long addr = (unsigned long)page_address(page);
++		int ret  = set_direct_map_invalid_noflush(page);
++
++		if (ret)
++			pr_warn_once("Failed to remap page\n");
++
++		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
++	} else {
++		debug_pagealloc_unmap_pages(page, 1);
++	}
++}
++
+ static int swsusp_page_is_free(struct page *);
+ static void swsusp_set_page_forbidden(struct page *);
+ static void swsusp_unset_page_forbidden(struct page *);
+@@ -1355,9 +1389,9 @@ static void safe_copy_page(void *dst, struct page *s_page)
+ 	if (kernel_page_present(s_page)) {
+ 		do_copy_page(dst, page_address(s_page));
+ 	} else {
+-		kernel_map_pages(s_page, 1, 1);
++		hibernate_map_page(s_page);
+ 		do_copy_page(dst, page_address(s_page));
+-		kernel_map_pages(s_page, 1, 0);
++		hibernate_unmap_page(s_page);
+ 	}
+ }
+ 
+-- 
+2.28.0
