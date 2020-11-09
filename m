@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24972 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10590 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731703AbgKIPSZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:18:25 -0500
+        by vger.kernel.org with ESMTP id S1731953AbgKIPS2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:18:28 -0500
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v4 03/15] net/smc: Add connection counters for links
-Date: Mon,  9 Nov 2020 16:18:02 +0100
-Message-Id: <20201109151814.15040-4-kgraul@linux.ibm.com>
+Subject: [PATCH net-next v4 14/15] net/smc: Refactor smc ism v2 capability handling
+Date: Mon,  9 Nov 2020 16:18:13 +0100
+Message-Id: <20201109151814.15040-15-kgraul@linux.ibm.com>
 In-Reply-To: <20201109151814.15040-1-kgraul@linux.ibm.com>
 References: <20201109151814.15040-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
@@ -15,90 +15,123 @@ Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl
 
 From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Add connection counters to the structure of the link.
-Increase/decrease the counters as needed in the corresponding
-routines.
+Encapsulate the smc ism v2 capability boolean value
+in a function for better information hiding.
 
 Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/smc/smc_core.c | 16 ++++++++++++++--
- net/smc/smc_core.h |  1 +
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ net/smc/af_smc.c  | 12 ++++++------
+ net/smc/smc_ism.c |  8 +++++++-
+ net/smc/smc_ism.h |  5 ++---
+ 3 files changed, 15 insertions(+), 10 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2b19863f7171..323a4b396be0 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -139,6 +139,7 @@ static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index bc3e45289771..850e6df47a59 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -668,7 +668,7 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
+ 				ini->smc_type_v1 = SMC_TYPE_N;
+ 		} /* else RDMA is supported for this connection */
  	}
- 	if (!conn->lnk)
- 		return SMC_CLC_DECL_NOACTLINK;
-+	atomic_inc(&conn->lnk->conn_cnt);
- 	return 0;
- }
+-	if (smc_ism_v2_capable && smc_find_ism_v2_device_clnt(smc, ini))
++	if (smc_ism_is_v2_capable() && smc_find_ism_v2_device_clnt(smc, ini))
+ 		ini->smc_type_v2 = SMC_TYPE_N;
  
-@@ -180,6 +181,8 @@ static void __smc_lgr_unregister_conn(struct smc_connection *conn)
- 	struct smc_link_group *lgr = conn->lgr;
- 
- 	rb_erase(&conn->alert_node, &lgr->conns_all);
-+	if (conn->lnk)
-+		atomic_dec(&conn->lnk->conn_cnt);
- 	lgr->conns_num--;
- 	conn->alert_token_local = 0;
- 	sock_put(&smc->sk); /* sock_hold in smc_lgr_register_conn() */
-@@ -314,6 +317,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	lnk->smcibdev = ini->ib_dev;
- 	lnk->ibport = ini->ib_port;
- 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
-+	atomic_set(&lnk->conn_cnt, 0);
- 	smc_llc_link_set_uid(lnk);
- 	INIT_WORK(&lnk->link_down_wrk, smc_link_down_work);
- 	if (!ini->ib_dev->initialized) {
-@@ -526,6 +530,14 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
- 	return rc;
- }
- 
-+static void smc_switch_link_and_count(struct smc_connection *conn,
-+				      struct smc_link *to_lnk)
-+{
-+	atomic_dec(&conn->lnk->conn_cnt);
-+	conn->lnk = to_lnk;
-+	atomic_inc(&conn->lnk->conn_cnt);
-+}
-+
- struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 				  struct smc_link *from_lnk, bool is_dev_err)
+ 	/* if neither ISM nor RDMA are supported, fallback */
+@@ -920,7 +920,7 @@ static int smc_connect_check_aclc(struct smc_init_info *ini,
+ /* perform steps before actually connecting */
+ static int __smc_connect(struct smc_sock *smc)
  {
-@@ -574,7 +586,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		    smc->sk.sk_state == SMC_PEERABORTWAIT ||
- 		    smc->sk.sk_state == SMC_PROCESSABORT) {
- 			spin_lock_bh(&conn->send_lock);
--			conn->lnk = to_lnk;
-+			smc_switch_link_and_count(conn, to_lnk);
- 			spin_unlock_bh(&conn->send_lock);
- 			continue;
- 		}
-@@ -588,7 +600,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		}
- 		/* avoid race with smcr_tx_sndbuf_nonempty() */
- 		spin_lock_bh(&conn->send_lock);
--		conn->lnk = to_lnk;
-+		smc_switch_link_and_count(conn, to_lnk);
- 		rc = smc_switch_cursor(smc, pend, wr_buf);
- 		spin_unlock_bh(&conn->send_lock);
- 		sock_put(&smc->sk);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 9aee54a6bcba..83a88a4635db 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -129,6 +129,7 @@ struct smc_link {
- 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
- 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
- 	int			llc_testlink_time; /* testlink interval */
-+	atomic_t		conn_cnt;
+-	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
++	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
+ 	struct smc_clc_msg_accept_confirm_v2 *aclc2;
+ 	struct smc_clc_msg_accept_confirm *aclc;
+ 	struct smc_init_info *ini = NULL;
+@@ -945,9 +945,9 @@ static int __smc_connect(struct smc_sock *smc)
+ 						    version);
+ 
+ 	ini->smcd_version = SMC_V1;
+-	ini->smcd_version |= smc_ism_v2_capable ? SMC_V2 : 0;
++	ini->smcd_version |= smc_ism_is_v2_capable() ? SMC_V2 : 0;
+ 	ini->smc_type_v1 = SMC_TYPE_B;
+-	ini->smc_type_v2 = smc_ism_v2_capable ? SMC_TYPE_D : SMC_TYPE_N;
++	ini->smc_type_v2 = smc_ism_is_v2_capable() ? SMC_TYPE_D : SMC_TYPE_N;
+ 
+ 	/* get vlan id from IP device */
+ 	if (smc_vlan_by_tcpsk(smc->clcsock, ini)) {
+@@ -1354,7 +1354,7 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
+ 		rc = SMC_CLC_DECL_PEERNOSMC;
+ 		goto out;
+ 	}
+-	if (!smc_ism_v2_capable) {
++	if (!smc_ism_is_v2_capable()) {
+ 		ini->smcd_version &= ~SMC_V2;
+ 		rc = SMC_CLC_DECL_NOISM2SUPP;
+ 		goto out;
+@@ -1680,7 +1680,7 @@ static void smc_listen_work(struct work_struct *work)
+ {
+ 	struct smc_sock *new_smc = container_of(work, struct smc_sock,
+ 						smc_listen_work);
+-	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
++	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
+ 	struct socket *newclcsock = new_smc->clcsock;
+ 	struct smc_clc_msg_accept_confirm *cclc;
+ 	struct smc_clc_msg_proposal_area *buf;
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 6abbdd09a580..2456ee8228cd 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -21,7 +21,7 @@ struct smcd_dev_list smcd_dev_list = {
+ 	.mutex = __MUTEX_INITIALIZER(smcd_dev_list.mutex)
  };
  
- /* For now we just allow one parallel link per link group. The SMC protocol
+-bool smc_ism_v2_capable;
++static bool smc_ism_v2_capable;
+ 
+ /* Test if an ISM communication is possible - same CPC */
+ int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *smcd)
+@@ -51,6 +51,12 @@ u16 smc_ism_get_chid(struct smcd_dev *smcd)
+ 	return smcd->ops->get_chid(smcd);
+ }
+ 
++/* HW supports ISM V2 and thus System EID is defined */
++bool smc_ism_is_v2_capable(void)
++{
++	return smc_ism_v2_capable;
++}
++
+ /* Set a connection using this DMBE. */
+ void smc_ism_set_conn(struct smc_connection *conn)
+ {
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index 8048e09ddcf8..481a4b7df30b 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -10,6 +10,7 @@
+ #define SMCD_ISM_H
+ 
+ #include <linux/uio.h>
++#include <linux/types.h>
+ #include <linux/mutex.h>
+ 
+ #include "smc.h"
+@@ -20,9 +21,6 @@ struct smcd_dev_list {	/* List of SMCD devices */
+ };
+ 
+ extern struct smcd_dev_list	smcd_dev_list;	/* list of smcd devices */
+-extern bool	smc_ism_v2_capable;	/* HW supports ISM V2 and thus
+-					 * System EID is defined
+-					 */
+ 
+ struct smc_ism_vlanid {			/* VLAN id set on ISM device */
+ 	struct list_head list;
+@@ -52,5 +50,6 @@ int smc_ism_write(struct smcd_dev *dev, const struct smc_ism_position *pos,
+ int smc_ism_signal_shutdown(struct smc_link_group *lgr);
+ void smc_ism_get_system_eid(struct smcd_dev *dev, u8 **eid);
+ u16 smc_ism_get_chid(struct smcd_dev *dev);
++bool smc_ism_is_v2_capable(void);
+ void smc_ism_init(void);
+ #endif
 -- 
 2.17.1
