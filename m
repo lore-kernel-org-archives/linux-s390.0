@@ -1,66 +1,234 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: YiFei Zhu <zhuyifei1999@gmail.com>
-Subject: [PATCH seccomp 2/8] parisc: Enable seccomp architecture tracking
-Date: Tue,  3 Nov 2020 07:42:58 -0600
-Message-Id: <9bb86c546eda753adf5270425e7353202dbce87c.1604410035.git.yifeifz2@illinois.edu>
-In-Reply-To: <cover.1604410035.git.yifeifz2@illinois.edu>
-References: <cover.1604410035.git.yifeifz2@illinois.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31686 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731993AbgKIPSb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:18:31 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v4 11/15] net/smc: Add SMC-D Linkgroup diagnostic support
+Date: Mon,  9 Nov 2020 16:18:10 +0100
+Message-Id: <20201109151814.15040-12-kgraul@linux.ibm.com>
+In-Reply-To: <20201109151814.15040-1-kgraul@linux.ibm.com>
+References: <20201109151814.15040-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: containers@lists.linux-foundation.org
-Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
+To: davem@davemloft.net
+Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
 
-From: YiFei Zhu <yifeifz2@illinois.edu>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-To enable seccomp constant action bitmaps, we need to have a static
-mapping to the audit architecture and system call table size. Add these
-for parisc.
+Deliver SMCD Linkgroup information via netlink based
+diagnostic interface.
 
-Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- arch/parisc/include/asm/Kbuild    |  1 -
- arch/parisc/include/asm/seccomp.h | 22 ++++++++++++++++++++++
- 2 files changed, 22 insertions(+), 1 deletion(-)
- create mode 100644 arch/parisc/include/asm/seccomp.h
+ include/uapi/linux/smc_diag.h |   7 +++
+ net/smc/smc_core.c            |   7 +++
+ net/smc/smc_core.h            |   2 +
+ net/smc/smc_diag.c            | 108 ++++++++++++++++++++++++++++++++++
+ 4 files changed, 124 insertions(+)
 
-diff --git a/arch/parisc/include/asm/Kbuild b/arch/parisc/include/asm/Kbuild
-index e3ee5c0bfe80..f16c4db80116 100644
---- a/arch/parisc/include/asm/Kbuild
-+++ b/arch/parisc/include/asm/Kbuild
-@@ -5,5 +5,4 @@ generated-y += syscall_table_c32.h
- generic-y += kvm_para.h
- generic-y += local64.h
- generic-y += mcs_spinlock.h
--generic-y += seccomp.h
- generic-y += user.h
-diff --git a/arch/parisc/include/asm/seccomp.h b/arch/parisc/include/asm/seccomp.h
-new file mode 100644
-index 000000000000..b058b2220322
---- /dev/null
-+++ b/arch/parisc/include/asm/seccomp.h
-@@ -0,0 +1,22 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+#ifndef _ASM_SECCOMP_H
-+#define _ASM_SECCOMP_H
+diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
+index a57df0296aa4..5a80172df757 100644
+--- a/include/uapi/linux/smc_diag.h
++++ b/include/uapi/linux/smc_diag.h
+@@ -81,6 +81,7 @@ enum {
+ enum {
+ 	SMC_DIAG_LGR_INFO_SMCR = 1,
+ 	SMC_DIAG_LGR_INFO_SMCR_LINK,
++	SMC_DIAG_LGR_INFO_SMCD,
+ };
+ 
+ #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
+@@ -155,6 +156,12 @@ struct smcd_diag_dmbinfo {		/* SMC-D Socket internals */
+ 	__aligned_u64	my_gid;		/* My GID */
+ 	__aligned_u64	token;		/* Token of DMB */
+ 	__aligned_u64	peer_token;	/* Token of remote DMBE */
++	/* Fields above used by legacy v1 code */
++	__u8		pnet_id[SMC_MAX_PNETID_LEN]; /* Pnet ID */
++	__u32		conns_num;	/* Number of connections */
++	__u16		chid;		/* Linkgroup CHID */
++	__u8		vlan_id;	/* Linkgroup vlan id */
++	struct smc_diag_v2_lgr_info v2_lgr_info; /* SMCv2 info */
+ };
+ 
+ struct smc_diag_lgr {
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 2dcb1208f55e..37cc754485f0 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -214,6 +214,11 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
+ 	conn->lgr = NULL;
+ }
+ 
++static struct smcd_dev_list *smc_get_smcd_dev_list(void)
++{
++	return &smcd_dev_list;
++}
 +
-+#include <asm-generic/seccomp.h>
+ static struct smc_lgr_list *smc_get_lgr_list(void)
+ {
+ 	return &smc_lgr_list;
+@@ -221,6 +226,8 @@ static struct smc_lgr_list *smc_get_lgr_list(void)
+ 
+ static const struct smc_diag_ops smc_diag_ops = {
+ 	.get_lgr_list		= smc_get_lgr_list,
++	.get_smcd_devices	= smc_get_smcd_dev_list,
++	.get_chid		= smc_ism_get_chid,
+ };
+ 
+ const struct smc_diag_ops *smc_get_diag_ops(void)
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 09ff2011dd78..fb1f63f5e681 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -23,6 +23,8 @@
+ /* Functions which are needed for diagnostic purposes by smc_diag module */
+ struct smc_diag_ops {
+ 	struct smc_lgr_list *(*get_lgr_list)(void);
++	struct smcd_dev_list *(*get_smcd_devices)(void);
++	u16 (*get_chid)(struct smcd_dev *smcd);
+ };
+ 
+ struct smc_lgr_list {			/* list of link group definition */
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index 9a41548d6263..a644e2299dbc 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -21,6 +21,7 @@
+ 
+ #include "smc.h"
+ #include "smc_ib.h"
++#include "smc_ism.h"
+ #include "smc_core.h"
+ 
+ static const struct smc_diag_ops *smc_diag_ops;
+@@ -254,6 +255,53 @@ static int smc_diag_fill_lgr_link(struct smc_link_group *lgr,
+ 	return -EMSGSIZE;
+ }
+ 
++static int smc_diag_fill_smcd_lgr(struct smc_link_group *lgr,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
++{
++	struct smcd_diag_dmbinfo smcd_lgr;
++	struct nlmsghdr *nlh;
++	int dummy = 0;
++	int rc = 0;
 +
-+#ifdef CONFIG_64BIT
-+# define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_PARISC64
-+# define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+# define SECCOMP_ARCH_NATIVE_NAME	"parisc64"
-+# ifdef CONFIG_COMPAT
-+#  define SECCOMP_ARCH_COMPAT		AUDIT_ARCH_PARISC
-+#  define SECCOMP_ARCH_COMPAT_NR	NR_syscalls
-+#  define SECCOMP_ARCH_COMPAT_NAME	"parisc"
-+# endif
-+#else /* !CONFIG_64BIT */
-+# define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_PARISC
-+# define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+# define SECCOMP_ARCH_NATIVE_NAME	"parisc"
-+#endif
++	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
++			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
++	if (!nlh)
++		return -EMSGSIZE;
 +
-+#endif /* _ASM_SECCOMP_H */
++	memset(&smcd_lgr, 0, sizeof(smcd_lgr));
++	memcpy(&smcd_lgr.linkid, lgr->id, sizeof(lgr->id));
++	smcd_lgr.conns_num = lgr->conns_num;
++	smcd_lgr.vlan_id = lgr->vlan_id;
++	smcd_lgr.peer_gid = lgr->peer_gid;
++	smcd_lgr.my_gid = lgr->smcd->local_gid;
++	smcd_lgr.chid = smc_diag_ops->get_chid(lgr->smcd);
++	memcpy(&smcd_lgr.v2_lgr_info.negotiated_eid, lgr->negotiated_eid,
++	       sizeof(smcd_lgr.v2_lgr_info.negotiated_eid));
++	memcpy(&smcd_lgr.v2_lgr_info.peer_hostname, lgr->peer_hostname,
++	       sizeof(smcd_lgr.v2_lgr_info.peer_hostname));
++	smcd_lgr.v2_lgr_info.peer_os = lgr->peer_os;
++	smcd_lgr.v2_lgr_info.peer_smc_release = lgr->peer_smc_release;
++	smcd_lgr.v2_lgr_info.smc_version = lgr->smc_version;
++	snprintf(smcd_lgr.pnet_id, sizeof(smcd_lgr.pnet_id), "%s",
++		 lgr->smcd->pnetid);
++
++	/* Just a command place holder to signal back the command reply type */
++	if (nla_put(skb, SMC_DIAG_GET_LGR_INFO, sizeof(dummy), &dummy) < 0)
++		goto errout;
++
++	if (nla_put(skb, SMC_DIAG_LGR_INFO_SMCD,
++		    sizeof(smcd_lgr), &smcd_lgr) < 0)
++		goto errout;
++
++	nlmsg_end(skb, nlh);
++	return rc;
++errout:
++	nlmsg_cancel(skb, nlh);
++	return -EMSGSIZE;
++}
++
+ static int smc_diag_fill_lgr(struct smc_link_group *lgr,
+ 			     struct sk_buff *skb,
+ 			     struct netlink_callback *cb,
+@@ -345,6 +393,63 @@ static int smc_diag_fill_lgr_list(struct smc_lgr_list *smc_lgr,
+ 	return rc;
+ }
+ 
++static int smc_diag_handle_smcd_lgr(struct smcd_dev *dev,
++				    struct sk_buff *skb,
++				    struct netlink_callback *cb,
++				    struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
++	struct smc_link_group *lgr;
++	int snum = cb_ctx->pos[1];
++	int rc = 0, num = 0;
++
++	spin_lock_bh(&dev->lgr_lock);
++	list_for_each_entry(lgr, &dev->lgr_list, list) {
++		if (!lgr->is_smcd)
++			continue;
++		if (num < snum)
++			goto next;
++		rc = smc_diag_fill_smcd_lgr(lgr, skb, cb, req);
++		if (rc < 0)
++			goto errout;
++next:
++		num++;
++	}
++errout:
++	spin_unlock_bh(&dev->lgr_lock);
++	cb_ctx->pos[1] = num;
++	return rc;
++}
++
++static int smc_diag_fill_smcd_dev(struct smcd_dev_list *dev_list,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb,
++				  struct smc_diag_req_v2 *req)
++{
++	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
++	struct smcd_dev *smcd_dev;
++	int snum = cb_ctx->pos[0];
++	int rc = 0, num = 0;
++
++	mutex_lock(&dev_list->mutex);
++	list_for_each_entry(smcd_dev, &dev_list->list, list) {
++		if (list_empty(&smcd_dev->lgr_list))
++			continue;
++		if (num < snum)
++			goto next;
++		rc = smc_diag_handle_smcd_lgr(smcd_dev, skb,
++					      cb, req);
++		if (rc < 0)
++			goto errout;
++next:
++		num++;
++	}
++errout:
++	mutex_unlock(&dev_list->mutex);
++	cb_ctx->pos[0] = num;
++	return rc;
++}
++
+ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 			   struct netlink_callback *cb,
+ 			   const struct smc_diag_req *req)
+@@ -443,6 +548,9 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
+ 		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCR - 1))))
+ 			smc_diag_fill_lgr_list(smc_diag_ops->get_lgr_list(),
+ 					       skb, cb, req);
++		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCD - 1))))
++			smc_diag_fill_smcd_dev(smc_diag_ops->get_smcd_devices(),
++					       skb, cb, req);
+ 	}
+ 
+ 	return skb->len;
 -- 
-2.29.2
+2.17.1
