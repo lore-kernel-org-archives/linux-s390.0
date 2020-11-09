@@ -1,68 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga07-in.huawei.com ([45.249.212.35]:8893 "EHLO
-        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727041AbgLACkI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 21:40:08 -0500
-From: Qinglang Miao <miaoqinglang@huawei.com>
-Subject: [PATCH v2] scsi: zfcp: move the position of put_device
-Date: Tue, 1 Dec 2020 10:47:16 +0800
-Message-ID: <20201201024716.42926-1-miaoqinglang@huawei.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41044 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731507AbgKIPEQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:04:16 -0500
+Date: Mon, 9 Nov 2020 16:03:14 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH seccomp 5/8] s390: Enable seccomp architecture tracking
+Message-ID: <20201109150314.GA16690@osiris>
+References: <cover.1604410035.git.yifeifz2@illinois.edu>
+ <0fbe0c14d598e18effad3b648ab4808f9cd95eba.1604410035.git.yifeifz2@illinois.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0fbe0c14d598e18effad3b648ab4808f9cd95eba.1604410035.git.yifeifz2@illinois.edu>
 List-ID: <linux-s390.vger.kernel.org>
-To: Steffen Maier <maier@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
+To: YiFei Zhu <zhuyifei1999@gmail.com>
+Cc: containers@lists.linux-foundation.org, YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
 
-Have the `put_device()` call after `device_unregister()` in both
-`zfcp_unit_remove()` and `zfcp_sysfs_port_remove_store()` to make
-it more natural, for put_device() ought to be the last time we
-touch the object in both functions.
+On Tue, Nov 03, 2020 at 07:43:01AM -0600, YiFei Zhu wrote:
+> From: YiFei Zhu <yifeifz2@illinois.edu>
+> 
+> To enable seccomp constant action bitmaps, we need to have a static
+> mapping to the audit architecture and system call table size. Add these
+> for s390.
+> 
+> Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
+> ---
+>  arch/s390/include/asm/seccomp.h | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/arch/s390/include/asm/seccomp.h b/arch/s390/include/asm/seccomp.h
+> index 795bbe0d7ca6..71d46f0ba97b 100644
+> --- a/arch/s390/include/asm/seccomp.h
+> +++ b/arch/s390/include/asm/seccomp.h
+> @@ -16,4 +16,13 @@
+>  
+>  #include <asm-generic/seccomp.h>
+>  
+> +#define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_S390X
+> +#define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
+> +#define SECCOMP_ARCH_NATIVE_NAME	"s390x"
+> +#ifdef CONFIG_COMPAT
+> +# define SECCOMP_ARCH_COMPAT		AUDIT_ARCH_S390
+> +# define SECCOMP_ARCH_COMPAT_NR		NR_syscalls
+> +# define SECCOMP_ARCH_COMPAT_NAME	"s390"
+> +#endif
+> +
 
-And add comments after put_device to make codes clearer.
-
-Suggested-by: Steffen Maier <maier@linux.ibm.com>
-Suggested-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
----
- v2: add comments after put_device as Steffen suggested.
-
- drivers/s390/scsi/zfcp_sysfs.c | 4 ++--
- drivers/s390/scsi/zfcp_unit.c  | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
-index 8d9662e8b..ef6d35a37 100644
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -327,10 +327,10 @@ static ssize_t zfcp_sysfs_port_remove_store(struct device *dev,
- 	list_del(&port->list);
- 	write_unlock_irq(&adapter->port_list_lock);
- 
--	put_device(&port->dev);
--
- 	zfcp_erp_port_shutdown(port, 0, "syprs_1");
- 	device_unregister(&port->dev);
-+
-+	put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
-  out:
- 	zfcp_ccw_adapter_put(adapter);
- 	return retval ? retval : (ssize_t) count;
-diff --git a/drivers/s390/scsi/zfcp_unit.c b/drivers/s390/scsi/zfcp_unit.c
-index e67bf7388..59333f025 100644
---- a/drivers/s390/scsi/zfcp_unit.c
-+++ b/drivers/s390/scsi/zfcp_unit.c
-@@ -255,9 +255,9 @@ int zfcp_unit_remove(struct zfcp_port *port, u64 fcp_lun)
- 		scsi_device_put(sdev);
- 	}
- 
--	put_device(&unit->dev);
--
- 	device_unregister(&unit->dev);
- 
-+	put_device(&unit->dev); /* undo _zfcp_unit_find() */
-+
- 	return 0;
- }
--- 
-2.23.0
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
