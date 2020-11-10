@@ -1,85 +1,78 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36370 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729933AbgKPMUk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 16 Nov 2020 07:20:40 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/2] KVM: s390: pv: Mark mm as protected after the set secure parameters and improve cleanup
-Date: Mon, 16 Nov 2020 13:20:32 +0100
-Message-Id: <20201116122033.382372-2-borntraeger@de.ibm.com>
-In-Reply-To: <20201116122033.382372-1-borntraeger@de.ibm.com>
-References: <20201116122033.382372-1-borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 30/42] s390/smp: move rcu_cpu_starting() earlier
+Date: Mon,  9 Nov 2020 22:54:28 -0500
+Message-Id: <20201110035440.424258-30-sashal@kernel.org>
+In-Reply-To: <20201110035440.424258-1-sashal@kernel.org>
+References: <20201110035440.424258-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Collin Walling <walling@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Qian Cai <cai@redhat.com>, "Paul E . McKenney" <paulmck@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-From: Janosch Frank <frankja@linux.ibm.com>
+From: Qian Cai <cai@redhat.com>
 
-We can only have protected guest pages after a successful set secure
-parameters call as only then the UV allows imports and unpacks.
+[ Upstream commit de5d9dae150ca1c1b5c7676711a9ca139d1a8dec ]
 
-By moving the test we can now also check for it in s390_reset_acc()
-and do an early return if it is 0.
+The call to rcu_cpu_starting() in smp_init_secondary() is not early
+enough in the CPU-hotplug onlining process, which results in lockdep
+splats as follows:
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Fixes: 29b40f105ec8 ("KVM: s390: protvirt: Add initial vm and cpu lifecycle handling")
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+ WARNING: suspicious RCU usage
+ -----------------------------
+ kernel/locking/lockdep.c:3497 RCU-list traversed in non-reader section!!
+
+ other info that might help us debug this:
+
+ RCU used illegally from offline CPU!
+ rcu_scheduler_active = 1, debug_locks = 1
+ no locks held by swapper/1/0.
+
+ Call Trace:
+ show_stack+0x158/0x1f0
+ dump_stack+0x1f2/0x238
+ __lock_acquire+0x2640/0x4dd0
+ lock_acquire+0x3a8/0xd08
+ _raw_spin_lock_irqsave+0xc0/0xf0
+ clockevents_register_device+0xa8/0x528
+ init_cpu_timer+0x33e/0x468
+ smp_init_secondary+0x11a/0x328
+ smp_start_secondary+0x82/0x88
+
+This is avoided by moving the call to rcu_cpu_starting up near the
+beginning of the smp_init_secondary() function. Note that the
+raw_smp_processor_id() is required in order to avoid calling into
+lockdep before RCU has declared the CPU to be watched for readers.
+
+Link: https://lore.kernel.org/lkml/160223032121.7002.1269740091547117869.tip-bot2@tip-bot2/
+Signed-off-by: Qian Cai <cai@redhat.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 2 +-
- arch/s390/kvm/pv.c       | 3 ++-
- arch/s390/mm/gmap.c      | 2 ++
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ arch/s390/kernel/smp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6b74b92c1a58..08ea6c4735cd 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2312,7 +2312,7 @@ static int kvm_s390_handle_pv(struct kvm *kvm, struct kvm_pv_cmd *cmd)
- 		struct kvm_s390_pv_unp unp = {};
+diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+index ad426cc656e56..66d7ba61803c8 100644
+--- a/arch/s390/kernel/smp.c
++++ b/arch/s390/kernel/smp.c
+@@ -845,13 +845,14 @@ void __init smp_detect_cpus(void)
  
- 		r = -EINVAL;
--		if (!kvm_s390_pv_is_protected(kvm))
-+		if (!kvm_s390_pv_is_protected(kvm) || !mm_is_protected(kvm->mm))
- 			break;
- 
- 		r = -EFAULT;
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index eb99e2f95ebe..f5847f9dec7c 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -208,7 +208,6 @@ int kvm_s390_pv_init_vm(struct kvm *kvm, u16 *rc, u16 *rrc)
- 		return -EIO;
- 	}
- 	kvm->arch.gmap->guest_handle = uvcb.guest_handle;
--	atomic_set(&kvm->mm->context.is_protected, 1);
- 	return 0;
- }
- 
-@@ -228,6 +227,8 @@ int kvm_s390_pv_set_sec_parms(struct kvm *kvm, void *hdr, u64 length, u16 *rc,
- 	*rrc = uvcb.header.rrc;
- 	KVM_UV_EVENT(kvm, 3, "PROTVIRT VM SET PARMS: rc %x rrc %x",
- 		     *rc, *rrc);
-+	if (!cc)
-+		atomic_set(&kvm->mm->context.is_protected, 1);
- 	return cc ? -EINVAL : 0;
- }
- 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index cfb0017f33a7..64795d034926 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -2690,6 +2690,8 @@ static const struct mm_walk_ops reset_acc_walk_ops = {
- #include <linux/sched/mm.h>
- void s390_reset_acc(struct mm_struct *mm)
+ static void smp_init_secondary(void)
  {
-+	if (!mm_is_protected(mm))
-+		return;
- 	/*
- 	 * we might be called during
- 	 * reset:                             we walk the pages and clear
+-	int cpu = smp_processor_id();
++	int cpu = raw_smp_processor_id();
+ 
+ 	S390_lowcore.last_update_clock = get_tod_clock();
+ 	restore_access_regs(S390_lowcore.access_regs_save_area);
+ 	set_cpu_flag(CIF_ASCE_PRIMARY);
+ 	set_cpu_flag(CIF_ASCE_SECONDARY);
+ 	cpu_init();
++	rcu_cpu_starting(cpu);
+ 	preempt_disable();
+ 	init_cpu_timer();
+ 	vtime_init();
 -- 
-2.28.0
+2.27.0
