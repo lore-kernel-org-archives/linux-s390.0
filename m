@@ -1,307 +1,202 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36296 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731881AbgKIPS3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:18:29 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v4 07/15] net/smc: Refactor the netlink reply processing routine
-Date: Mon,  9 Nov 2020 16:18:06 +0100
-Message-Id: <20201109151814.15040-8-kgraul@linux.ibm.com>
-In-Reply-To: <20201109151814.15040-1-kgraul@linux.ibm.com>
-References: <20201109151814.15040-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: YiFei Zhu <zhuyifei1999@gmail.com>
+Subject: [PATCH seccomp v2 8/8] seccomp/cache: Report cache data through /proc/pid/seccomp_cache
+Date: Wed, 11 Nov 2020 07:33:54 -0600
+Message-Id: <94e663fa53136f5a11f432c661794d1ee7060779.1605101222.git.yifeifz2@illinois.edu>
+In-Reply-To: <cover.1605101222.git.yifeifz2@illinois.edu>
+References: <cover.1605101222.git.yifeifz2@illinois.edu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: containers@lists.linux-foundation.org
+Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+From: YiFei Zhu <yifeifz2@illinois.edu>
 
-Refactor the netlink reply processing routine so that
-it provides sub functions for specific parts of the processing.
+Currently the kernel does not provide an infrastructure to translate
+architecture numbers to a human-readable name. Translating syscall
+numbers to syscall names is possible through FTRACE_SYSCALL
+infrastructure but it does not provide support for compat syscalls.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+This will create a file for each PID as /proc/pid/seccomp_cache.
+The file will be empty when no seccomp filters are loaded, or be
+in the format of:
+<arch name> <decimal syscall number> <ALLOW | FILTER>
+where ALLOW means the cache is guaranteed to allow the syscall,
+and filter means the cache will pass the syscall to the BPF filter.
+
+For the docker default profile on x86_64 it looks like:
+x86_64 0 ALLOW
+x86_64 1 ALLOW
+x86_64 2 ALLOW
+x86_64 3 ALLOW
+[...]
+x86_64 132 ALLOW
+x86_64 133 ALLOW
+x86_64 134 FILTER
+x86_64 135 FILTER
+x86_64 136 FILTER
+x86_64 137 ALLOW
+x86_64 138 ALLOW
+x86_64 139 FILTER
+x86_64 140 ALLOW
+x86_64 141 ALLOW
+[...]
+
+This file is guarded by CONFIG_SECCOMP_CACHE_DEBUG with a default
+of N because I think certain users of seccomp might not want the
+application to know which syscalls are definitely usable. For
+the same reason, it is also guarded by CAP_SYS_ADMIN.
+
+Suggested-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/lkml/CAG48ez3Ofqp4crXGksLmZY6=fGrF_tWyUCg7PBkAetvbbOPeOA@mail.gmail.com/
+Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
 ---
- net/smc/smc_diag.c | 218 +++++++++++++++++++++++++++------------------
- 1 file changed, 133 insertions(+), 85 deletions(-)
+ arch/Kconfig            | 15 +++++++++++
+ fs/proc/base.c          |  6 +++++
+ include/linux/seccomp.h |  7 +++++
+ kernel/seccomp.c        | 59 +++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 87 insertions(+)
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index c2225231f679..44be723c97fe 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -69,35 +69,25 @@ static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
- 	}
+diff --git a/arch/Kconfig b/arch/Kconfig
+index 56b6ccc0e32d..6e2eb7171da0 100644
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -514,6 +514,21 @@ config SECCOMP_FILTER
+ 
+ 	  See Documentation/userspace-api/seccomp_filter.rst for details.
+ 
++config SECCOMP_CACHE_DEBUG
++	bool "Show seccomp filter cache status in /proc/pid/seccomp_cache"
++	depends on SECCOMP
++	depends on SECCOMP_FILTER && !HAVE_SPARSE_SYSCALL_NR
++	depends on PROC_FS
++	help
++	  This enables the /proc/pid/seccomp_cache interface to monitor
++	  seccomp cache data. The file format is subject to change. Reading
++	  the file requires CAP_SYS_ADMIN.
++
++	  This option is for debugging only. Enabling presents the risk that
++	  an adversary may be able to infer the seccomp filter logic.
++
++	  If unsure, say N.
++
+ config HAVE_ARCH_STACKLEAK
+ 	bool
+ 	help
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 0f707003dda5..d652f9dbaecc 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -3261,6 +3261,9 @@ static const struct pid_entry tgid_base_stuff[] = {
+ #ifdef CONFIG_PROC_PID_ARCH_STATUS
+ 	ONE("arch_status", S_IRUGO, proc_pid_arch_status),
+ #endif
++#ifdef CONFIG_SECCOMP_CACHE_DEBUG
++	ONE("seccomp_cache", S_IRUSR, proc_pid_seccomp_cache),
++#endif
+ };
+ 
+ static int proc_tgid_base_readdir(struct file *file, struct dir_context *ctx)
+@@ -3590,6 +3593,9 @@ static const struct pid_entry tid_base_stuff[] = {
+ #ifdef CONFIG_PROC_PID_ARCH_STATUS
+ 	ONE("arch_status", S_IRUGO, proc_pid_arch_status),
+ #endif
++#ifdef CONFIG_SECCOMP_CACHE_DEBUG
++	ONE("seccomp_cache", S_IRUSR, proc_pid_seccomp_cache),
++#endif
+ };
+ 
+ static int proc_tid_base_readdir(struct file *file, struct dir_context *ctx)
+diff --git a/include/linux/seccomp.h b/include/linux/seccomp.h
+index 02aef2844c38..76963ec4641a 100644
+--- a/include/linux/seccomp.h
++++ b/include/linux/seccomp.h
+@@ -121,4 +121,11 @@ static inline long seccomp_get_metadata(struct task_struct *task,
+ 	return -EINVAL;
  }
- 
--static int smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
--				   struct smc_diag_msg *r,
--				   struct user_namespace *user_ns)
-+static bool smc_diag_msg_attrs_fill(struct sock *sk, struct sk_buff *skb,
-+				    struct smc_diag_msg *r,
-+				    struct user_namespace *user_ns)
+ #endif /* CONFIG_SECCOMP_FILTER && CONFIG_CHECKPOINT_RESTORE */
++
++#ifdef CONFIG_SECCOMP_CACHE_DEBUG
++struct seq_file;
++
++int proc_pid_seccomp_cache(struct seq_file *m, struct pid_namespace *ns,
++			   struct pid *pid, struct task_struct *task);
++#endif
+ #endif /* _LINUX_SECCOMP_H */
+diff --git a/kernel/seccomp.c b/kernel/seccomp.c
+index d8cf468dbe1e..76f524e320b1 100644
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -553,6 +553,9 @@ void seccomp_filter_release(struct task_struct *tsk)
  {
--	if (nla_put_u8(skb, SMC_DIAG_SHUTDOWN, sk->sk_shutdown))
--		return 1;
-+	if (nla_put_u8(skb, SMC_DIAG_SHUTDOWN, sk->sk_shutdown) < 0)
-+		return false;
+ 	struct seccomp_filter *orig = tsk->seccomp.filter;
  
- 	r->diag_uid = from_kuid_munged(user_ns, sock_i_uid(sk));
- 	r->diag_inode = sock_i_ino(sk);
--	return 0;
-+	return true;
- }
++	/* We are effectively holding the siglock by not having any sighand. */
++	WARN_ON(tsk->sighand != NULL);
++
+ 	/* Detach task from its filter tree. */
+ 	tsk->seccomp.filter = NULL;
+ 	__seccomp_filter_release(orig);
+@@ -2335,3 +2338,59 @@ static int __init seccomp_sysctl_init(void)
+ device_initcall(seccomp_sysctl_init)
  
--static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
--			   struct netlink_callback *cb,
--			   const struct smc_diag_req *req,
--			   struct nlattr *bc)
-+static bool smc_diag_fill_base_struct(struct sock *sk, struct sk_buff *skb,
-+				      struct netlink_callback *cb,
-+				      struct smc_diag_msg *r)
- {
- 	struct smc_sock *smc = smc_sk(sk);
--	struct smc_diag_fallback fallback;
- 	struct user_namespace *user_ns;
--	struct smc_diag_msg *r;
--	struct nlmsghdr *nlh;
- 
--	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
--			cb->nlh->nlmsg_type, sizeof(*r), NLM_F_MULTI);
--	if (!nlh)
--		return -EMSGSIZE;
--
--	r = nlmsg_data(nlh);
- 	smc_diag_msg_common_fill(r, sk);
- 	r->diag_state = sk->sk_state;
- 	if (smc->use_fallback)
-@@ -107,89 +97,148 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 	else
- 		r->diag_mode = SMC_DIAG_MODE_SMCR;
- 	user_ns = sk_user_ns(NETLINK_CB(cb->skb).sk);
--	if (smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
--		goto errout;
-+	if (!smc_diag_msg_attrs_fill(sk, skb, r, user_ns))
-+		return false;
- 
-+	return true;
+ #endif /* CONFIG_SYSCTL */
++
++#ifdef CONFIG_SECCOMP_CACHE_DEBUG
++/* Currently CONFIG_SECCOMP_CACHE_DEBUG implies SECCOMP_ARCH_NATIVE */
++static void proc_pid_seccomp_cache_arch(struct seq_file *m, const char *name,
++					const void *bitmap, size_t bitmap_size)
++{
++	int nr;
++
++	for (nr = 0; nr < bitmap_size; nr++) {
++		bool cached = test_bit(nr, bitmap);
++		char *status = cached ? "ALLOW" : "FILTER";
++
++		seq_printf(m, "%s %d %s\n", name, nr, status);
++	}
 +}
 +
-+static bool smc_diag_fill_fallback(struct sock *sk, struct sk_buff *skb)
++int proc_pid_seccomp_cache(struct seq_file *m, struct pid_namespace *ns,
++			   struct pid *pid, struct task_struct *task)
 +{
-+	struct smc_diag_fallback fallback;
-+	struct smc_sock *smc = smc_sk(sk);
++	struct seccomp_filter *f;
++	unsigned long flags;
 +
-+	memset(&fallback, 0, sizeof(fallback));
- 	fallback.reason = smc->fallback_rsn;
- 	fallback.peer_diagnosis = smc->peer_diagnosis;
- 	if (nla_put(skb, SMC_DIAG_FALLBACK, sizeof(fallback), &fallback) < 0)
-+		return false;
++	/*
++	 * We don't want some sandboxed process to know what their seccomp
++	 * filters consist of.
++	 */
++	if (!file_ns_capable(m->file, &init_user_ns, CAP_SYS_ADMIN))
++		return -EACCES;
 +
-+	return true;
++	if (!lock_task_sighand(task, &flags))
++		return -ESRCH;
++
++	f = READ_ONCE(task->seccomp.filter);
++	if (!f) {
++		unlock_task_sighand(task, &flags);
++		return 0;
++	}
++
++	/* prevent filter from being freed while we are printing it */
++	__get_seccomp_filter(f);
++	unlock_task_sighand(task, &flags);
++
++	proc_pid_seccomp_cache_arch(m, SECCOMP_ARCH_NATIVE_NAME,
++				    f->cache.allow_native,
++				    SECCOMP_ARCH_NATIVE_NR);
++
++#ifdef SECCOMP_ARCH_COMPAT
++	proc_pid_seccomp_cache_arch(m, SECCOMP_ARCH_COMPAT_NAME,
++				    f->cache.allow_compat,
++				    SECCOMP_ARCH_COMPAT_NR);
++#endif /* SECCOMP_ARCH_COMPAT */
++
++	__put_seccomp_filter(f);
++	return 0;
 +}
-+
-+static bool smc_diag_fill_conninfo(struct sock *sk, struct sk_buff *skb)
-+{
-+	struct smc_host_cdc_msg *local_tx, *local_rx;
-+	struct smc_diag_conninfo cinfo;
-+	struct smc_connection *conn;
-+	struct smc_sock *smc;
-+
-+	smc = smc_sk(sk);
-+	conn = &smc->conn;
-+	local_tx = &conn->local_tx_ctrl;
-+	local_rx = &conn->local_rx_ctrl;
-+	memset(&cinfo, 0, sizeof(cinfo));
-+	cinfo.token = conn->alert_token_local;
-+	cinfo.sndbuf_size = conn->sndbuf_desc ? conn->sndbuf_desc->len : 0;
-+	cinfo.rmbe_size = conn->rmb_desc ? conn->rmb_desc->len : 0;
-+	cinfo.peer_rmbe_size = conn->peer_rmbe_size;
-+
-+	cinfo.rx_prod.wrap = local_rx->prod.wrap;
-+	cinfo.rx_prod.count = local_rx->prod.count;
-+	cinfo.rx_cons.wrap = local_rx->cons.wrap;
-+	cinfo.rx_cons.count = local_rx->cons.count;
-+
-+	cinfo.tx_prod.wrap = local_tx->prod.wrap;
-+	cinfo.tx_prod.count = local_tx->prod.count;
-+	cinfo.tx_cons.wrap = local_tx->cons.wrap;
-+	cinfo.tx_cons.count = local_tx->cons.count;
-+
-+	cinfo.tx_prod_flags = *(u8 *)&local_tx->prod_flags;
-+	cinfo.tx_conn_state_flags = *(u8 *)&local_tx->conn_state_flags;
-+	cinfo.rx_prod_flags = *(u8 *)&local_rx->prod_flags;
-+	cinfo.rx_conn_state_flags = *(u8 *)&local_rx->conn_state_flags;
-+
-+	cinfo.tx_prep.wrap = conn->tx_curs_prep.wrap;
-+	cinfo.tx_prep.count = conn->tx_curs_prep.count;
-+	cinfo.tx_sent.wrap = conn->tx_curs_sent.wrap;
-+	cinfo.tx_sent.count = conn->tx_curs_sent.count;
-+	cinfo.tx_fin.wrap = conn->tx_curs_fin.wrap;
-+	cinfo.tx_fin.count = conn->tx_curs_fin.count;
-+
-+	if (nla_put(skb, SMC_DIAG_CONNINFO, sizeof(cinfo), &cinfo) < 0)
-+		return false;
-+
-+	return true;
-+}
-+
-+static bool smc_diag_fill_lgrinfo(struct sock *sk, struct sk_buff *skb)
-+{
-+	struct smc_sock *smc = smc_sk(sk);
-+	struct smc_diag_lgrinfo linfo;
-+
-+	memset(&linfo, 0, sizeof(linfo));
-+	linfo.role = smc->conn.lgr->role;
-+	linfo.lnk[0].ibport = smc->conn.lnk->ibport;
-+	linfo.lnk[0].link_id = smc->conn.lnk->link_id;
-+	memcpy(linfo.lnk[0].ibname, smc->conn.lnk->ibname,
-+	       sizeof(linfo.lnk[0].ibname));
-+	smc_gid_be16_convert(linfo.lnk[0].gid,
-+			     smc->conn.lnk->gid);
-+	smc_gid_be16_convert(linfo.lnk[0].peer_gid,
-+			     smc->conn.lnk->peer_gid);
-+
-+	if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
-+		return false;
-+
-+	return true;
-+}
-+
-+static bool smc_diag_fill_dmbinfo(struct sock *sk, struct sk_buff *skb)
-+{
-+	struct smc_sock *smc = smc_sk(sk);
-+	struct smcd_diag_dmbinfo dinfo;
-+	struct smc_connection *conn;
-+
-+	memset(&dinfo, 0, sizeof(dinfo));
-+	conn = &smc->conn;
-+	dinfo.linkid = *((u32 *)conn->lgr->id);
-+	dinfo.peer_gid = conn->lgr->peer_gid;
-+	dinfo.my_gid = conn->lgr->smcd->local_gid;
-+	dinfo.token = conn->rmb_desc->token;
-+	dinfo.peer_token = conn->peer_token;
-+
-+	if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
-+		return false;
-+	return true;
-+}
-+
-+static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
-+			   struct netlink_callback *cb,
-+			   const struct smc_diag_req *req)
-+{
-+	struct smc_sock *smc = smc_sk(sk);
-+	struct smc_diag_msg *r;
-+	struct nlmsghdr *nlh;
-+
-+	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-+			cb->nlh->nlmsg_type, sizeof(*r), NLM_F_MULTI);
-+	if (!nlh)
-+		return -EMSGSIZE;
-+
-+	r = nlmsg_data(nlh);
-+	if (!smc_diag_fill_base_struct(sk, skb, cb, r))
-+		goto errout;
-+
-+	if (!smc_diag_fill_fallback(sk, skb))
- 		goto errout;
- 
- 	if ((req->diag_ext & (1 << (SMC_DIAG_CONNINFO - 1))) &&
- 	    smc->conn.alert_token_local) {
--		struct smc_connection *conn = &smc->conn;
--		struct smc_diag_conninfo cinfo = {
--			.token = conn->alert_token_local,
--			.sndbuf_size = conn->sndbuf_desc ?
--				conn->sndbuf_desc->len : 0,
--			.rmbe_size = conn->rmb_desc ? conn->rmb_desc->len : 0,
--			.peer_rmbe_size = conn->peer_rmbe_size,
--
--			.rx_prod.wrap = conn->local_rx_ctrl.prod.wrap,
--			.rx_prod.count = conn->local_rx_ctrl.prod.count,
--			.rx_cons.wrap = conn->local_rx_ctrl.cons.wrap,
--			.rx_cons.count = conn->local_rx_ctrl.cons.count,
--
--			.tx_prod.wrap = conn->local_tx_ctrl.prod.wrap,
--			.tx_prod.count = conn->local_tx_ctrl.prod.count,
--			.tx_cons.wrap = conn->local_tx_ctrl.cons.wrap,
--			.tx_cons.count = conn->local_tx_ctrl.cons.count,
--
--			.tx_prod_flags =
--				*(u8 *)&conn->local_tx_ctrl.prod_flags,
--			.tx_conn_state_flags =
--				*(u8 *)&conn->local_tx_ctrl.conn_state_flags,
--			.rx_prod_flags = *(u8 *)&conn->local_rx_ctrl.prod_flags,
--			.rx_conn_state_flags =
--				*(u8 *)&conn->local_rx_ctrl.conn_state_flags,
--
--			.tx_prep.wrap = conn->tx_curs_prep.wrap,
--			.tx_prep.count = conn->tx_curs_prep.count,
--			.tx_sent.wrap = conn->tx_curs_sent.wrap,
--			.tx_sent.count = conn->tx_curs_sent.count,
--			.tx_fin.wrap = conn->tx_curs_fin.wrap,
--			.tx_fin.count = conn->tx_curs_fin.count,
--		};
--
--		if (nla_put(skb, SMC_DIAG_CONNINFO, sizeof(cinfo), &cinfo) < 0)
-+		if (!smc_diag_fill_conninfo(sk, skb))
- 			goto errout;
- 	}
- 
- 	if (smc->conn.lgr && !smc->conn.lgr->is_smcd &&
- 	    (req->diag_ext & (1 << (SMC_DIAG_LGRINFO - 1))) &&
- 	    !list_empty(&smc->conn.lgr->list)) {
--		struct smc_diag_lgrinfo linfo = {
--			.role = smc->conn.lgr->role,
--			.lnk[0].ibport = smc->conn.lnk->ibport,
--			.lnk[0].link_id = smc->conn.lnk->link_id,
--		};
--
--		memcpy(linfo.lnk[0].ibname,
--		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
--		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
--		smc_gid_be16_convert(linfo.lnk[0].gid,
--				     smc->conn.lnk->gid);
--		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
--				     smc->conn.lnk->peer_gid);
--
--		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
-+		if (!smc_diag_fill_lgrinfo(sk, skb))
- 			goto errout;
- 	}
- 	if (smc->conn.lgr && smc->conn.lgr->is_smcd &&
- 	    (req->diag_ext & (1 << (SMC_DIAG_DMBINFO - 1))) &&
- 	    !list_empty(&smc->conn.lgr->list)) {
--		struct smc_connection *conn = &smc->conn;
--		struct smcd_diag_dmbinfo dinfo;
--
--		memset(&dinfo, 0, sizeof(dinfo));
--
--		dinfo.linkid = *((u32 *)conn->lgr->id);
--		dinfo.peer_gid = conn->lgr->peer_gid;
--		dinfo.my_gid = conn->lgr->smcd->local_gid;
--		dinfo.token = conn->rmb_desc->token;
--		dinfo.peer_token = conn->peer_token;
--
--		if (nla_put(skb, SMC_DIAG_DMBINFO, sizeof(dinfo), &dinfo) < 0)
-+		if (!smc_diag_fill_dmbinfo(sk, skb))
- 			goto errout;
- 	}
- 
-@@ -207,7 +256,6 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
- 	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
- 	struct net *net = sock_net(skb->sk);
- 	int snum = cb_ctx->pos[p_type];
--	struct nlattr *bc = NULL;
- 	struct hlist_head *head;
- 	int rc = 0, num = 0;
- 	struct sock *sk;
-@@ -222,7 +270,7 @@ static int smc_diag_dump_proto(struct proto *prot, struct sk_buff *skb,
- 			continue;
- 		if (num < snum)
- 			goto next;
--		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh), bc);
-+		rc = __smc_diag_dump(sk, skb, cb, nlmsg_data(cb->nlh));
- 		if (rc < 0)
- 			goto out;
- next:
++#endif /* CONFIG_SECCOMP_CACHE_DEBUG */
 -- 
-2.17.1
+2.29.2
