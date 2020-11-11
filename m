@@ -1,56 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65316 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731076AbgKPPXz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 16 Nov 2020 10:23:55 -0500
-From: Stefan Haberland <sth@linux.ibm.com>
-Subject: [PATCH 1/1] s390/dasd: fix null pointer dereference for ERP requests
-Date: Mon, 16 Nov 2020 16:23:47 +0100
-Message-Id: <20201116152347.61093-2-sth@linux.ibm.com>
-In-Reply-To: <20201116152347.61093-1-sth@linux.ibm.com>
-References: <20201116152347.61093-1-sth@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52290 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726466AbgKKQXn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 11 Nov 2020 11:23:43 -0500
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A92C0613D4
+        for <linux-s390@vger.kernel.org>; Wed, 11 Nov 2020 08:23:43 -0800 (PST)
+Received: by mail-io1-xd2d.google.com with SMTP id s24so2822648ioj.13
+        for <linux-s390@vger.kernel.org>; Wed, 11 Nov 2020 08:23:43 -0800 (PST)
+Subject: Re: block ioctl cleanups v2
+References: <20201103100018.683694-1-hch@lst.de>
+ <20201111075802.GB23010@lst.de>
+ <92a7c6e5-fe8b-e291-0dce-ecd727262a2e@kernel.dk>
+ <20201111162035.GA23772@lst.de>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <10469de3-10a9-c8b5-8e95-05a014b1c24a@kernel.dk>
+Date: Wed, 11 Nov 2020 09:23:40 -0700
+MIME-Version: 1.0
+In-Reply-To: <20201111162035.GA23772@lst.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
 
-When requeueing all requests on the device request queue to the blocklayer
-we might get to an ERP (error recovery) request that is a copy of an
-original CQR.
+On 11/11/20 9:20 AM, Christoph Hellwig wrote:
+> On Wed, Nov 11, 2020 at 09:13:05AM -0700, Jens Axboe wrote:
+>> On 11/11/20 12:58 AM, Christoph Hellwig wrote:
+>>> Jens, can you take a look and possibly pick this series up?
+>>
+>> Looks good to me - but what is the final resolution on the BLKROSET
+>> propagation?
+> 
+> Do it properly including a hard read only flag.  Martin has an old
+> patch that I'm going to forward port.  For now I think we need to
+> adjust dasd to match the behavior of all drivers, so that we can fix
+> the common code to behave more like dasd in the next step.
 
-Those requests do not have blocklayer request information or a pointer to
-the dasd_queue set. When trying to access those data it will lead to a
-null pointer dereference in dasd_requeue_all_requests().
+I applied the series, so just send something for this on top.
 
-Fix by checking if the request is an ERP request that can simply be
-ignored. The blocklayer request will be requeued by the original CQR that
-is on the device queue right behind the ERP request.
-
-Fixes: 9487cfd3430d ("s390/dasd: fix handling of internal requests")
-
-Cc: <stable@vger.kernel.org> #4.16
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
----
- drivers/s390/block/dasd.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/s390/block/dasd.c b/drivers/s390/block/dasd.c
-index eb17fea8075c..217a7b84abdf 100644
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -2980,6 +2980,12 @@ static int _dasd_requeue_request(struct dasd_ccw_req *cqr)
- 
- 	if (!block)
- 		return -EINVAL;
-+	/*
-+	 * If the request is an ERP request there is nothing to requeue.
-+	 * This will be done with the remaining original request.
-+	 */
-+	if (cqr->refers)
-+		return 0;
- 	spin_lock_irq(&cqr->dq->lock);
- 	req = (struct request *) cqr->callback_data;
- 	blk_mq_requeue_request(req, false);
 -- 
-2.17.1
+Jens Axboe
