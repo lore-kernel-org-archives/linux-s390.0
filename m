@@ -1,8 +1,8 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: YiFei Zhu <zhuyifei1999@gmail.com>
-Subject: [PATCH seccomp v2 4/8] riscv: Enable seccomp architecture tracking
-Date: Wed, 11 Nov 2020 07:33:50 -0600
-Message-Id: <58ef925d00505cbb77478fa6bd2b48ab2d902460.1605101222.git.yifeifz2@illinois.edu>
+Subject: [PATCH seccomp v2 1/8] csky: Enable seccomp architecture tracking
+Date: Wed, 11 Nov 2020 07:33:47 -0600
+Message-Id: <f9219026d4803b22f3e57e3768b4e42e004ef236.1605101222.git.yifeifz2@illinois.edu>
 In-Reply-To: <cover.1605101222.git.yifeifz2@illinois.edu>
 References: <cover.1605101222.git.yifeifz2@illinois.edu>
 MIME-Version: 1.0
@@ -15,31 +15,42 @@ From: YiFei Zhu <yifeifz2@illinois.edu>
 
 To enable seccomp constant action bitmaps, we need to have a static
 mapping to the audit architecture and system call table size. Add these
-for riscv.
+for csky.
 
 Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
 ---
- arch/riscv/include/asm/seccomp.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/csky/include/asm/Kbuild    |  1 -
+ arch/csky/include/asm/seccomp.h | 11 +++++++++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+ create mode 100644 arch/csky/include/asm/seccomp.h
 
-diff --git a/arch/riscv/include/asm/seccomp.h b/arch/riscv/include/asm/seccomp.h
-index bf7744ee3b3d..c7ee6a3507be 100644
---- a/arch/riscv/include/asm/seccomp.h
-+++ b/arch/riscv/include/asm/seccomp.h
-@@ -7,4 +7,14 @@
- 
- #include <asm-generic/seccomp.h>
- 
-+#ifdef CONFIG_64BIT
-+# define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_RISCV64
-+# define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+# define SECCOMP_ARCH_NATIVE_NAME	"riscv64"
-+#else /* !CONFIG_64BIT */
-+# define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_RISCV32
-+# define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+# define SECCOMP_ARCH_NATIVE_NAME	"riscv32"
-+#endif
+diff --git a/arch/csky/include/asm/Kbuild b/arch/csky/include/asm/Kbuild
+index 64876e59e2ef..93372255984d 100644
+--- a/arch/csky/include/asm/Kbuild
++++ b/arch/csky/include/asm/Kbuild
+@@ -4,6 +4,5 @@ generic-y += gpio.h
+ generic-y += kvm_para.h
+ generic-y += local64.h
+ generic-y += qrwlock.h
+-generic-y += seccomp.h
+ generic-y += user.h
+ generic-y += vmlinux.lds.h
+diff --git a/arch/csky/include/asm/seccomp.h b/arch/csky/include/asm/seccomp.h
+new file mode 100644
+index 000000000000..d33e758126fb
+--- /dev/null
++++ b/arch/csky/include/asm/seccomp.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++#ifndef _ASM_SECCOMP_H
++#define _ASM_SECCOMP_H
 +
- #endif /* _ASM_SECCOMP_H */
++#include <asm-generic/seccomp.h>
++
++#define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_CSKY
++#define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
++#define SECCOMP_ARCH_NATIVE_NAME	"csky"
++
++#endif /* _ASM_SECCOMP_H */
 -- 
 2.29.2
