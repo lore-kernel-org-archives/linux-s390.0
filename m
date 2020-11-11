@@ -1,60 +1,41 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 00/15] net/smc: extend diagnostic netlink interface
-Date: Tue,  3 Nov 2020 11:25:16 +0100
-Message-Id: <20201103102531.91710-1-kgraul@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:18716 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725468AbgKKI1A (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 11 Nov 2020 03:27:00 -0500
+Subject: Re: [PATCH] kvm: s390: pv: Mark mm as protected after the set secure
+ parameters and improve cleanup
+References: <20201030140141.106641-1-frankja@linux.ibm.com>
+ <f4381509-bf28-2159-b5a6-7dd9e9ee4816@de.ibm.com>
+ <fbb49f93-0b73-f1b4-1630-6c973058a420@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <fd5a1f1b-1e4f-b9f1-6dc8-a7da90a655fe@de.ibm.com>
+Date: Wed, 11 Nov 2020 09:26:53 +0100
+MIME-Version: 1.0
+In-Reply-To: <fbb49f93-0b73-f1b4-1630-6c973058a420@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: david@redhat.com, thuth@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Please apply the following patch series for smc to netdev's net-next tree.
+On 11.11.20 09:17, Janosch Frank wrote:
+> On 10/30/20 3:23 PM, Christian Borntraeger wrote:
+>> On 30.10.20 15:01, Janosch Frank wrote:
+>>> We can only have protected guest pages after a successful set secure
+>>> parameters call as only then the UV allows imports and unpacks.
+>>>
+>>> By moving the test we can now also check for it in s390_reset_acc()
+>>> and do an early return if it is 0.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>
+>> Can we check this into devel to give it some test coverage?
+> 
+> I think this also lacks:
+> Fixes: 29b40f105ec8 ("KVM: s390: protvirt: Add initial vm and cpu
+> lifecycle handling")
 
-This patch series refactors the current netlink API in smc_diag module
-which is used for diagnostic purposes and extends the netlink API in a
-backward compatible way so that the extended API can provide information
-about SMC linkgroups, links and devices (both for SMC-R and SMC-D) and
-can still work with the legacy netlink API.
-
-Please note that patch 9 triggers a checkpatch warning because a comment
-line was added using the style of the already existing comment block.
-
-v2: in patch 10, add missing include to uapi header smc_diag.h
-
-Guvenc Gulce (14):
-  net/smc: Use active link of the connection
-  net/smc: Add connection counters for links
-  net/smc: Add link counters for IB device ports
-  net/smc: Add diagnostic information to smc ib-device
-  net/smc: Add diagnostic information to link structure
-  net/smc: Refactor the netlink reply processing routine
-  net/smc: Add ability to work with extended SMC netlink API
-  net/smc: Introduce SMCR get linkgroup command
-  net/smc: Introduce SMCR get link command
-  net/smc: Add SMC-D Linkgroup diagnostic support
-  net/smc: Add support for obtaining SMCD device list
-  net/smc: Add support for obtaining SMCR device list
-  net/smc: Refactor smc ism v2 capability handling
-  net/smc: Add support for obtaining system information
-
-Karsten Graul (1):
-  net/smc: use helper smc_conn_abort() in listen processing
-
- include/net/smc.h             |   2 +-
- include/uapi/linux/smc.h      |   8 +
- include/uapi/linux/smc_diag.h | 109 +++++
- net/smc/af_smc.c              |  29 +-
- net/smc/smc.h                 |   5 +-
- net/smc/smc_clc.c             |   6 +
- net/smc/smc_clc.h             |   1 +
- net/smc/smc_core.c            |  32 +-
- net/smc/smc_core.h            |  32 +-
- net/smc/smc_diag.c            | 766 +++++++++++++++++++++++++++++-----
- net/smc/smc_ib.c              |  49 +++
- net/smc/smc_ib.h              |   4 +-
- net/smc/smc_ism.c             |  12 +-
- net/smc/smc_ism.h             |   5 +-
- net/smc/smc_pnet.c            |   3 +
- 15 files changed, 939 insertions(+), 124 deletions(-)
-
--- 
-2.17.1
+Yes, it does. I will schedule for kvm/master.
