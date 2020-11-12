@@ -1,111 +1,246 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728288AbgKBLaK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 06:30:10 -0500
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <20201112003333.887515113@goodmis.org>
+Date: Wed, 11 Nov 2020 19:32:49 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+Subject: [for-next][PATCH 05/17] kprobes/ftrace: Add recursion protection to the ftrace callback
+References: <20201112003244.764326960@goodmis.org>
 MIME-Version: 1.0
-References: <20201031085810.450489-1-hch@lst.de> <20201031085810.450489-6-hch@lst.de>
-In-Reply-To: <20201031085810.450489-6-hch@lst.de>
-From: Ilya Dryomov <idryomov@gmail.com>
-Date: Mon, 2 Nov 2020 12:30:05 +0100
-Message-ID: <CAOi1vP_-GydZpwuR2DWpNmz2N2Wf7MHDbXudLB=t5xuEEq3Y=w@mail.gmail.com>
-Subject: Re: [PATCH 05/11] rbd: implement ->set_read_only to hook into
- BLKROSET processing
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block <linux-block@vger.kernel.org>, Ceph Development <ceph-devel@vger.kernel.org>, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Peter Zijlstra <peterz@infradead.org>, Josh Poimboeuf <jpoimboe@redhat.com>, Jiri Kosina <jikos@kernel.org>, Miroslav Benes <mbenes@suse.cz>, Petr Mladek <pmladek@suse.com>, Guo Ren <guoren@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>
 
-On Sat, Oct 31, 2020 at 10:11 AM Christoph Hellwig <hch@lst.de> wrote:
->
-> Implement the ->set_read_only method instead of parsing the actual
-> ioctl command.
->
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/block/rbd.c | 41 ++++-------------------------------------
->  1 file changed, 4 insertions(+), 37 deletions(-)
->
-> diff --git a/drivers/block/rbd.c b/drivers/block/rbd.c
-> index f84128abade319..37f8fc28004acb 100644
-> --- a/drivers/block/rbd.c
-> +++ b/drivers/block/rbd.c
-> @@ -692,12 +692,9 @@ static void rbd_release(struct gendisk *disk, fmode_t mode)
->         put_device(&rbd_dev->dev);
->  }
->
-> -static int rbd_ioctl_set_ro(struct rbd_device *rbd_dev, unsigned long arg)
-> +static int rbd_set_read_only(struct block_device *bdev, bool ro)
->  {
-> -       int ro;
-> -
-> -       if (get_user(ro, (int __user *)arg))
-> -               return -EFAULT;
-> +       struct rbd_device *rbd_dev = bdev->bd_disk->private_data;
->
->         /*
->          * Both images mapped read-only and snapshots can't be marked
-> @@ -706,47 +703,17 @@ static int rbd_ioctl_set_ro(struct rbd_device *rbd_dev, unsigned long arg)
->         if (!ro) {
->                 if (rbd_is_ro(rbd_dev))
->                         return -EROFS;
-> -
->                 rbd_assert(!rbd_is_snap(rbd_dev));
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-If you repost, please leave this empty line.
+If a ftrace callback does not supply its own recursion protection and
+does not set the RECURSION_SAFE flag in its ftrace_ops, then ftrace will
+make a helper trampoline to do so before calling the callback instead of
+just calling the callback directly.
 
->         }
->
-> -       /* Let blkdev_roset() handle it */
-> -       return -ENOTTY;
-> -}
-> -
-> -static int rbd_ioctl(struct block_device *bdev, fmode_t mode,
-> -                       unsigned int cmd, unsigned long arg)
-> -{
-> -       struct rbd_device *rbd_dev = bdev->bd_disk->private_data;
-> -       int ret;
-> -
-> -       switch (cmd) {
-> -       case BLKROSET:
-> -               ret = rbd_ioctl_set_ro(rbd_dev, arg);
-> -               break;
-> -       default:
-> -               ret = -ENOTTY;
-> -       }
-> -
-> -       return ret;
-> -}
-> -
-> -#ifdef CONFIG_COMPAT
-> -static int rbd_compat_ioctl(struct block_device *bdev, fmode_t mode,
-> -                               unsigned int cmd, unsigned long arg)
-> -{
-> -       return rbd_ioctl(bdev, mode, cmd, arg);
-> +       return 0;
->  }
-> -#endif /* CONFIG_COMPAT */
->
->  static const struct block_device_operations rbd_bd_ops = {
->         .owner                  = THIS_MODULE,
->         .open                   = rbd_open,
->         .release                = rbd_release,
-> -       .ioctl                  = rbd_ioctl,
-> -#ifdef CONFIG_COMPAT
-> -       .compat_ioctl           = rbd_compat_ioctl,
-> -#endif
-> +       .set_read_only          = rbd_set_read_only,
->  };
->
->  /*
-> --
-> 2.28.0
->
+The default for ftrace_ops is going to change. It will expect that handlers
+provide their own recursion protection, unless its ftrace_ops states
+otherwise.
 
-With that nit,
+Link: https://lkml.kernel.org/r/20201028115613.140212174@goodmis.org
+Link: https://lkml.kernel.org/r/20201106023546.944907560@goodmis.org
 
-Acked-by: Ilya Dryomov <idryomov@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Josh  Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Guo Ren <guoren@kernel.org>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: "Naveen N. Rao" <naveen.n.rao@linux.ibm.com>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: linux-csky@vger.kernel.org
+Cc: linux-parisc@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-s390@vger.kernel.org
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ arch/csky/kernel/probes/ftrace.c     | 12 ++++++++++--
+ arch/parisc/kernel/ftrace.c          | 16 +++++++++++++---
+ arch/powerpc/kernel/kprobes-ftrace.c | 11 ++++++++++-
+ arch/s390/kernel/ftrace.c            | 16 +++++++++++++---
+ arch/x86/kernel/kprobes/ftrace.c     | 12 ++++++++++--
+ 5 files changed, 56 insertions(+), 11 deletions(-)
 
-Thanks,
-
-                Ilya
+diff --git a/arch/csky/kernel/probes/ftrace.c b/arch/csky/kernel/probes/ftrace.c
+index 5264763d05be..5eb2604fdf71 100644
+--- a/arch/csky/kernel/probes/ftrace.c
++++ b/arch/csky/kernel/probes/ftrace.c
+@@ -13,16 +13,21 @@ int arch_check_ftrace_location(struct kprobe *p)
+ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 			   struct ftrace_ops *ops, struct pt_regs *regs)
+ {
++	int bit;
+ 	bool lr_saver = false;
+ 	struct kprobe *p;
+ 	struct kprobe_ctlblk *kcb;
+ 
+-	/* Preempt is disabled by ftrace */
++	bit = ftrace_test_recursion_trylock();
++	if (bit < 0)
++		return;
++
++	preempt_disable_notrace();
+ 	p = get_kprobe((kprobe_opcode_t *)ip);
+ 	if (!p) {
+ 		p = get_kprobe((kprobe_opcode_t *)(ip - MCOUNT_INSN_SIZE));
+ 		if (unlikely(!p) || kprobe_disabled(p))
+-			return;
++			goto out;
+ 		lr_saver = true;
+ 	}
+ 
+@@ -56,6 +61,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 		 */
+ 		__this_cpu_write(current_kprobe, NULL);
+ 	}
++out:
++	preempt_enable_notrace();
++	ftrace_test_recursion_unlock(bit);
+ }
+ NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+ 
+diff --git a/arch/parisc/kernel/ftrace.c b/arch/parisc/kernel/ftrace.c
+index 63e3ecb9da81..13d85042810a 100644
+--- a/arch/parisc/kernel/ftrace.c
++++ b/arch/parisc/kernel/ftrace.c
+@@ -207,14 +207,21 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 			   struct ftrace_ops *ops, struct pt_regs *regs)
+ {
+ 	struct kprobe_ctlblk *kcb;
+-	struct kprobe *p = get_kprobe((kprobe_opcode_t *)ip);
++	struct kprobe *p;
++	int bit;
+ 
+-	if (unlikely(!p) || kprobe_disabled(p))
++	bit = ftrace_test_recursion_trylock();
++	if (bit < 0)
+ 		return;
+ 
++	preempt_disable_notrace();
++	p = get_kprobe((kprobe_opcode_t *)ip);
++	if (unlikely(!p) || kprobe_disabled(p))
++		goto out;
++
+ 	if (kprobe_running()) {
+ 		kprobes_inc_nmissed_count(p);
+-		return;
++		goto out;
+ 	}
+ 
+ 	__this_cpu_write(current_kprobe, p);
+@@ -235,6 +242,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 		}
+ 	}
+ 	__this_cpu_write(current_kprobe, NULL);
++out:
++	preempt_enable_notrace();
++	ftrace_test_recursion_unlock(bit);
+ }
+ NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+ 
+diff --git a/arch/powerpc/kernel/kprobes-ftrace.c b/arch/powerpc/kernel/kprobes-ftrace.c
+index 972cb28174b2..5df8d50c65ae 100644
+--- a/arch/powerpc/kernel/kprobes-ftrace.c
++++ b/arch/powerpc/kernel/kprobes-ftrace.c
+@@ -18,10 +18,16 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
+ {
+ 	struct kprobe *p;
+ 	struct kprobe_ctlblk *kcb;
++	int bit;
+ 
++	bit = ftrace_test_recursion_trylock();
++	if (bit < 0)
++		return;
++
++	preempt_disable_notrace();
+ 	p = get_kprobe((kprobe_opcode_t *)nip);
+ 	if (unlikely(!p) || kprobe_disabled(p))
+-		return;
++		goto out;
+ 
+ 	kcb = get_kprobe_ctlblk();
+ 	if (kprobe_running()) {
+@@ -52,6 +58,9 @@ void kprobe_ftrace_handler(unsigned long nip, unsigned long parent_nip,
+ 		 */
+ 		__this_cpu_write(current_kprobe, NULL);
+ 	}
++out:
++	preempt_enable_notrace();
++	ftrace_test_recursion_unlock(bit);
+ }
+ NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+ 
+diff --git a/arch/s390/kernel/ftrace.c b/arch/s390/kernel/ftrace.c
+index b388e87a08bf..8f31c726537a 100644
+--- a/arch/s390/kernel/ftrace.c
++++ b/arch/s390/kernel/ftrace.c
+@@ -201,14 +201,21 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 		struct ftrace_ops *ops, struct pt_regs *regs)
+ {
+ 	struct kprobe_ctlblk *kcb;
+-	struct kprobe *p = get_kprobe((kprobe_opcode_t *)ip);
++	struct kprobe *p;
++	int bit;
+ 
+-	if (unlikely(!p) || kprobe_disabled(p))
++	bit = ftrace_test_recursion_trylock();
++	if (bit < 0)
+ 		return;
+ 
++	preempt_disable_notrace();
++	p = get_kprobe((kprobe_opcode_t *)ip);
++	if (unlikely(!p) || kprobe_disabled(p))
++		goto out;
++
+ 	if (kprobe_running()) {
+ 		kprobes_inc_nmissed_count(p);
+-		return;
++		goto out;
+ 	}
+ 
+ 	__this_cpu_write(current_kprobe, p);
+@@ -228,6 +235,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 		}
+ 	}
+ 	__this_cpu_write(current_kprobe, NULL);
++out:
++	preempt_enable_notrace();
++	ftrace_test_recursion_unlock(bit);
+ }
+ NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+ 
+diff --git a/arch/x86/kernel/kprobes/ftrace.c b/arch/x86/kernel/kprobes/ftrace.c
+index 681a4b36e9bb..a40a6cdfcca3 100644
+--- a/arch/x86/kernel/kprobes/ftrace.c
++++ b/arch/x86/kernel/kprobes/ftrace.c
+@@ -18,11 +18,16 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ {
+ 	struct kprobe *p;
+ 	struct kprobe_ctlblk *kcb;
++	int bit;
+ 
+-	/* Preempt is disabled by ftrace */
++	bit = ftrace_test_recursion_trylock();
++	if (bit < 0)
++		return;
++
++	preempt_disable_notrace();
+ 	p = get_kprobe((kprobe_opcode_t *)ip);
+ 	if (unlikely(!p) || kprobe_disabled(p))
+-		return;
++		goto out;
+ 
+ 	kcb = get_kprobe_ctlblk();
+ 	if (kprobe_running()) {
+@@ -52,6 +57,9 @@ void kprobe_ftrace_handler(unsigned long ip, unsigned long parent_ip,
+ 		 */
+ 		__this_cpu_write(current_kprobe, NULL);
+ 	}
++out:
++	preempt_enable_notrace();
++	ftrace_test_recursion_unlock(bit);
+ }
+ NOKPROBE_SYMBOL(kprobe_ftrace_handler);
+ 
+-- 
+2.28.0
