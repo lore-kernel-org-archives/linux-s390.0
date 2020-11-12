@@ -1,57 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:8232 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20554 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404038AbgKXRvM (ORCPT
+        by vger.kernel.org with ESMTP id S1727646AbgKLN1h (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 12:51:12 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v5 02/14] net/smc: Use active link of the connection
-Date: Tue, 24 Nov 2020 18:50:35 +0100
-Message-Id: <20201124175047.56949-3-kgraul@linux.ibm.com>
-In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
-References: <20201124175047.56949-1-kgraul@linux.ibm.com>
+        Thu, 12 Nov 2020 08:27:37 -0500
+Subject: Re: [PATCH v2 00/10] DASD FC endpoint security
+References: <20201008131336.61100-1-sth@linux.ibm.com>
+ <20201012183550.GA12341@imap.linux.ibm.com>
+ <07b0f296-e0b2-1383-56a1-0d5411c101da@kernel.dk>
+ <b5038d44-aa46-bbde-7a9f-0de46fed516a@linux.ibm.com>
+ <17e1142c-4108-6f74-971a-dee007162786@kernel.dk>
+ <ad3caaf7-ed8e-9f21-c3a6-c385139feb7b@linux.ibm.com>
+ <6468cfad-e14c-060d-a525-00d75fe66819@kernel.dk>
+ <30740ed3-21b9-71cd-b48c-1d6947c6f029@linux.ibm.com>
+ <be2933c0-4827-ab38-872f-01cb02e44fc4@kernel.dk>
+From: Stefan Haberland <sth@linux.ibm.com>
+Message-ID: <cb795828-48db-570b-e04d-cc1da6a87c95@linux.ibm.com>
+Date: Thu, 12 Nov 2020 14:27:30 +0100
+MIME-Version: 1.0
+In-Reply-To: <be2933c0-4827-ab38-872f-01cb02e44fc4@kernel.dk>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Am 11.11.20 um 17:20 schrieb Jens Axboe:
+> On 11/10/20 8:50 AM, Stefan Haberland wrote:
+>> Am 14.10.20 um 03:19 schrieb Jens Axboe:
+>>>> So, instead could you please apply the patches for 5.11 as soon as it is
+>>>> suitable?
+>>> I will - I have it queued up, won't create anything public until we
+>>> get past the merge window.
+>>>
+>> Sorry to bother you again with this.
+>> Is there any outlook when you are going to push the patches to your
+>> for-next branch?
+>>
+>> Or shall I resend the patches?
+> I already did apply it, just don't push out next release branches
+> that early. Pushed out now, so it is in.
+>
 
-Use active link of the connection directly and not
-via linkgroup array structure when obtaining link
-data of the connection.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_diag.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index f15fca59b4b2..c2225231f679 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -160,17 +160,17 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_diag_lgrinfo linfo = {
- 			.role = smc->conn.lgr->role,
--			.lnk[0].ibport = smc->conn.lgr->lnk[0].ibport,
--			.lnk[0].link_id = smc->conn.lgr->lnk[0].link_id,
-+			.lnk[0].ibport = smc->conn.lnk->ibport,
-+			.lnk[0].link_id = smc->conn.lnk->link_id,
- 		};
- 
- 		memcpy(linfo.lnk[0].ibname,
- 		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
--		       sizeof(smc->conn.lgr->lnk[0].smcibdev->ibdev->name));
-+		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
- 		smc_gid_be16_convert(linfo.lnk[0].gid,
--				     smc->conn.lgr->lnk[0].gid);
-+				     smc->conn.lnk->gid);
- 		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
--				     smc->conn.lgr->lnk[0].peer_gid);
-+				     smc->conn.lnk->peer_gid);
- 
- 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
- 			goto errout;
--- 
-2.17.1
+Thanks a lot.
