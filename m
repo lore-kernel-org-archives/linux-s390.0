@@ -1,293 +1,100 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24512 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54890 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404101AbgKXRvP (ORCPT
+        by vger.kernel.org with ESMTP id S1725981AbgKMVGe (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 12:51:15 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v5 11/14] net/smc: Introduce SMCR get link command
-Date: Tue, 24 Nov 2020 18:50:44 +0100
-Message-Id: <20201124175047.56949-12-kgraul@linux.ibm.com>
-In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
-References: <20201124175047.56949-1-kgraul@linux.ibm.com>
+        Fri, 13 Nov 2020 16:06:34 -0500
+Subject: Re: [PATCH v11 12/14] s390/vfio-ap: handle host AP config change
+ notification
+References: <20201022171209.19494-13-akrowiak@linux.ibm.com>
+ <202011031740.6Uu0Z5yG-lkp@intel.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <7507e3aa-699b-05a7-1a45-d9c0b8a40003@linux.ibm.com>
+Date: Fri, 13 Nov 2020 16:06:27 -0500
+MIME-Version: 1.0
+In-Reply-To: <202011031740.6Uu0Z5yG-lkp@intel.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: kernel test robot <lkp@intel.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: kbuild-all@lists.01.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Fixed the errors.
 
-Introduce get link command which loops through
-all available links of all available link groups. It
-uses the SMC-R linkgroup list as entry point, not
-the socket list, which makes linkgroup diagnosis
-possible, in case linkgroup does not contain active
-connections anymore.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- include/uapi/linux/smc.h | 18 ++++++++
- net/smc/smc_core.c       | 92 +++++++++++++++++++++++++++++++++++++---
- net/smc/smc_core.h       | 14 ++++++
- net/smc/smc_diag.c       | 13 ------
- net/smc/smc_netlink.c    |  7 +++
- 5 files changed, 126 insertions(+), 18 deletions(-)
-
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 3ae8ca4e5256..ed638dbfff08 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -41,6 +41,7 @@ enum {				/* SMC PNET Table commands */
- enum {
- 	SMC_NETLINK_GET_SYS_INFO = 1,
- 	SMC_NETLINK_GET_LGR_SMCR,
-+	SMC_NETLINK_GET_LINK_SMCR,
- };
- 
- /* SMC_GENL_FAMILY top level attributes */
-@@ -48,6 +49,7 @@ enum {
- 	SMC_GEN_UNSPEC,
- 	SMC_GEN_SYS_INFO,		/* nest */
- 	SMC_GEN_LGR_SMCR,		/* nest */
-+	SMC_GEN_LINK_SMCR,		/* nest */
- 	__SMC_GEN_MAX,
- 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
- };
-@@ -77,4 +79,20 @@ enum {
- 	SMC_NLA_LGR_R_MAX = __SMC_NLA_LGR_R_MAX - 1
- };
- 
-+/* SMC_GEN_LINK_SMCR attributes */
-+enum {
-+	SMC_NLA_LINK_UNSPEC,
-+	SMC_NLA_LINK_ID,		/* u8 */
-+	SMC_NLA_LINK_IB_DEV,		/* string */
-+	SMC_NLA_LINK_IB_PORT,		/* u8 */
-+	SMC_NLA_LINK_GID,		/* string */
-+	SMC_NLA_LINK_PEER_GID,		/* string */
-+	SMC_NLA_LINK_CONN_CNT,		/* u32 */
-+	SMC_NLA_LINK_NET_DEV,		/* u32 */
-+	SMC_NLA_LINK_UID,		/* u32 */
-+	SMC_NLA_LINK_PEER_UID,		/* u32 */
-+	SMC_NLA_LINK_STATE,		/* u32 */
-+	__SMC_NLA_LINK_MAX,
-+	SMC_NLA_LINK_MAX = __SMC_NLA_LINK_MAX - 1
-+};
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 02ad03fd1108..1273fb29c365 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -312,11 +312,73 @@ static int smc_nl_fill_lgr(struct smc_link_group *lgr,
- 	return -EMSGSIZE;
- }
- 
-+static int smc_nl_fill_lgr_link(struct smc_link_group *lgr,
-+				struct smc_link *link,
-+				struct sk_buff *skb,
-+				struct netlink_callback *cb)
-+{
-+	char smc_ibname[IB_DEVICE_NAME_MAX + 1];
-+	u8 smc_gid_target[40];
-+	struct nlattr *attrs;
-+	u32 link_uid = 0;
-+	void *nlh;
-+
-+	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-+			  &smc_gen_nl_family, NLM_F_MULTI,
-+			  SMC_NETLINK_GET_LINK_SMCR);
-+	if (!nlh)
-+		goto errout;
-+
-+	attrs = nla_nest_start_noflag(skb, SMC_GEN_LINK_SMCR);
-+	if (!attrs)
-+		goto errout;
-+
-+	if (nla_put_u8(skb, SMC_NLA_LINK_ID, link->link_id) < 0)
-+		goto errattr;
-+	if (nla_put_u32(skb, SMC_NLA_LINK_STATE, link->state) < 0)
-+		goto errattr;
-+	if (nla_put_u32(skb, SMC_NLA_LINK_CONN_CNT,
-+			atomic_read(&link->conn_cnt)) < 0)
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_LINK_IB_PORT, link->ibport) < 0)
-+		goto errattr;
-+	if (nla_put_u32(skb, SMC_NLA_LINK_NET_DEV, link->ndev_ifidx) < 0)
-+		goto errattr;
-+	memset(smc_ibname, 0, sizeof(smc_ibname));
-+	snprintf(smc_ibname, sizeof(smc_ibname), "%s", link->ibname);
-+	if (nla_put_string(skb, SMC_NLA_LINK_IB_DEV, smc_ibname) < 0)
-+		goto errattr;
-+	memcpy(&link_uid, link->link_uid, sizeof(link_uid));
-+	if (nla_put_u32(skb, SMC_NLA_LINK_UID, link_uid) < 0)
-+		goto errattr;
-+	memcpy(&link_uid, link->peer_link_uid, sizeof(link_uid));
-+	if (nla_put_u32(skb, SMC_NLA_LINK_PEER_UID, link_uid) < 0)
-+		goto errattr;
-+	memset(smc_gid_target, 0, sizeof(smc_gid_target));
-+	smc_gid_be16_convert(smc_gid_target, link->gid);
-+	if (nla_put_string(skb, SMC_NLA_LINK_GID, smc_gid_target) < 0)
-+		goto errattr;
-+	memset(smc_gid_target, 0, sizeof(smc_gid_target));
-+	smc_gid_be16_convert(smc_gid_target, link->peer_gid);
-+	if (nla_put_string(skb, SMC_NLA_LINK_PEER_GID, smc_gid_target) < 0)
-+		goto errattr;
-+
-+	nla_nest_end(skb, attrs);
-+	genlmsg_end(skb, nlh);
-+	return 0;
-+errattr:
-+	nla_nest_cancel(skb, attrs);
-+errout:
-+	genlmsg_cancel(skb, nlh);
-+	return -EMSGSIZE;
-+}
-+
- static int smc_nl_handle_lgr(struct smc_link_group *lgr,
- 			     struct sk_buff *skb,
--			     struct netlink_callback *cb)
-+			     struct netlink_callback *cb,
-+			     bool list_links)
- {
--	int rc = 0;
-+	int i, rc = 0;
- 	void *nlh;
- 
- 	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-@@ -329,6 +391,15 @@ static int smc_nl_handle_lgr(struct smc_link_group *lgr,
- 		goto errout;
- 
- 	genlmsg_end(skb, nlh);
-+	if (!list_links)
-+		return rc;
-+	for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+		if (!smc_link_usable(&lgr->lnk[i]))
-+			continue;
-+		rc = smc_nl_fill_lgr_link(lgr, &lgr->lnk[i], skb, cb);
-+		if (rc < 0)
-+			goto errout;
-+	}
- 	return rc;
- 
- errout:
-@@ -338,7 +409,8 @@ static int smc_nl_handle_lgr(struct smc_link_group *lgr,
- 
- static void smc_nl_fill_lgr_list(struct smc_lgr_list *smc_lgr,
- 				 struct sk_buff *skb,
--				 struct netlink_callback *cb)
-+				 struct netlink_callback *cb,
-+				 bool list_links)
- {
- 	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
- 	struct smc_link_group *lgr;
-@@ -349,7 +421,7 @@ static void smc_nl_fill_lgr_list(struct smc_lgr_list *smc_lgr,
- 	list_for_each_entry(lgr, &smc_lgr->list, list) {
- 		if (num < snum)
- 			goto next;
--		if (smc_nl_handle_lgr(lgr, skb, cb) < 0)
-+		if (smc_nl_handle_lgr(lgr, skb, cb, list_links) < 0)
- 			goto errout;
- next:
- 		num++;
-@@ -361,7 +433,17 @@ static void smc_nl_fill_lgr_list(struct smc_lgr_list *smc_lgr,
- 
- int smcr_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
- {
--	smc_nl_fill_lgr_list(&smc_lgr_list, skb, cb);
-+	bool list_links = false;
-+
-+	smc_nl_fill_lgr_list(&smc_lgr_list, skb, cb, list_links);
-+	return skb->len;
-+}
-+
-+int smcr_nl_get_link(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	bool list_links = true;
-+
-+	smc_nl_fill_lgr_list(&smc_lgr_list, skb, cb, list_links);
- 	return skb->len;
- }
- 
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 662315beb605..7995621f318d 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -367,6 +367,19 @@ static inline bool smc_link_active(struct smc_link *lnk)
- 	return lnk->state == SMC_LNK_ACTIVE;
- }
- 
-+static inline void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
-+{
-+	sprintf(buf, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
-+		be16_to_cpu(((__be16 *)gid_raw)[0]),
-+		be16_to_cpu(((__be16 *)gid_raw)[1]),
-+		be16_to_cpu(((__be16 *)gid_raw)[2]),
-+		be16_to_cpu(((__be16 *)gid_raw)[3]),
-+		be16_to_cpu(((__be16 *)gid_raw)[4]),
-+		be16_to_cpu(((__be16 *)gid_raw)[5]),
-+		be16_to_cpu(((__be16 *)gid_raw)[6]),
-+		be16_to_cpu(((__be16 *)gid_raw)[7]));
-+}
-+
- struct smc_sock;
- struct smc_clc_msg_accept_confirm;
- struct smc_clc_msg_local;
-@@ -416,6 +429,7 @@ void smcr_link_down_cond(struct smc_link *lnk);
- void smcr_link_down_cond_sched(struct smc_link *lnk);
- int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb);
- int smcr_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb);
-+int smcr_nl_get_link(struct sk_buff *skb, struct netlink_callback *cb);
- 
- static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
- {
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index c2225231f679..c952986a6aca 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -31,19 +31,6 @@ static struct smc_diag_dump_ctx *smc_dump_context(struct netlink_callback *cb)
- 	return (struct smc_diag_dump_ctx *)cb->ctx;
- }
- 
--static void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
--{
--	sprintf(buf, "%04x:%04x:%04x:%04x:%04x:%04x:%04x:%04x",
--		be16_to_cpu(((__be16 *)gid_raw)[0]),
--		be16_to_cpu(((__be16 *)gid_raw)[1]),
--		be16_to_cpu(((__be16 *)gid_raw)[2]),
--		be16_to_cpu(((__be16 *)gid_raw)[3]),
--		be16_to_cpu(((__be16 *)gid_raw)[4]),
--		be16_to_cpu(((__be16 *)gid_raw)[5]),
--		be16_to_cpu(((__be16 *)gid_raw)[6]),
--		be16_to_cpu(((__be16 *)gid_raw)[7]));
--}
--
- static void smc_diag_msg_common_fill(struct smc_diag_msg *r, struct sock *sk)
- {
- 	struct smc_sock *smc = smc_sk(sk);
-diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-index 925fbd59b91a..9000d6a3b625 100644
---- a/net/smc/smc_netlink.c
-+++ b/net/smc/smc_netlink.c
-@@ -23,6 +23,7 @@ static const struct nla_policy smc_gen_nl_policy[SMC_GEN_MAX + 1] = {
- 	[SMC_GEN_UNSPEC]	= { .type = NLA_UNSPEC, },
- 	[SMC_GEN_SYS_INFO]	= { .type = NLA_NESTED, },
- 	[SMC_GEN_LGR_SMCR]	= { .type = NLA_NESTED, },
-+	[SMC_GEN_LINK_SMCR]	= { .type = NLA_NESTED, },
- };
- 
- static int smc_nl_start(struct netlink_callback *cb)
-@@ -47,6 +48,12 @@ static const struct genl_ops smc_gen_nl_ops[] = {
- 		.dumpit = smcr_nl_get_lgr,
- 		.start = smc_nl_start
- 	},
-+	{
-+		.cmd = SMC_NETLINK_GET_LINK_SMCR,
-+		/* can be retrieved by unprivileged users */
-+		.dumpit = smcr_nl_get_link,
-+		.start = smc_nl_start
-+	},
- };
- 
- /* SMC_GENL family definition */
--- 
-2.17.1
+On 11/3/20 4:48 AM, kernel test robot wrote:
+> Hi Tony,
+>
+> I love your patch! Yet something to improve:
+>
+> [auto build test ERROR on s390/features]
+> [also build test ERROR on linus/master v5.10-rc2 next-20201103]
+> [cannot apply to kvms390/next linux/master]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch]
+>
+> url:    https://github.com/0day-ci/linux/commits/Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20201023-011543
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git features
+> config: s390-allmodconfig (attached as .config)
+> compiler: s390-linux-gcc (GCC) 9.3.0
+> reproduce (this is a W=1 build):
+>          wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>          chmod +x ~/bin/make.cross
+>          # https://github.com/0day-ci/linux/commit/32786ef6d4ba3703d993a8894ea1d763785fd3a4
+>          git remote add linux-review https://github.com/0day-ci/linux
+>          git fetch --no-tags linux-review Tony-Krowiak/s390-vfio-ap-dynamic-configuration-support/20201023-011543
+>          git checkout 32786ef6d4ba3703d993a8894ea1d763785fd3a4
+>          # save the attached .config to linux build tree
+>          COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=s390
+>
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+>
+> All errors (new ones prefixed by >>):
+>
+>     drivers/s390/crypto/vfio_ap_ops.c:1316:5: warning: no previous prototype for 'vfio_ap_mdev_reset_queue' [-Wmissing-prototypes]
+>      1316 | int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+>           |     ^~~~~~~~~~~~~~~~~~~~~~~~
+>     drivers/s390/crypto/vfio_ap_ops.c:1568:6: warning: no previous prototype for 'vfio_ap_mdev_hot_unplug_queue' [-Wmissing-prototypes]
+>      1568 | void vfio_ap_mdev_hot_unplug_queue(struct vfio_ap_queue *q)
+>           |      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>     drivers/s390/crypto/vfio_ap_ops.c: In function 'vfio_ap_mdev_on_cfg_remove':
+>     drivers/s390/crypto/vfio_ap_ops.c:1777:7: warning: variable 'unassigned' set but not used [-Wunused-but-set-variable]
+>      1777 |  bool unassigned = false;
+>           |       ^~~~~~~~~~
+>     drivers/s390/crypto/vfio_ap_ops.c: At top level:
+>     drivers/s390/crypto/vfio_ap_ops.c:1813:6: warning: no previous prototype for 'vfio_ap_mdev_on_cfg_add' [-Wmissing-prototypes]
+>      1813 | void vfio_ap_mdev_on_cfg_add(void)
+>           |      ^~~~~~~~~~~~~~~~~~~~~~~
+>     In file included from drivers/s390/crypto/vfio_ap_ops.c:11:
+>     In function 'memcpy',
+>         inlined from 'vfio_ap_mdev_unassign_apids' at drivers/s390/crypto/vfio_ap_ops.c:1655:3,
+>         inlined from 'vfio_ap_mdev_on_cfg_remove' at drivers/s390/crypto/vfio_ap_ops.c:1800:8,
+>         inlined from 'vfio_ap_on_cfg_changed' at drivers/s390/crypto/vfio_ap_ops.c:1836:2:
+>>> include/linux/string.h:402:4: error: call to '__read_overflow2' declared with attribute error: detected read beyond size of object passed as 2nd parameter
+>       402 |    __read_overflow2();
+>           |    ^~~~~~~~~~~~~~~~~~
+>
+> vim +/__read_overflow2 +402 include/linux/string.h
+>
+> 6974f0c4555e285 Daniel Micay  2017-07-12  393
+> 6974f0c4555e285 Daniel Micay  2017-07-12  394  __FORTIFY_INLINE void *memcpy(void *p, const void *q, __kernel_size_t size)
+> 6974f0c4555e285 Daniel Micay  2017-07-12  395  {
+> 6974f0c4555e285 Daniel Micay  2017-07-12  396  	size_t p_size = __builtin_object_size(p, 0);
+> 6974f0c4555e285 Daniel Micay  2017-07-12  397  	size_t q_size = __builtin_object_size(q, 0);
+> 6974f0c4555e285 Daniel Micay  2017-07-12  398  	if (__builtin_constant_p(size)) {
+> 6974f0c4555e285 Daniel Micay  2017-07-12  399  		if (p_size < size)
+> 6974f0c4555e285 Daniel Micay  2017-07-12  400  			__write_overflow();
+> 6974f0c4555e285 Daniel Micay  2017-07-12  401  		if (q_size < size)
+> 6974f0c4555e285 Daniel Micay  2017-07-12 @402  			__read_overflow2();
+> 6974f0c4555e285 Daniel Micay  2017-07-12  403  	}
+> 6974f0c4555e285 Daniel Micay  2017-07-12  404  	if (p_size < size || q_size < size)
+> 6974f0c4555e285 Daniel Micay  2017-07-12  405  		fortify_panic(__func__);
+> 47227d27e2fcb01 Daniel Axtens 2020-06-03  406  	return __underlying_memcpy(p, q, size);
+> 6974f0c4555e285 Daniel Micay  2017-07-12  407  }
+> 6974f0c4555e285 Daniel Micay  2017-07-12  408
+>
+> ---
+> 0-DAY CI Kernel Test Service, Intel Corporation
+> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
