@@ -1,239 +1,143 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4998 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:61500 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727950AbgKGNAT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Nov 2020 08:00:19 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v3 12/15] net/smc: Add support for obtaining SMCD device list
-Date: Sat,  7 Nov 2020 13:59:55 +0100
-Message-Id: <20201107125958.16384-13-kgraul@linux.ibm.com>
-In-Reply-To: <20201107125958.16384-1-kgraul@linux.ibm.com>
-References: <20201107125958.16384-1-kgraul@linux.ibm.com>
+        by vger.kernel.org with ESMTP id S1726210AbgKPMEg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 16 Nov 2020 07:04:36 -0500
+Subject: Re: [PATCH v4 04/27] s390: fix kernel-doc markups
+From: Vineeth Vijayan <vneethv@linux.vnet.ibm.com>
+References: <cover.1605521731.git.mchehab+huawei@kernel.org>
+ <4a9df42dfb68aed6b4a4882f6dccabf00ce932cd.1605521731.git.mchehab+huawei@kernel.org>
+ <358a9d80-da01-5d91-71d8-57f453ca8617@linux.vnet.ibm.com>
+Message-ID: <77b297ff-a5ee-9ba5-54d0-1930a78bd6e5@linux.vnet.ibm.com>
+Date: Mon, 16 Nov 2020 13:04:27 +0100
+MIME-Version: 1.0
+In-Reply-To: <358a9d80-da01-5d91-71d8-57f453ca8617@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Jonathan Corbet <corbet@lwn.net>, Alexander Egorenkov <egorenar@linux.ibm.com>, Alexandra Winter <wintera@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Heiko/Vasily will pick this up and will be part of the s390-tree patchset.
 
-Deliver SMCD device information via netlink based
-diagnostic interface.
+Regards
+Vineeth
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- include/uapi/linux/smc.h      |  2 +
- include/uapi/linux/smc_diag.h | 20 +++++++++
- net/smc/smc_core.h            | 27 +++++++++++++
- net/smc/smc_diag.c            | 76 +++++++++++++++++++++++++++++++++++
- net/smc/smc_ib.h              |  1 -
- 5 files changed, 125 insertions(+), 1 deletion(-)
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 635e2c2aeac5..736e8b98c8a5 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -38,4 +38,6 @@ enum {				/* SMC PNET Table commands */
- #define SMC_LGR_ID_SIZE			4
- #define SMC_MAX_HOSTNAME_LEN		32 /* Max length of hostname */
- #define SMC_MAX_EID_LEN			32 /* Max length of eid */
-+#define SMC_MAX_PORTS			2 /* Max # of ports per ib device */
-+#define SMC_PCI_ID_STR_LEN		16 /* Max length of pci id string */
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
-index 5a80172df757..ab8f76bdd1a4 100644
---- a/include/uapi/linux/smc_diag.h
-+++ b/include/uapi/linux/smc_diag.h
-@@ -74,6 +74,7 @@ enum {
- /* V2 Commands */
- enum {
- 	SMC_DIAG_GET_LGR_INFO = SMC_DIAG_EXTS_PER_CMD,
-+	SMC_DIAG_GET_DEV_INFO,
- 	__SMC_DIAG_EXT_MAX,
- };
- 
-@@ -84,6 +85,11 @@ enum {
- 	SMC_DIAG_LGR_INFO_SMCD,
- };
- 
-+/* SMC_DIAG_GET_DEV_INFO command extensions */
-+enum {
-+	SMC_DIAG_DEV_INFO_SMCD = 1,
-+};
-+
- #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
- #define SMC_DIAG_EXT_MAX (__SMC_DIAG_EXT_MAX - 1)
- 
-@@ -164,6 +170,20 @@ struct smcd_diag_dmbinfo {		/* SMC-D Socket internals */
- 	struct smc_diag_v2_lgr_info v2_lgr_info; /* SMCv2 info */
- };
- 
-+struct smc_diag_dev_info {
-+	/* Pnet ID per device port */
-+	__u8		pnet_id[SMC_MAX_PORTS][SMC_MAX_PNETID_LEN];
-+	/* whether pnetid is set by user */
-+	__u8		pnetid_by_user[SMC_MAX_PORTS];
-+	__u32		use_cnt;		/* Number of linkgroups */
-+	__u8		is_critical;		/* Is device critical */
-+	__u32		pci_fid;		/* PCI FID */
-+	__u16		pci_pchid;		/* PCI CHID */
-+	__u16		pci_vendor;		/* PCI Vendor */
-+	__u16		pci_device;		/* PCI Device Vendor ID */
-+	__u8		pci_id[SMC_PCI_ID_STR_LEN]; /* PCI ID */
-+};
-+
- struct smc_diag_lgr {
- 	__u8		lgr_id[SMC_LGR_ID_SIZE]; /* Linkgroup identifier */
- 	__u8		lgr_role;		/* Linkgroup role */
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index a705a67d6a39..19680fc6aeeb 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -13,6 +13,7 @@
- #define _SMC_CORE_H
- 
- #include <linux/atomic.h>
-+#include <linux/pci.h>
- #include <rdma/ib_verbs.h>
- 
- #include "smc.h"
-@@ -383,6 +384,32 @@ static inline void smc_ibdev_cnt_dec(struct smc_link *lnk)
- 	atomic_dec(&lnk->smcibdev->lnk_cnt_by_port[lnk->ibport - 1]);
- }
- 
-+struct smc_pci_dev {
-+	__u32		pci_fid;
-+	__u16		pci_pchid;
-+	__u16		pci_vendor;
-+	__u16		pci_device;
-+	__u8		pci_id[SMC_PCI_ID_STR_LEN];
-+};
-+
-+static inline void smc_set_pci_values(struct pci_dev *pci_dev,
-+				      struct smc_pci_dev *smc_dev)
-+{
-+	smc_dev->pci_vendor = pci_dev->vendor;
-+	smc_dev->pci_device = pci_dev->device;
-+	snprintf(smc_dev->pci_id, sizeof(smc_dev->pci_id), "%s",
-+		 pci_name(pci_dev));
-+#if IS_ENABLED(CONFIG_S390)
-+	{
-+	struct zpci_dev *zdev;
-+
-+	zdev = to_zpci(pci_dev);
-+	smc_dev->pci_fid = zdev->fid;
-+	smc_dev->pci_pchid = zdev->pchid;
-+	}
-+#endif
-+}
-+
- struct smc_sock;
- struct smc_clc_msg_accept_confirm;
- struct smc_clc_msg_local;
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index a644e2299dbc..69e2a6a2b657 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -450,6 +450,78 @@ static int smc_diag_fill_smcd_dev(struct smcd_dev_list *dev_list,
- 	return rc;
- }
- 
-+static int smc_diag_handle_smcd_dev(struct smcd_dev *smcd,
-+				    struct sk_buff *skb,
-+				    struct netlink_callback *cb,
-+				    struct smc_diag_req_v2 *req)
-+{
-+	struct smc_diag_dev_info smc_diag_dev;
-+	struct smc_pci_dev smc_pci_dev;
-+	struct nlmsghdr *nlh;
-+	int dummy = 0;
-+	int rc = 0;
-+
-+	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
-+			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
-+	if (!nlh)
-+		return -EMSGSIZE;
-+
-+	memset(&smc_diag_dev, 0, sizeof(smc_diag_dev));
-+	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
-+	smc_diag_dev.use_cnt = atomic_read(&smcd->lgr_cnt);
-+	smc_diag_dev.is_critical = (smc_diag_dev.use_cnt > 0);
-+	smc_diag_dev.pnetid_by_user[0] = smcd->pnetid_by_user;
-+	smc_set_pci_values(to_pci_dev(smcd->dev.parent), &smc_pci_dev);
-+	smc_diag_dev.pci_device = smc_pci_dev.pci_device;
-+	smc_diag_dev.pci_fid = smc_pci_dev.pci_fid;
-+	smc_diag_dev.pci_pchid = smc_pci_dev.pci_pchid;
-+	smc_diag_dev.pci_vendor = smc_pci_dev.pci_vendor;
-+	snprintf(smc_diag_dev.pci_id, sizeof(smc_diag_dev.pci_id), "%s",
-+		 smc_pci_dev.pci_id);
-+	snprintf((char *)&smc_diag_dev.pnet_id[0],
-+		 sizeof(smc_diag_dev.pnet_id[0]), "%s", smcd->pnetid);
-+	/* Just a command place holder to signal back the command reply type */
-+	if (nla_put(skb, SMC_DIAG_GET_DEV_INFO, sizeof(dummy), &dummy) < 0)
-+		goto errout;
-+
-+	if (nla_put(skb, SMC_DIAG_DEV_INFO_SMCD,
-+		    sizeof(smc_diag_dev), &smc_diag_dev) < 0)
-+		goto errout;
-+
-+	nlmsg_end(skb, nlh);
-+	return rc;
-+
-+errout:
-+	nlmsg_cancel(skb, nlh);
-+	return -EMSGSIZE;
-+}
-+
-+static int smc_diag_prep_smcd_dev(struct smcd_dev_list *dev_list,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb,
-+				  struct smc_diag_req_v2 *req)
-+{
-+	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
-+	int snum = cb_ctx->pos[0];
-+	struct smcd_dev *smcd;
-+	int rc = 0, num = 0;
-+
-+	mutex_lock(&dev_list->mutex);
-+	list_for_each_entry(smcd, &dev_list->list, list) {
-+		if (num < snum)
-+			goto next;
-+		rc = smc_diag_handle_smcd_dev(smcd, skb, cb, req);
-+		if (rc < 0)
-+			goto errout;
-+next:
-+		num++;
-+	}
-+errout:
-+	mutex_unlock(&dev_list->mutex);
-+	cb_ctx->pos[0] = num;
-+	return rc;
-+}
-+
- static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 			   struct netlink_callback *cb,
- 			   const struct smc_diag_req *req)
-@@ -551,6 +623,10 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
- 		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCD - 1))))
- 			smc_diag_fill_smcd_dev(smc_diag_ops->get_smcd_devices(),
- 					       skb, cb, req);
-+	} else if (req->cmd == SMC_DIAG_GET_DEV_INFO) {
-+		if ((req->cmd_ext & (1 << (SMC_DIAG_DEV_INFO_SMCD - 1))))
-+			smc_diag_prep_smcd_dev(smc_diag_ops->get_smcd_devices(),
-+					       skb, cb, req);
- 	}
- 
- 	return skb->len;
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index 5319496adea0..e36c935bc1ec 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -19,7 +19,6 @@
- #include <rdma/ib_verbs.h>
- #include <net/smc.h>
- 
--#define SMC_MAX_PORTS			2	/* Max # of ports */
- #define SMC_GID_SIZE			sizeof(union ib_gid)
- 
- #define SMC_IB_MAX_SEND_SGE		2
--- 
-2.17.1
+On 11/16/20 11:38 AM, Vineeth Vijayan wrote:
+> Thank you very much for the fix.
+>
+> Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+>
+>
+>
+> On 11/16/20 11:18 AM, Mauro Carvalho Chehab wrote:
+>> fix one typo:
+>>     ccw driver -> ccw_driver
+>>
+>> and one function rename.
+>>
+>> Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+>> ---
+>>   arch/s390/include/asm/ccwdev.h | 2 +-
+>>   arch/s390/include/asm/cio.h    | 2 +-
+>>   2 files changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/ccwdev.h 
+>> b/arch/s390/include/asm/ccwdev.h
+>> index bf605e1fcf6a..0495ac635ed5 100644
+>> --- a/arch/s390/include/asm/ccwdev.h
+>> +++ b/arch/s390/include/asm/ccwdev.h
+>> @@ -100,41 +100,41 @@ struct ccw_device {
+>>    */
+>>   #define PE_NONE                0x0
+>>   #define PE_PATH_GONE            0x1 /* A path is no longer 
+>> available. */
+>>   #define PE_PATH_AVAILABLE        0x2 /* A path has become available 
+>> and
+>>                              was successfully verified. */
+>>   #define PE_PATHGROUP_ESTABLISHED    0x4 /* A pathgroup was reset 
+>> and had
+>>                              to be established again. */
+>>   #define PE_PATH_FCES_EVENT        0x8 /* The FCES Status of a path has
+>>                            * changed. */
+>>     /*
+>>    * Possible CIO actions triggered by the unit check handler.
+>>    */
+>>   enum uc_todo {
+>>       UC_TODO_RETRY,
+>>       UC_TODO_RETRY_ON_NEW_PATH,
+>>       UC_TODO_STOP
+>>   };
+>>     /**
+>> - * struct ccw driver - device driver for channel attached devices
+>> + * struct ccw_driver - device driver for channel attached devices
+>>    * @ids: ids supported by this driver
+>>    * @probe: function called on probe
+>>    * @remove: function called on remove
+>>    * @set_online: called when setting device online
+>>    * @set_offline: called when setting device offline
+>>    * @notify: notify driver of device state changes
+>>    * @path_event: notify driver of channel path events
+>>    * @shutdown: called at device shutdown
+>>    * @prepare: prepare for pm state transition
+>>    * @complete: undo work done in @prepare
+>>    * @freeze: callback for freezing during hibernation snapshotting
+>>    * @thaw: undo work done in @freeze
+>>    * @restore: callback for restoring after hibernation
+>>    * @uc_handler: callback for unit check handler
+>>    * @driver: embedded device driver structure
+>>    * @int_class: interruption class to use for accounting interrupts
+>>    */
+>>   struct ccw_driver {
+>>       struct ccw_device_id *ids;
+>>       int (*probe) (struct ccw_device *);
+>> diff --git a/arch/s390/include/asm/cio.h b/arch/s390/include/asm/cio.h
+>> index e36cb67d2441..ac02df906cae 100644
+>> --- a/arch/s390/include/asm/cio.h
+>> +++ b/arch/s390/include/asm/cio.h
+>> @@ -312,41 +312,41 @@ struct node_descriptor {
+>>   /* Device did not respond in time. */
+>>   #define CIO_BOXED      0x0010
+>>     /**
+>>    * struct ccw_dev_id - unique identifier for ccw devices
+>>    * @ssid: subchannel set id
+>>    * @devno: device number
+>>    *
+>>    * This structure is not directly based on any hardware structure. The
+>>    * hardware identifies a device by its device number and its 
+>> subchannel,
+>>    * which is in turn identified by its id. In order to get a unique 
+>> identifier
+>>    * for ccw devices across subchannel sets, @struct ccw_dev_id has been
+>>    * introduced.
+>>    */
+>>   struct ccw_dev_id {
+>>       u8 ssid;
+>>       u16 devno;
+>>   };
+>>     /**
+>> - * ccw_device_id_is_equal() - compare two ccw_dev_ids
+>> + * ccw_dev_id_is_equal() - compare two ccw_dev_ids
+>>    * @dev_id1: a ccw_dev_id
+>>    * @dev_id2: another ccw_dev_id
+>>    * Returns:
+>>    *  %1 if the two structures are equal field-by-field,
+>>    *  %0 if not.
+>>    * Context:
+>>    *  any
+>>    */
+>>   static inline int ccw_dev_id_is_equal(struct ccw_dev_id *dev_id1,
+>>                         struct ccw_dev_id *dev_id2)
+>>   {
+>>       if ((dev_id1->ssid == dev_id2->ssid) &&
+>>           (dev_id1->devno == dev_id2->devno))
+>>           return 1;
+>>       return 0;
+>>   }
+>>     /**
+>>    * pathmask_to_pos() - find the position of the left-most bit in a 
+>> pathmask
+>>    * @mask: pathmask with at least one bit set
