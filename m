@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [RFC V2 2/3] arm64/mm: Define arch_get_mappable_range()
-Date: Mon, 30 Nov 2020 08:59:51 +0530
-Message-Id: <1606706992-26656-3-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1606706992-26656-1-git-send-email-anshuman.khandual@arm.com>
-References: <1606706992-26656-1-git-send-email-anshuman.khandual@arm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48982 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729506AbgKPMUl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 16 Nov 2020 07:20:41 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 2/2] KVM: s390: remove diag318 reset code
+Date: Mon, 16 Nov 2020 13:20:33 +0100
+Message-Id: <20201116122033.382372-3-borntraeger@de.ibm.com>
+In-Reply-To: <20201116122033.382372-1-borntraeger@de.ibm.com>
+References: <20201116122033.382372-1-borntraeger@de.ibm.com>
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org, david@redhat.com
-Cc: linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Collin Walling <walling@linux.ibm.com>
 
-This overrides arch_get_mappable_range() on arm64 platform which will be
-used with recently added generic framework. It drops inside_linear_region()
-and subsequent check in arch_add_memory() which are no longer required.
+From: Collin Walling <walling@linux.ibm.com>
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+The diag318 data must be set to 0 by VM-wide reset events
+triggered by diag308. As such, KVM should not handle
+resetting this data via the VCPU ioctls.
+
+Fixes: 23a60f834406 ("s390/kvm: diagnose 0x318 sync and reset")
+Signed-off-by: Collin Walling <walling@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Link: https://lore.kernel.org/r/20201104181032.109800-1-walling@linux.ibm.com
 ---
- arch/arm64/mm/mmu.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index ca692a815731..49ec8f2838f2 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1444,16 +1444,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
- 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 08ea6c4735cd..425d3d75320b 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3564,7 +3564,6 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
+ 		vcpu->arch.sie_block->pp = 0;
+ 		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
+ 		vcpu->arch.sie_block->todpr = 0;
+-		vcpu->arch.sie_block->cpnc = 0;
+ 	}
  }
  
--static bool inside_linear_region(u64 start, u64 size)
-+struct range arch_get_mappable_range(void)
- {
-+	struct range memhp_range;
-+
- 	/*
- 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
- 	 * accommodating both its ends but excluding PAGE_END. Max physical
- 	 * range which can be mapped inside this linear mapping range, must
- 	 * also be derived from its end points.
- 	 */
--	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
--	       (start + size - 1) <= __pa(PAGE_END - 1);
-+	memhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
-+	memhp_range.end =  __pa(PAGE_END - 1);
-+	return memhp_range;
+@@ -3582,7 +3581,6 @@ static void kvm_arch_vcpu_ioctl_clear_reset(struct kvm_vcpu *vcpu)
+ 
+ 	regs->etoken = 0;
+ 	regs->etoken_extension = 0;
+-	regs->diag318 = 0;
  }
  
- int arch_add_memory(int nid, u64 start, u64 size,
-@@ -1461,11 +1464,6 @@ int arch_add_memory(int nid, u64 start, u64 size,
- {
- 	int ret, flags = 0;
- 
--	if (!inside_linear_region(start, size)) {
--		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
--		return -EINVAL;
--	}
--
- 	if (rodata_full || debug_pagealloc_enabled())
- 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
+ int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
 -- 
-2.20.1
+2.28.0
