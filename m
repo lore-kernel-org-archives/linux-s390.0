@@ -1,54 +1,34 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:33832 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726480AbgKSN53 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Nov 2020 08:57:29 -0500
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH v2 4/6] s390/ctcm: Use explicit allocation mask in ctcmpc_unpack_skb().
-Date: Thu, 19 Nov 2020 14:57:16 +0100
-Message-Id: <20201119135719.983170-5-bigeasy@linutronix.de>
-In-Reply-To: <20201119135719.983170-1-bigeasy@linutronix.de>
-References: <20201119135719.983170-1-bigeasy@linutronix.de>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53864 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728029AbgKPP2a (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 16 Nov 2020 10:28:30 -0500
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64121C0613CF
+        for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2020 07:28:30 -0800 (PST)
+Received: by mail-io1-xd42.google.com with SMTP id n12so17817689ioc.2
+        for <linux-s390@vger.kernel.org>; Mon, 16 Nov 2020 07:28:30 -0800 (PST)
+Subject: Re: [PATCH 0/1] fix null pointer dereference for ERP requests
+References: <20201116152347.61093-1-sth@linux.ibm.com>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <8d6a4ff9-d5dc-131c-3fa7-afe0c843a731@kernel.dk>
+Date: Mon, 16 Nov 2020 08:28:27 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201116152347.61093-1-sth@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Stefan Haberland <sth@linux.ibm.com>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-gfp_type() uses in_interrupt() to figure out the correct GFP mask.
+On 11/16/20 8:23 AM, Stefan Haberland wrote:
+> Hi Jens,
+> 
+> pleas apply the following patch that fixes a null pointer derefernce in the
+> DASD driver.
 
-The usage of in_interrupt() in drivers is phased out and Linus clearly
-requested that code which changes behaviour depending on context should
-either be separated or the context be conveyed in an argument passed by the
-caller, which usually knows the context.
+Applied, thanks.
 
-The call chain of ctcmpc_unpack_skb():
-ctcmpc_bh()
- -> ctcmpc_unpack_skb()
-
-ctcmpc_bh() is a tasklet handler so GFP_ATOMIC is needed.
-
-Use GFP_ATOMIC as allocation type in ctcmpc_unpack_skb().
-
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- drivers/s390/net/ctcm_mpc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
-index 76a9e0d0c0710..829deeedf21a2 100644
---- a/drivers/s390/net/ctcm_mpc.c
-+++ b/drivers/s390/net/ctcm_mpc.c
-@@ -1164,7 +1164,7 @@ static void ctcmpc_unpack_skb(struct channel *ch, str=
-uct sk_buff *pskb)
- 			skb_pull(pskb, new_len); /* point to next PDU */
- 		}
- 	} else {
--		mpcginfo =3D kmalloc(sizeof(struct mpcg_info), gfp_type());
-+		mpcginfo =3D kmalloc(sizeof(struct mpcg_info), GFP_ATOMIC);
- 		if (mpcginfo =3D=3D NULL)
- 					goto done;
-=20
---=20
-2.29.2
+-- 
+Jens Axboe
