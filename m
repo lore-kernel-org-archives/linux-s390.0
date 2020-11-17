@@ -1,272 +1,265 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v12 06/17] s390/zcrypt: driver callback to indicate resource in use
-Date: Tue, 24 Nov 2020 16:40:05 -0500
-Message-Id: <20201124214016.3013-7-akrowiak@linux.ibm.com>
-In-Reply-To: <20201124214016.3013-1-akrowiak@linux.ibm.com>
-References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11802 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727199AbgKQQPi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Nov 2020 11:15:38 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 9/9] s390/qeth: improve selection of ethtool link modes
+Date: Tue, 17 Nov 2020 17:15:20 +0100
+Message-Id: <20201117161520.1089-10-jwi@linux.ibm.com>
+In-Reply-To: <20201117161520.1089-1-jwi@linux.ibm.com>
+References: <20201117161520.1089-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Introduces a new driver callback to prevent a root user from unbinding
-an AP queue from its device driver if the queue is in use. The callback
-will be invoked whenever a change to the AP bus's sysfs apmask or aqmask
-attributes would result in one or more AP queues being removed from its
-driver. If the callback responds in the affirmative for any driver
-queried, the change to the apmask or aqmask will be rejected with a device
-busy error.
+The link mode is a combination of port speed and port mode. But we
+currently only consider the speed, and then typically select the
+corresponding TP-based link mode. For 1G and 10G Fibre links this means
+we display the wrong link modes.
 
-For this patch, only non-default drivers will be queried. Currently,
-there is only one non-default driver, the vfio_ap device driver. The
-vfio_ap device driver facilitates pass-through of an AP queue to a
-guest. The idea here is that a guest may be administered by a different
-sysadmin than the host and we don't want AP resources to unexpectedly
-disappear from a guest's AP configuration (i.e., adapters and domains
-assigned to the matrix mdev). This will enforce the proper procedure for
-removing AP resources intended for guest usage which is to
-first unassign them from the matrix mdev, then unbind them from the
-vfio_ap device driver.
+Move the SPEED_* switch statements inside the PORT_* cases, and only
+consider valid combinations where we can select the corresponding
+link mode. Add the relevant link modes (1000baseX, 10000baseSR and
+1000baseLR) that were introduced back with
+commit 5711a9822144 ("net: ethtool: add support for 1000BaseX and missing 10G link modes").
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Harald Freudenberger <freude@linux.ibm.com>
+To differentiate between 10000baseSR and 10000baseLR, use the detailed
+media_type information that QUERY OAT provides.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/crypto/ap_bus.c | 160 ++++++++++++++++++++++++++++++++---
- drivers/s390/crypto/ap_bus.h |   4 +
- 2 files changed, 154 insertions(+), 10 deletions(-)
+ drivers/s390/net/qeth_core.h      |   7 ++
+ drivers/s390/net/qeth_core_main.c |  11 +++
+ drivers/s390/net/qeth_ethtool.c   | 124 ++++++++++++++++++------------
+ 3 files changed, 93 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index ef738b42a092..593573740981 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -35,6 +35,7 @@
- #include <linux/mod_devicetable.h>
- #include <linux/debugfs.h>
- #include <linux/ctype.h>
-+#include <linux/module.h>
- 
- #include "ap_bus.h"
- #include "ap_debug.h"
-@@ -901,6 +902,23 @@ static int modify_bitmap(const char *str, unsigned long *bitmap, int bits)
- 	return 0;
- }
- 
-+static int ap_parse_bitmap_str(const char *str, unsigned long *bitmap, int bits,
-+			       unsigned long *newmap)
-+{
-+	unsigned long size;
-+	int rc;
-+
-+	size = BITS_TO_LONGS(bits)*sizeof(unsigned long);
-+	if (*str == '+' || *str == '-') {
-+		memcpy(newmap, bitmap, size);
-+		rc = modify_bitmap(str, newmap, bits);
-+	} else {
-+		memset(newmap, 0, size);
-+		rc = hex2bitmap(str, newmap, bits);
-+	}
-+	return rc;
-+}
-+
- int ap_parse_mask_str(const char *str,
- 		      unsigned long *bitmap, int bits,
- 		      struct mutex *lock)
-@@ -920,14 +938,7 @@ int ap_parse_mask_str(const char *str,
- 		kfree(newmap);
- 		return -ERESTARTSYS;
- 	}
--
--	if (*str == '+' || *str == '-') {
--		memcpy(newmap, bitmap, size);
--		rc = modify_bitmap(str, newmap, bits);
--	} else {
--		memset(newmap, 0, size);
--		rc = hex2bitmap(str, newmap, bits);
--	}
-+	rc = ap_parse_bitmap_str(str, bitmap, bits, newmap);
- 	if (rc == 0)
- 		memcpy(bitmap, newmap, size);
- 	mutex_unlock(lock);
-@@ -1119,12 +1130,76 @@ static ssize_t apmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
- 
-+static int __verify_card_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newapm = (unsigned long *)data;
-+
-+	/*
-+	 * No need to verify whether the driver is using the queues if it is the
-+	 * default driver.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/*
-+	 * increase the driver's module refcounter to be sure it is not
-+	 * going away when we invoke the callback function.
-+	 */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use) {
-+		rc = ap_drv->in_use(newapm, ap_perms.aqm);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	/* release the driver's module */
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int apmask_commit(unsigned long *newapm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DEVICES)];
-+
-+	/*
-+	 * Check if any bits in the apmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newapm, ap_perms.apm, AP_DEVICES)) {
-+		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				      __verify_card_reservations);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.apm, newapm, APMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t apmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	DECLARE_BITMAP(newapm, AP_DEVICES);
-+
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
- 
--	rc = ap_parse_mask_str(buf, ap_perms.apm, AP_DEVICES, &ap_perms_mutex);
-+	rc = ap_parse_bitmap_str(buf, ap_perms.apm, AP_DEVICES, newapm);
-+	if (rc)
-+		goto done;
-+
-+	rc = apmask_commit(newapm);
-+
-+done:
-+	mutex_unlock(&ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-@@ -1150,12 +1225,77 @@ static ssize_t aqmask_show(struct bus_type *bus, char *buf)
- 	return rc;
- }
- 
-+static int __verify_queue_reservations(struct device_driver *drv, void *data)
-+{
-+	int rc = 0;
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+	unsigned long *newaqm = (unsigned long *)data;
-+
-+	/*
-+	 * If the reserved bits do not identify queues reserved for use by the
-+	 * non-default driver, there is no need to verify the driver is using
-+	 * the queues.
-+	 */
-+	if (ap_drv->flags & AP_DRIVER_FLAG_DEFAULT)
-+		return 0;
-+
-+	/*
-+	 * increase the driver's module refcounter to be sure it is not
-+	 * going away when we invoke the callback function.
-+	 */
-+	if (!try_module_get(drv->owner))
-+		return 0;
-+
-+	if (ap_drv->in_use) {
-+		rc = ap_drv->in_use(ap_perms.apm, newaqm);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	/* release the driver's module */
-+	module_put(drv->owner);
-+
-+	return rc;
-+}
-+
-+static int aqmask_commit(unsigned long *newaqm)
-+{
-+	int rc;
-+	unsigned long reserved[BITS_TO_LONGS(AP_DOMAINS)];
-+
-+	/*
-+	 * Check if any bits in the aqmask have been set which will
-+	 * result in queues being removed from non-default drivers
-+	 */
-+	if (bitmap_andnot(reserved, newaqm, ap_perms.aqm, AP_DOMAINS)) {
-+		rc = bus_for_each_drv(&ap_bus_type, NULL, reserved,
-+				      __verify_queue_reservations);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	memcpy(ap_perms.aqm, newaqm, AQMASKSIZE);
-+
-+	return 0;
-+}
-+
- static ssize_t aqmask_store(struct bus_type *bus, const char *buf,
- 			    size_t count)
- {
- 	int rc;
-+	DECLARE_BITMAP(newaqm, AP_DOMAINS);
-+
-+	if (mutex_lock_interruptible(&ap_perms_mutex))
-+		return -ERESTARTSYS;
-+
-+	rc = ap_parse_bitmap_str(buf, ap_perms.aqm, AP_DOMAINS, newaqm);
-+	if (rc)
-+		goto done;
-+
-+	rc = aqmask_commit(newaqm);
- 
--	rc = ap_parse_mask_str(buf, ap_perms.aqm, AP_DOMAINS, &ap_perms_mutex);
-+done:
-+	mutex_unlock(&ap_perms_mutex);
- 	if (rc)
- 		return rc;
- 
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 5029b80132aa..65edd847c65a 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -145,6 +145,7 @@ struct ap_driver {
- 
- 	int (*probe)(struct ap_device *);
- 	void (*remove)(struct ap_device *);
-+	int (*in_use)(unsigned long *apm, unsigned long *aqm);
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index c604e20a5e48..9e00917286a5 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -701,10 +701,17 @@ enum qeth_pnso_mode {
+ 	QETH_PNSO_ADDR_INFO,
  };
  
- #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
-@@ -293,6 +294,9 @@ void ap_queue_init_state(struct ap_queue *aq);
- struct ap_card *ap_card_create(int id, int queue_depth, int raw_device_type,
- 			       int comp_device_type, unsigned int functions);
- 
-+#define APMASKSIZE (BITS_TO_LONGS(AP_DEVICES) * sizeof(unsigned long))
-+#define AQMASKSIZE (BITS_TO_LONGS(AP_DOMAINS) * sizeof(unsigned long))
++enum qeth_link_mode {
++	QETH_LINK_MODE_UNKNOWN,
++	QETH_LINK_MODE_FIBRE_SHORT,
++	QETH_LINK_MODE_FIBRE_LONG,
++};
 +
- struct ap_perms {
- 	unsigned long ioctlm[BITS_TO_LONGS(AP_IOCTLS)];
- 	unsigned long apm[BITS_TO_LONGS(AP_DEVICES)];
+ struct qeth_link_info {
+ 	u32 speed;
+ 	u8 duplex;
+ 	u8 port;
++	enum qeth_link_mode link_mode;
+ };
+ 
+ #define QETH_BROADCAST_WITH_ECHO    0x01
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 57dad31aab4d..2752a585849d 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5017,13 +5017,19 @@ static int qeth_init_link_info_oat_cb(struct qeth_card *card,
+ 	switch (phys_if->media_type) {
+ 	case QETH_QOAT_PHYS_MEDIA_COPPER:
+ 		link_info->port = PORT_TP;
++		link_info->link_mode = QETH_LINK_MODE_UNKNOWN;
+ 		break;
+ 	case QETH_QOAT_PHYS_MEDIA_FIBRE_SHORT:
++		link_info->port = PORT_FIBRE;
++		link_info->link_mode = QETH_LINK_MODE_FIBRE_SHORT;
++		break;
+ 	case QETH_QOAT_PHYS_MEDIA_FIBRE_LONG:
+ 		link_info->port = PORT_FIBRE;
++		link_info->link_mode = QETH_LINK_MODE_FIBRE_LONG;
+ 		break;
+ 	default:
+ 		link_info->port = PORT_OTHER;
++		link_info->link_mode = QETH_LINK_MODE_UNKNOWN;
+ 		break;
+ 	}
+ 
+@@ -5037,6 +5043,7 @@ static void qeth_init_link_info(struct qeth_card *card)
+ 	if (IS_IQD(card) || IS_VM_NIC(card)) {
+ 		card->info.link_info.speed = SPEED_10000;
+ 		card->info.link_info.port = PORT_FIBRE;
++		card->info.link_info.link_mode = QETH_LINK_MODE_FIBRE_SHORT;
+ 	} else {
+ 		switch (card->info.link_type) {
+ 		case QETH_LINK_TYPE_FAST_ETH:
+@@ -5063,6 +5070,8 @@ static void qeth_init_link_info(struct qeth_card *card)
+ 			card->info.link_info.speed = SPEED_UNKNOWN;
+ 			card->info.link_info.port = PORT_OTHER;
+ 		}
++
++		card->info.link_info.link_mode = QETH_LINK_MODE_UNKNOWN;
+ 	}
+ 
+ 	/* Get more accurate data via QUERY OAT: */
+@@ -5088,6 +5097,8 @@ static void qeth_init_link_info(struct qeth_card *card)
+ 					card->info.link_info.duplex = link_info.duplex;
+ 				if (link_info.port != PORT_OTHER)
+ 					card->info.link_info.port = link_info.port;
++				if (link_info.link_mode != QETH_LINK_MODE_UNKNOWN)
++					card->info.link_info.link_mode = link_info.link_mode;
+ 			}
+ 		}
+ 	}
+diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
+index 50b0c1810850..3a51bbff0ffe 100644
+--- a/drivers/s390/net/qeth_ethtool.c
++++ b/drivers/s390/net/qeth_ethtool.c
+@@ -324,7 +324,8 @@ static int qeth_set_per_queue_coalesce(struct net_device *dev, u32 queue,
+ /* Autoneg and full-duplex are supported and advertised unconditionally.     */
+ /* Always advertise and support all speeds up to specified, and only one     */
+ /* specified port type.							     */
+-static void qeth_set_ethtool_link_modes(struct ethtool_link_ksettings *cmd)
++static void qeth_set_ethtool_link_modes(struct ethtool_link_ksettings *cmd,
++					enum qeth_link_mode link_mode)
+ {
+ 	ethtool_link_ksettings_zero_link_mode(cmd, supported);
+ 	ethtool_link_ksettings_zero_link_mode(cmd, advertising);
+@@ -337,58 +338,83 @@ static void qeth_set_ethtool_link_modes(struct ethtool_link_ksettings *cmd)
+ 	case PORT_TP:
+ 		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
+ 		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
++
++		switch (cmd->base.speed) {
++		case SPEED_10000:
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     10000baseT_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     10000baseT_Full);
++			fallthrough;
++		case SPEED_1000:
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     1000baseT_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     1000baseT_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     1000baseT_Half);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     1000baseT_Half);
++			fallthrough;
++		case SPEED_100:
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     100baseT_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     100baseT_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     100baseT_Half);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     100baseT_Half);
++			fallthrough;
++		case SPEED_10:
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     10baseT_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     10baseT_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     10baseT_Half);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     10baseT_Half);
++			break;
++		default:
++			break;
++		}
++
+ 		break;
+ 	case PORT_FIBRE:
+ 		ethtool_link_ksettings_add_link_mode(cmd, supported, FIBRE);
+ 		ethtool_link_ksettings_add_link_mode(cmd, advertising, FIBRE);
+-		break;
+-	default:
+-		break;
+-	}
+ 
+-	/* partially does fall through, to also select lower speeds */
+-	switch (cmd->base.speed) {
+-	case SPEED_25000:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     25000baseSR_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     25000baseSR_Full);
+-		break;
+-	case SPEED_10000:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10000baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10000baseT_Full);
+-		fallthrough;
+-	case SPEED_1000:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     1000baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     1000baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     1000baseT_Half);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     1000baseT_Half);
+-		fallthrough;
+-	case SPEED_100:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     100baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     100baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     100baseT_Half);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     100baseT_Half);
+-		fallthrough;
+-	case SPEED_10:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10baseT_Half);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10baseT_Half);
++		switch (cmd->base.speed) {
++		case SPEED_25000:
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     25000baseSR_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     25000baseSR_Full);
++			break;
++		case SPEED_10000:
++			if (link_mode == QETH_LINK_MODE_FIBRE_LONG) {
++				ethtool_link_ksettings_add_link_mode(cmd, supported,
++								     10000baseLR_Full);
++				ethtool_link_ksettings_add_link_mode(cmd, advertising,
++								     10000baseLR_Full);
++			} else if (link_mode == QETH_LINK_MODE_FIBRE_SHORT) {
++				ethtool_link_ksettings_add_link_mode(cmd, supported,
++								     10000baseSR_Full);
++				ethtool_link_ksettings_add_link_mode(cmd, advertising,
++								     10000baseSR_Full);
++			}
++			break;
++		case SPEED_1000:
++			ethtool_link_ksettings_add_link_mode(cmd, supported,
++							     1000baseX_Full);
++			ethtool_link_ksettings_add_link_mode(cmd, advertising,
++							     1000baseX_Full);
++			break;
++		default:
++			break;
++		}
++
+ 		break;
+ 	default:
+ 		break;
+@@ -420,7 +446,7 @@ static int qeth_get_link_ksettings(struct net_device *netdev,
+ 			cmd->base.port = link_info.port;
+ 	}
+ 
+-	qeth_set_ethtool_link_modes(cmd);
++	qeth_set_ethtool_link_modes(cmd, card->info.link_info.link_mode);
+ 
+ 	return 0;
+ }
 -- 
-2.21.1
+2.17.1
