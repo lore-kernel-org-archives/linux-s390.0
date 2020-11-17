@@ -1,83 +1,174 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1906 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726058AbgKCKZx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:25:53 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 01/15] net/smc: use helper smc_conn_abort() in listen processing
-Date: Tue,  3 Nov 2020 11:25:17 +0100
-Message-Id: <20201103102531.91710-2-kgraul@linux.ibm.com>
-In-Reply-To: <20201103102531.91710-1-kgraul@linux.ibm.com>
-References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58989 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726489AbgKQPnE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Nov 2020 10:43:04 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH 5/5] s390x: sie: Add first SIE test
+Date: Tue, 17 Nov 2020 10:42:15 -0500
+Message-Id: <20201117154215.45855-6-frankja@linux.ibm.com>
+In-Reply-To: <20201117154215.45855-1-frankja@linux.ibm.com>
+References: <20201117154215.45855-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com
 
-The helper smc_connect_abort() can be used by the listen processing
-functions, too. And rename this helper to smc_conn_abort() to make the
-purpose clearer.
-No functional change.
+Let's check if we get the correct interception data on a few
+diags. This commit is more of an addition of boilerplate code than a
+real test.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- net/smc/af_smc.c | 17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ s390x/Makefile |   1 +
+ s390x/sie.c    | 125 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 126 insertions(+)
+ create mode 100644 s390x/sie.c
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 527185af7bf3..bc3e45289771 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -552,8 +552,7 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
- 	return smc_connect_fallback(smc, reason_code);
- }
+diff --git a/s390x/Makefile b/s390x/Makefile
+index b079a26..7a95092 100644
+--- a/s390x/Makefile
++++ b/s390x/Makefile
+@@ -19,6 +19,7 @@ tests += $(TEST_DIR)/smp.elf
+ tests += $(TEST_DIR)/sclp.elf
+ tests += $(TEST_DIR)/css.elf
+ tests += $(TEST_DIR)/uv-guest.elf
++tests += $(TEST_DIR)/sie.elf
  
--/* abort connecting */
--static void smc_connect_abort(struct smc_sock *smc, int local_first)
-+static void smc_conn_abort(struct smc_sock *smc, int local_first)
- {
- 	if (local_first)
- 		smc_lgr_cleanup_early(&smc->conn);
-@@ -814,7 +813,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
- 
- 	return 0;
- connect_abort:
--	smc_connect_abort(smc, ini->first_contact_local);
-+	smc_conn_abort(smc, ini->first_contact_local);
- 	mutex_unlock(&smc_client_lgr_pending);
- 	smc->connect_nonblock = 0;
- 
-@@ -893,7 +892,7 @@ static int smc_connect_ism(struct smc_sock *smc,
- 
- 	return 0;
- connect_abort:
--	smc_connect_abort(smc, ini->first_contact_local);
-+	smc_conn_abort(smc, ini->first_contact_local);
- 	mutex_unlock(&smc_server_lgr_pending);
- 	smc->connect_nonblock = 0;
- 
-@@ -1320,10 +1319,7 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
- 			       int local_first, u8 version)
- {
- 	/* RDMA setup failed, switch back to TCP */
--	if (local_first)
--		smc_lgr_cleanup_early(&new_smc->conn);
--	else
--		smc_conn_free(&new_smc->conn);
-+	smc_conn_abort(new_smc, local_first);
- 	if (reason_code < 0) { /* error, no fallback possible */
- 		smc_listen_out_err(new_smc);
- 		return;
-@@ -1429,10 +1425,7 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
- 	/* Create send and receive buffers */
- 	rc = smc_buf_create(new_smc, true);
- 	if (rc) {
--		if (ini->first_contact_local)
--			smc_lgr_cleanup_early(&new_smc->conn);
--		else
--			smc_conn_free(&new_smc->conn);
-+		smc_conn_abort(new_smc, ini->first_contact_local);
- 		return (rc == -ENOSPC) ? SMC_CLC_DECL_MAX_DMB :
- 					 SMC_CLC_DECL_MEM;
- 	}
+ tests_binary = $(patsubst %.elf,%.bin,$(tests))
+ ifneq ($(HOST_KEY_DOCUMENT),)
+diff --git a/s390x/sie.c b/s390x/sie.c
+new file mode 100644
+index 0000000..41b429a
+--- /dev/null
++++ b/s390x/sie.c
+@@ -0,0 +1,125 @@
++#include <libcflat.h>
++#include <asm/asm-offsets.h>
++#include <asm/arch_def.h>
++#include <asm/interrupt.h>
++#include <asm/page.h>
++#include <alloc_page.h>
++#include <vmalloc.h>
++#include <asm/facility.h>
++#include <mmu.h>
++#include <sclp.h>
++#include <sie.h>
++
++static u8 *guest;
++static u8 *guest_instr;
++static struct vm vm;
++
++static void handle_validity(struct vm *vm)
++{
++	report(0, "VALIDITY: %x", vm->sblk->ipb >> 16);
++}
++
++static void sie(struct vm *vm)
++{
++	while (vm->sblk->icptcode == 0) {
++		sie64a(vm->sblk, &vm->save_area);
++		if (vm->sblk->icptcode == 32)
++		    handle_validity(vm);
++	}
++	vm->save_area.guest.grs[14] = vm->sblk->gg14;
++	vm->save_area.guest.grs[15] = vm->sblk->gg15;
++}
++
++static void sblk_cleanup(struct vm *vm)
++{
++	vm->sblk->icptcode = 0;
++}
++
++static void intercept_diag_10(void)
++{
++	u32 instr = 0x83020010;
++
++	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
++	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
++
++	memset(guest_instr, 0, PAGE_SIZE);
++	memcpy(guest_instr, &instr, 4);
++	sie(&vm);
++	report(vm.sblk->icptcode == 4 && vm.sblk->ipa == 0x8302 && vm.sblk->ipb == 0x100000,
++	       "Diag 10 intercept");
++	sblk_cleanup(&vm);
++}
++
++static void intercept_diag_44(void)
++{
++	u32 instr = 0x83020044;
++
++	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
++	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
++
++	memset(guest_instr, 0, PAGE_SIZE);
++	memcpy(guest_instr, &instr, 4);
++	sie(&vm);
++	report(vm.sblk->icptcode == 4 && vm.sblk->ipa == 0x8302 && vm.sblk->ipb == 0x440000,
++	       "Diag 44 intercept");
++	sblk_cleanup(&vm);
++}
++
++static void intercept_diag_9c(void)
++{
++	u32 instr = 0x8302009c;
++
++	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
++	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
++
++	memset(guest_instr, 0, PAGE_SIZE);
++	memcpy(guest_instr, &instr, 4);
++	sie(&vm);
++	report(vm.sblk->icptcode == 4 && vm.sblk->ipa == 0x8302 && vm.sblk->ipb == 0x9c0000,
++	       "Diag 9c intercept");
++	sblk_cleanup(&vm);
++}
++
++static void setup_guest(void)
++{
++	setup_vm();
++
++	/* Allocate 1MB as guest memory */
++	guest = alloc_pages(8);
++	/* The first two pages are the lowcore */
++	guest_instr = guest + PAGE_SIZE * 2;
++
++	vm.sblk = alloc_page();
++
++	vm.sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
++	vm.sblk->prefix = 0;
++	/*
++	 * Pageable guest with the same ASCE as the test programm, but
++	 * the guest memory 0x0 is offset to start at the allocated
++	 * guest pages and end after 1MB.
++	 *
++	 * It's not pretty but faster and easier than managing guest ASCEs.
++	 */
++	vm.sblk->mso = (u64)guest;
++	vm.sblk->msl = (u64)guest;
++	vm.sblk->ihcpu = 0xffff;
++
++	vm.sblk->crycbd = (uint64_t)alloc_page();
++}
++
++int main(void)
++{
++	report_prefix_push("sie");
++	if (!sclp_facilities.has_sief2) {
++		report_skip("SIEF2 facility unavailable");
++		goto done;
++	}
++
++	setup_guest();
++	intercept_diag_10();
++	intercept_diag_44();
++	intercept_diag_9c();
++done:
++	report_prefix_pop();
++	return report_summary();
++}
 -- 
-2.17.1
+2.25.1
