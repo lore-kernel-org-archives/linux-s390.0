@@ -1,100 +1,89 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 03/15] net/smc: Add connection counters for links
-Date: Mon,  2 Nov 2020 20:33:57 +0100
-Message-Id: <20201102193409.70901-4-kgraul@linux.ibm.com>
-In-Reply-To: <20201102193409.70901-1-kgraul@linux.ibm.com>
-References: <20201102193409.70901-1-kgraul@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45938 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726884AbgKQQPe (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Nov 2020 11:15:34 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 1/9] s390/qeth: don't call INIT_LIST_HEAD() on iob's list entry
+Date: Tue, 17 Nov 2020 17:15:12 +0100
+Message-Id: <20201117161520.1089-2-jwi@linux.ibm.com>
+In-Reply-To: <20201117161520.1089-1-jwi@linux.ibm.com>
+References: <20201117161520.1089-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+INIT_LIST_HEAD() only needs to be called on actual list heads.
+While at it clarify the naming of the field.
 
-Add connection counters to the structure of the link.
-Increase/decrease the counters as needed in the corresponding
-routines.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Suggested-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- net/smc/smc_core.c | 16 ++++++++++++++--
- net/smc/smc_core.h |  1 +
- 2 files changed, 15 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_core.h      | 2 +-
+ drivers/s390/net/qeth_core_main.c | 9 ++++-----
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2b19863f7171..6e2077161267 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -139,6 +139,7 @@ static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
- 	}
- 	if (!conn->lnk)
- 		return SMC_CLC_DECL_NOACTLINK;
-+	atomic_inc(&conn->lnk->conn_cnt);
- 	return 0;
- }
- 
-@@ -180,6 +181,8 @@ static void __smc_lgr_unregister_conn(struct smc_connection *conn)
- 	struct smc_link_group *lgr = conn->lgr;
- 
- 	rb_erase(&conn->alert_node, &lgr->conns_all);
-+	if (conn->lnk)
-+		atomic_dec(&conn->lnk->conn_cnt);
- 	lgr->conns_num--;
- 	conn->alert_token_local = 0;
- 	sock_put(&smc->sk); /* sock_hold in smc_lgr_register_conn() */
-@@ -314,6 +317,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	lnk->smcibdev = ini->ib_dev;
- 	lnk->ibport = ini->ib_port;
- 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
-+	atomic_set(&lnk->conn_cnt, 0);
- 	smc_llc_link_set_uid(lnk);
- 	INIT_WORK(&lnk->link_down_wrk, smc_link_down_work);
- 	if (!ini->ib_dev->initialized) {
-@@ -526,6 +530,14 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
- 	return rc;
- }
- 
-+static inline void smc_switch_link_and_count(struct smc_connection *conn,
-+					     struct smc_link *to_lnk)
-+{
-+	atomic_dec(&conn->lnk->conn_cnt);
-+	conn->lnk = to_lnk;
-+	atomic_inc(&conn->lnk->conn_cnt);
-+}
-+
- struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 				  struct smc_link *from_lnk, bool is_dev_err)
- {
-@@ -574,7 +586,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		    smc->sk.sk_state == SMC_PEERABORTWAIT ||
- 		    smc->sk.sk_state == SMC_PROCESSABORT) {
- 			spin_lock_bh(&conn->send_lock);
--			conn->lnk = to_lnk;
-+			smc_switch_link_and_count(conn, to_lnk);
- 			spin_unlock_bh(&conn->send_lock);
- 			continue;
- 		}
-@@ -588,7 +600,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		}
- 		/* avoid race with smcr_tx_sndbuf_nonempty() */
- 		spin_lock_bh(&conn->send_lock);
--		conn->lnk = to_lnk;
-+		smc_switch_link_and_count(conn, to_lnk);
- 		rc = smc_switch_cursor(smc, pend, wr_buf);
- 		spin_unlock_bh(&conn->send_lock);
- 		sock_put(&smc->sk);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 9aee54a6bcba..83a88a4635db 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -129,6 +129,7 @@ struct smc_link {
- 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
- 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
- 	int			llc_testlink_time; /* testlink interval */
-+	atomic_t		conn_cnt;
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index f73b4756ed5e..ec4525bd62e1 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -621,7 +621,7 @@ struct qeth_reply {
  };
  
- /* For now we just allow one parallel link per link group. The SMC protocol
+ struct qeth_cmd_buffer {
+-	struct list_head list;
++	struct list_head list_entry;
+ 	struct completion done;
+ 	spinlock_t lock;
+ 	unsigned int length;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 93c9b30ab17a..67e5c46e8373 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -609,7 +609,7 @@ static void qeth_enqueue_cmd(struct qeth_card *card,
+ 			     struct qeth_cmd_buffer *iob)
+ {
+ 	spin_lock_irq(&card->lock);
+-	list_add_tail(&iob->list, &card->cmd_waiter_list);
++	list_add_tail(&iob->list_entry, &card->cmd_waiter_list);
+ 	spin_unlock_irq(&card->lock);
+ }
+ 
+@@ -617,7 +617,7 @@ static void qeth_dequeue_cmd(struct qeth_card *card,
+ 			     struct qeth_cmd_buffer *iob)
+ {
+ 	spin_lock_irq(&card->lock);
+-	list_del(&iob->list);
++	list_del(&iob->list_entry);
+ 	spin_unlock_irq(&card->lock);
+ }
+ 
+@@ -971,7 +971,7 @@ static void qeth_clear_ipacmd_list(struct qeth_card *card)
+ 	QETH_CARD_TEXT(card, 4, "clipalst");
+ 
+ 	spin_lock_irqsave(&card->lock, flags);
+-	list_for_each_entry(iob, &card->cmd_waiter_list, list)
++	list_for_each_entry(iob, &card->cmd_waiter_list, list_entry)
+ 		qeth_notify_cmd(iob, -ECANCELED);
+ 	spin_unlock_irqrestore(&card->lock, flags);
+ }
+@@ -1041,7 +1041,6 @@ struct qeth_cmd_buffer *qeth_alloc_cmd(struct qeth_channel *channel,
+ 
+ 	init_completion(&iob->done);
+ 	spin_lock_init(&iob->lock);
+-	INIT_LIST_HEAD(&iob->list);
+ 	refcount_set(&iob->ref_count, 1);
+ 	iob->channel = channel;
+ 	iob->timeout = timeout;
+@@ -1088,7 +1087,7 @@ static void qeth_issue_next_read_cb(struct qeth_card *card,
+ 
+ 	/* match against pending cmd requests */
+ 	spin_lock_irqsave(&card->lock, flags);
+-	list_for_each_entry(tmp, &card->cmd_waiter_list, list) {
++	list_for_each_entry(tmp, &card->cmd_waiter_list, list_entry) {
+ 		if (tmp->match && tmp->match(tmp, iob)) {
+ 			request = tmp;
+ 			/* take the object outside the lock */
 -- 
 2.17.1
