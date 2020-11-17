@@ -1,49 +1,26 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4640 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726468AbgKRVkx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Nov 2020 16:40:53 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 2/2] net/smc: fix direct access to ib_gid_addr->ndev in smc_ib_determine_gid()
-Date: Wed, 18 Nov 2020 22:40:38 +0100
-Message-Id: <20201118214038.24039-3-kgraul@linux.ibm.com>
-In-Reply-To: <20201118214038.24039-1-kgraul@linux.ibm.com>
-References: <20201118214038.24039-1-kgraul@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:36408 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726182AbgKQWTT (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 17 Nov 2020 17:19:19 -0500
+Date: Tue, 17 Nov 2020 14:19:14 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH v4 00/27]Fix several bad kernel-doc markups
+Message-ID: <20201117141914.73056d1f@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+In-Reply-To: <cover.1605521731.git.mchehab+huawei@kernel.org>
+References: <cover.1605521731.git.mchehab+huawei@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "David S. Miller" <davem@davemloft.net>, Theodore Ts'o <tytso@mit.edu>, Alexander Viro <viro@zeniv.linux.org.uk>, Alexandre Bounine <alex.bou9@gmail.com>, Andrew Lunn <andrew@lunn.ch>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@amacapital.net>, Anna Schumaker <anna.schumaker@netapp.com>, Anton Vorontsov <anton@enomsg.org>, Ben Segall <bsegall@google.com>, Colin Cross <ccross@android.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@linux.ie>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Evgeniy Polyakov <zbr@ioremap.net>, Heiner Kallweit <hkallweit1@gmail.com>, Ingo Molnar <mingo@redhat.com>, Jan Kara <jack@suse.com>, Juri Lelli <juri.lelli@redhat.com>, Kees Cook <keescook@chromium.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Matt Porter <mporter@kernel.crashing.org>, Maxime Ripard <mripard@kernel.org>, Mel Gorman <mgorman@suse.de>, Mike Rapoport <rppt@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Richard Gong <richard.gong@linux.intel.com>, Russell King <linux@armlinux.org.uk>, Sebastian Reichel <sre@kernel.org>, Shuah Khan <shuah@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Thomas Zimmermann <tzimmermann@suse.de>, Tony Luck <tony.luck@intel.com>, Trond Myklebust <trond.myklebust@hammerspace.com>, Vincent Guittot <vincent.guittot@linaro.org>, Will Drewry <wad@chromium.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-ext4@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-mm@kvack.org, linux-nfs@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, target-devel@vger.kernel.org
 
-Sparse complaints 3 times about:
-net/smc/smc_ib.c:203:52: warning: incorrect type in argument 1 (different address spaces)
-net/smc/smc_ib.c:203:52:    expected struct net_device const *dev
-net/smc/smc_ib.c:203:52:    got struct net_device [noderef] __rcu *const ndev
+On Mon, 16 Nov 2020 11:17:56 +0100 Mauro Carvalho Chehab wrote:
+> Kernel-doc has always be limited to a probably bad documented
+> rule:
+> 
+> The kernel-doc markups should appear *imediatelly before* the
+> function or data structure that it documents.
 
-Fix that by using the existing and validated ndev variable instead of
-accessing attr->ndev directly.
-
-Fixes: 5102eca9039b ("net/smc: Use rdma_read_gid_l2_fields to L2 fields")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_ib.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 1c314dbdc7fa..fc766b537ac7 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -198,9 +198,9 @@ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
- 		rcu_read_lock();
- 		ndev = rdma_read_gid_attr_ndev_rcu(attr);
- 		if (!IS_ERR(ndev) &&
--		    ((!vlan_id && !is_vlan_dev(attr->ndev)) ||
--		     (vlan_id && is_vlan_dev(attr->ndev) &&
--		      vlan_dev_vlan_id(attr->ndev) == vlan_id)) &&
-+		    ((!vlan_id && !is_vlan_dev(ndev)) ||
-+		     (vlan_id && is_vlan_dev(ndev) &&
-+		      vlan_dev_vlan_id(ndev) == vlan_id)) &&
- 		    attr->gid_type == IB_GID_TYPE_ROCE) {
- 			rcu_read_unlock();
- 			if (gid)
--- 
-2.17.1
+Applied 1-3 to net-next, thanks!
