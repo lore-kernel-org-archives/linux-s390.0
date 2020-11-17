@@ -1,57 +1,48 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48982 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729506AbgKPMUl (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22568 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726794AbgKQSnN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 16 Nov 2020 07:20:41 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/2] KVM: s390: remove diag318 reset code
-Date: Mon, 16 Nov 2020 13:20:33 +0100
-Message-Id: <20201116122033.382372-3-borntraeger@de.ibm.com>
-In-Reply-To: <20201116122033.382372-1-borntraeger@de.ibm.com>
-References: <20201116122033.382372-1-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
+        Tue, 17 Nov 2020 13:43:13 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AHIVV8x060679
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2020 13:43:12 -0500
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 34ve31mycu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2020 13:43:12 -0500
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0AHIVX6g060818
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2020 13:43:11 -0500
+Date: Tue, 17 Nov 2020 19:43:05 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH 1/3] s390/vmem: remove redundant check
+Message-ID: <20201117184305.GD4746@osiris>
+References: <cover.1605000280.git.agordeev@linux.ibm.com>
+ <90f322a1d24b63a639dec1876a7a5cbbf866482a.1605000280.git.agordeev@linux.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <90f322a1d24b63a639dec1876a7a5cbbf866482a.1605000280.git.agordeev@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Collin Walling <walling@linux.ibm.com>
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>
 
-From: Collin Walling <walling@linux.ibm.com>
+On Tue, Nov 10, 2020 at 10:36:21AM +0100, Alexander Gordeev wrote:
+> Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+> ---
+>  arch/s390/mm/vmem.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+> index b239f2ba93b09..56ab9bb770f3a 100644
+> --- a/arch/s390/mm/vmem.c
+> +++ b/arch/s390/mm/vmem.c
+> @@ -223,7 +223,7 @@ static int __ref modify_pmd_table(pud_t *pud, unsigned long addr,
+>  		if (!add) {
+>  			if (pmd_none(*pmd))
+>  				continue;
+> -			if (pmd_large(*pmd) && !add) {
+> +			if (pmd_large(*pmd)) {
 
-The diag318 data must be set to 0 by VM-wide reset events
-triggered by diag308. As such, KVM should not handle
-resetting this data via the VCPU ioctls.
-
-Fixes: 23a60f834406 ("s390/kvm: diagnose 0x318 sync and reset")
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Link: https://lore.kernel.org/r/20201104181032.109800-1-walling@linux.ibm.com
----
- arch/s390/kvm/kvm-s390.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 08ea6c4735cd..425d3d75320b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3564,7 +3564,6 @@ static void kvm_arch_vcpu_ioctl_initial_reset(struct kvm_vcpu *vcpu)
- 		vcpu->arch.sie_block->pp = 0;
- 		vcpu->arch.sie_block->fpf &= ~FPF_BPBC;
- 		vcpu->arch.sie_block->todpr = 0;
--		vcpu->arch.sie_block->cpnc = 0;
- 	}
- }
- 
-@@ -3582,7 +3581,6 @@ static void kvm_arch_vcpu_ioctl_clear_reset(struct kvm_vcpu *vcpu)
- 
- 	regs->etoken = 0;
- 	regs->etoken_extension = 0;
--	regs->diag318 = 0;
- }
- 
- int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
--- 
-2.28.0
+Applied, thanks!
