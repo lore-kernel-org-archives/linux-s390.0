@@ -1,123 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:57406 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40860 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729874AbgK0NJM (ORCPT
+        by vger.kernel.org with ESMTP id S1726898AbgKQSo3 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Nov 2020 08:09:12 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 3/7] s390x: SCLP feature checking
-Date: Fri, 27 Nov 2020 08:06:25 -0500
-Message-Id: <20201127130629.120469-4-frankja@linux.ibm.com>
-In-Reply-To: <20201127130629.120469-1-frankja@linux.ibm.com>
-References: <20201127130629.120469-1-frankja@linux.ibm.com>
+        Tue, 17 Nov 2020 13:44:29 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AHIWPIt189177
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2020 13:44:29 -0500
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 34vd6hxqg1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2020 13:44:29 -0500
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0AHIWoLT192978
+        for <linux-s390@vger.kernel.org>; Tue, 17 Nov 2020 13:44:29 -0500
+Date: Tue, 17 Nov 2020 19:44:22 +0100
+From: Heiko Carstens <hca@linux.ibm.com>
+Subject: Re: [PATCH 2/3] s390/vmem: fix possible memory overwrite
+Message-ID: <20201117184422.GE4746@osiris>
+References: <cover.1605000280.git.agordeev@linux.ibm.com>
+ <1abf78a289d76d7448a5640073cf6e8221a54a55.1605000280.git.agordeev@linux.ibm.com>
+ <aec7d80c-a7a1-d3db-9719-1ca69fb80887@redhat.com>
+ <20201110105052.GA11672@oc3871087118.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201110105052.GA11672@oc3871087118.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Alexander Gordeev <agordeev@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-s390@vger.kernel.org
 
-Availability of SIE is announced via a feature bit in a SCLP info CPU
-entry. Let's add a framework that allows us to easily check for such
-facilities.
+On Tue, Nov 10, 2020 at 11:50:52AM +0100, Alexander Gordeev wrote:
+> > >  static void __vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
+> > >  {
+> > >+	unsigned long size = min(end - start, sizeof(struct page));
+> > >+
+> > >  	/*
+> > >  	 * As we expect to add in the same granularity as we remove, it's
+> > >  	 * sufficient to mark only some piece used to block the memmap page from
+> > >  	 * getting removed (just in case the memmap never gets initialized,
+> > >  	 * e.g., because the memory block never gets onlined).
+> > >  	 */
+> > >-	memset(__va(start), 0, sizeof(struct page));
+> > >+	memset(__va(start), 0, size);
+> > >  }
+> > >  static void vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
+> > >
+> > 
+> > I don't really see a need for that. Can you spell out one possible
+> > configuration that would trigger that in the future? It's sounds
+> > very unlikely and I have the feeling there might be more to change
+> > at other points.
+> 
+> No configuration in mind. But dependency on struct page is the only
+> obstacle that prevents the whole thing to become generic (unless I
+> am missing something). Moreover, the memset() would not be needed
+> also - just a single non-PAGE_UNUSED word within [start..end) should
+> be enough.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- lib/s390x/io.c   |  1 +
- lib/s390x/sclp.c | 19 +++++++++++++++++++
- lib/s390x/sclp.h | 13 ++++++++++++-
- 3 files changed, 32 insertions(+), 1 deletion(-)
-
-diff --git a/lib/s390x/io.c b/lib/s390x/io.c
-index e19a1f3..e843601 100644
---- a/lib/s390x/io.c
-+++ b/lib/s390x/io.c
-@@ -37,6 +37,7 @@ void setup(void)
- 	setup_args_progname(ipl_args);
- 	setup_facilities();
- 	sclp_read_info();
-+	sclp_facilities_setup();
- 	sclp_console_setup();
- 	sclp_memory_setup();
- 	smp_setup();
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index ff56c44..68833b5 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -11,6 +11,7 @@
-  */
- 
- #include <libcflat.h>
-+#include <bitops.h>
- #include <asm/page.h>
- #include <asm/arch_def.h>
- #include <asm/interrupt.h>
-@@ -27,6 +28,7 @@ static uint64_t max_ram_size;
- static uint64_t ram_size;
- char _read_info[PAGE_SIZE] __attribute__((__aligned__(4096)));
- static ReadInfo *read_info;
-+struct sclp_facilities sclp_facilities;
- 
- char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
- static volatile bool sclp_busy;
-@@ -128,6 +130,23 @@ CPUEntry *sclp_get_cpu_entries(void)
- 	return (void *)read_info + read_info->offset_cpu;
- }
- 
-+void sclp_facilities_setup(void)
-+{
-+	unsigned short cpu0_addr = stap();
-+	CPUEntry *cpu;
-+	int i;
-+
-+	assert(read_info);
-+
-+	cpu = (void *)read_info + read_info->offset_cpu;
-+	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
-+		if (cpu->address == cpu0_addr) {
-+			sclp_facilities.has_sief2 = cpu->feat_sief2;
-+			break;
-+		}
-+	}
-+}
-+
- /* Perform service call. Return 0 on success, non-zero otherwise. */
- int sclp_service_call(unsigned int command, void *sccb)
- {
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 6620531..e18f7e6 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -95,12 +95,22 @@ typedef struct SCCBHeader {
- typedef struct CPUEntry {
-     uint8_t address;
-     uint8_t reserved0;
--    uint8_t features[SCCB_CPU_FEATURE_LEN];
-+    uint8_t : 4;
-+    uint8_t feat_sief2 : 1;
-+    uint8_t : 3;
-+    uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
-     uint8_t reserved2[6];
-     uint8_t type;
-     uint8_t reserved1;
- } __attribute__((packed)) CPUEntry;
- 
-+extern struct sclp_facilities sclp_facilities;
-+
-+struct sclp_facilities {
-+	uint64_t has_sief2 : 1;
-+	uint64_t : 63;
-+};
-+
- typedef struct ReadInfo {
-     SCCBHeader h;
-     uint16_t rnmax;
-@@ -274,6 +284,7 @@ void sclp_print(const char *str);
- void sclp_read_info(void);
- int sclp_get_cpu_num(void);
- CPUEntry *sclp_get_cpu_entries(void);
-+void sclp_facilities_setup(void);
- int sclp_service_call(unsigned int command, void *sccb);
- void sclp_memory_setup(void);
- uint64_t get_ram_size(void);
--- 
-2.25.1
+Well, I agree with David here - so not applying.
