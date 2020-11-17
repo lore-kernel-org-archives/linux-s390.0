@@ -1,58 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61724 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36238 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726163AbgKRVmI (ORCPT
+        by vger.kernel.org with ESMTP id S1727154AbgKQQPf (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Nov 2020 16:42:08 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 1/2] net/smc: fix matching of existing link groups
-Date: Wed, 18 Nov 2020 22:40:37 +0100
-Message-Id: <20201118214038.24039-2-kgraul@linux.ibm.com>
-In-Reply-To: <20201118214038.24039-1-kgraul@linux.ibm.com>
-References: <20201118214038.24039-1-kgraul@linux.ibm.com>
+        Tue, 17 Nov 2020 11:15:35 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 7/9] s390/qeth: clean up default cases for ethtool link mode
+Date: Tue, 17 Nov 2020 17:15:18 +0100
+Message-Id: <20201117161520.1089-8-jwi@linux.ibm.com>
+In-Reply-To: <20201117161520.1089-1-jwi@linux.ibm.com>
+References: <20201117161520.1089-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-With the multi-subnet support of SMC-Dv2 the match for existing link
-groups should not include the vlanid of the network device.
-Set ini->smcd_version accordingly before the call to smc_conn_create()
-and use this value in smc_conn_create() to skip the vlanid check.
+Remove the default case for PORT_* and SPEED_* in our ethtool code.
 
-Fixes: 5c21c4ccafe8 ("net/smc: determine accepted ISM devices")
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+The only time these could be hit is if qeth_init_link_info() was unable
+to determine the port type from an OSA adapter's link_type.
+We already throw a message in this case, so reduce the noise and don't
+report bad data (ie. it's much more likely that any future link_type
+will represent a PORT_FIBRE link ...).
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- net/smc/af_smc.c   | 3 ++-
- net/smc/smc_core.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_ethtool.c | 14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index e9f487c8c6d5..5dd4faaf7d6e 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -979,7 +979,8 @@ static int __smc_connect(struct smc_sock *smc)
+diff --git a/drivers/s390/net/qeth_ethtool.c b/drivers/s390/net/qeth_ethtool.c
+index b8e74018b44f..50b0c1810850 100644
+--- a/drivers/s390/net/qeth_ethtool.c
++++ b/drivers/s390/net/qeth_ethtool.c
+@@ -343,9 +343,7 @@ static void qeth_set_ethtool_link_modes(struct ethtool_link_ksettings *cmd)
+ 		ethtool_link_ksettings_add_link_mode(cmd, advertising, FIBRE);
+ 		break;
+ 	default:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported, TP);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising, TP);
+-		WARN_ON_ONCE(1);
++		break;
+ 	}
  
- 	/* check if smc modes and versions of CLC proposal and accept match */
- 	rc = smc_connect_check_aclc(ini, aclc);
--	version = aclc->hdr.version == SMC_V1 ? SMC_V1 : version;
-+	version = aclc->hdr.version == SMC_V1 ? SMC_V1 : SMC_V2;
-+	ini->smcd_version = version;
- 	if (rc)
- 		goto vlan_cleanup;
+ 	/* partially does fall through, to also select lower speeds */
+@@ -393,15 +391,7 @@ static void qeth_set_ethtool_link_modes(struct ethtool_link_ksettings *cmd)
+ 						     10baseT_Half);
+ 		break;
+ 	default:
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10baseT_Full);
+-		ethtool_link_ksettings_add_link_mode(cmd, supported,
+-						     10baseT_Half);
+-		ethtool_link_ksettings_add_link_mode(cmd, advertising,
+-						     10baseT_Half);
+-		WARN_ON_ONCE(1);
++		break;
+ 	}
+ }
  
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 2b19863f7171..af96f813c075 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -1309,7 +1309,8 @@ int smc_conn_create(struct smc_sock *smc, struct smc_init_info *ini)
- 				    ini->ism_peer_gid[ini->ism_selected]) :
- 		     smcr_lgr_match(lgr, ini->ib_lcl, role, ini->ib_clcqpn)) &&
- 		    !lgr->sync_err &&
--		    lgr->vlan_id == ini->vlan_id &&
-+		    (ini->smcd_version == SMC_V2 ||
-+		     lgr->vlan_id == ini->vlan_id) &&
- 		    (role == SMC_CLNT || ini->is_smcd ||
- 		     lgr->conns_num < SMC_RMBS_PER_LGR_MAX)) {
- 			/* link group found */
 -- 
 2.17.1
