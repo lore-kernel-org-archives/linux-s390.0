@@ -1,42 +1,42 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:21166 "EHLO
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40891 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726077AbgKRK0E (ORCPT
+        by vger.kernel.org with ESMTP id S1725804AbgKRKJ4 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Nov 2020 05:26:04 -0500
+        Wed, 18 Nov 2020 05:09:56 -0500
+Date: Wed, 18 Nov 2020 11:09:41 +0100
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH 0/2] Fix and MAINTAINER update for 5.10
+Message-ID: <20201118110941.14e12cf5.cohuck@redhat.com>
+In-Reply-To: <20201118093942.457191-1-borntraeger@de.ibm.com>
 References: <20201118093942.457191-1-borntraeger@de.ibm.com>
- <B53D943E-050D-45BD-9847-B8D712577442@redhat.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <37a63479-883c-0cc2-2328-ae3b84e2b1ae@redhat.com>
-Date: Wed, 18 Nov 2020 11:25:55 +0100
 MIME-Version: 1.0
-In-Reply-To: <B53D943E-050D-45BD-9847-B8D712577442@redhat.com>
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
 To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-On 18.11.20 10:43, David Hildenbrand wrote:
+On Wed, 18 Nov 2020 10:39:40 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+
+> Conny, David,
 > 
->> Am 18.11.2020 um 10:39 schrieb Christian Borntraeger <borntraeger@de.ibm.com>:
->>
->> ﻿Conny, David,
->>
->> your chance for quick feedback. I plan to send a pull request for kvm
->> master soon.
->>
+> your chance for quick feedback. I plan to send a pull request for kvm
+> master soon.
 > 
-> LGTM
+> I have agreed with Heiko to carry this via the KVM tree as
+> this is KVM s390 specific.
+> 
+> Christian Borntraeger (2):
+>   s390/uv: handle destroy page legacy interface
+>   MAINTAINERS: add uv.c also to KVM/s390
+> 
+>  MAINTAINERS           | 1 +
+>  arch/s390/kernel/uv.c | 9 ++++++++-
+>  2 files changed, 9 insertions(+), 1 deletion(-)
+> 
 
-Translating to
+For both:
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
-for both :)
--- 
-Thanks,
-
-David / dhildenb
+Acked-by: Cornelia Huck <cohuck@redhat.com>
