@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: YiFei Zhu <zhuyifei1999@gmail.com>
-Subject: [PATCH seccomp v2 5/8] s390: Enable seccomp architecture tracking
-Date: Wed, 11 Nov 2020 07:33:51 -0600
-Message-Id: <a381b10aa2c5b1e583642f3cd46ced842d9d4ce5.1605101222.git.yifeifz2@illinois.edu>
-In-Reply-To: <cover.1605101222.git.yifeifz2@illinois.edu>
-References: <cover.1605101222.git.yifeifz2@illinois.edu>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56476 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725964AbgKRJju (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Nov 2020 04:39:50 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 1/2] s390/uv: handle destroy page legacy interface
+Date: Wed, 18 Nov 2020 10:39:41 +0100
+Message-Id: <20201118093942.457191-2-borntraeger@de.ibm.com>
+In-Reply-To: <20201118093942.457191-1-borntraeger@de.ibm.com>
+References: <20201118093942.457191-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: containers@lists.linux-foundation.org
-Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
+To: Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Janosch Frank <frankja@linux.ibm.com>
 
-From: YiFei Zhu <yifeifz2@illinois.edu>
+Older firmware can return rc=0x107 rrc=0xd for destroy page if the
+page is already non-secure. This should be handled like a success
+as already done by newer firmware.
 
-To enable seccomp constant action bitmaps, we need to have a static
-mapping to the audit architecture and system call table size. Add these
-for s390.
-
-Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: 1a80b54d1ce1 ("s390/uv: add destroy page call")
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
 ---
- arch/s390/include/asm/seccomp.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/s390/kernel/uv.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/include/asm/seccomp.h b/arch/s390/include/asm/seccomp.h
-index 795bbe0d7ca6..71d46f0ba97b 100644
---- a/arch/s390/include/asm/seccomp.h
-+++ b/arch/s390/include/asm/seccomp.h
-@@ -16,4 +16,13 @@
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index 14bd9d58edc9..883bfed9f5c2 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -129,8 +129,15 @@ int uv_destroy_page(unsigned long paddr)
+ 		.paddr = paddr
+ 	};
  
- #include <asm-generic/seccomp.h>
+-	if (uv_call(0, (u64)&uvcb))
++	if (uv_call(0, (u64)&uvcb)) {
++		/*
++		 * Older firmware uses 107/d as an indication of a non secure
++		 * page. Let us emulate the newer variant (no-op).
++		 */
++		if (uvcb.header.rc == 0x107 && uvcb.header.rrc == 0xd)
++			return 0;
+ 		return -EINVAL;
++	}
+ 	return 0;
+ }
  
-+#define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_S390X
-+#define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+#define SECCOMP_ARCH_NATIVE_NAME	"s390x"
-+#ifdef CONFIG_COMPAT
-+# define SECCOMP_ARCH_COMPAT		AUDIT_ARCH_S390
-+# define SECCOMP_ARCH_COMPAT_NR		NR_syscalls
-+# define SECCOMP_ARCH_COMPAT_NAME	"s390"
-+#endif
-+
- #endif	/* _ASM_S390_SECCOMP_H */
 -- 
-2.29.2
+2.28.0
