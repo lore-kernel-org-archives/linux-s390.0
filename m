@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: YiFei Zhu <zhuyifei1999@gmail.com>
-Subject: [PATCH seccomp v2 6/8] sh: Enable seccomp architecture tracking
-Date: Wed, 11 Nov 2020 07:33:52 -0600
-Message-Id: <61ae084cd4783b9b50860d9dedb4a348cf1b7b6f.1605101222.git.yifeifz2@illinois.edu>
-In-Reply-To: <cover.1605101222.git.yifeifz2@illinois.edu>
-References: <cover.1605101222.git.yifeifz2@illinois.edu>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4266 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725814AbgKRJju (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 18 Nov 2020 04:39:50 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 2/2] MAINTAINERS: add uv.c also to KVM/s390
+Date: Wed, 18 Nov 2020 10:39:42 +0100
+Message-Id: <20201118093942.457191-3-borntraeger@de.ibm.com>
+In-Reply-To: <20201118093942.457191-1-borntraeger@de.ibm.com>
+References: <20201118093942.457191-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: containers@lists.linux-foundation.org
-Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
+To: Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 
-From: YiFei Zhu <yifeifz2@illinois.edu>
+Most changes in uv.c are related to KVM. Involve also the KVM team
+regarding changes to uv.c.
 
-To enable seccomp constant action bitmaps, we need to have a static
-mapping to the audit architecture and system call table size. Add these
-for sh.
-
-Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
 ---
- arch/sh/include/asm/seccomp.h | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ MAINTAINERS | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/sh/include/asm/seccomp.h b/arch/sh/include/asm/seccomp.h
-index 54111e4d32b8..d4578395fd66 100644
---- a/arch/sh/include/asm/seccomp.h
-+++ b/arch/sh/include/asm/seccomp.h
-@@ -8,4 +8,14 @@
- #define __NR_seccomp_exit __NR_exit
- #define __NR_seccomp_sigreturn __NR_rt_sigreturn
- 
-+#ifdef CONFIG_CPU_LITTLE_ENDIAN
-+#define __SECCOMP_ARCH_LE		__AUDIT_ARCH_LE
-+#else
-+#define __SECCOMP_ARCH_LE		0
-+#endif
-+
-+#define SECCOMP_ARCH_NATIVE		(AUDIT_ARCH_SH | __SECCOMP_ARCH_LE)
-+#define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+#define SECCOMP_ARCH_NATIVE_NAME	"sh"
-+
- #endif /* __ASM_SECCOMP_H */
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e73636b75f29..06116d892a4b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9674,6 +9674,7 @@ F:	Documentation/virt/kvm/s390*
+ F:	arch/s390/include/asm/gmap.h
+ F:	arch/s390/include/asm/kvm*
+ F:	arch/s390/include/uapi/asm/kvm*
++F:	arch/s390/kernel/uv.c
+ F:	arch/s390/kvm/
+ F:	arch/s390/mm/gmap.c
+ F:	tools/testing/selftests/kvm/*/s390x/
 -- 
-2.29.2
+2.28.0
