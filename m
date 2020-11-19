@@ -1,215 +1,73 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15706 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728119AbgKCKZ5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:25:57 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 11/15] net/smc: Add SMC-D Linkgroup diagnostic support
-Date: Tue,  3 Nov 2020 11:25:27 +0100
-Message-Id: <20201103102531.91710-12-kgraul@linux.ibm.com>
-In-Reply-To: <20201103102531.91710-1-kgraul@linux.ibm.com>
-References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:52222 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726641AbgKSMA0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 19 Nov 2020 07:00:26 -0500
+Date: Thu, 19 Nov 2020 13:00:11 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 2/2] vfio-ccw: Wire in the request callback
+Message-ID: <20201119130011.0bc2cbbe.cohuck@redhat.com>
+In-Reply-To: <20201119124326.0345a353.cohuck@redhat.com>
+References: <20201117032139.50988-1-farman@linux.ibm.com>
+        <20201117032139.50988-3-farman@linux.ibm.com>
+        <20201119124326.0345a353.cohuck@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Eric Farman <farman@linux.ibm.com>
+Cc: Kirti Wankhede <kwankhede@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+On Thu, 19 Nov 2020 12:43:26 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Deliver SMCD Linkgroup information via netlink based
-diagnostic interface.
+> On Tue, 17 Nov 2020 04:21:39 +0100
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+> > The device is being unplugged, so pass the request to userspace to
+> > ask for a graceful cleanup. This should free up the thread that
+> > would otherwise loop waiting for the device to be fully released.
+> > 
+> > Signed-off-by: Eric Farman <farman@linux.ibm.com>
+> > ---
+> >  drivers/s390/cio/vfio_ccw_ops.c     | 26 ++++++++++++++++++++++++++
+> >  drivers/s390/cio/vfio_ccw_private.h |  4 ++++
+> >  include/uapi/linux/vfio.h           |  1 +
+> >  3 files changed, 31 insertions(+)
+> >   
+> 
+> (...)
+> 
+> > @@ -607,6 +611,27 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+> >  	}
+> >  }
+> >  
+> > +/* Request removal of the device*/
+> > +static void vfio_ccw_mdev_request(struct mdev_device *mdev, unsigned int count)
+> > +{
+> > +	struct vfio_ccw_private *private = dev_get_drvdata(mdev_parent_dev(mdev));
+> > +
+> > +	if (!private)
+> > +		return;
+> > +
+> > +	if (private->req_trigger) {
+> > +		if (!(count % 10))
+> > +			dev_notice_ratelimited(mdev_dev(private->mdev),
+> > +					       "Relaying device request to user (#%u)\n",
+> > +					       count);
+> > +
+> > +		eventfd_signal(private->req_trigger, 1);
+> > +	} else if (count == 0) {
+> > +		dev_notice(mdev_dev(private->mdev),
+> > +			   "No device request channel registered, blocked until released by user\n");
+> > +	}
+> > +}  
+> 
+> This looks like the vfio-pci request handler, so probably good :)
+> 
+> Still have to read up on the QEMU side, but a LGTM for now.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- include/uapi/linux/smc_diag.h |   7 +++
- net/smc/smc_diag.c            | 108 ++++++++++++++++++++++++++++++++++
- net/smc/smc_ism.c             |   2 +
- 3 files changed, 117 insertions(+)
+And now that I've looked at the QEMU code:
 
-diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
-index a57df0296aa4..5a80172df757 100644
---- a/include/uapi/linux/smc_diag.h
-+++ b/include/uapi/linux/smc_diag.h
-@@ -81,6 +81,7 @@ enum {
- enum {
- 	SMC_DIAG_LGR_INFO_SMCR = 1,
- 	SMC_DIAG_LGR_INFO_SMCR_LINK,
-+	SMC_DIAG_LGR_INFO_SMCD,
- };
- 
- #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
-@@ -155,6 +156,12 @@ struct smcd_diag_dmbinfo {		/* SMC-D Socket internals */
- 	__aligned_u64	my_gid;		/* My GID */
- 	__aligned_u64	token;		/* Token of DMB */
- 	__aligned_u64	peer_token;	/* Token of remote DMBE */
-+	/* Fields above used by legacy v1 code */
-+	__u8		pnet_id[SMC_MAX_PNETID_LEN]; /* Pnet ID */
-+	__u32		conns_num;	/* Number of connections */
-+	__u16		chid;		/* Linkgroup CHID */
-+	__u8		vlan_id;	/* Linkgroup vlan id */
-+	struct smc_diag_v2_lgr_info v2_lgr_info; /* SMCv2 info */
- };
- 
- struct smc_diag_lgr {
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index 6885814b6e4f..fcff07a9ea47 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -21,6 +21,7 @@
- 
- #include "smc.h"
- #include "smc_ib.h"
-+#include "smc_ism.h"
- #include "smc_core.h"
- 
- struct smc_diag_dump_ctx {
-@@ -252,6 +253,53 @@ static int smc_diag_fill_lgr_link(struct smc_link_group *lgr,
- 	return -EMSGSIZE;
- }
- 
-+static int smc_diag_fill_smcd_lgr(struct smc_link_group *lgr,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb,
-+				  struct smc_diag_req_v2 *req)
-+{
-+	struct smcd_diag_dmbinfo smcd_lgr;
-+	struct nlmsghdr *nlh;
-+	int dummy = 0;
-+	int rc = 0;
-+
-+	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
-+			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
-+	if (!nlh)
-+		return -EMSGSIZE;
-+
-+	memset(&smcd_lgr, 0, sizeof(smcd_lgr));
-+	memcpy(&smcd_lgr.linkid, lgr->id, sizeof(lgr->id));
-+	smcd_lgr.conns_num = lgr->conns_num;
-+	smcd_lgr.vlan_id = lgr->vlan_id;
-+	smcd_lgr.peer_gid = lgr->peer_gid;
-+	smcd_lgr.my_gid = lgr->smcd->local_gid;
-+	smcd_lgr.chid = smc_ism_get_chid(lgr->smcd);
-+	memcpy(&smcd_lgr.v2_lgr_info.negotiated_eid, lgr->negotiated_eid,
-+	       sizeof(smcd_lgr.v2_lgr_info.negotiated_eid));
-+	memcpy(&smcd_lgr.v2_lgr_info.peer_hostname, lgr->peer_hostname,
-+	       sizeof(smcd_lgr.v2_lgr_info.peer_hostname));
-+	smcd_lgr.v2_lgr_info.peer_os = lgr->peer_os;
-+	smcd_lgr.v2_lgr_info.peer_smc_release = lgr->peer_smc_release;
-+	smcd_lgr.v2_lgr_info.smc_version = lgr->smc_version;
-+	snprintf(smcd_lgr.pnet_id, sizeof(smcd_lgr.pnet_id), "%s",
-+		 lgr->smcd->pnetid);
-+
-+	/* Just a command place holder to signal back the command reply type */
-+	if (nla_put(skb, SMC_DIAG_GET_LGR_INFO, sizeof(dummy), &dummy) < 0)
-+		goto errout;
-+
-+	if (nla_put(skb, SMC_DIAG_LGR_INFO_SMCD,
-+		    sizeof(smcd_lgr), &smcd_lgr) < 0)
-+		goto errout;
-+
-+	nlmsg_end(skb, nlh);
-+	return rc;
-+errout:
-+	nlmsg_cancel(skb, nlh);
-+	return -EMSGSIZE;
-+}
-+
- static int smc_diag_fill_lgr(struct smc_link_group *lgr,
- 			     struct sk_buff *skb,
- 			     struct netlink_callback *cb,
-@@ -343,6 +391,63 @@ static int smc_diag_fill_lgr_list(struct smc_lgr_list *smc_lgr,
- 	return rc;
- }
- 
-+static int smc_diag_handle_smcd_lgr(struct smcd_dev *dev,
-+				    struct sk_buff *skb,
-+				    struct netlink_callback *cb,
-+				    struct smc_diag_req_v2 *req)
-+{
-+	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
-+	struct smc_link_group *lgr;
-+	int snum = cb_ctx->pos[1];
-+	int rc = 0, num = 0;
-+
-+	spin_lock_bh(&dev->lgr_lock);
-+	list_for_each_entry(lgr, &dev->lgr_list, list) {
-+		if (lgr->is_smcd) {
-+			if (num < snum)
-+				goto next;
-+			rc = smc_diag_fill_smcd_lgr(lgr, skb, cb, req);
-+			if (rc < 0)
-+				goto errout;
-+next:
-+			num++;
-+		}
-+	}
-+errout:
-+	spin_unlock_bh(&dev->lgr_lock);
-+	cb_ctx->pos[1] = num;
-+	return rc;
-+}
-+
-+static int smc_diag_fill_smcd_dev(struct smcd_dev_list *dev_list,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb,
-+				  struct smc_diag_req_v2 *req)
-+{
-+	struct smc_diag_dump_ctx *cb_ctx = smc_dump_context(cb);
-+	struct smcd_dev *smcd_dev;
-+	int snum = cb_ctx->pos[0];
-+	int rc = 0, num = 0;
-+
-+	mutex_lock(&dev_list->mutex);
-+	list_for_each_entry(smcd_dev, &dev_list->list, list) {
-+		if (!list_empty(&smcd_dev->lgr_list)) {
-+			if (num < snum)
-+				goto next;
-+			rc = smc_diag_handle_smcd_lgr(smcd_dev, skb,
-+						      cb, req);
-+			if (rc < 0)
-+				goto errout;
-+next:
-+			num++;
-+		}
-+	}
-+errout:
-+	mutex_unlock(&dev_list->mutex);
-+	cb_ctx->pos[0] = num;
-+	return rc;
-+}
-+
- static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 			   struct netlink_callback *cb,
- 			   const struct smc_diag_req *req)
-@@ -441,6 +546,9 @@ static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
- 		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCR - 1))))
- 			smc_diag_fill_lgr_list(&smc_lgr_list, skb, cb,
- 					       req);
-+		if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCD - 1))))
-+			smc_diag_fill_smcd_dev(&smcd_dev_list, skb, cb,
-+					       req);
- 	}
- 
- 	return skb->len;
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 6abbdd09a580..5bb2c7fb4ea8 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -20,6 +20,7 @@ struct smcd_dev_list smcd_dev_list = {
- 	.list = LIST_HEAD_INIT(smcd_dev_list.list),
- 	.mutex = __MUTEX_INITIALIZER(smcd_dev_list.mutex)
- };
-+EXPORT_SYMBOL_GPL(smcd_dev_list);
- 
- bool smc_ism_v2_capable;
- 
-@@ -50,6 +51,7 @@ u16 smc_ism_get_chid(struct smcd_dev *smcd)
- {
- 	return smcd->ops->get_chid(smcd);
- }
-+EXPORT_SYMBOL_GPL(smc_ism_get_chid);
- 
- /* Set a connection using this DMBE. */
- void smc_ism_set_conn(struct smc_connection *conn)
--- 
-2.17.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
