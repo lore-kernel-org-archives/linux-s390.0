@@ -1,265 +1,87 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51768 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2391035AbgKZUjf (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 26 Nov 2020 15:39:35 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v6 12/14] net/smc: Add SMC-D Linkgroup diagnostic support
-Date: Thu, 26 Nov 2020 21:39:14 +0100
-Message-Id: <20201126203916.56071-13-kgraul@linux.ibm.com>
-In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
-References: <20201126203916.56071-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58758 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727291AbgKSN52 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Nov 2020 08:57:28 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B6EC0613D4
+        for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2020 05:57:28 -0800 (PST)
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH v2 2/6] s390/ctcm: Avoid temporary allocation of struct qllc.
+Date: Thu, 19 Nov 2020 14:57:14 +0100
+Message-Id: <20201119135719.983170-3-bigeasy@linutronix.de>
+In-Reply-To: <20201119135719.983170-1-bigeasy@linutronix.de>
+References: <20201119135719.983170-1-bigeasy@linutronix.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-s390@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+The size of struct qllc is 2 byte. The memory for is allocated, initialized,
+used and deallocated a few lines later.
 
-Deliver SMCD Linkgroup information via netlink based
-diagnostic interface.
+It is more efficient to avoid the allocation/free dance and assign the
+values directly to skb's data part instead of using memcpy() for it.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Avoid an allocation of struct qllc and use the resulting skb pointer instea=
+d.
+
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- include/uapi/linux/smc.h |  27 ++++++++
- net/smc/smc_core.c       | 130 +++++++++++++++++++++++++++++++++++++++
- net/smc/smc_core.h       |   1 +
- net/smc/smc_netlink.c    |   5 ++
- 4 files changed, 163 insertions(+)
+ drivers/s390/net/ctcm_mpc.c | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index ed638dbfff08..707e8af4f0c8 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -42,6 +42,7 @@ enum {
- 	SMC_NETLINK_GET_SYS_INFO = 1,
- 	SMC_NETLINK_GET_LGR_SMCR,
- 	SMC_NETLINK_GET_LINK_SMCR,
-+	SMC_NETLINK_GET_LGR_SMCD,
- };
- 
- /* SMC_GENL_FAMILY top level attributes */
-@@ -50,6 +51,7 @@ enum {
- 	SMC_GEN_SYS_INFO,		/* nest */
- 	SMC_GEN_LGR_SMCR,		/* nest */
- 	SMC_GEN_LINK_SMCR,		/* nest */
-+	SMC_GEN_LGR_SMCD,		/* nest */
- 	__SMC_GEN_MAX,
- 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
- };
-@@ -66,6 +68,15 @@ enum {
- 	SMC_NLA_SYS_MAX = __SMC_NLA_SYS_MAX - 1
- };
- 
-+/* SMC_NLA_LGR_V2 nested attributes */
-+enum {
-+	SMC_NLA_LGR_V2_VER,		/* u8 */
-+	SMC_NLA_LGR_V2_REL,		/* u8 */
-+	SMC_NLA_LGR_V2_OS,		/* u8 */
-+	SMC_NLA_LGR_V2_NEG_EID,		/* string */
-+	SMC_NLA_LGR_V2_PEER_HOST,	/* string */
-+};
-+
- /* SMC_GEN_LGR_SMCR attributes */
- enum {
- 	SMC_NLA_LGR_R_UNSPEC,
-@@ -95,4 +106,20 @@ enum {
- 	__SMC_NLA_LINK_MAX,
- 	SMC_NLA_LINK_MAX = __SMC_NLA_LINK_MAX - 1
- };
-+
-+/* SMC_GEN_LGR_SMCD attributes */
-+enum {
-+	SMC_NLA_LGR_D_UNSPEC,
-+	SMC_NLA_LGR_D_ID,		/* u32 */
-+	SMC_NLA_LGR_D_GID,		/* u64 */
-+	SMC_NLA_LGR_D_PEER_GID,		/* u64 */
-+	SMC_NLA_LGR_D_VLAN_ID,		/* u8 */
-+	SMC_NLA_LGR_D_CONNS_NUM,	/* u32 */
-+	SMC_NLA_LGR_D_PNETID,		/* string */
-+	SMC_NLA_LGR_D_CHID,		/* u16 */
-+	SMC_NLA_LGR_D_PAD,		/* flag */
-+	SMC_NLA_LGR_V2,			/* nest */
-+	__SMC_NLA_LGR_D_MAX,
-+	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
-+};
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 960c3853ba15..501c0aefec7f 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -426,6 +426,130 @@ static void smc_nl_fill_lgr_list(struct smc_lgr_list *smc_lgr,
- 	cb_ctx->pos[0] = num;
- }
- 
-+static int smc_nl_fill_smcd_lgr(struct smc_link_group *lgr,
-+				struct sk_buff *skb,
-+				struct netlink_callback *cb)
-+{
-+	char smc_host[SMC_MAX_HOSTNAME_LEN + 1];
-+	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
-+	char smc_eid[SMC_MAX_EID_LEN + 1];
-+	struct nlattr *v2_attrs;
-+	struct nlattr *attrs;
-+	void *nlh;
-+
-+	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-+			  &smc_gen_nl_family, NLM_F_MULTI,
-+			  SMC_NETLINK_GET_LGR_SMCD);
-+	if (!nlh)
-+		goto errmsg;
-+
-+	attrs = nla_nest_start_noflag(skb, SMC_GEN_LGR_SMCD);
-+	if (!attrs)
-+		goto errout;
-+
-+	if (nla_put_u32(skb, SMC_NLA_LGR_D_ID, *((u32 *)&lgr->id)))
-+		goto errattr;
-+	if (nla_put_u64_64bit(skb, SMC_NLA_LGR_D_GID, lgr->smcd->local_gid,
-+			      SMC_NLA_LGR_D_PAD))
-+		goto errattr;
-+	if (nla_put_u64_64bit(skb, SMC_NLA_LGR_D_PEER_GID, lgr->peer_gid,
-+			      SMC_NLA_LGR_D_PAD))
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_LGR_D_VLAN_ID, lgr->vlan_id))
-+		goto errattr;
-+	if (nla_put_u32(skb, SMC_NLA_LGR_D_CONNS_NUM, lgr->conns_num))
-+		goto errattr;
-+	if (nla_put_u32(skb, SMC_NLA_LGR_D_CHID, smc_ism_get_chid(lgr->smcd)))
-+		goto errattr;
-+	snprintf(smc_pnet, sizeof(smc_pnet), "%s", lgr->smcd->pnetid);
-+	if (nla_put_string(skb, SMC_NLA_LGR_D_PNETID, smc_pnet))
-+		goto errattr;
-+
-+	v2_attrs = nla_nest_start_noflag(skb, SMC_NLA_LGR_V2);
-+	if (!v2_attrs)
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_LGR_V2_VER, lgr->smc_version))
-+		goto errv2attr;
-+	if (nla_put_u8(skb, SMC_NLA_LGR_V2_REL, lgr->peer_smc_release))
-+		goto errv2attr;
-+	if (nla_put_u8(skb, SMC_NLA_LGR_V2_OS, lgr->peer_os))
-+		goto errv2attr;
-+	snprintf(smc_host, sizeof(smc_host), "%s", lgr->peer_hostname);
-+	if (nla_put_string(skb, SMC_NLA_LGR_V2_PEER_HOST, smc_host))
-+		goto errv2attr;
-+	snprintf(smc_eid, sizeof(smc_eid), "%s", lgr->negotiated_eid);
-+	if (nla_put_string(skb, SMC_NLA_LGR_V2_NEG_EID, smc_eid))
-+		goto errv2attr;
-+
-+	nla_nest_end(skb, v2_attrs);
-+	nla_nest_end(skb, attrs);
-+	genlmsg_end(skb, nlh);
-+	return 0;
-+
-+errv2attr:
-+	nla_nest_cancel(skb, v2_attrs);
-+errattr:
-+	nla_nest_cancel(skb, attrs);
-+errout:
-+	genlmsg_cancel(skb, nlh);
-+errmsg:
-+	return -EMSGSIZE;
-+}
-+
-+static int smc_nl_handle_smcd_lgr(struct smcd_dev *dev,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb)
-+{
-+	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-+	struct smc_link_group *lgr;
-+	int snum = cb_ctx->pos[1];
-+	int rc = 0, num = 0;
-+
-+	spin_lock_bh(&dev->lgr_lock);
-+	list_for_each_entry(lgr, &dev->lgr_list, list) {
-+		if (!lgr->is_smcd)
-+			continue;
-+		if (num < snum)
-+			goto next;
-+		rc = smc_nl_fill_smcd_lgr(lgr, skb, cb);
-+		if (rc)
-+			goto errout;
-+next:
-+		num++;
-+	}
-+errout:
-+	spin_unlock_bh(&dev->lgr_lock);
-+	cb_ctx->pos[1] = num;
-+	return rc;
-+}
-+
-+static int smc_nl_fill_smcd_dev(struct smcd_dev_list *dev_list,
-+				struct sk_buff *skb,
-+				struct netlink_callback *cb)
-+{
-+	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-+	struct smcd_dev *smcd_dev;
-+	int snum = cb_ctx->pos[0];
-+	int rc = 0, num = 0;
-+
-+	mutex_lock(&dev_list->mutex);
-+	list_for_each_entry(smcd_dev, &dev_list->list, list) {
-+		if (list_empty(&smcd_dev->lgr_list))
-+			continue;
-+		if (num < snum)
-+			goto next;
-+		rc = smc_nl_handle_smcd_lgr(smcd_dev, skb, cb);
-+		if (rc)
-+			goto errout;
-+next:
-+		num++;
-+	}
-+errout:
-+	mutex_unlock(&dev_list->mutex);
-+	cb_ctx->pos[0] = num;
-+	return rc;
-+}
-+
- int smcr_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
+diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+index 0929ff2fd5c1a..76a9e0d0c0710 100644
+--- a/drivers/s390/net/ctcm_mpc.c
++++ b/drivers/s390/net/ctcm_mpc.c
+@@ -2049,7 +2049,6 @@ static void mpc_action_rcvd_xid7(fsm_instance *fsm, i=
+nt event, void *arg)
+  */
+ static int mpc_send_qllc_discontact(struct net_device *dev)
  {
- 	bool list_links = false;
-@@ -442,6 +566,12 @@ int smcr_nl_get_link(struct sk_buff *skb, struct netlink_callback *cb)
- 	return skb->len;
- }
- 
-+int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	smc_nl_fill_smcd_dev(&smcd_dev_list, skb, cb);
-+	return skb->len;
-+}
+-	__u32	new_len	=3D 0;
+ 	struct sk_buff   *skb;
+ 	struct qllc      *qllcptr;
+ 	struct ctcm_priv *priv =3D dev->ml_priv;
+@@ -2080,31 +2079,20 @@ static int mpc_send_qllc_discontact(struct net_devi=
+ce *dev)
+ 	case MPCG_STATE_FLOWC:
+ 	case MPCG_STATE_READY:
+ 		grp->send_qllc_disc =3D 2;
+-		new_len =3D sizeof(struct qllc);
+-		qllcptr =3D kzalloc(new_len, gfp_type() | GFP_DMA);
+-		if (qllcptr =3D=3D NULL) {
+-			CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
+-				"%s(%s): qllcptr allocation error",
+-						CTCM_FUNTAIL, dev->name);
+-			return -ENOMEM;
+-		}
+-
+-		qllcptr->qllc_address =3D 0xcc;
+-		qllcptr->qllc_commands =3D 0x03;
+-
+-		skb =3D __dev_alloc_skb(new_len, GFP_ATOMIC);
+=20
++		skb =3D __dev_alloc_skb(sizeof(struct qllc), GFP_ATOMIC);
+ 		if (skb =3D=3D NULL) {
+ 			CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
+ 				"%s(%s): skb allocation error",
+ 						CTCM_FUNTAIL, dev->name);
+ 			priv->stats.rx_dropped++;
+-			kfree(qllcptr);
+ 			return -ENOMEM;
+ 		}
+=20
+-		skb_put_data(skb, qllcptr, new_len);
+-		kfree(qllcptr);
 +
- void smc_lgr_cleanup_early(struct smc_connection *conn)
- {
- 	struct smc_link_group *lgr = conn->lgr;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 7995621f318d..0b6899a7f634 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -430,6 +430,7 @@ void smcr_link_down_cond_sched(struct smc_link *lnk);
- int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb);
- int smcr_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb);
- int smcr_nl_get_link(struct sk_buff *skb, struct netlink_callback *cb);
-+int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb);
- 
- static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
- {
-diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-index 4212408cc091..7e73e16223a0 100644
---- a/net/smc/smc_netlink.c
-+++ b/net/smc/smc_netlink.c
-@@ -36,6 +36,11 @@ static const struct genl_ops smc_gen_nl_ops[] = {
- 		/* can be retrieved by unprivileged users */
- 		.dumpit = smcr_nl_get_link,
- 	},
-+	{
-+		.cmd = SMC_NETLINK_GET_LGR_SMCD,
-+		/* can be retrieved by unprivileged users */
-+		.dumpit = smcd_nl_get_lgr,
-+	},
- };
- 
- /* SMC_GENL family definition */
--- 
-2.17.1
++		qllcptr =3D skb_put(skb, sizeof(struct qllc));
++		qllcptr->qllc_address =3D 0xcc;
++		qllcptr->qllc_commands =3D 0x03;
+=20
+ 		if (skb_headroom(skb) < 4) {
+ 			CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
+--=20
+2.29.2
