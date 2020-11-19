@@ -1,72 +1,54 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33884 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726013AbgKCKEs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:04:48 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 01/10] mtd_blkdevs: don't override BLKFLSBUF
-Date: Tue,  3 Nov 2020 11:00:09 +0100
-Message-Id: <20201103100018.683694-2-hch@lst.de>
-In-Reply-To: <20201103100018.683694-1-hch@lst.de>
-References: <20201103100018.683694-1-hch@lst.de>
+        with ESMTP id S1727292AbgKSN53 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Nov 2020 08:57:29 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D493C0613CF
+        for <linux-s390@vger.kernel.org>; Thu, 19 Nov 2020 05:57:29 -0800 (PST)
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH v2 5/6] s390/ctcm: Use GFP_KERNEL in add_channel().
+Date: Thu, 19 Nov 2020 14:57:17 +0100
+Message-Id: <20201119135719.983170-6-bigeasy@linutronix.de>
+In-Reply-To: <20201119135719.983170-1-bigeasy@linutronix.de>
+References: <20201119135719.983170-1-bigeasy@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: linux-s390@vger.kernel.org
+Cc: Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-BLKFLSBUF is not supposed to actually send a flush command to the device,
-but to tear down buffer cache structures.  Remove the mtd_blkdevs
-implementation and just use the default semantics instead.
+gfp_type() uses in_interrupt() to figure out the correct GFP mask.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Richard Weinberger <richard@nod.at>
+The usage of in_interrupt() in drivers is phased out and Linus clearly
+requested that code which changes behaviour depending on context should
+either be separated or the context be conveyed in an argument passed by the
+caller, which usually knows the context.
+
+The memory allocation of `ch' a few lines above is using GFP_KERNEL,
+also an allocation a few lines later is using GFP_KERNEL.
+
+Use GFP_KERNEL for the memory allocation.
+
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 ---
- drivers/mtd/mtd_blkdevs.c | 28 ----------------------------
- 1 file changed, 28 deletions(-)
+ drivers/s390/net/ctcm_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/mtd_blkdevs.c b/drivers/mtd/mtd_blkdevs.c
-index 0c05f77f9b216e..fb8e12d590a13a 100644
---- a/drivers/mtd/mtd_blkdevs.c
-+++ b/drivers/mtd/mtd_blkdevs.c
-@@ -298,38 +298,10 @@ static int blktrans_getgeo(struct block_device *bdev, struct hd_geometry *geo)
- 	return ret;
- }
- 
--static int blktrans_ioctl(struct block_device *bdev, fmode_t mode,
--			      unsigned int cmd, unsigned long arg)
--{
--	struct mtd_blktrans_dev *dev = blktrans_dev_get(bdev->bd_disk);
--	int ret = -ENXIO;
--
--	if (!dev)
--		return ret;
--
--	mutex_lock(&dev->lock);
--
--	if (!dev->mtd)
--		goto unlock;
--
--	switch (cmd) {
--	case BLKFLSBUF:
--		ret = dev->tr->flush ? dev->tr->flush(dev) : 0;
--		break;
--	default:
--		ret = -ENOTTY;
--	}
--unlock:
--	mutex_unlock(&dev->lock);
--	blktrans_dev_put(dev);
--	return ret;
--}
--
- static const struct block_device_operations mtd_block_ops = {
- 	.owner		= THIS_MODULE,
- 	.open		= blktrans_open,
- 	.release	= blktrans_release,
--	.ioctl		= blktrans_ioctl,
- 	.getgeo		= blktrans_getgeo,
- };
- 
--- 
-2.28.0
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 0cb130c280031..88efffe81c5ff 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1322,7 +1322,7 @@ static int add_channel(struct ccw_device *cdev, enum =
+ctcm_channel_types type,
+=20
+ 	ch->protocol =3D priv->protocol;
+ 	if (IS_MPC(priv)) {
+-		ch->discontact_th =3D kzalloc(TH_HEADER_LENGTH, gfp_type());
++		ch->discontact_th =3D kzalloc(TH_HEADER_LENGTH, GFP_KERNEL);
+ 		if (ch->discontact_th =3D=3D NULL)
+ 					goto nomem_return;
+=20
+--=20
+2.29.2
