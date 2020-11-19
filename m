@@ -1,52 +1,57 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26044 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728574AbgK3KKs (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 30 Nov 2020 05:10:48 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 5/6] s390/ctcm: Use GFP_KERNEL in add_channel().
-Date: Mon, 30 Nov 2020 11:09:49 +0100
-Message-Id: <20201130100950.42051-6-jwi@linux.ibm.com>
-In-Reply-To: <20201130100950.42051-1-jwi@linux.ibm.com>
-References: <20201130100950.42051-1-jwi@linux.ibm.com>
+Return-Path: <linux-kbuild-owner@vger.kernel.org>
+MIME-Version: 1.0
+Date: Thu, 19 Nov 2020 10:21:12 +0100
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Subject: Re: [RFC PATCH] treewide: remove bzip2 compression support
+In-Reply-To: <20201117223253.65920-1-alex_y_xu@yahoo.ca>
+References: <20201117223253.65920-1-alex_y_xu.ref@yahoo.ca>
+ <20201117223253.65920-1-alex_y_xu@yahoo.ca>
+Message-ID: <a9a7fc22ea6fb6bdeb3274fe05a7f0d9@sf-tec.de>
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>
+Cc: linux-kernel@vger.kernel.org, linux-kbuild@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, torvalds@linux-foundation.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Am 2020-11-17 23:32, schrieb Alex Xu (Hello71):
+> bzip2 is either slower or larger than every other supported algorithm,
+> according to benchmarks at [0]. It is far slower to decompress than any
+> other algorithm, and still larger than lzma, xz, and zstd.
 
-gfp_type() uses in_interrupt() to figure out the correct GFP mask.
+> 
+> diff --git a/Documentation/x86/boot.rst b/Documentation/x86/boot.rst
+> index abb9fc164657..b74d14caabe6 100644
+> --- a/Documentation/x86/boot.rst
+> +++ b/Documentation/x86/boot.rst
+> @@ -781,10 +781,10 @@ Protocol:	2.08+
+>    The payload may be compressed. The format of both the compressed and
+>    uncompressed data should be determined using the standard magic
+>    numbers.  The currently supported compression formats are gzip
+> -  (magic numbers 1F 8B or 1F 9E), bzip2 (magic number 42 5A), LZMA
+> -  (magic number 5D 00), XZ (magic number FD 37), LZ4 (magic number
+> -  02 21) and ZSTD (magic number 28 B5). The uncompressed payload is
+> -  currently always ELF (magic number 7F 45 4C 46).
+> +  (magic numbers 1F 8B or 1F 9E), LZMA (magic number 5D 00), XZ (magic
+> +  number FD 37), LZ4 (magic number 02 21) and ZSTD (magic number 28
+> +  B5). The uncompressed payload is currently always ELF (magic number
+> +  7F 45 4C 46).
+> 
+>  ============	==============
+>  Field name:	payload_length
+> diff --git a/arch/arm/configs/aspeed_g4_defconfig
+> b/arch/arm/configs/aspeed_g4_defconfig
+> index 58d293b63581..f2f5dcd0e59c 100644
 
-The usage of in_interrupt() in drivers is phased out and Linus clearly
-requested that code which changes behaviour depending on context should
-either be separated or the context be conveyed in an argument passed by the
-caller, which usually knows the context.
+I would keep the magic number, and just tell that it is not supported by 
+newer kernels anymore if at all. It's just handy to be able to look into 
+the most recent documentation and see what the values are for. If you 
+look at an older image and don't find the magic number my first impulse 
+would not be to look at older versions of the documentation for things 
+that were removed.
 
-The memory allocation of `ch' a few lines above is using GFP_KERNEL,
-also an allocation a few lines later is using GFP_KERNEL.
+Maybe something like:
 
-Use GFP_KERNEL for the memory allocation.
+"Formerly supported was also bzip2 (magic number 42 5A)."
 
-Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/ctcm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index 92dd3c803d23..c446883de5c8 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -1321,7 +1321,7 @@ static int add_channel(struct ccw_device *cdev, enum ctcm_channel_types type,
- 
- 	ch->protocol = priv->protocol;
- 	if (IS_MPC(priv)) {
--		ch->discontact_th = kzalloc(TH_HEADER_LENGTH, gfp_type());
-+		ch->discontact_th = kzalloc(TH_HEADER_LENGTH, GFP_KERNEL);
- 		if (ch->discontact_th == NULL)
- 					goto nomem_return;
- 
--- 
-2.17.1
+Eike
