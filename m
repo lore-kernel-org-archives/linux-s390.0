@@ -1,52 +1,48 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga04-in.huawei.com ([45.249.212.190]:8168 "EHLO
-        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726142AbgLAGYu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 01:24:50 -0500
-From: Qinglang Miao <miaoqinglang@huawei.com>
-Subject: [PATCH] s390: cio: fix use-after-free in ccw_device_destroy_console
-Date: Tue, 1 Dec 2020 14:31:50 +0800
-Message-ID: <20201201063150.82128-1-miaoqinglang@huawei.com>
+Received: from Galois.linutronix.de ([193.142.43.55]:39052 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725766AbgKTIbw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Nov 2020 03:31:52 -0500
+Date: Fri, 20 Nov 2020 09:31:49 +0100
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH v2 3/6] s390/ctcm: Avoid temporary allocation of struct
+ pdu.
+Message-ID: <20201120083149.vwqpkufo7ddmkrlz@linutronix.de>
+References: <20201119135719.983170-1-bigeasy@linutronix.de>
+ <20201119135719.983170-4-bigeasy@linutronix.de>
+ <a20c5577-b217-68b1-f433-51dc0843aa37@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <a20c5577-b217-68b1-f433-51dc0843aa37@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
+To: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
 
-put_device calls release function which do kfree() inside.
-So following use of sch&cdev would cause use-after-free bugs.
+On 2020-11-20 10:05:45 [+0200], Julian Wiedmann wrote:
+> > diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+> > index a3a74ebfee635..0cb130c280031 100644
+> > --- a/drivers/s390/net/ctcm_main.c
+> > +++ b/drivers/s390/net/ctcm_main.c
+> > @@ -666,24 +666,16 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+> >  	if ((fsm_getstate(ch->fsm) != CTC_STATE_TXIDLE) || grp->in_sweep) {
+> >  		spin_lock_irqsave(&ch->collect_lock, saveflags);
+> >  		refcount_inc(&skb->users);
+> > -		p_header = kmalloc(PDU_HEADER_LENGTH, gfp_type());
+> > -
+> > -		if (!p_header) {
+> > -			spin_unlock_irqrestore(&ch->collect_lock, saveflags);
+> > -				goto nomem_exit;
+> > -		}
+> >  
+> > +		p_header = skb_push(skb, PDU_HEADER_LENGTH);
+> >  		p_header->pdu_offset = skb->len;
+> 
+> I mentioned this in my reply to v1 - here we now need to adjust skb->len
+> for the pushed length. Will fix up while applying (also below).
 
-Fix these by simply adjusting the position of put_device.
+I'm sorry. It took me a while to understand what you meant and then I
+forgot about it while I was here.
+Thank you for taking care of it.
 
-Fixes: 37db8985b211 ("s390/cio: add basic protected virtualization support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Suggested-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
----
- This patch is indeed a v2 of older one. Considering that the
- patch's name has changed, I think a normal prefix 'PATCH' is
- better.
-
- drivers/s390/cio/device.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
-index b29fe8d50..33280ca18 100644
---- a/drivers/s390/cio/device.c
-+++ b/drivers/s390/cio/device.c
-@@ -1664,10 +1664,10 @@ void __init ccw_device_destroy_console(struct ccw_device *cdev)
- 	struct io_subchannel_private *io_priv = to_io_private(sch);
- 
- 	set_io_private(sch, NULL);
--	put_device(&sch->dev);
--	put_device(&cdev->dev);
- 	dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
- 			  io_priv->dma_area, io_priv->dma_area_dma);
-+	put_device(&sch->dev);
-+	put_device(&cdev->dev);
- 	kfree(io_priv);
- }
- 
--- 
-2.23.0
+Sebastian
