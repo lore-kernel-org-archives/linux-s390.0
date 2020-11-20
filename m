@@ -1,189 +1,59 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23226 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729913AbgK0NGm (ORCPT
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:39819 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726775AbgKTIAK (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Nov 2020 08:06:42 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 2/7] s390x: Consolidate sclp read info
-Date: Fri, 27 Nov 2020 08:06:24 -0500
-Message-Id: <20201127130629.120469-3-frankja@linux.ibm.com>
-In-Reply-To: <20201127130629.120469-1-frankja@linux.ibm.com>
-References: <20201127130629.120469-1-frankja@linux.ibm.com>
+        Fri, 20 Nov 2020 03:00:10 -0500
+Date: Fri, 20 Nov 2020 09:00:00 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] s390: cmf: fix use-after-free in enable_cmf
+Message-ID: <20201120090000.5ac4b5b8.cohuck@redhat.com>
+In-Reply-To: <20201120074850.31609-1-miaoqinglang@huawei.com>
+References: <20201120074850.31609-1-miaoqinglang@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Qinglang Miao <miaoqinglang@huawei.com>
+Cc: Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Let's only read the information once and pass a pointer to it instead
-of calling sclp multiple times.
+On Fri, 20 Nov 2020 15:48:50 +0800
+Qinglang Miao <miaoqinglang@huawei.com> wrote:
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- lib/s390x/io.c   |  1 +
- lib/s390x/sclp.c | 29 +++++++++++++++++++++++------
- lib/s390x/sclp.h |  3 +++
- lib/s390x/smp.c  | 28 +++++++++++-----------------
- 4 files changed, 38 insertions(+), 23 deletions(-)
+> kfree(cdev) is called in put_device in the error branch. So that
+> device_unlock(&cdev->dev) would raise a use-after-free bug. In fact,
+> there's no need to call device_unlock after put_device.
+> 
+> Fix it by adding simply return after put_device.
+> 
+> Fixes: a6ef15652d26 ("s390/cio: fix use after free in cmb processing")
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+> ---
+>  drivers/s390/cio/cmf.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/s390/cio/cmf.c b/drivers/s390/cio/cmf.c
+> index 72dd2471e..e95ca476f 100644
+> --- a/drivers/s390/cio/cmf.c
+> +++ b/drivers/s390/cio/cmf.c
+> @@ -1149,9 +1149,12 @@ int enable_cmf(struct ccw_device *cdev)
+>  		sysfs_remove_group(&cdev->dev.kobj, cmbops->attr_group);
+>  		cmbops->free(cdev);
+>  	}
+> +
+>  out:
+> -	if (ret)
+> +	if (ret) {
+>  		put_device(&cdev->dev);
 
-diff --git a/lib/s390x/io.c b/lib/s390x/io.c
-index c0f0bf7..e19a1f3 100644
---- a/lib/s390x/io.c
-+++ b/lib/s390x/io.c
-@@ -36,6 +36,7 @@ void setup(void)
- {
- 	setup_args_progname(ipl_args);
- 	setup_facilities();
-+	sclp_read_info();
- 	sclp_console_setup();
- 	sclp_memory_setup();
- 	smp_setup();
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 4e2ac18..ff56c44 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -25,6 +25,8 @@ extern unsigned long stacktop;
- static uint64_t storage_increment_size;
- static uint64_t max_ram_size;
- static uint64_t ram_size;
-+char _read_info[PAGE_SIZE] __attribute__((__aligned__(4096)));
-+static ReadInfo *read_info;
- 
- char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
- static volatile bool sclp_busy;
-@@ -110,6 +112,22 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
- 	report_abort("READ_SCP_INFO failed");
- }
- 
-+void sclp_read_info(void)
-+{
-+	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
-+	read_info = (ReadInfo *)_read_info;
-+}
-+
-+int sclp_get_cpu_num(void)
-+{
-+	return read_info->entries_cpu;
-+}
-+
-+CPUEntry *sclp_get_cpu_entries(void)
-+{
-+	return (void *)read_info + read_info->offset_cpu;
-+}
-+
- /* Perform service call. Return 0 on success, non-zero otherwise. */
- int sclp_service_call(unsigned int command, void *sccb)
- {
-@@ -127,23 +145,22 @@ int sclp_service_call(unsigned int command, void *sccb)
- 
- void sclp_memory_setup(void)
- {
--	ReadInfo *ri = (void *)_sccb;
- 	uint64_t rnmax, rnsize;
- 	int cc;
- 
--	sclp_read_scp_info(ri, SCCB_SIZE);
-+	assert(read_info);
- 
- 	/* calculate the storage increment size */
--	rnsize = ri->rnsize;
-+	rnsize = read_info->rnsize;
- 	if (!rnsize) {
--		rnsize = ri->rnsize2;
-+		rnsize = read_info->rnsize2;
- 	}
- 	storage_increment_size = rnsize << 20;
- 
- 	/* calculate the maximum memory size */
--	rnmax = ri->rnmax;
-+	rnmax = read_info->rnmax;
- 	if (!rnmax) {
--		rnmax = ri->rnmax2;
-+		rnmax = read_info->rnmax2;
- 	}
- 	max_ram_size = rnmax * storage_increment_size;
- 
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index 675f07e..6620531 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -271,6 +271,9 @@ void sclp_wait_busy(void);
- void sclp_mark_busy(void);
- void sclp_console_setup(void);
- void sclp_print(const char *str);
-+void sclp_read_info(void);
-+int sclp_get_cpu_num(void);
-+CPUEntry *sclp_get_cpu_entries(void);
- int sclp_service_call(unsigned int command, void *sccb);
- void sclp_memory_setup(void);
- uint64_t get_ram_size(void);
-diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-index 77d80ca..f77ad1e 100644
---- a/lib/s390x/smp.c
-+++ b/lib/s390x/smp.c
-@@ -25,7 +25,6 @@
- #include "smp.h"
- #include "sclp.h"
- 
--static char cpu_info_buffer[PAGE_SIZE] __attribute__((__aligned__(4096)));
- static struct cpu *cpus;
- static struct cpu *cpu0;
- static struct spinlock lock;
-@@ -34,8 +33,7 @@ extern void smp_cpu_setup_state(void);
- 
- int smp_query_num_cpus(void)
- {
--	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
--	return info->nr_configured;
-+	return sclp_get_cpu_num();
- }
- 
- struct cpu *smp_cpu_from_addr(uint16_t addr)
-@@ -228,10 +226,10 @@ void smp_teardown(void)
- {
- 	int i = 0;
- 	uint16_t this_cpu = stap();
--	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
-+	int num = smp_query_num_cpus();
- 
- 	spin_lock(&lock);
--	for (; i < info->nr_configured; i++) {
-+	for (; i < num; i++) {
- 		if (cpus[i].active &&
- 		    cpus[i].addr != this_cpu) {
- 			sigp_retry(cpus[i].addr, SIGP_STOP, 0, NULL);
-@@ -245,22 +243,18 @@ extern uint64_t *stackptr;
- void smp_setup(void)
- {
- 	int i = 0;
-+	int num = smp_query_num_cpus();
- 	unsigned short cpu0_addr = stap();
--	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
-+	struct CPUEntry *entry = sclp_get_cpu_entries();
- 
--	spin_lock(&lock);
--	sclp_mark_busy();
--	info->h.length = PAGE_SIZE;
--	sclp_service_call(SCLP_READ_CPU_INFO, cpu_info_buffer);
-+	if (num > 1)
-+		printf("SMP: Initializing, found %d cpus\n", num);
- 
--	if (smp_query_num_cpus() > 1)
--		printf("SMP: Initializing, found %d cpus\n", info->nr_configured);
--
--	cpus = calloc(info->nr_configured, sizeof(cpus));
--	for (i = 0; i < info->nr_configured; i++) {
--		cpus[i].addr = info->entries[i].address;
-+	cpus = calloc(num, sizeof(cpus));
-+	for (i = 0; i < num; i++) {
-+		cpus[i].addr = entry[i].address;
- 		cpus[i].active = false;
--		if (info->entries[i].address == cpu0_addr) {
-+		if (entry[i].address == cpu0_addr) {
- 			cpu0 = &cpus[i];
- 			cpu0->stack = stackptr;
- 			cpu0->lowcore = (void *)0;
--- 
-2.25.1
+The put_device() here undoes a get_device() further up in the function.
+There is at least one more reference remaining, held by the caller of
+enable_cmf(). Returning here would actually introduce a bug (missing
+unlock).
+
+> +		return ret;
+> +	}
+>  out_unlock:
+>  	device_unlock(&cdev->dev);
+>  	return ret;
