@@ -1,55 +1,176 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: YiFei Zhu <zhuyifei1999@gmail.com>
-Subject: [PATCH seccomp v2 7/8] xtensa: Enable seccomp architecture tracking
-Date: Wed, 11 Nov 2020 07:33:53 -0600
-Message-Id: <79669648ba167d668ea6ffb4884250abcd5ed254.1605101222.git.yifeifz2@illinois.edu>
-In-Reply-To: <cover.1605101222.git.yifeifz2@illinois.edu>
-References: <cover.1605101222.git.yifeifz2@illinois.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38862 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727082AbgKTJJw (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Nov 2020 04:09:52 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 3/4] s390/qeth: fix af_iucv notification race
+Date: Fri, 20 Nov 2020 10:09:38 +0100
+Message-Id: <20201120090939.101406-4-jwi@linux.ibm.com>
+In-Reply-To: <20201120090939.101406-1-jwi@linux.ibm.com>
+References: <20201120090939.101406-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: containers@lists.linux-foundation.org
-Cc: YiFei Zhu <yifeifz2@illinois.edu>, linux-csky@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-kernel@vger.kernel.org, Aleksa Sarai <cyphar@cyphar.com>, Andrea Arcangeli <aarcange@redhat.com>, Andy Lutomirski <luto@amacapital.net>, David Laight <David.Laight@aculab.com>, Dimitrios Skarlatos <dskarlat@cs.cmu.edu>, Giuseppe Scrivano <gscrivan@redhat.com>, Hubertus Franke <frankeh@us.ibm.com>, Jack Chen <jianyan2@illinois.edu>, Jann Horn <jannh@google.com>, Josep Torrellas <torrella@illinois.edu>, Kees Cook <keescook@chromium.org>, Tianyin Xu <tyxu@illinois.edu>, Tobin Feldman-Fitzthum <tobin@ibm.com>, Tycho Andersen <tycho@tycho.pizza>, Valentin Rothberg <vrothber@redhat.com>, Will Drewry <wad@chromium.org>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-From: YiFei Zhu <yifeifz2@illinois.edu>
+The two expected notification sequences are
+1. TX_NOTIFY_PENDING with a subsequent TX_NOTIFY_DELAYED_*, when
+   our TX completion code first observed the pending TX and the QAOB
+   then completes at a later time; or
+2. TX_NOTIFY_OK, when qeth_qdio_handle_aob() picked up the QAOB
+   completion before our TX completion code even noticed that the TX
+   was pending.
 
-To enable seccomp constant action bitmaps, we need to have a static
-mapping to the audit architecture and system call table size. Add these
-for xtensa.
+But as qeth_iqd_tx_complete() and qeth_qdio_handle_aob() can run
+concurrently, we may end up with a race that results in a sequence of
+TX_NOTIFY_DELAYED_* followed by TX_NOTIFY_PENDING. Which would confuse
+the af_iucv code in its tracking of pending transmits.
 
-Signed-off-by: YiFei Zhu <yifeifz2@illinois.edu>
+Rework the notification code, so that qeth_qdio_handle_aob() defers its
+notification if the TX completion code is still active.
+
+Fixes: b333293058aa ("qeth: add support for af_iucv HiperSockets transport")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/xtensa/include/asm/Kbuild    |  1 -
- arch/xtensa/include/asm/seccomp.h | 11 +++++++++++
- 2 files changed, 11 insertions(+), 1 deletion(-)
- create mode 100644 arch/xtensa/include/asm/seccomp.h
+ drivers/s390/net/qeth_core.h      |  9 ++--
+ drivers/s390/net/qeth_core_main.c | 73 ++++++++++++++++++++++---------
+ 2 files changed, 58 insertions(+), 24 deletions(-)
 
-diff --git a/arch/xtensa/include/asm/Kbuild b/arch/xtensa/include/asm/Kbuild
-index c59c42a1221a..9718e9593564 100644
---- a/arch/xtensa/include/asm/Kbuild
-+++ b/arch/xtensa/include/asm/Kbuild
-@@ -7,5 +7,4 @@ generic-y += mcs_spinlock.h
- generic-y += param.h
- generic-y += qrwlock.h
- generic-y += qspinlock.h
--generic-y += seccomp.h
- generic-y += user.h
-diff --git a/arch/xtensa/include/asm/seccomp.h b/arch/xtensa/include/asm/seccomp.h
-new file mode 100644
-index 000000000000..f1cb6b0a9e1f
---- /dev/null
-+++ b/arch/xtensa/include/asm/seccomp.h
-@@ -0,0 +1,11 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+#ifndef _ASM_SECCOMP_H
-+#define _ASM_SECCOMP_H
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index f73b4756ed5e..b235393e091c 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -417,10 +417,13 @@ enum qeth_qdio_out_buffer_state {
+ 	QETH_QDIO_BUF_EMPTY,
+ 	/* Filled by driver; owned by hardware in order to be sent. */
+ 	QETH_QDIO_BUF_PRIMED,
+-	/* Identified to be pending in TPQ. */
++	/* Discovered by the TX completion code: */
+ 	QETH_QDIO_BUF_PENDING,
+-	/* Found in completion queue. */
+-	QETH_QDIO_BUF_IN_CQ,
++	/* Finished by the TX completion code: */
++	QETH_QDIO_BUF_NEED_QAOB,
++	/* Received QAOB notification on CQ: */
++	QETH_QDIO_BUF_QAOB_OK,
++	QETH_QDIO_BUF_QAOB_ERROR,
+ 	/* Handled via transfer pending / completion queue. */
+ 	QETH_QDIO_BUF_HANDLED_DELAYED,
+ };
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 715f440bdc7c..48f9e4a027bf 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -511,6 +511,7 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
+ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 				 unsigned long phys_aob_addr)
+ {
++	enum qeth_qdio_out_buffer_state new_state = QETH_QDIO_BUF_QAOB_OK;
+ 	struct qaob *aob;
+ 	struct qeth_qdio_out_buffer *buffer;
+ 	enum iucv_tx_notify notification;
+@@ -522,22 +523,6 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 	buffer = (struct qeth_qdio_out_buffer *) aob->user1;
+ 	QETH_CARD_TEXT_(card, 5, "%lx", aob->user1);
+ 
+-	if (atomic_cmpxchg(&buffer->state, QETH_QDIO_BUF_PRIMED,
+-			   QETH_QDIO_BUF_IN_CQ) == QETH_QDIO_BUF_PRIMED) {
+-		notification = TX_NOTIFY_OK;
+-	} else {
+-		WARN_ON_ONCE(atomic_read(&buffer->state) !=
+-							QETH_QDIO_BUF_PENDING);
+-		atomic_set(&buffer->state, QETH_QDIO_BUF_IN_CQ);
+-		notification = TX_NOTIFY_DELAYED_OK;
+-	}
+-
+-	if (aob->aorc != 0)  {
+-		QETH_CARD_TEXT_(card, 2, "aorc%02X", aob->aorc);
+-		notification = qeth_compute_cq_notification(aob->aorc, 1);
+-	}
+-	qeth_notify_skbs(buffer->q, buffer, notification);
+-
+ 	/* Free dangling allocations. The attached skbs are handled by
+ 	 * qeth_cleanup_handled_pending().
+ 	 */
+@@ -549,7 +534,33 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 		if (data && buffer->is_header[i])
+ 			kmem_cache_free(qeth_core_header_cache, data);
+ 	}
+-	atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
 +
-+#include <asm-generic/seccomp.h>
++	if (aob->aorc) {
++		QETH_CARD_TEXT_(card, 2, "aorc%02X", aob->aorc);
++		new_state = QETH_QDIO_BUF_QAOB_ERROR;
++	}
 +
-+#define SECCOMP_ARCH_NATIVE		AUDIT_ARCH_XTENSA
-+#define SECCOMP_ARCH_NATIVE_NR		NR_syscalls
-+#define SECCOMP_ARCH_NATIVE_NAME	"xtensa"
++	switch (atomic_xchg(&buffer->state, new_state)) {
++	case QETH_QDIO_BUF_PRIMED:
++		/* Faster than TX completion code. */
++		notification = qeth_compute_cq_notification(aob->aorc, 0);
++		qeth_notify_skbs(buffer->q, buffer, notification);
++		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
++		break;
++	case QETH_QDIO_BUF_PENDING:
++		/* TX completion code is active and will handle the async
++		 * completion for us.
++		 */
++		break;
++	case QETH_QDIO_BUF_NEED_QAOB:
++		/* TX completion code is already finished. */
++		notification = qeth_compute_cq_notification(aob->aorc, 1);
++		qeth_notify_skbs(buffer->q, buffer, notification);
++		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
++		break;
++	default:
++		WARN_ON_ONCE(1);
++	}
+ 
+ 	qdio_release_aob(aob);
+ }
+@@ -1417,9 +1428,6 @@ static void qeth_tx_complete_buf(struct qeth_qdio_out_buffer *buf, bool error,
+ 	struct qeth_qdio_out_q *queue = buf->q;
+ 	struct sk_buff *skb;
+ 
+-	/* release may never happen from within CQ tasklet scope */
+-	WARN_ON_ONCE(atomic_read(&buf->state) == QETH_QDIO_BUF_IN_CQ);
+-
+ 	if (atomic_read(&buf->state) == QETH_QDIO_BUF_PENDING)
+ 		qeth_notify_skbs(queue, buf, TX_NOTIFY_GENERALERROR);
+ 
+@@ -5870,9 +5878,32 @@ static void qeth_iqd_tx_complete(struct qeth_qdio_out_q *queue,
+ 
+ 		if (atomic_cmpxchg(&buffer->state, QETH_QDIO_BUF_PRIMED,
+ 						   QETH_QDIO_BUF_PENDING) ==
+-		    QETH_QDIO_BUF_PRIMED)
++		    QETH_QDIO_BUF_PRIMED) {
+ 			qeth_notify_skbs(queue, buffer, TX_NOTIFY_PENDING);
+ 
++			/* Handle race with qeth_qdio_handle_aob(): */
++			switch (atomic_xchg(&buffer->state,
++					    QETH_QDIO_BUF_NEED_QAOB)) {
++			case QETH_QDIO_BUF_PENDING:
++				/* No concurrent QAOB notification. */
++				break;
++			case QETH_QDIO_BUF_QAOB_OK:
++				qeth_notify_skbs(queue, buffer,
++						 TX_NOTIFY_DELAYED_OK);
++				atomic_set(&buffer->state,
++					   QETH_QDIO_BUF_HANDLED_DELAYED);
++				break;
++			case QETH_QDIO_BUF_QAOB_ERROR:
++				qeth_notify_skbs(queue, buffer,
++						 TX_NOTIFY_DELAYED_GENERALERROR);
++				atomic_set(&buffer->state,
++					   QETH_QDIO_BUF_HANDLED_DELAYED);
++				break;
++			default:
++				WARN_ON_ONCE(1);
++			}
++		}
 +
-+#endif /* _ASM_SECCOMP_H */
+ 		QETH_CARD_TEXT_(card, 5, "pel%u", bidx);
+ 
+ 		/* prepare the queue slot for re-use: */
 -- 
-2.29.2
+2.17.1
