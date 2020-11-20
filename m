@@ -1,40 +1,51 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:48636 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728171AbgKUWuF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sat, 21 Nov 2020 17:50:05 -0500
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net] net/af_iucv: set correct sk_protocol for child sockets
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <160599900499.23624.16990303223238817146.git-patchwork-notify@kernel.org>
-Date: Sat, 21 Nov 2020 22:50:04 +0000
-References: <20201120100657.34407-1-jwi@linux.ibm.com>
-In-Reply-To: <20201120100657.34407-1-jwi@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34852 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727137AbgKTKHI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 20 Nov 2020 05:07:08 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net] net/af_iucv: set correct sk_protocol for child sockets
+Date: Fri, 20 Nov 2020 11:06:57 +0100
+Message-Id: <20201120100657.34407-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Julian Wiedmann <jwi@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, kgraul@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Hello:
+Child sockets erroneously inherit their parent's sk_type (ie. SOCK_*),
+instead of the PF_IUCV protocol that the parent was created with in
+iucv_sock_create().
 
-This patch was applied to netdev/net.git (refs/heads/master):
+We're currently not using sk->sk_protocol ourselves, so this shouldn't
+have much impact (except eg. getting the output in skb_dump() right).
 
-On Fri, 20 Nov 2020 11:06:57 +0100 you wrote:
-> Child sockets erroneously inherit their parent's sk_type (ie. SOCK_*),
-> instead of the PF_IUCV protocol that the parent was created with in
-> iucv_sock_create().
-> 
-> We're currently not using sk->sk_protocol ourselves, so this shouldn't
-> have much impact (except eg. getting the output in skb_dump() right).
-> 
-> [...]
+Fixes: eac3731bd04c ("[S390]: Add AF_IUCV socket support")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ net/iucv/af_iucv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Here is the summary with links:
-  - [net] net/af_iucv: set correct sk_protocol for child sockets
-    https://git.kernel.org/netdev/net/c/c5dab0941fcd
-
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
+index 047238f01ba6..db7d888914fa 100644
+--- a/net/iucv/af_iucv.c
++++ b/net/iucv/af_iucv.c
+@@ -1645,7 +1645,7 @@ static int iucv_callback_connreq(struct iucv_path *path,
+ 	}
+ 
+ 	/* Create the new socket */
+-	nsk = iucv_sock_alloc(NULL, sk->sk_type, GFP_ATOMIC, 0);
++	nsk = iucv_sock_alloc(NULL, sk->sk_protocol, GFP_ATOMIC, 0);
+ 	if (!nsk) {
+ 		err = pr_iucv->path_sever(path, user_data);
+ 		iucv_path_free(path);
+@@ -1851,7 +1851,7 @@ static int afiucv_hs_callback_syn(struct sock *sk, struct sk_buff *skb)
+ 		goto out;
+ 	}
+ 
+-	nsk = iucv_sock_alloc(NULL, sk->sk_type, GFP_ATOMIC, 0);
++	nsk = iucv_sock_alloc(NULL, sk->sk_protocol, GFP_ATOMIC, 0);
+ 	bh_lock_sock(sk);
+ 	if ((sk->sk_state != IUCV_LISTEN) ||
+ 	    sk_acceptq_is_full(sk) ||
+-- 
+2.17.1
