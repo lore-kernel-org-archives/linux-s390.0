@@ -1,62 +1,66 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:8540 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725859AbgLAGcl (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 01:32:41 -0500
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Fri, 20 Nov 2020 08:55:26 +0100
+From: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [PATCH] s390: cio: fix two use-after-free bugs in device.c
+Message-ID: <20201120085526.257a5596.cohuck@redhat.com>
+In-Reply-To: <20201120074849.31557-1-miaoqinglang@huawei.com>
 References: <20201120074849.31557-1-miaoqinglang@huawei.com>
- <20201120085526.257a5596.cohuck@redhat.com>
-From: Qinglang Miao <miaoqinglang@huawei.com>
-Message-ID: <a78e4d86-159e-ec3a-64eb-3a035a162a2c@huawei.com>
-Date: Tue, 1 Dec 2020 14:31:52 +0800
 MIME-Version: 1.0
-In-Reply-To: <20201120085526.257a5596.cohuck@redhat.com>
-Content-Type: text/plain; charset="gbk"; format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Cornelia Huck <cohuck@redhat.com>
+To: Qinglang Miao <miaoqinglang@huawei.com>
 Cc: Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Cgrvv73vv70gMjAyMC8xMS8yMCAxNTo1NSwgQ29ybmVsaWEgSHVjayDQtO+/ve+/vToKPiBPbiBG
-cmksIDIwIE5vdiAyMDIwIDE1OjQ4OjQ5ICswODAwCj4gUWluZ2xhbmcgTWlhbyA8bWlhb3Fpbmds
-YW5nQGh1YXdlaS5jb20+IHdyb3RlOgo+IAo+PiBwdXRfZGV2aWNlIGNhbGxzIHJlbGVhc2UgZnVu
-Y3Rpb24gd2hpY2ggZG8ga2ZyZWUoKSBpbnNpZGUuCj4+IFNvIGZvbGxvd2luZyB1c2Ugb2Ygc2No
-JmNkZXYgd291bGQgY2F1c2UgdXNlLWFmdGVyLWZyZWUgYnVncy4KPj4KPj4gRml4IHRoZXNlIGJ5
-IHNpbXBseSBhZGp1c3RpbmcgdGhlIHBvc2l0aW9uIG9mIHB1dF9kZXZpY2UuCj4+Cj4+IEZpeGVz
-OiAzN2RiODk4NWIyMTEgKCJzMzkwL2NpbzogYWRkIGJhc2ljIHByb3RlY3RlZCB2aXJ0dWFsaXph
-dGlvbiBzdXBwb3J0IikKPj4gRml4ZXM6IDc0YmQwZDg1OWRjMyAoInMzOTAvY2lvOiBmaXggdW5s
-b2NrZWQgYWNjZXNzIG9mIG9ubGluZSBtZW1iZXIiKQo+PiBSZXBvcnRlZC1ieTogSHVsayBSb2Jv
-dCA8aHVsa2NpQGh1YXdlaS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IFFpbmdsYW5nIE1pYW8gPG1p
-YW9xaW5nbGFuZ0BodWF3ZWkuY29tPgo+PiAtLS0KPj4gICBkcml2ZXJzL3MzOTAvY2lvL2Rldmlj
-ZS5jIHwgNiArKystLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAzIGRl
-bGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9zMzkwL2Npby9kZXZpY2UuYyBi
-L2RyaXZlcnMvczM5MC9jaW8vZGV2aWNlLmMKPj4gaW5kZXggYjI5ZmU4ZDUwLi42OTQ5MjQxN2Ig
-MTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvczM5MC9jaW8vZGV2aWNlLmMKPj4gKysrIGIvZHJpdmVy
-cy9zMzkwL2Npby9kZXZpY2UuYwo+PiBAQCAtMTY2NCwxMCArMTY2NCwxMCBAQCB2b2lkIF9faW5p
-dCBjY3dfZGV2aWNlX2Rlc3Ryb3lfY29uc29sZShzdHJ1Y3QgY2N3X2RldmljZSAqY2RldikKPj4g
-ICAJc3RydWN0IGlvX3N1YmNoYW5uZWxfcHJpdmF0ZSAqaW9fcHJpdiA9IHRvX2lvX3ByaXZhdGUo
-c2NoKTsKPj4gICAKPj4gICAJc2V0X2lvX3ByaXZhdGUoc2NoLCBOVUxMKTsKPj4gLQlwdXRfZGV2
-aWNlKCZzY2gtPmRldik7Cj4+IC0JcHV0X2RldmljZSgmY2Rldi0+ZGV2KTsKPj4gICAJZG1hX2Zy
-ZWVfY29oZXJlbnQoJnNjaC0+ZGV2LCBzaXplb2YoKmlvX3ByaXYtPmRtYV9hcmVhKSwKPj4gICAJ
-CQkgIGlvX3ByaXYtPmRtYV9hcmVhLCBpb19wcml2LT5kbWFfYXJlYV9kbWEpOwo+PiArCXB1dF9k
-ZXZpY2UoJnNjaC0+ZGV2KTsKPj4gKwlwdXRfZGV2aWNlKCZjZGV2LT5kZXYpOwo+IAo+IFRoYXQg
-Y2hhbmdlIGxvb2tzIHJlYXNvbmFibGUuCj4gCj4+ICAgCWtmcmVlKGlvX3ByaXYpOwo+PiAgIH0K
-Pj4gICAKPj4gQEAgLTE3NzQsOCArMTc3NCw4IEBAIHN0YXRpYyBpbnQgY2N3X2RldmljZV9yZW1v
-dmUoc3RydWN0IGRldmljZSAqZGV2KQo+PiAgIAkJCQkgICAgICByZXQsIGNkZXYtPnByaXZhdGUt
-PmRldl9pZC5zc2lkLAo+PiAgIAkJCQkgICAgICBjZGV2LT5wcml2YXRlLT5kZXZfaWQuZGV2bm8p
-Owo+PiAgIAkJLyogR2l2ZSB1cCByZWZlcmVuY2Ugb2J0YWluZWQgaW4gY2N3X2RldmljZV9zZXRf
-b25saW5lKCkuICovCj4+IC0JCXB1dF9kZXZpY2UoJmNkZXYtPmRldik7Cj4+ICAgCQlzcGluX2xv
-Y2tfaXJxKGNkZXYtPmNjd2xvY2spOwo+PiArCQlwdXRfZGV2aWNlKCZjZGV2LT5kZXYpOwo+IAo+
-IEFzIHRoZSBjb21tZW50IGFib3ZlIHN0YXRlcywgdGhlIHB1dF9kZXZpY2UoKSBnaXZlcyB1cCB0
-aGUgcmVmZXJlbmNlCj4gb2J0YWluZWQgaW4gY2N3X2RldmljZV9zZXRfb25saW5lKCkuIFRoZXJl
-J3MgYXQgbGVhc3Qgb25lIG1vcmUKPiByZWZlcmVuY2UgcmVtYWluaW5nIChoZWxkIGJ5IHRoZSBj
-YWxsZXIgb2YgdGhlIHJlbW92ZSBmdW5jdGlvbikuIE1vdmluZwo+IHRoZSBwdXRfZGV2aWNlKCkg
-ZG9lcyBub3QgZml4IGFueXRoaW5nIGhlcmUuCkhpLCBDb3JuZWxpYQoKU29ycnkgZm9yIHRoZSBk
-ZWxheWVkIHJlcGx5LgoKWW91ciBzdWdnZXN0aW9uIGlzIHJlYXNvbmFibGUsIHRoZXJlIGlzIGEg
-bWlzdGFrZSBpbiB0aGlzIHBhdGNoIGZvciBJIApkaWRuJ3Qgbm90aWNlIHRoYXQgdGhlcmUgd291
-bGQgYmUgYXQgbGVhc3Qgb25lIG1vcmUgcmVmZXJlbmNlIHJlbWFpbmluZy4KClNvIEkgc2VudCBh
-IG5ldyBwYXRjaCBvbmx5IHRvIG1vdmUgcHV0X2RldmljZSBhZnRlciBkbWFfZnJlZV9jb2hlcmVu
-dC4gSSAKcHV0IHRoZSBsaW5rIGFzIGJlbG93OgpodHRwczovL2xvcmUua2VybmVsLm9yZy9sa21s
-LzIwMjAxMjAxMDYzMTUwLjgyMTI4LTEtbWlhb3FpbmdsYW5nQGh1YXdlaS5jb20vCgpUaGFua3Mh
-Cj4gCj4+ICAgCX0KPj4gICAJY2N3X2RldmljZV9zZXRfdGltZW91dChjZGV2LCAwKTsKPj4gICAJ
-Y2Rldi0+ZHJ2ID0gTlVMTDsKPiAKPiAuCj4gCg==
+On Fri, 20 Nov 2020 15:48:49 +0800
+Qinglang Miao <miaoqinglang@huawei.com> wrote:
+
+> put_device calls release function which do kfree() inside.
+> So following use of sch&cdev would cause use-after-free bugs.
+> 
+> Fix these by simply adjusting the position of put_device.
+> 
+> Fixes: 37db8985b211 ("s390/cio: add basic protected virtualization support")
+> Fixes: 74bd0d859dc3 ("s390/cio: fix unlocked access of online member")
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+> ---
+>  drivers/s390/cio/device.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+> index b29fe8d50..69492417b 100644
+> --- a/drivers/s390/cio/device.c
+> +++ b/drivers/s390/cio/device.c
+> @@ -1664,10 +1664,10 @@ void __init ccw_device_destroy_console(struct ccw_device *cdev)
+>  	struct io_subchannel_private *io_priv = to_io_private(sch);
+>  
+>  	set_io_private(sch, NULL);
+> -	put_device(&sch->dev);
+> -	put_device(&cdev->dev);
+>  	dma_free_coherent(&sch->dev, sizeof(*io_priv->dma_area),
+>  			  io_priv->dma_area, io_priv->dma_area_dma);
+> +	put_device(&sch->dev);
+> +	put_device(&cdev->dev);
+
+That change looks reasonable.
+
+>  	kfree(io_priv);
+>  }
+>  
+> @@ -1774,8 +1774,8 @@ static int ccw_device_remove(struct device *dev)
+>  				      ret, cdev->private->dev_id.ssid,
+>  				      cdev->private->dev_id.devno);
+>  		/* Give up reference obtained in ccw_device_set_online(). */
+> -		put_device(&cdev->dev);
+>  		spin_lock_irq(cdev->ccwlock);
+> +		put_device(&cdev->dev);
+
+As the comment above states, the put_device() gives up the reference
+obtained in ccw_device_set_online(). There's at least one more
+reference remaining (held by the caller of the remove function). Moving
+the put_device() does not fix anything here.
+
+>  	}
+>  	ccw_device_set_timeout(cdev, 0);
+>  	cdev->drv = NULL;
