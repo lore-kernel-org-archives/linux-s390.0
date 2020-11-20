@@ -1,128 +1,169 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31322 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54456 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2390892AbgKZUjc (ORCPT
+        by vger.kernel.org with ESMTP id S1726304AbgKTIFZ (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 26 Nov 2020 15:39:32 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v6 05/14] net/smc: Add diagnostic information to smc ib-device
-Date: Thu, 26 Nov 2020 21:39:07 +0100
-Message-Id: <20201126203916.56071-6-kgraul@linux.ibm.com>
-In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
-References: <20201126203916.56071-1-kgraul@linux.ibm.com>
+        Fri, 20 Nov 2020 03:05:25 -0500
+Subject: Re: [PATCH v2 1/6] s390/ctcm: Avoid temporary allocation of struct
+ th_header and th_sweep.
+References: <20201119135719.983170-1-bigeasy@linutronix.de>
+ <20201119135719.983170-2-bigeasy@linutronix.de>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Message-ID: <3c6b65f7-6160-f5b1-4f2e-0fe1b180c1e4@linux.ibm.com>
+Date: Fri, 20 Nov 2020 10:05:06 +0200
+MIME-Version: 1.0
+In-Reply-To: <20201119135719.983170-2-bigeasy@linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-s390@vger.kernel.org
+Cc: Karsten Graul <kgraul@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+On 19.11.20 15:57, Sebastian Andrzej Siewior wrote:
+> The size of struct th_header is 8 byte and the size of struct th_sweep
+> is 16 byte. The memory for is allocated, initialized, used and
+> deallocated a few lines later.
+> 
+> It is more efficient to avoid the allocation/free dance and assign the
+> values directly to skb's data part instead of using memcpy() for it.
+> 
+> Avoid an allocation of struct th_sweep/th_header and use the resulting
+> skb pointer instead.
+> 
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> ---
+>  drivers/s390/net/ctcm_fsms.c | 15 ++++-----------
+>  drivers/s390/net/ctcm_main.c | 32 +++++---------------------------
+>  drivers/s390/net/ctcm_mpc.c  | 17 ++---------------
+>  3 files changed, 11 insertions(+), 53 deletions(-)
+> 
+> diff --git a/drivers/s390/net/ctcm_fsms.c b/drivers/s390/net/ctcm_fsms.c
+> index 661d2a49bce96..b341075397d94 100644
+> --- a/drivers/s390/net/ctcm_fsms.c
+> +++ b/drivers/s390/net/ctcm_fsms.c
+> @@ -1303,12 +1303,10 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+>  	/* p_header points to the last one we handled */
+>  	if (p_header)
+>  		p_header->pdu_flag |= PDU_LAST;	/*Say it's the last one*/
+> -	header = kzalloc(TH_HEADER_LENGTH, gfp_type());
+> -	if (!header) {
+> -		spin_unlock(&ch->collect_lock);
+> -		fsm_event(priv->mpcg->fsm, MPCG_EVENT_INOP, dev);
+> -				goto done;
+> -	}
+> +
+> +	header = skb_push(ch->trans_skb, TH_HEADER_LENGTH);
+> +	memset(header, 0, TH_HEADER_LENGTH);
+> +
+>  	header->th_ch_flag = TH_HAS_PDU;  /* Normal data */
+>  	ch->th_seq_num++;
+>  	header->th_seq_num = ch->th_seq_num;
+> @@ -1316,11 +1314,6 @@ static void ctcmpc_chx_txdone(fsm_instance *fi, int event, void *arg)
+>  	CTCM_PR_DBGDATA("%s: ToVTAM_th_seq= %08x\n" ,
+>  					__func__, ch->th_seq_num);
+>  
+> -	memcpy(skb_push(ch->trans_skb, TH_HEADER_LENGTH), header,
+> -		TH_HEADER_LENGTH);	/* put the TH on the packet */
+> -
+> -	kfree(header);
+> -
+>  	CTCM_PR_DBGDATA("%s: trans_skb len:%04x \n",
+>  		       __func__, ch->trans_skb->len);
+>  	CTCM_PR_DBGDATA("%s: up-to-50 bytes of trans_skb "
+> diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+> index d06809eac16d3..a3a74ebfee635 100644
+> --- a/drivers/s390/net/ctcm_main.c
+> +++ b/drivers/s390/net/ctcm_main.c
+> @@ -623,25 +623,11 @@ static void ctcmpc_send_sweep_req(struct channel *rch)
+>  				goto nomem;
+>  	}
+>  
+> -	header = kmalloc(TH_SWEEP_LENGTH, gfp_type());
+> -
+> -	if (!header) {
+> -		dev_kfree_skb_any(sweep_skb);
+> -		/* rc = -ENOMEM; */
+> -				goto nomem;
+> -	}
+> -
+> -	header->th.th_seg	= 0x00 ;
+> +	header = skb_put(sweep_skb, TH_SWEEP_LENGTH);
+> +	memset(header, 0, TH_SWEEP_LENGTH);
 
-During smc ib-device creation, add network device ifindex to smc
-ib-device structure. Register for netdevice changes and update ib-device
-accordingly. This is needed for diagnostic purposes.
+Will squash this (and the one below) into skb_put_zero() when applying.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_ib.c   | 44 ++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_ib.h   |  2 ++
- net/smc/smc_pnet.c |  2 ++
- 3 files changed, 48 insertions(+)
-
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index fc766b537ac7..61b025c912a9 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -557,6 +557,49 @@ static void smc_ib_cleanup_per_ibdev(struct smc_ib_device *smcibdev)
- 
- static struct ib_client smc_ib_client;
- 
-+static void smc_copy_netdev_ifindex(struct smc_ib_device *smcibdev, int port)
-+{
-+	struct ib_device *ibdev = smcibdev->ibdev;
-+	struct net_device *ndev;
-+
-+	if (!ibdev->ops.get_netdev)
-+		return;
-+	ndev = ibdev->ops.get_netdev(ibdev, port + 1);
-+	if (ndev) {
-+		smcibdev->ndev_ifidx[port] = ndev->ifindex;
-+		dev_put(ndev);
-+	}
-+}
-+
-+void smc_ib_ndev_change(struct net_device *ndev, unsigned long event)
-+{
-+	struct smc_ib_device *smcibdev;
-+	struct ib_device *libdev;
-+	struct net_device *lndev;
-+	u8 port_cnt;
-+	int i;
-+
-+	mutex_lock(&smc_ib_devices.mutex);
-+	list_for_each_entry(smcibdev, &smc_ib_devices.list, list) {
-+		port_cnt = smcibdev->ibdev->phys_port_cnt;
-+		for (i = 0; i < min_t(size_t, port_cnt, SMC_MAX_PORTS); i++) {
-+			libdev = smcibdev->ibdev;
-+			if (!libdev->ops.get_netdev)
-+				continue;
-+			lndev = libdev->ops.get_netdev(libdev, i + 1);
-+			if (lndev)
-+				dev_put(lndev);
-+			if (lndev != ndev)
-+				continue;
-+			if (event == NETDEV_REGISTER)
-+				smcibdev->ndev_ifidx[i] = ndev->ifindex;
-+			if (event == NETDEV_UNREGISTER)
-+				smcibdev->ndev_ifidx[i] = 0;
-+		}
-+	}
-+	mutex_unlock(&smc_ib_devices.mutex);
-+}
-+
- /* callback function for ib_register_client() */
- static int smc_ib_add_dev(struct ib_device *ibdev)
- {
-@@ -596,6 +639,7 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
- 		if (smc_pnetid_by_dev_port(ibdev->dev.parent, i,
- 					   smcibdev->pnetid[i]))
- 			smc_pnetid_by_table_ib(smcibdev, i + 1);
-+		smc_copy_netdev_ifindex(smcibdev, i);
- 		pr_warn_ratelimited("smc:    ib device %s port %d has pnetid "
- 				    "%.16s%s\n",
- 				    smcibdev->ibdev->name, i + 1,
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index 3b85360a473b..ab37da341fa8 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -55,11 +55,13 @@ struct smc_ib_device {				/* ib-device infos for smc */
- 	struct mutex		mutex;		/* protect dev setup+cleanup */
- 	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];
- 						/* number of links per port */
-+	int			ndev_ifidx[SMC_MAX_PORTS]; /* ndev if indexes */
- };
- 
- struct smc_buf_desc;
- struct smc_link;
- 
-+void smc_ib_ndev_change(struct net_device *ndev, unsigned long event);
- int smc_ib_register_client(void) __init;
- void smc_ib_unregister_client(void);
- bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport);
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index f3c18b991d35..6f6d33edb135 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -827,9 +827,11 @@ static int smc_pnet_netdev_event(struct notifier_block *this,
- 	case NETDEV_REBOOT:
- 	case NETDEV_UNREGISTER:
- 		smc_pnet_remove_by_ndev(event_dev);
-+		smc_ib_ndev_change(event_dev, event);
- 		return NOTIFY_OK;
- 	case NETDEV_REGISTER:
- 		smc_pnet_add_by_ndev(event_dev);
-+		smc_ib_ndev_change(event_dev, event);
- 		return NOTIFY_OK;
- 	case NETDEV_UP:
- 		smc_pnet_add_base_pnetid(net, event_dev, ndev_pnetid);
--- 
-2.17.1
+>  	header->th.th_ch_flag	= TH_SWEEP_REQ;  /* 0x0f */
+> -	header->th.th_blk_flag	= 0x00;
+> -	header->th.th_is_xid	= 0x00;
+> -	header->th.th_seq_num	= 0x00;
+>  	header->sw.th_last_seq	= ch->th_seq_num;
+>  
+> -	skb_put_data(sweep_skb, header, TH_SWEEP_LENGTH);
+> -
+> -	kfree(header);
+> -
+>  	netif_trans_update(dev);
+>  	skb_queue_tail(&ch->sweep_queue, sweep_skb);
+>  
+> @@ -768,25 +754,17 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
+>  
+>  	ch->prof.txlen += skb->len - PDU_HEADER_LENGTH;
+>  
+> -	header = kmalloc(TH_HEADER_LENGTH, gfp_type());
+> -	if (!header)
+> -		goto nomem_exit;
+> +	/* put the TH on the packet */
+> +	header = skb_push(skb, TH_HEADER_LENGTH);
+> +	memset(header, 0, TH_HEADER_LENGTH);
+>  
+> -	header->th_seg = 0x00;
+>  	header->th_ch_flag = TH_HAS_PDU;  /* Normal data */
+> -	header->th_blk_flag = 0x00;
+> -	header->th_is_xid = 0x00;          /* Just data here */
+>  	ch->th_seq_num++;
+>  	header->th_seq_num = ch->th_seq_num;
+>  
+>  	CTCM_PR_DBGDATA("%s(%s) ToVTAM_th_seq= %08x\n" ,
+>  		       __func__, dev->name, ch->th_seq_num);
+>  
+> -	/* put the TH on the packet */
+> -	memcpy(skb_push(skb, TH_HEADER_LENGTH), header, TH_HEADER_LENGTH);
+> -
+> -	kfree(header);
+> -
+>  	CTCM_PR_DBGDATA("%s(%s): skb len: %04x\n - pdu header and data for "
+>  			"up to 32 bytes sent to vtam:\n",
+>  				__func__, dev->name, skb->len);
+> diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+> index 85a1a4533cbeb..0929ff2fd5c1a 100644
+> --- a/drivers/s390/net/ctcm_mpc.c
+> +++ b/drivers/s390/net/ctcm_mpc.c
+> @@ -655,24 +655,11 @@ static void ctcmpc_send_sweep_resp(struct channel *rch)
+>  		goto done;
+>  	}
+>  
+> -	header = kmalloc(sizeof(struct th_sweep), gfp_type());
+> -
+> -	if (!header) {
+> -		dev_kfree_skb_any(sweep_skb);
+> -		goto done;
+> -	}
+> -
+> -	header->th.th_seg	= 0x00 ;
+> +	header = skb_put(sweep_skb, TH_SWEEP_LENGTH);
+> +	memset(header, 0, TH_SWEEP_LENGTH);
+>  	header->th.th_ch_flag	= TH_SWEEP_RESP;
+> -	header->th.th_blk_flag	= 0x00;
+> -	header->th.th_is_xid	= 0x00;
+> -	header->th.th_seq_num	= 0x00;
+>  	header->sw.th_last_seq	= ch->th_seq_num;
+>  
+> -	skb_put_data(sweep_skb, header, TH_SWEEP_LENGTH);
+> -
+> -	kfree(header);
+> -
+>  	netif_trans_update(dev);
+>  	skb_queue_tail(&ch->sweep_queue, sweep_skb);
+>  
+> 
