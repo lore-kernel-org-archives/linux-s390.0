@@ -1,61 +1,40 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730567AbgKWTRU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 23 Nov 2020 14:17:20 -0500
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: [PATCH] zlib: export S390 symbols for zlib modules
-Date: Mon, 23 Nov 2020 11:17:12 -0800
-Message-Id: <20201123191712.4882-1-rdunlap@infradead.org>
+Received: from mail.kernel.org ([198.145.29.99]:48636 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728171AbgKUWuF (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 21 Nov 2020 17:50:05 -0500
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net] net/af_iucv: set correct sk_protocol for child sockets
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: <160599900499.23624.16990303223238817146.git-patchwork-notify@kernel.org>
+Date: Sat, 21 Nov 2020 22:50:04 +0000
+References: <20201120100657.34407-1-jwi@linux.ibm.com>
+In-Reply-To: <20201120100657.34407-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@infradead.org>, kernel test robot <lkp@intel.com>, Mikhail Zaslonko <zaslonko@linux.ibm.com>, Ilya Leoshkevich <iii@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, kgraul@linux.ibm.com
 
-Fix build errors when ZLIB_INFLATE=m and ZLIB_DEFLATE=m
-and ZLIB_DFLTCC=y by exporting the 2 needed symbols in
-dfltcc_inflate.c.
+Hello:
 
-Fixes these build errors:
+This patch was applied to netdev/net.git (refs/heads/master):
 
-ERROR: modpost: "dfltcc_inflate" [lib/zlib_inflate/zlib_inflate.ko] undefined!
-ERROR: modpost: "dfltcc_can_inflate" [lib/zlib_inflate/zlib_inflate.ko] undefined!
+On Fri, 20 Nov 2020 11:06:57 +0100 you wrote:
+> Child sockets erroneously inherit their parent's sk_type (ie. SOCK_*),
+> instead of the PF_IUCV protocol that the parent was created with in
+> iucv_sock_create().
+> 
+> We're currently not using sk->sk_protocol ourselves, so this shouldn't
+> have much impact (except eg. getting the output in skb_dump() right).
+> 
+> [...]
 
-Fixes: 126196100063 ("lib/zlib: add s390 hardware support for kernel zlib_inflate")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Mikhail Zaslonko <zaslonko@linux.ibm.com>
-Cc: Ilya Leoshkevich <iii@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
----
- lib/zlib_dfltcc/dfltcc_inflate.c |    3 +++
- 1 file changed, 3 insertions(+)
+Here is the summary with links:
+  - [net] net/af_iucv: set correct sk_protocol for child sockets
+    https://git.kernel.org/netdev/net/c/c5dab0941fcd
 
---- linux-next-20201120.orig/lib/zlib_dfltcc/dfltcc_inflate.c
-+++ linux-next-20201120/lib/zlib_dfltcc/dfltcc_inflate.c
-@@ -4,6 +4,7 @@
- #include "dfltcc_util.h"
- #include "dfltcc.h"
- #include <asm/setup.h>
-+#include <linux/export.h>
- #include <linux/zutil.h>
- 
- /*
-@@ -29,6 +30,7 @@ int dfltcc_can_inflate(
-     return is_bit_set(dfltcc_state->af.fns, DFLTCC_XPND) &&
-                is_bit_set(dfltcc_state->af.fmts, DFLTCC_FMT0);
- }
-+EXPORT_SYMBOL(dfltcc_can_inflate);
- 
- static int dfltcc_was_inflate_used(
-     z_streamp strm
-@@ -147,3 +149,4 @@ dfltcc_inflate_action dfltcc_inflate(
-     return (cc == DFLTCC_CC_OP1_TOO_SHORT || cc == DFLTCC_CC_OP2_TOO_SHORT) ?
-         DFLTCC_INFLATE_BREAK : DFLTCC_INFLATE_CONTINUE;
- }
-+EXPORT_SYMBOL(dfltcc_inflate);
+You are awesome, thank you!
+--
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
