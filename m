@@ -1,211 +1,61 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.110.172]:51952 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725788AbgKWC3O (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 22 Nov 2020 21:29:14 -0500
 From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [RFC 1/3] mm/hotplug: Pre-validate the address range with platform
-Date: Mon, 23 Nov 2020 07:58:47 +0530
-Message-Id: <1606098529-7907-2-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1606098529-7907-1-git-send-email-anshuman.khandual@arm.com>
-References: <1606098529-7907-1-git-send-email-anshuman.khandual@arm.com>
+Subject: [RFC 0/3] mm/hotplug: Pre-validate the address range with platform
+Date: Mon, 23 Nov 2020 07:58:46 +0530
+Message-Id: <1606098529-7907-1-git-send-email-anshuman.khandual@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-mm@kvack.org, akpm@linux-foundation.org, david@redhat.com
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, linux-kernel@vger.kernel.org
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This introduces memhp_range_allowed() which gets called in various hotplug
-paths. Then memhp_range_allowed() calls arch_get_addressable_range() via
-memhp_get_pluggable_range(). This callback can be defined by the platform
-to provide addressable physical range, depending on whether kernel linear
-mapping is required or not. This mechanism will prevent platform specific
-errors deep down during hotplug calls. While here, this drops now redundant
-check_hotplug_memory_addressable() check in __add_pages().
+This series adds a mechanism allowing platforms to weigh in and prevalidate
+incoming address range before proceeding further with the memory hotplug.
+This helps prevent potential platform errors for the given address range,
+down the hotplug call chain, which inevitably fails the hotplug itself.
 
+This mechanism was suggested by David Hildenbrand during another discussion
+with respect to a memory hotplug fix on arm64 platform.
+
+https://lore.kernel.org/linux-arm-kernel/1600332402-30123-1-git-send-email-anshuman.khandual@arm.com/
+
+This mechanism focuses on the addressibility aspect and not [sub] section
+alignment aspect. Hence check_hotplug_memory_range() and check_pfn_span()
+have been left unchanged. Wondering if all these can still be unified in
+an expanded memhp_range_allowed() check, that can be called from multiple
+memory hot add and remove paths.
+
+This series applies on v5.10-rc5 and has been slightly tested on arm64.
+But looking for some early feedback here.
+
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
 Cc: David Hildenbrand <david@redhat.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-s390@vger.kernel.org
 Cc: linux-mm@kvack.org
 Cc: linux-kernel@vger.kernel.org
-Suggested-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- include/linux/memory_hotplug.h | 51 ++++++++++++++++++++++++++++++++++
- mm/memory_hotplug.c            | 29 ++++++-------------
- mm/memremap.c                  |  9 +++++-
- 3 files changed, 68 insertions(+), 21 deletions(-)
 
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 551093b74596..2018c0201672 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -6,6 +6,7 @@
- #include <linux/spinlock.h>
- #include <linux/notifier.h>
- #include <linux/bug.h>
-+#include <linux/range.h>
- 
- struct page;
- struct zone;
-@@ -70,6 +71,56 @@ typedef int __bitwise mhp_t;
-  */
- #define MEMHP_MERGE_RESOURCE	((__force mhp_t)BIT(0))
- 
-+/*
-+ * Platforms should define arch_get_addressable_range() which provides
-+ * addressable physical memory range depending upon whether the linear
-+ * mapping is required or not. Returned address range must follow
-+ *
-+ * 1. range.start <= range.end
-+ * 1. Must include end both points i.e range.start and range.end
-+ *
-+ * Nonetheless there is a fallback definition provided here providing
-+ * maximum possible addressable physical range, irrespective of the
-+ * linear mapping requirements.
-+ */
-+#ifndef arch_get_addressable_range
-+static inline struct range arch_get_addressable_range(bool need_mapping)
-+{
-+	struct range memhp_range = {
-+		.start = 0UL,
-+		.end = -1ULL,
-+	};
-+	return memhp_range;
-+}
-+#endif
-+
-+static inline struct range memhp_get_pluggable_range(bool need_mapping)
-+{
-+	const u64 max_phys = (1ULL << (MAX_PHYSMEM_BITS + 1)) - 1;
-+	struct range memhp_range = arch_get_addressable_range(need_mapping);
-+
-+	if (memhp_range.start > max_phys) {
-+		memhp_range.start = 0;
-+		memhp_range.end = 0;
-+	}
-+	memhp_range.end = min_t(u64, memhp_range.end, max_phys);
-+	return memhp_range;
-+}
-+
-+static inline bool memhp_range_allowed(u64 start, u64 size, bool need_mapping)
-+{
-+	struct range memhp_range = memhp_get_pluggable_range(need_mapping);
-+	u64 end = start + size;
-+
-+	if ((start < end) && (start >= memhp_range.start) &&
-+	   ((end - 1) <= memhp_range.end))
-+		return true;
-+
-+	WARN(1, "Hotplug memory [%#llx-%#llx] exceeds maximum addressable range [%#llx-%#llx]\n",
-+		start, end, memhp_range.start, memhp_range.end);
-+	return false;
-+}
-+
- /*
-  * Extended parameters for memory hotplug:
-  * altmap: alternative allocator for memmap array (optional)
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 63b2e46b6555..9efb6c8558ed 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -284,22 +284,6 @@ static int check_pfn_span(unsigned long pfn, unsigned long nr_pages,
- 	return 0;
- }
- 
--static int check_hotplug_memory_addressable(unsigned long pfn,
--					    unsigned long nr_pages)
--{
--	const u64 max_addr = PFN_PHYS(pfn + nr_pages) - 1;
--
--	if (max_addr >> MAX_PHYSMEM_BITS) {
--		const u64 max_allowed = (1ull << (MAX_PHYSMEM_BITS + 1)) - 1;
--		WARN(1,
--		     "Hotplugged memory exceeds maximum addressable address, range=%#llx-%#llx, maximum=%#llx\n",
--		     (u64)PFN_PHYS(pfn), max_addr, max_allowed);
--		return -E2BIG;
--	}
--
--	return 0;
--}
--
- /*
-  * Reasonably generic function for adding memory.  It is
-  * expected that archs that support memory hotplug will
-@@ -317,10 +301,6 @@ int __ref __add_pages(int nid, unsigned long pfn, unsigned long nr_pages,
- 	if (WARN_ON_ONCE(!params->pgprot.pgprot))
- 		return -EINVAL;
- 
--	err = check_hotplug_memory_addressable(pfn, nr_pages);
--	if (err)
--		return err;
--
- 	if (altmap) {
- 		/*
- 		 * Validate altmap is within bounds of the total request
-@@ -1109,6 +1089,9 @@ int __ref __add_memory(int nid, u64 start, u64 size, mhp_t mhp_flags)
- 	struct resource *res;
- 	int ret;
- 
-+	if (!memhp_range_allowed(start, size, 1))
-+		return -ERANGE;
-+
- 	res = register_memory_resource(start, size, "System RAM");
- 	if (IS_ERR(res))
- 		return PTR_ERR(res);
-@@ -1123,6 +1106,9 @@ int add_memory(int nid, u64 start, u64 size, mhp_t mhp_flags)
- {
- 	int rc;
- 
-+	if (!memhp_range_allowed(start, size, 1))
-+		return -ERANGE;
-+
- 	lock_device_hotplug();
- 	rc = __add_memory(nid, start, size, mhp_flags);
- 	unlock_device_hotplug();
-@@ -1163,6 +1149,9 @@ int add_memory_driver_managed(int nid, u64 start, u64 size,
- 	    resource_name[strlen(resource_name) - 1] != ')')
- 		return -EINVAL;
- 
-+	if (!memhp_range_allowed(start, size, 0))
-+		return -ERANGE;
-+
- 	lock_device_hotplug();
- 
- 	res = register_memory_resource(start, size, resource_name);
-diff --git a/mm/memremap.c b/mm/memremap.c
-index 16b2fb482da1..388a34b068c1 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -188,6 +188,7 @@ static int pagemap_range(struct dev_pagemap *pgmap, struct mhp_params *params,
- 	struct range *range = &pgmap->ranges[range_id];
- 	struct dev_pagemap *conflict_pgmap;
- 	int error, is_ram;
-+	bool is_private = false;
- 
- 	if (WARN_ONCE(pgmap_altmap(pgmap) && range_id > 0,
- 				"altmap not supported for multiple ranges\n"))
-@@ -207,6 +208,9 @@ static int pagemap_range(struct dev_pagemap *pgmap, struct mhp_params *params,
- 		return -ENOMEM;
- 	}
- 
-+	if (pgmap->type == MEMORY_DEVICE_PRIVATE)
-+		is_private = true;
-+
- 	is_ram = region_intersects(range->start, range_len(range),
- 		IORESOURCE_SYSTEM_RAM, IORES_DESC_NONE);
- 
-@@ -230,6 +234,9 @@ static int pagemap_range(struct dev_pagemap *pgmap, struct mhp_params *params,
- 	if (error)
- 		goto err_pfn_remap;
- 
-+	if (!memhp_range_allowed(range->start, range_len(range), !is_private))
-+		goto err_pfn_remap;
-+
- 	mem_hotplug_begin();
- 
- 	/*
-@@ -243,7 +250,7 @@ static int pagemap_range(struct dev_pagemap *pgmap, struct mhp_params *params,
- 	 * the CPU, we do want the linear mapping and thus use
- 	 * arch_add_memory().
- 	 */
--	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
-+	if (is_private) {
- 		error = add_pages(nid, PHYS_PFN(range->start),
- 				PHYS_PFN(range_len(range)), params);
- 	} else {
+Anshuman Khandual (3):
+  mm/hotplug: Pre-validate the address range with platform
+  arm64/mm: Define arch_get_addressable_range()
+  s390/mm: Define arch_get_addressable_range()
+
+ arch/arm64/include/asm/memory.h |  3 ++
+ arch/arm64/mm/mmu.c             | 19 ++++++------
+ arch/s390/include/asm/mmu.h     |  2 ++
+ arch/s390/mm/vmem.c             | 16 ++++++++---
+ include/linux/memory_hotplug.h  | 51 +++++++++++++++++++++++++++++++++
+ mm/memory_hotplug.c             | 29 ++++++-------------
+ mm/memremap.c                   |  9 +++++-
+ 7 files changed, 96 insertions(+), 33 deletions(-)
+
 -- 
 2.20.1
