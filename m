@@ -1,49 +1,55 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:8011 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726509AbgKTHoU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 20 Nov 2020 02:44:20 -0500
-From: Qinglang Miao <miaoqinglang@huawei.com>
-Subject: [PATCH] s390: cmf: fix use-after-free in enable_cmf
-Date: Fri, 20 Nov 2020 15:48:50 +0800
-Message-ID: <20201120074850.31609-1-miaoqinglang@huawei.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:54806 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729873AbgKWTMz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 23 Nov 2020 14:12:55 -0500
+Subject: Re: [RFC PATCH 1/2] vfio-mdev: Wire in a request handler for mdev
+ parent
+References: <20201117032139.50988-1-farman@linux.ibm.com>
+ <20201117032139.50988-2-farman@linux.ibm.com>
+ <20201119123026.1353cb3c.cohuck@redhat.com>
+ <20201119165611.6a811d76.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <0fead493-332e-ff0a-ffea-c3b162cfe347@linux.ibm.com>
+Date: Mon, 23 Nov 2020 14:12:48 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20201119165611.6a811d76.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
+To: Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: Eric Farman <farman@linux.ibm.com>, Kirti Wankhede <kwankhede@nvidia.com>, Alex Williamson <alex.williamson@redhat.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-kfree(cdev) is called in put_device in the error branch. So that
-device_unlock(&cdev->dev) would raise a use-after-free bug. In fact,
-there's no need to call device_unlock after put_device.
 
-Fix it by adding simply return after put_device.
 
-Fixes: a6ef15652d26 ("s390/cio: fix use after free in cmb processing")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
----
- drivers/s390/cio/cmf.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+On 11/19/20 10:56 AM, Halil Pasic wrote:
+> On Thu, 19 Nov 2020 12:30:26 +0100
+> Cornelia Huck <cohuck@redhat.com> wrote:
+>
+>>> +static void vfio_mdev_request(void *device_data, unsigned int count)
+>>> +{
+>>> +	struct mdev_device *mdev = device_data;
+>>> +	struct mdev_parent *parent = mdev->parent;
+>>> +
+>>> +	if (unlikely(!parent->ops->request))
+>> Hm. Do you think that all drivers should implement a ->request()
+>> callback?
+> @Tony: What do you think, does vfio_ap need something like this?
+>
+> BTW how is this supposed to work in a setup where the one parent
+> has may children (like vfio_ap or the gpu slice and dice usecases).
+>
+> After giving this some thought I'm under the impression, I don't
+> get the full picture yet.
 
-diff --git a/drivers/s390/cio/cmf.c b/drivers/s390/cio/cmf.c
-index 72dd2471e..e95ca476f 100644
---- a/drivers/s390/cio/cmf.c
-+++ b/drivers/s390/cio/cmf.c
-@@ -1149,9 +1149,12 @@ int enable_cmf(struct ccw_device *cdev)
- 		sysfs_remove_group(&cdev->dev.kobj, cmbops->attr_group);
- 		cmbops->free(cdev);
- 	}
-+
- out:
--	if (ret)
-+	if (ret) {
- 		put_device(&cdev->dev);
-+		return ret;
-+	}
- out_unlock:
- 	device_unlock(&cdev->dev);
- 	return ret;
--- 
-2.23.0
+Eric Farman touched base with me on Friday to discuss this, but
+I was on my way out the door for an appointment. He is off this
+week; so, the bottom line for me is that I don't have even a
+piece of the picture here and therefore don't have enough
+info to speculate on whether vfio_ap needs something like this.
+
+>
+> Regards,
+> Halil
