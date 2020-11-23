@@ -1,138 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:57928 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728147AbgKCKZ5 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:25:57 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 14/15] net/smc: Refactor smc ism v2 capability handling
-Date: Tue,  3 Nov 2020 11:25:30 +0100
-Message-Id: <20201103102531.91710-15-kgraul@linux.ibm.com>
-In-Reply-To: <20201103102531.91710-1-kgraul@linux.ibm.com>
-References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:29039 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732675AbgKWQKn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 23 Nov 2020 11:10:43 -0500
+Date: Mon, 23 Nov 2020 17:10:30 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 2/2] s390/gmap: make gmap memcg aware
+Message-ID: <20201123171030.7f11dbc4.cohuck@redhat.com>
+In-Reply-To: <20201117151023.424575-3-borntraeger@de.ibm.com>
+References: <20201117151023.424575-1-borntraeger@de.ibm.com>
+        <20201117151023.424575-3-borntraeger@de.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: Janosch Frank <frankja@linux.vnet.ibm.com>, KVM <kvm@vger.kernel.org>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+On Tue, 17 Nov 2020 16:10:23 +0100
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Encapsulate the smc ism v2 capability boolean value
-in a function for better information hiding.
+> gmap allocations can be attributed to a process.
+> 
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> Acked-by: Heiko Carstens <hca@linux.ibm.com>
+> ---
+>  arch/s390/mm/gmap.c | 30 +++++++++++++++---------------
+>  1 file changed, 15 insertions(+), 15 deletions(-)
+> 
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/af_smc.c  | 12 ++++++------
- net/smc/smc_ism.c |  9 ++++++++-
- net/smc/smc_ism.h |  5 ++---
- 3 files changed, 16 insertions(+), 10 deletions(-)
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bc3e45289771..850e6df47a59 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -668,7 +668,7 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
- 				ini->smc_type_v1 = SMC_TYPE_N;
- 		} /* else RDMA is supported for this connection */
- 	}
--	if (smc_ism_v2_capable && smc_find_ism_v2_device_clnt(smc, ini))
-+	if (smc_ism_is_v2_capable() && smc_find_ism_v2_device_clnt(smc, ini))
- 		ini->smc_type_v2 = SMC_TYPE_N;
- 
- 	/* if neither ISM nor RDMA are supported, fallback */
-@@ -920,7 +920,7 @@ static int smc_connect_check_aclc(struct smc_init_info *ini,
- /* perform steps before actually connecting */
- static int __smc_connect(struct smc_sock *smc)
- {
--	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
-+	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
- 	struct smc_clc_msg_accept_confirm_v2 *aclc2;
- 	struct smc_clc_msg_accept_confirm *aclc;
- 	struct smc_init_info *ini = NULL;
-@@ -945,9 +945,9 @@ static int __smc_connect(struct smc_sock *smc)
- 						    version);
- 
- 	ini->smcd_version = SMC_V1;
--	ini->smcd_version |= smc_ism_v2_capable ? SMC_V2 : 0;
-+	ini->smcd_version |= smc_ism_is_v2_capable() ? SMC_V2 : 0;
- 	ini->smc_type_v1 = SMC_TYPE_B;
--	ini->smc_type_v2 = smc_ism_v2_capable ? SMC_TYPE_D : SMC_TYPE_N;
-+	ini->smc_type_v2 = smc_ism_is_v2_capable() ? SMC_TYPE_D : SMC_TYPE_N;
- 
- 	/* get vlan id from IP device */
- 	if (smc_vlan_by_tcpsk(smc->clcsock, ini)) {
-@@ -1354,7 +1354,7 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
- 		rc = SMC_CLC_DECL_PEERNOSMC;
- 		goto out;
- 	}
--	if (!smc_ism_v2_capable) {
-+	if (!smc_ism_is_v2_capable()) {
- 		ini->smcd_version &= ~SMC_V2;
- 		rc = SMC_CLC_DECL_NOISM2SUPP;
- 		goto out;
-@@ -1680,7 +1680,7 @@ static void smc_listen_work(struct work_struct *work)
- {
- 	struct smc_sock *new_smc = container_of(work, struct smc_sock,
- 						smc_listen_work);
--	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
-+	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
- 	struct socket *newclcsock = new_smc->clcsock;
- 	struct smc_clc_msg_accept_confirm *cclc;
- 	struct smc_clc_msg_proposal_area *buf;
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 5bb2c7fb4ea8..2a2571637bc6 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -22,7 +22,7 @@ struct smcd_dev_list smcd_dev_list = {
- };
- EXPORT_SYMBOL_GPL(smcd_dev_list);
- 
--bool smc_ism_v2_capable;
-+static bool smc_ism_v2_capable;
- 
- /* Test if an ISM communication is possible - same CPC */
- int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *smcd)
-@@ -53,6 +53,13 @@ u16 smc_ism_get_chid(struct smcd_dev *smcd)
- }
- EXPORT_SYMBOL_GPL(smc_ism_get_chid);
- 
-+/* HW supports ISM V2 and thus System EID is defined */
-+bool smc_ism_is_v2_capable(void)
-+{
-+	return smc_ism_v2_capable;
-+}
-+EXPORT_SYMBOL_GPL(smc_ism_is_v2_capable);
-+
- /* Set a connection using this DMBE. */
- void smc_ism_set_conn(struct smc_connection *conn)
- {
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 8048e09ddcf8..481a4b7df30b 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -10,6 +10,7 @@
- #define SMCD_ISM_H
- 
- #include <linux/uio.h>
-+#include <linux/types.h>
- #include <linux/mutex.h>
- 
- #include "smc.h"
-@@ -20,9 +21,6 @@ struct smcd_dev_list {	/* List of SMCD devices */
- };
- 
- extern struct smcd_dev_list	smcd_dev_list;	/* list of smcd devices */
--extern bool	smc_ism_v2_capable;	/* HW supports ISM V2 and thus
--					 * System EID is defined
--					 */
- 
- struct smc_ism_vlanid {			/* VLAN id set on ISM device */
- 	struct list_head list;
-@@ -52,5 +50,6 @@ int smc_ism_write(struct smcd_dev *dev, const struct smc_ism_position *pos,
- int smc_ism_signal_shutdown(struct smc_link_group *lgr);
- void smc_ism_get_system_eid(struct smcd_dev *dev, u8 **eid);
- u16 smc_ism_get_chid(struct smcd_dev *dev);
-+bool smc_ism_is_v2_capable(void);
- void smc_ism_init(void);
- #endif
--- 
-2.17.1
+Acked-by: Cornelia Huck <cohuck@redhat.com>
