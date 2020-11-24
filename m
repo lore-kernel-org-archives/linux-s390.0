@@ -1,112 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 24 Nov 2020 23:18:14 +0000
+From: Sean Christopherson <seanjc@google.com>
 Subject: Re: [RFC Patch 0/2] KVM: SVM: Cgroup support for SVM SEV ASIDs
-References: <20201124191629.GB235281@google.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <d738731e-bda2-031c-c301-94e3cf6b5e44@de.ibm.com>
-Date: Fri, 27 Nov 2020 19:01:08 +0100
+Message-ID: <20201124231814.GA258638@google.com>
+References: <alpine.DEB.2.23.453.2011131615510.333518@chino.kir.corp.google.com>
+ <20201124191629.GB235281@google.com>
+ <20201124194904.GA45519@google.com>
+ <alpine.DEB.2.23.453.2011241215400.3594395@chino.kir.corp.google.com>
+ <20201124210817.GA65542@google.com>
+ <20201124212725.GB246319@google.com>
+ <20201124222149.GB65542@google.com>
 MIME-Version: 1.0
-In-Reply-To: <20201124191629.GB235281@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201124222149.GB65542@google.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Sean Christopherson <seanjc@google.com>, David Rientjes <rientjes@google.com>
-Cc: Janosch Frank <frankja@linux.ibm.com>, Vipin Sharma <vipinsh@google.com>, Lendacky@google.com, Thomas <thomas.lendacky@amd.com>, pbonzini@redhat.com, tj@kernel.org, lizefan@huawei.com, joro@8bytes.org, corbet@lwn.net, Singh@google.com, Brijesh <brijesh.singh@amd.com>, Grimm@google.com, Jon <jon.grimm@amd.com>, VanTassell@google.com, Eric <eric.vantassell@amd.com>, gingell@google.com, kvm@vger.kernel.org, x86@kernel.org, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Vipin Sharma <vipinsh@google.com>
+Cc: David Rientjes <rientjes@google.com>, Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas <thomas.lendacky@amd.com>, pbonzini@redhat.com, tj@kernel.org, lizefan@huawei.com, joro@8bytes.org, corbet@lwn.net, Brijesh <brijesh.singh@amd.com>, Jon <jon.grimm@amd.com>, Eric <eric.vantassell@amd.com>, gingell@google.com, kvm@vger.kernel.org, x86@kernel.org, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On Tue, Nov 24, 2020, Vipin Sharma wrote:
+> On Tue, Nov 24, 2020 at 09:27:25PM +0000, Sean Christopherson wrote:
+> > Is a root level stat file needed?  Can't the infrastructure do .max - .current
+> > on the root cgroup to calculate the number of available ids in the system?
+> 
+> For an efficient scheduling of workloads in the cloud infrastructure, a
+> scheduler needs to know the total capacity supported and the current
+> usage of the host to get the overall picture. There are some issues with
+> .max -.current approach:
+> 
+> 1. Cgroup v2 convention is to not put resource control files in the
+>    root. This will mean we need to sum (.max -.current) in all of the
+>    immediate children of the root.
 
+Ah, that's annoying.  Now that you mention it, I do vaguely recall this behavior.
+ 
+> 2. .max can have any limit unless we add a check to not allow a user to
+>    set any value more than the supported one. 
 
-On 24.11.20 20:16, Sean Christopherson wrote:
-> On Fri, Nov 13, 2020, David Rientjes wrote:                                     
->>                                                                               
->> On Mon, 2 Nov 2020, Sean Christopherson wrote:                                
->>                                                                               
->>> On Fri, Oct 02, 2020 at 01:48:10PM -0700, Vipin Sharma wrote:               
->>>> On Fri, Sep 25, 2020 at 03:22:20PM -0700, Vipin Sharma wrote:             
->>>>> I agree with you that the abstract name is better than the concrete     
->>>>> name, I also feel that we must provide HW extensions. Here is one       
->>>>> approach:                                                               
->>>>>                                                                         
->>>>> Cgroup name: cpu_encryption, encryption_slots, or memcrypt (open to     
->>>>> suggestions)                                                            
->>>>>                                                                         
->>>>> Control files: slots.{max, current, events}                             
->>>                                                                             
->>> I don't particularly like the "slots" name, mostly because it could be confused
->>> with KVM's memslots.  Maybe encryption_ids.ids.{max, current, events}?  I don't
->>> love those names either, but "encryption" and "IDs" are the two obvious     
->>> commonalities betwee TDX's encryption key IDs and SEV's encryption address  
->>> space IDs.                                                                  
->>>                                                                             
->>                                                                               
->> Looping Janosch and Christian back into the thread.                           
->>                                                                               
->> I interpret this suggestion as                                                
->> encryption.{sev,sev_es,keyids}.{max,current,events} for AMD and Intel         
-> 
-> I think it makes sense to use encryption_ids instead of simply encryption, that
-> way it's clear the cgroup is accounting ids as opposed to restricting what
-> techs can be used on yes/no basis.
+Duh, didn't think that one through.
 
-For what its worth the IDs for s390x are called SEIDs (secure execution IDs)
-
-> 
->> offerings, which was my thought on this as well.                              
->>                                                                               
->> Certainly the kernel could provide a single interface for all of these and    
->> key value pairs depending on the underlying encryption technology but it      
->> seems to only introduce additional complexity in the kernel in string         
->> parsing that can otherwise be avoided.  I think we all agree that a single    
->> interface for all encryption keys or one-value-per-file could be done in      
->> the kernel and handled by any userspace agent that is configuring these       
->> values.                                                                       
->>                                                                               
->> I think Vipin is adding a root level file that describes how many keys we     
->> have available on the platform for each technology.  So I think this comes    
->> down to, for example, a single encryption.max file vs                         
->> encryption.{sev,sev_es,keyid}.max.  SEV and SEV-ES ASIDs are provisioned      
-> 
-> Are you suggesting that the cgroup omit "current" and "events"?  I agree there's
-> no need to enumerate platform total, but not knowing how many of the allowed IDs
-> have been allocated seems problematic.
-> 
->> separately so we treat them as their own resource here.                       
->>                                                                               
->> So which is easier?                                                           
->>                                                                               
->> $ cat encryption.sev.max                                                      
->> 10                                                                            
->> $ echo -n 15 > encryption.sev.max                                             
->>                                                                               
->> or                                                                            
->>                                                                               
->> $ cat encryption.max                                                          
->> sev 10                                                                        
->> sev_es 10                                                                     
->> keyid 0                                                                       
->> $ echo -n "sev 10" > encryption.max                                           
->>                                                                               
->> I would argue the former is simplest (always preferring                       
->> one-value-per-file) and avoids any string parsing or resource controller      
->> lookups that need to match on that string in the kernel.                      
-
-I like the idea of having encryption_ids.max for all platforms. 
-If we go for individual files using "seid" for s390 seems the best name.
-
-> 
-> Ya, I prefer individual files as well.
-> 
-> I don't think "keyid" is the best name for TDX, it doesn't leave any wiggle room
-> if there are other flavors of key IDs on Intel platform, e.g. private vs. shared
-> in the future.  It's also inconsistent with the SEV names, e.g. "asid" isn't
-> mentioned anywhere.  And "keyid" sort of reads as "max key id", rather than "max
-> number of keyids".  Maybe "tdx_private", or simply "tdx"?  Doesn't have to be
-> solved now though, there's plenty of time before TDX will be upstream. :-)
-> 
->> The set of encryption.{sev,sev_es,keyid} files that exist would depend on     
->> CONFIG_CGROUP_ENCRYPTION and whether CONFIG_AMD_MEM_ENCRYPT or                
->> CONFIG_INTEL_TDX is configured.  Both can be configured so we have all        
->> three files, but the root file will obviously indicate 0 keys available       
->> for one of them (can't run on AMD and Intel at the same time :).              
->>                                                                               
->> So I'm inclined to suggest that the one-value-per-file format is the ideal    
->> way to go unless there are objections to it.
+Thanks!
