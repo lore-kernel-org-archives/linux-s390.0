@@ -1,79 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13788 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390856AbgKZUjb (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9742 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404014AbgKXRwb (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 26 Nov 2020 15:39:31 -0500
+        Tue, 24 Nov 2020 12:52:31 -0500
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v6 06/14] net/smc: Add diagnostic information to link structure
-Date: Thu, 26 Nov 2020 21:39:08 +0100
-Message-Id: <20201126203916.56071-7-kgraul@linux.ibm.com>
-In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
-References: <20201126203916.56071-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next v5 01/14] net/smc: use helper smc_conn_abort() in listen processing
+Date: Tue, 24 Nov 2020 18:50:34 +0100
+Message-Id: <20201124175047.56949-2-kgraul@linux.ibm.com>
+In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
+References: <20201124175047.56949-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
 Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+The helper smc_connect_abort() can be used by the listen processing
+functions, too. And rename this helper to smc_conn_abort() to make the
+purpose clearer.
+No functional change.
 
-During link creation add net-device ifindex and ib-device
-name to link structure. This is needed for diagnostic purposes.
-
-When diagnostic information is gathered, we need to traverse
-device, linkgroup and link structures, to be able to do that
-we need to hold a spinlock for the linkgroup list, without this
-diagnostic information in link structure, another device list
-mutex holding would be necessary to dereference the device
-pointer in the link structure which would be impossible when
-holding a spinlock already.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- net/smc/smc_core.c | 10 ++++++++++
- net/smc/smc_core.h |  2 ++
- 2 files changed, 12 insertions(+)
+ net/smc/af_smc.c | 17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 46087cec3bcd..0088511e30bf 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -313,6 +313,15 @@ static u8 smcr_next_link_id(struct smc_link_group *lgr)
- 	return link_id;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 811819c849da..13db3f260e94 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -552,8 +552,7 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
+ 	return smc_connect_fallback(smc, reason_code);
  }
  
-+static void smcr_copy_dev_info_to_link(struct smc_link *link)
-+{
-+	struct smc_ib_device *smcibdev = link->smcibdev;
-+
-+	snprintf(link->ibname, sizeof(link->ibname), "%s",
-+		 smcibdev->ibdev->name);
-+	link->ndev_ifidx = smcibdev->ndev_ifidx[link->ibport - 1];
-+}
-+
- int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 		   u8 link_idx, struct smc_init_info *ini)
+-/* abort connecting */
+-static void smc_connect_abort(struct smc_sock *smc, int local_first)
++static void smc_conn_abort(struct smc_sock *smc, int local_first)
  {
-@@ -327,6 +336,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	lnk->smcibdev = ini->ib_dev;
- 	lnk->ibport = ini->ib_port;
- 	smc_ibdev_cnt_inc(lnk);
-+	smcr_copy_dev_info_to_link(lnk);
- 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
- 	atomic_set(&lnk->conn_cnt, 0);
- 	smc_llc_link_set_uid(lnk);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index eefb6770b268..3a1bb8e4b81f 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -124,6 +124,8 @@ struct smc_link {
- 	u8			link_is_asym;	/* is link asymmetric? */
- 	struct smc_link_group	*lgr;		/* parent link group */
- 	struct work_struct	link_down_wrk;	/* wrk to bring link down */
-+	char			ibname[IB_DEVICE_NAME_MAX]; /* ib device name */
-+	int			ndev_ifidx; /* network device ifindex */
+ 	if (local_first)
+ 		smc_lgr_cleanup_early(&smc->conn);
+@@ -814,7 +813,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
  
- 	enum smc_link_state	state;		/* state of link */
- 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
+ 	return 0;
+ connect_abort:
+-	smc_connect_abort(smc, ini->first_contact_local);
++	smc_conn_abort(smc, ini->first_contact_local);
+ 	mutex_unlock(&smc_client_lgr_pending);
+ 	smc->connect_nonblock = 0;
+ 
+@@ -893,7 +892,7 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 
+ 	return 0;
+ connect_abort:
+-	smc_connect_abort(smc, ini->first_contact_local);
++	smc_conn_abort(smc, ini->first_contact_local);
+ 	mutex_unlock(&smc_server_lgr_pending);
+ 	smc->connect_nonblock = 0;
+ 
+@@ -1321,10 +1320,7 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
+ 			       int local_first, u8 version)
+ {
+ 	/* RDMA setup failed, switch back to TCP */
+-	if (local_first)
+-		smc_lgr_cleanup_early(&new_smc->conn);
+-	else
+-		smc_conn_free(&new_smc->conn);
++	smc_conn_abort(new_smc, local_first);
+ 	if (reason_code < 0) { /* error, no fallback possible */
+ 		smc_listen_out_err(new_smc);
+ 		return;
+@@ -1430,10 +1426,7 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
+ 	/* Create send and receive buffers */
+ 	rc = smc_buf_create(new_smc, true);
+ 	if (rc) {
+-		if (ini->first_contact_local)
+-			smc_lgr_cleanup_early(&new_smc->conn);
+-		else
+-			smc_conn_free(&new_smc->conn);
++		smc_conn_abort(new_smc, ini->first_contact_local);
+ 		return (rc == -ENOSPC) ? SMC_CLC_DECL_MAX_DMB :
+ 					 SMC_CLC_DECL_MEM;
+ 	}
 -- 
 2.17.1
