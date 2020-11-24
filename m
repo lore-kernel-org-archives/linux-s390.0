@@ -1,167 +1,83 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:36370 "EHLO mail.kernel.org"
+Received: from pegase1.c-s.fr ([93.17.236.30]:10458 "EHLO pegase1.c-s.fr"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727452AbgKHG6Y (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 8 Nov 2020 01:58:24 -0500
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v5 1/5] mm: introduce debug_pagealloc_{map,unmap}_pages() helpers
-Date: Sun,  8 Nov 2020 08:57:54 +0200
-Message-Id: <20201108065758.1815-2-rppt@kernel.org>
-In-Reply-To: <20201108065758.1815-1-rppt@kernel.org>
-References: <20201108065758.1815-1-rppt@kernel.org>
+        id S1729350AbgKXGWt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Nov 2020 01:22:49 -0500
+Subject: Re: [PATCH v2 09/19] s390/vdso: Remove vdso_base pointer from
+ mm->context
+References: <20201124002932.1220517-1-dima@arista.com>
+ <20201124002932.1220517-10-dima@arista.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Message-ID: <7ec0d6b6-64b1-6095-c574-febca7478aa7@csgroup.eu>
+Date: Tue, 24 Nov 2020 07:22:45 +0100
 MIME-Version: 1.0
+In-Reply-To: <20201124002932.1220517-10-dima@arista.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: fr
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Vlastimil Babka <vbabka@suse.cz>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+To: Dmitry Safonov <dima@arista.com>, linux-kernel@vger.kernel.org
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Guo Ren <guoren@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>, Oleg Nesterov <oleg@redhat.com>, Russell King <linux@armlinux.org.uk>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Will Deacon <will@kernel.org>, x86@kernel.org, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
 
-When CONFIG_DEBUG_PAGEALLOC is enabled, it unmaps pages from the kernel
-direct mapping after free_pages(). The pages than need to be mapped back
-before they could be used. Theese mapping operations use
-__kernel_map_pages() guarded with with debug_pagealloc_enabled().
 
-The only place that calls __kernel_map_pages() without checking whether
-DEBUG_PAGEALLOC is enabled is the hibernation code that presumes
-availability of this function when ARCH_HAS_SET_DIRECT_MAP is set.
-Still, on arm64, __kernel_map_pages() will bail out when DEBUG_PAGEALLOC is
-not enabled but set_direct_map_invalid_noflush() may render some pages not
-present in the direct map and hibernation code won't be able to save such
-pages.
+Le 24/11/2020 à 01:29, Dmitry Safonov a écrit :
+> Not used any more.
 
-To make page allocation debugging and hibernation interaction more robust,
-the dependency on DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP has to be made
-more explicit.
+Same, what about mremap(), why can it be removed ?
 
-Start with combining the guard condition and the call to
-__kernel_map_pages() into debug_pagealloc_map_pages() and
-debug_pagealloc_unmap_pages() functions to emphasize that
-__kernel_map_pages() should not be called without DEBUG_PAGEALLOC and use
-these new functions to map/unmap pages when page allocation debugging is
-enabled.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
----
- include/linux/mm.h  | 15 +++++++++++++++
- mm/memory_hotplug.c |  3 +--
- mm/page_alloc.c     |  6 ++----
- mm/slab.c           | 16 +++++++---------
- 4 files changed, 25 insertions(+), 15 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ef360fe70aaf..bb8c70178f4e 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2936,12 +2936,27 @@ kernel_map_pages(struct page *page, int numpages, int enable)
- {
- 	__kernel_map_pages(page, numpages, enable);
- }
-+
-+static inline void debug_pagealloc_map_pages(struct page *page, int numpages)
-+{
-+	if (debug_pagealloc_enabled_static())
-+		__kernel_map_pages(page, numpages, 1);
-+}
-+
-+static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages)
-+{
-+	if (debug_pagealloc_enabled_static())
-+		__kernel_map_pages(page, numpages, 0);
-+}
-+
- #ifdef CONFIG_HIBERNATION
- extern bool kernel_page_present(struct page *page);
- #endif	/* CONFIG_HIBERNATION */
- #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
- static inline void
- kernel_map_pages(struct page *page, int numpages, int enable) {}
-+static inline void debug_pagealloc_map_pages(struct page *page, int numpages) {}
-+static inline void debug_pagealloc_unmap_pages(struct page *page, int numpages) {}
- #ifdef CONFIG_HIBERNATION
- static inline bool kernel_page_present(struct page *page) { return true; }
- #endif	/* CONFIG_HIBERNATION */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b44d4c7ba73b..f18f86ba2a68 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -614,8 +614,7 @@ void generic_online_page(struct page *page, unsigned int order)
- 	 * so we should map it first. This is better than introducing a special
- 	 * case in page freeing fast path.
- 	 */
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 1);
-+	debug_pagealloc_map_pages(page, 1 << order);
- 	__free_pages_core(page, order);
- 	totalram_pages_add(1UL << order);
- #ifdef CONFIG_HIGHMEM
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 23f5066bd4a5..db1bf70458d0 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1272,8 +1272,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
- 	 */
- 	arch_free_page(page, order);
- 
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 0);
-+	debug_pagealloc_unmap_pages(page, 1 << order);
- 
- 	kasan_free_nondeferred_pages(page, order);
- 
-@@ -2270,8 +2269,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
- 	set_page_refcounted(page);
- 
- 	arch_alloc_page(page, order);
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 1);
-+	debug_pagealloc_map_pages(page, 1 << order);
- 	kasan_alloc_pages(page, order);
- 	kernel_poison_pages(page, 1 << order, 1);
- 	set_page_owner(page, order, gfp_flags);
-diff --git a/mm/slab.c b/mm/slab.c
-index b1113561b98b..07317386e150 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1428,21 +1428,19 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
- 	return false;
- }
- 
--#ifdef CONFIG_DEBUG_PAGEALLOC
- static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
- {
- 	if (!is_debug_pagealloc_cache(cachep))
- 		return;
- 
--	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
-+	if (map)
-+		debug_pagealloc_map_pages(virt_to_page(objp),
-+					  cachep->size / PAGE_SIZE);
-+	else
-+		debug_pagealloc_unmap_pages(virt_to_page(objp),
-+					    cachep->size / PAGE_SIZE);
- }
- 
--#else
--static inline void slab_kernel_map(struct kmem_cache *cachep, void *objp,
--				int map) {}
--
--#endif
--
- static void poison_obj(struct kmem_cache *cachep, void *addr, unsigned char val)
- {
- 	int size = cachep->object_size;
-@@ -2062,7 +2060,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
- 
- #if DEBUG
- 	/*
--	 * If we're going to use the generic kernel_map_pages()
-+	 * If we're going to use the generic debug_pagealloc_map_pages()
- 	 * poisoning, then it's going to smash the contents of
- 	 * the redzone and userword anyhow, so switch them off.
- 	 */
--- 
-2.28.0
+> 
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Cc: Heiko Carstens <hca@linux.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: linux-s390@vger.kernel.org
+> Signed-off-by: Dmitry Safonov <dima@arista.com>
+> ---
+>   arch/s390/include/asm/mmu.h |  1 -
+>   arch/s390/kernel/vdso.c     | 10 ----------
+>   2 files changed, 11 deletions(-)
+> 
+> diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
+> index e12ff0f29d1a..095d0596f700 100644
+> --- a/arch/s390/include/asm/mmu.h
+> +++ b/arch/s390/include/asm/mmu.h
+> @@ -15,7 +15,6 @@ typedef struct {
+>   	unsigned long gmap_asce;
+>   	unsigned long asce;
+>   	unsigned long asce_limit;
+> -	unsigned long vdso_base;
+>   	/* The mmu context belongs to a secure guest. */
+>   	atomic_t is_protected;
+>   	/*
+> diff --git a/arch/s390/kernel/vdso.c b/arch/s390/kernel/vdso.c
+> index 810b72f8985c..3f07711a07c1 100644
+> --- a/arch/s390/kernel/vdso.c
+> +++ b/arch/s390/kernel/vdso.c
+> @@ -58,18 +58,9 @@ static vm_fault_t vdso_fault(const struct vm_special_mapping *sm,
+>   	return 0;
+>   }
+>   
+> -static int vdso_mremap(const struct vm_special_mapping *sm,
+> -		       struct vm_area_struct *vma)
+> -{
+> -	current->mm->context.vdso_base = vma->vm_start;
+> -
+> -	return 0;
+> -}
+> -
+>   static const struct vm_special_mapping vdso_mapping = {
+>   	.name = "[vdso]",
+>   	.fault = vdso_fault,
+> -	.mremap = vdso_mremap,
+>   };
+>   
+>   static int __init vdso_setup(char *str)
+> @@ -204,7 +195,6 @@ int arch_setup_additional_pages(unsigned long *sysinfo_ehdr)
+>   		goto out_up;
+>   	}
+>   
+> -	current->mm->context.vdso_base = vdso_base;
+>   	*sysinfo_ehdr = vdso_base;
+>   	rc = 0;
+>   
+> 
