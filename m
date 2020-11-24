@@ -1,144 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:41590 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727056AbgKARIj (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 1 Nov 2020 12:08:39 -0500
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 1/4] mm: introduce debug_pagealloc_map_pages() helper
-Date: Sun,  1 Nov 2020 19:08:12 +0200
-Message-Id: <20201101170815.9795-2-rppt@kernel.org>
-In-Reply-To: <20201101170815.9795-1-rppt@kernel.org>
-References: <20201101170815.9795-1-rppt@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7974 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2404079AbgKXRvM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Nov 2020 12:51:12 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v5 03/14] net/smc: Add connection counters for links
+Date: Tue, 24 Nov 2020 18:50:36 +0100
+Message-Id: <20201124175047.56949-4-kgraul@linux.ibm.com>
+In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
+References: <20201124175047.56949-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-When CONFIG_DEBUG_PAGEALLOC is enabled, it unmaps pages from the kernel
-direct mapping after free_pages(). The pages than need to be mapped back
-before they could be used. Theese mapping operations use
-__kernel_map_pages() guarded with with debug_pagealloc_enabled().
+Add connection counters to the structure of the link.
+Increase/decrease the counters as needed in the corresponding
+routines.
 
-The only place that calls __kernel_map_pages() without checking whether
-DEBUG_PAGEALLOC is enabled is the hibernation code that presumes
-availability of this function when ARCH_HAS_SET_DIRECT_MAP is set.
-Still, on arm64, __kernel_map_pages() will bail out when DEBUG_PAGEALLOC is
-not enabled but set_direct_map_invalid_noflush() may render some pages not
-present in the direct map and hibernation code won't be able to save such
-pages.
-
-To make page allocation debugging and hibernation interaction more robust,
-the dependency on DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP has to be made
-more explicit.
-
-Start with combining the guard condition and the call to
-__kernel_map_pages() into a single debug_pagealloc_map_pages() function to
-emphasize that __kernel_map_pages() should not be called without
-DEBUG_PAGEALLOC and use this new function to map/unmap pages when page
-allocation debug is enabled.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- include/linux/mm.h  | 10 ++++++++++
- mm/memory_hotplug.c |  3 +--
- mm/page_alloc.c     |  6 ++----
- mm/slab.c           |  8 +++-----
- 4 files changed, 16 insertions(+), 11 deletions(-)
+ net/smc/smc_core.c | 16 ++++++++++++++--
+ net/smc/smc_core.h |  1 +
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ef360fe70aaf..1fc0609056dc 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2936,12 +2936,22 @@ kernel_map_pages(struct page *page, int numpages, int enable)
- {
- 	__kernel_map_pages(page, numpages, enable);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index af96f813c075..5bc8ebcd03f3 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -139,6 +139,7 @@ static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
+ 	}
+ 	if (!conn->lnk)
+ 		return SMC_CLC_DECL_NOACTLINK;
++	atomic_inc(&conn->lnk->conn_cnt);
+ 	return 0;
  }
-+
-+static inline void debug_pagealloc_map_pages(struct page *page,
-+					     int numpages, int enable)
+ 
+@@ -180,6 +181,8 @@ static void __smc_lgr_unregister_conn(struct smc_connection *conn)
+ 	struct smc_link_group *lgr = conn->lgr;
+ 
+ 	rb_erase(&conn->alert_node, &lgr->conns_all);
++	if (conn->lnk)
++		atomic_dec(&conn->lnk->conn_cnt);
+ 	lgr->conns_num--;
+ 	conn->alert_token_local = 0;
+ 	sock_put(&smc->sk); /* sock_hold in smc_lgr_register_conn() */
+@@ -314,6 +317,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	lnk->smcibdev = ini->ib_dev;
+ 	lnk->ibport = ini->ib_port;
+ 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
++	atomic_set(&lnk->conn_cnt, 0);
+ 	smc_llc_link_set_uid(lnk);
+ 	INIT_WORK(&lnk->link_down_wrk, smc_link_down_work);
+ 	if (!ini->ib_dev->initialized) {
+@@ -526,6 +530,14 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
+ 	return rc;
+ }
+ 
++static void smc_switch_link_and_count(struct smc_connection *conn,
++				      struct smc_link *to_lnk)
 +{
-+	if (debug_pagealloc_enabled_static())
-+		__kernel_map_pages(page, numpages, enable);
++	atomic_dec(&conn->lnk->conn_cnt);
++	conn->lnk = to_lnk;
++	atomic_inc(&conn->lnk->conn_cnt);
 +}
 +
- #ifdef CONFIG_HIBERNATION
- extern bool kernel_page_present(struct page *page);
- #endif	/* CONFIG_HIBERNATION */
- #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
- static inline void
- kernel_map_pages(struct page *page, int numpages, int enable) {}
-+static inline void debug_pagealloc_map_pages(struct page *page,
-+					     int numpages, int enable) {}
- #ifdef CONFIG_HIBERNATION
- static inline bool kernel_page_present(struct page *page) { return true; }
- #endif	/* CONFIG_HIBERNATION */
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b44d4c7ba73b..e2b6043a4428 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -614,8 +614,7 @@ void generic_online_page(struct page *page, unsigned int order)
- 	 * so we should map it first. This is better than introducing a special
- 	 * case in page freeing fast path.
- 	 */
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 1);
-+	debug_pagealloc_map_pages(page, 1 << order, 1);
- 	__free_pages_core(page, order);
- 	totalram_pages_add(1UL << order);
- #ifdef CONFIG_HIGHMEM
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 23f5066bd4a5..9a66a1ff9193 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1272,8 +1272,7 @@ static __always_inline bool free_pages_prepare(struct page *page,
- 	 */
- 	arch_free_page(page, order);
- 
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 0);
-+	debug_pagealloc_map_pages(page, 1 << order, 0);
- 
- 	kasan_free_nondeferred_pages(page, order);
- 
-@@ -2270,8 +2269,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
- 	set_page_refcounted(page);
- 
- 	arch_alloc_page(page, order);
--	if (debug_pagealloc_enabled_static())
--		kernel_map_pages(page, 1 << order, 1);
-+	debug_pagealloc_map_pages(page, 1 << order, 1);
- 	kasan_alloc_pages(page, order);
- 	kernel_poison_pages(page, 1 << order, 1);
- 	set_page_owner(page, order, gfp_flags);
-diff --git a/mm/slab.c b/mm/slab.c
-index b1113561b98b..340db0ce74c4 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -1431,10 +1431,8 @@ static bool is_debug_pagealloc_cache(struct kmem_cache *cachep)
- #ifdef CONFIG_DEBUG_PAGEALLOC
- static void slab_kernel_map(struct kmem_cache *cachep, void *objp, int map)
+ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 				  struct smc_link *from_lnk, bool is_dev_err)
  {
--	if (!is_debug_pagealloc_cache(cachep))
--		return;
--
--	kernel_map_pages(virt_to_page(objp), cachep->size / PAGE_SIZE, map);
-+	debug_pagealloc_map_pages(virt_to_page(objp),
-+				  cachep->size / PAGE_SIZE, map);
- }
+@@ -574,7 +586,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		    smc->sk.sk_state == SMC_PEERABORTWAIT ||
+ 		    smc->sk.sk_state == SMC_PROCESSABORT) {
+ 			spin_lock_bh(&conn->send_lock);
+-			conn->lnk = to_lnk;
++			smc_switch_link_and_count(conn, to_lnk);
+ 			spin_unlock_bh(&conn->send_lock);
+ 			continue;
+ 		}
+@@ -588,7 +600,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		}
+ 		/* avoid race with smcr_tx_sndbuf_nonempty() */
+ 		spin_lock_bh(&conn->send_lock);
+-		conn->lnk = to_lnk;
++		smc_switch_link_and_count(conn, to_lnk);
+ 		rc = smc_switch_cursor(smc, pend, wr_buf);
+ 		spin_unlock_bh(&conn->send_lock);
+ 		sock_put(&smc->sk);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 9aee54a6bcba..eefb6770b268 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -129,6 +129,7 @@ struct smc_link {
+ 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
+ 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+ 	int			llc_testlink_time; /* testlink interval */
++	atomic_t		conn_cnt; /* connections on this link */
+ };
  
- #else
-@@ -2062,7 +2060,7 @@ int __kmem_cache_create(struct kmem_cache *cachep, slab_flags_t flags)
- 
- #if DEBUG
- 	/*
--	 * If we're going to use the generic kernel_map_pages()
-+	 * If we're going to use the generic debug_pagealloc_map_pages()
- 	 * poisoning, then it's going to smash the contents of
- 	 * the redzone and userword anyhow, so switch them off.
- 	 */
+ /* For now we just allow one parallel link per link group. The SMC protocol
 -- 
-2.28.0
+2.17.1
