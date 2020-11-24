@@ -1,137 +1,298 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4990 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727934AbgKGNAS (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Nov 2020 08:00:18 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v3 14/15] net/smc: Refactor smc ism v2 capability handling
-Date: Sat,  7 Nov 2020 13:59:57 +0100
-Message-Id: <20201107125958.16384-15-kgraul@linux.ibm.com>
-In-Reply-To: <20201107125958.16384-1-kgraul@linux.ibm.com>
-References: <20201107125958.16384-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v12 00/17] s390/vfio-ap: dynamic configuration support
+Date: Tue, 24 Nov 2020 16:39:59 -0500
+Message-Id: <20201124214016.3013-1-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+The current design for AP pass-through does not support making dynamic
+changes to the AP matrix of a running guest resulting in a few 
+deficiencies this patch series is intended to mitigate:
 
-Encapsulate the smc ism v2 capability boolean value
-in a function for better information hiding.
+1. Adapters, domains and control domains can not be added to or removed
+   from a running guest. In order to modify a guest's AP configuration,
+   the guest must be terminated; only then can AP resources be assigned
+   to or unassigned from the guest's matrix mdev. The new AP 
+   configuration becomes available to the guest when it is subsequently
+   restarted.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/af_smc.c  | 12 ++++++------
- net/smc/smc_ism.c |  8 +++++++-
- net/smc/smc_ism.h |  5 ++---
- 3 files changed, 15 insertions(+), 10 deletions(-)
+2. The AP bus's /sys/bus/ap/apmask and /sys/bus/ap/aqmask interfaces can
+   be modified by a root user without any restrictions. A change to
+   either mask can result in AP queue devices being unbound from the
+   vfio_ap device driver and bound to a zcrypt device driver even if a
+   guest is using the queues, thus giving the host access to the guest's
+   private crypto data and vice versa.
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index bc3e45289771..850e6df47a59 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -668,7 +668,7 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
- 				ini->smc_type_v1 = SMC_TYPE_N;
- 		} /* else RDMA is supported for this connection */
- 	}
--	if (smc_ism_v2_capable && smc_find_ism_v2_device_clnt(smc, ini))
-+	if (smc_ism_is_v2_capable() && smc_find_ism_v2_device_clnt(smc, ini))
- 		ini->smc_type_v2 = SMC_TYPE_N;
- 
- 	/* if neither ISM nor RDMA are supported, fallback */
-@@ -920,7 +920,7 @@ static int smc_connect_check_aclc(struct smc_init_info *ini,
- /* perform steps before actually connecting */
- static int __smc_connect(struct smc_sock *smc)
- {
--	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
-+	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
- 	struct smc_clc_msg_accept_confirm_v2 *aclc2;
- 	struct smc_clc_msg_accept_confirm *aclc;
- 	struct smc_init_info *ini = NULL;
-@@ -945,9 +945,9 @@ static int __smc_connect(struct smc_sock *smc)
- 						    version);
- 
- 	ini->smcd_version = SMC_V1;
--	ini->smcd_version |= smc_ism_v2_capable ? SMC_V2 : 0;
-+	ini->smcd_version |= smc_ism_is_v2_capable() ? SMC_V2 : 0;
- 	ini->smc_type_v1 = SMC_TYPE_B;
--	ini->smc_type_v2 = smc_ism_v2_capable ? SMC_TYPE_D : SMC_TYPE_N;
-+	ini->smc_type_v2 = smc_ism_is_v2_capable() ? SMC_TYPE_D : SMC_TYPE_N;
- 
- 	/* get vlan id from IP device */
- 	if (smc_vlan_by_tcpsk(smc->clcsock, ini)) {
-@@ -1354,7 +1354,7 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
- 		rc = SMC_CLC_DECL_PEERNOSMC;
- 		goto out;
- 	}
--	if (!smc_ism_v2_capable) {
-+	if (!smc_ism_is_v2_capable()) {
- 		ini->smcd_version &= ~SMC_V2;
- 		rc = SMC_CLC_DECL_NOISM2SUPP;
- 		goto out;
-@@ -1680,7 +1680,7 @@ static void smc_listen_work(struct work_struct *work)
- {
- 	struct smc_sock *new_smc = container_of(work, struct smc_sock,
- 						smc_listen_work);
--	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
-+	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
- 	struct socket *newclcsock = new_smc->clcsock;
- 	struct smc_clc_msg_accept_confirm *cclc;
- 	struct smc_clc_msg_proposal_area *buf;
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 6abbdd09a580..2456ee8228cd 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -21,7 +21,7 @@ struct smcd_dev_list smcd_dev_list = {
- 	.mutex = __MUTEX_INITIALIZER(smcd_dev_list.mutex)
- };
- 
--bool smc_ism_v2_capable;
-+static bool smc_ism_v2_capable;
- 
- /* Test if an ISM communication is possible - same CPC */
- int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *smcd)
-@@ -51,6 +51,12 @@ u16 smc_ism_get_chid(struct smcd_dev *smcd)
- 	return smcd->ops->get_chid(smcd);
- }
- 
-+/* HW supports ISM V2 and thus System EID is defined */
-+bool smc_ism_is_v2_capable(void)
-+{
-+	return smc_ism_v2_capable;
-+}
-+
- /* Set a connection using this DMBE. */
- void smc_ism_set_conn(struct smc_connection *conn)
- {
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 8048e09ddcf8..481a4b7df30b 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -10,6 +10,7 @@
- #define SMCD_ISM_H
- 
- #include <linux/uio.h>
-+#include <linux/types.h>
- #include <linux/mutex.h>
- 
- #include "smc.h"
-@@ -20,9 +21,6 @@ struct smcd_dev_list {	/* List of SMCD devices */
- };
- 
- extern struct smcd_dev_list	smcd_dev_list;	/* list of smcd devices */
--extern bool	smc_ism_v2_capable;	/* HW supports ISM V2 and thus
--					 * System EID is defined
--					 */
- 
- struct smc_ism_vlanid {			/* VLAN id set on ISM device */
- 	struct list_head list;
-@@ -52,5 +50,6 @@ int smc_ism_write(struct smcd_dev *dev, const struct smc_ism_position *pos,
- int smc_ism_signal_shutdown(struct smc_link_group *lgr);
- void smc_ism_get_system_eid(struct smcd_dev *dev, u8 **eid);
- u16 smc_ism_get_chid(struct smcd_dev *dev);
-+bool smc_ism_is_v2_capable(void);
- void smc_ism_init(void);
- #endif
+3. The APQNs derived from the Cartesian product of the APIDs of the
+   adapters and APQIs of the domains assigned to a matrix mdev must
+   reference an AP queue device bound to the vfio_ap device driver. The
+   AP architecture allows assignment of AP resources that are not
+   available to the system, so this artificial restriction is not 
+   compliant with the architecture.
+
+4. The AP configuration profile can be dynamically changed for the linux
+   host after a KVM guest is started. For example, a new domain can be
+   dynamically added to the configuration profile via the SE or an HMC
+   connected to a DPM enabled lpar. Likewise, AP adapters can be 
+   dynamically configured (online state) and deconfigured (standby state)
+   using the SE, an SCLP command or an HMC connected to a DPM enabled
+   lpar. This can result in inadvertent sharing of AP queues between the
+   guest and host.
+
+5. A root user can manually unbind an AP queue device representing a 
+   queue in use by a KVM guest via the vfio_ap device driver's sysfs 
+   unbind attribute. In this case, the guest will be using a queue that
+   is not bound to the driver which violates the device model.
+
+This patch series introduces the following changes to the current design
+to alleviate the shortcomings described above as well as to implement
+more of the AP architecture:
+
+1. A root user will be prevented from making edits to the AP bus's
+   /sys/bus/ap/apmask or /sys/bus/ap/aqmask if the change would transfer
+   ownership of an APQN from the vfio_ap device driver to a zcrypt driver
+   while the APQN is assigned to a matrix mdev.
+
+2. Allow a root user to hot plug/unplug AP adapters, domains and control
+   domains for a KVM guest using the matrix mdev via its sysfs
+   assign/unassign attributes.
+
+4. Allow assignment of an AP adapter or domain to a matrix mdev even if
+   it results in assignment of an APQN that does not reference an AP
+   queue device bound to the vfio_ap device driver, as long as the APQN
+   is not reserved for use by the default zcrypt drivers (also known as
+   over-provisioning of AP resources). Allowing over-provisioning of AP
+   resources better models the architecture which does not preclude
+   assigning AP resources that are not yet available in the system. Such
+   APQNs, however, will not be assigned to the guest using the matrix
+   mdev; only APQNs referencing AP queue devices bound to the vfio_ap
+   device driver will actually get assigned to the guest.
+
+5. Handle dynamic changes to the AP device model. 
+
+1. Rationale for changes to AP bus's apmask/aqmask interfaces:
+----------------------------------------------------------
+Due to the extremely sensitive nature of cryptographic data, it is
+imperative that great care be taken to ensure that such data is secured.
+Allowing a root user, either inadvertently or maliciously, to configure
+these masks such that a queue is shared between the host and a guest is
+not only avoidable, it is advisable. It was suggested that this scenario
+is better handled in user space with management software, but that does
+not preclude a malicious administrator from using the sysfs interfaces
+to gain access to a guest's crypto data. It was also suggested that this
+scenario could be avoided by taking access to the adapter away from the
+guest and zeroing out the queues prior to the vfio_ap driver releasing the
+device; however, stealing an adapter in use from a guest as a by-product
+of an operation is bad and will likely cause problems for the guest
+unnecessarily. It was decided that the most effective solution with the
+least number of negative side effects is to prevent the situation at the
+source.
+
+2. Rationale for hot plug/unplug using matrix mdev sysfs interfaces:
+----------------------------------------------------------------
+Allowing a user to hot plug/unplug AP resources using the matrix mdev
+sysfs interfaces circumvents the need to terminate the guest in order to
+modify its AP configuration. Allowing dynamic configuration makes 
+reconfiguring a guest's AP matrix much less disruptive.
+
+3. Rationale for allowing over-provisioning of AP resources:
+----------------------------------------------------------- 
+Allowing assignment of AP resources to a matrix mdev and ultimately to a
+guest better models the AP architecture. The architecture does not
+preclude assignment of unavailable AP resources. If a queue subsequently
+becomes available while a guest using the matrix mdev to which its APQN
+is assigned, the guest will be given access to it. If an APQN
+is dynamically unassigned from the underlying host system, it will 
+automatically become unavailable to the guest.
+
+Change log v11-v12:
+------------------
+* Moved matrix device lock to protect group notifier callback
+
+* Split the 'No need to disable IRQ after queue reset' patch into
+  multiple patches for easier review (move probe/remove callback
+  functions and remove disable IRQ after queue reset)
+
+* Added code to decrement reference count for KVM in group notifier
+  callback
+
+* Using mutex_trylock() in functions implementing the sysfs assign_adapter
+  and assign_domain as well as the in_use callback to avoid deadlock 
+  between the AP bus's ap_perms mutex and the matrix device lock used by
+  vfio_ap driver.
+
+* The sysfs guest_matrix attribute of the vfio_ap mdev will now display
+  the shadow APCB regardless of whether a guest is using the mdev or not
+
+* Replaced vfio_ap mdev filtering function with a function that initializes
+  the guest's APCB by filtering the vfio_ap mdev by APID.
+
+* No longer using filtering function during adapter/domain assignment
+  to/from the vfio_ap mdev; replaced with new hot plug/unplug 
+  adapter/domain functions.
+
+* No longer using filtering function during bind/unbind; replaced with
+  hot plug/unplug queue functions.
+
+* No longer using filtering function for bulk assignment of new adapters
+  and domains in on_scan_complete callback; replaced with new hot plug
+  functions.    
+  
+
+Change log v10-v11:
+------------------
+* The matrix mdev's configuration is not filtered by APID so that if any
+  APQN assigned to the mdev is not bound to the vfio_ap device driver,
+  the adapter will not get plugged into the KVM guest on startup, or when
+  a new adapter is assigned to the mdev.
+
+* Replaced patch 8 by squashing patches 8 (filtering patch) and 15 (handle 
+  probe/remove).
+
+* Added a patch 1 to remove disable IRQ after a reset because the reset
+  already disables a queue.
+
+* Now using filtering code to update the KVM guest's matrix when
+  notified that AP bus scan has completed.
+
+* Fixed issue with probe/remove not inititiated by a configuration change
+  occurring within a config change.
+
+
+Change log v9-v10:
+-----------------
+* Updated the documentation in vfio-ap.rst to include information about the
+  AP dynamic configuration support
+
+Change log v8-v9:
+----------------
+* Fixed errors flagged by the kernel test robot
+
+* Fixed issue with guest losing queues when a new queue is probed due to
+  manual bind operation.
+
+Change log v7-v8:
+----------------
+* Now logging a message when an attempt to reserve APQNs for the zcrypt
+  drivers will result in taking a queue away from a KVM guest to provide
+  the sysadmin a way to ascertain why the sysfs operation failed.
+
+* Created locked and unlocked versions of the ap_parse_mask_str() function.
+
+* Now using new interface provided by an AP bus patch -
+  s390/ap: introduce new ap function ap_get_qdev() - to retrieve
+  struct ap_queue representing an AP queue device. This patch is not a
+  part of this series but is a prerequisite for this series. 
+
+Change log v6-v7:
+----------------
+* Added callbacks to AP bus:
+  - on_config_changed: Notifies implementing drivers that
+    the AP configuration has changed since last AP device scan.
+  - on_scan_complete: Notifies implementing drivers that the device scan
+    has completed.
+  - implemented on_config_changed and on_scan_complete callbacks for
+    vfio_ap device driver.
+  - updated vfio_ap device driver's probe and remove callbacks to handle
+    dynamic changes to the AP device model. 
+* Added code to filter APQNs when assigning AP resources to a KVM guest's
+  CRYCB
+
+Change log v5-v6:
+----------------
+* Fixed a bug in ap_bus.c introduced with patch 2/7 of the v5 
+  series. Harald Freudenberer pointed out that the mutex lock
+  for ap_perms_mutex in the apmask_store and aqmask_store functions
+  was not being freed. 
+
+* Removed patch 6/7 which added logging to the vfio_ap driver
+  to expedite acceptance of this series. The logging will be introduced
+  with a separate patch series to allow more time to explore options
+  such as DBF logging vs. tracepoints.
+
+* Added 3 patches related to ensuring that APQNs that do not reference
+  AP queue devices bound to the vfio_ap device driver are not assigned
+  to the guest CRYCB:
+
+  Patch 4: Filter CRYCB bits for unavailable queue devices
+  Patch 5: sysfs attribute to display the guest CRYCB
+  Patch 6: update guest CRYCB in vfio_ap probe and remove callbacks
+
+* Added a patch (Patch 9) to version the vfio_ap module.
+
+* Reshuffled patches to allow the in_use callback implementation to
+  invoke the vfio_ap_mdev_verify_no_sharing() function introduced in
+  patch 2. 
+
+Change log v4-v5:
+----------------
+* Added a patch to provide kernel s390dbf debug logs for VFIO AP
+
+Change log v3->v4:
+-----------------
+* Restored patches preventing root user from changing ownership of
+  APQNs from zcrypt drivers to the vfio_ap driver if the APQN is
+  assigned to an mdev.
+
+* No longer enforcing requirement restricting guest access to
+  queues represented by a queue device bound to the vfio_ap
+  device driver.
+
+* Removed shadow CRYCB and now directly updating the guest CRYCB
+  from the matrix mdev's matrix.
+
+* Rebased the patch series on top of 'vfio: ap: AP Queue Interrupt
+  Control' patches.
+
+* Disabled bind/unbind sysfs interfaces for vfio_ap driver
+
+Change log v2->v3:
+-----------------
+* Allow guest access to an AP queue only if the queue is bound to
+  the vfio_ap device driver.
+
+* Removed the patch to test CRYCB masks before taking the vCPUs
+  out of SIE. Now checking the shadow CRYCB in the vfio_ap driver.
+
+Change log v1->v2:
+-----------------
+* Removed patches preventing root user from unbinding AP queues from 
+  the vfio_ap device driver
+* Introduced a shadow CRYCB in the vfio_ap driver to manage dynamic 
+  changes to the AP guest configuration due to root user interventions
+  or hardware anomalies.
+
+Tony Krowiak (17):
+  s390/vfio-ap: move probe and remove callbacks to vfio_ap_ops.c
+  s390/vfio-ap: decrement reference count to KVM
+  390/vfio-ap: use new AP bus interface to search for queue devices
+  s390/vfio-ap: No need to disable IRQ after queue reset
+  s390/vfio-ap: manage link between queue struct and matrix mdev
+  s390/zcrypt: driver callback to indicate resource in use
+  s390/vfio-ap: implement in-use callback for vfio_ap driver
+  s390/vfio-ap: introduce shadow APCB
+  s390/vfio-ap: sysfs attribute to display the guest's matrix
+  s390/vfio-ap: initialize the guest apcb
+  s390/vfio-ap: allow assignment of unavailable AP queues to mdev device
+  s390/vfio-ap: allow hot plug/unplug of AP resources using mdev device
+  s390/vfio-ap: hot plug/unplug queues on bind/unbind of queue device
+  s390/zcrypt: Notify driver on config changed and scan complete
+    callbacks
+  s390/vfio-ap: handle host AP config change notification
+  s390/vfio-ap: handle AP bus scan completed notification
+  s390/vfio-ap: update docs to include dynamic config support
+
+ Documentation/s390/vfio-ap.rst        |  401 ++++++---
+ drivers/s390/crypto/ap_bus.c          |  243 +++++-
+ drivers/s390/crypto/ap_bus.h          |   16 +
+ drivers/s390/crypto/vfio_ap_drv.c     |   52 +-
+ drivers/s390/crypto/vfio_ap_ops.c     | 1113 +++++++++++++++++++------
+ drivers/s390/crypto/vfio_ap_private.h |   30 +-
+ 6 files changed, 1418 insertions(+), 437 deletions(-)
+
 -- 
-2.17.1
+2.21.1
