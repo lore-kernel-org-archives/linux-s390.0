@@ -1,128 +1,287 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35294 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726814AbgKCKNe (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:13:34 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 05/10] md: implement ->set_read_only to hook into BLKROSET processing
-Date: Tue,  3 Nov 2020 11:00:13 +0100
-Message-Id: <20201103100018.683694-6-hch@lst.de>
-In-Reply-To: <20201103100018.683694-1-hch@lst.de>
-References: <20201103100018.683694-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v5 13/14] net/smc: Add support for obtaining SMCD device list
+Date: Tue, 24 Nov 2020 18:50:46 +0100
+Message-Id: <20201124175047.56949-14-kgraul@linux.ibm.com>
+In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
+References: <20201124175047.56949-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-Implement the ->set_read_only method instead of parsing the actual
-ioctl command.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Deliver SMCD device information via netlink based
+diagnostic interface.
+
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/md/md.c | 62 ++++++++++++++++++++++++-------------------------
- 1 file changed, 31 insertions(+), 31 deletions(-)
+ include/uapi/linux/smc.h | 28 ++++++++++++
+ net/smc/smc_core.h       | 28 ++++++++++++
+ net/smc/smc_ism.c        | 95 ++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_ism.h        |  1 +
+ net/smc/smc_netlink.c    |  8 ++++
+ 5 files changed, 160 insertions(+)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 98bac4f304ae26..96d31336ad43fe 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7480,7 +7480,6 @@ static inline bool md_ioctl_valid(unsigned int cmd)
- {
- 	switch (cmd) {
- 	case ADD_NEW_DISK:
--	case BLKROSET:
- 	case GET_ARRAY_INFO:
- 	case GET_BITMAP_FILE:
- 	case GET_DISK_INFO:
-@@ -7507,7 +7506,6 @@ static int md_ioctl(struct block_device *bdev, fmode_t mode,
- 	int err = 0;
- 	void __user *argp = (void __user *)arg;
- 	struct mddev *mddev = NULL;
--	int ro;
- 	bool did_set_md_closing = false;
+diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+index 707e8af4f0c8..3cb40ab049d9 100644
+--- a/include/uapi/linux/smc.h
++++ b/include/uapi/linux/smc.h
+@@ -37,12 +37,15 @@ enum {				/* SMC PNET Table commands */
+ #define SMC_GENL_FAMILY_NAME		"SMC_GEN_NETLINK"
+ #define SMC_GENL_FAMILY_VERSION		1
  
- 	if (!md_ioctl_valid(cmd))
-@@ -7687,35 +7685,6 @@ static int md_ioctl(struct block_device *bdev, fmode_t mode,
- 			goto unlock;
- 		}
- 		break;
--
--	case BLKROSET:
--		if (get_user(ro, (int __user *)(arg))) {
--			err = -EFAULT;
--			goto unlock;
--		}
--		err = -EINVAL;
--
--		/* if the bdev is going readonly the value of mddev->ro
--		 * does not matter, no writes are coming
--		 */
--		if (ro)
--			goto unlock;
--
--		/* are we are already prepared for writes? */
--		if (mddev->ro != 1)
--			goto unlock;
--
--		/* transitioning to readauto need only happen for
--		 * arrays that call md_write_start
--		 */
--		if (mddev->pers) {
--			err = restart_array(mddev);
--			if (err == 0) {
--				mddev->ro = 2;
--				set_disk_ro(mddev->gendisk, 0);
--			}
--		}
--		goto unlock;
- 	}
- 
- 	/*
-@@ -7809,6 +7778,36 @@ static int md_compat_ioctl(struct block_device *bdev, fmode_t mode,
- }
- #endif /* CONFIG_COMPAT */
- 
-+static int md_set_read_only(struct block_device *bdev, bool ro)
-+{
-+	struct mddev *mddev = bdev->bd_disk->private_data;
-+	int err;
++#define SMC_PCI_ID_STR_LEN		16 /* Max length of pci id string */
 +
-+	err = mddev_lock(mddev);
-+	if (err)
-+		return err;
-+
-+	if (!mddev->raid_disks && !mddev->external) {
-+		err = -ENODEV;
-+		goto out_unlock;
-+	}
-+
-+	/*
-+	 * Transitioning to read-auto need only happen for arrays that call
-+	 * md_write_start and which are not ready for writes yet.
-+	 */
-+	if (!ro && mddev->ro == 1 && mddev->pers) {
-+		err = restart_array(mddev);
-+		if (err)
-+			goto out_unlock;
-+		mddev->ro = 2;
-+	}
-+
-+out_unlock:
-+	mddev_unlock(mddev);
-+	return err;
-+}
-+
- static int md_open(struct block_device *bdev, fmode_t mode)
- {
- 	/*
-@@ -7886,6 +7885,7 @@ const struct block_device_operations md_fops =
- #endif
- 	.getgeo		= md_getgeo,
- 	.check_events	= md_check_events,
-+	.set_read_only	= md_set_read_only,
+ /* SMC_GENL_FAMILY commands */
+ enum {
+ 	SMC_NETLINK_GET_SYS_INFO = 1,
+ 	SMC_NETLINK_GET_LGR_SMCR,
+ 	SMC_NETLINK_GET_LINK_SMCR,
+ 	SMC_NETLINK_GET_LGR_SMCD,
++	SMC_NETLINK_GET_DEV_SMCD,
  };
  
- static int md_thread(void *arg)
+ /* SMC_GENL_FAMILY top level attributes */
+@@ -52,6 +55,7 @@ enum {
+ 	SMC_GEN_LGR_SMCR,		/* nest */
+ 	SMC_GEN_LINK_SMCR,		/* nest */
+ 	SMC_GEN_LGR_SMCD,		/* nest */
++	SMC_GEN_DEV_SMCD,		/* nest */
+ 	__SMC_GEN_MAX,
+ 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
+ };
+@@ -122,4 +126,28 @@ enum {
+ 	__SMC_NLA_LGR_D_MAX,
+ 	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
+ };
++
++/* SMC_NLA_DEV_PORT attributes */
++enum {
++	SMC_NLA_DEV_PORT_UNSPEC,
++	SMC_NLA_DEV_PORT_PNET_USR,	/* u8 */
++	SMC_NLA_DEV_PORT_PNETID,	/* string */
++	__SMC_NLA_DEV_PORT_MAX,
++	SMC_NLA_DEV_PORT_MAX = __SMC_NLA_DEV_PORT_MAX - 1
++};
++
++/* SMC_GEN_DEV_SMCD attributes */
++enum {
++	SMC_NLA_DEV_UNSPEC,
++	SMC_NLA_DEV_USE_CNT,		/* u32 */
++	SMC_NLA_DEV_IS_CRIT,		/* u8 */
++	SMC_NLA_DEV_PCI_FID,		/* u32 */
++	SMC_NLA_DEV_PCI_CHID,		/* u16 */
++	SMC_NLA_DEV_PCI_VENDOR,		/* u16 */
++	SMC_NLA_DEV_PCI_DEVICE,		/* u16 */
++	SMC_NLA_DEV_PCI_ID,		/* string */
++	SMC_NLA_DEV_PORT,		/* nest */
++	__SMC_NLA_DEV_MAX,
++	SMC_NLA_DEV_MAX = __SMC_NLA_DEV_MAX - 1
++};
+ #endif /* _UAPI_LINUX_SMC_H */
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 0b6899a7f634..e8e448771f85 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -13,6 +13,8 @@
+ #define _SMC_CORE_H
+ 
+ #include <linux/atomic.h>
++#include <linux/smc.h>
++#include <linux/pci.h>
+ #include <rdma/ib_verbs.h>
+ #include <net/genetlink.h>
+ 
+@@ -380,6 +382,32 @@ static inline void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
+ 		be16_to_cpu(((__be16 *)gid_raw)[7]));
+ }
+ 
++struct smc_pci_dev {
++	__u32		pci_fid;
++	__u16		pci_pchid;
++	__u16		pci_vendor;
++	__u16		pci_device;
++	__u8		pci_id[SMC_PCI_ID_STR_LEN];
++};
++
++static inline void smc_set_pci_values(struct pci_dev *pci_dev,
++				      struct smc_pci_dev *smc_dev)
++{
++	smc_dev->pci_vendor = pci_dev->vendor;
++	smc_dev->pci_device = pci_dev->device;
++	snprintf(smc_dev->pci_id, sizeof(smc_dev->pci_id), "%s",
++		 pci_name(pci_dev));
++#if IS_ENABLED(CONFIG_S390)
++	{ /* Set s390 specific PCI information */
++	struct zpci_dev *zdev;
++
++	zdev = to_zpci(pci_dev);
++	smc_dev->pci_fid = zdev->fid;
++	smc_dev->pci_pchid = zdev->pchid;
++	}
++#endif
++}
++
+ struct smc_sock;
+ struct smc_clc_msg_accept_confirm;
+ struct smc_clc_msg_local;
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 2456ee8228cd..33d9fe19a22f 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -15,6 +15,7 @@
+ #include "smc_core.h"
+ #include "smc_ism.h"
+ #include "smc_pnet.h"
++#include "smc_netlink.h"
+ 
+ struct smcd_dev_list smcd_dev_list = {
+ 	.list = LIST_HEAD_INIT(smcd_dev_list.list),
+@@ -207,6 +208,100 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
+ 	return rc;
+ }
+ 
++static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb)
++{
++	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
++	struct smc_pci_dev smc_pci_dev;
++	struct nlattr *port_attrs;
++	struct nlattr *attrs;
++	int use_cnt = 0;
++	void *nlh;
++
++	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
++			  &smc_gen_nl_family, NLM_F_MULTI,
++			  SMC_NETLINK_GET_DEV_SMCD);
++	if (!nlh)
++		return -EMSGSIZE;
++	attrs = nla_nest_start_noflag(skb, SMC_GEN_DEV_SMCD);
++	if (!attrs)
++		goto errout;
++	use_cnt = atomic_read(&smcd->lgr_cnt);
++	if (nla_put_u32(skb, SMC_NLA_DEV_USE_CNT, use_cnt) < 0)
++		goto errattr;
++	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0) < 0)
++		goto errattr;
++	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
++	smc_set_pci_values(to_pci_dev(smcd->dev.parent), &smc_pci_dev);
++	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid) < 0)
++		goto errattr;
++	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID,
++			smc_pci_dev.pci_pchid) < 0)
++		goto errattr;
++	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_VENDOR,
++			smc_pci_dev.pci_vendor) < 0)
++		goto errattr;
++	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_DEVICE,
++			smc_pci_dev.pci_device) < 0)
++		goto errattr;
++	if (nla_put_string(skb, SMC_NLA_DEV_PCI_ID, smc_pci_dev.pci_id) < 0)
++		goto errattr;
++
++	port_attrs = nla_nest_start_noflag(skb, SMC_NLA_DEV_PORT);
++	if (!port_attrs)
++		goto errattr;
++	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR,
++		       smcd->pnetid_by_user) < 0)
++		goto errportattr;
++	memset(smc_pnet, 0, sizeof(smc_pnet));
++	snprintf(smc_pnet, sizeof(smc_pnet), "%s", smcd->pnetid);
++	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet) < 0)
++		goto errportattr;
++
++	nla_nest_end(skb, port_attrs);
++	nla_nest_end(skb, attrs);
++	genlmsg_end(skb, nlh);
++	return 0;
++
++errportattr:
++	nla_nest_cancel(skb, port_attrs);
++errattr:
++	nla_nest_cancel(skb, attrs);
++errout:
++	nlmsg_cancel(skb, nlh);
++	return -EMSGSIZE;
++}
++
++static void smc_nl_prep_smcd_dev(struct smcd_dev_list *dev_list,
++				 struct sk_buff *skb,
++				 struct netlink_callback *cb)
++{
++	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
++	int snum = cb_ctx->pos[0];
++	struct smcd_dev *smcd;
++	int num = 0;
++
++	mutex_lock(&dev_list->mutex);
++	list_for_each_entry(smcd, &dev_list->list, list) {
++		if (num < snum)
++			goto next;
++		if (smc_nl_handle_smcd_dev(smcd, skb, cb) < 0)
++			goto errout;
++next:
++		num++;
++	}
++errout:
++	mutex_unlock(&dev_list->mutex);
++	cb_ctx->pos[0] = num;
++}
++
++int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb)
++{
++	smc_nl_prep_smcd_dev(&smcd_dev_list, skb, cb);
++	return skb->len;
++}
++
+ struct smc_ism_event_work {
+ 	struct work_struct work;
+ 	struct smcd_dev *smcd;
+diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
+index 481a4b7df30b..113efc7352ed 100644
+--- a/net/smc/smc_ism.h
++++ b/net/smc/smc_ism.h
+@@ -52,4 +52,5 @@ void smc_ism_get_system_eid(struct smcd_dev *dev, u8 **eid);
+ u16 smc_ism_get_chid(struct smcd_dev *dev);
+ bool smc_ism_is_v2_capable(void);
+ void smc_ism_init(void);
++int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+ #endif
+diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
+index ee817b6b5d12..33831f2d1ce1 100644
+--- a/net/smc/smc_netlink.c
++++ b/net/smc/smc_netlink.c
+@@ -17,6 +17,7 @@
+ #include <linux/smc.h>
+ 
+ #include "smc_core.h"
++#include "smc_ism.h"
+ #include "smc_netlink.h"
+ 
+ static const struct nla_policy smc_gen_nl_policy[SMC_GEN_MAX + 1] = {
+@@ -25,6 +26,7 @@ static const struct nla_policy smc_gen_nl_policy[SMC_GEN_MAX + 1] = {
+ 	[SMC_GEN_LGR_SMCR]	= { .type = NLA_NESTED, },
+ 	[SMC_GEN_LINK_SMCR]	= { .type = NLA_NESTED, },
+ 	[SMC_GEN_LGR_SMCD]	= { .type = NLA_NESTED, },
++	[SMC_GEN_DEV_SMCD]	= { .type = NLA_NESTED, },
+ };
+ 
+ static int smc_nl_start(struct netlink_callback *cb)
+@@ -62,6 +64,12 @@ static const struct genl_ops smc_gen_nl_ops[] = {
+ 		.dumpit = smcd_nl_get_lgr,
+ 		.start = smc_nl_start
+ 	},
++	{
++		.cmd = SMC_NETLINK_GET_DEV_SMCD,
++		/* can be retrieved by unprivileged users */
++		.dumpit = smcd_nl_get_device,
++		.start = smc_nl_start
++	},
+ };
+ 
+ /* SMC_GENL family definition */
 -- 
-2.28.0
+2.17.1
