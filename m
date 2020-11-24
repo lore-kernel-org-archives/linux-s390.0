@@ -1,106 +1,84 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27876 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728577AbgK3KKz (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 30 Nov 2020 05:10:55 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/6] s390/ctcm: Avoid temporary allocation of struct pdu.
-Date: Mon, 30 Nov 2020 11:09:47 +0100
-Message-Id: <20201130100950.42051-4-jwi@linux.ibm.com>
-In-Reply-To: <20201130100950.42051-1-jwi@linux.ibm.com>
-References: <20201130100950.42051-1-jwi@linux.ibm.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v5 04/14] net/smc: Add link counters for IB device ports
+Date: Tue, 24 Nov 2020 18:50:37 +0100
+Message-Id: <20201124175047.56949-5-kgraul@linux.ibm.com>
+In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
+References: <20201124175047.56949-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-The size of struct pdu is 8 byte. The memory is allocated, initialized,
-used and deallocated a few lines later.
+Add link counters to the structure of the smc ib device, one counter per
+ib port. Increase/decrease the counters as needed in the corresponding
+routines.
 
-It is more efficient to avoid the allocation/free dance and assign the
-values directly to skb's data part instead of using memcpy() for it.
-
-Avoid an allocation of struct pdu and use the resulting skb pointer
-instead.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-[jwi: Fix-up the pdu_offset, adjust skb->len for the pushed length.
-      Reflow the commit msg.]
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/net/ctcm_main.c | 33 ++++++++-------------------------
- 1 file changed, 8 insertions(+), 25 deletions(-)
+ net/smc/smc_core.c | 13 +++++++++++++
+ net/smc/smc_ib.h   |  2 ++
+ 2 files changed, 15 insertions(+)
 
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index 9e28c63415ed..92dd3c803d23 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -665,24 +665,16 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 	if ((fsm_getstate(ch->fsm) != CTC_STATE_TXIDLE) || grp->in_sweep) {
- 		spin_lock_irqsave(&ch->collect_lock, saveflags);
- 		refcount_inc(&skb->users);
--		p_header = kmalloc(PDU_HEADER_LENGTH, gfp_type());
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 5bc8ebcd03f3..46087cec3bcd 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -63,6 +63,16 @@ static inline struct list_head *smc_lgr_list_head(struct smc_link_group *lgr,
+ 	return &smc_lgr_list.list;
+ }
  
--		if (!p_header) {
--			spin_unlock_irqrestore(&ch->collect_lock, saveflags);
--				goto nomem_exit;
--		}
--
--		p_header->pdu_offset = skb->len;
-+		p_header = skb_push(skb, PDU_HEADER_LENGTH);
-+		p_header->pdu_offset = skb->len - PDU_HEADER_LENGTH;
- 		p_header->pdu_proto = 0x01;
--		p_header->pdu_flag = 0x00;
- 		if (be16_to_cpu(skb->protocol) == ETH_P_SNAP) {
--			p_header->pdu_flag |= PDU_FIRST | PDU_CNTL;
-+			p_header->pdu_flag = PDU_FIRST | PDU_CNTL;
- 		} else {
--			p_header->pdu_flag |= PDU_FIRST;
-+			p_header->pdu_flag = PDU_FIRST;
- 		}
- 		p_header->pdu_seq = 0;
--		memcpy(skb_push(skb, PDU_HEADER_LENGTH), p_header,
--		       PDU_HEADER_LENGTH);
++static void smc_ibdev_cnt_inc(struct smc_link *lnk)
++{
++	atomic_inc(&lnk->smcibdev->lnk_cnt_by_port[lnk->ibport - 1]);
++}
++
++static void smc_ibdev_cnt_dec(struct smc_link *lnk)
++{
++	atomic_dec(&lnk->smcibdev->lnk_cnt_by_port[lnk->ibport - 1]);
++}
++
+ static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
+ {
+ 	/* client link group creation always follows the server link group
+@@ -316,6 +326,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	lnk->link_idx = link_idx;
+ 	lnk->smcibdev = ini->ib_dev;
+ 	lnk->ibport = ini->ib_port;
++	smc_ibdev_cnt_inc(lnk);
+ 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
+ 	atomic_set(&lnk->conn_cnt, 0);
+ 	smc_llc_link_set_uid(lnk);
+@@ -359,6 +370,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ clear_llc_lnk:
+ 	smc_llc_link_clear(lnk, false);
+ out:
++	smc_ibdev_cnt_dec(lnk);
+ 	put_device(&ini->ib_dev->ibdev->dev);
+ 	memset(lnk, 0, sizeof(struct smc_link));
+ 	lnk->state = SMC_LNK_UNUSED;
+@@ -749,6 +761,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
+ 	smc_ib_destroy_queue_pair(lnk);
+ 	smc_ib_dealloc_protection_domain(lnk);
+ 	smc_wr_free_link_mem(lnk);
++	smc_ibdev_cnt_dec(lnk);
+ 	put_device(&lnk->smcibdev->ibdev->dev);
+ 	smcibdev = lnk->smcibdev;
+ 	memset(lnk, 0, sizeof(struct smc_link));
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 2ce481187dd0..3b85360a473b 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -53,6 +53,8 @@ struct smc_ib_device {				/* ib-device infos for smc */
+ 	atomic_t		lnk_cnt;	/* number of links on ibdev */
+ 	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all links*/
+ 	struct mutex		mutex;		/* protect dev setup+cleanup */
++	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];
++						/* number of links per port */
+ };
  
- 		CTCM_PR_DEBUG("%s(%s): Put on collect_q - skb len: %04x \n"
- 				"pdu header and data for up to 32 bytes:\n",
-@@ -691,7 +683,6 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 
- 		skb_queue_tail(&ch->collect_queue, skb);
- 		ch->collect_len += skb->len;
--		kfree(p_header);
- 
- 		spin_unlock_irqrestore(&ch->collect_lock, saveflags);
- 			goto done;
-@@ -721,23 +712,15 @@ static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- 		}
- 	}
- 
--	p_header = kmalloc(PDU_HEADER_LENGTH, gfp_type());
--
--	if (!p_header)
--		goto nomem_exit;
--
--	p_header->pdu_offset = skb->len;
-+	p_header = skb_push(skb, PDU_HEADER_LENGTH);
-+	p_header->pdu_offset = skb->len - PDU_HEADER_LENGTH;
- 	p_header->pdu_proto = 0x01;
--	p_header->pdu_flag = 0x00;
- 	p_header->pdu_seq = 0;
- 	if (be16_to_cpu(skb->protocol) == ETH_P_SNAP) {
--		p_header->pdu_flag |= PDU_FIRST | PDU_CNTL;
-+		p_header->pdu_flag = PDU_FIRST | PDU_CNTL;
- 	} else {
--		p_header->pdu_flag |= PDU_FIRST;
-+		p_header->pdu_flag = PDU_FIRST;
- 	}
--	memcpy(skb_push(skb, PDU_HEADER_LENGTH), p_header, PDU_HEADER_LENGTH);
--
--	kfree(p_header);
- 
- 	if (ch->collect_len > 0) {
- 		spin_lock_irqsave(&ch->collect_lock, saveflags);
+ struct smc_buf_desc;
 -- 
 2.17.1
