@@ -1,43 +1,187 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:42546 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728590AbgKZASE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 25 Nov 2020 19:18:04 -0500
-Date: Wed, 25 Nov 2020 16:18:02 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH net-next v5 08/14] net/smc: Introduce generic netlink
- interface for diagnostic purposes
-Message-ID: <20201125161802.402912b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20201124175047.56949-9-kgraul@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:23102 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2404091AbgKXRvO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 24 Nov 2020 12:51:14 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v5 08/14] net/smc: Introduce generic netlink interface for diagnostic purposes
+Date: Tue, 24 Nov 2020 18:50:41 +0100
+Message-Id: <20201124175047.56949-9-kgraul@linux.ibm.com>
+In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
 References: <20201124175047.56949-1-kgraul@linux.ibm.com>
-        <20201124175047.56949-9-kgraul@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Karsten Graul <kgraul@linux.ibm.com>
-Cc: David Miller <davem@davemloft.net>, Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-On Tue, 24 Nov 2020 18:50:41 +0100 Karsten Graul wrote:
-> From: Guvenc Gulce <guvenc@linux.ibm.com>
-> 
-> Introduce generic netlink interface infrastructure to expose
-> the diagnostic information regarding smc linkgroups, links and devices.
-> 
-> Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-> Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-> @@ -2494,6 +2495,7 @@ static int __init smc_init(void)
->  
->  	smc_ism_init();
->  	smc_clc_init();
-> +	smc_nl_init();
+Introduce generic netlink interface infrastructure to expose
+the diagnostic information regarding smc linkgroups, links and devices.
 
-This can fail.
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ include/uapi/linux/smc.h | 11 +++++++++
+ net/smc/Makefile         |  2 +-
+ net/smc/af_smc.c         |  4 ++++
+ net/smc/smc_netlink.c    | 51 ++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_netlink.h    | 23 ++++++++++++++++++
+ 5 files changed, 90 insertions(+), 1 deletion(-)
+ create mode 100644 net/smc/smc_netlink.c
+ create mode 100644 net/smc/smc_netlink.h
 
-> +static const struct nla_policy smc_gen_nl_policy[SMC_GEN_MAX + 1] = {
-> +	[SMC_GEN_UNSPEC]	= { .type = NLA_UNSPEC, },
-
-This is unnecessary, NLA_UNSPEC is 0.
-
-> +};
+diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+index 0e11ca421ca4..b604d64542e8 100644
+--- a/include/uapi/linux/smc.h
++++ b/include/uapi/linux/smc.h
+@@ -33,4 +33,15 @@ enum {				/* SMC PNET Table commands */
+ #define SMCR_GENL_FAMILY_NAME		"SMC_PNETID"
+ #define SMCR_GENL_FAMILY_VERSION	1
+ 
++/* gennetlink interface to access non-socket information from SMC module */
++#define SMC_GENL_FAMILY_NAME		"SMC_GEN_NETLINK"
++#define SMC_GENL_FAMILY_VERSION		1
++
++/* SMC_GENL_FAMILY top level attributes */
++enum {
++	SMC_GEN_UNSPEC,
++	__SMC_GEN_MAX,
++	SMC_GEN_MAX = __SMC_GEN_MAX - 1
++};
++
+ #endif /* _UAPI_LINUX_SMC_H */
+diff --git a/net/smc/Makefile b/net/smc/Makefile
+index cb1254541f37..77e54fe42b1c 100644
+--- a/net/smc/Makefile
++++ b/net/smc/Makefile
+@@ -2,4 +2,4 @@
+ obj-$(CONFIG_SMC)	+= smc.o
+ obj-$(CONFIG_SMC_DIAG)	+= smc_diag.o
+ smc-y := af_smc.o smc_pnet.o smc_ib.o smc_clc.o smc_core.o smc_wr.o smc_llc.o
+-smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o
++smc-y += smc_cdc.o smc_tx.o smc_rx.o smc_close.o smc_ism.o smc_netlink.o
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index f79b59a972f0..7a76bdab5a28 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -45,6 +45,7 @@
+ #include "smc_ib.h"
+ #include "smc_ism.h"
+ #include "smc_pnet.h"
++#include "smc_netlink.h"
+ #include "smc_tx.h"
+ #include "smc_rx.h"
+ #include "smc_close.h"
+@@ -2494,6 +2495,7 @@ static int __init smc_init(void)
+ 
+ 	smc_ism_init();
+ 	smc_clc_init();
++	smc_nl_init();
+ 
+ 	rc = smc_pnet_init();
+ 	if (rc)
+@@ -2570,6 +2572,7 @@ static int __init smc_init(void)
+ out_pnet:
+ 	smc_pnet_exit();
+ out_pernet_subsys:
++	smc_nl_exit();
+ 	unregister_pernet_subsys(&smc_net_ops);
+ 
+ 	return rc;
+@@ -2586,6 +2589,7 @@ static void __exit smc_exit(void)
+ 	proto_unregister(&smc_proto6);
+ 	proto_unregister(&smc_proto);
+ 	smc_pnet_exit();
++	smc_nl_exit();
+ 	unregister_pernet_subsys(&smc_net_ops);
+ 	rcu_barrier();
+ }
+diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
+new file mode 100644
+index 000000000000..4295723e7843
+--- /dev/null
++++ b/net/smc/smc_netlink.c
+@@ -0,0 +1,51 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ *  Shared Memory Communications over RDMA (SMC-R) and RoCE
++ *
++ *  Generic netlink support functions to interact with SMC module
++ *
++ *  Copyright IBM Corp. 2020
++ *
++ *  Author(s):	Guvenc Gulce <guvenc@linux.ibm.com>
++ */
++
++#include <linux/module.h>
++#include <linux/list.h>
++#include <linux/ctype.h>
++#include <linux/mutex.h>
++#include <linux/if.h>
++#include <linux/smc.h>
++
++#include "smc_core.h"
++#include "smc_netlink.h"
++
++static const struct nla_policy smc_gen_nl_policy[SMC_GEN_MAX + 1] = {
++	[SMC_GEN_UNSPEC]	= { .type = NLA_UNSPEC, },
++};
++
++/* SMC_GENL generic netlink operation definition */
++static const struct genl_ops smc_gen_nl_ops[] = {
++};
++
++/* SMC_GENL family definition */
++struct genl_family smc_gen_nl_family __ro_after_init = {
++	.hdrsize = 0,
++	.name = SMC_GENL_FAMILY_NAME,
++	.version = SMC_GENL_FAMILY_VERSION,
++	.maxattr = SMC_GEN_MAX,
++	.policy = smc_gen_nl_policy,
++	.netnsok = true,
++	.module = THIS_MODULE,
++	.ops = smc_gen_nl_ops,
++	.n_ops =  ARRAY_SIZE(smc_gen_nl_ops)
++};
++
++int __init smc_nl_init(void)
++{
++	return genl_register_family(&smc_gen_nl_family);
++}
++
++void smc_nl_exit(void)
++{
++	genl_unregister_family(&smc_gen_nl_family);
++}
+diff --git a/net/smc/smc_netlink.h b/net/smc/smc_netlink.h
+new file mode 100644
+index 000000000000..0c757232c0d0
+--- /dev/null
++++ b/net/smc/smc_netlink.h
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Shared Memory Communications over RDMA (SMC-R) and RoCE
++ *
++ *  SMC Generic netlink operations
++ *
++ *  Copyright IBM Corp. 2020
++ *
++ *  Author(s):	Guvenc Gulce <guvenc@linux.ibm.com>
++ */
++
++#ifndef _SMC_NETLINK_H
++#define _SMC_NETLINK_H
++
++#include <net/netlink.h>
++#include <net/genetlink.h>
++
++extern struct genl_family smc_gen_nl_family;
++
++int smc_nl_init(void) __init;
++void smc_nl_exit(void);
++
++#endif
+-- 
+2.17.1
