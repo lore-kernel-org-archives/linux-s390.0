@@ -1,200 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728867AbgKPKSc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 16 Nov 2020 05:18:32 -0500
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH v4 00/27]Fix several bad kernel-doc markups
-Date: Mon, 16 Nov 2020 11:17:56 +0100
-Message-Id: <cover.1605521731.git.mchehab+huawei@kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44340 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726039AbgKYJky (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 25 Nov 2020 04:40:54 -0500
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AP9Wwq7181432
+        for <linux-s390@vger.kernel.org>; Wed, 25 Nov 2020 04:40:53 -0500
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 351ddb4cfe-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Wed, 25 Nov 2020 04:40:53 -0500
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0AP9Xb9e187699
+        for <linux-s390@vger.kernel.org>; Wed, 25 Nov 2020 04:40:52 -0500
+Subject: Re: [RFC 1/1] s390/cio: Remove uevent-suppress from css driver
+References: <20201124093407.23189-1-vneethv@linux.ibm.com>
+ <20201124093407.23189-2-vneethv@linux.ibm.com>
+ <20201124140220.77c65539.cohuck@redhat.com>
+From: Vineeth Vijayan <vneethv@linux.vnet.ibm.com>
+Message-ID: <4be7e163-1118-d365-7d25-df39ba78181f@linux.vnet.ibm.com>
+Date: Wed, 25 Nov 2020 10:40:46 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
+In-Reply-To: <20201124140220.77c65539.cohuck@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "David S. Miller" <davem@davemloft.net>, Theodore Ts'o <tytso@mit.edu>, Alexander Viro <viro@zeniv.linux.org.uk>, Alexandre Bounine <alex.bou9@gmail.com>, Andrew Lunn <andrew@lunn.ch>, Andrew Morton <akpm@linux-foundation.org>, Andy Lutomirski <luto@amacapital.net>, Anna Schumaker <anna.schumaker@netapp.com>, Anton Vorontsov <anton@enomsg.org>, Ben Segall <bsegall@google.com>, Colin Cross <ccross@android.com>, Daniel Bristot de Oliveira <bristot@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@linux.ie>, Dietmar Eggemann <dietmar.eggemann@arm.com>, Evgeniy Polyakov <zbr@ioremap.net>, Heiner Kallweit <hkallweit1@gmail.com>, Ingo Molnar <mingo@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Jan Kara <jack@suse.com>, Juri Lelli <juri.lelli@redhat.com>, Kees Cook <keescook@chromium.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Matt Porter <mporter@kernel.crashing.org>, Maxime Ripard <mripard@kernel.org>, Mel Gorman <mgorman@suse.de>, Mike Rapoport <rppt@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Richard Gong <richard.gong@linux.intel.com>, Russell King <linux@armlinux.org.uk>, Sebastian Reichel <sre@kernel.org>, Shuah Khan <shuah@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, Sudip Mukherjee <sudipm.mukherjee@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, Thomas Zimmermann <tzimmermann@suse.de>, Tony Luck <tony.luck@intel.com>, Trond Myklebust <trond.myklebust@hammerspace.com>, Vincent Guittot <vincent.guittot@linaro.org>, Will Drewry <wad@chromium.org>, dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-ext4@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-kselftest@vger.kernel.org, linux-mm@kvack.org, linux-nfs@vger.kernel.org, linux-rdma@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, target-devel@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>, Vineeth Vijayan <vneethv@linux.ibm.com>
+Cc: oberpar@linux.ibm.com, linux-s390@vger.kernel.org, farman@linux.ibm.com, fiuczy@linux.ibm.com
 
-Kernel-doc has always be limited to a probably bad documented
-rule:
+Thank you for looking in to this.
 
-The kernel-doc markups should appear *imediatelly before* the
-function or data structure that it documents.
+On 11/24/20 2:02 PM, Cornelia Huck wrote:
+> On Tue, 24 Nov 2020 10:34:07 +0100
+> Vineeth Vijayan <vneethv@linux.ibm.com> wrote:
+>
+>> 'commit fa1a8c23eb7d ("s390: cio: Delay uevents for subchannels")'
+>> introduced the uevent suppression of subchannels. Even though there
+>> are reasons for wanting to delay the uevent, it also introduces
+>> problems. i.e On some platforms (qemu), where the udev-rule for the
+>> subchannel needs to do driver_override to bind the vfio-ccw driver
+>> instead of io_subchannel driver, but the suppressed uevent is
+>> generated only when the device is found on the subchannel. By the
+>> time it generates the uevent, it makes it difficult for the vfio-ccw
+>> udev-rules to work.
+>> This patch removes the uevent-suppress logic from the css driver.
+>> The ADD uevent will be generated when there is a valid subchannel
+>> and not after binding the valid device. The uevent generates while
+>> device_add() during css_sch_device_register() function.
+>>
+>> Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+>> ---
+>>   drivers/s390/cio/chsc_sch.c     |  5 -----
+>>   drivers/s390/cio/css.c          | 19 -------------------
+>>   drivers/s390/cio/device.c       | 18 ------------------
+>>   drivers/s390/cio/eadm_sch.c     |  5 -----
+>>   drivers/s390/cio/vfio_ccw_drv.c |  5 -----
+>>   5 files changed, 52 deletions(-)
+> While I really like that diffstat, I hope that this is actually safe 
+> for userspace programs processing uevents. Previously, we generated 
+> the ADD uevent only when all parts were setup and ready to use 
+> (including a child ccw_device, for example). Now, the ADD uevent is 
+> created earlier, before drivers have done their setup. Do existing 
+> udev rules still work as expected? (...)
 
-On other words, if a C file would contain something like this:
+I am still working on this. I have done minimal tests as of now. Mostly 
+with the available LPARs/zVMs. And it looks ok. But, i know there are 
+many fragile setups out there and the change in the "timing" (The 
+uevents generated earlier) could be a potential issue on that. I will 
+keep you updated on my findings.
 
-	/**
-	 * foo - function foo
-	 * @args: foo args
-	 */
-	static inline void bar(int args);
-
-	/**
-	 * bar - function bar
-	 * @args: foo args
-	 */
-	static inline void foo(void *args);
-
-
-The output (in ReST format) will be:
-
-	.. c:function:: void bar (int args)
-
-	   function foo
-
-	**Parameters**
-
-	``int args``
-	  foo args
-
-
-	.. c:function:: void foo (void *args)
-
-	   function bar
-
-	**Parameters**
-
-	``void *args``
-	  foo args
-
-Which is clearly a wrong result.  Before this changeset, 
-not even a warning is produced on such cases.
-
-As placing such markups just before the documented
-data is a common practice, on most cases this is fine.
-
-However, as patches touch things, identifiers may be
-renamed, and people may forget to update the kernel-doc
-markups to follow such changes.
-
-This has been happening for quite a while, as there are
-lots of files with kernel-doc problems.
-
-This series address those issues and add a file at the
-end that will enforce that the identifier will match the
-kernel-doc markup, avoiding this problem from
-keep happening as time goes by.
-
-This series is based on current upstream tree.
-
-@maintainers: feel free to pick the patches and
-apply them directly on your trees, as all patches on 
-this series are independent from the other ones.
-
---
-
-v4:
-
-  - Patches got rebased and got some acks.
-
-Mauro Carvalho Chehab (27):
-  net: phy: fix kernel-doc markups
-  net: datagram: fix some kernel-doc markups
-  net: core: fix some kernel-doc markups
-  s390: fix kernel-doc markups
-  drm: fix some kernel-doc markups
-  HSI: fix a kernel-doc markup
-  IB: fix kernel-doc markups
-  parport: fix a kernel-doc markup
-  rapidio: fix kernel-doc a markup
-  video: fix some kernel-doc markups
-  fs: fix kernel-doc markups
-  jbd2: fix kernel-doc markups
-  pstore/zone: fix a kernel-doc markup
-  completion: fix kernel-doc markups
-  firmware: stratix10-svc: fix kernel-doc markups
-  connector: fix a kernel-doc markup
-  lib/crc7: fix a kernel-doc markup
-  hrtimer: fix kernel-doc markups
-  genirq: fix kernel-doc markups
-  list: fix a typo at the kernel-doc markup
-  memblock: fix kernel-doc markups
-  w1: fix a kernel-doc markup
-  resource: fix kernel-doc markups
-  shed: fix kernel-doc markup
-  mm: fix kernel-doc markups
-  selftests: kselftest_harness.h: partially fix kernel-doc markups
-  scripts: kernel-doc: validate kernel-doc markup with the actual names
-
- arch/s390/include/asm/ccwdev.h                |  2 +-
- arch/s390/include/asm/cio.h                   |  2 +-
- drivers/gpu/drm/drm_atomic_state_helper.c     |  2 +-
- drivers/gpu/drm/drm_connector.c               |  3 +-
- drivers/gpu/drm/drm_dp_helper.c               |  2 +-
- drivers/gpu/drm/drm_framebuffer.c             |  2 +-
- drivers/gpu/drm/drm_gem.c                     |  4 +-
- drivers/gpu/drm/drm_gem_vram_helper.c         |  2 +-
- drivers/gpu/drm/drm_mode_object.c             |  2 +-
- drivers/gpu/drm/drm_modes.c                   |  4 +-
- drivers/gpu/drm/drm_scdc_helper.c             |  2 +-
- drivers/gpu/drm/i915/display/intel_dpll_mgr.c |  2 +-
- drivers/gpu/drm/i915/i915_gem_evict.c         |  2 +-
- drivers/gpu/drm/i915/i915_perf.c              |  8 ++-
- drivers/gpu/drm/scheduler/sched_main.c        |  2 +-
- drivers/gpu/drm/v3d/v3d_sched.c               |  2 +-
- drivers/gpu/drm/vc4/vc4_bo.c                  |  2 +-
- drivers/hsi/hsi_core.c                        |  2 +-
- drivers/infiniband/core/cm.c                  |  5 +-
- drivers/infiniband/core/cq.c                  |  4 +-
- drivers/infiniband/core/iwpm_util.h           |  2 +-
- drivers/infiniband/core/sa_query.c            |  3 +-
- drivers/infiniband/core/verbs.c               |  4 +-
- drivers/infiniband/sw/rdmavt/ah.c             |  2 +-
- drivers/infiniband/sw/rdmavt/mcast.c          | 12 ++--
- drivers/infiniband/sw/rdmavt/qp.c             |  8 +--
- drivers/infiniband/ulp/iser/iscsi_iser.c      |  2 +-
- .../infiniband/ulp/opa_vnic/opa_vnic_encap.h  |  2 +-
- .../ulp/opa_vnic/opa_vnic_vema_iface.c        |  2 +-
- drivers/infiniband/ulp/srpt/ib_srpt.h         |  2 +-
- drivers/net/phy/mdio_bus.c                    |  2 +-
- drivers/net/phy/phy-c45.c                     |  2 +-
- drivers/net/phy/phy.c                         |  2 +-
- drivers/net/phy/phy_device.c                  |  2 +-
- drivers/net/phy/phylink.c                     |  2 +-
- drivers/parport/share.c                       |  2 +-
- drivers/rapidio/rio.c                         |  2 +-
- drivers/video/fbdev/core/fbcmap.c             |  2 +-
- drivers/video/hdmi.c                          |  3 +-
- fs/dcache.c                                   | 72 +++++++++----------
- fs/inode.c                                    |  4 +-
- fs/jbd2/journal.c                             | 34 ++++-----
- fs/jbd2/transaction.c                         | 31 ++++----
- fs/pstore/zone.c                              |  2 +-
- fs/seq_file.c                                 |  5 +-
- fs/super.c                                    | 12 ++--
- include/drm/drm_atomic_helper.h               |  4 +-
- include/drm/drm_connector.h                   |  2 +-
- include/drm/drm_device.h                      |  2 +-
- include/drm/drm_dsc.h                         |  3 +-
- include/drm/drm_gem_vram_helper.h             |  8 +--
- include/linux/completion.h                    | 10 ++-
- include/linux/connector.h                     |  2 +-
- .../firmware/intel/stratix10-svc-client.h     | 10 +--
- include/linux/hrtimer.h                       |  6 +-
- include/linux/jbd2.h                          |  2 +-
- include/linux/list.h                          |  2 +-
- include/linux/memblock.h                      |  4 +-
- include/linux/netdevice.h                     | 11 ++-
- include/linux/parport.h                       | 31 ++++++++
- include/linux/w1.h                            |  2 +-
- include/rdma/ib_verbs.h                       | 11 +++
- kernel/irq/chip.c                             |  2 +-
- kernel/irq/generic-chip.c                     |  2 +-
- kernel/resource.c                             | 24 ++++---
- kernel/sched/core.c                           | 16 ++---
- kernel/sched/fair.c                           |  2 +-
- kernel/time/hrtimer.c                         |  2 +-
- lib/crc7.c                                    |  2 +-
- mm/gup.c                                      | 24 ++++---
- mm/page_alloc.c                               | 16 ++---
- mm/truncate.c                                 | 10 ++-
- net/core/datagram.c                           |  2 +-
- net/core/dev.c                                |  4 +-
- net/core/skbuff.c                             |  2 +-
- net/ethernet/eth.c                            |  6 +-
- net/sunrpc/rpc_pipe.c                         |  3 +-
- scripts/kernel-doc                            | 62 +++++++++++-----
- tools/testing/selftests/kselftest_harness.h   | 22 +++---
- 79 files changed, 350 insertions(+), 235 deletions(-)
-
--- 
-2.28.0
+About this RFC, i just wanted make sure that we are on same page with 
+regards to the RFD that you shared.
+>> @@ -1055,16 +1047,6 @@ static int io_subchannel_probe(struct subchannel *sch)
+>>   				      "attributes for subchannel "
+>>   				      "0.%x.%04x (rc=%d)\n",
+>>   				      sch->schid.ssid, sch->schid.sch_no, rc);
+>> -		/*
+>> -		 * The console subchannel already has an associated ccw_device.
+>> -		 * Throw the delayed uevent for the subchannel, register
+>> -		 * the ccw_device and exit.
+> I would keep the comment that we already have a ccw_device here. I.e.
+>
+> /*
+>   * The console subchannel already has an associated ccw_device.
+>   * Register it and exit.
+>   */
+>
+>> -		 */
+>> -		if (dev_get_uevent_suppress(&sch->dev)) {
+>> -			/* should always be the case for the console */
+>> -			dev_set_uevent_suppress(&sch->dev, 0);
+>> -			kobject_uevent(&sch->dev.kobj, KOBJ_ADD);
+>> -		}
+>>   		cdev = sch_get_cdev(sch);
+>>   		rc = ccw_device_add(cdev);
+>>   		if (rc) {
+> (...)
+>
