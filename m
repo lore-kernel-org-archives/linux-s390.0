@@ -1,138 +1,70 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:49978 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1733125AbgKXVkl (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20884 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731040AbgKYREX (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 16:40:41 -0500
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v12 09/17] s390/vfio-ap: sysfs attribute to display the guest's matrix
-Date: Tue, 24 Nov 2020 16:40:08 -0500
-Message-Id: <20201124214016.3013-10-akrowiak@linux.ibm.com>
-In-Reply-To: <20201124214016.3013-1-akrowiak@linux.ibm.com>
-References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
+        Wed, 25 Nov 2020 12:04:23 -0500
+Date: Wed, 25 Nov 2020 18:04:09 +0100
+From: Benjamin Block <bblock@linux.ibm.com>
+Subject: Re: [PATCH] scsi: zfcp: fix use-after-free in
+ zfcp_sysfs_port_remove_store
+Message-ID: <20201125170409.GA8578@t480-pf1aa2c2>
+References: <20201120074853.31706-1-miaoqinglang@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201120074853.31706-1-miaoqinglang@huawei.com>
+Sender: Benjamin Block <bblock@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Qinglang Miao <miaoqinglang@huawei.com>
+Cc: Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
 
-The matrix of adapters and domains configured in a guest's APCB may
-differ from the matrix of adapters and domains assigned to the matrix mdev,
-so this patch introduces a sysfs attribute to display the matrix of
-adapters and domains that are or will be assigned to the APCB of a guest
-that is or will be using the matrix mdev. For a matrix mdev denoted by
-$uuid, the guest matrix can be displayed as follows:
+On Fri, Nov 20, 2020 at 03:48:53PM +0800, Qinglang Miao wrote:
+> kfree(port) is called in put_device(&port->dev) so that following
+> use would cause use-after-free bug.
+>=20
+> the former put_device is redundant for device_unregister contains
+> put_device already. So just remove it to fix this.
+>=20
+> Fixes: 83d4e1c33d93 ("[SCSI] zfcp: cleanup port sysfs attribute usage")
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
+> ---
+>  drivers/s390/scsi/zfcp_sysfs.c | 2 --
+>  1 file changed, 2 deletions(-)
+>=20
+> diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysf=
+s.c
+> index 8d9662e8b..06285e452 100644
+> --- a/drivers/s390/scsi/zfcp_sysfs.c
+> +++ b/drivers/s390/scsi/zfcp_sysfs.c
+> @@ -327,8 +327,6 @@ static ssize_t zfcp_sysfs_port_remove_store(struct de=
+vice *dev,
+>  	list_del(&port->list);
+>  	write_unlock_irq(&adapter->port_list_lock);
+> =20
+> -	put_device(&port->dev);
+> -
+>  	zfcp_erp_port_shutdown(port, 0, "syprs_1");
+>  	device_unregister(&port->dev);
+>   out:
 
-   cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
+Hmm, the placement of the put_device() is indeed strange, now that I
+think about it. But just removing it and then having a dangling
+reference also seems wrong - we do get one explicitly in
+`zfcp_get_port_by_wwpn()`.
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 51 ++++++++++++++++++++++---------
- 1 file changed, 37 insertions(+), 14 deletions(-)
+My first thought would be to move it after the `device_unregister()`
+call, and before the `out:` label.
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 89b0e81657ca..a69422d76e7f 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1075,29 +1075,24 @@ static ssize_t control_domains_show(struct device *dev,
- }
- static DEVICE_ATTR_RO(control_domains);
- 
--static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
--			   char *buf)
-+static ssize_t vfio_ap_mdev_matrix_show(struct ap_matrix *matrix, char *buf)
- {
--	struct mdev_device *mdev = mdev_from_dev(dev);
--	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	char *bufpos = buf;
- 	unsigned long apid;
- 	unsigned long apqi;
- 	unsigned long apid1;
- 	unsigned long apqi1;
--	unsigned long napm_bits = matrix_mdev->matrix.apm_max + 1;
--	unsigned long naqm_bits = matrix_mdev->matrix.aqm_max + 1;
-+	unsigned long napm_bits = matrix->apm_max + 1;
-+	unsigned long naqm_bits = matrix->aqm_max + 1;
- 	int nchars = 0;
- 	int n;
- 
--	apid1 = find_first_bit_inv(matrix_mdev->matrix.apm, napm_bits);
--	apqi1 = find_first_bit_inv(matrix_mdev->matrix.aqm, naqm_bits);
--
--	mutex_lock(&matrix_dev->lock);
-+	apid1 = find_first_bit_inv(matrix->apm, napm_bits);
-+	apqi1 = find_first_bit_inv(matrix->aqm, naqm_bits);
- 
- 	if ((apid1 < napm_bits) && (apqi1 < naqm_bits)) {
--		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
--			for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
-+		for_each_set_bit_inv(apid, matrix->apm, napm_bits) {
-+			for_each_set_bit_inv(apqi, matrix->aqm,
- 					     naqm_bits) {
- 				n = sprintf(bufpos, "%02lx.%04lx\n", apid,
- 					    apqi);
-@@ -1106,25 +1101,52 @@ static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
- 			}
- 		}
- 	} else if (apid1 < napm_bits) {
--		for_each_set_bit_inv(apid, matrix_mdev->matrix.apm, napm_bits) {
-+		for_each_set_bit_inv(apid, matrix->apm, napm_bits) {
- 			n = sprintf(bufpos, "%02lx.\n", apid);
- 			bufpos += n;
- 			nchars += n;
- 		}
- 	} else if (apqi1 < naqm_bits) {
--		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm, naqm_bits) {
-+		for_each_set_bit_inv(apqi, matrix->aqm, naqm_bits) {
- 			n = sprintf(bufpos, ".%04lx\n", apqi);
- 			bufpos += n;
- 			nchars += n;
- 		}
- 	}
- 
-+	return nchars;
-+}
-+
-+static ssize_t matrix_show(struct device *dev, struct device_attribute *attr,
-+			   char *buf)
-+{
-+	ssize_t nchars;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+
-+	mutex_lock(&matrix_dev->lock);
-+	nchars = vfio_ap_mdev_matrix_show(&matrix_mdev->matrix, buf);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return nchars;
- }
- static DEVICE_ATTR_RO(matrix);
- 
-+static ssize_t guest_matrix_show(struct device *dev,
-+				 struct device_attribute *attr, char *buf)
-+{
-+	ssize_t nchars;
-+	struct mdev_device *mdev = mdev_from_dev(dev);
-+	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
-+
-+	mutex_lock(&matrix_dev->lock);
-+	nchars = vfio_ap_mdev_matrix_show(&matrix_mdev->shadow_apcb, buf);
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return nchars;
-+}
-+static DEVICE_ATTR_RO(guest_matrix);
-+
- static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_assign_adapter.attr,
- 	&dev_attr_unassign_adapter.attr,
-@@ -1134,6 +1156,7 @@ static struct attribute *vfio_ap_mdev_attrs[] = {
- 	&dev_attr_unassign_control_domain.attr,
- 	&dev_attr_control_domains.attr,
- 	&dev_attr_matrix.attr,
-+	&dev_attr_guest_matrix.attr,
- 	NULL,
- };
- 
--- 
-2.21.1
+
+--=20
+Best Regards, Benjamin Block  / Linux on IBM Z Kernel Development / IBM Sys=
+tems
+IBM Deutschland Research & Development GmbH    /    https://www.ibm.com/pri=
+vacy
+Vorsitz. AufsR.: Gregor Pillen         /        Gesch=EF=BF=BDftsf=EF=BF=BD=
+hrung: Dirk Wittkopp
+Sitz der Gesellschaft: B=EF=BF=BDblingen / Registergericht: AmtsG Stuttgart=
+, HRB 243294
