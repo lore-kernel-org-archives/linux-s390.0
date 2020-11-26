@@ -1,90 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34636 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727975AbgKGNAT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sat, 7 Nov 2020 08:00:19 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:45344 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388029AbgKZUj3 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 26 Nov 2020 15:39:29 -0500
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v3 08/15] net/smc: Add ability to work with extended SMC netlink API
-Date: Sat,  7 Nov 2020 13:59:51 +0100
-Message-Id: <20201107125958.16384-9-kgraul@linux.ibm.com>
-In-Reply-To: <20201107125958.16384-1-kgraul@linux.ibm.com>
-References: <20201107125958.16384-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next v6 01/14] net/smc: use helper smc_conn_abort() in listen processing
+Date: Thu, 26 Nov 2020 21:39:03 +0100
+Message-Id: <20201126203916.56071-2-kgraul@linux.ibm.com>
+In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
+References: <20201126203916.56071-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+The helper smc_connect_abort() can be used by the listen processing
+functions, too. And rename this helper to smc_conn_abort() to make the
+purpose clearer.
+No functional change.
 
-smc_diag module should be able to work with legacy and
-extended netlink api. This is done by using the sequence field
-of the netlink message header. Sequence field is optional and was
-filled with a constant value MAGIC_SEQ in the current
-implementation.
-New constant values MAGIC_SEQ_V2 and MAGIC_SEQ_V2_ACK are used to
-signal the usage of the new Netlink API between userspace and
-kernel.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
 Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- include/uapi/linux/smc_diag.h |  7 +++++++
- net/smc/smc_diag.c            | 21 +++++++++++++--------
- 2 files changed, 20 insertions(+), 8 deletions(-)
+ net/smc/af_smc.c | 17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
 
-diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
-index 8cb3a6fef553..236c1c52d562 100644
---- a/include/uapi/linux/smc_diag.h
-+++ b/include/uapi/linux/smc_diag.h
-@@ -6,6 +6,13 @@
- #include <linux/inet_diag.h>
- #include <rdma/ib_user_verbs.h>
- 
-+/* Sequence numbers */
-+enum {
-+	MAGIC_SEQ = 123456,
-+	MAGIC_SEQ_V2,
-+	MAGIC_SEQ_V2_ACK,
-+};
-+
- /* Request structure */
- struct smc_diag_req {
- 	__u8	diag_family;
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index 44be723c97fe..bc2b616524ff 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -293,19 +293,24 @@ static int smc_diag_dump(struct sk_buff *skb, struct netlink_callback *cb)
- 	return skb->len;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 811819c849da..13db3f260e94 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -552,8 +552,7 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
+ 	return smc_connect_fallback(smc, reason_code);
  }
  
-+static int smc_diag_dump_ext(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	return skb->len;
-+}
-+
- static int smc_diag_handler_dump(struct sk_buff *skb, struct nlmsghdr *h)
+-/* abort connecting */
+-static void smc_connect_abort(struct smc_sock *smc, int local_first)
++static void smc_conn_abort(struct smc_sock *smc, int local_first)
  {
- 	struct net *net = sock_net(skb->sk);
--
-+	struct netlink_dump_control c = {
-+		.min_dump_alloc = SKB_WITH_OVERHEAD(32768),
-+	};
- 	if (h->nlmsg_type == SOCK_DIAG_BY_FAMILY &&
- 	    h->nlmsg_flags & NLM_F_DUMP) {
--		{
--			struct netlink_dump_control c = {
--				.dump = smc_diag_dump,
--				.min_dump_alloc = SKB_WITH_OVERHEAD(32768),
--			};
--			return netlink_dump_start(net->diag_nlsk, skb, h, &c);
--		}
-+		if (h->nlmsg_seq >= MAGIC_SEQ_V2)
-+			c.dump = smc_diag_dump_ext;
-+		else
-+			c.dump = smc_diag_dump;
-+		return netlink_dump_start(net->diag_nlsk, skb, h, &c);
- 	}
+ 	if (local_first)
+ 		smc_lgr_cleanup_early(&smc->conn);
+@@ -814,7 +813,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 
  	return 0;
- }
+ connect_abort:
+-	smc_connect_abort(smc, ini->first_contact_local);
++	smc_conn_abort(smc, ini->first_contact_local);
+ 	mutex_unlock(&smc_client_lgr_pending);
+ 	smc->connect_nonblock = 0;
+ 
+@@ -893,7 +892,7 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 
+ 	return 0;
+ connect_abort:
+-	smc_connect_abort(smc, ini->first_contact_local);
++	smc_conn_abort(smc, ini->first_contact_local);
+ 	mutex_unlock(&smc_server_lgr_pending);
+ 	smc->connect_nonblock = 0;
+ 
+@@ -1321,10 +1320,7 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
+ 			       int local_first, u8 version)
+ {
+ 	/* RDMA setup failed, switch back to TCP */
+-	if (local_first)
+-		smc_lgr_cleanup_early(&new_smc->conn);
+-	else
+-		smc_conn_free(&new_smc->conn);
++	smc_conn_abort(new_smc, local_first);
+ 	if (reason_code < 0) { /* error, no fallback possible */
+ 		smc_listen_out_err(new_smc);
+ 		return;
+@@ -1430,10 +1426,7 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
+ 	/* Create send and receive buffers */
+ 	rc = smc_buf_create(new_smc, true);
+ 	if (rc) {
+-		if (ini->first_contact_local)
+-			smc_lgr_cleanup_early(&new_smc->conn);
+-		else
+-			smc_conn_free(&new_smc->conn);
++		smc_conn_abort(new_smc, ini->first_contact_local);
+ 		return (rc == -ENOSPC) ? SMC_CLC_DECL_MAX_DMB :
+ 					 SMC_CLC_DECL_MEM;
+ 	}
 -- 
 2.17.1
