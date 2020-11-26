@@ -1,56 +1,77 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10680 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24974 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726723AbgKBTed (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 14:34:33 -0500
+        by vger.kernel.org with ESMTP id S1731876AbgKZUja (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 26 Nov 2020 15:39:30 -0500
 From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 02/15] net/smc: Use active link of the connection
-Date: Mon,  2 Nov 2020 20:33:56 +0100
-Message-Id: <20201102193409.70901-3-kgraul@linux.ibm.com>
-In-Reply-To: <20201102193409.70901-1-kgraul@linux.ibm.com>
-References: <20201102193409.70901-1-kgraul@linux.ibm.com>
+Subject: [PATCH net-next v6 00/14] net/smc: Add support for generic netlink API
+Date: Thu, 26 Nov 2020 21:39:02 +0100
+Message-Id: <20201126203916.56071-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Please apply the following patch series for smc to netdev's net-next tree.
 
-Use active link of the connection directly and not
-via linkgroup array structure when obtaining link
-data of the connection.
+Up to version 4 this patch series was using the sock_diag netlink
+infrastructure. This version is using the generic netlink API. Generic
+netlink API offers a better type safety between kernel and userspace
+communication.
+Using the generic netlink API the smc module can now provide information
+about SMC linkgroups, links and devices (both for SMC-R and SMC-D).
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_diag.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+v2: Add missing include to uapi header smc_diag.h.
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index f15fca59b4b2..c2225231f679 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -160,17 +160,17 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_diag_lgrinfo linfo = {
- 			.role = smc->conn.lgr->role,
--			.lnk[0].ibport = smc->conn.lgr->lnk[0].ibport,
--			.lnk[0].link_id = smc->conn.lgr->lnk[0].link_id,
-+			.lnk[0].ibport = smc->conn.lnk->ibport,
-+			.lnk[0].link_id = smc->conn.lnk->link_id,
- 		};
- 
- 		memcpy(linfo.lnk[0].ibname,
- 		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
--		       sizeof(smc->conn.lgr->lnk[0].smcibdev->ibdev->name));
-+		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
- 		smc_gid_be16_convert(linfo.lnk[0].gid,
--				     smc->conn.lgr->lnk[0].gid);
-+				     smc->conn.lnk->gid);
- 		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
--				     smc->conn.lgr->lnk[0].peer_gid);
-+				     smc->conn.lnk->peer_gid);
- 
- 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
- 			goto errout;
+v3: Apply code style recommendations from review comments.
+    Instead of using EXPORTs to allow the smc_diag module to access
+    data of the smc module, introduce struct smc_diag_ops and let
+    smc_diag access the required data using function pointers.
+
+v4: Address checkpatch.pl warnings. Do not use static inline for
+    functions.
+
+v5: Use generic netlink API instead of the sock_diag netlink
+    infrastructure.
+
+v6: Integrate more review comments from Jakub.
+
+Guvenc Gulce (13):
+  net/smc: Use active link of the connection
+  net/smc: Add connection counters for links
+  net/smc: Add link counters for IB device ports
+  net/smc: Add diagnostic information to smc ib-device
+  net/smc: Add diagnostic information to link structure
+  net/smc: Refactor smc ism v2 capability handling
+  net/smc: Introduce generic netlink interface for diagnostic purposes
+  net/smc: Add support for obtaining system information
+  net/smc: Introduce SMCR get linkgroup command
+  net/smc: Introduce SMCR get link command
+  net/smc: Add SMC-D Linkgroup diagnostic support
+  net/smc: Add support for obtaining SMCD device list
+  net/smc: Add support for obtaining SMCR device list
+
+Karsten Graul (1):
+  net/smc: use helper smc_conn_abort() in listen processing
+
+ include/uapi/linux/smc.h | 126 +++++++++++++
+ net/smc/Makefile         |   2 +-
+ net/smc/af_smc.c         |  39 ++--
+ net/smc/smc_clc.c        |   5 +
+ net/smc/smc_clc.h        |   1 +
+ net/smc/smc_core.c       | 399 ++++++++++++++++++++++++++++++++++++++-
+ net/smc/smc_core.h       |  49 +++++
+ net/smc/smc_diag.c       |  23 +--
+ net/smc/smc_ib.c         | 200 ++++++++++++++++++++
+ net/smc/smc_ib.h         |   6 +
+ net/smc/smc_ism.c        |  99 +++++++++-
+ net/smc/smc_ism.h        |   6 +-
+ net/smc/smc_netlink.c    |  78 ++++++++
+ net/smc/smc_netlink.h    |  32 ++++
+ net/smc/smc_pnet.c       |   2 +
+ 15 files changed, 1022 insertions(+), 45 deletions(-)
+ create mode 100644 net/smc/smc_netlink.c
+ create mode 100644 net/smc/smc_netlink.h
+
 -- 
 2.17.1
