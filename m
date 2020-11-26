@@ -1,89 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13892 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2403976AbgKXSFE (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 13:05:04 -0500
-Date: Tue, 24 Nov 2020 19:04:55 +0100
-From: Heiko Carstens <hca@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.10-rc6
-Message-ID: <20201124180455.GA4250@osiris>
+Received: from foss.arm.com ([217.140.110.172]:33392 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390196AbgKZNpn (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 26 Nov 2020 08:45:43 -0500
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: Re: [RFC 3/3] s390/mm: Define arch_get_addressable_range()
+References: <1606098529-7907-1-git-send-email-anshuman.khandual@arm.com>
+ <1606098529-7907-4-git-send-email-anshuman.khandual@arm.com>
+ <fc5ebaf9-ce6a-95fd-a2fe-84bfdf73512a@redhat.com>
+Message-ID: <6223eabd-fbe5-2ece-1a73-172b4b67bdde@arm.com>
+Date: Thu, 26 Nov 2020 19:15:08 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+In-Reply-To: <fc5ebaf9-ce6a-95fd-a2fe-84bfdf73512a@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, linux-mm@kvack.org, akpm@linux-foundation.org
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Linus,
 
-please pull one important s390 fix for 5.10-rc6.
 
-Thanks,
-Heiko
+On 11/25/20 10:57 PM, David Hildenbrand wrote:
+> On 23.11.20 03:28, Anshuman Khandual wrote:
+>> This overrides arch_get_addressable_range() on s390 platform and drops
+>> now redudant similar check in vmem_add_mapping().
+>>
+>> Cc: Heiko Carstens <hca@linux.ibm.com>
+>> Cc: Vasily Gorbik <gor@linux.ibm.com>
+>> Cc: David Hildenbrand <david@redhat.com>
+>> Cc: linux-s390@vger.kernel.org
+>> Cc: linux-kernel@vger.kernel.org
+>> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+>> ---
+>>  arch/s390/include/asm/mmu.h |  2 ++
+>>  arch/s390/mm/vmem.c         | 16 ++++++++++++----
+>>  2 files changed, 14 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/mmu.h b/arch/s390/include/asm/mmu.h
+>> index e12ff0f29d1a..f92d3926b188 100644
+>> --- a/arch/s390/include/asm/mmu.h
+>> +++ b/arch/s390/include/asm/mmu.h
+>> @@ -55,4 +55,6 @@ static inline int tprot(unsigned long addr)
+>>  	return rc;
+>>  }
+>>  
+>> +#define arch_get_addressable_range arch_get_addressable_range
+>> +struct range arch_get_addressable_range(bool need_mapping);
+>>  #endif
+>> diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+>> index b239f2ba93b0..e03ad0ed13a7 100644
+>> --- a/arch/s390/mm/vmem.c
+>> +++ b/arch/s390/mm/vmem.c
+>> @@ -532,14 +532,22 @@ void vmem_remove_mapping(unsigned long start, unsigned long size)
+>>  	mutex_unlock(&vmem_mutex);
+>>  }
+>>  
+>> +struct range arch_get_addressable_range(bool need_mapping)
+>> +{
+>> +	struct range memhp_range;
+>> +
+>> +	memhp_range.start = 0;
+>> +	if (need_mapping)
+>> +		memhp_range.end =  VMEM_MAX_PHYS;
+>> +	else
+>> +		memhp_range.end = (1ULL << (MAX_PHYSMEM_BITS + 1)) - 1;
+>> +	return memhp_range;
+>> +}
+>> +
+>>  int vmem_add_mapping(unsigned long start, unsigned long size)
+>>  {
+>>  	int ret;
+>>  
+>> -	if (start + size > VMEM_MAX_PHYS ||
+>> -	    start + size < start)
+>> -		return -ERANGE;
+>> -
+>>  	mutex_lock(&vmem_mutex);
+>>  	ret = vmem_add_range(start, size);
+>>  	if (ret)
+>>
+> 
+> Note that vmem_add_mapping() is also called from extmem
+> (arch/s390/mm/extmem.c).
 
-The following changes since commit 78d732e1f326f74f240d416af9484928303d9951:
+Right, probably something like this should be able to take care of
+the range check, it lost out earlier.
 
-  s390/cpum_sf.c: fix file permission for cpum_sfb_size (2020-11-12 12:10:36 +0100)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.10-5
-
-for you to fetch changes up to 1179f170b6f0af7bb0b3b7628136eaac450ddf31:
-
-  s390: fix fpu restore in entry.S (2020-11-23 11:52:13 +0100)
-
-----------------------------------------------------------------
-- disable interrupts when restoring fpu and vector registers,
-  otherwise KVM guests might see corrupted register contents
-
-----------------------------------------------------------------
-Sven Schnelle (1):
-      s390: fix fpu restore in entry.S
-
- arch/s390/kernel/asm-offsets.c | 10 +++++-----
- arch/s390/kernel/entry.S       |  2 ++
- 2 files changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/arch/s390/kernel/asm-offsets.c b/arch/s390/kernel/asm-offsets.c
-index 2012c1cf0853..483051e10db3 100644
---- a/arch/s390/kernel/asm-offsets.c
-+++ b/arch/s390/kernel/asm-offsets.c
-@@ -53,11 +53,11 @@ int main(void)
- 	/* stack_frame offsets */
- 	OFFSET(__SF_BACKCHAIN, stack_frame, back_chain);
- 	OFFSET(__SF_GPRS, stack_frame, gprs);
--	OFFSET(__SF_EMPTY, stack_frame, empty1);
--	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[0]);
--	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[1]);
--	OFFSET(__SF_SIE_REASON, stack_frame, empty1[2]);
--	OFFSET(__SF_SIE_FLAGS, stack_frame, empty1[3]);
-+	OFFSET(__SF_EMPTY, stack_frame, empty1[0]);
-+	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[1]);
-+	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[2]);
-+	OFFSET(__SF_SIE_REASON, stack_frame, empty1[3]);
-+	OFFSET(__SF_SIE_FLAGS, stack_frame, empty1[4]);
- 	BLANK();
- 	OFFSET(__VDSO_GETCPU_VAL, vdso_per_cpu_data, getcpu_val);
- 	BLANK();
-diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
-index 5346545b9860..26bb0603c5a1 100644
---- a/arch/s390/kernel/entry.S
-+++ b/arch/s390/kernel/entry.S
-@@ -1068,6 +1068,7 @@ EXPORT_SYMBOL(save_fpu_regs)
-  *	%r4
-  */
- load_fpu_regs:
-+	stnsm	__SF_EMPTY(%r15),0xfc
- 	lg	%r4,__LC_CURRENT
- 	aghi	%r4,__TASK_thread
- 	TSTMSK	__LC_CPU_FLAGS,_CIF_FPU
-@@ -1099,6 +1100,7 @@ load_fpu_regs:
- .Lload_fpu_regs_done:
- 	ni	__LC_CPU_FLAGS+7,255-_CIF_FPU
- .Lload_fpu_regs_exit:
-+	ssm	__SF_EMPTY(%r15)
- 	BR_EX	%r14
- .Lload_fpu_regs_end:
- ENDPROC(load_fpu_regs)
+diff --git a/arch/s390/mm/extmem.c b/arch/s390/mm/extmem.c
+index 5060956b8e7d..c61620ae5ee6 100644
+--- a/arch/s390/mm/extmem.c
++++ b/arch/s390/mm/extmem.c
+@@ -337,6 +337,11 @@ __segment_load (char *name, int do_nonshared, unsigned long *addr, unsigned long
+                goto out_free_resource;
+        }
+ 
++       if (seg->end + 1 > VMEM_MAX_PHYS || seg->end + 1 < seg->start) {
++               rc = -ERANGE;
++               goto out_resource;
++       }
++
+        rc = vmem_add_mapping(seg->start_addr, seg->end - seg->start_addr + 1);
+        if (rc)
+                goto out_resource;
