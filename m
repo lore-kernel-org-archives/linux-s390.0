@@ -1,72 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50344 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728901AbgKZIOD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 26 Nov 2020 03:14:03 -0500
-Date: Thu, 26 Nov 2020 09:13:53 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+Received: from szxga07-in.huawei.com ([45.249.212.35]:8402 "EHLO
+        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730067AbgKZB1p (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 25 Nov 2020 20:27:45 -0500
 Subject: Re: [PATCH] scsi: zfcp: fix use-after-free in zfcp_unit_remove
-Message-ID: <20201126091353.50cf6ab6.cohuck@redhat.com>
-In-Reply-To: <4c65bead-2553-171e-54d2-87a9de0330e8@huawei.com>
 References: <20201120074854.31754-1-miaoqinglang@huawei.com>
-        <20201125170658.GB8578@t480-pf1aa2c2>
-        <4c65bead-2553-171e-54d2-87a9de0330e8@huawei.com>
+ <20201125170658.GB8578@t480-pf1aa2c2>
+From: Qinglang Miao <miaoqinglang@huawei.com>
+Message-ID: <4c65bead-2553-171e-54d2-87a9de0330e8@huawei.com>
+Date: Thu, 26 Nov 2020 09:27:41 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201125170658.GB8578@t480-pf1aa2c2>
+Content-Type: text/plain; charset="gbk"; format="flowed"
+Content-Transfer-Encoding: base64
 List-ID: <linux-s390.vger.kernel.org>
-To: Qinglang Miao <miaoqinglang@huawei.com>
-Cc: Benjamin Block <bblock@linux.ibm.com>, Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+To: Benjamin Block <bblock@linux.ibm.com>
+Cc: Steffen Maier <maier@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
 
-On Thu, 26 Nov 2020 09:27:41 +0800
-Qinglang Miao <miaoqinglang@huawei.com> wrote:
-
-> =E5=9C=A8 2020/11/26 1:06, Benjamin Block =E5=86=99=E9=81=93:
-> > On Fri, Nov 20, 2020 at 03:48:54PM +0800, Qinglang Miao wrote: =20
-> >> kfree(port) is called in put_device(&port->dev) so that following
-> >> use would cause use-after-free bug.
-> >>
-> >> The former put_device is redundant for device_unregister contains
-> >> put_device already. So just remove it to fix this.
-> >>
-> >> Fixes: 86bdf218a717 ("[SCSI] zfcp: cleanup unit sysfs attribute usage")
-> >> Reported-by: Hulk Robot <hulkci@huawei.com>
-> >> Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
-> >> ---
-> >>   drivers/s390/scsi/zfcp_unit.c | 2 --
-> >>   1 file changed, 2 deletions(-)
-> >>
-> >> diff --git a/drivers/s390/scsi/zfcp_unit.c b/drivers/s390/scsi/zfcp_un=
-it.c
-> >> index e67bf7388..664b77853 100644
-> >> --- a/drivers/s390/scsi/zfcp_unit.c
-> >> +++ b/drivers/s390/scsi/zfcp_unit.c
-> >> @@ -255,8 +255,6 @@ int zfcp_unit_remove(struct zfcp_port *port, u64 f=
-cp_lun)
-> >>   		scsi_device_put(sdev);
-> >>   	}
-> >>  =20
-> >> -	put_device(&unit->dev);
-> >> -
-> >>   	device_unregister(&unit->dev); =20
-> >>  >>   	return 0; =20
-> >=20
-> > Same as in the other mail for `zfcp_sysfs_port_remove_store()`. We
-> > explicitly get a new ref in `_zfcp_unit_find()`, so we also need to put
-> > that away again.
-> > =20
-> Sorry, Benjamin, I don't think so, because device_unregister calls=20
-> put_device inside.
->=20
-> It seem's that another put_device before or after device_unregister is=20
-> useless and even might cause an use-after-free.
-
-The issue here (and in the other patches that I had commented on) is
-that the references have different origins. device_register() acquires
-a reference, and that reference is given up when you call
-device_unregister(). However, the code here grabs an extra reference,
-and it of course has to give it up again when it no longer needs it.
-
-This is something that is not that easy to spot by an automated check,
-I guess?
+Cgrvv73vv70gMjAyMC8xMS8yNiAxOjA2LCBCZW5qYW1pbiBCbG9jayDQtO+/ve+/vToKPiBPbiBG
+cmksIE5vdiAyMCwgMjAyMCBhdCAwMzo0ODo1NFBNICswODAwLCBRaW5nbGFuZyBNaWFvIHdyb3Rl
+Ogo+PiBrZnJlZShwb3J0KSBpcyBjYWxsZWQgaW4gcHV0X2RldmljZSgmcG9ydC0+ZGV2KSBzbyB0
+aGF0IGZvbGxvd2luZwo+PiB1c2Ugd291bGQgY2F1c2UgdXNlLWFmdGVyLWZyZWUgYnVnLgo+Pgo+
+PiBUaGUgZm9ybWVyIHB1dF9kZXZpY2UgaXMgcmVkdW5kYW50IGZvciBkZXZpY2VfdW5yZWdpc3Rl
+ciBjb250YWlucwo+PiBwdXRfZGV2aWNlIGFscmVhZHkuIFNvIGp1c3QgcmVtb3ZlIGl0IHRvIGZp
+eCB0aGlzLgo+Pgo+PiBGaXhlczogODZiZGYyMThhNzE3ICgiW1NDU0ldIHpmY3A6IGNsZWFudXAg
+dW5pdCBzeXNmcyBhdHRyaWJ1dGUgdXNhZ2UiKQo+PiBSZXBvcnRlZC1ieTogSHVsayBSb2JvdCA8
+aHVsa2NpQGh1YXdlaS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IFFpbmdsYW5nIE1pYW8gPG1pYW9x
+aW5nbGFuZ0BodWF3ZWkuY29tPgo+PiAtLS0KPj4gICBkcml2ZXJzL3MzOTAvc2NzaS96ZmNwX3Vu
+aXQuYyB8IDIgLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgMiBkZWxldGlvbnMoLSkKPj4KPj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvczM5MC9zY3NpL3pmY3BfdW5pdC5jIGIvZHJpdmVycy9zMzkwL3Nj
+c2kvemZjcF91bml0LmMKPj4gaW5kZXggZTY3YmY3Mzg4Li42NjRiNzc4NTMgMTAwNjQ0Cj4+IC0t
+LSBhL2RyaXZlcnMvczM5MC9zY3NpL3pmY3BfdW5pdC5jCj4+ICsrKyBiL2RyaXZlcnMvczM5MC9z
+Y3NpL3pmY3BfdW5pdC5jCj4+IEBAIC0yNTUsOCArMjU1LDYgQEAgaW50IHpmY3BfdW5pdF9yZW1v
+dmUoc3RydWN0IHpmY3BfcG9ydCAqcG9ydCwgdTY0IGZjcF9sdW4pCj4+ICAgCQlzY3NpX2Rldmlj
+ZV9wdXQoc2Rldik7Cj4+ICAgCX0KPj4gICAKPj4gLQlwdXRfZGV2aWNlKCZ1bml0LT5kZXYpOwo+
+PiAtCj4+ICAgCWRldmljZV91bnJlZ2lzdGVyKCZ1bml0LT5kZXYpOwo+PiAgPj4gICAJcmV0dXJu
+IDA7Cj4gCj4gU2FtZSBhcyBpbiB0aGUgb3RoZXIgbWFpbCBmb3IgYHpmY3Bfc3lzZnNfcG9ydF9y
+ZW1vdmVfc3RvcmUoKWAuIFdlCj4gZXhwbGljaXRseSBnZXQgYSBuZXcgcmVmIGluIGBfemZjcF91
+bml0X2ZpbmQoKWAsIHNvIHdlIGFsc28gbmVlZCB0byBwdXQKPiB0aGF0IGF3YXkgYWdhaW4uCj4K
+U29ycnksIEJlbmphbWluLCBJIGRvbid0IHRoaW5rIHNvLCBiZWNhdXNlIGRldmljZV91bnJlZ2lz
+dGVyIGNhbGxzIApwdXRfZGV2aWNlIGluc2lkZS4KCkl0IHNlZW0ncyB0aGF0IGFub3RoZXIgcHV0
+X2RldmljZSBiZWZvcmUgb3IgYWZ0ZXIgZGV2aWNlX3VucmVnaXN0ZXIgaXMgCnVzZWxlc3MgYW5k
+IGV2ZW4gbWlnaHQgY2F1c2UgYW4gdXNlLWFmdGVyLWZyZWUuCgo=
