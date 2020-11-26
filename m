@@ -1,47 +1,52 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34252 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726126AbgKCKHB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:07:01 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 02/10] block: don't call into the driver for BLKFLSBUF
-Date: Tue,  3 Nov 2020 11:00:10 +0100
-Message-Id: <20201103100018.683694-3-hch@lst.de>
-In-Reply-To: <20201103100018.683694-1-hch@lst.de>
-References: <20201103100018.683694-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v6 02/14] net/smc: Use active link of the connection
+Date: Thu, 26 Nov 2020 21:39:04 +0100
+Message-Id: <20201126203916.56071-3-kgraul@linux.ibm.com>
+In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
+References: <20201126203916.56071-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-BLKFLSBUF is entirely contained in the block core, and there is no
-good reason to give the driver a hook into processing it.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Use active link of the connection directly and not
+via linkgroup array structure when obtaining link
+data of the connection.
+
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- block/ioctl.c | 7 -------
- 1 file changed, 7 deletions(-)
+ net/smc/smc_diag.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/block/ioctl.c b/block/ioctl.c
-index 3fbc382eb926d4..c6d8863f040945 100644
---- a/block/ioctl.c
-+++ b/block/ioctl.c
-@@ -369,15 +369,8 @@ static inline int is_unrecognized_ioctl(int ret)
- static int blkdev_flushbuf(struct block_device *bdev, fmode_t mode,
- 		unsigned cmd, unsigned long arg)
- {
--	int ret;
--
- 	if (!capable(CAP_SYS_ADMIN))
- 		return -EACCES;
--
--	ret = __blkdev_driver_ioctl(bdev, mode, cmd, arg);
--	if (!is_unrecognized_ioctl(ret))
--		return ret;
--
- 	fsync_bdev(bdev);
- 	invalidate_bdev(bdev);
- 	return 0;
+diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
+index f15fca59b4b2..c2225231f679 100644
+--- a/net/smc/smc_diag.c
++++ b/net/smc/smc_diag.c
+@@ -160,17 +160,17 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
+ 	    !list_empty(&smc->conn.lgr->list)) {
+ 		struct smc_diag_lgrinfo linfo = {
+ 			.role = smc->conn.lgr->role,
+-			.lnk[0].ibport = smc->conn.lgr->lnk[0].ibport,
+-			.lnk[0].link_id = smc->conn.lgr->lnk[0].link_id,
++			.lnk[0].ibport = smc->conn.lnk->ibport,
++			.lnk[0].link_id = smc->conn.lnk->link_id,
+ 		};
+ 
+ 		memcpy(linfo.lnk[0].ibname,
+ 		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
+-		       sizeof(smc->conn.lgr->lnk[0].smcibdev->ibdev->name));
++		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
+ 		smc_gid_be16_convert(linfo.lnk[0].gid,
+-				     smc->conn.lgr->lnk[0].gid);
++				     smc->conn.lnk->gid);
+ 		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
+-				     smc->conn.lgr->lnk[0].peer_gid);
++				     smc->conn.lnk->peer_gid);
+ 
+ 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
+ 			goto errout;
 -- 
-2.28.0
+2.17.1
