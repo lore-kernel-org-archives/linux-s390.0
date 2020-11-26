@@ -1,59 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34256 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:46744 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725767AbgKQPm7 (ORCPT
+        by vger.kernel.org with ESMTP id S2390816AbgKZUja (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 17 Nov 2020 10:42:59 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 0/5] s390x: Add SIE library and simple test
-Date: Tue, 17 Nov 2020 10:42:10 -0500
-Message-Id: <20201117154215.45855-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Thu, 26 Nov 2020 15:39:30 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v6 03/14] net/smc: Add connection counters for links
+Date: Thu, 26 Nov 2020 21:39:05 +0100
+Message-Id: <20201126203916.56071-4-kgraul@linux.ibm.com>
+In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
+References: <20201126203916.56071-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, linux-s390@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-This is the absolute minimum needed to run VMs inside the KVM Unit
-Tests. It's more of a base for other tests that I can't (yet) publish
-than an addition of tests that check KVM functionality. However, I
-wanted to decrease the number of WIP patches in my private
-branch. Once the library is available maybe others will come and
-extend the SIE test itself.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Yes, I have added VM management functionality like VM create/destroy,
-etc but as it is not needed right now, I'd like to exclude it from
-this patch set for now.
+Add connection counters to the structure of the link.
+Increase/decrease the counters as needed in the corresponding
+routines.
 
-Gitlab:
-https://gitlab.com/frankja/kvm-unit-tests/-/tree/sie
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/smc_core.c | 16 ++++++++++++++--
+ net/smc/smc_core.h |  1 +
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
-CI:
-https://gitlab.com/frankja/kvm-unit-tests/-/pipelines/217336822
-
-Janosch Frank (5):
-  s390x: Add test_bit to library
-  s390x: Consolidate sclp read info
-  s390x: SCLP feature checking
-  s390x: sie: Add SIE to lib
-  s390x: sie: Add first SIE test
-
- lib/s390x/asm-offsets.c  |  13 +++
- lib/s390x/asm/arch_def.h |   7 ++
- lib/s390x/asm/bitops.h   |  16 ++++
- lib/s390x/asm/facility.h |   3 +-
- lib/s390x/interrupt.c    |   7 ++
- lib/s390x/io.c           |   2 +
- lib/s390x/sclp.c         |  48 ++++++++--
- lib/s390x/sclp.h         |  18 ++++
- lib/s390x/sie.h          | 197 +++++++++++++++++++++++++++++++++++++++
- lib/s390x/smp.c          |  23 ++---
- s390x/Makefile           |   1 +
- s390x/cstart64.S         |  56 +++++++++++
- s390x/sie.c              | 125 +++++++++++++++++++++++++
- 13 files changed, 495 insertions(+), 21 deletions(-)
- create mode 100644 lib/s390x/sie.h
- create mode 100644 s390x/sie.c
-
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index af96f813c075..5bc8ebcd03f3 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -139,6 +139,7 @@ static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
+ 	}
+ 	if (!conn->lnk)
+ 		return SMC_CLC_DECL_NOACTLINK;
++	atomic_inc(&conn->lnk->conn_cnt);
+ 	return 0;
+ }
+ 
+@@ -180,6 +181,8 @@ static void __smc_lgr_unregister_conn(struct smc_connection *conn)
+ 	struct smc_link_group *lgr = conn->lgr;
+ 
+ 	rb_erase(&conn->alert_node, &lgr->conns_all);
++	if (conn->lnk)
++		atomic_dec(&conn->lnk->conn_cnt);
+ 	lgr->conns_num--;
+ 	conn->alert_token_local = 0;
+ 	sock_put(&smc->sk); /* sock_hold in smc_lgr_register_conn() */
+@@ -314,6 +317,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	lnk->smcibdev = ini->ib_dev;
+ 	lnk->ibport = ini->ib_port;
+ 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
++	atomic_set(&lnk->conn_cnt, 0);
+ 	smc_llc_link_set_uid(lnk);
+ 	INIT_WORK(&lnk->link_down_wrk, smc_link_down_work);
+ 	if (!ini->ib_dev->initialized) {
+@@ -526,6 +530,14 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
+ 	return rc;
+ }
+ 
++static void smc_switch_link_and_count(struct smc_connection *conn,
++				      struct smc_link *to_lnk)
++{
++	atomic_dec(&conn->lnk->conn_cnt);
++	conn->lnk = to_lnk;
++	atomic_inc(&conn->lnk->conn_cnt);
++}
++
+ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 				  struct smc_link *from_lnk, bool is_dev_err)
+ {
+@@ -574,7 +586,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		    smc->sk.sk_state == SMC_PEERABORTWAIT ||
+ 		    smc->sk.sk_state == SMC_PROCESSABORT) {
+ 			spin_lock_bh(&conn->send_lock);
+-			conn->lnk = to_lnk;
++			smc_switch_link_and_count(conn, to_lnk);
+ 			spin_unlock_bh(&conn->send_lock);
+ 			continue;
+ 		}
+@@ -588,7 +600,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		}
+ 		/* avoid race with smcr_tx_sndbuf_nonempty() */
+ 		spin_lock_bh(&conn->send_lock);
+-		conn->lnk = to_lnk;
++		smc_switch_link_and_count(conn, to_lnk);
+ 		rc = smc_switch_cursor(smc, pend, wr_buf);
+ 		spin_unlock_bh(&conn->send_lock);
+ 		sock_put(&smc->sk);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 9aee54a6bcba..eefb6770b268 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -129,6 +129,7 @@ struct smc_link {
+ 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
+ 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+ 	int			llc_testlink_time; /* testlink interval */
++	atomic_t		conn_cnt; /* connections on this link */
+ };
+ 
+ /* For now we just allow one parallel link per link group. The SMC protocol
 -- 
-2.25.1
+2.17.1
