@@ -1,269 +1,265 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53816 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387991AbgK3SJa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 13:09:30 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4/5] block: remove the request_queue argument to the block_bio_remap tracepoint
-Date: Mon, 30 Nov 2020 18:58:53 +0100
-Message-Id: <20201130175854.982460-5-hch@lst.de>
-In-Reply-To: <20201130175854.982460-1-hch@lst.de>
-References: <20201130175854.982460-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51768 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2391035AbgKZUjf (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 26 Nov 2020 15:39:35 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v6 12/14] net/smc: Add SMC-D Linkgroup diagnostic support
+Date: Thu, 26 Nov 2020 21:39:14 +0100
+Message-Id: <20201126203916.56071-13-kgraul@linux.ibm.com>
+In-Reply-To: <20201126203916.56071-1-kgraul@linux.ibm.com>
+References: <20201126203916.56071-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-The request_queue can trivially be derived from the bio.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Deliver SMCD Linkgroup information via netlink based
+diagnostic interface.
+
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- block/blk-core.c              |  2 +-
- drivers/md/dm.c               |  3 +--
- drivers/md/md-linear.c        |  3 +--
- drivers/md/md.c               |  5 ++---
- drivers/md/raid0.c            |  4 ++--
- drivers/md/raid1.c            |  7 +++----
- drivers/md/raid10.c           |  6 ++----
- drivers/md/raid5.c            | 15 +++++++--------
- drivers/nvme/host/multipath.c |  3 +--
- include/trace/events/block.h  |  8 +++-----
- kernel/trace/blktrace.c       | 14 +++++---------
- 11 files changed, 28 insertions(+), 42 deletions(-)
+ include/uapi/linux/smc.h |  27 ++++++++
+ net/smc/smc_core.c       | 130 +++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_core.h       |   1 +
+ net/smc/smc_netlink.c    |   5 ++
+ 4 files changed, 163 insertions(+)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index cb24654983e1e4..96e5fcd7f071b6 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -758,7 +758,7 @@ static inline int blk_partition_remap(struct bio *bio)
- 		if (bio_check_eod(bio, bdev_nr_sectors(p)))
- 			goto out;
- 		bio->bi_iter.bi_sector += p->bd_start_sect;
--		trace_block_bio_remap(bio->bi_disk->queue, bio, p->bd_dev,
-+		trace_block_bio_remap(bio, p->bd_dev,
- 				      bio->bi_iter.bi_sector -
- 				      p->bd_start_sect);
- 	}
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index 9a5bd90779c7c4..5181907dc59537 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1276,8 +1276,7 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
- 		break;
- 	case DM_MAPIO_REMAPPED:
- 		/* the bio has been remapped so dispatch it */
--		trace_block_bio_remap(clone->bi_disk->queue, clone,
--				      bio_dev(io->orig_bio), sector);
-+		trace_block_bio_remap(clone, bio_dev(io->orig_bio), sector);
- 		ret = submit_bio_noacct(clone);
- 		break;
- 	case DM_MAPIO_KILL:
-diff --git a/drivers/md/md-linear.c b/drivers/md/md-linear.c
-index 98f1b4b2bdcef8..68cac7d1927823 100644
---- a/drivers/md/md-linear.c
-+++ b/drivers/md/md-linear.c
-@@ -257,8 +257,7 @@ static bool linear_make_request(struct mddev *mddev, struct bio *bio)
- 		bio_endio(bio);
- 	} else {
- 		if (mddev->gendisk)
--			trace_block_bio_remap(bio->bi_disk->queue,
--					      bio, disk_devt(mddev->gendisk),
-+			trace_block_bio_remap(bio, disk_devt(mddev->gendisk),
- 					      bio_sector);
- 		mddev_check_writesame(mddev, bio);
- 		mddev_check_write_zeroes(mddev, bio);
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 0065736f05b428..c555be0a8dce78 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -8591,9 +8591,8 @@ void md_submit_discard_bio(struct mddev *mddev, struct md_rdev *rdev,
- 	bio_chain(discard_bio, bio);
- 	bio_clone_blkg_association(discard_bio, bio);
- 	if (mddev->gendisk)
--		trace_block_bio_remap(bdev_get_queue(rdev->bdev),
--			discard_bio, disk_devt(mddev->gendisk),
--			bio->bi_iter.bi_sector);
-+		trace_block_bio_remap(discard_bio, disk_devt(mddev->gendisk),
-+				      bio->bi_iter.bi_sector);
- 	submit_bio_noacct(discard_bio);
+diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+index ed638dbfff08..707e8af4f0c8 100644
+--- a/include/uapi/linux/smc.h
++++ b/include/uapi/linux/smc.h
+@@ -42,6 +42,7 @@ enum {
+ 	SMC_NETLINK_GET_SYS_INFO = 1,
+ 	SMC_NETLINK_GET_LGR_SMCR,
+ 	SMC_NETLINK_GET_LINK_SMCR,
++	SMC_NETLINK_GET_LGR_SMCD,
+ };
+ 
+ /* SMC_GENL_FAMILY top level attributes */
+@@ -50,6 +51,7 @@ enum {
+ 	SMC_GEN_SYS_INFO,		/* nest */
+ 	SMC_GEN_LGR_SMCR,		/* nest */
+ 	SMC_GEN_LINK_SMCR,		/* nest */
++	SMC_GEN_LGR_SMCD,		/* nest */
+ 	__SMC_GEN_MAX,
+ 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
+ };
+@@ -66,6 +68,15 @@ enum {
+ 	SMC_NLA_SYS_MAX = __SMC_NLA_SYS_MAX - 1
+ };
+ 
++/* SMC_NLA_LGR_V2 nested attributes */
++enum {
++	SMC_NLA_LGR_V2_VER,		/* u8 */
++	SMC_NLA_LGR_V2_REL,		/* u8 */
++	SMC_NLA_LGR_V2_OS,		/* u8 */
++	SMC_NLA_LGR_V2_NEG_EID,		/* string */
++	SMC_NLA_LGR_V2_PEER_HOST,	/* string */
++};
++
+ /* SMC_GEN_LGR_SMCR attributes */
+ enum {
+ 	SMC_NLA_LGR_R_UNSPEC,
+@@ -95,4 +106,20 @@ enum {
+ 	__SMC_NLA_LINK_MAX,
+ 	SMC_NLA_LINK_MAX = __SMC_NLA_LINK_MAX - 1
+ };
++
++/* SMC_GEN_LGR_SMCD attributes */
++enum {
++	SMC_NLA_LGR_D_UNSPEC,
++	SMC_NLA_LGR_D_ID,		/* u32 */
++	SMC_NLA_LGR_D_GID,		/* u64 */
++	SMC_NLA_LGR_D_PEER_GID,		/* u64 */
++	SMC_NLA_LGR_D_VLAN_ID,		/* u8 */
++	SMC_NLA_LGR_D_CONNS_NUM,	/* u32 */
++	SMC_NLA_LGR_D_PNETID,		/* string */
++	SMC_NLA_LGR_D_CHID,		/* u16 */
++	SMC_NLA_LGR_D_PAD,		/* flag */
++	SMC_NLA_LGR_V2,			/* nest */
++	__SMC_NLA_LGR_D_MAX,
++	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
++};
+ #endif /* _UAPI_LINUX_SMC_H */
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 960c3853ba15..501c0aefec7f 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -426,6 +426,130 @@ static void smc_nl_fill_lgr_list(struct smc_lgr_list *smc_lgr,
+ 	cb_ctx->pos[0] = num;
  }
- EXPORT_SYMBOL(md_submit_discard_bio);
-diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
-index 6f44177593a552..e5d7411cba9b46 100644
---- a/drivers/md/raid0.c
-+++ b/drivers/md/raid0.c
-@@ -571,8 +571,8 @@ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
- 		tmp_dev->data_offset;
  
- 	if (mddev->gendisk)
--		trace_block_bio_remap(bio->bi_disk->queue, bio,
--				disk_devt(mddev->gendisk), bio_sector);
-+		trace_block_bio_remap(bio, disk_devt(mddev->gendisk),
-+				      bio_sector);
- 	mddev_check_writesame(mddev, bio);
- 	mddev_check_write_zeroes(mddev, bio);
- 	submit_bio_noacct(bio);
-diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
-index 960d854c07f897..c0347997f6ff73 100644
---- a/drivers/md/raid1.c
-+++ b/drivers/md/raid1.c
-@@ -1305,8 +1305,8 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
- 	read_bio->bi_private = r1_bio;
- 
- 	if (mddev->gendisk)
--	        trace_block_bio_remap(read_bio->bi_disk->queue, read_bio,
--				disk_devt(mddev->gendisk), r1_bio->sector);
-+	        trace_block_bio_remap(read_bio, disk_devt(mddev->gendisk),
-+				      r1_bio->sector);
- 
- 	submit_bio_noacct(read_bio);
- }
-@@ -1517,8 +1517,7 @@ static void raid1_write_request(struct mddev *mddev, struct bio *bio,
- 		atomic_inc(&r1_bio->remaining);
- 
- 		if (mddev->gendisk)
--			trace_block_bio_remap(mbio->bi_disk->queue,
--					      mbio, disk_devt(mddev->gendisk),
-+			trace_block_bio_remap(mbio, disk_devt(mddev->gendisk),
- 					      r1_bio->sector);
- 		/* flush_pending_writes() needs access to the rdev so...*/
- 		mbio->bi_disk = (void *)conf->mirrors[i].rdev;
-diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
-index b7bca6703df814..a6f99fa0b32cfc 100644
---- a/drivers/md/raid10.c
-+++ b/drivers/md/raid10.c
-@@ -1200,8 +1200,7 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
- 	read_bio->bi_private = r10_bio;
- 
- 	if (mddev->gendisk)
--	        trace_block_bio_remap(read_bio->bi_disk->queue,
--	                              read_bio, disk_devt(mddev->gendisk),
-+	        trace_block_bio_remap(read_bio, disk_devt(mddev->gendisk),
- 	                              r10_bio->sector);
- 	submit_bio_noacct(read_bio);
- 	return;
-@@ -1250,8 +1249,7 @@ static void raid10_write_one_disk(struct mddev *mddev, struct r10bio *r10_bio,
- 	mbio->bi_private = r10_bio;
- 
- 	if (conf->mddev->gendisk)
--		trace_block_bio_remap(mbio->bi_disk->queue,
--				      mbio, disk_devt(conf->mddev->gendisk),
-+		trace_block_bio_remap(mbio, disk_devt(conf->mddev->gendisk),
- 				      r10_bio->sector);
- 	/* flush_pending_writes() needs access to the rdev so...*/
- 	mbio->bi_disk = (void *)rdev;
-diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
-index 39343479ac2a94..3a90cc0e43ca8e 100644
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -1222,9 +1222,9 @@ static void ops_run_io(struct stripe_head *sh, struct stripe_head_state *s)
- 				set_bit(R5_DOUBLE_LOCKED, &sh->dev[i].flags);
- 
- 			if (conf->mddev->gendisk)
--				trace_block_bio_remap(bi->bi_disk->queue,
--						      bi, disk_devt(conf->mddev->gendisk),
--						      sh->dev[i].sector);
-+				trace_block_bio_remap(bi,
-+						disk_devt(conf->mddev->gendisk),
-+						sh->dev[i].sector);
- 			if (should_defer && op_is_write(op))
- 				bio_list_add(&pending_bios, bi);
- 			else
-@@ -1272,9 +1272,9 @@ static void ops_run_io(struct stripe_head *sh, struct stripe_head_state *s)
- 			if (op == REQ_OP_DISCARD)
- 				rbi->bi_vcnt = 0;
- 			if (conf->mddev->gendisk)
--				trace_block_bio_remap(rbi->bi_disk->queue,
--						      rbi, disk_devt(conf->mddev->gendisk),
--						      sh->dev[i].sector);
-+				trace_block_bio_remap(rbi,
-+						disk_devt(conf->mddev->gendisk),
-+						sh->dev[i].sector);
- 			if (should_defer && op_is_write(op))
- 				bio_list_add(&pending_bios, rbi);
- 			else
-@@ -5468,8 +5468,7 @@ static int raid5_read_one_chunk(struct mddev *mddev, struct bio *raid_bio)
- 		spin_unlock_irq(&conf->device_lock);
- 
- 		if (mddev->gendisk)
--			trace_block_bio_remap(align_bi->bi_disk->queue,
--					      align_bi, disk_devt(mddev->gendisk),
-+			trace_block_bio_remap(align_bi, disk_devt(mddev->gendisk),
- 					      raid_bio->bi_iter.bi_sector);
- 		submit_bio_noacct(align_bi);
- 		return 1;
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 74896be40c1769..106cf5c44ee7ab 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -312,8 +312,7 @@ blk_qc_t nvme_ns_head_submit_bio(struct bio *bio)
- 	if (likely(ns)) {
- 		bio->bi_disk = ns->disk;
- 		bio->bi_opf |= REQ_NVME_MPATH;
--		trace_block_bio_remap(bio->bi_disk->queue, bio,
--				      disk_devt(ns->head->disk),
-+		trace_block_bio_remap(bio, disk_devt(ns->head->disk),
- 				      bio->bi_iter.bi_sector);
- 		ret = submit_bio_noacct(bio);
- 	} else if (nvme_available_path(head)) {
-diff --git a/include/trace/events/block.h b/include/trace/events/block.h
-index b415e4cba84304..8fb89574d8677f 100644
---- a/include/trace/events/block.h
-+++ b/include/trace/events/block.h
-@@ -450,9 +450,8 @@ TRACE_EVENT(block_split,
- 
- /**
-  * block_bio_remap - map request for a logical device to the raw device
-- * @q: queue holding the operation
-  * @bio: revised operation
-- * @dev: device for the operation
-+ * @dev: original device for the operation
-  * @from: original sector for the operation
-  *
-  * An operation for a logical device has been mapped to the
-@@ -460,10 +459,9 @@ TRACE_EVENT(block_split,
-  */
- TRACE_EVENT(block_bio_remap,
- 
--	TP_PROTO(struct request_queue *q, struct bio *bio, dev_t dev,
--		 sector_t from),
-+	TP_PROTO(struct bio *bio, dev_t dev, sector_t from),
- 
--	TP_ARGS(q, bio, dev, from),
-+	TP_ARGS(bio, dev, from),
- 
- 	TP_STRUCT__entry(
- 		__field( dev_t,		dev		)
-diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
-index 3ca6d62114f461..405637144a0389 100644
---- a/kernel/trace/blktrace.c
-+++ b/kernel/trace/blktrace.c
-@@ -993,20 +993,16 @@ static void blk_add_trace_split(void *ignore, struct bio *bio, unsigned int pdu)
- /**
-  * blk_add_trace_bio_remap - Add a trace for a bio-remap operation
-  * @ignore:	trace callback data parameter (not used)
-- * @q:		queue the io is for
-  * @bio:	the source bio
-- * @dev:	target device
-+ * @dev:	source device
-  * @from:	source sector
-  *
-- * Description:
-- *     Device mapper or raid target sometimes need to split a bio because
-- *     it spans a stripe (or similar). Add a trace for that action.
-- *
-+ * Called after a bio is remapped to a different device and/or sector.
-  **/
--static void blk_add_trace_bio_remap(void *ignore,
--				    struct request_queue *q, struct bio *bio,
--				    dev_t dev, sector_t from)
-+static void blk_add_trace_bio_remap(void *ignore, struct bio *bio, dev_t dev,
-+				    sector_t from)
++static int smc_nl_fill_smcd_lgr(struct smc_link_group *lgr,
++				struct sk_buff *skb,
++				struct netlink_callback *cb)
++{
++	char smc_host[SMC_MAX_HOSTNAME_LEN + 1];
++	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
++	char smc_eid[SMC_MAX_EID_LEN + 1];
++	struct nlattr *v2_attrs;
++	struct nlattr *attrs;
++	void *nlh;
++
++	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
++			  &smc_gen_nl_family, NLM_F_MULTI,
++			  SMC_NETLINK_GET_LGR_SMCD);
++	if (!nlh)
++		goto errmsg;
++
++	attrs = nla_nest_start_noflag(skb, SMC_GEN_LGR_SMCD);
++	if (!attrs)
++		goto errout;
++
++	if (nla_put_u32(skb, SMC_NLA_LGR_D_ID, *((u32 *)&lgr->id)))
++		goto errattr;
++	if (nla_put_u64_64bit(skb, SMC_NLA_LGR_D_GID, lgr->smcd->local_gid,
++			      SMC_NLA_LGR_D_PAD))
++		goto errattr;
++	if (nla_put_u64_64bit(skb, SMC_NLA_LGR_D_PEER_GID, lgr->peer_gid,
++			      SMC_NLA_LGR_D_PAD))
++		goto errattr;
++	if (nla_put_u8(skb, SMC_NLA_LGR_D_VLAN_ID, lgr->vlan_id))
++		goto errattr;
++	if (nla_put_u32(skb, SMC_NLA_LGR_D_CONNS_NUM, lgr->conns_num))
++		goto errattr;
++	if (nla_put_u32(skb, SMC_NLA_LGR_D_CHID, smc_ism_get_chid(lgr->smcd)))
++		goto errattr;
++	snprintf(smc_pnet, sizeof(smc_pnet), "%s", lgr->smcd->pnetid);
++	if (nla_put_string(skb, SMC_NLA_LGR_D_PNETID, smc_pnet))
++		goto errattr;
++
++	v2_attrs = nla_nest_start_noflag(skb, SMC_NLA_LGR_V2);
++	if (!v2_attrs)
++		goto errattr;
++	if (nla_put_u8(skb, SMC_NLA_LGR_V2_VER, lgr->smc_version))
++		goto errv2attr;
++	if (nla_put_u8(skb, SMC_NLA_LGR_V2_REL, lgr->peer_smc_release))
++		goto errv2attr;
++	if (nla_put_u8(skb, SMC_NLA_LGR_V2_OS, lgr->peer_os))
++		goto errv2attr;
++	snprintf(smc_host, sizeof(smc_host), "%s", lgr->peer_hostname);
++	if (nla_put_string(skb, SMC_NLA_LGR_V2_PEER_HOST, smc_host))
++		goto errv2attr;
++	snprintf(smc_eid, sizeof(smc_eid), "%s", lgr->negotiated_eid);
++	if (nla_put_string(skb, SMC_NLA_LGR_V2_NEG_EID, smc_eid))
++		goto errv2attr;
++
++	nla_nest_end(skb, v2_attrs);
++	nla_nest_end(skb, attrs);
++	genlmsg_end(skb, nlh);
++	return 0;
++
++errv2attr:
++	nla_nest_cancel(skb, v2_attrs);
++errattr:
++	nla_nest_cancel(skb, attrs);
++errout:
++	genlmsg_cancel(skb, nlh);
++errmsg:
++	return -EMSGSIZE;
++}
++
++static int smc_nl_handle_smcd_lgr(struct smcd_dev *dev,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb)
++{
++	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
++	struct smc_link_group *lgr;
++	int snum = cb_ctx->pos[1];
++	int rc = 0, num = 0;
++
++	spin_lock_bh(&dev->lgr_lock);
++	list_for_each_entry(lgr, &dev->lgr_list, list) {
++		if (!lgr->is_smcd)
++			continue;
++		if (num < snum)
++			goto next;
++		rc = smc_nl_fill_smcd_lgr(lgr, skb, cb);
++		if (rc)
++			goto errout;
++next:
++		num++;
++	}
++errout:
++	spin_unlock_bh(&dev->lgr_lock);
++	cb_ctx->pos[1] = num;
++	return rc;
++}
++
++static int smc_nl_fill_smcd_dev(struct smcd_dev_list *dev_list,
++				struct sk_buff *skb,
++				struct netlink_callback *cb)
++{
++	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
++	struct smcd_dev *smcd_dev;
++	int snum = cb_ctx->pos[0];
++	int rc = 0, num = 0;
++
++	mutex_lock(&dev_list->mutex);
++	list_for_each_entry(smcd_dev, &dev_list->list, list) {
++		if (list_empty(&smcd_dev->lgr_list))
++			continue;
++		if (num < snum)
++			goto next;
++		rc = smc_nl_handle_smcd_lgr(smcd_dev, skb, cb);
++		if (rc)
++			goto errout;
++next:
++		num++;
++	}
++errout:
++	mutex_unlock(&dev_list->mutex);
++	cb_ctx->pos[0] = num;
++	return rc;
++}
++
+ int smcr_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
  {
-+	struct request_queue *q = bio->bi_disk->queue;
- 	struct blk_trace *bt;
- 	struct blk_io_trace_remap r;
+ 	bool list_links = false;
+@@ -442,6 +566,12 @@ int smcr_nl_get_link(struct sk_buff *skb, struct netlink_callback *cb)
+ 	return skb->len;
+ }
  
++int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
++{
++	smc_nl_fill_smcd_dev(&smcd_dev_list, skb, cb);
++	return skb->len;
++}
++
+ void smc_lgr_cleanup_early(struct smc_connection *conn)
+ {
+ 	struct smc_link_group *lgr = conn->lgr;
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 7995621f318d..0b6899a7f634 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -430,6 +430,7 @@ void smcr_link_down_cond_sched(struct smc_link *lnk);
+ int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb);
+ int smcr_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb);
+ int smcr_nl_get_link(struct sk_buff *skb, struct netlink_callback *cb);
++int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb);
+ 
+ static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
+ {
+diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
+index 4212408cc091..7e73e16223a0 100644
+--- a/net/smc/smc_netlink.c
++++ b/net/smc/smc_netlink.c
+@@ -36,6 +36,11 @@ static const struct genl_ops smc_gen_nl_ops[] = {
+ 		/* can be retrieved by unprivileged users */
+ 		.dumpit = smcr_nl_get_link,
+ 	},
++	{
++		.cmd = SMC_NETLINK_GET_LGR_SMCD,
++		/* can be retrieved by unprivileged users */
++		.dumpit = smcd_nl_get_lgr,
++	},
+ };
+ 
+ /* SMC_GENL family definition */
 -- 
-2.29.2
+2.17.1
