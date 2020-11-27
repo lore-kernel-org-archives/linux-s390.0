@@ -1,160 +1,112 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6174 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731839AbgKIPS2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 10:18:28 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v4 10/15] net/smc: Introduce SMCR get link command
-Date: Mon,  9 Nov 2020 16:18:09 +0100
-Message-Id: <20201109151814.15040-11-kgraul@linux.ibm.com>
-In-Reply-To: <20201109151814.15040-1-kgraul@linux.ibm.com>
-References: <20201109151814.15040-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [RFC Patch 0/2] KVM: SVM: Cgroup support for SVM SEV ASIDs
+References: <20201124191629.GB235281@google.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <d738731e-bda2-031c-c301-94e3cf6b5e44@de.ibm.com>
+Date: Fri, 27 Nov 2020 19:01:08 +0100
+MIME-Version: 1.0
+In-Reply-To: <20201124191629.GB235281@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Sean Christopherson <seanjc@google.com>, David Rientjes <rientjes@google.com>
+Cc: Janosch Frank <frankja@linux.ibm.com>, Vipin Sharma <vipinsh@google.com>, Lendacky@google.com, Thomas <thomas.lendacky@amd.com>, pbonzini@redhat.com, tj@kernel.org, lizefan@huawei.com, joro@8bytes.org, corbet@lwn.net, Singh@google.com, Brijesh <brijesh.singh@amd.com>, Grimm@google.com, Jon <jon.grimm@amd.com>, VanTassell@google.com, Eric <eric.vantassell@amd.com>, gingell@google.com, kvm@vger.kernel.org, x86@kernel.org, cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Introduce get link command which loops through
-all available links of all available link groups. It
-uses the SMC-R linkgroup list as entry point, not
-the socket list, which makes linkgroup diagnosis
-possible, in case linkgroup does not contain active
-connections anymore.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- include/uapi/linux/smc_diag.h |  8 +++++
- net/smc/smc_diag.c            | 62 ++++++++++++++++++++++++++++++++++-
- 2 files changed, 69 insertions(+), 1 deletion(-)
+On 24.11.20 20:16, Sean Christopherson wrote:
+> On Fri, Nov 13, 2020, David Rientjes wrote:                                     
+>>                                                                               
+>> On Mon, 2 Nov 2020, Sean Christopherson wrote:                                
+>>                                                                               
+>>> On Fri, Oct 02, 2020 at 01:48:10PM -0700, Vipin Sharma wrote:               
+>>>> On Fri, Sep 25, 2020 at 03:22:20PM -0700, Vipin Sharma wrote:             
+>>>>> I agree with you that the abstract name is better than the concrete     
+>>>>> name, I also feel that we must provide HW extensions. Here is one       
+>>>>> approach:                                                               
+>>>>>                                                                         
+>>>>> Cgroup name: cpu_encryption, encryption_slots, or memcrypt (open to     
+>>>>> suggestions)                                                            
+>>>>>                                                                         
+>>>>> Control files: slots.{max, current, events}                             
+>>>                                                                             
+>>> I don't particularly like the "slots" name, mostly because it could be confused
+>>> with KVM's memslots.  Maybe encryption_ids.ids.{max, current, events}?  I don't
+>>> love those names either, but "encryption" and "IDs" are the two obvious     
+>>> commonalities betwee TDX's encryption key IDs and SEV's encryption address  
+>>> space IDs.                                                                  
+>>>                                                                             
+>>                                                                               
+>> Looping Janosch and Christian back into the thread.                           
+>>                                                                               
+>> I interpret this suggestion as                                                
+>> encryption.{sev,sev_es,keyids}.{max,current,events} for AMD and Intel         
+> 
+> I think it makes sense to use encryption_ids instead of simply encryption, that
+> way it's clear the cgroup is accounting ids as opposed to restricting what
+> techs can be used on yes/no basis.
 
-diff --git a/include/uapi/linux/smc_diag.h b/include/uapi/linux/smc_diag.h
-index 6ae028344b6d..a57df0296aa4 100644
---- a/include/uapi/linux/smc_diag.h
-+++ b/include/uapi/linux/smc_diag.h
-@@ -4,6 +4,7 @@
- 
- #include <linux/types.h>
- #include <linux/inet_diag.h>
-+#include <linux/if.h>
- #include <linux/smc.h>
- #include <rdma/ib_user_verbs.h>
- 
-@@ -79,6 +80,7 @@ enum {
- /* SMC_DIAG_GET_LGR_INFO command extensions */
- enum {
- 	SMC_DIAG_LGR_INFO_SMCR = 1,
-+	SMC_DIAG_LGR_INFO_SMCR_LINK,
- };
- 
- #define SMC_DIAG_MAX (__SMC_DIAG_MAX - 1)
-@@ -129,6 +131,12 @@ struct smc_diag_linkinfo {
- 	__u8 ibport;			/* RDMA device port number */
- 	__u8 gid[40];			/* local GID */
- 	__u8 peer_gid[40];		/* peer GID */
-+	/* Fields above used by legacy v1 code */
-+	__u32 conn_cnt;
-+	__u8 netdev[IFNAMSIZ];		/* ethernet device name */
-+	__u8 link_uid[4];		/* unique link id */
-+	__u8 peer_link_uid[4];		/* unique peer link id */
-+	__u32 link_state;		/* link state */
- };
- 
- struct smc_diag_lgrinfo {
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index c958b23843e6..9a41548d6263 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -20,6 +20,7 @@
- #include <net/smc.h>
- 
- #include "smc.h"
-+#include "smc_ib.h"
- #include "smc_core.h"
- 
- static const struct smc_diag_ops *smc_diag_ops;
-@@ -205,6 +206,54 @@ static bool smc_diag_fill_dmbinfo(struct sock *sk, struct sk_buff *skb)
- 	return true;
- }
- 
-+static int smc_diag_fill_lgr_link(struct smc_link_group *lgr,
-+				  struct smc_link *link,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb,
-+				  struct smc_diag_req_v2 *req)
-+{
-+	struct smc_diag_linkinfo link_info;
-+	int dummy = 0, rc = 0;
-+	struct nlmsghdr *nlh;
-+
-+	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
-+			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
-+
-+	memset(&link_info, 0, sizeof(link_info));
-+	link_info.link_state = link->state;
-+	link_info.link_id = link->link_id;
-+	link_info.conn_cnt = atomic_read(&link->conn_cnt);
-+	link_info.ibport = link->ibport;
-+
-+	memcpy(link_info.link_uid, link->link_uid,
-+	       sizeof(link_info.link_uid));
-+	snprintf(link_info.ibname, sizeof(link_info.ibname), "%s",
-+		 link->ibname);
-+	snprintf(link_info.netdev, sizeof(link_info.netdev), "%s",
-+		 link->ndevname);
-+	memcpy(link_info.peer_link_uid, link->peer_link_uid,
-+	       sizeof(link_info.peer_link_uid));
-+
-+	smc_gid_be16_convert(link_info.gid,
-+			     link->gid);
-+	smc_gid_be16_convert(link_info.peer_gid,
-+			     link->peer_gid);
-+
-+	/* Just a command place holder to signal back the command reply type */
-+	if (nla_put(skb, SMC_DIAG_GET_LGR_INFO, sizeof(dummy), &dummy) < 0)
-+		goto errout;
-+	if (nla_put(skb, SMC_DIAG_LGR_INFO_SMCR_LINK,
-+		    sizeof(link_info), &link_info) < 0)
-+		goto errout;
-+
-+	nlmsg_end(skb, nlh);
-+	return rc;
-+
-+errout:
-+	nlmsg_cancel(skb, nlh);
-+	return -EMSGSIZE;
-+}
-+
- static int smc_diag_fill_lgr(struct smc_link_group *lgr,
- 			     struct sk_buff *skb,
- 			     struct netlink_callback *cb,
-@@ -240,7 +289,7 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
- 			       struct smc_diag_req_v2 *req)
- {
- 	struct nlmsghdr *nlh;
--	int rc = 0;
-+	int i, rc = 0;
- 
- 	nlh = nlmsg_put(skb, NETLINK_CB(cb->skb).portid, MAGIC_SEQ_V2_ACK,
- 			cb->nlh->nlmsg_type, 0, NLM_F_MULTI);
-@@ -252,6 +301,17 @@ static int smc_diag_handle_lgr(struct smc_link_group *lgr,
- 		goto errout;
- 
- 	nlmsg_end(skb, nlh);
-+
-+	if ((req->cmd_ext & (1 << (SMC_DIAG_LGR_INFO_SMCR_LINK - 1)))) {
-+		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+			if (!smc_link_usable(&lgr->lnk[i]))
-+				continue;
-+			rc = smc_diag_fill_lgr_link(lgr, &lgr->lnk[i], skb,
-+						    cb, req);
-+			if (rc < 0)
-+				goto errout;
-+		}
-+	}
- 	return rc;
- 
- errout:
--- 
-2.17.1
+For what its worth the IDs for s390x are called SEIDs (secure execution IDs)
+
+> 
+>> offerings, which was my thought on this as well.                              
+>>                                                                               
+>> Certainly the kernel could provide a single interface for all of these and    
+>> key value pairs depending on the underlying encryption technology but it      
+>> seems to only introduce additional complexity in the kernel in string         
+>> parsing that can otherwise be avoided.  I think we all agree that a single    
+>> interface for all encryption keys or one-value-per-file could be done in      
+>> the kernel and handled by any userspace agent that is configuring these       
+>> values.                                                                       
+>>                                                                               
+>> I think Vipin is adding a root level file that describes how many keys we     
+>> have available on the platform for each technology.  So I think this comes    
+>> down to, for example, a single encryption.max file vs                         
+>> encryption.{sev,sev_es,keyid}.max.  SEV and SEV-ES ASIDs are provisioned      
+> 
+> Are you suggesting that the cgroup omit "current" and "events"?  I agree there's
+> no need to enumerate platform total, but not knowing how many of the allowed IDs
+> have been allocated seems problematic.
+> 
+>> separately so we treat them as their own resource here.                       
+>>                                                                               
+>> So which is easier?                                                           
+>>                                                                               
+>> $ cat encryption.sev.max                                                      
+>> 10                                                                            
+>> $ echo -n 15 > encryption.sev.max                                             
+>>                                                                               
+>> or                                                                            
+>>                                                                               
+>> $ cat encryption.max                                                          
+>> sev 10                                                                        
+>> sev_es 10                                                                     
+>> keyid 0                                                                       
+>> $ echo -n "sev 10" > encryption.max                                           
+>>                                                                               
+>> I would argue the former is simplest (always preferring                       
+>> one-value-per-file) and avoids any string parsing or resource controller      
+>> lookups that need to match on that string in the kernel.                      
+
+I like the idea of having encryption_ids.max for all platforms. 
+If we go for individual files using "seid" for s390 seems the best name.
+
+> 
+> Ya, I prefer individual files as well.
+> 
+> I don't think "keyid" is the best name for TDX, it doesn't leave any wiggle room
+> if there are other flavors of key IDs on Intel platform, e.g. private vs. shared
+> in the future.  It's also inconsistent with the SEV names, e.g. "asid" isn't
+> mentioned anywhere.  And "keyid" sort of reads as "max key id", rather than "max
+> number of keyids".  Maybe "tdx_private", or simply "tdx"?  Doesn't have to be
+> solved now though, there's plenty of time before TDX will be upstream. :-)
+> 
+>> The set of encryption.{sev,sev_es,keyid} files that exist would depend on     
+>> CONFIG_CGROUP_ENCRYPTION and whether CONFIG_AMD_MEM_ENCRYPT or                
+>> CONFIG_INTEL_TDX is configured.  Both can be configured so we have all        
+>> three files, but the root file will obviously indicate 0 keys available       
+>> for one of them (can't run on AMD and Intel at the same time :).              
+>>                                                                               
+>> So I'm inclined to suggest that the one-value-per-file format is the ideal    
+>> way to go unless there are objections to it.
