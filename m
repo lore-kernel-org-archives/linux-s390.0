@@ -1,96 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
+Subject: Re: [PATCH v2] drivers/virt: vmgenid: add vm generation id driver
 References: <3E05451B-A9CD-4719-99D0-72750A304044@amazon.com>
  <CAG48ez2VAu6oARGVZ+muDK9_6_38KVUTJf7utz5Nn=AsmN17nA@mail.gmail.com>
- <CAG48ez13ZAAOVmA89PRKRqr9UezV2_bj8Q6_6sSPzcqfzbsuQQ@mail.gmail.com> <e4acbcdb-7ee4-5dfb-ffbf-19eb49cef9c6@amazon.com>
-In-Reply-To: <e4acbcdb-7ee4-5dfb-ffbf-19eb49cef9c6@amazon.com>
-From: Jann Horn <jannh@google.com>
-Date: Fri, 27 Nov 2020 21:20:19 +0100
-Message-ID: <CAG48ez2akv0pGSt084sNHtESbjJNXpx=Ko86JEsyZM24+5zLqw@mail.gmail.com>
-Subject: Re: [PATCH v2] drivers/virt: vmgenid: add vm generation id driver
-Content-Type: text/plain; charset="UTF-8"
+ <CAG48ez13ZAAOVmA89PRKRqr9UezV2_bj8Q6_6sSPzcqfzbsuQQ@mail.gmail.com>
+From: "Catangiu, Adrian Costin" <acatan@amazon.com>
+Message-ID: <e4acbcdb-7ee4-5dfb-ffbf-19eb49cef9c6@amazon.com>
+Date: Fri, 27 Nov 2020 21:04:01 +0200
+MIME-Version: 1.0
+In-Reply-To: <CAG48ez13ZAAOVmA89PRKRqr9UezV2_bj8Q6_6sSPzcqfzbsuQQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: base64
 List-ID: <linux-s390.vger.kernel.org>
-To: "Catangiu, Adrian Costin" <acatan@amazon.com>
+To: Jann Horn <jannh@google.com>
 Cc: "Graf (AWS), Alexander" <graf@amazon.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Jason A. Donenfeld" <Jason@zx2c4.com>, Willy Tarreau <w@1wt.eu>, "MacCarthaigh, Colm" <colmmacc@amazon.com>, Andy Lutomirski <luto@kernel.org>, "Theodore Y. Ts'o" <tytso@mit.edu>, Eric Biggers <ebiggers@kernel.org>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, kernel list <linux-kernel@vger.kernel.org>, "Woodhouse, David" <dwmw@amazon.co.uk>, "bonzini@gnu.org" <bonzini@gnu.org>, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, "oridgar@gmail.com" <oridgar@gmail.com>, "ghammer@redhat.com" <ghammer@redhat.com>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Michael S. Tsirkin" <mst@redhat.com>, Qemu Developers <qemu-devel@nongnu.org>, KVM list <kvm@vger.kernel.org>, Michal Hocko <mhocko@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Pavel Machek <pavel@ucw.cz>, Linux API <linux-api@vger.kernel.org>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, linux-s390 <linux-s390@vger.kernel.org>, "areber@redhat.com" <areber@redhat.com>, Pavel Emelyanov <ovzxemul@gmail.com>, Andrey Vagin <avagin@gmail.com>, Mike Rapoport <rppt@kernel.org>, Dmitry Safonov <0x7f454c46@gmail.com>, Pavel Tikhomirov <ptikhomirov@virtuozzo.com>, "gil@azul.com" <gil@azul.com>, "asmehra@redhat.com" <asmehra@redhat.com>, "dgunigun@redhat.com" <dgunigun@redhat.com>, "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>
 
-On Fri, Nov 27, 2020 at 8:04 PM Catangiu, Adrian Costin
-<acatan@amazon.com> wrote:
-> On 27/11/2020 20:22, Jann Horn wrote:
-> > On Fri, Nov 20, 2020 at 11:29 PM Jann Horn <jannh@google.com> wrote:
-> >> On Mon, Nov 16, 2020 at 4:35 PM Catangiu, Adrian Costin
-> >> <acatan@amazon.com> wrote:
-> >>> This patch is a driver that exposes a monotonic incremental Virtual
-> >>> Machine Generation u32 counter via a char-dev FS interface that
-> >>> provides sync and async VmGen counter updates notifications. It also
-> >>> provides VmGen counter retrieval and confirmation mechanisms.
-> >>>
-> >>> The hw provided UUID is not exposed to userspace, it is internally
-> >>> used by the driver to keep accounting for the exposed VmGen counter.
-> >>> The counter starts from zero when the driver is initialized and
-> >>> monotonically increments every time the hw UUID changes (the VM
-> >>> generation changes).
-> >>>
-> >>> On each hw UUID change, the new hypervisor-provided UUID is also fed
-> >>> to the kernel RNG.
-> >> As for v1:
-> >>
-> >> Is there a reasonable usecase for the "confirmation" mechanism? It
-> >> doesn't seem very useful to me.
->
-> I think it adds value in complex scenarios with multiple users of the
-> mechanism, potentially at varying layers of the stack, different
-> processes and/or runtime libraries.
->
-> The driver offers a natural place to handle minimal orchestration
-> support and offer visibility in system-wide status.
->
-> A high-level service that trusts all system components to properly use
-> the confirmation mechanism can actually block and wait patiently for the
-> system to adjust to the new world. Even if it doesn't trust all
-> components it can still do a best-effort, timeout block.
-
-What concrete action would that high-level service be able to take
-after waiting for such an event?
-
-My model of the vmgenid mechanism is that RNGs and cryptographic
-libraries that use it need to be fundamentally written such that it is
-guaranteed that a VM fork can not cause the same random number /
-counter / ... to be reused for two different cryptographic operations
-in a way visible to an attacker. This means that e.g. TLS libraries
-need to, between accepting unencrypted input and sending out encrypted
-data, check whether the vmgenid changed since the connection was set
-up, and if a vmgenid change occurred, kill the connection.
-
-Can you give a concrete example of a usecase where the vmgenid
-mechanism is used securely and the confirmation mechanism is necessary
-as part of that?
-
-> >> How do you envision integrating this with libraries that have to work
-> >> in restrictive seccomp sandboxes? If this was in the vDSO, that would
-> >> be much easier.
->
-> Since this mechanism targets all of userspace stack, the usecase greatly
-> vary. I doubt we can have a single silver bullet interface.
->
-> For example, the mmap interface targets user space RNGs, where as fast
-> and as race free as possible is key. But there also higher level
-> applications that don't manage their own memory or don't have access to
-> low-level primitives so they can't use the mmap or even vDSO interfaces.
-> That's what the rest of the logic is there for, the read+poll interface
-> and all of the orchestration logic.
-
-Are you saying that, because people might not want to write proper
-bindings for this interface while also being unwilling to take the
-performance hit of calling read() in every place where they would have
-to do so to be fully correct, you want to build a "best-effort"
-mechanism that is deliberately designed to allow some cryptographic
-state reuse in a limited time window?
-
-> Like you correctly point out, there are also scenarios like tight
-> seccomp jails where even the FS interfaces is inaccessible. For cases
-> like this and others, I believe we will have to work incrementally to
-> build up the interface diversity to cater to all the user scenarios
-> diversity.
-
-It would be much nicer if we could have one simple interface that lets
-everyone correctly do what they need to, though...
+U29ycnkgSmFubiBmb3IgbWlzc2luZyB5b3VyIG9yaWdpbmFsIGVtYWlsLgoKT24gMjcvMTEvMjAy
+MCAyMDoyMiwgSmFubiBIb3JuIHdyb3RlOgo+IENBVVRJT046IFRoaXMgZW1haWwgb3JpZ2luYXRl
+ZCBmcm9tIG91dHNpZGUgb2YgdGhlIG9yZ2FuaXphdGlvbi4gRG8gbm90IGNsaWNrIGxpbmtzIG9y
+IG9wZW4gYXR0YWNobWVudHMgdW5sZXNzIHlvdSBjYW4gY29uZmlybSB0aGUgc2VuZGVyIGFuZCBr
+bm93IHRoZSBjb250ZW50IGlzIHNhZmUuCj4KPgo+Cj4gW3Jlc2VuZCBpbiB0aGUgaG9wZSB0aGF0
+IGFtYXpvbiB3aWxsIGFjY2VwdCBteSBtYWlsIHRoaXMgdGltZSBpbnN0ZWFkCj4gb2YgcmVwbHlp
+bmcgIjU1MCBUb28gbWFueSBpbnZhbGlkIHJlY2lwaWVudHMiIGFnYWluXQo+Cj4gT24gRnJpLCBO
+b3YgMjAsIDIwMjAgYXQgMTE6MjkgUE0gSmFubiBIb3JuIDxqYW5uaEBnb29nbGUuY29tPiB3cm90
+ZToKPj4gT24gTW9uLCBOb3YgMTYsIDIwMjAgYXQgNDozNSBQTSBDYXRhbmdpdSwgQWRyaWFuIENv
+c3Rpbgo+PiA8YWNhdGFuQGFtYXpvbi5jb20+IHdyb3RlOgo+Pj4gVGhpcyBwYXRjaCBpcyBhIGRy
+aXZlciB0aGF0IGV4cG9zZXMgYSBtb25vdG9uaWMgaW5jcmVtZW50YWwgVmlydHVhbAo+Pj4gTWFj
+aGluZSBHZW5lcmF0aW9uIHUzMiBjb3VudGVyIHZpYSBhIGNoYXItZGV2IEZTIGludGVyZmFjZSB0
+aGF0Cj4+PiBwcm92aWRlcyBzeW5jIGFuZCBhc3luYyBWbUdlbiBjb3VudGVyIHVwZGF0ZXMgbm90
+aWZpY2F0aW9ucy4gSXQgYWxzbwo+Pj4gcHJvdmlkZXMgVm1HZW4gY291bnRlciByZXRyaWV2YWwg
+YW5kIGNvbmZpcm1hdGlvbiBtZWNoYW5pc21zLgo+Pj4KPj4+IFRoZSBodyBwcm92aWRlZCBVVUlE
+IGlzIG5vdCBleHBvc2VkIHRvIHVzZXJzcGFjZSwgaXQgaXMgaW50ZXJuYWxseQo+Pj4gdXNlZCBi
+eSB0aGUgZHJpdmVyIHRvIGtlZXAgYWNjb3VudGluZyBmb3IgdGhlIGV4cG9zZWQgVm1HZW4gY291
+bnRlci4KPj4+IFRoZSBjb3VudGVyIHN0YXJ0cyBmcm9tIHplcm8gd2hlbiB0aGUgZHJpdmVyIGlz
+IGluaXRpYWxpemVkIGFuZAo+Pj4gbW9ub3RvbmljYWxseSBpbmNyZW1lbnRzIGV2ZXJ5IHRpbWUg
+dGhlIGh3IFVVSUQgY2hhbmdlcyAodGhlIFZNCj4+PiBnZW5lcmF0aW9uIGNoYW5nZXMpLgo+Pj4K
+Pj4+IE9uIGVhY2ggaHcgVVVJRCBjaGFuZ2UsIHRoZSBuZXcgaHlwZXJ2aXNvci1wcm92aWRlZCBV
+VUlEIGlzIGFsc28gZmVkCj4+PiB0byB0aGUga2VybmVsIFJORy4KPj4gQXMgZm9yIHYxOgo+Pgo+
+PiBJcyB0aGVyZSBhIHJlYXNvbmFibGUgdXNlY2FzZSBmb3IgdGhlICJjb25maXJtYXRpb24iIG1l
+Y2hhbmlzbT8gSXQKPj4gZG9lc24ndCBzZWVtIHZlcnkgdXNlZnVsIHRvIG1lLgoKSSB0aGluayBp
+dCBhZGRzIHZhbHVlIGluIGNvbXBsZXggc2NlbmFyaW9zIHdpdGggbXVsdGlwbGUgdXNlcnMgb2Yg
+dGhlCm1lY2hhbmlzbSwgcG90ZW50aWFsbHkgYXQgdmFyeWluZyBsYXllcnMgb2YgdGhlIHN0YWNr
+LCBkaWZmZXJlbnQKcHJvY2Vzc2VzIGFuZC9vciBydW50aW1lIGxpYnJhcmllcy4KClRoZSBkcml2
+ZXIgb2ZmZXJzIGEgbmF0dXJhbCBwbGFjZSB0byBoYW5kbGUgbWluaW1hbCBvcmNoZXN0cmF0aW9u
+CnN1cHBvcnQgYW5kIG9mZmVyIHZpc2liaWxpdHkgaW4gc3lzdGVtLXdpZGUgc3RhdHVzLgoKQSBo
+aWdoLWxldmVsIHNlcnZpY2UgdGhhdCB0cnVzdHMgYWxsIHN5c3RlbSBjb21wb25lbnRzIHRvIHBy
+b3Blcmx5IHVzZQp0aGUgY29uZmlybWF0aW9uIG1lY2hhbmlzbSBjYW4gYWN0dWFsbHkgYmxvY2sg
+YW5kIHdhaXQgcGF0aWVudGx5IGZvciB0aGUKc3lzdGVtIHRvIGFkanVzdCB0byB0aGUgbmV3IHdv
+cmxkLiBFdmVuIGlmIGl0IGRvZXNuJ3QgdHJ1c3QgYWxsCmNvbXBvbmVudHMgaXQgY2FuIHN0aWxs
+IGRvIGEgYmVzdC1lZmZvcnQsIHRpbWVvdXQgYmxvY2suCgo+Pgo+PiBIb3cgZG8geW91IGVudmlz
+aW9uIGludGVncmF0aW5nIHRoaXMgd2l0aCBsaWJyYXJpZXMgdGhhdCBoYXZlIHRvIHdvcmsKPj4g
+aW4gcmVzdHJpY3RpdmUgc2VjY29tcCBzYW5kYm94ZXM/IElmIHRoaXMgd2FzIGluIHRoZSB2RFNP
+LCB0aGF0IHdvdWxkCj4+IGJlIG11Y2ggZWFzaWVyLgoKU2luY2UgdGhpcyBtZWNoYW5pc20gdGFy
+Z2V0cyBhbGwgb2YgdXNlcnNwYWNlIHN0YWNrLCB0aGUgdXNlY2FzZSBncmVhdGx5CnZhcnkuIEkg
+ZG91YnQgd2UgY2FuIGhhdmUgYSBzaW5nbGUgc2lsdmVyIGJ1bGxldCBpbnRlcmZhY2UuCgpGb3Ig
+ZXhhbXBsZSwgdGhlIG1tYXAgaW50ZXJmYWNlIHRhcmdldHMgdXNlciBzcGFjZSBSTkdzLCB3aGVy
+ZSBhcyBmYXN0CmFuZCBhcyByYWNlIGZyZWUgYXMgcG9zc2libGUgaXMga2V5LiBCdXQgdGhlcmUg
+YWxzbyBoaWdoZXIgbGV2ZWwKYXBwbGljYXRpb25zIHRoYXQgZG9uJ3QgbWFuYWdlIHRoZWlyIG93
+biBtZW1vcnkgb3IgZG9uJ3QgaGF2ZSBhY2Nlc3MgdG8KbG93LWxldmVsIHByaW1pdGl2ZXMgc28g
+dGhleSBjYW4ndCB1c2UgdGhlIG1tYXAgb3IgZXZlbiB2RFNPIGludGVyZmFjZXMuClRoYXQncyB3
+aGF0IHRoZSByZXN0IG9mIHRoZSBsb2dpYyBpcyB0aGVyZSBmb3IsIHRoZSByZWFkK3BvbGwgaW50
+ZXJmYWNlCmFuZCBhbGwgb2YgdGhlIG9yY2hlc3RyYXRpb24gbG9naWMuCgpMaWtlIHlvdSBjb3Jy
+ZWN0bHkgcG9pbnQgb3V0LCB0aGVyZSBhcmUgYWxzbyBzY2VuYXJpb3MgbGlrZSB0aWdodApzZWNj
+b21wIGphaWxzIHdoZXJlIGV2ZW4gdGhlIEZTIGludGVyZmFjZXMgaXMgaW5hY2Nlc3NpYmxlLiBG
+b3IgY2FzZXMKbGlrZSB0aGlzIGFuZCBvdGhlcnMsIEkgYmVsaWV2ZSB3ZSB3aWxsIGhhdmUgdG8g
+d29yayBpbmNyZW1lbnRhbGx5IHRvCmJ1aWxkIHVwIHRoZSBpbnRlcmZhY2UgZGl2ZXJzaXR5IHRv
+IGNhdGVyIHRvIGFsbCB0aGUgdXNlciBzY2VuYXJpb3MKZGl2ZXJzaXR5LgoKClRoYW5rcywKCkFk
+cmlhbi4KCgoKCgpBbWF6b24gRGV2ZWxvcG1lbnQgQ2VudGVyIChSb21hbmlhKSBTLlIuTC4gcmVn
+aXN0ZXJlZCBvZmZpY2U6IDI3QSBTZi4gTGF6YXIgU3RyZWV0LCBVQkM1LCBmbG9vciAyLCBJYXNp
+LCBJYXNpIENvdW50eSwgNzAwMDQ1LCBSb21hbmlhLiBSZWdpc3RlcmVkIGluIFJvbWFuaWEuIFJl
+Z2lzdHJhdGlvbiBudW1iZXIgSjIyLzI2MjEvMjAwNS4K
