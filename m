@@ -1,41 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4266 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725814AbgKRJju (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14712 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729913AbgK0NGj (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Nov 2020 04:39:50 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 2/2] MAINTAINERS: add uv.c also to KVM/s390
-Date: Wed, 18 Nov 2020 10:39:42 +0100
-Message-Id: <20201118093942.457191-3-borntraeger@de.ibm.com>
-In-Reply-To: <20201118093942.457191-1-borntraeger@de.ibm.com>
-References: <20201118093942.457191-1-borntraeger@de.ibm.com>
+        Fri, 27 Nov 2020 08:06:39 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v2 0/7] s390x: Add SIE library and simple test
+Date: Fri, 27 Nov 2020 08:06:22 -0500
+Message-Id: <20201127130629.120469-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-Most changes in uv.c are related to KVM. Involve also the KVM team
-regarding changes to uv.c.
+This is the absolute minimum needed to run VMs inside the KVM Unit
+Tests. It's more of a base for other tests that I can't (yet) publish
+than an addition of tests that check KVM functionality. However, I
+wanted to decrease the number of WIP patches in my private
+branch. Once the library is available maybe others will come and
+extend the SIE test itself.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
----
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+Yes, I have added VM management functionality like VM create/destroy,
+etc but as it is not needed right now, I'd like to exclude it from
+this patch set for now.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e73636b75f29..06116d892a4b 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9674,6 +9674,7 @@ F:	Documentation/virt/kvm/s390*
- F:	arch/s390/include/asm/gmap.h
- F:	arch/s390/include/asm/kvm*
- F:	arch/s390/include/uapi/asm/kvm*
-+F:	arch/s390/kernel/uv.c
- F:	arch/s390/kvm/
- F:	arch/s390/mm/gmap.c
- F:	tools/testing/selftests/kvm/*/s390x/
+Gitlab:
+https://gitlab.com/frankja/kvm-unit-tests/-/tree/sie
+
+CI:
+https://gitlab.com/frankja/kvm-unit-tests/-/pipelines/222217716
+
+v2:
+	* Added license and source identifiers to test_bit patch
+	* Changed the way I test for sclp feature bits
+	* Removed the cpu info page itself and all references
+	* Added the diag318 and a sclp.h style fix patch
+
+Janosch Frank (7):
+  s390x: Add test_bit to library
+  s390x: Consolidate sclp read info
+  s390x: SCLP feature checking
+  s390x: sie: Add SIE to lib
+  s390x: sie: Add first SIE test
+  s390x: Add diag318 intercept test
+  s390x: Fix sclp.h style issues
+
+ lib/s390x/asm-offsets.c  |  13 +++
+ lib/s390x/asm/arch_def.h |   7 ++
+ lib/s390x/asm/bitops.h   |  26 ++++++
+ lib/s390x/asm/facility.h |   3 +-
+ lib/s390x/interrupt.c    |   7 ++
+ lib/s390x/io.c           |   2 +
+ lib/s390x/sclp.c         |  50 ++++++++--
+ lib/s390x/sclp.h         | 178 +++++++++++++++++++----------------
+ lib/s390x/sie.h          | 197 +++++++++++++++++++++++++++++++++++++++
+ lib/s390x/smp.c          |  28 +++---
+ s390x/Makefile           |   1 +
+ s390x/cstart64.S         |  56 +++++++++++
+ s390x/intercept.c        |  19 ++++
+ s390x/sie.c              | 125 +++++++++++++++++++++++++
+ s390x/unittests.cfg      |   3 +
+ 15 files changed, 611 insertions(+), 104 deletions(-)
+ create mode 100644 lib/s390x/sie.h
+ create mode 100644 s390x/sie.c
+
 -- 
-2.28.0
+2.25.1
