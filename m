@@ -1,92 +1,76 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33990 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727438AbgKRKyF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Nov 2020 05:54:05 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C09C061A4D
-        for <linux-s390@vger.kernel.org>; Wed, 18 Nov 2020 02:54:04 -0800 (PST)
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 2/6] s390/ctcm: Put struct qllc on stack.
-Date: Wed, 18 Nov 2020 11:53:13 +0100
-Message-Id: <20201118105317.605671-3-bigeasy@linutronix.de>
-In-Reply-To: <20201118105317.605671-1-bigeasy@linutronix.de>
-References: <20201118105317.605671-1-bigeasy@linutronix.de>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:15726 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730635AbgK0OS6 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 27 Nov 2020 09:18:58 -0500
+Subject: Re: [PATCH] scsi: zfcp: fix indentation coding style issue
+References: <20201127130646.11427-1-yevhen.viktorov@virginmedia.com>
+From: Steffen Maier <maier@linux.ibm.com>
+Message-ID: <5e866838-9b62-f1fe-d2a5-70c0df232857@linux.ibm.com>
+Date: Fri, 27 Nov 2020 15:17:36 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201127130646.11427-1-yevhen.viktorov@virginmedia.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Yevhen Viktorov <yevhen.viktorov@virginmedia.com>
+Cc: bblock@linux.ibm.com, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The size of struct qllc is 2 byte. The memory for is allocated, initialized,
-used and deallocated a few lines later.
+Thanks, will queue it for our next cleanup submission.
 
-It is more efficient to avoid the allocation/free dance and keeping the
-variable on stack. Especially since the compiler is smart enough to not
-allocate the memory on stack but assign the values directly.
+On 11/27/20 2:06 PM, Yevhen Viktorov wrote:
+> code indent should use tabs where possible
+> 
+> Signed-off-by: Yevhen Viktorov <yevhen.viktorov@virginmedia.com>
+> ---
+>   drivers/s390/scsi/zfcp_def.h | 6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/s390/scsi/zfcp_def.h b/drivers/s390/scsi/zfcp_def.h
+> index da8a5ceb615c..a2a59cbb330a 100644
+> --- a/drivers/s390/scsi/zfcp_def.h
+> +++ b/drivers/s390/scsi/zfcp_def.h
+> @@ -157,7 +157,7 @@ struct zfcp_adapter {
+>   	u32			fsf_lic_version;
+>   	u32			adapter_features;  /* FCP channel features */
+>   	u32			connection_features; /* host connection features */
+> -        u32			hardware_version;  /* of FCP channel */
+> +	u32			hardware_version;  /* of FCP channel */
+>   	u32			fc_security_algorithms; /* of FCP channel */
+>   	u32			fc_security_algorithms_old; /* of FCP channel */
+>   	u16			timer_ticks;       /* time int for a tick */
+> @@ -181,7 +181,7 @@ struct zfcp_adapter {
+>   	rwlock_t		erp_lock;
+>   	wait_queue_head_t	erp_done_wqh;
+>   	struct zfcp_erp_action	erp_action;	   /* pending error recovery */
+> -        atomic_t                erp_counter;
+> +	atomic_t                erp_counter;
+>   	u32			erp_total_count;   /* total nr of enqueued erp
+>   						      actions */
+>   	u32			erp_low_mem_count; /* nr of erp actions waiting
+> @@ -217,7 +217,7 @@ struct zfcp_port {
+>   	u32		       d_id;	       /* D_ID */
+>   	u32		       handle;	       /* handle assigned by FSF */
+>   	struct zfcp_erp_action erp_action;     /* pending error recovery */
+> -        atomic_t               erp_counter;
+> +	atomic_t               erp_counter;
+>   	u32                    maxframe_size;
+>   	u32                    supported_classes;
+>   	u32                    connection_info;
+> 
 
-Rename `qllcptr' to `qllc' and use it on stack.
 
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- drivers/s390/net/ctcm_mpc.c | 24 ++++++------------------
- 1 file changed, 6 insertions(+), 18 deletions(-)
+-- 
+Mit freundlichen Gruessen / Kind regards
+Steffen Maier
 
-diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
-index 04a51cc89e74c..4ff51af44d338 100644
---- a/drivers/s390/net/ctcm_mpc.c
-+++ b/drivers/s390/net/ctcm_mpc.c
-@@ -2049,11 +2049,10 @@ static void mpc_action_rcvd_xid7(fsm_instance *fsm,=
- int event, void *arg)
-  */
- static int mpc_send_qllc_discontact(struct net_device *dev)
- {
--	__u32	new_len	=3D 0;
- 	struct sk_buff   *skb;
--	struct qllc      *qllcptr;
- 	struct ctcm_priv *priv =3D dev->ml_priv;
- 	struct mpc_group *grp =3D priv->mpcg;
-+	struct qllc	qllc;
-=20
- 	CTCM_PR_DEBUG("%s: GROUP STATE: %s\n",
- 		__func__, mpcg_state_names[grp->saved_state]);
-@@ -2080,31 +2079,20 @@ static int mpc_send_qllc_discontact(struct net_devi=
-ce *dev)
- 	case MPCG_STATE_FLOWC:
- 	case MPCG_STATE_READY:
- 		grp->send_qllc_disc =3D 2;
--		new_len =3D sizeof(struct qllc);
--		qllcptr =3D kzalloc(new_len, gfp_type() | GFP_DMA);
--		if (qllcptr =3D=3D NULL) {
--			CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
--				"%s(%s): qllcptr allocation error",
--						CTCM_FUNTAIL, dev->name);
--			return -ENOMEM;
--		}
--
--		qllcptr->qllc_address =3D 0xcc;
--		qllcptr->qllc_commands =3D 0x03;
--
--		skb =3D __dev_alloc_skb(new_len, GFP_ATOMIC);
-=20
-+		skb =3D __dev_alloc_skb(sizeof(struct qllc), GFP_ATOMIC);
- 		if (skb =3D=3D NULL) {
- 			CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
- 				"%s(%s): skb allocation error",
- 						CTCM_FUNTAIL, dev->name);
- 			priv->stats.rx_dropped++;
--			kfree(qllcptr);
- 			return -ENOMEM;
- 		}
-=20
--		skb_put_data(skb, qllcptr, new_len);
--		kfree(qllcptr);
-+		qllc.qllc_address =3D 0xcc;
-+		qllc.qllc_commands =3D 0x03;
-+
-+		skb_put_data(skb, &qllc, sizeof(struct qllc));
-=20
- 		if (skb_headroom(skb) < 4) {
- 			CTCM_DBF_TEXT_(MPC_ERROR, CTC_DBF_ERROR,
---=20
-2.29.2
+Linux on IBM Z Development
+
+https://www.ibm.com/privacy/us/en/
+IBM Deutschland Research & Development GmbH
+Vorsitzender des Aufsichtsrats: Matthias Hartmann
+Geschaeftsfuehrung: Dirk Wittkopp
+Sitz der Gesellschaft: Boeblingen
+Registergericht: Amtsgericht Stuttgart, HRB 243294
