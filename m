@@ -1,45 +1,25 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49624 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726014AbgKHGe4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 8 Nov 2020 01:34:56 -0500
-From: xiakaixu1987@gmail.com
-Subject: [PATCH] s390/qeth: remove useless if/else
-Date: Sun,  8 Nov 2020 14:34:47 +0800
-Message-Id: <1604817287-11258-1-git-send-email-kaixuxia@tencent.com>
+Received: from mail.kernel.org ([198.145.29.99]:42594 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387769AbgK1VIV (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 28 Nov 2020 16:08:21 -0500
+Date: Sat, 28 Nov 2020 13:07:40 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH net-next v6 09/14] net/smc: Add support for obtaining
+ system information
+Message-ID: <20201128130740.4f12c6e3@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
+In-Reply-To: <20201126203916.56071-10-kgraul@linux.ibm.com>
+References: <20201126203916.56071-1-kgraul@linux.ibm.com>
+        <20201126203916.56071-10-kgraul@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: hca@linux.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Kaixu Xia <kaixuxia@tencent.com>
+To: Karsten Graul <kgraul@linux.ibm.com>
+Cc: David Miller <davem@davemloft.net>, Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Kaixu Xia <kaixuxia@tencent.com>
+On Thu, 26 Nov 2020 21:39:11 +0100 Karsten Graul wrote:
+> +	attrs = nla_nest_start_noflag(skb, SMC_GEN_SYS_INFO);
 
-Fix the following coccinelle report:
-
-./drivers/s390/net/qeth_l3_main.c:107:2-4: WARNING: possible condition with no effect (if == else)
-
-Both branches are the same, so remove them.
-
-Reported-by: Tosk Robot <tencent_os_robot@tencent.com>
-Signed-off-by: Kaixu Xia <kaixuxia@tencent.com>
----
- drivers/s390/net/qeth_l3_main.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index b1c1d2510d55..264b6c782382 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -104,10 +104,7 @@ static bool qeth_l3_is_addr_covered_by_ipato(struct qeth_card *card,
- 		qeth_l3_convert_addr_to_bits(ipatoe->addr, ipatoe_bits,
- 					  (ipatoe->proto == QETH_PROT_IPV4) ?
- 					  4 : 16);
--		if (addr->proto == QETH_PROT_IPV4)
--			rc = !memcmp(addr_bits, ipatoe_bits, ipatoe->mask_bits);
--		else
--			rc = !memcmp(addr_bits, ipatoe_bits, ipatoe->mask_bits);
-+		rc = !memcmp(addr_bits, ipatoe_bits, ipatoe->mask_bits);
- 		if (rc)
- 			break;
- 	}
--- 
-2.20.0
+Missed this, nla_nest_start(), the _noflag() is for legacy code.
+New families should not use it.
