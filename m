@@ -1,105 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7974 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404079AbgKXRvM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 12:51:12 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v5 03/14] net/smc: Add connection counters for links
-Date: Tue, 24 Nov 2020 18:50:36 +0100
-Message-Id: <20201124175047.56949-4-kgraul@linux.ibm.com>
-In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
-References: <20201124175047.56949-1-kgraul@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:42330 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387768AbgK1VHh (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sat, 28 Nov 2020 16:07:37 -0500
+Date: Sat, 28 Nov 2020 13:06:55 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH net-next v6 08/14] net/smc: Introduce generic netlink
+ interface for diagnostic purposes
+Message-ID: <20201128130655.0540f3e5@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
+In-Reply-To: <20201126203916.56071-9-kgraul@linux.ibm.com>
+References: <20201126203916.56071-1-kgraul@linux.ibm.com>
+        <20201126203916.56071-9-kgraul@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Karsten Graul <kgraul@linux.ibm.com>
+Cc: David Miller <davem@davemloft.net>, Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+On Thu, 26 Nov 2020 21:39:10 +0100 Karsten Graul wrote:
+> +/* SMC_GENL family definition */
+> +struct genl_family smc_gen_nl_family __ro_after_init = {
+> +	.hdrsize = 0,
+> +	.name = SMC_GENL_FAMILY_NAME,
+> +	.version = SMC_GENL_FAMILY_VERSION,
+> +	.maxattr = SMC_GEN_MAX,
+> +	.netnsok = true,
+> +	.module = THIS_MODULE,
+> +	.ops = smc_gen_nl_ops,
+> +	.n_ops =  ARRAY_SIZE(smc_gen_nl_ops)
+> +};
 
-Add connection counters to the structure of the link.
-Increase/decrease the counters as needed in the corresponding
-routines.
+Sorry, one more spin.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 16 ++++++++++++++--
- net/smc/smc_core.h |  1 +
- 2 files changed, 15 insertions(+), 2 deletions(-)
+Now you'll let any attribute in. We try to reject any input that won't
+be acted on in the kernel these days to allow the interfaces to be
+extended in the future without worrying that something that was
+throwing random data in the messages will suddenly start misbehaving.
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index af96f813c075..5bc8ebcd03f3 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -139,6 +139,7 @@ static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
- 	}
- 	if (!conn->lnk)
- 		return SMC_CLC_DECL_NOACTLINK;
-+	atomic_inc(&conn->lnk->conn_cnt);
- 	return 0;
- }
- 
-@@ -180,6 +181,8 @@ static void __smc_lgr_unregister_conn(struct smc_connection *conn)
- 	struct smc_link_group *lgr = conn->lgr;
- 
- 	rb_erase(&conn->alert_node, &lgr->conns_all);
-+	if (conn->lnk)
-+		atomic_dec(&conn->lnk->conn_cnt);
- 	lgr->conns_num--;
- 	conn->alert_token_local = 0;
- 	sock_put(&smc->sk); /* sock_hold in smc_lgr_register_conn() */
-@@ -314,6 +317,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	lnk->smcibdev = ini->ib_dev;
- 	lnk->ibport = ini->ib_port;
- 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
-+	atomic_set(&lnk->conn_cnt, 0);
- 	smc_llc_link_set_uid(lnk);
- 	INIT_WORK(&lnk->link_down_wrk, smc_link_down_work);
- 	if (!ini->ib_dev->initialized) {
-@@ -526,6 +530,14 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
- 	return rc;
- }
- 
-+static void smc_switch_link_and_count(struct smc_connection *conn,
-+				      struct smc_link *to_lnk)
-+{
-+	atomic_dec(&conn->lnk->conn_cnt);
-+	conn->lnk = to_lnk;
-+	atomic_inc(&conn->lnk->conn_cnt);
-+}
-+
- struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 				  struct smc_link *from_lnk, bool is_dev_err)
- {
-@@ -574,7 +586,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		    smc->sk.sk_state == SMC_PEERABORTWAIT ||
- 		    smc->sk.sk_state == SMC_PROCESSABORT) {
- 			spin_lock_bh(&conn->send_lock);
--			conn->lnk = to_lnk;
-+			smc_switch_link_and_count(conn, to_lnk);
- 			spin_unlock_bh(&conn->send_lock);
- 			continue;
- 		}
-@@ -588,7 +600,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 		}
- 		/* avoid race with smcr_tx_sndbuf_nonempty() */
- 		spin_lock_bh(&conn->send_lock);
--		conn->lnk = to_lnk;
-+		smc_switch_link_and_count(conn, to_lnk);
- 		rc = smc_switch_cursor(smc, pend, wr_buf);
- 		spin_unlock_bh(&conn->send_lock);
- 		sock_put(&smc->sk);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 9aee54a6bcba..eefb6770b268 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -129,6 +129,7 @@ struct smc_link {
- 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
- 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
- 	int			llc_testlink_time; /* testlink interval */
-+	atomic_t		conn_cnt; /* connections on this link */
- };
- 
- /* For now we just allow one parallel link per link group. The SMC protocol
--- 
-2.17.1
+You should still declare a policy just make it empty. And you can make
+the policy array size 1, and set .maxattr to 1, AFAIK. These are both
+pretty much* for input validation only.
+
+* the only exception is dumping the policy to be able to tell types in
+  user space automatically, but I don't think you'll care.
