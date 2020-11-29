@@ -1,94 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:65496 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730066AbgK0NJK (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64618 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726021AbgK2Aty (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 27 Nov 2020 08:09:10 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v2 1/7] s390x: Add test_bit to library
-Date: Fri, 27 Nov 2020 08:06:23 -0500
-Message-Id: <20201127130629.120469-2-frankja@linux.ibm.com>
-In-Reply-To: <20201127130629.120469-1-frankja@linux.ibm.com>
-References: <20201127130629.120469-1-frankja@linux.ibm.com>
+        Sat, 28 Nov 2020 19:49:54 -0500
+Date: Sun, 29 Nov 2020 01:49:04 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v12 09/17] s390/vfio-ap: sysfs attribute to display the
+ guest's matrix
+Message-ID: <20201129014904.4fafdbba.pasic@linux.ibm.com>
+In-Reply-To: <20201124214016.3013-10-akrowiak@linux.ibm.com>
+References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
+        <20201124214016.3013-10-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-Query/feature bits are commonly tested via MSB bit numbers on
-s390. Let's add test bit functions, so we don't need to copy code to
-test query bits.
+On Tue, 24 Nov 2020 16:40:08 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-The test_bit code has been taken from the kernel since most s390x KVM unit
-test developers are used to them.
+> The matrix of adapters and domains configured in a guest's APCB may
+> differ from the matrix of adapters and domains assigned to the matrix mdev,
+> so this patch introduces a sysfs attribute to display the matrix of
+> adapters and domains that are or will be assigned to the APCB of a guest
+> that is or will be using the matrix mdev. For a matrix mdev denoted by
+> $uuid, the guest matrix can be displayed as follows:
+> 
+>    cat /sys/devices/vfio_ap/matrix/$uuid/guest_matrix
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
----
- lib/s390x/asm/bitops.h   | 26 ++++++++++++++++++++++++++
- lib/s390x/asm/facility.h |  3 ++-
- 2 files changed, 28 insertions(+), 1 deletion(-)
-
-diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
-index e7cdda9..792881e 100644
---- a/lib/s390x/asm/bitops.h
-+++ b/lib/s390x/asm/bitops.h
-@@ -1,3 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ *    Bitops taken from the kernel as most developers are already used
-+ *    to them.
-+ *
-+ *    Copyright IBM Corp. 1999,2013
-+ *
-+ *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
-+ *
-+ */
- #ifndef _ASMS390X_BITOPS_H_
- #define _ASMS390X_BITOPS_H_
- 
-@@ -7,4 +17,20 @@
- 
- #define BITS_PER_LONG	64
- 
-+static inline bool test_bit(unsigned long nr,
-+			    const volatile unsigned long *ptr)
-+{
-+	const volatile unsigned char *addr;
-+
-+	addr = ((const volatile unsigned char *)ptr);
-+	addr += (nr ^ (BITS_PER_LONG - 8)) >> 3;
-+	return (*addr >> (nr & 7)) & 1;
-+}
-+
-+static inline bool test_bit_inv(unsigned long nr,
-+				const volatile unsigned long *ptr)
-+{
-+	return test_bit(nr ^ (BITS_PER_LONG - 1), ptr);
-+}
-+
- #endif
-diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
-index def2705..5593c2d 100644
---- a/lib/s390x/asm/facility.h
-+++ b/lib/s390x/asm/facility.h
-@@ -13,13 +13,14 @@
- #include <libcflat.h>
- #include <asm/facility.h>
- #include <asm/arch_def.h>
-+#include <bitops.h>
- 
- #define NB_STFL_DOUBLEWORDS 32
- extern uint64_t stfl_doublewords[];
- 
- static inline bool test_facility(int nr)
- {
--	return stfl_doublewords[nr / 64] & (0x8000000000000000UL >> (nr % 64));
-+	return test_bit_inv(nr, stfl_doublewords);
- }
- 
- static inline void stfl(void)
--- 
-2.25.1
+Code looks good, but it may be a little early, since the treatment of
+guset_matrix is changed by the following patches.
