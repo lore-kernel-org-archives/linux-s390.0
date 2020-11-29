@@ -1,58 +1,43 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:9112 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727991AbgKJJgb (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52232 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725862AbgK2BSI (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 10 Nov 2020 04:36:31 -0500
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0AA9WJ7O148412
-        for <linux-s390@vger.kernel.org>; Tue, 10 Nov 2020 04:36:30 -0500
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 34qhq32guk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <linux-s390@vger.kernel.org>; Tue, 10 Nov 2020 04:36:30 -0500
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0AA9Y2sY157946
-        for <linux-s390@vger.kernel.org>; Tue, 10 Nov 2020 04:36:30 -0500
-From: Alexander Gordeev <agordeev@linux.ibm.com>
-Subject: [PATCH 2/3] s390/vmem: fix possible memory overwrite
-Date: Tue, 10 Nov 2020 10:36:22 +0100
-Message-Id: <1abf78a289d76d7448a5640073cf6e8221a54a55.1605000280.git.agordeev@linux.ibm.com>
-In-Reply-To: <cover.1605000280.git.agordeev@linux.ibm.com>
-References: <cover.1605000280.git.agordeev@linux.ibm.com>
+        Sat, 28 Nov 2020 20:18:08 -0500
+Date: Sun, 29 Nov 2020 02:17:17 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v12 11/17] s390/vfio-ap: allow assignment of unavailable
+ AP queues to mdev device
+Message-ID: <20201129021717.5683e779.pasic@linux.ibm.com>
+In-Reply-To: <20201124214016.3013-12-akrowiak@linux.ibm.com>
+References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
+        <20201124214016.3013-12-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, David Hildenbrand <david@redhat.com>
-Cc: Alexander Gordeev <agordeev@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-If for whatever reason the sub-PMD region to be used is less
-than struct page size (e.g in the future), then it is possible
-to overwrite beyond the region size.
+On Tue, 24 Nov 2020 16:40:10 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
----
- arch/s390/mm/vmem.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+> The current implementation does not allow assignment of an AP adapter or
+> domain to an mdev device if each APQN resulting from the assignment
+> does not reference an AP queue device that is bound to the vfio_ap device
+> driver. This patch allows assignment of AP resources to the matrix mdev as
+> long as the APQNs resulting from the assignment:
+>    1. Are not reserved by the AP BUS for use by the zcrypt device drivers.
+>    2. Are not assigned to another matrix mdev.
+> 
+> The rationale behind this is twofold:
+>    1. The AP architecture does not preclude assignment of APQNs to an AP
+>       configuration that are not available to the system.
+>    2. APQNs that do not reference a queue device bound to the vfio_ap
+>       device driver will not be assigned to the guest's CRYCB, so the
+>       guest will not get access to queues not bound to the vfio_ap driver.
+> 
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 
-diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
-index 56ab9bb770f3a..d7f25884061f4 100644
---- a/arch/s390/mm/vmem.c
-+++ b/arch/s390/mm/vmem.c
-@@ -91,13 +91,15 @@ static void vmemmap_flush_unused_pmd(void)
- 
- static void __vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
- {
-+	unsigned long size = min(end - start, sizeof(struct page));
-+
- 	/*
- 	 * As we expect to add in the same granularity as we remove, it's
- 	 * sufficient to mark only some piece used to block the memmap page from
- 	 * getting removed (just in case the memmap never gets initialized,
- 	 * e.g., because the memory block never gets onlined).
- 	 */
--	memset(__va(start), 0, sizeof(struct page));
-+	memset(__va(start), 0, size);
- }
- 
- static void vmemmap_use_sub_pmd(unsigned long start, unsigned long end)
--- 
-2.26.0
+Again code looks good. I'm still worried about all the incremental
+changes (good for review) and their testability.
