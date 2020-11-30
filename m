@@ -1,8 +1,12 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from szxga05-in.huawei.com ([45.249.212.191]:9072 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727656AbgK3MEn (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 07:04:43 -0500
 From: Qinglang Miao <miaoqinglang@huawei.com>
 Subject: [PATCH] scsi: zfcp: move the position of put_device
-Date: Mon, 30 Nov 2020 20:11:49 +0800
-Message-ID: <20201130121149.194131-1-miaoqinglang@huawei.com>
+Date: Mon, 30 Nov 2020 20:11:54 +0800
+Message-ID: <20201130121154.194190-1-miaoqinglang@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type: text/plain; charset=US-ASCII
