@@ -1,71 +1,101 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4364 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728038AbgKIH5W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 9 Nov 2020 02:57:22 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net v2 1/2] net/af_iucv: fix null pointer dereference on shutdown
-Date: Mon,  9 Nov 2020 08:57:05 +0100
-Message-Id: <20201109075706.56573-2-jwi@linux.ibm.com>
-In-Reply-To: <20201109075706.56573-1-jwi@linux.ibm.com>
-References: <20201109075706.56573-1-jwi@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52928 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387806AbgK3SEB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 13:04:01 -0500
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 1/5] block: remove the unused block_sleeprq tracepoint
+Date: Mon, 30 Nov 2020 18:58:50 +0100
+Message-Id: <20201130175854.982460-2-hch@lst.de>
+In-Reply-To: <20201130175854.982460-1-hch@lst.de>
+References: <20201130175854.982460-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Ursula Braun <ubraun@linux.ibm.com>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Ursula Braun <ubraun@linux.ibm.com>
-
-syzbot reported the following KASAN finding:
-
-BUG: KASAN: nullptr-dereference in iucv_send_ctrl+0x390/0x3f0 net/iucv/af_iucv.c:385
-Read of size 2 at addr 000000000000021e by task syz-executor907/519
-
-CPU: 0 PID: 519 Comm: syz-executor907 Not tainted 5.9.0-syzkaller-07043-gbcf9877ad213 #0
-Hardware name: IBM 3906 M04 701 (KVM/Linux)
-Call Trace:
- [<00000000c576af60>] unwind_start arch/s390/include/asm/unwind.h:65 [inline]
- [<00000000c576af60>] show_stack+0x180/0x228 arch/s390/kernel/dumpstack.c:135
- [<00000000c9dcd1f8>] __dump_stack lib/dump_stack.c:77 [inline]
- [<00000000c9dcd1f8>] dump_stack+0x268/0x2f0 lib/dump_stack.c:118
- [<00000000c5fed016>] print_address_description.constprop.0+0x5e/0x218 mm/kasan/report.c:383
- [<00000000c5fec82a>] __kasan_report mm/kasan/report.c:517 [inline]
- [<00000000c5fec82a>] kasan_report+0x11a/0x168 mm/kasan/report.c:534
- [<00000000c98b5b60>] iucv_send_ctrl+0x390/0x3f0 net/iucv/af_iucv.c:385
- [<00000000c98b6262>] iucv_sock_shutdown+0x44a/0x4c0 net/iucv/af_iucv.c:1457
- [<00000000c89d3a54>] __sys_shutdown+0x12c/0x1c8 net/socket.c:2204
- [<00000000c89d3b70>] __do_sys_shutdown net/socket.c:2212 [inline]
- [<00000000c89d3b70>] __s390x_sys_shutdown+0x38/0x48 net/socket.c:2210
- [<00000000c9e36eac>] system_call+0xe0/0x28c arch/s390/kernel/entry.S:415
-
-There is nothing to shutdown if a connection has never been established.
-Besides that iucv->hs_dev is not yet initialized if a socket is in
-IUCV_OPEN state and iucv->path is not yet initialized if socket is in
-IUCV_BOUND state.
-So, just skip the shutdown calls for a socket in these states.
-
-Fixes: eac3731bd04c ("[S390]: Add AF_IUCV socket support")
-Fixes: 82492a355fac ("af_iucv: add shutdown for HS transport")
-Reviewed-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
-[jwi: correct one Fixes tag]
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- net/iucv/af_iucv.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/trace/events/block.h | 18 ------------------
+ kernel/trace/blktrace.c      | 22 ----------------------
+ 2 files changed, 40 deletions(-)
 
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index d80572074667..047238f01ba6 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -1434,7 +1434,8 @@ static int iucv_sock_shutdown(struct socket *sock, int how)
- 		break;
- 	}
+diff --git a/include/trace/events/block.h b/include/trace/events/block.h
+index 34d64ca306b1c7..76459cf750e14d 100644
+--- a/include/trace/events/block.h
++++ b/include/trace/events/block.h
+@@ -441,24 +441,6 @@ DEFINE_EVENT(block_get_rq, block_getrq,
+ 	TP_ARGS(q, bio, rw)
+ );
  
--	if (how == SEND_SHUTDOWN || how == SHUTDOWN_MASK) {
-+	if ((how == SEND_SHUTDOWN || how == SHUTDOWN_MASK) &&
-+	    sk->sk_state == IUCV_CONNECTED) {
- 		if (iucv->transport == AF_IUCV_TRANS_IUCV) {
- 			txmsg.class = 0;
- 			txmsg.tag = 0;
+-/**
+- * block_sleeprq - waiting to get a free request entry in queue for block IO operation
+- * @q: queue for operation
+- * @bio: pending block IO operation (can be %NULL)
+- * @rw: low bit indicates a read (%0) or a write (%1)
+- *
+- * In the case where a request struct cannot be provided for queue @q
+- * the process needs to wait for an request struct to become
+- * available.  This tracepoint event is generated each time the
+- * process goes to sleep waiting for request struct become available.
+- */
+-DEFINE_EVENT(block_get_rq, block_sleeprq,
+-
+-	TP_PROTO(struct request_queue *q, struct bio *bio, int rw),
+-
+-	TP_ARGS(q, bio, rw)
+-);
+-
+ /**
+  * block_plug - keep operations requests in request queue
+  * @q: request queue to plug
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index a482a37848bff7..ced589df304b57 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -959,25 +959,6 @@ static void blk_add_trace_getrq(void *ignore,
+ 	}
+ }
+ 
+-
+-static void blk_add_trace_sleeprq(void *ignore,
+-				  struct request_queue *q,
+-				  struct bio *bio, int rw)
+-{
+-	if (bio)
+-		blk_add_trace_bio(q, bio, BLK_TA_SLEEPRQ, 0);
+-	else {
+-		struct blk_trace *bt;
+-
+-		rcu_read_lock();
+-		bt = rcu_dereference(q->blk_trace);
+-		if (bt)
+-			__blk_add_trace(bt, 0, 0, rw, 0, BLK_TA_SLEEPRQ,
+-					0, 0, NULL, 0);
+-		rcu_read_unlock();
+-	}
+-}
+-
+ static void blk_add_trace_plug(void *ignore, struct request_queue *q)
+ {
+ 	struct blk_trace *bt;
+@@ -1164,8 +1145,6 @@ static void blk_register_tracepoints(void)
+ 	WARN_ON(ret);
+ 	ret = register_trace_block_getrq(blk_add_trace_getrq, NULL);
+ 	WARN_ON(ret);
+-	ret = register_trace_block_sleeprq(blk_add_trace_sleeprq, NULL);
+-	WARN_ON(ret);
+ 	ret = register_trace_block_plug(blk_add_trace_plug, NULL);
+ 	WARN_ON(ret);
+ 	ret = register_trace_block_unplug(blk_add_trace_unplug, NULL);
+@@ -1185,7 +1164,6 @@ static void blk_unregister_tracepoints(void)
+ 	unregister_trace_block_split(blk_add_trace_split, NULL);
+ 	unregister_trace_block_unplug(blk_add_trace_unplug, NULL);
+ 	unregister_trace_block_plug(blk_add_trace_plug, NULL);
+-	unregister_trace_block_sleeprq(blk_add_trace_sleeprq, NULL);
+ 	unregister_trace_block_getrq(blk_add_trace_getrq, NULL);
+ 	unregister_trace_block_bio_queue(blk_add_trace_bio_queue, NULL);
+ 	unregister_trace_block_bio_frontmerge(blk_add_trace_bio_frontmerge, NULL);
 -- 
-2.17.1
+2.29.2
