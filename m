@@ -1,192 +1,269 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v4 4/4] arch, mm: make kernel_page_present() always available
-Date: Tue,  3 Nov 2020 18:20:57 +0200
-Message-Id: <20201103162057.22916-5-rppt@kernel.org>
-In-Reply-To: <20201103162057.22916-1-rppt@kernel.org>
-References: <20201103162057.22916-1-rppt@kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53816 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387991AbgK3SJa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 13:09:30 -0500
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4/5] block: remove the request_queue argument to the block_bio_remap tracepoint
+Date: Mon, 30 Nov 2020 18:58:53 +0100
+Message-Id: <20201130175854.982460-5-hch@lst.de>
+In-Reply-To: <20201130175854.982460-1-hch@lst.de>
+References: <20201130175854.982460-1-hch@lst.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+The request_queue can trivially be derived from the bio.
 
-For architectures that enable ARCH_HAS_SET_MEMORY having the ability to
-verify that a page is mapped in the kernel direct map can be useful
-regardless of hibernation.
-
-Add RISC-V implementation of kernel_page_present(), update its forward
-declarations and stubs to be a part of set_memory API and remove ugly
-ifdefery in inlcude/linux/mm.h around current declarations of
-kernel_page_present().
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- arch/arm64/include/asm/cacheflush.h |  1 +
- arch/arm64/mm/pageattr.c            |  4 +---
- arch/riscv/include/asm/set_memory.h |  1 +
- arch/riscv/mm/pageattr.c            | 29 +++++++++++++++++++++++++++++
- arch/x86/include/asm/set_memory.h   |  1 +
- arch/x86/mm/pat/set_memory.c        |  4 +---
- include/linux/mm.h                  |  7 -------
- include/linux/set_memory.h          |  5 +++++
- 8 files changed, 39 insertions(+), 13 deletions(-)
+ block/blk-core.c              |  2 +-
+ drivers/md/dm.c               |  3 +--
+ drivers/md/md-linear.c        |  3 +--
+ drivers/md/md.c               |  5 ++---
+ drivers/md/raid0.c            |  4 ++--
+ drivers/md/raid1.c            |  7 +++----
+ drivers/md/raid10.c           |  6 ++----
+ drivers/md/raid5.c            | 15 +++++++--------
+ drivers/nvme/host/multipath.c |  3 +--
+ include/trace/events/block.h  |  8 +++-----
+ kernel/trace/blktrace.c       | 14 +++++---------
+ 11 files changed, 28 insertions(+), 42 deletions(-)
 
-diff --git a/arch/arm64/include/asm/cacheflush.h b/arch/arm64/include/asm/cacheflush.h
-index 9384fd8fc13c..45217f21f1fe 100644
---- a/arch/arm64/include/asm/cacheflush.h
-+++ b/arch/arm64/include/asm/cacheflush.h
-@@ -140,6 +140,7 @@ int set_memory_valid(unsigned long addr, int numpages, int enable);
- 
- int set_direct_map_invalid_noflush(struct page *page);
- int set_direct_map_default_noflush(struct page *page);
-+bool kernel_page_present(struct page *page);
- 
- #include <asm-generic/cacheflush.h>
- 
-diff --git a/arch/arm64/mm/pageattr.c b/arch/arm64/mm/pageattr.c
-index 439325532be1..92eccaf595c8 100644
---- a/arch/arm64/mm/pageattr.c
-+++ b/arch/arm64/mm/pageattr.c
-@@ -186,8 +186,8 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
- 
- 	set_memory_valid((unsigned long)page_address(page), numpages, enable);
+diff --git a/block/blk-core.c b/block/blk-core.c
+index cb24654983e1e4..96e5fcd7f071b6 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -758,7 +758,7 @@ static inline int blk_partition_remap(struct bio *bio)
+ 		if (bio_check_eod(bio, bdev_nr_sectors(p)))
+ 			goto out;
+ 		bio->bi_iter.bi_sector += p->bd_start_sect;
+-		trace_block_bio_remap(bio->bi_disk->queue, bio, p->bd_dev,
++		trace_block_bio_remap(bio, p->bd_dev,
+ 				      bio->bi_iter.bi_sector -
+ 				      p->bd_start_sect);
+ 	}
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 9a5bd90779c7c4..5181907dc59537 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1276,8 +1276,7 @@ static blk_qc_t __map_bio(struct dm_target_io *tio)
+ 		break;
+ 	case DM_MAPIO_REMAPPED:
+ 		/* the bio has been remapped so dispatch it */
+-		trace_block_bio_remap(clone->bi_disk->queue, clone,
+-				      bio_dev(io->orig_bio), sector);
++		trace_block_bio_remap(clone, bio_dev(io->orig_bio), sector);
+ 		ret = submit_bio_noacct(clone);
+ 		break;
+ 	case DM_MAPIO_KILL:
+diff --git a/drivers/md/md-linear.c b/drivers/md/md-linear.c
+index 98f1b4b2bdcef8..68cac7d1927823 100644
+--- a/drivers/md/md-linear.c
++++ b/drivers/md/md-linear.c
+@@ -257,8 +257,7 @@ static bool linear_make_request(struct mddev *mddev, struct bio *bio)
+ 		bio_endio(bio);
+ 	} else {
+ 		if (mddev->gendisk)
+-			trace_block_bio_remap(bio->bi_disk->queue,
+-					      bio, disk_devt(mddev->gendisk),
++			trace_block_bio_remap(bio, disk_devt(mddev->gendisk),
+ 					      bio_sector);
+ 		mddev_check_writesame(mddev, bio);
+ 		mddev_check_write_zeroes(mddev, bio);
+diff --git a/drivers/md/md.c b/drivers/md/md.c
+index 0065736f05b428..c555be0a8dce78 100644
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -8591,9 +8591,8 @@ void md_submit_discard_bio(struct mddev *mddev, struct md_rdev *rdev,
+ 	bio_chain(discard_bio, bio);
+ 	bio_clone_blkg_association(discard_bio, bio);
+ 	if (mddev->gendisk)
+-		trace_block_bio_remap(bdev_get_queue(rdev->bdev),
+-			discard_bio, disk_devt(mddev->gendisk),
+-			bio->bi_iter.bi_sector);
++		trace_block_bio_remap(discard_bio, disk_devt(mddev->gendisk),
++				      bio->bi_iter.bi_sector);
+ 	submit_bio_noacct(discard_bio);
  }
-+#endif /* CONFIG_DEBUG_PAGEALLOC */
+ EXPORT_SYMBOL(md_submit_discard_bio);
+diff --git a/drivers/md/raid0.c b/drivers/md/raid0.c
+index 6f44177593a552..e5d7411cba9b46 100644
+--- a/drivers/md/raid0.c
++++ b/drivers/md/raid0.c
+@@ -571,8 +571,8 @@ static bool raid0_make_request(struct mddev *mddev, struct bio *bio)
+ 		tmp_dev->data_offset;
  
--#ifdef CONFIG_HIBERNATION
- /*
-  * This function is used to determine if a linear map page has been marked as
-  * not-valid. Walk the page table and check the PTE_VALID bit. This is based
-@@ -234,5 +234,3 @@ bool kernel_page_present(struct page *page)
- 	ptep = pte_offset_kernel(pmdp, addr);
- 	return pte_valid(READ_ONCE(*ptep));
+ 	if (mddev->gendisk)
+-		trace_block_bio_remap(bio->bi_disk->queue, bio,
+-				disk_devt(mddev->gendisk), bio_sector);
++		trace_block_bio_remap(bio, disk_devt(mddev->gendisk),
++				      bio_sector);
+ 	mddev_check_writesame(mddev, bio);
+ 	mddev_check_write_zeroes(mddev, bio);
+ 	submit_bio_noacct(bio);
+diff --git a/drivers/md/raid1.c b/drivers/md/raid1.c
+index 960d854c07f897..c0347997f6ff73 100644
+--- a/drivers/md/raid1.c
++++ b/drivers/md/raid1.c
+@@ -1305,8 +1305,8 @@ static void raid1_read_request(struct mddev *mddev, struct bio *bio,
+ 	read_bio->bi_private = r1_bio;
+ 
+ 	if (mddev->gendisk)
+-	        trace_block_bio_remap(read_bio->bi_disk->queue, read_bio,
+-				disk_devt(mddev->gendisk), r1_bio->sector);
++	        trace_block_bio_remap(read_bio, disk_devt(mddev->gendisk),
++				      r1_bio->sector);
+ 
+ 	submit_bio_noacct(read_bio);
  }
--#endif /* CONFIG_HIBERNATION */
--#endif /* CONFIG_DEBUG_PAGEALLOC */
-diff --git a/arch/riscv/include/asm/set_memory.h b/arch/riscv/include/asm/set_memory.h
-index 4c5bae7ca01c..d690b08dff2a 100644
---- a/arch/riscv/include/asm/set_memory.h
-+++ b/arch/riscv/include/asm/set_memory.h
-@@ -24,6 +24,7 @@ static inline int set_memory_nx(unsigned long addr, int numpages) { return 0; }
+@@ -1517,8 +1517,7 @@ static void raid1_write_request(struct mddev *mddev, struct bio *bio,
+ 		atomic_inc(&r1_bio->remaining);
  
- int set_direct_map_invalid_noflush(struct page *page);
- int set_direct_map_default_noflush(struct page *page);
-+bool kernel_page_present(struct page *page);
+ 		if (mddev->gendisk)
+-			trace_block_bio_remap(mbio->bi_disk->queue,
+-					      mbio, disk_devt(mddev->gendisk),
++			trace_block_bio_remap(mbio, disk_devt(mddev->gendisk),
+ 					      r1_bio->sector);
+ 		/* flush_pending_writes() needs access to the rdev so...*/
+ 		mbio->bi_disk = (void *)conf->mirrors[i].rdev;
+diff --git a/drivers/md/raid10.c b/drivers/md/raid10.c
+index b7bca6703df814..a6f99fa0b32cfc 100644
+--- a/drivers/md/raid10.c
++++ b/drivers/md/raid10.c
+@@ -1200,8 +1200,7 @@ static void raid10_read_request(struct mddev *mddev, struct bio *bio,
+ 	read_bio->bi_private = r10_bio;
  
- #endif /* __ASSEMBLY__ */
+ 	if (mddev->gendisk)
+-	        trace_block_bio_remap(read_bio->bi_disk->queue,
+-	                              read_bio, disk_devt(mddev->gendisk),
++	        trace_block_bio_remap(read_bio, disk_devt(mddev->gendisk),
+ 	                              r10_bio->sector);
+ 	submit_bio_noacct(read_bio);
+ 	return;
+@@ -1250,8 +1249,7 @@ static void raid10_write_one_disk(struct mddev *mddev, struct r10bio *r10_bio,
+ 	mbio->bi_private = r10_bio;
  
-diff --git a/arch/riscv/mm/pageattr.c b/arch/riscv/mm/pageattr.c
-index 321b09d2e2ea..87ba5a68bbb8 100644
---- a/arch/riscv/mm/pageattr.c
-+++ b/arch/riscv/mm/pageattr.c
-@@ -198,3 +198,32 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
- 			     __pgprot(0), __pgprot(_PAGE_PRESENT));
- }
- #endif
-+
-+bool kernel_page_present(struct page *page)
-+{
-+	unsigned long addr = (unsigned long)page_address(page);
-+	pgd_t *pgd;
-+	pud_t *pud;
-+	p4d_t *p4d;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+
-+	pgd = pgd_offset_k(addr);
-+	if (!pgd_present(*pgd))
-+		return false;
-+
-+	p4d = p4d_offset(pgd, addr);
-+	if (!p4d_present(*p4d))
-+		return false;
-+
-+	pud = pud_offset(p4d, addr);
-+	if (!pud_present(*pud))
-+		return false;
-+
-+	pmd = pmd_offset(pud, addr);
-+	if (!pmd_present(*pmd))
-+		return false;
-+
-+	pte = pte_offset_kernel(pmd, addr);
-+	return pte_present(*pte);
-+}
-diff --git a/arch/x86/include/asm/set_memory.h b/arch/x86/include/asm/set_memory.h
-index 5948218f35c5..4352f08bfbb5 100644
---- a/arch/x86/include/asm/set_memory.h
-+++ b/arch/x86/include/asm/set_memory.h
-@@ -82,6 +82,7 @@ int set_pages_rw(struct page *page, int numpages);
+ 	if (conf->mddev->gendisk)
+-		trace_block_bio_remap(mbio->bi_disk->queue,
+-				      mbio, disk_devt(conf->mddev->gendisk),
++		trace_block_bio_remap(mbio, disk_devt(conf->mddev->gendisk),
+ 				      r10_bio->sector);
+ 	/* flush_pending_writes() needs access to the rdev so...*/
+ 	mbio->bi_disk = (void *)rdev;
+diff --git a/drivers/md/raid5.c b/drivers/md/raid5.c
+index 39343479ac2a94..3a90cc0e43ca8e 100644
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -1222,9 +1222,9 @@ static void ops_run_io(struct stripe_head *sh, struct stripe_head_state *s)
+ 				set_bit(R5_DOUBLE_LOCKED, &sh->dev[i].flags);
  
- int set_direct_map_invalid_noflush(struct page *page);
- int set_direct_map_default_noflush(struct page *page);
-+bool kernel_page_present(struct page *page);
+ 			if (conf->mddev->gendisk)
+-				trace_block_bio_remap(bi->bi_disk->queue,
+-						      bi, disk_devt(conf->mddev->gendisk),
+-						      sh->dev[i].sector);
++				trace_block_bio_remap(bi,
++						disk_devt(conf->mddev->gendisk),
++						sh->dev[i].sector);
+ 			if (should_defer && op_is_write(op))
+ 				bio_list_add(&pending_bios, bi);
+ 			else
+@@ -1272,9 +1272,9 @@ static void ops_run_io(struct stripe_head *sh, struct stripe_head_state *s)
+ 			if (op == REQ_OP_DISCARD)
+ 				rbi->bi_vcnt = 0;
+ 			if (conf->mddev->gendisk)
+-				trace_block_bio_remap(rbi->bi_disk->queue,
+-						      rbi, disk_devt(conf->mddev->gendisk),
+-						      sh->dev[i].sector);
++				trace_block_bio_remap(rbi,
++						disk_devt(conf->mddev->gendisk),
++						sh->dev[i].sector);
+ 			if (should_defer && op_is_write(op))
+ 				bio_list_add(&pending_bios, rbi);
+ 			else
+@@ -5468,8 +5468,7 @@ static int raid5_read_one_chunk(struct mddev *mddev, struct bio *raid_bio)
+ 		spin_unlock_irq(&conf->device_lock);
  
- extern int kernel_set_to_readonly;
+ 		if (mddev->gendisk)
+-			trace_block_bio_remap(align_bi->bi_disk->queue,
+-					      align_bi, disk_devt(mddev->gendisk),
++			trace_block_bio_remap(align_bi, disk_devt(mddev->gendisk),
+ 					      raid_bio->bi_iter.bi_sector);
+ 		submit_bio_noacct(align_bi);
+ 		return 1;
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 74896be40c1769..106cf5c44ee7ab 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -312,8 +312,7 @@ blk_qc_t nvme_ns_head_submit_bio(struct bio *bio)
+ 	if (likely(ns)) {
+ 		bio->bi_disk = ns->disk;
+ 		bio->bi_opf |= REQ_NVME_MPATH;
+-		trace_block_bio_remap(bio->bi_disk->queue, bio,
+-				      disk_devt(ns->head->disk),
++		trace_block_bio_remap(bio, disk_devt(ns->head->disk),
+ 				      bio->bi_iter.bi_sector);
+ 		ret = submit_bio_noacct(bio);
+ 	} else if (nvme_available_path(head)) {
+diff --git a/include/trace/events/block.h b/include/trace/events/block.h
+index b415e4cba84304..8fb89574d8677f 100644
+--- a/include/trace/events/block.h
++++ b/include/trace/events/block.h
+@@ -450,9 +450,8 @@ TRACE_EVENT(block_split,
  
-diff --git a/arch/x86/mm/pat/set_memory.c b/arch/x86/mm/pat/set_memory.c
-index bc9be96b777f..16f878c26667 100644
---- a/arch/x86/mm/pat/set_memory.c
-+++ b/arch/x86/mm/pat/set_memory.c
-@@ -2226,8 +2226,8 @@ void __kernel_map_pages(struct page *page, int numpages, int enable)
+ /**
+  * block_bio_remap - map request for a logical device to the raw device
+- * @q: queue holding the operation
+  * @bio: revised operation
+- * @dev: device for the operation
++ * @dev: original device for the operation
+  * @from: original sector for the operation
+  *
+  * An operation for a logical device has been mapped to the
+@@ -460,10 +459,9 @@ TRACE_EVENT(block_split,
+  */
+ TRACE_EVENT(block_bio_remap,
  
- 	arch_flush_lazy_mmu_mode();
- }
-+#endif /* CONFIG_DEBUG_PAGEALLOC */
+-	TP_PROTO(struct request_queue *q, struct bio *bio, dev_t dev,
+-		 sector_t from),
++	TP_PROTO(struct bio *bio, dev_t dev, sector_t from),
  
--#ifdef CONFIG_HIBERNATION
- bool kernel_page_present(struct page *page)
+-	TP_ARGS(q, bio, dev, from),
++	TP_ARGS(bio, dev, from),
+ 
+ 	TP_STRUCT__entry(
+ 		__field( dev_t,		dev		)
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 3ca6d62114f461..405637144a0389 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -993,20 +993,16 @@ static void blk_add_trace_split(void *ignore, struct bio *bio, unsigned int pdu)
+ /**
+  * blk_add_trace_bio_remap - Add a trace for a bio-remap operation
+  * @ignore:	trace callback data parameter (not used)
+- * @q:		queue the io is for
+  * @bio:	the source bio
+- * @dev:	target device
++ * @dev:	source device
+  * @from:	source sector
+  *
+- * Description:
+- *     Device mapper or raid target sometimes need to split a bio because
+- *     it spans a stripe (or similar). Add a trace for that action.
+- *
++ * Called after a bio is remapped to a different device and/or sector.
+  **/
+-static void blk_add_trace_bio_remap(void *ignore,
+-				    struct request_queue *q, struct bio *bio,
+-				    dev_t dev, sector_t from)
++static void blk_add_trace_bio_remap(void *ignore, struct bio *bio, dev_t dev,
++				    sector_t from)
  {
- 	unsigned int level;
-@@ -2239,8 +2239,6 @@ bool kernel_page_present(struct page *page)
- 	pte = lookup_address((unsigned long)page_address(page), &level);
- 	return (pte_val(*pte) & _PAGE_PRESENT);
- }
--#endif /* CONFIG_HIBERNATION */
--#endif /* CONFIG_DEBUG_PAGEALLOC */
++	struct request_queue *q = bio->bi_disk->queue;
+ 	struct blk_trace *bt;
+ 	struct blk_io_trace_remap r;
  
- int __init kernel_map_pages_in_pgd(pgd_t *pgd, u64 pfn, unsigned long address,
- 				   unsigned numpages, unsigned long page_flags)
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index ab0ef6bd351d..44b82f22e76a 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2937,16 +2937,9 @@ static inline void debug_pagealloc_map_pages(struct page *page,
- 	if (debug_pagealloc_enabled_static())
- 		__kernel_map_pages(page, numpages, enable);
- }
--
--#ifdef CONFIG_HIBERNATION
--extern bool kernel_page_present(struct page *page);
--#endif	/* CONFIG_HIBERNATION */
- #else	/* CONFIG_DEBUG_PAGEALLOC */
- static inline void debug_pagealloc_map_pages(struct page *page,
- 					     int numpages, int enable) {}
--#ifdef CONFIG_HIBERNATION
--static inline bool kernel_page_present(struct page *page) { return true; }
--#endif	/* CONFIG_HIBERNATION */
- #endif	/* CONFIG_DEBUG_PAGEALLOC */
- 
- #ifdef __HAVE_ARCH_GATE_AREA
-diff --git a/include/linux/set_memory.h b/include/linux/set_memory.h
-index 860e0f843c12..fe1aa4e54680 100644
---- a/include/linux/set_memory.h
-+++ b/include/linux/set_memory.h
-@@ -23,6 +23,11 @@ static inline int set_direct_map_default_noflush(struct page *page)
- {
- 	return 0;
- }
-+
-+static inline bool kernel_page_present(struct page *page)
-+{
-+	return true;
-+}
- #endif
- 
- #ifndef set_mce_nospec
 -- 
-2.28.0
+2.29.2
