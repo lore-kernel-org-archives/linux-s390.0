@@ -1,255 +1,389 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24656 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404102AbgKXRvP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 12:51:15 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v5 09/14] net/smc: Add support for obtaining system information
-Date: Tue, 24 Nov 2020 18:50:42 +0100
-Message-Id: <20201124175047.56949-10-kgraul@linux.ibm.com>
-In-Reply-To: <20201124175047.56949-1-kgraul@linux.ibm.com>
-References: <20201124175047.56949-1-kgraul@linux.ibm.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54150 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727154AbgK3SLm (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 13:11:42 -0500
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5/5] block: remove the request_queue to argument request based tracepoints
+Date: Mon, 30 Nov 2020 18:58:54 +0100
+Message-Id: <20201130175854.982460-6-hch@lst.de>
+In-Reply-To: <20201130175854.982460-1-hch@lst.de>
+References: <20201130175854.982460-1-hch@lst.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+The request_queue can trivially be derived from the request.
 
-Add new netlink command to obtain system information
-of the smc module.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- include/uapi/linux/smc.h | 18 +++++++++++
- net/smc/smc_clc.c        |  5 ++++
- net/smc/smc_clc.h        |  1 +
- net/smc/smc_core.c       | 64 ++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_core.h       |  2 ++
- net/smc/smc_netlink.c    | 15 ++++++++++
- net/smc/smc_netlink.h    |  9 ++++++
- 7 files changed, 114 insertions(+)
+ block/blk-merge.c            |  2 +-
+ block/blk-mq-sched.c         |  2 +-
+ block/blk-mq.c               |  8 +++----
+ drivers/md/dm-rq.c           |  2 +-
+ drivers/s390/scsi/zfcp_fsf.c |  3 +--
+ include/linux/blktrace_api.h |  5 ++--
+ include/trace/events/block.h | 30 ++++++++++--------------
+ kernel/trace/blktrace.c      | 44 ++++++++++++++----------------------
+ 8 files changed, 39 insertions(+), 57 deletions(-)
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index b604d64542e8..1b8d4e770be9 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -37,11 +37,29 @@ enum {				/* SMC PNET Table commands */
- #define SMC_GENL_FAMILY_NAME		"SMC_GEN_NETLINK"
- #define SMC_GENL_FAMILY_VERSION		1
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index 4071daa88a5eaf..7497d86fff3834 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -799,7 +799,7 @@ static struct request *attempt_merge(struct request_queue *q,
+ 	 */
+ 	blk_account_io_merge_request(next);
  
-+/* SMC_GENL_FAMILY commands */
-+enum {
-+	SMC_NETLINK_GET_SYS_INFO = 1,
-+};
-+
- /* SMC_GENL_FAMILY top level attributes */
- enum {
- 	SMC_GEN_UNSPEC,
-+	SMC_GEN_SYS_INFO,		/* nest */
- 	__SMC_GEN_MAX,
- 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
- };
+-	trace_block_rq_merge(q, next);
++	trace_block_rq_merge(next);
  
-+/* SMC_GEN_SYS_INFO attributes */
-+enum {
-+	SMC_NLA_SYS_UNSPEC,
-+	SMC_NLA_SYS_VER,		/* u8 */
-+	SMC_NLA_SYS_REL,		/* u8 */
-+	SMC_NLA_SYS_IS_ISM_V2,		/* u8 */
-+	SMC_NLA_SYS_LOCAL_HOST,		/* string */
-+	SMC_NLA_SYS_SEID,		/* string */
-+	__SMC_NLA_SYS_MAX,
-+	SMC_NLA_SYS_MAX = __SMC_NLA_SYS_MAX - 1
-+};
-+
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/smc_clc.c b/net/smc/smc_clc.c
-index 696d89c2dce4..e286dafd6e88 100644
---- a/net/smc/smc_clc.c
-+++ b/net/smc/smc_clc.c
-@@ -772,6 +772,11 @@ int smc_clc_send_accept(struct smc_sock *new_smc, bool srv_first_contact,
- 	return len > 0 ? 0 : len;
+ 	/*
+ 	 * ownership of bio passed from next to req, return 'next' for
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index d1eafe2c045caa..deff4e826e234d 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -386,7 +386,7 @@ EXPORT_SYMBOL_GPL(blk_mq_sched_try_insert_merge);
+ 
+ void blk_mq_sched_request_inserted(struct request *rq)
+ {
+-	trace_block_rq_insert(rq->q, rq);
++	trace_block_rq_insert(rq);
+ }
+ EXPORT_SYMBOL_GPL(blk_mq_sched_request_inserted);
+ 
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 13636458f32f1c..bb669b415a387e 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -732,7 +732,7 @@ void blk_mq_start_request(struct request *rq)
+ {
+ 	struct request_queue *q = rq->q;
+ 
+-	trace_block_rq_issue(q, rq);
++	trace_block_rq_issue(rq);
+ 
+ 	if (test_bit(QUEUE_FLAG_STATS, &q->queue_flags)) {
+ 		rq->io_start_time_ns = ktime_get_ns();
+@@ -759,7 +759,7 @@ static void __blk_mq_requeue_request(struct request *rq)
+ 
+ 	blk_mq_put_driver_tag(rq);
+ 
+-	trace_block_rq_requeue(q, rq);
++	trace_block_rq_requeue(rq);
+ 	rq_qos_requeue(q, rq);
+ 
+ 	if (blk_mq_request_started(rq)) {
+@@ -1820,7 +1820,7 @@ static inline void __blk_mq_insert_req_list(struct blk_mq_hw_ctx *hctx,
+ 
+ 	lockdep_assert_held(&ctx->lock);
+ 
+-	trace_block_rq_insert(hctx->queue, rq);
++	trace_block_rq_insert(rq);
+ 
+ 	if (at_head)
+ 		list_add(&rq->queuelist, &ctx->rq_lists[type]);
+@@ -1877,7 +1877,7 @@ void blk_mq_insert_requests(struct blk_mq_hw_ctx *hctx, struct blk_mq_ctx *ctx,
+ 	 */
+ 	list_for_each_entry(rq, list, queuelist) {
+ 		BUG_ON(rq->mq_ctx != ctx);
+-		trace_block_rq_insert(hctx->queue, rq);
++		trace_block_rq_insert(rq);
+ 	}
+ 
+ 	spin_lock(&ctx->lock);
+diff --git a/drivers/md/dm-rq.c b/drivers/md/dm-rq.c
+index 729a72ec30ccae..13b4385f4d5a92 100644
+--- a/drivers/md/dm-rq.c
++++ b/drivers/md/dm-rq.c
+@@ -397,7 +397,7 @@ static int map_request(struct dm_rq_target_io *tio)
+ 		}
+ 
+ 		/* The target has remapped the I/O so dispatch it */
+-		trace_block_rq_remap(clone->q, clone, disk_devt(dm_disk(md)),
++		trace_block_rq_remap(clone, disk_devt(dm_disk(md)),
+ 				     blk_rq_pos(rq));
+ 		ret = dm_dispatch_clone_request(clone, rq);
+ 		if (ret == BLK_STS_RESOURCE || ret == BLK_STS_DEV_RESOURCE) {
+diff --git a/drivers/s390/scsi/zfcp_fsf.c b/drivers/s390/scsi/zfcp_fsf.c
+index 6cb963a0677714..37d450f4695281 100644
+--- a/drivers/s390/scsi/zfcp_fsf.c
++++ b/drivers/s390/scsi/zfcp_fsf.c
+@@ -2359,8 +2359,7 @@ static void zfcp_fsf_req_trace(struct zfcp_fsf_req *req, struct scsi_cmnd *scsi)
+ 		}
+ 	}
+ 
+-	blk_add_driver_data(scsi->request->q, scsi->request, &blktrc,
+-			    sizeof(blktrc));
++	blk_add_driver_data(scsi->request, &blktrc, sizeof(blktrc));
  }
  
-+void smc_clc_get_hostname(u8 **host)
-+{
-+	*host = &smc_hostname[0];
-+}
-+
- void __init smc_clc_init(void)
- {
- 	struct new_utsname *u;
-diff --git a/net/smc/smc_clc.h b/net/smc/smc_clc.h
-index 49752c997c51..32d37f7b70f2 100644
---- a/net/smc/smc_clc.h
-+++ b/net/smc/smc_clc.h
-@@ -334,5 +334,6 @@ int smc_clc_send_confirm(struct smc_sock *smc, bool clnt_first_contact,
- int smc_clc_send_accept(struct smc_sock *smc, bool srv_first_contact,
- 			u8 version);
- void smc_clc_init(void) __init;
-+void smc_clc_get_hostname(u8 **host);
+ /**
+diff --git a/include/linux/blktrace_api.h b/include/linux/blktrace_api.h
+index 3b6ff5902edce6..05556573b896a2 100644
+--- a/include/linux/blktrace_api.h
++++ b/include/linux/blktrace_api.h
+@@ -75,8 +75,7 @@ static inline bool blk_trace_note_message_enabled(struct request_queue *q)
+ 	return ret;
+ }
  
+-extern void blk_add_driver_data(struct request_queue *q, struct request *rq,
+-				void *data, size_t len);
++extern void blk_add_driver_data(struct request *rq, void *data, size_t len);
+ extern int blk_trace_setup(struct request_queue *q, char *name, dev_t dev,
+ 			   struct block_device *bdev,
+ 			   char __user *arg);
+@@ -90,7 +89,7 @@ extern struct attribute_group blk_trace_attr_group;
+ #else /* !CONFIG_BLK_DEV_IO_TRACE */
+ # define blk_trace_ioctl(bdev, cmd, arg)		(-ENOTTY)
+ # define blk_trace_shutdown(q)				do { } while (0)
+-# define blk_add_driver_data(q, rq, data, len)		do {} while (0)
++# define blk_add_driver_data(rq, data, len)		do {} while (0)
+ # define blk_trace_setup(q, name, dev, bdev, arg)	(-ENOTTY)
+ # define blk_trace_startstop(q, start)			(-ENOTTY)
+ # define blk_trace_remove(q)				(-ENOTTY)
+diff --git a/include/trace/events/block.h b/include/trace/events/block.h
+index 8fb89574d8677f..0d782663a005dc 100644
+--- a/include/trace/events/block.h
++++ b/include/trace/events/block.h
+@@ -64,7 +64,6 @@ DEFINE_EVENT(block_buffer, block_dirty_buffer,
+ 
+ /**
+  * block_rq_requeue - place block IO request back on a queue
+- * @q: queue holding operation
+  * @rq: block IO operation request
+  *
+  * The block operation request @rq is being placed back into queue
+@@ -73,9 +72,9 @@ DEFINE_EVENT(block_buffer, block_dirty_buffer,
+  */
+ TRACE_EVENT(block_rq_requeue,
+ 
+-	TP_PROTO(struct request_queue *q, struct request *rq),
++	TP_PROTO(struct request *rq),
+ 
+-	TP_ARGS(q, rq),
++	TP_ARGS(rq),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(  dev_t,	dev			)
+@@ -147,9 +146,9 @@ TRACE_EVENT(block_rq_complete,
+ 
+ DECLARE_EVENT_CLASS(block_rq,
+ 
+-	TP_PROTO(struct request_queue *q, struct request *rq),
++	TP_PROTO(struct request *rq),
+ 
+-	TP_ARGS(q, rq),
++	TP_ARGS(rq),
+ 
+ 	TP_STRUCT__entry(
+ 		__field(  dev_t,	dev			)
+@@ -181,7 +180,6 @@ DECLARE_EVENT_CLASS(block_rq,
+ 
+ /**
+  * block_rq_insert - insert block operation request into queue
+- * @q: target queue
+  * @rq: block IO operation request
+  *
+  * Called immediately before block operation request @rq is inserted
+@@ -191,14 +189,13 @@ DECLARE_EVENT_CLASS(block_rq,
+  */
+ DEFINE_EVENT(block_rq, block_rq_insert,
+ 
+-	TP_PROTO(struct request_queue *q, struct request *rq),
++	TP_PROTO(struct request *rq),
+ 
+-	TP_ARGS(q, rq)
++	TP_ARGS(rq)
+ );
+ 
+ /**
+  * block_rq_issue - issue pending block IO request operation to device driver
+- * @q: queue holding operation
+  * @rq: block IO operation operation request
+  *
+  * Called when block operation request @rq from queue @q is sent to a
+@@ -206,14 +203,13 @@ DEFINE_EVENT(block_rq, block_rq_insert,
+  */
+ DEFINE_EVENT(block_rq, block_rq_issue,
+ 
+-	TP_PROTO(struct request_queue *q, struct request *rq),
++	TP_PROTO(struct request *rq),
+ 
+-	TP_ARGS(q, rq)
++	TP_ARGS(rq)
+ );
+ 
+ /**
+  * block_rq_merge - merge request with another one in the elevator
+- * @q: queue holding operation
+  * @rq: block IO operation operation request
+  *
+  * Called when block operation request @rq from queue @q is merged to another
+@@ -221,9 +217,9 @@ DEFINE_EVENT(block_rq, block_rq_issue,
+  */
+ DEFINE_EVENT(block_rq, block_rq_merge,
+ 
+-	TP_PROTO(struct request_queue *q, struct request *rq),
++	TP_PROTO(struct request *rq),
+ 
+-	TP_ARGS(q, rq)
++	TP_ARGS(rq)
+ );
+ 
+ /**
+@@ -491,7 +487,6 @@ TRACE_EVENT(block_bio_remap,
+ 
+ /**
+  * block_rq_remap - map request for a block operation request
+- * @q: queue holding the operation
+  * @rq: block IO operation request
+  * @dev: device for the operation
+  * @from: original sector for the operation
+@@ -502,10 +497,9 @@ TRACE_EVENT(block_bio_remap,
+  */
+ TRACE_EVENT(block_rq_remap,
+ 
+-	TP_PROTO(struct request_queue *q, struct request *rq, dev_t dev,
+-		 sector_t from),
++	TP_PROTO(struct request *rq, dev_t dev, sector_t from),
+ 
+-	TP_ARGS(q, rq, dev, from),
++	TP_ARGS(rq, dev, from),
+ 
+ 	TP_STRUCT__entry(
+ 		__field( dev_t,		dev		)
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 405637144a0389..7839a78205c243 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -795,12 +795,12 @@ static u64 blk_trace_bio_get_cgid(struct request_queue *q, struct bio *bio)
  #endif
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 0088511e30bf..59ecfdc435d8 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -16,6 +16,8 @@
- #include <linux/wait.h>
- #include <linux/reboot.h>
- #include <linux/mutex.h>
-+#include <linux/list.h>
-+#include <linux/smc.h>
- #include <net/tcp.h>
- #include <net/sock.h>
- #include <rdma/ib_verbs.h>
-@@ -30,6 +32,7 @@
- #include "smc_cdc.h"
- #include "smc_close.h"
- #include "smc_ism.h"
-+#include "smc_netlink.h"
  
- #define SMC_LGR_NUM_INCR		256
- #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
-@@ -214,6 +217,67 @@ static void smc_lgr_unregister_conn(struct smc_connection *conn)
- 	conn->lgr = NULL;
+ static u64
+-blk_trace_request_get_cgid(struct request_queue *q, struct request *rq)
++blk_trace_request_get_cgid(struct request *rq)
+ {
+ 	if (!rq->bio)
+ 		return 0;
+ 	/* Use the first bio */
+-	return blk_trace_bio_get_cgid(q, rq->bio);
++	return blk_trace_bio_get_cgid(rq->q, rq->bio);
  }
  
-+int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-+	char hostname[SMC_MAX_HOSTNAME_LEN + 1];
-+	int snum = cb_ctx->pos[0], num = 0;
-+	char smc_seid[SMC_MAX_EID_LEN + 1];
-+	struct smcd_dev *smcd_dev;
-+	struct nlattr *attrs;
-+	u8 *seid = NULL;
-+	u8 *host = NULL;
-+	void *nlh;
-+
-+	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-+			  &smc_gen_nl_family, NLM_F_MULTI,
-+			  SMC_NETLINK_GET_SYS_INFO);
-+	if (!nlh)
-+		goto errout;
-+	if (snum > num)
-+		goto errout;
-+	attrs = nla_nest_start_noflag(skb, SMC_GEN_SYS_INFO);
-+	if (!attrs)
-+		goto errout;
-+	if (nla_put_u8(skb, SMC_NLA_SYS_VER, SMC_V2) < 0)
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_SYS_REL, SMC_RELEASE) < 0)
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_SYS_IS_ISM_V2,
-+		       smc_ism_is_v2_capable()) < 0)
-+		goto errattr;
-+	smc_clc_get_hostname(&host);
-+	if (host) {
-+		memset(hostname, 0, sizeof(hostname));
-+		snprintf(hostname, sizeof(hostname), "%s", host);
-+		if (nla_put_string(skb, SMC_NLA_SYS_LOCAL_HOST, hostname) < 0)
-+			goto errattr;
-+	}
-+	mutex_lock(&smcd_dev_list.mutex);
-+	smcd_dev = list_first_entry_or_null(&smcd_dev_list.list,
-+					    struct smcd_dev, list);
-+	if (smcd_dev)
-+		smc_ism_get_system_eid(smcd_dev, &seid);
-+	mutex_unlock(&smcd_dev_list.mutex);
-+	if (seid && smc_ism_is_v2_capable()) {
-+		memset(smc_seid, 0, sizeof(smc_seid));
-+		snprintf(smc_seid, sizeof(smc_seid), "%s", seid);
-+		if (nla_put_string(skb, SMC_NLA_SYS_SEID, smc_seid) < 0)
-+			goto errattr;
-+	}
-+	nla_nest_end(skb, attrs);
-+	genlmsg_end(skb, nlh);
-+	num++;
-+	cb_ctx->pos[0] = num;
-+	return skb->len;
-+
-+errattr:
-+	nla_nest_cancel(skb, attrs);
-+errout:
-+	genlmsg_cancel(skb, nlh);
-+	return skb->len;
-+}
-+
- void smc_lgr_cleanup_early(struct smc_connection *conn)
+ /*
+@@ -841,40 +841,35 @@ static void blk_add_trace_rq(struct request *rq, int error,
+ 	rcu_read_unlock();
+ }
+ 
+-static void blk_add_trace_rq_insert(void *ignore,
+-				    struct request_queue *q, struct request *rq)
++static void blk_add_trace_rq_insert(void *ignore, struct request *rq)
  {
- 	struct smc_link_group *lgr = conn->lgr;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 3a1bb8e4b81f..eaed25d4e76b 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -14,6 +14,7 @@
+ 	blk_add_trace_rq(rq, 0, blk_rq_bytes(rq), BLK_TA_INSERT,
+-			 blk_trace_request_get_cgid(q, rq));
++			 blk_trace_request_get_cgid(rq));
+ }
  
- #include <linux/atomic.h>
- #include <rdma/ib_verbs.h>
-+#include <net/genetlink.h>
- 
- #include "smc.h"
- #include "smc_ib.h"
-@@ -413,6 +414,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
- 				  struct smc_link *from_lnk, bool is_dev_err);
- void smcr_link_down_cond(struct smc_link *lnk);
- void smcr_link_down_cond_sched(struct smc_link *lnk);
-+int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb);
- 
- static inline struct smc_link_group *smc_get_lgr(struct smc_link *link)
+-static void blk_add_trace_rq_issue(void *ignore,
+-				   struct request_queue *q, struct request *rq)
++static void blk_add_trace_rq_issue(void *ignore, struct request *rq)
  {
-diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-index 4295723e7843..8cb61edfaa27 100644
---- a/net/smc/smc_netlink.c
-+++ b/net/smc/smc_netlink.c
-@@ -21,10 +21,25 @@
+ 	blk_add_trace_rq(rq, 0, blk_rq_bytes(rq), BLK_TA_ISSUE,
+-			 blk_trace_request_get_cgid(q, rq));
++			 blk_trace_request_get_cgid(rq));
+ }
  
- static const struct nla_policy smc_gen_nl_policy[SMC_GEN_MAX + 1] = {
- 	[SMC_GEN_UNSPEC]	= { .type = NLA_UNSPEC, },
-+	[SMC_GEN_SYS_INFO]	= { .type = NLA_NESTED, },
- };
+-static void blk_add_trace_rq_merge(void *ignore,
+-				   struct request_queue *q, struct request *rq)
++static void blk_add_trace_rq_merge(void *ignore, struct request *rq)
+ {
+ 	blk_add_trace_rq(rq, 0, blk_rq_bytes(rq), BLK_TA_BACKMERGE,
+-			 blk_trace_request_get_cgid(q, rq));
++			 blk_trace_request_get_cgid(rq));
+ }
  
-+static int smc_nl_start(struct netlink_callback *cb)
-+{
-+	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-+
-+	cb_ctx->pos[0] = 0;
-+	return 0;
-+}
-+
- /* SMC_GENL generic netlink operation definition */
- static const struct genl_ops smc_gen_nl_ops[] = {
-+	{
-+		.cmd = SMC_NETLINK_GET_SYS_INFO,
-+		/* can be retrieved by unprivileged users */
-+		.dumpit = smc_nl_get_sys_info,
-+		.start = smc_nl_start
-+	},
- };
+-static void blk_add_trace_rq_requeue(void *ignore,
+-				     struct request_queue *q,
+-				     struct request *rq)
++static void blk_add_trace_rq_requeue(void *ignore, struct request *rq)
+ {
+ 	blk_add_trace_rq(rq, 0, blk_rq_bytes(rq), BLK_TA_REQUEUE,
+-			 blk_trace_request_get_cgid(q, rq));
++			 blk_trace_request_get_cgid(rq));
+ }
  
- /* SMC_GENL family definition */
-diff --git a/net/smc/smc_netlink.h b/net/smc/smc_netlink.h
-index 0c757232c0d0..3477265cba6c 100644
---- a/net/smc/smc_netlink.h
-+++ b/net/smc/smc_netlink.h
-@@ -17,6 +17,15 @@
+ static void blk_add_trace_rq_complete(void *ignore, struct request *rq,
+ 			int error, unsigned int nr_bytes)
+ {
+ 	blk_add_trace_rq(rq, error, nr_bytes, BLK_TA_COMPLETE,
+-			 blk_trace_request_get_cgid(rq->q, rq));
++			 blk_trace_request_get_cgid(rq));
+ }
  
- extern struct genl_family smc_gen_nl_family;
+ /**
+@@ -1037,16 +1032,14 @@ static void blk_add_trace_bio_remap(void *ignore, struct bio *bio, dev_t dev,
+  *     Add a trace for that action.
+  *
+  **/
+-static void blk_add_trace_rq_remap(void *ignore,
+-				   struct request_queue *q,
+-				   struct request *rq, dev_t dev,
++static void blk_add_trace_rq_remap(void *ignore, struct request *rq, dev_t dev,
+ 				   sector_t from)
+ {
+ 	struct blk_trace *bt;
+ 	struct blk_io_trace_remap r;
  
-+struct smc_nl_dmp_ctx {
-+	int pos[2];
-+};
-+
-+static inline struct smc_nl_dmp_ctx *smc_nl_dmp_ctx(struct netlink_callback *c)
-+{
-+	return (struct smc_nl_dmp_ctx *)c->ctx;
-+}
-+
- int smc_nl_init(void) __init;
- void smc_nl_exit(void);
+ 	rcu_read_lock();
+-	bt = rcu_dereference(q->blk_trace);
++	bt = rcu_dereference(rq->q->blk_trace);
+ 	if (likely(!bt)) {
+ 		rcu_read_unlock();
+ 		return;
+@@ -1058,13 +1051,12 @@ static void blk_add_trace_rq_remap(void *ignore,
  
+ 	__blk_add_trace(bt, blk_rq_pos(rq), blk_rq_bytes(rq),
+ 			rq_data_dir(rq), 0, BLK_TA_REMAP, 0,
+-			sizeof(r), &r, blk_trace_request_get_cgid(q, rq));
++			sizeof(r), &r, blk_trace_request_get_cgid(rq));
+ 	rcu_read_unlock();
+ }
+ 
+ /**
+  * blk_add_driver_data - Add binary message with driver-specific data
+- * @q:		queue the io is for
+  * @rq:		io request
+  * @data:	driver-specific data
+  * @len:	length of driver-specific data
+@@ -1073,14 +1065,12 @@ static void blk_add_trace_rq_remap(void *ignore,
+  *     Some drivers might want to write driver-specific data per request.
+  *
+  **/
+-void blk_add_driver_data(struct request_queue *q,
+-			 struct request *rq,
+-			 void *data, size_t len)
++void blk_add_driver_data(struct request *rq, void *data, size_t len)
+ {
+ 	struct blk_trace *bt;
+ 
+ 	rcu_read_lock();
+-	bt = rcu_dereference(q->blk_trace);
++	bt = rcu_dereference(rq->q->blk_trace);
+ 	if (likely(!bt)) {
+ 		rcu_read_unlock();
+ 		return;
+@@ -1088,7 +1078,7 @@ void blk_add_driver_data(struct request_queue *q,
+ 
+ 	__blk_add_trace(bt, blk_rq_trace_sector(rq), blk_rq_bytes(rq), 0, 0,
+ 				BLK_TA_DRV_DATA, 0, len, data,
+-				blk_trace_request_get_cgid(q, rq));
++				blk_trace_request_get_cgid(rq));
+ 	rcu_read_unlock();
+ }
+ EXPORT_SYMBOL_GPL(blk_add_driver_data);
 -- 
-2.17.1
+2.29.2
