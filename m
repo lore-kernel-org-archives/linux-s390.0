@@ -1,40 +1,176 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36326 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726058AbgKCKUI (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:20:08 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 08/10] loop: use set_disk_ro
-Date: Tue,  3 Nov 2020 11:00:16 +0100
-Message-Id: <20201103100018.683694-9-hch@lst.de>
-In-Reply-To: <20201103100018.683694-1-hch@lst.de>
-References: <20201103100018.683694-1-hch@lst.de>
+Received: from mail.kernel.org ([198.145.29.99]:43360 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728156AbgK3Pho (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Nov 2020 10:37:44 -0500
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 0/6] Add documentation for Documentation/features at the built docs
+Date: Mon, 30 Nov 2020 16:36:29 +0100
+Message-Id: <cover.1606748711.git.mchehab+huawei@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Ilya Dryomov <idryomov@gmail.com>, Song Liu <song@kernel.org>, Miquel Raynal <miquel.raynal@bootlin.com>, Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>, Stefan Haberland <sth@linux.ibm.com>, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-block@vger.kernel.org, ceph-devel@vger.kernel.org, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-mtd@lists.infradead.org, linux-s390@vger.kernel.org
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>, Albert Ou <aou@eecs.berkeley.edu>, Andrew Cooper <andrew.cooper3@citrix.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fenghua Yu <fenghua.yu@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Ingo Molnar <mingo@redhat.com>, Jonas Bonn <jonas@southpole.se>, Kees Cook <keescook@chromium.org>, Masami Hiramatsu <mhiramat@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, Tony Luck <tony.luck@intel.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, x86@kernel.org
 
-Use set_disk_ro instead of set_device_ro to match all other block
-drivers and to ensure all partitions mirror the read-only flag.
+Hi Jon,
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/block/loop.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This series got already submitted last year:
 
-diff --git a/drivers/block/loop.c b/drivers/block/loop.c
-index cb1191d6e945f2..3e1ea45bb315d8 100644
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1137,7 +1137,7 @@ static int loop_configure(struct loop_device *lo, fmode_t mode,
- 	if (error)
- 		goto out_unlock;
- 
--	set_device_ro(bdev, (lo->lo_flags & LO_FLAGS_READ_ONLY) != 0);
-+	set_disk_ro(lo->lo_disk, (lo->lo_flags & LO_FLAGS_READ_ONLY) != 0);
- 
- 	lo->use_dio = lo->lo_flags & LO_FLAGS_DIRECT_IO;
- 	lo->lo_device = bdev;
+   https://lore.kernel.org/lkml/cover.1561222784.git.mchehab+samsung@kernel.org/
+
+Yet, on that time, there were too many other patches related to ReST
+conversion floating around. So, at the end, I guess this one got missed.
+
+So, I did a rebase on the top of upstream, and added a few new changes.
+
+Patch 1 contains the original implementation back then. It adds a
+get_feat.pl script that parses the contents of Documentation/features.
+
+Patch 2 is new: it re-implements the output of the full contents of the
+features table as a set of per-subsystem tables. 
+
+Patch 3 replaces the existing Documentation/features/list-arch.sh
+by a call to the new script, in order to avoid having two scripts
+doing the same thing.
+
+Patch 4 is a sphinx extension to allow generating features output
+via a meta-tag.
+
+Patch 5 adds a complete feature list covering all archs at the
+admin guide.
+
+Patch 6 adds a per-arch feature list on each architecture book.
+
+-
+
+The scripts/get_feat.pl supports several types of output:
+
+- $ scripts/get_feat.pl current
+
+  Outputs the supported feadures by the architecture of the
+  running Kernel, as an ASCII table;
+
+- $  scripts/get_feat.pl list
+
+  Outputs the supported features on an easy to be parsed
+  format. By default, it uses the current architecture as well;
+
+- $  scripts/get_feat.pl rest --feature jump-labels
+
+  Output what architecture supports a given feature
+  (on the above example, "jump-labels" feature)
+
+- $ scripts/get_feat.pl rest --arch um
+
+  Outputs the features support for an specific architecture
+  (on the above example, for "um" architecture.
+
+- $ scripts/get_feat.pl rest
+
+  Outputs a text file with ASCII tables (ReST compatible)
+  with all features, grouped per subsystem.
+
+  E. g. something like:
+	
+        ===================================
+        Feature status on all architectures
+        ===================================
+        
+        Subsystem: core
+        ===============
+        
+        +---------------------+---------------------------------+-------------------------------------------------------------------------+------------+------+
+        |Feature              |Kconfig                          |Description                                                              |Architecture|Status|
+        +=====================+=================================+=========================================================================+============+======+
+        |cBPF-JIT             |HAVE_CBPF_JIT                    |arch supports cBPF JIT optimizations                                     |alpha       |TODO  |
+        |                     |                                 |                                                                         +------------+------+
+        |                     |                                 |                                                                         |arc         |TODO  |
+        |                     |                                 |                                                                         +------------+------+
+        |                     |                                 |                                                                         |arm         |TODO  |
+        |                     |                                 |                                                                         +------------+------+
+        |                     |                                 |                                                                         |arm64       |TODO  |
+        |                     |                                 |                                                                         +------------+------+
+        |                     |                                 |                                                                         |c6x         |TODO  |
+        |                     |                                 |                                                                         +------------+------+
+        |                     |                                 |                                                                         |csky        |TODO  |
+        |                     |                                 |                                                                         +------------+------+
+        |                     |                                 |                                                                         |h8300       |TODO  |
+        |                     |                                 |                                                                         +------------+------+
+        |                     |                                 |                                                                         |hexagon     |TODO  |
+...
+
+Adding those patchsets will basically place the contents of all
+files under Documentation/features (currently, 45 files) at the
+Kernel documentation, which is, IMO, a good thing to do.
+
+Regards,
+Mauro
+
+Mauro Carvalho Chehab (6):
+  scripts: get_feat.pl: add a script to handle Documentation/features
+  scripts: get_feat.pl: improve matrix output
+  scripts: get_feat.pl: use its implementation for list-arch.sh
+  sphinx: kernel_feat.py: add a script to parse feature files
+  docs: admin-guide: add a features list
+  docs: archis: add a per-architecture features list
+
+ Documentation/admin-guide/features.rst |   3 +
+ Documentation/admin-guide/index.rst    |   1 +
+ Documentation/arm/features.rst         |   3 +
+ Documentation/arm/index.rst            |   2 +
+ Documentation/arm64/features.rst       |   3 +
+ Documentation/arm64/index.rst          |   2 +
+ Documentation/conf.py                  |   2 +-
+ Documentation/features/list-arch.sh    |  17 +-
+ Documentation/ia64/features.rst        |   3 +
+ Documentation/ia64/index.rst           |   2 +
+ Documentation/index.rst                |   2 +-
+ Documentation/m68k/features.rst        |   3 +
+ Documentation/m68k/index.rst           |   2 +
+ Documentation/mips/features.rst        |   3 +
+ Documentation/mips/index.rst           |   2 +
+ Documentation/nios2/index.rst          |  12 +
+ Documentation/openrisc/features.rst    |   3 +
+ Documentation/openrisc/index.rst       |   2 +
+ Documentation/parisc/features.rst      |   3 +
+ Documentation/parisc/index.rst         |   2 +
+ Documentation/powerpc/features.rst     |   3 +
+ Documentation/powerpc/index.rst        |   2 +
+ Documentation/riscv/features.rst       |   3 +
+ Documentation/riscv/index.rst          |   2 +
+ Documentation/s390/features.rst        |   3 +
+ Documentation/s390/index.rst           |   2 +
+ Documentation/sh/features.rst          |   3 +
+ Documentation/sh/index.rst             |   2 +
+ Documentation/sparc/features.rst       |   3 +
+ Documentation/sparc/index.rst          |   2 +
+ Documentation/sphinx/kernel_feat.py    | 169 ++++++++
+ Documentation/x86/features.rst         |   3 +
+ Documentation/x86/index.rst            |   1 +
+ Documentation/xtensa/features.rst      |   3 +
+ Documentation/xtensa/index.rst         |   2 +
+ scripts/get_feat.pl                    | 552 +++++++++++++++++++++++++
+ 36 files changed, 810 insertions(+), 17 deletions(-)
+ create mode 100644 Documentation/admin-guide/features.rst
+ create mode 100644 Documentation/arm/features.rst
+ create mode 100644 Documentation/arm64/features.rst
+ create mode 100644 Documentation/ia64/features.rst
+ create mode 100644 Documentation/m68k/features.rst
+ create mode 100644 Documentation/mips/features.rst
+ create mode 100644 Documentation/nios2/index.rst
+ create mode 100644 Documentation/openrisc/features.rst
+ create mode 100644 Documentation/parisc/features.rst
+ create mode 100644 Documentation/powerpc/features.rst
+ create mode 100644 Documentation/riscv/features.rst
+ create mode 100644 Documentation/s390/features.rst
+ create mode 100644 Documentation/sh/features.rst
+ create mode 100644 Documentation/sparc/features.rst
+ create mode 100644 Documentation/sphinx/kernel_feat.py
+ create mode 100644 Documentation/x86/features.rst
+ create mode 100644 Documentation/xtensa/features.rst
+ create mode 100755 scripts/get_feat.pl
+
 -- 
 2.28.0
