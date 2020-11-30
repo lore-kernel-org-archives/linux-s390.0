@@ -1,75 +1,52 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51174 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26044 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2404038AbgKXRvK (ORCPT
+        by vger.kernel.org with ESMTP id S1728574AbgK3KKs (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 24 Nov 2020 12:51:10 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v5 00/14] net/smc: Add support for generic netlink API
-Date: Tue, 24 Nov 2020 18:50:33 +0100
-Message-Id: <20201124175047.56949-1-kgraul@linux.ibm.com>
+        Mon, 30 Nov 2020 05:10:48 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 5/6] s390/ctcm: Use GFP_KERNEL in add_channel().
+Date: Mon, 30 Nov 2020 11:09:49 +0100
+Message-Id: <20201130100950.42051-6-jwi@linux.ibm.com>
+In-Reply-To: <20201130100950.42051-1-jwi@linux.ibm.com>
+References: <20201130100950.42051-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-Please apply the following patch series for smc to netdev's net-next tree.
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-Previous version of this patch series was using the sock_diag netlink
-infrastructure. This version is using the generic netlink API. Generic
-netlink API offers a better type safety between kernel and userspace
-communication.
-Using the generic netlink API, smc module can provide now information
-about SMC linkgroups, links and devices (both for SMC-R and SMC-D).
+gfp_type() uses in_interrupt() to figure out the correct GFP mask.
 
-v2: Add missing include to uapi header smc_diag.h.
+The usage of in_interrupt() in drivers is phased out and Linus clearly
+requested that code which changes behaviour depending on context should
+either be separated or the context be conveyed in an argument passed by the
+caller, which usually knows the context.
 
-v3: Apply code style recommendations from review comments.
-    Instead of using EXPORTs to allow the smc_diag module to access
-    data of the smc module, introduce struct smc_diag_ops and let
-    smc_diag access the required data using function pointers.
+The memory allocation of `ch' a few lines above is using GFP_KERNEL,
+also an allocation a few lines later is using GFP_KERNEL.
 
-v4: Address checkpatch.pl warnings. Do not use static inline for
-    functions.
+Use GFP_KERNEL for the memory allocation.
 
-v5: Use generic netlink API instead of the sock_diag netlink
-    infrastructure.
+Reviewed-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/ctcm_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Guvenc Gulce (13):
-  net/smc: Use active link of the connection
-  net/smc: Add connection counters for links
-  net/smc: Add link counters for IB device ports
-  net/smc: Add diagnostic information to smc ib-device
-  net/smc: Add diagnostic information to link structure
-  net/smc: Refactor smc ism v2 capability handling
-  net/smc: Introduce generic netlink interface for diagnostic purposes
-  net/smc: Add support for obtaining system information
-  net/smc: Introduce SMCR get linkgroup command
-  net/smc: Introduce SMCR get link command
-  net/smc: Add SMC-D Linkgroup diagnostic support
-  net/smc: Add support for obtaining SMCD device list
-  net/smc: Add support for obtaining SMCR device list
-
-Karsten Graul (1):
-  net/smc: use helper smc_conn_abort() in listen processing
-
- include/uapi/linux/smc.h | 126 ++++++++++++
- net/smc/Makefile         |   2 +-
- net/smc/af_smc.c         |  33 ++--
- net/smc/smc_clc.c        |   5 +
- net/smc/smc_clc.h        |   1 +
- net/smc/smc_core.c       | 407 ++++++++++++++++++++++++++++++++++++++-
- net/smc/smc_core.h       |  49 +++++
- net/smc/smc_diag.c       |  23 +--
- net/smc/smc_ib.c         | 204 ++++++++++++++++++++
- net/smc/smc_ib.h         |   6 +
- net/smc/smc_ism.c        | 103 +++++++++-
- net/smc/smc_ism.h        |   6 +-
- net/smc/smc_netlink.c    | 104 ++++++++++
- net/smc/smc_netlink.h    |  32 +++
- net/smc/smc_pnet.c       |   2 +
- 15 files changed, 1059 insertions(+), 44 deletions(-)
- create mode 100644 net/smc/smc_netlink.c
- create mode 100644 net/smc/smc_netlink.h
-
+diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
+index 92dd3c803d23..c446883de5c8 100644
+--- a/drivers/s390/net/ctcm_main.c
++++ b/drivers/s390/net/ctcm_main.c
+@@ -1321,7 +1321,7 @@ static int add_channel(struct ccw_device *cdev, enum ctcm_channel_types type,
+ 
+ 	ch->protocol = priv->protocol;
+ 	if (IS_MPC(priv)) {
+-		ch->discontact_th = kzalloc(TH_HEADER_LENGTH, gfp_type());
++		ch->discontact_th = kzalloc(TH_HEADER_LENGTH, GFP_KERNEL);
+ 		if (ch->discontact_th == NULL)
+ 					goto nomem_return;
+ 
 -- 
 2.17.1
