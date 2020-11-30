@@ -1,43 +1,398 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41934 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725879AbgKRRBw (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 18 Nov 2020 12:01:52 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 2/2] MAINTAINERS: add uv.c also to KVM/s390
-Date: Wed, 18 Nov 2020 18:01:16 +0100
-Message-Id: <20201118170116.8239-3-borntraeger@de.ibm.com>
-In-Reply-To: <20201118170116.8239-1-borntraeger@de.ibm.com>
-References: <20201118170116.8239-1-borntraeger@de.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:43502 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727016AbgK3PiH (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Nov 2020 10:38:07 -0500
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 6/6] docs: archis: add a per-architecture features list
+Date: Mon, 30 Nov 2020 16:36:35 +0100
+Message-Id: <9c39d4dd93e05c0008205527d2c3450912f029ed.1606748711.git.mchehab+huawei@kernel.org>
+In-Reply-To: <cover.1606748711.git.mchehab+huawei@kernel.org>
+References: <cover.1606748711.git.mchehab+huawei@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Sender: Mauro Carvalho Chehab <mchehab@kernel.org>
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>
+To: Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Jonathan Corbet <corbet@lwn.net>, Albert Ou <aou@eecs.berkeley.edu>, Andrew Cooper <andrew.cooper3@citrix.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fenghua Yu <fenghua.yu@intel.com>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Ingo Molnar <mingo@redhat.com>, Jonas Bonn <jonas@southpole.se>, Michael Ellerman <mpe@ellerman.id.au>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, Tony Luck <tony.luck@intel.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, x86@kernel.org
 
-Most changes in uv.c are related to KVM. Involve also the KVM team
-regarding changes to uv.c.
+Add a feature list matrix for each architecture to their
+respective Kernel books.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 ---
- MAINTAINERS | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/arm/features.rst      |  3 +++
+ Documentation/arm/index.rst         |  2 ++
+ Documentation/arm64/features.rst    |  3 +++
+ Documentation/arm64/index.rst       |  2 ++
+ Documentation/ia64/features.rst     |  3 +++
+ Documentation/ia64/index.rst        |  2 ++
+ Documentation/index.rst             |  2 +-
+ Documentation/m68k/features.rst     |  3 +++
+ Documentation/m68k/index.rst        |  2 ++
+ Documentation/mips/features.rst     |  3 +++
+ Documentation/mips/index.rst        |  2 ++
+ Documentation/nios2/index.rst       | 12 ++++++++++++
+ Documentation/openrisc/features.rst |  3 +++
+ Documentation/openrisc/index.rst    |  2 ++
+ Documentation/parisc/features.rst   |  3 +++
+ Documentation/parisc/index.rst      |  2 ++
+ Documentation/powerpc/features.rst  |  3 +++
+ Documentation/powerpc/index.rst     |  2 ++
+ Documentation/riscv/features.rst    |  3 +++
+ Documentation/riscv/index.rst       |  2 ++
+ Documentation/s390/features.rst     |  3 +++
+ Documentation/s390/index.rst        |  2 ++
+ Documentation/sh/features.rst       |  3 +++
+ Documentation/sh/index.rst          |  2 ++
+ Documentation/sparc/features.rst    |  3 +++
+ Documentation/sparc/index.rst       |  2 ++
+ Documentation/x86/features.rst      |  3 +++
+ Documentation/x86/index.rst         |  1 +
+ Documentation/xtensa/features.rst   |  3 +++
+ Documentation/xtensa/index.rst      |  2 ++
+ 30 files changed, 82 insertions(+), 1 deletion(-)
+ create mode 100644 Documentation/arm/features.rst
+ create mode 100644 Documentation/arm64/features.rst
+ create mode 100644 Documentation/ia64/features.rst
+ create mode 100644 Documentation/m68k/features.rst
+ create mode 100644 Documentation/mips/features.rst
+ create mode 100644 Documentation/nios2/index.rst
+ create mode 100644 Documentation/openrisc/features.rst
+ create mode 100644 Documentation/parisc/features.rst
+ create mode 100644 Documentation/powerpc/features.rst
+ create mode 100644 Documentation/riscv/features.rst
+ create mode 100644 Documentation/s390/features.rst
+ create mode 100644 Documentation/sh/features.rst
+ create mode 100644 Documentation/sparc/features.rst
+ create mode 100644 Documentation/x86/features.rst
+ create mode 100644 Documentation/xtensa/features.rst
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e73636b75f29..06116d892a4b 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9674,6 +9674,7 @@ F:	Documentation/virt/kvm/s390*
- F:	arch/s390/include/asm/gmap.h
- F:	arch/s390/include/asm/kvm*
- F:	arch/s390/include/uapi/asm/kvm*
-+F:	arch/s390/kernel/uv.c
- F:	arch/s390/kvm/
- F:	arch/s390/mm/gmap.c
- F:	tools/testing/selftests/kvm/*/s390x/
+diff --git a/Documentation/arm/features.rst b/Documentation/arm/features.rst
+new file mode 100644
+index 000000000000..7414ec03dd15
+--- /dev/null
++++ b/Documentation/arm/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features arm
+diff --git a/Documentation/arm/index.rst b/Documentation/arm/index.rst
+index 5fc072dd0c5e..a2e9e1bba7b9 100644
+--- a/Documentation/arm/index.rst
++++ b/Documentation/arm/index.rst
+@@ -23,6 +23,8 @@ ARM Architecture
+    vlocks
+    porting
+ 
++   features
++
+ SoC-specific documents
+ ======================
+ 
+diff --git a/Documentation/arm64/features.rst b/Documentation/arm64/features.rst
+new file mode 100644
+index 000000000000..dfa4cb3cd3ef
+--- /dev/null
++++ b/Documentation/arm64/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features arm64
+diff --git a/Documentation/arm64/index.rst b/Documentation/arm64/index.rst
+index 937634c49979..97d65ba12a35 100644
+--- a/Documentation/arm64/index.rst
++++ b/Documentation/arm64/index.rst
+@@ -24,6 +24,8 @@ ARM64 Architecture
+     tagged-address-abi
+     tagged-pointers
+ 
++    features
++
+ .. only::  subproject and html
+ 
+    Indices
+diff --git a/Documentation/ia64/features.rst b/Documentation/ia64/features.rst
+new file mode 100644
+index 000000000000..d7226fdcf5f8
+--- /dev/null
++++ b/Documentation/ia64/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features ia64
+diff --git a/Documentation/ia64/index.rst b/Documentation/ia64/index.rst
+index 4bdfe28067ee..761f2154dfa2 100644
+--- a/Documentation/ia64/index.rst
++++ b/Documentation/ia64/index.rst
+@@ -15,3 +15,5 @@ IA-64 Architecture
+    irq-redir
+    mca
+    serial
++
++   features
+diff --git a/Documentation/index.rst b/Documentation/index.rst
+index 57719744774c..5888e8a7272f 100644
+--- a/Documentation/index.rst
++++ b/Documentation/index.rst
+@@ -160,7 +160,7 @@ implementation.
+    ia64/index
+    m68k/index
+    mips/index
+-   nios2/nios2
++   nios2/index
+    openrisc/index
+    parisc/index
+    powerpc/index
+diff --git a/Documentation/m68k/features.rst b/Documentation/m68k/features.rst
+new file mode 100644
+index 000000000000..5107a2119472
+--- /dev/null
++++ b/Documentation/m68k/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features m68k
+diff --git a/Documentation/m68k/index.rst b/Documentation/m68k/index.rst
+index b89cb6a86d9b..0f890dbb5fe2 100644
+--- a/Documentation/m68k/index.rst
++++ b/Documentation/m68k/index.rst
+@@ -10,6 +10,8 @@ m68k Architecture
+    kernel-options
+    buddha-driver
+ 
++   features
++
+ .. only::  subproject and html
+ 
+    Indices
+diff --git a/Documentation/mips/features.rst b/Documentation/mips/features.rst
+new file mode 100644
+index 000000000000..1973d729b29a
+--- /dev/null
++++ b/Documentation/mips/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features mips
+diff --git a/Documentation/mips/index.rst b/Documentation/mips/index.rst
+index 35cceea4e8bc..037f85a08fe3 100644
+--- a/Documentation/mips/index.rst
++++ b/Documentation/mips/index.rst
+@@ -11,6 +11,8 @@ MIPS-specific Documentation
+    booting
+    ingenic-tcu
+ 
++   features
++
+ .. only::  subproject and html
+ 
+    Indices
+diff --git a/Documentation/nios2/index.rst b/Documentation/nios2/index.rst
+new file mode 100644
+index 000000000000..4468fe1a1037
+--- /dev/null
++++ b/Documentation/nios2/index.rst
+@@ -0,0 +1,12 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++==============================
++Nios II Specific Documentation
++==============================
++
++.. toctree::
++   :maxdepth: 2
++   :numbered:
++
++   nios2
++   features
+diff --git a/Documentation/openrisc/features.rst b/Documentation/openrisc/features.rst
+new file mode 100644
+index 000000000000..3f7c40d219f2
+--- /dev/null
++++ b/Documentation/openrisc/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features openrisc
+diff --git a/Documentation/openrisc/index.rst b/Documentation/openrisc/index.rst
+index 748b3eea1707..6879f998b87a 100644
+--- a/Documentation/openrisc/index.rst
++++ b/Documentation/openrisc/index.rst
+@@ -10,6 +10,8 @@ OpenRISC Architecture
+    openrisc_port
+    todo
+ 
++   features
++
+ .. only::  subproject and html
+ 
+    Indices
+diff --git a/Documentation/parisc/features.rst b/Documentation/parisc/features.rst
+new file mode 100644
+index 000000000000..501d7c450037
+--- /dev/null
++++ b/Documentation/parisc/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features parisc
+diff --git a/Documentation/parisc/index.rst b/Documentation/parisc/index.rst
+index aa3ee0470425..240685751825 100644
+--- a/Documentation/parisc/index.rst
++++ b/Documentation/parisc/index.rst
+@@ -10,6 +10,8 @@ PA-RISC Architecture
+    debugging
+    registers
+ 
++   features
++
+ .. only::  subproject and html
+ 
+    Indices
+diff --git a/Documentation/powerpc/features.rst b/Documentation/powerpc/features.rst
+new file mode 100644
+index 000000000000..aeae73df86b0
+--- /dev/null
++++ b/Documentation/powerpc/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features powerpc
+diff --git a/Documentation/powerpc/index.rst b/Documentation/powerpc/index.rst
+index 6ec64b0d5257..bf5f1a2bdbdf 100644
+--- a/Documentation/powerpc/index.rst
++++ b/Documentation/powerpc/index.rst
+@@ -34,6 +34,8 @@ powerpc
+     vas-api
+     vcpudispatch_stats
+ 
++    features
++
+ .. only::  subproject and html
+ 
+    Indices
+diff --git a/Documentation/riscv/features.rst b/Documentation/riscv/features.rst
+new file mode 100644
+index 000000000000..c70ef6ac2368
+--- /dev/null
++++ b/Documentation/riscv/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features riscv
+diff --git a/Documentation/riscv/index.rst b/Documentation/riscv/index.rst
+index fa33bffd8992..6e6e39482502 100644
+--- a/Documentation/riscv/index.rst
++++ b/Documentation/riscv/index.rst
+@@ -9,6 +9,8 @@ RISC-V architecture
+     pmu
+     patch-acceptance
+ 
++    features
++
+ .. only::  subproject and html
+ 
+    Indices
+diff --git a/Documentation/s390/features.rst b/Documentation/s390/features.rst
+new file mode 100644
+index 000000000000..57c296a9d8f3
+--- /dev/null
++++ b/Documentation/s390/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features s390
+diff --git a/Documentation/s390/index.rst b/Documentation/s390/index.rst
+index cf71df5776b4..b10ca9192557 100644
+--- a/Documentation/s390/index.rst
++++ b/Documentation/s390/index.rst
+@@ -19,6 +19,8 @@ s390 Architecture
+ 
+     text_files
+ 
++    features
++
+ .. only::  subproject and html
+ 
+    Indices
+diff --git a/Documentation/sh/features.rst b/Documentation/sh/features.rst
+new file mode 100644
+index 000000000000..f722af3b6c99
+--- /dev/null
++++ b/Documentation/sh/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features sh
+diff --git a/Documentation/sh/index.rst b/Documentation/sh/index.rst
+index 7b9a79a28167..c64776738cf6 100644
+--- a/Documentation/sh/index.rst
++++ b/Documentation/sh/index.rst
+@@ -11,6 +11,8 @@ SuperH Interfaces Guide
+     new-machine
+     register-banks
+ 
++    features
++
+ Memory Management
+ =================
+ 
+diff --git a/Documentation/sparc/features.rst b/Documentation/sparc/features.rst
+new file mode 100644
+index 000000000000..c0c92468b0fe
+--- /dev/null
++++ b/Documentation/sparc/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features sparc
+diff --git a/Documentation/sparc/index.rst b/Documentation/sparc/index.rst
+index 71cff621f243..ae884224eec2 100644
+--- a/Documentation/sparc/index.rst
++++ b/Documentation/sparc/index.rst
+@@ -9,3 +9,5 @@ Sparc Architecture
+    adi
+ 
+    oradax/oracle-dax
++
++   features
+diff --git a/Documentation/x86/features.rst b/Documentation/x86/features.rst
+new file mode 100644
+index 000000000000..b663f15053ce
+--- /dev/null
++++ b/Documentation/x86/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features x86
+diff --git a/Documentation/x86/index.rst b/Documentation/x86/index.rst
+index b224d12c880b..b4fcb6f258b2 100644
+--- a/Documentation/x86/index.rst
++++ b/Documentation/x86/index.rst
+@@ -33,3 +33,4 @@ x86-specific Documentation
+    i386/index
+    x86_64/index
+    sva
++   features
+diff --git a/Documentation/xtensa/features.rst b/Documentation/xtensa/features.rst
+new file mode 100644
+index 000000000000..6b92c7bfa19d
+--- /dev/null
++++ b/Documentation/xtensa/features.rst
+@@ -0,0 +1,3 @@
++.. SPDX-License-Identifier: GPL-2.0
++
++.. kernel-feat:: $srctree/Documentation/features xtensa
+diff --git a/Documentation/xtensa/index.rst b/Documentation/xtensa/index.rst
+index 52fa04eb39a3..69952446a9be 100644
+--- a/Documentation/xtensa/index.rst
++++ b/Documentation/xtensa/index.rst
+@@ -10,3 +10,5 @@ Xtensa Architecture
+    atomctl
+    booting
+    mmu
++
++   features
 -- 
 2.28.0
