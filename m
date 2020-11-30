@@ -1,37 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:33804 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726480AbgKSN51 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 19 Nov 2020 08:57:27 -0500
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH v2 0/6] s390/ctcm: Remove gfp_type() usage.
-Date: Thu, 19 Nov 2020 14:57:12 +0100
-Message-Id: <20201119135719.983170-1-bigeasy@linutronix.de>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53448 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726651AbgK3SHT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 13:07:19 -0500
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 3/5] block: remove the request_queue argument to the block_split tracepoint
+Date: Mon, 30 Nov 2020 18:58:52 +0100
+Message-Id: <20201130175854.982460-4-hch@lst.de>
+In-Reply-To: <20201130175854.982460-1-hch@lst.de>
+References: <20201130175854.982460-1-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org
 
-Folks,
+The request_queue can trivially be derived from the bio.
 
-in the discussion about preempt count consistency across kernel
-configurations:
-  https://lore.kernel.org/r/20200914204209.256266093@linutronix.de/
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ block/blk-merge.c            |  2 +-
+ drivers/md/dm.c              |  2 +-
+ include/trace/events/block.h | 14 ++++++--------
+ kernel/trace/blktrace.c      |  5 ++---
+ 4 files changed, 10 insertions(+), 13 deletions(-)
 
-Linus clearly requested that code in drivers and libraries which changes
-behaviour based on execution context should either be split up so that
-e.g. task context invocations and BH invocations have different interfaces
-or if that's not possible the context information has to be provided by the
-caller which knows in which context it is executing.
-
-This series is removing the gfp_type() usage which uses in_interrupt().
-Overall it appears to be a nice cleanup according to the diffstat.
-
-v1=E2=80=A6v2:
-	- Use the pointer from skb_put()/push() instead having it on
-	  stack.
-	- Collect acks for patch 4-6.
-
-Sebastian
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index 1a46d5bbd399e3..4071daa88a5eaf 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -338,7 +338,7 @@ void __blk_queue_split(struct bio **bio, unsigned int *nr_segs)
+ 		split->bi_opf |= REQ_NOMERGE;
+ 
+ 		bio_chain(split, *bio);
+-		trace_block_split(q, split, (*bio)->bi_iter.bi_sector);
++		trace_block_split(split, (*bio)->bi_iter.bi_sector);
+ 		submit_bio_noacct(*bio);
+ 		*bio = split;
+ 	}
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index ed7e836efbcdbc..9a5bd90779c7c4 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1612,7 +1612,7 @@ static blk_qc_t __split_and_process_bio(struct mapped_device *md,
+ 				part_stat_unlock();
+ 
+ 				bio_chain(b, bio);
+-				trace_block_split(md->queue, b, bio->bi_iter.bi_sector);
++				trace_block_split(b, bio->bi_iter.bi_sector);
+ 				ret = submit_bio_noacct(bio);
+ 				break;
+ 			}
+diff --git a/include/trace/events/block.h b/include/trace/events/block.h
+index 506c29dc7c76fd..b415e4cba84304 100644
+--- a/include/trace/events/block.h
++++ b/include/trace/events/block.h
+@@ -411,21 +411,19 @@ DEFINE_EVENT(block_unplug, block_unplug,
+ 
+ /**
+  * block_split - split a single bio struct into two bio structs
+- * @q: queue containing the bio
+  * @bio: block operation being split
+  * @new_sector: The starting sector for the new bio
+  *
+- * The bio request @bio in request queue @q needs to be split into two
+- * bio requests. The newly created @bio request starts at
+- * @new_sector. This split may be required due to hardware limitation
+- * such as operation crossing device boundaries in a RAID system.
++ * The bio request @bio needs to be split into two bio requests.  The newly
++ * created @bio request starts at @new_sector. This split may be required due to
++ * hardware limitations such as operation crossing device boundaries in a RAID
++ * system.
+  */
+ TRACE_EVENT(block_split,
+ 
+-	TP_PROTO(struct request_queue *q, struct bio *bio,
+-		 unsigned int new_sector),
++	TP_PROTO(struct bio *bio, unsigned int new_sector),
+ 
+-	TP_ARGS(q, bio, new_sector),
++	TP_ARGS(bio, new_sector),
+ 
+ 	TP_STRUCT__entry(
+ 		__field( dev_t,		dev				)
+diff --git a/kernel/trace/blktrace.c b/kernel/trace/blktrace.c
+index 7ab88e00c15765..3ca6d62114f461 100644
+--- a/kernel/trace/blktrace.c
++++ b/kernel/trace/blktrace.c
+@@ -970,10 +970,9 @@ static void blk_add_trace_unplug(void *ignore, struct request_queue *q,
+ 	rcu_read_unlock();
+ }
+ 
+-static void blk_add_trace_split(void *ignore,
+-				struct request_queue *q, struct bio *bio,
+-				unsigned int pdu)
++static void blk_add_trace_split(void *ignore, struct bio *bio, unsigned int pdu)
+ {
++	struct request_queue *q = bio->bi_disk->queue;
+ 	struct blk_trace *bt;
+ 
+ 	rcu_read_lock();
+-- 
+2.29.2
