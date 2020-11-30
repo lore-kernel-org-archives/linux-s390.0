@@ -1,62 +1,128 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52432 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725809AbgKBTec (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 2 Nov 2020 14:34:32 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 00/15] net/smc: extend diagnostic netlink interface
-Date: Mon,  2 Nov 2020 20:33:54 +0100
-Message-Id: <20201102193409.70901-1-kgraul@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14058 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725861AbgK3Mjd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Nov 2020 07:39:33 -0500
+Subject: Re: [kvm-unit-tests PATCH v2 6/7] s390x: Add diag318 intercept test
+References: <20201127130629.120469-1-frankja@linux.ibm.com>
+ <20201127130629.120469-7-frankja@linux.ibm.com>
+ <f1f8ce84-e30a-29c5-8ab6-7294cdc248ce@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <fb9faf97-339c-e235-cb62-d8581adf7b6a@linux.ibm.com>
+Date: Mon, 30 Nov 2020 13:38:45 +0100
+MIME-Version: 1.0
+In-Reply-To: <f1f8ce84-e30a-29c5-8ab6-7294cdc248ce@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-Please apply the following patch series for smc to netdev's net-next tree.
+On 11/27/20 5:46 PM, Thomas Huth wrote:
+> On 27/11/2020 14.06, Janosch Frank wrote:
+>> Not much to test except for the privilege and specification
+>> exceptions.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  lib/s390x/sclp.c  |  2 ++
+>>  lib/s390x/sclp.h  |  6 +++++-
+>>  s390x/intercept.c | 19 +++++++++++++++++++
+>>  3 files changed, 26 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+>> index 68833b5..3966086 100644
+>> --- a/lib/s390x/sclp.c
+>> +++ b/lib/s390x/sclp.c
+>> @@ -138,6 +138,8 @@ void sclp_facilities_setup(void)
+>>  
+>>  	assert(read_info);
+>>  
+>> +	sclp_facilities.has_diag318 = read_info->byte_134_diag318;
+>> +
+>>  	cpu = (void *)read_info + read_info->offset_cpu;
+>>  	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
+>>  		if (cpu->address == cpu0_addr) {
+>> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+>> index e18f7e6..4e564dd 100644
+>> --- a/lib/s390x/sclp.h
+>> +++ b/lib/s390x/sclp.h
+>> @@ -108,7 +108,8 @@ extern struct sclp_facilities sclp_facilities;
+>>  
+>>  struct sclp_facilities {
+>>  	uint64_t has_sief2 : 1;
+>> -	uint64_t : 63;
+>> +	uint64_t has_diag318 : 1;
+>> +	uint64_t : 62;
+>>  };
+>>  
+>>  typedef struct ReadInfo {
+>> @@ -133,6 +134,9 @@ typedef struct ReadInfo {
+>>      uint16_t highest_cpu;
+>>      uint8_t  _reserved5[124 - 122];     /* 122-123 */
+>>      uint32_t hmfai;
+>> +    uint8_t reserved7[134 - 128];
+>> +    uint8_t byte_134_diag318 : 1;
+>> +    uint8_t : 7;
+>>      struct CPUEntry entries[0];
+>>  } __attribute__((packed)) ReadInfo;
+>>  
+>> diff --git a/s390x/intercept.c b/s390x/intercept.c
+>> index 2e38257..615f0a0 100644
+>> --- a/s390x/intercept.c
+>> +++ b/s390x/intercept.c
+>> @@ -10,6 +10,7 @@
+>>   * under the terms of the GNU Library General Public License version 2.
+>>   */
+>>  #include <libcflat.h>
+>> +#include <sclp.h>
+>>  #include <asm/asm-offsets.h>
+>>  #include <asm/interrupt.h>
+>>  #include <asm/page.h>
+>> @@ -154,6 +155,23 @@ static void test_testblock(void)
+>>  	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
+>>  }
+>>  
+>> +static void test_diag318(void)
+>> +{
+>> +	expect_pgm_int();
+>> +	enter_pstate();
+>> +	asm volatile("diag %0,0,0x318\n" : : "d" (0x42));
+>> +	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
+>> +
+>> +	if (!sclp_facilities.has_diag318)
+>> +		expect_pgm_int();
+>> +
+>> +	asm volatile("diag %0,0,0x318\n" : : "d" (0x42));
+>> +
+>> +	if (!sclp_facilities.has_diag318)
+>> +		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
+>> +
+> 
+> Maybe remove the empty line above.
 
-This patch series refactors the current netlink API in smc_diag module
-which is used for diagnostic purposes and extends the netlink API in a
-backward compatible way so that the extended API can provide information
-about SMC linkgroups, links and devices (both for SMC-R and SMC-D) and
-can still work with the legacy netlink API.
+Sure
 
-Please note that patch 9 triggers a checkpatch warning because a comment
-line was added using the style of the already existing comment block.
+> 
+>> +}
+>> +
+>>  struct {
+>>  	const char *name;
+>>  	void (*func)(void);
+>> @@ -164,6 +182,7 @@ struct {
+>>  	{ "stap", test_stap, false },
+>>  	{ "stidp", test_stidp, false },
+>>  	{ "testblock", test_testblock, false },
+>> +	{ "diag318", test_diag318, false },
+>>  	{ NULL, NULL, false }
+>>  };
+>>  
+>>
+> 
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
 
-Guvenc Gulce (14):
-  net/smc: Use active link of the connection
-  net/smc: Add connection counters for links
-  net/smc: Add link counters for IB device ports
-  net/smc: Add diagnostic information to smc ib-device
-  net/smc: Add diagnostic information to link structure
-  net/smc: Refactor the netlink reply processing routine
-  net/smc: Add ability to work with extended SMC netlink API
-  net/smc: Introduce SMCR get linkgroup command
-  net/smc: Introduce SMCR get link command
-  net/smc: Add SMC-D Linkgroup diagnostic support
-  net/smc: Add support for obtaining SMCD device list
-  net/smc: Add support for obtaining SMCR device list
-  net/smc: Refactor smc ism v2 capability handling
-  net/smc: Add support for obtaining system information
+Thanks!
 
-Karsten Graul (1):
-  net/smc: use helper smc_conn_abort() in listen processing
-
- include/net/smc.h             |   2 +-
- include/uapi/linux/smc.h      |   8 +
- include/uapi/linux/smc_diag.h | 108 +++++
- net/smc/af_smc.c              |  29 +-
- net/smc/smc.h                 |   5 +-
- net/smc/smc_clc.c             |   6 +
- net/smc/smc_clc.h             |   1 +
- net/smc/smc_core.c            |  32 +-
- net/smc/smc_core.h            |  32 +-
- net/smc/smc_diag.c            | 766 +++++++++++++++++++++++++++++-----
- net/smc/smc_ib.c              |  49 +++
- net/smc/smc_ib.h              |   4 +-
- net/smc/smc_ism.c             |  12 +-
- net/smc/smc_ism.h             |   5 +-
- net/smc/smc_pnet.c            |   3 +
- 15 files changed, 938 insertions(+), 124 deletions(-)
-
--- 
-2.17.1
+> 
