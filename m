@@ -1,61 +1,88 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:48700 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726023AbgLBB6N (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 1 Dec 2020 20:58:13 -0500
-Date: Tue, 1 Dec 2020 17:57:30 -0800
-From: Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH net-next v7 00/14] net/smc: Add support for generic
- netlink API
-Message-ID: <20201201175730.0aa647a6@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
-In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
-References: <20201201192049.53517-1-kgraul@linux.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v7 00/14] net/smc: Add support for generic netlink API
+Date: Tue,  1 Dec 2020 20:20:35 +0100
+Message-Id: <20201201192049.53517-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Karsten Graul <kgraul@linux.ibm.com>
-Cc: David Miller <davem@davemloft.net>, Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-On Tue,  1 Dec 2020 20:20:35 +0100 Karsten Graul wrote:
-> Please apply the following patch series for smc to netdev's net-next tree.
-> 
-> Up to version 4 this patch series was using the sock_diag netlink
-> infrastructure. This version is using the generic netlink API. Generic
-> netlink API offers a better type safety between kernel and userspace
-> communication.
-> Using the generic netlink API the smc module can now provide information
-> about SMC linkgroups, links and devices (both for SMC-R and SMC-D).
-> 
-> v2: Add missing include to uapi header smc_diag.h.
-> 
-> v3: Apply code style recommendations from review comments.
->     Instead of using EXPORTs to allow the smc_diag module to access
->     data of the smc module, introduce struct smc_diag_ops and let
->     smc_diag access the required data using function pointers.
-> 
-> v4: Address checkpatch.pl warnings. Do not use static inline for
->     functions.
-> 
-> v5: Use generic netlink API instead of the sock_diag netlink
->     infrastructure.
-> 
-> v6: Integrate more review comments from Jakub.
-> 
-> v7: Use nla_nest_start() with the new family. Use .maxattr=1 in the
->     genl family and define one entry for attribute 1 in the policy to
->     reject this attritbute for all commands. All other possible attributes
->     are rejected because NL_VALIDATE_STRICT is set for the policy
->     implicitely, which includes NL_VALIDATE_MAXTYPE.
->     Setting policy[0].strict_start_type=1 does not work here because there
->     is no valid attribute defined for this family, only plain commands. For
->     any type > maxtype (which is .maxattr) validate_nla() would return 0 to
->     userspace instead of -EINVAL. What helps here is __nla_validate_parse()
->     which checks for type > maxtype and returns -EINVAL when NL_VALIDATE_MAXTYPE
->     is set. This requires the one entry for type == .maxattr with
->     .type = NLA_REJECT in the nla_policy.
->     When a future command wants to allow attributes then it can easily specify a
->     dedicated .policy for this new command in the genl_ops array. This dedicated
->     policy overlays the global policy specified in the genl_family structure.
+Please apply the following patch series for smc to netdev's net-next tree.
 
-Applied, thank you!
+Up to version 4 this patch series was using the sock_diag netlink
+infrastructure. This version is using the generic netlink API. Generic
+netlink API offers a better type safety between kernel and userspace
+communication.
+Using the generic netlink API the smc module can now provide information
+about SMC linkgroups, links and devices (both for SMC-R and SMC-D).
+
+v2: Add missing include to uapi header smc_diag.h.
+
+v3: Apply code style recommendations from review comments.
+    Instead of using EXPORTs to allow the smc_diag module to access
+    data of the smc module, introduce struct smc_diag_ops and let
+    smc_diag access the required data using function pointers.
+
+v4: Address checkpatch.pl warnings. Do not use static inline for
+    functions.
+
+v5: Use generic netlink API instead of the sock_diag netlink
+    infrastructure.
+
+v6: Integrate more review comments from Jakub.
+
+v7: Use nla_nest_start() with the new family. Use .maxattr=1 in the
+    genl family and define one entry for attribute 1 in the policy to
+    reject this attritbute for all commands. All other possible attributes
+    are rejected because NL_VALIDATE_STRICT is set for the policy
+    implicitely, which includes NL_VALIDATE_MAXTYPE.
+    Setting policy[0].strict_start_type=1 does not work here because there
+    is no valid attribute defined for this family, only plain commands. For
+    any type > maxtype (which is .maxattr) validate_nla() would return 0 to
+    userspace instead of -EINVAL. What helps here is __nla_validate_parse()
+    which checks for type > maxtype and returns -EINVAL when NL_VALIDATE_MAXTYPE
+    is set. This requires the one entry for type == .maxattr with
+    .type = NLA_REJECT in the nla_policy.
+    When a future command wants to allow attributes then it can easily specify a
+    dedicated .policy for this new command in the genl_ops array. This dedicated
+    policy overlays the global policy specified in the genl_family structure.
+
+Guvenc Gulce (13):
+  net/smc: Use active link of the connection
+  net/smc: Add connection counters for links
+  net/smc: Add link counters for IB device ports
+  net/smc: Add diagnostic information to smc ib-device
+  net/smc: Add diagnostic information to link structure
+  net/smc: Refactor smc ism v2 capability handling
+  net/smc: Introduce generic netlink interface for diagnostic purposes
+  net/smc: Add support for obtaining system information
+  net/smc: Introduce SMCR get linkgroup command
+  net/smc: Introduce SMCR get link command
+  net/smc: Add SMC-D Linkgroup diagnostic support
+  net/smc: Add support for obtaining SMCD device list
+  net/smc: Add support for obtaining SMCR device list
+
+Karsten Graul (1):
+  net/smc: use helper smc_conn_abort() in listen processing
+
+ include/uapi/linux/smc.h | 126 +++++++++++++
+ net/smc/Makefile         |   2 +-
+ net/smc/af_smc.c         |  39 ++--
+ net/smc/smc_clc.c        |   5 +
+ net/smc/smc_clc.h        |   1 +
+ net/smc/smc_core.c       | 399 ++++++++++++++++++++++++++++++++++++++-
+ net/smc/smc_core.h       |  49 +++++
+ net/smc/smc_diag.c       |  23 +--
+ net/smc/smc_ib.c         | 200 ++++++++++++++++++++
+ net/smc/smc_ib.h         |   6 +
+ net/smc/smc_ism.c        |  99 +++++++++-
+ net/smc/smc_ism.h        |   6 +-
+ net/smc/smc_netlink.c    |  85 +++++++++
+ net/smc/smc_netlink.h    |  32 ++++
+ net/smc/smc_pnet.c       |   2 +
+ 15 files changed, 1029 insertions(+), 45 deletions(-)
+ create mode 100644 net/smc/smc_netlink.c
+ create mode 100644 net/smc/smc_netlink.h
+
+-- 
+2.17.1
