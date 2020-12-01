@@ -1,60 +1,83 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26580 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728030AbgLIGzJ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Dec 2020 01:55:09 -0500
-Subject: Re: [PATCH 1/1] crypto: Fix possible buffer overflows in
- pkey_protkey_aes_attr_read
-References: <20201209064714.33380-1-ruc_zhangxiaohui@163.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <04b376ce-bb1c-f7ff-a41a-8905badd9dba@de.ibm.com>
-Date: Wed, 9 Dec 2020 07:54:22 +0100
-MIME-Version: 1.0
-In-Reply-To: <20201209064714.33380-1-ruc_zhangxiaohui@163.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31112 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728870AbgLATVp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:21:45 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v7 01/14] net/smc: use helper smc_conn_abort() in listen processing
+Date: Tue,  1 Dec 2020 20:20:36 +0100
+Message-Id: <20201201192049.53517-2-kgraul@linux.ibm.com>
+In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
+References: <20201201192049.53517-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Xiaohui Zhang <ruc_zhangxiaohui@163.com>, Harald Freudenberger <freude@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
+The helper smc_connect_abort() can be used by the listen processing
+functions, too. And rename this helper to smc_conn_abort() to make the
+purpose clearer.
+No functional change.
 
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/af_smc.c | 17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
 
-On 09.12.20 07:47, Xiaohui Zhang wrote:
-> From: Zhang Xiaohui <ruc_zhangxiaohui@163.com>
-> 
-> pkey_protkey_aes_attr_read() calls memcpy() without checking the
-> destination size may trigger a buffer overflower.
-
-To me it looks like protkey.len is generated programmatically in pkey_genprotkey/pkey_clr2protkey
-and this purely depends on the keytype and we do check for known ones.
-Not sure how this can happen.
-
-> 
-> Signed-off-by: Zhang Xiaohui <ruc_zhangxiaohui@163.com>
-> ---
->  drivers/s390/crypto/pkey_api.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/s390/crypto/pkey_api.c b/drivers/s390/crypto/pkey_api.c
-> index 99cb60ea6..abc237130 100644
-> --- a/drivers/s390/crypto/pkey_api.c
-> +++ b/drivers/s390/crypto/pkey_api.c
-> @@ -1589,6 +1589,8 @@ static ssize_t pkey_protkey_aes_attr_read(u32 keytype, bool is_xts, char *buf,
->  	if (rc)
->  		return rc;
->  
-> +	if (protkey.len > MAXPROTKEYSIZE)
-> +		protkey.len = MAXPROTKEYSIZE;
->  	protkeytoken.len = protkey.len;
->  	memcpy(&protkeytoken.protkey, &protkey.protkey, protkey.len);
->  
-> @@ -1599,6 +1601,8 @@ static ssize_t pkey_protkey_aes_attr_read(u32 keytype, bool is_xts, char *buf,
->  		if (rc)
->  			return rc;
->  
-> +		if (protkey.len > MAXPROTKEYSIZE)
-> +			protkey.len = MAXPROTKEYSIZE;
->  		protkeytoken.len = protkey.len;
->  		memcpy(&protkeytoken.protkey, &protkey.protkey, protkey.len);
->  
-> 
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 811819c849da..13db3f260e94 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -552,8 +552,7 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
+ 	return smc_connect_fallback(smc, reason_code);
+ }
+ 
+-/* abort connecting */
+-static void smc_connect_abort(struct smc_sock *smc, int local_first)
++static void smc_conn_abort(struct smc_sock *smc, int local_first)
+ {
+ 	if (local_first)
+ 		smc_lgr_cleanup_early(&smc->conn);
+@@ -814,7 +813,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+ 
+ 	return 0;
+ connect_abort:
+-	smc_connect_abort(smc, ini->first_contact_local);
++	smc_conn_abort(smc, ini->first_contact_local);
+ 	mutex_unlock(&smc_client_lgr_pending);
+ 	smc->connect_nonblock = 0;
+ 
+@@ -893,7 +892,7 @@ static int smc_connect_ism(struct smc_sock *smc,
+ 
+ 	return 0;
+ connect_abort:
+-	smc_connect_abort(smc, ini->first_contact_local);
++	smc_conn_abort(smc, ini->first_contact_local);
+ 	mutex_unlock(&smc_server_lgr_pending);
+ 	smc->connect_nonblock = 0;
+ 
+@@ -1321,10 +1320,7 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
+ 			       int local_first, u8 version)
+ {
+ 	/* RDMA setup failed, switch back to TCP */
+-	if (local_first)
+-		smc_lgr_cleanup_early(&new_smc->conn);
+-	else
+-		smc_conn_free(&new_smc->conn);
++	smc_conn_abort(new_smc, local_first);
+ 	if (reason_code < 0) { /* error, no fallback possible */
+ 		smc_listen_out_err(new_smc);
+ 		return;
+@@ -1430,10 +1426,7 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
+ 	/* Create send and receive buffers */
+ 	rc = smc_buf_create(new_smc, true);
+ 	if (rc) {
+-		if (ini->first_contact_local)
+-			smc_lgr_cleanup_early(&new_smc->conn);
+-		else
+-			smc_conn_free(&new_smc->conn);
++		smc_conn_abort(new_smc, ini->first_contact_local);
+ 		return (rc == -ENOSPC) ? SMC_CLC_DECL_MAX_DMB :
+ 					 SMC_CLC_DECL_MEM;
+ 	}
+-- 
+2.17.1
