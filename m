@@ -1,113 +1,62 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v3] s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated
-Date: Mon, 14 Dec 2020 11:56:17 -0500
-Message-Id: <20201214165617.28685-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49534 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388952AbgLAOwH (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 09:52:07 -0500
+Date: Tue, 1 Dec 2020 15:51:16 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 1/2] sched/idle: Fix arch_cpu_idle() vs tracing
+Message-ID: <20201201145116.GX2414@hirez.programming.kicks-ass.net>
+References: <20201120114145.197714127@infradead.org>
+ <20201120114925.594122626@infradead.org>
+ <20201130210003.GA40619@roeck-us.net>
+ <20201201110209.GQ3040@hirez.programming.kicks-ass.net>
+ <yt9dh7p54u50.fsf@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <yt9dh7p54u50.fsf@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: stable@vger.kernel.org, gregkh@linuxfoundation.org, sashal@kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, pbonzini@redhat.com, alex.williamson@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Sven Schnelle <svens@linux.ibm.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, rafael@kernel.org, viresh.kumar@linaro.org, mingo@kernel.org, x86@kernel.org, mark.rutland@arm.com, will@kernel.org, linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
 
-The vfio_ap device driver registers a group notifier with VFIO when the
-file descriptor for a VFIO mediated device for a KVM guest is opened to
-receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
-event). When the KVM pointer is set, the vfio_ap driver takes the
-following actions:
-1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
-   of the mediated device.
-2. Calls the kvm_get_kvm() function to increment its reference counter.
-3. Sets the function pointer to the function that handles interception of
-   the instruction that enables/disables interrupt processing.
-4. Sets the masks in the KVM guest's CRYCB to pass AP resources through to
-   the guest.
+On Tue, Dec 01, 2020 at 12:56:27PM +0100, Sven Schnelle wrote:
+> Hi Peter,
+> 
+> Peter Zijlstra <peterz@infradead.org> writes:
+> 
+> > On Mon, Nov 30, 2020 at 01:00:03PM -0800, Guenter Roeck wrote:
+> >> On Fri, Nov 20, 2020 at 12:41:46PM +0100, Peter Zijlstra wrote:
+> >> > We call arch_cpu_idle() with RCU disabled, but then use
+> >> > local_irq_{en,dis}able(), which invokes tracing, which relies on RCU.
+> >> > 
+> >> > Switch all arch_cpu_idle() implementations to use
+> >> > raw_local_irq_{en,dis}able() and carefully manage the
+> >> > lockdep,rcu,tracing state like we do in entry.
+> >> > 
+> >> > (XXX: we really should change arch_cpu_idle() to not return with
+> >> > interrupts enabled)
+> >> > 
+> >> 
+> >> Has this patch been tested on s390 ? Reason for asking is that it causes
+> >> all my s390 emulations to crash. Reverting it fixes the problem.
+> >
+> > My understanding is that it changes the error on s390. Previously it
+> > would complain about the local_irq_enable() in arch_cpu_idle(), now it
+> > complains when taking an interrupt during idle.
+> 
+> I looked into adding the required functionality for s390, but the code
+> we would need to add to entry.S is rather large - as you noted we would
+> have to duplicate large portions of irqentry_enter() into our code.
+> Given that s390 was fine before that patch, can you revert it and submit
+> it again during the next merge window?
 
-In order to avoid memory leaks, when the notifier is called to receive
-notification that the KVM pointer has been set to NULL, the vfio_ap device
-driver should reverse the actions taken when the KVM pointer was set.
+So the thing that got me started here was:
 
-Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+  https://lkml.kernel.org/r/yt9dimbm79qi.fsf@linux.ibm.com/
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e0bde8518745..cd22e85588e1 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1037,8 +1037,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
- {
- 	struct ap_matrix_mdev *m;
- 
--	mutex_lock(&matrix_dev->lock);
--
- 	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
- 		if ((m != matrix_mdev) && (m->kvm == kvm)) {
- 			mutex_unlock(&matrix_dev->lock);
-@@ -1049,7 +1047,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
- 	matrix_mdev->kvm = kvm;
- 	kvm_get_kvm(kvm);
- 	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
--	mutex_unlock(&matrix_dev->lock);
- 
- 	return 0;
- }
-@@ -1083,35 +1080,49 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
- 	return NOTIFY_DONE;
- }
- 
-+static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-+	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-+	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-+	kvm_put_kvm(matrix_mdev->kvm);
-+	matrix_mdev->kvm = NULL;
-+}
-+
- static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 				       unsigned long action, void *data)
- {
--	int ret;
-+	int ret, notify_rc = NOTIFY_DONE;
- 	struct ap_matrix_mdev *matrix_mdev;
- 
- 	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
- 		return NOTIFY_OK;
- 
- 	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
-+	mutex_lock(&matrix_dev->lock);
- 
- 	if (!data) {
--		matrix_mdev->kvm = NULL;
--		return NOTIFY_OK;
-+		if (matrix_mdev->kvm)
-+			vfio_ap_mdev_unset_kvm(matrix_mdev);
-+		notify_rc = NOTIFY_OK;
-+		goto notify_done;
- 	}
- 
- 	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
- 	if (ret)
--		return NOTIFY_DONE;
-+		goto notify_done;
- 
- 	/* If there is no CRYCB pointer, then we can't copy the masks */
- 	if (!matrix_mdev->kvm->arch.crypto.crycbd)
--		return NOTIFY_DONE;
-+		goto notify_done;
- 
- 	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
- 				  matrix_mdev->matrix.aqm,
- 				  matrix_mdev->matrix.adm);
- 
--	return NOTIFY_OK;
-+notify_done:
-+	mutex_unlock(&matrix_dev->lock);
-+	return notify_rc;
- }
- 
- static void vfio_ap_irq_disable_apqn(int apqn)
--- 
-2.21.1
+And I got a very similar report from Mark for arm64. I'm not sure what
+you meanwhile did to get rid of that. But I'm struggling to understand
+how s390 can work on v5.10-rc5.
+
+There's just too much calling into tracing while RCU is stopped.
