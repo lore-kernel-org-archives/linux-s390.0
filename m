@@ -1,128 +1,68 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44784 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727981AbgKCKZy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 3 Nov 2020 05:25:54 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v2 05/15] net/smc: Add diagnostic information to smc ib-device
-Date: Tue,  3 Nov 2020 11:25:21 +0100
-Message-Id: <20201103102531.91710-6-kgraul@linux.ibm.com>
-In-Reply-To: <20201103102531.91710-1-kgraul@linux.ibm.com>
-References: <20201103102531.91710-1-kgraul@linux.ibm.com>
+Received: from szxga07-in.huawei.com ([45.249.212.35]:8893 "EHLO
+        szxga07-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727041AbgLACkI (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 30 Nov 2020 21:40:08 -0500
+From: Qinglang Miao <miaoqinglang@huawei.com>
+Subject: [PATCH v2] scsi: zfcp: move the position of put_device
+Date: Tue, 1 Dec 2020 10:47:16 +0800
+Message-ID: <20201201024716.42926-1-miaoqinglang@huawei.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net
-Cc: netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, raspl@linux.ibm.com
+To: Steffen Maier <maier@linux.ibm.com>, Benjamin Block <bblock@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Qinglang Miao <miaoqinglang@huawei.com>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Have the `put_device()` call after `device_unregister()` in both
+`zfcp_unit_remove()` and `zfcp_sysfs_port_remove_store()` to make
+it more natural, for put_device() ought to be the last time we
+touch the object in both functions.
 
-During smc ib-device creation, add network device name to smc
-ib-device structure. Register for netdevice name changes and
-update ib-device accordingly. This is needed for diagnostic purposes.
+And add comments after put_device to make codes clearer.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Suggested-by: Steffen Maier <maier@linux.ibm.com>
+Suggested-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Qinglang Miao <miaoqinglang@huawei.com>
 ---
- net/smc/smc_ib.c   | 47 ++++++++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_ib.h   |  2 ++
- net/smc/smc_pnet.c |  3 +++
- 3 files changed, 52 insertions(+)
+ v2: add comments after put_device as Steffen suggested.
 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 1c314dbdc7fa..c4a04e868bf0 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -557,6 +557,52 @@ static void smc_ib_cleanup_per_ibdev(struct smc_ib_device *smcibdev)
+ drivers/s390/scsi/zfcp_sysfs.c | 4 ++--
+ drivers/s390/scsi/zfcp_unit.c  | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index 8d9662e8b..ef6d35a37 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -327,10 +327,10 @@ static ssize_t zfcp_sysfs_port_remove_store(struct device *dev,
+ 	list_del(&port->list);
+ 	write_unlock_irq(&adapter->port_list_lock);
  
- static struct ib_client smc_ib_client;
+-	put_device(&port->dev);
+-
+ 	zfcp_erp_port_shutdown(port, 0, "syprs_1");
+ 	device_unregister(&port->dev);
++
++	put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
+  out:
+ 	zfcp_ccw_adapter_put(adapter);
+ 	return retval ? retval : (ssize_t) count;
+diff --git a/drivers/s390/scsi/zfcp_unit.c b/drivers/s390/scsi/zfcp_unit.c
+index e67bf7388..59333f025 100644
+--- a/drivers/s390/scsi/zfcp_unit.c
++++ b/drivers/s390/scsi/zfcp_unit.c
+@@ -255,9 +255,9 @@ int zfcp_unit_remove(struct zfcp_port *port, u64 fcp_lun)
+ 		scsi_device_put(sdev);
+ 	}
  
-+static void smc_copy_netdev_name(struct smc_ib_device *smcibdev, int port)
-+{
-+	struct ib_device *ibdev = smcibdev->ibdev;
-+	struct net_device *ndev;
-+
-+	if (ibdev->ops.get_netdev) {
-+		ndev = ibdev->ops.get_netdev(ibdev, port + 1);
-+		if (ndev) {
-+			snprintf((char *)&smcibdev->netdev[port],
-+				 sizeof(smcibdev->netdev[port]),
-+				 "%s", ndev->name);
-+			dev_put(ndev);
-+		}
-+	}
-+}
-+
-+void smc_ib_ndev_name_change(struct net_device *ndev)
-+{
-+	struct smc_ib_device *smcibdev;
-+	struct ib_device *libdev;
-+	struct net_device *lndev;
-+	u8 port_cnt;
-+	int i;
-+
-+	mutex_lock(&smc_ib_devices.mutex);
-+	list_for_each_entry(smcibdev, &smc_ib_devices.list, list) {
-+		port_cnt = smcibdev->ibdev->phys_port_cnt;
-+		for (i = 0;
-+		     i < min_t(size_t, port_cnt, SMC_MAX_PORTS);
-+		     i++) {
-+			libdev = smcibdev->ibdev;
-+			if (libdev->ops.get_netdev) {
-+				lndev = libdev->ops.get_netdev(libdev, i + 1);
-+				if (lndev)
-+					dev_put(lndev);
-+				if (lndev == ndev) {
-+					snprintf((char *)&smcibdev->netdev[i],
-+						 sizeof(smcibdev->netdev[i]),
-+						 "%s", ndev->name);
-+				}
-+			}
-+		}
-+	}
-+	mutex_unlock(&smc_ib_devices.mutex);
-+}
-+
- /* callback function for ib_register_client() */
- static int smc_ib_add_dev(struct ib_device *ibdev)
- {
-@@ -596,6 +642,7 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
- 		if (smc_pnetid_by_dev_port(ibdev->dev.parent, i,
- 					   smcibdev->pnetid[i]))
- 			smc_pnetid_by_table_ib(smcibdev, i + 1);
-+		smc_copy_netdev_name(smcibdev, i);
- 		pr_warn_ratelimited("smc:    ib device %s port %d has pnetid "
- 				    "%.16s%s\n",
- 				    smcibdev->ibdev->name, i + 1,
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index 3e6bfeddd53b..b0868146b46b 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -54,11 +54,13 @@ struct smc_ib_device {				/* ib-device infos for smc */
- 	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all links*/
- 	struct mutex		mutex;		/* protect dev setup+cleanup */
- 	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];/*#lnk per port*/
-+	u8			netdev[SMC_MAX_PORTS][IFNAMSIZ];/* ndev names */
- };
+-	put_device(&unit->dev);
+-
+ 	device_unregister(&unit->dev);
  
- struct smc_buf_desc;
- struct smc_link;
- 
-+void smc_ib_ndev_name_change(struct net_device *ndev);
- int smc_ib_register_client(void) __init;
- void smc_ib_unregister_client(void);
- bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport);
-diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
-index f3c18b991d35..b0f40d73afd6 100644
---- a/net/smc/smc_pnet.c
-+++ b/net/smc/smc_pnet.c
-@@ -828,6 +828,9 @@ static int smc_pnet_netdev_event(struct notifier_block *this,
- 	case NETDEV_UNREGISTER:
- 		smc_pnet_remove_by_ndev(event_dev);
- 		return NOTIFY_OK;
-+	case NETDEV_CHANGENAME:
-+		smc_ib_ndev_name_change(event_dev);
-+		return NOTIFY_OK;
- 	case NETDEV_REGISTER:
- 		smc_pnet_add_by_ndev(event_dev);
- 		return NOTIFY_OK;
++	put_device(&unit->dev); /* undo _zfcp_unit_find() */
++
+ 	return 0;
+ }
 -- 
-2.17.1
+2.23.0
