@@ -1,301 +1,315 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29622 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725802AbgLGNNZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Dec 2020 08:13:25 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/6] s390/qeth: use dev->groups for common sysfs attributes
-Date: Mon,  7 Dec 2020 14:12:30 +0100
-Message-Id: <20201207131233.90383-4-jwi@linux.ibm.com>
-In-Reply-To: <20201207131233.90383-1-jwi@linux.ibm.com>
-References: <20201207131233.90383-1-jwi@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44550 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728704AbgLATdF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:33:05 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v7 14/14] net/smc: Add support for obtaining SMCR device list
+Date: Tue,  1 Dec 2020 20:20:49 +0100
+Message-Id: <20201201192049.53517-15-kgraul@linux.ibm.com>
+In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
+References: <20201201192049.53517-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
 To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-All qeth devices have a minimum set of sysfs attributes, and non-OSN
-devices share a group of additional attributes. Depending on whether
-the device is forced to use a specific discipline, the device_type then
-specifies further attributes.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Shift the common attributes into dev->groups, so that the device_type
-only contains the discipline-specific attributes. This avoids exposing
-the common attributes to the disciplines, and nicely cleans up our
-sysfs code.
+Deliver SMCR device information via netlink based
+diagnostic interface.
 
-While replacing the qeth_l*_*_device_attributes() helpers, switch from
-sysfs_*_groups() to the more generic device_*_groups().
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/s390/net/qeth_core.h      |  6 ++---
- drivers/s390/net/qeth_core_main.c |  7 ++++--
- drivers/s390/net/qeth_core_sys.c  | 41 ++++++++++++++-----------------
- drivers/s390/net/qeth_l2.h        |  2 --
- drivers/s390/net/qeth_l2_main.c   |  4 +--
- drivers/s390/net/qeth_l2_sys.c    | 19 --------------
- drivers/s390/net/qeth_l3.h        |  2 --
- drivers/s390/net/qeth_l3_main.c   |  4 +--
- drivers/s390/net/qeth_l3_sys.c    | 21 ----------------
- 9 files changed, 30 insertions(+), 76 deletions(-)
+ include/uapi/linux/smc.h |  13 +++-
+ net/smc/smc_core.c       |   2 +-
+ net/smc/smc_ib.c         | 156 +++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_ib.h         |   2 +
+ net/smc/smc_netlink.c    |   6 ++
+ 5 files changed, 176 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 69b474f8735e..d150da95d073 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -1063,10 +1063,8 @@ extern const struct qeth_discipline qeth_l2_discipline;
- extern const struct qeth_discipline qeth_l3_discipline;
- extern const struct ethtool_ops qeth_ethtool_ops;
- extern const struct ethtool_ops qeth_osn_ethtool_ops;
--extern const struct attribute_group *qeth_generic_attr_groups[];
--extern const struct attribute_group *qeth_osn_attr_groups[];
--extern const struct attribute_group qeth_device_attr_group;
--extern const struct attribute_group qeth_device_blkt_group;
-+extern const struct attribute_group *qeth_dev_groups[];
-+extern const struct attribute_group *qeth_osn_dev_groups[];
- extern const struct device_type qeth_generic_devtype;
- 
- const char *qeth_get_cardname_short(struct qeth_card *);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 8171b9d3a70e..05d0b16bd7d6 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -6375,13 +6375,11 @@ void qeth_core_free_discipline(struct qeth_card *card)
- 
- const struct device_type qeth_generic_devtype = {
- 	.name = "qeth_generic",
--	.groups = qeth_generic_attr_groups,
- };
- EXPORT_SYMBOL_GPL(qeth_generic_devtype);
- 
- static const struct device_type qeth_osn_devtype = {
- 	.name = "qeth_osn",
--	.groups = qeth_osn_attr_groups,
+diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
+index 3cb40ab049d9..3e68da07fba2 100644
+--- a/include/uapi/linux/smc.h
++++ b/include/uapi/linux/smc.h
+@@ -46,6 +46,7 @@ enum {
+ 	SMC_NETLINK_GET_LINK_SMCR,
+ 	SMC_NETLINK_GET_LGR_SMCD,
+ 	SMC_NETLINK_GET_DEV_SMCD,
++	SMC_NETLINK_GET_DEV_SMCR,
  };
  
- #define DBF_NAME_LEN	20
-@@ -6561,6 +6559,11 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
- 	if (rc)
- 		goto err_chp_desc;
+ /* SMC_GENL_FAMILY top level attributes */
+@@ -56,6 +57,7 @@ enum {
+ 	SMC_GEN_LINK_SMCR,		/* nest */
+ 	SMC_GEN_LGR_SMCD,		/* nest */
+ 	SMC_GEN_DEV_SMCD,		/* nest */
++	SMC_GEN_DEV_SMCR,		/* nest */
+ 	__SMC_GEN_MAX,
+ 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
+ };
+@@ -127,16 +129,20 @@ enum {
+ 	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
+ };
  
-+	if (IS_OSN(card))
-+		gdev->dev.groups = qeth_osn_dev_groups;
-+	else
-+		gdev->dev.groups = qeth_dev_groups;
+-/* SMC_NLA_DEV_PORT attributes */
++/* SMC_NLA_DEV_PORT nested attributes */
+ enum {
+ 	SMC_NLA_DEV_PORT_UNSPEC,
+ 	SMC_NLA_DEV_PORT_PNET_USR,	/* u8 */
+ 	SMC_NLA_DEV_PORT_PNETID,	/* string */
++	SMC_NLA_DEV_PORT_NETDEV,	/* u32 */
++	SMC_NLA_DEV_PORT_STATE,		/* u8 */
++	SMC_NLA_DEV_PORT_VALID,		/* u8 */
++	SMC_NLA_DEV_PORT_LNK_CNT,	/* u32 */
+ 	__SMC_NLA_DEV_PORT_MAX,
+ 	SMC_NLA_DEV_PORT_MAX = __SMC_NLA_DEV_PORT_MAX - 1
+ };
+ 
+-/* SMC_GEN_DEV_SMCD attributes */
++/* SMC_GEN_DEV_SMCD and SMC_GEN_DEV_SMCR attributes */
+ enum {
+ 	SMC_NLA_DEV_UNSPEC,
+ 	SMC_NLA_DEV_USE_CNT,		/* u32 */
+@@ -147,7 +153,10 @@ enum {
+ 	SMC_NLA_DEV_PCI_DEVICE,		/* u16 */
+ 	SMC_NLA_DEV_PCI_ID,		/* string */
+ 	SMC_NLA_DEV_PORT,		/* nest */
++	SMC_NLA_DEV_PORT2,		/* nest */
++	SMC_NLA_DEV_IB_NAME,		/* string */
+ 	__SMC_NLA_DEV_MAX,
+ 	SMC_NLA_DEV_MAX = __SMC_NLA_DEV_MAX - 1
+ };
 +
- 	enforced_disc = qeth_enforce_discipline(card);
- 	switch (enforced_disc) {
- 	case QETH_DISCIPLINE_UNDETERMINED:
-diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
-index 4441b3393eaf..a0f777f76f66 100644
---- a/drivers/s390/net/qeth_core_sys.c
-+++ b/drivers/s390/net/qeth_core_sys.c
-@@ -640,23 +640,17 @@ static struct attribute *qeth_blkt_device_attrs[] = {
- 	&dev_attr_inter_jumbo.attr,
- 	NULL,
- };
--const struct attribute_group qeth_device_blkt_group = {
+ #endif /* _UAPI_LINUX_SMC_H */
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index ac2cc593f25f..59342b519e34 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -38,7 +38,7 @@
+ #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
+ #define SMC_LGR_FREE_DELAY_CLNT		(SMC_LGR_FREE_DELAY_SERV + 10 * HZ)
+ 
+-static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
++struct smc_lgr_list smc_lgr_list = {	/* established link groups */
+ 	.lock = __SPIN_LOCK_UNLOCKED(smc_lgr_list.lock),
+ 	.list = LIST_HEAD_INIT(smc_lgr_list.list),
+ 	.num = 0,
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index 61b025c912a9..89ea10675a7d 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -25,6 +25,7 @@
+ #include "smc_core.h"
+ #include "smc_wr.h"
+ #include "smc.h"
++#include "smc_netlink.h"
+ 
+ #define SMC_MAX_CQE 32766	/* max. # of completion queue elements */
+ 
+@@ -326,6 +327,161 @@ int smc_ib_create_protection_domain(struct smc_link *lnk)
+ 	return rc;
+ }
+ 
++static bool smcr_diag_is_dev_critical(struct smc_lgr_list *smc_lgr,
++				      struct smc_ib_device *smcibdev)
++{
++	struct smc_link_group *lgr;
++	bool rc = false;
++	int i;
 +
-+static const struct attribute_group qeth_dev_blkt_group = {
- 	.name = "blkt",
- 	.attrs = qeth_blkt_device_attrs,
- };
--EXPORT_SYMBOL_GPL(qeth_device_blkt_group);
- 
--static struct attribute *qeth_device_attrs[] = {
--	&dev_attr_state.attr,
--	&dev_attr_chpid.attr,
--	&dev_attr_if_name.attr,
--	&dev_attr_card_type.attr,
-+static struct attribute *qeth_dev_extended_attrs[] = {
- 	&dev_attr_inbuf_size.attr,
- 	&dev_attr_portno.attr,
- 	&dev_attr_portname.attr,
- 	&dev_attr_priority_queueing.attr,
--	&dev_attr_buffer_count.attr,
--	&dev_attr_recover.attr,
- 	&dev_attr_performance_stats.attr,
- 	&dev_attr_layer2.attr,
- 	&dev_attr_isolation.attr,
-@@ -664,18 +658,12 @@ static struct attribute *qeth_device_attrs[] = {
- 	&dev_attr_switch_attrs.attr,
- 	NULL,
- };
--const struct attribute_group qeth_device_attr_group = {
--	.attrs = qeth_device_attrs,
--};
--EXPORT_SYMBOL_GPL(qeth_device_attr_group);
- 
--const struct attribute_group *qeth_generic_attr_groups[] = {
--	&qeth_device_attr_group,
--	&qeth_device_blkt_group,
--	NULL,
-+static const struct attribute_group qeth_dev_extended_group = {
-+	.attrs = qeth_dev_extended_attrs,
- };
- 
--static struct attribute *qeth_osn_device_attrs[] = {
-+static struct attribute *qeth_dev_attrs[] = {
- 	&dev_attr_state.attr,
- 	&dev_attr_chpid.attr,
- 	&dev_attr_if_name.attr,
-@@ -684,10 +672,19 @@ static struct attribute *qeth_osn_device_attrs[] = {
- 	&dev_attr_recover.attr,
- 	NULL,
- };
--static struct attribute_group qeth_osn_device_attr_group = {
--	.attrs = qeth_osn_device_attrs,
++	spin_lock_bh(&smc_lgr->lock);
++	list_for_each_entry(lgr, &smc_lgr->list, list) {
++		if (lgr->is_smcd)
++			continue;
++		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
++			if (lgr->lnk[i].state == SMC_LNK_UNUSED ||
++			    lgr->lnk[i].smcibdev != smcibdev)
++				continue;
++			if (lgr->type == SMC_LGR_SINGLE ||
++			    lgr->type == SMC_LGR_ASYMMETRIC_LOCAL) {
++				rc = true;
++				goto out;
++			}
++		}
++	}
++out:
++	spin_unlock_bh(&smc_lgr->lock);
++	return rc;
++}
 +
-+static const struct attribute_group qeth_dev_group = {
-+	.attrs = qeth_dev_attrs,
- };
--const struct attribute_group *qeth_osn_attr_groups[] = {
--	&qeth_osn_device_attr_group,
++static int smc_nl_handle_dev_port(struct sk_buff *skb,
++				  struct ib_device *ibdev,
++				  struct smc_ib_device *smcibdev,
++				  int port)
++{
++	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
++	struct nlattr *port_attrs;
++	unsigned char port_state;
++	int lnk_count = 0;
 +
-+const struct attribute_group *qeth_osn_dev_groups[] = {
-+	&qeth_dev_group,
-+	NULL,
-+};
++	port_attrs = nla_nest_start(skb, SMC_NLA_DEV_PORT + port);
++	if (!port_attrs)
++		goto errout;
 +
-+const struct attribute_group *qeth_dev_groups[] = {
-+	&qeth_dev_group,
-+	&qeth_dev_extended_group,
-+	&qeth_dev_blkt_group,
- 	NULL,
++	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR,
++		       smcibdev->pnetid_by_user[port]))
++		goto errattr;
++	snprintf(smc_pnet, sizeof(smc_pnet), "%s",
++		 (char *)&smcibdev->pnetid[port]);
++	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet))
++		goto errattr;
++	if (nla_put_u32(skb, SMC_NLA_DEV_PORT_NETDEV,
++			smcibdev->ndev_ifidx[port]))
++		goto errattr;
++	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_VALID, 1))
++		goto errattr;
++	port_state = smc_ib_port_active(smcibdev, port + 1);
++	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_STATE, port_state))
++		goto errattr;
++	lnk_count = atomic_read(&smcibdev->lnk_cnt_by_port[port]);
++	if (nla_put_u32(skb, SMC_NLA_DEV_PORT_LNK_CNT, lnk_count))
++		goto errattr;
++	nla_nest_end(skb, port_attrs);
++	return 0;
++errattr:
++	nla_nest_cancel(skb, port_attrs);
++errout:
++	return -EMSGSIZE;
++}
++
++static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
++				  struct sk_buff *skb,
++				  struct netlink_callback *cb)
++{
++	char smc_ibname[IB_DEVICE_NAME_MAX + 1];
++	struct smc_pci_dev smc_pci_dev;
++	struct pci_dev *pci_dev;
++	unsigned char is_crit;
++	struct nlattr *attrs;
++	void *nlh;
++	int i;
++
++	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
++			  &smc_gen_nl_family, NLM_F_MULTI,
++			  SMC_NETLINK_GET_DEV_SMCR);
++	if (!nlh)
++		goto errmsg;
++	attrs = nla_nest_start(skb, SMC_GEN_DEV_SMCR);
++	if (!attrs)
++		goto errout;
++	is_crit = smcr_diag_is_dev_critical(&smc_lgr_list, smcibdev);
++	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, is_crit))
++		goto errattr;
++	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
++	pci_dev = to_pci_dev(smcibdev->ibdev->dev.parent);
++	smc_set_pci_values(pci_dev, &smc_pci_dev);
++	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
++		goto errattr;
++	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
++		goto errattr;
++	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_VENDOR, smc_pci_dev.pci_vendor))
++		goto errattr;
++	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_DEVICE, smc_pci_dev.pci_device))
++		goto errattr;
++	if (nla_put_string(skb, SMC_NLA_DEV_PCI_ID, smc_pci_dev.pci_id))
++		goto errattr;
++	snprintf(smc_ibname, sizeof(smc_ibname), "%s", smcibdev->ibdev->name);
++	if (nla_put_string(skb, SMC_NLA_DEV_IB_NAME, smc_ibname))
++		goto errattr;
++	for (i = 1; i <= SMC_MAX_PORTS; i++) {
++		if (!rdma_is_port_valid(smcibdev->ibdev, i))
++			continue;
++		if (smc_nl_handle_dev_port(skb, smcibdev->ibdev,
++					   smcibdev, i - 1))
++			goto errattr;
++	}
++
++	nla_nest_end(skb, attrs);
++	genlmsg_end(skb, nlh);
++	return 0;
++
++errattr:
++	nla_nest_cancel(skb, attrs);
++errout:
++	genlmsg_cancel(skb, nlh);
++errmsg:
++	return -EMSGSIZE;
++}
++
++static void smc_nl_prep_smcr_dev(struct smc_ib_devices *dev_list,
++				 struct sk_buff *skb,
++				 struct netlink_callback *cb)
++{
++	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
++	struct smc_ib_device *smcibdev;
++	int snum = cb_ctx->pos[0];
++	int num = 0;
++
++	mutex_lock(&dev_list->mutex);
++	list_for_each_entry(smcibdev, &dev_list->list, list) {
++		if (num < snum)
++			goto next;
++		if (smc_nl_handle_smcr_dev(smcibdev, skb, cb))
++			goto errout;
++next:
++		num++;
++	}
++errout:
++	mutex_unlock(&dev_list->mutex);
++	cb_ctx->pos[0] = num;
++}
++
++int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb)
++{
++	smc_nl_prep_smcr_dev(&smc_ib_devices, skb, cb);
++	return skb->len;
++}
++
+ static void smc_ib_qp_event_handler(struct ib_event *ibevent, void *priv)
+ {
+ 	struct smc_link *lnk = (struct smc_link *)priv;
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index ab37da341fa8..3085f5180da7 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -30,6 +30,7 @@ struct smc_ib_devices {			/* list of smc ib devices definition */
  };
-diff --git a/drivers/s390/net/qeth_l2.h b/drivers/s390/net/qeth_l2.h
-index 296d73d84326..7c646e2fed7e 100644
---- a/drivers/s390/net/qeth_l2.h
-+++ b/drivers/s390/net/qeth_l2.h
-@@ -11,8 +11,6 @@
  
- extern const struct attribute_group *qeth_l2_attr_groups[];
+ extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
++extern struct smc_lgr_list smc_lgr_list; /* list of linkgroups */
  
--int qeth_l2_create_device_attributes(struct device *);
--void qeth_l2_remove_device_attributes(struct device *);
- int qeth_bridgeport_query_ports(struct qeth_card *card,
- 				enum qeth_sbp_roles *role,
- 				enum qeth_sbp_states *state);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 393aef681e44..4ed0fb0705a5 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -2189,7 +2189,7 @@ static int qeth_l2_probe_device(struct ccwgroup_device *gdev)
- 	mutex_init(&card->sbp_lock);
+ struct smc_ib_device {				/* ib-device infos for smc */
+ 	struct list_head	list;
+@@ -91,4 +92,5 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
+ int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
+ 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index);
+ bool smc_ib_is_valid_local_systemid(void);
++int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+ #endif
+diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
+index debdeec53728..140419a19dbf 100644
+--- a/net/smc/smc_netlink.c
++++ b/net/smc/smc_netlink.c
+@@ -18,6 +18,7 @@
  
- 	if (gdev->dev.type == &qeth_generic_devtype) {
--		rc = qeth_l2_create_device_attributes(&gdev->dev);
-+		rc = device_add_groups(&gdev->dev, qeth_l2_attr_groups);
- 		if (rc)
- 			return rc;
- 	}
-@@ -2203,7 +2203,7 @@ static void qeth_l2_remove_device(struct ccwgroup_device *gdev)
- 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
+ #include "smc_core.h"
+ #include "smc_ism.h"
++#include "smc_ib.h"
+ #include "smc_netlink.h"
  
- 	if (gdev->dev.type == &qeth_generic_devtype)
--		qeth_l2_remove_device_attributes(&gdev->dev);
-+		device_remove_groups(&gdev->dev, qeth_l2_attr_groups);
- 	qeth_set_allowed_threads(card, 0, 1);
- 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
- 
-diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
-index 4ba3bc57263f..a617351fff57 100644
---- a/drivers/s390/net/qeth_l2_sys.c
-+++ b/drivers/s390/net/qeth_l2_sys.c
-@@ -376,26 +376,7 @@ static struct attribute_group qeth_l2_vnicc_attr_group = {
- 	.name = "vnicc",
+ #define SMC_CMD_MAX_ATTR 1
+@@ -49,6 +50,11 @@ static const struct genl_ops smc_gen_nl_ops[] = {
+ 		/* can be retrieved by unprivileged users */
+ 		.dumpit = smcd_nl_get_device,
+ 	},
++	{
++		.cmd = SMC_NETLINK_GET_DEV_SMCR,
++		/* can be retrieved by unprivileged users */
++		.dumpit = smcr_nl_get_device,
++	},
  };
  
--static const struct attribute_group *qeth_l2_only_attr_groups[] = {
--	&qeth_l2_bridgeport_attr_group,
--	&qeth_l2_vnicc_attr_group,
--	NULL,
--};
--
--int qeth_l2_create_device_attributes(struct device *dev)
--{
--	return sysfs_create_groups(&dev->kobj, qeth_l2_only_attr_groups);
--}
--
--void qeth_l2_remove_device_attributes(struct device *dev)
--{
--	sysfs_remove_groups(&dev->kobj, qeth_l2_only_attr_groups);
--}
--
- const struct attribute_group *qeth_l2_attr_groups[] = {
--	&qeth_device_attr_group,
--	&qeth_device_blkt_group,
--	/* l2 specific, see qeth_l2_only_attr_groups: */
- 	&qeth_l2_bridgeport_attr_group,
- 	&qeth_l2_vnicc_attr_group,
- 	NULL,
-diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
-index acd130cfbab3..30c2b31d99f6 100644
---- a/drivers/s390/net/qeth_l3.h
-+++ b/drivers/s390/net/qeth_l3.h
-@@ -103,8 +103,6 @@ extern const struct attribute_group *qeth_l3_attr_groups[];
- 
- int qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const u8 *addr,
- 			     char *buf);
--int qeth_l3_create_device_attributes(struct device *);
--void qeth_l3_remove_device_attributes(struct device *);
- int qeth_l3_setrouting_v4(struct qeth_card *);
- int qeth_l3_setrouting_v6(struct qeth_card *);
- int qeth_l3_add_ipato_entry(struct qeth_card *, struct qeth_ipato_entry *);
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 264b6c782382..d138ac432d01 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1949,7 +1949,7 @@ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
- 		return -ENOMEM;
- 
- 	if (gdev->dev.type == &qeth_generic_devtype) {
--		rc = qeth_l3_create_device_attributes(&gdev->dev);
-+		rc = device_add_groups(&gdev->dev, qeth_l3_attr_groups);
- 		if (rc) {
- 			destroy_workqueue(card->cmd_wq);
- 			return rc;
-@@ -1965,7 +1965,7 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
- 	struct qeth_card *card = dev_get_drvdata(&cgdev->dev);
- 
- 	if (cgdev->dev.type == &qeth_generic_devtype)
--		qeth_l3_remove_device_attributes(&cgdev->dev);
-+		device_remove_groups(&cgdev->dev, qeth_l3_attr_groups);
- 
- 	qeth_set_allowed_threads(card, 0, 1);
- 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
-diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
-index 997fbb7006a7..1082380b21f8 100644
---- a/drivers/s390/net/qeth_l3_sys.c
-+++ b/drivers/s390/net/qeth_l3_sys.c
-@@ -805,28 +805,7 @@ static const struct attribute_group qeth_device_rxip_group = {
- 	.attrs = qeth_rxip_device_attrs,
- };
- 
--static const struct attribute_group *qeth_l3_only_attr_groups[] = {
--	&qeth_l3_device_attr_group,
--	&qeth_device_ipato_group,
--	&qeth_device_vipa_group,
--	&qeth_device_rxip_group,
--	NULL,
--};
--
--int qeth_l3_create_device_attributes(struct device *dev)
--{
--	return sysfs_create_groups(&dev->kobj, qeth_l3_only_attr_groups);
--}
--
--void qeth_l3_remove_device_attributes(struct device *dev)
--{
--	sysfs_remove_groups(&dev->kobj, qeth_l3_only_attr_groups);
--}
--
- const struct attribute_group *qeth_l3_attr_groups[] = {
--	&qeth_device_attr_group,
--	&qeth_device_blkt_group,
--	/* l3 specific, see qeth_l3_only_attr_groups: */
- 	&qeth_l3_device_attr_group,
- 	&qeth_device_ipato_group,
- 	&qeth_device_vipa_group,
+ static const struct nla_policy smc_gen_nl_policy[2] = {
 -- 
 2.17.1
