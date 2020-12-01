@@ -1,117 +1,62 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:54298 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726696AbgKRKyD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 18 Nov 2020 05:54:03 -0500
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH 3/6] s390/ctcm: Put struct pdu on stack.
-Date: Wed, 18 Nov 2020 11:53:14 +0100
-Message-Id: <20201118105317.605671-4-bigeasy@linutronix.de>
-In-Reply-To: <20201118105317.605671-1-bigeasy@linutronix.de>
-References: <20201118105317.605671-1-bigeasy@linutronix.de>
+Received: from szxga05-in.huawei.com ([45.249.212.191]:8540 "EHLO
+        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725859AbgLAGcl (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 01:32:41 -0500
+Subject: Re: [PATCH] s390: cio: fix two use-after-free bugs in device.c
+References: <20201120074849.31557-1-miaoqinglang@huawei.com>
+ <20201120085526.257a5596.cohuck@redhat.com>
+From: Qinglang Miao <miaoqinglang@huawei.com>
+Message-ID: <a78e4d86-159e-ec3a-64eb-3a035a162a2c@huawei.com>
+Date: Tue, 1 Dec 2020 14:31:52 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20201120085526.257a5596.cohuck@redhat.com>
+Content-Type: text/plain; charset="gbk"; format="flowed"
+Content-Transfer-Encoding: base64
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org
-Cc: Julian Wiedmann <jwi@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Thomas Gleixner <tglx@linutronix.de>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The size of struct pdu is 8 byte. The memory is allocated, initialized,
-used and deallocated a few lines later.
-
-It is more efficient to avoid the allocation/free dance and keeping the
-variable on stack. Especially since the compiler is smart enough to not
-allocate the memory on stack but assign the values directly.
-
-Add a variable pdu_hdr on stack and use it instead of p_header. p_header
-is used later as a pointer without an allocation.
-
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- drivers/s390/net/ctcm_main.c | 41 ++++++++++++------------------------
- 1 file changed, 13 insertions(+), 28 deletions(-)
-
-diff --git a/drivers/s390/net/ctcm_main.c b/drivers/s390/net/ctcm_main.c
-index 6c7d6bbd27406..b56f51806b3d0 100644
---- a/drivers/s390/net/ctcm_main.c
-+++ b/drivers/s390/net/ctcm_main.c
-@@ -649,6 +649,7 @@ static void ctcmpc_send_sweep_req(struct channel *rch)
- static int ctcmpc_transmit_skb(struct channel *ch, struct sk_buff *skb)
- {
- 	struct pdu *p_header;
-+	struct pdu pdu_hdr;
- 	struct net_device *dev =3D ch->netdev;
- 	struct ctcm_priv *priv =3D dev->ml_priv;
- 	struct mpc_group *grp =3D priv->mpcg;
-@@ -666,23 +667,16 @@ static int ctcmpc_transmit_skb(struct channel *ch, st=
-ruct sk_buff *skb)
- 	if ((fsm_getstate(ch->fsm) !=3D CTC_STATE_TXIDLE) || grp->in_sweep) {
- 		spin_lock_irqsave(&ch->collect_lock, saveflags);
- 		refcount_inc(&skb->users);
--		p_header =3D kmalloc(PDU_HEADER_LENGTH, gfp_type());
-=20
--		if (!p_header) {
--			spin_unlock_irqrestore(&ch->collect_lock, saveflags);
--				goto nomem_exit;
--		}
--
--		p_header->pdu_offset =3D skb->len;
--		p_header->pdu_proto =3D 0x01;
--		p_header->pdu_flag =3D 0x00;
-+		pdu_hdr.pdu_offset =3D skb->len;
-+		pdu_hdr.pdu_proto =3D 0x01;
- 		if (be16_to_cpu(skb->protocol) =3D=3D ETH_P_SNAP) {
--			p_header->pdu_flag |=3D PDU_FIRST | PDU_CNTL;
-+			pdu_hdr.pdu_flag =3D PDU_FIRST | PDU_CNTL;
- 		} else {
--			p_header->pdu_flag |=3D PDU_FIRST;
-+			pdu_hdr.pdu_flag =3D PDU_FIRST;
- 		}
--		p_header->pdu_seq =3D 0;
--		memcpy(skb_push(skb, PDU_HEADER_LENGTH), p_header,
-+		pdu_hdr.pdu_seq =3D 0;
-+		memcpy(skb_push(skb, PDU_HEADER_LENGTH), &pdu_hdr,
- 		       PDU_HEADER_LENGTH);
-=20
- 		CTCM_PR_DEBUG("%s(%s): Put on collect_q - skb len: %04x \n"
-@@ -692,7 +686,6 @@ static int ctcmpc_transmit_skb(struct channel *ch, stru=
-ct sk_buff *skb)
-=20
- 		skb_queue_tail(&ch->collect_queue, skb);
- 		ch->collect_len +=3D skb->len;
--		kfree(p_header);
-=20
- 		spin_unlock_irqrestore(&ch->collect_lock, saveflags);
- 			goto done;
-@@ -722,23 +715,15 @@ static int ctcmpc_transmit_skb(struct channel *ch, st=
-ruct sk_buff *skb)
- 		}
- 	}
-=20
--	p_header =3D kmalloc(PDU_HEADER_LENGTH, gfp_type());
--
--	if (!p_header)
--		goto nomem_exit;
--
--	p_header->pdu_offset =3D skb->len;
--	p_header->pdu_proto =3D 0x01;
--	p_header->pdu_flag =3D 0x00;
--	p_header->pdu_seq =3D 0;
-+	pdu_hdr.pdu_offset =3D skb->len;
-+	pdu_hdr.pdu_proto =3D 0x01;
-+	pdu_hdr.pdu_seq =3D 0;
- 	if (be16_to_cpu(skb->protocol) =3D=3D ETH_P_SNAP) {
--		p_header->pdu_flag |=3D PDU_FIRST | PDU_CNTL;
-+		pdu_hdr.pdu_flag =3D PDU_FIRST | PDU_CNTL;
- 	} else {
--		p_header->pdu_flag |=3D PDU_FIRST;
-+		pdu_hdr.pdu_flag =3D PDU_FIRST;
- 	}
--	memcpy(skb_push(skb, PDU_HEADER_LENGTH), p_header, PDU_HEADER_LENGTH);
--
--	kfree(p_header);
-+	memcpy(skb_push(skb, PDU_HEADER_LENGTH), &pdu_hdr, PDU_HEADER_LENGTH);
-=20
- 	if (ch->collect_len > 0) {
- 		spin_lock_irqsave(&ch->collect_lock, saveflags);
---=20
-2.29.2
+Cgrvv73vv70gMjAyMC8xMS8yMCAxNTo1NSwgQ29ybmVsaWEgSHVjayDQtO+/ve+/vToKPiBPbiBG
+cmksIDIwIE5vdiAyMDIwIDE1OjQ4OjQ5ICswODAwCj4gUWluZ2xhbmcgTWlhbyA8bWlhb3Fpbmds
+YW5nQGh1YXdlaS5jb20+IHdyb3RlOgo+IAo+PiBwdXRfZGV2aWNlIGNhbGxzIHJlbGVhc2UgZnVu
+Y3Rpb24gd2hpY2ggZG8ga2ZyZWUoKSBpbnNpZGUuCj4+IFNvIGZvbGxvd2luZyB1c2Ugb2Ygc2No
+JmNkZXYgd291bGQgY2F1c2UgdXNlLWFmdGVyLWZyZWUgYnVncy4KPj4KPj4gRml4IHRoZXNlIGJ5
+IHNpbXBseSBhZGp1c3RpbmcgdGhlIHBvc2l0aW9uIG9mIHB1dF9kZXZpY2UuCj4+Cj4+IEZpeGVz
+OiAzN2RiODk4NWIyMTEgKCJzMzkwL2NpbzogYWRkIGJhc2ljIHByb3RlY3RlZCB2aXJ0dWFsaXph
+dGlvbiBzdXBwb3J0IikKPj4gRml4ZXM6IDc0YmQwZDg1OWRjMyAoInMzOTAvY2lvOiBmaXggdW5s
+b2NrZWQgYWNjZXNzIG9mIG9ubGluZSBtZW1iZXIiKQo+PiBSZXBvcnRlZC1ieTogSHVsayBSb2Jv
+dCA8aHVsa2NpQGh1YXdlaS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IFFpbmdsYW5nIE1pYW8gPG1p
+YW9xaW5nbGFuZ0BodWF3ZWkuY29tPgo+PiAtLS0KPj4gICBkcml2ZXJzL3MzOTAvY2lvL2Rldmlj
+ZS5jIHwgNiArKystLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAzIGRl
+bGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9zMzkwL2Npby9kZXZpY2UuYyBi
+L2RyaXZlcnMvczM5MC9jaW8vZGV2aWNlLmMKPj4gaW5kZXggYjI5ZmU4ZDUwLi42OTQ5MjQxN2Ig
+MTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvczM5MC9jaW8vZGV2aWNlLmMKPj4gKysrIGIvZHJpdmVy
+cy9zMzkwL2Npby9kZXZpY2UuYwo+PiBAQCAtMTY2NCwxMCArMTY2NCwxMCBAQCB2b2lkIF9faW5p
+dCBjY3dfZGV2aWNlX2Rlc3Ryb3lfY29uc29sZShzdHJ1Y3QgY2N3X2RldmljZSAqY2RldikKPj4g
+ICAJc3RydWN0IGlvX3N1YmNoYW5uZWxfcHJpdmF0ZSAqaW9fcHJpdiA9IHRvX2lvX3ByaXZhdGUo
+c2NoKTsKPj4gICAKPj4gICAJc2V0X2lvX3ByaXZhdGUoc2NoLCBOVUxMKTsKPj4gLQlwdXRfZGV2
+aWNlKCZzY2gtPmRldik7Cj4+IC0JcHV0X2RldmljZSgmY2Rldi0+ZGV2KTsKPj4gICAJZG1hX2Zy
+ZWVfY29oZXJlbnQoJnNjaC0+ZGV2LCBzaXplb2YoKmlvX3ByaXYtPmRtYV9hcmVhKSwKPj4gICAJ
+CQkgIGlvX3ByaXYtPmRtYV9hcmVhLCBpb19wcml2LT5kbWFfYXJlYV9kbWEpOwo+PiArCXB1dF9k
+ZXZpY2UoJnNjaC0+ZGV2KTsKPj4gKwlwdXRfZGV2aWNlKCZjZGV2LT5kZXYpOwo+IAo+IFRoYXQg
+Y2hhbmdlIGxvb2tzIHJlYXNvbmFibGUuCj4gCj4+ICAgCWtmcmVlKGlvX3ByaXYpOwo+PiAgIH0K
+Pj4gICAKPj4gQEAgLTE3NzQsOCArMTc3NCw4IEBAIHN0YXRpYyBpbnQgY2N3X2RldmljZV9yZW1v
+dmUoc3RydWN0IGRldmljZSAqZGV2KQo+PiAgIAkJCQkgICAgICByZXQsIGNkZXYtPnByaXZhdGUt
+PmRldl9pZC5zc2lkLAo+PiAgIAkJCQkgICAgICBjZGV2LT5wcml2YXRlLT5kZXZfaWQuZGV2bm8p
+Owo+PiAgIAkJLyogR2l2ZSB1cCByZWZlcmVuY2Ugb2J0YWluZWQgaW4gY2N3X2RldmljZV9zZXRf
+b25saW5lKCkuICovCj4+IC0JCXB1dF9kZXZpY2UoJmNkZXYtPmRldik7Cj4+ICAgCQlzcGluX2xv
+Y2tfaXJxKGNkZXYtPmNjd2xvY2spOwo+PiArCQlwdXRfZGV2aWNlKCZjZGV2LT5kZXYpOwo+IAo+
+IEFzIHRoZSBjb21tZW50IGFib3ZlIHN0YXRlcywgdGhlIHB1dF9kZXZpY2UoKSBnaXZlcyB1cCB0
+aGUgcmVmZXJlbmNlCj4gb2J0YWluZWQgaW4gY2N3X2RldmljZV9zZXRfb25saW5lKCkuIFRoZXJl
+J3MgYXQgbGVhc3Qgb25lIG1vcmUKPiByZWZlcmVuY2UgcmVtYWluaW5nIChoZWxkIGJ5IHRoZSBj
+YWxsZXIgb2YgdGhlIHJlbW92ZSBmdW5jdGlvbikuIE1vdmluZwo+IHRoZSBwdXRfZGV2aWNlKCkg
+ZG9lcyBub3QgZml4IGFueXRoaW5nIGhlcmUuCkhpLCBDb3JuZWxpYQoKU29ycnkgZm9yIHRoZSBk
+ZWxheWVkIHJlcGx5LgoKWW91ciBzdWdnZXN0aW9uIGlzIHJlYXNvbmFibGUsIHRoZXJlIGlzIGEg
+bWlzdGFrZSBpbiB0aGlzIHBhdGNoIGZvciBJIApkaWRuJ3Qgbm90aWNlIHRoYXQgdGhlcmUgd291
+bGQgYmUgYXQgbGVhc3Qgb25lIG1vcmUgcmVmZXJlbmNlIHJlbWFpbmluZy4KClNvIEkgc2VudCBh
+IG5ldyBwYXRjaCBvbmx5IHRvIG1vdmUgcHV0X2RldmljZSBhZnRlciBkbWFfZnJlZV9jb2hlcmVu
+dC4gSSAKcHV0IHRoZSBsaW5rIGFzIGJlbG93OgpodHRwczovL2xvcmUua2VybmVsLm9yZy9sa21s
+LzIwMjAxMjAxMDYzMTUwLjgyMTI4LTEtbWlhb3FpbmdsYW5nQGh1YXdlaS5jb20vCgpUaGFua3Mh
+Cj4gCj4+ICAgCX0KPj4gICAJY2N3X2RldmljZV9zZXRfdGltZW91dChjZGV2LCAwKTsKPj4gICAJ
+Y2Rldi0+ZHJ2ID0gTlVMTDsKPiAKPiAuCj4gCg==
