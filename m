@@ -1,126 +1,104 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.134]:43585 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728029AbgLROfX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 09:35:23 -0500
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 14/23] kernel: generic counter for interrupt errors
-Date: Fri, 18 Dec 2020 15:31:13 +0100
-Message-Id: <20201218143122.19459-15-info@metux.net>
-In-Reply-To: <20201218143122.19459-1-info@metux.net>
-References: <20201218143122.19459-1-info@metux.net>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:32552 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731215AbgLATVp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:21:45 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v7 03/14] net/smc: Add connection counters for links
+Date: Tue,  1 Dec 2020 20:20:38 +0100
+Message-Id: <20201201192049.53517-4-kgraul@linux.ibm.com>
+In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
+References: <20201201192049.53517-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-We currently have counters for spurious interrupt spread over all the
-individual architectures. Mostly done in the arch's ack_bad_irq(),
-sometimes also in arch specific drivers.
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-It's time to consolidate this code duplication:
+Add connection counters to the structure of the link.
+Increase/decrease the counters as needed in the corresponding
+routines.
 
-  * introduce a global counter and inlined accessors
-  * increase the counter in all call sites of ack_bad_irq()
-  * subsequent patches will transform the individual archs one by one
-
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- include/asm-generic/irq-err.h | 17 +++++++++++++++++
- kernel/irq/dummychip.c        |  2 ++
- kernel/irq/handle.c           |  4 ++++
- kernel/irq/irqdesc.c          |  2 ++
- 4 files changed, 25 insertions(+)
- create mode 100644 include/asm-generic/irq-err.h
+ net/smc/smc_core.c | 16 ++++++++++++++--
+ net/smc/smc_core.h |  1 +
+ 2 files changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/include/asm-generic/irq-err.h b/include/asm-generic/irq-err.h
-new file mode 100644
-index 000000000000..33c75eb50c10
---- /dev/null
-+++ b/include/asm-generic/irq-err.h
-@@ -0,0 +1,17 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_GENERIC_IRQ_ERR_H
-+#define __ASM_GENERIC_IRQ_ERR_H
-+
-+extern atomic_t irq_err_counter;
-+
-+static inline void irq_err_inc(void)
-+{
-+	atomic_inc(&irq_err_counter);
-+}
-+
-+static inline int irq_err_get(void)
-+{
-+	return atomic_read(&irq_err_counter);
-+}
-+
-+#endif /* __ASM_GENERIC_IRQ_ERR_H */
-diff --git a/kernel/irq/dummychip.c b/kernel/irq/dummychip.c
-index 0b0cdf206dc4..93585dab9bd0 100644
---- a/kernel/irq/dummychip.c
-+++ b/kernel/irq/dummychip.c
-@@ -8,6 +8,7 @@
- #include <linux/interrupt.h>
- #include <linux/irq.h>
- #include <linux/export.h>
-+#include <asm-generic/irq-err.h>
- 
- #include "internals.h"
- 
-@@ -20,6 +21,7 @@ static void ack_bad(struct irq_data *data)
- 	struct irq_desc *desc = irq_data_to_desc(data);
- 
- 	print_irq_desc(data->irq, desc);
-+	irq_err_inc();
- 	ack_bad_irq(data->irq);
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index af96f813c075..5bc8ebcd03f3 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -139,6 +139,7 @@ static int smcr_lgr_conn_assign_link(struct smc_connection *conn, bool first)
+ 	}
+ 	if (!conn->lnk)
+ 		return SMC_CLC_DECL_NOACTLINK;
++	atomic_inc(&conn->lnk->conn_cnt);
+ 	return 0;
  }
  
-diff --git a/kernel/irq/handle.c b/kernel/irq/handle.c
-index 762a928e18f9..ad90f5a56c3a 100644
---- a/kernel/irq/handle.c
-+++ b/kernel/irq/handle.c
-@@ -13,11 +13,14 @@
- #include <linux/sched.h>
- #include <linux/interrupt.h>
- #include <linux/kernel_stat.h>
-+#include <asm-generic/irq-err.h>
+@@ -180,6 +181,8 @@ static void __smc_lgr_unregister_conn(struct smc_connection *conn)
+ 	struct smc_link_group *lgr = conn->lgr;
  
- #include <trace/events/irq.h>
- 
- #include "internals.h"
- 
-+atomic_t irq_err_counter;
-+
- #ifdef CONFIG_GENERIC_IRQ_MULTI_HANDLER
- void (*handle_arch_irq)(struct pt_regs *) __ro_after_init;
- #endif
-@@ -34,6 +37,7 @@ void handle_bad_irq(struct irq_desc *desc)
- 
- 	print_irq_desc(irq, desc);
- 	kstat_incr_irqs_this_cpu(desc);
-+	irq_err_inc();
- 	ack_bad_irq(irq);
+ 	rb_erase(&conn->alert_node, &lgr->conns_all);
++	if (conn->lnk)
++		atomic_dec(&conn->lnk->conn_cnt);
+ 	lgr->conns_num--;
+ 	conn->alert_token_local = 0;
+ 	sock_put(&smc->sk); /* sock_hold in smc_lgr_register_conn() */
+@@ -314,6 +317,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
+ 	lnk->smcibdev = ini->ib_dev;
+ 	lnk->ibport = ini->ib_port;
+ 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
++	atomic_set(&lnk->conn_cnt, 0);
+ 	smc_llc_link_set_uid(lnk);
+ 	INIT_WORK(&lnk->link_down_wrk, smc_link_down_work);
+ 	if (!ini->ib_dev->initialized) {
+@@ -526,6 +530,14 @@ static int smc_switch_cursor(struct smc_sock *smc, struct smc_cdc_tx_pend *pend,
+ 	return rc;
  }
- EXPORT_SYMBOL_GPL(handle_bad_irq);
-diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
-index 62a381351775..6192672be4d2 100644
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -16,6 +16,7 @@
- #include <linux/bitmap.h>
- #include <linux/irqdomain.h>
- #include <linux/sysfs.h>
-+#include <asm-generic/irq-err.h>
  
- #include "internals.h"
++static void smc_switch_link_and_count(struct smc_connection *conn,
++				      struct smc_link *to_lnk)
++{
++	atomic_dec(&conn->lnk->conn_cnt);
++	conn->lnk = to_lnk;
++	atomic_inc(&conn->lnk->conn_cnt);
++}
++
+ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 				  struct smc_link *from_lnk, bool is_dev_err)
+ {
+@@ -574,7 +586,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		    smc->sk.sk_state == SMC_PEERABORTWAIT ||
+ 		    smc->sk.sk_state == SMC_PROCESSABORT) {
+ 			spin_lock_bh(&conn->send_lock);
+-			conn->lnk = to_lnk;
++			smc_switch_link_and_count(conn, to_lnk);
+ 			spin_unlock_bh(&conn->send_lock);
+ 			continue;
+ 		}
+@@ -588,7 +600,7 @@ struct smc_link *smc_switch_conns(struct smc_link_group *lgr,
+ 		}
+ 		/* avoid race with smcr_tx_sndbuf_nonempty() */
+ 		spin_lock_bh(&conn->send_lock);
+-		conn->lnk = to_lnk;
++		smc_switch_link_and_count(conn, to_lnk);
+ 		rc = smc_switch_cursor(smc, pend, wr_buf);
+ 		spin_unlock_bh(&conn->send_lock);
+ 		sock_put(&smc->sk);
+diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
+index 9aee54a6bcba..eefb6770b268 100644
+--- a/net/smc/smc_core.h
++++ b/net/smc/smc_core.h
+@@ -129,6 +129,7 @@ struct smc_link {
+ 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
+ 	struct completion	llc_testlink_resp; /* wait for rx of testlink */
+ 	int			llc_testlink_time; /* testlink interval */
++	atomic_t		conn_cnt; /* connections on this link */
+ };
  
-@@ -684,6 +685,7 @@ int __handle_domain_irq(struct irq_domain *domain, unsigned int hwirq,
- 		if (printk_ratelimit())
- 			pr_warn("spurious IRQ: irq=%d hwirq=%d nr_irqs=%d\n",
- 				irq, hwirq, nr_irqs);
-+		irq_err_inc();
- 		ack_bad_irq(irq);
- 		ret = -EINVAL;
- 	} else {
+ /* For now we just allow one parallel link per link group. The SMC protocol
 -- 
-2.11.0
+2.17.1
