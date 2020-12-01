@@ -1,30 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37040 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726770AbgLBW5A (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Dec 2020 17:57:00 -0500
-Sender: Tejun Heo <htejun@gmail.com>
-Date: Wed, 2 Dec 2020 17:55:50 -0500
-From: Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH 4/9] block: simplify submit_bio_checks a bit
-Message-ID: <X8gbdmOWK46JTUwX@mtj.duckdns.org>
+        with ESMTP id S2390702AbgLAQzQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 11:55:16 -0500
+From: Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4/9] block: simplify submit_bio_checks a bit
+Date: Tue,  1 Dec 2020 17:54:19 +0100
+Message-Id: <20201201165424.2030647-5-hch@lst.de>
+In-Reply-To: <20201201165424.2030647-1-hch@lst.de>
 References: <20201201165424.2030647-1-hch@lst.de>
- <20201201165424.2030647-5-hch@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201201165424.2030647-5-hch@lst.de>
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
 
-On Tue, Dec 01, 2020 at 05:54:19PM +0100, Christoph Hellwig wrote:
-> Merge a few checks for whole devices vs partitions to streamline the
-> sanity checks.
-> 
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+Merge a few checks for whole devices vs partitions to streamline the
+sanity checks.
 
-Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ block/blk-core.c | 40 ++++++++++++++--------------------------
+ 1 file changed, 14 insertions(+), 26 deletions(-)
 
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 95005a8db5ab2f..3a8fef64d36bc1 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -691,11 +691,9 @@ static inline bool should_fail_request(struct block_device *part,
+ 
+ #endif /* CONFIG_FAIL_MAKE_REQUEST */
+ 
+-static inline bool bio_check_ro(struct bio *bio, struct block_device *part)
++static inline bool bio_check_ro(struct bio *bio)
+ {
+-	const int op = bio_op(bio);
+-
+-	if (part->bd_read_only && op_is_write(op)) {
++	if (op_is_write(bio_op(bio)) && bio->bi_bdev->bd_read_only) {
+ 		char b[BDEVNAME_SIZE];
+ 
+ 		if (op_is_flush(bio->bi_opf) && !bio_sectors(bio))
+@@ -703,7 +701,7 @@ static inline bool bio_check_ro(struct bio *bio, struct block_device *part)
+ 
+ 		WARN_ONCE(1,
+ 		       "Trying to write to read-only block-device %s (partno %d)\n",
+-			bio_devname(bio, b), part->bd_partno);
++			bio_devname(bio, b), bio->bi_bdev->bd_partno);
+ 		/* Older lvm-tools actually trigger this */
+ 		return false;
+ 	}
+@@ -724,8 +722,9 @@ ALLOW_ERROR_INJECTION(should_fail_bio, ERRNO);
+  * This may well happen - the kernel calls bread() without checking the size of
+  * the device, e.g., when mounting a file system.
+  */
+-static inline int bio_check_eod(struct bio *bio, sector_t maxsector)
++static inline int bio_check_eod(struct bio *bio)
+ {
++	sector_t maxsector = bdev_nr_sectors(bio->bi_bdev);
+ 	unsigned int nr_sectors = bio_sectors(bio);
+ 
+ 	if (nr_sectors && maxsector &&
+@@ -740,27 +739,20 @@ static inline int bio_check_eod(struct bio *bio, sector_t maxsector)
+ /*
+  * Remap block n of partition p to block n+start(p) of the disk.
+  */
+-static inline int blk_partition_remap(struct bio *bio)
++static int blk_partition_remap(struct bio *bio)
+ {
+ 	struct block_device *p = bio->bi_bdev;
+-	int ret = -EIO;
+ 
+ 	if (unlikely(should_fail_request(p, bio->bi_iter.bi_size)))
+-		goto out;
+-	if (unlikely(bio_check_ro(bio, p)))
+-		goto out;
++		return -EIO;
+ 
+ 	if (bio_sectors(bio)) {
+-		if (bio_check_eod(bio, bdev_nr_sectors(p)))
+-			goto out;
+ 		bio->bi_iter.bi_sector += p->bd_start_sect;
+ 		trace_block_bio_remap(bio, p->bd_dev,
+ 				      bio->bi_iter.bi_sector -
+ 				      p->bd_start_sect);
+ 	}
+-	ret = 0;
+-out:
+-	return ret;
++	return 0;
+ }
+ 
+ /*
+@@ -820,16 +812,12 @@ static noinline_for_stack bool submit_bio_checks(struct bio *bio)
+ 
+ 	if (should_fail_bio(bio))
+ 		goto end_io;
+-
+-	if (bio->bi_bdev->bd_partno) {
+-		if (unlikely(blk_partition_remap(bio)))
+-			goto end_io;
+-	} else {
+-		if (unlikely(bio_check_ro(bio, bdev_whole(bdev))))
+-			goto end_io;
+-		if (unlikely(bio_check_eod(bio, get_capacity(bdev->bd_disk))))
+-			goto end_io;
+-	}
++	if (unlikely(bio_check_ro(bio)))
++		goto end_io;
++	if (unlikely(bio_check_eod(bio)))
++		goto end_io;
++	if (bio->bi_bdev->bd_partno && unlikely(blk_partition_remap(bio)))
++		goto end_io;
+ 
+ 	/*
+ 	 * Filter flush bio's early so that bio based drivers without flush
 -- 
-tejun
+2.29.2
