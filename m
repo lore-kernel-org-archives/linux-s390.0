@@ -5,17 +5,15 @@ References: <20201120114145.197714127@infradead.org>
         <20201120114925.594122626@infradead.org>
         <20201130210003.GA40619@roeck-us.net>
         <20201201110209.GQ3040@hirez.programming.kicks-ass.net>
-Date: Tue, 01 Dec 2020 12:56:27 +0100
+Date: Tue, 01 Dec 2020 12:12:18 +0100
 In-Reply-To: <20201201110209.GQ3040@hirez.programming.kicks-ass.net> (Peter
         Zijlstra's message of "Tue, 1 Dec 2020 12:02:09 +0100")
-Message-ID: <yt9dh7p54u50.fsf@linux.ibm.com>
+Message-ID: <yt9d4kl56ar1.fsf@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
 To: Peter Zijlstra <peterz@infradead.org>
-Cc: Guenter Roeck <linux@roeck-us.net>, rafael@kernel.org, viresh.kumar@linaro.org, mingo@kernel.org, x86@kernel.org, mark.rutland@arm.com, will@kernel.org, linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
-
-Hi Peter,
+Cc: Guenter Roeck <linux@roeck-us.net>, rafael@kernel.org, viresh.kumar@linaro.org, mingo@kernel.org, x86@kernel.org, mark.rutland@arm.com, will@kernel.org, linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
 
 Peter Zijlstra <peterz@infradead.org> writes:
 
@@ -39,11 +37,10 @@ Peter Zijlstra <peterz@infradead.org> writes:
 > would complain about the local_irq_enable() in arch_cpu_idle(), now it
 > complains when taking an interrupt during idle.
 
-I looked into adding the required functionality for s390, but the code
-we would need to add to entry.S is rather large - as you noted we would
-have to duplicate large portions of irqentry_enter() into our code.
-Given that s390 was fine before that patch, can you revert it and submit
-it again during the next merge window?
+The errors on s390 all were fixed in the meantime. I cannot say which
+patch fixed it, but we haven't seen any warning in our internal CI
+during the last weeks. So reverting the patch would likely fix the issue
+for us.
 
-Thanks
-Sven
+s390 is likely to switch to generic entry with the next merge window (im
+working on it), so all that stuff will be easier than.
