@@ -1,90 +1,127 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:41080 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729217AbgLBJ2O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Dec 2020 04:28:14 -0500
-Subject: Re: [RFC V2 2/3] arm64/mm: Define arch_get_mappable_range()
-References: <1606706992-26656-1-git-send-email-anshuman.khandual@arm.com>
- <1606706992-26656-3-git-send-email-anshuman.khandual@arm.com>
-From: David Hildenbrand <david@redhat.com>
-Message-ID: <1861413c-fd23-f3e2-14f3-00feec6ff2fb@redhat.com>
-Date: Wed, 2 Dec 2020 10:26:38 +0100
-MIME-Version: 1.0
-In-Reply-To: <1606706992-26656-3-git-send-email-anshuman.khandual@arm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:26318 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730825AbgLATVp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:21:45 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net-next v7 05/14] net/smc: Add diagnostic information to smc ib-device
+Date: Tue,  1 Dec 2020 20:20:40 +0100
+Message-Id: <20201201192049.53517-6-kgraul@linux.ibm.com>
+In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
+References: <20201201192049.53517-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-On 30.11.20 04:29, Anshuman Khandual wrote:
-> This overrides arch_get_mappable_range() on arm64 platform which will be
-> used with recently added generic framework. It drops inside_linear_region()
-> and subsequent check in arch_add_memory() which are no longer required.
-> 
-> Cc: Catalin Marinas <catalin.marinas@arm.com>
-> Cc: Will Deacon <will@kernel.org>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-> ---
->  arch/arm64/mm/mmu.c | 14 ++++++--------
->  1 file changed, 6 insertions(+), 8 deletions(-)
-> 
-> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-> index ca692a815731..49ec8f2838f2 100644
-> --- a/arch/arm64/mm/mmu.c
-> +++ b/arch/arm64/mm/mmu.c
-> @@ -1444,16 +1444,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
->  	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
->  }
->  
-> -static bool inside_linear_region(u64 start, u64 size)
-> +struct range arch_get_mappable_range(void)
->  {
-> +	struct range memhp_range;
-> +
->  	/*
->  	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
->  	 * accommodating both its ends but excluding PAGE_END. Max physical
->  	 * range which can be mapped inside this linear mapping range, must
->  	 * also be derived from its end points.
->  	 */
-> -	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
-> -	       (start + size - 1) <= __pa(PAGE_END - 1);
-> +	memhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
-> +	memhp_range.end =  __pa(PAGE_END - 1);
-> +	return memhp_range;
->  }
->  
->  int arch_add_memory(int nid, u64 start, u64 size,
-> @@ -1461,11 +1464,6 @@ int arch_add_memory(int nid, u64 start, u64 size,
->  {
->  	int ret, flags = 0;
->  
-> -	if (!inside_linear_region(start, size)) {
-> -		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
-> -		return -EINVAL;
-> -	}
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-As discussed, I think something like a VM_BUG_ON() here might makes
-sense, indicating that we require the caller to validate upfront. Same
-applies to the s390x variant.
+During smc ib-device creation, add network device ifindex to smc
+ib-device structure. Register for netdevice changes and update ib-device
+accordingly. This is needed for diagnostic purposes.
 
-Thanks!
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/smc_ib.c   | 44 ++++++++++++++++++++++++++++++++++++++++++++
+ net/smc/smc_ib.h   |  2 ++
+ net/smc/smc_pnet.c |  2 ++
+ 3 files changed, 48 insertions(+)
 
-> -
->  	if (rodata_full || debug_pagealloc_enabled())
->  		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
->  
-> 
-
-
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index fc766b537ac7..61b025c912a9 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -557,6 +557,49 @@ static void smc_ib_cleanup_per_ibdev(struct smc_ib_device *smcibdev)
+ 
+ static struct ib_client smc_ib_client;
+ 
++static void smc_copy_netdev_ifindex(struct smc_ib_device *smcibdev, int port)
++{
++	struct ib_device *ibdev = smcibdev->ibdev;
++	struct net_device *ndev;
++
++	if (!ibdev->ops.get_netdev)
++		return;
++	ndev = ibdev->ops.get_netdev(ibdev, port + 1);
++	if (ndev) {
++		smcibdev->ndev_ifidx[port] = ndev->ifindex;
++		dev_put(ndev);
++	}
++}
++
++void smc_ib_ndev_change(struct net_device *ndev, unsigned long event)
++{
++	struct smc_ib_device *smcibdev;
++	struct ib_device *libdev;
++	struct net_device *lndev;
++	u8 port_cnt;
++	int i;
++
++	mutex_lock(&smc_ib_devices.mutex);
++	list_for_each_entry(smcibdev, &smc_ib_devices.list, list) {
++		port_cnt = smcibdev->ibdev->phys_port_cnt;
++		for (i = 0; i < min_t(size_t, port_cnt, SMC_MAX_PORTS); i++) {
++			libdev = smcibdev->ibdev;
++			if (!libdev->ops.get_netdev)
++				continue;
++			lndev = libdev->ops.get_netdev(libdev, i + 1);
++			if (lndev)
++				dev_put(lndev);
++			if (lndev != ndev)
++				continue;
++			if (event == NETDEV_REGISTER)
++				smcibdev->ndev_ifidx[i] = ndev->ifindex;
++			if (event == NETDEV_UNREGISTER)
++				smcibdev->ndev_ifidx[i] = 0;
++		}
++	}
++	mutex_unlock(&smc_ib_devices.mutex);
++}
++
+ /* callback function for ib_register_client() */
+ static int smc_ib_add_dev(struct ib_device *ibdev)
+ {
+@@ -596,6 +639,7 @@ static int smc_ib_add_dev(struct ib_device *ibdev)
+ 		if (smc_pnetid_by_dev_port(ibdev->dev.parent, i,
+ 					   smcibdev->pnetid[i]))
+ 			smc_pnetid_by_table_ib(smcibdev, i + 1);
++		smc_copy_netdev_ifindex(smcibdev, i);
+ 		pr_warn_ratelimited("smc:    ib device %s port %d has pnetid "
+ 				    "%.16s%s\n",
+ 				    smcibdev->ibdev->name, i + 1,
+diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
+index 3b85360a473b..ab37da341fa8 100644
+--- a/net/smc/smc_ib.h
++++ b/net/smc/smc_ib.h
+@@ -55,11 +55,13 @@ struct smc_ib_device {				/* ib-device infos for smc */
+ 	struct mutex		mutex;		/* protect dev setup+cleanup */
+ 	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];
+ 						/* number of links per port */
++	int			ndev_ifidx[SMC_MAX_PORTS]; /* ndev if indexes */
+ };
+ 
+ struct smc_buf_desc;
+ struct smc_link;
+ 
++void smc_ib_ndev_change(struct net_device *ndev, unsigned long event);
+ int smc_ib_register_client(void) __init;
+ void smc_ib_unregister_client(void);
+ bool smc_ib_port_active(struct smc_ib_device *smcibdev, u8 ibport);
+diff --git a/net/smc/smc_pnet.c b/net/smc/smc_pnet.c
+index f3c18b991d35..6f6d33edb135 100644
+--- a/net/smc/smc_pnet.c
++++ b/net/smc/smc_pnet.c
+@@ -827,9 +827,11 @@ static int smc_pnet_netdev_event(struct notifier_block *this,
+ 	case NETDEV_REBOOT:
+ 	case NETDEV_UNREGISTER:
+ 		smc_pnet_remove_by_ndev(event_dev);
++		smc_ib_ndev_change(event_dev, event);
+ 		return NOTIFY_OK;
+ 	case NETDEV_REGISTER:
+ 		smc_pnet_add_by_ndev(event_dev);
++		smc_ib_ndev_change(event_dev, event);
+ 		return NOTIFY_OK;
+ 	case NETDEV_UP:
+ 		smc_pnet_add_base_pnetid(net, event_dev, ndev_pnetid);
 -- 
-Thanks,
-
-David / dhildenb
+2.17.1
