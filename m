@@ -1,122 +1,208 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:41778 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727056AbgKARIt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 1 Nov 2020 12:08:49 -0500
-From: Mike Rapoport <rppt@kernel.org>
-Subject: [PATCH v3 2/4] PM: hibernate: make direct map manipulations more explicit
-Date: Sun,  1 Nov 2020 19:08:13 +0200
-Message-Id: <20201101170815.9795-3-rppt@kernel.org>
-In-Reply-To: <20201101170815.9795-1-rppt@kernel.org>
-References: <20201101170815.9795-1-rppt@kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22700 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727373AbgLAAUd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 30 Nov 2020 19:20:33 -0500
+Subject: Re: [PATCH v12 12/17] s390/vfio-ap: allow hot plug/unplug of AP
+ resources using mdev device
+References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
+ <20201124214016.3013-13-akrowiak@linux.ibm.com>
+ <20201129025250.16eb8355.pasic@linux.ibm.com>
+ <103cbe02-2093-c950-8d65-d3dc385942ce@linux.ibm.com>
+ <20201201003227.0c3696fc.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <65834705-347c-1e8d-f33f-b64bc2501b37@linux.ibm.com>
+Date: Mon, 30 Nov 2020 19:18:30 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201201003227.0c3696fc.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Albert Ou <aou@eecs.berkeley.edu>, Andy Lutomirski <luto@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Christoph Lameter <cl@linux.com>, "David S. Miller" <davem@davemloft.net>, Dave Hansen <dave.hansen@linux.intel.com>, David Hildenbrand <david@redhat.com>, David Rientjes <rientjes@google.com>, "Edgecombe, Rick P" <rick.p.edgecombe@intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Heiko Carstens <hca@linux.ibm.com>, Ingo Molnar <mingo@redhat.com>, Joonsoo Kim <iamjoonsoo.kim@lge.com>, "Kirill A. Shutemov" <kirill@shutemov.name>, Len Brown <len.brown@intel.com>, Michael Ellerman <mpe@ellerman.id.au>, Mike Rapoport <rppt@kernel.org>, Mike Rapoport <rppt@linux.ibm.com>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Pavel Machek <pavel@ucw.cz>, Pekka Enberg <penberg@kernel.org>, Peter Zijlstra <peterz@infradead.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Thomas Gleixner <tglx@linutronix.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-pm@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org, x86@kernel.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-From: Mike Rapoport <rppt@linux.ibm.com>
 
-When DEBUG_PAGEALLOC or ARCH_HAS_SET_DIRECT_MAP is enabled a page may be
-not present in the direct map and has to be explicitly mapped before it
-could be copied.
 
-Introduce hibernate_map_page() that will explicitly use
-set_direct_map_{default,invalid}_noflush() for ARCH_HAS_SET_DIRECT_MAP case
-and debug_pagealloc_map_pages() for DEBUG_PAGEALLOC case.
+On 11/30/20 6:32 PM, Halil Pasic wrote:
+> On Mon, 30 Nov 2020 14:36:10 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>>
+>> On 11/28/20 8:52 PM, Halil Pasic wrote:
+> [..]
+>>>> * Unassign adapter from mdev's matrix:
+>>>>
+>>>>     The domain will be hot unplugged from the KVM guest if it is
+>>>>     assigned to the guest's matrix.
+>>>>
+>>>> * Assign a control domain:
+>>>>
+>>>>     The control domain will be hot plugged into the KVM guest if it is not
+>>>>     assigned to the guest's APCB. The AP architecture ensures a guest will
+>>>>     only get access to the control domain if it is in the host's AP
+>>>>     configuration, so there is no risk in hot plugging it; however, it will
+>>>>     become automatically available to the guest when it is added to the host
+>>>>     configuration.
+>>>>
+>>>> * Unassign a control domain:
+>>>>
+>>>>     The control domain will be hot unplugged from the KVM guest if it is
+>>>>     assigned to the guest's APCB.
+>>> This is where things start getting tricky. E.g. do we need to revise
+>>> filtering after an unassign? (For example an assign_adapter X didn't
+>>> change the shadow, because queue XY was missing, but now we unplug domain
+>>> Y. Should the adapter X pop up? I guess it should.)
+>> I suppose that makes sense at the expense of making the code
+>> more complex. It is essentially what we had in the prior version
+>> which used the same filtering code for assignment as well as
+>> host AP configuration changes.
+>>
+> Will have to think about it some more. Making the user unplug and
+> replug an adapter because at some point it got filtered, but there
+> is no need to filter it does not feel right. On the other hand, I'm
+> afraid I'm complaining in circles.
+>
+>>>
+>>>> Note: Now that hot plug/unplug is implemented, there is the possibility
+>>>>         that an assignment/unassignment of an adapter, domain or control
+>>>>         domain could be initiated while the guest is starting, so the
+>>>>         matrix device lock will be taken for the group notification callback
+>>>>         that initializes the guest's APCB when the KVM pointer is made
+>>>>         available to the vfio_ap device driver.
+>>>>
+>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>>>> ---
+>>>>    drivers/s390/crypto/vfio_ap_ops.c | 190 +++++++++++++++++++++++++-----
+>>>>    1 file changed, 159 insertions(+), 31 deletions(-)
+>>>>
+>>>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> index 586ec5776693..4f96b7861607 100644
+>>>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>>>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>>>> @@ -631,6 +631,60 @@ static void vfio_ap_mdev_manage_qlinks(struct ap_matrix_mdev *matrix_mdev,
+>>>>    	}
+>>>>    }
+>>>>    
+>>>> +static bool vfio_ap_assign_apid_to_apcb(struct ap_matrix_mdev *matrix_mdev,
+>>>> +					unsigned long apid)
+>>>> +{
+>>>> +	unsigned long apqi, apqn;
+>>>> +	unsigned long *aqm = matrix_mdev->shadow_apcb.aqm;
+>>>> +
+>>>> +	/*
+>>>> +	 * If the APID is already assigned to the guest's shadow APCB, there is
+>>>> +	 * no need to assign it.
+>>>> +	 */
+>>>> +	if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm))
+>>>> +		return false;
+>>>> +
+>>>> +	/*
+>>>> +	 * If no domains have yet been assigned to the shadow APCB and one or
+>>>> +	 * more domains have been assigned to the matrix mdev, then use
+>>>> +	 * the domains assigned to the matrix mdev; otherwise, there is nothing
+>>>> +	 * to assign to the shadow APCB.
+>>>> +	 */
+>>>> +	if (bitmap_empty(matrix_mdev->shadow_apcb.aqm, AP_DOMAINS)) {
+>>>> +		if (bitmap_empty(matrix_mdev->matrix.aqm, AP_DOMAINS))
+>>>> +			return false;
+>>>> +
+>>>> +		aqm = matrix_mdev->matrix.aqm;
+>>>> +	}
+>>>> +
+>>>> +	/* Make sure all APQNs are bound to the vfio_ap driver */
+>>>> +	for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
+>>>> +		apqn = AP_MKQID(apid, apqi);
+>>>> +
+>>>> +		if (vfio_ap_mdev_get_queue(matrix_mdev, apqn) == NULL)
+>>>> +			return false;
+>>>> +	}
+>>>> +
+>>>> +	set_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
+>>>> +
+>>>> +	/*
+>>>> +	 * If we verified APQNs using the domains assigned to the matrix mdev,
+>>>> +	 * then copy the APQIs of those domains into the guest's APCB
+>>>> +	 */
+>>>> +	if (bitmap_empty(matrix_mdev->shadow_apcb.aqm, AP_DOMAINS))
+>>>> +		bitmap_copy(matrix_mdev->shadow_apcb.aqm,
+>>>> +			    matrix_mdev->matrix.aqm, AP_DOMAINS);
+>>>> +
+>>>> +	return true;
+>>>> +}
+>>> What is the rationale behind the shadow aqm empty special handling?
+>> The rationale was to avoid taking the VCPUs
+>> out of SIE in order to make an update to the guest's APCB
+>> unnecessarily. For example, suppose the guest is started
+>> without access to any APQNs (i.e., all matrix and shadow_apcb
+>> masks are zeros). Now suppose the administrator proceeds to
+>> start assigning AP resources to the mdev. Let's say he starts
+>> by assigning adapters 1 through 100. The code below will return
+>> true indicating the shadow_apcb was updated. Consequently,
+>> the calling code will commit the changes to the guest's
+>> APCB. The problem there is that in order to update the guest's
+>> VCPUs, they will have to be taken out of SIE, yet the guest will
+>> not get access to the adapter since no domains have yet been
+>> assigned to the APCB. Doing this 100 times - once for each
+>> adapter 1-100 - is probably a bad idea.
+>>
+> Not yanking the VCPUs out of SIE does make a lot of sense. At least
+> I understand your motivation now. I will think some more about this,
+> but in the meanwhile, please try to answer one more question (see
+> below).
+>   
+>>>    I.e.
+>>> why not simply:
+>>>
+>>>
+>>> static bool vfio_ap_assign_apid_to_apcb(struct ap_matrix_mdev *matrix_mdev,
+>>>                                           unsigned long apid)
+>>> {
+>>>           unsigned long apqi, apqn;
+>>>           unsigned long *aqm = matrix_mdev->shadow_apcb.aqm;
+>>>                                                                                   
+>>>           /*
+>>>            * If the APID is already assigned to the guest's shadow APCB, there is
+>>>            * no need to assign it.
+>>>            */
+>>>           if (test_bit_inv(apid, matrix_mdev->shadow_apcb.apm))
+>>>                   return false;
+>>>                                                                                   
+>>>           /* Make sure all APQNs are bound to the vfio_ap driver */
+>>>           for_each_set_bit_inv(apqi, aqm, AP_DOMAINS) {
+>>>                   apqn = AP_MKQID(apid, apqi);
+>>>                                                                                   
+>>>                   if (vfio_ap_mdev_get_queue(matrix_mdev, apqn) == NULL)
+>>>                           return false;
+>>>           }
+>>>                                                                                   
+>>>           set_bit_inv(apid, matrix_mdev->shadow_apcb.apm);
+>>>                                                                                   
+>>>           return true;
+> Would
+> s/return true/return !bitmap_empty(matrix_mdev->shadow_apcb.aqm,
+> AP_DOMAINS)/
+> do the trick?
+>
+> I mean if empty, then we would not commit the APCB, so we would
+> not take the vCPUs out of SIE -- see below.
 
-The remapping of the pages in safe_copy_page() presumes that it only
-changes protection bits in an existing PTE and so it is safe to ignore
-return value of set_direct_map_{default,invalid}_noflush().
+At first glance I'd say yes, it does the trick; but, I need to consider
+all possible scenarios. For example, that will work fine when someone
+either assigns all of the adapters or all of the domains first, then assigns
+the other.
 
-Still, add a WARN_ON() so that future changes in set_memory APIs will not
-silently break hibernation.
-
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
----
- include/linux/mm.h      | 12 ------------
- kernel/power/snapshot.c | 30 ++++++++++++++++++++++++++++--
- 2 files changed, 28 insertions(+), 14 deletions(-)
-
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 1fc0609056dc..14e397f3752c 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2927,16 +2927,6 @@ static inline bool debug_pagealloc_enabled_static(void)
- #if defined(CONFIG_DEBUG_PAGEALLOC) || defined(CONFIG_ARCH_HAS_SET_DIRECT_MAP)
- extern void __kernel_map_pages(struct page *page, int numpages, int enable);
- 
--/*
-- * When called in DEBUG_PAGEALLOC context, the call should most likely be
-- * guarded by debug_pagealloc_enabled() or debug_pagealloc_enabled_static()
-- */
--static inline void
--kernel_map_pages(struct page *page, int numpages, int enable)
--{
--	__kernel_map_pages(page, numpages, enable);
--}
--
- static inline void debug_pagealloc_map_pages(struct page *page,
- 					     int numpages, int enable)
- {
-@@ -2948,8 +2938,6 @@ static inline void debug_pagealloc_map_pages(struct page *page,
- extern bool kernel_page_present(struct page *page);
- #endif	/* CONFIG_HIBERNATION */
- #else	/* CONFIG_DEBUG_PAGEALLOC || CONFIG_ARCH_HAS_SET_DIRECT_MAP */
--static inline void
--kernel_map_pages(struct page *page, int numpages, int enable) {}
- static inline void debug_pagealloc_map_pages(struct page *page,
- 					     int numpages, int enable) {}
- #ifdef CONFIG_HIBERNATION
-diff --git a/kernel/power/snapshot.c b/kernel/power/snapshot.c
-index 46b1804c1ddf..054c8cce4236 100644
---- a/kernel/power/snapshot.c
-+++ b/kernel/power/snapshot.c
-@@ -76,6 +76,32 @@ static inline void hibernate_restore_protect_page(void *page_address) {}
- static inline void hibernate_restore_unprotect_page(void *page_address) {}
- #endif /* CONFIG_STRICT_KERNEL_RWX  && CONFIG_ARCH_HAS_SET_MEMORY */
- 
-+static inline void hibernate_map_page(struct page *page, int enable)
-+{
-+	if (IS_ENABLED(CONFIG_ARCH_HAS_SET_DIRECT_MAP)) {
-+		unsigned long addr = (unsigned long)page_address(page);
-+		int ret;
-+
-+		/*
-+		 * This should not fail because remapping a page here means
-+		 * that we only update protection bits in an existing PTE.
-+		 * It is still worth to have WARN_ON() here if something
-+		 * changes and this will no longer be the case.
-+		 */
-+		if (enable)
-+			ret = set_direct_map_default_noflush(page);
-+		else
-+			ret = set_direct_map_invalid_noflush(page);
-+
-+		if (WARN_ON(ret))
-+			return;
-+
-+		flush_tlb_kernel_range(addr, addr + PAGE_SIZE);
-+	} else {
-+		debug_pagealloc_map_pages(page, 1, enable);
-+	}
-+}
-+
- static int swsusp_page_is_free(struct page *);
- static void swsusp_set_page_forbidden(struct page *);
- static void swsusp_unset_page_forbidden(struct page *);
-@@ -1355,9 +1381,9 @@ static void safe_copy_page(void *dst, struct page *s_page)
- 	if (kernel_page_present(s_page)) {
- 		do_copy_page(dst, page_address(s_page));
- 	} else {
--		kernel_map_pages(s_page, 1, 1);
-+		hibernate_map_page(s_page, 1);
- 		do_copy_page(dst, page_address(s_page));
--		kernel_map_pages(s_page, 1, 0);
-+		hibernate_map_page(s_page, 0);
- 	}
- }
- 
--- 
-2.28.0
+>
+>>>> +
+>>>> +static void vfio_ap_mdev_hot_plug_adapter(struct ap_matrix_mdev *matrix_mdev,
+>>>> +					  unsigned long apid)
+>>>> +{
+>>>> +	if (vfio_ap_assign_apid_to_apcb(matrix_mdev, apid))
+>>>> +		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
+>>>> +}
+>>>> +
+> [..]
+>
+> Regards,
+> Halil
