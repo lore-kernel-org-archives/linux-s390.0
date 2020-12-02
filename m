@@ -1,47 +1,61 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:40172 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388549AbgLIU34 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Dec 2020 15:29:56 -0500
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [RFC 0/4] vfio-pci/zdev: Fixing s390 vfio-pci ISM support
-Date: Wed,  9 Dec 2020 15:27:46 -0500
-Message-Id: <1607545670-1557-1-git-send-email-mjrosato@linux.ibm.com>
+Received: from mail.kernel.org ([198.145.29.99]:48700 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726023AbgLBB6N (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 1 Dec 2020 20:58:13 -0500
+Date: Tue, 1 Dec 2020 17:57:30 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH net-next v7 00/14] net/smc: Add support for generic
+ netlink API
+Message-ID: <20201201175730.0aa647a6@kicinski-fedora-pc1c0hjn.DHCP.thefacebook.com>
+In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
+References: <20201201192049.53517-1-kgraul@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Karsten Graul <kgraul@linux.ibm.com>
+Cc: David Miller <davem@davemloft.net>, Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-Today, ISM devices are completely disallowed for vfio-pci passthrough as
-QEMU will reject the device due to an (inappropriate) MSI-X check.
-However, in an effort to enable ISM device passthrough, I realized that the
-manner in which ISM performs block write operations is highly incompatible
-with the way that QEMU s390 PCI instruction interception and
-vfio_pci_bar_rw break up I/O operations into 8B and 4B operations -- ISM
-devices have particular requirements in regards to the alignment, size and
-order of writes performed.  Furthermore, they require that legacy/non-MIO
-s390 PCI instructions are used, which is also not guaranteed when the I/O
-is passed through the typical userspace channels.
+On Tue,  1 Dec 2020 20:20:35 +0100 Karsten Graul wrote:
+> Please apply the following patch series for smc to netdev's net-next tree.
+> 
+> Up to version 4 this patch series was using the sock_diag netlink
+> infrastructure. This version is using the generic netlink API. Generic
+> netlink API offers a better type safety between kernel and userspace
+> communication.
+> Using the generic netlink API the smc module can now provide information
+> about SMC linkgroups, links and devices (both for SMC-R and SMC-D).
+> 
+> v2: Add missing include to uapi header smc_diag.h.
+> 
+> v3: Apply code style recommendations from review comments.
+>     Instead of using EXPORTs to allow the smc_diag module to access
+>     data of the smc module, introduce struct smc_diag_ops and let
+>     smc_diag access the required data using function pointers.
+> 
+> v4: Address checkpatch.pl warnings. Do not use static inline for
+>     functions.
+> 
+> v5: Use generic netlink API instead of the sock_diag netlink
+>     infrastructure.
+> 
+> v6: Integrate more review comments from Jakub.
+> 
+> v7: Use nla_nest_start() with the new family. Use .maxattr=1 in the
+>     genl family and define one entry for attribute 1 in the policy to
+>     reject this attritbute for all commands. All other possible attributes
+>     are rejected because NL_VALIDATE_STRICT is set for the policy
+>     implicitely, which includes NL_VALIDATE_MAXTYPE.
+>     Setting policy[0].strict_start_type=1 does not work here because there
+>     is no valid attribute defined for this family, only plain commands. For
+>     any type > maxtype (which is .maxattr) validate_nla() would return 0 to
+>     userspace instead of -EINVAL. What helps here is __nla_validate_parse()
+>     which checks for type > maxtype and returns -EINVAL when NL_VALIDATE_MAXTYPE
+>     is set. This requires the one entry for type == .maxattr with
+>     .type = NLA_REJECT in the nla_policy.
+>     When a future command wants to allow attributes then it can easily specify a
+>     dedicated .policy for this new command in the genl_ops array. This dedicated
+>     policy overlays the global policy specified in the genl_family structure.
 
-As a result, this patchset proposes a new VFIO region to allow a guest to
-pass certain PCI instruction intercepts directly to the s390 host kernel
-PCI layer for exeuction, pinning the guest buffer in memory briefly in
-order to execute the requested PCI instruction.
-
-Matthew Rosato (4):
-  s390/pci: track alignment/length strictness for zpci_dev
-  vfio-pci/zdev: Pass the relaxed alignment flag
-  s390/pci: Get hardware-reported max store block length
-  vfio-pci/zdev: Introduce the zPCI I/O vfio region
-
- arch/s390/include/asm/pci.h         |   4 +-
- arch/s390/include/asm/pci_clp.h     |   7 +-
- arch/s390/pci/pci_clp.c             |   2 +
- drivers/vfio/pci/vfio_pci.c         |   8 ++
- drivers/vfio/pci/vfio_pci_private.h |   6 ++
- drivers/vfio/pci/vfio_pci_zdev.c    | 160 ++++++++++++++++++++++++++++++++++++
- include/uapi/linux/vfio.h           |   4 +
- include/uapi/linux/vfio_zdev.h      |  33 ++++++++
- 8 files changed, 221 insertions(+), 3 deletions(-)
-
--- 
-1.8.3.1
+Applied, thank you!
