@@ -1,42 +1,49 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58252 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730890AbgLDQnm (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Dec 2020 11:43:42 -0500
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78D0BC061A55
-        for <linux-s390@vger.kernel.org>; Fri,  4 Dec 2020 08:43:02 -0800 (PST)
-Received: by mail-il1-x142.google.com with SMTP id z14so5747523ilm.10
-        for <linux-s390@vger.kernel.org>; Fri, 04 Dec 2020 08:43:02 -0800 (PST)
+        with ESMTP id S1725985AbgLBWq7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Dec 2020 17:46:59 -0500
+Sender: Tejun Heo <htejun@gmail.com>
+Date: Wed, 2 Dec 2020 17:37:03 -0500
+From: Tejun Heo <tj@kernel.org>
 Subject: Re: store a pointer to the block_device in struct bio (again)
+Message-ID: <X8gXDx0DU+sqJoPc@mtj.duckdns.org>
 References: <20201201165424.2030647-1-hch@lst.de>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <285e5e82-2e9c-a1db-b9b6-b82ec95aea6d@kernel.dk>
-Date: Fri, 4 Dec 2020 09:43:00 -0700
+ <X8gWqZ6li+CvgF4i@mtj.duckdns.org>
 MIME-Version: 1.0
-In-Reply-To: <20201201165424.2030647-1-hch@lst.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <X8gWqZ6li+CvgF4i@mtj.duckdns.org>
 List-ID: <linux-s390.vger.kernel.org>
 To: Christoph Hellwig <hch@lst.de>
-Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+Cc: Jens Axboe <axboe@kernel.dk>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
 
-On 12/1/20 9:54 AM, Christoph Hellwig wrote:
-> Hi Jens,
+On Wed, Dec 02, 2020 at 05:35:21PM -0500, Tejun Heo wrote:
+> On Tue, Dec 01, 2020 at 05:54:15PM +0100, Christoph Hellwig wrote:
+> > Hi Jens,
+> > 
+> > this series switches back from storing the gendisk + partno to storing
+> > a block_device pointer in struct bio.  The reason is two fold:  for one
+> > the new struct block_device actually is always available, removing the
+> > need to avoid originally.  Second the merge struct block_device is much
+> > more useful than the old one, as storing it avoids the need for looking
+> > up what used to be hd_struct during partition remapping and I/O
+> > accounting.
+> > 
+> > Note that this series depends on the posted but not merged
+> > "block tracepoint cleanups" series.
 > 
-> this series switches back from storing the gendisk + partno to storing
-> a block_device pointer in struct bio.  The reason is two fold:  for one
-> the new struct block_device actually is always available, removing the
-> need to avoid originally.  Second the merge struct block_device is much
-> more useful than the old one, as storing it avoids the need for looking
-> up what used to be hd_struct during partition remapping and I/O
-> accounting.
+> I'm late but everything looks good to me. So much better than the mess we
+> had before. Thank you.
 > 
-> Note that this series depends on the posted but not merged
-> "block tracepoint cleanups" series.
+> The only thing I noticed is that blkdev_get_no_open() can now use
+> kobject_get() instead of kobject_get_unless_zero() as bdev lookup is
+> synchronously disabled before device_del().
 
-Applied, thanks.
+Oops, sorry, this was supposed to be a reply to the earlier hd_struct
+removal patchset. Reviewing this patchset now.
+
+Thanks.
 
 -- 
-Jens Axboe
+tejun
