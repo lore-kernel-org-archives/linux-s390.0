@@ -1,42 +1,41 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-Message-Id: <20201210194044.672935978@linutronix.de>
-Date: Thu, 10 Dec 2020 20:25:57 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 21/30] net/mlx4: Use effective interrupt affinity
-References: <20201210192536.118432146@linutronix.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:34256 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730437AbgLCMsc (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 3 Dec 2020 07:48:32 -0500
+Subject: Re: [PATCH 3/5] block: remove the request_queue argument to the
+ block_split tracepoint
+References: <20201130175854.982460-1-hch@lst.de>
+ <20201130175854.982460-4-hch@lst.de>
+From: Hannes Reinecke <hare@suse.de>
+Message-ID: <17235d5e-3176-6597-fe91-9e4d7bdfc8fc@suse.de>
+Date: Thu, 3 Dec 2020 13:47:49 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+In-Reply-To: <20201130175854.982460-4-hch@lst.de>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org
 
-Using the interrupt affinity mask for checking locality is not really
-working well on architectures which support effective affinity masks.
+On 11/30/20 6:58 PM, Christoph Hellwig wrote:
+> The request_queue can trivially be derived from the bio.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>   block/blk-merge.c            |  2 +-
+>   drivers/md/dm.c              |  2 +-
+>   include/trace/events/block.h | 14 ++++++--------
+>   kernel/trace/blktrace.c      |  5 ++---
+>   4 files changed, 10 insertions(+), 13 deletions(-)
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-The affinity mask is either the system wide default or set by user space,
-but the architecture can or even must reduce the mask to the effective set,
-which means that checking the affinity mask itself does not really tell
-about the actual target CPUs.
+Cheers,
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tariq Toukan <tariqt@nvidia.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-rdma@vger.kernel.org
----
- drivers/net/ethernet/mellanox/mlx4/en_cq.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/net/ethernet/mellanox/mlx4/en_cq.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_cq.c
-@@ -117,7 +117,7 @@ int mlx4_en_activate_cq(struct mlx4_en_p
- 			assigned_eq = true;
- 		}
- 		irq = mlx4_eq_get_irq(mdev->dev, cq->vector);
--		cq->aff_mask = irq_get_affinity_mask(irq);
-+		cq->aff_mask = irq_get_effective_affinity_mask(irq);
- 	} else {
- 		/* For TX we use the same irq per
- 		ring we assigned for the RX    */
+Hannes
+-- 
+Dr. Hannes Reinecke                Kernel Storage Architect
+hare@suse.de                              +49 911 74053 688
+SUSE Software Solutions GmbH, Maxfeldstr. 5, 90409 Nürnberg
+HRB 36809 (AG Nürnberg), Geschäftsführer: Felix Imendörffer
