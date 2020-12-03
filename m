@@ -1,31 +1,34 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from esa3.hgst.iphmx.com ([216.71.153.141]:5679 "EHLO
-        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726080AbgLDD0W (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Dec 2020 22:26:22 -0500
-From: Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32892 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725987AbgLCTqR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Dec 2020 14:46:17 -0500
+Sender: Tejun Heo <htejun@gmail.com>
+Date: Thu, 3 Dec 2020 14:45:02 -0500
+From: Tejun Heo <tj@kernel.org>
 Subject: Re: [PATCH 1/5] block: remove the unused block_sleeprq tracepoint
-Date: Fri, 4 Dec 2020 03:25:15 +0000
-Message-ID: <BYAPR04MB4965C0AF4B7461309062FD6186F10@BYAPR04MB4965.namprd04.prod.outlook.com>
+Message-ID: <X8lAPgNyC8Aldfrn@mtj.duckdns.org>
 References: <20201203162139.2110977-1-hch@lst.de>
  <20201203162139.2110977-2-hch@lst.de>
-Content-Language: en-US
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201203162139.2110977-2-hch@lst.de>
 List-ID: <linux-s390.vger.kernel.org>
-To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, "dm-devel@redhat.com" <dm-devel@redhat.com>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Hannes Reinecke <hare@suse.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>, Hannes Reinecke <hare@suse.de>
 
-On 12/3/20 08:24, Christoph Hellwig wrote:=0A=
-> The block_sleeprq tracepoint was only used by the legacy request code.=0A=
-> Remove it now that the legacy request code is gone.=0A=
->=0A=
-> Signed-off-by: Christoph Hellwig <hch@lst.de>=0A=
-> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
-> Reviewed-by: Hannes Reinecke <hare@suse.de>=0A=
-=0A=
-Looks good.=0A=
-=0A=
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>=0A=
-=0A=
+On Thu, Dec 03, 2020 at 05:21:35PM +0100, Christoph Hellwig wrote:
+> The block_sleeprq tracepoint was only used by the legacy request code.
+> Remove it now that the legacy request code is gone.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
+
+Acked-by: Tejun Heo <tj@kernel.org>
+
+Thanks.
+
+-- 
+tejun
