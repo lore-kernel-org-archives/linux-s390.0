@@ -1,86 +1,122 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29070 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727985AbgLOJMB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 15 Dec 2020 04:12:01 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next 1/1] net/smc: fix access to parent of an ib device
-Date: Tue, 15 Dec 2020 10:10:58 +0100
-Message-Id: <20201215091058.49354-2-kgraul@linux.ibm.com>
-In-Reply-To: <20201215091058.49354-1-kgraul@linux.ibm.com>
-References: <20201215091058.49354-1-kgraul@linux.ibm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62216 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725885AbgLCVgF (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Dec 2020 16:36:05 -0500
+From: Eric Farman <farman@linux.ibm.com>
+Subject: [PATCH v3 2/2] vfio-ccw: Wire in the request callback
+Date: Thu,  3 Dec 2020 22:35:12 +0100
+Message-Id: <20201203213512.49357-3-farman@linux.ibm.com>
+In-Reply-To: <20201203213512.49357-1-farman@linux.ibm.com>
+References: <20201203213512.49357-1-farman@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Alex Williamson <alex.williamson@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: Kirti Wankhede <kwankhede@nvidia.com>, Halil Pasic <pasic@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org, Eric Farman <farman@linux.ibm.com>
 
-The parent of an ib device is used to retrieve the PCI device
-attributes. It turns out that there are possible cases when an ib device
-has no parent set in the device structure, which may lead to page
-faults when trying to access this memory.
-Fix that by checking the parent pointer and consolidate the pci device
-specific processing in a new function.
+The device is being unplugged, so pass the request to userspace to
+ask for a graceful cleanup. This should free up the thread that
+would otherwise loop waiting for the device to be fully released.
 
-Fixes: a3db10efcc4c ("net/smc: Add support for obtaining SMCR device list")
-Reported-by: syzbot+600fef7c414ee7e2d71b@syzkaller.appspotmail.com
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- net/smc/smc_ib.c | 36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ drivers/s390/cio/vfio_ccw_ops.c     | 26 ++++++++++++++++++++++++++
+ drivers/s390/cio/vfio_ccw_private.h |  4 ++++
+ include/uapi/linux/vfio.h           |  1 +
+ 3 files changed, 31 insertions(+)
 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 89ea10675a7d..ddd7fac98b1d 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -394,6 +394,22 @@ static int smc_nl_handle_dev_port(struct sk_buff *skb,
- 	return -EMSGSIZE;
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index 8b3ed5b45277..68106be4ba7a 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -394,6 +394,7 @@ static int vfio_ccw_mdev_get_irq_info(struct vfio_irq_info *info)
+ 	switch (info->index) {
+ 	case VFIO_CCW_IO_IRQ_INDEX:
+ 	case VFIO_CCW_CRW_IRQ_INDEX:
++	case VFIO_CCW_REQ_IRQ_INDEX:
+ 		info->count = 1;
+ 		info->flags = VFIO_IRQ_INFO_EVENTFD;
+ 		break;
+@@ -424,6 +425,9 @@ static int vfio_ccw_mdev_set_irqs(struct mdev_device *mdev,
+ 	case VFIO_CCW_CRW_IRQ_INDEX:
+ 		ctx = &private->crw_trigger;
+ 		break;
++	case VFIO_CCW_REQ_IRQ_INDEX:
++		ctx = &private->req_trigger;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
+@@ -607,6 +611,27 @@ static ssize_t vfio_ccw_mdev_ioctl(struct mdev_device *mdev,
+ 	}
  }
  
-+static bool smc_nl_handle_pci_values(const struct smc_pci_dev *smc_pci_dev,
-+				     struct sk_buff *skb)
++/* Request removal of the device*/
++static void vfio_ccw_mdev_request(struct mdev_device *mdev, unsigned int count)
 +{
-+	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev->pci_fid))
-+		return false;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev->pci_pchid))
-+		return false;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_VENDOR, smc_pci_dev->pci_vendor))
-+		return false;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_DEVICE, smc_pci_dev->pci_device))
-+		return false;
-+	if (nla_put_string(skb, SMC_NLA_DEV_PCI_ID, smc_pci_dev->pci_id))
-+		return false;
-+	return true;
++	struct vfio_ccw_private *private = dev_get_drvdata(mdev_parent_dev(mdev));
++
++	if (!private)
++		return;
++
++	if (private->req_trigger) {
++		if (!(count % 10))
++			dev_notice_ratelimited(mdev_dev(private->mdev),
++					       "Relaying device request to user (#%u)\n",
++					       count);
++
++		eventfd_signal(private->req_trigger, 1);
++	} else if (count == 0) {
++		dev_notice(mdev_dev(private->mdev),
++			   "No device request channel registered, blocked until released by user\n");
++	}
 +}
 +
- static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
- 				  struct sk_buff *skb,
- 				  struct netlink_callback *cb)
-@@ -417,19 +433,13 @@ static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
- 	is_crit = smcr_diag_is_dev_critical(&smc_lgr_list, smcibdev);
- 	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, is_crit))
- 		goto errattr;
--	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
--	pci_dev = to_pci_dev(smcibdev->ibdev->dev.parent);
--	smc_set_pci_values(pci_dev, &smc_pci_dev);
--	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
--		goto errattr;
--	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
--		goto errattr;
--	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_VENDOR, smc_pci_dev.pci_vendor))
--		goto errattr;
--	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_DEVICE, smc_pci_dev.pci_device))
--		goto errattr;
--	if (nla_put_string(skb, SMC_NLA_DEV_PCI_ID, smc_pci_dev.pci_id))
--		goto errattr;
-+	if (smcibdev->ibdev->dev.parent) {
-+		memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
-+		pci_dev = to_pci_dev(smcibdev->ibdev->dev.parent);
-+		smc_set_pci_values(pci_dev, &smc_pci_dev);
-+		if (!smc_nl_handle_pci_values(&smc_pci_dev, skb))
-+			goto errattr;
-+	}
- 	snprintf(smc_ibname, sizeof(smc_ibname), "%s", smcibdev->ibdev->name);
- 	if (nla_put_string(skb, SMC_NLA_DEV_IB_NAME, smc_ibname))
- 		goto errattr;
+ static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
+ 	.owner			= THIS_MODULE,
+ 	.supported_type_groups  = mdev_type_groups,
+@@ -617,6 +642,7 @@ static const struct mdev_parent_ops vfio_ccw_mdev_ops = {
+ 	.read			= vfio_ccw_mdev_read,
+ 	.write			= vfio_ccw_mdev_write,
+ 	.ioctl			= vfio_ccw_mdev_ioctl,
++	.request		= vfio_ccw_mdev_request,
+ };
+ 
+ int vfio_ccw_mdev_reg(struct subchannel *sch)
+diff --git a/drivers/s390/cio/vfio_ccw_private.h b/drivers/s390/cio/vfio_ccw_private.h
+index 8723156b29ea..b2c762eb42b9 100644
+--- a/drivers/s390/cio/vfio_ccw_private.h
++++ b/drivers/s390/cio/vfio_ccw_private.h
+@@ -84,7 +84,10 @@ struct vfio_ccw_crw {
+  * @irb: irb info received from interrupt
+  * @scsw: scsw info
+  * @io_trigger: eventfd ctx for signaling userspace I/O results
++ * @crw_trigger: eventfd ctx for signaling userspace CRW information
++ * @req_trigger: eventfd ctx for signaling userspace to return device
+  * @io_work: work for deferral process of I/O handling
++ * @crw_work: work for deferral process of CRW handling
+  */
+ struct vfio_ccw_private {
+ 	struct subchannel	*sch;
+@@ -108,6 +111,7 @@ struct vfio_ccw_private {
+ 
+ 	struct eventfd_ctx	*io_trigger;
+ 	struct eventfd_ctx	*crw_trigger;
++	struct eventfd_ctx	*req_trigger;
+ 	struct work_struct	io_work;
+ 	struct work_struct	crw_work;
+ } __aligned(8);
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index 2f313a238a8f..d1812777139f 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -820,6 +820,7 @@ enum {
+ enum {
+ 	VFIO_CCW_IO_IRQ_INDEX,
+ 	VFIO_CCW_CRW_IRQ_INDEX,
++	VFIO_CCW_REQ_IRQ_INDEX,
+ 	VFIO_CCW_NUM_IRQS
+ };
+ 
 -- 
 2.17.1
