@@ -1,468 +1,151 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:62130 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729726AbgLHPJ4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Dec 2020 10:09:56 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 1/2] s390x: Move to GPL 2 and SPDX license identifiers
-Date: Tue,  8 Dec 2020 10:09:01 -0500
-Message-Id: <20201208150902.32383-2-frankja@linux.ibm.com>
-In-Reply-To: <20201208150902.32383-1-frankja@linux.ibm.com>
-References: <20201208150902.32383-1-frankja@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:43324 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726977AbgLCDEh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 2 Dec 2020 22:04:37 -0500
+Subject: Re: [PATCH v2 1/2] vfio-mdev: Wire in a request handler for mdev
+ parent
+References: <20201120180740.87837-1-farman@linux.ibm.com>
+ <20201120180740.87837-2-farman@linux.ibm.com>
+ <20201202132838.6a872c17@w520.home>
+From: Eric Farman <farman@linux.ibm.com>
+Message-ID: <eacaffbf-81eb-4d3d-a8eb-e8da8100c313@linux.ibm.com>
+Date: Wed, 2 Dec 2020 22:02:36 -0500
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201202132838.6a872c17@w520.home>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: Alex Williamson <alex.williamson@redhat.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, Kirti Wankhede <kwankhede@nvidia.com>, Halil Pasic <pasic@linux.ibm.com>, Matthew Rosato <mjrosato@linux.ibm.com>, linux-s390@vger.kernel.org, kvm@vger.kernel.org
 
-In the past we had some issues when developers wanted to use code
-snippets or constants from the kernel in a test or in the library. To
-remedy that the s390x maintainers decided to move all files to GPL
-2 (if possible).
 
-At the same time let's move to SPDX identifiers as they are much nicer
-to read.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- s390x/cmm.c       | 4 +---
- s390x/cpumodel.c  | 4 +---
- s390x/css.c       | 4 +---
- s390x/cstart64.S  | 4 +---
- s390x/diag10.c    | 4 +---
- s390x/diag288.c   | 4 +---
- s390x/diag308.c   | 5 +----
- s390x/emulator.c  | 4 +---
- s390x/gs.c        | 4 +---
- s390x/iep.c       | 4 +---
- s390x/intercept.c | 4 +---
- s390x/pfmf.c      | 4 +---
- s390x/sclp.c      | 4 +---
- s390x/selftest.c  | 4 +---
- s390x/skey.c      | 4 +---
- s390x/skrf.c      | 4 +---
- s390x/smp.c       | 4 +---
- s390x/sthyi.c     | 4 +---
- s390x/sthyi.h     | 4 +---
- s390x/stsi.c      | 4 +---
- s390x/uv-guest.c  | 4 +---
- s390x/vector.c    | 4 +---
- 22 files changed, 22 insertions(+), 67 deletions(-)
+On 12/2/20 3:28 PM, Alex Williamson wrote:
+> On Fri, 20 Nov 2020 19:07:39 +0100
+> Eric Farman <farman@linux.ibm.com> wrote:
+> 
+>> While performing some destructive tests with vfio-ccw, where the
+>> paths to a device are forcible removed and thus the device itself
+>> is unreachable, it is rather easy to end up in an endless loop in
+>> vfio_del_group_dev() due to the lack of a request callback for the
+>> associated device.
+>>
+>> In this example, one MDEV (77c) is used by a guest, while another
+>> (77b) is not. The symptom is that the iommu is detached from the
+>> mdev for 77b, but not 77c, until that guest is shutdown:
+>>
+>>      [  238.794867] vfio_ccw 0.0.077b: MDEV: Unregistering
+>>      [  238.794996] vfio_mdev 11f2d2bc-4083-431d-a023-eff72715c4f0: Removing from iommu group 2
+>>      [  238.795001] vfio_mdev 11f2d2bc-4083-431d-a023-eff72715c4f0: MDEV: detaching iommu
+>>      [  238.795036] vfio_ccw 0.0.077c: MDEV: Unregistering
+>>      ...silence...
+>>
+>> Let's wire in the request call back to the mdev device, so that a
+>> device being physically removed from the host can be (gracefully?)
+>> handled by the parent device at the time the device is removed.
+>>
+>> Add a message when registering the device if a driver doesn't
+>> provide this callback, so a clue is given that this same loop
+>> may be encountered in a similar situation.
+>>
+>> Signed-off-by: Eric Farman <farman@linux.ibm.com>
+>> ---
+>>   drivers/vfio/mdev/mdev_core.c |  4 ++++
+>>   drivers/vfio/mdev/vfio_mdev.c | 10 ++++++++++
+>>   include/linux/mdev.h          |  4 ++++
+>>   3 files changed, 18 insertions(+)
+>>
+>> diff --git a/drivers/vfio/mdev/mdev_core.c b/drivers/vfio/mdev/mdev_core.c
+>> index b558d4cfd082..6de97d25a3f8 100644
+>> --- a/drivers/vfio/mdev/mdev_core.c
+>> +++ b/drivers/vfio/mdev/mdev_core.c
+>> @@ -154,6 +154,10 @@ int mdev_register_device(struct device *dev, const struct mdev_parent_ops *ops)
+>>   	if (!dev)
+>>   		return -EINVAL;
+>>   
+>> +	/* Not mandatory, but its absence could be a problem */
+>> +	if (!ops->request)
+>> +		dev_info(dev, "Driver cannot be asked to release device\n");
+>> +
+>>   	mutex_lock(&parent_list_lock);
+>>   
+>>   	/* Check for duplicate */
+>> diff --git a/drivers/vfio/mdev/vfio_mdev.c b/drivers/vfio/mdev/vfio_mdev.c
+>> index 30964a4e0a28..06d8fc4a6d72 100644
+>> --- a/drivers/vfio/mdev/vfio_mdev.c
+>> +++ b/drivers/vfio/mdev/vfio_mdev.c
+>> @@ -98,6 +98,15 @@ static int vfio_mdev_mmap(void *device_data, struct vm_area_struct *vma)
+>>   	return parent->ops->mmap(mdev, vma);
+>>   }
+>>   
+>> +static void vfio_mdev_request(void *device_data, unsigned int count)
+>> +{
+>> +	struct mdev_device *mdev = device_data;
+>> +	struct mdev_parent *parent = mdev->parent;
+>> +
+>> +	if (parent->ops->request)
+>> +		parent->ops->request(mdev, count);
+> 
+> What do you think about duplicating the count==0 notice in the else
+> case here?  ie.
+> 
+> 	else if (count == 0)
+> 		dev_notice(mdev_dev(mdev), "No mdev vendor driver	request callback support, blocked until released by user\n");
+> 
 
-diff --git a/s390x/cmm.c b/s390x/cmm.c
-index fe4d9df..c3f0c93 100644
---- a/s390x/cmm.c
-+++ b/s390x/cmm.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * CMM tests (ESSA)
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Janosch Frank <frankja@linux.vnet.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- 
- #include <libcflat.h>
-diff --git a/s390x/cpumodel.c b/s390x/cpumodel.c
-index 116a966..4dd8b96 100644
---- a/s390x/cpumodel.c
-+++ b/s390x/cpumodel.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Test the known dependencies for facilities
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *    Christian Borntraeger <borntraeger@de.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- 
- #include <asm/facility.h>
-diff --git a/s390x/css.c b/s390x/css.c
-index ee3bc83..23a7b7c 100644
---- a/s390x/css.c
-+++ b/s390x/css.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Channel Subsystem tests
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Pierre Morel <pmorel@linux.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License version 2.
-  */
- 
- #include <libcflat.h>
-diff --git a/s390x/cstart64.S b/s390x/cstart64.S
-index 4e51150..cc86fc7 100644
---- a/s390x/cstart64.S
-+++ b/s390x/cstart64.S
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * s390x startup code
-  *
-@@ -6,9 +7,6 @@
-  * Authors:
-  *  Thomas Huth <thuth@redhat.com>
-  *  David Hildenbrand <david@redhat.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <asm/asm-offsets.h>
- #include <asm/sigp.h>
-diff --git a/s390x/diag10.c b/s390x/diag10.c
-index 7ee8945..579a7a5 100644
---- a/s390x/diag10.c
-+++ b/s390x/diag10.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Release pages hypercall tests (DIAG 10)
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Janosch Frank <frankja@linux.vnet.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- 
- #include <libcflat.h>
-diff --git a/s390x/diag288.c b/s390x/diag288.c
-index e2ecdc8..e132ff0 100644
---- a/s390x/diag288.c
-+++ b/s390x/diag288.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Timer Event DIAG288 test
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Janosch Frank <frankja@linux.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- 
- #include <libcflat.h>
-diff --git a/s390x/diag308.c b/s390x/diag308.c
-index 7fc4abd..c9d6c49 100644
---- a/s390x/diag308.c
-+++ b/s390x/diag308.c
-@@ -1,11 +1,8 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
- /*
-  * Diagnose 0x308 hypercall tests
-  *
-  * Copyright (c) 2019 Thomas Huth, Red Hat Inc.
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License version 2, or (at
-- * your option) any later version.
-  */
- 
- #include <libcflat.h>
-diff --git a/s390x/emulator.c b/s390x/emulator.c
-index 70ef51a..b2787a5 100644
---- a/s390x/emulator.c
-+++ b/s390x/emulator.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Emulator tests - for s390x CPU instructions that are usually interpreted
-  *                  by the hardware
-@@ -6,9 +7,6 @@
-  *
-  * Authors:
-  *  David Hildenbrand <david@redhat.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/cpacf.h>
-diff --git a/s390x/gs.c b/s390x/gs.c
-index f685aa9..1376d0e 100644
---- a/s390x/gs.c
-+++ b/s390x/gs.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Tests guarded storage support.
-  *
-@@ -6,9 +7,6 @@
-  * Authors:
-  *    Martin Schwidefsky <schwidefsky@de.ibm.com>
-  *    Janosch Frank <frankja@de.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/page.h>
-diff --git a/s390x/iep.c b/s390x/iep.c
-index 55c01ee..fe167ef 100644
---- a/s390x/iep.c
-+++ b/s390x/iep.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Instruction Execution Prevention (IEP) DAT test.
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *	Janosch Frank <frankja@de.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <vmalloc.h>
-diff --git a/s390x/intercept.c b/s390x/intercept.c
-index 2e38257..cde2f5f 100644
---- a/s390x/intercept.c
-+++ b/s390x/intercept.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Interception tests - for s390x CPU instruction that cause a VM exit
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Thomas Huth <thuth@redhat.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/asm-offsets.h>
-diff --git a/s390x/pfmf.c b/s390x/pfmf.c
-index ac57fe4..2f3cb11 100644
---- a/s390x/pfmf.c
-+++ b/s390x/pfmf.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Perform Frame Management Function (pfmf) tests
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Janosch Frank <frankja@linux.vnet.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/asm-offsets.h>
-diff --git a/s390x/sclp.c b/s390x/sclp.c
-index 7d92bf3..73d722f 100644
---- a/s390x/sclp.c
-+++ b/s390x/sclp.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Service Call tests
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Claudio Imbrenda <imbrenda@linux.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License version 2.
-  */
- 
- #include <libcflat.h>
-diff --git a/s390x/selftest.c b/s390x/selftest.c
-index eaf5b18..b2fe2e7 100644
---- a/s390x/selftest.c
-+++ b/s390x/selftest.c
-@@ -1,12 +1,10 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Copyright (c) 2017 Red Hat Inc
-  *
-  * Authors:
-  *  Thomas Huth <thuth@redhat.com>
-  *  David Hildenbrand <david@redhat.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <util.h>
-diff --git a/s390x/skey.c b/s390x/skey.c
-index 86d15e2..2539944 100644
---- a/s390x/skey.c
-+++ b/s390x/skey.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Storage key tests
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Janosch Frank <frankja@linux.vnet.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/asm-offsets.h>
-diff --git a/s390x/skrf.c b/s390x/skrf.c
-index b19d0f4..57524ba 100644
---- a/s390x/skrf.c
-+++ b/s390x/skrf.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Storage key removal facility tests
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Janosch Frank <frankja@linux.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/asm-offsets.h>
-diff --git a/s390x/smp.c b/s390x/smp.c
-index 4ca1dce..b0ece49 100644
---- a/s390x/smp.c
-+++ b/s390x/smp.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Tests sigp emulation
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *    Janosch Frank <frankja@linux.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/asm-offsets.h>
-diff --git a/s390x/sthyi.c b/s390x/sthyi.c
-index 68c57cb..d8dfc85 100644
---- a/s390x/sthyi.c
-+++ b/s390x/sthyi.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Tests exceptions and data validity for the emulated sthyi
-  * instruction.
-@@ -6,9 +7,6 @@
-  *
-  * Authors:
-  *    Janosch Frank <frankja@linux.vnet.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/asm-offsets.h>
-diff --git a/s390x/sthyi.h b/s390x/sthyi.h
-index 06f757f..bbd74c6 100644
---- a/s390x/sthyi.h
-+++ b/s390x/sthyi.h
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * STHYI related flags and structure definitions.
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *    Janosch Frank <frankja@linux.vnet.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #ifndef _STHYI_H_
- #define _STHYI_H_
-diff --git a/s390x/stsi.c b/s390x/stsi.c
-index b81cea7..4109b8d 100644
---- a/s390x/stsi.c
-+++ b/s390x/stsi.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Store System Information tests
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Janosch Frank <frankja@linux.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- 
- #include <libcflat.h>
-diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-index d47333e..bc947ab 100644
---- a/s390x/uv-guest.c
-+++ b/s390x/uv-guest.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Guest Ultravisor Call tests
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *  Janosch Frank <frankja@linux.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License version 2.
-  */
- 
- #include <libcflat.h>
-diff --git a/s390x/vector.c b/s390x/vector.c
-index 0159ba1..d1b6a57 100644
---- a/s390x/vector.c
-+++ b/s390x/vector.c
-@@ -1,3 +1,4 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
- /*
-  * Tests vector instruction support
-  *
-@@ -5,9 +6,6 @@
-  *
-  * Authors:
-  *    Janosch Frank <frankja@de.ibm.com>
-- *
-- * This code is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU Library General Public License version 2.
-  */
- #include <libcflat.h>
- #include <asm/page.h>
--- 
-2.25.1
+I'm fine with that. If there are no objections, I should be able to spin 
+a v3 with such a change tomorrow.
+
+Thank you!
+
+Eric
+
+> This at least puts something in the log a bit closer to the timeframe
+> of a possible issue versus the registration nag.  vfio-core could do
+> this too, but vfio-mdev registers a request callback on behalf of all
+> mdev devices, so vfio-core would no longer have visibility for this
+> case.
+> 
+> Otherwise this series looks fine to me and I can take it through the
+> vfio tree.  Thanks,
+> 
+> Alex
+> 
+>> +}
+>> +
+>>   static const struct vfio_device_ops vfio_mdev_dev_ops = {
+>>   	.name		= "vfio-mdev",
+>>   	.open		= vfio_mdev_open,
+>> @@ -106,6 +115,7 @@ static const struct vfio_device_ops vfio_mdev_dev_ops = {
+>>   	.read		= vfio_mdev_read,
+>>   	.write		= vfio_mdev_write,
+>>   	.mmap		= vfio_mdev_mmap,
+>> +	.request	= vfio_mdev_request,
+>>   };
+>>   
+>>   static int vfio_mdev_probe(struct device *dev)
+>> diff --git a/include/linux/mdev.h b/include/linux/mdev.h
+>> index 0ce30ca78db0..9004375c462e 100644
+>> --- a/include/linux/mdev.h
+>> +++ b/include/linux/mdev.h
+>> @@ -72,6 +72,9 @@ struct device *mdev_get_iommu_device(struct device *dev);
+>>    * @mmap:		mmap callback
+>>    *			@mdev: mediated device structure
+>>    *			@vma: vma structure
+>> + * @request:		request callback to release device
+>> + *			@mdev: mediated device structure
+>> + *			@count: request sequence number
+>>    * Parent device that support mediated device should be registered with mdev
+>>    * module with mdev_parent_ops structure.
+>>    **/
+>> @@ -92,6 +95,7 @@ struct mdev_parent_ops {
+>>   	long	(*ioctl)(struct mdev_device *mdev, unsigned int cmd,
+>>   			 unsigned long arg);
+>>   	int	(*mmap)(struct mdev_device *mdev, struct vm_area_struct *vma);
+>> +	void	(*request)(struct mdev_device *mdev, unsigned int count);
+>>   };
+>>   
+>>   /* interface for exporting mdev supported type attributes */
+> 
