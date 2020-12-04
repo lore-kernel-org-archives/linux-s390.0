@@ -1,45 +1,33 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57686 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728676AbgLCQW3 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Dec 2020 11:22:29 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: block tracepoint cleanups v2
-Date: Thu,  3 Dec 2020 17:21:34 +0100
-Message-Id: <20201203162139.2110977-1-hch@lst.de>
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:5718 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726634AbgLDD0s (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Dec 2020 22:26:48 -0500
+From: Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+Subject: Re: [PATCH 2/5] block: simplify and extend the block_bio_merge
+ tracepoint class
+Date: Fri, 4 Dec 2020 03:25:40 +0000
+Message-ID: <BYAPR04MB4965479E53991BCE68F1139386F10@BYAPR04MB4965.namprd04.prod.outlook.com>
+References: <20201203162139.2110977-1-hch@lst.de>
+ <20201203162139.2110977-3-hch@lst.de>
+Content-Language: en-US
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, dm-devel@redhat.com, linux-block@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org
+To: Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Cc: Tejun Heo <tj@kernel.org>, "dm-devel@redhat.com" <dm-devel@redhat.com>, "linux-block@vger.kernel.org" <linux-block@vger.kernel.org>, "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, Damien Le Moal <Damien.LeMoal@wdc.com>, Hannes Reinecke <hare@suse.de>
 
-Hi Jens,
-
-this series cleans up the block layer tracepoints by removing unused
-tracepoints or tracepoint arguments and consolidating the implementation
-of various bio based tracepoints.
-
-Changes since v1:
- - a few commit log typo fixes and improvements
-
-
-Diffstat:
- block/blk-core.c              |    4 
- block/blk-merge.c             |    8 -
- block/blk-mq-sched.c          |    2 
- block/blk-mq.c                |   10 -
- block/bounce.c                |    2 
- drivers/md/dm-rq.c            |    2 
- drivers/md/dm.c               |    5 
- drivers/md/md-linear.c        |    3 
- drivers/md/md.c               |    5 
- drivers/md/raid0.c            |    4 
- drivers/md/raid1.c            |    7 -
- drivers/md/raid10.c           |    6 -
- drivers/md/raid5.c            |   15 +-
- drivers/nvme/host/multipath.c |    3 
- drivers/s390/scsi/zfcp_fsf.c  |    3 
- include/linux/blktrace_api.h  |    5 
- include/trace/events/block.h  |  228 +++++++++---------------------------------
- kernel/trace/blktrace.c       |  126 ++++++-----------------
- 18 files changed, 125 insertions(+), 313 deletions(-)
+On 12/3/20 08:26, Christoph Hellwig wrote:=0A=
+> The block_bio_merge tracepoint class can be reused for most bio-based=0A=
+> tracepoints.  For that it just needs to lose the superfluous q and rq=0A=
+> parameters.=0A=
+>=0A=
+> Signed-off-by: Christoph Hellwig <hch@lst.de>=0A=
+> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+> Reviewed-by: Hannes Reinecke <hare@suse.de>=0A=
+=0A=
+Looks good.=0A=
+=0A=
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>=0A=
+=0A=
