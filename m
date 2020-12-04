@@ -1,15 +1,11 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11460 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726309AbgLDQtK (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 4 Dec 2020 11:49:10 -0500
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 Subject: Re: [PATCH] s390/vfio-ap: Clean up vfio_ap resources when KVM pointer
  invalidated
 References: <20201202234101.32169-1-akrowiak@linux.ibm.com>
  <20201203185514.54060568.pasic@linux.ibm.com>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <a5a613ef-4c74-ad68-46bd-7159fbafef47@linux.ibm.com>
-Date: Fri, 4 Dec 2020 11:48:24 -0500
+Message-ID: <a8a90aed-97df-6f10-85c2-8e18dba8f085@linux.ibm.com>
+Date: Fri, 4 Dec 2020 09:43:59 -0500
 MIME-Version: 1.0
 In-Reply-To: <20201203185514.54060568.pasic@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
@@ -38,12 +34,6 @@ On 12/3/20 12:55 PM, Halil Pasic wrote:
 >> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 > Do we need a Fixes tag? Do we need this backported? In my opinion
 > this is necessary since the interrupt patches.
-
-I'll put in a fixes tag:
-Fixes: 258287c994de (s390: vfio-ap: implement mediated device open callback)
-
-Yes, this should probably be backported.
-
 >
 >> ---
 >>   drivers/s390/crypto/vfio_ap_ops.c | 21 +++++++++++++--------
@@ -60,13 +50,6 @@ Yes, this should probably be backported.
 >> +static void vfio_ap_mdev_put_kvm(struct ap_matrix_mdev *matrix_mdev)
 > I don't like the name. The function does more that put_kvm. Maybe
 > something  like _disconnect_kvm()?
-Since the vfio_ap_mdev_set_kvm() function is called by the
-notifier when the KVM pointer is set, how about:
-
-vfio_ap_mdev_unset_kvm()
-
-for when the KVM pointer is nullified?
-
 >
 >> +{
 >> +	if (matrix_mdev->kvm) {
@@ -77,6 +60,16 @@ for when the KVM pointer is nullified?
 >
 > For instance kvm_arch_crypto_set_masks() takes kvm->lock before poking
 > kvm->arch.crypto.crycb.
+
+I do not think so. The CRYCB is used by KVM to provide crypto resources
+to the guest so it makes sense to protect it from changes to it while 
+passing
+the AP devices through to the guest. The hook is used only when an AQIC
+executed on the guest is intercepted by KVM. If the notifier
+is being invoked to notify vfio_ap that KVM has been set to NULL, this means
+the guest is gone in which case there will be no AP instructions to 
+intercept.
+
 >
 >> +		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
 >> +		kvm_put_kvm(matrix_mdev->kvm);
@@ -96,6 +89,14 @@ for when the KVM pointer is nullified?
 > The lock question was already raised.
 >
 > What are the exact circumstances under which this branch can be taken?
+
+Under normal circumstances (i.e., the mdev fd is closed before the guest
+terminates), this notifier is not be called because the release callback
+(invoked when the mdev fd is closed) unregisters the notifier. This fix is
+primarily to ensure that proper cleanup is done should the notifier get
+called; for example, if userspace does not close the mdev fd before
+shutting the guest down.
+
 >
 >>   		return NOTIFY_OK;
 >>   	}
