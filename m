@@ -1,46 +1,69 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53306 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404335AbgLJTnk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:40 -0500
-Message-Id: <20201210194044.065003856@linutronix.de>
-Date: Thu, 10 Dec 2020 20:25:51 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 15/30] pinctrl: nomadik: Use irq_has_action()
-References: <20201210192536.118432146@linutronix.de>
+Received: from mail-eopbgr80058.outbound.protection.outlook.com ([40.107.8.58]:53705
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728660AbgLGABL (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 6 Dec 2020 19:01:11 -0500
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Subject: [RFC PATCH net-next 04/13] s390/appldata_net_sum: hold the netdev lists lock when retrieving device statistics
+Date: Mon,  7 Dec 2020 01:59:10 +0200
+Message-Id: <20201206235919.393158-5-vladimir.oltean@nxp.com>
+In-Reply-To: <20201206235919.393158-1-vladimir.oltean@nxp.com>
+References: <20201206235919.393158-1-vladimir.oltean@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-gpio@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org
 
-Let the core code do the fiddling with irq_desc.
+In the effort of making .ndo_get_stats64 be able to sleep, we need to
+ensure the callers of dev_get_stats do not use atomic context.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-gpio@vger.kernel.org
+In the case of the appldata driver, an RCU read-side critical section is
+used to ensure the integrity of the list of network interfaces, because
+the driver iterates through all net devices in the netns to aggregate
+statistics. We still need some protection against an interface
+registering or deregistering, and the writer-side lock, the netns's
+mutex, is fine for that, because it offers sleepable context.
+
+The ops->callback function is called from under appldata_ops_mutex
+protection, so this is proof that the context is sleepable and holding
+a mutex is therefore fine.
+
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- drivers/pinctrl/nomadik/pinctrl-nomadik.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/s390/appldata/appldata_net_sum.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/pinctrl/nomadik/pinctrl-nomadik.c
-+++ b/drivers/pinctrl/nomadik/pinctrl-nomadik.c
-@@ -948,7 +948,6 @@ static void nmk_gpio_dbg_show_one(struct
- 			   (mode < 0) ? "unknown" : modes[mode]);
- 	} else {
- 		int irq = chip->to_irq(chip, offset);
--		struct irq_desc	*desc = irq_to_desc(irq);
- 		const int pullidx = pull ? 1 : 0;
- 		int val;
- 		static const char * const pulls[] = {
-@@ -969,7 +968,7 @@ static void nmk_gpio_dbg_show_one(struct
- 		 * This races with request_irq(), set_irq_type(),
- 		 * and set_irq_wake() ... but those are "rare".
- 		 */
--		if (irq > 0 && desc && desc->action) {
-+		if (irq > 0 && irq_has_action(irq)) {
- 			char *trigger;
+diff --git a/arch/s390/appldata/appldata_net_sum.c b/arch/s390/appldata/appldata_net_sum.c
+index 59c282ca002f..27e9cc998d4d 100644
+--- a/arch/s390/appldata/appldata_net_sum.c
++++ b/arch/s390/appldata/appldata_net_sum.c
+@@ -78,8 +78,9 @@ static void appldata_get_net_sum_data(void *data)
+ 	tx_dropped = 0;
+ 	collisions = 0;
  
- 			if (nmk_chip->edge_rising & BIT(offset))
+-	rcu_read_lock();
+-	for_each_netdev_rcu(&init_net, dev) {
++	mutex_lock(&init_net.netdev_lists_lock);
++
++	for_each_netdev(&init_net, dev) {
+ 		const struct rtnl_link_stats64 *stats;
+ 		struct rtnl_link_stats64 temp;
+ 
+@@ -95,7 +96,8 @@ static void appldata_get_net_sum_data(void *data)
+ 		collisions += stats->collisions;
+ 		i++;
+ 	}
+-	rcu_read_unlock();
++
++	mutex_unlock(&init_net.netdev_lists_unlock);
+ 
+ 	net_data->nr_interfaces = i;
+ 	net_data->rx_packets = rx_packets;
+-- 
+2.25.1
