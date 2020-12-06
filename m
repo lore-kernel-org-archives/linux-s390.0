@@ -1,45 +1,85 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from szxga05-in.huawei.com ([45.249.212.191]:10071 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728721AbgLWOP2 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 23 Dec 2020 09:15:28 -0500
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
-Subject: [PATCH -next] s390: cio: Use DEFINE_SPINLOCK() for spinlock
-Date: Wed, 23 Dec 2020 22:15:12 +0800
-Message-ID: <20201223141512.1178-1-zhengyongjun3@huawei.com>
+Received: from mail-eopbgr80058.outbound.protection.outlook.com ([40.107.8.58]:53705
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727661AbgLGAAs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Sun, 6 Dec 2020 19:00:48 -0500
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Subject: [RFC PATCH net-next 00/13] Make .ndo_get_stats64 sleepable
+Date: Mon,  7 Dec 2020 01:59:06 +0200
+Message-Id: <20201206235919.393158-1-vladimir.oltean@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Zheng Yongjun <zhengyongjun3@huawei.com>
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Leon Romanovsky <leon@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Sridhar Samudrala <sridhar.samudrala@intel.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, Christian Brauner <christian.brauner@ubuntu.com>
 
-spinlock can be initialized automatically with DEFINE_SPINLOCK()
-rather than explicitly calling spin_lock_init().
+This series converts all callers of dev_get_stats() to be in sleepable
+context, so that we can do more work in the .ndo_get_stats64 method.
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
----
- drivers/s390/cio/css.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+The situation today is that if we have hardware that needs to be
+accessed through a slow bus like SPI, or through a firmware, we cannot
+do that directly in .ndo_get_stats64, so we have to poll counters
+periodically and return a cached (not up to date) copy in the atomic NDO
+callback. This is undesirable on both ends: more work than strictly
+needed is being done, and the end result is also worse (not guaranteed
+to be up to date). So converting the code paths to be compatible with
+sleeping seems to make more sense.
 
-diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
-index cca1a7c4bb33..022f573f0bcc 100644
---- a/drivers/s390/cio/css.c
-+++ b/drivers/s390/cio/css.c
-@@ -647,13 +647,12 @@ static void css_sch_todo(struct work_struct *work)
- }
- 
- static struct idset *slow_subchannel_set;
--static spinlock_t slow_subchannel_lock;
-+static DEFINE_SPINLOCK(slow_subchannel_lock);
- static wait_queue_head_t css_eval_wq;
- static atomic_t css_eval_scheduled;
- 
- static int __init slow_subchannel_init(void)
- {
--	spin_lock_init(&slow_subchannel_lock);
- 	atomic_set(&css_eval_scheduled, 0);
- 	init_waitqueue_head(&css_eval_wq);
- 	slow_subchannel_set = idset_sch_new();
+Cc: Leon Romanovsky <leon@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Cc: Jay Vosburgh <j.vosburgh@gmail.com>
+Cc: Veaceslav Falico <vfalico@gmail.com>
+Cc: Andy Gospodarek <andy@greyhouse.net>
+Cc: Sridhar Samudrala <sridhar.samudrala@intel.com>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-parisc@vger.kernel.org
+Cc: Christian Brauner <christian.brauner@ubuntu.com>
+
+Vladimir Oltean (13):
+  RDMA/mlx4: remove bogus dev_base_lock usage
+  net: mark dev_base_lock for deprecation
+  net: introduce a mutex for the netns interface lists
+  s390/appldata_net_sum: hold the netdev lists lock when retrieving
+    device statistics
+  net: bonding: hold the netdev lists lock when retrieving device
+    statistics
+  net_failover: hold the netdev lists lock when retrieving device
+    statistics
+  parisc/led: remove trailing whitespaces
+  parisc/led: reindent the code that gathers device statistics
+  parisc/led: hold the netdev lists lock when retrieving device
+    statistics
+  net: procfs: hold the netdev lists lock when retrieving device
+    statistics
+  net: sysfs: don't hold dev_base_lock while retrieving device
+    statistics
+  net: mark ndo_get_stats64 as being able to sleep
+  net: remove obsolete comments about ndo_get_stats64 context from eth
+    drivers
+
+ Documentation/networking/netdevices.rst     |   4 +-
+ Documentation/networking/statistics.rst     |   9 +-
+ arch/s390/appldata/appldata_net_sum.c       |   8 +-
+ drivers/infiniband/hw/mlx4/main.c           |   3 -
+ drivers/net/bonding/bond_main.c             |  16 +-
+ drivers/net/ethernet/cisco/enic/enic_main.c |   1 -
+ drivers/net/ethernet/nvidia/forcedeth.c     |   2 -
+ drivers/net/ethernet/sfc/efx_common.c       |   1 -
+ drivers/net/ethernet/sfc/falcon/efx.c       |   1 -
+ drivers/net/net_failover.c                  |  15 +-
+ drivers/parisc/led.c                        | 164 ++++++++++----------
+ include/net/bonding.h                       |   1 -
+ include/net/net_failover.h                  |   3 -
+ include/net/net_namespace.h                 |   5 +
+ net/core/dev.c                              |  63 +++++---
+ net/core/net-procfs.c                       |  13 +-
+ net/core/net-sysfs.c                        |   3 +-
+ 17 files changed, 162 insertions(+), 150 deletions(-)
+
 -- 
-2.22.0
+2.25.1
