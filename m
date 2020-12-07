@@ -1,75 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:40632 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725881AbgLHER4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 7 Dec 2020 23:17:56 -0500
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH 2/3] arm64/mm: Define arch_get_mappable_range()
-Date: Tue,  8 Dec 2020 09:46:17 +0530
-Message-Id: <1607400978-31595-3-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1607400978-31595-1-git-send-email-anshuman.khandual@arm.com>
-References: <1607400978-31595-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:35100 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726481AbgLGNNY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Dec 2020 08:13:24 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 6/6] s390/qeth: make qeth_qdio_handle_aob() more robust
+Date: Mon,  7 Dec 2020 14:12:33 +0100
+Message-Id: <20201207131233.90383-7-jwi@linux.ibm.com>
+In-Reply-To: <20201207131233.90383-1-jwi@linux.ibm.com>
+References: <20201207131233.90383-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org, david@redhat.com, hca@linux.ibm.com, catalin.marinas@arm.com
-Cc: linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-This overrides arch_get_mappable_range() on arm64 platform which will be
-used with recently added generic framework. It drops inside_linear_region()
-and subsequent check in arch_add_memory() which are no longer required. It
-also adds a VM_BUG_ON() check that would ensure that memhp_range_allowed()
-has already been called.
+When qeth_qdio_handle_aob() frees dangling allocations in the notified
+TX buffer, there are rare tear-down cases where
+qeth_drain_output_queue() would later call qeth_clear_output_buffer()
+for the same buffer - and thus end up walking the buffer a second time
+to check for dangling kmem_cache allocations.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Luckily current code previously scrubs such a buffer, so
+qeth_clear_output_buffer() would find buf->buffer->element[i].addr as
+NULL and not do anything. But this is fragile, and we can easily improve
+it by consistently clearing the ->is_header flag after freeing the
+allocation.
+
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/arm64/mm/mmu.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index ca692a815731..54705dcacb4e 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1444,16 +1444,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
- 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
- }
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index da27ef451d05..f4b60294a969 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -546,6 +546,7 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
  
--static bool inside_linear_region(u64 start, u64 size)
-+struct range arch_get_mappable_range(void)
- {
-+	struct range memhp_range;
-+
- 	/*
- 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
- 	 * accommodating both its ends but excluding PAGE_END. Max physical
- 	 * range which can be mapped inside this linear mapping range, must
- 	 * also be derived from its end points.
- 	 */
--	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
--	       (start + size - 1) <= __pa(PAGE_END - 1);
-+	memhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
-+	memhp_range.end =  __pa(PAGE_END - 1);
-+	return memhp_range;
- }
+ 			if (data && buffer->is_header[i])
+ 				kmem_cache_free(qeth_core_header_cache, data);
++			buffer->is_header[i] = 0;
+ 		}
  
- int arch_add_memory(int nid, u64 start, u64 size,
-@@ -1461,11 +1464,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- {
- 	int ret, flags = 0;
- 
--	if (!inside_linear_region(start, size)) {
--		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
--		return -EINVAL;
--	}
--
-+	VM_BUG_ON(!memhp_range_allowed(start, size, 1));
- 	if (rodata_full || debug_pagealloc_enabled())
- 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
+ 		atomic_set(&buffer->state, QETH_QDIO_BUF_EMPTY);
 -- 
-2.20.1
+2.17.1
