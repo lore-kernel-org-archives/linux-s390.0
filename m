@@ -1,169 +1,301 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:27176 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:29622 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388813AbgLKWXY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Dec 2020 17:23:24 -0500
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v2 1/2] s390/vfio-ap: No need to disable IRQ after queue reset
-Date: Fri, 11 Dec 2020 17:22:10 -0500
-Message-Id: <20201211222211.20869-2-akrowiak@linux.ibm.com>
-In-Reply-To: <20201211222211.20869-1-akrowiak@linux.ibm.com>
-References: <20201211222211.20869-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        by vger.kernel.org with ESMTP id S1725802AbgLGNNZ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Dec 2020 08:13:25 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 3/6] s390/qeth: use dev->groups for common sysfs attributes
+Date: Mon,  7 Dec 2020 14:12:30 +0100
+Message-Id: <20201207131233.90383-4-jwi@linux.ibm.com>
+In-Reply-To: <20201207131233.90383-1-jwi@linux.ibm.com>
+References: <20201207131233.90383-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: stable@vger.kernel.org, gregkh@linuxfoundation.org, sashal@kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, pbonzini@redhat.com, alex.williamson@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-The queues assigned to a matrix mediated device are currently reset when:
+All qeth devices have a minimum set of sysfs attributes, and non-OSN
+devices share a group of additional attributes. Depending on whether
+the device is forced to use a specific discipline, the device_type then
+specifies further attributes.
 
-* The VFIO_DEVICE_RESET ioctl is invoked
-* The mdev fd is closed by userspace (QEMU)
-* The mdev is removed from sysfs.
+Shift the common attributes into dev->groups, so that the device_type
+only contains the discipline-specific attributes. This avoids exposing
+the common attributes to the disciplines, and nicely cleans up our
+sysfs code.
 
-Immediately after the reset of a queue, a call is made to disable
-interrupts for the queue. This is entirely unnecessary because the reset of
-a queue disables interrupts, so this will be removed.
+While replacing the qeth_l*_*_device_attributes() helpers, switch from
+sysfs_*_groups() to the more generic device_*_groups().
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- drivers/s390/crypto/vfio_ap_drv.c     |  1 -
- drivers/s390/crypto/vfio_ap_ops.c     | 40 +++++++++++++++++----------
- drivers/s390/crypto/vfio_ap_private.h |  1 -
- 3 files changed, 26 insertions(+), 16 deletions(-)
+ drivers/s390/net/qeth_core.h      |  6 ++---
+ drivers/s390/net/qeth_core_main.c |  7 ++++--
+ drivers/s390/net/qeth_core_sys.c  | 41 ++++++++++++++-----------------
+ drivers/s390/net/qeth_l2.h        |  2 --
+ drivers/s390/net/qeth_l2_main.c   |  4 +--
+ drivers/s390/net/qeth_l2_sys.c    | 19 --------------
+ drivers/s390/net/qeth_l3.h        |  2 --
+ drivers/s390/net/qeth_l3_main.c   |  4 +--
+ drivers/s390/net/qeth_l3_sys.c    | 21 ----------------
+ 9 files changed, 30 insertions(+), 76 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index be2520cc010b..ca18c91afec9 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -79,7 +79,6 @@ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
- 	apid = AP_QID_CARD(q->apqn);
- 	apqi = AP_QID_QUEUE(q->apqn);
- 	vfio_ap_mdev_reset_queue(apid, apqi, 1);
--	vfio_ap_irq_disable(q);
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index e0bde8518745..c854d7ab2079 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -25,6 +25,7 @@
- #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 69b474f8735e..d150da95d073 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -1063,10 +1063,8 @@ extern const struct qeth_discipline qeth_l2_discipline;
+ extern const struct qeth_discipline qeth_l3_discipline;
+ extern const struct ethtool_ops qeth_ethtool_ops;
+ extern const struct ethtool_ops qeth_osn_ethtool_ops;
+-extern const struct attribute_group *qeth_generic_attr_groups[];
+-extern const struct attribute_group *qeth_osn_attr_groups[];
+-extern const struct attribute_group qeth_device_attr_group;
+-extern const struct attribute_group qeth_device_blkt_group;
++extern const struct attribute_group *qeth_dev_groups[];
++extern const struct attribute_group *qeth_osn_dev_groups[];
+ extern const struct device_type qeth_generic_devtype;
  
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
-+static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
+ const char *qeth_get_cardname_short(struct qeth_card *);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 8171b9d3a70e..05d0b16bd7d6 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -6375,13 +6375,11 @@ void qeth_core_free_discipline(struct qeth_card *card)
  
- static int match_apqn(struct device *dev, const void *data)
- {
-@@ -49,20 +50,15 @@ static struct vfio_ap_queue *vfio_ap_get_queue(
- 					int apqn)
- {
- 	struct vfio_ap_queue *q;
--	struct device *dev;
- 
- 	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
- 		return NULL;
- 	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
- 		return NULL;
- 
--	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
--				 &apqn, match_apqn);
--	if (!dev)
--		return NULL;
--	q = dev_get_drvdata(dev);
--	q->matrix_mdev = matrix_mdev;
--	put_device(dev);
-+	q = vfio_ap_find_queue(apqn);
-+	if (q)
-+		q->matrix_mdev = matrix_mdev;
- 
- 	return q;
- }
-@@ -1114,24 +1110,27 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 	return NOTIFY_OK;
- }
- 
--static void vfio_ap_irq_disable_apqn(int apqn)
-+static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
- {
- 	struct device *dev;
--	struct vfio_ap_queue *q;
-+	struct vfio_ap_queue *q = NULL;
- 
- 	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
- 				 &apqn, match_apqn);
- 	if (dev) {
- 		q = dev_get_drvdata(dev);
--		vfio_ap_irq_disable(q);
- 		put_device(dev);
- 	}
-+
-+	return q;
- }
- 
- int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
- 			     unsigned int retry)
- {
- 	struct ap_queue_status status;
-+	struct vfio_ap_queue *q;
-+	int ret;
- 	int retry2 = 2;
- 	int apqn = AP_MKQID(apid, apqi);
- 
-@@ -1144,18 +1143,32 @@ int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
- 				status = ap_tapq(apqn, NULL);
- 			}
- 			WARN_ON_ONCE(retry2 <= 0);
--			return 0;
-+			ret = 0;
-+			goto free_aqic_resources;
- 		case AP_RESPONSE_RESET_IN_PROGRESS:
- 		case AP_RESPONSE_BUSY:
- 			msleep(20);
- 			break;
- 		default:
- 			/* things are really broken, give up */
--			return -EIO;
-+			ret = -EIO;
-+			goto free_aqic_resources;
- 		}
- 	} while (retry--);
- 
- 	return -EBUSY;
-+
-+free_aqic_resources:
-+	/*
-+	 * In order to free the aqic resources, the queue must be linked to
-+	 * the matrix_mdev to which its APQN is assigned and the KVM pointer
-+	 * must be available.
-+	 */
-+	q = vfio_ap_find_queue(apqn);
-+	if (q && q->matrix_mdev && q->matrix_mdev->kvm)
-+		vfio_ap_free_aqic_resources(q);
-+
-+	return ret;
- }
- 
- static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
-@@ -1177,7 +1190,6 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
- 			 */
- 			if (ret)
- 				rc = ret;
--			vfio_ap_irq_disable_apqn(AP_MKQID(apid, apqi));
- 		}
- 	}
- 
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index f46dde56b464..0db6fb3d56d5 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -100,5 +100,4 @@ struct vfio_ap_queue {
- #define VFIO_AP_ISC_INVALID 0xff
- 	unsigned char saved_isc;
+ const struct device_type qeth_generic_devtype = {
+ 	.name = "qeth_generic",
+-	.groups = qeth_generic_attr_groups,
  };
--struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
- #endif /* _VFIO_AP_PRIVATE_H_ */
+ EXPORT_SYMBOL_GPL(qeth_generic_devtype);
+ 
+ static const struct device_type qeth_osn_devtype = {
+ 	.name = "qeth_osn",
+-	.groups = qeth_osn_attr_groups,
+ };
+ 
+ #define DBF_NAME_LEN	20
+@@ -6561,6 +6559,11 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 	if (rc)
+ 		goto err_chp_desc;
+ 
++	if (IS_OSN(card))
++		gdev->dev.groups = qeth_osn_dev_groups;
++	else
++		gdev->dev.groups = qeth_dev_groups;
++
+ 	enforced_disc = qeth_enforce_discipline(card);
+ 	switch (enforced_disc) {
+ 	case QETH_DISCIPLINE_UNDETERMINED:
+diff --git a/drivers/s390/net/qeth_core_sys.c b/drivers/s390/net/qeth_core_sys.c
+index 4441b3393eaf..a0f777f76f66 100644
+--- a/drivers/s390/net/qeth_core_sys.c
++++ b/drivers/s390/net/qeth_core_sys.c
+@@ -640,23 +640,17 @@ static struct attribute *qeth_blkt_device_attrs[] = {
+ 	&dev_attr_inter_jumbo.attr,
+ 	NULL,
+ };
+-const struct attribute_group qeth_device_blkt_group = {
++
++static const struct attribute_group qeth_dev_blkt_group = {
+ 	.name = "blkt",
+ 	.attrs = qeth_blkt_device_attrs,
+ };
+-EXPORT_SYMBOL_GPL(qeth_device_blkt_group);
+ 
+-static struct attribute *qeth_device_attrs[] = {
+-	&dev_attr_state.attr,
+-	&dev_attr_chpid.attr,
+-	&dev_attr_if_name.attr,
+-	&dev_attr_card_type.attr,
++static struct attribute *qeth_dev_extended_attrs[] = {
+ 	&dev_attr_inbuf_size.attr,
+ 	&dev_attr_portno.attr,
+ 	&dev_attr_portname.attr,
+ 	&dev_attr_priority_queueing.attr,
+-	&dev_attr_buffer_count.attr,
+-	&dev_attr_recover.attr,
+ 	&dev_attr_performance_stats.attr,
+ 	&dev_attr_layer2.attr,
+ 	&dev_attr_isolation.attr,
+@@ -664,18 +658,12 @@ static struct attribute *qeth_device_attrs[] = {
+ 	&dev_attr_switch_attrs.attr,
+ 	NULL,
+ };
+-const struct attribute_group qeth_device_attr_group = {
+-	.attrs = qeth_device_attrs,
+-};
+-EXPORT_SYMBOL_GPL(qeth_device_attr_group);
+ 
+-const struct attribute_group *qeth_generic_attr_groups[] = {
+-	&qeth_device_attr_group,
+-	&qeth_device_blkt_group,
+-	NULL,
++static const struct attribute_group qeth_dev_extended_group = {
++	.attrs = qeth_dev_extended_attrs,
+ };
+ 
+-static struct attribute *qeth_osn_device_attrs[] = {
++static struct attribute *qeth_dev_attrs[] = {
+ 	&dev_attr_state.attr,
+ 	&dev_attr_chpid.attr,
+ 	&dev_attr_if_name.attr,
+@@ -684,10 +672,19 @@ static struct attribute *qeth_osn_device_attrs[] = {
+ 	&dev_attr_recover.attr,
+ 	NULL,
+ };
+-static struct attribute_group qeth_osn_device_attr_group = {
+-	.attrs = qeth_osn_device_attrs,
++
++static const struct attribute_group qeth_dev_group = {
++	.attrs = qeth_dev_attrs,
+ };
+-const struct attribute_group *qeth_osn_attr_groups[] = {
+-	&qeth_osn_device_attr_group,
++
++const struct attribute_group *qeth_osn_dev_groups[] = {
++	&qeth_dev_group,
++	NULL,
++};
++
++const struct attribute_group *qeth_dev_groups[] = {
++	&qeth_dev_group,
++	&qeth_dev_extended_group,
++	&qeth_dev_blkt_group,
+ 	NULL,
+ };
+diff --git a/drivers/s390/net/qeth_l2.h b/drivers/s390/net/qeth_l2.h
+index 296d73d84326..7c646e2fed7e 100644
+--- a/drivers/s390/net/qeth_l2.h
++++ b/drivers/s390/net/qeth_l2.h
+@@ -11,8 +11,6 @@
+ 
+ extern const struct attribute_group *qeth_l2_attr_groups[];
+ 
+-int qeth_l2_create_device_attributes(struct device *);
+-void qeth_l2_remove_device_attributes(struct device *);
+ int qeth_bridgeport_query_ports(struct qeth_card *card,
+ 				enum qeth_sbp_roles *role,
+ 				enum qeth_sbp_states *state);
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 393aef681e44..4ed0fb0705a5 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2189,7 +2189,7 @@ static int qeth_l2_probe_device(struct ccwgroup_device *gdev)
+ 	mutex_init(&card->sbp_lock);
+ 
+ 	if (gdev->dev.type == &qeth_generic_devtype) {
+-		rc = qeth_l2_create_device_attributes(&gdev->dev);
++		rc = device_add_groups(&gdev->dev, qeth_l2_attr_groups);
+ 		if (rc)
+ 			return rc;
+ 	}
+@@ -2203,7 +2203,7 @@ static void qeth_l2_remove_device(struct ccwgroup_device *gdev)
+ 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
+ 
+ 	if (gdev->dev.type == &qeth_generic_devtype)
+-		qeth_l2_remove_device_attributes(&gdev->dev);
++		device_remove_groups(&gdev->dev, qeth_l2_attr_groups);
+ 	qeth_set_allowed_threads(card, 0, 1);
+ 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
+ 
+diff --git a/drivers/s390/net/qeth_l2_sys.c b/drivers/s390/net/qeth_l2_sys.c
+index 4ba3bc57263f..a617351fff57 100644
+--- a/drivers/s390/net/qeth_l2_sys.c
++++ b/drivers/s390/net/qeth_l2_sys.c
+@@ -376,26 +376,7 @@ static struct attribute_group qeth_l2_vnicc_attr_group = {
+ 	.name = "vnicc",
+ };
+ 
+-static const struct attribute_group *qeth_l2_only_attr_groups[] = {
+-	&qeth_l2_bridgeport_attr_group,
+-	&qeth_l2_vnicc_attr_group,
+-	NULL,
+-};
+-
+-int qeth_l2_create_device_attributes(struct device *dev)
+-{
+-	return sysfs_create_groups(&dev->kobj, qeth_l2_only_attr_groups);
+-}
+-
+-void qeth_l2_remove_device_attributes(struct device *dev)
+-{
+-	sysfs_remove_groups(&dev->kobj, qeth_l2_only_attr_groups);
+-}
+-
+ const struct attribute_group *qeth_l2_attr_groups[] = {
+-	&qeth_device_attr_group,
+-	&qeth_device_blkt_group,
+-	/* l2 specific, see qeth_l2_only_attr_groups: */
+ 	&qeth_l2_bridgeport_attr_group,
+ 	&qeth_l2_vnicc_attr_group,
+ 	NULL,
+diff --git a/drivers/s390/net/qeth_l3.h b/drivers/s390/net/qeth_l3.h
+index acd130cfbab3..30c2b31d99f6 100644
+--- a/drivers/s390/net/qeth_l3.h
++++ b/drivers/s390/net/qeth_l3.h
+@@ -103,8 +103,6 @@ extern const struct attribute_group *qeth_l3_attr_groups[];
+ 
+ int qeth_l3_ipaddr_to_string(enum qeth_prot_versions proto, const u8 *addr,
+ 			     char *buf);
+-int qeth_l3_create_device_attributes(struct device *);
+-void qeth_l3_remove_device_attributes(struct device *);
+ int qeth_l3_setrouting_v4(struct qeth_card *);
+ int qeth_l3_setrouting_v6(struct qeth_card *);
+ int qeth_l3_add_ipato_entry(struct qeth_card *, struct qeth_ipato_entry *);
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 264b6c782382..d138ac432d01 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1949,7 +1949,7 @@ static int qeth_l3_probe_device(struct ccwgroup_device *gdev)
+ 		return -ENOMEM;
+ 
+ 	if (gdev->dev.type == &qeth_generic_devtype) {
+-		rc = qeth_l3_create_device_attributes(&gdev->dev);
++		rc = device_add_groups(&gdev->dev, qeth_l3_attr_groups);
+ 		if (rc) {
+ 			destroy_workqueue(card->cmd_wq);
+ 			return rc;
+@@ -1965,7 +1965,7 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
+ 	struct qeth_card *card = dev_get_drvdata(&cgdev->dev);
+ 
+ 	if (cgdev->dev.type == &qeth_generic_devtype)
+-		qeth_l3_remove_device_attributes(&cgdev->dev);
++		device_remove_groups(&cgdev->dev, qeth_l3_attr_groups);
+ 
+ 	qeth_set_allowed_threads(card, 0, 1);
+ 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
+diff --git a/drivers/s390/net/qeth_l3_sys.c b/drivers/s390/net/qeth_l3_sys.c
+index 997fbb7006a7..1082380b21f8 100644
+--- a/drivers/s390/net/qeth_l3_sys.c
++++ b/drivers/s390/net/qeth_l3_sys.c
+@@ -805,28 +805,7 @@ static const struct attribute_group qeth_device_rxip_group = {
+ 	.attrs = qeth_rxip_device_attrs,
+ };
+ 
+-static const struct attribute_group *qeth_l3_only_attr_groups[] = {
+-	&qeth_l3_device_attr_group,
+-	&qeth_device_ipato_group,
+-	&qeth_device_vipa_group,
+-	&qeth_device_rxip_group,
+-	NULL,
+-};
+-
+-int qeth_l3_create_device_attributes(struct device *dev)
+-{
+-	return sysfs_create_groups(&dev->kobj, qeth_l3_only_attr_groups);
+-}
+-
+-void qeth_l3_remove_device_attributes(struct device *dev)
+-{
+-	sysfs_remove_groups(&dev->kobj, qeth_l3_only_attr_groups);
+-}
+-
+ const struct attribute_group *qeth_l3_attr_groups[] = {
+-	&qeth_device_attr_group,
+-	&qeth_device_blkt_group,
+-	/* l3 specific, see qeth_l3_only_attr_groups: */
+ 	&qeth_l3_device_attr_group,
+ 	&qeth_device_ipato_group,
+ 	&qeth_device_vipa_group,
 -- 
-2.21.1
+2.17.1
