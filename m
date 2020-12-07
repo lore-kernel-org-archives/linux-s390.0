@@ -1,63 +1,66 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31492 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725822AbgLGSvZ (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Dec 2020 13:51:25 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51982 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725804AbgLGPpY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Dec 2020 10:45:24 -0500
 Subject: Re: [PATCH] s390/vfio-ap: Clean up vfio_ap resources when KVM pointer
  invalidated
 References: <20201202234101.32169-1-akrowiak@linux.ibm.com>
  <20201203185514.54060568.pasic@linux.ibm.com>
- <a8a90aed-97df-6f10-85c2-8e18dba8f085@linux.ibm.com>
- <20201204200502.1c34ae58.pasic@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <683dd341-f047-0447-1ee8-c126c305b6c2@linux.ibm.com>
-Date: Mon, 7 Dec 2020 13:50:36 -0500
+ <a5a613ef-4c74-ad68-46bd-7159fbafef47@linux.ibm.com>
+ <20201207162411.050c6cea.pasic@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <d0c2aaee-3367-a15d-514d-88211251ca06@de.ibm.com>
+Date: Mon, 7 Dec 2020 16:42:05 +0100
 MIME-Version: 1.0
-In-Reply-To: <20201204200502.1c34ae58.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20201207162411.050c6cea.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com, alex.williamson@redhat.com, kwankhede@nvidia.com, david@redhat.com, Janosch Frank <frankja@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>, Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, cohuck@redhat.com, alex.williamson@redhat.com, kwankhede@nvidia.com, david@redhat.com
 
 
 
-On 12/4/20 2:05 PM, Halil Pasic wrote:
-> On Fri, 4 Dec 2020 09:43:59 -0500
+On 07.12.20 16:24, Halil Pasic wrote:
+> On Fri, 4 Dec 2020 11:48:24 -0500
 > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->>>> +{
->>>> +	if (matrix_mdev->kvm) {
->>>> +		(matrix_mdev->kvm);
->>>> +		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
->>> Is a plain assignment to arch.crypto.pqap_hook apropriate, or do we need
->>> to take more care?
->>>
->>> For instance kvm_arch_crypto_set_masks() takes kvm->lock before poking
->>> kvm->arch.crypto.crycb.
->> I do not think so. The CRYCB is used by KVM to provide crypto resources
->> to the guest so it makes sense to protect it from changes to it while
->> passing
->> the AP devices through to the guest. The hook is used only when an AQIC
->> executed on the guest is intercepted by KVM. If the notifier
->> is being invoked to notify vfio_ap that KVM has been set to NULL, this means
->> the guest is gone in which case there will be no AP instructions to
->> intercept.
-> If the update to pqap_hook isn't observed as atomic we still have a
-> problem. With torn writes or reads we would try to use a corrupt function
-> pointer. While the compiler probably ain't likely to generate silly code
-> for the above assignment (multiple write instructions less then
-> quadword wide), I know of nothing that would prohibit the compiler to do
-> so.
+> 
+>> On 12/3/20 12:55 PM, Halil Pasic wrote:
+>>> On Wed,  2 Dec 2020 18:41:01 -0500
+>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>>>  
+>>>> The vfio_ap device driver registers a group notifier with VFIO when the
+>>>> file descriptor for a VFIO mediated device for a KVM guest is opened to
+>>>> receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
+>>>> event). When the KVM pointer is set, the vfio_ap driver stashes the pointer
+>>>> and calls the kvm_get_kvm() function to increment its reference counter.
+>>>> When the notifier is called to make notification that the KVM pointer has
+>>>> been set to NULL, the driver should clean up any resources associated with
+>>>> the KVM pointer and decrement its reference counter. The current
+>>>> implementation does not take care of this clean up.
+>>>>
+>>>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>  
+>>> Do we need a Fixes tag? Do we need this backported? In my opinion
+>>> this is necessary since the interrupt patches.  
+>>
+>> I'll put in a fixes tag:
+>> Fixes: 258287c994de (s390: vfio-ap: implement mediated device open callback)
+>>
+>> Yes, this should probably be backported.
+> 
+> I changed my mind regarding the severity of this issue. I was paranoid
+> about post-mortem interrupts, and resulting notifier byte updates by the
+> machine. What I overlooked is that the pin is going to prevent the memory
+> form getting repurposed. I.e. if we have something like vmalloc(),
+> vfio_pin(notifier_page), vfree(), I believe the notifier_page is not free
+> (available for allocation). So the worst case scenario is IMHO a resource
+> leak and not corruption. So I'm not sure this must be backported.
+> Opinions?
 
-I'm sorry, but I still don't understand why you think this is a problem
-given what I stated above.
+Resource leaks qualify for backport and cc stable, but it is not a security
+issue so this has no urgency and CVE and these kind of things.
 
->
-> I'm not certain about the scope of the kvm->lock (if it's supposed to
-> protect the whole sub-tree of objects). Maybe Janosch can help us out.
-> @Janosch: what do you think?
->
-> Regards,
-> Halil
+So lets finish this without hurry, add cc stable and then look for necessary
+distro backports.
