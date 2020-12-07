@@ -1,102 +1,63 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: [PATCH v1 3/4] s390/kvm: add kvm_s390_vsie_mvpg_check needed for VSIE MVPG
-Date: Fri, 18 Dec 2020 15:18:10 +0100
-Message-Id: <20201218141811.310267-4-imbrenda@linux.ibm.com>
-In-Reply-To: <20201218141811.310267-1-imbrenda@linux.ibm.com>
-References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32798 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726456AbgLGNNY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Dec 2020 08:13:24 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net-next 5/6] s390/qeth: remove QETH_QDIO_BUF_HANDLED_DELAYED state
+Date: Mon,  7 Dec 2020 14:12:32 +0100
+Message-Id: <20201207131233.90383-6-jwi@linux.ibm.com>
+In-Reply-To: <20201207131233.90383-1-jwi@linux.ibm.com>
+References: <20201207131233.90383-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: borntraeger@de.ibm.com, frankja@linux.ibm.com, david@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Add kvm_s390_vsie_mvpg_check to perform the necessary checks in case an
-MVPG instruction intercepts in a VSIE guest.
+Reuse the QETH_QDIO_BUF_EMPTY state to indicate that a TX buffer has
+been completed with a QAOB notification, and may be cleaned up by
+qeth_cleanup_handled_pending().
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 ---
- arch/s390/kvm/gaccess.c | 55 +++++++++++++++++++++++++++++++++++++++++
- arch/s390/kvm/gaccess.h |  3 +++
- 2 files changed, 58 insertions(+)
+ drivers/s390/net/qeth_core.h      | 2 --
+ drivers/s390/net/qeth_core_main.c | 5 ++---
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/arch/s390/kvm/gaccess.c b/arch/s390/kvm/gaccess.c
-index 8e256a233583..90e9baff6eac 100644
---- a/arch/s390/kvm/gaccess.c
-+++ b/arch/s390/kvm/gaccess.c
-@@ -1228,3 +1228,58 @@ int kvm_s390_shadow_fault(struct kvm_vcpu *vcpu, struct gmap *sg,
- 	mmap_read_unlock(sg->mm);
- 	return rc;
- }
-+
-+static int kvm_s390_mvpg_check_one(struct kvm_vcpu *vcpu, unsigned long *addr,
-+			     const int edat, const union asce asce,
-+			     const enum gacc_mode mode, unsigned long *pteptr)
-+{
-+	enum prot_type prot;
-+	int rc;
-+
-+	rc = guest_translate(vcpu, *addr, addr, asce, mode, &prot, pteptr);
-+	if (rc <= 0)
-+		return rc;
-+
-+	switch (rc) {
-+	case PGM_REGION_FIRST_TRANS:
-+	case PGM_REGION_SECOND_TRANS:
-+	case PGM_REGION_THIRD_TRANS:
-+	case PGM_SEGMENT_TRANSLATION:
-+		if (!edat)
-+			return trans_exc(vcpu, rc, *addr, 0, mode, prot);
-+		*pteptr |= 4;
-+		fallthrough;
-+	case PGM_PAGE_TRANSLATION:
-+		return -ENOENT;
-+	default:
-+		return rc;
-+	}
-+}
-+
-+int kvm_s390_vsie_mvpg_check(struct kvm_vcpu *vcpu, unsigned long r1,
-+			     unsigned long r2, void *gpei)
-+{
-+	unsigned long pei[2] = {0};
-+	union ctlreg0 cr0;
-+	union asce cr1;
-+	int edat, rc1, rc2;
-+
-+	cr0.val = vcpu->arch.sie_block->gcr[0];
-+	cr1.val = vcpu->arch.sie_block->gcr[1];
-+	edat = cr0.edat && test_kvm_facility(vcpu->kvm, 8);
-+
-+	rc1 = kvm_s390_mvpg_check_one(vcpu, &r1, edat, cr1, GACC_FETCH, pei);
-+	rc2 = kvm_s390_mvpg_check_one(vcpu, &r2, edat, cr1, GACC_STORE, pei + 1);
-+
-+	if (rc1 == -ENOENT || rc2 == -ENOENT) {
-+		memcpy(gpei, pei, sizeof(pei));
-+		return -ENOENT;
-+	}
-+
-+	if (rc2 < 0)
-+		return rc2;
-+	if (rc1 < 0)
-+		return rc1;
-+
-+	return 0;
-+}
-diff --git a/arch/s390/kvm/gaccess.h b/arch/s390/kvm/gaccess.h
-index f4c51756c462..2c53cee3b29f 100644
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -166,6 +166,9 @@ int check_gva_range(struct kvm_vcpu *vcpu, unsigned long gva, u8 ar,
- int access_guest(struct kvm_vcpu *vcpu, unsigned long ga, u8 ar, void *data,
- 		 unsigned long len, enum gacc_mode mode);
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index d150da95d073..6f5ddc3eab8c 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -424,8 +424,6 @@ enum qeth_qdio_out_buffer_state {
+ 	/* Received QAOB notification on CQ: */
+ 	QETH_QDIO_BUF_QAOB_OK,
+ 	QETH_QDIO_BUF_QAOB_ERROR,
+-	/* Handled via transfer pending / completion queue. */
+-	QETH_QDIO_BUF_HANDLED_DELAYED,
+ };
  
-+int kvm_s390_vsie_mvpg_check(struct kvm_vcpu *vcpu, unsigned long r1,
-+			     unsigned long r2, void *gpei);
-+
- int access_guest_real(struct kvm_vcpu *vcpu, unsigned long gra,
- 		      void *data, unsigned long len, enum gacc_mode mode);
+ struct qeth_qdio_out_buffer {
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 869694217450..da27ef451d05 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -477,8 +477,7 @@ static void qeth_cleanup_handled_pending(struct qeth_qdio_out_q *q, int bidx,
  
+ 		while (c) {
+ 			if (forced_cleanup ||
+-			    atomic_read(&c->state) ==
+-			      QETH_QDIO_BUF_HANDLED_DELAYED) {
++			    atomic_read(&c->state) == QETH_QDIO_BUF_EMPTY) {
+ 				struct qeth_qdio_out_buffer *f = c;
+ 
+ 				QETH_CARD_TEXT(f->q->card, 5, "fp");
+@@ -549,7 +548,7 @@ static void qeth_qdio_handle_aob(struct qeth_card *card,
+ 				kmem_cache_free(qeth_core_header_cache, data);
+ 		}
+ 
+-		atomic_set(&buffer->state, QETH_QDIO_BUF_HANDLED_DELAYED);
++		atomic_set(&buffer->state, QETH_QDIO_BUF_EMPTY);
+ 		break;
+ 	default:
+ 		WARN_ON_ONCE(1);
 -- 
-2.26.2
+2.17.1
