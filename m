@@ -1,121 +1,105 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([217.72.192.75]:57117 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727288AbgLOUVu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 15 Dec 2020 15:21:50 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:41810 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729455AbgLHXBu (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Dec 2020 18:01:50 -0500
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [PATCH] arch: fix 'unexpected IRQ trap at vector' warnings
-References: <20201207143146.30021-1-info@metux.net>
- <877dptt5av.fsf@mpe.ellerman.id.au> <87y2i7298s.fsf@nanos.tec.linutronix.de>
-From: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
-Message-ID: <33001e60-cbfc-f114-55bf-f347f21fee9b@metux.net>
-Date: Tue, 15 Dec 2020 21:12:26 +0100
+In-Reply-To: <877dptt5av.fsf@mpe.ellerman.id.au>
+References: <20201207143146.30021-1-info@metux.net> <877dptt5av.fsf@mpe.ellerman.id.au>
+Date: Wed, 09 Dec 2020 00:01:07 +0100
+Message-ID: <87y2i7298s.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <87y2i7298s.fsf@nanos.tec.linutronix.de>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: tl
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>, Michael Ellerman <mpe@ellerman.id.au>, "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org
+To: Michael Ellerman <mpe@ellerman.id.au>, "Enrico Weigelt, metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org
 Cc: James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, jdike@addtoit.com, richard@nod.at, anton.ivanov@cambridgegreys.com, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-um@lists.infradead.org
 
-On 09.12.20 00:01, Thomas Gleixner wrote:
+On Tue, Dec 08 2020 at 13:11, Michael Ellerman wrote:
+> "Enrico Weigelt, metux IT consult" <info@metux.net> writes:
+>> All archs, except Alpha, print out the irq number in hex, but the message
+>> looks like it was a decimal number, which is quite confusing. Fixing this
+>> by adding "0x" prefix.
+>
+> Arguably decimal would be better, /proc/interrupts and /proc/irq/ both
+> use decimal.
+>
+> The whole message is very dated IMO, these days the number it prints is
+> (possibly) virtualised via IRQ domains, ie. it's not necessarily a
+> "vector" if that even makes sense on all arches). Arguably "trap" is the
+> wrong term on some arches too.
+>
+> So it would be better reworded entirely IMO, and also switched to
+> decimal to match other sources of information on interrupts.
 
-> There are a few situations why it is invoked or not:
-> 
->   1) The original x86 usage is not longer using it because it complains
->      rightfully about a vector being raised which has no interrupt
->      descriptor associated to it. So the original reason for naming it
->      vector is gone long ago. It emits:
-> 
->      pr_emerg_ratelimited("%s: %d.%u No irq handler for vector\n",
->                           __func__, smp_processor_id(), vector);
-> 
->      Directly from the x86 C entry point without ever invoking that
->      function.  Pretty popular error message due to some AMD BIOS
->      wreckage. :)
+So much for the theory.
 
-Of course, the term "vector" should be replaced by something like
-"irqnr" or "virq", but I didn't have name changes within scope - just
-wanted to fix the printing of that number, as i've stupled over it while
-working on something different and wondered why the number differed from
-what I had expected, until I seen that it prints hex instead of decimal.
+The printk originates from the very early days of i386 Linux where it
+was called from the low level entry code when there was no interrupt
+assigned to a vector, which is an x86'ism.
 
-But if you prefer a more complete cleanup, I'll be happy to do it.
+That was copied to other architectures without actually thinking about
+whether the vector concept made sense on that architecture and at some
+point it got completely bonkers because it moved to core code without
+thought.
 
->   3) It's invoked from __handle_domain_irq() when the 'hwirq' which is
->      handed in by the caller does not resolve to a mapped Linux
->      interrupt which is pretty much the same as the x86 situation above
->      in #1, but it prints useless data.
-> 
->      It prints 'irq' which is invalid but it does not print the really
->      interesting 'hwirq' which was handed in by the caller and did
->      not resolve.
+There are a few situations why it is invoked or not:
 
-I wouldn't say the irq-nr isn't interesting. In my particular case it
-was quite what I've been looking for. But you're right, hwirq should
-also be printed.
+  1) The original x86 usage is not longer using it because it complains
+     rightfully about a vector being raised which has no interrupt
+     descriptor associated to it. So the original reason for naming it
+     vector is gone long ago. It emits:
 
->      In this case the Linux irq number is uninteresting as it is known
->      to be invalid and simply is not mapped and therefore does not
->      exist.
+     pr_emerg_ratelimited("%s: %d.%u No irq handler for vector\n",
+                          __func__, smp_processor_id(), vector);
 
-In my case it came in from generic_handle_irq(), and in this case this
-irq number (IMHO) has been valid, but nobody handled it, so it went to
-ack_bad_irq.
+     Directly from the x86 C entry point without ever invoking that
+     function.  Pretty popular error message due to some AMD BIOS
+     wreckage. :)
 
-Of course, if this function is meant as a fallback to ack some not
-otherwise handled IRQ on the hw, the linux irq number indeed isn't quite
-helpful (unless we expect that code to do a lookup to the hw irq).
+  2) It's invoked when there is an interrupt descriptor installed but
+     not configured/requested. In that case some architectures need to
+     ack it in order not to block further interrupt delivery. In that
+     case 'vector is bogus' and really want's to be 'irqnr' or such
+     because there is a Linux virq number associated to it.
 
-... rethinking this further ... shouldn't we also pass in even more data
-(eg. irq_desc, irqchip, ...), so this function can check which hw to
-actually talk to ?
+  3) It's invoked from __handle_domain_irq() when the 'hwirq' which is
+     handed in by the caller does not resolve to a mapped Linux
+     interrupt which is pretty much the same as the x86 situation above
+     in #1, but it prints useless data.
 
->   4) It's invoked from the dummy irq chip which is installed for a
->      couple of truly virtual interrupts where the invocation of
->      dummy_irq_chip::irq_ack() is indicating wreckage.
-> 
->      In that case the Linux irq number is the thing which is printed.
-> 
-> So no. It's not just inconsistent it's in some places outright
-> wrong. What we really want is:
-> 
-> ack_bad_irq(int hwirq, int virq)
+     It prints 'irq' which is invalid but it does not print the really
+     interesting 'hwirq' which was handed in by the caller and did
+     not resolve.
 
-is 'int' correct here ?
+     In this case the Linux irq number is uninteresting as it is known
+     to be invalid and simply is not mapped and therefore does not
+     exist.
 
-BTW: I also wonder why the virq is unsigned int, while hwirq (eg. in
-struct irq_data) is unsigned long. shouldn't the virtual number space
-be at least as big (or even bigger) than the hw one ?
+     This has to print out 'hwirq' which is kinda the equivalent to the
+     original 'vector' message.
 
- {
->         if (hwirq >= 0)
->            print_useful_info(hwirq);
->         if (virq > 0)
->            print_useful_info(virq);
->         arch_try_to_ack(hwirq, virq);
-> }
->     
-> for this to make sense. Just fixing the existing printk() to be less
-> wrong is not really an improvement.
+  4) It's invoked from the dummy irq chip which is installed for a
+     couple of truly virtual interrupts where the invocation of
+     dummy_irq_chip::irq_ack() is indicating wreckage.
 
-Okay, makes sense.
+     In that case the Linux irq number is the thing which is printed.
 
-OTOH: since both callers (dummychip.c, handle.c) already dump out before
-ack_bad_irq(), do we need to print out anything at all ?
+So no. It's not just inconsistent it's in some places outright
+wrong. What we really want is:
 
-I've also seen that many archs increase a counter (some use long, others
-atomic_t) - should we also consolidate this in an arch-independent way
-in handle.c (or does kstat_incr_irqs_this_cpu already do this) ?
+ack_bad_irq(int hwirq, int virq)
+{
+        if (hwirq >= 0)
+           print_useful_info(hwirq);
+        if (virq > 0)
+           print_useful_info(virq);
+        arch_try_to_ack(hwirq, virq);
+}
+    
+for this to make sense. Just fixing the existing printk() to be less
+wrong is not really an improvement.
 
---mtx
+Thanks,
 
--- 
----
-Hinweis: unverschlüsselte E-Mails können leicht abgehört und manipuliert
-werden ! Für eine vertrauliche Kommunikation senden Sie bitte ihren
-GPG/PGP-Schlüssel zu.
----
-Enrico Weigelt, metux IT consult
-Free software and Linux embedded engineering
-info@metux.net -- +49-151-27565287
+        tglx
