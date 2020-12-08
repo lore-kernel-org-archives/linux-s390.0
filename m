@@ -1,125 +1,77 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v13 11/15] s390/vfio-ap: implement in-use callback for vfio_ap driver
-Date: Tue, 22 Dec 2020 20:16:02 -0500
-Message-Id: <20201223011606.5265-12-akrowiak@linux.ibm.com>
-In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
-References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:24203 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727895AbgLHIj7 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Dec 2020 03:39:59 -0500
+Subject: Re: [RFC V2 3/3] s390/mm: Define arch_get_mappable_range()
+References: <1606706992-26656-1-git-send-email-anshuman.khandual@arm.com>
+ <1606706992-26656-4-git-send-email-anshuman.khandual@arm.com>
+ <20201202203233.GB11274@osiris>
+ <24905c32-f6c1-97a0-000f-f822b9870ea5@arm.com> <20201203115133.GB9994@osiris>
+ <4d6c9ec4-f1be-46b9-5d67-5c53f5afedc5@redhat.com>
+ <62c60c9e-20d6-25bd-94d0-78bfed0f2476@arm.com>
+ <02dfe6f5-efb6-c04d-c34a-a1e7393625cf@redhat.com>
+ <9e80ad53-d203-d7d2-3fc8-92fa860bc869@arm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <ec49e677-7992-40d5-ea5b-709e311d76fe@redhat.com>
+Date: Tue, 8 Dec 2020 09:38:13 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <9e80ad53-d203-d7d2-3fc8-92fa860bc869@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Anshuman Khandual <anshuman.khandual@arm.com>, Heiko Carstens <hca@linux.ibm.com>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Jonathan Cameron <Jonathan.Cameron@Huawei.com>
 
-Let's implement the callback to indicate when an APQN
-is in use by the vfio_ap device driver. The callback is
-invoked whenever a change to the apmask or aqmask would
-result in one or more queue devices being removed from the driver. The
-vfio_ap device driver will indicate a resource is in use
-if the APQN of any of the queue devices to be removed are assigned to
-any of the matrix mdevs under the driver's control.
+>>
+>> Both changes only make sense with an in-tree user. I'm planning on using
+>> this functionality in virtio-mem code. I can pickup your patches, drop
+>> the superfluous checks, and use it from virtio-mem code. Makese sense
+>> (BTW, looks like we'll see aarch64 support for virtio-mem soon)?
+> 
+> I have not been following virtio-mem closely. But is there something pending
+> on arm64 platform which prevents virtio-mem enablement ?
 
-There is potential for a deadlock condition between the matrix_dev->lock
-used to lock the matrix device during assignment of adapters and domains
-and the ap_perms_mutex locked by the AP bus when changes are made to the
-sysfs apmask/aqmask attributes.
+Regarding enablement, I expect things to be working out of the box
+mostly. Jonathan is currently doing some testing and wants to send a
+simple unlock patch once done. [1]
 
-Consider following scenario (courtesy of Halil Pasic):
-1) apmask_store() takes ap_perms_mutex
-2) assign_adapter_store() takes matrix_dev->lock
-3) apmask_store() calls vfio_ap_mdev_resource_in_use() which tries
-   to take matrix_dev->lock
-4) assign_adapter_store() calls ap_apqn_in_matrix_owned_by_def_drv
-   which tries to take ap_perms_mutex
 
-BANG!
+Now, there are some things to improve in the future. virtio-mem
+adds/removes individual Linux memory blocks and logically plugs/unplugs
+MAX_ORDER - 1/pageblock_order pages inside Linux memory blocks.
 
-To resolve this issue, instead of using the mutex_lock(&matrix_dev->lock)
-function to lock the matrix device during assignment of an adapter or
-domain to a matrix_mdev as well as during the in_use callback, the
-mutex_trylock(&matrix_dev->lock) function will be used. If the lock is not
-obtained, then the assignment and in_use functions will terminate with
--EBUSY.
+1. memblock
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_drv.c     |  1 +
- drivers/s390/crypto/vfio_ap_ops.c     | 21 ++++++++++++++++++---
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- 3 files changed, 21 insertions(+), 3 deletions(-)
+On arm64 and powerpc, we create/delete memblocks when adding/removing
+memory, which is suboptimal (and the code is quite fragile as we don't
+handle errors ...). Hotplugged memory never has holes, so we can tweak
+relevant code to not check via the memblock api.
 
-diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
-index 73bd073fd5d3..8934471b7944 100644
---- a/drivers/s390/crypto/vfio_ap_drv.c
-+++ b/drivers/s390/crypto/vfio_ap_drv.c
-@@ -147,6 +147,7 @@ static int __init vfio_ap_init(void)
- 	memset(&vfio_ap_drv, 0, sizeof(vfio_ap_drv));
- 	vfio_ap_drv.probe = vfio_ap_mdev_probe_queue;
- 	vfio_ap_drv.remove = vfio_ap_mdev_remove_queue;
-+	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
- 	vfio_ap_drv.ids = ap_queue_ids;
- 
- 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 843862c88379..6bc2e80cc565 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -644,7 +644,8 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	memset(apm, 0, sizeof(apm));
- 	set_bit_inv(apid, apm);
- 
--	mutex_lock(&matrix_dev->lock);
-+	if (!mutex_trylock(&matrix_dev->lock))
-+		return -EBUSY;
- 
- 	ret = vfio_ap_mdev_validate_masks(matrix_mdev, apm,
- 					  matrix_mdev->matrix.aqm);
-@@ -777,7 +778,8 @@ static ssize_t assign_domain_store(struct device *dev,
- 	memset(aqm, 0, sizeof(aqm));
- 	set_bit_inv(apqi, aqm);
- 
--	mutex_lock(&matrix_dev->lock);
-+	if (!mutex_trylock(&matrix_dev->lock))
-+		return -EBUSY;
- 
- 	ret = vfio_ap_mdev_validate_masks(matrix_mdev, matrix_mdev->matrix.apm,
- 					  aqm);
-@@ -896,7 +898,8 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 	 * least significant, correspond to IDs 0 up to the one less than the
- 	 * number of control domains that can be assigned.
- 	 */
--	mutex_lock(&matrix_dev->lock);
-+	if (!mutex_trylock(&matrix_dev->lock))
-+		return -EBUSY;
- 	set_bit_inv(id, matrix_mdev->matrix.adm);
- 	vfio_ap_mdev_hot_plug_cdom(matrix_mdev, id);
- 	mutex_unlock(&matrix_dev->lock);
-@@ -1446,3 +1449,15 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
- }
-+
-+int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
-+{
-+	int ret;
-+
-+	if (!mutex_trylock(&matrix_dev->lock))
-+		return -EBUSY;
-+	ret = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
-+	mutex_unlock(&matrix_dev->lock);
-+
-+	return ret;
-+}
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index d2d26ba18602..15b7cd74843b 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -107,4 +107,6 @@ struct vfio_ap_queue {
- int vfio_ap_mdev_probe_queue(struct ap_device *queue);
- void vfio_ap_mdev_remove_queue(struct ap_device *queue);
- 
-+int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
-+
- #endif /* _VFIO_AP_PRIVATE_H_ */
+For example, pfn_valid() only has to check for memblock_is_map_memory()
+in case of !early_section() - otherwise it can just fallback to our
+generic pfn_valid() function.
+
+2. MAX_ORDER - 1 / pageblock_order
+
+With 64k base pages, virtio-mem can only logically plug/unplug in 512MB
+granularity, which is sub-optimal and inflexible. 4/2MB would be much
+better - however this would require always using 2MB THP on arm64 (IIRC
+via "cont" bits). Luckily, only some distributions use 64k base pages as
+default nowadays ... :)
+
+3. Section size
+
+virtio-mem benefits from small section sizes. Currently, we have 1G.
+With 4k base pages we could easily reduce it to something what x86 has
+(128 MB) - and I remember discussions regarding that already in other
+(IIRC NVDIMM / DIMM) context. Again, with 64k base pages we cannot go
+below 512 MB right now.
+
+[1] https://lkml.kernel.org/r/20201125145659.00004b3e@Huawei.com
+
 -- 
-2.21.1
+Thanks,
+
+David / dhildenb
