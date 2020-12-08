@@ -1,97 +1,108 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail-io1-f69.google.com ([209.85.166.69]:42278 "EHLO
+        mail-io1-f69.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726825AbgLHMC5 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Dec 2020 07:02:57 -0500
+Received: by mail-io1-f69.google.com with SMTP id m9so14240127ioa.9
+        for <linux-s390@vger.kernel.org>; Tue, 08 Dec 2020 04:02:36 -0800 (PST)
 MIME-Version: 1.0
-Date: Thu, 17 Dec 2020 00:58:09 -0800
-In-Reply-To: <000000000000705ff605b5f2b656@google.com>
-Message-ID: <000000000000de052a05b6a5301c@google.com>
-Subject: Re: BUG: unable to handle kernel paging request in smc_nl_handle_smcr_dev
+Date: Tue, 08 Dec 2020 04:02:11 -0800
+Message-ID: <000000000000705ff605b5f2b656@google.com>
+Subject: BUG: unable to handle kernel paging request in smc_nl_handle_smcr_dev
 From: syzbot <syzbot+600fef7c414ee7e2d71b@syzkaller.appspotmail.com>
 Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
 To: davem@davemloft.net, kgraul@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
-syzbot has found a reproducer for the following issue on:
+Hello,
 
-HEAD commit:    5e60366d Merge tag 'fallthrough-fixes-clang-5.11-rc1' of g..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=17842c13500000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=503d0089cd701d6d
+syzbot found the following issue on:
+
+HEAD commit:    b1f7b098 Merge branch 's390-qeth-next'
+git tree:       net-next
+console output: https://syzkaller.appspot.com/x/log.txt?x=164d246b500000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=2ac2dabe250b3a58
 dashboard link: https://syzkaller.appspot.com/bug?extid=600fef7c414ee7e2d71b
 compiler:       gcc (GCC) 10.1.0-syz 20200507
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17d8e41f500000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=17962287500000
+
+Unfortunately, I don't have any reproducer for this issue yet.
 
 IMPORTANT: if you fix the issue, please add the following tag to the commit:
 Reported-by: syzbot+600fef7c414ee7e2d71b@syzkaller.appspotmail.com
 
-infiniband syz1: set active
-infiniband syz1: added macvtap0
-RDS/IB: syz1: added
-smc: adding ib device syz1 with port count 1
-smc:    ib device syz1 port 1 has pnetid 
-BUG: unable to handle page fault for address: ffffffffffffff74
+BUG: unable to handle page fault for address: ffffffffffffff84
 #PF: supervisor read access in kernel mode
 #PF: error_code(0x0000) - not-present page
-PGD b48f067 P4D b48f067 PUD b491067 PMD 0 
+PGD b08f067 P4D b08f067 PUD b091067 PMD 0 
 Oops: 0000 [#1] PREEMPT SMP KASAN
-CPU: 0 PID: 8688 Comm: syz-executor225 Not tainted 5.10.0-syzkaller #0
+CPU: 0 PID: 21334 Comm: syz-executor.1 Not tainted 5.10.0-rc6-syzkaller #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
 RIP: 0010:smc_set_pci_values net/smc/smc_core.h:396 [inline]
-RIP: 0010:smc_nl_handle_smcr_dev.isra.0+0x4e1/0x1280 net/smc/smc_ib.c:422
-Code: fc ff df 48 8d bb 74 ff ff ff 48 89 fa 48 c1 ea 03 0f b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 29 0d 00 00 <0f> b7 83 74 ff ff ff 48 8d bb 76 ff ff ff 48 89 fa 48 c1 ea 03 66
-RSP: 0018:ffffc90001f87220 EFLAGS: 00010246
+RIP: 0010:smc_nl_handle_smcr_dev.isra.0+0x4bd/0x11b0 net/smc/smc_ib.c:422
+Code: 00 00 00 fc ff df 48 8d 7b 84 48 89 fa 48 c1 ea 03 0f b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 59 0c 00 00 <0f> b7 43 84 48 8d 7b 86 48 89 fa 48 c1 ea 03 66 89 84 24 ee 00 00
+RSP: 0018:ffffc900018b7228 EFLAGS: 00010246
 RAX: 0000000000000005 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffffffff74
-RBP: ffffffff8d5ac140 R08: 0000000000000001 R09: ffffc90001f87308
-R10: fffff520003f0e64 R11: 1ffffffff1e2db6c R12: 000000001b556831
-R13: ffff888013e29540 R14: dffffc0000000000 R15: ffff88802a360014
-FS:  00000000015bf880(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffffffff84
+RBP: ffffffff8ccc6120 R08: 0000000000000001 R09: ffffc900018b7310
+R10: fffff52000316e65 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff88802f52d540 R14: dffffc0000000000 R15: ffff888062412014
+FS:  00007f9ce0405700(0000) GS:ffff8880b9e00000(0000) knlGS:0000000000000000
 CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffff74 CR3: 000000002687b000 CR4: 00000000001506f0
+CR2: ffffffffffffff84 CR3: 0000000013c46000 CR4: 00000000001506f0
 DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
 DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
  smc_nl_prep_smcr_dev net/smc/smc_ib.c:469 [inline]
  smcr_nl_get_device+0xdf/0x1f0 net/smc/smc_ib.c:481
  genl_lock_dumpit+0x60/0x90 net/netlink/genetlink.c:623
- netlink_dump+0x4d9/0xb90 net/netlink/af_netlink.c:2268
- __netlink_dump_start+0x665/0x920 net/netlink/af_netlink.c:2373
+ netlink_dump+0x4b9/0xb70 net/netlink/af_netlink.c:2268
+ __netlink_dump_start+0x642/0x900 net/netlink/af_netlink.c:2373
  genl_family_rcv_msg_dumpit+0x2af/0x310 net/netlink/genetlink.c:686
  genl_family_rcv_msg net/netlink/genetlink.c:780 [inline]
- genl_rcv_msg+0x43c/0x590 net/netlink/genetlink.c:800
+ genl_rcv_msg+0x434/0x580 net/netlink/genetlink.c:800
  netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
  genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
  netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
  netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x907/0xe40 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2336
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2390
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2423
+ netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:651 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:671
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2331
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2385
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2418
  do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x443fd9
-Code: e8 6c 05 03 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 9b 07 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007ffe909694e8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000443fd9
-RDX: 0000000000000000 RSI: 0000000020000180 RDI: 0000000000000004
-RBP: 00007ffe909694f0 R08: 0000000001bbbbbb R09: 0000000001bbbbbb
-R10: 0000000001bbbbbb R11: 0000000000000246 R12: 00007ffe90969500
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+RIP: 0033:0x45e0f9
+Code: 0d b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 db b3 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f9ce0404c68 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 000000000045e0f9
+RDX: 0000000000000000 RSI: 0000000020000040 RDI: 0000000000000003
+RBP: 000000000119bfc0 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 000000000119bf8c
+R13: 00007ffda3a6b65f R14: 00007f9ce04059c0 R15: 000000000119bf8c
 Modules linked in:
-CR2: ffffffffffffff74
----[ end trace 45a80c2d5f347bdc ]---
+CR2: ffffffffffffff84
+---[ end trace 7323b30ca37a03b9 ]---
 RIP: 0010:smc_set_pci_values net/smc/smc_core.h:396 [inline]
-RIP: 0010:smc_nl_handle_smcr_dev.isra.0+0x4e1/0x1280 net/smc/smc_ib.c:422
-Code: fc ff df 48 8d bb 74 ff ff ff 48 89 fa 48 c1 ea 03 0f b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 29 0d 00 00 <0f> b7 83 74 ff ff ff 48 8d bb 76 ff ff ff 48 89 fa 48 c1 ea 03 66
-RSP: 0018:ffffc90001f87220 EFLAGS: 00010246
+RIP: 0010:smc_nl_handle_smcr_dev.isra.0+0x4bd/0x11b0 net/smc/smc_ib.c:422
+Code: 00 00 00 fc ff df 48 8d 7b 84 48 89 fa 48 c1 ea 03 0f b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 59 0c 00 00 <0f> b7 43 84 48 8d 7b 86 48 89 fa 48 c1 ea 03 66 89 84 24 ee 00 00
+RSP: 0018:ffffc900018b7228 EFLAGS: 00010246
 RAX: 0000000000000005 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffffffff74
-RBP: ffffffff8d5ac140 R08: 0000000000000001 R09: ffffc90001f87308
-R10: fffff520003f0e64 R11: 1ffffffff1e2db6c R12: 000000001b556831
-R13: ffff888013e29540 R14: dffffc0000000000 R15: ffff88802a360014
-FS:  00000000015bf880(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffffffff84
+RBP: ffffffff8ccc6120 R08: 0000000000000001 R09: ffffc900018b7310
+R10: fffff52000316e65 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff88802f52d540 R14: dffffc0000000000 R15: ffff888062412014
+FS:  00007f9ce0405700(0000) GS:ffff8880b9e00000(0000) knlGS:0000000000000000
 CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffff74 CR3: 000000002687b000 CR4: 00000000001506f0
+CR2: ffffffffffffff84 CR3: 0000000013c46000 CR4: 00000000001506f0
 DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
 DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
