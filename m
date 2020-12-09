@@ -1,88 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59114 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731223AbgLATVp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:21:45 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v7 04/14] net/smc: Add link counters for IB device ports
-Date: Tue,  1 Dec 2020 20:20:39 +0100
-Message-Id: <20201201192049.53517-5-kgraul@linux.ibm.com>
-In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
-References: <20201201192049.53517-1-kgraul@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41490 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1731770AbgLIMoB (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Dec 2020 07:44:01 -0500
+Subject: Re: [kvm-unit-tests PATCH 1/2] s390x: Move to GPL 2 and SPDX license
+ identifiers
+References: <20201208150902.32383-1-frankja@linux.ibm.com>
+ <20201208150902.32383-2-frankja@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Message-ID: <414068f0-4bf4-8ccc-a11e-63deb5f01c42@linux.ibm.com>
+Date: Wed, 9 Dec 2020 13:43:13 +0100
+MIME-Version: 1.0
+In-Reply-To: <20201208150902.32383-2-frankja@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, kvm@vger.kernel.org
+Cc: thuth@redhat.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-Add link counters to the structure of the smc ib device, one counter per
-ib port. Increase/decrease the counters as needed in the corresponding
-routines.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_core.c | 13 +++++++++++++
- net/smc/smc_ib.h   |  2 ++
- 2 files changed, 15 insertions(+)
+On 12/8/20 4:09 PM, Janosch Frank wrote:
+> In the past we had some issues when developers wanted to use code
+> snippets or constants from the kernel in a test or in the library. To
+> remedy that the s390x maintainers decided to move all files to GPL
+> 2 (if possible).
+> 
+> At the same time let's move to SPDX identifiers as they are much nicer
+> to read.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>   s390x/cmm.c       | 4 +---
+>   s390x/cpumodel.c  | 4 +---
+>   s390x/css.c       | 4 +---
+>   s390x/cstart64.S  | 4 +---
+>   s390x/diag10.c    | 4 +---
+>   s390x/diag288.c   | 4 +---
+>   s390x/diag308.c   | 5 +----
+>   s390x/emulator.c  | 4 +---
+>   s390x/gs.c        | 4 +---
+>   s390x/iep.c       | 4 +---
+>   s390x/intercept.c | 4 +---
+>   s390x/pfmf.c      | 4 +---
+>   s390x/sclp.c      | 4 +---
+>   s390x/selftest.c  | 4 +---
+>   s390x/skey.c      | 4 +---
+>   s390x/skrf.c      | 4 +---
+>   s390x/smp.c       | 4 +---
+>   s390x/sthyi.c     | 4 +---
+>   s390x/sthyi.h     | 4 +---
+>   s390x/stsi.c      | 4 +---
+>   s390x/uv-guest.c  | 4 +---
+>   s390x/vector.c    | 4 +---
+>   22 files changed, 22 insertions(+), 67 deletions(-)
+> 
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 5bc8ebcd03f3..46087cec3bcd 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -63,6 +63,16 @@ static inline struct list_head *smc_lgr_list_head(struct smc_link_group *lgr,
- 	return &smc_lgr_list.list;
- }
- 
-+static void smc_ibdev_cnt_inc(struct smc_link *lnk)
-+{
-+	atomic_inc(&lnk->smcibdev->lnk_cnt_by_port[lnk->ibport - 1]);
-+}
-+
-+static void smc_ibdev_cnt_dec(struct smc_link *lnk)
-+{
-+	atomic_dec(&lnk->smcibdev->lnk_cnt_by_port[lnk->ibport - 1]);
-+}
-+
- static void smc_lgr_schedule_free_work(struct smc_link_group *lgr)
- {
- 	/* client link group creation always follows the server link group
-@@ -316,6 +326,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	lnk->link_idx = link_idx;
- 	lnk->smcibdev = ini->ib_dev;
- 	lnk->ibport = ini->ib_port;
-+	smc_ibdev_cnt_inc(lnk);
- 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
- 	atomic_set(&lnk->conn_cnt, 0);
- 	smc_llc_link_set_uid(lnk);
-@@ -359,6 +370,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- clear_llc_lnk:
- 	smc_llc_link_clear(lnk, false);
- out:
-+	smc_ibdev_cnt_dec(lnk);
- 	put_device(&ini->ib_dev->ibdev->dev);
- 	memset(lnk, 0, sizeof(struct smc_link));
- 	lnk->state = SMC_LNK_UNUSED;
-@@ -749,6 +761,7 @@ void smcr_link_clear(struct smc_link *lnk, bool log)
- 	smc_ib_destroy_queue_pair(lnk);
- 	smc_ib_dealloc_protection_domain(lnk);
- 	smc_wr_free_link_mem(lnk);
-+	smc_ibdev_cnt_dec(lnk);
- 	put_device(&lnk->smcibdev->ibdev->dev);
- 	smcibdev = lnk->smcibdev;
- 	memset(lnk, 0, sizeof(struct smc_link));
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index 2ce481187dd0..3b85360a473b 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -53,6 +53,8 @@ struct smc_ib_device {				/* ib-device infos for smc */
- 	atomic_t		lnk_cnt;	/* number of links on ibdev */
- 	wait_queue_head_t	lnks_deleted;	/* wait 4 removal of all links*/
- 	struct mutex		mutex;		/* protect dev setup+cleanup */
-+	atomic_t		lnk_cnt_by_port[SMC_MAX_PORTS];
-+						/* number of links per port */
- };
- 
- struct smc_buf_desc;
+Acked-by: Pierre Morel <pmorel@linux.ibm.com>
+
+
 -- 
-2.17.1
+Pierre Morel
+IBM Lab Boeblingen
