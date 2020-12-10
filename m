@@ -1,29 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 12 Dec 2020 12:58:35 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: irq/core] xen/events: Remove disfunct affinity spreading
-In-Reply-To: <20201210194045.065115500@linutronix.de>
-References: <20201210194045.065115500@linutronix.de>
+Message-Id: <20201210194045.065115500@linutronix.de>
+Date: Thu, 10 Dec 2020 20:26:01 +0100
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: [patch 25/30] xen/events: Remove disfunct affinity spreading
+References: <20201210192536.118432146@linutronix.de>
 MIME-Version: 1.0
-Message-ID: <160777791566.3364.11691003667802645875.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
-
-The following commit has been merged into the irq/core branch of tip:
-
-Commit-ID:     26599cd34323b73894ebcb5197693cdd668b4aa8
-Gitweb:        https://git.kernel.org/tip/26599cd34323b73894ebcb5197693cdd668b4aa8
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Thu, 10 Dec 2020 20:26:01 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Sat, 12 Dec 2020 12:59:06 +01:00
-
-xen/events: Remove disfunct affinity spreading
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>
 
 This function can only ever work when the event channels:
 
@@ -43,18 +29,15 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Cc: Juergen Gross <jgross@suse.com>
 Cc: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20201210194045.065115500@linutronix.de
-
+Cc: xen-devel@lists.xenproject.org
 ---
- drivers/xen/events/events_base.c |  9 +--------
- drivers/xen/evtchn.c             | 34 +-------------------------------
+ drivers/xen/events/events_base.c |    9 ---------
+ drivers/xen/evtchn.c             |   34 +---------------------------------
  2 files changed, 1 insertion(+), 42 deletions(-)
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index d6458e4..9cade19 100644
 --- a/drivers/xen/events/events_base.c
 +++ b/drivers/xen/events/events_base.c
-@@ -1696,15 +1696,6 @@ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
+@@ -1696,15 +1696,6 @@ static int set_affinity_irq(struct irq_d
  	return ret;
  }
  
@@ -70,11 +53,9 @@ index d6458e4..9cade19 100644
  static void enable_dynirq(struct irq_data *data)
  {
  	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
-diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
-index 5dc016d..a7a8571 100644
 --- a/drivers/xen/evtchn.c
 +++ b/drivers/xen/evtchn.c
-@@ -421,36 +421,6 @@ static void evtchn_unbind_from_user(struct per_user_data *u,
+@@ -421,36 +421,6 @@ static void evtchn_unbind_from_user(stru
  	del_evtchn(u, evtchn);
  }
  
@@ -111,7 +92,7 @@ index 5dc016d..a7a8571 100644
  static long evtchn_ioctl(struct file *file,
  			 unsigned int cmd, unsigned long arg)
  {
-@@ -508,10 +478,8 @@ static long evtchn_ioctl(struct file *file,
+@@ -508,10 +478,8 @@ static long evtchn_ioctl(struct file *fi
  			break;
  
  		rc = evtchn_bind_to_user(u, bind_interdomain.local_port);
