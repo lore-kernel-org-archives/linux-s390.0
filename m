@@ -1,432 +1,238 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:56588 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12978 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725789AbgLNXdm (ORCPT
+        by vger.kernel.org with ESMTP id S1731718AbgLJO05 (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 14 Dec 2020 18:33:42 -0500
-Subject: Re: [PATCH v12 05/17] s390/vfio-ap: manage link between queue struct
- and matrix mdev
-References: <20201124214016.3013-1-akrowiak@linux.ibm.com>
- <20201124214016.3013-6-akrowiak@linux.ibm.com>
- <20201126154538.2004f0a5.pasic@linux.ibm.com>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <606e0b66-adca-15b4-c8a9-804056fc11e5@linux.ibm.com>
-Date: Mon, 14 Dec 2020 18:32:50 -0500
+        Thu, 10 Dec 2020 09:26:57 -0500
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [GIT PULL 3/4] KVM: selftests: sync_regs test for diag318
+Date: Thu, 10 Dec 2020 15:25:58 +0100
+Message-Id: <20201210142600.6771-4-borntraeger@de.ibm.com>
+In-Reply-To: <20201210142600.6771-1-borntraeger@de.ibm.com>
+References: <20201210142600.6771-1-borntraeger@de.ibm.com>
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-In-Reply-To: <20201126154538.2004f0a5.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Collin Walling <walling@linux.ibm.com>
 
+From: Collin Walling <walling@linux.ibm.com>
 
+The DIAGNOSE 0x0318 instruction, unique to s390x, is a privileged call
+that must be intercepted via SIE, handled in userspace, and the
+information set by the instruction is communicated back to KVM.
 
-On 11/26/20 9:45 AM, Halil Pasic wrote:
-> On Tue, 24 Nov 2020 16:40:04 -0500
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->
->> Let's create links between each queue device bound to the vfio_ap device
->> driver and the matrix mdev to which the queue is assigned. The idea is to
->> facilitate efficient retrieval of the objects representing the queue
->> devices and matrix mdevs as well as to verify that a queue assigned to
->> a matrix mdev is bound to the driver.
->>
->> The links will be created as follows:
->>
->>     * When the queue device is probed, if its APQN is assigned to a matrix
->>       mdev, the structures representing the queue device and the matrix mdev
->>       will be linked.
->>
->>     * When an adapter or domain is assigned to a matrix mdev, for each new
->>       APQN assigned that references a queue device bound to the vfio_ap
->>       device driver, the structures representing the queue device and the
->>       matrix mdev will be linked.
->>
->> The links will be removed as follows:
->>
->>     * When the queue device is removed, if its APQN is assigned to a matrix
->>       mdev, the structures representing the queue device and the matrix mdev
->>       will be unlinked.
->>
->>     * When an adapter or domain is unassigned from a matrix mdev, for each
->>       APQN unassigned that references a queue device bound to the vfio_ap
->>       device driver, the structures representing the queue device and the
->>       matrix mdev will be unlinked.
->>
->> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> Actually some aspects of this look much better than last time,
-> but I'm afraid there one new issue that must be corrected -- see below.
->
->> ---
->>   drivers/s390/crypto/vfio_ap_ops.c     | 161 +++++++++++++++++++++++---
->>   drivers/s390/crypto/vfio_ap_private.h |   3 +
->>   2 files changed, 146 insertions(+), 18 deletions(-)
->>
->> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
->> index dc699fd54505..07caf871943c 100644
->> --- a/drivers/s390/crypto/vfio_ap_ops.c
->> +++ b/drivers/s390/crypto/vfio_ap_ops.c
->> @@ -28,7 +28,6 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
->>   
->>   /**
->>    * vfio_ap_get_queue: Retrieve a queue with a specific APQN.
->> - * @matrix_mdev: the associated mediated matrix
->>    * @apqn: The queue APQN
->>    *
->>    * Retrieve a queue with a specific APQN from the AP queue devices attached to
->> @@ -36,32 +35,36 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
->>    *
->>    * Returns the pointer to the vfio_ap_queue with the specified APQN, or NULL.
->>    */
->> -static struct vfio_ap_queue *vfio_ap_get_queue(
->> -					struct ap_matrix_mdev *matrix_mdev,
->> -					int apqn)
->> +static struct vfio_ap_queue *vfio_ap_get_queue(int apqn)
->>   {
->>   	struct ap_queue *queue;
->>   	struct vfio_ap_queue *q = NULL;
->>   
->> -	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
->> -		return NULL;
->> -	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
->> -		return NULL;
->> -
->>   	queue = ap_get_qdev(apqn);
->>   	if (!queue)
->>   		return NULL;
->>   
->>   	put_device(&queue->ap_dev.device);
->>   
->> -	if (queue->ap_dev.device.driver == &matrix_dev->vfio_ap_drv->driver) {
->> +	if (queue->ap_dev.device.driver == &matrix_dev->vfio_ap_drv->driver)
->>   		q = dev_get_drvdata(&queue->ap_dev.device);
->> -		q->matrix_mdev = matrix_mdev;
->> -	}
->>   
->>   	return q;
->>   }
->>   
->> +static struct vfio_ap_queue *
->> +vfio_ap_mdev_get_queue(struct ap_matrix_mdev *matrix_mdev, unsigned long apqn)
->> +{
->> +	struct vfio_ap_queue *q;
->> +
->> +	hash_for_each_possible(matrix_mdev->qtable, q, mdev_qnode, apqn) {
->> +		if (q && (q->apqn == apqn))
->> +			return q;
->> +	}
->> +
->> +	return NULL;
->> +}
->> +
->>   /**
->>    * vfio_ap_wait_for_irqclear
->>    * @apqn: The AP Queue number
->> @@ -172,7 +175,6 @@ static struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q)
->>   		  status.response_code);
->>   end_free:
->>   	vfio_ap_free_aqic_resources(q);
->> -	q->matrix_mdev = NULL;
->>   	return status;
->>   }
->>   
->> @@ -288,7 +290,7 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
->>   	matrix_mdev = container_of(vcpu->kvm->arch.crypto.pqap_hook,
->>   				   struct ap_matrix_mdev, pqap_hook);
->>   
->> -	q = vfio_ap_get_queue(matrix_mdev, apqn);
->> +	q = vfio_ap_mdev_get_queue(matrix_mdev, apqn);
->>   	if (!q)
->>   		goto out_unlock;
->>   
->> @@ -331,6 +333,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
->>   
->>   	matrix_mdev->mdev = mdev;
->>   	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
->> +	hash_init(matrix_mdev->qtable);
->>   	mdev_set_drvdata(mdev, matrix_mdev);
->>   	matrix_mdev->pqap_hook.hook = handle_pqap;
->>   	matrix_mdev->pqap_hook.owner = THIS_MODULE;
->> @@ -559,6 +562,87 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
->>   	return 0;
->>   }
->>   
->> +enum qlink_action {
->> +	LINK_APID,
->> +	LINK_APQI,
->> +	UNLINK_APID,
->> +	UNLINK_APQI,
->> +};
->> +
->> +static void vfio_ap_mdev_link_queue(struct ap_matrix_mdev *matrix_mdev,
->> +				    unsigned long apid, unsigned long apqi)
->> +{
->> +	struct vfio_ap_queue *q;
->> +
->> +	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
->> +	if (q) {
->> +		q->matrix_mdev = matrix_mdev;
->> +		hash_add(matrix_mdev->qtable,
->> +			 &q->mdev_qnode, q->apqn);
->> +	}
->> +}
->> +
->> +static void vfio_ap_mdev_unlink_queue(unsigned long apid, unsigned long apqi)
->> +{
->> +	struct vfio_ap_queue *q;
->> +
->> +	q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
->> +	if (q) {
->> +		q->matrix_mdev = NULL;
->> +		hash_del(&q->mdev_qnode);
->> +	}
->> +}
->
->
-> I would do
->
-> +static void vfio_ap_mdev_unlink_queue(struct vfio_ap_queue *q)
-> +{
-> +	if (!q)
-> +		return;
-> +	q->matrix_mdev = NULL;
-> +	hash_del(&q->mdev_qnode);
-> +}
-> +
-> +static void vfio_ap_mdev_unlink_queue_by_id(unsigned long apid, unsigned long apqi)
-> +{
-> +	struct vfio_ap_queue *q = vfio_ap_get_queue(AP_MKQID(apid, apqi));
-> +	
-> +	vfio_ap_mdev_unlink_queue(q);
-> +}
+To test the instruction interception, an ad-hoc handler is defined which
+simply has a VM execute the instruction and then userspace will extract
+the necessary info. The handler is defined such that the instruction
+invocation occurs only once. It is up to the caller to determine how the
+info returned by this handler should be used.
 
-I agree because of the case you made below.
+The diag318 info is communicated from userspace to KVM via a sync_regs
+call. This is tested during a sync_regs test, where the diag318 info is
+requested via the handler, then the info is stored in the appropriate
+register in KVM via a sync registers call.
 
->
->> +
->> +/**
->> + * vfio_ap_mdev_manage_qlinks
->> + *
->> + * @matrix_mdev: The matrix mdev to link.
->> + * @action:	 The action to take on @qlink_id.
->> + * @qlink_id:	 The APID or APQI of the queues to link.
->> + *
->> + * Sets or clears the links between the queues with the specified @qlink_id
->> + * and the @matrix_mdev:
->> + *	@action == LINK_APID:	Set the links between the @matrix_mdev and the
->> + *				queues with the specified @qlink_id (APID)
->> + *	@action == LINK_APQI:	Set the links between the @matrix_mdev and the
->> + *				queues with the specified @qlink_id (APQI)
->> + *	@action == UNLINK_APID:	Clear the links between the @matrix_mdev and the
->> + *				queues with the specified @qlink_id (APID)
->> + *	@action == UNLINK_APQI:	Clear the links between the @matrix_mdev and the
->> + *				queues with the specified @qlink_id (APQI)
->> + */
->> +static void vfio_ap_mdev_manage_qlinks(struct ap_matrix_mdev *matrix_mdev,
->> +				       enum qlink_action action,
->> +				       unsigned long qlink_id)
->> +{
->> +	unsigned long id;
->> +
->> +	switch (action) {
->> +	case LINK_APID:
->> +		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
->> +				     matrix_mdev->matrix.aqm_max + 1)
->> +			vfio_ap_mdev_link_queue(matrix_mdev, qlink_id, id);
->> +		break;
->> +	case UNLINK_APID:
->> +		for_each_set_bit_inv(id, matrix_mdev->matrix.aqm,
->> +				     matrix_mdev->matrix.aqm_max + 1)
->> +			vfio_ap_mdev_unlink_queue(qlink_id, id);
->> +		break;
->> +	case LINK_APQI:
->> +		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
->> +				     matrix_mdev->matrix.apm_max + 1)
->> +			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
->> +		break;
->> +	case UNLINK_APQI:
->> +		for_each_set_bit_inv(id, matrix_mdev->matrix.apm,
->> +				     matrix_mdev->matrix.apm_max + 1)
->> +			vfio_ap_mdev_link_queue(matrix_mdev, id, qlink_id);
->> +		break;
->> +	default:
->> +		WARN_ON_ONCE(1);
->> +	}
->> +}
->> +
->>   /**
->>    * assign_adapter_store
->>    *
->> @@ -628,6 +712,7 @@ static ssize_t assign_adapter_store(struct device *dev,
->>   	if (ret)
->>   		goto share_err;
->>   
->> +	vfio_ap_mdev_manage_qlinks(matrix_mdev, LINK_APID, apid);
->>   	ret = count;
->>   	goto done;
->>   
->> @@ -679,6 +764,7 @@ static ssize_t unassign_adapter_store(struct device *dev,
->>   
->>   	mutex_lock(&matrix_dev->lock);
->>   	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
->> +	vfio_ap_mdev_manage_qlinks(matrix_mdev, UNLINK_APID, apid);
->>   	mutex_unlock(&matrix_dev->lock);
->>   
->>   	return count;
->> @@ -769,6 +855,7 @@ static ssize_t assign_domain_store(struct device *dev,
->>   	if (ret)
->>   		goto share_err;
->>   
->> +	vfio_ap_mdev_manage_qlinks(matrix_mdev, LINK_APQI, apqi);
->>   	ret = count;
->>   	goto done;
->>   
->> @@ -821,6 +908,7 @@ static ssize_t unassign_domain_store(struct device *dev,
->>   
->>   	mutex_lock(&matrix_dev->lock);
->>   	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
->> +	vfio_ap_mdev_manage_qlinks(matrix_mdev, UNLINK_APQI, apqi);
->>   	mutex_unlock(&matrix_dev->lock);
->>   
->>   	return count;
->> @@ -1155,6 +1243,11 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
->>   			     matrix_mdev->matrix.apm_max + 1) {
->>   		for_each_set_bit_inv(apqi, matrix_mdev->matrix.aqm,
->>   				     matrix_mdev->matrix.aqm_max + 1) {
->> +			q = vfio_ap_mdev_get_queue(matrix_mdev,
->> +						   AP_MKQID(apid, apqi));
->> +			if (!q)
->> +				continue;
->> +
->>   			ret = vfio_ap_mdev_reset_queue(apid, apqi, 1);
->>   			/*
->>   			 * Regardless whether a queue turns out to be busy, or
->> @@ -1164,9 +1257,7 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
->>   			if (ret)
->>   				rc = ret;
->>   
->> -			q = vfio_ap_get_queue(matrix_mdev, AP_MKQID(apid, apqi);
->> -			if (q)
->> -				vfio_ap_free_aqic_resources(q);
->> +			vfio_ap_free_aqic_resources(q);
->>   		}
->>   	}
->>   
->> @@ -1292,6 +1383,29 @@ void vfio_ap_mdev_unregister(void)
->>   	mdev_unregister_device(&matrix_dev->device);
->>   }
->>   
->> +/*
->> + * vfio_ap_queue_link_mdev
->> + *
->> + * @q: The queue to link with the matrix mdev.
->> + *
->> + * Links @q with the matrix mdev to which the queue's APQN is assigned.
->> + */
->> +static void vfio_ap_queue_link_mdev(struct vfio_ap_queue *q)
->> +{
->> +	unsigned long apid = AP_QID_CARD(q->apqn);
->> +	unsigned long apqi = AP_QID_QUEUE(q->apqn);
->> +	struct ap_matrix_mdev *matrix_mdev;
->> +
->> +	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
->> +		if (test_bit_inv(apid, matrix_mdev->matrix.apm) &&
->> +		    test_bit_inv(apqi, matrix_mdev->matrix.aqm)) {
->> +			q->matrix_mdev = matrix_mdev;
->> +			hash_add(matrix_mdev->qtable, &q->mdev_qnode, q->apqn);
->> +			break;
->> +		}
->> +	}
->> +}
->> +
->>   /**
->>    * vfio_ap_mdev_probe_queue:
->>    *
->> @@ -1305,9 +1419,13 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
->>   	q = kzalloc(sizeof(*q), GFP_KERNEL);
->>   	if (!q)
->>   		return -ENOMEM;
->> +	mutex_lock(&matrix_dev->lock);
->>   	dev_set_drvdata(&apdev->device, q);
->>   	q->apqn = to_ap_queue(&apdev->device)->qid;
->>   	q->saved_isc = VFIO_AP_ISC_INVALID;
->> +	vfio_ap_queue_link_mdev(q);
->> +	mutex_unlock(&matrix_dev->lock);
->> +
->>   	return 0;
->>   }
->>   
->> @@ -1328,7 +1446,14 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
->>   	apid = AP_QID_CARD(q->apqn);
->>   	apqi = AP_QID_QUEUE(q->apqn);
->>   	vfio_ap_mdev_reset_queue(apid, apqi, 1);
-> Does it make sense to reset if !q->matrix_dev?
+If KVM does not support diag318, then the tests will print a message
+stating that diag318 was skipped, and the asserts will simply test
+against a value of 0.
 
-This line of code was not modified from what is upstream, so I don't
-think this patch or even this patch series is the appropriate place to
-question this. If you feel strongly that we shouldn't reset the queue
-when it is unbound from the vfio_ap device driver, we can discuss
-that offline and create an individual patch specifically for that
-purpose.
+Signed-off-by: Collin Walling <walling@linux.ibm.com>
+Link: https://lore.kernel.org/r/20201207154125.10322-1-walling@linux.ibm.com
+Acked-by: Janosch Frank <frankja@linux.ibm.com>
+Acked-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ tools/testing/selftests/kvm/Makefile          |  2 +-
+ .../kvm/include/s390x/diag318_test_handler.h  | 13 +++
+ .../kvm/lib/s390x/diag318_test_handler.c      | 82 +++++++++++++++++++
+ .../selftests/kvm/s390x/sync_regs_test.c      | 16 +++-
+ 4 files changed, 111 insertions(+), 2 deletions(-)
+ create mode 100644 tools/testing/selftests/kvm/include/s390x/diag318_test_handler.h
+ create mode 100644 tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
 
->
->> -	vfio_ap_irq_disable(q);
->> +	if (q->matrix_mdev) {
->> +		if (q->matrix_mdev->kvm) {
->> +			vfio_ap_free_aqic_resources(q);
-> Again this belongs to the previous patch.
-
-Actually, it belongs in patch 01/14 but I agree, it does not belong
-in this patch.
-
->
->> +			kvm_put_kvm(q->matrix_mdev->kvm);
-> This kvm_put_kvm() makes no sense to me! Please explain. Where
-> is the corresponding kvm_get_kvm()?
-
-The kvm_get_kvm() is in the group notifier callback, but it definitely
-doesn't belong here with this patch.
-
->
->> +		}
->> +		hash_del(&q->mdev_qnode);
->> +		q->matrix_mdev = NULL;
-> This shouuld be an unlink_queue(q).
-
-Okay.
-
->
->> +	}
->>   	kfree(q);
->>   	mutex_unlock(&matrix_dev->lock);
->>   }
->> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
->> index d9003de4fbad..4e5cc72fc0db 100644
->> --- a/drivers/s390/crypto/vfio_ap_private.h
->> +++ b/drivers/s390/crypto/vfio_ap_private.h
->> @@ -18,6 +18,7 @@
->>   #include <linux/delay.h>
->>   #include <linux/mutex.h>
->>   #include <linux/kvm_host.h>
->> +#include <linux/hashtable.h>
->>   
->>   #include "ap_bus.h"
->>   
->> @@ -86,6 +87,7 @@ struct ap_matrix_mdev {
->>   	struct kvm *kvm;
->>   	struct kvm_s390_module_hook pqap_hook;
->>   	struct mdev_device *mdev;
->> +	DECLARE_HASHTABLE(qtable, 8);
->>   };
->>   
->>   extern int vfio_ap_mdev_register(void);
->> @@ -97,6 +99,7 @@ struct vfio_ap_queue {
->>   	int	apqn;
->>   #define VFIO_AP_ISC_INVALID 0xff
->>   	unsigned char saved_isc;
->> +	struct hlist_node mdev_qnode;
->>   };
->>   
->>   int vfio_ap_mdev_probe_queue(struct ap_device *queue);
+diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
+index 30afbad36cd5..1b9c257fca5e 100644
+--- a/tools/testing/selftests/kvm/Makefile
++++ b/tools/testing/selftests/kvm/Makefile
+@@ -36,7 +36,7 @@ endif
+ LIBKVM = lib/assert.c lib/elf.c lib/io.c lib/kvm_util.c lib/sparsebit.c lib/test_util.c
+ LIBKVM_x86_64 = lib/x86_64/processor.c lib/x86_64/vmx.c lib/x86_64/svm.c lib/x86_64/ucall.c
+ LIBKVM_aarch64 = lib/aarch64/processor.c lib/aarch64/ucall.c
+-LIBKVM_s390x = lib/s390x/processor.c lib/s390x/ucall.c
++LIBKVM_s390x = lib/s390x/processor.c lib/s390x/ucall.c lib/s390x/diag318_test_handler.c
+ 
+ TEST_GEN_PROGS_x86_64 = x86_64/cr4_cpuid_sync_test
+ TEST_GEN_PROGS_x86_64 += x86_64/evmcs_test
+diff --git a/tools/testing/selftests/kvm/include/s390x/diag318_test_handler.h b/tools/testing/selftests/kvm/include/s390x/diag318_test_handler.h
+new file mode 100644
+index 000000000000..b0ed71302722
+--- /dev/null
++++ b/tools/testing/selftests/kvm/include/s390x/diag318_test_handler.h
+@@ -0,0 +1,13 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later
++ *
++ * Test handler for the s390x DIAGNOSE 0x0318 instruction.
++ *
++ * Copyright (C) 2020, IBM
++ */
++
++#ifndef SELFTEST_KVM_DIAG318_TEST_HANDLER
++#define SELFTEST_KVM_DIAG318_TEST_HANDLER
++
++uint64_t get_diag318_info(void);
++
++#endif
+diff --git a/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c b/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
+new file mode 100644
+index 000000000000..86b9e611ad87
+--- /dev/null
++++ b/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
+@@ -0,0 +1,82 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Test handler for the s390x DIAGNOSE 0x0318 instruction.
++ *
++ * Copyright (C) 2020, IBM
++ */
++
++#include "test_util.h"
++#include "kvm_util.h"
++
++#define VCPU_ID	6
++
++#define ICPT_INSTRUCTION	0x04
++#define IPA0_DIAG		0x8300
++
++static void guest_code(void)
++{
++	uint64_t diag318_info = 0x12345678;
++
++	asm volatile ("diag %0,0,0x318\n" : : "d" (diag318_info));
++}
++
++/*
++ * The DIAGNOSE 0x0318 instruction call must be handled via userspace. As such,
++ * we create an ad-hoc VM here to handle the instruction then extract the
++ * necessary data. It is up to the caller to decide what to do with that data.
++ */
++static uint64_t diag318_handler(void)
++{
++	struct kvm_vm *vm;
++	struct kvm_run *run;
++	uint64_t reg;
++	uint64_t diag318_info;
++
++	vm = vm_create_default(VCPU_ID, 0, guest_code);
++	vcpu_run(vm, VCPU_ID);
++	run = vcpu_state(vm, VCPU_ID);
++
++	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
++		    "DIAGNOSE 0x0318 instruction was not intercepted");
++	TEST_ASSERT(run->s390_sieic.icptcode == ICPT_INSTRUCTION,
++		    "Unexpected intercept code: 0x%x", run->s390_sieic.icptcode);
++	TEST_ASSERT((run->s390_sieic.ipa & 0xff00) == IPA0_DIAG,
++		    "Unexpected IPA0 code: 0x%x", (run->s390_sieic.ipa & 0xff00));
++
++	reg = (run->s390_sieic.ipa & 0x00f0) >> 4;
++	diag318_info = run->s.regs.gprs[reg];
++
++	TEST_ASSERT(diag318_info != 0, "DIAGNOSE 0x0318 info not set");
++
++	kvm_vm_free(vm);
++
++	return diag318_info;
++}
++
++uint64_t get_diag318_info(void)
++{
++	static uint64_t diag318_info;
++	static bool printed_skip;
++
++	/*
++	 * If KVM does not support diag318, then return 0 to
++	 * ensure tests do not break.
++	 */
++	if (!kvm_check_cap(KVM_CAP_S390_DIAG318)) {
++		if (!printed_skip) {
++			fprintf(stdout, "KVM_CAP_S390_DIAG318 not supported. "
++				"Skipping diag318 test.\n");
++			printed_skip = true;
++		}
++		return 0;
++	}
++
++	/*
++	 * If a test has previously requested the diag318 info,
++	 * then don't bother spinning up a temporary VM again.
++	 */
++	if (!diag318_info)
++		diag318_info = diag318_handler();
++
++	return diag318_info;
++}
+diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+index 5731ccf34917..caf7b8859a94 100644
+--- a/tools/testing/selftests/kvm/s390x/sync_regs_test.c
++++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
+@@ -20,6 +20,7 @@
+ 
+ #include "test_util.h"
+ #include "kvm_util.h"
++#include "diag318_test_handler.h"
+ 
+ #define VCPU_ID 5
+ 
+@@ -70,7 +71,7 @@ static void compare_sregs(struct kvm_sregs *left, struct kvm_sync_regs *right)
+ 
+ #undef REG_COMPARE
+ 
+-#define TEST_SYNC_FIELDS   (KVM_SYNC_GPRS|KVM_SYNC_ACRS|KVM_SYNC_CRS)
++#define TEST_SYNC_FIELDS   (KVM_SYNC_GPRS|KVM_SYNC_ACRS|KVM_SYNC_CRS|KVM_SYNC_DIAG318)
+ #define INVALID_SYNC_FIELD 0x80000000
+ 
+ int main(int argc, char *argv[])
+@@ -152,6 +153,12 @@ int main(int argc, char *argv[])
+ 
+ 	run->kvm_valid_regs = TEST_SYNC_FIELDS;
+ 	run->kvm_dirty_regs = KVM_SYNC_GPRS | KVM_SYNC_ACRS;
++
++	if (get_diag318_info() > 0) {
++		run->s.regs.diag318 = get_diag318_info();
++		run->kvm_dirty_regs |= KVM_SYNC_DIAG318;
++	}
++
+ 	rv = _vcpu_run(vm, VCPU_ID);
+ 	TEST_ASSERT(rv == 0, "vcpu_run failed: %d\n", rv);
+ 	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
+@@ -164,6 +171,9 @@ int main(int argc, char *argv[])
+ 	TEST_ASSERT(run->s.regs.acrs[0]  == 1 << 11,
+ 		    "acr0 sync regs value incorrect 0x%x.",
+ 		    run->s.regs.acrs[0]);
++	TEST_ASSERT(run->s.regs.diag318 == get_diag318_info(),
++		    "diag318 sync regs value incorrect 0x%llx.",
++		    run->s.regs.diag318);
+ 
+ 	vcpu_regs_get(vm, VCPU_ID, &regs);
+ 	compare_regs(&regs, &run->s.regs);
+@@ -177,6 +187,7 @@ int main(int argc, char *argv[])
+ 	run->kvm_valid_regs = TEST_SYNC_FIELDS;
+ 	run->kvm_dirty_regs = 0;
+ 	run->s.regs.gprs[11] = 0xDEADBEEF;
++	run->s.regs.diag318 = 0x4B1D;
+ 	rv = _vcpu_run(vm, VCPU_ID);
+ 	TEST_ASSERT(rv == 0, "vcpu_run failed: %d\n", rv);
+ 	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
+@@ -186,6 +197,9 @@ int main(int argc, char *argv[])
+ 	TEST_ASSERT(run->s.regs.gprs[11] != 0xDEADBEEF,
+ 		    "r11 sync regs value incorrect 0x%llx.",
+ 		    run->s.regs.gprs[11]);
++	TEST_ASSERT(run->s.regs.diag318 != 0x4B1D,
++		    "diag318 sync regs value incorrect 0x%llx.",
++		    run->s.regs.diag318);
+ 
+ 	kvm_vm_free(vm);
+ 
+-- 
+2.28.0
