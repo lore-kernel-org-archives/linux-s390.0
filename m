@@ -1,29 +1,15 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 12 Dec 2020 12:58:36 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: irq/core] net/mlx4: Use effective interrupt affinity
-In-Reply-To: <20201210194044.672935978@linutronix.de>
-References: <20201210194044.672935978@linutronix.de>
+Return-Path: <netdev-owner@vger.kernel.org>
+Message-Id: <20201210194044.672935978@linutronix.de>
+Date: Thu, 10 Dec 2020 20:25:57 +0100
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: [patch 21/30] net/mlx4: Use effective interrupt affinity
+References: <20201210192536.118432146@linutronix.de>
 MIME-Version: 1.0
-Message-ID: <160777791672.3364.17648709739154869994.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Tariq Toukan <tariqt@nvidia.com>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
-
-The following commit has been merged into the irq/core branch of tip:
-
-Commit-ID:     f23130b1af7bccb23dff1e9223d826869c2ad45d
-Gitweb:        https://git.kernel.org/tip/f23130b1af7bccb23dff1e9223d826869c2ad45d
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Thu, 10 Dec 2020 20:25:57 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Sat, 12 Dec 2020 12:59:05 +01:00
-
-net/mlx4: Use effective interrupt affinity
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
 
 Using the interrupt affinity mask for checking locality is not really
 working well on architectures which support effective affinity masks.
@@ -35,17 +21,17 @@ about the actual target CPUs.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20201210194044.672935978@linutronix.de
-
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: linux-rdma@vger.kernel.org
 ---
- drivers/net/ethernet/mellanox/mlx4/en_cq.c | 2 +-
+ drivers/net/ethernet/mellanox/mlx4/en_cq.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx4/en_cq.c b/drivers/net/ethernet/mellanox/mlx4/en_cq.c
-index 2a250f3..d5fc72b 100644
 --- a/drivers/net/ethernet/mellanox/mlx4/en_cq.c
 +++ b/drivers/net/ethernet/mellanox/mlx4/en_cq.c
-@@ -117,7 +117,7 @@ int mlx4_en_activate_cq(struct mlx4_en_priv *priv, struct mlx4_en_cq *cq,
+@@ -117,7 +117,7 @@ int mlx4_en_activate_cq(struct mlx4_en_p
  			assigned_eq = true;
  		}
  		irq = mlx4_eq_get_irq(mdev->dev, cq->vector);
