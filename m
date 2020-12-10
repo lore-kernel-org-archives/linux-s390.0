@@ -1,29 +1,19 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 12 Dec 2020 12:58:35 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: irq/core] xen/events: Use immediate affinity setting
-In-Reply-To: <20201210194045.157601122@linutronix.de>
-References: <20201210194045.157601122@linutronix.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from Galois.linutronix.de ([193.142.43.55]:57710 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404302AbgLJTna (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:30 -0500
+Message-Id: <20201210194045.157601122@linutronix.de>
+Date: Thu, 10 Dec 2020 20:26:02 +0100
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: [patch 26/30] xen/events: Use immediate affinity setting
+References: <20201210192536.118432146@linutronix.de>
 MIME-Version: 1.0
-Message-ID: <160777791538.3364.15329504123021626204.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
-
-The following commit has been merged into the irq/core branch of tip:
-
-Commit-ID:     9b23ffcbfa15f2d4959eaa42faae11e3e39d027a
-Gitweb:        https://git.kernel.org/tip/9b23ffcbfa15f2d4959eaa42faae11e3e39d027a
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Thu, 10 Dec 2020 20:26:02 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Sat, 12 Dec 2020 12:59:06 +01:00
-
-xen/events: Use immediate affinity setting
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>
 
 There is absolutely no reason to mimic the x86 deferred affinity
 setting. This mechanism is required to handle the hardware induced issues
@@ -45,14 +35,11 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Cc: Juergen Gross <jgross@suse.com>
 Cc: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20201210194045.157601122@linutronix.de
-
+Cc: xen-devel@lists.xenproject.org
 ---
- drivers/xen/events/events_base.c | 35 +++++++------------------------
+ drivers/xen/events/events_base.c |   35 +++++++++--------------------------
  1 file changed, 9 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index 9cade19..eaba42a 100644
 --- a/drivers/xen/events/events_base.c
 +++ b/drivers/xen/events/events_base.c
 @@ -628,6 +628,11 @@ static void xen_irq_init(unsigned irq)
@@ -67,7 +54,7 @@ index 9cade19..eaba42a 100644
  
  	INIT_LIST_HEAD(&info->eoi_list);
  	list_add_tail(&info->list, &xen_irq_list_head);
-@@ -739,18 +744,7 @@ static void eoi_pirq(struct irq_data *data)
+@@ -739,18 +744,7 @@ static void eoi_pirq(struct irq_data *da
  	if (!VALID_EVTCHN(evtchn))
  		return;
  
@@ -87,7 +74,7 @@ index 9cade19..eaba42a 100644
  
  	if (pirq_needs_eoi(data->irq)) {
  		rc = HYPERVISOR_physdev_op(PHYSDEVOP_eoi, &eoi);
-@@ -1641,7 +1635,6 @@ void rebind_evtchn_irq(evtchn_port_t evtchn, int irq)
+@@ -1641,7 +1635,6 @@ void rebind_evtchn_irq(evtchn_port_t evt
  	mutex_unlock(&irq_mapping_update_lock);
  
          bind_evtchn_to_cpu(evtchn, info->cpu);
@@ -95,7 +82,7 @@ index 9cade19..eaba42a 100644
  	irq_set_affinity(irq, cpumask_of(info->cpu));
  
  	/* Unmask the event channel. */
-@@ -1688,8 +1681,9 @@ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
+@@ -1688,8 +1681,9 @@ static int set_affinity_irq(struct irq_d
  			    bool force)
  {
  	unsigned tcpu = cpumask_first_and(dest, cpu_online_mask);
@@ -106,7 +93,7 @@ index 9cade19..eaba42a 100644
  	if (!ret)
  		irq_data_update_effective_affinity(data, cpumask_of(tcpu));
  
-@@ -1719,18 +1713,7 @@ static void ack_dynirq(struct irq_data *data)
+@@ -1719,18 +1713,7 @@ static void ack_dynirq(struct irq_data *
  	if (!VALID_EVTCHN(evtchn))
  		return;
  
