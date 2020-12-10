@@ -1,45 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 12 Dec 2020 12:58:40 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: irq/core] parisc/irq: Simplify irq count output for /proc/interrupts
-In-Reply-To: <20201210194043.172893840@linutronix.de>
-References: <20201210194043.172893840@linutronix.de>
+Message-Id: <20201210194043.172893840@linutronix.de>
+Date: Thu, 10 Dec 2020 20:25:42 +0100
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: [patch 06/30] parisc/irq: Simplify irq count output for /proc/interrupts
+References: <20201210192536.118432146@linutronix.de>
 MIME-Version: 1.0
-Message-ID: <160777792076.3364.15318766316290964513.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-parisc@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
-
-The following commit has been merged into the irq/core branch of tip:
-
-Commit-ID:     89c1ca3058ced5cc8176de7b668b9d0ff08f8f4b
-Gitweb:        https://git.kernel.org/tip/89c1ca3058ced5cc8176de7b668b9d0ff08f8f4b
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Thu, 10 Dec 2020 20:25:42 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Sat, 12 Dec 2020 12:59:03 +01:00
-
-parisc/irq: Simplify irq count output for /proc/interrupts
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
 
 The SMP variant works perfectly fine on UP as well.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: afzal mohammed <afzal.mohd.ma@gmail.com>
 Cc: linux-parisc@vger.kernel.org
-Link: https://lore.kernel.org/r/20201210194043.172893840@linutronix.de
-
 ---
- arch/parisc/kernel/irq.c | 5 +----
+ arch/parisc/kernel/irq.c |    5 +----
  1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/parisc/kernel/irq.c b/arch/parisc/kernel/irq.c
-index e76c866..15c6207 100644
 --- a/arch/parisc/kernel/irq.c
 +++ b/arch/parisc/kernel/irq.c
-@@ -216,12 +216,9 @@ int show_interrupts(struct seq_file *p, void *v)
+@@ -216,12 +216,9 @@ int show_interrupts(struct seq_file *p,
  		if (!action)
  			goto skip;
  		seq_printf(p, "%3d: ", i);
