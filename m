@@ -1,29 +1,19 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 12 Dec 2020 12:58:34 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: irq/core] xen/events: Implement irq distribution
-In-Reply-To: <20201210194045.457218278@linutronix.de>
-References: <20201210194045.457218278@linutronix.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53334 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404346AbgLJTnp (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:45 -0500
+Message-Id: <20201210194045.457218278@linutronix.de>
+Date: Thu, 10 Dec 2020 20:26:05 +0100
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: [patch 29/30] xen/events: Implement irq distribution
+References: <20201210192536.118432146@linutronix.de>
 MIME-Version: 1.0
-Message-ID: <160777791448.3364.2400431156679652798.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
-
-The following commit has been merged into the irq/core branch of tip:
-
-Commit-ID:     93b6adbf0420a7bd84167a4feb289cc2c1b4efca
-Gitweb:        https://git.kernel.org/tip/93b6adbf0420a7bd84167a4feb289cc2c1b4efca
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Thu, 10 Dec 2020 20:26:05 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Sat, 12 Dec 2020 12:59:07 +01:00
-
-xen/events: Implement irq distribution
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>
 
 Keep track of the assignments of event channels to CPUs and select the
 online CPU with the least assigned channels in the affinity mask which is
@@ -33,14 +23,11 @@ Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Cc: Juergen Gross <jgross@suse.com>
 Cc: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20201210194045.457218278@linutronix.de
-
+Cc: xen-devel@lists.xenproject.org
 ---
- drivers/xen/events/events_base.c | 76 +++++++++++++++++++++++++++----
- 1 file changed, 68 insertions(+), 8 deletions(-)
+ drivers/xen/events/events_base.c |   72 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 64 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index b352440..a803033 100644
 --- a/drivers/xen/events/events_base.c
 +++ b/drivers/xen/events/events_base.c
 @@ -96,6 +96,7 @@ struct irq_info {
@@ -51,7 +38,7 @@ index b352440..a803033 100644
  	enum xen_irq_type type; /* type */
  	unsigned irq;
  	evtchn_port_t evtchn;   /* event channel */
-@@ -161,6 +162,9 @@ static DEFINE_PER_CPU(int [NR_VIRQS], virq_to_irq) = {[0 ... NR_VIRQS-1] = -1};
+@@ -161,6 +162,9 @@ static DEFINE_PER_CPU(int [NR_VIRQS], vi
  /* IRQ <-> IPI mapping */
  static DEFINE_PER_CPU(int [XEN_NR_IPIS], ipi_to_irq) = {[0 ... XEN_NR_IPIS-1] = -1};
  
@@ -61,7 +48,7 @@ index b352440..a803033 100644
  static int **evtchn_to_irq;
  #ifdef CONFIG_X86
  static unsigned long *pirq_eoi_map;
-@@ -257,6 +261,32 @@ static void set_info_for_irq(unsigned int irq, struct irq_info *info)
+@@ -257,6 +261,32 @@ static void set_info_for_irq(unsigned in
  		irq_set_chip_data(irq, info);
  }
  
@@ -94,7 +81,7 @@ index b352440..a803033 100644
  /* Constructors for packed IRQ information. */
  static int xen_irq_info_common_setup(struct irq_info *info,
  				     unsigned irq,
-@@ -339,6 +369,7 @@ static void xen_irq_info_cleanup(struct irq_info *info)
+@@ -339,6 +369,7 @@ static void xen_irq_info_cleanup(struct
  {
  	set_evtchn_to_irq(info->evtchn, -1);
  	info->evtchn = 0;
@@ -102,7 +89,7 @@ index b352440..a803033 100644
  }
  
  /*
-@@ -449,7 +480,9 @@ static void bind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int cpu,
+@@ -449,7 +480,9 @@ static void bind_evtchn_to_cpu(evtchn_po
  
  	xen_evtchn_port_bind_to_cpu(evtchn, cpu, info->cpu);
  
@@ -124,7 +111,7 @@ index b352440..a803033 100644
  	info = kzalloc(sizeof(*info), GFP_KERNEL);
  	if (info == NULL)
  		panic("Unable to allocate metadata for IRQ%d\n", irq);
-@@ -1697,10 +1725,38 @@ static int xen_rebind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int tcpu)
+@@ -1691,10 +1719,34 @@ static int xen_rebind_evtchn_to_cpu(evtc
  	return 0;
  }
  
@@ -146,13 +133,9 @@ index b352440..a803033 100644
 +		}
 +	}
 +
-+	/*
-+	 * Catch the unlikely case that dest contains no online CPUs. Can't
-+	 * recurse.
-+	 */
-+	if (best_cpu == UINT_MAX)
-+		return select_target_cpu(cpu_online_mask);
-+
++	/* If this happens accounting is screwed up */
++	if (WARN_ON_ONCE(best_cpu == UINT_MAX))
++		best_cpu = cpumask_first(dest);
 +	return best_cpu;
 +}
 +
@@ -164,7 +147,7 @@ index b352440..a803033 100644
  	int ret;
  
  	ret = xen_rebind_evtchn_to_cpu(evtchn_from_irq(data->irq), tcpu);
-@@ -1928,8 +1984,12 @@ void xen_irq_resume(void)
+@@ -1922,8 +1974,12 @@ void xen_irq_resume(void)
  	xen_evtchn_resume();
  
  	/* No IRQ <-> event-channel mappings. */
