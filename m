@@ -1,72 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:34410 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2394039AbgLKJw4 (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Dec 2020 04:52:56 -0500
-From: Jani Nikula <jani.nikula@linux.intel.com>
-Subject: Re: [Intel-gfx] [patch 13/30] drm/i915/lpe_audio: Remove pointless irq_to_desc() usage
-In-Reply-To: <X9J7h+myHaraeoKH@intel.com>
-References: <20201210192536.118432146@linutronix.de> <20201210194043.862572239@linutronix.de> <X9J7h+myHaraeoKH@intel.com>
-Date: Fri, 11 Dec 2020 11:51:57 +0200
-Message-ID: <87zh2k7jr6.fsf@intel.com>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53304 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404334AbgLJTnk (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:40 -0500
+Message-Id: <20201210194043.862572239@linutronix.de>
+Date: Thu, 10 Dec 2020 20:25:49 +0100
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: [patch 13/30] drm/i915/lpe_audio: Remove pointless irq_to_desc() usage
+References: <20201210192536.118432146@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Linus Walleij <linus.walleij@linaro.org>, dri-devel@lists.freedesktop.org, Chris Wilson <chris@chris-wilson.co.uk>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Russell King <linux@armlinux.org.uk>, afzal mohammed <afzal.mohd.ma@gmail.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Rob Herring <robh@kernel.org>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Dave Jiang <dave.jiang@intel.com>, Leon Romanovsky <leon@kernel.org>, linux-rdma@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Helge Deller <deller@gmx.de>, Michal Simek <michal.simek@xilinx.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-pci@vger.kernel.org, xen-devel@lists.xenproject.org, intel-gfx@lists.freedesktop.org, Wambui Karuga <wambui.karugax@gmail.com>, Allen Hubbe <allenbh@gmail.com>, Will Deacon <will@kernel.org>, linux-s390@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, linux-gpio@vger.kernel.org, Stefano Stabellini <sstabellini@kernel.org>, Jakub Kicinski <kuba@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, Juergen Gross <jgross@suse.com>, David Airlie <airlied@linux.ie>, linux-parisc@vger.kernel.org, netdev@vger.kernel.org, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, LKML <linux-kernel@vger.kernel.org>, Tariq Toukan <tariqt@nvidia.com>, Jon Mason <jdmason@kudzu.us>, linux-ntb@googlegroups.com, Saeed Mahameed <saeedm@nvidia.com>, "David S. Miller" <davem@davemloft.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
 
-On Thu, 10 Dec 2020, Ville Syrjälä <ville.syrjala@linux.intel.com> wrote:
-> On Thu, Dec 10, 2020 at 08:25:49PM +0100, Thomas Gleixner wrote:
->> Nothing uses the result and nothing should ever use it in driver code.
->> 
->> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
->> Cc: Jani Nikula <jani.nikula@linux.intel.com>
->> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
->> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
->> Cc: David Airlie <airlied@linux.ie>
->> Cc: Daniel Vetter <daniel@ffwll.ch>
->> Cc: Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>
->> Cc: Chris Wilson <chris@chris-wilson.co.uk>
->> Cc: Wambui Karuga <wambui.karugax@gmail.com>
->> Cc: intel-gfx@lists.freedesktop.org
->> Cc: dri-devel@lists.freedesktop.org
->
-> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Nothing uses the result and nothing should ever use it in driver code.
 
-Thomas, I presume you want to merge this series as a whole.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Wambui Karuga <wambui.karugax@gmail.com>
+Cc: intel-gfx@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
+---
+ drivers/gpu/drm/i915/display/intel_lpe_audio.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-
-for merging via whichever tree makes most sense. Please let us know if
-you want us to pick this up via drm-intel instead.
-
->
->> ---
->>  drivers/gpu/drm/i915/display/intel_lpe_audio.c |    4 ----
->>  1 file changed, 4 deletions(-)
->> 
->> --- a/drivers/gpu/drm/i915/display/intel_lpe_audio.c
->> +++ b/drivers/gpu/drm/i915/display/intel_lpe_audio.c
->> @@ -297,13 +297,9 @@ int intel_lpe_audio_init(struct drm_i915
->>   */
->>  void intel_lpe_audio_teardown(struct drm_i915_private *dev_priv)
->>  {
->> -	struct irq_desc *desc;
->> -
->>  	if (!HAS_LPE_AUDIO(dev_priv))
->>  		return;
->>  
->> -	desc = irq_to_desc(dev_priv->lpe_audio.irq);
->> -
->>  	lpe_audio_platdev_destroy(dev_priv);
->>  
->>  	irq_free_desc(dev_priv->lpe_audio.irq);
->> 
->> _______________________________________________
->> Intel-gfx mailing list
->> Intel-gfx@lists.freedesktop.org
->> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
-
--- 
-Jani Nikula, Intel Open Source Graphics Center
+--- a/drivers/gpu/drm/i915/display/intel_lpe_audio.c
++++ b/drivers/gpu/drm/i915/display/intel_lpe_audio.c
+@@ -297,13 +297,9 @@ int intel_lpe_audio_init(struct drm_i915
+  */
+ void intel_lpe_audio_teardown(struct drm_i915_private *dev_priv)
+ {
+-	struct irq_desc *desc;
+-
+ 	if (!HAS_LPE_AUDIO(dev_priv))
+ 		return;
+ 
+-	desc = irq_to_desc(dev_priv->lpe_audio.irq);
+-
+ 	lpe_audio_platdev_destroy(dev_priv);
+ 
+ 	irq_free_desc(dev_priv->lpe_audio.irq);
