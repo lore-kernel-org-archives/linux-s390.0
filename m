@@ -1,80 +1,48 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 12 Dec 2020 12:58:37 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: irq/core] mfd: ab8500-debugfs: Remove the racy fiddling with irq_desc
-In-Reply-To: <20201210194044.157283633@linutronix.de>
-References: <20201210194044.157283633@linutronix.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50890 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390729AbgLKSNE (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 11 Dec 2020 13:13:04 -0500
 MIME-Version: 1.0
-Message-ID: <160777791799.3364.16109636784825298493.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <20201210192536.118432146@linutronix.de> <20201210194044.157283633@linutronix.de>
+In-Reply-To: <20201210194044.157283633@linutronix.de>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Fri, 11 Dec 2020 20:12:07 +0200
+Message-ID: <CAHp75Veo9aQLCp9ZuCcoexPLHM=R_PEu6uhP_P2bSpsVzyUaNQ@mail.gmail.com>
+Subject: Re: [patch 16/30] mfd: ab8500-debugfs: Remove the racy fiddling with irq_desc
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Linus Walleij <linus.walleij@linaro.org>, Lee Jones <lee.jones@linaro.org>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Lee Jones <lee.jones@linaro.org>, linux-arm Mailing List <linux-arm-kernel@lists.infradead.org>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx <intel-gfx@lists.freedesktop.org>, dri-devel <dri-devel@lists.freedesktop.org>, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci <linux-pci@vger.kernel.org>, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev <netdev@vger.kernel.org>, "open list:HFI1 DRIVER" <linux-rdma@vger.kernel.org>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
 
-The following commit has been merged into the irq/core branch of tip:
+On Thu, Dec 10, 2020 at 9:57 PM Thomas Gleixner <tglx@linutronix.de> wrote:
+>
+> First of all drivers have absolutely no business to dig into the internals
+> of an irq descriptor. That's core code and subject to change. All of this
+> information is readily available to /proc/interrupts in a safe and race
+> free way.
+>
+> Remove the inspection code which is a blatant violation of subsystem
+> boundaries and racy against concurrent modifications of the interrupt
+> descriptor.
+>
+> Print the irq line instead so the information can be looked up in a sane
+> way in /proc/interrupts.
 
-Commit-ID:     4fa1cf7cde28ad4d7e4388cccfe682dded6a7aca
-Gitweb:        https://git.kernel.org/tip/4fa1cf7cde28ad4d7e4388cccfe682dded6a7aca
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Thu, 10 Dec 2020 20:25:52 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Sat, 12 Dec 2020 12:59:05 +01:00
+...
 
-mfd: ab8500-debugfs: Remove the racy fiddling with irq_desc
+> -               seq_printf(s, "%3i:  %6i %4i",
+> +               seq_printf(s, "%3i:  %6i %4i %4i\n",
 
-First of all drivers have absolutely no business to dig into the internals
-of an irq descriptor. That's core code and subject to change. All of this
-information is readily available to /proc/interrupts in a safe and race
-free way.
+Seems different specifiers, I think the intention was something like
+               seq_printf(s, "%3i:  %4i %6i %4i\n",
 
-Remove the inspection code which is a blatant violation of subsystem
-boundaries and racy against concurrent modifications of the interrupt
-descriptor.
+>                            line,
+> +                          line + irq_first,
+>                            num_interrupts[line],
+>                            num_wake_interrupts[line]);
 
-Print the irq line instead so the information can be looked up in a sane
-way in /proc/interrupts.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20201210194044.157283633@linutronix.de
-
----
- drivers/mfd/ab8500-debugfs.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/mfd/ab8500-debugfs.c b/drivers/mfd/ab8500-debugfs.c
-index 6d1bf7c..a320393 100644
---- a/drivers/mfd/ab8500-debugfs.c
-+++ b/drivers/mfd/ab8500-debugfs.c
-@@ -1513,24 +1513,14 @@ static int ab8500_interrupts_show(struct seq_file *s, void *p)
- {
- 	int line;
- 
--	seq_puts(s, "name: number:  number of: wake:\n");
-+	seq_puts(s, "name: number: irq: number of: wake:\n");
- 
- 	for (line = 0; line < num_interrupt_lines; line++) {
--		struct irq_desc *desc = irq_to_desc(line + irq_first);
--
--		seq_printf(s, "%3i:  %6i %4i",
-+		seq_printf(s, "%3i:  %4i %6i %4i\n",
- 			   line,
-+			   line + irq_first,
- 			   num_interrupts[line],
- 			   num_wake_interrupts[line]);
--
--		if (desc && desc->name)
--			seq_printf(s, "-%-8s", desc->name);
--		if (desc && desc->action) {
--			struct irqaction *action = desc->action;
--
--			seq_printf(s, "  %s", action->name);
--			while ((action = action->next) != NULL)
--				seq_printf(s, ", %s", action->name);
- 		}
- 		seq_putc(s, '\n');
- 	}
+-- 
+With Best Regards,
+Andy Shevchenko
