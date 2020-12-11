@@ -1,177 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 12 Dec 2020 12:58:35 -0000
-From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-Subject: [tip: irq/core] xen/events: Only force affinity mask for percpu interrupts
-In-Reply-To: <20201210194045.250321315@linutronix.de>
-References: <20201210194045.250321315@linutronix.de>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [patch 27/30] xen/events: Only force affinity mask for percpu interrupts
+In-Reply-To: <edbedd7a-4463-d934-73c9-fa046c19cf6d@citrix.com>
+References: <20201210192536.118432146@linutronix.de> <20201210194045.250321315@linutronix.de> <7f7af60f-567f-cdef-f8db-8062a44758ce@oracle.com> <2164a0ce-0e0d-c7dc-ac97-87c8f384ad82@suse.com> <871rfwiknd.fsf@nanos.tec.linutronix.de> <9806692f-24a3-4b6f-ae55-86bd66481271@oracle.com> <877dpoghio.fsf@nanos.tec.linutronix.de> <edbedd7a-4463-d934-73c9-fa046c19cf6d@citrix.com>
+Date: Fri, 11 Dec 2020 23:56:40 +0100
+Message-ID: <87y2i4eytz.fsf@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Message-ID: <160777791504.3364.5223639342920487711.tip-bot2@tip-bot2>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-tip-commits@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
+To: Andrew Cooper <andrew.cooper3@citrix.com>, boris.ostrovsky@oracle.com, =?utf-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>
 
-The following commit has been merged into the irq/core branch of tip:
+Andrew,
 
-Commit-ID:     f61b8351facda691f1564097074976b30e987a81
-Gitweb:        https://git.kernel.org/tip/f61b8351facda691f1564097074976b30e987a81
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Thu, 10 Dec 2020 20:26:03 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Sat, 12 Dec 2020 12:59:06 +01:00
+On Fri, Dec 11 2020 at 22:21, Andrew Cooper wrote:
+> On 11/12/2020 21:27, Thomas Gleixner wrote:
+>> It's not any different from the hardware example at least not as far as
+>> I understood the code.
+>
+> Xen's event channels do have a couple of quirks.
 
-xen/events: Only force affinity mask for percpu interrupts
+Why am I not surprised?
 
-All event channel setups bind the interrupt on CPU0 or the target CPU for
-percpu interrupts and overwrite the affinity mask with the corresponding
-cpumask. That does not make sense.
+> Binding an event channel always results in one spurious event being
+> delivered.=C2=A0 This is to cover notifications which can get lost during=
+ the
+> bidirectional setup, or re-setups in certain configurations.
+>
+> Binding an interdomain or pirq event channel always defaults to vCPU0.=C2=
+=A0
+> There is no way to atomically set the affinity while binding.=C2=A0 I bel=
+ieve
+> the API predates SMP guest support in Xen, and noone has fixed it up
+> since.
 
-The XEN implementation of irqchip::irq_set_affinity() already picks a
-single target CPU out of the affinity mask and the actual target is stored
-in the effective CPU mask, so destroying the user chosen affinity mask
-which might contain more than one CPU is wrong.
+That's fine. I'm not changing that.
 
-Change the implementation so that the channel is bound to CPU0 at the XEN
-level and leave the affinity mask alone. At startup of the interrupt
-affinity will be assigned out of the affinity mask and the XEN binding will
-be updated. Only keep the enforcement for real percpu interrupts.
+What I'm changing is the unwanted and unnecessary overwriting of the
+actual affinity mask.
 
-On resume the overwrite is not required either because info->cpu and the
-affinity mask are still the same as at the time of suspend. Same for
-rebind_evtchn_irq().
+We have a similar issue on real hardware where we can only target _one_
+CPU and not all CPUs in the affinity mask. So we still can preserve the
+(user) requested mask and just affine it to one CPU which is reflected
+in the effective affinity mask. This the right thing to do for two
+reasons:
 
-This also prepares for proper interrupt spreading.
+   1) It allows proper interrupt distribution
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Link: https://lore.kernel.org/r/20201210194045.250321315@linutronix.de
+   2) It does not break (user) requested affinity when the effective
+      target CPU goes offline and the affinity mask still contains
+      online CPUs. If you overwrite it you lost track of the requested
+      broader mask.
 
----
- drivers/xen/events/events_base.c | 48 +++++++++++++++++++++----------
- 1 file changed, 34 insertions(+), 14 deletions(-)
+> As a consequence, the guest will observe the event raised on vCPU0 as
+> part of setting up the event, even if it attempts to set a different
+> affinity immediately afterwards.=C2=A0 A little bit of care needs to be t=
+aken
+> when binding an event channel on vCPUs other than 0, to ensure that the
+> callback is safe with respect to any remaining state needing
+> initialisation.
 
-diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
-index eaba42a..679b2cb 100644
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -433,15 +433,20 @@ static bool pirq_needs_eoi_flag(unsigned irq)
- 	return info->u.pirq.flags & PIRQ_NEEDS_EOI;
- }
- 
--static void bind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int cpu)
-+static void bind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int cpu,
-+			       bool force_affinity)
- {
- 	int irq = get_evtchn_to_irq(evtchn);
- 	struct irq_info *info = info_for_irq(irq);
- 
- 	BUG_ON(irq == -1);
--#ifdef CONFIG_SMP
--	cpumask_copy(irq_get_affinity_mask(irq), cpumask_of(cpu));
--#endif
-+
-+	if (IS_ENABLED(CONFIG_SMP) && force_affinity) {
-+		cpumask_copy(irq_get_affinity_mask(irq), cpumask_of(cpu));
-+		cpumask_copy(irq_get_effective_affinity_mask(irq),
-+			     cpumask_of(cpu));
-+	}
-+
- 	xen_evtchn_port_bind_to_cpu(evtchn, cpu, info->cpu);
- 
- 	info->cpu = cpu;
-@@ -788,7 +793,7 @@ static unsigned int __startup_pirq(unsigned int irq)
- 		goto err;
- 
- 	info->evtchn = evtchn;
--	bind_evtchn_to_cpu(evtchn, 0);
-+	bind_evtchn_to_cpu(evtchn, 0, false);
- 
- 	rc = xen_evtchn_port_setup(evtchn);
- 	if (rc)
-@@ -1107,8 +1112,14 @@ static int bind_evtchn_to_irq_chip(evtchn_port_t evtchn, struct irq_chip *chip)
- 			irq = ret;
- 			goto out;
- 		}
--		/* New interdomain events are bound to VCPU 0. */
--		bind_evtchn_to_cpu(evtchn, 0);
-+		/*
-+		 * New interdomain events are initially bound to vCPU0 This
-+		 * is required to setup the event channel in the first
-+		 * place and also important for UP guests because the
-+		 * affinity setting is not invoked on them so nothing would
-+		 * bind the channel.
-+		 */
-+		bind_evtchn_to_cpu(evtchn, 0, false);
- 	} else {
- 		struct irq_info *info = info_for_irq(irq);
- 		WARN_ON(info == NULL || info->type != IRQT_EVTCHN);
-@@ -1156,7 +1167,11 @@ static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
- 			irq = ret;
- 			goto out;
- 		}
--		bind_evtchn_to_cpu(evtchn, cpu);
-+		/*
-+		 * Force the affinity mask to the target CPU so proc shows
-+		 * the correct target.
-+		 */
-+		bind_evtchn_to_cpu(evtchn, cpu, true);
- 	} else {
- 		struct irq_info *info = info_for_irq(irq);
- 		WARN_ON(info == NULL || info->type != IRQT_IPI);
-@@ -1269,7 +1284,11 @@ int bind_virq_to_irq(unsigned int virq, unsigned int cpu, bool percpu)
- 			goto out;
- 		}
- 
--		bind_evtchn_to_cpu(evtchn, cpu);
-+		/*
-+		 * Force the affinity mask for percpu interrupts so proc
-+		 * shows the correct target.
-+		 */
-+		bind_evtchn_to_cpu(evtchn, cpu, percpu);
- 	} else {
- 		struct irq_info *info = info_for_irq(irq);
- 		WARN_ON(info == NULL || info->type != IRQT_VIRQ);
-@@ -1634,8 +1653,7 @@ void rebind_evtchn_irq(evtchn_port_t evtchn, int irq)
- 
- 	mutex_unlock(&irq_mapping_update_lock);
- 
--        bind_evtchn_to_cpu(evtchn, info->cpu);
--	irq_set_affinity(irq, cpumask_of(info->cpu));
-+	bind_evtchn_to_cpu(evtchn, info->cpu, false);
- 
- 	/* Unmask the event channel. */
- 	enable_irq(irq);
-@@ -1669,7 +1687,7 @@ static int xen_rebind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int tcpu)
- 	 * it, but don't do the xenlinux-level rebind in that case.
- 	 */
- 	if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_vcpu, &bind_vcpu) >= 0)
--		bind_evtchn_to_cpu(evtchn, tcpu);
-+		bind_evtchn_to_cpu(evtchn, tcpu, false);
- 
- 	if (!masked)
- 		unmask_evtchn(evtchn);
-@@ -1798,7 +1816,8 @@ static void restore_cpu_virqs(unsigned int cpu)
- 
- 		/* Record the new mapping. */
- 		(void)xen_irq_info_virq_setup(cpu, irq, evtchn, virq);
--		bind_evtchn_to_cpu(evtchn, cpu);
-+		/* The affinity mask is still valid */
-+		bind_evtchn_to_cpu(evtchn, cpu, false);
- 	}
- }
- 
-@@ -1823,7 +1842,8 @@ static void restore_cpu_ipis(unsigned int cpu)
- 
- 		/* Record the new mapping. */
- 		(void)xen_irq_info_ipi_setup(cpu, irq, evtchn, ipi);
--		bind_evtchn_to_cpu(evtchn, cpu);
-+		/* The affinity mask is still valid */
-+		bind_evtchn_to_cpu(evtchn, cpu, false);
- 	}
- }
- 
+That's preserved for all non percpu interrupts. The percpu variant of
+VIRQ and IPIs did binding to vCPU !=3D 0 already before this change.
+
+> Beyond this, there is nothing magic I'm aware of.
+>
+> We have seen soft lockups before in certain scenarios, simply due to the
+> quantity of events hitting vCPU0 before irqbalance gets around to
+> spreading the load.=C2=A0 This is why there is an attempt to round-robin =
+the
+> userspace event channel affinities by default, but I still don't see why
+> this would need custom affinity logic itself.
+
+Just the previous attempt makes no sense for the reasons I outlined in
+the changelog. So now with this new spreading mechanics you get the
+distribution for all cases:
+
+  1) Post setup using and respecting the default affinity mask which can
+     be set as a kernel commandline parameter.
+
+  2) Runtime (user) requested affinity change with a mask which contains
+     more than one vCPU. The previous logic always chose the first one
+     in the mask.
+
+     So assume userspace affines 4 irqs to a CPU 0-3 and 4 irqs to CPU
+     4-7 then 4 irqs end up on CPU0 and 4 on CPU4
+
+     The new algorithm which is similar to what we have on x86 (minus
+     the vector space limitation) picks the CPU which has the least
+     number of channels affine to it at that moment. If e.g. all 8 CPUs
+     have the same number of vectors before that change then in the
+     example above the first 4 are spread to CPU0-3 and the second 4 to
+     CPU4-7
+
+Thanks,
+
+        tglx
+=20=20=20
