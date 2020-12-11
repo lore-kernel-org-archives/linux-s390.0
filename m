@@ -1,27 +1,33 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:40316 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731174AbgLKKYE (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Fri, 11 Dec 2020 05:24:04 -0500
 Subject: Re: [patch 27/30] xen/events: Only force affinity mask for percpu
  interrupts
 References: <20201210192536.118432146@linutronix.de>
  <20201210194045.250321315@linutronix.de>
  <7f7af60f-567f-cdef-f8db-8062a44758ce@oracle.com>
+ <a4bce428-4420-6064-c7cc-7136a7544a52@suse.com>
+ <874kksiras.fsf@nanos.tec.linutronix.de>
 From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Message-ID: <2164a0ce-0e0d-c7dc-ac97-87c8f384ad82@suse.com>
-Date: Fri, 11 Dec 2020 13:10:43 +0100
+Message-ID: <83b596c7-453b-34b5-a6a5-6c04d20e818a@suse.com>
+Date: Fri, 11 Dec 2020 11:23:13 +0100
 MIME-Version: 1.0
-In-Reply-To: <7f7af60f-567f-cdef-f8db-8062a44758ce@oracle.com>
+In-Reply-To: <874kksiras.fsf@nanos.tec.linutronix.de>
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="qMVMfsvlAyIOVuhurM0AhbsuX1abhQOZS"
+ boundary="JLZob3e3TcGZaffU2V6GYg9zw25iTy30k"
 List-ID: <linux-s390.vger.kernel.org>
-To: boris.ostrovsky@oracle.com, Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
+To: Thomas Gleixner <tglx@linutronix.de>, boris.ostrovsky@oracle.com, LKML <linux-kernel@vger.kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---qMVMfsvlAyIOVuhurM0AhbsuX1abhQOZS
-Content-Type: multipart/mixed; boundary="1SKmisPo0wwQx0jet3HDKXRMk6SQ4aMth";
+--JLZob3e3TcGZaffU2V6GYg9zw25iTy30k
+Content-Type: multipart/mixed; boundary="W7MOwpcHMEZDHVpnNeRdRpRviypq0k3b2";
  protected-headers="v1"
 From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: boris.ostrovsky@oracle.com, Thomas Gleixner <tglx@linutronix.de>,
+To: Thomas Gleixner <tglx@linutronix.de>, boris.ostrovsky@oracle.com,
  LKML <linux-kernel@vger.kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
  Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org,
@@ -52,60 +58,96 @@ Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>,
  "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
  netdev@vger.kernel.org, linux-rdma@vger.kernel.org,
  Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>
-Message-ID: <2164a0ce-0e0d-c7dc-ac97-87c8f384ad82@suse.com>
+Message-ID: <83b596c7-453b-34b5-a6a5-6c04d20e818a@suse.com>
 Subject: Re: [patch 27/30] xen/events: Only force affinity mask for percpu
  interrupts
 References: <20201210192536.118432146@linutronix.de>
  <20201210194045.250321315@linutronix.de>
  <7f7af60f-567f-cdef-f8db-8062a44758ce@oracle.com>
-In-Reply-To: <7f7af60f-567f-cdef-f8db-8062a44758ce@oracle.com>
+ <a4bce428-4420-6064-c7cc-7136a7544a52@suse.com>
+ <874kksiras.fsf@nanos.tec.linutronix.de>
+In-Reply-To: <874kksiras.fsf@nanos.tec.linutronix.de>
 
---1SKmisPo0wwQx0jet3HDKXRMk6SQ4aMth
+--W7MOwpcHMEZDHVpnNeRdRpRviypq0k3b2
 Content-Type: multipart/mixed;
- boundary="------------8ECAEB8E864B85BAB060713C"
+ boundary="------------C0A97F76D1E2DDEBCBB7C379"
 Content-Language: en-US
 
 This is a multi-part message in MIME format.
---------------8ECAEB8E864B85BAB060713C
+--------------C0A97F76D1E2DDEBCBB7C379
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
-On 11.12.20 00:20, boris.ostrovsky@oracle.com wrote:
->=20
-> On 12/10/20 2:26 PM, Thomas Gleixner wrote:
->> All event channel setups bind the interrupt on CPU0 or the target CPU =
-for
->> percpu interrupts and overwrite the affinity mask with the correspondi=
-ng
->> cpumask. That does not make sense.
->>
->> The XEN implementation of irqchip::irq_set_affinity() already picks a
->> single target CPU out of the affinity mask and the actual target is st=
-ored
->> in the effective CPU mask, so destroying the user chosen affinity mask=
+On 11.12.20 11:13, Thomas Gleixner wrote:
+> On Fri, Dec 11 2020 at 07:17, J=C3=BCrgen Gro=C3=9F wrote:
+>> On 11.12.20 00:20, boris.ostrovsky@oracle.com wrote:
+>>>
+>>> On 12/10/20 2:26 PM, Thomas Gleixner wrote:
+>>>> All event channel setups bind the interrupt on CPU0 or the target CP=
+U for
+>>>> percpu interrupts and overwrite the affinity mask with the correspon=
+ding
+>>>> cpumask. That does not make sense.
+>>>>
+>>>> The XEN implementation of irqchip::irq_set_affinity() already picks =
+a
+>>>> single target CPU out of the affinity mask and the actual target is =
+stored
+>>>> in the effective CPU mask, so destroying the user chosen affinity ma=
+sk
+>>>> which might contain more than one CPU is wrong.
+>>>>
+>>>> Change the implementation so that the channel is bound to CPU0 at th=
+e XEN
+>>>> level and leave the affinity mask alone. At startup of the interrupt=
 
->> which might contain more than one CPU is wrong.
+>>>> affinity will be assigned out of the affinity mask and the XEN bindi=
+ng will
+>>>> be updated.
+>>>
+>>>
+>>> If that's the case then I wonder whether we need this call at all and=
+ instead bind at startup time.
 >>
->> Change the implementation so that the channel is bound to CPU0 at the =
-XEN
->> level and leave the affinity mask alone. At startup of the interrupt
->> affinity will be assigned out of the affinity mask and the XEN binding=
- will
->> be updated.
+>> This binding to cpu0 was introduced with commit 97253eeeb792d61ed2
+>> and I have no reason to believe the underlying problem has been
+>> eliminated.
 >=20
+>      "The kernel-side VCPU binding was not being correctly set for newl=
+y
+>       allocated or bound interdomain events.  In ARM guests where 2-lev=
+el
+>       events were used, this would result in no interdomain events bein=
+g
+>       handled because the kernel-side VCPU masks would all be clear.
 >=20
-> If that's the case then I wonder whether we need this call at all and i=
-nstead bind at startup time.
+>       x86 guests would work because the irq affinity was set during irq=
 
-After some discussion with Thomas on IRC and xen-devel archaeology the
-result is: this will be needed especially for systems running on a
-single vcpu (e.g. small guests), as the .irq_set_affinity() callback
-won't be called in this case when starting the irq.
+>       setup and this would set the correct kernel-side VCPU binding."
+>=20
+> I'm not convinced that this is really correctly analyzed because affini=
+ty
+> setting is done at irq startup.
+>=20
+>                  switch (__irq_startup_managed(desc, aff, force)) {
+> 	        case IRQ_STARTUP_NORMAL:
+> 	                ret =3D __irq_startup(desc);
+>                          irq_setup_affinity(desc);
+> 			break;
+>=20
+> which is completely architecture agnostic. So why should this magically=
+
+> work on x86 and not on ARM if both are using the same XEN irqchip with
+> the same irqchip callbacks.
+
+I think this might be related to _initial_ cpu binding of events and
+changing the binding later. This might be handled differently in the
+hypervisor.
 
 
 Juergen
 
---------------8ECAEB8E864B85BAB060713C
+--------------C0A97F76D1E2DDEBCBB7C379
 Content-Type: application/pgp-keys;
  name="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Transfer-Encoding: quoted-printable
@@ -196,24 +238,24 @@ ZDn8R38=3D
 =3D2wuH
 -----END PGP PUBLIC KEY BLOCK-----
 
---------------8ECAEB8E864B85BAB060713C--
+--------------C0A97F76D1E2DDEBCBB7C379--
 
---1SKmisPo0wwQx0jet3HDKXRMk6SQ4aMth--
+--W7MOwpcHMEZDHVpnNeRdRpRviypq0k3b2--
 
---qMVMfsvlAyIOVuhurM0AhbsuX1abhQOZS
+--JLZob3e3TcGZaffU2V6GYg9zw25iTy30k
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl/TYcMFAwAAAAAACgkQsN6d1ii/Ey+q
-kwgAhqGwSjkPCHuD6iXs+izA0i+SRbhYcA5DS/prsjTsYrIr31Nv0iAWAuq87gH+Uo5StBRXaRlR
-Vh9HiOFFv8ScTgdoiZDUycGN07TFuj9NJGJp/TvD+OZN17OQt2w1Pw1JeRI5RNsVTm22OMUH4Om8
-D5t0xrU0zymXmndnx8OZEQ/j0W+hCRjIoNpmjegRa1p8q12pzI9FJByuAhVVTqmcfucWD2sIXlFk
-ZYAwwiA5sMnSj7UYTiR6lkIWMPv4D0FJYC1GwAMI6EONFeO6SBjMqZsWhymL1P1AU1WoSAe19C/e
-DRzPDV1x+jKSYVArD4THJwjqoa7QDXngm7UxnYCYdg==
-=Bajp
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl/TSJEFAwAAAAAACgkQsN6d1ii/Ey+l
+mgf/d2+/6FRTlqTIKtgTaI9zWYXHFZUVv6aYW6iBE6VxANXvSWq9HMk6KnsreMEFtZ6/gFqr/hEu
+oLKI4zId8FjcveupY8yiEXvBkWDXXQHXm2vw2fO6Fe2D0RCcR0QLeFpvolQBAp0s4pGQNCWixekr
+Q6YyAWOKOmAjWmLsSsyend9GfjL+BFR6pObB4CLRdm5rvQHbPW6pNHBTTX2bxeszchEibXqmy+eX
+K7jbAijkr/Vq+9h84FBdAOZQRgXCIrWI14ae2O+8CGs9w5v/Yczedv+z4knUyDtXHly4+zuhkPSW
+tmVXo5DD0Oh4PaNITuXRo6Y9sSrWG1w22F+SVn8vKg==
+=c494
 -----END PGP SIGNATURE-----
 
---qMVMfsvlAyIOVuhurM0AhbsuX1abhQOZS--
+--JLZob3e3TcGZaffU2V6GYg9zw25iTy30k--
