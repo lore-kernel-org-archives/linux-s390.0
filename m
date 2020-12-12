@@ -1,158 +1,125 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:57796 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404307AbgLJTnc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:32 -0500
-Message-Id: <20201210194045.250321315@linutronix.de>
-Date: Thu, 10 Dec 2020 20:26:03 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 27/30] xen/events: Only force affinity mask for percpu interrupts
-References: <20201210192536.118432146@linutronix.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:42 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] genirq: Move irq_has_action() into core code
+In-Reply-To: <20201210194042.548936472@linutronix.de>
+References: <20201210194042.548936472@linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Message-ID: <160777792214.3364.6390594905664664886.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-All event channel setups bind the interrupt on CPU0 or the target CPU for
-percpu interrupts and overwrite the affinity mask with the corresponding
-cpumask. That does not make sense.
+The following commit has been merged into the irq/core branch of tip:
 
-The XEN implementation of irqchip::irq_set_affinity() already picks a
-single target CPU out of the affinity mask and the actual target is stored
-in the effective CPU mask, so destroying the user chosen affinity mask
-which might contain more than one CPU is wrong.
+Commit-ID:     db123744af5d237048f23ede05cc7ef0dc48db01
+Gitweb:        https://git.kernel.org/tip/db123744af5d237048f23ede05cc7ef0dc48db01
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:37 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:02 +01:00
 
-Change the implementation so that the channel is bound to CPU0 at the XEN
-level and leave the affinity mask alone. At startup of the interrupt
-affinity will be assigned out of the affinity mask and the XEN binding will
-be updated. Only keep the enforcement for real percpu interrupts.
+genirq: Move irq_has_action() into core code
 
-On resume the overwrite is not required either because info->cpu and the
-affinity mask are still the same as at the time of suspend. Same for
-rebind_evtchn_irq().
+This function uses irq_to_desc() and is going to be used by modules to
+replace the open coded irq_to_desc() (ab)usage. The final goal is to remove
+the export of irq_to_desc() so driver cannot fiddle with it anymore.
 
-This also prepares for proper interrupt spreading.
+Move it into the core code and fixup the usage sites to include the proper
+header.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Cc: xen-devel@lists.xenproject.org
----
- drivers/xen/events/events_base.c |   42 ++++++++++++++++++++++++++-------------
- 1 file changed, 28 insertions(+), 14 deletions(-)
+Link: https://lore.kernel.org/r/20201210194042.548936472@linutronix.de
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -433,15 +433,20 @@ static bool pirq_needs_eoi_flag(unsigned
- 	return info->u.pirq.flags & PIRQ_NEEDS_EOI;
- }
+---
+ arch/alpha/kernel/sys_jensen.c |  2 +-
+ arch/x86/kernel/topology.c     |  1 +
+ include/linux/interrupt.h      |  1 +
+ include/linux/irqdesc.h        |  7 +------
+ kernel/irq/manage.c            | 17 +++++++++++++++++
+ 5 files changed, 21 insertions(+), 7 deletions(-)
+
+diff --git a/arch/alpha/kernel/sys_jensen.c b/arch/alpha/kernel/sys_jensen.c
+index 0a2ab6c..e5d870f 100644
+--- a/arch/alpha/kernel/sys_jensen.c
++++ b/arch/alpha/kernel/sys_jensen.c
+@@ -7,7 +7,7 @@
+  *
+  * Code supporting the Jensen.
+  */
+-
++#include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/mm.h>
+diff --git a/arch/x86/kernel/topology.c b/arch/x86/kernel/topology.c
+index 0a2ec80..f5477ea 100644
+--- a/arch/x86/kernel/topology.c
++++ b/arch/x86/kernel/topology.c
+@@ -25,6 +25,7 @@
+  *
+  * Send feedback to <colpatch@us.ibm.com>
+  */
++#include <linux/interrupt.h>
+ #include <linux/nodemask.h>
+ #include <linux/export.h>
+ #include <linux/mmzone.h>
+diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+index ee8299e..e7c9726 100644
+--- a/include/linux/interrupt.h
++++ b/include/linux/interrupt.h
+@@ -232,6 +232,7 @@ extern void devm_free_irq(struct device *dev, unsigned int irq, void *dev_id);
+ # define local_irq_enable_in_hardirq()	local_irq_enable()
+ #endif
  
--static void bind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int cpu)
-+static void bind_evtchn_to_cpu(evtchn_port_t evtchn, unsigned int cpu,
-+			       bool force_affinity)
++bool irq_has_action(unsigned int irq);
+ extern void disable_irq_nosync(unsigned int irq);
+ extern bool disable_hardirq(unsigned int irq);
+ extern void disable_irq(unsigned int irq);
+diff --git a/include/linux/irqdesc.h b/include/linux/irqdesc.h
+index 5745491..385a4fa 100644
+--- a/include/linux/irqdesc.h
++++ b/include/linux/irqdesc.h
+@@ -179,12 +179,7 @@ int handle_domain_nmi(struct irq_domain *domain, unsigned int hwirq,
+ /* Test to see if a driver has successfully requested an irq */
+ static inline int irq_desc_has_action(struct irq_desc *desc)
  {
- 	int irq = get_evtchn_to_irq(evtchn);
- 	struct irq_info *info = info_for_irq(irq);
- 
- 	BUG_ON(irq == -1);
--#ifdef CONFIG_SMP
--	cpumask_copy(irq_get_affinity_mask(irq), cpumask_of(cpu));
--#endif
-+
-+	if (IS_ENABLED(CONFIG_SMP) && force_affinity) {
-+		cpumask_copy(irq_get_affinity_mask(irq), cpumask_of(cpu));
-+		cpumask_copy(irq_get_effective_affinity_mask(irq),
-+			     cpumask_of(cpu));
-+	}
-+
- 	xen_evtchn_port_bind_to_cpu(evtchn, cpu, info->cpu);
- 
- 	info->cpu = cpu;
-@@ -788,7 +793,7 @@ static unsigned int __startup_pirq(unsig
- 		goto err;
- 
- 	info->evtchn = evtchn;
--	bind_evtchn_to_cpu(evtchn, 0);
-+	bind_evtchn_to_cpu(evtchn, 0, false);
- 
- 	rc = xen_evtchn_port_setup(evtchn);
- 	if (rc)
-@@ -1107,8 +1112,8 @@ static int bind_evtchn_to_irq_chip(evtch
- 			irq = ret;
- 			goto out;
- 		}
--		/* New interdomain events are bound to VCPU 0. */
--		bind_evtchn_to_cpu(evtchn, 0);
-+		/* New interdomain events are initially bound to VCPU 0. */
-+		bind_evtchn_to_cpu(evtchn, 0, false);
- 	} else {
- 		struct irq_info *info = info_for_irq(irq);
- 		WARN_ON(info == NULL || info->type != IRQT_EVTCHN);
-@@ -1156,7 +1161,11 @@ static int bind_ipi_to_irq(unsigned int
- 			irq = ret;
- 			goto out;
- 		}
--		bind_evtchn_to_cpu(evtchn, cpu);
-+		/*
-+		 * Force the affinity mask to the target CPU so proc shows
-+		 * the correct target.
-+		 */
-+		bind_evtchn_to_cpu(evtchn, cpu, true);
- 	} else {
- 		struct irq_info *info = info_for_irq(irq);
- 		WARN_ON(info == NULL || info->type != IRQT_IPI);
-@@ -1269,7 +1278,11 @@ int bind_virq_to_irq(unsigned int virq,
- 			goto out;
- 		}
- 
--		bind_evtchn_to_cpu(evtchn, cpu);
-+		/*
-+		 * Force the affinity mask for percpu interrupts so proc
-+		 * shows the correct target.
-+		 */
-+		bind_evtchn_to_cpu(evtchn, cpu, percpu);
- 	} else {
- 		struct irq_info *info = info_for_irq(irq);
- 		WARN_ON(info == NULL || info->type != IRQT_VIRQ);
-@@ -1634,8 +1647,7 @@ void rebind_evtchn_irq(evtchn_port_t evt
- 
- 	mutex_unlock(&irq_mapping_update_lock);
- 
--        bind_evtchn_to_cpu(evtchn, info->cpu);
--	irq_set_affinity(irq, cpumask_of(info->cpu));
-+	bind_evtchn_to_cpu(evtchn, info->cpu, false);
- 
- 	/* Unmask the event channel. */
- 	enable_irq(irq);
-@@ -1669,7 +1681,7 @@ static int xen_rebind_evtchn_to_cpu(evtc
- 	 * it, but don't do the xenlinux-level rebind in that case.
- 	 */
- 	if (HYPERVISOR_event_channel_op(EVTCHNOP_bind_vcpu, &bind_vcpu) >= 0)
--		bind_evtchn_to_cpu(evtchn, tcpu);
-+		bind_evtchn_to_cpu(evtchn, tcpu, false);
- 
- 	if (!masked)
- 		unmask_evtchn(evtchn);
-@@ -1798,7 +1810,8 @@ static void restore_cpu_virqs(unsigned i
- 
- 		/* Record the new mapping. */
- 		(void)xen_irq_info_virq_setup(cpu, irq, evtchn, virq);
--		bind_evtchn_to_cpu(evtchn, cpu);
-+		/* The affinity mask is still valid */
-+		bind_evtchn_to_cpu(evtchn, cpu, false);
- 	}
+-	return desc->action != NULL;
+-}
+-
+-static inline int irq_has_action(unsigned int irq)
+-{
+-	return irq_desc_has_action(irq_to_desc(irq));
++	return desc && desc->action != NULL;
  }
  
-@@ -1823,7 +1836,8 @@ static void restore_cpu_ipis(unsigned in
- 
- 		/* Record the new mapping. */
- 		(void)xen_irq_info_ipi_setup(cpu, irq, evtchn, ipi);
--		bind_evtchn_to_cpu(evtchn, cpu);
-+		/* The affinity mask is still valid */
-+		bind_evtchn_to_cpu(evtchn, cpu, false);
- 	}
+ /**
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index c460e04..1767515 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -2752,3 +2752,20 @@ out_unlock:
+ 	return err;
  }
- 
+ EXPORT_SYMBOL_GPL(irq_set_irqchip_state);
++
++/**
++ * irq_has_action - Check whether an interrupt is requested
++ * @irq:	The linux irq number
++ *
++ * Returns: A snapshot of the current state
++ */
++bool irq_has_action(unsigned int irq)
++{
++	bool res;
++
++	rcu_read_lock();
++	res = irq_desc_has_action(irq_to_desc(irq));
++	rcu_read_unlock();
++	return res;
++}
++EXPORT_SYMBOL_GPL(irq_has_action);
