@@ -1,309 +1,76 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20474 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730742AbgLJO04 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:26:56 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 1/4] KVM: s390: Add memcg accounting to KVM allocations
-Date: Thu, 10 Dec 2020 15:25:56 +0100
-Message-Id: <20201210142600.6771-2-borntraeger@de.ibm.com>
-In-Reply-To: <20201210142600.6771-1-borntraeger@de.ibm.com>
-References: <20201210142600.6771-1-borntraeger@de.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:40 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] genirq: Provide kstat_irqdesc_cpu()
+In-Reply-To: <20201210194043.362094758@linutronix.de>
+References: <20201210194043.362094758@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <160777792016.3364.4118604074336451470.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Collin Walling <walling@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-Almost all kvm allocations in the s390x KVM code can be attributed to
-the process that triggers the allocation (in other words, no global
-allocation for other guests). This will help the memcg controller to
-make the right decisions.
+The following commit has been merged into the irq/core branch of tip:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+Commit-ID:     ea5f36556b8bde14234ec223ebc59968ade4735a
+Gitweb:        https://git.kernel.org/tip/ea5f36556b8bde14234ec223ebc59968ade4735a
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:44 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:03 +01:00
+
+genirq: Provide kstat_irqdesc_cpu()
+
+Most users of kstat_irqs_cpu() have the irq descriptor already. No point in
+calling into the core code and looking it up once more.
+
+Use it in per_cpu_count_show() to start with.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20201210194043.362094758@linutronix.de
+
 ---
- arch/s390/kvm/guestdbg.c  |  8 ++++----
- arch/s390/kvm/intercept.c |  2 +-
- arch/s390/kvm/interrupt.c | 10 +++++-----
- arch/s390/kvm/kvm-s390.c  | 20 ++++++++++----------
- arch/s390/kvm/priv.c      |  4 ++--
- arch/s390/kvm/pv.c        |  6 +++---
- arch/s390/kvm/vsie.c      |  4 ++--
- 7 files changed, 27 insertions(+), 27 deletions(-)
+ include/linux/irqdesc.h | 6 ++++++
+ kernel/irq/irqdesc.c    | 4 ++--
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/guestdbg.c b/arch/s390/kvm/guestdbg.c
-index 394a5f53805b..3765c4223bf9 100644
---- a/arch/s390/kvm/guestdbg.c
-+++ b/arch/s390/kvm/guestdbg.c
-@@ -184,7 +184,7 @@ static int __import_wp_info(struct kvm_vcpu *vcpu,
- 	if (wp_info->len < 0 || wp_info->len > MAX_WP_SIZE)
- 		return -EINVAL;
+diff --git a/include/linux/irqdesc.h b/include/linux/irqdesc.h
+index 4a1d016..891b323 100644
+--- a/include/linux/irqdesc.h
++++ b/include/linux/irqdesc.h
+@@ -113,6 +113,12 @@ static inline void irq_unlock_sparse(void) { }
+ extern struct irq_desc irq_desc[NR_IRQS];
+ #endif
  
--	wp_info->old_data = kmalloc(bp_data->len, GFP_KERNEL);
-+	wp_info->old_data = kmalloc(bp_data->len, GFP_KERNEL_ACCOUNT);
- 	if (!wp_info->old_data)
- 		return -ENOMEM;
- 	/* try to backup the original value */
-@@ -234,7 +234,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
- 	if (nr_wp > 0) {
- 		wp_info = kmalloc_array(nr_wp,
- 					sizeof(*wp_info),
--					GFP_KERNEL);
-+					GFP_KERNEL_ACCOUNT);
- 		if (!wp_info) {
- 			ret = -ENOMEM;
- 			goto error;
-@@ -243,7 +243,7 @@ int kvm_s390_import_bp_data(struct kvm_vcpu *vcpu,
- 	if (nr_bp > 0) {
- 		bp_info = kmalloc_array(nr_bp,
- 					sizeof(*bp_info),
--					GFP_KERNEL);
-+					GFP_KERNEL_ACCOUNT);
- 		if (!bp_info) {
- 			ret = -ENOMEM;
- 			goto error;
-@@ -349,7 +349,7 @@ static struct kvm_hw_wp_info_arch *any_wp_changed(struct kvm_vcpu *vcpu)
- 		if (!wp_info || !wp_info->old_data || wp_info->len <= 0)
- 			continue;
- 
--		temp = kmalloc(wp_info->len, GFP_KERNEL);
-+		temp = kmalloc(wp_info->len, GFP_KERNEL_ACCOUNT);
- 		if (!temp)
- 			continue;
- 
-diff --git a/arch/s390/kvm/intercept.c b/arch/s390/kvm/intercept.c
-index e7a7c499a73f..72b25b7cc6ae 100644
---- a/arch/s390/kvm/intercept.c
-+++ b/arch/s390/kvm/intercept.c
-@@ -398,7 +398,7 @@ int handle_sthyi(struct kvm_vcpu *vcpu)
- 	if (!kvm_s390_pv_cpu_is_protected(vcpu) && (addr & ~PAGE_MASK))
- 		return kvm_s390_inject_program_int(vcpu, PGM_SPECIFICATION);
- 
--	sctns = (void *)get_zeroed_page(GFP_KERNEL);
-+	sctns = (void *)get_zeroed_page(GFP_KERNEL_ACCOUNT);
- 	if (!sctns)
- 		return -ENOMEM;
- 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 2f177298c663..e3183bd05910 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -1792,7 +1792,7 @@ struct kvm_s390_interrupt_info *kvm_s390_get_io_int(struct kvm *kvm,
- 		goto out;
- 	}
- gisa_out:
--	tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL);
-+	tmp_inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
- 	if (tmp_inti) {
- 		tmp_inti->type = KVM_S390_INT_IO(1, 0, 0, 0);
- 		tmp_inti->io.io_int_word = isc_to_int_word(isc);
-@@ -2015,7 +2015,7 @@ int kvm_s390_inject_vm(struct kvm *kvm,
- 	struct kvm_s390_interrupt_info *inti;
- 	int rc;
- 
--	inti = kzalloc(sizeof(*inti), GFP_KERNEL);
-+	inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
- 	if (!inti)
- 		return -ENOMEM;
- 
-@@ -2414,7 +2414,7 @@ static int enqueue_floating_irq(struct kvm_device *dev,
- 		return -EINVAL;
- 
- 	while (len >= sizeof(struct kvm_s390_irq)) {
--		inti = kzalloc(sizeof(*inti), GFP_KERNEL);
-+		inti = kzalloc(sizeof(*inti), GFP_KERNEL_ACCOUNT);
- 		if (!inti)
- 			return -ENOMEM;
- 
-@@ -2462,7 +2462,7 @@ static int register_io_adapter(struct kvm_device *dev,
- 	if (dev->kvm->arch.adapters[adapter_info.id] != NULL)
- 		return -EINVAL;
- 
--	adapter = kzalloc(sizeof(*adapter), GFP_KERNEL);
-+	adapter = kzalloc(sizeof(*adapter), GFP_KERNEL_ACCOUNT);
- 	if (!adapter)
- 		return -ENOMEM;
- 
-@@ -3290,7 +3290,7 @@ int kvm_s390_gib_init(u8 nisc)
- 		goto out;
- 	}
- 
--	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	gib = (struct kvm_s390_gib *)get_zeroed_page(GFP_KERNEL_ACCOUNT | GFP_DMA);
- 	if (!gib) {
- 		rc = -ENOMEM;
- 		goto out;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 6b74b92c1a58..19804c388d61 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -1254,7 +1254,7 @@ static int kvm_s390_set_processor(struct kvm *kvm, struct kvm_device_attr *attr)
- 		ret = -EBUSY;
- 		goto out;
- 	}
--	proc = kzalloc(sizeof(*proc), GFP_KERNEL);
-+	proc = kzalloc(sizeof(*proc), GFP_KERNEL_ACCOUNT);
- 	if (!proc) {
- 		ret = -ENOMEM;
- 		goto out;
-@@ -1416,7 +1416,7 @@ static int kvm_s390_get_processor(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_s390_vm_cpu_processor *proc;
- 	int ret = 0;
- 
--	proc = kzalloc(sizeof(*proc), GFP_KERNEL);
-+	proc = kzalloc(sizeof(*proc), GFP_KERNEL_ACCOUNT);
- 	if (!proc) {
- 		ret = -ENOMEM;
- 		goto out;
-@@ -1444,7 +1444,7 @@ static int kvm_s390_get_machine(struct kvm *kvm, struct kvm_device_attr *attr)
- 	struct kvm_s390_vm_cpu_machine *mach;
- 	int ret = 0;
- 
--	mach = kzalloc(sizeof(*mach), GFP_KERNEL);
-+	mach = kzalloc(sizeof(*mach), GFP_KERNEL_ACCOUNT);
- 	if (!mach) {
- 		ret = -ENOMEM;
- 		goto out;
-@@ -1812,7 +1812,7 @@ static long kvm_s390_get_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- 	if (args->count < 1 || args->count > KVM_S390_SKEYS_MAX)
- 		return -EINVAL;
- 
--	keys = kvmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL);
-+	keys = kvmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL_ACCOUNT);
- 	if (!keys)
- 		return -ENOMEM;
- 
-@@ -1857,7 +1857,7 @@ static long kvm_s390_set_skeys(struct kvm *kvm, struct kvm_s390_skeys *args)
- 	if (args->count < 1 || args->count > KVM_S390_SKEYS_MAX)
- 		return -EINVAL;
- 
--	keys = kvmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL);
-+	keys = kvmalloc_array(args->count, sizeof(uint8_t), GFP_KERNEL_ACCOUNT);
- 	if (!keys)
- 		return -ENOMEM;
- 
-@@ -2625,7 +2625,7 @@ static void sca_dispose(struct kvm *kvm)
- 
- int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
++static inline unsigned int irq_desc_kstat_cpu(struct irq_desc *desc,
++					      unsigned int cpu)
++{
++	return desc->kstat_irqs ? *per_cpu_ptr(desc->kstat_irqs, cpu) : 0;
++}
++
+ static inline struct irq_desc *irq_data_to_desc(struct irq_data *data)
  {
--	gfp_t alloc_flags = GFP_KERNEL;
-+	gfp_t alloc_flags = GFP_KERNEL_ACCOUNT;
- 	int i, rc;
- 	char debug_name[16];
- 	static unsigned long sca_offset;
-@@ -2670,7 +2670,7 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
- 
- 	BUILD_BUG_ON(sizeof(struct sie_page2) != 4096);
- 	kvm->arch.sie_page2 =
--	     (struct sie_page2 *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
-+	     (struct sie_page2 *) get_zeroed_page(GFP_KERNEL_ACCOUNT | GFP_DMA);
- 	if (!kvm->arch.sie_page2)
- 		goto out_err;
- 
-@@ -2900,7 +2900,7 @@ static int sca_switch_to_extended(struct kvm *kvm)
- 	if (kvm->arch.use_esca)
- 		return 0;
- 
--	new_sca = alloc_pages_exact(sizeof(*new_sca), GFP_KERNEL|__GFP_ZERO);
-+	new_sca = alloc_pages_exact(sizeof(*new_sca), GFP_KERNEL_ACCOUNT | __GFP_ZERO);
- 	if (!new_sca)
- 		return -ENOMEM;
- 
-@@ -3133,7 +3133,7 @@ void kvm_s390_vcpu_unsetup_cmma(struct kvm_vcpu *vcpu)
- 
- int kvm_s390_vcpu_setup_cmma(struct kvm_vcpu *vcpu)
+ 	return container_of(data->common, struct irq_desc, irq_common_data);
+diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
+index 1f7325f..18dd779 100644
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -147,12 +147,12 @@ static ssize_t per_cpu_count_show(struct kobject *kobj,
+ 				  struct kobj_attribute *attr, char *buf)
  {
--	vcpu->arch.sie_block->cbrlo = get_zeroed_page(GFP_KERNEL);
-+	vcpu->arch.sie_block->cbrlo = get_zeroed_page(GFP_KERNEL_ACCOUNT);
- 	if (!vcpu->arch.sie_block->cbrlo)
- 		return -ENOMEM;
- 	return 0;
-@@ -3243,7 +3243,7 @@ int kvm_arch_vcpu_create(struct kvm_vcpu *vcpu)
- 	int rc;
+ 	struct irq_desc *desc = container_of(kobj, struct irq_desc, kobj);
+-	int cpu, irq = desc->irq_data.irq;
+ 	ssize_t ret = 0;
+ 	char *p = "";
++	int cpu;
  
- 	BUILD_BUG_ON(sizeof(struct sie_page) != 4096);
--	sie_page = (struct sie_page *) get_zeroed_page(GFP_KERNEL);
-+	sie_page = (struct sie_page *) get_zeroed_page(GFP_KERNEL_ACCOUNT);
- 	if (!sie_page)
- 		return -ENOMEM;
+ 	for_each_possible_cpu(cpu) {
+-		unsigned int c = kstat_irqs_cpu(irq, cpu);
++		unsigned int c = irq_desc_kstat_cpu(desc, cpu);
  
-diff --git a/arch/s390/kvm/priv.c b/arch/s390/kvm/priv.c
-index cd74989ce0b0..9928f785c677 100644
---- a/arch/s390/kvm/priv.c
-+++ b/arch/s390/kvm/priv.c
-@@ -879,7 +879,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 	switch (fc) {
- 	case 1: /* same handling for 1 and 2 */
- 	case 2:
--		mem = get_zeroed_page(GFP_KERNEL);
-+		mem = get_zeroed_page(GFP_KERNEL_ACCOUNT);
- 		if (!mem)
- 			goto out_no_data;
- 		if (stsi((void *) mem, fc, sel1, sel2))
-@@ -888,7 +888,7 @@ static int handle_stsi(struct kvm_vcpu *vcpu)
- 	case 3:
- 		if (sel1 != 2 || sel2 != 2)
- 			goto out_no_data;
--		mem = get_zeroed_page(GFP_KERNEL);
-+		mem = get_zeroed_page(GFP_KERNEL_ACCOUNT);
- 		if (!mem)
- 			goto out_no_data;
- 		handle_stsi_3_2_2(vcpu, (void *) mem);
-diff --git a/arch/s390/kvm/pv.c b/arch/s390/kvm/pv.c
-index eb99e2f95ebe..373b654c84bd 100644
---- a/arch/s390/kvm/pv.c
-+++ b/arch/s390/kvm/pv.c
-@@ -60,7 +60,7 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
- 	if (kvm_s390_pv_cpu_get_handle(vcpu))
- 		return -EINVAL;
- 
--	vcpu->arch.pv.stor_base = __get_free_pages(GFP_KERNEL,
-+	vcpu->arch.pv.stor_base = __get_free_pages(GFP_KERNEL_ACCOUNT,
- 						   get_order(uv_info.guest_cpu_stor_len));
- 	if (!vcpu->arch.pv.stor_base)
- 		return -ENOMEM;
-@@ -72,7 +72,7 @@ int kvm_s390_pv_create_cpu(struct kvm_vcpu *vcpu, u16 *rc, u16 *rrc)
- 	uvcb.stor_origin = (u64)vcpu->arch.pv.stor_base;
- 
- 	/* Alloc Secure Instruction Data Area Designation */
--	vcpu->arch.sie_block->sidad = __get_free_page(GFP_KERNEL | __GFP_ZERO);
-+	vcpu->arch.sie_block->sidad = __get_free_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO);
- 	if (!vcpu->arch.sie_block->sidad) {
- 		free_pages(vcpu->arch.pv.stor_base,
- 			   get_order(uv_info.guest_cpu_stor_len));
-@@ -120,7 +120,7 @@ static int kvm_s390_pv_alloc_vm(struct kvm *kvm)
- 	struct kvm_memory_slot *memslot;
- 
- 	kvm->arch.pv.stor_var = NULL;
--	kvm->arch.pv.stor_base = __get_free_pages(GFP_KERNEL, get_order(base));
-+	kvm->arch.pv.stor_base = __get_free_pages(GFP_KERNEL_ACCOUNT, get_order(base));
- 	if (!kvm->arch.pv.stor_base)
- 		return -ENOMEM;
- 
-diff --git a/arch/s390/kvm/vsie.c b/arch/s390/kvm/vsie.c
-index 4f3cbf6003a9..c5d0a58b2c29 100644
---- a/arch/s390/kvm/vsie.c
-+++ b/arch/s390/kvm/vsie.c
-@@ -1234,7 +1234,7 @@ static struct vsie_page *get_vsie_page(struct kvm *kvm, unsigned long addr)
- 
- 	mutex_lock(&kvm->arch.vsie.mutex);
- 	if (kvm->arch.vsie.page_count < nr_vcpus) {
--		page = alloc_page(GFP_KERNEL | __GFP_ZERO | GFP_DMA);
-+		page = alloc_page(GFP_KERNEL_ACCOUNT | __GFP_ZERO | GFP_DMA);
- 		if (!page) {
- 			mutex_unlock(&kvm->arch.vsie.mutex);
- 			return ERR_PTR(-ENOMEM);
-@@ -1336,7 +1336,7 @@ int kvm_s390_handle_vsie(struct kvm_vcpu *vcpu)
- void kvm_s390_vsie_init(struct kvm *kvm)
- {
- 	mutex_init(&kvm->arch.vsie.mutex);
--	INIT_RADIX_TREE(&kvm->arch.vsie.addr_to_page, GFP_KERNEL);
-+	INIT_RADIX_TREE(&kvm->arch.vsie.addr_to_page, GFP_KERNEL_ACCOUNT);
- }
- 
- /* Destroy the vsie data structures. To be called when a vm is destroyed. */
--- 
-2.28.0
+ 		ret += scnprintf(buf + ret, PAGE_SIZE - ret, "%s%u", p, c);
+ 		p = ",";
