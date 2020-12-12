@@ -1,93 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:41 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] genirq: Move irq_set_lockdep_class() to core
+In-Reply-To: <20201210194042.860029489@linutronix.de>
+References: <20201210194042.860029489@linutronix.de>
 MIME-Version: 1.0
-Date: Sun, 20 Dec 2020 05:14:12 -0800
-Message-ID: <0000000000001a6adb05b6e51e3e@google.com>
-Subject: KASAN: global-out-of-bounds Read in smc_nl_get_sys_info
-From: syzbot <syzbot+f4708c391121cfc58396@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <160777792160.3364.6971604740060856051.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: davem@davemloft.net, kgraul@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-Hello,
+The following commit has been merged into the irq/core branch of tip:
 
-syzbot found the following issue on:
+Commit-ID:     a07d244f00de679c66643e89eba6e1baa62d3517
+Gitweb:        https://git.kernel.org/tip/a07d244f00de679c66643e89eba6e1baa62d3517
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:39 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:02 +01:00
 
-HEAD commit:    3db1a3fa Merge tag 'staging-5.11-rc1' of git://git.kernel...
-git tree:       net
-console output: https://syzkaller.appspot.com/x/log.txt?x=121dc937500000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=2764fc28a92339f9
-dashboard link: https://syzkaller.appspot.com/bug?extid=f4708c391121cfc58396
-compiler:       gcc (GCC) 10.1.0-syz 20200507
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16522287500000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1144680f500000
+genirq: Move irq_set_lockdep_class() to core
 
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+f4708c391121cfc58396@syzkaller.appspotmail.com
+irq_set_lockdep_class() is used from modules and requires irq_to_desc() to
+be exported. Move it into the core code which lifts another requirement for
+the export.
 
-==================================================================
-BUG: KASAN: global-out-of-bounds in string_nocheck lib/vsprintf.c:611 [inline]
-BUG: KASAN: global-out-of-bounds in string+0x39c/0x3d0 lib/vsprintf.c:693
-Read of size 1 at addr ffffffff8faea960 by task syz-executor646/8509
-
-CPU: 0 PID: 8509 Comm: syz-executor646 Not tainted 5.10.0-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x107/0x163 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x5/0x4c8 mm/kasan/report.c:385
- __kasan_report mm/kasan/report.c:545 [inline]
- kasan_report.cold+0x1f/0x37 mm/kasan/report.c:562
- string_nocheck lib/vsprintf.c:611 [inline]
- string+0x39c/0x3d0 lib/vsprintf.c:693
- vsnprintf+0x71b/0x14f0 lib/vsprintf.c:2618
- snprintf+0xbb/0xf0 lib/vsprintf.c:2751
- smc_nl_get_sys_info+0x493/0x880 net/smc/smc_core.c:249
- genl_lock_dumpit+0x60/0x90 net/netlink/genetlink.c:623
- netlink_dump+0x4b9/0xb70 net/netlink/af_netlink.c:2268
- __netlink_dump_start+0x642/0x900 net/netlink/af_netlink.c:2373
- genl_family_rcv_msg_dumpit+0x2af/0x310 net/netlink/genetlink.c:686
- genl_family_rcv_msg net/netlink/genetlink.c:780 [inline]
- genl_rcv_msg+0x434/0x580 net/netlink/genetlink.c:800
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
- genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1330
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1919
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2336
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2390
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2423
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x440299
-Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 7b 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fff4b943e58 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 0000000000440299
-RDX: 0000000000000000 RSI: 0000000020000180 RDI: 0000000000000003
-RBP: 00000000006ca018 R08: 0000000000000000 R09: 00000000004002c8
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000401aa0
-R13: 0000000000401b30 R14: 0000000000000000 R15: 0000000000000000
-
-The buggy address belongs to the variable:
- smc_hostname+0x20/0x40
-
-Memory state around the buggy address:
- ffffffff8faea800: 00 00 f9 f9 f9 f9 f9 f9 00 00 f9 f9 f9 f9 f9 f9
- ffffffff8faea880: 00 00 f9 f9 f9 f9 f9 f9 00 00 f9 f9 f9 f9 f9 f9
->ffffffff8faea900: 00 f9 f9 f9 f9 f9 f9 f9 00 00 00 00 f9 f9 f9 f9
-                                                       ^
- ffffffff8faea980: 04 f9 f9 f9 f9 f9 f9 f9 00 00 f9 f9 f9 f9 f9 f9
- ffffffff8faeaa00: 00 00 f9 f9 f9 f9 f9 f9 00 00 f9 f9 f9 f9 f9 f9
-==================================================================
-
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20201210194042.860029489@linutronix.de
 
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ include/linux/irqdesc.h | 10 ++++------
+ kernel/irq/irqdesc.c    | 14 ++++++++++++++
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-syzbot can test patches for this issue, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+diff --git a/include/linux/irqdesc.h b/include/linux/irqdesc.h
+index 308d7db..4a1d016 100644
+--- a/include/linux/irqdesc.h
++++ b/include/linux/irqdesc.h
+@@ -240,16 +240,14 @@ static inline bool irq_is_percpu_devid(unsigned int irq)
+ 	return irq_check_status_bit(irq, IRQ_PER_CPU_DEVID);
+ }
+ 
++void __irq_set_lockdep_class(unsigned int irq, struct lock_class_key *lock_class,
++			     struct lock_class_key *request_class);
+ static inline void
+ irq_set_lockdep_class(unsigned int irq, struct lock_class_key *lock_class,
+ 		      struct lock_class_key *request_class)
+ {
+-	struct irq_desc *desc = irq_to_desc(irq);
+-
+-	if (desc) {
+-		lockdep_set_class(&desc->lock, lock_class);
+-		lockdep_set_class(&desc->request_mutex, request_class);
+-	}
++	if (IS_ENABLED(CONFIG_LOCKDEP))
++		__irq_set_lockdep_class(irq, lock_class, request_class);
+ }
+ 
+ #endif
+diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
+index e810eb9..f309869 100644
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -968,3 +968,17 @@ unsigned int kstat_irqs_usr(unsigned int irq)
+ 	rcu_read_unlock();
+ 	return sum;
+ }
++
++#ifdef CONFIG_LOCKDEP
++void __irq_set_lockdep_class(unsigned int irq, struct lock_class_key *lock_class,
++			     struct lock_class_key *request_class)
++{
++	struct irq_desc *desc = irq_to_desc(irq);
++
++	if (desc) {
++		lockdep_set_class(&desc->lock, lock_class);
++		lockdep_set_class(&desc->request_mutex, request_class);
++	}
++}
++EXPORT_SYMBOL_GPL(irq_set_lockdep_class);
++#endif
