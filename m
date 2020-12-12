@@ -1,84 +1,79 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29922 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726934AbgLWBRH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Dec 2020 20:17:07 -0500
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v13 07/15] s390/vfio-ap: introduce shadow APCB
-Date: Tue, 22 Dec 2020 20:15:58 -0500
-Message-Id: <20201223011606.5265-8-akrowiak@linux.ibm.com>
-In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
-References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:37 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] PCI: xilinx-nwl: Use irq_data_get_irq_chip_data()
+In-Reply-To: <20201210194044.364211860@linutronix.de>
+References: <20201210194044.364211860@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <160777791748.3364.4812480310871675110.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-The APCB is a field within the CRYCB that provides the AP configuration
-to a KVM guest. Let's introduce a shadow copy of the KVM guest's APCB and
-maintain it for the lifespan of the guest.
+The following commit has been merged into the irq/core branch of tip:
 
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Commit-ID:     f44d2329d5c179d24708ada87f5e77b781e336ca
+Gitweb:        https://git.kernel.org/tip/f44d2329d5c179d24708ada87f5e77b781e336ca
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:54 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:05 +01:00
+
+PCI: xilinx-nwl: Use irq_data_get_irq_chip_data()
+
+Going through a full irq descriptor lookup instead of just using the proper
+helper function which provides direct access is suboptimal.
+
+In fact it _is_ wrong because the chip callback needs to get the chip data
+which is relevant for the chip while using the irq descriptor variant
+returns the irq chip data of the top level chip of a hierarchy. It does not
+matter in this case because the chip is the top level chip, but that
+doesn't make it more correct.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Cc: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20201210194044.364211860@linutronix.de
+
 ---
- drivers/s390/crypto/vfio_ap_ops.c     | 15 +++++++++++++++
- drivers/s390/crypto/vfio_ap_private.h |  2 ++
- 2 files changed, 17 insertions(+)
+ drivers/pci/controller/pcie-xilinx-nwl.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 2d58b39977be..44b3a81cadfb 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -293,6 +293,20 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
- 	matrix->adm_max = info->apxa ? info->Nd : 15;
- }
+diff --git a/drivers/pci/controller/pcie-xilinx-nwl.c b/drivers/pci/controller/pcie-xilinx-nwl.c
+index f3cf7d6..22135df 100644
+--- a/drivers/pci/controller/pcie-xilinx-nwl.c
++++ b/drivers/pci/controller/pcie-xilinx-nwl.c
+@@ -379,13 +379,11 @@ static void nwl_pcie_msi_handler_low(struct irq_desc *desc)
  
-+static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
-+}
-+
-+static void vfio_ap_mdev_commit_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	if (vfio_ap_mdev_has_crycb(matrix_mdev))
-+		kvm_arch_crypto_set_masks(matrix_mdev->kvm,
-+					  matrix_mdev->shadow_apcb.apm,
-+					  matrix_mdev->shadow_apcb.aqm,
-+					  matrix_mdev->shadow_apcb.adm);
-+}
-+
- static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+ static void nwl_mask_leg_irq(struct irq_data *data)
  {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -308,6 +322,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+-	struct irq_desc *desc = irq_to_desc(data->irq);
+-	struct nwl_pcie *pcie;
++	struct nwl_pcie *pcie = irq_data_get_irq_chip_data(data);
+ 	unsigned long flags;
+ 	u32 mask;
+ 	u32 val;
  
- 	matrix_mdev->mdev = mdev;
- 	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
-+	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
- 	hash_init(matrix_mdev->qtable);
- 	mdev_set_drvdata(mdev, matrix_mdev);
- 	matrix_mdev->pqap_hook.hook = handle_pqap;
-diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-index 4e5cc72fc0db..d2d26ba18602 100644
---- a/drivers/s390/crypto/vfio_ap_private.h
-+++ b/drivers/s390/crypto/vfio_ap_private.h
-@@ -75,6 +75,7 @@ struct ap_matrix {
-  * @list:	allows the ap_matrix_mdev struct to be added to a list
-  * @matrix:	the adapters, usage domains and control domains assigned to the
-  *		mediated matrix device.
-+ * @shadow_apcb:    the shadow copy of the APCB field of the KVM guest's CRYCB
-  * @group_notifier: notifier block used for specifying callback function for
-  *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
-  * @kvm:	the struct holding guest's state
-@@ -82,6 +83,7 @@ struct ap_matrix {
- struct ap_matrix_mdev {
- 	struct list_head node;
- 	struct ap_matrix matrix;
-+	struct ap_matrix shadow_apcb;
- 	struct notifier_block group_notifier;
- 	struct notifier_block iommu_notifier;
- 	struct kvm *kvm;
--- 
-2.21.1
+-	pcie = irq_desc_get_chip_data(desc);
+ 	mask = 1 << (data->hwirq - 1);
+ 	raw_spin_lock_irqsave(&pcie->leg_mask_lock, flags);
+ 	val = nwl_bridge_readl(pcie, MSGF_LEG_MASK);
+@@ -395,13 +393,11 @@ static void nwl_mask_leg_irq(struct irq_data *data)
+ 
+ static void nwl_unmask_leg_irq(struct irq_data *data)
+ {
+-	struct irq_desc *desc = irq_to_desc(data->irq);
+-	struct nwl_pcie *pcie;
++	struct nwl_pcie *pcie = irq_data_get_irq_chip_data(data);
+ 	unsigned long flags;
+ 	u32 mask;
+ 	u32 val;
+ 
+-	pcie = irq_desc_get_chip_data(desc);
+ 	mask = 1 << (data->hwirq - 1);
+ 	raw_spin_lock_irqsave(&pcie->leg_mask_lock, flags);
+ 	val = nwl_bridge_readl(pcie, MSGF_LEG_MASK);
