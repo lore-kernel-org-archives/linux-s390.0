@@ -1,67 +1,80 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.130]:37545 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728755AbgLRPBc (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:32 -0500
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 06/23] arch: mips: drop misleading warning on spurious IRQ
-Date: Fri, 18 Dec 2020 15:57:29 +0100
-Message-Id: <20201218145746.24205-7-info@metux.net>
-In-Reply-To: <20201218145746.24205-1-info@metux.net>
-References: <20201218145746.24205-1-info@metux.net>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:37 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] mfd: ab8500-debugfs: Remove the racy fiddling with irq_desc
+In-Reply-To: <20201210194044.157283633@linutronix.de>
+References: <20201210194044.157283633@linutronix.de>
+MIME-Version: 1.0
+Message-ID: <160777791799.3364.16109636784825298493.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Linus Walleij <linus.walleij@linaro.org>, Lee Jones <lee.jones@linaro.org>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-The warning in ack_bad_irq() is misleading in several ways:
-* the term "vector" isn't quite correct
-* the printing format isn't consistent across the archs: some print decimal,
-  some hex, some hex w/o 0x prefix.
-* the printed linux irq isn't meaningful in all cases - we actually would
-  want it to print the hw irq.
+The following commit has been merged into the irq/core branch of tip:
 
-Since all call sites already print out more detailed and correct information,
-we just don't need to duplicate this in each single arch. So just drop it.
+Commit-ID:     4fa1cf7cde28ad4d7e4388cccfe682dded6a7aca
+Gitweb:        https://git.kernel.org/tip/4fa1cf7cde28ad4d7e4388cccfe682dded6a7aca
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:52 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:05 +01:00
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+mfd: ab8500-debugfs: Remove the racy fiddling with irq_desc
+
+First of all drivers have absolutely no business to dig into the internals
+of an irq descriptor. That's core code and subject to change. All of this
+information is readily available to /proc/interrupts in a safe and race
+free way.
+
+Remove the inspection code which is a blatant violation of subsystem
+boundaries and racy against concurrent modifications of the interrupt
+descriptor.
+
+Print the irq line instead so the information can be looked up in a sane
+way in /proc/interrupts.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20201210194044.157283633@linutronix.de
+
 ---
- arch/mips/include/asm/hardirq.h | 3 +--
- arch/mips/kernel/irq.c          | 9 ---------
- 2 files changed, 1 insertion(+), 11 deletions(-)
+ drivers/mfd/ab8500-debugfs.c | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
 
-diff --git a/arch/mips/include/asm/hardirq.h b/arch/mips/include/asm/hardirq.h
-index c977a86c2c65..75444120e6cb 100644
---- a/arch/mips/include/asm/hardirq.h
-+++ b/arch/mips/include/asm/hardirq.h
-@@ -10,8 +10,7 @@
- #ifndef _ASM_HARDIRQ_H
- #define _ASM_HARDIRQ_H
+diff --git a/drivers/mfd/ab8500-debugfs.c b/drivers/mfd/ab8500-debugfs.c
+index 6d1bf7c..a320393 100644
+--- a/drivers/mfd/ab8500-debugfs.c
++++ b/drivers/mfd/ab8500-debugfs.c
+@@ -1513,24 +1513,14 @@ static int ab8500_interrupts_show(struct seq_file *s, void *p)
+ {
+ 	int line;
  
--extern void ack_bad_irq(unsigned int irq);
--#define ack_bad_irq ack_bad_irq
-+#define ack_bad_irq(irq)
+-	seq_puts(s, "name: number:  number of: wake:\n");
++	seq_puts(s, "name: number: irq: number of: wake:\n");
  
- #include <asm-generic/hardirq.h>
- 
-diff --git a/arch/mips/kernel/irq.c b/arch/mips/kernel/irq.c
-index 85b6c60f285d..c98be305fab6 100644
---- a/arch/mips/kernel/irq.c
-+++ b/arch/mips/kernel/irq.c
-@@ -27,15 +27,6 @@
- 
- void *irq_stack[NR_CPUS];
- 
--/*
-- * 'what should we do if we get a hw irq event on an illegal vector'.
-- * each architecture has to answer this themselves.
-- */
--void ack_bad_irq(unsigned int irq)
--{
--	printk("unexpected IRQ # %d\n", irq);
--}
+ 	for (line = 0; line < num_interrupt_lines; line++) {
+-		struct irq_desc *desc = irq_to_desc(line + irq_first);
 -
- atomic_t irq_err_count;
- 
- int arch_show_interrupts(struct seq_file *p, int prec)
--- 
-2.11.0
+-		seq_printf(s, "%3i:  %6i %4i",
++		seq_printf(s, "%3i:  %4i %6i %4i\n",
+ 			   line,
++			   line + irq_first,
+ 			   num_interrupts[line],
+ 			   num_wake_interrupts[line]);
+-
+-		if (desc && desc->name)
+-			seq_printf(s, "-%-8s", desc->name);
+-		if (desc && desc->action) {
+-			struct irqaction *action = desc->action;
+-
+-			seq_printf(s, "  %s", action->name);
+-			while ((action = action->next) != NULL)
+-				seq_printf(s, ", %s", action->name);
+ 		}
+ 		seq_putc(s, '\n');
+ 	}
