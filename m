@@ -1,53 +1,73 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:19576 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387557AbgLKWXX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Dec 2020 17:23:23 -0500
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v2 0/2] Clean up vfio_ap resources when KVM pointer invalidated
-Date: Fri, 11 Dec 2020 17:22:09 -0500
-Message-Id: <20201211222211.20869-1-akrowiak@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:41 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] genirq: Annotate irq stats data races
+In-Reply-To: <20201210194043.067097663@linutronix.de>
+References: <20201210194043.067097663@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <160777792105.3364.9820233761878732243.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: stable@vger.kernel.org, gregkh@linuxfoundation.org, sashal@kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, pbonzini@redhat.com, alex.williamson@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-The vfio_ap device driver registers a group notifier with VFIO when the
-file descriptor for a VFIO mediated device attached to a KVM guest is
-opened. The group notifier is registered to receive notification that the
-KVM pointer for the guest is set (VFIO_GROUP_NOTIFY_SET_KVM event). When
-the KVM pointer is set to a non-NULL value, the vfio_ap driver takes the
-following actions:
-1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
-   of the mediated device.
-2. Calls the kvm_get_kvm() function to increment its reference counter.
-3. Sets the function pointer to the function that handles interception of
-   the instruction that enables/disables interrupt processing for the
-   KVM guest.
-4. Plugs the AP devices assigned to the mediated device into the KVM
-   guest.
+The following commit has been merged into the irq/core branch of tip:
 
-These actions are reversed by the release callback which is invoked when
-userspace closes the mediated device's file descriptor. In this case, the
-group notifier does not get called to invalidate the KVM pointer because
-the notifier is unregistered by the release callback; however, there are no
-guarantees that userspace will do the right thing before shutting down.
-To ensure that there are no resource leaks should the group notifier get
-called to set the KVM pointer to NULL, the notifier should also reverse
-the actions taken when it was called to set the pointer. This patch series
-ensures proper clean up is done via the group notifier.
+Commit-ID:     fb4f676fc901cb547226efb3e69ffeaeefa124be
+Gitweb:        https://git.kernel.org/tip/fb4f676fc901cb547226efb3e69ffeaeefa124be
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:41 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:03 +01:00
 
-Tony Krowiak (2):
-  s390/vfio-ap: No need to disable IRQ after queue reset
-  s390/vfio-ap: reverse group notifier actions when KVM pointer
-    invalidated
+genirq: Annotate irq stats data races
 
- drivers/s390/crypto/vfio_ap_drv.c     |  1 -
- drivers/s390/crypto/vfio_ap_ops.c     | 80 +++++++++++++++++----------
- drivers/s390/crypto/vfio_ap_private.h |  1 -
- 3 files changed, 50 insertions(+), 32 deletions(-)
+Both the per cpu stats and the accumulated count are accessed lockless and
+can be concurrently modified. That's intentional and the stats are a rough
+estimate anyway. Annotate them with data_race().
 
--- 
-2.21.1
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20201210194043.067097663@linutronix.de
+
+---
+ kernel/irq/irqdesc.c | 4 ++--
+ kernel/irq/proc.c    | 5 +++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
+index f309869..d28f69e 100644
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -943,10 +943,10 @@ unsigned int kstat_irqs(unsigned int irq)
+ 	if (!irq_settings_is_per_cpu_devid(desc) &&
+ 	    !irq_settings_is_per_cpu(desc) &&
+ 	    !irq_is_nmi(desc))
+-	    return desc->tot_count;
++		return data_race(desc->tot_count);
+ 
+ 	for_each_possible_cpu(cpu)
+-		sum += *per_cpu_ptr(desc->kstat_irqs, cpu);
++		sum += data_race(*per_cpu_ptr(desc->kstat_irqs, cpu));
+ 	return sum;
+ }
+ 
+diff --git a/kernel/irq/proc.c b/kernel/irq/proc.c
+index 72513ed..9813878 100644
+--- a/kernel/irq/proc.c
++++ b/kernel/irq/proc.c
+@@ -488,9 +488,10 @@ int show_interrupts(struct seq_file *p, void *v)
+ 	if (!desc || irq_settings_is_hidden(desc))
+ 		goto outsparse;
+ 
+-	if (desc->kstat_irqs)
++	if (desc->kstat_irqs) {
+ 		for_each_online_cpu(j)
+-			any_count |= *per_cpu_ptr(desc->kstat_irqs, j);
++			any_count |= data_race(*per_cpu_ptr(desc->kstat_irqs, j));
++	}
+ 
+ 	if ((!desc->action || irq_desc_is_chained(desc)) && !any_count)
+ 		goto outsparse;
