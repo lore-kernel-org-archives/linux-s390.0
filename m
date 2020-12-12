@@ -1,44 +1,91 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51890 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725864AbgLMLeu (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Dec 2020 06:34:50 -0500
-Subject: Re: [patch 22/30] net/mlx5: Replace irq_to_desc() abuse
-References: <20201210192536.118432146@linutronix.de>
- <20201210194044.769458162@linutronix.de>
-From: Tariq Toukan <ttoukan.linux@gmail.com>
-Message-ID: <02be0e10-f2b5-7cbb-3271-4d872616ffd4@gmail.com>
-Date: Sun, 13 Dec 2020 13:34:01 +0200
-MIME-Version: 1.0
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:36 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] net/mlx5: Replace irq_to_desc() abuse
 In-Reply-To: <20201210194044.769458162@linutronix.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+References: <20201210194044.769458162@linutronix.de>
+MIME-Version: 1.0
+Message-ID: <160777791646.3364.2505749639821754000.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Saeed Mahameed <saeedm@nvidia.com>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
+The following commit has been merged into the irq/core branch of tip:
 
+Commit-ID:     3d18847680102182fed60b90ae65cbbb3d929a3c
+Gitweb:        https://git.kernel.org/tip/3d18847680102182fed60b90ae65cbbb3d929a3c
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:58 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:06 +01:00
 
-On 12/10/2020 9:25 PM, Thomas Gleixner wrote:
-> No driver has any business with the internals of an interrupt
-> descriptor. Storing a pointer to it just to use yet another helper at the
-> actual usage site to retrieve the affinity mask is creative at best. Just
-> because C does not allow encapsulation does not mean that the kernel has no
-> limits.
-> 
-> Retrieve a pointer to the affinity mask itself and use that. It's still
-> using an interface which is usually not for random drivers, but definitely
-> less hideous than the previous hack.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> ---
->   drivers/net/ethernet/mellanox/mlx5/core/en.h      |    2 +-
->   drivers/net/ethernet/mellanox/mlx5/core/en_main.c |    2 +-
->   drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c |    6 +-----
->   3 files changed, 3 insertions(+), 7 deletions(-)
-> 
+net/mlx5: Replace irq_to_desc() abuse
 
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+No driver has any business with the internals of an interrupt
+descriptor. Storing a pointer to it just to use yet another helper at the
+actual usage site to retrieve the affinity mask is creative at best. Just
+because C does not allow encapsulation does not mean that the kernel has no
+limits.
 
-Thanks.
+Retrieve a pointer to the affinity mask itself and use that. It's still
+using an interface which is usually not for random drivers, but definitely
+less hideous than the previous hack.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Saeed Mahameed <saeedm@nvidia.com>
+Link: https://lore.kernel.org/r/20201210194044.769458162@linutronix.de
+
+---
+ drivers/net/ethernet/mellanox/mlx5/core/en.h      | 2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c | 6 +-----
+ 3 files changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+index 2f05b0f..45fd585 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+@@ -669,7 +669,7 @@ struct mlx5e_channel {
+ 	spinlock_t                 async_icosq_lock;
+ 
+ 	/* data path - accessed per napi poll */
+-	struct irq_desc *irq_desc;
++	const struct cpumask	  *aff_mask;
+ 	struct mlx5e_ch_stats     *stats;
+ 
+ 	/* control */
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index b3f02aa..0e19b3c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -1998,7 +1998,7 @@ static int mlx5e_open_channel(struct mlx5e_priv *priv, int ix,
+ 	c->num_tc   = params->num_tc;
+ 	c->xdp      = !!params->xdp_prog;
+ 	c->stats    = &priv->channel_stats[ix].ch;
+-	c->irq_desc = irq_to_desc(irq);
++	c->aff_mask = irq_get_affinity_mask(irq);
+ 	c->lag_port = mlx5e_enumerate_lag_port(priv->mdev, ix);
+ 
+ 	netif_napi_add(netdev, &c->napi, mlx5e_napi_poll, 64);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
+index d586867..793e313 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c
+@@ -40,12 +40,8 @@
+ static inline bool mlx5e_channel_no_affinity_change(struct mlx5e_channel *c)
+ {
+ 	int current_cpu = smp_processor_id();
+-	const struct cpumask *aff;
+-	struct irq_data *idata;
+ 
+-	idata = irq_desc_get_irq_data(c->irq_desc);
+-	aff = irq_data_get_affinity_mask(idata);
+-	return cpumask_test_cpu(current_cpu, aff);
++	return cpumask_test_cpu(current_cpu, c->aff_mask);
+ }
+ 
+ static void mlx5e_handle_tx_dim(struct mlx5e_txqsq *sq)
