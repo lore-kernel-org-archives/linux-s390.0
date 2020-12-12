@@ -1,46 +1,50 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.187]:33379 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728708AbgLRPBa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:30 -0500
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 12/23] arch: x86: drop misleading warning on spurious IRQ
-Date: Fri, 18 Dec 2020 15:57:35 +0100
-Message-Id: <20201218145746.24205-13-info@metux.net>
-In-Reply-To: <20201218145746.24205-1-info@metux.net>
-References: <20201218145746.24205-1-info@metux.net>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:39 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] parisc/irq: Use irq_desc_kstat_cpu() in show_interrupts()
+In-Reply-To: <20201210194043.659522455@linutronix.de>
+References: <20201210194043.659522455@linutronix.de>
+MIME-Version: 1.0
+Message-ID: <160777791931.3364.17864432721014360849.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-parisc@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-The warning in ack_bad_irq() is misleading in several ways:
-* the term "vector" isn't quite correct
-* the printing format isn't consistent across the archs: some print decimal,
-  some hex, some hex w/o 0x prefix.
-* the printed linux irq isn't meaningful in all cases - we actually would
-  want it to print the hw irq.
+The following commit has been merged into the irq/core branch of tip:
 
-Since all call sites already print out more detailed and correct information,
-we just don't need to duplicate this in each single arch. So just drop it.
+Commit-ID:     27fb43cb32d016366d1d87986970d5be7d6607e1
+Gitweb:        https://git.kernel.org/tip/27fb43cb32d016366d1d87986970d5be7d6607e1
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:47 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:04 +01:00
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+parisc/irq: Use irq_desc_kstat_cpu() in show_interrupts()
+
+The irq descriptor is already there, no need to look it up again.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-parisc@vger.kernel.org
+Link: https://lore.kernel.org/r/20201210194043.659522455@linutronix.de
+
 ---
- arch/x86/kernel/irq.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/parisc/kernel/irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/irq.c b/arch/x86/kernel/irq.c
-index c5dd50369e2f..5c66c44b6b60 100644
---- a/arch/x86/kernel/irq.c
-+++ b/arch/x86/kernel/irq.c
-@@ -36,9 +36,6 @@ atomic_t irq_err_count;
-  */
- void ack_bad_irq(unsigned int irq)
- {
--	if (printk_ratelimit())
--		pr_err("unexpected IRQ trap at vector %02x\n", irq);
--
- 	/*
- 	 * Currently unexpected vectors happen only on SMP and APIC.
- 	 * We _must_ ack these because every local APIC has only N
--- 
-2.11.0
+diff --git a/arch/parisc/kernel/irq.c b/arch/parisc/kernel/irq.c
+index 15c6207..49cd6d2 100644
+--- a/arch/parisc/kernel/irq.c
++++ b/arch/parisc/kernel/irq.c
+@@ -218,7 +218,7 @@ int show_interrupts(struct seq_file *p, void *v)
+ 		seq_printf(p, "%3d: ", i);
+ 
+ 		for_each_online_cpu(j)
+-			seq_printf(p, "%10u ", kstat_irqs_cpu(i, j));
++			seq_printf(p, "%10u ", irq_desc_kstat_cpu(desc, j));
+ 
+ 		seq_printf(p, " %14s", irq_desc_get_chip(desc)->name);
+ #ifndef PARISC_IRQ_CR16_COUNTS
