@@ -1,174 +1,89 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:2356 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2404847AbgLKKCY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Dec 2020 05:02:24 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 6/8] s390x: sie: Add first SIE test
-Date: Fri, 11 Dec 2020 05:00:37 -0500
-Message-Id: <20201211100039.63597-7-frankja@linux.ibm.com>
-In-Reply-To: <20201211100039.63597-1-frankja@linux.ibm.com>
-References: <20201211100039.63597-1-frankja@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:40 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] genirq: Make kstat_irqs() static
+In-Reply-To: <20201210194043.268774449@linutronix.de>
+References: <20201210194043.268774449@linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Message-ID: <160777792041.3364.7294928960882791899.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-Let's check if we get the correct interception data on a few
-diags. This commit is more of an addition of boilerplate code than a
-real test.
+The following commit has been merged into the irq/core branch of tip:
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Commit-ID:     63ca4e066a62afce8ebaf75ebd4c6ef67f7bb5ee
+Gitweb:        https://git.kernel.org/tip/63ca4e066a62afce8ebaf75ebd4c6ef67f7bb5ee
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:25:43 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:03 +01:00
+
+genirq: Make kstat_irqs() static
+
+No more users outside the core code.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20201210194043.268774449@linutronix.de
+
 ---
- s390x/Makefile      |   1 +
- s390x/sie.c         | 113 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   3 ++
- 3 files changed, 117 insertions(+)
- create mode 100644 s390x/sie.c
+ include/linux/kernel_stat.h |  1 -
+ kernel/irq/irqdesc.c        | 19 ++++++-------------
+ 2 files changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index fb62e87..8e1b4e9 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -19,6 +19,7 @@ tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
- tests += $(TEST_DIR)/css.elf
- tests += $(TEST_DIR)/uv-guest.elf
-+tests += $(TEST_DIR)/sie.elf
+diff --git a/include/linux/kernel_stat.h b/include/linux/kernel_stat.h
+index 89f0745..44ae1a7 100644
+--- a/include/linux/kernel_stat.h
++++ b/include/linux/kernel_stat.h
+@@ -67,7 +67,6 @@ static inline unsigned int kstat_softirqs_cpu(unsigned int irq, int cpu)
+ /*
+  * Number of interrupts per specific IRQ source, since bootup
+  */
+-extern unsigned int kstat_irqs(unsigned int irq);
+ extern unsigned int kstat_irqs_usr(unsigned int irq);
  
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- ifneq ($(HOST_KEY_DOCUMENT),)
-diff --git a/s390x/sie.c b/s390x/sie.c
-new file mode 100644
-index 0000000..cfc746f
---- /dev/null
-+++ b/s390x/sie.c
-@@ -0,0 +1,113 @@
-+#include <libcflat.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/arch_def.h>
-+#include <asm/interrupt.h>
-+#include <asm/page.h>
-+#include <alloc_page.h>
-+#include <vmalloc.h>
-+#include <asm/facility.h>
-+#include <mmu.h>
-+#include <sclp.h>
-+#include <sie.h>
-+
-+static u8 *guest;
-+static u8 *guest_instr;
-+static struct vm vm;
-+
-+static void handle_validity(struct vm *vm)
-+{
-+	report(0, "VALIDITY: %x", vm->sblk->ipb >> 16);
-+}
-+
-+static void sie(struct vm *vm)
-+{
-+	while (vm->sblk->icptcode == 0) {
-+		sie64a(vm->sblk, &vm->save_area);
-+		if (vm->sblk->icptcode == ICPT_VALIDITY)
-+			handle_validity(vm);
-+	}
-+	vm->save_area.guest.grs[14] = vm->sblk->gg14;
-+	vm->save_area.guest.grs[15] = vm->sblk->gg15;
-+}
-+
-+static void sblk_cleanup(struct vm *vm)
-+{
-+	vm->sblk->icptcode = 0;
-+}
-+
-+static void test_diag(u32 instr)
-+{
-+	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
-+	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
-+
-+	memset(guest_instr, 0, PAGE_SIZE);
-+	memcpy(guest_instr, &instr, 4);
-+	sie(&vm);
-+	report(vm.sblk->icptcode == ICPT_INST &&
-+	       vm.sblk->ipa == instr >> 16 && vm.sblk->ipb == instr << 16,
-+	       "Intercept data");
-+	sblk_cleanup(&vm);
-+}
-+
-+static struct {
-+	const char *name;
-+	u32 instr;
-+} tests[] = {
-+	{ "10", 0x83020010 },
-+	{ "44", 0x83020044 },
-+	{ "9c", 0x8302009c },
-+	{ NULL, 0 }
-+};
-+
-+static void test_diags(void)
-+{
-+	int i;
-+
-+	for (i = 0; tests[i].name; i++) {
-+		report_prefix_push(tests[i].name);
-+		test_diag(tests[i].instr);
-+		report_prefix_pop();
-+	}
-+}
-+
-+static void setup_guest(void)
-+{
-+	setup_vm();
-+
-+	/* Allocate 1MB as guest memory */
-+	guest = alloc_pages(8);
-+	/* The first two pages are the lowcore */
-+	guest_instr = guest + PAGE_SIZE * 2;
-+
-+	vm.sblk = alloc_page();
-+
-+	vm.sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
-+	vm.sblk->prefix = 0;
-+	/*
-+	 * Pageable guest with the same ASCE as the test programm, but
-+	 * the guest memory 0x0 is offset to start at the allocated
-+	 * guest pages and end after 1MB.
-+	 *
-+	 * It's not pretty but faster and easier than managing guest ASCEs.
-+	 */
-+	vm.sblk->mso = (u64)guest;
-+	vm.sblk->msl = (u64)guest;
-+	vm.sblk->ihcpu = 0xffff;
-+
-+	vm.sblk->crycbd = (uint64_t)alloc_page();
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("sie");
-+	if (!sclp_facilities.has_sief2) {
-+		report_skip("SIEF2 facility unavailable");
-+		goto done;
-+	}
-+
-+	setup_guest();
-+	test_diags();
-+done:
-+	report_prefix_pop();
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 3feb8bc..2298be6 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -96,3 +96,6 @@ smp = 2
+ /*
+diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
+index d28f69e..1f7325f 100644
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -924,15 +924,7 @@ static bool irq_is_nmi(struct irq_desc *desc)
+ 	return desc->istate & IRQS_NMI;
+ }
  
- [uv-guest]
- file = uv-guest.elf
-+
-+[sie]
-+file = sie.elf
--- 
-2.25.1
+-/**
+- * kstat_irqs - Get the statistics for an interrupt
+- * @irq:	The interrupt number
+- *
+- * Returns the sum of interrupt counts on all cpus since boot for
+- * @irq. The caller must ensure that the interrupt is not removed
+- * concurrently.
+- */
+-unsigned int kstat_irqs(unsigned int irq)
++static unsigned int kstat_irqs(unsigned int irq)
+ {
+ 	struct irq_desc *desc = irq_to_desc(irq);
+ 	unsigned int sum = 0;
+@@ -951,13 +943,14 @@ unsigned int kstat_irqs(unsigned int irq)
+ }
+ 
+ /**
+- * kstat_irqs_usr - Get the statistics for an interrupt
++ * kstat_irqs_usr - Get the statistics for an interrupt from thread context
+  * @irq:	The interrupt number
+  *
+  * Returns the sum of interrupt counts on all cpus since boot for @irq.
+- * Contrary to kstat_irqs() this can be called from any context.
+- * It uses rcu since a concurrent removal of an interrupt descriptor is
+- * observing an rcu grace period before delayed_free_desc()/irq_kobj_release().
++ *
++ * It uses rcu to protect the access since a concurrent removal of an
++ * interrupt descriptor is observing an rcu grace period before
++ * delayed_free_desc()/irq_kobj_release().
+  */
+ unsigned int kstat_irqs_usr(unsigned int irq)
+ {
