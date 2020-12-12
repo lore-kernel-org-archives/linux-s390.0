@@ -1,72 +1,125 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40004 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389430AbgLJPTC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 10:19:02 -0500
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295EAC0613CF
-        for <linux-s390@vger.kernel.org>; Thu, 10 Dec 2020 07:18:22 -0800 (PST)
-Received: by mail-ej1-x642.google.com with SMTP id g20so7864294ejb.1
-        for <linux-s390@vger.kernel.org>; Thu, 10 Dec 2020 07:18:22 -0800 (PST)
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Sat, 12 Dec 2020 12:58:35 -0000
+From: "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+Subject: [tip: irq/core] xen/events: Remove disfunct affinity spreading
+In-Reply-To: <20201210194045.065115500@linutronix.de>
+References: <20201210194045.065115500@linutronix.de>
 MIME-Version: 1.0
-From: Naresh Kamboju <naresh.kamboju@linaro.org>
-Date: Thu, 10 Dec 2020 20:48:09 +0530
-Message-ID: <CA+G9fYsXCcmcJTVnNUu1Pb5j5gv4CCnSqTO79Uu3tKc=aECYTg@mail.gmail.com>
-Subject: [s390] pci_irq.c:106: error: implicit declaration of function 'smp_cpu_get_cpu_address'
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <160777791566.3364.11691003667802645875.tip-bot2@tip-bot2>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: open list <linux-kernel@vger.kernel.org>, linux-stable <stable@vger.kernel.org>, lkft-triage@lists.linaro.org, Sasha Levin <sashal@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Niklas Schnelle <schnelle@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, linux-s390@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+To: linux-tip-commits@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
 
-While building S390 the following kernel warning / error noticed
-on stable -rc 5.4 branch with gcc-8, gcc-9 and gcc-10 and defconfig
+The following commit has been merged into the irq/core branch of tip:
 
-make --silent --keep-going --jobs=8
-O=/home/tuxbuild/.cache/tuxmake/builds/6/tmp ARCH=s390
-CROSS_COMPILE=s390x-linux-gnu- 'CC=sccache s390x-linux-gnu-gcc'
-'HOSTCC=sccache gcc' vmlinux
-arch/s390/pci/pci_irq.c: In function 'zpci_set_irq_affinity':
-arch/s390/pci/pci_irq.c:106:17: error: implicit declaration of
-function 'smp_cpu_get_cpu_address'
-[-Werror=implicit-function-declaration]
-  106 |  int cpu_addr = smp_cpu_get_cpu_address(cpumask_first(dest));
-      |                 ^~~~~~~~~~~~~~~~~~~~~~~
+Commit-ID:     26599cd34323b73894ebcb5197693cdd668b4aa8
+Gitweb:        https://git.kernel.org/tip/26599cd34323b73894ebcb5197693cdd668b4aa8
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Thu, 10 Dec 2020 20:26:01 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Sat, 12 Dec 2020 12:59:06 +01:00
 
+xen/events: Remove disfunct affinity spreading
 
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+This function can only ever work when the event channels:
 
-steps to reproduce:
---------------------------
-# TuxMake is a command line tool and Python library that provides
-# portable and repeatable Linux kernel builds across a variety of
-# architectures, toolchains, kernel configurations, and make targets.
-#
-# TuxMake supports the concept of runtimes.
-# See https://docs.tuxmake.org/runtimes/, for that to work it requires
-# that you install podman or docker on your system.
-#
-# To install tuxmake on your system globally:
-# sudo pip3 install -U tuxmake
-#
-# See https://docs.tuxmake.org/ for complete documentation.
+  - are already established
+  - interrupts assigned to them
+  - the affinity has been set by user space already
 
-tuxmake --runtime docker --target-arch s390 --toolchain gcc-9
---kconfig defconfig
+because any newly set up event channel is forced to be bound to CPU0 and
+the affinity mask of the interrupt is forced to contain cpumask_of(0).
 
-metadata:
-    git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-    target_arch: s390
-    toolchain: gcc-9
-    git_short_log: 82a0751eb2d3 (\Linux 5.4.83-rc1\)
-    git_describe: v5.4.82-55-g82a0751eb2d3
-    kernel_version: 5.4.83-rc1
-    download_url: https://builds.tuxbuild.com/1lTC2KYDTwqeueHNt1eiSzoLiFb/
+As the CPU0 enforcement was in place _before_ this was implemented it's
+entirely unclear how that can ever have worked at all.
 
+Remove it as preparation for doing it proper.
 
-full build log link,
-https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/903123659#L158
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/20201210194045.065115500@linutronix.de
 
+---
+ drivers/xen/events/events_base.c |  9 +--------
+ drivers/xen/evtchn.c             | 34 +-------------------------------
+ 2 files changed, 1 insertion(+), 42 deletions(-)
 
---
-Linaro LKFT
-https://lkft.linaro.org
+diff --git a/drivers/xen/events/events_base.c b/drivers/xen/events/events_base.c
+index d6458e4..9cade19 100644
+--- a/drivers/xen/events/events_base.c
++++ b/drivers/xen/events/events_base.c
+@@ -1696,15 +1696,6 @@ static int set_affinity_irq(struct irq_data *data, const struct cpumask *dest,
+ 	return ret;
+ }
+ 
+-/* To be called with desc->lock held. */
+-int xen_set_affinity_evtchn(struct irq_desc *desc, unsigned int tcpu)
+-{
+-	struct irq_data *d = irq_desc_get_irq_data(desc);
+-
+-	return set_affinity_irq(d, cpumask_of(tcpu), false);
+-}
+-EXPORT_SYMBOL_GPL(xen_set_affinity_evtchn);
+-
+ static void enable_dynirq(struct irq_data *data)
+ {
+ 	evtchn_port_t evtchn = evtchn_from_irq(data->irq);
+diff --git a/drivers/xen/evtchn.c b/drivers/xen/evtchn.c
+index 5dc016d..a7a8571 100644
+--- a/drivers/xen/evtchn.c
++++ b/drivers/xen/evtchn.c
+@@ -421,36 +421,6 @@ static void evtchn_unbind_from_user(struct per_user_data *u,
+ 	del_evtchn(u, evtchn);
+ }
+ 
+-static DEFINE_PER_CPU(int, bind_last_selected_cpu);
+-
+-static void evtchn_bind_interdom_next_vcpu(evtchn_port_t evtchn)
+-{
+-	unsigned int selected_cpu, irq;
+-	struct irq_desc *desc;
+-	unsigned long flags;
+-
+-	irq = irq_from_evtchn(evtchn);
+-	desc = irq_to_desc(irq);
+-
+-	if (!desc)
+-		return;
+-
+-	raw_spin_lock_irqsave(&desc->lock, flags);
+-	selected_cpu = this_cpu_read(bind_last_selected_cpu);
+-	selected_cpu = cpumask_next_and(selected_cpu,
+-			desc->irq_common_data.affinity, cpu_online_mask);
+-
+-	if (unlikely(selected_cpu >= nr_cpu_ids))
+-		selected_cpu = cpumask_first_and(desc->irq_common_data.affinity,
+-				cpu_online_mask);
+-
+-	this_cpu_write(bind_last_selected_cpu, selected_cpu);
+-
+-	/* unmask expects irqs to be disabled */
+-	xen_set_affinity_evtchn(desc, selected_cpu);
+-	raw_spin_unlock_irqrestore(&desc->lock, flags);
+-}
+-
+ static long evtchn_ioctl(struct file *file,
+ 			 unsigned int cmd, unsigned long arg)
+ {
+@@ -508,10 +478,8 @@ static long evtchn_ioctl(struct file *file,
+ 			break;
+ 
+ 		rc = evtchn_bind_to_user(u, bind_interdomain.local_port);
+-		if (rc == 0) {
++		if (rc == 0)
+ 			rc = bind_interdomain.local_port;
+-			evtchn_bind_interdom_next_vcpu(rc);
+-		}
+ 		break;
+ 	}
+ 
