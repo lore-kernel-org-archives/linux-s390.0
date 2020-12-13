@@ -1,39 +1,57 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41470 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725899AbgLALDC (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 06:03:02 -0500
-Date: Tue, 1 Dec 2020 12:02:09 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 1/2] sched/idle: Fix arch_cpu_idle() vs tracing
-Message-ID: <20201201110209.GQ3040@hirez.programming.kicks-ass.net>
-References: <20201120114145.197714127@infradead.org>
- <20201120114925.594122626@infradead.org>
- <20201130210003.GA40619@roeck-us.net>
+        with ESMTP id S2394777AbgLMLcO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 13 Dec 2020 06:32:14 -0500
+Subject: Re: [patch 21/30] net/mlx4: Use effective interrupt affinity
+References: <20201210192536.118432146@linutronix.de>
+ <20201210194044.672935978@linutronix.de>
+From: Tariq Toukan <ttoukan.linux@gmail.com>
+Message-ID: <57c3f9d3-7262-9916-626b-c2234de763f0@gmail.com>
+Date: Sun, 13 Dec 2020 13:31:24 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201130210003.GA40619@roeck-us.net>
+In-Reply-To: <20201210194044.672935978@linutronix.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: rafael@kernel.org, viresh.kumar@linaro.org, mingo@kernel.org, x86@kernel.org, mark.rutland@arm.com, will@kernel.org, svens@linux.ibm.com, linux-kernel@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-s390@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
 
-On Mon, Nov 30, 2020 at 01:00:03PM -0800, Guenter Roeck wrote:
-> On Fri, Nov 20, 2020 at 12:41:46PM +0100, Peter Zijlstra wrote:
-> > We call arch_cpu_idle() with RCU disabled, but then use
-> > local_irq_{en,dis}able(), which invokes tracing, which relies on RCU.
-> > 
-> > Switch all arch_cpu_idle() implementations to use
-> > raw_local_irq_{en,dis}able() and carefully manage the
-> > lockdep,rcu,tracing state like we do in entry.
-> > 
-> > (XXX: we really should change arch_cpu_idle() to not return with
-> > interrupts enabled)
-> > 
+
+
+On 12/10/2020 9:25 PM, Thomas Gleixner wrote:
+> Using the interrupt affinity mask for checking locality is not really
+> working well on architectures which support effective affinity masks.
 > 
-> Has this patch been tested on s390 ? Reason for asking is that it causes
-> all my s390 emulations to crash. Reverting it fixes the problem.
+> The affinity mask is either the system wide default or set by user space,
+> but the architecture can or even must reduce the mask to the effective set,
+> which means that checking the affinity mask itself does not really tell
+> about the actual target CPUs.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Tariq Toukan <tariqt@nvidia.com>
+> Cc: "David S. Miller" <davem@davemloft.net>
+> Cc: Jakub Kicinski <kuba@kernel.org>
+> Cc: netdev@vger.kernel.org
+> Cc: linux-rdma@vger.kernel.org
+> ---
+>   drivers/net/ethernet/mellanox/mlx4/en_cq.c |    2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- a/drivers/net/ethernet/mellanox/mlx4/en_cq.c
+> +++ b/drivers/net/ethernet/mellanox/mlx4/en_cq.c
+> @@ -117,7 +117,7 @@ int mlx4_en_activate_cq(struct mlx4_en_p
+>   			assigned_eq = true;
+>   		}
+>   		irq = mlx4_eq_get_irq(mdev->dev, cq->vector);
+> -		cq->aff_mask = irq_get_affinity_mask(irq);
+> +		cq->aff_mask = irq_get_effective_affinity_mask(irq);
+>   	} else {
+>   		/* For TX we use the same irq per
+>   		ring we assigned for the RX    */
+> 
 
-My understanding is that it changes the error on s390. Previously it
-would complain about the local_irq_enable() in arch_cpu_idle(), now it
-complains when taking an interrupt during idle.
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+
+Thanks.
