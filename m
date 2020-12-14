@@ -1,40 +1,76 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 10/23] arch: sh: drop misleading warning on spurious IRQ
-Date: Fri, 18 Dec 2020 15:31:09 +0100
-Message-Id: <20201218143122.19459-11-info@metux.net>
-In-Reply-To: <20201218143122.19459-1-info@metux.net>
-References: <20201218143122.19459-1-info@metux.net>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Message-ID: <0f8eda3bbed1100c1c1f7015dd5c172f8d735c94.camel@kernel.org>
+Subject: Re: [patch 22/30] net/mlx5: Replace irq_to_desc() abuse
+From: Saeed Mahameed <saeed@kernel.org>
+Date: Mon, 14 Dec 2020 13:13:07 -0800
+In-Reply-To: <20201210194044.769458162@linutronix.de>
+References: <20201210192536.118432146@linutronix.de>
+         <20201210194044.769458162@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
 
-The warning in ack_bad_irq() is misleading in several ways:
-* the term "vector" isn't quite correct
-* the printing format isn't consistent across the archs: some print decimal,
-  some hex, some hex w/o 0x prefix.
-* the printed linux irq isn't meaningful in all cases - we actually would
-  want it to print the hw irq.
+On Thu, 2020-12-10 at 20:25 +0100, Thomas Gleixner wrote:
+> No driver has any business with the internals of an interrupt
+> descriptor. Storing a pointer to it just to use yet another helper at
+> the
+> actual usage site to retrieve the affinity mask is creative at best.
+> Just
+> because C does not allow encapsulation does not mean that the kernel
+> has no
+> limits.
+> 
 
-Since all call sites already print out more detailed and correct information,
-we just don't need to duplicate this in each single arch. So just drop it.
+you can't blame the developers for using stuff from include/linux/
+Not all developers are the same, and sometime we don't read in between
+the lines, you can't assume all driver developers to be expert on irq
+APIs disciplines.
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
----
- arch/sh/kernel/irq.c | 1 -
- 1 file changed, 1 deletion(-)
+your rules must be programmatically expressed, for instance,
+you can just hide struct irq_desc and irq_to_desc() in kernel/irq/ and
+remove them from include/linux/ header files, if you want privacy in
+your subsystem, don't put all your header files on display under
+include/linux.
 
-diff --git a/arch/sh/kernel/irq.c b/arch/sh/kernel/irq.c
-index ab5f790b0cd2..c14a142efe60 100644
---- a/arch/sh/kernel/irq.c
-+++ b/arch/sh/kernel/irq.c
-@@ -31,7 +31,6 @@ atomic_t irq_err_count;
- void ack_bad_irq(unsigned int irq)
- {
- 	atomic_inc(&irq_err_count);
--	printk("unexpected IRQ trap at vector %02x\n", irq);
- }
- 
- #if defined(CONFIG_PROC_FS)
--- 
-2.11.0
+
+> Retrieve a pointer to the affinity mask itself and use that. It's
+> still
+> using an interface which is usually not for random drivers, but
+> definitely
+> less hideous than the previous hack.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> ---
+>  drivers/net/ethernet/mellanox/mlx5/core/en.h      |    2 +-
+>  drivers/net/ethernet/mellanox/mlx5/core/en_main.c |    2 +-
+>  drivers/net/ethernet/mellanox/mlx5/core/en_txrx.c |    6 +-----
+>  3 files changed, 3 insertions(+), 7 deletions(-)
+> 
+> --- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
+> +++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
+> @@ -669,7 +669,7 @@ struct mlx5e_channel {
+>  	spinlock_t                 async_icosq_lock;
+>  
+>  	/* data path - accessed per napi poll */
+> -	struct irq_desc *irq_desc;
+> +	const struct cpumask	  *aff_mask;
+>  	struct mlx5e_ch_stats     *stats;
+>  
+>  	/* control */
+> --- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+> +++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+> @@ -1998,7 +1998,7 @@ static int mlx5e_open_channel(struct mlx
+>  	c->num_tc   = params->num_tc;
+>  	c->xdp      = !!params->xdp_prog;
+>  	c->stats    = &priv->channel_stats[ix].ch;
+> -	c->irq_desc = irq_to_desc(irq);
+> +	c->aff_mask = irq_get_affinity_mask(irq);
+
+as long as the affinity mask pointer stays the same for the lifetime of
+the irq vector.
+
+Assuming that:
+Acked-by: Saeed Mahameed <saeedm@nvidia.com>
