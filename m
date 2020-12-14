@@ -1,42 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40684 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390685AbgLAQzP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 11:55:15 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 2/9] dcssblk: remove the end of device check in brd_do_bvec
-Date: Tue,  1 Dec 2020 17:54:17 +0100
-Message-Id: <20201201165424.2030647-3-hch@lst.de>
-In-Reply-To: <20201201165424.2030647-1-hch@lst.de>
-References: <20201201165424.2030647-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:40736 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2395515AbgLNTSG (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 14 Dec 2020 14:18:06 -0500
+Subject: Re: [PATCH -next] s390/crypto/zcrypt_cex2a: convert comma to
+ semicolon
+References: <20201214134403.4723-1-zhengyongjun3@huawei.com>
+From: Harald Freudenberger <freude@linux.ibm.com>
+Message-ID: <3012ad5b-d667-2d27-9c4c-93742f25d1e3@linux.ibm.com>
+Date: Mon, 14 Dec 2020 20:17:13 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201214134403.4723-1-zhengyongjun3@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+To: Zheng Yongjun <zhengyongjun3@huawei.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The block layer already checks for this conditions in bio_check_eod
-before calling the driver.
+applied to the s390 subsystem. This will go upstream with the next kernel merge window.
+Thanks
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/s390/block/dcssblk.c | 4 ----
- 1 file changed, 4 deletions(-)
-
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 299e77ec2c4163..5c5cff3f237452 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -886,10 +886,6 @@ dcssblk_submit_bio(struct bio *bio)
- 	    (bio->bi_iter.bi_size & 4095) != 0)
- 		/* Request is not page-aligned. */
- 		goto fail;
--	if (bio_end_sector(bio) > get_capacity(bio->bi_disk)) {
--		/* Request beyond end of DCSS segment. */
--		goto fail;
--	}
- 	/* verify data transfer direction */
- 	if (dev_info->is_shared) {
- 		switch (dev_info->segment_type) {
--- 
-2.29.2
+On 14.12.20 14:44, Zheng Yongjun wrote:
+> Replace a comma between expression statements by a semicolon.
+>
+> Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+> ---
+>  drivers/s390/crypto/zcrypt_cex2a.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/s390/crypto/zcrypt_cex2a.c b/drivers/s390/crypto/zcrypt_cex2a.c
+> index 226a5612e855..62ceeb7fc125 100644
+> --- a/drivers/s390/crypto/zcrypt_cex2a.c
+> +++ b/drivers/s390/crypto/zcrypt_cex2a.c
+> @@ -175,7 +175,7 @@ static int zcrypt_cex2a_queue_probe(struct ap_device *ap_dev)
+>  	atomic_set(&zq->load, 0);
+>  	ap_queue_init_state(aq);
+>  	ap_queue_init_reply(aq, &zq->reply);
+> -	aq->request_timeout = CEX2A_CLEANUP_TIME,
+> +	aq->request_timeout = CEX2A_CLEANUP_TIME;
+>  	aq->private = zq;
+>  	rc = zcrypt_queue_register(zq);
+>  	if (rc) {
