@@ -1,333 +1,74 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:1490 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727091AbgLWBRK (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34474 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731767AbgLOSxO (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Dec 2020 20:17:10 -0500
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v13 09/15] s390/vfio-ap: allow hot plug/unplug of AP resources using mdev device
-Date: Tue, 22 Dec 2020 20:16:00 -0500
-Message-Id: <20201223011606.5265-10-akrowiak@linux.ibm.com>
-In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
-References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+        Tue, 15 Dec 2020 13:53:14 -0500
+Subject: Re: [PATCH] lib/zlib: fix inflating zlib streams on s390
+References: <20201215155551.894884-1-iii@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <ea249b70-5b47-8e7c-b667-1146d20a0a65@de.ibm.com>
+Date: Tue, 15 Dec 2020 19:52:27 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201215155551.894884-1-iii@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Ilya Leoshkevich <iii@linux.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Mikhail Zaslonko <zaslonko@linux.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
 
-Let's allow adapters, domains and control domains to be hot plugged into
-and hot unplugged from a KVM guest using a matrix mdev when:
+On 15.12.20 16:55, Ilya Leoshkevich wrote:
+> Decompressing zlib streams on s390 fails with "incorrect data check"
+> error.
+> 
+> Userspace zlib checks inflate_state.flags in order to byteswap checksums
+> only for zlib streams, and s390 hardware inflate code, which was ported
+> from there, tries to match this behavior. At the same time, kernel zlib
+> does not use inflate_state.flags, so it contains essentially random
+> values. For many use cases either zlib stream is zeroed out or checksum
+> is not used, so this problem is masked, but at least SquashFS is still
+> affected.
+> 
+> Fix by always passing a checksum to and from the hardware as is, which
+> matches zlib_inflate()'s expectations.
+> 
+> Fixes: 126196100063 ("lib/zlib: add s390 hardware support for kernel zlib_inflate")
+> Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
 
-* The adapter, domain or control domain is assigned to or unassigned from
-  the matrix mdev
+With a zlib compressed squashfs:
 
-* A queue device with an APQN assigned to the matrix mdev is bound to or
-  unbound from the vfio_ap device driver.
+Tested-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
-Whenever an assignment or unassignment of an adapter, domain or control
-domain is performed as well as when a bind or unbind of a queue device
-is executed, the AP control block (APCB) that supplies the AP configuration
-to a guest is first refreshed. The APCB is refreshed by copying the AP
-configuration from the mdev's matrix to the APCB, then filtering the
-APCB according to the following rules:
+We should add
 
-* The APID of each adapter and the APQI of each domain that is not in the
-  host's AP configuration is filtered out.
+Cc: <stable@vger.kernel.org> # 5.6
 
-* The APID of each adapter comprising an APQN that does not reference a
-  queue device bound to the vfio_ap device driver is filtered. The APQNs
-  are derived from the Cartesian product of the APID of each adapter and
-  APQI of each domain assigned to the mdev's matrix.
-
-After refreshing the APCB, if the mdev is in use by a KVM guest, it is
-hot plugged into the guest to provide access to dynamically provide
-access to the adapters, domains and control domains provided via the
-newly refreshed APCB.
-
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 143 ++++++++++++++++++++++++------
- 1 file changed, 118 insertions(+), 25 deletions(-)
-
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index 1b1d5975ee0e..843862c88379 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -307,6 +307,88 @@ static void vfio_ap_mdev_commit_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
- 					  matrix_mdev->shadow_apcb.adm);
- }
- 
-+static void vfio_ap_mdev_filter_apcb(struct ap_matrix_mdev *matrix_mdev,
-+				     struct ap_matrix *shadow_apcb)
-+{
-+	int ret;
-+	unsigned long apid, apqi, apqn;
-+
-+	ret = ap_qci(&matrix_dev->info);
-+	if (ret)
-+		return;
-+
-+	memcpy(shadow_apcb, &matrix_mdev->matrix, sizeof(struct ap_matrix));
-+
-+	/*
-+	 * Copy the adapters, domains and control domains to the shadow_apcb
-+	 * from the matrix mdev, but only those that are assigned to the host's
-+	 * AP configuration.
-+	 */
-+	bitmap_and(shadow_apcb->apm, matrix_mdev->matrix.apm,
-+		   (unsigned long *)matrix_dev->info.apm, AP_DEVICES);
-+	bitmap_and(shadow_apcb->aqm, matrix_mdev->matrix.aqm,
-+		   (unsigned long *)matrix_dev->info.aqm, AP_DOMAINS);
-+	bitmap_and(shadow_apcb->adm, matrix_mdev->matrix.adm,
-+		   (unsigned long *)matrix_dev->info.adm, AP_DOMAINS);
-+
-+	/* If there are no APQNs assigned, then filtering them be unnecessary */
-+	if (bitmap_empty(shadow_apcb->apm, AP_DEVICES)) {
-+		if (!bitmap_empty(shadow_apcb->aqm, AP_DOMAINS))
-+			bitmap_clear(shadow_apcb->aqm, 0, AP_DOMAINS);
-+		return;
-+	} else if (bitmap_empty(shadow_apcb->aqm, AP_DOMAINS)) {
-+		if (!bitmap_empty(shadow_apcb->apm, AP_DEVICES))
-+			bitmap_clear(shadow_apcb->apm, 0, AP_DEVICES);
-+		return;
-+	}
-+
-+	for_each_set_bit_inv(apid, shadow_apcb->apm, AP_DEVICES) {
-+		for_each_set_bit_inv(apqi, shadow_apcb->aqm, AP_DOMAINS) {
-+			/*
-+			 * If the APQN is not bound to the vfio_ap device
-+			 * driver, then we can't assign it to the guest's
-+			 * AP configuration. The AP architecture won't
-+			 * allow filtering of a single APQN, so if we're
-+			 * filtering APIDs, then filter the APID; otherwise,
-+			 * filter the APQI.
-+			 */
-+			apqn = AP_MKQID(apid, apqi);
-+			if (!vfio_ap_mdev_get_queue(matrix_mdev, apqn)) {
-+				clear_bit_inv(apid, shadow_apcb->apm);
-+				break;
-+			}
-+		}
-+	}
-+}
-+
-+/**
-+ * vfio_ap_mdev_refresh_apcb
-+ *
-+ * Filter APQNs assigned to the matrix mdev that do not reference an AP queue
-+ * device bound to the vfio_ap device driver.
-+ *
-+ * @matrix_mdev:  the matrix mdev whose AP configuration is to be filtered
-+ * @shadow_apcb:  the shadow of the KVM guest's APCB (contains AP configuration
-+ *		  for guest)
-+ * @filter_apids: boolean value indicating whether the APQNs shall be filtered
-+ *		  by APID (true) or by APQI (false).
-+ *
-+ * Returns the number of APQNs remaining after filtering is complete.
-+ */
-+static void vfio_ap_mdev_refresh_apcb(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	struct ap_matrix shadow_apcb;
-+
-+	vfio_ap_mdev_filter_apcb(matrix_mdev, &shadow_apcb);
-+
-+	if (memcmp(&shadow_apcb, &matrix_mdev->shadow_apcb,
-+		   sizeof(struct ap_matrix)) != 0) {
-+		memcpy(&matrix_mdev->shadow_apcb, &shadow_apcb,
-+		       sizeof(struct ap_matrix));
-+		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
-+	}
-+}
-+
- static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
- {
- 	struct ap_matrix_mdev *matrix_mdev;
-@@ -552,10 +634,6 @@ static ssize_t assign_adapter_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow assignment of adapter */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apid);
- 	if (ret)
- 		return ret;
-@@ -577,6 +655,7 @@ static ssize_t assign_adapter_store(struct device *dev,
- 
- 	set_bit_inv(apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_link_adapter(matrix_mdev, apid);
-+	vfio_ap_mdev_refresh_apcb(matrix_mdev);
- 
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -619,10 +698,6 @@ static ssize_t unassign_adapter_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow un-assignment of adapter */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apid);
- 	if (ret)
- 		return ret;
-@@ -633,6 +708,8 @@ static ssize_t unassign_adapter_store(struct device *dev,
- 	mutex_lock(&matrix_dev->lock);
- 	clear_bit_inv((unsigned long)apid, matrix_mdev->matrix.apm);
- 	vfio_ap_mdev_unlink_adapter(matrix_mdev, apid);
-+	vfio_ap_mdev_refresh_apcb(matrix_mdev);
-+
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -691,10 +768,6 @@ static ssize_t assign_domain_store(struct device *dev,
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_apqi = matrix_mdev->matrix.aqm_max;
- 
--	/* If the guest is running, disallow assignment of domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apqi);
- 	if (ret)
- 		return ret;
-@@ -715,6 +788,7 @@ static ssize_t assign_domain_store(struct device *dev,
- 
- 	set_bit_inv(apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_link_domain(matrix_mdev, apqi);
-+	vfio_ap_mdev_refresh_apcb(matrix_mdev);
- 
- 	mutex_unlock(&matrix_dev->lock);
- 
-@@ -757,10 +831,6 @@ static ssize_t unassign_domain_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow un-assignment of domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &apqi);
- 	if (ret)
- 		return ret;
-@@ -771,12 +841,24 @@ static ssize_t unassign_domain_store(struct device *dev,
- 	mutex_lock(&matrix_dev->lock);
- 	clear_bit_inv((unsigned long)apqi, matrix_mdev->matrix.aqm);
- 	vfio_ap_mdev_unlink_domain(matrix_mdev, apqi);
-+	vfio_ap_mdev_refresh_apcb(matrix_mdev);
-+
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
- }
- static DEVICE_ATTR_WO(unassign_domain);
- 
-+static void vfio_ap_mdev_hot_plug_cdom(struct ap_matrix_mdev *matrix_mdev,
-+				       unsigned long domid)
-+{
-+	if (!test_bit_inv(domid, matrix_mdev->shadow_apcb.adm) &&
-+	    test_bit_inv(domid, (unsigned long *) matrix_dev->info.adm)) {
-+		set_bit_inv(domid, matrix_mdev->shadow_apcb.adm);
-+		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
-+	}
-+}
-+
- /**
-  * assign_control_domain_store
-  *
-@@ -802,10 +884,6 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 	struct mdev_device *mdev = mdev_from_dev(dev);
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
--	/* If the guest is running, disallow assignment of control domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &id);
- 	if (ret)
- 		return ret;
-@@ -820,12 +898,22 @@ static ssize_t assign_control_domain_store(struct device *dev,
- 	 */
- 	mutex_lock(&matrix_dev->lock);
- 	set_bit_inv(id, matrix_mdev->matrix.adm);
-+	vfio_ap_mdev_hot_plug_cdom(matrix_mdev, id);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
- }
- static DEVICE_ATTR_WO(assign_control_domain);
- 
-+static void vfio_ap_mdev_hot_unplug_cdom(struct ap_matrix_mdev *matrix_mdev,
-+					unsigned long domid)
-+{
-+	if (test_bit_inv(domid, matrix_mdev->shadow_apcb.adm)) {
-+		clear_bit_inv(domid, matrix_mdev->shadow_apcb.adm);
-+		vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
-+	}
-+}
-+
- /**
-  * unassign_control_domain_store
-  *
-@@ -852,10 +940,6 @@ static ssize_t unassign_control_domain_store(struct device *dev,
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 	unsigned long max_domid =  matrix_mdev->matrix.adm_max;
- 
--	/* If the guest is running, disallow un-assignment of control domain */
--	if (matrix_mdev->kvm)
--		return -EBUSY;
--
- 	ret = kstrtoul(buf, 0, &domid);
- 	if (ret)
- 		return ret;
-@@ -864,6 +948,7 @@ static ssize_t unassign_control_domain_store(struct device *dev,
- 
- 	mutex_lock(&matrix_dev->lock);
- 	clear_bit_inv(domid, matrix_mdev->matrix.adm);
-+	vfio_ap_mdev_hot_unplug_cdom(matrix_mdev, domid);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return count;
-@@ -1089,6 +1174,8 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 				  matrix_mdev->matrix.aqm,
- 				  matrix_mdev->matrix.adm);
- 
-+	vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
-+
- notify_done:
- 	mutex_unlock(&matrix_dev->lock);
- 	return notify_rc;
-@@ -1330,6 +1417,8 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
- 	q->apqn = to_ap_queue(&apdev->device)->qid;
- 	q->saved_isc = VFIO_AP_ISC_INVALID;
- 	vfio_ap_queue_link_mdev(q);
-+	if (q->matrix_mdev)
-+		vfio_ap_mdev_refresh_apcb(q->matrix_mdev);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	return 0;
-@@ -1337,6 +1426,7 @@ int vfio_ap_mdev_probe_queue(struct ap_device *apdev)
- 
- void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- {
-+	struct ap_matrix_mdev *matrix_mdev;
- 	struct vfio_ap_queue *q;
- 	int apid, apqi;
- 
-@@ -1347,8 +1437,11 @@ void vfio_ap_mdev_remove_queue(struct ap_device *apdev)
- 	apqi = AP_QID_QUEUE(q->apqn);
- 	vfio_ap_mdev_reset_queue(apid, apqi, 1);
- 
--	if (q->matrix_mdev)
-+	if (q->matrix_mdev) {
-+		matrix_mdev = q->matrix_mdev;
- 		vfio_ap_mdev_unlink_queue(q);
-+		vfio_ap_mdev_refresh_apcb(matrix_mdev);
-+	}
- 
- 	kfree(q);
- 	mutex_unlock(&matrix_dev->lock);
--- 
-2.21.1
+> ---
+>  lib/zlib_dfltcc/dfltcc_inflate.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/lib/zlib_dfltcc/dfltcc_inflate.c b/lib/zlib_dfltcc/dfltcc_inflate.c
+> index db107016d29b..fb60b5a6a1cb 100644
+> --- a/lib/zlib_dfltcc/dfltcc_inflate.c
+> +++ b/lib/zlib_dfltcc/dfltcc_inflate.c
+> @@ -125,7 +125,7 @@ dfltcc_inflate_action dfltcc_inflate(
+>      param->ho = (state->write - state->whave) & ((1 << HB_BITS) - 1);
+>      if (param->hl)
+>          param->nt = 0; /* Honor history for the first block */
+> -    param->cv = state->flags ? REVERSE(state->check) : state->check;
+> +    param->cv = state->check;
+>  
+>      /* Inflate */
+>      do {
+> @@ -138,7 +138,7 @@ dfltcc_inflate_action dfltcc_inflate(
+>      state->bits = param->sbb;
+>      state->whave = param->hl;
+>      state->write = (param->ho + param->hl) & ((1 << HB_BITS) - 1);
+> -    state->check = state->flags ? REVERSE(param->cv) : param->cv;
+> +    state->check = param->cv;
+>      if (cc == DFLTCC_CC_OP2_CORRUPT && param->oesc != 0) {
+>          /* Report an error if stream is corrupted */
+>          state->mode = BAD;
+> 
