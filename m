@@ -1,238 +1,97 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:12978 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731718AbgLJO05 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 10 Dec 2020 09:26:57 -0500
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [GIT PULL 3/4] KVM: selftests: sync_regs test for diag318
-Date: Thu, 10 Dec 2020 15:25:58 +0100
-Message-Id: <20201210142600.6771-4-borntraeger@de.ibm.com>
-In-Reply-To: <20201210142600.6771-1-borntraeger@de.ibm.com>
-References: <20201210142600.6771-1-borntraeger@de.ibm.com>
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 MIME-Version: 1.0
+Date: Thu, 17 Dec 2020 00:58:09 -0800
+In-Reply-To: <000000000000705ff605b5f2b656@google.com>
+Message-ID: <000000000000de052a05b6a5301c@google.com>
+Subject: Re: BUG: unable to handle kernel paging request in smc_nl_handle_smcr_dev
+From: syzbot <syzbot+600fef7c414ee7e2d71b@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: Paolo Bonzini <pbonzini@redhat.com>
-Cc: KVM <kvm@vger.kernel.org>, Janosch Frank <frankja@linux.ibm.com>, David Hildenbrand <david@redhat.com>, Cornelia Huck <cohuck@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Collin Walling <walling@linux.ibm.com>
+To: davem@davemloft.net, kgraul@linux.ibm.com, kuba@kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
 
-From: Collin Walling <walling@linux.ibm.com>
+syzbot has found a reproducer for the following issue on:
 
-The DIAGNOSE 0x0318 instruction, unique to s390x, is a privileged call
-that must be intercepted via SIE, handled in userspace, and the
-information set by the instruction is communicated back to KVM.
+HEAD commit:    5e60366d Merge tag 'fallthrough-fixes-clang-5.11-rc1' of g..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=17842c13500000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=503d0089cd701d6d
+dashboard link: https://syzkaller.appspot.com/bug?extid=600fef7c414ee7e2d71b
+compiler:       gcc (GCC) 10.1.0-syz 20200507
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=17d8e41f500000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=17962287500000
 
-To test the instruction interception, an ad-hoc handler is defined which
-simply has a VM execute the instruction and then userspace will extract
-the necessary info. The handler is defined such that the instruction
-invocation occurs only once. It is up to the caller to determine how the
-info returned by this handler should be used.
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+600fef7c414ee7e2d71b@syzkaller.appspotmail.com
 
-The diag318 info is communicated from userspace to KVM via a sync_regs
-call. This is tested during a sync_regs test, where the diag318 info is
-requested via the handler, then the info is stored in the appropriate
-register in KVM via a sync registers call.
-
-If KVM does not support diag318, then the tests will print a message
-stating that diag318 was skipped, and the asserts will simply test
-against a value of 0.
-
-Signed-off-by: Collin Walling <walling@linux.ibm.com>
-Link: https://lore.kernel.org/r/20201207154125.10322-1-walling@linux.ibm.com
-Acked-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
----
- tools/testing/selftests/kvm/Makefile          |  2 +-
- .../kvm/include/s390x/diag318_test_handler.h  | 13 +++
- .../kvm/lib/s390x/diag318_test_handler.c      | 82 +++++++++++++++++++
- .../selftests/kvm/s390x/sync_regs_test.c      | 16 +++-
- 4 files changed, 111 insertions(+), 2 deletions(-)
- create mode 100644 tools/testing/selftests/kvm/include/s390x/diag318_test_handler.h
- create mode 100644 tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
-
-diff --git a/tools/testing/selftests/kvm/Makefile b/tools/testing/selftests/kvm/Makefile
-index 30afbad36cd5..1b9c257fca5e 100644
---- a/tools/testing/selftests/kvm/Makefile
-+++ b/tools/testing/selftests/kvm/Makefile
-@@ -36,7 +36,7 @@ endif
- LIBKVM = lib/assert.c lib/elf.c lib/io.c lib/kvm_util.c lib/sparsebit.c lib/test_util.c
- LIBKVM_x86_64 = lib/x86_64/processor.c lib/x86_64/vmx.c lib/x86_64/svm.c lib/x86_64/ucall.c
- LIBKVM_aarch64 = lib/aarch64/processor.c lib/aarch64/ucall.c
--LIBKVM_s390x = lib/s390x/processor.c lib/s390x/ucall.c
-+LIBKVM_s390x = lib/s390x/processor.c lib/s390x/ucall.c lib/s390x/diag318_test_handler.c
- 
- TEST_GEN_PROGS_x86_64 = x86_64/cr4_cpuid_sync_test
- TEST_GEN_PROGS_x86_64 += x86_64/evmcs_test
-diff --git a/tools/testing/selftests/kvm/include/s390x/diag318_test_handler.h b/tools/testing/selftests/kvm/include/s390x/diag318_test_handler.h
-new file mode 100644
-index 000000000000..b0ed71302722
---- /dev/null
-+++ b/tools/testing/selftests/kvm/include/s390x/diag318_test_handler.h
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later
-+ *
-+ * Test handler for the s390x DIAGNOSE 0x0318 instruction.
-+ *
-+ * Copyright (C) 2020, IBM
-+ */
-+
-+#ifndef SELFTEST_KVM_DIAG318_TEST_HANDLER
-+#define SELFTEST_KVM_DIAG318_TEST_HANDLER
-+
-+uint64_t get_diag318_info(void);
-+
-+#endif
-diff --git a/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c b/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
-new file mode 100644
-index 000000000000..86b9e611ad87
---- /dev/null
-+++ b/tools/testing/selftests/kvm/lib/s390x/diag318_test_handler.c
-@@ -0,0 +1,82 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Test handler for the s390x DIAGNOSE 0x0318 instruction.
-+ *
-+ * Copyright (C) 2020, IBM
-+ */
-+
-+#include "test_util.h"
-+#include "kvm_util.h"
-+
-+#define VCPU_ID	6
-+
-+#define ICPT_INSTRUCTION	0x04
-+#define IPA0_DIAG		0x8300
-+
-+static void guest_code(void)
-+{
-+	uint64_t diag318_info = 0x12345678;
-+
-+	asm volatile ("diag %0,0,0x318\n" : : "d" (diag318_info));
-+}
-+
-+/*
-+ * The DIAGNOSE 0x0318 instruction call must be handled via userspace. As such,
-+ * we create an ad-hoc VM here to handle the instruction then extract the
-+ * necessary data. It is up to the caller to decide what to do with that data.
-+ */
-+static uint64_t diag318_handler(void)
-+{
-+	struct kvm_vm *vm;
-+	struct kvm_run *run;
-+	uint64_t reg;
-+	uint64_t diag318_info;
-+
-+	vm = vm_create_default(VCPU_ID, 0, guest_code);
-+	vcpu_run(vm, VCPU_ID);
-+	run = vcpu_state(vm, VCPU_ID);
-+
-+	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
-+		    "DIAGNOSE 0x0318 instruction was not intercepted");
-+	TEST_ASSERT(run->s390_sieic.icptcode == ICPT_INSTRUCTION,
-+		    "Unexpected intercept code: 0x%x", run->s390_sieic.icptcode);
-+	TEST_ASSERT((run->s390_sieic.ipa & 0xff00) == IPA0_DIAG,
-+		    "Unexpected IPA0 code: 0x%x", (run->s390_sieic.ipa & 0xff00));
-+
-+	reg = (run->s390_sieic.ipa & 0x00f0) >> 4;
-+	diag318_info = run->s.regs.gprs[reg];
-+
-+	TEST_ASSERT(diag318_info != 0, "DIAGNOSE 0x0318 info not set");
-+
-+	kvm_vm_free(vm);
-+
-+	return diag318_info;
-+}
-+
-+uint64_t get_diag318_info(void)
-+{
-+	static uint64_t diag318_info;
-+	static bool printed_skip;
-+
-+	/*
-+	 * If KVM does not support diag318, then return 0 to
-+	 * ensure tests do not break.
-+	 */
-+	if (!kvm_check_cap(KVM_CAP_S390_DIAG318)) {
-+		if (!printed_skip) {
-+			fprintf(stdout, "KVM_CAP_S390_DIAG318 not supported. "
-+				"Skipping diag318 test.\n");
-+			printed_skip = true;
-+		}
-+		return 0;
-+	}
-+
-+	/*
-+	 * If a test has previously requested the diag318 info,
-+	 * then don't bother spinning up a temporary VM again.
-+	 */
-+	if (!diag318_info)
-+		diag318_info = diag318_handler();
-+
-+	return diag318_info;
-+}
-diff --git a/tools/testing/selftests/kvm/s390x/sync_regs_test.c b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-index 5731ccf34917..caf7b8859a94 100644
---- a/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-+++ b/tools/testing/selftests/kvm/s390x/sync_regs_test.c
-@@ -20,6 +20,7 @@
- 
- #include "test_util.h"
- #include "kvm_util.h"
-+#include "diag318_test_handler.h"
- 
- #define VCPU_ID 5
- 
-@@ -70,7 +71,7 @@ static void compare_sregs(struct kvm_sregs *left, struct kvm_sync_regs *right)
- 
- #undef REG_COMPARE
- 
--#define TEST_SYNC_FIELDS   (KVM_SYNC_GPRS|KVM_SYNC_ACRS|KVM_SYNC_CRS)
-+#define TEST_SYNC_FIELDS   (KVM_SYNC_GPRS|KVM_SYNC_ACRS|KVM_SYNC_CRS|KVM_SYNC_DIAG318)
- #define INVALID_SYNC_FIELD 0x80000000
- 
- int main(int argc, char *argv[])
-@@ -152,6 +153,12 @@ int main(int argc, char *argv[])
- 
- 	run->kvm_valid_regs = TEST_SYNC_FIELDS;
- 	run->kvm_dirty_regs = KVM_SYNC_GPRS | KVM_SYNC_ACRS;
-+
-+	if (get_diag318_info() > 0) {
-+		run->s.regs.diag318 = get_diag318_info();
-+		run->kvm_dirty_regs |= KVM_SYNC_DIAG318;
-+	}
-+
- 	rv = _vcpu_run(vm, VCPU_ID);
- 	TEST_ASSERT(rv == 0, "vcpu_run failed: %d\n", rv);
- 	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
-@@ -164,6 +171,9 @@ int main(int argc, char *argv[])
- 	TEST_ASSERT(run->s.regs.acrs[0]  == 1 << 11,
- 		    "acr0 sync regs value incorrect 0x%x.",
- 		    run->s.regs.acrs[0]);
-+	TEST_ASSERT(run->s.regs.diag318 == get_diag318_info(),
-+		    "diag318 sync regs value incorrect 0x%llx.",
-+		    run->s.regs.diag318);
- 
- 	vcpu_regs_get(vm, VCPU_ID, &regs);
- 	compare_regs(&regs, &run->s.regs);
-@@ -177,6 +187,7 @@ int main(int argc, char *argv[])
- 	run->kvm_valid_regs = TEST_SYNC_FIELDS;
- 	run->kvm_dirty_regs = 0;
- 	run->s.regs.gprs[11] = 0xDEADBEEF;
-+	run->s.regs.diag318 = 0x4B1D;
- 	rv = _vcpu_run(vm, VCPU_ID);
- 	TEST_ASSERT(rv == 0, "vcpu_run failed: %d\n", rv);
- 	TEST_ASSERT(run->exit_reason == KVM_EXIT_S390_SIEIC,
-@@ -186,6 +197,9 @@ int main(int argc, char *argv[])
- 	TEST_ASSERT(run->s.regs.gprs[11] != 0xDEADBEEF,
- 		    "r11 sync regs value incorrect 0x%llx.",
- 		    run->s.regs.gprs[11]);
-+	TEST_ASSERT(run->s.regs.diag318 != 0x4B1D,
-+		    "diag318 sync regs value incorrect 0x%llx.",
-+		    run->s.regs.diag318);
- 
- 	kvm_vm_free(vm);
- 
--- 
-2.28.0
+infiniband syz1: set active
+infiniband syz1: added macvtap0
+RDS/IB: syz1: added
+smc: adding ib device syz1 with port count 1
+smc:    ib device syz1 port 1 has pnetid 
+BUG: unable to handle page fault for address: ffffffffffffff74
+#PF: supervisor read access in kernel mode
+#PF: error_code(0x0000) - not-present page
+PGD b48f067 P4D b48f067 PUD b491067 PMD 0 
+Oops: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 8688 Comm: syz-executor225 Not tainted 5.10.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:smc_set_pci_values net/smc/smc_core.h:396 [inline]
+RIP: 0010:smc_nl_handle_smcr_dev.isra.0+0x4e1/0x1280 net/smc/smc_ib.c:422
+Code: fc ff df 48 8d bb 74 ff ff ff 48 89 fa 48 c1 ea 03 0f b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 29 0d 00 00 <0f> b7 83 74 ff ff ff 48 8d bb 76 ff ff ff 48 89 fa 48 c1 ea 03 66
+RSP: 0018:ffffc90001f87220 EFLAGS: 00010246
+RAX: 0000000000000005 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffffffff74
+RBP: ffffffff8d5ac140 R08: 0000000000000001 R09: ffffc90001f87308
+R10: fffff520003f0e64 R11: 1ffffffff1e2db6c R12: 000000001b556831
+R13: ffff888013e29540 R14: dffffc0000000000 R15: ffff88802a360014
+FS:  00000000015bf880(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffff74 CR3: 000000002687b000 CR4: 00000000001506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ smc_nl_prep_smcr_dev net/smc/smc_ib.c:469 [inline]
+ smcr_nl_get_device+0xdf/0x1f0 net/smc/smc_ib.c:481
+ genl_lock_dumpit+0x60/0x90 net/netlink/genetlink.c:623
+ netlink_dump+0x4d9/0xb90 net/netlink/af_netlink.c:2268
+ __netlink_dump_start+0x665/0x920 net/netlink/af_netlink.c:2373
+ genl_family_rcv_msg_dumpit+0x2af/0x310 net/netlink/genetlink.c:686
+ genl_family_rcv_msg net/netlink/genetlink.c:780 [inline]
+ genl_rcv_msg+0x43c/0x590 net/netlink/genetlink.c:800
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2494
+ genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+ netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
+ netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1330
+ netlink_sendmsg+0x907/0xe40 net/netlink/af_netlink.c:1919
+ sock_sendmsg_nosec net/socket.c:652 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:672
+ ____sys_sendmsg+0x6e8/0x810 net/socket.c:2336
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2390
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2423
+ do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x443fd9
+Code: e8 6c 05 03 00 48 83 c4 18 c3 0f 1f 80 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 9b 07 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffe909694e8 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000443fd9
+RDX: 0000000000000000 RSI: 0000000020000180 RDI: 0000000000000004
+RBP: 00007ffe909694f0 R08: 0000000001bbbbbb R09: 0000000001bbbbbb
+R10: 0000000001bbbbbb R11: 0000000000000246 R12: 00007ffe90969500
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+Modules linked in:
+CR2: ffffffffffffff74
+---[ end trace 45a80c2d5f347bdc ]---
+RIP: 0010:smc_set_pci_values net/smc/smc_core.h:396 [inline]
+RIP: 0010:smc_nl_handle_smcr_dev.isra.0+0x4e1/0x1280 net/smc/smc_ib.c:422
+Code: fc ff df 48 8d bb 74 ff ff ff 48 89 fa 48 c1 ea 03 0f b6 14 02 48 89 f8 83 e0 07 83 c0 01 38 d0 7c 08 84 d2 0f 85 29 0d 00 00 <0f> b7 83 74 ff ff ff 48 8d bb 76 ff ff ff 48 89 fa 48 c1 ea 03 66
+RSP: 0018:ffffc90001f87220 EFLAGS: 00010246
+RAX: 0000000000000005 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffffffff74
+RBP: ffffffff8d5ac140 R08: 0000000000000001 R09: ffffc90001f87308
+R10: fffff520003f0e64 R11: 1ffffffff1e2db6c R12: 000000001b556831
+R13: ffff888013e29540 R14: dffffc0000000000 R15: ffff88802a360014
+FS:  00000000015bf880(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffffffff74 CR3: 000000002687b000 CR4: 00000000001506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
