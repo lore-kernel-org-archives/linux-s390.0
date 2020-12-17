@@ -1,71 +1,117 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6860 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387663AbgLIU36 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Wed, 9 Dec 2020 15:29:58 -0500
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [RFC 1/4] s390/pci: track alignment/length strictness for zpci_dev
-Date: Wed,  9 Dec 2020 15:27:47 -0500
-Message-Id: <1607545670-1557-2-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1607545670-1557-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1607545670-1557-1-git-send-email-mjrosato@linux.ibm.com>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:52306 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728357AbgLQP0C (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 10:26:02 -0500
+Subject: Re: [kvm-unit-tests PATCH v3 3/8] s390x: SCLP feature checking
+References: <20201211100039.63597-1-frankja@linux.ibm.com>
+ <20201211100039.63597-4-frankja@linux.ibm.com>
+ <20201217131837.5946c853@ibm-vm>
+ <14a2d6ab-7f9b-86cd-26ca-0c83385f62ca@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <646efe10-2f5b-a354-65a3-6358fd0dc6c6@redhat.com>
+Date: Thu, 17 Dec 2020 16:24:24 +0100
+MIME-Version: 1.0
+In-Reply-To: <14a2d6ab-7f9b-86cd-26ca-0c83385f62ca@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-Some zpci device types (e.g., ISM) follow different rules for length
-and alignment of pci instructions.  Recognize this and keep track of
-it in the zpci_dev.
+On 17/12/2020 16.21, Janosch Frank wrote:
+> On 12/17/20 1:18 PM, Claudio Imbrenda wrote:
+>> On Fri, 11 Dec 2020 05:00:34 -0500
+>> Janosch Frank <frankja@linux.ibm.com> wrote:
+>>
+>>> Availability of SIE is announced via a feature bit in a SCLP info CPU
+>>> entry. Let's add a framework that allows us to easily check for such
+>>> facilities.
+>>>
+>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>> Reviewed-by: Thomas Huth <thuth@redhat.com>
+>>> ---
+>>>  lib/s390x/io.c   |  1 +
+>>>  lib/s390x/sclp.c | 19 +++++++++++++++++++
+>>>  lib/s390x/sclp.h | 13 ++++++++++++-
+>>>  3 files changed, 32 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+>>> index 6a1da63..ef9f59e 100644
+>>> --- a/lib/s390x/io.c
+>>> +++ b/lib/s390x/io.c
+>>> @@ -35,6 +35,7 @@ void setup(void)
+>>>  	setup_args_progname(ipl_args);
+>>>  	setup_facilities();
+>>>  	sclp_read_info();
+>>> +	sclp_facilities_setup();
+>>>  	sclp_console_setup();
+>>>  	sclp_memory_setup();
+>>>  	smp_setup();
+>>> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+>>> index bf1d9c0..cf6ea7c 100644
+>>> --- a/lib/s390x/sclp.c
+>>> +++ b/lib/s390x/sclp.c
+>>> @@ -9,6 +9,7 @@
+>>>   */
+>>>  
+>>>  #include <libcflat.h>
+>>> +#include <bitops.h>
+>>
+>> you add this include, but it seems you are not actually using it?
+> 
+> Leftover from last version
+> 
+>>
+>>>  #include <asm/page.h>
+>>>  #include <asm/arch_def.h>
+>>>  #include <asm/interrupt.h>
+>>> @@ -25,6 +26,7 @@ static uint64_t max_ram_size;
+>>>  static uint64_t ram_size;
+>>>  char _read_info[PAGE_SIZE] __attribute__((__aligned__(4096)));
+>>>  static ReadInfo *read_info;
+>>> +struct sclp_facilities sclp_facilities;
+>>>  
+>>>  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+>>>  static volatile bool sclp_busy;
+>>> @@ -128,6 +130,23 @@ CPUEntry *sclp_get_cpu_entries(void)
+>>>  	return (void *)read_info + read_info->offset_cpu;
+>>>  }
+>>>  
+>>> +void sclp_facilities_setup(void)
+>>> +{
+>>> +	unsigned short cpu0_addr = stap();
+>>> +	CPUEntry *cpu;
+>>> +	int i;
+>>> +
+>>> +	assert(read_info);
+>>> +
+>>> +	cpu = (void *)read_info + read_info->offset_cpu;
+>>
+>> another void* arithmetic. consider using well-defined constructs, like
+>>
+>> cpu = (CPUEntry *)(_read_info + read_info->offset_cpu);
+>>
+>>> +	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
+>>> +		if (cpu->address == cpu0_addr) {
+>>> +			sclp_facilities.has_sief2 = cpu->feat_sief2;
+>>> +			break;
+>>
+>> this only checks CPU 0. I wonder if you shouldn't check all CPUs? Or if
+>> we assume that all CPUs have the same facilities, isn't it enough to
+>> check the first CPU in the list? (i.e. avoid the loop)
+> 
+> This is the way.
+> 
+> Thomas already asked me that. I had a look what the kernel does and
+> that's what they are doing. QEMU writes the same feature bits to all
+> cpus and I haven't found an explanation for that code yet but I figured
+> there might (have) be(en) one.
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
----
- arch/s390/include/asm/pci.h     | 3 ++-
- arch/s390/include/asm/pci_clp.h | 4 +++-
- arch/s390/pci/pci_clp.c         | 1 +
- 3 files changed, 6 insertions(+), 2 deletions(-)
+Well, if two people are asking, that's maybe a good indication that a
+comment in the code would be a good idea? (even if it just references to the
+kernel way of doing it?)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 2126289..f16ffba 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -133,7 +133,8 @@ struct zpci_dev {
- 	u8		has_hp_slot	: 1;
- 	u8		is_physfn	: 1;
- 	u8		util_str_avail	: 1;
--	u8		reserved	: 4;
-+	u8		relaxed_align	: 1;
-+	u8		reserved	: 3;
- 	unsigned int	devfn;		/* DEVFN part of the RID*/
- 
- 	struct mutex lock;
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index 1f4b666..9fb7cbf 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -150,7 +150,9 @@ struct clp_rsp_query_pci_grp {
- 	u16			:  4;
- 	u16 noi			: 12;	/* number of interrupts */
- 	u8 version;
--	u8			:  6;
-+	u8			:  4;
-+	u8 relaxed_align	:  1;	/* Relax length and alignment rules */
-+	u8			:  1;
- 	u8 frame		:  1;
- 	u8 refresh		:  1;	/* TLB refresh mode */
- 	u16 reserved2;
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 153720d..630f8fc 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -103,6 +103,7 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
- 	zdev->max_msi = response->noi;
- 	zdev->fmb_update = response->mui;
- 	zdev->version = response->version;
-+	zdev->relaxed_align = response->relaxed_align;
- 
- 	switch (response->version) {
- 	case 1:
--- 
-1.8.3.1
+ Thomas
