@@ -1,40 +1,227 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 04/23] arch: c6x: drop misleading warning on spurious IRQ
-Date: Fri, 18 Dec 2020 15:31:03 +0100
-Message-Id: <20201218143122.19459-5-info@metux.net>
-In-Reply-To: <20201218143122.19459-1-info@metux.net>
-References: <20201218143122.19459-1-info@metux.net>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:3366 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726488AbgLQOuz (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 09:50:55 -0500
+References: <20201211100039.63597-1-frankja@linux.ibm.com>
+ <20201211100039.63597-3-frankja@linux.ibm.com>
+ <20201217124722.0686a76d@ibm-vm>
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 2/8] s390x: Consolidate sclp read info
+Message-ID: <36133ccd-3dc2-bc9a-9c83-376a31e98454@linux.ibm.com>
+Date: Thu, 17 Dec 2020 15:48:51 +0100
+MIME-Version: 1.0
+In-Reply-To: <20201217124722.0686a76d@ibm-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-The warning in ack_bad_irq() is misleading in several ways:
-* the term "vector" isn't quite correct
-* the printing format isn't consistent across the archs: some print decimal,
-  some hex, some hex w/o 0x prefix.
-* the printed linux irq isn't meaningful in all cases - we actually would
-  want it to print the hw irq.
+On 12/17/20 12:47 PM, Claudio Imbrenda wrote:
+> On Fri, 11 Dec 2020 05:00:33 -0500
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> Let's only read the information once and pass a pointer to it instead
+>> of calling sclp multiple times.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>> ---
+>>  lib/s390x/io.c   |  1 +
+>>  lib/s390x/sclp.c | 31 +++++++++++++++++++++++++------
+>>  lib/s390x/sclp.h |  3 +++
+>>  lib/s390x/smp.c  | 27 +++++++++++----------------
+>>  4 files changed, 40 insertions(+), 22 deletions(-)
+>>
+>> diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+>> index 1ff0589..6a1da63 100644
+>> --- a/lib/s390x/io.c
+>> +++ b/lib/s390x/io.c
+>> @@ -34,6 +34,7 @@ void setup(void)
+>>  {
+>>  	setup_args_progname(ipl_args);
+>>  	setup_facilities();
+>> +	sclp_read_info();
+>>  	sclp_console_setup();
+>>  	sclp_memory_setup();
+>>  	smp_setup();
+>> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+>> index 08a4813..bf1d9c0 100644
+>> --- a/lib/s390x/sclp.c
+>> +++ b/lib/s390x/sclp.c
+>> @@ -23,6 +23,8 @@ extern unsigned long stacktop;
+>>  static uint64_t storage_increment_size;
+>>  static uint64_t max_ram_size;
+>>  static uint64_t ram_size;
+>> +char _read_info[PAGE_SIZE] __attribute__((__aligned__(4096)));
+> 
+> why not __aligned__((PAGE_SIZE)) ?
 
-Since all call sites already print out more detailed and correct information,
-we just don't need to duplicate this in each single arch. So just drop it.
+Because aligned is not defined as a compiler attribute in the lib AFAIK.
+I can of course use PAGE_SIZE though.
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
----
- arch/c6x/kernel/irq.c | 1 -
- 1 file changed, 1 deletion(-)
+> 
+>> +static ReadInfo *read_info;
+> 
+> I wonder if a union would be cleaner? although later on you check if
+> the pointer is NULL to see if the information is there, so I guess it
+> can stay
 
-diff --git a/arch/c6x/kernel/irq.c b/arch/c6x/kernel/irq.c
-index e4c53d185b62..b9f7cfa2ed21 100644
---- a/arch/c6x/kernel/irq.c
-+++ b/arch/c6x/kernel/irq.c
-@@ -116,7 +116,6 @@ void __init init_IRQ(void)
- 
- void ack_bad_irq(int irq)
- {
--	printk(KERN_ERR "IRQ: spurious interrupt %d\n", irq);
- 	irq_err_count++;
- }
- 
--- 
-2.11.0
+I'm rather wondering if we want to replace that with an allocation,
+these PAGE_SIZE arrays are just looking strange.
+
+Let me put that on my TODO list for next year...
+
+> 
+>>  
+>>  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+>>  static volatile bool sclp_busy;
+>> @@ -108,6 +110,24 @@ static void sclp_read_scp_info(ReadInfo *ri, int
+>> length) report_abort("READ_SCP_INFO failed");
+>>  }
+>>  
+>> +void sclp_read_info(void)
+>> +{
+>> +	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
+>> +	read_info = (ReadInfo *)_read_info;
+>> +}
+>> +
+>> +int sclp_get_cpu_num(void)
+>> +{
+>> +	assert(read_info);
+>> +	return read_info->entries_cpu;
+>> +}
+>> +
+>> +CPUEntry *sclp_get_cpu_entries(void)
+>> +{
+>> +	assert(read_info);
+>> +	return (void *)read_info + read_info->offset_cpu;
+> 
+> are you doing arithmetic on a void pointer? please don't, it's ugly and
+> against the specs. moreover you do have a char pointer...
+> 
+> why not:
+> return (CPUEntry *)(_read_info + read_info->offset_cpu);
+
+I seem to be one of those crazy persons who actually like void pointers.
+Your suggestion looks good too, I'll replace my code with it.
+
+> 
+>> +}
+>> +
+>>  /* Perform service call. Return 0 on success, non-zero otherwise. */
+>>  int sclp_service_call(unsigned int command, void *sccb)
+>>  {
+>> @@ -125,23 +145,22 @@ int sclp_service_call(unsigned int command,
+>> void *sccb) 
+>>  void sclp_memory_setup(void)
+>>  {
+>> -	ReadInfo *ri = (void *)_sccb;
+>>  	uint64_t rnmax, rnsize;
+>>  	int cc;
+>>  
+>> -	sclp_read_scp_info(ri, SCCB_SIZE);
+>> +	assert(read_info);
+>>  
+>>  	/* calculate the storage increment size */
+>> -	rnsize = ri->rnsize;
+>> +	rnsize = read_info->rnsize;
+>>  	if (!rnsize) {
+>> -		rnsize = ri->rnsize2;
+>> +		rnsize = read_info->rnsize2;
+>>  	}
+>>  	storage_increment_size = rnsize << 20;
+>>  
+>>  	/* calculate the maximum memory size */
+>> -	rnmax = ri->rnmax;
+>> +	rnmax = read_info->rnmax;
+>>  	if (!rnmax) {
+>> -		rnmax = ri->rnmax2;
+>> +		rnmax = read_info->rnmax2;
+>>  	}
+>>  	max_ram_size = rnmax * storage_increment_size;
+>>  
+>> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+>> index 9a6aad0..acd86d5 100644
+>> --- a/lib/s390x/sclp.h
+>> +++ b/lib/s390x/sclp.h
+>> @@ -268,6 +268,9 @@ void sclp_wait_busy(void);
+>>  void sclp_mark_busy(void);
+>>  void sclp_console_setup(void);
+>>  void sclp_print(const char *str);
+>> +void sclp_read_info(void);
+>> +int sclp_get_cpu_num(void);
+>> +CPUEntry *sclp_get_cpu_entries(void);
+>>  int sclp_service_call(unsigned int command, void *sccb);
+>>  void sclp_memory_setup(void);
+>>  uint64_t get_ram_size(void);
+>> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+>> index c4f02dc..dfcfd28 100644
+>> --- a/lib/s390x/smp.c
+>> +++ b/lib/s390x/smp.c
+>> @@ -23,7 +23,6 @@
+>>  #include "smp.h"
+>>  #include "sclp.h"
+>>  
+>> -static char cpu_info_buffer[PAGE_SIZE]
+>> __attribute__((__aligned__(4096))); static struct cpu *cpus;
+>>  static struct cpu *cpu0;
+>>  static struct spinlock lock;
+>> @@ -32,8 +31,7 @@ extern void smp_cpu_setup_state(void);
+>>  
+>>  int smp_query_num_cpus(void)
+>>  {
+>> -	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
+>> -	return info->nr_configured;
+>> +	return sclp_get_cpu_num();
+>>  }
+>>  
+>>  struct cpu *smp_cpu_from_addr(uint16_t addr)
+>> @@ -226,10 +224,10 @@ void smp_teardown(void)
+>>  {
+>>  	int i = 0;
+>>  	uint16_t this_cpu = stap();
+>> -	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
+>> +	int num = smp_query_num_cpus();
+>>  
+>>  	spin_lock(&lock);
+>> -	for (; i < info->nr_configured; i++) {
+>> +	for (; i < num; i++) {
+>>  		if (cpus[i].active &&
+>>  		    cpus[i].addr != this_cpu) {
+>>  			sigp_retry(cpus[i].addr, SIGP_STOP, 0, NULL);
+>> @@ -243,22 +241,19 @@ extern uint64_t *stackptr;
+>>  void smp_setup(void)
+>>  {
+>>  	int i = 0;
+>> +	int num = smp_query_num_cpus();
+>>  	unsigned short cpu0_addr = stap();
+>> -	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
+>> +	struct CPUEntry *entry = sclp_get_cpu_entries();
+>>  
+>>  	spin_lock(&lock);
+>> -	sclp_mark_busy();
+>> -	info->h.length = PAGE_SIZE;
+>> -	sclp_service_call(SCLP_READ_CPU_INFO, cpu_info_buffer);
+>> +	if (num > 1)
+>> +		printf("SMP: Initializing, found %d cpus\n", num);
+>>  
+>> -	if (smp_query_num_cpus() > 1)
+>> -		printf("SMP: Initializing, found %d cpus\n",
+>> info->nr_configured); -
+>> -	cpus = calloc(info->nr_configured, sizeof(cpus));
+>> -	for (i = 0; i < info->nr_configured; i++) {
+>> -		cpus[i].addr = info->entries[i].address;
+>> +	cpus = calloc(num, sizeof(cpus));
+>> +	for (i = 0; i < num; i++) {
+>> +		cpus[i].addr = entry[i].address;
+>>  		cpus[i].active = false;
+>> -		if (info->entries[i].address == cpu0_addr) {
+>> +		if (entry[i].address == cpu0_addr) {
+>>  			cpu0 = &cpus[i];
+>>  			cpu0->stack = stackptr;
+>>  			cpu0->lowcore = (void *)0;
+> 
