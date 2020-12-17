@@ -1,41 +1,63 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53330 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404344AbgLJTnp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:45 -0500
-Message-Id: <20201210194044.972064156@linutronix.de>
-Date: Thu, 10 Dec 2020 20:26:00 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 24/30] xen/events: Remove unused bind_evtchn_to_irq_lateeoi()
-References: <20201210192536.118432146@linutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:55216 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727566AbgLQQAA (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 11:00:00 -0500
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 3/4] s390/dasd: fix list corruption of pavgroup group list
+Date: Thu, 17 Dec 2020 16:59:06 +0100
+Message-Id: <20201217155907.36436-4-sth@linux.ibm.com>
+In-Reply-To: <20201217155907.36436-1-sth@linux.ibm.com>
+References: <20201217155907.36436-1-sth@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Cc: xen-devel@lists.xenproject.org
+dasd_alias_add_device() moves devices to the active_devices list in case
+of a scheduled LCU update regardless if they have previously been in a
+pavgroup or not.
+
+Example: device A and B are in the same pavgroup.
+
+Device A has already been in a pavgroup and the private->pavgroup pointer
+is set and points to a valid pavgroup. While going through dasd_add_device
+it is moved from the pavgroup to the active_devices list.
+
+In parallel device B might be removed from the same pavgroup in
+remove_device_from_lcu() which in turn checks if the group is empty
+and deletes it accordingly because device A has already been removed from
+there.
+
+When now device A enters remove_device_from_lcu() it is tried to remove it
+from the pavgroup again because the pavgroup pointer is still set and again
+the empty group will be cleaned up which leads to a list corruption.
+
+Fix by setting private->pavgroup to NULL in dasd_add_device.
+
+If the device has been the last device on the pavgroup an empty pavgroup
+remains but this will be cleaned up by the scheduled lcu_update which
+iterates over all existing pavgroups.
+
+Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
 ---
- drivers/xen/events/events_base.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/s390/block/dasd_alias.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/xen/events/events_base.c
-+++ b/drivers/xen/events/events_base.c
-@@ -1132,12 +1132,6 @@ int bind_evtchn_to_irq(evtchn_port_t evt
- }
- EXPORT_SYMBOL_GPL(bind_evtchn_to_irq);
- 
--int bind_evtchn_to_irq_lateeoi(evtchn_port_t evtchn)
--{
--	return bind_evtchn_to_irq_chip(evtchn, &xen_lateeoi_chip);
--}
--EXPORT_SYMBOL_GPL(bind_evtchn_to_irq_lateeoi);
--
- static int bind_ipi_to_irq(unsigned int ipi, unsigned int cpu)
- {
- 	struct evtchn_bind_ipi bind_ipi;
+diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
+index f841518de6c5..60344e13e87b 100644
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -642,6 +642,7 @@ int dasd_alias_add_device(struct dasd_device *device)
+ 	}
+ 	if (lcu->flags & UPDATE_PENDING) {
+ 		list_move(&device->alias_list, &lcu->active_devices);
++		private->pavgroup = NULL;
+ 		_schedule_lcu_update(lcu, device);
+ 	}
+ 	spin_unlock_irqrestore(&lcu->lock, flags);
+-- 
+2.17.1
