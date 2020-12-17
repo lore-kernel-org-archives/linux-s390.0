@@ -1,137 +1,155 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:20130 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51394 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389930AbgLKWXX (ORCPT
+        by vger.kernel.org with ESMTP id S1728131AbgLQPqI (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Dec 2020 17:23:23 -0500
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v2 2/2] s390/vfio-ap: reverse group notifier actions when KVM pointer invalidated
-Date: Fri, 11 Dec 2020 17:22:11 -0500
-Message-Id: <20201211222211.20869-3-akrowiak@linux.ibm.com>
-In-Reply-To: <20201211222211.20869-1-akrowiak@linux.ibm.com>
-References: <20201211222211.20869-1-akrowiak@linux.ibm.com>
+        Thu, 17 Dec 2020 10:46:08 -0500
+References: <20201211100039.63597-1-frankja@linux.ibm.com>
+ <20201211100039.63597-6-frankja@linux.ibm.com>
+ <0bb4934a-23b6-bf4f-2742-3892c17c81d0@redhat.com>
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 5/8] s390x: sie: Add SIE to lib
+Message-ID: <365acc5e-0f57-ed9e-cee3-b321827fd2b6@linux.ibm.com>
+Date: Thu, 17 Dec 2020 16:45:21 +0100
 MIME-Version: 1.0
+In-Reply-To: <0bb4934a-23b6-bf4f-2742-3892c17c81d0@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: stable@vger.kernel.org, gregkh@linuxfoundation.org, sashal@kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, pbonzini@redhat.com, alex.williamson@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: Thomas Huth <thuth@redhat.com>, kvm@vger.kernel.org
+Cc: david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-The vfio_ap device driver registers a group notifier with VFIO when the
-file descriptor for a VFIO mediated device for a KVM guest is opened to
-receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
-event). When the KVM pointer is set, the vfio_ap driver takes the
-following actions:
-1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
-   of the mediated device.
-2. Calls the kvm_get_kvm() function to increment its reference counter.
-3. Sets the function pointer to the function that handles interception of
-   the instruction that enables/disables interrupt processing.
+On 12/17/20 10:37 AM, Thomas Huth wrote:
+> On 11/12/2020 11.00, Janosch Frank wrote:
+>> This commit adds the definition of the SIE control block struct and
+>> the assembly to execute SIE and save/restore guest registers.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  lib/s390x/asm-offsets.c  |  13 +++
+>>  lib/s390x/asm/arch_def.h |   7 ++
+>>  lib/s390x/interrupt.c    |   7 ++
+>>  lib/s390x/sie.h          | 197 +++++++++++++++++++++++++++++++++++++++
+>>  s390x/asm/lib.S          |  56 +++++++++++
+>>  5 files changed, 280 insertions(+)
+>>  create mode 100644 lib/s390x/sie.h
+>>
+>> diff --git a/lib/s390x/asm-offsets.c b/lib/s390x/asm-offsets.c
+>> index ee94ed3..35697de 100644
+>> --- a/lib/s390x/asm-offsets.c
+>> +++ b/lib/s390x/asm-offsets.c
+>> @@ -8,6 +8,7 @@
+>>  #include <libcflat.h>
+>>  #include <kbuild.h>
+>>  #include <asm/arch_def.h>
+>> +#include <sie.h>
+>>  
+>>  int main(void)
+>>  {
+>> @@ -69,6 +70,18 @@ int main(void)
+>>  	OFFSET(GEN_LC_ARS_SA, lowcore, ars_sa);
+>>  	OFFSET(GEN_LC_CRS_SA, lowcore, crs_sa);
+>>  	OFFSET(GEN_LC_PGM_INT_TDB, lowcore, pgm_int_tdb);
+>> +	OFFSET(__SF_GPRS, stack_frame, gprs);
+>> +	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[0]);
+>> +	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[1]);
+>> +	OFFSET(__SF_SIE_REASON, stack_frame, empty1[2]);
+>> +	OFFSET(__SF_SIE_FLAGS, stack_frame, empty1[3]);
+>> +	OFFSET(SIE_SAVEAREA_HOST_GRS, vm_save_area, host.grs[0]);
+>> +	OFFSET(SIE_SAVEAREA_HOST_FPRS, vm_save_area, host.fprs[0]);
+>> +	OFFSET(SIE_SAVEAREA_HOST_FPC, vm_save_area, host.fpc);
+>> +	OFFSET(SIE_SAVEAREA_GUEST_GRS, vm_save_area, guest.grs[0]);
+>> +	OFFSET(SIE_SAVEAREA_GUEST_FPRS, vm_save_area, guest.fprs[0]);
+>> +	OFFSET(SIE_SAVEAREA_GUEST_FPC, vm_save_area, guest.fpc);
+>> +
+>>  
+>>  	return 0;
+>>  }
+>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>> index f3ab830..5a13cf2 100644
+>> --- a/lib/s390x/asm/arch_def.h
+>> +++ b/lib/s390x/asm/arch_def.h
+>> @@ -8,6 +8,13 @@
+>>  #ifndef _ASM_S390X_ARCH_DEF_H_
+>>  #define _ASM_S390X_ARCH_DEF_H_
+>>  
+>> +struct stack_frame {
+>> +	unsigned long back_chain;
+>> +	unsigned long empty1[5];
+>> +	unsigned long gprs[10];
+>> +	unsigned int  empty2[8];
+> 
+> I think you can drop empty2 ?
 
-When the notifier is called to make notification that the KVM pointer has
-been set to NULL, the driver should reverse the actions taken when the
-KVM pointer was set as well as unplugging the AP devices passed through
-to the KVM guest.
+Since I don't need to allocate it I could also remove the gprs. We only
+use empty1 right now as far as I know.
 
-Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
----
- drivers/s390/crypto/vfio_ap_ops.c | 40 ++++++++++++++++++-------------
- 1 file changed, 24 insertions(+), 16 deletions(-)
+> 
+>> +};
+>> +
+>>  struct psw {
+>>  	uint64_t	mask;
+>>  	uint64_t	addr;
+>> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+>> index bac8862..3858096 100644
+>> --- a/lib/s390x/interrupt.c
+>> +++ b/lib/s390x/interrupt.c
+>> @@ -11,6 +11,7 @@
+>>  #include <asm/barrier.h>
+>>  #include <sclp.h>
+>>  #include <interrupt.h>
+>> +#include <sie.h>
+>>  
+>>  static bool pgm_int_expected;
+>>  static bool ext_int_expected;
+>> @@ -57,6 +58,12 @@ void register_pgm_cleanup_func(void (*f)(void))
+>>  
+>>  static void fixup_pgm_int(void)
+>>  {
+>> +	/* If we have an error on SIE we directly move to sie_exit */
+>> +	if (lc->pgm_old_psw.addr >= (uint64_t)&sie_entry &&
+>> +	    lc->pgm_old_psw.addr <= (uint64_t)&sie_entry + 10) {
+> 
+> Can you please explain that "magic" number 10 in the comment?
 
-diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-index c854d7ab2079..1c3c2a0898b9 100644
---- a/drivers/s390/crypto/vfio_ap_ops.c
-+++ b/drivers/s390/crypto/vfio_ap_ops.c
-@@ -1033,8 +1033,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
- {
- 	struct ap_matrix_mdev *m;
- 
--	mutex_lock(&matrix_dev->lock);
--
- 	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
- 		if ((m != matrix_mdev) && (m->kvm == kvm)) {
- 			mutex_unlock(&matrix_dev->lock);
-@@ -1045,7 +1043,6 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
- 	matrix_mdev->kvm = kvm;
- 	kvm_get_kvm(kvm);
- 	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
--	mutex_unlock(&matrix_dev->lock);
- 
- 	return 0;
- }
-@@ -1079,35 +1076,49 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
- 	return NOTIFY_DONE;
- }
- 
-+static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
-+{
-+	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-+	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-+	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-+	kvm_put_kvm(matrix_mdev->kvm);
-+	matrix_mdev->kvm = NULL;
-+}
-+
- static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
- 				       unsigned long action, void *data)
- {
--	int ret;
-+	int ret, notify_rc = NOTIFY_DONE;
- 	struct ap_matrix_mdev *matrix_mdev;
- 
- 	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
- 		return NOTIFY_OK;
- 
- 	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
-+	mutex_lock(&matrix_dev->lock);
- 
- 	if (!data) {
--		matrix_mdev->kvm = NULL;
--		return NOTIFY_OK;
-+		if (matrix_mdev->kvm)
-+			vfio_ap_mdev_unset_kvm(matrix_mdev);
-+		notify_rc = NOTIFY_OK;
-+		goto notify_done;
- 	}
- 
- 	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
- 	if (ret)
--		return NOTIFY_DONE;
-+		goto notify_done;
- 
- 	/* If there is no CRYCB pointer, then we can't copy the masks */
- 	if (!matrix_mdev->kvm->arch.crypto.crycbd)
--		return NOTIFY_DONE;
-+		goto notify_done;
- 
- 	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
- 				  matrix_mdev->matrix.aqm,
- 				  matrix_mdev->matrix.adm);
- 
--	return NOTIFY_OK;
-+notify_done:
-+	mutex_unlock(&matrix_dev->lock);
-+	return notify_rc;
- }
- 
- static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
-@@ -1234,13 +1245,10 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
- 	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
- 
- 	mutex_lock(&matrix_dev->lock);
--	if (matrix_mdev->kvm) {
--		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
--		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
--		vfio_ap_mdev_reset_queues(mdev);
--		kvm_put_kvm(matrix_mdev->kvm);
--		matrix_mdev->kvm = NULL;
--	}
-+	if (matrix_mdev->kvm)
-+		vfio_ap_mdev_unset_kvm(matrix_mdev);
-+	else
-+		vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
- 	mutex_unlock(&matrix_dev->lock);
- 
- 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
--- 
-2.21.1
+I think using sie_exit would make more sense than explaining that
+sie_entry + 10 bytes is the location of sie_exit.
+
+
+> 
+>> +		lc->pgm_old_psw.addr = (uint64_t)&sie_exit;
+>> +	}
+>> +
+>>  	switch (lc->pgm_int_code) {
+>>  	case PGM_INT_CODE_PRIVILEGED_OPERATION:
+>>  		/* Normal operation is in supervisor state, so this exception
+>> diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+>> new file mode 100644
+>> index 0000000..b00bdf4
+>> --- /dev/null
+>> +++ b/lib/s390x/sie.h
+> [...]
+>> +extern u64 sie_entry;
+>> +extern u64 sie_exit;
+> 
+> Maybe better:
+> 
+> extern uint16_t sie_entry[];
+> extern uint16_t sie_exit[];
+> 
+> ?
+> 
+> Or even:
+> 
+> extern void sie_entry();
+> extern void sie_exit();
+
+Definitely better since I don't return values in sie_exit anymore (I
+used to before).
+
+> 
+> ?
+> 
+>  Thomas
+> 
