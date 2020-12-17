@@ -1,83 +1,202 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31112 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728870AbgLATVp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:21:45 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v7 01/14] net/smc: use helper smc_conn_abort() in listen processing
-Date: Tue,  1 Dec 2020 20:20:36 +0100
-Message-Id: <20201201192049.53517-2-kgraul@linux.ibm.com>
-In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
-References: <20201201192049.53517-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V2 1/3] mm/hotplug: Prevalidate the address range being added with platform
+Date: Thu, 17 Dec 2020 20:58:30 +0530
+Message-Id: <1608218912-28932-2-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <1608218912-28932-1-git-send-email-anshuman.khandual@arm.com>
+References: <1608218912-28932-1-git-send-email-anshuman.khandual@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-mm@kvack.org, akpm@linux-foundation.org, david@redhat.com, hca@linux.ibm.com, catalin.marinas@arm.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>
 
-The helper smc_connect_abort() can be used by the listen processing
-functions, too. And rename this helper to smc_conn_abort() to make the
-purpose clearer.
-No functional change.
+This introduces memhp_range_allowed() which can be called in various memory
+hotplug paths to prevalidate the address range which is being added, with
+the platform. Then memhp_range_allowed() calls memhp_get_pluggable_range()
+which provides applicable address range depending on whether linear mapping
+is required or not. For ranges that require linear mapping, it calls a new
+arch callback arch_get_mappable_range() which the platform can override. So
+the new callback, in turn provides the platform an opportunity to configure
+acceptable memory hotplug address ranges in case there are constraints.
 
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+This mechanism will help prevent platform specific errors deep down during
+hotplug calls. This drops now redundant check_hotplug_memory_addressable()
+check in __add_pages() but instead adds a VM_BUG_ON() check which would
+ensure that the range has been validated with memhp_range_allowed() earlier
+in the call chain. Besides memhp_get_pluggable_range() also can be used by
+potential memory hotplug callers to avail the allowed physical range which
+would go through on a given platform.
+
+This does not really add any new range check in generic memory hotplug but
+instead compensates for lost checks in arch_add_memory() where applicable
+and check_hotplug_memory_addressable(), with unified memhp_range_allowed().
+
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-mm@kvack.org
+Cc: linux-kernel@vger.kernel.org
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- net/smc/af_smc.c | 17 +++++------------
- 1 file changed, 5 insertions(+), 12 deletions(-)
+ include/linux/memory_hotplug.h | 10 +++++
+ mm/memory_hotplug.c            | 79 +++++++++++++++++++++++++---------
+ mm/memremap.c                  |  6 +++
+ 3 files changed, 75 insertions(+), 20 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 811819c849da..13db3f260e94 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -552,8 +552,7 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
- 	return smc_connect_fallback(smc, reason_code);
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index 551093b74596..8d72354758c8 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -70,6 +70,9 @@ typedef int __bitwise mhp_t;
+  */
+ #define MEMHP_MERGE_RESOURCE	((__force mhp_t)BIT(0))
+ 
++bool memhp_range_allowed(u64 start, u64 size, bool need_mapping);
++struct range memhp_get_pluggable_range(bool need_mapping);
++
+ /*
+  * Extended parameters for memory hotplug:
+  * altmap: alternative allocator for memmap array (optional)
+@@ -281,6 +284,13 @@ static inline bool movable_node_is_enabled(void)
+ }
+ #endif /* ! CONFIG_MEMORY_HOTPLUG */
+ 
++/*
++ * Keep this declaration outside CONFIG_MEMORY_HOTPLUG as some
++ * platforms might override and use arch_get_mappable_range()
++ * for internal non memory hotplug purposes.
++ */
++struct range arch_get_mappable_range(void);
++
+ #if defined(CONFIG_MEMORY_HOTPLUG) || defined(CONFIG_DEFERRED_STRUCT_PAGE_INIT)
+ /*
+  * pgdat resizing functions
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 63b2e46b6555..27ee352cbe31 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -107,6 +107,9 @@ static struct resource *register_memory_resource(u64 start, u64 size,
+ 	if (strcmp(resource_name, "System RAM"))
+ 		flags |= IORESOURCE_SYSRAM_DRIVER_MANAGED;
+ 
++	if (!memhp_range_allowed(start, size, 1))
++		return ERR_PTR(-E2BIG);
++
+ 	/*
+ 	 * Make sure value parsed from 'mem=' only restricts memory adding
+ 	 * while booting, so that memory hotplug won't be impacted. Please
+@@ -284,22 +287,6 @@ static int check_pfn_span(unsigned long pfn, unsigned long nr_pages,
+ 	return 0;
  }
  
--/* abort connecting */
--static void smc_connect_abort(struct smc_sock *smc, int local_first)
-+static void smc_conn_abort(struct smc_sock *smc, int local_first)
- {
- 	if (local_first)
- 		smc_lgr_cleanup_early(&smc->conn);
-@@ -814,7 +813,7 @@ static int smc_connect_rdma(struct smc_sock *smc,
+-static int check_hotplug_memory_addressable(unsigned long pfn,
+-					    unsigned long nr_pages)
+-{
+-	const u64 max_addr = PFN_PHYS(pfn + nr_pages) - 1;
+-
+-	if (max_addr >> MAX_PHYSMEM_BITS) {
+-		const u64 max_allowed = (1ull << (MAX_PHYSMEM_BITS + 1)) - 1;
+-		WARN(1,
+-		     "Hotplugged memory exceeds maximum addressable address, range=%#llx-%#llx, maximum=%#llx\n",
+-		     (u64)PFN_PHYS(pfn), max_addr, max_allowed);
+-		return -E2BIG;
+-	}
+-
+-	return 0;
+-}
+-
+ /*
+  * Reasonably generic function for adding memory.  It is
+  * expected that archs that support memory hotplug will
+@@ -317,10 +304,7 @@ int __ref __add_pages(int nid, unsigned long pfn, unsigned long nr_pages,
+ 	if (WARN_ON_ONCE(!params->pgprot.pgprot))
+ 		return -EINVAL;
  
- 	return 0;
- connect_abort:
--	smc_connect_abort(smc, ini->first_contact_local);
-+	smc_conn_abort(smc, ini->first_contact_local);
- 	mutex_unlock(&smc_client_lgr_pending);
- 	smc->connect_nonblock = 0;
+-	err = check_hotplug_memory_addressable(pfn, nr_pages);
+-	if (err)
+-		return err;
+-
++	VM_BUG_ON(!memhp_range_allowed(PFN_PHYS(pfn), nr_pages * PAGE_SIZE, 1));
+ 	if (altmap) {
+ 		/*
+ 		 * Validate altmap is within bounds of the total request
+@@ -1181,6 +1165,61 @@ int add_memory_driver_managed(int nid, u64 start, u64 size,
+ }
+ EXPORT_SYMBOL_GPL(add_memory_driver_managed);
  
-@@ -893,7 +892,7 @@ static int smc_connect_ism(struct smc_sock *smc,
++/*
++ * Platforms should define arch_get_mappable_range() that provides
++ * maximum possible addressable physical memory range for which the
++ * linear mapping could be created. The platform returned address
++ * range must adhere to these following semantics.
++ *
++ * - range.start <= range.end
++ * - Range includes both end points [range.start..range.end]
++ *
++ * There is also a fallback definition provided here, allowing the
++ * entire possible physical address range in case any platform does
++ * not define arch_get_mappable_range().
++ */
++struct range __weak arch_get_mappable_range(void)
++{
++	struct range memhp_range = {
++		.start = 0UL,
++		.end = -1ULL,
++	};
++	return memhp_range;
++}
++
++struct range memhp_get_pluggable_range(bool need_mapping)
++{
++	const u64 max_phys = (1ULL << (MAX_PHYSMEM_BITS + 1)) - 1;
++	struct range memhp_range;
++
++	if (need_mapping) {
++		memhp_range = arch_get_mappable_range();
++		if (memhp_range.start > max_phys) {
++			memhp_range.start = 0;
++			memhp_range.end = 0;
++		}
++		memhp_range.end = min_t(u64, memhp_range.end, max_phys);
++	} else {
++		memhp_range.start = 0;
++		memhp_range.end = max_phys;
++	}
++	return memhp_range;
++}
++EXPORT_SYMBOL_GPL(memhp_get_pluggable_range);
++
++bool memhp_range_allowed(u64 start, u64 size, bool need_mapping)
++{
++	struct range memhp_range = memhp_get_pluggable_range(need_mapping);
++	u64 end = start + size;
++
++	if (start < end && start >= memhp_range.start && (end - 1) <= memhp_range.end)
++		return true;
++
++	pr_warn("Hotplug memory [%#llx-%#llx] exceeds maximum addressable range [%#llx-%#llx]\n",
++		start, end, memhp_range.start, memhp_range.end);
++	return false;
++}
++
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+ /*
+  * Confirm all pages in a range [start, end) belong to the same zone (skipping
+diff --git a/mm/memremap.c b/mm/memremap.c
+index 16b2fb482da1..8c5500030592 100644
+--- a/mm/memremap.c
++++ b/mm/memremap.c
+@@ -253,6 +253,12 @@ static int pagemap_range(struct dev_pagemap *pgmap, struct mhp_params *params,
+ 			goto err_kasan;
+ 		}
  
- 	return 0;
- connect_abort:
--	smc_connect_abort(smc, ini->first_contact_local);
-+	smc_conn_abort(smc, ini->first_contact_local);
- 	mutex_unlock(&smc_server_lgr_pending);
- 	smc->connect_nonblock = 0;
- 
-@@ -1321,10 +1320,7 @@ static void smc_listen_decline(struct smc_sock *new_smc, int reason_code,
- 			       int local_first, u8 version)
- {
- 	/* RDMA setup failed, switch back to TCP */
--	if (local_first)
--		smc_lgr_cleanup_early(&new_smc->conn);
--	else
--		smc_conn_free(&new_smc->conn);
-+	smc_conn_abort(new_smc, local_first);
- 	if (reason_code < 0) { /* error, no fallback possible */
- 		smc_listen_out_err(new_smc);
- 		return;
-@@ -1430,10 +1426,7 @@ static int smc_listen_ism_init(struct smc_sock *new_smc,
- 	/* Create send and receive buffers */
- 	rc = smc_buf_create(new_smc, true);
- 	if (rc) {
--		if (ini->first_contact_local)
--			smc_lgr_cleanup_early(&new_smc->conn);
--		else
--			smc_conn_free(&new_smc->conn);
-+		smc_conn_abort(new_smc, ini->first_contact_local);
- 		return (rc == -ENOSPC) ? SMC_CLC_DECL_MAX_DMB :
- 					 SMC_CLC_DECL_MEM;
++		if (!memhp_range_allowed(range->start, range_len(range), 1)) {
++			error = -ERANGE;
++			mem_hotplug_done();
++			goto err_add_memory;
++		}
++
+ 		error = arch_add_memory(nid, range->start, range_len(range),
+ 					params);
  	}
 -- 
-2.17.1
+2.20.1
