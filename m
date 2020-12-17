@@ -1,85 +1,239 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail-eopbgr80058.outbound.protection.outlook.com ([40.107.8.58]:53705
-        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727661AbgLGAAs (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 6 Dec 2020 19:00:48 -0500
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Subject: [RFC PATCH net-next 00/13] Make .ndo_get_stats64 sleepable
-Date: Mon,  7 Dec 2020 01:59:06 +0200
-Message-Id: <20201206235919.393158-1-vladimir.oltean@nxp.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63820 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727660AbgLQPXK (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 10:23:10 -0500
+Subject: Re: [kvm-unit-tests PATCH v3 4/8] s390x: Split assembly and move to
+ s390x/asm/
+References: <20201211100039.63597-1-frankja@linux.ibm.com>
+ <20201211100039.63597-5-frankja@linux.ibm.com>
+ <20201217141421.7179e19d@ibm-vm>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <514a4281-1c71-29aa-0fe7-a7ae5889dddf@linux.ibm.com>
+Date: Thu, 17 Dec 2020 16:22:19 +0100
 MIME-Version: 1.0
+In-Reply-To: <20201217141421.7179e19d@ibm-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Leon Romanovsky <leon@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, linux-s390@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Sridhar Samudrala <sridhar.samudrala@intel.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, linux-parisc@vger.kernel.org, Christian Brauner <christian.brauner@ubuntu.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-This series converts all callers of dev_get_stats() to be in sleepable
-context, so that we can do more work in the .ndo_get_stats64 method.
+On 12/17/20 2:14 PM, Claudio Imbrenda wrote:
+> On Fri, 11 Dec 2020 05:00:35 -0500
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> I've added too much to cstart64.S which is not start related
+>> already. Now that I want to add even more code it's time to split
+>> cstart64.S. lib.S has functions that are used in tests. macros.S
+>> contains macros which are used in cstart64.S and lib.S
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  s390x/Makefile             |   8 +--
+>>  s390x/{ => asm}/cstart64.S | 119
+>> ++----------------------------------- s390x/asm/lib.S            |
+>> 65 ++++++++++++++++++++ s390x/asm/macros.S         |  77
+>> ++++++++++++++++++++++++ 4 files changed, 150 insertions(+), 119
+>> deletions(-) rename s390x/{ => asm}/cstart64.S (50%)
+>>  create mode 100644 s390x/asm/lib.S
+>>  create mode 100644 s390x/asm/macros.S 
+> 
+> [...]
+> 
+>> diff --git a/s390x/cstart64.S b/s390x/asm/cstart64.S
+>> similarity index 50%
+>> rename from s390x/cstart64.S
+>> rename to s390x/asm/cstart64.S
+>> index cc86fc7..ace0c0d 100644
+>> --- a/s390x/cstart64.S
+>> +++ b/s390x/asm/cstart64.S
+>> @@ -3,14 +3,17 @@
+>>   * s390x startup code
+>>   *
+>>   * Copyright (c) 2017 Red Hat Inc
+>> + * Copyright (c) 2019 IBM Corp.
+> 
+> 2020 ?
 
-The situation today is that if we have hardware that needs to be
-accessed through a slow bus like SPI, or through a firmware, we cannot
-do that directly in .ndo_get_stats64, so we have to poll counters
-periodically and return a cached (not up to date) copy in the atomic NDO
-callback. This is undesirable on both ends: more work than strictly
-needed is being done, and the end result is also worse (not guaranteed
-to be up to date). So converting the code paths to be compatible with
-sleeping seems to make more sense.
+Moving stuff changes the copyright?
 
-Cc: Leon Romanovsky <leon@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Cc: Jay Vosburgh <j.vosburgh@gmail.com>
-Cc: Veaceslav Falico <vfalico@gmail.com>
-Cc: Andy Gospodarek <andy@greyhouse.net>
-Cc: Sridhar Samudrala <sridhar.samudrala@intel.com>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: linux-parisc@vger.kernel.org
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-
-Vladimir Oltean (13):
-  RDMA/mlx4: remove bogus dev_base_lock usage
-  net: mark dev_base_lock for deprecation
-  net: introduce a mutex for the netns interface lists
-  s390/appldata_net_sum: hold the netdev lists lock when retrieving
-    device statistics
-  net: bonding: hold the netdev lists lock when retrieving device
-    statistics
-  net_failover: hold the netdev lists lock when retrieving device
-    statistics
-  parisc/led: remove trailing whitespaces
-  parisc/led: reindent the code that gathers device statistics
-  parisc/led: hold the netdev lists lock when retrieving device
-    statistics
-  net: procfs: hold the netdev lists lock when retrieving device
-    statistics
-  net: sysfs: don't hold dev_base_lock while retrieving device
-    statistics
-  net: mark ndo_get_stats64 as being able to sleep
-  net: remove obsolete comments about ndo_get_stats64 context from eth
-    drivers
-
- Documentation/networking/netdevices.rst     |   4 +-
- Documentation/networking/statistics.rst     |   9 +-
- arch/s390/appldata/appldata_net_sum.c       |   8 +-
- drivers/infiniband/hw/mlx4/main.c           |   3 -
- drivers/net/bonding/bond_main.c             |  16 +-
- drivers/net/ethernet/cisco/enic/enic_main.c |   1 -
- drivers/net/ethernet/nvidia/forcedeth.c     |   2 -
- drivers/net/ethernet/sfc/efx_common.c       |   1 -
- drivers/net/ethernet/sfc/falcon/efx.c       |   1 -
- drivers/net/net_failover.c                  |  15 +-
- drivers/parisc/led.c                        | 164 ++++++++++----------
- include/net/bonding.h                       |   1 -
- include/net/net_failover.h                  |   3 -
- include/net/net_namespace.h                 |   5 +
- net/core/dev.c                              |  63 +++++---
- net/core/net-procfs.c                       |  13 +-
- net/core/net-sysfs.c                        |   3 +-
- 17 files changed, 162 insertions(+), 150 deletions(-)
-
--- 
-2.25.1
+> 
+>>   *
+>>   * Authors:
+>>   *  Thomas Huth <thuth@redhat.com>
+>>   *  David Hildenbrand <david@redhat.com>
+>> + *  Janosch Frank <frankja@linux.ibm.com>
+>>   */
+>>  #include <asm/asm-offsets.h>
+>>  #include <asm/sigp.h>
+> 
+> [...]
+> 
+>> diff --git a/s390x/asm/lib.S b/s390x/asm/lib.S
+>> new file mode 100644
+>> index 0000000..4d78ec6
+>> --- /dev/null
+>> +++ b/s390x/asm/lib.S
+>> @@ -0,0 +1,65 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-only */
+>> +/*
+>> + * s390x assembly library
+>> + *
+>> + * Copyright (c) 2019 IBM Corp.
+> 
+> also 2020?
+> 
+>> + *
+>> + * Authors:
+>> + *    Janosch Frank <frankja@linux.ibm.com>
+>> + */
+>> +#include <asm/asm-offsets.h>
+>> +#include <asm/sigp.h>
+>> +
+>> +#include "macros.S"
+>> +
+>> +/*
+>> + * load_reset calling convention:
+>> + * %r2 subcode (0 or 1)
+>> + */
+>> +.globl diag308_load_reset
+>> +diag308_load_reset:
+>> +	SAVE_REGS
+>> +	/* Backup current PSW mask, as we have to restore it on
+>> success */
+>> +	epsw	%r0, %r1
+>> +	st	%r0, GEN_LC_SW_INT_PSW
+>> +	st	%r1, GEN_LC_SW_INT_PSW + 4
+>> +	/* Load reset psw mask (short psw, 64 bit) */
+>> +	lg	%r0, reset_psw
+>> +	/* Load the success label address */
+>> +	larl    %r1, 0f
+>> +	/* Or it to the mask */
+>> +	ogr	%r0, %r1
+>> +	/* Store it at the reset PSW location (real 0x0) */
+>> +	stg	%r0, 0
+>> +	/* Do the reset */
+>> +	diag    %r0,%r2,0x308
+>> +	/* Failure path */
+>> +	xgr	%r2, %r2
+>> +	br	%r14
+>> +	/* Success path */
+>> +	/* load a cr0 that has the AFP control bit which enables all
+>> FPRs */ +0:	larl	%r1, initial_cr0
+>> +	lctlg	%c0, %c0, 0(%r1)
+>> +	RESTORE_REGS
+>> +	lhi	%r2, 1
+>> +	larl	%r0, 1f
+>> +	stg	%r0, GEN_LC_SW_INT_PSW + 8
+>> +	lpswe	GEN_LC_SW_INT_PSW
+>> +1:	br	%r14
+>> +
+>> +/* Sets up general registers and cr0 when a new cpu is brought
+>> online. */ +.globl smp_cpu_setup_state
+>> +smp_cpu_setup_state:
+>> +	xgr	%r1, %r1
+>> +	lmg     %r0, %r15, GEN_LC_SW_INT_GRS
+>> +	lctlg   %c0, %c0, GEN_LC_SW_INT_CRS
+>> +	/* We should only go once through cpu setup and not for
+>> every restart */
+>> +	stg	%r14, GEN_LC_RESTART_NEW_PSW + 8
+>> +	larl	%r14, 0f
+>> +	lpswe	GEN_LC_SW_INT_PSW
+>> +	/* If the function returns, just loop here */
+>> +0:	j	0
+>> +
+>> +	.align	8
+>> +reset_psw:
+>> +	.quad	0x0008000180000000
+>> diff --git a/s390x/asm/macros.S b/s390x/asm/macros.S
+>> new file mode 100644
+>> index 0000000..37a6a63
+>> --- /dev/null
+>> +++ b/s390x/asm/macros.S
+>> @@ -0,0 +1,77 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-only */
+>> +/*
+>> + * s390x assembly macros
+>> + *
+>> + * Copyright (c) 2017 Red Hat Inc
+>> + * Copyright (c) 2020 IBM Corp.
+>> + *
+>> + * Authors:
+>> + *  Pierre Morel <pmorel@linux.ibm.com>
+>> + *  David Hildenbrand <david@redhat.com>
+>> + */
+>> +#include <asm/asm-offsets.h>
+>> +	.macro SAVE_REGS
+>> +	/* save grs 0-15 */
+>> +	stmg	%r0, %r15, GEN_LC_SW_INT_GRS
+>> +	/* save crs 0-15 */
+>> +	stctg	%c0, %c15, GEN_LC_SW_INT_CRS
+>> +	/* load a cr0 that has the AFP control bit which enables all
+>> FPRs */
+>> +	larl	%r1, initial_cr0
+>> +	lctlg	%c0, %c0, 0(%r1)
+>> +	/* save fprs 0-15 + fpc */
+>> +	la	%r1, GEN_LC_SW_INT_FPRS
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	std	\i, \i * 8(%r1)
+>> +	.endr
+>> +	stfpc	GEN_LC_SW_INT_FPC
+>> +	.endm
+>> +
+>> +	.macro RESTORE_REGS
+>> +	/* restore fprs 0-15 + fpc */
+>> +	la	%r1, GEN_LC_SW_INT_FPRS
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	ld	\i, \i * 8(%r1)
+>> +	.endr
+>> +	lfpc	GEN_LC_SW_INT_FPC
+>> +	/* restore crs 0-15 */
+>> +	lctlg	%c0, %c15, GEN_LC_SW_INT_CRS
+>> +	/* restore grs 0-15 */
+>> +	lmg	%r0, %r15, GEN_LC_SW_INT_GRS
+>> +	.endm
+>> +
+>> +/* Save registers on the stack (r15), so we can have stacked
+>> interrupts. */
+>> +	.macro SAVE_REGS_STACK
+>> +	/* Allocate a stack frame for 15 general registers */
+>> +	slgfi   %r15, 15 * 8
+>> +	/* Store registers r0 to r14 on the stack */
+>> +	stmg    %r0, %r14, 0(%r15)
+>> +	/* Allocate a stack frame for 16 floating point registers */
+>> +	/* The size of a FP register is the size of an double word */
+>> +	slgfi   %r15, 16 * 8
+>> +	/* Save fp register on stack: offset to SP is multiple of
+>> reg number */
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	std	\i, \i * 8(%r15)
+>> +	.endr
+>> +	/* Save fpc, but keep stack aligned on 64bits */
+>> +	slgfi   %r15, 8
+>> +	efpc	%r0
+>> +	stg	%r0, 0(%r15)
+>> +	.endm
+>> +
+>> +/* Restore the register in reverse order */
+>> +	.macro RESTORE_REGS_STACK
+>> +	/* Restore fpc */
+>> +	lfpc	0(%r15)
+>> +	algfi	%r15, 8
+>> +	/* Restore fp register from stack: SP still where it was
+>> left */
+>> +	/* and offset to SP is a multiple of reg number */
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	ld	\i, \i * 8(%r15)
+>> +	.endr
+>> +	/* Now that we're done, rewind the stack pointer by 16
+>> double word */
+>> +	algfi   %r15, 16 * 8
+>> +	/* Load the registers from stack */
+>> +	lmg     %r0, %r14, 0(%r15)
+>> +	/* Rewind the stack by 15 double word */
+>> +	algfi   %r15, 15 * 8
+>> +	.endm
+> 
