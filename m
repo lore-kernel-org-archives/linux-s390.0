@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Message-Id: <20201210194043.362094758@linutronix.de>
-Date: Thu, 10 Dec 2020 20:25:44 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 08/30] genirq: Provide kstat_irqdesc_cpu()
-References: <20201210192536.118432146@linutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from foss.arm.com ([217.140.110.172]:42310 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727786AbgLQP3e (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 10:29:34 -0500
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V2 2/3] arm64/mm: Define arch_get_mappable_range()
+Date: Thu, 17 Dec 2020 20:58:31 +0530
+Message-Id: <1608218912-28932-3-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <1608218912-28932-1-git-send-email-anshuman.khandual@arm.com>
+References: <1608218912-28932-1-git-send-email-anshuman.khandual@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
+To: linux-mm@kvack.org, akpm@linux-foundation.org, david@redhat.com, hca@linux.ibm.com, catalin.marinas@arm.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>
 
-Most users of kstat_irqs_cpu() have the irq descriptor already. No point in
-calling into the core code and looking it up once more.
+This overrides arch_get_mappable_range() on arm64 platform which will be
+used with recently added generic framework. It drops inside_linear_region()
+and subsequent check in arch_add_memory() which are no longer required. It
+also adds a VM_BUG_ON() check that would ensure that memhp_range_allowed()
+has already been called.
 
-Use it in per_cpu_count_show() to start with.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
 ---
- include/linux/irqdesc.h |    6 ++++++
- kernel/irq/irqdesc.c    |    4 ++--
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ arch/arm64/mm/mmu.c | 15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/include/linux/irqdesc.h
-+++ b/include/linux/irqdesc.h
-@@ -113,6 +113,12 @@ static inline void irq_unlock_sparse(voi
- extern struct irq_desc irq_desc[NR_IRQS];
- #endif
+diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+index ca692a815731..54705dcacb4e 100644
+--- a/arch/arm64/mm/mmu.c
++++ b/arch/arm64/mm/mmu.c
+@@ -1444,16 +1444,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
+ 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
+ }
  
-+static inline unsigned int irq_desc_kstat_cpu(struct irq_desc *desc,
-+					      unsigned int cpu)
-+{
-+	return desc->kstat_irqs ? *per_cpu_ptr(desc->kstat_irqs, cpu) : 0;
-+}
+-static bool inside_linear_region(u64 start, u64 size)
++struct range arch_get_mappable_range(void)
+ {
++	struct range memhp_range;
 +
- static inline struct irq_desc *irq_data_to_desc(struct irq_data *data)
- {
- 	return container_of(data->common, struct irq_desc, irq_common_data);
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -147,12 +147,12 @@ static ssize_t per_cpu_count_show(struct
- 				  struct kobj_attribute *attr, char *buf)
- {
- 	struct irq_desc *desc = container_of(kobj, struct irq_desc, kobj);
--	int cpu, irq = desc->irq_data.irq;
- 	ssize_t ret = 0;
- 	char *p = "";
-+	int cpu;
+ 	/*
+ 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
+ 	 * accommodating both its ends but excluding PAGE_END. Max physical
+ 	 * range which can be mapped inside this linear mapping range, must
+ 	 * also be derived from its end points.
+ 	 */
+-	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
+-	       (start + size - 1) <= __pa(PAGE_END - 1);
++	memhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
++	memhp_range.end =  __pa(PAGE_END - 1);
++	return memhp_range;
+ }
  
- 	for_each_possible_cpu(cpu) {
--		unsigned int c = kstat_irqs_cpu(irq, cpu);
-+		unsigned int c = irq_desc_kstat_cpu(desc, cpu);
+ int arch_add_memory(int nid, u64 start, u64 size,
+@@ -1461,11 +1464,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ {
+ 	int ret, flags = 0;
  
- 		ret += scnprintf(buf + ret, PAGE_SIZE - ret, "%s%u", p, c);
- 		p = ",";
+-	if (!inside_linear_region(start, size)) {
+-		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
+-		return -EINVAL;
+-	}
+-
++	VM_BUG_ON(!memhp_range_allowed(start, size, 1));
+ 	if (rodata_full || debug_pagealloc_enabled())
+ 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
+ 
+-- 
+2.20.1
