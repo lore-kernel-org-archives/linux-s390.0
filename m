@@ -1,34 +1,31 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56056 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726291AbgLQQgx (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 17 Dec 2020 11:36:53 -0500
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D8BDC061794
-        for <linux-s390@vger.kernel.org>; Thu, 17 Dec 2020 08:36:13 -0800 (PST)
-Received: by mail-io1-xd36.google.com with SMTP id o6so14978875iob.10
-        for <linux-s390@vger.kernel.org>; Thu, 17 Dec 2020 08:36:13 -0800 (PST)
-Subject: Re: [PATCH 0/4] Fix DASD control unit updates
-References: <20201217155907.36436-1-sth@linux.ibm.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <da474562-ece9-4630-15c7-d93634e3b2f3@kernel.dk>
-Date: Thu, 17 Dec 2020 09:36:11 -0700
-MIME-Version: 1.0
-In-Reply-To: <20201217155907.36436-1-sth@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:60584 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727414AbgLQP7y (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 10:59:54 -0500
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 0/4] Fix DASD control unit updates
+Date: Thu, 17 Dec 2020 16:59:03 +0100
+Message-Id: <20201217155907.36436-1-sth@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Stefan Haberland <sth@linux.ibm.com>
+To: Jens Axboe <axboe@kernel.dk>
 Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-On 12/17/20 8:59 AM, Stefan Haberland wrote:
-> Hi Jens,
-> 
-> please apply the following patches that address problems during DASD
-> control unit updates.
+Hi Jens,
 
-Applied, thanks.
+please apply the following patches that address problems during DASD
+control unit updates.
+Thanks.
+
+Stefan Haberland (4):
+  s390/dasd: fix hanging device offline processing
+  s390/dasd: prevent inconsistent LCU device data
+  s390/dasd: fix list corruption of pavgroup group list
+  s390/dasd: fix list corruption of lcu list
+
+ drivers/s390/block/dasd_alias.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
 -- 
-Jens Axboe
+2.17.1
