@@ -1,159 +1,110 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.134]:49413 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729275AbgLRPBj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:39 -0500
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 16/23] arch: alpha: use generic irq error counter
-Date: Fri, 18 Dec 2020 15:57:39 +0100
-Message-Id: <20201218145746.24205-17-info@metux.net>
-In-Reply-To: <20201218145746.24205-1-info@metux.net>
-References: <20201218145746.24205-1-info@metux.net>
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:35099 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726548AbgLQPi2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 10:38:28 -0500
+Subject: Re: [kvm-unit-tests PATCH v3 7/8] s390x: Add diag318 intercept test
+References: <20201211100039.63597-1-frankja@linux.ibm.com>
+ <20201211100039.63597-8-frankja@linux.ibm.com>
+ <4f689585-ae2e-4632-9055-f2332d9f7751@redhat.com>
+ <44d6ac32-f7ac-6b33-ea9e-e037f936a181@de.ibm.com>
+ <24e9883c-22d5-de4f-0001-d271855d7ea3@redhat.com>
+ <23af5bca-dd2c-43bd-b2b4-6c7e2031517f@linux.ibm.com>
+ <b4bd9043-bf90-fe88-f237-b4f9948ba94e@linux.ibm.com>
+From: Thomas Huth <thuth@redhat.com>
+Message-ID: <dfc2c6bf-78ed-9f1f-0659-bee8437b46ca@redhat.com>
+Date: Thu, 17 Dec 2020 16:36:48 +0100
+MIME-Version: 1.0
+In-Reply-To: <b4bd9043-bf90-fe88-f237-b4f9948ba94e@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, kvm@vger.kernel.org
+Cc: david@redhat.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-Use the newly introduced irq error counter, that's already maintained
-by all callers of ack_bad_irq(), in order to remove duplicate code.
+On 17/12/2020 16.31, Janosch Frank wrote:
+> On 12/17/20 3:31 PM, Janosch Frank wrote:
+>> On 12/17/20 11:34 AM, Thomas Huth wrote:
+>>> On 17/12/2020 10.59, Christian Borntraeger wrote:
+>>>>
+>>>>
+>>>> On 17.12.20 10:53, Thomas Huth wrote:
+>>>>> On 11/12/2020 11.00, Janosch Frank wrote:
+>>>>>> Not much to test except for the privilege and specification
+>>>>>> exceptions.
+>>>>>>
+>>>>>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>>>>>> Reviewed-by: Thomas Huth <thuth@redhat.com>
+>>>>>> ---
+>>>>>>  lib/s390x/sclp.c  |  2 ++
+>>>>>>  lib/s390x/sclp.h  |  6 +++++-
+>>>>>>  s390x/intercept.c | 19 +++++++++++++++++++
+>>>>>>  3 files changed, 26 insertions(+), 1 deletion(-)
+>>>>>>
+>>>>>> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+>>>>>> index cf6ea7c..0001993 100644
+>>>>>> --- a/lib/s390x/sclp.c
+>>>>>> +++ b/lib/s390x/sclp.c
+>>>>>> @@ -138,6 +138,8 @@ void sclp_facilities_setup(void)
+>>>>>>  
+>>>>>>  	assert(read_info);
+>>>>>>  
+>>>>>> +	sclp_facilities.has_diag318 = read_info->byte_134_diag318;
+>>>>>> +
+>>>>>>  	cpu = (void *)read_info + read_info->offset_cpu;
+>>>>>>  	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
+>>>>>>  		if (cpu->address == cpu0_addr) {
+>>>>>> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+>>>>>> index 6c86037..58f8e54 100644
+>>>>>> --- a/lib/s390x/sclp.h
+>>>>>> +++ b/lib/s390x/sclp.h
+>>>>>> @@ -105,7 +105,8 @@ extern struct sclp_facilities sclp_facilities;
+>>>>>>  
+>>>>>>  struct sclp_facilities {
+>>>>>>  	uint64_t has_sief2 : 1;
+>>>>>> -	uint64_t : 63;
+>>>>>> +	uint64_t has_diag318 : 1;
+>>>>>> +	uint64_t : 62;
+>>>>>>  };
+>>>>>>  
+>>>>>>  typedef struct ReadInfo {
+>>>>>> @@ -130,6 +131,9 @@ typedef struct ReadInfo {
+>>>>>>      uint16_t highest_cpu;
+>>>>>>      uint8_t  _reserved5[124 - 122];     /* 122-123 */
+>>>>>>      uint32_t hmfai;
+>>>>>> +    uint8_t reserved7[134 - 128];
+>>>>>> +    uint8_t byte_134_diag318 : 1;
+>>>>>> +    uint8_t : 7;
+>>>>>>      struct CPUEntry entries[0];
+>>>>>
+>>>>> ... the entries[] array can be moved around here without any further ado?
+>>>>> Looks confusing to me. Should there be a CPUEntry array here at all, or only
+>>>>> in ReadCpuInfo?
+>>>>
+>>>> there is offset_cpu for the cpu entries at the beginning of the structure.
+>>>
+>>> Ah, thanks, right, this was used earlier in the patch series, now I
+>>> remember. But I think the "struct CPUEntry entries[0]" here is rather
+>>> confusing, since there is no guarantee that the entries are really at this
+>>> location ... I think this line should rather be replaced by a comment saying
+>>> that offset_cpu should be used instead.
+>>
+>> Sure, as long as it's clear that there's something at the end, I'm fine
+>> with it.
+> 
+> I would add that to the "fix style issues" patch or into an own patch.
+> Any preferences?
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
----
- arch/alpha/include/asm/hardirq.h |  3 ---
- arch/alpha/include/asm/hw_irq.h  |  2 --
- arch/alpha/kernel/irq.c          | 12 +++---------
- arch/alpha/kernel/irq_alpha.c    |  5 +++--
- arch/alpha/kernel/perf_event.c   |  6 +++---
- 5 files changed, 9 insertions(+), 19 deletions(-)
+I think a separate patch is cleaner.
 
-diff --git a/arch/alpha/include/asm/hardirq.h b/arch/alpha/include/asm/hardirq.h
-index 5ce5b34e8a1a..0bbc9947e364 100644
---- a/arch/alpha/include/asm/hardirq.h
-+++ b/arch/alpha/include/asm/hardirq.h
-@@ -2,9 +2,6 @@
- #ifndef _ALPHA_HARDIRQ_H
- #define _ALPHA_HARDIRQ_H
- 
--void ack_bad_irq(unsigned int irq);
--#define ack_bad_irq ack_bad_irq
--
- #include <asm-generic/hardirq.h>
- 
- #endif /* _ALPHA_HARDIRQ_H */
-diff --git a/arch/alpha/include/asm/hw_irq.h b/arch/alpha/include/asm/hw_irq.h
-index e2d81ac0d934..0be79f3a6cae 100644
---- a/arch/alpha/include/asm/hw_irq.h
-+++ b/arch/alpha/include/asm/hw_irq.h
-@@ -2,8 +2,6 @@
- #ifndef _ALPHA_HW_IRQ_H
- #define _ALPHA_HW_IRQ_H
- 
--
--extern volatile unsigned long irq_err_count;
- DECLARE_PER_CPU(unsigned long, irq_pmi_count);
- 
- #ifdef CONFIG_ALPHA_GENERIC
-diff --git a/arch/alpha/kernel/irq.c b/arch/alpha/kernel/irq.c
-index c1980eea75a6..2b7dad83e0dc 100644
---- a/arch/alpha/kernel/irq.c
-+++ b/arch/alpha/kernel/irq.c
-@@ -25,18 +25,12 @@
- #include <linux/seq_file.h>
- #include <linux/profile.h>
- #include <linux/bitops.h>
--
-+#include <asm-generic/irq-err.h>
- #include <asm/io.h>
- #include <linux/uaccess.h>
- 
--volatile unsigned long irq_err_count;
- DEFINE_PER_CPU(unsigned long, irq_pmi_count);
- 
--void ack_bad_irq(unsigned int irq)
--{
--	irq_err_count++;
--}
--
- #ifdef CONFIG_SMP 
- static char irq_user_affinity[NR_IRQS];
- 
-@@ -79,7 +73,7 @@ int arch_show_interrupts(struct seq_file *p, int prec)
- 	for_each_online_cpu(j)
- 		seq_printf(p, "%10lu ", per_cpu(irq_pmi_count, j));
- 	seq_puts(p, "          Performance Monitoring\n");
--	seq_printf(p, "ERR: %10lu\n", irq_err_count);
-+	seq_printf(p, "ERR: %10lu\n", irq_err_get());
- 	return 0;
- }
- 
-@@ -109,7 +103,7 @@ handle_irq(int irq)
- 	
- 	if (!desc || ((unsigned) irq > ACTUAL_NR_IRQS &&
- 	    illegal_count < MAX_ILLEGAL_IRQS)) {
--		irq_err_count++;
-+		irq_err_inc();
- 		illegal_count++;
- 		printk(KERN_CRIT "device_interrupt: invalid interrupt %d\n",
- 		       irq);
-diff --git a/arch/alpha/kernel/irq_alpha.c b/arch/alpha/kernel/irq_alpha.c
-index d17e44c99df9..3b6373cf73d9 100644
---- a/arch/alpha/kernel/irq_alpha.c
-+++ b/arch/alpha/kernel/irq_alpha.c
-@@ -13,6 +13,7 @@
- #include <asm/dma.h>
- #include <asm/perf_event.h>
- #include <asm/mce.h>
-+#include <asm-generic/irq-err.h>
- 
- #include "proto.h"
- #include "irq_impl.h"
-@@ -30,7 +31,7 @@ EXPORT_SYMBOL(__min_ipl);
- static void
- dummy_perf(unsigned long vector, struct pt_regs *regs)
- {
--	irq_err_count++;
-+	irq_err_inc();
- 	printk(KERN_CRIT "Performance counter interrupt!\n");
- }
- 
-@@ -60,7 +61,7 @@ do_entInt(unsigned long type, unsigned long vector,
- 		handle_ipi(regs);
- 		return;
- #else
--		irq_err_count++;
-+		irq_err_inc();
- 		printk(KERN_CRIT "Interprocessor interrupt? "
- 		       "You must be kidding!\n");
- #endif
-diff --git a/arch/alpha/kernel/perf_event.c b/arch/alpha/kernel/perf_event.c
-index e7a59d927d78..d855cece7bb1 100644
---- a/arch/alpha/kernel/perf_event.c
-+++ b/arch/alpha/kernel/perf_event.c
-@@ -16,7 +16,7 @@
- #include <linux/kdebug.h>
- #include <linux/mutex.h>
- #include <linux/init.h>
--
-+#include <asm-generic/irq-err.h>
- #include <asm/hwrpb.h>
- #include <linux/atomic.h>
- #include <asm/irq.h>
-@@ -823,7 +823,7 @@ static void alpha_perf_event_irq_handler(unsigned long la_ptr,
- 	/* la_ptr is the counter that overflowed. */
- 	if (unlikely(la_ptr >= alpha_pmu->num_pmcs)) {
- 		/* This should never occur! */
--		irq_err_count++;
-+		irq_err_inc();
- 		pr_warn("PMI: silly index %ld\n", la_ptr);
- 		wrperfmon(PERFMON_CMD_ENABLE, cpuc->idx_mask);
- 		return;
-@@ -846,7 +846,7 @@ static void alpha_perf_event_irq_handler(unsigned long la_ptr,
- 
- 	if (unlikely(!event)) {
- 		/* This should never occur! */
--		irq_err_count++;
-+		irq_err_inc();
- 		pr_warn("PMI: No event at index %d!\n", idx);
- 		wrperfmon(PERFMON_CMD_ENABLE, cpuc->idx_mask);
- 		return;
--- 
-2.11.0
+> -       struct CPUEntry entries[0];
+> +       /*
+> +        * The cpu entries follow, they start at the offset specified
+> +        * in offset_cpu.
+> +        */
+
+Sounds good, thanks!
+
+ Thomas
