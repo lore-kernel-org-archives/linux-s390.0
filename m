@@ -1,40 +1,61 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 07/23] arch: parisc: drop misleading warning on spurious IRQ
-Date: Fri, 18 Dec 2020 15:57:30 +0100
-Message-Id: <20201218145746.24205-8-info@metux.net>
-In-Reply-To: <20201218145746.24205-1-info@metux.net>
-References: <20201218145746.24205-1-info@metux.net>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:11354 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725871AbgLQQBJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 11:01:09 -0500
+From: Stefan Haberland <sth@linux.ibm.com>
+Subject: [PATCH 4/4] s390/dasd: fix list corruption of lcu list
+Date: Thu, 17 Dec 2020 16:59:07 +0100
+Message-Id: <20201217155907.36436-5-sth@linux.ibm.com>
+In-Reply-To: <20201217155907.36436-1-sth@linux.ibm.com>
+References: <20201217155907.36436-1-sth@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: Jens Axboe <axboe@kernel.dk>
+Cc: linux-block@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>, linux-s390@vger.kernel.org, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 
-The warning in ack_bad_irq() is misleading in several ways:
-* the term "vector" isn't quite correct
-* the printing format isn't consistent across the archs: some print decimal,
-  some hex, some hex w/o 0x prefix.
-* the printed linux irq isn't meaningful in all cases - we actually would
-  want it to print the hw irq.
+In dasd_alias_disconnect_device_from_lcu the device is removed from any
+list on the LCU. Afterwards the LCU is removed from the lcu list if it
+does not contain devices any longer.
 
-Since all call sites already print out more detailed and correct information,
-we just don't need to duplicate this in each single arch. So just drop it.
+The lcu->lock protects the lcu from parallel updates. But to cancel all
+workers and wait for completion the lcu->lock has to be unlocked.
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+If two devices are removed in parallel and both are removed from the LCU
+the first device that takes the lcu->lock again will delete the LCU because
+it is already empty but the second device also tries to free the LCU which
+leads to a list corruption of the lcu list.
+
+Fix by removing the device right before the lcu is checked without
+unlocking the lcu->lock in between.
+
+Fixes: 8e09f21574ea ("[S390] dasd: add hyper PAV support to DASD device driver, part 1")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
 ---
- arch/parisc/include/asm/hardirq.h | 2 +-
+ drivers/s390/block/dasd_alias.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/parisc/include/asm/hardirq.h b/arch/parisc/include/asm/hardirq.h
-index fad29aa6f45f..78b581f00bb3 100644
---- a/arch/parisc/include/asm/hardirq.h
-+++ b/arch/parisc/include/asm/hardirq.h
-@@ -34,6 +34,6 @@ DECLARE_PER_CPU_SHARED_ALIGNED(irq_cpustat_t, irq_stat);
- #define __ARCH_IRQ_STAT
- #define inc_irq_stat(member)	this_cpu_inc(irq_stat.member)
- #define __inc_irq_stat(member)	__this_cpu_inc(irq_stat.member)
--#define ack_bad_irq(irq) WARN(1, "unexpected IRQ trap at vector %02x\n", irq)
-+#define ack_bad_irq(irq)
+diff --git a/drivers/s390/block/dasd_alias.c b/drivers/s390/block/dasd_alias.c
+index 60344e13e87b..dc78a523a69f 100644
+--- a/drivers/s390/block/dasd_alias.c
++++ b/drivers/s390/block/dasd_alias.c
+@@ -256,7 +256,6 @@ void dasd_alias_disconnect_device_from_lcu(struct dasd_device *device)
+ 		return;
+ 	device->discipline->get_uid(device, &uid);
+ 	spin_lock_irqsave(&lcu->lock, flags);
+-	list_del_init(&device->alias_list);
+ 	/* make sure that the workers don't use this device */
+ 	if (device == lcu->suc_data.device) {
+ 		spin_unlock_irqrestore(&lcu->lock, flags);
+@@ -283,6 +282,7 @@ void dasd_alias_disconnect_device_from_lcu(struct dasd_device *device)
  
- #endif /* _PARISC_HARDIRQ_H */
+ 	spin_lock_irqsave(&aliastree.lock, flags);
+ 	spin_lock(&lcu->lock);
++	list_del_init(&device->alias_list);
+ 	if (list_empty(&lcu->grouplist) &&
+ 	    list_empty(&lcu->active_devices) &&
+ 	    list_empty(&lcu->inactive_devices)) {
 -- 
-2.11.0
+2.17.1
