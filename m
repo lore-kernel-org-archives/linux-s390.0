@@ -1,80 +1,84 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49712 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2394097AbgLKKCV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 11 Dec 2020 05:02:21 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 0/8] s390x: Add SIE library and simple test
-Date: Fri, 11 Dec 2020 05:00:31 -0500
-Message-Id: <20201211100039.63597-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from foss.arm.com ([217.140.110.172]:42328 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726291AbgLQP3j (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 17 Dec 2020 10:29:39 -0500
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Subject: [PATCH V2 3/3] s390/mm: Define arch_get_mappable_range()
+Date: Thu, 17 Dec 2020 20:58:32 +0530
+Message-Id: <1608218912-28932-4-git-send-email-anshuman.khandual@arm.com>
+In-Reply-To: <1608218912-28932-1-git-send-email-anshuman.khandual@arm.com>
+References: <1608218912-28932-1-git-send-email-anshuman.khandual@arm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: linux-mm@kvack.org, akpm@linux-foundation.org, david@redhat.com, hca@linux.ibm.com, catalin.marinas@arm.com
+Cc: linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Anshuman Khandual <anshuman.khandual@arm.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>
 
-This is the absolute minimum needed to run VMs inside the KVM Unit
-Tests. It's more of a base for other tests that I can't (yet) publish
-than an addition of tests that check KVM functionality. However, I
-wanted to decrease the number of WIP patches in my private
-branch. Once the library is available maybe others will come and
-extend the SIE test itself.
+This overrides arch_get_mappabble_range() on s390 platform which will be
+used with recently added generic framework. It modifies the existing range
+check in vmem_add_mapping() using arch_get_mappable_range(). It also adds a
+VM_BUG_ON() check that would ensure that memhp_range_allowed() has already
+been called on the hotplug path.
 
-Yes, I have added VM management functionality like VM create/destroy,
-etc but as it is not needed right now, I'd like to exclude it from
-this patch set for now.
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: linux-s390@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Acked-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+---
+ arch/s390/mm/init.c |  1 +
+ arch/s390/mm/vmem.c | 15 ++++++++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
 
-v3:
-	* Rebased on re-license patches
-	* Split assembly
-	* Now using ICPT_* constants
-	* Added read_info asserts
-	* Fixed missing spin_lock() in smp.c lib
-	* Replaced duplicated code in sie test with generic intercept test
-	* Replaced uv-guest.x bit testing with test_bit_inv()
-	* Some other minor cleanups
-
-Gitlab:
-https://gitlab.com/frankja/kvm-unit-tests/-/tree/sie
-
-CI:
-https://gitlab.com/frankja/kvm-unit-tests/-/pipelines/228396011
-
-Janosch Frank (8):
-  s390x: Add test_bit to library
-  s390x: Consolidate sclp read info
-  s390x: SCLP feature checking
-  s390x: Split assembly and move to s390x/asm/
-  s390x: sie: Add SIE to lib
-  s390x: sie: Add first SIE test
-  s390x: Add diag318 intercept test
-  s390x: Fix sclp.h style issues
-
- lib/s390x/asm-offsets.c    |  13 +++
- lib/s390x/asm/arch_def.h   |   7 ++
- lib/s390x/asm/bitops.h     |  26 +++++
- lib/s390x/asm/facility.h   |   3 +-
- lib/s390x/interrupt.c      |   7 ++
- lib/s390x/io.c             |   2 +
- lib/s390x/sclp.c           |  52 ++++++++--
- lib/s390x/sclp.h           | 178 ++++++++++++++++++---------------
- lib/s390x/sie.h            | 197 +++++++++++++++++++++++++++++++++++++
- lib/s390x/smp.c            |  27 +++--
- s390x/Makefile             |   9 +-
- s390x/{ => asm}/cstart64.S | 119 +---------------------
- s390x/asm/lib.S            | 121 +++++++++++++++++++++++
- s390x/asm/macros.S         |  77 +++++++++++++++
- s390x/intercept.c          |  19 ++++
- s390x/sie.c                | 113 +++++++++++++++++++++
- s390x/unittests.cfg        |   3 +
- s390x/uv-guest.c           |   6 +-
- 18 files changed, 754 insertions(+), 225 deletions(-)
- create mode 100644 lib/s390x/sie.h
- rename s390x/{ => asm}/cstart64.S (50%)
- create mode 100644 s390x/asm/lib.S
- create mode 100644 s390x/asm/macros.S
- create mode 100644 s390x/sie.c
-
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 77767850d0d0..e0e78234ae57 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -291,6 +291,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+ 	if (WARN_ON_ONCE(params->pgprot.pgprot != PAGE_KERNEL.pgprot))
+ 		return -EINVAL;
+ 
++	VM_BUG_ON(!memhp_range_allowed(start, size, 1));
+ 	rc = vmem_add_mapping(start, size);
+ 	if (rc)
+ 		return rc;
+diff --git a/arch/s390/mm/vmem.c b/arch/s390/mm/vmem.c
+index b239f2ba93b0..e10e563ad2b4 100644
+--- a/arch/s390/mm/vmem.c
++++ b/arch/s390/mm/vmem.c
+@@ -4,6 +4,7 @@
+  *    Author(s): Heiko Carstens <heiko.carstens@de.ibm.com>
+  */
+ 
++#include <linux/memory_hotplug.h>
+ #include <linux/memblock.h>
+ #include <linux/pfn.h>
+ #include <linux/mm.h>
+@@ -532,11 +533,23 @@ void vmem_remove_mapping(unsigned long start, unsigned long size)
+ 	mutex_unlock(&vmem_mutex);
+ }
+ 
++struct range arch_get_mappable_range(void)
++{
++	struct range memhp_range;
++
++	memhp_range.start = 0;
++	memhp_range.end =  VMEM_MAX_PHYS;
++	return memhp_range;
++}
++
+ int vmem_add_mapping(unsigned long start, unsigned long size)
+ {
++	struct range range;
+ 	int ret;
+ 
+-	if (start + size > VMEM_MAX_PHYS ||
++	range = arch_get_mappable_range();
++	if (start < range.start ||
++	    start + size > range.end ||
+ 	    start + size < start)
+ 		return -ERANGE;
+ 
 -- 
-2.25.1
+2.20.1
