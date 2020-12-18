@@ -1,315 +1,40 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:44550 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728704AbgLATdF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:33:05 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v7 14/14] net/smc: Add support for obtaining SMCR device list
-Date: Tue,  1 Dec 2020 20:20:49 +0100
-Message-Id: <20201201192049.53517-15-kgraul@linux.ibm.com>
-In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
-References: <20201201192049.53517-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 01/23] kernel: irq: irqdescs: warn on spurious IRQ
+Date: Fri, 18 Dec 2020 15:57:24 +0100
+Message-Id: <20201218145746.24205-2-info@metux.net>
+In-Reply-To: <20201218145746.24205-1-info@metux.net>
+References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Add a warning on spurious IRQs to __handle_domain_irq(), also telling the
+linux IRQ number (if any), the hw IRQ number and the max nr of IRQs.
 
-Deliver SMCR device information via netlink based
-diagnostic interface.
+That's far more informative than the warnings in (some of) the individual
+arch's ack_bad_irq()'s. These aren't really helpful since either the
+other callers already had printed more detailed information or (when called
+by __handle_domain_irq()) the printout just doesn't tell anything useful.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- include/uapi/linux/smc.h |  13 +++-
- net/smc/smc_core.c       |   2 +-
- net/smc/smc_ib.c         | 156 +++++++++++++++++++++++++++++++++++++++
- net/smc/smc_ib.h         |   2 +
- net/smc/smc_netlink.c    |   6 ++
- 5 files changed, 176 insertions(+), 3 deletions(-)
+ kernel/irq/irqdesc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 3cb40ab049d9..3e68da07fba2 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -46,6 +46,7 @@ enum {
- 	SMC_NETLINK_GET_LINK_SMCR,
- 	SMC_NETLINK_GET_LGR_SMCD,
- 	SMC_NETLINK_GET_DEV_SMCD,
-+	SMC_NETLINK_GET_DEV_SMCR,
- };
- 
- /* SMC_GENL_FAMILY top level attributes */
-@@ -56,6 +57,7 @@ enum {
- 	SMC_GEN_LINK_SMCR,		/* nest */
- 	SMC_GEN_LGR_SMCD,		/* nest */
- 	SMC_GEN_DEV_SMCD,		/* nest */
-+	SMC_GEN_DEV_SMCR,		/* nest */
- 	__SMC_GEN_MAX,
- 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
- };
-@@ -127,16 +129,20 @@ enum {
- 	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
- };
- 
--/* SMC_NLA_DEV_PORT attributes */
-+/* SMC_NLA_DEV_PORT nested attributes */
- enum {
- 	SMC_NLA_DEV_PORT_UNSPEC,
- 	SMC_NLA_DEV_PORT_PNET_USR,	/* u8 */
- 	SMC_NLA_DEV_PORT_PNETID,	/* string */
-+	SMC_NLA_DEV_PORT_NETDEV,	/* u32 */
-+	SMC_NLA_DEV_PORT_STATE,		/* u8 */
-+	SMC_NLA_DEV_PORT_VALID,		/* u8 */
-+	SMC_NLA_DEV_PORT_LNK_CNT,	/* u32 */
- 	__SMC_NLA_DEV_PORT_MAX,
- 	SMC_NLA_DEV_PORT_MAX = __SMC_NLA_DEV_PORT_MAX - 1
- };
- 
--/* SMC_GEN_DEV_SMCD attributes */
-+/* SMC_GEN_DEV_SMCD and SMC_GEN_DEV_SMCR attributes */
- enum {
- 	SMC_NLA_DEV_UNSPEC,
- 	SMC_NLA_DEV_USE_CNT,		/* u32 */
-@@ -147,7 +153,10 @@ enum {
- 	SMC_NLA_DEV_PCI_DEVICE,		/* u16 */
- 	SMC_NLA_DEV_PCI_ID,		/* string */
- 	SMC_NLA_DEV_PORT,		/* nest */
-+	SMC_NLA_DEV_PORT2,		/* nest */
-+	SMC_NLA_DEV_IB_NAME,		/* string */
- 	__SMC_NLA_DEV_MAX,
- 	SMC_NLA_DEV_MAX = __SMC_NLA_DEV_MAX - 1
- };
-+
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index ac2cc593f25f..59342b519e34 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -38,7 +38,7 @@
- #define SMC_LGR_FREE_DELAY_SERV		(600 * HZ)
- #define SMC_LGR_FREE_DELAY_CLNT		(SMC_LGR_FREE_DELAY_SERV + 10 * HZ)
- 
--static struct smc_lgr_list smc_lgr_list = {	/* established link groups */
-+struct smc_lgr_list smc_lgr_list = {	/* established link groups */
- 	.lock = __SPIN_LOCK_UNLOCKED(smc_lgr_list.lock),
- 	.list = LIST_HEAD_INIT(smc_lgr_list.list),
- 	.num = 0,
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index 61b025c912a9..89ea10675a7d 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -25,6 +25,7 @@
- #include "smc_core.h"
- #include "smc_wr.h"
- #include "smc.h"
-+#include "smc_netlink.h"
- 
- #define SMC_MAX_CQE 32766	/* max. # of completion queue elements */
- 
-@@ -326,6 +327,161 @@ int smc_ib_create_protection_domain(struct smc_link *lnk)
- 	return rc;
- }
- 
-+static bool smcr_diag_is_dev_critical(struct smc_lgr_list *smc_lgr,
-+				      struct smc_ib_device *smcibdev)
-+{
-+	struct smc_link_group *lgr;
-+	bool rc = false;
-+	int i;
-+
-+	spin_lock_bh(&smc_lgr->lock);
-+	list_for_each_entry(lgr, &smc_lgr->list, list) {
-+		if (lgr->is_smcd)
-+			continue;
-+		for (i = 0; i < SMC_LINKS_PER_LGR_MAX; i++) {
-+			if (lgr->lnk[i].state == SMC_LNK_UNUSED ||
-+			    lgr->lnk[i].smcibdev != smcibdev)
-+				continue;
-+			if (lgr->type == SMC_LGR_SINGLE ||
-+			    lgr->type == SMC_LGR_ASYMMETRIC_LOCAL) {
-+				rc = true;
-+				goto out;
-+			}
-+		}
-+	}
-+out:
-+	spin_unlock_bh(&smc_lgr->lock);
-+	return rc;
-+}
-+
-+static int smc_nl_handle_dev_port(struct sk_buff *skb,
-+				  struct ib_device *ibdev,
-+				  struct smc_ib_device *smcibdev,
-+				  int port)
-+{
-+	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
-+	struct nlattr *port_attrs;
-+	unsigned char port_state;
-+	int lnk_count = 0;
-+
-+	port_attrs = nla_nest_start(skb, SMC_NLA_DEV_PORT + port);
-+	if (!port_attrs)
-+		goto errout;
-+
-+	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR,
-+		       smcibdev->pnetid_by_user[port]))
-+		goto errattr;
-+	snprintf(smc_pnet, sizeof(smc_pnet), "%s",
-+		 (char *)&smcibdev->pnetid[port]);
-+	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet))
-+		goto errattr;
-+	if (nla_put_u32(skb, SMC_NLA_DEV_PORT_NETDEV,
-+			smcibdev->ndev_ifidx[port]))
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_VALID, 1))
-+		goto errattr;
-+	port_state = smc_ib_port_active(smcibdev, port + 1);
-+	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_STATE, port_state))
-+		goto errattr;
-+	lnk_count = atomic_read(&smcibdev->lnk_cnt_by_port[port]);
-+	if (nla_put_u32(skb, SMC_NLA_DEV_PORT_LNK_CNT, lnk_count))
-+		goto errattr;
-+	nla_nest_end(skb, port_attrs);
-+	return 0;
-+errattr:
-+	nla_nest_cancel(skb, port_attrs);
-+errout:
-+	return -EMSGSIZE;
-+}
-+
-+static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb)
-+{
-+	char smc_ibname[IB_DEVICE_NAME_MAX + 1];
-+	struct smc_pci_dev smc_pci_dev;
-+	struct pci_dev *pci_dev;
-+	unsigned char is_crit;
-+	struct nlattr *attrs;
-+	void *nlh;
-+	int i;
-+
-+	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-+			  &smc_gen_nl_family, NLM_F_MULTI,
-+			  SMC_NETLINK_GET_DEV_SMCR);
-+	if (!nlh)
-+		goto errmsg;
-+	attrs = nla_nest_start(skb, SMC_GEN_DEV_SMCR);
-+	if (!attrs)
-+		goto errout;
-+	is_crit = smcr_diag_is_dev_critical(&smc_lgr_list, smcibdev);
-+	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, is_crit))
-+		goto errattr;
-+	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
-+	pci_dev = to_pci_dev(smcibdev->ibdev->dev.parent);
-+	smc_set_pci_values(pci_dev, &smc_pci_dev);
-+	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_VENDOR, smc_pci_dev.pci_vendor))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_DEVICE, smc_pci_dev.pci_device))
-+		goto errattr;
-+	if (nla_put_string(skb, SMC_NLA_DEV_PCI_ID, smc_pci_dev.pci_id))
-+		goto errattr;
-+	snprintf(smc_ibname, sizeof(smc_ibname), "%s", smcibdev->ibdev->name);
-+	if (nla_put_string(skb, SMC_NLA_DEV_IB_NAME, smc_ibname))
-+		goto errattr;
-+	for (i = 1; i <= SMC_MAX_PORTS; i++) {
-+		if (!rdma_is_port_valid(smcibdev->ibdev, i))
-+			continue;
-+		if (smc_nl_handle_dev_port(skb, smcibdev->ibdev,
-+					   smcibdev, i - 1))
-+			goto errattr;
-+	}
-+
-+	nla_nest_end(skb, attrs);
-+	genlmsg_end(skb, nlh);
-+	return 0;
-+
-+errattr:
-+	nla_nest_cancel(skb, attrs);
-+errout:
-+	genlmsg_cancel(skb, nlh);
-+errmsg:
-+	return -EMSGSIZE;
-+}
-+
-+static void smc_nl_prep_smcr_dev(struct smc_ib_devices *dev_list,
-+				 struct sk_buff *skb,
-+				 struct netlink_callback *cb)
-+{
-+	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-+	struct smc_ib_device *smcibdev;
-+	int snum = cb_ctx->pos[0];
-+	int num = 0;
-+
-+	mutex_lock(&dev_list->mutex);
-+	list_for_each_entry(smcibdev, &dev_list->list, list) {
-+		if (num < snum)
-+			goto next;
-+		if (smc_nl_handle_smcr_dev(smcibdev, skb, cb))
-+			goto errout;
-+next:
-+		num++;
-+	}
-+errout:
-+	mutex_unlock(&dev_list->mutex);
-+	cb_ctx->pos[0] = num;
-+}
-+
-+int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	smc_nl_prep_smcr_dev(&smc_ib_devices, skb, cb);
-+	return skb->len;
-+}
-+
- static void smc_ib_qp_event_handler(struct ib_event *ibevent, void *priv)
- {
- 	struct smc_link *lnk = (struct smc_link *)priv;
-diff --git a/net/smc/smc_ib.h b/net/smc/smc_ib.h
-index ab37da341fa8..3085f5180da7 100644
---- a/net/smc/smc_ib.h
-+++ b/net/smc/smc_ib.h
-@@ -30,6 +30,7 @@ struct smc_ib_devices {			/* list of smc ib devices definition */
- };
- 
- extern struct smc_ib_devices	smc_ib_devices; /* list of smc ib devices */
-+extern struct smc_lgr_list smc_lgr_list; /* list of linkgroups */
- 
- struct smc_ib_device {				/* ib-device infos for smc */
- 	struct list_head	list;
-@@ -91,4 +92,5 @@ void smc_ib_sync_sg_for_device(struct smc_link *lnk,
- int smc_ib_determine_gid(struct smc_ib_device *smcibdev, u8 ibport,
- 			 unsigned short vlan_id, u8 gid[], u8 *sgid_index);
- bool smc_ib_is_valid_local_systemid(void);
-+int smcr_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
- #endif
-diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-index debdeec53728..140419a19dbf 100644
---- a/net/smc/smc_netlink.c
-+++ b/net/smc/smc_netlink.c
-@@ -18,6 +18,7 @@
- 
- #include "smc_core.h"
- #include "smc_ism.h"
-+#include "smc_ib.h"
- #include "smc_netlink.h"
- 
- #define SMC_CMD_MAX_ATTR 1
-@@ -49,6 +50,11 @@ static const struct genl_ops smc_gen_nl_ops[] = {
- 		/* can be retrieved by unprivileged users */
- 		.dumpit = smcd_nl_get_device,
- 	},
-+	{
-+		.cmd = SMC_NETLINK_GET_DEV_SMCR,
-+		/* can be retrieved by unprivileged users */
-+		.dumpit = smcr_nl_get_device,
-+	},
- };
- 
- static const struct nla_policy smc_gen_nl_policy[2] = {
+diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
+index e810eb9906ea..62a381351775 100644
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -681,6 +681,9 @@ int __handle_domain_irq(struct irq_domain *domain, unsigned int hwirq,
+ 	 * than crashing, do something sensible.
+ 	 */
+ 	if (unlikely(!irq || irq >= nr_irqs)) {
++		if (printk_ratelimit())
++			pr_warn("spurious IRQ: irq=%d hwirq=%d nr_irqs=%d\n",
++				irq, hwirq, nr_irqs);
+ 		ack_bad_irq(irq);
+ 		ret = -EINVAL;
+ 	} else {
 -- 
-2.17.1
+2.11.0
