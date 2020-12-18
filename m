@@ -1,73 +1,46 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53204 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404279AbgLJTnF (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:05 -0500
-Message-Id: <20201210194043.268774449@linutronix.de>
-Date: Thu, 10 Dec 2020 20:25:43 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 07/30] genirq: Make kstat_irqs() static
-References: <20201210192536.118432146@linutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Received: from mout.kundenserver.de ([212.227.126.187]:33379 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728708AbgLRPBa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:30 -0500
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 12/23] arch: x86: drop misleading warning on spurious IRQ
+Date: Fri, 18 Dec 2020 15:57:35 +0100
+Message-Id: <20201218145746.24205-13-info@metux.net>
+In-Reply-To: <20201218145746.24205-1-info@metux.net>
+References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-No more users outside the core code.
+The warning in ack_bad_irq() is misleading in several ways:
+* the term "vector" isn't quite correct
+* the printing format isn't consistent across the archs: some print decimal,
+  some hex, some hex w/o 0x prefix.
+* the printed linux irq isn't meaningful in all cases - we actually would
+  want it to print the hw irq.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Since all call sites already print out more detailed and correct information,
+we just don't need to duplicate this in each single arch. So just drop it.
+
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- include/linux/kernel_stat.h |    1 -
- kernel/irq/irqdesc.c        |   19 ++++++-------------
- 2 files changed, 6 insertions(+), 14 deletions(-)
+ arch/x86/kernel/irq.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/include/linux/kernel_stat.h
-+++ b/include/linux/kernel_stat.h
-@@ -67,7 +67,6 @@ static inline unsigned int kstat_softirq
- /*
-  * Number of interrupts per specific IRQ source, since bootup
+diff --git a/arch/x86/kernel/irq.c b/arch/x86/kernel/irq.c
+index c5dd50369e2f..5c66c44b6b60 100644
+--- a/arch/x86/kernel/irq.c
++++ b/arch/x86/kernel/irq.c
+@@ -36,9 +36,6 @@ atomic_t irq_err_count;
   */
--extern unsigned int kstat_irqs(unsigned int irq);
- extern unsigned int kstat_irqs_usr(unsigned int irq);
- 
- /*
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -924,15 +924,7 @@ static bool irq_is_nmi(struct irq_desc *
- 	return desc->istate & IRQS_NMI;
- }
- 
--/**
-- * kstat_irqs - Get the statistics for an interrupt
-- * @irq:	The interrupt number
-- *
-- * Returns the sum of interrupt counts on all cpus since boot for
-- * @irq. The caller must ensure that the interrupt is not removed
-- * concurrently.
-- */
--unsigned int kstat_irqs(unsigned int irq)
-+static unsigned int kstat_irqs(unsigned int irq)
+ void ack_bad_irq(unsigned int irq)
  {
- 	struct irq_desc *desc = irq_to_desc(irq);
- 	unsigned int sum = 0;
-@@ -951,13 +943,14 @@ unsigned int kstat_irqs(unsigned int irq
- }
- 
- /**
-- * kstat_irqs_usr - Get the statistics for an interrupt
-+ * kstat_irqs_usr - Get the statistics for an interrupt from thread context
-  * @irq:	The interrupt number
-  *
-  * Returns the sum of interrupt counts on all cpus since boot for @irq.
-- * Contrary to kstat_irqs() this can be called from any context.
-- * It uses rcu since a concurrent removal of an interrupt descriptor is
-- * observing an rcu grace period before delayed_free_desc()/irq_kobj_release().
-+ *
-+ * It uses rcu to protect the access since a concurrent removal of an
-+ * interrupt descriptor is observing an rcu grace period before
-+ * delayed_free_desc()/irq_kobj_release().
-  */
- unsigned int kstat_irqs_usr(unsigned int irq)
- {
+-	if (printk_ratelimit())
+-		pr_err("unexpected IRQ trap at vector %02x\n", irq);
+-
+ 	/*
+ 	 * Currently unexpected vectors happen only on SMP and APIC.
+ 	 * We _must_ ack these because every local APIC has only N
+-- 
+2.11.0
