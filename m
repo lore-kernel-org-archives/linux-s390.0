@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [RFC 2/4] vfio-pci/zdev: Pass the relaxed alignment flag
-Date: Wed,  9 Dec 2020 15:27:48 -0500
-Message-Id: <1607545670-1557-3-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1607545670-1557-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1607545670-1557-1-git-send-email-mjrosato@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.130]:38775 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727662AbgLROfQ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 09:35:16 -0500
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 09/23] arch: s390: drop misleading warning on spurious IRQ
+Date: Fri, 18 Dec 2020 15:31:08 +0100
+Message-Id: <20201218143122.19459-10-info@metux.net>
+In-Reply-To: <20201218143122.19459-1-info@metux.net>
+References: <20201218143122.19459-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-Use an additional bit of the VFIO_DEVICE_INFO_CAP_ZPCI_GROUP flags
-field to pass whether or not the associated device supports relaxed
-length and alignment for some I/O operations.
+The warning in ack_bad_irq() is misleading in several ways:
+* the term "vector" isn't quite correct
+* the printing format isn't consistent across the archs: some print decimal,
+  some hex, some hex w/o 0x prefix.
+* the printed linux irq isn't meaningful in all cases - we actually would
+  want it to print the hw irq.
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Acked-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Since all call sites already print out more detailed and correct information,
+we just don't need to duplicate this in each single arch. So just drop it.
+
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- drivers/vfio/pci/vfio_pci_zdev.c | 2 ++
- include/uapi/linux/vfio_zdev.h   | 1 +
- 2 files changed, 3 insertions(+)
+ arch/s390/include/asm/hardirq.h | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
-index 2296856..57e19ff 100644
---- a/drivers/vfio/pci/vfio_pci_zdev.c
-+++ b/drivers/vfio/pci/vfio_pci_zdev.c
-@@ -60,6 +60,8 @@ static int zpci_group_cap(struct zpci_dev *zdev, struct vfio_pci_device *vdev,
- 		.version = zdev->version
- 	};
+diff --git a/arch/s390/include/asm/hardirq.h b/arch/s390/include/asm/hardirq.h
+index dfbc3c6c0674..56d95fcb310a 100644
+--- a/arch/s390/include/asm/hardirq.h
++++ b/arch/s390/include/asm/hardirq.h
+@@ -21,9 +21,6 @@
+ #define __ARCH_HAS_DO_SOFTIRQ
+ #define __ARCH_IRQ_EXIT_IRQS_DISABLED
  
-+	if (zdev->relaxed_align)
-+		cap.flags |= VFIO_DEVICE_INFO_ZPCI_FLAG_RELAXED;
- 	return vfio_info_add_capability(caps, &cap.header, sizeof(cap));
- }
+-static inline void ack_bad_irq(unsigned int irq)
+-{
+-	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
+-}
++#define ack_bad_irq(irq)
  
-diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
-index b430939..b0b6596 100644
---- a/include/uapi/linux/vfio_zdev.h
-+++ b/include/uapi/linux/vfio_zdev.h
-@@ -43,6 +43,7 @@ struct vfio_device_info_cap_zpci_group {
- 	__u64 msi_addr;		/* MSI address */
- 	__u64 flags;
- #define VFIO_DEVICE_INFO_ZPCI_FLAG_REFRESH 1 /* Program-specified TLB refresh */
-+#define VFIO_DEVICE_INFO_ZPCI_FLAG_RELAXED 2 /* Relaxed Length and Alignment */
- 	__u16 mui;		/* Measurement Block Update Interval */
- 	__u16 noi;		/* Maximum number of MSIs */
- 	__u16 maxstbl;		/* Maximum Store Block Length */
+ #endif /* __ASM_HARDIRQ_H */
 -- 
-1.8.3.1
+2.11.0
