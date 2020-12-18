@@ -1,47 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40674 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728700AbgLAQzM (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 11:55:12 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 1/9] brd: remove the end of device check in brd_do_bvec
-Date: Tue,  1 Dec 2020 17:54:16 +0100
-Message-Id: <20201201165424.2030647-2-hch@lst.de>
-In-Reply-To: <20201201165424.2030647-1-hch@lst.de>
-References: <20201201165424.2030647-1-hch@lst.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mout.kundenserver.de ([212.227.126.135]:42299 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726247AbgLRPBb (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:31 -0500
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 13/23] arch: generic: drop misleading warning on spurious IRQ
+Date: Fri, 18 Dec 2020 15:57:36 +0100
+Message-Id: <20201218145746.24205-14-info@metux.net>
+In-Reply-To: <20201218145746.24205-1-info@metux.net>
+References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-The block layer already checks for this conditions in bio_check_eod
-before calling the driver.
+The warning in ack_bad_irq() is misleading in several ways:
+* the term "vector" isn't quite correct
+* the printing format isn't consistent across the archs: some print decimal,
+  some hex, some hex w/o 0x prefix.
+* the printed linux irq isn't meaningful in all cases - we actually would
+  want it to print the hw irq.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Since all call sites already print out more detailed and correct information,
+we just don't need to duplicate this in each single arch. So just drop it.
+
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- drivers/block/brd.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ include/asm-generic/hardirq.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index c43a6ab4b1f39f..c7c8214190795c 100644
---- a/drivers/block/brd.c
-+++ b/drivers/block/brd.c
-@@ -285,14 +285,10 @@ static int brd_do_bvec(struct brd_device *brd, struct page *page,
- static blk_qc_t brd_submit_bio(struct bio *bio)
+diff --git a/include/asm-generic/hardirq.h b/include/asm-generic/hardirq.h
+index 7317e8258b48..f5a0240cbf52 100644
+--- a/include/asm-generic/hardirq.h
++++ b/include/asm-generic/hardirq.h
+@@ -19,7 +19,6 @@ DECLARE_PER_CPU_ALIGNED(irq_cpustat_t, irq_stat);
+ #ifndef ack_bad_irq
+ static inline void ack_bad_irq(unsigned int irq)
  {
- 	struct brd_device *brd = bio->bi_disk->private_data;
-+	sector_t sector = bio->bi_iter.bi_sector;
- 	struct bio_vec bvec;
--	sector_t sector;
- 	struct bvec_iter iter;
+-	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
+ }
+ #endif
  
--	sector = bio->bi_iter.bi_sector;
--	if (bio_end_sector(bio) > get_capacity(bio->bi_disk))
--		goto io_error;
--
- 	bio_for_each_segment(bvec, bio, iter) {
- 		unsigned int len = bvec.bv_len;
- 		int err;
 -- 
-2.29.2
+2.11.0
