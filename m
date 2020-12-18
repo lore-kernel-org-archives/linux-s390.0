@@ -1,137 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63604 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731228AbgLATVp (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:21:45 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v7 07/14] net/smc: Refactor smc ism v2 capability handling
-Date: Tue,  1 Dec 2020 20:20:42 +0100
-Message-Id: <20201201192049.53517-8-kgraul@linux.ibm.com>
-In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
-References: <20201201192049.53517-1-kgraul@linux.ibm.com>
+Received: from mout.kundenserver.de ([212.227.126.133]:45275 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726247AbgLRPBT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:19 -0500
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 04/23] arch: c6x: drop misleading warning on spurious IRQ
+Date: Fri, 18 Dec 2020 15:57:27 +0100
+Message-Id: <20201218145746.24205-5-info@metux.net>
+In-Reply-To: <20201218145746.24205-1-info@metux.net>
+References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+The warning in ack_bad_irq() is misleading in several ways:
+* the term "vector" isn't quite correct
+* the printing format isn't consistent across the archs: some print decimal,
+  some hex, some hex w/o 0x prefix.
+* the printed linux irq isn't meaningful in all cases - we actually would
+  want it to print the hw irq.
 
-Encapsulate the smc ism v2 capability boolean value
-in a function for better information hiding.
+Since all call sites already print out more detailed and correct information,
+we just don't need to duplicate this in each single arch. So just drop it.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- net/smc/af_smc.c  | 12 ++++++------
- net/smc/smc_ism.c |  8 +++++++-
- net/smc/smc_ism.h |  5 ++---
- 3 files changed, 15 insertions(+), 10 deletions(-)
+ arch/c6x/kernel/irq.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 13db3f260e94..f79b59a972f0 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -668,7 +668,7 @@ static int smc_find_proposal_devices(struct smc_sock *smc,
- 				ini->smc_type_v1 = SMC_TYPE_N;
- 		} /* else RDMA is supported for this connection */
- 	}
--	if (smc_ism_v2_capable && smc_find_ism_v2_device_clnt(smc, ini))
-+	if (smc_ism_is_v2_capable() && smc_find_ism_v2_device_clnt(smc, ini))
- 		ini->smc_type_v2 = SMC_TYPE_N;
+diff --git a/arch/c6x/kernel/irq.c b/arch/c6x/kernel/irq.c
+index e4c53d185b62..b9f7cfa2ed21 100644
+--- a/arch/c6x/kernel/irq.c
++++ b/arch/c6x/kernel/irq.c
+@@ -116,7 +116,6 @@ void __init init_IRQ(void)
  
- 	/* if neither ISM nor RDMA are supported, fallback */
-@@ -920,7 +920,7 @@ static int smc_connect_check_aclc(struct smc_init_info *ini,
- /* perform steps before actually connecting */
- static int __smc_connect(struct smc_sock *smc)
+ void ack_bad_irq(int irq)
  {
--	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
-+	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
- 	struct smc_clc_msg_accept_confirm_v2 *aclc2;
- 	struct smc_clc_msg_accept_confirm *aclc;
- 	struct smc_init_info *ini = NULL;
-@@ -945,9 +945,9 @@ static int __smc_connect(struct smc_sock *smc)
- 						    version);
- 
- 	ini->smcd_version = SMC_V1;
--	ini->smcd_version |= smc_ism_v2_capable ? SMC_V2 : 0;
-+	ini->smcd_version |= smc_ism_is_v2_capable() ? SMC_V2 : 0;
- 	ini->smc_type_v1 = SMC_TYPE_B;
--	ini->smc_type_v2 = smc_ism_v2_capable ? SMC_TYPE_D : SMC_TYPE_N;
-+	ini->smc_type_v2 = smc_ism_is_v2_capable() ? SMC_TYPE_D : SMC_TYPE_N;
- 
- 	/* get vlan id from IP device */
- 	if (smc_vlan_by_tcpsk(smc->clcsock, ini)) {
-@@ -1355,7 +1355,7 @@ static int smc_listen_v2_check(struct smc_sock *new_smc,
- 		rc = SMC_CLC_DECL_PEERNOSMC;
- 		goto out;
- 	}
--	if (!smc_ism_v2_capable) {
-+	if (!smc_ism_is_v2_capable()) {
- 		ini->smcd_version &= ~SMC_V2;
- 		rc = SMC_CLC_DECL_NOISM2SUPP;
- 		goto out;
-@@ -1681,7 +1681,7 @@ static void smc_listen_work(struct work_struct *work)
- {
- 	struct smc_sock *new_smc = container_of(work, struct smc_sock,
- 						smc_listen_work);
--	u8 version = smc_ism_v2_capable ? SMC_V2 : SMC_V1;
-+	u8 version = smc_ism_is_v2_capable() ? SMC_V2 : SMC_V1;
- 	struct socket *newclcsock = new_smc->clcsock;
- 	struct smc_clc_msg_accept_confirm *cclc;
- 	struct smc_clc_msg_proposal_area *buf;
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 6abbdd09a580..2456ee8228cd 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -21,7 +21,7 @@ struct smcd_dev_list smcd_dev_list = {
- 	.mutex = __MUTEX_INITIALIZER(smcd_dev_list.mutex)
- };
- 
--bool smc_ism_v2_capable;
-+static bool smc_ism_v2_capable;
- 
- /* Test if an ISM communication is possible - same CPC */
- int smc_ism_cantalk(u64 peer_gid, unsigned short vlan_id, struct smcd_dev *smcd)
-@@ -51,6 +51,12 @@ u16 smc_ism_get_chid(struct smcd_dev *smcd)
- 	return smcd->ops->get_chid(smcd);
+-	printk(KERN_ERR "IRQ: spurious interrupt %d\n", irq);
+ 	irq_err_count++;
  }
  
-+/* HW supports ISM V2 and thus System EID is defined */
-+bool smc_ism_is_v2_capable(void)
-+{
-+	return smc_ism_v2_capable;
-+}
-+
- /* Set a connection using this DMBE. */
- void smc_ism_set_conn(struct smc_connection *conn)
- {
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 8048e09ddcf8..481a4b7df30b 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -10,6 +10,7 @@
- #define SMCD_ISM_H
- 
- #include <linux/uio.h>
-+#include <linux/types.h>
- #include <linux/mutex.h>
- 
- #include "smc.h"
-@@ -20,9 +21,6 @@ struct smcd_dev_list {	/* List of SMCD devices */
- };
- 
- extern struct smcd_dev_list	smcd_dev_list;	/* list of smcd devices */
--extern bool	smc_ism_v2_capable;	/* HW supports ISM V2 and thus
--					 * System EID is defined
--					 */
- 
- struct smc_ism_vlanid {			/* VLAN id set on ISM device */
- 	struct list_head list;
-@@ -52,5 +50,6 @@ int smc_ism_write(struct smcd_dev *dev, const struct smc_ism_position *pos,
- int smc_ism_signal_shutdown(struct smc_link_group *lgr);
- void smc_ism_get_system_eid(struct smcd_dev *dev, u8 **eid);
- u16 smc_ism_get_chid(struct smcd_dev *dev);
-+bool smc_ism_is_v2_capable(void);
- void smc_ism_init(void);
- #endif
 -- 
-2.17.1
+2.11.0
