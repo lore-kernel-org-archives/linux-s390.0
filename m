@@ -1,82 +1,119 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:54978 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732456AbgKJDyN (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 9 Nov 2020 22:54:13 -0500
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.9 38/55] s390/smp: move rcu_cpu_starting() earlier
-Date: Mon,  9 Nov 2020 22:53:01 -0500
-Message-Id: <20201110035318.423757-38-sashal@kernel.org>
-In-Reply-To: <20201110035318.423757-1-sashal@kernel.org>
-References: <20201110035318.423757-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mout.kundenserver.de ([212.227.126.134]:47299 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728119AbgLROfV (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 09:35:21 -0500
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 17/23] arch: arm: use generic irq error counter
+Date: Fri, 18 Dec 2020 15:31:16 +0100
+Message-Id: <20201218143122.19459-18-info@metux.net>
+In-Reply-To: <20201218143122.19459-1-info@metux.net>
+References: <20201218143122.19459-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Qian Cai <cai@redhat.com>, "Paul E . McKenney" <paulmck@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-From: Qian Cai <cai@redhat.com>
+Use the newly introduced irq error counter, that's already maintained
+by all callers of ack_bad_irq(), in order to remove duplicate code.
 
-[ Upstream commit de5d9dae150ca1c1b5c7676711a9ca139d1a8dec ]
-
-The call to rcu_cpu_starting() in smp_init_secondary() is not early
-enough in the CPU-hotplug onlining process, which results in lockdep
-splats as follows:
-
- WARNING: suspicious RCU usage
- -----------------------------
- kernel/locking/lockdep.c:3497 RCU-list traversed in non-reader section!!
-
- other info that might help us debug this:
-
- RCU used illegally from offline CPU!
- rcu_scheduler_active = 1, debug_locks = 1
- no locks held by swapper/1/0.
-
- Call Trace:
- show_stack+0x158/0x1f0
- dump_stack+0x1f2/0x238
- __lock_acquire+0x2640/0x4dd0
- lock_acquire+0x3a8/0xd08
- _raw_spin_lock_irqsave+0xc0/0xf0
- clockevents_register_device+0xa8/0x528
- init_cpu_timer+0x33e/0x468
- smp_init_secondary+0x11a/0x328
- smp_start_secondary+0x82/0x88
-
-This is avoided by moving the call to rcu_cpu_starting up near the
-beginning of the smp_init_secondary() function. Note that the
-raw_smp_processor_id() is required in order to avoid calling into
-lockdep before RCU has declared the CPU to be watched for readers.
-
-Link: https://lore.kernel.org/lkml/160223032121.7002.1269740091547117869.tip-bot2@tip-bot2/
-Signed-off-by: Qian Cai <cai@redhat.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- arch/s390/kernel/smp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/include/asm/hardirq.h  | 2 +-
+ arch/arm/include/asm/hw_irq.h   | 6 ------
+ arch/arm/kernel/irq.c           | 6 ++----
+ drivers/irqchip/irq-omap-intc.c | 5 ++---
+ 4 files changed, 5 insertions(+), 14 deletions(-)
 
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 85700bd85f98d..3b4c3140c18e7 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -855,13 +855,14 @@ void __init smp_detect_cpus(void)
+diff --git a/arch/arm/include/asm/hardirq.h b/arch/arm/include/asm/hardirq.h
+index 706efafbf972..d9ae8998240d 100644
+--- a/arch/arm/include/asm/hardirq.h
++++ b/arch/arm/include/asm/hardirq.h
+@@ -5,7 +5,7 @@
+ #include <asm/irq.h>
  
- static void smp_init_secondary(void)
+ #define __ARCH_IRQ_EXIT_IRQS_DISABLED	1
+-#define ack_bad_irq ack_bad_irq
++#define ack_bad_irq(irq)
+ 
+ #include <asm-generic/hardirq.h>
+ 
+diff --git a/arch/arm/include/asm/hw_irq.h b/arch/arm/include/asm/hw_irq.h
+index 5305c7e33aee..adbbeb11b930 100644
+--- a/arch/arm/include/asm/hw_irq.h
++++ b/arch/arm/include/asm/hw_irq.h
+@@ -5,12 +5,6 @@
+ #ifndef _ARCH_ARM_HW_IRQ_H
+ #define _ARCH_ARM_HW_IRQ_H
+ 
+-static inline void ack_bad_irq(int irq)
+-{
+-	extern unsigned long irq_err_count;
+-	irq_err_count++;
+-}
+-
+ #define ARCH_IRQ_INIT_FLAGS	(IRQ_NOREQUEST | IRQ_NOPROBE)
+ 
+ #endif
+diff --git a/arch/arm/kernel/irq.c b/arch/arm/kernel/irq.c
+index 698b6f636156..72c3b8ce74db 100644
+--- a/arch/arm/kernel/irq.c
++++ b/arch/arm/kernel/irq.c
+@@ -32,7 +32,7 @@
+ #include <linux/kallsyms.h>
+ #include <linux/proc_fs.h>
+ #include <linux/export.h>
+-
++#include <asm-generic/irq-err.h>
+ #include <asm/hardware/cache-l2x0.h>
+ #include <asm/hardware/cache-uniphier.h>
+ #include <asm/outercache.h>
+@@ -41,8 +41,6 @@
+ #include <asm/mach/irq.h>
+ #include <asm/mach/time.h>
+ 
+-unsigned long irq_err_count;
+-
+ int arch_show_interrupts(struct seq_file *p, int prec)
  {
--	int cpu = smp_processor_id();
-+	int cpu = raw_smp_processor_id();
+ #ifdef CONFIG_FIQ
+@@ -51,7 +49,7 @@ int arch_show_interrupts(struct seq_file *p, int prec)
+ #ifdef CONFIG_SMP
+ 	show_ipi_list(p, prec);
+ #endif
+-	seq_printf(p, "%*s: %10lu\n", prec, "Err", irq_err_count);
++	seq_printf(p, "%*s: %10lu\n", prec, "Err", irq_err_get());
+ 	return 0;
+ }
  
- 	S390_lowcore.last_update_clock = get_tod_clock();
- 	restore_access_regs(S390_lowcore.access_regs_save_area);
- 	set_cpu_flag(CIF_ASCE_PRIMARY);
- 	set_cpu_flag(CIF_ASCE_SECONDARY);
- 	cpu_init();
-+	rcu_cpu_starting(cpu);
- 	preempt_disable();
- 	init_cpu_timer();
- 	vtime_init();
+diff --git a/drivers/irqchip/irq-omap-intc.c b/drivers/irqchip/irq-omap-intc.c
+index d360a6eddd6d..2682c6e814c2 100644
+--- a/drivers/irqchip/irq-omap-intc.c
++++ b/drivers/irqchip/irq-omap-intc.c
+@@ -15,7 +15,7 @@
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+-
++#include <asm-generic/irq-err.h>
+ #include <asm/exception.h>
+ #include <linux/irqchip.h>
+ #include <linux/irqdomain.h>
+@@ -328,7 +328,6 @@ static int __init omap_init_irq(u32 base, struct device_node *node)
+ static asmlinkage void __exception_irq_entry
+ omap_intc_handle_irq(struct pt_regs *regs)
+ {
+-	extern unsigned long irq_err_count;
+ 	u32 irqnr;
+ 
+ 	irqnr = intc_readl(INTC_SIR);
+@@ -351,7 +350,7 @@ omap_intc_handle_irq(struct pt_regs *regs)
+ 	 */
+ 	if (unlikely((irqnr & SPURIOUSIRQ_MASK) == SPURIOUSIRQ_MASK)) {
+ 		pr_err_once("%s: spurious irq!\n", __func__);
+-		irq_err_count++;
++		irq_err_inc();
+ 		omap_ack_irq(NULL);
+ 		return;
+ 	}
 -- 
-2.27.0
+2.11.0
