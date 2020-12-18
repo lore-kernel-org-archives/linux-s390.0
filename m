@@ -1,48 +1,44 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14424 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725770AbgLGNOj (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 7 Dec 2020 08:14:39 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 0/6] s390/qeth: updates 2020-12-07
-Date: Mon,  7 Dec 2020 14:12:27 +0100
-Message-Id: <20201207131233.90383-1-jwi@linux.ibm.com>
+Received: from mout.kundenserver.de ([212.227.126.135]:43761 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726244AbgLRPBO (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:14 -0500
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 02/23] arch: alpha: drop misleading warning on spurious IRQ
+Date: Fri, 18 Dec 2020 15:57:25 +0100
+Message-Id: <20201218145746.24205-3-info@metux.net>
+In-Reply-To: <20201218145746.24205-1-info@metux.net>
+References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-Hi Jakub,
+The warning in ack_bad_irq() is misleading in several ways:
+* the term "vector" isn't quite correct
+* the printing format isn't consistent across the archs: some print decimal,
+  some hex, some hex w/o 0x prefix.
+* the printed linux irq isn't meaningful in all cases - we actually would
+  want it to print the hw irq.
 
-please apply the following patch series for qeth to netdev's net-next tree.
+Since all call sites already print out more detailed and correct information,
+we just don't need to duplicate this in each single arch. So just drop it.
 
-Some sysfs cleanups (with the prep work in ccwgroup acked by Heiko), and
-a few improvements to the code that deals with async TX completion
-notifications for IQD devices.
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+---
+ arch/alpha/kernel/irq.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-This also brings the missing patch from the previous net-next submission.
-
-Thanks,
-Julian
-
-Julian Wiedmann (6):
-  s390/qeth: don't call INIT_LIST_HEAD() on iob's list entry
-  s390/ccwgroup: use bus->dev_groups for bus-based sysfs attributes
-  s390/qeth: use dev->groups for common sysfs attributes
-  s390/qeth: don't replace a fully completed async TX buffer
-  s390/qeth: remove QETH_QDIO_BUF_HANDLED_DELAYED state
-  s390/qeth: make qeth_qdio_handle_aob() more robust
-
- drivers/s390/cio/ccwgroup.c       |  12 +---
- drivers/s390/net/qeth_core.h      |  10 +--
- drivers/s390/net/qeth_core_main.c | 111 +++++++++++++++++-------------
- drivers/s390/net/qeth_core_sys.c  |  41 +++++------
- drivers/s390/net/qeth_l2.h        |   2 -
- drivers/s390/net/qeth_l2_main.c   |   4 +-
- drivers/s390/net/qeth_l2_sys.c    |  19 -----
- drivers/s390/net/qeth_l3.h        |   2 -
- drivers/s390/net/qeth_l3_main.c   |   4 +-
- drivers/s390/net/qeth_l3_sys.c    |  21 ------
- 10 files changed, 92 insertions(+), 134 deletions(-)
-
+diff --git a/arch/alpha/kernel/irq.c b/arch/alpha/kernel/irq.c
+index f6d2946edbd2..c1980eea75a6 100644
+--- a/arch/alpha/kernel/irq.c
++++ b/arch/alpha/kernel/irq.c
+@@ -35,7 +35,6 @@ DEFINE_PER_CPU(unsigned long, irq_pmi_count);
+ void ack_bad_irq(unsigned int irq)
+ {
+ 	irq_err_count++;
+-	printk(KERN_CRIT "Unexpected IRQ trap at vector %u\n", irq);
+ }
+ 
+ #ifdef CONFIG_SMP 
 -- 
-2.17.1
+2.11.0
