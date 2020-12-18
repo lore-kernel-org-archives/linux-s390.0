@@ -1,86 +1,78 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51546 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727925AbgLHPJy (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 8 Dec 2020 10:09:54 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH 0/2] s390x: Move from LGPL 2 to GPL 2
-Date: Tue,  8 Dec 2020 10:09:00 -0500
-Message-Id: <20201208150902.32383-1-frankja@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 18/23] arch: arm64: use generic irq error counter
+Date: Fri, 18 Dec 2020 15:57:41 +0100
+Message-Id: <20201218145746.24205-19-info@metux.net>
+In-Reply-To: <20201218145746.24205-1-info@metux.net>
+References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-KVM and the KVM unit tests should be able to share code to improve
-development speed and the LGPL is currently preventing us from doing
-exactly that. Additionally we have a multitude of different licenses
-in s390x files: GPL 2 only, GPL 2 or greater, LGPL 2 and LGPL 2.1 or
-later.
+Use the newly introduced irq error counter, that's already maintained
+by all callers of ack_bad_irq(), in order to remove duplicate code.
 
-This patch set tries to move the licenses to GPL 2 where
-possible. Also we introduce the SPDX identifiers so the file headers
-are more readable.
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+---
+ arch/arm64/include/asm/hardirq.h | 9 ++-------
+ arch/arm64/kernel/smp.c          | 6 ++----
+ 2 files changed, 4 insertions(+), 11 deletions(-)
 
-Janosch Frank (2):
-  s390x: Move to GPL 2 and SPDX license identifiers
-  s390x: lib: Move to GPL 2 and SPDX license identifiers
-
- lib/s390x/asm-offsets.c     | 4 +---
- lib/s390x/asm/arch_def.h    | 4 +---
- lib/s390x/asm/asm-offsets.h | 4 +---
- lib/s390x/asm/barrier.h     | 4 +---
- lib/s390x/asm/cpacf.h       | 1 +
- lib/s390x/asm/facility.h    | 4 +---
- lib/s390x/asm/float.h       | 4 +---
- lib/s390x/asm/interrupt.h   | 4 +---
- lib/s390x/asm/io.h          | 4 +---
- lib/s390x/asm/mem.h         | 4 +---
- lib/s390x/asm/page.h        | 4 +---
- lib/s390x/asm/pgtable.h     | 4 +---
- lib/s390x/asm/sigp.h        | 4 +---
- lib/s390x/asm/spinlock.h    | 4 +---
- lib/s390x/asm/stack.h       | 4 +---
- lib/s390x/asm/time.h        | 4 +---
- lib/s390x/css.h             | 4 +---
- lib/s390x/css_dump.c        | 4 +---
- lib/s390x/css_lib.c         | 4 +---
- lib/s390x/interrupt.c       | 4 +---
- lib/s390x/io.c              | 4 +---
- lib/s390x/mmu.c             | 4 +---
- lib/s390x/mmu.h             | 4 +---
- lib/s390x/sclp-console.c    | 5 +----
- lib/s390x/sclp.c            | 4 +---
- lib/s390x/sclp.h            | 5 +----
- lib/s390x/smp.c             | 4 +---
- lib/s390x/smp.h             | 4 +---
- lib/s390x/stack.c           | 4 +---
- lib/s390x/vm.c              | 3 +--
- lib/s390x/vm.h              | 3 +--
- s390x/cmm.c                 | 4 +---
- s390x/cpumodel.c            | 4 +---
- s390x/css.c                 | 4 +---
- s390x/cstart64.S            | 4 +---
- s390x/diag10.c              | 4 +---
- s390x/diag288.c             | 4 +---
- s390x/diag308.c             | 5 +----
- s390x/emulator.c            | 4 +---
- s390x/gs.c                  | 4 +---
- s390x/iep.c                 | 4 +---
- s390x/intercept.c           | 4 +---
- s390x/pfmf.c                | 4 +---
- s390x/sclp.c                | 4 +---
- s390x/selftest.c            | 4 +---
- s390x/skey.c                | 4 +---
- s390x/skrf.c                | 4 +---
- s390x/smp.c                 | 4 +---
- s390x/sthyi.c               | 4 +---
- s390x/sthyi.h               | 4 +---
- s390x/stsi.c                | 4 +---
- s390x/uv-guest.c            | 4 +---
- s390x/vector.c              | 4 +---
- 53 files changed, 53 insertions(+), 157 deletions(-)
-
+diff --git a/arch/arm64/include/asm/hardirq.h b/arch/arm64/include/asm/hardirq.h
+index cbfa7b6f2e09..760922571084 100644
+--- a/arch/arm64/include/asm/hardirq.h
++++ b/arch/arm64/include/asm/hardirq.h
+@@ -13,7 +13,8 @@
+ #include <asm/kvm_arm.h>
+ #include <asm/sysreg.h>
+ 
+-#define ack_bad_irq ack_bad_irq
++#define ack_bad_irq(irq)
++
+ #include <asm-generic/hardirq.h>
+ 
+ #define __ARCH_IRQ_EXIT_IRQS_DISABLED	1
+@@ -85,10 +86,4 @@ do {									\
+ 		write_sysreg(___hcr, hcr_el2);				\
+ } while (0)
+ 
+-static inline void ack_bad_irq(unsigned int irq)
+-{
+-	extern unsigned long irq_err_count;
+-	irq_err_count++;
+-}
+-
+ #endif /* __ASM_HARDIRQ_H */
+diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
+index 2499b895efea..0edc565ea735 100644
+--- a/arch/arm64/kernel/smp.c
++++ b/arch/arm64/kernel/smp.c
+@@ -33,7 +33,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/kexec.h>
+ #include <linux/kvm_host.h>
+-
++#include <asm-generic/irq-err.h>
+ #include <asm/alternative.h>
+ #include <asm/atomic.h>
+ #include <asm/cacheflush.h>
+@@ -798,8 +798,6 @@ static const char *ipi_types[NR_IPI] __tracepoint_string = {
+ 
+ static void smp_cross_call(const struct cpumask *target, unsigned int ipinr);
+ 
+-unsigned long irq_err_count;
+-
+ int arch_show_interrupts(struct seq_file *p, int prec)
+ {
+ 	unsigned int cpu, i;
+@@ -813,7 +811,7 @@ int arch_show_interrupts(struct seq_file *p, int prec)
+ 		seq_printf(p, "      %s\n", ipi_types[i]);
+ 	}
+ 
+-	seq_printf(p, "%*s: %10lu\n", prec, "Err", irq_err_count);
++	seq_printf(p, "%*s: %10lu\n", prec, "Err", irq_err_get());
+ 	return 0;
+ }
+ 
 -- 
-2.25.1
+2.11.0
