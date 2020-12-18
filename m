@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 040/130] s390/dasd: Fix operational path inconsistency
-Date: Tue, 22 Dec 2020 21:16:43 -0500
-Message-Id: <20201223021813.2791612-40-sashal@kernel.org>
-In-Reply-To: <20201223021813.2791612-1-sashal@kernel.org>
-References: <20201223021813.2791612-1-sashal@kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 05/23] arch: ia64: drop misleading warning on spurious IRQ
+Date: Fri, 18 Dec 2020 15:57:28 +0100
+Message-Id: <20201218145746.24205-6-info@metux.net>
+In-Reply-To: <20201218145746.24205-1-info@metux.net>
+References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>, Stefan Haberland <sth@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+The warning in ack_bad_irq() is misleading in several ways:
+* the term "vector" isn't quite correct
+* the printing format isn't consistent across the archs: some print decimal,
+  some hex, some hex w/o "0x" prefix.
+* the printed linux irq isn't meaningful in all cases - we actually would
+  want it to print the hw irq.
 
-[ Upstream commit 9e34c8ba91697cb7441805c36d92ab3e695df6e0 ]
+Since all call sites already print out more detailed and correct information,
+we just don't need to duplicate this in each single arch. So just drop it.
 
-During online processing and setting up a DASD device, the configuration
-data for operational paths is read and validated two times
-(dasd_eckd_read_conf()). The first time to provide information that are
-necessary for the LCU setup. A second time after the LCU setup as a
-device might report different configuration data then.
-
-When the configuration setup for each operational path is being
-validated, an initial call to dasd_eckd_clear_conf_data() is issued.
-This call wipes all previously available configuration data and path
-information for each path.
-However, the operational path mask is not updated during this process.
-
-As a result, the stored operational path mask might no longer correspond
-to the operational paths mask reported by the CIO layer, as several
-paths might be gone between the two dasd_eckd_read_conf() calls.
-
-This inconsistency leads to more severe issues in later path handling
-changes. Fix this by removing the channel paths from the operational
-path mask during the dasd_eckd_clear_conf_data() call.
-
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- drivers/s390/block/dasd_eckd.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/ia64/include/asm/hardirq.h | 2 +-
+ arch/ia64/kernel/irq.c          | 9 ---------
+ 2 files changed, 1 insertion(+), 10 deletions(-)
 
-diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
-index ad44d22e88591..b2964c204fefb 100644
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -1013,6 +1013,7 @@ static void dasd_eckd_clear_conf_data(struct dasd_device *device)
- 		device->path[i].cssid = 0;
- 		device->path[i].ssid = 0;
- 		device->path[i].chpid = 0;
-+		dasd_path_notoper(device, i);
- 	}
- }
+diff --git a/arch/ia64/include/asm/hardirq.h b/arch/ia64/include/asm/hardirq.h
+index ccde7c2ba00f..dddaafaf84e0 100644
+--- a/arch/ia64/include/asm/hardirq.h
++++ b/arch/ia64/include/asm/hardirq.h
+@@ -22,6 +22,6 @@
+ 
+ extern void __iomem *ipi_base_addr;
+ 
+-void ack_bad_irq(unsigned int irq);
++#define ack_bad_irq(irq)
+ 
+ #endif /* _ASM_IA64_HARDIRQ_H */
+diff --git a/arch/ia64/kernel/irq.c b/arch/ia64/kernel/irq.c
+index ecef17c7c35b..1365c7cf2095 100644
+--- a/arch/ia64/kernel/irq.c
++++ b/arch/ia64/kernel/irq.c
+@@ -28,15 +28,6 @@
+ #include <asm/xtp.h>
+ 
+ /*
+- * 'what should we do if we get a hw irq event on an illegal vector'.
+- * each architecture has to answer this themselves.
+- */
+-void ack_bad_irq(unsigned int irq)
+-{
+-	printk(KERN_ERR "Unexpected irq vector 0x%x on CPU %u!\n", irq, smp_processor_id());
+-}
+-
+-/*
+  * Interrupt statistics:
+  */
  
 -- 
-2.27.0
+2.11.0
