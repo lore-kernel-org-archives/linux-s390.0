@@ -1,12 +1,12 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.135]:42299 "EHLO
+Received: from mout.kundenserver.de ([212.227.126.130]:37545 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726247AbgLRPBb (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:31 -0500
+        with ESMTP id S1728755AbgLRPBc (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 10:01:32 -0500
 From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 13/23] arch: generic: drop misleading warning on spurious IRQ
-Date: Fri, 18 Dec 2020 15:57:36 +0100
-Message-Id: <20201218145746.24205-14-info@metux.net>
+Subject: [PATCH 06/23] arch: mips: drop misleading warning on spurious IRQ
+Date: Fri, 18 Dec 2020 15:57:29 +0100
+Message-Id: <20201218145746.24205-7-info@metux.net>
 In-Reply-To: <20201218145746.24205-1-info@metux.net>
 References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
@@ -25,20 +25,43 @@ we just don't need to duplicate this in each single arch. So just drop it.
 
 Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- include/asm-generic/hardirq.h | 1 -
- 1 file changed, 1 deletion(-)
+ arch/mips/include/asm/hardirq.h | 3 +--
+ arch/mips/kernel/irq.c          | 9 ---------
+ 2 files changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/include/asm-generic/hardirq.h b/include/asm-generic/hardirq.h
-index 7317e8258b48..f5a0240cbf52 100644
---- a/include/asm-generic/hardirq.h
-+++ b/include/asm-generic/hardirq.h
-@@ -19,7 +19,6 @@ DECLARE_PER_CPU_ALIGNED(irq_cpustat_t, irq_stat);
- #ifndef ack_bad_irq
- static inline void ack_bad_irq(unsigned int irq)
- {
--	printk(KERN_CRIT "unexpected IRQ trap at vector %02x\n", irq);
- }
- #endif
+diff --git a/arch/mips/include/asm/hardirq.h b/arch/mips/include/asm/hardirq.h
+index c977a86c2c65..75444120e6cb 100644
+--- a/arch/mips/include/asm/hardirq.h
++++ b/arch/mips/include/asm/hardirq.h
+@@ -10,8 +10,7 @@
+ #ifndef _ASM_HARDIRQ_H
+ #define _ASM_HARDIRQ_H
  
+-extern void ack_bad_irq(unsigned int irq);
+-#define ack_bad_irq ack_bad_irq
++#define ack_bad_irq(irq)
+ 
+ #include <asm-generic/hardirq.h>
+ 
+diff --git a/arch/mips/kernel/irq.c b/arch/mips/kernel/irq.c
+index 85b6c60f285d..c98be305fab6 100644
+--- a/arch/mips/kernel/irq.c
++++ b/arch/mips/kernel/irq.c
+@@ -27,15 +27,6 @@
+ 
+ void *irq_stack[NR_CPUS];
+ 
+-/*
+- * 'what should we do if we get a hw irq event on an illegal vector'.
+- * each architecture has to answer this themselves.
+- */
+-void ack_bad_irq(unsigned int irq)
+-{
+-	printk("unexpected IRQ # %d\n", irq);
+-}
+-
+ atomic_t irq_err_count;
+ 
+ int arch_show_interrupts(struct seq_file *p, int prec)
 -- 
 2.11.0
