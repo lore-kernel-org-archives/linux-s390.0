@@ -1,278 +1,159 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:29324 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727229AbgLATVt (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:21:49 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v7 13/14] net/smc: Add support for obtaining SMCD device list
-Date: Tue,  1 Dec 2020 20:20:48 +0100
-Message-Id: <20201201192049.53517-14-kgraul@linux.ibm.com>
-In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
-References: <20201201192049.53517-1-kgraul@linux.ibm.com>
+Received: from mout.kundenserver.de ([212.227.126.131]:57639 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728306AbgLROf0 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 09:35:26 -0500
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 16/23] arch: alpha: use generic irq error counter
+Date: Fri, 18 Dec 2020 15:31:15 +0100
+Message-Id: <20201218143122.19459-17-info@metux.net>
+In-Reply-To: <20201218143122.19459-1-info@metux.net>
+References: <20201218143122.19459-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Use the newly introduced irq error counter, that's already maintained
+by all callers of ack_bad_irq(), in order to remove duplicate code.
 
-Deliver SMCD device information via netlink based
-diagnostic interface.
-
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- include/uapi/linux/smc.h | 28 +++++++++++++
- net/smc/smc_core.h       | 28 +++++++++++++
- net/smc/smc_ism.c        | 91 ++++++++++++++++++++++++++++++++++++++++
- net/smc/smc_ism.h        |  1 +
- net/smc/smc_netlink.c    |  6 +++
- 5 files changed, 154 insertions(+)
+ arch/alpha/include/asm/hardirq.h |  3 ---
+ arch/alpha/include/asm/hw_irq.h  |  2 --
+ arch/alpha/kernel/irq.c          | 12 +++---------
+ arch/alpha/kernel/irq_alpha.c    |  5 +++--
+ arch/alpha/kernel/perf_event.c   |  6 +++---
+ 5 files changed, 9 insertions(+), 19 deletions(-)
 
-diff --git a/include/uapi/linux/smc.h b/include/uapi/linux/smc.h
-index 707e8af4f0c8..3cb40ab049d9 100644
---- a/include/uapi/linux/smc.h
-+++ b/include/uapi/linux/smc.h
-@@ -37,12 +37,15 @@ enum {				/* SMC PNET Table commands */
- #define SMC_GENL_FAMILY_NAME		"SMC_GEN_NETLINK"
- #define SMC_GENL_FAMILY_VERSION		1
+diff --git a/arch/alpha/include/asm/hardirq.h b/arch/alpha/include/asm/hardirq.h
+index 5ce5b34e8a1a..0bbc9947e364 100644
+--- a/arch/alpha/include/asm/hardirq.h
++++ b/arch/alpha/include/asm/hardirq.h
+@@ -2,9 +2,6 @@
+ #ifndef _ALPHA_HARDIRQ_H
+ #define _ALPHA_HARDIRQ_H
  
-+#define SMC_PCI_ID_STR_LEN		16 /* Max length of pci id string */
-+
- /* SMC_GENL_FAMILY commands */
- enum {
- 	SMC_NETLINK_GET_SYS_INFO = 1,
- 	SMC_NETLINK_GET_LGR_SMCR,
- 	SMC_NETLINK_GET_LINK_SMCR,
- 	SMC_NETLINK_GET_LGR_SMCD,
-+	SMC_NETLINK_GET_DEV_SMCD,
- };
+-void ack_bad_irq(unsigned int irq);
+-#define ack_bad_irq ack_bad_irq
+-
+ #include <asm-generic/hardirq.h>
  
- /* SMC_GENL_FAMILY top level attributes */
-@@ -52,6 +55,7 @@ enum {
- 	SMC_GEN_LGR_SMCR,		/* nest */
- 	SMC_GEN_LINK_SMCR,		/* nest */
- 	SMC_GEN_LGR_SMCD,		/* nest */
-+	SMC_GEN_DEV_SMCD,		/* nest */
- 	__SMC_GEN_MAX,
- 	SMC_GEN_MAX = __SMC_GEN_MAX - 1
- };
-@@ -122,4 +126,28 @@ enum {
- 	__SMC_NLA_LGR_D_MAX,
- 	SMC_NLA_LGR_D_MAX = __SMC_NLA_LGR_D_MAX - 1
- };
-+
-+/* SMC_NLA_DEV_PORT attributes */
-+enum {
-+	SMC_NLA_DEV_PORT_UNSPEC,
-+	SMC_NLA_DEV_PORT_PNET_USR,	/* u8 */
-+	SMC_NLA_DEV_PORT_PNETID,	/* string */
-+	__SMC_NLA_DEV_PORT_MAX,
-+	SMC_NLA_DEV_PORT_MAX = __SMC_NLA_DEV_PORT_MAX - 1
-+};
-+
-+/* SMC_GEN_DEV_SMCD attributes */
-+enum {
-+	SMC_NLA_DEV_UNSPEC,
-+	SMC_NLA_DEV_USE_CNT,		/* u32 */
-+	SMC_NLA_DEV_IS_CRIT,		/* u8 */
-+	SMC_NLA_DEV_PCI_FID,		/* u32 */
-+	SMC_NLA_DEV_PCI_CHID,		/* u16 */
-+	SMC_NLA_DEV_PCI_VENDOR,		/* u16 */
-+	SMC_NLA_DEV_PCI_DEVICE,		/* u16 */
-+	SMC_NLA_DEV_PCI_ID,		/* string */
-+	SMC_NLA_DEV_PORT,		/* nest */
-+	__SMC_NLA_DEV_MAX,
-+	SMC_NLA_DEV_MAX = __SMC_NLA_DEV_MAX - 1
-+};
- #endif /* _UAPI_LINUX_SMC_H */
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index 0b6899a7f634..e8e448771f85 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -13,6 +13,8 @@
- #define _SMC_CORE_H
+ #endif /* _ALPHA_HARDIRQ_H */
+diff --git a/arch/alpha/include/asm/hw_irq.h b/arch/alpha/include/asm/hw_irq.h
+index e2d81ac0d934..0be79f3a6cae 100644
+--- a/arch/alpha/include/asm/hw_irq.h
++++ b/arch/alpha/include/asm/hw_irq.h
+@@ -2,8 +2,6 @@
+ #ifndef _ALPHA_HW_IRQ_H
+ #define _ALPHA_HW_IRQ_H
  
- #include <linux/atomic.h>
-+#include <linux/smc.h>
-+#include <linux/pci.h>
- #include <rdma/ib_verbs.h>
- #include <net/genetlink.h>
+-
+-extern volatile unsigned long irq_err_count;
+ DECLARE_PER_CPU(unsigned long, irq_pmi_count);
  
-@@ -380,6 +382,32 @@ static inline void smc_gid_be16_convert(__u8 *buf, u8 *gid_raw)
- 		be16_to_cpu(((__be16 *)gid_raw)[7]));
+ #ifdef CONFIG_ALPHA_GENERIC
+diff --git a/arch/alpha/kernel/irq.c b/arch/alpha/kernel/irq.c
+index c1980eea75a6..2b7dad83e0dc 100644
+--- a/arch/alpha/kernel/irq.c
++++ b/arch/alpha/kernel/irq.c
+@@ -25,18 +25,12 @@
+ #include <linux/seq_file.h>
+ #include <linux/profile.h>
+ #include <linux/bitops.h>
+-
++#include <asm-generic/irq-err.h>
+ #include <asm/io.h>
+ #include <linux/uaccess.h>
+ 
+-volatile unsigned long irq_err_count;
+ DEFINE_PER_CPU(unsigned long, irq_pmi_count);
+ 
+-void ack_bad_irq(unsigned int irq)
+-{
+-	irq_err_count++;
+-}
+-
+ #ifdef CONFIG_SMP 
+ static char irq_user_affinity[NR_IRQS];
+ 
+@@ -79,7 +73,7 @@ int arch_show_interrupts(struct seq_file *p, int prec)
+ 	for_each_online_cpu(j)
+ 		seq_printf(p, "%10lu ", per_cpu(irq_pmi_count, j));
+ 	seq_puts(p, "          Performance Monitoring\n");
+-	seq_printf(p, "ERR: %10lu\n", irq_err_count);
++	seq_printf(p, "ERR: %10lu\n", irq_err_get());
+ 	return 0;
  }
  
-+struct smc_pci_dev {
-+	__u32		pci_fid;
-+	__u16		pci_pchid;
-+	__u16		pci_vendor;
-+	__u16		pci_device;
-+	__u8		pci_id[SMC_PCI_ID_STR_LEN];
-+};
-+
-+static inline void smc_set_pci_values(struct pci_dev *pci_dev,
-+				      struct smc_pci_dev *smc_dev)
-+{
-+	smc_dev->pci_vendor = pci_dev->vendor;
-+	smc_dev->pci_device = pci_dev->device;
-+	snprintf(smc_dev->pci_id, sizeof(smc_dev->pci_id), "%s",
-+		 pci_name(pci_dev));
-+#if IS_ENABLED(CONFIG_S390)
-+	{ /* Set s390 specific PCI information */
-+	struct zpci_dev *zdev;
-+
-+	zdev = to_zpci(pci_dev);
-+	smc_dev->pci_fid = zdev->fid;
-+	smc_dev->pci_pchid = zdev->pchid;
-+	}
-+#endif
-+}
-+
- struct smc_sock;
- struct smc_clc_msg_accept_confirm;
- struct smc_clc_msg_local;
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 2456ee8228cd..524ef64a191a 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -15,6 +15,7 @@
- #include "smc_core.h"
- #include "smc_ism.h"
- #include "smc_pnet.h"
-+#include "smc_netlink.h"
+@@ -109,7 +103,7 @@ handle_irq(int irq)
+ 	
+ 	if (!desc || ((unsigned) irq > ACTUAL_NR_IRQS &&
+ 	    illegal_count < MAX_ILLEGAL_IRQS)) {
+-		irq_err_count++;
++		irq_err_inc();
+ 		illegal_count++;
+ 		printk(KERN_CRIT "device_interrupt: invalid interrupt %d\n",
+ 		       irq);
+diff --git a/arch/alpha/kernel/irq_alpha.c b/arch/alpha/kernel/irq_alpha.c
+index d17e44c99df9..3b6373cf73d9 100644
+--- a/arch/alpha/kernel/irq_alpha.c
++++ b/arch/alpha/kernel/irq_alpha.c
+@@ -13,6 +13,7 @@
+ #include <asm/dma.h>
+ #include <asm/perf_event.h>
+ #include <asm/mce.h>
++#include <asm-generic/irq-err.h>
  
- struct smcd_dev_list smcd_dev_list = {
- 	.list = LIST_HEAD_INIT(smcd_dev_list.list),
-@@ -207,6 +208,96 @@ int smc_ism_register_dmb(struct smc_link_group *lgr, int dmb_len,
- 	return rc;
+ #include "proto.h"
+ #include "irq_impl.h"
+@@ -30,7 +31,7 @@ EXPORT_SYMBOL(__min_ipl);
+ static void
+ dummy_perf(unsigned long vector, struct pt_regs *regs)
+ {
+-	irq_err_count++;
++	irq_err_inc();
+ 	printk(KERN_CRIT "Performance counter interrupt!\n");
  }
  
-+static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
-+				  struct sk_buff *skb,
-+				  struct netlink_callback *cb)
-+{
-+	char smc_pnet[SMC_MAX_PNETID_LEN + 1];
-+	struct smc_pci_dev smc_pci_dev;
-+	struct nlattr *port_attrs;
-+	struct nlattr *attrs;
-+	int use_cnt = 0;
-+	void *nlh;
-+
-+	nlh = genlmsg_put(skb, NETLINK_CB(cb->skb).portid, cb->nlh->nlmsg_seq,
-+			  &smc_gen_nl_family, NLM_F_MULTI,
-+			  SMC_NETLINK_GET_DEV_SMCD);
-+	if (!nlh)
-+		goto errmsg;
-+	attrs = nla_nest_start(skb, SMC_GEN_DEV_SMCD);
-+	if (!attrs)
-+		goto errout;
-+	use_cnt = atomic_read(&smcd->lgr_cnt);
-+	if (nla_put_u32(skb, SMC_NLA_DEV_USE_CNT, use_cnt))
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_DEV_IS_CRIT, use_cnt > 0))
-+		goto errattr;
-+	memset(&smc_pci_dev, 0, sizeof(smc_pci_dev));
-+	smc_set_pci_values(to_pci_dev(smcd->dev.parent), &smc_pci_dev);
-+	if (nla_put_u32(skb, SMC_NLA_DEV_PCI_FID, smc_pci_dev.pci_fid))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_CHID, smc_pci_dev.pci_pchid))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_VENDOR, smc_pci_dev.pci_vendor))
-+		goto errattr;
-+	if (nla_put_u16(skb, SMC_NLA_DEV_PCI_DEVICE, smc_pci_dev.pci_device))
-+		goto errattr;
-+	if (nla_put_string(skb, SMC_NLA_DEV_PCI_ID, smc_pci_dev.pci_id))
-+		goto errattr;
-+
-+	port_attrs = nla_nest_start(skb, SMC_NLA_DEV_PORT);
-+	if (!port_attrs)
-+		goto errattr;
-+	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR, smcd->pnetid_by_user))
-+		goto errportattr;
-+	snprintf(smc_pnet, sizeof(smc_pnet), "%s", smcd->pnetid);
-+	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet))
-+		goto errportattr;
-+
-+	nla_nest_end(skb, port_attrs);
-+	nla_nest_end(skb, attrs);
-+	genlmsg_end(skb, nlh);
-+	return 0;
-+
-+errportattr:
-+	nla_nest_cancel(skb, port_attrs);
-+errattr:
-+	nla_nest_cancel(skb, attrs);
-+errout:
-+	nlmsg_cancel(skb, nlh);
-+errmsg:
-+	return -EMSGSIZE;
-+}
-+
-+static void smc_nl_prep_smcd_dev(struct smcd_dev_list *dev_list,
-+				 struct sk_buff *skb,
-+				 struct netlink_callback *cb)
-+{
-+	struct smc_nl_dmp_ctx *cb_ctx = smc_nl_dmp_ctx(cb);
-+	int snum = cb_ctx->pos[0];
-+	struct smcd_dev *smcd;
-+	int num = 0;
-+
-+	mutex_lock(&dev_list->mutex);
-+	list_for_each_entry(smcd, &dev_list->list, list) {
-+		if (num < snum)
-+			goto next;
-+		if (smc_nl_handle_smcd_dev(smcd, skb, cb))
-+			goto errout;
-+next:
-+		num++;
-+	}
-+errout:
-+	mutex_unlock(&dev_list->mutex);
-+	cb_ctx->pos[0] = num;
-+}
-+
-+int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb)
-+{
-+	smc_nl_prep_smcd_dev(&smcd_dev_list, skb, cb);
-+	return skb->len;
-+}
-+
- struct smc_ism_event_work {
- 	struct work_struct work;
- 	struct smcd_dev *smcd;
-diff --git a/net/smc/smc_ism.h b/net/smc/smc_ism.h
-index 481a4b7df30b..113efc7352ed 100644
---- a/net/smc/smc_ism.h
-+++ b/net/smc/smc_ism.h
-@@ -52,4 +52,5 @@ void smc_ism_get_system_eid(struct smcd_dev *dev, u8 **eid);
- u16 smc_ism_get_chid(struct smcd_dev *dev);
- bool smc_ism_is_v2_capable(void);
- void smc_ism_init(void);
-+int smcd_nl_get_device(struct sk_buff *skb, struct netlink_callback *cb);
+@@ -60,7 +61,7 @@ do_entInt(unsigned long type, unsigned long vector,
+ 		handle_ipi(regs);
+ 		return;
+ #else
+-		irq_err_count++;
++		irq_err_inc();
+ 		printk(KERN_CRIT "Interprocessor interrupt? "
+ 		       "You must be kidding!\n");
  #endif
-diff --git a/net/smc/smc_netlink.c b/net/smc/smc_netlink.c
-index 95bce936534f..debdeec53728 100644
---- a/net/smc/smc_netlink.c
-+++ b/net/smc/smc_netlink.c
-@@ -17,6 +17,7 @@
- #include <linux/smc.h>
+diff --git a/arch/alpha/kernel/perf_event.c b/arch/alpha/kernel/perf_event.c
+index e7a59d927d78..d855cece7bb1 100644
+--- a/arch/alpha/kernel/perf_event.c
++++ b/arch/alpha/kernel/perf_event.c
+@@ -16,7 +16,7 @@
+ #include <linux/kdebug.h>
+ #include <linux/mutex.h>
+ #include <linux/init.h>
+-
++#include <asm-generic/irq-err.h>
+ #include <asm/hwrpb.h>
+ #include <linux/atomic.h>
+ #include <asm/irq.h>
+@@ -823,7 +823,7 @@ static void alpha_perf_event_irq_handler(unsigned long la_ptr,
+ 	/* la_ptr is the counter that overflowed. */
+ 	if (unlikely(la_ptr >= alpha_pmu->num_pmcs)) {
+ 		/* This should never occur! */
+-		irq_err_count++;
++		irq_err_inc();
+ 		pr_warn("PMI: silly index %ld\n", la_ptr);
+ 		wrperfmon(PERFMON_CMD_ENABLE, cpuc->idx_mask);
+ 		return;
+@@ -846,7 +846,7 @@ static void alpha_perf_event_irq_handler(unsigned long la_ptr,
  
- #include "smc_core.h"
-+#include "smc_ism.h"
- #include "smc_netlink.h"
- 
- #define SMC_CMD_MAX_ATTR 1
-@@ -43,6 +44,11 @@ static const struct genl_ops smc_gen_nl_ops[] = {
- 		/* can be retrieved by unprivileged users */
- 		.dumpit = smcd_nl_get_lgr,
- 	},
-+	{
-+		.cmd = SMC_NETLINK_GET_DEV_SMCD,
-+		/* can be retrieved by unprivileged users */
-+		.dumpit = smcd_nl_get_device,
-+	},
- };
- 
- static const struct nla_policy smc_gen_nl_policy[2] = {
+ 	if (unlikely(!event)) {
+ 		/* This should never occur! */
+-		irq_err_count++;
++		irq_err_inc();
+ 		pr_warn("PMI: No event at index %d!\n", idx);
+ 		wrperfmon(PERFMON_CMD_ENABLE, cpuc->idx_mask);
+ 		return;
 -- 
-2.17.1
+2.11.0
