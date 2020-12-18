@@ -1,218 +1,189 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v13 12/15] s390/zcrypt: Notify driver on config changed and scan complete callbacks
-Date: Tue, 22 Dec 2020 20:16:03 -0500
-Message-Id: <20201223011606.5265-13-akrowiak@linux.ibm.com>
-In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
-References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: [PATCH 15/23] arch: mips: use generic irq error counter
+Date: Fri, 18 Dec 2020 15:57:38 +0100
+Message-Id: <20201218145746.24205-16-info@metux.net>
+In-Reply-To: <20201218145746.24205-1-info@metux.net>
+References: <20201218145746.24205-1-info@metux.net>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
 
-This patch intruduces an extension to the ap bus to notify device drivers
-when the host AP configuration changes - i.e., adapters, domains or
-control domains are added or removed. To that end, two new callbacks are
-introduced for AP device drivers:
+Use the newly introduced irq error counter, that's already maintained
+by all callers of ack_bad_irq(), in order to remove duplicate code.
 
-  void (*on_config_changed)(struct ap_config_info *new_config_info,
-                            struct ap_config_info *old_config_info);
-
-     This callback is invoked at the start of the AP bus scan
-     function when it determines that the host AP configuration information
-     has changed since the previous scan. This is done by storing
-     an old and current QCI info struct and comparing them. If there is any
-     difference, the callback is invoked.
-
-     Note that when the AP bus scan detects that AP adapters, domains or
-     control domains have been removed from the host's AP configuration, it
-     will remove the associated devices from the AP bus subsystem's device
-     model. This callback gives the device driver a chance to respond to
-     the removal of the AP devices from the host configuration prior to
-     calling the device driver's remove callback. The primary purpose of
-     this callback is to allow the vfio_ap driver to do a bulk unplug of
-     all affected adapters, domains and control domains from affected
-     guests rather than unplugging them one at a time when the remove
-     callback is invoked.
-
-  void (*on_scan_complete)(struct ap_config_info *new_config_info,
-                           struct ap_config_info *old_config_info);
-
-     The on_scan_complete callback is invoked after the ap bus scan is
-     complete if the host AP configuration data has changed.
-
-     Note that when the AP bus scan detects that adapters, domains or
-     control domains have been added to the host's configuration, it will
-     create new devices in the AP bus subsystem's device model. The primary
-     purpose of this callback is to allow the vfio_ap driver to do a bulk
-     plug of all affected adapters, domains and control domains into
-     affected guests rather than plugging them one at a time when the
-     probe callback is invoked.
-
-Please note that changes to the apmask and aqmask do not trigger
-these two callbacks since the bus scan function is not invoked by changes
-to those masks.
-
-Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
-Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
 ---
- drivers/s390/crypto/ap_bus.c | 91 +++++++++++++++++++++++++++++++++++-
- drivers/s390/crypto/ap_bus.h | 12 +++++
- 2 files changed, 101 insertions(+), 2 deletions(-)
+ arch/mips/include/asm/hw_irq.h | 4 ----
+ arch/mips/kernel/irq-gt641xx.c | 3 ++-
+ arch/mips/kernel/irq.c         | 7 +++----
+ arch/mips/sni/rm200.c          | 3 ++-
+ arch/mips/vr41xx/common/icu.c  | 3 ++-
+ arch/mips/vr41xx/common/irq.c  | 5 +++--
+ drivers/gpio/gpio-vr41xx.c     | 4 ++--
+ 7 files changed, 14 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
-index 7d8add952dd6..788bfdaadafd 100644
---- a/drivers/s390/crypto/ap_bus.c
-+++ b/drivers/s390/crypto/ap_bus.c
-@@ -82,6 +82,7 @@ static atomic64_t ap_scan_bus_count;
- static DECLARE_COMPLETION(ap_init_apqn_bindings_complete);
+diff --git a/arch/mips/include/asm/hw_irq.h b/arch/mips/include/asm/hw_irq.h
+index 9e8ef5994c9c..b75fe2c4377f 100644
+--- a/arch/mips/include/asm/hw_irq.h
++++ b/arch/mips/include/asm/hw_irq.h
+@@ -8,10 +8,6 @@
+ #ifndef __ASM_HW_IRQ_H
+ #define __ASM_HW_IRQ_H
  
- static struct ap_config_info *ap_qci_info;
-+static struct ap_config_info *ap_qci_info_old;
- 
+-#include <linux/atomic.h>
+-
+-extern atomic_t irq_err_count;
+-
  /*
-  * AP bus related debug feature things.
-@@ -1579,6 +1580,52 @@ static int __match_queue_device_with_queue_id(struct device *dev, const void *da
- 		&& AP_QID_QUEUE(to_ap_queue(dev)->qid) == (int)(long) data;
+  * interrupt-retrigger: NOP for now. This may not be appropriate for all
+  * machines, we'll see ...
+diff --git a/arch/mips/kernel/irq-gt641xx.c b/arch/mips/kernel/irq-gt641xx.c
+index 93bcf5736a6f..e2c877287bee 100644
+--- a/arch/mips/kernel/irq-gt641xx.c
++++ b/arch/mips/kernel/irq-gt641xx.c
+@@ -11,6 +11,7 @@
+ #include <linux/types.h>
+ 
+ #include <asm/gt64120.h>
++#include <asm-generic/irq-err.h>
+ 
+ #define GT641XX_IRQ_TO_BIT(irq) (1U << (irq - GT641XX_IRQ_BASE))
+ 
+@@ -97,7 +98,7 @@ void gt641xx_irq_dispatch(void)
+ 		}
+ 	}
+ 
+-	atomic_inc(&irq_err_count);
++	irq_err_inc();
  }
  
-+/* Helper function for notify_config_changed */
-+static int __drv_notify_config_changed(struct device_driver *drv, void *data)
-+{
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+
-+	if (try_module_get(drv->owner)) {
-+		if (ap_drv->on_config_changed)
-+			ap_drv->on_config_changed(ap_qci_info,
-+						  ap_qci_info_old);
-+		module_put(drv->owner);
-+	}
-+
-+	return 0;
-+}
-+
-+/* Notify all drivers about an qci config change */
-+static inline void notify_config_changed(void)
-+{
-+	bus_for_each_drv(&ap_bus_type, NULL, NULL,
-+			 __drv_notify_config_changed);
-+}
-+
-+/* Helper function for notify_scan_complete */
-+static int __drv_notify_scan_complete(struct device_driver *drv, void *data)
-+{
-+	struct ap_driver *ap_drv = to_ap_drv(drv);
-+
-+	if (try_module_get(drv->owner)) {
-+		if (ap_drv->on_scan_complete)
-+			ap_drv->on_scan_complete(ap_qci_info,
-+						 ap_qci_info_old);
-+		module_put(drv->owner);
-+	}
-+
-+	return 0;
-+}
-+
-+/* Notify all drivers about bus scan complete */
-+static inline void notify_scan_complete(void)
-+{
-+	bus_for_each_drv(&ap_bus_type, NULL, NULL,
-+			 __drv_notify_scan_complete);
-+}
-+
-+
-+
- /*
-  * Helper function for ap_scan_bus().
-  * Remove card device and associated queue devices.
-@@ -1857,15 +1904,51 @@ static inline void ap_scan_adapter(int ap)
- 	put_device(&ac->ap_dev.device);
- }
- 
-+/*
-+ * ap_get_configuration
-+ *
-+ * Stores the host AP configuration information returned from the previous call
-+ * to Query Configuration Information (QCI), then retrieves and stores the
-+ * current AP configuration returned from QCI.
-+ *
-+ * Returns true if the host AP configuration changed between calls to QCI;
-+ * otherwise, returns false.
-+ */
-+static bool ap_get_configuration(void)
-+{
-+	bool cfg_chg = false;
-+
-+	if (ap_qci_info) {
-+		if (!ap_qci_info_old) {
-+			ap_qci_info_old = kzalloc(sizeof(*ap_qci_info_old),
-+						  GFP_KERNEL);
-+			if (!ap_qci_info_old)
-+				return false;
-+		} else {
-+			memcpy(ap_qci_info_old, ap_qci_info,
-+			       sizeof(struct ap_config_info));
-+		}
-+		ap_fetch_qci_info(ap_qci_info);
-+		cfg_chg = memcmp(ap_qci_info,
-+				 ap_qci_info_old,
-+				 sizeof(struct ap_config_info)) != 0;
-+	}
-+
-+	return cfg_chg;
-+}
-+
- /**
-  * ap_scan_bus(): Scan the AP bus for new devices
-  * Runs periodically, workqueue timer (ap_config_time)
+ void __init gt641xx_irq_init(void)
+diff --git a/arch/mips/kernel/irq.c b/arch/mips/kernel/irq.c
+index c98be305fab6..3ea3e4280648 100644
+--- a/arch/mips/kernel/irq.c
++++ b/arch/mips/kernel/irq.c
+@@ -8,6 +8,7 @@
+  * Copyright (C) 1992 Linus Torvalds
+  * Copyright (C) 1994 - 2000 Ralf Baechle
   */
- static void ap_scan_bus(struct work_struct *unused)
++#include <asm-generic/irq-err.h>
+ #include <linux/kernel.h>
+ #include <linux/delay.h>
+ #include <linux/init.h>
+@@ -27,17 +28,15 @@
+ 
+ void *irq_stack[NR_CPUS];
+ 
+-atomic_t irq_err_count;
+-
+ int arch_show_interrupts(struct seq_file *p, int prec)
  {
--	int ap;
-+	int ap, config_changed = 0;
+-	seq_printf(p, "%*s: %10u\n", prec, "ERR", atomic_read(&irq_err_count));
++	seq_printf(p, "%*s: %10u\n", prec, "ERR", irq_err_get());
+ 	return 0;
+ }
  
--	ap_fetch_qci_info(ap_qci_info);
-+	/* config change notify */
-+	config_changed = ap_get_configuration();
-+	if (config_changed)
-+		notify_config_changed();
- 	ap_select_domain();
+ asmlinkage void spurious_interrupt(void)
+ {
+-	atomic_inc(&irq_err_count);
++	irq_err_inc();
+ }
  
- 	AP_DBF_DBG("%s running\n", __func__);
-@@ -1874,6 +1957,10 @@ static void ap_scan_bus(struct work_struct *unused)
- 	for (ap = 0; ap <= ap_max_adapter_id; ap++)
- 		ap_scan_adapter(ap);
+ void __init init_IRQ(void)
+diff --git a/arch/mips/sni/rm200.c b/arch/mips/sni/rm200.c
+index d84744ca871d..c61d60a4dcc5 100644
+--- a/arch/mips/sni/rm200.c
++++ b/arch/mips/sni/rm200.c
+@@ -21,6 +21,7 @@
+ #include <asm/sni.h>
+ #include <asm/time.h>
+ #include <asm/irq_cpu.h>
++#include <asm-generic/irq-err.h>
  
-+	/* scan complete notify */
-+	if (config_changed)
-+		notify_scan_complete();
-+
- 	/* check if there is at least one queue available with default domain */
- 	if (ap_domain_index >= 0) {
- 		struct device *dev =
-diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
-index 95c9da072f81..e91082bd159c 100644
---- a/drivers/s390/crypto/ap_bus.h
-+++ b/drivers/s390/crypto/ap_bus.h
-@@ -146,6 +146,18 @@ struct ap_driver {
- 	int (*probe)(struct ap_device *);
- 	void (*remove)(struct ap_device *);
- 	int (*in_use)(unsigned long *apm, unsigned long *aqm);
-+	/*
-+	 * Called at the start of the ap bus scan function when
-+	 * the crypto config information (qci) has changed.
-+	 */
-+	void (*on_config_changed)(struct ap_config_info *new_config_info,
-+				  struct ap_config_info *old_config_info);
-+	/*
-+	 * Called at the end of the ap bus scan function when
-+	 * the crypto config information (qci) has changed.
-+	 */
-+	void (*on_scan_complete)(struct ap_config_info *new_config_info,
-+				 struct ap_config_info *old_config_info);
- };
+ #define RM200_I8259A_IRQ_BASE 32
  
- #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
+@@ -270,7 +271,7 @@ void sni_rm200_mask_and_ack_8259A(struct irq_data *d)
+ 			       "spurious RM200 8259A interrupt: IRQ%d.\n", irq);
+ 			spurious_irq_mask |= irqmask;
+ 		}
+-		atomic_inc(&irq_err_count);
++		irq_err_inc();
+ 		/*
+ 		 * Theoretically we do not have to handle this IRQ,
+ 		 * but in Linux this does not cause problems and is
+diff --git a/arch/mips/vr41xx/common/icu.c b/arch/mips/vr41xx/common/icu.c
+index 7b7f25b4b057..462f559ad978 100644
+--- a/arch/mips/vr41xx/common/icu.c
++++ b/arch/mips/vr41xx/common/icu.c
+@@ -27,6 +27,7 @@
+ #include <asm/io.h>
+ #include <asm/vr41xx/irq.h>
+ #include <asm/vr41xx/vr41xx.h>
++#include <asm-generic/irq-err.h>
+ 
+ static void __iomem *icu1_base;
+ static void __iomem *icu2_base;
+@@ -640,7 +641,7 @@ static int icu_get_irq(unsigned int irq)
+ 
+ 	printk(KERN_ERR "spurious ICU interrupt: %04x,%04x\n", pend1, pend2);
+ 
+-	atomic_inc(&irq_err_count);
++	irq_err_inc();
+ 
+ 	return -1;
+ }
+diff --git a/arch/mips/vr41xx/common/irq.c b/arch/mips/vr41xx/common/irq.c
+index 8f68446ff2d9..b2580de08e25 100644
+--- a/arch/mips/vr41xx/common/irq.c
++++ b/arch/mips/vr41xx/common/irq.c
+@@ -10,6 +10,7 @@
+ 
+ #include <asm/irq_cpu.h>
+ #include <asm/vr41xx/irq.h>
++#include <asm-generic/irq-err.h>
+ 
+ typedef struct irq_cascade {
+ 	int (*get_irq)(unsigned int);
+@@ -46,7 +47,7 @@ static void irq_dispatch(unsigned int irq)
+ 	irq_cascade_t *cascade;
+ 
+ 	if (irq >= NR_IRQS) {
+-		atomic_inc(&irq_err_count);
++		irq_err_inc();
+ 		return;
+ 	}
+ 
+@@ -66,7 +67,7 @@ static void irq_dispatch(unsigned int irq)
+ 		ret = cascade->get_irq(irq);
+ 		irq = ret;
+ 		if (ret < 0)
+-			atomic_inc(&irq_err_count);
++			irq_err_inc();
+ 		else
+ 			irq_dispatch(irq);
+ 		if (!irqd_irq_disabled(idata) && chip->irq_unmask)
+diff --git a/drivers/gpio/gpio-vr41xx.c b/drivers/gpio/gpio-vr41xx.c
+index 98cd715ccc33..c1dbd933d291 100644
+--- a/drivers/gpio/gpio-vr41xx.c
++++ b/drivers/gpio/gpio-vr41xx.c
+@@ -18,7 +18,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/spinlock.h>
+ #include <linux/types.h>
+-
++#include <asm-generic/irq-err.h>
+ #include <asm/vr41xx/giu.h>
+ #include <asm/vr41xx/irq.h>
+ #include <asm/vr41xx/vr41xx.h>
+@@ -217,7 +217,7 @@ static int giu_get_irq(unsigned int irq)
+ 	printk(KERN_ERR "spurious GIU interrupt: %04x(%04x),%04x(%04x)\n",
+ 	       maskl, pendl, maskh, pendh);
+ 
+-	atomic_inc(&irq_err_count);
++	irq_err_inc();
+ 
+ 	return -EINVAL;
+ }
 -- 
-2.21.1
+2.11.0
