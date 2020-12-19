@@ -1,14 +1,24 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:30544 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725793AbgLUPsK (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6746 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726326AbgLSHUz (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 21 Dec 2020 10:48:10 -0500
-Date: Mon, 21 Dec 2020 16:46:34 +0100
-From: Cornelia Huck <cohuck@redhat.com>
+        Sat, 19 Dec 2020 02:20:55 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 0BJ7131W128920
+        for <linux-s390@vger.kernel.org>; Sat, 19 Dec 2020 02:20:14 -0500
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 35hb5d1w8s-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <linux-s390@vger.kernel.org>; Sat, 19 Dec 2020 02:20:14 -0500
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 0BJ72EGS132464
+        for <linux-s390@vger.kernel.org>; Sat, 19 Dec 2020 02:20:13 -0500
+Date: Sat, 19 Dec 2020 08:20:06 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [RFC 1/1] s390/cio: Remove uevent-suppress from css driver
-Message-ID: <20201221164634.11cd3813.cohuck@redhat.com>
-In-Reply-To: <20201219073316.1be609d5.pasic@linux.ibm.com>
+Message-ID: <20201219082006.2529bcec.pasic@linux.ibm.com>
+In-Reply-To: <20201216130710.5aa6a933.cohuck@redhat.com>
 References: <20201124093407.23189-1-vneethv@linux.ibm.com>
         <20201124093407.23189-2-vneethv@linux.ibm.com>
         <20201124140220.77c65539.cohuck@redhat.com>
@@ -17,47 +27,63 @@ References: <20201124093407.23189-1-vneethv@linux.ibm.com>
         <20201208183054.44f4fc2d.cohuck@redhat.com>
         <20201209135203.0008ab18.pasic@linux.ibm.com>
         <20201215191307.281c6e6f.cohuck@redhat.com>
-        <20201219073316.1be609d5.pasic@linux.ibm.com>
+        <89146a87-371a-f148-057b-d3b7ce0cc21e@linux.ibm.com>
+        <20201216130710.5aa6a933.cohuck@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Vineeth Vijayan <vneethv@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.vnet.ibm.com>, oberpar@linux.ibm.com, linux-s390@vger.kernel.org, farman@linux.ibm.com, fiuczy@linux.ibm.com
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Boris Fiuczynski <fiuczy@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.ibm.com>, Vineeth Vijayan <vneethv@linux.vnet.ibm.com>, oberpar@linux.ibm.com, linux-s390@vger.kernel.org, farman@linux.ibm.com
 
-On Sat, 19 Dec 2020 07:33:16 +0100
-Halil Pasic <pasic@linux.ibm.com> wrote:
+On Wed, 16 Dec 2020 13:07:10 +0100
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-> I finally came around to test this. In my experience driverctl works for
-> subchannels and vfio_ccw without this patch, and continues to work with
-> it. I found the code in driverctl that does the unbind and the implicit
-> bind (via drivers_probe after after driver_override was set).
+> On Wed, 16 Dec 2020 12:53:41 +0100
+> Boris Fiuczynski <fiuczy@linux.ibm.com> wrote:
 > 
-> So now I have to ask, how exactly was the original problem diagnosed?
+> > On 12/15/20 7:13 PM, Cornelia Huck wrote:
+> > >>     
+> > >>> I'm not sure how many rules actually care about events for the
+> > >>> subchannel device; the ccw device seems like the more helpful device to
+> > >>> watch out for.  
+> > >> I tend to agree, but the problem with vfio-ccw is that (currently) we
+> > >> don't have a ccw device in the host, because we pass-through the
+> > >> subchannel. When we interrogate the subchannel, we do learn if there
+> > >> is a device and if, what is its devno. If I were to run a system with
+> > >> vfio-ccw passthrough, I would want to passthrough the subchannel that
+> > >> talks to the DASD (identified by devno) I need passed through to my
+> > >> guest.  
+> > > I think that can be solved by simply adding the devno as a variable to
+> > > the uevent (valid if it's an I/O subchannel; we don't register the
+> > > subchannel in the first place if dnv is not set.)
+> > >   
+> > Providing the devno in the context of the udev event certainly helps if 
+> > the event consumer would base its actions on it.
+> > As far as I understand the driver_override mechanics driverctl sets the 
+> > override based on a specified device. In that case the devno would not 
+> > be looked at and the subchannel would end up with a vfio-ccw driver even 
+> > so the ccw device might not be the one we want to use as pass-through 
+> > device.
 > 
-> In https://marc.info/?l=linux-s390&m=158591045732735&w=2 there is a
-> paragraph like:
+> Hm, maybe we need to make a change in driverctl that allows per-bus
+> custom rules?
 > 
-> """
-> So while there's definitely a good reason for wanting to delay uevents,
-> it is also introducing problems. One is udev rules for subchannels that
-> are supposed to do something before a driver binds (e.g. setting
-> driver_override to bind an I/O subchannel to vfio_ccw instead of
-> io_subchannel) are not effective, as the ADD uevent will only be
-> generated when the io_subchannel driver is already done with doing all
-> setup. Another one is that only the ADD uevent is generated after
-> uevent suppression is lifted; any other uevents that might have been
-> generated are lost.
-> """
-> 
-> This is not how driverclt works! I.e. it deals with the situation that
-> the I/O subchannel was already bound to the io_subchannel driver at
-> the time the udev rule installed by driverctl activates (via the
-> mechanism I described above).
 
-That's... weird. It definitely did not work on the LPAR I initially
-tried it out on!
+The issue with that is, that this problem ain't bus specific. I.e. it
+could make perfect sense to driver_override a certain ccw tape device to
+an alternative tape driver.
 
-However, I think removing the suppression still looks like a good idea:
-we still have the "any uevent other than ADD will have been lost"
-problem.
+The problem is, that the only way driverctl can identify a device is a
+(name_of_the_bus), device_name_on_the bus) pair. Currently the udev rule
+installed by driverctl simply ooks fora file 
+/etc/driverctl.d/$env{SUBSYSTEM}-$kernel
+which basically encodes the current selection criteria.
+
+Can yo please elaborate on your idea? How would you extend the driverctl
+cli and how would persistence look like for these custom rules? Would
+you make driverctl write an udev rule for each such device/custom rule
+on 'set-override' command instead of file in /etc/driverctl.d?
+
+Regards,
+Halil
