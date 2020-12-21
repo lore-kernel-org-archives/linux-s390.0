@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-MIME-Version: 1.0
-References: <20201218143122.19459-1-info@metux.net> <20201218143122.19459-2-info@metux.net>
- <CAHp75VfYz_K2BYOxqmSx0q+1F2F9Lp1eb70RrNYzJHs3FX+quQ@mail.gmail.com> <87ft3zyaqa.fsf@mpe.ellerman.id.au>
-In-Reply-To: <87ft3zyaqa.fsf@mpe.ellerman.id.au>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Mon, 21 Dec 2020 11:27:27 +0200
-Message-ID: <CAHp75VeGs-x0-XgpLS0uB2oZmxKZREfUKM1ByUwmRquqFc2FPg@mail.gmail.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from bilbo.ozlabs.org ([203.11.71.1]:55417 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727066AbgLUFpJ (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 21 Dec 2020 00:45:09 -0500
+From: Michael Ellerman <mpe@ellerman.id.au>
 Subject: Re: [PATCH 01/23] kernel: irq: irqdescs: warn on spurious IRQ
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHp75VfYz_K2BYOxqmSx0q+1F2F9Lp1eb70RrNYzJHs3FX+quQ@mail.gmail.com>
+References: <20201218143122.19459-1-info@metux.net> <20201218143122.19459-2-info@metux.net> <CAHp75VfYz_K2BYOxqmSx0q+1F2F9Lp1eb70RrNYzJHs3FX+quQ@mail.gmail.com>
+Date: Mon, 21 Dec 2020 16:44:13 +1100
+Message-ID: <87ft3zyaqa.fsf@mpe.ellerman.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain
 List-ID: <linux-s390.vger.kernel.org>
-To: Michael Ellerman <mpe@ellerman.id.au>
-Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, James Bottomley <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Marc Zyngier <maz@kernel.org>, Tony Lindgren <tony@atomide.com>, Arnd Bergmann <arnd@arndb.de>, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org, Linux-SH <linux-sh@vger.kernel.org>, sparclinux@vger.kernel.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>
+To: Andy Shevchenko <andy.shevchenko@gmail.com>, "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, Geert Uytterhoeven <geert@linux-m68k.org>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, James Bottomley <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Thomas Gleixner <tglx@linutronix.de>, Borislav Petkov <bp@alien8.de>, "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <bgolaszewski@baylibre.com>, Marc Zyngier <maz@kernel.org>, Tony Lindgren <tony@atomide.com>, Arnd Bergmann <arnd@arndb.de>, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, "open list:LINUX FOR POWERPC PA SEMI PWRFICIENT" <linuxppc-dev@lists.ozlabs.org>, linux-s390@vger.kernel.org, Linux-SH <linux-sh@vger.kernel.org>, sparclinux@vger.kernel.org, "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux-Arch <linux-arch@vger.kernel.org>
 
-On Mon, Dec 21, 2020 at 7:44 AM Michael Ellerman <mpe@ellerman.id.au> wrote:
-> Andy Shevchenko <andy.shevchenko@gmail.com> writes:
-> > On Fri, Dec 18, 2020 at 4:37 PM Enrico Weigelt, metux IT consult
-> > <info@metux.net> wrote:
-> >
-> >> +               if (printk_ratelimit())
-> >> +                       pr_warn("spurious IRQ: irq=%d hwirq=%d nr_irqs=%d\n",
-> >> +                               irq, hwirq, nr_irqs);
-> >
-> > Perhaps you missed pr_warn_ratelimit() macro which is already in the
-> > kernel for a long time.
+Andy Shevchenko <andy.shevchenko@gmail.com> writes:
+> On Fri, Dec 18, 2020 at 4:37 PM Enrico Weigelt, metux IT consult
+> <info@metux.net> wrote:
 >
-> pr_warn_ratelimited() which calls printk_ratelimited().
-
-I stand corrected.
-Right, that's what I had in mind (actually didn't know that there are variants).
-
-Thanks!
-
-> And see the comment above printk_ratelimit():
+>> +               if (printk_ratelimit())
+>> +                       pr_warn("spurious IRQ: irq=%d hwirq=%d nr_irqs=%d\n",
+>> +                               irq, hwirq, nr_irqs);
 >
-> /*
->  * Please don't use printk_ratelimit(), because it shares ratelimiting state
->  * with all other unrelated printk_ratelimit() callsites.  Instead use
->  * printk_ratelimited() or plain old __ratelimit().
->  */
+> Perhaps you missed pr_warn_ratelimit() macro which is already in the
+> kernel for a long time.
+
+pr_warn_ratelimited() which calls printk_ratelimited().
+
+And see the comment above printk_ratelimit():
+
+/*
+ * Please don't use printk_ratelimit(), because it shares ratelimiting state
+ * with all other unrelated printk_ratelimit() callsites.  Instead use
+ * printk_ratelimited() or plain old __ratelimit().
+ */
 
 
--- 
-With Best Regards,
-Andy Shevchenko
+cheers
