@@ -1,82 +1,86 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.131]:36429 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728149AbgLROfV (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Fri, 18 Dec 2020 09:35:21 -0500
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: [PATCH 18/23] arch: arm64: use generic irq error counter
-Date: Fri, 18 Dec 2020 15:31:17 +0100
-Message-Id: <20201218143122.19459-19-info@metux.net>
-In-Reply-To: <20201218143122.19459-1-info@metux.net>
-References: <20201218143122.19459-1-info@metux.net>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:51654 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726949AbgLWBRD (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 22 Dec 2020 20:17:03 -0500
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v13 04/15] s390/vfio-ap: use new AP bus interface to search for queue devices
+Date: Tue, 22 Dec 2020 20:15:55 -0500
+Message-Id: <20201223011606.5265-5-akrowiak@linux.ibm.com>
+In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Use the newly introduced irq error counter, that's already maintained
-by all callers of ack_bad_irq(), in order to remove duplicate code.
+This patch refactors the vfio_ap device driver to use the AP bus's
+ap_get_qdev() function to retrieve the vfio_ap_queue struct containing
+information about a queue that is bound to the vfio_ap device driver.
+The bus's ap_get_qdev() function retrieves the queue device from a
+hashtable keyed by APQN. This is much more efficient than looping over
+the list of devices attached to the AP bus by several orders of
+magnitude.
 
-Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 ---
- arch/arm64/include/asm/hardirq.h | 9 ++-------
- arch/arm64/kernel/smp.c          | 6 ++----
- 2 files changed, 4 insertions(+), 11 deletions(-)
+ drivers/s390/crypto/vfio_ap_ops.c | 25 ++++++++++---------------
+ 1 file changed, 10 insertions(+), 15 deletions(-)
 
-diff --git a/arch/arm64/include/asm/hardirq.h b/arch/arm64/include/asm/hardirq.h
-index cbfa7b6f2e09..760922571084 100644
---- a/arch/arm64/include/asm/hardirq.h
-+++ b/arch/arm64/include/asm/hardirq.h
-@@ -13,7 +13,8 @@
- #include <asm/kvm_arm.h>
- #include <asm/sysreg.h>
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index a83d6e75361b..835c963ae16d 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -27,13 +27,6 @@
+ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
+ static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
  
--#define ack_bad_irq ack_bad_irq
-+#define ack_bad_irq(irq)
-+
- #include <asm-generic/hardirq.h>
- 
- #define __ARCH_IRQ_EXIT_IRQS_DISABLED	1
-@@ -85,10 +86,4 @@ do {									\
- 		write_sysreg(___hcr, hcr_el2);				\
- } while (0)
- 
--static inline void ack_bad_irq(unsigned int irq)
+-static int match_apqn(struct device *dev, const void *data)
 -{
--	extern unsigned long irq_err_count;
--	irq_err_count++;
+-	struct vfio_ap_queue *q = dev_get_drvdata(dev);
+-
+-	return (q->apqn == *(int *)(data)) ? 1 : 0;
 -}
 -
- #endif /* __ASM_HARDIRQ_H */
-diff --git a/arch/arm64/kernel/smp.c b/arch/arm64/kernel/smp.c
-index 2499b895efea..0edc565ea735 100644
---- a/arch/arm64/kernel/smp.c
-+++ b/arch/arm64/kernel/smp.c
-@@ -33,7 +33,7 @@
- #include <linux/kernel_stat.h>
- #include <linux/kexec.h>
- #include <linux/kvm_host.h>
--
-+#include <asm-generic/irq-err.h>
- #include <asm/alternative.h>
- #include <asm/atomic.h>
- #include <asm/cacheflush.h>
-@@ -798,8 +798,6 @@ static const char *ipi_types[NR_IPI] __tracepoint_string = {
- 
- static void smp_cross_call(const struct cpumask *target, unsigned int ipinr);
- 
--unsigned long irq_err_count;
--
- int arch_show_interrupts(struct seq_file *p, int prec)
+ /**
+  * vfio_ap_get_queue: Retrieve a queue with a specific APQN from a list
+  * @matrix_mdev: the associated mediated matrix
+@@ -49,7 +42,7 @@ static struct vfio_ap_queue *vfio_ap_get_queue(
+ 					struct ap_matrix_mdev *matrix_mdev,
+ 					int apqn)
  {
- 	unsigned int cpu, i;
-@@ -813,7 +811,7 @@ int arch_show_interrupts(struct seq_file *p, int prec)
- 		seq_printf(p, "      %s\n", ipi_types[i]);
- 	}
+-	struct vfio_ap_queue *q;
++	struct vfio_ap_queue *q = NULL;
  
--	seq_printf(p, "%*s: %10lu\n", prec, "Err", irq_err_count);
-+	seq_printf(p, "%*s: %10lu\n", prec, "Err", irq_err_get());
- 	return 0;
+ 	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
+ 		return NULL;
+@@ -1124,15 +1117,17 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+ 
+ static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
+ {
+-	struct device *dev;
++	struct ap_queue *queue;
+ 	struct vfio_ap_queue *q = NULL;
+ 
+-	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+-				 &apqn, match_apqn);
+-	if (dev) {
+-		q = dev_get_drvdata(dev);
+-		put_device(dev);
+-	}
++	queue = ap_get_qdev(apqn);
++	if (!queue)
++		return NULL;
++
++	put_device(&queue->ap_dev.device);
++
++	if (queue->ap_dev.device.driver == &matrix_dev->vfio_ap_drv->driver)
++		q = dev_get_drvdata(&queue->ap_dev.device);
+ 
+ 	return q;
  }
- 
 -- 
-2.11.0
+2.21.1
