@@ -1,78 +1,218 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1874 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731264AbgLATVq (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 1 Dec 2020 14:21:46 -0500
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v7 06/14] net/smc: Add diagnostic information to link structure
-Date: Tue,  1 Dec 2020 20:20:41 +0100
-Message-Id: <20201201192049.53517-7-kgraul@linux.ibm.com>
-In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
-References: <20201201192049.53517-1-kgraul@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v13 12/15] s390/zcrypt: Notify driver on config changed and scan complete callbacks
+Date: Tue, 22 Dec 2020 20:16:03 -0500
+Message-Id: <20201223011606.5265-13-akrowiak@linux.ibm.com>
+In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+This patch intruduces an extension to the ap bus to notify device drivers
+when the host AP configuration changes - i.e., adapters, domains or
+control domains are added or removed. To that end, two new callbacks are
+introduced for AP device drivers:
 
-During link creation add net-device ifindex and ib-device
-name to link structure. This is needed for diagnostic purposes.
+  void (*on_config_changed)(struct ap_config_info *new_config_info,
+                            struct ap_config_info *old_config_info);
 
-When diagnostic information is gathered, we need to traverse
-device, linkgroup and link structures, to be able to do that
-we need to hold a spinlock for the linkgroup list, without this
-diagnostic information in link structure, another device list
-mutex holding would be necessary to dereference the device
-pointer in the link structure which would be impossible when
-holding a spinlock already.
+     This callback is invoked at the start of the AP bus scan
+     function when it determines that the host AP configuration information
+     has changed since the previous scan. This is done by storing
+     an old and current QCI info struct and comparing them. If there is any
+     difference, the callback is invoked.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+     Note that when the AP bus scan detects that AP adapters, domains or
+     control domains have been removed from the host's AP configuration, it
+     will remove the associated devices from the AP bus subsystem's device
+     model. This callback gives the device driver a chance to respond to
+     the removal of the AP devices from the host configuration prior to
+     calling the device driver's remove callback. The primary purpose of
+     this callback is to allow the vfio_ap driver to do a bulk unplug of
+     all affected adapters, domains and control domains from affected
+     guests rather than unplugging them one at a time when the remove
+     callback is invoked.
+
+  void (*on_scan_complete)(struct ap_config_info *new_config_info,
+                           struct ap_config_info *old_config_info);
+
+     The on_scan_complete callback is invoked after the ap bus scan is
+     complete if the host AP configuration data has changed.
+
+     Note that when the AP bus scan detects that adapters, domains or
+     control domains have been added to the host's configuration, it will
+     create new devices in the AP bus subsystem's device model. The primary
+     purpose of this callback is to allow the vfio_ap driver to do a bulk
+     plug of all affected adapters, domains and control domains into
+     affected guests rather than plugging them one at a time when the
+     probe callback is invoked.
+
+Please note that changes to the apmask and aqmask do not trigger
+these two callbacks since the bus scan function is not invoked by changes
+to those masks.
+
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- net/smc/smc_core.c | 10 ++++++++++
- net/smc/smc_core.h |  2 ++
- 2 files changed, 12 insertions(+)
+ drivers/s390/crypto/ap_bus.c | 91 +++++++++++++++++++++++++++++++++++-
+ drivers/s390/crypto/ap_bus.h | 12 +++++
+ 2 files changed, 101 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 46087cec3bcd..0088511e30bf 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -313,6 +313,15 @@ static u8 smcr_next_link_id(struct smc_link_group *lgr)
- 	return link_id;
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 7d8add952dd6..788bfdaadafd 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -82,6 +82,7 @@ static atomic64_t ap_scan_bus_count;
+ static DECLARE_COMPLETION(ap_init_apqn_bindings_complete);
+ 
+ static struct ap_config_info *ap_qci_info;
++static struct ap_config_info *ap_qci_info_old;
+ 
+ /*
+  * AP bus related debug feature things.
+@@ -1579,6 +1580,52 @@ static int __match_queue_device_with_queue_id(struct device *dev, const void *da
+ 		&& AP_QID_QUEUE(to_ap_queue(dev)->qid) == (int)(long) data;
  }
  
-+static void smcr_copy_dev_info_to_link(struct smc_link *link)
++/* Helper function for notify_config_changed */
++static int __drv_notify_config_changed(struct device_driver *drv, void *data)
 +{
-+	struct smc_ib_device *smcibdev = link->smcibdev;
++	struct ap_driver *ap_drv = to_ap_drv(drv);
 +
-+	snprintf(link->ibname, sizeof(link->ibname), "%s",
-+		 smcibdev->ibdev->name);
-+	link->ndev_ifidx = smcibdev->ndev_ifidx[link->ibport - 1];
++	if (try_module_get(drv->owner)) {
++		if (ap_drv->on_config_changed)
++			ap_drv->on_config_changed(ap_qci_info,
++						  ap_qci_info_old);
++		module_put(drv->owner);
++	}
++
++	return 0;
 +}
 +
- int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 		   u8 link_idx, struct smc_init_info *ini)
- {
-@@ -327,6 +336,7 @@ int smcr_link_init(struct smc_link_group *lgr, struct smc_link *lnk,
- 	lnk->smcibdev = ini->ib_dev;
- 	lnk->ibport = ini->ib_port;
- 	smc_ibdev_cnt_inc(lnk);
-+	smcr_copy_dev_info_to_link(lnk);
- 	lnk->path_mtu = ini->ib_dev->pattr[ini->ib_port - 1].active_mtu;
- 	atomic_set(&lnk->conn_cnt, 0);
- 	smc_llc_link_set_uid(lnk);
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index eefb6770b268..3a1bb8e4b81f 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -124,6 +124,8 @@ struct smc_link {
- 	u8			link_is_asym;	/* is link asymmetric? */
- 	struct smc_link_group	*lgr;		/* parent link group */
- 	struct work_struct	link_down_wrk;	/* wrk to bring link down */
-+	char			ibname[IB_DEVICE_NAME_MAX]; /* ib device name */
-+	int			ndev_ifidx; /* network device ifindex */
++/* Notify all drivers about an qci config change */
++static inline void notify_config_changed(void)
++{
++	bus_for_each_drv(&ap_bus_type, NULL, NULL,
++			 __drv_notify_config_changed);
++}
++
++/* Helper function for notify_scan_complete */
++static int __drv_notify_scan_complete(struct device_driver *drv, void *data)
++{
++	struct ap_driver *ap_drv = to_ap_drv(drv);
++
++	if (try_module_get(drv->owner)) {
++		if (ap_drv->on_scan_complete)
++			ap_drv->on_scan_complete(ap_qci_info,
++						 ap_qci_info_old);
++		module_put(drv->owner);
++	}
++
++	return 0;
++}
++
++/* Notify all drivers about bus scan complete */
++static inline void notify_scan_complete(void)
++{
++	bus_for_each_drv(&ap_bus_type, NULL, NULL,
++			 __drv_notify_scan_complete);
++}
++
++
++
+ /*
+  * Helper function for ap_scan_bus().
+  * Remove card device and associated queue devices.
+@@ -1857,15 +1904,51 @@ static inline void ap_scan_adapter(int ap)
+ 	put_device(&ac->ap_dev.device);
+ }
  
- 	enum smc_link_state	state;		/* state of link */
- 	struct delayed_work	llc_testlink_wrk; /* testlink worker */
++/*
++ * ap_get_configuration
++ *
++ * Stores the host AP configuration information returned from the previous call
++ * to Query Configuration Information (QCI), then retrieves and stores the
++ * current AP configuration returned from QCI.
++ *
++ * Returns true if the host AP configuration changed between calls to QCI;
++ * otherwise, returns false.
++ */
++static bool ap_get_configuration(void)
++{
++	bool cfg_chg = false;
++
++	if (ap_qci_info) {
++		if (!ap_qci_info_old) {
++			ap_qci_info_old = kzalloc(sizeof(*ap_qci_info_old),
++						  GFP_KERNEL);
++			if (!ap_qci_info_old)
++				return false;
++		} else {
++			memcpy(ap_qci_info_old, ap_qci_info,
++			       sizeof(struct ap_config_info));
++		}
++		ap_fetch_qci_info(ap_qci_info);
++		cfg_chg = memcmp(ap_qci_info,
++				 ap_qci_info_old,
++				 sizeof(struct ap_config_info)) != 0;
++	}
++
++	return cfg_chg;
++}
++
+ /**
+  * ap_scan_bus(): Scan the AP bus for new devices
+  * Runs periodically, workqueue timer (ap_config_time)
+  */
+ static void ap_scan_bus(struct work_struct *unused)
+ {
+-	int ap;
++	int ap, config_changed = 0;
+ 
+-	ap_fetch_qci_info(ap_qci_info);
++	/* config change notify */
++	config_changed = ap_get_configuration();
++	if (config_changed)
++		notify_config_changed();
+ 	ap_select_domain();
+ 
+ 	AP_DBF_DBG("%s running\n", __func__);
+@@ -1874,6 +1957,10 @@ static void ap_scan_bus(struct work_struct *unused)
+ 	for (ap = 0; ap <= ap_max_adapter_id; ap++)
+ 		ap_scan_adapter(ap);
+ 
++	/* scan complete notify */
++	if (config_changed)
++		notify_scan_complete();
++
+ 	/* check if there is at least one queue available with default domain */
+ 	if (ap_domain_index >= 0) {
+ 		struct device *dev =
+diff --git a/drivers/s390/crypto/ap_bus.h b/drivers/s390/crypto/ap_bus.h
+index 95c9da072f81..e91082bd159c 100644
+--- a/drivers/s390/crypto/ap_bus.h
++++ b/drivers/s390/crypto/ap_bus.h
+@@ -146,6 +146,18 @@ struct ap_driver {
+ 	int (*probe)(struct ap_device *);
+ 	void (*remove)(struct ap_device *);
+ 	int (*in_use)(unsigned long *apm, unsigned long *aqm);
++	/*
++	 * Called at the start of the ap bus scan function when
++	 * the crypto config information (qci) has changed.
++	 */
++	void (*on_config_changed)(struct ap_config_info *new_config_info,
++				  struct ap_config_info *old_config_info);
++	/*
++	 * Called at the end of the ap bus scan function when
++	 * the crypto config information (qci) has changed.
++	 */
++	void (*on_scan_complete)(struct ap_config_info *new_config_info,
++				 struct ap_config_info *old_config_info);
+ };
+ 
+ #define to_ap_drv(x) container_of((x), struct ap_driver, driver)
 -- 
-2.17.1
+2.21.1
