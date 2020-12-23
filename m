@@ -1,48 +1,93 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Subject: (repost) cleaning up handling of bad IRQs
-Date: Fri, 18 Dec 2020 15:57:23 +0100
-Message-Id: <20201218145746.24205-1-info@metux.net>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:16810 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727202AbgLWBRM (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 22 Dec 2020 20:17:12 -0500
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v13 14/15] s390/vfio-ap: handle AP bus scan completed notification
+Date: Tue, 22 Dec 2020 20:16:05 -0500
+Message-Id: <20201223011606.5265-15-akrowiak@linux.ibm.com>
+In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-kernel@vger.kernel.org
-Cc: mark.rutland@arm.com, alexander.shishkin@linux.intel.com, jolsa@redhat.com, namhyung@kernel.org, catalin.marinas@arm.com, will@kernel.org, msalter@redhat.com, jacquiot.aurelien@gmail.com, gerg@linux-m68k.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, ysato@users.sourceforge.jp, dalias@libc.org, davem@davemloft.net, tglx@linutronix.de, bp@alien8.de, x86@kernel.org, hpa@zytor.com, linus.walleij@linaro.org, bgolaszewski@baylibre.com, maz@kernel.org, tony@atomide.com, arnd@arndb.de, linux-alpha@vger.kernel.org, linux-c6x-dev@linux-c6x.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-gpio@vger.kernel.org, linux-omap@vger.kernel.org, linux-arch@vger.kernel.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Hello friends,
+Implements the driver callback invoked by the AP bus when the AP bus
+scan has completed. Since this callback is invoked after binding the newly
+added devices to their respective device drivers, the vfio_ap driver will
+attempt to hot plug the adapters, domains and control domains into each
+guest using the matrix mdev to which they are assigned. Keep in mind that
+an adapter or domain can be plugged in only if:
+* Each APQN derived from the newly added APID of the adapter and the APQIs
+  already assigned to the guest's APCB references an AP queue device bound
+  to the vfio_ap driver
+* Each APQN derived from the newly added APQI of the domain and the APIDs
+  already assigned to the guest's APCB references an AP queue device bound
+  to the vfio_ap driver
 
- << reposting, since first queue didn't go through completely, due to mailer problem >>
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+---
+ drivers/s390/crypto/vfio_ap_drv.c     |  1 +
+ drivers/s390/crypto/vfio_ap_ops.c     | 21 +++++++++++++++++++++
+ drivers/s390/crypto/vfio_ap_private.h |  2 ++
+ 3 files changed, 24 insertions(+)
 
-here's a patch queue for cleaning up the IRQ handling. Inspired by a
-discussion we had on a previous patch of mine:
-
-    "arch: fix 'unexpected IRQ trap at vector' warnings"
-    https://www.spinics.net/lists/kernel/msg3763137.html
-
-Turned out that the whole message, as it is right now, doesn't make much
-sense at at all - not just incorrect wording, but also not quite useful
-information. And the whole ack_bad_irq() thing deserves a cleanup anyways.
-
-So, I've had a closer look and came to these conclusions:
-
-1. The warning message doesn't need to be duplicated in the per architecture
-   ack_bad_irq() functions. All, but one callers already do their own warning.
-   Thus just adding a pr_warn() call there, printing out more useful data
-   like the hardware IRQ number, and dropping all warnings from all the
-   ack_bad_irq() functions.
-
-2. Many of the ack_bad_irq()'s count up the spurious interrupts - lots of
-   duplications over the various archs. Some of them using atomic_t, some
-   just plain ints. Consolidating this by introducing a global counter
-   with inline'd accessors and doing the upcounting in the (currently 3)
-   call sites of ack_bad_irq(). After that, step by step changing all
-   archs to use the new counter.
-
-3. For all but one arch (x86), ack_bad_irq() became a no-op.
-
-   On x86, it's just a call to ack_APIC_irq(), in order to prevent lockups
-   when IRQs missed to be ack'ed on the APIC. Could we perhaps do this in
-   some better place ? In that case, ack_bad_irq() could easily be removed
-   entirely.
-
-have fun,
-
---mtx
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index 2029d8392416..075495fc44c0 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -149,6 +149,7 @@ static int __init vfio_ap_init(void)
+ 	vfio_ap_drv.remove = vfio_ap_mdev_remove_queue;
+ 	vfio_ap_drv.in_use = vfio_ap_mdev_resource_in_use;
+ 	vfio_ap_drv.on_config_changed = vfio_ap_on_cfg_changed;
++	vfio_ap_drv.on_scan_complete = vfio_ap_on_scan_complete;
+ 	vfio_ap_drv.ids = ap_queue_ids;
+ 
+ 	ret = ap_driver_register(&vfio_ap_drv, THIS_MODULE, VFIO_AP_DRV_NAME);
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 8bbbd1dc7546..b8ed01297812 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -1592,3 +1592,24 @@ void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
+ 	vfio_ap_mdev_on_cfg_add();
+ 	mutex_unlock(&matrix_dev->lock);
+ }
++
++void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
++			      struct ap_config_info *old_config_info)
++{
++	struct ap_matrix_mdev *matrix_mdev;
++
++	mutex_lock(&matrix_dev->lock);
++	list_for_each_entry(matrix_mdev, &matrix_dev->mdev_list, node) {
++		if (bitmap_intersects(matrix_mdev->matrix.apm,
++				      matrix_dev->ap_add, AP_DEVICES) ||
++		    bitmap_intersects(matrix_mdev->matrix.aqm,
++				      matrix_dev->aq_add, AP_DOMAINS) ||
++		    bitmap_intersects(matrix_mdev->matrix.adm,
++				      matrix_dev->ad_add, AP_DOMAINS))
++			vfio_ap_mdev_refresh_apcb(matrix_mdev);
++	}
++
++	bitmap_clear(matrix_dev->ap_add, 0, AP_DEVICES);
++	bitmap_clear(matrix_dev->aq_add, 0, AP_DOMAINS);
++	mutex_unlock(&matrix_dev->lock);
++}
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index b99b68968447..7f0f7c92e686 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -117,5 +117,7 @@ int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
+ 
+ void vfio_ap_on_cfg_changed(struct ap_config_info *new_config_info,
+ 			    struct ap_config_info *old_config_info);
++void vfio_ap_on_scan_complete(struct ap_config_info *new_config_info,
++			      struct ap_config_info *old_config_info);
+ 
+ #endif /* _VFIO_AP_PRIVATE_H_ */
+-- 
+2.21.1
