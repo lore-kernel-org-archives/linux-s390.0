@@ -1,18 +1,15 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3644 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726514AbgLWBVH (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 22 Dec 2020 20:21:07 -0500
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: Tony Krowiak <akrowiak@linux.ibm.com>
-Subject: [PATCH v5] s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated
-Date: Tue, 22 Dec 2020 20:20:13 -0500
-Message-Id: <20201223012013.5418-1-akrowiak@linux.ibm.com>
+Subject: [PATCH v13 01/15] s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated
+Date: Tue, 22 Dec 2020 20:15:52 -0500
+Message-Id: <20201223011606.5265-2-akrowiak@linux.ibm.com>
+In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: stable@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, pbonzini@redhat.com, alex.williamson@redhat.com, pasic@linux.vnet.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>, stable@vger.kernel.org
 
 The vfio_ap device driver registers a group notifier with VFIO when the
 file descriptor for a VFIO mediated device for a KVM guest is opened to
