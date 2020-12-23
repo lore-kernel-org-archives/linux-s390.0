@@ -1,47 +1,164 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from Galois.linutronix.de ([193.142.43.55]:57516 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2393542AbgLJTn0 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:26 -0500
-Message-Id: <20201210194044.876342330@linutronix.de>
-Date: Thu, 10 Dec 2020 20:25:59 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 23/30] net/mlx5: Use effective interrupt affinity
-References: <20201210192536.118432146@linutronix.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Subject: [PATCH v13 02/15] s390/vfio-ap: No need to disable IRQ after queue reset
+Date: Tue, 22 Dec 2020 20:15:53 -0500
+Message-Id: <20201223011606.5265-3-akrowiak@linux.ibm.com>
+In-Reply-To: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
+To: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, pasic@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com, Tony Krowiak <akrowiak@linux.ibm.com>
 
-Using the interrupt affinity mask for checking locality is not really
-working well on architectures which support effective affinity masks.
+The queues assigned to a matrix mediated device are currently reset when:
 
-The affinity mask is either the system wide default or set by user space,
-but the architecture can or even must reduce the mask to the effective set,
-which means that checking the affinity mask itself does not really tell
-about the actual target CPUs.
+* The VFIO_DEVICE_RESET ioctl is invoked
+* The mdev fd is closed by userspace (QEMU)
+* The mdev is removed from sysfs.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Saeed Mahameed <saeedm@nvidia.com>
-Cc: Leon Romanovsky <leon@kernel.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: linux-rdma@vger.kernel.org
+Immediately after the reset of a queue, a call is made to disable
+interrupts for the queue. This is entirely unnecessary because the reset of
+a queue disables interrupts, so this will be removed.
+
+Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/crypto/vfio_ap_drv.c     |  1 -
+ drivers/s390/crypto/vfio_ap_ops.c     | 40 +++++++++++++++++----------
+ drivers/s390/crypto/vfio_ap_private.h |  1 -
+ 3 files changed, 26 insertions(+), 16 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -1998,7 +1998,7 @@ static int mlx5e_open_channel(struct mlx
- 	c->num_tc   = params->num_tc;
- 	c->xdp      = !!params->xdp_prog;
- 	c->stats    = &priv->channel_stats[ix].ch;
--	c->aff_mask = irq_get_affinity_mask(irq);
-+	c->aff_mask = irq_get_effective_affinity_mask(irq);
- 	c->lag_port = mlx5e_enumerate_lag_port(priv->mdev, ix);
+diff --git a/drivers/s390/crypto/vfio_ap_drv.c b/drivers/s390/crypto/vfio_ap_drv.c
+index be2520cc010b..ca18c91afec9 100644
+--- a/drivers/s390/crypto/vfio_ap_drv.c
++++ b/drivers/s390/crypto/vfio_ap_drv.c
+@@ -79,7 +79,6 @@ static void vfio_ap_queue_dev_remove(struct ap_device *apdev)
+ 	apid = AP_QID_CARD(q->apqn);
+ 	apqi = AP_QID_QUEUE(q->apqn);
+ 	vfio_ap_mdev_reset_queue(apid, apqi, 1);
+-	vfio_ap_irq_disable(q);
+ 	kfree(q);
+ 	mutex_unlock(&matrix_dev->lock);
+ }
+diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+index 7339043906cf..052f61391ec7 100644
+--- a/drivers/s390/crypto/vfio_ap_ops.c
++++ b/drivers/s390/crypto/vfio_ap_ops.c
+@@ -25,6 +25,7 @@
+ #define VFIO_AP_MDEV_NAME_HWVIRT "VFIO AP Passthrough Device"
  
- 	netif_napi_add(netdev, &c->napi, mlx5e_napi_poll, 64);
+ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev);
++static struct vfio_ap_queue *vfio_ap_find_queue(int apqn);
+ 
+ static int match_apqn(struct device *dev, const void *data)
+ {
+@@ -49,20 +50,15 @@ static struct vfio_ap_queue *vfio_ap_get_queue(
+ 					int apqn)
+ {
+ 	struct vfio_ap_queue *q;
+-	struct device *dev;
+ 
+ 	if (!test_bit_inv(AP_QID_CARD(apqn), matrix_mdev->matrix.apm))
+ 		return NULL;
+ 	if (!test_bit_inv(AP_QID_QUEUE(apqn), matrix_mdev->matrix.aqm))
+ 		return NULL;
+ 
+-	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+-				 &apqn, match_apqn);
+-	if (!dev)
+-		return NULL;
+-	q = dev_get_drvdata(dev);
+-	q->matrix_mdev = matrix_mdev;
+-	put_device(dev);
++	q = vfio_ap_find_queue(apqn);
++	if (q)
++		q->matrix_mdev = matrix_mdev;
+ 
+ 	return q;
+ }
+@@ -1126,24 +1122,27 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+ 	return notify_rc;
+ }
+ 
+-static void vfio_ap_irq_disable_apqn(int apqn)
++static struct vfio_ap_queue *vfio_ap_find_queue(int apqn)
+ {
+ 	struct device *dev;
+-	struct vfio_ap_queue *q;
++	struct vfio_ap_queue *q = NULL;
+ 
+ 	dev = driver_find_device(&matrix_dev->vfio_ap_drv->driver, NULL,
+ 				 &apqn, match_apqn);
+ 	if (dev) {
+ 		q = dev_get_drvdata(dev);
+-		vfio_ap_irq_disable(q);
+ 		put_device(dev);
+ 	}
++
++	return q;
+ }
+ 
+ int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+ 			     unsigned int retry)
+ {
+ 	struct ap_queue_status status;
++	struct vfio_ap_queue *q;
++	int ret;
+ 	int retry2 = 2;
+ 	int apqn = AP_MKQID(apid, apqi);
+ 
+@@ -1156,18 +1155,32 @@ int vfio_ap_mdev_reset_queue(unsigned int apid, unsigned int apqi,
+ 				status = ap_tapq(apqn, NULL);
+ 			}
+ 			WARN_ON_ONCE(retry2 <= 0);
+-			return 0;
++			ret = 0;
++			goto free_aqic_resources;
+ 		case AP_RESPONSE_RESET_IN_PROGRESS:
+ 		case AP_RESPONSE_BUSY:
+ 			msleep(20);
+ 			break;
+ 		default:
+ 			/* things are really broken, give up */
+-			return -EIO;
++			ret = -EIO;
++			goto free_aqic_resources;
+ 		}
+ 	} while (retry--);
+ 
+ 	return -EBUSY;
++
++free_aqic_resources:
++	/*
++	 * In order to free the aqic resources, the queue must be linked to
++	 * the matrix_mdev to which its APQN is assigned and the KVM pointer
++	 * must be available.
++	 */
++	q = vfio_ap_find_queue(apqn);
++	if (q && q->matrix_mdev && q->matrix_mdev->kvm)
++		vfio_ap_free_aqic_resources(q);
++
++	return ret;
+ }
+ 
+ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+@@ -1189,7 +1202,6 @@ static int vfio_ap_mdev_reset_queues(struct mdev_device *mdev)
+ 			 */
+ 			if (ret)
+ 				rc = ret;
+-			vfio_ap_irq_disable_apqn(AP_MKQID(apid, apqi));
+ 		}
+ 	}
+ 
+diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+index f46dde56b464..0db6fb3d56d5 100644
+--- a/drivers/s390/crypto/vfio_ap_private.h
++++ b/drivers/s390/crypto/vfio_ap_private.h
+@@ -100,5 +100,4 @@ struct vfio_ap_queue {
+ #define VFIO_AP_ISC_INVALID 0xff
+ 	unsigned char saved_isc;
+ };
+-struct ap_queue_status vfio_ap_irq_disable(struct vfio_ap_queue *q);
+ #endif /* _VFIO_AP_PRIVATE_H_ */
+-- 
+2.21.1
