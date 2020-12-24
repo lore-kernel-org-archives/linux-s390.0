@@ -1,22 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Thu, 24 Dec 2020 06:03:25 +0100
+From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v5] s390/vfio-ap: clean up vfio_ap resources when KVM
  pointer invalidated
-References: <20201223012013.5418-1-akrowiak@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <e8339b80-2466-5dd1-195c-f59b4794528c@de.ibm.com>
-Date: Sun, 27 Dec 2020 12:12:51 +0100
-MIME-Version: 1.0
+Message-ID: <20201224060325.2170d7e9.pasic@linux.ibm.com>
 In-Reply-To: <20201223012013.5418-1-akrowiak@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20201223012013.5418-1-akrowiak@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc: stable@vger.kernel.org, cohuck@redhat.com, kwankhede@nvidia.com, pbonzini@redhat.com, alex.williamson@redhat.com, Halil Pasic <pasic@linux.ibm.com>
+To: Tony Krowiak <akrowiak@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, stable@vger.kernel.org, borntraeger@de.ibm.com, cohuck@redhat.com, kwankhede@nvidia.com, pbonzini@redhat.com, alex.williamson@redhat.com, pasic@linux.vnet.ibm.com
 
+On Tue, 22 Dec 2020 20:20:13 -0500
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-
-On 23.12.20 02:20, Tony Krowiak wrote:
 > The vfio_ap device driver registers a group notifier with VFIO when the
 > file descriptor for a VFIO mediated device for a KVM guest is opened to
 > receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
@@ -40,113 +39,7 @@ On 23.12.20 02:20, Tony Krowiak wrote:
 > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
 > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
-thanks, applied to the s390 tree.
+LGTM.
 
-
-> ---
->  drivers/s390/crypto/vfio_ap_ops.c | 49 ++++++++++++++++++-------------
->  1 file changed, 28 insertions(+), 21 deletions(-)
-> 
-> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
-> index e0bde8518745..7339043906cf 100644
-> --- a/drivers/s390/crypto/vfio_ap_ops.c
-> +++ b/drivers/s390/crypto/vfio_ap_ops.c
-> @@ -1037,19 +1037,14 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
->  {
->  	struct ap_matrix_mdev *m;
->  
-> -	mutex_lock(&matrix_dev->lock);
-> -
->  	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
-> -		if ((m != matrix_mdev) && (m->kvm == kvm)) {
-> -			mutex_unlock(&matrix_dev->lock);
-> +		if ((m != matrix_mdev) && (m->kvm == kvm))
->  			return -EPERM;
-> -		}
->  	}
->  
->  	matrix_mdev->kvm = kvm;
->  	kvm_get_kvm(kvm);
->  	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
-> -	mutex_unlock(&matrix_dev->lock);
->  
->  	return 0;
->  }
-> @@ -1083,35 +1078,52 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
->  	return NOTIFY_DONE;
->  }
->  
-> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
-> +{
-> +	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-> +	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-> +	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
-> +	kvm_put_kvm(matrix_mdev->kvm);
-> +	matrix_mdev->kvm = NULL;
-> +}
-> +
->  static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
->  				       unsigned long action, void *data)
->  {
-> -	int ret;
-> +	int ret, notify_rc = NOTIFY_OK;
->  	struct ap_matrix_mdev *matrix_mdev;
->  
->  	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
->  		return NOTIFY_OK;
->  
->  	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
-> +	mutex_lock(&matrix_dev->lock);
->  
->  	if (!data) {
-> -		matrix_mdev->kvm = NULL;
-> -		return NOTIFY_OK;
-> +		if (matrix_mdev->kvm)
-> +			vfio_ap_mdev_unset_kvm(matrix_mdev);
-> +		goto notify_done;
->  	}
->  
->  	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
-> -	if (ret)
-> -		return NOTIFY_DONE;
-> +	if (ret) {
-> +		notify_rc = NOTIFY_DONE;
-> +		goto notify_done;
-> +	}
->  
->  	/* If there is no CRYCB pointer, then we can't copy the masks */
-> -	if (!matrix_mdev->kvm->arch.crypto.crycbd)
-> -		return NOTIFY_DONE;
-> +	if (!matrix_mdev->kvm->arch.crypto.crycbd) {
-> +		notify_rc = NOTIFY_DONE;
-> +		goto notify_done;
-> +	}
->  
->  	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
->  				  matrix_mdev->matrix.aqm,
->  				  matrix_mdev->matrix.adm);
->  
-> -	return NOTIFY_OK;
-> +notify_done:
-> +	mutex_unlock(&matrix_dev->lock);
-> +	return notify_rc;
->  }
->  
->  static void vfio_ap_irq_disable_apqn(int apqn)
-> @@ -1222,13 +1234,8 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
->  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
->  
->  	mutex_lock(&matrix_dev->lock);
-> -	if (matrix_mdev->kvm) {
-> -		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
-> -		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
-> -		vfio_ap_mdev_reset_queues(mdev);
-> -		kvm_put_kvm(matrix_mdev->kvm);
-> -		matrix_mdev->kvm = NULL;
-> -	}
-> +	if (matrix_mdev->kvm)
-> +		vfio_ap_mdev_unset_kvm(matrix_mdev);
->  	mutex_unlock(&matrix_dev->lock);
->  
->  	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
-> 
+Christian, you wanted to pick this yourself directly, or? I think we are
+good to go!
