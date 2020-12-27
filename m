@@ -1,69 +1,152 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404338AbgLJTnn (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 10 Dec 2020 14:43:43 -0500
-Message-Id: <20201210194044.473308721@linutronix.de>
-Date: Thu, 10 Dec 2020 20:25:55 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 19/30] PCI: mobiveil: Use irq_data_get_irq_chip_data()
-References: <20201210192536.118432146@linutronix.de>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH v5] s390/vfio-ap: clean up vfio_ap resources when KVM
+ pointer invalidated
+References: <20201223012013.5418-1-akrowiak@linux.ibm.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <e8339b80-2466-5dd1-195c-f59b4794528c@de.ibm.com>
+Date: Sun, 27 Dec 2020 12:12:51 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+In-Reply-To: <20201223012013.5418-1-akrowiak@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Michal Simek <michal.simek@xilinx.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
+To: Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc: stable@vger.kernel.org, cohuck@redhat.com, kwankhede@nvidia.com, pbonzini@redhat.com, alex.williamson@redhat.com, Halil Pasic <pasic@linux.ibm.com>
 
-Going through a full irq descriptor lookup instead of just using the proper
-helper function which provides direct access is suboptimal.
 
-In fact it _is_ wrong because the chip callback needs to get the chip data
-which is relevant for the chip while using the irq descriptor variant
-returns the irq chip data of the top level chip of a hierarchy. It does not
-matter in this case because the chip is the top level chip, but that
-doesn't make it more correct.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>
-Cc: Hou Zhiqiang <Zhiqiang.Hou@nxp.com>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org
----
- drivers/pci/controller/mobiveil/pcie-mobiveil-host.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+On 23.12.20 02:20, Tony Krowiak wrote:
+> The vfio_ap device driver registers a group notifier with VFIO when the
+> file descriptor for a VFIO mediated device for a KVM guest is opened to
+> receive notification that the KVM pointer is set (VFIO_GROUP_NOTIFY_SET_KVM
+> event). When the KVM pointer is set, the vfio_ap driver takes the
+> following actions:
+> 1. Stashes the KVM pointer in the vfio_ap_mdev struct that holds the state
+>    of the mediated device.
+> 2. Calls the kvm_get_kvm() function to increment its reference counter.
+> 3. Sets the function pointer to the function that handles interception of
+>    the instruction that enables/disables interrupt processing.
+> 4. Sets the masks in the KVM guest's CRYCB to pass AP resources through to
+>    the guest.
+> 
+> In order to avoid memory leaks, when the notifier is called to receive
+> notification that the KVM pointer has been set to NULL, the vfio_ap device
+> driver should reverse the actions taken when the KVM pointer was set.
+> 
+> Fixes: 258287c994de ("s390: vfio-ap: implement mediated device open callback")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 
---- a/drivers/pci/controller/mobiveil/pcie-mobiveil-host.c
-+++ b/drivers/pci/controller/mobiveil/pcie-mobiveil-host.c
-@@ -306,13 +306,11 @@ int mobiveil_host_init(struct mobiveil_p
- 
- static void mobiveil_mask_intx_irq(struct irq_data *data)
- {
--	struct irq_desc *desc = irq_to_desc(data->irq);
--	struct mobiveil_pcie *pcie;
-+	struct mobiveil_pcie *pcie = irq_data_get_irq_chip_data(data);
- 	struct mobiveil_root_port *rp;
- 	unsigned long flags;
- 	u32 mask, shifted_val;
- 
--	pcie = irq_desc_get_chip_data(desc);
- 	rp = &pcie->rp;
- 	mask = 1 << ((data->hwirq + PAB_INTX_START) - 1);
- 	raw_spin_lock_irqsave(&rp->intx_mask_lock, flags);
-@@ -324,13 +322,11 @@ static void mobiveil_mask_intx_irq(struc
- 
- static void mobiveil_unmask_intx_irq(struct irq_data *data)
- {
--	struct irq_desc *desc = irq_to_desc(data->irq);
--	struct mobiveil_pcie *pcie;
-+	struct mobiveil_pcie *pcie = irq_data_get_irq_chip_data(data);
- 	struct mobiveil_root_port *rp;
- 	unsigned long flags;
- 	u32 shifted_val, mask;
- 
--	pcie = irq_desc_get_chip_data(desc);
- 	rp = &pcie->rp;
- 	mask = 1 << ((data->hwirq + PAB_INTX_START) - 1);
- 	raw_spin_lock_irqsave(&rp->intx_mask_lock, flags);
+thanks, applied to the s390 tree.
+
+
+> ---
+>  drivers/s390/crypto/vfio_ap_ops.c | 49 ++++++++++++++++++-------------
+>  1 file changed, 28 insertions(+), 21 deletions(-)
+> 
+> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+> index e0bde8518745..7339043906cf 100644
+> --- a/drivers/s390/crypto/vfio_ap_ops.c
+> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+> @@ -1037,19 +1037,14 @@ static int vfio_ap_mdev_set_kvm(struct ap_matrix_mdev *matrix_mdev,
+>  {
+>  	struct ap_matrix_mdev *m;
+>  
+> -	mutex_lock(&matrix_dev->lock);
+> -
+>  	list_for_each_entry(m, &matrix_dev->mdev_list, node) {
+> -		if ((m != matrix_mdev) && (m->kvm == kvm)) {
+> -			mutex_unlock(&matrix_dev->lock);
+> +		if ((m != matrix_mdev) && (m->kvm == kvm))
+>  			return -EPERM;
+> -		}
+>  	}
+>  
+>  	matrix_mdev->kvm = kvm;
+>  	kvm_get_kvm(kvm);
+>  	kvm->arch.crypto.pqap_hook = &matrix_mdev->pqap_hook;
+> -	mutex_unlock(&matrix_dev->lock);
+>  
+>  	return 0;
+>  }
+> @@ -1083,35 +1078,52 @@ static int vfio_ap_mdev_iommu_notifier(struct notifier_block *nb,
+>  	return NOTIFY_DONE;
+>  }
+>  
+> +static void vfio_ap_mdev_unset_kvm(struct ap_matrix_mdev *matrix_mdev)
+> +{
+> +	kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> +	matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> +	vfio_ap_mdev_reset_queues(matrix_mdev->mdev);
+> +	kvm_put_kvm(matrix_mdev->kvm);
+> +	matrix_mdev->kvm = NULL;
+> +}
+> +
+>  static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+>  				       unsigned long action, void *data)
+>  {
+> -	int ret;
+> +	int ret, notify_rc = NOTIFY_OK;
+>  	struct ap_matrix_mdev *matrix_mdev;
+>  
+>  	if (action != VFIO_GROUP_NOTIFY_SET_KVM)
+>  		return NOTIFY_OK;
+>  
+>  	matrix_mdev = container_of(nb, struct ap_matrix_mdev, group_notifier);
+> +	mutex_lock(&matrix_dev->lock);
+>  
+>  	if (!data) {
+> -		matrix_mdev->kvm = NULL;
+> -		return NOTIFY_OK;
+> +		if (matrix_mdev->kvm)
+> +			vfio_ap_mdev_unset_kvm(matrix_mdev);
+> +		goto notify_done;
+>  	}
+>  
+>  	ret = vfio_ap_mdev_set_kvm(matrix_mdev, data);
+> -	if (ret)
+> -		return NOTIFY_DONE;
+> +	if (ret) {
+> +		notify_rc = NOTIFY_DONE;
+> +		goto notify_done;
+> +	}
+>  
+>  	/* If there is no CRYCB pointer, then we can't copy the masks */
+> -	if (!matrix_mdev->kvm->arch.crypto.crycbd)
+> -		return NOTIFY_DONE;
+> +	if (!matrix_mdev->kvm->arch.crypto.crycbd) {
+> +		notify_rc = NOTIFY_DONE;
+> +		goto notify_done;
+> +	}
+>  
+>  	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
+>  				  matrix_mdev->matrix.aqm,
+>  				  matrix_mdev->matrix.adm);
+>  
+> -	return NOTIFY_OK;
+> +notify_done:
+> +	mutex_unlock(&matrix_dev->lock);
+> +	return notify_rc;
+>  }
+>  
+>  static void vfio_ap_irq_disable_apqn(int apqn)
+> @@ -1222,13 +1234,8 @@ static void vfio_ap_mdev_release(struct mdev_device *mdev)
+>  	struct ap_matrix_mdev *matrix_mdev = mdev_get_drvdata(mdev);
+>  
+>  	mutex_lock(&matrix_dev->lock);
+> -	if (matrix_mdev->kvm) {
+> -		kvm_arch_crypto_clear_masks(matrix_mdev->kvm);
+> -		matrix_mdev->kvm->arch.crypto.pqap_hook = NULL;
+> -		vfio_ap_mdev_reset_queues(mdev);
+> -		kvm_put_kvm(matrix_mdev->kvm);
+> -		matrix_mdev->kvm = NULL;
+> -	}
+> +	if (matrix_mdev->kvm)
+> +		vfio_ap_mdev_unset_kvm(matrix_mdev);
+>  	mutex_unlock(&matrix_dev->lock);
+>  
+>  	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+> 
