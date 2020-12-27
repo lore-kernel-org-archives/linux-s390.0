@@ -1,52 +1,102 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net-next v7 02/14] net/smc: Use active link of the connection
-Date: Tue,  1 Dec 2020 20:20:37 +0100
-Message-Id: <20201201192049.53517-3-kgraul@linux.ibm.com>
-In-Reply-To: <20201201192049.53517-1-kgraul@linux.ibm.com>
-References: <20201201192049.53517-1-kgraul@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726188AbgL0TVd (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Sun, 27 Dec 2020 14:21:33 -0500
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Sun, 27 Dec 2020 11:20:49 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [patch 02/30] genirq: Move status flag checks to core
+Message-ID: <20201227192049.GA195845@roeck-us.net>
+References: <20201210192536.118432146@linutronix.de>
+ <20201210194042.703779349@linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201210194042.703779349@linutronix.de>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, dri-devel@lists.freedesktop.org, Chris Wilson <chris@chris-wilson.co.uk>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Saeed Mahameed <saeedm@nvidia.com>, netdev@vger.kernel.org, Will Deacon <will@kernel.org>, Michal Simek <michal.simek@xilinx.com>, linux-s390@vger.kernel.org, afzal mohammed <afzal.mohd.ma@gmail.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Dave Jiang <dave.jiang@intel.com>, xen-devel@lists.xenproject.org, Leon Romanovsky <leon@kernel.org>, linux-rdma@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Helge Deller <deller@gmx.de>, Russell King <linux@armlinux.org.uk>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-pci@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Wambui Karuga <wambui.karugax@gmail.com>, Allen Hubbe <allenbh@gmail.com>, Juergen Gross <jgross@suse.com>, David Airlie <airlied@linux.ie>, linux-gpio@vger.kernel.org, Stefano Stabellini <sstabellini@kernel.org>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Bjorn Helgaas <bhelgaas@google.com>, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, linux-parisc@vger.kernel.org, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, Jon Mason <jdmason@kudzu.us>, linux-ntb@googlegroups.com, intel-gfx@lists.freedesktop.org, "David S. Miller" <davem@davemloft.net>
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+On Thu, Dec 10, 2020 at 08:25:38PM +0100, Thomas Gleixner wrote:
+> These checks are used by modules and prevent the removal of the export of
+> irq_to_desc(). Move the accessor into the core.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
-Use active link of the connection directly and not
-via linkgroup array structure when obtaining link
-data of the connection.
+Yes, but that means that irq_check_status_bit() may be called from modules,
+but it is not exported, resulting in build errors such as the following.
 
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
----
- net/smc/smc_diag.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+arm64:allmodconfig:
 
-diff --git a/net/smc/smc_diag.c b/net/smc/smc_diag.c
-index f15fca59b4b2..c2225231f679 100644
---- a/net/smc/smc_diag.c
-+++ b/net/smc/smc_diag.c
-@@ -160,17 +160,17 @@ static int __smc_diag_dump(struct sock *sk, struct sk_buff *skb,
- 	    !list_empty(&smc->conn.lgr->list)) {
- 		struct smc_diag_lgrinfo linfo = {
- 			.role = smc->conn.lgr->role,
--			.lnk[0].ibport = smc->conn.lgr->lnk[0].ibport,
--			.lnk[0].link_id = smc->conn.lgr->lnk[0].link_id,
-+			.lnk[0].ibport = smc->conn.lnk->ibport,
-+			.lnk[0].link_id = smc->conn.lnk->link_id,
- 		};
- 
- 		memcpy(linfo.lnk[0].ibname,
- 		       smc->conn.lgr->lnk[0].smcibdev->ibdev->name,
--		       sizeof(smc->conn.lgr->lnk[0].smcibdev->ibdev->name));
-+		       sizeof(smc->conn.lnk->smcibdev->ibdev->name));
- 		smc_gid_be16_convert(linfo.lnk[0].gid,
--				     smc->conn.lgr->lnk[0].gid);
-+				     smc->conn.lnk->gid);
- 		smc_gid_be16_convert(linfo.lnk[0].peer_gid,
--				     smc->conn.lgr->lnk[0].peer_gid);
-+				     smc->conn.lnk->peer_gid);
- 
- 		if (nla_put(skb, SMC_DIAG_LGRINFO, sizeof(linfo), &linfo) < 0)
- 			goto errout;
--- 
-2.17.1
+ERROR: modpost: "irq_check_status_bit" [drivers/perf/arm_spe_pmu.ko] undefined!
+
+Guenter
+
+> ---
+>  include/linux/irqdesc.h |   17 +++++------------
+>  kernel/irq/manage.c     |   17 +++++++++++++++++
+>  2 files changed, 22 insertions(+), 12 deletions(-)
+> 
+> --- a/include/linux/irqdesc.h
+> +++ b/include/linux/irqdesc.h
+> @@ -223,28 +223,21 @@ irq_set_chip_handler_name_locked(struct
+>  	data->chip = chip;
+>  }
+>  
+> +bool irq_check_status_bit(unsigned int irq, unsigned int bitmask);
+> +
+>  static inline bool irq_balancing_disabled(unsigned int irq)
+>  {
+> -	struct irq_desc *desc;
+> -
+> -	desc = irq_to_desc(irq);
+> -	return desc->status_use_accessors & IRQ_NO_BALANCING_MASK;
+> +	return irq_check_status_bit(irq, IRQ_NO_BALANCING_MASK);
+>  }
+>  
+>  static inline bool irq_is_percpu(unsigned int irq)
+>  {
+> -	struct irq_desc *desc;
+> -
+> -	desc = irq_to_desc(irq);
+> -	return desc->status_use_accessors & IRQ_PER_CPU;
+> +	return irq_check_status_bit(irq, IRQ_PER_CPU);
+>  }
+>  
+>  static inline bool irq_is_percpu_devid(unsigned int irq)
+>  {
+> -	struct irq_desc *desc;
+> -
+> -	desc = irq_to_desc(irq);
+> -	return desc->status_use_accessors & IRQ_PER_CPU_DEVID;
+> +	return irq_check_status_bit(irq, IRQ_PER_CPU_DEVID);
+>  }
+>  
+>  static inline void
+> --- a/kernel/irq/manage.c
+> +++ b/kernel/irq/manage.c
+> @@ -2769,3 +2769,23 @@ bool irq_has_action(unsigned int irq)
+>  	return res;
+>  }
+>  EXPORT_SYMBOL_GPL(irq_has_action);
+> +
+> +/**
+> + * irq_check_status_bit - Check whether bits in the irq descriptor status are set
+> + * @irq:	The linux irq number
+> + * @bitmask:	The bitmask to evaluate
+> + *
+> + * Returns: True if one of the bits in @bitmask is set
+> + */
+> +bool irq_check_status_bit(unsigned int irq, unsigned int bitmask)
+> +{
+> +	struct irq_desc *desc;
+> +	bool res = false;
+> +
+> +	rcu_read_lock();
+> +	desc = irq_to_desc(irq);
+> +	if (desc)
+> +		res = !!(desc->status_use_accessors & bitmask);
+> +	rcu_read_unlock();
+> +	return res;
+> +}
