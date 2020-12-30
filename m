@@ -1,52 +1,94 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59500 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727664AbgLCWh1 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 3 Dec 2020 17:37:27 -0500
-Date: Thu, 3 Dec 2020 15:36:42 -0700
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH 0/6] Add documentation for Documentation/features at the
- built docs
-Message-ID: <20201203153642.594afd85@lwn.net>
-In-Reply-To: <cover.1606748711.git.mchehab+huawei@kernel.org>
-References: <cover.1606748711.git.mchehab+huawei@kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 25/31] s390: always clear kernel stack backchain before calling functions
+Date: Wed, 30 Dec 2020 08:03:07 -0500
+Message-Id: <20201230130314.3636961-25-sashal@kernel.org>
+In-Reply-To: <20201230130314.3636961-1-sashal@kernel.org>
+References: <20201230130314.3636961-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, linux-kernel@vger.kernel.org, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Jonathan =?UTF-8?B?TmV1c2Now6RmZXI=?= <j.neuschaefer@gmx.net>, Albert Ou <aou@eecs.berkeley.edu>, Andrew Cooper <andrew.cooper3@citrix.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Borislav Petkov <bp@alien8.de>, Catalin Marinas <catalin.marinas@arm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Fenghua Yu <fenghua.yu@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Heiko Carstens <hca@linux.ibm.com>, Helge Deller <deller@gmx.de>, Ingo Molnar <mingo@redhat.com>, Jonas Bonn <jonas@southpole.se>, Kees Cook <keescook@chromium.org>, Masami Hiramatsu <mhiramat@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Palmer Dabbelt <palmer@dabbelt.com>, Paul Mackerras <paulus@samba.org>, Paul Walmsley <paul.walmsley@sifive.com>, Rich Felker <dalias@libc.org>, Stafford Horne <shorne@gmail.com>, Stefan Kristiansson <stefan.kristiansson@saunalahti.fi>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Thomas Gleixner <tglx@linutronix.de>, Tony Luck <tony.luck@intel.com>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Yoshinori Sato <ysato@users.sourceforge.jp>, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, openrisc@lists.librecores.org, x86@kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Heiko Carstens <hca@linux.ibm.com>, Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
 
-On Mon, 30 Nov 2020 16:36:29 +0100
-Mauro Carvalho Chehab <mchehab+huawei@kernel.org> wrote:
+From: Heiko Carstens <hca@linux.ibm.com>
 
-> This series got already submitted last year:
-> 
->    https://lore.kernel.org/lkml/cover.1561222784.git.mchehab+samsung@kernel.org/
-> 
-> Yet, on that time, there were too many other patches related to ReST
-> conversion floating around. So, at the end, I guess this one got missed.
-> 
-> So, I did a rebase on the top of upstream, and added a few new changes.
+[ Upstream commit 9365965db0c7ca7fc81eee27c21d8522d7102c32 ]
 
-OK, I've gone ahead and applied these; it gains me a new trivial conflict
-with x86, but so be it...
+Clear the kernel stack backchain before potentially calling the
+lockdep trace_hardirqs_off/on functions. Without this walking the
+kernel backchain, e.g. during a panic, might stop too early.
 
-That said, I think that the RST table formatting could be *way* improved.
-The current tables are all white space and hard to make sense of.  What if
-we condensed the information?  Just looking at the first entry in
-Documentation/admin-guide/features.html, perhaps it could look like:
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ arch/s390/kernel/entry.S | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-    FEATURE	KCONFIG/DESCRIPTION		STATUS
-
-    cBPF-JIT	HAVE_CBPF_JIT			TODO: alpha, arc, arm...
-    						ok: mips, powerpc, ...
-		arch supports cBPF JIT
-		optimizations
-
-The result would be far more compact and easy to read, IMO.  I may get
-around to giving this a try if (hint :) nobody else gets there first.
-
-Thanks,
-
-jon
+diff --git a/arch/s390/kernel/entry.S b/arch/s390/kernel/entry.S
+index 92beb14446449..9bdf3dbd04247 100644
+--- a/arch/s390/kernel/entry.S
++++ b/arch/s390/kernel/entry.S
+@@ -390,6 +390,7 @@ ENTRY(system_call)
+ 	mvc	__PT_PSW(16,%r11),__LC_SVC_OLD_PSW
+ 	mvc	__PT_INT_CODE(4,%r11),__LC_SVC_ILC
+ 	stg	%r14,__PT_FLAGS(%r11)
++	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+ 	ENABLE_INTS
+ .Lsysc_do_svc:
+ 	# clear user controlled register to prevent speculative use
+@@ -406,7 +407,6 @@ ENTRY(system_call)
+ 	jnl	.Lsysc_nr_ok
+ 	slag	%r8,%r1,3
+ .Lsysc_nr_ok:
+-	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+ 	stg	%r2,__PT_ORIG_GPR2(%r11)
+ 	stg	%r7,STACK_FRAME_OVERHEAD(%r15)
+ 	lg	%r9,0(%r8,%r10)			# get system call add.
+@@ -696,8 +696,8 @@ ENTRY(pgm_check_handler)
+ 	mvc	__THREAD_per_address(8,%r14),__LC_PER_ADDRESS
+ 	mvc	__THREAD_per_cause(2,%r14),__LC_PER_CODE
+ 	mvc	__THREAD_per_paid(1,%r14),__LC_PER_ACCESS_ID
+-6:	RESTORE_SM_CLEAR_PER
+-	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
++6:	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
++	RESTORE_SM_CLEAR_PER
+ 	larl	%r1,pgm_check_table
+ 	llgh	%r10,__PT_INT_CODE+2(%r11)
+ 	nill	%r10,0x007f
+@@ -718,8 +718,8 @@ ENTRY(pgm_check_handler)
+ # PER event in supervisor state, must be kprobes
+ #
+ .Lpgm_kprobe:
+-	RESTORE_SM_CLEAR_PER
+ 	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
++	RESTORE_SM_CLEAR_PER
+ 	lgr	%r2,%r11		# pass pointer to pt_regs
+ 	brasl	%r14,do_per_trap
+ 	j	.Lpgm_return
+@@ -761,10 +761,10 @@ ENTRY(io_int_handler)
+ 	stmg	%r8,%r9,__PT_PSW(%r11)
+ 	mvc	__PT_INT_CODE(12,%r11),__LC_SUBCHANNEL_ID
+ 	xc	__PT_FLAGS(8,%r11),__PT_FLAGS(%r11)
++	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+ 	TSTMSK	__LC_CPU_FLAGS,_CIF_IGNORE_IRQ
+ 	jo	.Lio_restore
+ 	TRACE_IRQS_OFF
+-	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+ .Lio_loop:
+ 	lgr	%r2,%r11		# pass pointer to pt_regs
+ 	lghi	%r3,IO_INTERRUPT
+@@ -964,10 +964,10 @@ ENTRY(ext_int_handler)
+ 	mvc	__PT_INT_PARM(4,%r11),__LC_EXT_PARAMS
+ 	mvc	__PT_INT_PARM_LONG(8,%r11),0(%r1)
+ 	xc	__PT_FLAGS(8,%r11),__PT_FLAGS(%r11)
++	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+ 	TSTMSK	__LC_CPU_FLAGS,_CIF_IGNORE_IRQ
+ 	jo	.Lio_restore
+ 	TRACE_IRQS_OFF
+-	xc	__SF_BACKCHAIN(8,%r15),__SF_BACKCHAIN(%r15)
+ 	lgr	%r2,%r11		# pass pointer to pt_regs
+ 	lghi	%r3,EXT_INTERRUPT
+ 	brasl	%r14,do_IRQ
+-- 
+2.27.0
