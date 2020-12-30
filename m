@@ -1,35 +1,41 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-Message-Id: <20201210194043.659522455@linutronix.de>
-Date: Thu, 10 Dec 2020 20:25:47 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: [patch 11/30] parisc/irq: Use irq_desc_kstat_cpu() in show_interrupts()
-References: <20201210192536.118432146@linutronix.de>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.99]:33380 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726156AbgL3Ath (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 29 Dec 2020 19:49:37 -0500
+From: Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH net] smc: fix out of bound access in smc_nl_get_sys_info()
+Date: Tue, 29 Dec 2020 16:48:41 -0800
+Message-Id: <20201230004841.1472141-1-kuba@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Marc Zyngier <maz@kernel.org>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, afzal mohammed <afzal.mohd.ma@gmail.com>, linux-parisc@vger.kernel.org, Russell King <linux@armlinux.org.uk>, linux-arm-kernel@lists.infradead.org, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, linux-s390@vger.kernel.org, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Pankaj Bharadiya <pankaj.laxminarayan.bharadiya@intel.com>, Chris Wilson <chris@chris-wilson.co.uk>, Wambui Karuga <wambui.karugax@gmail.com>, intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>, Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, linux-ntb@googlegroups.com, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Michal Simek <michal.simek@xilinx.com>, linux-pci@vger.kernel.org, Karthikeyan Mitran <m.karthikeyan@mobiveil.co.in>, Hou Zhiqiang <Zhiqiang.Hou@nxp.com>, Tariq Toukan <tariqt@nvidia.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org, linux-rdma@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, xen-devel@lists.xenproject.org
+To: davem@davemloft.net
+Cc: kgraul@linux.ibm.com, guvenc@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, syzbot+f4708c391121cfc58396@syzkaller.appspotmail.com
 
-The irq descriptor is already there, no need to look it up again.
+smc_clc_get_hostname() sets the host pointer to a buffer
+which is not NULL-terminated (see smc_clc_init()).
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: afzal mohammed <afzal.mohd.ma@gmail.com>
-Cc: linux-parisc@vger.kernel.org
+Reported-by: syzbot+f4708c391121cfc58396@syzkaller.appspotmail.com
+Fixes: 099b990bd11a ("net/smc: Add support for obtaining system information")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 ---
- arch/parisc/kernel/irq.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/smc_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/parisc/kernel/irq.c
-+++ b/arch/parisc/kernel/irq.c
-@@ -218,7 +218,7 @@ int show_interrupts(struct seq_file *p,
- 		seq_printf(p, "%3d: ", i);
- 
- 		for_each_online_cpu(j)
--			seq_printf(p, "%10u ", kstat_irqs_cpu(i, j));
-+			seq_printf(p, "%10u ", irq_desc_kstat_cpu(desc, j));
- 
- 		seq_printf(p, " %14s", irq_desc_get_chip(desc)->name);
- #ifndef PARISC_IRQ_CR16_COUNTS
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 59342b519e34..8d866b4ed8f6 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -246,7 +246,8 @@ int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb)
+ 		goto errattr;
+ 	smc_clc_get_hostname(&host);
+ 	if (host) {
+-		snprintf(hostname, sizeof(hostname), "%s", host);
++		memcpy(hostname, host, SMC_MAX_HOSTNAME_LEN);
++		hostname[SMC_MAX_HOSTNAME_LEN] = 0;
+ 		if (nla_put_string(skb, SMC_NLA_SYS_LOCAL_HOST, hostname))
+ 			goto errattr;
+ 	}
+-- 
+2.26.2
