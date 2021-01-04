@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Sat, 30 Jan 2021 16:32:38 +0100
-From: Vasily Gorbik <gor@linux.ibm.com>
-Subject: [GIT PULL] s390 updates for 5.11-rc6
-Message-ID: <your-ad-here.call-01612020758-ext-9054@work.hours>
+Date: Mon, 4 Jan 2021 16:23:57 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [PATCH v1 0/4] s390/kvm: fix MVPG when in VSIE
+Message-ID: <20210104162357.6b85baf0@ibm-vm>
+In-Reply-To: <5947ede7-7f9f-cdaa-b827-75a5715e4f12@redhat.com>
+References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
+ <5947ede7-7f9f-cdaa-b827-75a5715e4f12@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 List-ID: <linux-s390.vger.kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org
 
-Hello Linus,
+On Sun, 20 Dec 2020 10:40:27 +0100
+David Hildenbrand <david@redhat.com> wrote:
 
-please pull s390 fixes for 5.11-rc6.
+> On 18.12.20 15:18, Claudio Imbrenda wrote:
+> > The current handling of the MVPG instruction when executed in a
+> > nested guest is wrong, and can lead to the nested guest hanging. =20
+>=20
+> Hi,
+>=20
+> thanks for spotting and debugging! Is this related to nested guests
+> hanging while migrating (mentioned by Janosch at some point)?
 
-Thank you,
-Vasily
+no, it was found by running legacy tests in VSIE (I have written
+kvm-unit-tests for this now, I'll post them Soon=E2=84=A2)
 
-The following changes since commit 6ee1d745b7c9fd573fba142a2efdad76a9f1cb04:
+> Or can this not be reproduced with actual Linux guests?
 
-  Linux 5.11-rc5 (2021-01-24 16:47:14 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux.git tags/s390-5.11-4
-
-for you to fetch changes up to e82080e1f456467cc185fe65ee69fe9f9bd0b576:
-
-  s390: uv: Fix sysfs max number of VCPUs reporting (2021-01-27 13:00:04 +0100)
-
-----------------------------------------------------------------
-- Fix max number of VCPUs reported via ultravisor information sysfs interface.
-
-- Fix memory leaks during vfio-ap resources clean up on KVM pointer
-  invalidation notification.
-
-- Fix potential specification exception by avoiding unnecessary interrupts
-  disable after queue reset in vfio-ap.
-
-----------------------------------------------------------------
-Janosch Frank (1):
-      s390: uv: Fix sysfs max number of VCPUs reporting
-
-Tony Krowiak (2):
-      s390/vfio-ap: clean up vfio_ap resources when KVM pointer invalidated
-      s390/vfio-ap: No need to disable IRQ after queue reset
-
- arch/s390/boot/uv.c                   |   2 +-
- arch/s390/include/asm/uv.h            |   4 +-
- arch/s390/kernel/uv.c                 |   2 +-
- drivers/s390/crypto/vfio_ap_drv.c     |   6 +-
- drivers/s390/crypto/vfio_ap_ops.c     | 149 ++++++++++++++++++++--------------
- drivers/s390/crypto/vfio_ap_private.h |  12 +--
- 6 files changed, 101 insertions(+), 74 deletions(-)
+Linux doesn't use MVPG, and gcc in general seems to avoid it, so we
+never really see this in the wild. Moreover Linux does not normally run
+with DAT disabled.
+=20
+> Thanks!
+>=20
+> >=20
+> > This patchset fixes the behaviour to be more architecturally
+> > correct, and fixes the hangs observed.
+> >=20
+> > Claudio Imbrenda (4):
+> >   s390/kvm: VSIE: stop leaking host addresses
+> >   s390/kvm: extend guest_translate for MVPG interpretation
+> >   s390/kvm: add kvm_s390_vsie_mvpg_check needed for VSIE MVPG
+> >   s390/kvm: VSIE: correctly handle MVPG when in VSIE
+> >=20
+> >  arch/s390/kvm/gaccess.c | 88
+> > ++++++++++++++++++++++++++++++++++++++--- arch/s390/kvm/gaccess.h |
+> >  3 ++ arch/s390/kvm/vsie.c    | 78
+> > +++++++++++++++++++++++++++++++++--- 3 files changed, 159
+> > insertions(+), 10 deletions(-)=20
+>=20
+>=20
