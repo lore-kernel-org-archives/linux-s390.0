@@ -1,71 +1,81 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:60996 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404663AbhAZTve (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 26 Jan 2021 14:51:34 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-Subject: [PATCH] Fix "ordering" comment typos
-Date: Tue, 26 Jan 2021 13:50:42 -0600
-Message-Id: <20210126195042.2909405-1-helgaas@kernel.org>
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43354 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730730AbhAETCa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jan 2021 14:02:30 -0500
+From: Vladimir Oltean <olteanv@gmail.com>
+Subject: [RFC PATCH v2 net-next 12/12] net: remove obsolete comments about ndo_get_stats64 context from eth drivers
+Date: Tue,  5 Jan 2021 20:59:02 +0200
+Message-Id: <20210105185902.3922928-13-olteanv@gmail.com>
+In-Reply-To: <20210105185902.3922928-1-olteanv@gmail.com>
+References: <20210105185902.3922928-1-olteanv@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, Luca Coelho <luciano.coelho@intel.com>, Kalle Valo <kvalo@codeaurora.org>, "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-wireless@vger.kernel.org, linux-pci@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andriin@fb.com>, Daniel Borkmann <daniel@iogearbox.net>, Taehee Yoo <ap420073@gmail.com>, Jiri Pirko <jiri@mellanox.com>, =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>, Paolo Abeni <pabeni@redhat.com>, Christian Brauner <christian.brauner@ubuntu.com>, Florian Westphal <fw@strlen.de>, linux-s390@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org, dev@openvswitch.org
 
-From: Bjorn Helgaas <bhelgaas@google.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Fix comment typos in "ordering".
+Now that we have a good summary in Documentation/networking/netdevices.rst,
+these comments serve no purpose and are actually distracting/confusing.
 
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- arch/s390/include/asm/facility.h             | 2 +-
- drivers/gpu/drm/qxl/qxl_drv.c                | 2 +-
- drivers/net/wireless/intel/iwlwifi/fw/file.h | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/cisco/enic/enic_main.c | 1 -
+ drivers/net/ethernet/nvidia/forcedeth.c     | 2 --
+ drivers/net/ethernet/sfc/efx_common.c       | 1 -
+ drivers/net/ethernet/sfc/falcon/efx.c       | 1 -
+ 4 files changed, 5 deletions(-)
 
-
-Unless somebody objects, I'll just merge these typo fixes via the PCI tree.
-
-
-diff --git a/arch/s390/include/asm/facility.h b/arch/s390/include/asm/facility.h
-index 68c476b20b57..91b5d714d28f 100644
---- a/arch/s390/include/asm/facility.h
-+++ b/arch/s390/include/asm/facility.h
-@@ -44,7 +44,7 @@ static inline int __test_facility(unsigned long nr, void *facilities)
+diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
+index fb269d587b74..7425f94f9091 100644
+--- a/drivers/net/ethernet/cisco/enic/enic_main.c
++++ b/drivers/net/ethernet/cisco/enic/enic_main.c
+@@ -870,7 +870,6 @@ static netdev_tx_t enic_hard_start_xmit(struct sk_buff *skb,
+ 	return NETDEV_TX_OK;
  }
  
+-/* dev_base_lock rwlock held, nominally process context */
+ static void enic_get_stats(struct net_device *netdev,
+ 			   struct rtnl_link_stats64 *net_stats)
+ {
+diff --git a/drivers/net/ethernet/nvidia/forcedeth.c b/drivers/net/ethernet/nvidia/forcedeth.c
+index 8724d6a9ed02..8fa254dc64e9 100644
+--- a/drivers/net/ethernet/nvidia/forcedeth.c
++++ b/drivers/net/ethernet/nvidia/forcedeth.c
+@@ -1761,8 +1761,6 @@ static void nv_get_stats(int cpu, struct fe_priv *np,
  /*
-- * The test_facility function uses the bit odering where the MSB is bit 0.
-+ * The test_facility function uses the bit ordering where the MSB is bit 0.
-  * That makes it easier to query facility bits with the bit number as
-  * documented in the Principles of Operation.
+  * nv_get_stats64: dev->ndo_get_stats64 function
+  * Get latest stats value from the nic.
+- * Called with read_lock(&dev_base_lock) held for read -
+- * only synchronized against unregister_netdevice.
   */
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-index 6e7f16f4cec7..dab190a547cc 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -141,7 +141,7 @@ static void qxl_drm_release(struct drm_device *dev)
+ static void
+ nv_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *storage)
+diff --git a/drivers/net/ethernet/sfc/efx_common.c b/drivers/net/ethernet/sfc/efx_common.c
+index de797e1ac5a9..4d8047b35fb2 100644
+--- a/drivers/net/ethernet/sfc/efx_common.c
++++ b/drivers/net/ethernet/sfc/efx_common.c
+@@ -596,7 +596,6 @@ void efx_stop_all(struct efx_nic *efx)
+ 	efx_stop_datapath(efx);
+ }
  
- 	/*
- 	 * TODO: qxl_device_fini() call should be in qxl_pci_remove(),
--	 * reodering qxl_modeset_fini() + qxl_device_fini() calls is
-+	 * reordering qxl_modeset_fini() + qxl_device_fini() calls is
- 	 * non-trivial though.
- 	 */
- 	qxl_modeset_fini(qdev);
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/file.h b/drivers/net/wireless/intel/iwlwifi/fw/file.h
-index 597bc88479ba..04fbfe5cbeb0 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/file.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/file.h
-@@ -866,7 +866,7 @@ struct iwl_fw_dbg_trigger_time_event {
-  * tx_bar: tid bitmap to configure on what tid the trigger should occur
-  *	when a BAR is send (for an Rx BlocAck session).
-  * frame_timeout: tid bitmap to configure on what tid the trigger should occur
-- *	when a frame times out in the reodering buffer.
-+ *	when a frame times out in the reordering buffer.
-  */
- struct iwl_fw_dbg_trigger_ba {
- 	__le16 rx_ba_start;
+-/* Context: process, dev_base_lock or RTNL held, non-blocking. */
+ void efx_net_stats(struct net_device *net_dev, struct rtnl_link_stats64 *stats)
+ {
+ 	struct efx_nic *efx = netdev_priv(net_dev);
+diff --git a/drivers/net/ethernet/sfc/falcon/efx.c b/drivers/net/ethernet/sfc/falcon/efx.c
+index f8979991970e..6db2b6583dec 100644
+--- a/drivers/net/ethernet/sfc/falcon/efx.c
++++ b/drivers/net/ethernet/sfc/falcon/efx.c
+@@ -2096,7 +2096,6 @@ int ef4_net_stop(struct net_device *net_dev)
+ 	return 0;
+ }
+ 
+-/* Context: process, dev_base_lock or RTNL held, non-blocking. */
+ static void ef4_net_stats(struct net_device *net_dev,
+ 			  struct rtnl_link_stats64 *stats)
+ {
 -- 
 2.25.1
