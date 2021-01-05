@@ -1,63 +1,75 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:39050 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231398AbhA1L0o (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Jan 2021 06:26:44 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/5] s390/qeth: pass proto to qeth_l3_get_cast_type()
-Date: Thu, 28 Jan 2021 12:25:49 +0100
-Message-Id: <20210128112551.18780-4-jwi@linux.ibm.com>
-In-Reply-To: <20210128112551.18780-1-jwi@linux.ibm.com>
-References: <20210128112551.18780-1-jwi@linux.ibm.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Vladimir Oltean <olteanv@gmail.com>
+Subject: [RFC PATCH v2 net-next 03/12] net: procfs: hold netif_lists_lock when retrieving device statistics
+Date: Tue,  5 Jan 2021 20:58:53 +0200
+Message-Id: <20210105185902.3922928-4-olteanv@gmail.com>
+In-Reply-To: <20210105185902.3922928-1-olteanv@gmail.com>
+References: <20210105185902.3922928-1-olteanv@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andriin@fb.com>, Daniel Borkmann <daniel@iogearbox.net>, Taehee Yoo <ap420073@gmail.com>, Jiri Pirko <jiri@mellanox.com>, =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>, Paolo Abeni <pabeni@redhat.com>, Christian Brauner <christian.brauner@ubuntu.com>, Florian Westphal <fw@strlen.de>, linux-s390@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org, dev@openvswitch.org
 
-qeth_l3_hard_start_xmit() already determined the skb's proto. Avoid
-doing so a second time when it calls qeth_l3_get_cast_type().
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+In the effort of making .ndo_get_stats64 be able to sleep, we need to
+ensure the callers of dev_get_stats do not use atomic context.
+
+The /proc/net/dev file uses an RCU read-side critical section to ensure
+the integrity of the list of network interfaces, because it iterates
+through all net devices in the netns to show their statistics.
+
+To offer the equivalent protection against an interface registering or
+deregistering, while also remaining in sleepable context, we can use the
+netns mutex for the interface lists.
+
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/core/net-procfs.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 7a7465376e29..4921afb51a1c 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1610,9 +1610,8 @@ static int qeth_l3_get_cast_type_rcu(struct sk_buff *skb, struct dst_entry *dst,
+diff --git a/net/core/net-procfs.c b/net/core/net-procfs.c
+index c714e6a9dad4..4784703c1e39 100644
+--- a/net/core/net-procfs.c
++++ b/net/core/net-procfs.c
+@@ -21,7 +21,7 @@ static inline struct net_device *dev_from_same_bucket(struct seq_file *seq, loff
+ 	unsigned int count = 0, offset = get_offset(*pos);
+ 
+ 	h = &net->dev_index_head[get_bucket(*pos)];
+-	hlist_for_each_entry_rcu(dev, h, index_hlist) {
++	hlist_for_each_entry(dev, h, index_hlist) {
+ 		if (++count == offset)
+ 			return dev;
  	}
- }
- 
--static int qeth_l3_get_cast_type(struct sk_buff *skb)
-+static int qeth_l3_get_cast_type(struct sk_buff *skb, __be16 proto)
+@@ -51,9 +51,11 @@ static inline struct net_device *dev_from_bucket(struct seq_file *seq, loff_t *p
+  *	in detail.
+  */
+ static void *dev_seq_start(struct seq_file *seq, loff_t *pos)
+-	__acquires(RCU)
  {
--	__be16 proto = vlan_get_protocol(skb);
- 	struct dst_entry *dst;
- 	int cast_type;
- 
-@@ -1771,7 +1770,7 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 	}
- 
- 	if (!(dev->flags & IFF_BROADCAST) &&
--	    qeth_l3_get_cast_type(skb) == RTN_BROADCAST)
-+	    qeth_l3_get_cast_type(skb, proto) == RTN_BROADCAST)
- 		goto tx_drop;
- 
- 	if (proto == htons(ETH_P_IP) || IS_IQD(card))
-@@ -1831,8 +1830,10 @@ static netdev_features_t qeth_l3_osa_features_check(struct sk_buff *skb,
- static u16 qeth_l3_iqd_select_queue(struct net_device *dev, struct sk_buff *skb,
- 				    struct net_device *sb_dev)
- {
--	return qeth_iqd_select_queue(dev, skb, qeth_l3_get_cast_type(skb),
--				     sb_dev);
-+	__be16 proto = vlan_get_protocol(skb);
+-	rcu_read_lock();
++	struct net *net = seq_file_net(seq);
 +
-+	return qeth_iqd_select_queue(dev, skb,
-+				     qeth_l3_get_cast_type(skb, proto), sb_dev);
++	netif_lists_lock(net);
++
+ 	if (!*pos)
+ 		return SEQ_START_TOKEN;
+ 
+@@ -70,9 +72,10 @@ static void *dev_seq_next(struct seq_file *seq, void *v, loff_t *pos)
  }
  
- static u16 qeth_l3_osa_select_queue(struct net_device *dev, struct sk_buff *skb,
+ static void dev_seq_stop(struct seq_file *seq, void *v)
+-	__releases(RCU)
+ {
+-	rcu_read_unlock();
++	struct net *net = seq_file_net(seq);
++
++	netif_lists_unlock(net);
+ }
+ 
+ static void dev_seq_printf_stats(struct seq_file *seq, struct net_device *dev)
 -- 
-2.17.1
+2.25.1
