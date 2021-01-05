@@ -1,77 +1,80 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4784 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2392020AbhASTxX (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Jan 2021 14:53:23 -0500
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v3 1/3] s390x: pv: implement routine to share/unshare memory
-Date: Tue, 19 Jan 2021 20:52:22 +0100
-Message-Id: <1611085944-21609-2-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1611085944-21609-1-git-send-email-pmorel@linux.ibm.com>
-References: <1611085944-21609-1-git-send-email-pmorel@linux.ibm.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Vladimir Oltean <olteanv@gmail.com>
+Subject: [RFC PATCH v2 net-next 11/12] net: mark ndo_get_stats64 as being able to sleep
+Date: Tue,  5 Jan 2021 20:59:01 +0200
+Message-Id: <20210105185902.3922928-12-olteanv@gmail.com>
+In-Reply-To: <20210105185902.3922928-1-olteanv@gmail.com>
+References: <20210105185902.3922928-1-olteanv@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, drjones@redhat.com, pbonzini@redhat.com
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andriin@fb.com>, Daniel Borkmann <daniel@iogearbox.net>, Taehee Yoo <ap420073@gmail.com>, Jiri Pirko <jiri@mellanox.com>, =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>, Paolo Abeni <pabeni@redhat.com>, Christian Brauner <christian.brauner@ubuntu.com>, Florian Westphal <fw@strlen.de>, linux-s390@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org, dev@openvswitch.org
 
-When communicating with the host we need to share part of
-the memory.
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-Let's implement the ultravisor calls for this.
+Now that all callers have been converted to not use atomic context when
+calling dev_get_stats, it is time to update the documentation and put a
+notice in the function that it expects process context.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Suggested-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- lib/s390x/asm/uv.h | 38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ Documentation/networking/netdevices.rst | 8 ++++++--
+ Documentation/networking/statistics.rst | 9 ++++-----
+ net/core/dev.c                          | 2 ++
+ 3 files changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index 4c2fc48..1242336 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -71,4 +71,42 @@ static inline int uv_call(unsigned long r1, unsigned long r2)
- 	return cc;
- }
+diff --git a/Documentation/networking/netdevices.rst b/Documentation/networking/netdevices.rst
+index 5a85fcc80c76..944599722c76 100644
+--- a/Documentation/networking/netdevices.rst
++++ b/Documentation/networking/netdevices.rst
+@@ -64,8 +64,12 @@ ndo_do_ioctl:
+ 	Context: process
  
-+static inline int share(unsigned long addr, u16 cmd)
-+{
-+	struct uv_cb_share uvcb = {
-+		.header.cmd = cmd,
-+		.header.len = sizeof(uvcb),
-+		.paddr = addr
-+	};
-+	int cc;
+ ndo_get_stats:
+-	Synchronization: dev_base_lock rwlock.
+-	Context: nominally process, but don't sleep inside an rwlock
++	Synchronization:
++		none. netif_lists_lock(net) might be held, but not guaranteed.
++		It is illegal to hold rtnl_lock() in this method, since it will
++		cause a lock inversion with netif_lists_lock and a deadlock.
++	Context:
++		process
+ 
+ ndo_start_xmit:
+ 	Synchronization: __netif_tx_lock spinlock.
+diff --git a/Documentation/networking/statistics.rst b/Documentation/networking/statistics.rst
+index 234abedc29b2..ad3e353df0dd 100644
+--- a/Documentation/networking/statistics.rst
++++ b/Documentation/networking/statistics.rst
+@@ -155,11 +155,10 @@ Drivers must ensure best possible compliance with
+ Please note for example that detailed error statistics must be
+ added into the general `rx_error` / `tx_error` counters.
+ 
+-The `.ndo_get_stats64` callback can not sleep because of accesses
+-via `/proc/net/dev`. If driver may sleep when retrieving the statistics
+-from the device it should do so periodically asynchronously and only return
+-a recent copy from `.ndo_get_stats64`. Ethtool interrupt coalescing interface
+-allows setting the frequency of refreshing statistics, if needed.
++Drivers may sleep when retrieving the statistics from the device, or they might
++read the counters periodically and only return in `.ndo_get_stats64` a recent
++copy collected asynchronously. In the latter case, the ethtool interrupt
++coalescing interface allows setting the frequency of refreshing statistics.
+ 
+ Retrieving ethtool statistics is a multi-syscall process, drivers are advised
+ to keep the number of statistics constant to avoid race conditions with
+diff --git a/net/core/dev.c b/net/core/dev.c
+index d48b75479b3e..6b7cdf8ab875 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -10389,6 +10389,8 @@ void dev_get_stats(struct net_device *dev, struct rtnl_link_stats64 *storage)
+ {
+ 	const struct net_device_ops *ops = dev->netdev_ops;
+ 
++	might_sleep();
 +
-+	cc = uv_call(0, (u64)&uvcb);
-+	if (!cc && (uvcb.header.rc == 0x0001))
-+		return 0;
-+
-+	report_info("cc %d response code: %04x", cc, uvcb.header.rc);
-+	return -1;
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page shared with the
-+ * hypervisor for IO.
-+ *
-+ * @addr: Real or absolute address of the page to be shared
-+ */
-+static inline int uv_set_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_SET_SHARED_ACCESS);
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page unshared.
-+ *
-+ * @addr: Real or absolute address of the page to be unshared
-+ */
-+static inline int uv_remove_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
-+}
-+
- #endif
+ 	if (ops->ndo_get_stats64) {
+ 		memset(storage, 0, sizeof(*storage));
+ 		ops->ndo_get_stats64(dev, storage);
 -- 
-2.17.1
+2.25.1
