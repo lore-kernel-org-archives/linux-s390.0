@@ -1,85 +1,89 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32790 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231409AbhA1L0o (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Jan 2021 06:26:44 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 5/5] s390/qeth: don't fake a TX completion interrupt after TX error
-Date: Thu, 28 Jan 2021 12:25:51 +0100
-Message-Id: <20210128112551.18780-6-jwi@linux.ibm.com>
-In-Reply-To: <20210128112551.18780-1-jwi@linux.ibm.com>
-References: <20210128112551.18780-1-jwi@linux.ibm.com>
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Vladimir Oltean <olteanv@gmail.com>
+Subject: [RFC PATCH v2 net-next 07/12] parisc/led: hold the netdev lists lock when retrieving device statistics
+Date: Tue,  5 Jan 2021 20:58:57 +0200
+Message-Id: <20210105185902.3922928-8-olteanv@gmail.com>
+In-Reply-To: <20210105185902.3922928-1-olteanv@gmail.com>
+References: <20210105185902.3922928-1-olteanv@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andriin@fb.com>, Daniel Borkmann <daniel@iogearbox.net>, Taehee Yoo <ap420073@gmail.com>, Jiri Pirko <jiri@mellanox.com>, =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>, Paolo Abeni <pabeni@redhat.com>, Christian Brauner <christian.brauner@ubuntu.com>, Florian Westphal <fw@strlen.de>, linux-s390@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org, dev@openvswitch.org
 
-When do_qdio() returns with an unexpected error, qeth_flush_buffers()
-kicks off a recovery action.
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-In such a case there's no point in starting TX completion processing,
-the device gets torn down anyway. So take a closer look at do_qdio()'s
-return value, and skip the TX completion processing accordingly.
+In the effort of making .ndo_get_stats64 be able to sleep, we need to
+ensure the callers of dev_get_stats do not use atomic context.
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+The LED driver for HP-PARISC workstations uses a workqueue to
+periodically check for updates in network interface statistics, and
+flicker when those have changed (i.e. there has been activity on the
+line). Ignoring the fact that this driver is completely duplicating
+drivers/leds/trigger/ledtrig-netdev.c, there is an even bigger problem.
+Now, the dev_get_stats call can sleep, and iterating through the list of
+network interfaces still needs to ensure the integrity of list of
+network interfaces. So that leaves us only one locking option given the
+current design of the network stack, and that is the netns mutex.
+
+Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+Cc: Helge Deller <deller@gmx.de>
+Cc: linux-parisc@vger.kernel.org
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 ---
- drivers/s390/net/qeth_core_main.c | 34 ++++++++++++++++---------------
- 1 file changed, 18 insertions(+), 16 deletions(-)
+ drivers/parisc/led.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index de9d27e1c529..ea2e139cd592 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -3692,24 +3692,27 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 	rc = do_QDIO(CARD_DDEV(queue->card), qdio_flags,
- 		     queue->queue_no, index, count);
+diff --git a/drivers/parisc/led.c b/drivers/parisc/led.c
+index 3cada632a4be..c8c6b2301dc9 100644
+--- a/drivers/parisc/led.c
++++ b/drivers/parisc/led.c
+@@ -38,7 +38,6 @@
+ #include <linux/ctype.h>
+ #include <linux/blkdev.h>
+ #include <linux/workqueue.h>
+-#include <linux/rcupdate.h>
+ #include <asm/io.h>
+ #include <asm/processor.h>
+ #include <asm/hardware.h>
+@@ -355,25 +354,29 @@ static __inline__ int led_get_net_activity(void)
+ 	int retval;
  
--	/* Fake the TX completion interrupt: */
--	if (IS_IQD(card)) {
--		unsigned int frames = READ_ONCE(queue->max_coalesced_frames);
--		unsigned int usecs = READ_ONCE(queue->coalesce_usecs);
-+	switch (rc) {
-+	case 0:
-+	case -ENOBUFS:
-+		/* ignore temporary SIGA errors without busy condition */
- 
--		if (frames && queue->coalesced_frames >= frames) {
--			napi_schedule(&queue->napi);
--			queue->coalesced_frames = 0;
--			QETH_TXQ_STAT_INC(queue, coal_frames);
--		} else if (usecs) {
--			qeth_tx_arm_timer(queue, usecs);
-+		/* Fake the TX completion interrupt: */
-+		if (IS_IQD(card)) {
-+			unsigned int frames = READ_ONCE(queue->max_coalesced_frames);
-+			unsigned int usecs = READ_ONCE(queue->coalesce_usecs);
+ 	rx_total = tx_total = 0;
+-	
+-	/* we are running as a workqueue task, so we can use an RCU lookup */
+-	rcu_read_lock();
+-	for_each_netdev_rcu(&init_net, dev) {
 +
-+			if (frames && queue->coalesced_frames >= frames) {
-+				napi_schedule(&queue->napi);
-+				queue->coalesced_frames = 0;
-+				QETH_TXQ_STAT_INC(queue, coal_frames);
-+			} else if (usecs) {
-+				qeth_tx_arm_timer(queue, usecs);
-+			}
- 		}
--	}
++	/* we are running as a workqueue task, so we can sleep */
++	netif_lists_lock(&init_net);
++
++	for_each_netdev(&init_net, dev) {
++		struct in_device *in_dev = in_dev_get(dev);
+ 		const struct rtnl_link_stats64 *stats;
+ 		struct rtnl_link_stats64 temp;
+-		struct in_device *in_dev = __in_dev_get_rcu(dev);
  
--	if (rc) {
--		/* ignore temporary SIGA errors without busy condition */
--		if (rc == -ENOBUFS)
--			return;
-+		break;
-+	default:
- 		QETH_CARD_TEXT(queue->card, 2, "flushbuf");
- 		QETH_CARD_TEXT_(queue->card, 2, " q%d", queue->queue_no);
- 		QETH_CARD_TEXT_(queue->card, 2, " idx%d", index);
-@@ -3719,7 +3722,6 @@ static void qeth_flush_buffers(struct qeth_qdio_out_q *queue, int index,
- 		/* this must not happen under normal circumstances. if it
- 		 * happens something is really wrong -> recover */
- 		qeth_schedule_recovery(queue->card);
--		return;
+-		if (!in_dev || !in_dev->ifa_list)
++		if (!in_dev || !in_dev->ifa_list ||
++		    ipv4_is_loopback(in_dev->ifa_list->ifa_local)) {
++			in_dev_put(in_dev);
+ 			continue;
++		}
+ 
+-		if (ipv4_is_loopback(in_dev->ifa_list->ifa_local))
+-			continue;
++		in_dev_put(in_dev);
+ 
+ 		stats = dev_get_stats(dev, &temp);
+ 		rx_total += stats->rx_packets;
+ 		tx_total += stats->tx_packets;
  	}
- }
+-	rcu_read_unlock();
++
++	netif_lists_unlock(&init_net);
+ 
+ 	retval = 0;
  
 -- 
-2.17.1
+2.25.1
