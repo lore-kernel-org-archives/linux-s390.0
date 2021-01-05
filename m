@@ -1,193 +1,133 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48224 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388422AbhATLoT (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Jan 2021 06:44:19 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests GIT PULL 04/11] s390x: Consolidate sclp read info
-Date: Wed, 20 Jan 2021 06:41:51 -0500
-Message-Id: <20210120114158.104559-5-frankja@linux.ibm.com>
-In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
-References: <20210120114158.104559-1-frankja@linux.ibm.com>
+Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:28251 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728792AbhAEKSi (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jan 2021 05:18:38 -0500
+Subject: Re: [PATCH v1 4/4] s390/kvm: VSIE: correctly handle MVPG when in VSIE
+References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
+ <20201218141811.310267-5-imbrenda@linux.ibm.com>
+ <6836573a-a49d-9d9f-49e0-96b5aa479c52@redhat.com>
+ <20210104162231.4e56ab47@ibm-vm>
+ <3376268b-7fd7-9fbe-b483-fe7471038a18@redhat.com>
+ <20210104173644.2e6c8df4@ibm-vm>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <b3dbadf7-80a9-36de-9d32-f80005ee6dcf@redhat.com>
+Date: Tue, 5 Jan 2021 11:17:04 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210104173644.2e6c8df4@ibm-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
 
-Let's only read the information once and pass a pointer to it instead
-of calling sclp multiple times.
+On 04.01.21 17:36, Claudio Imbrenda wrote:
+> On Mon, 4 Jan 2021 17:08:15 +0100
+> David Hildenbrand <david@redhat.com> wrote:
+> 
+>> On 04.01.21 16:22, Claudio Imbrenda wrote:
+>>> On Sun, 20 Dec 2020 11:13:57 +0100
+>>> David Hildenbrand <david@redhat.com> wrote:
+>>>   
+>>>> On 18.12.20 15:18, Claudio Imbrenda wrote:  
+>>>>> Correctly handle the MVPG instruction when issued by a VSIE guest.
+>>>>>     
+>>>>
+>>>> I remember that MVPG SIE documentation was completely crazy and
+>>>> full of corner cases. :)  
+>>>
+>>> you remember correctly
+>>>   
+>>>> Looking at arch/s390/kvm/intercept.c:handle_mvpg_pei(), I can spot
+>>>> that
+>>>>
+>>>> 1. "This interception can only happen for guests with DAT disabled
+>>>> ..." 2. KVM does not make use of any mvpg state inside the SCB.
+>>>>
+>>>> Can this be observed with Linux guests?  
+>>>
+>>> a Linux guest will typically not run with DAT disabled
+>>>   
+>>>> Can I get some information on what information is stored at [0xc0,
+>>>> 0xd) inside the SCB? I assume it's:
+>>>>
+>>>> 0xc0: guest physical address of source PTE
+>>>> 0xc8: guest physical address of target PTE  
+>>>
+>>> yes (plus 3 flags in the lower bits of each)  
+>>
+>> Thanks! Do the flags tell us what the deal with the PTE was? If yes,
+>> what's the meaning of the separate flags?
+>>
+>> I assume something like "invalid, proteced, ??"
+> 
+> bit 61 indicates that the address is a region or segment table entry,
+> when EDAT applies
+> bit 62 is "protected" when the protected bit is set in the segment
+> table entry (or region, if EDAT applies) 
+> bit 63 is set when the operand was translated with a real-space ASCE
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- lib/s390x/io.c   |  1 +
- lib/s390x/sclp.c | 31 +++++++++++++++++++++++++------
- lib/s390x/sclp.h |  3 +++
- lib/s390x/smp.c  | 27 +++++++++++----------------
- 4 files changed, 40 insertions(+), 22 deletions(-)
+Thanks!
 
-diff --git a/lib/s390x/io.c b/lib/s390x/io.c
-index 1ff0589..6a1da63 100644
---- a/lib/s390x/io.c
-+++ b/lib/s390x/io.c
-@@ -34,6 +34,7 @@ void setup(void)
- {
- 	setup_args_progname(ipl_args);
- 	setup_facilities();
-+	sclp_read_info();
- 	sclp_console_setup();
- 	sclp_memory_setup();
- 	smp_setup();
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 08a4813..12916f5 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -23,6 +23,8 @@ extern unsigned long stacktop;
- static uint64_t storage_increment_size;
- static uint64_t max_ram_size;
- static uint64_t ram_size;
-+char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
-+static ReadInfo *read_info;
- 
- char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
- static volatile bool sclp_busy;
-@@ -108,6 +110,24 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
- 	report_abort("READ_SCP_INFO failed");
- }
- 
-+void sclp_read_info(void)
-+{
-+	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
-+	read_info = (ReadInfo *)_read_info;
-+}
-+
-+int sclp_get_cpu_num(void)
-+{
-+	assert(read_info);
-+	return read_info->entries_cpu;
-+}
-+
-+CPUEntry *sclp_get_cpu_entries(void)
-+{
-+	assert(read_info);
-+	return (CPUEntry *)(_read_info + read_info->offset_cpu);
-+}
-+
- /* Perform service call. Return 0 on success, non-zero otherwise. */
- int sclp_service_call(unsigned int command, void *sccb)
- {
-@@ -125,23 +145,22 @@ int sclp_service_call(unsigned int command, void *sccb)
- 
- void sclp_memory_setup(void)
- {
--	ReadInfo *ri = (void *)_sccb;
- 	uint64_t rnmax, rnsize;
- 	int cc;
- 
--	sclp_read_scp_info(ri, SCCB_SIZE);
-+	assert(read_info);
- 
- 	/* calculate the storage increment size */
--	rnsize = ri->rnsize;
-+	rnsize = read_info->rnsize;
- 	if (!rnsize) {
--		rnsize = ri->rnsize2;
-+		rnsize = read_info->rnsize2;
- 	}
- 	storage_increment_size = rnsize << 20;
- 
- 	/* calculate the maximum memory size */
--	rnmax = ri->rnmax;
-+	rnmax = read_info->rnmax;
- 	if (!rnmax) {
--		rnmax = ri->rnmax2;
-+		rnmax = read_info->rnmax2;
- 	}
- 	max_ram_size = rnmax * storage_increment_size;
- 
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index a8f58f5..f005bd0 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -268,6 +268,9 @@ void sclp_wait_busy(void);
- void sclp_mark_busy(void);
- void sclp_console_setup(void);
- void sclp_print(const char *str);
-+void sclp_read_info(void);
-+int sclp_get_cpu_num(void);
-+CPUEntry *sclp_get_cpu_entries(void);
- int sclp_service_call(unsigned int command, void *sccb);
- void sclp_memory_setup(void);
- uint64_t get_ram_size(void);
-diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
-index 423970b..ee68d67 100644
---- a/lib/s390x/smp.c
-+++ b/lib/s390x/smp.c
-@@ -23,7 +23,6 @@
- #include "smp.h"
- #include "sclp.h"
- 
--static char cpu_info_buffer[PAGE_SIZE] __attribute__((__aligned__(4096)));
- static struct cpu *cpus;
- static struct cpu *cpu0;
- static struct spinlock lock;
-@@ -32,8 +31,7 @@ extern void smp_cpu_setup_state(void);
- 
- int smp_query_num_cpus(void)
- {
--	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
--	return info->nr_configured;
-+	return sclp_get_cpu_num();
- }
- 
- struct cpu *smp_cpu_from_addr(uint16_t addr)
-@@ -226,10 +224,10 @@ void smp_teardown(void)
- {
- 	int i = 0;
- 	uint16_t this_cpu = stap();
--	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
-+	int num = smp_query_num_cpus();
- 
- 	spin_lock(&lock);
--	for (; i < info->nr_configured; i++) {
-+	for (; i < num; i++) {
- 		if (cpus[i].active &&
- 		    cpus[i].addr != this_cpu) {
- 			sigp_retry(cpus[i].addr, SIGP_STOP, 0, NULL);
-@@ -243,22 +241,19 @@ extern uint64_t *stackptr;
- void smp_setup(void)
- {
- 	int i = 0;
-+	int num = smp_query_num_cpus();
- 	unsigned short cpu0_addr = stap();
--	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
-+	struct CPUEntry *entry = sclp_get_cpu_entries();
- 
- 	spin_lock(&lock);
--	sclp_mark_busy();
--	info->h.length = PAGE_SIZE;
--	sclp_service_call(SCLP_READ_CPU_INFO, cpu_info_buffer);
-+	if (num > 1)
-+		printf("SMP: Initializing, found %d cpus\n", num);
- 
--	if (smp_query_num_cpus() > 1)
--		printf("SMP: Initializing, found %d cpus\n", info->nr_configured);
--
--	cpus = calloc(info->nr_configured, sizeof(cpus));
--	for (i = 0; i < info->nr_configured; i++) {
--		cpus[i].addr = info->entries[i].address;
-+	cpus = calloc(num, sizeof(cpus));
-+	for (i = 0; i < num; i++) {
-+		cpus[i].addr = entry[i].address;
- 		cpus[i].active = false;
--		if (info->entries[i].address == cpu0_addr) {
-+		if (entry[i].address == cpu0_addr) {
- 			cpu0 = &cpus[i];
- 			cpu0->stack = stackptr;
- 			cpu0->lowcore = (void *)0;
+> but you can check if the PTE is valid just by dereferencing the
+> pointers...
+
+The pgtable might already have been unshadowed and repurposed I think.
+So for vSIE, the PTE content, therefore, is a little unreliable.
+
+We could, of course, try using them to make a guess.
+
+"Likely valid"
+"Likely invalid"
+
+A rerun of the vSIE will fixup any wrong guess.
+
+> 
+>> I'm asking because I think we can handle this a little easier.
+> 
+> what is your idea?
+
+I was wondering if we can
+
+1. avoid essentially two translations per PTE, obtaining the information
+we need while tying to shadow. kvm_s390_shadow_fault() on steroids that
+
+a) gives us the last guest pte address (tricky for segment.region table
+I think ... will have to think about this)
+b) the final protection
+
+2. avoid faulting/shadowing in case we know an entry is not problematic.
+E.g., no need to shadow/fault the source in case the PTE is there and
+not invalid. "likely valid" case above.
+
+
+The idea would be to call the new kvm_s390_shadow_fault() two times (or
+only once due to our guesses) and either rerun the vsie, inject an
+interrupt, or create the partial intercept.
+
+Essentially avoiding kvm_s390_vsie_mvpg_check(). Will have to think
+about this.
+
+[...]
+>>
+>> arch/s390/kvm/intercept.c:handle_partial_execution() we only seem to
+>> handle
+>>
+>> 1. MVPG
+>> 2. SIGP PEI
+>>
+>> The latter is only relevant for external calls. IIRC, this is only
+>> active with sigp interpretation - which is never active under vsie
+>> (ECA_SIGPI).
+> 
+> I think putting an explicit check is better than just a jump in the
+> dark.
+
+Agreed, but that should then be called out somewhere why the change as
+done. (e.g., separate cleanup patch)
+
 -- 
-2.25.1
+Thanks,
+
+David / dhildenb
