@@ -1,171 +1,245 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+From: sonicadvance1@gmail.com
+Subject: [PATCH] Adds a new ioctl32 syscall for backwards compatibility layers
+Date: Tue,  5 Jan 2021 22:48:00 -0800
+Message-Id: <20210106064807.253112-1-Sonicadvance1@gmail.com>
 MIME-Version: 1.0
-References: <20210106064807.253112-1-Sonicadvance1@gmail.com>
-In-Reply-To: <20210106064807.253112-1-Sonicadvance1@gmail.com>
-From: Arnd Bergmann <arnd@kernel.org>
-Date: Wed, 6 Jan 2021 09:48:46 +0100
-Message-ID: <CAK8P3a2tV3HzPpbCR7mAeutx38_D2d-vfpEgpXv+GW_98w3VSQ@mail.gmail.com>
-Subject: Re: [PATCH] Adds a new ioctl32 syscall for backwards compatibility layers
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: sonicadvance1@gmail.com
-Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Christian Brauner <christian.brauner@ubuntu.com>, Andrew Morton <akpm@linux-foundation.org>, Minchan Kim <minchan@kernel.org>, Aleksa Sarai <cyphar@cyphar.com>, Sargun Dhillon <sargun@sargun.me>, Miklos Szeredi <mszeredi@redhat.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Amanieu d'Antras <amanieu@gmail.com>, Willem de Bruijn <willemb@google.com>, YueHaibing <yuehaibing@huawei.com>, Xiaoming Ni <nixiaoming@huawei.com>, Heiko Carstens <hca@linux.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Joe Perches <joe@perches.com>, Jan Kara <jack@suse.cz>, David Rientjes <rientjes@google.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, "David S. Miller" <davem@davemloft.net>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>
+Cc: Sonicadvance1@gmail.com, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Christian Brauner <christian.brauner@ubuntu.com>, Andrew Morton <akpm@linux-foundation.org>, Minchan Kim <minchan@kernel.org>, Aleksa Sarai <cyphar@cyphar.com>, Sargun Dhillon <sargun@sargun.me>, Miklos Szeredi <mszeredi@redhat.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Amanieu d'Antras <amanieu@gmail.com>, Willem de Bruijn <willemb@google.com>, YueHaibing <yuehaibing@huawei.com>, Xiaoming Ni <nixiaoming@huawei.com>, Heiko Carstens <hca@linux.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Joe Perches <joe@perches.com>, Jan Kara <jack@suse.cz>, David Rientjes <rientjes@google.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, "David S. Miller" <davem@davemloft.net>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org
 
-On Wed, Jan 6, 2021 at 7:48 AM <sonicadvance1@gmail.com> wrote:
-> From: Ryan Houdek <Sonicadvance1@gmail.com>
-...
-> This does not solve the following problems:
-> 1) compat_alloc_user_space inside ioctl
-> 2) ioctls that check task mode instead of entry point for behaviour
-> 3) ioctls allocating memory
-> 4) struct packing problems between architectures
->
-> Workarounds for the problems presented:
-> 1a) Do a stack pivot to the lower 32bits from userspace
->   - Forces host 64bit process to have its thread stacks to live in 32bit
->   space. Not ideal.
->   - Only do a stack pivot on ioctl to save previous 32bit VA space
-> 1b) Teach kernel that compat_alloc_userspace can return a 64bit pointer
->   - x86-64 truncates stack from this function
->   - AArch64 returns the full stack pointer
->   - Only ~29 users. Validating all of them support a 64bit stack is
->   trivial?
+From: Ryan Houdek <Sonicadvance1@gmail.com>
 
-I've almost completed the removal of compat_alloc_user_space(),
-that should no longer be a concern when the syscall gets added.
+Problem presented:
+A backwards compatibility layer that allows running x86-64 and x86
+processes inside of an AArch64 process.
+  - CPU is emulated
+  - Syscall interface is mostly passthrough
+  - Some syscalls require patching or emulation depending on behaviour
+  - Not viable from the emulator design to use an AArch32 host process
 
-> 2a) Any application using these can be checked for compatibility in
-> userspace and put on a block list.
-> 2b) Fix any ioctls doing broken behaviour based on task mode rather than
-> ioctl entry point
+x86-64 and x86 userspace emulator source:
+https://github.com/FEX-Emu/FEX
+Usage of ioctl32 is currently in a downstream fork. This will be the
+first user of the syscall.
 
-What the ioctls() actually check is 'in_compat_syscall()', which is not
-the mode of the task but the type of syscall. There is actually a general
-trend to use this helper more rather than less, and I think the only
-way forward here is to ensure that this returns true when entering
-through the new syscall number.
+Cross documentation:
+https://github.com/FEX-Emu/FEX/wiki/32Bit-x86-Woes#ioctl---54
 
-For x86, this has another complication, as some ioctls also need to
-check whether they are in an ia32 task (with packed u64 and 32-bit
-__kernel_old_time_t) or an x32 task (with aligned u64 and 64-bit
-__kernel_old_time_t). If the new syscall gets wired up on x86 as well,
-you'd need to decide which of the two behaviors you want.
+ioctls are opaque from the emulator perspective and the data wants to be
+passed through a syscall as unimpeded as possible.
+Sadly due to ioctl struct differences between x86 and x86-64, we need a
+syscall that exposes the compatibility ioctl handler to userspace in a
+64bit process.
 
-> 3a) Userspace consumes all VA space above 32bit. Forcing allocations to
-> occur in lower 32bits
->   - This is the current implementation
-> 3b) Ensure any allocation in the ioctl handles ioctl entrypoint rather
-> than just allow generic memory allocations in full VA space
->   - This is hard to guarantee
+This is necessary behaves of the behaviour differences that occur
+between an x86 process doing an ioctl and an x86-64 process doing an
+ioctl.
 
-What kind of allocation do you mean here? Can you give an example of
-an ioctl that does this?
+Both of which are captured and passed through the AArch64 ioctl space.
+This is implementing a new ioctl32 syscall that allows us to pass 32bit
+x86 ioctls through to the kernel with zero or minimal manipulation.
 
-> 4a) Blocklist any application using ioctls that have different struct
-> packing across the boundary
->   - Can happen when struct packing of 32bit x86 application goes down
->   the aarch64 compat_ioctl path
->   - Userspace is a AArch64 process passing 32bit x86 ioctl structures
->   through the compat_ioctl path which is typically for AArch32 processes
->   - None currently identified
-> 4b) Work with upstream kernel and userspace projects to evaluate and fix
->   - Identify the problem ioctls
->   - Implement a new ioctl with more sane struct packing that matches
->   cross-arch
->   - Implement new ioctl while maintaining backwards compatibility with
->   previous ioctl handler
->   - Change upstream project to use the new compatibility ioctl
->   - ioctl deprecation will be case by case per device and project
-> 4b) Userspace implements a full ioctl emulation layer
->   - Parses the full ioctl tree
->   - Either passes through ioctls that it doesn't understand or
->   transforms ioctls that it knows are trouble
->   - Has the downside that it can still run in to edge cases that will
->   fail
->   - Performance of additional tracking is a concern
->   - Prone to failure keeping the kernel ioctl and userspace ioctl
->   handling in sync
->   - Really want to have it in the kernel space as much as possible
+The only supported hosts where we care about this currently is AArch64
+and x86-64 (For testing purposes).
+PPC64LE, MIPS64LE, and RISC-V64 might be interesting to support in the
+future; But I don't have any platforms that get anywhere near Cortex-A77
+performance in those architectures. Nor do I have the time to bring up
+the emulator on them.
+x86-64 can get to the compatibility ioctl through the int $0x80 handler.
 
-I think there are only a few ioctls that are affected, and you can
-probably get a list from qemu, which emulates them in user space
-already. Doing that transformation should not be all that hard
-in the end.
+This does not solve the following problems:
+1) compat_alloc_user_space inside ioctl
+2) ioctls that check task mode instead of entry point for behaviour
+3) ioctls allocating memory
+4) struct packing problems between architectures
 
-If we want to do this in the kernel, this probably requires changes
-to the syscall calling convention. Adding a flag to pick a particular
-style of ioctl arguments would work, and this could enable the
-case of emulating arm32 ioctls on x86-64 hosts.
+Workarounds for the problems presented:
+1a) Do a stack pivot to the lower 32bits from userspace
+  - Forces host 64bit process to have its thread stacks to live in 32bit
+  space. Not ideal.
+  - Only do a stack pivot on ioctl to save previous 32bit VA space
+1b) Teach kernel that compat_alloc_userspace can return a 64bit pointer
+  - x86-64 truncates stack from this function
+  - AArch64 returns the full stack pointer
+  - Only ~29 users. Validating all of them support a 64bit stack is
+  trivial?
 
-> diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
-> index 86a9d7b3eabe..949788f5ba40 100644
-> --- a/arch/arm64/include/asm/unistd.h
-> +++ b/arch/arm64/include/asm/unistd.h
-> @@ -38,7 +38,7 @@
->  #define __ARM_NR_compat_set_tls                (__ARM_NR_COMPAT_BASE + 5)
->  #define __ARM_NR_COMPAT_END            (__ARM_NR_COMPAT_BASE + 0x800)
->
-> -#define __NR_compat_syscalls           442
-> +#define __NR_compat_syscalls           443
->  #endif
->
->  #define __ARCH_WANT_SYS_CLONE
-> diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
-> index cccfbbefbf95..35e3bc83dbdc 100644
-> --- a/arch/arm64/include/asm/unistd32.h
-> +++ b/arch/arm64/include/asm/unistd32.h
-> @@ -891,6 +891,8 @@ __SYSCALL(__NR_faccessat2, sys_faccessat2)
->  __SYSCALL(__NR_process_madvise, sys_process_madvise)
->  #define __NR_epoll_pwait2 441
->  __SYSCALL(__NR_epoll_pwait2, compat_sys_epoll_pwait2)
-> +#define __NR_ioctl32 442
-> +__SYSCALL(__NR_ioctl32, compat_sys_ioctl)
->
+2a) Any application using these can be checked for compatibility in
+userspace and put on a block list.
+2b) Fix any ioctls doing broken behaviour based on task mode rather than
+ioctl entry point
 
-I'm not sure why you want this in 32-bit processes, can't they just call
-the normal ioctl() function?
+3a) Userspace consumes all VA space above 32bit. Forcing allocations to
+occur in lower 32bits
+  - This is the current implementation
+3b) Ensure any allocation in the ioctl handles ioctl entrypoint rather
+than just allow generic memory allocations in full VA space
+  - This is hard to guarantee
 
->  }
-> +
-> +COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd,
-> +                       compat_ulong_t, arg)
-> +{
-> +       return do_ioctl32(fd, cmd, arg);
-> +}
-> +
-> +SYSCALL_DEFINE3(ioctl32, unsigned int, fd, unsigned int, cmd,
-> +                       compat_ulong_t, arg)
-> +{
-> +       return do_ioctl32(fd, cmd, arg);
-> +}
+4a) Blocklist any application using ioctls that have different struct
+packing across the boundary
+  - Can happen when struct packing of 32bit x86 application goes down
+  the aarch64 compat_ioctl path
+  - Userspace is a AArch64 process passing 32bit x86 ioctl structures
+  through the compat_ioctl path which is typically for AArch32 processes
+  - None currently identified
+4b) Work with upstream kernel and userspace projects to evaluate and fix
+  - Identify the problem ioctls
+  - Implement a new ioctl with more sane struct packing that matches
+  cross-arch
+  - Implement new ioctl while maintaining backwards compatibility with
+  previous ioctl handler
+  - Change upstream project to use the new compatibility ioctl
+  - ioctl deprecation will be case by case per device and project
+4b) Userspace implements a full ioctl emulation layer
+  - Parses the full ioctl tree
+  - Either passes through ioctls that it doesn't understand or
+  transforms ioctls that it knows are trouble
+  - Has the downside that it can still run in to edge cases that will
+  fail
+  - Performance of additional tracking is a concern
+  - Prone to failure keeping the kernel ioctl and userspace ioctl
+  handling in sync
+  - Really want to have it in the kernel space as much as possible
 
-These two look identical to me, I don't think you need to add a wrapper
-here at all, but can just use the normal compat_sys_ioctl entry point
-unless you want to add a 'flags' argument to control the struct padding.
+Signed-off-by: Ryan Houdek <Sonicadvance1@gmail.com>
+---
+ arch/arm64/include/asm/unistd.h         |  2 +-
+ arch/arm64/include/asm/unistd32.h       |  2 ++
+ fs/ioctl.c                              | 16 ++++++++++++++--
+ include/linux/syscalls.h                |  2 ++
+ include/uapi/asm-generic/unistd.h       |  9 ++++++++-
+ kernel/sys_ni.c                         |  3 +++
+ tools/include/uapi/asm-generic/unistd.h |  9 ++++++++-
+ 7 files changed, 38 insertions(+), 5 deletions(-)
 
-> diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
-> index 728752917785..18279e5b7b4f 100644
-> --- a/include/uapi/asm-generic/unistd.h
-> +++ b/include/uapi/asm-generic/unistd.h
-> @@ -862,8 +862,15 @@ __SYSCALL(__NR_process_madvise, sys_process_madvise)
->  #define __NR_epoll_pwait2 441
->  __SC_COMP(__NR_epoll_pwait2, sys_epoll_pwait2, compat_sys_epoll_pwait2)
->
-> +#define __NR_ioctl32 442
-> +#ifdef CONFIG_COMPAT
-> +__SC_COMP(__NR_ioctl32, sys_ioctl32, compat_sys_ioctl)
-> +#else
-> +__SC_COMP(__NR_ioctl32, sys_ni_syscall, sys_ni_syscall)
-> +#endif
-> +
->  #undef __NR_syscalls
-> -#define __NR_syscalls 442
-> +#define __NR_syscalls 443
-
-(already mentioned on IRC)
-
-If you add it here, the same number should be assigned across all architectures,
-or at least a comment added to declare the number as reserved, to keep
-the following syscalls in sync.
-
-        Arnd
+diff --git a/arch/arm64/include/asm/unistd.h b/arch/arm64/include/asm/unistd.h
+index 86a9d7b3eabe..949788f5ba40 100644
+--- a/arch/arm64/include/asm/unistd.h
++++ b/arch/arm64/include/asm/unistd.h
+@@ -38,7 +38,7 @@
+ #define __ARM_NR_compat_set_tls		(__ARM_NR_COMPAT_BASE + 5)
+ #define __ARM_NR_COMPAT_END		(__ARM_NR_COMPAT_BASE + 0x800)
+ 
+-#define __NR_compat_syscalls		442
++#define __NR_compat_syscalls		443
+ #endif
+ 
+ #define __ARCH_WANT_SYS_CLONE
+diff --git a/arch/arm64/include/asm/unistd32.h b/arch/arm64/include/asm/unistd32.h
+index cccfbbefbf95..35e3bc83dbdc 100644
+--- a/arch/arm64/include/asm/unistd32.h
++++ b/arch/arm64/include/asm/unistd32.h
+@@ -891,6 +891,8 @@ __SYSCALL(__NR_faccessat2, sys_faccessat2)
+ __SYSCALL(__NR_process_madvise, sys_process_madvise)
+ #define __NR_epoll_pwait2 441
+ __SYSCALL(__NR_epoll_pwait2, compat_sys_epoll_pwait2)
++#define __NR_ioctl32 442
++__SYSCALL(__NR_ioctl32, compat_sys_ioctl)
+ 
+ /*
+  * Please add new compat syscalls above this comment and update
+diff --git a/fs/ioctl.c b/fs/ioctl.c
+index 4e6cc0a7d69c..116b9bca8c07 100644
+--- a/fs/ioctl.c
++++ b/fs/ioctl.c
+@@ -790,8 +790,8 @@ long compat_ptr_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ }
+ EXPORT_SYMBOL(compat_ptr_ioctl);
+ 
+-COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd,
+-		       compat_ulong_t, arg)
++long do_ioctl32(unsigned int fd, unsigned int cmd,
++			compat_ulong_t arg)
+ {
+ 	struct fd f = fdget(fd);
+ 	int error;
+@@ -850,4 +850,16 @@ COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd,
+ 
+ 	return error;
+ }
++
++COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd,
++			compat_ulong_t, arg)
++{
++	return do_ioctl32(fd, cmd, arg);
++}
++
++SYSCALL_DEFINE3(ioctl32, unsigned int, fd, unsigned int, cmd,
++			compat_ulong_t, arg)
++{
++	return do_ioctl32(fd, cmd, arg);
++}
+ #endif
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index f3929aff39cf..470f928831eb 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -386,6 +386,8 @@ asmlinkage long sys_inotify_rm_watch(int fd, __s32 wd);
+ /* fs/ioctl.c */
+ asmlinkage long sys_ioctl(unsigned int fd, unsigned int cmd,
+ 				unsigned long arg);
++asmlinkage long sys_ioctl32(unsigned int fd, unsigned int cmd,
++				compat_ulong_t arg);
+ 
+ /* fs/ioprio.c */
+ asmlinkage long sys_ioprio_set(int which, int who, int ioprio);
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index 728752917785..18279e5b7b4f 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -862,8 +862,15 @@ __SYSCALL(__NR_process_madvise, sys_process_madvise)
+ #define __NR_epoll_pwait2 441
+ __SC_COMP(__NR_epoll_pwait2, sys_epoll_pwait2, compat_sys_epoll_pwait2)
+ 
++#define __NR_ioctl32 442
++#ifdef CONFIG_COMPAT
++__SC_COMP(__NR_ioctl32, sys_ioctl32, compat_sys_ioctl)
++#else
++__SC_COMP(__NR_ioctl32, sys_ni_syscall, sys_ni_syscall)
++#endif
++
+ #undef __NR_syscalls
+-#define __NR_syscalls 442
++#define __NR_syscalls 443
+ 
+ /*
+  * 32 bit systems traditionally used different
+diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
+index 19aa806890d5..5a2f25eb341c 100644
+--- a/kernel/sys_ni.c
++++ b/kernel/sys_ni.c
+@@ -302,6 +302,9 @@ COND_SYSCALL(recvmmsg_time32);
+ COND_SYSCALL_COMPAT(recvmmsg_time32);
+ COND_SYSCALL_COMPAT(recvmmsg_time64);
+ 
++COND_SYSCALL(ioctl32);
++COND_SYSCALL_COMPAT(ioctl32);
++
+ /*
+  * Architecture specific syscalls: see further below
+  */
+diff --git a/tools/include/uapi/asm-generic/unistd.h b/tools/include/uapi/asm-generic/unistd.h
+index 728752917785..18279e5b7b4f 100644
+--- a/tools/include/uapi/asm-generic/unistd.h
++++ b/tools/include/uapi/asm-generic/unistd.h
+@@ -862,8 +862,15 @@ __SYSCALL(__NR_process_madvise, sys_process_madvise)
+ #define __NR_epoll_pwait2 441
+ __SC_COMP(__NR_epoll_pwait2, sys_epoll_pwait2, compat_sys_epoll_pwait2)
+ 
++#define __NR_ioctl32 442
++#ifdef CONFIG_COMPAT
++__SC_COMP(__NR_ioctl32, sys_ioctl32, compat_sys_ioctl)
++#else
++__SC_COMP(__NR_ioctl32, sys_ni_syscall, sys_ni_syscall)
++#endif
++
+ #undef __NR_syscalls
+-#define __NR_syscalls 442
++#define __NR_syscalls 443
+ 
+ /*
+  * 32 bit systems traditionally used different
+-- 
+2.27.0
