@@ -1,220 +1,214 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:41436 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726692AbhAYC7g (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 24 Jan 2021 21:59:36 -0500
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V4 1/4] mm/memory_hotplug: Prevalidate the address range being added with platform
-Date: Mon, 25 Jan 2021 08:28:49 +0530
-Message-Id: <1611543532-18698-2-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1611543532-18698-1-git-send-email-anshuman.khandual@arm.com>
-References: <1611543532-18698-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21398 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728720AbhAGRZh (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jan 2021 12:25:37 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 1/3] s390/qeth: fix deadlock during recovery
+Date: Thu,  7 Jan 2021 18:24:40 +0100
+Message-Id: <20210107172442.1737-2-jwi@linux.ibm.com>
+In-Reply-To: <20210107172442.1737-1-jwi@linux.ibm.com>
+References: <20210107172442.1737-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Oscar Salvador <osalvador@suse.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, David Hildenbrand <david@redhat.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-This introduces mhp_range_allowed() which can be called in various memory
-hotplug paths to prevalidate the address range which is being added, with
-the platform. Then mhp_range_allowed() calls mhp_get_pluggable_range()
-which provides applicable address range depending on whether linear mapping
-is required or not. For ranges that require linear mapping, it calls a new
-arch callback arch_get_mappable_range() which the platform can override. So
-the new callback, in turn provides the platform an opportunity to configure
-acceptable memory hotplug address ranges in case there are constraints.
+When qeth_dev_layer2_store() - holding the discipline_mutex - waits
+inside qeth_l*_remove_device() for a qeth_do_reset() thread to complete,
+we can hit a deadlock if qeth_do_reset() concurrently calls
+qeth_set_online() and thus tries to aquire the discipline_mutex.
 
-This mechanism will help prevent platform specific errors deep down during
-hotplug calls. This drops now redundant check_hotplug_memory_addressable()
-check in __add_pages() but instead adds a VM_BUG_ON() check which would
-ensure that the range has been validated with mhp_range_allowed() earlier
-in the call chain. Besides mhp_get_pluggable_range() also can be used by
-potential memory hotplug callers to avail the allowed physical range which
-would go through on a given platform.
+Move the discipline_mutex locking outside of qeth_set_online() and
+qeth_set_offline(), and turn the discipline into a parameter so that
+callers understand the dependency.
 
-This does not really add any new range check in generic memory hotplug but
-instead compensates for lost checks in arch_add_memory() where applicable
-and check_hotplug_memory_addressable(), with unified mhp_range_allowed().
+To fix the deadlock, we can now relax the locking:
+As already established, qeth_l*_remove_device() waits for
+qeth_do_reset() to complete. So qeth_do_reset() itself is under no risk
+of having card->discipline ripped out while it's running, and thus
+doesn't need to take the discipline_mutex.
 
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-mm@kvack.org
-Cc: linux-kernel@vger.kernel.org
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Suggested-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Fixes: 9dc48ccc68b9 ("qeth: serialize sysfs-triggered device configurations")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Reviewed-by: Alexandra Winter <wintera@linux.ibm.com>
 ---
- include/linux/memory_hotplug.h | 10 +++++
- mm/memory_hotplug.c            | 78 +++++++++++++++++++++++++---------
- mm/memremap.c                  |  6 ++-
- 3 files changed, 74 insertions(+), 20 deletions(-)
+ drivers/s390/net/qeth_core.h      |  3 ++-
+ drivers/s390/net/qeth_core_main.c | 35 +++++++++++++++++++------------
+ drivers/s390/net/qeth_l2_main.c   |  7 +++++--
+ drivers/s390/net/qeth_l3_main.c   |  7 +++++--
+ 4 files changed, 34 insertions(+), 18 deletions(-)
 
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 15acce5ab106..e4c80561e519 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -70,6 +70,9 @@ typedef int __bitwise mhp_t;
-  */
- #define MEMHP_MERGE_RESOURCE	((__force mhp_t)BIT(0))
+diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
+index 6f5ddc3eab8c..28f637042d44 100644
+--- a/drivers/s390/net/qeth_core.h
++++ b/drivers/s390/net/qeth_core.h
+@@ -1079,7 +1079,8 @@ struct qeth_card *qeth_get_card_by_busid(char *bus_id);
+ void qeth_set_allowed_threads(struct qeth_card *card, unsigned long threads,
+ 			      int clear_start_mask);
+ int qeth_threads_running(struct qeth_card *, unsigned long);
+-int qeth_set_offline(struct qeth_card *card, bool resetting);
++int qeth_set_offline(struct qeth_card *card, const struct qeth_discipline *disc,
++		     bool resetting);
  
-+bool mhp_range_allowed(u64 start, u64 size, bool need_mapping);
-+struct range mhp_get_pluggable_range(bool need_mapping);
-+
- /*
-  * Extended parameters for memory hotplug:
-  * altmap: alternative allocator for memmap array (optional)
-@@ -281,6 +284,13 @@ static inline bool movable_node_is_enabled(void)
+ int qeth_send_ipa_cmd(struct qeth_card *, struct qeth_cmd_buffer *,
+ 		  int (*reply_cb)
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index f4b60294a969..d45e223fc521 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -5507,12 +5507,12 @@ static int qeth_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
+ 	return rc;
  }
- #endif /* ! CONFIG_MEMORY_HOTPLUG */
  
-+/*
-+ * Keep this declaration outside CONFIG_MEMORY_HOTPLUG as some
-+ * platforms might override and use arch_get_mappable_range()
-+ * for internal non memory hotplug purposes.
-+ */
-+struct range arch_get_mappable_range(void);
-+
- #if defined(CONFIG_MEMORY_HOTPLUG) || defined(CONFIG_DEFERRED_STRUCT_PAGE_INIT)
- /*
-  * pgdat resizing functions
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index f9d57b9be8c7..fb734a865807 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -107,6 +107,9 @@ static struct resource *register_memory_resource(u64 start, u64 size,
- 	if (strcmp(resource_name, "System RAM"))
- 		flags |= IORESOURCE_SYSRAM_DRIVER_MANAGED;
+-static int qeth_set_online(struct qeth_card *card)
++static int qeth_set_online(struct qeth_card *card,
++			   const struct qeth_discipline *disc)
+ {
+ 	bool carrier_ok;
+ 	int rc;
  
-+	if (!mhp_range_allowed(start, size, true))
-+		return ERR_PTR(-E2BIG);
-+
- 	/*
- 	 * Make sure value parsed from 'mem=' only restricts memory adding
- 	 * while booting, so that memory hotplug won't be impacted. Please
-@@ -284,22 +287,6 @@ static int check_pfn_span(unsigned long pfn, unsigned long nr_pages,
+-	mutex_lock(&card->discipline_mutex);
+ 	mutex_lock(&card->conf_mutex);
+ 	QETH_CARD_TEXT(card, 2, "setonlin");
+ 
+@@ -5529,7 +5529,7 @@ static int qeth_set_online(struct qeth_card *card)
+ 		/* no need for locking / error handling at this early stage: */
+ 		qeth_set_real_num_tx_queues(card, qeth_tx_actual_queues(card));
+ 
+-	rc = card->discipline->set_online(card, carrier_ok);
++	rc = disc->set_online(card, carrier_ok);
+ 	if (rc)
+ 		goto err_online;
+ 
+@@ -5537,7 +5537,6 @@ static int qeth_set_online(struct qeth_card *card)
+ 	kobject_uevent(&card->gdev->dev.kobj, KOBJ_CHANGE);
+ 
+ 	mutex_unlock(&card->conf_mutex);
+-	mutex_unlock(&card->discipline_mutex);
+ 	return 0;
+ 
+ err_online:
+@@ -5552,15 +5551,14 @@ static int qeth_set_online(struct qeth_card *card)
+ 	qdio_free(CARD_DDEV(card));
+ 
+ 	mutex_unlock(&card->conf_mutex);
+-	mutex_unlock(&card->discipline_mutex);
+ 	return rc;
+ }
+ 
+-int qeth_set_offline(struct qeth_card *card, bool resetting)
++int qeth_set_offline(struct qeth_card *card, const struct qeth_discipline *disc,
++		     bool resetting)
+ {
+ 	int rc, rc2, rc3;
+ 
+-	mutex_lock(&card->discipline_mutex);
+ 	mutex_lock(&card->conf_mutex);
+ 	QETH_CARD_TEXT(card, 3, "setoffl");
+ 
+@@ -5581,7 +5579,7 @@ int qeth_set_offline(struct qeth_card *card, bool resetting)
+ 
+ 	cancel_work_sync(&card->rx_mode_work);
+ 
+-	card->discipline->set_offline(card);
++	disc->set_offline(card);
+ 
+ 	qeth_qdio_clear_card(card, 0);
+ 	qeth_drain_output_queues(card);
+@@ -5602,16 +5600,19 @@ int qeth_set_offline(struct qeth_card *card, bool resetting)
+ 	kobject_uevent(&card->gdev->dev.kobj, KOBJ_CHANGE);
+ 
+ 	mutex_unlock(&card->conf_mutex);
+-	mutex_unlock(&card->discipline_mutex);
  	return 0;
  }
+ EXPORT_SYMBOL_GPL(qeth_set_offline);
  
--static int check_hotplug_memory_addressable(unsigned long pfn,
--					    unsigned long nr_pages)
--{
--	const u64 max_addr = PFN_PHYS(pfn + nr_pages) - 1;
--
--	if (max_addr >> MAX_PHYSMEM_BITS) {
--		const u64 max_allowed = (1ull << (MAX_PHYSMEM_BITS + 1)) - 1;
--		WARN(1,
--		     "Hotplugged memory exceeds maximum addressable address, range=%#llx-%#llx, maximum=%#llx\n",
--		     (u64)PFN_PHYS(pfn), max_addr, max_allowed);
--		return -E2BIG;
--	}
--
--	return 0;
--}
--
- /*
-  * Reasonably generic function for adding memory.  It is
-  * expected that archs that support memory hotplug will
-@@ -317,9 +304,7 @@ int __ref __add_pages(int nid, unsigned long pfn, unsigned long nr_pages,
- 	if (WARN_ON_ONCE(!params->pgprot.pgprot))
- 		return -EINVAL;
- 
--	err = check_hotplug_memory_addressable(pfn, nr_pages);
--	if (err)
--		return err;
-+	VM_BUG_ON(!mhp_range_allowed(PFN_PHYS(pfn), nr_pages * PAGE_SIZE, false));
- 
- 	if (altmap) {
- 		/*
-@@ -1180,6 +1165,61 @@ int add_memory_driver_managed(int nid, u64 start, u64 size,
- }
- EXPORT_SYMBOL_GPL(add_memory_driver_managed);
- 
-+/*
-+ * Platforms should define arch_get_mappable_range() that provides
-+ * maximum possible addressable physical memory range for which the
-+ * linear mapping could be created. The platform returned address
-+ * range must adhere to these following semantics.
-+ *
-+ * - range.start <= range.end
-+ * - Range includes both end points [range.start..range.end]
-+ *
-+ * There is also a fallback definition provided here, allowing the
-+ * entire possible physical address range in case any platform does
-+ * not define arch_get_mappable_range().
-+ */
-+struct range __weak arch_get_mappable_range(void)
-+{
-+	struct range mhp_range = {
-+		.start = 0UL,
-+		.end = -1ULL,
-+	};
-+	return mhp_range;
-+}
-+
-+struct range mhp_get_pluggable_range(bool need_mapping)
-+{
-+	const u64 max_phys = (1ULL << MAX_PHYSMEM_BITS) - 1;
-+	struct range mhp_range;
-+
-+	if (need_mapping) {
-+		mhp_range = arch_get_mappable_range();
-+		if (mhp_range.start > max_phys) {
-+			mhp_range.start = 0;
-+			mhp_range.end = 0;
-+		}
-+		mhp_range.end = min_t(u64, mhp_range.end, max_phys);
-+	} else {
-+		mhp_range.start = 0;
-+		mhp_range.end = max_phys;
-+	}
-+	return mhp_range;
-+}
-+EXPORT_SYMBOL_GPL(mhp_get_pluggable_range);
-+
-+bool mhp_range_allowed(u64 start, u64 size, bool need_mapping)
-+{
-+	struct range mhp_range = mhp_get_pluggable_range(need_mapping);
-+	u64 end = start + size;
-+
-+	if (start < end && start >= mhp_range.start && (end - 1) <= mhp_range.end)
-+		return true;
-+
-+	pr_warn("Hotplug memory [%#llx-%#llx] exceeds maximum addressable range [%#llx-%#llx]\n",
-+		start, end, mhp_range.start, mhp_range.end);
-+	return false;
-+}
-+
- #ifdef CONFIG_MEMORY_HOTREMOVE
- /*
-  * Confirm all pages in a range [start, end) belong to the same zone (skipping
-diff --git a/mm/memremap.c b/mm/memremap.c
-index 16b2fb482da1..fcc5679e3fab 100644
---- a/mm/memremap.c
-+++ b/mm/memremap.c
-@@ -185,6 +185,7 @@ static void dev_pagemap_percpu_release(struct percpu_ref *ref)
- static int pagemap_range(struct dev_pagemap *pgmap, struct mhp_params *params,
- 		int range_id, int nid)
+ static int qeth_do_reset(void *data)
  {
-+	const bool is_private = pgmap->type == MEMORY_DEVICE_PRIVATE;
- 	struct range *range = &pgmap->ranges[range_id];
- 	struct dev_pagemap *conflict_pgmap;
- 	int error, is_ram;
-@@ -230,6 +231,9 @@ static int pagemap_range(struct dev_pagemap *pgmap, struct mhp_params *params,
- 	if (error)
- 		goto err_pfn_remap;
++	const struct qeth_discipline *disc;
+ 	struct qeth_card *card = data;
+ 	int rc;
  
-+	if (!mhp_range_allowed(range->start, range_len(range), !is_private))
-+		goto err_pfn_remap;
++	/* Lock-free, other users will block until we are done. */
++	disc = card->discipline;
 +
- 	mem_hotplug_begin();
+ 	QETH_CARD_TEXT(card, 2, "recover1");
+ 	if (!qeth_do_run_thread(card, QETH_RECOVER_THREAD))
+ 		return 0;
+@@ -5619,8 +5620,8 @@ static int qeth_do_reset(void *data)
+ 	dev_warn(&card->gdev->dev,
+ 		 "A recovery process has been started for the device\n");
  
- 	/*
-@@ -243,7 +247,7 @@ static int pagemap_range(struct dev_pagemap *pgmap, struct mhp_params *params,
- 	 * the CPU, we do want the linear mapping and thus use
- 	 * arch_add_memory().
- 	 */
--	if (pgmap->type == MEMORY_DEVICE_PRIVATE) {
-+	if (is_private) {
- 		error = add_pages(nid, PHYS_PFN(range->start),
- 				PHYS_PFN(range_len(range)), params);
- 	} else {
+-	qeth_set_offline(card, true);
+-	rc = qeth_set_online(card);
++	qeth_set_offline(card, disc, true);
++	rc = qeth_set_online(card, disc);
+ 	if (!rc) {
+ 		dev_info(&card->gdev->dev,
+ 			 "Device successfully recovered!\n");
+@@ -6647,7 +6648,10 @@ static int qeth_core_set_online(struct ccwgroup_device *gdev)
+ 		}
+ 	}
+ 
+-	rc = qeth_set_online(card);
++	mutex_lock(&card->discipline_mutex);
++	rc = qeth_set_online(card, card->discipline);
++	mutex_unlock(&card->discipline_mutex);
++
+ err:
+ 	return rc;
+ }
+@@ -6655,8 +6659,13 @@ static int qeth_core_set_online(struct ccwgroup_device *gdev)
+ static int qeth_core_set_offline(struct ccwgroup_device *gdev)
+ {
+ 	struct qeth_card *card = dev_get_drvdata(&gdev->dev);
++	int rc;
+ 
+-	return qeth_set_offline(card, false);
++	mutex_lock(&card->discipline_mutex);
++	rc = qeth_set_offline(card, card->discipline, false);
++	mutex_unlock(&card->discipline_mutex);
++
++	return rc;
+ }
+ 
+ static void qeth_core_shutdown(struct ccwgroup_device *gdev)
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 4ed0fb0705a5..37279b1e29f6 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -2207,8 +2207,11 @@ static void qeth_l2_remove_device(struct ccwgroup_device *gdev)
+ 	qeth_set_allowed_threads(card, 0, 1);
+ 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
+ 
+-	if (gdev->state == CCWGROUP_ONLINE)
+-		qeth_set_offline(card, false);
++	if (gdev->state == CCWGROUP_ONLINE) {
++		mutex_lock(&card->discipline_mutex);
++		qeth_set_offline(card, card->discipline, false);
++		mutex_unlock(&card->discipline_mutex);
++	}
+ 
+ 	cancel_work_sync(&card->close_dev_work);
+ 	if (card->dev->reg_state == NETREG_REGISTERED)
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index d138ac432d01..8d474179ce98 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1970,8 +1970,11 @@ static void qeth_l3_remove_device(struct ccwgroup_device *cgdev)
+ 	qeth_set_allowed_threads(card, 0, 1);
+ 	wait_event(card->wait_q, qeth_threads_running(card, 0xffffffff) == 0);
+ 
+-	if (cgdev->state == CCWGROUP_ONLINE)
+-		qeth_set_offline(card, false);
++	if (cgdev->state == CCWGROUP_ONLINE) {
++		mutex_lock(&card->discipline_mutex);
++		qeth_set_offline(card, card->discipline, false);
++		mutex_unlock(&card->discipline_mutex);
++	}
+ 
+ 	cancel_work_sync(&card->close_dev_work);
+ 	if (card->dev->reg_state == NETREG_REGISTERED)
 -- 
-2.20.1
+2.17.1
