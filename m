@@ -1,102 +1,39 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:21854 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727225AbhADPZB (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jan 2021 10:25:01 -0500
-Date: Mon, 4 Jan 2021 16:22:31 +0100
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Subject: Re: [PATCH v1 4/4] s390/kvm: VSIE: correctly handle MVPG when in
- VSIE
-Message-ID: <20210104162231.4e56ab47@ibm-vm>
-In-Reply-To: <6836573a-a49d-9d9f-49e0-96b5aa479c52@redhat.com>
-References: <20201218141811.310267-1-imbrenda@linux.ibm.com>
-        <20201218141811.310267-5-imbrenda@linux.ibm.com>
-        <6836573a-a49d-9d9f-49e0-96b5aa479c52@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Return-Path: <netdev-owner@vger.kernel.org>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 3/3] s390/qeth: fix L2 header access in qeth_l3_osa_features_check()
+Date: Thu,  7 Jan 2021 18:24:42 +0100
+Message-Id: <20210107172442.1737-4-jwi@linux.ibm.com>
+In-Reply-To: <20210107172442.1737-1-jwi@linux.ibm.com>
+References: <20210107172442.1737-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, stable@vger.kernel.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-On Sun, 20 Dec 2020 11:13:57 +0100
-David Hildenbrand <david@redhat.com> wrote:
+ip_finish_output_gso() may call .ndo_features_check() even before the
+skb has a L2 header. This conflicts with qeth_get_ip_version()'s attempt
+to inspect the L2 header via vlan_eth_hdr().
 
-> On 18.12.20 15:18, Claudio Imbrenda wrote:
-> > Correctly handle the MVPG instruction when issued by a VSIE guest.
-> >   
-> 
-> I remember that MVPG SIE documentation was completely crazy and full
-> of corner cases. :)
+Switch to vlan_get_protocol(), as already used further down in the
+common qeth_features_check() path.
 
-you remember correctly
+Fixes: f13ade199391 ("s390/qeth: run non-offload L3 traffic over common xmit path")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+---
+ drivers/s390/net/qeth_l3_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> Looking at arch/s390/kvm/intercept.c:handle_mvpg_pei(), I can spot
-> that
-> 
-> 1. "This interception can only happen for guests with DAT disabled
-> ..." 2. KVM does not make use of any mvpg state inside the SCB.
-> 
-> Can this be observed with Linux guests?
-
-a Linux guest will typically not run with DAT disabled
-
-> Can I get some information on what information is stored at [0xc0,
-> 0xd) inside the SCB? I assume it's:
-> 
-> 0xc0: guest physical address of source PTE
-> 0xc8: guest physical address of target PTE
-
-yes (plus 3 flags in the lower bits of each)
-
-> 
-> Also, which conditions have to be met such that we get a
-> ICPT_PARTEXEC:
-> 
-> a) State of guest DAT (I assume off?)
-> b) State of PTEs: What happens if there is no PTE (I assume we need
-> two PTEs, otherwise no such intercept)? I assume we get an intercept
-> if one of both PTEs is not present or the destination PTE is
-> protected. Correct?
-
-we get the intercept if the guest has DAT off, and at least one of the
-host PTEs is invalid (and I think if the destination is valid but
-protected)
-
-> So, when we (g1) get an intercept for g3, can we be sure 0xc0 and 0xc8
-> in the scb are both valid g1 addresses pointing at our PTE, and what
-> do we know about these PTEs (one not present or destination
-> protected)?
-
-we only know that at least one of the following holds true:
-* source invalid
-* destination invalid
-* destination protected
-
-there is a bit that tells us if the destination was protected (bit 62),
-but that does not exclude an invalid source
-
-> [...]
-> >  /*
-> >   * Run the vsie on a shadow scb and a shadow gmap, without any
-> > further
-> >   * sanity checks, handling SIE faults.
-> > @@ -1063,6 +1132,10 @@ static int do_vsie_run(struct kvm_vcpu
-> > *vcpu, struct vsie_page *vsie_page) if ((scb_s->ipa & 0xf000) !=
-> > 0xf000) scb_s->ipa += 0x1000;
-> >  		break;
-> > +	case ICPT_PARTEXEC:
-> > +		if (scb_s->ipa == 0xb254)  
-> 
-> Old code hat "/* MVPG only */" - why is this condition now necessary?
-
-old code was wrong ;)
-
-> > +			rc = vsie_handle_mvpg(vcpu, vsie_page);
-> > +		break;
-> >  	}
-> >  	return rc;
-> >  }
-> >   
-> 
-> 
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 6970597bc885..4c2cae7ae9a7 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -1813,7 +1813,7 @@ static netdev_features_t qeth_l3_osa_features_check(struct sk_buff *skb,
+ 						    struct net_device *dev,
+ 						    netdev_features_t features)
+ {
+-	if (qeth_get_ip_version(skb) != 4)
++	if (vlan_get_protocol(skb) != htons(ETH_P_IP))
+ 		features &= ~NETIF_F_HW_VLAN_CTAG_TX;
+ 	return qeth_features_check(skb, dev, features);
+ }
+-- 
+2.17.1
