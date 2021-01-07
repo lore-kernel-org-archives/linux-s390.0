@@ -1,45 +1,37 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:46480 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726655AbhAHDAt (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 7 Jan 2021 22:00:49 -0500
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/3] s390/qeth: fixes 2021-01-07
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: <161007480886.26739.12705141595571763670.git-patchwork-notify@kernel.org>
-Date: Fri, 08 Jan 2021 03:00:08 +0000
-References: <20210107172442.1737-1-jwi@linux.ibm.com>
-In-Reply-To: <20210107172442.1737-1-jwi@linux.ibm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:25338 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728687AbhAGRZg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jan 2021 12:25:36 -0500
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Subject: [PATCH net 0/3] s390/qeth: fixes 2021-01-07
+Date: Thu,  7 Jan 2021 18:24:39 +0100
+Message-Id: <20210107172442.1737-1-jwi@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Julian Wiedmann <jwi@linux.ibm.com>
-Cc: davem@davemloft.net, kuba@kernel.org, netdev@vger.kernel.org, linux-s390@vger.kernel.org, hca@linux.ibm.com, kgraul@linux.ibm.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
 
-Hello:
+Hi Dave & Jakub,
 
-This series was applied to netdev/net.git (refs/heads/master):
+please apply the following patch series to netdev's net tree.
 
-On Thu,  7 Jan 2021 18:24:39 +0100 you wrote:
-> Hi Dave & Jakub,
-> 
-> please apply the following patch series to netdev's net tree.
-> 
-> This brings two locking fixes for the device control path.
-> Also one fix for a path where our .ndo_features_check() attempts to
-> access a non-existent L2 header.
-> 
-> [...]
+This brings two locking fixes for the device control path.
+Also one fix for a path where our .ndo_features_check() attempts to
+access a non-existent L2 header.
 
-Here is the summary with links:
-  - [net,1/3] s390/qeth: fix deadlock during recovery
-    https://git.kernel.org/netdev/net/c/0b9902c1fcc5
-  - [net,2/3] s390/qeth: fix locking for discipline setup / removal
-    https://git.kernel.org/netdev/net/c/b41b554c1ee7
-  - [net,3/3] s390/qeth: fix L2 header access in qeth_l3_osa_features_check()
-    https://git.kernel.org/netdev/net/c/f9c4845385c8
+Thanks,
+Julian
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Julian Wiedmann (3):
+  s390/qeth: fix deadlock during recovery
+  s390/qeth: fix locking for discipline setup / removal
+  s390/qeth: fix L2 header access in qeth_l3_osa_features_check()
+
+ drivers/s390/net/qeth_core.h      |  3 ++-
+ drivers/s390/net/qeth_core_main.c | 38 ++++++++++++++++++++-----------
+ drivers/s390/net/qeth_l2_main.c   |  2 +-
+ drivers/s390/net/qeth_l3_main.c   |  4 ++--
+ 4 files changed, 30 insertions(+), 17 deletions(-)
+
+-- 
+2.17.1
