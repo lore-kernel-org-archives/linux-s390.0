@@ -1,43 +1,53 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47648 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726739AbhAXKGR (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Jan 2021 05:06:17 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 02/10] dcssblk: remove the end of device check in dcssblk_submit_bio
-Date: Sun, 24 Jan 2021 11:02:33 +0100
-Message-Id: <20210124100241.1167849-3-hch@lst.de>
-In-Reply-To: <20210124100241.1167849-1-hch@lst.de>
-References: <20210124100241.1167849-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:9034 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727959AbhAGR23 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Thu, 7 Jan 2021 12:28:29 -0500
+Subject: Re: [PATCH -next] s390: cio: Use DEFINE_SPINLOCK() for spinlock
+References: <20201223141512.1178-1-zhengyongjun3@huawei.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
+Message-ID: <3aed4509-a903-5b26-3667-ad420b1bbb7b@linux.ibm.com>
+Date: Thu, 7 Jan 2021 18:27:33 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20201223141512.1178-1-zhengyongjun3@huawei.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+To: Zheng Yongjun <zhengyongjun3@huawei.com>, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The block layer already checks for this conditions in bio_check_eod
-before calling the driver.
+On 23.12.20 15:15, Zheng Yongjun wrote:
+> spinlock can be initialized automatically with DEFINE_SPINLOCK()
+> rather than explicitly calling spin_lock_init().
+> 
+> Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+> ---
+>  drivers/s390/cio/css.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+> index cca1a7c4bb33..022f573f0bcc 100644
+> --- a/drivers/s390/cio/css.c
+> +++ b/drivers/s390/cio/css.c
+> @@ -647,13 +647,12 @@ static void css_sch_todo(struct work_struct *work)
+>  }
+>  
+>  static struct idset *slow_subchannel_set;
+> -static spinlock_t slow_subchannel_lock;
+> +static DEFINE_SPINLOCK(slow_subchannel_lock);
+>  static wait_queue_head_t css_eval_wq;
+>  static atomic_t css_eval_scheduled;
+>  
+>  static int __init slow_subchannel_init(void)
+>  {
+> -	spin_lock_init(&slow_subchannel_lock);
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Tejun Heo <tj@kernel.org>
----
- drivers/s390/block/dcssblk.c | 4 ----
- 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/s390/block/dcssblk.c b/drivers/s390/block/dcssblk.c
-index 299e77ec2c4163..5c5cff3f237452 100644
---- a/drivers/s390/block/dcssblk.c
-+++ b/drivers/s390/block/dcssblk.c
-@@ -886,10 +886,6 @@ dcssblk_submit_bio(struct bio *bio)
- 	    (bio->bi_iter.bi_size & 4095) != 0)
- 		/* Request is not page-aligned. */
- 		goto fail;
--	if (bio_end_sector(bio) > get_capacity(bio->bi_disk)) {
--		/* Request beyond end of DCSS segment. */
--		goto fail;
--	}
- 	/* verify data transfer direction */
- 	if (dev_info->is_shared) {
- 		switch (dev_info->segment_type) {
--- 
-2.29.2
+>  	atomic_set(&css_eval_scheduled, 0);
+>  	init_waitqueue_head(&css_eval_wq);
+
+Mind turning these two into static initializations as well? Thanks.
+
+
+>  	slow_subchannel_set = idset_sch_new();
+> 
