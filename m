@@ -1,76 +1,65 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from foss.arm.com ([217.140.110.172]:41450 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726714AbhAYC7l (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Sun, 24 Jan 2021 21:59:41 -0500
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V4 2/4] arm64/mm: Define arch_get_mappable_range()
-Date: Mon, 25 Jan 2021 08:28:50 +0530
-Message-Id: <1611543532-18698-3-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1611543532-18698-1-git-send-email-anshuman.khandual@arm.com>
-References: <1611543532-18698-1-git-send-email-anshuman.khandual@arm.com>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36854 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728444AbhAKJyR (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Mon, 11 Jan 2021 04:54:17 -0500
+From: Niklas Schnelle <schnelle@linux.ibm.com>
+Subject: [RFC 0/1] PCI: s390 global attribute "UID Checking"
+Date: Mon, 11 Jan 2021 10:38:56 +0100
+Message-Id: <20210111093857.24070-1-schnelle@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Oscar Salvador <osalvador@suse.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, David Hildenbrand <david@redhat.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
 
-This overrides arch_get_mappable_range() on arm64 platform which will be
-used with recently added generic framework. It drops inside_linear_region()
-and subsequent check in arch_add_memory() which are no longer required. It
-also adds a VM_BUG_ON() check that would ensure that mhp_range_allowed()
-has already been called.
+Hi Bjorn, Hi Kernel Hackers,
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- arch/arm64/mm/mmu.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+With the below patch I'm proposing to expose a global (i.e. not device
+bound) runtime attribute of the s390 PCI implementation (zPCI) called
+"UID Checking".  You can find some background information on what this
+attribute means and why it is important at the end of this mail. The
+reason I'm writing to you about it however is that this is the first
+global PCI attribute we would like to expose to user space and I'm
+searching for a good place to put it.
+The proposed patch uses "/sys/bus/pci/zpci/uid_checking" which from
+our perspective would be a great choice but I realize that there
+currently are no platform specific attributes directly under
+"/sys/bus/pci" so this clearly requires some discussion. What's your
+thought on this and do you know of any other platform specific global
+PCI attributes as I couldn't find any?
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index ae0c3d023824..b14fd1b6b1a0 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1442,16 +1442,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
- 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
- }
- 
--static bool inside_linear_region(u64 start, u64 size)
-+struct range arch_get_mappable_range(void)
- {
-+	struct range mhp_range;
-+
- 	/*
- 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
- 	 * accommodating both its ends but excluding PAGE_END. Max physical
- 	 * range which can be mapped inside this linear mapping range, must
- 	 * also be derived from its end points.
- 	 */
--	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
--	       (start + size - 1) <= __pa(PAGE_END - 1);
-+	mhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
-+	mhp_range.end =  __pa(PAGE_END - 1);
-+	return mhp_range;
- }
- 
- int arch_add_memory(int nid, u64 start, u64 size,
-@@ -1459,11 +1462,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- {
- 	int ret, flags = 0;
- 
--	if (!inside_linear_region(start, size)) {
--		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
--		return -EINVAL;
--	}
--
-+	VM_BUG_ON(!mhp_range_allowed(start, size, true));
- 	if (rodata_full || debug_pagealloc_enabled())
- 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
+Best regards,
+Niklas Schnelle
+
+Background:
+On s390 OSs always run under at least a machine level hypervisor
+(LPAR).  Simpliefied by usually running from SAN this makes VM
+migration possible at every level. For PCI this has created the need
+to allow PCI IDs to be stable across machines and to be partly user
+defined such that the setup of an existing VM on one machine can be
+recreated on another machine.
+In particular the Domain part of the PCI ID can be user defined by
+setting a per device value called UID. Since this was a late addition
+and isn't used by all OSs and since UIDs need to be unique if used as
+Domains, there is an additional global platform supplied runtime value
+called "UID Checking".  This value indicates if UIDs are guaranteed to
+be unique and set which triggers Linux to use the UIDs as PCI Domains
+otherwise PCI Domains are simply incremented as necessary.
+This "UID Checking" setting is thus very important e.g. when deciding
+how network interface names are generated as it indicates if the
+domain part of the PCI ID will remain stable across reboots and
+migrations.  Once exposed we will propose a patch to udev/systemd to
+use the "UID Checking" attribute to prefer network interface names
+which can be guaranteed to be stable and re-creatable for migration.
+
+Niklas Schnelle (1):
+  s390/pci: expose UID checking state in sysfs
+
+ Documentation/ABI/testing/sysfs-bus-pci | 11 ++++++++
+ arch/s390/include/asm/pci.h             |  3 +++
+ arch/s390/pci/pci.c                     |  4 +++
+ arch/s390/pci/pci_sysfs.c               | 34 +++++++++++++++++++++++++
+ 4 files changed, 52 insertions(+)
+
 -- 
-2.20.1
+2.17.1
