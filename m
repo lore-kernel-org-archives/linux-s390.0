@@ -1,93 +1,265 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:28512 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727919AbhALBVD (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:24258 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728013AbhALNWE (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Jan 2021 20:21:03 -0500
-Date: Tue, 12 Jan 2021 02:20:12 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v13 11/15] s390/vfio-ap: implement in-use callback for
- vfio_ap driver
-Message-ID: <20210112022012.4bad464f.pasic@linux.ibm.com>
-In-Reply-To: <20201223011606.5265-12-akrowiak@linux.ibm.com>
-References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
-        <20201223011606.5265-12-akrowiak@linux.ibm.com>
+        Tue, 12 Jan 2021 08:22:04 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests PATCH v4 8/9] s390x: Fix sclp.h style issues
+Date: Tue, 12 Jan 2021 08:20:53 -0500
+Message-Id: <20210112132054.49756-9-frankja@linux.ibm.com>
+In-Reply-To: <20210112132054.49756-1-frankja@linux.ibm.com>
+References: <20210112132054.49756-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Tony Krowiak <akrowiak@linux.ibm.com>, mjrosato@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-On Tue, 22 Dec 2020 20:16:02 -0500
-Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+Fix indentation
 
-> Let's implement the callback to indicate when an APQN
-> is in use by the vfio_ap device driver. The callback is
-> invoked whenever a change to the apmask or aqmask would
-> result in one or more queue devices being removed from the driver. The
-> vfio_ap device driver will indicate a resource is in use
-> if the APQN of any of the queue devices to be removed are assigned to
-> any of the matrix mdevs under the driver's control.
-> 
-> There is potential for a deadlock condition between the matrix_dev->lock
-> used to lock the matrix device during assignment of adapters and domains
-> and the ap_perms_mutex locked by the AP bus when changes are made to the
-> sysfs apmask/aqmask attributes.
-> 
-> Consider following scenario (courtesy of Halil Pasic):
-> 1) apmask_store() takes ap_perms_mutex
-> 2) assign_adapter_store() takes matrix_dev->lock
-> 3) apmask_store() calls vfio_ap_mdev_resource_in_use() which tries
->    to take matrix_dev->lock
-> 4) assign_adapter_store() calls ap_apqn_in_matrix_owned_by_def_drv
->    which tries to take ap_perms_mutex
-> 
-> BANG!
-> 
-> To resolve this issue, instead of using the mutex_lock(&matrix_dev->lock)
-> function to lock the matrix device during assignment of an adapter or
-> domain to a matrix_mdev as well as during the in_use callback, the
-> mutex_trylock(&matrix_dev->lock) function will be used. If the lock is not
-> obtained, then the assignment and in_use functions will terminate with
-> -EBUSY.
-> 
-> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
-> ---
->  drivers/s390/crypto/vfio_ap_drv.c     |  1 +
->  drivers/s390/crypto/vfio_ap_ops.c     | 21 ++++++++++++++++++---
->  drivers/s390/crypto/vfio_ap_private.h |  2 ++
->  3 files changed, 21 insertions(+), 3 deletions(-)
-> 
-[..]
->  }
-> +
-> +int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm)
-> +{
-> +	int ret;
-> +
-> +	if (!mutex_trylock(&matrix_dev->lock))
-> +		return -EBUSY;
-> +	ret = vfio_ap_mdev_verify_no_sharing(NULL, apm, aqm);
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+---
+ lib/s390x/sclp.h | 172 +++++++++++++++++++++++------------------------
+ 1 file changed, 86 insertions(+), 86 deletions(-)
 
-If we detect that resources are in use, then we spit warnings to the
-message log, right?
-
-@Matt: Is your userspace tooling going to guarantee that this will never
-happen?
-
-> +	mutex_unlock(&matrix_dev->lock);
-> +
-> +	return ret;
-> +}
-> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
-> index d2d26ba18602..15b7cd74843b 100644
-> --- a/drivers/s390/crypto/vfio_ap_private.h
-> +++ b/drivers/s390/crypto/vfio_ap_private.h
-> @@ -107,4 +107,6 @@ struct vfio_ap_queue {
->  int vfio_ap_mdev_probe_queue(struct ap_device *queue);
->  void vfio_ap_mdev_remove_queue(struct ap_device *queue);
->  
-> +int vfio_ap_mdev_resource_in_use(unsigned long *apm, unsigned long *aqm);
-> +
->  #endif /* _VFIO_AP_PRIVATE_H_ */
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index 58f8e54..dccbaa8 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -79,10 +79,10 @@
+ #define SCCB_SIZE 4096
+ 
+ typedef struct SCCBHeader {
+-    uint16_t length;
+-    uint8_t function_code;
+-    uint8_t control_mask[3];
+-    uint16_t response_code;
++	uint16_t length;
++	uint8_t function_code;
++	uint8_t control_mask[3];
++	uint16_t response_code;
+ } __attribute__((packed)) SCCBHeader;
+ 
+ #define SCCB_DATA_LEN (SCCB_SIZE - sizeof(SCCBHeader))
+@@ -90,15 +90,15 @@ typedef struct SCCBHeader {
+ 
+ /* CPU information */
+ typedef struct CPUEntry {
+-    uint8_t address;
+-    uint8_t reserved0;
+-    uint8_t : 4;
+-    uint8_t feat_sief2 : 1;
+-    uint8_t : 3;
+-    uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
+-    uint8_t reserved2[6];
+-    uint8_t type;
+-    uint8_t reserved1;
++	uint8_t address;
++	uint8_t reserved0;
++	uint8_t : 4;
++	uint8_t feat_sief2 : 1;
++	uint8_t : 3;
++	uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
++	uint8_t reserved2[6];
++	uint8_t type;
++	uint8_t reserved1;
+ } __attribute__((packed)) CPUEntry;
+ 
+ extern struct sclp_facilities sclp_facilities;
+@@ -110,77 +110,77 @@ struct sclp_facilities {
+ };
+ 
+ typedef struct ReadInfo {
+-    SCCBHeader h;
+-    uint16_t rnmax;
+-    uint8_t rnsize;
+-    uint8_t  _reserved1[16 - 11];       /* 11-15 */
+-    uint16_t entries_cpu;               /* 16-17 */
+-    uint16_t offset_cpu;                /* 18-19 */
+-    uint8_t  _reserved2[24 - 20];       /* 20-23 */
+-    uint8_t  loadparm[8];               /* 24-31 */
+-    uint8_t  _reserved3[48 - 32];       /* 32-47 */
+-    uint64_t facilities;                /* 48-55 */
+-    uint8_t  _reserved0[76 - 56];       /* 56-75 */
+-    uint32_t ibc_val;
+-    uint8_t  conf_char[99 - 80];        /* 80-98 */
+-    uint8_t mha_pow;
+-    uint32_t rnsize2;
+-    uint64_t rnmax2;
+-    uint8_t  _reserved6[116 - 112];     /* 112-115 */
+-    uint8_t  conf_char_ext[120 - 116];   /* 116-119 */
+-    uint16_t highest_cpu;
+-    uint8_t  _reserved5[124 - 122];     /* 122-123 */
+-    uint32_t hmfai;
+-    uint8_t reserved7[134 - 128];
+-    uint8_t byte_134_diag318 : 1;
+-    uint8_t : 7;
+-    struct CPUEntry entries[0];
++	SCCBHeader h;
++	uint16_t rnmax;
++	uint8_t rnsize;
++	uint8_t  _reserved1[16 - 11];       /* 11-15 */
++	uint16_t entries_cpu;               /* 16-17 */
++	uint16_t offset_cpu;                /* 18-19 */
++	uint8_t  _reserved2[24 - 20];       /* 20-23 */
++	uint8_t  loadparm[8];               /* 24-31 */
++	uint8_t  _reserved3[48 - 32];       /* 32-47 */
++	uint64_t facilities;                /* 48-55 */
++	uint8_t  _reserved0[76 - 56];       /* 56-75 */
++	uint32_t ibc_val;
++	uint8_t  conf_char[99 - 80];        /* 80-98 */
++	uint8_t mha_pow;
++	uint32_t rnsize2;
++	uint64_t rnmax2;
++	uint8_t  _reserved6[116 - 112];     /* 112-115 */
++	uint8_t  conf_char_ext[120 - 116];   /* 116-119 */
++	uint16_t highest_cpu;
++	uint8_t  _reserved5[124 - 122];     /* 122-123 */
++	uint32_t hmfai;
++	uint8_t reserved7[134 - 128];
++	uint8_t byte_134_diag318 : 1;
++	uint8_t : 7;
++	struct CPUEntry entries[0];
+ } __attribute__((packed)) ReadInfo;
+ 
+ typedef struct ReadCpuInfo {
+-    SCCBHeader h;
+-    uint16_t nr_configured;         /* 8-9 */
+-    uint16_t offset_configured;     /* 10-11 */
+-    uint16_t nr_standby;            /* 12-13 */
+-    uint16_t offset_standby;        /* 14-15 */
+-    uint8_t reserved0[24-16];       /* 16-23 */
+-    struct CPUEntry entries[0];
++	SCCBHeader h;
++	uint16_t nr_configured;         /* 8-9 */
++	uint16_t offset_configured;     /* 10-11 */
++	uint16_t nr_standby;            /* 12-13 */
++	uint16_t offset_standby;        /* 14-15 */
++	uint8_t reserved0[24-16];       /* 16-23 */
++	struct CPUEntry entries[0];
+ } __attribute__((packed)) ReadCpuInfo;
+ 
+ typedef struct ReadStorageElementInfo {
+-    SCCBHeader h;
+-    uint16_t max_id;
+-    uint16_t assigned;
+-    uint16_t standby;
+-    uint8_t _reserved0[16 - 14]; /* 14-15 */
+-    uint32_t entries[0];
++	SCCBHeader h;
++	uint16_t max_id;
++	uint16_t assigned;
++	uint16_t standby;
++	uint8_t _reserved0[16 - 14]; /* 14-15 */
++	uint32_t entries[0];
+ } __attribute__((packed)) ReadStorageElementInfo;
+ 
+ typedef struct AttachStorageElement {
+-    SCCBHeader h;
+-    uint8_t _reserved0[10 - 8];  /* 8-9 */
+-    uint16_t assigned;
+-    uint8_t _reserved1[16 - 12]; /* 12-15 */
+-    uint32_t entries[0];
++	SCCBHeader h;
++	uint8_t _reserved0[10 - 8];  /* 8-9 */
++	uint16_t assigned;
++	uint8_t _reserved1[16 - 12]; /* 12-15 */
++	uint32_t entries[0];
+ } __attribute__((packed)) AttachStorageElement;
+ 
+ typedef struct AssignStorage {
+-    SCCBHeader h;
+-    uint16_t rn;
++	SCCBHeader h;
++	uint16_t rn;
+ } __attribute__((packed)) AssignStorage;
+ 
+ typedef struct IoaCfgSccb {
+-    SCCBHeader header;
+-    uint8_t atype;
+-    uint8_t reserved1;
+-    uint16_t reserved2;
+-    uint32_t aid;
++	SCCBHeader header;
++	uint8_t atype;
++	uint8_t reserved1;
++	uint16_t reserved2;
++	uint32_t aid;
+ } __attribute__((packed)) IoaCfgSccb;
+ 
+ typedef struct SCCB {
+-    SCCBHeader h;
+-    char data[SCCB_DATA_LEN];
+- } __attribute__((packed)) SCCB;
++	SCCBHeader h;
++	char data[SCCB_DATA_LEN];
++} __attribute__((packed)) SCCB;
+ 
+ /* SCLP event types */
+ #define SCLP_EVENT_ASCII_CONSOLE_DATA           0x1a
+@@ -195,13 +195,13 @@ typedef struct SCCB {
+ #define SCLP_SELECTIVE_READ                     0x01
+ 
+ typedef struct WriteEventMask {
+-    SCCBHeader h;
+-    uint16_t _reserved;
+-    uint16_t mask_length;
+-    uint32_t cp_receive_mask;
+-    uint32_t cp_send_mask;
+-    uint32_t send_mask;
+-    uint32_t receive_mask;
++	SCCBHeader h;
++	uint16_t _reserved;
++	uint16_t mask_length;
++	uint32_t cp_receive_mask;
++	uint32_t cp_send_mask;
++	uint32_t send_mask;
++	uint32_t receive_mask;
+ } __attribute__((packed)) WriteEventMask;
+ 
+ #define MDBTYP_GO               0x0001
+@@ -254,25 +254,25 @@ struct mdb {
+ } __attribute__((packed));
+ 
+ typedef struct EventBufferHeader {
+-    uint16_t length;
+-    uint8_t  type;
+-    uint8_t  flags;
+-    uint16_t _reserved;
++	uint16_t length;
++	uint8_t  type;
++	uint8_t  flags;
++	uint16_t _reserved;
+ } __attribute__((packed)) EventBufferHeader;
+ 
+ typedef struct WriteEventData {
+-    SCCBHeader h;
+-    EventBufferHeader ebh;
+-    union {
+-	char data[0];
+-	struct mdb mdb;
+-    } msg;
++	SCCBHeader h;
++	EventBufferHeader ebh;
++	union {
++		char data[0];
++		struct mdb mdb;
++	} msg;
+ } __attribute__((packed)) WriteEventData;
+ 
+ typedef struct ReadEventData {
+-    SCCBHeader h;
+-    EventBufferHeader ebh;
+-    uint32_t mask;
++	SCCBHeader h;
++	EventBufferHeader ebh;
++	uint32_t mask;
+ } __attribute__((packed)) ReadEventData;
+ 
+ extern char _sccb[];
+-- 
+2.25.1
