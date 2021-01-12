@@ -1,140 +1,114 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-Date: Tue, 12 Jan 2021 07:48:27 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 0/2] System Generation ID driver and VMGENID backend
-Message-ID: <20210112074658-mutt-send-email-mst@kernel.org>
-References: <1610453760-13812-1-git-send-email-acatan@amazon.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from smtp-fw-6002.amazon.com ([52.95.49.90]:21019 "EHLO
+        smtp-fw-6002.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732299AbhALMRa (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>); Tue, 12 Jan 2021 07:17:30 -0500
+From: Adrian Catangiu <acatan@amazon.com>
+Subject: [PATCH v4 0/2] System Generation ID driver and VMGENID backend
+Date: Tue, 12 Jan 2021 14:15:58 +0200
+Message-ID: <1610453760-13812-1-git-send-email-acatan@amazon.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1610453760-13812-1-git-send-email-acatan@amazon.com>
+Content-Transfer-Encoding: base64
 List-ID: <linux-s390.vger.kernel.org>
-To: Adrian Catangiu <acatan@amazon.com>
-Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, gregkh@linuxfoundation.org, graf@amazon.com, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com
+To: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, graf@amazon.com, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mst@redhat.com, mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com, Adrian Catangiu <acatan@amazon.com>
 
-On Tue, Jan 12, 2021 at 02:15:58PM +0200, Adrian Catangiu wrote:
-> This feature is aimed at virtualized or containerized environments
-> where VM or container snapshotting duplicates memory state, which is a
-> challenge for applications that want to generate unique data such as
-> request IDs, UUIDs, and cryptographic nonces.
-> 
-> The patch set introduces a mechanism that provides a userspace
-> interface for applications and libraries to be made aware of uniqueness
-> breaking events such as VM or container snapshotting, and allow them to
-> react and adapt to such events.
-> 
-> Solving the uniqueness problem strongly enough for cryptographic
-> purposes requires a mechanism which can deterministically reseed
-> userspace PRNGs with new entropy at restore time. This mechanism must
-> also support the high-throughput and low-latency use-cases that led
-> programmers to pick a userspace PRNG in the first place; be usable by
-> both application code and libraries; allow transparent retrofitting
-> behind existing popular PRNG interfaces without changing application
-> code; it must be efficient, especially on snapshot restore; and be
-> simple enough for wide adoption.
-> 
-> The first patch in the set implements a device driver which exposes a
-> read-only device /dev/sysgenid to userspace, which contains a
-> monotonically increasing u32 generation counter. Libraries and
-> applications are expected to open() the device, and then call read()
-> which blocks until the SysGenId changes. Following an update, read()
-> calls no longer block until the application acknowledges the new
-> SysGenId by write()ing it back to the device. Non-blocking read() calls
-> return EAGAIN when there is no new SysGenId available. Alternatively,
-> libraries can mmap() the device to get a single shared page which
-> contains the latest SysGenId at offset 0.
-
-Looking at some specifications, the gen ID might actually be located
-at an arbitrary address. How about instead of hard-coding the offset,
-we expose it e.g. in sysfs?
-
-
-> SysGenId also supports a notification mechanism exposed as two IOCTLs
-> on the device. SYSGENID_GET_OUTDATED_WATCHERS immediately returns the
-> number of file descriptors to the device that were open during the last
-> SysGenId change but have not yet acknowledged the new id.
-> SYSGENID_WAIT_WATCHERS blocks until there are no open file handles on
-> the device which haven’t acknowledged the new id. These two interfaces
-> are intended for serverless and container control planes, which want to
-> confirm that all application code has detected and reacted to the new
-> SysGenId before sending an invoke to the newly-restored sandbox.
-> 
-> The second patch in the set adds a VmGenId driver which makes use of
-> the ACPI vmgenid device to drive SysGenId and to reseed kernel entropy
-> on VM snapshots.
-> 
-> ---
-> 
-> v3 -> v4:
-> 
->   - split functionality in two separate kernel modules: 
->     1. drivers/misc/sysgenid.c which provides the generic userspace
->        interface and mechanisms
->     2. drivers/virt/vmgenid.c as VMGENID acpi device driver that seeds
->        kernel entropy and acts as a driving backend for the generic
->        sysgenid
->   - renamed /dev/vmgenid -> /dev/sysgenid
->   - renamed uapi header file vmgenid.h -> sysgenid.h
->   - renamed ioctls VMGENID_* -> SYSGENID_*
->   - added ‘min_gen’ parameter to SYSGENID_FORCE_GEN_UPDATE ioctl
->   - fixed races in documentation examples
->   - various style nits
->   - rebased on top of linus latest
-> 
-> v2 -> v3:
-> 
->   - separate the core driver logic and interface, from the ACPI device.
->     The ACPI vmgenid device is now one possible backend.
->   - fix issue when timeout=0 in VMGENID_WAIT_WATCHERS
->   - add locking to avoid races between fs ops handlers and hw irq
->     driven generation updates
->   - change VMGENID_WAIT_WATCHERS ioctl so if the current caller is
->     outdated or a generation change happens while waiting (thus making
->     current caller outdated), the ioctl returns -EINTR to signal the
->     user to handle event and retry. Fixes blocking on oneself.
->   - add VMGENID_FORCE_GEN_UPDATE ioctl conditioned by
->     CAP_CHECKPOINT_RESTORE capability, through which software can force
->     generation bump.
-> 
-> v1 -> v2:
-> 
->   - expose to userspace a monotonically increasing u32 Vm Gen Counter
->     instead of the hw VmGen UUID
->   - since the hw/hypervisor-provided 128-bit UUID is not public
->     anymore, add it to the kernel RNG as device randomness
->   - insert driver page containing Vm Gen Counter in the user vma in
->     the driver's mmap handler instead of using a fault handler
->   - turn driver into a misc device driver to auto-create /dev/vmgenid
->   - change ioctl arg to avoid leaking kernel structs to userspace
->   - update documentation
->   - various nits
->   - rebase on top of linus latest
-> 
-> Adrian Catangiu (2):
->   drivers/misc: sysgenid: add system generation id driver
->   drivers/virt: vmgenid: add vm generation id driver
-> 
->  Documentation/misc-devices/sysgenid.rst | 240 +++++++++++++++++++++++++
->  Documentation/virt/vmgenid.rst          |  34 ++++
->  drivers/misc/Kconfig                    |  16 ++
->  drivers/misc/Makefile                   |   1 +
->  drivers/misc/sysgenid.c                 | 298 ++++++++++++++++++++++++++++++++
->  drivers/virt/Kconfig                    |  14 ++
->  drivers/virt/Makefile                   |   1 +
->  drivers/virt/vmgenid.c                  | 153 ++++++++++++++++
->  include/uapi/linux/sysgenid.h           |  18 ++
->  9 files changed, 775 insertions(+)
->  create mode 100644 Documentation/misc-devices/sysgenid.rst
->  create mode 100644 Documentation/virt/vmgenid.rst
->  create mode 100644 drivers/misc/sysgenid.c
->  create mode 100644 drivers/virt/vmgenid.c
->  create mode 100644 include/uapi/linux/sysgenid.h
-> 
-> -- 
-> 2.7.4
-> 
-> 
-> 
-> 
-> Amazon Development Center (Romania) S.R.L. registered office: 27A Sf. Lazar Street, UBC5, floor 2, Iasi, Iasi County, 700045, Romania. Registered in Romania. Registration number J22/2621/2005.
+VGhpcyBmZWF0dXJlIGlzIGFpbWVkIGF0IHZpcnR1YWxpemVkIG9yIGNvbnRhaW5lcml6ZWQgZW52
+aXJvbm1lbnRzCndoZXJlIFZNIG9yIGNvbnRhaW5lciBzbmFwc2hvdHRpbmcgZHVwbGljYXRlcyBt
+ZW1vcnkgc3RhdGUsIHdoaWNoIGlzIGEKY2hhbGxlbmdlIGZvciBhcHBsaWNhdGlvbnMgdGhhdCB3
+YW50IHRvIGdlbmVyYXRlIHVuaXF1ZSBkYXRhIHN1Y2ggYXMKcmVxdWVzdCBJRHMsIFVVSURzLCBh
+bmQgY3J5cHRvZ3JhcGhpYyBub25jZXMuCgpUaGUgcGF0Y2ggc2V0IGludHJvZHVjZXMgYSBtZWNo
+YW5pc20gdGhhdCBwcm92aWRlcyBhIHVzZXJzcGFjZQppbnRlcmZhY2UgZm9yIGFwcGxpY2F0aW9u
+cyBhbmQgbGlicmFyaWVzIHRvIGJlIG1hZGUgYXdhcmUgb2YgdW5pcXVlbmVzcwpicmVha2luZyBl
+dmVudHMgc3VjaCBhcyBWTSBvciBjb250YWluZXIgc25hcHNob3R0aW5nLCBhbmQgYWxsb3cgdGhl
+bSB0bwpyZWFjdCBhbmQgYWRhcHQgdG8gc3VjaCBldmVudHMuCgpTb2x2aW5nIHRoZSB1bmlxdWVu
+ZXNzIHByb2JsZW0gc3Ryb25nbHkgZW5vdWdoIGZvciBjcnlwdG9ncmFwaGljCnB1cnBvc2VzIHJl
+cXVpcmVzIGEgbWVjaGFuaXNtIHdoaWNoIGNhbiBkZXRlcm1pbmlzdGljYWxseSByZXNlZWQKdXNl
+cnNwYWNlIFBSTkdzIHdpdGggbmV3IGVudHJvcHkgYXQgcmVzdG9yZSB0aW1lLiBUaGlzIG1lY2hh
+bmlzbSBtdXN0CmFsc28gc3VwcG9ydCB0aGUgaGlnaC10aHJvdWdocHV0IGFuZCBsb3ctbGF0ZW5j
+eSB1c2UtY2FzZXMgdGhhdCBsZWQKcHJvZ3JhbW1lcnMgdG8gcGljayBhIHVzZXJzcGFjZSBQUk5H
+IGluIHRoZSBmaXJzdCBwbGFjZTsgYmUgdXNhYmxlIGJ5CmJvdGggYXBwbGljYXRpb24gY29kZSBh
+bmQgbGlicmFyaWVzOyBhbGxvdyB0cmFuc3BhcmVudCByZXRyb2ZpdHRpbmcKYmVoaW5kIGV4aXN0
+aW5nIHBvcHVsYXIgUFJORyBpbnRlcmZhY2VzIHdpdGhvdXQgY2hhbmdpbmcgYXBwbGljYXRpb24K
+Y29kZTsgaXQgbXVzdCBiZSBlZmZpY2llbnQsIGVzcGVjaWFsbHkgb24gc25hcHNob3QgcmVzdG9y
+ZTsgYW5kIGJlCnNpbXBsZSBlbm91Z2ggZm9yIHdpZGUgYWRvcHRpb24uCgpUaGUgZmlyc3QgcGF0
+Y2ggaW4gdGhlIHNldCBpbXBsZW1lbnRzIGEgZGV2aWNlIGRyaXZlciB3aGljaCBleHBvc2VzIGEK
+cmVhZC1vbmx5IGRldmljZSAvZGV2L3N5c2dlbmlkIHRvIHVzZXJzcGFjZSwgd2hpY2ggY29udGFp
+bnMgYQptb25vdG9uaWNhbGx5IGluY3JlYXNpbmcgdTMyIGdlbmVyYXRpb24gY291bnRlci4gTGli
+cmFyaWVzIGFuZAphcHBsaWNhdGlvbnMgYXJlIGV4cGVjdGVkIHRvIG9wZW4oKSB0aGUgZGV2aWNl
+LCBhbmQgdGhlbiBjYWxsIHJlYWQoKQp3aGljaCBibG9ja3MgdW50aWwgdGhlIFN5c0dlbklkIGNo
+YW5nZXMuIEZvbGxvd2luZyBhbiB1cGRhdGUsIHJlYWQoKQpjYWxscyBubyBsb25nZXIgYmxvY2sg
+dW50aWwgdGhlIGFwcGxpY2F0aW9uIGFja25vd2xlZGdlcyB0aGUgbmV3ClN5c0dlbklkIGJ5IHdy
+aXRlKClpbmcgaXQgYmFjayB0byB0aGUgZGV2aWNlLiBOb24tYmxvY2tpbmcgcmVhZCgpIGNhbGxz
+CnJldHVybiBFQUdBSU4gd2hlbiB0aGVyZSBpcyBubyBuZXcgU3lzR2VuSWQgYXZhaWxhYmxlLiBB
+bHRlcm5hdGl2ZWx5LApsaWJyYXJpZXMgY2FuIG1tYXAoKSB0aGUgZGV2aWNlIHRvIGdldCBhIHNp
+bmdsZSBzaGFyZWQgcGFnZSB3aGljaApjb250YWlucyB0aGUgbGF0ZXN0IFN5c0dlbklkIGF0IG9m
+ZnNldCAwLgoKU3lzR2VuSWQgYWxzbyBzdXBwb3J0cyBhIG5vdGlmaWNhdGlvbiBtZWNoYW5pc20g
+ZXhwb3NlZCBhcyB0d28gSU9DVExzCm9uIHRoZSBkZXZpY2UuIFNZU0dFTklEX0dFVF9PVVREQVRF
+RF9XQVRDSEVSUyBpbW1lZGlhdGVseSByZXR1cm5zIHRoZQpudW1iZXIgb2YgZmlsZSBkZXNjcmlw
+dG9ycyB0byB0aGUgZGV2aWNlIHRoYXQgd2VyZSBvcGVuIGR1cmluZyB0aGUgbGFzdApTeXNHZW5J
+ZCBjaGFuZ2UgYnV0IGhhdmUgbm90IHlldCBhY2tub3dsZWRnZWQgdGhlIG5ldyBpZC4KU1lTR0VO
+SURfV0FJVF9XQVRDSEVSUyBibG9ja3MgdW50aWwgdGhlcmUgYXJlIG5vIG9wZW4gZmlsZSBoYW5k
+bGVzIG9uCnRoZSBkZXZpY2Ugd2hpY2ggaGF2ZW7igJl0IGFja25vd2xlZGdlZCB0aGUgbmV3IGlk
+LiBUaGVzZSB0d28gaW50ZXJmYWNlcwphcmUgaW50ZW5kZWQgZm9yIHNlcnZlcmxlc3MgYW5kIGNv
+bnRhaW5lciBjb250cm9sIHBsYW5lcywgd2hpY2ggd2FudCB0bwpjb25maXJtIHRoYXQgYWxsIGFw
+cGxpY2F0aW9uIGNvZGUgaGFzIGRldGVjdGVkIGFuZCByZWFjdGVkIHRvIHRoZSBuZXcKU3lzR2Vu
+SWQgYmVmb3JlIHNlbmRpbmcgYW4gaW52b2tlIHRvIHRoZSBuZXdseS1yZXN0b3JlZCBzYW5kYm94
+LgoKVGhlIHNlY29uZCBwYXRjaCBpbiB0aGUgc2V0IGFkZHMgYSBWbUdlbklkIGRyaXZlciB3aGlj
+aCBtYWtlcyB1c2Ugb2YKdGhlIEFDUEkgdm1nZW5pZCBkZXZpY2UgdG8gZHJpdmUgU3lzR2VuSWQg
+YW5kIHRvIHJlc2VlZCBrZXJuZWwgZW50cm9weQpvbiBWTSBzbmFwc2hvdHMuCgotLS0KCnYzIC0+
+IHY0OgoKICAtIHNwbGl0IGZ1bmN0aW9uYWxpdHkgaW4gdHdvIHNlcGFyYXRlIGtlcm5lbCBtb2R1
+bGVzOiAKICAgIDEuIGRyaXZlcnMvbWlzYy9zeXNnZW5pZC5jIHdoaWNoIHByb3ZpZGVzIHRoZSBn
+ZW5lcmljIHVzZXJzcGFjZQogICAgICAgaW50ZXJmYWNlIGFuZCBtZWNoYW5pc21zCiAgICAyLiBk
+cml2ZXJzL3ZpcnQvdm1nZW5pZC5jIGFzIFZNR0VOSUQgYWNwaSBkZXZpY2UgZHJpdmVyIHRoYXQg
+c2VlZHMKICAgICAgIGtlcm5lbCBlbnRyb3B5IGFuZCBhY3RzIGFzIGEgZHJpdmluZyBiYWNrZW5k
+IGZvciB0aGUgZ2VuZXJpYwogICAgICAgc3lzZ2VuaWQKICAtIHJlbmFtZWQgL2Rldi92bWdlbmlk
+IC0+IC9kZXYvc3lzZ2VuaWQKICAtIHJlbmFtZWQgdWFwaSBoZWFkZXIgZmlsZSB2bWdlbmlkLmgg
+LT4gc3lzZ2VuaWQuaAogIC0gcmVuYW1lZCBpb2N0bHMgVk1HRU5JRF8qIC0+IFNZU0dFTklEXyoK
+ICAtIGFkZGVkIOKAmG1pbl9nZW7igJkgcGFyYW1ldGVyIHRvIFNZU0dFTklEX0ZPUkNFX0dFTl9V
+UERBVEUgaW9jdGwKICAtIGZpeGVkIHJhY2VzIGluIGRvY3VtZW50YXRpb24gZXhhbXBsZXMKICAt
+IHZhcmlvdXMgc3R5bGUgbml0cwogIC0gcmViYXNlZCBvbiB0b3Agb2YgbGludXMgbGF0ZXN0Cgp2
+MiAtPiB2MzoKCiAgLSBzZXBhcmF0ZSB0aGUgY29yZSBkcml2ZXIgbG9naWMgYW5kIGludGVyZmFj
+ZSwgZnJvbSB0aGUgQUNQSSBkZXZpY2UuCiAgICBUaGUgQUNQSSB2bWdlbmlkIGRldmljZSBpcyBu
+b3cgb25lIHBvc3NpYmxlIGJhY2tlbmQuCiAgLSBmaXggaXNzdWUgd2hlbiB0aW1lb3V0PTAgaW4g
+Vk1HRU5JRF9XQUlUX1dBVENIRVJTCiAgLSBhZGQgbG9ja2luZyB0byBhdm9pZCByYWNlcyBiZXR3
+ZWVuIGZzIG9wcyBoYW5kbGVycyBhbmQgaHcgaXJxCiAgICBkcml2ZW4gZ2VuZXJhdGlvbiB1cGRh
+dGVzCiAgLSBjaGFuZ2UgVk1HRU5JRF9XQUlUX1dBVENIRVJTIGlvY3RsIHNvIGlmIHRoZSBjdXJy
+ZW50IGNhbGxlciBpcwogICAgb3V0ZGF0ZWQgb3IgYSBnZW5lcmF0aW9uIGNoYW5nZSBoYXBwZW5z
+IHdoaWxlIHdhaXRpbmcgKHRodXMgbWFraW5nCiAgICBjdXJyZW50IGNhbGxlciBvdXRkYXRlZCks
+IHRoZSBpb2N0bCByZXR1cm5zIC1FSU5UUiB0byBzaWduYWwgdGhlCiAgICB1c2VyIHRvIGhhbmRs
+ZSBldmVudCBhbmQgcmV0cnkuIEZpeGVzIGJsb2NraW5nIG9uIG9uZXNlbGYuCiAgLSBhZGQgVk1H
+RU5JRF9GT1JDRV9HRU5fVVBEQVRFIGlvY3RsIGNvbmRpdGlvbmVkIGJ5CiAgICBDQVBfQ0hFQ0tQ
+T0lOVF9SRVNUT1JFIGNhcGFiaWxpdHksIHRocm91Z2ggd2hpY2ggc29mdHdhcmUgY2FuIGZvcmNl
+CiAgICBnZW5lcmF0aW9uIGJ1bXAuCgp2MSAtPiB2MjoKCiAgLSBleHBvc2UgdG8gdXNlcnNwYWNl
+IGEgbW9ub3RvbmljYWxseSBpbmNyZWFzaW5nIHUzMiBWbSBHZW4gQ291bnRlcgogICAgaW5zdGVh
+ZCBvZiB0aGUgaHcgVm1HZW4gVVVJRAogIC0gc2luY2UgdGhlIGh3L2h5cGVydmlzb3ItcHJvdmlk
+ZWQgMTI4LWJpdCBVVUlEIGlzIG5vdCBwdWJsaWMKICAgIGFueW1vcmUsIGFkZCBpdCB0byB0aGUg
+a2VybmVsIFJORyBhcyBkZXZpY2UgcmFuZG9tbmVzcwogIC0gaW5zZXJ0IGRyaXZlciBwYWdlIGNv
+bnRhaW5pbmcgVm0gR2VuIENvdW50ZXIgaW4gdGhlIHVzZXIgdm1hIGluCiAgICB0aGUgZHJpdmVy
+J3MgbW1hcCBoYW5kbGVyIGluc3RlYWQgb2YgdXNpbmcgYSBmYXVsdCBoYW5kbGVyCiAgLSB0dXJu
+IGRyaXZlciBpbnRvIGEgbWlzYyBkZXZpY2UgZHJpdmVyIHRvIGF1dG8tY3JlYXRlIC9kZXYvdm1n
+ZW5pZAogIC0gY2hhbmdlIGlvY3RsIGFyZyB0byBhdm9pZCBsZWFraW5nIGtlcm5lbCBzdHJ1Y3Rz
+IHRvIHVzZXJzcGFjZQogIC0gdXBkYXRlIGRvY3VtZW50YXRpb24KICAtIHZhcmlvdXMgbml0cwog
+IC0gcmViYXNlIG9uIHRvcCBvZiBsaW51cyBsYXRlc3QKCkFkcmlhbiBDYXRhbmdpdSAoMik6CiAg
+ZHJpdmVycy9taXNjOiBzeXNnZW5pZDogYWRkIHN5c3RlbSBnZW5lcmF0aW9uIGlkIGRyaXZlcgog
+IGRyaXZlcnMvdmlydDogdm1nZW5pZDogYWRkIHZtIGdlbmVyYXRpb24gaWQgZHJpdmVyCgogRG9j
+dW1lbnRhdGlvbi9taXNjLWRldmljZXMvc3lzZ2VuaWQucnN0IHwgMjQwICsrKysrKysrKysrKysr
+KysrKysrKysrKysKIERvY3VtZW50YXRpb24vdmlydC92bWdlbmlkLnJzdCAgICAgICAgICB8ICAz
+NCArKysrCiBkcml2ZXJzL21pc2MvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgfCAgMTYgKysK
+IGRyaXZlcnMvbWlzYy9NYWtlZmlsZSAgICAgICAgICAgICAgICAgICB8ICAgMSArCiBkcml2ZXJz
+L21pc2Mvc3lzZ2VuaWQuYyAgICAgICAgICAgICAgICAgfCAyOTggKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysKIGRyaXZlcnMvdmlydC9LY29uZmlnICAgICAgICAgICAgICAgICAgICB8
+ICAxNCArKwogZHJpdmVycy92aXJ0L01ha2VmaWxlICAgICAgICAgICAgICAgICAgIHwgICAxICsK
+IGRyaXZlcnMvdmlydC92bWdlbmlkLmMgICAgICAgICAgICAgICAgICB8IDE1MyArKysrKysrKysr
+KysrKysrCiBpbmNsdWRlL3VhcGkvbGludXgvc3lzZ2VuaWQuaCAgICAgICAgICAgfCAgMTggKysK
+IDkgZmlsZXMgY2hhbmdlZCwgNzc1IGluc2VydGlvbnMoKykKIGNyZWF0ZSBtb2RlIDEwMDY0NCBE
+b2N1bWVudGF0aW9uL21pc2MtZGV2aWNlcy9zeXNnZW5pZC5yc3QKIGNyZWF0ZSBtb2RlIDEwMDY0
+NCBEb2N1bWVudGF0aW9uL3ZpcnQvdm1nZW5pZC5yc3QKIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2
+ZXJzL21pc2Mvc3lzZ2VuaWQuYwogY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvdmlydC92bWdl
+bmlkLmMKIGNyZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL3VhcGkvbGludXgvc3lzZ2VuaWQuaAoK
+LS0gCjIuNy40CgoKCgpBbWF6b24gRGV2ZWxvcG1lbnQgQ2VudGVyIChSb21hbmlhKSBTLlIuTC4g
+cmVnaXN0ZXJlZCBvZmZpY2U6IDI3QSBTZi4gTGF6YXIgU3RyZWV0LCBVQkM1LCBmbG9vciAyLCBJ
+YXNpLCBJYXNpIENvdW50eSwgNzAwMDQ1LCBSb21hbmlhLiBSZWdpc3RlcmVkIGluIFJvbWFuaWEu
+IFJlZ2lzdHJhdGlvbiBudW1iZXIgSjIyLzI2MjEvMjAwNS4K
