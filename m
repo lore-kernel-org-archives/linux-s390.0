@@ -1,81 +1,45 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43354 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730730AbhAETCa (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Tue, 5 Jan 2021 14:02:30 -0500
-From: Vladimir Oltean <olteanv@gmail.com>
-Subject: [RFC PATCH v2 net-next 12/12] net: remove obsolete comments about ndo_get_stats64 context from eth drivers
-Date: Tue,  5 Jan 2021 20:59:02 +0200
-Message-Id: <20210105185902.3922928-13-olteanv@gmail.com>
-In-Reply-To: <20210105185902.3922928-1-olteanv@gmail.com>
-References: <20210105185902.3922928-1-olteanv@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:39752 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2406223AbhALQYS (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 12 Jan 2021 11:24:18 -0500
+From: Karsten Graul <kgraul@linux.ibm.com>
+Subject: [PATCH net 1/2] smc: fix out of bound access in smc_nl_get_sys_info()
+Date: Tue, 12 Jan 2021 17:21:21 +0100
+Message-Id: <20210112162122.26832-2-kgraul@linux.ibm.com>
+In-Reply-To: <20210112162122.26832-1-kgraul@linux.ibm.com>
+References: <20210112162122.26832-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andriin@fb.com>, Daniel Borkmann <daniel@iogearbox.net>, Taehee Yoo <ap420073@gmail.com>, Jiri Pirko <jiri@mellanox.com>, =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>, Paolo Abeni <pabeni@redhat.com>, Christian Brauner <christian.brauner@ubuntu.com>, Florian Westphal <fw@strlen.de>, linux-s390@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org, dev@openvswitch.org
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-Now that we have a good summary in Documentation/networking/netdevices.rst,
-these comments serve no purpose and are actually distracting/confusing.
+smc_clc_get_hostname() sets the host pointer to a buffer
+which is not NULL-terminated (see smc_clc_init()).
 
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reported-by: syzbot+f4708c391121cfc58396@syzkaller.appspotmail.com
+Fixes: 099b990bd11a ("net/smc: Add support for obtaining system information")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
 ---
- drivers/net/ethernet/cisco/enic/enic_main.c | 1 -
- drivers/net/ethernet/nvidia/forcedeth.c     | 2 --
- drivers/net/ethernet/sfc/efx_common.c       | 1 -
- drivers/net/ethernet/sfc/falcon/efx.c       | 1 -
- 4 files changed, 5 deletions(-)
+ net/smc/smc_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
-index fb269d587b74..7425f94f9091 100644
---- a/drivers/net/ethernet/cisco/enic/enic_main.c
-+++ b/drivers/net/ethernet/cisco/enic/enic_main.c
-@@ -870,7 +870,6 @@ static netdev_tx_t enic_hard_start_xmit(struct sk_buff *skb,
- 	return NETDEV_TX_OK;
- }
- 
--/* dev_base_lock rwlock held, nominally process context */
- static void enic_get_stats(struct net_device *netdev,
- 			   struct rtnl_link_stats64 *net_stats)
- {
-diff --git a/drivers/net/ethernet/nvidia/forcedeth.c b/drivers/net/ethernet/nvidia/forcedeth.c
-index 8724d6a9ed02..8fa254dc64e9 100644
---- a/drivers/net/ethernet/nvidia/forcedeth.c
-+++ b/drivers/net/ethernet/nvidia/forcedeth.c
-@@ -1761,8 +1761,6 @@ static void nv_get_stats(int cpu, struct fe_priv *np,
- /*
-  * nv_get_stats64: dev->ndo_get_stats64 function
-  * Get latest stats value from the nic.
-- * Called with read_lock(&dev_base_lock) held for read -
-- * only synchronized against unregister_netdevice.
-  */
- static void
- nv_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *storage)
-diff --git a/drivers/net/ethernet/sfc/efx_common.c b/drivers/net/ethernet/sfc/efx_common.c
-index de797e1ac5a9..4d8047b35fb2 100644
---- a/drivers/net/ethernet/sfc/efx_common.c
-+++ b/drivers/net/ethernet/sfc/efx_common.c
-@@ -596,7 +596,6 @@ void efx_stop_all(struct efx_nic *efx)
- 	efx_stop_datapath(efx);
- }
- 
--/* Context: process, dev_base_lock or RTNL held, non-blocking. */
- void efx_net_stats(struct net_device *net_dev, struct rtnl_link_stats64 *stats)
- {
- 	struct efx_nic *efx = netdev_priv(net_dev);
-diff --git a/drivers/net/ethernet/sfc/falcon/efx.c b/drivers/net/ethernet/sfc/falcon/efx.c
-index f8979991970e..6db2b6583dec 100644
---- a/drivers/net/ethernet/sfc/falcon/efx.c
-+++ b/drivers/net/ethernet/sfc/falcon/efx.c
-@@ -2096,7 +2096,6 @@ int ef4_net_stop(struct net_device *net_dev)
- 	return 0;
- }
- 
--/* Context: process, dev_base_lock or RTNL held, non-blocking. */
- static void ef4_net_stats(struct net_device *net_dev,
- 			  struct rtnl_link_stats64 *stats)
- {
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 59342b519e34..8d866b4ed8f6 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -246,7 +246,8 @@ int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb)
+ 		goto errattr;
+ 	smc_clc_get_hostname(&host);
+ 	if (host) {
+-		snprintf(hostname, sizeof(hostname), "%s", host);
++		memcpy(hostname, host, SMC_MAX_HOSTNAME_LEN);
++		hostname[SMC_MAX_HOSTNAME_LEN] = 0;
+ 		if (nla_put_string(skb, SMC_NLA_SYS_LOCAL_HOST, hostname))
+ 			goto errattr;
+ 	}
 -- 
-2.25.1
+2.17.1
