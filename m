@@ -1,26 +1,69 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:41247 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730413AbhALNKg (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Tue, 12 Jan 2021 08:10:36 -0500
+Received: by mail-wr1-f72.google.com with SMTP id r11so1121407wrs.23
+        for <linux-s390@vger.kernel.org>; Tue, 12 Jan 2021 05:09:01 -0800 (PST)
+Date: Tue, 12 Jan 2021 08:08:54 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v4 1/2] drivers/misc: sysgenid: add system generation id
  driver
+Message-ID: <20210112080427-mutt-send-email-mst@kernel.org>
 References: <1610453760-13812-1-git-send-email-acatan@amazon.com>
  <1610453760-13812-2-git-send-email-acatan@amazon.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <2764a194-934c-5426-728a-cd755a6e395f@infradead.org>
-Date: Tue, 19 Jan 2021 14:34:17 -0800
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <1610453760-13812-2-git-send-email-acatan@amazon.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Adrian Catangiu <acatan@amazon.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
-Cc: gregkh@linuxfoundation.org, graf@amazon.com, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mst@redhat.com, mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com
+To: Adrian Catangiu <acatan@amazon.com>
+Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, gregkh@linuxfoundation.org, graf@amazon.com, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com
 
-Hi--
-
-On 1/12/21 4:15 AM, Adrian Catangiu wrote:
+On Tue, Jan 12, 2021 at 02:15:59PM +0200, Adrian Catangiu wrote:
 > - Background and problem
 > 
-
+> The System Generation ID feature is required in virtualized or
+> containerized environments by applications that work with local copies
+> or caches of world-unique data such as random values, uuids,
+> monotonically increasing counters, etc.
+> Such applications can be negatively affected by VM or container
+> snapshotting when the VM or container is either cloned or returned to
+> an earlier point in time.
+> 
+> Furthermore, simply finding out about a system generation change is
+> only the starting point of a process to renew internal states of
+> possibly multiple applications across the system. This process could
+> benefit from a driver that provides an interface through which
+> orchestration can be easily done.
+> 
+> - Solution
+> 
+> The System Generation ID is a simple concept meant to alleviate the
+> issue by providing a monotonically increasing u32 counter that changes
+> each time the VM or container is restored from a snapshot.
+> 
+> The `sysgenid` driver exposes a monotonic incremental System Generation
+> u32 counter via a char-dev FS interface that provides sync and async
+> SysGen counter updates notifications. It also provides SysGen counter
+> retrieval and confirmation mechanisms.
+> 
+> The counter starts from zero when the driver is initialized and
+> monotonically increments every time the system generation changes.
+> 
+> The `sysgenid` driver exports the `void sysgenid_bump_generation()`
+> symbol which can be used by backend drivers to drive system generation
+> changes based on hardware events.
+> System generation changes can also be driven by userspace software
+> through a dedicated driver ioctl.
+> 
+> Userspace applications or libraries can then (a)synchronously consume
+> the system generation counter through the provided FS interface to make
+> any necessary internal adjustments following a system generation
+> update.
+> 
+> Signed-off-by: Adrian Catangiu <acatan@amazon.com>
 > ---
 >  Documentation/misc-devices/sysgenid.rst | 240 +++++++++++++++++++++++++
 >  drivers/misc/Kconfig                    |  16 ++
@@ -60,9 +103,6 @@ On 1/12/21 4:15 AM, Adrian Catangiu wrote:
 > +The ``sysgenid`` driver exposes a monotonic incremental System
 > +Generation u32 counter via a char-dev FS interface accessible through
 > +``/dev/sysgenid`` that provides sync and async SysGen counter updates
-
-                                                                 update
-
 > +notifications. It also provides SysGen counter retrieval and
 > +confirmation mechanisms.
 > +
@@ -103,10 +143,6 @@ On 1/12/21 4:15 AM, Adrian Catangiu wrote:
 > +  new value is confirmed back to the driver through ``write()``.
 > +  Partial reads are not allowed - read buffer needs to be at least
 > +  ``sizeof(unsigned)`` in size.
-
-Please use (unsigned int), not just (unsigned).
-(Linux style)
-
 > +
 > +``write()``:
 > +  Write is used to confirm the up-to-date Sys Gen counter back to the
@@ -117,9 +153,6 @@ Please use (unsigned int), not just (unsigned).
 > +  the driver.
 > +  Partial writes are not allowed - write buffer should be exactly
 > +  ``sizeof(unsigned)`` in size.
-
-ditto.
-
 > +
 > +``poll()``:
 > +  Poll is implemented to allow polling for generation counter updates.
@@ -168,9 +201,6 @@ ditto.
 > +	void watchdog_thread_handler(int *thread_active)
 > +	{
 > +		unsigned genid;
-
-		unsigned int genid;
-
 > +		int fd = open("/dev/sysgenid", O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR);
 > +
 > +		do {
@@ -192,9 +222,6 @@ ditto.
 > +	void handle_io_on_sysgenfd(int sysgenfd)
 > +	{
 > +		unsigned genid;
-
-		unsigned int genid;
-
 > +
 > +		// read new gen ID - we need it to confirm we've handled update
 > +		read(fd, &genid, sizeof(genid));
@@ -254,9 +281,6 @@ ditto.
 > +	{
 > +		char *secret;
 > +		volatile unsigned *const genid_ptr = get_sysgenid_mapping(app);
-
-		         unsigned int
-
 > +	again:
 > +		secret = __cached_secret(app);
 > +
@@ -273,6 +297,23 @@ ditto.
 > +		}
 > +
 > +		return secret;
+
+
+
+Hmm. This seems to rely on the assumption that if you have
+read the ID and it did not change, then all is well.
+
+Problem is, in the interrupt driven implementation
+this is not a safe assumption to make: ID
+from hypervisor might have changed but interrupt
+could be delayed.
+
+
+If we map the hypervisor ID to userspace then we won't
+have this race ... worth worry about? why not?
+
+
+
 > +	}
 > +
 > +4) Orchestrator simplified example::
@@ -284,18 +325,12 @@ ditto.
 > +	 * Following function is called on detection of a VM generation change.
 > +	 */
 > +	int handle_sysgen_update(int sysgen_fd, unsigned new_gen_id)
-
-	                                        unsigned int
-
 > +	{
 > +		// pause until all components have handled event
 > +		pause_service();
 > +
 > +		// confirm *this* watcher as up-to-date
 > +		write(sysgen_fd, &new_gen_id, sizeof(unsigned));
-
-		                                     unsigned int
-
 > +
 > +		// wait for all *others* for at most 5 seconds.
 > +		ioctl(sysgen_fd, VMGENID_WAIT_WATCHERS, 5000);
@@ -303,8 +338,346 @@ ditto.
 > +		// all applications on the system have rebuilt worlds
 > +		resume_service();
 > +	}
-
-
+> diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+> index fafa8b0..931d716 100644
+> --- a/drivers/misc/Kconfig
+> +++ b/drivers/misc/Kconfig
+> @@ -456,6 +456,22 @@ config PVPANIC
+>  	  a paravirtualized device provided by QEMU; it lets a virtual machine
+>  	  (guest) communicate panic events to the host.
+>  
+> +config SYSGENID
+> +	tristate "System Generation ID driver"
+> +	default N
+> +	help
+> +	  This is a System Generation ID driver which provides a system
+> +	  generation counter. The driver exposes FS ops on /dev/sysgenid
+> +	  through which it can provide information and notifications on system
+> +	  generation changes that happen because of VM or container snapshots
+> +	  or cloning.
+> +	  This enables applications and libraries that store or cache
+> +	  sensitive information, to know that they need to regenerate it
+> +	  after process memory has been exposed to potential copying.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called sysgenid.
+> +
+>  config HISI_HIKEY_USB
+>  	tristate "USB GPIO Hub on HiSilicon Hikey 960/970 Platform"
+>  	depends on (OF && GPIOLIB) || COMPILE_TEST
+> diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+> index d23231e..4b4933d 100644
+> --- a/drivers/misc/Makefile
+> +++ b/drivers/misc/Makefile
+> @@ -57,3 +57,4 @@ obj-$(CONFIG_HABANA_AI)		+= habanalabs/
+>  obj-$(CONFIG_UACCE)		+= uacce/
+>  obj-$(CONFIG_XILINX_SDFEC)	+= xilinx_sdfec.o
+>  obj-$(CONFIG_HISI_HIKEY_USB)	+= hisi_hikey_usb.o
+> +obj-$(CONFIG_SYSGENID)		+= sysgenid.o
+> diff --git a/drivers/misc/sysgenid.c b/drivers/misc/sysgenid.c
+> new file mode 100644
+> index 0000000..dd64099
+> --- /dev/null
+> +++ b/drivers/misc/sysgenid.c
+> @@ -0,0 +1,298 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * System Generation ID driver
+> + *
+> + * Copyright (C) 2020 Amazon. All rights reserved.
+> + *
+> + *	Authors:
+> + *	  Adrian Catangiu <acatan@amazon.com>
+> + *
+> + */
+> +#include <linux/acpi.h>
+> +#include <linux/kernel.h>
+> +#include <linux/minmax.h>
+> +#include <linux/miscdevice.h>
+> +#include <linux/mm.h>
+> +#include <linux/module.h>
+> +#include <linux/poll.h>
+> +#include <linux/random.h>
+> +#include <linux/uuid.h>
+> +#include <linux/sysgenid.h>
+> +
+> +struct sysgenid_data {
+> +	unsigned long		map_buf;
+> +	wait_queue_head_t	read_waitq;
+> +	atomic_t		generation_counter;
+> +
+> +	unsigned int		watchers;
+> +	atomic_t		outdated_watchers;
+> +	wait_queue_head_t	outdated_waitq;
+> +	spinlock_t		lock;
+> +};
+> +static struct sysgenid_data sysgenid_data;
+> +
+> +struct file_data {
+> +	unsigned int acked_gen_counter;
+> +};
+> +
+> +static int equals_gen_counter(unsigned int counter)
+> +{
+> +	return counter == atomic_read(&sysgenid_data.generation_counter);
+> +}
+> +
+> +static void _bump_generation(int min_gen)
+> +{
+> +	unsigned long flags;
+> +	int counter;
+> +
+> +	spin_lock_irqsave(&sysgenid_data.lock, flags);
+> +	counter = max(min_gen, 1 + atomic_read(&sysgenid_data.generation_counter));
+> +	atomic_set(&sysgenid_data.generation_counter, counter);
+> +	*((int *) sysgenid_data.map_buf) = counter;
+> +	atomic_set(&sysgenid_data.outdated_watchers, sysgenid_data.watchers);
+> +
+> +	wake_up_interruptible(&sysgenid_data.read_waitq);
+> +	wake_up_interruptible(&sysgenid_data.outdated_waitq);
+> +	spin_unlock_irqrestore(&sysgenid_data.lock, flags);
+> +}
+> +
+> +void sysgenid_bump_generation(void)
+> +{
+> +	_bump_generation(0);
+> +}
+> +EXPORT_SYMBOL(sysgenid_bump_generation);
+> +
+> +static void put_outdated_watchers(void)
+> +{
+> +	if (atomic_dec_and_test(&sysgenid_data.outdated_watchers))
+> +		wake_up_interruptible(&sysgenid_data.outdated_waitq);
+> +}
+> +
+> +static int sysgenid_open(struct inode *inode, struct file *file)
+> +{
+> +	struct file_data *fdata = kzalloc(sizeof(struct file_data), GFP_KERNEL);
+> +	unsigned long flags;
+> +
+> +	if (!fdata)
+> +		return -ENOMEM;
+> +
+> +	spin_lock_irqsave(&sysgenid_data.lock, flags);
+> +	fdata->acked_gen_counter = atomic_read(&sysgenid_data.generation_counter);
+> +	++sysgenid_data.watchers;
+> +	spin_unlock_irqrestore(&sysgenid_data.lock, flags);
+> +
+> +	file->private_data = fdata;
+> +
+> +	return 0;
+> +}
+> +
+> +static int sysgenid_close(struct inode *inode, struct file *file)
+> +{
+> +	struct file_data *fdata = file->private_data;
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&sysgenid_data.lock, flags);
+> +	if (!equals_gen_counter(fdata->acked_gen_counter))
+> +		put_outdated_watchers();
+> +	--sysgenid_data.watchers;
+> +	spin_unlock_irqrestore(&sysgenid_data.lock, flags);
+> +
+> +	kfree(fdata);
+> +
+> +	return 0;
+> +}
+> +
+> +static ssize_t sysgenid_read(struct file *file, char __user *ubuf,
+> +							 size_t nbytes, loff_t *ppos)
+> +{
+> +	struct file_data *fdata = file->private_data;
+> +	ssize_t ret;
+> +	int gen_counter;
+> +
+> +	if (nbytes == 0)
+> +		return 0;
+> +	/* disallow partial reads */
+> +	if (nbytes < sizeof(gen_counter))
+> +		return -EINVAL;
+> +
+> +	if (equals_gen_counter(fdata->acked_gen_counter)) {
+> +		if (file->f_flags & O_NONBLOCK)
+> +			return -EAGAIN;
+> +		ret = wait_event_interruptible(
+> +			sysgenid_data.read_waitq,
+> +			!equals_gen_counter(fdata->acked_gen_counter)
+> +		);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	gen_counter = atomic_read(&sysgenid_data.generation_counter);
+> +	ret = copy_to_user(ubuf, &gen_counter, sizeof(gen_counter));
+> +	if (ret)
+> +		return -EFAULT;
+> +
+> +	return sizeof(gen_counter);
+> +}
+> +
+> +static ssize_t sysgenid_write(struct file *file, const char __user *ubuf,
+> +							  size_t count, loff_t *ppos)
+> +{
+> +	struct file_data *fdata = file->private_data;
+> +	unsigned int new_acked_gen;
+> +	unsigned long flags;
+> +
+> +	/* disallow partial writes */
+> +	if (count != sizeof(new_acked_gen))
+> +		return -EINVAL;
+> +	if (copy_from_user(&new_acked_gen, ubuf, count))
+> +		return -EFAULT;
+> +
+> +	spin_lock_irqsave(&sysgenid_data.lock, flags);
+> +	/* wrong gen-counter acknowledged */
+> +	if (!equals_gen_counter(new_acked_gen)) {
+> +		spin_unlock_irqrestore(&sysgenid_data.lock, flags);
+> +		return -EINVAL;
+> +	}
+> +	if (!equals_gen_counter(fdata->acked_gen_counter)) {
+> +		fdata->acked_gen_counter = new_acked_gen;
+> +		put_outdated_watchers();
+> +	}
+> +	spin_unlock_irqrestore(&sysgenid_data.lock, flags);
+> +
+> +	return (ssize_t)count;
+> +}
+> +
+> +static __poll_t sysgenid_poll(struct file *file, poll_table *wait)
+> +{
+> +	__poll_t mask = 0;
+> +	struct file_data *fdata = file->private_data;
+> +
+> +	if (!equals_gen_counter(fdata->acked_gen_counter))
+> +		return EPOLLIN | EPOLLRDNORM;
+> +
+> +	poll_wait(file, &sysgenid_data.read_waitq, wait);
+> +
+> +	if (!equals_gen_counter(fdata->acked_gen_counter))
+> +		mask = EPOLLIN | EPOLLRDNORM;
+> +
+> +	return mask;
+> +}
+> +
+> +static long sysgenid_ioctl(struct file *file,
+> +						   unsigned int cmd, unsigned long arg)
+> +{
+> +	struct file_data *fdata = file->private_data;
+> +	unsigned long timeout_ns, min_gen;
+> +	ktime_t until;
+> +	int ret = 0;
+> +
+> +	switch (cmd) {
+> +	case SYSGENID_GET_OUTDATED_WATCHERS:
+> +		ret = atomic_read(&sysgenid_data.outdated_watchers);
+> +		break;
+> +	case SYSGENID_WAIT_WATCHERS:
+> +		timeout_ns = arg * NSEC_PER_MSEC;
+> +		until = timeout_ns ? ktime_set(0, timeout_ns) : KTIME_MAX;
+> +
+> +		ret = wait_event_interruptible_hrtimeout(
+> +			sysgenid_data.outdated_waitq,
+> +			(!atomic_read(&sysgenid_data.outdated_watchers) ||
+> +					!equals_gen_counter(fdata->acked_gen_counter)),
+> +			until
+> +		);
+> +		if (atomic_read(&sysgenid_data.outdated_watchers))
+> +			ret = -EINTR;
+> +		else
+> +			ret = 0;
+> +		break;
+> +	case SYSGENID_FORCE_GEN_UPDATE:
+> +		if (!checkpoint_restore_ns_capable(current_user_ns()))
+> +			return -EACCES;
+> +		min_gen = arg;
+> +		_bump_generation(min_gen);
+> +		break;
+> +	default:
+> +		ret = -EINVAL;
+> +		break;
+> +	}
+> +	return ret;
+> +}
+> +
+> +static int sysgenid_mmap(struct file *file, struct vm_area_struct *vma)
+> +{
+> +	struct file_data *fdata = file->private_data;
+> +
+> +	if (vma->vm_pgoff != 0 || vma_pages(vma) > 1)
+> +		return -EINVAL;
+> +
+> +	if ((vma->vm_flags & VM_WRITE) != 0)
+> +		return -EPERM;
+> +
+> +	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
+> +	vma->vm_flags &= ~VM_MAYWRITE;
+> +	vma->vm_private_data = fdata;
+> +
+> +	return vm_insert_page(vma, vma->vm_start,
+> +						  virt_to_page(sysgenid_data.map_buf));
+> +}
+> +
+> +static const struct file_operations fops = {
+> +	.owner		= THIS_MODULE,
+> +	.mmap		= sysgenid_mmap,
+> +	.open		= sysgenid_open,
+> +	.release	= sysgenid_close,
+> +	.read		= sysgenid_read,
+> +	.write		= sysgenid_write,
+> +	.poll		= sysgenid_poll,
+> +	.unlocked_ioctl	= sysgenid_ioctl,
+> +};
+> +
+> +static struct miscdevice sysgenid_misc = {
+> +	.minor = MISC_DYNAMIC_MINOR,
+> +	.name = "sysgenid",
+> +	.fops = &fops,
+> +};
+> +
+> +static int __init sysgenid_init(void)
+> +{
+> +	int ret;
+> +
+> +	sysgenid_data.map_buf = get_zeroed_page(GFP_KERNEL);
+> +	if (!sysgenid_data.map_buf)
+> +		return -ENOMEM;
+> +
+> +	atomic_set(&sysgenid_data.generation_counter, 0);
+> +	atomic_set(&sysgenid_data.outdated_watchers, 0);
+> +	init_waitqueue_head(&sysgenid_data.read_waitq);
+> +	init_waitqueue_head(&sysgenid_data.outdated_waitq);
+> +	spin_lock_init(&sysgenid_data.lock);
+> +
+> +	ret = misc_register(&sysgenid_misc);
+> +	if (ret < 0) {
+> +		pr_err("misc_register() failed for sysgenid\n");
+> +		goto err;
+> +	}
+> +
+> +	return 0;
+> +
+> +err:
+> +	free_pages(sysgenid_data.map_buf, 0);
+> +	sysgenid_data.map_buf = 0;
+> +
+> +	return ret;
+> +}
+> +
+> +static void __exit sysgenid_exit(void)
+> +{
+> +	misc_deregister(&sysgenid_misc);
+> +	free_pages(sysgenid_data.map_buf, 0);
+> +	sysgenid_data.map_buf = 0;
+> +}
+> +
+> +module_init(sysgenid_init);
+> +module_exit(sysgenid_exit);
+> +
+> +MODULE_AUTHOR("Adrian Catangiu");
+> +MODULE_DESCRIPTION("System Generation ID");
+> +MODULE_LICENSE("GPL");
+> +MODULE_VERSION("0.1");
 > diff --git a/include/uapi/linux/sysgenid.h b/include/uapi/linux/sysgenid.h
 > new file mode 100644
 > index 0000000..ea38fd3
@@ -319,15 +692,20 @@ ditto.
 > +#include <linux/ioctl.h>
 > +
 > +#define SYSGENID_IOCTL 0x2d
-
-Please document new IOCTL major/magic values in
-Documentation/userspace-api/ioctl/ioctl-number.rst.
-
-
-
-thanks.
--- 
-~Randy
-"He closes his eyes and drops the goggles.  You can't get hurt
-by looking at a bitmap.  Or can you?"
-(Neal Stephenson: Snow Crash)
+> +#define SYSGENID_GET_OUTDATED_WATCHERS _IO(SYSGENID_IOCTL, 1)
+> +#define SYSGENID_WAIT_WATCHERS         _IO(SYSGENID_IOCTL, 2)
+> +#define SYSGENID_FORCE_GEN_UPDATE      _IO(SYSGENID_IOCTL, 3)
+> +
+> +#ifdef __KERNEL__
+> +void sysgenid_bump_generation(void);
+> +#endif /* __KERNEL__ */
+> +
+> +#endif /* _UAPI_LINUX_SYSGENID_H */
+> +
+> -- 
+> 2.7.4
+> 
+> 
+> 
+> 
+> Amazon Development Center (Romania) S.R.L. registered office: 27A Sf. Lazar Street, UBC5, floor 2, Iasi, Iasi County, 700045, Romania. Registered in Romania. Registration number J22/2621/2005.
