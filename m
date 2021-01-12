@@ -1,57 +1,140 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from smtp-fw-33001.amazon.com ([207.171.190.10]:22982 "EHLO
-        smtp-fw-33001.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729345AbhAUK3L (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Thu, 21 Jan 2021 05:29:11 -0500
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Date: Tue, 12 Jan 2021 07:48:27 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH v4 0/2] System Generation ID driver and VMGENID backend
-From: "Catangiu, Adrian Costin" <acatan@amazon.com>
-Date: Thu, 21 Jan 2021 10:28:16 +0000
-Message-ID: <9952EF0C-CD1D-4EDB-BAB8-21F72C0BF90D@amazon.com>
+Message-ID: <20210112074658-mutt-send-email-mst@kernel.org>
 References: <1610453760-13812-1-git-send-email-acatan@amazon.com>
- <20210112074658-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20210112074658-mutt-send-email-mst@kernel.org>
-Content-Language: en-GB
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <B3101E87ED31714D98C7F1E02527BB78@amazon.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1610453760-13812-1-git-send-email-acatan@amazon.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>, "Graf (AWS), Alexander" <graf@amazon.de>, "arnd@arndb.de" <arnd@arndb.de>, "ebiederm@xmission.com" <ebiederm@xmission.com>, "rppt@kernel.org" <rppt@kernel.org>, "0x7f454c46@gmail.com" <0x7f454c46@gmail.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "Jason@zx2c4.com" <Jason@zx2c4.com>, "jannh@google.com" <jannh@google.com>, "w@1wt.eu" <w@1wt.eu>, "MacCarthaigh, Colm" <colmmacc@amazon.com>, "luto@kernel.org" <luto@kernel.org>, "tytso@mit.edu" <tytso@mit.edu>, "ebiggers@kernel.org" <ebiggers@kernel.org>, "Woodhouse, David" <dwmw@amazon.co.uk>, "bonzini@gnu.org" <bonzini@gnu.org>, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, "corbet@lwn.net" <corbet@lwn.net>, "mhocko@kernel.org" <mhocko@kernel.org>, "rafael@kernel.org" <rafael@kernel.org>, "pavel@ucw.cz" <pavel@ucw.cz>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "areber@redhat.com" <areber@redhat.com>, "ovzxemul@gmail.com" <ovzxemul@gmail.com>, "avagin@gmail.com" <avagin@gmail.com>, "ptikhomirov@virtuozzo.com" <ptikhomirov@virtuozzo.com>, "gil@azul.com" <gil@azul.com>, "asmehra@redhat.com" <asmehra@redhat.com>, "dgunigun@redhat.com" <dgunigun@redhat.com>, "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>, "oridgar@gmail.com" <oridgar@gmail.com>, "ghammer@redhat.com" <ghammer@redhat.com>
+To: Adrian Catangiu <acatan@amazon.com>
+Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, gregkh@linuxfoundation.org, graf@amazon.com, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com
 
-T24gMTIvMDEvMjAyMSwgMTQ6NDksICJNaWNoYWVsIFMuIFRzaXJraW4iIDxtc3RAcmVkaGF0LmNv
-bT4gd3JvdGU6DQoNCiAgICBPbiBUdWUsIEphbiAxMiwgMjAyMSBhdCAwMjoxNTo1OFBNICswMjAw
-LCBBZHJpYW4gQ2F0YW5naXUgd3JvdGU6DQogICAgPiBUaGUgZmlyc3QgcGF0Y2ggaW4gdGhlIHNl
-dCBpbXBsZW1lbnRzIGEgZGV2aWNlIGRyaXZlciB3aGljaCBleHBvc2VzIGENCiAgICA+IHJlYWQt
-b25seSBkZXZpY2UgL2Rldi9zeXNnZW5pZCB0byB1c2Vyc3BhY2UsIHdoaWNoIGNvbnRhaW5zIGEN
-CiAgICA+IG1vbm90b25pY2FsbHkgaW5jcmVhc2luZyB1MzIgZ2VuZXJhdGlvbiBjb3VudGVyLiBM
-aWJyYXJpZXMgYW5kDQogICAgPiBhcHBsaWNhdGlvbnMgYXJlIGV4cGVjdGVkIHRvIG9wZW4oKSB0
-aGUgZGV2aWNlLCBhbmQgdGhlbiBjYWxsIHJlYWQoKQ0KICAgID4gd2hpY2ggYmxvY2tzIHVudGls
-IHRoZSBTeXNHZW5JZCBjaGFuZ2VzLiBGb2xsb3dpbmcgYW4gdXBkYXRlLCByZWFkKCkNCiAgICA+
-IGNhbGxzIG5vIGxvbmdlciBibG9jayB1bnRpbCB0aGUgYXBwbGljYXRpb24gYWNrbm93bGVkZ2Vz
-IHRoZSBuZXcNCiAgICA+IFN5c0dlbklkIGJ5IHdyaXRlKClpbmcgaXQgYmFjayB0byB0aGUgZGV2
-aWNlLiBOb24tYmxvY2tpbmcgcmVhZCgpIGNhbGxzDQogICAgPiByZXR1cm4gRUFHQUlOIHdoZW4g
-dGhlcmUgaXMgbm8gbmV3IFN5c0dlbklkIGF2YWlsYWJsZS4gQWx0ZXJuYXRpdmVseSwNCiAgICA+
-IGxpYnJhcmllcyBjYW4gbW1hcCgpIHRoZSBkZXZpY2UgdG8gZ2V0IGEgc2luZ2xlIHNoYXJlZCBw
-YWdlIHdoaWNoDQogICAgPiBjb250YWlucyB0aGUgbGF0ZXN0IFN5c0dlbklkIGF0IG9mZnNldCAw
-Lg0KDQogICAgTG9va2luZyBhdCBzb21lIHNwZWNpZmljYXRpb25zLCB0aGUgZ2VuIElEIG1pZ2h0
-IGFjdHVhbGx5IGJlIGxvY2F0ZWQNCiAgICBhdCBhbiBhcmJpdHJhcnkgYWRkcmVzcy4gSG93IGFi
-b3V0IGluc3RlYWQgb2YgaGFyZC1jb2RpbmcgdGhlIG9mZnNldCwNCiAgICB3ZSBleHBvc2UgaXQg
-ZS5nLiBpbiBzeXNmcz8NCg0KVGhlIGZ1bmN0aW9uYWxpdHkgaXMgc3BsaXQgYmV0d2VlbiBTeXNH
-ZW5JRCB3aGljaCBleHBvc2VzIGFuIGludGVybmFsIHUzMg0KY291bnRlciB0byB1c2Vyc3BhY2Us
-IGFuZCBhbiAob3B0aW9uYWwpIFZtR2VuSUQgYmFja2VuZCB3aGljaCBkcml2ZXMNClN5c0dlbklE
-IGdlbmVyYXRpb24gY2hhbmdlcyBiYXNlZCBvbiBodyB2bWdlbmlkIHVwZGF0ZXMuDQoNClRoZSBo
-dyBVVUlEIHlvdSdyZSByZWZlcnJpbmcgdG8gKHZtZ2VuaWQpIGlzIG5vdCBtbWFwLWVkIHRvIHVz
-ZXJzcGFjZSBvcg0Kb3RoZXJ3aXNlIGV4cG9zZWQgdG8gdXNlcnNwYWNlLiBJdCBpcyBvbmx5IHVz
-ZWQgaW50ZXJuYWxseSBieSB0aGUgdm1nZW5pZA0KZHJpdmVyIHRvIGZpbmQgb3V0IGFib3V0IFZN
-IGdlbmVyYXRpb24gY2hhbmdlcyBhbmQgZHJpdmUgdGhlIG1vcmUgZ2VuZXJpYw0KU3lzR2VuSUQu
-DQoNClRoZSBTeXNHZW5JRCB1MzIgbW9ub3RvbmljIGluY3JlYXNpbmcgY291bnRlciBpcyB0aGUg
-b25lIHRoYXQgaXMgbW1hcGVkIHRvDQp1c2Vyc3BhY2UsIGJ1dCBpdCBpcyBhIHNvZnR3YXJlIGNv
-dW50ZXIuIEkgZG9uJ3Qgc2VlIGFueSB2YWx1ZSBpbiB1c2luZyBhIGR5bmFtaWMNCm9mZnNldCBp
-biB0aGUgbW1hcGVkIHBhZ2UuIE9mZnNldCAwIGlzIGZhc3QgYW5kIGVhc3kgYW5kIG1vc3QgaW1w
-b3J0YW50bHkgaXQgaXMNCnN0YXRpYyBzbyBubyBuZWVkIHRvIGR5bmFtaWNhbGx5IGNhbGN1bGF0
-ZSBvciBmaW5kIGl0IGF0IHJ1bnRpbWUuDQoNClRoYW5rcywNCkFkcmlhbi4NCg0KCgoKQW1hem9u
-IERldmVsb3BtZW50IENlbnRlciAoUm9tYW5pYSkgUy5SLkwuIHJlZ2lzdGVyZWQgb2ZmaWNlOiAy
-N0EgU2YuIExhemFyIFN0cmVldCwgVUJDNSwgZmxvb3IgMiwgSWFzaSwgSWFzaSBDb3VudHksIDcw
-MDA0NSwgUm9tYW5pYS4gUmVnaXN0ZXJlZCBpbiBSb21hbmlhLiBSZWdpc3RyYXRpb24gbnVtYmVy
-IEoyMi8yNjIxLzIwMDUuCg==
+On Tue, Jan 12, 2021 at 02:15:58PM +0200, Adrian Catangiu wrote:
+> This feature is aimed at virtualized or containerized environments
+> where VM or container snapshotting duplicates memory state, which is a
+> challenge for applications that want to generate unique data such as
+> request IDs, UUIDs, and cryptographic nonces.
+> 
+> The patch set introduces a mechanism that provides a userspace
+> interface for applications and libraries to be made aware of uniqueness
+> breaking events such as VM or container snapshotting, and allow them to
+> react and adapt to such events.
+> 
+> Solving the uniqueness problem strongly enough for cryptographic
+> purposes requires a mechanism which can deterministically reseed
+> userspace PRNGs with new entropy at restore time. This mechanism must
+> also support the high-throughput and low-latency use-cases that led
+> programmers to pick a userspace PRNG in the first place; be usable by
+> both application code and libraries; allow transparent retrofitting
+> behind existing popular PRNG interfaces without changing application
+> code; it must be efficient, especially on snapshot restore; and be
+> simple enough for wide adoption.
+> 
+> The first patch in the set implements a device driver which exposes a
+> read-only device /dev/sysgenid to userspace, which contains a
+> monotonically increasing u32 generation counter. Libraries and
+> applications are expected to open() the device, and then call read()
+> which blocks until the SysGenId changes. Following an update, read()
+> calls no longer block until the application acknowledges the new
+> SysGenId by write()ing it back to the device. Non-blocking read() calls
+> return EAGAIN when there is no new SysGenId available. Alternatively,
+> libraries can mmap() the device to get a single shared page which
+> contains the latest SysGenId at offset 0.
+
+Looking at some specifications, the gen ID might actually be located
+at an arbitrary address. How about instead of hard-coding the offset,
+we expose it e.g. in sysfs?
+
+
+> SysGenId also supports a notification mechanism exposed as two IOCTLs
+> on the device. SYSGENID_GET_OUTDATED_WATCHERS immediately returns the
+> number of file descriptors to the device that were open during the last
+> SysGenId change but have not yet acknowledged the new id.
+> SYSGENID_WAIT_WATCHERS blocks until there are no open file handles on
+> the device which haven’t acknowledged the new id. These two interfaces
+> are intended for serverless and container control planes, which want to
+> confirm that all application code has detected and reacted to the new
+> SysGenId before sending an invoke to the newly-restored sandbox.
+> 
+> The second patch in the set adds a VmGenId driver which makes use of
+> the ACPI vmgenid device to drive SysGenId and to reseed kernel entropy
+> on VM snapshots.
+> 
+> ---
+> 
+> v3 -> v4:
+> 
+>   - split functionality in two separate kernel modules: 
+>     1. drivers/misc/sysgenid.c which provides the generic userspace
+>        interface and mechanisms
+>     2. drivers/virt/vmgenid.c as VMGENID acpi device driver that seeds
+>        kernel entropy and acts as a driving backend for the generic
+>        sysgenid
+>   - renamed /dev/vmgenid -> /dev/sysgenid
+>   - renamed uapi header file vmgenid.h -> sysgenid.h
+>   - renamed ioctls VMGENID_* -> SYSGENID_*
+>   - added ‘min_gen’ parameter to SYSGENID_FORCE_GEN_UPDATE ioctl
+>   - fixed races in documentation examples
+>   - various style nits
+>   - rebased on top of linus latest
+> 
+> v2 -> v3:
+> 
+>   - separate the core driver logic and interface, from the ACPI device.
+>     The ACPI vmgenid device is now one possible backend.
+>   - fix issue when timeout=0 in VMGENID_WAIT_WATCHERS
+>   - add locking to avoid races between fs ops handlers and hw irq
+>     driven generation updates
+>   - change VMGENID_WAIT_WATCHERS ioctl so if the current caller is
+>     outdated or a generation change happens while waiting (thus making
+>     current caller outdated), the ioctl returns -EINTR to signal the
+>     user to handle event and retry. Fixes blocking on oneself.
+>   - add VMGENID_FORCE_GEN_UPDATE ioctl conditioned by
+>     CAP_CHECKPOINT_RESTORE capability, through which software can force
+>     generation bump.
+> 
+> v1 -> v2:
+> 
+>   - expose to userspace a monotonically increasing u32 Vm Gen Counter
+>     instead of the hw VmGen UUID
+>   - since the hw/hypervisor-provided 128-bit UUID is not public
+>     anymore, add it to the kernel RNG as device randomness
+>   - insert driver page containing Vm Gen Counter in the user vma in
+>     the driver's mmap handler instead of using a fault handler
+>   - turn driver into a misc device driver to auto-create /dev/vmgenid
+>   - change ioctl arg to avoid leaking kernel structs to userspace
+>   - update documentation
+>   - various nits
+>   - rebase on top of linus latest
+> 
+> Adrian Catangiu (2):
+>   drivers/misc: sysgenid: add system generation id driver
+>   drivers/virt: vmgenid: add vm generation id driver
+> 
+>  Documentation/misc-devices/sysgenid.rst | 240 +++++++++++++++++++++++++
+>  Documentation/virt/vmgenid.rst          |  34 ++++
+>  drivers/misc/Kconfig                    |  16 ++
+>  drivers/misc/Makefile                   |   1 +
+>  drivers/misc/sysgenid.c                 | 298 ++++++++++++++++++++++++++++++++
+>  drivers/virt/Kconfig                    |  14 ++
+>  drivers/virt/Makefile                   |   1 +
+>  drivers/virt/vmgenid.c                  | 153 ++++++++++++++++
+>  include/uapi/linux/sysgenid.h           |  18 ++
+>  9 files changed, 775 insertions(+)
+>  create mode 100644 Documentation/misc-devices/sysgenid.rst
+>  create mode 100644 Documentation/virt/vmgenid.rst
+>  create mode 100644 drivers/misc/sysgenid.c
+>  create mode 100644 drivers/virt/vmgenid.c
+>  create mode 100644 include/uapi/linux/sysgenid.h
+> 
+> -- 
+> 2.7.4
+> 
+> 
+> 
+> 
+> Amazon Development Center (Romania) S.R.L. registered office: 27A Sf. Lazar Street, UBC5, floor 2, Iasi, Iasi County, 700045, Romania. Registered in Romania. Registration number J22/2621/2005.
