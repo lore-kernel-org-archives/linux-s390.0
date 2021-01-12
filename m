@@ -1,58 +1,125 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:19236 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725830AbhADLyk (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Mon, 4 Jan 2021 06:54:40 -0500
-Subject: Re: [PATCH net] smc: fix out of bound access in smc_nl_get_sys_info()
-References: <20201230004841.1472141-1-kuba@kernel.org>
+Return-Path: <netdev-owner@vger.kernel.org>
 From: Karsten Graul <kgraul@linux.ibm.com>
-Message-ID: <4ca9487e-2834-1c45-68eb-a6be8be671d3@linux.ibm.com>
-Date: Mon, 4 Jan 2021 12:53:49 +0100
-MIME-Version: 1.0
-In-Reply-To: <20201230004841.1472141-1-kuba@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH net 2/2] net/smc: use memcpy instead of snprintf to avoid out of bounds read
+Date: Tue, 12 Jan 2021 17:21:22 +0100
+Message-Id: <20210112162122.26832-3-kgraul@linux.ibm.com>
+In-Reply-To: <20210112162122.26832-1-kgraul@linux.ibm.com>
+References: <20210112162122.26832-1-kgraul@linux.ibm.com>
 List-ID: <linux-s390.vger.kernel.org>
-To: Jakub Kicinski <kuba@kernel.org>, davem@davemloft.net
-Cc: guvenc@linux.ibm.com, linux-s390@vger.kernel.org, netdev@vger.kernel.org, syzbot+f4708c391121cfc58396@syzkaller.appspotmail.com
+To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
 
-Thank you Jakub,
+From: Guvenc Gulce <guvenc@linux.ibm.com>
 
-this patch solves the out of bounds access due to snprintf() copying size bytes first
-and overwriting the last byte with null afterwards.
-We will include your patch in our next series for the net tree soon.
+Using snprintf() to convert not null-terminated strings to null
+terminated strings may cause out of bounds read in the source string.
+Therefore use memcpy() and terminate the target string with a null
+afterwards.
 
-Reviewed-by: Karsten Graul <kgraul@linux.ibm.com>
+Fixes: a3db10efcc4c ("net/smc: Add support for obtaining SMCR device list")
+Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+---
+ net/smc/smc_core.c | 17 +++++++++++------
+ net/smc/smc_ib.c   |  6 +++---
+ net/smc/smc_ism.c  |  3 ++-
+ 3 files changed, 16 insertions(+), 10 deletions(-)
 
-On 30/12/2020 01:48, Jakub Kicinski wrote:
-> smc_clc_get_hostname() sets the host pointer to a buffer
-> which is not NULL-terminated (see smc_clc_init()).
-> 
-> Reported-by: syzbot+f4708c391121cfc58396@syzkaller.appspotmail.com
-> Fixes: 099b990bd11a ("net/smc: Add support for obtaining system information")
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> ---
->  net/smc/smc_core.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-> index 59342b519e34..8d866b4ed8f6 100644
-> --- a/net/smc/smc_core.c
-> +++ b/net/smc/smc_core.c
-> @@ -246,7 +246,8 @@ int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb)
->  		goto errattr;
->  	smc_clc_get_hostname(&host);
->  	if (host) {
-> -		snprintf(hostname, sizeof(hostname), "%s", host);
-> +		memcpy(hostname, host, SMC_MAX_HOSTNAME_LEN);
-> +		hostname[SMC_MAX_HOSTNAME_LEN] = 0;
->  		if (nla_put_string(skb, SMC_NLA_SYS_LOCAL_HOST, hostname))
->  			goto errattr;
->  	}
-> 
-
+diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
+index 8d866b4ed8f6..0df85a12651e 100644
+--- a/net/smc/smc_core.c
++++ b/net/smc/smc_core.c
+@@ -258,7 +258,8 @@ int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb)
+ 		smc_ism_get_system_eid(smcd_dev, &seid);
+ 	mutex_unlock(&smcd_dev_list.mutex);
+ 	if (seid && smc_ism_is_v2_capable()) {
+-		snprintf(smc_seid, sizeof(smc_seid), "%s", seid);
++		memcpy(smc_seid, seid, SMC_MAX_EID_LEN);
++		smc_seid[SMC_MAX_EID_LEN] = 0;
+ 		if (nla_put_string(skb, SMC_NLA_SYS_SEID, smc_seid))
+ 			goto errattr;
+ 	}
+@@ -296,7 +297,8 @@ static int smc_nl_fill_lgr(struct smc_link_group *lgr,
+ 		goto errattr;
+ 	if (nla_put_u8(skb, SMC_NLA_LGR_R_VLAN_ID, lgr->vlan_id))
+ 		goto errattr;
+-	snprintf(smc_target, sizeof(smc_target), "%s", lgr->pnet_id);
++	memcpy(smc_target, lgr->pnet_id, SMC_MAX_PNETID_LEN);
++	smc_target[SMC_MAX_PNETID_LEN] = 0;
+ 	if (nla_put_string(skb, SMC_NLA_LGR_R_PNETID, smc_target))
+ 		goto errattr;
+ 
+@@ -313,7 +315,7 @@ static int smc_nl_fill_lgr_link(struct smc_link_group *lgr,
+ 				struct sk_buff *skb,
+ 				struct netlink_callback *cb)
+ {
+-	char smc_ibname[IB_DEVICE_NAME_MAX + 1];
++	char smc_ibname[IB_DEVICE_NAME_MAX];
+ 	u8 smc_gid_target[41];
+ 	struct nlattr *attrs;
+ 	u32 link_uid = 0;
+@@ -462,7 +464,8 @@ static int smc_nl_fill_smcd_lgr(struct smc_link_group *lgr,
+ 		goto errattr;
+ 	if (nla_put_u32(skb, SMC_NLA_LGR_D_CHID, smc_ism_get_chid(lgr->smcd)))
+ 		goto errattr;
+-	snprintf(smc_pnet, sizeof(smc_pnet), "%s", lgr->smcd->pnetid);
++	memcpy(smc_pnet, lgr->smcd->pnetid, SMC_MAX_PNETID_LEN);
++	smc_pnet[SMC_MAX_PNETID_LEN] = 0;
+ 	if (nla_put_string(skb, SMC_NLA_LGR_D_PNETID, smc_pnet))
+ 		goto errattr;
+ 
+@@ -475,10 +478,12 @@ static int smc_nl_fill_smcd_lgr(struct smc_link_group *lgr,
+ 		goto errv2attr;
+ 	if (nla_put_u8(skb, SMC_NLA_LGR_V2_OS, lgr->peer_os))
+ 		goto errv2attr;
+-	snprintf(smc_host, sizeof(smc_host), "%s", lgr->peer_hostname);
++	memcpy(smc_host, lgr->peer_hostname, SMC_MAX_HOSTNAME_LEN);
++	smc_host[SMC_MAX_HOSTNAME_LEN] = 0;
+ 	if (nla_put_string(skb, SMC_NLA_LGR_V2_PEER_HOST, smc_host))
+ 		goto errv2attr;
+-	snprintf(smc_eid, sizeof(smc_eid), "%s", lgr->negotiated_eid);
++	memcpy(smc_eid, lgr->negotiated_eid, SMC_MAX_EID_LEN);
++	smc_eid[SMC_MAX_EID_LEN] = 0;
+ 	if (nla_put_string(skb, SMC_NLA_LGR_V2_NEG_EID, smc_eid))
+ 		goto errv2attr;
+ 
+diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
+index ddd7fac98b1d..7d7ba0320d5a 100644
+--- a/net/smc/smc_ib.c
++++ b/net/smc/smc_ib.c
+@@ -371,8 +371,8 @@ static int smc_nl_handle_dev_port(struct sk_buff *skb,
+ 	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR,
+ 		       smcibdev->pnetid_by_user[port]))
+ 		goto errattr;
+-	snprintf(smc_pnet, sizeof(smc_pnet), "%s",
+-		 (char *)&smcibdev->pnetid[port]);
++	memcpy(smc_pnet, &smcibdev->pnetid[port], SMC_MAX_PNETID_LEN);
++	smc_pnet[SMC_MAX_PNETID_LEN] = 0;
+ 	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet))
+ 		goto errattr;
+ 	if (nla_put_u32(skb, SMC_NLA_DEV_PORT_NETDEV,
+@@ -414,7 +414,7 @@ static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
+ 				  struct sk_buff *skb,
+ 				  struct netlink_callback *cb)
+ {
+-	char smc_ibname[IB_DEVICE_NAME_MAX + 1];
++	char smc_ibname[IB_DEVICE_NAME_MAX];
+ 	struct smc_pci_dev smc_pci_dev;
+ 	struct pci_dev *pci_dev;
+ 	unsigned char is_crit;
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 524ef64a191a..9c6e95882553 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -250,7 +250,8 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
+ 		goto errattr;
+ 	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR, smcd->pnetid_by_user))
+ 		goto errportattr;
+-	snprintf(smc_pnet, sizeof(smc_pnet), "%s", smcd->pnetid);
++	memcpy(smc_pnet, smcd->pnetid, SMC_MAX_PNETID_LEN);
++	smc_pnet[SMC_MAX_PNETID_LEN] = 0;
+ 	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet))
+ 		goto errportattr;
+ 
 -- 
-Karsten
-
-(I'm a dude)
+2.17.1
