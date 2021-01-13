@@ -1,177 +1,211 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:23966 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17612 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729886AbhALNWA (ORCPT
+        by vger.kernel.org with ESMTP id S1727364AbhAMJmY (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Jan 2021 08:22:00 -0500
+        Wed, 13 Jan 2021 04:42:24 -0500
 From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 6/9] s390x: sie: Add first SIE test
-Date: Tue, 12 Jan 2021 08:20:51 -0500
-Message-Id: <20210112132054.49756-7-frankja@linux.ibm.com>
-In-Reply-To: <20210112132054.49756-1-frankja@linux.ibm.com>
-References: <20210112132054.49756-1-frankja@linux.ibm.com>
+Subject: [PATCH 06/14] s390/mm: Provide vmaddr to pmd notification
+Date: Wed, 13 Jan 2021 09:41:05 +0000
+Message-Id: <20210113094113.133668-7-frankja@linux.ibm.com>
+In-Reply-To: <20210113094113.133668-1-frankja@linux.ibm.com>
+References: <20210113094113.133668-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
 To: kvm@vger.kernel.org
-Cc: thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
+Cc: borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Let's check if we get the correct interception data on a few
-diags. This commit is more of an addition of boilerplate code than a
-real test.
+It will be needed for shadow tables.
 
 Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
 ---
- s390x/Makefile      |   1 +
- s390x/sie.c         | 113 ++++++++++++++++++++++++++++++++++++++++++++
- s390x/unittests.cfg |   3 ++
- 3 files changed, 117 insertions(+)
- create mode 100644 s390x/sie.c
+ arch/s390/mm/gmap.c | 52 +++++++++++++++++++++++----------------------
+ 1 file changed, 27 insertions(+), 25 deletions(-)
 
-diff --git a/s390x/Makefile b/s390x/Makefile
-index e0bccc8..9e6e60d 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -19,6 +19,7 @@ tests += $(TEST_DIR)/smp.elf
- tests += $(TEST_DIR)/sclp.elf
- tests += $(TEST_DIR)/css.elf
- tests += $(TEST_DIR)/uv-guest.elf
-+tests += $(TEST_DIR)/sie.elf
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index d8c9b295294b..b7199c55f98a 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -530,10 +530,10 @@ void gmap_unlink(struct mm_struct *mm, unsigned long *table,
+ }
  
- tests_binary = $(patsubst %.elf,%.bin,$(tests))
- ifneq ($(HOST_KEY_DOCUMENT),)
-diff --git a/s390x/sie.c b/s390x/sie.c
-new file mode 100644
-index 0000000..cfc746f
---- /dev/null
-+++ b/s390x/sie.c
-@@ -0,0 +1,113 @@
-+#include <libcflat.h>
-+#include <asm/asm-offsets.h>
-+#include <asm/arch_def.h>
-+#include <asm/interrupt.h>
-+#include <asm/page.h>
-+#include <alloc_page.h>
-+#include <vmalloc.h>
-+#include <asm/facility.h>
-+#include <mmu.h>
-+#include <sclp.h>
-+#include <sie.h>
-+
-+static u8 *guest;
-+static u8 *guest_instr;
-+static struct vm vm;
-+
-+static void handle_validity(struct vm *vm)
-+{
-+	report(0, "VALIDITY: %x", vm->sblk->ipb >> 16);
-+}
-+
-+static void sie(struct vm *vm)
-+{
-+	while (vm->sblk->icptcode == 0) {
-+		sie64a(vm->sblk, &vm->save_area);
-+		if (vm->sblk->icptcode == ICPT_VALIDITY)
-+			handle_validity(vm);
-+	}
-+	vm->save_area.guest.grs[14] = vm->sblk->gg14;
-+	vm->save_area.guest.grs[15] = vm->sblk->gg15;
-+}
-+
-+static void sblk_cleanup(struct vm *vm)
-+{
-+	vm->sblk->icptcode = 0;
-+}
-+
-+static void test_diag(u32 instr)
-+{
-+	vm.sblk->gpsw.addr = PAGE_SIZE * 2;
-+	vm.sblk->gpsw.mask = 0x0000000180000000ULL;
-+
-+	memset(guest_instr, 0, PAGE_SIZE);
-+	memcpy(guest_instr, &instr, 4);
-+	sie(&vm);
-+	report(vm.sblk->icptcode == ICPT_INST &&
-+	       vm.sblk->ipa == instr >> 16 && vm.sblk->ipb == instr << 16,
-+	       "Intercept data");
-+	sblk_cleanup(&vm);
-+}
-+
-+static struct {
-+	const char *name;
-+	u32 instr;
-+} tests[] = {
-+	{ "10", 0x83020010 },
-+	{ "44", 0x83020044 },
-+	{ "9c", 0x8302009c },
-+	{ NULL, 0 }
-+};
-+
-+static void test_diags(void)
-+{
-+	int i;
-+
-+	for (i = 0; tests[i].name; i++) {
-+		report_prefix_push(tests[i].name);
-+		test_diag(tests[i].instr);
-+		report_prefix_pop();
-+	}
-+}
-+
-+static void setup_guest(void)
-+{
-+	setup_vm();
-+
-+	/* Allocate 1MB as guest memory */
-+	guest = alloc_pages(8);
-+	/* The first two pages are the lowcore */
-+	guest_instr = guest + PAGE_SIZE * 2;
-+
-+	vm.sblk = alloc_page();
-+
-+	vm.sblk->cpuflags = CPUSTAT_ZARCH | CPUSTAT_RUNNING;
-+	vm.sblk->prefix = 0;
-+	/*
-+	 * Pageable guest with the same ASCE as the test programm, but
-+	 * the guest memory 0x0 is offset to start at the allocated
-+	 * guest pages and end after 1MB.
-+	 *
-+	 * It's not pretty but faster and easier than managing guest ASCEs.
-+	 */
-+	vm.sblk->mso = (u64)guest;
-+	vm.sblk->msl = (u64)guest;
-+	vm.sblk->ihcpu = 0xffff;
-+
-+	vm.sblk->crycbd = (uint64_t)alloc_page();
-+}
-+
-+int main(void)
-+{
-+	report_prefix_push("sie");
-+	if (!sclp_facilities.has_sief2) {
-+		report_skip("SIEF2 facility unavailable");
-+		goto done;
-+	}
-+
-+	setup_guest();
-+	test_diags();
-+done:
-+	report_prefix_pop();
-+	return report_summary();
-+}
-diff --git a/s390x/unittests.cfg b/s390x/unittests.cfg
-index 3feb8bc..2298be6 100644
---- a/s390x/unittests.cfg
-+++ b/s390x/unittests.cfg
-@@ -96,3 +96,6 @@ smp = 2
+ static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *old, pmd_t new,
+-			   unsigned long gaddr);
++			   unsigned long gaddr, unsigned long vmaddr);
  
- [uv-guest]
- file = uv-guest.elf
+ static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
+-			   pmd_t *pmdp, struct page *page);
++			   unsigned long vmaddr, pmd_t *pmdp, struct page *page);
+ 
+ /**
+  * gmap_link - set up shadow page tables to connect a host to a guest address
+@@ -632,7 +632,8 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+ 	} else if (*table & _SEGMENT_ENTRY_PROTECT &&
+ 		   !(pmd_val(*pmd) & _SEGMENT_ENTRY_PROTECT)) {
+ 		if (page) {
+-			gmap_pmd_split(gmap, gaddr, (pmd_t *)table, page);
++			gmap_pmd_split(gmap, gaddr, vmaddr,
++				       (pmd_t *)table, page);
+ 			page = NULL;
+ 		} else {
+ 			spin_unlock(ptl);
+@@ -952,19 +953,15 @@ static void gmap_pte_op_end(spinlock_t *ptl)
+  * Returns a pointer to the pmd for a guest address, or NULL
+  */
+ static inline pmd_t *gmap_pmd_op_walk(struct gmap *gmap, unsigned long gaddr,
+-				      spinlock_t **ptl)
++				      unsigned long vmaddr, spinlock_t **ptl)
+ {
+ 	pmd_t *pmdp, *hpmdp;
+-	unsigned long vmaddr;
+ 
+ 
+ 	BUG_ON(gmap_is_shadow(gmap));
+ 
+ 	*ptl = NULL;
+ 	if (gmap->mm->context.allow_gmap_hpage_1m) {
+-		vmaddr = __gmap_translate(gmap, gaddr);
+-		if (IS_ERR_VALUE(vmaddr))
+-			return NULL;
+ 		hpmdp = pmd_alloc_map(gmap->mm, vmaddr);
+ 		if (!hpmdp)
+ 			return NULL;
+@@ -1047,7 +1044,7 @@ static inline void gmap_pmd_split_free(struct gmap *gmap, pmd_t *pmdp)
+  * aren't tracked anywhere else.
+  */
+ static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
+-			   pmd_t *pmdp, struct page *page)
++			   unsigned long vmaddr, pmd_t *pmdp, struct page *page)
+ {
+ 	unsigned long *ptable = (unsigned long *) page_to_phys(page);
+ 	pmd_t new;
+@@ -1069,7 +1066,7 @@ static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
+ 	spin_lock(&gmap->split_list_lock);
+ 	list_add(&page->lru, &gmap->split_list);
+ 	spin_unlock(&gmap->split_list_lock);
+-	gmap_pmdp_xchg(gmap, pmdp, new, gaddr);
++	gmap_pmdp_xchg(gmap, pmdp, new, gaddr, vmaddr);
+ }
+ 
+ /*
+@@ -1087,7 +1084,8 @@ static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
+  * guest_table_lock held.
+  */
+ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
+-			    pmd_t *pmdp, int prot, unsigned long bits)
++			    unsigned long vmaddr, pmd_t *pmdp, int prot,
++			    unsigned long bits)
+ {
+ 	int pmd_i = pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID;
+ 	int pmd_p = pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT;
+@@ -1099,13 +1097,13 @@ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
+ 
+ 	if (prot == PROT_NONE && !pmd_i) {
+ 		pmd_val(new) |= _SEGMENT_ENTRY_INVALID;
+-		gmap_pmdp_xchg(gmap, pmdp, new, gaddr);
++		gmap_pmdp_xchg(gmap, pmdp, new, gaddr, vmaddr);
+ 	}
+ 
+ 	if (prot == PROT_READ && !pmd_p) {
+ 		pmd_val(new) &= ~_SEGMENT_ENTRY_INVALID;
+ 		pmd_val(new) |= _SEGMENT_ENTRY_PROTECT;
+-		gmap_pmdp_xchg(gmap, pmdp, new, gaddr);
++		gmap_pmdp_xchg(gmap, pmdp, new, gaddr, vmaddr);
+ 	}
+ 
+ 	if (bits & GMAP_NOTIFY_MPROT)
+@@ -1168,10 +1166,14 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 	int rc;
+ 
+ 	BUG_ON(gmap_is_shadow(gmap));
 +
-+[sie]
-+file = sie.elf
+ 	while (len) {
+ 		rc = -EAGAIN;
+-
+-		pmdp = gmap_pmd_op_walk(gmap, gaddr, &ptl_pmd);
++		vmaddr = __gmap_translate(gmap, gaddr);
++		if (IS_ERR_VALUE(vmaddr))
++			return vmaddr;
++		vmaddr |= gaddr & ~PMD_MASK;
++		pmdp = gmap_pmd_op_walk(gmap, gaddr, vmaddr, &ptl_pmd);
+ 		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
+ 			if (!pmd_large(*pmdp)) {
+ 				ptep = gmap_pte_from_pmd(gmap, pmdp, gaddr,
+@@ -1196,7 +1198,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 						return -ENOMEM;
+ 					continue;
+ 				} else {
+-					gmap_pmd_split(gmap, gaddr,
++					gmap_pmd_split(gmap, gaddr, vmaddr,
+ 						       pmdp, page);
+ 					page = NULL;
+ 					gmap_pmd_op_end(ptl_pmd);
+@@ -1214,9 +1216,6 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
+ 				return rc;
+ 
+ 			/* -EAGAIN, fixup of userspace mm and gmap */
+-			vmaddr = __gmap_translate(gmap, gaddr);
+-			if (IS_ERR_VALUE(vmaddr))
+-				return vmaddr;
+ 			rc = gmap_fixup(gmap, gaddr, vmaddr, prot);
+ 			if (rc)
+ 				return rc;
+@@ -2441,6 +2440,7 @@ static inline void pmdp_notify_split(struct gmap *gmap, pmd_t *pmdp,
+ static void pmdp_notify_gmap(struct gmap *gmap, pmd_t *pmdp,
+ 			     unsigned long gaddr, unsigned long vmaddr)
+ {
++	BUG_ON((gaddr & ~HPAGE_MASK) || (vmaddr & ~HPAGE_MASK));
+ 	if (gmap_pmd_is_split(pmdp))
+ 		return pmdp_notify_split(gmap, pmdp, gaddr, vmaddr);
+ 
+@@ -2461,10 +2461,11 @@ static void pmdp_notify_gmap(struct gmap *gmap, pmd_t *pmdp,
+  * held.
+  */
+ static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *pmdp, pmd_t new,
+-			   unsigned long gaddr)
++			   unsigned long gaddr, unsigned long vmaddr)
+ {
+ 	gaddr &= HPAGE_MASK;
+-	pmdp_notify_gmap(gmap, pmdp, gaddr, 0);
++	vmaddr &= HPAGE_MASK;
++	pmdp_notify_gmap(gmap, pmdp, gaddr, vmaddr);
+ 	if (pmd_large(new))
+ 		pmd_val(new) &= ~GMAP_SEGMENT_NOTIFY_BITS;
+ 	if (MACHINE_HAS_TLB_GUEST)
+@@ -2612,7 +2613,8 @@ EXPORT_SYMBOL_GPL(gmap_pmdp_idte_global);
+  * held.
+  */
+ static bool gmap_test_and_clear_dirty_pmd(struct gmap *gmap, pmd_t *pmdp,
+-					  unsigned long gaddr)
++					  unsigned long gaddr,
++					  unsigned long vmaddr)
+ {
+ 	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
+ 		return false;
+@@ -2624,7 +2626,7 @@ static bool gmap_test_and_clear_dirty_pmd(struct gmap *gmap, pmd_t *pmdp,
+ 
+ 	/* Clear UC indication and reset protection */
+ 	pmd_val(*pmdp) &= ~_SEGMENT_ENTRY_GMAP_UC;
+-	gmap_protect_pmd(gmap, gaddr, pmdp, PROT_READ, 0);
++	gmap_protect_pmd(gmap, gaddr, vmaddr, pmdp, PROT_READ, 0);
+ 	return true;
+ }
+ 
+@@ -2647,12 +2649,12 @@ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long bitmap[4],
+ 	spinlock_t *ptl_pmd = NULL;
+ 	spinlock_t *ptl_pte = NULL;
+ 
+-	pmdp = gmap_pmd_op_walk(gmap, gaddr, &ptl_pmd);
++	pmdp = gmap_pmd_op_walk(gmap, gaddr, vmaddr, &ptl_pmd);
+ 	if (!pmdp)
+ 		return;
+ 
+ 	if (pmd_large(*pmdp)) {
+-		if (gmap_test_and_clear_dirty_pmd(gmap, pmdp, gaddr))
++		if (gmap_test_and_clear_dirty_pmd(gmap, pmdp, gaddr, vmaddr))
+ 			bitmap_fill(bitmap, _PAGE_ENTRIES);
+ 	} else {
+ 		for (i = 0; i < _PAGE_ENTRIES; i++, vmaddr += PAGE_SIZE) {
 -- 
-2.25.1
+2.27.0
