@@ -1,194 +1,36 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:32862 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231465AbhA1Ll7 (ORCPT
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:57935 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727744AbhAMLNl (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Jan 2021 06:41:59 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 3/5] net/af_iucv: count packets in the xmit path
-Date: Thu, 28 Jan 2021 12:41:06 +0100
-Message-Id: <20210128114108.39409-4-jwi@linux.ibm.com>
-In-Reply-To: <20210128114108.39409-1-jwi@linux.ibm.com>
-References: <20210128114108.39409-1-jwi@linux.ibm.com>
+        Wed, 13 Jan 2021 06:13:41 -0500
+Date: Wed, 13 Jan 2021 12:12:02 +0100
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [kvm-unit-tests PATCH v4 7/9] s390x: Add diag318 intercept test
+Message-ID: <20210113121202.3ca9b201.cohuck@redhat.com>
+In-Reply-To: <20210112132054.49756-8-frankja@linux.ibm.com>
+References: <20210112132054.49756-1-frankja@linux.ibm.com>
+        <20210112132054.49756-8-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, imbrenda@linux.ibm.com, linux-s390@vger.kernel.org
 
-The TX code keeps track of all skbs that are in-flight but haven't
-actually been sent out yet. For native IUCV sockets that's not a huge
-deal, but with TRANS_HIPER sockets it would be much better if we
-didn't need to maintain a list of skb clones.
+On Tue, 12 Jan 2021 08:20:52 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-Note that we actually only care about the _count_ of skbs in this stage
-of the TX pipeline. So as prep work for removing the skb tracking on
-TRANS_HIPER sockets, keep track of the skb count in a separate variable
-and pair any list {enqueue, unlink} with a count {increment, decrement}.
+> Not much to test except for the privilege and specification
+> exceptions.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+> ---
+>  lib/s390x/sclp.c  |  1 +
+>  lib/s390x/sclp.h  |  6 +++++-
+>  s390x/intercept.c | 19 +++++++++++++++++++
+>  3 files changed, 25 insertions(+), 1 deletion(-)
 
-Then replace all occurences where we currently look at the skb list's
-fill level.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- include/net/iucv/af_iucv.h |  1 +
- net/iucv/af_iucv.c         | 30 ++++++++++++++++++++++++------
- 2 files changed, 25 insertions(+), 6 deletions(-)
-
-diff --git a/include/net/iucv/af_iucv.h b/include/net/iucv/af_iucv.h
-index 9259ce2b22f3..0816bcd44dd1 100644
---- a/include/net/iucv/af_iucv.h
-+++ b/include/net/iucv/af_iucv.h
-@@ -128,6 +128,7 @@ struct iucv_sock {
- 	u8			flags;
- 	u16			msglimit;
- 	u16			msglimit_peer;
-+	atomic_t		skbs_in_xmit;
- 	atomic_t		msg_sent;
- 	atomic_t		msg_recv;
- 	atomic_t		pendings;
-diff --git a/net/iucv/af_iucv.c b/net/iucv/af_iucv.c
-index 8683b6939f45..e487f472027a 100644
---- a/net/iucv/af_iucv.c
-+++ b/net/iucv/af_iucv.c
-@@ -182,7 +182,7 @@ static inline int iucv_below_msglim(struct sock *sk)
- 	if (sk->sk_state != IUCV_CONNECTED)
- 		return 1;
- 	if (iucv->transport == AF_IUCV_TRANS_IUCV)
--		return (skb_queue_len(&iucv->send_skb_q) < iucv->path->msglim);
-+		return (atomic_read(&iucv->skbs_in_xmit) < iucv->path->msglim);
- 	else
- 		return ((atomic_read(&iucv->msg_sent) < iucv->msglimit_peer) &&
- 			(atomic_read(&iucv->pendings) <= 0));
-@@ -269,8 +269,10 @@ static int afiucv_hs_send(struct iucv_message *imsg, struct sock *sock,
- 	}
- 
- 	skb_queue_tail(&iucv->send_skb_q, nskb);
-+	atomic_inc(&iucv->skbs_in_xmit);
- 	err = dev_queue_xmit(skb);
- 	if (net_xmit_eval(err)) {
-+		atomic_dec(&iucv->skbs_in_xmit);
- 		skb_unlink(nskb, &iucv->send_skb_q);
- 		kfree_skb(nskb);
- 	} else {
-@@ -424,7 +426,7 @@ static void iucv_sock_close(struct sock *sk)
- 		sk->sk_state = IUCV_CLOSING;
- 		sk->sk_state_change(sk);
- 
--		if (!err && !skb_queue_empty(&iucv->send_skb_q)) {
-+		if (!err && atomic_read(&iucv->skbs_in_xmit) > 0) {
- 			if (sock_flag(sk, SOCK_LINGER) && sk->sk_lingertime)
- 				timeo = sk->sk_lingertime;
- 			else
-@@ -491,6 +493,7 @@ static struct sock *iucv_sock_alloc(struct socket *sock, int proto, gfp_t prio,
- 	atomic_set(&iucv->pendings, 0);
- 	iucv->flags = 0;
- 	iucv->msglimit = 0;
-+	atomic_set(&iucv->skbs_in_xmit, 0);
- 	atomic_set(&iucv->msg_sent, 0);
- 	atomic_set(&iucv->msg_recv, 0);
- 	iucv->path = NULL;
-@@ -1055,6 +1058,7 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 		}
- 	} else { /* Classic VM IUCV transport */
- 		skb_queue_tail(&iucv->send_skb_q, skb);
-+		atomic_inc(&iucv->skbs_in_xmit);
- 
- 		if (((iucv->path->flags & IUCV_IPRMDATA) & iucv->flags) &&
- 		    skb->len <= 7) {
-@@ -1063,6 +1067,7 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 			/* on success: there is no message_complete callback */
- 			/* for an IPRMDATA msg; remove skb from send queue   */
- 			if (err == 0) {
-+				atomic_dec(&iucv->skbs_in_xmit);
- 				skb_unlink(skb, &iucv->send_skb_q);
- 				kfree_skb(skb);
- 			}
-@@ -1071,6 +1076,7 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 			/* IUCV_IPRMDATA path flag is set... sever path */
- 			if (err == 0x15) {
- 				pr_iucv->path_sever(iucv->path, NULL);
-+				atomic_dec(&iucv->skbs_in_xmit);
- 				skb_unlink(skb, &iucv->send_skb_q);
- 				err = -EPIPE;
- 				goto fail;
-@@ -1109,6 +1115,8 @@ static int iucv_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 			} else {
- 				err = -EPIPE;
- 			}
-+
-+			atomic_dec(&iucv->skbs_in_xmit);
- 			skb_unlink(skb, &iucv->send_skb_q);
- 			goto fail;
- 		}
-@@ -1748,10 +1756,14 @@ static void iucv_callback_txdone(struct iucv_path *path,
- {
- 	struct sock *sk = path->private;
- 	struct sk_buff *this = NULL;
--	struct sk_buff_head *list = &iucv_sk(sk)->send_skb_q;
-+	struct sk_buff_head *list;
- 	struct sk_buff *list_skb;
-+	struct iucv_sock *iucv;
- 	unsigned long flags;
- 
-+	iucv = iucv_sk(sk);
-+	list = &iucv->send_skb_q;
-+
- 	bh_lock_sock(sk);
- 
- 	spin_lock_irqsave(&list->lock, flags);
-@@ -1761,8 +1773,11 @@ static void iucv_callback_txdone(struct iucv_path *path,
- 			break;
- 		}
- 	}
--	if (this)
-+	if (this) {
-+		atomic_dec(&iucv->skbs_in_xmit);
- 		__skb_unlink(this, list);
-+	}
-+
- 	spin_unlock_irqrestore(&list->lock, flags);
- 
- 	if (this) {
-@@ -1772,7 +1787,7 @@ static void iucv_callback_txdone(struct iucv_path *path,
- 	}
- 
- 	if (sk->sk_state == IUCV_CLOSING) {
--		if (skb_queue_empty(&iucv_sk(sk)->send_skb_q)) {
-+		if (atomic_read(&iucv->skbs_in_xmit) == 0) {
- 			sk->sk_state = IUCV_CLOSED;
- 			sk->sk_state_change(sk);
- 		}
-@@ -2150,6 +2165,7 @@ static void afiucv_hs_callback_txnotify(struct sk_buff *skb,
- 		if (skb_shinfo(list_skb) == skb_shinfo(skb)) {
- 			switch (n) {
- 			case TX_NOTIFY_OK:
-+				atomic_dec(&iucv->skbs_in_xmit);
- 				__skb_unlink(list_skb, list);
- 				kfree_skb(list_skb);
- 				iucv_sock_wake_msglim(sk);
-@@ -2158,6 +2174,7 @@ static void afiucv_hs_callback_txnotify(struct sk_buff *skb,
- 				atomic_inc(&iucv->pendings);
- 				break;
- 			case TX_NOTIFY_DELAYED_OK:
-+				atomic_dec(&iucv->skbs_in_xmit);
- 				__skb_unlink(list_skb, list);
- 				atomic_dec(&iucv->pendings);
- 				if (atomic_read(&iucv->pendings) <= 0)
-@@ -2169,6 +2186,7 @@ static void afiucv_hs_callback_txnotify(struct sk_buff *skb,
- 			case TX_NOTIFY_TPQFULL: /* not yet used */
- 			case TX_NOTIFY_GENERALERROR:
- 			case TX_NOTIFY_DELAYED_GENERALERROR:
-+				atomic_dec(&iucv->skbs_in_xmit);
- 				__skb_unlink(list_skb, list);
- 				kfree_skb(list_skb);
- 				if (sk->sk_state == IUCV_CONNECTED) {
-@@ -2183,7 +2201,7 @@ static void afiucv_hs_callback_txnotify(struct sk_buff *skb,
- 	spin_unlock_irqrestore(&list->lock, flags);
- 
- 	if (sk->sk_state == IUCV_CLOSING) {
--		if (skb_queue_empty(&iucv_sk(sk)->send_skb_q)) {
-+		if (atomic_read(&iucv->skbs_in_xmit) == 0) {
- 			sk->sk_state = IUCV_CLOSED;
- 			sk->sk_state_change(sk);
- 		}
--- 
-2.17.1
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
