@@ -1,115 +1,79 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18796 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2388644AbhATLpU (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Jan 2021 06:45:20 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests GIT PULL 03/11] s390x: Add test_bit to library
-Date: Wed, 20 Jan 2021 06:41:50 -0500
-Message-Id: <20210120114158.104559-4-frankja@linux.ibm.com>
-In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
-References: <20210120114158.104559-1-frankja@linux.ibm.com>
+Received: from foss.arm.com ([217.140.110.172]:58490 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725873AbhAMFEg (ORCPT <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 13 Jan 2021 00:04:36 -0500
+Subject: Re: [PATCH V2 1/3] mm/hotplug: Prevalidate the address range being
+ added with platform
+References: <1608218912-28932-1-git-send-email-anshuman.khandual@arm.com>
+ <1608218912-28932-2-git-send-email-anshuman.khandual@arm.com>
+ <10e733fa-4568-d38f-9b95-2ccc5dc627b8@redhat.com>
+ <20210111134303.GA3031@linux> <e2b53f0a-482d-2045-6162-6de2510c9690@arm.com>
+ <556a8a62-7bb2-d16b-67ea-57c87c1a6aa7@redhat.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
+Message-ID: <041d9344-b07c-c6f9-c41a-01057470c350@arm.com>
+Date: Wed, 13 Jan 2021 10:34:04 +0530
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <556a8a62-7bb2-d16b-67ea-57c87c1a6aa7@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+To: David Hildenbrand <david@redhat.com>, Oscar Salvador <osalvador@suse.de>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>
 
-Query/feature bits are commonly tested via MSB bit numbers on
-s390. Let's add test bit functions, so we don't need to copy code to
-test query bits.
 
-The test_bit code has been taken from the kernel since most s390x KVM unit
-test developers are used to them.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
----
- lib/s390x/asm/bitops.h   | 26 ++++++++++++++++++++++++++
- lib/s390x/asm/facility.h |  3 ++-
- s390x/uv-guest.c         |  6 +++---
- 3 files changed, 31 insertions(+), 4 deletions(-)
+On 1/12/21 3:39 PM, David Hildenbrand wrote:
+> On 12.01.21 04:51, Anshuman Khandual wrote:
+>>
+>>
+>> On 1/11/21 7:13 PM, Oscar Salvador wrote:
+>>> On Mon, Jan 11, 2021 at 11:51:47AM +0100, David Hildenbrand wrote:
+>>>> AFAIKs, all memhp_get_pluggable_range() users pass "1".
+>>>>
+>>>> What about the "add_pages()-only" path?
+>>>
+>>> I guess you refer to memremap_pages(), right?
+>>
+>> Right, via pagemap_range().
+>>
+>>> If so, moving the added memhp_range_allowed() check above the if-else might do
+>>> the trick
+>>>
+>> We had that code in the earlier version. But dropped it, as we did
+>> not want to add any new checks in the generic code. Can add it back
+>> if that is preferred.
+> 
+> I remember discussing replacing the check in __add_pages() instead. But
 
-diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
-index e7cdda9..792881e 100644
---- a/lib/s390x/asm/bitops.h
-+++ b/lib/s390x/asm/bitops.h
-@@ -1,3 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ *    Bitops taken from the kernel as most developers are already used
-+ *    to them.
-+ *
-+ *    Copyright IBM Corp. 1999,2013
-+ *
-+ *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
-+ *
-+ */
- #ifndef _ASMS390X_BITOPS_H_
- #define _ASMS390X_BITOPS_H_
+The proposed change for __add_pages() now seems misleading. Instead of
+VM_BUG_ON(), memhp_range_allowed() should be checked directly for a non
+linear mapping i.e with 'false' argument and return prematurely in case
+that check fails.
+
+s/VM_BUG_ON(!memhp_range_allowed(.., 1)/!memhp_range_allowed(.., 0)/
+
+ /*
+  * Reasonably generic function for adding memory.  It is
+  * expected that archs that support memory hotplug will
+@@ -317,10 +304,7 @@ int __ref __add_pages(int nid, unsigned long pfn, unsigned long nr_pages,
+ 	if (WARN_ON_ONCE(!params->pgprot.pgprot))
+ 		return -EINVAL;
  
-@@ -7,4 +17,20 @@
- 
- #define BITS_PER_LONG	64
- 
-+static inline bool test_bit(unsigned long nr,
-+			    const volatile unsigned long *ptr)
-+{
-+	const volatile unsigned char *addr;
-+
-+	addr = ((const volatile unsigned char *)ptr);
-+	addr += (nr ^ (BITS_PER_LONG - 8)) >> 3;
-+	return (*addr >> (nr & 7)) & 1;
-+}
-+
-+static inline bool test_bit_inv(unsigned long nr,
-+				const volatile unsigned long *ptr)
-+{
-+	return test_bit(nr ^ (BITS_PER_LONG - 1), ptr);
-+}
-+
- #endif
-diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
-index 7828cf8..95d4a15 100644
---- a/lib/s390x/asm/facility.h
-+++ b/lib/s390x/asm/facility.h
-@@ -11,13 +11,14 @@
- #include <libcflat.h>
- #include <asm/facility.h>
- #include <asm/arch_def.h>
-+#include <bitops.h>
- 
- #define NB_STFL_DOUBLEWORDS 32
- extern uint64_t stfl_doublewords[];
- 
- static inline bool test_facility(int nr)
- {
--	return stfl_doublewords[nr / 64] & (0x8000000000000000UL >> (nr % 64));
-+	return test_bit_inv(nr, stfl_doublewords);
- }
- 
- static inline void stfl(void)
-diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
-index bc947ab..e51b85e 100644
---- a/s390x/uv-guest.c
-+++ b/s390x/uv-guest.c
-@@ -75,11 +75,11 @@ static void test_query(void)
- 	 * Ultravisor version and are expected to always be available
- 	 * because they are basic building blocks.
- 	 */
--	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_QUI)),
-+	report(test_bit_inv(BIT_UVC_CMD_QUI, &uvcb.inst_calls_list[0]),
- 	       "query indicated");
--	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_SET_SHARED_ACCESS)),
-+	report(test_bit_inv(BIT_UVC_CMD_SET_SHARED_ACCESS, &uvcb.inst_calls_list[0]),
- 	       "share indicated");
--	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_REMOVE_SHARED_ACCESS)),
-+	report(test_bit_inv(BIT_UVC_CMD_REMOVE_SHARED_ACCESS, &uvcb.inst_calls_list[0]),
- 	       "unshare indicated");
- 	report_prefix_pop();
- }
--- 
-2.25.1
+-	err = check_hotplug_memory_addressable(pfn, nr_pages);
+-	if (err)
+-		return err;
+-
++	VM_BUG_ON(!memhp_range_allowed(PFN_PHYS(pfn), nr_pages * PAGE_SIZE, 1));
+ 	if (altmap) {
+ 		/*
+ 		 * Validate altmap is within bounds of the total request
+@@ -1181,6 +1165,61 @@ int add_memory_driver_managed(int nid, u64 start, u64 size,
+
+
+> I don't really care where the check ends up being. As discussed, at some
+> point, we should provide versions of add_pages() and arch_add_pages()
+> that don't immediately end in arch-code.
+
+Sure. But for now, AFAICS the above replacement should be sufficient.
