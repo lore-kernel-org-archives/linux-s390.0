@@ -1,113 +1,60 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:64408 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:41308 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2388473AbhATLoY (ORCPT
+        by vger.kernel.org with ESMTP id S1727031AbhAMJmW (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Jan 2021 06:44:24 -0500
+        Wed, 13 Jan 2021 04:42:22 -0500
 From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests GIT PULL 09/11] s390x: Add diag318 intercept test
-Date: Wed, 20 Jan 2021 06:41:56 -0500
-Message-Id: <20210120114158.104559-10-frankja@linux.ibm.com>
-In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
-References: <20210120114158.104559-1-frankja@linux.ibm.com>
+Subject: [PATCH 00/14] KVM: s390: Add huge page VSIE support
+Date: Wed, 13 Jan 2021 09:40:59 +0000
+Message-Id: <20210113094113.133668-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Not much to test except for the privilege and specification
-exceptions.
+As we finally want to get rid of the nested and hpage s390 KVM module
+parameters let's try again to integrate huge page VSIE support.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
----
- lib/s390x/sclp.c  |  1 +
- lib/s390x/sclp.h  |  6 +++++-
- s390x/intercept.c | 19 +++++++++++++++++++
- 3 files changed, 25 insertions(+), 1 deletion(-)
+The following patches have been rebased on 5.11-rc3 and enable us to
+start huge page and normal page VSIE guest 3s in a huge page guest 2.
 
-diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
-index 06819a6..7a9b2c5 100644
---- a/lib/s390x/sclp.c
-+++ b/lib/s390x/sclp.c
-@@ -138,6 +138,7 @@ void sclp_facilities_setup(void)
- 	assert(read_info);
- 
- 	cpu = sclp_get_cpu_entries();
-+	sclp_facilities.has_diag318 = read_info->byte_134_diag318;
- 	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
- 		/*
- 		 * The logic for only reading the facilities from the
-diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
-index c3128b9..e7407ea 100644
---- a/lib/s390x/sclp.h
-+++ b/lib/s390x/sclp.h
-@@ -105,7 +105,8 @@ extern struct sclp_facilities sclp_facilities;
- 
- struct sclp_facilities {
- 	uint64_t has_sief2 : 1;
--	uint64_t : 63;
-+	uint64_t has_diag318 : 1;
-+	uint64_t : 62;
- };
- 
- typedef struct ReadInfo {
-@@ -130,6 +131,9 @@ typedef struct ReadInfo {
-     uint16_t highest_cpu;
-     uint8_t  _reserved5[124 - 122];     /* 122-123 */
-     uint32_t hmfai;
-+    uint8_t reserved7[134 - 128];
-+    uint8_t byte_134_diag318 : 1;
-+    uint8_t : 7;
-     struct CPUEntry entries[0];
- } __attribute__((packed)) ReadInfo;
- 
-diff --git a/s390x/intercept.c b/s390x/intercept.c
-index cde2f5f..86e57e1 100644
---- a/s390x/intercept.c
-+++ b/s390x/intercept.c
-@@ -8,6 +8,7 @@
-  *  Thomas Huth <thuth@redhat.com>
-  */
- #include <libcflat.h>
-+#include <sclp.h>
- #include <asm/asm-offsets.h>
- #include <asm/interrupt.h>
- #include <asm/page.h>
-@@ -152,6 +153,23 @@ static void test_testblock(void)
- 	check_pgm_int_code(PGM_INT_CODE_ADDRESSING);
- }
- 
-+static void test_diag318(void)
-+{
-+	expect_pgm_int();
-+	enter_pstate();
-+	asm volatile("diag %0,0,0x318\n" : : "d" (0x42));
-+	check_pgm_int_code(PGM_INT_CODE_PRIVILEGED_OPERATION);
-+
-+	if (!sclp_facilities.has_diag318)
-+		expect_pgm_int();
-+
-+	asm volatile("diag %0,0,0x318\n" : : "d" (0x42));
-+
-+	if (!sclp_facilities.has_diag318)
-+		check_pgm_int_code(PGM_INT_CODE_SPECIFICATION);
-+
-+}
-+
- struct {
- 	const char *name;
- 	void (*func)(void);
-@@ -162,6 +180,7 @@ struct {
- 	{ "stap", test_stap, false },
- 	{ "stidp", test_stidp, false },
- 	{ "testblock", test_testblock, false },
-+	{ "diag318", test_diag318, false },
- 	{ NULL, NULL, false }
- };
- 
+Branch:
+https://git.kernel.org/pub/scm/linux/kernel/git/kvms390/linux.git/log/?h=hlp_vsie
+
+
+Problems that need to be solved:
+	* The VSIE guests crash on migration...
+	* I have lost most of my knowledge about this topic and I'm
+          currently paging back in
+	* Lots of testing
+
+
+Janosch Frank (14):
+  s390/mm: Code cleanups
+  s390/mm: Improve locking for huge page backings
+  s390/mm: Take locking out of gmap_protect_pte
+  s390/mm: split huge pages in GMAP when protecting
+  s390/mm: Split huge pages when migrating
+  s390/mm: Provide vmaddr to pmd notification
+  s390/mm: factor out idte global flush into gmap_idte_global
+  s390/mm: Make gmap_read_table EDAT1 compatible
+  s390/mm: Make gmap_protect_rmap EDAT1 compatible
+  s390/mm: Add simple ptep shadow function
+  s390/mm: Add gmap shadowing for large pmds
+  s390/mm: Add gmap lock classes
+  s390/mm: Pull pmd invalid check in gmap_pmd_op_walk
+  KVM: s390: Allow the VSIE to be used with huge pages
+
+ Documentation/virt/kvm/api.rst  |   9 +-
+ arch/s390/include/asm/gmap.h    |  31 +-
+ arch/s390/include/asm/pgtable.h |   5 +
+ arch/s390/kvm/gaccess.c         |  52 +-
+ arch/s390/kvm/kvm-s390.c        |  14 +-
+ arch/s390/mm/gmap.c             | 917 ++++++++++++++++++++++++--------
+ arch/s390/mm/pgtable.c          |  61 ++-
+ 7 files changed, 819 insertions(+), 270 deletions(-)
+
 -- 
-2.25.1
+2.27.0
