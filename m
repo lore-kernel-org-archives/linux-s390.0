@@ -1,100 +1,94 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47570 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726482AbhAXKF4 (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Jan 2021 05:05:56 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: store a pointer to the block_device in struct bio (again) v2
-Date: Sun, 24 Jan 2021 11:02:31 +0100
-Message-Id: <20210124100241.1167849-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:61392 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727376AbhAMJmY (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 13 Jan 2021 04:42:24 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [PATCH 08/14] s390/mm: Make gmap_read_table EDAT1 compatible
+Date: Wed, 13 Jan 2021 09:41:07 +0000
+Message-Id: <20210113094113.133668-9-frankja@linux.ibm.com>
+In-Reply-To: <20210113094113.133668-1-frankja@linux.ibm.com>
+References: <20210113094113.133668-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+To: kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Hi Jens,
+For the upcoming support of VSIE guests on huge page backed hosts, we
+need to be able to read from large segments.
 
-this series switches back from storing the gendisk + partno to storing
-a block_device pointer in struct bio.  The reason is two fold:  for one
-the new struct block_device actually is always available, removing the
-need to avoid originally.  Second the merge struct block_device is much
-more useful than the old one, as storing it avoids the need for looking
-up what used to be hd_struct during partition remapping and I/O
-accounting.
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ arch/s390/mm/gmap.c | 43 ++++++++++++++++++++++++++-----------------
+ 1 file changed, 26 insertions(+), 17 deletions(-)
 
-Note that this series depends on the posted but not merged
-"split hard read-only vs read-only policy" series.
-
-A git tree is also available:
-
-    git://git.infradead.org/users/hch/block.git bi_bdev
-
-Gitweb:
-
-    http://git.infradead.org/users/hch/block.git/shortlog/refs/heads/bi_bdev
-
-Changes since v1:
- - protect against double remapping I/O to partitions
-
-Diffstat:
- arch/m68k/emu/nfblock.c             |    2 
- arch/xtensa/platforms/iss/simdisk.c |    2 
- block/bio-integrity.c               |   18 +-
- block/bio.c                         |   31 +---
- block/blk-cgroup.c                  |    7 
- block/blk-core.c                    |  100 ++++++-------
- block/blk-crypto-fallback.c         |    2 
- block/blk-crypto.c                  |    2 
- block/blk-merge.c                   |   17 +-
- block/blk-mq.c                      |    2 
- block/blk-settings.c                |    2 
- block/blk-throttle.c                |    2 
- block/blk.h                         |    5 
- block/bounce.c                      |    2 
- block/genhd.c                       |  271 ++++--------------------------------
- block/partitions/core.c             |   31 ----
- drivers/block/brd.c                 |    8 -
- drivers/block/drbd/drbd_int.h       |    4 
- drivers/block/drbd/drbd_req.c       |    2 
- drivers/block/null_blk/main.c       |    2 
- drivers/block/pktcdvd.c             |    4 
- drivers/block/ps3vram.c             |    2 
- drivers/block/rsxx/dev.c            |    2 
- drivers/block/umem.c                |    2 
- drivers/block/zram/zram_drv.c       |    2 
- drivers/lightnvm/pblk-init.c        |    2 
- drivers/md/bcache/debug.c           |    2 
- drivers/md/bcache/request.c         |   39 +++--
- drivers/md/dm-bio-record.h          |    9 -
- drivers/md/dm-raid1.c               |   10 -
- drivers/md/dm.c                     |   14 -
- drivers/md/md-linear.c              |    2 
- drivers/md/md.c                     |   10 -
- drivers/md/md.h                     |    6 
- drivers/md/raid1.c                  |    6 
- drivers/md/raid10.c                 |   12 -
- drivers/md/raid5.c                  |    2 
- drivers/nvdimm/blk.c                |    4 
- drivers/nvdimm/btt.c                |    4 
- drivers/nvdimm/pmem.c               |    4 
- drivers/nvme/host/core.c            |    6 
- drivers/nvme/host/lightnvm.c        |    3 
- drivers/nvme/host/multipath.c       |    6 
- drivers/nvme/host/rdma.c            |    2 
- drivers/s390/block/dasd.c           |   26 ---
- drivers/s390/block/dcssblk.c        |    6 
- drivers/s390/block/xpram.c          |    2 
- fs/btrfs/check-integrity.c          |   10 -
- fs/btrfs/raid56.c                   |    7 
- fs/btrfs/scrub.c                    |    2 
- fs/direct-io.c                      |    2 
- fs/f2fs/data.c                      |   12 -
- include/linux/bio.h                 |   20 +-
- include/linux/blk-mq.h              |    4 
- include/linux/blk_types.h           |    4 
- include/linux/blkdev.h              |   20 --
- include/linux/genhd.h               |   21 --
- kernel/trace/blktrace.c             |   16 +-
- mm/page_io.c                        |    2 
- 59 files changed, 260 insertions(+), 561 deletions(-)
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index f89e710c31af..910371dc511d 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -1282,35 +1282,44 @@ EXPORT_SYMBOL_GPL(gmap_mprotect_notify);
+ int gmap_read_table(struct gmap *gmap, unsigned long gaddr, unsigned long *val)
+ {
+ 	unsigned long address, vmaddr;
+-	spinlock_t *ptl;
++	spinlock_t *ptl_pmd = NULL, *ptl_pte = NULL;
++	pmd_t *pmdp;
+ 	pte_t *ptep, pte;
+ 	int rc;
+ 
+-	if (gmap_is_shadow(gmap))
+-		return -EINVAL;
++	BUG_ON(gmap_is_shadow(gmap));
+ 
+ 	while (1) {
+ 		rc = -EAGAIN;
+-		ptep = gmap_pte_op_walk(gmap, gaddr, &ptl);
+-		if (ptep) {
+-			pte = *ptep;
+-			if (pte_present(pte) && (pte_val(pte) & _PAGE_READ)) {
+-				address = pte_val(pte) & PAGE_MASK;
+-				address += gaddr & ~PAGE_MASK;
++		vmaddr = __gmap_translate(gmap, gaddr);
++		if (IS_ERR_VALUE(vmaddr))
++			return vmaddr;
++		pmdp = gmap_pmd_op_walk(gmap, gaddr, vmaddr, &ptl_pmd);
++		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
++			if (!pmd_large(*pmdp)) {
++				ptep = gmap_pte_from_pmd(gmap, pmdp, vmaddr, &ptl_pte);
++				if (ptep) {
++					pte = *ptep;
++					if (pte_present(pte) && (pte_val(pte) & _PAGE_READ)) {
++						address = pte_val(pte) & PAGE_MASK;
++						address += gaddr & ~PAGE_MASK;
++						*val = *(unsigned long *) address;
++						pte_val(*ptep) |= _PAGE_YOUNG;
++						/* Do *NOT* clear the _PAGE_INVALID bit! */
++						rc = 0;
++					}
++				}
++				gmap_pte_op_end(ptl_pte);
++			} else {
++				address = pmd_val(*pmdp) & HPAGE_MASK;
++				address += gaddr & ~HPAGE_MASK;
+ 				*val = *(unsigned long *) address;
+-				pte_val(*ptep) |= _PAGE_YOUNG;
+-				/* Do *NOT* clear the _PAGE_INVALID bit! */
+ 				rc = 0;
+ 			}
+-			gmap_pte_op_end(ptl);
++			gmap_pmd_op_end(ptl_pmd);
+ 		}
+ 		if (!rc)
+ 			break;
+-		vmaddr = __gmap_translate(gmap, gaddr);
+-		if (IS_ERR_VALUE(vmaddr)) {
+-			rc = vmaddr;
+-			break;
+-		}
+ 		rc = gmap_fixup(gmap, gaddr, vmaddr, PROT_READ);
+ 		if (rc)
+ 			break;
+-- 
+2.27.0
