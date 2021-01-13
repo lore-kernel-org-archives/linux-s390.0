@@ -1,126 +1,112 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:13228 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:51690 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2388385AbhATLoQ (ORCPT
+        by vger.kernel.org with ESMTP id S1727342AbhAMJmX (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 20 Jan 2021 06:44:16 -0500
+        Wed, 13 Jan 2021 04:42:23 -0500
 From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [kvm-unit-tests GIT PULL 00/11] s390x update
-Date: Wed, 20 Jan 2021 06:41:47 -0500
-Message-Id: <20210120114158.104559-1-frankja@linux.ibm.com>
+Subject: [PATCH 05/14] s390/mm: Split huge pages when migrating
+Date: Wed, 13 Jan 2021 09:41:04 +0000
+Message-Id: <20210113094113.133668-6-frankja@linux.ibm.com>
+In-Reply-To: <20210113094113.133668-1-frankja@linux.ibm.com>
+References: <20210113094113.133668-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: pbonzini@redhat.com
-Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+To: kvm@vger.kernel.org
+Cc: borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Dear Paolo,
+Right now we mark the huge page that is being written to as dirty
+although only a single byte may have changed. This means we have to
+migrate 1MB although only a very limited amount of memory in that
+range might be dirty.
 
-please pull the following changes or merge them on gitlab:
+To speed up migration this patch splits up write protected huge pages
+into normal pages. The protection for the normal pages is only removed
+for the page that caused the fault.
 
-* Moved to SPDX license identifiers and cleaning up licenses
-* Added test_bit(_inv)() & SCLP feature bit checking
-* Added first SIE lib and test for nesting tests
-* Added diag318 emulation test
-* Small UV fix
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+---
+ arch/s390/mm/gmap.c | 34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
-
-Gitlab merge request:
-https://gitlab.com/kvm-unit-tests/kvm-unit-tests/-/merge_requests/4
-
-
-The following changes since commit 4a54e8a3a88be171814e31dd6ab9b7a766644e32:
-
-  lib/alloc_page: Properly handle requests for fresh blocks (2021-01-19 13:18:54 -0500)
-
-are available in the Git repository at:
-
-  https://gitlab.com/frankja/kvm-unit-tests.git tags/s390x-2021-20-01
-
-for you to fetch changes up to 88fb0e5d52be357d3aab854c5c16303fe1608335:
-
-  s390x: Fix uv_call() exception behavior (2021-01-20 04:15:21 -0500)
-
-
-Janosch Frank (11):
-  s390x: Move to GPL 2 and SPDX license identifiers
-  s390x: lib: Move to GPL 2 and SPDX license identifiers
-  s390x: Add test_bit to library
-  s390x: Consolidate sclp read info
-  s390x: SCLP feature checking
-  s390x: Split assembly into multiple files
-  s390x: sie: Add SIE to lib
-  s390x: sie: Add first SIE test
-  s390x: Add diag318 intercept test
-  s390x: Fix sclp.h style issues
-  s390x: Fix uv_call() exception behavior
-
- lib/s390x/asm-offsets.c     |  15 ++-
- lib/s390x/asm/arch_def.h    |  13 ++-
- lib/s390x/asm/asm-offsets.h |   4 +-
- lib/s390x/asm/barrier.h     |   4 +-
- lib/s390x/asm/bitops.h      |  26 +++++
- lib/s390x/asm/cpacf.h       |   1 +
- lib/s390x/asm/facility.h    |   7 +-
- lib/s390x/asm/float.h       |   4 +-
- lib/s390x/asm/interrupt.h   |   4 +-
- lib/s390x/asm/io.h          |   4 +-
- lib/s390x/asm/mem.h         |   4 +-
- lib/s390x/asm/page.h        |   4 +-
- lib/s390x/asm/pgtable.h     |   4 +-
- lib/s390x/asm/sigp.h        |   4 +-
- lib/s390x/asm/spinlock.h    |   4 +-
- lib/s390x/asm/stack.h       |   4 +-
- lib/s390x/asm/time.h        |   4 +-
- lib/s390x/asm/uv.h          |  24 +++--
- lib/s390x/css.h             |   4 +-
- lib/s390x/css_dump.c        |   4 +-
- lib/s390x/css_lib.c         |   4 +-
- lib/s390x/interrupt.c       |  11 +-
- lib/s390x/io.c              |   6 +-
- lib/s390x/mmu.c             |   4 +-
- lib/s390x/mmu.h             |   4 +-
- lib/s390x/sclp-console.c    |   5 +-
- lib/s390x/sclp.c            |  61 +++++++++--
- lib/s390x/sclp.h            | 183 ++++++++++++++++++---------------
- lib/s390x/sie.h             | 198 ++++++++++++++++++++++++++++++++++++
- lib/s390x/smp.c             |  31 +++---
- lib/s390x/smp.h             |   4 +-
- lib/s390x/stack.c           |   4 +-
- lib/s390x/vm.c              |   3 +-
- lib/s390x/vm.h              |   3 +-
- s390x/Makefile              |   7 +-
- s390x/cmm.c                 |   4 +-
- s390x/cpu.S                 | 121 ++++++++++++++++++++++
- s390x/cpumodel.c            |   4 +-
- s390x/css.c                 |   4 +-
- s390x/cstart64.S            | 123 +---------------------
- s390x/diag10.c              |   4 +-
- s390x/diag288.c             |   4 +-
- s390x/diag308.c             |   5 +-
- s390x/emulator.c            |   4 +-
- s390x/gs.c                  |   4 +-
- s390x/iep.c                 |   4 +-
- s390x/intercept.c           |  23 ++++-
- s390x/macros.S              |  77 ++++++++++++++
- s390x/pfmf.c                |   4 +-
- s390x/sclp.c                |   4 +-
- s390x/selftest.c            |   4 +-
- s390x/sie.c                 | 113 ++++++++++++++++++++
- s390x/skey.c                |   4 +-
- s390x/skrf.c                |   4 +-
- s390x/smp.c                 |   4 +-
- s390x/sthyi.c               |   4 +-
- s390x/sthyi.h               |   4 +-
- s390x/stsi.c                |   4 +-
- s390x/unittests.cfg         |   3 +
- s390x/uv-guest.c            |  16 ++-
- s390x/vector.c              |   4 +-
- 61 files changed, 831 insertions(+), 392 deletions(-)
- create mode 100644 lib/s390x/sie.h
- create mode 100644 s390x/cpu.S
- create mode 100644 s390x/macros.S
- create mode 100644 s390x/sie.c
-
+diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
+index 41a5bbbc59e6..d8c9b295294b 100644
+--- a/arch/s390/mm/gmap.c
++++ b/arch/s390/mm/gmap.c
+@@ -532,6 +532,9 @@ void gmap_unlink(struct mm_struct *mm, unsigned long *table,
+ static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *old, pmd_t new,
+ 			   unsigned long gaddr);
+ 
++static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
++			   pmd_t *pmdp, struct page *page);
++
+ /**
+  * gmap_link - set up shadow page tables to connect a host to a guest address
+  * @gmap: pointer to guest mapping meta data structure
+@@ -547,12 +550,12 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+ {
+ 	struct mm_struct *mm;
+ 	unsigned long *table;
++	struct page *page = NULL;
+ 	spinlock_t *ptl;
+ 	pgd_t *pgd;
+ 	p4d_t *p4d;
+ 	pud_t *pud;
+ 	pmd_t *pmd;
+-	u64 unprot;
+ 	pte_t *ptep;
+ 	int rc;
+ 
+@@ -600,6 +603,7 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+ 	/* Are we allowed to use huge pages? */
+ 	if (pmd_large(*pmd) && !gmap->mm->context.allow_gmap_hpage_1m)
+ 		return -EFAULT;
++retry_split:
+ 	/* Link gmap segment table entry location to page table. */
+ 	rc = radix_tree_preload(GFP_KERNEL_ACCOUNT);
+ 	if (rc)
+@@ -627,10 +631,25 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+ 		spin_unlock(&gmap->guest_table_lock);
+ 	} else if (*table & _SEGMENT_ENTRY_PROTECT &&
+ 		   !(pmd_val(*pmd) & _SEGMENT_ENTRY_PROTECT)) {
+-		unprot = (u64)*table;
+-		unprot &= ~_SEGMENT_ENTRY_PROTECT;
+-		unprot |= _SEGMENT_ENTRY_GMAP_UC;
+-		gmap_pmdp_xchg(gmap, (pmd_t *)table, __pmd(unprot), gaddr);
++		if (page) {
++			gmap_pmd_split(gmap, gaddr, (pmd_t *)table, page);
++			page = NULL;
++		} else {
++			spin_unlock(ptl);
++			ptl = NULL;
++			radix_tree_preload_end();
++			page = page_table_alloc_pgste(mm);
++			if (!page)
++				rc = -ENOMEM;
++			else
++				goto retry_split;
++		}
++		/*
++		 * The split moves over the protection, so we still
++		 * need to unprotect.
++		 */
++		ptep = pte_offset_map((pmd_t *)table, vmaddr);
++		ptep_remove_protection_split(mm, ptep, vmaddr);
+ 	} else if (gmap_pmd_is_split((pmd_t *)table)) {
+ 		/*
+ 		 * Split pmds are somewhere in-between a normal and a
+@@ -642,7 +661,10 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
+ 		if (pte_val(*ptep) & _PAGE_PROTECT)
+ 			ptep_remove_protection_split(mm, ptep, vmaddr);
+ 	}
+-	spin_unlock(ptl);
++	if (page)
++		page_table_free_pgste(page);
++	if (ptl)
++		spin_unlock(ptl);
+ 	radix_tree_preload_end();
+ 	return rc;
+ }
 -- 
-2.25.1
+2.27.0
