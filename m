@@ -1,175 +1,114 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:16706 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727847AbhAVN2q (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:7252 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726729AbhANVfu (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 22 Jan 2021 08:28:46 -0500
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v5 2/3] s390x: define UV compatible I/O allocation
-Date: Fri, 22 Jan 2021 14:27:39 +0100
-Message-Id: <1611322060-1972-3-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1611322060-1972-1-git-send-email-pmorel@linux.ibm.com>
-References: <1611322060-1972-1-git-send-email-pmorel@linux.ibm.com>
+        Thu, 14 Jan 2021 16:35:50 -0500
+Subject: Re: [PATCH v13 07/15] s390/vfio-ap: introduce shadow APCB
+References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
+ <20201223011606.5265-8-akrowiak@linux.ibm.com>
+ <20210111235058.32ed94b5.pasic@linux.ibm.com>
+From: Tony Krowiak <akrowiak@linux.ibm.com>
+Message-ID: <47a353f5-e34f-db7b-65da-6fcf405959d5@linux.ibm.com>
+Date: Thu, 14 Jan 2021 16:35:01 -0500
+MIME-Version: 1.0
+In-Reply-To: <20210111235058.32ed94b5.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, drjones@redhat.com, pbonzini@redhat.com
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, freude@linux.ibm.com, borntraeger@de.ibm.com, cohuck@redhat.com, mjrosato@linux.ibm.com, alex.williamson@redhat.com, kwankhede@nvidia.com, fiuczy@linux.ibm.com, frankja@linux.ibm.com, david@redhat.com, hca@linux.ibm.com, gor@linux.ibm.com
 
-To centralize the memory allocation for I/O we define
-the alloc_io_mem/free_io_mem functions which share the I/O
-memory with the host in case the guest runs with
-protected virtualization.
 
-These functions allocate on a page integral granularity to
-ensure a dedicated sharing of the allocated objects.
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- lib/s390x/malloc_io.c | 71 +++++++++++++++++++++++++++++++++++++++++++
- lib/s390x/malloc_io.h | 45 +++++++++++++++++++++++++++
- s390x/Makefile        |  1 +
- 3 files changed, 117 insertions(+)
- create mode 100644 lib/s390x/malloc_io.c
- create mode 100644 lib/s390x/malloc_io.h
+On 1/11/21 5:50 PM, Halil Pasic wrote:
+> On Tue, 22 Dec 2020 20:15:58 -0500
+> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+>
+>> The APCB is a field within the CRYCB that provides the AP configuration
+>> to a KVM guest. Let's introduce a shadow copy of the KVM guest's APCB and
+>> maintain it for the lifespan of the guest.
+>>
+>> Signed-off-by: Tony Krowiak <akrowiak@linux.ibm.com>
+>> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+>> ---
+>>   drivers/s390/crypto/vfio_ap_ops.c     | 15 +++++++++++++++
+>>   drivers/s390/crypto/vfio_ap_private.h |  2 ++
+>>   2 files changed, 17 insertions(+)
+>>
+>> diff --git a/drivers/s390/crypto/vfio_ap_ops.c b/drivers/s390/crypto/vfio_ap_ops.c
+>> index 2d58b39977be..44b3a81cadfb 100644
+>> --- a/drivers/s390/crypto/vfio_ap_ops.c
+>> +++ b/drivers/s390/crypto/vfio_ap_ops.c
+>> @@ -293,6 +293,20 @@ static void vfio_ap_matrix_init(struct ap_config_info *info,
+>>   	matrix->adm_max = info->apxa ? info->Nd : 15;
+>>   }
+>>   
+>> +static bool vfio_ap_mdev_has_crycb(struct ap_matrix_mdev *matrix_mdev)
+>> +{
+>> +	return (matrix_mdev->kvm && matrix_mdev->kvm->arch.crypto.crycbd);
+>> +}
+>> +
+>> +static void vfio_ap_mdev_commit_shadow_apcb(struct ap_matrix_mdev *matrix_mdev)
+>> +{
+>> +	if (vfio_ap_mdev_has_crycb(matrix_mdev))
+>> +		kvm_arch_crypto_set_masks(matrix_mdev->kvm,
+>> +					  matrix_mdev->shadow_apcb.apm,
+>> +					  matrix_mdev->shadow_apcb.aqm,
+>> +					  matrix_mdev->shadow_apcb.adm);
+>> +}
+>> +
+>>   static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+>>   {
+>>   	struct ap_matrix_mdev *matrix_mdev;
+>> @@ -308,6 +322,7 @@ static int vfio_ap_mdev_create(struct kobject *kobj, struct mdev_device *mdev)
+>>   
+>>   	matrix_mdev->mdev = mdev;
+>>   	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->matrix);
+>> +	vfio_ap_matrix_init(&matrix_dev->info, &matrix_mdev->shadow_apcb);
+>>   	hash_init(matrix_mdev->qtable);
+>>   	mdev_set_drvdata(mdev, matrix_mdev);
+>>   	matrix_mdev->pqap_hook.hook = handle_pqap;
+>> diff --git a/drivers/s390/crypto/vfio_ap_private.h b/drivers/s390/crypto/vfio_ap_private.h
+>> index 4e5cc72fc0db..d2d26ba18602 100644
+>> --- a/drivers/s390/crypto/vfio_ap_private.h
+>> +++ b/drivers/s390/crypto/vfio_ap_private.h
+>> @@ -75,6 +75,7 @@ struct ap_matrix {
+>>    * @list:	allows the ap_matrix_mdev struct to be added to a list
+>>    * @matrix:	the adapters, usage domains and control domains assigned to the
+>>    *		mediated matrix device.
+>> + * @shadow_apcb:    the shadow copy of the APCB field of the KVM guest's CRYCB
+>>    * @group_notifier: notifier block used for specifying callback function for
+>>    *		    handling the VFIO_GROUP_NOTIFY_SET_KVM event
+>>    * @kvm:	the struct holding guest's state
+>> @@ -82,6 +83,7 @@ struct ap_matrix {
+>>   struct ap_matrix_mdev {
+>>   	struct list_head node;
+>>   	struct ap_matrix matrix;
+>> +	struct ap_matrix shadow_apcb;
+>>   	struct notifier_block group_notifier;
+>>   	struct notifier_block iommu_notifier;
+>>   	struct kvm *kvm;
+> What happened to the following hunk from v12?
 
-diff --git a/lib/s390x/malloc_io.c b/lib/s390x/malloc_io.c
-new file mode 100644
-index 0000000..b01222e
---- /dev/null
-+++ b/lib/s390x/malloc_io.c
-@@ -0,0 +1,71 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * I/O page allocation
-+ *
-+ * Copyright (c) 2021 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ * Using this interface provide host access to the allocated pages in
-+ * case the guest is a secure guest.
-+ * This is needed for I/O buffers.
-+ *
-+ */
-+#include <libcflat.h>
-+#include <asm/page.h>
-+#include <asm/uv.h>
-+#include <malloc_io.h>
-+#include <alloc_page.h>
-+#include <asm/facility.h>
-+#include <bitops.h>
-+
-+static int share_pages(void *p, int count)
-+{
-+	int i = 0;
-+
-+	for (i = 0; i < count; i++, p += PAGE_SIZE)
-+		if (uv_set_shared((unsigned long)p))
-+			break;
-+	return i;
-+}
-+
-+static void unshare_pages(void *p, int count)
-+{
-+	int i;
-+
-+	for (i = count; i > 0; i--, p += PAGE_SIZE)
-+		uv_remove_shared((unsigned long)p);
-+}
-+
-+void *alloc_io_mem(int size, int flags)
-+{
-+	int order = get_order(size >> PAGE_SHIFT);
-+	void *p;
-+	int n;
-+
-+	assert(size);
-+
-+	p = alloc_pages_flags(order, AREA_DMA31 | flags);
-+	if (!p || !test_facility(158))
-+		return p;
-+
-+	n = share_pages(p, 1 << order);
-+	if (n == 1 << order)
-+		return p;
-+
-+	unshare_pages(p, n);
-+	free_pages(p);
-+	return NULL;
-+}
-+
-+void free_io_mem(void *p, int size)
-+{
-+	int order = get_order(size >> PAGE_SHIFT);
-+
-+	assert(IS_ALIGNED((uintptr_t)p, PAGE_SIZE));
-+
-+	if (test_facility(158))
-+		unshare_pages(p, 1 << order);
-+	free_pages(p);
-+}
-diff --git a/lib/s390x/malloc_io.h b/lib/s390x/malloc_io.h
-new file mode 100644
-index 0000000..cc5fad7
---- /dev/null
-+++ b/lib/s390x/malloc_io.h
-@@ -0,0 +1,45 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * I/O allocations
-+ *
-+ * Copyright (c) 2021 IBM Corp
-+ *
-+ * Authors:
-+ *  Pierre Morel <pmorel@linux.ibm.com>
-+ *
-+ */
-+#ifndef _S390X_MALLOC_IO_H_
-+#define _S390X_MALLOC_IO_H_
-+
-+/*
-+ * Allocates a page aligned page bound range of contiguous real or
-+ * absolute memory in the DMA31 region large enough to contain size
-+ * bytes.
-+ * If Protected Virtualisation facility is present, shares the pages
-+ * with the host.
-+ * If all the pages for the specified size cannot be reserved,
-+ * the function rewinds the partial allocation and a NULL pointer
-+ * is returned.
-+ *
-+ * @size: the minimal size allocated in byte.
-+ * @flags: the flags used for the underlying page allocator.
-+ *
-+ * Errors:
-+ *   The allocation will assert the size parameter, will fail if the
-+ *   underlying page allocator fail or in the case of protected
-+ *   virtualisation if the sharing of the pages fails.
-+ *
-+ * Returns a pointer to the first page in case of success, NULL otherwise.
-+ */
-+void *alloc_io_mem(int size, int flags);
-+
-+/*
-+ * Frees a previously memory space allocated by alloc_io_mem.
-+ * If Protected Virtualisation facility is present, unshares the pages
-+ * with the host.
-+ * The address must be aligned on a page boundary otherwise an assertion
-+ * breaks the program.
-+ */
-+void free_io_mem(void *p, int size);
-+
-+#endif /* _S390X_MALLOC_IO_H_ */
-diff --git a/s390x/Makefile b/s390x/Makefile
-index 08d85c9..f3b0fcc 100644
---- a/s390x/Makefile
-+++ b/s390x/Makefile
-@@ -64,6 +64,7 @@ cflatobjs += lib/s390x/smp.o
- cflatobjs += lib/s390x/vm.o
- cflatobjs += lib/s390x/css_dump.o
- cflatobjs += lib/s390x/css_lib.o
-+cflatobjs += lib/s390x/malloc_io.o
- 
- OBJDIRS += lib/s390x
- 
--- 
-2.17.1
+That's a very good question, I'll reinstate it.
+
+>
+> @@ -1218,13 +1233,9 @@ static int vfio_ap_mdev_group_notifier(struct notifier_block *nb,
+>   	if (ret)
+>   		return NOTIFY_DONE;
+>   
+> -	/* If there is no CRYCB pointer, then we can't copy the masks */
+> -	if (!matrix_mdev->kvm->arch.crypto.crycbd)
+> -		return NOTIFY_DONE;
+> -
+> -	kvm_arch_crypto_set_masks(matrix_mdev->kvm, matrix_mdev->matrix.apm,
+> -				  matrix_mdev->matrix.aqm,
+> -				  matrix_mdev->matrix.adm);
+> +	memcpy(&matrix_mdev->shadow_apcb, &matrix_mdev->matrix,
+> +	       sizeof(matrix_mdev->shadow_apcb));
+> +	vfio_ap_mdev_commit_shadow_apcb(matrix_mdev);
+>   
+>   	return NOTIFY_OK;
+>   }
