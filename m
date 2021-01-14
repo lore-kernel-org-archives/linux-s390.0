@@ -1,362 +1,129 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Vladimir Oltean <olteanv@gmail.com>
-Subject: [RFC PATCH v2 net-next 10/12] net: bonding: ensure .ndo_get_stats64 can sleep
-Date: Tue,  5 Jan 2021 20:59:00 +0200
-Message-Id: <20210105185902.3922928-11-olteanv@gmail.com>
-In-Reply-To: <20210105185902.3922928-1-olteanv@gmail.com>
-References: <20210105185902.3922928-1-olteanv@gmail.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:4970 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726259AbhANOq2 (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Thu, 14 Jan 2021 09:46:28 -0500
+Date: Thu, 14 Jan 2021 14:47:33 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v4 3/9] s390x: SCLP feature checking
+Message-ID: <20210114144733.3ec11445@ibm-vm>
+In-Reply-To: <20210112132054.49756-4-frankja@linux.ibm.com>
+References: <20210112132054.49756-1-frankja@linux.ibm.com>
+        <20210112132054.49756-4-frankja@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: netdev@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>, Florian Fainelli <f.fainelli@gmail.com>, Paul Gortmaker <paul.gortmaker@windriver.com>, Pablo Neira Ayuso <pablo@netfilter.org>, Jiri Benc <jbenc@redhat.com>, Cong Wang <xiyou.wangcong@gmail.com>, Jamal Hadi Salim <jhs@mojatatu.com>, Stephen Hemminger <stephen@networkplumber.org>, Eric Dumazet <edumazet@google.com>, George McCollister <george.mccollister@gmail.com>, Oleksij Rempel <o.rempel@pengutronix.de>, Jay Vosburgh <j.vosburgh@gmail.com>, Veaceslav Falico <vfalico@gmail.com>, Andy Gospodarek <andy@greyhouse.net>, Arnd Bergmann <arnd@arndb.de>, Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andriin@fb.com>, Daniel Borkmann <daniel@iogearbox.net>, Taehee Yoo <ap420073@gmail.com>, Jiri Pirko <jiri@mellanox.com>, =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>, Paolo Abeni <pabeni@redhat.com>, Christian Brauner <christian.brauner@ubuntu.com>, Florian Westphal <fw@strlen.de>, linux-s390@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-parisc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-usb@vger.kernel.org, dev@openvswitch.org
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+On Tue, 12 Jan 2021 08:20:48 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-There is an effort to convert .ndo_get_stats64 to sleepable context, and
-for that to work, we need to prevent callers of dev_get_stats from using
-atomic locking.
+> Availability of SIE is announced via a feature bit in a SCLP info CPU
+> entry. Let's add a framework that allows us to easily check for such
+> facilities.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  lib/s390x/io.c   |  1 +
+>  lib/s390x/sclp.c | 25 +++++++++++++++++++++++++
+>  lib/s390x/sclp.h | 13 ++++++++++++-
+>  3 files changed, 38 insertions(+), 1 deletion(-)
+> 
+> diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+> index 6a1da63..ef9f59e 100644
+> --- a/lib/s390x/io.c
+> +++ b/lib/s390x/io.c
+> @@ -35,6 +35,7 @@ void setup(void)
+>  	setup_args_progname(ipl_args);
+>  	setup_facilities();
+>  	sclp_read_info();
+> +	sclp_facilities_setup();
+>  	sclp_console_setup();
+>  	sclp_memory_setup();
+>  	smp_setup();
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index 12916f5..06819a6 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -25,6 +25,7 @@ static uint64_t max_ram_size;
+>  static uint64_t ram_size;
+>  char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
+>  static ReadInfo *read_info;
+> +struct sclp_facilities sclp_facilities;
+>  
+>  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+>  static volatile bool sclp_busy;
+> @@ -128,6 +129,30 @@ CPUEntry *sclp_get_cpu_entries(void)
+>  	return (CPUEntry *)(_read_info + read_info->offset_cpu);
+>  }
+>  
+> +void sclp_facilities_setup(void)
+> +{
+> +	unsigned short cpu0_addr = stap();
+> +	CPUEntry *cpu;
+> +	int i;
+> +
+> +	assert(read_info);
+> +
+> +	cpu = sclp_get_cpu_entries();
+> +	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
+> +		/*
+> +		 * The logic for only reading the facilities from the
+> +		 * boot cpu comes from the kernel. I haven't yet
+> found
+> +		 * documentation that explains why this is necessary
+> +		 * but I figure there's a reason behind doing it this
+> +		 * way.
+> +		 */
+> +		if (cpu->address == cpu0_addr) {
+> +			sclp_facilities.has_sief2 = cpu->feat_sief2;
+> +			break;
+> +		}
+> +	}
+> +}
+> +
+>  /* Perform service call. Return 0 on success, non-zero otherwise. */
+>  int sclp_service_call(unsigned int command, void *sccb)
+>  {
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index acd86d5..6c86037 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -92,12 +92,22 @@ typedef struct SCCBHeader {
+>  typedef struct CPUEntry {
+>      uint8_t address;
+>      uint8_t reserved0;
+> -    uint8_t features[SCCB_CPU_FEATURE_LEN];
+> +    uint8_t : 4;
+> +    uint8_t feat_sief2 : 1;
+> +    uint8_t : 3;
+> +    uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
+>      uint8_t reserved2[6];
+>      uint8_t type;
+>      uint8_t reserved1;
+>  } __attribute__((packed)) CPUEntry;
+>  
+> +extern struct sclp_facilities sclp_facilities;
+> +
+> +struct sclp_facilities {
+> +	uint64_t has_sief2 : 1;
+> +	uint64_t : 63;
+> +};
+> +
+>  typedef struct ReadInfo {
+>      SCCBHeader h;
+>      uint16_t rnmax;
+> @@ -271,6 +281,7 @@ void sclp_print(const char *str);
+>  void sclp_read_info(void);
+>  int sclp_get_cpu_num(void);
+>  CPUEntry *sclp_get_cpu_entries(void);
+> +void sclp_facilities_setup(void);
+>  int sclp_service_call(unsigned int command, void *sccb);
+>  void sclp_memory_setup(void);
+>  uint64_t get_ram_size(void);
 
-The bonding driver retrieves its statistics recursively from its lower
-interfaces, with additional care to only count packets sent/received
-while those lowers were actually enslaved to the bond - see commit
-5f0c5f73e5ef ("bonding: make global bonding stats more reliable").
-
-Since commit 87163ef9cda7 ("bonding: remove last users of bond->lock and
-bond->lock itself"), the bonding driver uses the following protection
-for its array of slaves: RCU for readers and rtnl_mutex for updaters.
-This is not great because there is another movement [ somehow
-simultaneous with the one to make .ndo_get_stats64 sleepable ] to reduce
-driver usage of rtnl_mutex. This makes sense, because the rtnl_mutex has
-become a very contended resource.
-
-The aforementioned commit removed an interesting comment:
-
-	/* [...] we can't hold bond->lock [...] because we'll
-	 * deadlock. The only solution is to rely on the fact
-	 * that we're under rtnl_lock here, and the slaves
-	 * list won't change. This doesn't solve the problem
-	 * of setting the slave's MTU while it is
-	 * transmitting, but the assumption is that the base
-	 * driver can handle that.
-	 *
-	 * TODO: figure out a way to safely iterate the slaves
-	 * list, but without holding a lock around the actual
-	 * call to the base driver.
-	 */
-
-The above summarizes pretty well the challenges we have with nested
-bonding interfaces (bond over bond over bond over...), which need to be
-addressed by a better locking scheme that also not relies on the bloated
-rtnl_mutex.
-
-Instead of using something as broad as the rtnl_mutex to ensure
-serialization of updates to the slave array, we can reintroduce a
-private mutex in the bonding driver, called slaves_lock.
-This mutex circles the only updater, bond_update_slave_arr, and ensures
-that whatever other readers want to see a consistent slave array, they
-don't need to hold the rtnl_mutex for that.
-
-Now _of_course_ I did not convert the entire driver to use
-bond_for_each_slave protected by the bond->slaves_lock, and
-rtnl_dereference to bond_dereference. I just started that process by
-converting the one reader I needed: ndo_get_stats64. Not only is it nice
-to not hold rtnl_mutex in .ndo_get_stats64, but it is also in fact
-forbidden to do so (since top-level callers may hold netif_lists_lock,
-which is a sub-lock of the rtnl_mutex, and therefore this would cause a
-lock inversion and a deadlock).
-
-To solve the nesting problem, the simple way is to not hold any locks
-when recursing into the slave netdev operation, which is exactly the
-approach that we take. We can "cheat" and use dev_hold to take a
-reference on the slave net_device, which is enough to ensure that
-netdev_wait_allrefs() waits until we finish, and the kernel won't fault.
-However, the slave structure might no longer be valid, just its
-associated net_device. That isn't a biggie. We just need to do some more
-work to ensure that the slave exists after we took the statistics, and
-if it still does, reapply the logic from Andy's commit 5f0c5f73e5ef.
-
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
----
- drivers/net/bonding/bond_main.c | 120 +++++++++++++++-----------------
- include/net/bonding.h           |  52 +++++++++++++-
- 2 files changed, 109 insertions(+), 63 deletions(-)
-
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 714aa0e5d041..fbae3b9746fc 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3693,77 +3693,65 @@ static void bond_fold_stats(struct rtnl_link_stats64 *_res,
- 	}
- }
- 
--#ifdef CONFIG_LOCKDEP
--static int bond_get_lowest_level_rcu(struct net_device *dev)
--{
--	struct net_device *ldev, *next, *now, *dev_stack[MAX_NEST_DEV + 1];
--	struct list_head *niter, *iter, *iter_stack[MAX_NEST_DEV + 1];
--	int cur = 0, max = 0;
--
--	now = dev;
--	iter = &dev->adj_list.lower;
--
--	while (1) {
--		next = NULL;
--		while (1) {
--			ldev = netdev_next_lower_dev_rcu(now, &iter);
--			if (!ldev)
--				break;
--
--			next = ldev;
--			niter = &ldev->adj_list.lower;
--			dev_stack[cur] = now;
--			iter_stack[cur++] = iter;
--			if (max <= cur)
--				max = cur;
--			break;
--		}
--
--		if (!next) {
--			if (!cur)
--				return max;
--			next = dev_stack[--cur];
--			niter = iter_stack[cur];
--		}
--
--		now = next;
--		iter = niter;
--	}
--
--	return max;
--}
--#endif
--
- static void bond_get_stats(struct net_device *bond_dev,
- 			   struct rtnl_link_stats64 *stats)
- {
- 	struct bonding *bond = netdev_priv(bond_dev);
--	struct rtnl_link_stats64 temp;
--	struct list_head *iter;
--	struct slave *slave;
--	int nest_level = 0;
-+	struct rtnl_link_stats64 *dev_stats;
-+	struct net_device **slaves;
-+	int i, res, num_slaves;
- 
-+	res = bond_get_slave_arr(bond, &slaves, &num_slaves);
-+	if (res) {
-+		netdev_err(bond->dev,
-+			   "failed to allocate memory for slave array\n");
-+		return;
-+	}
- 
--	rcu_read_lock();
--#ifdef CONFIG_LOCKDEP
--	nest_level = bond_get_lowest_level_rcu(bond_dev);
--#endif
-+	dev_stats = kcalloc(num_slaves, sizeof(*dev_stats), GFP_KERNEL);
-+	if (!dev_stats) {
-+		netdev_err(bond->dev,
-+			   "failed to allocate memory for slave stats\n");
-+		bond_put_slave_arr(slaves, num_slaves);
-+		return;
-+	}
-+
-+	/* Recurse with no locks taken */
-+	for (i = 0; i < num_slaves; i++)
-+		dev_get_stats(slaves[i], &dev_stats[i]);
-+
-+	/* When taking the slaves lock again, the new slave array might be
-+	 * different from the original one.
-+	 */
-+	mutex_lock(&bond->slaves_lock);
-+	mutex_lock(&bond->stats_lock);
- 
--	spin_lock_nested(&bond->stats_lock, nest_level);
- 	memcpy(stats, &bond->bond_stats, sizeof(*stats));
- 
--	bond_for_each_slave_rcu(bond, slave, iter) {
--		dev_get_stats(slave->dev, &temp);
-+	for (i = 0; i < num_slaves; i++) {
-+		struct list_head *iter;
-+		struct slave *slave;
- 
--		bond_fold_stats(stats, &temp, &slave->slave_stats);
-+		bond_for_each_slave(bond, slave, iter) {
-+			if (slave->dev != slaves[i])
-+				continue;
- 
--		/* save off the slave stats for the next run */
--		memcpy(&slave->slave_stats, &temp, sizeof(temp));
-+			bond_fold_stats(stats, &dev_stats[i],
-+					&slave->slave_stats);
-+
-+			/* save off the slave stats for the next run */
-+			memcpy(&slave->slave_stats, &dev_stats[i],
-+			       sizeof(dev_stats[i]));
-+			break;
-+		}
- 	}
- 
- 	memcpy(&bond->bond_stats, stats, sizeof(*stats));
--	spin_unlock(&bond->stats_lock);
--	rcu_read_unlock();
-+
-+	mutex_unlock(&bond->stats_lock);
-+	mutex_unlock(&bond->slaves_lock);
-+
-+	bond_put_slave_arr(slaves, num_slaves);
- }
- 
- static int bond_do_ioctl(struct net_device *bond_dev, struct ifreq *ifr, int cmd)
-@@ -4287,11 +4275,11 @@ static void bond_set_slave_arr(struct bonding *bond,
- {
- 	struct bond_up_slave *usable, *all;
- 
--	usable = rtnl_dereference(bond->usable_slaves);
-+	usable = bond_dereference(bond, bond->usable_slaves);
- 	rcu_assign_pointer(bond->usable_slaves, usable_slaves);
- 	kfree_rcu(usable, rcu);
- 
--	all = rtnl_dereference(bond->all_slaves);
-+	all = bond_dereference(bond, bond->all_slaves);
- 	rcu_assign_pointer(bond->all_slaves, all_slaves);
- 	kfree_rcu(all, rcu);
- }
-@@ -4333,6 +4321,8 @@ int bond_update_slave_arr(struct bonding *bond, struct slave *skipslave)
- 	WARN_ON(lockdep_is_held(&bond->mode_lock));
- #endif
- 
-+	mutex_lock(&bond->slaves_lock);
-+
- 	usable_slaves = kzalloc(struct_size(usable_slaves, arr,
- 					    bond->slave_cnt), GFP_KERNEL);
- 	all_slaves = kzalloc(struct_size(all_slaves, arr,
-@@ -4376,17 +4366,22 @@ int bond_update_slave_arr(struct bonding *bond, struct slave *skipslave)
- 	}
- 
- 	bond_set_slave_arr(bond, usable_slaves, all_slaves);
-+
-+	mutex_unlock(&bond->slaves_lock);
-+
- 	return ret;
- out:
- 	if (ret != 0 && skipslave) {
--		bond_skip_slave(rtnl_dereference(bond->all_slaves),
-+		bond_skip_slave(bond_dereference(bond, bond->all_slaves),
- 				skipslave);
--		bond_skip_slave(rtnl_dereference(bond->usable_slaves),
-+		bond_skip_slave(bond_dereference(bond, bond->usable_slaves),
- 				skipslave);
- 	}
- 	kfree_rcu(all_slaves, rcu);
- 	kfree_rcu(usable_slaves, rcu);
- 
-+	mutex_unlock(&bond->slaves_lock);
-+
- 	return ret;
- }
- 
-@@ -4699,6 +4694,8 @@ void bond_setup(struct net_device *bond_dev)
- {
- 	struct bonding *bond = netdev_priv(bond_dev);
- 
-+	mutex_init(&bond->slaves_lock);
-+	mutex_init(&bond->stats_lock);
- 	spin_lock_init(&bond->mode_lock);
- 	bond->params = bonding_defaults;
- 
-@@ -5189,7 +5186,6 @@ static int bond_init(struct net_device *bond_dev)
- 	if (!bond->wq)
- 		return -ENOMEM;
- 
--	spin_lock_init(&bond->stats_lock);
- 	netdev_lockdep_set_classes(bond_dev);
- 
- 	list_add_tail(&bond->bond_list, &bn->dev_list);
-diff --git a/include/net/bonding.h b/include/net/bonding.h
-index adc3da776970..3fd2443e7800 100644
---- a/include/net/bonding.h
-+++ b/include/net/bonding.h
-@@ -222,7 +222,6 @@ struct bonding {
- 	 * ALB mode (6) - to sync the use and modifications of its hash table
- 	 */
- 	spinlock_t mode_lock;
--	spinlock_t stats_lock;
- 	u8	 send_peer_notif;
- 	u8       igmp_retrans;
- #ifdef CONFIG_PROC_FS
-@@ -249,6 +248,14 @@ struct bonding {
- #ifdef CONFIG_XFRM_OFFLOAD
- 	struct xfrm_state *xs;
- #endif /* CONFIG_XFRM_OFFLOAD */
-+
-+	/* Protects the slave array. TODO: convert all instances of
-+	 * rtnl_dereference to bond_dereference
-+	 */
-+	struct mutex slaves_lock;
-+
-+	/* Serializes access to bond_stats */
-+	struct mutex stats_lock;
- };
- 
- #define bond_slave_get_rcu(dev) \
-@@ -257,6 +264,9 @@ struct bonding {
- #define bond_slave_get_rtnl(dev) \
- 	((struct slave *) rtnl_dereference(dev->rx_handler_data))
- 
-+#define bond_dereference(bond, p) \
-+	rcu_dereference_protected(p, lockdep_is_held(&(bond)->slaves_lock))
-+
- void bond_queue_slave_event(struct slave *slave);
- void bond_lower_state_changed(struct slave *slave);
- 
-@@ -449,6 +459,46 @@ static inline void bond_hw_addr_copy(u8 *dst, const u8 *src, unsigned int len)
- 	memcpy(dst, src, len);
- }
- 
-+static inline int bond_get_slave_arr(struct bonding *bond,
-+				     struct net_device ***slaves,
-+				     int *num_slaves)
-+{
-+	struct net *net = dev_net(bond->dev);
-+	struct list_head *iter;
-+	struct slave *slave;
-+	int i = 0;
-+
-+	mutex_lock(&bond->slaves_lock);
-+
-+	*slaves = kcalloc(bond->slave_cnt, sizeof(*slaves), GFP_KERNEL);
-+	if (!(*slaves)) {
-+		netif_lists_unlock(net);
-+		return -ENOMEM;
-+	}
-+
-+	bond_for_each_slave(bond, slave, iter) {
-+		dev_hold(slave->dev);
-+		*slaves[i++] = slave->dev;
-+	}
-+
-+	*num_slaves = bond->slave_cnt;
-+
-+	mutex_unlock(&bond->slaves_lock);
-+
-+	return 0;
-+}
-+
-+static inline void bond_put_slave_arr(struct net_device **slaves,
-+				      int num_slaves)
-+{
-+	int i;
-+
-+	for (i = 0; i < num_slaves; i++)
-+		dev_put(slaves[i]);
-+
-+	kfree(slaves);
-+}
-+
- #define BOND_PRI_RESELECT_ALWAYS	0
- #define BOND_PRI_RESELECT_BETTER	1
- #define BOND_PRI_RESELECT_FAILURE	2
--- 
-2.25.1
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
