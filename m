@@ -1,65 +1,197 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:36854 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728444AbhAKJyR (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:59996 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726236AbhANOqX (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 11 Jan 2021 04:54:17 -0500
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Subject: [RFC 0/1] PCI: s390 global attribute "UID Checking"
-Date: Mon, 11 Jan 2021 10:38:56 +0100
-Message-Id: <20210111093857.24070-1-schnelle@linux.ibm.com>
+        Thu, 14 Jan 2021 09:46:23 -0500
+Date: Thu, 14 Jan 2021 14:57:38 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v4 2/9] s390x: Consolidate sclp read info
+Message-ID: <20210114145738.4de9f001@ibm-vm>
+In-Reply-To: <20210112132054.49756-3-frankja@linux.ibm.com>
+References: <20210112132054.49756-1-frankja@linux.ibm.com>
+        <20210112132054.49756-3-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Bjorn Helgaas <bhelgaas@google.com>
-Cc: linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, linux-s390@vger.kernel.org, Pierre Morel <pmorel@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-Hi Bjorn, Hi Kernel Hackers,
+On Tue, 12 Jan 2021 08:20:47 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-With the below patch I'm proposing to expose a global (i.e. not device
-bound) runtime attribute of the s390 PCI implementation (zPCI) called
-"UID Checking".  You can find some background information on what this
-attribute means and why it is important at the end of this mail. The
-reason I'm writing to you about it however is that this is the first
-global PCI attribute we would like to expose to user space and I'm
-searching for a good place to put it.
-The proposed patch uses "/sys/bus/pci/zpci/uid_checking" which from
-our perspective would be a great choice but I realize that there
-currently are no platform specific attributes directly under
-"/sys/bus/pci" so this clearly requires some discussion. What's your
-thought on this and do you know of any other platform specific global
-PCI attributes as I couldn't find any?
+> Let's only read the information once and pass a pointer to it instead
+> of calling sclp multiple times.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Acked-by: Thomas Huth <thuth@redhat.com>
+> ---
+>  lib/s390x/io.c   |  1 +
+>  lib/s390x/sclp.c | 31 +++++++++++++++++++++++++------
+>  lib/s390x/sclp.h |  3 +++
+>  lib/s390x/smp.c  | 27 +++++++++++----------------
+>  4 files changed, 40 insertions(+), 22 deletions(-)
+> 
+> diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+> index 1ff0589..6a1da63 100644
+> --- a/lib/s390x/io.c
+> +++ b/lib/s390x/io.c
+> @@ -34,6 +34,7 @@ void setup(void)
+>  {
+>  	setup_args_progname(ipl_args);
+>  	setup_facilities();
+> +	sclp_read_info();
+>  	sclp_console_setup();
+>  	sclp_memory_setup();
+>  	smp_setup();
+> diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+> index 08a4813..12916f5 100644
+> --- a/lib/s390x/sclp.c
+> +++ b/lib/s390x/sclp.c
+> @@ -23,6 +23,8 @@ extern unsigned long stacktop;
+>  static uint64_t storage_increment_size;
+>  static uint64_t max_ram_size;
+>  static uint64_t ram_size;
+> +char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
+> +static ReadInfo *read_info;
+>  
+>  char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+>  static volatile bool sclp_busy;
+> @@ -108,6 +110,24 @@ static void sclp_read_scp_info(ReadInfo *ri, int
+> length) report_abort("READ_SCP_INFO failed");
+>  }
+>  
+> +void sclp_read_info(void)
+> +{
+> +	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
+> +	read_info = (ReadInfo *)_read_info;
+> +}
+> +
+> +int sclp_get_cpu_num(void)
+> +{
+> +	assert(read_info);
+> +	return read_info->entries_cpu;
+> +}
+> +
+> +CPUEntry *sclp_get_cpu_entries(void)
+> +{
+> +	assert(read_info);
+> +	return (CPUEntry *)(_read_info + read_info->offset_cpu);
+> +}
+> +
+>  /* Perform service call. Return 0 on success, non-zero otherwise. */
+>  int sclp_service_call(unsigned int command, void *sccb)
+>  {
+> @@ -125,23 +145,22 @@ int sclp_service_call(unsigned int command,
+> void *sccb) 
+>  void sclp_memory_setup(void)
+>  {
+> -	ReadInfo *ri = (void *)_sccb;
+>  	uint64_t rnmax, rnsize;
+>  	int cc;
+>  
+> -	sclp_read_scp_info(ri, SCCB_SIZE);
+> +	assert(read_info);
+>  
+>  	/* calculate the storage increment size */
+> -	rnsize = ri->rnsize;
+> +	rnsize = read_info->rnsize;
+>  	if (!rnsize) {
+> -		rnsize = ri->rnsize2;
+> +		rnsize = read_info->rnsize2;
+>  	}
+>  	storage_increment_size = rnsize << 20;
+>  
+>  	/* calculate the maximum memory size */
+> -	rnmax = ri->rnmax;
+> +	rnmax = read_info->rnmax;
+>  	if (!rnmax) {
+> -		rnmax = ri->rnmax2;
+> +		rnmax = read_info->rnmax2;
+>  	}
+>  	max_ram_size = rnmax * storage_increment_size;
+>  
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index 9a6aad0..acd86d5 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -268,6 +268,9 @@ void sclp_wait_busy(void);
+>  void sclp_mark_busy(void);
+>  void sclp_console_setup(void);
+>  void sclp_print(const char *str);
+> +void sclp_read_info(void);
+> +int sclp_get_cpu_num(void);
+> +CPUEntry *sclp_get_cpu_entries(void);
+>  int sclp_service_call(unsigned int command, void *sccb);
+>  void sclp_memory_setup(void);
+>  uint64_t get_ram_size(void);
+> diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+> index c4f02dc..dfcfd28 100644
+> --- a/lib/s390x/smp.c
+> +++ b/lib/s390x/smp.c
+> @@ -23,7 +23,6 @@
+>  #include "smp.h"
+>  #include "sclp.h"
+>  
+> -static char cpu_info_buffer[PAGE_SIZE]
+> __attribute__((__aligned__(4096))); static struct cpu *cpus;
+>  static struct cpu *cpu0;
+>  static struct spinlock lock;
+> @@ -32,8 +31,7 @@ extern void smp_cpu_setup_state(void);
+>  
+>  int smp_query_num_cpus(void)
+>  {
+> -	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
+> -	return info->nr_configured;
+> +	return sclp_get_cpu_num();
+>  }
+>  
+>  struct cpu *smp_cpu_from_addr(uint16_t addr)
+> @@ -226,10 +224,10 @@ void smp_teardown(void)
+>  {
+>  	int i = 0;
+>  	uint16_t this_cpu = stap();
+> -	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
+> +	int num = smp_query_num_cpus();
+>  
+>  	spin_lock(&lock);
+> -	for (; i < info->nr_configured; i++) {
+> +	for (; i < num; i++) {
+>  		if (cpus[i].active &&
+>  		    cpus[i].addr != this_cpu) {
+>  			sigp_retry(cpus[i].addr, SIGP_STOP, 0, NULL);
+> @@ -243,22 +241,19 @@ extern uint64_t *stackptr;
+>  void smp_setup(void)
+>  {
+>  	int i = 0;
+> +	int num = smp_query_num_cpus();
+>  	unsigned short cpu0_addr = stap();
+> -	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
+> +	struct CPUEntry *entry = sclp_get_cpu_entries();
+>  
+>  	spin_lock(&lock);
+> -	sclp_mark_busy();
+> -	info->h.length = PAGE_SIZE;
+> -	sclp_service_call(SCLP_READ_CPU_INFO, cpu_info_buffer);
+> +	if (num > 1)
+> +		printf("SMP: Initializing, found %d cpus\n", num);
+>  
+> -	if (smp_query_num_cpus() > 1)
+> -		printf("SMP: Initializing, found %d cpus\n",
+> info->nr_configured); -
+> -	cpus = calloc(info->nr_configured, sizeof(cpus));
+> -	for (i = 0; i < info->nr_configured; i++) {
+> -		cpus[i].addr = info->entries[i].address;
+> +	cpus = calloc(num, sizeof(cpus));
+> +	for (i = 0; i < num; i++) {
+> +		cpus[i].addr = entry[i].address;
+>  		cpus[i].active = false;
+> -		if (info->entries[i].address == cpu0_addr) {
+> +		if (entry[i].address == cpu0_addr) {
+>  			cpu0 = &cpus[i];
+>  			cpu0->stack = stackptr;
+>  			cpu0->lowcore = (void *)0;
 
-Best regards,
-Niklas Schnelle
-
-Background:
-On s390 OSs always run under at least a machine level hypervisor
-(LPAR).  Simpliefied by usually running from SAN this makes VM
-migration possible at every level. For PCI this has created the need
-to allow PCI IDs to be stable across machines and to be partly user
-defined such that the setup of an existing VM on one machine can be
-recreated on another machine.
-In particular the Domain part of the PCI ID can be user defined by
-setting a per device value called UID. Since this was a late addition
-and isn't used by all OSs and since UIDs need to be unique if used as
-Domains, there is an additional global platform supplied runtime value
-called "UID Checking".  This value indicates if UIDs are guaranteed to
-be unique and set which triggers Linux to use the UIDs as PCI Domains
-otherwise PCI Domains are simply incremented as necessary.
-This "UID Checking" setting is thus very important e.g. when deciding
-how network interface names are generated as it indicates if the
-domain part of the PCI ID will remain stable across reboots and
-migrations.  Once exposed we will propose a patch to udev/systemd to
-use the "UID Checking" attribute to prefer network interface names
-which can be guaranteed to be stable and re-creatable for migration.
-
-Niklas Schnelle (1):
-  s390/pci: expose UID checking state in sysfs
-
- Documentation/ABI/testing/sysfs-bus-pci | 11 ++++++++
- arch/s390/include/asm/pci.h             |  3 +++
- arch/s390/pci/pci.c                     |  4 +++
- arch/s390/pci/pci_sysfs.c               | 34 +++++++++++++++++++++++++
- 4 files changed, 52 insertions(+)
-
--- 
-2.17.1
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
