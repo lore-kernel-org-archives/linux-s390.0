@@ -1,39 +1,50 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34084 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:28068 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231201AbhA1Lbw (ORCPT
+        by vger.kernel.org with ESMTP id S1726244AbhANOqY (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Jan 2021 06:31:52 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 0/5] s390/qeth: updates 2021-01-28
-Date: Thu, 28 Jan 2021 12:25:46 +0100
-Message-Id: <20210128112551.18780-1-jwi@linux.ibm.com>
+        Thu, 14 Jan 2021 09:46:24 -0500
+Date: Thu, 14 Jan 2021 15:45:25 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v4 9/9] s390x: sclp: Add CPU entry offset
+ comment
+Message-ID: <20210114154525.2dcdb1d6@ibm-vm>
+In-Reply-To: <20210112132054.49756-10-frankja@linux.ibm.com>
+References: <20210112132054.49756-1-frankja@linux.ibm.com>
+        <20210112132054.49756-10-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Janosch Frank <frankja@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-Hi Dave & Jakub,
+On Tue, 12 Jan 2021 08:20:54 -0500
+Janosch Frank <frankja@linux.ibm.com> wrote:
 
-please apply the following patch series for qeth to netdev's net-next tree.
+> Let's make it clear that there is something at the end of the
+> struct. The exact offset is reported by the cpu_offset member.
+> 
+> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+> ---
+>  lib/s390x/sclp.h | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+> 
+> diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+> index dccbaa8..395895f 100644
+> --- a/lib/s390x/sclp.h
+> +++ b/lib/s390x/sclp.h
+> @@ -134,7 +134,10 @@ typedef struct ReadInfo {
+>  	uint8_t reserved7[134 - 128];
+>  	uint8_t byte_134_diag318 : 1;
+>  	uint8_t : 7;
+> -	struct CPUEntry entries[0];
+> +	/*
+> +	 * The cpu entries follow, they start at the offset specified
+> +	 * in offset_cpu.
+> +	 */
+>  } __attribute__((packed)) ReadInfo;
+>  
+>  typedef struct ReadCpuInfo {
 
-Nothing special, mostly fine-tuning and follow-on cleanups for earlier fixes.
-
-Thanks,
-Julian
-
-Julian Wiedmann (5):
-  s390/qeth: clean up load/remove code for disciplines
-  s390/qeth: remove qeth_get_ip_version()
-  s390/qeth: pass proto to qeth_l3_get_cast_type()
-  s390/qeth: make cast type selection for af_iucv skbs robust
-  s390/qeth: don't fake a TX completion interrupt after TX error
-
- drivers/s390/net/qeth_core.h      | 44 +++++---------
- drivers/s390/net/qeth_core_main.c | 97 +++++++++++++++++--------------
- drivers/s390/net/qeth_core_sys.c  | 10 +---
- drivers/s390/net/qeth_l2_main.c   |  6 +-
- drivers/s390/net/qeth_l3_main.c   | 90 ++++++++++++++++------------
- 5 files changed, 125 insertions(+), 122 deletions(-)
-
--- 
-2.17.1
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
