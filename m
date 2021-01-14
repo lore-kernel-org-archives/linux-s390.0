@@ -1,377 +1,416 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:26052 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231394AbhA1L0p (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:37942 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726459AbhANPEN (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Jan 2021 06:26:45 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 2/5] s390/qeth: remove qeth_get_ip_version()
-Date: Thu, 28 Jan 2021 12:25:48 +0100
-Message-Id: <20210128112551.18780-3-jwi@linux.ibm.com>
-In-Reply-To: <20210128112551.18780-1-jwi@linux.ibm.com>
-References: <20210128112551.18780-1-jwi@linux.ibm.com>
+        Thu, 14 Jan 2021 10:04:13 -0500
+Subject: Re: [kvm-unit-tests PATCH v4 5/9] s390x: sie: Add SIE to lib
+References: <20210112132054.49756-1-frankja@linux.ibm.com>
+ <20210112132054.49756-6-frankja@linux.ibm.com>
+ <20210114154354.5928aadc@ibm-vm>
+From: Janosch Frank <frankja@linux.ibm.com>
+Message-ID: <ce3c7712-b003-e44e-d195-42e457250f01@linux.ibm.com>
+Date: Thu, 14 Jan 2021 16:03:20 +0100
+MIME-Version: 1.0
+In-Reply-To: <20210114154354.5928aadc@ibm-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Cc: kvm@vger.kernel.org, thuth@redhat.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org
 
-Replace our home-grown helper with the more robust vlan_get_protocol().
-This is pretty much a 1:1 replacement, we just need to pass around a
-proper ETH_P_* everyhwere and convert the old value range.
+On 1/14/21 3:43 PM, Claudio Imbrenda wrote:
+> On Tue, 12 Jan 2021 08:20:50 -0500
+> Janosch Frank <frankja@linux.ibm.com> wrote:
+> 
+>> This commit adds the definition of the SIE control block struct and
+>> the assembly to execute SIE and save/restore guest registers.
+>>
+>> Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+>> ---
+>>  lib/s390x/asm-offsets.c  |  11 +++
+>>  lib/s390x/asm/arch_def.h |   9 ++
+>>  lib/s390x/interrupt.c    |   7 ++
+>>  lib/s390x/sie.h          | 197
+>> +++++++++++++++++++++++++++++++++++++++ s390x/lib.S              |
+>> 56 +++++++++++ 5 files changed, 280 insertions(+)
+>>  create mode 100644 lib/s390x/sie.h
+>>
+>> diff --git a/lib/s390x/asm-offsets.c b/lib/s390x/asm-offsets.c
+>> index ee94ed3..a19f14b 100644
+>> --- a/lib/s390x/asm-offsets.c
+>> +++ b/lib/s390x/asm-offsets.c
+>> @@ -8,6 +8,7 @@
+>>  #include <libcflat.h>
+>>  #include <kbuild.h>
+>>  #include <asm/arch_def.h>
+>> +#include <sie.h>
+>>  
+>>  int main(void)
+>>  {
+>> @@ -69,6 +70,16 @@ int main(void)
+>>  	OFFSET(GEN_LC_ARS_SA, lowcore, ars_sa);
+>>  	OFFSET(GEN_LC_CRS_SA, lowcore, crs_sa);
+>>  	OFFSET(GEN_LC_PGM_INT_TDB, lowcore, pgm_int_tdb);
+>> +	OFFSET(__SF_SIE_CONTROL, stack_frame, empty1[0]);
+>> +	OFFSET(__SF_SIE_SAVEAREA, stack_frame, empty1[1]);
+>> +	OFFSET(__SF_SIE_REASON, stack_frame, empty1[2]);
+>> +	OFFSET(__SF_SIE_FLAGS, stack_frame, empty1[3]);
+>> +	OFFSET(SIE_SAVEAREA_HOST_GRS, vm_save_area, host.grs[0]);
+>> +	OFFSET(SIE_SAVEAREA_HOST_FPRS, vm_save_area, host.fprs[0]);
+>> +	OFFSET(SIE_SAVEAREA_HOST_FPC, vm_save_area, host.fpc);
+>> +	OFFSET(SIE_SAVEAREA_GUEST_GRS, vm_save_area, guest.grs[0]);
+>> +	OFFSET(SIE_SAVEAREA_GUEST_FPRS, vm_save_area, guest.fprs[0]);
+>> +	OFFSET(SIE_SAVEAREA_GUEST_FPC, vm_save_area, guest.fpc);
+>>  
+>>  	return 0;
+>>  }
+>> diff --git a/lib/s390x/asm/arch_def.h b/lib/s390x/asm/arch_def.h
+>> index f3ab830..243fc48 100644
+>> --- a/lib/s390x/asm/arch_def.h
+>> +++ b/lib/s390x/asm/arch_def.h
+>> @@ -8,6 +8,15 @@
+>>  #ifndef _ASM_S390X_ARCH_DEF_H_
+>>  #define _ASM_S390X_ARCH_DEF_H_
+>>  
+>> +/*
+>> + * We currently on specify the stack frame members needed for the SIE
+> 
+> I assume s/on/only/ ?
 
-For readability also convert the protocol checks in
-qeth_l3_hard_start_xmit() to a switch statement.
+Yes
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
----
- drivers/s390/net/qeth_core.h      | 40 ++++++++-------------
- drivers/s390/net/qeth_core_main.c | 18 +++++-----
- drivers/s390/net/qeth_l2_main.c   |  6 ++--
- drivers/s390/net/qeth_l3_main.c   | 60 ++++++++++++++++++-------------
- 4 files changed, 62 insertions(+), 62 deletions(-)
+> 
+> with that fixed:
+> Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 331dcbbf3e25..a1da83b0b0ef 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -956,24 +956,6 @@ static inline int qeth_get_elements_for_range(addr_t start, addr_t end)
- 	return PFN_UP(end) - PFN_DOWN(start);
- }
- 
--static inline int qeth_get_ip_version(struct sk_buff *skb)
--{
--	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
--	__be16 prot = veth->h_vlan_proto;
--
--	if (prot == htons(ETH_P_8021Q))
--		prot = veth->h_vlan_encapsulated_proto;
--
--	switch (prot) {
--	case htons(ETH_P_IPV6):
--		return 6;
--	case htons(ETH_P_IP):
--		return 4;
--	default:
--		return 0;
--	}
--}
--
- static inline int qeth_get_ether_cast_type(struct sk_buff *skb)
- {
- 	u8 *addr = eth_hdr(skb)->h_dest;
-@@ -984,14 +966,20 @@ static inline int qeth_get_ether_cast_type(struct sk_buff *skb)
- 	return RTN_UNICAST;
- }
- 
--static inline struct dst_entry *qeth_dst_check_rcu(struct sk_buff *skb, int ipv)
-+static inline struct dst_entry *qeth_dst_check_rcu(struct sk_buff *skb,
-+						   __be16 proto)
- {
- 	struct dst_entry *dst = skb_dst(skb);
- 	struct rt6_info *rt;
- 
- 	rt = (struct rt6_info *) dst;
--	if (dst)
--		dst = dst_check(dst, (ipv == 6) ? rt6_get_cookie(rt) : 0);
-+	if (dst) {
-+		if (proto == htons(ETH_P_IPV6))
-+			dst = dst_check(dst, rt6_get_cookie(rt));
-+		else
-+			dst = dst_check(dst, 0);
-+	}
-+
- 	return dst;
- }
- 
-@@ -1014,11 +1002,11 @@ static inline struct in6_addr *qeth_next_hop_v6_rcu(struct sk_buff *skb,
- 		return &ipv6_hdr(skb)->daddr;
- }
- 
--static inline void qeth_tx_csum(struct sk_buff *skb, u8 *flags, int ipv)
-+static inline void qeth_tx_csum(struct sk_buff *skb, u8 *flags, __be16 proto)
- {
- 	*flags |= QETH_HDR_EXT_CSUM_TRANSP_REQ;
--	if ((ipv == 4 && ip_hdr(skb)->protocol == IPPROTO_UDP) ||
--	    (ipv == 6 && ipv6_hdr(skb)->nexthdr == IPPROTO_UDP))
-+	if ((proto == htons(ETH_P_IP) && ip_hdr(skb)->protocol == IPPROTO_UDP) ||
-+	    (proto == htons(ETH_P_IPV6) && ipv6_hdr(skb)->nexthdr == IPPROTO_UDP))
- 		*flags |= QETH_HDR_EXT_UDP;
- }
- 
-@@ -1145,10 +1133,10 @@ int qeth_stop(struct net_device *dev);
- 
- int qeth_vm_request_mac(struct qeth_card *card);
- int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
--	      struct qeth_qdio_out_q *queue, int ipv,
-+	      struct qeth_qdio_out_q *queue, __be16 proto,
- 	      void (*fill_header)(struct qeth_qdio_out_q *queue,
- 				  struct qeth_hdr *hdr, struct sk_buff *skb,
--				  int ipv, unsigned int data_len));
-+				  __be16 proto, unsigned int data_len));
- 
- /* exports for OSN */
- int qeth_osn_assist(struct net_device *, void *, int);
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 0a65213ab606..de9d27e1c529 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -825,7 +825,8 @@ static bool qeth_next_hop_is_local_v4(struct qeth_card *card,
- 		return false;
- 
- 	rcu_read_lock();
--	next_hop = qeth_next_hop_v4_rcu(skb, qeth_dst_check_rcu(skb, 4));
-+	next_hop = qeth_next_hop_v4_rcu(skb,
-+					qeth_dst_check_rcu(skb, htons(ETH_P_IP)));
- 	key = ipv4_addr_hash(next_hop);
- 
- 	hash_for_each_possible_rcu(card->local_addrs4, tmp, hnode, key) {
-@@ -851,7 +852,8 @@ static bool qeth_next_hop_is_local_v6(struct qeth_card *card,
- 		return false;
- 
- 	rcu_read_lock();
--	next_hop = qeth_next_hop_v6_rcu(skb, qeth_dst_check_rcu(skb, 6));
-+	next_hop = qeth_next_hop_v6_rcu(skb,
-+					qeth_dst_check_rcu(skb, htons(ETH_P_IPV6)));
- 	key = ipv6_addr_hash(next_hop);
- 
- 	hash_for_each_possible_rcu(card->local_addrs6, tmp, hnode, key) {
-@@ -3896,11 +3898,11 @@ int qeth_get_priority_queue(struct qeth_card *card, struct sk_buff *skb)
- 	switch (card->qdio.do_prio_queueing) {
- 	case QETH_PRIO_Q_ING_TOS:
- 	case QETH_PRIO_Q_ING_PREC:
--		switch (qeth_get_ip_version(skb)) {
--		case 4:
-+		switch (vlan_get_protocol(skb)) {
-+		case htons(ETH_P_IP):
- 			tos = ipv4_get_dsfield(ip_hdr(skb));
- 			break;
--		case 6:
-+		case htons(ETH_P_IPV6):
- 			tos = ipv6_get_dsfield(ipv6_hdr(skb));
- 			break;
- 		default:
-@@ -4365,10 +4367,10 @@ static void qeth_fill_tso_ext(struct qeth_hdr_tso *hdr,
- }
- 
- int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
--	      struct qeth_qdio_out_q *queue, int ipv,
-+	      struct qeth_qdio_out_q *queue, __be16 proto,
- 	      void (*fill_header)(struct qeth_qdio_out_q *queue,
- 				  struct qeth_hdr *hdr, struct sk_buff *skb,
--				  int ipv, unsigned int data_len))
-+				  __be16 proto, unsigned int data_len))
- {
- 	unsigned int proto_len, hw_hdr_len;
- 	unsigned int frame_len = skb->len;
-@@ -4401,7 +4403,7 @@ int qeth_xmit(struct qeth_card *card, struct sk_buff *skb,
- 		data_offset = push_len + proto_len;
- 	}
- 	memset(hdr, 0, hw_hdr_len);
--	fill_header(queue, hdr, skb, ipv, frame_len);
-+	fill_header(queue, hdr, skb, proto, frame_len);
- 	if (is_tso)
- 		qeth_fill_tso_ext((struct qeth_hdr_tso *) hdr,
- 				  frame_len - proto_len, skb, proto_len);
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 4254caf1d9b6..ca44421a6d6e 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -157,7 +157,7 @@ static void qeth_l2_drain_rx_mode_cache(struct qeth_card *card)
- 
- static void qeth_l2_fill_header(struct qeth_qdio_out_q *queue,
- 				struct qeth_hdr *hdr, struct sk_buff *skb,
--				int ipv, unsigned int data_len)
-+				__be16 proto, unsigned int data_len)
- {
- 	int cast_type = qeth_get_ether_cast_type(skb);
- 	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
-@@ -169,7 +169,7 @@ static void qeth_l2_fill_header(struct qeth_qdio_out_q *queue,
- 	} else {
- 		hdr->hdr.l2.id = QETH_HEADER_TYPE_LAYER2;
- 		if (skb->ip_summed == CHECKSUM_PARTIAL)
--			qeth_tx_csum(skb, &hdr->hdr.l2.flags[1], ipv);
-+			qeth_tx_csum(skb, &hdr->hdr.l2.flags[1], proto);
- 	}
- 
- 	/* set byte byte 3 to casting flags */
-@@ -551,7 +551,7 @@ static netdev_tx_t qeth_l2_hard_start_xmit(struct sk_buff *skb,
- 	if (IS_OSN(card))
- 		rc = qeth_l2_xmit_osn(card, skb, queue);
- 	else
--		rc = qeth_xmit(card, skb, queue, qeth_get_ip_version(skb),
-+		rc = qeth_xmit(card, skb, queue, vlan_get_protocol(skb),
- 			       qeth_l2_fill_header);
- 
- 	if (!rc)
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 4c2cae7ae9a7..7a7465376e29 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1576,7 +1576,7 @@ static int qeth_l3_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
- }
- 
- static int qeth_l3_get_cast_type_rcu(struct sk_buff *skb, struct dst_entry *dst,
--				     int ipv)
-+				     __be16 proto)
- {
- 	struct neighbour *n = NULL;
- 
-@@ -1595,13 +1595,13 @@ static int qeth_l3_get_cast_type_rcu(struct sk_buff *skb, struct dst_entry *dst,
- 	}
- 
- 	/* no neighbour (eg AF_PACKET), fall back to target's IP address ... */
--	switch (ipv) {
--	case 4:
-+	switch (proto) {
-+	case htons(ETH_P_IP):
- 		if (ipv4_is_lbcast(ip_hdr(skb)->daddr))
- 			return RTN_BROADCAST;
- 		return ipv4_is_multicast(ip_hdr(skb)->daddr) ?
- 				RTN_MULTICAST : RTN_UNICAST;
--	case 6:
-+	case htons(ETH_P_IPV6):
- 		return ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr) ?
- 				RTN_MULTICAST : RTN_UNICAST;
- 	default:
-@@ -1612,13 +1612,13 @@ static int qeth_l3_get_cast_type_rcu(struct sk_buff *skb, struct dst_entry *dst,
- 
- static int qeth_l3_get_cast_type(struct sk_buff *skb)
- {
--	int ipv = qeth_get_ip_version(skb);
-+	__be16 proto = vlan_get_protocol(skb);
- 	struct dst_entry *dst;
- 	int cast_type;
- 
- 	rcu_read_lock();
--	dst = qeth_dst_check_rcu(skb, ipv);
--	cast_type = qeth_l3_get_cast_type_rcu(skb, dst, ipv);
-+	dst = qeth_dst_check_rcu(skb, proto);
-+	cast_type = qeth_l3_get_cast_type_rcu(skb, dst, proto);
- 	rcu_read_unlock();
- 
- 	return cast_type;
-@@ -1637,7 +1637,7 @@ static u8 qeth_l3_cast_type_to_flag(int cast_type)
- 
- static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 				struct qeth_hdr *hdr, struct sk_buff *skb,
--				int ipv, unsigned int data_len)
-+				__be16 proto, unsigned int data_len)
- {
- 	struct qeth_hdr_layer3 *l3_hdr = &hdr->hdr.l3;
- 	struct vlan_ethhdr *veth = vlan_eth_hdr(skb);
-@@ -1652,7 +1652,7 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 	} else {
- 		hdr->hdr.l3.id = QETH_HEADER_TYPE_LAYER3;
- 
--		if (skb->protocol == htons(ETH_P_AF_IUCV)) {
-+		if (proto == htons(ETH_P_AF_IUCV)) {
- 			l3_hdr->flags = QETH_HDR_IPV6 | QETH_CAST_UNICAST;
- 			l3_hdr->next_hop.addr.s6_addr16[0] = htons(0xfe80);
- 			memcpy(&l3_hdr->next_hop.addr.s6_addr32[2],
-@@ -1661,14 +1661,14 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 		}
- 
- 		if (skb->ip_summed == CHECKSUM_PARTIAL) {
--			qeth_tx_csum(skb, &hdr->hdr.l3.ext_flags, ipv);
-+			qeth_tx_csum(skb, &hdr->hdr.l3.ext_flags, proto);
- 			/* some HW requires combined L3+L4 csum offload: */
--			if (ipv == 4)
-+			if (proto == htons(ETH_P_IP))
- 				hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_CSUM_HDR_REQ;
- 		}
- 	}
- 
--	if (ipv == 4 || IS_IQD(card)) {
-+	if (proto == htons(ETH_P_IP) || IS_IQD(card)) {
- 		/* NETIF_F_HW_VLAN_CTAG_TX */
- 		if (skb_vlan_tag_present(skb)) {
- 			hdr->hdr.l3.ext_flags |= QETH_HDR_EXT_VLAN_FRAME;
-@@ -1680,18 +1680,18 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 	}
- 
- 	rcu_read_lock();
--	dst = qeth_dst_check_rcu(skb, ipv);
-+	dst = qeth_dst_check_rcu(skb, proto);
- 
- 	if (IS_IQD(card) && skb_get_queue_mapping(skb) != QETH_IQD_MCAST_TXQ)
- 		cast_type = RTN_UNICAST;
- 	else
--		cast_type = qeth_l3_get_cast_type_rcu(skb, dst, ipv);
-+		cast_type = qeth_l3_get_cast_type_rcu(skb, dst, proto);
- 	l3_hdr->flags |= qeth_l3_cast_type_to_flag(cast_type);
- 
--	if (ipv == 4) {
-+	if (proto == htons(ETH_P_IP)) {
- 		l3_hdr->next_hop.addr.s6_addr32[3] =
- 					qeth_next_hop_v4_rcu(skb, dst);
--	} else if (ipv == 6) {
-+	} else if (proto == htons(ETH_P_IPV6)) {
- 		l3_hdr->next_hop.addr = *qeth_next_hop_v6_rcu(skb, dst);
- 
- 		hdr->hdr.l3.flags |= QETH_HDR_IPV6;
-@@ -1719,7 +1719,7 @@ static void qeth_l3_fixup_headers(struct sk_buff *skb)
- }
- 
- static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
--			struct qeth_qdio_out_q *queue, int ipv)
-+			struct qeth_qdio_out_q *queue, __be16 proto)
- {
- 	unsigned int hw_hdr_len;
- 	int rc;
-@@ -1733,15 +1733,15 @@ static int qeth_l3_xmit(struct qeth_card *card, struct sk_buff *skb,
- 	skb_pull(skb, ETH_HLEN);
- 
- 	qeth_l3_fixup_headers(skb);
--	return qeth_xmit(card, skb, queue, ipv, qeth_l3_fill_header);
-+	return qeth_xmit(card, skb, queue, proto, qeth_l3_fill_header);
- }
- 
- static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 					   struct net_device *dev)
- {
- 	struct qeth_card *card = dev->ml_priv;
-+	__be16 proto = vlan_get_protocol(skb);
- 	u16 txq = skb_get_queue_mapping(skb);
--	int ipv = qeth_get_ip_version(skb);
- 	struct qeth_qdio_out_q *queue;
- 	int rc;
- 
-@@ -1752,10 +1752,20 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 
- 		if (card->options.sniffer)
- 			goto tx_drop;
--		if ((card->options.cq != QETH_CQ_ENABLED && !ipv) ||
--		    (card->options.cq == QETH_CQ_ENABLED &&
--		     skb->protocol != htons(ETH_P_AF_IUCV)))
-+
-+		switch (proto) {
-+		case htons(ETH_P_AF_IUCV):
-+			if (card->options.cq != QETH_CQ_ENABLED)
-+				goto tx_drop;
-+			break;
-+		case htons(ETH_P_IP):
-+		case htons(ETH_P_IPV6):
-+			if (card->options.cq == QETH_CQ_ENABLED)
-+				goto tx_drop;
-+			break;
-+		default:
- 			goto tx_drop;
-+		}
- 	} else {
- 		queue = card->qdio.out_qs[txq];
- 	}
-@@ -1764,10 +1774,10 @@ static netdev_tx_t qeth_l3_hard_start_xmit(struct sk_buff *skb,
- 	    qeth_l3_get_cast_type(skb) == RTN_BROADCAST)
- 		goto tx_drop;
- 
--	if (ipv == 4 || IS_IQD(card))
--		rc = qeth_l3_xmit(card, skb, queue, ipv);
-+	if (proto == htons(ETH_P_IP) || IS_IQD(card))
-+		rc = qeth_l3_xmit(card, skb, queue, proto);
- 	else
--		rc = qeth_xmit(card, skb, queue, ipv, qeth_l3_fill_header);
-+		rc = qeth_xmit(card, skb, queue, proto, qeth_l3_fill_header);
- 
- 	if (!rc)
- 		return NETDEV_TX_OK;
--- 
-2.17.1
+Thanks!
+
+> 
+>> + * library code.
+>> + */
+>> +struct stack_frame {
+>> +	unsigned long back_chain;
+>> +	unsigned long empty1[5];
+>> +};
+>> +
+>>  struct psw {
+>>  	uint64_t	mask;
+>>  	uint64_t	addr;
+>> diff --git a/lib/s390x/interrupt.c b/lib/s390x/interrupt.c
+>> index bac8862..1ce3607 100644
+>> --- a/lib/s390x/interrupt.c
+>> +++ b/lib/s390x/interrupt.c
+>> @@ -11,6 +11,7 @@
+>>  #include <asm/barrier.h>
+>>  #include <sclp.h>
+>>  #include <interrupt.h>
+>> +#include <sie.h>
+>>  
+>>  static bool pgm_int_expected;
+>>  static bool ext_int_expected;
+>> @@ -57,6 +58,12 @@ void register_pgm_cleanup_func(void (*f)(void))
+>>  
+>>  static void fixup_pgm_int(void)
+>>  {
+>> +	/* If we have an error on SIE we directly move to sie_exit */
+>> +	if (lc->pgm_old_psw.addr >= (uint64_t)&sie_entry &&
+>> +	    lc->pgm_old_psw.addr <= (uint64_t)&sie_exit) {
+>> +		lc->pgm_old_psw.addr = (uint64_t)&sie_exit;
+>> +	}
+>> +
+>>  	switch (lc->pgm_int_code) {
+>>  	case PGM_INT_CODE_PRIVILEGED_OPERATION:
+>>  		/* Normal operation is in supervisor state, so this
+>> exception diff --git a/lib/s390x/sie.h b/lib/s390x/sie.h
+>> new file mode 100644
+>> index 0000000..66aa3b8
+>> --- /dev/null
+>> +++ b/lib/s390x/sie.h
+>> @@ -0,0 +1,197 @@
+>> +#ifndef SIE_H
+>> +#define SIE_H
+>> +
+>> +#define CPUSTAT_STOPPED    0x80000000
+>> +#define CPUSTAT_WAIT       0x10000000
+>> +#define CPUSTAT_ECALL_PEND 0x08000000
+>> +#define CPUSTAT_STOP_INT   0x04000000
+>> +#define CPUSTAT_IO_INT     0x02000000
+>> +#define CPUSTAT_EXT_INT    0x01000000
+>> +#define CPUSTAT_RUNNING    0x00800000
+>> +#define CPUSTAT_RETAINED   0x00400000
+>> +#define CPUSTAT_TIMING_SUB 0x00020000
+>> +#define CPUSTAT_SIE_SUB    0x00010000
+>> +#define CPUSTAT_RRF        0x00008000
+>> +#define CPUSTAT_SLSV       0x00004000
+>> +#define CPUSTAT_SLSR       0x00002000
+>> +#define CPUSTAT_ZARCH      0x00000800
+>> +#define CPUSTAT_MCDS       0x00000100
+>> +#define CPUSTAT_KSS        0x00000200
+>> +#define CPUSTAT_SM         0x00000080
+>> +#define CPUSTAT_IBS        0x00000040
+>> +#define CPUSTAT_GED2       0x00000010
+>> +#define CPUSTAT_G          0x00000008
+>> +#define CPUSTAT_GED        0x00000004
+>> +#define CPUSTAT_J          0x00000002
+>> +#define CPUSTAT_P          0x00000001
+>> +
+>> +struct kvm_s390_sie_block {
+>> +	uint32_t 	cpuflags;		/* 0x0000 */
+>> +	uint32_t : 1;			/* 0x0004 */
+>> +	uint32_t 	prefix : 18;
+>> +	uint32_t : 1;
+>> +	uint32_t 	ibc : 12;
+>> +	uint8_t		reserved08[4];		/*
+>> 0x0008 */ +#define PROG_IN_SIE (1<<0)
+>> +	uint32_t	prog0c;			/* 0x000c */
+>> +	uint8_t		reserved10[16];		/*
+>> 0x0010 */ +#define PROG_BLOCK_SIE	(1<<0)
+>> +#define PROG_REQUEST	(1<<1)
+>> +	uint32_t 	prog20;		/* 0x0020 */
+>> +	uint8_t		reserved24[4];		/*
+>> 0x0024 */
+>> +	uint64_t	cputm;			/* 0x0028 */
+>> +	uint64_t	ckc;			/* 0x0030 */
+>> +	uint64_t	epoch;			/* 0x0038 */
+>> +	uint32_t	svcc;			/* 0x0040 */
+>> +#define LCTL_CR0	0x8000
+>> +#define LCTL_CR6	0x0200
+>> +#define LCTL_CR9	0x0040
+>> +#define LCTL_CR10	0x0020
+>> +#define LCTL_CR11	0x0010
+>> +#define LCTL_CR14	0x0002
+>> +	uint16_t   	lctl;			/* 0x0044 */
+>> +	int16_t		icpua;			/*
+>> 0x0046 */ +#define ICTL_OPEREXC	0x80000000
+>> +#define ICTL_PINT	0x20000000
+>> +#define ICTL_LPSW	0x00400000
+>> +#define ICTL_STCTL	0x00040000
+>> +#define ICTL_ISKE	0x00004000
+>> +#define ICTL_SSKE	0x00002000
+>> +#define ICTL_RRBE	0x00001000
+>> +#define ICTL_TPROT	0x00000200
+>> +	uint32_t	ictl;			/* 0x0048 */
+>> +#define ECA_CEI		0x80000000
+>> +#define ECA_IB		0x40000000
+>> +#define ECA_SIGPI	0x10000000
+>> +#define ECA_MVPGI	0x01000000
+>> +#define ECA_AIV		0x00200000
+>> +#define ECA_VX		0x00020000
+>> +#define ECA_PROTEXCI	0x00002000
+>> +#define ECA_APIE	0x00000008
+>> +#define ECA_SII		0x00000001
+>> +	uint32_t	eca;			/* 0x004c */
+>> +#define ICPT_INST	0x04
+>> +#define ICPT_PROGI	0x08
+>> +#define ICPT_INSTPROGI	0x0C
+>> +#define ICPT_EXTREQ	0x10
+>> +#define ICPT_EXTINT	0x14
+>> +#define ICPT_IOREQ	0x18
+>> +#define ICPT_WAIT	0x1c
+>> +#define ICPT_VALIDITY	0x20
+>> +#define ICPT_STOP	0x28
+>> +#define ICPT_OPEREXC	0x2C
+>> +#define ICPT_PARTEXEC	0x38
+>> +#define ICPT_IOINST	0x40
+>> +#define ICPT_KSS	0x5c
+>> +	uint8_t		icptcode;		/* 0x0050 */
+>> +	uint8_t		icptstatus;		/* 0x0051
+>> */
+>> +	uint16_t	ihcpu;			/* 0x0052 */
+>> +	uint8_t		reserved54[2];		/*
+>> 0x0054 */
+>> +	uint16_t	ipa;			/* 0x0056 */
+>> +	uint32_t	ipb;			/* 0x0058 */
+>> +	uint32_t	scaoh;			/* 0x005c */
+>> +#define FPF_BPBC 	0x20
+>> +	uint8_t		fpf;			/* 0x0060
+>> */ +#define ECB_GS		0x40
+>> +#define ECB_TE		0x10
+>> +#define ECB_SRSI	0x04
+>> +#define ECB_HOSTPROTINT	0x02
+>> +	uint8_t		ecb;			/* 0x0061
+>> */ +#define ECB2_CMMA	0x80
+>> +#define ECB2_IEP	0x20
+>> +#define ECB2_PFMFI	0x08
+>> +#define ECB2_ESCA	0x04
+>> +	uint8_t    	ecb2;                   /* 0x0062 */
+>> +#define ECB3_DEA 0x08
+>> +#define ECB3_AES 0x04
+>> +#define ECB3_RI  0x01
+>> +	uint8_t    	ecb3;			/* 0x0063 */
+>> +	uint32_t	scaol;			/* 0x0064 */
+>> +	uint8_t		reserved68;		/* 0x0068
+>> */
+>> +	uint8_t    	epdx;			/* 0x0069 */
+>> +	uint8_t    	reserved6a[2];		/* 0x006a */
+>> +	uint32_t	todpr;			/* 0x006c */
+>> +#define GISA_FORMAT1 0x00000001
+>> +	uint32_t	gd;			/* 0x0070 */
+>> +	uint8_t		reserved74[12];		/*
+>> 0x0074 */
+>> +	uint64_t	mso;			/* 0x0080 */
+>> +	uint64_t	msl;			/* 0x0088 */
+>> +	struct psw	gpsw;			/* 0x0090 */
+>> +	uint64_t	gg14;			/* 0x00a0 */
+>> +	uint64_t	gg15;			/* 0x00a8 */
+>> +	uint8_t		reservedb0[8];		/*
+>> 0x00b0 */ +#define HPID_KVM	0x4
+>> +#define HPID_VSIE	0x5
+>> +	uint8_t		hpid;			/*
+>> 0x00b8 */
+>> +	uint8_t		reservedb9[11];		/*
+>> 0x00b9 */
+>> +	uint16_t	extcpuaddr;		/* 0x00c4 */
+>> +	uint16_t	eic;			/* 0x00c6 */
+>> +	uint32_t	reservedc8;		/* 0x00c8 */
+>> +	uint16_t	pgmilc;			/* 0x00cc */
+>> +	uint16_t	iprcc;			/* 0x00ce */
+>> +	uint32_t	dxc;			/* 0x00d0 */
+>> +	uint16_t	mcn;			/* 0x00d4 */
+>> +	uint8_t		perc;			/*
+>> 0x00d6 */
+>> +	uint8_t		peratmid;		/* 0x00d7 */
+>> +	uint64_t	peraddr;		/* 0x00d8 */
+>> +	uint8_t		eai;			/* 0x00e0
+>> */
+>> +	uint8_t		peraid;			/*
+>> 0x00e1 */
+>> +	uint8_t		oai;			/* 0x00e2
+>> */
+>> +	uint8_t		armid;			/*
+>> 0x00e3 */
+>> +	uint8_t		reservede4[4];		/*
+>> 0x00e4 */
+>> +	uint64_t	tecmc;			/* 0x00e8 */
+>> +	uint8_t		reservedf0[12];		/*
+>> 0x00f0 */ +#define CRYCB_FORMAT_MASK 0x00000003
+>> +#define CRYCB_FORMAT0 0x00000000
+>> +#define CRYCB_FORMAT1 0x00000001
+>> +#define CRYCB_FORMAT2 0x00000003
+>> +	uint32_t	crycbd;			/* 0x00fc */
+>> +	uint64_t	gcr[16];		/* 0x0100 */
+>> +	uint64_t	gbea;			/* 0x0180 */
+>> +	uint8_t		reserved188[8];		/*
+>> 0x0188 */
+>> +	uint64_t   	sdnxo;			/* 0x0190 */
+>> +	uint8_t    	reserved198[8];		/* 0x0198
+>> */
+>> +	uint32_t	fac;			/* 0x01a0 */
+>> +	uint8_t		reserved1a4[20];	/* 0x01a4 */
+>> +	uint64_t	cbrlo;			/* 0x01b8 */
+>> +	uint8_t		reserved1c0[8];		/*
+>> 0x01c0 */ +#define ECD_HOSTREGMGMT	0x20000000
+>> +#define ECD_MEF		0x08000000
+>> +#define ECD_ETOKENF	0x02000000
+>> +#define ECD_ECC		0x00200000
+>> +	uint32_t	ecd;			/* 0x01c8 */
+>> +	uint8_t		reserved1cc[18];	/* 0x01cc */
+>> +	uint64_t	pp;			/* 0x01de */
+>> +	uint8_t		reserved1e6[2];		/*
+>> 0x01e6 */
+>> +	uint64_t	itdba;			/* 0x01e8 */
+>> +	uint64_t   	riccbd;			/* 0x01f0
+>> */
+>> +	uint64_t	gvrd;			/* 0x01f8 */
+>> +} __attribute__((packed));
+>> +
+>> +struct vm_save_regs {
+>> +	u64 grs[16];
+>> +	u64 fprs[16];
+>> +	u32 fpc;
+>> +};
+>> +
+>> +/* We might be able to nestle all of this into the stack frame. But
+>> + * having a dedicated save area that saves more than the s390 ELF ABI
+>> + * defines leaves us more freedom in the implementation.
+>> +*/
+>> +struct vm_save_area {
+>> +	struct vm_save_regs guest;
+>> +	struct vm_save_regs host;
+>> +};
+>> +
+>> +struct vm {
+>> +	struct kvm_s390_sie_block *sblk;
+>> +	struct vm_save_area save_area;
+>> +	/* Ptr to first guest page */
+>> +	u8 *guest_mem;
+>> +};
+>> +
+>> +extern void sie_entry(void);
+>> +extern void sie_exit(void);
+>> +extern void sie64a(struct kvm_s390_sie_block *sblk, struct
+>> vm_save_area *save_area); +
+>> +#endif /* SIE_H */
+>> diff --git a/s390x/lib.S b/s390x/lib.S
+>> index 4d78ec6..5267f02 100644
+>> --- a/s390x/lib.S
+>> +++ b/s390x/lib.S
+>> @@ -60,6 +60,62 @@ smp_cpu_setup_state:
+>>  	/* If the function returns, just loop here */
+>>  0:	j	0
+>>  
+>> +/*
+>> + * sie64a calling convention:
+>> + * %r2 pointer to sie control block
+>> + * %r3 guest register save area
+>> + */
+>> +.globl sie64a
+>> +sie64a:
+>> +	# Save host grs, fprs, fpc
+>> +	stmg	%r0,%r14,SIE_SAVEAREA_HOST_GRS(%r3)	#
+>> save kernel registers
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	std	\i, \i * 8  + SIE_SAVEAREA_HOST_FPRS(%r3)
+>> +	.endr
+>> +	stfpc	SIE_SAVEAREA_HOST_FPC(%r3)
+>> +
+>> +	# Store scb and save_area pointer into stack frame
+>> +	stg	%r2,__SF_SIE_CONTROL(%r15)	# save control
+>> block pointer
+>> +	stg	%r3,__SF_SIE_SAVEAREA(%r15)	# save guest
+>> register save area +
+>> +	# Load guest's gprs, fprs and fpc
+>> +	lmg	%r0,%r13,SIE_SAVEAREA_GUEST_GRS(%r3)
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	ld	\i, \i * 8 + SIE_SAVEAREA_GUEST_FPRS(%r3)
+>> +	.endr
+>> +	lfpc	SIE_SAVEAREA_GUEST_FPC(%r3)
+>> +
+>> +	# Move scb ptr into r14 for the sie instruction
+>> +	lg	%r14,__SF_SIE_CONTROL(%r15)
+>> +
+>> +.globl sie_entry
+>> +sie_entry:
+>> +	sie	0(%r14)
+>> +	nopr	7
+>> +	nopr	7
+>> +	nopr	7
+>> +
+>> +.globl sie_exit
+>> +sie_exit:
+>> +	# Load guest register save area
+>> +	lg	%r14,__SF_SIE_SAVEAREA(%r15)
+>> +
+>> +	# Store guest's gprs, fprs and fpc
+>> +	stmg	%r0,%r13,SIE_SAVEAREA_GUEST_GRS(%r14)	#
+>> save guest gprs 0-13
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	std	\i, \i * 8  + SIE_SAVEAREA_GUEST_FPRS(%r14)
+>> +	.endr
+>> +	stfpc	SIE_SAVEAREA_GUEST_FPC(%r14)
+>> +
+>> +	# Restore host's gprs, fprs and fpc
+>> +	.irp i, 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+>> +	ld	\i, \i * 8 + SIE_SAVEAREA_HOST_FPRS(%r14)
+>> +	.endr
+>> +	lfpc	SIE_SAVEAREA_HOST_FPC(%r14)
+>> +	lmg	%r0,%r14,SIE_SAVEAREA_HOST_GRS(%r14)	#
+>> restore kernel registers +
+>> +	br	%r14
+>> +
+>>  	.align	8
+>>  reset_psw:
+>>  	.quad	0x0008000180000000
+> 
