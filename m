@@ -1,55 +1,105 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:30615 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388658AbhAOUDD (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Fri, 15 Jan 2021 15:03:03 -0500
-From: David Laight <David.Laight@ACULAB.COM>
-Subject: RE: [PATCH] Adds a new ioctl32 syscall for backwards compatibility
- layers
-Date: Fri, 15 Jan 2021 20:01:15 +0000
-Message-ID: <b15672b1caec4cf980f2753d06b03596@AcuMS.aculab.com>
-References: <20210106064807.253112-1-Sonicadvance1@gmail.com>
- <20210115070326.294332-1-Sonicadvance1@gmail.com>
-In-Reply-To: <20210115070326.294332-1-Sonicadvance1@gmail.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
 MIME-Version: 1.0
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+References: <20210106064807.253112-1-Sonicadvance1@gmail.com>
+ <CAK8P3a2tV3HzPpbCR7mAeutx38_D2d-vfpEgpXv+GW_98w3VSQ@mail.gmail.com> <CABnRqDfQ5Qfa2ybut0qXcKuYnsMcG7+9gqjL-e7nZF1bkvhPRw@mail.gmail.com>
+In-Reply-To: <CABnRqDfQ5Qfa2ybut0qXcKuYnsMcG7+9gqjL-e7nZF1bkvhPRw@mail.gmail.com>
+From: Arnd Bergmann <arnd@kernel.org>
+Date: Fri, 15 Jan 2021 10:00:47 +0100
+Message-ID: <CAK8P3a2vfVfEWTk1ig349LGqt8bkK8YQWjE6PRyx+xvgYx7-gA@mail.gmail.com>
+Subject: Re: [PATCH] Adds a new ioctl32 syscall for backwards compatibility layers
+Content-Type: text/plain; charset="UTF-8"
 List-ID: <linux-s390.vger.kernel.org>
-To: "'sonicadvance1@gmail.com'" <sonicadvance1@gmail.com>
-Cc: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "x86@kernel.org" <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, Aleksa Sarai <cyphar@cyphar.com>, Xiaoming Ni <nixiaoming@huawei.com>, David Rientjes <rientjes@google.com>, Willem de Bruijn <willemb@google.com>, Christian Brauner <christian.brauner@ubuntu.com>, Miklos Szeredi <mszeredi@redhat.com>, Minchan Kim <minchan@kernel.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Vlastimil Babka <vbabka@suse.cz>, Oleg Nesterov <oleg@redhat.com>, YueHaibing <yuehaibing@huawei.com>, Suren Baghdasaryan <surenb@google.com>, Nicholas Piggin <npiggin@gmail.com>, Brian Gerst <brgerst@gmail.com>, Dominik Brodowski <linux@dominikbrodowski.net>, Jan Kara <jack@suse.cz>, Arnaldo Carvalho de Melo <acme@redhat.com>, "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>, "linux-m68k@lists.linux-m68k.org" <linux-m68k@lists.linux-m68k.org>, "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>, "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>, "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "linux-sh@vger.kernel.org" <linux-sh@vger.kernel.org>, "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>, "linux-xtensa@linux-xtensa.org" <linux-xtensa@linux-xtensa.org>, "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>, "linux-arch@vger.kernel.org" <linux-arch@vger.kernel.org>
+To: Ryan Houdek <sonicadvance1@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Christian Brauner <christian.brauner@ubuntu.com>, Andrew Morton <akpm@linux-foundation.org>, Minchan Kim <minchan@kernel.org>, Aleksa Sarai <cyphar@cyphar.com>, Sargun Dhillon <sargun@sargun.me>, Miklos Szeredi <mszeredi@redhat.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Amanieu d'Antras <amanieu@gmail.com>, Willem de Bruijn <willemb@google.com>, YueHaibing <yuehaibing@huawei.com>, Xiaoming Ni <nixiaoming@huawei.com>, Heiko Carstens <hca@linux.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Joe Perches <joe@perches.com>, Jan Kara <jack@suse.cz>, David Rientjes <rientjes@google.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, "David S. Miller" <davem@davemloft.net>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>
 
-From: sonicadvance1@gmail.com
-> Sent: 15 January 2021 07:03
-> Problem presented:
-> A backwards compatibility layer that allows running x86-64 and x86
-> processes inside of an AArch64 process.
->   - CPU is emulated
->   - Syscall interface is mostly passthrough
->   - Some syscalls require patching or emulation depending on behaviour
->   - Not viable from the emulator design to use an AArch32 host process
-> 
+On Fri, Jan 15, 2021 at 3:06 AM Ryan Houdek <sonicadvance1@gmail.com> wrote:
+> On Wed, Jan 6, 2021 at 12:49 AM Arnd Bergmann <arnd@kernel.org> wrote:
+>> On Wed, Jan 6, 2021 at 7:48 AM <sonicadvance1@gmail.com> wrote:
+>> > From: Ryan Houdek <Sonicadvance1@gmail.com>
+>> ...
+>>
+>> For x86, this has another complication, as some ioctls also need to
+>> check whether they are in an ia32 task (with packed u64 and 32-bit
+>> __kernel_old_time_t) or an x32 task (with aligned u64 and 64-bit
+>> __kernel_old_time_t). If the new syscall gets wired up on x86 as well,
+>> you'd need to decide which of the two behaviors you want.
+>
+>
+> I can have a follow-up patch that makes this do ni-syscall on x86_64 since
+> we can go through the int 0x80 handler, or x32 handler path and choose
+> whichever one there.
 
-You are going to need to add all the x86 compatibility code into
-your arm64 kernel.
-This is likely to be different from the 32bit arm compatibility
-because 64bit items are only aligned on 32bit boundaries.
-The x86 x32 compatibility will be more like the 32bit arm 'compat'
-code - I'm pretty sure arm32 64bit aligned 64bit data.
+I'd say for consistency
 
-You'll then need to remember how the process entered the kernel
-to work out which compatibility code to invoke.
-This is what x86 does.
-It allows a single process to do all three types of system call.
+>> > 3a) Userspace consumes all VA space above 32bit. Forcing allocations to
+>> > occur in lower 32bits
+>> >   - This is the current implementation
+>> > 3b) Ensure any allocation in the ioctl handles ioctl entrypoint rather
+>> > than just allow generic memory allocations in full VA space
+>> >   - This is hard to guarantee
+>>
+>> What kind of allocation do you mean here? Can you give an example of
+>> an ioctl that does this?
+>>
+> My concern here would be something like DRM allocating memory and
+> returning a pointer to userspace that ends up in 64bit space.
+> I can see something like `drm_get_unmapped_area` calls in to
+>  `current->mm->get_unmapped_area` which I believe only ends up falling
+> down TASK_SIZE checks.
 
-Trying to 'patch up' structures outside the kernel, or in the
-syscall interface code will always cause grief somewhere.
-The only sane place is in the code that uses the structures.
-Which, for ioctls, means inside the driver that parses them.
+I see.
 
-	David
+> Which could potentially return pointers in the 64bit address space range
+> in this case. Theoretically can be resolved either by thieving the full 64bit
+> VA range, or doing something like the Tango layer patches that on
+> syscall entry changes the syscall to a "compat" syscall.
+> compat syscall flag like Tango might be nicer here?
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+Not sure how that flag is best encoded, but yes, it would have to be
+somewhere that arch_get_unmapped_area() and
+arch_get_mmap_end() can find. Clearly we want a solution that works
+for both tango and for your work, as well as being portable to any
+architecture.
+
+>> >  }
+>> > +
+>> > +COMPAT_SYSCALL_DEFINE3(ioctl, unsigned int, fd, unsigned int, cmd,
+>> > +                       compat_ulong_t, arg)
+>> > +{
+>> > +       return do_ioctl32(fd, cmd, arg);
+>> > +}
+>> > +
+>> > +SYSCALL_DEFINE3(ioctl32, unsigned int, fd, unsigned int, cmd,
+>> > +                       compat_ulong_t, arg)
+>> > +{
+>> > +       return do_ioctl32(fd, cmd, arg);
+>> > +}
+>>
+>> These two look identical to me, I don't think you need to add a wrapper
+>> here at all, but can just use the normal compat_sys_ioctl entry point
+>> unless you want to add a 'flags' argument to control the struct padding.
+>
+>
+> I tried having the dispatch table call directly in to the COMPAT one and
+> the way things were lining up weren't allowing me to do this.
+> Since this is a bit unique in how it operates, I'm not quite sure if there is
+> another example I could pull from for this.
+
+For the asm-generic/unistd.h, you should be able to write htis as
+
+#if __BITS_PER_LONG == 64
+__SC_COMP(__NR_ioctl32, compat_sys_ioctl, sys_ni_syscall)
+#endif
+
+Which means that the native syscall in a 64-bit process always
+points to compat_sys_ioctl, while a 32-bit process always gets
+-ENOSYS.
+
+Similarly, the syscall_64.tbl file on x86 and the other 64-bit
+architectures would use
+442    64      ioctl32         compat_sys_ioctl
+
+FWIW, I suppose you can rename compat_sys_ioctl to
+sys_ioctl32 treewide, if that name makes more sense.
+
+      Arnd
