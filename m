@@ -1,14 +1,14 @@
-Return-Path: <linux-arch-owner@vger.kernel.org>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 From: sonicadvance1@gmail.com
-Subject: [PATCH v2] Adds a new ioctl32 syscall for backwards compatibility layers
-Date: Thu, 14 Jan 2021 23:17:14 -0800
-Message-Id: <20210115071740.295973-1-Sonicadvance1@gmail.com>
-In-Reply-To: <20210115070326.294332-1-Sonicadvance1@gmail.com>
-References: <20210115070326.294332-1-Sonicadvance1@gmail.com>
+Subject: [PATCH] Adds a new ioctl32 syscall for backwards compatibility layers
+Date: Thu, 14 Jan 2021 23:02:50 -0800
+Message-Id: <20210115070326.294332-1-Sonicadvance1@gmail.com>
+In-Reply-To: <20210106064807.253112-1-Sonicadvance1@gmail.com>
+References: <20210106064807.253112-1-Sonicadvance1@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-Cc: Ryan Houdek <Sonicadvance1@gmail.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, Willem de Bruijn <willemb@google.com>, Miklos Szeredi <mszeredi@redhat.com>, Christian Brauner <christian.brauner@ubuntu.com>, Minchan Kim <minchan@kernel.org>, Aleksa Sarai <cyphar@cyphar.com>, Xiaoming Ni <nixiaoming@huawei.com>, YueHaibing <yuehaibing@huawei.com>, Suren Baghdasaryan <surenb@google.com>, David Rientjes <rientjes@google.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Vlastimil Babka <vbabka@suse.cz>, Nicholas Piggin <npiggin@gmail.com>, Brian Gerst <brgerst@gmail.com>, Dominik Brodowski <linux@dominikbrodowski.net>, "Eric W. Biederman" <ebiederm@xmission.com>, Joe Perches <joe@perches.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: Ryan Houdek <Sonicadvance1@gmail.com>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Russell King <linux@armlinux.org.uk>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Tony Luck <tony.luck@intel.com>, Fenghua Yu <fenghua.yu@intel.com>, Geert Uytterhoeven <geert@linux-m68k.org>, Michal Simek <monstr@monstr.eu>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, "David S. Miller" <davem@davemloft.net>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Chris Zankel <chris@zankel.net>, Max Filippov <jcmvbkbc@gmail.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Andrew Morton <akpm@linux-foundation.org>, Aleksa Sarai <cyphar@cyphar.com>, Xiaoming Ni <nixiaoming@huawei.com>, David Rientjes <rientjes@google.com>, Willem de Bruijn <willemb@google.com>, Christian Brauner <christian.brauner@ubuntu.com>, Miklos Szeredi <mszeredi@redhat.com>, Minchan Kim <minchan@kernel.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Vlastimil Babka <vbabka@suse.cz>, Oleg Nesterov <oleg@redhat.com>, YueHaibing <yuehaibing@huawei.com>, Suren Baghdasaryan <surenb@google.com>, Nicholas Piggin <npiggin@gmail.com>, Brian Gerst <brgerst@gmail.com>, Dominik Brodowski <linux@dominikbrodowski.net>, Jan Kara <jack@suse.cz>, Arnaldo Carvalho de Melo <acme@redhat.com>, linux-alpha@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, sparclinux@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-fsdevel@vger.kernel.org, linux-api@vger.kernel.org, linux-arch@vger.kernel.org
 
 From: Ryan Houdek <Sonicadvance1@gmail.com>
 
@@ -104,12 +104,6 @@ packing across the boundary
   - Prone to failure keeping the kernel ioctl and userspace ioctl
   handling in sync
   - Really want to have it in the kernel space as much as possible
-
-Changes in v2:
-- Added the syscall to all architecture tables
-- Disabled on 32bit and BE platforms. They can call ioctl directly.
-- Disabled on x86-64 as well since you can call this from ia32 or x32
-dispatch tables
 
 Signed-off-by: Ryan Houdek <Sonicadvance1@gmail.com>
 ---
