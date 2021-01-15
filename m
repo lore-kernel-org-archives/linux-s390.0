@@ -1,14 +1,14 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:24478 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731572AbhAOBpe (ORCPT
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:44730 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726125AbhAOBJH (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 14 Jan 2021 20:45:34 -0500
-Date: Fri, 15 Jan 2021 02:44:41 +0100
+        Thu, 14 Jan 2021 20:09:07 -0500
+Date: Fri, 15 Jan 2021 02:08:16 +0100
 From: Halil Pasic <pasic@linux.ibm.com>
 Subject: Re: [PATCH v13 06/15] s390/vfio-ap: allow assignment of unavailable
  AP queues to mdev device
-Message-ID: <20210115024441.1d8f41bc.pasic@linux.ibm.com>
+Message-ID: <20210115020816.3e0226bd.pasic@linux.ibm.com>
 In-Reply-To: <270e192b-b88d-b072-428c-6cbfc0f9a280@linux.ibm.com>
 References: <20201223011606.5265-1-akrowiak@linux.ibm.com>
         <20201223011606.5265-7-akrowiak@linux.ibm.com>
@@ -24,85 +24,51 @@ Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.or
 On Thu, 14 Jan 2021 12:54:39 -0500
 Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-> >>   /**
-> >>    * vfio_ap_mdev_verify_no_sharing
-> >>    *
-> >> - * Verifies that the APQNs derived from the cross product of the AP adapter IDs
-> >> - * and AP queue indexes comprising the AP matrix are not configured for another
-> >> - * mediated device. AP queue sharing is not allowed.
-> >> + * Verifies that each APQN derived from the Cartesian product of the AP adapter
-> >> + * IDs and AP queue indexes comprising the AP matrix are not configured for
-> >> + * another mediated device. AP queue sharing is not allowed.
-> >>    *
-> >> - * @matrix_mdev: the mediated matrix device
-> >> + * @matrix_mdev: the mediated matrix device to which the APQNs being verified
-> >> + *		 are assigned.
-> >> + * @mdev_apm: mask indicating the APIDs of the APQNs to be verified
-> >> + * @mdev_aqm: mask indicating the APQIs of the APQNs to be verified
-> >>    *
-> >> - * Returns 0 if the APQNs are not shared, otherwise; returns -EADDRINUSE.
-> >> + * Returns 0 if the APQNs are not shared, otherwise; returns -EBUSY.
-> >>    */
-> >> -static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
-> >> +static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev,
-> >> +					  unsigned long *mdev_apm,
-> >> +					  unsigned long *mdev_aqm)
-> >>   {
-> >>   	struct ap_matrix_mdev *lstdev;
-> >>   	DECLARE_BITMAP(apm, AP_DEVICES);
-> >> @@ -523,20 +426,31 @@ static int vfio_ap_mdev_verify_no_sharing(struct ap_matrix_mdev *matrix_mdev)
-> >>   		 * We work on full longs, as we can only exclude the leftover
-> >>   		 * bits in non-inverse order. The leftover is all zeros.
-> >>   		 */
-> >> -		if (!bitmap_and(apm, matrix_mdev->matrix.apm,
-> >> -				lstdev->matrix.apm, AP_DEVICES))
-> >> +		if (!bitmap_and(apm, mdev_apm, lstdev->matrix.apm, AP_DEVICES))
-> >>   			continue;
-> >>   
-> >> -		if (!bitmap_and(aqm, matrix_mdev->matrix.aqm,
-> >> -				lstdev->matrix.aqm, AP_DOMAINS))
-> >> +		if (!bitmap_and(aqm, mdev_aqm, lstdev->matrix.aqm, AP_DOMAINS))
-> >>   			continue;
-> >>   
-> >> -		return -EADDRINUSE;
-> >> +		vfio_ap_mdev_log_sharing_err(dev_name(mdev_dev(lstdev->mdev)),
-> >> +					     apm, aqm);
-> >> +
-> >> +		return -EBUSY;  
-> > Why do we change -EADDRINUSE to -EBUSY? This gets bubbled up to
-> > userspace, or? So a tool that checks for the other mdev has it
-> > condition by checking for -EADDRINUSE, would be confused...  
+> On 1/11/21 3:40 PM, Halil Pasic wrote:
+> > On Tue, 22 Dec 2020 20:15:57 -0500
+> > Tony Krowiak <akrowiak@linux.ibm.com> wrote:
+> >  
+> >> The current implementation does not allow assignment of an AP adapter or
+> >> domain to an mdev device if each APQN resulting from the assignment
+> >> does not reference an AP queue device that is bound to the vfio_ap device
+> >> driver. This patch allows assignment of AP resources to the matrix mdev as
+> >> long as the APQNs resulting from the assignment:
+> >>     1. Are not reserved by the AP BUS for use by the zcrypt device drivers.
+> >>     2. Are not assigned to another matrix mdev.
+> >>
+> >> The rationale behind this is twofold:
+> >>     1. The AP architecture does not preclude assignment of APQNs to an AP
+> >>        configuration that are not available to the system.
+> >>     2. APQNs that do not reference a queue device bound to the vfio_ap
+> >>        device driver will not be assigned to the guest's CRYCB, so the
+> >>        guest will not get access to queues not bound to the vfio_ap driver.  
+> > You didn't tell us about the changed error code.  
 > 
-> Back in v8 of the series, Christian suggested the occurrences
-> of -EADDRINUSE should be replaced by the more appropriate
-> -EBUSY (Message ID <d7954c15-b14f-d6e5-0193-aadca61883a8@de.ibm.com>),
-> so I changed it here. It does get bubbled up to userspace, so you make a 
-> valid point. I will
-> change it back. I will, however, set the value returned from the
-> __verify_card_reservations() function in ap_bus.c to -EBUSY as
-> suggested by Christian.
+> I am assuming you are talking about returning -EBUSY from
+> the vfio_ap_mdev_verify_no_sharing() function instead of
+> -EADDRINUSE. I'm going to change this back per your comments
+> below.
+> 
+> >
+> > Also notice that this point we don't have neither filtering nor in-use.
+> > This used to be patch 11, and most of that stuff used to be in place. But
+> > I'm going to trust you, if you say its fine to enable it this early.  
+> 
+> The patch order was changed due to your review comments in
+> in Message ID <20201126165431.6ef1457a.pasic@linux.ibm.com>,
+> patch 07/17 in the v12 series. In order to ensure that only queues
+> bound to the vfio_ap driver are given to the guest, I'm going to
+> create a patch that will preceded this one which introduces the
+> filtering code currently introduced in the patch 12/17, the hot
+> plug patch.
+> 
 
-As long as the error code for an ephemeral failure due to can't take a
-lock right now, and the error code for a failure due to a sharing
-conflict are (which most likely requires admin action to be resolved)
-I'm fine.
+I don't want to delay this any further, so it's up to you. I don't think
+we will get the in-between steps perfect anyway.
 
-Choosing EBUSY for sharing conflict, and something else for can't take
-lock for the bus attributes, while choosing EADDRINUSE for sharing
-conflict, and EBUSY for can't take lock in the case of the mdev
-attributes (assign_*; unassign_*) sounds confusing to me, but is still
-better than collating the two conditions. Maybe we can choose EAGAIN
-or EWOULDBLOCK for the can't take the lock right now. I don't know.
+I've re-readthe Message ID
+ <20201126165431.6ef1457a.pasic@linux.ibm.com> and I didn't
+ask for this change. I pointed out a problem, and said, maybe it can be
+solved by reordering, I didn't think it through.
 
-I'm open to suggestions. And if Christian wants to change this for
-the already released interfaces, I will have to live with that. But it
-has to be a conscious decision at least.
-
-What I consider tricky about EBUSY, is that according to my intuition,
-in pseudocode, object.operation(argument) returns -EBUSY probably tells
-me that object is busy (i.e. is in the middle of something incompatible
-with performing operation). In our case, it is not the object that is
-busy, but the resource denoted by the argument.
-
-Regards,
-Halil
+[..]
