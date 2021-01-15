@@ -2,8 +2,8 @@ Return-Path: <linux-kernel-owner@vger.kernel.org>
 Subject: Re: [RFC 1/1] s390/pci: expose UID checking state in sysfs
 References: <20210115152903.GA2086339@bjorn-Precision-5520>
 From: Niklas Schnelle <schnelle@linux.ibm.com>
-Message-ID: <1cf42837-bf98-944f-697c-8407a0ebd623@linux.ibm.com>
-Date: Thu, 21 Jan 2021 16:31:55 +0100
+Message-ID: <304b1ae8-0862-4986-bdbc-31ede7294fd1@linux.ibm.com>
+Date: Fri, 15 Jan 2021 17:15:05 +0100
 MIME-Version: 1.0
 In-Reply-To: <20210115152903.GA2086339@bjorn-Precision-5520>
 Content-Type: text/plain; charset=utf-8
@@ -28,6 +28,85 @@ On 1/15/21 4:29 PM, Bjorn Helgaas wrote:
 >>>>>>>>>> On Wed, Jan 13, 2021 at 08:47:58AM +0100, Niklas Schnelle wrote:
 >>>>>>>>>>> On 1/12/21 10:50 PM, Bjorn Helgaas wrote:
 >> ... snip ...
+>>>>>>>>
+>>>>>>>> Hey Niklas et al. :)
+>>>>>>>>
+>>>>>>>> I think this will need input from Greg. He should be best versed in
+>>>>>>>> sysfs attributes. The problem with KERNEL_ATTR_* to me seems that it's
+>>>>>>>> supposed to be kernel internal. Now, that might just be a matter of
+>>>>>>>> renaming the macro but let's see whether Greg has any better idea or
+>>>>>>>> more questions. :)
+>>>>>>>
+>>>>>>> The big question is, why are you needing this?
+>>>>>>>
+>>>>>>> No driver or driver subsystem should EVER be messing with a "raw"
+>>>>>>> kobject like this.  Just use the existing DEVICE_* macros instead
+>>>>>>> please.
+>>>>>>>
+>>>>>>> If you are using a raw kobject, please ask me how to do this properly,
+>>>>>>> as that is something that should NEVER show up in the /sys/devices/*
+>>>>>>> tree.  Otherwise userspace tools will break.
+>>>>>>>
+>>>>>>> thanks,
+>>>>>>>
+>>>>>>> greg k-h
+>>>>>>
+>>>>>> Hi Greg,
+>>>>>>
+>>>>>> this is for an architecture specific but global i.e. not device bound PCI
+>>>>>> attribute. That's why DEVICE_ATTR_* does not work. BUS_ATTR_* would work
+>>>>>> but only if we place the attribute directly under /sys/bus/pci/new_attr.
+>>>>>
+>>>>> Then you are doing something wrong :)
+>>>>
+>>>> That is very possible.
+>>>>
+>>>>>
+>>>>> Where _exactly_ are you wanting to put this attribute?
+>>>>
+>>>> I'm trying for /sys/bus/pci/zpci/uid_checking, I'm using
+>>>> the below code and the attribute even shows up but reading
+>>>> it gives me two 0 bytes only.
+>>>> The relevant code is only a slight alteration of the original patch
+>>>> as follows:
+>>>>
+>>>> static ssize_t uid_checking_show(struct bus_type *bus, char *buf)
+>>>> {
+>>>> 	return sprintf(buf, "%i\n", zpci_unique_uid);
+>>>> }
+>>>> static BUS_ATTR_RO(uid_checking);
+>>>>
+>>>> static struct kset *zpci_global_kset;
+>>>>
+>>>> static struct attribute *zpci_attrs_global[] = {
+>>>> 	&bus_attr_uid_checking.attr,
+>>>> 	NULL,
+>>>> };
+>>>>
+>>>> static struct attribute_group zpci_attr_group_global = {
+>>>> 	.attrs = zpci_attrs_global,
+>>>> };
+>>>
+>>> Name your attribute group, and then you do not have to mess with a
+>>> "raw" kobject like you are below:
+>>
+>> Thanks for this tip and sorry for bothering you again.
+>>
+>>>
+>>>>
+>>>> int __init zpci_sysfs_init(void)
+>>>> {
+>>>> 	struct kset *pci_bus_kset;
+>>>>
+>>>> 	pci_bus_kset = bus_get_kset(&pci_bus_type);
+>>>>
+>>>> 	zpci_global_kset = kset_create_and_add("zpci", NULL, &pci_bus_kset->kobj);
+>>>
+>>> No, do not mess with at kset, just set the default attribute group for
+>>> the bus to the above, and you should be fine.
+>>
+>> Oh ok, I got this idea from the code adding /sys/bus/pci/slots/ in
+>> drivers/pci/slot.c:pci_slot_init(). See below maybe we can clean that up too.
 >>
 >>>
 >>>> 	if (!zpci_global_kset)
@@ -61,6 +140,14 @@ On 1/15/21 4:29 PM, Bjorn Helgaas wrote:
 > *means* to userspace.  IIUC this file tells userspace something about
 > whether a given PCI device always has the same PCI domain/bus/dev/fn
 > address (or maybe just the same domain?)
+
+Yes you're right, in fact we internally also started to think about
+something more meaning oriented like "unique_uids". This indeed results
+in PCI addresses which can be relied upon as stable identifiers. For us
+it's enough that the domain matches as the bus is always 0 and
+dev/fn are determined by the device and SR-IOV stride etc.
+so will remain the same for equivalent configurations.
+
 > 
 > It sounds like this feature could be useful beyond just s390, and
 > other arches might implement it differently, without the UID concept.
@@ -71,28 +158,12 @@ On 1/15/21 4:29 PM, Bjorn Helgaas wrote:
 > make this less s390 dependent.
 > 
 > Bjorn
-> 
 
-Hi Bjorn,
-
-I've thought about this more and even implemented a proof of concept
-patch for a global attribute using a pcibios_has_reproducible_addressing()
-hook. 
-
-However after implementing it I think as a more general and
-future proof concept it makes more sense to do this as a per device
-attribute, maybe as another flag in "stuct pci_dev" named something
-like "reliable_address". My reasoning behind this can be best be seen
-with a QEMU example. While I expect that QEMU can easily guarantee
-that one can always use "0000:01:00.0" for a virtio-pci NIC and
-thus enp1s0 interface name, the same might be harder to guarantee
-for a SR-IOV VF passed through with vfio-pci in that same VM and
-even less so if a thunderbolt controller is passed through and
-enumeration may depend on daisy chaining. The QEMU example
-also applies to s390 and maybe others will in the future.
-I'll send an RFC for a per device attribute but didn't want to
-let this discussion stand as if we had abandoned the idea and if
-you would prefer a global attribute I can also send an RFC for that.
-
-Besst regards,
-Niklas
+That's a very good point! I'm absolutely open to making this a
+common concept. I think the gist could be that the addressing/ids on
+the bus are reproducible, there might be some user configuration
+required but then they can be relied upon for stable names like
+network interfaces. So maybe a name like "reproducible_addressing"?
+I guess one non-s390 exclusive case of this could be virtualized
+PCI under QEMU/KVM etc. versus real hardware or even UEFI/Firmware
+guarantees, right?
