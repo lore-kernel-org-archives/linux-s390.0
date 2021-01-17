@@ -1,211 +1,46 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:17612 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727364AbhAMJmY (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Wed, 13 Jan 2021 04:42:24 -0500
-From: Janosch Frank <frankja@linux.ibm.com>
-Subject: [PATCH 06/14] s390/mm: Provide vmaddr to pmd notification
-Date: Wed, 13 Jan 2021 09:41:05 +0000
-Message-Id: <20210113094113.133668-7-frankja@linux.ibm.com>
-In-Reply-To: <20210113094113.133668-1-frankja@linux.ibm.com>
-References: <20210113094113.133668-1-frankja@linux.ibm.com>
+Return-Path: <linux-arch-owner@vger.kernel.org>
+From: David Laight <David.Laight@ACULAB.COM>
+Subject: RE: [PATCH] Adds a new ioctl32 syscall for backwards compatibility
+ layers
+Date: Sun, 17 Jan 2021 18:31:36 +0000
+Message-ID: <cc3ce5e484f041948cb008f7508c968b@AcuMS.aculab.com>
+References: <20210106064807.253112-1-Sonicadvance1@gmail.com>
+ <CAK8P3a2tV3HzPpbCR7mAeutx38_D2d-vfpEgpXv+GW_98w3VSQ@mail.gmail.com>
+ <CABnRqDfQ5Qfa2ybut0qXcKuYnsMcG7+9gqjL-e7nZF1bkvhPRw@mail.gmail.com>
+ <CAK8P3a2vfVfEWTk1ig349LGqt8bkK8YQWjE6PRyx+xvgYx7-gA@mail.gmail.com>
+ <CALCETrUtyVaGSE9fcFAkhrGCpkyYcYnZb6tj8227o2EH5hgOfg@mail.gmail.com>
+ <20210116090721.GA30277@lst.de>
+In-Reply-To: <20210116090721.GA30277@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: borntraeger@de.ibm.com, david@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
+To: 'Christoph Hellwig' <hch@lst.de>, Andy Lutomirski <luto@kernel.org>
+Cc: Arnd Bergmann <arnd@kernel.org>, Ryan Houdek <sonicadvance1@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Christian Brauner <christian.brauner@ubuntu.com>, Andrew Morton <akpm@linux-foundation.org>, Minchan Kim <minchan@kernel.org>, Aleksa Sarai <cyphar@cyphar.com>, Sargun Dhillon <sargun@sargun.me>, Miklos Szeredi <mszeredi@redhat.com>, Vincenzo Frascino <vincenzo.frascino@arm.com>, Amanieu d'Antras <amanieu@gmail.com>, Willem de Bruijn <willemb@google.com>, YueHaibing <yuehaibing@huawei.com>, Xiaoming Ni <nixiaoming@huawei.com>, Heiko Carstens <hca@linux.ibm.com>, "Eric W. Biederman" <ebiederm@xmission.com>, Joe Perches <joe@perches.com>, Jan Kara <jack@suse.cz>, David Rientjes <rientjes@google.com>, Arnaldo Carvalho de Melo <acme@redhat.com>, "David S. Miller" <davem@davemloft.net>, Linux ARM <linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>, Linux API <linux-api@vger.kernel.org>, linux-arch <linux-arch@vger.kernel.org>
 
-It will be needed for shadow tables.
+From: Christoph Hellwig
+> Sent: 16 January 2021 09:07
+...
+> > I personally would like to see in_compat_syscall() go away,
+> > but some other people (Hi, Christoph!) disagree, and usage seems to be
+> > increasing, not decreasing.
+> 
+> I'm absolutely against it going away.  in_compat_syscall helped to
+> remove so much crap compared to the explicit compat syscalls.
 
-Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
----
- arch/s390/mm/gmap.c | 52 +++++++++++++++++++++++----------------------
- 1 file changed, 27 insertions(+), 25 deletions(-)
+The only other real option is to pass the 'syscall type' explicitly
+through all the layers into every piece of code that might need it.
 
-diff --git a/arch/s390/mm/gmap.c b/arch/s390/mm/gmap.c
-index d8c9b295294b..b7199c55f98a 100644
---- a/arch/s390/mm/gmap.c
-+++ b/arch/s390/mm/gmap.c
-@@ -530,10 +530,10 @@ void gmap_unlink(struct mm_struct *mm, unsigned long *table,
- }
- 
- static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *old, pmd_t new,
--			   unsigned long gaddr);
-+			   unsigned long gaddr, unsigned long vmaddr);
- 
- static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
--			   pmd_t *pmdp, struct page *page);
-+			   unsigned long vmaddr, pmd_t *pmdp, struct page *page);
- 
- /**
-  * gmap_link - set up shadow page tables to connect a host to a guest address
-@@ -632,7 +632,8 @@ int __gmap_link(struct gmap *gmap, unsigned long gaddr, unsigned long vmaddr)
- 	} else if (*table & _SEGMENT_ENTRY_PROTECT &&
- 		   !(pmd_val(*pmd) & _SEGMENT_ENTRY_PROTECT)) {
- 		if (page) {
--			gmap_pmd_split(gmap, gaddr, (pmd_t *)table, page);
-+			gmap_pmd_split(gmap, gaddr, vmaddr,
-+				       (pmd_t *)table, page);
- 			page = NULL;
- 		} else {
- 			spin_unlock(ptl);
-@@ -952,19 +953,15 @@ static void gmap_pte_op_end(spinlock_t *ptl)
-  * Returns a pointer to the pmd for a guest address, or NULL
-  */
- static inline pmd_t *gmap_pmd_op_walk(struct gmap *gmap, unsigned long gaddr,
--				      spinlock_t **ptl)
-+				      unsigned long vmaddr, spinlock_t **ptl)
- {
- 	pmd_t *pmdp, *hpmdp;
--	unsigned long vmaddr;
- 
- 
- 	BUG_ON(gmap_is_shadow(gmap));
- 
- 	*ptl = NULL;
- 	if (gmap->mm->context.allow_gmap_hpage_1m) {
--		vmaddr = __gmap_translate(gmap, gaddr);
--		if (IS_ERR_VALUE(vmaddr))
--			return NULL;
- 		hpmdp = pmd_alloc_map(gmap->mm, vmaddr);
- 		if (!hpmdp)
- 			return NULL;
-@@ -1047,7 +1044,7 @@ static inline void gmap_pmd_split_free(struct gmap *gmap, pmd_t *pmdp)
-  * aren't tracked anywhere else.
-  */
- static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
--			   pmd_t *pmdp, struct page *page)
-+			   unsigned long vmaddr, pmd_t *pmdp, struct page *page)
- {
- 	unsigned long *ptable = (unsigned long *) page_to_phys(page);
- 	pmd_t new;
-@@ -1069,7 +1066,7 @@ static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
- 	spin_lock(&gmap->split_list_lock);
- 	list_add(&page->lru, &gmap->split_list);
- 	spin_unlock(&gmap->split_list_lock);
--	gmap_pmdp_xchg(gmap, pmdp, new, gaddr);
-+	gmap_pmdp_xchg(gmap, pmdp, new, gaddr, vmaddr);
- }
- 
- /*
-@@ -1087,7 +1084,8 @@ static void gmap_pmd_split(struct gmap *gmap, unsigned long gaddr,
-  * guest_table_lock held.
-  */
- static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
--			    pmd_t *pmdp, int prot, unsigned long bits)
-+			    unsigned long vmaddr, pmd_t *pmdp, int prot,
-+			    unsigned long bits)
- {
- 	int pmd_i = pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID;
- 	int pmd_p = pmd_val(*pmdp) & _SEGMENT_ENTRY_PROTECT;
-@@ -1099,13 +1097,13 @@ static int gmap_protect_pmd(struct gmap *gmap, unsigned long gaddr,
- 
- 	if (prot == PROT_NONE && !pmd_i) {
- 		pmd_val(new) |= _SEGMENT_ENTRY_INVALID;
--		gmap_pmdp_xchg(gmap, pmdp, new, gaddr);
-+		gmap_pmdp_xchg(gmap, pmdp, new, gaddr, vmaddr);
- 	}
- 
- 	if (prot == PROT_READ && !pmd_p) {
- 		pmd_val(new) &= ~_SEGMENT_ENTRY_INVALID;
- 		pmd_val(new) |= _SEGMENT_ENTRY_PROTECT;
--		gmap_pmdp_xchg(gmap, pmdp, new, gaddr);
-+		gmap_pmdp_xchg(gmap, pmdp, new, gaddr, vmaddr);
- 	}
- 
- 	if (bits & GMAP_NOTIFY_MPROT)
-@@ -1168,10 +1166,14 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
- 	int rc;
- 
- 	BUG_ON(gmap_is_shadow(gmap));
-+
- 	while (len) {
- 		rc = -EAGAIN;
+So passing it as a 'parameter' that is (probably) current->syscall_type
+does make sense.
+
+It might even make sense have separate bits for the required emulations.
+So you'd have separate bits for '32bit pointers' and '64bit items 32bit
+aligned' (etc).
+
+	David
+
 -
--		pmdp = gmap_pmd_op_walk(gmap, gaddr, &ptl_pmd);
-+		vmaddr = __gmap_translate(gmap, gaddr);
-+		if (IS_ERR_VALUE(vmaddr))
-+			return vmaddr;
-+		vmaddr |= gaddr & ~PMD_MASK;
-+		pmdp = gmap_pmd_op_walk(gmap, gaddr, vmaddr, &ptl_pmd);
- 		if (pmdp && !(pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)) {
- 			if (!pmd_large(*pmdp)) {
- 				ptep = gmap_pte_from_pmd(gmap, pmdp, gaddr,
-@@ -1196,7 +1198,7 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
- 						return -ENOMEM;
- 					continue;
- 				} else {
--					gmap_pmd_split(gmap, gaddr,
-+					gmap_pmd_split(gmap, gaddr, vmaddr,
- 						       pmdp, page);
- 					page = NULL;
- 					gmap_pmd_op_end(ptl_pmd);
-@@ -1214,9 +1216,6 @@ static int gmap_protect_range(struct gmap *gmap, unsigned long gaddr,
- 				return rc;
- 
- 			/* -EAGAIN, fixup of userspace mm and gmap */
--			vmaddr = __gmap_translate(gmap, gaddr);
--			if (IS_ERR_VALUE(vmaddr))
--				return vmaddr;
- 			rc = gmap_fixup(gmap, gaddr, vmaddr, prot);
- 			if (rc)
- 				return rc;
-@@ -2441,6 +2440,7 @@ static inline void pmdp_notify_split(struct gmap *gmap, pmd_t *pmdp,
- static void pmdp_notify_gmap(struct gmap *gmap, pmd_t *pmdp,
- 			     unsigned long gaddr, unsigned long vmaddr)
- {
-+	BUG_ON((gaddr & ~HPAGE_MASK) || (vmaddr & ~HPAGE_MASK));
- 	if (gmap_pmd_is_split(pmdp))
- 		return pmdp_notify_split(gmap, pmdp, gaddr, vmaddr);
- 
-@@ -2461,10 +2461,11 @@ static void pmdp_notify_gmap(struct gmap *gmap, pmd_t *pmdp,
-  * held.
-  */
- static void gmap_pmdp_xchg(struct gmap *gmap, pmd_t *pmdp, pmd_t new,
--			   unsigned long gaddr)
-+			   unsigned long gaddr, unsigned long vmaddr)
- {
- 	gaddr &= HPAGE_MASK;
--	pmdp_notify_gmap(gmap, pmdp, gaddr, 0);
-+	vmaddr &= HPAGE_MASK;
-+	pmdp_notify_gmap(gmap, pmdp, gaddr, vmaddr);
- 	if (pmd_large(new))
- 		pmd_val(new) &= ~GMAP_SEGMENT_NOTIFY_BITS;
- 	if (MACHINE_HAS_TLB_GUEST)
-@@ -2612,7 +2613,8 @@ EXPORT_SYMBOL_GPL(gmap_pmdp_idte_global);
-  * held.
-  */
- static bool gmap_test_and_clear_dirty_pmd(struct gmap *gmap, pmd_t *pmdp,
--					  unsigned long gaddr)
-+					  unsigned long gaddr,
-+					  unsigned long vmaddr)
- {
- 	if (pmd_val(*pmdp) & _SEGMENT_ENTRY_INVALID)
- 		return false;
-@@ -2624,7 +2626,7 @@ static bool gmap_test_and_clear_dirty_pmd(struct gmap *gmap, pmd_t *pmdp,
- 
- 	/* Clear UC indication and reset protection */
- 	pmd_val(*pmdp) &= ~_SEGMENT_ENTRY_GMAP_UC;
--	gmap_protect_pmd(gmap, gaddr, pmdp, PROT_READ, 0);
-+	gmap_protect_pmd(gmap, gaddr, vmaddr, pmdp, PROT_READ, 0);
- 	return true;
- }
- 
-@@ -2647,12 +2649,12 @@ void gmap_sync_dirty_log_pmd(struct gmap *gmap, unsigned long bitmap[4],
- 	spinlock_t *ptl_pmd = NULL;
- 	spinlock_t *ptl_pte = NULL;
- 
--	pmdp = gmap_pmd_op_walk(gmap, gaddr, &ptl_pmd);
-+	pmdp = gmap_pmd_op_walk(gmap, gaddr, vmaddr, &ptl_pmd);
- 	if (!pmdp)
- 		return;
- 
- 	if (pmd_large(*pmdp)) {
--		if (gmap_test_and_clear_dirty_pmd(gmap, pmdp, gaddr))
-+		if (gmap_test_and_clear_dirty_pmd(gmap, pmdp, gaddr, vmaddr))
- 			bitmap_fill(bitmap, _PAGE_ENTRIES);
- 	} else {
- 		for (i = 0; i < _PAGE_ENTRIES; i++, vmaddr += PAGE_SIZE) {
--- 
-2.27.0
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
