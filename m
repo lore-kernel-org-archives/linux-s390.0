@@ -1,28 +1,28 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:7850 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12348 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2405469AbhARO5L (ORCPT
+        by vger.kernel.org with ESMTP id S2390860AbhAROAi (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 Jan 2021 09:57:11 -0500
+        Mon, 18 Jan 2021 09:00:38 -0500
 Subject: Re: [PATCH 1/1] KVM: s390: diag9c forwarding
 References: <20210118131739.7272-1-borntraeger@de.ibm.com>
  <20210118131739.7272-2-borntraeger@de.ibm.com>
  <db1d2a6e-1947-321b-bdc2-019eee5780f4@linux.ibm.com>
-From: Pierre Morel <pmorel@linux.ibm.com>
-Message-ID: <e6622462-cbdc-2aee-6e51-4a382b73808a@linux.ibm.com>
-Date: Mon, 18 Jan 2021 15:56:23 +0100
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <1533de16-0426-d33f-45ad-576cc2348f13@de.ibm.com>
+Date: Mon, 18 Jan 2021 14:59:50 +0100
 MIME-Version: 1.0
 In-Reply-To: <db1d2a6e-1947-321b-bdc2-019eee5780f4@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Janosch Frank <frankja@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
-Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Thomas Huth <thuth@redhat.com>
+To: Janosch Frank <frankja@linux.ibm.com>, Janosch Frank <frankja@linux.vnet.ibm.com>
+Cc: KVM <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, David Hildenbrand <david@redhat.com>, linux-s390 <linux-s390@vger.kernel.org>, Pierre Morel <pmorel@linux.ibm.com>, Thomas Huth <thuth@redhat.com>
 
 
 
-On 1/18/21 2:45 PM, Janosch Frank wrote:
+On 18.01.21 14:45, Janosch Frank wrote:
 > On 1/18/21 2:17 PM, Christian Borntraeger wrote:
 >> From: Pierre Morel <pmorel@linux.ibm.com>
 >>
@@ -40,10 +40,67 @@ On 1/18/21 2:45 PM, Janosch Frank wrote:
 > 
 > Before Conny starts yelling I'll do it myself:
 > Documentation
+> 
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>> ---
+>>  arch/s390/include/asm/kvm_host.h |  1 +
+>>  arch/s390/include/asm/smp.h      |  1 +
+>>  arch/s390/kernel/smp.c           |  1 +
+>>  arch/s390/kvm/diag.c             | 31 ++++++++++++++++++++++++++++---
+>>  arch/s390/kvm/kvm-s390.c         |  6 ++++++
+>>  arch/s390/kvm/kvm-s390.h         |  8 ++++++++
+>>  6 files changed, 45 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/arch/s390/include/asm/kvm_host.h b/arch/s390/include/asm/kvm_host.h
+>> index 74f9a036bab2..98ae55f79620 100644
+>> --- a/arch/s390/include/asm/kvm_host.h
+>> +++ b/arch/s390/include/asm/kvm_host.h
+>> @@ -455,6 +455,7 @@ struct kvm_vcpu_stat {
+>>  	u64 diagnose_44;
+>>  	u64 diagnose_9c;
+>>  	u64 diagnose_9c_ignored;
+>> +	u64 diagnose_9c_forward;
+>>  	u64 diagnose_258;
+>>  	u64 diagnose_308;
+>>  	u64 diagnose_500;
+>> diff --git a/arch/s390/include/asm/smp.h b/arch/s390/include/asm/smp.h
+>> index 01e360004481..e317fd4866c1 100644
+>> --- a/arch/s390/include/asm/smp.h
+>> +++ b/arch/s390/include/asm/smp.h
+>> @@ -63,5 +63,6 @@ extern void __noreturn cpu_die(void);
+>>  extern void __cpu_die(unsigned int cpu);
+>>  extern int __cpu_disable(void);
+>>  extern void schedule_mcck_handler(void);
+>> +void notrace smp_yield_cpu(int cpu);
+>>  
+>>  #endif /* __ASM_SMP_H */
+>> diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
+>> index c5abbb94ac6e..32622e9c15f0 100644
+>> --- a/arch/s390/kernel/smp.c
+>> +++ b/arch/s390/kernel/smp.c
+>> @@ -422,6 +422,7 @@ void notrace smp_yield_cpu(int cpu)
+>>  	asm volatile("diag %0,0,0x9c"
+>>  		     : : "d" (pcpu_devices[cpu].address));
+>>  }
+>> +EXPORT_SYMBOL(smp_yield_cpu);
+>>  
+>>  /*
+>>   * Send cpus emergency shutdown signal. This gives the cpus the
+>> diff --git a/arch/s390/kvm/diag.c b/arch/s390/kvm/diag.c
+>> index 5b8ec1c447e1..fc1ec4aa81ed 100644
+>> --- a/arch/s390/kvm/diag.c
+>> +++ b/arch/s390/kvm/diag.c
+>> @@ -150,6 +150,19 @@ static int __diag_time_slice_end(struct kvm_vcpu *vcpu)
+>>  	return 0;
+>>  }
+>>  
+>> +static unsigned int forward_cnt;
+> 
+> This is not per CPU, so we could have one CPU making forwards impossible
+> for all others, right? Would this be a possible improvement or doesn't
+> that happen in real world workloads?
 
-yes, it comes soon.
-
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+this is mostly a system limit to avoid non-root users being able to trigger
+gazillions of diag9c hypercalls. 
