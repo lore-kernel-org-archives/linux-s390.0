@@ -1,16 +1,16 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12348 "EHLO
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:12868 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390860AbhAROAi (ORCPT
+        by vger.kernel.org with ESMTP id S2392535AbhARN5w (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Mon, 18 Jan 2021 09:00:38 -0500
+        Mon, 18 Jan 2021 08:57:52 -0500
 Subject: Re: [PATCH 1/1] KVM: s390: diag9c forwarding
 References: <20210118131739.7272-1-borntraeger@de.ibm.com>
  <20210118131739.7272-2-borntraeger@de.ibm.com>
  <db1d2a6e-1947-321b-bdc2-019eee5780f4@linux.ibm.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <1533de16-0426-d33f-45ad-576cc2348f13@de.ibm.com>
-Date: Mon, 18 Jan 2021 14:59:50 +0100
+Message-ID: <5c0ca08a-d284-dc7b-3d32-c8fbc86a361f@de.ibm.com>
+Date: Mon, 18 Jan 2021 14:57:04 +0100
 MIME-Version: 1.0
 In-Reply-To: <db1d2a6e-1947-321b-bdc2-019eee5780f4@linux.ibm.com>
 Content-Type: text/plain; charset=utf-8
@@ -101,6 +101,50 @@ On 18.01.21 14:45, Janosch Frank wrote:
 > This is not per CPU, so we could have one CPU making forwards impossible
 > for all others, right? Would this be a possible improvement or doesn't
 > that happen in real world workloads?
+> 
+> The code looks ok to me but smp is absolutely not my field of expertise.
+> 
+>> +static unsigned long cur_slice;
+>> +
+>> +static int diag9c_forwarding_overrun(void)
+>> +{
+>> +	/* Reset the count on a new slice */
+>> +	if (time_after(jiffies, cur_slice)) {
+>> +		cur_slice = jiffies;
+>> +		forward_cnt = diag9c_forwarding_hz / HZ;
+>> +	}
+>> +	return forward_cnt-- ? 1 : 0;
+>> +}
+>> +
+>>  static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+>>  {
+>>  	struct kvm_vcpu *tcpu;
+>> @@ -167,9 +180,21 @@ static int __diag_time_slice_end_directed(struct kvm_vcpu *vcpu)
+>>  	if (!tcpu)
+>>  		goto no_yield;
+>>  
+>> -	/* target already running */
+>> -	if (READ_ONCE(tcpu->cpu) >= 0)
+>> -		goto no_yield;
+>> +	/* target VCPU already running */
+>> +	if (READ_ONCE(tcpu->cpu) >= 0) {
+>> +		if (!diag9c_forwarding_hz || diag9c_forwarding_overrun())
+>> +			goto no_yield;
+>> +
+>> +		/* target CPU already running */
+>> +		if (!vcpu_is_preempted(tcpu->cpu))
+>> +			goto no_yield;
+>> +		smp_yield_cpu(tcpu->cpu);
+> 
+> This is a pure cpu yield while before we yielded to the process of the
+> vcpu. Do we also want to prod the task of the VCPU we want to yield to
 
-this is mostly a system limit to avoid non-root users being able to trigger
-gazillions of diag9c hypercalls. 
+No we did not yielded to the process. This case is for vcpu already
+running according to the host scheduler (which would result in an no-op).
+See the "before hunk". it contains goto no_yield.
+
+Instead we now check if our host CPU was potentially scheduled by the upper
+layer hypervisor (e.g. LPAR) and then we ask that to also yield.
+
+> before waking up the host cpu? Or do we expect the VCPU task to be the
+> first thing that's picked up by the host cpu?
