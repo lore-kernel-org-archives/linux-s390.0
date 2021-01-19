@@ -1,17 +1,12 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:60206 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728838AbhAUJ7O (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 21 Jan 2021 04:59:14 -0500
+Return-Path: <linux-kernel-owner@vger.kernel.org>
 Subject: Re: [PATCH RFC] virtio-mem: check against memhp_get_pluggable_range()
  which memory we can hotplug
 References: <1610975582-12646-1-git-send-email-anshuman.khandual@arm.com>
  <1610975582-12646-5-git-send-email-anshuman.khandual@arm.com>
  <a1644ce0-427f-7a5c-b90a-547e61341a75@arm.com>
 From: David Hildenbrand <david@redhat.com>
-Message-ID: <36a10a6f-a2c7-b108-5054-5e4f3e1a1daf@redhat.com>
-Date: Thu, 21 Jan 2021 10:57:31 +0100
+Message-ID: <630a8785-222d-26ed-a57a-ac5b58d7a04d@redhat.com>
+Date: Tue, 19 Jan 2021 13:27:53 +0100
 MIME-Version: 1.0
 In-Reply-To: <a1644ce0-427f-7a5c-b90a-547e61341a75@arm.com>
 Content-Type: text/plain; charset=utf-8
@@ -70,9 +65,10 @@ On 18.01.21 14:21, Anshuman Khandual wrote:
 > new series, please do let me know if this needs to be converted to
 > a normal PATCH instead. Thank you.
 
-Yes, you can drop the RFC part. I assume you'll send another revision,
-I'll do another test there, thanks!
+I'll give it a churn on x86-64, where not that much should change. It
+will be interesting to test with arm64 in such corner cases in the future.
 
+Thanks
 
 -- 
 Thanks,
