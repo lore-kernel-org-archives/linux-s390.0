@@ -1,78 +1,83 @@
-Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:63084 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728508AbhAUJOP (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 21 Jan 2021 04:14:15 -0500
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [kvm-unit-tests PATCH v4 1/3] s390x: pv: implement routine to share/unshare memory
-Date: Thu, 21 Jan 2021 10:13:10 +0100
-Message-Id: <1611220392-22628-2-git-send-email-pmorel@linux.ibm.com>
-In-Reply-To: <1611220392-22628-1-git-send-email-pmorel@linux.ibm.com>
-References: <1611220392-22628-1-git-send-email-pmorel@linux.ibm.com>
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Subject: Re: [PATCH V3 2/3] arm64/mm: Define arch_get_mappable_range()
+References: <1610975582-12646-1-git-send-email-anshuman.khandual@arm.com>
+ <1610975582-12646-3-git-send-email-anshuman.khandual@arm.com>
+From: David Hildenbrand <david@redhat.com>
+Message-ID: <6639d856-665c-7a60-884c-5771a8b805ba@redhat.com>
+Date: Tue, 19 Jan 2021 13:24:48 +0100
+MIME-Version: 1.0
+In-Reply-To: <1610975582-12646-3-git-send-email-anshuman.khandual@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: kvm@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, thuth@redhat.com, cohuck@redhat.com, imbrenda@linux.ibm.com, drjones@redhat.com, pbonzini@redhat.com
+To: Anshuman Khandual <anshuman.khandual@arm.com>, linux-mm@kvack.org, akpm@linux-foundation.org, hca@linux.ibm.com, catalin.marinas@arm.com
+Cc: Oscar Salvador <osalvador@suse.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
 
-When communicating with the host we need to share part of
-the memory.
+On 18.01.21 14:13, Anshuman Khandual wrote:
+> This overrides arch_get_mappable_range() on arm64 platform which will be
+> used with recently added generic framework. It drops inside_linear_region()
+> and subsequent check in arch_add_memory() which are no longer required. It
+> also adds a VM_BUG_ON() check that would ensure that memhp_range_allowed()
+> has already been called.
+> 
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will@kernel.org>
+> Cc: Ard Biesheuvel <ardb@kernel.org>
+> Cc: Mark Rutland <mark.rutland@arm.com>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: linux-arm-kernel@lists.infradead.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+> ---
+>  arch/arm64/mm/mmu.c | 15 +++++++--------
+>  1 file changed, 7 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
+> index ae0c3d023824..f2e1770c9f29 100644
+> --- a/arch/arm64/mm/mmu.c
+> +++ b/arch/arm64/mm/mmu.c
+> @@ -1442,16 +1442,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
+>  	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
+>  }
+>  
+> -static bool inside_linear_region(u64 start, u64 size)
+> +struct range arch_get_mappable_range(void)
+>  {
+> +	struct range memhp_range;
+> +
+>  	/*
+>  	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
+>  	 * accommodating both its ends but excluding PAGE_END. Max physical
+>  	 * range which can be mapped inside this linear mapping range, must
+>  	 * also be derived from its end points.
+>  	 */
+> -	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
+> -	       (start + size - 1) <= __pa(PAGE_END - 1);
+> +	memhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
+> +	memhp_range.end =  __pa(PAGE_END - 1);
+> +	return memhp_range;
+>  }
+>  
+>  int arch_add_memory(int nid, u64 start, u64 size,
+> @@ -1459,11 +1462,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
+>  {
+>  	int ret, flags = 0;
+>  
+> -	if (!inside_linear_region(start, size)) {
+> -		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
+> -		return -EINVAL;
+> -	}
+> -
+> +	VM_BUG_ON(!memhp_range_allowed(start, size, true));
+>  	if (rodata_full || debug_pagealloc_enabled())
+>  		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
+>  
+> 
 
-Let's implement the ultravisor calls for this.
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-Suggested-by: Janosch Frank <frankja@linux.ibm.com>
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Thomas Huth <thuth@redhat.com>
----
- lib/s390x/asm/uv.h | 38 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
-
-diff --git a/lib/s390x/asm/uv.h b/lib/s390x/asm/uv.h
-index 4c2fc48..8400026 100644
---- a/lib/s390x/asm/uv.h
-+++ b/lib/s390x/asm/uv.h
-@@ -71,4 +71,42 @@ static inline int uv_call(unsigned long r1, unsigned long r2)
- 	return cc;
- }
- 
-+static inline int share(unsigned long addr, u16 cmd)
-+{
-+	struct uv_cb_share uvcb = {
-+		.header.cmd = cmd,
-+		.header.len = sizeof(uvcb),
-+		.paddr = addr
-+	};
-+	int cc;
-+
-+	cc = uv_call(0, (u64)&uvcb);
-+	if (!cc && uvcb.header.rc == 0x0001)
-+		return 0;
-+
-+	report_info("cc %d response code: %04x", cc, uvcb.header.rc);
-+	return -1;
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page shared with the
-+ * hypervisor for IO.
-+ *
-+ * @addr: Real or absolute address of the page to be shared
-+ */
-+static inline int uv_set_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_SET_SHARED_ACCESS);
-+}
-+
-+/*
-+ * Guest 2 request to the Ultravisor to make a page unshared.
-+ *
-+ * @addr: Real or absolute address of the page to be unshared
-+ */
-+static inline int uv_remove_shared(unsigned long addr)
-+{
-+	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
-+}
-+
- #endif
 -- 
-2.17.1
+Thanks,
+
+David / dhildenb
