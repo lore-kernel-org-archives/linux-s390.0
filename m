@@ -1,45 +1,333 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH v4 1/2] drivers/misc: sysgenid: add system generation id driver
-From: "Catangiu, Adrian Costin" <acatan@amazon.com>
-Date: Thu, 21 Jan 2021 09:54:27 +0000
-Message-ID: <0EFE3365-1698-4BFB-B2F2-BEF1A2634E45@amazon.com>
+Subject: Re: [PATCH v4 1/2] drivers/misc: sysgenid: add system generation id
+ driver
 References: <1610453760-13812-1-git-send-email-acatan@amazon.com>
  <1610453760-13812-2-git-send-email-acatan@amazon.com>
- <X/2fP9LNWXvp7up9@kroah.com>
-In-Reply-To: <X/2fP9LNWXvp7up9@kroah.com>
-Content-Language: en-GB
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <AC44F688DB044F439484826026445BBE@amazon.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <2764a194-934c-5426-728a-cd755a6e395f@infradead.org>
+Date: Tue, 19 Jan 2021 14:34:17 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: base64
+In-Reply-To: <1610453760-13812-2-git-send-email-acatan@amazon.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>, "Graf (AWS), Alexander" <graf@amazon.de>, "arnd@arndb.de" <arnd@arndb.de>, "ebiederm@xmission.com" <ebiederm@xmission.com>, "rppt@kernel.org" <rppt@kernel.org>, "0x7f454c46@gmail.com" <0x7f454c46@gmail.com>, "borntraeger@de.ibm.com" <borntraeger@de.ibm.com>, "Jason@zx2c4.com" <Jason@zx2c4.com>, "jannh@google.com" <jannh@google.com>, "w@1wt.eu" <w@1wt.eu>, "MacCarthaigh, Colm" <colmmacc@amazon.com>, "luto@kernel.org" <luto@kernel.org>, "tytso@mit.edu" <tytso@mit.edu>, "ebiggers@kernel.org" <ebiggers@kernel.org>, "Woodhouse, David" <dwmw@amazon.co.uk>, "bonzini@gnu.org" <bonzini@gnu.org>, "Singh, Balbir" <sblbir@amazon.com>, "Weiss, Radu" <raduweis@amazon.com>, "corbet@lwn.net" <corbet@lwn.net>, "mst@redhat.com" <mst@redhat.com>, "mhocko@kernel.org" <mhocko@kernel.org>, "rafael@kernel.org" <rafael@kernel.org>, "pavel@ucw.cz" <pavel@ucw.cz>, "mpe@ellerman.id.au" <mpe@ellerman.id.au>, "areber@redhat.com" <areber@redhat.com>, "ovzxemul@gmail.com" <ovzxemul@gmail.com>, "avagin@gmail.com" <avagin@gmail.com>, "ptikhomirov@virtuozzo.com" <ptikhomirov@virtuozzo.com>, "gil@azul.com" <gil@azul.com>, "asmehra@redhat.com" <asmehra@redhat.com>, "dgunigun@redhat.com" <dgunigun@redhat.com>, "vijaysun@ca.ibm.com" <vijaysun@ca.ibm.com>, "oridgar@gmail.com" <oridgar@gmail.com>, "ghammer@redhat.com" <ghammer@redhat.com>
+To: Adrian Catangiu <acatan@amazon.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org
+Cc: gregkh@linuxfoundation.org, graf@amazon.com, arnd@arndb.de, ebiederm@xmission.com, rppt@kernel.org, 0x7f454c46@gmail.com, borntraeger@de.ibm.com, Jason@zx2c4.com, jannh@google.com, w@1wt.eu, colmmacc@amazon.com, luto@kernel.org, tytso@mit.edu, ebiggers@kernel.org, dwmw@amazon.co.uk, bonzini@gnu.org, sblbir@amazon.com, raduweis@amazon.com, corbet@lwn.net, mst@redhat.com, mhocko@kernel.org, rafael@kernel.org, pavel@ucw.cz, mpe@ellerman.id.au, areber@redhat.com, ovzxemul@gmail.com, avagin@gmail.com, ptikhomirov@virtuozzo.com, gil@azul.com, asmehra@redhat.com, dgunigun@redhat.com, vijaysun@ca.ibm.com, oridgar@gmail.com, ghammer@redhat.com
 
-T24gMTIvMDEvMjAyMSwgMTU6MDcsICJHcmVnIEtIIiA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5v
-cmc+IHdyb3RlOg0KDQogICAgT24gVHVlLCBKYW4gMTIsIDIwMjEgYXQgMDI6MTU6NTlQTSArMDIw
-MCwgQWRyaWFuIENhdGFuZ2l1IHdyb3RlOg0KICAgID4gKyAgUGFydGlhbCByZWFkcyBhcmUgbm90
-IGFsbG93ZWQgLSByZWFkIGJ1ZmZlciBuZWVkcyB0byBiZSBhdCBsZWFzdA0KICAgID4gKyAgYGBz
-aXplb2YodW5zaWduZWQpYGAgaW4gc2l6ZS4NCg0KICAgICJzaXplb2YodW5zaWduZWQpIj8gIEhv
-dyBhYm91dCBiZWluZyBzcGVjaWZpYyBhbmQgbWFraW5nIHRoaXMgYSByZWFsICJYDQogICAgYml0
-cyBiaWciIHZhbHVlIHBsZWFzZS4NCg0KICAgICJ1bnNpZ25lZCIgZG9lcyBub3Qgd29yayB3ZWxs
-IGFjcm9zcyB1c2VyL2tlcm5lbCBib3VuZHJpZXMuICBPaywgdGhhdCdzDQogICAgb24gdW5kZXJz
-dGF0ZW1lbnQsIHRoZSBjb3JyZWN0IHRoaW5nIGlzICJkb2VzIG5vdCB3b3JrIGF0IGFsbCIuDQoN
-CiAgICBQbGVhc2UgYmUgc3BlY2lmaWMgaW4geW91ciBhcGlzLg0KDQogICAgVGhpcyBpcyBsaXN0
-ZWQgZWxzZXdoZXJlIGFsc28uDQoNClJpZ2h0LCB3aWxsIGRvIQ0KDQogICAgPiArICAtIFNZU0dF
-TklEX0dFVF9PVVREQVRFRF9XQVRDSEVSUzogaW1tZWRpYXRlbHkgcmV0dXJucyB0aGUgbnVtYmVy
-IG9mDQogICAgPiArICAgICpvdXRkYXRlZCogd2F0Y2hlcnMgLSBudW1iZXIgb2YgZmlsZSBkZXNj
-cmlwdG9ycyB0aGF0IHdlcmUgb3Blbg0KICAgID4gKyAgICBkdXJpbmcgYSBzeXN0ZW0gZ2VuZXJh
-dGlvbiBjaGFuZ2UsIGFuZCB3aGljaCBoYXZlIG5vdCB5ZXQgY29uZmlybWVkDQogICAgPiArICAg
-IHRoZSBuZXcgZ2VuZXJhdGlvbiBjb3VudGVyLg0KDQogICAgQnV0IHRoaXMgbnVtYmVyIGNhbiBp
-bnN0YW50bHkgY2hhbmdlIGFmdGVyIGl0IGlzIHJlYWQsIHdoYXQgZ29vZCBpcyBpdD8NCiAgICBJ
-dCBzaG91bGQgbmV2ZXIgYmUgcmVsaWVkIG9uLCBzbyB3aHkgaXMgdGhpcyBuZWVkZWQgYXQgYWxs
-Pw0KDQogICAgV2hhdCBjYW4gdXNlcnNwYWNlIGRvIHdpdGggdGhpcyBpbmZvcm1hdGlvbj8NCg0K
-VGhhdCBpcyB0cnVlLCBhIHVzZXJzcGFjZSBwcm9jZXNzIGVpdGhlciBoYXMgdG8gd2FpdCBmb3Ig
-YWxsIHRvIGFkanVzdCB0byB0aGUgbmV3IGdlbmVyYXRpb24NCm9yIG5vdCBjYXJlIGFib3V0IG90
-aGVyIHByb2Nlc3Nlcy4gSW50ZXJtZWRpYXRlIHByb2JpbmcgZG9lc24ndCBicmluZyByZWFsIHZh
-bHVlLiBXaWxsIHJlbW92ZS4NCg0KICAgIHRoYW5rcywNCg0KICAgIGdyZWcgay1oDQoNClRoYW5r
-cyBmb3IgdGhlIGZlZWRiYWNrIQ0KQWRyaWFuLg0KDQoKCgpBbWF6b24gRGV2ZWxvcG1lbnQgQ2Vu
-dGVyIChSb21hbmlhKSBTLlIuTC4gcmVnaXN0ZXJlZCBvZmZpY2U6IDI3QSBTZi4gTGF6YXIgU3Ry
-ZWV0LCBVQkM1LCBmbG9vciAyLCBJYXNpLCBJYXNpIENvdW50eSwgNzAwMDQ1LCBSb21hbmlhLiBS
-ZWdpc3RlcmVkIGluIFJvbWFuaWEuIFJlZ2lzdHJhdGlvbiBudW1iZXIgSjIyLzI2MjEvMjAwNS4K
+Hi--
+
+On 1/12/21 4:15 AM, Adrian Catangiu wrote:
+> - Background and problem
+> 
+
+> ---
+>  Documentation/misc-devices/sysgenid.rst | 240 +++++++++++++++++++++++++
+>  drivers/misc/Kconfig                    |  16 ++
+>  drivers/misc/Makefile                   |   1 +
+>  drivers/misc/sysgenid.c                 | 298 ++++++++++++++++++++++++++++++++
+>  include/uapi/linux/sysgenid.h           |  18 ++
+>  5 files changed, 573 insertions(+)
+>  create mode 100644 Documentation/misc-devices/sysgenid.rst
+>  create mode 100644 drivers/misc/sysgenid.c
+>  create mode 100644 include/uapi/linux/sysgenid.h
+> 
+> diff --git a/Documentation/misc-devices/sysgenid.rst b/Documentation/misc-devices/sysgenid.rst
+> new file mode 100644
+> index 0000000..0b31ccf
+> --- /dev/null
+> +++ b/Documentation/misc-devices/sysgenid.rst
+> @@ -0,0 +1,240 @@
+> +.. SPDX-License-Identifier: GPL-2.0
+> +
+> +========
+> +SYSGENID
+> +========
+> +
+> +The System Generation ID feature is required in virtualized or
+> +containerized environments by applications that work with local copies
+> +or caches of world-unique data such as random values, UUIDs,
+> +monotonically increasing counters, etc.
+> +Such applications can be negatively affected by VM or container
+> +snapshotting when the VM or container is either cloned or returned to
+> +an earlier point in time.
+> +
+> +The System Generation ID is a simple concept meant to alleviate the
+> +issue by providing a monotonically increasing counter that changes
+> +each time the VM or container is restored from a snapshot.
+> +The driver for it lives at ``drivers/misc/sysgenid.c``.
+> +
+> +The ``sysgenid`` driver exposes a monotonic incremental System
+> +Generation u32 counter via a char-dev FS interface accessible through
+> +``/dev/sysgenid`` that provides sync and async SysGen counter updates
+
+                                                                 update
+
+> +notifications. It also provides SysGen counter retrieval and
+> +confirmation mechanisms.
+> +
+> +The counter starts from zero when the driver is initialized and
+> +monotonically increments every time the system generation changes.
+> +
+> +The ``sysgenid`` driver exports the ``void sysgenid_bump_generation()``
+> +symbol which can be used by backend drivers to drive system generation
+> +changes based on hardware events.
+> +System generation changes can also be driven by userspace software
+> +through a dedicated driver ioctl.
+> +
+> +Userspace applications or libraries can (a)synchronously consume the
+> +system generation counter through the provided FS interface, to make
+> +any necessary internal adjustments following a system generation update.
+> +
+> +Driver FS interface:
+> +
+> +``open()``:
+> +  When the device is opened, a copy of the current Sys-Gen-Id (counter)
+> +  is associated with the open file descriptor. The driver now tracks
+> +  this file as an independent *watcher*. The driver tracks how many
+> +  watchers are aware of the latest Sys-Gen-Id counter and how many of
+> +  them are *outdated*; outdated being those that have lived through
+> +  a Sys-Gen-Id change but not yet confirmed the new generation counter.
+> +
+> +``read()``:
+> +  Read is meant to provide the *new* system generation counter when a
+> +  generation change takes place. The read operation blocks until the
+> +  associated counter is no longer up to date, at which point the new
+> +  counter is provided/returned.
+> +  Nonblocking ``read()`` uses ``EAGAIN`` to signal that there is no
+> +  *new* counter value available. The generation counter is considered
+> +  *new* for each open file descriptor that hasn't confirmed the new
+> +  value following a generation change. Therefore, once a generation
+> +  change takes place, all ``read()`` calls will immediately return the
+> +  new generation counter and will continue to do so until the
+> +  new value is confirmed back to the driver through ``write()``.
+> +  Partial reads are not allowed - read buffer needs to be at least
+> +  ``sizeof(unsigned)`` in size.
+
+Please use (unsigned int), not just (unsigned).
+(Linux style)
+
+> +
+> +``write()``:
+> +  Write is used to confirm the up-to-date Sys Gen counter back to the
+> +  driver.
+> +  Following a VM generation change, all existing watchers are marked
+> +  as *outdated*. Each file descriptor will maintain the *outdated*
+> +  status until a ``write()`` confirms the up-to-date counter back to
+> +  the driver.
+> +  Partial writes are not allowed - write buffer should be exactly
+> +  ``sizeof(unsigned)`` in size.
+
+ditto.
+
+> +
+> +``poll()``:
+> +  Poll is implemented to allow polling for generation counter updates.
+> +  Such updates result in ``EPOLLIN`` polling status until the new
+> +  up-to-date counter is confirmed back to the driver through a
+> +  ``write()``.
+> +
+> +``ioctl()``:
+> +  The driver also adds support for tracking count of open file
+> +  descriptors that haven't acknowledged a generation counter update,
+> +  as well as a mechanism for userspace to *force* a generation update:
+> +
+> +  - SYSGENID_GET_OUTDATED_WATCHERS: immediately returns the number of
+> +    *outdated* watchers - number of file descriptors that were open
+> +    during a system generation change, and which have not yet confirmed
+> +    the new generation counter.
+> +  - SYSGENID_WAIT_WATCHERS: blocks until there are no more *outdated*
+> +    watchers, or if a ``timeout`` argument is provided, until the
+> +    timeout expires.
+> +    If the current caller is *outdated* or a generation change happens
+> +    while waiting (thus making current caller *outdated*), the ioctl
+> +    returns ``-EINTR`` to signal the user to handle event and retry.
+> +  - SYSGENID_FORCE_GEN_UPDATE: forces a generation counter increment.
+> +    It takes a ``minimum-generation`` argument which represents the
+> +    minimum value the generation counter will be incremented to. For
+> +    example if current generation is ``5`` and ``SYSGENID_FORCE_GEN_UPDATE(8)``
+> +    is called, the generation counter will increment to ``8``.
+> +    This IOCTL can only be used by processes with CAP_CHECKPOINT_RESTORE
+> +    or CAP_SYS_ADMIN capabilities.
+> +
+> +``mmap()``:
+> +  The driver supports ``PROT_READ, MAP_SHARED`` mmaps of a single page
+> +  in size. The first 4 bytes of the mapped page will contain an
+> +  up-to-date u32 copy of the system generation counter.
+> +  The mapped memory can be used as a low-latency generation counter
+> +  probe mechanism in critical sections - see examples.
+> +
+> +``close()``:
+> +  Removes the file descriptor as a system generation counter *watcher*.
+> +
+> +Example application workflows
+> +-----------------------------
+> +
+> +1) Watchdog thread simplified example::
+> +
+> +	void watchdog_thread_handler(int *thread_active)
+> +	{
+> +		unsigned genid;
+
+		unsigned int genid;
+
+> +		int fd = open("/dev/sysgenid", O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR);
+> +
+> +		do {
+> +			// read new gen ID - blocks until VM generation changes
+> +			read(fd, &genid, sizeof(genid));
+> +
+> +			// because of VM generation change, we need to rebuild world
+> +			reseed_app_env();
+> +
+> +			// confirm we're done handling gen ID update
+> +			write(fd, &genid, sizeof(genid));
+> +		} while (atomic_read(thread_active));
+> +
+> +		close(fd);
+> +	}
+> +
+> +2) ASYNC simplified example::
+> +
+> +	void handle_io_on_sysgenfd(int sysgenfd)
+> +	{
+> +		unsigned genid;
+
+		unsigned int genid;
+
+> +
+> +		// read new gen ID - we need it to confirm we've handled update
+> +		read(fd, &genid, sizeof(genid));
+> +
+> +		// because of VM generation change, we need to rebuild world
+> +		reseed_app_env();
+> +
+> +		// confirm we're done handling the gen ID update
+> +		write(fd, &genid, sizeof(genid));
+> +	}
+> +
+> +	int main() {
+> +		int epfd, sysgenfd;
+> +		struct epoll_event ev;
+> +
+> +		epfd = epoll_create(EPOLL_QUEUE_LEN);
+> +
+> +		sysgenfd = open("/dev/sysgenid",
+> +		               O_RDWR | O_CLOEXEC | O_NONBLOCK,
+> +		               S_IRUSR | S_IWUSR);
+> +
+> +		// register sysgenid for polling
+> +		ev.events = EPOLLIN;
+> +		ev.data.fd = sysgenfd;
+> +		epoll_ctl(epfd, EPOLL_CTL_ADD, sysgenfd, &ev);
+> +
+> +		// register other parts of your app for polling
+> +		// ...
+> +
+> +		while (1) {
+> +			// wait for something to do...
+> +			int nfds = epoll_wait(epfd, events,
+> +				MAX_EPOLL_EVENTS_PER_RUN,
+> +				EPOLL_RUN_TIMEOUT);
+> +			if (nfds < 0) die("Error in epoll_wait!");
+> +
+> +			// for each ready fd
+> +			for(int i = 0; i < nfds; i++) {
+> +				int fd = events[i].data.fd;
+> +
+> +				if (fd == sysgenfd)
+> +					handle_io_on_sysgenfd(sysgenfd);
+> +				else
+> +					handle_some_other_part_of_the_app(fd);
+> +			}
+> +		}
+> +
+> +		return 0;
+> +	}
+> +
+> +3) Mapped memory polling simplified example::
+> +
+> +	/*
+> +	 * app/library function that provides cached secrets
+> +	 */
+> +	char * safe_cached_secret(app_data_t *app)
+> +	{
+> +		char *secret;
+> +		volatile unsigned *const genid_ptr = get_sysgenid_mapping(app);
+
+		         unsigned int
+
+> +	again:
+> +		secret = __cached_secret(app);
+> +
+> +		if (unlikely(*genid_ptr != app->cached_genid)) {
+> +			app->cached_genid = *genid_ptr;
+> +			barrier();
+> +
+> +			// rebuild world then confirm the genid update (thru write)
+> +			rebuild_caches(app);
+> +
+> +			ack_sysgenid_update(app);
+> +
+> +			goto again;
+> +		}
+> +
+> +		return secret;
+> +	}
+> +
+> +4) Orchestrator simplified example::
+> +
+> +	/*
+> +	 * orchestrator - manages multiple applications and libraries used by
+> +	 * a service and tries to make sure all sensitive components gracefully
+> +	 * handle VM generation changes.
+> +	 * Following function is called on detection of a VM generation change.
+> +	 */
+> +	int handle_sysgen_update(int sysgen_fd, unsigned new_gen_id)
+
+	                                        unsigned int
+
+> +	{
+> +		// pause until all components have handled event
+> +		pause_service();
+> +
+> +		// confirm *this* watcher as up-to-date
+> +		write(sysgen_fd, &new_gen_id, sizeof(unsigned));
+
+		                                     unsigned int
+
+> +
+> +		// wait for all *others* for at most 5 seconds.
+> +		ioctl(sysgen_fd, VMGENID_WAIT_WATCHERS, 5000);
+> +
+> +		// all applications on the system have rebuilt worlds
+> +		resume_service();
+> +	}
+
+
+> diff --git a/include/uapi/linux/sysgenid.h b/include/uapi/linux/sysgenid.h
+> new file mode 100644
+> index 0000000..ea38fd3
+> --- /dev/null
+> +++ b/include/uapi/linux/sysgenid.h
+> @@ -0,0 +1,18 @@
+> +/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
+> +
+> +#ifndef _UAPI_LINUX_SYSGENID_H
+> +#define _UAPI_LINUX_SYSGENID_H
+> +
+> +#include <linux/ioctl.h>
+> +
+> +#define SYSGENID_IOCTL 0x2d
+
+Please document new IOCTL major/magic values in
+Documentation/userspace-api/ioctl/ioctl-number.rst.
+
+
+
+thanks.
+-- 
+~Randy
+"He closes his eyes and drops the goggles.  You can't get hurt
+by looking at a bitmap.  Or can you?"
+(Neal Stephenson: Snow Crash)
