@@ -1,106 +1,309 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Subject: Re: [PATCH 4/4] vfio-pci/zdev: Introduce the zPCI I/O vfio region
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Subject: [PATCH 4/4] vfio-pci/zdev: Introduce the zPCI I/O vfio region
+Date: Tue, 19 Jan 2021 15:02:30 -0500
+Message-Id: <1611086550-32765-5-git-send-email-mjrosato@linux.ibm.com>
+In-Reply-To: <1611086550-32765-1-git-send-email-mjrosato@linux.ibm.com>
 References: <1611086550-32765-1-git-send-email-mjrosato@linux.ibm.com>
- <1611086550-32765-5-git-send-email-mjrosato@linux.ibm.com>
-From: Niklas Schnelle <schnelle@linux.ibm.com>
-Message-ID: <90d99da8-02cf-e051-314b-2ab192f8fd57@linux.ibm.com>
-Date: Wed, 20 Jan 2021 14:21:59 +0100
-MIME-Version: 1.0
-In-Reply-To: <1611086550-32765-5-git-send-email-mjrosato@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Matthew Rosato <mjrosato@linux.ibm.com>, alex.williamson@redhat.com, cohuck@redhat.com
+To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
 Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Some s390 PCI devices (e.g. ISM) perform I/O operations that have very
+specific requirements in terms of alignment as well as the patterns in
+which the data is read/written. Allowing these to proceed through the
+typical vfio_pci_bar_rw path will cause them to be broken in up in such a
+way that these requirements can't be guaranteed. In addition, ISM devices
+do not support the MIO codepaths that might be triggered on vfio I/O coming
+from userspace; we must be able to ensure that these devices use the
+non-MIO instructions.  To facilitate this, provide a new vfio region by
+which non-MIO instructions can be passed directly to the host kernel s390
+PCI layer, to be reliably issued as non-MIO instructions.
 
+This patch introduces the new vfio VFIO_REGION_SUBTYPE_IBM_ZPCI_IO region
+and implements the ability to pass PCISTB and PCILG instructions over it,
+as these are what is required for ISM devices.
 
-On 1/19/21 9:02 PM, Matthew Rosato wrote:
-> Some s390 PCI devices (e.g. ISM) perform I/O operations that have very
-.. snip ...
-> +
-> +static size_t vfio_pci_zdev_io_rw(struct vfio_pci_device *vdev,
-> +				  char __user *buf, size_t count,
-> +				  loff_t *ppos, bool iswrite)
-> +{
-... snip ...
-> +	/*
-> +	 * For now, the largest allowed block I/O is advertised as PAGE_SIZE,
-> +	 * and cannot exceed a page boundary - so a single page is enough.  The
-> +	 * guest should have validated this but let's double-check that the
-> +	 * request will not cross a page boundary.
-> +	 */
-> +	if (((region->req.gaddr & ~PAGE_MASK)
-> +			+ region->req.len - 1) & PAGE_MASK) {
-> +		return -EIO;
-> +	}
-> +
-> +	mutex_lock(&zdev->lock);
+Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
+---
+ drivers/vfio/pci/vfio_pci.c         |   8 ++
+ drivers/vfio/pci/vfio_pci_private.h |   6 ++
+ drivers/vfio/pci/vfio_pci_zdev.c    | 158 ++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/vfio.h           |   4 +
+ include/uapi/linux/vfio_zdev.h      |  33 ++++++++
+ 5 files changed, 209 insertions(+)
 
-I plan on using the zdev->lock for preventing concurrent zPCI devices
-removal/configuration state changes between zPCI availability/error
-events and enable_slot()/disable_slot() and /sys/bus/pci/devices/<dev>/recover.
-
-With that use in place using it here causes a deadlock when doing 
-"echo 0 > /sys/bus/pci/slots/<fid>/power from the host for an ISM device
-attached to a guest.
-
-This is because the (soft) hot unplug will cause vfio to notify QEMU, which
-sends a deconfiguration request to the guest, which then tries to
-gracefully shutdown the device. During that shutdown the device will
-be accessed, running into this code path which then blocks on
-the lock held by the disable_slot() code which waits on vfio
-releasing the device.
-
-Alex may correct me if I'm wrong but I think instead vfio should
-be holding the PCI device lock via pci_device_lock(pdev).
-
-The annotated trace with my test code looks as follows:
-
-[  618.025091] Call Trace:
-[  618.025093]  [<00000007c1a139e0>] __schedule+0x360/0x960
-[  618.025104]  [<00000007c1a14760>] schedule_preempt_disabled+0x60/0x100
-[  618.025107]  [<00000007c1a16b48>] __mutex_lock+0x358/0x880
-[  618.025110]  [<00000007c1a170a2>] mutex_lock_nested+0x32/0x40
-[  618.025112]  [<000003ff805a3948>] vfio_pci_zdev_io_rw+0x168/0x310 [vfio_pci]
-[  618.025120]  [<000003ff8059b2b0>] vfio_pci_write+0xd0/0xe0 [vfio_pci]
-[  618.025124]  [<00000007c0fa5392>] __s390x_sys_pwrite64+0x112/0x360
-[  618.025129]  [<00000007c1a0aaf6>] __do_syscall+0x116/0x190
-[  618.025132]  [<00000007c1a1deda>] system_call+0x72/0x98
-[  618.025137] 1 lock held by qemu-system-s39/1315:
-[  618.025139]  #0: 000000008524b4e8 (&zdev->lock){....}-{3:3}, at: vfio_pci_zdev_io_rw+0x168/0x310 [vfio_pci]
-[  618.025151]
-               Showing all locks held in the system:
-[  618.025166] 1 lock held by khungtaskd/99:
-[  618.025168]  #0: 00000007c1ed4748 (rcu_read_lock){....}-{1:2}, at: rcu_lock_acquire.constprop.0+0x0/0x210
-[  618.025194] 6 locks held by zsh/1190:
-[  618.025196]  #0: 0000000095fc0488 (sb_writers#3){....}-{0:0}, at: __do_syscall+0x116/0x190
-[  618.025226]  #1: 00000000975bf090 (&of->mutex){....}-{3:3}, at: kernfs_fop_write+0x9a/0x240
-[  618.025236]  #2: 000000008584be78 (kn->active#245){....}-{0:0}, at: kernfs_fop_write+0xa6/0x240
-[  618.025243]  #3: 000000008524b4e8 (&zdev->lock){....}-{3:3}, at: disable_slot+0x32/0x130 <-------------------------------------|
-[  618.025252]  #4: 00000007c1f53468 (pci_rescan_remove_lock){....}-{3:3}, at: pci_stop_and_remove_bus_device_locked+0x26/0x240   |
-[  618.025260]  #5: 0000000085d8a1a0 (&dev->mutex){....}-{3:3}, at: device_release_driver+0x32/0x1d0                              |
-[  618.025271] 1 lock held by qemu-system-s39/1312:                                                                               D
-[  618.025273] 1 lock held by qemu-system-s39/1313:                                                                               E
-[  618.025275]  #0: 00000000d47e80d0 (&vcpu->mutex){....}-{3:3}, at: kvm_vcpu_ioctl+0x90/0x780 [kvm]                              A
-[  618.025322] 1 lock held by qemu-system-s39/1314:                                                                               D
-[  618.025324]  #0: 00000000d34700d0 (&vcpu->mutex){....}-{3:3}, at: kvm_vcpu_ioctl+0x90/0x780 [kvm]                              |
-[  618.025345] 1 lock held by qemu-system-s39/1315:                                                                               |
-[  618.025347]  #0: 000000008524b4e8 (&zdev->lock){....}-{3:3}, at: vfio_pci_zdev_io_rw+0x168/0x310 [vfio_pci] <------------------|
-[  618.025355] 1 lock held by qemu-system-s39/1317:
-[  618.025357]  #0: 00000000d34480d0 (&vcpu->mutex){....}-{3:3}, at: kvm_vcpu_ioctl+0x90/0x780 [kvm]
-[  618.025378] 1 lock held by qemu-system-s39/1318:
-[  618.025380]  #0: 00000000d34380d0 (&vcpu->mutex){....}-{3:3}, at: kvm_vcpu_ioctl+0x90/0x780 [kvm]
-[  618.025400] 1 lock held by qemu-system-s39/1319:
-[  618.025403]  #0: 00000000d47e8a90 (&vcpu->mutex){....}-{3:3}, at: kvm_vcpu_ioctl+0x90/0x780 [kvm]
-[  618.025424] 2 locks held by zsh/1391:
-[  618.025426]  #0: 00000000d4a708a0 (&tty->ldisc_sem){....}-{0:0}, at: tty_ldisc_ref_wait+0x34/0x70
-[  618.025435]  #1: 0000038002fc72f0 (&ldata->atomic_read_lock){....}-{3:3}, at: n_tty_read+0xc8/0xa50
-
-
-> +
-> +	ret = get_user_pages_fast(region->req.gaddr & PAGE_MASK, 1, 0, &gpage);
-> +	if (ret <= 0) {
-> +		count = -EIO;
-... snip ...
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 706de3e..e1c156e 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -407,6 +407,14 @@ static int vfio_pci_enable(struct vfio_pci_device *vdev)
+ 		}
+ 	}
+ 
++	if (IS_ENABLED(CONFIG_VFIO_PCI_ZDEV)) {
++		ret = vfio_pci_zdev_io_init(vdev);
++		if (ret && ret != -ENODEV) {
++			pci_warn(pdev, "Failed to setup zPCI I/O region\n");
++			return ret;
++		}
++	}
++
+ 	vfio_pci_probe_mmaps(vdev);
+ 
+ 	return 0;
+diff --git a/drivers/vfio/pci/vfio_pci_private.h b/drivers/vfio/pci/vfio_pci_private.h
+index 5c90e56..bc49980 100644
+--- a/drivers/vfio/pci/vfio_pci_private.h
++++ b/drivers/vfio/pci/vfio_pci_private.h
+@@ -217,12 +217,18 @@ static inline int vfio_pci_ibm_npu2_init(struct vfio_pci_device *vdev)
+ #ifdef CONFIG_VFIO_PCI_ZDEV
+ extern int vfio_pci_info_zdev_add_caps(struct vfio_pci_device *vdev,
+ 				       struct vfio_info_cap *caps);
++extern int vfio_pci_zdev_io_init(struct vfio_pci_device *vdev);
+ #else
+ static inline int vfio_pci_info_zdev_add_caps(struct vfio_pci_device *vdev,
+ 					      struct vfio_info_cap *caps)
+ {
+ 	return -ENODEV;
+ }
++
++static inline int vfio_pci_zdev_io_init(struct vfio_pci_device *vdev)
++{
++	return -ENODEV;
++}
+ #endif
+ 
+ #endif /* VFIO_PCI_PRIVATE_H */
+diff --git a/drivers/vfio/pci/vfio_pci_zdev.c b/drivers/vfio/pci/vfio_pci_zdev.c
+index 57e19ff..a962043 100644
+--- a/drivers/vfio/pci/vfio_pci_zdev.c
++++ b/drivers/vfio/pci/vfio_pci_zdev.c
+@@ -18,6 +18,7 @@
+ #include <linux/vfio_zdev.h>
+ #include <asm/pci_clp.h>
+ #include <asm/pci_io.h>
++#include <asm/pci_insn.h>
+ 
+ #include "vfio_pci_private.h"
+ 
+@@ -143,3 +144,160 @@ int vfio_pci_info_zdev_add_caps(struct vfio_pci_device *vdev,
+ 
+ 	return ret;
+ }
++
++static size_t vfio_pci_zdev_io_rw(struct vfio_pci_device *vdev,
++				  char __user *buf, size_t count,
++				  loff_t *ppos, bool iswrite)
++{
++	unsigned int i = VFIO_PCI_OFFSET_TO_INDEX(*ppos) - VFIO_PCI_NUM_REGIONS;
++	struct vfio_region_zpci_io *region = vdev->region[i].data;
++	struct zpci_dev *zdev = to_zpci(vdev->pdev);
++	loff_t pos = *ppos & VFIO_PCI_OFFSET_MASK;
++	void *base = region;
++	struct page *gpage;
++	void *gaddr;
++	u64 *data;
++	int ret;
++	u64 req;
++
++	if ((!vdev->pdev->bus) || (!zdev))
++		return -ENODEV;
++
++	if (pos >= vdev->region[i].size)
++		return -EINVAL;
++
++	count = min(count, (size_t)(vdev->region[i].size - pos));
++
++	if (!iswrite) {
++		/* Only allow reads to the _hdr area */
++		if (pos + count > offsetof(struct vfio_region_zpci_io, req))
++			return -EFAULT;
++		if (copy_to_user(buf, base + pos, count))
++			return -EFAULT;
++		return count;
++	}
++
++	/* Only allow writes to the _req area */
++	if (pos < offsetof(struct vfio_region_zpci_io, req))
++		return -EFAULT;
++	if (copy_from_user(base + pos, buf, count))
++		return -EFAULT;
++
++	/*
++	 * Read operations are limited to 8B
++	 */
++	if ((region->req.flags & VFIO_ZPCI_IO_FLAG_READ) &&
++		(region->req.len > 8)) {
++		return -EIO;
++	}
++
++	/*
++	 * Block write operations are limited to hardware-reported max
++	 */
++	if ((region->req.flags & VFIO_ZPCI_IO_FLAG_BLOCKW) &&
++		(region->req.len > zdev->maxstbl)) {
++		return -EIO;
++	}
++
++	/*
++	 * While some devices may allow relaxed alignment for the PCISTB
++	 * instruction, the VFIO region requires the input buffer to be on a
++	 * DWORD boundary for all operations for simplicity.
++	 */
++	if (!IS_ALIGNED(region->req.gaddr, sizeof(uint64_t)))
++		return -EIO;
++
++	/*
++	 * For now, the largest allowed block I/O is advertised as PAGE_SIZE,
++	 * and cannot exceed a page boundary - so a single page is enough.  The
++	 * guest should have validated this but let's double-check that the
++	 * request will not cross a page boundary.
++	 */
++	if (((region->req.gaddr & ~PAGE_MASK)
++			+ region->req.len - 1) & PAGE_MASK) {
++		return -EIO;
++	}
++
++	mutex_lock(&zdev->lock);
++
++	ret = get_user_pages_fast(region->req.gaddr & PAGE_MASK, 1, 0, &gpage);
++	if (ret <= 0) {
++		count = -EIO;
++		goto out;
++	}
++	gaddr = page_address(gpage);
++	gaddr += (region->req.gaddr & ~PAGE_MASK);
++	data = (u64 *)gaddr;
++
++	req = ZPCI_CREATE_REQ(zdev->fh, region->req.pcias, region->req.len);
++
++	/* Perform the requested I/O operation */
++	if (region->req.flags & VFIO_ZPCI_IO_FLAG_READ) {
++		/* PCILG */
++		ret = __zpci_load(data, req,
++				region->req.offset);
++	} else if (region->req.flags & VFIO_ZPCI_IO_FLAG_BLOCKW) {
++		/* PCISTB */
++		ret = __zpci_store_block(data, req,
++					region->req.offset);
++	} else {
++		/* Undefined Operation or none provided */
++		count = -EIO;
++	}
++	if (ret < 0)
++		count = -EIO;
++
++	put_page(gpage);
++
++out:
++	mutex_unlock(&zdev->lock);
++	return count;
++}
++
++static void vfio_pci_zdev_io_release(struct vfio_pci_device *vdev,
++				     struct vfio_pci_region *region)
++{
++	kfree(region->data);
++}
++
++static const struct vfio_pci_regops vfio_pci_zdev_io_regops = {
++	.rw		= vfio_pci_zdev_io_rw,
++	.release	= vfio_pci_zdev_io_release,
++};
++
++int vfio_pci_zdev_io_init(struct vfio_pci_device *vdev)
++{
++	struct vfio_region_zpci_io *region;
++	struct zpci_dev *zdev;
++	int ret;
++
++	if (!vdev->pdev->bus)
++		return -ENODEV;
++
++	zdev = to_zpci(vdev->pdev);
++	if (!zdev)
++		return -ENODEV;
++
++	region = kmalloc(sizeof(struct vfio_region_zpci_io), GFP_KERNEL);
++
++	ret = vfio_pci_register_dev_region(vdev,
++		PCI_VENDOR_ID_IBM | VFIO_REGION_TYPE_PCI_VENDOR_TYPE,
++		VFIO_REGION_SUBTYPE_IBM_ZPCI_IO,
++		&vfio_pci_zdev_io_regops,
++		sizeof(struct vfio_region_zpci_io),
++		VFIO_REGION_INFO_FLAG_READ | VFIO_REGION_INFO_FLAG_WRITE,
++		region);
++
++	if (ret) {
++		kfree(region);
++		return ret;
++	}
++
++	/* Setup the initial header information */
++	region->hdr.flags = 0;
++	region->hdr.max = zdev->maxstbl;
++	region->hdr.reserved = 0;
++	region->hdr.reserved2 = 0;
++
++	return ret;
++}
+diff --git a/include/uapi/linux/vfio.h b/include/uapi/linux/vfio.h
+index d181277..5547f9b 100644
+--- a/include/uapi/linux/vfio.h
++++ b/include/uapi/linux/vfio.h
+@@ -338,6 +338,10 @@ struct vfio_region_info_cap_type {
+  * to do TLB invalidation on a GPU.
+  */
+ #define VFIO_REGION_SUBTYPE_IBM_NVLINK2_ATSD	(1)
++/*
++ * IBM zPCI I/O region
++ */
++#define VFIO_REGION_SUBTYPE_IBM_ZPCI_IO		(2)
+ 
+ /* sub-types for VFIO_REGION_TYPE_GFX */
+ #define VFIO_REGION_SUBTYPE_GFX_EDID            (1)
+diff --git a/include/uapi/linux/vfio_zdev.h b/include/uapi/linux/vfio_zdev.h
+index b0b6596..830acca4 100644
+--- a/include/uapi/linux/vfio_zdev.h
++++ b/include/uapi/linux/vfio_zdev.h
+@@ -76,4 +76,37 @@ struct vfio_device_info_cap_zpci_pfip {
+ 	__u8 pfip[];
+ };
+ 
++/**
++ * VFIO_REGION_SUBTYPE_IBM_ZPCI_IO - VFIO zPCI PCI Direct I/O Region
++ *
++ * This region is used to transfer I/O operations from the guest directly
++ * to the host zPCI I/O layer.  The same instruction requested by the guest
++ * (e.g. PCISTB) will always be used, even if the MIO variant is available.
++ *
++ * The _hdr area is user-readable and is used to provide setup information.
++ * The _req area is user-writable and is used to provide the I/O operation.
++ */
++struct vfio_zpci_io_hdr {
++	__u64 flags;
++	__u16 max;		/* Max block operation size allowed */
++	__u16 reserved;
++	__u32 reserved2;
++};
++
++struct vfio_zpci_io_req {
++	__u64 flags;
++#define VFIO_ZPCI_IO_FLAG_READ (1 << 0) /* Read Operation Specified */
++#define VFIO_ZPCI_IO_FLAG_BLOCKW (1 << 1) /* Block Write Operation Specified */
++	__u64 gaddr;		/* Address of guest data */
++	__u64 offset;		/* Offset into target PCI Address Space */
++	__u32 reserved;
++	__u16 len;		/* Length of guest operation */
++	__u8 pcias;		/* Target PCI Address Space */
++	__u8 reserved2;
++};
++
++struct vfio_region_zpci_io {
++	struct vfio_zpci_io_hdr hdr;
++	struct vfio_zpci_io_req req;
++};
+ #endif
+-- 
+1.8.3.1
