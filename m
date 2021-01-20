@@ -1,50 +1,67 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.99]:48934 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730158AbhALOFv (ORCPT <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 12 Jan 2021 09:05:51 -0500
-Date: Tue, 12 Jan 2021 14:05:00 +0000
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v2] arch: consolidate pm_power_off callback
-Message-ID: <20210112140459.GC9277@willie-the-truck>
-References: <20201227140129.19932-1-info@metux.net>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:34646 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2403876AbhATQtJ (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 20 Jan 2021 11:49:09 -0500
+Date: Wed, 20 Jan 2021 17:48:09 +0100
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Subject: Re: [kvm-unit-tests PATCH v3 1/3] s390x: pv: implement routine to
+ share/unshare memory
+Message-ID: <20210120174809.64bb8e4d@ibm-vm>
+In-Reply-To: <211a4bd3-763a-f8fc-3c08-8d8d1809cc7c@redhat.com>
+References: <1611085944-21609-1-git-send-email-pmorel@linux.ibm.com>
+        <1611085944-21609-2-git-send-email-pmorel@linux.ibm.com>
+        <211a4bd3-763a-f8fc-3c08-8d8d1809cc7c@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20201227140129.19932-1-info@metux.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 List-ID: <linux-s390.vger.kernel.org>
-To: "Enrico Weigelt, metux IT consult" <info@metux.net>
-Cc: linux-kernel@vger.kernel.org, catalin.marinas@arm.com, msalter@redhat.com, jacquiot.aurelien@gmail.com, ysato@users.sourceforge.jp, geert@linux-m68k.org, tsbogend@alpha.franken.de, ley.foon.tan@intel.com, jonas@southpole.se, stefan.kristiansson@saunalahti.fi, shorne@gmail.com, James.Bottomley@HansenPartnership.com, deller@gmx.de, benh@kernel.crashing.org, paulus@samba.org, dalias@libc.org, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com, sstabellini@kernel.org, chris@zankel.net, jcmvbkbc@gmail.com, christian@brauner.io, linux-alpha@vger.kernel.org, linux-snps-arc@lists.infradead.org, linux-c6x-dev@linux-c6x.org, linux-csky@vger.kernel.org, linux-hexagon@vger.kernel.org, linux-ia64@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-mips@vger.kernel.org, openrisc@lists.librecores.org, linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-riscv@lists.infradead.org, linux-s390@vger.kernel.org, linux-sh@vger.kernel.org, linux-xtensa@linux-xtensa.org, linux-pm@vger.kernel.org
+To: Thomas Huth <thuth@redhat.com>
+Cc: Pierre Morel <pmorel@linux.ibm.com>, kvm@vger.kernel.org, linux-s390@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, cohuck@redhat.com, drjones@redhat.com, pbonzini@redhat.com
 
-On Sun, Dec 27, 2020 at 03:01:28PM +0100, Enrico Weigelt, metux IT consult wrote:
-> Move the pm_power_off callback into one global place and also add an
-> function for conditionally calling it (when not NULL), in order to remove
-> code duplication in all individual archs.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+On Wed, 20 Jan 2021 11:48:52 +0100
+Thomas Huth <thuth@redhat.com> wrote:
+
 
 [...]
 
-> diff --git a/kernel/reboot.c b/kernel/reboot.c
-> index eb1b15850761..ec4cd66dd1ae 100644
-> --- a/kernel/reboot.c
-> +++ b/kernel/reboot.c
-> @@ -53,6 +53,16 @@ int reboot_force;
->  void (*pm_power_off_prepare)(void);
->  EXPORT_SYMBOL_GPL(pm_power_off_prepare);
->  
-> +void (*pm_power_off)(void);
-> +EXPORT_SYMBOL_GPL(pm_power_off);
-> +
-> +void do_power_off(void)
-> +{
-> +	if (pm_power_off)
-> +		pm_power_off();
-> +}
-> +EXPORT_SYMBOL_GPL(do_power_off);
+> > +/*
+> > + * Guest 2 request to the Ultravisor to make a page shared with the
+> > + * hypervisor for IO.
+> > + *
+> > + * @addr: Real or absolute address of the page to be shared  
+> 
+> When is it real, and when is it absolute?
 
-Could this just live as a static inline in pm.h to avoid having to export
-the extra symbol?
+as far as we are concerned, it's unpredictable
 
-Will
+this means that a guest should avoid sharing any prefix (or
+reverse prefix) pages.
+
+> > + */
+> > +static inline int uv_set_shared(unsigned long addr)
+> > +{
+> > +	return share(addr, UVC_CMD_SET_SHARED_ACCESS);
+> > +}
+> > +
+> > +/*
+> > + * Guest 2 request to the Ultravisor to make a page unshared.
+> > + *
+> > + * @addr: Real or absolute address of the page to be unshared  
+> 
+> dito
+
+same
+
+> > + */
+> > +static inline int uv_remove_shared(unsigned long addr)
+> > +{
+> > +	return share(addr, UVC_CMD_REMOVE_SHARED_ACCESS);
+> > +}
+> > +
+> >   #endif  
+> 
+> Apart from the nits:
+> Acked-by: Thomas Huth <thuth@redhat.com>
+> 
