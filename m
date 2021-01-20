@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-From: Anshuman Khandual <anshuman.khandual@arm.com>
-Subject: [PATCH V3 2/3] arm64/mm: Define arch_get_mappable_range()
-Date: Mon, 18 Jan 2021 18:43:00 +0530
-Message-Id: <1610975582-12646-3-git-send-email-anshuman.khandual@arm.com>
-In-Reply-To: <1610975582-12646-1-git-send-email-anshuman.khandual@arm.com>
-References: <1610975582-12646-1-git-send-email-anshuman.khandual@arm.com>
+Subject: Re: [PATCH 0/4] vfio-pci/zdev: Fixing s390 vfio-pci ISM support
+References: <1611086550-32765-1-git-send-email-mjrosato@linux.ibm.com>
+ <d44a5da8-1cb9-8b1c-ef48-caea4bda2fa8@linux.ibm.com>
+From: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-ID: <18cf09c6-5331-b5df-c421-aade717f9766@linux.ibm.com>
+Date: Wed, 20 Jan 2021 09:02:07 -0500
+MIME-Version: 1.0
+In-Reply-To: <d44a5da8-1cb9-8b1c-ef48-caea4bda2fa8@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: linux-mm@kvack.org, akpm@linux-foundation.org, david@redhat.com, hca@linux.ibm.com, catalin.marinas@arm.com
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>, Oscar Salvador <osalvador@suse.de>, Vasily Gorbik <gor@linux.ibm.com>, Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>, alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
+Cc: borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This overrides arch_get_mappable_range() on arm64 platform which will be
-used with recently added generic framework. It drops inside_linear_region()
-and subsequent check in arch_add_memory() which are no longer required. It
-also adds a VM_BUG_ON() check that would ensure that memhp_range_allowed()
-has already been called.
+On 1/20/21 4:02 AM, Pierre Morel wrote:
+> 
+> 
+> On 1/19/21 9:02 PM, Matthew Rosato wrote:
+>> Today, ISM devices are completely disallowed for vfio-pci passthrough as
+>> QEMU will reject the device due to an (inappropriate) MSI-X check.
+>> However, in an effort to enable ISM device passthrough, I realized 
+>> that the
+>> manner in which ISM performs block write operations is highly 
+>> incompatible
+>> with the way that QEMU s390 PCI instruction interception and
+>> vfio_pci_bar_rw break up I/O operations into 8B and 4B operations -- ISM
+>> devices have particular requirements in regards to the alignment, size 
+>> and
+>> order of writes performed.  Furthermore, they require that legacy/non-MIO
+>> s390 PCI instructions are used, which is also not guaranteed when the I/O
+>> is passed through the typical userspace channels.
+>>
+>> As a result, this patchset proposes a new VFIO region to allow a guest to
+>> pass certain PCI instruction intercepts directly to the s390 host kernel
+>> PCI layer for execution, pinning the guest buffer in memory briefly in
+>> order to execute the requested PCI instruction.
+>>
+>> Changes from RFC -> v1:
+>> - No functional changes, just minor commentary changes -- Re-posting 
+>> along
+>> with updated QEMU set.
+>>
+> 
+> Hi,
+> 
+> there are is a concerns about this patch series:
+> As the title says it is strongly related to ISM hardware.
+> 
+> Why being so specific?
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
----
- arch/arm64/mm/mmu.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+Because prior investigations have shown that the region can only be 
+safely used by a device type that does not implement MSI-X (use of this 
+region by a vfio-pci device that has MSI-X capability interferes with 
+vfio-pci MSI-X masking, since we are bypassing the typical VFIO bar 
+regions and vfio-pci MSI-X masking is triggered by those region accesses).
 
-diff --git a/arch/arm64/mm/mmu.c b/arch/arm64/mm/mmu.c
-index ae0c3d023824..f2e1770c9f29 100644
---- a/arch/arm64/mm/mmu.c
-+++ b/arch/arm64/mm/mmu.c
-@@ -1442,16 +1442,19 @@ static void __remove_pgd_mapping(pgd_t *pgdir, unsigned long start, u64 size)
- 	free_empty_tables(start, end, PAGE_OFFSET, PAGE_END);
- }
- 
--static bool inside_linear_region(u64 start, u64 size)
-+struct range arch_get_mappable_range(void)
- {
-+	struct range memhp_range;
-+
- 	/*
- 	 * Linear mapping region is the range [PAGE_OFFSET..(PAGE_END - 1)]
- 	 * accommodating both its ends but excluding PAGE_END. Max physical
- 	 * range which can be mapped inside this linear mapping range, must
- 	 * also be derived from its end points.
- 	 */
--	return start >= __pa(_PAGE_OFFSET(vabits_actual)) &&
--	       (start + size - 1) <= __pa(PAGE_END - 1);
-+	memhp_range.start = __pa(_PAGE_OFFSET(vabits_actual));
-+	memhp_range.end =  __pa(PAGE_END - 1);
-+	return memhp_range;
- }
- 
- int arch_add_memory(int nid, u64 start, u64 size,
-@@ -1459,11 +1462,7 @@ int arch_add_memory(int nid, u64 start, u64 size,
- {
- 	int ret, flags = 0;
- 
--	if (!inside_linear_region(start, size)) {
--		pr_err("[%llx %llx] is outside linear mapping region\n", start, start + size);
--		return -EINVAL;
--	}
--
-+	VM_BUG_ON(!memhp_range_allowed(start, size, true));
- 	if (rodata_full || debug_pagealloc_enabled())
- 		flags = NO_BLOCK_MAPPINGS | NO_CONT_MAPPINGS;
- 
--- 
-2.20.1
+So, in lieu of another suggestion that would overcome that issue (nobody 
+has suggested anything thus far), the proposal is to limit the region's 
+use to fix the specific problem at hand (ISM devices won't function 
+properly if passed through).  That doesn't preclude this region from 
+being used for a different device type later, but ISM is why we are 
+introducing it now.
