@@ -1,284 +1,193 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47750 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726769AbhAXKGo (ORCPT
-        <rfc822;linux-s390@vger.kernel.org>); Sun, 24 Jan 2021 05:06:44 -0500
-From: Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 06/10] block: use ->bi_bdev for bio based I/O accounting
-Date: Sun, 24 Jan 2021 11:02:37 +0100
-Message-Id: <20210124100241.1167849-7-hch@lst.de>
-In-Reply-To: <20210124100241.1167849-1-hch@lst.de>
-References: <20210124100241.1167849-1-hch@lst.de>
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:48224 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388422AbhATLoT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 20 Jan 2021 06:44:19 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 04/11] s390x: Consolidate sclp read info
+Date: Wed, 20 Jan 2021 06:41:51 -0500
+Message-Id: <20210120114158.104559-5-frankja@linux.ibm.com>
+In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
+References: <20210120114158.104559-1-frankja@linux.ibm.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Tejun Heo <tj@kernel.org>, Coly Li <colyli@suse.de>, Song Liu <song@kernel.org>, dm-devel@redhat.com, linux-bcache@vger.kernel.org, linux-raid@vger.kernel.org, linux-s390@vger.kernel.org, linux-block@vger.kernel.org
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Rework the I/O accounting for bio based drivers to use ->bi_bdev.  This
-means all drivers can now simply use bio_start_io_acct to start
-accounting, and it will take partitions into account automatically.  To
-end I/O account either bio_end_io_acct can be used if the driver never
-remaps I/O to a different device, or bio_end_io_acct_remapped if the
-driver did remap the I/O.
+Let's only read the information once and pass a pointer to it instead
+of calling sclp multiple times.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- block/blk-core.c            | 23 +++++++++++++----------
- drivers/md/bcache/request.c | 34 +++++++++++++++++++++-------------
- drivers/md/md.c             |  8 ++++----
- include/linux/blkdev.h      | 21 ++++-----------------
- 4 files changed, 42 insertions(+), 44 deletions(-)
+ lib/s390x/io.c   |  1 +
+ lib/s390x/sclp.c | 31 +++++++++++++++++++++++++------
+ lib/s390x/sclp.h |  3 +++
+ lib/s390x/smp.c  | 27 +++++++++++----------------
+ 4 files changed, 40 insertions(+), 22 deletions(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 1c1b97a82caa2e..9315311c27a913 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1321,14 +1321,17 @@ static unsigned long __part_start_io_acct(struct block_device *part,
- 	return now;
+diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+index 1ff0589..6a1da63 100644
+--- a/lib/s390x/io.c
++++ b/lib/s390x/io.c
+@@ -34,6 +34,7 @@ void setup(void)
+ {
+ 	setup_args_progname(ipl_args);
+ 	setup_facilities();
++	sclp_read_info();
+ 	sclp_console_setup();
+ 	sclp_memory_setup();
+ 	smp_setup();
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 08a4813..12916f5 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -23,6 +23,8 @@ extern unsigned long stacktop;
+ static uint64_t storage_increment_size;
+ static uint64_t max_ram_size;
+ static uint64_t ram_size;
++char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
++static ReadInfo *read_info;
+ 
+ char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+ static volatile bool sclp_busy;
+@@ -108,6 +110,24 @@ static void sclp_read_scp_info(ReadInfo *ri, int length)
+ 	report_abort("READ_SCP_INFO failed");
  }
  
--unsigned long part_start_io_acct(struct gendisk *disk, struct block_device **part,
--				 struct bio *bio)
-+/**
-+ * bio_start_io_acct - start I/O accounting for bio based drivers
-+ * @bio:	bio to start account for
-+ *
-+ * Returns the start time that should be passed back to bio_end_io_acct().
-+ */
-+unsigned long bio_start_io_acct(struct bio *bio)
- {
--	*part = disk_map_sector_rcu(disk, bio->bi_iter.bi_sector);
--
--	return __part_start_io_acct(*part, bio_sectors(bio), bio_op(bio));
-+	return __part_start_io_acct(bio->bi_bdev, bio_sectors(bio), bio_op(bio));
- }
--EXPORT_SYMBOL_GPL(part_start_io_acct);
-+EXPORT_SYMBOL_GPL(bio_start_io_acct);
- 
- unsigned long disk_start_io_acct(struct gendisk *disk, unsigned int sectors,
- 				 unsigned int op)
-@@ -1351,12 +1354,12 @@ static void __part_end_io_acct(struct block_device *part, unsigned int op,
- 	part_stat_unlock();
- }
- 
--void part_end_io_acct(struct block_device *part, struct bio *bio,
--		      unsigned long start_time)
-+void bio_end_io_acct_remapped(struct bio *bio, unsigned long start_time,
-+		struct block_device *orig_bdev)
- {
--	__part_end_io_acct(part, bio_op(bio), start_time);
-+	__part_end_io_acct(orig_bdev, bio_op(bio), start_time);
- }
--EXPORT_SYMBOL_GPL(part_end_io_acct);
-+EXPORT_SYMBOL_GPL(bio_end_io_acct_remapped);
- 
- void disk_end_io_acct(struct gendisk *disk, unsigned int op,
- 		      unsigned long start_time)
-diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
-index dfc35d6d05ed1c..29c231758293e2 100644
---- a/drivers/md/bcache/request.c
-+++ b/drivers/md/bcache/request.c
-@@ -475,7 +475,7 @@ struct search {
- 	unsigned int		read_dirty_data:1;
- 	unsigned int		cache_missed:1;
- 
--	struct block_device	*part;
-+	struct block_device	*orig_bdev;
- 	unsigned long		start_time;
- 
- 	struct btree_op		op;
-@@ -670,8 +670,8 @@ static void bio_complete(struct search *s)
- {
- 	if (s->orig_bio) {
- 		/* Count on bcache device */
--		part_end_io_acct(s->part, s->orig_bio, s->start_time);
--
-+		bio_end_io_acct_remapped(s->orig_bio, s->start_time,
-+					 s->orig_bdev);
- 		trace_bcache_request_end(s->d, s->orig_bio);
- 		s->orig_bio->bi_status = s->iop.status;
- 		bio_endio(s->orig_bio);
-@@ -714,7 +714,8 @@ static void search_free(struct closure *cl)
- }
- 
- static inline struct search *search_alloc(struct bio *bio,
--					  struct bcache_device *d)
-+		struct bcache_device *d, struct block_device *orig_bdev,
-+		unsigned long start_time)
- {
- 	struct search *s;
- 
-@@ -732,7 +733,8 @@ static inline struct search *search_alloc(struct bio *bio,
- 	s->write		= op_is_write(bio_op(bio));
- 	s->read_dirty_data	= 0;
- 	/* Count on the bcache device */
--	s->start_time		= part_start_io_acct(d->disk, &s->part, bio);
-+	s->orig_bdev		= orig_bdev;
-+	s->start_time		= start_time;
- 	s->iop.c		= d->c;
- 	s->iop.bio		= NULL;
- 	s->iop.inode		= d->id;
-@@ -1074,7 +1076,7 @@ struct detached_dev_io_private {
- 	unsigned long		start_time;
- 	bio_end_io_t		*bi_end_io;
- 	void			*bi_private;
--	struct block_device	*part;
-+	struct block_device	*orig_bdev;
- };
- 
- static void detached_dev_end_io(struct bio *bio)
-@@ -1086,7 +1088,7 @@ static void detached_dev_end_io(struct bio *bio)
- 	bio->bi_private = ddip->bi_private;
- 
- 	/* Count on the bcache device */
--	part_end_io_acct(ddip->part, bio, ddip->start_time);
-+	bio_end_io_acct_remapped(bio, ddip->start_time, ddip->orig_bdev);
- 
- 	if (bio->bi_status) {
- 		struct cached_dev *dc = container_of(ddip->d,
-@@ -1099,7 +1101,8 @@ static void detached_dev_end_io(struct bio *bio)
- 	bio->bi_end_io(bio);
- }
- 
--static void detached_dev_do_request(struct bcache_device *d, struct bio *bio)
-+static void detached_dev_do_request(struct bcache_device *d, struct bio *bio,
-+		struct block_device *orig_bdev, unsigned long start_time)
- {
- 	struct detached_dev_io_private *ddip;
- 	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
-@@ -1112,7 +1115,8 @@ static void detached_dev_do_request(struct bcache_device *d, struct bio *bio)
- 	ddip = kzalloc(sizeof(struct detached_dev_io_private), GFP_NOIO);
- 	ddip->d = d;
- 	/* Count on the bcache device */
--	ddip->start_time = part_start_io_acct(d->disk, &ddip->part, bio);
-+	ddip->orig_bdev = orig_bdev;
-+	ddip->start_time = start_time;
- 	ddip->bi_end_io = bio->bi_end_io;
- 	ddip->bi_private = bio->bi_private;
- 	bio->bi_end_io = detached_dev_end_io;
-@@ -1168,8 +1172,10 @@ static void quit_max_writeback_rate(struct cache_set *c,
- blk_qc_t cached_dev_submit_bio(struct bio *bio)
- {
- 	struct search *s;
--	struct bcache_device *d = bio->bi_bdev->bd_disk->private_data;
-+	struct block_device *orig_bdev = bio->bi_bdev;
-+	struct bcache_device *d = orig_bdev->bd_disk->private_data;
- 	struct cached_dev *dc = container_of(d, struct cached_dev, disk);
-+	unsigned long start_time;
- 	int rw = bio_data_dir(bio);
- 
- 	if (unlikely((d->c && test_bit(CACHE_SET_IO_DISABLE, &d->c->flags)) ||
-@@ -1194,11 +1200,13 @@ blk_qc_t cached_dev_submit_bio(struct bio *bio)
- 		}
- 	}
- 
-+	start_time = bio_start_io_acct(bio);
++void sclp_read_info(void)
++{
++	sclp_read_scp_info((void *)_read_info, SCCB_SIZE);
++	read_info = (ReadInfo *)_read_info;
++}
 +
- 	bio_set_dev(bio, dc->bdev);
- 	bio->bi_iter.bi_sector += dc->sb.data_offset;
- 
- 	if (cached_dev_get(dc)) {
--		s = search_alloc(bio, d);
-+		s = search_alloc(bio, d, orig_bdev, start_time);
- 		trace_bcache_request_start(s->d, bio);
- 
- 		if (!bio->bi_iter.bi_size) {
-@@ -1219,7 +1227,7 @@ blk_qc_t cached_dev_submit_bio(struct bio *bio)
- 		}
- 	} else
- 		/* I/O request sent to backing device */
--		detached_dev_do_request(d, bio);
-+		detached_dev_do_request(d, bio, orig_bdev, start_time);
- 
- 	return BLK_QC_T_NONE;
- }
-@@ -1283,7 +1291,7 @@ blk_qc_t flash_dev_submit_bio(struct bio *bio)
- 		return BLK_QC_T_NONE;
- 	}
- 
--	s = search_alloc(bio, d);
-+	s = search_alloc(bio, d, bio->bi_bdev, bio_start_io_acct(bio));
- 	cl = &s->cl;
- 	bio = &s->bio.bio;
- 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index ade2b99c51d390..5dd0c5e4c7632b 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -463,8 +463,8 @@ struct md_io {
- 	struct mddev *mddev;
- 	bio_end_io_t *orig_bi_end_io;
- 	void *orig_bi_private;
-+	struct block_device *orig_bi_bdev;
- 	unsigned long start_time;
--	struct block_device *part;
- };
- 
- static void md_end_io(struct bio *bio)
-@@ -472,7 +472,7 @@ static void md_end_io(struct bio *bio)
- 	struct md_io *md_io = bio->bi_private;
- 	struct mddev *mddev = md_io->mddev;
- 
--	part_end_io_acct(md_io->part, bio, md_io->start_time);
-+	bio_end_io_acct_remapped(bio, md_io->start_time, md_io->orig_bi_bdev);
- 
- 	bio->bi_end_io = md_io->orig_bi_end_io;
- 	bio->bi_private = md_io->orig_bi_private;
-@@ -514,12 +514,12 @@ static blk_qc_t md_submit_bio(struct bio *bio)
- 		md_io->mddev = mddev;
- 		md_io->orig_bi_end_io = bio->bi_end_io;
- 		md_io->orig_bi_private = bio->bi_private;
-+		md_io->orig_bi_bdev = bio->bi_bdev;
- 
- 		bio->bi_end_io = md_end_io;
- 		bio->bi_private = md_io;
- 
--		md_io->start_time = part_start_io_acct(mddev->gendisk,
--						       &md_io->part, bio);
-+		md_io->start_time = bio_start_io_acct(bio);
- 	}
- 
- 	/* bio could be mergeable after passing to underlayer */
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index b55bd534b2e1e2..4526b9ef8edbe3 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1954,22 +1954,9 @@ unsigned long disk_start_io_acct(struct gendisk *disk, unsigned int sectors,
- void disk_end_io_acct(struct gendisk *disk, unsigned int op,
- 		unsigned long start_time);
- 
--unsigned long part_start_io_acct(struct gendisk *disk,
--		struct block_device **part, struct bio *bio);
--void part_end_io_acct(struct block_device *part, struct bio *bio,
--		      unsigned long start_time);
--
--/**
-- * bio_start_io_acct - start I/O accounting for bio based drivers
-- * @bio:	bio to start account for
-- *
-- * Returns the start time that should be passed back to bio_end_io_acct().
-- */
--static inline unsigned long bio_start_io_acct(struct bio *bio)
--{
--	return disk_start_io_acct(bio->bi_bdev->bd_disk, bio_sectors(bio),
--				  bio_op(bio));
--}
-+unsigned long bio_start_io_acct(struct bio *bio);
-+void bio_end_io_acct_remapped(struct bio *bio, unsigned long start_time,
-+		struct block_device *orig_bdev);
- 
- /**
-  * bio_end_io_acct - end I/O accounting for bio based drivers
-@@ -1978,7 +1965,7 @@ static inline unsigned long bio_start_io_acct(struct bio *bio)
-  */
- static inline void bio_end_io_acct(struct bio *bio, unsigned long start_time)
++int sclp_get_cpu_num(void)
++{
++	assert(read_info);
++	return read_info->entries_cpu;
++}
++
++CPUEntry *sclp_get_cpu_entries(void)
++{
++	assert(read_info);
++	return (CPUEntry *)(_read_info + read_info->offset_cpu);
++}
++
+ /* Perform service call. Return 0 on success, non-zero otherwise. */
+ int sclp_service_call(unsigned int command, void *sccb)
  {
--	return disk_end_io_acct(bio->bi_bdev->bd_disk, bio_op(bio), start_time);
-+	return bio_end_io_acct_remapped(bio, start_time, bio->bi_bdev);
+@@ -125,23 +145,22 @@ int sclp_service_call(unsigned int command, void *sccb)
+ 
+ void sclp_memory_setup(void)
+ {
+-	ReadInfo *ri = (void *)_sccb;
+ 	uint64_t rnmax, rnsize;
+ 	int cc;
+ 
+-	sclp_read_scp_info(ri, SCCB_SIZE);
++	assert(read_info);
+ 
+ 	/* calculate the storage increment size */
+-	rnsize = ri->rnsize;
++	rnsize = read_info->rnsize;
+ 	if (!rnsize) {
+-		rnsize = ri->rnsize2;
++		rnsize = read_info->rnsize2;
+ 	}
+ 	storage_increment_size = rnsize << 20;
+ 
+ 	/* calculate the maximum memory size */
+-	rnmax = ri->rnmax;
++	rnmax = read_info->rnmax;
+ 	if (!rnmax) {
+-		rnmax = ri->rnmax2;
++		rnmax = read_info->rnmax2;
+ 	}
+ 	max_ram_size = rnmax * storage_increment_size;
+ 
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index a8f58f5..f005bd0 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -268,6 +268,9 @@ void sclp_wait_busy(void);
+ void sclp_mark_busy(void);
+ void sclp_console_setup(void);
+ void sclp_print(const char *str);
++void sclp_read_info(void);
++int sclp_get_cpu_num(void);
++CPUEntry *sclp_get_cpu_entries(void);
+ int sclp_service_call(unsigned int command, void *sccb);
+ void sclp_memory_setup(void);
+ uint64_t get_ram_size(void);
+diff --git a/lib/s390x/smp.c b/lib/s390x/smp.c
+index 423970b..ee68d67 100644
+--- a/lib/s390x/smp.c
++++ b/lib/s390x/smp.c
+@@ -23,7 +23,6 @@
+ #include "smp.h"
+ #include "sclp.h"
+ 
+-static char cpu_info_buffer[PAGE_SIZE] __attribute__((__aligned__(4096)));
+ static struct cpu *cpus;
+ static struct cpu *cpu0;
+ static struct spinlock lock;
+@@ -32,8 +31,7 @@ extern void smp_cpu_setup_state(void);
+ 
+ int smp_query_num_cpus(void)
+ {
+-	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
+-	return info->nr_configured;
++	return sclp_get_cpu_num();
  }
  
- int bdev_read_only(struct block_device *bdev);
+ struct cpu *smp_cpu_from_addr(uint16_t addr)
+@@ -226,10 +224,10 @@ void smp_teardown(void)
+ {
+ 	int i = 0;
+ 	uint16_t this_cpu = stap();
+-	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
++	int num = smp_query_num_cpus();
+ 
+ 	spin_lock(&lock);
+-	for (; i < info->nr_configured; i++) {
++	for (; i < num; i++) {
+ 		if (cpus[i].active &&
+ 		    cpus[i].addr != this_cpu) {
+ 			sigp_retry(cpus[i].addr, SIGP_STOP, 0, NULL);
+@@ -243,22 +241,19 @@ extern uint64_t *stackptr;
+ void smp_setup(void)
+ {
+ 	int i = 0;
++	int num = smp_query_num_cpus();
+ 	unsigned short cpu0_addr = stap();
+-	struct ReadCpuInfo *info = (void *)cpu_info_buffer;
++	struct CPUEntry *entry = sclp_get_cpu_entries();
+ 
+ 	spin_lock(&lock);
+-	sclp_mark_busy();
+-	info->h.length = PAGE_SIZE;
+-	sclp_service_call(SCLP_READ_CPU_INFO, cpu_info_buffer);
++	if (num > 1)
++		printf("SMP: Initializing, found %d cpus\n", num);
+ 
+-	if (smp_query_num_cpus() > 1)
+-		printf("SMP: Initializing, found %d cpus\n", info->nr_configured);
+-
+-	cpus = calloc(info->nr_configured, sizeof(cpus));
+-	for (i = 0; i < info->nr_configured; i++) {
+-		cpus[i].addr = info->entries[i].address;
++	cpus = calloc(num, sizeof(cpus));
++	for (i = 0; i < num; i++) {
++		cpus[i].addr = entry[i].address;
+ 		cpus[i].active = false;
+-		if (info->entries[i].address == cpu0_addr) {
++		if (entry[i].address == cpu0_addr) {
+ 			cpu0 = &cpus[i];
+ 			cpu0->stack = stackptr;
+ 			cpu0->lowcore = (void *)0;
 -- 
-2.29.2
+2.25.1
