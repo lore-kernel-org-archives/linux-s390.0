@@ -1,93 +1,265 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31852 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231422AbhA1L0q (ORCPT
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18978 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388476AbhATLoY (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Thu, 28 Jan 2021 06:26:46 -0500
-From: Julian Wiedmann <jwi@linux.ibm.com>
-Subject: [PATCH net-next 4/5] s390/qeth: make cast type selection for af_iucv skbs robust
-Date: Thu, 28 Jan 2021 12:25:50 +0100
-Message-Id: <20210128112551.18780-5-jwi@linux.ibm.com>
-In-Reply-To: <20210128112551.18780-1-jwi@linux.ibm.com>
-References: <20210128112551.18780-1-jwi@linux.ibm.com>
+        Wed, 20 Jan 2021 06:44:24 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 10/11] s390x: Fix sclp.h style issues
+Date: Wed, 20 Jan 2021 06:41:57 -0500
+Message-Id: <20210120114158.104559-11-frankja@linux.ibm.com>
+In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
+References: <20210120114158.104559-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: linux-netdev <netdev@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Heiko Carstens <hca@linux.ibm.com>, Karsten Graul <kgraul@linux.ibm.com>, Julian Wiedmann <jwi@linux.ibm.com>
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-As part of the TX queue selection for af_iucv skbs,
-qeth_l3_get_cast_type_rcu() ends up calling qeth_get_ether_cast_type().
-Which is rather fragile, since such skbs don't have a proper ETH header
-and we rely on it being zeroed out in the right places. Add a separate
-case for ETH_P_AF_IUCV instead that does the right thing.
+Fix indentation
 
-When later building the HW header for such skbs, don't hard-code the
-cast type but follow the same path as for other protocol types. Here
-the cast type should naturally come from the skb's queue mapping.
-
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Acked-by: Thomas Huth <thuth@redhat.com>
 ---
- drivers/s390/net/qeth_l3_main.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ lib/s390x/sclp.h | 172 +++++++++++++++++++++++------------------------
+ 1 file changed, 86 insertions(+), 86 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 4921afb51a1c..dd441eaec66e 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -1604,8 +1604,10 @@ static int qeth_l3_get_cast_type_rcu(struct sk_buff *skb, struct dst_entry *dst,
- 	case htons(ETH_P_IPV6):
- 		return ipv6_addr_is_multicast(&ipv6_hdr(skb)->daddr) ?
- 				RTN_MULTICAST : RTN_UNICAST;
-+	case htons(ETH_P_AF_IUCV):
-+		return RTN_UNICAST;
- 	default:
--		/* ... and MAC address */
-+		/* OSA only: ... and MAC address */
- 		return qeth_get_ether_cast_type(skb);
- 	}
- }
-@@ -1651,14 +1653,6 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 	} else {
- 		hdr->hdr.l3.id = QETH_HEADER_TYPE_LAYER3;
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index e7407ea..9f81c0f 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -79,10 +79,10 @@
+ #define SCCB_SIZE 4096
  
--		if (proto == htons(ETH_P_AF_IUCV)) {
--			l3_hdr->flags = QETH_HDR_IPV6 | QETH_CAST_UNICAST;
--			l3_hdr->next_hop.addr.s6_addr16[0] = htons(0xfe80);
--			memcpy(&l3_hdr->next_hop.addr.s6_addr32[2],
--			       iucv_trans_hdr(skb)->destUserID, 8);
--			return;
--		}
--
- 		if (skb->ip_summed == CHECKSUM_PARTIAL) {
- 			qeth_tx_csum(skb, &hdr->hdr.l3.ext_flags, proto);
- 			/* some HW requires combined L3+L4 csum offload: */
-@@ -1687,16 +1681,25 @@ static void qeth_l3_fill_header(struct qeth_qdio_out_q *queue,
- 		cast_type = qeth_l3_get_cast_type_rcu(skb, dst, proto);
- 	l3_hdr->flags |= qeth_l3_cast_type_to_flag(cast_type);
+ typedef struct SCCBHeader {
+-    uint16_t length;
+-    uint8_t function_code;
+-    uint8_t control_mask[3];
+-    uint16_t response_code;
++	uint16_t length;
++	uint8_t function_code;
++	uint8_t control_mask[3];
++	uint16_t response_code;
+ } __attribute__((packed)) SCCBHeader;
  
--	if (proto == htons(ETH_P_IP)) {
-+	switch (proto) {
-+	case htons(ETH_P_IP):
- 		l3_hdr->next_hop.addr.s6_addr32[3] =
- 					qeth_next_hop_v4_rcu(skb, dst);
--	} else if (proto == htons(ETH_P_IPV6)) {
-+		break;
-+	case htons(ETH_P_IPV6):
- 		l3_hdr->next_hop.addr = *qeth_next_hop_v6_rcu(skb, dst);
+ #define SCCB_DATA_LEN (SCCB_SIZE - sizeof(SCCBHeader))
+@@ -90,15 +90,15 @@ typedef struct SCCBHeader {
  
- 		hdr->hdr.l3.flags |= QETH_HDR_IPV6;
- 		if (!IS_IQD(card))
- 			hdr->hdr.l3.flags |= QETH_HDR_PASSTHRU;
--	} else {
-+		break;
-+	case htons(ETH_P_AF_IUCV):
-+		l3_hdr->next_hop.addr.s6_addr16[0] = htons(0xfe80);
-+		memcpy(&l3_hdr->next_hop.addr.s6_addr32[2],
-+		       iucv_trans_hdr(skb)->destUserID, 8);
-+		l3_hdr->flags |= QETH_HDR_IPV6;
-+		break;
-+	default:
- 		/* OSA only: */
- 		l3_hdr->flags |= QETH_HDR_PASSTHRU;
- 	}
+ /* CPU information */
+ typedef struct CPUEntry {
+-    uint8_t address;
+-    uint8_t reserved0;
+-    uint8_t : 4;
+-    uint8_t feat_sief2 : 1;
+-    uint8_t : 3;
+-    uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
+-    uint8_t reserved2[6];
+-    uint8_t type;
+-    uint8_t reserved1;
++	uint8_t address;
++	uint8_t reserved0;
++	uint8_t : 4;
++	uint8_t feat_sief2 : 1;
++	uint8_t : 3;
++	uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
++	uint8_t reserved2[6];
++	uint8_t type;
++	uint8_t reserved1;
+ } __attribute__((packed)) CPUEntry;
+ 
+ extern struct sclp_facilities sclp_facilities;
+@@ -110,77 +110,77 @@ struct sclp_facilities {
+ };
+ 
+ typedef struct ReadInfo {
+-    SCCBHeader h;
+-    uint16_t rnmax;
+-    uint8_t rnsize;
+-    uint8_t  _reserved1[16 - 11];       /* 11-15 */
+-    uint16_t entries_cpu;               /* 16-17 */
+-    uint16_t offset_cpu;                /* 18-19 */
+-    uint8_t  _reserved2[24 - 20];       /* 20-23 */
+-    uint8_t  loadparm[8];               /* 24-31 */
+-    uint8_t  _reserved3[48 - 32];       /* 32-47 */
+-    uint64_t facilities;                /* 48-55 */
+-    uint8_t  _reserved0[76 - 56];       /* 56-75 */
+-    uint32_t ibc_val;
+-    uint8_t  conf_char[99 - 80];        /* 80-98 */
+-    uint8_t mha_pow;
+-    uint32_t rnsize2;
+-    uint64_t rnmax2;
+-    uint8_t  _reserved6[116 - 112];     /* 112-115 */
+-    uint8_t  conf_char_ext[120 - 116];   /* 116-119 */
+-    uint16_t highest_cpu;
+-    uint8_t  _reserved5[124 - 122];     /* 122-123 */
+-    uint32_t hmfai;
+-    uint8_t reserved7[134 - 128];
+-    uint8_t byte_134_diag318 : 1;
+-    uint8_t : 7;
+-    struct CPUEntry entries[0];
++	SCCBHeader h;
++	uint16_t rnmax;
++	uint8_t rnsize;
++	uint8_t  _reserved1[16 - 11];       /* 11-15 */
++	uint16_t entries_cpu;               /* 16-17 */
++	uint16_t offset_cpu;                /* 18-19 */
++	uint8_t  _reserved2[24 - 20];       /* 20-23 */
++	uint8_t  loadparm[8];               /* 24-31 */
++	uint8_t  _reserved3[48 - 32];       /* 32-47 */
++	uint64_t facilities;                /* 48-55 */
++	uint8_t  _reserved0[76 - 56];       /* 56-75 */
++	uint32_t ibc_val;
++	uint8_t  conf_char[99 - 80];        /* 80-98 */
++	uint8_t mha_pow;
++	uint32_t rnsize2;
++	uint64_t rnmax2;
++	uint8_t  _reserved6[116 - 112];     /* 112-115 */
++	uint8_t  conf_char_ext[120 - 116];   /* 116-119 */
++	uint16_t highest_cpu;
++	uint8_t  _reserved5[124 - 122];     /* 122-123 */
++	uint32_t hmfai;
++	uint8_t reserved7[134 - 128];
++	uint8_t byte_134_diag318 : 1;
++	uint8_t : 7;
++	struct CPUEntry entries[0];
+ } __attribute__((packed)) ReadInfo;
+ 
+ typedef struct ReadCpuInfo {
+-    SCCBHeader h;
+-    uint16_t nr_configured;         /* 8-9 */
+-    uint16_t offset_configured;     /* 10-11 */
+-    uint16_t nr_standby;            /* 12-13 */
+-    uint16_t offset_standby;        /* 14-15 */
+-    uint8_t reserved0[24-16];       /* 16-23 */
+-    struct CPUEntry entries[0];
++	SCCBHeader h;
++	uint16_t nr_configured;         /* 8-9 */
++	uint16_t offset_configured;     /* 10-11 */
++	uint16_t nr_standby;            /* 12-13 */
++	uint16_t offset_standby;        /* 14-15 */
++	uint8_t reserved0[24-16];       /* 16-23 */
++	struct CPUEntry entries[0];
+ } __attribute__((packed)) ReadCpuInfo;
+ 
+ typedef struct ReadStorageElementInfo {
+-    SCCBHeader h;
+-    uint16_t max_id;
+-    uint16_t assigned;
+-    uint16_t standby;
+-    uint8_t _reserved0[16 - 14]; /* 14-15 */
+-    uint32_t entries[0];
++	SCCBHeader h;
++	uint16_t max_id;
++	uint16_t assigned;
++	uint16_t standby;
++	uint8_t _reserved0[16 - 14]; /* 14-15 */
++	uint32_t entries[0];
+ } __attribute__((packed)) ReadStorageElementInfo;
+ 
+ typedef struct AttachStorageElement {
+-    SCCBHeader h;
+-    uint8_t _reserved0[10 - 8];  /* 8-9 */
+-    uint16_t assigned;
+-    uint8_t _reserved1[16 - 12]; /* 12-15 */
+-    uint32_t entries[0];
++	SCCBHeader h;
++	uint8_t _reserved0[10 - 8];  /* 8-9 */
++	uint16_t assigned;
++	uint8_t _reserved1[16 - 12]; /* 12-15 */
++	uint32_t entries[0];
+ } __attribute__((packed)) AttachStorageElement;
+ 
+ typedef struct AssignStorage {
+-    SCCBHeader h;
+-    uint16_t rn;
++	SCCBHeader h;
++	uint16_t rn;
+ } __attribute__((packed)) AssignStorage;
+ 
+ typedef struct IoaCfgSccb {
+-    SCCBHeader header;
+-    uint8_t atype;
+-    uint8_t reserved1;
+-    uint16_t reserved2;
+-    uint32_t aid;
++	SCCBHeader header;
++	uint8_t atype;
++	uint8_t reserved1;
++	uint16_t reserved2;
++	uint32_t aid;
+ } __attribute__((packed)) IoaCfgSccb;
+ 
+ typedef struct SCCB {
+-    SCCBHeader h;
+-    char data[SCCB_DATA_LEN];
+- } __attribute__((packed)) SCCB;
++	SCCBHeader h;
++	char data[SCCB_DATA_LEN];
++} __attribute__((packed)) SCCB;
+ 
+ /* SCLP event types */
+ #define SCLP_EVENT_ASCII_CONSOLE_DATA           0x1a
+@@ -195,13 +195,13 @@ typedef struct SCCB {
+ #define SCLP_SELECTIVE_READ                     0x01
+ 
+ typedef struct WriteEventMask {
+-    SCCBHeader h;
+-    uint16_t _reserved;
+-    uint16_t mask_length;
+-    uint32_t cp_receive_mask;
+-    uint32_t cp_send_mask;
+-    uint32_t send_mask;
+-    uint32_t receive_mask;
++	SCCBHeader h;
++	uint16_t _reserved;
++	uint16_t mask_length;
++	uint32_t cp_receive_mask;
++	uint32_t cp_send_mask;
++	uint32_t send_mask;
++	uint32_t receive_mask;
+ } __attribute__((packed)) WriteEventMask;
+ 
+ #define MDBTYP_GO               0x0001
+@@ -254,25 +254,25 @@ struct mdb {
+ } __attribute__((packed));
+ 
+ typedef struct EventBufferHeader {
+-    uint16_t length;
+-    uint8_t  type;
+-    uint8_t  flags;
+-    uint16_t _reserved;
++	uint16_t length;
++	uint8_t  type;
++	uint8_t  flags;
++	uint16_t _reserved;
+ } __attribute__((packed)) EventBufferHeader;
+ 
+ typedef struct WriteEventData {
+-    SCCBHeader h;
+-    EventBufferHeader ebh;
+-    union {
+-	char data[0];
+-	struct mdb mdb;
+-    } msg;
++	SCCBHeader h;
++	EventBufferHeader ebh;
++	union {
++		char data[0];
++		struct mdb mdb;
++	} msg;
+ } __attribute__((packed)) WriteEventData;
+ 
+ typedef struct ReadEventData {
+-    SCCBHeader h;
+-    EventBufferHeader ebh;
+-    uint32_t mask;
++	SCCBHeader h;
++	EventBufferHeader ebh;
++	uint32_t mask;
+ } __attribute__((packed)) ReadEventData;
+ 
+ extern char _sccb[];
 -- 
-2.17.1
+2.25.1
