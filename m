@@ -1,72 +1,115 @@
 Return-Path: <linux-s390-owner@vger.kernel.org>
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:52826 "EHLO
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:18796 "EHLO
         mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728613AbhASUDW (ORCPT
+        by vger.kernel.org with ESMTP id S2388644AbhATLpU (ORCPT
         <rfc822;linux-s390@vger.kernel.org>);
-        Tue, 19 Jan 2021 15:03:22 -0500
-From: Matthew Rosato <mjrosato@linux.ibm.com>
-Subject: [PATCH 1/4] s390/pci: track alignment/length strictness for zpci_dev
-Date: Tue, 19 Jan 2021 15:02:27 -0500
-Message-Id: <1611086550-32765-2-git-send-email-mjrosato@linux.ibm.com>
-In-Reply-To: <1611086550-32765-1-git-send-email-mjrosato@linux.ibm.com>
-References: <1611086550-32765-1-git-send-email-mjrosato@linux.ibm.com>
+        Wed, 20 Jan 2021 06:45:20 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 03/11] s390x: Add test_bit to library
+Date: Wed, 20 Jan 2021 06:41:50 -0500
+Message-Id: <20210120114158.104559-4-frankja@linux.ibm.com>
+In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
+References: <20210120114158.104559-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: alex.williamson@redhat.com, cohuck@redhat.com, schnelle@linux.ibm.com
-Cc: pmorel@linux.ibm.com, borntraeger@de.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com, gerald.schaefer@linux.ibm.com, linux-s390@vger.kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-Some zpci device types (e.g., ISM) follow different rules for length
-and alignment of pci instructions.  Recognize this and keep track of
-it in the zpci_dev.
+Query/feature bits are commonly tested via MSB bit numbers on
+s390. Let's add test bit functions, so we don't need to copy code to
+test query bits.
 
-Signed-off-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Reviewed-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+The test_bit code has been taken from the kernel since most s390x KVM unit
+test developers are used to them.
+
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- arch/s390/include/asm/pci.h     | 3 ++-
- arch/s390/include/asm/pci_clp.h | 4 +++-
- arch/s390/pci/pci_clp.c         | 1 +
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ lib/s390x/asm/bitops.h   | 26 ++++++++++++++++++++++++++
+ lib/s390x/asm/facility.h |  3 ++-
+ s390x/uv-guest.c         |  6 +++---
+ 3 files changed, 31 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/include/asm/pci.h b/arch/s390/include/asm/pci.h
-index 2126289..f16ffba 100644
---- a/arch/s390/include/asm/pci.h
-+++ b/arch/s390/include/asm/pci.h
-@@ -133,7 +133,8 @@ struct zpci_dev {
- 	u8		has_hp_slot	: 1;
- 	u8		is_physfn	: 1;
- 	u8		util_str_avail	: 1;
--	u8		reserved	: 4;
-+	u8		relaxed_align	: 1;
-+	u8		reserved	: 3;
- 	unsigned int	devfn;		/* DEVFN part of the RID*/
+diff --git a/lib/s390x/asm/bitops.h b/lib/s390x/asm/bitops.h
+index e7cdda9..792881e 100644
+--- a/lib/s390x/asm/bitops.h
++++ b/lib/s390x/asm/bitops.h
+@@ -1,3 +1,13 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ *    Bitops taken from the kernel as most developers are already used
++ *    to them.
++ *
++ *    Copyright IBM Corp. 1999,2013
++ *
++ *    Author(s): Martin Schwidefsky <schwidefsky@de.ibm.com>,
++ *
++ */
+ #ifndef _ASMS390X_BITOPS_H_
+ #define _ASMS390X_BITOPS_H_
  
- 	struct mutex lock;
-diff --git a/arch/s390/include/asm/pci_clp.h b/arch/s390/include/asm/pci_clp.h
-index 1f4b666..9fb7cbf 100644
---- a/arch/s390/include/asm/pci_clp.h
-+++ b/arch/s390/include/asm/pci_clp.h
-@@ -150,7 +150,9 @@ struct clp_rsp_query_pci_grp {
- 	u16			:  4;
- 	u16 noi			: 12;	/* number of interrupts */
- 	u8 version;
--	u8			:  6;
-+	u8			:  4;
-+	u8 relaxed_align	:  1;	/* Relax length and alignment rules */
-+	u8			:  1;
- 	u8 frame		:  1;
- 	u8 refresh		:  1;	/* TLB refresh mode */
- 	u16 reserved2;
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index 153720d..630f8fc 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -103,6 +103,7 @@ static void clp_store_query_pci_fngrp(struct zpci_dev *zdev,
- 	zdev->max_msi = response->noi;
- 	zdev->fmb_update = response->mui;
- 	zdev->version = response->version;
-+	zdev->relaxed_align = response->relaxed_align;
+@@ -7,4 +17,20 @@
  
- 	switch (response->version) {
- 	case 1:
+ #define BITS_PER_LONG	64
+ 
++static inline bool test_bit(unsigned long nr,
++			    const volatile unsigned long *ptr)
++{
++	const volatile unsigned char *addr;
++
++	addr = ((const volatile unsigned char *)ptr);
++	addr += (nr ^ (BITS_PER_LONG - 8)) >> 3;
++	return (*addr >> (nr & 7)) & 1;
++}
++
++static inline bool test_bit_inv(unsigned long nr,
++				const volatile unsigned long *ptr)
++{
++	return test_bit(nr ^ (BITS_PER_LONG - 1), ptr);
++}
++
+ #endif
+diff --git a/lib/s390x/asm/facility.h b/lib/s390x/asm/facility.h
+index 7828cf8..95d4a15 100644
+--- a/lib/s390x/asm/facility.h
++++ b/lib/s390x/asm/facility.h
+@@ -11,13 +11,14 @@
+ #include <libcflat.h>
+ #include <asm/facility.h>
+ #include <asm/arch_def.h>
++#include <bitops.h>
+ 
+ #define NB_STFL_DOUBLEWORDS 32
+ extern uint64_t stfl_doublewords[];
+ 
+ static inline bool test_facility(int nr)
+ {
+-	return stfl_doublewords[nr / 64] & (0x8000000000000000UL >> (nr % 64));
++	return test_bit_inv(nr, stfl_doublewords);
+ }
+ 
+ static inline void stfl(void)
+diff --git a/s390x/uv-guest.c b/s390x/uv-guest.c
+index bc947ab..e51b85e 100644
+--- a/s390x/uv-guest.c
++++ b/s390x/uv-guest.c
+@@ -75,11 +75,11 @@ static void test_query(void)
+ 	 * Ultravisor version and are expected to always be available
+ 	 * because they are basic building blocks.
+ 	 */
+-	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_QUI)),
++	report(test_bit_inv(BIT_UVC_CMD_QUI, &uvcb.inst_calls_list[0]),
+ 	       "query indicated");
+-	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_SET_SHARED_ACCESS)),
++	report(test_bit_inv(BIT_UVC_CMD_SET_SHARED_ACCESS, &uvcb.inst_calls_list[0]),
+ 	       "share indicated");
+-	report(uvcb.inst_calls_list[0] & (1UL << (63 - BIT_UVC_CMD_REMOVE_SHARED_ACCESS)),
++	report(test_bit_inv(BIT_UVC_CMD_REMOVE_SHARED_ACCESS, &uvcb.inst_calls_list[0]),
+ 	       "unshare indicated");
+ 	report_prefix_pop();
+ }
 -- 
-1.8.3.1
+2.25.1
