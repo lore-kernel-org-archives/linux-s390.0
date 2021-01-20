@@ -1,125 +1,125 @@
-Return-Path: <netdev-owner@vger.kernel.org>
-From: Karsten Graul <kgraul@linux.ibm.com>
-Subject: [PATCH net 2/2] net/smc: use memcpy instead of snprintf to avoid out of bounds read
-Date: Tue, 12 Jan 2021 17:21:22 +0100
-Message-Id: <20210112162122.26832-3-kgraul@linux.ibm.com>
-In-Reply-To: <20210112162122.26832-1-kgraul@linux.ibm.com>
-References: <20210112162122.26832-1-kgraul@linux.ibm.com>
+Return-Path: <linux-s390-owner@vger.kernel.org>
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:31412 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388425AbhATLoT (ORCPT
+        <rfc822;linux-s390@vger.kernel.org>);
+        Wed, 20 Jan 2021 06:44:19 -0500
+From: Janosch Frank <frankja@linux.ibm.com>
+Subject: [kvm-unit-tests GIT PULL 05/11] s390x: SCLP feature checking
+Date: Wed, 20 Jan 2021 06:41:52 -0500
+Message-Id: <20210120114158.104559-6-frankja@linux.ibm.com>
+In-Reply-To: <20210120114158.104559-1-frankja@linux.ibm.com>
+References: <20210120114158.104559-1-frankja@linux.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 List-ID: <linux-s390.vger.kernel.org>
-To: David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>, Stefan Raspl <raspl@linux.ibm.com>, netdev@vger.kernel.org, linux-s390@vger.kernel.org
+To: pbonzini@redhat.com
+Cc: kvm@vger.kernel.org, frankja@linux.ibm.com, david@redhat.com, borntraeger@de.ibm.com, cohuck@redhat.com, linux-s390@vger.kernel.org, imbrenda@linux.ibm.com
 
-From: Guvenc Gulce <guvenc@linux.ibm.com>
+Availability of SIE is announced via a feature bit in a SCLP info CPU
+entry. Let's add a framework that allows us to easily check for such
+facilities.
 
-Using snprintf() to convert not null-terminated strings to null
-terminated strings may cause out of bounds read in the source string.
-Therefore use memcpy() and terminate the target string with a null
-afterwards.
-
-Fixes: a3db10efcc4c ("net/smc: Add support for obtaining SMCR device list")
-Signed-off-by: Guvenc Gulce <guvenc@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 ---
- net/smc/smc_core.c | 17 +++++++++++------
- net/smc/smc_ib.c   |  6 +++---
- net/smc/smc_ism.c  |  3 ++-
- 3 files changed, 16 insertions(+), 10 deletions(-)
+ lib/s390x/io.c   |  1 +
+ lib/s390x/sclp.c | 25 +++++++++++++++++++++++++
+ lib/s390x/sclp.h | 13 ++++++++++++-
+ 3 files changed, 38 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index 8d866b4ed8f6..0df85a12651e 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -258,7 +258,8 @@ int smc_nl_get_sys_info(struct sk_buff *skb, struct netlink_callback *cb)
- 		smc_ism_get_system_eid(smcd_dev, &seid);
- 	mutex_unlock(&smcd_dev_list.mutex);
- 	if (seid && smc_ism_is_v2_capable()) {
--		snprintf(smc_seid, sizeof(smc_seid), "%s", seid);
-+		memcpy(smc_seid, seid, SMC_MAX_EID_LEN);
-+		smc_seid[SMC_MAX_EID_LEN] = 0;
- 		if (nla_put_string(skb, SMC_NLA_SYS_SEID, smc_seid))
- 			goto errattr;
- 	}
-@@ -296,7 +297,8 @@ static int smc_nl_fill_lgr(struct smc_link_group *lgr,
- 		goto errattr;
- 	if (nla_put_u8(skb, SMC_NLA_LGR_R_VLAN_ID, lgr->vlan_id))
- 		goto errattr;
--	snprintf(smc_target, sizeof(smc_target), "%s", lgr->pnet_id);
-+	memcpy(smc_target, lgr->pnet_id, SMC_MAX_PNETID_LEN);
-+	smc_target[SMC_MAX_PNETID_LEN] = 0;
- 	if (nla_put_string(skb, SMC_NLA_LGR_R_PNETID, smc_target))
- 		goto errattr;
+diff --git a/lib/s390x/io.c b/lib/s390x/io.c
+index 6a1da63..ef9f59e 100644
+--- a/lib/s390x/io.c
++++ b/lib/s390x/io.c
+@@ -35,6 +35,7 @@ void setup(void)
+ 	setup_args_progname(ipl_args);
+ 	setup_facilities();
+ 	sclp_read_info();
++	sclp_facilities_setup();
+ 	sclp_console_setup();
+ 	sclp_memory_setup();
+ 	smp_setup();
+diff --git a/lib/s390x/sclp.c b/lib/s390x/sclp.c
+index 12916f5..06819a6 100644
+--- a/lib/s390x/sclp.c
++++ b/lib/s390x/sclp.c
+@@ -25,6 +25,7 @@ static uint64_t max_ram_size;
+ static uint64_t ram_size;
+ char _read_info[PAGE_SIZE] __attribute__((__aligned__(PAGE_SIZE)));
+ static ReadInfo *read_info;
++struct sclp_facilities sclp_facilities;
  
-@@ -313,7 +315,7 @@ static int smc_nl_fill_lgr_link(struct smc_link_group *lgr,
- 				struct sk_buff *skb,
- 				struct netlink_callback *cb)
+ char _sccb[PAGE_SIZE] __attribute__((__aligned__(4096)));
+ static volatile bool sclp_busy;
+@@ -128,6 +129,30 @@ CPUEntry *sclp_get_cpu_entries(void)
+ 	return (CPUEntry *)(_read_info + read_info->offset_cpu);
+ }
+ 
++void sclp_facilities_setup(void)
++{
++	unsigned short cpu0_addr = stap();
++	CPUEntry *cpu;
++	int i;
++
++	assert(read_info);
++
++	cpu = sclp_get_cpu_entries();
++	for (i = 0; i < read_info->entries_cpu; i++, cpu++) {
++		/*
++		 * The logic for only reading the facilities from the
++		 * boot cpu comes from the kernel. I haven't yet found
++		 * documentation that explains why this is necessary
++		 * but I figure there's a reason behind doing it this
++		 * way.
++		 */
++		if (cpu->address == cpu0_addr) {
++			sclp_facilities.has_sief2 = cpu->feat_sief2;
++			break;
++		}
++	}
++}
++
+ /* Perform service call. Return 0 on success, non-zero otherwise. */
+ int sclp_service_call(unsigned int command, void *sccb)
  {
--	char smc_ibname[IB_DEVICE_NAME_MAX + 1];
-+	char smc_ibname[IB_DEVICE_NAME_MAX];
- 	u8 smc_gid_target[41];
- 	struct nlattr *attrs;
- 	u32 link_uid = 0;
-@@ -462,7 +464,8 @@ static int smc_nl_fill_smcd_lgr(struct smc_link_group *lgr,
- 		goto errattr;
- 	if (nla_put_u32(skb, SMC_NLA_LGR_D_CHID, smc_ism_get_chid(lgr->smcd)))
- 		goto errattr;
--	snprintf(smc_pnet, sizeof(smc_pnet), "%s", lgr->smcd->pnetid);
-+	memcpy(smc_pnet, lgr->smcd->pnetid, SMC_MAX_PNETID_LEN);
-+	smc_pnet[SMC_MAX_PNETID_LEN] = 0;
- 	if (nla_put_string(skb, SMC_NLA_LGR_D_PNETID, smc_pnet))
- 		goto errattr;
+diff --git a/lib/s390x/sclp.h b/lib/s390x/sclp.h
+index f005bd0..c3128b9 100644
+--- a/lib/s390x/sclp.h
++++ b/lib/s390x/sclp.h
+@@ -92,12 +92,22 @@ typedef struct SCCBHeader {
+ typedef struct CPUEntry {
+     uint8_t address;
+     uint8_t reserved0;
+-    uint8_t features[SCCB_CPU_FEATURE_LEN];
++    uint8_t : 4;
++    uint8_t feat_sief2 : 1;
++    uint8_t : 3;
++    uint8_t features_res2 [SCCB_CPU_FEATURE_LEN - 1];
+     uint8_t reserved2[6];
+     uint8_t type;
+     uint8_t reserved1;
+ } __attribute__((packed)) CPUEntry;
  
-@@ -475,10 +478,12 @@ static int smc_nl_fill_smcd_lgr(struct smc_link_group *lgr,
- 		goto errv2attr;
- 	if (nla_put_u8(skb, SMC_NLA_LGR_V2_OS, lgr->peer_os))
- 		goto errv2attr;
--	snprintf(smc_host, sizeof(smc_host), "%s", lgr->peer_hostname);
-+	memcpy(smc_host, lgr->peer_hostname, SMC_MAX_HOSTNAME_LEN);
-+	smc_host[SMC_MAX_HOSTNAME_LEN] = 0;
- 	if (nla_put_string(skb, SMC_NLA_LGR_V2_PEER_HOST, smc_host))
- 		goto errv2attr;
--	snprintf(smc_eid, sizeof(smc_eid), "%s", lgr->negotiated_eid);
-+	memcpy(smc_eid, lgr->negotiated_eid, SMC_MAX_EID_LEN);
-+	smc_eid[SMC_MAX_EID_LEN] = 0;
- 	if (nla_put_string(skb, SMC_NLA_LGR_V2_NEG_EID, smc_eid))
- 		goto errv2attr;
- 
-diff --git a/net/smc/smc_ib.c b/net/smc/smc_ib.c
-index ddd7fac98b1d..7d7ba0320d5a 100644
---- a/net/smc/smc_ib.c
-+++ b/net/smc/smc_ib.c
-@@ -371,8 +371,8 @@ static int smc_nl_handle_dev_port(struct sk_buff *skb,
- 	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR,
- 		       smcibdev->pnetid_by_user[port]))
- 		goto errattr;
--	snprintf(smc_pnet, sizeof(smc_pnet), "%s",
--		 (char *)&smcibdev->pnetid[port]);
-+	memcpy(smc_pnet, &smcibdev->pnetid[port], SMC_MAX_PNETID_LEN);
-+	smc_pnet[SMC_MAX_PNETID_LEN] = 0;
- 	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet))
- 		goto errattr;
- 	if (nla_put_u32(skb, SMC_NLA_DEV_PORT_NETDEV,
-@@ -414,7 +414,7 @@ static int smc_nl_handle_smcr_dev(struct smc_ib_device *smcibdev,
- 				  struct sk_buff *skb,
- 				  struct netlink_callback *cb)
- {
--	char smc_ibname[IB_DEVICE_NAME_MAX + 1];
-+	char smc_ibname[IB_DEVICE_NAME_MAX];
- 	struct smc_pci_dev smc_pci_dev;
- 	struct pci_dev *pci_dev;
- 	unsigned char is_crit;
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 524ef64a191a..9c6e95882553 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -250,7 +250,8 @@ static int smc_nl_handle_smcd_dev(struct smcd_dev *smcd,
- 		goto errattr;
- 	if (nla_put_u8(skb, SMC_NLA_DEV_PORT_PNET_USR, smcd->pnetid_by_user))
- 		goto errportattr;
--	snprintf(smc_pnet, sizeof(smc_pnet), "%s", smcd->pnetid);
-+	memcpy(smc_pnet, smcd->pnetid, SMC_MAX_PNETID_LEN);
-+	smc_pnet[SMC_MAX_PNETID_LEN] = 0;
- 	if (nla_put_string(skb, SMC_NLA_DEV_PORT_PNETID, smc_pnet))
- 		goto errportattr;
- 
++extern struct sclp_facilities sclp_facilities;
++
++struct sclp_facilities {
++	uint64_t has_sief2 : 1;
++	uint64_t : 63;
++};
++
+ typedef struct ReadInfo {
+     SCCBHeader h;
+     uint16_t rnmax;
+@@ -271,6 +281,7 @@ void sclp_print(const char *str);
+ void sclp_read_info(void);
+ int sclp_get_cpu_num(void);
+ CPUEntry *sclp_get_cpu_entries(void);
++void sclp_facilities_setup(void);
+ int sclp_service_call(unsigned int command, void *sccb);
+ void sclp_memory_setup(void);
+ uint64_t get_ram_size(void);
 -- 
-2.17.1
+2.25.1
